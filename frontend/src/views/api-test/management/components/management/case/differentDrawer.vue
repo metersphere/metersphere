@@ -32,22 +32,15 @@
           </a-checkbox-group>
           <a-divider direction="vertical" :margin="0" class="!mr-[8px]"></a-divider>
           <a-switch v-model:model-value="form.ignoreUpdate" size="small" />
-          <a-select
-            v-model="form.ignoreUpdateType"
-            class="ml-[8px] w-[160px]"
-            :placeholder="t('caseManagement.featureCase.PleaseSelect')"
-            :disabled="!form.ignoreUpdate"
-            @change="changeIgnoreType"
-          >
-            <a-option v-for="item of ignoreList" :key="item.value" :value="item.value">
-              {{ t(item.label) }}
-            </a-option>
-          </a-select>
+          <div class="ml-[8px]">{{ t('case.ignoreAllChange') }}</div>
           <a-divider direction="vertical" :margin="8"></a-divider>
           <a-switch v-model:model-value="form.deleteParams" size="small" />
           <div class="ml-[8px] font-normal text-[var(--color-text-1)]">{{ t('case.deleteNotCorrespondValue') }}</div>
           <a-divider direction="vertical" :margin="0" class="!ml-[8px]"></a-divider>
           <a-button class="mx-[12px]" type="secondary" @click="cancel">{{ t('common.cancel') }}</a-button>
+          <a-button class="mr-[12px]" type="outline">
+            {{ t('case.ignoreAllChange') }}
+          </a-button>
           <a-button type="primary" :loading="syncLoading" :disabled="!form.checkType.length" @click="confirmBatchSync">
             {{ t('case.apiSyncChange') }}
           </a-button>
@@ -156,17 +149,6 @@
   };
 
   const form = ref({ ...initForm });
-
-  const ignoreList = ref([
-    {
-      value: 'THIS_TIME',
-      label: t('case.ignoreThisChange'),
-    },
-    {
-      value: 'ALL',
-      label: t('case.ignoreAllChange'),
-    },
-  ]);
 
   // 忽略更新
   function changeIgnoreType() {}

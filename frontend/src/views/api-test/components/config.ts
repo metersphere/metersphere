@@ -1,6 +1,7 @@
 import { cloneDeep } from 'lodash-es';
 
 import { EQUAL } from '@/components/pure/ms-advance-filter';
+import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
 import { useI18n } from '@/hooks/useI18n';
 
@@ -18,14 +19,18 @@ import type { MockParams } from '@/models/apiTest/mock';
 import {
   FullResponseAssertionType,
   RequestAssertionCondition,
+  RequestAuthType,
   RequestBodyFormat,
   RequestCaseStatus,
+  RequestComposition,
   RequestContentTypeEnum,
+  RequestDefinitionStatus,
   RequestExtractEnvType,
   RequestExtractExpressionEnum,
   RequestExtractExpressionRuleType,
   RequestExtractResultMatchingRule,
   RequestExtractScope,
+  RequestMethods,
   RequestParamsType,
   ResponseBodyFormat,
   ResponseBodyXPathAssertionFormat,
@@ -432,3 +437,74 @@ export const lastReportStatusListOptions = computed(() => {
     };
   });
 });
+
+// api下的创建用例弹窗也用到了defaultCaseParams
+const initDefaultId = `case-${Date.now()}`;
+export const defaultCaseParams: RequestParam = {
+  id: initDefaultId,
+  type: 'case',
+  moduleId: '',
+  protocol: 'HTTP',
+  tags: [],
+  description: '',
+  priority: 'P0',
+  status: RequestDefinitionStatus.PROCESSING,
+  url: '',
+  activeTab: RequestComposition.HEADER,
+  closable: true,
+  method: RequestMethods.GET,
+  headers: [],
+  body: cloneDeep(defaultBodyParams),
+  query: [],
+  rest: [],
+  polymorphicName: '',
+  name: '',
+  path: '',
+  projectId: '',
+  uploadFileIds: [],
+  linkFileIds: [],
+  authConfig: {
+    authType: RequestAuthType.NONE,
+    basicAuth: {
+      userName: '',
+      password: '',
+    },
+    digestAuth: {
+      userName: '',
+      password: '',
+    },
+  },
+  children: [
+    {
+      polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
+      assertionConfig: {
+        enableGlobal: true,
+        assertions: [],
+      },
+      postProcessorConfig: {
+        enableGlobal: true,
+        processors: [],
+      },
+      preProcessorConfig: {
+        enableGlobal: true,
+        processors: [],
+      },
+    },
+  ],
+  otherConfig: {
+    connectTimeout: 60000,
+    responseTimeout: 60000,
+    certificateAlias: '',
+    followRedirects: true,
+    autoRedirects: false,
+  },
+  responseActiveTab: ResponseComposition.BODY,
+  response: cloneDeep(defaultResponse),
+  responseDefinition: [cloneDeep(defaultResponseItem)],
+  isNew: true,
+  unSaved: false,
+  executeLoading: false,
+  preDependency: [], // 前置依赖
+  postDependency: [], // 后置依赖
+  errorMessageInfo: {},
+};

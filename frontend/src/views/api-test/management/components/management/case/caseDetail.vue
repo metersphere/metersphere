@@ -66,6 +66,13 @@
           :is-priority-local-exec="isPriorityLocalExec"
           is-case
           @execute="handleExecute"
+          @show-diff="showDiffDrawer"
+        />
+        <DifferentDrawer
+          v-model:visible="showDifferentDrawer"
+          :active-api-case-id="activeApiCaseId"
+          :active-defined-id="activeDefinedId"
+          @close="closeDifferent"
         />
       </a-tab-pane>
       <a-tab-pane key="reference" :title="t('apiTestManagement.reference')" class="px-[18px] py-[16px]">
@@ -104,6 +111,7 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import executeButton from '@/views/api-test/components/executeButton.vue';
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
+  import DifferentDrawer from '@/views/api-test/management/components/management/case/differentDrawer.vue';
   import TabCaseChangeHistory from '@/views/api-test/management/components/management/case/tabContent/tabCaseChangeHistory.vue';
   import TabCaseDependency from '@/views/api-test/management/components/management/case/tabContent/tabCaseDependency.vue';
   import TabCaseExecuteHistory from '@/views/api-test/management/components/management/case/tabContent/tabCaseExecuteHistory.vue';
@@ -313,6 +321,25 @@
     websocket.value?.close();
     caseDetail.value.executeLoading = false;
     executeCase.value = false;
+  }
+
+  // 定义id
+  const activeDefinedId = ref<string>('');
+  // 用例id
+  const activeApiCaseId = ref<string>('');
+
+  const showDifferentDrawer = ref<boolean>(false);
+  // 查看diff对比
+  function showDiffDrawer() {
+    activeApiCaseId.value = caseDetail.value.id as string;
+    activeDefinedId.value = caseDetail.value.apiDefinitionId;
+    showDifferentDrawer.value = true;
+  }
+
+  function closeDifferent() {
+    showDifferentDrawer.value = false;
+    activeApiCaseId.value = '';
+    activeDefinedId.value = '';
   }
 
   watch(

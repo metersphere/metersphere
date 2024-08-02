@@ -2,14 +2,29 @@
   <a-collapse v-model:active-key="activeDetailKey" :bordered="false">
     <a-collapse-item key="request">
       <template #header>
-        <div class="flex items-center gap-[4px]">
-          <div v-if="activeDetailKey.includes('request')" class="down-icon">
-            <icon-down :size="10" class="block" />
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-[4px]">
+            <div class="font-medium">{{ t('apiTestManagement.requestParams') }}</div>
+            <div v-if="activeDetailKey.includes('request')" class="down-icon">
+              <icon-down :size="10" class="block" />
+            </div>
+            <div v-else class="h-[16px] w-[16px] !rounded-full p-[4px]">
+              <icon-right :size="10" class="block" />
+            </div>
           </div>
-          <div v-else class="h-[16px] w-[16px] !rounded-full p-[4px]">
-            <icon-right :size="10" class="block" />
-          </div>
-          <div class="font-medium">{{ t('apiTestManagement.requestParams') }}</div>
+          <MsTag
+            v-if="props.detail.inconsistentWithApi"
+            class="cursor-pointer"
+            type="warning"
+            theme="light"
+            :tooltip-disabled="true"
+            @click.stop="showDiffDrawer"
+          >
+            <template #icon>
+              <MsIcon type="icon-icon_warning_colorful" size="16" />
+            </template>
+            <span class="ml-[8px]"> {{ statusText }}</span>
+          </MsTag>
         </div>
       </template>
       <div class="detail-collapse-item">
@@ -258,13 +273,13 @@
       <template #header>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-[4px]">
+            <div class="font-medium">{{ t('apiTestManagement.responseContent') }}</div>
             <div v-if="activeDetailKey.includes('response')" class="down-icon">
               <icon-down :size="10" class="block" />
             </div>
             <div v-else class="h-[16px] w-[16px] !rounded-full p-[4px]">
               <icon-right :size="10" class="block" />
             </div>
-            <div class="font-medium">{{ t('apiTestManagement.responseContent') }}</div>
           </div>
           <responseCodeTimeSize v-if="props.isCase" :request-result="previewDetail.response?.requestResults[0]" />
         </div>
@@ -404,6 +419,7 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsJsonSchema from '@/components/pure/ms-json-schema/index.vue';
   import { parseSchemaToJsonSchemaTableData } from '@/components/pure/ms-json-schema/utils';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import { ResponseItem } from '@/views/api-test/components/requestComposition/response/edit.vue';
   import responseCodeTimeSize from '@/views/api-test/components/requestComposition/response/responseCodeTimeSize.vue';
   import Result from '@/views/api-test/components/requestComposition/response/result.vue';
@@ -425,6 +441,7 @@
   }>();
   const emit = defineEmits<{
     (e: 'execute', val: 'localExec' | 'serverExec'): void;
+    (e: 'showDiff'): void;
   }>();
 
   const { t } = useI18n();
@@ -864,11 +881,23 @@
       activeResponse.value.body.jsonBody.enableJsonSchema = type === 'Schema';
     }
   }
+
+  const statusText = computed(() => {
+    if (props.detail.inconsistentWithApi) {
+      return t('case.definitionInconsistent');
+    }
+    // TODO 这里的交互参数等待协调
+  });
+
+  // 查看diff对比
+  function showDiffDrawer() {
+    emit('showDiff');
+  }
 </script>
 
 <style lang="less" scoped>
   .down-icon {
-    padding: 4px;
+    padding: 3px;
     width: 16px;
     height: 16px;
     border-radius: 50%;
@@ -886,9 +915,8 @@
       .arco-collapse-item-header-title {
         @apply block w-full;
 
-        padding: 8px 16px;
+        padding: 8px 0;
         border-radius: var(--border-radius-small);
-        background-color: var(--color-text-n9);
       }
     }
     .detail-collapse-item {

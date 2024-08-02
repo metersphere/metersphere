@@ -69,7 +69,24 @@
             <MsTagsInput v-model:model-value="detailForm.tags" :max-tag-count="1" />
           </a-form-item>
         </a-form>
-        <div class="px-[16px] font-medium">{{ t('apiTestManagement.requestParams') }}</div>
+        <div class="flex items-center justify-between">
+          <div class="px-[16px] font-medium">{{ t('apiTestManagement.requestParams') }}</div>
+          <!-- 与定义不一致 TODO 等待联调  -->
+          <MsTag
+            v-if="detailForm.inconsistentWithApi"
+            class="cursor-pointer"
+            type="warning"
+            theme="light"
+            :tooltip-disabled="true"
+            @click="showDiffDrawer"
+          >
+            <template #icon>
+              <MsIcon type="icon-icon_warning_colorful" size="16" />
+            </template>
+            <span class="ml-[8px]"> {{ t('case.definitionInconsistent') }}</span>
+          </MsTag>
+        </div>
+
         <requestComposition
           ref="requestCompositionRef"
           v-model:request="detailForm"
@@ -94,6 +111,7 @@
 
   import MsDetailCard, { type Description } from '@/components/pure/ms-detail-card/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
@@ -129,6 +147,7 @@
   }>();
   const emit = defineEmits<{
     (e: 'loadCase', id?: string): void;
+    (e: 'showDiff', apiDetailInfo: ApiCaseDetail): void;
   }>();
 
   const { t } = useI18n();
@@ -382,6 +401,11 @@
   function stopDebug() {
     websocket.value?.close();
     detailForm.value.executeLoading = false;
+  }
+
+  // 查看与定义不一致
+  function showDiffDrawer() {
+    emit('showDiff', detailForm.value as unknown as ApiCaseDetail);
   }
 
   defineExpose({

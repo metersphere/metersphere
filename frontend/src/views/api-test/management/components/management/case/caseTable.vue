@@ -51,7 +51,6 @@
           <MsButton type="text" @click="isApi ? openCaseDetailDrawer(record.id) : openCaseTab(record)">
             {{ record.num }}
           </MsButton>
-          <!-- TODO 后台缺少字段 等待联调 -->
           <a-tooltip v-if="record.apiChange" class="ms-tooltip-white">
             <!-- 接口参数发生变更提示 -->
             <MsIcon type="icon-icon_warning_colorful" size="16" />
@@ -278,7 +277,9 @@
     ref="createAndEditCaseDrawerRef"
     :api-detail="apiDetail"
     @load-case="loadCaseListAndResetSelector()"
+    @show-diff="showDifferences"
   />
+  <!-- TODO 之后要去掉 使用页面代替抽屉 -->
   <caseDetailDrawer
     v-model:visible="caseDetailDrawerVisible"
     v-model:execute-case="caseExecute"
@@ -303,8 +304,6 @@
   <!-- diff对比抽屉 -->
   <DifferentDrawer
     v-model:visible="showDifferentDrawer"
-    :detail="caseDetail as RequestParam"
-    :api-detail="apiDetail as RequestParam"
     :active-api-case-id="activeApiCaseId"
     :active-defined-id="activeDefinedId"
     @close="closeDifferent"
@@ -312,6 +311,7 @@
 </template>
 
 <script setup lang="ts">
+  import { useRoute, useRouter } from 'vue-router';
   import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
@@ -357,6 +357,7 @@
   import { DragSortParams } from '@/models/common';
   import { RequestCaseStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
+  import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
@@ -382,6 +383,8 @@
   const { t } = useI18n();
   const tableStore = useTableStore();
   const { openModal } = useModal();
+  const route = useRoute();
+  const router = useRouter();
 
   const keyword = ref('');
 
@@ -925,7 +928,13 @@
   async function openCaseDetailDrawer(id: string) {
     await getCaseDetailInfo(id);
     caseExecute.value = false;
-    caseDetailDrawerVisible.value = true;
+    router.push({
+      name: ApiTestRouteEnum.API_TEST_MANAGEMENT_CASE_DETAIL,
+      query: {
+        ...route.query,
+        id,
+      },
+    });
   }
 
   async function openCaseDetailDrawerAndExecute(id: string) {
@@ -972,7 +981,6 @@
     activeDefinedId.value = record.apiDefinitionId;
     showDifferentDrawer.value = true;
   }
-  // 关闭对比 TODO 等待联调
   function closeDifferent() {
     showDifferentDrawer.value = false;
     activeApiCaseId.value = '';
