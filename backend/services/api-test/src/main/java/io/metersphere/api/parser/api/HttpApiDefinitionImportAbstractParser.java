@@ -2,14 +2,19 @@ package io.metersphere.api.parser.api;
 
 
 import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
+import io.metersphere.api.dto.converter.ApiImportDataAnalysisResult;
+import io.metersphere.api.dto.converter.ApiImportFileParseResult;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.http.MsHTTPConfig;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.*;
-import io.metersphere.api.parser.ImportParser;
+import io.metersphere.api.parser.ApiDefinitionImportParser;
 import io.metersphere.project.dto.environment.auth.NoAuth;
+import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
@@ -18,10 +23,39 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-public abstract class ApiImportAbstractParser<T> implements ImportParser<T> {
+public abstract class HttpApiDefinitionImportAbstractParser<T> implements ApiDefinitionImportParser<T> {
 
-    protected String projectId;
+    @Override
+    public String getParseProtocol() {
+        return HttpConfig.HttpProtocolType.HTTP.name();
+    }
+
+    @Override
+    public ApiImportDataAnalysisResult generateInsertAndUpdateData(ApiImportFileParseResult importParser, List<ApiDefinitionImportDetail> existenceApiDefinitionList) {
+        //        API类型，通过 Method & Path 组合判断，接口是否存在
+        Map<String, ApiDefinitionImportDetail> savedApiDefinitionMap = existenceApiDefinitionList.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), t -> t, (oldValue, newValue) -> newValue));
+        Map<String, ApiDefinitionImportDetail> importDataMap = importParser.getData().stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), t -> t, (oldValue, newValue) -> newValue));
+
+        ApiImportDataAnalysisResult insertAndUpdateData = new ApiImportDataAnalysisResult();
+
+        importDataMap.forEach((key, api) -> {
+            List<ApiTestCaseDTO> caseList = importParser.getCaseMap().get(api.getId());
+            if (savedApiDefinitionMap.containsKey(key)) {
+                insertAndUpdateData.getExistenceApiMap().put(api, savedApiDefinitionMap.get(key));
+            } else {
+                insertAndUpdateData.getInsertApiList().add(api);
+            }
+            if (CollectionUtils.isNotEmpty(caseList)) {
+                insertAndUpdateData.getApiIdAndTestCaseMap().put(api.getId(), caseList);
+            }
+        });
+
+        return insertAndUpdateData;
+    }
 
     protected String getApiTestStr(InputStream source) {
         StringBuilder testStr = null;
@@ -47,8 +81,7 @@ public abstract class ApiImportAbstractParser<T> implements ImportParser<T> {
         apiDefinition.setPath(formatPath(path));
         apiDefinition.setProtocol(importRequest.getProtocol());
         apiDefinition.setMethod(method);
-        apiDefinition.setProjectId(this.projectId);
-        apiDefinition.setCreateUser(importRequest.getUserId());
+        apiDefinition.setProjectId(importRequest.getProjectId());
         apiDefinition.setModulePath(modulePath);
         apiDefinition.setResponse(new ArrayList<>());
         return apiDefinition;
