@@ -1,7 +1,6 @@
 package io.metersphere.system.notice.utils;
 
 import io.metersphere.functional.domain.CaseReview;
-import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
@@ -9,10 +8,7 @@ import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.BugMessageDTO;
-import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
-import io.metersphere.system.dto.sdk.ApiReportMessageDTO;
-import io.metersphere.system.dto.sdk.ApiScenarioMessageDTO;
-import io.metersphere.system.dto.sdk.FunctionalCaseMessageDTO;
+import io.metersphere.system.dto.sdk.*;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -144,7 +140,7 @@ public class MessageTemplateUtils {
             case NoticeConstants.TaskType.API_DEFINITION_TASK -> FieldUtils.getAllFields(ApiDefinitionCaseDTO.class);
             case NoticeConstants.TaskType.API_SCENARIO_TASK -> FieldUtils.getAllFields(ApiScenarioMessageDTO.class);
             case NoticeConstants.TaskType.API_REPORT_TASK -> FieldUtils.getAllFields(ApiReportMessageDTO.class);
-            case NoticeConstants.TaskType.TEST_PLAN_TASK -> FieldUtils.getAllFields(TestPlan.class);
+            case NoticeConstants.TaskType.TEST_PLAN_TASK -> FieldUtils.getAllFields(TestPlanMessageDTO.class);
             case NoticeConstants.TaskType.CASE_REVIEW_TASK -> FieldUtils.getAllFields(CaseReview.class);
             case NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK -> FieldUtils.getAllFields(FunctionalCaseMessageDTO.class);
             case NoticeConstants.TaskType.BUG_TASK -> FieldUtils.getAllFields(BugMessageDTO.class);
