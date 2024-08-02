@@ -177,6 +177,11 @@
    */
   async function switchNode(node?: MinderJsonNode | MinderJsonNodeData, index?: number) {
     if (!props.minderKey || index === currentTreePath.value.length - 1) return;
+    const currentSelectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+    if (currentSelectedNodes && currentSelectedNodes.length > 0) {
+      // 切换前，如果有选中节点，先取消选中
+      window.minder.toggleSelect(currentSelectedNodes);
+    }
     if (minderStore.minderUnsaved) {
       // 切换前，如果脑图未保存，先把更改的节点信息同步一次
       replaceNodeInTree(
