@@ -2,6 +2,8 @@ package io.metersphere.bug.service;
 
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugContent;
+import io.metersphere.bug.domain.BugContentExample;
+import io.metersphere.bug.domain.BugExample;
 import io.metersphere.bug.dto.request.BugEditRequest;
 import io.metersphere.bug.dto.response.BugCustomFieldDTO;
 import io.metersphere.bug.dto.response.BugDTO;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -124,6 +127,33 @@ public class BugLogService {
         }
         // 缺陷自定义字段
         return bugService.handleCustomField(List.of(originalBug), originalBug.getProjectId()).getFirst();
+    }
+
+    /**
+     * 获取历史缺陷
+     * @param ids 缺陷ID集合
+     * @return 缺陷DTO
+     */
+    public List<BugDTO> getOriginalValueByIds(List<String> ids) {
+        // 缺陷基础信息
+        List<BugDTO> bugOriginalList = new ArrayList<>();
+        BugExample example = new BugExample();
+        example.createCriteria().andIdIn(ids);
+        List<Bug> bugs = bugMapper.selectByExample(example);
+        BugContentExample contentExample = new BugContentExample();
+        contentExample.createCriteria().andBugIdIn(ids);
+        List<BugContent> bugContents = bugContentMapper.selectByExample(contentExample);
+        bugs.forEach(bug -> {
+            BugDTO originalBug = new BugDTO();
+            BeanUtils.copyBean(originalBug, bug);
+            BugContent bugContent = bugContents.stream().filter(content -> StringUtils.equals(content.getBugId(), bug.getId())).findFirst().orElse(null);
+            if (bugContent != null) {
+                originalBug.setDescription(bugContent.getDescription());
+            }
+            bugOriginalList.add(originalBug);
+        });
+        // 缺陷自定义字段
+        return bugService.handleCustomField(bugOriginalList, bugOriginalList.getFirst().getProjectId());
     }
 
     /**
