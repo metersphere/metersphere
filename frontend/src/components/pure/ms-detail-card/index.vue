@@ -100,9 +100,7 @@
   .ms-detail-card {
     @apply relative flex flex-col;
 
-    padding: 16px;
     border-radius: var(--border-radius-small);
-    background-color: var(--color-text-n9);
     gap: 8px;
     .ms-detail-card-title {
       @apply flex items-center justify-between overflow-hidden;
