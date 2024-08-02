@@ -298,7 +298,9 @@ public class ApiDefinitionService extends MoveNodeService {
 
         AbstractMsTestElement originRequest = ApiDataUtils.parseObject(new String(originApiDefinitionBlob.getRequest()), AbstractMsTestElement.class);
         // 处理接口定义参数变更
-        apiTestCaseService.handleApiParamChange(apiDefinition.getId(), request.getRequest(), originRequest);
+        String requestStr = JSON.toJSONString(request.getRequest());
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(requestStr, AbstractMsTestElement.class);
+        apiTestCaseService.handleApiParamChange(apiDefinition.getId(), msTestElement, originRequest);
         return apiDefinition;
     }
 
