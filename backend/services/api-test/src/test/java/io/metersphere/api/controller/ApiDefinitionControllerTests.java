@@ -13,6 +13,7 @@ import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.model.CheckLogModel;
@@ -595,7 +596,17 @@ public class ApiDefinitionControllerTests extends BaseTest {
             apiTestCaseService.addCase(testCaseAddRequest, "admin");
         }
         updateRequest.setPath("/api/test/path/method/case");
+        MsHeader msHeader = new MsHeader();
+        msHeader.setKey("111");
+        // 添加差异
+        msHttpElement.setHeaders(List.of(msHeader));
+        updateRequest.setRequest(getMsElementParam(msHttpElement));
         this.requestPostWithOk(UPDATE, updateRequest);
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andApiDefinitionIdEqualTo(apiDefinition.getId());
+        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+        // 校验差异后的变更通知
+        apiTestCases.forEach(apiTestCase -> Assertions.assertTrue(apiTestCase.getApiChange()));
 
         // @@校验权限
         request.setId(apiDefinition.getId());
