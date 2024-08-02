@@ -27,6 +27,9 @@
             </div>
           </a-button>
         </template>
+        <template #type="{ record }">
+          <div>{{ record.type === 'OAUTH2' ? 'OAuth 2.0' : record.type }}</div>
+        </template>
         <template #action="{ record }">
           <MsButton v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE']" @click="editAuth(record)">
             {{ t('system.config.auth.edit') }}
@@ -113,7 +116,9 @@
         </a-form-item>
         <a-form-item :label="t('system.config.auth.addResource')" field="type" asterisk-position="end">
           <a-radio-group v-model:model-value="activeAuthForm.type" type="button" :disabled="!!activeAuthForm.id">
-            <a-radio v-for="item of authTypeList" :key="item" :value="item">{{ item }}</a-radio>
+            <a-radio v-for="item of authTypeList" :key="item" :value="item">
+              {{ item === 'OAUTH2' ? 'OAuth 2.0' : item }}
+            </a-radio>
           </a-radio-group>
         </a-form-item>
         <template v-if="activeAuthForm.type === 'CAS'">
@@ -687,10 +692,12 @@
     {
       title: 'system.config.auth.createTime',
       dataIndex: 'createTime',
+      width: 180,
     },
     {
       title: 'system.config.auth.updateTime',
       dataIndex: 'updateTime',
+      width: 180,
     },
     {
       title: hasOperationPermission.value ? 'system.config.auth.action' : '',
@@ -705,7 +712,7 @@
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getAuthList, {
     tableKey: TableKeyEnum.SYSTEM_AUTH,
     columns,
-    scroll: { y: 'auto' },
+    scroll: { y: 'auto', x: '100%' },
     selectable: false,
     showSelectAll: false,
   });
