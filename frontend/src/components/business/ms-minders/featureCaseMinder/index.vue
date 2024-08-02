@@ -77,7 +77,11 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
-  import { expendNodeAndChildren, setPriorityView } from '@/components/pure/ms-minder-editor/script/tool/utils';
+  import {
+    clearSelectedNodes,
+    expendNodeAndChildren,
+    setPriorityView,
+  } from '@/components/pure/ms-minder-editor/script/tool/utils';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import attachment from './attachment.vue';
   import baseInfo from './basInfo.vue';
@@ -207,11 +211,7 @@
         },
       };
       importJson.value.treePath = [];
-      const currentSelectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
-      if (currentSelectedNodes && currentSelectedNodes.length > 0) {
-        // 重置选中状态
-        window.minder.toggleSelect(currentSelectedNodes);
-      }
+      clearSelectedNodes();
       window.minder.importJson(importJson.value);
       if (props.moduleId !== 'all') {
         // 携带具体的模块 ID 加载时，进入该模块内
