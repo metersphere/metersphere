@@ -828,6 +828,7 @@
     },
     (item) => ({
       ...item,
+      requestPassRate: item.requestPassRate ? `${item.requestPassRate}%` : '-',
       createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
       updateTime: dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss'),
     })
