@@ -107,15 +107,42 @@ public class BugNoticeService {
     }
 
     /**
+     * 获取缺陷通知集合
+     * @param ids 缺陷ID集合
+     */
+    public List<BugNoticeDTO> getNoticeByIds(List<String> ids) {
+        List<BugDTO> bugs = bugLogService.getOriginalValueByIds(ids);
+        if (CollectionUtils.isEmpty(bugs)) {
+            return null;
+        }
+        List<BugNoticeDTO> notices = new ArrayList<>();
+        bugs.forEach(bug -> {
+            BugNoticeDTO notice = new BugNoticeDTO();
+            BeanUtils.copyBean(notice, bug);
+            if (CollectionUtils.isNotEmpty(bug.getCustomFields())) {
+                List<OptionDTO> fields = new ArrayList<>();
+                bug.getCustomFields().forEach(field -> {
+                    // 其他自定义字段
+                    OptionDTO fieldDTO = new OptionDTO();
+                    fieldDTO.setId(field.getName());
+                    fieldDTO.setName(field.getValue());
+                    fields.add(fieldDTO);
+                });
+                notice.setFields(fields);
+            }
+            notices.add(notice);
+        });
+        return notices;
+    }
+
+    /**
      * 获取批量操作的缺陷通知
      * @param request 批量请求参数
      * @return 缺陷通知集合
      */
     public List<BugNoticeDTO> getBatchNoticeByRequest(BugBatchRequest request) {
-        List<BugNoticeDTO> notices = new ArrayList<>();
         List<String> batchIds = bugService.getBatchIdsByRequest(request);
-        batchIds.forEach(id -> notices.add(getNoticeById(id)));
-        return notices;
+        return getNoticeByIds(batchIds);
     }
 
     /**

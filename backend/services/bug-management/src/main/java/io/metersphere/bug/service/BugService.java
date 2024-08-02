@@ -28,7 +28,10 @@ import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.project.service.*;
+import io.metersphere.project.service.FileAssociationService;
+import io.metersphere.project.service.FileMetadataService;
+import io.metersphere.project.service.ProjectApplicationService;
+import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
@@ -403,10 +406,57 @@ public class BugService {
      */
     public void batchDelete(BugBatchRequest request, String currentUser) {
         List<String> batchIds = getBatchIdsByRequest(request);
-        batchIds.forEach(id -> delete(id, currentUser));
+        BugExample example = new BugExample();
+        example.createCriteria().andIdIn(batchIds);
+        List<Bug> bugs = bugMapper.selectByExample(example);
+        String currentPlatform = projectApplicationService.getPlatformName(bugs.getFirst().getProjectId());
+        List<String> platformBugIds =  new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(bugs)) {
+            Map<String, List<Bug>> groupBugs = bugs.stream().collect(Collectors.groupingBy(Bug::getPlatform));
+            // 根据不同平台, 删除缺陷
+            groupBugs.forEach((platform, bugList) -> {
+                List<String> bugIds = bugList.stream().map(Bug::getId).toList();
+                example.clear();
+                example.createCriteria().andIdIn(bugIds);
+                if (StringUtils.equals(platform, BugPlatform.LOCAL.getName())) {
+                    // Local缺陷
+                    Bug record = new Bug();
+                    record.setDeleted(true);
+                    record.setDeleteUser(currentUser);
+                    record.setDeleteTime(System.currentTimeMillis());
+                    bugMapper.updateByExampleSelective(record, example);
+                } else {
+                    /*
+                     * 第三方平台缺陷
+                     * 和当前项目所属平台不一致, 只删除MS缺陷, 不同步删除平台缺陷, 一致时需同步删除平台缺陷
+                     */
+                    bugCommonService.clearAssociateResource(bugList.getFirst().getProjectId(), bugIds);
+                    bugMapper.deleteByExample(example);
+                    if (StringUtils.equals(platform, currentPlatform)) {
+                        platformBugIds.addAll(bugList.stream().map(Bug::getPlatformBugId).toList());
+                    }
+                }
+            });
+        }
+
         // 批量日志
         List<LogDTO> logs = getBatchLogByRequest(batchIds, OperationLogType.DELETE.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, "/bug/batch-delete", request.getProjectId(), false, false, null, currentUser);
         operationLogService.batchAdd(logs);
+
+        // 异步处理第三方平台缺陷, 防止超时
+        Thread.startVirtualThread(() -> {
+            if (CollectionUtils.isNotEmpty(platformBugIds)) {
+                Platform platform = projectApplicationService.getPlatform(bugs.getFirst().getProjectId(), true);
+                String projectBugThirdPartConfig = projectApplicationService.getProjectBugThirdPartConfig(bugs.getFirst().getProjectId());
+                platformBugIds.forEach(platformBugKey -> {
+                    // 需同步删除平台缺陷
+                    PlatformBugDeleteRequest deleteRequest = new PlatformBugDeleteRequest();
+                    deleteRequest.setPlatformBugKey(platformBugKey);
+                    deleteRequest.setProjectConfig(projectBugThirdPartConfig);
+                    platform.deleteBug(deleteRequest);
+                });
+            }
+        });
     }
 
     /**
