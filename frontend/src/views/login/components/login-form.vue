@@ -102,7 +102,7 @@
           <span class="type-text text-[10px]">OIDC</span>
         </div>
         <div v-if="isShowOAUTH && userInfo.authenticate !== 'OAUTH2'" class="loginType" @click="redirectAuth('OAUTH2')">
-          <span class="type-text text-[7px]">OAUTH</span>
+          <span class="type-text text-[10px]">OAuth</span>
         </div>
         <div v-if="isShowCAS && userInfo.authenticate !== 'CAS'" class="loginType" @click="redirectAuth('CAS')">
           <span class="type-text text-[10px]">CAS</span>
