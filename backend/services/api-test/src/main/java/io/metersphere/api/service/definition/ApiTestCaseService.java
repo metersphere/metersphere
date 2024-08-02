@@ -944,4 +944,11 @@ public class ApiTestCaseService extends MoveNodeService {
         }
     }
 
+    public void clearApiChange(String id) {
+        checkResourceExist(id);
+        ApiTestCase apiTestCase = new ApiTestCase();
+        apiTestCase.setId(id);
+        apiTestCase.setApiChange(false);
+        apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+    }
 }
