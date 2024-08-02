@@ -1,7 +1,6 @@
 package io.metersphere.project.service;
 
 import io.metersphere.functional.domain.CaseReview;
-import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.project.dto.MessageTemplateFieldDTO;
 import io.metersphere.project.dto.MessageTemplateResultDTO;
 import io.metersphere.sdk.constants.TemplateScene;
@@ -52,12 +51,10 @@ public class NoticeTemplateService {
             case NoticeConstants.TaskType.API_REPORT_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(ApiReportMessageDTO.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields, null);
-                //TODO：获取报告
             }
             case NoticeConstants.TaskType.TEST_PLAN_TASK -> {
-                Field[] allFields = FieldUtils.getAllFields(TestPlan.class);
-                addOptionDto(messageTemplateFieldDTOList, allFields, "test_plan_");
-                //TODO：获取报告
+                Field[] allFields = FieldUtils.getAllFields(TestPlanMessageDTO.class);
+                addOptionDto(messageTemplateFieldDTOList, allFields, null);
             }
             case NoticeConstants.TaskType.CASE_REVIEW_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(CaseReview.class);
@@ -158,7 +155,6 @@ public class NoticeTemplateService {
         messageTemplateFieldOperator.setFieldSource(NoticeConstants.FieldSource.CASE_FIELD);
         messageTemplateFieldOperator.setName(Translator.get("message.operator"));
         messageTemplateFieldDTOS.add(messageTemplateFieldOperator);
-
     }
 
     public MessageTemplateResultDTO getTemplateFields(String projectId, String taskType) {
