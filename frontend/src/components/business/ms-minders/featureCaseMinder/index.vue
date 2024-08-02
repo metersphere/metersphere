@@ -207,6 +207,11 @@
         },
       };
       importJson.value.treePath = [];
+      const currentSelectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+      if (currentSelectedNodes && currentSelectedNodes.length > 0) {
+        // 重置选中状态
+        window.minder.toggleSelect(currentSelectedNodes);
+      }
       window.minder.importJson(importJson.value);
       if (props.moduleId !== 'all') {
         // 携带具体的模块 ID 加载时，进入该模块内
