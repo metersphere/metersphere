@@ -300,4 +300,12 @@ public class ApiTestCaseController {
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "id desc");
         return PageUtils.setPageInfo(page, apiTestCaseService.getReference(request));
     }
+
+    @GetMapping("/api-change/clear/{id}")
+    @Operation(summary = "清除接口参数变更标识")
+    @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE})
+    @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
+    public void clearApiChange(@PathVariable String id) {
+        apiTestCaseService.clearApiChange(id);
+    }
 }

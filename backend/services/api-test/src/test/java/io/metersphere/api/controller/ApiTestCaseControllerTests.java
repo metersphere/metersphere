@@ -113,6 +113,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String RUN_GET = "run/{0}";
     private static final String RUN_POST = "run";
     private static final String BATCH_RUN = "batch/run";
+    private static final String API_CHANGE_CLEAR = "api-change/clear/{id}";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     private static ApiTestCase apiTestCase;
@@ -430,6 +431,21 @@ public class ApiTestCaseControllerTests extends BaseTest {
         apiTestCaseService.handleApiParamChange(apiTestCase.getApiDefinitionId(), changeRequest, originRequest);
         // 校验变更通知
         Assertions.assertEquals(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getApiChange(), true);
+    }
+
+    @Test
+    @Order(3)
+    public void clearApiChange() throws Exception {
+        ApiTestCase updateCase = new ApiTestCase();
+        updateCase.setApiChange(true);
+        updateCase.setId(apiTestCase.getId());
+        apiTestCaseMapper.updateByPrimaryKeySelective(updateCase);
+        this.requestGetWithOk(API_CHANGE_CLEAR, apiTestCase.getId());
+        Assertions.assertFalse(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getApiChange());
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, API_CHANGE_CLEAR, apiTestCase.getId());
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, API_CHANGE_CLEAR, apiTestCase.getId());
     }
 
     /**
