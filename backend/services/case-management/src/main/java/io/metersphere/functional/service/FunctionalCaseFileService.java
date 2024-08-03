@@ -280,7 +280,7 @@ public class FunctionalCaseFileService {
         }
     }
 
-    private List<TemplateCustomFieldDTO> getCustomFields(String projectId) {
+    public List<TemplateCustomFieldDTO> getCustomFields(String projectId) {
         TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(projectId, TemplateScene.FUNCTIONAL.name());
         List<TemplateCustomFieldDTO> customFields = Optional.ofNullable(defaultTemplateDTO.getCustomFields()).orElse(new ArrayList<>());
         return customFields;

@@ -9,10 +9,7 @@ import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
 import io.metersphere.functional.dto.response.FunctionalCaseImportResponse;
 import io.metersphere.functional.request.*;
-import io.metersphere.functional.service.FunctionalCaseFileService;
-import io.metersphere.functional.service.FunctionalCaseLogService;
-import io.metersphere.functional.service.FunctionalCaseNoticeService;
-import io.metersphere.functional.service.FunctionalCaseService;
+import io.metersphere.functional.service.*;
 import io.metersphere.project.dto.CustomFieldOptions;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -33,7 +30,6 @@ import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.shiro.authz.annotation.Logical;
@@ -60,6 +56,8 @@ public class FunctionalCaseController {
     private ProjectTemplateService projectTemplateService;
     @Resource
     private FunctionalCaseFileService functionalCaseFileService;
+    @Resource
+    private FunctionalCaseXmindService functionalCaseXmindService;
 
     //TODO 获取模板列表(多模板功能暂时不做)
 
@@ -256,5 +254,13 @@ public class FunctionalCaseController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
     public void testCaseExport(@Validated @RequestBody FunctionalCaseExportRequest request) {
         functionalCaseFileService.exportFunctionalCaseZip(request);
+    }
+
+    @GetMapping("/download/xmind/template/{projectId}")
+    @Operation(summary = "用例管理-功能用例-xmind导入-下载模板")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public void xmindTemplateExport(@PathVariable String projectId, HttpServletResponse response) {
+        functionalCaseXmindService.downloadXmindTemplate(projectId, response);
     }
 }
