@@ -87,6 +87,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String IMPORT_EXCEL_URL = "/functional/case/import/excel";
     public static final String OPERATION_HISTORY_URL = "/functional/case/operation-history";
     public static final String EXPORT_EXCEL_URL = "/functional/case/export/excel";
+    public static final String DOWNLOAD_XMIND_TEMPLATE_URL = "/functional/case/download/xmind/template/";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -833,5 +834,12 @@ public class FunctionalCaseControllerTests extends BaseTest {
 
         request.setFileId("123142342");
         this.requestPost(EXPORT_EXCEL_URL, request);
+    }
+
+
+    @Test
+    @Order(22)
+    public void testDownloadXmindTemplate() throws Exception {
+        this.requestGetExcel(DOWNLOAD_XMIND_TEMPLATE_URL + DEFAULT_PROJECT_ID);
     }
 }
