@@ -1,0 +1,64 @@
+{
+    "functionalCaseList": [],
+    "moduleName": "rootNode",
+    "moduleId": "rootNode",
+    "children": [
+        {
+            "functionalCaseList": [
+                {
+                    "id": "1",
+                    "num": 1,
+                    "projectId": "12314",
+                    "name": "导出模板用例A",
+                    "tags": "[\"标签789\"]",
+                    "caseEditType": "STEP",
+                    "steps": "[{\"num\":1,\"desc\":\"123\",\"result\":\"123\"},{\"num\":2,\"desc\":\"SDFS\",\"result\":\"SDFS\"}]",
+                    "textDescription": "",
+                    "expectedResult": "",
+                    "prerequisite": "这是前置",
+                    "description": "这是备注",
+                    "customFieldDTOList": []
+                },
+                {
+                    "id": "2",
+                    "num": 2,
+                    "projectId": "12314",
+                    "name": "导出模板用例B",
+                    "tags": "[\"标签789\"]",
+                    "caseEditType": "TEXT",
+                    "steps": "",
+                    "textDescription": "<p style=\"\">akhfksajhfaskfha</p>",
+                    "expectedResult": "<p style=\"\">asdfsdfasfs</p>",
+                    "prerequisite": "前置",
+                    "description": "这是备注",
+                    "customFieldDTOList": []
+                }
+            ],
+            "moduleName": "模块1",
+            "moduleId": "module1",
+            "children": [
+                {
+                    "functionalCaseList": [
+                        {
+                            "id": "3",
+                            "num": 3,
+                            "projectId": "12314",
+                            "name": "导出模板用例C",
+                            "tags": "[\"标签789\"]",
+                            "caseEditType": "STEP",
+                            "steps": "[{\"num\":1,\"desc\":\"123\",\"result\":\"123\"},{\"num\":2,\"desc\":\"SDFS\",\"result\":\"SDFS\"}]",
+                            "textDescription": "",
+                            "expectedResult": "",
+                            "prerequisite": "前置",
+                            "description": "这是备注",
+                            "customFieldDTOList": []
+                        }
+                    ],
+                    "moduleName": "模块2",
+                    "moduleId": "module2",
+                    "children": []
+                }
+            ]
+        }
+    ]
+}
