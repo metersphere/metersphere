@@ -463,7 +463,7 @@ public class FunctionalCaseFileService {
             //构建其他字段
             buildExportOtherField(functionalCase, data, caseCommentMap, executeCommentMap, reviewCommentMap, request);
             validateExportTextField(data);
-            if (CollectionUtils.isNotEmpty(textDescriptionList)) {
+            if (CollectionUtils.isNotEmpty(textDescriptionList) && !request.getIsMerge()) {
                 // 如果有多条步骤则添加多条数据，之后合并单元格
                 buildExportMergeData(rowMergeInfo, list, textDescriptionList, expectedResultList, data);
             } else {

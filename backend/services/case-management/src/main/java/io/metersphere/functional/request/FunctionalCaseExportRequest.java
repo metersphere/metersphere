@@ -33,4 +33,7 @@ public class FunctionalCaseExportRequest extends BaseFunctionalCaseBatchDTO impl
     @Schema(description = "文件id")
     private String fileId;
 
+    @Schema(description = "单元格拆分")
+    private Boolean isMerge = false;
+
 }
