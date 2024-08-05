@@ -14,10 +14,7 @@ import io.metersphere.functional.dto.response.FunctionalCaseImportResponse;
 import io.metersphere.functional.excel.constants.FunctionalCaseImportFiled;
 import io.metersphere.functional.excel.converter.FunctionalCaseExportConverter;
 import io.metersphere.functional.excel.converter.FunctionalCaseExportConverterFactory;
-import io.metersphere.functional.excel.domain.ExcelMergeInfo;
-import io.metersphere.functional.excel.domain.FunctionalCaseExcelData;
-import io.metersphere.functional.excel.domain.FunctionalCaseExcelDataFactory;
-import io.metersphere.functional.excel.domain.FunctionalCaseHeader;
+import io.metersphere.functional.excel.domain.*;
 import io.metersphere.functional.excel.handler.FunctionCaseMergeWriteHandler;
 import io.metersphere.functional.excel.handler.FunctionCaseTemplateWriteHandler;
 import io.metersphere.functional.excel.listener.FunctionalCaseCheckEventListener;
@@ -728,5 +725,13 @@ public class FunctionalCaseFileService {
             }
         };
         return headList;
+    }
+
+    public FunctionalCaseExportColumns getExportColumns(String projectId) {
+        FunctionalCaseExportColumns functionalCaseExportColumns = new FunctionalCaseExportColumns();
+        // 表头自定义字段
+        List<TemplateCustomFieldDTO> headerCustomFields = getCustomFields(projectId);
+        functionalCaseExportColumns.initCustomColumns(headerCustomFields);
+        return functionalCaseExportColumns;
     }
 }

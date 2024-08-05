@@ -8,6 +8,7 @@ import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
 import io.metersphere.functional.dto.response.FunctionalCaseImportResponse;
+import io.metersphere.functional.excel.domain.FunctionalCaseExportColumns;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.*;
 import io.metersphere.project.dto.CustomFieldOptions;
@@ -262,5 +263,13 @@ public class FunctionalCaseController {
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public void xmindTemplateExport(@PathVariable String projectId, HttpServletResponse response) {
         functionalCaseXmindService.downloadXmindTemplate(projectId, response);
+    }
+
+    @GetMapping("/export/columns/{projectId}")
+    @Operation(summary = "用例管理-获取导出字段配置")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public FunctionalCaseExportColumns getExportColumns(@PathVariable String projectId) {
+        return functionalCaseFileService.getExportColumns(projectId);
     }
 }
