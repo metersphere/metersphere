@@ -4,13 +4,18 @@ import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.dto.request.http.body.JsonBody;
 import io.metersphere.api.dto.request.http.body.XmlBody;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.sdk.util.EnumValidator;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.XMLUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.dom4j.Element;
+import org.dom4j.io.XMLWriter;
 
+import java.io.StringWriter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -81,6 +86,7 @@ public class HttpRequestParamDiffUtils {
             Object json2 = JSON.parseObject(jsonValue2);
             return !getBlankJon(json1).equals(getBlankJon(json2));
         } catch (Exception e) {
+            LogUtils.info("json 解析异常，json1: {}, json2: {}", jsonValue1, jsonValue2);
             return !getJsonKeys(jsonValue1).equals(getJsonKeys(jsonValue2));
         }
     }
@@ -162,5 +168,65 @@ public class HttpRequestParamDiffUtils {
                 .map(KeyValueParam::getKey)
                 .collect(Collectors.toSet());
         return !keSet1.equals(keSet2);
+    }
+
+    /**
+     * 将 json 和 xml 属性值置空
+     * 便于前端比较差异
+     * @param httpElement
+     * @return
+     */
+    public static AbstractMsTestElement getCompareHttpElement(MsHTTPElement httpElement) {
+        Body body = httpElement.getBody();
+        if (body == null) {
+            return httpElement;
+        }
+        if (StringUtils.equals(body.getBodyType(), Body.BodyType.JSON.name())) {
+            try {
+                String jsonValue = body.getJsonBody().getJsonValue();
+                jsonValue = replaceIllegalJsonWithMock(jsonValue);
+                Object blankJon = getBlankJon(JSON.parseObject(jsonValue));
+                body.getJsonBody().setJsonValue(JSON.toJSONString(blankJon));
+            } catch (Exception e) {
+                LogUtils.info("json 解析异常，json: {}", body.getJsonBody().getJsonValue());
+            }
+        }
+        if (StringUtils.equals(body.getBodyType(), Body.BodyType.XML.name())) {
+            String xml = body.getXmlBody().getValue();
+            try {
+                Element element = XMLUtils.stringToDocument(xml).getRootElement();
+                XMLUtils.clearElementText(element);
+                StringWriter stringWriter = new StringWriter();
+                XMLWriter writer = new XMLWriter(stringWriter);
+                writer.write(element);
+                xml = stringWriter.toString();
+            } catch (Exception e) {
+                LogUtils.info("xml 解析异常，xml: {}", body.getXmlBody().getValue());
+                xml = XMLUtils.clearElementText(xml);
+            }
+            body.getXmlBody().setValue(xml);
+        }
+        return httpElement;
+    }
+
+    /**
+     * 如果 json 串中包含了非字符串的 mock 函数
+     * 例如：
+     * {"a": @integer(1, 2)}
+     * 替换成空字符串
+     * {"a": ""}
+     * 避免 json 序列化失败
+     * @param text
+     * @return
+     */
+    public static String replaceIllegalJsonWithMock(String text) {
+        String pattern = ":\\s*(@\\w+(\\(\\s*\\w*\\s*,?\\s*\\w*\\s*\\))*)";
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(text);
+        while (matcher.find()) {
+            // 这里连同:一起替换，避免替换了其他合规的参数值
+            text = text.replaceFirst(pattern, ":\"\"");
+        }
+        return text;
     }
 }

@@ -7,6 +7,7 @@ import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
+import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
@@ -241,14 +242,14 @@ public class ApiTestCaseService extends MoveNodeService {
         example.createCriteria().andCaseIdEqualTo(id).andUserIdEqualTo(userId);
         List<ApiTestCaseFollower> followers = apiTestCaseFollowerMapper.selectByExample(example);
         apiTestCaseDTO.setFollow(CollectionUtils.isNotEmpty(followers));
-        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(testCaseBlob.getRequest()), AbstractMsTestElement.class);
+        AbstractMsTestElement msTestElement = getTestElement(testCaseBlob);
         apiCommonService.setLinkFileInfo(id, msTestElement);
         apiCommonService.setEnableCommonScriptProcessorInfo(msTestElement);
         apiCommonService.setApiDefinitionExecuteInfo(msTestElement, apiDefinition);
         apiTestCaseDTO.setRequest(msTestElement);
 
         ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(apiDefinition.getId());
-        AbstractMsTestElement apiMsTestElement = ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class);
+        AbstractMsTestElement apiMsTestElement = getApiMsTestElement(apiDefinitionBlob);
         apiTestCaseDTO.setInconsistentWithApi(HttpRequestParamDiffUtils.isRequestParamDiff(apiMsTestElement, msTestElement));
         return apiTestCaseDTO;
     }
@@ -649,7 +650,7 @@ public class ApiTestCaseService extends MoveNodeService {
         if (apiTestCaseBlob == null) {
             return;
         }
-        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class);
+        AbstractMsTestElement msTestElement = getTestElement(apiTestCaseBlob);
         // 获取接口中需要更新的文件
         List<ApiFile> updateFiles = apiCommonService.getApiFilesByFileId(originFileAssociation.getFileId(), msTestElement);
         // 替换文件的Id和name
@@ -695,7 +696,7 @@ public class ApiTestCaseService extends MoveNodeService {
         ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(id);
 
         ApiResourceRunRequest runRequest = new ApiResourceRunRequest();
-        runRequest.setTestElement(ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class));
+        runRequest.setTestElement(getTestElement(apiTestCaseBlob));
 
         return executeRun(runRequest, apiTestCase, reportId, userId);
     }
@@ -784,7 +785,7 @@ public class ApiTestCaseService extends MoveNodeService {
         apiParamConfig.setRetryOnFail(request.getRunModeConfig().getRetryOnFail());
         apiParamConfig.setRetryConfig(request.getRunModeConfig().getRetryConfig());
 
-        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class);
+        AbstractMsTestElement msTestElement = getTestElement(apiTestCaseBlob);
         // 设置 method 等信息
         apiCommonService.setApiDefinitionExecuteInfo(msTestElement, BeanUtils.copyBean(new ApiDefinitionExecuteInfo(), apiDefinition));
 
@@ -950,5 +951,31 @@ public class ApiTestCaseService extends MoveNodeService {
         apiTestCase.setId(id);
         apiTestCase.setApiChange(false);
         apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+    }
+
+    public ApiCaseCompareData getApiCompareData(String id) {
+        ApiTestCase apiTestCase = checkResourceExist(id);
+        ApiDefinition apiDefinition = getApiDefinition(apiTestCase.getApiDefinitionId());
+        ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(apiDefinition.getId());
+        AbstractMsTestElement apiMsTestElement = getApiMsTestElement(apiDefinitionBlob);
+        ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(id);
+        AbstractMsTestElement apiTestCaseMsTestElement = getTestElement(apiTestCaseBlob);
+        // 其他协议不处理
+        if (apiMsTestElement instanceof MsHTTPElement apiHttpTestElement && apiTestCaseMsTestElement instanceof MsHTTPElement apiCaseHttpTestElement) {
+            apiMsTestElement = HttpRequestParamDiffUtils.getCompareHttpElement(apiHttpTestElement);
+            apiTestCaseMsTestElement = HttpRequestParamDiffUtils.getCompareHttpElement(apiCaseHttpTestElement);
+        }
+        ApiCaseCompareData apiCaseCompareData = new ApiCaseCompareData();
+        apiCaseCompareData.setApiRequest(apiMsTestElement);
+        apiCaseCompareData.setCaseRequest(apiTestCaseMsTestElement);
+        return apiCaseCompareData;
+    }
+
+    private AbstractMsTestElement getApiMsTestElement(ApiDefinitionBlob apiDefinitionBlob) {
+        return ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class);
+    }
+
+    private AbstractMsTestElement getTestElement(ApiTestCaseBlob apiTestCaseBlob) {
+        return ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class);
     }
 }

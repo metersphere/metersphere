@@ -60,6 +60,30 @@ public class MsJsonBodyConverter extends MsBodyConverter<JsonBody> {
         return jsonStr;
     }
 
+    /**
+     * 将文本中的 @xxx 转换成 ${__Mock(@xxx)}
+     *
+     * @param text
+     * @return
+     */
+    protected String parseTextMock(String text) {
+        String pattern = "[\"\\s:]@[a-zA-Z\\\\(|,'-\\\\d ]*[a-zA-Z)-9),\\\\\"]";
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(text);
+        while (matcher.find()) {
+            //取出group的最后一个字符 主要是防止 @string|number 和 @string 这种情况
+            //如果是 “ 或者, 结尾的  需要截取
+            String group = matcher.group();
+            if (group.endsWith(",") || group.endsWith("\"")) {
+                group = group.substring(0, group.length() - 1);
+            }
+            // 去掉第一个字符，因为第一个字符是 " : 或者空格
+            group = group.substring(1, group.length());
+            text = text.replace(group, StringUtils.join("${__Mock(", group.replace(",", "\\,"), ")}"));
+        }
+        return text;
+    }
+
     private void parseMock(List list) {
         Map<Integer, String> replaceDataMap = new HashMap<>();
         for (int index = 0; index < list.size(); index++) {

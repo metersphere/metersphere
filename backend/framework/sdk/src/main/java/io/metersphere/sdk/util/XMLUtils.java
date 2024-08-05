@@ -17,10 +17,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class XMLUtils {
     public static final boolean IS_TRANS = false;
@@ -141,5 +140,37 @@ public class XMLUtils {
             }
         }
         return result;
+    }
+
+    /**
+     * 递归清空元素的文本内容
+     */
+    public static void clearElementText(Element element) {
+        // 清空当前元素的文本内容
+        element.setText(StringUtils.EMPTY);
+
+        // 递归处理子元素
+        Iterator<Element> iterator = element.elementIterator();
+        while (iterator.hasNext()) {
+            clearElementText(iterator.next());
+        }
+    }
+
+    /**
+     * 使用正则清空元素的文本内容
+     */
+    public static String clearElementText(String text) {
+        // 正则表达式匹配 XML 标签中的内容
+        String regex = "(<[^<>]+>)([^<>]*)(</[^<>]+>)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(text);
+
+        // 替换内容为空字符串
+        StringBuffer result = new StringBuffer();
+        while (matcher.find()) {
+            matcher.appendReplacement(result, matcher.group(1) + StringUtils.EMPTY + matcher.group(3));
+        }
+        matcher.appendTail(result);
+        return result.toString();
     }
 }
