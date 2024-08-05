@@ -230,7 +230,7 @@ export default {
   'apiScenario.quoteTableSearchTip': '通过路径或名称搜索',
   'apiScenario.quoteTableSearchTip2': '通过名称搜索',
 
-  'apiScenario.scriptOperationName': '脚本操作名称',
+  'apiScenario.scriptOperationName': '名称',
   'apiScenario.scriptOperationNamePlaceholder': '请输入脚本操作名称',
 
   'apiScenario.setting.cookie.config': 'Cookie 配置',

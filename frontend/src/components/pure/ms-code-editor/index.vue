@@ -1,10 +1,5 @@
 <template>
-  <div
-    ref="fullRef"
-    :class="`${
-      !isAdaptive ? 'h-full' : ''
-    } flex flex-col rounded-[var(--border-radius-small)] border border-[var(--color-text-n8)] p-[12px]`"
-  >
+  <div ref="fullRef" :class="`${!isAdaptive ? 'h-full' : ''} ms-code-editor-container`">
     <div v-if="showTitleLine" class="mb-[8px] flex items-center justify-between">
       <div class="flex flex-wrap gap-[4px]">
         <a-select
@@ -462,21 +457,28 @@
 </script>
 
 <style lang="less" scoped>
-  .ms-code-editor {
-    width: v-bind(width);
-    height: v-bind(codeheight);
-    @apply z-10;
+  .ms-code-editor-container {
+    @apply flex flex-col;
 
-    // &.MS-text[data-mode-id='plaintext'] {
-    //   :deep(.mtk1) {
-    //     color: rgb(var(--primary-5));
-    //   }
-    // }
-    :deep(.overflowingContentWidgets) {
-      z-index: 9999;
+    padding: 12px;
+    border: 1px solid var(--color-text-n8);
+    border-radius: var(--border-radius-small);
+    .ms-code-editor {
+      width: v-bind(width);
+      height: v-bind(codeheight);
+      @apply z-10;
+
+      // &.MS-text[data-mode-id='plaintext'] {
+      //   :deep(.mtk1) {
+      //     color: rgb(var(--primary-5));
+      //   }
+      // }
+      :deep(.overflowingContentWidgets) {
+        z-index: 9999;
+      }
     }
-  }
-  .ms-code-editor-full-screen {
-    height: calc(100vh - 66px);
+    .ms-code-editor-full-screen {
+      height: calc(100vh - 66px);
+    }
   }
 </style>

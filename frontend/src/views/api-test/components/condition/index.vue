@@ -36,6 +36,7 @@
     </div>
     <conditionContent
       v-model:data="activeItem"
+      :condition-type="props.conditionType"
       :disabled="props.disabled"
       :total-list="list"
       :response="props.response"
@@ -65,6 +66,7 @@
 
   const props = withDefaults(
     defineProps<{
+      conditionType: 'preOperation' | 'postOperation' | 'assertion' | 'scenario'; // 前置、后置、断言、场景
       disabled?: boolean;
       conditionTypes: Array<ConditionType>;
       addText: string;

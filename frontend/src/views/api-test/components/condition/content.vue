@@ -50,6 +50,7 @@
           v-model="condition.enableCommonScript"
           class="mb-[8px]"
           :disabled="props.disabled"
+          type="button"
           @change="emit('change')"
         >
           <a-radio :value="false">{{ t('apiTestDebug.manual') }}</a-radio>
@@ -75,10 +76,7 @@
         </div>
       </div>
 
-      <div
-        v-if="!condition.enableCommonScript"
-        class="relative min-w-[500px] flex-1 rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)]"
-      >
+      <div v-if="!condition.enableCommonScript" class="manual-script-container">
         <div v-if="isShowEditScriptNameInput" class="absolute left-[12px] top-[12px] z-10 w-[calc(100%-24px)]">
           <a-input
             ref="scriptNameInputRef"
@@ -92,7 +90,7 @@
             @change="() => emit('change')"
           />
         </div>
-        <div class="flex items-center justify-between px-[12px] pt-[12px]">
+        <div class="flex items-center justify-between p-[12px]">
           <div class="flex items-center">
             <a-tooltip v-if="condition.name" :content="condition.name">
               <div class="script-name-container">
@@ -127,7 +125,7 @@
                   <MsCodeEditor
                     v-model:model-value="scriptEx"
                     theme="vs"
-                    :language="LanguageEnum.BEANSHELL_JSR233"
+                    :language="condition.scriptLanguage || LanguageEnum.BEANSHELL_JSR233"
                     width="500px"
                     height="388px"
                     :show-full-screen="false"
@@ -186,7 +184,7 @@
             </a-button>
           </div>
         </div>
-        <div class="h-[calc(100%-24px)] min-h-[300px]">
+        <div class="ms-script-defined h-[calc(100%-46px)] min-h-[300px] border-t border-[var(--color-text-n8)]">
           <MsScriptDefined
             v-if="condition.script !== undefined && condition.scriptLanguage !== undefined"
             ref="scriptDefinedRef"
@@ -243,7 +241,7 @@
               v-else-if="commonScriptShowType === 'scriptContent' && condition.commonScriptInfo"
               v-model:model-value="condition.commonScriptInfo.script"
               theme="vs"
-              :height="props.sqlCodeEditorHeight || '100%'"
+              :height="props.sqlCodeEditorHeight || '300px'"
               :language="condition.commonScriptInfo.scriptLanguage || LanguageEnum.BEANSHELL_JSR233"
               :show-full-screen="false"
               :show-theme-change="false"
@@ -520,7 +518,7 @@
     ResponseBodyXPathAssertionFormat,
   } from '@/enums/apiEnum';
 
-  import { defaultKeyValueParamItem, extractTypeOptions } from '@/views/api-test/components/config';
+  import { defaultKeyValueParamItem, extractTypeOptions, scriptExampleMap } from '@/views/api-test/components/config';
 
   const { openModal } = useModal();
 
@@ -528,6 +526,7 @@
   const appStore = useAppStore();
   const props = withDefaults(
     defineProps<{
+      conditionType: 'preOperation' | 'postOperation' | 'assertion' | 'scenario'; // 前置、后置、断言、场景
       disabled?: boolean;
       response?: string; // 响应内容
       isBuildIn?: boolean; // 是否是内置的条件
@@ -606,67 +605,16 @@
     });
   }
 
-  const beanShellJsr233 = ref(`// 这里可以输入脚本注释
-value = vars.get("variable_name");
-expectedValue = "expected_value";
-result = expectedValue.equals(value);
-if (!result){
-  msg = "assertion [" + value + " == " + expectedValue + "]: false;";
-  AssertionResult.setFailureMessage(msg);
-  AssertionResult.setFailure(true);
-}`);
-
-  const beanshell = ref(`// 这里可以输入脚本注释
-value = vars.get("variable_name");
-expectedValue = "expected_value";
-result = expectedValue.equals(value);
-if (!result){
-  msg = "assertion [" + value + " == " + expectedValue + "]: false;";
-  FailureMessage = msg;
-  Failure = true;
-}`);
-
-  const python3 = ref(`# 这里可以输入脚本注释
-value = vars.get("variable_name");
-expectedValue = "expected_value";
-result = expectedValue == value;
-if not result :
-  msg = "assertion [" + value + " == " + expectedValue + "]: false;";
-  AssertionResult.setFailureMessage(msg);
-  AssertionResult.setFailure(True);`);
-
-  const javaScript = ref(`// 这里可以输入脚本注释
-value = vars.get("variable_name");
-expectedValue = "expected_value"
-result = expectedValue === value;
-if (!result){
-  msg = "assertion [" + value + " == " + expectedValue + "]: false;";
-  AssertionResult.setFailureMessage(msg);
-  AssertionResult.setFailure(true);
-}`);
-
-  let scriptEx = beanShellJsr233;
-
   const { copy, isSupported } = useClipboard({ legacy: true });
 
-  watch(
-    () => condition.value.scriptLanguage,
-    (scriptLanguage) => {
-      if (scriptLanguage === LanguageEnum.BEANSHELL) {
-        scriptEx = beanshell;
-      } else if (scriptLanguage === LanguageEnum.PYTHON) {
-        scriptEx = python3;
-      } else if (scriptLanguage === LanguageEnum.JAVASCRIPT) {
-        scriptEx = javaScript;
-      } else {
-        scriptEx = beanShellJsr233;
-      }
-    },
-    { deep: true, immediate: true }
-  );
+  const scriptEx = computed(() => {
+    if (condition.value.scriptLanguage) {
+      return scriptExampleMap[condition.value.scriptLanguage][props.conditionType];
+    }
+  });
 
   function copyScriptEx() {
-    if (isSupported) {
+    if (isSupported && scriptEx.value) {
       copy(scriptEx.value);
       Message.success(t('apiTestDebug.scriptExCopySuccess'));
     } else {
@@ -1115,6 +1063,18 @@ if (!result){
 
         color: rgb(var(--primary-5));
       }
+    }
+  }
+  .manual-script-container {
+    @apply relative flex-1;
+
+    min-height: 500px;
+    border: 1px solid var(--color-text-n8);
+    border-radius: var(--border-radius-small);
+  }
+  .ms-script-defined {
+    :deep(.ms-code-editor-container) {
+      @apply border-none;
     }
   }
 </style>

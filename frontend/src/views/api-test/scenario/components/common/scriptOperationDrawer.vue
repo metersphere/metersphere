@@ -9,7 +9,7 @@
     @close="handleClose"
     @cancel="handleDrawerCancel"
   >
-    <div class="flex h-full flex-col">
+    <div class="scenario-script-drawer-content">
       <div class="ml-[16px] mt-[10px]">
         <!-- <stepTypeVue v-if="props.step" :step="props.step" /> -->
         {{ t('apiScenario.scriptOperationName') }}
@@ -20,16 +20,16 @@
           :placeholder="t('apiScenario.scriptOperationNamePlaceholder')"
           :max-length="255"
           :disabled="isReadonly"
-          size="small"
         />
       </div>
       <div class="mt-[10px] flex flex-1 gap-[8px]">
         <conditionContent
           v-if="visible"
           v-model:data="activeItem"
+          condition-type="scenario"
           :disabled="isReadonly"
           :is-build-in="true"
-          script-code-editor-height="calc(100vh - 306px)"
+          script-code-editor-height="100%"
           @change="unSaved = true"
         />
       </div>
@@ -145,6 +145,15 @@
     activeItem.value = defaultScript as unknown as ExecuteConditionProcessor;
   }
 </script>
+
+<style lang="less">
+  .scenario-script-drawer-content {
+    @apply flex h-full flex-col;
+    .condition-content {
+      @apply !border-none;
+    }
+  }
+</style>
 
 <style lang="less" scoped>
   .response-header-pre {

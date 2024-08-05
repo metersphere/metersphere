@@ -1,5 +1,5 @@
 <template>
-  <div v-if="props.showHeader && props.showType === 'commonScript'" class="w-full bg-[var(--color-bg-3)] p-4 pb-0">
+  <div v-if="props.showHeader && props.showType === 'commonScript'" class="w-full p-4 pb-0">
     <div class="flex items-center justify-between">
       <div>
         <!--        <MsTag class="!mr-2 cursor-pointer" theme="outline" @click="undoHandler">-->
@@ -19,7 +19,7 @@
       </MsTag>
     </div>
   </div>
-  <div v-if="props.showType === 'commonScript'" class="flex bg-[var(--color-bg-3)]">
+  <div v-if="props.showType === 'commonScript'" class="flex h-full">
     <div class="relative h-full w-full">
       <MsCodeEditor
         ref="codeEditorRef"
