@@ -88,6 +88,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String OPERATION_HISTORY_URL = "/functional/case/operation-history";
     public static final String EXPORT_EXCEL_URL = "/functional/case/export/excel";
     public static final String DOWNLOAD_XMIND_TEMPLATE_URL = "/functional/case/download/xmind/template/";
+    public static final String EXPORT_COLUMNS_URL = "/functional/case/export/columns/";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -645,7 +646,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         request.setAppend(true);
         request.setTags(Arrays.asList("追加标签_1", "追加标签_2"));
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
-        request.setTags(Arrays.asList("追加标签_1", "追加标签_2","追加标签_3","追加标签_4","追加标签_5","追加标签_6","追加标签_7","追加标签_8","追加标签_9","追加标签_10","追加标签_11"));
+        request.setTags(Arrays.asList("追加标签_1", "追加标签_2", "追加标签_3", "追加标签_4", "追加标签_5", "追加标签_6", "追加标签_7", "追加标签_8", "追加标签_9", "追加标签_10", "追加标签_11"));
         this.requestPost(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
         request.setAppend(false);
         request.setTags(Arrays.asList("覆盖标签1", "覆盖标签2"));
@@ -841,5 +842,11 @@ public class FunctionalCaseControllerTests extends BaseTest {
     @Order(22)
     public void testDownloadXmindTemplate() throws Exception {
         this.requestGetExcel(DOWNLOAD_XMIND_TEMPLATE_URL + DEFAULT_PROJECT_ID);
+    }
+
+    @Test
+    @Order(23)
+    public void getExportColumns() throws Exception {
+        this.requestGetExcel(EXPORT_COLUMNS_URL + DEFAULT_PROJECT_ID);
     }
 }
