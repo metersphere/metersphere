@@ -7,6 +7,7 @@
     :response="props.response"
     :disabled="props.disabled"
     :sql-code-editor-height="props.sqlCodeEditorHeight"
+    show-quick-copy
     @change="emit('change')"
   >
     <template v-if="$slots.dropdownAppend" #dropdownAppend>

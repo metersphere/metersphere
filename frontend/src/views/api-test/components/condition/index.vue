@@ -43,6 +43,7 @@
       :show-pre-post-request="props.showPrePostRequest"
       :request-radio-text-props="props.requestRadioTextProps"
       :sql-code-editor-height="props.sqlCodeEditorHeight"
+      :show-quick-copy="props.showQuickCopy"
       @copy="copyListItem"
       @delete="deleteListItem"
       @change="changeHandler"
@@ -73,6 +74,7 @@
       showAssociatedScene?: boolean;
       showPrePostRequest?: boolean; // 是否展示前后置请求忽略选项
       sqlCodeEditorHeight?: string;
+      showQuickCopy?: boolean; // 显示快捷复制icon
     }>(),
     {
       showAssociatedScene: false,

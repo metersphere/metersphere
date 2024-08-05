@@ -124,9 +124,17 @@
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :disabled="props.disabledExceptParam || columnConfig.disabledColumn"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
-          class="ms-form-table-input ms-form-table-input--hasPlaceholder"
+          class="ms-form-table-input ms-params-input ms-form-table-input--hasPlaceholder"
           @input="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
-        />
+        >
+          <template v-if="props.showQuickCopy" #suffix>
+            <MsIcon
+              type="icon-icon_copy_outlined"
+              class="ms-params-input-suffix-icon"
+              @click="copyParamsName(record[columnConfig.dataIndex as string])"
+            />
+          </template>
+        </a-input>
       </a-popover>
     </template>
     <template #name="{ record, columnConfig, rowIndex }">
@@ -149,7 +157,15 @@
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           class="ms-form-table-input ms-form-table-input--hasPlaceholder"
           @input="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
-        />
+        >
+          <template v-if="props.showQuickCopy" #suffix>
+            <MsIcon
+              type="icon-icon_copy_outlined"
+              class="ms-params-input-suffix-icon"
+              @click="copyParamsName(record[columnConfig.dataIndex as string])"
+            />
+          </template>
+        </a-input>
       </a-popover>
     </template>
     <!-- 参数类型 -->
@@ -268,8 +284,8 @@
         v-model:value="record.value"
         :disabled="props.disabledParamValue"
         @change="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
-        @dblclick="() => quickInputParams(record)"
         @apply="() => addTableLine(rowIndex, columnConfig.addLineDisabled)"
+        @set-params="() => quickInputParams(record)"
       />
     </template>
     <!-- 文件 -->
@@ -588,7 +604,8 @@
 </template>
 
 <script async setup lang="ts">
-  import { TableColumnData, TableData } from '@arco-design/web-vue';
+  import { useClipboard } from '@vueuse/core';
+  import { Message, TableColumnData, TableData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import { NO_CHECK } from '@/components/pure/ms-advance-filter/index';
@@ -624,6 +641,7 @@
   // 异步加载组件
   const MsAddAttachment = defineAsyncComponent(() => import('@/components/business/ms-add-attachment/index.vue'));
   const MsParamsInput = defineAsyncComponent(() => import('@/components/business/ms-params-input/index.vue'));
+  const { copy, isSupported } = useClipboard({ legacy: true });
 
   export interface ParamTableColumn extends FormTableColumn {
     isAutoComplete?: boolean; // 用于 key 列区分是否是请求/响应头联想输入
@@ -674,6 +692,7 @@
       deleteIntercept?: (record: any, deleteCall: () => void) => void; // 删除行拦截器
       typeChangeIntercept?: (record: any, doChange: () => void) => void; // type 列切换拦截
       enableChangeIntercept?: (record: any, val: string | number | boolean) => boolean | Promise<boolean>; // enable 列切换拦截
+      showQuickCopy?: boolean; // 显示快捷复制icon
     }>(),
     {
       params: () => [],
@@ -1204,6 +1223,14 @@
 
   function selectAutoComplete(val: string, record: Record<string, any>, item: FormTableColumn) {
     record[item.dataIndex as string] = val;
+  }
+
+  function copyParamsName(value: string) {
+    const copyValue = `\${${value}}`;
+    if (isSupported) {
+      copy(copyValue);
+      Message.info(t('common.copySuccessToClipboard'));
+    }
   }
 
   const isDisabledCondition = ref([NO_CHECK.value]);

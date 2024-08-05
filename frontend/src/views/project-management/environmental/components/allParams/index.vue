@@ -19,6 +19,7 @@
     show-setting
     :selectable="true"
     :default-param-item="defaultParamItem"
+    show-quick-copy
     @change="handleParamTableChange"
     @batch-add="batchAddKeyValVisible = true"
   />
