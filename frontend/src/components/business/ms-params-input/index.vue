@@ -231,6 +231,11 @@
           class="ms-params-input-suffix-icon"
           @click.stop="openParamSetting"
         />
+        <MsIcon
+          type="icon-icon_full_screen_one"
+          class="ms-params-input-suffix-icon ml-[8px]"
+          @click.stop="emit('setParams')"
+        />
       </template>
       <template #option="{ data }">
         <div class="w-[350px]">
@@ -281,6 +286,7 @@
     (e: 'change', val: string): void;
     (e: 'dblclick'): void;
     (e: 'apply', val: string): void;
+    (e: 'setParams'): void;
   }>();
 
   const { t } = useI18n();

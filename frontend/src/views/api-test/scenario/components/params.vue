@@ -27,6 +27,7 @@
     :default-param-item="defaultNormalParamItem"
     :draggable="false"
     :selectable="false"
+    show-quick-copy
     @change="handleCommonVariablesChange"
     @batch-add="() => (batchAddKeyValVisible = true)"
   />

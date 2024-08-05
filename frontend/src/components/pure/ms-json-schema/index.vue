@@ -85,7 +85,7 @@
         v-model:value="record.example"
         size="medium"
         :disabled="props.disabled"
-        @dblclick="() => quickInputParams(record)"
+        @set-params="() => quickInputParams(record)"
         @change="emitChange('exampleInput')"
       />
     </template>

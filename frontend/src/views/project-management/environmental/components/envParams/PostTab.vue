@@ -7,6 +7,7 @@
     :show-associated-scene="props.showAssociatedScene"
     :show-pre-post-request="props.showPrePostRequest"
     :request-radio-text-props="props.requestRadioTextProps"
+    show-quick-copy
   >
   </condition>
 </template>

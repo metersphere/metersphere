@@ -201,4 +201,5 @@ export default {
   'common.gotIt': '知道了',
   'common.inputPleaseEnterTags': '请输入更新标签回车添加，不得超过64字符',
   'common.cutSuccess': '剪切成功',
+  'common.copySuccessToClipboard': '已复制到剪切板',
 };

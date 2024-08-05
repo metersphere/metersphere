@@ -237,6 +237,7 @@
                 required: false,
               }"
               :selectable="false"
+              :show-quick-copy="props.showQuickCopy"
               @change="() => emit('change')"
             />
             <MsCodeEditor
@@ -323,6 +324,7 @@
             :columns="sqlSourceColumns"
             :selectable="false"
             :default-param-item="defaultKeyValueParamItem"
+            :show-quick-copy="props.showQuickCopy"
             @change="handleSqlSourceParamTableChange"
           />
         </div>
@@ -378,6 +380,7 @@
         :selectable="false"
         :scroll="{ x: '700px' }"
         :response="props.response"
+        :show-quick-copy="props.showQuickCopy"
         @change="handleExtractParamTableChange"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
@@ -537,6 +540,7 @@
       totalList?: ExecuteConditionProcessor[]; // 总列表
       sqlCodeEditorHeight?: string; // sql脚本编辑器高度
       scriptCodeEditorHeight?: string; // 脚本的高度
+      showQuickCopy?: boolean; // 显示快捷复制icon
     }>(),
     {
       showAssociatedScene: false,

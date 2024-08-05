@@ -74,7 +74,7 @@
                   set-default-class
                   :disabled="props.disabled"
                   @change="() => addMatchRule(idx)"
-                  @dblclick="quickInputParams(item)"
+                  @set-params="quickInputParams(item)"
                   @apply="() => addMatchRule(idx)"
                 />
               </a-form-item>
