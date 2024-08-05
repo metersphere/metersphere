@@ -14,17 +14,20 @@
     :placeholder="t('report.detail.customTitlePlaceHolder')"
     :max-length="255"
     allow-clear
+    @change="() => emit('handleSetSave')"
     @blur="blurHandler"
   />
   <div :class="`${hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId ? '' : 'cursor-not-allowed'}`">
     <MsRichText
+      ref="msRichTextRef"
       v-model:raw="innerTextForm.content"
       v-model:filedIds="innerTextForm.richTextTmpFileIds"
       :upload-image="handleUploadImage"
       :preview-url="ReportPlanPreviewImageUrl"
       class="mt-[8px] w-full"
       :editable="props.canEdit"
-      @click="handleClick"
+      @click="handleRichClick"
+      @update="() => emit('handleSetSave')"
     />
   </div>
   <div
@@ -38,12 +41,12 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useVModel } from '@vueuse/core';
 
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
 
   import { editorUploadFile } from '@/api/modules/test-plan/report';
   import { ReportPlanPreviewImageUrl } from '@/api/requrls/test-plan/report';
-  import useDoubleClick from '@/hooks/useDoubleClick';
   import { useI18n } from '@/hooks/useI18n';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -60,7 +63,8 @@
 
   const emit = defineEmits<{
     (e: 'updateCustom', formValue: customValueForm): void;
-    (e: 'dblclick'): void;
+    (e: 'handleClick'): void;
+    (e: 'handleSetSave'): void;
     (e: 'cancel'): void;
   }>();
 
@@ -87,9 +91,11 @@
       label: innerTextForm.value.label || t('report.detail.customDefaultCardName'),
     });
   }
-  function emitDoubleClick() {
+  const msRichTextRef = ref<InstanceType<typeof MsRichText>>();
+  function handleRichClick() {
     if (!props.shareId) {
-      emit('dblclick');
+      msRichTextRef.value?.focus();
+      emit('handleClick');
     }
   }
 
@@ -99,8 +105,6 @@
       label: innerTextForm.value.label || t('report.detail.customDefaultCardName'),
     });
   }
-
-  const { handleClick } = useDoubleClick(emitDoubleClick);
 
   function handleCancel() {
     emit('cancel');
