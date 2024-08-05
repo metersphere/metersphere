@@ -231,7 +231,7 @@ export default {
   'apiScenario.quoteTreeSearchTip': 'Enter module name to search',
   'apiScenario.quoteTableSearchTip': 'Search by path or name',
 
-  'apiScenario.scriptOperationName': 'Script Operation Name',
+  'apiScenario.scriptOperationName': 'Name',
   'apiScenario.scriptOperationNamePlaceholder': 'Please enter script operation name',
 
   'apiScenario.setting.cookie.config': 'Cookie Configuration',

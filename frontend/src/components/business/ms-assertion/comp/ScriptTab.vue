@@ -1,6 +1,7 @@
 <template>
   <conditionContent
     v-model:data="condition"
+    condition-type="assertion"
     :disabled="props.disabled"
     :script-code-editor-height="props.scriptCodeEditorHeight"
     @delete="deleteItem"

@@ -2,6 +2,7 @@
   <condition
     ref="conditionRef"
     v-model:list="innerConfig.processors"
+    condition-type="preOperation"
     :disabled="props.disabled"
     :condition-types="conditionTypes"
     :sql-code-editor-height="props.sqlCodeEditorHeight"

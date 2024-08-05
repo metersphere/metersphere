@@ -1,6 +1,7 @@
 import { cloneDeep } from 'lodash-es';
 
 import { EQUAL } from '@/components/pure/ms-advance-filter';
+import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
 import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
 import { useI18n } from '@/hooks/useI18n';
@@ -507,4 +508,286 @@ export const defaultCaseParams: RequestParam = {
   preDependency: [], // 前置依赖
   postDependency: [], // 后置依赖
   errorMessageInfo: {},
+};
+
+export const BeanShellScriptExampleMap = {
+  preOperation: `import org.apache.jmeter.protocol.http.control.HeaderManager;
+import org.apache.jmeter.protocol.http.control.Header;
+
+// 生成或获取 token
+String token = "Bearer " + "MeterSphere 123456"; 
+
+// 获取当前 HTTP 请求的 Header Manager
+HeaderManager headerManager = sampler.getHeaderManager();
+
+// 如果 Header Manager 不存在，创建一个新的
+if (headerManager == null) {
+    sampler.setHeaderManager(new HeaderManager());
+}
+
+// 设置 Authorization 头
+headerManager.add(new Header("Authorization", token));
+
+// 将 Header Manager 设置到 HTTP 请求
+sampler.setHeaderManager(headerManager);`,
+  postOperation: `// 获取 HTTP 请求的响应数据
+String responseData = prev.getResponseDataAsString();
+
+// 输出响应数据到控制台
+log.info("Response Data: " + responseData);
+
+// 你可以进一步处理响应数据
+// 例如：保存响应数据到变量
+vars.put("responseData", responseData);`,
+  assertion:
+    '// 获取响应状态码\n' +
+    'int responseCode = prev.getResponseCode();\n' +
+    '// 设置期望的状态码\n' +
+    'int expectedCode = 200;\n' +
+    '// 断言失败条件\n' +
+    'if (responseCode != expectedCode) {\n' +
+    '    AssertionResult.setFailure(true);\n' +
+    // eslint-disable-next-line no-template-curly-in-string
+    '    AssertionResult.setFailureMessage("Expected response code: ${expectedCode}, but got: ${responseCode}")\n' +
+    '}',
+  scenario: `import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.concurrent.CompletableFuture;
+
+ // 创建 HttpClient 实例
+HttpClient client = HttpClient.newHttpClient();
+
+// 定义请求 URL
+String urlString = "https://www.baidu.com";
+
+// 创建 HttpRequest 对象
+HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create(urlString))
+        .GET() // 使用 GET 方法
+        .build();
+
+// 发送请求并处理响应
+client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+        .thenAccept(response -> {
+            // 输出响应状态码和内容
+            System.out.println("Response Code: " + response.statusCode());
+            System.out.println("Response Body: " + response.body());
+        })
+        .exceptionally(e -> {
+            // 处理异常
+            e.printStackTrace();
+            return null;
+        });`,
+};
+export interface ScriptExampleMap {
+  [key: string]: {
+    preOperation: string;
+    postOperation: string;
+    assertion: string;
+    scenario: string;
+  };
+}
+// 脚本示例
+export const scriptExampleMap: ScriptExampleMap = {
+  [LanguageEnum.JAVASCRIPT]: {
+    preOperation: `// 生成或获取 token
+var token = "Bearer MeterSphere 123456";
+
+// 获取当前 HTTP 请求的 Header Manager
+var headerManager = sampler.getHeaderManager();
+
+// 如果 Header Manager 不存在，创建一个新的
+if (headerManager == null) {
+    headerManager = new org.apache.jmeter.protocol.http.control.HeaderManager();
+    sampler.setHeaderManager(headerManager);
+}
+
+// 设置 Authorization 头
+headerManager.add(new org.apache.jmeter.protocol.http.control.Header("Authorization", token));
+
+// 将 Header Manager 设置到 HTTP 请求
+sampler.setHeaderManager(headerManager);`,
+    postOperation: `// 获取 HTTP 请求的响应数据
+var responseData = prev.getResponseDataAsString();
+
+// 输出响应数据到控制台
+log.info("Response Data: " + responseData);
+vars.put("variable_name", "variable_value");
+
+// 你可以进一步处理响应数据
+// 例如：保存响应数据到变量
+vars.put("responseData", responseData);`,
+    assertion:
+      '// 获取响应状态码\n' +
+      'var responseCode = prev.getResponseCode();\n' +
+      '// 设置期望的状态码\n' +
+      'var expectedCode = 200;\n' +
+      '// 断言失败条件\n' +
+      'if (responseCode != expectedCode) {\n' +
+      '    AssertionResult.setFailure(true);\n' +
+      // eslint-disable-next-line no-template-curly-in-string
+      '    AssertionResult.setFailureMessage("Expected response code: ${expectedCode}, but got: ${responseCode}")\n' +
+      '}\n',
+    scenario: `// 导入必要的 Java 类
+var URL = java.net.URL;
+var HttpURLConnection = java.net.HttpURLConnection;
+var BufferedReader = java.io.BufferedReader;
+var InputStreamReader = java.io.InputStreamReader;
+var StringBuilder = java.lang.StringBuilder;
+
+// 定义请求 URL
+var urlString = "http://www.baidu.com";
+
+// 创建 URL 对象
+var url = new URL(urlString);
+
+// 打开连接
+var connection = url.openConnection();
+connection.setRequestMethod("GET");
+
+// 处理响应
+var response = new StringBuilder();
+var reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+var line;
+
+// 读取响应内容
+while ((line = reader.readLine()) != null) {
+    response.append(line);
+}
+
+reader.close();
+
+// 记录响应
+log.info("Response: " + response.toString());
+
+// 断开连接
+connection.disconnect();`,
+  },
+  [LanguageEnum.PYTHON]: {
+    preOperation: `import urllib.request
+
+# 授权 token
+token = "MeterSphere 123456"
+
+# 设置请求头
+headers = {
+    "Authorization": f"Bearer {token}"
+}
+
+# 请求的 URL
+url = "http://www.baidu.com/"
+
+# 创建请求对象
+request = urllib.request.Request(url, headers=headers)
+
+# 发送请求并读取响应
+with urllib.request.urlopen(request) as response:
+    # 打印响应状态码
+    status_code = response.getcode()
+    log.info(f"Status Code: {status_code}")`,
+    postOperation: `# 获取 HTTP 请求的响应数据
+responseData = prev.getResponseDataAsString();
+
+# 输出响应数据到控制台
+log.info("Response Data: " + responseData);
+vars.put("variable_name", "variable_value");
+
+# 你可以进一步处理响应数据
+# 例如：保存响应数据到变量
+vars.put("responseData", responseData);`,
+    assertion: `# 获取响应状态码
+response_code = prev.getResponseCode()
+
+# 设置期望的状态码
+expected_code = '200'
+
+# 断言失败条件
+if response_code != expected_code:
+    AssertionResult.setFailure(True)
+    AssertionResult.setFailureMessage("Expected response code: {}, but got: {}".format(expected_code, response_code))`,
+    scenario: `import urllib.request
+
+# 授权 token
+token = "MeterSphere 123456"
+
+# 设置请求头
+headers = {
+    "Authorization": f"Bearer {token}"
+}
+
+# 请求的 URL
+url = "http://www.baidu.com/"
+
+# 创建请求对象
+request = urllib.request.Request(url, headers=headers)
+
+# 发送请求并读取响应
+with urllib.request.urlopen(request) as response:
+    # 打印响应状态码
+    status_code = response.getcode()
+    log.info(f"Status Code: {status_code}")`,
+  },
+  [LanguageEnum.BEANSHELL]: BeanShellScriptExampleMap,
+  [LanguageEnum.BEANSHELL_JSR233]: BeanShellScriptExampleMap,
+  [LanguageEnum.GROOVY]: {
+    preOperation: `// 生成或获取 token
+def token = "Bearer " + "MeterSphere 123456"
+
+// 获取 HTTP Header Manager 组件
+def headerManager = ctx.getCurrentSampler().getHeaderManager()
+
+// 添加或更新请求头
+if (headerManager == null) {
+    headerManager = new org.apache.jmeter.protocol.http.control.HeaderManager()
+    ctx.getCurrentSampler().setHeaderManager(headerManager)
+}
+headerManager.add(new org.apache.jmeter.protocol.http.control.Header("Authorization", token))`,
+    postOperation: `// 获取 HTTP 请求的响应数据
+def responseData = prev.getResponseDataAsString();
+
+// 输出响应数据到控制台
+log.info("Response Data: " + responseData);
+vars.put("variable_name", "variable_value");
+
+// 你可以进一步处理响应数据
+// 例如：保存响应数据到变量
+vars.put("responseData", responseData);`,
+    assertion:
+      '// 获取响应状态码\n' +
+      'def responseCode = prev.getResponseCode()\n' +
+      '// 设置期望的状态码\n' +
+      'def expectedCode = 200\n' +
+      '// 断言失败条件\n' +
+      'if (responseCode != expectedCode) {\n' +
+      '    AssertionResult.setFailure(true)\n' +
+      // eslint-disable-next-line no-template-curly-in-string
+      '    AssertionResult.setFailureMessage("Expected response code: ${expectedCode}, but got: ${responseCode}")\n' +
+      '}',
+    scenario: `import org.apache.http.client.methods.CloseableHttpResponse
+import org.apache.http.client.methods.HttpPost
+import org.apache.http.impl.client.CloseableHttpClient
+import org.apache.http.impl.client.HttpClients
+import org.apache.http.entity.StringEntity
+
+// 创建 HTTP 客户端
+CloseableHttpClient httpClient = HttpClients.createDefault()
+
+// 创建 HTTP POST 请求
+HttpPost postRequest = new HttpPost("http://www.baidu.com")
+
+// 设置请求体
+postRequest.setEntity(new StringEntity("your request body"))
+CloseableHttpResponse response = httpClient.execute(postRequest)
+def responseBody = response.getEntity().getContent().getText()
+log.info("Response: " + responseBody)
+
+// 关闭响应和客户端
+response.close()
+httpClient.close()
+
+// 输出内容
+log.info("response："+ responseBody)`,
+  },
 };

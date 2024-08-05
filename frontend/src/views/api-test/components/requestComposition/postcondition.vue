@@ -2,6 +2,7 @@
   <condition
     ref="conditionRef"
     v-model:list="innerConfig.processors"
+    condition-type="postOperation"
     :condition-types="conditionTypes"
     add-text="apiTestDebug.postCondition"
     :response="props.response"

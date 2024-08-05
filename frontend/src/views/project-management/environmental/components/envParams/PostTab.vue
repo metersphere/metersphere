@@ -1,6 +1,7 @@
 <template>
   <condition
     v-model:list="innerParams"
+    condition-type="postOperation"
     :condition-types="[RequestConditionProcessor.SCRIPT, RequestConditionProcessor.SQL]"
     add-text="apiTestDebug.postCondition"
     response=""
