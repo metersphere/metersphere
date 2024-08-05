@@ -1597,6 +1597,66 @@ public class ApiTestCaseExample {
             addCriterion("ignore_api_change not between", value1, value2, "ignoreApiChange");
             return (Criteria) this;
         }
+
+        public Criteria andIgnoreApiDiffIsNull() {
+            addCriterion("ignore_api_diff is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiDiffIsNotNull() {
+            addCriterion("ignore_api_diff is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiDiffEqualTo(Boolean value) {
+            addCriterion("ignore_api_diff =", value, "ignoreApiDiff");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiDiffNotEqualTo(Boolean value) {
+            addCriterion("ignore_api_diff <>", value, "ignoreApiDiff");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiDiffGreaterThan(Boolean value) {
+            addCriterion("ignore_api_diff >", value, "ignoreApiDiff");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiDiffGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("ignore_api_diff >=", value, "ignoreApiDiff");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiDiffLessThan(Boolean value) {
+            addCriterion("ignore_api_diff <", value, "ignoreApiDiff");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiDiffLessThanOrEqualTo(Boolean value) {
+            addCriterion("ignore_api_diff <=", value, "ignoreApiDiff");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiDiffIn(List<Boolean> values) {
+            addCriterion("ignore_api_diff in", values, "ignoreApiDiff");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiDiffNotIn(List<Boolean> values) {
+            addCriterion("ignore_api_diff not in", values, "ignoreApiDiff");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiDiffBetween(Boolean value1, Boolean value2) {
+            addCriterion("ignore_api_diff between", value1, value2, "ignoreApiDiff");
+            return (Criteria) this;
+        }
+
+        public Criteria andIgnoreApiDiffNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("ignore_api_diff not between", value1, value2, "ignoreApiDiff");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

@@ -111,6 +111,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String RUN_POST = "run";
     private static final String BATCH_RUN = "batch/run";
     private static final String API_CHANGE_CLEAR = "api-change/clear/{0}";
+    private static final String API_CHANGE_IGNORE = "api-change/ignore/{0}";
+    private static final String API_CHANGE_SYNC = "batch/api-change/sync";
     private static final String API_COMPARE = "api/compare/{0}";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
@@ -234,6 +236,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
             apiTestCase.setLastReportStatus("SUCCESS");
             apiTestCase.setApiChange(false);
             apiTestCase.setIgnoreApiChange(false);
+            apiTestCase.setIgnoreApiDiff(false);
             caseMapper.insert(apiTestCase);
             ApiTestCaseBlob apiTestCaseBlob = new ApiTestCaseBlob();
             apiTestCaseBlob.setId(apiTestCase.getId());
@@ -437,6 +440,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         apiTestCaseService.handleApiParamChange(apiTestCase.getApiDefinitionId(), changeRequest, originRequest);
         // 校验变更通知
         Assertions.assertEquals(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getApiChange(), true);
+        Assertions.assertEquals(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getIgnoreApiDiff(), false);
     }
 
     @Test
@@ -460,10 +464,39 @@ public class ApiTestCaseControllerTests extends BaseTest {
         apiTestCaseMapper.updateByPrimaryKeySelective(updateCase);
         this.requestGetWithOk(API_CHANGE_CLEAR, apiTestCase.getId());
         Assertions.assertFalse(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getApiChange());
+        Assertions.assertTrue(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getIgnoreApiDiff());
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, API_CHANGE_CLEAR, apiTestCase.getId());
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, API_CHANGE_CLEAR, apiTestCase.getId());
+    }
+
+    @Test
+    @Order(3)
+    public void ignoreApiChange() throws Exception {
+        ApiTestCase updateCase = new ApiTestCase();
+        updateCase.setApiChange(true);
+        updateCase.setId(apiTestCase.getId());
+        apiTestCaseMapper.updateByPrimaryKeySelective(updateCase);
+        this.requestGetWithOk(API_CHANGE_IGNORE, apiTestCase.getId());
+        Assertions.assertFalse(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getApiChange());
+        Assertions.assertTrue(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getIgnoreApiDiff());
+        Assertions.assertTrue(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getIgnoreApiChange());
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, API_CHANGE_IGNORE, apiTestCase.getId());
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, API_CHANGE_IGNORE, apiTestCase.getId());
+    }
+
+    @Test
+    @Order(4)
+    public void batchSyncApiChange() throws Exception {
+        ApiCaseBatchSyncRequest request = new ApiCaseBatchSyncRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        this.requestPostWithOk(API_CHANGE_SYNC, request);
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, API_CHANGE_SYNC, request);
     }
 
     /**

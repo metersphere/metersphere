@@ -95,6 +95,10 @@ public class ApiTestCase implements Serializable {
     @NotNull(message = "{api_test_case.ignore_api_change.not_blank}", groups = {Created.class})
     private Boolean ignoreApiChange;
 
+    @Schema(description = "忽略接口与用例参数不一致", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_test_case.ignore_api_diff.not_blank}", groups = {Created.class})
+    private Boolean ignoreApiDiff;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -119,7 +123,8 @@ public class ApiTestCase implements Serializable {
         deleteUser("delete_user", "deleteUser", "VARCHAR", false),
         deleted("deleted", "deleted", "BIT", false),
         apiChange("api_change", "apiChange", "BIT", false),
-        ignoreApiChange("ignore_api_change", "ignoreApiChange", "BIT", false);
+        ignoreApiChange("ignore_api_change", "ignoreApiChange", "BIT", false),
+        ignoreApiDiff("ignore_api_diff", "ignoreApiDiff", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

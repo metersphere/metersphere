@@ -198,6 +198,14 @@ public class ApiTestCaseController {
         apiTestCaseRecoverService.batchRecover(request, SessionUtils.getUserId());
     }
 
+    @PostMapping("/batch/api-change/sync")
+    @Operation(summary = "接口测试-接口管理-接口用例-批量编辑")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
+    public void batchSyncApiChange(@Validated @RequestBody ApiCaseBatchSyncRequest request) {
+        apiTestCaseService.batchSyncApiChange(request, SessionUtils.getUserId());
+    }
+
     @PostMapping(value = "/trash/page")
     @Operation(summary = "接口测试-接口管理-接口用例-回收站-分页查询")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
@@ -308,6 +316,14 @@ public class ApiTestCaseController {
     @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
     public void clearApiChange(@PathVariable String id) {
         apiTestCaseService.clearApiChange(id);
+    }
+
+    @GetMapping("/api-change/ignore/{id}")
+    @Operation(summary = "清除接口参数变更标识")
+    @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE})
+    @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
+    public void ignoreApiChange(@PathVariable String id) {
+        apiTestCaseService.ignoreApiChange(id);
     }
 
     @GetMapping("/api/compare/{id}")

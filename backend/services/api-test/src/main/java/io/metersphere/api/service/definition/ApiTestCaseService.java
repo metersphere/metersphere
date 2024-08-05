@@ -950,6 +950,7 @@ public class ApiTestCaseService extends MoveNodeService {
         ApiTestCase apiTestCase = new ApiTestCase();
         apiTestCase.setId(id);
         apiTestCase.setApiChange(false);
+        apiTestCase.setIgnoreApiDiff(true);
         apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
     }
 
@@ -977,5 +978,19 @@ public class ApiTestCaseService extends MoveNodeService {
 
     private AbstractMsTestElement getTestElement(ApiTestCaseBlob apiTestCaseBlob) {
         return ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class);
+    }
+
+    public void ignoreApiChange(String id) {
+        checkResourceExist(id);
+        ApiTestCase apiTestCase = new ApiTestCase();
+        apiTestCase.setId(id);
+        apiTestCase.setApiChange(false);
+        apiTestCase.setIgnoreApiDiff(true);
+        apiTestCase.setIgnoreApiChange(true);
+        apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+    }
+
+    public void batchSyncApiChange(ApiCaseBatchSyncRequest request, String userId) {
+        // todo
     }
 }
