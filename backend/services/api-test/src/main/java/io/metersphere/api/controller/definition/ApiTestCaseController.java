@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.dto.ApiCaseCompareData;
 import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.*;
@@ -307,5 +308,13 @@ public class ApiTestCaseController {
     @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
     public void clearApiChange(@PathVariable String id) {
         apiTestCaseService.clearApiChange(id);
+    }
+
+    @GetMapping("/api/compare/{id}")
+    @Operation(summary = "与接口定义对比")
+    @RequiresPermissions(value = PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
+    @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
+    public ApiCaseCompareData getApiCompareData(@PathVariable String id) {
+        return apiTestCaseService.getApiCompareData(id);
     }
 }

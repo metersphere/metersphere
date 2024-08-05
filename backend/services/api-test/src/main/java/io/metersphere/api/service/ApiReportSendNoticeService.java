@@ -81,11 +81,11 @@ public class ApiReportSendNoticeService {
                 ApiExecuteResourceType.API_SCENARIO.name(), ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name())) {
             ApiScenario scenario = null;
             switch (ApiExecuteResourceType.valueOf(noticeDTO.getResourceType())) {
-                case ApiExecuteResourceType.API_SCENARIO ->
+                case API_SCENARIO ->
                         scenario = apiScenarioMapper.selectByPrimaryKey(noticeDTO.getResourceId());
-                case ApiExecuteResourceType.TEST_PLAN_API_SCENARIO ->
+                case TEST_PLAN_API_SCENARIO ->
                         scenario = extApiScenarioMapper.getScenarioByResourceId(noticeDTO.getResourceId());
-                case ApiExecuteResourceType.PLAN_RUN_API_SCENARIO ->
+                case PLAN_RUN_API_SCENARIO ->
                         scenario = extApiScenarioMapper.getScenarioByReportId(noticeDTO.getResourceId());
                 default -> {
                 }
@@ -109,11 +109,11 @@ public class ApiReportSendNoticeService {
                 ApiExecuteResourceType.API_CASE.name(), ApiExecuteResourceType.TEST_PLAN_API_CASE.name(), ApiExecuteResourceType.PLAN_RUN_API_CASE.name())) {
             ApiTestCase testCase = null;
             switch (ApiExecuteResourceType.valueOf(noticeDTO.getResourceType())) {
-                case ApiExecuteResourceType.API_CASE ->
+                case API_CASE ->
                         testCase = apiTestCaseMapper.selectByPrimaryKey(noticeDTO.getResourceId());
-                case ApiExecuteResourceType.TEST_PLAN_API_CASE ->
+                case TEST_PLAN_API_CASE ->
                         testCase = extApiTestCaseMapper.getCaseByResourceId(noticeDTO.getResourceId());
-                case ApiExecuteResourceType.PLAN_RUN_API_CASE ->
+                case PLAN_RUN_API_CASE ->
                         testCase = extApiTestCaseMapper.getCaseByReportId(noticeDTO.getResourceId());
                 default -> {
                 }

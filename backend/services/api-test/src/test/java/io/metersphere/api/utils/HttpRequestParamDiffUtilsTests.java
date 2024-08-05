@@ -7,9 +7,13 @@ import io.metersphere.api.dto.request.http.RestParam;
 import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.XMLUtils;
+import org.dom4j.Element;
+import org.dom4j.io.XMLWriter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -331,5 +335,149 @@ public class HttpRequestParamDiffUtilsTests {
         msHTTPElement1 = new MsHTTPElement();
         msHTTPElement1.setBody(new Body());
         Assertions.assertTrue(HttpRequestParamDiffUtils.isRequestParamDiff(msHTTPElement1, msHTTPElement2));
+    }
+
+    @Test
+    public void replaceIllegalJsonWithMock() {
+        String replaceJon = HttpRequestParamDiffUtils.replaceIllegalJsonWithMock("""
+                {
+                  "id": "dddd",
+                  "age": 10,
+                  "name": @integer(1, 10),
+                  "category": {
+                    "id":@integer(1),
+                    "name":  @integer,
+                    "title":  @integer(1, 10)
+                  }
+                }
+                """);
+
+        Object result = JSON.parseObject("""
+                {
+                  "id": "dddd",
+                  "age": 10,
+                  "name": "",
+                  "category": {
+                    "id": "",
+                    "name": "",
+                    "title": ""
+                  }
+                }""");
+
+        Assertions.assertEquals(JSON.parseObject(replaceJon), result);
+    }
+
+    @Test
+    public void clearElementText() throws Exception {
+        String xml = """
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>             
+                    <parent>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-parent</artifactId>
+                        <version>3.2.8</version>
+                        <relativePath/>
+                    </parent>
+                </project>
+                """;
+
+        Element element = XMLUtils.stringToDocument(xml).getRootElement();
+        XMLUtils.clearElementText(element);
+        StringWriter stringWriter = new StringWriter();
+        XMLWriter writer = new XMLWriter(stringWriter);
+        writer.write(element);
+        stringWriter.toString();
+
+        String result = """
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"><modelVersion></modelVersion><parent><groupId></groupId><artifactId></artifactId><version></version><relativePath></relativePath></parent></project>""";
+
+        Assertions.assertEquals(stringWriter.toString(), result);
+
+
+        String regexResult = """
+               <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                   <modelVersion></modelVersion>             
+                   <parent>
+                       <groupId></groupId>
+                       <artifactId></artifactId>
+                       <version></version>
+                       <relativePath/></parent>
+               </project>
+               """;
+        Assertions.assertEquals(XMLUtils.clearElementText(xml), regexResult);
+    }
+
+    @Test
+    public void getCompareHttpElement() {
+        MsHTTPElement msHTTPElement = new MsHTTPElement();
+        HttpRequestParamDiffUtils.getCompareHttpElement(msHTTPElement);
+
+        msHTTPElement.setBody(new Body());
+        Body body = msHTTPElement.getBody();
+        body.setJsonBody(new JsonBody());
+        body.setBodyType(Body.BodyType.RAW.name());
+        HttpRequestParamDiffUtils.getCompareHttpElement(msHTTPElement);
+
+        body.setBodyType(Body.BodyType.JSON.name());
+        String jsonValue = """
+                 {
+                  "id": "dddd",
+                  "age": 10,
+                  "name": @integer(1, 10),
+                  "category": {
+                    "id":@integer(1),
+                    "name":  @integer,
+                    "title":  @integer(1, 10)
+                  }
+                }
+                """;
+        body.getJsonBody().setJsonValue(jsonValue);
+        HttpRequestParamDiffUtils.getCompareHttpElement(msHTTPElement);
+        Assertions.assertEquals(JSON.parseObject(body.getJsonBody().getJsonValue()), JSON.parseObject("""
+                 {
+                  "id": "",
+                  "age": "",
+                  "name": "",
+                  "category": {
+                    "id": "",
+                    "name": "",
+                    "title": ""
+                  }
+                }
+                """));
+
+        String xmlValue = """
+                <project>
+                    <modelVersion>4.0.0</modelVersion>             
+                    <parent>
+                        <groupId>org</groupId>
+                        <artifactId>spring</artifactId>
+                        <version>3.2.8</version>
+                        <relativePath/>
+                    </parent>
+                </project>
+                """;
+        msHTTPElement.getBody().setBodyType(Body.BodyType.XML.name());
+        body.setXmlBody(new XmlBody());
+        body.getXmlBody().setValue(xmlValue);
+        HttpRequestParamDiffUtils.getCompareHttpElement(msHTTPElement);
+
+
+        xmlValue = """
+                dx
+                <project>
+                    <modelVersion>4.0.0</modelVersion>             
+                    <parent>
+                        <groupId>org</groupId>
+                        <artifactId>spring</artifactId>
+                        <version>3.2.8</version>
+                        <relativePath/>
+                    </parent>
+                </project>
+                """;
+        body.getXmlBody().setValue(xmlValue);
+        HttpRequestParamDiffUtils.getCompareHttpElement(msHTTPElement);
     }
 }

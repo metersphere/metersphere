@@ -110,7 +110,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String RUN_GET = "run/{0}";
     private static final String RUN_POST = "run";
     private static final String BATCH_RUN = "batch/run";
-    private static final String API_CHANGE_CLEAR = "api-change/clear/{id}";
+    private static final String API_CHANGE_CLEAR = "api-change/clear/{0}";
+    private static final String API_COMPARE = "api/compare/{0}";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     private static ApiTestCase apiTestCase;
@@ -436,6 +437,18 @@ public class ApiTestCaseControllerTests extends BaseTest {
         apiTestCaseService.handleApiParamChange(apiTestCase.getApiDefinitionId(), changeRequest, originRequest);
         // 校验变更通知
         Assertions.assertEquals(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getApiChange(), true);
+    }
+
+    @Test
+    @Order(3)
+    public void getApiCompareData() throws Exception {
+        // @@请求成功
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(API_COMPARE, apiTestCase.getId());
+        Map apiCaseCompareData = (Map) parseResponse(mvcResult).get("data");
+        Assertions.assertNotNull(apiCaseCompareData.get("apiRequest"));
+        Assertions.assertNotNull(apiCaseCompareData.get("caseRequest"));
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ, API_COMPARE, apiTestCase.getId());
     }
 
     @Test
