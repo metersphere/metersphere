@@ -2853,6 +2853,7 @@ public class ApiScenarioControllerTests extends BaseTest {
             apiTestCase.setLastReportStatus("未执行");
             apiTestCase.setApiChange(false);
             apiTestCase.setIgnoreApiChange(false);
+            apiTestCase.setIgnoreApiDiff(false);
             apiTestCases.add(apiTestCase);
         }
         apiTestCaseMapper.batchInsert(apiTestCases);

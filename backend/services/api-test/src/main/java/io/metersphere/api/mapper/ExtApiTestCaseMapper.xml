@@ -30,7 +30,7 @@
     </update>
     <update id="setApiChangeByApiDefinitionId">
         update api_test_case
-        set api_change = true
+        set api_change = true, ignore_api_diff = false
         where api_definition_id = #{apiDefinitionId}
           and api_change is false
           and ignore_api_change is false
