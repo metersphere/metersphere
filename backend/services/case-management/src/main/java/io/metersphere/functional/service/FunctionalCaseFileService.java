@@ -26,6 +26,7 @@ import io.metersphere.functional.mapper.ExtFunctionalCaseCommentMapper;
 import io.metersphere.functional.request.FunctionalCaseExportRequest;
 import io.metersphere.functional.request.FunctionalCaseImportRequest;
 import io.metersphere.functional.socket.ExportWebSocketHandler;
+import io.metersphere.functional.utils.ExportInterruptException;
 import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
@@ -54,6 +55,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +67,7 @@ import java.io.IOException;
 import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -99,6 +102,10 @@ public class FunctionalCaseFileService {
     private FunctionalCaseLogService functionalCaseLogService;
     @Resource
     private SystemParameterMapper systemParameterMapper;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+    private static final String EXPORT_CASE_KEY = "export_case_key";
+    private static final String EXPORT_FILE_NAME = "case_export";
 
     /**
      * 下载excel导入模板
@@ -328,10 +335,10 @@ public class FunctionalCaseFileService {
      * 导出excel
      *
      * @param request
-     * @param url
+     * @param userId
      */
     @Async
-    public void exportFunctionalCaseZip(FunctionalCaseExportRequest request) {
+    public void exportFunctionalCaseZip(FunctionalCaseExportRequest request, String userId) {
         File tmpDir = null;
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         try {
@@ -341,7 +348,7 @@ public class FunctionalCaseFileService {
             MsFileUtils.deleteDir(tmpDir.getPath());
             tmpDir.mkdirs();
             // 生成EXCEL
-            List<File> batchExcels = generateCaseExportExcel(tmpDir.getPath(), request, project);
+            List<File> batchExcels = generateCaseExportExcel(tmpDir.getPath(), request, project, userId);
             if (batchExcels.size() > 1) {
                 // EXCEL -> ZIP (EXCEL数目大于1)
                 File zipFile = CompressUtils.zipFilesToPath(tmpDir.getPath() + File.separatorChar + "Metersphere_case_" + project.getName() + ".zip", batchExcels);
@@ -355,16 +362,28 @@ public class FunctionalCaseFileService {
             SocketMsgDTO socketMsgDTO = new SocketMsgDTO(request.getFileId(), "", MsgType.CONNECT.name(), MsgType.CONNECT.name());
             socketMsgDTO.setReportId(request.getFileId());
             ExportWebSocketHandler.sendMessageSingle(socketMsgDTO);
+            stopExport(request.getProjectId(), userId);
         } catch (Exception e) {
+            stopExport(request.getProjectId(), userId);
             LogUtils.error(e);
             throw new MSException(e);
         }
 
     }
 
+    public void setExportFlag(FunctionalCaseExportRequest request, String userId) {
+        String fileId = stringRedisTemplate.opsForValue().get(EXPORT_CASE_KEY + ":" + request.getProjectId() + ":" + userId);
+        if (StringUtils.isBlank(fileId)) {
+            stringRedisTemplate.opsForValue().set(EXPORT_CASE_KEY + ":" + request.getProjectId() + ":" + userId, request.getFileId(), 1, TimeUnit.DAYS);
+        } else {
+            throw new MSException(Translator.get("export_case_task_existed"));
+        }
+
+    }
+
     private void uploadFileToMinio(File file, String fileId) {
         FileRequest fileRequest = new FileRequest();
-        fileRequest.setFileName(file.getName());
+        fileRequest.setFileName(EXPORT_FILE_NAME);
         fileRequest.setFolder(DefaultRepositoryDir.getExportExcelTempDir() + "/" + fileId);
         fileRequest.setStorage(StorageType.MINIO.name());
         try {
@@ -375,7 +394,7 @@ public class FunctionalCaseFileService {
         }
     }
 
-    private List<File> generateCaseExportExcel(String tmpZipPath, FunctionalCaseExportRequest request, Project project) {
+    private List<File> generateCaseExportExcel(String tmpZipPath, FunctionalCaseExportRequest request, Project project, String userId) {
         List<File> tmpExportExcelList = new ArrayList<>();
         //excel表头
         List<List<String>> headList = getFunctionalCaseExportHeads(request);
@@ -406,7 +425,7 @@ public class FunctionalCaseFileService {
             FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(headList, customFieldOptionsMap, customFieldMap);
 
             //获取导出数据
-            List<FunctionalCaseExcelData> excelData = parseCaseData2ExcelData(subIds, rowMergeInfo, request, customFields, moduleMap, parameter.getParamValue());
+            List<FunctionalCaseExcelData> excelData = parseCaseData2ExcelData(subIds, rowMergeInfo, request, customFields, moduleMap, parameter.getParamValue(), userId);
             List<List<Object>> data = parseExcelData2List(headList, excelData);
 
             File createFile = new File(tmpZipPath + File.separatorChar + "Metersphere_case_" + project.getName() + count.get() + ".xlsx");
@@ -431,7 +450,8 @@ public class FunctionalCaseFileService {
     }
 
 
-    private List<FunctionalCaseExcelData> parseCaseData2ExcelData(List<String> ids, Map<Integer, Integer> rowMergeInfo, FunctionalCaseExportRequest request, List<TemplateCustomFieldDTO> customFields, Map<String, String> moduleMap, String url) {
+    private List<FunctionalCaseExcelData> parseCaseData2ExcelData(List<String> ids, Map<Integer, Integer> rowMergeInfo, FunctionalCaseExportRequest request,
+                                                                  List<TemplateCustomFieldDTO> customFields, Map<String, String> moduleMap, String url, String userId) {
         List<FunctionalCaseExcelData> list = new ArrayList<>();
         //基础信息
         Map<String, FunctionalCase> functionalCaseMap = functionalCaseService.copyBaseInfo(request.getProjectId(), ids);
@@ -447,6 +467,16 @@ public class FunctionalCaseFileService {
         Map<String, List<CaseReviewHistory>> reviewCommentMap = getReviewComment(ids);
 
         ids.forEach(id -> {
+            //判断是否停止导出
+            try {
+                stop(request.getProjectId(), userId);
+            } catch (ExportInterruptException e) {
+                LogUtils.info(Translator.get("export_case_task_stop"));
+                throw new MSException(Translator.get("export_case_task_stop"));
+            } finally {
+                stopExport(request.getProjectId(), userId);
+            }
+
             List<String> textDescriptionList = new ArrayList<>();
             List<String> expectedResultList = new ArrayList<>();
             //构建基本参数
@@ -469,6 +499,13 @@ public class FunctionalCaseFileService {
         });
 
         return list;
+    }
+
+    private void stop(String projectId, String userId) throws ExportInterruptException {
+        String fileId = stringRedisTemplate.opsForValue().get(EXPORT_CASE_KEY + ":" + projectId + ":" + userId);
+        if (StringUtils.isBlank(fileId)) {
+            throw new ExportInterruptException(Translator.get("export_case_task_stop"));
+        }
     }
 
     /**
@@ -733,5 +770,9 @@ public class FunctionalCaseFileService {
         List<TemplateCustomFieldDTO> headerCustomFields = getCustomFields(projectId);
         functionalCaseExportColumns.initCustomColumns(headerCustomFields);
         return functionalCaseExportColumns;
+    }
+
+    public void stopExport(String projectId, String userId) {
+        stringRedisTemplate.delete(EXPORT_CASE_KEY + ":" + projectId + ":" + userId);
     }
 }

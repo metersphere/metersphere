@@ -217,7 +217,7 @@ public class FunctionalCaseController {
     @Operation(summary = "用例管理-功能用例-excel导入-下载模板")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
-    public void testCaseTemplateExport(@PathVariable String projectId, HttpServletResponse response) {
+    public void caseTemplateExport(@PathVariable String projectId, HttpServletResponse response) {
         functionalCaseFileService.downloadExcelTemplate(projectId, response);
     }
 
@@ -254,7 +254,9 @@ public class FunctionalCaseController {
     @Operation(summary = "用例管理-功能用例-excel导出")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
     public void testCaseExport(@Validated @RequestBody FunctionalCaseExportRequest request) {
-        functionalCaseFileService.exportFunctionalCaseZip(request);
+        String userId = SessionUtils.getUserId();
+        functionalCaseFileService.setExportFlag(request, userId);
+        functionalCaseFileService.exportFunctionalCaseZip(request, userId);
     }
 
     @GetMapping("/download/xmind/template/{projectId}")
@@ -271,5 +273,13 @@ public class FunctionalCaseController {
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public FunctionalCaseExportColumns getExportColumns(@PathVariable String projectId) {
         return functionalCaseFileService.getExportColumns(projectId);
+    }
+
+    @GetMapping("/stop/{projectId}")
+    @Operation(summary = "用例管理-功能用例-导出-停止导出")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public void caseStopExport(@PathVariable String projectId) {
+        functionalCaseFileService.stopExport(projectId, SessionUtils.getUserId());
     }
 }
