@@ -96,6 +96,7 @@
     </div>
     <div class="config-right-container">
       <ViewReport
+        ref="viewReportRef"
         v-model:card-list="cardItemList"
         :detail-info="props.detailInfo"
         :is-drawer="props.isDrawer"
@@ -363,6 +364,7 @@
   }
 
   const confirmLoading = ref<boolean>(false);
+  const viewReportRef = ref<InstanceType<typeof ViewReport>>();
   // 保存配置
   async function handleSave() {
     if (!reportForm.value.reportName) {
@@ -374,6 +376,7 @@
     try {
       const params: manualReportGenParams = makeParams();
       const reportId = await manualReportGen(params);
+      viewReportRef.value?.setIsSave(true);
       Message.success(t('report.detail.manualGenReportSuccess'));
       if (reportId) {
         router.push({

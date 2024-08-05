@@ -449,6 +449,10 @@
     editor.value?.destroy();
   });
 
+  function focus() {
+    editor.value?.chain().focus();
+  }
+
   const contentStyles = computed(() => {
     return {
       maxHeight: props.autoHeight ? '800px' : props.maxHeight || '260px',
@@ -514,6 +518,10 @@
       console.log(error);
     }
   }
+
+  defineExpose({
+    focus,
+  });
 </script>
 
 <template>

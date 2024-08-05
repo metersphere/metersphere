@@ -124,13 +124,13 @@
     </SystemTrigger>
   </div>
 
-  <div :class="`${props.isPreview ? 'mt-[16px]' : 'mt-[24px]'} drag-container`">
+  <div class="drag-container mt-[16px]">
     <VueDraggable v-model="innerCardList" :disabled="props.isPreview" group="report">
       <div
         v-for="(item, index) of innerCardList"
         v-show="showItem(item)"
         :key="item.id"
-        :class="`${props.isPreview ? 'mt-[16px]' : 'hover-card mt-[24px]'} card-item`"
+        :class="`${props.isPreview ? '' : 'hover-card'} card-item mt-[16px]`"
       >
         <div v-if="!props.isPreview" class="action">
           <div class="actionList">
@@ -178,13 +178,13 @@
             :share-id="shareId"
             :is-preview="props.isPreview"
             :can-edit="item.enableEdit"
-            :show-button="showButton"
             :is-plan-group="props.isGroup"
             :detail="detail"
             @update-summary="(formValue:customValueForm) => updateCustom(formValue, item)"
             @cancel="() => handleCancelCustom(item)"
             @handle-summary="(value:string) => handleSummary(value,item)"
-            @dblclick="handleDoubleClick(item)"
+            @handle-click="handleClick(item)"
+            @handle-set-save="setIsSave(false)"
           />
           <BugTable
             v-else-if="item.value === ReportCardTypeEnum.BUG_DETAIL"
@@ -222,8 +222,9 @@
               richTextTmpFileIds: [],
             }"
             @update-custom="(formValue:customValueForm)=>updateCustom(formValue,item)"
-            @dblclick="handleDoubleClick(item)"
+            @handle-click="handleClick(item)"
             @cancel="() => handleCancelCustom(item)"
+            @handle-set-save="setIsSave(false)"
           />
         </MsCard>
       </div>
@@ -234,7 +235,6 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
-  import { useEventListener } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import { VueDraggable } from 'vue-draggable-plus';
@@ -256,6 +256,7 @@
   import { getReportLayout, updateReportDetail } from '@/api/modules/test-plan/report';
   import { commonConfig, defaultCount, defaultReportDetail, seriesConfig, statusConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
+  import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import { addCommasToNumber } from '@/utils';
 
   import { UpdateReportDetailParams } from '@/models/testPlan/report';
@@ -287,12 +288,17 @@
     (e: 'updateCustom', item: configItem): void;
   }>();
 
+  const { setIsSave } = useLeaveUnSaveTip({
+    leaveTitle: 'common.tip',
+    leaveContent: 'common.editUnsavedLeave',
+    tipType: 'warning',
+  });
+
   const innerCardList = defineModel<configItem[]>('cardList', {
     default: [],
   });
 
   const detail = ref<PlanReportDetail>({ ...cloneDeep(defaultReportDetail) });
-  const showButton = ref<boolean>(false);
 
   const richText = ref<{ summary: string; richTextTmpFileIds?: string[] }>({
     summary: '',
@@ -513,23 +519,16 @@
     };
   }
 
-  onMounted(async () => {
-    nextTick(() => {
-      const editorContent = document.querySelector('.editor-content');
-      useEventListener(editorContent, 'click', () => {
-        showButton.value = true;
-      });
-    });
-  });
-
   function handleCancelCustom(cardItem: configItem) {
     const originItem = originLayoutInfo.value.find((item: configItem) => item.id === cardItem.id);
     const index = originLayoutInfo.value.findIndex((e: configItem) => e.id === cardItem.id);
     if (originItem && index !== -1) {
       innerCardList.value.splice(index, 1, originItem);
     }
-    showButton.value = false;
     cardItem.enableEdit = false;
+    if (props.isPreview) {
+      setIsSave(true);
+    }
     if (isDefaultLayout.value) {
       cardItem.content = detail.value.summary;
       richText.value.summary = detail.value.summary;
@@ -575,10 +574,12 @@
       innerCardList.value.splice(moveIndex, 1);
       innerCardList.value.splice(moveIndex + 1, 0, cardItem);
     }
+    setIsSave(false);
   }
   // 删除卡片
   const deleteCard = (cardItem: configItem) => {
     innerCardList.value = innerCardList.value.filter((item) => item.id !== cardItem.id);
+    setIsSave(false);
   };
 
   // 编辑模式和预览模式切换
@@ -588,11 +589,8 @@
     }
   }
 
-  function handleDoubleClick(cardItem: configItem) {
-    if (cardItem.value === ReportCardTypeEnum.SUMMARY) {
-      showButton.value = true;
-    }
-    cardItem.enableEdit = !cardItem.enableEdit;
+  function handleClick(cardItem: configItem) {
+    cardItem.enableEdit = true;
   }
 
   async function handleUpdateReportDetail(currentItem: configItem) {
@@ -605,11 +603,8 @@
       };
       await updateReportDetail(params);
       Message.success(t('common.updateSuccess'));
-      if (currentItem.value === ReportCardTypeEnum.SUMMARY) {
-        showButton.value = false;
-      } else {
-        currentItem.enableEdit = !currentItem.enableEdit;
-      }
+      setIsSave(true);
+      currentItem.enableEdit = false;
       emit('updateSuccess');
     } catch (error) {
       console.log(error);
@@ -638,6 +633,9 @@
       handleUpdateReportDetail(newCurrentItem);
     }
   }
+  defineExpose({
+    setIsSave,
+  });
 </script>
 
 <style scoped lang="less">
