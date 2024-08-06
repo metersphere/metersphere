@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="props.requestResult?.responseResult?.responseCode"
-    class="flex items-center justify-between gap-[24px] text-[14px]"
+    class="flex items-center justify-between gap-[16px] text-[14px]"
   >
     <a-tooltip :content="props.requestResult.fakeErrorCode" :disabled="!props.requestResult.fakeErrorCode">
       <executeStatus :status="finalStatus" size="small" class="ml-[4px]" />

@@ -21,31 +21,17 @@
       <div class="flex h-full flex-col">
         <loopPagination v-model:current-loop="currentLoop" :loop-total="loopTotal" />
         <div class="flex-1 overflow-y-hidden">
-          <div v-if="step.stepType === ScenarioStepType.SCRIPT" class="flex h-full flex-col p-[8px]">
-            <div class="mb-[8px] flex gap-[8px] text-[14px] font-medium text-[var(--color-text-1)]">
-              {{ t('apiScenario.executionResult') }}
-              <div class="one-line-text text-[var(--color-text-4)]">({{ step.name }})</div>
-            </div>
-            <div class="flex-1 bg-[var(--color-text-n9)] p-[12px]">
-              <pre class="response-header-pre">{{ currentResponse?.console }}</pre>
-            </div>
-          </div>
-          <div v-else class="response-result">
+          <div class="response-result">
             <responseResult
               :active-tab="ResponseComposition.BODY"
               :request-result="currentResponse"
               :console="currentResponse?.console"
               :show-empty="false"
-              :is-edit="false"
+              :is-priority-local-exec="false"
               is-definition
             >
-              <template #titleLeft>
-                <div class="flex items-center text-[14px]">
-                  <div class="font-medium text-[var(--color-text-1)]">{{ t('apiScenario.response') }}</div>
-                  <a-tooltip :content="props.step.name">
-                    <div class="one-line-text">({{ props.step.name }})</div>
-                  </a-tooltip>
-                </div>
+              <template #tabRight>
+                <responseCodeTimeSize :request-result="currentResponse" />
               </template>
             </responseResult>
           </div>
@@ -66,8 +52,6 @@
   import executeStatus from './executeStatus.vue';
   import loopPagination from './loopPagination.vue';
 
-  import { useI18n } from '@/hooks/useI18n';
-
   import { RequestResult } from '@/models/apiTest/common';
   import { ScenarioStepItem } from '@/models/apiTest/scenario';
   import {
@@ -78,7 +62,10 @@
   } from '@/enums/apiEnum';
 
   const responseResult = defineAsyncComponent(
-    () => import('@/views/api-test/components/requestComposition/response/index.vue')
+    () => import('@/views/api-test/components/requestComposition/response/result.vue')
+  );
+  const responseCodeTimeSize = defineAsyncComponent(
+    () => import('@/views/api-test/components/requestComposition/response/responseCodeTimeSize.vue')
   );
 
   const props = defineProps<{
@@ -87,8 +74,6 @@
     finalExecuteStatus?: ScenarioExecuteStatus;
   }>();
   const emit = defineEmits(['visibleChange']);
-
-  const { t } = useI18n();
 
   const currentLoop = ref(1);
   const currentResponse = computed(() => props.stepResponses?.[props.step.uniqueId]?.[currentLoop.value - 1]);
@@ -119,10 +104,11 @@
 
 <style lang="less">
   .scenario-step-response-popover {
-    width: 540px;
-    height: 500px;
+    padding: 8px 16px;
+    width: 640px;
+    height: 440px;
     .arco-popover-content {
-      @apply h-full;
+      @apply mt-0 h-full;
       .response-header-pre {
         @apply h-full overflow-auto bg-white;
         .ms-scroll-bar();
@@ -133,6 +119,9 @@
       .response-result {
         @apply h-full overflow-auto bg-white;
         .ms-scroll-bar();
+        .arco-tabs-tab:first-child {
+          margin-left: 0;
+        }
         .response {
           .response-head {
             background-color: var(--color-text-n9);

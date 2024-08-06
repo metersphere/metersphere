@@ -10,36 +10,71 @@
     @cancel="handleDrawerCancel"
   >
     <div class="scenario-script-drawer-content">
-      <div class="ml-[16px] mt-[10px]">
-        <!-- <stepTypeVue v-if="props.step" :step="props.step" /> -->
-        {{ t('apiScenario.scriptOperationName') }}
-      </div>
-      <div class="ml-[16px] mt-[3px] max-w-[70%]">
-        <a-input
-          v-model="scriptName"
-          :placeholder="t('apiScenario.scriptOperationNamePlaceholder')"
-          :max-length="255"
-          :disabled="isReadonly"
-        />
-      </div>
-      <div class="mt-[10px] flex flex-1 gap-[8px]">
-        <conditionContent
-          v-if="visible"
-          v-model:data="activeItem"
-          condition-type="scenario"
-          :disabled="isReadonly"
-          :is-build-in="true"
-          script-code-editor-height="100%"
-          @change="unSaved = true"
-        />
-      </div>
-      <div v-if="currentResponse?.console" class="p-[8px]">
-        <div class="mb-[8px] font-medium text-[var(--color-text-1)]">{{ t('apiScenario.executionResult') }}</div>
-        <loopPagination v-model:current-loop="currentLoop" :loop-total="loopTotal" />
-        <div class="h-[300px] bg-[var(--color-text-n9)] p-[12px]">
-          <pre class="response-header-pre">{{ currentResponse?.console }}</pre>
+      <MsTab
+        v-model:active-key="activeTab"
+        :content-tab-list="contentTabList"
+        :get-text-func="() => ''"
+        class="sticky-content no-content relative top-0 border-b px-[16px]"
+      />
+      <template v-if="activeTab === 'script'">
+        <div class="ml-[16px] mt-[10px]">
+          <!-- <stepTypeVue v-if="props.step" :step="props.step" /> -->
+          {{ t('apiScenario.scriptOperationName') }}
         </div>
+        <div class="ml-[16px] mt-[3px] max-w-[70%]">
+          <a-input
+            v-model="scriptName"
+            :placeholder="t('apiScenario.scriptOperationNamePlaceholder')"
+            :max-length="255"
+            :disabled="isReadonly"
+          />
+        </div>
+        <div class="mt-[10px] flex flex-1 gap-[8px]">
+          <conditionContent
+            v-if="visible"
+            v-model:data="scriptVModel"
+            condition-type="scenario"
+            :disabled="isReadonly"
+            :is-build-in="true"
+            script-code-editor-height="100%"
+            @change="unSaved = true"
+          />
+        </div>
+        <!-- <div v-if="currentResponse?.console" class="p-[8px]">
+          <div class="mb-[8px] font-medium text-[var(--color-text-1)]">{{ t('apiScenario.executionResult') }}</div>
+          <loopPagination v-model:current-loop="currentLoop" :loop-total="loopTotal" />
+          <div class="h-[300px] bg-[var(--color-text-n9)] p-[12px]">
+            <pre class="response-header-pre">{{ currentResponse?.console }}</pre>
+          </div>
+        </div> -->
+      </template>
+      <div v-else-if="scriptVModel.children" class="p-[16px]">
+        <assertion
+          v-model:params="scriptVModel.children[0].assertionConfig.assertions"
+          is-definition
+          :disabled="isReadonly"
+          :assertion-config="scriptVModel.children[0].assertionConfig"
+        />
       </div>
+      <response
+        v-if="visible && currentResponse && currentResponse.responseResult.responseCode"
+        ref="responseRef"
+        v-model:active-layout="activeLayout"
+        v-model:active-tab="responseActiveTab"
+        class="response"
+        :is-http-protocol="false"
+        :is-priority-local-exec="isPriorityLocalExec"
+        request-url=""
+        :is-expanded="isVerticalExpanded"
+        :request-result="currentResponse"
+        :console="currentResponse?.console"
+        :is-edit="false"
+        hide-layout-switch
+      >
+        <template #titleRight>
+          <loopPagination v-model:current-loop="currentLoop" :loop-total="loopTotal" />
+        </template>
+      </response>
     </div>
     <template v-if="!props.detail" #footer>
       <a-button type="secondary" @click="handleDrawerCancel">
@@ -60,6 +95,8 @@
 
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsTab from '@/components/pure/ms-tab/index.vue';
+  import assertion from '@/components/business/ms-assertion/index.vue';
   import loopPagination from './loopPagination.vue';
 
   // import stepTypeVue from './stepType/stepType.vue';
@@ -67,9 +104,12 @@
 
   import { ExecuteConditionProcessor, RequestResult } from '@/models/apiTest/common';
   import { ScenarioStepItem } from '@/models/apiTest/scenario';
-  import { RequestConditionProcessor } from '@/enums/apiEnum';
+  import { RequestConditionProcessor, ResponseComposition } from '@/enums/apiEnum';
 
   const conditionContent = defineAsyncComponent(() => import('@/views/api-test/components/condition/content.vue'));
+  const response = defineAsyncComponent(
+    () => import('@/views/api-test/components/requestComposition/response/index.vue')
+  );
 
   const props = defineProps<{
     detail?: ExecuteConditionProcessor;
@@ -89,9 +129,17 @@
     scriptLanguage: LanguageEnum.BEANSHELL_JSR233,
     commonScriptInfo: {},
     polymorphicName: 'MsScriptElement',
+    children: [
+      {
+        polymorphicName: 'MsCommonElement',
+        assertionConfig: {
+          assertions: [],
+        },
+      },
+    ],
   } as unknown as ExecuteConditionProcessor;
   const scriptName = ref('');
-  const activeItem = ref<ExecuteConditionProcessor>(cloneDeep(defaultScript));
+  const scriptVModel = ref<ExecuteConditionProcessor>(cloneDeep(defaultScript));
 
   const { t } = useI18n();
 
@@ -105,13 +153,17 @@
     }
   });
   const loopTotal = computed(() => (props.step?.uniqueId && props.stepResponses?.[props.step?.uniqueId]?.length) || 0);
+  const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
+  const responseActiveTab = ref<ResponseComposition>(ResponseComposition.BODY);
+  const isPriorityLocalExec = inject<Ref<boolean>>('isPriorityLocalExec');
+  const isVerticalExpanded = computed(() => activeLayout.value === 'vertical');
 
   watch(
     () => visible.value,
     (val) => {
       if (val) {
         scriptName.value = props.detail ? props.name || '' : '';
-        activeItem.value = cloneDeep(
+        scriptVModel.value = cloneDeep(
           props.detail
             ? {
                 ...props.detail,
@@ -124,25 +176,38 @@
     }
   );
 
+  const activeTab = ref<'script' | 'assertion'>('script');
+  const contentTabList = [
+    {
+      value: 'script',
+      label: t('apiTestManagement.script'),
+    },
+    {
+      value: 'assertion',
+      label: t('apiTestDebug.assertion'),
+    },
+  ];
+
   function handleDrawerCancel() {
     visible.value = false;
   }
 
   function saveAndContinue() {
-    emit('add', scriptName.value, activeItem.value);
+    emit('add', scriptName.value, scriptVModel.value);
   }
 
   function save() {
-    emit('add', scriptName.value, activeItem.value);
+    emit('add', scriptName.value, scriptVModel.value);
     visible.value = false;
   }
 
   function handleClose() {
     if (props.detail) {
-      emit('save', scriptName.value, activeItem.value, unSaved.value);
+      emit('save', scriptName.value, scriptVModel.value, unSaved.value);
     }
     scriptName.value = '';
-    activeItem.value = defaultScript as unknown as ExecuteConditionProcessor;
+    scriptVModel.value = defaultScript as unknown as ExecuteConditionProcessor;
+    activeTab.value = 'script';
   }
 </script>
 
@@ -156,11 +221,19 @@
 </style>
 
 <style lang="less" scoped>
+  :deep(.arco-tabs-tab:first-child) {
+    margin-left: 0;
+  }
   .response-header-pre {
     @apply h-full overflow-auto bg-white;
     .ms-scroll-bar();
 
     padding: 8px 12px;
     border-radius: var(--border-radius-small);
+  }
+  .sticky-content {
+    @apply sticky overflow-visible bg-white;
+
+    z-index: 101;
   }
 </style>

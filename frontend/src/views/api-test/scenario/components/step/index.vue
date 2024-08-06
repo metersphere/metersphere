@@ -48,8 +48,9 @@
           <template v-if="scenario.executeTime">
             <div class="action-group">
               <div class="text-[var(--color-text-4)]">{{ t('apiScenario.executeTime') }}</div>
-              <div class="text-[var(--color-text-4)]">{{ scenario.executeTime }}</div>
+              <div class="text-[var(--color-text-1)]">{{ scenario.executeTime }}</div>
             </div>
+            <a-divider direction="vertical" :margin="8"></a-divider>
             <div class="action-group">
               <div class="text-[var(--color-text-4)]">{{ t('apiScenario.executeResult') }}</div>
               <div class="flex items-center gap-[4px]">
@@ -67,8 +68,10 @@
               <MsButton
                 v-if="scenario.isDebug === false && !scenario.executeLoading && !scenario.isNew"
                 type="text"
+                class="ml-[8px]"
                 @click="checkReport"
               >
+                <icon-eye class="mr-[4px] text-[rgb(var(--primary-5))]" />
                 {{ t('apiScenario.checkReport') }}
               </MsButton>
             </div>
