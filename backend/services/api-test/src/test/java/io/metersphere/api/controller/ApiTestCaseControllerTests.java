@@ -111,7 +111,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String RUN_POST = "run";
     private static final String BATCH_RUN = "batch/run";
     private static final String API_CHANGE_CLEAR = "api-change/clear/{0}";
-    private static final String API_CHANGE_IGNORE = "api-change/ignore/{0}";
+    private static final String API_CHANGE_IGNORE = "api-change/ignore/{0}?ignore={1}";
     private static final String API_CHANGE_SYNC = "batch/api-change/sync";
     private static final String API_COMPARE = "api/compare/{0}";
 
@@ -478,14 +478,18 @@ public class ApiTestCaseControllerTests extends BaseTest {
         updateCase.setApiChange(true);
         updateCase.setId(apiTestCase.getId());
         apiTestCaseMapper.updateByPrimaryKeySelective(updateCase);
-        this.requestGetWithOk(API_CHANGE_IGNORE, apiTestCase.getId());
+        this.requestGetWithOk(API_CHANGE_IGNORE, apiTestCase.getId(), true);
         Assertions.assertFalse(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getApiChange());
         Assertions.assertTrue(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getIgnoreApiDiff());
         Assertions.assertTrue(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getIgnoreApiChange());
+        this.requestGetWithOk(API_CHANGE_IGNORE, apiTestCase.getId(), false);
+        Assertions.assertFalse(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getApiChange());
+        Assertions.assertTrue(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getIgnoreApiDiff());
+        Assertions.assertFalse(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getIgnoreApiChange());
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, API_CHANGE_IGNORE, apiTestCase.getId());
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, API_CHANGE_IGNORE, apiTestCase.getId());
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, API_CHANGE_IGNORE, apiTestCase.getId(), true);
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, API_CHANGE_IGNORE, apiTestCase.getId(), false);
     }
 
     @Test

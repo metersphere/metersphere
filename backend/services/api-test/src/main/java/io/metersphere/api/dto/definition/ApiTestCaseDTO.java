@@ -101,6 +101,9 @@ public class ApiTestCaseDTO {
     @Schema(description = "与接口定义不一致")
     private Boolean inconsistentWithApi;
 
+    @Schema(description = "忽略接口与用例参数不一致")
+    private Boolean ignoreApiDiff;
+
     @Schema(description = "忽略接口定义参数变更")
     private Boolean ignoreApiChange;
 }

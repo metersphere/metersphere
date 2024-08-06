@@ -980,13 +980,17 @@ public class ApiTestCaseService extends MoveNodeService {
         return ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class);
     }
 
-    public void ignoreApiChange(String id) {
+    public void ignoreApiChange(String id, boolean ignore) {
         checkResourceExist(id);
         ApiTestCase apiTestCase = new ApiTestCase();
         apiTestCase.setId(id);
-        apiTestCase.setApiChange(false);
-        apiTestCase.setIgnoreApiDiff(true);
-        apiTestCase.setIgnoreApiChange(true);
+        if (ignore) {
+            apiTestCase.setApiChange(false);
+            apiTestCase.setIgnoreApiDiff(true);
+            apiTestCase.setIgnoreApiChange(true);
+        } else {
+            apiTestCase.setIgnoreApiChange(false);
+        }
         apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
     }
 
