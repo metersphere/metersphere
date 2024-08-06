@@ -216,6 +216,7 @@
       dataIndex: 'projectIdNameMap',
       showInTable: true,
       showDrag: true,
+      isTag: true,
     },
     {
       title: 'organization.member.tableColunmUsergroup',
@@ -223,6 +224,7 @@
       dataIndex: 'userRoleIdNameMap',
       showInTable: true,
       showDrag: true,
+      isTag: true,
     },
     {
       title: 'organization.member.tableColunmStatus',

@@ -144,6 +144,16 @@
     ])
   );
 
+  const operationWidth = computed(() => {
+    if (hasOperationPermission.value) {
+      return 250;
+    }
+    if (hasAnyPermission(['SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER'])) {
+      return 100;
+    }
+    return 50;
+  });
+
   const organizationColumns: MsTableColumn = [
     {
       title: 'system.organization.ID',
@@ -200,7 +210,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: hasOperationPermission.value ? 250 : 50,
+      width: operationWidth.value,
     },
   ];
 
