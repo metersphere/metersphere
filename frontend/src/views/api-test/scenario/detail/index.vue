@@ -2,6 +2,10 @@
   <div class="h-full w-full overflow-hidden">
     <div class="px-[24px] pt-[16px]">
       <MsDetailCard :title="`【${scenario.num}】${scenario.name}`" :description="description" class="!py-[8px]">
+        <template #titlePrefix>
+          <apiStatus :status="scenario.status" size="small" />
+          <caseLevel :case-level="scenario.priority as CaseLevel" />
+        </template>
         <template #titleAppend>
           <a-tooltip :content="t(scenario.follow ? 'common.forked' : 'common.notForked')">
             <MsIcon
@@ -21,10 +25,6 @@
               @click="share"
             />
           </a-tooltip>
-          <apiStatus :status="scenario.status" size="small" />
-        </template>
-        <template #priority="{ value }">
-          <caseLevel :case-level="value as CaseLevel" />
         </template>
       </MsDetailCard>
     </div>
@@ -190,11 +190,6 @@
   });
 
   const description = computed(() => [
-    {
-      key: 'priority',
-      locale: 'apiScenario.scenarioLevel',
-      value: scenario.value.priority,
-    },
     {
       key: 'tag',
       locale: 'common.tag',

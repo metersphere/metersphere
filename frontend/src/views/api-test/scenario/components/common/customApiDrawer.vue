@@ -360,7 +360,6 @@
   import { TabErrorMessage } from '@/views/api-test/components/requestComposition/index.vue';
   import postcondition from '@/views/api-test/components/requestComposition/postcondition.vue';
   import precondition from '@/views/api-test/components/requestComposition/precondition.vue';
-  import response from '@/views/api-test/components/requestComposition/response/index.vue';
   import setting from '@/views/api-test/components/requestComposition/setting.vue';
 
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
@@ -416,6 +415,9 @@
   const httpBody = defineAsyncComponent(() => import('@/views/api-test/components/requestComposition/body.vue'));
   const httpQuery = defineAsyncComponent(() => import('@/views/api-test/components/requestComposition/query.vue'));
   const httpRest = defineAsyncComponent(() => import('@/views/api-test/components/requestComposition/rest.vue'));
+  const response = defineAsyncComponent(
+    () => import('@/views/api-test/components/requestComposition/response/index.vue')
+  );
   // const addDependencyDrawer = defineAsyncComponent(
   //   () => import('@/views/api-test/management/components/addDependencyDrawer.vue')
   // );

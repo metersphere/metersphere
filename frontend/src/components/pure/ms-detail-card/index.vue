@@ -2,6 +2,7 @@
   <div class="ms-detail-card">
     <div class="ms-detail-card-title">
       <div class="flex flex-1 items-center gap-[8px]">
+        <slot name="titlePrefix"></slot>
         <a-tooltip :content="t(props.title)">
           <div class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">
             {{ t(props.title) }}

@@ -94,7 +94,7 @@
       >
         <template #content>
           <div class="ms-params-popover-title">
-            {{ t('apiTestDebug.paramName') }}
+            {{ t(columnConfig.title as string) }}
           </div>
           <div class="ms-params-popover-value">
             {{ record[columnConfig.dataIndex as string] }}

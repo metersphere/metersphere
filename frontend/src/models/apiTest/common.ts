@@ -233,8 +233,6 @@ export interface ExecuteConditionProcessorCommon {
   beforeStepScript: boolean; // 是否是步骤内前置脚本前
   assertionType?: RequestConditionProcessor;
 }
-// 执行请求-前后置操作-脚本处理器
-export type ScriptProcessor = ScriptCommonConfig & ExecuteConditionProcessorCommon;
 // 执行请求-前后置操作-SQL脚本处理器
 export interface SQLProcessor extends ExecuteConditionProcessorCommon {
   name: string; // 描述
@@ -278,16 +276,6 @@ export interface XPathExtract extends ExpressionCommonConfig {
 export interface ExtractProcessor extends ExecuteConditionProcessorCommon {
   extractors: (RegexExtract | JSONPathExtract | XPathExtract)[];
 }
-// 执行请求-前后置操作配置
-export type ExecuteConditionProcessor = Partial<
-  ScriptProcessor & SQLProcessor & TimeWaitingProcessor & ExtractProcessor
-> &
-  ExecuteConditionProcessorCommon;
-export interface ExecuteConditionConfig {
-  enableGlobal?: boolean; // 是否启用全局前/后置 默认为 true
-  processors: ExecuteConditionProcessor[];
-  activeItemId?: number;
-}
 // 执行请求-断言配置子项
 export type ExecuteAssertionItem = ResponseAssertionCommon &
   ResponseCodeAssertion &
@@ -300,6 +288,24 @@ export type ExecuteAssertionItem = ResponseAssertionCommon &
 export interface ExecuteAssertionConfig {
   enableGlobal?: boolean; // 是否启用全局断言，部分地方没有
   assertions: ExecuteAssertionItem[];
+}
+// 执行请求-前后置操作-脚本处理器
+export interface ScriptProcessorChild {
+  polymorphicName: string; // 协议多态名称，写死MsCommonElement
+  assertionConfig: ExecuteAssertionConfig;
+}
+export interface ScriptProcessor extends ScriptCommonConfig, ExecuteConditionProcessorCommon {
+  children: ScriptProcessorChild[]; // 协议共有的子项配置
+}
+// 执行请求-前后置操作配置
+export type ExecuteConditionProcessor = Partial<
+  ScriptProcessor & SQLProcessor & TimeWaitingProcessor & ExtractProcessor
+> &
+  ExecuteConditionProcessorCommon;
+export interface ExecuteConditionConfig {
+  enableGlobal?: boolean; // 是否启用全局前/后置 默认为 true
+  processors: ExecuteConditionProcessor[];
+  activeItemId?: number;
 }
 // 执行请求-共用配置子项
 export interface ExecuteCommonChild {
