@@ -35,6 +35,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -271,5 +272,13 @@ public class FunctionalCaseController {
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public FunctionalCaseExportColumns getExportColumns(@PathVariable String projectId) {
         return functionalCaseFileService.getExportColumns(projectId);
+    }
+
+
+    @GetMapping(value = "/download/file/{projectId}/{fileId}")
+    @Operation(summary = "用例管理-功能用例-下载文件")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
+    public ResponseEntity<byte[]> downloadImgById(@PathVariable String projectId, @PathVariable String fileId) {
+        return functionalCaseFileService.downloadFile(projectId, fileId);
     }
 }

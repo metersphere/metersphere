@@ -54,6 +54,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -99,6 +102,7 @@ public class FunctionalCaseFileService {
     private FunctionalCaseLogService functionalCaseLogService;
     @Resource
     private SystemParameterMapper systemParameterMapper;
+    private static final String EXPORT_FILE_NAME = "case_export";
 
     /**
      * 下载excel导入模板
@@ -364,7 +368,7 @@ public class FunctionalCaseFileService {
 
     private void uploadFileToMinio(File file, String fileId) {
         FileRequest fileRequest = new FileRequest();
-        fileRequest.setFileName(file.getName());
+        fileRequest.setFileName(EXPORT_FILE_NAME);
         fileRequest.setFolder(DefaultRepositoryDir.getExportExcelTempDir() + "/" + fileId);
         fileRequest.setStorage(StorageType.MINIO.name());
         try {
@@ -733,5 +737,24 @@ public class FunctionalCaseFileService {
         List<TemplateCustomFieldDTO> headerCustomFields = getCustomFields(projectId);
         functionalCaseExportColumns.initCustomColumns(headerCustomFields);
         return functionalCaseExportColumns;
+    }
+
+    public ResponseEntity<byte[]> downloadFile(String projectId, String fileId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        byte[] bytes;
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFileName(EXPORT_FILE_NAME);
+        fileRequest.setFolder(DefaultRepositoryDir.getExportExcelTempDir() + "/" + fileId);
+        fileRequest.setStorage(StorageType.MINIO.name());
+        try {
+            bytes = fileService.download(fileRequest);
+        } catch (Exception e) {
+            throw new MSException("get file error");
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "Metersphere_case_" + project.getName() + "\"")
+                .body(bytes);
     }
 }
