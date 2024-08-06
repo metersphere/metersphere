@@ -254,7 +254,7 @@ public class FunctionalCaseController {
     @Operation(summary = "用例管理-功能用例-excel导出")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
     public void testCaseExport(@Validated @RequestBody FunctionalCaseExportRequest request) {
-        functionalCaseFileService.exportFunctionalCaseZip(request);
+        functionalCaseFileService.export(SessionUtils.getUserId(), request);
     }
 
     @GetMapping("/download/xmind/template/{projectId}")

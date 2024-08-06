@@ -54,7 +54,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -99,6 +98,8 @@ public class FunctionalCaseFileService {
     private FunctionalCaseLogService functionalCaseLogService;
     @Resource
     private SystemParameterMapper systemParameterMapper;
+    @Resource
+    private ExportTaskManager exportTaskManager;
 
     /**
      * 下载excel导入模板
@@ -323,15 +324,22 @@ public class FunctionalCaseFileService {
         }
     }
 
+    public void export(String userId, FunctionalCaseExportRequest request){
+        try {
+            exportTaskManager.exportAsyncTask(userId, request, t->exportFunctionalCaseZip(request));
+        } catch (InterruptedException e) {
+            LogUtils.error("导出失败："+e);
+            throw new MSException(e);
+        }
+    }
+
 
     /**
      * 导出excel
      *
      * @param request
-     * @param url
      */
-    @Async
-    public void exportFunctionalCaseZip(FunctionalCaseExportRequest request) {
+    public String exportFunctionalCaseZip(FunctionalCaseExportRequest request) {
         File tmpDir = null;
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         try {
@@ -359,7 +367,7 @@ public class FunctionalCaseFileService {
             LogUtils.error(e);
             throw new MSException(e);
         }
-
+        return null;
     }
 
     private void uploadFileToMinio(File file, String fileId) {
