@@ -6,6 +6,7 @@
         border: `1px solid ${props.tagBackgroundColor || methodColor}`,
         color: props.tagTextColor || methodColor,
         backgroundColor: props.tagBackgroundColor || 'white',
+        display: 'flex',
       }"
       :size="props.tagSize"
     >
