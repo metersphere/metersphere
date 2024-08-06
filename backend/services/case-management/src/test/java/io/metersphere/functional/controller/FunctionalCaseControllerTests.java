@@ -90,6 +90,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String DOWNLOAD_XMIND_TEMPLATE_URL = "/functional/case/download/xmind/template/";
     public static final String EXPORT_COLUMNS_URL = "/functional/case/export/columns/";
     public static final String DOWNLOAD_FILE_URL = "/functional/case/download/file/";
+    public static final String STOP_EXPORT_URL = "/functional/case/stop/";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -857,5 +858,11 @@ public class FunctionalCaseControllerTests extends BaseTest {
         mockMvc.perform(MockMvcRequestBuilders.get(DOWNLOAD_FILE_URL + DEFAULT_PROJECT_ID + "/" + "123142342")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken));
+    }
+
+    @Test
+    @Order(25)
+    public void stopExport() throws Exception {
+        this.requestGetExcel(STOP_EXPORT_URL + DEFAULT_PROJECT_ID);
     }
 }

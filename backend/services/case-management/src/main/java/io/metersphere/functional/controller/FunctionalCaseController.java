@@ -255,7 +255,15 @@ public class FunctionalCaseController {
     @Operation(summary = "用例管理-功能用例-excel导出")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
     public void testCaseExport(@Validated @RequestBody FunctionalCaseExportRequest request) {
-        functionalCaseFileService.exportFunctionalCaseZip(request);
+        functionalCaseFileService.export(SessionUtils.getUserId(), request);
+    }
+
+    @GetMapping("/stop/{projectId}")
+    @Operation(summary = "用例管理-功能用例-导出-停止导出")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public void caseStopExport(@PathVariable String projectId) {
+        functionalCaseFileService.stopExport(projectId, SessionUtils.getUserId());
     }
 
     @GetMapping("/download/xmind/template/{projectId}")
