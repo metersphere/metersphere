@@ -22,6 +22,7 @@ import io.metersphere.functional.excel.listener.FunctionalCaseImportEventListene
 import io.metersphere.functional.excel.listener.FunctionalCasePretreatmentListener;
 import io.metersphere.functional.excel.validate.AbstractCustomFieldValidator;
 import io.metersphere.functional.excel.validate.CustomFieldValidatorFactory;
+import io.metersphere.functional.mapper.ExportTaskMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseCommentMapper;
 import io.metersphere.functional.request.FunctionalCaseExportRequest;
 import io.metersphere.functional.request.FunctionalCaseImportRequest;
@@ -36,6 +37,7 @@ import io.metersphere.sdk.dto.SocketMsgDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.*;
+import io.metersphere.system.constants.ExportConstants;
 import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.domain.SystemParameter;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -43,6 +45,7 @@ import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.excel.utils.EasyExcelExporter;
+import io.metersphere.system.manager.ExportTaskManager;
 import io.metersphere.system.mapper.SystemParameterMapper;
 import io.metersphere.system.service.FileService;
 import io.metersphere.system.uid.IDGenerator;
@@ -57,7 +60,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -103,6 +105,10 @@ public class FunctionalCaseFileService {
     @Resource
     private SystemParameterMapper systemParameterMapper;
     private static final String EXPORT_FILE_NAME = "case_export";
+    @Resource
+    private ExportTaskManager exportTaskManager;
+    @Resource
+    private ExportTaskMapper exportTaskMapper;
 
     /**
      * 下载excel导入模板
@@ -327,15 +333,28 @@ public class FunctionalCaseFileService {
         }
     }
 
+    public void export(String userId, FunctionalCaseExportRequest request){
+        try {
+            ExportTaskExample exportTaskExample = new ExportTaskExample();
+            exportTaskExample.createCriteria().andTypeEqualTo(ExportConstants.ExportType.CASE.toString()).andStateEqualTo(ExportConstants.ExportState.PREPARED.toString());
+            long preparedCount = exportTaskMapper.countByExample(exportTaskExample);
+            if (preparedCount>0) {
+                throw new MSException(Translator.get("export_case_task_existed"));
+            }
+            exportTaskManager.exportAsyncTask(userId, ExportConstants.ExportType.CASE.toString(), request, t->exportFunctionalCaseZip(request));
+        } catch (InterruptedException e) {
+            LogUtils.error("导出失败："+e);
+            throw new MSException(e);
+        }
+    }
+
 
     /**
      * 导出excel
      *
      * @param request
-     * @param url
      */
-    @Async
-    public void exportFunctionalCaseZip(FunctionalCaseExportRequest request) {
+    public String exportFunctionalCaseZip(FunctionalCaseExportRequest request) {
         File tmpDir = null;
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         try {
@@ -356,14 +375,39 @@ public class FunctionalCaseFileService {
                 uploadFileToMinio(singeFile, request.getFileId());
             }
             functionalCaseLogService.exportExcelLog(request);
-            SocketMsgDTO socketMsgDTO = new SocketMsgDTO(request.getFileId(), "", MsgType.CONNECT.name(), MsgType.CONNECT.name());
+            List<ExportTask> exportTasks = getExportTasks();
+            String taskId;
+            if (CollectionUtils.isNotEmpty(exportTasks)) {
+                taskId = exportTasks.getFirst().getId();
+                updateExportTask(ExportConstants.ExportState.SUCCESS.toString(), taskId);
+            } else {
+                taskId = MsgType.CONNECT.name();
+            }
+            SocketMsgDTO socketMsgDTO = new SocketMsgDTO(request.getFileId(), "", MsgType.CONNECT.name(), taskId);
             socketMsgDTO.setReportId(request.getFileId());
             ExportWebSocketHandler.sendMessageSingle(socketMsgDTO);
         } catch (Exception e) {
+            List<ExportTask> exportTasks = getExportTasks();
+            if (CollectionUtils.isNotEmpty(exportTasks)) {
+                updateExportTask(ExportConstants.ExportState.SUCCESS.toString(), exportTasks.getFirst().getId());
+            }
             LogUtils.error(e);
             throw new MSException(e);
         }
+        return null;
+    }
 
+    private List<ExportTask> getExportTasks() {
+        ExportTaskExample exportTaskExample = new ExportTaskExample();
+        exportTaskExample.createCriteria().andTypeEqualTo(ExportConstants.ExportType.CASE.toString()).andStateEqualTo(ExportConstants.ExportState.PREPARED.toString());
+        return exportTaskMapper.selectByExample(exportTaskExample);
+    }
+
+    private void updateExportTask(String state, String taskId) {
+        ExportTask exportTask = new ExportTask();
+        exportTask.setState(state);
+        exportTask.setId(taskId);
+        exportTaskMapper.updateByPrimaryKey(exportTask);
     }
 
     private void uploadFileToMinio(File file, String fileId) {
@@ -756,5 +800,9 @@ public class FunctionalCaseFileService {
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "Metersphere_case_" + project.getName() + "\"")
                 .body(bytes);
+    }
+
+    public void stopExport(String projectId, String userId) {
+        exportTaskManager.sendStopMessage(projectId, userId);
     }
 }
