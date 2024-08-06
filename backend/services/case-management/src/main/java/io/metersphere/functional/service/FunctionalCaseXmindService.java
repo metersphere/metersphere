@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wx
@@ -31,11 +32,13 @@ public class FunctionalCaseXmindService {
 
     public void downloadXmindTemplate(String projectId, HttpServletResponse response) {
         List<TemplateCustomFieldDTO> customFields = functionalCaseFileService.getCustomFields(projectId);
+        //默认字段+自定义字段的 options集合
+        Map<String, List<String>> customFieldOptionsMap = functionalCaseFileService.getCustomFieldOptionsMap(customFields);
         try (InputStream stream = FunctionalCaseXmindService.class.getResourceAsStream(template)) {
             FunctionalCaseXmindData functionalCaseXmindData = JSON.parseObject(stream, FunctionalCaseXmindData.class);
             setTemplateCustomFields(functionalCaseXmindData.getChildren(), customFields);
 
-            XmindExportUtil.downloadTemplate(response, functionalCaseXmindData, true);
+            XmindExportUtil.downloadTemplate(response, functionalCaseXmindData, true, customFieldOptionsMap);
 
         } catch (Exception e) {
             LogUtils.error(e.getMessage());

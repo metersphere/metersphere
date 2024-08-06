@@ -210,7 +210,7 @@ public class FunctionalCaseFileService {
         return list;
     }
 
-    private Map<String, List<String>> getCustomFieldOptionsMap(List<TemplateCustomFieldDTO> customFields) {
+    public Map<String, List<String>> getCustomFieldOptionsMap(List<TemplateCustomFieldDTO> customFields) {
         Map<String, List<String>> returnMap = new HashMap<>();
         customFields.forEach(item -> {
             List<String> values = getOptionValues(Optional.ofNullable(item.getOptions()).orElse(new ArrayList<>()));
