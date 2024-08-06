@@ -32,10 +32,24 @@
           <div v-if="previewDetail.headers.length > 0" class="detail-item">
             <div class="detail-item-title">
               <div class="detail-item-title-text">{{ t('apiTestManagement.requestHeader') }}</div>
-              <a-radio-group v-model:model-value="headerShowType" type="button" size="mini">
-                <a-radio value="table">Table</a-radio>
-                <a-radio value="raw">Raw</a-radio>
-              </a-radio-group>
+              <div class="detail-item-title-right">
+                <a-button
+                  v-show="headerShowType === 'raw'"
+                  type="outline"
+                  class="arco-btn-outline--secondary mr-[12px] p-[0_8px]"
+                  size="small"
+                  @click="copyScript(headerRawCode)"
+                >
+                  <template #icon>
+                    <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" />
+                  </template>
+                  {{ t('common.copy') }}
+                </a-button>
+                <a-radio-group v-model:model-value="headerShowType" type="button" size="mini">
+                  <a-radio value="table">Table</a-radio>
+                  <a-radio value="raw">Raw</a-radio>
+                </a-radio-group>
+              </div>
             </div>
             <MsFormTable
               v-show="headerShowType === 'table'"
@@ -51,29 +65,30 @@
               :show-full-screen="false"
               :show-theme-change="false"
               read-only
-            >
-              <template #rightTitle>
-                <a-button
-                  type="outline"
-                  class="arco-btn-outline--secondary p-[0_8px]"
-                  size="mini"
-                  @click="copyScript(headerRawCode)"
-                >
-                  <template #icon>
-                    <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
-                  </template>
-                </a-button>
-              </template>
-            </MsCodeEditor>
+            />
             <a-divider type="dashed" :margin="0" class="!mt-[16px] border-[var(--color-text-n8)]" />
           </div>
           <div v-if="previewDetail.query.length > 0" class="detail-item">
             <div class="detail-item-title">
               <div class="detail-item-title-text">Query</div>
-              <a-radio-group v-model:model-value="queryShowType" type="button" size="mini">
-                <a-radio value="table">Table</a-radio>
-                <a-radio value="raw">Raw</a-radio>
-              </a-radio-group>
+              <div class="detail-item-title-right">
+                <a-button
+                  v-show="queryShowType === 'raw'"
+                  type="outline"
+                  class="arco-btn-outline--secondary mr-[12px] p-[0_8px]"
+                  size="small"
+                  @click="copyScript(queryRawCode)"
+                >
+                  <template #icon>
+                    <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" />
+                  </template>
+                  {{ t('common.copy') }}
+                </a-button>
+                <a-radio-group v-model:model-value="queryShowType" type="button" size="mini">
+                  <a-radio value="table">Table</a-radio>
+                  <a-radio value="raw">Raw</a-radio>
+                </a-radio-group>
+              </div>
             </div>
             <MsFormTable
               v-show="queryShowType === 'table'"
@@ -91,29 +106,30 @@
               :show-full-screen="false"
               :show-theme-change="false"
               read-only
-            >
-              <template #rightTitle>
-                <a-button
-                  type="outline"
-                  class="arco-btn-outline--secondary p-[0_8px]"
-                  size="mini"
-                  @click="copyScript(queryRawCode)"
-                >
-                  <template #icon>
-                    <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
-                  </template>
-                </a-button>
-              </template>
-            </MsCodeEditor>
+            />
             <a-divider type="dashed" :margin="0" class="!mt-[16px] border-[var(--color-text-n8)]" />
           </div>
           <div v-if="previewDetail.rest.length > 0" class="detail-item">
             <div class="detail-item-title">
               <div class="detail-item-title-text">REST</div>
-              <a-radio-group v-model:model-value="restShowType" type="button" size="mini">
-                <a-radio value="table">Table</a-radio>
-                <a-radio value="raw">Raw</a-radio>
-              </a-radio-group>
+              <div class="detail-item-title-right">
+                <a-button
+                  v-show="restShowType === 'raw'"
+                  type="outline"
+                  class="arco-btn-outline--secondary mr-[12px] p-[0_8px]"
+                  size="small"
+                  @click="copyScript(restRawCode)"
+                >
+                  <template #icon>
+                    <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" />
+                  </template>
+                  {{ t('common.copy') }}
+                </a-button>
+                <a-radio-group v-model:model-value="restShowType" type="button" size="mini">
+                  <a-radio value="table">Table</a-radio>
+                  <a-radio value="raw">Raw</a-radio>
+                </a-radio-group>
+              </div>
             </div>
             <MsFormTable
               v-show="restShowType === 'table'"
@@ -131,20 +147,7 @@
               :show-full-screen="false"
               :show-theme-change="false"
               read-only
-            >
-              <template #rightTitle>
-                <a-button
-                  type="outline"
-                  class="arco-btn-outline--secondary p-[0_8px]"
-                  size="mini"
-                  @click="copyScript(restRawCode)"
-                >
-                  <template #icon>
-                    <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
-                  </template>
-                </a-button>
-              </template>
-            </MsCodeEditor>
+            />
             <a-divider type="dashed" :margin="0" class="!mt-[16px] border-[var(--color-text-n8)]" />
           </div>
           <div v-if="previewDetail.body.bodyType !== RequestBodyFormat.NONE" class="detail-item">
@@ -152,15 +155,30 @@
               <div class="detail-item-title-text">
                 {{ `${t('apiTestManagement.requestBody')}-${previewDetail.body.bodyType}` }}
               </div>
-              <a-radio-group
-                v-if="previewDetail.body.bodyType === RequestBodyFormat.JSON && !props.isCase"
-                v-model:model-value="bodyShowType"
-                type="button"
-                size="mini"
-              >
-                <a-radio value="schema">Schema</a-radio>
-                <a-radio value="json">JSON</a-radio>
-              </a-radio-group>
+              <div v-if="previewDetail.body.bodyType === RequestBodyFormat.JSON" class="detail-item-title-right">
+                <a-button
+                  v-show="bodyShowType === 'json' || props.isCase"
+                  type="outline"
+                  class="arco-btn-outline--secondary p-[0_8px]"
+                  size="small"
+                  @click="copyScript(bodyCode)"
+                >
+                  <template #icon>
+                    <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" />
+                  </template>
+                  {{ t('common.copy') }}
+                </a-button>
+                <a-radio-group
+                  v-if="!props.isCase"
+                  v-model:model-value="bodyShowType"
+                  type="button"
+                  size="mini"
+                  class="ml-[12px]"
+                >
+                  <a-radio value="schema">Schema</a-radio>
+                  <a-radio value="json">JSON</a-radio>
+                </a-radio-group>
+              </div>
             </div>
             <!--            <div
               v-if="previewDetail.body.bodyType === RequestBodyFormat.NONE"
@@ -203,20 +221,7 @@
                 :show-full-screen="false"
                 :show-theme-change="false"
                 read-only
-              >
-                <template #rightTitle>
-                  <a-button
-                    type="outline"
-                    class="arco-btn-outline--secondary p-[0_8px]"
-                    size="mini"
-                    @click="copyScript(bodyCode)"
-                  >
-                    <template #icon>
-                      <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
-                    </template>
-                  </a-button>
-                </template>
-              </MsCodeEditor>
+              />
             </template>
             <a-divider type="dashed" :margin="0" class="!mt-[16px] border-[var(--color-text-n8)]" />
           </div>
@@ -224,10 +229,24 @@
         <div v-else class="detail-item">
           <div class="detail-item-title">
             <div class="detail-item-title-text">{{ t('apiTestManagement.requestData') }}</div>
-            <a-radio-group v-model:model-value="pluginShowType" type="button" size="mini">
-              <a-radio value="table">Table</a-radio>
-              <a-radio value="raw">Raw</a-radio>
-            </a-radio-group>
+            <div class="detail-item-title-right">
+              <a-button
+                v-show="pluginShowType === 'raw'"
+                type="outline"
+                class="arco-btn-outline--secondary mr-[12px] p-[0_8px]"
+                size="small"
+                @click="copyScript(pluginRawCode)"
+              >
+                <template #icon>
+                  <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" />
+                </template>
+                {{ t('common.copy') }}
+              </a-button>
+              <a-radio-group v-model:model-value="pluginShowType" type="button" size="mini">
+                <a-radio value="table">Table</a-radio>
+                <a-radio value="raw">Raw</a-radio>
+              </a-radio-group>
+            </div>
           </div>
           <MsFormTable
             v-show="pluginShowType === 'table'"
@@ -243,20 +262,7 @@
             :show-full-screen="false"
             :show-theme-change="false"
             read-only
-          >
-            <template #rightTitle>
-              <a-button
-                type="outline"
-                class="arco-btn-outline--secondary p-[0_8px]"
-                size="mini"
-                @click="copyScript(pluginRawCode)"
-              >
-                <template #icon>
-                  <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
-                </template>
-              </a-button>
-            </template>
-          </MsCodeEditor>
+          />
           <a-divider type="dashed" :margin="0" class="!mt-[16px] border-[var(--color-text-n8)]" />
         </div>
       </div>
@@ -304,32 +310,55 @@
             <div class="detail-item-title-text">
               {{ `${t('apiTestDebug.responseBody')}-${activeResponse?.body.bodyType}` }}
             </div>
-            <div v-if="activeResponse?.body.bodyType === ResponseBodyFormat.JSON" class="flex items-center gap-[8px]">
-              <MsButton
-                type="text"
-                class="!mr-0"
-                :class="
-                  activeResponse.body.jsonBody.enableJsonSchema
-                    ? 'font-medium !text-[rgb(var(--primary-5))]'
-                    : '!text-[var(--color-text-4)]'
+            <div class="detail-item-title-right">
+              <a-button
+                v-show="
+                  !(
+                    activeResponse?.body.bodyType === ResponseBodyFormat.BINARY ||
+                    (activeResponse?.body.bodyType === ResponseBodyFormat.JSON &&
+                      activeResponse.body.jsonBody.enableJsonSchema)
+                  )
                 "
-                @click="handleChangeJsonType('Schema')"
+                type="outline"
+                class="arco-btn-outline--secondary p-[0_8px]"
+                size="small"
+                @click="copyScript(responseCode || '')"
               >
-                Schema
-              </MsButton>
-              <a-divider :margin="0" direction="vertical"></a-divider>
-              <MsButton
-                type="text"
-                class="!mr-0"
-                :class="
-                  !activeResponse.body.jsonBody.enableJsonSchema
-                    ? 'font-medium !text-[rgb(var(--primary-5))]'
-                    : '!text-[var(--color-text-4)]'
-                "
-                @click="handleChangeJsonType('Json')"
+                <template #icon>
+                  <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" />
+                </template>
+                {{ t('common.copy') }}
+              </a-button>
+              <div
+                v-if="activeResponse?.body.bodyType === ResponseBodyFormat.JSON"
+                class="ml-[12px] flex items-center gap-[8px]"
               >
-                Json
-              </MsButton>
+                <MsButton
+                  type="text"
+                  class="!mr-0"
+                  :class="
+                    activeResponse.body.jsonBody.enableJsonSchema
+                      ? 'font-medium !text-[rgb(var(--primary-5))]'
+                      : '!text-[var(--color-text-4)]'
+                  "
+                  @click="handleChangeJsonType('Schema')"
+                >
+                  Schema
+                </MsButton>
+                <a-divider :margin="0" direction="vertical"></a-divider>
+                <MsButton
+                  type="text"
+                  class="!mr-0"
+                  :class="
+                    !activeResponse.body.jsonBody.enableJsonSchema
+                      ? 'font-medium !text-[rgb(var(--primary-5))]'
+                      : '!text-[var(--color-text-4)]'
+                  "
+                  @click="handleChangeJsonType('Json')"
+                >
+                  Json
+                </MsButton>
+              </div>
             </div>
           </div>
           <MsFormTable
@@ -354,20 +383,7 @@
             :show-full-screen="false"
             :show-theme-change="false"
             read-only
-          >
-            <template #rightTitle>
-              <a-button
-                type="outline"
-                class="arco-btn-outline--secondary p-[0_8px]"
-                size="mini"
-                @click="copyScript(responseCode || '')"
-              >
-                <template #icon>
-                  <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
-                </template>
-              </a-button>
-            </template>
-          </MsCodeEditor>
+          />
         </div>
         <div v-if="activeResponse?.headers && activeResponse?.headers.length > 0" class="detail-item">
           <div class="detail-item-title">
@@ -935,6 +951,12 @@
 
         color: var(--color-text-1);
       }
+      .detail-item-title-right {
+        @apply flex items-center;
+      }
+    }
+    :deep(.ms-code-editor-container) {
+      padding: 0;
     }
   }
   .response-tab {
