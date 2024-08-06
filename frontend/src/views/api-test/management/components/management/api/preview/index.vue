@@ -186,6 +186,9 @@
     :deep(.arco-tabs-pane) {
       @apply h-auto;
     }
+    :deep(.arco-tabs-content) {
+      @apply pt-0;
+    }
   }
   :deep(.ms-detail-card) {
     gap: 12px;
