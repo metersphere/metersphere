@@ -38,7 +38,7 @@
       v-on="propsEvent"
       @batch-action="handleTableBatch"
     >
-      <template #userRole="{ record }">
+      <template #userRoles="{ record }">
         <MsTagGroup
           v-if="!record.showUserSelect"
           :tag-list="record.userRoles || []"
@@ -169,9 +169,10 @@
     },
     {
       title: 'project.member.tableColumnUserGroup',
-      slotName: 'userRole',
-      dataIndex: 'userRoleIdNameMap',
+      slotName: 'userRoles',
+      dataIndex: 'userRoles',
       showDrag: true,
+      isTag: true,
       width: 300,
     },
     {

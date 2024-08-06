@@ -66,7 +66,7 @@
         <a-table-column
           v-for="(item, idx) in currentColumns"
           :key="idx"
-          :width="item.isTag || item.isStringTag ? item.width || 360 : item.width"
+          :width="item.isTag || item.isStringTag ? columnLastWidthMap[item.dataIndex as string] : item.width"
           :align="item.align"
           :fixed="item.fixed"
           :sortable="item.sortable"
@@ -506,6 +506,71 @@
     },
     {
       immediate: true,
+    }
+  );
+
+  const columnLastWidthMap = ref<Record<string, any>>({});
+
+  // 获取单个标签的宽度
+  const getTagWidth = (tag: Record<string, any>, lastText: string) => {
+    const maxTagWidth = 144; // 单个标签最大宽度
+    const spanPadding = 8; // 标签内边距
+    const spanBorder = 2; // 标签边框
+    const marginRight = 4; // 标签之间的间距
+
+    const el = document.createElement('div');
+    el.style.visibility = 'hidden';
+    el.style.position = 'absolute';
+    el.style.fontSize = '12px';
+    // 最后一个标签显示为 +n，按照+n的宽度来计算
+    el.textContent = lastText || tag.name || tag;
+
+    document.body.appendChild(el);
+    let width = el.offsetWidth + spanPadding * 2 + spanBorder;
+
+    // 衡量宽度后将元素移除
+    document.body.removeChild(el);
+    width = width > maxTagWidth ? maxTagWidth + marginRight : width + marginRight;
+    return width;
+  };
+
+  // 获取所有行里边对应列标签宽度总和
+  const getRowTagTotalWidth = (tags: TableData[]) => {
+    const maxShowTagCount = 3; // 包含数字标签最多展示3个
+    const tablePadding = 24; // 表单元格内边距总和
+
+    const tagArr = tags.length > maxShowTagCount ? tags.slice(0, maxShowTagCount) : tags;
+    const totalWidth = tagArr.reduce((acc, tag, index) => {
+      const lastText = index === maxShowTagCount - 1 ? `+${tags.length - maxShowTagCount - 1}` : '';
+      const width = getTagWidth(tag, lastText);
+      return acc + width;
+    }, 0);
+
+    return totalWidth + tablePadding;
+  };
+
+  // 求总和里边最大宽度作为标签列宽
+  const getMaxRowTagWidth = (rows: TableData[], dataIndex: string) => {
+    const allTags = ((rows as TableData) || []).map((row: TableData) => row[dataIndex] || []);
+
+    const rowWidths = (allTags || []).map((tags: any) => {
+      return getRowTagTotalWidth(tags);
+    });
+    // 确保返回非负值
+    return Math.max(...rowWidths, 0);
+  };
+
+  watch(
+    () => attrs.data,
+    (val) => {
+      if (val) {
+        currentColumns.value.forEach((column) => {
+          const dataIndex = column.dataIndex as string;
+          if (column.isTag || column.isStringTag) {
+            columnLastWidthMap.value[dataIndex] = getMaxRowTagWidth((val as TableData[]) || [], dataIndex);
+          }
+        });
+      }
     }
   );
 

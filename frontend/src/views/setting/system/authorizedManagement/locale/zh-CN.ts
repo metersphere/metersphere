@@ -6,7 +6,7 @@ export default {
   'system.authorized.authorizedVersion': '授权版本',
   'system.authorized.authorizationsCount': '授权数量',
   'system.authorized.authorizationStatus': '授权状态',
-  'system.authorized.authorityChecking': '授权验证',
+  'system.authorized.authorityChecking': '导入License',
   'system.authorized.valid': '有效',
   'system.authorized.invalid': '无效',
   'system.authorized.failure': '失败',
