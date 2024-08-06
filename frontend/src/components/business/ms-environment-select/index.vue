@@ -3,13 +3,14 @@
     <a-select
       v-model:model-value="currentEnv"
       :options="envOptions"
-      class="!w-[200px] pl-0 pr-[8px]"
+      :class="[`${props.size === 'mini' ? '!w-[113px]' : '!w-[200px]'} pl-0 pr-[8px]`]"
       :loading="envLoading"
       allow-search
+      :size="props.size"
       @popup-visible-change="popupVisibleChange"
     >
       <template #prefix>
-        <div class="flex cursor-pointer p-[8px]" @click.stop="goEnv">
+        <div :class="[`flex cursor-pointer ${props.size === 'mini' ? 'p-[4px]' : 'p-[8px]'}`]" @click.stop="goEnv">
           <svg-icon width="14px" height="14px" :name="'icon_env'" class="text-[var(--color-text-4)]" />
         </div>
       </template>
@@ -27,6 +28,7 @@
 
   const props = defineProps<{
     env?: string;
+    size?: 'mini' | 'small' | 'medium' | 'large';
   }>();
 
   const appStore = useAppStore();

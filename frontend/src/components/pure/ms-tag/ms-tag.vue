@@ -138,6 +138,7 @@
 
 <style lang="less">
   .arco-tag {
+    display: flex;
     .arco-icon {
       font-size: 14px !important;
     }

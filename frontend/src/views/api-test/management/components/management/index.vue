@@ -1,6 +1,12 @@
 <template>
   <div class="flex gap-[8px] px-[16px] pt-[16px]">
-    <a-select v-model:model-value="currentTab" class="w-[80px]" :options="tabOptions" @change="currentTabChange" />
+    <a-select
+      v-model:model-value="currentTab"
+      class="w-[80px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
+      :bordered="false"
+      :options="tabOptions"
+      @change="currentTabChange"
+    />
     <MsEditableTab
       v-model:active-tab="activeApiTab"
       v-model:tabs="apiTabs"
@@ -33,6 +39,7 @@
       v-show="activeApiTab.id !== 'all'"
       ref="environmentSelectRef"
       :env="activeApiTab.environmentId"
+      size="mini"
     />
   </div>
   <api
