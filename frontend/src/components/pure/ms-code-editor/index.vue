@@ -56,7 +56,7 @@
       </div>
     </div>
     <!-- 这里的 32px 是顶部标题的 32px -->
-    <div class="flex w-full flex-1 flex-row rounded-[var(--border-radius-small)]">
+    <div class="flex w-full flex-1 flex-row overflow-hidden rounded-[var(--border-radius-small)]">
       <div
         ref="codeContainerRef"
         :class="['ms-code-editor', isFullScreen ? 'ms-code-editor-full-screen' : '', currentTheme]"
