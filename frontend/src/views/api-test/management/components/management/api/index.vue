@@ -24,28 +24,28 @@
       >
         <template v-if="activeApiTab.definitionActiveKey === 'preview'" #extra>
           <div class="flex gap-[12px] pr-[16px]">
-            <executeButton v-permission="['PROJECT_API_DEFINITION:READ+EXECUTE']" @execute="toExecuteDefinition" />
-            <a-dropdown-button
+            <a-button
+              v-permission="['PROJECT_API_DEFINITION:READ+DELETE']"
+              type="outline"
+              class="arco-btn-outline--secondary"
+              size="small"
+              @click="handleDelete"
+            >
+              {{ t('common.delete') }}
+            </a-button>
+            <a-button
               v-permission="['PROJECT_API_DEFINITION:READ+UPDATE']"
               type="outline"
+              size="small"
               @click="toEditDefinition"
             >
               {{ t('common.edit') }}
-              <template #icon>
-                <icon-down />
-              </template>
-              <template #content>
-                <a-doption
-                  v-permission="['PROJECT_API_DEFINITION:READ+DELETE']"
-                  value="delete"
-                  class="error-6 text-[rgb(var(--danger-6))]"
-                  @click="handleDelete"
-                >
-                  <MsIcon type="icon-icon_delete-trash_outlined1" class="text-[rgb(var(--danger-6))]" />
-                  {{ t('common.delete') }}
-                </a-doption>
-              </template>
-            </a-dropdown-button>
+            </a-button>
+            <executeButton
+              v-permission="['PROJECT_API_DEFINITION:READ+EXECUTE']"
+              size="small"
+              @execute="toExecuteDefinition"
+            />
           </div>
         </template>
         <a-tab-pane
@@ -578,12 +578,6 @@
   }
   :deep(.ms-api-tab-nav) {
     @apply h-full;
-    .arco-tabs {
-      @apply border-b-0;
-    }
-    .arco-tabs-nav {
-      border-bottom: 1px solid var(--color-text-n8);
-    }
     .arco-tabs-content {
       @apply pt-0;
 

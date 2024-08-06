@@ -1,11 +1,11 @@
 <template>
   <div class="preview">
     <div class="px-[18px] pt-[16px]">
-      <MsDetailCard
-        :title="`【${previewDetail.num}】${previewDetail.name}`"
-        :description="description"
-        :simple-show-count="4"
-      >
+      <MsDetailCard :title="`[${previewDetail.num}] ${previewDetail.name}`" :description="description">
+        <template #titlePrefix>
+          <apiStatus :status="previewDetail.status" size="small" />
+          <apiMethodName :method="previewDetail.method as RequestMethods" tag-size="small" is-tag />
+        </template>
         <template #titleAppend>
           <a-tooltip :content="t(previewDetail.follow ? 'common.forked' : 'common.notForked')">
             <MsIcon
@@ -26,10 +26,6 @@
               @click="share"
             />
           </a-tooltip>
-          <apiStatus :status="previewDetail.status" size="small" />
-        </template>
-        <template #type="{ value }">
-          <apiMethodName :method="value as RequestMethods" tag-size="small" is-tag />
         </template>
       </MsDetailCard>
     </div>
@@ -112,11 +108,6 @@
 
   const description = computed(() => [
     {
-      key: 'type',
-      locale: 'apiTestManagement.apiType',
-      value: previewDetail.value.method,
-    },
-    {
       key: 'path',
       locale: 'apiTestManagement.path',
       value: previewDetail.value.url || previewDetail.value.path,
@@ -130,7 +121,6 @@
       key: 'description',
       locale: 'common.desc',
       value: previewDetail.value.description,
-      width: '100%',
     },
     {
       key: 'belongModule',
@@ -190,8 +180,22 @@
   .preview {
     @apply h-full w-full overflow-y-auto overflow-x-hidden;
     .ms-scroll-bar();
+    :deep(.arco-tabs-nav) {
+      border-bottom: 1px solid var(--color-text-n8);
+    }
     :deep(.arco-tabs-pane) {
       @apply h-auto;
+    }
+  }
+  :deep(.ms-detail-card) {
+    gap: 12px;
+    .ms-detail-card-desc {
+      column-gap: 24px;
+      row-gap: 8px;
+      & > div:nth-of-type(n) {
+        width: auto;
+        max-width: 300px;
+      }
     }
   }
 </style>
