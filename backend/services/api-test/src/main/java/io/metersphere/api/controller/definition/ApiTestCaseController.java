@@ -319,11 +319,11 @@ public class ApiTestCaseController {
     }
 
     @GetMapping("/api-change/ignore/{id}")
-    @Operation(summary = "清除接口参数变更标识")
+    @Operation(summary = "忽略接口变更提示")
     @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE})
     @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
-    public void ignoreApiChange(@PathVariable String id) {
-        apiTestCaseService.ignoreApiChange(id);
+    public void ignoreApiChange(@PathVariable String id, @RequestParam(name = "ignore") boolean ignore) {
+        apiTestCaseService.ignoreApiChange(id, ignore);
     }
 
     @GetMapping("/api/compare/{id}")
