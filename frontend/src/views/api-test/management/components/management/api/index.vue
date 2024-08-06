@@ -15,115 +15,92 @@
       />
     </div>
     <div v-else-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
-      <a-tabs
-        v-model:active-key="activeApiTab.definitionActiveKey"
-        animation
-        lazy-load
-        class="ms-api-tab-nav"
-        @change="changeDefinitionActiveKey"
-      >
-        <template v-if="activeApiTab.definitionActiveKey === 'preview'" #extra>
-          <div class="flex gap-[12px] pr-[16px]">
-            <a-button
-              v-permission="['PROJECT_API_DEFINITION:READ+DELETE']"
-              type="outline"
-              class="arco-btn-outline--secondary"
-              size="small"
-              @click="handleDelete"
-            >
-              {{ t('common.delete') }}
-            </a-button>
-            <a-button
-              v-permission="['PROJECT_API_DEFINITION:READ+UPDATE']"
-              type="outline"
-              size="small"
-              @click="toEditDefinition"
-            >
-              {{ t('common.edit') }}
-            </a-button>
-            <executeButton
-              v-permission="['PROJECT_API_DEFINITION:READ+EXECUTE']"
-              size="small"
-              @execute="toExecuteDefinition"
-            />
-          </div>
-        </template>
-        <a-tab-pane
-          v-if="!activeApiTab.isNew"
-          key="preview"
-          :title="t('apiTestManagement.preview')"
-          class="ms-api-tab-pane"
-        >
-          <preview
-            v-if="activeApiTab.definitionActiveKey === 'preview'"
-            :detail="activeApiTab"
-            :protocols="protocols"
-            @update-follow="activeApiTab.follow = !activeApiTab.follow"
+      <div class="mt-[8px] flex items-center justify-between px-[16px]">
+        <MsTab
+          v-model:activeKey="activeApiTab.definitionActiveKey"
+          :content-tab-list="contentTabList"
+          mode="button"
+          class="ms-api-tab-nav"
+          button-size="small"
+          @change="changeDefinitionActiveKey"
+        />
+        <div v-if="activeApiTab.definitionActiveKey === 'preview'" class="flex gap-[12px]">
+          <a-button
+            v-permission="['PROJECT_API_DEFINITION:READ+DELETE']"
+            type="outline"
+            class="arco-btn-outline--secondary"
+            size="small"
+            @click="handleDelete"
+          >
+            {{ t('common.delete') }}
+          </a-button>
+          <a-button
+            v-permission="['PROJECT_API_DEFINITION:READ+UPDATE']"
+            type="outline"
+            size="small"
+            @click="toEditDefinition"
+          >
+            {{ t('common.edit') }}
+          </a-button>
+          <executeButton
+            v-permission="['PROJECT_API_DEFINITION:READ+EXECUTE']"
+            size="small"
+            @execute="toExecuteDefinition"
           />
-        </a-tab-pane>
-        <a-tab-pane
-          v-if="hasAnyPermission(['PROJECT_API_DEFINITION:READ+UPDATE', 'PROJECT_API_DEFINITION:READ+ADD'])"
-          key="definition"
-          :title="t('apiTestManagement.definition')"
-          class="ms-api-tab-pane"
-        >
-          <requestComposition
-            ref="requestCompositionRef"
-            v-model:detail-loading="loading"
-            v-model:request="activeApiTab"
-            :protocol-key="ProtocolKeyEnum.API_NEW_PROTOCOL"
-            :module-tree="props.moduleTree"
-            :create-api="addDefinition"
-            :update-api="updateDefinition"
-            :execute-api="debugDefinition"
-            :local-execute-api="localExecuteApiDebug"
-            :permission-map="{
-              execute: 'PROJECT_API_DEFINITION:READ+EXECUTE',
-              update: 'PROJECT_API_DEFINITION:READ+UPDATE',
-              create: 'PROJECT_API_DEFINITION:READ+ADD',
-            }"
-            :upload-temp-file-api="uploadTempFile"
-            :file-save-as-source-id="activeApiTab.id"
-            :file-module-options-api="getTransferOptions"
-            :file-save-as-api="transferFile"
-            is-definition
-            @add-done="handleAddDone"
-          />
-        </a-tab-pane>
-        <a-tab-pane
-          v-if="!activeApiTab.isNew && hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ'])"
-          key="case"
-          :title="t('apiTestManagement.case')"
-          class="ms-api-tab-pane"
-        >
-          <caseTable
-            ref="caseTableRef"
-            :is-api="true"
-            :active-module="props.activeModule"
-            :selected-protocols="[activeApiTab.protocol]"
-            :api-detail="activeApiTab"
-            :offspring-ids="props.offspringIds"
-            :member-options="memberOptions"
-            :height-used="48"
-          />
-        </a-tab-pane>
-        <a-tab-pane
-          v-if="!activeApiTab.isNew && activeApiTab.protocol === 'HTTP'"
-          key="mock"
-          title="MOCK"
-          class="ms-api-tab-pane"
-        >
-          <mockTable
-            :active-module="props.activeModule"
-            :offspring-ids="props.offspringIds"
-            :definition-detail="activeApiTab"
-            :selected-protocols="[activeApiTab.protocol]"
-            :height-used="48"
-            is-api
-            @debug="openApiTabAndDebugMock"
-          />
-        </a-tab-pane>
-      </a-tabs>
+        </div>
+      </div>
+      <div class="h-[calc(100%-32px)]">
+        <preview
+          v-if="activeApiTab.definitionActiveKey === 'preview'"
+          :detail="activeApiTab"
+          :protocols="protocols"
+          @update-follow="activeApiTab.follow = !activeApiTab.follow"
+        />
+        <requestComposition
+          v-if="activeApiTab.definitionActiveKey === 'definition'"
+          ref="requestCompositionRef"
+          v-model:detail-loading="loading"
+          v-model:request="activeApiTab"
+          :protocol-key="ProtocolKeyEnum.API_NEW_PROTOCOL"
+          :module-tree="props.moduleTree"
+          :create-api="addDefinition"
+          :update-api="updateDefinition"
+          :execute-api="debugDefinition"
+          :local-execute-api="localExecuteApiDebug"
+          :permission-map="{
+            execute: 'PROJECT_API_DEFINITION:READ+EXECUTE',
+            update: 'PROJECT_API_DEFINITION:READ+UPDATE',
+            create: 'PROJECT_API_DEFINITION:READ+ADD',
+          }"
+          :upload-temp-file-api="uploadTempFile"
+          :file-save-as-source-id="activeApiTab.id"
+          :file-module-options-api="getTransferOptions"
+          :file-save-as-api="transferFile"
+          is-definition
+          @add-done="handleAddDone"
+        />
+        <caseTable
+          v-if="activeApiTab.definitionActiveKey === 'case'"
+          ref="caseTableRef"
+          :is-api="true"
+          :active-module="props.activeModule"
+          :selected-protocols="[activeApiTab.protocol]"
+          :api-detail="activeApiTab"
+          :offspring-ids="props.offspringIds"
+          :member-options="memberOptions"
+          :height-used="32"
+        />
+        <mockTable
+          v-if="activeApiTab.definitionActiveKey === 'mock'"
+          :active-module="props.activeModule"
+          :offspring-ids="props.offspringIds"
+          :definition-detail="activeApiTab"
+          :selected-protocols="[activeApiTab.protocol]"
+          :height-used="32"
+          is-api
+          @debug="openApiTabAndDebugMock"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -132,6 +109,7 @@
   import { cloneDeep } from 'lodash-es';
 
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
+  import MsTab from '@/components/pure/ms-tab/index.vue';
   // import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
   import apiTable from './apiTable.vue';
   import executeButton from '@/views/api-test/components/executeButton.vue';
@@ -516,6 +494,24 @@
     refreshTableTimeStamp.value = Date.now();
   }
 
+  const contentTabList = computed(() => {
+    const { isNew, protocol } = activeApiTab.value;
+    const tabs = [
+      { condition: !isNew, value: 'preview', label: t('apiTestManagement.preview') },
+      {
+        condition: hasAnyPermission(['PROJECT_API_DEFINITION:READ+UPDATE', 'PROJECT_API_DEFINITION:READ+ADD']),
+        value: 'definition',
+        label: t('apiTestManagement.definition'),
+      },
+      {
+        condition: !isNew && hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ']),
+        value: 'case',
+        label: t('apiTestManagement.case'),
+      },
+      { condition: !isNew && protocol === 'HTTP', value: 'mock', label: 'MOCK' },
+    ];
+    return tabs.filter((tab) => tab.condition).map((tab) => ({ value: tab.value, label: tab.label }));
+  });
   function changeDefinitionActiveKey(val: string | number) {
     // 在定义可以添加用例，故需要切换到case时刷新数据
     if (val === 'case') {
@@ -568,26 +564,3 @@
     refreshTable,
   });
 </script>
-
-<style lang="less" scoped>
-  .error-6 {
-    color: rgb(var(--danger-6));
-    &:hover {
-      color: rgb(var(--danger-6));
-    }
-  }
-  :deep(.ms-api-tab-nav) {
-    @apply h-full;
-    .arco-tabs-content {
-      @apply pt-0;
-
-      height: calc(100% - 48px);
-      .arco-tabs-content-list {
-        @apply h-full;
-        .arco-tabs-pane {
-          @apply h-full;
-        }
-      }
-    }
-  }
-</style>
