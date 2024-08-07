@@ -2,15 +2,15 @@ package io.metersphere.system.controller;
 
 
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.dto.sdk.CustomFieldDTO;
 import io.metersphere.system.dto.sdk.request.CustomFieldUpdateRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.utils.SessionUtils;
-import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.service.OrganizationCustomFieldLogService;
 import io.metersphere.system.service.OrganizationCustomFieldService;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;

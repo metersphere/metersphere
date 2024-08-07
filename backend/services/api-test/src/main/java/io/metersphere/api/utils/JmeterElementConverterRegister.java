@@ -1,6 +1,9 @@
 package io.metersphere.api.utils;
 
-import io.metersphere.api.parser.jmeter.*;
+import io.metersphere.api.parser.jmeter.MsCommonElementConverter;
+import io.metersphere.api.parser.jmeter.MsHTTPElementConverter;
+import io.metersphere.api.parser.jmeter.MsScenarioConverter;
+import io.metersphere.api.parser.jmeter.MsScriptElementConverter;
 import io.metersphere.api.parser.jmeter.child.MsCsvChildPreConverter;
 import io.metersphere.api.parser.jmeter.controller.MsConstantTimerControllerConverter;
 import io.metersphere.api.parser.jmeter.controller.MsIfControllerConverter;

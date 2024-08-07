@@ -1,6 +1,5 @@
 package io.metersphere.api.controller.debug;
 
-import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;

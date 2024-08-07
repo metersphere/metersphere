@@ -1,6 +1,5 @@
 package io.metersphere.api.service;
 
-import io.metersphere.sdk.constants.ApiFileResourceType;
 import io.metersphere.api.domain.ApiFileResource;
 import io.metersphere.api.domain.ApiFileResourceExample;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
@@ -9,8 +8,7 @@ import io.metersphere.api.mapper.ApiFileResourceMapper;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
-import io.metersphere.system.service.CommonFileService;
-import io.metersphere.system.service.FileService;
+import io.metersphere.sdk.constants.ApiFileResourceType;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
@@ -20,6 +18,8 @@ import io.metersphere.sdk.file.FileRepository;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.service.CommonFileService;
+import io.metersphere.system.service.FileService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;

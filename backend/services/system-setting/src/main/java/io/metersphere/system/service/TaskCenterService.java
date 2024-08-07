@@ -29,7 +29,6 @@ import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.schedule.ApiScheduleNoticeService;
-import io.metersphere.system.schedule.BaseScheduleJob;
 import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;

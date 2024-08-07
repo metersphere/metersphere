@@ -1,13 +1,12 @@
 package io.metersphere.system.notice.sender.impl;
 
 
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.notice.MessageDetail;
 import io.metersphere.system.notice.NoticeModel;
 import io.metersphere.system.notice.Receiver;
 import io.metersphere.system.notice.sender.AbstractNoticeSender;
-import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.collections4.CollectionUtils;
-
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;

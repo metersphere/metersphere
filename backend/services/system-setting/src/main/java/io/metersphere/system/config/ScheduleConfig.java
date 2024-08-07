@@ -1,7 +1,7 @@
 package io.metersphere.system.config;
 
-import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.schedule.ScheduleManager;
+import io.metersphere.system.schedule.ScheduleService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

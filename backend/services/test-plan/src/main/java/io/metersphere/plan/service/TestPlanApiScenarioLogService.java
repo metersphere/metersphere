@@ -2,18 +2,11 @@ package io.metersphere.plan.service;
 
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioExample;
-import io.metersphere.api.domain.ApiTestCase;
-import io.metersphere.api.domain.ApiTestCaseExample;
 import io.metersphere.api.mapper.ApiScenarioMapper;
-import io.metersphere.api.mapper.ApiTestCaseMapper;
-import io.metersphere.plan.domain.TestPlanApiCase;
-import io.metersphere.plan.domain.TestPlanApiCaseExample;
 import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.domain.TestPlanApiScenarioExample;
 import io.metersphere.plan.dto.request.BaseBatchMoveRequest;
-import io.metersphere.plan.dto.request.TestPlanApiCaseUpdateRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioUpdateRequest;
-import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.util.JSON;

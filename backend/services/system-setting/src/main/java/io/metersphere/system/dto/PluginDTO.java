@@ -1,7 +1,7 @@
 package io.metersphere.system.dto;
 
-import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.domain.Plugin;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
