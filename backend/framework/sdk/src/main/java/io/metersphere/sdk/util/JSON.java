@@ -55,6 +55,14 @@ public class JSON {
         }
     }
 
+    public static String toFormatJSONString(Object value) {
+        try {
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(value);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static byte[] toJSONBytes(Object value) {
         try {
             return objectMapper.writeValueAsBytes(value);
