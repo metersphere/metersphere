@@ -1,38 +1,46 @@
 <template>
-  <template
-    v-if="
-      [RequestBodyFormat.JSON, RequestBodyFormat.RAW, RequestBodyFormat.XML].includes(
-        previewDefinedDetail?.body?.bodyType
-      )
-    "
-  >
-    <MsCodeEditor
-      v-if="previewDefinedDetail?.body?.bodyType === RequestBodyFormat.JSON"
-      :model-value="bodyCaseCode"
-      theme="vs"
-      height="200px"
-      :language="bodyCodeLanguage"
-      :show-full-screen="false"
-      :show-theme-change="false"
-      read-only
-      is-adaptive
-      diff-mode
-      :original-value="bodyDefinedCode"
-    >
-      <template #rightTitle>
-        <a-button
-          type="outline"
-          class="arco-btn-outline--secondary p-[0_8px]"
-          size="mini"
-          @click="copyScript(bodyDefinedCode)"
-        >
-          <template #icon>
-            <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
-          </template>
-        </a-button>
-      </template>
-    </MsCodeEditor>
-  </template>
+  <div v-if="showDiffEditor" :class="`${bodyCaseCode && bodyDefinedCode ? '' : 'grid grid-cols-2 gap-[24px]'}`">
+    <div v-if="!bodyDefinedCode && bodyCaseCode" class="no-case-data h-full">
+      {{ t('case.notSetData') }}
+    </div>
+    <template v-if="showDiffEditor">
+      <MsCodeEditor
+        :model-value="showDiffEditor"
+        theme="vs"
+        height="200px"
+        :class="`${bodyCaseCode ? '' : 'no-case-data-bg'} w-full`"
+        :language="bodyCodeLanguage"
+        :show-full-screen="false"
+        :show-theme-change="false"
+        read-only
+        is-adaptive
+        :diff-mode="diffMode"
+        :original-value="bodyDefinedCode"
+      >
+        <template #rightTitle>
+          <a-button
+            type="outline"
+            class="arco-btn-outline--secondary p-[0_8px]"
+            size="mini"
+            @click="copyScript(bodyDefinedCode)"
+          >
+            <template #icon>
+              <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />
+            </template>
+          </a-button>
+        </template>
+      </MsCodeEditor>
+    </template>
+    <div v-if="!bodyCaseCode && bodyDefinedCode" class="no-case-data h-full"> {{ t('case.notSetData') }} </div>
+  </div>
+  <div v-else class="grid grid-cols-2 gap-[24px]">
+    <div v-if="!bodyCaseCode && !bodyDefinedCode" class="no-json-case-data no-case-data">
+      {{ t('case.notSetData') }}
+    </div>
+    <div v-if="!bodyCaseCode && !bodyDefinedCode" class="no-json-case-data no-case-data">
+      {{ t('case.notSetData') }}
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -82,8 +90,8 @@
     }
   }
 
-  const getBodyCode = (body: ExecuteBody) => {
-    switch (body?.bodyType) {
+  const getBodyCode = (body: ExecuteBody, bodyType: RequestBodyFormat) => {
+    switch (bodyType) {
       case RequestBodyFormat.FORM_DATA:
         return body.formDataBody?.formValues?.map((item: any) => `${item.key}:${item.value}`).join('\n');
       case RequestBodyFormat.WWW_FORM:
@@ -91,7 +99,7 @@
       case RequestBodyFormat.RAW:
         return body.rawBody?.value;
       case RequestBodyFormat.JSON:
-        return body.jsonBody?.jsonValue;
+        return body?.jsonBody?.jsonValue;
       case RequestBodyFormat.XML:
         return body.xmlBody?.value;
       default:
@@ -100,10 +108,16 @@
   };
 
   // 接口定义Code
-  const bodyDefinedCode = computed(() => getBodyCode(previewDefinedDetail.value?.body));
+  const bodyDefinedCode = computed(() => getBodyCode(previewDefinedDetail.value?.body, RequestBodyFormat.JSON));
 
   // 用例Code
-  const bodyCaseCode = computed(() => getBodyCode(previewCaseDetail.value?.body));
+  const bodyCaseCode = computed(() => getBodyCode(previewCaseDetail.value?.body, RequestBodyFormat.JSON));
+
+  const diffMode = computed(() => {
+    return !!(bodyDefinedCode.value && bodyCaseCode.value) || (!bodyDefinedCode.value && !bodyCaseCode.value);
+  });
+
+  const showDiffEditor = computed(() => bodyCaseCode.value || bodyDefinedCode.value);
 
   watchEffect(() => {
     if (props.definedDetail) {
@@ -115,4 +129,20 @@
   });
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  .no-case-data {
+    height: 100% !important;
+    border: 1px solid var(--color-border-2);
+    border-radius: 4px;
+    @apply flex items-center justify-center;
+    &.no-json-case-data {
+      min-height: 200px;
+      @apply h-full;
+    }
+  }
+  .no-case-data-bg {
+    :deep(.view-line) {
+      background: rgb(var(--success-1)) !important;
+    }
+  }
+</style>
