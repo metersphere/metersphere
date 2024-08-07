@@ -186,7 +186,7 @@ public class HttpRequestParamDiffUtils {
                 String jsonValue = body.getJsonBody().getJsonValue();
                 jsonValue = replaceIllegalJsonWithMock(jsonValue);
                 Object blankJon = getBlankJon(JSON.parseObject(jsonValue));
-                body.getJsonBody().setJsonValue(JSON.toJSONString(blankJon));
+                body.getJsonBody().setJsonValue(JSON.toFormatJSONString(blankJon));
             } catch (Exception e) {
                 LogUtils.info("json 解析异常，json: {}", body.getJsonBody().getJsonValue());
             }

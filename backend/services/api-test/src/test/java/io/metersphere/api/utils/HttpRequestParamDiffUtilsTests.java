@@ -435,6 +435,7 @@ public class HttpRequestParamDiffUtilsTests {
                 """;
         body.getJsonBody().setJsonValue(jsonValue);
         HttpRequestParamDiffUtils.getCompareHttpElement(msHTTPElement);
+        Assertions.assertTrue(body.getJsonBody().getJsonValue().contains("\n"));
         Assertions.assertEquals(JSON.parseObject(body.getJsonBody().getJsonValue()), JSON.parseObject("""
                  {
                   "id": "",
