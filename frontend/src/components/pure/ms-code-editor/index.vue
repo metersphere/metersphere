@@ -398,6 +398,23 @@
         }
       );
 
+      watch(
+        () => props.diffMode,
+        (newDiffMode) => {
+          if (newDiffMode) {
+            if (editor) {
+              editor.dispose();
+            }
+            initDiffEditor(props.originalValue, props.modelValue);
+          } else {
+            if (diffEditor) {
+              diffEditor.dispose();
+            }
+            init();
+          }
+        }
+      );
+
       onBeforeUnmount(() => {
         if (editor) {
           editor.dispose();

@@ -57,35 +57,33 @@
     {{ t('case.notSetData') }}
   </div>
   <!-- 请求体 -->
-  <div class="title flex items-center justify-between">
-    <div class="detail-item-title-text">
-      {{ `${t('apiTestManagement.requestBody')}-${previewDetail?.body?.bodyType}` }}
+  <div v-for="item of requestBodyList" :key="item.value">
+    <div v-if="showDiff(item.value)" class="title">
+      {{ item.title }}
+    </div>
+    <div
+      v-if="showDiff(item.value) && hiddenEmptyTable(item.value)"
+      :style="{ 'padding-bottom': `${getBottomDistance(item.value)}px` }"
+    >
+      <MsFormTable
+        :columns="getBodyColumns(item.value)"
+        :data="getBodyTableData(item.value)"
+        :selectable="false"
+        :show-setting="true"
+        :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_DATA"
+        :diff-mode="props.mode"
+      />
+    </div>
+    <div
+      v-if="showDiff(item.value) && !hiddenEmptyTable(item.value)"
+      class="not-setting-data"
+      :style="{ height: `${getBottomDistance(item.value, true)}px` }"
+    >
+      {{ t('case.notSetData') }}
     </div>
   </div>
-  <div
-    v-if="
-      (previewDetail?.body?.bodyType === RequestBodyFormat.FORM_DATA ||
-        previewDetail?.body?.bodyType === RequestBodyFormat.WWW_FORM) &&
-      showDiff(previewDetail?.body?.bodyType) &&
-      hiddenEmptyTable(previewDetail?.body?.bodyType)
-    "
-    :style="{ 'padding-bottom': `${getBottomDistance(previewDetail.value?.body?.bodyType)}px` }"
-  >
-    <MsFormTable
-      :columns="bodyColumns"
-      :data="bodyTableData"
-      :selectable="false"
-      :show-setting="true"
-      :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_DATA"
-      :diff-mode="props.mode"
-    />
-  </div>
-  <div
-    v-if="showDiff(previewDetail?.body?.bodyType) && !hiddenEmptyTable(previewDetail?.body?.bodyType)"
-    class="not-setting-data"
-    :style="{ height: `${getBottomDistance(previewDetail?.body?.bodyType, true)}px` }"
-  >
-    {{ t('case.notSetData') }}
+  <div class="title">
+    {{ `${t('apiTestManagement.requestBody')}-JSON` }}
   </div>
 </template>
 
@@ -112,6 +110,17 @@
   }>();
 
   const previewDetail = ref<RequestParam>(props.detail);
+
+  const requestBodyList = ref([
+    {
+      value: RequestBodyFormat.FORM_DATA,
+      title: `${t('apiTestManagement.requestBody')}-FORM_DATA`,
+    },
+    {
+      value: RequestBodyFormat.WWW_FORM,
+      title: `${t('apiTestManagement.requestBody')}-WWW_FORM`,
+    },
+  ]);
 
   /**
    * 请求头
@@ -213,8 +222,9 @@
   /**
    * 请求体
    */
-  const bodyColumns = computed<FormTableColumn[]>(() => {
-    if ([RequestBodyFormat.FORM_DATA, RequestBodyFormat.WWW_FORM].includes(previewDetail.value?.body?.bodyType)) {
+
+  function getBodyColumns(bodyType: RequestBodyFormat): FormTableColumn[] {
+    if ([RequestBodyFormat.FORM_DATA, RequestBodyFormat.WWW_FORM].includes(bodyType)) {
       return [
         {
           title: 'apiTestManagement.paramName',
@@ -300,12 +310,12 @@
         showTooltip: true,
       },
     ];
-  });
+  }
 
-  const bodyTableData = computed(() => {
-    switch (previewDetail.value?.body?.bodyType) {
+  function getBodyTableData(bodyType: string) {
+    switch (bodyType) {
       case RequestBodyFormat.FORM_DATA:
-        return (previewDetail.value.body.formDataBody?.formValues || [])
+        return (previewDetail.value.body?.formDataBody?.formValues || [])
           .map((e) => ({
             ...e,
             value: e.paramType === RequestParamsType.FILE ? e.files?.map((file) => file.fileName).join('、') : e.value,
@@ -323,7 +333,7 @@
       default:
         return [];
     }
-  });
+  }
 
   const typeKey = computed(() => (props.isApi ? 'api' : 'case'));
 

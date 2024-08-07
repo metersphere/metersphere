@@ -564,10 +564,12 @@
     () => attrs.data,
     (val) => {
       if (val) {
+        const minTagWidth = 60; // 确保标签行没有标签标题正常展示宽度最少为60
         currentColumns.value.forEach((column) => {
           const dataIndex = column.dataIndex as string;
           if (column.isTag || column.isStringTag) {
-            columnLastWidthMap.value[dataIndex] = getMaxRowTagWidth((val as TableData[]) || [], dataIndex);
+            const lastWidth = getMaxRowTagWidth((val as TableData[]) || [], dataIndex);
+            columnLastWidthMap.value[dataIndex] = lastWidth < minTagWidth ? minTagWidth : lastWidth;
           }
         });
       }

@@ -64,27 +64,30 @@
     </div>
     <!-- 对比 -->
     <div class="diff-container">
-      <a-spin class="h-full w-full" :loading="loading">
-        <div class="diff-normal">
-          <div class="diff-item">
-            <div class="title-type"> [{{ apiDetailInfo?.num }}] {{ apiDetailInfo?.name }} </div>
-            <DiffItem
-              :diff-distance-map="diffDistanceMap"
-              mode="add"
-              is-api
-              :detail="apiDefinedRequest as RequestParam"
-            />
+      <MsCard simple auto-height no-content-padding>
+        <a-spin class="h-full w-full p-4" :loading="loading">
+          <div class="diff-normal">
+            <div class="diff-item">
+              <div class="title-type"> [{{ apiDetailInfo?.num }}] {{ apiDetailInfo?.name }} </div>
+              <DiffItem
+                :diff-distance-map="diffDistanceMap"
+                mode="add"
+                is-api
+                :detail="apiDefinedRequest as RequestParam"
+              />
+            </div>
+            <div class="diff-item ml-[24px]">
+              <div class="title-type"> [{{ caseDetail?.num }}] {{ caseDetail?.name }} </div>
+              <DiffItem :diff-distance-map="diffDistanceMap" mode="delete" :detail="caseDetail as RequestParam" />
+            </div>
           </div>
-          <div class="diff-item ml-[24px]">
-            <div class="title-type"> [{{ caseDetail?.num }}] {{ caseDetail?.name }} </div>
-            <DiffItem :diff-distance-map="diffDistanceMap" mode="delete" :detail="caseDetail as RequestParam" />
-          </div>
-        </div>
-        <DiffRequestBody
-          :defined-detail="apiDefinedRequest as RequestParam"
-          :case-detail="caseDetail as RequestParam"
-        />
-      </a-spin>
+
+          <DiffRequestBody
+            :defined-detail="apiDefinedRequest as RequestParam"
+            :case-detail="caseDetail as RequestParam"
+          />
+        </a-spin>
+      </MsCard>
     </div>
   </MsDrawer>
 </template>
@@ -94,6 +97,7 @@
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
+  import MsCard from '@/components/pure/ms-card/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import DiffItem from './diffItem.vue';
@@ -239,7 +243,6 @@
 
     // 设置对比水平对齐间距绝对值
     const disAbs = Math.abs(caseData.length - definedData.length);
-
     diffDistanceMap.value[typeKey] = {
       case: caseData.length < definedData.length ? disAbs : 0,
       api: caseData.length > definedData.length ? disAbs : 0,
@@ -252,6 +255,35 @@
       caseData,
       definedData,
     };
+  }
+
+  function getBodyData(bodyType: string) {
+    switch (bodyType) {
+      // FORM_DATA格式
+      case RequestBodyFormat.FORM_DATA:
+        const bodyFormDataDiffObj = setDiff(
+          apiDefinedRequest.value.body.formDataBody?.formValues as any,
+          caseDetail.value.body.formDataBody?.formValues,
+          RequestBodyFormat.FORM_DATA
+        );
+        apiDefinedRequest.value.body.formDataBody.formValues =
+          bodyFormDataDiffObj.definedData as ExecuteRequestCommonParam[];
+        caseDetail.value.body.formDataBody.formValues = bodyFormDataDiffObj.caseData;
+        break;
+      // WWW_FORM格式
+      case RequestBodyFormat.WWW_FORM:
+        const bodyWwwFormDiffObj = setDiff(
+          apiDefinedRequest.value.body.wwwFormBody?.formValues as any,
+          caseDetail.value.body.wwwFormBody?.formValues,
+          RequestBodyFormat.WWW_FORM
+        );
+        apiDefinedRequest.value.body.wwwFormBody.formValues =
+          bodyWwwFormDiffObj.definedData as ExecuteRequestCommonParam[];
+        caseDetail.value.body.wwwFormBody.formValues = bodyWwwFormDiffObj.caseData;
+        break;
+      default:
+        break;
+    }
   }
 
   // 处理对比数据
@@ -283,39 +315,21 @@
       caseDetail.value.rest = restDiffObj.caseData;
     }
     // 处理请求体
-    if (apiDefinedRequest.value?.body?.bodyType) {
-      switch (apiDefinedRequest.value?.body?.bodyType) {
-        // FORM_DATA格式
-        case RequestBodyFormat.FORM_DATA:
-          const bodyFormDataDiffObj = setDiff(
-            apiDefinedRequest.value.body.formDataBody?.formValues as any,
-            caseDetail.value.body.formDataBody?.formValues,
-            RequestBodyFormat.FORM_DATA
-          );
-          apiDefinedRequest.value.body.formDataBody.formValues =
-            bodyFormDataDiffObj.definedData as ExecuteRequestCommonParam[];
-          caseDetail.value.body.formDataBody.formValues = bodyFormDataDiffObj.caseData;
-          break;
-        // WWW_FORM格式
-        case RequestBodyFormat.WWW_FORM:
-          const bodyWwwFormDiffObj = setDiff(
-            apiDefinedRequest.value.body.wwwFormBody?.formValues as any,
-            caseDetail.value.body.wwwFormBody?.formValues,
-            RequestBodyFormat.WWW_FORM
-          );
-          apiDefinedRequest.value.body.wwwFormBody.formValues =
-            bodyWwwFormDiffObj.definedData as ExecuteRequestCommonParam[];
-          caseDetail.value.body.wwwFormBody.formValues = bodyWwwFormDiffObj.caseData;
-          break;
-        default:
-          break;
-      }
-    }
+    getBodyData(RequestBodyFormat.FORM_DATA);
+    getBodyData(RequestBodyFormat.WWW_FORM);
   }
   // 获取用例详情
   async function getCaseDetailInfo(id: string) {
     try {
       const res = await getCaseDetail(id);
+      const result = await diffDataRequest(id);
+      const { caseRequest, apiRequest } = result;
+      caseDetail.value = {
+        ...caseDetail.value,
+        ...caseRequest,
+        num: caseDetail.value.num,
+      };
+      apiDefinedRequest.value = apiRequest;
       let parseRequestBodyResult;
       if (res.protocol === 'HTTP') {
         parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
@@ -324,6 +338,8 @@
         ...cloneDeep(defaultCaseParams as RequestParam),
         ...({
           ...res,
+          ...caseRequest,
+          num: res.num,
           url: res.path,
           ...parseRequestBodyResult,
         } as Partial<TabItem>),
@@ -345,28 +361,11 @@
     }
   }
 
-  async function getDiffDataRequest(activeApiCaseId: string) {
-    try {
-      const result = await diffDataRequest(activeApiCaseId);
-      const { caseRequest, apiRequest } = result;
-      caseDetail.value = {
-        ...caseDetail.value,
-        ...caseRequest,
-        num: caseDetail.value.num,
-      };
-      apiDefinedRequest.value = apiRequest;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
   const loading = ref<boolean>(false);
   async function getRequestDetail(definedId: string, apiCaseId: string) {
     loading.value = true;
     try {
       await Promise.all([getApiDetail(definedId), getCaseDetailInfo(apiCaseId)]);
-      await getDiffDataRequest(props.activeApiCaseId);
       processData();
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -430,12 +429,8 @@
     }
   }
   .diff-container {
-    padding: 16px;
+    padding: 0 16px;
     min-height: calc(100vh - 110px);
-    border-radius: 12px;
-    background: white;
-    box-shadow: 0 0 10px rgba(120 56 135/ 5%);
-    @apply mx-4;
     .diff-normal {
       @apply flex;
       .diff-item {
