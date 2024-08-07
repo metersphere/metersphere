@@ -2,15 +2,16 @@ package io.metersphere.system.notice.sender.impl;
 
 
 import io.metersphere.sdk.constants.ParamConstants;
-import io.metersphere.system.notice.MessageDetail;
-import io.metersphere.system.notice.NoticeModel;
-import io.metersphere.system.notice.sender.AbstractNoticeSender;
 import io.metersphere.sdk.util.EncryptUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.SystemParameter;
 import io.metersphere.system.domain.SystemParameterExample;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.mapper.SystemParameterMapper;
+import io.metersphere.system.notice.MessageDetail;
+import io.metersphere.system.notice.NoticeModel;
+import io.metersphere.system.notice.Receiver;
+import io.metersphere.system.notice.sender.AbstractNoticeSender;
 import jakarta.annotation.Resource;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -19,9 +20,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import io.metersphere.system.notice.Receiver;
 import org.springframework.stereotype.Component;
-
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;

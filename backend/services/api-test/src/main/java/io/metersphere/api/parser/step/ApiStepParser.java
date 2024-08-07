@@ -2,14 +2,14 @@ package io.metersphere.api.parser.step;
 
 import io.metersphere.api.domain.ApiDefinitionBlob;
 import io.metersphere.api.domain.ApiScenarioStep;
-import io.metersphere.api.dto.request.http.body.FormDataKV;
-import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
+import io.metersphere.api.dto.request.http.body.FormDataKV;
 import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;
 import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;

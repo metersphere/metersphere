@@ -1,14 +1,14 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.TemplateScopeType;
-import io.metersphere.system.dto.sdk.CustomFieldDTO;
-import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.domain.CustomFieldOption;
+import io.metersphere.system.dto.sdk.CustomFieldDTO;
+import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.system.mapper.BaseProjectMapper;
 import io.metersphere.system.mapper.ExtOrganizationCustomFieldMapper;
 import jakarta.annotation.Resource;

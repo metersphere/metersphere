@@ -1,15 +1,15 @@
 package io.metersphere.system.service;
 
-import io.metersphere.system.domain.Plugin;
-import jakarta.annotation.Resource;
-import org.springframework.stereotype.Service;
 import io.metersphere.sdk.constants.OperationLogConstants;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.domain.Plugin;
+import io.metersphere.system.dto.request.PluginUpdateRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.sdk.util.JSON;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import io.metersphere.system.dto.request.PluginUpdateRequest;
 
 /**
  * @author jianxing

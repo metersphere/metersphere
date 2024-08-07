@@ -1,6 +1,9 @@
 package io.metersphere.api.service.definition;
 
-import io.metersphere.api.domain.*;
+import io.metersphere.api.domain.ApiDefinitionMock;
+import io.metersphere.api.domain.ApiDefinitionMockConfig;
+import io.metersphere.api.domain.ApiDefinitionMockConfigExample;
+import io.metersphere.api.domain.ApiDefinitionMockExample;
 import io.metersphere.api.dto.definition.ApiDefinitionMockDTO;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockAddRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockRequest;

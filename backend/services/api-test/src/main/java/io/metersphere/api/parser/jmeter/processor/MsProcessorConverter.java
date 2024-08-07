@@ -1,8 +1,8 @@
 package io.metersphere.api.parser.jmeter.processor;
 
 
-import io.metersphere.project.api.processor.MsProcessor;
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import io.metersphere.project.api.processor.MsProcessor;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.jorphan.collections.HashTree;
 

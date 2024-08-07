@@ -1,9 +1,9 @@
 package io.metersphere.api.parser.jmeter.processor.assertion;
 
-import io.metersphere.project.api.assertion.MsResponseBodyAssertion;
 import io.metersphere.api.parser.jmeter.processor.assertion.body.ResponseBodyTypeAssertionConverter;
 import io.metersphere.api.parser.jmeter.processor.assertion.body.ResponseBodyTypeAssertionFactory;
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import io.metersphere.project.api.assertion.MsResponseBodyAssertion;
 import org.apache.jorphan.collections.HashTree;
 
 /**

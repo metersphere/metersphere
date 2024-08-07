@@ -1,9 +1,9 @@
 package io.metersphere.api.parser.jmeter.processor.assertion.body;
 
+import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.project.api.assertion.body.MsXPathAssertion;
 import io.metersphere.project.api.assertion.body.MsXPathAssertionItem;
 import io.metersphere.project.api.processor.extract.XPathExtract;
-import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.sdk.dto.api.result.ResponseAssertionResult;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;

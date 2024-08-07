@@ -1,8 +1,8 @@
 package io.metersphere.system.config;
 
-import io.metersphere.system.dto.permission.PermissionDefinitionItem;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.dto.permission.PermissionDefinitionItem;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Bean;

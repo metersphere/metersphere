@@ -1,8 +1,8 @@
 package io.metersphere.api.parser;
 
 
-import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 
 /**
  * @Author: jianxing

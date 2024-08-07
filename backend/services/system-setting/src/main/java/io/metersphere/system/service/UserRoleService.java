@@ -1,8 +1,8 @@
 package io.metersphere.system.service;
 
-import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.*;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.mapper.ExtUserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;

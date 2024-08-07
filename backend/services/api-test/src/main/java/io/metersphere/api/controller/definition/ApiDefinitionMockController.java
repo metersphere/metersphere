@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.page.PageMethod;
 import io.metersphere.api.constants.ApiResource;
-import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.ApiDefinitionMock;
 import io.metersphere.api.dto.definition.ApiDefinitionMockDTO;
 import io.metersphere.api.dto.definition.ApiMockBatchEditRequest;

@@ -2,13 +2,12 @@ package io.metersphere.system.controller;
 
 import com.fasterxml.jackson.databind.node.TextNode;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.system.dto.sdk.LicenseDTO;
 import io.metersphere.system.service.LicenseService;
-import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
