@@ -328,6 +328,8 @@ export interface ApiCaseDetail extends ExecuteRequestParams {
   deleteTime: number;
   deleteUser: string;
   deleteName: string;
+  apiChange: boolean; // 接口定义参数变更标识
+  inconsistentWithApi: boolean; // 与接口定义不一致
 }
 // 批量操作参数
 export interface ApiCaseBatchParams extends BatchApiParams {
@@ -400,4 +402,20 @@ export interface ApiCaseExecuteHistoryItem {
   status: RequestCaseStatus;
   triggerMode: string;
   deleted: boolean;
+}
+export interface syncItem {
+  header: boolean;
+  body: boolean;
+  query: boolean;
+  rest: boolean;
+}
+// 批量同步
+export interface batchSyncForm {
+  notificationConfig: {
+    apiCreator: boolean;
+    scenarioCreator: boolean;
+  };
+  // 同步项目
+  syncItems: syncItem;
+  deleteRedundantParam: boolean;
 }

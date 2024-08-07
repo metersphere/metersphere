@@ -4,7 +4,7 @@
     title-align="start"
     class="ms-modal-upload ms-modal-medium"
     :width="600"
-    @close="cancel"
+    @close="resetForm"
   >
     <template #title>
       {{ t('case.apiSyncChange') }}
@@ -21,7 +21,7 @@
     <div class="mb-[8px]">
       {{ t('case.syncItem') }}
     </div>
-    <a-checkbox-group v-model="form.checkType">
+    <a-checkbox-group v-model="checkType">
       <a-checkbox v-for="item of checkList" :key="item.value" :value="item.value">
         <div class="flex items-center">
           {{ item.label }}
@@ -37,7 +37,7 @@
       </a-checkbox>
     </a-checkbox-group>
     <div class="my-[16px] flex items-center">
-      <a-switch v-model:model-value="form.deleteParams" size="small" />
+      <a-switch v-model:model-value="form.deleteRedundantParam" size="small" />
       <div class="ml-[8px] text-[var(--color-text-1)]">{{ t('case.deleteNotCorrespondValue') }}</div>
     </div>
 
@@ -53,17 +53,17 @@
       </a-tooltip>
     </div>
     <div class="my-[16px] flex items-center">
-      <a-switch v-model:model-value="form.noticeApiCaseCreator" size="small" />
+      <a-switch v-model:model-value="form.notificationConfig.apiCreator" size="small" />
       <div class="ml-[8px] text-[var(--color-text-1)]">{{ t('case.NoticeApiCaseCreator') }}</div>
     </div>
     <div class="my-[16px] flex items-center">
-      <a-switch v-model:model-value="form.noticeApiScenarioCreator" size="small" />
+      <a-switch v-model:model-value="form.notificationConfig.scenarioCreator" size="small" />
       <div class="ml-[8px] text-[var(--color-text-1)]">{{ t('case.NoticeApiScenarioCreator') }}</div>
     </div>
 
     <template #footer>
-      <a-button type="secondary" @click="cancel">{{ t('common.cancel') }}</a-button>
-      <a-button type="primary" :loading="syncLoading" :disabled="!form.checkType.length" @click="confirmBatchSync">
+      <a-button type="secondary" @click="resetForm">{{ t('common.cancel') }}</a-button>
+      <a-button type="primary" :loading="props.loading" :disabled="!checkType.length" @click="confirmBatchSync">
         {{ t('case.apiSyncChange') }}
       </a-button>
     </template>
@@ -72,31 +72,47 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { cloneDeep } from 'lodash-es';
 
   import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import type { batchSyncForm, syncItem } from '@/models/apiTest/management';
   import { RequestComposition } from '@/enums/apiEnum';
 
   const { t } = useI18n();
 
   const props = defineProps<{
     batchParams: BatchActionQueryParams;
+    loading: boolean;
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'batchSync', form: batchSyncForm): void;
   }>();
 
   const showBatchSyncModal = defineModel<boolean>('visible', {
     required: true,
   });
 
-  const initForm = {
-    deleteParams: false,
-    checkType: [],
-    noticeApiCaseCreator: true,
-    noticeApiScenarioCreator: true,
+  const initForm: batchSyncForm = {
+    notificationConfig: {
+      apiCreator: false,
+      scenarioCreator: false,
+    },
+    // 同步项目
+    syncItems: {
+      header: false,
+      body: false,
+      query: false,
+      rest: false,
+    },
+    deleteRedundantParam: false,
   };
 
-  const form = ref({ ...initForm });
+  const form = ref<batchSyncForm>(cloneDeep(initForm));
+  const checkType = ref([]);
 
   const checkList = ref([
     {
@@ -118,13 +134,24 @@
     },
   ]);
 
-  const syncLoading = ref<boolean>(false);
-
-  function cancel() {
+  function resetForm() {
+    form.value = cloneDeep(initForm);
+    checkType.value = [];
     showBatchSyncModal.value = false;
   }
-  // 同步 TODO 等待联调
-  function confirmBatchSync() {}
+
+  function confirmBatchSync() {
+    checkType.value.forEach((e: string) => {
+      const key = e.toLowerCase() as keyof syncItem;
+      form.value.syncItems[key] = true;
+    });
+
+    emit('batchSync', form.value);
+  }
+
+  defineExpose({
+    resetForm,
+  });
 </script>
 
 <style scoped></style>

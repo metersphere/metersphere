@@ -1002,7 +1002,6 @@
     () => requestMethodsOptions.value,
     () => {
       initFilterColumn();
-      apiTableRef.value.initColumn(columns);
     }
   );
 </script>

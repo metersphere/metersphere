@@ -52,7 +52,7 @@
           </span>
         </template>
         <template #name="{ record }">
-          <div class="one-line-text">{{ characterLimit(record.name) }}</div>
+          <div class="one-line-text">{{ record.name }}</div>
         </template>
         <template #caseLevel="{ record }">
           <a-select

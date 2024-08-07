@@ -275,6 +275,7 @@
   </a-modal>
   <createAndEditCaseDrawer
     ref="createAndEditCaseDrawerRef"
+    v-model:visible="showCaseVisible"
     :api-detail="apiDetail"
     @load-case="loadCaseListAndResetSelector()"
     @show-diff="showDifferences"
@@ -300,13 +301,21 @@
   <!-- 执行结果抽屉 -->
   <caseAndScenarioReportDrawer v-model:visible="showExecuteResult" :report-id="activeReportId" />
   <!-- 同步抽屉 -->
-  <SyncModal v-model:visible="showSyncModal" :batch-params="batchParams" />
+  <SyncModal
+    ref="syncModalRef"
+    v-model:visible="showSyncModal"
+    :loading="syncLoading"
+    :batch-params="batchParams"
+    @batch-sync="handleBatchSync"
+  />
   <!-- diff对比抽屉 -->
   <DifferentDrawer
     v-model:visible="showDifferentDrawer"
     :active-api-case-id="activeApiCaseId"
     :active-defined-id="activeDefinedId"
     @close="closeDifferent"
+    @clear-this-change="handleClearThisChange"
+    @sync="syncHandler"
   />
 </template>
 
@@ -339,6 +348,7 @@
     batchDeleteCase,
     batchEditCase,
     batchExecuteCase,
+    caseTableBatchSync,
     deleteCase,
     dragSort,
     getCaseDetail,
@@ -353,6 +363,7 @@
   import { characterLimit, operationWidth } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
+  import type { batchSyncForm } from '@/models/apiTest/management';
   import { ApiCaseDetail } from '@/models/apiTest/management';
   import { DragSortParams } from '@/models/common';
   import { RequestCaseStatus } from '@/enums/apiEnum';
@@ -860,7 +871,6 @@
   const batchConditionParams = ref<any>();
 
   const showSyncModal = ref<boolean>(false);
-  // 同步 TODO 等待联调
   function syncParams() {
     showSyncModal.value = true;
   }
@@ -975,7 +985,6 @@
   const activeDefinedId = ref<string>('');
   const showDifferentDrawer = ref<boolean>(false);
 
-  // 查看对比 TODO 等待联调
   async function showDifferences(record: ApiCaseDetail) {
     activeApiCaseId.value = record.id;
     activeDefinedId.value = record.apiDefinitionId;
@@ -987,6 +996,48 @@
     activeDefinedId.value = '';
   }
 
+  const syncLoading = ref<boolean>(false);
+  const syncModalRef = ref<InstanceType<typeof SyncModal>>();
+  // 批量同步
+  async function handleBatchSync(syncForm: batchSyncForm) {
+    try {
+      syncLoading.value = true;
+      const selectModules = await getModuleIds();
+      const params = await genBatchConditionParams();
+      await caseTableBatchSync({
+        selectIds: batchParams.value?.selectedIds || [],
+        selectAll: !!batchParams.value?.selectAll,
+        excludeIds: batchParams.value?.excludeIds || [],
+        ...params,
+        ...syncForm,
+        moduleIds: selectModules,
+      });
+      Message.success(t('bugManagement.syncSuccess'));
+      syncModalRef.value?.resetForm();
+      resetSelector();
+      loadCaseListAndResetSelector();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      syncLoading.value = false;
+    }
+  }
+  const showCaseVisible = ref(false);
+  // 清除本次变更
+  async function handleClearThisChange() {
+    await loadCaseList();
+    await getCaseDetailInfo(activeApiCaseId.value);
+    if (showCaseVisible.value) {
+      createAndEditCaseDrawerRef.value?.open(caseDetail.value.apiDefinitionId, caseDetail.value as RequestParam, false);
+    }
+  }
+
+  // 对比抽屉同步成功打开编辑
+  function syncHandler(definedId: string) {
+    // TODO 这里调用同步后的最新的合并后的详情，打开编辑抽屉用户手动保存更新即可生效
+    createAndEditCaseDrawerRef.value?.open(definedId, caseDetail.value as RequestParam, false);
+  }
   defineExpose({
     loadCaseList,
   });

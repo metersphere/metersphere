@@ -73,6 +73,8 @@
           :active-api-case-id="activeApiCaseId"
           :active-defined-id="activeDefinedId"
           @close="closeDifferent"
+          @clear-this-change="clearThisChangeHandler"
+          @sync="syncHandler"
         />
       </a-tab-pane>
       <a-tab-pane key="reference" :title="t('apiTestManagement.reference')" class="px-[18px] py-[16px]">
@@ -132,9 +134,11 @@
     isDrawer?: boolean; // 抽屉
     detail: RequestParam;
   }>();
+
   const emit = defineEmits<{
     (e: 'updateFollow'): void;
     (e: 'deleteCase', id: string): void;
+    (e: 'loadCase', id: string): void;
   }>();
 
   const appStore = useAppStore();
@@ -340,6 +344,16 @@
     showDifferentDrawer.value = false;
     activeApiCaseId.value = '';
     activeDefinedId.value = '';
+  }
+
+  // 忽略本次变更
+  async function clearThisChangeHandler() {
+    emit('loadCase', props.detail.id as string);
+  }
+
+  function syncHandler(id: string) {
+    // TODO 这里需要调用同步合并后的详情接口回显详情
+    createAndEditCaseDrawerRef.value?.open(id, caseDetail.value, false);
   }
 
   watch(

@@ -215,6 +215,7 @@ export default {
   'case.definitionInconsistent': '与定义不一致',
   'case.haveIgnoredTheChange': '已忽略本次变更差异',
   'case.eachHasBeenIgnored': '已忽略每次变更差异',
+  'case.eachHasBeenIgnoredClosed': '已关闭忽略每次变更差异',
   'case.apiCaseList': '列表',
   'case.apiCaseDetail': '用例详情',
   'case.belongingApi': '所属接口',
