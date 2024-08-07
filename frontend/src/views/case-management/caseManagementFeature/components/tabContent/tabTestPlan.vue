@@ -215,7 +215,9 @@
     (val) => {
       if (val) {
         const selectedPlanIds: (string | undefined)[] = propsRes.value.data.map((e) => e.testPlanId) || [];
-        getStatistics(selectedPlanIds);
+        if (selectedPlanIds && selectedPlanIds.length > 0) {
+          getStatistics(selectedPlanIds);
+        }
       }
     },
     {
