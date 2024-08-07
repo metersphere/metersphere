@@ -1,12 +1,12 @@
 package io.metersphere.system.notice.sender.impl;
 
-import io.metersphere.system.notice.Receiver;
-import io.metersphere.system.notice.MessageDetail;
-import io.metersphere.system.notice.NoticeModel;
-import io.metersphere.system.notice.sender.AbstractNoticeSender;
-import io.metersphere.system.notice.utils.LarkClient;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.notice.MessageDetail;
+import io.metersphere.system.notice.NoticeModel;
+import io.metersphere.system.notice.Receiver;
+import io.metersphere.system.notice.sender.AbstractNoticeSender;
+import io.metersphere.system.notice.utils.LarkClient;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;

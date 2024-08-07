@@ -1,8 +1,8 @@
 package io.metersphere.api.parser.jmeter.processor.assertion.body;
 
 import io.metersphere.api.parser.jmeter.processor.assertion.AssertionConverter;
-import io.metersphere.project.api.assertion.body.MsBodyAssertionItem;
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import io.metersphere.project.api.assertion.body.MsBodyAssertionItem;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jorphan.collections.HashTree;

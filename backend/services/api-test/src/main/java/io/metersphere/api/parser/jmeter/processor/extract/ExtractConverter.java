@@ -1,8 +1,8 @@
 package io.metersphere.api.parser.jmeter.processor.extract;
 
+import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.project.api.processor.extract.MsExtract;
 import io.metersphere.project.api.processor.extract.ResultMatchingExtract;
-import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jorphan.collections.HashTree;

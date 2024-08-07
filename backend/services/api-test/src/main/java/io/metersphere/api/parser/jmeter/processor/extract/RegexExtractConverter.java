@@ -1,7 +1,7 @@
 package io.metersphere.api.parser.jmeter.processor.extract;
 
-import io.metersphere.project.api.processor.extract.RegexExtract;
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import io.metersphere.project.api.processor.extract.RegexExtract;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.extractor.RegexExtractor;
 import org.apache.jmeter.save.SaveService;
