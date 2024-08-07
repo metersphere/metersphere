@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -43,6 +44,7 @@ public class BugLogService {
      * @param files 文件
      * @return 日志
      */
+    @SuppressWarnings("unused")
     public LogDTO addLog(BugEditRequest request, List<MultipartFile> files) {
         LogDTO dto = new LogDTO(request.getProjectId(), null, null, null, OperationLogType.ADD.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, getPlatformTitle(request));
         dto.setHistory(true);
@@ -59,6 +61,7 @@ public class BugLogService {
      * @param files  文件
      * @return 日志
      */
+    @SuppressWarnings("unused")
     public LogDTO updateLog(BugEditRequest request, List<MultipartFile> files) {
         BugDTO history = getOriginalValue(request.getId());
         LogDTO dto = new LogDTO(request.getProjectId(), null, request.getId(), null, OperationLogType.UPDATE.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, getPlatformTitle(request));
@@ -76,6 +79,7 @@ public class BugLogService {
      * @param id 缺陷ID
      * @return 日志
      */
+    @SuppressWarnings("unused")
     public LogDTO deleteLog(String id) {
         Bug bug = bugMapper.selectByPrimaryKey(id);
         if (bug != null) {
@@ -95,6 +99,7 @@ public class BugLogService {
      * @param id 缺陷ID
      * @return 日志
      */
+    @SuppressWarnings("unused")
     public LogDTO recoverLog(String id) {
         Bug bug = bugMapper.selectByPrimaryKey(id);
         if (bug != null) {
@@ -146,11 +151,8 @@ public class BugLogService {
         bugs.forEach(bug -> {
             BugDTO originalBug = new BugDTO();
             BeanUtils.copyBean(originalBug, bug);
-            BugContent bugContent = bugContents.stream().filter(content -> StringUtils.equals(content.getBugId(), bug.getId())).findFirst().orElse(null);
-            if (bugContent != null) {
-                originalBug.setDescription(bugContent.getDescription());
-            }
-            bugOriginalList.add(originalBug);
+			bugContents.stream().filter(content -> StringUtils.equals(content.getBugId(), bug.getId())).findFirst().ifPresent(bugContent -> originalBug.setDescription(bugContent.getDescription()));
+			bugOriginalList.add(originalBug);
         });
         // 缺陷自定义字段
         return bugService.handleCustomField(bugOriginalList, bugOriginalList.getFirst().getProjectId());
@@ -162,7 +164,8 @@ public class BugLogService {
      * @return 缺陷标题
      */
     private String getPlatformTitle(BugEditRequest request) {
-        BugCustomFieldDTO platformTitle = request.getCustomFields().stream().filter(field -> StringUtils.equalsAny(field.getId(), "summary")).findFirst().get();
-        return StringUtils.isNotBlank(request.getTitle()) ? request.getTitle() : platformTitle.getValue();
+        Optional<BugCustomFieldDTO> find = request.getCustomFields().stream().filter(field -> StringUtils.equalsAny(field.getId(), "summary", "title")).findFirst();
+        BugCustomFieldDTO titleField = find.orElseGet(BugCustomFieldDTO::new);
+        return StringUtils.isNotBlank(request.getTitle()) ? request.getTitle() : titleField.getValue();
     }
 }

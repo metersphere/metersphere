@@ -1,13 +1,17 @@
 package io.metersphere.system.dto.sdk;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class TestPlanMessageDTO {
     @Schema(description = "message.domain.test_plan_num")
     private String num;
