@@ -420,7 +420,7 @@ public class ApiExecutionQueueService {
             } else {
                 // 用例/接口超时结果处理
                 ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(item.getReportId());
-                if (result != null && StringUtils.equalsAnyIgnoreCase(result.getStatus(), ApiReportStatus.RUNNING.name())) {
+                if (result != null && StringUtils.equalsAnyIgnoreCase(result.getStatus(), ApiReportStatus.RUNNING.name())  && result.getStartTime() < timeout) {
                     result.setStatus(ApiReportStatus.ERROR.name());
                     apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
 
