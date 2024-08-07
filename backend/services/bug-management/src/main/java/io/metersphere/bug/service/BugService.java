@@ -203,7 +203,7 @@ public class BugService {
          *  缺陷创建或者修改逻辑:
          *  1. 判断所属项目是否关联第三方平台;
          *  2. 第三方平台缺陷需调用插件同步缺陷至其他平台(自定义字段需处理);
-         *  3. 保存MS缺陷(基础字段, 自定义字段)
+         *  3. 保存MS缺陷(基础字段, 自定义字段) && 发送处理人通知
          *  4. 处理附件(第三方平台缺陷需异步调用接口同步附件至第三方)
          *  5. 处理富文本临时文件
          *  6. 处理用例关联关系
@@ -232,7 +232,7 @@ public class BugService {
             }
         }
         // 处理基础字段
-        Bug bug = handleAndSaveBug(request, currentUser, platformName, platformBug);
+        Bug bug = handleAndSaveBugAndNotice(request, currentUser, platformName, platformBug);
         // 处理自定义字段
         handleAndSaveCustomFields(request, isUpdate, platformBug);
         // 处理附件
@@ -975,13 +975,13 @@ public class BugService {
     }
 
     /**
-     * 处理保存缺陷基础信息
+     * 处理保存缺陷基础信息并发送处理人通知
      *
      * @param request      请求参数
      * @param currentUser  当前用户ID
      * @param platformName 第三方平台名称
      */
-    private Bug handleAndSaveBug(BugEditRequest request, String currentUser, String platformName, PlatformBugUpdateDTO platformBug) {
+    private Bug handleAndSaveBugAndNotice(BugEditRequest request, String currentUser, String platformName, PlatformBugUpdateDTO platformBug) {
         Bug bug = new Bug();
         BeanUtils.copyBean(bug, request);
         bug.setPlatform(platformName);
@@ -1037,7 +1037,8 @@ public class BugService {
             }
         }
 
-        //保存基础信息
+        boolean noticeHandler = false;
+        // 保存基础信息
         if (StringUtils.isEmpty(bug.getId())) {
             bug.setId(IDGenerator.nextStr());
             bug.setNum(Long.valueOf(NumGenerator.nextNum(request.getProjectId(), ApplicationNumScope.BUG_MANAGEMENT)).intValue());
@@ -1054,11 +1055,13 @@ public class BugService {
             bugContent.setBugId(bug.getId());
             bugContent.setDescription(StringUtils.isEmpty(request.getDescription()) ? StringUtils.EMPTY : request.getDescription());
             bugContentMapper.insert(bugContent);
+            noticeHandler = true;
         } else {
             Bug originalBug = checkBugExist(request.getId());
             // 追加处理人
             if (!StringUtils.equals(originalBug.getHandleUser(), bug.getHandleUser())) {
                 bug.setHandleUsers(originalBug.getHandleUsers() + "," + bug.getHandleUser());
+                noticeHandler = true;
             }
             bug.setUpdateUser(currentUser);
             bug.setUpdateTime(System.currentTimeMillis());
@@ -1067,6 +1070,11 @@ public class BugService {
             bugContent.setBugId(bug.getId());
             bugContent.setDescription(StringUtils.isEmpty(request.getDescription()) ? StringUtils.EMPTY : request.getDescription());
             bugContentMapper.updateByPrimaryKeySelective(bugContent);
+        }
+
+        // 异步发送处理人通知 (第三方不通知 && 处理人没更改不通知)
+        if (StringUtils.equals(platformName, BugPlatform.LOCAL.getName()) && noticeHandler) {
+            bugSyncNoticeService.sendHandleUserNotice(bug, currentUser);
         }
         return bug;
     }

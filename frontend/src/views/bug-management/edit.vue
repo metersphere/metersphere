@@ -399,7 +399,9 @@
               initValue = JSON.parse(item.defaultValue);
             }
           } else if (multipleType.includes(item.type)) {
-            if (item.defaultValue && item.defaultValue.length > 0) {
+            if (item.defaultValue && Array.isArray(item.defaultValue) && item.defaultValue.length > 0) {
+              initValue = item.defaultValue;
+            } else if (item.defaultValue && typeof item.defaultValue === 'string') {
               initValue = item.defaultValue ? JSON.parse(item.defaultValue) : [];
             }
           } else if (numberType.includes(item.type)) {

@@ -189,6 +189,9 @@ public interface NoticeConstants {
 
         @Schema(description = "message.close")
         String CLOSE = "CLOSE";
+
+        @Schema(description = "message.assign")
+        String ASSIGN = "ASSIGN";
     }
 
     interface RelatedUser {
@@ -199,6 +202,8 @@ public interface NoticeConstants {
         String FOLLOW_PEOPLE = "FOLLOW_PEOPLE";//关注人
         @Schema(description = "message.operator")
         String OPERATOR = "OPERATOR"; //操作人
+        @Schema(description = "message.handle_user")
+        String HANDLE_USER = "HANDLE_USER"; //处理人
     }
 
     interface FieldSource {
@@ -239,6 +244,8 @@ public interface NoticeConstants {
         String BUG_TASK_REPLY = "BUG_TASK_REPLY";//${OPERATOR}在缺陷${title} 回复了你的评论
         @Schema(description = "message.bug_sync_task_execute_completed")
         String BUG_SYNC_TASK_EXECUTE_COMPLETED = "BUG_SYNC_TASK_EXECUTE_COMPLETED";//${OPERATOR}同步了${total}条缺陷
+        @Schema(description = "message.bug_task_assign")
+        String BUG_TASK_ASSIGN = "BUG_TASK_ASSIGN";//${OPERATOR}给你分配了一个缺陷: ${title}
 
         @Schema(description = "message.functional_case_task_create")
         String FUNCTIONAL_CASE_TASK_CREATE = "FUNCTIONAL_CASE_TASK_CREATE"; // ${OPERATOR}创建了功能用例:${name}
@@ -357,6 +364,8 @@ public interface NoticeConstants {
         String BUG_TASK_REPLY = "BUG_TASK_REPLY";
         @Schema(description = "message.title.bug_sync_task_execute_completed")//同步缺陷执行完成通知
         String BUG_SYNC_TASK_EXECUTE_COMPLETED = "BUG_SYNC_TASK_EXECUTE_COMPLETED";
+        @Schema(description = "message.title.bug_task_assign") // 缺陷分配通知
+        String BUG_TASK_ASSIGN = "BUG_TASK_ASSIGN";
 
 
         @Schema(description = "message.title.functional_case_task_create")//功能用例创建通知

@@ -4,7 +4,10 @@ package io.metersphere.project.service;
 import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.*;
 import io.metersphere.project.enums.result.ProjectResultCode;
-import io.metersphere.project.mapper.*;
+import io.metersphere.project.mapper.ExtProjectUserRoleMapper;
+import io.metersphere.project.mapper.MessageTaskBlobMapper;
+import io.metersphere.project.mapper.MessageTaskMapper;
+import io.metersphere.project.mapper.ProjectRobotMapper;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
@@ -256,6 +259,9 @@ public class NoticeMessageTaskService {
         }
         if (receiverIds.contains(NoticeConstants.RelatedUser.OPERATOR)) {
             userIds.add(NoticeConstants.RelatedUser.OPERATOR);
+        }
+        if (receiverIds.contains(NoticeConstants.RelatedUser.HANDLE_USER)) {
+            userIds.add(NoticeConstants.RelatedUser.HANDLE_USER);
         }
         Map<String, List<String>> map = new HashMap<>();
         List<String> noUserNames = new ArrayList<>();

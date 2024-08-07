@@ -53,7 +53,7 @@ public class NoticeModel implements Serializable {
      */
     private List<Receiver> recipients;
     /**
-     * 包括自己
+     * 排除自己
      */
     private boolean excludeSelf;
 }

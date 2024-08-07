@@ -54,7 +54,7 @@
           class="w-full"
           mode="remote"
           :options="defaultReceivers"
-          :remote-filter-func="(opts) => getReceiverOptions(opts, record.event)"
+          :remote-filter-func="(opts) => getReceiverOptions(opts, record.event, record.taskType)"
           :search-keys="['label']"
           allow-search
           :at-least-one="true"
@@ -330,14 +330,18 @@
     }));
   }
 
-  function getReceiverOptions(options: SelectOptionData[], event: string) {
+  function getReceiverOptions(options: SelectOptionData[], event: string, taskType: string) {
     if (event === 'CREATE' || event === 'CASE_CREATE' || event === 'MOCK_CREATE') {
       // 创建事件的接收人不包含操作人、创建人、关注人
-      options = options.filter((e) => !['OPERATOR', 'CREATE_USER', 'FOLLOW_PEOPLE'].includes(e.id));
+      options = options.filter((e) => !['OPERATOR', 'CREATE_USER', 'FOLLOW_PEOPLE', 'HANDLE_USER'].includes(e.id));
     }
     if (event.indexOf('EXECUTE') === -1) {
       // 除执行事件，都不显示操作人
       options = options.filter((e) => !['OPERATOR'].includes(e.id));
+    }
+    if (taskType === 'BUG_SYNC_TASK') {
+      // 缺陷同步任务, 只显示操作人
+      options = options.filter((e) => !['CREATE_USER', 'FOLLOW_PEOPLE', 'HANDLE_USER'].includes(e.id));
     }
     return options;
   }
