@@ -150,7 +150,7 @@ public class OrganizationProjectController {
     }
 
     @GetMapping("/user-admin-list/{organizationId}")
-    @Operation(summary = "系统设置-组织-项目-获取管理员列表")
+    @Operation(summary = "系统设置-组织-项目-获取项目管理员下拉选项")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
     @CheckOwner(resourceId = "#organizationId", resourceType = "organization")
     public List<UserExtendDTO> getUserAdminList(@PathVariable String organizationId, @Schema(description = "查询关键字，根据邮箱和用户名查询")
