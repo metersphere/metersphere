@@ -1,6 +1,10 @@
 package io.metersphere.functional.xmind.utils;
 
 import io.metersphere.functional.constants.FunctionalCaseTypeConstants;
+import io.metersphere.functional.domain.FunctionalCaseCustomField;
+import io.metersphere.functional.excel.domain.FunctionalCaseExportColumns;
+import io.metersphere.functional.excel.domain.FunctionalCaseHeader;
+import io.metersphere.functional.request.FunctionalCaseExportRequest;
 import io.metersphere.functional.xmind.domain.FunctionalCaseXmindDTO;
 import io.metersphere.functional.xmind.domain.FunctionalCaseXmindData;
 import io.metersphere.sdk.constants.CustomFieldType;
@@ -16,12 +20,14 @@ import org.xmind.core.*;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author wx
@@ -37,7 +43,7 @@ public class XmindExportUtil {
      * @param template
      */
     public static void downloadTemplate(HttpServletResponse response, FunctionalCaseXmindData caseData, boolean template, Map<String, List<String>> customFieldOptionsMap) {
-        IWorkbook workBook = createXmindByCaseData(caseData, template, customFieldOptionsMap);
+        IWorkbook workBook = createXmindByCaseData(caseData, template, customFieldOptionsMap, null, null);
 
         response.setContentType("application/octet-stream");
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -53,7 +59,7 @@ public class XmindExportUtil {
         }
     }
 
-    private static IWorkbook createXmindByCaseData(FunctionalCaseXmindData caseData, boolean template, Map<String, List<String>> customFieldOptionsMap) {
+    private static IWorkbook createXmindByCaseData(FunctionalCaseXmindData caseData, boolean template, Map<String, List<String>> customFieldOptionsMap, FunctionalCaseExportRequest request, TemplateCustomFieldDTO priority) {
         // 创建思维导图的工作空间
         IWorkbookBuilder workbookBuilder = Core.getWorkbookBuilder();
         IWorkbook workbook = workbookBuilder.createWorkbook();
@@ -75,14 +81,18 @@ public class XmindExportUtil {
 
         if (CollectionUtils.isNotEmpty(caseData.getChildren())) {
             for (FunctionalCaseXmindData data : caseData.getChildren()) {
-                addItemTopic(rootTopic, workbook, styleMap, data, true, template, customFieldOptionsMap);
+                if (template) {
+                    addTemplateTopic(rootTopic, workbook, styleMap, data, true, customFieldOptionsMap);
+                } else {
+                    addTopic(rootTopic, workbook, styleMap, data, true, request, priority);
+                }
             }
         }
         return workbook;
     }
 
-    private static void addItemTopic(ITopic parentTpoic, IWorkbook workbook, Map<String, IStyle> styleMap, FunctionalCaseXmindData xmindData,
-                                     boolean isFirstLevel, boolean template, Map<String, List<String>> customFieldOptionsMap) {
+    private static void addTemplateTopic(ITopic parentTopic, IWorkbook workbook, Map<String, IStyle> styleMap, FunctionalCaseXmindData xmindData,
+                                         boolean isFirstLevel, Map<String, List<String>> customFieldOptionsMap) {
         ITopic topic = workbook.createTopic();
         topic.setTitleText(xmindData.getModuleName());
         if (isFirstLevel) {
@@ -94,7 +104,7 @@ public class XmindExportUtil {
                 topic.setStyleId(styleMap.get("subTopicStyle").getId());
             }
         }
-        parentTpoic.add(topic);
+        parentTopic.add(topic);
 
         if (CollectionUtils.isNotEmpty(xmindData.getFunctionalCaseList())) {
             IStyle style = null;
@@ -107,21 +117,18 @@ public class XmindExportUtil {
                 if (style != null) {
                     itemTopic.setStyleId(style.getId());
                 }
-                if (template) {
-                    // 模板
-                    buildTemplateTopic(topic, style, dto, itemTopic, workbook, customFieldOptionsMap);
-                }
+                buildTemplateTopic(topic, style, dto, itemTopic, workbook, customFieldOptionsMap);
             }
         }
 
         if (CollectionUtils.isNotEmpty(xmindData.getChildren())) {
             for (FunctionalCaseXmindData data : xmindData.getChildren()) {
-                addItemTopic(topic, workbook, styleMap, data, false, template, customFieldOptionsMap);
+                addTemplateTopic(topic, workbook, styleMap, data, false, customFieldOptionsMap);
             }
         }
     }
 
-    private static void buildTemplateTopic(ITopic topic, IStyle style, FunctionalCaseXmindDTO dto, ITopic itemTopic, IWorkbook workbook,Map<String, List<String>> customFieldOptionsMap) {
+    private static void buildTemplateTopic(ITopic topic, IStyle style, FunctionalCaseXmindDTO dto, ITopic itemTopic, IWorkbook workbook, Map<String, List<String>> customFieldOptionsMap) {
 
         //用例名称
         TemplateCustomFieldDTO priorityDto = dto.getTemplateCustomFieldDTOList().stream().filter(item -> StringUtils.equalsIgnoreCase(item.getFieldName(), Translator.get("custom_field.functional_priority"))).findFirst().get();
@@ -230,7 +237,7 @@ public class XmindExportUtil {
         dto.getTemplateCustomFieldDTOList().forEach(item -> {
             if (!StringUtils.equalsIgnoreCase(item.getFieldName(), Translator.get("custom_field.functional_priority"))) {
                 ITopic customTopic = workbook.createTopic();
-                String fieldComment = getComment(item,customFieldOptionsMap);
+                String fieldComment = getComment(item, customFieldOptionsMap);
                 customTopic.setTitleText(item.getFieldName().concat(": ").concat(fieldComment));
                 if (style != null) {
                     customTopic.setStyleId(style.getId());
@@ -242,7 +249,7 @@ public class XmindExportUtil {
         topic.add(itemTopic);
     }
 
-    private static String getComment(TemplateCustomFieldDTO templateCustomFieldDTO,Map<String, List<String>> customFieldOptionsMap) {
+    private static String getComment(TemplateCustomFieldDTO templateCustomFieldDTO, Map<String, List<String>> customFieldOptionsMap) {
         String comment = "";
         if (StringUtils.equalsAnyIgnoreCase(templateCustomFieldDTO.getType(), CustomFieldType.MULTIPLE_MEMBER.name(), CustomFieldType.MEMBER.name())) {
             if (templateCustomFieldDTO.getRequired()) {
@@ -356,4 +363,112 @@ public class XmindExportUtil {
 
         return styleMap;
     }
+
+
+    public static void export(FunctionalCaseXmindData xmindData, FunctionalCaseExportRequest request, File tmpFile, TemplateCustomFieldDTO priority) {
+        IWorkbook workBook = createXmindByCaseData(xmindData, false, null, request, priority);
+        try {
+            workBook.save(tmpFile.getAbsolutePath());
+        } catch (UnsupportedEncodingException e) {
+            LogUtils.error(e.getMessage(), e);
+            throw new MSException("Utf-8 encoding is not supported");
+        } catch (Exception e) {
+            LogUtils.error(e.getMessage(), e);
+            throw new MSException("IO exception");
+        }
+
+    }
+
+    private static void addTopic(ITopic parentTopic, IWorkbook workbook, Map<String, IStyle> styleMap, FunctionalCaseXmindData xmindData, boolean isFirstLevel, FunctionalCaseExportRequest request, TemplateCustomFieldDTO priority) {
+        ITopic topic = workbook.createTopic();
+        topic.setTitleText(xmindData.getModuleName());
+        if (isFirstLevel) {
+            if (styleMap.containsKey("mainTopicStyle")) {
+                topic.setStyleId(styleMap.get("mainTopicStyle").getId());
+            }
+        } else {
+            if (styleMap.containsKey("subTopicStyle")) {
+                topic.setStyleId(styleMap.get("subTopicStyle").getId());
+            }
+        }
+        parentTopic.add(topic);
+        if (CollectionUtils.isNotEmpty(xmindData.getFunctionalCaseList())) {
+            IStyle style = null;
+            if (styleMap.containsKey("subTopicStyle")) {
+                style = styleMap.get("subTopicStyle");
+            }
+            for (FunctionalCaseXmindDTO dto : xmindData.getFunctionalCaseList()) {
+                // 创建小节节点
+                ITopic itemTopic = workbook.createTopic();
+                if (style != null) {
+                    itemTopic.setStyleId(style.getId());
+                }
+                buildTopic(topic, style, dto, itemTopic, workbook, request, xmindData.getModuleName(), priority);
+            }
+        }
+        if (CollectionUtils.isNotEmpty(xmindData.getChildren())) {
+            for (FunctionalCaseXmindData data : xmindData.getChildren()) {
+                addTopic(topic, workbook, styleMap, data, false, request, priority);
+            }
+        }
+    }
+
+    private static void buildTopic(ITopic topic, IStyle style, FunctionalCaseXmindDTO dto, ITopic itemTopic, IWorkbook workbook, FunctionalCaseExportRequest request, String moduleName, TemplateCustomFieldDTO priority) {
+        List<String> systemColumns = request.getSystemFields().stream().map(FunctionalCaseHeader::getId).toList();
+        FunctionalCaseExportColumns columns = new FunctionalCaseExportColumns();
+
+        Map<String, String> customFieldMap = dto.getCustomFieldDTOList().stream().collect(Collectors.toMap(FunctionalCaseCustomField::getFieldId, FunctionalCaseCustomField::getValue));
+
+        //用例名称
+        String casePriority = customFieldMap.get(priority.getFieldId());
+        itemTopic.setTitleText("case-".concat(StringUtils.defaultIfBlank(casePriority,StringUtils.EMPTY)).concat(": ").concat(dto.getName()));
+        //系统字段
+        systemColumns.forEach(item -> {
+            if (columns.getSystemColumns().containsKey(item) && !StringUtils.equalsIgnoreCase(item, "name")) {
+                ITopic preTopic = workbook.createTopic();
+                switch (item) {
+                    case "num":
+                        preTopic.setTitleText(columns.getSystemColumns().get(item).concat(": ").concat(dto.getNum()));
+                        break;
+                    case "prerequisite":
+                        preTopic.setTitleText(columns.getSystemColumns().get(item).concat(": ").concat(dto.getPrerequisite()));
+                        break;
+                    case "module":
+                        preTopic.setTitleText(columns.getSystemColumns().get(item).concat(": ").concat(moduleName));
+                        break;
+                    case "text_description":
+                        preTopic.setTitleText(columns.getSystemColumns().get(item).concat(": ").concat(dto.getTextDescription()));
+                        break;
+                    case "expected_result":
+                        preTopic.setTitleText(columns.getSystemColumns().get(item).concat(": ").concat(dto.getExpectedResult()));
+                        break;
+                    default:
+                        break;
+                }
+                if (style != null) {
+                    preTopic.setStyleId(style.getId());
+                }
+                itemTopic.add(preTopic, ITopic.ATTACHED);
+            }
+        });
+
+        //自定义字段
+        Map<String, String> customColumnsMap = request.getCustomFields().stream().collect(Collectors.toMap(FunctionalCaseHeader::getId, FunctionalCaseHeader::getName));
+
+
+        customColumnsMap.forEach((k, v) -> {
+            if (customFieldMap.containsKey(k)) {
+                ITopic preTopic = workbook.createTopic();
+                preTopic.setTitleText(v.concat(": ").concat(customFieldMap.get(k)));
+                if (style != null) {
+                    preTopic.setStyleId(style.getId());
+                }
+                itemTopic.add(preTopic, ITopic.ATTACHED);
+            }
+        });
+
+        topic.add(itemTopic);
+    }
+
+
 }
