@@ -82,9 +82,6 @@
       {{ t('case.notSetData') }}
     </div>
   </div>
-  <div class="title">
-    {{ `${t('apiTestManagement.requestBody')}-JSON` }}
-  </div>
 </template>
 
 <script setup lang="ts">
