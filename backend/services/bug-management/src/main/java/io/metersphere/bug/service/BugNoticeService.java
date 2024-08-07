@@ -40,6 +40,7 @@ public class BugNoticeService {
      * @param request 请求参数
      * @return 缺陷通知
      */
+    @SuppressWarnings("unused")
     public BugNoticeDTO getNoticeByRequest(BugEditRequest request) {
         // 获取状态选项, 处理人选项
         Map<String, String> statusMap = getStatusMap(request.getProjectId());
@@ -88,22 +89,7 @@ public class BugNoticeService {
         if (bugDTO == null) {
             return null;
         }
-        // 构建通知对象
-        BugNoticeDTO notice = new BugNoticeDTO();
-        BeanUtils.copyBean(notice, bugDTO);
-        // 自定义字段解析{name: value}
-        if (CollectionUtils.isNotEmpty(bugDTO.getCustomFields())) {
-            List<OptionDTO> fields = new ArrayList<>();
-            bugDTO.getCustomFields().forEach(field -> {
-                // 其他自定义字段
-                OptionDTO fieldDTO = new OptionDTO();
-                fieldDTO.setId(field.getName());
-                fieldDTO.setName(field.getValue());
-                fields.add(fieldDTO);
-            });
-            notice.setFields(fields);
-        }
-        return notice;
+        return buildNotice(bugDTO);
     }
 
     /**
@@ -116,22 +102,7 @@ public class BugNoticeService {
             return null;
         }
         List<BugNoticeDTO> notices = new ArrayList<>();
-        bugs.forEach(bug -> {
-            BugNoticeDTO notice = new BugNoticeDTO();
-            BeanUtils.copyBean(notice, bug);
-            if (CollectionUtils.isNotEmpty(bug.getCustomFields())) {
-                List<OptionDTO> fields = new ArrayList<>();
-                bug.getCustomFields().forEach(field -> {
-                    // 其他自定义字段
-                    OptionDTO fieldDTO = new OptionDTO();
-                    fieldDTO.setId(field.getName());
-                    fieldDTO.setName(field.getValue());
-                    fields.add(fieldDTO);
-                });
-                notice.setFields(fields);
-            }
-            notices.add(notice);
-        });
+        bugs.forEach(bug -> notices.add(buildNotice(bug)));
         return notices;
     }
 
@@ -140,6 +111,7 @@ public class BugNoticeService {
      * @param request 批量请求参数
      * @return 缺陷通知集合
      */
+    @SuppressWarnings("unused")
     public List<BugNoticeDTO> getBatchNoticeByRequest(BugBatchRequest request) {
         List<String> batchIds = bugService.getBatchIdsByRequest(request);
         return getNoticeByIds(batchIds);
@@ -163,5 +135,29 @@ public class BugNoticeService {
     private Map<String, String> getHandleMap(String projectId) {
         List<SelectOption> handlerOption = bugCommonService.getHeaderHandlerOption(projectId);
         return handlerOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+    }
+
+    /**
+     * 构建通知对象
+     * @param bugDTO 缺陷DTO
+     * @return 通知对象
+     */
+    private BugNoticeDTO buildNotice(BugDTO bugDTO) {
+        // 构建通知对象
+        BugNoticeDTO notice = new BugNoticeDTO();
+        BeanUtils.copyBean(notice, bugDTO);
+        // 自定义字段解析{name: value}
+        if (CollectionUtils.isNotEmpty(bugDTO.getCustomFields())) {
+            List<OptionDTO> fields = new ArrayList<>();
+            bugDTO.getCustomFields().forEach(field -> {
+                // 其他自定义字段
+                OptionDTO fieldDTO = new OptionDTO();
+                fieldDTO.setId(field.getName());
+                fieldDTO.setName(field.getValue());
+                fields.add(fieldDTO);
+            });
+            notice.setFields(fields);
+        }
+        return notice;
     }
 }
