@@ -578,7 +578,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<OptionDTO> userDtoList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
-        Assertions.assertEquals(3, userDtoList.size());
+        Assertions.assertEquals(4, userDtoList.size());
     }
 
     @Test

@@ -157,6 +157,16 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                         toUsers.add(new Receiver(operator, NotificationConstants.Type.SYSTEM_NOTICE.name()));
                     }
                 }
+                // 处理人(缺陷)
+                case NoticeConstants.RelatedUser.HANDLE_USER -> {
+                    String handleUser = (String) paramMap.get(NoticeConstants.RelatedUser.HANDLE_USER);
+                    if (StringUtils.isNotBlank(handleUser)) {
+                        toUsers.add(new Receiver(handleUser, NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                    } else {
+                        Receiver receiver = handleHandler(messageDetail, noticeModel);
+                        toUsers.add(receiver);
+                    }
+                }
                 case NoticeConstants.RelatedUser.FOLLOW_PEOPLE -> {
                     try {
                         List<String> followUser = (List) paramMap.get("followUsers");
@@ -263,6 +273,27 @@ public abstract class AbstractNoticeSender implements NoticeSender {
             }
             default -> {
             }
+        }
+        return receiver;
+    }
+
+    /**
+     * 处理人字段
+     *
+     * @param messageDetail
+     * @param noticeModel
+     * @return 通知接收人
+     */
+    private Receiver handleHandler(MessageDetail messageDetail, NoticeModel noticeModel) {
+        String id = (String) noticeModel.getParamMap().get("id");
+        if (StringUtils.isBlank(id)) {
+            return null;
+        }
+        Receiver receiver = null;
+        Bug bug = bugMapper.selectByPrimaryKey(id);
+        if (bug != null && StringUtils.equals(bug.getPlatform(), "Local")) {
+            // 本地缺陷的处理人才需要通知
+            receiver = new Receiver(bug.getHandleUser(), NotificationConstants.Type.SYSTEM_NOTICE.name());
         }
         return receiver;
     }

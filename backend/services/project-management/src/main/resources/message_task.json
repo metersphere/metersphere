@@ -196,6 +196,10 @@
               {
                 "id": "FOLLOW_PEOPLE",
                 "name": ""
+              },
+              {
+                "id": "HANDLE_USER",
+                "name": ""
               }
             ],
             "projectRobotConfigList":[
@@ -218,6 +222,10 @@
               {
                 "id": "CREATE_USER",
                 "name": ""
+              },
+              {
+                "id": "HANDLE_USER",
+                "name": ""
               }
             ],
             "projectRobotConfigList":[
@@ -239,6 +247,10 @@
             "receivers":[
               {
                 "id": "CREATE_USER",
+                "name": ""
+              },
+              {
+                "id": "HANDLE_USER",
                 "name": ""
               }
             ],
