@@ -20,7 +20,9 @@ import {
   BatchRecoverCaseUrl,
   BatchUpdateDefinitionUrl,
   CasePageUrl,
+  caseTableBatchSyncUrl,
   CheckDefinitionScheduleUrl,
+  clearThisChangeUrl,
   ConvertJsonSchemaToJsonUrl,
   CopyMockUrl,
   DebugCaseUrl,
@@ -35,6 +37,7 @@ import {
   DeleteModuleUrl,
   DeleteRecycleApiUrl,
   DeleteRecycleCaseUrl,
+  diffDataUrl,
   ExecuteCaseUrl,
   ExportDefinitionUrl,
   GetCaseDetailUrl,
@@ -54,6 +57,7 @@ import {
   GetPoolOptionUrl,
   GetTrashModuleCountUrl,
   GetTrashModuleTreeUrl,
+  ignoreEveryTimeApiChangeUrl,
   ImportDefinitionUrl,
   JsonSchemaAutoGenerateUrl,
   MockDetailUrl,
@@ -137,6 +141,7 @@ import {
   MoveModules,
   TransferFileParams,
 } from '@/models/common';
+import { TableQueryParams } from '@/models/common';
 import { ResourcePoolItem } from '@/models/setting/resourcePool';
 
 // 更新模块
@@ -312,6 +317,22 @@ export function convertJsonSchemaToJson(data: JsonSchema) {
 // json-schema 生成测试数据
 export function jsonSchemaAutoGenerate(data: JsonSchema) {
   return MSR.post({ url: JsonSchemaAutoGenerateUrl, data });
+}
+// 接口定义-用例接口对比-清除本次变更
+export function clearThisChange(id: string) {
+  return MSR.get({ url: `${clearThisChangeUrl}/${id}` });
+}
+// 接口定义-用例接口对比-忽略每次变更
+export function ignoreEveryTimeChange(id: string, ignore: boolean) {
+  return MSR.get({ url: `${ignoreEveryTimeApiChangeUrl}/${id}`, params: { ignore } });
+}
+// 接口测试-接口管理-接口用例-批量同步编辑
+export function caseTableBatchSync(data: TableQueryParams) {
+  return MSR.post({ url: caseTableBatchSyncUrl, data });
+}
+// // 接口测试-接口用例-定义对比用例
+export function diffDataRequest(id: string) {
+  return MSR.get({ url: `${diffDataUrl}/${id}` });
 }
 
 /**

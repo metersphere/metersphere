@@ -549,7 +549,7 @@
     return totalWidth + tablePadding;
   };
 
-  // 求总和里边最大宽度作为标签列宽
+  // TODO 求总和里边最大宽度作为标签列宽 这里需要考虑一下性能优化
   const getMaxRowTagWidth = (rows: TableData[], dataIndex: string) => {
     const allTags = ((rows as TableData) || []).map((row: TableData) => row[dataIndex] || []);
 

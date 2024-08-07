@@ -14,7 +14,7 @@
         <div>{{ t('case.apiAndCaseDiff') }}</div>
         <div class="flex items-center text-[14px]">
           <div class="-mt-[2px] mr-[8px]"> {{ t('case.syncItem') }}</div>
-          <a-checkbox-group v-model="form.checkType">
+          <a-checkbox-group v-model="checkType">
             <a-checkbox v-for="item of checkList" :key="item.value" :value="item.value">
               <div class="flex items-center"
                 >{{ item.label }}
@@ -31,17 +31,21 @@
             </a-checkbox>
           </a-checkbox-group>
           <a-divider direction="vertical" :margin="0" class="!mr-[8px]"></a-divider>
-          <a-switch v-model:model-value="form.ignoreUpdate" size="small" />
+          <a-switch
+            v-model:model-value="form.ignoreApiChange"
+            :before-change="(val) => changeIgnore(val)"
+            size="small"
+          />
           <div class="ml-[8px]">{{ t('case.ignoreAllChange') }}</div>
           <a-divider direction="vertical" :margin="8"></a-divider>
-          <a-switch v-model:model-value="form.deleteParams" size="small" />
+          <a-switch v-model:model-value="form.deleteRedundantParam" size="small" />
           <div class="ml-[8px] font-normal text-[var(--color-text-1)]">{{ t('case.deleteNotCorrespondValue') }}</div>
           <a-divider direction="vertical" :margin="0" class="!ml-[8px]"></a-divider>
           <a-button class="mx-[12px]" type="secondary" @click="cancel">{{ t('common.cancel') }}</a-button>
-          <a-button class="mr-[12px]" type="outline">
-            {{ t('case.ignoreAllChange') }}
+          <a-button class="mr-[12px]" type="outline" @click="clearThisChangeHandler">
+            {{ t('case.ignoreThisChange') }}
           </a-button>
-          <a-button type="primary" :loading="syncLoading" :disabled="!form.checkType.length" @click="confirmBatchSync">
+          <a-button type="primary" :loading="syncLoading" :disabled="!checkType.length" @click="confirmSync">
             {{ t('case.apiSyncChange') }}
           </a-button>
         </div>
@@ -87,6 +91,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -94,10 +99,17 @@
   import DiffItem from './diffItem.vue';
   import DiffRequestBody from './diffRequestBody.vue';
 
-  import { getCaseDetail, getDefinitionDetail } from '@/api/modules/api-test/management';
+  import {
+    clearThisChange,
+    diffDataRequest,
+    getCaseDetail,
+    getDefinitionDetail,
+    ignoreEveryTimeChange,
+  } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
 
   import { EnableKeyValueParam, ExecuteRequestCommonParam } from '@/models/apiTest/common';
+  import type { syncItem } from '@/models/apiTest/management';
   import { ApiDefinitionDetail } from '@/models/apiTest/management';
   import { RequestBodyFormat, RequestComposition } from '@/enums/apiEnum';
 
@@ -113,6 +125,8 @@
 
   const emit = defineEmits<{
     (e: 'close'): void;
+    (e: 'clearThisChange'): void;
+    (e: 'sync', activeDefinedId: string): void;
   }>();
 
   const showDiffVisible = defineModel<boolean>('visible', {
@@ -140,18 +154,21 @@
   ]);
 
   const initForm = {
-    deleteParams: false,
-    checkType: [],
+    deleteRedundantParam: false,
+    syncItems: {
+      header: false,
+      body: false,
+      query: false,
+      rest: false,
+    },
     noticeApiCaseCreator: true,
     noticeApiScenarioCreator: true,
-    ignoreUpdate: false,
-    ignoreUpdateType: ['THIS_TIME'],
+    ignoreApiChange: false,
   };
 
-  const form = ref({ ...initForm });
+  const checkType = ref([]);
 
-  // 忽略更新
-  function changeIgnoreType() {}
+  const form = ref({ ...initForm });
 
   function cancel() {
     showDiffVisible.value = false;
@@ -159,7 +176,16 @@
   }
   const syncLoading = ref<boolean>(false);
   // 同步
-  function confirmBatchSync() {}
+  function confirmSync() {
+    // 处理同步类型参数
+    checkType.value.forEach((e: any) => {
+      const key = e.toLowerCase() as keyof syncItem;
+      form.value.syncItems[key] = true;
+    });
+
+    emit('sync', props.activeDefinedId);
+    showDiffVisible.value = false;
+  }
 
   const defaultCaseParams = inject<RequestParam>('defaultCaseParams');
   const caseDetail = ref<Record<string, any>>({});
@@ -297,12 +323,12 @@
       caseDetail.value = {
         ...cloneDeep(defaultCaseParams as RequestParam),
         ...({
-          ...res.request,
           ...res,
           url: res.path,
           ...parseRequestBodyResult,
         } as Partial<TabItem>),
       };
+      form.value.ignoreApiChange = caseDetail.value.ignoreApiChange;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -313,22 +339,66 @@
     try {
       const detail = await getDefinitionDetail(apiDefinitionId);
       apiDetailInfo.value = detail as ApiDefinitionDetail;
-      apiDefinedRequest.value = detail.request as unknown as RequestParam;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
     }
   }
+
+  async function getDiffDataRequest(activeApiCaseId: string) {
+    try {
+      const result = await diffDataRequest(activeApiCaseId);
+      const { caseRequest, apiRequest } = result;
+      caseDetail.value = {
+        ...caseDetail.value,
+        ...caseRequest,
+        num: caseDetail.value.num,
+      };
+      apiDefinedRequest.value = apiRequest;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   const loading = ref<boolean>(false);
   async function getRequestDetail(definedId: string, apiCaseId: string) {
     loading.value = true;
     try {
       await Promise.all([getApiDetail(definedId), getCaseDetailInfo(apiCaseId)]);
+      await getDiffDataRequest(props.activeApiCaseId);
       processData();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(error);
     } finally {
       loading.value = false;
+    }
+  }
+  // 忽略并清除本次变更
+  async function clearThisChangeHandler() {
+    if (props.activeApiCaseId) {
+      try {
+        await clearThisChange(props.activeApiCaseId);
+        getRequestDetail(props.activeDefinedId, props.activeApiCaseId);
+        emit('clearThisChange');
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+    }
+  }
+  // 忽略每次变更
+  async function changeIgnore(newValue: string | number | boolean) {
+    try {
+      await ignoreEveryTimeChange(props.activeApiCaseId, newValue as boolean);
+      Message.success(newValue ? t('case.eachHasBeenIgnored') : t('case.eachHasBeenIgnoredClosed'));
+      getRequestDetail(props.activeDefinedId, props.activeApiCaseId);
+      emit('clearThisChange');
+      return false;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
     }
   }
 

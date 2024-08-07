@@ -173,7 +173,7 @@
             :is-preview="props.isPreview"
           />
           <Summary
-            v-else-if="item.value === ReportCardTypeEnum.SUMMARY"
+            v-if="item.value === ReportCardTypeEnum.SUMMARY"
             :rich-text="getContent(item)"
             :share-id="shareId"
             :is-preview="props.isPreview"

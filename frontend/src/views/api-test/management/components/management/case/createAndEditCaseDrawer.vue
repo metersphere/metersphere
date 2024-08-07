@@ -71,20 +71,12 @@
         </a-form>
         <div class="flex items-center justify-between">
           <div class="px-[16px] font-medium">{{ t('apiTestManagement.requestParams') }}</div>
-          <!-- 与定义不一致 TODO 等待联调  -->
-          <MsTag
-            v-if="detailForm.inconsistentWithApi"
-            class="cursor-pointer"
-            type="warning"
-            theme="light"
-            :tooltip-disabled="true"
-            @click="showDiffDrawer"
-          >
-            <template #icon>
-              <MsIcon type="icon-icon_warning_colorful" size="16" />
-            </template>
-            <span class="ml-[8px]"> {{ t('case.definitionInconsistent') }}</span>
-          </MsTag>
+          <ApiChangeTag
+            :ignore-api-change="detailForm.ignoreApiChange"
+            :ignore-api-diff="detailForm.ignoreApiDiff"
+            :inconsistent-with-api="detailForm.inconsistentWithApi"
+            @show-diff="showDiffDrawer"
+          />
         </div>
 
         <requestComposition
@@ -111,7 +103,6 @@
 
   import MsDetailCard, { type Description } from '@/components/pure/ms-detail-card/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
@@ -120,6 +111,7 @@
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import executeButton from '@/views/api-test/components/executeButton.vue';
   import requestComposition, { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
+  import ApiChangeTag from '@/views/api-test/management/components/management/case/apiChangeTag.vue';
 
   import { localExecuteApiDebug } from '@/api/modules/api-test/common';
   import {
@@ -153,7 +145,10 @@
   const { t } = useI18n();
   const appStore = useAppStore();
 
-  const innerVisible = ref(false);
+  const innerVisible = defineModel<boolean>('visible', {
+    default: false,
+  });
+
   const drawerLoading = ref(false);
 
   const apiDefinitionId = ref('');

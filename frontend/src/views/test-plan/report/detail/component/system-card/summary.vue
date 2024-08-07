@@ -29,8 +29,6 @@
 </template>
 
 <script setup lang="ts">
-  import { useVModel } from '@vueuse/core';
-
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
 
@@ -61,7 +59,7 @@
     (e: 'handleSummary', content: string): void;
   }>();
 
-  const innerSummary = useVModel(props, 'richText', emit);
+  const innerSummary = ref(props.richText);
 
   function handleCancel() {
     emit('cancel');
@@ -135,6 +133,18 @@
       emit('handleClick');
     }
   }
+
+  watch(
+    () => props.richText,
+    (val) => {
+      if (val) {
+        innerSummary.value = { ...val };
+      }
+    },
+    {
+      deep: true,
+    }
+  );
 </script>
 
 <style scoped></style>

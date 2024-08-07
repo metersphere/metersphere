@@ -228,6 +228,7 @@ export default {
   'case.definitionInconsistent': 'Inconsistent with the definition',
   'case.haveIgnoredTheChange': 'Have ignored the change',
   'case.eachHasBeenIgnored': 'Each change difference has been ignored',
+  'case.eachHasBeenIgnoredClosed': 'Closed Ignore each change difference',
   'case.apiCaseList': 'List',
   'case.apiCaseDetail': 'Use case details',
   'case.belongingApi': 'Belonging interface',

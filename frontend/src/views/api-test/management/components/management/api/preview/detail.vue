@@ -12,19 +12,12 @@
               <icon-right :size="10" class="block" />
             </div>
           </div>
-          <MsTag
-            v-if="props.detail.inconsistentWithApi"
-            class="cursor-pointer"
-            type="warning"
-            theme="light"
-            :tooltip-disabled="true"
-            @click.stop="showDiffDrawer"
-          >
-            <template #icon>
-              <MsIcon type="icon-icon_warning_colorful" size="16" />
-            </template>
-            <span class="ml-[8px]"> {{ statusText }}</span>
-          </MsTag>
+          <ApiChangeTag
+            :ignore-api-change="props.detail.ignoreApiChange"
+            :ignore-api-diff="props.detail.ignoreApiDiff"
+            :inconsistent-with-api="props.detail.inconsistentWithApi"
+            @show-diff="showDiffDrawer"
+          />
         </div>
       </template>
       <div class="detail-collapse-item">
@@ -435,10 +428,10 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsJsonSchema from '@/components/pure/ms-json-schema/index.vue';
   import { parseSchemaToJsonSchemaTableData } from '@/components/pure/ms-json-schema/utils';
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import { ResponseItem } from '@/views/api-test/components/requestComposition/response/edit.vue';
   import responseCodeTimeSize from '@/views/api-test/components/requestComposition/response/responseCodeTimeSize.vue';
   import Result from '@/views/api-test/components/requestComposition/response/result.vue';
+  import ApiChangeTag from '@/views/api-test/management/components/management/case/apiChangeTag.vue';
 
   import { getPluginScript } from '@/api/modules/api-test/common';
   import { useI18n } from '@/hooks/useI18n';
@@ -897,13 +890,6 @@
       activeResponse.value.body.jsonBody.enableJsonSchema = type === 'Schema';
     }
   }
-
-  const statusText = computed(() => {
-    if (props.detail.inconsistentWithApi) {
-      return t('case.definitionInconsistent');
-    }
-    // TODO 这里的交互参数等待协调
-  });
 
   // 查看diff对比
   function showDiffDrawer() {

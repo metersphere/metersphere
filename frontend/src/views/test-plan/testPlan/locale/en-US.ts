@@ -89,9 +89,9 @@ export default {
   'testPlan.planForm.repeatCaseTip1': 'Enable: Repeatedly associate the same case',
   'testPlan.planForm.repeatCaseTip2': 'Close: Cannot be associated with the same case repeatedly',
   'testPlan.planForm.enableAutomaticStatusTip':
-    'Enable: function cases associated interface/UI/case execution successful performance, function of the use case status automatically updated to success',
+    'Enable: function case execution successful cases associated interface, function of the use case status automatically updated to success',
   'testPlan.planForm.closeAutomaticStatusTip':
-    'Close: the function of use case execution result is not affected by the interface/UI/performance',
+    'Close: The result of execution of a functional use case is not affected by the interface',
   'testPlan.planForm.passThresholdTip': 'If the pass rate reaches the specified pass threshold, the result is passed',
   'testPlan.planForm.pickCases': 'Select cases',
   'testPlan.testPlanDetail.executed': 'Executed',

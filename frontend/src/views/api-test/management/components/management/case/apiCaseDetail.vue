@@ -87,6 +87,8 @@
         :active-api-case-id="activeApiCaseId"
         :active-defined-id="activeDefinedId"
         @close="closeDifferent"
+        @clear-this-change="clearThisChangeHandler"
+        @sync="syncHandler"
       />
     </div>
     <tab-case-dependency v-else-if="activeKey === 'reference'" :source-id="caseDetail.id" />
@@ -396,11 +398,20 @@
   }
 
   const isPriorityLocalExec = computed(() => executeRef.value?.isPriorityLocalExec ?? false);
+  const caseId = ref<string>(route.query.id as string);
+  // 忽略本次变更
+  async function clearThisChangeHandler() {
+    getCaseDetailInfo(caseId.value);
+  }
+
+  function syncHandler(id: string) {
+    // TODO 这里需要调用同步合并后的详情接口回显详情
+    createAndEditCaseDrawerRef.value?.open(id, caseDetail.value, false);
+  }
 
   onBeforeMount(() => {
     initProtocolList();
-    const caseId = route.query.id;
-    getCaseDetailInfo(caseId as string);
+    getCaseDetailInfo(caseId.value);
   });
 </script>
 
