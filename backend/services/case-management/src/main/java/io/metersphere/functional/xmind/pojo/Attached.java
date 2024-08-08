@@ -1,14 +1,16 @@
 
 package io.metersphere.functional.xmind.pojo;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 /**
  * XMind 节点对象
  */
-@Data
+@Setter
+@Getter
 public class Attached {
 
 	private String id;

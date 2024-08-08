@@ -230,6 +230,15 @@ public class FunctionalCaseController {
         return functionalCaseFileService.preCheckExcel(request, file);
     }
 
+    @PostMapping("/pre-check/xmind")
+    @Operation(summary = "用例管理-功能用例-xmind导入检查")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_IMPORT)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public FunctionalCaseImportResponse preCheckXMind(@RequestPart("request") FunctionalCaseImportRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
+        SessionUser user = SessionUtils.getUser();
+        return functionalCaseFileService.preCheckXMind(request,user, file);
+    }
+
 
     @PostMapping("/import/excel")
     @Operation(summary = "用例管理-功能用例-excel导入")
@@ -238,6 +247,15 @@ public class FunctionalCaseController {
     public FunctionalCaseImportResponse importExcel(@RequestPart("request") FunctionalCaseImportRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         SessionUser user = SessionUtils.getUser();
         return functionalCaseFileService.importExcel(request, user, file);
+    }
+
+    @PostMapping("/import/xmind")
+    @Operation(summary = "用例管理-功能用例-xmind导入")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_IMPORT)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public FunctionalCaseImportResponse importXMind(@RequestPart("request") FunctionalCaseImportRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
+        SessionUser user = SessionUtils.getUser();
+        return functionalCaseFileService.importXMind(request, user, file);
     }
 
     @PostMapping("/operation-history")

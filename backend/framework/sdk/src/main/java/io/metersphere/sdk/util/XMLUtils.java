@@ -3,7 +3,6 @@ package io.metersphere.sdk.util;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -11,10 +10,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.commons.lang3.StringUtils;
-import org.dom4j.*;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.Node;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
@@ -206,90 +208,17 @@ public class XMLUtils {
         return result.toString();
     }
 
-    public static String delXmlHeader(String xml) {
-        int begin = xml.indexOf("?>");
-        if (begin != -1) {
-            if (begin + 2 >= xml.length()) {
-                return null;
-            }
-            xml = xml.substring(begin + 2);
-        }   //  <?xml version="1.0" encoding="utf-8"?> 若存在，则去除
-        String rgex = ">";
-        Pattern pattern = Pattern.compile(rgex);
-        Matcher m = pattern.matcher(xml);
-        xml = m.replaceAll("> ");
-        rgex = "\\s*</";
-        pattern = Pattern.compile(rgex);
-        m = pattern.matcher(xml);
-        xml = m.replaceAll(" </");
-        return xml;
-    }
-
     //  传入完整的 xml 文本，转换成 json 对象
     public static JsonNode xmlConvertJson(String xml) {
         if (StringUtils.isBlank(xml)) return null;
-        xml = delXmlHeader(xml);
-        if (xml == null) return null;
+        // 创建一个XmlMapper对象
+        ObjectMapper xmlMapper = new XmlMapper();
+        // 将XML字符串转换为JsonNode对象
         try {
-            if (stringToDocument(xml) == null) {
-                LogUtils.error("xml内容转换失败！");
-                return null;
-            }
-        } catch (Exception e) {
+            return xmlMapper.readTree(xml.getBytes());
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        Element node = null;
-        try {
-            node = stringToDocument(xml).getRootElement();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return getJsonObjectByDC(node);
     }
 
-    private static JsonNode getJsonObjectByDC(Element node) {
-        ObjectNode result = objectMapper.createObjectNode();;
-        List<Element> listElement = node.elements();// 所有一级子节点的list
-        if (!listElement.isEmpty()) {
-            List<JsonNode> list = new LinkedList<>();
-            for (Element e : listElement) {// 遍历所有一级子节点
-                JsonNode jsonObject = getJsonObjectByDC(e);
-                //加xml标签上的属性 eg: <field length="2" scale="0" type="string">RB</field>
-                //这里添加 length scale type
-                if (!e.attributes().isEmpty()) {
-                    ObjectNode attributeJson = objectMapper.createObjectNode();;
-                    for (Attribute attribute : e.attributes()) {
-                        try {
-                            attributeJson.putIfAbsent(attribute.getName(), objectMapper.readTree(attribute.getValue()));
-                        } catch (JsonProcessingException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                    }
-                    ObjectNode jsonObjectNode = (ObjectNode) jsonObject;
-                    jsonObjectNode.putIfAbsent("attribute", attributeJson);
-                }
-                list.add(jsonObject);
-            }
-            if (list.size() == 1) {
-                result.putIfAbsent(node.getName(), list.get(0));
-            } else {
-                try {
-                    String s = objectMapper.writeValueAsString(list);
-                    result.putIfAbsent(node.getName(), objectMapper.readTree(s));
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-
-            }
-        } else {
-            if (!StringUtils.isAllBlank(node.getName(), node.getText())) {
-                try {
-                    result.putIfAbsent(node.getName(), objectMapper.readTree(node.getText()));
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-        return result;
-    }
 }
