@@ -62,6 +62,7 @@ export default {
   'apiTestManagement.poolRequired': '资源池不能为空',
   'apiTestManagement.batchMoveConfirm': '移动至所选模块',
   'apiTestManagement.belongModule': '所属模块',
+  'apiTestManagement.importModule': '导入模块',
   'apiTestManagement.importMode': '导入模式',
   'apiTestManagement.importModeTip1': '覆盖：',
   'apiTestManagement.importModeTip2': '1.系统已存在的同一接口（请求类型+路径一致），请求参数内容不一致则覆盖系统原接口',

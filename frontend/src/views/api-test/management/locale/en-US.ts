@@ -64,6 +64,7 @@ export default {
   'apiTestManagement.poolRequired': 'Resource pool cannot be empty',
   'apiTestManagement.batchMoveConfirm': 'Move to selected module',
   'apiTestManagement.belongModule': 'Belong to Module',
+  'apiTestManagement.importModule': 'Import api to the module',
   'apiTestManagement.importMode': 'Import Mode',
   'apiTestManagement.importModeTip1': 'Cover:',
   'apiTestManagement.importModeTip2':
