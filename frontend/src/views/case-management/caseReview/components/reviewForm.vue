@@ -74,7 +74,7 @@
       v-model:filed-ids="caseResultForm.fileList"
       :auto-height="false"
       :upload-image="handleUploadImage"
-      :preview-url="PreviewEditorImageUrl"
+      :preview-url="`${PreviewEditorImageUrl}/${appStore.currentProjectId}`"
       class="w-full"
     />
   </a-modal>

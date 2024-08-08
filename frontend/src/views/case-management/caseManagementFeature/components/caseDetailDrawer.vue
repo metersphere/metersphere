@@ -147,7 +147,7 @@
           v-model:notice-user-ids="noticeUserIds"
           v-model:filed-ids="uploadFileIds"
           v-permission="['FUNCTIONAL_CASE:READ+COMMENT']"
-          :preview-url="PreviewEditorImageUrl"
+          :preview-url="`${PreviewEditorImageUrl}/${currentProjectId}`"
           :is-active="isActive"
           is-show-avatar
           is-use-bottom

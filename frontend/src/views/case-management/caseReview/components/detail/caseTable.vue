@@ -248,7 +248,7 @@
               v-model:filed-ids="reviewCommentFileIds"
               :upload-image="handleUploadImage"
               :auto-height="false"
-              :preview-url="PreviewEditorImageUrl"
+              :preview-url="`${PreviewEditorImageUrl}/${appStore.currentProjectId}`"
               class="w-full"
             />
           </div>

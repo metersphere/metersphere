@@ -99,12 +99,14 @@
   import { previewOrgImageUrl, previewProImageUrl } from '@/api/requrls/setting/template';
   import { defaultTemplateCaseDetail } from '@/config/template';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
   import { getGenerateId } from '@/utils';
 
   import type { StepList } from '@/models/caseManagement/featureCase';
   import type { defaultCaseField } from '@/models/setting/template';
 
   const { t } = useI18n();
+  const appStore = useAppStore();
 
   const props = defineProps<{
     mode: 'organization' | 'project';
@@ -193,7 +195,9 @@
   }
 
   const previewEditorImageUrl = computed(() =>
-    props.mode === 'organization' ? previewOrgImageUrl : previewProImageUrl
+    props.mode === 'organization'
+      ? `${previewOrgImageUrl}/${appStore.currentOrgId}`
+      : `${previewProImageUrl}/${appStore.currentProjectId}`
   );
 
   const fileIds = computed(() => {

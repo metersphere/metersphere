@@ -21,7 +21,7 @@
             v-model:raw="form.prerequisite"
             v-model:filed-ids="prerequisiteFileIds"
             :upload-image="handleUploadImage"
-            :preview-url="PreviewEditorImageUrl"
+            :preview-url="`${PreviewEditorImageUrl}/${currentProjectId}`"
           />
         </a-form-item>
         <a-form-item
@@ -57,7 +57,7 @@
             v-model:raw="form.textDescription"
             v-model:filed-ids="textDescriptionFileIds"
             :upload-image="handleUploadImage"
-            :preview-url="PreviewEditorImageUrl"
+            :preview-url="`${PreviewEditorImageUrl}/${currentProjectId}`"
           />
         </a-form-item>
         <a-form-item
@@ -69,7 +69,7 @@
             v-model:raw="form.expectedResult"
             v-model:filed-ids="expectedResultFileIds"
             :upload-image="handleUploadImage"
-            :preview-url="PreviewEditorImageUrl"
+            :preview-url="`${PreviewEditorImageUrl}/${currentProjectId}`"
           />
         </a-form-item>
         <a-form-item field="description" :label="t('caseManagement.featureCase.remark')">
@@ -77,7 +77,7 @@
             v-model:raw="form.description"
             v-model:filed-ids="descriptionFileIds"
             :upload-image="handleUploadImage"
-            :preview-url="PreviewEditorImageUrl"
+            :preview-url="`${PreviewEditorImageUrl}/${currentProjectId}`"
           />
         </a-form-item>
         <AddAttachment v-model:file-list="fileList" multiple @change="handleChange" @link-file="associatedFile" />
@@ -545,6 +545,24 @@
   }
 
   const checkUpdateFileIds = ref<string[]>([]);
+  // 前置操作附件id
+  const prerequisiteFileIds = ref<string[]>([]);
+  // 文本描述附件id
+  const textDescriptionFileIds = ref<string[]>([]);
+  // 预期结果附件id
+  const expectedResultFileIds = ref<string[]>([]);
+  // 描述附件id
+  const descriptionFileIds = ref<string[]>([]);
+
+  // 所有附近文件id
+  const allAttachmentsFileIds = computed(() => {
+    return [
+      ...prerequisiteFileIds.value,
+      ...textDescriptionFileIds.value,
+      ...expectedResultFileIds.value,
+      ...descriptionFileIds.value,
+    ];
+  });
 
   // 处理详情字段
   function getDetailData(detailResult: DetailCase) {
@@ -557,6 +575,7 @@
 
     form.value = {
       ...detailResult,
+      caseDetailFileIds: allAttachmentsFileIds.value,
       name: route.params.mode === 'copy' ? copyName : detailResult.name,
     };
     // 处理自定义字段
@@ -650,7 +669,7 @@
     (val) => {
       if (val) {
         if (val) {
-          params.value.request = { ...form.value };
+          params.value.request = { ...form.value, caseDetailFileIds: allAttachmentsFileIds.value };
           emit('update:formModeValue', params.value);
         }
       }
@@ -751,31 +770,10 @@
     }
   }
 
-  // 前置操作附件id
-  const prerequisiteFileIds = ref<string[]>([]);
-  // 文本描述附件id
-  const textDescriptionFileIds = ref<string[]>([]);
-  // 预期结果附件id
-  const expectedResultFileIds = ref<string[]>([]);
-  // 描述附件id
-  const descriptionFileIds = ref<string[]>([]);
-
-  // 所有附近文件id
-  const allAttachmentsFileIds = computed(() => {
-    return [
-      ...prerequisiteFileIds.value,
-      ...textDescriptionFileIds.value,
-      ...expectedResultFileIds.value,
-      ...descriptionFileIds.value,
-    ];
-  });
-
   watch(
     () => allAttachmentsFileIds.value,
     (val) => {
-      if (val) {
-        params.value.request.caseDetailFileIds = val;
-      }
+      params.value.request.caseDetailFileIds = val;
     }
   );
 

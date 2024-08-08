@@ -26,7 +26,7 @@
         <MsComment
           :upload-image="handleUploadImage"
           :comment-list="commentList"
-          :preview-url="PreviewEditorImageUrl"
+          :preview-url="`${PreviewEditorImageUrl}/${appStore.currentProjectId}`"
           @delete="handleDelete"
           @update-or-add="handleUpdateOrAdd"
         />
@@ -40,7 +40,7 @@
       v-model:notice-user-ids="noticeUserIds"
       v-model:filed-ids="uploadFileIds"
       v-permission="['FUNCTIONAL_CASE:READ+COMMENT']"
-      :preview-url="PreviewEditorImageUrl"
+      :preview-url="`${PreviewEditorImageUrl}/${appStore.currentProjectId}`"
       :is-active="isActive"
       is-show-avatar
       is-use-bottom
@@ -72,6 +72,7 @@
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import { useAppStore } from '@/store';
   import { hasAnyPermission } from '@/utils/permission';
 
   const props = defineProps<{
@@ -80,6 +81,7 @@
 
   const { t } = useI18n();
   const { openModal } = useModal();
+  const appStore = useAppStore();
 
   const hasEditPermission = hasAnyPermission(['FUNCTIONAL_CASE:READ+COMMENT']);
 

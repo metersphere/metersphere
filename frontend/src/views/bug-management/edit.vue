@@ -34,7 +34,7 @@
               v-model:raw="form.description"
               v-model:filed-ids="descriptionFileIds"
               :upload-image="handleUploadImage"
-              :preview-url="EditorPreviewFileUrl"
+              :preview-url="`${EditorPreviewFileUrl}/${appStore.currentProjectId}`"
             />
           </a-form-item>
           <!-- 平台默认模板展示字段, 暂时支持输入框, 富文本类型 -->
@@ -61,7 +61,7 @@
                 v-model:raw="form.platformSystemFields[key]"
                 v-model:filed-ids="descriptionFileIdMap[key]"
                 :upload-image="handleUploadImage"
-                :preview-url="EditorPreviewFileUrl"
+                :preview-url="`${EditorPreviewFileUrl}/${appStore.currentProjectId}`"
               />
             </a-form-item>
           </div>

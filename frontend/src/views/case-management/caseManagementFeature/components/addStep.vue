@@ -178,7 +178,7 @@
       title: 'system.orgTemplate.operation',
       slotName: 'operation',
       fixed: 'right',
-      width: 200,
+      width: 120,
       showInTable: true,
       showDrag: false,
     },
