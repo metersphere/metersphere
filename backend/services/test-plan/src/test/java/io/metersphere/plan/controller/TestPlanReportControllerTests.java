@@ -420,7 +420,8 @@ public class TestPlanReportControllerTests extends BaseTest {
 
         //测试清除方法
         CleanupTestPlanReportServiceImpl cleanupTestPlanReportService = CommonBeanFactory.getBean(CleanupTestPlanReportServiceImpl.class);
-        cleanupTestPlanReportService.cleanReport(new HashMap<>() {{
+		assert cleanupTestPlanReportService != null;
+		cleanupTestPlanReportService.cleanReport(new HashMap<>() {{
             this.put(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name(), "3M");
         }}, DEFAULT_PROJECT_ID);
         //清除所有数据
@@ -470,6 +471,6 @@ public class TestPlanReportControllerTests extends BaseTest {
     private String getManualGenPlanReportId() {
         TestPlanReportExample example = new TestPlanReportExample();
         example.createCriteria().andTestPlanIdEqualTo("plan_id_for_gen_report").andDefaultLayoutEqualTo(false);
-        return testPlanReportMapper.selectByExample(example).get(0).getId();
+        return testPlanReportMapper.selectByExample(example).getFirst().getId();
     }
 }
