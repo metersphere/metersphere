@@ -216,7 +216,7 @@
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
-  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { casePriorityOptions } from '@/views/api-test/components/config';
   import { executionResultMap, getCaseLevels } from '@/views/case-management/caseManagementFeature/components/utils';
@@ -245,6 +245,7 @@
   const testPlanFeatureCaseStore = useTestPlanFeatureCaseStore();
 
   const moduleTree = computed(() => unref(testPlanFeatureCaseStore.moduleTree));
+
   async function initModules() {
     await testPlanFeatureCaseStore.initModules(route.query.id as string, props.treeType);
   }
@@ -350,6 +351,14 @@
       showTooltip: true,
       width: 150,
       showDrag: true,
+      filterConfig: {
+        mode: 'remote',
+        loadOptionParams: {
+          projectId: appStore.currentProjectId,
+        },
+        remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
+        placeholderText: t('caseManagement.featureCase.PleaseSelect'),
+      },
     },
     {
       title: hasOperationPermission.value ? 'common.operation' : '',
@@ -426,7 +435,9 @@
     }
     return moduleIds;
   }
+
   const collectionId = computed(() => (props.activeModule === 'all' ? '' : props.activeModule));
+
   async function getTableParams(isBatch: boolean) {
     const selectModules = await getModuleIds();
     const commonParams = {
@@ -490,6 +501,7 @@
       });
     }
   }
+
   watch(
     () => props.activeModule,
     () => {
@@ -504,6 +516,7 @@
   });
 
   const modulesCount = computed(() => testPlanFeatureCaseStore.modulesCount);
+
   async function getModuleCount() {
     let params;
     const tableParams = await getTableParams(false);
@@ -524,6 +537,7 @@
    * @param getCount 获取模块树数量
    */
   const msTestPlanFeatureCaseMinderRef = ref<InstanceType<typeof MsTestPlanFeatureCaseMinder>>();
+
   async function refresh(getCount = true) {
     if (showType.value === 'list') {
       loadCaseList(getCount);
@@ -565,6 +579,7 @@
     condition: {},
     currentSelectCount: 0,
   });
+
   function handleTableSelect(arr: (string | number)[]) {
     tableSelected.value = arr;
   }
@@ -614,6 +629,7 @@
 
   // 取消关联
   const disassociateLoading = ref(false);
+
   async function handleDisassociateCase(record: PlanDetailFeatureCaseItem, done?: () => void) {
     try {
       disassociateLoading.value = true;
@@ -679,6 +695,7 @@
   const batchLoading = ref(false);
   const batchExecuteModalVisible = ref(false);
   const batchExecuteForm = ref<ExecuteFeatureCaseFormParams>({ ...defaultExecuteForm });
+
   async function handleBatchExecute() {
     try {
       batchLoading.value = true;
@@ -729,6 +746,7 @@
         break;
     }
   }
+
   // 脑图操作
   function handleMinderOperation(type: string, node: MinderJsonNode) {
     minderSelectData.value = node.data;
@@ -782,19 +800,24 @@
   :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
     &:not(:hover) {
       border-color: transparent !important;
+
       .arco-input::placeholder {
         @apply invisible;
       }
+
       .arco-select-view-icon {
         @apply invisible;
       }
+
       .arco-select-view-value {
         color: var(--color-text-brand);
       }
     }
   }
+
   .list-show-type {
     padding: 0;
+
     :deep(.arco-radio-button-content) {
       padding: 4px 6px;
     }

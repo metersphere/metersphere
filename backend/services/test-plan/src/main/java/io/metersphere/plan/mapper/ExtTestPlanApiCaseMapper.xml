@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.plan.mapper.ExtTestPlanApiCaseMapper">
 
     <resultMap id="ApiDefinitionDTO" type="io.metersphere.api.dto.definition.ApiDefinitionDTO">
-        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler"/>
     </resultMap>
 
     <update id="updatePos">
@@ -140,7 +140,8 @@
         </include>
         <choose>
             <when test='request.searchMode == "AND"'>
-                AND <include refid="queryCombine"/>
+                AND
+                <include refid="queryCombine"/>
             </when>
             <when test='request.searchMode == "OR"'>
                 and (
@@ -180,14 +181,16 @@
                         </when>
                         <when test="key.startsWith('custom_single')">
                             and api_definition.id in (
-                            select api_id from api_definition_custom_field where concat('custom_single_', field_id) = #{key}
+                            select api_id from api_definition_custom_field where concat('custom_single_', field_id) =
+                            #{key}
                             and trim(both '"' from `value`) in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                             )
                         </when>
                         <when test="key.startsWith('custom_multiple')">
                             and api_definition.id in (
-                            select api_id from api_definition_custom_field where concat('custom_multiple_', field_id) = #{key}
+                            select api_id from api_definition_custom_field where concat('custom_multiple_', field_id) =
+                            #{key}
                             and JSON_CONTAINS(`value`, json_array(#{value}))
                             )
                         </when>
@@ -403,35 +406,35 @@
 
     <select id="relateApiCaseList" resultType="io.metersphere.plan.dto.response.TestPlanApiCasePageResponse">
         SELECT
-            t.id,
-            t.test_plan_collection_id,
-            atc.num,
-            atc.name,
-            atc.priority,
-            atc.project_id,
-            atc.api_definition_id,
-            atc.create_user,
-            t.create_time,
-            t.environment_id,
-            a.module_id,
-            a.path,
-            a.method,
-            a.protocol,
-            t.last_exec_result,
-            t.execute_user,
-            t.last_exec_time,
-            t.last_exec_report_id,
-            atc.status,
-            atc.id as apiTestCaseId,
+        t.id,
+        t.test_plan_collection_id,
+        atc.num,
+        atc.name,
+        atc.priority,
+        atc.project_id,
+        atc.api_definition_id,
+        atc.create_user,
+        t.create_time,
+        t.environment_id,
+        a.module_id,
+        a.path,
+        a.method,
+        a.protocol,
+        t.last_exec_result,
+        t.execute_user,
+        t.last_exec_time,
+        t.last_exec_report_id,
+        atc.status,
+        atc.id as apiTestCaseId,
         test_plan_collection.name as testPlanCollectionName
         FROM
-            api_test_case atc
-                INNER JOIN api_definition a ON atc.api_definition_id = a.id
+        api_test_case atc
+        INNER JOIN api_definition a ON atc.api_definition_id = a.id
         inner join test_plan_api_case t on atc.id = t.api_case_id
         inner join test_plan_collection on test_plan_collection.id = t.test_plan_collection_id
         WHERE atc.deleted =#{deleted}
         and t.test_plan_id = #{request.testPlanId}
-     <include refid="queryApiCaseWhereCondition"/>
+        <include refid="queryApiCaseWhereCondition"/>
     </select>
     <select id="selectByTestPlanIdAndNotDeleted" resultType="io.metersphere.plan.domain.TestPlanApiCase">
         SELECT t.*
@@ -444,12 +447,12 @@
     <select id="getPlanApiCaseNotDeletedByCollectionIds" resultType="io.metersphere.plan.domain.TestPlanApiCase">
         SELECT t.*
         FROM test_plan_api_case t
-                 INNER JOIN api_test_case atc ON t.api_case_id = atc.id
+        INNER JOIN api_test_case atc ON t.api_case_id = atc.id
         WHERE t.test_plan_collection_id IN
         <foreach collection="collectionIds" item="collectionId" separator="," open="(" close=")">
             #{collectionId}
         </foreach>
-          AND atc.deleted = false
+        AND atc.deleted = false
     </select>
 
 
@@ -545,6 +548,11 @@
                                 (#{value})
                             </foreach>
                         </when>
+                        <!-- 执行人 -->
+                        <when test="key == 'executeUserName'">
+                            and t.execute_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
                     </choose>
                 </if>
             </foreach>
@@ -561,9 +569,10 @@
         </if>
     </sql>
 
-    <select id="countModuleIdByRequest"  resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
-        SELECT CASE WHEN a.module_id = 'root' THEN CONCAT(atc.project_id, '_', a.module_id) ELSE a.module_id END AS moduleId,
-               count(atc.id) AS dataCount, atc.project_id AS projectId, project.name AS projectName
+    <select id="countModuleIdByRequest" resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
+        SELECT CASE WHEN a.module_id = 'root' THEN CONCAT(atc.project_id, '_', a.module_id) ELSE a.module_id END AS
+        moduleId,
+        count(atc.id) AS dataCount, atc.project_id AS projectId, project.name AS projectName
         FROM test_plan_api_case t
         INNER JOIN api_test_case atc ON t.api_case_id = atc.id
         INNER JOIN api_definition a ON atc.api_definition_id = a.id
@@ -577,9 +586,13 @@
     <select id="selectIdByProjectIdAndTestPlanId" resultType="java.lang.String">
         SELECT adm.id, adm.project_id
         FROM api_definition_module adm
-        WHERE adm.id IN (
-            SELECT ad.module_id FROM api_definition ad LEFT JOIN api_test_case atc on atc.api_definition_id = ad.id LEFT JOIN test_plan_api_case tpac ON tpac.api_case_id = atc.id WHERE tpac.test_plan_id = #{testPlanId} AND atc.deleted = false and atc.project_id = #{projectId}
-            )
+        WHERE adm.id IN (SELECT ad.module_id
+                         FROM api_definition ad
+                                  LEFT JOIN api_test_case atc on atc.api_definition_id = ad.id
+                                  LEFT JOIN test_plan_api_case tpac ON tpac.api_case_id = atc.id
+                         WHERE tpac.test_plan_id = #{testPlanId}
+                           AND atc.deleted = false
+                           and atc.project_id = #{projectId})
     </select>
 
     <select id="caseCount"
@@ -609,11 +622,16 @@
         FROM api_definition_module adm
                  LEFT JOIN project p ON adm.project_id = p.id
         WHERE adm.id IN
-              (SELECT ad.module_id FROM api_definition ad LEFT JOIN api_test_case atc on atc.api_definition_id = ad.id LEFT JOIN test_plan_api_case tpac ON tpac.api_case_id = atc.id WHERE tpac.test_plan_id = #{testPlanId} AND atc.deleted = false)
+              (SELECT ad.module_id
+               FROM api_definition ad
+                        LEFT JOIN api_test_case atc on atc.api_definition_id = ad.id
+                        LEFT JOIN test_plan_api_case tpac ON tpac.api_case_id = atc.id
+               WHERE tpac.test_plan_id = #{testPlanId}
+                 AND atc.deleted = false)
         ORDER BY pos
     </select>
 
-    <select id="getIds"  resultType="java.lang.String">
+    <select id="getIds" resultType="java.lang.String">
         SELECT
         t.id as id
         FROM
@@ -666,18 +684,18 @@
 
     <select id="collectionCountByRequest" resultType="io.metersphere.project.dto.ModuleCountDTO">
         SELECT
-            t.test_plan_collection_id AS moduleId,
-            count( t.id ) AS dataCount
+        t.test_plan_collection_id AS moduleId,
+        count( t.id ) AS dataCount
         FROM
-            api_test_case atc
-                INNER JOIN test_plan_api_case t ON atc.id = t.api_case_id
+        api_test_case atc
+        INNER JOIN test_plan_api_case t ON atc.id = t.api_case_id
         INNER JOIN api_definition a on atc.api_definition_id = a.id
         WHERE
         atc.deleted = FALSE
-          AND t.test_plan_id = #{request.testPlanId}
+        AND t.test_plan_id = #{request.testPlanId}
         <include refid="queryApiCaseWhereCondition"/>
         GROUP BY
-            t.test_plan_collection_id
+        t.test_plan_collection_id
     </select>
 
     <select id="getMaxPosByCollectionId" resultType="java.lang.Long">

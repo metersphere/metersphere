@@ -199,6 +199,11 @@
                             and api_scenario.delete_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <!-- 执行人 -->
+                        <when test="key == 'executeUserName'">
+                            and test_plan_api_scenario.execute_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
                         <when test="key=='versionId'">
                             and api_scenario.version_id in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
@@ -332,9 +337,10 @@
     </sql>
 
 
-    <select id="countModuleIdByRequest"  resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
-        SELECT CASE WHEN api_scenario.module_id = 'root' THEN CONCAT(api_scenario.project_id, '_', api_scenario.module_id) ELSE api_scenario.module_id END AS moduleId,
-               count(api_scenario.id) AS dataCount, api_scenario.project_id AS projectId, project.name AS projectName
+    <select id="countModuleIdByRequest" resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
+        SELECT CASE WHEN api_scenario.module_id = 'root' THEN CONCAT(api_scenario.project_id, '_',
+        api_scenario.module_id) ELSE api_scenario.module_id END AS moduleId,
+        count(api_scenario.id) AS dataCount, api_scenario.project_id AS projectId, project.name AS projectName
         FROM test_plan_api_scenario
         INNER JOIN api_scenario on api_scenario.id = test_plan_api_scenario.api_scenario_id
         INNER JOIN project ON api_scenario.project_id = project.id
@@ -357,24 +363,28 @@
     <select id="selectIdByProjectIdAndTestPlanId" resultType="java.lang.String">
         SELECT asm.id, asm.project_id
         FROM api_scenario_module asm
-        WHERE asm.id IN (
-            SELECT api_scenario.module_id FROM api_scenario LEFT JOIN test_plan_api_scenario on api_scenario.id = test_plan_api_scenario.api_scenario_id WHERE test_plan_api_scenario.test_plan_id = #{testPlanId} AND api_scenario.deleted = false and api_scenario.project_id = #{projectId}
-        )
+        WHERE asm.id IN (SELECT api_scenario.module_id
+                         FROM api_scenario
+                                  LEFT JOIN test_plan_api_scenario
+                                            on api_scenario.id = test_plan_api_scenario.api_scenario_id
+                         WHERE test_plan_api_scenario.test_plan_id = #{testPlanId}
+                           AND api_scenario.deleted = false
+                           and api_scenario.project_id = #{projectId})
     </select>
 
     <select id="collectionCountByRequest" resultType="io.metersphere.project.dto.ModuleCountDTO">
         SELECT
-            test_plan_api_scenario.test_plan_collection_id AS moduleId,
-            count( test_plan_api_scenario.id ) AS dataCount
+        test_plan_api_scenario.test_plan_collection_id AS moduleId,
+        count( test_plan_api_scenario.id ) AS dataCount
         FROM
-            api_scenario
-                INNER JOIN test_plan_api_scenario on api_scenario.id = test_plan_api_scenario.api_scenario_id
+        api_scenario
+        INNER JOIN test_plan_api_scenario on api_scenario.id = test_plan_api_scenario.api_scenario_id
         WHERE
-            api_scenario.deleted = FALSE
-          AND test_plan_api_scenario.test_plan_id = #{request.testPlanId}
+        api_scenario.deleted = FALSE
+        AND test_plan_api_scenario.test_plan_id = #{request.testPlanId}
         <include refid="queryApiScenarioWhereCondition"/>
         GROUP BY
-            test_plan_api_scenario.test_plan_collection_id
+        test_plan_api_scenario.test_plan_collection_id
     </select>
 
     <select id="selectRootIdByTestPlanId" resultType="io.metersphere.functional.dto.ProjectOptionDTO">
@@ -392,7 +402,11 @@
         FROM api_scenario_module asm
                  LEFT JOIN project p ON asm.project_id = p.id
         WHERE asm.id IN
-              (SELECT api_scenario.module_id FROM api_scenario LEFT JOIN test_plan_api_scenario ON api_scenario.id = test_plan_api_scenario.api_scenario_id WHERE test_plan_api_scenario.test_plan_id = #{testPlanId} AND api_scenario.deleted = false)
+              (SELECT api_scenario.module_id
+               FROM api_scenario
+                        LEFT JOIN test_plan_api_scenario ON api_scenario.id = test_plan_api_scenario.api_scenario_id
+               WHERE test_plan_api_scenario.test_plan_id = #{testPlanId}
+                 AND api_scenario.deleted = false)
         ORDER BY pos
     </select>
 
@@ -419,7 +433,7 @@
         </foreach>
     </select>
 
-    <select id="getIds"  resultType="java.lang.String">
+    <select id="getIds" resultType="java.lang.String">
         SELECT
         test_plan_api_scenario.id as id
         FROM
@@ -442,8 +456,10 @@
         <include refid="queryWhereConditionByBatchQueryRequest"/>
     </select>
     <select id="getIdsByReportIdAndCollectionId" resultType="java.lang.String">
-        select id from test_plan_report_api_scenario
-        where test_plan_report_id = #{testPlanReportId} and test_plan_collection_id = #{collectionId}
+        select id
+        from test_plan_report_api_scenario
+        where test_plan_report_id = #{testPlanReportId}
+          and test_plan_collection_id = #{collectionId}
         order by pos desc
     </select>
     <sql id="queryWhereConditionByBatchQueryRequest">
@@ -475,15 +491,16 @@
         </if>
     </sql>
 
-    <select id="getPlanScenarioCaseNotDeletedByCollectionIds" resultType="io.metersphere.plan.domain.TestPlanApiScenario">
+    <select id="getPlanScenarioCaseNotDeletedByCollectionIds"
+            resultType="io.metersphere.plan.domain.TestPlanApiScenario">
         SELECT t.*
         FROM test_plan_api_scenario t
-                 INNER JOIN api_scenario a ON t.api_scenario_id = a.id
+        INNER JOIN api_scenario a ON t.api_scenario_id = a.id
         WHERE t.test_plan_collection_id IN
         <foreach collection="collectionIds" item="collectionId" separator="," open="(" close=")">
             #{collectionId}
         </foreach>
-          AND a.deleted = false
+        AND a.deleted = false
     </select>
     <select id="selectDistinctExecResult" resultType="io.metersphere.plan.dto.TestPlanResourceExecResultDTO">
         select distinct resource.test_plan_id AS testPlanId,
