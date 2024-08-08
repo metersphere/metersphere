@@ -240,6 +240,15 @@ public class FunctionalCaseController {
         return functionalCaseFileService.importExcel(request, user, file);
     }
 
+    @PostMapping("/import/xmind")
+    @Operation(summary = "用例管理-功能用例-xmind导入")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_IMPORT)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public FunctionalCaseImportResponse importXMind(@RequestPart("request") FunctionalCaseImportRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
+        SessionUser user = SessionUtils.getUser();
+        return functionalCaseFileService.importXMind(request, user, file);
+    }
+
     @PostMapping("/operation-history")
     @Operation(summary = "用例管理-功能用例-变更历史")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)

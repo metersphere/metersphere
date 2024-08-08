@@ -1,9 +1,6 @@
 package io.metersphere.functional.controller;
 
-import io.metersphere.functional.domain.FunctionalCase;
-import io.metersphere.functional.domain.FunctionalCaseAttachment;
-import io.metersphere.functional.domain.FunctionalCaseAttachmentExample;
-import io.metersphere.functional.domain.FunctionalCaseCustomField;
+import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCaseAttachmentDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
@@ -11,6 +8,7 @@ import io.metersphere.functional.dto.response.FunctionalCaseImportResponse;
 import io.metersphere.functional.excel.domain.FunctionalCaseHeader;
 import io.metersphere.functional.mapper.FunctionalCaseAttachmentMapper;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
+import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.functional.utils.FileBaseUtils;
@@ -85,6 +83,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String DOWNLOAD_EXCEL_TEMPLATE_URL = "/functional/case/download/excel/template/";
     public static final String CHECK_EXCEL_URL = "/functional/case/pre-check/excel";
     public static final String IMPORT_EXCEL_URL = "/functional/case/import/excel";
+    public static final String IMPORT_XMIND_URL = "/functional/case/import/xmind";
     public static final String OPERATION_HISTORY_URL = "/functional/case/operation-history";
     public static final String EXPORT_EXCEL_URL = "/functional/case/export/excel";
     public static final String DOWNLOAD_XMIND_TEMPLATE_URL = "/functional/case/download/xmind/template/";
@@ -106,6 +105,9 @@ public class FunctionalCaseControllerTests extends BaseTest {
 
     @Resource
     private FunctionalCaseAttachmentMapper functionalCaseAttachmentMapper;
+
+    @Resource
+    private FunctionalCaseMapper functionalCaseMapper;
 
     protected static String functionalCaseId;
 
@@ -770,6 +772,62 @@ public class FunctionalCaseControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("file", file2);
         this.requestMultipart(IMPORT_EXCEL_URL, paramMap);
+    }
+
+
+    @Test
+    @Order(19)
+    public void testImportXmind() throws Exception {
+        String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/1xml.xmind")).getPath();
+        MockMultipartFile file = new MockMultipartFile("file", "11.xmind", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath));
+        FunctionalCaseImportRequest request = new FunctionalCaseImportRequest();
+        request.setCover(true);
+        request.setProjectId("100001100001");
+        request.setCount("1");
+        LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file);
+        MvcResult functionalCaseMvcResult = this.requestMultipartWithOkAndReturn(IMPORT_XMIND_URL, paramMap);
+
+        String functionalCaseImportResponseData = functionalCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder functionalCaseResultHolder = JSON.parseObject(functionalCaseImportResponseData, ResultHolder.class);
+        FunctionalCaseImportResponse functionalCaseImportResponse = JSON.parseObject(JSON.toJSONString(functionalCaseResultHolder.getData()), FunctionalCaseImportResponse.class);
+        Assertions.assertNotNull(functionalCaseImportResponse);
+        System.out.println(JSON.toJSONString(functionalCaseImportResponse));
+
+        FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
+        functionalCaseExample.createCriteria().andNameEqualTo("用例名称");
+        List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
+        System.out.println(JSON.toJSONString(functionalCases));
+
+        String filePath5 = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/2module.xmind")).getPath();
+        MockMultipartFile file5 = new MockMultipartFile("file", "15.xmind", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath5));
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file5);
+        functionalCaseMvcResult =  this.requestMultipartWithOkAndReturn(IMPORT_XMIND_URL, paramMap);
+        functionalCaseImportResponseData = functionalCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        functionalCaseResultHolder = JSON.parseObject(functionalCaseImportResponseData, ResultHolder.class);
+        functionalCaseImportResponse = JSON.parseObject(JSON.toJSONString(functionalCaseResultHolder.getData()), FunctionalCaseImportResponse.class);
+        Assertions.assertNotNull(functionalCaseImportResponse);
+        System.out.println(JSON.toJSONString(functionalCaseImportResponse));
+        functionalCaseExample = new FunctionalCaseExample();
+        functionalCaseExample.createCriteria().andNameEqualTo("用例名称");
+        functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
+        System.out.println(JSON.toJSONString(functionalCases));
+
+        String filePath1 = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/3erro.xmind")).getPath();
+        MockMultipartFile file1 = new MockMultipartFile("file", "14.xmind", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath1));
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file1);
+        functionalCaseMvcResult = this.requestMultipartWithOkAndReturn(IMPORT_XMIND_URL, paramMap);
+        functionalCaseImportResponseData = functionalCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        functionalCaseResultHolder = JSON.parseObject(functionalCaseImportResponseData, ResultHolder.class);
+        functionalCaseImportResponse = JSON.parseObject(JSON.toJSONString(functionalCaseResultHolder.getData()), FunctionalCaseImportResponse.class);
+        Assertions.assertNotNull(functionalCaseImportResponse);
+        System.out.println(JSON.toJSONString(functionalCaseImportResponse));
+
     }
 
     @Test

@@ -85,6 +85,16 @@
         <commons-jexl3.version>3.3</commons-jexl3.version>
         <revision>3.x</revision>
         <monitoring-engine.revision>3.0</monitoring-engine.revision>
+
+        <!-- 用于解析xml -->
+        <jaxb-api.revision>2.4.0-b180830.0359</jaxb-api.revision>
+        <jaxb-impl.revision>2.3.0</jaxb-impl.revision>
+        <jaxb-core.revision>2.3.0</jaxb-core.revision>
+        <activation.revision>1.1.1</activation.revision>
+        <jaxen.revision>1.2.0</jaxen.revision>
+        <jackson-dataformat-xml.version>2.17.2</jackson-dataformat-xml.version>
+        <jackson-core.version>2.17.2</jackson-core.version>
+
     </properties>
 
     <modules>

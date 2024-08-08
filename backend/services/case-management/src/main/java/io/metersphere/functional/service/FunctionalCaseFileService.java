@@ -27,6 +27,7 @@ import io.metersphere.functional.mapper.ExtFunctionalCaseCommentMapper;
 import io.metersphere.functional.request.FunctionalCaseExportRequest;
 import io.metersphere.functional.request.FunctionalCaseImportRequest;
 import io.metersphere.functional.socket.ExportWebSocketHandler;
+import io.metersphere.functional.xmind.parser.XMindCaseParser;
 import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
@@ -44,6 +45,7 @@ import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
+import io.metersphere.system.excel.domain.ExcelErrData;
 import io.metersphere.system.excel.utils.EasyExcelExporter;
 import io.metersphere.system.manager.ExportTaskManager;
 import io.metersphere.system.mapper.SystemParameterMapper;
@@ -326,6 +328,46 @@ public class FunctionalCaseFileService {
             response.setErrorMessages(eventListener.getErrList());
             response.setSuccessCount(eventListener.getSuccessCount());
             response.setFailCount(eventListener.getErrList().size());
+            return response;
+        } catch (Exception e) {
+            LogUtils.error("checkImportExcel error", e);
+            throw new MSException(Translator.get("check_import_excel_error"));
+        }
+    }
+
+    public FunctionalCaseImportResponse importXMind(FunctionalCaseImportRequest request, SessionUser user, MultipartFile multipartFile) {
+        if (multipartFile == null) {
+            throw new MSException(Translator.get("file_cannot_be_null"));
+        }
+        try {
+            List<ExcelErrData<FunctionalCaseExcelData>> errList;
+            FunctionalCaseImportResponse response = new FunctionalCaseImportResponse();
+            //设置默认版本
+            if (StringUtils.isEmpty(request.getVersionId())) {
+                request.setVersionId(extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId()));
+            }
+            Long nextPos = functionalCaseService.getNextOrder(request.getProjectId());
+            Long lasePos = nextPos + ((long) ServiceUtils.POS_STEP * Integer.parseInt(request.getCount()));
+            //根据本地语言环境选择用哪种数据对象进行存放读取的数据
+            Class clazz = new FunctionalCaseExcelDataFactory().getExcelDataByLocal();
+            //获取当前项目默认模板的自定义字段
+            List<TemplateCustomFieldDTO> customFields = getCustomFields(request.getProjectId());
+            XMindCaseParser xmindParser = new XMindCaseParser(request, clazz, customFields, user,lasePos);
+            errList = xmindParser.parse(multipartFile);
+            if (CollectionUtils.isEmpty(xmindParser.getNodePaths())
+                    && CollectionUtils.isEmpty(xmindParser.getList())
+                    && CollectionUtils.isEmpty(xmindParser.getUpdateList())) {
+                if (errList == null) {
+                    errList = new ArrayList<>();
+                }
+                ExcelErrData excelErrData = new ExcelErrData(1, Translator.get("upload_fail") + "：" + Translator.get("upload_content_is_null"));
+                errList.add(excelErrData);
+            }
+            xmindParser.saveData();
+            xmindParser.clear();
+            response.setErrorMessages(errList);
+            response.setSuccessCount(xmindParser.getList().size()+xmindParser.getUpdateList().size());
+            response.setFailCount(errList.size());
             return response;
         } catch (Exception e) {
             LogUtils.error("checkImportExcel error", e);
