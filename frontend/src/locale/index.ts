@@ -1,6 +1,6 @@
 import { createI18n } from 'vue-i18n';
 
-import { setHtmlPageLang, setLoadLocalePool } from './helper';
+import { setLoadLocalePool } from './helper';
 import type { LocaleType } from '#/global';
 import type { App } from 'vue';
 import type { I18nOptions } from 'vue-i18n';
@@ -18,7 +18,6 @@ async function createI18nOptions(): Promise<I18nOptions> {
   const defaultLocal = await import(`./${locale}/index.ts`);
   const message = defaultLocal.default?.message ?? {};
 
-  setHtmlPageLang(locale);
   setLoadLocalePool((loadLocalePool) => {
     loadLocalePool.push(locale);
   });

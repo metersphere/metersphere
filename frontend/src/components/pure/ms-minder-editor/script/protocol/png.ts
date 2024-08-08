@@ -60,7 +60,6 @@ function getSVGInfo(minder: any) {
 
   $svg[index].setAttribute('width', renderBox.width + 1);
   $svg[index].setAttribute('height', renderBox.height + 1);
-  $svg[index].setAttribute('style', 'font-family: "PingFang SC",AlibabaPuHuiTi;');
 
   const div = document.createElement('div');
   div.appendChild($svg[index]);

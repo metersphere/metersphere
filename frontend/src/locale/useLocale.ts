@@ -3,7 +3,7 @@ import { Message } from '@arco-design/web-vue';
 import dayjs from 'dayjs';
 
 import { i18n } from '@/locale';
-import { loadLocalePool, setHtmlPageLang } from '@/locale/helper';
+import { loadLocalePool } from '@/locale/helper';
 
 import type { LocaleType, Recordable } from '#/global';
 
@@ -24,7 +24,6 @@ function setI18nLanguage(locale: LocaleType) {
     (i18n.global.locale as any).value = locale;
   }
   localStorage.setItem('MS-locale', locale);
-  setHtmlPageLang(locale);
 }
 
 /**

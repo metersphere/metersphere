@@ -39,10 +39,6 @@ function exportSVG(minder: any) {
 
   $svg[index].setAttribute('width', width + padding * 2 || 0);
   $svg[index].setAttribute('height', height + padding * 2 || 0);
-  $svg[index].setAttribute(
-    'style',
-    `font-family: 'PingFang SC',AlibabaPuHuiTi; background: ${minder.getStyle('background')}`
-  );
 
   $svg[index].setAttribute(
     'viewBox',
