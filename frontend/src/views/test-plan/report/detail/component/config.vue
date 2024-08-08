@@ -279,9 +279,8 @@
   watch(
     [() => configList.value, () => cardItemList.value],
     () => {
-      const configValue = resetConfigEditList(configList.value);
-      const cardItemValue = resetConfigEditList(cardItemList.value);
-
+      const configValue = resetConfigEditList(cloneDeep(configList.value));
+      const cardItemValue = resetConfigEditList(cloneDeep(cardItemList.value));
       const isisEqualList = props.isGroup ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
       if (!isEqual(configValue, isisEqualList) || (!isEqual(cardItemValue, isisEqualList) && !isInit.value)) {
         if (isInit.value) {

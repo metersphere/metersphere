@@ -55,6 +55,7 @@ import {
   GetModuleTreeUrl,
   GetPoolId,
   GetPoolOptionUrl,
+  getSyncedCaseDetailUrl,
   GetTrashModuleCountUrl,
   GetTrashModuleTreeUrl,
   ignoreEveryTimeApiChangeUrl,
@@ -125,6 +126,7 @@ import {
   DefinitionHistoryItem,
   DefinitionHistoryPageParams,
   DefinitionReferencePageParams,
+  diffSyncParams,
   EnvModule,
   ImportApiDefinitionParams,
   mockParams,
@@ -330,9 +332,13 @@ export function ignoreEveryTimeChange(id: string, ignore: boolean) {
 export function caseTableBatchSync(data: TableQueryParams) {
   return MSR.post({ url: caseTableBatchSyncUrl, data });
 }
-// // 接口测试-接口用例-定义对比用例
+// 接口测试-接口用例-定义对比用例
 export function diffDataRequest(id: string) {
   return MSR.get({ url: `${diffDataUrl}/${id}` });
+}
+// 接口测试-接口用例-定义对比用例-同步-获取同步后的用例详情
+export function getSyncedCaseDetail(data: diffSyncParams) {
+  return MSR.post({ url: getSyncedCaseDetailUrl, data });
 }
 
 /**

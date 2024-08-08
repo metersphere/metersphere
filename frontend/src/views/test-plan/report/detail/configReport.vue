@@ -61,7 +61,7 @@
     apiBugCount: 0,
     scenarioBugCount: 0,
     testPlanName: '',
-    defaultLayout: true,
+    defaultLayout: false,
   });
 
   const isGroup = computed(() => route.query.type === 'GROUP');

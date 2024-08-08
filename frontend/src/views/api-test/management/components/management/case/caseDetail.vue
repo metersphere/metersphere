@@ -74,7 +74,7 @@
           :active-defined-id="activeDefinedId"
           @close="closeDifferent"
           @clear-this-change="clearThisChangeHandler"
-          @sync="syncHandler"
+          @sync="syncParamsHandler"
         />
       </a-tab-pane>
       <a-tab-pane key="reference" :title="t('apiTestManagement.reference')" class="px-[18px] py-[16px]">
@@ -351,9 +351,10 @@
     emit('loadCase', props.detail.id as string);
   }
 
-  function syncHandler(id: string) {
-    // TODO 这里需要调用同步合并后的详情接口回显详情
-    createAndEditCaseDrawerRef.value?.open(id, caseDetail.value, false);
+  // 同步参数
+  function syncParamsHandler(mergedRequestParam: RequestParam) {
+    caseDetail.value = { ...caseDetail.value, ...mergedRequestParam };
+    createAndEditCaseDrawerRef.value?.open(caseDetail.value.apiDefinitionId, caseDetail.value, false);
   }
 
   watch(

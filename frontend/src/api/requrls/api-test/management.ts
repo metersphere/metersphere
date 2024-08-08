@@ -42,6 +42,7 @@ export const clearThisChangeUrl = '/api/case/api-change/clear'; // 接口定义-
 export const caseTableBatchSyncUrl = '/api/case/batch/api-change/sync'; // 接口测试-接口管理-接口用例-批量同步
 export const ignoreEveryTimeApiChangeUrl = '/api/case/api-change/ignore'; // 接口测试-接口用例-忽略每次接口变更
 export const diffDataUrl = '/api/case/api/compare'; // 接口测试-接口用例-定义对比用例
+export const getSyncedCaseDetailUrl = '/api/case/api-change/sync'; // 接口测试-接口用例-定义对比用例-同步-获取同步后的用例详情
 
 /**
  * Mock

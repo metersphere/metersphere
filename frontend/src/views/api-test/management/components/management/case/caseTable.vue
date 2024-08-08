@@ -315,7 +315,7 @@
     :active-defined-id="activeDefinedId"
     @close="closeDifferent"
     @clear-this-change="handleClearThisChange"
-    @sync="syncHandler"
+    @sync="syncParamsHandler"
   />
 </template>
 
@@ -1034,10 +1034,12 @@
   }
 
   // 对比抽屉同步成功打开编辑
-  function syncHandler(definedId: string) {
-    // TODO 这里调用同步后的最新的合并后的详情，打开编辑抽屉用户手动保存更新即可生效
-    createAndEditCaseDrawerRef.value?.open(definedId, caseDetail.value as RequestParam, false);
+  async function syncParamsHandler(mergedRequestParam: RequestParam) {
+    await getCaseDetailInfo(activeApiCaseId.value);
+    caseDetail.value = { ...caseDetail.value, ...mergedRequestParam };
+    createAndEditCaseDrawerRef.value?.open(caseDetail.value.apiDefinitionId, caseDetail.value as RequestParam, false);
   }
+
   defineExpose({
     loadCaseList,
   });

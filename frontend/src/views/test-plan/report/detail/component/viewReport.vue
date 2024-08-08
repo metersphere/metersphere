@@ -616,7 +616,6 @@
       ...currentItem,
       ...formValue,
     };
-
     innerCardList.value = innerCardList.value.map((item: configItem) => {
       if (item.id === currentItem.id) {
         return {
