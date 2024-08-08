@@ -799,12 +799,11 @@ public class FunctionalCaseControllerTests extends BaseTest {
         ResultHolder functionalCaseResultHolder = JSON.parseObject(functionalCaseImportResponseData, ResultHolder.class);
         FunctionalCaseImportResponse functionalCaseImportResponse = JSON.parseObject(JSON.toJSONString(functionalCaseResultHolder.getData()), FunctionalCaseImportResponse.class);
         Assertions.assertNotNull(functionalCaseImportResponse);
-        System.out.println(JSON.toJSONString(functionalCaseImportResponse));
 
         FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
         functionalCaseExample.createCriteria().andNameEqualTo("用例名称");
         List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
-        System.out.println(JSON.toJSONString(functionalCases));
+        Assertions.assertNotNull(functionalCases);
 
         String filePath5 = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/2module.xmind")).getPath();
         MockMultipartFile file5 = new MockMultipartFile("file", "15.xmind", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath5));
@@ -820,7 +819,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         functionalCaseExample = new FunctionalCaseExample();
         functionalCaseExample.createCriteria().andNameEqualTo("用例名称");
         functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
-        System.out.println(JSON.toJSONString(functionalCases));
+        Assertions.assertNotNull(functionalCases);
 
         String filePath1 = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/3erro.xmind")).getPath();
         MockMultipartFile file1 = new MockMultipartFile("file", "14.xmind", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath1));
@@ -832,7 +831,6 @@ public class FunctionalCaseControllerTests extends BaseTest {
         functionalCaseResultHolder = JSON.parseObject(functionalCaseImportResponseData, ResultHolder.class);
         functionalCaseImportResponse = JSON.parseObject(JSON.toJSONString(functionalCaseResultHolder.getData()), FunctionalCaseImportResponse.class);
         Assertions.assertNotNull(functionalCaseImportResponse);
-        System.out.println(JSON.toJSONString(functionalCaseImportResponse));
 
         String filePath4 = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/empty.xmind")).getPath();
         MockMultipartFile file2 = new MockMultipartFile("file", "18.xmind", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath4));
@@ -844,8 +842,17 @@ public class FunctionalCaseControllerTests extends BaseTest {
         functionalCaseResultHolder = JSON.parseObject(functionalCaseImportResponseData, ResultHolder.class);
         functionalCaseImportResponse = JSON.parseObject(JSON.toJSONString(functionalCaseResultHolder.getData()), FunctionalCaseImportResponse.class);
         Assertions.assertNotNull(functionalCaseImportResponse);
-        System.out.println(JSON.toJSONString(functionalCaseImportResponse));
 
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", null);
+        this.requestMultipart(IMPORT_XMIND_URL, paramMap).andExpect(status().is5xxServerError());
+
+        request.setCount(null);
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file2);
+        this.requestMultipart(IMPORT_XMIND_URL, paramMap).andExpect(status().is5xxServerError());;
     }
 
     @Test
@@ -907,6 +914,11 @@ public class FunctionalCaseControllerTests extends BaseTest {
         functionalCaseImportResponse = JSON.parseObject(JSON.toJSONString(functionalCaseResultHolder.getData()), FunctionalCaseImportResponse.class);
         Assertions.assertNotNull(functionalCaseImportResponse);
         System.out.println(JSON.toJSONString(functionalCaseImportResponse));
+
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", null);
+        this.requestMultipart(CHECK_XMIND_URL, paramMap).andExpect(status().is5xxServerError());
 
     }
 
