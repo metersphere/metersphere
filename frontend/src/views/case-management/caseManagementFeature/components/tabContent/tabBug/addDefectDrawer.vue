@@ -43,7 +43,7 @@
         <MsRichText
           v-model:raw="form.description"
           :upload-image="handleUploadImage"
-          :preview-url="EditorPreviewFileUrl"
+          :preview-url="`${EditorPreviewFileUrl}/${appStore.currentProjectId}`"
         />
       </a-form-item>
     </a-form>

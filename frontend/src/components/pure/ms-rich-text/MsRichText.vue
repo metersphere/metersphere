@@ -120,8 +120,7 @@
     }
     const uploadFileId = await props.uploadImage(arg.file);
     if (uploadFileId) {
-      const infoId = route.query.orgId && route.query.pId ? route.query.pId : route.query.orgId;
-      const permanentUrl = `${props.previewUrl}/${infoId}/${uploadFileId}/${true}`;
+      const permanentUrl = `${props.previewUrl}/${uploadFileId}/${true}`;
       arg.process(permanentUrl, uploadFileId);
     }
   }
@@ -153,6 +152,12 @@
   const attachmentSelectorModal = ref(false);
   const selectedImagesNode = ref<string>();
   const selectedCommentNode = ref<string>();
+
+  // TODO deletedImagesIds 为解决后台富文本附件删除图片时，后台服务器也删除，目前不确定这个版本要不要替换，等后台协调
+  const previousImages = ref<string[]>([]);
+  const deletedImagesIds = ref<string[]>([]);
+  const addedImages = ref(new Set());
+  const removedImages = ref(new Set());
 
   onMounted(() => {
     const debounceOnUpdate = useDebounceFn(() => {
@@ -215,6 +220,33 @@
                       // eslint-disable-next-line prefer-destructuring
                       selectedImagesNode.value = images[0];
                     }
+
+                    const currentImagesSet = new Set(images);
+
+                    // 检查被删除的图片
+                    const deletedImages = previousImages.value.filter((fileId) => !currentImagesSet.has(fileId));
+                    deletedImages.forEach((id) => {
+                      if (!deletedImagesIds.value.includes(id)) {
+                        deletedImagesIds.value.push(id);
+                        removedImages.value.add(id);
+                      }
+                    });
+
+                    // 检查被添加的图片（包含撤销删除则从删除里边移除掉）
+                    const addedImagesNow = (images || []).filter((fileId) => !previousImages.value.includes(fileId));
+                    addedImagesNow.forEach((id: string) => {
+                      if (deletedImagesIds.value.includes(id)) {
+                        const index = deletedImagesIds.value.indexOf(id);
+                        if (index > -1) {
+                          deletedImagesIds.value.splice(index, 1);
+                          removedImages.value.delete(id);
+                        }
+                      }
+                      addedImages.value.add(id);
+                    });
+
+                    previousImages.value = images;
+
                     return DecorationSet.empty;
                   },
                 },

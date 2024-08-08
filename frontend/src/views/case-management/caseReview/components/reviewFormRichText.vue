@@ -14,7 +14,7 @@
           v-model:commentIds="form.notifiers"
           v-model:filedIds="form.reviewCommentFileIds"
           :upload-image="handleUploadImage"
-          :preview-url="PreviewEditorImageUrl"
+          :preview-url="`${PreviewEditorImageUrl}/${appStore.currentProjectId}`"
           :auto-height="false"
           class="w-full"
           :placeholder="
@@ -35,6 +35,7 @@
   import { editorUploadFile } from '@/api/modules/case-management/featureCase';
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
 
   import { ReviewFormParams } from '@/models/caseManagement/caseReview';
   import { StartReviewStatus } from '@/enums/caseEnum';
@@ -48,7 +49,7 @@
   });
 
   const { t } = useI18n();
-
+  const appStore = useAppStore();
   async function handleUploadImage(file: File) {
     const { data } = await editorUploadFile({
       fileList: [file],

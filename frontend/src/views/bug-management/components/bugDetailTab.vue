@@ -25,7 +25,7 @@
             :disabled="!contentEditAble"
             :placeholder="t('editor.placeholder')"
             :upload-image="handleUploadImage"
-            :preview-url="EditorPreviewFileUrl"
+            :preview-url="`${EditorPreviewFileUrl}/${appStore.currentProjectId}`"
           />
           <div v-else v-dompurify-html="form?.description || '-'" class="markdown-body"></div>
         </div>
@@ -52,7 +52,7 @@
                 :auto-height="false"
                 :placeholder="t('editor.placeholder')"
                 :upload-image="handleUploadImage"
-                :preview-url="EditorPreviewFileUrl"
+                :preview-url="`${EditorPreviewFileUrl}/${appStore.currentProjectId}`"
               />
               <div v-else v-dompurify-html="item?.defaultValue || '-'" class="markdown-body"></div>
             </div>

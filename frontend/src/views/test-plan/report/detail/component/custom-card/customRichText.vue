@@ -23,7 +23,7 @@
       v-model:raw="innerTextForm.content"
       v-model:filedIds="innerTextForm.richTextTmpFileIds"
       :upload-image="handleUploadImage"
-      :preview-url="ReportPlanPreviewImageUrl"
+      :preview-url="`${ReportPlanPreviewImageUrl}/${appStore.currentProjectId}`"
       class="mt-[8px] w-full"
       :editable="props.canEdit"
       @click="handleRichClick"
@@ -48,12 +48,13 @@
   import { editorUploadFile } from '@/api/modules/test-plan/report';
   import { ReportPlanPreviewImageUrl } from '@/api/requrls/test-plan/report';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { customValueForm } from '@/models/testPlan/testPlanReport';
 
   const { t } = useI18n();
-
+  const appStore = useAppStore();
   const props = defineProps<{
     customForm: customValueForm;
     canEdit: boolean;

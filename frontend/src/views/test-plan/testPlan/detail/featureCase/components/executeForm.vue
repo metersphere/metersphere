@@ -14,7 +14,7 @@
           v-model:commentIds="form.commentIds"
           v-model:filedIds="form.planCommentFileIds"
           :upload-image="handleUploadImage"
-          :preview-url="PreviewEditorImageUrl"
+          :preview-url="`${PreviewEditorImageUrl}/${appStore.currentProjectId}`"
           :auto-height="false"
           class="w-full"
           :max-height="props.richTextMaxHeight"
@@ -37,6 +37,7 @@
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { defaultExecuteForm } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
 
   import type { ExecuteFeatureCaseFormParams } from '@/models/testPlan/testPlan';
   import { LastExecuteResults } from '@/enums/caseEnum';
@@ -53,6 +54,7 @@
   });
 
   const { t } = useI18n();
+  const appStore = useAppStore();
 
   const executionResultList = computed(() =>
     Object.values(executionResultMap).filter((item) => item.key !== LastExecuteResults.PENDING)

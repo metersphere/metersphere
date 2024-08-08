@@ -174,7 +174,7 @@
         is-show-avatar
         :upload-image="handleUploadImage"
         is-use-bottom
-        :preview-url="EditorPreviewFileUrl"
+        :preview-url="`${EditorPreviewFileUrl}/${appStore.currentProjectId}`"
         @publish="publishHandler"
       />
     </template>
