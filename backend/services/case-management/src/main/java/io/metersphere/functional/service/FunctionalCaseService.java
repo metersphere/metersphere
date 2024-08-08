@@ -1372,7 +1372,7 @@ public class FunctionalCaseService {
      * @param ids
      * @return
      */
-    private List<FunctionalCase> getCaseDataByIds(List<String> ids) {
+    public List<FunctionalCase> getCaseDataByIds(List<String> ids) {
         FunctionalCaseExample example = new FunctionalCaseExample();
         example.createCriteria().andIdIn(ids);
         return functionalCaseMapper.selectByExample(example);

@@ -34,7 +34,8 @@ public class ExportTaskManager {
     public static final String EXPORT_CONSUME = "export_consume";
 
 
-    public <T> void exportAsyncTask(String userId, String type,  T t, Function<Object, Object> selectListFunc) throws InterruptedException {
+    public <T> void exportAsyncTask(String projectId, String userId, String type, T t, Function<Object, Object> selectListFunc) throws InterruptedException {
+        ExportTask exportTask = buildExportTask(projectId, userId, type);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         Future<?> future = executorService.submit(() -> {
             while (!Thread.currentThread().isInterrupted()) {
@@ -44,12 +45,10 @@ public class ExportTaskManager {
             }
             LogUtils.info("Thread has been interrupted.");
         });
-        Thread.sleep(6000);
-        ExportTask exportTask = buildExportTask(userId, type);
         map.put(exportTask.getId(), future);
     }
 
-    private ExportTask buildExportTask(String userId, String type) {
+    private ExportTask buildExportTask(String projectId, String userId, String type) {
         ExportTask exportTask = new ExportTask();
         exportTask.setId(IDGenerator.nextStr());
         exportTask.setType(type);
@@ -58,6 +57,7 @@ public class ExportTaskManager {
         exportTask.setState(ExportConstants.ExportState.PREPARED.toString());
         exportTask.setUpdateUser(userId);
         exportTask.setUpdateTime(System.currentTimeMillis());
+        exportTask.setProjectId(projectId);
         exportTaskMapper.insert(exportTask);
         return exportTask;
     }
@@ -71,15 +71,17 @@ public class ExportTaskManager {
         kafkaTemplate.send(KafkaTopicConstants.EXPORT, JSON.toJSONString(exportTask));
     }
 
-    @KafkaListener(id=EXPORT_CONSUME, topics = KafkaTopicConstants.EXPORT, groupId = EXPORT_CONSUME + "_" + "${random.uuid}")
+    @KafkaListener(id = EXPORT_CONSUME, topics = KafkaTopicConstants.EXPORT, groupId = EXPORT_CONSUME + "_" + "${random.uuid}")
     public void stop(ConsumerRecord<?, String> record) {
         LogUtils.info("Service consume platform_plugin message: " + record.value());
         ExportTask exportTask = JSON.parseObject(record.value(), ExportTask.class);
-        if (exportTask!=null && StringUtils.isNotBlank(exportTask.getId())) {
+        if (exportTask != null && StringUtils.isNotBlank(exportTask.getId())) {
             String id = exportTask.getId();
-            map.get(id).cancel(true);
-            map.remove(id);
-            exportTaskMapper.updateByPrimaryKey(exportTask);
+            if (map.containsKey(id)) {
+                map.get(id).cancel(true);
+                map.remove(id);
+            }
+            exportTaskMapper.updateByPrimaryKeySelective(exportTask);
         }
     }
 

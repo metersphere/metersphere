@@ -1,6 +1,6 @@
 package io.metersphere.functional.xmind.domain;
 
-import io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO;
+import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -47,7 +47,7 @@ public class FunctionalCaseXmindDTO {
     private String description;
 
     @Schema(description = "自定义字段")
-    private List<FunctionalCaseCustomFieldDTO> customFieldDTOList;
+    private List<FunctionalCaseCustomField> customFieldDTOList;
 
     @Schema(description = "模板自定义字段")
     private List<TemplateCustomFieldDTO> templateCustomFieldDTOList;
