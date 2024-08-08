@@ -78,5 +78,6 @@ public class FunctionalCaseMindDTO {
     @Schema(description =  "备注")
     private byte[] description;
 
-
+    @Schema(description =  "执行评论")
+    private byte[] content;
 }
