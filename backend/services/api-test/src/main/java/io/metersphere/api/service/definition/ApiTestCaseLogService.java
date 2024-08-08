@@ -61,7 +61,7 @@ public class ApiTestCaseLogService {
                 OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 request.getName());
         dto.setMethod(HttpMethodConstants.POST.name());
-        dto.setOriginalValue(JSON.toJSONBytes(request));
+        dto.setOriginalValue(ApiDataUtils.toJSONBytes(request));
         dto.setHistory(true);
         return dto;
     }
@@ -127,6 +127,36 @@ public class ApiTestCaseLogService {
                 OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 Translator.get("unfollow") + apiTestCase.getName());
         dto.setMethod(HttpMethodConstants.GET.name());
+        dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
+        return dto;
+    }
+
+    public LogDTO clearApiChangeLog(String id) {
+        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(id);
+        Project project = projectMapper.selectByPrimaryKey(apiTestCase.getProjectId());
+        LogDTO dto = new LogDTO(
+                apiTestCase.getProjectId(),
+                project.getOrganizationId(),
+                id,
+                null,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.API_TEST_MANAGEMENT_CASE,
+                Translator.get("api_test_case.clear.api_change") + '_' + apiTestCase.getName());
+        dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
+        return dto;
+    }
+
+    public LogDTO ignoreApiChange(String id) {
+        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(id);
+        Project project = projectMapper.selectByPrimaryKey(apiTestCase.getProjectId());
+        LogDTO dto = new LogDTO(
+                apiTestCase.getProjectId(),
+                project.getOrganizationId(),
+                id,
+                null,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.API_TEST_MANAGEMENT_CASE,
+                Translator.get("api_test_case.ignore.api_change") + '_' + apiTestCase.getName());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
         return dto;
     }
@@ -206,6 +236,33 @@ public class ApiTestCaseLogService {
         saveBatchLog(projectId, apiTestCases, operator, OperationLogType.RECOVER.name(), false, OperationLogModule.API_TEST_MANAGEMENT_RECYCLE);
     }
 
+    public void batchSyncLog(Map<String, ApiTestCaseLogDTO> originMap, Map<String, ApiTestCaseLogDTO> modifiedMap) {
+        List<LogDTO> logs = new ArrayList<>();
+        originMap.forEach((id, origin) -> {
+            ApiTestCaseLogDTO modified = modifiedMap.get(id);
+            if (modified == null) {
+                return;
+            }
+            Project project = projectMapper.selectByPrimaryKey(origin.getProjectId());
+            LogDTO dto = LogDTOBuilder.builder()
+                    .projectId(project.getId())
+                    .organizationId(project.getOrganizationId())
+                    .type(OperationLogType.UPDATE.name())
+                    .module(OperationLogModule.API_TEST_MANAGEMENT_CASE)
+                    .method(HttpMethodConstants.POST.name())
+                    .sourceId(id)
+                    .content(origin.getName())
+                    .createUser(null)
+                    .path(OperationLogAspect.getPath())
+                    .originalValue(ApiDataUtils.toJSONBytes(origin))
+                    .modifiedValue(ApiDataUtils.toJSONBytes(modified))
+                    .build().getLogDTO();
+            dto.setHistory(true);
+            logs.add(dto);
+        });
+        operationLogService.batchAdd(logs);
+    }
+
     private void saveBatchLog(String projectId, List<ApiTestCase> apiTestCases, String operator, String operationType, boolean isHistory, String logModule) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         //取出apiTestCases所有的id为新的list
@@ -241,7 +298,7 @@ public class ApiTestCaseLogService {
                             .sourceId(item.getId())
                             .content(item.getName())
                             .createUser(operator)
-                            .originalValue(JSON.toJSONBytes(apiTestCaseDTO))
+                            .originalValue(ApiDataUtils.toJSONBytes(apiTestCaseDTO))
                             .build().getLogDTO();
                     dto.setHistory(isHistory);
                     logs.add(dto);

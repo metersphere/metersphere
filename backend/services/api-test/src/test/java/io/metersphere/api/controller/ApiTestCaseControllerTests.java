@@ -75,6 +75,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.*;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -467,6 +468,9 @@ public class ApiTestCaseControllerTests extends BaseTest {
         Assertions.assertFalse(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getApiChange());
         Assertions.assertTrue(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getIgnoreApiDiff());
 
+        //校验日志
+        checkLog(apiTestCase.getId(), OperationLogType.UPDATE, getBasePath() + MessageFormat.format(API_CHANGE_CLEAR, apiTestCase.getId()));
+
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, API_CHANGE_CLEAR, apiTestCase.getId());
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, API_CHANGE_CLEAR, apiTestCase.getId());
@@ -490,6 +494,9 @@ public class ApiTestCaseControllerTests extends BaseTest {
         Assertions.assertTrue(result.getIgnoreApiDiff());
         Assertions.assertFalse(result.getIgnoreApiChange());
 
+        //校验日志
+        checkLog(apiTestCase.getId(), OperationLogType.UPDATE, getBasePath() + MessageFormat.format(API_CHANGE_IGNORE, apiTestCase.getId(), true));
+
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, API_CHANGE_IGNORE, apiTestCase.getId(), true);
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, API_CHANGE_IGNORE, apiTestCase.getId(), false);
@@ -508,6 +515,9 @@ public class ApiTestCaseControllerTests extends BaseTest {
 
         ApiTestCase result = apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId());
         Assertions.assertFalse(result.getApiChange());
+
+        //校验日志
+        checkLog(apiTestCase.getId(), OperationLogType.UPDATE, getBasePath() + BATCH_API_CHANGE_SYNC);
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, BATCH_API_CHANGE_SYNC, request);

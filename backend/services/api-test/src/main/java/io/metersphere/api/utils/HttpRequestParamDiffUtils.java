@@ -67,7 +67,7 @@ public class HttpRequestParamDiffUtils {
         if (body1 == null || body2 == null) {
             return true;
         }
-        if (body1.getBodyType() != body2.getBodyType()) {
+        if (!StringUtils.equals(body1.getBodyType(), body2.getBodyType())) {
             // 类型不一样，则发生变更
             return true;
         }
