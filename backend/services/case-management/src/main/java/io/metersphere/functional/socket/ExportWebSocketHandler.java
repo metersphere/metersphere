@@ -1,7 +1,7 @@
 package io.metersphere.functional.socket;
 
 import io.metersphere.sdk.constants.MsgType;
-import io.metersphere.sdk.dto.SocketMsgDTO;
+import io.metersphere.sdk.dto.ExportMsgDTO;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.websocket.*;
@@ -22,7 +22,7 @@ public class ExportWebSocketHandler {
 
     public static final Map<String, Session> ONLINE_EXPORT_EXCEL_SESSIONS = new ConcurrentHashMap<>();
 
-    public static void sendMessage(Session session, SocketMsgDTO message) {
+    public static void sendMessage(Session session, ExportMsgDTO message) {
         if (session == null) {
             return;
         }
@@ -35,8 +35,8 @@ public class ExportWebSocketHandler {
         async.sendText(JSON.toJSONString(message));
     }
 
-    public static void sendMessageSingle(SocketMsgDTO dto) {
-        sendMessage(ONLINE_EXPORT_EXCEL_SESSIONS.get(Optional.ofNullable(dto.getReportId())
+    public static void sendMessageSingle(ExportMsgDTO dto) {
+        sendMessage(ONLINE_EXPORT_EXCEL_SESSIONS.get(Optional.ofNullable(dto.getFileId())
                 .orElse(StringUtils.EMPTY)), dto);
     }
 
@@ -49,7 +49,7 @@ public class ExportWebSocketHandler {
         ONLINE_EXPORT_EXCEL_SESSIONS.put(fileId, session);
         RemoteEndpoint.Async async = session.getAsyncRemote();
         if (async != null) {
-            async.sendText(JSON.toJSONString(new SocketMsgDTO(fileId, "", MsgType.CONNECT.name(), MsgType.CONNECT.name())));
+            async.sendText(JSON.toJSONString(new ExportMsgDTO(fileId, "", 0, MsgType.CONNECT.name())));
             session.setMaxIdleTimeout(180000);
         }
         LogUtils.info("客户端: [" + fileId + "] : 连接成功！" + ExportWebSocketHandler.ONLINE_EXPORT_EXCEL_SESSIONS.size(), fileId);
@@ -61,7 +61,7 @@ public class ExportWebSocketHandler {
     @OnMessage
     public void onMessage(@PathParam("fileId") String fileId, String message) {
         LogUtils.info("服务器收到：[" + fileId + "] : " + message);
-        SocketMsgDTO dto = JSON.parseObject(message, SocketMsgDTO.class);
+        ExportMsgDTO dto = JSON.parseObject(message, ExportMsgDTO.class);
         ExportWebSocketHandler.sendMessageSingle(dto);
     }
 
@@ -92,7 +92,7 @@ public class ExportWebSocketHandler {
     @Scheduled(fixedRate = 60000)
     public void heartbeatCheck() {
         ExportWebSocketHandler.sendMessageSingle(
-                new SocketMsgDTO(MsgType.HEARTBEAT.name(), MsgType.HEARTBEAT.name(), MsgType.HEARTBEAT.name(), "heartbeat check")
+                new ExportMsgDTO(MsgType.HEARTBEAT.name(), MsgType.HEARTBEAT.name(), 0, "heartbeat check")
         );
     }
 }

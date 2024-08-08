@@ -287,7 +287,7 @@ public class FunctionalCaseController {
     @Operation(summary = "用例管理-功能用例-下载文件")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
     public ResponseEntity<byte[]> downloadImgById(@PathVariable String projectId, @PathVariable String fileId) {
-        return functionalCaseFileService.downloadFile(projectId, fileId);
+        return functionalCaseFileService.downloadFile(projectId, fileId, SessionUtils.getUserId());
     }
 
 
@@ -296,5 +296,12 @@ public class FunctionalCaseController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
     public void caseExportXmind(@Validated @RequestBody FunctionalCaseExportRequest request) {
         functionalCaseXmindService.exportFunctionalCaseXmind(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping(value = "/check/export-task")
+    @Operation(summary = "用例管理-功能用例-导出任务校验")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
+    public String checkExportTask() {
+        return functionalCaseFileService.checkExportTask(SessionUtils.getCurrentProjectId(), SessionUtils.getUserId());
     }
 }

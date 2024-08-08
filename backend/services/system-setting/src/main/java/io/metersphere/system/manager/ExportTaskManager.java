@@ -34,8 +34,8 @@ public class ExportTaskManager {
     public static final String EXPORT_CONSUME = "export_consume";
 
 
-    public <T> void exportAsyncTask(String projectId, String userId, String type, T t, Function<Object, Object> selectListFunc) throws InterruptedException {
-        ExportTask exportTask = buildExportTask(projectId, userId, type);
+    public <T> void exportAsyncTask(String projectId, String fileId, String userId, String type, T t, Function<Object, Object> selectListFunc) throws InterruptedException {
+        ExportTask exportTask = buildExportTask(projectId, fileId, userId, type);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         Future<?> future = executorService.submit(() -> {
             while (!Thread.currentThread().isInterrupted()) {
@@ -48,7 +48,7 @@ public class ExportTaskManager {
         map.put(exportTask.getId(), future);
     }
 
-    private ExportTask buildExportTask(String projectId, String userId, String type) {
+    private ExportTask buildExportTask(String projectId, String fileId, String userId, String type) {
         ExportTask exportTask = new ExportTask();
         exportTask.setId(IDGenerator.nextStr());
         exportTask.setType(type);
@@ -58,6 +58,7 @@ public class ExportTaskManager {
         exportTask.setUpdateUser(userId);
         exportTask.setUpdateTime(System.currentTimeMillis());
         exportTask.setProjectId(projectId);
+        exportTask.setFileType(fileId);
         exportTaskMapper.insert(exportTask);
         return exportTask;
     }
