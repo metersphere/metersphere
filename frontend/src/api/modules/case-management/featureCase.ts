@@ -29,9 +29,11 @@ import {
   DetailCaseUrl,
   DownloadExcelTemplateUrl,
   DownloadFileUrl,
+  DownloadXMindTemplateUrl,
   dragSortUrl,
   EditorUploadFileUrl,
   exportExcelCheckUrl,
+  exportXMindCheckUrl,
   FollowerCaseUrl,
   GetAssociatedCaseIdsUrl,
   GetAssociatedDebuggerUrl,
@@ -64,6 +66,7 @@ import {
   getTransferTreeUrl,
   GetTrashCaseModuleTreeUrl,
   importExcelCaseUrl,
+  importXMindCaseUrl,
   MoveCaseModuleTreeUrl,
   PreviewEditorImageUrl,
   PreviewFileUrl,
@@ -404,23 +407,27 @@ export function getAssociatedCaseIds(caseId: string) {
   return MSR.get<string[]>({ url: `${GetAssociatedCaseIdsUrl}/${caseId}` });
 }
 
-// 下载导入excel模板
+// 下载导入excel或xmind模板
 export function downloadTemplate(projectId: string, type: 'Excel' | 'Xmind') {
-  if (type === 'Excel') {
-    return MSR.get(
-      { url: `${DownloadExcelTemplateUrl}/${projectId}`, responseType: 'blob' },
-      { isTransformResponse: false }
-    );
-  }
   return MSR.get(
-    { url: `${DownloadExcelTemplateUrl}/${projectId}`, responseType: 'blob' },
+    {
+      url: `${type === 'Excel' ? DownloadExcelTemplateUrl : DownloadXMindTemplateUrl}/${projectId}`,
+      responseType: 'blob',
+    },
     { isTransformResponse: false }
   );
 }
 
-// 导入excel文件检查
-export function importExcelChecked(data: { request: ImportExcelType; fileList: File[] }) {
-  return MSR.uploadFile({ url: exportExcelCheckUrl }, { request: data.request, fileList: data.fileList }, '');
+// 导入excel或xmind文件检查
+export function importExcelOrXMindChecked(
+  data: { request: ImportExcelType; fileList: File[] },
+  type: 'Excel' | 'Xmind'
+) {
+  return MSR.uploadFile(
+    { url: type === 'Excel' ? exportExcelCheckUrl : exportXMindCheckUrl },
+    { request: data.request, fileList: data.fileList },
+    ''
+  );
 }
 
 // 富文本编辑器上传图片文件
@@ -432,8 +439,12 @@ export function editorPreviewImages(data: PreviewImages) {
   return MSR.post({ url: PreviewEditorImageUrl, data });
 }
 // 导入excel
-export function importExcelCase(data: { request: ImportExcelType; fileList: File[] }) {
-  return MSR.uploadFile({ url: importExcelCaseUrl }, { request: data.request, fileList: data.fileList }, '');
+export function importExcelOrXMindCase(data: { request: ImportExcelType; fileList: File[] }, type: 'Excel' | 'Xmind') {
+  return MSR.uploadFile(
+    { url: type === 'Excel' ? importExcelCaseUrl : importXMindCaseUrl },
+    { request: data.request, fileList: data.fileList },
+    ''
+  );
 }
 
 // 拖拽排序

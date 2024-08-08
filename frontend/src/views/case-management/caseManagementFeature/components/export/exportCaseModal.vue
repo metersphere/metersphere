@@ -15,16 +15,16 @@
       }}
     </template>
     <div>
-      <a-alert class="mb-4"
-        ><div class="flex items-center">
+      <a-alert class="mb-4">
+        <div class="flex items-center">
           {{ t('caseManagement.featureCase.beforeUploadTip', { type: props.validateType }) }}
           <MsIcon
             :type="props.validateType === 'Excel' ? 'icon-icon_file-excel_colorful1' : 'icon-icon_file-xmind_colorful1'"
             class="mx-1 cursor-pointer text-[rgb(var(--primary-6))]"
           ></MsIcon>
-          <MsButton @click="downloadExcelTemplate">{{
-            t('caseManagement.featureCase.downloadTemplate', { type: props.validateType })
-          }}</MsButton>
+          <MsButton @click="downloadExcelTemplate">
+            {{ t('caseManagement.featureCase.downloadTemplate', { type: props.validateType }) }}
+          </MsButton>
         </div>
       </a-alert>
       <MsUpload
@@ -78,8 +78,13 @@
             :loading="props.confirmLoading"
             :disabled="fileList.length < 1"
             @click="saveConfirm"
-            >{{ t('caseManagement.featureCase.checkImportFile') }}</a-button
           >
+            {{
+              props.validateType === 'Excel'
+                ? t('caseManagement.featureCase.checkImportFile')
+                : t('caseManagement.featureCase.checkTemplate')
+            }}
+          </a-button>
         </div>
       </div>
     </template>
@@ -138,7 +143,7 @@
   async function downloadExcelTemplate() {
     try {
       const res = await downloadTemplate(currentProjectId.value, props.validateType);
-      downloadByteFile(res, 'excel_case.xlsx');
+      downloadByteFile(res, props.validateType === 'Excel' ? 'excel_case.xlsx' : 'xmind_case.xmind');
     } catch (error) {
       console.log(error);
     }

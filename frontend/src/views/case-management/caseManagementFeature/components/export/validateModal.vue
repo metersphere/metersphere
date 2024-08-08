@@ -17,7 +17,11 @@
       /></div>
 
       <div class="flex w-[92%] flex-col">
-        <span class="text-[var(--color-text-1)]">{{ t('caseManagement.featureCase.verifyingTemplate') }}</span>
+        <span class="text-[var(--color-text-1)]">{{
+          props.validateType === 'Excel'
+            ? t('caseManagement.featureCase.verifyingFile')
+            : t('caseManagement.featureCase.verifyingTemplate')
+        }}</span>
         <a-progress :percent="props.percent" size="large" />
       </div>
     </div>
