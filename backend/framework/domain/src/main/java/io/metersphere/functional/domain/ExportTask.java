@@ -1,12 +1,15 @@
 package io.metersphere.functional.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.Data;
 
 @Data
 public class ExportTask implements Serializable {
@@ -43,6 +46,11 @@ public class ExportTask implements Serializable {
     @Schema(description = "创建时间")
     private Long updateTime;
 
+    @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{export_task.project_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{export_task.project_id.length_range}", groups = {Created.class, Updated.class})
+    private String projectId;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -54,7 +62,8 @@ public class ExportTask implements Serializable {
         createUser("create_user", "createUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         updateUser("update_user", "updateUser", "VARCHAR", false),
-        updateTime("update_time", "updateTime", "BIGINT", false);
+        updateTime("update_time", "updateTime", "BIGINT", false),
+        projectId("project_id", "projectId", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
@@ -99,7 +108,7 @@ public class ExportTask implements Serializable {
             return this.getEscapedColumnName() + " ASC";
         }
 
-        public static Column[] excludes(Column ... excludes) {
+        public static Column[] excludes(Column... excludes) {
             ArrayList<Column> columns = new ArrayList<>(Arrays.asList(Column.values()));
             if (excludes != null && excludes.length > 0) {
                 columns.removeAll(new ArrayList<>(Arrays.asList(excludes)));
