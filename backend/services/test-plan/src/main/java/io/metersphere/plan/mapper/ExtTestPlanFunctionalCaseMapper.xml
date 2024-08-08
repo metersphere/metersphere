@@ -53,7 +53,7 @@
         </if>
     </select>
 
-    <select id="getIds"  resultType="java.lang.String">
+    <select id="getIds" resultType="java.lang.String">
         SELECT
         test_plan_functional_case.id as id
         FROM
@@ -91,34 +91,34 @@
 
     <select id="getCasePage" resultType="io.metersphere.plan.dto.response.TestPlanCasePageResponse">
         SELECT
-            functional_case.id as caseId,
-            functional_case.num,
-            functional_case.NAME,
-            functional_case.module_id as moduleId,
-            functional_case.version_id as versionId,
-            project_version.name as versionName,
-            functional_case.case_edit_type as caseEditType,
-            functional_case.create_user as createUser,
-            functional_case.create_time as createTime,
-            functional_case.update_user as updateUser,
-            functional_case.update_time as updateTime,
-            functional_case.review_status as reviewStatus,
-            functional_case.last_execute_result as lastExecuteResult,
-            functional_case.tags,
-            test_plan_functional_case.execute_user as executeUser,
-            test_plan_functional_case.last_exec_time as lastExecTime,
-            test_plan_functional_case.last_exec_result as lastExecResult,
-            test_plan_functional_case.test_plan_id as testPlanId,
-            test_plan_functional_case.id,
-            project.name as projectName,
-            project.id as projectId,
-            test_plan_functional_case.test_plan_collection_id as testPlanCollectionId,
-            test_plan_collection.name as testPlanCollectionName
+        functional_case.id as caseId,
+        functional_case.num,
+        functional_case.NAME,
+        functional_case.module_id as moduleId,
+        functional_case.version_id as versionId,
+        project_version.name as versionName,
+        functional_case.case_edit_type as caseEditType,
+        functional_case.create_user as createUser,
+        functional_case.create_time as createTime,
+        functional_case.update_user as updateUser,
+        functional_case.update_time as updateTime,
+        functional_case.review_status as reviewStatus,
+        functional_case.last_execute_result as lastExecuteResult,
+        functional_case.tags,
+        test_plan_functional_case.execute_user as executeUser,
+        test_plan_functional_case.last_exec_time as lastExecTime,
+        test_plan_functional_case.last_exec_result as lastExecResult,
+        test_plan_functional_case.test_plan_id as testPlanId,
+        test_plan_functional_case.id,
+        project.name as projectName,
+        project.id as projectId,
+        test_plan_functional_case.test_plan_collection_id as testPlanCollectionId,
+        test_plan_collection.name as testPlanCollectionName
         FROM
-            functional_case
+        functional_case
         inner join project on functional_case.project_id = project.id
         inner join test_plan_functional_case on functional_case.id = test_plan_functional_case.functional_case_id
-        inner JOIN project_version ON  functional_case.version_id = project_version.id
+        inner JOIN project_version ON functional_case.version_id = project_version.id
         inner join test_plan_collection on test_plan_collection.id = test_plan_functional_case.test_plan_collection_id
         where functional_case.deleted = #{deleted}
         and test_plan_functional_case.test_plan_id = #{request.testPlanId}
@@ -163,7 +163,8 @@
         </include>
         <choose>
             <when test='request.searchMode == "AND"'>
-                AND <include refid="queryCombine"/>
+                AND
+                <include refid="queryCombine"/>
             </when>
             <when test='request.searchMode == "OR"'>
                 and (
@@ -198,7 +199,8 @@
         </include>
         <choose>
             <when test='request.condition.searchMode == "AND"'>
-                AND <include refid="batchQueryCombine"/>
+                AND
+                <include refid="batchQueryCombine"/>
             </when>
             <when test='request.condition.searchMode == "OR"'>
                 and (
@@ -240,7 +242,8 @@
                         <!-- 自定义多选 -->
                         <when test="key.startsWith('custom_multiple')">
                             and functional_case.id in (
-                            select field_id from functional_case_custom_field where concat('custom_multiple-',field_id) =
+                            select field_id from functional_case_custom_field where concat('custom_multiple-',field_id)
+                            =
                             #{key}
                             and JSON_CONTAINS(`value`, json_array(#{value}))
                         </when>
@@ -264,6 +267,10 @@
                         <!-- 删除人 -->
                         <when test="key=='deleteUserName'">
                             and functional_case.delete_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key == 'executeUserName'">
+                            and test_plan_functional_case.execute_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                     </choose>
@@ -470,13 +477,18 @@
         FROM functional_case_module fcm
                  LEFT JOIN project p ON fcm.project_id = p.id
         WHERE fcm.id IN
-              (SELECT fc.module_id FROM functional_case fc LEFT JOIN test_plan_functional_case tpfc ON tpfc.functional_case_id = fc.id WHERE tpfc.test_plan_id = #{testPlanId} AND fc.deleted = false)
+              (SELECT fc.module_id
+               FROM functional_case fc
+                        LEFT JOIN test_plan_functional_case tpfc ON tpfc.functional_case_id = fc.id
+               WHERE tpfc.test_plan_id = #{testPlanId}
+                 AND fc.deleted = false)
         ORDER BY pos
     </select>
 
-    <select id="countModuleIdByRequest"  resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
-        SELECT CASE WHEN functional_case.module_id = 'root' THEN concat(functional_case.project_id, '_', functional_case.module_id) ElSE functional_case.module_id END AS moduleId,
-               count(functional_case.id) As dataCount, functional_case.project_id As projectId, project.name As projectName
+    <select id="countModuleIdByRequest" resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
+        SELECT CASE WHEN functional_case.module_id = 'root' THEN concat(functional_case.project_id, '_',
+        functional_case.module_id) ElSE functional_case.module_id END AS moduleId,
+        count(functional_case.id) As dataCount, functional_case.project_id As projectId, project.name As projectName
         FROM test_plan_functional_case
         LEFT JOIN functional_case ON test_plan_functional_case.functional_case_id = functional_case.id
         LEFT JOIN project ON functional_case.project_id = project.id
@@ -489,14 +501,16 @@
     <select id="caseCount"
             resultType="java.lang.Long">
         SELECT count(functional_case.id)
-        FROM test_plan_functional_case LEFT JOIN functional_case ON test_plan_functional_case.functional_case_id = functional_case.id
+        FROM test_plan_functional_case LEFT JOIN functional_case ON test_plan_functional_case.functional_case_id =
+        functional_case.id
         WHERE test_plan_functional_case.test_plan_id = #{request.testPlanId}
         AND functional_case.deleted = #{deleted}
         <include refid="queryWhereCondition"/>
     </select>
 
     <select id="getPlanFunctionalCaseByIds" resultType="io.metersphere.plan.domain.TestPlanFunctionalCase">
-        select tpfc.test_plan_id testPlanId, tpfc.functional_case_id functionalCaseId, tpfc.last_exec_result lastExecResult
+        select tpfc.test_plan_id testPlanId, tpfc.functional_case_id functionalCaseId, tpfc.last_exec_result
+        lastExecResult
         from test_plan_functional_case tpfc join functional_case fc on fc.id = tpfc.functional_case_id
         <where>
             fc.deleted = false
@@ -512,12 +526,12 @@
     <select id="getPlanCaseNotDeletedByCollectionIds" resultType="io.metersphere.plan.domain.TestPlanFunctionalCase">
         SELECT t.*
         from test_plan_functional_case t
-                 INNER JOIN functional_case f ON t.functional_case_id = f.id
+        INNER JOIN functional_case f ON t.functional_case_id = f.id
         WHERE t.test_plan_collection_id IN
         <foreach collection="collectionIds" item="collectionId" separator="," open="(" close=")">
             #{collectionId}
         </foreach>
-          AND f.deleted = false
+        AND f.deleted = false
     </select>
 
     <select id="selectCaseExecResultCount" resultType="io.metersphere.plan.dto.TestPlanCaseRunResultCount">
@@ -541,8 +555,8 @@
     <update id="batchUpdate">
         update test_plan_functional_case
         set last_exec_result = #{lastExecResult},
-            last_exec_time = #{lastExecTime},
-            execute_user = #{userId}
+        last_exec_time = #{lastExecTime},
+        execute_user = #{userId}
         where id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
@@ -566,17 +580,17 @@
 
     <select id="collectionCountByRequest" resultType="io.metersphere.project.dto.ModuleCountDTO">
         SELECT
-            test_plan_functional_case.test_plan_collection_id AS moduleId,
-            count( test_plan_functional_case.id ) AS dataCount
+        test_plan_functional_case.test_plan_collection_id AS moduleId,
+        count( test_plan_functional_case.id ) AS dataCount
         FROM
-            functional_case
-                INNER JOIN test_plan_functional_case ON functional_case.id = test_plan_functional_case.functional_case_id
+        functional_case
+        INNER JOIN test_plan_functional_case ON functional_case.id = test_plan_functional_case.functional_case_id
         WHERE
-            functional_case.deleted = FALSE
-          AND test_plan_functional_case.test_plan_id = #{request.testPlanId}
+        functional_case.deleted = FALSE
+        AND test_plan_functional_case.test_plan_id = #{request.testPlanId}
         <include refid="queryWhereCondition"/>
         GROUP BY
-            test_plan_functional_case.test_plan_collection_id
+        test_plan_functional_case.test_plan_collection_id
     </select>
     <select id="selectDistinctExecResult" resultType="io.metersphere.plan.dto.TestPlanResourceExecResultDTO">
         select distinct resource.test_plan_id AS testPlanId,

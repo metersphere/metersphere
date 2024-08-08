@@ -134,6 +134,7 @@
   import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useTableStore from '@/hooks/useTableStore';
+  import useAppStore from '@/store/modules/app';
   import { characterLimit } from '@/utils';
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
@@ -142,7 +143,7 @@
   import { ReportEnum } from '@/enums/reportEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
-  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
 
@@ -168,6 +169,7 @@
   const tableStore = useTableStore();
   const { openModal } = useModal();
   const { openNewPage } = useOpenNewPage();
+  const appStore = useAppStore();
 
   const keyword = ref('');
   const moduleNamePath = computed(() => {
@@ -275,6 +277,14 @@
       showTooltip: true,
       width: 130,
       showDrag: true,
+      filterConfig: {
+        mode: 'remote',
+        loadOptionParams: {
+          projectId: appStore.currentProjectId,
+        },
+        remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
+        placeholderText: t('caseManagement.featureCase.PleaseSelect'),
+      },
     },
     {
       title: hasOperationPermission.value ? 'common.operation' : '',
@@ -340,7 +350,9 @@
     }
     return moduleIds;
   }
+
   const collectionId = computed(() => (props.activeModule === 'all' ? '' : props.activeModule));
+
   async function getTableParams(isBatch: boolean) {
     const selectModules = await getModuleIds();
     const commonParams = {
@@ -394,6 +406,7 @@
       });
     }
   }
+
   watch(
     () => props.activeModule,
     () => {
@@ -413,6 +426,7 @@
   // 显示执行报告
   const reportVisible = ref(false);
   const reportId = ref('');
+
   function showReport(record: PlanDetailApiScenarioItem) {
     if (!record.lastExecReportId) return;
     reportVisible.value = true;
@@ -427,6 +441,7 @@
     condition: {},
     currentSelectCount: 0,
   });
+
   function handleTableSelect(arr: (string | number)[]) {
     tableSelected.value = arr;
   }
@@ -456,6 +471,7 @@
 
   // 取消关联
   const disassociateLoading = ref(false);
+
   async function handleDisassociateCase(record: PlanDetailApiScenarioItem, done?: () => void) {
     try {
       disassociateLoading.value = true;
