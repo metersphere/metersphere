@@ -73,7 +73,7 @@
           :active-api-case-id="activeApiCaseId"
           :active-defined-id="activeDefinedId"
           @close="closeDifferent"
-          @clear-this-change="clearThisChangeHandler"
+          @clear-this-change="brashChangeHandler"
           @sync="syncParamsHandler"
         />
       </a-tab-pane>
@@ -95,7 +95,7 @@
       </a-tab-pane>
     </a-tabs>
   </div>
-  <createAndEditCaseDrawer ref="createAndEditCaseDrawerRef" v-bind="$attrs" />
+  <createAndEditCaseDrawer ref="createAndEditCaseDrawerRef" v-bind="$attrs" @load-case="brashChangeHandler" />
 </template>
 
 <script setup lang="ts">
@@ -347,7 +347,7 @@
   }
 
   // 忽略本次变更
-  async function clearThisChangeHandler() {
+  async function brashChangeHandler() {
     emit('loadCase', props.detail.id as string);
   }
 
