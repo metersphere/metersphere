@@ -152,6 +152,18 @@ export const exportXMindCheckUrl = '/functional/case/pre-check/xmind';
 export const importExcelCaseUrl = '/functional/case/import/excel';
 // 导入xmind文件
 export const importXMindCaseUrl = '/functional/case/import/xmind';
+// 导出excel文件
+export const ExportExcelCaseUrl = '/functional/case/export/excel';
+// 导出XMind文件
+export const ExportXMindCaseUrl = '/functional/case/export/xmind';
+// 检查是否有导出任务
+export const CheckCaseExportTaskUrl = '/functional/case/check/export-task';
+// 导出字段配置
+export const GetCaseExportConfigUrl = '/functional/case/export/columns';
+// 下载导出的文件
+export const GetCaseDownloadFileUrl = '/functional/case/download/file';
+// 停止导出
+export const StopCaseExportUrl = '/functional/case/stop';
 // 用例拖拽排序
 export const dragSortUrl = '/functional/case/edit/pos';
 // 获取变更历史

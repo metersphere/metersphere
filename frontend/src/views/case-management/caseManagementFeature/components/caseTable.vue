@@ -277,7 +277,50 @@
       @case-node-select="caseNodeSelect"
     ></FeatureCaseTree>
   </a-modal>
-  <ExportExcelDrawer v-model:visible="showExportExcelVisible" />
+  <MsExportDrawer
+    v-model:visible="showExportVisible"
+    :export-loading="exportLoading"
+    :all-data="
+      exportType === 'exportExcel'
+        ? exportOptionData
+        : { systemColumns: exportOptionData.systemColumns, customColumns: exportOptionData.customColumns }
+    "
+    :disabled-cancel-keys="['name']"
+    :drawer-title-props="{
+      title:
+        exportType === 'exportExcel'
+          ? t('caseManagement.featureCase.exportExcel')
+          : t('caseManagement.featureCase.exportXMindNoUnit'),
+      count: batchParams.currentSelectCount,
+    }"
+    @confirm="exportConfirm"
+  >
+    <template v-if="exportType === 'exportExcel'" #footerLeft>
+      <div class="flex items-center gap-[8px]">
+        <div>{{ t('caseManagement.featureCase.exportExcel.exportFormat') }}</div>
+        <a-radio-group v-model:model-value="isMerge">
+          <a-radio :value="false">
+            {{ t('common.default') }}
+            <a-tooltip :content="t('caseManagement.featureCase.exportExcel.defaultTip')">
+              <MsIcon
+                class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-4))]"
+                type="icon-icon-maybe_outlined"
+              />
+            </a-tooltip>
+          </a-radio>
+          <a-radio :value="true">
+            {{ t('caseManagement.featureCase.exportExcel.cellSplitting') }}
+            <a-tooltip :content="t('caseManagement.featureCase.exportExcel.cellSplittingTip')">
+              <MsIcon
+                class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-4))]"
+                type="icon-icon-maybe_outlined"
+              />
+            </a-tooltip>
+          </a-radio>
+        </a-radio-group>
+      </div>
+    </template>
+  </MsExportDrawer>
   <BatchEditModal
     v-model:visible="showEditModel"
     :batch-params="batchParams"
@@ -322,6 +365,7 @@
   import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import { MsExportDrawerMap, MsExportDrawerOption } from '@/components/pure/ms-export-drawer/types';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
@@ -335,7 +379,6 @@
   import BatchEditModal from './batchEditModal.vue';
   import CaseDetailDrawer from './caseDetailDrawer.vue';
   import FeatureCaseTree from './caseTree.vue';
-  import ExportExcelDrawer from './exportExcelDrawer.vue';
   import AddDemandModal from './tabContent/tabDemand/addDemandModal.vue';
   import ThirdDemandDrawer from './tabContent/tabDemand/thirdDemandDrawer.vue';
 
@@ -344,14 +387,21 @@
     batchCopyToModules,
     batchDeleteCase,
     batchMoveToModules,
+    checkCaseExportTask,
     deleteCaseRequest,
     dragSort,
+    exportExcelCase,
+    exportXMindCase,
     getCaseDefaultFields,
     getCaseDetail,
+    getCaseDownloadFile,
+    getCaseExportConfig,
     getCaseList,
     getCustomFieldsTable,
+    stopCaseExport,
     updateCaseRequest,
   } from '@/api/modules/case-management/featureCase';
+  import { getSocket } from '@/api/modules/project-management/commonScript';
   import { getCaseRelatedInfo } from '@/api/modules/project-management/menuManagement';
   import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
@@ -359,7 +409,15 @@
   import { useAppStore, useTableStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useMinderStore from '@/store/modules/components/minder-editor';
-  import { characterLimit, filterTreeNode, findNodeByKey, findNodePathByKey, mapTree } from '@/utils';
+  import {
+    characterLimit,
+    downloadByteFile,
+    filterTreeNode,
+    findNodeByKey,
+    findNodePathByKey,
+    getGenerateId,
+    mapTree,
+  } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type {
@@ -377,6 +435,8 @@
 
   import { executionResultMap, getCaseLevels, getTableFields, statusIconMap } from './utils';
   import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
+
+  const MsExportDrawer = defineAsyncComponent(() => import('@/components/pure/ms-export-drawer/index.vue'));
 
   const { openModal } = useModal();
   const { t } = useI18n();
@@ -638,20 +698,21 @@
   const platformInfo = ref<Record<string, any>>({});
   const tableBatchActions = {
     baseAction: [
-      // {
-      //   label: 'caseManagement.featureCase.export',
-      //   eventTag: 'export',
-      //   children: [
-      //     {
-      //       label: 'caseManagement.featureCase.exportExcel',
-      //       eventTag: 'exportExcel',
-      //     },
-      //     {
-      //       label: 'caseManagement.featureCase.exportXMind',
-      //       eventTag: 'exportXMind',
-      //     },
-      //   ],
-      // },
+      {
+        label: 'caseManagement.featureCase.export',
+        eventTag: 'export',
+        permission: ['FUNCTIONAL_CASE:READ+EXPORT'],
+        children: [
+          {
+            label: 'caseManagement.featureCase.exportExcelXlsx',
+            eventTag: 'exportExcel',
+          },
+          {
+            label: 'caseManagement.featureCase.exportXMind',
+            eventTag: 'exportXMind',
+          },
+        ],
+      },
       {
         label: 'common.edit',
         eventTag: 'batchEdit',
@@ -1010,11 +1071,187 @@
     }
   }
 
-  const showExportExcelVisible = ref<boolean>(false);
+  const exportType = ref<'exportExcel' | 'exportXMind'>('exportExcel');
+  const showExportVisible = ref<boolean>(false);
+  const exportLoading = ref(false);
+  const exportOptionData = ref<MsExportDrawerMap>({});
+  const isMerge = ref<boolean>(false);
+  async function getCaseExportData() {
+    try {
+      const res = await getCaseExportConfig(currentProjectId.value);
+      exportOptionData.value = res;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
 
-  // 导出Excel
-  function handleShowExportExcel() {
-    showExportExcelVisible.value = true;
+  const websocket = ref<WebSocket>();
+  const reportId = ref('');
+  const taskId = ref('');
+
+  // 下载文件
+  async function downloadFile() {
+    try {
+      const response = await getCaseDownloadFile(currentProjectId.value, reportId.value);
+      const fileName = response?.headers.get('content-disposition').split('filename=')[1];
+      downloadByteFile(response.blob(), fileName);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+  // 提示：导出成功
+  function showExportSuccessfulMessage(count: number) {
+    Message.success({
+      content: () =>
+        h('div', { class: 'flex flex-col gap-[8px] items-start' }, [
+          h('div', { class: 'font-medium' }, t('common.exportSuccessful')),
+          h('div', { class: 'flex items-center gap-[12px]' }, [
+            h('div', t('caseManagement.featureCase.exportCaseCount', { number: count })),
+            h(
+              MsButton,
+              {
+                type: 'text',
+                onClick() {
+                  downloadFile();
+                },
+              },
+              { default: () => t('common.downloadFile') }
+            ),
+          ]),
+        ]),
+      duration: 999999999, // 一直展示，除非手动关闭
+      closable: true,
+    });
+  }
+
+  const isShowExportingMessage = ref(false); // 正在导出提示显示中
+  const exportingMessage = ref();
+  // 取消导出
+  async function cancelExport() {
+    try {
+      await stopCaseExport(taskId.value);
+      exportingMessage.value.close();
+      websocket.value?.close();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+  // 提示：正在导出
+  function showExportingMessage() {
+    if (isShowExportingMessage.value) return;
+    isShowExportingMessage.value = true;
+    exportingMessage.value = Message.loading({
+      content: () =>
+        h('div', { class: 'flex items-center gap-[12px]' }, [
+          h('div', t('common.exporting')),
+          h(
+            MsButton,
+            {
+              type: 'text',
+              onClick() {
+                cancelExport();
+              },
+            },
+            { default: () => t('common.cancel') }
+          ),
+        ]),
+      duration: 999999999, // 一直展示，除非手动关闭
+      closable: true,
+      onClose() {
+        isShowExportingMessage.value = false;
+      },
+    });
+  }
+  // 开启websocket监听，接收结果
+  function startWebsocketGetExportResult() {
+    websocket.value = getSocket(reportId.value, '/ws/export');
+    websocket.value.addEventListener('message', (event) => {
+      const data = JSON.parse(event.data);
+      if (data.msgType === 'EXEC_RESULT') {
+        exportingMessage.value.close();
+        reportId.value = data.fileId;
+        taskId.value = data.taskId;
+        if (data.isSuccessful) {
+          showExportSuccessfulMessage(data.count);
+        } else {
+          Message.error({
+            content: t('common.exportFailed'),
+            duration: 999999999, // 一直展示，除非手动关闭
+            closable: true,
+          });
+        }
+        websocket.value?.close();
+      }
+    });
+  }
+
+  function getConfirmFields(option: MsExportDrawerOption[], columnType: string) {
+    return option
+      .filter((optionItem) => optionItem.columnType === columnType)
+      .map((item) => ({ id: item.key, name: item.text }));
+  }
+  const exportConfirm = async (option: MsExportDrawerOption[]) => {
+    try {
+      exportLoading.value = true;
+      const { selectedIds, selectAll, excludeIds } = batchParams.value;
+      reportId.value = getGenerateId();
+      const params = {
+        projectId: currentProjectId.value,
+        selectIds: selectAll ? [] : selectedIds,
+        excludeIds: excludeIds || [],
+        moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+        condition: {
+          keyword: keyword.value,
+          filter: propsRes.value.filter,
+          combine: batchParams.value.condition,
+        },
+        selectAll,
+        systemFields: getConfirmFields(option, 'system'),
+        customFields: getConfirmFields(option, 'custom'),
+        fileId: reportId.value,
+      };
+      let res;
+      if (exportType.value === 'exportExcel') {
+        res = await exportExcelCase({
+          ...params,
+          otherFields: getConfirmFields(option, 'other'),
+          isMerge: isMerge.value,
+        });
+      } else {
+        res = await exportXMindCase(params);
+      }
+      taskId.value = res.taskId;
+      startWebsocketGetExportResult();
+      showExportingMessage();
+      exportLoading.value = false;
+      showExportVisible.value = false;
+      resetSelector();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      exportLoading.value = false;
+    }
+  };
+
+  async function batchExport() {
+    try {
+      const res = await checkCaseExportTask();
+      if (!res.fileId.length) {
+        showExportVisible.value = true;
+      } else {
+        reportId.value = res.fileId;
+        taskId.value = res.taskId;
+        startWebsocketGetExportResult();
+        showExportingMessage();
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
   const showEditModel = ref<boolean>(false);
@@ -1166,11 +1403,13 @@
     showThirdDrawer.value = true;
   }
 
-  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+  async function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     batchParams.value = params;
     switch (event.eventTag) {
       case 'exportExcel':
-        handleShowExportExcel();
+      case 'exportXMind':
+        exportType.value = event.eventTag;
+        batchExport();
         break;
       case 'batchEdit':
         batchEdit();
@@ -1513,6 +1752,7 @@
     }
     await initFilter();
     initData();
+    getCaseExportData();
   });
 
   watch(
@@ -1588,5 +1828,8 @@
     :deep(.arco-radio-button-content) {
       padding: 4px 6px;
     }
+  }
+  :deep(.arco-radio-group) {
+    display: flex;
   }
 </style>
