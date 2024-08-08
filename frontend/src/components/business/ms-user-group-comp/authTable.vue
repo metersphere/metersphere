@@ -366,11 +366,20 @@
       record.perChecked.push(currentValue);
       const preStr = currentValue.split(':')[0];
       const postStr = currentValue.split(':')[1];
+      const lastEditStr = currentValue.split('+')[1]; // 编辑类权限通过+号拼接
       const existRead = record.perChecked.some(
         (item: string) => item.split(':')[0] === preStr && item.split(':')[1] === 'READ'
       );
+      const existCreate = record.perChecked.some(
+        (item: string) => item.split(':')[0] === preStr && item.split(':')[1] === 'ADD'
+      );
       if (!existRead && postStr !== 'READ') {
         record.perChecked.push(`${preStr}:READ`);
+      }
+      if (!existCreate && lastEditStr === 'IMPORT') {
+        // 勾选导入时自动勾选新增和查询
+        record.perChecked.push(`${preStr}:ADD`);
+        record.perChecked.push(`${preStr}:READ+UPDATE`);
       }
     } else {
       // 删除权限值
