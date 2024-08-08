@@ -17,11 +17,14 @@
           }}<span class="mx-1 text-[rgb(var(--success-6))]"> {{ validateResultInfo.successCount }}</span
           >{{ t('caseManagement.featureCase.caseCount') }}</span
         >
-        <span
-          >{{ t('caseManagement.featureCase.failCheck')
-          }}<span class="mx-1 font-medium text-[rgb(var(--danger-6))]">{{ validateResultInfo.failCount }}</span
-          >{{ t('caseManagement.featureCase.caseCount') }}</span
-        >
+        <span v-if="props.validateType === 'Excel'">
+          {{ t('caseManagement.featureCase.failCheck') }}
+          <span class="mx-1 font-medium text-[rgb(var(--danger-6))]">{{ validateResultInfo.failCount }}</span>
+          {{ t('caseManagement.featureCase.caseCount') }}
+        </span>
+        <span v-else>
+          {{ t('caseManagement.featureCase.partialCaseVerificationFailed') }}
+        </span>
         <a-popover
           position="bottom"
           :content-style="{

@@ -138,14 +138,20 @@ export const GetAssociatedCaseIdsUrl = '/functional/case/relationship/get-ids';
 // 导入功能
 // 功能用例导入excel下载模板
 export const DownloadExcelTemplateUrl = '/functional/case/download/excel/template';
+// 功能用例导入xmind下载模板
+export const DownloadXMindTemplateUrl = '/functional/case/download/xmind/template';
 // 富文本所需资源上传
 export const EditorUploadFileUrl = '/attachment/upload/temp/file';
 // 富文本资源详情预览压缩图
 export const PreviewEditorImageUrl = '/attachment/download/file';
 // 导入excel文件检查
 export const exportExcelCheckUrl = '/functional/case/pre-check/excel';
+// 导入xmind文件检查
+export const exportXMindCheckUrl = '/functional/case/pre-check/xmind';
 // 导入excel文件
 export const importExcelCaseUrl = '/functional/case/import/excel';
+// 导入xmind文件
+export const importXMindCaseUrl = '/functional/case/import/xmind';
 // 用例拖拽排序
 export const dragSortUrl = '/functional/case/edit/pos';
 // 获取变更历史

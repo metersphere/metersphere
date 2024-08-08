@@ -219,7 +219,7 @@ export default {
   'caseManagement.featureCase.dragOrClick': 'Drag or click this area to select a file',
   'caseManagement.featureCase.onlyEXcelTip':
     'Only xls and xlsx are supported, and the size of each device cannot exceed 100 MB',
-  'caseManagement.featureCase.onlyXmindTip': 'Only xmind/ type single size up to 100M is supported',
+  'caseManagement.featureCase.onlyXmindTip': 'Only supports xmind, with a single size not exceeding 50M',
   'caseManagement.featureCase.checkTemplate': 'Check template',
   'caseManagement.featureCase.checkImportFile': 'Check file',
   'caseManagement.featureCase.selectedRecoverCase':
@@ -235,7 +235,8 @@ export default {
   'caseManagement.featureCase.defaultSelectNewVersion': 'The latest version is selected by default',
   'caseManagement.featureCase.isRecoverOriginCase': 'Whether or not covered',
   'caseManagement.featureCase.importingUseCase': 'Importing a use case',
-  'caseManagement.featureCase.verifyingTemplate': 'The file is being verified',
+  'caseManagement.featureCase.verifyingTemplate': 'Verifying the correctness of the template',
+  'caseManagement.featureCase.verifyingFile': 'Verifying file correctness',
   'caseManagement.featureCase.successfulCheck': 'Successful check',
   'caseManagement.featureCase.failCheck': 'Check failure',
   'caseManagement.featureCase.caseCount': 'Strip use cases',
@@ -247,6 +248,7 @@ export default {
   'caseManagement.featureCase.backToUploadPage': 'Back to upload page',
   'caseManagement.featureCase.ignoreErrorContinueImporting': 'Ignore&continue',
   'caseManagement.featureCase.partialCheckFailure': 'Partial check failure',
+  'caseManagement.featureCase.partialCaseVerificationFailed': 'Partial case verification failed',
   'caseManagement.featureCase.CheckFailure': 'Check failure',
   'caseManagement.featureCase.CheckSuccess': 'Check success',
   'caseManagement.featureCase.tableNoData': 'No data available',
