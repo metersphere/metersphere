@@ -767,7 +767,11 @@
     }
 
     // 点步骤描述下的【步骤描述/预期结果/实际结果】标签
-    if ([actualResultTag, stepTag, stepExpectTag].some((item) => node.data?.resource?.includes(item))) {
+    if (
+      [actualResultTag, stepTag, stepExpectTag].some((item) => node.data?.resource?.includes(item)) &&
+      props.canEdit &&
+      hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])
+    ) {
       caseNodeAboveSelectStep.value = getCaseNodeWithResource(node, stepTag);
       if (caseNodeAboveSelectStep.value?.data?.id) {
         getStepData(caseNodeAboveSelectStep.value.data.id);
