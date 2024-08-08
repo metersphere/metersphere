@@ -21,7 +21,7 @@
     "@fortawesome/vue-fontawesome": "^2.0.2",
     "axios": "^1.6.0",
     "cron-parser": "^4.7.0",
-    "element-ui": ">2.15.9 || 2.15.8",
+    "element-ui": "2.15.13",
     "fit2cloud-ui": "^1.8.0",
     "js-cookie": "^2.2.1",
     "jsencrypt": "^3.1.0",
