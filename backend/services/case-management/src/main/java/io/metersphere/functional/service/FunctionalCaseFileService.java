@@ -310,16 +310,15 @@ public class FunctionalCaseFileService {
             if (StringUtils.isEmpty(request.getVersionId())) {
                 request.setVersionId(extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId()));
             }
-            Long nextPos = functionalCaseService.getNextOrder(request.getProjectId());
-            Long lasePos = nextPos + ((long) ServiceUtils.POS_STEP * Integer.parseInt(request.getCount()));
+            Long lasePos = 0L;
             //获取当前项目默认模板的自定义字段
             List<TemplateCustomFieldDTO> customFields = getCustomFields(request.getProjectId());
             XMindCaseParser xMindParser = new XMindCaseParser(request, customFields, user, lasePos);
             errList = xMindParser.parse(multipartFile);
-            xMindParser.clear();
             response.setErrorMessages(errList);
             response.setSuccessCount(xMindParser.getList().size() + xMindParser.getUpdateList().size());
             response.setFailCount(errList.size());
+            xMindParser.clear();
             return response;
         } catch (Exception e) {
             LogUtils.error("checkImportExcel error", e);
@@ -393,10 +392,10 @@ public class FunctionalCaseFileService {
                 errList.add(excelErrData);
             }
             xmindParser.saveData();
-            xmindParser.clear();
             response.setErrorMessages(errList);
             response.setSuccessCount(xmindParser.getList().size() + xmindParser.getUpdateList().size());
             response.setFailCount(errList.size());
+            xmindParser.clear();
             return response;
         } catch (Exception e) {
             LogUtils.error("checkImportExcel error", e);
