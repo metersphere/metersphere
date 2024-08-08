@@ -11,7 +11,7 @@ import io.metersphere.functional.xmind.domain.FunctionalCaseXmindData;
 import io.metersphere.functional.xmind.utils.XmindExportUtil;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.MsgType;
-import io.metersphere.sdk.dto.SocketMsgDTO;
+import io.metersphere.sdk.dto.ExportMsgDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -59,6 +59,7 @@ public class FunctionalCaseXmindService {
     private ExportTaskManager exportTaskManager;
     @Resource
     private FunctionalCaseLogService functionalCaseLogService;
+    private static final String XMIND = "xmind";
 
     public void downloadXmindTemplate(String projectId, HttpServletResponse response) {
         List<TemplateCustomFieldDTO> customFields = functionalCaseFileService.getCustomFields(projectId);
@@ -96,7 +97,7 @@ public class FunctionalCaseXmindService {
      */
     public void exportFunctionalCaseXmind(FunctionalCaseExportRequest request, String userId) {
         try {
-            exportTaskManager.exportAsyncTask(request.getProjectId(), userId, ExportConstants.ExportType.CASE.toString(), request, t -> exportXmind(request, userId));
+            exportTaskManager.exportAsyncTask(request.getProjectId(), request.getFileId(), userId, ExportConstants.ExportType.CASE.toString(), request, t -> exportXmind(request, userId));
         } catch (InterruptedException e) {
             LogUtils.error("导出失败：" + e);
             throw new MSException(e);
@@ -118,24 +119,23 @@ public class FunctionalCaseXmindService {
             List<TemplateCustomFieldDTO> templateCustomFields = functionalCaseFileService.getCustomFields(request.getProjectId());
             TemplateCustomFieldDTO templateCustomFieldDTO = templateCustomFields.stream().filter(item -> StringUtils.equalsIgnoreCase(item.getFieldName(), Translator.get("custom_field.functional_priority"))).findFirst().get();
             XmindExportUtil.export(xmindData, request, tmpFile, templateCustomFieldDTO);
-            functionalCaseFileService.uploadFileToMinio(tmpFile, request.getFileId());
+            functionalCaseFileService.uploadFileToMinio(XMIND, tmpFile, request.getFileId());
 
             functionalCaseLogService.exportExcelLog(request);
             List<ExportTask> exportTasks = functionalCaseFileService.getExportTasks(request.getProjectId(), userId);
             String taskId;
             if (CollectionUtils.isNotEmpty(exportTasks)) {
                 taskId = exportTasks.getFirst().getId();
-                functionalCaseFileService.updateExportTask(ExportConstants.ExportState.SUCCESS.name(), taskId, request.getFileId());
+                functionalCaseFileService.updateExportTask(ExportConstants.ExportState.SUCCESS.name(), taskId, XMIND);
             } else {
                 taskId = MsgType.CONNECT.name();
             }
-            SocketMsgDTO socketMsgDTO = new SocketMsgDTO(request.getFileId(), "", MsgType.CONNECT.name(), taskId);
-            socketMsgDTO.setReportId(request.getFileId());
-            ExportWebSocketHandler.sendMessageSingle(socketMsgDTO);
+            ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), taskId, ids.size(), MsgType.CONNECT.name());
+            ExportWebSocketHandler.sendMessageSingle(exportMsgDTO);
         } catch (Exception e) {
             List<ExportTask> exportTasks = functionalCaseFileService.getExportTasks(request.getProjectId(), userId);
             if (CollectionUtils.isNotEmpty(exportTasks)) {
-                functionalCaseFileService.updateExportTask(ExportConstants.ExportState.ERROR.name(), exportTasks.getFirst().getId(), request.getFileId());
+                functionalCaseFileService.updateExportTask(ExportConstants.ExportState.ERROR.name(), exportTasks.getFirst().getId(), XMIND);
             }
             LogUtils.error(e);
             throw new MSException(e);

@@ -5,13 +5,14 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="type" jdbcType="VARCHAR" property="type" />
-    <result column="fileId" jdbcType="VARCHAR" property="fileid" />
+    <result column="file_id" jdbcType="VARCHAR" property="fileId" />
     <result column="state" jdbcType="VARCHAR" property="state" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="file_type" jdbcType="VARCHAR" property="fileType" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,8 +73,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, `type`, fileId, `state`, create_user, create_time, update_user, update_time, 
-    project_id
+    id, `name`, `type`, file_id, `state`, create_user, create_time, update_user, update_time, 
+    project_id, file_type
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.functional.domain.ExportTaskExample" resultMap="BaseResultMap">
     select
@@ -107,13 +108,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.ExportTask">
     insert into export_task (id, `name`, `type`, 
-      fileId, `state`, create_user, 
+      file_id, `state`, create_user, 
       create_time, update_user, update_time, 
-      project_id)
+      project_id, file_type)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{fileid,jdbcType=VARCHAR}, #{state,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
+      #{fileId,jdbcType=VARCHAR}, #{state,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
-      #{projectId,jdbcType=VARCHAR})
+      #{projectId,jdbcType=VARCHAR}, #{fileType,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.ExportTask">
     insert into export_task
@@ -127,8 +128,8 @@
       <if test="type != null">
         `type`,
       </if>
-      <if test="fileid != null">
-        fileId,
+      <if test="fileId != null">
+        file_id,
       </if>
       <if test="state != null">
         `state`,
@@ -148,6 +149,9 @@
       <if test="projectId != null">
         project_id,
       </if>
+      <if test="fileType != null">
+        file_type,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -159,8 +163,8 @@
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
       </if>
-      <if test="fileid != null">
-        #{fileid,jdbcType=VARCHAR},
+      <if test="fileId != null">
+        #{fileId,jdbcType=VARCHAR},
       </if>
       <if test="state != null">
         #{state,jdbcType=VARCHAR},
@@ -179,6 +183,9 @@
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileType != null">
+        #{fileType,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -200,8 +207,8 @@
       <if test="record.type != null">
         `type` = #{record.type,jdbcType=VARCHAR},
       </if>
-      <if test="record.fileid != null">
-        fileId = #{record.fileid,jdbcType=VARCHAR},
+      <if test="record.fileId != null">
+        file_id = #{record.fileId,jdbcType=VARCHAR},
       </if>
       <if test="record.state != null">
         `state` = #{record.state,jdbcType=VARCHAR},
@@ -221,6 +228,9 @@
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
+      <if test="record.fileType != null">
+        file_type = #{record.fileType,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -231,13 +241,14 @@
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
-      fileId = #{record.fileid,jdbcType=VARCHAR},
+      file_id = #{record.fileId,jdbcType=VARCHAR},
       `state` = #{record.state,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_user = #{record.updateUser,jdbcType=VARCHAR},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      project_id = #{record.projectId,jdbcType=VARCHAR}
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      file_type = #{record.fileType,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -251,8 +262,8 @@
       <if test="type != null">
         `type` = #{type,jdbcType=VARCHAR},
       </if>
-      <if test="fileid != null">
-        fileId = #{fileid,jdbcType=VARCHAR},
+      <if test="fileId != null">
+        file_id = #{fileId,jdbcType=VARCHAR},
       </if>
       <if test="state != null">
         `state` = #{state,jdbcType=VARCHAR},
@@ -272,6 +283,9 @@
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
+      <if test="fileType != null">
+        file_type = #{fileType,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -279,25 +293,26 @@
     update export_task
     set `name` = #{name,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
-      fileId = #{fileid,jdbcType=VARCHAR},
+      file_id = #{fileId,jdbcType=VARCHAR},
       `state` = #{state,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_user = #{updateUser,jdbcType=VARCHAR},
       update_time = #{updateTime,jdbcType=BIGINT},
-      project_id = #{projectId,jdbcType=VARCHAR}
+      project_id = #{projectId,jdbcType=VARCHAR},
+      file_type = #{fileType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into export_task
-    (id, `name`, `type`, fileId, `state`, create_user, create_time, update_user, update_time, 
-      project_id)
+    (id, `name`, `type`, file_id, `state`, create_user, create_time, update_user, update_time, 
+      project_id, file_type)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, 
-        #{item.fileid,jdbcType=VARCHAR}, #{item.state,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.fileId,jdbcType=VARCHAR}, #{item.state,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
         #{item.createTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
-        #{item.projectId,jdbcType=VARCHAR})
+        #{item.projectId,jdbcType=VARCHAR}, #{item.fileType,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -319,8 +334,8 @@
         <if test="'type'.toString() == column.value">
           #{item.type,jdbcType=VARCHAR}
         </if>
-        <if test="'fileId'.toString() == column.value">
-          #{item.fileid,jdbcType=VARCHAR}
+        <if test="'file_id'.toString() == column.value">
+          #{item.fileId,jdbcType=VARCHAR}
         </if>
         <if test="'state'.toString() == column.value">
           #{item.state,jdbcType=VARCHAR}
@@ -339,6 +354,9 @@
         </if>
         <if test="'project_id'.toString() == column.value">
           #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'file_type'.toString() == column.value">
+          #{item.fileType,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

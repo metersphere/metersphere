@@ -92,6 +92,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String DOWNLOAD_FILE_URL = "/functional/case/download/file/";
     public static final String STOP_EXPORT_URL = "/functional/case/stop/";
     public static final String EXPORT_XMIND_URL = "/functional/case/export/xmind";
+    public static final String EXPORT_XMIND_CHECK_URL = "/functional/case/check/export-task";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -906,4 +907,11 @@ public class FunctionalCaseControllerTests extends BaseTest {
         request.setSelectIds(List.of("TEST_FUNCTIONAL_CASE_ID_8"));
         this.requestPost(EXPORT_XMIND_URL, request);
     }
+
+    @Test
+    @Order(4)
+    public void checkExportTask() throws Exception {
+        this.requestGetExcel( EXPORT_XMIND_CHECK_URL);
+    }
+
 }
