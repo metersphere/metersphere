@@ -1273,11 +1273,11 @@ public class FunctionalCaseService {
     }
 
     private void setCustomFieldValue(Object value, FunctionalCaseCustomField caseCustomField) {
-        if (StringUtils.equalsIgnoreCase(value.toString(), "[]") || value instanceof List) {
+        if (value !=null && (StringUtils.equalsIgnoreCase(value.toString(), "[]") || value instanceof List)) {
             //数组类型
             caseCustomField.setValue(JSON.toJSONString(value));
         } else {
-            caseCustomField.setValue(value.toString());
+            caseCustomField.setValue(value == null ? StringUtils.EMPTY : value.toString());
         }
     }
 

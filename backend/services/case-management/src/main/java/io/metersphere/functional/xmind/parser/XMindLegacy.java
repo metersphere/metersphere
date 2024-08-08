@@ -1,6 +1,7 @@
 package io.metersphere.functional.xmind.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.XMLUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -73,8 +74,8 @@ public class XMindLegacy {
             String res = sheet.asXML();
             // 将xml转为json
             JsonNode xmlJSONObj = XMLUtils.xmlConvertJson(res);
-            JsonNode jsonNode = xmlJSONObj.get("sheet");
-            sheets.add(jsonNode.toString());
+            ObjectMapper objectMapper = new ObjectMapper();
+            sheets.add(objectMapper.writeValueAsString(xmlJSONObj));
         }
         // 设置缩进
         return sheets;
