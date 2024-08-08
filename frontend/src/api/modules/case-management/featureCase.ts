@@ -17,6 +17,7 @@ import {
   CancelAssociationDemandUrl,
   cancelDisassociate,
   cancelPreAndPostCaseUrl,
+  CheckCaseExportTaskUrl,
   checkFileIsUpdateUrl,
   CreateCaseModuleTreeUrl,
   CreateCaseUrl,
@@ -32,7 +33,9 @@ import {
   DownloadXMindTemplateUrl,
   dragSortUrl,
   EditorUploadFileUrl,
+  ExportExcelCaseUrl,
   exportExcelCheckUrl,
+  ExportXMindCaseUrl,
   exportXMindCheckUrl,
   FollowerCaseUrl,
   GetAssociatedCaseIdsUrl,
@@ -43,6 +46,8 @@ import {
   GetAssociationPublicCaseModuleCountUrl,
   GetAssociationPublicCasePageUrl,
   GetAssociationPublicModuleTreeUrl,
+  GetCaseDownloadFileUrl,
+  GetCaseExportConfigUrl,
   GetCaseListUrl,
   GetCaseMinderTreeUrl,
   GetCaseMinderUrl,
@@ -74,6 +79,7 @@ import {
   RecoverRecycleCaseListUrl,
   RestoreCaseListUrl,
   SaveCaseMinderUrl,
+  StopCaseExportUrl,
   TransferFileUrl,
   UpdateCaseModuleTreeUrl,
   UpdateCaseUrl,
@@ -446,7 +452,30 @@ export function importExcelOrXMindCase(data: { request: ImportExcelType; fileLis
     ''
   );
 }
-
+// 导出excel
+export function exportExcelCase(data: TableQueryParams) {
+  return MSR.post({ url: ExportExcelCaseUrl, data });
+}
+// 导出XMind
+export function exportXMindCase(data: TableQueryParams) {
+  return MSR.post({ url: ExportXMindCaseUrl, data });
+}
+// 检查是否有导出任务
+export function checkCaseExportTask() {
+  return MSR.get({ url: CheckCaseExportTaskUrl });
+}
+// 获取导出的文件
+export function getCaseDownloadFile(projectId: string, fileId: string) {
+  return MSR.get({ url: `${GetCaseDownloadFileUrl}/${projectId}/${fileId}` });
+}
+// 停止导出
+export function stopCaseExport(taskId: string) {
+  return MSR.get({ url: `${StopCaseExportUrl}/${taskId}` });
+}
+// 获取导出字段配置
+export function getCaseExportConfig(projectId: string) {
+  return MSR.get({ url: `${GetCaseExportConfigUrl}/${projectId}` });
+}
 // 拖拽排序
 export function dragSort(data: DragCase) {
   return MSR.post({ url: dragSortUrl, data });

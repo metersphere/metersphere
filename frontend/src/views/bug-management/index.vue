@@ -128,17 +128,12 @@
     :export-loading="exportLoading"
     :all-data="exportOptionData"
     :disabled-cancel-keys="['name']"
+    :drawer-title-props="{
+      title: t('bugManagement.exportBug'),
+      count: currentSelectParams.currentSelectCount,
+    }"
     @confirm="exportConfirm"
-  >
-    <template #title>
-      <div>
-        <span class="text-[var(--color-text-1)]">{{ t('bugManagement.exportBug') }}</span>
-        <span v-if="currentSelectParams.currentSelectCount" class="text-[var(--color-text-4)]">
-          ({{ t('bugManagement.exportBugCount', { count: currentSelectParams.currentSelectCount }) }})
-        </span>
-      </div>
-    </template>
-  </MsExportDrawer>
+  />
   <BugDetailDrawer
     v-model:visible="detailVisible"
     :detail-id="activeDetailId"
