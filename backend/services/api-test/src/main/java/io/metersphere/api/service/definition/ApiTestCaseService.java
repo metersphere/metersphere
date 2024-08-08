@@ -1,5 +1,6 @@
 package io.metersphere.api.service.definition;
 
+import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.*;
@@ -462,7 +463,6 @@ public class ApiTestCaseService extends MoveNodeService {
     }
 
     public void batchEdit(ApiCaseBatchEditRequest request, String userId) {
-
         List<String> ids = doSelectIds(request, false);
         if (CollectionUtils.isEmpty(ids)) {
             return;
@@ -995,6 +995,56 @@ public class ApiTestCaseService extends MoveNodeService {
     }
 
     public void batchSyncApiChange(ApiCaseBatchSyncRequest request, String userId) {
-        // todo
+        // 只处理 http 协议的接口
+        request.setProtocols(List.of(ApiConstants.HTTP_PROTOCOL));
+        List<String> ids = doSelectIds(request, false);
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        SubListUtils.dealForSubList(ids, 500, subList -> doBatchSyncApiChange(request, subList, userId));
+    }
+
+    public void doBatchSyncApiChange(ApiCaseBatchSyncRequest request, List<String> ids, String userId) {
+        List<ApiTestCase> apiTestCases = extApiTestCaseMapper.getApiCaseForBatchSync(ids);
+        Set<String> apiDefinitionIds = apiTestCases.stream().map(ApiTestCase::getApiDefinitionId).collect(Collectors.toSet());
+        Map<String, ApiTestCase> apiTestCaseMap = apiTestCases.stream().collect(Collectors.toMap(ApiTestCase::getApiDefinitionId, Function.identity()));
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiTestCaseBlobMapper apiTestCaseBlobBatchMapper = sqlSession.getMapper(ApiTestCaseBlobMapper.class);
+        ApiTestCaseMapper apiTestCaseBatchMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+
+        ApiCaseSyncRequest apiCaseSyncRequest = new ApiCaseSyncRequest();
+        apiCaseSyncRequest.setSyncItems(request.getSyncItems());
+        apiCaseSyncRequest.setDeleteRedundantParam(request.getDeleteRedundantParam());
+        try {
+            for (String apiDefinitionId : apiDefinitionIds) {
+                ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(apiDefinitionId);
+                AbstractMsTestElement apiMsTestElement = getApiMsTestElement(apiDefinitionBlob);
+                ApiTestCase apiTestCase = apiTestCaseMap.get(apiDefinitionId);
+                ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(apiTestCase.getId());
+                AbstractMsTestElement apiTestCaseMsTestElement = getTestElement(apiTestCaseBlob);
+                boolean requestParamDifferent = HttpRequestParamDiffUtils.isRequestParamDiff(request.getSyncItems(), apiMsTestElement, apiTestCaseMsTestElement);
+                if (requestParamDifferent) {
+                    apiTestCase.setUpdateTime(System.currentTimeMillis());
+                    apiTestCase.setUpdateUser(userId);
+                    apiTestCase.setApiChange(false);
+                    apiTestCaseBatchMapper.updateByPrimaryKeySelective(apiTestCase);
+                    apiTestCaseMsTestElement = HttpRequestParamDiffUtils.syncRequestDiff(apiCaseSyncRequest, apiMsTestElement, apiTestCaseMsTestElement);
+                    apiTestCaseBlob.setRequest(ApiDataUtils.toJSONString(apiTestCaseMsTestElement).getBytes());
+                    apiTestCaseBlobBatchMapper.updateByPrimaryKeySelective(apiTestCaseBlob);
+                }
+            }
+        } finally {
+            sqlSession.flushStatements();
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
+
+    public AbstractMsTestElement syncApiChange(ApiCaseSyncRequest request) {
+        ApiTestCase apiTestCase = checkResourceExist(request.getId());
+        ApiDefinition apiDefinition = getApiDefinition(apiTestCase.getApiDefinitionId());
+        ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(apiDefinition.getId());
+        AbstractMsTestElement apiMsTestElement = getApiMsTestElement(apiDefinitionBlob);
+        AbstractMsTestElement apiTestCaseMsTestElement = ApiDataUtils.parseObject(JSON.toJSONString(request.getApiCaseRequest()), AbstractMsTestElement.class);
+        return HttpRequestParamDiffUtils.syncRequestDiff(request, apiMsTestElement, apiTestCaseMsTestElement);
     }
 }

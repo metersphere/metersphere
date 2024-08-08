@@ -1,10 +1,14 @@
 package io.metersphere.api.utils;
 
+import io.metersphere.api.dto.definition.ApiCaseSyncItemRequest;
+import io.metersphere.api.dto.definition.ApiCaseSyncRequest;
+import io.metersphere.api.dto.request.controller.MsLoopController;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.QueryParam;
 import io.metersphere.api.dto.request.http.RestParam;
 import io.metersphere.api.dto.request.http.body.*;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.XMLUtils;
@@ -14,10 +18,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Author: jianxing
@@ -396,16 +397,16 @@ public class HttpRequestParamDiffUtilsTests {
 
 
         String regexResult = """
-               <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-                   <modelVersion></modelVersion>             
-                   <parent>
-                       <groupId></groupId>
-                       <artifactId></artifactId>
-                       <version></version>
-                       <relativePath/></parent>
-               </project>
-               """;
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion></modelVersion>             
+                    <parent>
+                        <groupId></groupId>
+                        <artifactId></artifactId>
+                        <version></version>
+                        <relativePath/></parent>
+                </project>
+                """;
         Assertions.assertEquals(XMLUtils.clearElementText(xml), regexResult);
     }
 
@@ -480,5 +481,338 @@ public class HttpRequestParamDiffUtilsTests {
                 """;
         body.getXmlBody().setValue(xmlValue);
         HttpRequestParamDiffUtils.getCompareHttpElement(msHTTPElement);
+    }
+
+    @Test
+    public void syncKeyValueParamDiff() {
+        KeyValueParam kv1 = new KeyValueParam();
+        kv1.setKey("key1");
+        kv1.setValue("value1");
+        KeyValueParam kv2 = new KeyValueParam();
+        kv2.setKey("key2");
+        kv2.setValue("value2");
+        List<KeyValueParam> formDataKVS = List.of(kv1, kv2);
+
+        List<KeyValueParam> result = HttpRequestParamDiffUtils.syncKeyValueParamDiff(true, formDataKVS, null);
+        Assertions.assertEquals(result, formDataKVS);
+
+        result = HttpRequestParamDiffUtils.syncKeyValueParamDiff(true, null, formDataKVS);
+        Assertions.assertEquals(result, List.of());
+
+        result = HttpRequestParamDiffUtils.syncKeyValueParamDiff(false, null, formDataKVS);
+        Assertions.assertEquals(result, formDataKVS);
+
+        KeyValueParam kv3 = new KeyValueParam();
+        kv3.setKey("key3");
+        kv3.setValue("value3");
+        FormDataKV kv4 = new FormDataKV();
+
+        result = HttpRequestParamDiffUtils.syncKeyValueParamDiff(true,
+                new ArrayList<>(List.of(kv1, kv2, kv4)),
+                new ArrayList<>(List.of(kv1, kv3, kv4)));
+        Assertions.assertEquals(result, Arrays.asList(kv1, kv2, kv4));
+
+        result = HttpRequestParamDiffUtils.syncKeyValueParamDiff(false,
+                new ArrayList<>(List.of(kv1, kv2, kv4)),
+                new ArrayList<>(List.of(kv1, kv3, kv4)));
+        Assertions.assertEquals(result, Arrays.asList(kv1, kv3, kv2, kv4));
+    }
+
+    @Test
+    public void syncJsonBodyDiff() {
+        String sourceJsonStr = """
+                {
+                  "id": 10,
+                  "name": "doggie",
+                  "category": {
+                    "id": null,
+                    "name": "Dogs"
+                  },
+                  "photoUrls": [
+                    "string",
+                    {
+                        "id": null,
+                        "name": "Dogs"
+                    }
+                  ],
+                  "tags": [
+                    {
+                      "id": 0,
+                      "name": "string"
+                    }
+                  ]
+                }
+                """;
+        String targetJsonStr = """
+                {
+                  "id": 11,
+                  "delete": true,
+                  "category": "",
+                  "photoUrls": [
+                    "string",
+                    {
+                        "id": "aaa",
+                         "delete": true
+                    }
+                  ],
+                  "tags": [
+                    {
+                      "id": "111",
+                      "name": null
+                    }
+                  ]
+                }
+                """;
+        Object sourceJson = JSON.parseObject(sourceJsonStr);
+        Object targetJson = JSON.parseObject(targetJsonStr);
+        Object result = HttpRequestParamDiffUtils.syncJsonBodyDiff(true, sourceJson, targetJson);
+        Object assertionJson = JSON.parseObject("""
+                 {
+                  "id": 11,
+                  "name": "doggie",
+                  "category": {
+                    "id": null,
+                    "name": "Dogs"
+                  },
+                  "photoUrls": [
+                    "string",
+                    {
+                        "id": null,
+                        "name": "Dogs"
+                    }
+                  ],
+                  "tags": [
+                    {
+                      "id": 0,
+                      "name": "string"
+                    }
+                  ]
+                }
+                """);
+        Assertions.assertEquals(result, assertionJson);
+
+        JsonBody sourceJsonBody = new JsonBody();
+        sourceJsonBody.setJsonValue(sourceJsonStr);
+        JsonBody tartJsonBody = new JsonBody();
+        tartJsonBody.setJsonValue(targetJsonStr);
+        JsonBody resultBody = HttpRequestParamDiffUtils.syncJsonBodyDiff(true, sourceJsonBody, tartJsonBody);
+        Assertions.assertEquals(assertionJson, JSON.parseObject(resultBody.getJsonValue()));
+
+        sourceJson = JSON.parseObject(sourceJsonStr);
+        targetJson = JSON.parseObject(targetJsonStr);
+        result = HttpRequestParamDiffUtils.syncJsonBodyDiff(false, sourceJson, targetJson);
+        assertionJson = JSON.parseObject("""
+                 {
+                  "id": 11,
+                  "name": "doggie",
+                  "delete": true,
+                  "category": {
+                    "id": null,
+                    "name": "Dogs"
+                  },
+                  "photoUrls": [
+                    "string",
+                    {
+                        "id": "aaa",
+                        "name": "Dogs",
+                         "delete": true
+                    }
+                  ],
+                  "tags": [
+                    {
+                      "id": 0,
+                      "name": "string"
+                    }
+                  ]
+                }
+                """);
+        Assertions.assertEquals(result, assertionJson);
+
+        sourceJsonBody = new JsonBody();
+        sourceJsonBody.setJsonValue(sourceJsonStr);
+        tartJsonBody = new JsonBody();
+        tartJsonBody.setJsonValue(targetJsonStr);
+        resultBody = HttpRequestParamDiffUtils.syncJsonBodyDiff(false, sourceJsonBody, tartJsonBody);
+        Assertions.assertEquals(assertionJson, JSON.parseObject(resultBody.getJsonValue()));
+
+        resultBody = HttpRequestParamDiffUtils.syncJsonBodyDiff(false, null, tartJsonBody);
+        Assertions.assertEquals(resultBody, tartJsonBody);
+
+        resultBody = HttpRequestParamDiffUtils.syncJsonBodyDiff(true, null, tartJsonBody);
+        Assertions.assertEquals(resultBody, new JsonBody());
+
+        resultBody = HttpRequestParamDiffUtils.syncJsonBodyDiff(true, sourceJsonBody, null);
+        Assertions.assertEquals(resultBody, sourceJsonBody);
+
+        // 解析异常
+        sourceJsonBody.setJsonValue("ddd");
+        resultBody = HttpRequestParamDiffUtils.syncJsonBodyDiff(true, sourceJsonBody, sourceJsonBody);
+        Assertions.assertEquals(resultBody, sourceJsonBody);
+    }
+
+    @Test
+    public void syncXmlBodyDiff() throws Exception {
+        String sourceXmlStr = """
+                <project>
+                    <modelVersion>4.0.0</modelVersion>   
+                    <parent>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-parent</artifactId>
+                        <relativePath/>
+                    </parent>
+                </project>
+                """;
+        String targetXmlStr = """
+                <project>
+                    <modelVersion>4.0.0</modelVersion>    
+                    <delete>true</delete>  
+                    <parent>
+                        <groupId>org.springframework.boot</groupId>     
+                        <relativePath/>
+                        <delete>true</delete>  
+                    </parent>
+                </project>
+                """;
+        Element sourceElement = XMLUtils.stringToDocument(sourceXmlStr).getRootElement();
+        Element targetElement = XMLUtils.stringToDocument(targetXmlStr).getRootElement();
+        HttpRequestParamDiffUtils.syncXmlBodyDiff(true, null, sourceElement);
+        HttpRequestParamDiffUtils.syncXmlBodyDiff(true, sourceElement, null);
+        Element result = HttpRequestParamDiffUtils.syncXmlBodyDiff(true, sourceElement, targetElement);
+        String resultStr = HttpRequestParamDiffUtils.parseElementToString(result);
+        String assertionStr = HttpRequestParamDiffUtils.parseElementToString(XMLUtils.stringToDocument("""
+                <project>
+                    <modelVersion>4.0.0</modelVersion>
+                   \s
+                    <parent>
+                        <groupId>org.springframework.boot</groupId>
+                        <relativePath/>
+                       \s
+                    <artifactId>spring-boot-starter-parent</artifactId></parent>
+                </project>
+                """).getRootElement());
+        Assertions.assertEquals(resultStr, assertionStr);
+
+        XmlBody sourceXmlBody = new XmlBody();
+        XmlBody tartgetXmlBody = new XmlBody();
+        sourceXmlBody.setValue(sourceXmlStr);
+        tartgetXmlBody.setValue(targetXmlStr);
+        XmlBody resultBody = HttpRequestParamDiffUtils.syncXmlBodyDiff(true, sourceXmlBody, tartgetXmlBody);
+        Assertions.assertEquals(assertionStr, resultBody.getValue());
+
+        sourceElement = XMLUtils.stringToDocument(sourceXmlStr).getRootElement();
+        targetElement = XMLUtils.stringToDocument(targetXmlStr).getRootElement();
+        result = HttpRequestParamDiffUtils.syncXmlBodyDiff(false, sourceElement, targetElement);
+        resultStr = HttpRequestParamDiffUtils.parseElementToString(result);
+        assertionStr = HttpRequestParamDiffUtils.parseElementToString(XMLUtils.stringToDocument("""
+                <project>
+                    <modelVersion>4.0.0</modelVersion>
+                    <delete>true</delete>
+                    <parent>
+                        <groupId>org.springframework.boot</groupId>
+                        <relativePath/>
+                        <delete>true</delete>
+                    <artifactId>spring-boot-starter-parent</artifactId></parent>
+                </project>
+                """).getRootElement());
+        Assertions.assertEquals(resultStr, assertionStr);
+
+        // 格式错误
+        tartgetXmlBody.setValue("dddd");
+        resultBody = HttpRequestParamDiffUtils.syncXmlBodyDiff(true, sourceXmlBody, tartgetXmlBody);
+        Assertions.assertEquals(resultBody, tartgetXmlBody);
+    }
+
+    @Test
+    public void syncBodyDiff() {
+
+        Body sourceBody = new Body();
+        Body targetBody = new Body();
+
+        Body result = HttpRequestParamDiffUtils.syncBodyDiff(true, null, targetBody);
+        Assertions.assertEquals(result, null);
+
+        result = HttpRequestParamDiffUtils.syncBodyDiff(true, sourceBody, null);
+        Assertions.assertEquals(result, sourceBody);
+
+        sourceBody.setBodyType(Body.BodyType.FORM_DATA.name());
+        targetBody.setBodyType(Body.BodyType.WWW_FORM.name());
+        result = HttpRequestParamDiffUtils.syncBodyDiff(true, sourceBody, targetBody);
+        Assertions.assertEquals(result, sourceBody);
+
+        sourceBody.setBodyType(Body.BodyType.RAW.name());
+        targetBody.setBodyType(Body.BodyType.RAW.name());
+        result = HttpRequestParamDiffUtils.syncBodyDiff(true, sourceBody, targetBody);
+        Assertions.assertEquals(result, targetBody);
+
+        sourceBody.setBodyType(Body.BodyType.BINARY.name());
+        targetBody.setBodyType(Body.BodyType.BINARY.name());
+        result = HttpRequestParamDiffUtils.syncBodyDiff(true, sourceBody, targetBody);
+        Assertions.assertEquals(result, targetBody);
+
+        sourceBody.setBodyType(Body.BodyType.FORM_DATA.name());
+        targetBody.setBodyType(Body.BodyType.FORM_DATA.name());
+        sourceBody.setFormDataBody(new FormDataBody());
+        targetBody.setFormDataBody(new FormDataBody());
+        FormDataKV formDataKV = new FormDataKV();
+        formDataKV.setKey("key1");
+        formDataKV.setValue("value1");
+        sourceBody.getFormDataBody().getFormValues().add(formDataKV);
+        result = HttpRequestParamDiffUtils.syncBodyDiff(true, sourceBody, targetBody);
+        Assertions.assertEquals(result.getFormDataBody(), sourceBody.getFormDataBody());
+
+        sourceBody.setBodyType(Body.BodyType.WWW_FORM.name());
+        targetBody.setBodyType(Body.BodyType.WWW_FORM.name());
+        sourceBody.setWwwFormBody(new WWWFormBody());
+        targetBody.setWwwFormBody(new WWWFormBody());
+        WWWFormKV wwwFormKV = new WWWFormKV();
+        wwwFormKV.setKey("key1");
+        wwwFormKV.setValue("value1");
+        sourceBody.getWwwFormBody().getFormValues().add(wwwFormKV);
+        result = HttpRequestParamDiffUtils.syncBodyDiff(true, sourceBody, targetBody);
+        Assertions.assertEquals(result.getWwwFormBody(), sourceBody.getWwwFormBody());
+
+        sourceBody.setBodyType(Body.BodyType.JSON.name());
+        targetBody.setBodyType(Body.BodyType.JSON.name());
+        sourceBody.setJsonBody(new JsonBody());
+        targetBody.setJsonBody(new JsonBody());
+        sourceBody.getJsonBody().setJsonValue("""
+                {"id1":""}
+                """);
+        result = HttpRequestParamDiffUtils.syncBodyDiff(true, sourceBody, targetBody);
+        Assertions.assertEquals(result.getJsonBody(), sourceBody.getJsonBody());
+
+        sourceBody.setBodyType(Body.BodyType.XML.name());
+        targetBody.setBodyType(Body.BodyType.XML.name());
+        sourceBody.setXmlBody(new XmlBody());
+        targetBody.setXmlBody(new XmlBody());
+        sourceBody.getXmlBody().setValue("""
+                <a></a>
+                """);
+        result = HttpRequestParamDiffUtils.syncBodyDiff(true, sourceBody, targetBody);
+        Assertions.assertEquals(result.getXmlBody(), sourceBody.getXmlBody());
+    }
+
+    @Test
+    public void syncRequestDiff() {
+        MsHTTPElement sourceElement = new MsHTTPElement();
+        MsHTTPElement targetElement = new MsHTTPElement();
+
+        ApiCaseSyncRequest request = new ApiCaseSyncRequest();
+        ApiCaseSyncItemRequest syncItems = new ApiCaseSyncItemRequest();
+        request.setSyncItems(syncItems);
+        request.setDeleteRedundantParam(true);
+
+        AbstractMsTestElement resultTestElement = HttpRequestParamDiffUtils.syncRequestDiff(request, sourceElement, targetElement);
+        Assertions.assertEquals(resultTestElement, targetElement);
+
+        syncItems.setBody(false);
+        syncItems.setQuery(false);
+        syncItems.setRest(false);
+        syncItems.setHeader(false);
+        resultTestElement = HttpRequestParamDiffUtils.syncRequestDiff(request, sourceElement, targetElement);
+        Assertions.assertEquals(resultTestElement, targetElement);
+
+        resultTestElement = HttpRequestParamDiffUtils.syncRequestDiff(request, new MsLoopController(), targetElement);
+        Assertions.assertEquals(resultTestElement, targetElement);
     }
 }

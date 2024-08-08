@@ -11,6 +11,7 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.definition.*;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -324,6 +325,14 @@ public class ApiTestCaseController {
     @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
     public void ignoreApiChange(@PathVariable String id, @RequestParam(name = "ignore") boolean ignore) {
         apiTestCaseService.ignoreApiChange(id, ignore);
+    }
+
+    @PostMapping("/api-change/sync")
+    @Operation(summary = "获取同步后的用例详情")
+    @RequiresPermissions(value = PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "api_test_case")
+    public AbstractMsTestElement syncApiChange(@Validated @RequestBody ApiCaseSyncRequest request) {
+        return apiTestCaseService.syncApiChange(request);
     }
 
     @GetMapping("/api/compare/{id}")
