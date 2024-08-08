@@ -1,6 +1,6 @@
 <template>
   <div v-for="item of requestBodyList" :key="item.value">
-    <div class="grid grid-cols-2 gap-[24px]">
+    <div v-if="getBodyDefinedCode(item.value) || getBodyCaseCode(item.value)" class="grid grid-cols-2 gap-[24px]">
       <div class="title">
         {{ item.title }}
       </div>
@@ -47,7 +47,10 @@
         {{ t('case.notSetData') }}
       </div>
     </div>
-    <div v-else class="grid grid-cols-2 gap-[24px]">
+    <div
+      v-if="!getShowDiffer(item.value) && (getBodyDefinedCode(item.value) || getBodyCaseCode(item.value))"
+      class="grid grid-cols-2 gap-[24px]"
+    >
       <div
         v-if="!getBodyCaseCode(item.value) && !getBodyDefinedCode(item.value)"
         class="no-json-case-data no-case-data"

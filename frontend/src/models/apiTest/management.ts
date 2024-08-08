@@ -8,6 +8,7 @@ import {
 
 import { BatchApiParams, ModuleTreeNode, TableQueryParams } from '../common';
 import { ExecuteRequestParams, ResponseDefinition } from './common';
+import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
 // 定义-自定义字段
 export interface ApiDefinitionCustomField {
@@ -418,4 +419,11 @@ export interface batchSyncForm {
   // 同步项目
   syncItems: syncItem;
   deleteRedundantParam: boolean;
+}
+// 对比同步参数
+export interface diffSyncParams {
+  syncItems: syncItem; // 同步项
+  id: string;
+  deleteRedundantParam: boolean; // 是否删除多余参数
+  apiCaseRequest: RequestParam; // 用例详情请求request
 }

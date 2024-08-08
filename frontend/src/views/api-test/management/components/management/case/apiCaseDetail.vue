@@ -57,6 +57,7 @@
       ref="createAndEditCaseDrawerRef"
       v-bind="$attrs"
       @load-case="(id)=>getCaseDetailInfo(id as string)"
+      @show-diff="showDiffDrawer"
     />
     <a-divider :margin="0"></a-divider>
     <MsTab
@@ -88,7 +89,7 @@
         :active-defined-id="activeDefinedId"
         @close="closeDifferent"
         @clear-this-change="clearThisChangeHandler"
-        @sync="syncHandler"
+        @sync="syncParamsHandler"
       />
     </div>
     <tab-case-dependency v-else-if="activeKey === 'reference'" :source-id="caseDetail.id" />
@@ -404,9 +405,10 @@
     getCaseDetailInfo(caseId.value);
   }
 
-  function syncHandler(id: string) {
-    // TODO 这里需要调用同步合并后的详情接口回显详情
-    createAndEditCaseDrawerRef.value?.open(id, caseDetail.value, false);
+  // 同步参数
+  async function syncParamsHandler(mergedRequestParam: RequestParam) {
+    caseDetail.value = { ...caseDetail.value, ...mergedRequestParam };
+    createAndEditCaseDrawerRef.value?.open(caseDetail.value.apiDefinitionId, caseDetail.value, false);
   }
 
   onBeforeMount(() => {

@@ -13,12 +13,11 @@
       <div class="flex w-full items-center justify-between">
         <div>{{ t('case.apiAndCaseDiff') }}</div>
         <div class="flex items-center text-[14px]">
-          <div class="-mt-[2px] mr-[8px]"> {{ t('case.syncItem') }}</div>
-          <a-checkbox-group v-model="checkType">
+          <div v-if="caseDetail.inconsistentWithApi" class="-mt-[2px] mr-[8px]"> {{ t('case.syncItem') }}</div>
+          <a-checkbox-group v-if="caseDetail.inconsistentWithApi" v-model="checkType">
             <a-checkbox v-for="item of checkList" :key="item.value" :value="item.value">
-              <div class="flex items-center"
-                >{{ item.label }}
-
+              <div class="flex items-center">
+                {{ item.label }}
                 <a-tooltip v-if="item.tooltip" :content="item.tooltip" position="top">
                   <div class="flex items-center">
                     <icon-question-circle
@@ -30,7 +29,7 @@
               </div>
             </a-checkbox>
           </a-checkbox-group>
-          <a-divider direction="vertical" :margin="0" class="!mr-[8px]"></a-divider>
+          <a-divider v-if="caseDetail.inconsistentWithApi" direction="vertical" :margin="0" class="!mr-[8px]" />
           <a-switch
             v-model:model-value="form.ignoreApiChange"
             :before-change="(val) => changeIgnore(val)"
@@ -38,28 +37,41 @@
           />
           <div class="ml-[8px]">{{ t('case.ignoreAllChange') }}</div>
           <a-divider direction="vertical" :margin="8"></a-divider>
-          <a-switch v-model:model-value="form.deleteRedundantParam" size="small" />
-          <div class="ml-[8px] font-normal text-[var(--color-text-1)]">{{ t('case.deleteNotCorrespondValue') }}</div>
+          <a-switch
+            v-if="caseDetail.inconsistentWithApi"
+            v-model:model-value="form.deleteRedundantParam"
+            size="small"
+          />
+          <div v-if="caseDetail.inconsistentWithApi" class="ml-[8px] font-normal text-[var(--color-text-1)]">{{
+            t('case.deleteNotCorrespondValue')
+          }}</div>
           <a-divider direction="vertical" :margin="0" class="!ml-[8px]"></a-divider>
           <a-button class="mx-[12px]" type="secondary" @click="cancel">{{ t('common.cancel') }}</a-button>
-          <a-button class="mr-[12px]" type="outline" @click="clearThisChangeHandler">
+          <a-button
+            v-if="caseDetail.inconsistentWithApi"
+            class="mr-[12px]"
+            type="outline"
+            @click="clearThisChangeHandler"
+          >
             {{ t('case.ignoreThisChange') }}
           </a-button>
           <a-button type="primary" :loading="syncLoading" :disabled="!checkType.length" @click="confirmSync">
-            {{ t('case.apiSyncChange') }}
+            {{ caseDetail.inconsistentWithApi ? t('case.apiSyncChange') : t('common.confirm') }}
           </a-button>
         </div>
       </div>
     </template>
     <!-- 图例 -->
     <div class="legend-container">
-      <div class="item mr-[24px]">
-        <div class="legend add"></div>
-        {{ t('case.diffAdd') }}
-      </div>
-      <div class="item">
-        <div class="legend delete"></div>
-        {{ t('common.delete') }}
+      <div class="flex items-center">
+        <div class="item mr-[8px]">
+          <div class="legend add"></div>
+          {{ t('case.diffAdd') }}
+        </div>
+        <div class="item">
+          <div class="legend delete"></div>
+          {{ t('common.delete') }}
+        </div>
       </div>
     </div>
     <!-- 对比 -->
@@ -81,7 +93,6 @@
               <DiffItem :diff-distance-map="diffDistanceMap" mode="delete" :detail="caseDetail as RequestParam" />
             </div>
           </div>
-
           <DiffRequestBody
             :defined-detail="apiDefinedRequest as RequestParam"
             :case-detail="caseDetail as RequestParam"
@@ -108,12 +119,13 @@
     diffDataRequest,
     getCaseDetail,
     getDefinitionDetail,
+    getSyncedCaseDetail,
     ignoreEveryTimeChange,
   } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
 
   import { EnableKeyValueParam, ExecuteRequestCommonParam } from '@/models/apiTest/common';
-  import type { syncItem } from '@/models/apiTest/management';
+  import type { diffSyncParams, syncItem } from '@/models/apiTest/management';
   import { ApiDefinitionDetail } from '@/models/apiTest/management';
   import { RequestBodyFormat, RequestComposition } from '@/enums/apiEnum';
 
@@ -130,7 +142,7 @@
   const emit = defineEmits<{
     (e: 'close'): void;
     (e: 'clearThisChange'): void;
-    (e: 'sync', activeDefinedId: string): void;
+    (e: 'sync', mergeRequest: RequestParam): void;
   }>();
 
   const showDiffVisible = defineModel<boolean>('visible', {
@@ -165,8 +177,6 @@
       query: false,
       rest: false,
     },
-    noticeApiCaseCreator: true,
-    noticeApiScenarioCreator: true,
     ignoreApiChange: false,
   };
 
@@ -175,21 +185,13 @@
   const form = ref({ ...initForm });
 
   function cancel() {
+    form.value = { ...initForm };
+    checkType.value = [];
     showDiffVisible.value = false;
     emit('close');
   }
-  const syncLoading = ref<boolean>(false);
-  // 同步
-  function confirmSync() {
-    // 处理同步类型参数
-    checkType.value.forEach((e: any) => {
-      const key = e.toLowerCase() as keyof syncItem;
-      form.value.syncItems[key] = true;
-    });
 
-    emit('sync', props.activeDefinedId);
-    showDiffVisible.value = false;
-  }
+  const syncLoading = ref<boolean>(false);
 
   const defaultCaseParams = inject<RequestParam>('defaultCaseParams');
   const caseDetail = ref<Record<string, any>>({});
@@ -318,10 +320,43 @@
     getBodyData(RequestBodyFormat.FORM_DATA);
     getBodyData(RequestBodyFormat.WWW_FORM);
   }
+  const syncCaseDetail = ref<Record<string, any>>({});
+
+  // 同步
+  async function confirmSync() {
+    if (!caseDetail.value.inconsistentWithApi) {
+      cancel();
+      return;
+    }
+    syncLoading.value = true;
+    try {
+      // 处理同步类型参数
+      checkType.value.forEach((e: any) => {
+        const key = e.toLowerCase() as keyof syncItem;
+        form.value.syncItems[key] = true;
+      });
+      const { id, request } = syncCaseDetail.value;
+
+      const params: diffSyncParams = {
+        ...form.value,
+        apiCaseRequest: request,
+        id,
+      };
+      const mergeRequest = await getSyncedCaseDetail(params);
+      emit('sync', mergeRequest);
+      cancel();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      syncLoading.value = false;
+    }
+  }
+
   // 获取用例详情
   async function getCaseDetailInfo(id: string) {
     try {
       const res = await getCaseDetail(id);
+      syncCaseDetail.value = res;
       const result = await diffDataRequest(id);
       const { caseRequest, apiRequest } = result;
       caseDetail.value = {

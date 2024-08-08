@@ -89,7 +89,7 @@
       // 编辑器实例，每次调用组件都会创建独立的实例
       let editor: monaco.editor.IStandaloneCodeEditor;
       // 编辑器diffEditor实例 开启diffMode则会初始化
-      let diffEditor: monaco.editor.IStandaloneDiffEditor;
+      let diffEditor: monaco.editor.IStandaloneDiffEditor | null;
       const codeContainerRef = ref();
 
       // 用于全屏的容器 ref
@@ -403,12 +403,18 @@
         (newDiffMode) => {
           if (newDiffMode) {
             if (editor) {
-              editor.dispose();
+              // 确保编辑器实例的 DOM 节点存在且是当前组件的一部分
+              const editorDomNode = editor.getDomNode();
+              if (editorDomNode && editorDomNode.parentNode) {
+                editor.dispose();
+              }
             }
             initDiffEditor(props.originalValue, props.modelValue);
           } else {
             if (diffEditor) {
+              // 清空上一次的初始结果，避免初始编辑器已存在Error
               diffEditor.dispose();
+              diffEditor = null;
             }
             init();
           }
