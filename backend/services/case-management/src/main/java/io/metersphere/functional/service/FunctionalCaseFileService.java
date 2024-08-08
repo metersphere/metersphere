@@ -10,6 +10,7 @@ import com.alibaba.excel.write.metadata.style.WriteCellStyle;
 import com.alibaba.excel.write.metadata.style.WriteFont;
 import io.metersphere.functional.constants.FunctionalCaseTypeConstants;
 import io.metersphere.functional.domain.*;
+import io.metersphere.functional.dto.ExportTaskDTO;
 import io.metersphere.functional.dto.response.FunctionalCaseImportResponse;
 import io.metersphere.functional.excel.constants.FunctionalCaseImportFiled;
 import io.metersphere.functional.excel.converter.FunctionalCaseExportConverter;
@@ -298,7 +299,7 @@ public class FunctionalCaseFileService {
      *
      * @return FunctionalCaseImportResponse
      */
-    public FunctionalCaseImportResponse preCheckXMind(FunctionalCaseImportRequest request,SessionUser user, MultipartFile multipartFile) {
+    public FunctionalCaseImportResponse preCheckXMind(FunctionalCaseImportRequest request, SessionUser user, MultipartFile multipartFile) {
         if (multipartFile == null) {
             throw new MSException(Translator.get("file_cannot_be_null"));
         }
@@ -313,11 +314,11 @@ public class FunctionalCaseFileService {
             Long lasePos = nextPos + ((long) ServiceUtils.POS_STEP * Integer.parseInt(request.getCount()));
             //获取当前项目默认模板的自定义字段
             List<TemplateCustomFieldDTO> customFields = getCustomFields(request.getProjectId());
-            XMindCaseParser xMindParser = new XMindCaseParser(request, customFields, user,lasePos);
+            XMindCaseParser xMindParser = new XMindCaseParser(request, customFields, user, lasePos);
             errList = xMindParser.parse(multipartFile);
             xMindParser.clear();
             response.setErrorMessages(errList);
-            response.setSuccessCount(xMindParser.getList().size()+xMindParser.getUpdateList().size());
+            response.setSuccessCount(xMindParser.getList().size() + xMindParser.getUpdateList().size());
             response.setFailCount(errList.size());
             return response;
         } catch (Exception e) {
@@ -381,7 +382,7 @@ public class FunctionalCaseFileService {
             Long lasePos = nextPos + ((long) ServiceUtils.POS_STEP * Integer.parseInt(request.getCount()));
             //获取当前项目默认模板的自定义字段
             List<TemplateCustomFieldDTO> customFields = getCustomFields(request.getProjectId());
-            XMindCaseParser xmindParser = new XMindCaseParser(request, customFields, user,lasePos);
+            XMindCaseParser xmindParser = new XMindCaseParser(request, customFields, user, lasePos);
             errList = xmindParser.parse(multipartFile);
             if (CollectionUtils.isEmpty(xmindParser.getList())
                     && CollectionUtils.isEmpty(xmindParser.getUpdateList())) {
@@ -394,7 +395,7 @@ public class FunctionalCaseFileService {
             xmindParser.saveData();
             xmindParser.clear();
             response.setErrorMessages(errList);
-            response.setSuccessCount(xmindParser.getList().size()+xmindParser.getUpdateList().size());
+            response.setSuccessCount(xmindParser.getList().size() + xmindParser.getUpdateList().size());
             response.setFailCount(errList.size());
             return response;
         } catch (Exception e) {
@@ -403,18 +404,21 @@ public class FunctionalCaseFileService {
         }
     }
 
-    public void export(String userId, FunctionalCaseExportRequest request) {
+    public String export(String userId, FunctionalCaseExportRequest request) {
         try {
-            ExportTaskExample exportTaskExample = new ExportTaskExample();
-            exportTaskExample.createCriteria().andTypeEqualTo(ExportConstants.ExportType.CASE.toString()).andStateEqualTo(ExportConstants.ExportState.PREPARED.toString());
-            long preparedCount = exportTaskMapper.countByExample(exportTaskExample);
-            if (preparedCount > 0) {
-                throw new MSException(Translator.get("export_case_task_existed"));
-            }
-            exportTaskManager.exportAsyncTask(request.getProjectId(), request.getFileId(), userId, ExportConstants.ExportType.CASE.toString(), request, t -> exportFunctionalCaseZip(request, userId));
+            exportCheck(request, userId);
+            ExportTask exportTask = exportTaskManager.exportAsyncTask(request.getProjectId(), request.getFileId(), userId, ExportConstants.ExportType.CASE.toString(), request, t -> exportFunctionalCaseZip(request, userId));
+            return exportTask.getId();
         } catch (InterruptedException e) {
             LogUtils.error("导出失败：" + e);
             throw new MSException(e);
+        }
+    }
+
+    public void exportCheck(FunctionalCaseExportRequest request, String userId) {
+        List<ExportTask> exportTasks = getExportTasks(request.getProjectId(), userId);
+        if (CollectionUtils.isNotEmpty(exportTasks)) {
+            throw new MSException(Translator.get("export_case_task_existed"));
         }
     }
 
@@ -462,9 +466,11 @@ public class FunctionalCaseFileService {
             } else {
                 taskId = MsgType.CONNECT.name();
             }
-            ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), taskId, ids.size(), MsgType.CONNECT.name());
+            ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), taskId, ids.size(), true, MsgType.EXEC_RESULT.name());
             ExportWebSocketHandler.sendMessageSingle(exportMsgDTO);
         } catch (Exception e) {
+            ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), "", 0, false, MsgType.EXEC_RESULT.name());
+            ExportWebSocketHandler.sendMessageSingle(exportMsgDTO);
             List<ExportTask> exportTasks = getExportTasks(request.getProjectId(), userId);
             if (CollectionUtils.isNotEmpty(exportTasks)) {
                 updateExportTask(ExportConstants.ExportState.ERROR.name(), exportTasks.getFirst().getId(), fileType);
@@ -862,7 +868,7 @@ public class FunctionalCaseFileService {
     public ResponseEntity<byte[]> downloadFile(String projectId, String fileId, String userId) {
         List<ExportTask> exportTasks = getExportTasksByFileId(projectId, userId, fileId);
         if (CollectionUtils.isEmpty(exportTasks)) {
-            throw new MSException("任务不存在");
+            return ResponseEntity.notFound().build();
         }
         ExportTask tasksFirst = exportTasks.getFirst();
         Project project = projectMapper.selectByPrimaryKey(projectId);
@@ -900,12 +906,15 @@ public class FunctionalCaseFileService {
         exportTaskManager.sendStopMessage(taskId, userId);
     }
 
-    public String checkExportTask(String projectId, String userId) {
+    public ExportTaskDTO checkExportTask(String projectId, String userId) {
+        ExportTaskDTO exportTaskDTO = new ExportTaskDTO();
         List<ExportTask> exportTasks = getExportTasks(projectId, userId);
         if (CollectionUtils.isNotEmpty(exportTasks)) {
-            return exportTasks.getFirst().getFileId();
+            exportTaskDTO.setFileId(exportTasks.getFirst().getFileId());
+            exportTaskDTO.setTaskId(exportTasks.getFirst().getId());
+            return exportTaskDTO;
         } else {
-            return StringUtils.EMPTY;
+            return exportTaskDTO;
         }
     }
 }

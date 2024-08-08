@@ -6,6 +6,7 @@ import io.metersphere.functional.dto.FunctionalCaseAttachmentDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.response.FunctionalCaseImportResponse;
 import io.metersphere.functional.excel.domain.FunctionalCaseHeader;
+import io.metersphere.functional.mapper.ExportTaskMapper;
 import io.metersphere.functional.mapper.FunctionalCaseAttachmentMapper;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
@@ -113,6 +114,8 @@ public class FunctionalCaseControllerTests extends BaseTest {
     private FunctionalCaseMapper functionalCaseMapper;
 
     protected static String functionalCaseId;
+    @Resource
+    private ExportTaskMapper exportTaskMapper;
 
 
     @Test
@@ -990,10 +993,29 @@ public class FunctionalCaseControllerTests extends BaseTest {
     @Test
     @Order(24)
     public void downloadFile() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(DOWNLOAD_FILE_URL + DEFAULT_PROJECT_ID + "/" + "123142342")
+        download("12222");
+        ExportTask exportTask = new ExportTask();
+        exportTask.setId("12314234222");
+        exportTask.setProjectId(DEFAULT_PROJECT_ID);
+        exportTask.setFileId("123142342");
+        exportTask.setFileType("xlsx");
+        exportTask.setType("CASE");
+        exportTask.setState("SUCCESS");
+        exportTask.setCreateTime(System.currentTimeMillis());
+        exportTask.setCreateUser("admin");
+        exportTask.setUpdateUser("admin");
+        exportTask.setUpdateTime(System.currentTimeMillis());
+        exportTaskMapper.insertSelective(exportTask);
+        download("123142342");
+
+    }
+
+    private void download(String fileId) throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(DOWNLOAD_FILE_URL + DEFAULT_PROJECT_ID + "/" + fileId)
                 .header(SessionConstants.HEADER_TOKEN, sessionId)
                 .header(SessionConstants.CSRF_TOKEN, csrfToken));
     }
+
 
     @Test
     @Order(25)
@@ -1033,7 +1055,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         }};
         request.setOtherFields(otherHeaders);
 
-        request.setFileId("123142342");
+        request.setFileId("1231423421");
         this.requestPost(EXPORT_XMIND_URL, request);
         request.setSelectIds(new ArrayList<>());
         this.requestPost(EXPORT_XMIND_URL, request);
@@ -1044,7 +1066,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void checkExportTask() throws Exception {
-        this.requestGetExcel( EXPORT_XMIND_CHECK_URL);
+        this.requestGetExcel(EXPORT_XMIND_CHECK_URL);
     }
 
 }

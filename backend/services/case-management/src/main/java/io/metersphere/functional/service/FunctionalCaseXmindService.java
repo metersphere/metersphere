@@ -95,9 +95,11 @@ public class FunctionalCaseXmindService {
      *
      * @param request
      */
-    public void exportFunctionalCaseXmind(FunctionalCaseExportRequest request, String userId) {
+    public String exportFunctionalCaseXmind(FunctionalCaseExportRequest request, String userId) {
         try {
-            exportTaskManager.exportAsyncTask(request.getProjectId(), request.getFileId(), userId, ExportConstants.ExportType.CASE.toString(), request, t -> exportXmind(request, userId));
+            functionalCaseFileService.exportCheck(request, userId);
+            ExportTask exportTask = exportTaskManager.exportAsyncTask(request.getProjectId(), request.getFileId(), userId, ExportConstants.ExportType.CASE.toString(), request, t -> exportXmind(request, userId));
+            return exportTask.getId();
         } catch (InterruptedException e) {
             LogUtils.error("导出失败：" + e);
             throw new MSException(e);
@@ -130,9 +132,11 @@ public class FunctionalCaseXmindService {
             } else {
                 taskId = MsgType.CONNECT.name();
             }
-            ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), taskId, ids.size(), MsgType.CONNECT.name());
+            ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), taskId, ids.size(), true, MsgType.EXEC_RESULT.name());
             ExportWebSocketHandler.sendMessageSingle(exportMsgDTO);
         } catch (Exception e) {
+            ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), "", 0, false, MsgType.EXEC_RESULT.name());
+            ExportWebSocketHandler.sendMessageSingle(exportMsgDTO);
             List<ExportTask> exportTasks = functionalCaseFileService.getExportTasks(request.getProjectId(), userId);
             if (CollectionUtils.isNotEmpty(exportTasks)) {
                 functionalCaseFileService.updateExportTask(ExportConstants.ExportState.ERROR.name(), exportTasks.getFirst().getId(), XMIND);
