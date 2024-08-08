@@ -112,7 +112,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String BATCH_RUN = "batch/run";
     private static final String API_CHANGE_CLEAR = "api-change/clear/{0}";
     private static final String API_CHANGE_IGNORE = "api-change/ignore/{0}?ignore={1}";
-    private static final String API_CHANGE_SYNC = "batch/api-change/sync";
+    private static final String BATCH_API_CHANGE_SYNC = "batch/api-change/sync";
+    private static final String API_CHANGE_SYNC = "api-change/sync";
     private static final String API_COMPARE = "api/compare/{0}";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
@@ -479,13 +480,15 @@ public class ApiTestCaseControllerTests extends BaseTest {
         updateCase.setId(apiTestCase.getId());
         apiTestCaseMapper.updateByPrimaryKeySelective(updateCase);
         this.requestGetWithOk(API_CHANGE_IGNORE, apiTestCase.getId(), true);
-        Assertions.assertFalse(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getApiChange());
-        Assertions.assertTrue(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getIgnoreApiDiff());
-        Assertions.assertTrue(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getIgnoreApiChange());
+        ApiTestCase result = apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId());
+        Assertions.assertFalse(result.getApiChange());
+        Assertions.assertTrue(result.getIgnoreApiDiff());
+        Assertions.assertTrue(result.getIgnoreApiChange());
         this.requestGetWithOk(API_CHANGE_IGNORE, apiTestCase.getId(), false);
-        Assertions.assertFalse(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getApiChange());
-        Assertions.assertTrue(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getIgnoreApiDiff());
-        Assertions.assertFalse(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getIgnoreApiChange());
+        result = apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId());
+        Assertions.assertFalse(result.getApiChange());
+        Assertions.assertTrue(result.getIgnoreApiDiff());
+        Assertions.assertFalse(result.getIgnoreApiChange());
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, API_CHANGE_IGNORE, apiTestCase.getId(), true);
@@ -497,6 +500,25 @@ public class ApiTestCaseControllerTests extends BaseTest {
     public void batchSyncApiChange() throws Exception {
         ApiCaseBatchSyncRequest request = new ApiCaseBatchSyncRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
+        this.requestPostWithOk(BATCH_API_CHANGE_SYNC, request);
+
+        request.setSelectIds(List.of(apiTestCase.getId()));
+        request.setDeleteRedundantParam(true);
+        this.requestPostWithOk(BATCH_API_CHANGE_SYNC, request);
+
+        ApiTestCase result = apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId());
+        Assertions.assertFalse(result.getApiChange());
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, BATCH_API_CHANGE_SYNC, request);
+    }
+
+    @Test
+    @Order(4)
+    public void syncApiChange() throws Exception {
+        ApiCaseSyncRequest request = new ApiCaseSyncRequest();
+        request.setId(apiTestCase.getId());
+        request.setApiCaseRequest(JSON.parseObject(ApiDataUtils.toJSONString(new MsHTTPElement())));
         this.requestPostWithOk(API_CHANGE_SYNC, request);
 
         // @@校验权限
