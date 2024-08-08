@@ -77,7 +77,7 @@
     <!-- 对比 -->
     <div class="diff-container">
       <MsCard simple auto-height no-content-padding>
-        <a-spin class="h-full w-full p-4" :loading="loading">
+        <a-spin class="min-h-[calc(100vh-110px)] w-full p-4" :loading="loading">
           <div class="diff-normal">
             <div class="diff-item">
               <div class="title-type"> [{{ apiDetailInfo?.num }}] {{ apiDetailInfo?.name }} </div>
