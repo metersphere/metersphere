@@ -1,10 +1,7 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.domain.*;
-import io.metersphere.functional.dto.CaseCustomFieldDTO;
-import io.metersphere.functional.dto.FunctionalCaseStepDTO;
-import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
-import io.metersphere.functional.dto.MinderOptionDTO;
+import io.metersphere.functional.dto.*;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
@@ -65,6 +62,8 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
     @Resource
     private TestPlanCaseExecuteHistoryMapper testPlanCaseExecuteHistoryMapper;
+    @Resource
+    private ExtFunctionalCaseMapper extFunctionalCaseMapper;
 
     @Test
     @Order(1)
@@ -413,6 +412,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     @Test
     @Order(5)
     public void testGetCasePlanList() throws Exception {
+        String content = "执行评论";
         FunctionalCasePlanMindRequest request = new FunctionalCasePlanMindRequest();
         request.setProjectId("project-case-minder-test");
         request.setModuleId("TEST_MINDER_MODULE_ID_GYQ4");
@@ -443,6 +443,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         functionalCaseStepDTO.setExecuteResult("BLOCKED");
         list.add(functionalCaseStepDTO);
         executeHistory.setSteps(JSON.toJSONString(list).getBytes(StandardCharsets.UTF_8));
+        executeHistory.setContent(content.getBytes());
         executeHistory.setDeleted(false);
         executeHistory.setNotifier("admin");
         executeHistory.setCreateUser("admin");
@@ -457,7 +458,7 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
                 Pager.class);
         Assertions.assertNotNull(tableData.getList());
         Assertions.assertEquals(2, tableData.getList().size());
-       // System.out.println(JSON.toJSONString(tableData.getList()));
+        //System.out.println(JSON.toJSONString(tableData.getList()));
     }
 
 }

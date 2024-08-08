@@ -252,6 +252,16 @@ public class FunctionalCaseMinderService {
                 children.add(descriptionFunctionalMinderTreeDTO);
             }
         }
+
+        if (addActualResult) {
+            String contentText =  StringUtils.EMPTY;
+            if (functionalCaseMindDTO.getContent() != null ) {
+                contentText = new String(functionalCaseMindDTO.getContent(), StandardCharsets.UTF_8);
+            }
+            FunctionalMinderTreeDTO contentFunctionalMinderTreeDTO = getFunctionalMinderTreeDTO(StringUtils.isBlank(contentText) ? StringUtils.EMPTY : contentText, Translator.get("minder_extra_node.steps_actual_result"), (long) (i + 1));
+            children.add(contentFunctionalMinderTreeDTO);
+        }
+
         return children;
     }
 
