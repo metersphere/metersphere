@@ -1005,9 +1005,11 @@ public class ApiTestCaseService extends MoveNodeService {
     }
 
     public void doBatchSyncApiChange(ApiCaseBatchSyncRequest request, List<String> ids, String userId) {
-        List<ApiTestCase> apiTestCases = extApiTestCaseMapper.getApiCaseForBatchSync(ids);
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andIdIn(ids);
+        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
         Set<String> apiDefinitionIds = apiTestCases.stream().map(ApiTestCase::getApiDefinitionId).collect(Collectors.toSet());
-        Map<String, ApiTestCase> apiTestCaseMap = apiTestCases.stream().collect(Collectors.toMap(ApiTestCase::getApiDefinitionId, Function.identity()));
+
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiTestCaseBlobMapper apiTestCaseBlobBatchMapper = sqlSession.getMapper(ApiTestCaseBlobMapper.class);
         ApiTestCaseMapper apiTestCaseBatchMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
@@ -1015,15 +1017,27 @@ public class ApiTestCaseService extends MoveNodeService {
         ApiCaseSyncRequest apiCaseSyncRequest = new ApiCaseSyncRequest();
         apiCaseSyncRequest.setSyncItems(request.getSyncItems());
         apiCaseSyncRequest.setDeleteRedundantParam(request.getDeleteRedundantParam());
+
+        Map<String, ApiTestCaseLogDTO> originMap = new HashMap<>();
+        Map<String, ApiTestCaseLogDTO> modifiedMap = new HashMap<>();
+
+        ApiDefinitionBlobExample apiDefinitionBlobExample = new ApiDefinitionBlobExample();
+        apiDefinitionBlobExample.createCriteria().andIdIn(new ArrayList<>(apiDefinitionIds));
+        Map<String, ApiDefinitionBlob> apiDefinitionBlobMap = apiDefinitionBlobMapper.selectByExampleWithBLOBs(apiDefinitionBlobExample)
+                .stream()
+                .collect(Collectors.toMap(ApiDefinitionBlob::getId, Function.identity()));
         try {
-            for (String apiDefinitionId : apiDefinitionIds) {
-                ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(apiDefinitionId);
+            for (ApiTestCase apiTestCase : apiTestCases) {
+                ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMap.get(apiTestCase.getApiDefinitionId());
                 AbstractMsTestElement apiMsTestElement = getApiMsTestElement(apiDefinitionBlob);
-                ApiTestCase apiTestCase = apiTestCaseMap.get(apiDefinitionId);
                 ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(apiTestCase.getId());
                 AbstractMsTestElement apiTestCaseMsTestElement = getTestElement(apiTestCaseBlob);
                 boolean requestParamDifferent = HttpRequestParamDiffUtils.isRequestParamDiff(request.getSyncItems(), apiMsTestElement, apiTestCaseMsTestElement);
                 if (requestParamDifferent) {
+                    ApiTestCaseLogDTO originCase = BeanUtils.copyBean(new ApiTestCaseLogDTO(), apiTestCase);
+                    originCase.setRequest(apiTestCaseMsTestElement);
+                    originMap.put(apiTestCase.getId(), originCase);
+
                     apiTestCase.setUpdateTime(System.currentTimeMillis());
                     apiTestCase.setUpdateUser(userId);
                     apiTestCase.setApiChange(false);
@@ -1031,8 +1045,13 @@ public class ApiTestCaseService extends MoveNodeService {
                     apiTestCaseMsTestElement = HttpRequestParamDiffUtils.syncRequestDiff(apiCaseSyncRequest, apiMsTestElement, apiTestCaseMsTestElement);
                     apiTestCaseBlob.setRequest(ApiDataUtils.toJSONString(apiTestCaseMsTestElement).getBytes());
                     apiTestCaseBlobBatchMapper.updateByPrimaryKeySelective(apiTestCaseBlob);
+
+                    ApiTestCaseLogDTO modifiedCase = BeanUtils.copyBean(new ApiTestCaseLogDTO(), apiTestCase);
+                    modifiedCase.setRequest(apiTestCaseMsTestElement);
+                    modifiedMap.put(apiTestCase.getId(), originCase);
                 }
             }
+            apiTestCaseLogService.batchSyncLog(originMap, modifiedMap);
         } finally {
             sqlSession.flushStatements();
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);

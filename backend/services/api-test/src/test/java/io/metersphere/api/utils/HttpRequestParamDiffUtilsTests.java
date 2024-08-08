@@ -228,6 +228,13 @@ public class HttpRequestParamDiffUtilsTests {
 
         Body body1 = new Body();
         Body body2 = new Body();
+
+        body1.setBodyType(Body.BodyType.FORM_DATA.name());
+        body1.setFormDataBody(new FormDataBody());
+        body2.setBodyType(Body.BodyType.FORM_DATA.name());
+        body2.setFormDataBody(new FormDataBody());
+        Assertions.assertFalse(HttpRequestParamDiffUtils.isBodyDiff(body1, body2));
+
         body1.setBodyType(Body.BodyType.FORM_DATA.name());
         body2.setBodyType(Body.BodyType.RAW.name());
         Assertions.assertTrue(HttpRequestParamDiffUtils.isBodyDiff(body1, body2));

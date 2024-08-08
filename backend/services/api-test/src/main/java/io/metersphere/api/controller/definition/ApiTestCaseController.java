@@ -315,6 +315,7 @@ public class ApiTestCaseController {
     @Operation(summary = "清除接口参数变更标识")
     @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE})
     @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.clearApiChangeLog(#id)", msClass = ApiTestCaseLogService.class)
     public void clearApiChange(@PathVariable String id) {
         apiTestCaseService.clearApiChange(id);
     }
@@ -323,6 +324,7 @@ public class ApiTestCaseController {
     @Operation(summary = "忽略接口变更提示")
     @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE})
     @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.ignoreApiChange(#id)", msClass = ApiTestCaseLogService.class)
     public void ignoreApiChange(@PathVariable String id, @RequestParam(name = "ignore") boolean ignore) {
         apiTestCaseService.ignoreApiChange(id, ignore);
     }

@@ -165,4 +165,12 @@ public class ApiDataUtils {
             throw new MSException(e);
         }
     }
+
+    public static byte[] toJSONBytes(Object value) {
+        try {
+            return objectMapper.writeValueAsBytes(value);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

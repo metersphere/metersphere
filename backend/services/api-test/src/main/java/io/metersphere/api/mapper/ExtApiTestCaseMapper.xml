@@ -727,14 +727,4 @@
             )
         </if>
     </select>
-    <select id="getApiCaseForBatchSync" resultType="io.metersphere.api.domain.ApiTestCase">
-        select id, api_definition_id
-        from api_test_case
-        where id in
-        <foreach collection="ids" item="id" separator="," open="(" close=")">
-            #{id}
-        </foreach>
-    </select>
-
-
 </mapper>
