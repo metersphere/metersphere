@@ -6,7 +6,7 @@
         SELECT
         cf.*, cr.num as reviewNum, cr.name as reviewName, cr.status as reviewStatus
         FROM
-        case_review_functional_case cf left join case_review cr on  cf.review_id = cr.id
+        case_review_functional_case cf left join case_review cr on cf.review_id = cr.id
         where cf.case_id = #{request.caseId}
         <if test="request.keyword != null and request.keyword != ''">
             and (
@@ -18,14 +18,17 @@
 
     <update id="updateStatus">
         update case_review_functional_case
-        set status = #{status},
-        update_time = UNIX_TIMESTAMP()*1000
-        where review_id = #{reviewId} and case_id = #{caseId}
+        set status      = #{status},
+            update_time = UNIX_TIMESTAMP() * 1000
+        where review_id = #{reviewId}
+          and case_id = #{caseId}
     </update>
 
 
     <select id="getCaseIdsByReviewId" parameterType="java.lang.String" resultType="java.lang.String">
-        select case_id from case_review_functional_case where review_id = #{reviewId}
+        select case_id
+        from case_review_functional_case
+        where review_id = #{reviewId}
     </select>
 
     <select id="page" resultType="io.metersphere.functional.dto.ReviewFunctionalCaseDTO">
@@ -50,7 +53,8 @@
         review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}
         <if test="userId != null and userId != ''">
-            AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id = #{request.reviewId} and crfcu.user_id = #{userId})
+            AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id =
+            #{request.reviewId} and crfcu.user_id = #{userId})
         </if>
         <include refid="queryWhereCondition"/>
         order by
@@ -61,7 +65,6 @@
             crfc.pos desc
         </if>
     </select>
-
 
 
     <sql id="queryWhereCondition">
@@ -83,7 +86,8 @@
         </include>
         <choose>
             <when test='request.searchMode == "AND"'>
-                AND <include refid="queryCombine"/>
+                AND
+                <include refid="queryCombine"/>
             </when>
             <when test='request.searchMode == "OR"'>
                 and (
@@ -131,7 +135,7 @@
                             #{key}
                             and JSON_CONTAINS(`value`, json_array(#{value}))
                         </when>
-                        <when test="key=='create_user'">
+                        <when test="key == 'create_user' || key == 'createUserName'">
                             and functional_case.create_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
@@ -310,7 +314,8 @@
         review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}
         <if test="userId != null and userId != ''">
-            AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id = #{request.reviewId} and crfcu.user_id = #{userId})
+            AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id =
+            #{request.reviewId} and crfcu.user_id = #{userId})
         </if>
         <include refid="queryWhereConditionByBaseQueryRequest"/>
     </select>
@@ -325,10 +330,11 @@
         review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}
         <if test="userId != null and userId != ''">
-            AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id = #{request.reviewId} and crfcu.user_id = #{userId})
+            AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id =
+            #{request.reviewId} and crfcu.user_id = #{userId})
         </if>
         <include refid="queryWhereConditionByBaseQueryRequest"/>
-        <if test="request.excludeIds != null and request.excludeIds.size() > 0" >
+        <if test="request.excludeIds != null and request.excludeIds.size() > 0">
             and crfc.id not in
             <foreach collection="request.excludeIds" item="excludeId" open="(" separator="," close=")">
                 #{excludeId}
@@ -356,7 +362,8 @@
         </include>
         <choose>
             <when test='request.condition.searchMode == "AND"'>
-                AND <include refid="baseQueryCombine"/>
+                AND
+                <include refid="baseQueryCombine"/>
             </when>
             <when test='request.condition.searchMode == "OR"'>
                 and (
@@ -378,22 +385,18 @@
 
 
     <select id="getPos" resultType="java.lang.Long">
-        SELECT
-            pos
-        FROM
-            case_review_functional_case
-        WHERE
-            review_id = #{reviewId}
-        ORDER BY
-            pos DESC
-            LIMIT 1;
+        SELECT pos
+        FROM case_review_functional_case
+        WHERE review_id = #{reviewId}
+        ORDER BY pos DESC
+        LIMIT 1;
     </select>
 
     <select id="getList" resultType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
         SELECT
         crfc.id, crfc.review_id, crfc.case_id, crfc.status, crfc.create_time, crfc.create_user
         FROM
-            case_review_functional_case crfc
+        case_review_functional_case crfc
         LEFT JOIN functional_case fc ON crfc.case_id = fc.id
         WHERE
         fc.deleted = #{deleted}
@@ -417,7 +420,7 @@
         WHERE
         fc.deleted = #{deleted}
         <if test="reviewIds != null and reviewIds.size() > 0">
-            and crfc.review_id  in
+            and crfc.review_id in
             <foreach collection="reviewIds" item="reviewId" separator="," open="(" close=")">
                 #{reviewId}
             </foreach>
@@ -454,15 +457,17 @@
         </foreach>
     </select>
 
-    <select id="countModuleIdByRequest"  resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
-        SELECT functional_case.module_id AS moduleId, count(functional_case.id) AS dataCount, functional_case.project_id AS projectId, project.name AS projectName
+    <select id="countModuleIdByRequest" resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
+        SELECT functional_case.module_id AS moduleId, count(functional_case.id) AS dataCount, functional_case.project_id
+        AS projectId, project.name AS projectName
         FROM case_review_functional_case crfc
         LEFT JOIN functional_case ON crfc.case_id = functional_case.id
         LEFT JOIN project ON functional_case.project_id = project.id
         WHERE crfc.review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}
         <if test="userId != null and userId != ''">
-            AND crfc.case_id in (select crfcu.case_id from case_review_functional_case_user crfcu where crfcu.review_id = #{request.reviewId} and crfcu.user_id = #{userId})
+            AND crfc.case_id in (select crfcu.case_id from case_review_functional_case_user crfcu where crfcu.review_id
+            = #{request.reviewId} and crfcu.user_id = #{userId})
         </if>
         <include refid="queryWhereCondition"/>
         GROUP BY module_id
@@ -475,7 +480,8 @@
         WHERE crfc.review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}
         <if test="userId != null and userId != ''">
-            AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id = #{request.reviewId} and crfcu.user_id = #{userId})
+            AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id =
+            #{request.reviewId} and crfcu.user_id = #{userId})
         </if>
         <include refid="queryWhereCondition"/>
     </select>
