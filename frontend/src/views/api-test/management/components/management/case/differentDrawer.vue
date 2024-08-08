@@ -112,7 +112,6 @@
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import DiffItem from './diffItem.vue';
-  import DiffRequestBody from './diffRequestBody.vue';
 
   import {
     clearThisChange,
@@ -133,6 +132,8 @@
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
 
   const { t } = useI18n();
+
+  const DiffRequestBody = defineAsyncComponent(() => import('./diffRequestBody.vue'));
 
   const props = defineProps<{
     activeApiCaseId: string;
