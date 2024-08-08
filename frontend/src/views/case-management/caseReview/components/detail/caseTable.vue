@@ -375,7 +375,7 @@
   import { StartReviewStatus } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
-  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { getCaseLevels } from '@/views/case-management/caseManagementFeature/components/utils';
 
@@ -413,9 +413,11 @@
   const msCaseReviewMinderRef = ref<InstanceType<typeof MsCaseReviewMinder>>();
 
   const moduleTree = computed(() => unref(caseReviewStore.moduleTree));
+
   async function initModules() {
     await caseReviewStore.initModules(route.query.id as string);
   }
+
   const moduleNamePath = computed(() => {
     return props.activeFolder === 'all'
       ? t('caseManagement.featureCase.allCase')
@@ -498,6 +500,14 @@
       dataIndex: 'createUserName',
       showTooltip: true,
       width: 150,
+      filterConfig: {
+        mode: 'remote',
+        loadOptionParams: {
+          projectId: appStore.currentProjectId,
+        },
+        remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
+        placeholderText: t('caseManagement.featureCase.PleaseSelect'),
+      },
     },
     {
       title: hasOperationPermission.value ? 'common.operation' : '',
@@ -558,6 +568,7 @@
   }
 
   const modulesCount = computed(() => caseReviewStore.modulesCount);
+
   async function getModuleCount() {
     let params: TableQueryParams;
     if (showType.value === 'list') {
@@ -697,6 +708,7 @@
   }
 
   const disassociateLoading = ref(false);
+
   /**
    * 解除关联
    * @param record 关联用例项
@@ -892,12 +904,15 @@
       }
     });
   }
+
   function selectChangeReviewer(val: boolean, record?: any) {
     if (!val) {
       changeReviewer(record);
     }
   }
+
   const reviewCommentFileIds = ref<string[]>([]);
+
   // 提交评审结果
   function commitResult() {
     dialogFormRef.value?.validate(async (errors) => {
@@ -1074,6 +1089,7 @@
 <style lang="less" scoped>
   .case-show-type {
     @apply grid grid-cols-2;
+
     .show-type-icon {
       :deep(.arco-radio-button-content) {
         @apply flex;
@@ -1083,28 +1099,36 @@
       }
     }
   }
+
   :deep(.arco-radio-label) {
     @apply inline-flex;
   }
+
   :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
     &:not(:hover) {
       border-color: transparent !important;
+
       .arco-input::placeholder {
         @apply invisible;
       }
+
       .arco-select-view-icon {
         @apply invisible;
       }
+
       .arco-select-view-value {
         color: var(--color-text-brand);
       }
+
       .arco-input-suffix {
         @apply invisible;
       }
     }
   }
+
   .list-show-type {
     padding: 0;
+
     :deep(.arco-radio-button-content) {
       padding: 4px 6px;
     }
