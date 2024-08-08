@@ -185,7 +185,7 @@
   }
 
   function openTutorial() {
-    window.open('https://zhuanlan.zhihu.com/p/597905464?utm_id=0', '_blank');
+    window.open('https://kb.fit2cloud.com/?p=247', '_blank');
   }
 </script>
 
