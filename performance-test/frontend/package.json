@@ -23,7 +23,7 @@
     "el-table-infinite-scroll": "^1.0.10",
     "el-tree-transfer": "^2.4.7",
     "element-resize-detector": "^1.2.4",
-    "element-ui": ">2.15.9 || 2.15.8",
+    "element-ui": "2.15.13",
     "fit2cloud-ui": "^1.8.0",
     "html2canvas": "^1.0.0-rc.7",
     "js-base64": "^3.4.4",
