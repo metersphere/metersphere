@@ -40,8 +40,7 @@ import java.util.stream.Collectors;
  */
 public class XMindCaseParser {
 
-    Map<String, TemplateCustomFieldDTO> customFieldsMap = new HashMap<>();
-    private Class excelDataClass;
+    Map<String, TemplateCustomFieldDTO> customFieldsMap;
     @Getter
     protected List<FunctionalCaseExcelData> list = new ArrayList<>();
     @Getter
@@ -73,10 +72,9 @@ public class XMindCaseParser {
      */
     private DetailUtil process;
 
-    public XMindCaseParser(FunctionalCaseImportRequest request,Class clazz, List<TemplateCustomFieldDTO> customFields, SessionUser user, Long pos) {
+    public XMindCaseParser(FunctionalCaseImportRequest request, List<TemplateCustomFieldDTO> customFields, SessionUser user, Long pos) {
         //当前项目模板的自定义字段
         this.request = request;
-        excelDataClass = clazz;
         customFieldsMap = customFields.stream().collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldName, i -> i));
         functionalCaseService = CommonBeanFactory.getBean(FunctionalCaseService.class);
         functionalCaseModuleService = CommonBeanFactory.getBean(FunctionalCaseModuleService.class);

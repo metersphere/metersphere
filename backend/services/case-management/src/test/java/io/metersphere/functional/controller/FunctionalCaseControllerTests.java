@@ -828,6 +828,18 @@ public class FunctionalCaseControllerTests extends BaseTest {
         Assertions.assertNotNull(functionalCaseImportResponse);
         System.out.println(JSON.toJSONString(functionalCaseImportResponse));
 
+        String filePath4 = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/empty.xmind")).getPath();
+        MockMultipartFile file2 = new MockMultipartFile("file", "18.xmind", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath4));
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file2);
+        functionalCaseMvcResult = this.requestMultipartWithOkAndReturn(IMPORT_XMIND_URL, paramMap);
+        functionalCaseImportResponseData = functionalCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        functionalCaseResultHolder = JSON.parseObject(functionalCaseImportResponseData, ResultHolder.class);
+        functionalCaseImportResponse = JSON.parseObject(JSON.toJSONString(functionalCaseResultHolder.getData()), FunctionalCaseImportResponse.class);
+        Assertions.assertNotNull(functionalCaseImportResponse);
+        System.out.println(JSON.toJSONString(functionalCaseImportResponse));
+
     }
 
     @Test

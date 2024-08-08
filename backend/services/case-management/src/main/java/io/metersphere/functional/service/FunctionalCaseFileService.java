@@ -348,11 +348,9 @@ public class FunctionalCaseFileService {
             }
             Long nextPos = functionalCaseService.getNextOrder(request.getProjectId());
             Long lasePos = nextPos + ((long) ServiceUtils.POS_STEP * Integer.parseInt(request.getCount()));
-            //根据本地语言环境选择用哪种数据对象进行存放读取的数据
-            Class clazz = new FunctionalCaseExcelDataFactory().getExcelDataByLocal();
             //获取当前项目默认模板的自定义字段
             List<TemplateCustomFieldDTO> customFields = getCustomFields(request.getProjectId());
-            XMindCaseParser xmindParser = new XMindCaseParser(request, clazz, customFields, user,lasePos);
+            XMindCaseParser xmindParser = new XMindCaseParser(request, customFields, user,lasePos);
             errList = xmindParser.parse(multipartFile);
             if (CollectionUtils.isEmpty(xmindParser.getNodePaths())
                     && CollectionUtils.isEmpty(xmindParser.getList())
