@@ -173,7 +173,7 @@ public class XmindExportUtil {
             //文本描述
             ITopic textDesTopic = workbook.createTopic();
             String desc = dto.getTextDescription();
-            textDesTopic.setTitleText(desc == null ? Translator.get("xmind_textDescription").concat(": ") : Translator.get("xmind_textDescription").concat(": ").concat(Translator.get("xmind_textDescription")).concat(": ").concat(desc));
+            textDesTopic.setTitleText(desc == null ? Translator.get("xmind_textDescription").concat(": ") : Translator.get("xmind_textDescription").concat(": ").concat(desc));
             if (style != null) {
                 textDesTopic.setStyleId(style.getId());
             }

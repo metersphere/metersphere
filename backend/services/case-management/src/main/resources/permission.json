@@ -29,6 +29,9 @@
             "id": "FUNCTIONAL_CASE:READ+IMPORT"
           },
           {
+            "id": "FUNCTIONAL_CASE:READ+EXPORT"
+          },
+          {
             "id": "FUNCTIONAL_CASE:READ+MINDER",
             "name": "permission.functional_case.minder"
           }

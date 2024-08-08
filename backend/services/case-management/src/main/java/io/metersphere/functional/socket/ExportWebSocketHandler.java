@@ -49,7 +49,7 @@ public class ExportWebSocketHandler {
         ONLINE_EXPORT_EXCEL_SESSIONS.put(fileId, session);
         RemoteEndpoint.Async async = session.getAsyncRemote();
         if (async != null) {
-            async.sendText(JSON.toJSONString(new ExportMsgDTO(fileId, "", 0, MsgType.CONNECT.name())));
+            async.sendText(JSON.toJSONString(new ExportMsgDTO(fileId, "", 0, true, MsgType.CONNECT.name())));
             session.setMaxIdleTimeout(180000);
         }
         LogUtils.info("客户端: [" + fileId + "] : 连接成功！" + ExportWebSocketHandler.ONLINE_EXPORT_EXCEL_SESSIONS.size(), fileId);
@@ -92,7 +92,7 @@ public class ExportWebSocketHandler {
     @Scheduled(fixedRate = 60000)
     public void heartbeatCheck() {
         ExportWebSocketHandler.sendMessageSingle(
-                new ExportMsgDTO(MsgType.HEARTBEAT.name(), MsgType.HEARTBEAT.name(), 0, "heartbeat check")
+                new ExportMsgDTO(MsgType.HEARTBEAT.name(), MsgType.HEARTBEAT.name(), 0, true, MsgType.HEARTBEAT.name())
         );
     }
 }

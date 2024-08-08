@@ -28,7 +28,12 @@ public class ExportMsgDTO implements Serializable {
      */
     private int count;
     /**
-     * 消息类型（LINK-链接标识，HEARTBEAT-心跳检查标识，EXEC_START-开始执行标识，EXEC_RESULT-执行结果标识）
+     * 导出状态
+     */
+    private boolean isSuccessful;
+
+    /**
+     * 消息类型（CONNECT-链接标识，HEARTBEAT-心跳检查标识，EXEC_START-开始执行标识，EXEC_RESULT-执行结果标识）
      */
     private String msgType;
 }
