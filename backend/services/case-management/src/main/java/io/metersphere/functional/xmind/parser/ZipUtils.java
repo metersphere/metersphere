@@ -3,6 +3,7 @@ package io.metersphere.functional.xmind.parser;
 import io.metersphere.sdk.util.Translator;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.examples.Expander;
+import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.util.HashMap;
@@ -14,8 +15,6 @@ import java.util.Objects;
  * @Description zip解压工具
  */
 public class ZipUtils {
-
-    private static final String CURRENT_PATH = System.getProperty("user.dir");
 
     /**
      * 找到压缩文件中匹配的子文件，返回的为 getContents("comments.xml, unzip
@@ -44,7 +43,7 @@ public class ZipUtils {
      */
     public static String extract(File file) throws IOException, ArchiveException {
         Expander expander = new Expander();
-        String destFileName = CURRENT_PATH + File.separator + "XMind" + System.currentTimeMillis();
+        String destFileName = FileUtils.getTempDirectoryPath()+ File.separator + "XMind" + System.currentTimeMillis();
         expander.expand(file, new File(destFileName));
         return destFileName;
     }
