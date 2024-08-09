@@ -12,42 +12,54 @@
     <template #title>
       <div class="flex w-full items-center justify-between">
         <div>{{ t('case.apiAndCaseDiff') }}</div>
+
         <div class="flex items-center text-[14px]">
-          <div v-if="showSyncConfig" class="-mt-[2px] mr-[8px]"> {{ t('case.syncItem') }}</div>
-          <a-checkbox-group v-if="showSyncConfig" v-model="checkType">
-            <a-checkbox v-for="item of checkList" :key="item.value" :value="item.value">
-              <div class="flex items-center">
-                {{ item.label }}
-                <a-tooltip v-if="item.tooltip" :content="item.tooltip" position="top">
-                  <div class="flex items-center">
-                    <icon-question-circle
-                      class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-                      size="16"
-                    />
-                  </div>
-                </a-tooltip>
-              </div>
-            </a-checkbox>
-          </a-checkbox-group>
-          <a-divider v-if="showSyncConfig" direction="vertical" :margin="0" class="!mr-[8px]" />
-          <a-switch
-            v-model:model-value="form.ignoreApiChange"
-            :before-change="(val) => changeIgnore(val)"
-            size="small"
-          />
-          <div class="ml-[8px]">{{ t('case.ignoreAllChange') }}</div>
-          <a-divider direction="vertical" :margin="8"></a-divider>
-          <a-switch v-if="showSyncConfig" v-model:model-value="form.deleteRedundantParam" size="small" />
-          <div v-if="showSyncConfig" class="ml-[8px] font-normal text-[var(--color-text-1)]">{{
-            t('case.deleteNotCorrespondValue')
-          }}</div>
-          <a-divider v-if="showSyncConfig" direction="vertical" :margin="0" class="!ml-[8px]" />
+          <div v-if="hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+UPDATE'])" class="flex items-center">
+            <div v-if="showSyncConfig" class="-mt-[2px] mr-[8px]"> {{ t('case.syncItem') }}</div>
+            <a-checkbox-group v-if="showSyncConfig" v-model="checkType">
+              <a-checkbox v-for="item of checkList" :key="item.value" :value="item.value">
+                <div class="flex items-center">
+                  {{ item.label }}
+                  <a-tooltip v-if="item.tooltip" :content="item.tooltip" position="top">
+                    <div class="flex items-center">
+                      <icon-question-circle
+                        class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+                        size="16"
+                      />
+                    </div>
+                  </a-tooltip>
+                </div>
+              </a-checkbox>
+            </a-checkbox-group>
+            <a-divider v-if="showSyncConfig" direction="vertical" :margin="0" class="!mr-[8px]" />
+            <a-switch
+              v-model:model-value="form.ignoreApiChange"
+              :before-change="(val) => changeIgnore(val)"
+              size="small"
+            />
+            <div class="ml-[8px]">{{ t('case.ignoreAllChange') }}</div>
+            <a-divider direction="vertical" :margin="8"></a-divider>
+            <a-switch v-if="showSyncConfig" v-model:model-value="form.deleteRedundantParam" size="small" />
+            <div v-if="showSyncConfig" class="ml-[8px] font-normal text-[var(--color-text-1)]">
+              {{ t('case.deleteNotCorrespondValue') }}
+            </div>
+            <a-divider v-if="showSyncConfig" direction="vertical" :margin="0" class="!ml-[8px]" />
+          </div>
           <a-button class="mx-[12px]" type="secondary" @click="cancel">{{ t('common.cancel') }}</a-button>
-          <a-button v-if="showSyncConfig" class="mr-[12px]" type="outline" @click="clearThisChangeHandler">
+          <a-button
+            v-if="showSyncConfig && hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+UPDATE'])"
+            class="mr-[12px]"
+            type="outline"
+            @click="clearThisChangeHandler"
+          >
             {{ t('case.ignoreThisChange') }}
           </a-button>
           <a-button type="primary" :loading="syncLoading" :disabled="!checkType.length" @click="confirmSync">
-            {{ showSyncConfig ? t('case.apiSyncChange') : t('common.confirm') }}
+            {{
+              showSyncConfig && hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+UPDATE'])
+                ? t('case.apiSyncChange')
+                : t('common.confirm')
+            }}
           </a-button>
         </div>
       </div>
@@ -113,6 +125,7 @@
     ignoreEveryTimeChange,
   } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { EnableKeyValueParam, ExecuteRequestCommonParam } from '@/models/apiTest/common';
   import type { diffSyncParams, syncItem } from '@/models/apiTest/management';
@@ -326,7 +339,11 @@
 
   // 同步
   async function confirmSync() {
-    if (!caseDetail.value.inconsistentWithApi || form.value.ignoreApiChange) {
+    if (
+      !caseDetail.value.inconsistentWithApi ||
+      form.value.ignoreApiChange ||
+      !hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+UPDATE'])
+    ) {
       cancel();
       return;
     }
