@@ -132,6 +132,8 @@
             <!-- 接口定义-调试模式，可保存或保存为新用例 -->
             <a-dropdown-button
               v-if="requestVModel.mode === 'debug'"
+              type="outline"
+              class="arco-btn-group-outline--secondary"
               :disabled="(isHttpProtocol && !requestVModel.url) || saveLoading"
               @click="() => handleSelect('save')"
             >
@@ -166,6 +168,8 @@
                 hasAllPermission([props.permissionMap.create, props.permissionMap.saveASApi])
               "
               :disabled="(isHttpProtocol && !requestVModel.url) || saveLoading"
+              type="outline"
+              class="arco-btn-group-outline--secondary"
               @click="handleSaveShortcut"
             >
               <div class="flex items-center">
