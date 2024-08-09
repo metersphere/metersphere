@@ -1025,11 +1025,14 @@
   }
   const showCaseVisible = ref(false);
   // 清除本次变更
-  async function handleClearThisChange() {
+  async function handleClearThisChange(isEvery: boolean) {
     await loadCaseList();
     await getCaseDetailInfo(activeApiCaseId.value);
     if (showCaseVisible.value) {
       createAndEditCaseDrawerRef.value?.open(caseDetail.value.apiDefinitionId, caseDetail.value as RequestParam, false);
+    }
+    if (isEvery) {
+      showDifferentDrawer.value = false;
     }
   }
 

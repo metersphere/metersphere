@@ -13,8 +13,8 @@
       <div class="flex w-full items-center justify-between">
         <div>{{ t('case.apiAndCaseDiff') }}</div>
         <div class="flex items-center text-[14px]">
-          <div v-if="caseDetail.inconsistentWithApi" class="-mt-[2px] mr-[8px]"> {{ t('case.syncItem') }}</div>
-          <a-checkbox-group v-if="caseDetail.inconsistentWithApi" v-model="checkType">
+          <div v-if="showSyncConfig" class="-mt-[2px] mr-[8px]"> {{ t('case.syncItem') }}</div>
+          <a-checkbox-group v-if="showSyncConfig" v-model="checkType">
             <a-checkbox v-for="item of checkList" :key="item.value" :value="item.value">
               <div class="flex items-center">
                 {{ item.label }}
@@ -29,7 +29,7 @@
               </div>
             </a-checkbox>
           </a-checkbox-group>
-          <a-divider v-if="caseDetail.inconsistentWithApi" direction="vertical" :margin="0" class="!mr-[8px]" />
+          <a-divider v-if="showSyncConfig" direction="vertical" :margin="0" class="!mr-[8px]" />
           <a-switch
             v-model:model-value="form.ignoreApiChange"
             :before-change="(val) => changeIgnore(val)"
@@ -37,26 +37,17 @@
           />
           <div class="ml-[8px]">{{ t('case.ignoreAllChange') }}</div>
           <a-divider direction="vertical" :margin="8"></a-divider>
-          <a-switch
-            v-if="caseDetail.inconsistentWithApi"
-            v-model:model-value="form.deleteRedundantParam"
-            size="small"
-          />
-          <div v-if="caseDetail.inconsistentWithApi" class="ml-[8px] font-normal text-[var(--color-text-1)]">{{
+          <a-switch v-if="showSyncConfig" v-model:model-value="form.deleteRedundantParam" size="small" />
+          <div v-if="showSyncConfig" class="ml-[8px] font-normal text-[var(--color-text-1)]">{{
             t('case.deleteNotCorrespondValue')
           }}</div>
-          <a-divider direction="vertical" :margin="0" class="!ml-[8px]"></a-divider>
+          <a-divider v-if="showSyncConfig" direction="vertical" :margin="0" class="!ml-[8px]" />
           <a-button class="mx-[12px]" type="secondary" @click="cancel">{{ t('common.cancel') }}</a-button>
-          <a-button
-            v-if="caseDetail.inconsistentWithApi"
-            class="mr-[12px]"
-            type="outline"
-            @click="clearThisChangeHandler"
-          >
+          <a-button v-if="showSyncConfig" class="mr-[12px]" type="outline" @click="clearThisChangeHandler">
             {{ t('case.ignoreThisChange') }}
           </a-button>
           <a-button type="primary" :loading="syncLoading" :disabled="!checkType.length" @click="confirmSync">
-            {{ caseDetail.inconsistentWithApi ? t('case.apiSyncChange') : t('common.confirm') }}
+            {{ showSyncConfig ? t('case.apiSyncChange') : t('common.confirm') }}
           </a-button>
         </div>
       </div>
@@ -142,7 +133,7 @@
 
   const emit = defineEmits<{
     (e: 'close'): void;
-    (e: 'clearThisChange'): void;
+    (e: 'clearThisChange', isEvery: boolean): void;
     (e: 'sync', mergeRequest: RequestParam): void;
   }>();
 
@@ -181,13 +172,20 @@
     ignoreApiChange: false,
   };
 
-  const checkType = ref([]);
+  const initCheckList = [
+    RequestComposition.HEADER,
+    RequestComposition.BODY,
+    RequestComposition.QUERY,
+    RequestComposition.REST,
+  ];
+
+  const checkType = ref([...initCheckList]);
 
   const form = ref({ ...initForm });
 
   function cancel() {
     form.value = { ...initForm };
-    checkType.value = [];
+    checkType.value = [...initCheckList];
     showDiffVisible.value = false;
     emit('close');
   }
@@ -321,11 +319,14 @@
     getBodyData(RequestBodyFormat.FORM_DATA);
     getBodyData(RequestBodyFormat.WWW_FORM);
   }
+  // 是否显示配置项
+  const showSyncConfig = computed(() => caseDetail.value.inconsistentWithApi && !form.value.ignoreApiChange);
+
   const syncCaseDetail = ref<Record<string, any>>({});
 
   // 同步
   async function confirmSync() {
-    if (!caseDetail.value.inconsistentWithApi) {
+    if (!caseDetail.value.inconsistentWithApi || form.value.ignoreApiChange) {
       cancel();
       return;
     }
@@ -410,16 +411,20 @@
       loading.value = false;
     }
   }
+  const ignoreThisChangeLoading = ref(false);
   // 忽略并清除本次变更
   async function clearThisChangeHandler() {
     if (props.activeApiCaseId) {
+      ignoreThisChangeLoading.value = true;
       try {
         await clearThisChange(props.activeApiCaseId);
         getRequestDetail(props.activeDefinedId, props.activeApiCaseId);
-        emit('clearThisChange');
+        emit('clearThisChange', true);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
+      } finally {
+        ignoreThisChangeLoading.value = false;
       }
     }
   }
@@ -429,7 +434,7 @@
       await ignoreEveryTimeChange(props.activeApiCaseId, newValue as boolean);
       Message.success(newValue ? t('case.eachHasBeenIgnored') : t('case.eachHasBeenIgnoredClosed'));
       getRequestDetail(props.activeDefinedId, props.activeApiCaseId);
-      emit('clearThisChange');
+      emit('clearThisChange', false);
       return false;
     } catch (error) {
       // eslint-disable-next-line no-console

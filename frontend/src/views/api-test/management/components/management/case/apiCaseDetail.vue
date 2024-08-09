@@ -401,8 +401,11 @@
   const isPriorityLocalExec = computed(() => executeRef.value?.isPriorityLocalExec ?? false);
   const caseId = ref<string>(route.query.id as string);
   // 忽略本次变更
-  async function clearThisChangeHandler() {
+  async function clearThisChangeHandler(isEvery: boolean) {
     getCaseDetailInfo(caseId.value);
+    if (isEvery) {
+      showDifferentDrawer.value = false;
+    }
   }
 
   // 同步参数
