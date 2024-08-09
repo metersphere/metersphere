@@ -784,13 +784,14 @@ public class FunctionalCaseControllerTests extends BaseTest {
     @Test
     @Order(19)
     public void testImportXmind() throws Exception {
-        String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/1xml.xmind")).getPath();
-        MockMultipartFile file = new MockMultipartFile("file", "11.xmind", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath));
         FunctionalCaseImportRequest request = new FunctionalCaseImportRequest();
         request.setCover(true);
         request.setProjectId("100001100001");
         request.setCount("1");
         LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+
+        String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/1xml.xmind")).getPath();
+        MockMultipartFile file = new MockMultipartFile("file", "11.xmind", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath));
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("file", file);
         MvcResult functionalCaseMvcResult = this.requestMultipartWithOkAndReturn(IMPORT_XMIND_URL, paramMap);
@@ -815,9 +816,8 @@ public class FunctionalCaseControllerTests extends BaseTest {
         functionalCaseResultHolder = JSON.parseObject(functionalCaseImportResponseData, ResultHolder.class);
         functionalCaseImportResponse = JSON.parseObject(JSON.toJSONString(functionalCaseResultHolder.getData()), FunctionalCaseImportResponse.class);
         Assertions.assertNotNull(functionalCaseImportResponse);
-        System.out.println(JSON.toJSONString(functionalCaseImportResponse));
         functionalCaseExample = new FunctionalCaseExample();
-        functionalCaseExample.createCriteria().andNameEqualTo("用例名称");
+        functionalCaseExample.createCriteria().andNameLike("%" + "用例名称"+"%");
         functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
         Assertions.assertNotNull(functionalCases);
 
@@ -852,7 +852,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         paramMap = new LinkedMultiValueMap<>();
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("file", file2);
-        this.requestMultipart(IMPORT_XMIND_URL, paramMap).andExpect(status().is5xxServerError());;
+        this.requestMultipart(IMPORT_XMIND_URL, paramMap).andExpect(status().is5xxServerError());
     }
 
     @Test

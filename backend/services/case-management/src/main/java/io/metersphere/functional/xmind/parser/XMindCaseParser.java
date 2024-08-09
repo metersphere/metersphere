@@ -344,11 +344,15 @@ public class XMindCaseParser {
                     testCase.setTextDescription(replace(item.getTitle(), DESCRIPTION));
                 } else if (isAvailable(item.getTitle(), TAGS)) {
                     String tag = replace(item.getTitle(), TAGS);
-                    String[] tagArr = tag.split("\\|");
-                    if (CollectionUtils.isNotEmpty(Arrays.asList(tagArr))) {
-                        String tags = StringUtils.joinWith(",", Arrays.asList(tagArr));
-                        testCase.setTags(tags);
+                    if (StringUtils.isBlank(tag)) {
+                        testCase.setTags("");
+                    } else {
+                        String[] tagArr = tag.split("\\|");
+                        if (CollectionUtils.isNotEmpty(Arrays.asList(tagArr))) {
+                            testCase.setTags(String.join(",", tagArr));
+                        }
                     }
+
                 } else if (isAvailable(item.getTitle(), STEP_DESCRIPTION)) {
                     if (item.getChildren() != null) {
                         testCase.setSteps(this.getSteps(item.getChildren().getAttached(), title));
