@@ -148,6 +148,7 @@
     (e: 'close'): void;
     (e: 'clearThisChange', isEvery: boolean): void;
     (e: 'sync', mergeRequest: RequestParam): void;
+    (e: 'loadList'): void;
   }>();
 
   const showDiffVisible = defineModel<boolean>('visible', {
@@ -196,13 +197,6 @@
 
   const form = ref({ ...initForm });
 
-  function cancel() {
-    form.value = { ...initForm };
-    checkType.value = [...initCheckList];
-    showDiffVisible.value = false;
-    emit('close');
-  }
-
   const syncLoading = ref<boolean>(false);
 
   const defaultCaseParams = inject<RequestParam>('defaultCaseParams');
@@ -210,9 +204,52 @@
 
   const apiDetailInfo = ref<Record<string, any>>({});
   const apiDefinedRequest = ref<Record<string, any>>({});
-
+  const syncCaseDetail = ref<Record<string, any>>({});
   const diffDistanceMap = ref<Record<string, any>>({});
 
+  // 获取用例详情
+  async function getCaseDetailInfo(id: string) {
+    try {
+      const res = await getCaseDetail(id);
+      syncCaseDetail.value = res;
+      const result = await diffDataRequest(id);
+      const { caseRequest, apiRequest } = result;
+      caseDetail.value = {
+        ...caseDetail.value,
+        ...caseRequest,
+        num: caseDetail.value.num,
+      };
+      apiDefinedRequest.value = apiRequest;
+      let parseRequestBodyResult;
+      if (res.protocol === 'HTTP') {
+        parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+      }
+      caseDetail.value = {
+        ...cloneDeep(defaultCaseParams as RequestParam),
+        ...({
+          ...res,
+          ...caseRequest,
+          num: res.num,
+          url: res.path,
+          ...parseRequestBodyResult,
+        } as Partial<TabItem>),
+      };
+      form.value.ignoreApiChange = caseDetail.value.ignoreApiChange;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  async function getApiDetail(apiDefinitionId: string) {
+    try {
+      const detail = await getDefinitionDetail(apiDefinitionId);
+      apiDetailInfo.value = detail as ApiDefinitionDetail;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
   /**
    * 设置对比
    * @params apiValue  接口数据
@@ -332,10 +369,56 @@
     getBodyData(RequestBodyFormat.FORM_DATA);
     getBodyData(RequestBodyFormat.WWW_FORM);
   }
+
+  const loading = ref<boolean>(false);
+  async function getRequestDetail(definedId: string, apiCaseId: string) {
+    loading.value = true;
+    try {
+      await Promise.all([getApiDetail(definedId), getCaseDetailInfo(apiCaseId)]);
+      processData();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  const ignoreThisChangeLoading = ref(false);
+  // 忽略并清除本次变更
+  async function clearThisChangeHandler() {
+    if (props.activeApiCaseId) {
+      ignoreThisChangeLoading.value = true;
+      try {
+        await clearThisChange(props.activeApiCaseId);
+        getRequestDetail(props.activeDefinedId, props.activeApiCaseId);
+        emit('clearThisChange', true);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      } finally {
+        ignoreThisChangeLoading.value = false;
+      }
+    }
+  }
+
+  async function cancel() {
+    if (!caseDetail.value.inconsistentWithApi) {
+      try {
+        await clearThisChange(props.activeApiCaseId);
+        emit('loadList');
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    form.value = { ...initForm };
+    checkType.value = [...initCheckList];
+    showDiffVisible.value = false;
+    emit('close');
+  }
+
   // 是否显示配置项
   const showSyncConfig = computed(() => caseDetail.value.inconsistentWithApi && !form.value.ignoreApiChange);
-
-  const syncCaseDetail = ref<Record<string, any>>({});
 
   // 同步
   async function confirmSync() {
@@ -371,80 +454,6 @@
     }
   }
 
-  // 获取用例详情
-  async function getCaseDetailInfo(id: string) {
-    try {
-      const res = await getCaseDetail(id);
-      syncCaseDetail.value = res;
-      const result = await diffDataRequest(id);
-      const { caseRequest, apiRequest } = result;
-      caseDetail.value = {
-        ...caseDetail.value,
-        ...caseRequest,
-        num: caseDetail.value.num,
-      };
-      apiDefinedRequest.value = apiRequest;
-      let parseRequestBodyResult;
-      if (res.protocol === 'HTTP') {
-        parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
-      }
-      caseDetail.value = {
-        ...cloneDeep(defaultCaseParams as RequestParam),
-        ...({
-          ...res,
-          ...caseRequest,
-          num: res.num,
-          url: res.path,
-          ...parseRequestBodyResult,
-        } as Partial<TabItem>),
-      };
-      form.value.ignoreApiChange = caseDetail.value.ignoreApiChange;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
-  async function getApiDetail(apiDefinitionId: string) {
-    try {
-      const detail = await getDefinitionDetail(apiDefinitionId);
-      apiDetailInfo.value = detail as ApiDefinitionDetail;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
-  const loading = ref<boolean>(false);
-  async function getRequestDetail(definedId: string, apiCaseId: string) {
-    loading.value = true;
-    try {
-      await Promise.all([getApiDetail(definedId), getCaseDetailInfo(apiCaseId)]);
-      processData();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-    } finally {
-      loading.value = false;
-    }
-  }
-  const ignoreThisChangeLoading = ref(false);
-  // 忽略并清除本次变更
-  async function clearThisChangeHandler() {
-    if (props.activeApiCaseId) {
-      ignoreThisChangeLoading.value = true;
-      try {
-        await clearThisChange(props.activeApiCaseId);
-        getRequestDetail(props.activeDefinedId, props.activeApiCaseId);
-        emit('clearThisChange', true);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      } finally {
-        ignoreThisChangeLoading.value = false;
-      }
-    }
-  }
   // 忽略每次变更
   async function changeIgnore(newValue: string | number | boolean) {
     try {
