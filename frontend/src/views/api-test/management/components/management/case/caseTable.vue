@@ -316,6 +316,7 @@
     @close="closeDifferent"
     @clear-this-change="handleClearThisChange"
     @sync="syncParamsHandler"
+    @load-list="loadCaseListAndResetSelector"
   />
 </template>
 
