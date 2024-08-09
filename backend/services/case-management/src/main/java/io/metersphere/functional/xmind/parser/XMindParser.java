@@ -52,7 +52,7 @@ public class XMindParser {
                 File dir = new File(res);
                 FileUtils.deleteDirectory(dir);
             }
-            // 删除零时文件
+            // 删除临时文件
             if (file != null) {
                 file.delete();
             }
