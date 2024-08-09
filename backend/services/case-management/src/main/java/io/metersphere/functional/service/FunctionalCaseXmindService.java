@@ -9,6 +9,7 @@ import io.metersphere.functional.socket.ExportWebSocketHandler;
 import io.metersphere.functional.xmind.domain.FunctionalCaseXmindDTO;
 import io.metersphere.functional.xmind.domain.FunctionalCaseXmindData;
 import io.metersphere.functional.xmind.utils.XmindExportUtil;
+import io.metersphere.sdk.constants.LocalRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.MsgType;
 import io.metersphere.sdk.dto.ExportMsgDTO;
@@ -20,10 +21,10 @@ import io.metersphere.system.constants.ExportConstants;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.manager.ExportTaskManager;
-import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -116,8 +117,7 @@ public class FunctionalCaseXmindService {
 
         try {
             FunctionalCaseXmindData xmindData = buildXmindData(ids, request);
-            File tmpFile = new File(getClass().getClassLoader().getResource(StringUtils.EMPTY).getPath() +
-                    File.separatorChar + EXPORT_CASE_TMP_DIR + "_" + IDGenerator.nextStr() + ".xmind");
+            File tmpFile = new File(FilenameUtils.normalize(LocalRepositoryDir.getSystemTempDir() + File.separator + request.getFileId() + "." + XMIND));
             List<TemplateCustomFieldDTO> templateCustomFields = functionalCaseFileService.getCustomFields(request.getProjectId());
             TemplateCustomFieldDTO templateCustomFieldDTO = templateCustomFields.stream().filter(item -> StringUtils.equalsIgnoreCase(item.getFieldName(), Translator.get("custom_field.functional_priority"))).findFirst().get();
             XmindExportUtil.export(xmindData, request, tmpFile, templateCustomFieldDTO);
