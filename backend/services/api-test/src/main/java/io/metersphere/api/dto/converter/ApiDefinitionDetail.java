@@ -11,7 +11,7 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ApiDefinitionImportDetail extends ApiDefinition {
+public class ApiDefinitionDetail extends ApiDefinition {
 
     @Schema(description = "请求内容")
     private AbstractMsTestElement request;

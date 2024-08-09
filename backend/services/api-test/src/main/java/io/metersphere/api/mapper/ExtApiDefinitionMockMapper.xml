@@ -61,6 +61,20 @@
         </foreach>
     </select>
 
+    <resultMap id="ApiMockDetailMap" type="io.metersphere.api.dto.definition.ApiMockWithBlob">
+        <result column="matching" jdbcType="LONGVARBINARY" property="matching"/>
+        <result column="response" jdbcType="LONGVARBINARY" property="response"/>
+    </resultMap>
+    <select id="selectAllDetailByApiIds" resultMap="ApiMockDetailMap">
+        SELECT apiMock.*,mockConfig.matching,mockConfig.response
+        FROM api_definition_mock apiMock
+        INNER JOIN api_definition_mock_config mockConfig ON apiMock.id = mockConfig.id
+        WHERE apiMock.api_definition_id IN
+        <foreach collection="apiIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <sql id="queryWhereConditionByBatch">
         <if test="request.protocols != null and request.protocols.size() > 0">
             and a.protocol in

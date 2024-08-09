@@ -1,0 +1,1271 @@
+{
+  "apiDefinitions": [
+    {
+      "id": null,
+      "name": "put的mock请求",
+      "protocol": "HTTP",
+      "method": "PUT",
+      "path": "/mock-server/100080/100005/mock-for-put",
+      "status": "PROCESSING",
+      "num": null,
+      "tags": [],
+      "pos": 8192,
+      "projectId": null,
+      "moduleId": null,
+      "latest": null,
+      "versionId": null,
+      "refId": null,
+      "description": null,
+      "createTime": null,
+      "createUser": null,
+      "updateTime": null,
+      "updateUser": null,
+      "deleteUser": null,
+      "deleteTime": null,
+      "deleted": null,
+      "request": {
+        "polymorphicName": "MsHTTPElement",
+        "stepId": null,
+        "resourceId": null,
+        "projectId": null,
+        "name": "put的mock请求",
+        "enable": true,
+        "children": [
+          {
+            "polymorphicName": "MsCommonElement",
+            "stepId": null,
+            "resourceId": null,
+            "projectId": null,
+            "name": null,
+            "enable": true,
+            "children": null,
+            "parent": null,
+            "csvIds": null,
+            "preProcessorConfig": {
+              "enableGlobal": true,
+              "processors": []
+            },
+            "postProcessorConfig": {
+              "enableGlobal": true,
+              "processors": []
+            },
+            "assertionConfig": {
+              "enableGlobal": true,
+              "assertions": []
+            }
+          }
+        ],
+        "parent": null,
+        "csvIds": null,
+        "customizeRequest": false,
+        "customizeRequestEnvEnable": false,
+        "path": "/mock-server/100080/100005/mock-for-put",
+        "method": "PUT",
+        "body": {
+          "bodyType": "FORM_DATA",
+          "noneBody": {},
+          "formDataBody": {
+            "formValues": [
+              {
+                "key": "methodttt",
+                "value": "putttttttt",
+                "enable": true,
+                "description": "",
+                "paramType": "string",
+                "required": false,
+                "minLength": null,
+                "maxLength": null,
+                "files": null,
+                "contentType": null,
+                "file": false,
+                "valid": true,
+                "notBlankValue": true
+              }
+            ]
+          },
+          "wwwFormBody": {
+            "formValues": []
+          },
+          "jsonBody": {
+            "enableJsonSchema": false,
+            "jsonValue": null,
+            "jsonSchema": null
+          },
+          "xmlBody": {
+            "value": null
+          },
+          "rawBody": {
+            "value": null
+          },
+          "binaryBody": {
+            "description": null,
+            "file": null
+          },
+          "bodyClassByType": "io.metersphere.api.dto.request.http.body.FormDataBody",
+          "bodyDataByType": {
+            "formValues": [
+              {
+                "key": "methodttt",
+                "value": "putttttttt",
+                "enable": true,
+                "description": "",
+                "paramType": "string",
+                "required": false,
+                "minLength": null,
+                "maxLength": null,
+                "files": null,
+                "contentType": null,
+                "file": false,
+                "valid": true,
+                "notBlankValue": true
+              }
+            ]
+          }
+        },
+        "headers": [],
+        "rest": [],
+        "query": [],
+        "otherConfig": {
+          "connectTimeout": 60000,
+          "responseTimeout": 60000,
+          "certificateAlias": null,
+          "followRedirects": false,
+          "autoRedirects": true
+        },
+        "authConfig": {
+          "authType": "NONE",
+          "basicAuth": {
+            "userName": null,
+            "password": null,
+            "valid": false
+          },
+          "digestAuth": {
+            "userName": null,
+            "password": null,
+            "valid": false
+          },
+          "httpauthValid": false
+        },
+        "moduleId": null,
+        "num": null,
+        "mockNum": null
+      },
+      "response": [],
+      "modulePath": "正常请求的集合",
+      "apiTestCaseList": [
+        {
+          "id": null,
+          "name": "put的mock请求ex1",
+          "priority": "P0",
+          "num": null,
+          "status": "PROCESSING",
+          "lastReportStatus": "PENDING",
+          "lastReportId": null,
+          "projectId": null,
+          "apiDefinitionId": null,
+          "apiDefinitionNum": null,
+          "apiDefinitionName": null,
+          "environmentId": null,
+          "createTime": null,
+          "createUser": null,
+          "updateTime": null,
+          "updateUser": null,
+          "deleteTime": null,
+          "deleteUser": null,
+          "follow": null,
+          "method": null,
+          "path": null,
+          "environmentName": null,
+          "createName": null,
+          "updateName": null,
+          "deleteName": null,
+          "tags": [],
+          "passRate": null,
+          "request": {
+            "polymorphicName": "MsHTTPElement",
+            "stepId": null,
+            "resourceId": null,
+            "projectId": null,
+            "name": "put的mock请求ex1",
+            "enable": true,
+            "children": [
+              {
+                "polymorphicName": "MsCommonElement",
+                "stepId": null,
+                "resourceId": null,
+                "projectId": null,
+                "name": null,
+                "enable": true,
+                "children": null,
+                "parent": null,
+                "csvIds": null,
+                "preProcessorConfig": {
+                  "enableGlobal": true,
+                  "processors": []
+                },
+                "postProcessorConfig": {
+                  "enableGlobal": true,
+                  "processors": []
+                },
+                "assertionConfig": {
+                  "enableGlobal": true,
+                  "assertions": []
+                }
+              }
+            ],
+            "parent": null,
+            "csvIds": null,
+            "customizeRequest": false,
+            "customizeRequestEnvEnable": false,
+            "path": "/mock-server/100080/100005/mock-for-put",
+            "method": "PUT",
+            "body": {
+              "bodyType": "FORM_DATA",
+              "noneBody": {},
+              "formDataBody": {
+                "formValues": [
+                  {
+                    "key": "method",
+                    "value": "put-ex1",
+                    "enable": true,
+                    "description": "",
+                    "paramType": "string",
+                    "required": false,
+                    "minLength": null,
+                    "maxLength": null,
+                    "files": null,
+                    "contentType": null,
+                    "file": false,
+                    "valid": true,
+                    "notBlankValue": true
+                  }
+                ]
+              },
+              "wwwFormBody": {
+                "formValues": []
+              },
+              "jsonBody": {
+                "enableJsonSchema": false,
+                "jsonValue": null,
+                "jsonSchema": null
+              },
+              "xmlBody": {
+                "value": null
+              },
+              "rawBody": {
+                "value": null
+              },
+              "binaryBody": {
+                "description": null,
+                "file": null
+              },
+              "bodyClassByType": "io.metersphere.api.dto.request.http.body.FormDataBody",
+              "bodyDataByType": {
+                "formValues": [
+                  {
+                    "key": "method",
+                    "value": "put-ex1",
+                    "enable": true,
+                    "description": "",
+                    "paramType": "string",
+                    "required": false,
+                    "minLength": null,
+                    "maxLength": null,
+                    "files": null,
+                    "contentType": null,
+                    "file": false,
+                    "valid": true,
+                    "notBlankValue": true
+                  }
+                ]
+              }
+            },
+            "headers": [],
+            "rest": [],
+            "query": [],
+            "otherConfig": {
+              "connectTimeout": 60000,
+              "responseTimeout": 60000,
+              "certificateAlias": null,
+              "followRedirects": true,
+              "autoRedirects": false
+            },
+            "authConfig": {
+              "authType": "NONE",
+              "basicAuth": {
+                "userName": null,
+                "password": null,
+                "valid": false
+              },
+              "digestAuth": {
+                "userName": null,
+                "password": null,
+                "valid": false
+              },
+              "httpauthValid": false
+            },
+            "moduleId": null,
+            "num": null,
+            "mockNum": null
+          },
+          "modulePath": null,
+          "moduleId": null,
+          "protocol": null,
+          "apiChange": null,
+          "inconsistentWithApi": null,
+          "ignoreApiDiff": null,
+          "ignoreApiChange": null
+        },
+        {
+          "id": null,
+          "name": "用于验证名字一样的用例1",
+          "priority": "P0",
+          "num": null,
+          "status": "PROCESSING",
+          "lastReportStatus": "PENDING",
+          "lastReportId": null,
+          "projectId": null,
+          "apiDefinitionId": null,
+          "apiDefinitionNum": null,
+          "apiDefinitionName": null,
+          "environmentId": null,
+          "createTime": null,
+          "createUser": null,
+          "updateTime": null,
+          "updateUser": null,
+          "deleteTime": null,
+          "deleteUser": null,
+          "follow": null,
+          "method": null,
+          "path": null,
+          "environmentName": null,
+          "createName": null,
+          "updateName": null,
+          "deleteName": null,
+          "tags": [],
+          "passRate": null,
+          "request": {
+            "polymorphicName": "MsHTTPElement",
+            "stepId": null,
+            "resourceId": null,
+            "projectId": null,
+            "name": "put的mock请求ex2",
+            "enable": true,
+            "children": [
+              {
+                "polymorphicName": "MsCommonElement",
+                "stepId": null,
+                "resourceId": null,
+                "projectId": null,
+                "name": null,
+                "enable": true,
+                "children": null,
+                "parent": null,
+                "csvIds": null,
+                "preProcessorConfig": {
+                  "enableGlobal": true,
+                  "processors": []
+                },
+                "postProcessorConfig": {
+                  "enableGlobal": true,
+                  "processors": []
+                },
+                "assertionConfig": {
+                  "enableGlobal": true,
+                  "assertions": []
+                }
+              }
+            ],
+            "parent": null,
+            "csvIds": null,
+            "customizeRequest": false,
+            "customizeRequestEnvEnable": false,
+            "path": "/mock-server/100080/100005/mock-for-put",
+            "method": "PUT",
+            "body": {
+              "bodyType": "FORM_DATA",
+              "noneBody": {},
+              "formDataBody": {
+                "formValues": [
+                  {
+                    "key": "method",
+                    "value": "put-ex1",
+                    "enable": true,
+                    "description": "",
+                    "paramType": "string",
+                    "required": false,
+                    "minLength": null,
+                    "maxLength": null,
+                    "files": null,
+                    "contentType": null,
+                    "file": false,
+                    "valid": true,
+                    "notBlankValue": true
+                  }
+                ]
+              },
+              "wwwFormBody": {
+                "formValues": []
+              },
+              "jsonBody": {
+                "enableJsonSchema": false,
+                "jsonValue": null,
+                "jsonSchema": null
+              },
+              "xmlBody": {
+                "value": null
+              },
+              "rawBody": {
+                "value": null
+              },
+              "binaryBody": {
+                "description": null,
+                "file": null
+              },
+              "bodyClassByType": "io.metersphere.api.dto.request.http.body.FormDataBody",
+              "bodyDataByType": {
+                "formValues": [
+                  {
+                    "key": "method",
+                    "value": "put-ex1",
+                    "enable": true,
+                    "description": "",
+                    "paramType": "string",
+                    "required": false,
+                    "minLength": null,
+                    "maxLength": null,
+                    "files": null,
+                    "contentType": null,
+                    "file": false,
+                    "valid": true,
+                    "notBlankValue": true
+                  }
+                ]
+              }
+            },
+            "headers": [],
+            "rest": [],
+            "query": [],
+            "otherConfig": {
+              "connectTimeout": 60000,
+              "responseTimeout": 60000,
+              "certificateAlias": null,
+              "followRedirects": true,
+              "autoRedirects": false
+            },
+            "authConfig": {
+              "authType": "NONE",
+              "basicAuth": {
+                "userName": null,
+                "password": null,
+                "valid": false
+              },
+              "digestAuth": {
+                "userName": null,
+                "password": null,
+                "valid": false
+              },
+              "httpauthValid": false
+            },
+            "moduleId": null,
+            "num": null,
+            "mockNum": null
+          },
+          "modulePath": null,
+          "moduleId": null,
+          "protocol": null,
+          "apiChange": null,
+          "inconsistentWithApi": null,
+          "ignoreApiDiff": null,
+          "ignoreApiChange": null
+        }
+      ],
+      "apiMockList": []
+    },
+    {
+      "id": null,
+      "name": "put的mock请求-另一个",
+      "protocol": "HTTP",
+      "method": "PUT",
+      "path": "/mock-server/100080/100005/mock-for-put",
+      "status": "PROCESSING",
+      "num": null,
+      "tags": [],
+      "pos": 8192,
+      "projectId": null,
+      "moduleId": null,
+      "latest": null,
+      "versionId": null,
+      "refId": null,
+      "description": null,
+      "createTime": null,
+      "createUser": null,
+      "updateTime": null,
+      "updateUser": null,
+      "deleteUser": null,
+      "deleteTime": null,
+      "deleted": null,
+      "request": {
+        "polymorphicName": "MsHTTPElement",
+        "stepId": null,
+        "resourceId": null,
+        "projectId": null,
+        "name": "put的mock请求",
+        "enable": true,
+        "children": [
+          {
+            "polymorphicName": "MsCommonElement",
+            "stepId": null,
+            "resourceId": null,
+            "projectId": null,
+            "name": null,
+            "enable": true,
+            "children": null,
+            "parent": null,
+            "csvIds": null,
+            "preProcessorConfig": {
+              "enableGlobal": true,
+              "processors": []
+            },
+            "postProcessorConfig": {
+              "enableGlobal": true,
+              "processors": []
+            },
+            "assertionConfig": {
+              "enableGlobal": true,
+              "assertions": []
+            }
+          }
+        ],
+        "parent": null,
+        "csvIds": null,
+        "customizeRequest": false,
+        "customizeRequestEnvEnable": false,
+        "path": "/mock-server/100080/100005/mock-for-put",
+        "method": "PUT",
+        "body": {
+          "bodyType": "FORM_DATA",
+          "noneBody": {},
+          "formDataBody": {
+            "formValues": [
+              {
+                "key": "methodttt",
+                "value": "putttttt",
+                "enable": true,
+                "description": "",
+                "paramType": "string",
+                "required": false,
+                "minLength": null,
+                "maxLength": null,
+                "files": null,
+                "contentType": null,
+                "file": false,
+                "valid": true,
+                "notBlankValue": true
+              }
+            ]
+          },
+          "wwwFormBody": {
+            "formValues": []
+          },
+          "jsonBody": {
+            "enableJsonSchema": false,
+            "jsonValue": null,
+            "jsonSchema": null
+          },
+          "xmlBody": {
+            "value": null
+          },
+          "rawBody": {
+            "value": null
+          },
+          "binaryBody": {
+            "description": null,
+            "file": null
+          },
+          "bodyClassByType": "io.metersphere.api.dto.request.http.body.FormDataBody",
+          "bodyDataByType": {
+            "formValues": [
+              {
+                "key": "methodttt",
+                "value": "putttttt",
+                "enable": true,
+                "description": "",
+                "paramType": "string",
+                "required": false,
+                "minLength": null,
+                "maxLength": null,
+                "files": null,
+                "contentType": null,
+                "file": false,
+                "valid": true,
+                "notBlankValue": true
+              }
+            ]
+          }
+        },
+        "headers": [],
+        "rest": [],
+        "query": [],
+        "otherConfig": {
+          "connectTimeout": 60000,
+          "responseTimeout": 60000,
+          "certificateAlias": null,
+          "followRedirects": false,
+          "autoRedirects": true
+        },
+        "authConfig": {
+          "authType": "NONE",
+          "basicAuth": {
+            "userName": null,
+            "password": null,
+            "valid": false
+          },
+          "digestAuth": {
+            "userName": null,
+            "password": null,
+            "valid": false
+          },
+          "httpauthValid": false
+        },
+        "moduleId": null,
+        "num": null,
+        "mockNum": null
+      },
+      "response": [],
+      "modulePath": "正常请求的集合",
+      "apiTestCaseList": [
+        {
+          "id": null,
+          "name": "用于验证名字一样的用例1",
+          "priority": "P0",
+          "num": null,
+          "status": "PROCESSING",
+          "lastReportStatus": "PENDING",
+          "lastReportId": null,
+          "projectId": null,
+          "apiDefinitionId": null,
+          "apiDefinitionNum": null,
+          "apiDefinitionName": null,
+          "environmentId": null,
+          "createTime": null,
+          "createUser": null,
+          "updateTime": null,
+          "updateUser": null,
+          "deleteTime": null,
+          "deleteUser": null,
+          "follow": null,
+          "method": null,
+          "path": null,
+          "environmentName": null,
+          "createName": null,
+          "updateName": null,
+          "deleteName": null,
+          "tags": [],
+          "passRate": null,
+          "request": {
+            "polymorphicName": "MsHTTPElement",
+            "stepId": null,
+            "resourceId": null,
+            "projectId": null,
+            "name": "put的mock-copy请求ex",
+            "enable": true,
+            "children": [
+              {
+                "polymorphicName": "MsCommonElement",
+                "stepId": null,
+                "resourceId": null,
+                "projectId": null,
+                "name": null,
+                "enable": true,
+                "children": null,
+                "parent": null,
+                "csvIds": null,
+                "preProcessorConfig": {
+                  "enableGlobal": true,
+                  "processors": []
+                },
+                "postProcessorConfig": {
+                  "enableGlobal": true,
+                  "processors": []
+                },
+                "assertionConfig": {
+                  "enableGlobal": true,
+                  "assertions": []
+                }
+              }
+            ],
+            "parent": null,
+            "csvIds": null,
+            "customizeRequest": false,
+            "customizeRequestEnvEnable": false,
+            "path": "/mock-server/100080/100005/mock-for-put",
+            "method": "PUT",
+            "body": {
+              "bodyType": "FORM_DATA",
+              "noneBody": {},
+              "formDataBody": {
+                "formValues": [
+                  {
+                    "key": "method",
+                    "value": "put",
+                    "enable": true,
+                    "description": "",
+                    "paramType": "string",
+                    "required": false,
+                    "minLength": null,
+                    "maxLength": null,
+                    "files": null,
+                    "contentType": null,
+                    "file": false,
+                    "valid": true,
+                    "notBlankValue": true
+                  }
+                ]
+              },
+              "wwwFormBody": {
+                "formValues": []
+              },
+              "jsonBody": {
+                "enableJsonSchema": false,
+                "jsonValue": null,
+                "jsonSchema": null
+              },
+              "xmlBody": {
+                "value": null
+              },
+              "rawBody": {
+                "value": null
+              },
+              "binaryBody": {
+                "description": null,
+                "file": null
+              },
+              "bodyClassByType": "io.metersphere.api.dto.request.http.body.FormDataBody",
+              "bodyDataByType": {
+                "formValues": [
+                  {
+                    "key": "method",
+                    "value": "put",
+                    "enable": true,
+                    "description": "",
+                    "paramType": "string",
+                    "required": false,
+                    "minLength": null,
+                    "maxLength": null,
+                    "files": null,
+                    "contentType": null,
+                    "file": false,
+                    "valid": true,
+                    "notBlankValue": true
+                  }
+                ]
+              }
+            },
+            "headers": [],
+            "rest": [],
+            "query": [],
+            "otherConfig": {
+              "connectTimeout": 60000,
+              "responseTimeout": 60000,
+              "certificateAlias": null,
+              "followRedirects": true,
+              "autoRedirects": false
+            },
+            "authConfig": {
+              "authType": "NONE",
+              "basicAuth": {
+                "userName": null,
+                "password": null,
+                "valid": false
+              },
+              "digestAuth": {
+                "userName": null,
+                "password": null,
+                "valid": false
+              },
+              "httpauthValid": false
+            },
+            "moduleId": null,
+            "num": null,
+            "mockNum": null
+          },
+          "modulePath": null,
+          "moduleId": null,
+          "protocol": null,
+          "apiChange": null,
+          "inconsistentWithApi": null,
+          "ignoreApiDiff": null,
+          "ignoreApiChange": null
+        },
+        {
+          "id": null,
+          "name": "用于验证名字一样的用例1",
+          "priority": "P0",
+          "num": null,
+          "status": "PROCESSING",
+          "lastReportStatus": "PENDING",
+          "lastReportId": null,
+          "projectId": null,
+          "apiDefinitionId": null,
+          "apiDefinitionNum": null,
+          "apiDefinitionName": null,
+          "environmentId": null,
+          "createTime": null,
+          "createUser": null,
+          "updateTime": null,
+          "updateUser": null,
+          "deleteTime": null,
+          "deleteUser": null,
+          "follow": null,
+          "method": null,
+          "path": null,
+          "environmentName": null,
+          "createName": null,
+          "updateName": null,
+          "deleteName": null,
+          "tags": [],
+          "passRate": null,
+          "request": {
+            "polymorphicName": "MsHTTPElement",
+            "stepId": null,
+            "resourceId": null,
+            "projectId": null,
+            "name": "put的mock-copy请求ex2",
+            "enable": true,
+            "children": [
+              {
+                "polymorphicName": "MsCommonElement",
+                "stepId": null,
+                "resourceId": null,
+                "projectId": null,
+                "name": null,
+                "enable": true,
+                "children": null,
+                "parent": null,
+                "csvIds": null,
+                "preProcessorConfig": {
+                  "enableGlobal": true,
+                  "processors": []
+                },
+                "postProcessorConfig": {
+                  "enableGlobal": true,
+                  "processors": []
+                },
+                "assertionConfig": {
+                  "enableGlobal": true,
+                  "assertions": []
+                }
+              }
+            ],
+            "parent": null,
+            "csvIds": null,
+            "customizeRequest": false,
+            "customizeRequestEnvEnable": false,
+            "path": "/mock-server/100080/100005/mock-for-put",
+            "method": "PUT",
+            "body": {
+              "bodyType": "FORM_DATA",
+              "noneBody": {},
+              "formDataBody": {
+                "formValues": [
+                  {
+                    "key": "method",
+                    "value": "put",
+                    "enable": true,
+                    "description": "",
+                    "paramType": "string",
+                    "required": false,
+                    "minLength": null,
+                    "maxLength": null,
+                    "files": null,
+                    "contentType": null,
+                    "file": false,
+                    "valid": true,
+                    "notBlankValue": true
+                  }
+                ]
+              },
+              "wwwFormBody": {
+                "formValues": []
+              },
+              "jsonBody": {
+                "enableJsonSchema": false,
+                "jsonValue": null,
+                "jsonSchema": null
+              },
+              "xmlBody": {
+                "value": null
+              },
+              "rawBody": {
+                "value": null
+              },
+              "binaryBody": {
+                "description": null,
+                "file": null
+              },
+              "bodyClassByType": "io.metersphere.api.dto.request.http.body.FormDataBody",
+              "bodyDataByType": {
+                "formValues": [
+                  {
+                    "key": "method",
+                    "value": "put",
+                    "enable": true,
+                    "description": "",
+                    "paramType": "string",
+                    "required": false,
+                    "minLength": null,
+                    "maxLength": null,
+                    "files": null,
+                    "contentType": null,
+                    "file": false,
+                    "valid": true,
+                    "notBlankValue": true
+                  }
+                ]
+              }
+            },
+            "headers": [],
+            "rest": [],
+            "query": [],
+            "otherConfig": {
+              "connectTimeout": 60000,
+              "responseTimeout": 60000,
+              "certificateAlias": null,
+              "followRedirects": true,
+              "autoRedirects": false
+            },
+            "authConfig": {
+              "authType": "NONE",
+              "basicAuth": {
+                "userName": null,
+                "password": null,
+                "valid": false
+              },
+              "digestAuth": {
+                "userName": null,
+                "password": null,
+                "valid": false
+              },
+              "httpauthValid": false
+            },
+            "moduleId": null,
+            "num": null,
+            "mockNum": null
+          },
+          "modulePath": null,
+          "moduleId": null,
+          "protocol": null,
+          "apiChange": null,
+          "inconsistentWithApi": null,
+          "ignoreApiDiff": null,
+          "ignoreApiChange": null
+        }
+      ],
+      "apiMockList": []
+    },
+    {
+      "id": null,
+      "name": "post的mock请求",
+      "protocol": "HTTP",
+      "method": "POST",
+      "path": "/mock-server/100080/100004/mock-for-post",
+      "status": "PROCESSING",
+      "num": null,
+      "tags": [],
+      "pos": 12288,
+      "projectId": null,
+      "moduleId": null,
+      "latest": null,
+      "versionId": null,
+      "refId": null,
+      "description": null,
+      "createTime": null,
+      "createUser": null,
+      "updateTime": null,
+      "updateUser": null,
+      "deleteUser": null,
+      "deleteTime": null,
+      "deleted": null,
+      "request": {
+        "polymorphicName": "MsHTTPElement",
+        "stepId": null,
+        "resourceId": null,
+        "projectId": null,
+        "name": "post的mock请求",
+        "enable": true,
+        "children": [
+          {
+            "polymorphicName": "MsCommonElement",
+            "stepId": null,
+            "resourceId": null,
+            "projectId": null,
+            "name": null,
+            "enable": true,
+            "children": null,
+            "parent": null,
+            "csvIds": null,
+            "preProcessorConfig": {
+              "enableGlobal": true,
+              "processors": []
+            },
+            "postProcessorConfig": {
+              "enableGlobal": true,
+              "processors": []
+            },
+            "assertionConfig": {
+              "enableGlobal": true,
+              "assertions": []
+            }
+          }
+        ],
+        "parent": null,
+        "csvIds": null,
+        "customizeRequest": false,
+        "customizeRequestEnvEnable": false,
+        "path": "/mock-server/100080/100004/mock-for-post",
+        "method": "POST",
+        "body": {
+          "bodyType": "FORM_DATA",
+          "noneBody": {},
+          "formDataBody": {
+            "formValues": [
+              {
+                "key": "methodttt",
+                "value": "postttttttt",
+                "enable": true,
+                "description": "",
+                "paramType": "string",
+                "required": false,
+                "minLength": null,
+                "maxLength": null,
+                "files": null,
+                "contentType": null,
+                "file": false,
+                "valid": true,
+                "notBlankValue": true
+              }
+            ]
+          },
+          "wwwFormBody": {
+            "formValues": []
+          },
+          "jsonBody": {
+            "enableJsonSchema": false,
+            "jsonValue": null,
+            "jsonSchema": null
+          },
+          "xmlBody": {
+            "value": null
+          },
+          "rawBody": {
+            "value": null
+          },
+          "binaryBody": {
+            "description": null,
+            "file": null
+          },
+          "bodyClassByType": "io.metersphere.api.dto.request.http.body.FormDataBody",
+          "bodyDataByType": {
+            "formValues": [
+              {
+                "key": "method",
+                "value": "post",
+                "enable": true,
+                "description": "",
+                "paramType": "string",
+                "required": false,
+                "minLength": null,
+                "maxLength": null,
+                "files": null,
+                "contentType": null,
+                "file": false,
+                "valid": true,
+                "notBlankValue": true
+              }
+            ]
+          }
+        },
+        "headers": [],
+        "rest": [],
+        "query": [],
+        "otherConfig": {
+          "connectTimeout": 60000,
+          "responseTimeout": 60000,
+          "certificateAlias": null,
+          "followRedirects": false,
+          "autoRedirects": true
+        },
+        "authConfig": {
+          "authType": "NONE",
+          "basicAuth": {
+            "userName": null,
+            "password": null,
+            "valid": false
+          },
+          "digestAuth": {
+            "userName": null,
+            "password": null,
+            "valid": false
+          },
+          "httpauthValid": false
+        },
+        "moduleId": null,
+        "num": null,
+        "mockNum": null
+      },
+      "response": [],
+      "modulePath": "正常请求的集合",
+      "apiTestCaseList": [],
+      "apiMockList": []
+    },
+    {
+      "id": null,
+      "name": "https://api.tapd.cn/stories?workspace_id=1&id=2",
+      "protocol": "HTTP",
+      "method": "GET",
+      "path": "/stories",
+      "status": "PROCESSING",
+      "num": null,
+      "tags": [],
+      "pos": 16384,
+      "projectId": null,
+      "moduleId": null,
+      "latest": null,
+      "versionId": null,
+      "refId": null,
+      "description": null,
+      "createTime": null,
+      "createUser": null,
+      "updateTime": null,
+      "updateUser": null,
+      "deleteUser": null,
+      "deleteTime": null,
+      "deleted": null,
+      "request": {
+        "polymorphicName": "MsHTTPElement",
+        "stepId": null,
+        "resourceId": null,
+        "projectId": null,
+        "name": "https://api.tapd.cn/stories?workspace_id=1&id=2",
+        "enable": true,
+        "children": [
+          {
+            "polymorphicName": "MsCommonElement",
+            "stepId": null,
+            "resourceId": null,
+            "projectId": null,
+            "name": null,
+            "enable": true,
+            "children": null,
+            "parent": null,
+            "csvIds": null,
+            "preProcessorConfig": {
+              "enableGlobal": true,
+              "processors": []
+            },
+            "postProcessorConfig": {
+              "enableGlobal": true,
+              "processors": []
+            },
+            "assertionConfig": {
+              "enableGlobal": true,
+              "assertions": []
+            }
+          }
+        ],
+        "parent": null,
+        "csvIds": null,
+        "customizeRequest": false,
+        "customizeRequestEnvEnable": false,
+        "path": "/stories",
+        "method": "GET",
+        "body": {
+          "bodyType": "NONE",
+          "noneBody": {},
+          "formDataBody": {
+            "formValues": []
+          },
+          "wwwFormBody": {
+            "formValues": []
+          },
+          "jsonBody": {
+            "enableJsonSchema": false,
+            "jsonValue": null,
+            "jsonSchema": null
+          },
+          "xmlBody": {
+            "value": null
+          },
+          "rawBody": {
+            "value": null
+          },
+          "binaryBody": {
+            "description": null,
+            "file": null
+          },
+          "bodyClassByType": "io.metersphere.api.dto.request.http.body.NoneBody",
+          "bodyDataByType": {}
+        },
+        "headers": [],
+        "rest": [],
+        "query": [
+          {
+            "key": "w",
+            "value": "11111111",
+            "enable": true,
+            "description": "",
+            "paramType": "string",
+            "required": false,
+            "minLength": null,
+            "maxLength": null,
+            "encode": false,
+            "valid": true,
+            "notBlankValue": true
+          },
+          {
+            "key": "id",
+            "value": "222",
+            "enable": true,
+            "description": "",
+            "paramType": "string",
+            "required": false,
+            "minLength": null,
+            "maxLength": null,
+            "encode": false,
+            "valid": true,
+            "notBlankValue": true
+          }
+        ],
+        "otherConfig": {
+          "connectTimeout": 60000,
+          "responseTimeout": 60000,
+          "certificateAlias": null,
+          "followRedirects": false,
+          "autoRedirects": true
+        },
+        "authConfig": {
+          "authType": "BASIC",
+          "basicAuth": {
+            "userName": "HIGKLMN",
+            "password": "ABCDEFG",
+            "valid": true
+          },
+          "digestAuth": {
+            "userName": null,
+            "password": null,
+            "valid": false
+          },
+          "httpauthValid": true
+        },
+        "moduleId": null,
+        "num": null,
+        "mockNum": null
+      },
+      "response": [],
+      "modulePath": "正常请求的集合",
+      "apiTestCaseList": [],
+      "apiMockList": []
+    }
+  ]
+}

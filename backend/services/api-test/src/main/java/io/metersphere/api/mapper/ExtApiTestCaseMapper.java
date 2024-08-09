@@ -115,4 +115,6 @@ public interface ExtApiTestCaseMapper {
     List<ApiTestCase> getRefApiScenarioCreator(@Param("ids") List<String> caseIds);
 
     void clearApiChange(@Param("ids")  List<String> ids);
+
+    List<ApiTestCaseWithBlob> selectAllDetailByApiIds(@Param("apiIds") List<String> apiIds);
 }
