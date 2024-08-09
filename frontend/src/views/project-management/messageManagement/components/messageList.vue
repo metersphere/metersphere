@@ -109,8 +109,8 @@
             v-xpack
             type="button"
             @click="editRobot(record, dataIndex as string)"
-            >{{ t('common.setting') }}</MsButton
-          >
+            >{{ t('common.setting') }}
+          </MsButton>
         </div>
         <span v-else></span>
       </template>
@@ -225,6 +225,7 @@
     name: string;
     rowspan?: number;
     projectRobotConfigMap: Record<string, ProjectRobotConfig>;
+
     [key: string]: any;
   }
 
@@ -343,6 +344,10 @@
       // 缺陷同步任务, 只显示操作人
       options = options.filter((e) => !['CREATE_USER', 'FOLLOW_PEOPLE', 'HANDLE_USER'].includes(e.id));
     }
+    if (taskType.indexOf('BUG') === -1) {
+      // 非缺陷任务，不显示处理人
+      options = options.filter((e) => !['HANDLE_USER'].includes(e.id));
+    }
     return options;
   }
 
@@ -445,6 +450,7 @@
       background-color: var(--color-text-n9);
     }
   }
+
   :deep(.arco-select-view-multiple.arco-select-view-size-medium .arco-select-view-tag) {
     margin-top: 1px;
     margin-bottom: 1px;
