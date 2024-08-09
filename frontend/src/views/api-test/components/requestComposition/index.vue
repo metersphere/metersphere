@@ -202,12 +202,12 @@
         v-model:active-key="requestVModel.activeTab"
         :content-tab-list="contentTabList"
         :get-text-func="getTabBadge"
-        class="sticky-content no-content relative top-0 border-b px-[16px]"
+        class="sticky-content no-content relative top-0 px-[16px]"
         @tab-click="requestTabClick"
       />
       <div :class="`request-content-and-response ${activeLayout}`">
         <a-spin class="request" :loading="requestVModel.executeLoading || loading">
-          <div class="request-tab-pane flex flex-col p-[16px]">
+          <div class="request-tab-pane flex flex-col p-[16px] pt-[8px]">
             <apiBaseForm
               v-if="!props.isCase && props.isDefinition"
               v-show="requestVModel.activeTab === RequestComposition.BASE_INFO"
