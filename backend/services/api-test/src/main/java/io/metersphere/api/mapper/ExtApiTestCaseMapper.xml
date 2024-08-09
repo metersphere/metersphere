@@ -749,4 +749,17 @@
             on ass.scenario_id = api_scenario.id
                 and api_scenario.deleted = 0;
     </select>
+    <resultMap id="ApiTestCaseDetailMap" type="io.metersphere.api.dto.definition.ApiTestCaseWithBlob">
+        <result column="request" jdbcType="LONGVARBINARY" property="request"/>
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler"/>
+    </resultMap>
+    <select id="selectAllDetailByApiIds" resultMap="ApiTestCaseDetailMap">
+        SELECT apiTestCase.*,apiTestCaseBlob.request
+        FROM api_test_case apiTestCase
+        INNER JOIN api_test_case_blob apiTestCaseBlob ON apiTestCase.id = apiTestCaseBlob.id
+        WHERE apiTestCase.api_definition_id IN
+        <foreach collection="apiIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

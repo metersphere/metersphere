@@ -32,4 +32,10 @@ public class ApiDefinitionBatchRequest extends TableBatchProcessDTO implements S
 
     @Schema(description = "模块ID(根据模块树查询时要把当前节点以及子节点都放在这里。)")
     private List<@NotBlank String> moduleIds;
+
+    @Schema(description = "是否同步导出接口用例")
+    private boolean exportApiCase;
+
+    @Schema(description = "是否同步导出接口Mock")
+    private boolean exportApiMock;
 }

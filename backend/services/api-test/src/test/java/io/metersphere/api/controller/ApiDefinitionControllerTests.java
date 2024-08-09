@@ -9,6 +9,7 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.export.MetersphereApiExportResponse;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.ImportRequest;
@@ -17,20 +18,21 @@ import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.model.CheckLogModel;
+import io.metersphere.api.parser.ImportParserFactory;
 import io.metersphere.api.service.ApiCommonService;
+import io.metersphere.api.service.ApiDefinitionImportTestService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.BaseFileManagementTestService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.FileAssociationService;
-import io.metersphere.sdk.constants.ApplicationNumScope;
-import io.metersphere.sdk.constants.DefaultRepositoryDir;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRequest;
@@ -40,17 +42,20 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.controller.handler.result.MsHttpResultCode;
 import io.metersphere.system.domain.OperationHistory;
 import io.metersphere.system.domain.OperationHistoryExample;
+import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
 import io.metersphere.system.dto.sdk.BaseCondition;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OperationHistoryMapper;
+import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -171,6 +176,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private ApiScenarioStepMapper apiScenarioStepMapper;
     @Resource
     private UserLoginService userLoginService;
+    @Resource
+    private ApiDefinitionImportTestService apiDefinitionImportTestService;
+
     private static String fileMetadataId;
     private static String uploadFileId;
 
@@ -1678,7 +1686,323 @@ public class ApiDefinitionControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(request));
         this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
 
+        this.importTest();
+    }
 
+    @Resource
+    private CommonProjectService commonProjectService;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private ApiDefinitionMockMapper apiDefinitionMockMapper;
+
+    private void importTest() throws Exception {
+        //测试ImportParserFactory不按规定获取会返回null
+        Assertions.assertNull(ImportParserFactory.getImportParser("test"));
+        // 创建用于导入的项目
+        //测试计划专用项目
+        AddProjectRequest initProject = new AddProjectRequest();
+        initProject.setOrganizationId("100001");
+        initProject.setName("接口测试导入专用项目");
+        initProject.setDescription("建国创建的接口测试专用项目");
+        initProject.setEnable(true);
+        initProject.setUserIds(List.of("admin"));
+        Project importProject = commonProjectService.add(initProject, "admin", "/organization-project/add", OperationLogModule.SETTING_ORGANIZATION_PROJECT);
+        ArrayList<String> moduleList = new ArrayList<>(List.of("workstation", "testPlan", "bugManagement", "caseManagement", "apiTest", "uiTest", "loadTest"));
+        Project updateProject = new Project();
+        updateProject.setId(importProject.getId());
+        updateProject.setModuleSetting(JSON.toJSONString(moduleList));
+        projectMapper.updateByPrimaryKeySelective(updateProject);
+
+        initProject.setName("接口测试导出专用项目");
+        Project exportProject = commonProjectService.add(initProject, "admin", "/organization-project/add", OperationLogModule.SETTING_ORGANIZATION_PROJECT);
+        updateProject.setId(exportProject.getId());
+        projectMapper.updateByPrimaryKeySelective(updateProject);
+
+        /*
+
+            导入测试。 不同类型的文件，要按照如下指定的文件类型，走同样的导入逻辑判断。确保数据的高可用和对代码的高覆盖
+            以下是对导入文件的要求：
+                    file/import/{importType}/single: 1个接口，无用例。
+                    file/import/{importType}/simple: 4个接口(（其中2个url重复，合法数据只有3条,并且都在同一个模块下）)；
+                                                        2个路径重复的接口下都有2个用例。 （用于校验路径相同的接口下，用例要合并起来导入）  (Metersphere的还要有15个Mock，其中有名字一样的)
+                    file/import/{importType}/repeatFileDiffApi: 和simple一样路径的4个接口（其中2个路径重复，合法数据只有3条），但是参数不一样;
+                                                        每个接口下都有2个用例，一共4个。 simple中的4个用例相比，有1个用例名字一样、对应的接口路径也一样。剩下的用例名称全部一样。（用于校验相同路径的接口下、相同名称的用例处理方式）
+                    file/import/{importType}/repeatFileDiffModule: 和repeatFileDiffApi一样的4个接口（其中2个路径重复，合法数据只有3条），参数也一样，但是所属模块不一样;
+                                                        没有用例。（用于校验覆盖模块时，接口的变更）
+
+            以下是导入操作：
+
+                导入不存在的接口
+                    · 不指定导入模块   导入 {importType}/simple， 同步导入用例。校验有新增的模块，下面一共有3个API。其中有个API包含4个case
+                    · 指定导入模块     导入 {importType}/single，校验模块新增了1个并有api
+                导入存在的接口
+                    · 不覆盖接口   导入 {importType}/repeatFileDiffApi，校验模块没有变化，api数量没有变化，case数量没有变化
+                    · 覆盖接口
+                        · 不覆盖模块
+                            导入 {importType}/repeatFileDiffApi，不导入用例，校验模块没有变化，api更新时间变了，case数量没有变化
+                            再导入 {importType}/repeatFileDiffApi，导入用例，校验模块没有变化，api更新时间没变，case数量增加，应该是4+3+3 -1（名称重复的）
+                        · 覆盖模块
+                            接口一样，模块不一样：     导入 {importType}/repeatFileDiffModule， (测试指定导入模块，测试一下会不会创建多个模块）   判断接口对应的模块有更新， api内容没更新；
+                            接口不一样，模块不一样：   重新导入{importType}/simple，          (测试测试不指定导入模块，测试一下会不会回到原模块）   判断接口对应的模块有更新， api内容有更新
+                            接口不一样，模块一样：     重新导入{importType}/repeatFileDiffApi，     判断接口对应的模块没更新， api内容有更新
+                            接口一样，模块一样： 再导入{importType}/repeatFileDiffApi，     判断接口对应的模块没更新， api内容没更新
+         */
+
+        //导入类型以及文件后缀
+        Map<String, String> importTypeAndSuffix = new LinkedHashMap<>();
+        importTypeAndSuffix.put("metersphere", "json");
+        importTypeAndSuffix.put("postman", "json");
+        importTypeAndSuffix.put("har", "har");
+        List<String> importCaseType = Arrays.asList("postman", "metersphere");
+        List<String> importModulesType = Arrays.asList("postman", "metersphere");
+
+        ApiDefinitionModuleExample moduleExample = new ApiDefinitionModuleExample();
+        moduleExample.createCriteria().andProjectIdEqualTo(importProject.getId());
+        ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
+        apiTestCaseExample.createCriteria().andProjectIdEqualTo(importProject.getId());
+
+        for (Map.Entry<String, String> entry : importTypeAndSuffix.entrySet()) {
+            ImportRequest request = new ImportRequest();
+            request.setProjectId(importProject.getId());
+            request.setProtocol(ApiConstants.HTTP_PROTOCOL);
+            request.setUserId("admin");
+            
+            List<ApiDefinitionModule> apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
+            List<ApiDefinitionBlob> apiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
+            List<ApiTestCase> apiTestCaseList = apiTestCaseMapper.selectByExample(apiTestCaseExample);
+            Assertions.assertEquals(apiDefinitionModuleList.size(), 0);
+            Assertions.assertEquals(apiBlobList.size(), 0);
+            Assertions.assertEquals(apiTestCaseList.size(), 0);
+            boolean checkTestCase = importCaseType.contains(entry.getKey());
+            boolean checkModules = importModulesType.contains(entry.getKey());
+
+            String importType = entry.getKey();
+            String fileSuffix = entry.getValue();
+            request.setPlatform(importType);
+            request.setSyncCase(true);
+            FileInputStream inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import/" + importType + "/simple." + fileSuffix)).getPath()));
+            MockMultipartFile file = new MockMultipartFile("file", "simple." + fileSuffix, MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+            MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+            paramMap.add("request", JSON.toJSONString(request));
+            paramMap.add("file", file);
+            this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+            request.setSyncCase(false);
+            apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
+            apiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
+            Assertions.assertEquals(apiDefinitionModuleList.size(), checkModules ? 1 : 0);
+            Assertions.assertEquals(apiBlobList.size(), 3);
+            if (checkTestCase) {
+                apiTestCaseList = apiTestCaseMapper.selectByExample(apiTestCaseExample);
+                Assertions.assertEquals(apiTestCaseList.size(), 4);
+            }
+
+            if (StringUtils.equalsIgnoreCase(importType, "metersphere")) {
+                request.setSyncMock(true);
+                request.setCoverData(true);
+                List<String> apiString = apiBlobList.stream().map(ApiDefinitionBlob::getId).toList();
+                ApiDefinitionMockExample apiDefinitionMockExample = new ApiDefinitionMockExample();
+                apiDefinitionMockExample.createCriteria().andApiDefinitionIdIn(apiString).andProjectIdEqualTo(importProject.getId());
+                List<ApiDefinitionMock> mockList = apiDefinitionMockMapper.selectByExample(apiDefinitionMockExample);
+                Assertions.assertEquals(mockList.size(), 0);
+                paramMap = new LinkedMultiValueMap<>();
+                paramMap.add("file", file);
+                paramMap.add("request", JSON.toJSONString(request));
+                this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+                mockList = apiDefinitionMockMapper.selectByExample(apiDefinitionMockExample);
+                Assertions.assertEquals(mockList.size(), 15);
+
+                this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+                mockList = apiDefinitionMockMapper.selectByExample(apiDefinitionMockExample);
+                Assertions.assertEquals(mockList.size(), 15);
+                request.setSyncMock(false);
+                request.setCoverData(false);
+            }
+
+            if (CollectionUtils.isEmpty(apiDefinitionModuleList)) {
+                request.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+            } else {
+                request.setModuleId(apiDefinitionModuleList.getFirst().getId());
+            }
+            inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import/" + importType + "/single." + fileSuffix)).getPath()));
+            file = new MockMultipartFile("file", "single." + fileSuffix, MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+            paramMap = new LinkedMultiValueMap<>();
+            paramMap.add("request", JSON.toJSONString(request));
+            paramMap.add("file", file);
+            this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+            request.setModuleId(null);
+            apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
+            apiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
+            Assertions.assertEquals(apiDefinitionModuleList.size(), checkModules ? 1 : 0);
+            Assertions.assertEquals(apiBlobList.size(), 4);
+            if (checkTestCase) {
+                apiTestCaseList = apiTestCaseMapper.selectByExample(apiTestCaseExample);
+                Assertions.assertEquals(apiTestCaseList.size(), 4);
+            }
+
+            if (StringUtils.equalsIgnoreCase(importType, "metersphere")) {
+                //恰逢ms格式的导入，可以顺便测试导出
+                this.testExportAndImport(importProject.getId(), apiBlobList);
+            }
+
+
+            //            · 不覆盖接口   导入 {importType}/repeatFileDiffApi，校验模块没有变化，api无变化，case数量没有变化
+            inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import/" + importType + "/repeatFileDiffApi." + fileSuffix)).getPath()));
+            file = new MockMultipartFile("file", "repeatFileDiffApi." + fileSuffix, MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+            paramMap = new LinkedMultiValueMap<>();
+            paramMap.add("request", JSON.toJSONString(request));
+            paramMap.add("file", file);
+            this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+            request.setModuleId(null);
+            apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
+            Assertions.assertEquals(apiDefinitionModuleList.size(), checkModules ? 1 : 0);
+            List<ApiDefinitionBlob> newApiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
+            apiDefinitionImportTestService.compareApiBlobList(apiBlobList, newApiBlobList, 0);
+            apiBlobList = newApiBlobList;
+            if (checkTestCase) {
+                List<ApiTestCase> newApiTestCaseList = apiTestCaseMapper.selectByExample(apiTestCaseExample);
+                apiDefinitionImportTestService.compareApiTestCaseList(apiTestCaseList, newApiTestCaseList, 0, 0);
+                apiTestCaseList = newApiTestCaseList;
+            }
+
+            //· 覆盖接口
+            request.setCoverData(true);
+            //    · 不覆盖模块
+            //            导入 {importType}/repeatFileDiffApi，不导入用例，校验模块没有变化，api有3个变了，case数量没有变化
+            inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import/" + importType + "/repeatFileDiffApi." + fileSuffix)).getPath()));
+            file = new MockMultipartFile("file", "repeatFileDiffApi." + fileSuffix, MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+            paramMap = new LinkedMultiValueMap<>();
+            paramMap.add("request", JSON.toJSONString(request));
+            paramMap.add("file", file);
+            this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+            apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
+            Assertions.assertEquals(apiDefinitionModuleList.size(), checkModules ? 1 : 0);
+            newApiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
+            apiDefinitionImportTestService.compareApiBlobList(apiBlobList, newApiBlobList, 3);
+            apiBlobList = newApiBlobList;
+            if (checkTestCase) {
+                List<ApiTestCase> newApiTestCaseList = apiTestCaseMapper.selectByExample(apiTestCaseExample);
+                apiDefinitionImportTestService.compareApiTestCaseList(apiTestCaseList, newApiTestCaseList, 0, 0);
+                apiTestCaseList = newApiTestCaseList;
+            }
+
+            //            再导入 {importType}/repeatFileDiffApi，导入用例，校验模块没有变化，api无更新，case数量增加，应该是4+3+3 -1（名称重复的）、
+            request.setSyncCase(true);
+            inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import/" + importType + "/repeatFileDiffApi." + fileSuffix)).getPath()));
+            file = new MockMultipartFile("file", "repeatFileDiffApi." + fileSuffix, MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+            paramMap = new LinkedMultiValueMap<>();
+            paramMap.add("request", JSON.toJSONString(request));
+            paramMap.add("file", file);
+            this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+            request.setSyncCase(false);
+            apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
+            Assertions.assertEquals(apiDefinitionModuleList.size(), checkModules ? 1 : 0);
+            newApiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
+            apiDefinitionImportTestService.compareApiBlobList(apiBlobList, newApiBlobList, 0);
+            apiBlobList = newApiBlobList;
+            if (checkTestCase) {
+                List<ApiTestCase> newApiTestCaseList = apiTestCaseMapper.selectByExample(apiTestCaseExample);
+                apiDefinitionImportTestService.compareApiTestCaseList(apiTestCaseList, newApiTestCaseList, 1, 3);
+                apiTestCaseList = newApiTestCaseList;
+            }
+
+            //                · 覆盖模块
+            request.setCoverModule(true);
+            List<ApiDefinition> newApiDefinition = new ArrayList<>();
+            List<ApiDefinition> oldApiDefinition = new ArrayList<>();
+            if (checkModules) {
+                // 以下只针对需要检查模块的导入文件方式。  部分比如har文件，由于导入接口没有模块数据，故不需要检查模块
+                //            接口一样，模块不一样：     导入 {importType}/repeatFileDiffModule， (测试测试指定导入模块，测试一下会不会创建多个模块）   判断接口对应的模块有更新， api内容没更新；
+                inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import/" + importType + "/repeatFileDiffModule." + fileSuffix)).getPath()));
+                file = new MockMultipartFile("file", "repeatFileDiffModule." + fileSuffix, MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+                paramMap = new LinkedMultiValueMap<>();
+                paramMap.add("request", JSON.toJSONString(request));
+                paramMap.add("file", file);
+                this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+                apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
+                Assertions.assertTrue(apiDefinitionModuleList.size() > 1);
+                newApiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
+                apiDefinitionImportTestService.compareApiBlobList(apiBlobList, newApiBlobList, 0);
+                apiBlobList = newApiBlobList;
+                if (checkTestCase) {
+                    List<ApiTestCase> newApiTestCaseList = apiTestCaseMapper.selectByExample(apiTestCaseExample);
+                    apiDefinitionImportTestService.compareApiTestCaseList(apiTestCaseList, newApiTestCaseList, 0, 0);
+                }
+
+                //            接口不一样，模块不一样：   重新导入{importType}/simple，          (测试测试不指定导入模块，测试一下会不会回到原模块）   判断接口对应的模块有更新， api内容有更新
+                oldApiDefinition = apiDefinitionImportTestService.selectApiDefinitionByProjectId(importProject.getId());
+                inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import/" + importType + "/simple." + fileSuffix)).getPath()));
+                file = new MockMultipartFile("file", "simple." + fileSuffix, MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+                paramMap = new LinkedMultiValueMap<>();
+                paramMap.add("request", JSON.toJSONString(request));
+                paramMap.add("file", file);
+                this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+                apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
+                Assertions.assertTrue(apiDefinitionModuleList.size() > 1);
+                newApiDefinition = apiDefinitionImportTestService.selectApiDefinitionByProjectId(importProject.getId());
+                apiDefinitionImportTestService.checkApiModuleChange(oldApiDefinition, newApiDefinition, 3);
+                newApiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
+                apiDefinitionImportTestService.compareApiBlobList(apiBlobList, newApiBlobList, 3);
+                apiBlobList = newApiBlobList;
+                oldApiDefinition = newApiDefinition;
+
+                //            接口不一样，模块一样：     重新导入{importType}/repeatFileDiffApi，     判断接口对应的模块没更新， api内容有更新
+                inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import/" + importType + "/repeatFileDiffApi." + fileSuffix)).getPath()));
+                file = new MockMultipartFile("file", "repeatFileDiffApi." + fileSuffix, MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+                paramMap = new LinkedMultiValueMap<>();
+                paramMap.add("request", JSON.toJSONString(request));
+                paramMap.add("file", file);
+                this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+                newApiDefinition = apiDefinitionImportTestService.selectApiDefinitionByProjectId(importProject.getId());
+                apiDefinitionImportTestService.checkApiModuleChange(oldApiDefinition, newApiDefinition, 0);
+                newApiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
+                apiDefinitionImportTestService.compareApiBlobList(apiBlobList, newApiBlobList, 3);
+                apiBlobList = newApiBlobList;
+            }
+
+
+            //            接口一样，模块一样： 再导入{importType}/repeatFileDiffApi，     判断接口对应的模块没更新， api内容没更新
+            oldApiDefinition = newApiDefinition;
+            inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import/" + importType + "/repeatFileDiffApi." + fileSuffix)).getPath()));
+            file = new MockMultipartFile("file", "repeatFileDiffApi." + fileSuffix, MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+            paramMap = new LinkedMultiValueMap<>();
+            paramMap.add("request", JSON.toJSONString(request));
+            paramMap.add("file", file);
+            this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+            newApiDefinition = apiDefinitionImportTestService.selectApiDefinitionByProjectId(importProject.getId());
+            apiDefinitionImportTestService.checkApiModuleChange(oldApiDefinition, newApiDefinition, 0);
+            newApiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
+            apiDefinitionImportTestService.compareApiBlobList(apiBlobList, newApiBlobList, 0);
+
+            //删除本次导入的数据
+            List<String> apiIds = newApiDefinition.stream().map(ApiDefinition::getId).collect(Collectors.toList());
+            apiDefinitionService.handleDeleteApiDefinition(apiIds, true, request.getProjectId(), "admin", true);
+            apiDefinitionService.handleTrashDelApiDefinition(apiIds, "admin", importProject.getId(), true);
+            newApiDefinition = apiDefinitionImportTestService.selectApiDefinitionByProjectId(importProject.getId());
+            newApiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
+            List<ApiTestCase> newApiTestCaseList = apiTestCaseMapper.selectByExample(apiTestCaseExample);
+            ApiDefinitionModuleExample deleteModuleExample = new ApiDefinitionModuleExample();
+            deleteModuleExample.createCriteria().andProjectIdEqualTo(importProject.getId());
+            apiDefinitionModuleMapper.deleteByExample(deleteModuleExample);
+            apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
+            Assertions.assertEquals(apiDefinitionModuleList.size(), 0);
+            Assertions.assertEquals(newApiDefinition.size(), 0);
+            Assertions.assertEquals(newApiBlobList.size(), 0);
+            Assertions.assertEquals(newApiTestCaseList.size(), 0);
+        }
+    }
+
+    private void testExportAndImport(String exportProjectId, List<ApiDefinitionBlob> exportApiBlobs) throws Exception {
+        ApiDefinitionBatchRequest exportRequest = new ApiDefinitionBatchRequest();
+        exportRequest.setProjectId(exportProjectId);
+        exportRequest.setSelectAll(true);
+        exportRequest.setExportApiCase(true);
+        exportRequest.setExportApiMock(true);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(EXPORT + "metersphere", exportRequest);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        MetersphereApiExportResponse exportResponse = ApiDataUtils.parseObject(JSON.toJSONString(resultHolder.getData()), MetersphereApiExportResponse.class);
+        apiDefinitionImportTestService.compareApiExport(exportResponse, exportApiBlobs);
     }
 
     protected MvcResult requestMultipart(String url, MultiValueMap<String, Object> paramMap, ResultMatcher resultMatcher) throws Exception {

@@ -1,0 +1,300 @@
+{
+  "info": {
+    "_postman_id": "d416135d-5659-4f36-882b-49bad266b8de",
+    "name": "正常请求的集合",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "15342444"
+  },
+  "item": [
+    {
+      "name": "https://api.tapd.cn/stories?workspace_id=AAA&idddd=BBB Copy",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "zxdczxczxczcx",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "basddasda",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.tapd.cn/stories?workspace_id=AAAAA&idddd=BBBBB",
+          "protocol": "https",
+          "host": [
+            "api",
+            "tapd",
+            "cn"
+          ],
+          "path": [
+            "stories"
+          ],
+          "query": [
+            {
+              "key": "workspace_id",
+              "value": "AAAAA"
+            },
+            {
+              "key": "idddd",
+              "value": "BBBBB"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "post的mock请求 Copy",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "MMM",
+              "value": "PPP",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://ms-v3.fit2cloud.com/mock-server/100080/100004/mock-for-post",
+          "protocol": "https",
+          "host": [
+            "ms-v3",
+            "fit2cloud",
+            "com"
+          ],
+          "path": [
+            "mock-server",
+            "100080",
+            "100004",
+            "mock-for-post"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "put的mock请求",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "methoddd",
+              "value": "pppp",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://ms-v3.fit2cloud.com/mock-server/100080/100005/mock-for-put",
+          "protocol": "https",
+          "host": [
+            "ms-v3",
+            "fit2cloud",
+            "com"
+          ],
+          "path": [
+            "mock-server",
+            "100080",
+            "100005",
+            "mock-for-put"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "用于验证名字一样的用例1",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "method",
+                  "value": "put-ex1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://ms-v3.fit2cloud.com/mock-server/100080/100005/mock-for-put",
+              "protocol": "https",
+              "host": [
+                "ms-v3",
+                "fit2cloud",
+                "com"
+              ],
+              "path": [
+                "mock-server",
+                "100080",
+                "100005",
+                "mock-for-put"
+              ]
+            }
+          },
+          "_postman_previewlanguage": null,
+          "header": null,
+          "cookie": [],
+          "body": null
+        },
+        {
+          "name": "用于验证名字一样的用例1",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "method",
+                  "value": "put-ex1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://ms-v3.fit2cloud.com/mock-server/100080/100005/mock-for-put",
+              "protocol": "https",
+              "host": [
+                "ms-v3",
+                "fit2cloud",
+                "com"
+              ],
+              "path": [
+                "mock-server",
+                "100080",
+                "100005",
+                "mock-for-put"
+              ]
+            }
+          },
+          "_postman_previewlanguage": null,
+          "header": null,
+          "cookie": [],
+          "body": null
+        }
+      ]
+    },
+    {
+      "name": "put的mock请求 Copy 2",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "nnnn",
+              "value": "uuuuu",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://ms-v3.fit2cloud.com/mock-server/100080/100005/mock-for-put",
+          "protocol": "https",
+          "host": [
+            "ms-v3",
+            "fit2cloud",
+            "com"
+          ],
+          "path": [
+            "mock-server",
+            "100080",
+            "100005",
+            "mock-for-put"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "put的mock-copy请求ex",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "method",
+                  "value": "putttttttttttt",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://ms-v3.fit2cloud.com/mock-server/100080/100005/mock-for-put",
+              "protocol": "https",
+              "host": [
+                "ms-v3",
+                "fit2cloud",
+                "com"
+              ],
+              "path": [
+                "mock-server",
+                "100080",
+                "100005",
+                "mock-for-put"
+              ]
+            }
+          },
+          "_postman_previewlanguage": null,
+          "header": null,
+          "cookie": [],
+          "body": null
+        },
+        {
+          "name": "用于验证名字一样的用例1",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "method",
+                  "value": "put",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://ms-v3.fit2cloud.com/mock-server/100080/100005/mock-for-put",
+              "protocol": "https",
+              "host": [
+                "ms-v3",
+                "fit2cloud",
+                "com"
+              ],
+              "path": [
+                "mock-server",
+                "100080",
+                "100005",
+                "mock-for-put"
+              ]
+            }
+          },
+          "_postman_previewlanguage": null,
+          "header": null,
+          "cookie": [],
+          "body": null
+        }
+      ]
+    }
+  ]
+}
