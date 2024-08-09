@@ -128,7 +128,7 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
         }
         Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, index + 3, 1));
         comment.setString(new XSSFRichTextString(text));
-        sheet.getRow(0).getCell(1).setCellComment(comment);
+        sheet.getRow(0).getCell(0).setCellComment(comment);
     }
 
     public static HorizontalCellStyleStrategy getHorizontalWrapStrategy() {
