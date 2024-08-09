@@ -48,7 +48,7 @@
       </template>
       <template #num="{ record }">
         <div class="flex items-center">
-          <MsButton type="text" @click="isApi ? openCaseDetailDrawer(record.id) : openCaseTab(record)">
+          <MsButton type="text" @click="openCaseTab(record)">
             {{ record.num }}
           </MsButton>
           <a-tooltip v-if="record.apiChange" class="ms-tooltip-white">
@@ -320,7 +320,6 @@
 </template>
 
 <script setup lang="ts">
-  import { useRoute, useRouter } from 'vue-router';
   import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
@@ -368,7 +367,6 @@
   import { DragSortParams } from '@/models/common';
   import { RequestCaseStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
-  import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
@@ -394,8 +392,6 @@
   const { t } = useI18n();
   const tableStore = useTableStore();
   const { openModal } = useModal();
-  const route = useRoute();
-  const router = useRouter();
 
   const keyword = ref('');
 
@@ -934,17 +930,6 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
-  }
-  async function openCaseDetailDrawer(id: string) {
-    await getCaseDetailInfo(id);
-    caseExecute.value = false;
-    router.push({
-      name: ApiTestRouteEnum.API_TEST_MANAGEMENT_CASE_DETAIL,
-      query: {
-        ...route.query,
-        id,
-      },
-    });
   }
 
   async function openCaseDetailDrawerAndExecute(id: string) {
