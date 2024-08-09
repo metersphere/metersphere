@@ -56,6 +56,7 @@ import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -538,16 +539,9 @@ public class FunctionalCaseFileService {
             List<FunctionalCaseExcelData> excelData = parseCaseData2ExcelData(subIds, rowMergeInfo, request, customFields, moduleMap, parameter.getParamValue());
             List<List<Object>> data = parseExcelData2List(headList, excelData);
 
-            File createFile = new File(tmpZipPath + File.separatorChar + "Metersphere_case_" + project.getName() + count.get() + ".xlsx");
-            if (!createFile.exists()) {
-                try {
-                    createFile.createNewFile();
-                } catch (IOException e) {
-                    throw new MSException(e);
-                }
-            }
+            File createFile = new File(FilenameUtils.normalize(LocalRepositoryDir.getSystemTempDir() + File.separator + "Metersphere_case_" + project.getName() + count.get() + ".xlsx"));
             //生成临时EXCEL
-            EasyExcel.write(createFile)
+            EasyExcel.write(createFile.getAbsolutePath())
                     .head(Optional.ofNullable(headList).orElse(new ArrayList<>()))
                     .registerWriteHandler(handler)
                     .registerWriteHandler(writeHandler)
@@ -873,7 +867,7 @@ public class FunctionalCaseFileService {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         byte[] bytes;
         FileRequest fileRequest = new FileRequest();
-        fileRequest.setFileName(tasksFirst.getFileId().concat(tasksFirst.getFileType()));
+        fileRequest.setFileName(tasksFirst.getFileId().concat(".").concat(tasksFirst.getFileType()));
         fileRequest.setFolder(DefaultRepositoryDir.getExportExcelTempDir());
         fileRequest.setStorage(StorageType.MINIO.name());
         try {
@@ -881,7 +875,7 @@ public class FunctionalCaseFileService {
         } catch (Exception e) {
             throw new MSException("get file error");
         }
-        String fileName = "Metersphere_case_" + project.getName() + tasksFirst.getFileType();
+        String fileName = "Metersphere_case_" + project.getName() + "." + tasksFirst.getFileType();
 
         try {
             return ResponseEntity.ok()

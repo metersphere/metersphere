@@ -59,7 +59,7 @@ public class ExportTaskManager {
         exportTask.setUpdateUser(userId);
         exportTask.setUpdateTime(System.currentTimeMillis());
         exportTask.setProjectId(projectId);
-        exportTask.setFileType(fileId);
+        exportTask.setFileId(fileId);
         exportTaskMapper.insertSelective(exportTask);
         return exportTask;
     }
