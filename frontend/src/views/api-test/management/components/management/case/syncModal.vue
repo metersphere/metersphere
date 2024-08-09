@@ -112,7 +112,13 @@
   };
 
   const form = ref<batchSyncForm>(cloneDeep(initForm));
-  const checkType = ref([]);
+  const initCheckList = [
+    RequestComposition.HEADER,
+    RequestComposition.BODY,
+    RequestComposition.QUERY,
+    RequestComposition.REST,
+  ];
+  const checkType = ref([...initCheckList]);
 
   const checkList = ref([
     {
@@ -136,7 +142,7 @@
 
   function resetForm() {
     form.value = cloneDeep(initForm);
-    checkType.value = [];
+    checkType.value = [...initCheckList];
     showBatchSyncModal.value = false;
   }
 
