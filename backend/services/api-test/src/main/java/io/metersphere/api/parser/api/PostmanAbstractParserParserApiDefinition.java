@@ -7,8 +7,7 @@ import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import io.metersphere.api.dto.ApiFile;
-import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
-import io.metersphere.api.dto.definition.HttpResponse;
+import io.metersphere.api.dto.converter.ApiDefinitionDetail;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
@@ -27,17 +26,14 @@ import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.environment.auth.BasicAuth;
 import io.metersphere.project.dto.environment.auth.DigestAuth;
 import io.metersphere.project.dto.environment.auth.HTTPAuthConfig;
-import io.metersphere.system.uid.IDGenerator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
-public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractParser<T> {
+public abstract class PostmanAbstractParserParserApiDefinition<T> extends HttpApiDefinitionImportAbstractParser<T> {
 
 
     private static final String POSTMAN_AUTH_TYPE_BASIC = "basic";
@@ -63,18 +59,8 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
     private static final String JSON = "json";
     private static final String XML = "xml";
 
-
-    protected ApiDefinitionImportDetail parsePostman(PostmanItem requestItem, String modulePath, ImportRequest importRequest) {
-        PostmanRequest requestDesc = requestItem.getRequest();
-        if (requestDesc == null) {
-            return null;
-        }
-        String url = StringUtils.EMPTY;
-        JsonNode urlNode = requestDesc.getUrl();
-        //获取url
-        url = getUrl(urlNode, url);
-        ApiDefinitionImportDetail detail = buildApiDefinition(requestItem.getName(), url, requestDesc.getMethod(), modulePath, importRequest);
-        MsHTTPElement request = buildHttpRequest(requestItem.getName(), url, requestDesc.getMethod());
+    private MsHTTPElement parseElement(PostmanRequest requestDesc, String name, String url, JsonNode urlNode) {
+        MsHTTPElement request = buildHttpRequest(name, url, requestDesc.getMethod());
         //设置认证
         setAuth(requestDesc, request);
         //设置基础参数 请求头
@@ -87,6 +73,18 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         }
         //设置body参数
         setBody(requestDesc, request);
+        return request;
+    }
+
+    protected Map<ApiDefinitionDetail, List<ApiDefinitionDetail>> parsePostman(PostmanItem requestItem, String modulePath, ImportRequest importRequest) {
+        PostmanRequest requestDesc = requestItem.getRequest();
+        if (requestDesc == null) {
+            return null;
+        }
+        String url = getUrl(requestDesc.getUrl());
+        ApiDefinitionDetail detail = buildApiDefinition(requestItem.getName(), url, requestDesc.getMethod(), modulePath, importRequest);
+        MsHTTPElement request = parseElement(requestDesc, requestItem.getName(), url, requestDesc.getUrl());
+
         // 其他设置
         PostmanItem.ProtocolProfileBehavior protocolProfileBehavior = requestItem.getProtocolProfileBehavior();
         request.getOtherConfig().setFollowRedirects(protocolProfileBehavior != null &&
@@ -97,42 +95,46 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         LinkedList<AbstractMsTestElement> children = new LinkedList<>();
         children.add(new MsCommonElement());
         request.setChildren(children);
-
         detail.setRequest(request);
 
-        //设置response
-        setResponseData(requestItem, detail);
-
-        return detail;
+        List<ApiDefinitionDetail> postmanExamples = this.parsePostmanRequest(requestItem, modulePath, importRequest);
+        return new HashMap<>() {{
+            this.put(detail, postmanExamples);
+        }};
     }
 
-    private static void setResponseData(PostmanItem requestItem, ApiDefinitionImportDetail detail) {
+    private String initApiCaseName(String originalName, List<String> savedResponseName) {
+        if (savedResponseName.contains(originalName)) {
+            int i = 1;
+            while (savedResponseName.contains(originalName + "_" + i)) {
+                i++;
+            }
+            return originalName + "_" + i;
+        }
+        return originalName;
+    }
+
+    private List<ApiDefinitionDetail> parsePostmanRequest(PostmanItem requestItem, String modulePath, ImportRequest importRequest) {
+        List<ApiDefinitionDetail> postmanExamples = new ArrayList<>();
         List<PostmanResponse> response = requestItem.getResponse();
+        List<String> savedResponseName = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(response)) {
             response.forEach(r -> {
-                HttpResponse httpResponse = new HttpResponse();
-                httpResponse.setId(IDGenerator.nextStr());
-                httpResponse.setName(r.getName());
-                httpResponse.setStatusCode(r.getCode().toString());
-                if (CollectionUtils.isNotEmpty(r.getHeader())) {
-                    r.getHeader().forEach(h -> {
-                        MsHeader msHeader = getMsHeader(h);
-                        httpResponse.getHeaders().add(msHeader);
-                    });
-                }
-                httpResponse.getBody().getJsonBody().setJsonValue(r.getBody() != null && r.getBody() instanceof TextNode ? r.getBody().asText() : StringUtils.EMPTY);
-                httpResponse.getBody().setBodyType(Body.BodyType.RAW.name());
-                detail.getResponse().add(httpResponse);
+                PostmanRequest postmanRequest = r.getOriginalRequest();
+                String name = this.initApiCaseName(r.getName(), savedResponseName);
+                String url = getUrl(postmanRequest.getUrl());
+                ApiDefinitionDetail detail = buildApiDefinition(name, url, postmanRequest.getMethod(), modulePath, importRequest);
+                MsHTTPElement request = parseElement(postmanRequest, name, url, postmanRequest.getUrl());
+                //构造 children
+                LinkedList<AbstractMsTestElement> children = new LinkedList<>();
+                children.add(new MsCommonElement());
+                request.setChildren(children);
+                detail.setRequest(request);
+                postmanExamples.add(detail);
+                savedResponseName.add(name);
             });
-            detail.getResponse().forEach(httpResponse -> {
-                if (StringUtils.equals("200", httpResponse.getStatusCode())) {
-                    httpResponse.setDefaultFlag(true);
-                }
-            });
-            if (detail.getResponse().stream().noneMatch(httpResponse -> StringUtils.equals("200", httpResponse.getStatusCode()))) {
-                detail.getResponse().getFirst().setDefaultFlag(true);
-            }
         }
+        return postmanExamples;
     }
 
     @NotNull
@@ -242,10 +244,14 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         if (restNode instanceof ArrayNode restArray) {
             restArray.forEach(r -> {
                 RestParam restParam = new RestParam();
-                restParam.setKey(r.get(KEY).asText());
-                restParam.setValue(r.get(VALUE).asText());
-                restParam.setDescription(r.get(DESCRIPTION) instanceof TextNode ? r.get(DESCRIPTION).asText() : StringUtils.EMPTY);
-                restParam.setEnable(!(r.get(DISABLED) instanceof BooleanNode) || !r.get(DISABLED).asBoolean());
+                restParam.setKey(r.get(KEY) != null ? r.get(KEY).asText() : StringUtils.EMPTY);
+                restParam.setValue(r.get(VALUE) != null ? r.get(VALUE).asText() : StringUtils.EMPTY);
+                if (r.get(DESCRIPTION) != null) {
+                    restParam.setDescription(r.get(DESCRIPTION) instanceof TextNode ? r.get(DESCRIPTION).asText() : StringUtils.EMPTY);
+                }
+                if (r.get(DESCRIPTION) != null) {
+                    restParam.setEnable(!(r.get(DISABLED) instanceof BooleanNode) || !r.get(DISABLED).asBoolean());
+                }
                 request.getRest().add(restParam);
             });
         }
@@ -274,7 +280,8 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         }
     }
 
-    private static String getUrl(JsonNode urlNode, String url) {
+    private static String getUrl(JsonNode urlNode) {
+        String url = StringUtils.EMPTY;
         if (urlNode instanceof ObjectNode urlObject) {
             JsonNode pathNode = urlObject.get(PATH);
             if (pathNode instanceof ArrayNode pathArray) {

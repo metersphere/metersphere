@@ -2,26 +2,20 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.constants.ApiImportPlatform;
-import io.metersphere.api.domain.ApiDefinition;
-import io.metersphere.api.domain.ApiDefinitionBlob;
-import io.metersphere.api.domain.ApiDefinitionBlobExample;
-import io.metersphere.api.domain.ApiDefinitionModule;
-import io.metersphere.api.dto.converter.ApiDefinitionImport;
-import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
-import io.metersphere.api.dto.converter.ApiDetailWithData;
-import io.metersphere.api.dto.converter.ApiDetailWithDataUpdate;
-import io.metersphere.api.dto.definition.ApiDefinitionDTO;
-import io.metersphere.api.dto.definition.ApiDefinitionPageRequest;
-import io.metersphere.api.dto.definition.ApiModuleRequest;
+import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.converter.*;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.mapper.*;
-import io.metersphere.api.parser.ImportParser;
+import io.metersphere.api.parser.ApiDefinitionImportParser;
 import io.metersphere.api.parser.ImportParserFactory;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.api.utils.ApiDefinitionImportUtils;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.KeyValueEnableParam;
 import io.metersphere.project.constants.PropertyConstant;
 import io.metersphere.project.domain.Project;
@@ -29,7 +23,6 @@ import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
-import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.*;
@@ -45,9 +38,11 @@ import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.CommonNoticeSendService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
+import io.metersphere.system.utils.ServiceUtils;
+import io.metersphere.system.utils.TreeNodeParseUtils;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -57,8 +52,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.HttpURLConnection;
-import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -84,6 +77,8 @@ public class ApiDefinitionImportService {
     @Resource
     private ApiDefinitionBlobMapper apiDefinitionBlobMapper;
     @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
     private ApiDefinitionModuleService apiDefinitionModuleService;
     @Resource
     private ProjectMapper projectMapper;
@@ -93,158 +88,68 @@ public class ApiDefinitionImportService {
     private CommonNoticeSendService commonNoticeSendService;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
+    @Resource
+    private ApiDefinitionMockMapper apiDefinitionMockMapper;
+    @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
 
-    private static final String FILE_JMX = "jmx";
-    private static final String FILE_HAR = "har";
-    private static final String FILE_JSON = "json";
+    private void initImportRequestAndCheck(MultipartFile file, ImportRequest request, String projectId) {
+        if (StringUtils.isBlank(request.getProjectId())) {
+            request.setProjectId(projectId);
+        }
+        //判断是否是定时任务进入
+        if (StringUtils.equals(request.getType(), "SCHEDULE")) {
+            request.setProtocol(ModuleConstants.NODE_PROTOCOL_HTTP);
+        }
 
-    public void apiTestImport(MultipartFile file, ImportRequest request, String projectId) {
         if (file != null) {
             String originalFilename = file.getOriginalFilename();
             if (StringUtils.isNotBlank(originalFilename)) {
                 String suffixName = originalFilename.substring(originalFilename.indexOf(".") + 1);
-                this.checkFileSuffixName(request, suffixName);
+                ApiDefinitionImportUtils.checkFileSuffixName(request, suffixName);
             }
         }
-        if (StringUtils.isBlank(request.getProjectId())) {
-            request.setProjectId(projectId);
-        }
-        ImportParser<?> runService = ImportParserFactory.getImportParser(request.getPlatform());
-        ApiDefinitionImport apiImport = null;
-        if (StringUtils.equals(request.getType(), "SCHEDULE")) {
-            request.setProtocol(ModuleConstants.NODE_PROTOCOL_HTTP);
-        }
-        if (StringUtils.equals(request.getPlatform(), ApiImportPlatform.Swagger3.name()) && StringUtils.isNotBlank(request.getSwaggerUrl())) {
-            testUrlTimeout(request.getSwaggerUrl(), 30000);
-        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void apiDefinitionImport(MultipartFile file, ImportRequest request, String projectId) {
+        this.initImportRequestAndCheck(file, request, projectId);
+        ApiDefinitionImportParser<?> runService = ImportParserFactory.getImportParser(request.getPlatform());
+        assert runService != null;
+        ApiImportDataAnalysisResult apiImportDataAnalysisResult;
         try {
-            apiImport = (ApiDefinitionImport) Objects.requireNonNull(runService).parse(file == null ? null : file.getInputStream(), request);
-            //TODO  处理mock数据
+            //解析文件
+            ApiImportFileParseResult fileParseResult = (ApiImportFileParseResult) runService.parse(file == null ? null : file.getInputStream(), request);
+
+            ApiDefinitionPageRequest pageRequest = new ApiDefinitionPageRequest();
+            pageRequest.setProjectId(request.getProjectId());
+            pageRequest.setProtocols(Collections.singletonList(runService.getParseProtocol()));
+            List<ApiDefinitionDetail> existenceApiDefinitionList = extApiDefinitionMapper.importList(pageRequest);
+            //分析有哪些数据需要新增、有哪些数据需要更新
+            apiImportDataAnalysisResult = runService.generateInsertAndUpdateData(fileParseResult, existenceApiDefinitionList);
         } catch (Exception e) {
             LogUtils.error(e.getMessage(), e);
             throw new MSException(Translator.get("parse_data_error"));
         }
 
         try {
-            importApi(request, apiImport);
+            //初始化版本信息，用于保存，以及以后真对具体版本导入进行拓展
+            String defaultVersion = extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId());
+            request.setDefaultVersion(defaultVersion);
+            if (request.getVersionId() == null) {
+                request.setVersionId(defaultVersion);
+            }
+            //通过导入配置，预处理数据，确定哪些要创建、哪些要修改
+            ApiDefinitionPreImportAnalysisResult preImportAnalysisResult = this.preImportAnalysis(request, apiImportDataAnalysisResult);
+            //入库
+            List<LogDTO> operationLogs = this.insertData(preImportAnalysisResult, request);
+            operationLogService.batchAdd(operationLogs);
         } catch (Exception e) {
             LogUtils.error(e);
             throw new MSException(Translator.get("user_import_format_wrong"));
         }
-    }
-
-    public static void testUrlTimeout(String address, int timeOutMillSeconds) {
-        HttpURLConnection connection = null;
-        try {
-            URI uriObj = new URI(address);
-            connection = (HttpURLConnection) uriObj.toURL().openConnection();
-            connection.setUseCaches(false);
-            connection.setConnectTimeout(timeOutMillSeconds); // 设置超时时间
-            connection.connect(); // 建立连接
-        } catch (Exception e) {
-            LogUtils.error(e);
-            throw new MSException(Translator.get("url_format_error"));
-        } finally {
-            if (connection != null) {
-                connection.disconnect(); // 关闭连接
-            }
-        }
-    }
-
-    public void checkFileSuffixName(ImportRequest request, String suffixName) {
-        if (FILE_JMX.equalsIgnoreCase(suffixName)) {
-            if (!ApiImportPlatform.Jmeter.name().equalsIgnoreCase(request.getPlatform())) {
-                throw new MSException(Translator.get("file_format_does_not_meet_requirements"));
-            }
-        }
-        if (FILE_HAR.equalsIgnoreCase(suffixName)) {
-            if (!ApiImportPlatform.Har.name().equalsIgnoreCase(request.getPlatform())) {
-                throw new MSException(Translator.get("file_format_does_not_meet_requirements"));
-            }
-        }
-        if (FILE_JSON.equalsIgnoreCase(suffixName)) {
-            if (ApiImportPlatform.Har.name().equalsIgnoreCase(request.getPlatform()) || ApiImportPlatform.Jmeter.name().equalsIgnoreCase(request.getPlatform())) {
-                throw new MSException(Translator.get("file_format_does_not_meet_requirements"));
-            }
-        }
-    }
-
-    public void importApi(ImportRequest request, ApiDefinitionImport apiImport) {
-        String defaultVersion = extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId());
-        request.setDefaultVersion(defaultVersion);
-        if (request.getVersionId() == null) {
-            request.setVersionId(defaultVersion);
-        }
-        List<ApiDefinitionImportDetail> initData = apiImport.getData();
-
-        //TODO 查询项目菜单参数
-        /*ProjectApplicationExample applicationExample = new ProjectApplicationExample();
-        applicationExample.createCriteria().andProjectIdEqualTo(request.getProjectId()).andTypeEqualTo("API_URL_REPEATABLE");
-        List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(applicationExample);
-        if (CollectionUtils.isNotEmpty(projectApplications)) {
-            String typeValue = projectApplications.getFirst().getTypeValue();
-        }*/
-        //过滤(一次只导入一个协议)
-        List<ApiDefinitionImportDetail> filterData = initData.stream().filter(t -> t.getProtocol().equals(request.getProtocol())).collect(Collectors.toList());
-        if (filterData.isEmpty()) {
-            return;
-        }
-
-        //处理数据，判断数据是否重复
-        dealWithData(request, filterData);
-
-    }
-
-    private void dealWithData(ImportRequest request, List<ApiDefinitionImportDetail> importData) {
-        //查询数据库中所有的数据， 用于判断是否重复
-        ApiDefinitionPageRequest pageRequest = new ApiDefinitionPageRequest();
-        pageRequest.setProjectId(request.getProjectId());
-        pageRequest.setProtocols(List.of(request.getProtocol()));
-        //TODO 如果是有版本的话 需要加上版本的判断
-        List<ApiDefinitionImportDetail> apiLists = extApiDefinitionMapper.importList(pageRequest);
-        List<BaseTreeNode> apiModules = this.buildTreeData(request.getProjectId(), request.getProtocol());
-        //将apiModules转换成新的map 要求key是attachInfo中的modulePath 使用stream实现
-        Map<String, BaseTreeNode> modulePathMap = apiModules.stream().collect(Collectors.toMap(BaseTreeNode::getPath, t -> t));
-        Map<String, BaseTreeNode> idModuleMap = apiModules.stream().collect(Collectors.toMap(BaseTreeNode::getId, apiModuleDTO -> apiModuleDTO));
-        //如果导入的时候选择了模块，需要把所有的导入数据的模块路径前面拼接上选择的模块路径
-        if (StringUtils.isNotBlank(request.getModuleId())) {
-            BaseTreeNode baseTreeNode = idModuleMap.get(request.getModuleId());
-            if (baseTreeNode != null) {
-                String modulePath = baseTreeNode.getPath();
-                //如果选择了未规划模块， 导入的数据的模块清空， 只导入数据，不处理模块信息
-                if ("root".equals(request.getModuleId())) {
-                    importData.forEach(t -> {
-                        t.setModulePath(modulePath);
-                    });
-                } else {
-                    importData.forEach(t -> {
-                        t.setModulePath(modulePath + t.getModulePath());
-                    });
-                }
-            }
-        }
-        //去掉apiLists中不存在的模块数据
-        apiLists.forEach(t -> {
-            t.setModulePath(idModuleMap.get(t.getModuleId()) != null ? idModuleMap.get(t.getModuleId()).getPath() : StringUtils.EMPTY);
-        });
-        apiLists = apiLists.stream().filter(t -> modulePathMap.containsKey(t.getModulePath())).toList();
-        ApiDetailWithData apiDealWithData = new ApiDetailWithData();
-        //判断数据是否是唯一的
-        checkApiDataOnly(request, importData, apiLists, apiDealWithData);
-
-        ApiDetailWithDataUpdate apiDetailWithDataUpdate = new ApiDetailWithDataUpdate();
-        getNeedUpdateData(request, apiDealWithData, apiDetailWithDataUpdate);
-
-        List<LogDTO> operationLogs = new ArrayList<>();
-        //数据入库
-        insertData(modulePathMap, idModuleMap, apiDetailWithDataUpdate, request, operationLogs);
-
-        batchSaveLog(operationLogs);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void batchSaveLog(List<LogDTO> operationLogs) {
-        operationLogService.batchAdd(operationLogs);
     }
 
     public Long getNextOrder(String projectId) {
@@ -262,16 +167,6 @@ public class ApiDefinitionImportService {
         return order;
     }
 
-   /* public Long getImportNextCaseOrder(String projectId) {
-        Long order = currentApiCaseOrder.get();
-        if (order == null) {
-            order = apiTestCaseService.getNextOrder(projectId);
-        }
-        order = order + ORDER_STEP;
-        currentApiCaseOrder.set(order);
-        return order;
-    }*/
-
     public Long getImportNextModuleOrder(String projectId) {
         Long order = currentModuleOrder.get();
         if (order == null) {
@@ -282,114 +177,101 @@ public class ApiDefinitionImportService {
         return order;
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void insertData(Map<String, BaseTreeNode> modulePathMap,
-                           Map<String, BaseTreeNode> idModuleMap,
-                           ApiDetailWithDataUpdate apiDetailWithDataUpdate,
-                           ImportRequest request,
-                           List<LogDTO> operationLogs) {
-        //先判断是否需要新增模块
-        List<ApiDefinitionImportDetail> addModuleData = apiDetailWithDataUpdate.getAddModuleData();
-        List<ApiDefinitionImportDetail> updateModuleData = apiDetailWithDataUpdate.getUpdateModuleData();
-        //取addModuleData的模块放到set中  生成一个新的set
-        Set<String> moduleSet = addModuleData.stream().map(ApiDefinitionImportDetail::getModulePath).collect(Collectors.toSet());
-        //取updateModuleData的模块放到set中  生成一个新的set
-        Set<String> updateModuleSet = updateModuleData.stream().map(ApiDefinitionImportDetail::getModulePath).collect(Collectors.toSet());
-        moduleSet.addAll(updateModuleSet);
-        //将modulePathMap的key转成set
-        Set<String> modulePathSet = modulePathMap.keySet();
-        //取modulePathSet中不存在的
-        Set<String> differenceSet = moduleSet.stream().filter(t -> !modulePathSet.contains(t)).collect(Collectors.toSet());
-        //不存在的需要新增
-        List<BaseTreeNode> addModuleList = new ArrayList<>();
-
+    public List<LogDTO> insertData(
+            ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult,
+            ImportRequest request) {
+        List<LogDTO> operationLogs = new ArrayList<>();
         currentApiCaseOrder.remove();
         currentApiOrder.remove();
         currentModuleOrder.remove();
-        //获取需要新增的模块
-        getNeedAddModule(modulePathMap, idModuleMap, differenceSet, addModuleList);
 
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        ApiDefinitionModuleMapper moduleMapper = sqlSession.getMapper(ApiDefinitionModuleMapper.class);
-        ApiDefinitionMapper apiMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
-        ApiDefinitionBlobMapper apiBlobMapper = sqlSession.getMapper(ApiDefinitionBlobMapper.class);
+        //更新、修改数据
+        {
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            ApiDefinitionModuleMapper batchApiModuleMapper = sqlSession.getMapper(ApiDefinitionModuleMapper.class);
+            ApiDefinitionMapper batchApiDefinitionMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
+            ApiDefinitionBlobMapper batchApiBlobMapper = sqlSession.getMapper(ApiDefinitionBlobMapper.class);
+            ApiTestCaseMapper batchApiCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+            ApiTestCaseBlobMapper batchApiCaseBlobMapper = sqlSession.getMapper(ApiTestCaseBlobMapper.class);
+            ApiDefinitionMockMapper batchApiMockMapper = sqlSession.getMapper(ApiDefinitionMockMapper.class);
+            ApiDefinitionMockConfigMapper batchApiMockConfigMapper = sqlSession.getMapper(ApiDefinitionMockConfigMapper.class);
 
-        //创建模块
-        insertModule(request, addModuleList, moduleMapper, sqlSession);
+            insertModule(request, apiDefinitionPreImportAnalysisResult.getInsertModuleList(), batchApiModuleMapper, sqlSession);
+            updateApiDefinitionModule(request, apiDefinitionPreImportAnalysisResult.getUpdateModuleApiList(), batchApiDefinitionMapper, sqlSession);
+            updateApiDefinition(request, apiDefinitionPreImportAnalysisResult.getUpdateApiData(), batchApiDefinitionMapper, batchApiBlobMapper, sqlSession);
+            insertApiDefinition(request, apiDefinitionPreImportAnalysisResult.getInsertApiData(), batchApiDefinitionMapper, batchApiBlobMapper, sqlSession);
+            insertApiTestCase(request, apiDefinitionPreImportAnalysisResult.getInsertApiCaseList(), batchApiCaseMapper, batchApiCaseBlobMapper, sqlSession);
+            updateApiTestCase(request, apiDefinitionPreImportAnalysisResult.getUpdateApiCaseList(), batchApiCaseMapper, batchApiCaseBlobMapper, sqlSession);
+            insertApiMock(request, apiDefinitionPreImportAnalysisResult.getInsertApiMockList(), batchApiDefinitionMapper, batchApiMockMapper, batchApiMockConfigMapper, sqlSession);
+            updateApiMock(request, apiDefinitionPreImportAnalysisResult.getUpdateApiMockList(), batchApiMockMapper, batchApiMockConfigMapper, sqlSession);
 
-        //更新模块数据
-        updateApiModule(modulePathMap, request, updateModuleData, apiMapper, sqlSession);
+            sqlSession.flushStatements();
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+        //记录log以及发送通知
+        {
+            Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+            List<ApiDefinitionCaseDTO> noticeCreateLists = new ArrayList<>();
+            List<ApiDefinitionCaseDTO> noticeUpdateLists = new ArrayList<>();
+            apiDefinitionPreImportAnalysisResult.getInsertModuleList().forEach(t -> {
+                operationLogs.add(ApiDefinitionImportUtils.genImportLog(project, t.getId(), t.getName(), t, OperationLogModule.API_TEST_MANAGEMENT_MODULE, request.getUserId(), OperationLogType.UPDATE.name()));
+            });
 
-        List<ApiDefinitionImportDetail> updateRequestData = apiDetailWithDataUpdate.getUpdateRequestData();
+            apiDefinitionPreImportAnalysisResult.getUpdateModuleApiList().forEach(t -> {
+                ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
+                BeanUtils.copyBean(apiDefinitionDTO, t);
+                ApiDefinitionCaseDTO apiDefinitionCaseDTO = new ApiDefinitionCaseDTO();
+                BeanUtils.copyBean(apiDefinitionCaseDTO, apiDefinitionDTO);
+                noticeUpdateLists.add(apiDefinitionCaseDTO);
+                operationLogs.add(ApiDefinitionImportUtils.genImportLog(project, t.getId(), t.getName(), apiDefinitionDTO, OperationLogModule.API_TEST_MANAGEMENT_DEFINITION, request.getUserId(), OperationLogType.UPDATE.name()));
+            });
+            apiDefinitionPreImportAnalysisResult.getUpdateApiData().forEach(t -> {
+                ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
+                BeanUtils.copyBean(apiDefinitionDTO, t);
+                ApiDefinitionCaseDTO apiDefinitionCaseDTO = new ApiDefinitionCaseDTO();
+                BeanUtils.copyBean(apiDefinitionCaseDTO, apiDefinitionDTO);
+                noticeUpdateLists.add(apiDefinitionCaseDTO);
+                operationLogs.add(ApiDefinitionImportUtils.genImportLog(project, t.getId(), t.getName(), apiDefinitionDTO, OperationLogModule.API_TEST_MANAGEMENT_DEFINITION, request.getUserId(), OperationLogType.UPDATE.name()));
+            });
+            apiDefinitionPreImportAnalysisResult.getInsertApiData().forEach(t -> {
+                ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
+                BeanUtils.copyBean(apiDefinitionDTO, t);
+                ApiDefinitionCaseDTO apiDefinitionCaseDTO = new ApiDefinitionCaseDTO();
+                BeanUtils.copyBean(apiDefinitionCaseDTO, apiDefinitionDTO);
+                noticeCreateLists.add(apiDefinitionCaseDTO);
+                operationLogs.add(ApiDefinitionImportUtils.genImportLog(project, t.getId(), t.getName(), apiDefinitionDTO, OperationLogModule.API_TEST_MANAGEMENT_DEFINITION, request.getUserId(), OperationLogType.IMPORT.name()));
+            });
 
-        //更新接口请求数据
-        updateApiRequest(request, updateRequestData, apiMapper, apiBlobMapper, sqlSession);
-
-        Map<String, ApiDefinitionImportDetail> logData = apiDetailWithDataUpdate.getLogData();
-        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
-        List<ApiDefinitionCaseDTO> updateLists = new ArrayList<>();
-        //获取更新的日志
-        apiUpdateLog(request, logData, updateLists, project, operationLogs);
-
-        List<ApiDefinitionCaseDTO> createLists = new ArrayList<>();
-        //获取新增的数据和日志
-        addApiAndLog(modulePathMap, request, addModuleData, apiMapper, apiBlobMapper, project, operationLogs, createLists);
-
-        sqlSession.flushStatements();
-        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        //发送通知
-        List<Map> createResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(createLists), Map.class));
-        User user = userMapper.selectByPrimaryKey(request.getUserId());
-        commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.CREATE, createResources, user, request.getProjectId());
-        List<Map> updateResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(updateLists), Map.class));
-        commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.UPDATE, updateResources, user, request.getProjectId());
+            //发送通知
+            List<Map> createResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(noticeCreateLists), Map.class));
+            User user = userMapper.selectByPrimaryKey(request.getUserId());
+            commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.CREATE, createResources, user, request.getProjectId());
+            List<Map> updateResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(noticeUpdateLists), Map.class));
+            commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.UPDATE, updateResources, user, request.getProjectId());
+        }
+        return operationLogs;
     }
 
-    private static void getNeedAddModule(Map<String, BaseTreeNode> modulePathMap, Map<String, BaseTreeNode> idModuleMap, Set<String> differenceSet, List<BaseTreeNode> addModuleList) {
-        differenceSet.forEach(item -> {
-            //解析modulePath  格式为/a/b/c
-            String[] split = item.split("/");
-            //一层一层的创建
-            for (int i = 1; i < split.length; i++) {
-                String modulePath = StringUtils.join(split, "/", 1, i + 1);
-                String path = StringUtils.join("/", modulePath);
-                BaseTreeNode baseTreeNode = modulePathMap.get(path);
-                if (baseTreeNode == null) {
-                    //创建模块
-                    BaseTreeNode module = new BaseTreeNode();
-                    module.setId(IDGenerator.nextStr());
-                    module.setName(split[i]);
-                    if (i != 1) {
-                        String parentId = path.substring(0, path.lastIndexOf("/" + split[i]));
-                        module.setParentId(modulePathMap.get(parentId).getId());
-                    }
-                    module.setPath(path);
-                    addModuleList.add(module);
-                    modulePathMap.put(path, module);
-                    idModuleMap.put(module.getId(), module);
-                }
-            }
-        });
-    }
-
-    private void addApiAndLog(Map<String, BaseTreeNode> modulePathMap, ImportRequest request, List<ApiDefinitionImportDetail> addModuleData, ApiDefinitionMapper apiMapper, ApiDefinitionBlobMapper apiBlobMapper, Project project, List<LogDTO> operationLogs, List<ApiDefinitionCaseDTO> createLists) {
-        addModuleData.forEach(t -> {
+    private void insertApiDefinition(ImportRequest request, List<ApiDefinitionDetail> insertApiData, ApiDefinitionMapper apiMapper, ApiDefinitionBlobMapper apiBlobMapper, SqlSession sqlSession) {
+        insertApiData.forEach(t -> {
             ApiDefinition apiDefinition = new ApiDefinition();
             BeanUtils.copyBean(apiDefinition, t);
-            apiDefinition.setId(IDGenerator.nextStr());
-            apiDefinition.setModuleId(modulePathMap.get(t.getModulePath()).getId());
+            if (StringUtils.isEmpty(apiDefinition.getId())) {
+                // 部分文件导入时不会预先设置id
+                apiDefinition.setId(IDGenerator.nextStr());
+            }
+
             apiDefinition.setProjectId(request.getProjectId());
-            apiDefinition.setProtocol(request.getProtocol());
-            apiDefinition.setCreateUser(request.getUserId());
             apiDefinition.setPos(getImportNextOrder(request.getProjectId()));
-            apiDefinition.setCreateTime(System.currentTimeMillis());
-            apiDefinition.setUpdateUser(request.getUserId());
-            apiDefinition.setUpdateTime(System.currentTimeMillis());
             apiDefinition.setNum(NumGenerator.nextNum(request.getProjectId(), ApplicationNumScope.API_DEFINITION));
             apiDefinition.setLatest(true);
             apiDefinition.setStatus(ApiDefinitionStatus.PROCESSING.name());
             apiDefinition.setRefId(apiDefinition.getId());
             apiDefinition.setVersionId(request.getVersionId());
+            apiDefinition.setCreateUser(request.getUserId());
+            apiDefinition.setCreateTime(System.currentTimeMillis());
+            apiDefinition.setUpdateUser(request.getUserId());
+            apiDefinition.setUpdateTime(System.currentTimeMillis());
             apiMapper.insertSelective(apiDefinition);
             //插入blob数据
             ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
@@ -397,60 +279,81 @@ public class ApiDefinitionImportService {
             apiDefinitionBlob.setRequest(JSON.toJSONBytes(t.getRequest()));
             apiDefinitionBlob.setResponse(JSON.toJSONBytes(t.getResponse()));
             apiBlobMapper.insertSelective(apiDefinitionBlob);
-            ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
-            BeanUtils.copyBean(apiDefinitionDTO, t);
-            LogDTO dto = new LogDTO(
-                    project.getId(),
-                    project.getOrganizationId(),
-                    apiDefinition.getId(),
-                    request.getUserId(),
-                    OperationLogType.IMPORT.name(),
-                    OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
-                    t.getName());
-            dto.setHistory(true);
-            dto.setPath("/api/definition/import");
-            dto.setMethod(HttpMethodConstants.POST.name());
-            dto.setOriginalValue(JSON.toJSONBytes(apiDefinitionDTO));
-            operationLogs.add(dto);
-
-            ApiDefinitionCaseDTO apiDefinitionCaseDTO = new ApiDefinitionCaseDTO();
-            BeanUtils.copyBean(apiDefinitionCaseDTO, apiDefinitionDTO);
-            createLists.add(apiDefinitionCaseDTO);
         });
+        sqlSession.flushStatements();
     }
 
-    private static void apiUpdateLog(ImportRequest request, Map<String, ApiDefinitionImportDetail> logData, List<ApiDefinitionCaseDTO> updateLists, Project project, List<LogDTO> operationLogs) {
-        if (MapUtils.isNotEmpty(logData)) {
-            logData.forEach((k, v) -> {
-                ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
-                BeanUtils.copyBean(apiDefinitionDTO, v);
-                ApiDefinitionCaseDTO apiDefinitionCaseDTO = new ApiDefinitionCaseDTO();
-                BeanUtils.copyBean(apiDefinitionCaseDTO, v);
-                updateLists.add(apiDefinitionCaseDTO);
-                LogDTO dto = new LogDTO(
-                        project.getId(),
-                        project.getOrganizationId(),
-                        v.getId(),
-                        request.getUserId(),
-                        OperationLogType.UPDATE.name(),
-                        OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
-                        v.getName());
-                dto.setHistory(true);
-                dto.setPath("/api/definition/import");
-                dto.setMethod(HttpMethodConstants.POST.name());
-                dto.setOriginalValue(JSON.toJSONBytes(apiDefinitionDTO));
-                operationLogs.add(dto);
-            });
-        }
+    private void insertApiTestCase(ImportRequest request, List<ApiTestCaseDTO> insertApiCaseData, ApiTestCaseMapper apiTestCaseMapper, ApiTestCaseBlobMapper apiTestCaseBlobMapper, SqlSession sqlSession) {
+        insertApiCaseData.forEach(t -> {
+            ApiTestCase apiTestCase = new ApiTestCase();
+            BeanUtils.copyBean(apiTestCase, t);
+            apiTestCase.setId(IDGenerator.nextStr());
+            apiTestCase.setProjectId(request.getProjectId());
+            apiTestCase.setPos(getImportNextOrder(request.getProjectId()));
+            apiTestCase.setNum(NumGenerator.nextNum(request.getProjectId(), ApplicationNumScope.API_DEFINITION));
+            apiTestCase.setStatus(ApiDefinitionStatus.PROCESSING.name());
+            apiTestCase.setVersionId(request.getVersionId());
+            apiTestCase.setCreateUser(request.getUserId());
+            apiTestCase.setCreateTime(System.currentTimeMillis());
+            apiTestCase.setUpdateUser(request.getUserId());
+            apiTestCase.setUpdateTime(System.currentTimeMillis());
+            apiTestCaseMapper.insertSelective(apiTestCase);
+            //插入blob数据
+            ApiTestCaseBlob apiTestCaseBlob = new ApiTestCaseBlob();
+            apiTestCaseBlob.setId(apiTestCase.getId());
+
+            apiTestCaseBlob.setRequest(getMsTestElementStr(t.getRequest()).getBytes());
+            apiTestCaseBlobMapper.insertSelective(apiTestCaseBlob);
+        });
+        sqlSession.flushStatements();
     }
 
-    private static void updateApiRequest(ImportRequest request, List<ApiDefinitionImportDetail> updateRequestData, ApiDefinitionMapper apiMapper, ApiDefinitionBlobMapper apiBlobMapper, SqlSession sqlSession) {
+    private void insertApiMock(ImportRequest request, List<ApiDefinitionMockDTO> insertMockList, ApiDefinitionMapper batchApiMapper, ApiDefinitionMockMapper batchMockMapper, ApiDefinitionMockConfigMapper batchMockConfigMapper, SqlSession sqlSession) {
+        Map<String, ApiDefinition> apiDefinitionIdMap = new HashMap<>();
+
+        insertMockList.forEach(t -> {
+            ApiDefinition api = apiDefinitionIdMap.get(t.getApiDefinitionId());
+            if (api == null) {
+                api = batchApiMapper.selectByPrimaryKey(t.getApiDefinitionId());
+                apiDefinitionIdMap.put(t.getApiDefinitionId(), api);
+            }
+            ApiDefinitionMock apiMock = new ApiDefinitionMock();
+            BeanUtils.copyBean(apiMock, t);
+            apiMock.setId(IDGenerator.nextStr());
+            apiMock.setProjectId(request.getProjectId());
+            apiMock.setExpectNum(String.valueOf(NumGenerator.nextNum(request.getProjectId() + "_" + api.getNum(), ApplicationNumScope.API_MOCK)));
+            apiMock.setVersionId(request.getVersionId());
+            apiMock.setCreateUser(request.getUserId());
+            apiMock.setCreateTime(System.currentTimeMillis());
+            apiMock.setUpdateUser(request.getUserId());
+            apiMock.setUpdateTime(System.currentTimeMillis());
+            batchMockMapper.insertSelective(apiMock);
+            //插入blob数据
+            ApiDefinitionMockConfig mockConfig = new ApiDefinitionMockConfig();
+            mockConfig.setId(apiMock.getId());
+            mockConfig.setMatching(JSON.toJSONString(t.getMockMatchRule()).getBytes());
+            mockConfig.setResponse(JSON.toJSONString(t.getResponse()).getBytes());
+            batchMockConfigMapper.insertSelective(mockConfig);
+        });
+        sqlSession.flushStatements();
+    }
+
+    private String getMsTestElementStr(Object request) {
+        String requestStr = JSON.toJSONString(request);
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(requestStr, AbstractMsTestElement.class);
+        // 手动校验参数
+        ServiceUtils.validateParam(msTestElement);
+        return requestStr;
+    }
+
+    private static void updateApiDefinition(ImportRequest request, List<ApiDefinitionDetail> updateRequestData, ApiDefinitionMapper apiMapper, ApiDefinitionBlobMapper apiBlobMapper, SqlSession sqlSession) {
         SubListUtils.dealForSubList(updateRequestData, 100, list -> {
             list.forEach(t -> {
                 ApiDefinition apiDefinition = new ApiDefinition();
                 apiDefinition.setId(t.getId());
                 apiDefinition.setUpdateUser(request.getUserId());
                 apiDefinition.setUpdateTime(System.currentTimeMillis());
+                apiDefinition.setModuleId(t.getModuleId());
                 apiMapper.updateByPrimaryKeySelective(apiDefinition);
                 //更新blob数据
                 ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
@@ -463,12 +366,49 @@ public class ApiDefinitionImportService {
         });
     }
 
-    private static void updateApiModule(Map<String, BaseTreeNode> modulePathMap, ImportRequest request, List<ApiDefinitionImportDetail> updateModuleData, ApiDefinitionMapper apiMapper, SqlSession sqlSession) {
+    private static void updateApiTestCase(ImportRequest request, List<ApiTestCaseDTO> updateApiTestCaseData, ApiTestCaseMapper apiTestCaseMapper, ApiTestCaseBlobMapper apiTestCaseBlobMapper, SqlSession sqlSession) {
+        SubListUtils.dealForSubList(updateApiTestCaseData, 100, list -> {
+            list.forEach(t -> {
+                ApiTestCase apiTestCase = new ApiTestCase();
+                apiTestCase.setId(t.getId());
+                apiTestCase.setUpdateUser(request.getUserId());
+                apiTestCase.setUpdateTime(System.currentTimeMillis());
+                apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+                //更新blob数据
+                ApiTestCaseBlob apiDefinitionBlob = new ApiTestCaseBlob();
+                apiDefinitionBlob.setId(t.getId());
+                apiDefinitionBlob.setRequest(JSON.toJSONBytes(t.getRequest()));
+                apiTestCaseBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
+            });
+            sqlSession.flushStatements();
+        });
+    }
+
+    private static void updateApiMock(ImportRequest request, List<ApiDefinitionMockDTO> updateApiTestCaseData, ApiDefinitionMockMapper batchMockMapper, ApiDefinitionMockConfigMapper batchMockConfigMapper, SqlSession sqlSession) {
+        SubListUtils.dealForSubList(updateApiTestCaseData, 100, list -> {
+            list.forEach(t -> {
+                ApiDefinitionMock apiMock = new ApiDefinitionMock();
+                apiMock.setId(t.getId());
+                apiMock.setUpdateUser(request.getUserId());
+                apiMock.setUpdateTime(System.currentTimeMillis());
+                batchMockMapper.updateByPrimaryKeySelective(apiMock);
+                //更新blob数据
+                ApiDefinitionMockConfig mockConfig = new ApiDefinitionMockConfig();
+                mockConfig.setId(apiMock.getId());
+                mockConfig.setMatching(JSON.toJSONString(t.getMockMatchRule()).getBytes());
+                mockConfig.setResponse(JSON.toJSONString(t.getResponse()).getBytes());
+                batchMockConfigMapper.updateByPrimaryKeySelective(mockConfig);
+            });
+            sqlSession.flushStatements();
+        });
+    }
+
+    private static void updateApiDefinitionModule(ImportRequest request, List<ApiDefinitionDetail> updateModuleData, ApiDefinitionMapper apiMapper, SqlSession sqlSession) {
         SubListUtils.dealForSubList(updateModuleData, 100, list -> {
             list.forEach(t -> {
                 ApiDefinition apiDefinition = new ApiDefinition();
                 apiDefinition.setId(t.getId());
-                apiDefinition.setModuleId(modulePathMap.get(t.getModulePath()).getId());
+                apiDefinition.setModuleId(t.getModuleId());
                 apiDefinition.setUpdateUser(request.getUserId());
                 apiDefinition.setUpdateTime(System.currentTimeMillis());
                 apiMapper.updateByPrimaryKeySelective(apiDefinition);
@@ -496,97 +436,300 @@ public class ApiDefinitionImportService {
         });
     }
 
-    private void getNeedUpdateData(ImportRequest request, ApiDetailWithData apiDetailWithData, ApiDetailWithDataUpdate apiDetailWithDataUpdate) {
-        List<String> sameList = apiDetailWithData.getSameList();
-        List<String> differenceList = apiDetailWithData.getDifferenceList();
-        Map<String, ApiDefinitionImportDetail> apiDateMap = apiDetailWithData.getApiDateMap();
-        Map<String, ApiDefinitionImportDetail> importDataMap = apiDetailWithData.getImportDataMap();
-        List<ApiDefinitionImportDetail> updateModuleData = new ArrayList<>();
-        List<ApiDefinitionImportDetail> updateRequestData = new ArrayList<>();
-        List<ApiDefinitionImportDetail> addData = new ArrayList<>();
-        Map<String, ApiDefinitionImportDetail> logMap = new HashMap<>();
-        //判断参数是否一样  一样的参数需要判断是否需要覆盖模块  如果需要就要update数据， 如果不需要  就直接跳过
-        if (CollectionUtils.isNotEmpty(sameList) && getFullCoverage(request.getCoverData())) {
-            //需要覆盖数据的  会判断是否需要覆盖模块
-            List<ApiDefinitionImportDetail> sameData = sameList.stream().map(apiDateMap::get).toList();
-            //取所有id为新的list 需要取查询blob的数据
-            List<String> sameIds = sameData.stream().map(ApiDefinitionImportDetail::getId).toList();
-            ApiDefinitionBlobExample blobExample = new ApiDefinitionBlobExample();
-            blobExample.createCriteria().andIdIn(sameIds);
-            List<ApiDefinitionBlob> apiDefinitionBlobs = apiDefinitionBlobMapper.selectByExampleWithBLOBs(blobExample);
-            Map<String, ApiDefinitionBlob> blobMap = apiDefinitionBlobs.stream().collect(Collectors.toMap(ApiDefinitionBlob::getId, t -> t));
-            //判断参数是否一样
-            for (ApiDefinitionImportDetail apiDefinitionDTO : sameData) {
-                ApiDefinitionImportDetail importDTO = importDataMap.get(apiDefinitionDTO.getMethod() + apiDefinitionDTO.getPath());
-                ApiDefinitionBlob apiDefinitionBlob = blobMap.get(apiDefinitionDTO.getId());
-                if (apiDefinitionBlob != null) {
-                    MsHTTPElement dbRequest = ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), MsHTTPElement.class);
-                    //判断参数是否一样  参数类型有 请求头  请求参数  请求体
-                    boolean isSame = dataIsSame(dbRequest, (MsHTTPElement) importDTO.getRequest());
-                    //判断是否开启模块覆盖
-                    if (getFullCoverage(request.getCoverModule())) {
-                        //判断模块是否一样
-                        if (!StringUtils.equals(apiDefinitionDTO.getModulePath(), importDTO.getModulePath())) {
-                            //不一样的模块需要更
-                            apiDefinitionDTO.setModulePath(importDTO.getModulePath());
-                            updateModuleData.add(apiDefinitionDTO);
-                            logMap.put(apiDefinitionDTO.getId(), importDTO);
-                        }
+    /**
+     * 预导入数据分析   根据请求配置，判断哪些数据新增、哪些数据修改且修改它的哪部分数据、
+     */
+    private ApiDefinitionPreImportAnalysisResult preImportAnalysis(ImportRequest request, ApiImportDataAnalysisResult insertAndUpdateData) {
+        ApiDefinitionPreImportAnalysisResult preImportAnalysisResult = new ApiDefinitionPreImportAnalysisResult();
+
+        // api模块树查询
+        List<BaseTreeNode> apiModules = this.buildTreeData(request.getProjectId(), request.getProtocol());
+        Map<String, BaseTreeNode> modulePathMap = apiModules.stream().collect(Collectors.toMap(BaseTreeNode::getPath, t -> t));
+        // 新增数据处理
+        this.inertDataAnalysis(preImportAnalysisResult, request, modulePathMap, insertAndUpdateData);
+
+        // 已有数据处理
+        this.existenceDataAnalysis(preImportAnalysisResult, request, modulePathMap, insertAndUpdateData);
+
+        return preImportAnalysisResult;
+    }
+
+    /*
+        新增数据准备
+        指定了导入模块： 直接塞入指定模块中。
+        未指定导入模块： 接口有模块，就放在那个模块下。  接口没模块就放在未规划模块内
+     */
+    private void inertDataAnalysis(ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult, ImportRequest request, Map<String, BaseTreeNode> modulePathMap, ApiImportDataAnalysisResult analysisResult) {
+        for (ApiDefinitionDetail apiData : analysisResult.getInsertApiList()) {
+            if (StringUtils.isNotEmpty(request.getModuleId())) {
+                // 指定了导入模块： 直接塞入指定模块中。
+                apiData.setModuleId(request.getModuleId());
+            } else {
+                // 未指定导入模块： 接口有模块，就放在那个模块下。  接口没模块就放在未规划模块内
+                if (StringUtils.isEmpty(apiData.getModulePath())) {
+                    apiData.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+                } else {
+                    String modulePath = apiData.getModulePath();
+                    if (!StringUtils.startsWith(modulePath, "/")) {
+                        modulePath = "/" + modulePath;
+                        apiData.setModulePath(modulePath);
                     }
-                    //不相同的数据需要覆盖  所以这里记录id就可以
-                    if (!isSame) {
-                        importDTO.setId(apiDefinitionDTO.getId());
-                        if (StringUtils.equals(request.getPlatform(), ApiImportPlatform.Swagger3.name())) {
-                            importDTO.getRequest().setChildren(dbRequest.getChildren());
-                        }
-                        updateRequestData.add(importDTO);
-                        logMap.put(apiDefinitionDTO.getId(), importDTO);
+                    if (!modulePathMap.containsKey(modulePath)) {
+                        apiDefinitionPreImportAnalysisResult.getInsertModuleList().addAll(TreeNodeParseUtils.getInsertNodeByPath(modulePathMap, modulePath));
                     }
+                    apiData.setModuleId(modulePathMap.get(modulePath).getId());
+                }
+            }
+            apiDefinitionPreImportAnalysisResult.getLogData().put(apiData.getId(), apiData);
+            apiDefinitionPreImportAnalysisResult.getInsertApiData().add(apiData);
+            //判断是否更新用例
+            if (request.isSyncCase()) {
+                if (analysisResult.getApiIdAndTestCaseMap().containsKey(apiData.getId())) {
+                    apiDefinitionPreImportAnalysisResult.getInsertApiCaseList().addAll(analysisResult.getApiIdAndTestCaseMap().get(apiData.getId()));
+                }
+            }
+            //判断是否更新Mock
+            if (request.isSyncMock()) {
+                if (analysisResult.getApiIdAndMockMap().containsKey(apiData.getId())) {
+                    apiDefinitionPreImportAnalysisResult.getInsertApiMockList().addAll(analysisResult.getApiIdAndMockMap().get(apiData.getId()));
                 }
             }
         }
-        //不存在的数据是肯定要插入的  TODO 这里需要判断是否需要创建模块
-        if (CollectionUtils.isNotEmpty(differenceList)) {
-            addData = differenceList.stream().map(importDataMap::get).toList();
-        }
-        apiDetailWithDataUpdate.setUpdateModuleData(updateModuleData);
-        apiDetailWithDataUpdate.setUpdateRequestData(updateRequestData);
-        apiDetailWithDataUpdate.setAddModuleData(addData);
-        apiDetailWithDataUpdate.setLogData(logMap);
     }
 
-    private void checkApiDataOnly(ImportRequest request,
-                                  List<ApiDefinitionImportDetail> importData,
-                                  List<ApiDefinitionImportDetail> apiLists,
-                                  ApiDetailWithData apiDetailWithData) {
-        //判断是否是同一接口 需要返回的数据 需要insert的  update的
-        switch (request.getUniquelyIdentifies()) {
-            case "Method & Path" -> methodAndPath(importData, apiLists, apiDetailWithData);
-            default -> {
+    // 已有数据处理
+    private void existenceDataAnalysis(ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult, ImportRequest request, Map<String, BaseTreeNode> modulePathMap, ApiImportDataAnalysisResult analysisResult) {
+        //不选择覆盖接口或者数据为空：终止操作
+        if (CollectionUtils.isEmpty(analysisResult.getExistenceApiList()) || !request.isCoverData()) {
+            return;
+        }
+        List<ExistenceApiDefinitionDetail> existenceApiList = analysisResult.getExistenceApiList();
+        List<String> existenceApiIdList = new ArrayList<>();
+        existenceApiList.forEach(item -> existenceApiIdList.add(item.getExistenceApiDefinition().getId()));
+        Map<String, ApiDefinitionBlob> existenceApiDefinitionBlobMap = this.selectApiDefinitionBlobIdMap(existenceApiIdList);
+        Map<String, List<ApiTestCase>> existenceApiTestCaseMap = this.selectApiTestCaseIdMap(existenceApiIdList);
+        Map<String, List<ApiDefinitionMock>> existenceApiMockMap = this.selectApiMockIdMap(existenceApiIdList);
+
+        for (ExistenceApiDefinitionDetail existenceApiDefinitionDetail : existenceApiList) {
+            ApiDefinitionDetail importApi = existenceApiDefinitionDetail.getImportApiDefinition();
+            ApiDefinitionDetail existenceApi = existenceApiDefinitionDetail.getExistenceApiDefinition();
+
+            boolean isSameRequest = false;
+            ApiDefinitionBlob apiDefinitionBlob = existenceApiDefinitionBlobMap.get(existenceApi.getId());
+            MsHTTPElement existenceMsHTTPElement = null;
+            if (apiDefinitionBlob != null) {
+                existenceMsHTTPElement = ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), MsHTTPElement.class);
+                //判断参数是否一样  参数类型有 请求头  请求参数  请求体
+                isSameRequest = dataIsSame(existenceMsHTTPElement, (MsHTTPElement) importApi.getRequest());
+            }
+
+            String importApiId = importApi.getId();
+            importApi.setId(existenceApi.getId());
+            if (request.isCoverModule()) {
+                // 未指定导入模块： 接口有模块，就放在那个模块下。  接口没模块就放在未规划模块内
+                String modulePath = importApi.getModulePath();
+                if (modulePathMap.containsKey(modulePath)) {
+                    importApi.setModuleId(modulePathMap.get(modulePath).getId());
+                }
+                boolean isSameModule = StringUtils.equals(importApi.getModuleId(), existenceApi.getModuleId());
+                /*
+                    开启模块覆盖并覆盖接口，此时有4种情况：
+                 */
+                if (isSameRequest && isSameModule) {
+                    //接口请求一样，模块一样： 不处理
+                    continue;
+                }
+
+                if (!isSameRequest && isSameModule) {
+                    //接口请求不一样，模块一样：更新接口的非模块信息
+                    this.updateApiDefinitionRequest(importApi, existenceMsHTTPElement, request.getPlatform());
+                    apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
+                } else if (isSameRequest) {
+                    //接口请求一样，模块不一样：只更新接口模块信息
+                    importApi.setModuleId(existenceApi.getModuleId());
+                    this.updateApiDefinitionModule(importApi, modulePathMap, request.getModuleId(), apiDefinitionPreImportAnalysisResult);
+                    apiDefinitionPreImportAnalysisResult.getUpdateModuleApiList().add(importApi);
+                } else {
+                    //接口请求不一样，模块不一样：更新接口所有信息
+                    this.updateApiDefinitionRequest(importApi, existenceMsHTTPElement, request.getPlatform());
+                    this.updateApiDefinitionModule(importApi, modulePathMap, request.getModuleId(), apiDefinitionPreImportAnalysisResult);
+                    apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
+                }
+                apiDefinitionPreImportAnalysisResult.getLogData().put(importApi.getId(), importApi);
+
+
+            } else {
+                if (!isSameRequest) {
+                    //覆盖接口、不覆盖模块、 接口请求不一样，要更新接口的非模块信息;接口请求一样不处理，
+                    this.updateApiDefinitionRequest(importApi, existenceMsHTTPElement, request.getPlatform());
+                    apiDefinitionPreImportAnalysisResult.getLogData().put(importApi.getId(), importApi);
+                    apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
+                }
+            }
+            //是否同步用例
+            if (request.isSyncCase()) {
+                boolean hasSyncCase = this.existenceApiTestCasePreparation(apiDefinitionPreImportAnalysisResult,
+                        analysisResult.getApiIdAndTestCaseMap().get(importApiId),
+                        importApi.getId(),
+                        existenceApiTestCaseMap.get(importApi.getId()));
+                if (hasSyncCase && !apiDefinitionPreImportAnalysisResult.getLogData().containsKey(importApi.getId())) {
+                    apiDefinitionPreImportAnalysisResult.getLogData().put(importApi.getId(), importApi);
+                }
+            }
+            //是否同步Mock
+            if (request.isSyncMock()) {
+                boolean hasSyncCase = this.existenceApiMockPreparation(apiDefinitionPreImportAnalysisResult,
+                        analysisResult.getApiIdAndMockMap().get(importApiId),
+                        importApi.getId(),
+                        existenceApiMockMap.get(importApi.getId()));
+                if (hasSyncCase && !apiDefinitionPreImportAnalysisResult.getLogData().containsKey(importApi.getId())) {
+                    apiDefinitionPreImportAnalysisResult.getLogData().put(importApi.getId(), importApi);
+                }
             }
         }
     }
 
     /**
-     * 判断数据唯一性 通过method和path判断 有重复的数据 需要覆盖
+     * 覆盖接口的选项下，并且导入接口模块和已有接口模块不一致时，更新接口模块规则如下：
+     * 1.导入时指定了导入模块：
+     * a).导入的接口没有模块，就放在导入指定模块下
+     * b).导入的接口有模块，在导入指定模块下select-or-create模块
+     * c).导入时指定的是未规划模块，则所有的接口都放在未规划模块下
+     * 2.导入时未指定模块
+     * a).导入的接口没有模块，放在未规划模块下。
+     * b).导入的接口有模块，根据导入接口的模块路径，从根目录select-or-create模块
+     *
+     * @param importApi                            要导入的api
+     * @param modulePathMap                        已有的模块路径map
+     * @param importModuleId                       导入指定的模块
+     * @param apiDefinitionPreImportAnalysisResult 如果有需要创建的模块，要存储在result中
      */
-    public void methodAndPath(List<ApiDefinitionImportDetail> importData,
-                              List<ApiDefinitionImportDetail> lists,
-                              ApiDetailWithData apiDetailWithData) {
+    private void updateApiDefinitionModule(ApiDefinitionDetail importApi, Map<String, BaseTreeNode> modulePathMap, String importModuleId, ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult) {
+        if (StringUtils.equalsIgnoreCase(importModuleId, ModuleConstants.DEFAULT_NODE_ID)) {
+            importApi.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+            return;
+        }
 
-        Map<String, ApiDefinitionImportDetail> apiDateMap = lists.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), t -> t, (oldValue, newValue) -> newValue));
-        Map<String, ApiDefinitionImportDetail> importDataMap = importData.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), t -> t, (oldValue, newValue) -> newValue));
-        //判断是否重复
-        List<String> orgList = apiDateMap.keySet().stream().toList();
-        List<String> importList = importDataMap.keySet().stream().toList();
-        //取交集数据
-        List<String> sameList = importList.stream().filter(orgList::contains).toList();
-        // 不同接口的数据
-        List<String> differenceList = importList.stream().filter(t -> !orgList.contains(t)).toList();
-        apiDetailWithData.setSameList(sameList);
-        apiDetailWithData.setDifferenceList(differenceList);
-        apiDetailWithData.setApiDateMap(apiDateMap);
-        apiDetailWithData.setImportDataMap(importDataMap);
+        if (StringUtils.isNotBlank(importApi.getModulePath())) {
+            // 只要导入的接口有模块，就要通过1b 或者 2b 来进行判断
+            BaseTreeNode selectTreeNode = null;
+            if (StringUtils.isNotBlank(importModuleId)) {
+                selectTreeNode = modulePathMap.values().stream().filter(t -> StringUtils.equals(t.getId(), importModuleId)).findFirst().orElse(null);
+            }
+            String selectModulePath = selectTreeNode == null ? StringUtils.EMPTY : selectTreeNode.getPath();
+            if (!StringUtils.startsWith(importApi.getModulePath(), "/")) {
+                importApi.setModulePath("/" + importApi.getModulePath());
+            }
+            String fullPath = TreeNodeParseUtils.genFullModulePath(selectModulePath, importApi.getModulePath());
+            if (!modulePathMap.containsKey(fullPath)) {
+                apiDefinitionPreImportAnalysisResult.getInsertModuleList().addAll(TreeNodeParseUtils.getInsertNodeByPath(modulePathMap, fullPath));
+            }
+            importApi.setModuleId(modulePathMap.get(fullPath).getId());
+        } else {
+            //导入的接口没模块，就要放在指定的导入模块 或者 根目录 下
+            importApi.setModuleId(StringUtils.isBlank(importModuleId) ? ModuleConstants.DEFAULT_NODE_ID : importModuleId);
+        }
+    }
+
+    private void updateApiDefinitionRequest(ApiDefinitionDetail importApi, MsHTTPElement existenceMsHTTPElement, String platform) {
+        if (StringUtils.equals(platform, ApiImportPlatform.Swagger3.name()) && existenceMsHTTPElement != null) {
+            //swagger如果接口已存在，并且要覆盖， 那么是不能覆盖原来接口的前后置数据的（因为swagger文件里没有）
+            importApi.getRequest().setChildren(existenceMsHTTPElement.getChildren());
+        }
+    }
+
+    public Map<String, ApiDefinitionBlob> selectApiDefinitionBlobIdMap(List<String> apiDefinitionIds) {
+        ApiDefinitionBlobExample example = new ApiDefinitionBlobExample();
+        example.createCriteria().andIdIn(apiDefinitionIds);
+        List<ApiDefinitionBlob> apiDefinitionBlobs = apiDefinitionBlobMapper.selectByExampleWithBLOBs(example);
+        return apiDefinitionBlobs.stream().collect(Collectors.toMap(ApiDefinitionBlob::getId, t -> t));
+
+    }
+
+    public Map<String, List<ApiTestCase>> selectApiTestCaseIdMap(List<String> apiDefinitionIds) {
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andApiDefinitionIdIn(apiDefinitionIds);
+        List<ApiTestCase> apiTestCaseList = apiTestCaseMapper.selectByExample(example);
+        return apiTestCaseList.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
+    }
+
+    public Map<String, List<ApiDefinitionMock>> selectApiMockIdMap(List<String> apiDefinitionIds) {
+        ApiDefinitionMockExample example = new ApiDefinitionMockExample();
+        example.createCriteria().andApiDefinitionIdIn(apiDefinitionIds);
+        List<ApiDefinitionMock> apiMockList = apiDefinitionMockMapper.selectByExample(example);
+        return apiMockList.stream().collect(Collectors.groupingBy(ApiDefinitionMock::getApiDefinitionId));
+    }
+
+    /**
+     * 已有接口的用例数据处理:通过用例名判断唯一性。名称存在便更新，名称不存在便新增
+     *
+     * @param apiDefinitionPreImportAnalysisResult 导入数据预处理结果集
+     * @param importApiCaseList              要导入的api用例数据
+     * @param existenceApiId                 已存在的apiId
+     * @param existenceApiTestCaseList       已存在的接口用例
+     * @return 是否存在新增或更新的用例数据
+     */
+    private boolean existenceApiTestCasePreparation(ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult, List<ApiTestCaseDTO> importApiCaseList, String existenceApiId, List<ApiTestCase> existenceApiTestCaseList) {
+        if (CollectionUtils.isNotEmpty(importApiCaseList)) {
+            Map<String, ApiTestCase> apiTestCaseNameMap = new HashMap<>();
+            if (CollectionUtils.isNotEmpty(existenceApiTestCaseList)) {
+                apiTestCaseNameMap = existenceApiTestCaseList.stream().collect(Collectors.toMap(ApiTestCase::getName, t -> t));
+            }
+            List<ApiTestCaseDTO> insertList = new ArrayList<>();
+            List<ApiTestCaseDTO> updateList = new ArrayList<>();
+            for (ApiTestCaseDTO apiTestCaseDTO : importApiCaseList) {
+                apiTestCaseDTO.setApiDefinitionId(existenceApiId);
+                // 通过名字判断唯一性。名称存在便更新，名称不存在便新增
+                if (apiTestCaseNameMap.containsKey(apiTestCaseDTO.getName())) {
+                    apiTestCaseDTO.setId(apiTestCaseNameMap.get(apiTestCaseDTO.getName()).getId());
+                    updateList.add(apiTestCaseDTO);
+                } else {
+                    insertList.add(apiTestCaseDTO);
+                }
+            }
+            if (CollectionUtils.isNotEmpty(insertList) || CollectionUtils.isNotEmpty(updateList)) {
+                apiDefinitionPreImportAnalysisResult.getUpdateApiCaseList().addAll(updateList);
+                apiDefinitionPreImportAnalysisResult.getInsertApiCaseList().addAll(insertList);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 已有接口的Mock数据处理:通过Mock名判断唯一性。名称存在便更新，名称不存在便新增
+     *
+     * @param apiDefinitionPreImportAnalysisResult 导入数据预处理结果集
+     * @param apiMockDTOList                       要导入的api用例数据
+     * @param existenceApiId                       已存在的apiId
+     * @param existenceApiMockList                 已存在的接口用例
+     * @return 是否存在新增或更新的用例数据
+     */
+    private boolean existenceApiMockPreparation(ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult, List<ApiDefinitionMockDTO> apiMockDTOList, String existenceApiId, List<ApiDefinitionMock> existenceApiMockList) {
+        if (CollectionUtils.isNotEmpty(apiMockDTOList)) {
+            Map<String, ApiDefinitionMock> apiMockNameMap = new HashMap<>();
+            if (CollectionUtils.isNotEmpty(existenceApiMockList)) {
+                apiMockNameMap = existenceApiMockList.stream().collect(Collectors.toMap(ApiDefinitionMock::getName, t -> t));
+            }
+            List<ApiDefinitionMockDTO> insertList = new ArrayList<>();
+            List<ApiDefinitionMockDTO> updateList = new ArrayList<>();
+            for (ApiDefinitionMockDTO apiMockDTO : apiMockDTOList) {
+                apiMockDTO.setApiDefinitionId(existenceApiId);
+                // 通过名字判断唯一性。名称存在便更新，名称不存在便新增
+                if (apiMockNameMap.containsKey(apiMockDTO.getName())) {
+                    apiMockDTO.setId(apiMockNameMap.get(apiMockDTO.getName()).getId());
+                    updateList.add(apiMockDTO);
+                } else {
+                    insertList.add(apiMockDTO);
+                }
+            }
+            if (CollectionUtils.isNotEmpty(insertList) || CollectionUtils.isNotEmpty(updateList)) {
+                apiDefinitionPreImportAnalysisResult.getUpdateApiMockList().addAll(updateList);
+                apiDefinitionPreImportAnalysisResult.getInsertApiMockList().addAll(insertList);
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean dataIsSame(MsHTTPElement dbRequest, MsHTTPElement importRequest) {
@@ -800,13 +943,6 @@ public class ApiDefinitionImportService {
         return CollectionUtils.isNotEmpty(differenceRest);
     }
 
-    private Boolean getFullCoverage(Boolean fullCoverage) {
-        if (fullCoverage == null) {
-            fullCoverage = false;
-        }
-        return fullCoverage;
-    }
-
     /**
      * 构造树结构 但是这里需要module的path
      *
@@ -846,6 +982,8 @@ public class ApiDefinitionImportService {
                 baseTreeNodeList.add(node);
             }
             traverseList = notMatchedList;
+
+            //            ApiDefinitionModule module = apiDefinitionModuleMapper.selectByPrimaryKey("ABC");
         }
         return baseTreeNodeList;
     }

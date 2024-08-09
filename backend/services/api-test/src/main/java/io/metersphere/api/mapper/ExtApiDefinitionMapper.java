@@ -6,7 +6,7 @@ import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.ApiDefinitionExecuteInfo;
 import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
-import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
+import io.metersphere.api.dto.converter.ApiDefinitionDetail;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.scenario.ScenarioSystemRequest;
 import io.metersphere.project.dto.DropNode;
@@ -50,7 +50,7 @@ public interface ExtApiDefinitionMapper {
 
     void updateLatestVersion(@Param("id") String id, @Param("projectId") String projectId);
 
-    List<ApiDefinitionImportDetail> importList(@Param("request") ApiDefinitionPageRequest request);
+    List<ApiDefinitionDetail> importList(@Param("request") ApiDefinitionPageRequest request);
 
     List<String> selectIdsByIdsAndDeleted(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
 

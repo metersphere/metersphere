@@ -1,0 +1,156 @@
+{
+    "apiDefinitions":
+    [
+        {
+            "id": null,
+            "name": "github",
+            "protocol": "HTTP",
+            "method": "GET",
+            "path": "",
+            "status": "PROCESSING",
+            "num": null,
+            "tags":
+            [],
+            "pos": 24576,
+            "projectId": null,
+            "moduleId": null,
+            "latest": null,
+            "versionId": null,
+            "refId": null,
+            "description": null,
+            "createTime": null,
+            "createUser": null,
+            "updateTime": null,
+            "updateUser": null,
+            "deleteUser": null,
+            "deleteTime": null,
+            "deleted": null,
+            "request":
+            {
+                "polymorphicName": "MsHTTPElement",
+                "stepId": null,
+                "resourceId": null,
+                "projectId": null,
+                "name": "github",
+                "enable": true,
+                "children":
+                [
+                    {
+                        "polymorphicName": "MsCommonElement",
+                        "stepId": null,
+                        "resourceId": null,
+                        "projectId": null,
+                        "name": null,
+                        "enable": true,
+                        "children": null,
+                        "parent": null,
+                        "csvIds": null,
+                        "preProcessorConfig":
+                        {
+                            "enableGlobal": true,
+                            "processors":
+                            []
+                        },
+                        "postProcessorConfig":
+                        {
+                            "enableGlobal": true,
+                            "processors":
+                            []
+                        },
+                        "assertionConfig":
+                        {
+                            "enableGlobal": true,
+                            "assertions":
+                            []
+                        }
+                    }
+                ],
+                "parent": null,
+                "csvIds": null,
+                "customizeRequest": false,
+                "customizeRequestEnvEnable": false,
+                "path": "",
+                "method": "GET",
+                "body":
+                {
+                    "bodyType": "NONE",
+                    "noneBody":
+                    {},
+                    "formDataBody":
+                    {
+                        "formValues":
+                        []
+                    },
+                    "wwwFormBody":
+                    {
+                        "formValues":
+                        []
+                    },
+                    "jsonBody":
+                    {
+                        "enableJsonSchema": false,
+                        "jsonValue": null,
+                        "jsonSchema": null
+                    },
+                    "xmlBody":
+                    {
+                        "value": null
+                    },
+                    "rawBody":
+                    {
+                        "value": null
+                    },
+                    "binaryBody":
+                    {
+                        "description": null,
+                        "file": null
+                    },
+                    "bodyClassByType": "io.metersphere.api.dto.request.http.body.NoneBody",
+                    "bodyDataByType":
+                    {}
+                },
+                "headers":
+                [],
+                "rest":
+                [],
+                "query":
+                [],
+                "otherConfig":
+                {
+                    "connectTimeout": 60000,
+                    "responseTimeout": 60000,
+                    "certificateAlias": null,
+                    "followRedirects": false,
+                    "autoRedirects": true
+                },
+                "authConfig":
+                {
+                    "authType": "NONE",
+                    "basicAuth":
+                    {
+                        "userName": null,
+                        "password": null,
+                        "valid": false
+                    },
+                    "digestAuth":
+                    {
+                        "userName": null,
+                        "password": null,
+                        "valid": false
+                    },
+                    "httpauthValid": false
+                },
+                "moduleId": null,
+                "num": null,
+                "mockNum": null
+            },
+            "response":
+            [],
+            "modulePath": "正常请求的集合",
+            "apiTestCaseList":
+            [],
+            "apiMockList":
+            []
+        }
+    ]
+}

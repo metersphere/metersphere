@@ -23,16 +23,9 @@ public class ImportRequest {
     private String platform;
     @Schema(description = "导入的类型  暂定  API  Schedule")
     private String type;
-    @Schema(description = "是否覆盖模块")
-    private Boolean coverModule = false;
-    @Schema(description = "是否同步导入用例")
-    private Boolean syncCase = false;
-    @Schema(description = "是否覆盖数据")
-    private Boolean coverData = false;
+
     @Schema(description = "协议")
     private String protocol = ModuleConstants.NODE_PROTOCOL_HTTP;
-    @Schema(description = "是否开启Basic Auth认证")
-    private boolean authSwitch = false;
     @Schema(description = "Basic Auth认证用户名")
     private String authUsername;
     @Schema(description = "Basic Auth认证密码")
@@ -41,4 +34,18 @@ public class ImportRequest {
     private String uniquelyIdentifies = "Method & Path";
     @Schema(description = "定时任务的资源id")
     private String resourceId;
+
+    @Schema(description = "是否覆盖模块")
+    private boolean coverModule;
+    @Schema(description = "是否同步导入用例")
+    private boolean syncCase;
+    @Schema(description = "是否同步导入Mock")
+    private boolean syncMock;
+    @Schema(description = "是否覆盖数据")
+    private boolean coverData;
+    @Schema(description = "是否开启Basic Auth认证")
+    private boolean authSwitch;
+    
+    @Schema(description = "操作人")
+    private String operator;
 }
