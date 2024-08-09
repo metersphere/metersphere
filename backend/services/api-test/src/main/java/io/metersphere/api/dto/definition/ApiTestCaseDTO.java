@@ -35,6 +35,12 @@ public class ApiTestCaseDTO {
     @Schema(description = "接口fk")
     private String apiDefinitionId;
 
+    @Schema(description = "接口num")
+    private Long apiDefinitionNum;
+
+    @Schema(description = "接口名称")
+    private String apiDefinitionName;
+
     @Schema(description = "环境fk")
     private String environmentId;
 

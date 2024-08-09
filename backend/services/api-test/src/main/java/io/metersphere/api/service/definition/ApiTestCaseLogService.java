@@ -236,14 +236,13 @@ public class ApiTestCaseLogService {
         saveBatchLog(projectId, apiTestCases, operator, OperationLogType.RECOVER.name(), false, OperationLogModule.API_TEST_MANAGEMENT_RECYCLE);
     }
 
-    public void batchSyncLog(Map<String, ApiTestCaseLogDTO> originMap, Map<String, ApiTestCaseLogDTO> modifiedMap) {
+    public void batchSyncLog(Map<String, ApiTestCaseLogDTO> originMap, Map<String, ApiTestCaseLogDTO> modifiedMap, Project project) {
         List<LogDTO> logs = new ArrayList<>();
         originMap.forEach((id, origin) -> {
             ApiTestCaseLogDTO modified = modifiedMap.get(id);
             if (modified == null) {
                 return;
             }
-            Project project = projectMapper.selectByPrimaryKey(origin.getProjectId());
             LogDTO dto = LogDTOBuilder.builder()
                     .projectId(project.getId())
                     .organizationId(project.getOrganizationId())
