@@ -268,6 +268,7 @@ export interface ExecuteHistoryItem {
   steps: string;
   createTime: string;
   deleted: boolean;
+  isStep: boolean; // 类型是：步骤描述
 }
 
 export interface moduleForm {

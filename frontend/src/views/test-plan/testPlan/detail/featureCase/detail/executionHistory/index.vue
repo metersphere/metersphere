@@ -8,8 +8,13 @@
             <a-tooltip :content="item.userName" :mouse-enter-delay="300">
               <div class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">{{ item.userName }}</div>
             </a-tooltip>
-            <a-divider v-if="props.showStepDetailTrigger" direction="vertical" margin="8px"></a-divider>
-            <a-trigger v-if="props.showStepDetailTrigger" trigger="click" position="bottom" :popup-translate="[0, 4]">
+            <a-divider v-if="props.showStepDetailTrigger && item.isStep" direction="vertical" margin="8px"></a-divider>
+            <a-trigger
+              v-if="props.showStepDetailTrigger && item.isStep"
+              trigger="click"
+              position="bottom"
+              :popup-translate="[0, 4]"
+            >
               <MsButton type="text" class="!mr-0">
                 {{ t('system.orgTemplate.stepDetail') }}
               </MsButton>
