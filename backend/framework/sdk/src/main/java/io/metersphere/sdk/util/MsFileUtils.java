@@ -51,7 +51,7 @@ public class MsFileUtils {
         if (file != null && file.getSize() > 0) {
             try (InputStream ins = file.getInputStream()) {
                 validateFileName(file.getOriginalFilename());
-                File toFile = new File(FileUtils.getTempDirectoryPath()+"/"+Objects.requireNonNull(file.getOriginalFilename()));
+                File toFile = new File(FileUtils.getTempDirectoryPath()+File.separator+Objects.requireNonNull(file.getOriginalFilename()));
                 inputStreamToFile(ins, toFile);
                 return toFile;
             } catch (Exception e) {
