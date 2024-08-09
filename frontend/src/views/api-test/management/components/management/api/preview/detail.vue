@@ -714,17 +714,6 @@
           width: 110,
         },
         {
-          title: 'apiTestDebug.encode',
-          dataIndex: 'encode',
-          slotName: 'encode',
-          inputType: 'text',
-          showInTable: false,
-          valueFormat: (record) => {
-            return record.encode ? t('common.yes') : t('common.no');
-          },
-          width: 68,
-        },
-        {
           title: 'common.desc',
           dataIndex: 'description',
           inputType: 'text',
