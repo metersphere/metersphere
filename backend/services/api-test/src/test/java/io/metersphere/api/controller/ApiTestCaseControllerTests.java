@@ -17,6 +17,7 @@ import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.BaseFileManagementTestService;
 import io.metersphere.api.service.definition.ApiReportService;
+import io.metersphere.api.service.definition.ApiTestCaseNoticeService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plan.domain.TestPlanApiCase;
@@ -47,10 +48,13 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.controller.handler.result.MsHttpResultCode;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -165,6 +169,10 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private TestPlanMapper testPlanMapper;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
+    @Resource
+    private ApiTestCaseNoticeService apiTestCaseNoticeService;
+    @Resource
+    private UserMapper userMapper;
 
     @Override
     public String getBasePath() {
@@ -465,8 +473,9 @@ public class ApiTestCaseControllerTests extends BaseTest {
         updateCase.setId(apiTestCase.getId());
         apiTestCaseMapper.updateByPrimaryKeySelective(updateCase);
         this.requestGetWithOk(API_CHANGE_CLEAR, apiTestCase.getId());
-        Assertions.assertFalse(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getApiChange());
-        Assertions.assertTrue(apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId()).getIgnoreApiDiff());
+        ApiTestCase result = apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId());
+        Assertions.assertFalse(result.getApiChange());
+        Assertions.assertTrue(result.getIgnoreApiDiff());
 
         //校验日志
         checkLog(apiTestCase.getId(), OperationLogType.UPDATE, getBasePath() + MessageFormat.format(API_CHANGE_CLEAR, apiTestCase.getId()));
@@ -507,6 +516,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
     public void batchSyncApiChange() throws Exception {
         ApiCaseBatchSyncRequest request = new ApiCaseBatchSyncRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
+        request.getNotificationConfig().setApiCaseCreator(true);
+        request.getNotificationConfig().setScenarioCreator(true);
         this.requestPostWithOk(BATCH_API_CHANGE_SYNC, request);
 
         request.setSelectIds(List.of(apiTestCase.getId()));
@@ -515,6 +526,16 @@ public class ApiTestCaseControllerTests extends BaseTest {
 
         ApiTestCase result = apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId());
         Assertions.assertFalse(result.getApiChange());
+
+        User user = userMapper.selectByPrimaryKey("admin");
+        request.getNotificationConfig().setScenarioCreator(false);
+        apiTestCaseNoticeService.batchSyncSendNotice(List.of(apiTestCase), user, DEFAULT_PROJECT_ID, request.getNotificationConfig(), NoticeConstants.Event.CASE_UPDATE);
+
+        request.getNotificationConfig().setApiCaseCreator(false);
+        apiTestCaseNoticeService.batchSyncSendNotice(List.of(apiTestCase), user, DEFAULT_PROJECT_ID, request.getNotificationConfig(), NoticeConstants.Event.CASE_UPDATE);
+
+        request.getNotificationConfig().setScenarioCreator(true);
+        apiTestCaseNoticeService.batchSyncSendNotice(List.of(apiTestCase), user, DEFAULT_PROJECT_ID, request.getNotificationConfig(), NoticeConstants.Event.CASE_UPDATE);
 
         //校验日志
         checkLog(apiTestCase.getId(), OperationLogType.UPDATE, getBasePath() + BATCH_API_CHANGE_SYNC);
@@ -530,6 +551,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setId(apiTestCase.getId());
         request.setApiCaseRequest(JSON.parseObject(ApiDataUtils.toJSONString(new MsHTTPElement())));
         this.requestPostWithOk(API_CHANGE_SYNC, request);
+        ApiTestCase result = apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId());
+        Assertions.assertFalse(result.getApiChange());
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, API_CHANGE_SYNC, request);
@@ -703,6 +726,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
         msHTTPElement.setModuleId(apiDefinition.getModuleId());
         msHTTPElement.setNum(apiDefinition.getNum());
         copyApiTestCaseDTO.setRequest(msTestElement);
+        copyApiTestCaseDTO.setApiDefinitionName(apiDefinition.getName());
+        copyApiTestCaseDTO.setApiDefinitionNum(apiDefinition.getNum());
 
         msHTTPElement = (MsHTTPElement) apiTestCaseDTO.getRequest();
         Assertions.assertEquals(msHTTPElement.getMethod(), apiDefinition.getMethod());

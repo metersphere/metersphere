@@ -53,7 +53,7 @@
       </a-tooltip>
     </div>
     <div class="my-[16px] flex items-center">
-      <a-switch v-model:model-value="form.notificationConfig.apiCreator" size="small" />
+      <a-switch v-model:model-value="form.notificationConfig.apiCaseCreator" size="small" />
       <div class="ml-[8px] text-[var(--color-text-1)]">{{ t('case.NoticeApiCaseCreator') }}</div>
     </div>
     <div class="my-[16px] flex items-center">
@@ -98,7 +98,7 @@
 
   const initForm: batchSyncForm = {
     notificationConfig: {
-      apiCreator: false,
+      apiCaseCreator: false,
       scenarioCreator: false,
     },
     // 同步项目

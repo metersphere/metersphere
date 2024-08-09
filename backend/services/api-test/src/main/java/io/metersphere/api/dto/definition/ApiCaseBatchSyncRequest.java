@@ -19,8 +19,8 @@ public class ApiCaseBatchSyncRequest extends ApiTestCaseBatchRequest implements 
 
     @Data
     public static class ApiCaseSyncNotificationRequest {
-        @Schema(description = "是否通知接口创建人", defaultValue = "true")
-        private Boolean apiCreator = true;
+        @Schema(description = "是否通知接口用例创建人", defaultValue = "true")
+        private Boolean apiCaseCreator = true;
         @Schema(description = "是否通知引用该用例的场景创建人", defaultValue = "true")
         private Boolean scenarioCreator = true;
     }

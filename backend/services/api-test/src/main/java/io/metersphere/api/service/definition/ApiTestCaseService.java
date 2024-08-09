@@ -32,11 +32,13 @@ import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.*;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.service.UserLoginService;
@@ -112,6 +114,8 @@ public class ApiTestCaseService extends MoveNodeService {
     private ExtApiReportMapper extApiReportMapper;
     @Resource
     private FunctionalCaseTestMapper functionalCaseTestMapper;
+    @Resource
+    private UserMapper userMapper;
 
     private static final String CASE_TABLE = "api_test_case";
 
@@ -239,6 +243,8 @@ public class ApiTestCaseService extends MoveNodeService {
         apiTestCaseDTO.setMethod(apiDefinition.getMethod());
         apiTestCaseDTO.setPath(apiDefinition.getPath());
         apiTestCaseDTO.setProtocol(apiDefinition.getProtocol());
+        apiTestCaseDTO.setApiDefinitionNum(apiDefinition.getNum());
+        apiTestCaseDTO.setApiDefinitionName(apiDefinition.getName());
         ApiTestCaseFollowerExample example = new ApiTestCaseFollowerExample();
         example.createCriteria().andCaseIdEqualTo(id).andUserIdEqualTo(userId);
         List<ApiTestCaseFollower> followers = apiTestCaseFollowerMapper.selectByExample(example);
@@ -1001,10 +1007,11 @@ public class ApiTestCaseService extends MoveNodeService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        SubListUtils.dealForSubList(ids, 500, subList -> doBatchSyncApiChange(request, subList, userId));
+        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+        SubListUtils.dealForSubList(ids, 500, subList -> doBatchSyncApiChange(request, subList, userId, project));
     }
 
-    public void doBatchSyncApiChange(ApiCaseBatchSyncRequest request, List<String> ids, String userId) {
+    public void doBatchSyncApiChange(ApiCaseBatchSyncRequest request, List<String> ids, String userId, Project project) {
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(ids);
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
@@ -1026,6 +1033,9 @@ public class ApiTestCaseService extends MoveNodeService {
         Map<String, ApiDefinitionBlob> apiDefinitionBlobMap = apiDefinitionBlobMapper.selectByExampleWithBLOBs(apiDefinitionBlobExample)
                 .stream()
                 .collect(Collectors.toMap(ApiDefinitionBlob::getId, Function.identity()));
+
+        // 清除接口变更标识
+        extApiTestCaseMapper.clearApiChange(ids);
         try {
             for (ApiTestCase apiTestCase : apiTestCases) {
                 ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMap.get(apiTestCase.getApiDefinitionId());
@@ -1034,6 +1044,7 @@ public class ApiTestCaseService extends MoveNodeService {
                 AbstractMsTestElement apiTestCaseMsTestElement = getTestElement(apiTestCaseBlob);
                 boolean requestParamDifferent = HttpRequestParamDiffUtils.isRequestParamDiff(request.getSyncItems(), apiMsTestElement, apiTestCaseMsTestElement);
                 if (requestParamDifferent) {
+                    // 如果参数与定义不一致，则同步参数，并记录日志和发送通知
                     ApiTestCaseLogDTO originCase = BeanUtils.copyBean(new ApiTestCaseLogDTO(), apiTestCase);
                     originCase.setRequest(apiTestCaseMsTestElement);
                     originMap.put(apiTestCase.getId(), originCase);
@@ -1051,7 +1062,10 @@ public class ApiTestCaseService extends MoveNodeService {
                     modifiedMap.put(apiTestCase.getId(), originCase);
                 }
             }
-            apiTestCaseLogService.batchSyncLog(originMap, modifiedMap);
+            apiTestCaseLogService.batchSyncLog(originMap, modifiedMap, project);
+
+            User user = userMapper.selectByPrimaryKey(userId);
+            apiTestCaseNoticeService.batchSyncSendNotice(new ArrayList<>(modifiedMap.values()), user, project.getId(), request.getNotificationConfig(), NoticeConstants.Event.CASE_UPDATE);
         } finally {
             sqlSession.flushStatements();
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
@@ -1064,6 +1078,8 @@ public class ApiTestCaseService extends MoveNodeService {
         ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(apiDefinition.getId());
         AbstractMsTestElement apiMsTestElement = getApiMsTestElement(apiDefinitionBlob);
         AbstractMsTestElement apiTestCaseMsTestElement = ApiDataUtils.parseObject(JSON.toJSONString(request.getApiCaseRequest()), AbstractMsTestElement.class);
+        // 清除接口变更标识
+        extApiTestCaseMapper.clearApiChange(List.of(request.getId()));
         return HttpRequestParamDiffUtils.syncRequestDiff(request, apiMsTestElement, apiTestCaseMsTestElement);
     }
 }

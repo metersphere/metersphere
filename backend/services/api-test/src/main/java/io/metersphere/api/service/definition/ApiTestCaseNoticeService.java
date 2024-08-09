@@ -2,9 +2,11 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.domain.ApiTestCaseExample;
+import io.metersphere.api.dto.definition.ApiCaseBatchSyncRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseUpdateRequest;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
+import io.metersphere.api.mapper.ExtApiTestCaseMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.SubListUtils;
@@ -15,11 +17,11 @@ import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.CommonNoticeSendService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ApiTestCaseNoticeService {
@@ -30,6 +32,8 @@ public class ApiTestCaseNoticeService {
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     private CommonNoticeSendService commonNoticeSendService;
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
 
     public ApiDefinitionCaseDTO addCaseDto(ApiTestCaseAddRequest request) {
         ApiDefinitionCaseDTO caseDTO = new ApiDefinitionCaseDTO();
@@ -69,5 +73,57 @@ public class ApiTestCaseNoticeService {
                 commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, event, resources, user, projectId);
             });
         }
+    }
+
+    public void batchSyncSendNotice(List<ApiTestCase> apiTestCases, User user, String projectId,
+                                    ApiCaseBatchSyncRequest.ApiCaseSyncNotificationRequest notificationConfig, String event) {
+
+        if (CollectionUtils.isEmpty(apiTestCases)) {
+            return;
+        }
+
+        Map<String, Set<String>> caseRefApiScenarioCreatorMap = null;
+        if (BooleanUtils.isTrue(notificationConfig.getScenarioCreator())) {
+            List<String> caseIds = apiTestCases.stream().map(ApiTestCase::getId).toList();
+            // 获取引用该用例的场景的创建人信息
+            List<ApiTestCase> caseRefApiScenarioCreators = extApiTestCaseMapper.getRefApiScenarioCreator(caseIds);
+            // 构建用例和创建人的映射关系
+            caseRefApiScenarioCreatorMap = caseRefApiScenarioCreators.stream().collect(Collectors.groupingBy(ApiTestCase::getId,
+                    Collectors.mapping(ApiTestCase::getCreateUser, Collectors.toSet())));
+        }
+
+        List<ApiDefinitionCaseDTO> noticeLists = apiTestCases.stream()
+                .map(apiTestCase -> {
+                    ApiDefinitionCaseDTO apiDefinitionCaseDTO = new ApiDefinitionCaseDTO();
+                    BeanUtils.copyBean(apiDefinitionCaseDTO, apiTestCase);
+                    return apiDefinitionCaseDTO;
+                })
+                .toList();
+        List<Map> resources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(noticeLists), Map.class));
+
+        if (BooleanUtils.isTrue(notificationConfig.getScenarioCreator()) || BooleanUtils.isTrue(notificationConfig.getApiCaseCreator())) {
+            for (Map resource : resources) {
+                String caseId = (String) resource.get("id");
+                String relatedUsers = null;
+                if (BooleanUtils.isTrue(notificationConfig.getScenarioCreator())) {
+                    // 添加引用该用例的场景的创建人
+                    Set<String> userIds = Optional.ofNullable(caseRefApiScenarioCreatorMap.get(caseId)).orElse(new HashSet<>(1));
+                    relatedUsers = userIds.stream().collect(Collectors.joining(";"));
+                }
+
+                if (BooleanUtils.isTrue(notificationConfig.getApiCaseCreator())) {
+                    // 添加用例创建人
+                    String createUser = (String) resource.get("createUser");
+                    if (relatedUsers == null) {
+                        relatedUsers = createUser;
+                    } else {
+                        relatedUsers += ";" + createUser;
+                    }
+                }
+                // 添加特殊通知人
+                resource.put("relatedUsers", relatedUsers);
+            }
+        }
+        commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, event, resources, user, projectId);
     }
 }

@@ -413,7 +413,7 @@ export interface syncItem {
 // 批量同步
 export interface batchSyncForm {
   notificationConfig: {
-    apiCreator: boolean;
+    apiCaseCreator: boolean;
     scenarioCreator: boolean;
   };
   // 同步项目

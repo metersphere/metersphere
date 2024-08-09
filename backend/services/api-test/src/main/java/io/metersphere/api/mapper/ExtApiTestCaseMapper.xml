@@ -35,6 +35,14 @@
           and api_change is false
           and ignore_api_change is false
     </update>
+    <update id="clearApiChange">
+        update api_test_case
+        set api_change = false
+        where api_change = true and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
 
     <select id="getPos" resultType="java.lang.Long">
         SELECT pos
@@ -726,5 +734,19 @@
             select api_case_id from test_plan_api_case where test_plan_id = #{testPlanId}
             )
         </if>
+    </select>
+    <select id="getRefApiScenarioCreator" resultType="io.metersphere.api.domain.ApiTestCase">
+        select atc.id, api_scenario.create_user
+        from api_test_case atc
+        inner join api_scenario_step ass
+            on atc.id = ass.resource_id
+                and ass.ref_type = 'REF'
+                    and atc.id in
+                        <foreach collection="ids" item="id" open="(" separator="," close=")">
+                            #{id}
+                        </foreach>
+        inner join api_scenario
+            on ass.scenario_id = api_scenario.id
+                and api_scenario.deleted = 0;
     </select>
 </mapper>
