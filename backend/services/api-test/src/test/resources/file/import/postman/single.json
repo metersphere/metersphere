@@ -1,0 +1,27 @@
+{
+	"info": {
+		"_postman_id": "1f4931b9-f142-4c6a-8041-c41d75f84990",
+		"name": "single",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15342444"
+	},
+	"item": [
+		{
+			"name": "github",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://www.github.com",
+					"protocol": "https",
+					"host": [
+						"www",
+						"github",
+						"com"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

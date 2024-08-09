@@ -34,7 +34,7 @@ public class SwaggerUrlImportJob extends BaseScheduleJob {
         request.setUserId(jobDataMap.getString("userId"));
         request.setType("SCHEDULE");
         request.setResourceId(resourceId);
-        apiDefinitionImportService.apiTestImport(null, request, request.getProjectId());
+        apiDefinitionImportService.apiDefinitionImport(null, request, request.getProjectId());
     }
 
     public static JobKey getJobKey(String resourceId) {

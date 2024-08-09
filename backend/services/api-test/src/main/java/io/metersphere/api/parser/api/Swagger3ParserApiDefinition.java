@@ -1,8 +1,8 @@
 package io.metersphere.api.parser.api;
 
 import io.metersphere.api.constants.ApiConstants;
-import io.metersphere.api.dto.converter.ApiDefinitionImport;
 import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
+import io.metersphere.api.dto.converter.ApiImportFileParseResult;
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.definition.ResponseBody;
 import io.metersphere.api.dto.request.ImportRequest;
@@ -39,10 +39,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.util.*;
 
 
-public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport> {
+public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstractParser<ApiImportFileParseResult> {
 
     protected String projectId;
     private Components components;
@@ -52,7 +54,31 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
     public static final String COOKIE = "cookie";
     public static final String QUERY = "query";
 
-    public ApiDefinitionImport parse(InputStream source, ImportRequest request) throws Exception {
+    private void testUrlTimeout(String swaggerUrl) {
+        HttpURLConnection connection = null;
+        try {
+            URI uriObj = new URI(swaggerUrl);
+            connection = (HttpURLConnection) uriObj.toURL().openConnection();
+            connection.setUseCaches(false);
+            connection.setConnectTimeout(3000); // 设置超时时间
+            connection.connect(); // 建立连接
+        } catch (Exception e) {
+            LogUtils.error(e);
+            throw new MSException(Translator.get("url_format_error"));
+        } finally {
+            if (connection != null) {
+                connection.disconnect(); // 关闭连接
+            }
+        }
+    }
+
+    public ApiImportFileParseResult parse(InputStream source, ImportRequest request) throws Exception {
+
+        //将之前在service中的swagger地址判断放在这里。
+        if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
+            this.testUrlTimeout(request.getSwaggerUrl());
+        }
+
         LogUtils.info("Swagger3Parser parse");
         List<AuthorizationValue> auths = setAuths(request);
         SwaggerParseResult result = null;
@@ -75,10 +101,10 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
                 throw new MSException(Translator.get("swagger_parse_error"));
             }
         }
-        ApiDefinitionImport apiDefinitionImport = new ApiDefinitionImport();
+        ApiImportFileParseResult apiImportFileParseResult = new ApiImportFileParseResult();
         OpenAPI openAPI = result.getOpenAPI();
-        apiDefinitionImport.setData(parseRequests(openAPI, request));
-        return apiDefinitionImport;
+        apiImportFileParseResult.setData(parseRequests(openAPI, request));
+        return apiImportFileParseResult;
     }
 
     private List<AuthorizationValue> setAuths(ImportRequest request) {
