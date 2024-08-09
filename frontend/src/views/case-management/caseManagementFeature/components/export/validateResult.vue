@@ -22,7 +22,7 @@
           <span class="mx-1 font-medium text-[rgb(var(--danger-6))]">{{ validateResultInfo.failCount }}</span>
           {{ t('caseManagement.featureCase.caseCount') }}
         </span>
-        <span v-else>
+        <span v-else-if="validateResultInfo.failCount">
           {{ t('caseManagement.featureCase.partialCaseVerificationFailed') }}
         </span>
         <a-popover
