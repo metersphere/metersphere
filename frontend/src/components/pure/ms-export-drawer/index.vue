@@ -332,6 +332,7 @@
 
   const handleDrawerConfirm = () => {
     emit('confirm', selectedList.value);
+    handleReset();
   };
 
   const handleDrawerCancel = () => {

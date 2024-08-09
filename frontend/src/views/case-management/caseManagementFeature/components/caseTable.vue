@@ -1223,7 +1223,7 @@
       } else {
         res = await exportXMindCase(params);
       }
-      taskId.value = res.taskId;
+      taskId.value = res;
       startWebsocketGetExportResult();
       showExportingMessage();
       exportLoading.value = false;
@@ -1240,7 +1240,7 @@
   async function batchExport() {
     try {
       const res = await checkCaseExportTask();
-      if (!res.fileId.length) {
+      if (!res.fileId || !res.fileId.length) {
         showExportVisible.value = true;
       } else {
         reportId.value = res.fileId;
