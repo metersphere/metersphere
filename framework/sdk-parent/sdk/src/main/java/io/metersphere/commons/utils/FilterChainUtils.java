@@ -82,6 +82,8 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/performance/update/cache", "anon");
         // websocket
         filterChainDefinitionMap.put("/websocket/**", "csrf");
+        // 默认语言
+        filterChainDefinitionMap.put("/system/default-locale", "anon");
 
         return filterChainDefinitionMap;
     }

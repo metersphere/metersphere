@@ -16,6 +16,7 @@ import io.metersphere.service.BaseUserService;
 import io.metersphere.service.SystemParameterService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,9 @@ public class SystemParameterController {
     private Environment env;
     @Resource
     private BaseUserService baseUserService;
+
+    @Value("${spring.messages.default-locale}")
+    private String defaultLocale;
 
 
     @PostMapping("/edit/email")
@@ -137,6 +141,11 @@ public class SystemParameterController {
     public SystemParameter editInfo(@RequestBody SystemParameter systemParameter) {
         systemParameterService.editInfo(systemParameter);
         return systemParameter;
+    }
+
+    @GetMapping(value = "/default-locale")
+    public String defaultLocale() {
+        return defaultLocale;
     }
 
 

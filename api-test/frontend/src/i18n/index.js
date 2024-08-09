@@ -1,8 +1,11 @@
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
+import axios from 'axios';
+
 Vue.use(VueI18n);
 // 直接加载翻译的语言文件
 const LOADED_LANGUAGES = ['zh-CN', 'zh-TW', 'en-US'];
+
 const LANG_FILES = require.context('./lang', true, /\.js$/);
 // 自动加载lang目录下语言文件，默认只加载LOADED_LANGUAGES中规定的语言文件，其他的语言动态加载
 const messages = LANG_FILES.keys().reduce((messages, path) => {
@@ -17,9 +20,17 @@ const messages = LANG_FILES.keys().reduce((messages, path) => {
 export const getLanguage = () => {
   let language = localStorage.getItem('language');
   if (!language) {
+    // 远程接口获取用户语言
     language = navigator.language || navigator.browserLanguage;
+    axios.get('/system/default-locale').then((response) => {
+      if (response.data && response.data.data) {
+        language = response.data.data.replace('_', '-');
+      }
+      return language;
+    });
+  } else {
+    return language;
   }
-  return language;
 };
 
 const i18n = new VueI18n({
