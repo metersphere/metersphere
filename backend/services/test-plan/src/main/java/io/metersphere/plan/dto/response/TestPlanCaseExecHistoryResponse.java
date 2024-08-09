@@ -24,4 +24,7 @@ public class TestPlanCaseExecHistoryResponse extends TestPlanCaseExecuteHistory 
 
     @Schema(description = "执行人邮箱")
     private String email;
+
+    @Schema(description = "步骤描述")
+    private boolean isStep = false;
 }

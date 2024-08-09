@@ -6,7 +6,6 @@ import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.*;
-import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.service.TestPlanCaseLogService;
 import io.metersphere.plan.service.TestPlanFunctionalCaseService;
 import io.metersphere.plan.service.TestPlanManagementService;
@@ -49,8 +48,6 @@ public class TestPlanFunctionalCaseController {
     private TestPlanManagementService testPlanManagementService;
     @Resource
     private TestPlanFunctionalCaseService testPlanFunctionalCaseService;
-    @Resource
-    private ExtTestPlanMapper extTestPlanMapper;
 
     @PostMapping(value = "/sort")
     @Operation(summary = "测试计划功能用例-功能用例拖拽排序")
