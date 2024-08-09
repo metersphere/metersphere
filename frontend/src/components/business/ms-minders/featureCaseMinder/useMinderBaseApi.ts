@@ -370,8 +370,8 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
   /**
    * 插入步骤描述
    */
-  function insetStepDesc() {
-    insertSpecifyNode('AppendChildNode', stepTag);
+  function insetStepDesc(type: 'AppendChildNode' | 'AppendSiblingNode') {
+    insertSpecifyNode(type, stepTag);
     nextTick(() => {
       insertSpecifyNode('AppendChildNode', stepExpectTag);
     });
@@ -420,7 +420,7 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
               insertSpecifyNode('AppendChildNode', remarkTag);
             } else if (!hasTextDesc) {
               // 没有文本描述，则默认添加一个步骤描述
-              insetStepDesc();
+              insetStepDesc('AppendChildNode');
             }
           }
         } else if (
@@ -468,7 +468,7 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
             insertSpecifyNode('AppendSiblingNode', remarkTag);
           } else if (!hasTextDesc) {
             // 没有文本描述，则默认添加一个步骤描述
-            insetStepDesc();
+            insetStepDesc('AppendSiblingNode');
           }
         } else if (node.parent?.data?.resource?.includes(moduleTag) || !node.parent?.data?.resource) {
           // 当前节点的父节点是模块或没有标签，则默认添加一个文本节点
