@@ -1245,6 +1245,7 @@
       } else {
         reportId.value = res.fileId;
         taskId.value = res.taskId;
+        Message.error(t('caseManagement.featureCase.alreadyExportTasks'));
         startWebsocketGetExportResult();
         showExportingMessage();
       }
