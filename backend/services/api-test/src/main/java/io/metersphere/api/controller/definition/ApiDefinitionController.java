@@ -223,7 +223,7 @@ public class ApiDefinitionController {
     @Operation(summary = "接口测试-接口管理-导入接口定义")
     public void testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ImportRequest request) {
         request.setUserId(SessionUtils.getUserId());
-        apiDefinitionImportService.apiTestImport(file, request, SessionUtils.getCurrentProjectId());
+        apiDefinitionImportService.apiDefinitionImport(file, request, SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping("/operation-history")
