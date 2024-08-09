@@ -543,21 +543,13 @@
 
   // 执行
   const executeVisible = ref(false);
-  // 新增或更新用例的实际结果节点
+  // 更新用例的实际结果节点
   function updateCaseActualResultNode(node: MinderJsonNode, content: string) {
-    let actualResultNode;
-    actualResultNode = node.children?.find((item: MinderJsonNode) => item.data?.id === `actualResult-${node.data?.id}`);
+    const actualResultNode = node.children?.find((item: MinderJsonNode) =>
+      item.data?.resource?.includes(actualResultTag)
+    );
     if (actualResultNode) {
-      actualResultNode
-        .setData('resource', [actualResultTag])
-        .setData('text', content ?? '')
-        .render();
-    } else {
-      actualResultNode = createNode(
-        { resource: [actualResultTag], text: content ?? '', id: `actualResult-${node.data?.id}` },
-        node
-      );
-      handleRenderNode(node, [actualResultNode]);
+      actualResultNode.setData('text', content ?? '').render();
     }
   }
   // 点击模块/用例执行
@@ -567,7 +559,7 @@
     if (resource?.includes(caseTag)) {
       //  用例添加标签
       window.minder.execCommand('resource', [executionResultMap[status].statusText, caseTag]);
-      // 新增或更新用例的实际结果节点
+      // 更新用例的实际结果节点
       updateCaseActualResultNode(selectNode.value, content);
       // 更新执行历史
       if (extraVisible.value && activeExtraKey.value === 'history') {
@@ -638,7 +630,7 @@
   function submitStepExecuteDone(status: string, content: string) {
     // 用例更新标签
     caseNodeAboveSelectStep.value.setData('resource', [executionResultMap[status].statusText, caseTag]).render();
-    // 新增或更新用例的实际结果节点
+    // 更新用例的实际结果节点
     updateCaseActualResultNode(caseNodeAboveSelectStep.value, content);
     // 更新步骤数据：标签和实际结果
     caseNodeAboveSelectStep.value.children.forEach((child: MinderJsonNode) => {
