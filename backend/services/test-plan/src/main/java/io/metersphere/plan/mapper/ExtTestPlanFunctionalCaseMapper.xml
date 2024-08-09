@@ -181,7 +181,14 @@
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
             and functional_case.module_id in
             <foreach collection="request.moduleIds" item="moduleId" separator="," open="(" close=")">
-                #{moduleId}
+                <choose>
+                    <when test="moduleId.contains('_root')">
+                        'root'
+                    </when>
+                    <otherwise>
+                        #{moduleId}
+                    </otherwise>
+                </choose>
             </foreach>
         </if>
         <if test="request.condition.keyword != null">
