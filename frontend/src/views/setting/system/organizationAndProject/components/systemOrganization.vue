@@ -148,10 +148,9 @@
     if (hasOperationPermission.value) {
       return 250;
     }
-    if (hasAnyPermission(['SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER'])) {
+    if (hasAnyPermission(['SYSTEM_ORGANIZATION_PROJECT:READ'])) {
       return 100;
     }
-    return 50;
   });
 
   const organizationColumns: MsTableColumn = [
