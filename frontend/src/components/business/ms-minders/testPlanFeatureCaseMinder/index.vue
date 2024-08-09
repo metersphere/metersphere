@@ -29,7 +29,7 @@
             :content="t('common.add')"
           >
             <MsButton type="icon" class="ms-minder-node-float-menu-icon-button">
-              <MsIcon type="icon-icon_add_outlined" class="text-[var(--color-text-4)]" />
+              <MsIcon type="icon-icon_bug" class="text-[var(--color-text-4)]" />
             </MsButton>
           </a-tooltip>
           <template #content>
