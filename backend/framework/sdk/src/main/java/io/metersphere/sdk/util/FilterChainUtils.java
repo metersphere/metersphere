@@ -102,6 +102,8 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/test-plan/report/share/detail/**", "anon");
         filterChainDefinitionMap.put("/test-plan/report/share/get/**", "anon");
         filterChainDefinitionMap.put("/test-plan/report/share/get-layout/**", "anon");
+        // 默认语言
+        filterChainDefinitionMap.put("/user/local/config/default-locale", "anon");
 
         return filterChainDefinitionMap;
     }

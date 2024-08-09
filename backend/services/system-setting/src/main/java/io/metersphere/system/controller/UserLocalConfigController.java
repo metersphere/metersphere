@@ -12,6 +12,7 @@ import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,8 @@ import java.util.List;
 @RequestMapping("/user/local/config")
 @Tag(name = "系统设置-个人中心-我的设置-本地执行")
 public class UserLocalConfigController {
+    @Value("${spring.messages.default-locale}")
+    private String defaultLocale;
 
     @Resource
     private UserLocalConfigService userLocalConfigService;
@@ -57,4 +60,10 @@ public class UserLocalConfigController {
     public void update(@Validated @RequestBody UserLocalConfigUpdateRequest request) {
         userLocalConfigService.update(request);
     }
+
+    @GetMapping(value = "/default-locale")
+    public String defaultLocale() {
+        return defaultLocale;
+    }
+
 }
