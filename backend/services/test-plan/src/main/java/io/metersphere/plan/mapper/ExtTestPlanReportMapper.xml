@@ -45,10 +45,11 @@
     </select>
     <select id="selectReportIdByProjectIdAndTime" resultType="java.lang.String">
         select report.id
-        from test_plan_report report left join test_plan_report_summary summary
-            on report.id = summary.test_plan_report_id
+        from test_plan_report report
+                 left join test_plan_report_summary summary
+                           on report.id = summary.test_plan_report_id
         where report.project_id = #{projectId}
-          and report.start_time &lt;= #{time}
+          and report.create_time &lt;= #{time}
     </select>
     <select id="selectReportIdTestPlanIds" resultType="java.lang.String">
         select report.id
@@ -119,7 +120,7 @@
         inner join test_plan tp ON tpr.test_plan_id = tp.id
         left join project on tpr.project_id = project.id
         where
-            tpr.id != tpr.parent_id
+        tpr.id != tpr.parent_id
         <if test="ids != null and ids.size() > 0">
             and tpr.parent_id in
             <foreach collection="ids" item="id" separator="," open="(" close=")">
@@ -131,17 +132,17 @@
     <select id="getPlanReportListById"
             resultType="io.metersphere.plan.dto.response.TestPlanReportDetailResponse">
 
-        SELECT  tpr.id,
-                tpr.test_plan_name,
-                tpr.result_status,
-                tpr.pass_rate,
-                tpr.pass_threshold,
+        SELECT tpr.id,
+        tpr.test_plan_name,
+        tpr.result_status,
+        tpr.pass_rate,
+        tpr.pass_threshold,
         (tprs.functional_case_count + tprs.api_case_count + tprs.api_scenario_count + tprs.bug_count) as caseTotal,
         tpr.create_time,
         tpr.deleted
 
         from test_plan_report tpr
-            LEFT JOIN test_plan_report_summary tprs on tpr.id = tprs.test_plan_report_id
+        LEFT JOIN test_plan_report_summary tprs on tpr.id = tprs.test_plan_report_id
         <include refid="queryWhereConditionByParentId"/>
     </select>
     <select id="getReports" resultType="io.metersphere.api.dto.report.ReportDTO">
@@ -157,7 +158,7 @@
         left join project on tpr.project_id = project.id
         where
         tpr.start_time BETWEEN #{startTime} AND #{endTime}
-         and tpr.exec_status in ('PENDING', 'RUNNING', 'RERUNNING')
+        and tpr.exec_status in ('PENDING', 'RUNNING', 'RERUNNING')
         <if test="ids != null and ids.size() > 0">
             and tpr.id in
             <foreach collection="ids" item="id" open="(" separator="," close=")">
@@ -180,7 +181,8 @@
         <include refid="filterByCondition"/>
     </select>
     <select id="getHistoryDeleted" resultType="io.metersphere.api.dto.definition.ExecuteReportDTO">
-        select distinct tpr.* from test_plan_report tpr INNER JOIN test_plan_report_summary tprs on tpr.id = tprs.test_plan_report_id
+        select distinct tpr.* from test_plan_report tpr INNER JOIN test_plan_report_summary tprs on tpr.id =
+        tprs.test_plan_report_id
         <if test="ids != null and ids.size() > 0">
             where tpr.id in
             <foreach collection="ids" item="id" open="(" separator="," close=")">
@@ -228,19 +230,19 @@
     </select>
     <select id="getScenarioReports" resultType="io.metersphere.api.dto.report.ReportDTO">
         SELECT DISTINCT
-            asr.*,
-            project.organization_id,
-            asr.test_plan_scenario_id AS testPlanId,
-            asr.test_plan_scenario_id AS resourceId
+        asr.*,
+        project.organization_id,
+        asr.test_plan_scenario_id AS testPlanId,
+        asr.test_plan_scenario_id AS resourceId
         FROM
-            api_scenario_report asr
-                LEFT JOIN test_plan_report_api_scenario tpras ON asr.id = tpras.api_scenario_execute_report_id
-                LEFT JOIN project ON asr.project_id = project.id
+        api_scenario_report asr
+        LEFT JOIN test_plan_report_api_scenario tpras ON asr.id = tpras.api_scenario_execute_report_id
+        LEFT JOIN project ON asr.project_id = project.id
         WHERE
-            asr.deleted = FALSE
-          AND asr.plan = 1
-          AND asr.exec_status IN ( 'PENDING', 'RUNNING', 'RERUNNING' )
-          AND tpras.test_plan_report_id IN
+        asr.deleted = FALSE
+        AND asr.plan = 1
+        AND asr.exec_status IN ( 'PENDING', 'RUNNING', 'RERUNNING' )
+        AND tpras.test_plan_report_id IN
         <foreach collection="ids" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
@@ -259,7 +261,10 @@
     </select>
 
     <delete id="deleteGroupReport" parameterType="java.lang.String">
-        delete from test_plan_report where id = #{id} or parent_id = #{id}
+        delete
+        from test_plan_report
+        where id = #{id}
+           or parent_id = #{id}
     </delete>
 
     <update id="batchUpdateExecuteTimeAndStatus" parameterType="java.lang.String">
