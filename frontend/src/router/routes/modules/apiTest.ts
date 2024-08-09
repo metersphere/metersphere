@@ -64,26 +64,6 @@ const ApiTest: AppRouteRecordRaw = {
         ],
       },
     },
-    // 接口定义-API-用例-用例列表详情
-    {
-      path: 'caseDetail',
-      name: ApiTestRouteEnum.API_TEST_MANAGEMENT_CASE_DETAIL,
-      component: () => import('@/views/api-test/management/components/management/case/apiCaseDetail.vue'),
-      meta: {
-        locale: 'case.apiCaseDetail',
-        roles: ['PROJECT_API_DEFINITION:READ'],
-        breadcrumbs: [
-          {
-            name: ApiTestRouteEnum.API_TEST_MANAGEMENT,
-            locale: 'case.apiCaseList',
-          },
-          {
-            name: ApiTestRouteEnum.API_TEST_MANAGEMENT_CASE_DETAIL,
-            locale: 'case.apiCaseDetail',
-          },
-        ],
-      },
-    },
     {
       path: 'scenario',
       name: ApiTestRouteEnum.API_TEST_SCENARIO,

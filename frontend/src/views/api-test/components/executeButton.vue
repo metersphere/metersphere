@@ -24,7 +24,7 @@
   >
     {{ t('apiTestDebug.serverExec') }}
   </a-button>
-  <a-button v-else type="primary" @click="emit('stopDebug')">
+  <a-button v-else type="primary" :size="props.size" @click="emit('stopDebug')">
     {{ t('common.stop') }}
   </a-button>
 </template>

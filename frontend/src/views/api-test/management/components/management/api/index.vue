@@ -89,6 +89,7 @@
           :offspring-ids="props.offspringIds"
           :member-options="memberOptions"
           :height-used="32"
+          @open-case-tab="openCaseTab"
         />
         <mockTable
           v-if="activeApiTab.definitionActiveKey === 'mock'"
@@ -132,7 +133,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ProtocolItem } from '@/models/apiTest/common';
-  import { ApiDefinitionDetail } from '@/models/apiTest/management';
+  import { ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
   import { MockDetail } from '@/models/apiTest/mock';
   import { ModuleTreeNode } from '@/models/common';
   import {
@@ -176,6 +177,7 @@
   const emit = defineEmits<{
     (e: 'deleteApi', id: string): void;
     (e: 'import'): void;
+    (e: 'openCaseTab', apiCaseDetail: ApiCaseDetail): void;
   }>();
 
   const userStore = useUserStore();
@@ -277,6 +279,10 @@
     postDependency: [], // 后置依赖
     errorMessageInfo: {},
   };
+
+  function openCaseTab(record: ApiCaseDetail | string) {
+    emit('openCaseTab', record as ApiCaseDetail);
+  }
 
   function addApiTab(defaultProps?: Partial<TabItem>) {
     const id = `definition-${Date.now()}`;

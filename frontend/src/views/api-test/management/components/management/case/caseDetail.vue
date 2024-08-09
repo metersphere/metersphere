@@ -1,65 +1,84 @@
 <template>
   <div class="h-full w-full overflow-hidden">
-    <a-tabs v-model:active-key="activeKey" class="h-full px-[16px]" animation lazy-load @change="changeActiveKey">
+    <div class="p-[16px]">
+      <MsDetailCard :title="`[${caseDetail.num}] ${caseDetail.name}`" :description="description" class="mb-[8px]">
+        <template #titlePrefix>
+          <caseLevel :case-level="caseDetail.priority as CaseLevel" />
+        </template>
+        <template v-if="!props.isDrawer" #titleAppend>
+          <a-tooltip :content="t(caseDetail.follow ? 'common.forked' : 'common.notForked')">
+            <MsIcon
+              v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']"
+              :loading="followLoading"
+              :type="caseDetail.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
+              :class="`${
+                caseDetail.follow
+                  ? 'text-[rgb(var(--warning-6))]'
+                  : 'text-[var(--color-text-4)] hover:bg-[var(--color-bg-3)]'
+              }`"
+              class="cursor-pointer"
+              :size="16"
+              @click="follow"
+            />
+          </a-tooltip>
+          <a-tooltip :content="t('report.detail.api.copyLink')">
+            <MsIcon
+              type="icon-icon_share1"
+              class="cursor-pointer text-[var(--color-text-4)] hover:bg-[var(--color-bg-3)]"
+              :size="16"
+              @click="share"
+            />
+          </a-tooltip>
+        </template>
+        <template #titleRight>
+          <div class="flex gap-[8px]">
+            <a-button
+              v-permission="['PROJECT_API_DEFINITION_CASE:READ+DELETE']"
+              type="outline"
+              class="arco-btn-outline--secondary"
+              size="small"
+              @click="handleDelete"
+            >
+              {{ t('common.delete') }}
+            </a-button>
+            <a-button
+              v-if="!props.isDrawer"
+              v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']"
+              type="outline"
+              size="small"
+              @click="editCase"
+            >
+              {{ t('common.edit') }}
+            </a-button>
+            <executeButton
+              ref="executeRef"
+              v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
+              size="small"
+              :execute-loading="caseDetail.executeLoading"
+              @stop-debug="stopDebug"
+              @execute="handleExecute"
+            />
+          </div>
+        </template>
+        <template #type="{ value }">
+          <apiMethodName :method="value as RequestMethods" tag-size="small" is-tag />
+        </template>
+      </MsDetailCard>
+    </div>
+
+    <a-tabs
+      v-model:active-key="activeKey"
+      class="no-left-tab h-full px-[16px]"
+      animation
+      lazy-load
+      @change="changeActiveKey"
+    >
       <template #extra>
         <div class="flex gap-[12px]">
           <MsEnvironmentSelect v-if="props.isDrawer" :env="environmentIdByDrawer" />
-          <executeButton
-            ref="executeRef"
-            v-permission="['PROJECT_API_DEFINITION_CASE:READ+EXECUTE']"
-            :execute-loading="caseDetail.executeLoading"
-            @stop-debug="stopDebug"
-            @execute="handleExecute"
-          />
-          <a-dropdown-button v-if="!props.isDrawer" type="outline" @click="editCase">
-            {{ t('common.edit') }}
-            <template #icon>
-              <icon-down />
-            </template>
-            <template #content>
-              <a-doption
-                v-permission="['PROJECT_API_DEFINITION_CASE:READ+DELETE']"
-                value="delete"
-                class="error-6 text-[rgb(var(--danger-6))]"
-                @click="handleDelete"
-              >
-                <MsIcon type="icon-icon_delete-trash_outlined1" class="text-[rgb(var(--danger-6))]" />
-                {{ t('common.delete') }}
-              </a-doption>
-            </template>
-          </a-dropdown-button>
         </div>
       </template>
       <a-tab-pane key="detail" :title="t('case.detail')" class="px-[18px] py-[16px]">
-        <MsDetailCard :title="`【${caseDetail.num}】${caseDetail.name}`" :description="description" class="mb-[8px]">
-          <template v-if="!props.isDrawer" #titleAppend>
-            <a-tooltip :content="t(caseDetail.follow ? 'common.forked' : 'common.notForked')">
-              <MsIcon
-                v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']"
-                :loading="followLoading"
-                :type="caseDetail.follow ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
-                :class="`${caseDetail.follow ? 'text-[rgb(var(--warning-6))]' : 'text-[var(--color-text-4)]'}`"
-                class="cursor-pointer"
-                :size="16"
-                @click="follow"
-              />
-            </a-tooltip>
-            <a-tooltip :content="t('report.detail.api.copyLink')">
-              <MsIcon
-                type="icon-icon_share1"
-                class="cursor-pointer text-[var(--color-text-4)]"
-                :size="16"
-                @click="share"
-              />
-            </a-tooltip>
-          </template>
-          <template #type="{ value }">
-            <apiMethodName :method="value as RequestMethods" tag-size="small" is-tag />
-          </template>
-          <template #priority="{ value }">
-            <caseLevel :case-level="value as CaseLevel" />
-          </template>
-        </MsDetailCard>
         <detailTab
           :detail="caseDetail"
           :protocols="protocols as ProtocolItem[]"
@@ -95,7 +114,7 @@
       </a-tab-pane>
     </a-tabs>
   </div>
-  <createAndEditCaseDrawer ref="createAndEditCaseDrawerRef" v-bind="$attrs" @load-case="() => brashChangeHandler" />
+  <createAndEditCaseDrawer ref="createAndEditCaseDrawerRef" v-bind="$attrs" @load-case="loadCaseDetail" />
 </template>
 
 <script setup lang="ts">
@@ -159,9 +178,9 @@
       value: caseDetail.value.method,
     },
     {
-      key: 'priority',
-      locale: 'case.caseLevel',
-      value: caseDetail.value.priority,
+      key: 'name',
+      locale: 'case.belongingApi',
+      value: `[${caseDetail.value.apiDefinitionNum}] ${caseDetail.value.apiDefinitionName}`,
     },
     {
       key: 'path',
@@ -354,6 +373,10 @@
     }
   }
 
+  function loadCaseDetail() {
+    emit('loadCase', props.detail.id as string);
+  }
+
   // 同步参数
   function syncParamsHandler(mergedRequestParam: RequestParam) {
     caseDetail.value = { ...caseDetail.value, ...mergedRequestParam };
@@ -405,6 +428,11 @@
       .arco-collapse {
         height: calc(100% - 85px);
       }
+    }
+  }
+  :deep(.no-left-tab) {
+    .arco-tabs-tab {
+      margin: 0 32px 0 0;
     }
   }
   :deep(.ms-detail-card-desc) {
