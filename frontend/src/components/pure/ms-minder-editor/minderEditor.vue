@@ -184,6 +184,7 @@
         }
       },
       handleContentChange: (node?: MinderJsonNode) => {
+        // ！！！注意：这里如果是点击输入框以外的地方触发失焦，node 为 undefined，此时 node.data.changed 已标记 true
         emit('contentChange', node);
       },
       handleMinderEvent: (event) => {

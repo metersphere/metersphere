@@ -677,6 +677,18 @@
                 id: node.data?.id || '',
                 type: 'NONE',
               });
+            } else if (caseOffspringTags.some((e) => node.data?.resource?.includes(e))) {
+              // 用例下的子孙节点的移除，标记用例节点变化
+              const parentCase = tempMinderParams.value.updateCaseList.find((e) => e.id !== node.data?.id);
+              if (!parentCase) {
+                if (node.parent?.data?.resource?.includes(caseTag)) {
+                  // 第二层子节点
+                  node.parent.data.changed = true;
+                } else if (node.parent?.parent?.data?.resource?.includes(caseTag)) {
+                  // 第三层子节点
+                  node.parent.parent.data.changed = true;
+                }
+              }
             } else if (!caseOffspringTags.some((e) => node.data?.resource?.includes(e))) {
               // 非用例下的子孙节点的移除，才加入删除资源队列
               tempMinderParams.value.deleteResourceList.push({
@@ -859,6 +871,36 @@
             ...getNodeMoveInfo(nodeIndex, parent as MinderJsonNode),
           });
         }
+      } else if (node.data.resource?.includes(caseTag)) {
+        // 处理用例节点（直接更改用例子孙节点可能没触发用例节点变化）
+        let hasChangedSubNode = false;
+        traverseTree(node.children, (child) => {
+          if (child.data?.changed === true) {
+            hasChangedSubNode = true;
+            return false;
+          }
+          return true;
+        });
+        if (hasChangedSubNode) {
+          const caseNodeInfo = getCaseNodeInfo(node as MinderJsonNode);
+          let caseBaseInfo;
+          if (activeCase.value.id === node.data.id) {
+            // 当前用例节点是打开的用例详情，获取用例详情数据
+            caseBaseInfo = baseInfoRef.value?.makeParams();
+          }
+          tempMinderParams.value.updateCaseList.push({
+            id: node.data.id,
+            moduleId: parent?.data.id || '',
+            type: 'UPDATE',
+            templateId: templateId.value,
+            tags: caseBaseInfo?.tags || [],
+            customFields: caseBaseInfo?.customFields || [],
+            name: caseBaseInfo?.name || node.data.text,
+            ...getNodeMoveInfo(nodeIndex, parent as MinderJsonNode),
+            ...caseNodeInfo,
+          });
+        }
+        return false; // 用例的子孙节点已经处理过，跳过
       }
       return true;
     });

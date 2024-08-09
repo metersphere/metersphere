@@ -1,3 +1,4 @@
+import type { MinderJsonNode } from '../props';
 import useMinderOperation, { type MinderOperationProps } from './useMinderOperation';
 
 type ShortcutKey = 'expand' | 'enter' | 'appendSiblingNode' | 'appendChildNode' | 'undo' | 'redo' | 'delete';
@@ -10,6 +11,20 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
   const { minderCopy, minderCut, minderPaste } = useMinderOperation(options);
 
   const handleKeyDown = (event: KeyboardEvent) => {
+    const nodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+    if (nodes.length === 0) {
+      return;
+    }
+    const { editor } = window;
+    const { fsm } = editor;
+    const state = fsm.state();
+    switch (state) {
+      case 'input': {
+        // 输入状态下不响应快捷键
+        return;
+      }
+      default:
+    }
     const key = event.key.toLowerCase();
     const isCtrlOrCmd = event.ctrlKey || event.metaKey;
 
