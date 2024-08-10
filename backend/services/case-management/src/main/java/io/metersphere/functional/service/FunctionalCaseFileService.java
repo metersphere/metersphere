@@ -56,7 +56,6 @@ import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -436,7 +435,6 @@ public class FunctionalCaseFileService {
             tmpDir = new File(getClass().getClassLoader().getResource(StringUtils.EMPTY).getPath() +
                     EXPORT_CASE_TMP_DIR + File.separatorChar + EXPORT_CASE_TMP_DIR + "_" + IDGenerator.nextStr());
             // 生成tmp随机目录
-            MsFileUtils.deleteDir(tmpDir.getPath());
             tmpDir.mkdirs();
             //获取导出的ids集合
             List<File> batchExcels = new ArrayList<>();
@@ -477,6 +475,12 @@ public class FunctionalCaseFileService {
             }
             LogUtils.error(e);
             throw new MSException(e);
+        } finally {
+            try {
+                MsFileUtils.deleteDir(tmpDir.getPath());
+            } catch (Exception e) {
+                throw new MSException(e);
+            }
         }
         return null;
     }
@@ -497,16 +501,13 @@ public class FunctionalCaseFileService {
         exportTaskMapper.updateByPrimaryKeySelective(exportTask);
     }
 
-    public void uploadFileToMinio(String fileType, File file, String fileId) {
+    public void uploadFileToMinio(String fileType, File file, String fileId) throws Exception {
         FileRequest fileRequest = new FileRequest();
         fileRequest.setFileName(fileId.concat(".").concat(fileType));
         fileRequest.setFolder(DefaultRepositoryDir.getExportExcelTempDir());
         fileRequest.setStorage(StorageType.MINIO.name());
-        try {
-            FileInputStream inputStream = new FileInputStream(file);
+        try (FileInputStream inputStream = new FileInputStream(file)) {
             fileService.upload(inputStream, fileRequest);
-        } catch (Exception e) {
-            throw new MSException("save file error");
         }
     }
 
@@ -539,9 +540,16 @@ public class FunctionalCaseFileService {
             List<FunctionalCaseExcelData> excelData = parseCaseData2ExcelData(subIds, rowMergeInfo, request, customFields, moduleMap, parameter.getParamValue());
             List<List<Object>> data = parseExcelData2List(headList, excelData);
 
-            File createFile = new File(FilenameUtils.normalize(LocalRepositoryDir.getSystemTempDir() + File.separator + "Metersphere_case_" + project.getName() + count.get() + ".xlsx"));
+            File createFile = new File(tmpZipPath + File.separatorChar + "Metersphere_case_" + project.getName() + count.get() + ".xlsx");
+            if (!createFile.exists()) {
+                try {
+                    createFile.createNewFile();
+                } catch (IOException e) {
+                    throw new MSException(e);
+                }
+            }
             //生成临时EXCEL
-            EasyExcel.write(createFile.getAbsolutePath())
+            EasyExcel.write(createFile)
                     .head(Optional.ofNullable(headList).orElse(new ArrayList<>()))
                     .registerWriteHandler(handler)
                     .registerWriteHandler(writeHandler)
