@@ -368,7 +368,7 @@ public class XmindExportUtil {
     public static void export(FunctionalCaseXmindData xmindData, FunctionalCaseExportRequest request, File tmpFile, TemplateCustomFieldDTO priority) {
         IWorkbook workBook = createXmindByCaseData(xmindData, false, null, request, priority);
         try {
-            workBook.save(tmpFile.getAbsolutePath());
+            workBook.save(tmpFile.getPath());
         } catch (UnsupportedEncodingException e) {
             LogUtils.error(e.getMessage(), e);
             throw new MSException("Utf-8 encoding is not supported");
