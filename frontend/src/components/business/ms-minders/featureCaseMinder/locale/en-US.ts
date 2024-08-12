@@ -1,6 +1,6 @@
 export default {
   'ms.minders.allModule': 'All Modules',
-  'ms.minders.precondition': 'Pre-operation',
+  'ms.minders.precondition': 'Pre-condition',
   'ms.minders.stepDesc': 'Step Description',
   'ms.minders.stepExpect': 'Expected Result',
   'ms.minders.textDesc': 'Text Description',

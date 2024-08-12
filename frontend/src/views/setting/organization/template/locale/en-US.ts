@@ -97,7 +97,7 @@ export default {
   'system.orgTemplate.caseNamePlaceholder': 'Please enter a use case name',
   'system.orgTemplate.defectNamePlaceholder': 'Please enter a use defect name',
   'system.orgTemplate.noDefaultPlaceholder': 'Default value are not supported',
-  'system.orgTemplate.precondition': 'Pre-operation',
+  'system.orgTemplate.precondition': 'Pre-condition',
   'system.orgTemplate.stepDescription': 'Step description',
   'system.orgTemplate.changeType': 'Change type',
   'system.orgTemplate.textDescription': 'Text description',
