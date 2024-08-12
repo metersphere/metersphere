@@ -48,6 +48,8 @@ public class MsScriptElementConverter extends AbstractJmeterElementConverter<MsS
         Optional.ofNullable(ScriptProcessorConverter.getScriptArguments(scriptProcessor))
                 .ifPresent(hashTree::add);
 
-        hashTree.add(scriptElement);
+        HashTree scriptTree = hashTree.add(scriptElement);
+
+        parseChild(scriptTree, msScriptElement, config);
     }
 }
