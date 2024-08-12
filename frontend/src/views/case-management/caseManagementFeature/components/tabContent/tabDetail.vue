@@ -305,9 +305,11 @@
       formRules?: FormRuleItem[]; // 编辑表单
       isTestPlan?: boolean; // 测试计划页面的
       isDisabledTestPlan?: boolean; // 测试计划页面-已归档
+      isEdit?: boolean; // 是否为编辑状态
     }>(),
     {
       allowEdit: true, // 是否允许编辑
+      isEdit: false,
     }
   );
 
@@ -344,7 +346,7 @@
     },
   ]);
 
-  const isEditPreposition = ref<boolean>(false); // 非编辑状态
+  const isEditPreposition = ref<boolean>(props.isEdit); // 非编辑状态
 
   // 更改类型
   const handleSelectType = (value: string | number | Record<string, any> | undefined) => {
