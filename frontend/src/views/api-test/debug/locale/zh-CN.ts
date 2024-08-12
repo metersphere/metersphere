@@ -24,7 +24,7 @@ export default {
   'apiTestDebug.paramNotRequired': '非必填',
   'apiTestDebug.paramType': '类型',
   'apiTestDebug.paramValue': '参数值',
-  'apiTestDebug.paramValuePlaceholder': '以{at}开始，双击可快速输入',
+  'apiTestDebug.paramValuePlaceholder': '以{at}开始',
   'apiTestDebug.extractValueByColumn': '按列提取值',
   'apiTestDebug.paramLengthRange': '长度区间',
   'apiTestDebug.paramMin': '最小值',

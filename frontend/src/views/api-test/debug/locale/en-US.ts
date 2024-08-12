@@ -21,7 +21,7 @@ export default {
   'apiTestDebug.paramName': 'Parameter name',
   'apiTestDebug.paramNamePlaceholder': 'Please enter parameter name',
   'apiTestDebug.paramValue': 'Parameter value',
-  'apiTestDebug.paramValuePlaceholder': 'Starting with {at}, double-click to quickly enter',
+  'apiTestDebug.paramValuePlaceholder': 'Starting with {at}',
   'apiTestDebug.extractValueByColumn': 'Extract value by column',
   'apiTestDebug.paramValuePreview': 'Parameter preview',
   'apiTestDebug.paramRequired': 'Required',
