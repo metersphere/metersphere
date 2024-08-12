@@ -493,7 +493,7 @@ public class ProjectTemplateControllerTests extends BaseTest {
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOkAndReturn(ENABLE_CONFIG, DEFAULT_PROJECT_ID);
         Map resultData = getResultData(mvcResult, Map.class);
-        Assertions.assertEquals(resultData.size(), TemplateScene.values().length);
+        Assertions.assertEquals(resultData.size(), 2);
         Assertions.assertFalse((Boolean) resultData.get(TemplateScene.FUNCTIONAL.name()));
         changeOrgTemplateEnable(false);
         mvcResult = this.requestGetWithOkAndReturn(ENABLE_CONFIG, DEFAULT_PROJECT_ID);

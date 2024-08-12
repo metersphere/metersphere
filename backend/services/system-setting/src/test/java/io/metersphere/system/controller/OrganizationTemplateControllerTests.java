@@ -521,7 +521,7 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOkAndReturn(ENABLE_CONFIG, DEFAULT_ORGANIZATION_ID);
         Map resultData = getResultData(mvcResult, Map.class);
-        Assertions.assertEquals(resultData.size(), TemplateScene.values().length);
+        Assertions.assertEquals(resultData.size(), 2);
         Assertions.assertTrue((Boolean) resultData.get(TemplateScene.FUNCTIONAL.name()));
         changeOrgTemplateEnable(false);
         mvcResult = this.requestGetWithOkAndReturn(ENABLE_CONFIG, DEFAULT_ORGANIZATION_ID);

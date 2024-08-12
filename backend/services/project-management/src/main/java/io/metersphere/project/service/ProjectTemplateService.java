@@ -400,7 +400,7 @@ public class ProjectTemplateService extends BaseTemplateService {
         ProjectService.checkResourceExist(projectId);
         ProjectDTO project = projectService.getProjectById(projectId);
         HashMap<String, Boolean> templateEnableConfig = new HashMap<>();
-        Arrays.stream(TemplateScene.values())
+        List.of(TemplateScene.FUNCTIONAL, TemplateScene.BUG)
                 .forEach(scene ->
                         templateEnableConfig.put(scene.name(), !isOrganizationTemplateEnable(project.getOrganizationId(), scene.name())));
         return templateEnableConfig;

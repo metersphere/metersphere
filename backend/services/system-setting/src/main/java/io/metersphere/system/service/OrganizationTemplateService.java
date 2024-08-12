@@ -218,7 +218,7 @@ public class OrganizationTemplateService extends BaseTemplateService {
     public Map<String, Boolean> getOrganizationTemplateEnableConfig(String organizationId) {
         OrganizationService.checkResourceExist(organizationId);
         HashMap<String, Boolean> templateEnableConfig = new HashMap<>();
-        Arrays.stream(TemplateScene.values())
+        List.of(TemplateScene.FUNCTIONAL, TemplateScene.BUG)
                 .forEach(scene ->
                         templateEnableConfig.put(scene.name(), isOrganizationTemplateEnable(organizationId, scene.name())));
         return templateEnableConfig;
