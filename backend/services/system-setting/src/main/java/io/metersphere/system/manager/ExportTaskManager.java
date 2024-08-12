@@ -38,12 +38,13 @@ public class ExportTaskManager {
         ExportTask exportTask = buildExportTask(projectId, fileId, userId, type);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         Future<?> future = executorService.submit(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
+            if  (!Thread.currentThread().isInterrupted()) {
                 // 线程任务逻辑
                 LogUtils.info("Thread has been start.");
                 selectListFunc.apply(t);
+            } else {
+                LogUtils.info("Thread has been interrupted.");
             }
-            LogUtils.info("Thread has been interrupted.");
         });
         map.put(exportTask.getId(), future);
         return exportTask;
