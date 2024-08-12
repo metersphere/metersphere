@@ -28,11 +28,18 @@
         :id="props.stepId"
         v-model:model-value="innerData.value"
         size="mini"
-        class="w-[110px] px-[8px]"
+        class="value-input w-[110px] px-[8px]"
         :placeholder="t('apiScenario.value')"
         :disabled="props.disabled"
         @change="handleInputChange"
       >
+        <template #suffix>
+          <MsIcon
+            type="icon-icon_full_screen_one"
+            class="input-suffix-icon ml-[8px]"
+            @click.stop="emit('quickInput', 'conditionValue')"
+          />
+        </template>
       </a-input>
     </a-tooltip>
   </div>
@@ -62,24 +69,6 @@
   watchEffect(() => {
     innerData.value = props.data;
   });
-
-  // 接收全局双击时间戳
-  const dbClick = inject<
-    Ref<{
-      e: MouseEvent | null;
-      timeStamp: number;
-    }>
-  >('dbClick');
-
-  watch(
-    () => dbClick?.value.timeStamp,
-    () => {
-      // @ts-ignore
-      if ((dbClick?.value.e?.target as Element).parentNode?.id.includes(props.stepId)) {
-        emit('quickInput', 'conditionValue');
-      }
-    }
-  );
 
   function handleInputChange() {
     nextTick(() => {

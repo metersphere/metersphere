@@ -1473,4 +1473,20 @@
       min-height: auto;
     }
   }
+  :deep(.value-input) {
+    .input-suffix-icon {
+      width: 12px;
+      height: 12px;
+      @apply cursor-pointer;
+    }
+    .arco-input-suffix {
+      opacity: 0;
+    }
+    &:hover {
+      .arco-input-suffix {
+        color: rgb(var(--primary-5));
+        opacity: 1;
+      }
+    }
+  }
 </style>
