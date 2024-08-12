@@ -25,11 +25,13 @@
             tpceh.notifier as notifier,
             u.name AS userName,
             ux.avatar AS userLogo,
-            u.email AS email
+            u.email AS email,
+            fc.case_edit_type as caseEditType
         FROM
             test_plan_case_execute_history tpceh
             left JOIN user u ON tpceh.create_user = u.id
             left JOIN user_extend ux ON tpceh.create_user = ux.id
+            LEFT JOIN functional_case fc ON tpceh.case_id = fc.id
         WHERE
             tpceh.test_plan_case_id = #{request.id}
           AND tpceh.deleted = FALSE

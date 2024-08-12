@@ -705,7 +705,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
                 item.setContentText(new String(item.getContent(), StandardCharsets.UTF_8));
             }
             if (item.getSteps() != null) {
-                item.setStepModule(true);
                 item.setStepsExecResult(new String(item.getSteps(), StandardCharsets.UTF_8));
             }
         });
