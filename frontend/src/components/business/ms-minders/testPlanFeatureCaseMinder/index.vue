@@ -47,7 +47,7 @@
           trigger="click"
           position="bl"
           :click-outside-to-close="false"
-          popup-container=".ms-minder-container"
+          popup-container="body"
         >
           <a-tooltip
             v-if="props.canEdit && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
