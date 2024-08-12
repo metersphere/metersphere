@@ -165,7 +165,7 @@ public class FunctionalCaseFileService {
             for (String head : headList) {
                 boolean isSystemField = false;
                 for (FunctionalCaseImportFiled importFiled : importFields) {
-                    if (StringUtils.equals("name", importFiled.getValue()) && model.getHyperLinkName() != null) {
+                    if (importFiled.getFiledLangMap().containsValue(head) && StringUtils.equals("name", importFiled.getValue()) && model.getHyperLinkName() != null) {
                         fields.add(model.getHyperLinkName());
                         isSystemField = true;
                         break;
@@ -759,8 +759,12 @@ public class FunctionalCaseFileService {
             if (caseFieldvalueMap.containsKey(k)) {
                 AbstractCustomFieldValidator customFieldValidator = customFieldValidatorMap.get(v.getType());
                 if (customFieldValidator.isKVOption) {
-                    // 这里如果填的是选项值，替换成选项ID，保存
-                    map.put(v.getFieldName(), customFieldValidator.parse2Value(caseFieldvalueMap.get(k), v));
+                    if (!v.getInternal()) {
+                        // 这里如果填的是选项值，替换成选项ID，保存
+                        map.put(v.getFieldName(), customFieldValidator.parse2Value(caseFieldvalueMap.get(k), v));
+                    } else {
+                        map.put(v.getFieldName(), caseFieldvalueMap.get(k));
+                    }
                 }
             }
         });

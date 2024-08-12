@@ -1114,7 +1114,7 @@
     try {
       const response = await getCaseDownloadFile(currentProjectId.value, reportId.value);
       const fileName = response?.headers.get('content-disposition').split('filename=')[1];
-      downloadByteFile(response.data, fileName);
+      downloadByteFile(response.data, decodeURIComponent(fileName));
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
