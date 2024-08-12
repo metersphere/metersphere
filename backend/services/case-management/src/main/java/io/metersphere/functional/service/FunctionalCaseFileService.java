@@ -432,10 +432,10 @@ public class FunctionalCaseFileService {
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         String fileType = "";
         try {
-            tmpDir = new File(getClass().getClassLoader().getResource(StringUtils.EMPTY).getPath() +
-                    EXPORT_CASE_TMP_DIR + File.separatorChar + EXPORT_CASE_TMP_DIR + "_" + IDGenerator.nextStr());
-            // 生成tmp随机目录
-            tmpDir.mkdirs();
+            tmpDir = new File(LocalRepositoryDir.getSystemTempDir() + File.separatorChar + EXPORT_CASE_TMP_DIR + "_" + IDGenerator.nextStr());
+            if (!tmpDir.exists() && !tmpDir.mkdirs()) {
+                throw new MSException(Translator.get("upload_fail"));
+            }
             //获取导出的ids集合
             List<File> batchExcels = new ArrayList<>();
             List<String> ids = functionalCaseService.doSelectIds(request, request.getProjectId());
