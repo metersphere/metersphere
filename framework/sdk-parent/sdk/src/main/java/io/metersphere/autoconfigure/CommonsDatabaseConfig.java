@@ -11,6 +11,7 @@ import io.metersphere.commons.utils.MybatisInterceptorConfig;
 import io.metersphere.interceptor.MybatisInterceptor;
 import io.metersphere.interceptor.UserDesensitizationInterceptor;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -63,12 +64,12 @@ public class CommonsDatabaseConfig {
     @Bean
     @Primary
     @ConfigurationProperties(prefix = "spring.datasource.hikari")
-    public DataSource dataSource(DataSourceProperties properties) {
-        return DataSourceBuilder.create(properties.getClassLoader()).type(HikariDataSource.class)
-                .driverClassName(properties.determineDriverClassName())
-                .url(properties.determineUrl())
-                .username(properties.determineUsername())
-                .password(properties.determinePassword())
+    public DataSource dataSource(@Qualifier("dataSourceProperties") DataSourceProperties dataSourceProperties) {
+        return DataSourceBuilder.create(dataSourceProperties.getClassLoader()).type(HikariDataSource.class)
+                .driverClassName(dataSourceProperties.determineDriverClassName())
+                .url(dataSourceProperties.determineUrl())
+                .username(dataSourceProperties.determineUsername())
+                .password(dataSourceProperties.determinePassword())
                 .build();
     }
 
@@ -76,13 +77,25 @@ public class CommonsDatabaseConfig {
     @ConfigurationProperties(prefix = "spring.datasource.quartz.hikari")
     @QuartzDataSource
     @ConditionalOnProperty(prefix = "quartz", value = "enabled", havingValue = "true")
-    public DataSource quartzDataSource(DataSourceProperties properties) {
-        return DataSourceBuilder.create(properties.getClassLoader()).type(HikariDataSource.class)
-                .driverClassName(properties.determineDriverClassName())
-                .url(properties.determineUrl())
-                .username(properties.determineUsername())
-                .password(properties.determinePassword())
+    public DataSource quartzDataSource(@Qualifier("quartzDataSourceProperties") DataSourceProperties quartzDataSourceProperties) {
+        return DataSourceBuilder.create(quartzDataSourceProperties.getClassLoader()).type(HikariDataSource.class)
+                .driverClassName(quartzDataSourceProperties.determineDriverClassName())
+                .url(quartzDataSourceProperties.determineUrl())
+                .username(quartzDataSourceProperties.determineUsername())
+                .password(quartzDataSourceProperties.determinePassword())
                 .build();
     }
 
+    @Bean("dataSourceProperties")
+    @Primary
+    @ConfigurationProperties(prefix = "spring.datasource")
+    public DataSourceProperties dataSourceProperties() {
+        return new DataSourceProperties();
+    }
+
+    @Bean("quartzDataSourceProperties")
+    @ConfigurationProperties(prefix = "spring.datasource.quartz")
+    public DataSourceProperties quartzDataSourceProperties() {
+        return new DataSourceProperties();
+    }
 }
