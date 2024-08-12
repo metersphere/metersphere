@@ -17,19 +17,17 @@ import io.metersphere.request.LoginRequest;
 import io.metersphere.service.BaseDisplayService;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.SSOLogoutService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 
@@ -49,6 +47,8 @@ public class LoginController {
     private Integer port;
     @Resource
     private RedisIndexedSessionRepository redisIndexedSessionRepository;
+    @Value("${spring.messages.default-locale}")
+    private String defaultLocale;
 
 
     @GetMapping(value = "/is-login")
@@ -58,7 +58,7 @@ public class LoginController {
         if (user != null) {
             UserDTO userDTO = baseUserService.getUserDTO((String) MethodUtils.invokeMethod(user, "getId"));
             if (StringUtils.isBlank(userDTO.getLanguage())) {
-                userDTO.setLanguage(LocaleContextHolder.getLocale().toString());
+                userDTO.setLanguage(defaultLocale);
             }
             baseUserService.autoSwitch(userDTO);
             SessionUser sessionUser = SessionUser.fromUser(userDTO, SessionUtils.getSessionId());
@@ -104,6 +104,9 @@ public class LoginController {
     /*Get default language*/
     @GetMapping(value = "/language")
     public String getDefaultLanguage() {
+        if (StringUtils.isNotBlank(defaultLocale)) {
+            return defaultLocale;
+        }
         return baseUserService.getDefaultLanguage();
     }
 
