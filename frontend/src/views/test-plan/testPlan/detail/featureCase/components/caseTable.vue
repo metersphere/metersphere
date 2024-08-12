@@ -373,7 +373,7 @@
     scroll: { x: '100%' },
     tableKey: TableKeyEnum.TEST_PLAN_DETAIL_FEATURE_CASE_TABLE,
     showSetting: true,
-    heightUsed: 460,
+    heightUsed: 445,
     showSubdirectory: true,
     draggable: { type: 'handle' },
     draggableCondition: true,
@@ -800,24 +800,19 @@
   :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
     &:not(:hover) {
       border-color: transparent !important;
-
       .arco-input::placeholder {
         @apply invisible;
       }
-
       .arco-select-view-icon {
         @apply invisible;
       }
-
       .arco-select-view-value {
         color: var(--color-text-brand);
       }
     }
   }
-
   .list-show-type {
     padding: 0;
-
     :deep(.arco-radio-button-content) {
       padding: 4px 6px;
     }

@@ -299,7 +299,7 @@
     scroll: { x: '100%' },
     tableKey: TableKeyEnum.TEST_PLAN_DETAIL_API_CASE,
     showSetting: true,
-    heightUsed: 460,
+    heightUsed: 445,
     showSubdirectory: true,
     draggable: { type: 'handle' },
     draggableCondition: true,
