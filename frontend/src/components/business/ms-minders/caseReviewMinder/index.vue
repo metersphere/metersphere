@@ -25,7 +25,7 @@
           trigger="click"
           position="bl"
           :click-outside-to-close="false"
-          popup-container=".ms-minder-container"
+          popup-container="body"
         >
           <a-tooltip :content="t('caseManagement.caseReview.review')">
             <MsButton
