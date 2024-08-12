@@ -487,6 +487,7 @@
     ) {
       window.minder.execCommand('resource', [statusTagMap[status], caseTag]);
     } else {
+      if (status === StartReviewStatus.UNDER_REVIEWED) return;
       initCaseTree();
     }
     emit('handleReviewDone');
