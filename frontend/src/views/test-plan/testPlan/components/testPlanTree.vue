@@ -347,7 +347,7 @@
 
   const virtualListProps = computed(() => {
     return {
-      height: 'calc(100vh - 240px)',
+      height: 'calc(100vh - 200px)',
       threshold: 200,
       fixedSize: true,
       buffer: 15,
