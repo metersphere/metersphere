@@ -7,6 +7,7 @@ import io.metersphere.system.interceptor.MybatisInterceptor;
 import io.metersphere.system.interceptor.UserDesensitizationInterceptor;
 import io.metersphere.system.utils.MybatisInterceptorConfig;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -58,7 +59,7 @@ public class MybatisConfig {
     @Bean
     @Primary
     @ConfigurationProperties(prefix = "spring.datasource.hikari")
-    public DataSource dataSource(DataSourceProperties properties) {
+    public DataSource dataSource(@Qualifier("dataSourceProperties") DataSourceProperties properties) {
         return DataSourceBuilder.create(properties.getClassLoader()).type(HikariDataSource.class)
                 .driverClassName(properties.determineDriverClassName())
                 .url(properties.determineUrl())
@@ -70,7 +71,7 @@ public class MybatisConfig {
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.quartz.hikari")
     @QuartzDataSource
-    public DataSource quartzDataSource(DataSourceProperties properties) {
+    public DataSource quartzDataSource(@Qualifier("quartzDataSourceProperties") DataSourceProperties properties) {
         return DataSourceBuilder.create(properties.getClassLoader()).type(HikariDataSource.class)
                 .driverClassName(properties.determineDriverClassName())
                 .url(properties.determineUrl())
@@ -79,4 +80,16 @@ public class MybatisConfig {
                 .build();
     }
 
+    @Bean("dataSourceProperties")
+    @Primary
+    @ConfigurationProperties(prefix = "spring.datasource")
+    public DataSourceProperties dataSourceProperties() {
+        return new DataSourceProperties();
+    }
+
+    @Bean("quartzDataSourceProperties")
+    @ConfigurationProperties(prefix = "spring.datasource.quartz")
+    public DataSourceProperties quartzDataSourceProperties() {
+        return new DataSourceProperties();
+    }
 }
