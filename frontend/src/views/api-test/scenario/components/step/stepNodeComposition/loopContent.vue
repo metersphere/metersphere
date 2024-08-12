@@ -100,11 +100,18 @@
             :id="stepId"
             v-model:model-value="innerData.whileController.msWhileVariable.value"
             size="mini"
-            class="w-[110px] px-[8px]"
+            class="value-input w-[110px] px-[8px]"
             :placeholder="t('apiScenario.value')"
             :disabled="props.disabled"
             @change="handleInputChange"
           >
+            <template #suffix>
+              <MsIcon
+                type="icon-icon_full_screen_one"
+                class="input-suffix-icon ml-[8px]"
+                @click.stop="emit('quickInput', 'conditionValue')"
+              />
+            </template>
           </a-input>
         </a-tooltip>
       </template>
@@ -241,29 +248,6 @@
   watchEffect(() => {
     innerData.value = props.data;
   });
-
-  // 接收全局双击时间戳
-  const dbClick = inject<
-    Ref<{
-      e: MouseEvent | null;
-      timeStamp: number;
-    }>
-  >('dbClick');
-
-  watch(
-    () => dbClick?.value.timeStamp,
-    () => {
-      // @ts-ignore
-      if ((dbClick?.value.e?.target as Element).parentNode?.uniqueId === props.stepId) {
-        emit(
-          'quickInput',
-          innerData.value.whileController.conditionType === WhileConditionType.CONDITION
-            ? 'msWhileVariableValue'
-            : 'msWhileVariableScriptValue'
-        );
-      }
-    }
-  );
 
   function handleInputChange() {
     nextTick(() => {
