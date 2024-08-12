@@ -93,7 +93,7 @@ export default {
     tag: {
       case: 'Case',
       module: 'Module',
-      precondition: 'Pre-operation',
+      precondition: 'Pre-condition',
       desc: 'Step desc',
       expect: 'Expected result',
       remark: 'Remark',

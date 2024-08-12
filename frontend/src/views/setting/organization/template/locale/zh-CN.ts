@@ -96,7 +96,7 @@ export default {
   'system.orgTemplate.caseNamePlaceholder': '请输入用例名称',
   'system.orgTemplate.defectNamePlaceholder': '请输入缺陷名称',
   'system.orgTemplate.noDefaultPlaceholder': '暂不支持默认值',
-  'system.orgTemplate.precondition': '前置操作',
+  'system.orgTemplate.precondition': '前置条件',
   'system.orgTemplate.stepDescription': '步骤描述',
   'system.orgTemplate.changeType': '更改类型',
   'system.orgTemplate.textDescription': '文本描述',
