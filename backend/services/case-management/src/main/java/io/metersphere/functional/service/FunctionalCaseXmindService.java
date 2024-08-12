@@ -9,6 +9,7 @@ import io.metersphere.functional.socket.ExportWebSocketHandler;
 import io.metersphere.functional.xmind.domain.FunctionalCaseXmindDTO;
 import io.metersphere.functional.xmind.domain.FunctionalCaseXmindData;
 import io.metersphere.functional.xmind.utils.XmindExportUtil;
+import io.metersphere.sdk.constants.LocalRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.MsgType;
 import io.metersphere.sdk.dto.ExportMsgDTO;
@@ -30,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -115,12 +115,16 @@ public class FunctionalCaseXmindService {
         if (CollectionUtils.isEmpty(ids)) {
             return null;
         }
+        File dir = null;
         File tmpFile = null;
         try {
             FunctionalCaseXmindData xmindData = buildXmindData(ids, request);
-            tmpFile = new File(getClass().getClassLoader().getResource(StringUtils.EMPTY).getPath() +
+            dir = new File(LocalRepositoryDir.getSystemTempDir());
+            if (!dir.exists() && !dir.mkdir()) {
+                throw new MSException(Translator.get("upload_fail"));
+            }
+            tmpFile = new File(LocalRepositoryDir.getSystemTempDir() +
                     File.separatorChar + EXPORT_CASE_TMP_DIR + "_" + IDGenerator.nextStr() + ".xmind");
-            tmpFile.createNewFile();
             List<TemplateCustomFieldDTO> templateCustomFields = functionalCaseFileService.getCustomFields(request.getProjectId());
             TemplateCustomFieldDTO templateCustomFieldDTO = templateCustomFields.stream().filter(item -> StringUtils.equalsIgnoreCase(item.getFieldName(), Translator.get("custom_field.functional_priority"))).findFirst().get();
             XmindExportUtil.export(xmindData, request, tmpFile, templateCustomFieldDTO);
@@ -146,7 +150,7 @@ public class FunctionalCaseXmindService {
             }
             LogUtils.error(e);
             throw new MSException(e);
-        }finally {
+        } finally {
             try {
                 FileUtils.delete(tmpFile);
             } catch (Exception e) {
