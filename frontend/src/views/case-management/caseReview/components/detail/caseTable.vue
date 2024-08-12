@@ -48,6 +48,7 @@
         no-disable
         filter-icon-align-left
         v-on="propsEvent"
+        @filter-change="getModuleCount"
         @batch-action="handleTableBatch"
       >
         <template #[FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_RESULT]="{ filterContent }">
@@ -1089,7 +1090,6 @@
 <style lang="less" scoped>
   .case-show-type {
     @apply grid grid-cols-2;
-
     .show-type-icon {
       :deep(.arco-radio-button-content) {
         @apply flex;
@@ -1099,36 +1099,28 @@
       }
     }
   }
-
   :deep(.arco-radio-label) {
     @apply inline-flex;
   }
-
   :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
     &:not(:hover) {
       border-color: transparent !important;
-
       .arco-input::placeholder {
         @apply invisible;
       }
-
       .arco-select-view-icon {
         @apply invisible;
       }
-
       .arco-select-view-value {
         color: var(--color-text-brand);
       }
-
       .arco-input-suffix {
         @apply invisible;
       }
     }
   }
-
   .list-show-type {
     padding: 0;
-
     :deep(.arco-radio-button-content) {
       padding: 4px 6px;
     }
