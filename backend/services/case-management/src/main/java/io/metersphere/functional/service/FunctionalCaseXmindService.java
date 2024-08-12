@@ -10,7 +10,6 @@ import io.metersphere.functional.xmind.domain.FunctionalCaseXmindDTO;
 import io.metersphere.functional.xmind.domain.FunctionalCaseXmindData;
 import io.metersphere.functional.xmind.utils.XmindExportUtil;
 import io.metersphere.sdk.constants.LocalRepositoryDir;
-import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.MsgType;
 import io.metersphere.sdk.dto.ExportMsgDTO;
 import io.metersphere.sdk.exception.MSException;
@@ -126,8 +125,7 @@ public class FunctionalCaseXmindService {
             tmpFile = new File(LocalRepositoryDir.getSystemTempDir() +
                     File.separatorChar + EXPORT_CASE_TMP_DIR + "_" + IDGenerator.nextStr() + ".xmind");
             List<TemplateCustomFieldDTO> templateCustomFields = functionalCaseFileService.getCustomFields(request.getProjectId());
-            TemplateCustomFieldDTO templateCustomFieldDTO = templateCustomFields.stream().filter(item -> StringUtils.equalsIgnoreCase(item.getFieldName(), Translator.get("custom_field.functional_priority"))).findFirst().get();
-            XmindExportUtil.export(xmindData, request, tmpFile, templateCustomFieldDTO);
+            XmindExportUtil.export(xmindData, request, tmpFile, templateCustomFields);
             functionalCaseFileService.uploadFileToMinio(XMIND, tmpFile, request.getFileId());
 
             functionalCaseLogService.exportExcelLog(request);
@@ -180,14 +178,9 @@ public class FunctionalCaseXmindService {
             String moduleId = entry.getKey();
             List<FunctionalCase> dataList = entry.getValue();
             List<FunctionalCaseXmindDTO> dtos = buildXmindDTO(dataList, functionalCaseBlobMap, customFieldMap);
-            if (StringUtils.equals(moduleId, ModuleConstants.DEFAULT_NODE_ID)) {
-                xmindData.setFunctionalCaseList(dtos);
-            } else {
-                LinkedList<BaseTreeNode> returnList = new LinkedList<>();
-                LinkedList<BaseTreeNode> modulePathDataList = getModuleById(moduleId, tree, returnList);
-                xmindData.setItem(modulePathDataList, dtos);
-                System.out.println("modulePathDataList: " + modulePathDataList);
-            }
+            LinkedList<BaseTreeNode> returnList = new LinkedList<>();
+            LinkedList<BaseTreeNode> modulePathDataList = getModuleById(moduleId, tree, returnList);
+            xmindData.setItem(modulePathDataList, dtos);
         }
 
         return xmindData;
