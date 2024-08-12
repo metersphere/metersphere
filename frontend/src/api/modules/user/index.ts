@@ -12,6 +12,7 @@ import {
   GeLarkSuiteInfoUrl,
   GetAPIKEYListUrl,
   getAuthenticationUrl,
+  GetDefaultLocaleUrl,
   GetDingCallbackUrl,
   GetInfoUrl,
   GetLarkCallbackUrl,
@@ -54,6 +55,7 @@ import type {
 } from '@/models/user';
 import { DingInfo, LarkInfo, WecomInfo } from '@/models/user';
 
+import type { LocaleType } from '#/global';
 import type { RouteRecordNormalized } from 'vue-router';
 
 export function login(data: LoginData) {
@@ -225,4 +227,9 @@ export function getPlatformAccount() {
 // 个人信息-获取第三方平台-组织下拉选项
 export function getPlatformOrgOption() {
   return MSR.get<OrgOptionItem[]>({ url: GetPlatformOrgOptionUrl });
+}
+
+// 获取默认语言配置
+export function getDefaultLocale() {
+  return MSR.get<LocaleType>({ url: GetDefaultLocaleUrl });
 }

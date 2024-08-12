@@ -35,3 +35,4 @@ export const GeLarkInfoUrl = '/lark/info'; // 获取飞书登陆的配置信息
 export const GetLarkCallbackUrl = '/sso/callback/lark'; // 获取飞书登陆的回调信息
 export const GeLarkSuiteInfoUrl = '/lark_suite/info'; // 获取国际飞书登陆的配置信息
 export const GetLarkSuiteCallbackUrl = '/sso/callback/lark_suite'; // 获取国际飞书登陆的回调信息
+export const GetDefaultLocaleUrl = '/user/local/config/default-locale'; // 获取默认语言配置
