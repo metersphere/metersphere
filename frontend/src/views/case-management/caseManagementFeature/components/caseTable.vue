@@ -142,7 +142,7 @@
         </template>
         <!-- 渲染自定义字段结束 -->
         <template #operation="{ record }">
-          <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" class="!mr-0" @click="operateCase(record, 'edit')">
+          <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" class="!mr-0" @click="operateCase(record, true)">
             {{ t('common.edit') }}
           </MsButton>
           <a-divider
@@ -151,7 +151,7 @@
             direction="vertical"
             :margin="8"
           ></a-divider>
-          <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="!mr-0" @click="operateCase(record, 'copy')">
+          <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="!mr-0" @click="operateCase(record, false)">
             {{ t('caseManagement.featureCase.copy') }}
           </MsButton>
           <a-divider
@@ -336,6 +336,7 @@
     :table-data="propsRes.data"
     :page-change="propsEvent.pageChange"
     :pagination="propsRes.msPagination!"
+    :is-edit="isEdit"
     @success="initData()"
   />
   <AddDemandModal
@@ -1014,17 +1015,35 @@
     emitTableParams();
   }
 
+  const showDetailDrawer = ref(false);
+  const activeDetailId = ref<string>('');
+  const activeCaseIndex = ref<number>(0);
+
+  // 抽屉详情
+  function showCaseDetail(id: string, index: number) {
+    activeDetailId.value = id;
+    activeCaseIndex.value = index;
+    showDetailDrawer.value = true;
+  }
+  const isEdit = ref<boolean>(false);
   // 编辑&复制
-  function operateCase(record: CaseManagementTable, mode: string) {
-    router.push({
-      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
-      query: {
-        id: record.id,
-      },
-      params: {
-        mode,
-      },
-    });
+  function operateCase(record: CaseManagementTable, operateType: boolean) {
+    // TODO 这个版本暂时调整为打开详情抽屉编辑
+    isEdit.value = operateType;
+    if (operateType) {
+      const index = propsRes.value.data.findIndex((item) => item.id === record.id);
+      showCaseDetail(record.id, index);
+    } else {
+      router.push({
+        name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+        query: {
+          id: record.id,
+        },
+        params: {
+          mode: operateType ? 'edit' : 'copy',
+        },
+      });
+    }
   }
 
   // 删除
@@ -1446,19 +1465,10 @@
     resetSelector();
     initData();
   }
-  const showDetailDrawer = ref(false);
-  const activeDetailId = ref<string>('');
-  const activeCaseIndex = ref<number>(0);
-
-  // 抽屉详情
-  function showCaseDetail(id: string, index: number) {
-    activeDetailId.value = id;
-    activeCaseIndex.value = index;
-    showDetailDrawer.value = true;
-  }
 
   function handleCellClick(record: TableData) {
     const index = propsRes.value.data.findIndex((item) => item.id === record.id);
+    isEdit.value = false;
     showCaseDetail(record.id, index);
   }
 

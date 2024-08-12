@@ -9,22 +9,45 @@
     :detail-id="props.detailId"
     :detail-index="props.detailIndex"
     :get-detail-func="getCaseDetail"
-    :pagination="props.pagination"
+    :pagination="!isEditTitle ? props.pagination : undefined"
     :table-data="props.tableData"
     :page-change="props.pageChange"
     :mask-closable="true"
-    :edit-name="true"
     show-full-screen
     :unmount-on-close="true"
     @loaded="loadedCase"
   >
+    <template #titleName>
+      <div :class="`case-title flex items-center ${isEditTitle ? 'w-full' : ''}`">
+        <a-input
+          v-if="isEditTitle"
+          v-model="titleName"
+          :class="`edit-title w-full ${titleName.length ? '' : 'edit-title-error'}`"
+          :placeholder="t('case.caseNamePlaceholder')"
+          allow-clear
+          :max-length="255"
+          @blur="handleEditName"
+          @keydown.enter="handleEditName"
+        />
+        <div v-else class="flex items-center">
+          <div> 【{{ detailInfo?.num }}】 </div>
+          <div
+            :class="`${
+              hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']) ? 'hover-title-name' : ''
+            } one-line-text max-w-[200px]`"
+            @click="clickTitleHandler"
+            >{{ detailInfo.name }}
+          </div>
+        </div>
+      </div>
+    </template>
     <template #titleLeft>
-      <div class="flex items-center"><caseLevel :case-level="caseLevels" /></div>
+      <div v-if="!isEditTitle" class="flex items-center"><caseLevel :case-level="caseLevels" /></div>
     </template>
     <template #titleRight="{ loading }">
       <div class="rightButtons flex items-center">
         <MsButton
-          v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
+          v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']) && !isEditTitle"
           type="icon"
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)]"
@@ -36,7 +59,7 @@
           {{ t('common.edit') }}
         </MsButton>
         <MsButton
-          v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
+          v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']) && !isEditTitle"
           type="icon"
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)]"
@@ -48,7 +71,7 @@
           {{ t('caseManagement.featureCase.share') }}
         </MsButton>
         <MsButton
-          v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
+          v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']) && !isEditTitle"
           type="icon"
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)]"
@@ -63,7 +86,12 @@
           />
           {{ t('caseManagement.featureCase.follow') }}
         </MsButton>
-        <MsButton type="icon" status="secondary" class="mr-2 !rounded-[var(--border-radius-small)]">
+        <MsButton
+          v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+DELETE']) && !isEditTitle"
+          type="icon"
+          status="secondary"
+          class="mr-2 !rounded-[var(--border-radius-small)]"
+        >
           <a-dropdown position="br" :hide-on-select="false">
             <div class="flex items-center">
               <icon-more class="mr-2" />
@@ -75,10 +103,14 @@
               <!-- <a-doption>
                 <a-switch class="mr-1" size="small" type="line" />{{ t('caseManagement.featureCase.addToPublic') }}
               </a-doption> -->
-              <a-doption @click="updateHandler('copy')">
-                <MsIcon type="icon-icon_copy_filled" class="font-[16px]" />{{ t('common.copy') }}</a-doption
+              <a-doption v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+ADD'])" @click="updateHandler('copy')">
+                <MsIcon type="icon-icon_copy_filled" class="font-[16px]" />{{ t('common.copy') }}
+              </a-doption>
+              <a-doption
+                v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+DELETE'])"
+                class="error-6 text-[rgb(var(--danger-6))]"
+                @click="deleteHandler"
               >
-              <a-doption class="error-6 text-[rgb(var(--danger-6))]" @click="deleteHandler">
                 <MsIcon type="icon-icon_delete-trash_outlined1" class="font-[16px] text-[rgb(var(--danger-6))]" />
                 {{ t('common.delete') }}
               </a-doption>
@@ -110,7 +142,13 @@
             } content-wrapper w-full p-[16px] pt-4`"
           >
             <template v-if="activeTab === 'detail'">
-              <TabDetail :form="detailInfo" :allow-edit="true" :form-rules="formItem" @update-success="updateSuccess" />
+              <TabDetail
+                :form="detailInfo"
+                :allow-edit="true"
+                :is-edit="props.isEdit"
+                :form-rules="formItem"
+                @update-success="updateSuccess"
+              />
             </template>
             <template v-if="activeTab === 'basicInfo'">
               <BasicInfo :loading="loading" :detail="detail" @update-success="updateSuccess" />
@@ -187,6 +225,7 @@
     followerCaseRequest,
     getCaseDetail,
     getCaseModuleTree,
+    updateCaseRequest,
   } from '@/api/modules/case-management/featureCase';
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { defaultCaseDetail } from '@/config/caseManagement';
@@ -196,6 +235,7 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useUserStore from '@/store/modules/user';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { CustomAttributes, DetailCase, TabItemType } from '@/models/caseManagement/featureCase';
   import { ModuleTreeNode } from '@/models/common';
@@ -229,6 +269,7 @@
     tableData: any[]; // 表格数据
     pagination: MsPaginationI; // 分页器对象
     pageChange: (page: number) => Promise<void>; // 分页变更函数
+    isEdit?: boolean; // 编辑状态
   }>();
 
   const emit = defineEmits(['update:visible', 'success']);
@@ -248,6 +289,8 @@
 
   const tabSetting = ref<TabItemType[]>([]);
   const activeTab = ref<string | number>('detail');
+
+  const titleName = ref('');
 
   function clickMenu(key: string | number) {
     activeTab.value = key;
@@ -304,6 +347,7 @@
   function loadedCase(detail: DetailCase) {
     getCaseTree();
     detailInfo.value = { ...detail };
+    titleName.value = detail.name;
     setCount(detail);
     customFields.value = detailInfo.value?.customFields as CustomAttributes[];
     caseLevels.value = getCaseLevels(customFields.value) as CaseLevel;
@@ -396,7 +440,6 @@
   const formRules = ref<FormItem[]>([]);
   const formItem = ref<FormRuleItem[]>([]);
 
-  const fApi = ref(null);
   // 初始化表单
   function initForm() {
     formRules.value = initFormCreate(customFields.value, ['FUNCTIONAL_CASE:READ+UPDATE']);
@@ -411,6 +454,59 @@
     }
     const count = featureCaseStore.countMap[key] ?? 0;
     return featureCaseStore.countMap[key] > 99 ? '99+' : `${count > 0 ? count : ''}`;
+  }
+
+  function getParams() {
+    const customFieldsArr = (formItem.value || []).map((item: any) => {
+      return {
+        fieldId: item.field,
+        value: Array.isArray(item.value) ? JSON.stringify(item.value) : item.value,
+      };
+    });
+    return {
+      request: {
+        ...detailInfo.value,
+        name: titleName.value,
+        deleteFileMetaIds: [],
+        unLinkFilesIds: [],
+        newAssociateFileListIds: [],
+        customFields: customFieldsArr,
+        caseDetailFileIds: [],
+      },
+      fileList: [],
+    };
+  }
+
+  const isEditTitle = ref<boolean>(false);
+  const titleLoading = ref<boolean>(false);
+
+  async function handleEditName() {
+    if (!titleName.value.length) {
+      return;
+    }
+
+    if (titleName.value === detailInfo.value.name) {
+      isEditTitle.value = false;
+      return;
+    }
+    titleLoading.value = true;
+    try {
+      await updateCaseRequest(getParams());
+      Message.success(t('caseManagement.featureCase.editSuccess'));
+      detailInfo.value.name = titleName.value;
+      isEditTitle.value = false;
+      updateSuccess();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      titleLoading.value = false;
+    }
+  }
+
+  function clickTitleHandler() {
+    if (hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])) {
+      isEditTitle.value = true;
+    }
   }
 
   watch(
@@ -432,6 +528,7 @@
         featureCaseStore.setActiveTab(activeTab.value);
       } else {
         activeTab.value = '';
+        isEditTitle.value = false;
       }
     }
   );
@@ -620,6 +717,19 @@
     color: rgb(var(--danger-6));
     &:hover {
       color: rgb(var(--danger-6));
+    }
+  }
+  .edit-title-error {
+    border-color: rgb(var(--danger-6));
+  }
+  .hover-title-name {
+    padding: 4px 8px;
+    font-size: 16px;
+    border-radius: 4px;
+    color: var(--color-text-1);
+    @apply font-medium;
+    &:hover {
+      background: var(--color-text-n9);
     }
   }
 </style>

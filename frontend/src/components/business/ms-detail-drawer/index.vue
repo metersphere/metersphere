@@ -12,9 +12,11 @@
       <div class="flex flex-1 items-center">
         <!-- 如果设置了tooltipText，则优先展示-->
         <a-tooltip :content="props.tooltipText ? props.tooltipText : props.title" position="bottom">
-          <div class="one-line-text max-w-[300px]">
-            {{ props.title }}
-          </div>
+          <slot name="titleName">
+            <div class="one-line-text max-w-[300px]">
+              {{ props.title }}
+            </div>
+          </slot>
         </a-tooltip>
         <div class="ml-4 flex items-center">
           <slot name="titleLeft" :loading="loading" :detail="detail"></slot>
