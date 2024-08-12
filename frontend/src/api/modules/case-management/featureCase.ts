@@ -466,7 +466,10 @@ export function checkCaseExportTask() {
 }
 // 获取导出的文件
 export function getCaseDownloadFile(projectId: string, fileId: string) {
-  return MSR.get({ url: `${GetCaseDownloadFileUrl}/${projectId}/${fileId}` });
+  return MSR.get(
+    { url: `${GetCaseDownloadFileUrl}/${projectId}/${fileId}`, responseType: 'blob' },
+    { isTransformResponse: false, isReturnNativeResponse: true }
+  );
 }
 // 停止导出
 export function stopCaseExport(taskId: string) {
