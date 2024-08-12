@@ -9,12 +9,12 @@
               <div class="one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">{{ item.userName }}</div>
             </a-tooltip>
             <a-divider
-              v-if="props.showStepDetailTrigger && item.stepModule"
+              v-if="props.showStepDetailTrigger && item.caseEditType == 'STEP'"
               direction="vertical"
               margin="8px"
             ></a-divider>
             <a-trigger
-              v-if="props.showStepDetailTrigger && item.stepModule"
+              v-if="props.showStepDetailTrigger && item.caseEditType == 'STEP'"
               trigger="click"
               position="bottom"
               :popup-translate="[0, 4]"
