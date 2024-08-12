@@ -7,7 +7,7 @@
       :scroll="props.scroll"
     >
       <template #type="{ record }">
-        {{ t(extractTypeOptions.find((item) => item.value === record.type)?.label || '') }}
+        <div class="pl-[8px]">{{ t(extractTypeOptions.find((item) => item.value === record.type)?.label || '') }}</div>
       </template>
     </MsFormTable>
   </a-scrollbar>
@@ -38,25 +38,32 @@
     {
       title: 'apiTestDebug.paramName',
       dataIndex: 'name',
+      slotName: 'name',
       showTooltip: true,
+      inputType: 'text',
       width: 200,
     },
     {
       title: 'apiTestDebug.extractValue',
       dataIndex: 'value',
+      slotName: 'value',
       showTooltip: true,
+      inputType: 'text',
       width: 200,
     },
     {
       title: 'apiTestDebug.paramType',
       dataIndex: 'type',
       slotName: 'type',
+      inputType: 'text',
       width: 120,
     },
     {
       title: 'apiTestDebug.expression',
       dataIndex: 'expression',
+      slotName: 'expression',
       showTooltip: true,
+      inputType: 'text',
       width: 200,
     },
   ];

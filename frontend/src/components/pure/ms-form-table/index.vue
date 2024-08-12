@@ -174,13 +174,13 @@
               @change="() => handleFormChange(record, rowIndex, item)"
             >
             </MsQuickInput>
-            <template v-else-if="item.inputType === 'text'">
+            <div v-else-if="item.inputType === 'text'" class="pl-[8px]">
               {{
                 typeof item.valueFormat === 'function'
                   ? item.valueFormat(record)
                   : record[item.dataIndex as string] || '-'
               }}
-            </template>
+            </div>
             <template v-else-if="item.dataIndex === 'action'">
               <div
                 :key="item.dataIndex"
