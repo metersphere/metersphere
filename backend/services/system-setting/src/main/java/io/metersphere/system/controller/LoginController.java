@@ -24,7 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
-import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +38,8 @@ public class LoginController {
     private UserLoginService userLoginService;
     @Resource
     private ProjectMapper projectMapper;
+    @Value("${spring.messages.default-locale}")
+    private String defaultLocale;
 
 
     @GetMapping(value = "/is-login")
@@ -47,7 +49,7 @@ public class LoginController {
         if (user != null) {
             UserDTO userDTO = userLoginService.getUserDTO(user.getId());
             if (StringUtils.isBlank(userDTO.getLanguage())) {
-                userDTO.setLanguage(LocaleContextHolder.getLocale().toString());
+                userDTO.setLanguage(defaultLocale);
             }
 
             userLoginService.autoSwitch(userDTO);
