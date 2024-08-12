@@ -13,10 +13,10 @@
       <div class="flex flex-wrap items-baseline justify-between gap-[12px]">
         <div class="flex flex-1 flex-wrap items-center gap-[16px]">
           <a-select
-            v-if="requestVModel.isNew"
+            v-if="requestVModel.isNew && !isHttpProtocol"
             v-model:model-value="requestVModel.protocol"
             :loading="protocolLoading"
-            class="w-[90px]"
+            class="w-[100px]"
             @change="(val) => handleActiveDebugProtocolChange(val as string)"
           >
             <a-tooltip
@@ -30,7 +30,7 @@
               </a-option>
             </a-tooltip>
           </a-select>
-          <div v-else class="flex items-center gap-[4px]">
+          <div v-else-if="!requestVModel.isNew" class="flex items-center gap-[4px]">
             <apiMethodName
               :method="(requestVModel.protocol as RequestMethods)"
               tag-background-color="rgb(var(--link-7))"
@@ -45,9 +45,27 @@
             </a-tooltip>
           </div>
           <a-input-group v-if="isHttpProtocol" class="flex-1">
+            <a-select
+              v-if="requestVModel.isNew"
+              v-model:model-value="requestVModel.protocol"
+              :loading="protocolLoading"
+              class="w-[100px] hover:z-10"
+              @change="(val) => handleActiveDebugProtocolChange(val as string)"
+            >
+              <a-tooltip
+                v-for="item of protocolOptions"
+                :key="item.value as string"
+                :content="item.label"
+                :mouse-enter-delay="300"
+              >
+                <a-option :value="item.value">
+                  {{ item.label }}
+                </a-option>
+              </a-tooltip>
+            </a-select>
             <apiMethodSelect
               v-model:model-value="requestVModel.method"
-              class="w-[140px]"
+              class="w-[120px]"
               @change="handleActiveDebugChange"
             />
             <a-input
@@ -57,7 +75,7 @@
                 props.isDefinition ? t('apiTestDebug.definitionUrlPlaceholder') : t('apiTestDebug.urlPlaceholder')
               "
               allow-clear
-              class="hover:z-10"
+              class="flex-1 hover:z-10"
               :style="isUrlError ? 'border: 1px solid rgb(var(--danger-6));z-index: 10' : ''"
               @input="() => (isUrlError = false)"
               @change="handleUrlChange"
