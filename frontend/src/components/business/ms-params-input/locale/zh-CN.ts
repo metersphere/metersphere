@@ -1,6 +1,6 @@
 export default {
   'ms.paramsInput.value': '参数值',
-  'ms.paramsInput.placeholder': '以{at}开始，双击可快速输入',
+  'ms.paramsInput.placeholder': '以{at}开始',
   'ms.paramsInput.preview': '参数预览',
   'ms.paramsInput.previewClick': '点击获取',
   'ms.paramsInput.natural': '自然数',

@@ -1,6 +1,6 @@
 export default {
   'ms.paramsInput.value': 'Parameter value',
-  'ms.paramsInput.placeholder': 'Starting with {at}, double-click to quickly enter',
+  'ms.paramsInput.placeholder': 'Starting with {at}',
   'ms.paramsInput.preview': 'Parameter preview',
   'ms.paramsInput.previewClick': 'Click to get',
   'ms.paramsInput.natural': 'Natural number',
