@@ -189,7 +189,9 @@
         };
       });
       featureCaseStore.setModulesTree(caseTree.value);
-      featureCaseStore.setModuleId(['all']);
+      if (!featureCaseStore.moduleId) {
+        featureCaseStore.setModuleId(['all']);
+      }
 
       if (isSetDefaultKey) {
         selectedNodeKeys.value = [caseTree.value[0].id];
@@ -295,20 +297,13 @@
         dropPosition,
       });
       Message.success(t('caseManagement.featureCase.moduleMoveSuccess'));
+      emits('dragUpdate');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loading.value = false;
-      await initModules();
-      const treeNode = ref<MsTreeNodeData | null>(null);
-      treeNode.value = dropNode;
-      treeNode.value.children = [];
-      if (dropPosition === 0) {
-        treeNode.value.children.push(dragNode);
-      }
-      caseNodeSelect(dropNode.id, treeNode.value);
-      emits('dragUpdate');
+      initModules();
     }
   }
 
