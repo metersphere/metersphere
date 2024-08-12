@@ -63,7 +63,7 @@ public class UserLocalConfigController {
 
     @GetMapping(value = "/default-locale")
     public String defaultLocale() {
-        return defaultLocale;
+        return defaultLocale.replace("_", "-");
     }
 
 }

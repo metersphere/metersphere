@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping
-@Tag(name="登录")
+@Tag(name = "登录")
 public class LoginController {
 
     @Resource
@@ -49,7 +49,7 @@ public class LoginController {
         if (user != null) {
             UserDTO userDTO = userLoginService.getUserDTO(user.getId());
             if (StringUtils.isBlank(userDTO.getLanguage())) {
-                userDTO.setLanguage(defaultLocale);
+                userDTO.setLanguage(defaultLocale.replace("_", "-"));
             }
 
             userLoginService.autoSwitch(userDTO);
