@@ -247,7 +247,7 @@ export function filterAssertions(assertionConfig: ExecuteAssertionConfig, isExec
   return assertionConfig.assertions.map((assertItem: any) => {
     const lastItem =
       assertItem?.jsonPathAssertion?.assertions[(assertItem?.jsonPathAssertion?.assertions.length || 1) - 1];
-    if (lastItem.expression === '' && lastItem.expectedValue === '' && lastItem.enable === true) {
+    if (lastItem && lastItem.expression === '' && lastItem.expectedValue === '' && lastItem.enable === true) {
       // 最后一行是空行，将其删除
       assertItem.jsonPathAssertion.assertions.splice(-1, 1);
     }

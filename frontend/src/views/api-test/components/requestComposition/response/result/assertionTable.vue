@@ -20,11 +20,13 @@
         </a-tooltip>
       </template>
       <template #condition="{ record }">
-        {{
-          record.assertionType === FullResponseAssertionType.RESPONSE_TIME
-            ? t('advanceFilter.operator.le')
-            : t(statusCodeOptions.find((item) => item.value === record.condition)?.label || '-')
-        }}
+        <div class="pl-[8px]">
+          {{
+            record.assertionType === FullResponseAssertionType.RESPONSE_TIME
+              ? t('advanceFilter.operator.le')
+              : t(statusCodeOptions.find((item) => item.value === record.condition)?.label || '-')
+          }}
+        </div>
       </template>
       <template #status="{ record }">
         <MsTag :type="record.pass === true ? 'success' : 'danger'" theme="light">
@@ -69,7 +71,9 @@
     {
       title: 'apiTestDebug.actualValue',
       dataIndex: 'actualValue',
+      slotName: 'actualValue',
       showTooltip: true,
+      inputType: 'text',
       width: 200,
     },
     {
@@ -81,7 +85,9 @@
     {
       title: 'apiTestDebug.expectedValue',
       dataIndex: 'expectedValue',
+      slotName: 'expectedValue',
       showTooltip: true,
+      inputType: 'text',
       width: 200,
     },
     {
@@ -93,7 +99,9 @@
     {
       title: 'apiTestDebug.reason',
       dataIndex: 'message',
+      slotName: 'message',
       showTooltip: true,
+      inputType: 'text',
       width: 300,
     },
   ];
