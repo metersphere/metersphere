@@ -107,8 +107,13 @@ export default function useMinderOperation(options: MinderOperationProps) {
       }
       case 'normal': {
         markDeleteNode(minder);
-        const selectedNodes = minder.getSelectedNodes();
+        const selectedNodes: MinderJsonNode[] = minder.getSelectedNodes();
         if (selectedNodes.length) {
+          const newNodes = selectedNodes.map((node) => ({
+            ...node,
+            parent: node.parent, // 保存父节点信息，因为剪切节点后 parent 会被置空
+          }));
+          minderStore.dispatchEvent(MinderEventName.CUT_NODE, undefined, undefined, undefined, newNodes);
           if (e?.clipboardData) {
             e.clipboardData.setData('text/plain', encode(selectedNodes));
           } else {
@@ -116,10 +121,9 @@ export default function useMinderOperation(options: MinderOperationProps) {
             await copy(encode(selectedNodes));
           }
           minder.execCommand('Cut');
+          e?.preventDefault();
+          Message.success(t('common.cutSuccess'));
         }
-        minderStore.dispatchEvent(MinderEventName.CUT_NODE, undefined, undefined, undefined, selectedNodes);
-        e?.preventDefault();
-        Message.success(t('common.cutSuccess'));
         break;
       }
       default:
@@ -291,7 +295,11 @@ export default function useMinderOperation(options: MinderOperationProps) {
         options.canShowBatchDelete) &&
       !options.disabled
     ) {
-      minderStore.dispatchEvent(MinderEventName.DELETE_NODE, undefined, undefined, undefined, selectedNodes);
+      const newNodes = selectedNodes.map((node) => ({
+        ...node,
+        parent: node.parent, // 保存父节点信息，因为删除节点后 parent 会被置空
+      }));
+      minderStore.dispatchEvent(MinderEventName.DELETE_NODE, undefined, undefined, undefined, newNodes);
       window.minder.execCommand('RemoveNode');
     }
   };
