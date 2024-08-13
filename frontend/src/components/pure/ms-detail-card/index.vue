@@ -18,13 +18,17 @@
       <div
         v-for="item of showingDescription"
         :key="item.key"
-        class="flex w-[calc(100%/3)] items-center gap-[8px]"
+        :class="[
+          `ms-detail-card-desc-item ${
+            Array.isArray(item.value) && item.value.length > 0 ? 'ms-detail-card-desc-tag' : ''
+          } flex w-[calc(100%/3)] items-center gap-[8px]`,
+        ]"
         :style="{ width: item.width }"
       >
         <div class="whitespace-nowrap text-[var(--color-text-4)]">
           {{ t(item.locale) }}
         </div>
-        <div v-if="Array.isArray(item.value)">
+        <div v-if="Array.isArray(item.value)" class="pr-[24px]">
           <MsTagGroup v-if="item.value.length > 0" :tag-list="item.value" size="small" is-string-tag />
           <div v-else>-</div>
         </div>
