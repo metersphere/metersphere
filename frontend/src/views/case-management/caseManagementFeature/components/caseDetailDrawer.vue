@@ -122,7 +122,7 @@
     <template #default="{ detail, loading }">
       <div ref="wrapperRef" class="bg-white">
         <div class="header relative h-[48px] border-b pl-2">
-          <div class="max-w-[calc(100%-72px)]">
+          <div class="max-w-[calc(100%-100px)]">
             <MsTab
               v-model:active-key="activeTab"
               :content-tab-list="tabSetting"
@@ -683,6 +683,7 @@
     right: 16px;
     height: 48px;
     line-height: 48px;
+    @apply bg-white;
   }
   :deep(.arco-menu-light) {
     height: 50px;

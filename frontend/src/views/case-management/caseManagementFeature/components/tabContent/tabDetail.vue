@@ -36,58 +36,34 @@
           class="markdown-body list-item-css !break-words break-all"
         ></div>
       </a-form-item>
-      <a-form-item
-        field="step"
-        :label="
-          detailForm.caseEditType === 'STEP'
-            ? t('system.orgTemplate.stepDescription')
-            : t('system.orgTemplate.textDescription')
-        "
-        class="relative"
-      >
-        <div v-if="!props.isTestPlan" class="absolute left-16 top-0 font-normal">
-          <a-divider direction="vertical" />
-          <a-dropdown :popup-max-height="false" @select="handleSelectType">
-            <span class="changeType cursor-pointer text-[var(--color-text-3)]"
-              >{{ t('system.orgTemplate.changeType') }} <icon-down
-            /></span>
-            <template #content>
-              <a-doption value="STEP" :class="getSelectTypeClass('STEP')">
-                {{ t('system.orgTemplate.stepDescription') }}</a-doption
-              >
-              <a-doption value="TEXT" :class="getSelectTypeClass('TEXT')">{{
-                t('system.orgTemplate.textDescription')
-              }}</a-doption>
-            </template>
-          </a-dropdown>
-        </div>
-        <!-- 步骤描述 -->
-        <div v-if="detailForm.caseEditType === 'STEP'" class="w-full">
-          <AddStep
-            v-model:step-list="stepData"
-            :is-scroll-y="false"
-            :is-test-plan="props.isTestPlan"
-            :is-disabled-test-plan="props.isDisabledTestPlan"
-            :is-disabled="!isEditPreposition"
-          />
-        </div>
-        <!-- 文本描述 -->
-        <MsRichText
-          v-if="detailForm.caseEditType === 'TEXT' && isEditPreposition"
-          v-model:raw="detailForm.textDescription"
-          v-model:filed-ids="textDescriptionFileIds"
-          :upload-image="handleUploadImage"
-          :preview-url="`${PreviewEditorImageUrl}/${currentProjectId}`"
+      <StepDescription v-model:caseEditType="detailForm.caseEditType" :is-test-plan="props.isTestPlan" />
+      <!-- 步骤描述 -->
+      <div v-if="detailForm.caseEditType === 'STEP'" class="mb-[20px] w-full">
+        <AddStep
+          v-model:step-list="stepData"
+          :is-scroll-y="false"
+          :is-test-plan="props.isTestPlan"
+          :is-disabled-test-plan="props.isDisabledTestPlan"
+          :is-disabled="!isEditPreposition"
         />
-        <div
-          v-if="detailForm.caseEditType === 'TEXT' && !isEditPreposition"
-          v-dompurify-html="detailForm.textDescription || '-'"
-          class="markdown-body !break-words break-all"
-        ></div>
-      </a-form-item>
+      </div>
+      <!-- 文本描述 -->
+      <MsRichText
+        v-if="detailForm.caseEditType === 'TEXT' && isEditPreposition"
+        v-model:raw="detailForm.textDescription"
+        v-model:filed-ids="textDescriptionFileIds"
+        :upload-image="handleUploadImage"
+        :preview-url="`${PreviewEditorImageUrl}/${currentProjectId}`"
+      />
+      <div
+        v-if="detailForm.caseEditType === 'TEXT' && !isEditPreposition"
+        v-dompurify-html="detailForm.textDescription || '-'"
+        class="markdown-body !break-words break-all"
+      ></div>
       <a-form-item
         v-if="detailForm.caseEditType === 'TEXT'"
         field="remark"
+        class="mt-[20px]"
         :label="t('caseManagement.featureCase.expectedResult')"
       >
         <MsRichText
@@ -263,6 +239,7 @@
   import SaveAsFilePopover from '@/components/business/ms-add-attachment/saveAsFilePopover.vue';
   import LinkFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
   import AddStep from '../addStep.vue';
+  import StepDescription from '@/views/case-management/caseManagementFeature/components/tabContent/stepDescription.vue';
 
   import {
     checkFileIsUpdateRequest,

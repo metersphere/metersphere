@@ -24,41 +24,21 @@
         :editable="!props.isDisabled"
       />
     </a-form-item>
-    <a-form-item
-      field="step"
-      :label="
-        form.caseEditType === 'STEP' ? t('system.orgTemplate.stepDescription') : t('system.orgTemplate.textDescription')
-      "
-      class="relative"
-    >
-      <div class="absolute left-16 top-0">
-        <a-divider direction="vertical" />
-        <a-dropdown :popup-max-height="false" @select="handleSelectType">
-          <span class="changeType">{{ t('system.orgTemplate.changeType') }} <icon-down /></span>
-          <template #content>
-            <a-doption value="STEP" :class="getSelectTypeClass('STEP')">
-              {{ t('system.orgTemplate.stepDescription') }}</a-doption
-            >
-            <a-doption value="TEXT" :class="getSelectTypeClass('TEXT')">{{
-              t('system.orgTemplate.textDescription')
-            }}</a-doption>
-          </template>
-        </a-dropdown>
-      </div>
-      <!-- 步骤描述 -->
-      <div v-if="form.caseEditType === 'STEP'" class="w-full">
-        <AddStep v-model:step-list="stepData" :is-disabled="props.isDisabled" />
-      </div>
-      <!-- 文本描述 -->
+    <StepDescription v-model:caseEditType="form.caseEditType" />
+    <!-- 步骤描述 -->
+    <div v-if="form.caseEditType === 'STEP'" class="mb-[20px] w-full">
+      <AddStep v-model:step-list="stepData" :is-disabled="props.isDisabled" />
+    </div>
+    <!-- 文本描述 -->
+    <div v-else class="pb-[20px]">
       <MsRichText
-        v-else
         v-model:raw="form.textDescription"
         v-model:filed-ids="textDescriptionFileIds"
         :upload-image="handleUploadImage"
         :preview-url="previewEditorImageUrl"
         :editable="!props.isDisabled"
       />
-    </a-form-item>
+    </div>
     <a-form-item
       v-if="form.caseEditType === 'TEXT'"
       field="remark"
@@ -94,6 +74,7 @@
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import AddAttachment from '@/components/business/ms-add-attachment/index.vue';
   import AddStep from '@/views/case-management/caseManagementFeature/components/addStep.vue';
+  import StepDescription from '@/views/case-management/caseManagementFeature/components/tabContent/stepDescription.vue';
 
   import { editorUploadFile } from '@/api/modules/setting/template';
   import { previewOrgImageUrl, previewProImageUrl } from '@/api/requrls/setting/template';
