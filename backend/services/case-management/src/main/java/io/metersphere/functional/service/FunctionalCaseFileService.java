@@ -429,7 +429,6 @@ public class FunctionalCaseFileService {
      */
     public String exportFunctionalCaseZip(FunctionalCaseExportRequest request, String userId) {
         File tmpDir = null;
-        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         String fileType = "";
         try {
             tmpDir = new File(LocalRepositoryDir.getSystemTempDir() + File.separatorChar + EXPORT_CASE_TMP_DIR + "_" + IDGenerator.nextStr());
@@ -443,10 +442,10 @@ public class FunctionalCaseFileService {
                 return null;
             }
             // 生成EXCEL
-            batchExcels = generateCaseExportExcel(batchExcels, ids, tmpDir.getPath(), request, project);
+            batchExcels = generateCaseExportExcel(batchExcels, ids, tmpDir.getPath(), request);
             if (batchExcels.size() > 1) {
                 // EXCEL -> ZIP (EXCEL数目大于1)
-                File zipFile = CompressUtils.zipFilesToPath(tmpDir.getPath() + File.separatorChar + "Metersphere_case_" + project.getName() + ".zip", batchExcels);
+                File zipFile = CompressUtils.zipFilesToPath(tmpDir.getPath() + File.separatorChar + request.getFileId() + ".zip", batchExcels);
                 fileType = ZIP;
                 uploadFileToMinio(fileType, zipFile, request.getFileId());
             } else {
@@ -467,12 +466,12 @@ public class FunctionalCaseFileService {
             ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), taskId, ids.size(), true, MsgType.EXEC_RESULT.name());
             ExportWebSocketHandler.sendMessageSingle(exportMsgDTO);
         } catch (Exception e) {
-            ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), "", 0, false, MsgType.EXEC_RESULT.name());
-            ExportWebSocketHandler.sendMessageSingle(exportMsgDTO);
             List<ExportTask> exportTasks = getExportTasks(request.getProjectId(), userId);
             if (CollectionUtils.isNotEmpty(exportTasks)) {
                 updateExportTask(ExportConstants.ExportState.ERROR.name(), exportTasks.getFirst().getId(), fileType);
             }
+            ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), "", 0, false, MsgType.EXEC_RESULT.name());
+            ExportWebSocketHandler.sendMessageSingle(exportMsgDTO);
             LogUtils.error(e);
             throw new MSException(e);
         } finally {
@@ -511,7 +510,7 @@ public class FunctionalCaseFileService {
         }
     }
 
-    private List<File> generateCaseExportExcel(List<File> tmpExportExcelList, List<String> ids, String tmpZipPath, FunctionalCaseExportRequest request, Project project) {
+    private List<File> generateCaseExportExcel(List<File> tmpExportExcelList, List<String> ids, String tmpZipPath, FunctionalCaseExportRequest request) {
         //excel表头
         List<List<String>> headList = getFunctionalCaseExportHeads(request);
         //获取导出的ids集合
@@ -540,7 +539,7 @@ public class FunctionalCaseFileService {
             List<FunctionalCaseExcelData> excelData = parseCaseData2ExcelData(subIds, rowMergeInfo, request, customFields, moduleMap, parameter.getParamValue());
             List<List<Object>> data = parseExcelData2List(headList, excelData);
 
-            File createFile = new File(tmpZipPath + File.separatorChar + "Metersphere_case_" + project.getName() + count.get() + ".xlsx");
+            File createFile = new File(tmpZipPath + File.separatorChar + request.getFileId() + count.get() + ".xlsx");
             if (!createFile.exists()) {
                 try {
                     createFile.createNewFile();

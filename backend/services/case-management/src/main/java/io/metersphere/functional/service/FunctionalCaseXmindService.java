@@ -140,12 +140,12 @@ public class FunctionalCaseXmindService {
             ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), taskId, ids.size(), true, MsgType.EXEC_RESULT.name());
             ExportWebSocketHandler.sendMessageSingle(exportMsgDTO);
         } catch (Exception e) {
-            ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), "", 0, false, MsgType.EXEC_RESULT.name());
-            ExportWebSocketHandler.sendMessageSingle(exportMsgDTO);
             List<ExportTask> exportTasks = functionalCaseFileService.getExportTasks(request.getProjectId(), userId);
             if (CollectionUtils.isNotEmpty(exportTasks)) {
                 functionalCaseFileService.updateExportTask(ExportConstants.ExportState.ERROR.name(), exportTasks.getFirst().getId(), XMIND);
             }
+            ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), "", 0, false, MsgType.EXEC_RESULT.name());
+            ExportWebSocketHandler.sendMessageSingle(exportMsgDTO);
             LogUtils.error(e);
             throw new MSException(e);
         } finally {
