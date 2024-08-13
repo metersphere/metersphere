@@ -38,7 +38,7 @@
       json.value = props.data;
       if (typeof props.data === 'string') {
         json.value = parse(props.data, undefined, (value) => {
-          if (!isSafeNumber(value) || Number(value).toString().length < value.length) {
+          if (!isSafeNumber(value) || Number(value).toString().length < value.length || !Number.isNaN(Number(value))) {
             // 大数、超长小数、科学计数法、小数位全为 0 等情况下，JS 精度丢失，所以需要用字符串存储
             return `Number(${value.toString()})`;
           }
@@ -76,7 +76,7 @@
             jsonPath.value,
             json.value,
             JSONPath({ json: json.value, path: jsonPath.value }).map((e: any) =>
-              `${e}`.replace(/Number\(([^)]+)\)/g, '$1')
+              JSON.stringify(e).replace(/Number\(([^)]+)\)/g, '$1')
             )
           );
         }
