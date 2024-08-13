@@ -64,7 +64,7 @@
               <div>{{ t('common.copy') }}</div>
               <div class="flex items-center gap-[4px]">
                 <div class="ms-minder-shortcut-trigger-listitem-icon">
-                  <icon-command :size="14" />
+                  <MsCtrlOrCommand />
                 </div>
                 <div class="ms-minder-shortcut-trigger-listitem-icon">C</div>
               </div>
@@ -79,7 +79,7 @@
               <div>{{ t('minder.hotboxMenu.paste') }}</div>
               <div class="flex items-center gap-[4px]">
                 <div class="ms-minder-shortcut-trigger-listitem-icon">
-                  <icon-command :size="14" />
+                  <MsCtrlOrCommand />
                 </div>
                 <div class="ms-minder-shortcut-trigger-listitem-icon">V</div>
               </div>
@@ -94,7 +94,7 @@
               <div>{{ t('minder.hotboxMenu.cut') }}</div>
               <div class="flex items-center gap-[4px]">
                 <div class="ms-minder-shortcut-trigger-listitem-icon">
-                  <icon-command :size="14" />
+                  <MsCtrlOrCommand />
                 </div>
                 <div class="ms-minder-shortcut-trigger-listitem-icon">X</div>
               </div>
@@ -103,7 +103,7 @@
               <div>{{ t('minder.hotboxMenu.enterNode') }}</div>
               <div class="flex items-center gap-[4px]">
                 <div class="ms-minder-shortcut-trigger-listitem-icon">
-                  <icon-command :size="14" />
+                  <MsCtrlOrCommand />
                 </div>
                 <div class="ms-minder-shortcut-trigger-listitem-icon">
                   <MsIcon type="icon-icon_carriage_return2" />
@@ -144,6 +144,7 @@
 
 <script lang="ts" setup>
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsCtrlOrCommand from '@/components/pure/ms-ctrl-or-command';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';

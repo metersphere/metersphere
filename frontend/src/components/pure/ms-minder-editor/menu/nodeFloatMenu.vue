@@ -137,26 +137,26 @@
           <a-doption v-if="props.canShowEnterNode" value="enterNode">
             <div class="flex items-center">
               <div>{{ t('minder.hotboxMenu.enterNode') }}</div>
-              <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl+ Enter)</div>
+              <div class="ml-[4px] text-[var(--color-text-4)]">(<MsCtrlOrCommand /> + Enter)</div>
             </div>
           </a-doption>
           <template v-if="props.canShowMoreMenuNodeOperation">
             <a-doption value="copy">
               <div class="flex items-center">
                 <div>{{ t('minder.hotboxMenu.copy') }}</div>
-                <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + C)</div>
+                <div class="ml-[4px] text-[var(--color-text-4)]">(<MsCtrlOrCommand /> + C)</div>
               </div>
             </a-doption>
             <a-doption value="cut">
               <div class="flex items-center">
                 <div>{{ t('minder.hotboxMenu.cut') }}</div>
-                <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + X)</div>
+                <div class="ml-[4px] text-[var(--color-text-4)]">(<MsCtrlOrCommand /> + X)</div>
               </div>
             </a-doption>
             <a-doption v-if="props.canShowPasteMenu && minderStore.clipboard.length > 0" value="paste">
               <div class="flex items-center">
                 <div>{{ t('minder.hotboxMenu.paste') }}</div>
-                <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + V)</div>
+                <div class="ml-[4px] text-[var(--color-text-4)]">(<MsCtrlOrCommand /> + V)</div>
               </div>
             </a-doption>
             <a-doption value="delete">
@@ -190,6 +190,7 @@
   import { TriggerPopupTranslate } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsCtrlOrCommand from '@/components/pure/ms-ctrl-or-command';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';

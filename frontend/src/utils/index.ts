@@ -1097,3 +1097,11 @@ export const operationWidth = (enWidth: number, zhWidth: number) =>
 export function filterTreeNode(searchValue: string, nodeData: MsTreeNodeData, nameKey = 'name') {
   return nodeData[nameKey].toLowerCase().includes(searchValue.toLowerCase());
 }
+
+/**
+ * 判断是否是mac系统
+ */
+export function isMacOs() {
+  const platform = navigator.platform.toLowerCase();
+  return platform.includes('mac');
+}
