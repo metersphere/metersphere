@@ -688,15 +688,15 @@ with urllib.request.urlopen(request) as response:
     status_code = response.getcode()
     log.info(f"Status Code: {status_code}")`,
     postOperation: `# 获取 HTTP 请求的响应数据
-responseData = prev.getResponseDataAsString();
+responseData = prev.getResponseDataAsString()
 
 # 输出响应数据到控制台
-log.info("Response Data: " + responseData);
-vars.put("variable_name", "variable_value");
+log.info("Response Data: " + responseData)
+vars.put("variable_name", "variable_value")
 
 # 你可以进一步处理响应数据
 # 例如：保存响应数据到变量
-vars.put("responseData", responseData);`,
+vars.put("responseData", responseData)`,
     assertion: `# 获取响应状态码
 response_code = prev.getResponseCode()
 
