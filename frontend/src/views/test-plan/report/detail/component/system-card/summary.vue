@@ -1,12 +1,16 @@
 <template>
-  <div :class="`${hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId ? '' : 'cursor-not-allowed'}`">
+  <div
+    :class="`${
+      hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+UPDATE']) && !shareId ? '' : 'cursor-not-allowed'
+    } w-full`"
+  >
     <MsRichText
       ref="msRichTextRef"
       v-model:raw="innerSummary.content"
       v-model:filedIds="innerSummary.richTextTmpFileIds"
       :upload-image="handleUploadImage"
       :preview-url="`${ReportPlanPreviewImageUrl}/${appStore.currentProjectId}`"
-      class="mt-[8px] w-full"
+      class="mt-[8px]"
       :editable="props.canEdit"
       @click="handleRichClick"
       @update="emit('handleSetSave')"

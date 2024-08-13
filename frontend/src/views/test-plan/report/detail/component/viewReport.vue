@@ -2,7 +2,7 @@
   <ReportHeader v-if="!props.isDrawer && props.isPreview" :detail="detail" :share-id="shareId" :is-group="false" />
   <div class="analysis-wrapper" :data-cards="cardCount">
     <SystemTrigger :is-preview="props.isPreview">
-      <div :class="`${getAnalysisHover} analysis min-w-[238px]`">
+      <div :class="`${getAnalysisHover} analysis min-w-[330px]`">
         <div class="block-title">{{ t('report.detail.api.reportAnalysis') }}</div>
         <ReportMetricsItem
           v-for="analysisItem in reportAnalysisList"
@@ -161,7 +161,7 @@
             </a-tooltip>
           </div>
         </div>
-        <MsCard simple auto-height auto-width>
+        <div class="wrapper-preview-card">
           <div v-if="item.value !== ReportCardTypeEnum.CUSTOM_CARD" class="mb-[8px] font-medium">
             {{ t(item.label) }}
           </div>
@@ -226,7 +226,7 @@
             @cancel="() => handleCancelCustom(item)"
             @handle-set-save="setIsSave(false)"
           />
-        </MsCard>
+        </div>
       </div>
     </VueDraggable>
   </div>
@@ -240,7 +240,6 @@
   import { VueDraggable } from 'vue-draggable-plus';
 
   import MsChart from '@/components/pure/chart/index.vue';
-  import MsCard from '@/components/pure/ms-card/index.vue';
   import SingleStatusProgress from '@/views/test-plan/report/component/singleStatusProgress.vue';
   import CustomRichText from '@/views/test-plan/report/detail/component/custom-card/customRichText.vue';
   import ApiAndScenarioTable from '@/views/test-plan/report/detail/component/system-card/apiAndScenarioTable.vue';
@@ -646,11 +645,6 @@
   .block-title {
     @apply mb-4 font-medium;
   }
-  .config-right-container {
-    padding: 16px;
-    width: calc(100% - 300px);
-    background: var(--color-bg-3);
-  }
   .analysis-wrapper {
     @apply mb-4 grid items-center gap-4;
     .analysis {
@@ -695,6 +689,7 @@
   .drag-container {
     .card-item {
       position: relative;
+      width: 100%;
       border: 1px solid transparent;
       border-radius: 12px;
       .action {
@@ -726,5 +721,12 @@
       border: 1px solid rgb(var(--primary-5));
       background: var(--color-text-n9);
     }
+  }
+  .wrapper-preview-card {
+    display: flex;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgb(120 56 135 / 5%);
+    @apply flex-col bg-white;
   }
 </style>

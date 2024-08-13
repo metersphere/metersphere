@@ -432,8 +432,9 @@
       }
     }
     .config-right-container {
-      padding: 16px;
+      padding: 16px 0 16px 16px;
       width: calc(100% - 300px);
+      min-width: 1000px;
       background: var(--color-bg-3);
     }
   }

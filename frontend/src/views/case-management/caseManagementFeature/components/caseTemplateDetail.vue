@@ -783,8 +783,9 @@
     });
     return data;
   }
-
+  // 重置包含重置到默认模板状态
   async function resetForm() {
+    caseFormRef.value?.resetFields();
     form.value = { ...initForm, templateId: form.value.templateId };
     await initDefaultFields();
     form.value.customFields = formItem.value.map((item: any) => {
@@ -795,16 +796,6 @@
     });
     fileList.value = [];
     form.value.tags = [];
-    stepData.value = [
-      {
-        id: getGenerateId(),
-        step: '',
-        expected: '',
-        showStep: false,
-        showExpected: false,
-      },
-    ];
-    caseFormRef.value?.resetFields();
   }
 
   const caseId = ref(props.caseId);
