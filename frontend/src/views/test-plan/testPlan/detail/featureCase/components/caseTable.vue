@@ -151,7 +151,7 @@
       :params="batchUpdateParams"
       :show-title-count="showType === 'list'"
       :batch-update-executor="batchUpdateCaseExecutor"
-      @load-list="resetSelectorAndCaseList"
+      @load-list="resetCaseList"
     />
     <!-- 批量移动 -->
     <BatchApiMoveModal
@@ -585,14 +585,9 @@
   }
 
   function resetCaseList() {
-    resetSelector();
-    getModuleCount();
-    loadList();
-  }
-
-  function resetSelectorAndCaseList() {
     if (showType.value === 'list') {
       resetSelector();
+      getModuleCount();
       loadList();
     }
   }
@@ -709,8 +704,7 @@
         excludeIds: batchParams.value?.excludeIds || [],
       });
       Message.success(t('common.updateSuccess'));
-      resetSelector();
-      loadList();
+      resetCaseList();
       emit('refresh');
     } catch (error) {
       // eslint-disable-next-line no-console
