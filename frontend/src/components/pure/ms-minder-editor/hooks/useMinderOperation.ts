@@ -206,10 +206,12 @@ export default function useMinderOperation(options: MinderOperationProps) {
    * @param command 插入命令
    * @param value 携带的参数
    */
-  const execInsertCommand = (command: string, value?: string) => {
-    const node: MinderJsonNode = window.minder.getSelectedNode();
+  const execInsertCommand = (command: string, selectedNodes: MinderJsonNode[], value?: string) => {
+    if (selectedNodes.length > 1) {
+      return; // TODO: 批量操作暂不支持插入
+    }
     if (options.insertNode) {
-      options.insertNode(node, command, value);
+      options.insertNode(selectedNodes[0], command, value);
       return;
     }
     if (window.minder.queryCommandState(command) !== -1) {
@@ -233,7 +235,7 @@ export default function useMinderOperation(options: MinderOperationProps) {
    * @param value 携带的参数
    */
   const appendChildNode = (selectedNodes: MinderJsonNode[], value?: string) => {
-    execInsertCommand('AppendChildNode', value);
+    execInsertCommand('AppendChildNode', selectedNodes, value);
     minderStore.dispatchEvent(MinderEventName.INSERT_CHILD, value, undefined, undefined, selectedNodes);
   };
 
@@ -243,7 +245,7 @@ export default function useMinderOperation(options: MinderOperationProps) {
    * @param value 携带的参数
    */
   const appendSiblingNode = (selectedNodes: MinderJsonNode[], value?: string) => {
-    execInsertCommand('AppendSiblingNode', value);
+    execInsertCommand('AppendSiblingNode', selectedNodes, value);
     minderStore.dispatchEvent(MinderEventName.INSERT_SIBLING, value, undefined, undefined, selectedNodes);
   };
 
@@ -289,12 +291,16 @@ export default function useMinderOperation(options: MinderOperationProps) {
    * @param selectedNodes 当前选中的节点集合
    */
   const minderDelete = (selectedNodes: MinderJsonNode[]) => {
+    if (selectedNodes.length > 1 && (!options.canShowBatchDelete || options.disabled)) {
+      // 批量操作节点时，如果不允许批量删除或者当前操作被禁用，则不执行删除操作
+      return;
+    }
     if (
-      (options.canShowDeleteMenu ||
-        (options.canShowMoreMenu && options.canShowMoreMenuNodeOperation) ||
-        options.canShowBatchDelete) &&
+      selectedNodes.length === 1 &&
+      (options.canShowDeleteMenu || (options.canShowMoreMenu && options.canShowMoreMenuNodeOperation)) &&
       !options.disabled
     ) {
+      // 单个节点操作，如果允许删除操作，则执行删除操作
       const newNodes = selectedNodes.map((node) => ({
         ...node,
         parent: node.parent, // 保存父节点信息，因为删除节点后 parent 会被置空
