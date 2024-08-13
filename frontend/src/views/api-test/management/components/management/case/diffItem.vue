@@ -9,6 +9,7 @@
       :data="previewDetail?.headers?.filter((e) => e.key !== '') || []"
       :selectable="false"
       :diff-mode="props.mode"
+      :scroll="{ x: '100%' }"
     />
   </div>
   <div
@@ -28,6 +29,7 @@
       :data="previewDetail?.query?.filter((e) => e.key !== '') || []"
       :selectable="false"
       :diff-mode="props.mode"
+      :scroll="{ x: '100%' }"
     />
   </div>
   <div
@@ -47,6 +49,7 @@
       :data="previewDetail?.rest || []"
       :selectable="false"
       :diff-mode="props.mode"
+      :scroll="{ x: '100%' }"
     />
   </div>
   <div
@@ -72,6 +75,7 @@
         :show-setting="true"
         :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_DATA"
         :diff-mode="props.mode"
+        :scroll="{ x: '100%' }"
       />
     </div>
     <div
@@ -128,18 +132,21 @@
       dataIndex: 'key',
       inputType: 'text',
       width: 220,
+      showTooltip: true,
     },
     {
       title: 'apiTestManagement.paramVal',
       dataIndex: 'value',
       inputType: 'text',
       width: 220,
+      showTooltip: true,
     },
     {
       title: 'common.desc',
       dataIndex: 'description',
       inputType: 'text',
       showTooltip: true,
+      width: 300,
     },
   ];
 
@@ -152,6 +159,7 @@
       dataIndex: 'key',
       inputType: 'text',
       width: 220,
+      showTooltip: true,
       columnSelectorDisabled: true,
     },
     {
@@ -206,6 +214,7 @@
       dataIndex: 'description',
       inputType: 'text',
       showTooltip: true,
+      width: 200,
     },
     {
       title: '',
@@ -228,6 +237,7 @@
           dataIndex: 'key',
           inputType: 'text',
           width: 220,
+          showTooltip: true,
           columnSelectorDisabled: true,
         },
         {
@@ -253,6 +263,7 @@
           dataIndex: 'value',
           inputType: 'text',
           showTooltip: true,
+          width: 200,
         },
         {
           title: 'apiTestDebug.paramLengthRange',
@@ -283,6 +294,7 @@
           dataIndex: 'description',
           inputType: 'text',
           showTooltip: true,
+          width: 200,
         },
         {
           title: '',
@@ -299,12 +311,14 @@
         dataIndex: 'description',
         inputType: 'text',
         showTooltip: true,
+        width: 300,
       },
       {
         title: 'apiTestManagement.paramVal',
         dataIndex: 'value',
         inputType: 'text',
         showTooltip: true,
+        width: 300,
       },
     ];
   }

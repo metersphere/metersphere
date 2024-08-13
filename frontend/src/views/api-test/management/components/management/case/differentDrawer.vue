@@ -83,7 +83,16 @@
         <a-spin class="min-h-[calc(100vh-110px)] w-full p-4" :loading="loading">
           <div class="diff-normal">
             <div class="diff-item">
-              <div class="title-type"> [{{ apiDetailInfo?.num }}] {{ apiDetailInfo?.name }} </div>
+              <div class="flex">
+                <a-tooltip
+                  :content="`【${apiDetailInfo?.num}】${apiDetailInfo?.name}`"
+                  :mouse-enter-delay="300"
+                  position="br"
+                >
+                  <div class="title-type one-line-text"> [{{ apiDetailInfo?.num }}] {{ apiDetailInfo?.name }} </div>
+                </a-tooltip>
+              </div>
+
               <DiffItem
                 :diff-distance-map="diffDistanceMap"
                 mode="add"
@@ -91,8 +100,16 @@
                 :detail="apiDefinedRequest as RequestParam"
               />
             </div>
-            <div class="diff-item ml-[24px]">
-              <div class="title-type"> [{{ caseDetail?.num }}] {{ caseDetail?.name }} </div>
+            <div class="diff-item">
+              <div class="flex">
+                <a-tooltip
+                  :content="`【${caseDetail?.num}】${caseDetail?.name}`"
+                  :mouse-enter-delay="300"
+                  position="br"
+                >
+                  <div class="title-type one-line-text"> [{{ caseDetail?.num }}] {{ caseDetail?.name }} </div>
+                </a-tooltip>
+              </div>
               <DiffItem :diff-distance-map="diffDistanceMap" mode="delete" :detail="caseDetail as RequestParam" />
             </div>
           </div>
@@ -499,7 +516,8 @@
     padding: 0 16px;
     min-height: calc(100vh - 110px);
     .diff-normal {
-      @apply flex;
+      gap: 24px;
+      @apply grid grid-cols-2;
       .diff-item {
         @apply flex-1;
         .title-type {

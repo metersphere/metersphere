@@ -61,6 +61,7 @@
   import {
     createOrUpdateBug,
     editorUploadFile,
+    getCustomOptionHeader,
     getTemplateDetailInfo,
     getTemplateOption,
   } from '@/api/modules/bug-management/index';
@@ -69,7 +70,6 @@
   import { useAppStore } from '@/store';
 
   import { TemplateOption } from '@/models/common';
-  import type { CustomField, FieldOptions } from '@/models/setting/template';
 
   const appStore = useAppStore();
 
@@ -151,20 +151,23 @@
   }
 
   const handleUserOptions = ref<SelectOptionData[]>([]);
+
+  async function getThreePartiesOptions() {
+    const res = await getCustomOptionHeader(appStore.currentProjectId);
+
+    handleUserOptions.value = res.handleUserOption.map((e) => {
+      return {
+        value: e.value,
+        label: e.text,
+      };
+    });
+  }
   async function initBugTemplate() {
     try {
       templateOptions.value = await getTemplateOption(appStore.currentProjectId);
       form.value.templateId = templateOptions.value.find((item) => item.enableDefault)?.id as string;
       defaultTemplateId.value = templateOptions.value.find((item) => item.enableDefault)?.id as string;
       const result = await getTemplateDetailInfo({ id: form.value.templateId, projectId: appStore.currentProjectId });
-      handleUserOptions.value = result.customFields
-        .find((customField: CustomField) => customField.fieldKey === 'handleUser')
-        .options.map((item: FieldOptions) => {
-          return {
-            value: item.value,
-            label: item.text,
-          };
-        });
       templateCustomFields.value = result.customFields.map((item: any) => {
         return {
           id: item.fieldId,
@@ -191,6 +194,7 @@
     (val) => {
       if (val) {
         initBugTemplate();
+        getThreePartiesOptions();
       }
     }
   );
