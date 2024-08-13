@@ -174,7 +174,7 @@
   const detailVisible = ref(false);
   const activeDetailId = ref<string>('');
   const currentPlatform = ref('Local');
-  const handleShowDetail = async (id: string) => {
+  const handleShowDetail = (id: string) => {
     activeDetailId.value = id;
     detailVisible.value = true;
   };

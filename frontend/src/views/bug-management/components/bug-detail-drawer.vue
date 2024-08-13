@@ -410,7 +410,7 @@
   const editLoading = ref<boolean>(false);
 
   async function getDetail() {
-    const res = await getBugDetail(currentDetailId.value);
+    const res = await getBugDetail(props.detailId);
     loadedBug(res);
   }
 
