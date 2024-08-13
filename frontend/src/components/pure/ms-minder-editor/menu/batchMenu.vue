@@ -68,13 +68,13 @@
         <a-doption v-if="props.canShowBatchCopy" value="copy">
           <div class="flex items-center">
             <div>{{ t('minder.hotboxMenu.copy') }}</div>
-            <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + C)</div>
+            <div class="ml-[4px] text-[var(--color-text-4)]">(<MsCtrlOrCommand /> + C)</div>
           </div>
         </a-doption>
         <a-doption v-if="props.canShowBatchCut" value="cut">
           <div class="flex items-center">
             <div>{{ t('minder.hotboxMenu.cut') }}</div>
-            <div class="ml-[4px] text-[var(--color-text-4)]">(Ctrl + X)</div>
+            <div class="ml-[4px] text-[var(--color-text-4)]">(<MsCtrlOrCommand /> + X)</div>
           </div>
         </a-doption>
         <a-doption v-if="props.canShowBatchDelete" value="delete">
@@ -96,6 +96,7 @@
 
 <script setup lang="ts">
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsCtrlOrCommand from '@/components/pure/ms-ctrl-or-command';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
