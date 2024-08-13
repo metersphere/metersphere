@@ -49,6 +49,7 @@
               :columns="headerColumns"
               :data="previewDetail.headers?.filter((e) => e.key !== '') || []"
               :selectable="false"
+              :scroll="{ x: '100%' }"
             />
             <MsCodeEditor
               v-show="headerShowType === 'raw'"
@@ -90,6 +91,7 @@
               :selectable="false"
               :show-setting="true"
               :table-key="TableKeyEnum.API_TEST_DEBUG_QUERY"
+              :scroll="{ x: '100%' }"
             />
             <MsCodeEditor
               v-show="queryShowType === 'raw'"
@@ -131,6 +133,7 @@
               :selectable="false"
               :show-setting="true"
               :table-key="TableKeyEnum.API_TEST_DEBUG_REST"
+              :scroll="{ x: '100%' }"
             />
             <MsCodeEditor
               v-show="restShowType === 'raw'"
@@ -190,6 +193,7 @@
               :selectable="false"
               :show-setting="true"
               :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_DATA"
+              :scroll="{ x: '100%' }"
             />
             <template
               v-else-if="
@@ -246,6 +250,7 @@
             :columns="pluginTableColumns"
             :data="pluginTableData?.filter((e) => e.key !== '')"
             :selectable="false"
+            :scroll="{ x: '100%' }"
           />
           <MsCodeEditor
             v-show="pluginShowType === 'raw'"
@@ -359,6 +364,7 @@
             :columns="responseBodyColumns"
             :data="responseBodyTableData"
             :selectable="false"
+            :scroll="{ x: '100%' }"
           />
           <MsJsonSchema
             v-else-if="
@@ -388,6 +394,7 @@
             :columns="responseHeaderColumns"
             :data="activeResponse?.headers?.filter((e) => e.key !== '') || []"
             :selectable="false"
+            :scroll="{ x: '100%' }"
           />
         </div>
       </template>
@@ -575,6 +582,7 @@
       dataIndex: 'description',
       inputType: 'text',
       showTooltip: true,
+      width: 300,
     },
   ];
   const headerShowType = ref('table');
