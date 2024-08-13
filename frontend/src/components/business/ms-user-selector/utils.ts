@@ -9,6 +9,8 @@ import {
 } from '@/api/modules/setting/organizationAndProject';
 import { getOrgUserGroupOption, getSystemUserGroupOption } from '@/api/modules/setting/usergroup';
 import { getOrgOptions, getSystemProjectList } from '@/api/modules/system';
+import { getExecuteUserOption } from '@/api/modules/test-plan/testPlan';
+
 // eslint-disable-next-line no-shadow
 export enum UserRequestTypeEnum {
   SYSTEM_USER_GROUP = 'SYSTEM_USER_GROUP',
@@ -26,6 +28,7 @@ export enum UserRequestTypeEnum {
   PROJECT_USER_GROUP = 'PROJECT_USER_GROUP',
   SYSTEM_ORGANIZATION_LIST = 'SYSTEM_ORGANIZATION_LIST',
   SYSTEM_PROJECT_LIST = 'SYSTEM_PROJECT_LIST',
+  EXECUTE_USER = 'EXECUTE_USER',
 }
 export default function initOptionsFunc(type: string, params: Record<string, any>) {
   if (type === UserRequestTypeEnum.SYSTEM_USER_GROUP) {
@@ -75,5 +78,9 @@ export default function initOptionsFunc(type: string, params: Record<string, any
   if (type === UserRequestTypeEnum.SYSTEM_PROJECT_LIST) {
     // 系统-项目  获取系统下所有的项目
     return getSystemProjectList(params.keyword);
+  }
+  if (type === UserRequestTypeEnum.EXECUTE_USER) {
+    // 测试计划-执行人下拉选项
+    return getExecuteUserOption(params.projectId, params.keyword);
   }
 }

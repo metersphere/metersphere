@@ -35,4 +35,7 @@ public class TestPlanCaseRequest extends BasePageRequest implements Serializable
 
     @Schema(description = "计划集id")
     private String collectionId;
+
+    @Schema(description = "是否包含空执行人")
+    private boolean nullExecutorKey;
 }

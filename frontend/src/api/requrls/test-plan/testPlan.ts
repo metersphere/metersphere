@@ -153,3 +153,5 @@ export const GetPlanMinderUrl = '/test-plan/mind/data';
 export const EditPlanMinderUrl = '/test-plan/mind/data/edit';
 // 获取测试计划-关联用例-接口模块数量
 export const TestPlanAssociationUrl = '/test-plan/association/api/case/module/count';
+// 获取执行人下拉选项
+export const GetTestPlanExecutorOptionsUrl = '/test-plan-execute/user-option';

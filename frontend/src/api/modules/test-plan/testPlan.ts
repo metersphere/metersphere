@@ -51,6 +51,7 @@ import {
   getStatisticalCountUrl,
   GetTestPlanCaseListUrl,
   GetTestPlanDetailUrl,
+  GetTestPlanExecutorOptionsUrl,
   GetTestPlanListUrl,
   GetTestPlanModuleCountUrl,
   GetTestPlanModuleUrl,
@@ -432,4 +433,8 @@ export function editPlanMinder(data: PlanMinderEditParams) {
 // 测试计划关联模块count
 export function testPlanAssociateModuleCount(data: TableQueryParams) {
   return MSR.post({ url: TestPlanAssociationUrl, data });
+}
+// 获取执行人下拉选项(空选项)
+export function getExecuteUserOption(projectId: string, keyword?: string) {
+  return MSR.get({ url: `${GetTestPlanExecutorOptionsUrl}/${projectId}`, params: { keyword } });
 }

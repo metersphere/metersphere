@@ -1,6 +1,7 @@
 import { getProjectOptions } from '@/api/modules/project-management/projectMember';
 import { getProjectList } from '@/api/modules/setting/member';
 import { getOrgOptions, getSystemProjectList } from '@/api/modules/system';
+import { getExecuteUserOption } from '@/api/modules/test-plan/testPlan';
 
 import { FilterRemoteMethodsEnum } from '@/enums/tableFilterEnum';
 
@@ -14,6 +15,8 @@ export function initRemoteOptionsFunc(remoteMethod: string, params: Record<strin
       return getSystemProjectList(params.keyword);
     case FilterRemoteMethodsEnum.SYSTEM_ORGANIZATION_PROJECT:
       return getProjectList(params.organizationId, params.keyword);
+    case FilterRemoteMethodsEnum.EXECUTE_USER:
+      return getExecuteUserOption(params.projectId, params.keyword);
     default:
       break;
   }

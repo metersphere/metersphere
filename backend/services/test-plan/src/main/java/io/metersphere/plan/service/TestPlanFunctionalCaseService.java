@@ -115,10 +115,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private BugStatusService bugStatusService;
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
-
     @Resource
     private ExtUserMapper extUserMapper;
-    private static final String CASE_MODULE_COUNT_ALL = "all";
     @Resource
     private ExtFunctionalCaseModuleMapper extFunctionalCaseModuleMapper;
     @Resource
@@ -137,6 +135,9 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private TestPlanApiScenarioService testPlanApiScenarioService;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+
+    private static final String CASE_MODULE_COUNT_ALL = "all";
+    private static final String EXECUTOR = "executeUserName";
 
     @Override
     public List<TestPlanResourceExecResultDTO> selectDistinctExecResultByProjectId(String projectId) {
@@ -253,6 +254,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
 
 
     public List<TestPlanCasePageResponse> getFunctionalCasePage(TestPlanCaseRequest request, boolean deleted) {
+        filterCaseRequest(request);
         List<TestPlanCasePageResponse> functionalCaseLists = extTestPlanFunctionalCaseMapper.getCasePage(request, deleted, request.getSortString());
         if (CollectionUtils.isEmpty(functionalCaseLists)) {
             return new ArrayList<>();
@@ -384,6 +386,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
 
 
     public Map<String, Long> moduleCount(TestPlanCaseModuleRequest request) {
+        filterCaseRequest(request);
         switch (request.getTreeType()) {
             case TreeTypeEnums.MODULE:
                 return getModuleCount(request);
@@ -926,7 +929,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             testPlanFunctionalCase.setCreateUser(user.getId());
             testPlanFunctionalCase.setCreateTime(System.currentTimeMillis());
             testPlanFunctionalCase.setPos(nextOrder.getAndAdd(DEFAULT_NODE_INTERVAL_POS));
-            testPlanFunctionalCase.setExecuteUser(functionalCase.getCreateUser());
             testPlanFunctionalCase.setLastExecResult(ExecStatus.PENDING.name());
             testPlanFunctionalCaseList.add(testPlanFunctionalCase);
         });
@@ -980,5 +982,20 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         }
         List<FunctionalCaseTest> functionalCaseTestList = extFunctionalCaseTestMapper.selectApiAndScenarioIdsFromCaseIds(functionalCaseIds);
         return functionalCaseTestList.stream().collect(Collectors.groupingBy(FunctionalCaseTest::getCaseId, Collectors.mapping(FunctionalCaseTest::getSourceId, Collectors.toList())));
+    }
+
+    /**
+     * 处理执行人为空过滤参数
+     * @param request 请求参数
+     */
+    protected void filterCaseRequest(TestPlanCaseRequest request) {
+        Map<String, List<String>> filter = request.getFilter();
+        if (filter != null && filter.containsKey(EXECUTOR)) {
+            List<String> filterExecutorIds = filter.get(EXECUTOR);
+            if (CollectionUtils.isNotEmpty(filterExecutorIds)) {
+                boolean containNullKey = filterExecutorIds.removeIf(id -> StringUtils.equals(id, "-"));
+                request.setNullExecutorKey(containNullKey);
+            }
+        }
     }
 }

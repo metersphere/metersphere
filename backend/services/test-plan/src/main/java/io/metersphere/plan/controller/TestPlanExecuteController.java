@@ -6,23 +6,25 @@ import io.metersphere.plan.dto.request.TestPlanExecuteRequest;
 import io.metersphere.plan.service.TestPlanExecuteService;
 import io.metersphere.plan.service.TestPlanLogService;
 import io.metersphere.plan.service.TestPlanManagementService;
+import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/test-plan-execute")
@@ -31,9 +33,12 @@ public class TestPlanExecuteController {
 
     @Resource
     private TestPlanManagementService testPlanManagementService;
-
     @Resource
     private TestPlanExecuteService testPlanExecuteService;
+    @Resource
+    private ProjectService projectService;
+
+    private static final String NULL_KEY = "-";
 
     @PostMapping("/single")
     @Operation(summary = "测试计划单独执行")
@@ -61,4 +66,21 @@ public class TestPlanExecuteController {
         );
     }
 
+    @GetMapping("/user-option/{projectId}")
+    @Operation(summary = "执行人下拉选项(空选项)")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public List<UserExtendDTO> getMemberOption(@PathVariable String projectId,
+                                               @Schema(description = "查询关键字，根据邮箱和用户名查询")
+                                               @RequestParam(value = "keyword", required = false) String keyword) {
+        List<UserExtendDTO> memberOption = projectService.getMemberOption(projectId, keyword);
+        // 空选项
+        if (StringUtils.isBlank(keyword) || StringUtils.equals(keyword, NULL_KEY)) {
+            UserExtendDTO userExtendDTO = new UserExtendDTO();
+            userExtendDTO.setId(NULL_KEY);
+            userExtendDTO.setName(NULL_KEY);
+            memberOption.add(userExtendDTO);
+        }
+        return memberOption;
+    }
 }

@@ -48,4 +48,7 @@ public class TestPlanApiCaseRequest extends BasePageRequest {
     @Size(max = 50, message = "{api_definition.ref_id.length_range}")
     private String refId;
 
+    @Schema(description = "是否包含空执行人")
+    private boolean nullExecutorKey;
+
 }

@@ -49,4 +49,7 @@ public class TestPlanApiScenarioRequest extends BasePageRequest {
     @Schema(description = "查询时排除的ID")
     private List<String> excludeIds = new ArrayList<>();
 
+    @Schema(description = "是否包含空执行人")
+    private boolean nullExecutorKey;
+
 }

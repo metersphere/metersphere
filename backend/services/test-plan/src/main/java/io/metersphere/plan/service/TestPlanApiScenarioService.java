@@ -109,6 +109,8 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     @Resource
     private TestPlanConfigService testPlanConfigService;
 
+    private static final String EXECUTOR = "executeUserName";
+
     @Override
     public List<TestPlanResourceExecResultDTO> selectDistinctExecResultByProjectId(String projectId) {
         return extTestPlanApiScenarioMapper.selectDistinctExecResult(projectId);
@@ -260,7 +262,6 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
             testPlanApiScenario.setCreateTime(System.currentTimeMillis());
             testPlanApiScenario.setCreateUser(user.getId());
             testPlanApiScenario.setPos(nextOrder.getAndAdd(DEFAULT_NODE_INTERVAL_POS));
-            testPlanApiScenario.setExecuteUser(scenario.getCreateUser());
             testPlanApiScenario.setLastExecResult(ExecStatus.PENDING.name());
             testPlanApiScenarioList.add(testPlanApiScenario);
         });
@@ -379,6 +380,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
      * @return
      */
     public List<TestPlanApiScenarioPageResponse> hasRelateApiScenarioList(TestPlanApiScenarioRequest request, boolean deleted) {
+        filterCaseRequest(request);
         List<TestPlanApiScenarioPageResponse> list = extTestPlanApiScenarioMapper.relateApiScenarioList(request, deleted);
         buildApiScenarioResponse(list, request.getTestPlanId());
         return list;
@@ -489,6 +491,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     }
 
     public Map<String, Long> moduleCount(TestPlanApiScenarioModuleRequest request) {
+        filterCaseRequest(request);
         switch (request.getTreeType()) {
             case TreeTypeEnums.MODULE:
                 return getModuleCount(request);
@@ -740,6 +743,21 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
                 }
             }
             return testPlanApiScenarios;
+        }
+    }
+
+    /**
+     * 处理执行人为空过滤参数
+     * @param request 请求参数
+     */
+    protected void filterCaseRequest(TestPlanApiScenarioRequest request) {
+        Map<String, List<String>> filter = request.getFilter();
+        if (filter != null && filter.containsKey(EXECUTOR)) {
+            List<String> filterExecutorIds = filter.get(EXECUTOR);
+            if (CollectionUtils.isNotEmpty(filterExecutorIds)) {
+                boolean containNullKey = filterExecutorIds.removeIf(id -> StringUtils.equals(id, "-"));
+                request.setNullExecutorKey(containNullKey);
+            }
         }
     }
 }

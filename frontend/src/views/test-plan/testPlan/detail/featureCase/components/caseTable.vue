@@ -356,7 +356,7 @@
         loadOptionParams: {
           projectId: appStore.currentProjectId,
         },
-        remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
+        remoteMethod: FilterRemoteMethodsEnum.EXECUTE_USER,
         placeholderText: t('caseManagement.featureCase.PleaseSelect'),
       },
     },
