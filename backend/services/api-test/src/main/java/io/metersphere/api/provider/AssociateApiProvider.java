@@ -38,6 +38,9 @@ public class AssociateApiProvider implements BaseAssociateApiProvider, BaseAssoc
 
     @Override
     public List<TestCaseProviderDTO> getApiTestCaseList(String sourceType, String sourceName, String apiCaseColumnName, TestCasePageProviderRequest testCasePageProviderRequest) {
+        if (CollectionUtils.isEmpty(testCasePageProviderRequest.getProtocols())) {
+            return new ArrayList<>();
+        }
         return extApiTestCaseMapper.listByProviderRequest(sourceType, sourceName, apiCaseColumnName, testCasePageProviderRequest, false);
     }
 
