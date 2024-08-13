@@ -142,14 +142,20 @@
       const currentAttrs = totalAttrs.value.filter((item: any) => item.fieldId === form.value.selectedAttrsId);
       formRules.value = [];
       formRules.value = currentAttrs.map((item: CustomAttributes) => {
+        let formValue: string | string[] = item.defaultValue;
+        // 如果包含成员将默认成员清空重新设置
+        const memberType = ['MEMBER', 'MULTIPLE_MEMBER'];
+        if (val && formValue.includes('CREATE_USER') && memberType.includes(val)) {
+          formValue = val === 'MEMBER' ? '' : [];
+        }
         return {
           type: val,
           name: item.fieldId,
           label: 'caseManagement.featureCase.batchUpdate',
-          value: item.defaultValue,
+          value: formValue,
           options: item.options,
           props: {
-            modelValue: item.defaultValue,
+            modelValue: formValue,
             options: item.options,
             disabled: !form.value.selectedAttrsId,
           },
