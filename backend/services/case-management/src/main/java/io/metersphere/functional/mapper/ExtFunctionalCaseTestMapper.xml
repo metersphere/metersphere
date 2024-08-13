@@ -119,9 +119,11 @@
         ux.avatar as userLogo,
         tp.name as testPlanName,
         tp.id as testPlanId,
-        u.email as email
+        u.email as email,
+        functional_case.case_edit_type as caseEditType
         FROM
         test_plan_case_execute_history tpceh
+        left join functional_case on tpceh.case_id = functional_case.id
         left join user u on  tpceh.create_user = u.id
         left join user_extend ux on  tpceh.create_user = ux.id
         left join test_plan tp on  tpceh.test_plan_id = tp.id
