@@ -1462,6 +1462,8 @@
   };
 
   function successHandler() {
+    batchParams.value.selectIds = [];
+    batchParams.value.excludeIds = [];
     resetSelector();
     initData();
   }
