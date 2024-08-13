@@ -495,6 +495,7 @@
         </if>
         <include refid="apiCaseFilters">
             <property name="filter" value="request.filter"/>
+            <property name="nullExecutorKey" value="request.nullExecutorKey"/>
         </include>
         <include refid="queryApiCaseVersionCondition">
             <property name="versionTable" value="atc"/>
@@ -504,7 +505,7 @@
     <sql id="apiCaseFilters">
         <if test="${filter} != null and ${filter}.size() > 0">
             <foreach collection="${filter}.entrySet()" index="key" item="values">
-                <if test="values != null and values.size() > 0">
+                <if test="(values != null and values.size() > 0) or key == 'executeUserName'">
                     <choose>
                         <when test="key == 'priority'">
                             and atc.priority in
@@ -549,9 +550,24 @@
                             </foreach>
                         </when>
                         <!-- 执行人 -->
-                        <when test="key == 'executeUserName'">
-                            and t.execute_user in
+                        <when test="key == 'executeUserName' and values.size() > 0">
+                            and (
+                            t.execute_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            <if test="${nullExecutorKey} == true">
+                                or t.execute_user is null or t.execute_user = ''
+                            </if>
+                            )
+                        </when>
+                        <when test="key == 'executeUserName' and values.size() == 0">
+                            and (
+                            <if test="${nullExecutorKey} == true">
+                                t.execute_user is null or t.execute_user = ''
+                            </if>
+                            <if test="${nullExecutorKey} == false">
+                                1=1
+                            </if>
+                            )
                         </when>
                     </choose>
                 </if>

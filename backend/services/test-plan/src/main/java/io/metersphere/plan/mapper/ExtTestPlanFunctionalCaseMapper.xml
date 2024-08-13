@@ -90,7 +90,7 @@
     </select>
 
     <select id="getCasePage" resultType="io.metersphere.plan.dto.response.TestPlanCasePageResponse">
-        SELECT
+        select
         functional_case.id as caseId,
         functional_case.num,
         functional_case.NAME,
@@ -114,11 +114,11 @@
         project.id as projectId,
         test_plan_functional_case.test_plan_collection_id as testPlanCollectionId,
         test_plan_collection.name as testPlanCollectionName
-        FROM
+        from
         functional_case
         inner join project on functional_case.project_id = project.id
         inner join test_plan_functional_case on functional_case.id = test_plan_functional_case.functional_case_id
-        inner JOIN project_version ON functional_case.version_id = project_version.id
+        inner join project_version ON functional_case.version_id = project_version.id
         inner join test_plan_collection on test_plan_collection.id = test_plan_functional_case.test_plan_collection_id
         where functional_case.deleted = #{deleted}
         and test_plan_functional_case.test_plan_id = #{request.testPlanId}
@@ -160,6 +160,7 @@
         </if>
         <include refid="filters">
             <property name="filter" value="request.filter"/>
+            <property name="nullExecutorKey" value="request.nullExecutorKey"/>
         </include>
         <choose>
             <when test='request.searchMode == "AND"'>
@@ -220,7 +221,7 @@
     <sql id="filters">
         <if test="${filter} != null and ${filter}.size() > 0">
             <foreach collection="${filter}.entrySet()" index="key" item="values">
-                <if test="values != null and values.size() > 0">
+                <if test="(values != null and values.size() > 0) or key == 'executeUserName'">
                     <choose>
                         <!-- 评审状态 -->
                         <when test="key=='reviewStatus'">
@@ -276,9 +277,25 @@
                             and functional_case.delete_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
-                        <when test="key == 'executeUserName'">
-                            and test_plan_functional_case.execute_user in
-                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        <!-- 执行人 -->
+                        <when test="key == 'executeUserName' and values.size() > 0">
+                            and (
+                                test_plan_functional_case.execute_user in
+                                <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                                <if test="${nullExecutorKey} == true">
+                                    or test_plan_functional_case.execute_user is null or test_plan_functional_case.execute_user = ''
+                                </if>
+                            )
+                        </when>
+                        <when test="key == 'executeUserName' and values.size() == 0">
+                            and (
+                                <if test="${nullExecutorKey} == true">
+                                    test_plan_functional_case.execute_user is null or test_plan_functional_case.execute_user = ''
+                                </if>
+                                <if test="${nullExecutorKey} == false">
+                                    1=1
+                                </if>
+                            )
                         </when>
                     </choose>
                 </if>
