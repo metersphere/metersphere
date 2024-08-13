@@ -54,7 +54,13 @@
           >
             {{ t('case.ignoreThisChange') }}
           </a-button>
-          <a-button type="primary" :loading="syncLoading" :disabled="!checkType.length" @click="confirmSync">
+          <a-button
+            v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']"
+            type="primary"
+            :loading="syncLoading"
+            :disabled="!checkType.length"
+            @click="confirmSync"
+          >
             {{
               showSyncConfig && hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+UPDATE'])
                 ? t('case.apiSyncChange')
