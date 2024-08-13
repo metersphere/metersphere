@@ -193,11 +193,13 @@
   :deep(.ms-detail-card) {
     gap: 12px;
     .ms-detail-card-desc {
-      column-gap: 24px;
       row-gap: 8px;
-      & > div:nth-of-type(n) {
+      .ms-detail-card-desc-item {
         width: auto;
         max-width: 300px;
+      }
+      .ms-detail-card-desc-tag {
+        max-width: fit-content;
       }
     }
   }
