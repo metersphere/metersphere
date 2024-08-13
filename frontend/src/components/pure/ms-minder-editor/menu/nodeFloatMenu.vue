@@ -252,8 +252,12 @@
           nodePosition = window.minder.getSelectedNode()?.getRenderBox();
         }
         const state = window.editor.fsm.state();
-        if (nodePosition && isNodeInMinderView(undefined, nodePosition, nodePosition.width / 2) && state !== 'input') {
-          // 判断节点在脑图可视区域内且遮挡的节点不超过节点宽度的一半且当前不是编辑名称状态，则显示菜单
+        if (
+          nodePosition &&
+          isNodeInMinderView(undefined, nodePosition, Math.min(nodePosition.width / 2, 200)) &&
+          state !== 'input'
+        ) {
+          // 判断节点在脑图可视区域内且遮挡的节点不超过节点宽度的一半(超过 200px 则按 200px 算)且当前不是编辑名称状态，则显示菜单
           const nodeDomHeight = nodePosition.height || 0;
           menuPopupOffset.value = [nodePosition.x, nodePosition.y + nodeDomHeight + 4]; // 菜单显示在节点下方4px处
           menuVisible.value = true;
