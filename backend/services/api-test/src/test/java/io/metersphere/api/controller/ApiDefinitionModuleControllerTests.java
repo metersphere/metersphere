@@ -66,6 +66,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     private static Project project;
     private static List<BaseTreeNode> preliminaryTreeNodes = new ArrayList<>();
+    private static ApiDefinition apiDefinition;
     private final ProjectServiceInvoker serviceInvoker;
     @Resource
     private ProjectMapper projectMapper;
@@ -157,6 +158,8 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         apiDefinitionBlob.setRequest(new byte[0]);
         apiDefinitionBlob.setResponse(new byte[0]);
         apiDefinitionBlobMapper.insertSelective(apiDefinitionBlob);
+
+        this.apiDefinition = apiDefinition;
 
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
@@ -837,6 +840,15 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         request.setTestPlanId("wx_123");
         testPlanConfigMapper.insertSelective(planConfig);
         this.requestPostWithOkAndReturn(URL_FILE_MODULE_COUNT, request);
+
+        request = new ApiModuleRequest() {{
+            this.setProtocols(List.of(ApiConstants.HTTP_PROTOCOL));
+            this.setProjectId(project.getId());
+        }};
+        request.setKeyword(apiDefinition.getPath());
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_FILE_MODULE_COUNT, request);
+        Map countMap = getResultData(mvcResult, Map.class);
+        Assertions.assertEquals(countMap.get(apiDefinition.getModuleId()), 1);
     }
 
     @Test
