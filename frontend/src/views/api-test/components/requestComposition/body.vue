@@ -264,6 +264,24 @@
   );
 
   watch(
+    () => innerParams.value.formDataBody.formValues,
+    () => {
+      if (innerParams.value.formDataBody.formValues.length > 0) {
+        innerParams.value.formDataBody.formValues = innerParams.value.formDataBody.formValues.map((item) => {
+          // 导入的接口files字段可能为 null，兜底处理
+          return {
+            ...item,
+            files: item.files ? item.files : [],
+          };
+        });
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  watch(
     () => props.isDebug,
     (val) => {
       if (val) {
