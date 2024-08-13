@@ -861,6 +861,10 @@
    * @param isForce 是否强制添加
    */
   function addTableLine(rowIndex: number, addLineDisabled?: boolean, isInit?: boolean) {
+    if (props.disabledExceptParam || props.disabledParamValue) {
+      // 禁用状态下不允许添加新行
+      return;
+    }
     if (addLineDisabled) {
       emitChange('addTableLine addLineDisabled', isInit);
       return;
