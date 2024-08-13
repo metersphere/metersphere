@@ -911,6 +911,8 @@
             configFormValidResult = true;
           }
         });
+      } else {
+        configFormValidResult = true;
       }
       if (!configFormValidResult) return;
       loading.value = true;
