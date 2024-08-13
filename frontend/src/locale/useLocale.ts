@@ -35,6 +35,7 @@ async function changeLocale(locale: LocaleType) {
   const globalI18n = i18n.global;
   const currentLocale = unref(globalI18n.locale);
   if (currentLocale === locale) {
+    setI18nLanguage(locale); // 初始化的时候需要设置一次本地语言
     return locale;
   }
   Message.loading(currentLocale === 'zh-CN' ? '语言切换中...' : 'Language switching...');
