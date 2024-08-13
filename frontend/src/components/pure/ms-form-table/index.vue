@@ -174,7 +174,7 @@
               @change="() => handleFormChange(record, rowIndex, item)"
             >
             </MsQuickInput>
-            <div v-else-if="item.inputType === 'text'" class="pl-[8px]">
+            <div v-else-if="item.inputType === 'text'" class="one-line-text pl-[8px]">
               {{
                 typeof item.valueFormat === 'function'
                   ? item.valueFormat(record)
