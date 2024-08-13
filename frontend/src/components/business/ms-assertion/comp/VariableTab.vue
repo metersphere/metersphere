@@ -16,8 +16,6 @@
   import { EQUAL, statusCodeOptions } from '@/components/pure/ms-advance-filter/index';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
-  import { responseHeaderOption } from '@/config/apiTest';
-
   interface Param {
     [key: string]: any;
     variableAssertionItems: any[];
@@ -48,7 +46,6 @@
       slotName: 'key',
       showInTable: true,
       showDrag: true,
-      options: responseHeaderOption,
     },
     {
       title: 'ms.assertion.matchCondition', // 匹配条件

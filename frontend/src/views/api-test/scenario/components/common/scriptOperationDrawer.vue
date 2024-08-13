@@ -69,6 +69,7 @@
         :request-result="currentResponse"
         :console="currentResponse?.console"
         :is-edit="false"
+        is-definition
         hide-layout-switch
       >
         <template #titleRight>

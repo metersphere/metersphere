@@ -539,7 +539,7 @@
     emit('selectAll', checked);
   }
 
-  function rowClass(record: TableData, rowIndex: number) {
+  function rowClass(record: TableData) {
     if (record.diff) {
       if (props.diffMode === 'add') {
         return 'add-row-class';
@@ -574,6 +574,12 @@
         .arco-input-wrapper,
         .arco-textarea-wrapper {
           border-radius: 0;
+        }
+        article {
+          position: relative;
+          top: 50%;
+          display: inline-block;
+          transform: translateY(-50%); /* 垂直居中 */
         }
       }
     }
@@ -663,6 +669,7 @@
     }
   }
   :deep(.ms-form-table-input:not(.arco-input-focus, .arco-select-view-focus, .arco-textarea-focus)) {
+    border-radius: 0;
     &:not(:hover) {
       @apply bg-transparent;
 
