@@ -232,6 +232,7 @@
           @click.stop="openParamSetting"
         />
         <MsIcon
+          v-if="!props.disabled"
           type="icon-icon_full_screen_one"
           class="ms-params-input-suffix-icon ml-[8px]"
           @click.stop="emit('setParams')"
