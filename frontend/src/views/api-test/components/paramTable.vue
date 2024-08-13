@@ -926,7 +926,7 @@
         });
         const { lastDataIsDefault } = filterKeyValParams(arr, defaultLineData.value, false);
         if (
-          (arr.length === 1 && !lastDataIsDefault) ||
+          !lastDataIsDefault ||
           (hasNoIdItem &&
             !props.disabledExceptParam &&
             !props.disabledParamValue &&

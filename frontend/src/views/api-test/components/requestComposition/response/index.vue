@@ -60,7 +60,7 @@
     <a-spin
       v-show="innerIsExpanded"
       :loading="props.loading"
-      :class="[isResponseModel ? 'h-[381px] w-full' : 'w-full px-[16px] pb-[16px]']"
+      :class="[isResponseModel ? 'h-[381px] w-full' : 'w-full flex-1 px-[16px] pb-[16px]']"
     >
       <edit
         v-if="props.isEdit && activeResponseType === 'content' && responseDefinition"
