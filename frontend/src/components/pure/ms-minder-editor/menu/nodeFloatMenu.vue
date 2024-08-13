@@ -251,8 +251,9 @@
           await sleep(300); // 拖拽完毕后会有 300ms 的动画，等待动画结束后再计算
           nodePosition = window.minder.getSelectedNode()?.getRenderBox();
         }
-        if (nodePosition && isNodeInMinderView(undefined, nodePosition, nodePosition.width / 2)) {
-          // 判断节点在脑图可视区域内且遮挡的节点不超过节点宽度的一半，则显示菜单
+        const state = window.editor.fsm.state();
+        if (nodePosition && isNodeInMinderView(undefined, nodePosition, nodePosition.width / 2) && state !== 'input') {
+          // 判断节点在脑图可视区域内且遮挡的节点不超过节点宽度的一半且当前不是编辑名称状态，则显示菜单
           const nodeDomHeight = nodePosition.height || 0;
           menuPopupOffset.value = [nodePosition.x, nodePosition.y + nodeDomHeight + 4]; // 菜单显示在节点下方4px处
           menuVisible.value = true;

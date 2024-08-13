@@ -95,6 +95,8 @@
   });
   const currentTreePath = ref<MinderJsonNodeData[]>([]);
 
+  const floatMenuVisible = ref(false);
+
   async function init() {
     window.editor = new Editor(mec.value, {
       sequenceEnable: props.sequenceEnable,
@@ -151,6 +153,12 @@
             const targetNode = window.minder.getSelectedNode();
             targetNode.parent.renderTree();
           }, 100);
+        }
+      },
+      handleDblclick() {
+        const state = window.editor.state();
+        if (state === 'input') {
+          floatMenuVisible.value = false;
         }
       },
     });
@@ -212,8 +220,6 @@
       window.minder.execCommand('camera', root);
     }, 300); // TODO:暂未知渲染时机，临时延迟解决
   }
-
-  const floatMenuVisible = ref(false);
 
   function save() {
     let data = importJson.value;
