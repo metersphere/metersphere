@@ -276,14 +276,14 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
      */
     private void handleSteps(FunctionalCaseExcelData functionalCaseExcelData) {
 
-        if (StringUtils.isNotBlank(functionalCaseExcelData.getCaseEditType()) && StringUtils.equalsIgnoreCase(functionalCaseExcelData.getCaseEditType(), FunctionalCaseTypeConstants.CaseEditType.TEXT.name())) {
-            functionalCaseExcelData.setTextDescription(functionalCaseExcelData.getTextDescription());
-            functionalCaseExcelData.setExpectedResult(functionalCaseExcelData.getExpectedResult());
-        } else {
+        if (StringUtils.isNotBlank(functionalCaseExcelData.getCaseEditType()) && StringUtils.equalsIgnoreCase(functionalCaseExcelData.getCaseEditType(), FunctionalCaseTypeConstants.CaseEditType.STEP.name())) {
             String steps = getSteps(functionalCaseExcelData);
             functionalCaseExcelData.setSteps(steps);
             functionalCaseExcelData.setTextDescription(StringUtils.EMPTY);
             functionalCaseExcelData.setExpectedResult(StringUtils.EMPTY);
+        } else {
+            functionalCaseExcelData.setTextDescription(functionalCaseExcelData.getTextDescription());
+            functionalCaseExcelData.setExpectedResult(functionalCaseExcelData.getExpectedResult());
         }
 
     }
