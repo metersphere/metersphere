@@ -27,9 +27,10 @@ async function bootstrap() {
   // 注册国际化，需要异步阻塞，确保语言包加载完毕
   await setupI18n(app);
   // 获取默认语言
-  const defaultLocale = await getDefaultLocale();
-  const { currentLocale, changeLocale } = useLocale();
-  if (currentLocale.value !== defaultLocale) {
+  const localLocale = localStorage.getItem('MS-locale');
+  if (!localLocale) {
+    const defaultLocale = await getDefaultLocale();
+    const { changeLocale } = useLocale();
     changeLocale(defaultLocale);
   }
 
