@@ -1,7 +1,7 @@
 <template>
   <a-form :model="form">
     <a-form-item field="lastExecResult" class="mb-[8px]">
-      <a-radio-group v-model:model-value="form.lastExecResult" @change="clearContent">
+      <a-radio-group v-model:model-value="form.lastExecResult">
         <a-radio v-for="item in executionResultList" :key="item.key" :value="item.key">
           <ExecuteResult :execute-result="item.key" />
         </a-radio>
@@ -35,7 +35,6 @@
 
   import { editorUploadFile } from '@/api/modules/case-management/featureCase';
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
-  import { defaultExecuteForm } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
@@ -66,17 +65,6 @@
     });
     return data;
   }
-
-  function clearContent() {
-    form.value = {
-      ...defaultExecuteForm,
-      lastExecResult: form.value.lastExecResult,
-    };
-  }
-
-  defineExpose({
-    clearContent,
-  });
 </script>
 
 <style lang="less" scoped>
