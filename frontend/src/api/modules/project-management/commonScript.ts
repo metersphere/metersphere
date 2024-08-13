@@ -95,10 +95,16 @@ export function getFormApiImportModuleCount(data: TableQueryParams) {
 export function testCommonScript(data: TestScriptType) {
   return MSR.post({ url: TestScriptUrl, data });
 }
-// apiSocket 建立连接
+/**
+ * apiSocket 建立连接
+ * @param url 连接地址
+ * @param host 连接主机
+ */
 export const apiSocket = (url: string, host?: string) => {
   let protocol = 'ws://';
-  if (window.location.protocol === 'https:' || host?.startsWith('https')) {
+
+  // 根据传入的 url 判断是否为 https 协议
+  if (!host?.startsWith('http') && (window.location.protocol === 'https:' || host?.startsWith('https'))) {
     protocol = 'wss://';
   }
   const uri = protocol + (host?.split('://')[1] || window.location.host) + url;
