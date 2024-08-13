@@ -6,6 +6,7 @@ import type { MinderCustomEvent } from '@/store/modules/components/minder-editor
 import type { MinderEvent, MinderJsonNode } from '../props';
 
 export interface UseEventListenerProps {
+  handleDblclick?: () => void;
   handleContentChange?: (node?: MinderJsonNode) => void;
   handleSelectionChange?: (nodes: MinderJsonNode[]) => void;
   handleMinderEvent?: (event: MinderCustomEvent) => void;
@@ -23,6 +24,13 @@ export default function useEventListener(listener: UseEventListenerProps) {
   const isDragging = ref(false);
   // 拖拽触发时未处理的选中事件，拖拽完成后触发
   let selectionchangeEvent: (() => void) | undefined;
+
+  // 双击编辑内容
+  minder.on('dblclick', () => {
+    if (listener.handleDblclick) {
+      listener.handleDblclick();
+    }
+  });
 
   // 监听脑图节点内容变化
   minder.on('contentchange', () => {
