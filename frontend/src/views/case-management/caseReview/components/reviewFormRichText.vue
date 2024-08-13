@@ -1,7 +1,7 @@
 <template>
   <a-form :model="form">
     <a-form-item field="lastExecResult" class="mb-[8px]">
-      <a-radio-group v-model:model-value="form.status" @change="clearContent">
+      <a-radio-group v-model:model-value="form.status">
         <a-radio v-for="item in StartReviewStatus" :key="item" :value="item">
           <ReviewResult :status="item" is-part />
         </a-radio>
@@ -55,15 +55,6 @@
       fileList: [file],
     });
     return data;
-  }
-
-  function clearContent() {
-    form.value = {
-      content: '',
-      reviewCommentFileIds: [] as string[],
-      notifiers: [] as string[],
-      status: form.value.status,
-    };
   }
 </script>
 
