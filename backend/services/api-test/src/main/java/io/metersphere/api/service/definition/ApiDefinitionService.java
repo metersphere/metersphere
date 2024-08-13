@@ -918,6 +918,10 @@ public class ApiDefinitionService extends MoveNodeService {
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
         apiDefinitionDTO.setCreateUserName(userMap.get(apiDefinitionDTO.getCreateUser()));
         apiDefinitionDTO.setUpdateUserName(userMap.get(apiDefinitionDTO.getUpdateUser()));
+        ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(apiDefinitionDTO.getModuleId());
+        if (apiDefinitionModule != null) {
+            apiDefinitionDTO.setModuleName(apiDefinitionModule.getName());
+        }
         return apiDefinitionDTO;
     }
 
