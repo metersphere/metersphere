@@ -267,13 +267,18 @@
     () => innerParams.value.formDataBody.formValues,
     () => {
       if (innerParams.value.formDataBody.formValues.length > 0) {
-        innerParams.value.formDataBody.formValues = innerParams.value.formDataBody.formValues.map((item) => {
+        let hasNullFiles = false;
+        const newValues = innerParams.value.formDataBody.formValues.map((item) => {
           // 导入的接口files字段可能为 null，兜底处理
+          hasNullFiles = item.files === null;
           return {
             ...item,
             files: item.files ? item.files : [],
           };
         });
+        if (hasNullFiles) {
+          innerParams.value.formDataBody.formValues = newValues;
+        }
       }
     },
     {
