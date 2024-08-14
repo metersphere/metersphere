@@ -98,8 +98,8 @@
 
   const initForm: batchSyncForm = {
     notificationConfig: {
-      apiCaseCreator: false,
-      scenarioCreator: false,
+      apiCaseCreator: true,
+      scenarioCreator: true,
     },
     // 同步项目
     syncItems: {

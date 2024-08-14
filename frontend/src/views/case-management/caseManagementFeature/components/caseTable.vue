@@ -955,11 +955,11 @@
 
   async function initTableParams() {
     let moduleIds: string[] = [];
-    if (props.activeFolder) {
-      const activeModuleIds = props.activeFolder === 'all' ? [] : [props.activeFolder];
+    if (props.activeFolder !== 'all') {
+      moduleIds = [props.activeFolder];
       const getAllChildren = await tableStore.getSubShow(TableKeyEnum.CASE_MANAGEMENT_TABLE);
       if (getAllChildren) {
-        moduleIds = [...activeModuleIds, ...props.offspringIds];
+        moduleIds = [props.activeFolder, ...props.offspringIds];
       }
     }
 
