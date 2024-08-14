@@ -370,24 +370,31 @@
       const existRead = record.perChecked.some(
         (item: string) => item.split(':')[0] === preStr && item.split(':')[1] === 'READ'
       );
-      const existCreate = record.perChecked.some(
-        (item: string) => item.split(':')[0] === preStr && item.split(':')[1] === 'ADD'
-      );
       if (!existRead && postStr !== 'READ') {
         record.perChecked.push(`${preStr}:READ`);
       }
-      if (!existCreate && lastEditStr === 'IMPORT') {
+      if (lastEditStr === 'IMPORT') {
         // 勾选导入时自动勾选新增和查询
-        record.perChecked.push(`${preStr}:ADD`);
-        record.perChecked.push(`${preStr}:READ+UPDATE`);
+        if (!record.perChecked.includes(`${preStr}:READ+ADD`)) {
+          record.perChecked.push(`${preStr}:READ+ADD`);
+        }
+        if (!record.perChecked.includes(`${preStr}:READ+UPDATE`)) {
+          record.perChecked.push(`${preStr}:READ+UPDATE`);
+        }
       }
     } else {
       // 删除权限值
       const preStr = currentValue.split(':')[0];
       const postStr = currentValue.split(':')[1];
+      const lastEditStr = currentValue.split('+')[1]; // 编辑类权限通过+号拼接
       if (postStr === 'READ') {
-        // 当前是查询 那 移除所有相关的
+        // 取消勾选查询权限，则移除所有相关的
         record.perChecked = record.perChecked.filter((item: string) => !item.includes(preStr));
+      } else if (['ADD', 'UPDATE'].includes(lastEditStr)) {
+        // 取消勾选创建或编辑权限，则移除导入权限
+        record.perChecked = record.perChecked.filter(
+          (item: string) => !item.includes('IMPORT') && item !== currentValue
+        );
       } else {
         record.perChecked.splice(record.perChecked.indexOf(currentValue), 1);
       }
