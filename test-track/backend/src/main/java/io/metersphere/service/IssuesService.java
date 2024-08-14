@@ -87,6 +87,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -159,6 +160,8 @@ public class IssuesService {
     private BasePluginService basePluginService;
     @Resource
     private MdFileService mdFileService;
+    @Resource
+    private CustomFieldMapper customFieldMapper;
 
     private static final String SYNC_THIRD_PARTY_ISSUES_KEY = "ISSUE:SYNC";
     private static final String SYNC_THIRD_PARTY_ISSUES_ERROR_KEY = "ISSUE:SYNC:ERROR";
@@ -757,7 +760,45 @@ public class IssuesService {
         }
         Map<String, List<CustomFieldDao>> fieldMap =
                 customFieldIssuesService.getMapByResourceIds(data.stream().map(IssuesDao::getId).collect(Collectors.toList()));
+
+        Map<String, String> globalProjectIdMap = getGlobalProjectIdMap(data.get(0).getProjectId());
+
+        fieldMap.values().forEach(fields ->
+            fields.forEach(field -> {
+                // 如果是全局字段, 并且项目中有对应的字段, 则替换为项目字段
+                if (globalProjectIdMap.containsKey(field.getId())) {
+                    field.setId(globalProjectIdMap.get(field.getId()));
+                }
+            })
+        );
+
         data.forEach(i -> i.setFields(fieldMap.get(i.getId())));
+    }
+
+
+    private Map<String, String> getGlobalProjectIdMap(String projectId) {
+        // 查询全局的内置字段
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria().andGlobalEqualTo(true).andSystemEqualTo(true).andSceneEqualTo(CustomFieldScene.ISSUE.name());
+        List<CustomField> globalSystemFiles = customFieldMapper.selectByExample(example);
+
+        // 查询对应的项目下字段
+        example.clear();
+        example.createCriteria().andGlobalEqualTo(false)
+                .andSystemEqualTo(true).andSceneEqualTo(CustomFieldScene.ISSUE.name())
+                .andProjectIdEqualTo(projectId);
+        List<CustomField> projectSystemFiles = customFieldMapper.selectByExample(example);
+        Map<String, CustomField> projectSystemFilesMap = projectSystemFiles.stream().collect(Collectors.toMap(CustomField::getName, Function.identity()));
+
+        // 全局字段与项目字段的ID映射
+        Map<String, String> globalProjectIdMap = new HashMap<>(globalSystemFiles.size());
+        for (CustomField globalSystemFile : globalSystemFiles) {
+            String fileName = globalSystemFile.getName();
+            if (projectSystemFilesMap.get(fileName) != null) {
+                globalProjectIdMap.put(globalSystemFile.getId(), projectSystemFilesMap.get(fileName).getId());
+            }
+        }
+        return globalProjectIdMap;
     }
 
     private void buildCustomField(IssuesDao data) {
@@ -765,11 +806,18 @@ public class IssuesService {
         example.createCriteria().andResourceIdEqualTo(data.getId());
         List<CustomFieldIssues> customFieldTestCases = customFieldIssuesMapper.selectByExample(example);
         List<CustomFieldDao> fields = new ArrayList<>();
+
+        Map<String, String> globalProjectIdMap = getGlobalProjectIdMap(data.getProjectId());
+
         customFieldTestCases.forEach(i -> {
             CustomFieldDao customFieldDao = new CustomFieldDao();
             customFieldDao.setId(i.getFieldId());
             customFieldDao.setValue(i.getValue());
             customFieldDao.setTextValue(i.getTextValue());
+            if (globalProjectIdMap.containsKey(i.getFieldId())) {
+                // 如果是全局字段, 并且项目中有对应的字段, 则替换为项目字段
+                customFieldDao.setId(globalProjectIdMap.get(i.getFieldId()));
+            }
             fields.add(customFieldDao);
         });
         data.setFields(fields);
@@ -841,6 +889,16 @@ public class IssuesService {
                     }
                 }
             }
+
+            Map<String, String> globalProjectIdMap = getGlobalProjectIdMap(data.get(0).getProjectId());
+            fieldMap.values().forEach(fields ->
+                    fields.forEach(field -> {
+                        // 如果是全局字段, 并且项目中有对应的字段, 则替换为项目字段
+                        if (globalProjectIdMap.containsKey(field.getId())) {
+                            field.setId(globalProjectIdMap.get(field.getId()));
+                        }
+                    })
+            );
 
             data.forEach(i -> i.setFields(fieldMap.get(i.getId())));
         } catch (Exception e) {
