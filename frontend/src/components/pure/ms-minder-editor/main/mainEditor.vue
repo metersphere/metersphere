@@ -156,7 +156,7 @@
         }
       },
       handleDblclick() {
-        const state = window.editor.state();
+        const state = window.editor.fsm.state();
         if (state === 'input') {
           floatMenuVisible.value = false;
         }
