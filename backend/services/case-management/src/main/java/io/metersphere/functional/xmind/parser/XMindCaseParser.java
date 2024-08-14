@@ -353,7 +353,7 @@ public class XMindCaseParser {
                     if (StringUtils.isBlank(tag)) {
                         testCase.setTags("");
                     } else {
-                        String[] tagArr = tag.split("\\|");
+                        String[] tagArr = tag.split("\\s*[|｜]\\s*");
                         if (CollectionUtils.isNotEmpty(Arrays.asList(tagArr))) {
                             testCase.setTags(String.join(",", tagArr));
                         }

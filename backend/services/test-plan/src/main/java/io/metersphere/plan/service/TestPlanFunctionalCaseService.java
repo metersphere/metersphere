@@ -708,7 +708,14 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
                 item.setContentText(new String(item.getContent(), StandardCharsets.UTF_8));
             }
             if (item.getSteps() != null) {
-                item.setStepsExecResult(new String(item.getSteps(), StandardCharsets.UTF_8));
+                String historyStepStr = new String(item.getSteps(), StandardCharsets.UTF_8);
+                item.setStepsExecResult(historyStepStr);
+                if (StringUtils.isNotBlank(historyStepStr)) {
+                    List<FunctionalCaseStepDTO> historySteps = JSON.parseArray(historyStepStr, FunctionalCaseStepDTO.class);
+                    if (CollectionUtils.isNotEmpty(historySteps)) {
+                        item.setShowResult(true);
+                    }
+                }
             }
         });
         return list;
