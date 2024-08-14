@@ -11,7 +11,8 @@ import java.util.HashMap;
 public class CustomFieldValidatorFactory {
 
     private static final HashMap<String, AbstractCustomFieldValidator> validatorMap = new HashMap<>();
-    public static HashMap<String, AbstractCustomFieldValidator> getValidatorMap() {
+
+    public static HashMap<String, AbstractCustomFieldValidator> getValidatorMap(String projectId) {
         validatorMap.put(CustomFieldType.SELECT.name(), new CustomFieldSelectValidator());
         validatorMap.put(CustomFieldType.SELECT.name(), new CustomFieldSelectValidator());
         validatorMap.put(CustomFieldType.RADIO.name(), new CustomFieldSelectValidator());
@@ -27,7 +28,7 @@ public class CustomFieldValidatorFactory {
         validatorMap.put(CustomFieldType.DATE.name(), new CustomFieldDateValidator());
         validatorMap.put(CustomFieldType.DATETIME.name(), new CustomFieldDateTimeValidator());
 
-        validatorMap.put(CustomFieldType.MEMBER.name(), new CustomFieldMemberValidator());
+        validatorMap.put(CustomFieldType.MEMBER.name(), new CustomFieldMemberValidator(projectId));
         validatorMap.put(CustomFieldType.MULTIPLE_MEMBER.name(), new CustomFieldMultipleMemberValidator());
 
         validatorMap.put(CustomFieldType.INT.name(), new CustomFieldIntegerValidator());

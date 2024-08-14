@@ -95,7 +95,7 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
         customFieldsMap = customFields.stream().collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldName, i -> i));
         moduleTree = CommonBeanFactory.getBean(FunctionalCaseModuleService.class).getTree(request.getProjectId());
         functionalCaseService = CommonBeanFactory.getBean(FunctionalCaseService.class);
-        customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap();
+        customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap(request.getProjectId());
         lastPos = new AtomicLong(pos);
         this.user = user;
 

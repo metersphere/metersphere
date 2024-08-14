@@ -518,7 +518,7 @@ public class XmindExportUtil {
         //自定义字段
         Map<String, String> customColumnsMap = request.getCustomFields().stream().collect(Collectors.toMap(FunctionalCaseHeader::getId, FunctionalCaseHeader::getName));
         Map<String, TemplateCustomFieldDTO> temCustomFieldsMap = templateCustomFields.stream().collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldId, i -> i));
-        HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap();
+        HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap(request.getProjectId());
 
         customColumnsMap.forEach((k, v) -> {
             if (customFieldMap.containsKey(k) && temCustomFieldsMap.containsKey(k)) {
