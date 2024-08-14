@@ -3,22 +3,22 @@
     <div class="relative mr-4">
       <div class="charts">
         <div class="text-[12px] text-[(var(--color-text-4))]">{{ t('report.detail.api.total') }}</div>
-        <a-popover position="bottom" content-class="response-popover-content">
-          <div class="one-line-text w-full max-w-[90%] text-center text-[18px] font-medium">{{
-            getIndicators(requestTotal)
-          }}</div>
+        <a-popover position="bottom" content-class="report-popover-content">
+          <div class="one-line-text w-full max-w-[90%] text-center text-[18px] font-medium">
+            {{ getIndicators(requestTotal) }}
+          </div>
           <template #content>
-            <div class="min-w-[176px] max-w-[400px] p-4 text-[14px]">
+            <div class="min-w-[176px] max-w-[400px] text-[14px]">
               <div class="text-[12px] font-medium text-[var(--color-text-4)]">{{ t('report.detail.api.total') }}</div>
-              <div class="mt-2 text-[18px] font-medium text-[var(--color-text-1)]">{{
-                getIndicators(addCommasToNumber(requestTotal))
-              }}</div>
+              <div class="mt-2 text-[18px] font-medium text-[var(--color-text-1)]">
+                {{ getIndicators(addCommasToNumber(requestTotal)) }}
+              </div>
             </div>
           </template>
         </a-popover>
       </div>
       <!-- TODO 汇总图例暂时不要了 -->
-      <!-- <a-popover position="bottom" content-class="response-popover-content"> -->
+      <!-- <a-popover position="bottom" content-class="report-popover-content"> -->
       <div> <MsChart :width="props.size || '120px'" :height="props.size || '120px'" :options="props.options" /></div>
       <!-- <template #content>
           <div class="min-w-[176px] max-w-[400px] p-4">
@@ -42,9 +42,10 @@
           <div class="text-[var(--color-text-4)]">{{ item.label }}</div>
         </div>
         <div class="text-end font-medium text-[var(--color-text-1)]">{{ item.count || 0 }}</div>
-        <div class="text-right font-medium text-[var(--color-text-1)]"
-          >{{ item.rote || 0 }} <span v-if="String(item.rote) !== 'Calculating'"></span
-        ></div>
+        <div class="text-right font-medium text-[var(--color-text-1)]">
+          {{ item.rote || 0 }}
+          <span v-if="String(item.rote) !== 'Calculating'"> </span>
+        </div>
       </div>
     </div>
   </div>
@@ -54,8 +55,6 @@
   /**
    * @description 用例报告独立报告
    */
-  import { ref } from 'vue';
-
   import MsChart from '@/components/pure/chart/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';

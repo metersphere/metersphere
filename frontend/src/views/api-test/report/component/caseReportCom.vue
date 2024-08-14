@@ -179,7 +179,7 @@
   import reportInfoHeader from './step/reportInfoHeaders.vue';
   import TiledList from './tiledList.vue';
 
-  import { toolTipConfig } from '@/config/testPlan';
+  import { commonConfig, toolTipConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { addCommasToNumber, formatDuration } from '@/utils';
 
@@ -248,6 +248,7 @@
 
   const legendData = ref<LegendData[]>([]);
   const charOptions = ref({
+    ...commonConfig,
     tooltip: {
       ...toolTipConfig,
     },
