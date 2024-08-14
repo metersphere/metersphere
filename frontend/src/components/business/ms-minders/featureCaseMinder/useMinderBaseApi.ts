@@ -429,9 +429,6 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
         ) {
           // 当前节点是步骤描述或文本描述，且没有子节点，则默认添加一个预期结果
           insertSpecifyNode('AppendChildNode', value || stepExpectTag);
-        } else if (node.data?.resource?.includes(prerequisiteTag) && (!node.children || node.children.length === 0)) {
-          // 当前节点是前置操作，则默认添加一个文本节点
-          execInert('AppendChildNode');
         } else if (
           (!node.data?.resource || node.data?.resource?.length === 0) &&
           (!node.parent?.data?.resource || node.parent?.data?.resource?.length === 0)
