@@ -7,6 +7,7 @@ import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.constants.AssociateCaseType;
 import io.metersphere.functional.domain.FunctionalCaseTest;
 import io.metersphere.functional.domain.FunctionalCaseTestExample;
+import io.metersphere.functional.dto.FunctionalCaseStepDTO;
 import io.metersphere.functional.dto.FunctionalCaseTestDTO;
 import io.metersphere.functional.dto.FunctionalCaseTestPlanDTO;
 import io.metersphere.functional.dto.TestPlanCaseExecuteHistoryDTO;
@@ -22,12 +23,14 @@ import io.metersphere.provider.BaseAssociateScenarioProvider;
 import io.metersphere.provider.BaseTestPlanProvider;
 import io.metersphere.request.*;
 import io.metersphere.sdk.constants.TestPlanConstants;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -292,7 +295,14 @@ public class FunctionalTestCaseService {
                 planCaseExecuteHistoryDTO.setContentText(new String(planCaseExecuteHistoryDTO.getContent(), StandardCharsets.UTF_8));
             }
             if (planCaseExecuteHistoryDTO.getSteps() != null) {
-                planCaseExecuteHistoryDTO.setStepsText(new String(planCaseExecuteHistoryDTO.getSteps(), StandardCharsets.UTF_8));
+                String historyStepStr = new String(planCaseExecuteHistoryDTO.getSteps(), StandardCharsets.UTF_8);
+                planCaseExecuteHistoryDTO.setStepsText(historyStepStr);
+                if (StringUtils.isNotBlank(historyStepStr)) {
+                    List<FunctionalCaseStepDTO> historySteps = JSON.parseArray(historyStepStr, FunctionalCaseStepDTO.class);
+                    if (org.apache.commons.collections.CollectionUtils.isNotEmpty(historySteps)) {
+                        planCaseExecuteHistoryDTO.setShowResult(true);
+                    }
+                }
             }
         }
         return planExecuteHistoryList;

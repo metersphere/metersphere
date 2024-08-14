@@ -25,6 +25,9 @@ public class TestPlanCaseExecHistoryResponse extends TestPlanCaseExecuteHistory 
     @Schema(description = "执行人邮箱")
     private String email;
 
-    @Schema(description = "步骤描述")
+    @Schema(description = "编辑模式")
     private String caseEditType;
+
+    @Schema(description = "是否显示步骤信息")
+    private boolean showResult = false;
 }
