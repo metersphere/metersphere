@@ -103,8 +103,9 @@
           v-else-if="activeExtraKey === 'bug'"
           ref="bugListRef"
           :active-case="activeCaseInfo"
-          is-test-plan-case
+          :test-plan-case-id="selectNode?.data?.id"
           :show-disassociate-button="props.canEdit && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
+          @disassociate-bug-done="emit('refreshPlan')"
         />
         <ReviewCommentList
           v-else
@@ -177,8 +178,8 @@
   } from '@/components/pure/ms-minder-editor/script/tool/utils';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import Attachment from '@/components/business/ms-minders/featureCaseMinder/attachment.vue';
-  import BugList from '@/components/business/ms-minders/featureCaseMinder/bugList.vue';
   import useMinderBaseApi from '@/components/business/ms-minders/featureCaseMinder/useMinderBaseApi';
+  import BugList from './bugList.vue';
   import AddStep from '@/views/case-management/caseManagementFeature/components/addStep.vue';
   import AddDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/addDefectDrawer.vue';
   import LinkDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/linkDefectDrawer.vue';
@@ -518,7 +519,7 @@
   const bugListRef = ref<InstanceType<typeof BugList>>();
   function handleAddBugDone() {
     if (extraVisible.value && activeExtraKey.value === 'bug') {
-      bugListRef.value?.handleShowTypeChange();
+      bugListRef.value?.loadBugList();
     }
     emit('refreshPlan');
   }
