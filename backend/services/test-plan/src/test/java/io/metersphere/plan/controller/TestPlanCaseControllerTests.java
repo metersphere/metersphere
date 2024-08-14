@@ -38,10 +38,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -279,6 +276,18 @@ public class TestPlanCaseControllerTests extends BaseTest {
         request.setId("relate_case_1");
         request.setTestPlanId("plan_1");
         request.setCaseId("fc_1");
+        this.requestPostWithOk(FUNCTIONAL_CASE_EXEC_HISTORY_URL, request);
+        TestPlanCaseExecuteHistory testPlanCaseExecuteHistory = new TestPlanCaseExecuteHistory();
+        testPlanCaseExecuteHistory.setId("123445");
+        FunctionalCaseStepDTO functionalCaseStepDTO = new FunctionalCaseStepDTO();
+        functionalCaseStepDTO.setId(UUID.randomUUID().toString());
+        functionalCaseStepDTO.setNum(1);
+        functionalCaseStepDTO.setDesc("步骤描述");
+        functionalCaseStepDTO.setResult("结果");
+        List<FunctionalCaseStepDTO>list = new ArrayList<>();
+        list.add(functionalCaseStepDTO);
+        testPlanCaseExecuteHistory.setSteps(JSON.toJSONString(list).getBytes());
+        testPlanCaseExecuteHistoryMapper.updateByPrimaryKeySelective(testPlanCaseExecuteHistory);
         this.requestPostWithOk(FUNCTIONAL_CASE_EXEC_HISTORY_URL, request);
     }
 

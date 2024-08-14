@@ -804,7 +804,7 @@
             fc.project_Id = #{request.projectId}
         AND
             fc.module_id = #{request.moduleId}
-        order by fc.pos
+        order by fc.pos desc
     </select>
 
     <select id="getCaseCustomFieldList" resultType="io.metersphere.functional.domain.FunctionalCaseCustomField">
@@ -830,7 +830,7 @@
                 #{fieldId}
             </foreach>
         </if>
-        order by fc.pos
+        order by fc.pos desc
     </select>
 
 

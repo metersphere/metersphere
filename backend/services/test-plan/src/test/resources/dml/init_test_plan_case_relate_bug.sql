@@ -65,7 +65,7 @@ VALUES
 
 INSERT INTO `test_plan_case_execute_history`(`id`, `test_plan_case_id`, `test_plan_id`, `case_id`, `status`, `content`, `steps`, `deleted`, `notifier`, `create_user`, `create_time`)
 VALUES
-    ('123445', 'relate_case_1', 'plan_1', 'fc_1', 'PASSED', '1234', '2132134', b'0', '', 'admin', 1715828421525);
+    ('123445', 'relate_case_1', 'plan_1', 'fc_1', 'PASSED', '1234', null, b'0', '', 'admin', 1715828421525);
 INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('fc_1', 'STEP', '1111', '', '', 'TEST');
 
 INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time, module_setting)
