@@ -269,6 +269,7 @@ export interface ExecuteHistoryItem {
   createTime: string;
   deleted: boolean;
   caseEditType: string; // 类型是：步骤描述
+  showResult: boolean;
 }
 
 export interface moduleForm {

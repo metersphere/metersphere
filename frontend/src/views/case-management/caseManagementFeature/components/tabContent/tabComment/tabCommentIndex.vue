@@ -26,6 +26,7 @@
       v-show="activeComment === 'reviewComment' || activeComment === 'executiveComment'"
       :review-comment-list="reviewCommentList"
       :active-comment="activeComment"
+      show-step-detail-trigger
     />
   </div>
 </template>

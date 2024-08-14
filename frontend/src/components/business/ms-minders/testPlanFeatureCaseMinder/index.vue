@@ -112,6 +112,7 @@
           :review-comment-list="executeHistoryList"
           active-comment="executiveComment"
           not-show-review-name
+          show-step-detail-trigger
         />
       </template>
     </MsMinderEditor>
@@ -483,11 +484,12 @@
   const executeHistoryList = ref<ExecuteHistoryItem[]>([]);
   async function initExecuteHistory(data: MinderJsonNodeData) {
     try {
-      executeHistoryList.value = await executeHistory({
+      const res = await executeHistory({
         caseId: data?.caseId,
         id: data.id,
         testPlanId: props.planId,
       });
+      executeHistoryList.value = res.map((item) => ({ ...item, stepsText: item.stepsExecResult }));
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -825,7 +827,7 @@
 
 <style lang="less" scoped>
   :deep(.comment-list-item-name) {
-    max-width: 200px;
+    max-width: 130px;
   }
   :deep(.ms-list) {
     margin: 0;
