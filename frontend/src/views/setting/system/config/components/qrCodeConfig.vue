@@ -20,7 +20,7 @@
                 <div class="flex flex-col justify-start">
                   <p>
                     <span class="mr-4 font-semibold">{{ item.title }}</span>
-                    <span v-if="!item.valid" class="ms-enable">{{ t('organization.service.unconfigured') }}</span>
+                    <span v-if="!item.hasConfig" class="ms-enable">{{ t('organization.service.unconfigured') }}</span>
                     <span
                       v-else
                       class="ms-enable active"
@@ -36,14 +36,16 @@
               </div>
               <div class="flex justify-between">
                 <a-space>
-                  <a-tooltip v-if="!item.valid" :content="t('organization.service.unconfiguredTip')" position="tl">
+                  <a-tooltip v-if="!item.hasConfig" :content="t('organization.service.unconfiguredTip')" position="tl">
                     <span>
                       <a-button
-                        v-if="!item.valid"
+                        v-if="!item.hasConfig"
                         type="outline"
                         class="arco-btn-outline--secondary"
                         size="mini"
-                        :disabled="!item.valid || !hasAnyPermission(['SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE'])"
+                        :disabled="
+                          !item.hasConfig || !hasAnyPermission(['SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE'])
+                        "
                         @click="getValidateHandler(item.key)"
                         >{{ t('organization.service.testLink') }}</a-button
                       ></span
@@ -51,7 +53,7 @@
                   </a-tooltip>
                   <a-button
                     v-else
-                    :disabled="!item.valid || !hasAnyPermission(['SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE'])"
+                    :disabled="!item.hasConfig || !hasAnyPermission(['SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE'])"
                     type="outline"
                     class="arco-btn-outline--secondary"
                     size="mini"
@@ -161,6 +163,7 @@
       valid: false,
       logo: 'icon-logo_wechat-work',
       edit: false,
+      hasConfig: false,
     },
     {
       key: 'DING_TALK',
@@ -170,6 +173,7 @@
       valid: false,
       logo: 'icon-logo_dingtalk',
       edit: false,
+      hasConfig: false,
     },
     {
       key: 'LARK',
@@ -179,6 +183,7 @@
       valid: false,
       logo: 'icon-logo_lark',
       edit: false,
+      hasConfig: false,
     },
     {
       key: 'LARK_SUITE',
@@ -188,6 +193,7 @@
       valid: false,
       logo: 'icon-logo_lark',
       edit: false,
+      hasConfig: false,
     },
   ]);
   const data = ref<PlatformSourceList>([]);
@@ -234,6 +240,7 @@
             filterKey.enable = dataKey.enable;
             filterKey.valid = dataKey.valid;
             filterKey.edit = true;
+            filterKey.hasConfig = dataKey.hasConfig;
           }
         });
       });
