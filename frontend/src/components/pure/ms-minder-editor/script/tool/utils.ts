@@ -184,7 +184,6 @@ export function expendNodeAndChildren(node: MinderJsonNode) {
   if (node.children?.length) {
     node.expand();
     node.renderTree();
-    node.layout();
     node.children?.forEach((child) => expendNodeAndChildren(child));
   }
 }

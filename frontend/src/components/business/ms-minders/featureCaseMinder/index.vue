@@ -212,7 +212,6 @@
       };
       importJson.value.treePath = [];
       clearSelectedNodes();
-      window.minder.importJson(importJson.value);
       if (props.moduleId !== 'all') {
         // 携带具体的模块 ID 加载时，进入该模块内
         nextTick(() => {
@@ -603,6 +602,7 @@
       }
       // 用例下面所有节点都展开
       expendNodeAndChildren(node);
+      node.layout();
     } else if (data?.resource?.includes(moduleTag) && data.count > 0 && data.isLoaded !== true) {
       // 模块节点且有用例且未加载过用例数据
       await initNodeCases(node);
@@ -726,6 +726,7 @@
   function customBatchExpand(node: MinderJsonNode) {
     if (node.data?.resource?.includes(caseTag)) {
       expendNodeAndChildren(node);
+      node.layout();
     }
   }
 
