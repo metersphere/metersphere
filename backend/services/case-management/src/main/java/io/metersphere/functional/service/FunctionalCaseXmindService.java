@@ -19,6 +19,8 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.constants.ExportConstants;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.manager.ExportTaskManager;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
@@ -61,6 +63,8 @@ public class FunctionalCaseXmindService {
     @Resource
     private FunctionalCaseLogService functionalCaseLogService;
     private static final String XMIND = "xmind";
+    @Resource
+    private OperationLogService operationLogService;
 
     public void downloadXmindTemplate(String projectId, HttpServletResponse response) {
         List<TemplateCustomFieldDTO> customFields = functionalCaseFileService.getCustomFields(projectId);
@@ -96,10 +100,10 @@ public class FunctionalCaseXmindService {
      *
      * @param request
      */
-    public String exportFunctionalCaseXmind(FunctionalCaseExportRequest request, String userId) {
+    public String exportFunctionalCaseXmind(FunctionalCaseExportRequest request, String userId, String orgId) {
         try {
             functionalCaseFileService.exportCheck(request, userId);
-            ExportTask exportTask = exportTaskManager.exportAsyncTask(request.getProjectId(), request.getFileId(), userId, ExportConstants.ExportType.CASE.toString(), request, t -> exportXmind(request, userId));
+            ExportTask exportTask = exportTaskManager.exportAsyncTask(request.getProjectId(), request.getFileId(), userId, ExportConstants.ExportType.CASE.toString(), request, t -> exportXmind(request, userId, orgId));
             return exportTask.getId();
         } catch (InterruptedException e) {
             LogUtils.error("导出失败：" + e);
@@ -108,7 +112,7 @@ public class FunctionalCaseXmindService {
 
     }
 
-    private String exportXmind(FunctionalCaseExportRequest request, String userId) {
+    private String exportXmind(FunctionalCaseExportRequest request, String userId, String orgId) {
         //获取导出的ids集合
         List<String> ids = functionalCaseService.doSelectIds(request, request.getProjectId());
         if (CollectionUtils.isEmpty(ids)) {
@@ -128,7 +132,8 @@ public class FunctionalCaseXmindService {
             XmindExportUtil.export(xmindData, request, tmpFile, templateCustomFields);
             functionalCaseFileService.uploadFileToMinio(XMIND, tmpFile, request.getFileId());
 
-            functionalCaseLogService.exportExcelLog(request);
+            LogDTO logDTO = functionalCaseLogService.exportExcelLog(request, "xmind", userId, orgId);
+            operationLogService.add(logDTO);
             List<ExportTask> exportTasks = functionalCaseFileService.getExportTasks(request.getProjectId(), userId);
             String taskId;
             if (CollectionUtils.isNotEmpty(exportTasks)) {

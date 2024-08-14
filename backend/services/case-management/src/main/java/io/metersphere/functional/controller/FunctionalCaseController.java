@@ -237,7 +237,7 @@ public class FunctionalCaseController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public FunctionalCaseImportResponse preCheckXMind(@RequestPart("request") FunctionalCaseImportRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         SessionUser user = SessionUtils.getUser();
-        return functionalCaseFileService.preCheckXMind(request,user, file);
+        return functionalCaseFileService.preCheckXMind(request, user, file);
     }
 
 
@@ -274,7 +274,7 @@ public class FunctionalCaseController {
     @Operation(summary = "用例管理-功能用例-excel导出")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
     public String testCaseExport(@Validated @RequestBody FunctionalCaseExportRequest request) {
-        return functionalCaseFileService.export(SessionUtils.getUserId(), request);
+        return functionalCaseFileService.export(SessionUtils.getUserId(), request, SessionUtils.getCurrentOrganizationId());
     }
 
     @GetMapping("/stop/{taskId}")
@@ -314,7 +314,7 @@ public class FunctionalCaseController {
     @Operation(summary = "用例管理-功能用例-xmind导出")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
     public String caseExportXmind(@Validated @RequestBody FunctionalCaseExportRequest request) {
-        return functionalCaseXmindService.exportFunctionalCaseXmind(request, SessionUtils.getUserId());
+        return functionalCaseXmindService.exportFunctionalCaseXmind(request, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId());
     }
 
     @GetMapping(value = "/check/export-task")
