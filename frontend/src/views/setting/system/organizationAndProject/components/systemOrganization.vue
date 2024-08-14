@@ -35,37 +35,41 @@
         v-if="hasAnyPermission(['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE'])"
         class="primary-color"
         @click="showProjectDrawer(record)"
-        >{{ record.projectCount }}</span
       >
+        {{ record.projectCount }}
+      </span>
       <span v-else>{{ record.projectCount }}</span>
     </template>
     <template #operation="{ record }">
       <template v-if="record.deleted">
-        <MsButton v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER']" @click="handleRevokeDelete(record)">{{
-          t('common.revokeDelete')
-        }}</MsButton>
+        <MsButton v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER']" @click="handleRevokeDelete(record)">
+          {{ t('common.revokeDelete') }}
+        </MsButton>
       </template>
       <template v-else-if="!record.enable">
-        <MsButton v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+DELETE']" @click="handleDelete(record)">{{
-          t('common.delete')
-        }}</MsButton>
+        <MsButton v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+DELETE']" @click="handleDelete(record)">
+          {{ t('common.delete') }}
+        </MsButton>
       </template>
       <template v-else>
-        <MsButton v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE']" @click="showOrganizationModal(record)">{{
-          t('common.edit')
-        }}</MsButton>
-        <MsButton v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+ADD_MEMBER']" @click="showAddUserModal(record)">{{
-          t('system.organization.addMember')
-        }}</MsButton>
-        <!-- TODO 后台缺少字段控制  -->
-        <MsButton v-xpack :disabled="appStore.currentOrgId === record.id" @click="enterOrganization(record.id)">{{
-          t('system.project.enterOrganization')
-        }}</MsButton>
+        <MsButton v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE']" @click="showOrganizationModal(record)">
+          {{ t('common.edit') }}
+        </MsButton>
+        <MsButton v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+ADD_MEMBER']" @click="showAddUserModal(record)">
+          {{ t('system.organization.addMember') }}
+        </MsButton>
+        <MsButton
+          v-if="record.switchAndEnter && licenseStore.hasLicense()"
+          :disabled="appStore.currentOrgId === record.id"
+          @click="enterOrganization(record.id)"
+        >
+          {{ t('system.project.enterOrganization') }}
+        </MsButton>
         <MsTableMoreAction
           v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+DELETE']"
           :list="tableActions"
           @select="handleMoreAction($event, record)"
-        ></MsTableMoreAction>
+        />
       </template>
     </template>
   </MsBaseTable>
@@ -113,6 +117,7 @@
   import useModal from '@/hooks/useModal';
   import { useTableStore } from '@/store';
   import useAppStore from '@/store/modules/app';
+  import useLicenseStore from '@/store/modules/setting/license';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -120,6 +125,8 @@
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   import { enterOrganization } from '@/views/setting/utils';
+
+  const licenseStore = useLicenseStore();
 
   const appStore = useAppStore();
 
