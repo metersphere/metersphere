@@ -22,7 +22,7 @@ export default {
   'ms.assertion.typeChecking': '类型校验',
   'ms.assertion.addChild': '添加子字段',
   'ms.assertion.validateChild': '添加子校验',
-  'ms.assertion.openGlobal': '启用全局断言',
+  'ms.assertion.openGlobal': '启用全局（环境）断言',
   'ms.assertion.openGlobalTip': '默认开启，关闭则运行该接口时不执行全局断言',
   'ms.assertion.closeGlobalTip': '默认关闭，关闭则运行该接口时不执行全局断言',
   'ms.assertion.expectedValueTitle': `特殊字符"$ ( ) * + . [ ]{ } \\^ |"需转义为"\\特殊字符"，如"$"转义后为"\\$`,

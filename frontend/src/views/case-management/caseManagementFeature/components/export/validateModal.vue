@@ -10,7 +10,7 @@
     @close="handleCancel"
   >
     <template #title> {{ t('caseManagement.featureCase.importingUseCase') }} </template>
-    <div class="flex items-center">
+    <div class="flex h-[40px] items-center">
       <div class="mr-3 flex h-8 w-8 items-center justify-center bg-[var(--color-text-n9)]">
         <MsIcon
           :type="props.validateType === 'Excel' ? 'icon-icon_file-excel_colorful1' : 'icon-icon_file-xmind_colorful1'"
@@ -29,9 +29,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-  import { Message } from '@arco-design/web-vue';
-
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
