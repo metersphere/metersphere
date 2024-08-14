@@ -21,7 +21,7 @@ export default {
   'ms.assertion.typeChecking': 'Type checking',
   'ms.assertion.addChild': 'Add subfield',
   'ms.assertion.validateChild': 'Additive check',
-  'ms.assertion.openGlobal': 'Implement the Global Declaration',
+  'ms.assertion.openGlobal': 'Enable global (environment) assertions',
   'ms.assertion.openGlobalTip':
     'It is enabled by default. If it is disabled, the global assertion will not be executed when running this interface.',
   'ms.assertion.closeGlobalTip':
