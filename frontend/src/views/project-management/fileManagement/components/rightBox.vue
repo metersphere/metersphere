@@ -493,23 +493,23 @@
           label: 'project.fileManagement.delete',
           eventTag: 'delete',
           danger: true,
+          permission: ['PROJECT_FILE_MANAGEMENT:READ+DELETE'],
         },
       ];
     }
-    const moveActions = [
+    const normalActions = [
       {
         label: 'project.fileManagement.move',
         eventTag: 'move',
+        permission: ['PROJECT_FILE_MANAGEMENT:READ+UPDATE'],
       },
       {
         isDivider: true,
       },
-    ];
-
-    const normalActions = [
       {
         label: 'project.fileManagement.delete',
         eventTag: 'delete',
+        permission: ['PROJECT_FILE_MANAGEMENT:READ+DELETE'],
         danger: true,
       },
     ];
@@ -518,8 +518,8 @@
         {
           label: 'project.fileManagement.download',
           eventTag: 'download',
+          permission: ['PROJECT_FILE_MANAGEMENT:READ+DOWNLOAD'],
         },
-        ...moveActions,
         ...normalActions,
       ];
     }
@@ -527,58 +527,63 @@
   });
 
   function getJarFileActions(record: FileItem) {
-    let enableActions: ActionsItem[] = [
+    const moveFileActions: ActionsItem[] = [
+      {
+        label: 'project.fileManagement.move',
+        eventTag: 'move',
+        permission: ['PROJECT_FILE_MANAGEMENT:READ+UPDATE'],
+      },
+    ];
+    let enableFileActions = [
       {
         label: 'common.enable',
         eventTag: 'toggle',
+        permission: ['PROJECT_FILE_MANAGEMENT:READ+UPDATE'],
       },
       {
         label: 'common.disable',
         eventTag: 'toggle',
+        permission: ['PROJECT_FILE_MANAGEMENT:READ+UPDATE'],
       },
     ];
 
     if (record.enable) {
-      enableActions = enableActions.filter((e) => e.label !== 'common.enable');
+      enableFileActions = enableFileActions.filter((e) => e.label !== 'common.enable');
     } else if (record.enable === false) {
-      enableActions = enableActions.filter((e) => e.label !== 'common.disable');
+      enableFileActions = enableFileActions.filter((e) => e.label !== 'common.disable');
     }
 
-    const deleteActions = [
-      {
-        label: 'project.fileManagement.delete',
-        eventTag: 'delete',
-        danger: true,
-      },
-    ];
-
-    const jarFileActions: ActionsItem[] = [
-      {
-        label: 'project.fileManagement.move',
-        eventTag: 'move',
-      },
+    const deleteFileActions: ActionsItem[] = [
       {
         isDivider: true,
       },
+      {
+        label: 'project.fileManagement.delete',
+        eventTag: 'delete',
+        permission: ['PROJECT_FILE_MANAGEMENT:READ+DELETE'],
+        danger: true,
+      },
     ];
-
     if (showType.value === 'card') {
       return [
         {
           label: 'project.fileManagement.download',
           eventTag: 'download',
+          permission: ['PROJECT_FILE_MANAGEMENT:READ+DOWNLOAD'],
         },
-        ...jarFileActions,
-        ...enableActions,
-        ...deleteActions,
+        ...moveFileActions,
+        ...enableFileActions,
+        ...deleteFileActions,
       ];
     }
 
     if (record.storage === 'GIT') {
-      return jarFileActions.filter((e) => e.eventTag !== 'move');
+      enableFileActions = showType.value === 'list' ? [] : enableFileActions;
+
+      return [...enableFileActions, ...deleteFileActions];
     }
 
-    return [...jarFileActions, ...deleteActions];
+    return [...moveFileActions, ...deleteFileActions];
   }
   const hasOperationPermission = computed(() =>
     hasAnyPermission([
