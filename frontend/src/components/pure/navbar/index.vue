@@ -1,6 +1,6 @@
 <template>
   <div class="navbar">
-    <div class="flex items-center px-[16px]">
+    <div class="flex w-[200px] items-center px-[16px]">
       <a-space>
         <div class="one-line-text flex max-w-[145px] items-center">
           <img :src="props.logo" class="mr-[4px] h-[34px] w-[32px]" />
@@ -16,7 +16,7 @@
       <template v-if="showProjectSelect">
         <a-select
           v-model:model-value="appStore.currentProjectId"
-          class="w-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
+          class="mr-[8px] w-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
           :bordered="false"
           :fallback-option="false"
           allow-search
