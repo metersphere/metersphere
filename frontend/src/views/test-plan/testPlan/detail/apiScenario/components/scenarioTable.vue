@@ -10,7 +10,7 @@
       :search-placeholder="t('common.searchByIdName')"
       @keyword-search="loadCaseList()"
       @adv-search="loadCaseList()"
-      @refresh="loadCaseList()"
+      @refresh="handleRefreshAll"
     />
     <a-spin :loading="tableLoading" class="w-full">
       <MsBaseTable
@@ -413,6 +413,12 @@
       loadCaseList();
     }
   );
+
+  async function handleRefreshAll() {
+    emit('refresh');
+    emit('initModules');
+    loadCaseList();
+  }
 
   async function getModuleCount() {
     const tableParams = await getTableParams(false);

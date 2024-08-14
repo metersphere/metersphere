@@ -12,7 +12,7 @@
         :search-placeholder="t('ms.case.associate.searchPlaceholder')"
         @keyword-search="loadCaseList()"
         @adv-search="loadCaseList()"
-        @refresh="handleRefreshAndInitModules()"
+        @refresh="handleRefreshAll"
       >
         <template v-if="props.treeType === 'MODULE'" #right>
           <a-radio-group
@@ -549,7 +549,8 @@
     }
   }
 
-  async function handleRefreshAndInitModules() {
+  async function handleRefreshAll() {
+    emit('refresh');
     await initModules();
     refresh();
   }
