@@ -527,7 +527,6 @@
   watch(
     () => activeCaseId.value,
     () => {
-      console.log('🤔️ =>', activeCaseId.value);
       loadCaseDetail();
       initReviewerAndStatus();
       initReviewHistoryList();
