@@ -41,7 +41,6 @@ public class ApiScenarioReportController {
     private ApiCheckPermissionService apiCheckPermissionService;
 
     @GetMapping("/get/{reportId}")
-    @CheckOwner(resourceId = "#reportId", resourceType = "api_scenario_report")
     public ApiScenarioReportResult get(@PathVariable String reportId) {
         return apiReportService.get(reportId, false);
     }
