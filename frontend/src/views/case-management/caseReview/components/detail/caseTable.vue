@@ -11,7 +11,7 @@
         :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
         @keyword-search="(val, filter) => searchCase(filter)"
         @adv-search="searchCase"
-        @refresh="handleRefreshAndInitModules"
+        @refresh="handleRefreshAll"
       >
         <template v-if="showType !== 'list'" #nameRight>
           <div v-if="reviewPassRule === 'MULTIPLE'" class="ml-[16px]">
@@ -637,7 +637,8 @@
     }
   }
 
-  async function handleRefreshAndInitModules() {
+  async function handleRefreshAll() {
+    emit('refresh');
     await initModules();
     refresh();
   }

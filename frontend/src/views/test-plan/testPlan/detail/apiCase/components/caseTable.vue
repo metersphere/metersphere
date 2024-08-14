@@ -10,7 +10,7 @@
       :search-placeholder="t('common.searchByIdName')"
       @keyword-search="loadCaseList()"
       @adv-search="loadCaseList()"
-      @refresh="loadCaseList()"
+      @refresh="handleRefreshAll"
     />
     <a-spin :loading="tableLoading" class="w-full">
       <MsBaseTable
@@ -437,6 +437,12 @@
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
     });
+  }
+
+  async function handleRefreshAll() {
+    emit('refresh');
+    emit('initModules');
+    loadCaseList();
   }
 
   // 显示执行报告
