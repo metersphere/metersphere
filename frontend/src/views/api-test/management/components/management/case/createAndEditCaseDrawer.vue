@@ -413,7 +413,7 @@
     font-weight: 400;
   }
   :deep(.ms-detail-card-title) {
-    width: 50%;
+    width: 300px;
   }
   :deep(.ms-detail-card-desc) {
     gap: 16px;
