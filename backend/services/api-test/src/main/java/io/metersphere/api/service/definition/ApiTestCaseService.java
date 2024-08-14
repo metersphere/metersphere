@@ -1062,7 +1062,7 @@ public class ApiTestCaseService extends MoveNodeService {
                     modifiedMap.put(apiTestCase.getId(), originCase);
                 }
             }
-            apiTestCaseLogService.batchSyncLog(originMap, modifiedMap, project);
+            apiTestCaseLogService.batchSyncLog(originMap, modifiedMap, project, userId);
 
             User user = userMapper.selectByPrimaryKey(userId);
             apiTestCaseNoticeService.batchSyncSendNotice(new ArrayList<>(modifiedMap.values()), user, project.getId(), request.getNotificationConfig(), NoticeConstants.Event.CASE_UPDATE);
