@@ -81,6 +81,7 @@
 </template>
 
 <script setup lang="ts">
+  import { useRoute } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
 
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
@@ -127,6 +128,7 @@
     (e: 'import'): void;
   }>();
   const appStore = useAppStore();
+  const route = useRoute();
   const { t } = useI18n();
   const requestCompositionStore = useRequestCompositionStore();
 
@@ -359,6 +361,13 @@
   onBeforeMount(() => {
     initMemberOptions();
     initProtocolList();
+    if ((route.query.tab as string) === 'case') {
+      currentTab.value = 'case';
+      currentTabChange('case');
+    } else if ((route.query.tab as string) === 'mock') {
+      currentTab.value = 'mock';
+      currentTabChange('mock');
+    }
   });
 
   useLeaveTabUnSaveCheck(apiTabs.value, [

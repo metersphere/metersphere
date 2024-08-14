@@ -107,6 +107,7 @@
 </template>
 
 <script setup lang="ts">
+  import { useRoute } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
 
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
@@ -180,6 +181,7 @@
     (e: 'openCaseTab', apiCaseDetail: ApiCaseDetail): void;
   }>();
 
+  const route = useRoute();
   const userStore = useUserStore();
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -562,6 +564,12 @@
       hideCancel: false,
     });
   }
+
+  onBeforeMount(() => {
+    if (!['case', 'mock'].includes(route.query.tab as string) && route.query.id) {
+      openApiTab({ apiInfo: route.query.id as string });
+    }
+  });
 
   defineExpose({
     openApiTab,
