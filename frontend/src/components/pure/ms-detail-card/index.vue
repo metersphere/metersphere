@@ -108,7 +108,7 @@
     border-radius: var(--border-radius-small);
     gap: 8px;
     .ms-detail-card-title {
-      @apply flex items-center justify-between overflow-hidden;
+      @apply flex items-center justify-between;
 
       gap: 16px;
     }
