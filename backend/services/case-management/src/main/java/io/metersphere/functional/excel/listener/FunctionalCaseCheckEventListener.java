@@ -71,7 +71,7 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
         excelDataClass = clazz;
         //当前项目模板的自定义字段
         customFieldsMap = customFields.stream().collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldName, i -> i));
-        customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap();
+        customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap(request.getProjectId());
         functionalCaseService = CommonBeanFactory.getBean(FunctionalCaseService.class);
 
     }

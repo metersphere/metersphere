@@ -7,7 +7,6 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
-import io.metersphere.system.utils.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -25,9 +24,12 @@ public class CustomFieldMemberValidator extends AbstractCustomFieldValidator {
     protected Map<String, String> userNameMap;
 
     public CustomFieldMemberValidator() {
+    }
+
+    public CustomFieldMemberValidator(String projectId) {
         this.isKVOption = true;
         ProjectApplicationService projectApplicationService = CommonBeanFactory.getBean(ProjectApplicationService.class);
-        List<User> memberOption = projectApplicationService.getProjectUserList(SessionUtils.getCurrentProjectId());
+        List<User> memberOption = projectApplicationService.getProjectUserList(projectId);
         userIdMap = memberOption.stream()
                 .collect(
                         Collectors.toMap(user -> user.getId().toLowerCase(), User::getId)

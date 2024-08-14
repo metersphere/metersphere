@@ -72,7 +72,7 @@ public class XMindCaseParser {
         customFieldsMap = customFields.stream().collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldName, i -> i));
         functionalCaseService = CommonBeanFactory.getBean(FunctionalCaseService.class);
         moduleTree = CommonBeanFactory.getBean(FunctionalCaseModuleService.class).getTree(request.getProjectId());
-        customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap();
+        customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap(request.getProjectId());
         lastPos = new AtomicLong(pos);
         this.user = user;
         process = new DetailUtil();
