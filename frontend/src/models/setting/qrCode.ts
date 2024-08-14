@@ -32,6 +32,7 @@ export interface PlatformSource {
   platform: string;
   enable: boolean;
   valid: boolean;
+  hasConfig: boolean;
 }
 
 export interface PlatformConfigItem {
@@ -42,6 +43,7 @@ export interface PlatformConfigItem {
   valid: boolean;
   logo: string;
   edit: boolean;
+  hasConfig: boolean;
 }
 
 export type PlatformSourceList = PlatformSource[];
