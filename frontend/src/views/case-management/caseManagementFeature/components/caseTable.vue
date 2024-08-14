@@ -1505,7 +1505,7 @@
       });
 
     caseLevelFields.value = result.customFields.find(
-      (item: any) => item.internal && (item.fieldName === 'Case Priority' || item.fieldName === '用例等级')
+      (item: any) => item.internal && item.internalFieldKey === 'functional_priority'
     );
     if (caseLevelColumn[0].filterConfig?.options) {
       caseLevelColumn[0].filterConfig.options = cloneDeep(unref(caseLevelFields.value?.options)) || [];
@@ -1605,7 +1605,7 @@
       const detailResult = await getCaseDetail(record.id);
       const { customFields } = detailResult;
       const customFieldsList = customFields.map((item: any) => {
-        if (item.internal && item.fieldName === '用例等级') {
+        if (item.internal && item.internalFieldKey === 'functional_priority') {
           return {
             fieldId: item.fieldId,
             value: record.caseLevel,

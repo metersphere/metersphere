@@ -797,7 +797,9 @@
         width: 300,
       };
     });
-    caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
+    caseLevelFields.value = result.customFields.find(
+      (item: any) => item.internal && item.internalFieldKey === 'functional_priority'
+    );
     if (caseLevelColumn[0].filterConfig?.options) {
       caseLevelColumn[0].filterConfig.options = cloneDeep(unref(caseLevelFields.value?.options)) || [];
     }

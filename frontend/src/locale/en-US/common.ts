@@ -207,4 +207,5 @@ export default {
   'common.inputPleaseEnterTags': 'Please enter the update tag enter add, not more than 64 characters',
   'common.cutSuccess': 'Cut successfully',
   'common.copySuccessToClipboard': 'Copied to clipboard',
+  'common.casePriority': 'Case Priority',
 };

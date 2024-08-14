@@ -120,7 +120,9 @@ export function convertToFile(fileInfo: AssociatedList): MsFileItem {
 
 // 返回用例等级
 export function getCaseLevels(customFields: CustomAttributes[]): CaseLevel {
-  const caseLevelItem = (customFields || []).find((it: any) => it.internal && it.fieldName === '用例等级');
+  const caseLevelItem = (customFields || []).find(
+    (it: any) => it.internal && it.internalFieldKey === 'functional_priority'
+  );
   return (
     (caseLevelItem?.options.find((it: any) => it.value === caseLevelItem.defaultValue)?.text as CaseLevel) ||
     ('P0' as CaseLevel)
