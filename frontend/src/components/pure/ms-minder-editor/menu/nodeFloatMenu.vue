@@ -18,7 +18,7 @@
         @change="(val) => handleTagChange(val as string)"
       >
         <a-radio v-for="tag of currentNodeTags" :key="tag" :value="tag">{{ tag }}</a-radio>
-        <a-radio v-for="tag of tags" :key="tag" :value="tag">{{ tag }}</a-radio>
+        <a-radio v-for="tag of tags.filter((e) => e !== currentNodeTags[0])" :key="tag" :value="tag">{{ tag }}</a-radio>
       </a-radio-group>
       <a-dropdown
         v-if="props.insertSiblingMenus.length > 0"
