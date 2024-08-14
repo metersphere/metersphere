@@ -26,6 +26,7 @@
 </template>
 
 <script setup lang="ts">
+  import { useRoute } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
 
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
@@ -53,6 +54,8 @@
   const emit = defineEmits<{
     (e: 'deleteCase', id: string): void;
   }>();
+
+  const route = useRoute();
 
   const apiTabs = defineModel<RequestParam[]>('apiTabs', {
     required: true,
@@ -135,6 +138,12 @@
     emit('deleteCase', id);
     caseTableRef.value?.loadCaseList();
   }
+
+  onBeforeMount(() => {
+    if (route.query.tab === 'case' && route.query.id) {
+      openCaseTab(route.query.id as string);
+    }
+  });
 
   defineExpose({
     openCaseTab,

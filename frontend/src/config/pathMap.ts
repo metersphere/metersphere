@@ -79,6 +79,9 @@ export const pathMap: PathMapItem[] = [
             route: RouteEnum.API_TEST_MANAGEMENT,
             permission: [],
             level: MENU_LEVEL[2],
+            routeQuery: {
+              tab: 'api',
+            },
           },
           {
             key: 'API_TEST_MANAGEMENT_MOCK', // 接口测试-接口定义-mock
@@ -86,6 +89,9 @@ export const pathMap: PathMapItem[] = [
             route: RouteEnum.API_TEST_MANAGEMENT,
             permission: [],
             level: MENU_LEVEL[2],
+            routeQuery: {
+              tab: 'mock',
+            },
           },
           {
             key: 'API_TEST_MANAGEMENT_CASE', // 接口测试-接口定义-case
@@ -93,6 +99,9 @@ export const pathMap: PathMapItem[] = [
             route: RouteEnum.API_TEST_MANAGEMENT,
             permission: [],
             level: MENU_LEVEL[2],
+            routeQuery: {
+              tab: 'case',
+            },
           },
           {
             key: 'API_TEST_MANAGEMENT_RECYCLE', // 接口测试-回收站
