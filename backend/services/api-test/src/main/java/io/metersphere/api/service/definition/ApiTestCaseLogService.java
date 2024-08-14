@@ -236,7 +236,7 @@ public class ApiTestCaseLogService {
         saveBatchLog(projectId, apiTestCases, operator, OperationLogType.RECOVER.name(), false, OperationLogModule.API_TEST_MANAGEMENT_RECYCLE);
     }
 
-    public void batchSyncLog(Map<String, ApiTestCaseLogDTO> originMap, Map<String, ApiTestCaseLogDTO> modifiedMap, Project project) {
+    public void batchSyncLog(Map<String, ApiTestCaseLogDTO> originMap, Map<String, ApiTestCaseLogDTO> modifiedMap, Project project, String userId) {
         List<LogDTO> logs = new ArrayList<>();
         originMap.forEach((id, origin) -> {
             ApiTestCaseLogDTO modified = modifiedMap.get(id);
@@ -251,7 +251,7 @@ public class ApiTestCaseLogService {
                     .method(HttpMethodConstants.POST.name())
                     .sourceId(id)
                     .content(origin.getName())
-                    .createUser(null)
+                    .createUser(userId)
                     .path(OperationLogAspect.getPath())
                     .originalValue(ApiDataUtils.toJSONBytes(origin))
                     .modifiedValue(ApiDataUtils.toJSONBytes(modified))
