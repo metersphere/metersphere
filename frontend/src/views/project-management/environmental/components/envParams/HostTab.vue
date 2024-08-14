@@ -13,7 +13,7 @@
         ref="batchFormRef"
         :models="batchFormModels"
         :form-mode="ruleFormMode"
-        add-text="project.menu.rule.addRule"
+        add-text="common.add"
         :default-vals="currentList.hosts"
         :show-enable="false"
         :is-show-drag="false"

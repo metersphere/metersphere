@@ -181,15 +181,16 @@
       dataIndex: 'email',
       showTooltip: true,
       sortIndex: 0,
+      width: 200,
     },
     {
       title: 'organization.member.tableColunmName',
       dataIndex: 'name',
       showInTable: true,
       showTooltip: true,
-      ellipsis: true,
       showDrag: false,
       sortIndex: 1,
+      width: 300,
     },
     {
       title: 'organization.member.tableColunmEmail',
@@ -197,7 +198,6 @@
       width: 150,
       showInTable: true,
       showTooltip: true,
-      ellipsis: true,
       sortIndex: 2,
       showDrag: false,
     },
@@ -207,7 +207,6 @@
       showInTable: true,
       width: 200,
       showTooltip: true,
-      ellipsis: true,
       showDrag: true,
     },
     {
