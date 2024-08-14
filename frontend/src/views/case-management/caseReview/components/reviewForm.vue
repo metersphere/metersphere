@@ -178,7 +178,7 @@
           if (typeof done === 'function') {
             done(true);
           }
-          emit('done');
+          emit('done', params.status);
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);

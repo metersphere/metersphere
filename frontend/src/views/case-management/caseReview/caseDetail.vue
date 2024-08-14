@@ -86,192 +86,195 @@
         </a-spin>
       </div>
       <a-spin :loading="caseDetailLoading" class="relative flex flex-1 flex-col overflow-hidden">
-        <div class="content-center">
-          <div class="rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[16px]">
-            <div class="mb-[12px] flex items-center">
-              <div class="mr-[16px] flex-1 overflow-hidden">
-                <a-tooltip :content="`【${caseDetail.num}】${caseDetail.name}`">
-                  <div
-                    class="one-line-text w-[fit-content] max-w-[100%] cursor-pointer font-medium text-[rgb(var(--primary-5))]"
-                    @click="goCaseDetail"
-                  >
-                    【{{ caseDetail.num }}】{{ caseDetail.name }}
+        <MsEmpty v-if="!caseList.length" />
+        <template v-else>
+          <div class="content-center">
+            <div class="rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[16px]">
+              <div class="mb-[12px] flex items-center">
+                <div class="mr-[16px] flex-1 overflow-hidden">
+                  <a-tooltip :content="`【${caseDetail.num}】${caseDetail.name}`">
+                    <div
+                      class="one-line-text w-[fit-content] max-w-[100%] cursor-pointer font-medium text-[rgb(var(--primary-5))]"
+                      @click="goCaseDetail"
+                    >
+                      【{{ caseDetail.num }}】{{ caseDetail.name }}
+                    </div>
+                  </a-tooltip>
+                </div>
+                <a-button
+                  v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
+                  type="outline"
+                  size="mini"
+                  class="arco-btn-outline--secondary"
+                  @click="editCaseVisible = true"
+                >
+                  {{ t('common.edit') }}
+                </a-button>
+              </div>
+              <div class="flex items-center">
+                <MsIcon type="icon-icon_folder_filled1" class="mr-[4px] text-[var(--color-text-4)]" />
+                <a-tooltip :content="caseDetail.moduleName || t('common.root')">
+                  <div class="one-line-text mr-[8px] max-w-[300px] font-medium text-[var(--color-text-000)]">
+                    {{ caseDetail.moduleName || t('common.root') }}
                   </div>
                 </a-tooltip>
-              </div>
-              <a-button
-                v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
-                type="outline"
-                size="mini"
-                class="arco-btn-outline--secondary"
-                @click="editCaseVisible = true"
-              >
-                {{ t('common.edit') }}
-              </a-button>
-            </div>
-            <div class="flex items-center">
-              <MsIcon type="icon-icon_folder_filled1" class="mr-[4px] text-[var(--color-text-4)]" />
-              <a-tooltip :content="caseDetail.moduleName || t('common.root')">
-                <div class="one-line-text mr-[8px] max-w-[300px] font-medium text-[var(--color-text-000)]">
-                  {{ caseDetail.moduleName || t('common.root') }}
+                <div class="case-detail-label">
+                  {{ t('caseManagement.caseReview.caseLevel') }}
                 </div>
-              </a-tooltip>
-              <div class="case-detail-label">
-                {{ t('caseManagement.caseReview.caseLevel') }}
-              </div>
-              <div class="case-detail-value">
-                <caseLevel :case-level="caseDetailLevel" />
-              </div>
-              <!-- <div class="case-detail-label">
+                <div class="case-detail-value">
+                  <caseLevel :case-level="caseDetailLevel" />
+                </div>
+                <!-- <div class="case-detail-label">
                 {{ t('caseManagement.caseReview.caseVersion') }}
               </div>
               <div class="case-detail-value">
                 <MsIcon type="icon-icon_version" size="13" class="mr-[4px]" />
                 {{ caseDetail.versionName }}
               </div> -->
-              <div class="case-detail-label">
-                {{ t('caseManagement.caseReview.reviewResult') }}
-              </div>
-              <div class="case-detail-value">
-                <ReviewStatusTrigger v-if="reviewDetail.reviewPassRule === 'MULTIPLE'" ref="reviewStatusTriggerRef" />
-                <div
-                  v-if="reviewResultMap[activeCaseReviewStatus as ReviewResult] && reviewDetail.reviewPassRule !== 'MULTIPLE'"
-                  class="flex items-center gap-[4px]"
-                >
-                  <MsIcon
-                    :type="reviewResultMap[activeCaseReviewStatus as ReviewResult].icon"
-                    :style="{
+                <div class="case-detail-label">
+                  {{ t('caseManagement.caseReview.reviewResult') }}
+                </div>
+                <div class="case-detail-value">
+                  <ReviewStatusTrigger v-if="reviewDetail.reviewPassRule === 'MULTIPLE'" ref="reviewStatusTriggerRef" />
+                  <div
+                    v-if="reviewResultMap[activeCaseReviewStatus as ReviewResult] && reviewDetail.reviewPassRule !== 'MULTIPLE'"
+                    class="flex items-center gap-[4px]"
+                  >
+                    <MsIcon
+                      :type="reviewResultMap[activeCaseReviewStatus as ReviewResult].icon"
+                      :style="{
                           color: reviewResultMap[activeCaseReviewStatus as ReviewResult].color,
                         }"
-                  />
-                  {{ t(reviewResultMap[activeCaseReviewStatus as ReviewResult].label) }}
+                    />
+                    {{ t(reviewResultMap[activeCaseReviewStatus as ReviewResult].label) }}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <a-tabs v-model:active-key="showTab" class="no-content">
-            <a-tab-pane :key="tabList[0].key" :title="tabList[0].title" />
-            <a-tab-pane :key="tabList[1].key" :title="tabList[1].title" />
-            <a-tab-pane :key="tabList[2].key">
-              <template #title>
-                <div class="flex items-center">
-                  {{ tabList[2].title }}
-                  <div
-                    v-if="caseDetail.demandCount > 0"
-                    style="min-width: 16px; text-align: center; align-content: center"
-                    :class="`ml-[4px] h-[16px] rounded-full ${
-                      showTab === tabList[2].key
-                        ? 'bg-[rgb(var(--primary-9))] text-[rgb(var(--primary-5))]'
-                        : 'bg-[var(--color-text-brand)] text-white'
-                    } px-[4px] text-[12px]`"
-                  >
-                    {{ caseDetail.demandCount > 99 ? '99+' : caseDetail.demandCount }}
+            <a-tabs v-model:active-key="showTab" class="no-content">
+              <a-tab-pane :key="tabList[0].key" :title="tabList[0].title" />
+              <a-tab-pane :key="tabList[1].key" :title="tabList[1].title" />
+              <a-tab-pane :key="tabList[2].key">
+                <template #title>
+                  <div class="flex items-center">
+                    {{ tabList[2].title }}
+                    <div
+                      v-if="caseDetail.demandCount > 0"
+                      style="min-width: 16px; text-align: center; align-content: center"
+                      :class="`ml-[4px] h-[16px] rounded-full ${
+                        showTab === tabList[2].key
+                          ? 'bg-[rgb(var(--primary-9))] text-[rgb(var(--primary-5))]'
+                          : 'bg-[var(--color-text-brand)] text-white'
+                      } px-[4px] text-[12px]`"
+                    >
+                      {{ caseDetail.demandCount > 99 ? '99+' : caseDetail.demandCount }}
+                    </div>
                   </div>
-                </div>
-              </template>
-            </a-tab-pane>
-            <a-tab-pane :key="tabList[3].key" :title="tabList[3].title" />
-          </a-tabs>
-          <a-divider class="my-0" />
-          <MsDescription
-            v-if="showTab === 'baseInfo'"
-            :descriptions="descriptions"
-            label-width="90px"
-            class="mt-[16px]"
-          />
-          <div v-else-if="showTab === 'detail'" class="mt-[16px] h-full">
-            <caseTabDetail :form="caseDetail" :allow-edit="false" />
-          </div>
-          <div v-else-if="showTab === 'demand'">
-            <div class="mt-[16px] flex items-center justify-between">
-              {{ t('caseManagement.caseReview.demandCases') }}
-              <a-input-search
-                v-model="demandKeyword"
-                :placeholder="t('caseManagement.caseReview.demandSearchPlaceholder')"
-                allow-clear
-                class="w-[300px]"
-                @press-enter="searchDemand"
-                @search="searchDemand"
-                @clear="searchDemand"
+                </template>
+              </a-tab-pane>
+              <a-tab-pane :key="tabList[3].key" :title="tabList[3].title" />
+            </a-tabs>
+            <a-divider class="my-0" />
+            <MsDescription
+              v-if="showTab === 'baseInfo'"
+              :descriptions="descriptions"
+              label-width="90px"
+              class="mt-[16px]"
+            />
+            <div v-else-if="showTab === 'detail'" class="mt-[16px] h-full">
+              <caseTabDetail :form="caseDetail" :allow-edit="false" />
+            </div>
+            <div v-else-if="showTab === 'demand'">
+              <div class="mt-[16px] flex items-center justify-between">
+                {{ t('caseManagement.caseReview.demandCases') }}
+                <a-input-search
+                  v-model="demandKeyword"
+                  :placeholder="t('caseManagement.caseReview.demandSearchPlaceholder')"
+                  allow-clear
+                  class="w-[300px]"
+                  @press-enter="searchDemand"
+                  @search="searchDemand"
+                  @clear="searchDemand"
+                />
+              </div>
+              <caseTabDemand
+                ref="caseDemandRef"
+                :fun-params="{ projectId: appStore.currentProjectId, caseId: activeCaseId, keyword: demandKeyword }"
+                :show-empty="false"
               />
             </div>
-            <caseTabDemand
-              ref="caseDemandRef"
-              :fun-params="{ projectId: appStore.currentProjectId, caseId: activeCaseId, keyword: demandKeyword }"
-              :show-empty="false"
-            />
-          </div>
-          <div v-else class="flex flex-1 flex-col overflow-hidden pl-[16px] pt-[16px]">
-            <div class="ms-comment-list">
-              <a-spin :loading="reviewHistoryListLoading" class="h-full w-full">
-                <div v-for="item of reviewHistoryList" :key="item.id" class="ms-comment-list-item">
-                  <MSAvatar :avatar="item.userLogo" />
-                  <div class="flex-1 overflow-hidden">
-                    <div class="flex items-center gap-[8px]">
-                      <div class="flex-1 overflow-hidden">
-                        <a-tooltip :content="item.userName">
-                          <div
-                            class="one-line-text w-[fit-content] max-w-[100%] font-medium text-[var(--color-text-1)]"
-                          >
-                            {{ item.userName }}
-                          </div>
-                        </a-tooltip>
+            <div v-else class="flex flex-1 flex-col overflow-hidden pl-[16px] pt-[16px]">
+              <div class="ms-comment-list">
+                <a-spin :loading="reviewHistoryListLoading" class="h-full w-full">
+                  <div v-for="item of reviewHistoryList" :key="item.id" class="ms-comment-list-item">
+                    <MSAvatar :avatar="item.userLogo" />
+                    <div class="flex-1 overflow-hidden">
+                      <div class="flex items-center gap-[8px]">
+                        <div class="flex-1 overflow-hidden">
+                          <a-tooltip :content="item.userName">
+                            <div
+                              class="one-line-text w-[fit-content] max-w-[100%] font-medium text-[var(--color-text-1)]"
+                            >
+                              {{ item.userName }}
+                            </div>
+                          </a-tooltip>
+                        </div>
+                        <div v-if="item.status === 'PASS'" class="flex items-center">
+                          <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
+                          {{ t('caseManagement.caseReview.pass') }}
+                        </div>
+                        <div v-else-if="item.status === 'UN_PASS'" class="flex items-center">
+                          <MsIcon type="icon-icon_close_filled" class="mr-[4px] text-[rgb(var(--danger-6))]" />
+                          {{ t('caseManagement.caseReview.fail') }}
+                        </div>
+                        <div v-else-if="item.status === 'UNDER_REVIEWED'" class="flex items-center">
+                          <MsIcon type="icon-icon_warning_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
+                          {{ t('caseManagement.caseReview.suggestion') }}
+                        </div>
+                        <div v-else-if="item.status === 'RE_REVIEWED'" class="flex items-center">
+                          <MsIcon type="icon-icon_resubmit_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
+                          {{ t('caseManagement.caseReview.reReview') }}
+                        </div>
                       </div>
-                      <div v-if="item.status === 'PASS'" class="flex items-center">
-                        <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
-                        {{ t('caseManagement.caseReview.pass') }}
+                      <div class="markdown-body ml-[48px]" v-html="item.contentText"></div>
+                      <div class="mt-[8px] text-[12px] leading-[16px] text-[var(--color-text-4)]">
+                        {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
                       </div>
-                      <div v-else-if="item.status === 'UN_PASS'" class="flex items-center">
-                        <MsIcon type="icon-icon_close_filled" class="mr-[4px] text-[rgb(var(--danger-6))]" />
-                        {{ t('caseManagement.caseReview.fail') }}
-                      </div>
-                      <div v-else-if="item.status === 'UNDER_REVIEWED'" class="flex items-center">
-                        <MsIcon type="icon-icon_warning_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
-                        {{ t('caseManagement.caseReview.suggestion') }}
-                      </div>
-                      <div v-else-if="item.status === 'RE_REVIEWED'" class="flex items-center">
-                        <MsIcon type="icon-icon_resubmit_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
-                        {{ t('caseManagement.caseReview.reReview') }}
-                      </div>
-                    </div>
-                    <div class="markdown-body ml-[48px]" v-html="item.contentText"></div>
-                    <div class="mt-[8px] text-[12px] leading-[16px] text-[var(--color-text-4)]">
-                      {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
                     </div>
                   </div>
-                </div>
-                <MsEmpty v-if="reviewHistoryList.length === 0" />
-              </a-spin>
+                  <MsEmpty v-if="reviewHistoryList.length === 0" />
+                </a-spin>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="content-footer">
-          <div class="mb-[12px] flex items-center justify-between">
-            <div class="font-medium text-[var(--color-text-1)]">
-              {{ t('caseManagement.caseReview.startReview') }}
+          <div class="content-footer">
+            <div class="mb-[12px] flex items-center justify-between">
+              <div class="font-medium text-[var(--color-text-1)]">
+                {{ t('caseManagement.caseReview.startReview') }}
+              </div>
+              <div class="flex items-center">
+                <a-switch v-model:model-value="autoNext" class="mx-[8px]" size="small" type="line" />
+                <div class="text-[var(--color-text-4)]">{{ t('caseManagement.caseReview.autoNext') }}</div>
+                <a-tooltip position="right">
+                  <template #content>
+                    <div>{{ t('caseManagement.caseReview.autoNextTip1') }}</div>
+                    <div>{{ t('caseManagement.caseReview.autoNextTip2') }}</div>
+                  </template>
+                  <icon-question-circle
+                    class="mb-[2px] ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+                    size="16"
+                  />
+                </a-tooltip>
+              </div>
             </div>
-            <div class="flex items-center">
-              <a-switch v-model:model-value="autoNext" class="mx-[8px]" size="small" type="line" />
-              <div class="text-[var(--color-text-4)]">{{ t('caseManagement.caseReview.autoNext') }}</div>
-              <a-tooltip position="right">
-                <template #content>
-                  <div>{{ t('caseManagement.caseReview.autoNextTip1') }}</div>
-                  <div>{{ t('caseManagement.caseReview.autoNextTip2') }}</div>
-                </template>
-                <icon-question-circle
-                  class="mb-[2px] ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-                  size="16"
-                />
-              </a-tooltip>
-            </div>
+            <reviewForm
+              :review-id="reviewId"
+              :case-id="activeCaseId"
+              :review-pass-rule="reviewDetail.reviewPassRule"
+              @done="reviewDone"
+            />
           </div>
-          <reviewForm
-            :review-id="reviewId"
-            :case-id="activeCaseId"
-            :review-pass-rule="reviewDetail.reviewPassRule"
-            @done="reviewDone"
-          />
-        </div>
+        </template>
       </a-spin>
     </div>
   </MsCard>
@@ -524,6 +527,7 @@
   watch(
     () => activeCaseId.value,
     () => {
+      console.log('🤔️ =>', activeCaseId.value);
       loadCaseDetail();
       initReviewerAndStatus();
       initReviewHistoryList();
@@ -546,10 +550,28 @@
     );
   }
 
-  async function reviewDone() {
+  async function reviewDone(status: string) {
     if (autoNext.value) {
       // 自动下一个，更改激活的 id会刷新详情
       const index = caseList.value.findIndex((e) => e.caseId === activeCaseId.value);
+
+      // 如果过滤的状态和评审状态不一样，则这条将从当前列表排除
+      const oneMissingCase = type.value !== '' && status !== type.value;
+      if (oneMissingCase) {
+        if ((pageNation.value.current - 1) * pageNation.value.pageSize + index + 1 < pageNation.value.total) {
+          // 不是最后一个
+          await loadCaseList();
+          activeCaseId.value = caseList.value[index].caseId;
+        } else {
+          // 是最后一个，如果列表还有其他数据，则选中第一条；如果没有其他数据，则显示暂无数据
+          await loadCaseList();
+          if (caseList.value.length > 1) {
+            activeCaseId.value = caseList.value[0].caseId;
+          }
+        }
+        return;
+      }
+
       if (index < caseList.value.length - 1) {
         await loadCaseList();
         activeCaseId.value = caseList.value[index + 1].caseId;
