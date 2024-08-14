@@ -147,7 +147,7 @@ export const toolTipConfig = {
   },
   position: 'top',
   backgroundColor: '#fff',
-  padding: 24,
+  padding: 16,
   borderWidth: 0,
   formatter(params: any) {
     const html = `
@@ -173,12 +173,18 @@ export const commonConfig = {
   legend: {
     show: false,
   },
+  grid: {
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
 };
 
 export const seriesConfig = {
   name: '',
   type: 'pie',
-  radius: ['62%', '80%'],
+  radius: ['75%', '93%'],
   center: ['50%', '50%'],
   avoidLabelOverlap: false,
   label: {
@@ -196,5 +202,3 @@ export const seriesConfig = {
     show: false,
   },
 };
-
-export default {};

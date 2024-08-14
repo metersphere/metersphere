@@ -1,7 +1,7 @@
 <template>
-  <div class="block-title">{{ t('report.detail.executionAnalysis') }}</div>
+  <div class="mb-[16px] font-medium">{{ t('report.detail.executionAnalysis') }}</div>
   <SetReportChart
-    size="160px"
+    size="130px"
     :legend-data="legendData"
     :options="executeCharOptions"
     :request-total="getIndicators(getTotal) || 0"
@@ -13,7 +13,7 @@
 
   import SetReportChart from '@/views/api-test/report/component/case/setReportChart.vue';
 
-  import { seriesConfig, statusConfig, toolTipConfig } from '@/config/testPlan';
+  import { commonConfig, seriesConfig, statusConfig, toolTipConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
 
   import type { LegendData } from '@/models/apiTest/report';
@@ -31,6 +31,7 @@
 
   // 执行分析
   const executeCharOptions = ref({
+    ...commonConfig,
     tooltip: {
       ...toolTipConfig,
     },
