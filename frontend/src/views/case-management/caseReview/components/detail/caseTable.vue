@@ -816,7 +816,9 @@
   // 获取用例等级数据
   async function getCaseLevelFields() {
     const result = await getCaseDefaultFields(appStore.currentProjectId);
-    caseLevelFields.value = result.customFields.find((item: any) => item.internal && item.fieldName === '用例等级');
+    caseLevelFields.value = result.customFields.find(
+      (item: any) => item.fieldName === t('common.casePriority') && item.internal
+    );
     columns = columns.map((item) => {
       if (item.dataIndex === 'caseLevel') {
         return {

@@ -64,6 +64,7 @@
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
+  import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useTableStore from '@/hooks/useTableStore';
   import { characterLimit } from '@/utils';
@@ -83,6 +84,7 @@
   import { casePriorityOptions } from '@/views/api-test/components/config';
 
   const { openNewPage } = useOpenNewPage();
+  const { t } = useI18n();
 
   const props = defineProps<{
     associationType: string; // 关联类型 项目 | 测试计划 | 用例评审
@@ -223,7 +225,9 @@
 
   function getCaseLevel(record: TableData) {
     if (record.customFields && record.customFields.length) {
-      const caseItem = record.customFields.find((item: any) => item.fieldName === '用例等级' && item.internal);
+      const caseItem = record.customFields.find(
+        (item: any) => item.fieldName === t('common.casePriority') && item.internal
+      );
       return caseItem?.options.find((item: any) => item.value === caseItem?.defaultValue).text;
     }
     return undefined;

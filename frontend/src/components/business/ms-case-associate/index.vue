@@ -516,7 +516,9 @@
   // TODO: 这个版本用例和接口以及场景不存在用例等级 不展示等级内容
   function getCaseLevel(record: CaseManagementTable) {
     if (record.customFields && record.customFields.length) {
-      const caseItem = record.customFields.find((item: any) => item.fieldName === '用例等级' && item.internal);
+      const caseItem = record.customFields.find(
+        (item: any) => item.fieldName === t('common.casePriority') && item.internal
+      );
       return caseItem?.options.find((item: any) => item.value === caseItem?.defaultValue).text;
     }
     return undefined;
