@@ -628,7 +628,7 @@ vars.put("responseData", responseData);`,
       'if (responseCode != expectedCode) {\n' +
       '    AssertionResult.setFailure(true);\n' +
       // eslint-disable-next-line no-template-curly-in-string
-      '    AssertionResult.setFailureMessage("Expected response code: ${expectedCode}, but got: ${responseCode}")\n' +
+      '    AssertionResult.setFailureMessage(`Expected response code: ${expectedCode}, but got: ${responseCode}`)\n' +
       '}\n',
     scenario: `// 导入必要的 Java 类
 var URL = java.net.URL;
