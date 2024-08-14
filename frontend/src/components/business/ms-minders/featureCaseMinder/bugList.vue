@@ -1,6 +1,6 @@
 <template>
   <a-spin :loading="bugListLoading" class="block h-full pl-[16px]">
-    <div v-if="!props.isTestPlanCase" class="flex items-center justify-between">
+    <div class="flex items-center justify-between">
       <div class="flex items-center justify-between">
         <a-button v-if="hasEditPermission" class="mr-3" type="primary" @click="linkBug">
           {{ t('caseManagement.featureCase.linkDefect') }}
@@ -39,11 +39,7 @@
         <div class="bug-item">
           <div class="mb-[4px] flex items-center justify-between">
             <MsButton type="text" @click="goBug(item.bugId)">{{ item.num }}</MsButton>
-            <MsButton
-              v-if="hasEditPermission && (!props.isTestPlanCase ? showType === 'link' : props.showDisassociateButton)"
-              type="text"
-              @click="disassociateBug(item.id)"
-            >
+            <MsButton v-if="hasEditPermission && showType === 'link'" type="text" @click="disassociateBug(item.id)">
               {{ t('ms.add.attachment.cancelAssociate') }}
             </MsButton>
           </div>
@@ -98,8 +94,6 @@
 
   const props = defineProps<{
     activeCase: Record<string, any>;
-    isTestPlanCase?: boolean;
-    showDisassociateButton?: boolean;
   }>();
 
   const { openNewPage } = useOpenNewPage();
@@ -114,7 +108,7 @@
     pageSize: 10,
     current: 1,
   });
-  const showType = ref<'link' | 'testPlan'>(!props.isTestPlanCase ? 'link' : 'testPlan');
+  const showType = ref<'link' | 'testPlan'>('link');
   const bugListLoading = ref(false);
 
   async function loadBugList() {
@@ -207,10 +201,6 @@
 
   onBeforeMount(() => {
     loadBugList();
-  });
-
-  defineExpose({
-    handleShowTypeChange,
   });
 </script>
 
