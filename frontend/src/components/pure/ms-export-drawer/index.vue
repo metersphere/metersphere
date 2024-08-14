@@ -143,7 +143,7 @@
             </div>
             <MsButton @click="handleReset">{{ t('system.orgTemplate.clear') }}</MsButton>
           </div>
-          <div class="p-[16px]">
+          <div class="selected-panel p-[16px]">
             <VueDraggable v-model="selectedList" ghost-class="ghost">
               <div
                 v-for="element in selectedList"
@@ -489,7 +489,7 @@
       display: flex;
       overflow: hidden;
       width: 100%;
-      height: 100%;
+      height: calc(100vh - 112px);
       border: 1px solid var(--color-text-n8);
       // 可选字段
       .optional-field {
@@ -503,6 +503,11 @@
         color: var(--color-text-3);
         background: var(--color-text-n9);
         @apply flex flex-row items-center justify-between;
+      }
+      .selected-panel {
+        height: calc(100vh - 152px);
+        @apply overflow-y-auto;
+        .ms-scroll-bar();
       }
     }
   }
