@@ -21,6 +21,7 @@
         :review-comment-list="reviewCommentList"
         :active-comment="activeComment"
         :permissions="['FUNCTIONAL_CASE:READ+COMMENT']"
+        show-step-detail-trigger
       />
       <template v-else>
         <MsComment
@@ -255,5 +256,8 @@
 
     overflow-y: auto;
     height: calc(100% - 130px);
+  }
+  :deep(.comment-list-item-name) {
+    max-width: 130px;
   }
 </style>

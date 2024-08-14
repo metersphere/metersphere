@@ -4,12 +4,22 @@
       <div v-for="item of props.reviewCommentList" :key="item.id" class="ms-comment-list-item">
         <MSAvatar :avatar="item.userLogo" />
         <div class="flex-1">
-          <div class="flex items-center gap-[8px]">
+          <div class="flex items-center">
             <a-tooltip :content="item.userName" :mouse-enter-delay="300">
               <div class="comment-list-item-name one-line-text max-w-[300px] font-medium text-[var(--color-text-1)]">
                 {{ item.userName }}
               </div>
             </a-tooltip>
+            <a-divider
+              v-if="props.showStepDetailTrigger && item.caseEditType == 'STEP' && item.showResult"
+              direction="vertical"
+              margin="8px"
+            ></a-divider>
+            <StepDetailTrigger
+              v-if="props.showStepDetailTrigger && item.caseEditType == 'STEP' && item.showResult"
+              :steps-text="item.stepsText"
+            />
+            <a-divider direction="vertical" margin="8px"></a-divider>
             <div v-if="item.status === 'PASS'" class="flex items-center">
               <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
               {{ t('caseManagement.caseReview.pass') }}
@@ -87,6 +97,7 @@
   import MSAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import { CommentItem } from '@/components/business/ms-comment/types';
+  import StepDetailTrigger from '@/views/case-management/caseManagementFeature/components/stepDetailTrigger.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import { characterLimit } from '@/utils';
@@ -97,6 +108,7 @@
     reviewCommentList: any[];
     activeComment: string;
     notShowReviewName?: boolean;
+    showStepDetailTrigger?: boolean;
   }>();
 
   const router = useRouter();
