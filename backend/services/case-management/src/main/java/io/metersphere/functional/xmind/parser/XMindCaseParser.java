@@ -1,5 +1,6 @@
 package io.metersphere.functional.xmind.parser;
 
+import io.metersphere.functional.constants.FunctionalCaseTypeConstants;
 import io.metersphere.functional.dto.FunctionalCaseStepDTO;
 import io.metersphere.functional.excel.domain.FunctionalCaseExcelData;
 import io.metersphere.functional.excel.exception.CustomFieldValidateException;
@@ -83,7 +84,7 @@ public class XMindCaseParser {
     private static final String CASE = "(?:CASE-|case-)";
     private static final String PREREQUISITE = "(?:" + Translator.get("xmind_prerequisite") + ":|" + Translator.get("xmind_prerequisite") + "：)";
     private static final String STEP = "(?:" + Translator.get("xmind_step") + ":|" + Translator.get("xmind_step") + "：)";
-    private static final String STEP_DESCRIPTION = "(?:" + Translator.get("xmind_stepDescription") + ":|" + Translator.get("xmind_stepDescription") + "：)";
+    private static final String STEP_DESCRIPTION = Translator.get("xmind_stepDescription");
     private static final String TEXT_DESCRIPTION = "(?:" + Translator.get("xmind_textDescription") + ":|" + Translator.get("xmind_textDescription") + "：)";
     private static final String EXPECTED_RESULT = "(?:" + Translator.get("xmind_expectedResult") + ":|" + Translator.get("xmind_expectedResult") + "：)";
     private static final String DESCRIPTION = "(?:" + Translator.get("xmind_description") + ":|" + Translator.get("xmind_description") + "：)";
@@ -169,6 +170,10 @@ public class XMindCaseParser {
      */
     private boolean validateTags(FunctionalCaseExcelData data) {
         AtomicBoolean validate = new AtomicBoolean(true);
+        if (StringUtils.isBlank(data.getTags())) {
+            data.setTags("");
+            return validate.get();
+        }
         List<String> tags = functionalCaseService.handleImportTags(data.getTags());
         if (tags.size() > TAGS_COUNT) {
             process.add(data.getName(), Translator.get("tags_count"));
@@ -340,6 +345,7 @@ public class XMindCaseParser {
                     testCase.setPrerequisite(replace(item.getTitle(), PREREQUISITE));
                 } else if (isAvailable(item.getTitle(), TEXT_DESCRIPTION)) {
                     testCase.setTextDescription(replace(item.getTitle(), TEXT_DESCRIPTION));
+                    testCase.setCaseEditType(FunctionalCaseTypeConstants.CaseEditType.TEXT.name());
                 } else if (isAvailable(item.getTitle(), DESCRIPTION)) {
                     testCase.setTextDescription(replace(item.getTitle(), DESCRIPTION));
                 } else if (isAvailable(item.getTitle(), TAGS)) {
@@ -356,6 +362,7 @@ public class XMindCaseParser {
                 } else if (isAvailable(item.getTitle(), STEP_DESCRIPTION)) {
                     if (item.getChildren() != null) {
                         testCase.setSteps(this.getSteps(item.getChildren().getAttached(), title));
+                        testCase.setCaseEditType(FunctionalCaseTypeConstants.CaseEditType.STEP.name());
                     }
                 } else {
                     //自定义字段

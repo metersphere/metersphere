@@ -136,12 +136,12 @@ public class XmindExportUtil {
         TemplateCustomFieldDTO priorityDto = dto.getTemplateCustomFieldDTOList().stream().filter(item -> StringUtils.equalsIgnoreCase(item.getFieldName(), Translator.get("custom_field.functional_priority"))).findFirst().get();
         String priority = Translator.get("custom_field.functional_priority").concat("：").concat(Translator.get("required")).concat(", ").concat(Translator.get("options")).concat(JSON.toJSONString(customFieldOptionsMap.get(priorityDto.getFieldName())));
         String name = Translator.get("case.export.system.columns.name").concat(", ").concat(Translator.get("required"));
-        itemTopic.setTitleText("case-P0: ".concat(dto.getName()).concat(" ").concat(priority).concat(name));
+        itemTopic.setTitleText("case-P0：".concat(dto.getName()).concat(" ").concat(priority).concat(name));
 
         //前置条件
         if (StringUtils.isNotBlank(dto.getPrerequisite())) {
             ITopic preTopic = workbook.createTopic();
-            preTopic.setTitleText(Translator.get("xmind_prerequisite").concat(": ").concat(dto.getPrerequisite()));
+            preTopic.setTitleText(Translator.get("xmind_prerequisite").concat("：").concat(dto.getPrerequisite()));
             if (style != null) {
                 preTopic.setStyleId(style.getId());
             }
@@ -151,7 +151,7 @@ public class XmindExportUtil {
         //备注
         if (StringUtils.isNotBlank(dto.getDescription())) {
             ITopic deTopic = workbook.createTopic();
-            deTopic.setTitleText(Translator.get("xmind_description").concat(": ").concat(dto.getDescription()));
+            deTopic.setTitleText(Translator.get("xmind_description").concat("：").concat(dto.getDescription()));
             if (style != null) {
                 deTopic.setStyleId(style.getId());
             }
@@ -162,7 +162,7 @@ public class XmindExportUtil {
         if (StringUtils.isNotBlank(dto.getTags())) {
             try {
                 ITopic tagTopic = workbook.createTopic();
-                tagTopic.setTitleText(Translator.get("xmind_tags").concat(": ").concat(dto.getTags()));
+                tagTopic.setTitleText(Translator.get("xmind_tags").concat("：").concat(dto.getTags()));
                 if (style != null) {
                     tagTopic.setStyleId(style.getId());
                 }
@@ -175,14 +175,14 @@ public class XmindExportUtil {
             //文本描述
             ITopic textDesTopic = workbook.createTopic();
             String desc = dto.getTextDescription();
-            textDesTopic.setTitleText(desc == null ? Translator.get("xmind_textDescription").concat(": ") : Translator.get("xmind_textDescription").concat(": ").concat(desc));
+            textDesTopic.setTitleText(desc == null ? Translator.get("xmind_textDescription").concat("：") : Translator.get("xmind_textDescription").concat("：").concat(desc));
             if (style != null) {
                 textDesTopic.setStyleId(style.getId());
             }
 
             String result = dto.getExpectedResult();
             ITopic resultTopic = workbook.createTopic();
-            resultTopic.setTitleText(result == null ? Translator.get("xmind_expectedResult").concat(": ") : Translator.get("xmind_expectedResult").concat(": ").concat(result));
+            resultTopic.setTitleText(result == null ? Translator.get("xmind_expectedResult").concat("：") : Translator.get("xmind_expectedResult").concat("：").concat(result));
             if (style != null) {
                 resultTopic.setStyleId(style.getId());
             }
@@ -205,7 +205,7 @@ public class XmindExportUtil {
                     if (obj.containsKey("desc")) {
                         ITopic stepTopic = workbook.createTopic();
                         String desc = obj.get("desc");
-                        stepTopic.setTitleText(Translator.get("xmind_step").concat(": ").concat(desc));
+                        stepTopic.setTitleText(Translator.get("xmind_step").concat("：").concat(desc));
                         if (style != null) {
                             stepTopic.setStyleId(style.getId());
                         }
@@ -216,7 +216,7 @@ public class XmindExportUtil {
                             if (StringUtils.isNotEmpty(result)) {
                                 hasResult = true;
                                 ITopic resultTopic = workbook.createTopic();
-                                resultTopic.setTitleText(Translator.get("xmind_expectedResult").concat(": ").concat(result));
+                                resultTopic.setTitleText(Translator.get("xmind_expectedResult").concat("：").concat(result));
                                 if (style != null) {
                                     resultTopic.setStyleId(style.getId());
                                 }
@@ -240,7 +240,7 @@ public class XmindExportUtil {
             if (!StringUtils.equalsIgnoreCase(item.getFieldName(), Translator.get("custom_field.functional_priority"))) {
                 ITopic customTopic = workbook.createTopic();
                 String fieldComment = getComment(item, customFieldOptionsMap);
-                customTopic.setTitleText(item.getFieldName().concat(": ").concat(fieldComment));
+                customTopic.setTitleText(item.getFieldName().concat("：").concat(fieldComment));
                 if (style != null) {
                     customTopic.setStyleId(style.getId());
                 }
@@ -424,7 +424,7 @@ public class XmindExportUtil {
         //用例名称
         TemplateCustomFieldDTO priority = templateCustomFields.stream().filter(item -> StringUtils.equalsIgnoreCase(item.getFieldName(), Translator.get("custom_field.functional_priority"))).findFirst().get();
         String casePriority = customFieldMap.get(priority.getFieldId());
-        itemTopic.setTitleText("case-".concat(StringUtils.defaultIfBlank(casePriority, StringUtils.EMPTY)).concat(": ").concat(dto.getName()));
+        itemTopic.setTitleText("case-".concat(StringUtils.defaultIfBlank(casePriority, StringUtils.EMPTY)).concat("：").concat(dto.getName()));
         //系统字段
         systemColumns.forEach(item -> {
             if (columns.getSystemColumns().containsKey(item) && !StringUtils.equalsIgnoreCase(item, "name")
@@ -432,13 +432,13 @@ public class XmindExportUtil {
                 ITopic preTopic = workbook.createTopic();
                 switch (item) {
                     case "num":
-                        preTopic.setTitleText(columns.getSystemColumns().get(item).concat(": ").concat(dto.getNum()));
+                        preTopic.setTitleText(columns.getSystemColumns().get(item).concat("：").concat(dto.getNum()));
                         break;
                     case "prerequisite":
-                        preTopic.setTitleText(columns.getSystemColumns().get(item).concat(": ").concat(dto.getPrerequisite()));
+                        preTopic.setTitleText(columns.getSystemColumns().get(item).concat("：").concat(dto.getPrerequisite()));
                         break;
                     case "module":
-                        preTopic.setTitleText(columns.getSystemColumns().get(item).concat(": ").concat(moduleName));
+                        preTopic.setTitleText(columns.getSystemColumns().get(item).concat("：").concat(moduleName));
                         break;
                     default:
                         break;
@@ -454,14 +454,14 @@ public class XmindExportUtil {
             //文本描述
             ITopic textDesTopic = workbook.createTopic();
             String desc = dto.getTextDescription();
-            textDesTopic.setTitleText(Translator.get("xmind_textDescription").concat(": ").concat(dto.getTextDescription()));
+            textDesTopic.setTitleText(Translator.get("xmind_textDescription").concat("：").concat(dto.getTextDescription()));
             if (style != null) {
                 textDesTopic.setStyleId(style.getId());
             }
 
             String result = dto.getExpectedResult();
             ITopic resultTopic = workbook.createTopic();
-            resultTopic.setTitleText(Translator.get("xmind_expectedResult").concat(": ").concat(dto.getExpectedResult()));
+            resultTopic.setTitleText(Translator.get("xmind_expectedResult").concat("：").concat(dto.getExpectedResult()));
             if (style != null) {
                 resultTopic.setStyleId(style.getId());
             }
@@ -484,7 +484,7 @@ public class XmindExportUtil {
                     if (obj.containsKey("desc")) {
                         ITopic stepTopic = workbook.createTopic();
                         String desc = obj.get("desc");
-                        stepTopic.setTitleText(Translator.get("xmind_step").concat(": ").concat(desc));
+                        stepTopic.setTitleText(Translator.get("xmind_step").concat("：").concat(desc));
                         if (style != null) {
                             stepTopic.setStyleId(style.getId());
                         }
@@ -495,7 +495,7 @@ public class XmindExportUtil {
                             if (StringUtils.isNotEmpty(result)) {
                                 hasResult = true;
                                 ITopic resultTopic = workbook.createTopic();
-                                resultTopic.setTitleText(Translator.get("xmind_expectedResult").concat(": ").concat(result));
+                                resultTopic.setTitleText(Translator.get("xmind_expectedResult").concat("：").concat(result));
                                 if (style != null) {
                                     resultTopic.setStyleId(style.getId());
                                 }
