@@ -55,4 +55,10 @@ public class OrganizationDTO extends Organization {
      */
     @Schema(description =  "剩余删除保留天数")
     private Integer remainDayCount;
+
+    /**
+     * 是否可以进入组织
+     */
+    @Schema(description = "是否切换并进入")
+    private Boolean switchAndEnter;
 }

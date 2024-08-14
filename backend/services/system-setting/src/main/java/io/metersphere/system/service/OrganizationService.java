@@ -88,13 +88,13 @@ public class OrganizationService {
      * @param organizationRequest 请求参数
      * @return 组织集合
      */
-    public List<OrganizationDTO> list(OrganizationRequest organizationRequest) {
+    public List<OrganizationDTO> list(OrganizationRequest organizationRequest, String currentUser) {
         List<OrganizationDTO> organizationDTOS = extOrganizationMapper.list(organizationRequest);
         if (CollectionUtils.isEmpty(organizationDTOS)) {
             return new ArrayList<>();
         }
         List<OrganizationDTO> organizations = buildOrgAdminInfo(organizationDTOS);
-        return buildExtraInfo(organizations);
+        return buildExtraInfo(organizations, currentUser);
     }
 
     /**
@@ -963,7 +963,7 @@ public class OrganizationService {
      * @param organizationDTOS 组织集合
      * @return 组织集合
      */
-    private List<OrganizationDTO> buildExtraInfo(List<OrganizationDTO> organizationDTOS) {
+    private List<OrganizationDTO> buildExtraInfo(List<OrganizationDTO> organizationDTOS, String currentUser) {
         List<String> userIds = new ArrayList<>();
         userIds.addAll(organizationDTOS.stream().map(OrganizationDTO::getCreateUser).toList());
         userIds.addAll(organizationDTOS.stream().map(OrganizationDTO::getUpdateUser).toList());
@@ -971,6 +971,9 @@ public class OrganizationService {
         Map<String, String> userMap = userLoginService.getUserNameMap(userIds.stream().distinct().toList());
         List<String> ids = organizationDTOS.stream().map(OrganizationDTO::getId).toList();
         List<OrganizationCountDTO> orgCountList = extOrganizationMapper.getCountByIds(ids);
+        // 是否拥有组织
+        boolean isSuper = baseUserMapper.isSuperUser(currentUser);
+        List<String> relatedOrganizationIds = extOrganizationMapper.getRelatedOrganizationIds(currentUser);
         Map<String, OrganizationCountDTO> orgCountMap = orgCountList.stream().collect(Collectors.toMap(OrganizationCountDTO::getId, count -> count));
         organizationDTOS.forEach(organizationDTO -> {
             organizationDTO.setCreateUser(userMap.get(organizationDTO.getCreateUser()));
@@ -981,6 +984,7 @@ public class OrganizationService {
             if (BooleanUtils.isTrue(organizationDTO.getDeleted())) {
                 organizationDTO.setRemainDayCount(getDeleteRemainDays(organizationDTO.getDeleteTime()));
             }
+            organizationDTO.setSwitchAndEnter(isSuper || relatedOrganizationIds.contains(organizationDTO.getId()));
         });
         return organizationDTOS;
     }

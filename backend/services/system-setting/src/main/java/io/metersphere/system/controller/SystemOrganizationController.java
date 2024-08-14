@@ -55,7 +55,7 @@ public class SystemOrganizationController {
     public Pager<List<OrganizationDTO>> list(@Validated @RequestBody OrganizationRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
-        return PageUtils.setPageInfo(page, organizationService.list(request));
+        return PageUtils.setPageInfo(page, organizationService.list(request, SessionUtils.getUserId()));
     }
 
     @PostMapping("/update")
