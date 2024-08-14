@@ -139,11 +139,13 @@
 <style lang="less" scoped>
   :deep(.arco-menu-inner) {
     overflow-y: hidden;
-    padding: 12px 16px 12px 8px;
+    padding: 12px 16px 12px 0;
     .arco-menu-item {
       @apply !bg-transparent;
-      &:not(:first-child) {
-        margin-left: 8px;
+
+      margin-left: 8px;
+      &:nth-child(2) {
+        margin-left: 0;
       }
       &:hover {
         color: rgb(var(--primary-4));
