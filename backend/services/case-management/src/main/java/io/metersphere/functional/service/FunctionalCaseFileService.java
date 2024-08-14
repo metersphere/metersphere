@@ -48,6 +48,8 @@ import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.excel.domain.ExcelErrData;
 import io.metersphere.system.excel.utils.EasyExcelExporter;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.manager.ExportTaskManager;
 import io.metersphere.system.mapper.SystemParameterMapper;
 import io.metersphere.system.service.FileService;
@@ -111,6 +113,8 @@ public class FunctionalCaseFileService {
     private ExportTaskMapper exportTaskMapper;
     private static final String XLSX = "xlsx";
     private static final String ZIP = "zip";
+    @Resource
+    private OperationLogService operationLogService;
 
     /**
      * 下载excel导入模板
@@ -403,10 +407,10 @@ public class FunctionalCaseFileService {
         }
     }
 
-    public String export(String userId, FunctionalCaseExportRequest request) {
+    public String export(String userId, FunctionalCaseExportRequest request, String orgId) {
         try {
             exportCheck(request, userId);
-            ExportTask exportTask = exportTaskManager.exportAsyncTask(request.getProjectId(), request.getFileId(), userId, ExportConstants.ExportType.CASE.toString(), request, t -> exportFunctionalCaseZip(request, userId));
+            ExportTask exportTask = exportTaskManager.exportAsyncTask(request.getProjectId(), request.getFileId(), userId, ExportConstants.ExportType.CASE.toString(), request, t -> exportFunctionalCaseZip(request, userId, orgId));
             return exportTask.getId();
         } catch (InterruptedException e) {
             LogUtils.error("导出失败：" + e);
@@ -427,7 +431,7 @@ public class FunctionalCaseFileService {
      *
      * @param request
      */
-    public String exportFunctionalCaseZip(FunctionalCaseExportRequest request, String userId) {
+    public String exportFunctionalCaseZip(FunctionalCaseExportRequest request, String userId, String orgId) {
         File tmpDir = null;
         String fileType = "";
         try {
@@ -454,7 +458,8 @@ public class FunctionalCaseFileService {
                 fileType = XLSX;
                 uploadFileToMinio(fileType, singeFile, request.getFileId());
             }
-            functionalCaseLogService.exportExcelLog(request);
+            LogDTO logDTO = functionalCaseLogService.exportExcelLog(request, "excel", userId, orgId);
+            operationLogService.add(logDTO);
             List<ExportTask> exportTasks = getExportTasks(request.getProjectId(), userId);
             String taskId;
             if (CollectionUtils.isNotEmpty(exportTasks)) {

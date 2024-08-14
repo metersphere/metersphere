@@ -17,7 +17,6 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.mapper.CustomFieldMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
@@ -180,7 +179,7 @@ public class FunctionalCaseLogService {
         }
         return dtoList;
     }
-    
+
     /**
      * 恢复项目
      *
@@ -429,18 +428,17 @@ public class FunctionalCaseLogService {
     }
 
 
-
-    public LogDTO exportExcelLog(FunctionalCaseExportRequest request) {
+    public LogDTO exportExcelLog(FunctionalCaseExportRequest request, String url, String userId, String orgId) {
         LogDTO dto = new LogDTO(
                 request.getProjectId(),
-                null,
+                orgId,
                 request.getFileId(),
-                null,
+                userId,
                 OperationLogType.EXPORT.name(),
                 OperationLogModule.FUNCTIONAL_CASE,
                 "");
         dto.setHistory(true);
-        dto.setPath("/functional/case/export/excel");
+        dto.setPath("/functional/case/export/" + url);
         dto.setMethod(HttpMethodConstants.POST.name());
         return dto;
     }
