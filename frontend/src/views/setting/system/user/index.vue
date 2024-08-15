@@ -61,7 +61,7 @@
             })"
           value-key="id"
           label-key="name"
-          class="w-full"
+          class="w-full max-w-[300px]"
           allow-clear
           :multiple="true"
           :at-least-one="true"
