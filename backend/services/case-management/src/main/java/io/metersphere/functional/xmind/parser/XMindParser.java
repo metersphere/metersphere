@@ -66,7 +66,7 @@ public class XMindParser {
         List<JsonRootBean> jsonRootBeans = new ArrayList<>();
         if (contents != null) {
             for (String content : contents) {
-                caseCount += content.split("(?:case-|CASE-)").length;
+                caseCount += content.split("((?i)case)").length;
                 JsonRootBean jsonRootBean = JSON.parseObject(content, JsonRootBean.class);
                 jsonRootBeans.add(jsonRootBean);
             }

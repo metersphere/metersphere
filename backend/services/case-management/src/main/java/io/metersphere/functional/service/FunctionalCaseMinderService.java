@@ -1184,7 +1184,13 @@ public class FunctionalCaseMinderService {
             }
             List<MinderOptionDTO> caseModuleOptionDTOS = resourceMap.get(Translator.get("minder_extra_node.module"));
             if (CollectionUtils.isNotEmpty(caseModuleOptionDTOS)) {
-                List<String> moduleIds = caseModuleOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
+                List<String> moduleIds = new ArrayList<>(caseModuleOptionDTOS.stream().map(MinderOptionDTO::getId).toList());
+                if (moduleIds.contains("NONE")) {
+                    throw new MSException(Translator.get("all.module.default.name.cut_error"));
+                }
+                if (moduleIds.contains("root")) {
+                    throw new MSException(Translator.get("functional_case.module.default.name.cut_error"));
+                }
                 List<FunctionalCase> functionalCases = functionalCaseModuleService.deleteModuleByIds(moduleIds, new ArrayList<>(), userId);
                 functionalCaseModuleService.batchDelLog(functionalCases, request.getProjectId());
                 List<String> finalCaseIds = caseIds;

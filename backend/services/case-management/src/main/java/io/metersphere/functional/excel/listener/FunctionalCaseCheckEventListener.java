@@ -61,7 +61,7 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
     protected List<ExcelErrData<FunctionalCaseExcelData>> errList = new ArrayList<>();
     private static final String ERROR_MSG_SEPARATOR = ";";
     private HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap;
-    protected static final int TAGS_COUNT = 15;
+    protected static final int TAGS_COUNT = 10;
     protected static final int TAG_LENGTH = 64;
     protected static final int STEP_LENGTH = 1000;
     private FunctionalCaseService functionalCaseService;
