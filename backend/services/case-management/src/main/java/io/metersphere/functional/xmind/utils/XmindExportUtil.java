@@ -134,10 +134,8 @@ public class XmindExportUtil {
     private static void buildTemplateTopic(ITopic topic, IStyle style, FunctionalCaseXmindDTO dto, ITopic itemTopic, IWorkbook workbook, Map<String, List<String>> customFieldOptionsMap) {
 
         //用例名称
-        TemplateCustomFieldDTO priorityDto = dto.getTemplateCustomFieldDTOList().stream().filter(item -> StringUtils.equalsIgnoreCase(item.getFieldName(), Translator.get("custom_field.functional_priority"))).findFirst().get();
-        String priority = Translator.get("custom_field.functional_priority").concat("：").concat(Translator.get("required")).concat(", ").concat(Translator.get("options")).concat(JSON.toJSONString(customFieldOptionsMap.get(priorityDto.getFieldName())));
         String name = Translator.get("case.export.system.columns.name").concat(", ").concat(Translator.get("required"));
-        itemTopic.setTitleText("case-P0：".concat(dto.getName()).concat(" ").concat(priority).concat(name));
+        itemTopic.setTitleText("case：".concat(dto.getName()).concat(name));
 
         //前置条件
         if (StringUtils.isNotBlank(dto.getPrerequisite())) {
@@ -238,15 +236,18 @@ public class XmindExportUtil {
 
         //自定义字段
         dto.getTemplateCustomFieldDTOList().forEach(item -> {
+            ITopic customTopic = workbook.createTopic();
             if (!StringUtils.equalsIgnoreCase(item.getFieldName(), Translator.get("custom_field.functional_priority"))) {
-                ITopic customTopic = workbook.createTopic();
                 String fieldComment = getComment(item, customFieldOptionsMap);
                 customTopic.setTitleText(item.getFieldName().concat("：").concat(fieldComment));
-                if (style != null) {
-                    customTopic.setStyleId(style.getId());
-                }
-                itemTopic.add(customTopic, ITopic.ATTACHED);
+            } else {
+                String priority = Translator.get("custom_field.functional_priority").concat("：").concat(Translator.get("required")).concat(", ").concat(Translator.get("options")).concat(JSON.toJSONString(customFieldOptionsMap.get(item.getFieldName())));
+                customTopic.setTitleText(priority);
             }
+            if (style != null) {
+                customTopic.setStyleId(style.getId());
+            }
+            itemTopic.add(customTopic, ITopic.ATTACHED);
         });
 
         topic.add(itemTopic);
@@ -421,11 +422,10 @@ public class XmindExportUtil {
         FunctionalCaseExportColumns columns = new FunctionalCaseExportColumns();
 
         Map<String, String> customFieldMap = dto.getCustomFieldDTOList().stream().collect(Collectors.toMap(FunctionalCaseCustomField::getFieldId, FunctionalCaseCustomField::getValue));
+        Map<String, TemplateCustomFieldDTO> temCustomFieldsMap = templateCustomFields.stream().collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldId, i -> i));
 
         //用例名称
-        TemplateCustomFieldDTO priority = templateCustomFields.stream().filter(item -> StringUtils.equalsIgnoreCase(item.getFieldName(), Translator.get("custom_field.functional_priority"))).findFirst().get();
-        String casePriority = customFieldMap.get(priority.getFieldId());
-        itemTopic.setTitleText("case-".concat(StringUtils.defaultIfBlank(casePriority, StringUtils.EMPTY)).concat("：").concat(dto.getName()));
+        itemTopic.setTitleText("case：".concat(dto.getName()));
         //系统字段
         systemColumns.forEach(item -> {
             if (columns.getSystemColumns().containsKey(item) && !StringUtils.equalsIgnoreCase(item, "name")
@@ -451,6 +451,16 @@ public class XmindExportUtil {
                     preTopic.setStyleId(style.getId());
                 }
                 itemTopic.add(preTopic, ITopic.ATTACHED);
+            }
+            if (temCustomFieldsMap.containsKey(item)) {
+                if (!StringUtils.equalsIgnoreCase(Translator.get(temCustomFieldsMap.get(item).getFieldName()), Translator.get("custom_field.functional_priority"))) {
+                    ITopic preTopic = workbook.createTopic();
+                    preTopic.setTitleText(Translator.get("custom_field.functional_priority").concat("：").concat(customFieldMap.get(item)));
+                    if (style != null) {
+                        preTopic.setStyleId(style.getId());
+                    }
+                    itemTopic.add(preTopic, ITopic.ATTACHED);
+                }
             }
         });
 
@@ -521,7 +531,6 @@ public class XmindExportUtil {
 
         //自定义字段
         Map<String, String> customColumnsMap = request.getCustomFields().stream().collect(Collectors.toMap(FunctionalCaseHeader::getId, FunctionalCaseHeader::getName));
-        Map<String, TemplateCustomFieldDTO> temCustomFieldsMap = templateCustomFields.stream().collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldId, i -> i));
         HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap(request.getProjectId());
 
         customColumnsMap.forEach((k, v) -> {

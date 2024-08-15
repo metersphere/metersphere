@@ -3,6 +3,7 @@ package io.metersphere.functional.excel.domain;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,6 +38,12 @@ public class FunctionalCaseExportColumns {
     }
 
     public void initCustomColumns(List<TemplateCustomFieldDTO> headerCustomFields) {
-        headerCustomFields.forEach(item -> customColumns.put(item.getFieldId(), item.getFieldName()));
+        headerCustomFields.forEach(item -> {
+            if (!StringUtils.equalsIgnoreCase(item.getFieldName(), Translator.get("custom_field.functional_priority"))) {
+                customColumns.put(item.getFieldId(), item.getFieldName());
+            } else {
+                systemColumns.put(item.getFieldId(), item.getFieldName());
+            }
+        });
     }
 }
