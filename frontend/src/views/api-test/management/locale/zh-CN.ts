@@ -111,7 +111,7 @@ export default {
   'apiTestManagement.setDefault': '设为默认',
   'apiTestManagement.confirmDelete': '确认删除 {name} 吗？',
   'apiTestManagement.response': '响应{count}',
-  'apiTestManagement.responseCode': '响应码',
+  'apiTestManagement.responseCode': '状态码',
   'apiTestManagement.dynamicConversion': '动态转换',
   'apiTestManagement.expandApi': '显示全部请求',
   'apiTestManagement.collapseApi': '隐藏全部请求',
