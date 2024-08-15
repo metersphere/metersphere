@@ -12,9 +12,11 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
+import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.CommonNoticeSendService;
+import io.metersphere.system.service.SystemParameterService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -34,6 +36,8 @@ public class ApiTestCaseNoticeService {
     private CommonNoticeSendService commonNoticeSendService;
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Resource
+    private SystemParameterService systemParameterService;
 
     public ApiDefinitionCaseDTO addCaseDto(ApiTestCaseAddRequest request) {
         ApiDefinitionCaseDTO caseDTO = new ApiDefinitionCaseDTO();
@@ -104,26 +108,22 @@ public class ApiTestCaseNoticeService {
         if (BooleanUtils.isTrue(notificationConfig.getScenarioCreator()) || BooleanUtils.isTrue(notificationConfig.getApiCaseCreator())) {
             for (Map resource : resources) {
                 String caseId = (String) resource.get("id");
-                String relatedUsers = null;
+                List<String> extraUsers = new ArrayList<>();
                 if (BooleanUtils.isTrue(notificationConfig.getScenarioCreator())) {
                     // 添加引用该用例的场景的创建人
                     Set<String> userIds = Optional.ofNullable(caseRefApiScenarioCreatorMap.get(caseId)).orElse(new HashSet<>(1));
-                    relatedUsers = userIds.stream().collect(Collectors.joining(";"));
+                    extraUsers.addAll(userIds);
                 }
 
                 if (BooleanUtils.isTrue(notificationConfig.getApiCaseCreator())) {
                     // 添加用例创建人
                     String createUser = (String) resource.get("createUser");
-                    if (relatedUsers == null) {
-                        relatedUsers = createUser;
-                    } else {
-                        relatedUsers += ";" + createUser;
-                    }
+                    extraUsers.add(createUser);
                 }
-                // 添加特殊通知人
-                resource.put("relatedUsers", relatedUsers);
+                BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+                commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, event, resource, user, projectId,
+                        baseSystemConfigDTO, extraUsers, true);
             }
         }
-        commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, event, resources, user, projectId);
     }
 }
