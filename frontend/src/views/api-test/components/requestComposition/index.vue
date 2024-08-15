@@ -303,6 +303,7 @@
               :response="requestVModel.response?.requestResults[0]?.responseResult.body"
               :assertion-config="requestVModel.children[0].assertionConfig"
               :show-extraction="true"
+              @change="handleActiveDebugChange"
             />
             <auth
               v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
