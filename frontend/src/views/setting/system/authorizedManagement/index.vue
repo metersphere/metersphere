@@ -61,7 +61,7 @@
             </li>
             <li>
               <MsButton v-permission="['SYSTEM_AUTH:READ+UPDATE']" class="font-medium" @click="authChecking">
-                {{ t('system.authorized.authorityChecking') }}
+                {{ t('system.authorized.authorityUpdate') }}
               </MsButton>
             </li>
           </ul>
@@ -71,7 +71,7 @@
     <MsDrawer
       v-model:visible="authDrawer"
       :title="t('system.authorized.authorityChecking')"
-      :ok-text="t('system.authorized.authorization')"
+      :ok-text="t('common.update')"
       :ok-loading="drawerLoading"
       :width="680"
       @confirm="confirmHandler"

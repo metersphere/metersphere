@@ -162,7 +162,7 @@ const Setting: AppRouteRecordRaw = {
           name: SettingRouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT,
           component: () => import('@/views/setting/system/authorizedManagement/index.vue'),
           meta: {
-            locale: 'menu.settings.system.authorizedManagement',
+            locale: 'License',
             roles: ['SYSTEM_AUTH:READ'],
             isTopMenu: true,
           },
