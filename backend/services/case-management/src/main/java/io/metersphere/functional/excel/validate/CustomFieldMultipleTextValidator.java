@@ -57,8 +57,7 @@ public class CustomFieldMultipleTextValidator extends AbstractCustomFieldValidat
         if (StringUtils.isBlank(keyOrValuesStr) || StringUtils.equals(keyOrValuesStr, "[]")) {
             return JSON.toJSONString(new ArrayList<>());
         }
-        List<String> keyOrValues = parse2Array(keyOrValuesStr);
-
-        return JSON.toJSONString(keyOrValues);
+        String keyOrValues = String.join(",", JSON.parseArray(keyOrValuesStr));
+        return keyOrValues;
     }
 }
