@@ -606,15 +606,31 @@ public class FunctionalCaseFileService {
             //构建其他字段
             buildExportOtherField(functionalCase, data, caseCommentMap, executeCommentMap, reviewCommentMap, request);
             validateExportTextField(data);
-            if (CollectionUtils.isNotEmpty(textDescriptionList) && !request.getIsMerge()) {
+            if (CollectionUtils.isNotEmpty(textDescriptionList) && request.getIsMerge()) {
                 // 如果有多条步骤则添加多条数据，之后合并单元格
                 buildExportMergeData(rowMergeInfo, list, textDescriptionList, expectedResultList, data);
             } else {
+                data.setTextDescription(parseData(textDescriptionList));
+                data.setExpectedResult(parseData(expectedResultList));
                 list.add(data);
             }
         });
 
         return list;
+    }
+
+    /**
+     * 处理单行格式
+     *
+     * @param list
+     * @return
+     */
+    private String parseData(List<String> list) {
+        String result = "";
+        for (int i = 0; i < list.size(); i++) {
+            result += "[" + (i + 1) + "]" + list.get(i) + "\n";
+        }
+        return result;
     }
 
     /**
