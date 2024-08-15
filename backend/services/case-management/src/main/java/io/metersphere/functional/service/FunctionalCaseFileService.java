@@ -625,13 +625,13 @@ public class FunctionalCaseFileService {
     private void buildBaseField(FunctionalCaseExcelData data, FunctionalCase functionalCase, FunctionalCaseBlob functionalCaseBlob, Map<String, String> moduleMap, List<String> textDescriptionList, List<String> expectedResultList, String url) {
         data.setNum(functionalCase.getNum().toString());
         data.setModule(moduleMap.get(functionalCase.getModuleId()));
-        data.setTags(functionalCase.getTags().toString());
         //构建步骤
         buildExportStep(data, functionalCaseBlob, functionalCase.getCaseEditType(), textDescriptionList, expectedResultList);
         data.setPrerequisite(new String(functionalCaseBlob.getPrerequisite() == null ? new byte[0] : functionalCaseBlob.getPrerequisite(), StandardCharsets.UTF_8));
 
         //标签
         data.setTags(JSON.toJSONString(functionalCase.getTags()));
+        data.setCaseEditType(functionalCase.getCaseEditType());
         // 设置超链接
         WriteCellData<String> hyperlink = new WriteCellData<>(functionalCase.getName());
         data.setHyperLinkName(hyperlink);
@@ -874,6 +874,10 @@ public class FunctionalCaseFileService {
                         .collect(Collectors.toList()));
             }
         };
+        List<FunctionalCaseHeader> textDescription = request.getSystemFields().stream().filter(item -> StringUtils.equals(item.getId(), "text_description")).toList();
+        if (CollectionUtils.isNotEmpty(textDescription)) {
+            headList.add(Arrays.asList(Translator.get("case.export.columns.case_edit_type")));
+        }
         return headList;
     }
 
