@@ -589,6 +589,8 @@ public class FunctionalCaseFileService {
         Map<String, List<TestPlanCaseExecuteHistory>> executeCommentMap = getExecuteComment(ids);
         //评审评论
         Map<String, List<CaseReviewHistory>> reviewCommentMap = getReviewComment(ids);
+        // 项目信息
+        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
 
         ids.forEach(id -> {
             List<String> textDescriptionList = new ArrayList<>();
@@ -598,7 +600,7 @@ public class FunctionalCaseFileService {
             FunctionalCase functionalCase = functionalCaseMap.get(id);
             FunctionalCaseBlob functionalCaseBlob = functionalCaseBlobMap.get(id);
             //构建基本参数
-            buildBaseField(data, functionalCase, functionalCaseBlob, moduleMap, textDescriptionList, expectedResultList, url);
+            buildBaseField(data, functionalCase, functionalCaseBlob, moduleMap, textDescriptionList, expectedResultList, url, project);
             //构建自定义字段
             buildExportCustomField(customFields, customFieldMap.get(id), data, request);
             //构建其他字段
@@ -622,7 +624,8 @@ public class FunctionalCaseFileService {
      * @param functionalCase
      * @param functionalCaseBlob
      */
-    private void buildBaseField(FunctionalCaseExcelData data, FunctionalCase functionalCase, FunctionalCaseBlob functionalCaseBlob, Map<String, String> moduleMap, List<String> textDescriptionList, List<String> expectedResultList, String url) {
+    private void buildBaseField(FunctionalCaseExcelData data, FunctionalCase functionalCase, FunctionalCaseBlob functionalCaseBlob, Map<String, String> moduleMap,
+                                List<String> textDescriptionList, List<String> expectedResultList, String url, Project project) {
         data.setNum(functionalCase.getNum().toString());
         data.setModule(moduleMap.get(functionalCase.getModuleId()));
         //构建步骤
@@ -644,8 +647,8 @@ public class FunctionalCaseFileService {
         WriteCellStyle writeCellStyle = new WriteCellStyle();
         writeCellStyle.setWriteFont(writeFont);
         hyperlink.setWriteCellStyle(writeCellStyle);
-
-        hyperlinkData.setAddress(url + "/functional/case/detail/" + functionalCase.getId());
+        hyperlinkData.setAddress(url + "#/case-management/featureCase?id=" + functionalCase.getId() +
+                "&pId=" + functionalCase.getProjectId() + "&orgId=" + project.getOrganizationId());
         hyperlinkData.setHyperlinkType(HyperlinkData.HyperlinkType.URL);
     }
 
