@@ -59,7 +59,9 @@
       </div>
       <!-- 右侧 -->
       <a-spin :loading="caseDetailLoading" class="relative flex h-full flex-1 flex-col overflow-hidden">
-        <MsEmpty v-if="!caseList.length" />
+        <div v-if="!caseList.length" class="flex h-full items-center justify-center">
+          <MsEmpty v-if="!caseList.length" />
+        </div>
         <template v-else>
           <div class="flex px-[16px] pt-[16px]">
             <div class="mr-[24px] flex flex-1 items-center overflow-hidden">

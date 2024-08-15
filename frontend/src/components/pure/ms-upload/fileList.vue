@@ -52,7 +52,7 @@
                   </div>
                 </a-tooltip>
                 <slot name="title" :item="item"></slot>
-                <div v-if="props.buttonInTitle" class="ml-auto flex items-center">
+                <div v-if="props.buttonInTitle" class="ml-auto flex items-center font-normal">
                   <slot name="titleAction" :item="item">
                     <MsButton
                       v-if="item.file.type.includes('image/')"
@@ -399,6 +399,12 @@
 </script>
 
 <style lang="less" scoped>
+  :deep(.arco-list) {
+    overflow: auto;
+    .arco-list-content {
+      min-width: 425px;
+    }
+  }
   .image-item {
     @apply relative;
     &:hover {
