@@ -222,6 +222,7 @@
       slotName: 'userRoleIdNameMap',
       dataIndex: 'userRoleIdNameMap',
       showInTable: true,
+      isTag: true,
       showDrag: true,
       width: 300,
     },

@@ -313,7 +313,7 @@ export const pathMap: PathMapItem[] = [
           },
           {
             key: 'SETTING_SYSTEM_AUTHORIZED_MANAGEMENT', // 系统设置-系统-授权管理
-            locale: 'menu.settings.system.authorizedManagement',
+            locale: 'License',
             route: RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT,
             permission: [],
             level: MENU_LEVEL[0],
