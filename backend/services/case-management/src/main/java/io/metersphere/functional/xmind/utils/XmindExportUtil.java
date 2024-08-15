@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -440,6 +441,9 @@ public class XmindExportUtil {
                     case "module":
                         preTopic.setTitleText(columns.getSystemColumns().get(item).concat("：").concat(moduleName));
                         break;
+                    case "tags":
+                        preTopic.setTitleText(columns.getSystemColumns().get(item).concat("：").concat(parseTag(dto.getTags())));
+                        break;
                     default:
                         break;
                 }
@@ -543,6 +547,15 @@ public class XmindExportUtil {
         });
 
         topic.add(itemTopic);
+    }
+
+    private static String parseTag(String tags) {
+        List list = JSON.parseArray(tags);
+        AtomicReference<String> tag = new AtomicReference<>("");
+        list.forEach(item -> {
+            tag.set(tag.get() + item.toString().concat("|"));
+        });
+        return tag.get().substring(0, tag.get().length() - 1);
     }
 
 
