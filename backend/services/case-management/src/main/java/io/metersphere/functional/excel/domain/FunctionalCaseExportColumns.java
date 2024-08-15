@@ -24,6 +24,7 @@ public class FunctionalCaseExportColumns {
         systemColumns.put("module", Translator.get("case.export.system.columns.module"));
         systemColumns.put("text_description", Translator.get("case.export.system.columns.text_description"));
         systemColumns.put("expected_result", Translator.get("case.export.system.columns.expected_result"));
+        systemColumns.put("tags", Translator.get("xmind_tags"));
 
         // 其他字段
         otherColumns.put("last_execute_result", Translator.get("case.export.system.other.columns.last_execute_result"));

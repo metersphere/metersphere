@@ -229,7 +229,7 @@ public class FunctionalCaseXmindService {
             dto.setNum(item.getNum().toString());
             dto.setProjectId(item.getProjectId());
             dto.setName(item.getName());
-            dto.setTags(item.getTags().toString());
+            dto.setTags(JSON.toJSONString(item.getTags()));
             dto.setCaseEditType(item.getCaseEditType());
             dto.setSteps(new String(functionalCaseBlob.getSteps() == null ? new byte[0] : functionalCaseBlob.getSteps(), StandardCharsets.UTF_8));
             dto.setTextDescription(new String(functionalCaseBlob.getTextDescription() == null ? new byte[0] : functionalCaseBlob.getTextDescription(), StandardCharsets.UTF_8));

@@ -621,6 +621,8 @@ public class FunctionalCaseFileService {
         buildExportStep(data, functionalCaseBlob, functionalCase.getCaseEditType(), textDescriptionList, expectedResultList);
         data.setPrerequisite(new String(functionalCaseBlob.getPrerequisite() == null ? new byte[0] : functionalCaseBlob.getPrerequisite(), StandardCharsets.UTF_8));
 
+        //标签
+        data.setTags(JSON.toJSONString(functionalCase.getTags()));
         // 设置超链接
         WriteCellData<String> hyperlink = new WriteCellData<>(functionalCase.getName());
         data.setHyperLinkName(hyperlink);
