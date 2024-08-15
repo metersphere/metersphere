@@ -769,6 +769,8 @@ public class ApiTestCaseService extends MoveNodeService {
 
         // 设置环境
         apiParamConfig.setEnvConfig(environmentService.get(envId));
+
+        taskRequest.getTaskInfo().getRunModeConfig().setEnvironmentId(envId);
         // 设置 method 等信息
         apiCommonService.setApiDefinitionExecuteInfo(runRequest.getTestElement(), apiDefinition);
 

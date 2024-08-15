@@ -2,10 +2,7 @@ package io.metersphere.api.service;
 
 import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.constants.ApiScenarioStatus;
-import io.metersphere.api.domain.ApiReport;
-import io.metersphere.api.domain.ApiScenario;
-import io.metersphere.api.domain.ApiScenarioReport;
-import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.share.ApiReportShareRequest;
 import io.metersphere.api.dto.share.ShareInfoDTO;
 import io.metersphere.api.mapper.*;
@@ -20,6 +17,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
 import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.NoticeModel;
@@ -59,6 +57,8 @@ public class ApiReportSendNoticeService {
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
 
     public void sendNotice(ApiNoticeDTO noticeDTO) {
         String noticeType = null;
@@ -122,7 +122,21 @@ public class ApiReportSendNoticeService {
                 return;
             }
 
-            beanMap = new BeanMap(testCase);
+            ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(testCase.getApiDefinitionId());
+
+            ApiDefinitionCaseDTO caseDTO = BeanUtils.copyBean(new ApiDefinitionCaseDTO(), testCase);
+            caseDTO.setCaseName(testCase.getName());
+            caseDTO.setCaseStatus(getTranslateStatus(testCase.getStatus()));
+            caseDTO.setCaseCreateTime(testCase.getCreateTime());
+            caseDTO.setCaseCreateUser(testCase.getCreateUser());
+            caseDTO.setCaseUpdateTime(testCase.getUpdateTime());
+            caseDTO.setCaseUpdateUser(testCase.getUpdateUser());
+            caseDTO.setLastReportStatus(getTranslateReportStatus(report.getStatus()));
+
+            caseDTO.setPath(apiDefinition.getPath());
+            caseDTO.setMethod(apiDefinition.getMethod());
+
+            beanMap = new BeanMap(caseDTO);
 
             // TODO 是否需要区分场景和用例
             noticeType = NoticeConstants.TaskType.API_DEFINITION_TASK;
@@ -145,29 +159,12 @@ public class ApiReportSendNoticeService {
         Map paramMap = new HashMap<>(beanMap);
         noticeSendService.setLanguage(user.getLanguage());
         paramMap.put(NoticeConstants.RelatedUser.OPERATOR, user != null ? user.getName() : "");
-        // TODO 是否需要国际化   根据状态判断给不同的key
-        String status = paramMap.containsKey("status") ? paramMap.get("status").toString() : null;
-        if (StringUtils.isNotBlank(status)) {
-            if (List.of(ApiScenarioStatus.UNDERWAY.name(), ApiDefinitionStatus.PROCESSING.name()).contains(status)) {
-                status = Translator.get("api_definition.status.ongoing");
-            } else if (List.of(ApiScenarioStatus.COMPLETED.name(), ApiDefinitionStatus.DONE.name()).contains(status)) {
-                status = Translator.get("api_definition.status.completed");
-            } else if (StringUtils.equals(ApiScenarioStatus.DEPRECATED.name(), status)) {
-                status = Translator.get("api_definition.status.abandoned");
-            } else if (StringUtils.equals(ApiDefinitionStatus.DEBUGGING.name(), status)) {
-                status = Translator.get("api_definition.status.continuous");
-            }
-        }
 
+        String status = paramMap.containsKey("status") ? paramMap.get("status").toString() : null;
+        status = getTranslateStatus(status);
 
         String reportStatus = report.getStatus();
-        if (StringUtils.endsWithIgnoreCase(reportStatus, ResultStatus.SUCCESS.name())) {
-            reportStatus = Translator.get("report.status.success");
-        } else if (StringUtils.endsWithIgnoreCase(reportStatus, ResultStatus.FAKE_ERROR.name())) {
-            reportStatus = Translator.get("report.status.fake_error");
-        } else {
-            reportStatus = Translator.get("report.status.error");
-        }
+        reportStatus = getTranslateReportStatus(reportStatus);
 
         paramMap.put("status", status);
         paramMap.put("reportName", report.getName());
@@ -187,8 +184,6 @@ public class ApiReportSendNoticeService {
         paramMap.put("requestPassRate", report.getRequestPassRate());
         paramMap.put("assertionPassRate", report.getAssertionPassRate());
 
-        // TODO 这里状态是否是国际化  还有分享链接需要补充
-
         // TODO 暂时取一个环境处理
         String environmentId = noticeDTO.getRunModeConfig().getEnvironmentId();
         if (StringUtils.isNotEmpty(environmentId)) {
@@ -202,6 +197,7 @@ public class ApiReportSendNoticeService {
         paramMap.put("reportUrl", reportUrl);
 
         paramMap.put("scenarioShareUrl", shareUrl);
+        paramMap.put("shareUrl", shareUrl);
 
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
         String template = defaultTemplateMap.get(noticeType + "_" + event);
@@ -211,5 +207,31 @@ public class ApiReportSendNoticeService {
                 .context(template).subject(subject).paramMap(paramMap).event(event).build();
 
         noticeSendService.send(project, noticeType, noticeModel);
+    }
+
+    private String getTranslateReportStatus(String reportStatus) {
+        if (StringUtils.endsWithIgnoreCase(reportStatus, ResultStatus.SUCCESS.name())) {
+            reportStatus = Translator.get("report.status.success");
+        } else if (StringUtils.endsWithIgnoreCase(reportStatus, ResultStatus.FAKE_ERROR.name())) {
+            reportStatus = Translator.get("report.status.fake_error");
+        } else {
+            reportStatus = Translator.get("report.status.error");
+        }
+        return reportStatus;
+    }
+
+    private String getTranslateStatus(String status) {
+        if (StringUtils.isNotBlank(status)) {
+            if (List.of(ApiScenarioStatus.UNDERWAY.name(), ApiDefinitionStatus.PROCESSING.name()).contains(status)) {
+                status = Translator.get("api_definition.status.ongoing");
+            } else if (List.of(ApiScenarioStatus.COMPLETED.name(), ApiDefinitionStatus.DONE.name()).contains(status)) {
+                status = Translator.get("api_definition.status.completed");
+            } else if (StringUtils.equals(ApiScenarioStatus.DEPRECATED.name(), status)) {
+                status = Translator.get("api_definition.status.abandoned");
+            } else if (StringUtils.equals(ApiDefinitionStatus.DEBUGGING.name(), status)) {
+                status = Translator.get("api_definition.status.continuous");
+            }
+        }
+        return status;
     }
 }
