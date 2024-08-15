@@ -56,7 +56,7 @@ public class XMindCaseParser {
     private List<BaseTreeNode> moduleTree;
     private SessionUser user;
     private Map<String, String> pathMap = new HashMap<>();
-    protected static final int TAGS_COUNT = 15;
+    protected static final int TAGS_COUNT = 10;
     protected static final int TAG_LENGTH = 64;
     protected static final int STEP_LENGTH = 1000;
     private AtomicLong lastPos;
@@ -80,8 +80,8 @@ public class XMindCaseParser {
 
     private final List<String> priorityList = Arrays.asList("P0", "P1", "P2", "P3");
 
-    private static final String ID = "(?:id:|id：)";
-    private static final String CASE = "(?:CASE-|case-)";
+    private static final String ID = "(?:id:|id：|Id:|Id：|iD:|iD：)";
+    private static final String CASE = "((?i)case)";
     private static final String PREREQUISITE = "(?:" + Translator.get("xmind_prerequisite") + ":|" + Translator.get("xmind_prerequisite") + "：)";
     private static final String STEP = "(?:" + Translator.get("xmind_step") + ":|" + Translator.get("xmind_step") + "：)";
     private static final String STEP_DESCRIPTION = Translator.get("xmind_stepDescription");
@@ -129,6 +129,10 @@ public class XMindCaseParser {
                 // 格式化一个用例
                 this.formatTestCase(item.getTitle(), parent.getPath(), item.getChildren() != null ? item.getChildren().getAttached() : null);
             } else {
+                if (StringUtils.equalsIgnoreCase(parent.getPath().trim(), Translator.get("functional_case.module.default.name"))) {
+                     process.parse(replace(item.getTitle(), CASE) + "：" + Translator.get("functional_case.module.default.name.add_error"));
+                    return;
+                }
                 String nodePath = parent.getPath().trim() + "/" + item.getTitle().trim();
                 item.setPath(nodePath);
                 item.setParent(parent);
@@ -250,7 +254,11 @@ public class XMindCaseParser {
     private boolean validateCustomField(FunctionalCaseExcelData data) {
         boolean validate = true;
         Map<String, Object> customData = data.getCustomData();
+        boolean hasPriority = false;
         for (String fieldName : customData.keySet()) {
+            if (StringUtils.equalsIgnoreCase(fieldName, Translator.get("custom_field.functional_priority"))) {
+                hasPriority = true;
+            }
             Object value = customData.get(fieldName);
             TemplateCustomFieldDTO templateCustomFieldDTO = customFieldsMap.get(fieldName);
             if (templateCustomFieldDTO == null) {
@@ -267,6 +275,10 @@ public class XMindCaseParser {
                 validate = false;
                 process.add(data.getName(), e.getMessage());
             }
+        }
+        if (!hasPriority) {
+            validate = false;
+            process.add(data.getName(), Translator.get("priority_is_null"));
         }
         return validate;
     }
@@ -307,6 +319,10 @@ public class XMindCaseParser {
         }
         // 用例名称
         String name = title.replace(tcArrs[0] + "：", StringUtils.EMPTY).replace(tcArrs[0] + ":", StringUtils.EMPTY);
+        if (name.length()>=255) {
+            process.add(Translator.get("test_case_name") + Translator.get("length.too.large"), title);
+            return;
+        }
         testCase.setName(name);
         nodePath = nodePath.trim();
         if (!nodePath.startsWith("/")) {
@@ -316,22 +332,6 @@ public class XMindCaseParser {
             nodePath = nodePath.substring(0, nodePath.length() - 1);
         }
         testCase.setModule(nodePath);
-        // 用例等级和用例性质处理
-        if (tcArrs[0].contains("-")) {
-            for (String item : tcArrs[0].split("-")) {
-                if (item.toUpperCase().startsWith("P")) {
-                    Map<String, Object> customData = new LinkedHashMap<>();
-                    // 用例等级和用例性质处理
-                    if (!priorityList.contains(item.toUpperCase())) {
-                        process.add(title, Translator.get("test_case_priority") + Translator.get("incorrect_format"));
-                        customData.put("priority", "P0");
-                    } else {
-                        customData.put("priority", item.toUpperCase());
-                    }
-                    testCase.setCustomData(customData);
-                }
-            }
-        }
 
         // 用例id， blobs， tags, 自定义字段处理
         StringBuilder customId = new StringBuilder();
@@ -346,8 +346,11 @@ public class XMindCaseParser {
                 } else if (isAvailable(item.getTitle(), TEXT_DESCRIPTION)) {
                     testCase.setTextDescription(replace(item.getTitle(), TEXT_DESCRIPTION));
                     testCase.setCaseEditType(FunctionalCaseTypeConstants.CaseEditType.TEXT.name());
+                    if (item.getChildren() != null) {
+                        testCase.setExpectedResult(getTextSteps(item.getChildren().getAttached()));
+                    }
                 } else if (isAvailable(item.getTitle(), DESCRIPTION)) {
-                    testCase.setTextDescription(replace(item.getTitle(), DESCRIPTION));
+                    testCase.setDescription(replace(item.getTitle(), DESCRIPTION));
                 } else if (isAvailable(item.getTitle(), TAGS)) {
                     String tag = replace(item.getTitle(), TAGS);
                     if (StringUtils.isBlank(tag)) {
@@ -366,16 +369,16 @@ public class XMindCaseParser {
                     }
                 } else {
                     //自定义字段
-                    String[] customFiled = item.getTitle().split("(?::|：)");
+                    String[] customFiled = item.getTitle().split("(?:\\s*:|：)");
                     Map<String, Object> stringObjectMap = testCase.getCustomData();
                     if (customFiled.length > 1) {
                         TemplateCustomFieldDTO templateCustomFieldDTO = customFieldsMap.get(customFiled[0]);
-                        if (templateCustomFieldDTO == null) {
-                            stringObjectMap.put(customFiled[0], customFiled[1]);
+                        if (templateCustomFieldDTO != null) {
+                            stringObjectMap.put(customFiled[0], customFiled[1].replaceAll("^\\s+", ""));
                         }
                     } else {
                         TemplateCustomFieldDTO templateCustomFieldDTO = customFieldsMap.get(customFiled[0]);
-                        if (templateCustomFieldDTO == null) {
+                        if (templateCustomFieldDTO != null) {
                             stringObjectMap.put(customFiled[0], StringUtils.EMPTY);
                         }
                     }
@@ -423,6 +426,7 @@ public class XMindCaseParser {
                 }
                 if (functionalCaseStepDTO.getDesc().length() > STEP_LENGTH) {
                     process.add(caseName, Translator.get("step_length"));
+                    functionalCaseStepDTO.setResult(StringUtils.EMPTY);
                     return JSON.toJSONString(functionalCaseStepDTOS);
                 }
                 if (attacheds.get(i) != null && attacheds.get(i).getChildren() != null && attacheds.get(i).getChildren().getAttached() != null) {
@@ -435,7 +439,7 @@ public class XMindCaseParser {
                         functionalCaseStepDTO.setResult(StringUtils.EMPTY);
                     }
                 }
-                if (functionalCaseStepDTO.getResult().length() > STEP_LENGTH) {
+                if (StringUtils.isNotBlank(functionalCaseStepDTO.getResult()) && functionalCaseStepDTO.getResult().length() > STEP_LENGTH) {
                     process.add(caseName, Translator.get("result_length"));
                     return JSON.toJSONString(functionalCaseStepDTOS);
                 }
@@ -451,6 +455,24 @@ public class XMindCaseParser {
             functionalCaseStepDTOS.add(functionalCaseStepDTO);
         }
         return JSON.toJSONString(functionalCaseStepDTOS);
+    }
+    /**
+     * 获取步骤数据
+     */
+    private String getTextSteps(List<Attached> attacheds) {
+        if (attacheds.get(0) != null) {
+            String title = attacheds.get(0).getTitle();
+            if (isAvailable(title, EXPECTED_RESULT)) {
+                String stepDesc = title.replace("：", ":");
+                String[] stepDescArrs = stepDesc.split(":");
+                return StringUtils.isNotBlank(stepDescArrs[1]) ? stepDescArrs[1] : StringUtils.EMPTY;
+            } else {
+                return StringUtils.EMPTY;
+            }
+        } else {
+            return StringUtils.EMPTY;
+        }
+
     }
 
     /**
@@ -469,6 +491,9 @@ public class XMindCaseParser {
                             return process.parse(replace(item.getTitle(), CASE) + "：" + Translator.get("test_case_create_module_fail"));
                         } else {
                             String modulePath = item.getTitle();
+                            if (StringUtils.isBlank(modulePath)) {
+                                return process.parse(replace(item.getTitle(), CASE) + "：" + Translator.get("module_not_null"));
+                            }
                             item.setPath(modulePath);
                             if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
                                 // 递归处理案例数据
