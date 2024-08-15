@@ -569,6 +569,12 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
         return true;
       }
       if (node.data?.resource?.includes(moduleTag)) {
+        if (node.data?.id === 'root') {
+          // 未规划节点下只能粘贴用例
+          if (!nodes.every((e) => e.data?.resource?.includes(caseTag))) {
+            return true;
+          }
+        }
         //  NONE 虚拟模块下，只能粘贴模块
         if (node.data?.id === 'NONE' && nodes.every((e) => e.data?.resource?.includes(moduleTag))) {
           return false;
