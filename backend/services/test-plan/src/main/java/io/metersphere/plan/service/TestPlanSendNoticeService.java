@@ -8,6 +8,8 @@ import io.metersphere.plan.dto.TestPlanShareInfo;
 import io.metersphere.plan.dto.request.TestPlanCreateRequest;
 import io.metersphere.plan.dto.request.TestPlanReportShareRequest;
 import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
+import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
+import io.metersphere.plan.enums.TestPlanStatus;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanFollowerMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
@@ -64,6 +66,8 @@ public class TestPlanSendNoticeService {
 	private ProjectMapper projectMapper;
 	@Resource
 	private TestPlanReportShareService testPlanReportShareService;
+	@Resource
+	private TestPlanStatisticsService testPlanStatisticsService;
 
 	public void sendNoticeCase(List<String> relatedUsers, String userId, String caseId, String task, String event, String testPlanId) {
 		FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(caseId);
@@ -232,6 +236,7 @@ public class TestPlanSendNoticeService {
 	 */
 	private TestPlanMessageDTO buildMessageNotice(String planId, TestPlanReport report, String currentUser) {
 		TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
+		TestPlanStatisticsResponse statistics = testPlanStatisticsService.calculateRate(List.of(planId)).getFirst();
 		// 报告URL
 		Project project = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
 		SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
@@ -247,15 +252,15 @@ public class TestPlanSendNoticeService {
 		shareRequest.setShareType("TEST_PLAN_SHARE_REPORT");
 		TestPlanShareInfo shareInfo = testPlanReportShareService.gen(shareRequest, currentUser);
 		String reportShareUrl = baseSystemConfigDTO.getUrl() + "/#/share/shareReportTestPlan?type=" +
-				(report.getIntegrated() ? TestPlanConstants.TEST_PLAN_TYPE_GROUP : TestPlanConstants.TEST_PLAN_TYPE_PLAN) + "shareId=" + shareInfo.getId();
+				(report.getIntegrated() ? TestPlanConstants.TEST_PLAN_TYPE_GROUP : TestPlanConstants.TEST_PLAN_TYPE_PLAN) + "&shareId=" + shareInfo.getId();
 		return TestPlanMessageDTO.builder()
-				.num(testPlan.getNum().toString()).name(testPlan.getName()).status(testPlan.getStatus()).type(testPlan.getType()).tags(testPlan.getTags())
+				.num(testPlan.getNum().toString()).name(testPlan.getName()).status(TestPlanStatus.getI18nText(statistics.getStatus())).type(testPlan.getType()).tags(testPlan.getTags())
 				.createUser(testPlan.getCreateUser()).createTime(testPlan.getCreateTime()).updateUser(testPlan.getUpdateUser()).updateTime(testPlan.getUpdateTime())
 				.plannedStartTime(testPlan.getPlannedStartTime()).plannedEndTime(testPlan.getPlannedEndTime())
 				.actualStartTime(testPlan.getActualStartTime()).actualEndTime(testPlan.getActualEndTime())
 				.description(testPlan.getDescription()).reportName(report.getName()).reportUrl(reportUrl).reportShareUrl(reportShareUrl)
-				.startTime(report.getStartTime()).endTime(report.getEndTime()).execStatus(report.getExecStatus()).resultStatus(report.getResultStatus())
-				.passRate(report.getPassRate()).passThreshold(report.getPassThreshold()).executeRate(report.getExecuteRate())
+				.startTime(report.getStartTime()).endTime(report.getEndTime()).execStatus(TestPlanStatus.getI18nText(report.getExecStatus()))
+				.resultStatus(TestPlanStatus.getI18nText(report.getResultStatus())).passRate(report.getPassRate()).passThreshold(report.getPassThreshold()).executeRate(report.getExecuteRate())
 				.build();
 	}
 }
