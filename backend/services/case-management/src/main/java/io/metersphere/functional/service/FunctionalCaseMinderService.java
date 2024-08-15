@@ -814,6 +814,13 @@ public class FunctionalCaseMinderService {
                 //查出已存在同层级的节点
                 Map<String, List<FunctionalCaseModule>> parentIdInDBMap = getParentIdInDBMap(addList,request.getProjectId());
                 for (FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest : addList) {
+                    //加限制
+                    if (StringUtils.equalsIgnoreCase(functionalCaseModuleEditRequest.getParentId(), "root")) {
+                        throw new MSException(Translator.get("functional_case.module.default.name.add_error"));
+                    }
+                    if(StringUtils.equalsIgnoreCase(functionalCaseModuleEditRequest.getName(),Translator.get("functional_case.module.default.name")) && StringUtils.equalsIgnoreCase(functionalCaseModuleEditRequest.getParentId(), "NONE")){
+                        throw new MSException(Translator.get("node.name.repeat"));
+                    }
                     FunctionalCaseModule functionalCaseModule = buildModule(request, userId, functionalCaseModuleEditRequest);
                     modules.add(functionalCaseModule);
                     sourceIdAndInsertIdMap.put(functionalCaseModuleEditRequest.getId(), functionalCaseModule.getId());
@@ -833,6 +840,10 @@ public class FunctionalCaseMinderService {
                 List<FunctionalCaseModule> modules = new ArrayList<>();
                 Map<String, List<FunctionalCaseModule>> parentIdInDBMap = getParentIdInDBMap(updateList, request.getProjectId());
                 for (FunctionalCaseModuleEditRequest functionalCaseModuleEditRequest : updateList) {
+                    //加限制
+                    if (StringUtils.equalsIgnoreCase(functionalCaseModuleEditRequest.getParentId(), "root")) {
+                        throw new MSException(Translator.get("functional_case.module.default.name.add_error"));
+                    }
                     FunctionalCaseModule updateModule = updateModule(userId, functionalCaseModuleEditRequest);
                     modules.add(updateModule);
                     updateTargetIdsMap(functionalCaseModuleEditRequest.getId(), functionalCaseModuleEditRequest.getTargetId(), sourceIdAndTargetIdsMap);
