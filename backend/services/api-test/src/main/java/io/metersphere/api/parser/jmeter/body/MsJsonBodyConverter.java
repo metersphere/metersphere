@@ -128,7 +128,7 @@ public class MsJsonBodyConverter extends MsBodyConverter<JsonBody> {
      * @return
      */
     protected String replaceMockComma(String text) {
-        String pattern = "\\$\\{__Mock\\((.+)\\)\\}";
+        String pattern = "\\$\\{__Mock\\((.+?)\\)\\}";
         Pattern regex = Pattern.compile(pattern);
         Matcher matcher = regex.matcher(text);
         while (matcher.find()) {
