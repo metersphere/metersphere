@@ -683,7 +683,6 @@
     right: 16px;
     height: 48px;
     line-height: 48px;
-    @apply bg-white;
   }
   :deep(.arco-menu-light) {
     height: 50px;

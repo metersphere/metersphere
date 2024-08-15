@@ -883,4 +883,15 @@
   :deep(.arco-form-item-content) {
     overflow-wrap: anywhere;
   }
+  :deep(.label-validate-star) {
+    .arco-form-item-label::after {
+      display: inline-block;
+      margin-top: -3px;
+      content: '';
+      width: 7px;
+      height: 7px;
+      vertical-align: middle;
+      background: url('@/assets/svg/icons/validateStar.svg') center/cover;
+    }
+  }
 </style>

@@ -3,9 +3,9 @@
     <a-form-item
       field="name"
       :label="t('system.orgTemplate.caseName')"
-      :rules="[{ required: true, message: t('system.orgTemplate.caseNamePlaceholder') }]"
-      required
+      :rules="[{ required: props.isDisabled, message: t('system.orgTemplate.caseNamePlaceholder') }]"
       asterisk-position="end"
+      :class="`${props.isDisabled ? '' : 'label-validate-star'}`"
     >
       <a-input
         v-model="form.name"

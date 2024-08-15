@@ -3,7 +3,9 @@
     <a-form-item
       field="title"
       :label="t('bugManagement.bugName')"
-      :rules="[{ required: true, message: t('bugManagement.edit.nameIsRequired') }]"
+      :rules="[{ required: props.isDisabled, message: t('bugManagement.edit.nameIsRequired') }]"
+      :class="`${props.isDisabled ? '' : 'label-validate-star'}`"
+      asterisk-position="end"
     >
       <a-input
         v-model="form.title"
