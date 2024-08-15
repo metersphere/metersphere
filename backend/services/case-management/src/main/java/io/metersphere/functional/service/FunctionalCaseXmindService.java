@@ -17,27 +17,28 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.constants.ExportConstants;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.manager.ExportTaskManager;
+import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.service.NoticeSendService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -65,6 +66,10 @@ public class FunctionalCaseXmindService {
     private static final String XMIND = "xmind";
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private NoticeSendService noticeSendService;
+    @Resource
+    private UserMapper userMapper;
 
     public void downloadXmindTemplate(String projectId, HttpServletResponse response) {
         List<TemplateCustomFieldDTO> customFields = functionalCaseFileService.getCustomFields(projectId);
@@ -121,6 +126,8 @@ public class FunctionalCaseXmindService {
         File dir = null;
         File tmpFile = null;
         try {
+            User user = userMapper.selectByPrimaryKey(userId);
+            noticeSendService.setLanguage(user.getLanguage());
             FunctionalCaseXmindData xmindData = buildXmindData(ids, request);
             dir = new File(LocalRepositoryDir.getSystemTempDir());
             if (!dir.exists() && !dir.mkdir()) {

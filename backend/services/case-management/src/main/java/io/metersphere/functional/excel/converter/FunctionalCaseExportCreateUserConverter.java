@@ -7,7 +7,6 @@ import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.system.domain.User;
-import io.metersphere.system.utils.SessionUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,9 +19,9 @@ public class FunctionalCaseExportCreateUserConverter implements FunctionalCaseEx
 
     public Map<String, String> userMap = new HashMap<>();
 
-    public FunctionalCaseExportCreateUserConverter() {
+    public FunctionalCaseExportCreateUserConverter(String projectId) {
         ProjectApplicationService projectApplicationService = CommonBeanFactory.getBean(ProjectApplicationService.class);
-        List<User> memberOption = projectApplicationService.getProjectUserList(SessionUtils.getCurrentProjectId());
+        List<User> memberOption = projectApplicationService.getProjectUserList(projectId);
         memberOption.forEach(option -> userMap.put(option.getId(), option.getName()));
     }
 

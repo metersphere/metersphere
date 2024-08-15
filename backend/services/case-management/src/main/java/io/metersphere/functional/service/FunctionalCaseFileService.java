@@ -42,6 +42,7 @@ import io.metersphere.sdk.util.*;
 import io.metersphere.system.constants.ExportConstants;
 import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.domain.SystemParameter;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
@@ -52,7 +53,9 @@ import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.manager.ExportTaskManager;
 import io.metersphere.system.mapper.SystemParameterMapper;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.service.FileService;
+import io.metersphere.system.service.NoticeSendService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
@@ -115,6 +118,10 @@ public class FunctionalCaseFileService {
     private static final String ZIP = "zip";
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private NoticeSendService noticeSendService;
+    @Resource
+    private UserMapper userMapper;
 
     /**
      * 下载excel导入模板
@@ -435,6 +442,8 @@ public class FunctionalCaseFileService {
         File tmpDir = null;
         String fileType = "";
         try {
+            User user = userMapper.selectByPrimaryKey(userId);
+            noticeSendService.setLanguage(user.getLanguage());
             tmpDir = new File(LocalRepositoryDir.getSystemTempDir() + File.separatorChar + EXPORT_CASE_TMP_DIR + "_" + IDGenerator.nextStr());
             if (!tmpDir.exists() && !tmpDir.mkdirs()) {
                 throw new MSException(Translator.get("upload_fail"));
@@ -693,7 +702,7 @@ public class FunctionalCaseFileService {
         }
         List<FunctionalCaseHeader> otherFields = request.getOtherFields();
         List<String> keys = otherFields.stream().map(FunctionalCaseHeader::getId).toList();
-        Map<String, FunctionalCaseExportConverter> converterMaps = FunctionalCaseExportConverterFactory.getConverters(keys);
+        Map<String, FunctionalCaseExportConverter> converterMaps = FunctionalCaseExportConverterFactory.getConverters(keys, request.getProjectId());
         HashMap<String, String> other = new HashMap<>();
         otherFields.forEach(header -> {
             FunctionalCaseExportConverter converter = converterMaps.get(header.getId());
