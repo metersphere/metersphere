@@ -54,19 +54,23 @@ export default function useMinderOperation(options: MinderOperationProps) {
    * 执行复制
    */
   const minderCopy = async (e?: ClipboardEvent) => {
-    if ((!options.canShowMoreMenu || !options.canShowMoreMenuNodeOperation) && options.canShowBatchCopy === false) {
+    const { editor } = window;
+    const { minder, fsm } = editor;
+    const selectedNodes: MinderJsonNode[] = minder.getSelectedNodes();
+    if (
+      !options.canShowMoreMenu ||
+      !options.canShowMoreMenuNodeOperation ||
+      (selectedNodes.length > 1 && options.canShowBatchCopy === false)
+    ) {
       e?.preventDefault();
       return;
     }
-    const { editor } = window;
-    const { minder, fsm } = editor;
     const state = fsm.state();
     switch (state) {
       case 'input': {
         break;
       }
       case 'normal': {
-        const selectedNodes = minder.getSelectedNodes();
         minderStore.dispatchEvent(MinderEventName.COPY_NODE, undefined, undefined, undefined, selectedNodes);
         if (e?.clipboardData) {
           e.clipboardData.setData('text/plain', encode(selectedNodes));
@@ -87,15 +91,18 @@ export default function useMinderOperation(options: MinderOperationProps) {
    * 执行剪切
    */
   const minderCut = async (e?: ClipboardEvent) => {
+    const { editor } = window;
+    const { minder, fsm } = editor;
+    const selectedNodes: MinderJsonNode[] = minder.getSelectedNodes();
     if (
-      (options.disabled || !options.canShowMoreMenu || !options.canShowMoreMenuNodeOperation) &&
-      options.canShowBatchCut === false
+      options.disabled ||
+      !options.canShowMoreMenu ||
+      !options.canShowMoreMenuNodeOperation ||
+      (selectedNodes.length > 1 && options.canShowBatchCut === false)
     ) {
       e?.preventDefault();
       return;
     }
-    const { editor } = window;
-    const { minder, fsm } = editor;
     if (minder.getStatus() !== 'normal') {
       e?.preventDefault();
       return;
@@ -107,7 +114,6 @@ export default function useMinderOperation(options: MinderOperationProps) {
       }
       case 'normal': {
         markDeleteNode(minder);
-        const selectedNodes: MinderJsonNode[] = minder.getSelectedNodes();
         if (selectedNodes.length) {
           const newNodes = selectedNodes.map((node) => ({
             ...node,
