@@ -14,6 +14,10 @@ import java.util.Map;
 public class FunctionalCaseExportUpdateUserConverter extends FunctionalCaseExportCreateUserConverter {
 
 
+    public FunctionalCaseExportUpdateUserConverter(String projectId) {
+        super(projectId);
+    }
+
     @Override
     public String parse(FunctionalCase functionalCase, Map<String, List<FunctionalCaseComment>> caseCommentMap, Map<String, List<TestPlanCaseExecuteHistory>> executeCommentMap, Map<String, List<CaseReviewHistory>> reviewCommentMap) {
         return getFromMapOfNullable(userMap, functionalCase.getUpdateUser());
