@@ -39,7 +39,6 @@
               v-model:model-value="record.expression"
               class="ms-params-input"
               :max-length="255"
-              size="mini"
               :disabled="props.disabled"
               :placeholder="t('apiTestDebug.commonPlaceholder')"
               @input="() => handleExpressionChange(rowIndex)"
@@ -62,7 +61,7 @@
                         ? 'ms-params-input-suffix-icon--disabled'
                         : 'ms-params-input-suffix-icon'
                     "
-                    @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.JSON_PATH)"
+                    @click.stop="() => showFastExtraction(record)"
                   />
                 </a-tooltip>
               </template>
@@ -147,7 +146,6 @@
               :disabled="props.disabled"
               class="ms-params-input"
               :max-length="255"
-              size="mini"
               :placeholder="t('apiTestDebug.commonPlaceholder')"
               @input="() => handleExpressionChange(rowIndex)"
               @change="() => handleExpressionChange(rowIndex)"
@@ -168,7 +166,7 @@
                         ? 'ms-params-input-suffix-icon--disabled'
                         : 'ms-params-input-suffix-icon'
                     "
-                    @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.X_PATH)"
+                    @click.stop="() => showFastExtraction(record)"
                   />
                 </a-tooltip>
               </template>
@@ -294,7 +292,6 @@
               :disabled="props.disabled"
               class="ms-params-input"
               :max-length="255"
-              size="mini"
               @input="() => handleExpressionChange(rowIndex)"
               @change="() => handleExpressionChange(rowIndex)"
             >
@@ -314,7 +311,7 @@
                         ? 'ms-params-input-suffix-icon--disabled'
                         : 'ms-params-input-suffix-icon'
                     "
-                    @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.REGEX)"
+                    @click.stop="() => showFastExtraction(record)"
                   />
                 </a-tooltip>
               </template>
@@ -378,14 +375,8 @@
     insertNode,
   } from '@/utils/tree';
 
-  import {
-    ExecuteConditionProcessor,
-    ExpressionType,
-    JSONPathExtract,
-    RegexExtract,
-    XPathExtract,
-  } from '@/models/apiTest/common';
-  import { RequestExtractExpressionEnum, ResponseBodyAssertionType } from '@/enums/apiEnum';
+  import { ExecuteConditionProcessor, JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/common';
+  import { ResponseBodyAssertionType } from '@/enums/apiEnum';
 
   import {
     defaultAssertParamsItem,
@@ -638,7 +629,6 @@
   ];
 
   const documentDefaultParamItem = {
-    id: new Date().getTime(),
     paramsName: '',
     mustInclude: false,
     typeChecking: false,
@@ -816,9 +806,9 @@
     }
   }
 
-  function showFastExtraction(record: ExpressionConfig, type: ExpressionType) {
+  function showFastExtraction(record: ExpressionConfig) {
     if (props.disabled || !props.response) return;
-    activeRecord.value = { ...record, extractType: type };
+    activeRecord.value = { ...record };
     fastExtractionVisible.value = true;
   }
   // 新增子项

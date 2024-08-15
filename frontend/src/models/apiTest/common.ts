@@ -184,6 +184,7 @@ export interface ResponseAssertionItem {
   expectedValue?: string;
   expression: string;
   enable?: boolean;
+  extractType?: RequestExtractExpressionEnum;
 }
 // 断言-JSONPath断言子项
 export type ResponseJSONPathAssertionItem = ResponseAssertionItem;

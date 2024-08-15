@@ -199,6 +199,7 @@ export const defaultAssertParamsItem: ResponseAssertionItem = {
   condition: RequestAssertionCondition.EQUALS,
   expectedValue: '',
   enable: true,
+  extractType: RequestExtractExpressionEnum.X_PATH,
 };
 
 // 断言xpath & reg
@@ -230,10 +231,10 @@ export const assertDefaultParamsItem: ResponseAssertionItem = {
 
 // 断言 json默认值
 export const jsonPathDefaultParamItem = {
-  id: '',
   enable: true,
   expression: '',
   expectedValue: '',
+  extractType: RequestExtractExpressionEnum.JSON_PATH,
   condition: EQUAL.value,
   valid: true,
 };
