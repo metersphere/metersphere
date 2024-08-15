@@ -377,7 +377,6 @@
       title: 'system.user.tableColumnUserGroup',
       dataIndex: 'userRoleList',
       slotName: 'userGroup',
-      isTag: true,
       showDrag: true,
       width: 300,
     },

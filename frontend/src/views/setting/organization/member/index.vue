@@ -223,7 +223,7 @@
       dataIndex: 'userRoleIdNameMap',
       showInTable: true,
       showDrag: true,
-      isTag: true,
+      width: 300,
     },
     {
       title: 'organization.member.tableColunmStatus',

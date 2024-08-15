@@ -172,7 +172,6 @@
       slotName: 'userRoles',
       dataIndex: 'userRoles',
       showDrag: true,
-      isTag: true,
       width: 300,
     },
     {
