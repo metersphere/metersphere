@@ -28,19 +28,19 @@
             v-model:model-value="keyword"
             :placeholder="t('caseManagement.caseReview.searchPlaceholder')"
             allow-clear
-            class="mr-[8px] w-[240px]"
+            class="mr-[8px] flex-1"
             @search="loadCaseList"
             @press-enter="loadCaseList"
             @clear="loadCaseList"
           />
-          <a-select
-            v-model:model-value="type"
-            :options="typeOptions"
-            class="w-[92px]"
+          <MsCheckboxDropdown
+            v-model:selectList="type"
             :disabled="onlyMineStatus"
-            @change="loadCaseList"
+            :options="typeOptions"
+            :title="t('caseManagement.featureCase.reviewResult')"
+            @handle-change="handleExecResultChange"
           >
-          </a-select>
+          </MsCheckboxDropdown>
         </div>
         <a-spin :loading="caseListLoading" class="h-[calc(100%-46px)] w-full">
           <div class="case-list">
@@ -290,6 +290,7 @@
 
   import MSAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsCheckboxDropdown from '@/components/pure/ms-checkbox-dropdown/index.vue';
   import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -341,9 +342,9 @@
     }
   }
 
-  const type = ref('');
+  const type = ref<string[]>([]);
+  const tableFilter = ref();
   const typeOptions = ref([
-    { label: t('common.all'), value: '' },
     { label: t(reviewResultMap.UN_REVIEWED.label), value: 'UN_REVIEWED' },
     { label: t(reviewResultMap.PASS.label), value: 'PASS' },
     { label: t(reviewResultMap.UN_PASS.label), value: 'UN_PASS' },
@@ -374,11 +375,10 @@
         keyword: keyword.value,
         current: pageNation.value.current || 1,
         pageSize: pageNation.value.pageSize,
-        filter: type.value
-          ? {
-              status: [type.value],
-            }
-          : undefined,
+        filter: {
+          ...tableFilter.value,
+          status: type.value,
+        },
         ...otherListQueryParams.value,
       });
       caseList.value = res.list;
@@ -389,6 +389,11 @@
     } finally {
       caseListLoading.value = false;
     }
+  }
+
+  function handleExecResultChange(val: string[]) {
+    type.value = val;
+    loadCaseList();
   }
 
   watch(
@@ -526,8 +531,8 @@
 
   watch(
     () => activeCaseId.value,
-    () => {
-      loadCaseDetail();
+    async () => {
+      await loadCaseDetail();
       initReviewerAndStatus();
       initReviewHistoryList();
     }
@@ -555,7 +560,7 @@
       const index = caseList.value.findIndex((e) => e.caseId === activeCaseId.value);
 
       // 如果过滤的状态和评审状态不一样，则这条将从当前列表排除
-      const oneMissingCase = type.value !== '' && status !== type.value;
+      const oneMissingCase = type.value.length && !type.value.includes(status);
       if (oneMissingCase) {
         if ((pageNation.value.current - 1) * pageNation.value.pageSize + index + 1 < pageNation.value.total) {
           // 不是最后一个
@@ -583,14 +588,14 @@
         // 当前是最后一个，刷新数据
         loadCaseDetail();
         initReviewHistoryList();
-        loadCaseList();
+        await loadCaseList();
         initReviewerAndStatus();
       }
     } else {
       // 不自动下一个才请求详情
       loadCaseDetail();
       initReviewHistoryList();
-      loadCaseList();
+      await loadCaseList();
       initReviewerAndStatus();
     }
   }
@@ -611,6 +616,7 @@
         current,
         viewFlag: _onlyMine,
         keyword: _keyword,
+        filter,
         combine,
         sort,
         searchMode,
@@ -623,6 +629,8 @@
       };
       viewFlag.value = !!_onlyMine;
       keyword.value = _keyword;
+      tableFilter.value = filter;
+      type.value = filter.status;
       otherListQueryParams.value = {
         combine,
         sort,
@@ -633,7 +641,7 @@
       keyword.value = route.query.reviewId as string;
     }
     await initDetail();
-    loadCase();
+    await loadCase();
     initReviewerAndStatus();
     if (showTab.value === 'detail') {
       initReviewHistoryList();

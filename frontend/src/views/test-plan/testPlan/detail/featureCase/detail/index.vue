@@ -14,18 +14,21 @@
             v-model:model-value="keyword"
             :placeholder="t('caseManagement.caseReview.searchPlaceholder')"
             allow-clear
-            class="mr-[8px] w-[176px]"
+            class="mr-[8px] flex-1"
             @search="loadCaseList"
             @press-enter="loadCaseList"
             @clear="loadCaseList"
           />
-          <a-select
-            v-model:model-value="lastExecResult"
+          <MsCheckboxDropdown
+            v-model:selectList="lastExecResult"
             :options="executeResultOptions"
-            class="flex-1"
-            @change="loadCaseList"
+            :title="t('common.executionResult')"
+            @handle-change="handleExecResultChange"
           >
-          </a-select>
+            <template #item="{ filterItem }">
+              <ExecuteResult :execute-result="filterItem.value as LastExecuteResults" />
+            </template>
+          </MsCheckboxDropdown>
         </div>
         <a-spin :loading="caseListLoading" class="w-full flex-1 overflow-hidden">
           <div class="case-list">
@@ -241,6 +244,7 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsCheckboxDropdown from '@/components/pure/ms-checkbox-dropdown/index.vue';
   import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
@@ -302,10 +306,10 @@
   const activeId = ref(route.query.testPlanCaseId as string);
   const canEdit = ref(route.query.canEdit === 'true');
   const keyword = ref('');
-  const lastExecResult = ref('');
+  const lastExecResult = ref<string[]>([]);
+  const tableFilter = ref();
   const executeResultOptions = computed(() => {
     return [
-      { label: t('common.all'), value: '' },
       ...Object.keys(executionResultMap).map((key) => {
         return {
           value: key,
@@ -331,11 +335,10 @@
         keyword: keyword.value,
         current: pageNation.value.current || 1,
         pageSize: pageNation.value.pageSize,
-        filter: lastExecResult.value
-          ? {
-              lastExecResult: [lastExecResult.value],
-            }
-          : undefined,
+        filter: {
+          ...tableFilter.value,
+          lastExecResult: lastExecResult.value,
+        },
         ...otherListQueryParams.value,
       });
       caseList.value = res.list;
@@ -346,6 +349,11 @@
     } finally {
       caseListLoading.value = false;
     }
+  }
+
+  function handleExecResultChange(val: string[]) {
+    lastExecResult.value = val;
+    loadCaseList();
   }
 
   function goCaseDetail() {
@@ -464,7 +472,7 @@
       const index = caseList.value.findIndex((e) => e.id === activeId.value);
 
       // 如果过滤的状态和执行状态不一样，则这条将从当前列表排除
-      const oneMissingCase = lastExecResult.value !== '' && status !== lastExecResult.value;
+      const oneMissingCase = lastExecResult.value.length && !lastExecResult.value.includes(status);
       if (oneMissingCase) {
         if ((pageNation.value.current - 1) * pageNation.value.pageSize + index + 1 < pageNation.value.total) {
           // 不是最后一个
@@ -594,6 +602,7 @@
         total,
         pageSize,
         current,
+        filter,
         keyword: _keyword,
         sort,
         moduleIds,
@@ -607,6 +616,8 @@
         current,
       };
       keyword.value = _keyword;
+      tableFilter.value = filter;
+      lastExecResult.value = filter.lastExecResult;
       otherListQueryParams.value = {
         sort,
         moduleIds,
