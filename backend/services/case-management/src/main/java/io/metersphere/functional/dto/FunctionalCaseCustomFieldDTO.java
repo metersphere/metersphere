@@ -38,4 +38,7 @@ public class FunctionalCaseCustomFieldDTO implements Serializable {
     @Schema(title = "字段类型")
     private String type;
 
+    @Schema(title = "字段key名")
+    private String internalFieldKey;
+
 }
