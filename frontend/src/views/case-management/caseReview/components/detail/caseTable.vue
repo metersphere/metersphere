@@ -215,7 +215,7 @@
           :label="t('caseManagement.caseReview.reviewResult')"
           class="mb-[16px]"
         >
-          <a-radio-group v-model:model-value="dialogForm.result" @change="() => dialogFormRef?.resetFields()">
+          <a-radio-group v-model:model-value="dialogForm.result">
             <a-radio value="PASS">
               <div class="inline-flex items-center">
                 <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
