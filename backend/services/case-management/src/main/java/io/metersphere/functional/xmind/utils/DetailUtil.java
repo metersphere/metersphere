@@ -62,7 +62,7 @@ public class DetailUtil implements Serializable {
             }
         }
         if (emptyName>0) {
-            ExcelErrData excelErrData = new ExcelErrData(result.size(), "部分用例名称为空，校验失败；");
+            ExcelErrData excelErrData = new ExcelErrData(result.size(), Translator.get("mind_import_case_name_empty"));
             errList.add(excelErrData);
         }
         return errList;

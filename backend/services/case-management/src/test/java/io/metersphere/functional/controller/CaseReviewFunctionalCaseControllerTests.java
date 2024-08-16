@@ -11,6 +11,7 @@ import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.CaseReviewFunctionalCaseService;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseCondition;
@@ -54,6 +55,10 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     public static final String BATCH_EDIT_REVIEWERS = "/case/review/detail/batch/edit/reviewers";
 
     public static final String REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW = "/case/review/detail/batch/review";
+
+    public static final String REVIEW_FUNCTIONAL_CASE_MIND_REVIEW = "/case/review/detail/mind/multiple/review";
+
+
     public static final String URL_MODULE_TREE = "/case/review/detail/tree/";
 
     public static final String REVIEW_FUNCTIONAL_CASE_MODULE_COUNT = "/case/review/detail/module/count";
@@ -456,6 +461,100 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
     @Test
     @Order(9)
+    public void testMindReview() throws Exception {
+
+        MindReviewFunctionalCaseRequest request = new MindReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_3");
+        request.setCaseId("wx_test_5");
+        request.setStatus(FunctionalCaseReviewStatus.PASS.toString());
+        request.setContent("测试批量评审通过");
+        this.requestPost(REVIEW_FUNCTIONAL_CASE_MIND_REVIEW, request).andExpect(status().is5xxServerError());
+
+        request = new MindReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_2");
+        request.setCaseId("gyq_case_id_9");
+        request.setStatus(FunctionalCaseReviewStatus.UN_PASS.toString());
+        request.setContent("测试批量评审失败");
+        this.requestPostWithOk(REVIEW_FUNCTIONAL_CASE_MIND_REVIEW, request);
+
+
+        request = new MindReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_4");
+        request.setCaseId("wx_case_id_4");
+        request.setStatus(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString());
+        request.setContent("测试批量评审人");
+        try {
+            caseReviewFunctionalCaseService.mindReview(request, "666");
+        } catch (Exception e){
+            LogUtils.error(e.getMessage());
+        }
+
+        request = new MindReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_4");
+        request.setCaseId("wx_case_id_2");
+        request.setStatus(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString());
+        request.setContent("测试批量评审人");
+        caseReviewFunctionalCaseService.mindReview(request, "123");
+
+        request = new MindReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_4");
+        request.setCaseId("wx_case_id_2");
+        request.setStatus(FunctionalCaseReviewStatus.UN_PASS.toString());
+        request.setContent("测试批量评审人");
+        caseReviewFunctionalCaseService.mindReview(request, "admin");
+
+
+        request = new MindReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_1");
+        request.setCaseId("gyq_case_id_5");
+        request.setStatus(FunctionalCaseReviewStatus.PASS.toString());
+        request.setNotifier("gyq;admin");
+        request.setContent("测试批量评审通过");
+        this.requestPostWithOk(REVIEW_FUNCTIONAL_CASE_MIND_REVIEW, request);
+        CaseReviewFunctionalCase caseReviewFunctionalCase = caseReviewFunctionalCaseMapper.selectByPrimaryKey("gyq_test_5");
+
+
+        request = new MindReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_1");
+        request.setStatus(FunctionalCaseReviewStatus.UN_PASS.toString());
+        request.setContent("hhh");
+        request.setCaseId("gyq_case_id_5");
+        request.setContent("测试批量评审通过");
+        caseReviewFunctionalCaseService.mindReview(request, "multiple_review_admin");
+        CaseReviewFunctionalCase caseReviewFunctionalCase1 = caseReviewFunctionalCaseMapper.selectByPrimaryKey("gyq_test_5");
+        Assertions.assertFalse(StringUtils.equalsIgnoreCase(caseReviewFunctionalCase.getStatus(), caseReviewFunctionalCase1.getStatus()));
+
+
+        request = new MindReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_4");
+        request.setStatus(FunctionalCaseReviewStatus.PASS.toString());
+        request.setCaseId("wx_case_id_2");
+        caseReviewFunctionalCaseService.mindReview(request, "admin");
+        CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
+        caseReviewHistoryExample.createCriteria().andCaseIdEqualTo("wx_case_id_2").andReviewIdEqualTo("wx_review_id_4").andAbandonedEqualTo(false).andDeletedEqualTo(false);
+        List<CaseReviewHistory> caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
+        Assertions.assertEquals(8,caseReviewHistories.size());
+
+        request = new MindReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_4");
+        request.setStatus(FunctionalCaseReviewStatus.PASS.toString());
+        request.setCaseId("wx_case_id_2");
+        caseReviewFunctionalCaseService.mindReview(request, "123");
+        caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
+        Assertions.assertEquals(9,caseReviewHistories.size());
+
+        request = new MindReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_4");
+        request.setStatus(FunctionalCaseReviewStatus.PASS.toString());
+        request.setCaseId("wx_case_id_2");
+        caseReviewFunctionalCaseService.mindReview(request, "123");
+        caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
+        Assertions.assertEquals(10,caseReviewHistories.size());
+
+    }
+
+    @Test
+    @Order(10)
     public void testBatchReviewFalse() throws Exception {
         BatchReviewFunctionalCaseRequest request = new BatchReviewFunctionalCaseRequest();
         request.setReviewId("wx_review_id_1");
@@ -487,7 +586,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
 
     @Test
-    @Order(10)
+    @Order(11)
     public void testBatchEditReviewers() throws Exception {
         BatchEditReviewerRequest request = new BatchEditReviewerRequest();
         //更新评审人
@@ -539,7 +638,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(11)
+    @Order(12)
     public void getUserStatus() throws Exception {
         List<OptionDTO> optionDTOS = getOptionDTOS("wx_review_id_1", "gyq_case_id_5");
         Assertions.assertTrue(CollectionUtils.isNotEmpty(optionDTOS));
@@ -548,7 +647,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(12)
+    @Order(13)
     public void getModuleCount() throws Exception {
         ReviewFunctionalCasePageRequest request = new ReviewFunctionalCasePageRequest();
         request.setReviewId("wx_review_id_1");
@@ -566,7 +665,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(13)
+    @Order(14)
     public void getReviewerList() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(GET_CASE_REVIEWER_LIST + "/wx_review_id_1/gyq_case_id_5").header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
@@ -580,7 +679,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(14)
+    @Order(15)
     public void getReviewerWidthTotalList() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(GET_CASE_REVIEWER_AND_STATUS + "/wx_review_id_1/gyq_case_id_5").header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)

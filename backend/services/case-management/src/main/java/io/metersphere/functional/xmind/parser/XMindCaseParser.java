@@ -78,8 +78,6 @@ public class XMindCaseParser {
         process = new DetailUtil();
     }
 
-    private final List<String> priorityList = Arrays.asList("P0", "P1", "P2", "P3");
-
     private static final String ID = "(?:id:|id：|Id:|Id：|iD:|iD：)";
     private static final String CASE = "((?i)case)";
     private static final String PREREQUISITE = "(?:" + Translator.get("xmind_prerequisite") + ":|" + Translator.get("xmind_prerequisite") + "：)";
@@ -130,7 +128,7 @@ public class XMindCaseParser {
                 this.formatTestCase(item.getTitle(), parent.getPath(), item.getChildren() != null ? item.getChildren().getAttached() : null);
             } else {
                 if (StringUtils.equalsIgnoreCase(parent.getPath().trim(), Translator.get("functional_case.module.default.name"))) {
-                     process.parse(replace(item.getTitle(), CASE) + "：" + Translator.get("functional_case.module.default.name.add_error"));
+                     process.add(Translator.get("incorrect_format"), Translator.get("functional_case.module.default.name.add_error"));
                     return;
                 }
                 String nodePath = parent.getPath().trim() + "/" + item.getTitle().trim();
@@ -254,11 +252,7 @@ public class XMindCaseParser {
     private boolean validateCustomField(FunctionalCaseExcelData data) {
         boolean validate = true;
         Map<String, Object> customData = data.getCustomData();
-        boolean hasPriority = false;
         for (String fieldName : customData.keySet()) {
-            if (StringUtils.equalsIgnoreCase(fieldName, Translator.get("custom_field.functional_priority"))) {
-                hasPriority = true;
-            }
             Object value = customData.get(fieldName);
             TemplateCustomFieldDTO templateCustomFieldDTO = customFieldsMap.get(fieldName);
             if (templateCustomFieldDTO == null) {
@@ -275,10 +269,6 @@ public class XMindCaseParser {
                 validate = false;
                 process.add(data.getName(), e.getMessage());
             }
-        }
-        if (!hasPriority) {
-            validate = false;
-            process.add(data.getName(), Translator.get("priority_is_null"));
         }
         return validate;
     }
@@ -492,7 +482,7 @@ public class XMindCaseParser {
                         } else {
                             String modulePath = item.getTitle();
                             if (StringUtils.isBlank(modulePath)) {
-                                return process.parse(replace(item.getTitle(), CASE) + "：" + Translator.get("module_not_null"));
+                                return process.parse(Translator.get("module_not_null"));
                             }
                             item.setPath(modulePath);
                             if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
