@@ -415,7 +415,7 @@ public class CaseReviewFunctionalCaseService {
         request.setReviewPassRule(caseReview.getReviewPassRule());
         //检查权限
         if (!permissionCheckService.userHasProjectPermission(userId, caseReview.getProjectId(), PermissionConstants.CASE_REVIEW_READ_UPDATE) && StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.RE_REVIEWED.toString())) {
-            throw new MSException("http_result_forbidden");
+            throw new MSException(Translator.get("http_result_forbidden"));
         }
         List<CaseReviewFunctionalCase> caseReviewFunctionalCaseList = doCaseReviewFunctionalCases(request);
         if (CollectionUtils.isEmpty(caseReviewFunctionalCaseList)) {
@@ -505,6 +505,101 @@ public class CaseReviewFunctionalCaseService {
         param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.REVIEW_FUNCTIONAL_CASE);
         param.put(CaseEvent.Param.COUNT_MAP, countMap);
         provider.updateCaseReview(param);
+    }
+
+    public String mindReview(MindReviewFunctionalCaseRequest request, String userId) {
+        String reviewId = request.getReviewId();
+        String caseId = request.getCaseId();
+        CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(reviewId);
+        //检查权限
+        if (!permissionCheckService.userHasProjectPermission(userId, caseReview.getProjectId(), PermissionConstants.CASE_REVIEW_READ_UPDATE) && StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.RE_REVIEWED.toString())) {
+            throw new MSException(Translator.get("http_result_forbidden"));
+        }
+
+        CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo(caseId);
+        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
+        if (CollectionUtils.isEmpty(caseReviewFunctionalCases)) {
+            throw new MSException(Translator.get("case_comment.case_is_null"));
+        }
+
+        CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
+        caseReviewHistoryExample.createCriteria().andCaseIdEqualTo(caseId).andReviewIdEqualTo(reviewId).andDeletedEqualTo(false).andAbandonedEqualTo(false);
+        List<CaseReviewHistory> caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
+
+        CaseReviewFunctionalCaseUserExample caseReviewFunctionalCaseUserExample = new CaseReviewFunctionalCaseUserExample();
+        caseReviewFunctionalCaseUserExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo(caseId);
+        List<CaseReviewFunctionalCaseUser> userList = caseReviewFunctionalCaseUserMapper.selectByExample(caseReviewFunctionalCaseUserExample);
+
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(caseId);
+
+
+        UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+        userRoleRelationExample.createCriteria().andRoleIdEqualTo(InternalUserRole.ADMIN.getValue()).andSourceIdEqualTo(UserRoleScope.SYSTEM).andOrganizationIdEqualTo(UserRoleScope.SYSTEM);
+        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
+        List<String> systemUsers = userRoleRelations.stream().map(UserRoleRelation::getUserId).distinct().toList();
+
+        Map<String, String> statusMap = new HashMap<>();
+        //重新提审，作废之前的记录
+        if (StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.RE_REVIEWED.toString())) {
+            extCaseReviewHistoryMapper.batchUpdateAbandoned(reviewId, List.of(caseId));
+        }
+        //校验当前操作人是否是该用例的评审人或者是系统管理员，是增加评审历史，不是过滤掉
+        if (!systemUsers.contains(userId) && (CollectionUtils.isEmpty(userList) || CollectionUtils.isEmpty(userList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getUserId(), userId)).toList()))) {
+            LogUtils.error(caseId + ": no review user, please check");
+           throw new MSException(caseId + ": no review user, please check");
+        }
+        boolean isAdmin = systemUsers.contains(userId) && (CollectionUtils.isEmpty(userList) || CollectionUtils.isEmpty(userList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getUserId(), userId)).toList()));
+        BatchReviewFunctionalCaseRequest batchReviewFunctionalCaseRequest = new BatchReviewFunctionalCaseRequest();
+        BeanUtils.copyBean(batchReviewFunctionalCaseRequest, request);
+        batchReviewFunctionalCaseRequest.setReviewPassRule(caseReview.getReviewPassRule());
+
+        CaseReviewHistory caseReviewHistory = buildCaseReviewHistory(batchReviewFunctionalCaseRequest, userId, caseId);
+        caseReviewHistoryMapper.insert(caseReviewHistory);
+        if (CollectionUtils.isEmpty(caseReviewHistories)) {
+            caseReviewHistories = new ArrayList<>();
+        }
+        caseReviewHistories.add(caseReviewHistory);
+
+        Map<String, List<CaseReviewHistory>>caseHistoryMap = new HashMap<>();
+        caseHistoryMap.put(caseId,caseReviewHistories);
+
+        Map<String, List<CaseReviewFunctionalCaseUser>>reviewerMap = new HashMap<>();
+        reviewerMap.put(caseId,userList);
+
+        CaseReviewFunctionalCase caseReviewFunctionalCase = caseReviewFunctionalCases.get(0);
+        //根据评审规则更新用例评审和功能用例关系表中的状态 1.单人评审直接更新评审结果 2.多人评审需要计算 3.如果是重新评审，直接全部变成重新评审
+        setStatus(batchReviewFunctionalCaseRequest, caseReviewFunctionalCase, caseHistoryMap, reviewerMap, isAdmin);
+        statusMap.put(caseId, caseReviewFunctionalCase.getStatus());
+        caseReviewFunctionalCaseMapper.updateByPrimaryKeySelective(caseReviewFunctionalCase);
+
+        //检查是否有@，发送@通知
+        if (StringUtils.isNotBlank(request.getNotifier())) {
+            List<String> relatedUsers = Arrays.asList(request.getNotifier().split(";"));
+            reviewSendNoticeService.sendNoticeCase(relatedUsers, userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.REVIEW_AT, reviewId);
+        }
+        //发送评审通过不通过通知（评审中不发）
+        if (StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
+            reviewSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.REVIEW_FAIL, reviewId);
+        }
+        if (StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
+            reviewSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.REVIEW_PASSED, reviewId);
+        }
+
+        functionalCaseAttachmentService.uploadMinioFile(caseId, functionalCase.getProjectId(), request.getReviewCommentFileIds(), userId, CaseFileSourceType.REVIEW_COMMENT.toString());
+
+        Map<String, Object> param = new HashMap<>();
+        Map<String, Integer> countMap = new HashMap<>();
+        countMap.put(caseReviewFunctionalCase.getStatus(), 1);
+        param.put(CaseEvent.Param.CASE_IDS, List.of(caseId));
+        param.put(CaseEvent.Param.REVIEW_ID, reviewId);
+        param.put(CaseEvent.Param.STATUS_MAP, statusMap);
+        param.put(CaseEvent.Param.USER_ID, userId);
+        param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.REVIEW_FUNCTIONAL_CASE);
+        param.put(CaseEvent.Param.COUNT_MAP, countMap);
+        provider.updateCaseReview(param);
+
+        return caseReviewFunctionalCase.getStatus();
     }
 
 
