@@ -147,7 +147,7 @@
         </a-dropdown>
       </li>
       <li>
-        <a-dropdown trigger="click" position="br" @select="changeLocale as any">
+        <a-dropdown trigger="click" position="br" @select="changeLanguage as any">
           <a-tooltip :content="t('settings.language')" position="br">
             <a-button type="secondary">
               <template #icon>
@@ -186,6 +186,7 @@
 
   import { getMessageUnReadCount } from '@/api/modules/message';
   import { switchProject } from '@/api/modules/project-management/project';
+  import { updateBaseInfo, updateLanguage } from '@/api/modules/user';
   import { MENU_LEVEL, type PathMapRoute } from '@/config/pathMap';
   import { useI18n } from '@/hooks/useI18n';
   import usePathMap from '@/hooks/usePathMap';
@@ -196,6 +197,7 @@
   import { getFirstRouteNameByPermission, hasAnyPermission } from '@/utils/permission';
 
   import { IconInfoCircle } from '@arco-design/web-vue/es/icon';
+  import type { LocaleType } from '#/global';
 
   const props = defineProps<{
     isPreview?: boolean;
@@ -293,6 +295,11 @@
     messageCenterVisible.value = true;
   }
 
+  function changeLanguage(locale: LocaleType) {
+    // 修改当前用户的语言
+    updateLanguage({ language: locale });
+    changeLocale(locale);
+  }
   function handleHelpSelect(val: string | number | Record<string, any> | undefined) {
     switch (val) {
       case 'doc':

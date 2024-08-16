@@ -145,6 +145,10 @@ export interface UpdateBaseInfo {
   avatar: string;
 }
 
+export interface UpdateLanguage {
+  language: string;
+}
+
 export interface OrgOptionItem {
   id: string;
   name: string;
