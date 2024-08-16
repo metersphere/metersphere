@@ -641,6 +641,24 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
   }
 
   /**
+   * 是否可展示更多菜单节点操作(复制、剪切、粘贴、删除)
+   */
+  function canShowMoreMenuNodeOperation() {
+    if (window.minder) {
+      const node: MinderJsonNode = window.minder.getSelectedNode();
+      if (node?.data?.id === 'NONE') {
+        // 虚拟根节点不展示节点操作
+        return false;
+      }
+      if (node?.data?.resource?.includes(moduleTag) && node?.data?.id === 'root') {
+        // 根模块节点不展示节点操作
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * 脑图命令执行前拦截
    * @param event 命令执行事件
    */
@@ -732,5 +750,6 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
     handleContentChange,
     replaceableTags,
     priorityDisableCheck,
+    canShowMoreMenuNodeOperation,
   };
 }

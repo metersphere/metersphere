@@ -16,6 +16,7 @@
       :can-show-enter-node="canShowEnterNode"
       :insert-sibling-menus="insertSiblingMenus"
       :insert-son-menus="insertSonMenus"
+      :can-show-more-menu-node-operation="canShowMoreMenuNodeOperation()"
       :can-show-paste-menu="!stopPaste()"
       :can-show-more-menu="canShowMoreMenu()"
       :can-show-priority-menu="canShowPriorityMenu()"
@@ -147,6 +148,7 @@
     handleContentChange,
     replaceableTags,
     priorityDisableCheck,
+    canShowMoreMenuNodeOperation,
   } = useMinderBaseApi({ hasEditPermission });
   const importJson = ref<MinderJson>({
     root: {} as MinderJsonNode,
