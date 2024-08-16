@@ -265,10 +265,6 @@ public class TestPlanExecuteTests extends BaseTest {
             }
         }
 
-        // 待补充
-//        Assertions.assertTrue(!collectionQueueIdList.isEmpty());
-//        Assertions.assertTrue(!allQueueIds.isEmpty());
-
         this.checkRedisKeyEmpty(allQueueIds, collectionQueueIdList);
 
     }
@@ -285,6 +281,9 @@ public class TestPlanExecuteTests extends BaseTest {
         List<String> collectionQueueIdList = new ArrayList<>();
         for (String executeQueue : EXECUTE_QUEUE_PREFIX) {
             Set<String> keys = stringRedisTemplate.keys("*" + executeQueue + "*");
+            if (CollectionUtils.isEmpty(keys)) {
+                continue;
+            }
             allQueueIds.addAll(keys);
             for (String key : keys) {
                 if (StringUtils.equalsIgnoreCase(executeQueue, QUEUE_PREFIX_TEST_PLAN_COLLECTION)) {
