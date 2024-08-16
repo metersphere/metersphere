@@ -137,10 +137,13 @@ public class ApiScenarioBatchRunService {
         setRunningIntegrateReport(runModeConfig);
 
         List<TaskItem> taskItems = ids.stream()
-                .map(id -> {
-                    String reportId = runModeConfig.isIntegratedReport() ? IDGenerator.nextStr() : scenarioReportMap.get(id);
-                    return apiExecuteService.getTaskItem(reportId, id);
-                }).toList();
+                .map(id -> apiExecuteService.getTaskItem(
+                        runModeConfig.isIntegratedReport()
+                                ? runModeConfig.getCollectionReport().getReportId() + IDGenerator.nextStr()
+                                : scenarioReportMap.get(id), id
+                ))
+                .toList();
+
         TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(request.getProjectId(), runModeConfig);
         taskRequest.setTaskItems(taskItems);
         taskRequest.getTaskInfo().setUserId(userId);
@@ -259,7 +262,7 @@ public class ApiScenarioBatchRunService {
 
         String reportId;
         if (runModeConfig.isIntegratedReport()) {
-            reportId = IDGenerator.nextStr();
+            reportId = runModeConfig.getCollectionReport().getReportId() + IDGenerator.nextStr();
         } else {
             // 独立报告，执行到当前任务时初始化报告
             reportId = initScenarioReport(runModeConfig, apiScenario, queue.getUserId()).getApiScenarioReportId();

@@ -166,7 +166,9 @@ public class ApiTestCaseBatchRunService {
             }
 
             // 如果是集成报告则生成唯一的虚拟ID，非集成报告使用单用例的报告ID
-            String reportId = runModeConfig.isIntegratedReport() ? UUID.randomUUID().toString() : caseReportMap.get(id);
+            String reportId = runModeConfig.isIntegratedReport()
+                    ? runModeConfig.getCollectionReport().getReportId() + IDGenerator.nextStr()
+                    : caseReportMap.get(id);
 
             TaskItem taskItem = apiExecuteService.getTaskItem(reportId, id);
             taskItem.setRequestCount(1L);
@@ -277,7 +279,7 @@ public class ApiTestCaseBatchRunService {
 
         String reportId;
         if (runModeConfig.isIntegratedReport()) {
-            reportId = IDGenerator.nextStr();
+            reportId = runModeConfig.getCollectionReport().getReportId() + IDGenerator.nextStr();
         } else {
             // 独立报告，执行到当前任务时初始化报告
             reportId = initApiReport(runModeConfig, List.of(apiTestCase), queue.getUserId()).getFirst().getApiReportId();
