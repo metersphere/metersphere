@@ -85,8 +85,9 @@ export default {
   'testPlan.planForm.selectPlanGroup': '选择计划组',
   'testPlan.planForm.repeatCaseTip1': '开启：可重复关联同一个用例',
   'testPlan.planForm.repeatCaseTip2': '关闭：不可重复关联同一用例',
-  'testPlan.planForm.enableAutomaticStatusTip': '开启：功能用例关联的接口用例执行成功，功能用例的状态自动更新为成功',
-  'testPlan.planForm.closeAutomaticStatusTip': '关闭：功能用例的执行结果不受接口的影响',
+  'testPlan.planForm.enableAutomaticStatusTip':
+    '开启：Function cases the interface associated use case/scenario use case implementation success, function of the use case status automatically updated to success',
+  'testPlan.planForm.closeAutomaticStatusTip': '关闭：功能用例的执行结果不受接口用例/场景用例的影响',
   'testPlan.planForm.passThresholdTip': '通过率达到设置的通过阈值时，报告结果为通过',
   'testPlan.planForm.pickCases': '选择用例',
   'testPlan.testPlanDetail.executed': '已执行',
