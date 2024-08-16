@@ -297,7 +297,7 @@
                 children: 'children',
               }"
               class="w-[200px]"
-              :data="apiSetTree"
+              :data="nodeApiTestSet"
               allow-clear
             >
               <template #prefix>
@@ -319,7 +319,7 @@
               }"
               class="ml-[12px] w-[200px]"
               allow-clear
-              :data="scenarioSetTree"
+              :data="nodeScenarioTestSet"
             >
               <template #prefix>
                 <div class="text-[var(--color-text-brand)]">{{ t('ms.case.associate.scenario') }}</div>
@@ -350,6 +350,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useVModel } from '@vueuse/core';
+  import { type SelectOptionData } from '@arco-design/web-vue';
   import { isEqual } from 'lodash-es';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
@@ -362,14 +363,13 @@
   import TotalCount from './totalCount.vue';
 
   import { getAssociatedProjectOptions } from '@/api/modules/case-management/featureCase';
-  import { getApiCaseModule, getApiScenarioModule } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useVisit from '@/hooks/useVisit';
   import useAppStore from '@/store/modules/app';
 
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
   import type { ProjectListItem } from '@/models/setting/project';
-  import type { AssociateCaseRequestParams, PlanDetailApiCaseTreeParams } from '@/models/testPlan/testPlan';
+  import type { AssociateCaseRequestParams } from '@/models/testPlan/testPlan';
   import { CaseModulesApiTypeEnum, CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
 
@@ -400,6 +400,8 @@
     hideProjectSelect?: boolean; // 是否隐藏项目选择
     associatedType: keyof typeof CaseLinkEnum; // 关联类型
     protocols?: string[]; // 上一次选择的协议
+    nodeApiTestSet?: SelectOptionData[]; // 接口测试集
+    nodeScenarioTestSet?: SelectOptionData[]; // 场景测试集
   }>();
 
   const emit = defineEmits<{
@@ -635,35 +637,12 @@
     selectedProtocols.value = _protocols || [];
   }
 
-  const apiSetTree = ref<ModuleTreeNode[]>();
-  const scenarioSetTree = ref<ModuleTreeNode[]>();
-
-  async function initTestSet() {
-    if (props.extraTableParams?.testPlanId) {
-      const params: PlanDetailApiCaseTreeParams = {
-        testPlanId: props.extraTableParams.testPlanId,
-        treeType: 'COLLECTION',
-      };
-      try {
-        const [apiSetTreeResult, scenarioSetTreeResult] = await Promise.all([
-          getApiCaseModule(params),
-          getApiScenarioModule(params),
-        ]);
-
-        apiSetTree.value = apiSetTreeResult;
-        scenarioSetTree.value = scenarioSetTreeResult;
-        apiCaseCollectionId.value = apiSetTree.value[0].id;
-        apiScenarioCollectionId.value = scenarioSetTree.value[0].id;
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      }
-    }
-  }
-
   function changeSyncCase(value: string | number | boolean, ev: Event) {
     if (value) {
-      initTestSet();
+      if (props.nodeApiTestSet && props.nodeScenarioTestSet) {
+        apiCaseCollectionId.value = props.nodeApiTestSet?.[0]?.id ?? '';
+        apiScenarioCollectionId.value = props.nodeScenarioTestSet?.[0]?.id ?? '';
+      }
     } else {
       apiCaseCollectionId.value = '';
       apiScenarioCollectionId.value = '';

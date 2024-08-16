@@ -227,6 +227,8 @@
     :test-plan-id="props.planId"
     :modules-maps="selectedAssociateCasesParams.moduleMaps"
     :protocols="selectedAssociateCasesParams.protocols"
+    :node-api-test-set="nodeApiTestSet"
+    :node-scenario-test-set="nodeScenarioTestSet"
     @success="writeAssociateCases"
   />
 </template>
@@ -366,6 +368,29 @@
   function execInert(command: string, data?: PlanMinderNodeData | MinderJsonNodeData) {
     if (window.minder.queryCommandState(command) !== -1) {
       window.minder.execCommand(command, data);
+    }
+  }
+
+  const nodeApiTestSet = ref<SelectOptionData[]>([]);
+  const nodeScenarioTestSet = ref<SelectOptionData[]>([]);
+
+  function getTestNodeSet(nodeSet: PlanMinderNode[] = []): { name: string; id: string }[] {
+    return nodeSet.map((node) => ({
+      name: node.data?.text ?? '',
+      id: node.data?.id ?? '',
+    }));
+  }
+
+  function setCaseSelectedSet() {
+    const minderJson = window.minder.exportJson()?.root;
+    if (minderJson) {
+      const testApiNode =
+        minderJson?.children?.find((item: PlanMinderNode) => item.data.type === 'API')?.children ?? [];
+      const testScenarioNode =
+        minderJson?.children?.find((item: PlanMinderNode) => item.data.type === 'SCENARIO')?.children ?? [];
+
+      nodeApiTestSet.value = getTestNodeSet(testApiNode);
+      nodeScenarioTestSet.value = getTestNodeSet(testScenarioNode);
     }
   }
 
@@ -581,7 +606,7 @@
     selectedAssociateCasesParams.value = { ...param };
     const node: PlanMinderNode = window.minder.getSelectedNode();
     let associateType: string = '';
-    if (node.data.type === PlanMinderCollectionType.SCENARIO) {
+    if (node && node.data?.type === PlanMinderCollectionType.SCENARIO) {
       associateType = PlanMinderAssociateType.SCENARIO_CASE;
     } else {
       associateType = param?.associateType ?? node.data.type;
@@ -623,6 +648,7 @@
     configForm.value = cloneDeep(activePlanSet.value?.data);
     extraVisible.value = true;
     currentSelectCase.value = (activePlanSet.value?.data.type as unknown as CaseLinkEnum) || CaseLinkEnum.FUNCTIONAL;
+    setCaseSelectedSet();
     caseAssociateVisible.value = true;
     nextTick(() => {
       switchingConfigFormData.value = false;
@@ -631,6 +657,7 @@
 
   function openCaseAssociateDrawer() {
     currentSelectCase.value = (activePlanSet.value?.data?.type as unknown as CaseLinkEnum) || CaseLinkEnum.FUNCTIONAL;
+    setCaseSelectedSet();
     caseAssociateVisible.value = true;
   }
 
@@ -878,9 +905,9 @@
       if (node.data.isNew) {
         tempMinderParams.value.editList.push({
           ...node.data,
-          id: undefined,
           num: nodeIndex,
           executeMethod: getExecuteMethod(node.data),
+          tempCollectionNode: true,
         });
       } else {
         tempMinderParams.value.editList.push({

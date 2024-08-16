@@ -14,12 +14,16 @@
     }"
     :modules-maps="props.modulesMaps"
     :associated-type="associationType"
+    :node-api-test-set="nodeApiTestSet"
+    :node-scenario-test-set="nodeScenarioTestSet"
     @save="saveHandler"
   >
   </MsCaseAssociate>
 </template>
 
 <script setup lang="ts">
+  import { type SelectOptionData } from '@arco-design/web-vue';
+
   import MsCaseAssociate from '@/components/business/ms-associate-case/index.vue';
   import type { saveParams } from '@/components/business/ms-associate-case/types';
 
@@ -33,6 +37,8 @@
     associationType: CaseLinkEnum;
     modulesMaps?: Record<string, saveParams>;
     testPlanId?: string;
+    nodeApiTestSet?: SelectOptionData[];
+    nodeScenarioTestSet?: SelectOptionData[];
   }>();
   const innerVisible = defineModel<boolean>('visible', {
     required: true,
