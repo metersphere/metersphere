@@ -90,7 +90,9 @@ function JumpingRuntime(this: IJumpingRuntime): void {
     if (e.type === 'keydown') {
       if (e.code === 'Enter') {
         e.preventDefault();
-        return fsm.jump('normal', 'input-commit');
+        return setTimeout(() => {
+          fsm.jump('normal', 'input-commit');
+        }, 0);
       }
       if (e.code === 'Escape') {
         e.preventDefault();
