@@ -18,8 +18,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.regex.Pattern;
 
 public class JSONSchemaBuilder {
+    private static final Pattern INTEGER_PATTERN = Pattern.compile("^@integer|@natural");
+    private static final Pattern BOOLEAN_PATTERN = Pattern.compile("^@boolean");
+    private static final Pattern FLOAT_PATTERN = Pattern.compile("^@float");
+    private static final Map<String, Function<String, Object>> handlers = new HashMap<>();
+
+    static {
+        handlers.put("@integer", str -> NumberUtils.parseNumber(str, Long.class));
+        handlers.put("@boolean", Boolean::parseBoolean);
+        handlers.put("@float", Float::parseFloat);
+    }
+
     private static void analyzeSchema(String json, JSONObject rootObj, Map<String, String> map) {
         Gson gson = new Gson();
         JsonElement element = gson.fromJson(json, JsonElement.class);
@@ -63,20 +76,18 @@ public class JSONSchemaBuilder {
     private static boolean valueOf(String evlValue, String propertyName, JSONObject concept) {
         if (StringUtils.startsWith(evlValue, "@")) {
             String str = ScriptEngineUtils.calculate(evlValue);
-            switch (evlValue) {
-                case "@integer":
-                case "@natural":
-                    concept.put(propertyName, NumberUtils.parseNumber(str, Long.class));
-                    break;
-                case "@boolean":
-                    concept.put(propertyName, Boolean.parseBoolean(str));
-                    break;
-                case "@float":
-                    concept.put(propertyName, Float.parseFloat(str));
-                    break;
-                default:
-                    concept.put(propertyName, str);
-                    break;
+            if (INTEGER_PATTERN.matcher(evlValue).find()) {
+                // Parse number as Long
+                concept.put(propertyName, NumberUtils.parseNumber(str, Long.class));
+            } else if (BOOLEAN_PATTERN.matcher(evlValue).find()) {
+                // Parse boolean
+                concept.put(propertyName, Boolean.parseBoolean(str));
+            } else if (FLOAT_PATTERN.matcher(evlValue).find()) {
+                // Parse float
+                concept.put(propertyName, Float.parseFloat(str));
+            } else {
+                // Default case
+                concept.put(propertyName, str);
             }
             return false;
         } else {
@@ -88,24 +99,13 @@ public class JSONSchemaBuilder {
     private static void arrayValueOf(String evlValue, JSONArray array) {
         if (StringUtils.startsWith(evlValue, "@")) {
             String str = ScriptEngineUtils.calculate(evlValue);
-            switch (evlValue) {
-                case "@integer":
-                    array.put(NumberUtils.parseNumber(str, Long.class));
-                    break;
-                case "@boolean":
-                    array.put(Boolean.parseBoolean(str));
-                    break;
-                case "@float":
-                    array.put(Float.parseFloat(str));
-                    break;
-                default:
-                    array.put(str);
-                    break;
-            }
+            Function<String, Object> handler = handlers.getOrDefault(evlValue, s -> s);
+            array.put(handler.apply(str));
         } else {
             array.put(ScriptEngineUtils.buildFunctionCallString(evlValue));
         }
     }
+
 
     private static void analyzeProperty(JSONObject concept, String propertyName, JsonObject object, Map<String, String> map) {
         if (!object.has(PropertyConstant.TYPE)) {
@@ -115,14 +115,14 @@ public class JSONSchemaBuilder {
         if (object.get(PropertyConstant.TYPE) instanceof JsonPrimitive) {
             propertyObjType = object.get(PropertyConstant.TYPE).getAsString();
         }
-        if (propertyObjType.equals(PropertyConstant.STRING) || propertyObjType.equals(PropertyConstant.ENUM)) {
+        if (StringUtils.equals(propertyObjType, PropertyConstant.STRING) || StringUtils.equals(propertyObjType, PropertyConstant.ENUM)) {
             concept.put(propertyName, object.has(PropertyConstant.MOCK) ? FormatterUtil.getMockValue(object) : StringUtils.EMPTY);
-        } else if (propertyObjType.equals(PropertyConstant.INTEGER) || propertyObjType.equals(PropertyConstant.NUMBER)) {
+        } else if (StringUtils.equals(propertyObjType, PropertyConstant.INTEGER) || StringUtils.equals(propertyObjType, PropertyConstant.NUMBER)) {
             try {
                 concept.put(propertyName, 0);
                 if (FormatterUtil.isMockValue(object)) {
                     Number value = FormatterUtil.getElementValue(object).getAsNumber();
-                    if (value.toString().indexOf(".") == -1) {
+                    if (!value.toString().contains(".")) {
                         concept.put(propertyName, value.longValue());
                     } else {
                         concept.put(propertyName, new BigDecimal(object.getAsString()));
@@ -135,14 +135,14 @@ public class JSONSchemaBuilder {
                     processValue(concept, map, propertyName, value);
                 }
             }
-        } else if (propertyObjType.equals(PropertyConstant.BOOLEAN)) {
+        } else if (StringUtils.equals(propertyObjType, PropertyConstant.BOOLEAN)) {
             // 先设置空值
             concept.put(propertyName, false);
             try {
                 if (FormatterUtil.isMockValue(object)) {
                     String value = FormatterUtil.getMockValue(object);
                     if (StringUtils.isNotEmpty(value)) {
-                        if (value.indexOf("\"") != -1) {
+                        if (value.contains("\"")) {
                             value = value.replaceAll("\"", StringUtils.EMPTY);
                         }
                         if (isBoolean(value)) {
@@ -155,9 +155,9 @@ public class JSONSchemaBuilder {
             } catch (Exception e) {
                 concept.put(propertyName, false);
             }
-        } else if (propertyObjType.equals(PropertyConstant.ARRAY)) {
+        } else if (StringUtils.equals(propertyObjType, PropertyConstant.ARRAY)) {
             analyzeArray(concept, propertyName, object, map);
-        } else if (propertyObjType.equals(PropertyConstant.OBJECT)) {
+        } else if (StringUtils.equals(propertyObjType, PropertyConstant.OBJECT)) {
             JSONObject obj = new JSONObject();
             concept.put(propertyName, obj);
             analyzeObject(object, obj, map);
@@ -238,7 +238,7 @@ public class JSONSchemaBuilder {
             } else if (StringUtils.equalsIgnoreCase(type, PropertyConstant.NUMBER)) {
                 JsonElement valueObj = FormatterUtil.getElementValue(itemsObject);
                 String value = valueObj.getAsString();
-                if (StringUtils.isNotEmpty(valueObj.getAsString()) && valueObj.getAsString().indexOf(".") != -1) {
+                if (StringUtils.isNotEmpty(valueObj.getAsString()) && valueObj.getAsString().contains(".")) {
                     array.put(new BigDecimal(value));
                 } else {
                     array.put(Integer.valueOf(value));
