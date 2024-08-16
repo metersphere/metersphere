@@ -4,6 +4,7 @@ package io.metersphere.system.controller;
 import io.metersphere.system.domain.UserLocalConfig;
 import io.metersphere.system.dto.UserLocalConfigAddRequest;
 import io.metersphere.system.dto.UserLocalConfigUpdateRequest;
+import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.UserLocalConfigLogService;
@@ -12,11 +13,13 @@ import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/user/local/config")
@@ -63,7 +66,12 @@ public class UserLocalConfigController {
 
     @GetMapping(value = "/default-locale")
     public String defaultLocale() {
-        return defaultLocale.replace("_", "-");
-    }
+        SessionUser user = SessionUtils.getUser();
+        String language = Optional.ofNullable(user)
+                .map(SessionUser::getLanguage)
+                .filter(StringUtils::isNotBlank)
+                .orElse(defaultLocale);
 
+        return language.replace("_", "-");
+    }
 }
