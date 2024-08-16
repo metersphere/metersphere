@@ -35,9 +35,10 @@ public class FunctionalCaseExportReviewCommentConverter implements FunctionalCas
             reviewComent.forEach(item -> {
                 String status = getFromMapOfNullableWithTranslate(reviewStatusMap, item.getStatus());
                 String createTime = DateUtils.getTimeString(item.getCreateTime());
-                String content = new String(item.getContent() == null ? new byte[0] : item.getContent(), StandardCharsets.UTF_8);
+                String content = parseHtml(new String(item.getContent() == null ? new byte[0] : item.getContent(), StandardCharsets.UTF_8));
                 result.append(String.format(template, item.getCreateUser(), status, createTime, content));
             });
+            return result.toString();
         }
         return StringUtils.EMPTY;
     }

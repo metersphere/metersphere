@@ -24,7 +24,7 @@ public class FunctionalCaseExportCaseCommentConverter implements FunctionalCaseE
             List<FunctionalCaseComment> caseComments = caseCommentMap.get(functionalCase.getId());
             caseComments.forEach(item -> {
                 String updateTime = DateUtils.getTimeString(item.getUpdateTime());
-                String content = item.getContent();
+                String content = parseHtml(item.getContent());
                 result.append(String.format(template, item.getCreateUser(), updateTime, content));
             });
             return result.toString();

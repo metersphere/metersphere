@@ -9,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 功能用例导出时解析其他字段对应的列
@@ -32,5 +34,15 @@ public interface FunctionalCaseExportConverter {
             return Translator.get(value);
         }
         return value;
+    }
+
+    default String parseHtml(String html) {
+        Pattern pattern = Pattern.compile("<p[^>]*>(.*?)</p>");
+        Matcher matcher = pattern.matcher(html);
+        if (matcher.find()) {
+            String content = matcher.group(1);
+            return content;
+        }
+        return StringUtils.EMPTY;
     }
 }
