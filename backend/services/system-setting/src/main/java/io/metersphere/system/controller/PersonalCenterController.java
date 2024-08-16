@@ -1,6 +1,7 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.system.dto.request.user.PersonalLocaleRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdatePasswordRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdateRequest;
 import io.metersphere.system.dto.user.PersonalDTO;
@@ -38,6 +39,12 @@ PersonalCenterController {
     public boolean updateUser(@Validated @RequestBody PersonalUpdateRequest request) {
         this.checkPermission(request.getId());
         return simpleUserService.updateAccount(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/update-locale")
+    @Operation(summary = "个人中心-修改信息")
+    public void updateLocale(@Validated @RequestBody PersonalLocaleRequest request) {
+        simpleUserService.updateLanguage(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/update-password")

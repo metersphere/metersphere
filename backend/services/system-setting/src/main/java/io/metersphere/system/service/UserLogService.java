@@ -96,7 +96,7 @@ public class UserLogService {
                     .method(HttpMethodConstants.POST.name())
                     .path("/personal/update-password")
                     .sourceId(request.getId())
-                    .content(user.getName() + StringUtils.SPACE + Translator.get("personal.change.password"))
+                    .content(Translator.get("personal.change.password"))
                     .originalValue(JSON.toJSONBytes(user))
                     .build().getLogDTO();
             return dto;
@@ -196,7 +196,7 @@ public class UserLogService {
                         .method(HttpMethodConstants.POST.name())
                         .path("/system/user/delete")
                         .sourceId(user.getId())
-                        .content(Translator.get("user.delete") + " : " + user.getName())
+                        .content(user.getName())
                         .originalValue(JSON.toJSONBytes(user))
                         .build().getLogDTO();
                 logDTOList.add(dto);

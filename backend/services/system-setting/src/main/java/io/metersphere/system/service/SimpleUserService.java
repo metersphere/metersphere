@@ -14,10 +14,7 @@ import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
 import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.dto.request.UserRegisterRequest;
-import io.metersphere.system.dto.request.user.PersonalUpdatePasswordRequest;
-import io.metersphere.system.dto.request.user.PersonalUpdateRequest;
-import io.metersphere.system.dto.request.user.UserChangeEnableRequest;
-import io.metersphere.system.dto.request.user.UserEditRequest;
+import io.metersphere.system.dto.request.user.*;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.ExcelParseDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
@@ -558,6 +555,12 @@ public class SimpleUserService {
         }
     }
 
+    public void updateLanguage(PersonalLocaleRequest request, String operator) {
+        User editUser = new User();
+        editUser.setId(operator);
+        editUser.setLanguage(request.getLanguage());
+        userMapper.updateByPrimaryKeySelective(editUser);
+    }
     public boolean updateAccount(PersonalUpdateRequest request, String operator) {
         this.checkUserEmail(request.getId(), request.getEmail());
         User editUser = new User();

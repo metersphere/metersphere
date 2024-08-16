@@ -33,6 +33,7 @@ import {
   SavePlatformUrl,
   UpdateAPIKEYUrl,
   UpdateInfoUrl,
+  UpdateLanguageUrl,
   UpdateLocalConfigUrl,
   UpdatePswUrl,
   ValidAPIKEYUrl,
@@ -50,6 +51,7 @@ import type {
   PersonalInfo,
   UpdateAPIKEYParams,
   UpdateBaseInfo,
+  UpdateLanguage,
   UpdateLocalConfigParams,
   UpdatePswParams,
 } from '@/models/user';
@@ -197,6 +199,11 @@ export function getBaseInfo(id: string) {
 // 个人信息-修改基本信息
 export function updateBaseInfo(data: UpdateBaseInfo) {
   return MSR.post({ url: UpdateInfoUrl, data });
+}
+
+// 个人信息-修改基本信息
+export function updateLanguage(data: UpdateLanguage) {
+  return MSR.post({ url: UpdateLanguageUrl, data });
 }
 
 // 个人信息-修改密码

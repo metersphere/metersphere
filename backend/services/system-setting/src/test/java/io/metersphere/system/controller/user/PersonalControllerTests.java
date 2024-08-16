@@ -9,6 +9,7 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.domain.UserExtend;
 import io.metersphere.system.domain.UserExtendExample;
+import io.metersphere.system.dto.request.user.PersonalLocaleRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdatePasswordRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdateRequest;
 import io.metersphere.system.dto.user.UserDTO;
@@ -166,8 +167,28 @@ public class PersonalControllerTests extends BaseTest {
         }
     }
 
+
     @Test
     @Order(2)
+    void testPersonalUpdateLanguage() throws Exception {
+        PersonalLocaleRequest request = new PersonalLocaleRequest();
+        request.setLanguage("zh-CN");
+        this.requestPostWithOk(PersonalRequestUtils.URL_PERSONAL_UPDATE_LANGUAGE, request);
+        Assertions.assertEquals(userMapper.selectByPrimaryKey(loginUser).getLanguage(), "zh-CN");
+
+        request.setLanguage("en-US");
+        this.requestPostWithOk(PersonalRequestUtils.URL_PERSONAL_UPDATE_LANGUAGE, request);
+        Assertions.assertEquals(userMapper.selectByPrimaryKey(loginUser).getLanguage(), "en-US");
+
+        request.setLanguage(null);
+        this.requestPost(PersonalRequestUtils.URL_PERSONAL_UPDATE_LANGUAGE, request).andExpect(status().isBadRequest());
+
+        request.setLanguage("ABCDE");
+        this.requestPost(PersonalRequestUtils.URL_PERSONAL_UPDATE_LANGUAGE, request).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Order(3)
     void testPersonalUpdatePassword() throws Exception {
         RsaKey rsaKey = RsaUtils.getRsaKey();
 
