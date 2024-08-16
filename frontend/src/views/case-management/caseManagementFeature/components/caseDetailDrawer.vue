@@ -34,7 +34,7 @@
           <div
             :class="`${
               hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']) ? 'hover-title-name' : ''
-            } one-line-text max-w-[200px]`"
+            } one-line-text max-w-[200px] cursor-pointer`"
             @click="clickTitleHandler"
             >{{ detailInfo.name }}
           </div>

@@ -51,7 +51,7 @@
           v-model="record.selectUserList"
           :popup-visible="record.showUserSelect"
           multiple
-          class="w-[260px]"
+          class="w-full max-w-[300px]"
           :max-tag-count="2"
           @popup-visible-change="(value) => userGroupChange(value, record)"
         >

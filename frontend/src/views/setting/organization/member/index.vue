@@ -51,7 +51,7 @@
           multiple
           :max-tag-count="2"
           size="small"
-          class="w-[260px]"
+          class="w-full max-w-[300px]"
           :popup-visible="record.showProjectSelect"
           @change="(value) => selectUserOrProject(value, record, 'project')"
           @popup-visible-change="visibleChange($event, record, 'project')"
@@ -74,7 +74,7 @@
           v-model="record.selectUserList"
           multiple
           :max-tag-count="2"
-          class="w-[260px]"
+          class="w-full max-w-[300px]"
           :popup-visible="record.showUserSelect"
           @change="(value) => selectUserOrProject(value, record, 'user')"
           @popup-visible-change="(value) => visibleChange(value, record, 'user')"
