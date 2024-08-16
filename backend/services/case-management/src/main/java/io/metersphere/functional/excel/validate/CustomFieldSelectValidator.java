@@ -62,7 +62,7 @@ public class CustomFieldSelectValidator extends AbstractCustomFieldValidator {
 
     @Override
     public Object parse2Value(String keyOrValuesStr, TemplateCustomFieldDTO customField) {
-        Map<String, String> optionValueMap = customField.getOptions().stream().collect(Collectors.toMap(CustomFieldOption::getFieldId, CustomFieldOption::getValue));
+        Map<String, String> optionValueMap = customField.getOptions().stream().collect(Collectors.toMap(CustomFieldOption::getValue, CustomFieldOption::getText));
         if (optionValueMap.containsKey(keyOrValuesStr)) {
             return optionValueMap.get(keyOrValuesStr);
         }
