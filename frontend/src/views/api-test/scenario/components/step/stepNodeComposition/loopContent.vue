@@ -109,7 +109,7 @@
               <MsIcon
                 type="icon-icon_full_screen_one"
                 class="input-suffix-icon ml-[8px]"
-                @click.stop="emit('quickInput', 'conditionValue')"
+                @click.stop="handleQuickInput"
               />
             </template>
           </a-input>
@@ -244,6 +244,15 @@
       label: t('apiScenario.expression'),
     },
   ];
+
+  function handleQuickInput() {
+    emit(
+      'quickInput',
+      innerData.value.whileController.conditionType === WhileConditionType.CONDITION
+        ? 'msWhileVariableValue'
+        : 'msWhileVariableScriptValue'
+    );
+  }
 
   watchEffect(() => {
     innerData.value = props.data;

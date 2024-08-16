@@ -91,7 +91,7 @@ export default {
   'testPlan.planForm.enableAutomaticStatusTip':
     'Enable: function case execution successful cases associated interface, function of the use case status automatically updated to success',
   'testPlan.planForm.closeAutomaticStatusTip':
-    'Close: The result of execution of a functional use case is not affected by the interface',
+    'Close: Function of use case execution result is not affected by the interface use case/scenario use case',
   'testPlan.planForm.passThresholdTip': 'If the pass rate reaches the specified pass threshold, the result is passed',
   'testPlan.planForm.pickCases': 'Select cases',
   'testPlan.testPlanDetail.executed': 'Executed',
