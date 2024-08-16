@@ -450,12 +450,25 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertEquals(msHTTPElement.getModuleId(), apiDefinition.getModuleId());
         Assertions.assertEquals(msHTTPElement.getNum(), apiDefinition.getNum());
 
+        assertionModuleName(apiDefinitionDTO);
+        copyApiDefinitionDTO.setModuleName(apiDefinitionDTO.getModuleName());
+
         Assertions.assertEquals(apiDefinitionDTO, copyApiDefinitionDTO);
 
         assertErrorCode(this.requestGet(GET + "111"), ApiResultCode.API_DEFINITION_NOT_EXIST);
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ, GET + apiDefinition.getId());
+    }
+
+    private void assertionModuleName(ApiDefinitionDTO apiDefinitionDTO) {
+        // 判断模块名是否正确
+        ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(apiDefinitionDTO.getModuleId());
+        if (apiDefinitionModule == null) {
+            Assertions.assertEquals(apiDefinitionDTO.getModuleName(), Translator.get("api_unplanned_request"));
+        } else {
+            Assertions.assertEquals(apiDefinitionDTO.getModuleName(), apiDefinitionModule.getName());
+        }
     }
 
     @Test
@@ -924,12 +937,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
             List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
             Assertions.assertEquals(apiDefinitionDTO.getCaseTotal(), apiTestCases.size());
             // 判断模块名是否正确
-            ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(apiDefinitionDTO.getModuleId());
-            if (apiDefinitionModule == null) {
-                Assertions.assertEquals(apiDefinitionDTO.getModuleName(), Translator.get("api_unplanned_request"));
-            } else {
-                Assertions.assertEquals(apiDefinitionDTO.getModuleName(), apiDefinitionModule.getName());
-            }
+            assertionModuleName(apiDefinitionDTO);
         }
     }
 

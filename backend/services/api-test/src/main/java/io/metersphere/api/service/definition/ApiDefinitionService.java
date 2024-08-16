@@ -921,6 +921,8 @@ public class ApiDefinitionService extends MoveNodeService {
         ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(apiDefinitionDTO.getModuleId());
         if (apiDefinitionModule != null) {
             apiDefinitionDTO.setModuleName(apiDefinitionModule.getName());
+        } else {
+            apiDefinitionDTO.setModuleName(Translator.get("api_unplanned_request"));
         }
         return apiDefinitionDTO;
     }
