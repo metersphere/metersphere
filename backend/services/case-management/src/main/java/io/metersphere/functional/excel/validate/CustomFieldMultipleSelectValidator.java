@@ -8,7 +8,10 @@ import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -50,18 +53,16 @@ public class CustomFieldMultipleSelectValidator extends CustomFieldSelectValidat
 
     @Override
     public Object parse2Value(String keyOrValuesStr, TemplateCustomFieldDTO customField) {
-        Map<String, String> optionValueMap = customField.getOptions().stream().collect(Collectors.toMap(CustomFieldOption::getFieldId, CustomFieldOption::getValue));
-        if (StringUtils.isBlank(keyOrValuesStr)) {
-            return JSON.toJSONString(new ArrayList<>());
+        if (StringUtils.isBlank(keyOrValuesStr) || StringUtils.equals(keyOrValuesStr, "[]")) {
+            return StringUtils.EMPTY;
         }
-        List<String> keyOrValues = parse2Array(keyOrValuesStr);
-        for (int i = 0; i < keyOrValues.size(); i++) {
-            String item = keyOrValues.get(i);
-            if (optionValueMap.containsKey(item)) {
-                keyOrValues.set(i, optionValueMap.get(item));
-            }
+        String keyOrValues = String.join(",", JSON.parseArray(keyOrValuesStr));
+        List<String> result = new ArrayList<>();
+        Map<String, String> optionValueMap = customField.getOptions().stream().collect(Collectors.toMap(CustomFieldOption::getValue, CustomFieldOption::getText));
+        if (optionValueMap.containsKey(keyOrValues)) {
+            result.add(optionValueMap.get(keyOrValues));
         }
-        return JSON.toJSONString(keyOrValues);
+        return String.join(",", JSON.parseArray(JSON.toJSONString(result)));
     }
 
 }
