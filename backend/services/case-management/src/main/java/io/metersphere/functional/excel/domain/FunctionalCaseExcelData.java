@@ -7,6 +7,7 @@ import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
@@ -64,7 +65,9 @@ public class FunctionalCaseExcelData {
         List<List<String>> heads = new ArrayList<>();
         FunctionalCaseImportFiled[] fields = FunctionalCaseImportFiled.values();
         for (FunctionalCaseImportFiled field : fields) {
-            heads.add(Arrays.asList(field.getFiledLangMap().get(lang)));
+            if (!StringUtils.equalsIgnoreCase(field.name(), "ID")) {
+                heads.add(Arrays.asList(field.getFiledLangMap().get(lang)));
+            }
         }
 
         if (CollectionUtils.isNotEmpty(customFields)) {
