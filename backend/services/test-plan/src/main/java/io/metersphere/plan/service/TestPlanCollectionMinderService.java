@@ -1,5 +1,6 @@
 package io.metersphere.plan.service;
 
+import com.google.common.collect.Maps;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
@@ -298,10 +299,12 @@ public class TestPlanCollectionMinderService {
             Map<String, List<TestPlanCollection>> parentMap = getParentMap(request);
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             TestPlanCollectionMapper collectionMapper = sqlSession.getMapper(TestPlanCollectionMapper.class);
+            // 临时的节点
+            Map<String, String> tempCollectionMap = Maps.newHashMapWithExpectedSize(8);
             //新增
-            Map<String, List<String>> addTypeNameMap = dealAddList(request, userId, associateMap, parentMap, collectionMapper);
+            Map<String, List<String>> addTypeNameMap = dealAddList(request, userId, associateMap, parentMap, collectionMapper, tempCollectionMap);
             //更新
-            Map<String, List<String>> updateTypeNameMap = dealUpdateList(request, userId, associateMap, parentMap, collectionMapper);
+            Map<String, List<String>> updateTypeNameMap = dealUpdateList(request, userId, associateMap, parentMap, collectionMapper, tempCollectionMap);
             //检查同一类型名称重复
             checkNameRepeat(updateTypeNameMap, addTypeNameMap);
             sqlSession.flushStatements();
@@ -321,8 +324,9 @@ public class TestPlanCollectionMinderService {
         });
     }
 
-    private Map<String, List<String>> dealUpdateList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap, Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper) {
-        List<TestPlanCollectionMinderEditDTO> updateList = request.getEditList().stream().filter(t -> StringUtils.isNotBlank(t.getId())).toList();
+    private Map<String, List<String>> dealUpdateList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap,
+                                                     Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper, Map<String, String> tempCollectionMap) {
+        List<TestPlanCollectionMinderEditDTO> updateList = request.getEditList().stream().filter(t -> !t.getTempCollectionNode() && StringUtils.isNotBlank(t.getId())).toList();
         Map<String, List<String>> typeNamesMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(updateList)) {
             //处理删除
@@ -331,7 +335,7 @@ public class TestPlanCollectionMinderService {
             for (TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO : updateList) {
                 TestPlanCollection testPlanCollection = updateCollection(request, userId, testPlanCollectionMinderEditDTO, parentMap, collectionMapper);
                 checkChangeDataRepeat(typeNamesMap, testPlanCollectionMinderEditDTO);
-                setAssociateMap(testPlanCollectionMinderEditDTO, associateMap, testPlanCollection);
+                setAssociateMap(testPlanCollectionMinderEditDTO, associateMap, testPlanCollection, tempCollectionMap);
             }
         }
         return typeNamesMap;
@@ -348,14 +352,17 @@ public class TestPlanCollectionMinderService {
         }
     }
 
-    private Map<String, List<String>> dealAddList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap, Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper) {
+    private Map<String, List<String>> dealAddList(TestPlanCollectionMinderEditRequest request, String userId, Map<String, List<BaseCollectionAssociateRequest>> associateMap,
+                                                  Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper, Map<String, String> tempCollectionMap) {
         Map<String, List<String>> typeNamesMap = new HashMap<>();
-        List<TestPlanCollectionMinderEditDTO> addList = request.getEditList().stream().filter(t -> StringUtils.isBlank(t.getId()) && t.getLevel() == 2).toList();
+        List<TestPlanCollectionMinderEditDTO> addList = request.getEditList().stream().filter(t -> t.getTempCollectionNode() && t.getLevel() == 2).collect(Collectors.toList());
+        // 接口/场景 可能存在临时节点, 排序后先入库处理
+        Collections.reverse(addList);
         if (CollectionUtils.isNotEmpty(addList)) {
             for (TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO : addList) {
-                TestPlanCollection testPlanCollection = addCollection(request, userId, testPlanCollectionMinderEditDTO, parentMap, collectionMapper);
+                TestPlanCollection testPlanCollection = addCollection(request, userId, testPlanCollectionMinderEditDTO, parentMap, collectionMapper, tempCollectionMap);
                 checkChangeDataRepeat(typeNamesMap, testPlanCollectionMinderEditDTO);
-                setAssociateMap(testPlanCollectionMinderEditDTO, associateMap, testPlanCollection);
+                setAssociateMap(testPlanCollectionMinderEditDTO, associateMap, testPlanCollection, tempCollectionMap);
             }
         }
         return typeNamesMap;
@@ -423,7 +430,8 @@ public class TestPlanCollectionMinderService {
     }
 
     @NotNull
-    private static TestPlanCollection addCollection(TestPlanCollectionMinderEditRequest request, String userId, TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO, Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper) {
+    private static TestPlanCollection addCollection(TestPlanCollectionMinderEditRequest request, String userId, TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO,
+                                                    Map<String, List<TestPlanCollection>> parentMap, TestPlanCollectionMapper collectionMapper, Map<String, String> tempCollectionMap) {
         List<TestPlanCollection> testPlanCollections = parentMap.get(testPlanCollectionMinderEditDTO.getType());
         TestPlanCollection parent = testPlanCollections.getFirst();
         TestPlanCollection testPlanCollection = new TestPlanCollection();
@@ -443,10 +451,15 @@ public class TestPlanCollectionMinderService {
         testPlanCollection.setCreateTime(System.currentTimeMillis());
         testPlanCollection.setPos((testPlanCollectionMinderEditDTO.getNum() + 1) * 4096);
         collectionMapper.insert(testPlanCollection);
+        // 维护新增临时节点 (接口/场景)
+        if (StringUtils.equalsAny(testPlanCollectionMinderEditDTO.getType(), CaseType.API_CASE.getKey(), CaseType.SCENARIO_CASE.getKey())) {
+            tempCollectionMap.put(testPlanCollectionMinderEditDTO.getId(), testPlanCollection.getId());
+        }
         return testPlanCollection;
     }
 
-    private static void setAssociateMap(TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO, Map<String, List<BaseCollectionAssociateRequest>> associateMap, TestPlanCollection testPlanCollection) {
+    private static void setAssociateMap(TestPlanCollectionMinderEditDTO testPlanCollectionMinderEditDTO, Map<String, List<BaseCollectionAssociateRequest>> associateMap,
+                                        TestPlanCollection testPlanCollection, Map<String, String> tempCollectionMap) {
         List<TestPlanCollectionAssociateDTO> associateDTOS = testPlanCollectionMinderEditDTO.getAssociateDTOS();
         if (CollectionUtils.isEmpty(associateDTOS)) {
             return;
@@ -456,17 +469,25 @@ public class TestPlanCollectionMinderService {
             List<BaseCollectionAssociateRequest> baseCollectionAssociateRequests = associateMap.get(associateType);
             if (baseCollectionAssociateRequests == null) {
                 baseCollectionAssociateRequests = new ArrayList<>();
-                addAssociate(associateDTO, testPlanCollection, baseCollectionAssociateRequests, associateMap, associateType);
+                addAssociate(associateDTO, testPlanCollection, baseCollectionAssociateRequests, associateMap, associateType, tempCollectionMap);
             } else {
-                addAssociate(associateDTO, testPlanCollection, baseCollectionAssociateRequests, associateMap, associateType);
+                addAssociate(associateDTO, testPlanCollection, baseCollectionAssociateRequests, associateMap, associateType, tempCollectionMap);
             }
         }
     }
 
-    private static void addAssociate(TestPlanCollectionAssociateDTO associateDTO, TestPlanCollection testPlanCollection, List<BaseCollectionAssociateRequest> baseCollectionAssociateRequests, Map<String, List<BaseCollectionAssociateRequest>> associateMap, String associateType) {
+    private static void addAssociate(TestPlanCollectionAssociateDTO associateDTO, TestPlanCollection testPlanCollection, List<BaseCollectionAssociateRequest> baseCollectionAssociateRequests,
+                                     Map<String, List<BaseCollectionAssociateRequest>> associateMap, String associateType, Map<String, String> tempCollectionMap) {
         BaseCollectionAssociateRequest baseCollectionAssociateRequest = new BaseCollectionAssociateRequest();
         baseCollectionAssociateRequest.setCollectionId(testPlanCollection.getId());
         baseCollectionAssociateRequest.setModules(associateDTO);
+        // 临时 接口/场景 同步节点ID需要替换
+        if (tempCollectionMap.containsKey(associateDTO.getApiCaseCollectionId())) {
+            associateDTO.setApiCaseCollectionId(tempCollectionMap.get(associateDTO.getApiCaseCollectionId()));
+        }
+        if (tempCollectionMap.containsKey(associateDTO.getApiScenarioCollectionId())) {
+            associateDTO.setApiScenarioCollectionId(tempCollectionMap.get(associateDTO.getApiScenarioCollectionId()));
+        }
         baseCollectionAssociateRequests.add(baseCollectionAssociateRequest);
         associateMap.put(associateType, baseCollectionAssociateRequests);
     }
