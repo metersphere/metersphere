@@ -21,6 +21,9 @@ public class TestPlanCollectionMinderEditDTO implements Serializable {
     @Schema(description = "节点ID(新增的时候前端传UUid，更新的时候必填)")
     private String id;
 
+    @Schema(description = "是否临时节点 {新增节点时, 传入true}")
+    private Boolean tempCollectionNode = false;
+
     @Schema(description = "节点名称")
     @NotBlank(message = "{test_plan_collection.name.not_blank}")
     private String text;

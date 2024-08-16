@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -157,7 +158,8 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         editList = new ArrayList<>();
         editList.addAll(parentList);
         testPlanCollectionMinderEditDTO = new TestPlanCollectionMinderEditDTO();
-        testPlanCollectionMinderEditDTO.setId(null);
+        testPlanCollectionMinderEditDTO.setId(UUID.randomUUID().toString());
+        testPlanCollectionMinderEditDTO.setTempCollectionNode(true);
         testPlanCollectionMinderEditDTO.setText("新建名称");
         testPlanCollectionMinderEditDTO.setNum(500L);
         testPlanCollectionMinderEditDTO.setLevel(2);
