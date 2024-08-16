@@ -9,10 +9,7 @@ import io.metersphere.plan.mapper.TestPlanCollectionMapper;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanReportMapper;
-import io.metersphere.sdk.constants.ApiBatchRunMode;
-import io.metersphere.sdk.constants.CaseType;
-import io.metersphere.sdk.constants.TaskTriggerMode;
-import io.metersphere.sdk.constants.TestPlanConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.queue.TestPlanExecutionQueue;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
@@ -60,7 +57,9 @@ public class TestPlanExecuteService {
     // 停止测试计划的执行
     public void stopTestPlanRunning(String testPlanReportId) {
         TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportId);
-        if (testPlanReport == null) {
+        if (testPlanReport == null
+                || StringUtils.equalsAnyIgnoreCase(testPlanReport.getExecStatus(), ExecStatus.COMPLETED.name(), ExecStatus.STOPPED.name())) {
+            // 已经执行完成或者已经停止的测试计划，不再操作
             return;
         }
         if (testPlanReport.getIntegrated()) {
@@ -86,9 +85,12 @@ public class TestPlanExecuteService {
             String groupExecuteQueueId = testPlanExecuteSupportService.genQueueKey(testPlanReportId, QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE);
             testPlanExecuteSupportService.deleteRedisKey(groupExecuteQueueId);
             testPlanItemReport.forEach(item -> {
-                this.deepDeleteTestPlanCaseType(item);
-                //统计子测试计划报告
-                testPlanExecuteSupportService.summaryTestPlanReport(item.getId(), false, true);
+                //处理未完成的子报告
+                if (!StringUtils.equalsIgnoreCase(item.getExecStatus(), ExecStatus.COMPLETED.name())) {
+                    this.deepDeleteTestPlanCaseType(item);
+                    //统计子测试计划报告
+                    testPlanExecuteSupportService.summaryTestPlanReport(item.getId(), false, true);
+                }
             });
             testPlanExecuteSupportService.summaryTestPlanReport(testPlanReportId, true, true);
             this.testPlanExecuteQueueFinish(nextTestPlanQueue.getParentQueueId(), nextTestPlanQueue.getParentQueueType());
