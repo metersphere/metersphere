@@ -77,6 +77,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -610,8 +612,10 @@ public class FunctionalCaseFileService {
                 // 如果有多条步骤则添加多条数据，之后合并单元格
                 buildExportMergeData(rowMergeInfo, list, textDescriptionList, expectedResultList, data);
             } else {
-                data.setTextDescription(parseData(textDescriptionList));
-                data.setExpectedResult(parseData(expectedResultList));
+                if (CollectionUtils.isNotEmpty(textDescriptionList)) {
+                    data.setTextDescription(parseData(textDescriptionList));
+                    data.setExpectedResult(parseData(expectedResultList));
+                }
                 list.add(data);
             }
         });
@@ -646,7 +650,7 @@ public class FunctionalCaseFileService {
         data.setModule(moduleMap.get(functionalCase.getModuleId()));
         //构建步骤
         buildExportStep(data, functionalCaseBlob, functionalCase.getCaseEditType(), textDescriptionList, expectedResultList);
-        data.setPrerequisite(new String(functionalCaseBlob.getPrerequisite() == null ? new byte[0] : functionalCaseBlob.getPrerequisite(), StandardCharsets.UTF_8));
+        data.setPrerequisite(parseHtml(new String(functionalCaseBlob.getPrerequisite() == null ? new byte[0] : functionalCaseBlob.getPrerequisite(), StandardCharsets.UTF_8)));
 
         //标签
         data.setTags(JSON.toJSONString(functionalCase.getTags()));
@@ -797,7 +801,7 @@ public class FunctionalCaseFileService {
                         // 这里如果填的是选项值，替换成选项ID，保存
                         map.put(v.getFieldName(), customFieldValidator.parse2Value(caseFieldvalueMap.get(k), v));
                     } else {
-                        map.put(v.getFieldName(), caseFieldvalueMap.get(k));
+                        map.put(Translator.get("custom_field.functional_priority"), caseFieldvalueMap.get(k));
                     }
                 }
             }
@@ -827,8 +831,8 @@ public class FunctionalCaseFileService {
      */
     private void buildExportStep(FunctionalCaseExcelData data, FunctionalCaseBlob functionalCaseBlob, String caseEditType, List<String> textDescriptionList, List<String> expectedResultList) {
         if (StringUtils.equals(caseEditType, FunctionalCaseTypeConstants.CaseEditType.TEXT.name())) {
-            data.setTextDescription(new String(functionalCaseBlob.getTextDescription() == null ? new byte[0] : functionalCaseBlob.getTextDescription(), StandardCharsets.UTF_8));
-            data.setExpectedResult(new String(functionalCaseBlob.getExpectedResult() == null ? new byte[0] : functionalCaseBlob.getExpectedResult(), StandardCharsets.UTF_8));
+            data.setTextDescription(parseHtml(new String(functionalCaseBlob.getTextDescription() == null ? new byte[0] : functionalCaseBlob.getTextDescription(), StandardCharsets.UTF_8)));
+            data.setExpectedResult(parseHtml(new String(functionalCaseBlob.getExpectedResult() == null ? new byte[0] : functionalCaseBlob.getExpectedResult(), StandardCharsets.UTF_8)));
         } else {
             String steps = new String(functionalCaseBlob.getSteps() == null ? new byte[0] : functionalCaseBlob.getSteps(), StandardCharsets.UTF_8);
             List jsonArray = new ArrayList();
@@ -851,6 +855,16 @@ public class FunctionalCaseFileService {
                 }
             }
         }
+    }
+
+    public String parseHtml(String html) {
+        Pattern pattern = Pattern.compile("<p[^>]*>(.*?)</p>");
+        Matcher matcher = pattern.matcher(html);
+        if (matcher.find()) {
+            String content = matcher.group(1);
+            return content;
+        }
+        return StringUtils.EMPTY;
     }
 
 
