@@ -26,7 +26,8 @@
         fccf.`value` defaultValue,
         cf.NAME fieldName,
         cf.internal internal,
-        cf.type type
+        cf.type type,
+        cf.NAME internalFieldKey
         FROM
         functional_case_custom_field fccf
         INNER JOIN custom_field cf ON fccf.field_id = cf.id
