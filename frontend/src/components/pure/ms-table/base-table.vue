@@ -1088,6 +1088,8 @@
     background: rgb(var(--primary-1)) content-box;
     .arco-table-th-title {
       .title-name {
+        padding-left: 4px;
+        border-radius: 2px 0 0 2px;
         color: rgb(var(--primary-5));
       }
     }
@@ -1102,6 +1104,8 @@
           color: rgb(var(--primary-5)) !important;
         }
         .title-name {
+          padding-left: 4px;
+          border-radius: 2px 0 0 2px;
           color: rgb(var(--primary-5));
         }
       }
