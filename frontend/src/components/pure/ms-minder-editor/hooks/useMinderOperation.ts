@@ -269,8 +269,8 @@ export default function useMinderOperation(options: MinderOperationProps) {
       if (!options.customPriority) {
         // 展开后，需要设置一次优先级展示，避免展开后优先级显示成脑图内置文案；如果设置了自定义优先级，则不在此设置，由外部自行处理
         setPriorityView(!!options.priorityStartWithZero, options.priorityPrefix || '');
-        window.minder.refresh();
       }
+      window.minder.refresh();
       minderStore.dispatchEvent(MinderEventName.COLLAPSE, undefined, undefined, undefined, selectedNodes);
     } else {
       // 选中的节点集合中有一个节点未展开，则全部展开
@@ -286,8 +286,8 @@ export default function useMinderOperation(options: MinderOperationProps) {
       if (!options.customPriority) {
         // 展开后，需要设置一次优先级展示，避免展开后优先级显示成脑图内置文案；如果设置了自定义优先级，则不在此设置，由外部自行处理
         setPriorityView(!!options.priorityStartWithZero, options.priorityPrefix || '');
-        window.minder.refresh();
       }
+      window.minder.refresh();
       minderStore.dispatchEvent(MinderEventName.EXPAND, undefined, undefined, undefined, selectedNodes);
     }
   };
