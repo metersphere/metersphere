@@ -34,6 +34,9 @@ public class FunctionalCaseExportColumns {
         otherColumns.put("create_time", Translator.get("case.export.system.other.columns.create_time"));
         otherColumns.put("update_user", Translator.get("case.export.system.other.columns.update_user"));
         otherColumns.put("update_time", Translator.get("case.export.system.other.columns.update_time"));
+        otherColumns.put("case_comment", Translator.get("case.export.system.other.columns.case_comment"));
+        otherColumns.put("execute_comment", Translator.get("case.export.system.other.columns.execute_comment"));
+        otherColumns.put("review_comment", Translator.get("case.export.system.other.columns.review_comment"));
 
     }
 
