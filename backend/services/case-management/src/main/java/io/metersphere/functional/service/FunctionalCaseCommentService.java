@@ -193,9 +193,9 @@ public class FunctionalCaseCommentService {
 
     private static void setLanguage(String language) {
         Locale locale = Locale.SIMPLIFIED_CHINESE;
-        if (StringUtils.containsIgnoreCase("US",language)) {
+        if (StringUtils.containsIgnoreCase(language, "US")) {
             locale = Locale.US;
-        } else if (StringUtils.containsIgnoreCase("TW",language)){
+        } else if (StringUtils.containsIgnoreCase(language, "TW")){
             locale = Locale.TAIWAN;
         }
         LocaleContextHolder.setLocale(locale);

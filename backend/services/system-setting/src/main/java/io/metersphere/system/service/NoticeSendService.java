@@ -92,9 +92,9 @@ public class NoticeSendService {
     private static void setLanguage(NoticeModel noticeModel) {
         String language = (String) noticeModel.getParamMap().get("Language");
         Locale locale = Locale.SIMPLIFIED_CHINESE;
-        if (StringUtils.containsIgnoreCase("US",language)) {
+        if (StringUtils.containsIgnoreCase(language,"US")) {
             locale = Locale.US;
-        } else if (StringUtils.containsIgnoreCase("TW",language)){
+        } else if (StringUtils.containsIgnoreCase(language,"TW")){
             locale = Locale.TAIWAN;
         }
         LocaleContextHolder.setLocale(locale);
@@ -102,9 +102,9 @@ public class NoticeSendService {
 
     public void setLanguage(String language) {
         Locale locale = Locale.SIMPLIFIED_CHINESE;
-        if (StringUtils.containsIgnoreCase("US",language)) {
+        if (StringUtils.containsIgnoreCase(language,"US")) {
             locale = Locale.US;
-        } else if (StringUtils.containsIgnoreCase("TW",language)){
+        } else if (StringUtils.containsIgnoreCase(language,"TW")){
             locale = Locale.TAIWAN;
         }
         LocaleContextHolder.setLocale(locale);
