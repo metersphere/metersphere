@@ -464,6 +464,45 @@ public class XmindExportUtil {
             }
         });
 
+        buildStep(dto, systemColumns, itemTopic, workbook, style);
+
+
+        //自定义字段
+        Map<String, String> customColumnsMap = request.getCustomFields().stream().collect(Collectors.toMap(FunctionalCaseHeader::getId, FunctionalCaseHeader::getName));
+        HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap(request.getProjectId());
+
+        customColumnsMap.forEach((k, v) -> {
+            if (customFieldMap.containsKey(k) && temCustomFieldsMap.containsKey(k)) {
+                AbstractCustomFieldValidator customFieldValidator = customFieldValidatorMap.get(temCustomFieldsMap.get(k).getType());
+                String value = "";
+                if (customFieldValidator.isKVOption) {
+                    if (!temCustomFieldsMap.get(k).getInternal()) {
+                        // 这里如果填的是选项值，替换成选项ID，保存
+                        value = customFieldValidator.parse2Value(customFieldMap.get(k), temCustomFieldsMap.get(k)).toString();
+                    } else {
+                        value = customFieldMap.get(k);
+                    }
+                }
+
+                ITopic preTopic = workbook.createTopic();
+                preTopic.setTitleText(v.concat(": ").concat(value));
+                if (style != null) {
+                    preTopic.setStyleId(style.getId());
+                }
+                itemTopic.add(preTopic, ITopic.ATTACHED);
+            }
+        });
+
+        topic.add(itemTopic);
+    }
+
+    private static void buildStep(FunctionalCaseXmindDTO dto, List<String> systemColumns, ITopic itemTopic, IWorkbook workbook, IStyle style) {
+        List<String> textDescription = systemColumns.stream().filter(item -> StringUtils.equalsIgnoreCase(item, "text_description")).toList();
+        List<String> expectedResult = systemColumns.stream().filter(item -> StringUtils.equalsIgnoreCase(item, "expected_result")).toList();
+        if (CollectionUtils.isEmpty(textDescription) && CollectionUtils.isEmpty(expectedResult)) {
+            return;
+        }
+
         if (StringUtils.equalsIgnoreCase(dto.getCaseEditType(), FunctionalCaseTypeConstants.CaseEditType.TEXT.name())) {
             //文本描述
             ITopic textDesTopic = workbook.createTopic();
@@ -527,39 +566,13 @@ public class XmindExportUtil {
             } catch (Exception e) {
             }
         }
-
-
-        //自定义字段
-        Map<String, String> customColumnsMap = request.getCustomFields().stream().collect(Collectors.toMap(FunctionalCaseHeader::getId, FunctionalCaseHeader::getName));
-        HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap(request.getProjectId());
-
-        customColumnsMap.forEach((k, v) -> {
-            if (customFieldMap.containsKey(k) && temCustomFieldsMap.containsKey(k)) {
-                AbstractCustomFieldValidator customFieldValidator = customFieldValidatorMap.get(temCustomFieldsMap.get(k).getType());
-                String value = "";
-                if (customFieldValidator.isKVOption) {
-                    if (!temCustomFieldsMap.get(k).getInternal()) {
-                        // 这里如果填的是选项值，替换成选项ID，保存
-                        value = customFieldValidator.parse2Value(customFieldMap.get(k), temCustomFieldsMap.get(k)).toString();
-                    } else {
-                        value = customFieldMap.get(k);
-                    }
-                }
-
-                ITopic preTopic = workbook.createTopic();
-                preTopic.setTitleText(v.concat(": ").concat(value));
-                if (style != null) {
-                    preTopic.setStyleId(style.getId());
-                }
-                itemTopic.add(preTopic, ITopic.ATTACHED);
-            }
-        });
-
-        topic.add(itemTopic);
     }
 
     private static String parseTag(String tags) {
         List list = JSON.parseArray(tags);
+        if (CollectionUtils.isEmpty(list) || list.size() == 0) {
+            return StringUtils.EMPTY;
+        }
         AtomicReference<String> tag = new AtomicReference<>("");
         list.forEach(item -> {
             tag.set(tag.get() + item.toString().concat("|"));
