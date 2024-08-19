@@ -173,7 +173,7 @@ public class XMindCaseParser {
     private boolean validateTags(FunctionalCaseExcelData data) {
         AtomicBoolean validate = new AtomicBoolean(true);
         if (StringUtils.isBlank(data.getTags())) {
-            data.setTags("");
+            data.setTags(StringUtils.EMPTY);
             return validate.get();
         }
         List<String> tags = functionalCaseService.handleImportTags(data.getTags());
@@ -286,6 +286,8 @@ public class XMindCaseParser {
                     //如果是覆盖，那么有id的需要更新
                     functionalCaseExcelData.setNum(checkResult);
                     updateList.add(functionalCaseExcelData);
+                } else {
+                    list.add(functionalCaseExcelData);
                 }
             } else {
                 list.add(functionalCaseExcelData);

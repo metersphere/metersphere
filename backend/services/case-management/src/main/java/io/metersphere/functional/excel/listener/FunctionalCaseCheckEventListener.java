@@ -310,6 +310,10 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
      * @param errMsg
      */
     private void validateTags(FunctionalCaseExcelData data, StringBuilder errMsg) {
+        if (StringUtils.isBlank(data.getTags())) {
+            data.setTags(StringUtils.EMPTY);
+            return;
+        }
         List<String> tags = functionalCaseService.handleImportTags(data.getTags());
         if (tags.size() > TAGS_COUNT) {
             errMsg.append(Translator.get("tags_count"))

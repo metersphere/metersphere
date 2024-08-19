@@ -1246,6 +1246,10 @@ public class FunctionalCaseService {
         //需要保存的自定义字段
         Map<String, Object> customData = functionalCaseExcelData.getCustomData();
         customFieldsMap.forEach((k, v) -> {
+            //用例等级如果没有默认值，则为P0
+            if (StringUtils.equalsIgnoreCase(v.getInternalFieldKey(), "functional_priority") && v.getDefaultValue()==null) {
+                v.setDefaultValue("P0");
+            }
             Object value = customData.get(k);
             FunctionalCaseCustomField caseCustomField = new FunctionalCaseCustomField();
             caseCustomField.setCaseId(caseId);
