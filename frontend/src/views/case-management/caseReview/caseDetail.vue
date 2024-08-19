@@ -40,6 +40,11 @@
             :title="t('caseManagement.featureCase.reviewResult')"
             @handle-change="handleExecResultChange"
           >
+            <template #item="{ filterItem }">
+              <a-tag :color="reviewResultMap[filterItem.value as ReviewResult].color" class="px-[4px]" size="small">
+                {{ t(reviewResultMap[filterItem.value as ReviewResult].label) }}
+              </a-tag>
+            </template>
           </MsCheckboxDropdown>
         </div>
         <a-spin :loading="caseListLoading" class="h-[calc(100%-46px)] w-full">
@@ -344,12 +349,14 @@
 
   const type = ref<string[]>([]);
   const tableFilter = ref();
-  const typeOptions = ref([
-    { label: t(reviewResultMap.UN_REVIEWED.label), value: 'UN_REVIEWED' },
-    { label: t(reviewResultMap.PASS.label), value: 'PASS' },
-    { label: t(reviewResultMap.UN_PASS.label), value: 'UN_PASS' },
-    { label: t(reviewResultMap.RE_REVIEWED.label), value: 'RE_REVIEWED' },
-  ]);
+  const typeOptions = computed(() => {
+    return Object.keys(reviewResultMap).map((key) => {
+      return {
+        value: key,
+        label: t(reviewResultMap[key as ReviewResult].label),
+      };
+    });
+  });
 
   const viewFlag = ref(false);
   const onlyMineStatus = ref(false);
