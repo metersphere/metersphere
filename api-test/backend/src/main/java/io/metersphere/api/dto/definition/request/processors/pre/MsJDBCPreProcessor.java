@@ -7,7 +7,6 @@ import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.RequestTypeConstants;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.vo.JDBCProcessorVO;
@@ -72,6 +71,10 @@ public class MsJDBCPreProcessor extends MsTestElement {
             if (this.dataSource == null) {
                 LoggerUtil.error(this.getName() + "，未找到数据源", JSONUtil.toJSONString(config));
             }
+        }
+
+        if (this.dataSource == null) {
+            return;
         }
 
         JDBCPreProcessor jdbcPreProcessor = jdbcPreProcessor(config);

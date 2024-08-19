@@ -73,10 +73,15 @@ public class MsJDBCPostProcessor extends MsTestElement {
                 LoggerUtil.error(this.getName() + "，未找到数据源", JSONUtil.toJSONString(config));
             }
         }
+        if (this.dataSource == null) {
+            return;
+        }
+
         JDBCPostProcessor jdbcPostProcessor = jdbcPostProcessor(config);
         final HashTree samplerHashTree = tree.add(jdbcPostProcessor);
 
         tree.add(ElementUtil.jdbcDataSource(jdbcPostProcessor.getDataSource(), this.dataSource));
+
         ElementUtil.jdbcArguments(this.getName(), this.getVariables(), tree);
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
