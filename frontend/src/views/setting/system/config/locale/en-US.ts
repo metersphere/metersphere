@@ -153,6 +153,7 @@ export default {
   'system.config.auth.clientSecret': 'Client secret',
   'system.config.auth.clientSecretRequired': 'Client secret cannot be empty',
   'system.config.auth.clientSecretPlaceholder': 'OIDC client secret',
+  'system.config.auth.oauth.clientSecretPlaceholder': 'OAuth2.0 client secret',
   'system.config.auth.logoutSessionUrl': 'Logout session address',
   'system.config.auth.logoutSessionUrlRequired': 'Logout session address cannot be empty',
   'system.config.auth.password': 'Password',

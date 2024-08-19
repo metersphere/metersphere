@@ -163,7 +163,7 @@
               :max-length="255"
               :placeholder="
                 t('system.config.auth.commonUrlPlaceholder', {
-                  url: 'http://<meteresphere-endpoint>/sso/callback/cas/suthld',
+                  url: 'http://<meteresphere-endpoint>/sso/callback/cas/{authId}',
                 })
               "
               allow-clear
@@ -286,7 +286,7 @@
               allow-clear
             ></a-input-password>
           </a-form-item>
-          <a-form-item
+          <!--          <a-form-item
             :label="t('system.config.auth.logoutSessionUrl')"
             field="configuration.logoutUrl"
             asterisk-position="end"
@@ -303,7 +303,7 @@
               "
               allow-clear
             ></a-input>
-          </a-form-item>
+          </a-form-item>-->
           <!--          <a-form-item :label="t('system.config.auth.loginUrl')" field="configuration.loginUrl" asterisk-position="end">
             <a-input
               v-model:model-value="activeAuthForm.configuration.loginUrl"
@@ -327,7 +327,7 @@
               :max-length="255"
               :placeholder="
                 t('system.config.auth.commonUrlPlaceholder', {
-                  url: 'http://<keyclock>auth/realms/<metersphere>/protocol/openid-connect/auth',
+                  url: 'http://<meteresphere-endpoint>/login/oauth/authorize',
                 })
               "
               allow-clear
@@ -345,7 +345,7 @@
               :max-length="255"
               :placeholder="
                 t('system.config.auth.commonUrlPlaceholder', {
-                  url: 'http://<keyclock>auth/realms/<metersphere>/protocol/openid-connect/token',
+                  url: 'https://<meteresphere-endpoint>/login/oauth/access_token',
                 })
               "
               allow-clear
@@ -363,7 +363,7 @@
               :max-length="255"
               :placeholder="
                 t('system.config.auth.commonUrlPlaceholder', {
-                  url: 'http://<keyclock>auth/realms/<metersphere>/protocol/openid-connect/userinfo',
+                  url: 'https://<meteresphere-endpoint>/user',
                 })
               "
               allow-clear
@@ -381,7 +381,7 @@
               :max-length="255"
               :placeholder="
                 t('system.config.auth.commonUrlPlaceholder', {
-                  url: 'http://<meteresphere-endpoint>/sso/callback/cas/suthld',
+                  url: 'http://<meteresphere-endpoint>/sso/callback/oauth2',
                 })
               "
               allow-clear
@@ -411,7 +411,7 @@
             <a-input-password
               v-model:model-value="activeAuthForm.configuration.secret"
               :max-length="255"
-              :placeholder="t('system.config.auth.clientSecretPlaceholder')"
+              :placeholder="t('system.config.auth.oauth.clientSecretPlaceholder')"
               allow-clear
             ></a-input-password>
           </a-form-item>
@@ -429,7 +429,7 @@
               allow-clear
             ></a-input>
           </a-form-item>
-          <a-form-item
+          <!--          <a-form-item
             :label="t('system.config.auth.logoutSessionUrl')"
             field="configuration.logoutUrl"
             asterisk-position="end"
@@ -444,7 +444,7 @@
               "
               allow-clear
             ></a-input>
-          </a-form-item>
+          </a-form-item>-->
           <a-form-item :label="t('system.config.auth.linkRange')" field="configuration.scope" asterisk-position="end">
             <a-input
               v-model:model-value="activeAuthForm.configuration.scope"
