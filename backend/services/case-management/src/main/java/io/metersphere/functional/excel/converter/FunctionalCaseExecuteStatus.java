@@ -6,9 +6,9 @@ package io.metersphere.functional.excel.converter;
 public enum FunctionalCaseExecuteStatus {
 
     PENDING("case.execute.status.pending", 1),
-    SUCCESS("case.minder.status.success", 2),
-    BLOCKED("case.minder.status.blocked", 3),
-    ERROR("case.minder.status.error", 4);
+    SUCCESS("case.execute.status.success", 2),
+    BLOCKED("case.execute.status.blocked", 3),
+    ERROR("case.execute.status.error", 4);
 
     private String i18nKey;
     private Integer order;
