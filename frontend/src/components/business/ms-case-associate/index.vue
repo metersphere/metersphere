@@ -663,6 +663,7 @@
         ...props.tableParams,
         ...props.moduleCountParams,
         filter: propsRes.value.filter,
+        protocols: caseType.value === 'API' ? selectedProtocols.value : [],
       };
       modulesCount.value = await initGetModuleCountFunc(props.type, params);
     } catch (error) {
