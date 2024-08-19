@@ -3,7 +3,7 @@ import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 import { localExecuteApiDebug } from '@/api/modules/api-test/common';
 import { debugScenario } from '@/api/modules/api-test/scenario';
 import { getSocket } from '@/api/modules/project-management/commonScript';
-import { t } from '@/hooks/useI18n';
+import { useI18n } from '@/hooks/useI18n';
 import useAppStore from '@/store/modules/app';
 import { findNodeByKey, getGenerateId, mapTree, traverseTree } from '@/utils';
 
@@ -162,6 +162,7 @@ export default function useStepExecute({
    * @param executeType 执行类型
    */
   function handleApiExecute(request: RequestParam, executeType?: 'localExec' | 'serverExec') {
+    const { t } = useI18n();
     const realStep = findNodeByKey<ScenarioStepItem>(steps.value, request.uniqueId || request.stepId, 'uniqueId');
     if (realStep) {
       delete scenario.value.stepResponses[realStep.uniqueId]; // 先移除上一次的执行结果
