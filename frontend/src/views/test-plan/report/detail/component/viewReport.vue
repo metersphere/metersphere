@@ -1,5 +1,10 @@
 <template>
-  <ReportHeader v-if="!props.isDrawer && props.isPreview" :detail="detail" :share-id="shareId" :is-group="false" />
+  <ReportHeader
+    v-if="!props.isDrawer && props.isPreview"
+    :detail="detail"
+    :share-id="shareId"
+    :is-group="props.isGroup"
+  />
   <div class="analysis-wrapper" :data-cards="cardCount">
     <SystemTrigger :is-preview="props.isPreview">
       <div :class="`${getAnalysisHover} analysis min-w-[330px]`">
@@ -134,8 +139,33 @@
           </div>
         </div>
         <div class="wrapper-preview-card">
-          <div v-if="item.value !== ReportCardTypeEnum.CUSTOM_CARD" class="mb-[8px] font-medium">
-            {{ t(item.label) }}
+          <div class="flex items-center justify-between">
+            <div v-if="item.value !== ReportCardTypeEnum.CUSTOM_CARD" class="mb-[8px] font-medium">
+              {{ t(item.label) }}
+            </div>
+            <a-radio-group
+              v-if="item.value === ReportCardTypeEnum.SUB_PLAN_DETAIL && props.isPreview"
+              class="mb-2"
+              :model-value="currentMode"
+              type="button"
+              @change="handleModeChange"
+            >
+              <a-radio value="drawer">
+                <div class="mode-button">
+                  <MsIcon :class="{ 'active-color': currentMode === 'drawer' }" type="icon-icon_drawer" />
+                  <span class="mode-button-title">{{ t('msTable.columnSetting.drawer') }}</span>
+                </div>
+              </a-radio>
+              <a-radio value="new_window">
+                <div class="mode-button">
+                  <MsIcon
+                    :class="{ 'active-color': currentMode === 'new_window' }"
+                    type="icon-icon_into-item_outlined"
+                  />
+                  <span class="mode-button-title">{{ t('msTable.columnSetting.newWindow') }}</span>
+                </div>
+              </a-radio>
+            </a-radio-group>
           </div>
           <ReportDetailTable
             v-if="item.value === ReportCardTypeEnum.SUB_PLAN_DETAIL"
@@ -378,33 +408,6 @@
     scenarioCaseOptions.value.series.data = getPassRateData(apiScenarioCount);
   }
 
-  const reportAnalysisList = computed<ReportMetricsItemModel[]>(() => [
-    {
-      name: t('report.detail.threshold'),
-      value: detail.value.passThreshold,
-      unit: '%',
-      icon: 'threshold',
-    },
-    {
-      name: t('report.passRate'),
-      value: detail.value.passRate,
-      unit: '%',
-      icon: 'passRate',
-    },
-    {
-      name: t('report.detail.performCompletion'),
-      value: detail.value.executeRate,
-      unit: '%',
-      icon: 'passRate',
-    },
-    {
-      name: t('report.detail.totalDefects'),
-      value: addCommasToNumber(detail.value.bugCount),
-      unit: t('report.detail.number'),
-      icon: 'bugTotal',
-    },
-  ]);
-
   const functionCasePassRate = computed(() => {
     const apiCaseDetail = getSummaryDetail(detail.value.functionalCount || defaultCount);
     return apiCaseDetail.successRate;
@@ -422,6 +425,67 @@
   const functionalCaseTotal = computed(() => getSummaryDetail(detail.value.functionalCount).caseTotal);
   const apiCaseTotal = computed(() => getSummaryDetail(detail.value.apiCaseCount).caseTotal);
   const scenarioCaseTotal = computed(() => getSummaryDetail(detail.value.apiScenarioCount).caseTotal);
+
+  const totalCase = computed(() => {
+    return functionalCaseTotal.value + apiCaseTotal.value + scenarioCaseTotal.value;
+  });
+
+  const reportAnalysisList = computed<ReportMetricsItemModel[]>(() => {
+    if (props.isGroup) {
+      return [
+        {
+          name: t('report.detail.testPlanTotal'),
+          value: detail.value.planCount,
+          unit: t('report.detail.number'),
+          icon: 'plan_total',
+        },
+        {
+          name: t('report.detail.testPlanCaseTotal'),
+          value: detail.value.caseTotal,
+          unit: t('report.detail.number'),
+          icon: 'case_total',
+        },
+        {
+          name: t('report.passRate'),
+          value: detail.value.executeRate,
+          unit: '%',
+          icon: 'passRate',
+        },
+        {
+          name: t('report.detail.totalDefects'),
+          value: addCommasToNumber(detail.value.bugCount),
+          unit: t('report.detail.number'),
+          icon: 'bugTotal',
+        },
+      ];
+    }
+    return [
+      {
+        name: t('report.detail.threshold'),
+        value: detail.value.passThreshold,
+        unit: '%',
+        icon: 'threshold',
+      },
+      {
+        name: t('report.passRate'),
+        value: detail.value.passRate,
+        unit: '%',
+        icon: 'passRate',
+      },
+      {
+        name: t('report.detail.performCompletion'),
+        value: detail.value.passRate,
+        unit: '%',
+        icon: 'passRate',
+      },
+      {
+        name: t('report.detail.totalDefects'),
+        value: addCommasToNumber(detail.value.bugCount),
+        unit: t('report.detail.number'),
+        icon: 'bugTotal',
+      },
+    ];
+  });
 
   function showItem(item: configItem) {
     switch (item.value) {
@@ -532,6 +596,10 @@
   }
 
   const currentMode = ref<string>('drawer');
+
+  function handleModeChange(value: string | number | boolean, ev: Event) {
+    currentMode.value = value as string;
+  }
 
   function getColor(index: number, type: string) {
     if (type === 'top' && index === 0) {
