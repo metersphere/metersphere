@@ -467,12 +467,13 @@
   });
   const autoNext = ref(true);
   async function executeDone(status: LastExecuteResults) {
+    caseDetail.value.lastExecuteResult = status;
     if (autoNext.value) {
       // 自动下一个，更改激活的 id会刷新详情
       const index = caseList.value.findIndex((e) => e.id === activeId.value);
 
       // 如果过滤的状态和执行状态不一样，则这条将从当前列表排除
-      const oneMissingCase = lastExecResult.value.length && !lastExecResult.value.includes(status);
+      const oneMissingCase = lastExecResult.value?.length && !lastExecResult.value.includes(status);
       if (oneMissingCase) {
         if ((pageNation.value.current - 1) * pageNation.value.pageSize + index + 1 < pageNation.value.total) {
           // 不是最后一个
@@ -570,6 +571,7 @@
       showLinkDrawer.value = false;
       loadBugListAndCaseDetail();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       drawerLoading.value = false;
@@ -642,6 +644,7 @@
         testPlanId: route.query.id as string,
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       executeLoading.value = false;
