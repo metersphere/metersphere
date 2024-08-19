@@ -58,6 +58,10 @@ public class NoticeTemplateControllerTests extends BaseTest {
         typeList.add(NoticeConstants.TaskType.BUG_TASK);
         typeList.add(NoticeConstants.TaskType.JENKINS_TASK);
         typeList.add(NoticeConstants.TaskType.SCHEDULE_TASK);
+        typeList.add(NoticeConstants.TaskType.API_REPORT_TASK);
+        typeList.add(NoticeConstants.TaskType.BUG_SYNC_TASK);
+
+
     }
 
     @Test

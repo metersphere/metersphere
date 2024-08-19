@@ -407,6 +407,14 @@ public class FunctionalCaseControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(editRequest));
         paramMap.add("files", files);
         this.requestMultipart(FUNCTIONAL_CASE_UPDATE_URL, paramMap);
+
+        editRequest.setExpectedResult("adfadsasfdf");
+        editRequest.setPrerequisite("adfadsasfdf");
+        editRequest.setDescription("adfadsasfdf");
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(editRequest));
+        paramMap.add("files", files);
+        this.requestMultipart(FUNCTIONAL_CASE_UPDATE_URL, paramMap);
     }
 
     private List<CaseCustomFieldDTO> updateCustomFields(FunctionalCaseEditRequest editRequest) {
