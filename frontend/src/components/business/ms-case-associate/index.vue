@@ -140,7 +140,7 @@
             <a-button type="text" class="px-0" @click="openDetail(record.id)">{{ record.num }} </a-button>
           </template>
           <template #caseLevel="{ record }">
-            <caseLevel v-if="getCaseLevel(record)" :case-level="getCaseLevel(record)" />
+            <caseLevel :case-level="getCaseLevels(record.customFields)" />
           </template>
           <template #lastExecuteResult="{ record }">
             <ExecuteStatusTag v-if="record.lastExecuteResult" :execute-result="record.lastExecuteResult" />
@@ -223,7 +223,11 @@
 
   import { initGetModuleCountFunc, type RequestModuleEnum } from './utils';
   import { casePriorityOptions } from '@/views/api-test/components/config';
-  import { executionResultMap, statusIconMap } from '@/views/case-management/caseManagementFeature/components/utils';
+  import {
+    executionResultMap,
+    getCaseLevels,
+    statusIconMap,
+  } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const router = useRouter();
   const appStore = useAppStore();
@@ -511,18 +515,6 @@
         };
       }
     );
-
-  // 用例等级
-  // TODO: 这个版本用例和接口以及场景不存在用例等级 不展示等级内容
-  function getCaseLevel(record: CaseManagementTable) {
-    if (record.customFields && record.customFields.length) {
-      const caseItem = record.customFields.find(
-        (item: any) => item.fieldName === t('common.casePriority') && item.internal
-      );
-      return caseItem?.options.find((item: any) => item.value === caseItem?.defaultValue).text;
-    }
-    return undefined;
-  }
 
   const searchParams = ref<TableQueryParams>({
     moduleIds: [],

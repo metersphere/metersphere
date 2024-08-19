@@ -9,6 +9,7 @@
     ></div>
     {{ caseLevel.label }}
   </div>
+  <span v-else class="text-[var(--color-text-2)]"> - </span>
 </template>
 
 <script setup lang="ts">

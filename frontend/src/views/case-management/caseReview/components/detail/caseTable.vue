@@ -817,7 +817,7 @@
   async function getCaseLevelFields() {
     const result = await getCaseDefaultFields(appStore.currentProjectId);
     caseLevelFields.value = result.customFields.find(
-      (item: any) => item.fieldName === t('common.casePriority') && item.internal
+      (item: any) => item.internal && item.internalFieldKey === 'functional_priority'
     );
     columns = columns.map((item) => {
       if (item.dataIndex === 'caseLevel') {
