@@ -556,19 +556,25 @@
   }
   // 点击模块/用例执行
   function handleExecuteDone(status: LastExecuteResults, content: string) {
+    const node = window.minder.getSelectedNode();
     executeVisible.value = false;
-    const resource = selectNode.value.data?.resource;
+    const resource = node.data?.resource;
     if (resource?.includes(caseTag)) {
       //  用例添加标签
       window.minder.execCommand('resource', [executionResultMap[status].statusText, caseTag]);
       // 更新用例的实际结果节点
-      updateCaseActualResultNode(selectNode.value, content);
+      updateCaseActualResultNode(node, content);
       // 更新执行历史
       if (extraVisible.value && activeExtraKey.value === 'history') {
-        initExecuteHistory(selectNode.value.data);
+        initExecuteHistory(node.data);
       }
     } else if (resource?.includes(moduleTag)) {
-      initCaseTree();
+      // 先清空子节点，从后向前遍历时，删除节点不会影响到尚未遍历的节点
+      for (let i = node.children.length - 1; i >= 0; i--) {
+        window.minder.removeNode(node.children[i]);
+      }
+      // 再重新渲染
+      initNodeCases(node);
     }
     emit('refreshPlan');
   }

@@ -235,6 +235,11 @@ export interface CommitReviewResultParams extends ReviewFormParams {
   reviewPassRule: ReviewPassRule;
   notifier: string;
 }
+export interface MinderReviewCaseParams extends ReviewFormParams {
+  reviewId: string;
+  caseId: string;
+  userId?: string;
+}
 // 评审详情-获取用例评审历史
 export interface ReviewHistoryItem {
   id: string;
