@@ -50,7 +50,7 @@ public class ExportWebSocketHandler {
         RemoteEndpoint.Async async = session.getAsyncRemote();
         if (async != null) {
             async.sendText(JSON.toJSONString(new ExportMsgDTO(fileId, "", 0, true, MsgType.CONNECT.name())));
-            session.setMaxIdleTimeout(180000);
+            session.setMaxIdleTimeout(1200000);
         }
         LogUtils.info("客户端: [" + fileId + "] : 连接成功！" + ExportWebSocketHandler.ONLINE_EXPORT_EXCEL_SESSIONS.size(), fileId);
     }
