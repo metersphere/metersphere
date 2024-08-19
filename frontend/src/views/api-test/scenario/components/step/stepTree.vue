@@ -903,75 +903,83 @@
     }
   }
 
-  function handleStepMoreActionSelect(item: ActionsItem, node: MsTreeNodeData) {
+  /**
+   * 复制步骤
+   * @param node 复制的节点
+   */
+  function copyStep(node: MsTreeNodeData) {
+    const id = getGenerateId();
+    const stepDetail = stepDetails.value[node.id];
+    const stepFileParam = scenario.value.stepFileParam[node.id];
+    const { isQuoteScenario } = getStepType(node as ScenarioStepItem);
+    if (stepDetail) {
+      // 如果复制的步骤还有详情数据，则也复制详情数据
+      stepDetails.value[id] = cloneDeep({
+        ...stepDetail,
+        stepId: id,
+        uniqueId: id,
+      });
+    }
+    if (stepFileParam) {
+      // 如果复制的步骤还有详情数据，则也复制详情数据
+      scenario.value.stepFileParam[id] = cloneDeep(stepFileParam);
+    }
+    insertNodes<ScenarioStepItem>(
+      steps.value,
+      node.uniqueId,
+      {
+        ...cloneDeep(
+          mapTree<ScenarioStepItem>(node, (childNode) => {
+            const childId = getGenerateId();
+            const childStepDetail = stepDetails.value[childNode.id];
+            const childStepFileParam = scenario.value.stepFileParam[childNode.id];
+            let childCopyFromStepId = childNode.id;
+            if (childStepDetail) {
+              // 如果复制的步骤下子步骤还有详情数据，则也复制详情数据
+              stepDetails.value[childId] = cloneDeep(childStepDetail);
+            }
+            if (childStepFileParam) {
+              // 如果复制的步骤下子步骤还有详情数据，则也复制详情数据
+              scenario.value.stepFileParam[childNode.id] = cloneDeep(childStepFileParam);
+            }
+            if (!isQuoteScenario) {
+              // 非引用场景才处理复制来源 id
+              if (childStepDetail || (childNode.isNew && childNode.stepRefType === ScenarioStepRefType.REF)) {
+                // 如果子步骤查看过详情，则复制来源直接取它的 id
+                // 如果子步骤没有查看过详情，且是新建的步骤，且子步骤是引用的步骤，则还是取它本身的 id
+                childCopyFromStepId = childNode.id;
+              } else if (childNode.isNew && childNode.stepRefType === ScenarioStepRefType.COPY) {
+                // 如果子步骤没有查看过详情，且是新建的步骤，且子步骤是复制的步骤，则取它的来源 id
+                childCopyFromStepId = childNode.copyFromStepId;
+              }
+            }
+            return {
+              ...cloneDeep(childNode),
+              executeStatus: undefined,
+              copyFromStepId: childCopyFromStepId,
+              id: childId,
+              uniqueId: childId,
+            };
+          })[0]
+        ),
+        name: `copy_${node.name}`.substring(0, 255),
+        copyFromStepId: stepDetail || node.isNew !== true ? node.id : node.copyFromStepId,
+        sort: node.sort + 1,
+        isNew: true,
+        id,
+        uniqueId: id,
+      },
+      'after',
+      selectedIfNeed,
+      'uniqueId'
+    );
+    scenario.value.unSaved = true;
+  }
+
+  async function handleStepMoreActionSelect(item: ActionsItem, node: MsTreeNodeData) {
     switch (item.eventTag) {
       case 'copy':
-        const id = getGenerateId();
-        const stepDetail = stepDetails.value[node.id];
-        const stepFileParam = scenario.value.stepFileParam[node.id];
-        const { isQuoteScenario } = getStepType(node as ScenarioStepItem);
-        if (stepDetail) {
-          // 如果复制的步骤还有详情数据，则也复制详情数据
-          stepDetails.value[id] = cloneDeep({
-            ...stepDetail,
-            stepId: id,
-            uniqueId: id,
-          });
-        }
-        if (stepFileParam) {
-          // 如果复制的步骤还有详情数据，则也复制详情数据
-          scenario.value.stepFileParam[id] = cloneDeep(stepFileParam);
-        }
-        insertNodes<ScenarioStepItem>(
-          steps.value,
-          node.uniqueId,
-          {
-            ...cloneDeep(
-              mapTree<ScenarioStepItem>(node, (childNode) => {
-                const childId = getGenerateId();
-                const childStepDetail = stepDetails.value[childNode.id];
-                const childStepFileParam = scenario.value.stepFileParam[childNode.id];
-                let childCopyFromStepId = childNode.id;
-                if (childStepDetail) {
-                  // 如果复制的步骤下子步骤还有详情数据，则也复制详情数据
-                  stepDetails.value[childId] = cloneDeep(childStepDetail);
-                }
-                if (childStepFileParam) {
-                  // 如果复制的步骤下子步骤还有详情数据，则也复制详情数据
-                  scenario.value.stepFileParam[childNode.id] = cloneDeep(childStepFileParam);
-                }
-                if (!isQuoteScenario) {
-                  // 非引用场景才处理复制来源 id
-                  if (childStepDetail || (childNode.isNew && childNode.stepRefType === ScenarioStepRefType.REF)) {
-                    // 如果子步骤查看过详情，则复制来源直接取它的 id
-                    // 如果子步骤没有查看过详情，且是新建的步骤，且子步骤是引用的步骤，则还是取它本身的 id
-                    childCopyFromStepId = childNode.id;
-                  } else if (childNode.isNew && childNode.stepRefType === ScenarioStepRefType.COPY) {
-                    // 如果子步骤没有查看过详情，且是新建的步骤，且子步骤是复制的步骤，则取它的来源 id
-                    childCopyFromStepId = childNode.copyFromStepId;
-                  }
-                }
-                return {
-                  ...cloneDeep(childNode),
-                  executeStatus: undefined,
-                  copyFromStepId: childCopyFromStepId,
-                  id: childId,
-                  uniqueId: childId,
-                };
-              })[0]
-            ),
-            name: `copy_${node.name}`.substring(0, 255),
-            copyFromStepId: stepDetail || node.isNew !== true ? node.id : node.copyFromStepId,
-            sort: node.sort + 1,
-            isNew: true,
-            id,
-            uniqueId: id,
-          },
-          'after',
-          selectedIfNeed,
-          'uniqueId'
-        );
-        scenario.value.unSaved = true;
+        copyStep(node);
         break;
       case 'config':
         activeStep.value = node as ScenarioStepItem;
@@ -1005,6 +1013,10 @@
         break;
       case 'saveAsApi':
         activeStep.value = node as ScenarioStepItem;
+        if (!stepDetails.value[activeStep.value.id]) {
+          // 详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
+          await getStepDetail(activeStep.value);
+        }
         const detail = stepDetails.value[activeStep.value.id] as RequestParam;
         const fileParams = scenario.value.stepFileParam[activeStep.value.id];
         tempApiDetail.value = {
