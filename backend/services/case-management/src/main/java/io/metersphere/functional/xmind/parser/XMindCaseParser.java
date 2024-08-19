@@ -403,7 +403,7 @@ public class XMindCaseParser {
      */
     private String getSteps(List<Attached> attacheds, String caseName) {
         List<FunctionalCaseStepDTO> functionalCaseStepDTOS = new ArrayList<>();
-        if (!attacheds.isEmpty()) {
+        if (attacheds!=null && !attacheds.isEmpty()) {
             for (int i = 0; i < attacheds.size(); i++) {
                 // 保持插入顺序，判断用例是否有相同的steps
                 FunctionalCaseStepDTO functionalCaseStepDTO = new FunctionalCaseStepDTO();
