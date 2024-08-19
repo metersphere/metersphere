@@ -123,10 +123,7 @@ export function getCaseLevels(customFields: CustomAttributes[]): CaseLevel {
   const caseLevelItem = (customFields || []).find(
     (it: any) => it.internal && it.internalFieldKey === 'functional_priority'
   );
-  return (
-    (caseLevelItem?.options.find((it: any) => it.value === caseLevelItem.defaultValue)?.text as CaseLevel) ||
-    ('P0' as CaseLevel)
-  );
+  return caseLevelItem?.options.find((it: any) => it.value === caseLevelItem.defaultValue)?.text as CaseLevel;
 }
 
 // 获取对应模块name
