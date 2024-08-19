@@ -41,7 +41,6 @@ import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -250,6 +249,7 @@ public class ApiTaskCenterService {
 
     /**
      * 校验权限
+     *
      * @param checkPermissionFunc
      * @param reports
      */
@@ -296,28 +296,33 @@ public class ApiTaskCenterService {
                          List<String> reportList,
                          List<TestResourceNodeDTO> nodesList,
                          List<ReportDTO> reports) {
-        // 根据报告id分组 key是报告id value是 是否集成
+        // 根据报告id分组
         Map<String, Boolean> integrationMap = reports.stream()
                 .collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getIntegrated));
         Map<String, String> resourceIdMap = reports.stream()
                 .collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getResourceId));
         Map<String, String> testPlanIdMap = reports.stream()
                 .collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getTestPlanId));
+
+        // 如果需要排除的报告ID不为空，则从reportList中移除
+        if (request.getExcludeIds() != null && !request.getExcludeIds().isEmpty()) {
+            reportList.removeAll(request.getExcludeIds());
+        }
+
         nodesList.parallelStream().forEach(node -> {
             String endpoint = MsHttpClient.getEndpoint(node.getIp(), node.getPort());
-            //需要去除取消勾选的report
-            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
-                reportList.removeAll(request.getExcludeIds());
-            }
+
+            // 初始化 TaskRequestDTO 和 TaskResultDTO
             TaskRequestDTO taskRequestDTO = new TaskRequestDTO();
             TaskResultDTO result = new TaskResultDTO();
-            result.setRequestResults(List.of());
+            result.setRequestResults(Collections.emptyList());
             result.setHasEnded(true);
             ProcessResultDTO processResultDTO = new ProcessResultDTO();
             processResultDTO.setStatus(ExecStatus.STOPPED.name());
             result.setProcessResultDTO(processResultDTO);
             result.setConsole("任务已终止");
-            SubListUtils.dealForSubList(reportList, 100, (subList) -> {
+
+            SubListUtils.dealForSubList(reportList, 100, subList -> {
                 try {
                     LogUtils.info(String.format("开始发送停止请求到 %s 节点执行", endpoint), subList.toString());
                     MsHttpClient.stopApi(endpoint, subList);
@@ -325,34 +330,40 @@ public class ApiTaskCenterService {
                     LogUtils.error(e);
                 } finally {
                     subList.forEach(reportId -> {
-                        if (BooleanUtils.isTrue(integrationMap.get(reportId))) {
-                            TaskInfo taskInfo = taskRequestDTO.getTaskInfo();
-                            TaskItem taskItem = new TaskItem();
-                            taskItem.setReportId(reportId);
-                            taskInfo.setResourceType(request.getModuleType());
-                            taskItem.setResourceId(resourceIdMap.getOrDefault(reportId, null));
-                            // 这里需要兼容测试计划批量执行的类型
-                            if (StringUtils.isNotEmpty(testPlanIdMap.get(reportId))
-                                    && !StringUtils.equals(testPlanIdMap.get(reportId), "NONE")) {
-                                if (StringUtils.equals(request.getModuleType(), TaskCenterResourceType.API_CASE.toString())) {
-                                    taskInfo.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
-                                } else if (StringUtils.equals(request.getModuleType(), TaskCenterResourceType.API_SCENARIO.toString())) {
-                                    taskInfo.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name());
-                                }
-                            }
-                            taskInfo.getRunModeConfig().setIntegratedReport(integrationMap.get(reportId));
-                            if (BooleanUtils.isTrue(integrationMap.get(reportId))) {
-                                taskInfo.getRunModeConfig().getCollectionReport().setReportId(reportId);
-                            }
-                            taskRequestDTO.setTaskItem(taskItem);
-                            result.setRequest(taskRequestDTO);
-                            kafkaTemplate.send(KafkaTopicConstants.API_REPORT_TOPIC, JSON.toJSONString(result));
+                        TaskInfo taskInfo = taskRequestDTO.getTaskInfo();
+                        taskInfo.setResourceType(request.getModuleType());
+
+                        TaskItem taskItem = new TaskItem();
+                        taskItem.setReportId(reportId);
+                        taskItem.setResourceId(resourceIdMap.get(reportId));
+                        // 设置任务信息的资源类型
+                        String testPlanId = testPlanIdMap.get(reportId);
+                        if (testPlanId != null && !"NONE".equals(testPlanId)) {
+                            String moduleType = request.getModuleType();
+                            taskInfo.setResourceType(
+                                    TaskCenterResourceType.API_CASE.toString().equals(moduleType)
+                                            ? ApiExecuteResourceType.TEST_PLAN_API_CASE.name()
+                                            : TaskCenterResourceType.API_SCENARIO.toString().equals(moduleType)
+                                            ? ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name()
+                                            : taskInfo.getResourceType()
+                            );
                         }
+
+                        // 设置集成报告
+                        taskInfo.getRunModeConfig().setIntegratedReport(integrationMap.get(reportId));
+                        if (Boolean.TRUE.equals(integrationMap.get(reportId))) {
+                            taskInfo.getRunModeConfig().getCollectionReport().setReportId(reportId);
+                        }
+
+                        taskRequestDTO.setTaskItem(taskItem);
+                        result.setRequest(taskRequestDTO);
+                        kafkaTemplate.send(KafkaTopicConstants.API_REPORT_TOPIC, JSON.toJSONString(result));
                     });
                 }
             });
         });
     }
+
 
     private void saveLog(List<String> ids, String userId, String module, String type) {
         List<ReportDTO> reports = new ArrayList<>();
