@@ -599,7 +599,11 @@ public class CaseReviewFunctionalCaseService {
         param.put(CaseEvent.Param.COUNT_MAP, countMap);
         provider.updateCaseReview(param);
 
-        return caseReviewFunctionalCase.getStatus();
+        String status = caseReviewFunctionalCase.getStatus();
+        if (StringUtils.isNotBlank(request.getUserId())) {
+            status = request.getStatus();
+        }
+        return status;
     }
 
 

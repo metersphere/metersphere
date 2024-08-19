@@ -121,7 +121,7 @@ public class CaseReviewFunctionalCaseController {
 
 
     @PostMapping("/mind/multiple/review")
-    @Operation(summary = "用例管理-用例评审-评审列表-评审详情-列表-批量评审")
+    @Operation(summary = "评审详情-脑图-多人评审返回评审结果")
     @RequiresPermissions(value = {PermissionConstants.CASE_REVIEW_REVIEW, PermissionConstants.CASE_REVIEW_READ_UPDATE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "case_review")
     public String mindReview(@Validated @RequestBody MindReviewFunctionalCaseRequest request) {

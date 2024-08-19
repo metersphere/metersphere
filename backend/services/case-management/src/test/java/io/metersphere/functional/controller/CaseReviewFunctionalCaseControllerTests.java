@@ -551,6 +551,15 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
         Assertions.assertEquals(10,caseReviewHistories.size());
 
+        request = new MindReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_4");
+        request.setStatus(FunctionalCaseReviewStatus.PASS.toString());
+        request.setCaseId("wx_case_id_2");
+        request.setUserId("123");
+        caseReviewFunctionalCaseService.mindReview(request, "123");
+        caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
+        Assertions.assertEquals(11,caseReviewHistories.size());
+
     }
 
     @Test
