@@ -1,7 +1,6 @@
 package io.metersphere.xmind;
 
 import io.metersphere.base.domain.TestCaseWithBLOBs;
-import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSON;
@@ -241,6 +240,10 @@ public class XmindCaseParser {
                     process.add(Translator.get("custom_num_is_exist"), nodePath + "/" + dataItem.getName());
                     return false;
                 }
+            }
+            if (testCaseService.exist(data)) {
+                process.add(Translator.get("test_case_already_exists"), nodePath + "/" + data.getName());
+                return false;
             }
         }
 
