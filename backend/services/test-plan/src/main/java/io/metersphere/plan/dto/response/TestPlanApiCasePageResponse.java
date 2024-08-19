@@ -83,4 +83,10 @@ public class TestPlanApiCasePageResponse implements Serializable {
 
     @Schema(description = "接口用例id")
     private String apiTestCaseId;
+
+    @Schema(description = "创建时间")
+    private Long createTime;
+
+    @Schema(description = "更新时间")
+    private Long updateTime;
 }
