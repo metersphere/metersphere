@@ -149,6 +149,7 @@ export default {
   'system.config.auth.clientSecret': '客户端密钥',
   'system.config.auth.clientSecretRequired': '客户端密钥不能为空',
   'system.config.auth.clientSecretPlaceholder': 'OIDC client secret',
+  'system.config.auth.oauth.clientSecretPlaceholder': 'OAuth2.0 client secret',
   'system.config.auth.logoutSessionUrl': '注销会话端地址',
   'system.config.auth.logoutSessionUrlRequired': '注销会话端地址不能为空',
   'system.config.auth.password': '密码',
