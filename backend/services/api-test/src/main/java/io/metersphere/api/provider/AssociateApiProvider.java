@@ -18,6 +18,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,9 @@ public class AssociateApiProvider implements BaseAssociateApiProvider, BaseAssoc
 
     @Override
     public Map<String, Long> moduleCount(String sourceType, String sourceName, String apiCaseColumnName, TestCasePageProviderRequest request, boolean deleted) {
+        if (CollectionUtils.isEmpty(request.getProtocols())) {
+            return Collections.emptyMap();
+        }
         request.setModuleIds(null);
         //查找根据moduleIds查找模块下的接口数量 查非delete状态的
         List<ModuleCountDTO> moduleCountDTOList = extApiTestCaseMapper.countModuleIdByProviderRequest(sourceType, sourceName, apiCaseColumnName, request, deleted);
