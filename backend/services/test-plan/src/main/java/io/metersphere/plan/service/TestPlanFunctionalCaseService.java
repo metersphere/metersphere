@@ -723,6 +723,9 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
 
     public TestPlanCaseDetailResponse getFunctionalCaseDetail(String id, String userId) {
         TestPlanFunctionalCase planFunctionalCase = testPlanFunctionalCaseMapper.selectByPrimaryKey(id);
+        if(planFunctionalCase == null){
+            throw new MSException(Translator.get("resource_not_exist"));
+        }
         String caseId = planFunctionalCase.getFunctionalCaseId();
         FunctionalCaseDetailDTO functionalCaseDetail = functionalCaseService.getFunctionalCaseDetail(caseId, userId, false);
         String caseDetailSteps = functionalCaseDetail.getSteps();
