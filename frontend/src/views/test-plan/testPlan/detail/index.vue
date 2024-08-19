@@ -554,6 +554,15 @@
     }
   }
 
+  watch(
+    () => activeTab.value,
+    (val) => {
+      if (val) {
+        getStatistics();
+      }
+    }
+  );
+
   onBeforeMount(() => {
     if (route.query.type === 'featureCase') {
       activeTab.value = 'featureCase';
