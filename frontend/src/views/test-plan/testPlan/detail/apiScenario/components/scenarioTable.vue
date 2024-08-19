@@ -243,6 +243,30 @@
       showInTable: false,
     },
     {
+      title: 'apiScenario.table.columns.createTime',
+      slotName: 'createTime',
+      dataIndex: 'createTime',
+      showInTable: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      width: 200,
+      showDrag: true,
+    },
+    {
+      title: 'apiScenario.table.columns.updateTime',
+      slotName: 'updateTime',
+      dataIndex: 'updateTime',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      showInTable: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
       title: 'common.belongModule',
       dataIndex: 'moduleName',
       showTooltip: true,

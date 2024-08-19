@@ -304,6 +304,30 @@
       showDrag: true,
     },
     {
+      title: 'caseManagement.featureCase.tableColumnCreateTime',
+      slotName: 'createTime',
+      dataIndex: 'createTime',
+      showInTable: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      width: 200,
+      showDrag: true,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnUpdateTime',
+      slotName: 'updateTime',
+      dataIndex: 'updateTime',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      showInTable: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
       title: 'common.executionResult',
       dataIndex: 'lastExecResult',
       slotName: 'lastExecResult',
