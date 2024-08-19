@@ -140,12 +140,12 @@ public class MessageTemplateUtils {
             case NoticeConstants.TaskType.API_DEFINITION_TASK -> FieldUtils.getAllFields(ApiDefinitionCaseDTO.class);
             case NoticeConstants.TaskType.API_SCENARIO_TASK -> FieldUtils.getAllFields(ApiScenarioMessageDTO.class);
             case NoticeConstants.TaskType.API_REPORT_TASK -> FieldUtils.getAllFields(ApiReportMessageDTO.class);
-            case NoticeConstants.TaskType.TEST_PLAN_TASK -> FieldUtils.getAllFields(TestPlanMessageDTO.class);
+            case NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.TaskType.JENKINS_TASK -> FieldUtils.getAllFields(TestPlanMessageDTO.class);
             case NoticeConstants.TaskType.CASE_REVIEW_TASK -> FieldUtils.getAllFields(CaseReview.class);
             case NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK -> FieldUtils.getAllFields(FunctionalCaseMessageDTO.class);
             case NoticeConstants.TaskType.BUG_TASK -> FieldUtils.getAllFields(BugMessageDTO.class);
             case NoticeConstants.TaskType.SCHEDULE_TASK -> FieldUtils.getAllFields(Schedule.class);
-            default -> new Field[0];
+           default -> new Field[0];
         };
     }
 
@@ -194,27 +194,20 @@ public class MessageTemplateUtils {
     }
 
     public static String getTranslateTemplate(String taskType, String template, Map<String, List<CustomField>> customFielddMap) {
-        if (StringUtils.equalsIgnoreCase(taskType, NoticeConstants.TaskType.JENKINS_TASK)) {
-            if (StringUtils.isNotBlank(template) && template.contains("${name}")) {
-                template = template.replace("${name}", "{{" + Translator.get("message.jenkins_name") + "}}");
-            }
-            return template;
-        } else {
-            Field[] domainTemplateFields = getDomainTemplateFields(taskType);
-            Map<String, Object> map = new HashMap<>();
-            if (StringUtils.isNotBlank(template) && template.contains("${OPERATOR}")) {
-                template = template.replace("${OPERATOR}", "<" + Translator.get("message.operator") + ">");
-            }
-            if (StringUtils.isNotBlank(template) && template.contains("${total}")) {
-                template = template.replace("${total}", "<n>");
-            }
-            setMap(taskType, domainTemplateFields, map);
-            Map<String, String> defaultRelatedUserMap = getDefaultRelatedUserMap();
-            defaultRelatedUserMap.remove("FOLLOW_PEOPLE");
-            map.putAll(defaultRelatedUserMap);
-            addCustomFiled(taskType, customFielddMap, map);
-            return getContent(template, map);
+        Field[] domainTemplateFields = getDomainTemplateFields(taskType);
+        Map<String, Object> map = new HashMap<>();
+        if (StringUtils.isNotBlank(template) && template.contains("${OPERATOR}")) {
+            template = template.replace("${OPERATOR}", "<" + Translator.get("message.operator") + ">");
         }
+        if (StringUtils.isNotBlank(template) && template.contains("${total}")) {
+            template = template.replace("${total}", "<n>");
+        }
+        setMap(taskType, domainTemplateFields, map);
+        Map<String, String> defaultRelatedUserMap = getDefaultRelatedUserMap();
+        defaultRelatedUserMap.remove("FOLLOW_PEOPLE");
+        map.putAll(defaultRelatedUserMap);
+        addCustomFiled(taskType, customFielddMap, map);
+        return getContent(template, map);
     }
 
     private static void addCustomFiled(String taskType, Map<String, List<CustomField>> customFielddMap, Map<String, Object> map) {
@@ -238,7 +231,7 @@ public class MessageTemplateUtils {
                     putDescription(domainTemplateFields, map);
             case NoticeConstants.TaskType.API_SCENARIO_TASK -> putDescription(domainTemplateFields, map);
             case NoticeConstants.TaskType.API_REPORT_TASK -> putDescription(domainTemplateFields, map);
-            case NoticeConstants.TaskType.TEST_PLAN_TASK -> putDomainName(domainTemplateFields, map, "test_plan_");
+            case NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.TaskType.JENKINS_TASK -> putDomainName(domainTemplateFields, map, "test_plan_");
             case NoticeConstants.TaskType.CASE_REVIEW_TASK -> putDomainName(domainTemplateFields, map, "case_review_");
             case NoticeConstants.TaskType.BUG_TASK -> putDomainName(domainTemplateFields, map, "bug_");
             case NoticeConstants.TaskType.SCHEDULE_TASK -> putDomainName(domainTemplateFields, map, "schedule_");
@@ -277,27 +270,20 @@ public class MessageTemplateUtils {
     }
 
     public static String getTranslateSubject(String taskType, String subject, Map<String, List<CustomField>> customFielddMap) {
-        if (StringUtils.equalsIgnoreCase(taskType, NoticeConstants.TaskType.JENKINS_TASK)) {
-            if (StringUtils.isNotBlank(subject) && subject.contains("${name}")) {
-                subject = subject.replace("${name}", "{{" + Translator.get("message.jenkins_name") + "}}");
-            }
-            return subject;
-        } else {
-            Field[] domainTemplateFields = getDomainTemplateFields(taskType);
-            Map<String, Object> map = new HashMap<>();
-            if (StringUtils.isNotBlank(subject) && subject.contains("${OPERATOR}")) {
-                subject = subject.replace("${OPERATOR}", Translator.get("message.operator"));
-            }
-            if (StringUtils.isNotBlank(subject) && subject.contains("${total}")) {
-                subject = subject.replace("${total}", "n");
-            }
-            setMap(taskType, domainTemplateFields, map);
-            Map<String, String> defaultRelatedUserMap = getDefaultRelatedUserMap();
-            defaultRelatedUserMap.remove("FOLLOW_PEOPLE");
-            map.putAll(defaultRelatedUserMap);
-            addCustomFiled(taskType, customFielddMap, map);
-            return getContent(subject, map);
+        Field[] domainTemplateFields = getDomainTemplateFields(taskType);
+        Map<String, Object> map = new HashMap<>();
+        if (StringUtils.isNotBlank(subject) && subject.contains("${OPERATOR}")) {
+            subject = subject.replace("${OPERATOR}", Translator.get("message.operator"));
         }
+        if (StringUtils.isNotBlank(subject) && subject.contains("${total}")) {
+            subject = subject.replace("${total}", "n");
+        }
+        setMap(taskType, domainTemplateFields, map);
+        Map<String, String> defaultRelatedUserMap = getDefaultRelatedUserMap();
+        defaultRelatedUserMap.remove("FOLLOW_PEOPLE");
+        map.putAll(defaultRelatedUserMap);
+        addCustomFiled(taskType, customFielddMap, map);
+        return getContent(subject, map);
     }
 
 

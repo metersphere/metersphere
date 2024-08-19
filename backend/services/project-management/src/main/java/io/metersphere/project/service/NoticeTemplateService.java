@@ -52,7 +52,7 @@ public class NoticeTemplateService {
                 Field[] allFields = FieldUtils.getAllFields(ApiReportMessageDTO.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields, null);
             }
-            case NoticeConstants.TaskType.TEST_PLAN_TASK -> {
+            case NoticeConstants.TaskType.TEST_PLAN_TASK, NoticeConstants.TaskType.JENKINS_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(TestPlanMessageDTO.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields, null);
             }
@@ -79,13 +79,6 @@ public class NoticeTemplateService {
             case NoticeConstants.TaskType.SCHEDULE_TASK -> {
                 Field[] allFields = FieldUtils.getAllFields(Schedule.class);
                 addOptionDto(messageTemplateFieldDTOList, allFields, "schedule_");
-            }
-            case NoticeConstants.TaskType.JENKINS_TASK -> {
-                MessageTemplateFieldDTO messageTemplateFieldOperator = new MessageTemplateFieldDTO();
-                messageTemplateFieldOperator.setId("name");
-                messageTemplateFieldOperator.setFieldSource(NoticeConstants.FieldSource.CASE_FIELD);
-                messageTemplateFieldOperator.setName(Translator.get("message.jenkins_name"));
-                messageTemplateFieldDTOList.add(messageTemplateFieldOperator);
             }
             default -> messageTemplateFieldDTOList = new ArrayList<>();
         }
