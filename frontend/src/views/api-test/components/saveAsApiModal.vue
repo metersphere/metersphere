@@ -5,6 +5,7 @@
     class="ms-modal-form"
     title-align="start"
     body-class="!p-0"
+    @close="emit('close')"
   >
     <a-form ref="saveModalFormRef" :model="saveModalForm" layout="vertical">
       <a-form-item
@@ -86,6 +87,7 @@
   const props = defineProps<{
     detail: RequestParam | ApiDefinitionRequestParam;
   }>();
+  const emit = defineEmits(['close']);
 
   const appStore = useAppStore();
   const { t } = useI18n();

@@ -398,6 +398,7 @@
       v-if="tempApiDetail"
       v-model:visible="saveNewApiModalVisible"
       :detail="tempApiDetail"
+      @close="() => (tempApiDetail = undefined)"
     ></saveAsApiModal>
     <a-modal
       v-model:visible="saveCaseModalVisible"
@@ -808,6 +809,7 @@
       tags: [],
     };
     saveCaseModalVisible.value = false;
+    activeStep.value = undefined;
   }
 
   function saveAsCase(done: (closed: boolean) => void) {
@@ -1012,13 +1014,12 @@
         });
         break;
       case 'saveAsApi':
-        activeStep.value = node as ScenarioStepItem;
-        if (!stepDetails.value[activeStep.value.id]) {
+        if (!stepDetails.value[node.id]) {
           // 详情映射中没有对应数据，初始化步骤详情（复制的步骤没有加载详情前就被复制，打开复制后的步骤就初始化被复制步骤的详情）
-          await getStepDetail(activeStep.value);
+          await getStepDetail(node as ScenarioStepItem);
         }
-        const detail = stepDetails.value[activeStep.value.id] as RequestParam;
-        const fileParams = scenario.value.stepFileParam[activeStep.value.id];
+        const detail = stepDetails.value[node.id] as RequestParam;
+        const fileParams = scenario.value.stepFileParam[node.id];
         tempApiDetail.value = {
           ...detail,
           uploadFileIds: fileParams?.uploadFileIds || [],
