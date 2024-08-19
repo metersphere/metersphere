@@ -27,6 +27,7 @@ import {
   GetReviewListUrl,
   GetReviewModulesUrl,
   GetReviewUsersUrl,
+  MinderReviewCaseUrl,
   MoveReviewModuleUrl,
   MoveReviewUrl,
   ReviewModuleCountUrl,
@@ -49,6 +50,7 @@ import {
   CopyReviewParams,
   CopyReviewResponse,
   FollowReviewParams,
+  MinderReviewCaseParams,
   Review,
   ReviewCaseItem,
   ReviewDetailCaseListQueryParams,
@@ -224,4 +226,9 @@ export function getCasePlanMinder(data: CasePlanMinderParams) {
 // 脑图-获取用例评审最终结果和每个评审人最终的评审结果
 export const getReviewerAndStatus = (reviewId: string, caseId: string) => {
   return MSR.get<ReviewerAndStatus>({ url: `${GetReviewerAndStatusUrl}/${reviewId}/${caseId}` });
+};
+
+// 评审详情-脑图评审用例
+export const minderReviewCase = (data: MinderReviewCaseParams) => {
+  return MSR.post({ url: MinderReviewCaseUrl, data });
 };

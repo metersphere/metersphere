@@ -40,7 +40,7 @@
   import { getMinderOperationParams } from '@/components/business/ms-minders/caseReviewMinder/utils';
   import ReviewForm from './reviewFormRichText.vue';
 
-  import { batchReview } from '@/api/modules/case-management/caseReview';
+  import { batchReview, minderReviewCase } from '@/api/modules/case-management/caseReview';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -110,19 +110,30 @@
   async function submit() {
     try {
       submitLoading.value = true;
-      const params: BatchReviewCaseParams = {
-        projectId: appStore.currentProjectId,
+      const params = {
         userId: props.userId,
         reviewId: props.reviewId,
-        reviewPassRule: props.reviewPassRule,
         ...submitForm.value,
         notifier: submitForm.value.notifiers?.join(';') ?? '',
-        ...getMinderOperationParams(props.selectNode),
       };
-      await batchReview(params);
+      let minderCaseStatus;
+      const isMinderCase = props.selectNode && props.selectNode.data?.resource?.includes(t('common.case'));
+      if (isMinderCase) {
+        minderCaseStatus = await minderReviewCase({
+          ...params,
+          caseId: props.selectNode.data?.caseId as string,
+        });
+      } else {
+        await batchReview({
+          ...params,
+          projectId: appStore.currentProjectId,
+          reviewPassRule: props.reviewPassRule,
+          ...getMinderOperationParams(props.selectNode),
+        } as BatchReviewCaseParams);
+      }
       modalVisible.value = false;
       Message.success(t('caseManagement.caseReview.reviewSuccess'));
-      emit('done', params.status);
+      emit('done', isMinderCase ? minderCaseStatus : params.status);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

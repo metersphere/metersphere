@@ -19,6 +19,7 @@ export const ReviewModuleCountUrl = '/case/review/module/count'; // 模块下用
 export const GetReviewDetailCasePageUrl = '/case/review/detail/page'; // 评审详情-获取已关联用例列表
 export const SortReviewDetailCaseUrl = '/case/review/detail/edit/pos'; // 评审详情-已关联用例拖拽排序
 export const BatchReviewUrl = '/case/review/detail/batch/review'; // 评审详情-批量评审
+export const MinderReviewCaseUrl = '/case/review/detail/mind/multiple/review'; // 评审详情-脑图评审用例
 export const BatchChangeReviewerUrl = '/case/review/detail/batch/edit/reviewers'; // 评审详情-批量修改评审人
 export const BatchDisassociateReviewCaseUrl = '/case/review/detail/batch/disassociate'; // 评审详情-批量取消关联用例
 export const GetAssociatedIdsUrl = '/case/review/detail/get-ids'; // 获取已关联用例id集合
