@@ -76,6 +76,7 @@
           v-if="hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE'])"
           v-model:model-value="record.priority"
           :placeholder="t('common.pleaseSelect')"
+          size="small"
           class="param-input w-full"
           @change="() => handlePriorityStatusChange(record)"
         >
