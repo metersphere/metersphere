@@ -56,12 +56,14 @@ public class CustomFieldMultipleSelectValidator extends CustomFieldSelectValidat
         if (StringUtils.isBlank(keyOrValuesStr) || StringUtils.equals(keyOrValuesStr, "[]")) {
             return StringUtils.EMPTY;
         }
-        String keyOrValues = String.join(",", JSON.parseArray(keyOrValuesStr));
+        List list = JSON.parseArray(keyOrValuesStr);
         List<String> result = new ArrayList<>();
         Map<String, String> optionValueMap = customField.getOptions().stream().collect(Collectors.toMap(CustomFieldOption::getValue, CustomFieldOption::getText));
-        if (optionValueMap.containsKey(keyOrValues)) {
-            result.add(optionValueMap.get(keyOrValues));
-        }
+        list.forEach(item -> {
+            if (optionValueMap.containsKey(item)) {
+                result.add(optionValueMap.get(item));
+            }
+        });
         return String.join(",", JSON.parseArray(JSON.toJSONString(result)));
     }
 

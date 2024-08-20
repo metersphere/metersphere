@@ -29,7 +29,7 @@ public class CustomFieldValidatorFactory {
         validatorMap.put(CustomFieldType.DATETIME.name(), new CustomFieldDateTimeValidator());
 
         validatorMap.put(CustomFieldType.MEMBER.name(), new CustomFieldMemberValidator(projectId));
-        validatorMap.put(CustomFieldType.MULTIPLE_MEMBER.name(), new CustomFieldMultipleMemberValidator());
+        validatorMap.put(CustomFieldType.MULTIPLE_MEMBER.name(), new CustomFieldMultipleMemberValidator(projectId));
 
         validatorMap.put(CustomFieldType.INT.name(), new CustomFieldIntegerValidator());
         validatorMap.put(CustomFieldType.FLOAT.name(), new CustomFieldFloatValidator());
