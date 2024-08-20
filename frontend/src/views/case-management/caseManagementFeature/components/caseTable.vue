@@ -168,16 +168,16 @@
         <template v-if="(keyword || '').trim() === ''" #empty>
           <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
             {{ t('caseManagement.caseReview.tableNoData') }}
-            <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="ml-[8px]" @click="createCase">
+            <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="!mx-[8px]" @click="createCase">
               {{ t('caseManagement.featureCase.creatingCase') }}
             </MsButton>
-            {{ t('caseManagement.featureCase.or') }}
-            <MsButton v-permission="['FUNCTIONAL_CASE:READ+IMPORT']" class="ml-[8px]" @click="emit('import', 'Excel')">
+            <span v-permission="['FUNCTIONAL_CASE:READ+IMPORT']"> {{ t('caseManagement.featureCase.or') }} </span>
+            <MsButton v-permission="['FUNCTIONAL_CASE:READ+IMPORT']" class="!mx-[8px]" @click="emit('import', 'Excel')">
               {{ t('caseManagement.featureCase.importExcel') }}
             </MsButton>
-            <!-- <MsButton class="ml-[4px]" @click="emit('import', 'Xmind')">
-            {{ t('caseManagement.featureCase.importXmind') }}
-          </MsButton> -->
+            <MsButton v-permission="['FUNCTIONAL_CASE:READ+IMPORT']" @click="emit('import', 'Xmind')">
+              {{ t('caseManagement.featureCase.importXmind') }}
+            </MsButton>
           </div>
         </template>
       </ms-base-table>
