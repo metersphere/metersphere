@@ -66,7 +66,12 @@
                 <div class="text-[rgb(var(--warning-5))]">{{ scenario.executeFakeErrorCount }}</div>
               </div>
               <MsButton
-                v-if="scenario.isDebug === false && !scenario.executeLoading && !scenario.isNew"
+                v-if="
+                  scenario.executeType !== 'localExec' &&
+                  scenario.isDebug === false &&
+                  !scenario.executeLoading &&
+                  !scenario.isNew
+                "
                 type="text"
                 class="ml-[8px]"
                 @click="checkReport"

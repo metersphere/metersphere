@@ -249,6 +249,7 @@
       activeScenarioTab.value.executeFakeErrorCount = 0;
       activeScenarioTab.value.stepResponses = {};
       activeScenarioTab.value.reportId = executeParams.reportId; // 存储报告ID
+      activeScenarioTab.value.executeType = executeType; // 存储报告ID
       debugSocket(activeScenarioTab.value, executeType); // 开启websocket
       activeScenarioTab.value.isDebug = !isExecute;
       let res;
