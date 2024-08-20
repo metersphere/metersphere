@@ -1217,6 +1217,7 @@
       exportLoading.value = true;
       const { selectedIds, selectAll, excludeIds } = batchParams.value;
       reportId.value = getGenerateId();
+      startWebsocketGetExportResult();
       const params = {
         projectId: currentProjectId.value,
         selectIds: selectAll ? [] : selectedIds,
@@ -1243,7 +1244,6 @@
         res = await exportXMindCase(params);
       }
       taskId.value = res;
-      startWebsocketGetExportResult();
       showExportingMessage();
       exportLoading.value = false;
       showExportVisible.value = false;
