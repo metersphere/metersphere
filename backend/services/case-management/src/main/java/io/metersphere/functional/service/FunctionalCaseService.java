@@ -1247,7 +1247,7 @@ public class FunctionalCaseService {
         Map<String, Object> customData = functionalCaseExcelData.getCustomData();
         customFieldsMap.forEach((k, v) -> {
             //用例等级如果没有默认值，则为P0
-            if (StringUtils.equalsIgnoreCase(v.getInternalFieldKey(), "functional_priority") && v.getDefaultValue()==null) {
+            if (StringUtils.equalsIgnoreCase(v.getInternalFieldKey(), "functional_priority") && (v.getDefaultValue() == null || StringUtils.isBlank(v.getDefaultValue().toString()))) {
                 v.setDefaultValue("P0");
             }
             Object value = customData.get(k);
