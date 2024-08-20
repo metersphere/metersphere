@@ -915,11 +915,17 @@
   // 获取父组件模块数量
   async function emitTableParams(isInit = false) {
     const tableParams = await initTableParams(isInit);
+    const filterParams = {
+      ...propsRes.value.filter,
+    };
+    if (isArchived.value) {
+      filterParams.status = ['ARCHIVED'];
+    }
     emit('init', {
       ...tableParams,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
-      filter: propsRes.value.filter,
+      filter: filterParams,
     });
   }
 
