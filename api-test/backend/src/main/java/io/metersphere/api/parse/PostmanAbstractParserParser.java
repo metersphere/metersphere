@@ -26,13 +26,34 @@ import java.util.regex.Pattern;
 public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractParser<T> {
 
     protected MsHTTPSamplerProxy parsePostman(PostmanItem requestItem) {
-        PostmanRequest requestDesc = requestItem.getRequest();
-        if (requestDesc == null) {
+        if (requestItem.getRequest() == null) {
             return null;
+        } else {
+            MsHTTPSamplerProxy request = parseHttpSampler(requestItem.getName(), requestItem.getRequest());
+            addBodyHeader(request);
+            PostmanItem.ProtocolProfileBehavior protocolProfileBehavior = requestItem.getProtocolProfileBehavior();
+            request.setFollowRedirects(protocolProfileBehavior == null ||
+                    protocolProfileBehavior.getFollowRedirects());
+            request.setResponseTimeout("60000");
+            request.setConnectTimeout("60000");
+            return request;
         }
-        requestDesc.getAuth(); // todo 认证方式等待优化
+    }
+
+    protected MsHTTPSamplerProxy parseResponse(PostmanResponse requestItem) {
+        if (requestItem.getOriginalRequest() == null) {
+            return null;
+        } else {
+            MsHTTPSamplerProxy request = parseHttpSampler(requestItem.getName(), requestItem.getOriginalRequest());
+            addBodyHeader(request);
+            return request;
+        }
+    }
+
+    private MsHTTPSamplerProxy parseHttpSampler(String requestName, PostmanRequest requestDesc) {
+        //        requestDesc.getAuth(); // todo 认证方式等待优化
         PostmanUrl url = requestDesc.getUrl();
-        MsHTTPSamplerProxy request = buildRequest(requestItem.getName(), url == null ? StringUtils.EMPTY : url.getRaw(), requestDesc.getMethod(),
+        MsHTTPSamplerProxy request = buildRequest(requestName, url == null ? StringUtils.EMPTY : url.getRaw(), requestDesc.getMethod(),
                 (requestDesc.getBody() == null || requestDesc.getBody().get("jsonSchema") == null) ? StringUtils.EMPTY : requestDesc.getBody().get("jsonSchema").textValue());
         request.setRest(parseKeyValue(url != null && CollectionUtils.isNotEmpty(url.getVariable()) ?
                 url.getVariable() : new ArrayList<>()));
@@ -47,16 +68,6 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         parseBody(request.getBody(), requestDesc);
         request.setArguments(parseKeyValue(url == null ? new ArrayList<>() : url.getQuery()));
         request.setHeaders(parseKeyValue(requestDesc.getHeader()));
-        addBodyHeader(request);
-        PostmanItem.ProtocolProfileBehavior protocolProfileBehavior = requestItem.getProtocolProfileBehavior();
-        if (protocolProfileBehavior != null &&
-                !protocolProfileBehavior.getFollowRedirects()) {
-            request.setFollowRedirects(false);
-        } else {
-            request.setFollowRedirects(true);
-        }
-        request.setResponseTimeout("60000");
-        request.setConnectTimeout("60000");
         return request;
     }
 
@@ -169,7 +180,7 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
     }
 
     private void parseRawBody(Body body, ObjectNode postmanBody, String bodyMode) {
-        body.setRaw(parseVariable(postmanBody.get(bodyMode).textValue()));
+        body.setRaw(parseVariable(postmanBody.get(bodyMode) == null ? StringUtils.EMPTY : postmanBody.get(bodyMode).textValue()));
         body.setType(MsRequestBodyType.RAW.value());
         JsonNode options = postmanBody.get("options");
         if (options != null) {
