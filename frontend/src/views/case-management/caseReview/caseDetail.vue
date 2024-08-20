@@ -165,8 +165,7 @@
                     {{ tabList[2].title }}
                     <div
                       v-if="caseDetail.demandCount > 0"
-                      style="min-width: 16px; text-align: center; align-content: center"
-                      :class="`ml-[4px] h-[16px] rounded-full ${
+                      :class="`ml-[4px] flex h-[16px] min-w-[16px] items-center justify-center rounded-full ${
                         showTab === tabList[2].key
                           ? 'bg-[rgb(var(--primary-9))] text-[rgb(var(--primary-5))]'
                           : 'bg-[var(--color-text-brand)] text-white'

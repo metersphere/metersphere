@@ -10,6 +10,7 @@
         :label="t('caseManagement.caseReview.reviewName')"
         :rules="[{ validator: validateName }]"
         asterisk-position="end"
+        required
       >
         <a-input
           v-model:modelValue="reviewForm.name"
