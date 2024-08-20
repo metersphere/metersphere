@@ -766,6 +766,12 @@ public class HttpRequestParamDiffUtilsTests {
         sourceBody.getFormDataBody().getFormValues().add(formDataKV);
         result = HttpRequestParamDiffUtils.syncBodyDiff(true, sourceBody, targetBody);
         Assertions.assertEquals(result.getFormDataBody(), sourceBody.getFormDataBody());
+        FormDataKV formDataKV2 = new FormDataKV();
+        formDataKV2.setKey("key2");
+        formDataKV2.setValue("value2");
+        targetBody.getFormDataBody().getFormValues().add(formDataKV);
+        result = HttpRequestParamDiffUtils.syncBodyDiff(true, sourceBody, targetBody);
+        Assertions.assertNotEquals(result.getFormDataBody(), sourceBody.getFormDataBody());
 
         sourceBody.setBodyType(Body.BodyType.WWW_FORM.name());
         targetBody.setBodyType(Body.BodyType.WWW_FORM.name());

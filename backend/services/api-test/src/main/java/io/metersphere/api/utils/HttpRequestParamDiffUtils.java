@@ -303,7 +303,7 @@ public class HttpRequestParamDiffUtils {
      * @return
      */
     public static Body syncBodyDiff(boolean isDeleteRedundantParam, Body sourceBody, Body targetBody) {
-        if (sourceBody == null || targetBody == null || sourceBody.getBodyType() != targetBody.getBodyType()) {
+        if (sourceBody == null || targetBody == null || !StringUtils.equals(sourceBody.getBodyType(), targetBody.getBodyType())) {
             return sourceBody;
         }
         Body.BodyType bodyType = EnumValidator.validateEnum(Body.BodyType.class, sourceBody.getBodyType());
