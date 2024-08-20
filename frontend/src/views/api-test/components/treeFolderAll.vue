@@ -21,17 +21,31 @@
       </a-tooltip>
       <!-- 协议icon -->
       <a-dropdown v-model:popup-visible="visible" :hide-on-select="false">
-        <a-tooltip :content="t('ms.paramsInput.protocol')">
-          <MsButton
-            v-show="!props.notShowOperation"
-            type="icon"
-            status="secondary"
-            :class="`!mr-[4px] p-[4px] ${visible ? 'bg-[rgb(var(--primary-1))] !text-[rgb(var(--primary-4))]' : ''}`"
-            @click="visible = !visible"
-          >
-            <MsIcon type="icon-icon_protocol" />
-          </MsButton>
-        </a-tooltip>
+        <a-popconfirm
+          :popup-visible="protocolIsEmptyVisible"
+          class="ms-pop-confirm--hidden-confirm"
+          :cancel-text="t('common.gotIt')"
+          position="bottom"
+          @cancel="protocolIsEmptyVisible = false"
+        >
+          <a-tooltip :content="t('ms.paramsInput.protocol')">
+            <MsButton
+              v-show="!props.notShowOperation"
+              type="icon"
+              status="secondary"
+              :class="`!mr-[4px] p-[4px] ${visible ? 'bg-[rgb(var(--primary-1))] !text-[rgb(var(--primary-4))]' : ''}`"
+              @click="visible = !visible"
+            >
+              <MsIcon type="icon-icon_protocol" />
+            </MsButton>
+          </a-tooltip>
+          <template #content>
+            <div class="flex flex-col gap-[8px]">
+              <div class="font-medium">{{ t('apiTestManagement.protocolIsEmpty') }}</div>
+              <div class="text-[var(--color-text-2)]">{{ t('apiTestManagement.protocolEmptyTip') }}</div>
+            </div>
+          </template>
+        </a-popconfirm>
         <template #content>
           <a-checkbox
             class="checkbox-all"
@@ -93,6 +107,7 @@
   const appStore = useAppStore();
 
   const visible = ref(false);
+  const protocolIsEmptyVisible = ref(false);
   const allProtocolList = ref<string[]>([]); // 全部
   const isCheckedAll = computed(() => {
     return selectedProtocols.value.length === allProtocolList.value.length;
@@ -134,6 +149,7 @@
     (val) => {
       setLocalStorage(props.protocolKey, val);
       emit('selectedProtocolsChange');
+      protocolIsEmptyVisible.value = !val.length;
     }
   );
 

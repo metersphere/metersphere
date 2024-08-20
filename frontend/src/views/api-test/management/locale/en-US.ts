@@ -166,6 +166,8 @@ export default {
   'apiTestManagement.requestTypeTip': 'Note: Batch request type changes apply only to HTTP requests.',
   'apiTestManagement.autoMake': 'Auto Generate',
   'apiTestManagement.pleaseInputJsonSchema': 'Please enter Schema first before automatically generating it.',
+  'apiTestManagement.protocolIsEmpty': 'The protocol is empty',
+  'apiTestManagement.protocolEmptyTip': 'List display data is empty, please select protocol',
   'case.execute.selectEnv': 'Select Environment',
   'case.execute.defaultEnv': 'Default Environment',
   'case.execute.newEnv': 'New Environment',

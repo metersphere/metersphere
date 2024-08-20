@@ -159,6 +159,8 @@ export default {
   'apiTestManagement.requestTypeTip': '注：批量修改请求类型仅对HTTP协议的请求生效',
   'apiTestManagement.autoMake': '自动生成',
   'apiTestManagement.pleaseInputJsonSchema': '请先输入 Schema 后再进行自动生成',
+  'apiTestManagement.protocolIsEmpty': '接口协议为空',
+  'apiTestManagement.protocolEmptyTip': '列表展示数据为空，请选择协议',
   'case.execute.selectEnv': '环境选择',
   'case.execute.defaultEnv': '默认环境',
   'case.execute.newEnv': '新环境',
