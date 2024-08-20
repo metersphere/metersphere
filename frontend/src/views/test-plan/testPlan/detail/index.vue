@@ -558,7 +558,7 @@
     () => activeTab.value,
     (val) => {
       if (val) {
-        getStatistics();
+        initDetail();
       }
     }
   );
