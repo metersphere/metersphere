@@ -426,10 +426,6 @@
   const apiCaseTotal = computed(() => getSummaryDetail(detail.value.apiCaseCount).caseTotal);
   const scenarioCaseTotal = computed(() => getSummaryDetail(detail.value.apiScenarioCount).caseTotal);
 
-  const totalCase = computed(() => {
-    return functionalCaseTotal.value + apiCaseTotal.value + scenarioCaseTotal.value;
-  });
-
   const reportAnalysisList = computed<ReportMetricsItemModel[]>(() => {
     if (props.isGroup) {
       return [
@@ -447,7 +443,7 @@
         },
         {
           name: t('report.passRate'),
-          value: detail.value.executeRate,
+          value: detail.value.passRate,
           unit: '%',
           icon: 'passRate',
         },
