@@ -760,7 +760,7 @@ public class ApiDefinitionImportUtilService {
                 } else {
                     apiDefinition.setVersionId(apiTestImportRequest.getDefaultVersion());
                 }
-                boolean newCreate = !StringUtils.equals(ApiImportPlatform.Swagger2.name(), apiDefinitionImportParamDTO.getApiTestImportRequest().getPlatform())
+                boolean newCreate = !StringUtils.equalsAnyIgnoreCase(apiDefinitionImportParamDTO.getApiTestImportRequest().getPlatform(), ApiImportPlatform.Swagger2.name(), ApiImportPlatform.Postman.name())
                         && !StringUtils.isNotBlank(apiDefinitionImportParamDTO.getApiTestImportRequest().getSwaggerUrl())
                         && !StringUtils.equals("idea", apiDefinitionImportParamDTO.getApiTestImportRequest().getOrigin());
                 caseList = setRequestAndAddNewCase(apiDefinition, caseList, newCreate);

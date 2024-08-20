@@ -325,7 +325,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     }
 
     private void parseResponseBody(ApiResponse response, Body body) {
-        body.setRaw(response.getDescription());
+        //        body.setRaw(response.getDescription());
         Content content = response.getContent();
         if (content == null) {
             body.setType(Body.RAW);
@@ -1197,22 +1197,25 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             }
         }
 
+        JSONObject statusCodeInfo = new JSONObject();
+        statusCodeInfo.put("headers", headers);
+        statusCodeInfo.put("content", buildContent(response, schemas));
+        statusCodeInfo.put("description", StringUtils.EMPTY);
+
         // 返回code
         JSONArray statusCode = response.optJSONArray("statusCode");
         if (statusCode != null) {
-            for (int i = 0; i < statusCode.length(); i++) {
-                JSONObject statusCodeInfo = new JSONObject();
-                statusCodeInfo.put("headers", headers);
-                statusCodeInfo.put("content", buildContent(response, schemas));
-                statusCodeInfo.put("description", StringUtils.EMPTY);
-                JSONObject jsonObject = statusCode.getJSONObject(i);
-                if (StringUtils.isNotBlank(jsonObject.optString("value"))) {
-                    statusCodeInfo.put("description", jsonObject.optString("value"));
-                }
-                if (StringUtils.isNotBlank(jsonObject.optString("name"))) {
-                    responseBody.put(jsonObject.optString("name"), statusCodeInfo);
-                }
+            JSONObject jsonObject = statusCode.getJSONObject(0);
+            if (StringUtils.isNotBlank(jsonObject.optString("value"))) {
+                statusCodeInfo.put("description", jsonObject.optString("value"));
             }
+            if (StringUtils.isNotBlank(jsonObject.optString("name"))) {
+                responseBody.put(jsonObject.optString("name"), statusCodeInfo);
+            } else {
+                responseBody.put("200", statusCodeInfo);
+            }
+        } else {
+            responseBody.put("200", statusCodeInfo);
         }
         return responseBody;
     }
