@@ -132,12 +132,21 @@
     return !props.shareId ? getReportDetailPage : getReportDetailSharePage;
   };
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportDetailList(), {
-    scroll: { x: '100%' },
-    columns,
-    heightUsed: 20,
-    showSelectorAll: false,
-  });
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
+    reportDetailList(),
+    {
+      scroll: { x: '100%' },
+      columns,
+      heightUsed: 20,
+      showSelectorAll: false,
+    },
+    (item) => {
+      return {
+        ...item,
+        caseTotal: item.caseTotal || 0,
+      };
+    }
+  );
 
   function loadReportDetailList() {
     setLoadListParams({ reportId: props.reportId, shareId: props.shareId ?? undefined });

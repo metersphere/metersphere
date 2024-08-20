@@ -11,10 +11,11 @@
         <ExecutionStatus v-if="record.execResult" :status="record.execResult" :module-type="ReportEnum.API_REPORT" />
       </template>
       <template #executionStartAndEndTime="{ record }">
-        <div>
-          {{ dayjs(record.startTime).format('YYYY-MM-DD HH:mm:ss') }} 至
-          {{ record.endTime ? dayjs(record.endTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
-        </div>
+        <a-tooltip :content="getStartAndEndTime(record)" :mouse-enter-delay="300">
+          <div class="one-line-text">
+            {{ getStartAndEndTime(record) }}
+          </div>
+        </a-tooltip>
       </template>
       <template #operation="{ record }">
         <a-tooltip :content="t('project.executionHistory.cleared')" :disabled="!record.deleted">
@@ -146,6 +147,12 @@
       id: record.id,
       type: props.isGroup ? 'GROUP' : undefined,
     });
+  }
+
+  function getStartAndEndTime(record: PlanDetailExecuteHistoryItem) {
+    return `${dayjs(record.startTime).format('YYYY-MM-DD HH:mm:ss')}${t('common.to')}${
+      record.endTime ? dayjs(record.endTime).format('YYYY-MM-DD HH:mm:ss') : '-'
+    }`;
   }
 
   onBeforeMount(() => {
