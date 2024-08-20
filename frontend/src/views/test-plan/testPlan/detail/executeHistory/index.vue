@@ -124,7 +124,7 @@
       columns,
       scroll: { x: '100%' },
       selectable: false,
-      heightUsed: 398,
+      heightUsed: 298,
     },
     (record) => {
       return {
