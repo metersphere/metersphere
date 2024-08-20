@@ -763,14 +763,15 @@ public class IssuesService {
 
         Map<String, String> globalProjectIdMap = getGlobalProjectIdMap(data.get(0).getProjectId());
 
-        fieldMap.values().forEach(fields ->
+        fieldMap.values().forEach(fields -> {
+            Set<String> fileIdSet = fields.stream().map(CustomFieldDao::getId).collect(Collectors.toSet());
             fields.forEach(field -> {
                 // 如果是全局字段, 并且项目中有对应的字段, 则替换为项目字段
-                if (globalProjectIdMap.containsKey(field.getId())) {
+                if (globalProjectIdMap.containsKey(field.getId()) && !fileIdSet.contains(globalProjectIdMap.get(field.getId()))) {
                     field.setId(globalProjectIdMap.get(field.getId()));
                 }
-            })
-        );
+            });
+        });
 
         data.forEach(i -> i.setFields(fieldMap.get(i.getId())));
     }
@@ -814,7 +815,8 @@ public class IssuesService {
             customFieldDao.setId(i.getFieldId());
             customFieldDao.setValue(i.getValue());
             customFieldDao.setTextValue(i.getTextValue());
-            if (globalProjectIdMap.containsKey(i.getFieldId())) {
+            Set<String> fileIdSet = fields.stream().map(CustomFieldDao::getId).collect(Collectors.toSet());
+            if (globalProjectIdMap.containsKey(i.getFieldId()) && !fileIdSet.contains(globalProjectIdMap.get(i.getFieldId()))) {
                 // 如果是全局字段, 并且项目中有对应的字段, 则替换为项目字段
                 customFieldDao.setId(globalProjectIdMap.get(i.getFieldId()));
             }
@@ -891,14 +893,15 @@ public class IssuesService {
             }
 
             Map<String, String> globalProjectIdMap = getGlobalProjectIdMap(data.get(0).getProjectId());
-            fieldMap.values().forEach(fields ->
-                    fields.forEach(field -> {
-                        // 如果是全局字段, 并且项目中有对应的字段, 则替换为项目字段
-                        if (globalProjectIdMap.containsKey(field.getId())) {
-                            field.setId(globalProjectIdMap.get(field.getId()));
-                        }
-                    })
-            );
+            fieldMap.values().forEach(fields -> {
+                Set<String> fileIdSet = fields.stream().map(CustomFieldDao::getId).collect(Collectors.toSet());
+                fields.forEach(field -> {
+                    // 如果是全局字段, 并且项目中有对应的字段, 则替换为项目字段
+                    if (globalProjectIdMap.containsKey(field.getId()) && !fileIdSet.contains(globalProjectIdMap.get(field.getId()))) {
+                        field.setId(globalProjectIdMap.get(field.getId()));
+                    }
+                });
+            });
 
             data.forEach(i -> i.setFields(fieldMap.get(i.getId())));
         } catch (Exception e) {
