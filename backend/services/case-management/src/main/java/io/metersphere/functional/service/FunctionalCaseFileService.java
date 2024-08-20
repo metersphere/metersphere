@@ -77,6 +77,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -859,11 +860,17 @@ public class FunctionalCaseFileService {
     public String parseHtml(String html) {
         Pattern pattern = Pattern.compile("<p[^>]*>(.*?)</p>");
         Matcher matcher = pattern.matcher(html);
-        if (matcher.find()) {
-            String content = matcher.group(1);
-            return content;
+        StringBuilder result = new StringBuilder();
+        List<MatchResult> list = matcher.results().toList();
+        if (CollectionUtils.isNotEmpty(list)) {
+            for (MatchResult matchResult : list) {
+                result.append(matchResult.group(1));
+            }
+        } else {
+            result.append(html);
         }
-        return html;
+
+        return result.toString();
     }
 
 
