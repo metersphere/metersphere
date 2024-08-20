@@ -482,6 +482,8 @@ public class XmindExportUtil {
                     } else {
                         value = customFieldMap.get(k);
                     }
+                } else {
+                    value = customFieldMap.get(k);
                 }
 
                 ITopic preTopic = workbook.createTopic();

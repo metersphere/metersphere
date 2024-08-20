@@ -91,8 +91,14 @@ public class ExportWebSocketHandler {
      */
     @Scheduled(fixedRate = 60000)
     public void heartbeatCheck() {
-        ExportWebSocketHandler.sendMessageSingle(
+        ExportWebSocketHandler.sendMessageAll(
                 new ExportMsgDTO(MsgType.HEARTBEAT.name(), MsgType.HEARTBEAT.name(), 0, true, MsgType.HEARTBEAT.name())
         );
+    }
+
+    private static void sendMessageAll(ExportMsgDTO message) {
+        ONLINE_EXPORT_EXCEL_SESSIONS.forEach((sessionId, session) -> {
+            sendMessage(session, message);
+        });
     }
 }

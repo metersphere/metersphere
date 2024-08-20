@@ -786,9 +786,6 @@ public class FunctionalCaseFileService {
      * @param request
      */
     private void buildExportCustomField(List<TemplateCustomFieldDTO> templateCustomFields, List<FunctionalCaseCustomField> functionalCaseCustomFields, FunctionalCaseExcelData data, FunctionalCaseExportRequest request) {
-        if (CollectionUtils.isEmpty(request.getCustomFields())) {
-            return;
-        }
         HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap(request.getProjectId());
         Map<String, TemplateCustomFieldDTO> customFieldsMap = templateCustomFields.stream().collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldId, i -> i));
         Map<String, String> caseFieldvalueMap = functionalCaseCustomFields.stream().collect(Collectors.toMap(FunctionalCaseCustomField::getFieldId, FunctionalCaseCustomField::getValue));
@@ -803,6 +800,8 @@ public class FunctionalCaseFileService {
                     } else {
                         map.put(Translator.get("custom_field.functional_priority"), caseFieldvalueMap.get(k));
                     }
+                } else {
+                    map.put(v.getFieldName(), caseFieldvalueMap.get(k));
                 }
             }
         });
