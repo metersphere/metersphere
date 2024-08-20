@@ -34,6 +34,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -173,6 +174,15 @@ public class TestReviewTestCaseService {
         return testCaseReviewTestCaseMapper.updateByExampleSelective(record, example);
     }
 
+    @Async
+    public void refreshReviewCaseStatus(List<TestCaseReviewTestCase> testCaseReviewTestCases) {
+        if (CollectionUtils.isNotEmpty(testCaseReviewTestCases)) {
+            testCaseReviewTestCases.forEach(testCaseReviewTestCase -> {
+                rollBackCaseReviewStatus(testCaseReviewTestCase.getCaseId(), testCaseReviewTestCase.getId());
+            });
+        }
+    }
+
     private void rollBackCaseReviewStatus(String caseId, String relevanceId) {
         TestCaseReviewTestCaseExample example = new TestCaseReviewTestCaseExample();
         example.createCriteria().andCaseIdEqualTo(caseId);
@@ -182,7 +192,7 @@ public class TestReviewTestCaseService {
                 .sorted(Comparator.comparing(TestCaseReviewTestCase::getUpdateTime).reversed())
                 .map(TestCaseReviewTestCase::getStatus)
                 .toList();
-        if (remainReviewCaseStatusOrderByUpdate.size() > 0) {
+        if (!remainReviewCaseStatusOrderByUpdate.isEmpty()) {
             // 回退到最近的一次评审状态
             String latestStatus = remainReviewCaseStatusOrderByUpdate.get(0);
             TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
