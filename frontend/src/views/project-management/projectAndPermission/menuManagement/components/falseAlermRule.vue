@@ -29,7 +29,7 @@
       <template #operation="{ record }">
         <span v-permission="['PROJECT_APPLICATION_API:UPDATE']" class="flex flex-row items-center">
           <MsButton class="!mr-0" @click="showAddRule(record)">{{ t('common.edit') }}</MsButton>
-          <a-divider class="h-[16px]" direction="vertical" />
+          <a-divider v-permission="['PROJECT_APPLICATION_API:DELETE']" class="h-[16px]" direction="vertical" />
         </span>
         <MsTableMoreAction class="!mr-0" :list="tableActions" @select="handleMoreAction($event, record)" />
       </template>
@@ -86,6 +86,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { FakeTableListItem } from '@/models/projectManagement/menuManagement';
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
@@ -132,7 +133,7 @@
         label: 'common.delete',
         eventTag: 'batchDelete',
         danger: true,
-        permission: ['PROJECT_APPLICATION_API:UPDATE'],
+        permission: ['PROJECT_APPLICATION_API:DELETE'],
       },
     ],
   };
@@ -188,6 +189,10 @@
     },
   ];
 
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission(['PROJECT_APPLICATION_API:UPDATE', 'PROJECT_APPLICATION_API:DELETE'])
+  );
+
   const batchFormModels: Ref<FormItemModel[]> = ref([...initBatchFormModels]);
 
   const rulesColumn: MsTableColumn = [
@@ -230,11 +235,11 @@
       width: 210,
     },
     {
-      title: 'project.menu.rule.operation',
+      title: hasOperationPermission.value ? 'project.menu.rule.operation' : '',
       dataIndex: 'operation',
       slotName: 'operation',
       showTooltip: true,
-      width: 169,
+      width: hasOperationPermission.value ? 150 : 50,
     },
   ];
   await tableStore.initColumn(TableKeyEnum.PROJECT_MANAGEMENT_MENU_FALSE_ALERT, rulesColumn, 'drawer');
