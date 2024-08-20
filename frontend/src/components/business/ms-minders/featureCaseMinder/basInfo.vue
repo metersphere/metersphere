@@ -265,6 +265,13 @@
     }
   );
 
+  watch(
+    () => props.activeCase.name,
+    () => {
+      baseInfoForm.value.name = props.activeCase.name;
+    }
+  );
+
   defineExpose({
     makeParams,
   });

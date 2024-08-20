@@ -8,6 +8,7 @@
  * @author: techird
  * @copyright: Baidu FEX, 2014
  */
+import type { MinderJsonNode, MinderJsonNodeData } from '../../props';
 import Debug from '../tool/debug';
 import { isDisableNode, markChangeNode } from '../tool/utils';
 
@@ -299,10 +300,10 @@ function InputRuntime(this: any) {
    * @Editor: Naixor
    * @Date: 2015.9.16
    */
-  const commitInputNode = (node: any, text: string) => {
+  const commitInputNode = (node: MinderJsonNode, text: string) => {
     try {
-      this.minder.decodeData('text', text).then((json: any) => {
-        function importText(nodeT: any, jsonT: any, minder: any) {
+      this.minder.decodeData('text', text).then((json: MinderJsonNodeData) => {
+        function importText(nodeT: MinderJsonNode, jsonT: MinderJsonNodeData, minder: any) {
           const { data } = jsonT;
           nodeT.setText(data.text || '');
           const childrenTreeData = jsonT.children || [];
@@ -314,8 +315,13 @@ function InputRuntime(this: any) {
         }
         importText(node, json, this.minder);
         this.minder.fire('contentchange');
-        this.minder.getRoot().renderTree();
-        this.minder.layout(300);
+        if (node.parent) {
+          node.parent.renderTree();
+          node.parent.layout();
+        } else {
+          this.minder.getRoot().renderTree();
+          this.minder.layout(300);
+        }
       });
     } catch (e: any) {
       this.minder.fire('contentchange');
