@@ -21,7 +21,7 @@ public class CustomFieldMemberValidator extends AbstractCustomFieldValidator {
 
     protected Map<String, String> userIdMap;
     protected Map<String, String> userEmailMap;
-    protected Map<String, String> userNameMap;
+    protected Map<String, String> userIdEmailMap;
 
     public CustomFieldMemberValidator() {
     }
@@ -37,9 +37,9 @@ public class CustomFieldMemberValidator extends AbstractCustomFieldValidator {
         userEmailMap = new HashMap<>();
         memberOption.stream()
                 .forEach(user -> userEmailMap.put(user.getEmail().toLowerCase(), user.getId()));
-        userNameMap = new HashMap<>();
+        userIdEmailMap = new HashMap<>();
         memberOption.stream()
-                .forEach(user -> userNameMap.put(user.getId(), user.getName().toLowerCase()));
+                .forEach(user -> userIdEmailMap.put(user.getId(), user.getEmail().toLowerCase()));
     }
 
     @Override
@@ -70,8 +70,8 @@ public class CustomFieldMemberValidator extends AbstractCustomFieldValidator {
     @Override
     public Object parse2Value(String keyOrValue, TemplateCustomFieldDTO customField) {
         keyOrValue = keyOrValue.toLowerCase();
-        if (userNameMap.containsKey(keyOrValue)) {
-            return userNameMap.get(keyOrValue);
+        if (userIdEmailMap.containsKey(keyOrValue)) {
+            return userIdEmailMap.get(keyOrValue);
         }
         return keyOrValue;
     }

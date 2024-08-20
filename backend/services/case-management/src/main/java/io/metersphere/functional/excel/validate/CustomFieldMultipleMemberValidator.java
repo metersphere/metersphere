@@ -58,8 +58,8 @@ public class CustomFieldMultipleMemberValidator extends CustomFieldMemberValidat
 
         for (int i = 0; i < keyOrValues.size(); i++) {
             String item = keyOrValues.get(i).toLowerCase();
-            if (userNameMap.containsKey(item)) {
-                keyOrValues.set(i, userNameMap.get(item));
+            if (userIdEmailMap.containsKey(item)) {
+                keyOrValues.set(i, userIdEmailMap.get(item));
             }
         }
         return JSON.toJSONString(keyOrValues);
