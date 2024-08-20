@@ -437,6 +437,11 @@ public class TestCaseReviewService {
         deleteCaseReviewProject(reviewId);
         deleteCaseReviewUsers(reviewId);
         deleteCaseReviewFollow(reviewId);
+        // 批量刷新该评审下用例的评审状态(异步)
+        TestCaseReviewTestCaseExample example = new TestCaseReviewTestCaseExample();
+        example.createCriteria().andReviewIdEqualTo(reviewId);
+        List<TestCaseReviewTestCase> testCaseReviewTestCases = testCaseReviewTestCaseMapper.selectByExample(example);
+        testReviewTestCaseService.refreshReviewCaseStatus(testCaseReviewTestCases);
         deleteCaseReviewTestCase(reviewId);
         testCaseReviewMapper.deleteByPrimaryKey(reviewId);
     }
