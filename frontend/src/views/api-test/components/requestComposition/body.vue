@@ -481,20 +481,20 @@
   const currentBodyCode = computed({
     get() {
       if (innerParams.value.bodyType === RequestBodyFormat.JSON) {
-        return innerParams.value.jsonBody.jsonValue;
+        return innerParams.value.jsonBody.jsonValue || '';
       }
       if (innerParams.value.bodyType === RequestBodyFormat.XML) {
-        return innerParams.value.xmlBody.value;
+        return innerParams.value.xmlBody.value || '';
       }
-      return innerParams.value.rawBody.value;
+      return innerParams.value.rawBody.value || '';
     },
     set(val) {
       if (innerParams.value.bodyType === RequestBodyFormat.JSON) {
-        innerParams.value.jsonBody.jsonValue = val;
+        innerParams.value.jsonBody.jsonValue = val || '';
       } else if (innerParams.value.bodyType === RequestBodyFormat.XML) {
-        innerParams.value.xmlBody.value = val;
+        innerParams.value.xmlBody.value = val || '';
       } else {
-        innerParams.value.rawBody.value = val;
+        innerParams.value.rawBody.value = val || '';
       }
     },
   });
