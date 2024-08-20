@@ -933,6 +933,7 @@
               node.data = {
                 ...node.data,
                 ...cloneDeep(configForm.value),
+                text: node.data.text, // 避免因为此时脑图节点文本被修改而配置表单内的文本还是旧的
               };
             }
             configFormValidResult = true;

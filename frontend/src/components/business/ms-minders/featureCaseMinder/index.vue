@@ -31,7 +31,7 @@
       single-tag
       tag-enable
       sequence-enable
-      @content-change="handleContentChange"
+      @content-change="handleMinderNodeContentChange"
       @node-select="handleNodeSelect"
       @action="handleAction"
       @before-exec-command="handleBeforeExecCommand"
@@ -271,6 +271,17 @@
     return fullTabList.filter((item) => item.value === 'baseInfo');
   });
   const activeExtraKey = ref<'baseInfo' | 'attachment' | 'comments' | 'bug'>('baseInfo');
+
+  function handleMinderNodeContentChange(node?: MinderJsonNode) {
+    if (extraVisible.value) {
+      // 已打开用例详情抽屉，更改用例节点文本时同步更新抽屉内的用例名称
+      activeCase.value = {
+        ...activeCase.value,
+        name: node?.data?.text || window.minder.getNodeById(activeCase.value.id)?.data?.text || '',
+      };
+    }
+    handleContentChange(node);
+  }
 
   const fileList = ref<MsFileItem[]>([]);
   const checkUpdateFileIds = ref<string[]>([]);
