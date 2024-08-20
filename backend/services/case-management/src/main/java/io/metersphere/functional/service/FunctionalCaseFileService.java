@@ -864,7 +864,7 @@ public class FunctionalCaseFileService {
             String content = matcher.group(1);
             return content;
         }
-        return StringUtils.EMPTY;
+        return html;
     }
 
 
