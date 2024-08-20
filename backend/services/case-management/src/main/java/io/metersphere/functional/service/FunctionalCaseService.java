@@ -906,13 +906,13 @@ public class FunctionalCaseService {
                 functionalCaseMapper.batchInsert(subList);
             });
             SubListUtils.dealForSubList(addBlobList, 500, subList -> {
-                functionalCaseBlobMapper.batchInsert(addBlobList);
+                functionalCaseBlobMapper.batchInsert(subList);
             });
             SubListUtils.dealForSubList(addAttachMentList, 500, subList -> {
-                functionalCaseAttachmentService.batchSaveAttachment(addAttachMentList);
+                functionalCaseAttachmentService.batchSaveAttachment(subList);
             });
             SubListUtils.dealForSubList(addCustomFieldList, 500, subList -> {
-                functionalCaseCustomFieldService.batchSaveCustomField(addCustomFieldList);
+                functionalCaseCustomFieldService.batchSaveCustomField(subList);
             });
             addFileAssociationMap.entrySet().forEach(entry -> {
                 functionalCaseAttachmentService.association(entry.getValue(), entry.getKey(), userId, FUNCTIONAL_CASE_BATCH_COPY_FILE_LOG_URL, request.getProjectId());
