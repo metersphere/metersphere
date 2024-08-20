@@ -481,8 +481,8 @@
   async function changeIgnore(newValue: string | number | boolean) {
     try {
       await ignoreEveryTimeChange(props.activeApiCaseId, newValue as boolean);
+      await getRequestDetail(props.activeDefinedId, props.activeApiCaseId);
       Message.success(newValue ? t('case.eachHasBeenIgnored') : t('case.eachHasBeenIgnoredClosed'));
-      getRequestDetail(props.activeDefinedId, props.activeApiCaseId);
       emit('clearThisChange', false);
       return false;
     } catch (error) {

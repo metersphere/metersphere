@@ -72,7 +72,7 @@
         :columns="getBodyColumns(item.value)"
         :data="getBodyTableData(item.value)"
         :selectable="false"
-        :show-setting="true"
+        :show-setting="false"
         :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_DATA"
         :diff-mode="props.mode"
         :scroll="{ x: '100%' }"
@@ -184,6 +184,7 @@
       title: 'apiTestManagement.paramVal',
       dataIndex: 'value',
       inputType: 'text',
+      width: 200,
     },
     {
       title: 'apiTestDebug.paramLengthRange',
@@ -215,13 +216,6 @@
       inputType: 'text',
       showTooltip: true,
       width: 200,
-    },
-    {
-      title: '',
-      dataIndex: 'operation',
-      slotName: 'operation',
-      fixed: 'right',
-      width: 100,
     },
   ];
 
@@ -295,13 +289,6 @@
           inputType: 'text',
           showTooltip: true,
           width: 200,
-        },
-        {
-          title: '',
-          dataIndex: 'operation',
-          slotName: 'operation',
-          fixed: 'right',
-          width: 100,
         },
       ];
     }
