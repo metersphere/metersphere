@@ -15,6 +15,10 @@ import java.util.List;
  */
 public class CustomFieldMultipleMemberValidator extends CustomFieldMemberValidator {
 
+    public CustomFieldMultipleMemberValidator(String projectId) {
+        super(projectId);
+    }
+
     @Override
     public void validate(TemplateCustomFieldDTO customField, String value) throws CustomFieldValidateException {
         validateArrayRequired(customField, value);
@@ -54,15 +58,15 @@ public class CustomFieldMultipleMemberValidator extends CustomFieldMemberValidat
         if (StringUtils.isBlank(keyOrValuesStr)) {
             return JSON.toJSONString(new ArrayList<>());
         }
-        List<String> keyOrValues = parse2Array(keyOrValuesStr);
-
-        for (int i = 0; i < keyOrValues.size(); i++) {
-            String item = keyOrValues.get(i).toLowerCase();
-            if (userIdEmailMap.containsKey(item)) {
-                keyOrValues.set(i, userIdEmailMap.get(item));
+        List list = JSON.parseArray(keyOrValuesStr);
+        List<String> result = new ArrayList<>();
+        list.forEach(item -> {
+            if (super.userIdEmailMap.containsKey(item)) {
+                result.add(userIdEmailMap.get(item));
             }
-        }
-        return JSON.toJSONString(keyOrValues);
+        });
+
+        return String.join(",", JSON.parseArray(JSON.toJSONString(result)));
     }
 
 }
