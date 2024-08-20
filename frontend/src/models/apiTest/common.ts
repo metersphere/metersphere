@@ -185,6 +185,7 @@ export interface ResponseAssertionItem {
   expression: string;
   enable?: boolean;
   extractType?: RequestExtractExpressionEnum;
+  valid?: boolean;
 }
 // 断言-JSONPath断言子项
 export type ResponseJSONPathAssertionItem = ResponseAssertionItem;
@@ -257,21 +258,21 @@ export interface ExpressionCommonConfig {
   enable: boolean; // 是否启用
   expression: string;
   extractType: ExpressionType; // 表达式类型
-  variableName: string;
-  variableType: RequestExtractEnvType;
-  resultMatchingRule: RequestExtractResultMatchingRule; // 结果匹配规则
-  resultMatchingRuleNum: number; // 匹配第几条结果
+  variableName?: string;
+  variableType?: RequestExtractEnvType;
+  resultMatchingRule?: RequestExtractResultMatchingRule; // 结果匹配规则
+  resultMatchingRuleNum?: number; // 匹配第几条结果
 }
 // 正则提取配置
 export interface RegexExtract extends ExpressionCommonConfig {
-  expressionMatchingRule: RequestExtractExpressionRuleType; // 正则表达式匹配规则
-  extractScope: RequestExtractScope; // 正则提取范围
+  expressionMatchingRule?: RequestExtractExpressionRuleType; // 正则表达式匹配规则
+  extractScope?: RequestExtractScope; // 正则提取范围
 }
 // JSONPath提取配置
 export type JSONPathExtract = ExpressionCommonConfig;
 // XPath提取配置
 export interface XPathExtract extends ExpressionCommonConfig {
-  responseFormat: ResponseBodyXPathAssertionFormat; // 响应格式
+  responseFormat?: ResponseBodyXPathAssertionFormat; // 响应格式
 }
 // 执行请求-前后置操作-参数提取处理器
 export interface ExtractProcessor extends ExecuteConditionProcessorCommon {

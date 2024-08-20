@@ -172,10 +172,12 @@
   import type { JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/common';
   import { RequestExtractExpressionEnum, RequestExtractExpressionRuleType } from '@/enums/apiEnum';
 
+  export type ExtractParamConfig = (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>;
+
   const props = withDefaults(
     defineProps<{
       visible: boolean;
-      config: (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>;
+      config: ExtractParamConfig;
       response?: string; // 响应内容
       isShowMoreSetting?: boolean; // 是否展示更多设置
     }>(),
@@ -185,11 +187,7 @@
   );
   const emit = defineEmits<{
     (e: 'update:visible', value: boolean): void;
-    (
-      e: 'apply',
-      config: (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>,
-      matchResult: any[] | string
-    ): void;
+    (e: 'apply', config: ExtractParamConfig, matchResult: any[] | string): void;
   }>();
 
   const { t } = useI18n();

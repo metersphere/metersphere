@@ -19,7 +19,7 @@
         :scroll="{ minWidth: '100%' }"
         :default-param-item="jsonPathDefaultParamItem"
         @change="(data:any[],isInit?: boolean) => handleChange(data, ResponseBodyAssertionType.JSON_PATH,isInit)"
-        @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
+        @more-action-select="(e, r) => handleExtractParamMoreActionSelect(e, r)"
       >
         <template #expression="{ record, rowIndex }">
           <a-popover
@@ -123,9 +123,9 @@
         :selectable="true"
         :columns="xPathColumns"
         :scroll="{ minWidth: '100%' }"
-        :default-param-item="defaultAssertParamsItem"
+        :default-param-item="xpathAssertParamsItem"
         @change="(data:any[],isInit?: boolean) => handleChange(data, ResponseBodyAssertionType.XPATH,isInit)"
-        @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
+        @more-action-select="(e, r) => handleExtractParamMoreActionSelect(e, r)"
       >
         <template #expression="{ record, rowIndex }">
           <a-popover
@@ -271,7 +271,7 @@
         :scroll="{ minWidth: '100%' }"
         :default-param-item="regexDefaultParamItem"
         @change="(data) => handleChange(data, ResponseBodyAssertionType.REGEX)"
-        @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
+        @more-action-select="(e, r) => handleExtractParamMoreActionSelect(e, r)"
       >
         <template #expression="{ record, rowIndex }">
           <a-popover
@@ -378,10 +378,9 @@
   import { RequestExtractExpressionEnum, ResponseBodyAssertionType } from '@/enums/apiEnum';
 
   import {
-    defaultAssertParamsItem,
-    defaultExtractParamItem,
     jsonPathDefaultParamItem,
     regexDefaultParamItem,
+    xpathAssertParamsItem,
   } from '@/views/api-test/components/config';
 
   const { t } = useI18n();
@@ -432,7 +431,7 @@
   // const disabledExpressionSuffix = ref(false);
   export type ExpressionConfig = (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>;
 
-  const activeRecord = ref({ ...defaultExtractParamItem }); // 用于暂存当前操作的提取参数表格项
+  const activeRecord = ref<any>({ ...xpathAssertParamsItem, id: '' }); // 用于暂存当前操作的提取参数表格项
 
   const responseRadios = [
     { label: 'ms.assertion.jsonPath', value: ResponseBodyAssertionType.JSON_PATH },
@@ -817,7 +816,7 @@
   /**
    * 处理提取参数表格更多操作
    */
-  function handleExtractParamMoreActionSelect(event: ActionsItem, record: ExpressionConfig) {
+  function handleExtractParamMoreActionSelect(event: ActionsItem, record: Record<string, any>) {
     activeRecord.value = { ...record };
     if (event.eventTag === 'copy') {
       copyItem(record);
@@ -826,7 +825,7 @@
     }
   }
 
-  function showFastExtraction(record: ExpressionConfig) {
+  function showFastExtraction(record: Record<string, any>) {
     if (props.disabled || !props.response) return;
     activeRecord.value = { ...record };
     fastExtractionVisible.value = true;

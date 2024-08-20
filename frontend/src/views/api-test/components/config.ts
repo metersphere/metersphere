@@ -193,33 +193,13 @@ export const caseStatusOptions = [
   { label: 'apiTestManagement.done', value: RequestCaseStatus.DONE },
 ];
 
-// 断言 参数表格默认行的值
-export const defaultAssertParamsItem: ResponseAssertionItem = {
+// 断言xpath默认行的值
+export const xpathAssertParamsItem: ResponseAssertionItem = {
   expression: '',
-  condition: RequestAssertionCondition.EQUALS,
   expectedValue: '',
   enable: true,
   extractType: RequestExtractExpressionEnum.X_PATH,
-};
-
-// 断言xpath & reg
-export const defaultAssertXpathParamsItem: ResponseAssertionItem = {
-  expression: '',
-  enable: true,
-};
-// 断言 xpath
-export const defaultExtractParamItem: ExpressionConfig = {
-  enable: true,
-  variableName: '',
-  variableType: RequestExtractEnvType.TEMPORARY,
-  extractScope: RequestExtractScope.BODY,
-  expression: '',
-  extractType: RequestExtractExpressionEnum.JSON_PATH,
-  expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
-  resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
-  resultMatchingRuleNum: 1,
-  responseFormat: ResponseBodyXPathAssertionFormat.XML,
-  moreSettingPopoverVisible: false,
+  valid: true,
 };
 // @desc 断言的字段xpath和上边的defaultExtractParamItem不匹配所以添加此类型为了保存参数过滤正确
 export const assertDefaultParamsItem: ResponseAssertionItem = {
@@ -260,6 +240,20 @@ export const responseAssertionTypeMap: Record<string, string> = {
   [FullResponseAssertionType.RESPONSE_TIME]: 'apiTestManagement.responseTime',
   [FullResponseAssertionType.SCRIPT]: 'apiTestManagement.script',
   [FullResponseAssertionType.VARIABLE]: 'apiTestManagement.variable',
+};
+// 提取参数
+export const defaultExtractParamItem: ExpressionConfig = {
+  enable: true,
+  variableName: '',
+  variableType: RequestExtractEnvType.TEMPORARY,
+  extractScope: RequestExtractScope.BODY,
+  expression: '',
+  extractType: RequestExtractExpressionEnum.JSON_PATH,
+  expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
+  resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
+  resultMatchingRuleNum: 1,
+  responseFormat: ResponseBodyXPathAssertionFormat.XML,
+  moreSettingPopoverVisible: false,
 };
 // 提取类型选项
 export const extractTypeOptions = [

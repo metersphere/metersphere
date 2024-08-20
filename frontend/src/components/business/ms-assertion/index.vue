@@ -314,7 +314,6 @@
             regexAssertion: {
               assertions: [],
             },
-            bodyAssertionDataByType: {},
           });
           break;
         // 响应时间

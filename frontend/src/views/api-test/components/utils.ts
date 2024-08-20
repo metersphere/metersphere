@@ -10,14 +10,13 @@ import type { MockBody } from '@/models/apiTest/mock';
 import { RequestConditionProcessor, RequestParamsType } from '@/enums/apiEnum';
 
 import {
-  assertDefaultParamsItem,
-  defaultAssertParamsItem,
   defaultBodyParamsItem,
   defaultHeaderParamsItem,
   defaultKeyValueParamItem,
   defaultRequestParamsItem,
   jsonPathDefaultParamItem,
   regexDefaultParamItem,
+  xpathAssertParamsItem,
 } from './config';
 import type { RequestParam } from './requestComposition/index.vue';
 
@@ -253,14 +252,6 @@ export function filterAssertions(assertionConfig: ExecuteAssertionConfig, isExec
     }
     return {
       ...assertItem,
-      bodyAssertionDataByType: {
-        ...assertItem.bodyAssertionDataByType,
-        assertions: filterKeyValParams(
-          assertItem?.bodyAssertionDataByType?.assertions || [],
-          defaultAssertParamsItem,
-          isExecute
-        ).validParams,
-      },
       regexAssertion: {
         ...assertItem?.regexAssertion,
         assertions: filterKeyValParams(assertItem?.regexAssertion?.assertions || [], regexDefaultParamItem, isExecute)
@@ -268,7 +259,7 @@ export function filterAssertions(assertionConfig: ExecuteAssertionConfig, isExec
       },
       xpathAssertion: {
         ...assertItem.xpathAssertion,
-        assertions: filterKeyValParams(assertItem?.xpathAssertion?.assertions || [], assertDefaultParamsItem, isExecute)
+        assertions: filterKeyValParams(assertItem?.xpathAssertion?.assertions || [], xpathAssertParamsItem, isExecute)
           .validParams,
       },
       jsonPathAssertion: {
