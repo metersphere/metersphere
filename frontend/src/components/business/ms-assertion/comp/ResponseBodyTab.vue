@@ -354,7 +354,6 @@
 </template>
 
 <script setup lang="ts">
-  import { useVModel } from '@vueuse/core';
   import { TableColumnData, TableData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
@@ -375,8 +374,8 @@
     insertNode,
   } from '@/utils/tree';
 
-  import { ExecuteConditionProcessor, JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/common';
-  import { ResponseBodyAssertionType } from '@/enums/apiEnum';
+  import { JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/common';
+  import { RequestExtractExpressionEnum, ResponseBodyAssertionType } from '@/enums/apiEnum';
 
   import {
     defaultAssertParamsItem,
@@ -394,7 +393,6 @@
 
   const props = withDefaults(
     defineProps<{
-      data: Param;
       response?: string;
       disabled?: boolean;
       showExtraction?: boolean;
@@ -405,13 +403,14 @@
   );
 
   const emit = defineEmits<{
-    (e: 'update:data', data: ExecuteConditionProcessor): void;
     (e: 'copy'): void;
     (e: 'delete', id: number): void;
     (e: 'change', param: Param): void;
   }>();
 
-  const condition = useVModel(props, 'data', emit);
+  const condition = defineModel<Param>('data', {
+    required: true,
+  });
 
   const rootId = 0; // 1970-01-01 00:00:00 UTC
 
@@ -479,6 +478,27 @@
       ],
     },
   ];
+
+  onBeforeMount(() => {
+    condition.value.jsonPathAssertion.assertions = condition.value.jsonPathAssertion.assertions?.map((e: Param) => {
+      return {
+        ...e,
+        extractType: RequestExtractExpressionEnum.JSON_PATH,
+      };
+    });
+    condition.value.xpathAssertion.assertions = condition.value.xpathAssertion.assertions?.map((e: Param) => {
+      return {
+        ...e,
+        extractType: RequestExtractExpressionEnum.X_PATH,
+      };
+    });
+    condition.value.regexAssertion.assertions = condition.value.regexAssertion.assertions?.map((e: Param) => {
+      return {
+        ...e,
+        extractType: RequestExtractExpressionEnum.REGEX,
+      };
+    });
+  });
 
   const handleChange = (data: any[], type: string, isInit?: boolean) => {
     switch (type) {
