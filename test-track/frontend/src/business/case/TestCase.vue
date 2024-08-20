@@ -525,6 +525,10 @@ export default {
       this.activeName = 'default';
       this.trashEnable = false;
       this.publicEnable = false;
+      // 清除选中的模块
+      this.$router.push({
+        query: merge(this.$route.query, {'moduleId': 'root'})
+      });
     },
     enableTrash(data) {
       // 进入回收站列表
