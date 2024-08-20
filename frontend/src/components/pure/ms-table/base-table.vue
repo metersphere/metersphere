@@ -552,10 +552,27 @@
     return totalWidth + tablePadding;
   };
 
+  const getAllTagsFromData = (rows: TableData[], dataIndex: string): any[] => {
+    const allTags: Record<string, any>[] = [];
+
+    const collectTags = (nodes: TableData[]) => {
+      nodes.forEach((node) => {
+        if (node[dataIndex]) {
+          allTags.push(node[dataIndex]);
+        }
+        if (node.children && node.children.length > 0) {
+          collectTags(node.children);
+        }
+      });
+    };
+
+    collectTags(rows);
+    return allTags;
+  };
+
   // TODO 求总和里边最大宽度作为标签列宽 这里需要考虑一下性能优化
   const getMaxRowTagWidth = (rows: TableData[], dataIndex: string) => {
-    const allTags = ((rows as TableData) || []).map((row: TableData) => row[dataIndex] || []);
-
+    const allTags = getAllTagsFromData(rows, dataIndex);
     const rowWidths = (allTags || []).map((tags: any) => {
       return getRowTagTotalWidth(tags);
     });
