@@ -303,7 +303,9 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
             case MediaType.TEXT_PLAIN_VALUE -> {
                 body.setBodyType(Body.BodyType.RAW.name());
                 RawBody rawBody = new RawBody();
-                rawBody.setValue(value.getSchema().getExample().toString());
+                if (ObjectUtils.isNotEmpty(value.getSchema().getExample())) {
+                    rawBody.setValue(value.getSchema().getExample().toString());
+                }
                 body.setRawBody(rawBody);
             }
             default -> body.setBodyType(Body.BodyType.NONE.name());
@@ -352,7 +354,9 @@ public class Swagger3Parser extends ApiImportAbstractParser<ApiDefinitionImport>
             case MediaType.TEXT_PLAIN_VALUE -> {
                 body.setBodyType(Body.BodyType.RAW.name());
                 RawBody rawBody = new RawBody();
-                rawBody.setValue(value.getSchema().getExample().toString());
+                if (ObjectUtils.isNotEmpty(value.getSchema().getExample())) {
+                    rawBody.setValue(value.getSchema().getExample().toString());
+                }
                 body.setRawBody(rawBody);
             }
             default -> body.setBodyType(Body.BodyType.NONE.name());
