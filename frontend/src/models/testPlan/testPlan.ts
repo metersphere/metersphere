@@ -257,6 +257,7 @@ export interface PassRateCountDetail {
 
 // 执行历史
 export interface ExecuteHistoryItem {
+  id: string;
   status: string;
   content: string;
   contentText: string;
