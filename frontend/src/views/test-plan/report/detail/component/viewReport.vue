@@ -470,7 +470,7 @@
       },
       {
         name: t('report.detail.performCompletion'),
-        value: detail.value.passRate,
+        value: detail.value.executeRate,
         unit: '%',
         icon: 'passRate',
       },
