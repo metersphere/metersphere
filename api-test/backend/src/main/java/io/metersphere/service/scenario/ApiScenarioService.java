@@ -386,8 +386,8 @@ public class ApiScenarioService {
         } else {
             scenario.setVersion(version + 1);
         }
-        new Thread(() -> deleteUpdateBodyFile(scenario, beforeScenario)).start();
 
+        deleteUpdateBodyFile(scenario, beforeScenario);
         scenario.setCreateUser(null); // 更新时不更新创建人
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdEqualTo(scenario.getId()).andVersionIdEqualTo(request.getVersionId());
@@ -412,36 +412,32 @@ public class ApiScenarioService {
             apiScenarioMapper.updateByExampleSelective(apiScenarioWithBLOBs, example);
         }
 
-
+        apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenario);
         extScheduleMapper.updateNameByResourceID(request.getId(), request.getName());//  修改场景name，同步到修改首页定时任务
+        uploadFiles(request, bodyFiles, scenarioFiles);
 
-        // 异步数据放到线程中处理
-        new Thread(() -> {
-            uploadFiles(request, bodyFiles, scenarioFiles);
-            apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenario);
-            // 存储依赖关系
-            apiAutomationRelationshipEdgeService.initRelationshipEdge(beforeScenario, scenario);
+        // 存储依赖关系
+        apiAutomationRelationshipEdgeService.initRelationshipEdge(beforeScenario, scenario);
 
-            apiTestCaseService.checkAndSendReviewMessage(
-                    scenario.getId(),
-                    scenario.getName(),
-                    scenario.getProjectId(),
-                    "场景用例通知",
-                    NoticeConstants.TaskType.API_AUTOMATION_TASK,
-                    beforeScenario.getScenarioDefinition(),
-                    scenario.getScenarioDefinition(),
-                    scenario.getPrincipal()
-            );
-            String defaultVersion = baseProjectVersionMapper.getDefaultVersion(request.getProjectId());
-            if (StringUtils.equalsIgnoreCase(request.getVersionId(), defaultVersion)) {
-                checkAndSetLatestVersion(beforeScenario.getRefId());
-            }
-            //同步修改所有版本的模块路径
-            updateOtherVersionModule(beforeScenario.getRefId(), scenario);
-            // 存储附件关系
-            extFileAssociationService.saveScenario(scenario.getId(), request.getScenarioDefinition());
-        }).start();
+        apiTestCaseService.checkAndSendReviewMessage(
+                scenario.getId(),
+                scenario.getName(),
+                scenario.getProjectId(),
+                "场景用例通知",
+                NoticeConstants.TaskType.API_AUTOMATION_TASK,
+                beforeScenario.getScenarioDefinition(),
+                scenario.getScenarioDefinition(),
+                scenario.getPrincipal()
+        );
 
+        String defaultVersion = baseProjectVersionMapper.getDefaultVersion(request.getProjectId());
+        if (StringUtils.equalsIgnoreCase(request.getVersionId(), defaultVersion)) {
+            checkAndSetLatestVersion(beforeScenario.getRefId());
+        }
+        //同步修改所有版本的模块路径
+        updateOtherVersionModule(beforeScenario.getRefId(), scenario);
+        // 存储附件关系
+        extFileAssociationService.saveScenario(scenario.getId(), request.getScenarioDefinition());
         return scenario;
     }
 
