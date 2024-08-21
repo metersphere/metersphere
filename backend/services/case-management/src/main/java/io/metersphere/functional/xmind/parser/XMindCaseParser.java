@@ -45,6 +45,8 @@ public class XMindCaseParser {
     @Getter
     protected List<FunctionalCaseExcelData> list = new ArrayList<>();
     @Getter
+    protected List<FunctionalCaseExcelData> checkSuccessList = new ArrayList<>();
+    @Getter
     protected List<FunctionalCaseExcelData> updateList = new ArrayList<>();
 
     private FunctionalCaseService functionalCaseService;
@@ -92,6 +94,7 @@ public class XMindCaseParser {
     public void clear() {
         list.clear();
         updateList.clear();
+        checkSuccessList.clear();
         pathMap.clear();
         moduleTree = new ArrayList<>();
         customFieldValidatorMap = new HashMap<>();
@@ -287,7 +290,7 @@ public class XMindCaseParser {
                     functionalCaseExcelData.setNum(checkResult);
                     updateList.add(functionalCaseExcelData);
                 } else {
-                    list.add(functionalCaseExcelData);
+                    checkSuccessList.add(functionalCaseExcelData);
                 }
             } else {
                 list.add(functionalCaseExcelData);

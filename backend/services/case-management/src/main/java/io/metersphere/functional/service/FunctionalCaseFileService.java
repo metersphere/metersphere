@@ -330,7 +330,7 @@ public class FunctionalCaseFileService {
             XMindCaseParser xMindParser = new XMindCaseParser(request, customFields, user, lasePos);
             errList = xMindParser.parse(multipartFile);
             response.setErrorMessages(errList);
-            response.setSuccessCount(xMindParser.getList().size() + xMindParser.getUpdateList().size());
+            response.setSuccessCount(xMindParser.getList().size() + xMindParser.getUpdateList().size()+ xMindParser.getCheckSuccessList().size());
             response.setFailCount(errList.size());
             xMindParser.clear();
             return response;
@@ -407,7 +407,7 @@ public class FunctionalCaseFileService {
             }
             xmindParser.saveData();
             response.setErrorMessages(errList);
-            response.setSuccessCount(xmindParser.getList().size() + xmindParser.getUpdateList().size());
+            response.setSuccessCount(xmindParser.getList().size() + xmindParser.getUpdateList().size()+ xmindParser.getCheckSuccessList().size());
             response.setFailCount(errList.size());
             xmindParser.clear();
             return response;
