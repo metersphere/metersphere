@@ -12,6 +12,7 @@ import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.functional.xmind.pojo.Attached;
 import io.metersphere.functional.xmind.pojo.JsonRootBean;
 import io.metersphere.functional.xmind.utils.DetailUtil;
+import io.metersphere.plugin.platform.enums.PlatformCustomFieldType;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -361,7 +362,7 @@ public class XMindCaseParser {
                     }
                 } else {
                     //自定义字段
-                    String[] customFiled = item.getTitle().split("(?:\\s*:|：)");
+                    String[] customFiled = item.getTitle().split("(?:\\s*:|：)",2);
                     Map<String, Object> stringObjectMap = testCase.getCustomData();
                     if (customFiled.length > 1) {
                         TemplateCustomFieldDTO templateCustomFieldDTO = customFieldsMap.get(customFiled[0]);
