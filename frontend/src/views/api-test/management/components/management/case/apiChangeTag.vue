@@ -1,6 +1,6 @@
 <template>
   <MsTag
-    v-if="props.inconsistentWithApi || props.ignoreApiChange || props.ignoreApiDiff"
+    v-if="props.inconsistentWithApi"
     class="cursor-pointer font-normal"
     :type="props.ignoreApiDiff ? 'default' : 'warning'"
     theme="light"
