@@ -1022,6 +1022,7 @@
         const fileParams = scenario.value.stepFileParam[node.id];
         tempApiDetail.value = {
           ...detail,
+          customizeRequest: false, // 另存为新接口时，不是自定义请求
           uploadFileIds: fileParams?.uploadFileIds || [],
           linkFileIds: fileParams?.linkFileIds || [],
         };
