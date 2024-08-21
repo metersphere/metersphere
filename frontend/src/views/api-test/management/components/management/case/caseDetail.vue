@@ -94,6 +94,7 @@
           @close="closeDifferent"
           @clear-this-change="(isEvery:boolean)=>brashChangeHandler(isEvery)"
           @sync="syncParamsHandler"
+          @load-list="emit('loadCase', props.detail.id as string)"
         />
       </a-tab-pane>
       <a-tab-pane key="reference" :title="t('apiTestManagement.reference')" class="px-[18px] py-[16px]">
