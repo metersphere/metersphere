@@ -83,7 +83,7 @@ export default {
         label: 'name',
         lazyLoad(node, resolve) {
           const {level, value} = node;
-          if (self.cascaderLevel === 1) {
+          if (self.cascaderLevel === 1 || self.cascaderLevel === 3) {
             if (level === 0) {
               self.getProject(getCurrentWorkspaceId(), resolve);
             } else {
@@ -185,6 +185,14 @@ export default {
           resourceId: getCurrentWorkspaceId()
         }).then(res => {
           this.projectUserGroups = res.data ? res.data : [];
+        })
+      } else if (this.cascaderLevel === 3) {
+        // 过滤项目级别全局用户组 || 当前工作空间下的项目级别用户组
+        this.loading = getAllUserGroupByType({
+          type: GROUP_PROJECT,
+          resourceId: getCurrentWorkspaceId()
+        }).then(res => {
+          this.projectUserGroups = res.data ? res.data.filter(group => group.scopeId === 'global' || group.scopeId === getCurrentWorkspaceId()) : [];
         })
       }
     }
