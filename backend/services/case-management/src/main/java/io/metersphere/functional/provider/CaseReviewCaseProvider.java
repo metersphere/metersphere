@@ -120,6 +120,14 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
         }
     }
 
+    @Async
+    public void refreshReviewCaseStatus(List<CaseReviewFunctionalCase> reviewCases) {
+        if (CollectionUtils.isNotEmpty(reviewCases)) {
+            List<String> caseIds = reviewCases.stream().map(CaseReviewFunctionalCase::getCaseId).collect(Collectors.toList());
+            updateCaseStatus(caseIds);
+        }
+    }
+
     private void updateCaseStatus(List<String> caseIdList) {
         CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
         caseReviewFunctionalCaseExample.createCriteria().andCaseIdIn(caseIdList);

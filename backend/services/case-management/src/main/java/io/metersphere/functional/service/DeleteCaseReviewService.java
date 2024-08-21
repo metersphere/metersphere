@@ -2,11 +2,14 @@ package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.mapper.*;
+import io.metersphere.functional.provider.CaseReviewCaseProvider;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author guoyuqi
@@ -27,12 +30,15 @@ public class DeleteCaseReviewService {
     private CaseReviewFollowerMapper caseReviewFollowerMapper;
     @Resource
     private CaseReviewHistoryMapper caseReviewHistoryMapper;
+    @Resource
+    private CaseReviewCaseProvider caseReviewCaseProvider;
 
     public void deleteCaseReviewResource(List<String> ids, String projectId) {
         //TODO 删除各种关联关系？ 1.关联用例(功能/接口/场景/ui/性能)？ 2.评审和评审人 3. 归档的用例 4. 关注人 5.评审历史 6. 操作记录
         //1.刪除评审与功能用例关联关系
         CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdIn(ids);
+        List<CaseReviewFunctionalCase> reviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         caseReviewFunctionalCaseMapper.deleteByExample(caseReviewFunctionalCaseExample);
         //2. 删除评审和评审人
         CaseReviewUserExample caseReviewUserExample = new CaseReviewUserExample();
@@ -56,5 +62,9 @@ public class DeleteCaseReviewService {
         CaseReviewExample caseReviewExample = new CaseReviewExample();
         caseReviewExample.createCriteria().andIdIn(ids).andProjectIdEqualTo(projectId);
         caseReviewMapper.deleteByExample(caseReviewExample);
+
+        // 7. 批量刷新评审中其他用例的评审状态
+        Map<String, List<CaseReviewFunctionalCase>> reviewFunctionalCaseMap = reviewFunctionalCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getReviewId));
+        reviewFunctionalCaseMap.forEach((reviewId, reviewFunctionalCaseList) -> caseReviewCaseProvider.refreshReviewCaseStatus(reviewFunctionalCaseList));
     }
 }
