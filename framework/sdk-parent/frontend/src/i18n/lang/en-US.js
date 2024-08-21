@@ -241,7 +241,7 @@ const message = {
     please_save: "Please save first",
     formatErr: "Format Error",
     id: "ID",
-    cannot_be_null: "not null ",
+    cannot_be_null: " not null ",
     required: "{0} is required",
     millisecond: "ms",
     please_upload: "Please upload file",

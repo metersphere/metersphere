@@ -125,6 +125,7 @@
                        :prop="prop"
                        @change="handleChange"
                        :default-open="defaultOpen"
+                       :placeholder="$t('commons.input_content')"
                        :data="data" :disabled="disabled"/>
 
     <el-input v-else-if="data.type === 'password'"
