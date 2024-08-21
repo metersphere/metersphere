@@ -33,14 +33,18 @@
         <MsIcon type="icon-icon_edit_outlined" class="mr-[8px]" />
         {{ t('common.edit') }}
       </MsButton>
-      <MsTableMoreAction v-if="detail.status !== 'ARCHIVED'" :list="reportMoreAction" @select="handleMoreReportSelect">
+      <MsTableMoreAction
+        v-if="countDetail.status !== 'ARCHIVED'"
+        :list="reportMoreAction"
+        @select="handleMoreReportSelect"
+      >
         <MsButton v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])" type="button" status="default">
           <MsIcon type="icon-icon_generate_report" class="mr-[8px]" />
           {{ t('testPlan.testPlanDetail.generateReport') }}
         </MsButton>
       </MsTableMoreAction>
       <MsButton
-        v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) && detail.status !== 'ARCHIVED'"
+        v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+ADD']) && countDetail.status !== 'ARCHIVED'"
         type="button"
         status="default"
         :loading="copyLoading"
@@ -56,7 +60,7 @@
         />
         {{ t(detail.followFlag ? 'common.forked' : 'common.fork') }}
       </MsButton>
-      <MsButton v-if="detail.status === 'ARCHIVED'" status="danger" type="button" @click="deleteHandler">
+      <MsButton v-if="countDetail.status === 'ARCHIVED'" status="danger" type="button" @click="deleteHandler">
         <MsIcon type="icon-icon_delete-trash_outlined1" class="mr-[8px] text-[rgb(var(--danger-6))]" />
         <span class="text-[rgb(var(--danger-6))]"> {{ t('common.delete') }}</span>
       </MsButton>
@@ -105,31 +109,36 @@
   </MsCard>
   <!-- special-height的169: 上面卡片高度153 + mt的16 -->
   <MsCard class="mt-[16px]" :special-height="169" simple has-breadcrumb no-content-padding>
-    <Plan v-if="activeTab === 'plan'" :plan-id="planId" :status="detail.status || 'PREPARED'" @refresh="initDetail" />
+    <Plan
+      v-if="activeTab === 'plan'"
+      :plan-id="planId"
+      :status="countDetail.status || 'PREPARED'"
+      @refresh="initDetail"
+    />
     <FeatureCase
       v-else-if="activeTab === 'featureCase'"
       ref="featureCaseRef"
       :tree-type="treeType"
-      :can-edit="detail.status !== 'ARCHIVED'"
+      :can-edit="countDetail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
     <BugManagement
       v-else-if="activeTab === 'defectList'"
-      :can-edit="detail.status !== 'ARCHIVED'"
+      :can-edit="countDetail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
     <ApiCase
       v-else-if="activeTab === 'apiCase'"
       ref="apiCaseRef"
       :tree-type="treeType"
-      :can-edit="detail.status !== 'ARCHIVED'"
+      :can-edit="countDetail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
     <ApiScenario
       v-else-if="activeTab === 'apiScenario'"
       ref="apiScenarioRef"
       :tree-type="treeType"
-      :can-edit="detail.status !== 'ARCHIVED'"
+      :can-edit="countDetail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
     <ExecuteHistory v-else-if="activeTab === 'executeHistory'" />
@@ -140,7 +149,12 @@
     :module-tree="testPlanTree"
     @load-plan-list="successHandler"
   />
-  <ActionModal v-model:visible="showStatusDeleteModal" :record="activeRecord" @success="okHandler" />
+  <ActionModal
+    v-model:visible="showStatusDeleteModal"
+    :schedule-config="countDetail.scheduleConfig"
+    :record="activeRecord"
+    @success="okHandler"
+  />
 </template>
 
 <script setup lang="ts">
@@ -251,14 +265,14 @@
     },
   ];
   const moreAction = computed(() => {
-    if (detail.value.status === 'COMPLETED') {
+    if (countDetail.value.status === 'COMPLETED') {
       return [...fullActions];
     }
     return fullActions.filter((e) => e.eventTag !== 'archive');
   });
 
   const isEnableEdit = computed(() => {
-    return hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && detail.value.status !== 'ARCHIVED';
+    return hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && countDetail.value.status !== 'ARCHIVED';
   });
 
   function archiveHandler() {
@@ -289,13 +303,16 @@
   // 删除
   function deleteHandler() {
     activeRecord.value = cloneDeep(detail.value);
+    activeRecord.value.status = countDetail.value.status;
     showStatusDeleteModal.value = true;
   }
 
   // 删除或者删除弹窗归档成功
   function okHandler(isDelete: boolean) {
     if (isDelete) {
-      router.back();
+      router.push({
+        name: TestPlanRouteEnum.TEST_PLAN_INDEX,
+      });
     } else {
       initDetail();
     }
