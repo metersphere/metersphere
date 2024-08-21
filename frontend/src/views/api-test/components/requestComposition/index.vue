@@ -91,6 +91,7 @@
             v-model:model-value="requestVModel.mode"
             type="button"
             class="mr-[12px]"
+            size="medium"
           >
             <a-radio value="definition">{{ t('apiTestManagement.definition') }}</a-radio>
             <a-radio value="debug">{{ t('apiTestManagement.debug') }}</a-radio>
