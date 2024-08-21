@@ -1,7 +1,7 @@
 <template>
   <a-spin :loading="loading" class="w-full">
     <div :class="`${props.height || 'h-full'} execute-history-list`">
-      <div v-for="item of props.executeList" :key="item.status" class="execute-history-list-item">
+      <div v-for="item of props.executeList" :key="item.id" class="execute-history-list-item">
         <div class="flex items-center">
           <MsAvatar :avatar="item.userLogo" />
           <div class="ml-[8px] flex items-center">
