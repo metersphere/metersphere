@@ -623,7 +623,45 @@ public class CaseReviewControllerTests extends BaseTest {
     public void testDelete() throws Exception {
         List<CaseReview> caseReviews = getCaseReviews("创建评审更新2");
         delCaseReview(caseReviews.getFirst().getId());
+        CaseReview caseReview = new CaseReview();
+        String id = UUID.randomUUID().toString();
+        caseReview.setId(id);
+        caseReview.setNum(1001L);
+        caseReview.setPos(1020L);
+        caseReview.setCaseCount(2);
+        caseReview.setStatus(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
+        caseReview.setPassRate(BigDecimal.ZERO);
+        caseReview.setName("dddd");
+        caseReview.setModuleId("root");
+        caseReview.setProjectId(DEFAULT_PROJECT_ID );
+        caseReview.setReviewPassRule(CaseReviewPassRule.SINGLE.toString());
+        caseReview.setCreateUser("Gyq");
+        caseReview.setCreateTime(System.currentTimeMillis());
+        caseReview.setUpdateTime(System.currentTimeMillis());
+        caseReview.setUpdateUser("Gyq");
+        caseReviewMapper.insert(caseReview);
+        CaseReviewFunctionalCase caseReviewFunctionalCase = new CaseReviewFunctionalCase();
+        caseReviewFunctionalCase.setCaseId("CASE_REVIEW_TEST_GYQ_ID2");
+        caseReviewFunctionalCase.setReviewId(id);
+        caseReviewFunctionalCase.setId(UUID.randomUUID().toString());
+        caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.PASS.name());
+        caseReviewFunctionalCase.setPos(110L);
+        caseReviewFunctionalCase.setCreateUser("Gyq");
+        caseReviewFunctionalCase.setCreateTime(System.currentTimeMillis());
+        caseReviewFunctionalCase.setUpdateTime(System.currentTimeMillis());
+        caseReviewFunctionalCaseMapper.insert(caseReviewFunctionalCase);
 
+        caseReviewFunctionalCase = new CaseReviewFunctionalCase();
+        caseReviewFunctionalCase.setId(UUID.randomUUID().toString());
+        caseReviewFunctionalCase.setCaseId("CASE_REVIEW_TEST_GYQ_ID3");
+        caseReviewFunctionalCase.setReviewId(id);
+        caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.PASS.name());
+        caseReviewFunctionalCase.setPos(110L);
+        caseReviewFunctionalCase.setCreateUser("Gyq");
+        caseReviewFunctionalCase.setCreateTime(System.currentTimeMillis());
+        caseReviewFunctionalCase.setUpdateTime(System.currentTimeMillis());
+        caseReviewFunctionalCaseMapper.insert(caseReviewFunctionalCase);
+        delCaseReview(id);
         delCaseReview("caseReviewIdX");
     }
 
@@ -702,7 +740,7 @@ public class CaseReviewControllerTests extends BaseTest {
     }
 
     private void delCaseReview(String reviewId) throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(DELETE_CASE_REVIEW+reviewId+"/"+projectId).header(SessionConstants.HEADER_TOKEN, sessionId)
+        mockMvc.perform(MockMvcRequestBuilders.get(DELETE_CASE_REVIEW+projectId+"/"+reviewId).header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .header(SessionConstants.CURRENT_PROJECT, projectId)
                         .contentType(MediaType.APPLICATION_JSON))
