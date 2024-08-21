@@ -291,7 +291,7 @@
   watch(
     () => importJson.value.treePath,
     (arr) => {
-      currentTreePath.value = arr;
+      currentTreePath.value = arr || [];
     }
   );
 
