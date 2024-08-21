@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row v-for="i in customFieldRowNums" :key="i">
-      <span class="custom-item" v-for="(item, j) in issueTemplate.customFields" :key="j">
+      <span class="custom-item" v-for="(item, j) in customFields" :key="j">
         <template v-if="j >= (i - 1) * 3 && j < (i - 1) * 3 + 3">
           <div class="custom-row case-wrap">
             <div class="case-title-wrap">
@@ -89,9 +89,14 @@ export default {
     projectId: String
   },
   computed: {
+    customFields() {
+      // 基本信息不显示富文本的自定义字段
+      return this.issueTemplate && this.issueTemplate.customFields ?
+        this.issueTemplate.customFields.filter((item) => item.type !== 'richText') : [];
+    },
     customFieldRowNums() {
-      let size = this.issueTemplate.customFields
-        ? this.issueTemplate.customFields.length
+      let size = this.customFields
+        ? this.customFields.length
         : 0;
       let val = parseInt(size / 3);
       return size % 3 === 0 ? val : val + 1;

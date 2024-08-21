@@ -224,6 +224,9 @@
           :comments.sync="comments"
           @openComment="openComment"
           @getComments="getComments"
+          :test-case-template="testCaseTemplate"
+          :custom-field-form="customFieldForm"
+          :custom-field-rules="customFieldRules"
           :version-enable="versionEnable"
           :default-open="richTextDefaultOpen"
           ref="otherInfo"
@@ -1587,6 +1590,9 @@ export default {
         });
       }
       if (!this.$refs.testCaseBaseInfo.validateWithTip()) {
+        isValidate = false;
+      }
+      if (!this.$refs.otherInfo.validateForm()) {
         isValidate = false;
       }
       return isValidate;

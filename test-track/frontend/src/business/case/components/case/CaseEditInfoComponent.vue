@@ -27,6 +27,9 @@
                     :form="form"
                     :richTextDefaultOpen="richTextDefaultOpen"
                     :formLabelWidth="formLabelWidth"
+                    :test-case-template="testCaseTemplate"
+                    :custom-field-form="customFieldForm"
+                    :custom-field-rules="customFieldRules"
                 ></case-detail-component>
               </div>
             </el-scrollbar>
@@ -188,6 +191,9 @@
             :editable-state="editableState"
             :form="form"
             :richTextDefaultOpen="richTextDefaultOpen"
+            :test-case-template="testCaseTemplate"
+            :custom-field-form="customFieldForm"
+            :custom-field-rules="customFieldRules"
             :formLabelWidth="formLabelWidth"
             ref="testCaseBaseInfo"
         ></case-detail-component>
@@ -246,7 +252,10 @@ export default {
     "edit",
     "editableState",
     "isPublicShow",
-    "isReadonlyUser"
+    "isReadonlyUser",
+    "testCaseTemplate",
+    "customFieldForm",
+    "customFieldRules"
   ],
   data() {
     return {
@@ -332,7 +341,7 @@ export default {
     validateForm() {
       let isValidate = true;
       if (this.$refs.testCaseBaseInfo) {
-        isValidate = this.$refs["testCaseBaseInfo"].valideForm();
+        isValidate = this.$refs["testCaseBaseInfo"].validateForm();
       }
       return isValidate;
     },

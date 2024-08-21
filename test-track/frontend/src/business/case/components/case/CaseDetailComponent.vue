@@ -161,6 +161,55 @@
         </div>
       </div>
 
+      <el-form
+        :model="customFieldForm"
+        :rules="customFieldRules"
+        ref="textCustomFieldForm"
+        label-position="right"
+        size="small"
+        class="case-form case-padding"
+      >
+        <!-- 富文本自定义字段 -->
+        <div class="remark-row" v-for="item in richTextCustomFields">
+          <div class="remark-name case-title-wrap">
+            <div class="name title-wrap">
+              {{ item.name }}
+            </div>
+            <div class="required required-item" v-if="item.required"></div>
+          </div>
+          <div class="content-wrap">
+            <div class="opt-row">
+              <base-edit-item-component
+                :editable="editable"
+                :auto-save="!readOnly"
+                trigger="hover"
+                :contentObject="{
+                  content: item,
+                  contentType: 'CUSTOM',
+                }"
+                :model="form"
+                :rules="rules"
+                :project-id="projectId"
+              >
+                <template v-slot:content="{ onClick, hoverEditable }">
+                  <div :class="hoverEditable ? 'selectHover' : ''">
+                    <el-form-item :prop="item.name">
+                      <ms-custom-filed-component
+                        :data="item"
+                        :form="customFieldForm"
+                        prop="defaultValue"
+                        :project-id="projectId"
+                        @onClick="onClick"
+                      />
+                    </el-form-item>
+                  </div>
+                </template>
+              </base-edit-item-component>
+            </div>
+          </div>
+        </div>
+      </el-form>
+
       <!-- remark -->
       <div class="remark-row">
         <div class="remark-name case-title-wrap">
@@ -219,6 +268,7 @@
         </div>
       </div>
     </el-form>
+
   </div>
 </template>
 <script>
@@ -228,6 +278,7 @@ import TestCaseStepItem from "@/business/case/components/case/CaseStepItem";
 import StepChangeItem from "@/business/case/components/case/CaseStepChange";
 import CaseAttachmentComponent from "@/business/case/components/case/CaseAttachmentComponent";
 import MsFileBatchMove from "metersphere-frontend/src/components/environment/commons/variable/FileBatchMove";
+import MsCustomFiledComponent from "metersphere-frontend/src/components/new-ui/MsCustomFiledComponent";
 
 export default {
   name: "CaseDetailComponent",
@@ -237,6 +288,7 @@ export default {
     TestCaseStepItem,
     StepChangeItem,
     CaseAttachmentComponent,
+    MsCustomFiledComponent
   },
   data() {
     return {
@@ -271,7 +323,22 @@ export default {
     isCopy: Boolean,
     editableState: Boolean,
     isPublicShow: Boolean,
-    isReadonlyUser: Boolean
+    isReadonlyUser: Boolean,
+    testCaseTemplate: {
+      type: Object,
+      default() {
+        return {};
+      },
+    },
+    customFieldForm: Object,
+    customFieldRules: Object,
+  },
+  computed: {
+    richTextCustomFields() {
+      // 基本信息不显示富文本的自定义字段
+      return this.testCaseTemplate && this.testCaseTemplate.customFields ?
+        this.testCaseTemplate.customFields.filter((item) => item.type == 'richText') : [];
+    },
   },
   methods: {
     getUploadFiles() {
@@ -312,9 +379,14 @@ export default {
     handleSaveEvent() {
       //触发保存 TODO
     },
-    valideForm() {
+    validateForm() {
       let isValidate = true;
       this.$refs["caseDetailForm"].validate((valid) => {
+        if (!valid) {
+          isValidate = false;
+        }
+      });
+      this.$refs["textCustomFieldForm"].validate((valid) => {
         if (!valid) {
           isValidate = false;
         }
