@@ -22,6 +22,7 @@
     sequence-enable
     @node-select="(node) => handleNodeSelect(node as PlanMinderNode)"
     @before-exec-command="handleBeforeExecCommand"
+    @action="handleAction"
     @save="handleMinderSave"
   >
     <template #extractMenu>
@@ -254,6 +255,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useMinderStore from '@/store/modules/components/minder-editor';
+  import { MinderCustomEvent } from '@/store/modules/components/minder-editor/types';
   import { filterTree, getGenerateId, mapTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -803,6 +805,28 @@
       }
       if (stopArrangeDrag(dragNodes, dropNode)) {
         event.stopPropagation();
+      }
+    }
+  }
+
+  /**
+   * 处理脑图节点操作
+   * @param event 脑图事件对象
+   */
+  function handleAction(event: MinderCustomEvent) {
+    const { nodes, name } = event;
+    if (nodes && nodes.length > 0) {
+      switch (name) {
+        case MinderEventName.DELETE_NODE:
+        case MinderEventName.CUT_NODE:
+          nodes.forEach((node) => {
+            if (node.data?.id === activePlanSet.value?.data.id) {
+              handleConfigCancel();
+            }
+          });
+          break;
+        default:
+          break;
       }
     }
   }
