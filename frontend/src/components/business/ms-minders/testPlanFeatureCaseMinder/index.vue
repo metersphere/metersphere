@@ -554,14 +554,18 @@
       actualResultNode.setData('text', content ?? '').render();
     }
   }
-  // 点击模块/用例执行
+  function isActualResultNode(node: MinderJsonNode) {
+    return node.data?.resource?.includes(actualResultTag) && node.parent?.data?.resource?.includes(caseTag);
+  }
+  // 点击模块/用例/用例的实际结果执行
   function handleExecuteDone(status: LastExecuteResults, content: string) {
-    const node = window.minder.getSelectedNode();
+    const curSelectNode = window.minder.getSelectedNode();
+    const node = isActualResultNode(curSelectNode) ? curSelectNode.parent : curSelectNode;
     executeVisible.value = false;
     const resource = node.data?.resource;
     if (resource?.includes(caseTag)) {
       //  用例添加标签
-      window.minder.execCommand('resource', [executionResultMap[status].statusText, caseTag]);
+      node.setData('resource', [executionResultMap[status].statusText, caseTag]).render();
       // 更新用例的实际结果节点
       updateCaseActualResultNode(node, content);
       // 更新执行历史
@@ -751,9 +755,9 @@
       setPriorityView(true, 'P');
       return;
     }
-    selectNode.value = node;
+    selectNode.value = isActualResultNode(node) ? node.parent : node;
 
-    // 展示浮动菜单: 模块节点且有子节点且不是没权限的根结点、用例节点
+    // 展示浮动菜单: 模块节点且有子节点且不是没权限的根结点、用例节点、用例节点下的实际结果
     if (
       node.data?.resource?.includes(caseTag) ||
       (node.data?.resource?.includes(moduleTag) &&
@@ -762,6 +766,8 @@
     ) {
       canShowFloatMenu.value = true;
       setMoreMenuOtherOperationList(node);
+    } else if (isActualResultNode(node) && props.canEdit && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])) {
+      canShowFloatMenu.value = true;
     } else {
       canShowFloatMenu.value = false;
     }
@@ -776,12 +782,12 @@
       if (caseNodeAboveSelectStep.value?.data?.id) {
         getStepData(caseNodeAboveSelectStep.value.data.id);
         stepExecuteModelVisible.value = true;
+        return;
       }
-      return;
     }
 
-    // 不展示更多：没操作权限的用例
-    if (node.data?.resource?.includes(caseTag) && !hasOperationPermission.value) {
+    // 不展示更多：没操作权限的用例、用例节点下的实际结果
+    if ((node.data?.resource?.includes(caseTag) && !hasOperationPermission.value) || isActualResultNode(node)) {
       canShowMoreMenu.value = false;
     } else {
       canShowMoreMenu.value = true;
