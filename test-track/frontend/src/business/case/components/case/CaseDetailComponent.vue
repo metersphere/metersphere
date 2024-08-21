@@ -170,7 +170,7 @@
         class="case-form case-padding"
       >
         <!-- 富文本自定义字段 -->
-        <div class="remark-row" v-for="item in richTextCustomFields">
+        <div class="remark-row" v-for="item in richTextCustomFields" :key="item.id">
           <div class="remark-name case-title-wrap">
             <div class="name title-wrap">
               {{ item.name }}
