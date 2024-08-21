@@ -82,7 +82,7 @@
     <user-cascader :lable="batchAddLable" :title="batchAddTitle" @confirm="cascaderConfirm"
                    ref="cascaderDialog"></user-cascader>
     <batch-to-project-group-cascader :title="$t('user.add_project_batch')" @confirm="cascaderConfirm"
-                                     :cascader-level="1" ref="cascaderDialog"/>
+                                     :cascader-level="3" ref="cascaderDialog"/>
   </div>
 </template>
 
@@ -96,14 +96,25 @@ import {listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils
 import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import {hasPermission} from "metersphere-frontend/src/utils/permission";
 import MsTableHeaderSelectPopover from "metersphere-frontend/src/components/table/MsTableHeaderSelectPopover";
-import {_handleSelect, _handleSelectAll, getSelectDataCounts, setUnSelectIds, toggleAllSelection} from "metersphere-frontend/src/utils/tableUtils";
+import {
+  _handleSelect,
+  _handleSelectAll,
+  getSelectDataCounts,
+  setUnSelectIds,
+  toggleAllSelection
+} from "metersphere-frontend/src/utils/tableUtils";
 import UserCascader from "../../system/components/UserCascader";
 import ShowMoreBtn from "metersphere-frontend/src/components/table/ShowMoreBtn";
 import {GROUP_WORKSPACE} from "metersphere-frontend/src/utils/constants";
 import AddMember from "../../common/AddMember";
 import BatchToProjectGroupCascader from "../../system/components/BatchToProjectGroupCascader";
 import GroupCascader from "../../system/components/GroupCascader";
-import {addWorkspaceMember, specialBatchProcessUser, delWorkspaceMemberById, getWorkspaceMemberPages} from "../../../api/user";
+import {
+  addWorkspaceMember,
+  delWorkspaceMemberById,
+  getWorkspaceMemberPages,
+  specialBatchProcessUser
+} from "../../../api/user";
 import {getUserGroupList, getWorkspaceMemberGroup} from "../../../api/user-group";
 import {updateWorkspaceMember as _updateWorkspaceMember} from "@/api/workspace";
 
