@@ -8,7 +8,10 @@
       <a-form-item
         field="name"
         :label="t('caseManagement.caseReview.reviewName')"
-        :rules="[{ validator: validateName }]"
+        :rules="[
+          { required: true, message: t('caseManagement.caseReview.reviewNameRequired') },
+          { validator: validateName },
+        ]"
         asterisk-position="end"
         required
       >
