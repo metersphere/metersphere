@@ -119,10 +119,14 @@
           </span>
           <span v-else>
              <ms-mark-down-text
+               v-if="contentObject.content.defaultValue"
                class="rich-text"
                prop="defaultValue"
                :disabled="true"
                :data="contentObject.content"/>
+               <div class="empty" v-else @click="handleReadTextClick">
+                {{ $t("case.none") }}
+              </div>
           </span>
         </div>
         <div class="empty" v-else @click="handleReadTextClick">
