@@ -1,0 +1,8 @@
+---
+description: Project setup
+globs: ["**/*"]
+alwaysApply: true
+---
+
+Run `node .github/setup.js` to initialize the project environment.
+This is required for proper IDE integration and dependency setup.
