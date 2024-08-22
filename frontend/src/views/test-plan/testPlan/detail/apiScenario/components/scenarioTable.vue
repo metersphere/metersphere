@@ -49,6 +49,14 @@
         <template #status="{ record }">
           <apiStatus :status="record.status" />
         </template>
+        <template #bugCount="{ record }">
+          <MsBugOperation
+            :can-edit="props.canEdit"
+            :bug-list="record.bugList"
+            :resource-id="record.id"
+            :bug-count="record.bugCount || 0"
+          />
+        </template>
         <template v-if="props.canEdit" #operation="{ record }">
           <MsButton
             v-permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
@@ -113,6 +121,7 @@
     MsTableProps,
   } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsBugOperation from '@/components/business/ms-bug-operation/index.vue';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
@@ -272,6 +281,14 @@
       showTooltip: true,
       width: 200,
       showDrag: true,
+    },
+    {
+      title: 'testPlan.featureCase.bugCount',
+      dataIndex: 'bugCount',
+      slotName: 'bugCount',
+      width: 150,
+      showDrag: true,
+      showInTable: true,
     },
     {
       title: 'common.belongProject',

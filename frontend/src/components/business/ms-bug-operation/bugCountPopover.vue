@@ -1,6 +1,6 @@
 <template>
   <a-popover position="br" content-class="case-count-popover">
-    <div class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">{{ props.caseItem.bugCount ?? 0 }}</div>
+    <div class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">{{ props.bugCount ?? 0 }}</div>
     <template #content>
       <div class="w-[500px]">
         <MsBaseTable ref="tableRef" v-bind="propsRes" v-on="propsEvent">
@@ -26,12 +26,13 @@
   import { testPlanCancelBug } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
 
-  import type { PlanDetailFeatureCaseItem } from '@/models/testPlan/testPlan';
+  import type { CaseBugItem } from '@/models/testPlan/testPlan';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
-    caseItem: PlanDetailFeatureCaseItem;
+    bugList?: CaseBugItem[]; // 缺陷列表
     canEdit: boolean;
+    bugCount: number;
   }>();
 
   const emit = defineEmits<{
@@ -69,7 +70,7 @@
           },
         ]),
   ]);
-  const tableProps = ref<Partial<MsTableProps<PlanDetailFeatureCaseItem>>>({
+  const tableProps = ref<Partial<MsTableProps<CaseBugItem[]>>>({
     columns: columns.value,
     size: 'mini',
     tableKey: TableKeyEnum.TEST_PLAN_DETAIL_CASE_TABLE_BUG_COUNT,
@@ -81,7 +82,7 @@
   const { propsRes, propsEvent, setLoading } = useTable(undefined, tableProps.value);
 
   watchEffect(() => {
-    propsRes.value.data = props.caseItem.bugList;
+    propsRes.value.data = props.bugList || [];
   });
 
   // 取消关联缺陷

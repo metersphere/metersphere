@@ -77,7 +77,12 @@
           </span>
         </template>
         <template #bugCount="{ record }">
-          <BugCountPopover :case-item="record" :can-edit="props.canEdit" @load-list="loadList" />
+          <BugCountPopover
+            :bug-list="record.bugList"
+            :bug-count="record.bugCount"
+            :can-edit="props.canEdit"
+            @load-list="loadList"
+          />
         </template>
         <template v-if="props.canEdit" #operation="{ record }">
           <MsButton
@@ -183,11 +188,11 @@
     MsTableProps,
   } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import BugCountPopover from '@/components/business/ms-bug-operation/bugCountPopover.vue';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import { getMinderOperationParams } from '@/components/business/ms-minders/caseReviewMinder/utils';
   import MsTestPlanFeatureCaseMinder from '@/components/business/ms-minders/testPlanFeatureCaseMinder/index.vue';
-  import BugCountPopover from './bugCountPopover.vue';
   import BatchApiMoveModal from '@/views/test-plan/testPlan/components/batchApiMoveModal.vue';
   import BatchUpdateExecutorModal from '@/views/test-plan/testPlan/components/batchUpdateExecutorModal.vue';
   import ExecuteForm from '@/views/test-plan/testPlan/detail/featureCase/components/executeForm.vue';
