@@ -617,41 +617,7 @@ public class CaseReviewService {
     }
 
     public void deleteCaseReview(String reviewId, String projectId) {
-        CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
-        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId);
-        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
-        List<String> caseIds = caseReviewFunctionalCases.stream().map(CaseReviewFunctionalCase::getCaseId).toList();
         deleteCaseReviewService.deleteCaseReviewResource(List.of(reviewId), projectId);
-        //将用例置为上一次的评审的结果
-        if (CollectionUtils.isEmpty(caseIds)) {
-            return;
-        }
-        caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
-        caseReviewFunctionalCaseExample.createCriteria().andCaseIdIn(caseIds);
-        caseReviewFunctionalCaseExample.setOrderByClause("update_time DESC");
-        caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
-        Map<String, List<CaseReviewFunctionalCase>> caseReviewMap = caseReviewFunctionalCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getCaseId));
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        FunctionalCaseMapper mapper = sqlSession.getMapper(FunctionalCaseMapper.class);
-        try {
-            for (String caseId : caseIds) {
-                FunctionalCase functionalCase = new FunctionalCase();
-                functionalCase.setId(caseId);
-                String status;
-                List<CaseReviewFunctionalCase> statuList = caseReviewMap.get(caseId);
-                if (CollectionUtils.isNotEmpty(statuList)) {
-                    List<CaseReviewFunctionalCase> list = statuList.stream().sorted(Comparator.comparing(CaseReviewFunctionalCase::getUpdateTime).reversed()).toList();
-                    status = list.getFirst().getStatus();
-                } else  {
-                    status = FunctionalCaseReviewStatus.UN_REVIEWED.toString();
-                }
-                functionalCase.setReviewStatus(status);
-                mapper.updateByPrimaryKeySelective(functionalCase);
-            }
-            sqlSession.flushStatements();
-        } finally {
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        }
     }
 
     public void disassociate(String reviewId, String caseId, String userId) {
