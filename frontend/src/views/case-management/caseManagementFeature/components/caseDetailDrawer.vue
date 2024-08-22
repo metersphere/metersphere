@@ -18,7 +18,8 @@
     @loaded="loadedCase"
   >
     <template #titleName>
-      <div :class="`case-title flex items-center ${isEditTitle ? 'w-full' : ''}`">
+      <div :class="`case-title flex items-center gap-[8px] ${isEditTitle ? 'w-full' : ''}`">
+        <div v-if="!isEditTitle" class="flex items-center"><caseLevel :case-level="caseLevels" /></div>
         <a-input
           v-if="isEditTitle"
           v-model="titleName"
@@ -30,7 +31,7 @@
           @keydown.enter="handleEditName"
         />
         <div v-else class="flex items-center">
-          <div> 【{{ detailInfo?.num }}】 </div>
+          <div> [ {{ detailInfo?.num }} ] </div>
           <div
             :class="`${
               hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']) ? 'hover-title-name' : ''
@@ -40,9 +41,6 @@
           </div>
         </div>
       </div>
-    </template>
-    <template #titleLeft>
-      <div v-if="!isEditTitle" class="flex items-center"><caseLevel :case-level="caseLevels" /></div>
     </template>
     <template #titleRight="{ loading }">
       <div class="rightButtons flex items-center">

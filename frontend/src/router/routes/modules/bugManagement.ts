@@ -32,7 +32,7 @@ const BugManagement: AppRouteRecordRaw = {
     {
       path: 'detail/:mode?',
       name: BugManagementRouteEnum.BUG_MANAGEMENT_DETAIL,
-      component: () => import('@/views/bug-management/edit.vue'),
+      component: () => import('@/views/bug-management/createAndEditBug.vue'),
       meta: {
         locale: 'bugManagement.editBug',
         roles: ['PROJECT_BUG:READ+ADD', 'PROJECT_BUG:READ+UPDATE'],
