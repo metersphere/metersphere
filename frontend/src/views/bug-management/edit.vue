@@ -1,185 +1,161 @@
 <template>
-  <MsCard
-    has-breadcrumb
-    :title="title"
-    :loading="loading"
-    :is-edit="isEdit"
-    @save="saveHandler(false)"
-    @save-and-continue="saveHandler(true)"
-  >
-    <template v-if="!isEdit" #headerRight>
-      <a-select
-        v-model="form.templateId"
-        class="w-[240px]"
-        :options="templateOption"
-        allow-search
-        :placeholder="t('bugManagement.edit.defaultSystemTemplate')"
-        @change="templateChange"
-      />
-    </template>
-    <a-form ref="formRef" :model="form" layout="vertical">
-      <div class="flex flex-row">
-        <div class="left mt-[16px] w-[calc(100%-428px)] grow">
-          <!-- 平台默认模板不展示缺陷名称, 描述 -->
+  <a-form ref="formRef" :model="form" layout="vertical">
+    <div class="flex flex-row">
+      <div class="left mt-[16px] w-[calc(100%-428px)] grow">
+        <!-- 平台默认模板不展示缺陷名称, 描述 -->
+        <a-form-item
+          v-if="!isPlatformDefaultTemplate"
+          field="title"
+          :label="t('bugManagement.bugName')"
+          :rules="[{ required: true, message: t('bugManagement.edit.nameIsRequired') }]"
+        >
+          <a-input v-model="form.title" :placeholder="t('bugManagement.edit.pleaseInputBugName')" :max-length="255" />
+        </a-form-item>
+        <a-form-item v-if="!isPlatformDefaultTemplate" field="description" :label="t('bugManagement.edit.content')">
+          <MsRichText
+            v-model:raw="form.description"
+            v-model:filed-ids="descriptionFileIds"
+            :upload-image="handleUploadImage"
+            :preview-url="`${EditorPreviewFileUrl}/${appStore.currentProjectId}`"
+          />
+        </a-form-item>
+        <!-- 平台默认模板展示字段, 暂时支持输入框, 富文本类型 -->
+        <div v-if="isPlatformDefaultTemplate">
           <a-form-item
-            v-if="!isPlatformDefaultTemplate"
-            field="title"
-            :label="t('bugManagement.bugName')"
-            :rules="[{ required: true, message: t('bugManagement.edit.nameIsRequired') }]"
+            v-for="(value, key) in form.platformSystemFields"
+            :key="key"
+            :field="'platformSystemFields.' + key"
+            :label="platformSystemFieldMap[key].fieldName"
+            :rules="[
+              {
+                required: platformSystemFieldMap[key].required,
+                message: `${platformSystemFieldMap[key].fieldName}` + t('bugManagement.edit.cannotBeNull'),
+              },
+            ]"
           >
-            <a-input v-model="form.title" :placeholder="t('bugManagement.edit.pleaseInputBugName')" :max-length="255" />
-          </a-form-item>
-          <a-form-item v-if="!isPlatformDefaultTemplate" field="description" :label="t('bugManagement.edit.content')">
+            <a-input
+              v-if="platformSystemFieldMap[key].type === 'INPUT'"
+              v-model="form.platformSystemFields[key]"
+              :max-length="255"
+            />
             <MsRichText
-              v-model:raw="form.description"
-              v-model:filed-ids="descriptionFileIds"
+              v-if="platformSystemFieldMap[key].type === 'RICH_TEXT'"
+              v-model:raw="form.platformSystemFields[key]"
+              v-model:filed-ids="descriptionFileIdMap[key]"
               :upload-image="handleUploadImage"
               :preview-url="`${EditorPreviewFileUrl}/${appStore.currentProjectId}`"
             />
           </a-form-item>
-          <!-- 平台默认模板展示字段, 暂时支持输入框, 富文本类型 -->
-          <div v-if="isPlatformDefaultTemplate">
-            <a-form-item
-              v-for="(value, key) in form.platformSystemFields"
-              :key="key"
-              :field="'platformSystemFields.' + key"
-              :label="platformSystemFieldMap[key].fieldName"
-              :rules="[
-                {
-                  required: platformSystemFieldMap[key].required,
-                  message: `${platformSystemFieldMap[key].fieldName}` + t('bugManagement.edit.cannotBeNull'),
-                },
-              ]"
-            >
-              <a-input
-                v-if="platformSystemFieldMap[key].type === 'INPUT'"
-                v-model="form.platformSystemFields[key]"
-                :max-length="255"
+        </div>
+        <a-form-item field="attachment">
+          <div class="flex flex-col">
+            <div class="mb-1">
+              <AddAttachment v-model:file-list="fileList" @change="handleChange" @link-file="associatedFile" />
+            </div>
+          </div>
+        </a-form-item>
+        <MsFileList
+          ref="fileListRef"
+          v-model:file-list="fileList"
+          :init-file-save-tips="t('ms.upload.waiting_save')"
+          mode="static"
+        >
+          <template #actions="{ item }">
+            <!-- 本地文件 -->
+            <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
+              <MsButton
+                v-if="item.status !== 'init' && item.file.type.includes('image')"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="handlePreview(item)"
+              >
+                {{ t('ms.upload.preview') }}
+              </MsButton>
+              <MsButton
+                v-if="item.status !== 'init'"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="transferFile(item)"
+              >
+                {{ t('caseManagement.featureCase.storage') }}
+              </MsButton>
+              <SaveAsFilePopover
+                v-model:visible="transferVisible"
+                :saving-file="activeTransferFileParams"
+                :file-save-as-source-id="(form.id as string)"
+                :file-save-as-api="transferFileRequest"
+                :file-module-options-api="getTransferFileTree"
+                source-id-key="bugId"
+                @finish="getDetailInfo()"
               />
-              <MsRichText
-                v-if="platformSystemFieldMap[key].type === 'RICH_TEXT'"
-                v-model:raw="form.platformSystemFields[key]"
-                v-model:filed-ids="descriptionFileIdMap[key]"
-                :upload-image="handleUploadImage"
-                :preview-url="`${EditorPreviewFileUrl}/${appStore.currentProjectId}`"
+              <MsButton
+                v-if="item.status !== 'init'"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="downloadFile(item)"
+              >
+                {{ t('common.download') }}
+              </MsButton>
+            </div>
+            <!-- 关联文件 -->
+            <div v-else class="flex flex-nowrap">
+              <MsButton
+                v-if="item.status !== 'init' && item.file.type.includes('image')"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="handlePreview(item)"
+              >
+                {{ t('ms.upload.preview') }}
+              </MsButton>
+              <MsButton v-if="bugId" type="button" status="primary" class="!mr-[4px]" @click="downloadFile(item)">
+                {{ t('common.download') }}
+              </MsButton>
+              <MsButton
+                v-if="bugId && item.isUpdateFlag"
+                type="button"
+                status="primary"
+                @click="handleUpdateFile(item)"
+              >
+                {{ t('common.update') }}
+              </MsButton>
+            </div>
+          </template>
+          <template #title="{ item }">
+            <span v-if="item.isUpdateFlag" class="ml-4 flex items-center font-normal text-[rgb(var(--warning-6))]"
+              ><icon-exclamation-circle-fill /> <span>{{ t('caseManagement.featureCase.fileIsUpdated') }}</span>
+            </span>
+          </template>
+        </MsFileList>
+      </div>
+      <a-divider class="ml-[16px]" direction="vertical" />
+      <div class="right mt-[16px] w-[428px] grow pr-[24px]">
+        <div class="min-w-[250px] overflow-auto">
+          <a-skeleton v-if="isLoading" :loading="isLoading" :animation="true">
+            <a-space direction="vertical" class="w-full" size="large">
+              <a-skeleton-line :rows="12" :line-height="30" :line-spacing="30" />
+            </a-space>
+          </a-skeleton>
+          <a-form v-else :model="form" layout="vertical">
+            <div style="display: inline-block; width: 100%; word-wrap: break-word">
+              <MsFormCreate ref="formCreateRef" v-model:formItem="formItem" v-model:api="fApi" :form-rule="formRules" />
+            </div>
+
+            <a-form-item v-if="!isPlatformDefaultTemplate" field="tag" :label="t('bugManagement.tag')">
+              <MsTagsInput
+                v-model:model-value="form.tags"
+                :placeholder="t('bugManagement.edit.tagPlaceholder')"
+                allow-clear
               />
             </a-form-item>
-          </div>
-          <a-form-item field="attachment">
-            <div class="flex flex-col">
-              <div class="mb-1">
-                <AddAttachment v-model:file-list="fileList" @change="handleChange" @link-file="associatedFile" />
-              </div>
-            </div>
-          </a-form-item>
-          <MsFileList
-            ref="fileListRef"
-            v-model:file-list="fileList"
-            :init-file-save-tips="t('ms.upload.waiting_save')"
-            mode="static"
-          >
-            <template #actions="{ item }">
-              <!-- 本地文件 -->
-              <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
-                <MsButton
-                  v-if="item.status !== 'init' && item.file.type.includes('image')"
-                  type="button"
-                  status="primary"
-                  class="!mr-[4px]"
-                  @click="handlePreview(item)"
-                >
-                  {{ t('ms.upload.preview') }}
-                </MsButton>
-                <MsButton
-                  v-if="item.status !== 'init'"
-                  type="button"
-                  status="primary"
-                  class="!mr-[4px]"
-                  @click="transferFile(item)"
-                >
-                  {{ t('caseManagement.featureCase.storage') }}
-                </MsButton>
-                <SaveAsFilePopover
-                  v-model:visible="transferVisible"
-                  :saving-file="activeTransferFileParams"
-                  :file-save-as-source-id="(form.id as string)"
-                  :file-save-as-api="transferFileRequest"
-                  :file-module-options-api="getTransferFileTree"
-                  source-id-key="bugId"
-                  @finish="getDetailInfo()"
-                />
-                <MsButton
-                  v-if="item.status !== 'init'"
-                  type="button"
-                  status="primary"
-                  class="!mr-[4px]"
-                  @click="downloadFile(item)"
-                >
-                  {{ t('common.download') }}
-                </MsButton>
-              </div>
-              <!-- 关联文件 -->
-              <div v-else class="flex flex-nowrap">
-                <MsButton
-                  v-if="item.status !== 'init' && item.file.type.includes('image')"
-                  type="button"
-                  status="primary"
-                  class="!mr-[4px]"
-                  @click="handlePreview(item)"
-                >
-                  {{ t('ms.upload.preview') }}
-                </MsButton>
-                <MsButton v-if="bugId" type="button" status="primary" class="!mr-[4px]" @click="downloadFile(item)">
-                  {{ t('common.download') }}
-                </MsButton>
-                <MsButton
-                  v-if="bugId && item.isUpdateFlag"
-                  type="button"
-                  status="primary"
-                  @click="handleUpdateFile(item)"
-                >
-                  {{ t('common.update') }}
-                </MsButton>
-              </div>
-            </template>
-            <template #title="{ item }">
-              <span v-if="item.isUpdateFlag" class="ml-4 flex items-center font-normal text-[rgb(var(--warning-6))]"
-                ><icon-exclamation-circle-fill /> <span>{{ t('caseManagement.featureCase.fileIsUpdated') }}</span>
-              </span>
-            </template>
-          </MsFileList>
-        </div>
-        <a-divider class="ml-[16px]" direction="vertical" />
-        <div class="right mt-[16px] w-[428px] grow pr-[24px]">
-          <div class="min-w-[250px] overflow-auto">
-            <a-skeleton v-if="isLoading" :loading="isLoading" :animation="true">
-              <a-space direction="vertical" class="w-full" size="large">
-                <a-skeleton-line :rows="12" :line-height="30" :line-spacing="30" />
-              </a-space>
-            </a-skeleton>
-            <a-form v-else :model="form" layout="vertical">
-              <div style="display: inline-block; width: 100%; word-wrap: break-word">
-                <MsFormCreate
-                  ref="formCreateRef"
-                  v-model:formItem="formItem"
-                  v-model:api="fApi"
-                  :form-rule="formRules"
-                />
-              </div>
-
-              <a-form-item v-if="!isPlatformDefaultTemplate" field="tag" :label="t('bugManagement.tag')">
-                <MsTagsInput
-                  v-model:model-value="form.tags"
-                  :placeholder="t('bugManagement.edit.tagPlaceholder')"
-                  allow-clear
-                />
-              </a-form-item>
-            </a-form>
-          </div>
+          </a-form>
         </div>
       </div>
-    </a-form>
-  </MsCard>
+    </div>
+  </a-form>
   <div>
     <MsUpload
       v-model:file-list="fileList"
@@ -211,7 +187,6 @@
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsCard from '@/components/pure/ms-card/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
@@ -225,13 +200,11 @@
 
   import {
     checkFileIsUpdateRequest,
-    createOrUpdateBug,
     downloadFileRequest,
     editorUploadFile,
     getAssociatedFileList,
     getBugDetail,
     getTemplateById,
-    getTemplateOption,
     previewFile,
     transferFileRequest,
     updateFile,
@@ -240,9 +213,6 @@
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { EditorPreviewFileUrl } from '@/api/requrls/bug-management';
   import { useI18n } from '@/hooks/useI18n';
-  import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
-  import useVisit from '@/hooks/useVisit';
-  import router from '@/router';
   import { useAppStore } from '@/store';
   import useUserStore from '@/store/modules/user';
   import { downloadByteFile } from '@/utils';
@@ -260,24 +230,29 @@
   import { TableQueryParams } from '@/models/common';
   import { SelectValue } from '@/models/projectManagement/menuManagement';
   import type { CustomField } from '@/models/setting/template';
-  import { BugManagementRouteEnum } from '@/enums/routeEnum';
 
   import { convertToFile } from '../case-management/caseManagementFeature/components/utils';
   import { convertToFileByBug } from './utils';
 
+  const props = defineProps<{
+    bugId?: string;
+    templateId: string;
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'saveParams', isContinue: boolean, params: { request: BugEditFormObject; fileList: File[] }): void;
+  }>();
+
+  const innerTemplateId = defineModel<string>('templateId', {
+    required: true,
+  });
+
   defineOptions({ name: 'BugEditPage' });
-  const { setIsSave } = useLeaveUnSaveTip();
-  setIsSave(false);
 
   const { t } = useI18n();
-  interface TemplateOption {
-    label: string;
-    value: string;
-  }
 
   const appStore = useAppStore();
   const route = useRoute();
-  const templateOption = ref<TemplateOption[]>([]);
   const form = ref<BugEditFormObject>({
     projectId: appStore.currentProjectId,
     title: '',
@@ -314,7 +289,7 @@
   const acceptType = ref('none'); // 模块-上传文件类型
   const userStore = useUserStore();
   const isEdit = computed(() => !!route.query.id && route.params.mode === 'edit');
-  const bugId = computed(() => route.query.id || '');
+  const bugId = ref<string | undefined>(props.bugId);
   const isEditOrCopy = computed(() => !!bugId.value);
   const isCopy = computed(() => route.params.mode === 'copy');
   const isPlatformDefaultTemplate = ref(false);
@@ -324,15 +299,7 @@
   const descriptionFileIds = ref<string[]>([]);
   // 描述-环境/富文本临时附件ID
   const descriptionFileIdMap = ref<Record<string, string[]>>({});
-  const visitedKey = 'doNotNextTipCreateBug';
-  const { getIsVisited } = useVisit(visitedKey);
 
-  const title = computed(() => {
-    if (isCopy.value) {
-      return t('bugManagement.copyBug');
-    }
-    return isEdit.value ? t('bugManagement.editBug') : t('bugManagement.createBug');
-  });
   const isLoading = ref<boolean>(true);
   const rowLength = ref<number>(0);
 
@@ -462,29 +429,6 @@
     }
   };
 
-  const getTemplateOptions = async () => {
-    try {
-      loading.value = true;
-      const res = await getTemplateOption(appStore.currentProjectId);
-      templateOption.value = res.map((item) => {
-        if (item.enableDefault && !isEdit.value) {
-          // 当创建时 选中默认模板
-          form.value.templateId = item.id;
-          templateChange(item.id);
-        }
-        return {
-          label: item.name,
-          value: item.id,
-        };
-      });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      loading.value = false;
-    }
-  };
-
   // 预览图片
   async function handlePreview(item: MsFileItem) {
     try {
@@ -568,120 +512,94 @@
     return fileIds;
   }
 
+  function makeParams() {
+    // 自定义字段参数
+    const customFields: BugEditCustomFieldItem[] = [];
+    if (formItem.value && formItem.value.length) {
+      formItem.value.forEach((item: FormRuleItem) => {
+        if (item.sourceType === 'CASCADER') {
+          item.value = findParents(item.options as Option[], item.value as string, []) || '';
+        }
+        customFields.push({
+          id: item.field as string,
+          name: item.title as string,
+          type: item.sourceType as string,
+          value: Array.isArray(item.value) ? JSON.stringify(item.value) : (item.value as string),
+        });
+      });
+    }
+    if (isPlatformDefaultTemplate.value && form.value.platformSystemFields) {
+      Object.keys(form.value.platformSystemFields).forEach((key) => {
+        customFields.push({
+          id: platformSystemFieldMap[key].fieldId,
+          name: platformSystemFieldMap[key].fieldName,
+          type: platformSystemFieldMap[key].type,
+          value: form.value.platformSystemFields[key],
+        });
+      });
+      // delete form.value.platformSystemFields;
+      // 平台默认模板不传递名称, 描述, 标签等参数
+      delete form.value.title;
+      delete form.value.description;
+      delete form.value.tags;
+    }
+    // 过滤出复制的附件
+    const copyFileList = fileList.value.filter((item) => item.isCopyFlag);
+    let copyFiles: { refId: string; fileId: string; local: boolean }[] = [];
+    if (copyFileList.length > 0) {
+      copyFiles = copyFileList.map((file) => {
+        return {
+          refId: file.associateId,
+          fileId: file.uid,
+          local: file.local,
+          bugId: bugId.value as string,
+          fileName: file.name,
+        };
+      });
+    }
+    const tmpObj: BugEditFormObject = {
+      ...form.value,
+      customFields,
+      copyFiles,
+      richTextTmpFileIds: isPlatformDefaultTemplate.value ? getDescriptionFileId() : descriptionFileIds.value,
+    };
+    if (isCopy.value) {
+      delete tmpObj.id;
+      delete tmpObj.richTextTmpFileIds;
+    }
+    // 过滤出本地保存的文件
+    const localFiles = fileList.value.filter((item) => item.local && item.status === 'init');
+
+    return {
+      request: tmpObj,
+      fileList: localFiles as unknown as File[],
+    };
+  }
+
+  async function resetForm() {
+    // 如果是保存并继续创建
+    const { templateId } = form.value;
+    // 用当前模板初始化自定义字段
+    form.value = {
+      projectId: appStore.currentProjectId, // 取当前项目id
+      title: '',
+      description: '',
+      templateId,
+      tags: [],
+      platformSystemFields: {},
+    };
+    await templateChange(templateId);
+    // 清空文件列表
+    fileList.value = [];
+  }
+
   // 保存
   const saveHandler = async (isContinue = false) => {
     formRef.value.validate((error: any) => {
       if (!error) {
         fApi.value.validate(async (valid: any) => {
           if (valid === true) {
-            try {
-              loading.value = true;
-              const customFields: BugEditCustomFieldItem[] = [];
-              if (formItem.value && formItem.value.length) {
-                formItem.value.forEach((item: FormRuleItem) => {
-                  if (item.sourceType === 'CASCADER') {
-                    item.value = findParents(item.options as Option[], item.value as string, []) || '';
-                  }
-                  customFields.push({
-                    id: item.field as string,
-                    name: item.title as string,
-                    type: item.sourceType as string,
-                    value: Array.isArray(item.value) ? JSON.stringify(item.value) : (item.value as string),
-                  });
-                });
-              }
-              if (isPlatformDefaultTemplate.value && form.value.platformSystemFields) {
-                Object.keys(form.value.platformSystemFields).forEach((key) => {
-                  customFields.push({
-                    id: platformSystemFieldMap[key].fieldId,
-                    name: platformSystemFieldMap[key].fieldName,
-                    type: platformSystemFieldMap[key].type,
-                    value: form.value.platformSystemFields[key],
-                  });
-                });
-                // delete form.value.platformSystemFields;
-                // 平台默认模板不传递名称, 描述, 标签等参数
-                delete form.value.title;
-                delete form.value.description;
-                delete form.value.tags;
-              }
-              // 过滤出复制的附件
-              const copyFileList = fileList.value.filter((item) => item.isCopyFlag);
-              let copyFiles: { refId: string; fileId: string; local: boolean }[] = [];
-              if (copyFileList.length > 0) {
-                copyFiles = copyFileList.map((file) => {
-                  return {
-                    refId: file.associateId,
-                    fileId: file.uid,
-                    local: file.local,
-                    bugId: bugId.value as string,
-                    fileName: file.name,
-                  };
-                });
-              }
-
-              const tmpObj: BugEditFormObject = {
-                ...form.value,
-                customFields,
-                copyFiles,
-                richTextTmpFileIds: isPlatformDefaultTemplate.value ? getDescriptionFileId() : descriptionFileIds.value,
-              };
-              if (isCopy.value) {
-                delete tmpObj.id;
-                delete tmpObj.richTextTmpFileIds;
-              }
-              // 过滤出本地保存的文件
-              const localFiles = fileList.value.filter((item) => item.local && item.status === 'init');
-              // 执行保存操作
-              const res = await createOrUpdateBug({ request: tmpObj, fileList: localFiles as unknown as File[] });
-              if (isEdit.value) {
-                setIsSave(true);
-                Message.success(t('common.updateSuccess'));
-                router.push({
-                  name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
-                });
-              } else {
-                Message.success(t('common.createSuccess'));
-                if (isContinue) {
-                  setIsSave(false);
-                  // 如果是保存并继续创建
-                  const { templateId } = form.value;
-                  // 用当前模板初始化自定义字段
-                  form.value = {
-                    projectId: appStore.currentProjectId, // 取当前项目id
-                    title: '',
-                    description: '',
-                    templateId,
-                    tags: [],
-                    platformSystemFields: {},
-                  };
-                  await templateChange(templateId);
-                  // 清空文件列表
-                  fileList.value = [];
-                } else {
-                  setIsSave(true);
-                  // 否则跳转到成功页
-                  if (getIsVisited()) {
-                    router.push({
-                      name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
-                    });
-                    return;
-                  }
-                  router.push({
-                    name: BugManagementRouteEnum.BUG_MANAGEMENT_CREATE_SUCCESS,
-                    query: {
-                      ...route.query,
-                      id: res.data.id,
-                    },
-                  });
-                }
-              }
-            } catch (err) {
-              // eslint-disable-next-line no-console
-              console.log(err);
-            } finally {
-              loading.value = false;
-            }
+            emit('saveParams', isContinue, makeParams());
           }
         });
       }
@@ -812,10 +730,6 @@
     loading.value = false;
   };
 
-  const initDefaultFields = async () => {
-    await getTemplateOptions();
-  };
-
   // 监视自定义字段改变处理formCreate
   watch(
     () => formRules.value,
@@ -846,12 +760,29 @@
     return data;
   }
 
-  onMounted(async () => {
-    await initDefaultFields();
-    if (isEditOrCopy.value) {
-      // 详情
-      await getDetailInfo();
+  watch(
+    () => innerTemplateId.value,
+    (val) => {
+      if (val) {
+        form.value.templateId = val;
+        templateChange(val);
+      }
+    },
+    {
+      immediate: true,
     }
+  );
+
+  onMounted(() => {
+    if (isEditOrCopy.value) {
+      // 获取详情
+      getDetailInfo();
+    }
+  });
+
+  defineExpose({
+    saveHandler,
+    resetForm,
   });
 </script>
 
