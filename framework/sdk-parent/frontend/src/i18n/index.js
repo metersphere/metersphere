@@ -20,20 +20,16 @@ const messages = LANG_FILES.keys().reduce((messages, path) => {
 export const getLanguage = () => {
   let language = localStorage.getItem('language');
   if (!language) {
-    // 远程接口获取默认语言
-    language = getDefaultLanguage();
+    // 远程接口获取用户语言
+    language = navigator.language || navigator.browserLanguage;
+    axios.get('/system/default-locale').then((response) => {
+      if (response.data && response.data.data) {
+        language = response.data.data.replace('_', '-');
+      }
+      return language;
+    });
   }
   return language;
-};
-
-export const getDefaultLanguage = async () => {
-  let language = navigator.language || navigator.browserLanguage;
-  axios.get('/system/default-locale').then((response) => {
-    if (response.data && response.data.data) {
-      language = response.data.data.replace('_', '-');
-    }
-    return language;
-  });
 };
 
 const i18n = new VueI18n({
