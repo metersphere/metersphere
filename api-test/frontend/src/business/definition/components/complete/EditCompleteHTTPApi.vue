@@ -54,10 +54,10 @@
             v-prevent-re-click
             title="ctrl + s"
             v-permission="[
-                       'PROJECT_API_DEFINITION:READ+EDIT_API',
-                       'PROJECT_API_DEFINITION:READ+CREATE_API',
-                       'PROJECT_API_DEFINITION:READ+COPY_API'
-                     ]"
+              'PROJECT_API_DEFINITION:READ+EDIT_API',
+              'PROJECT_API_DEFINITION:READ+CREATE_API',
+              'PROJECT_API_DEFINITION:READ+COPY_API',
+            ]"
             >{{ $t('commons.save') }}
           </el-button>
           <el-dropdown
@@ -1156,9 +1156,7 @@ export default {
     if (!this.basisData.environmentId) {
       this.basisData.environmentId = '';
     }
-    if (this.basisData.moduleId &&
-      this.basisData.moduleId === 'default-module' &&
-      this.moduleOptions) {
+    if (this.basisData.moduleId && this.basisData.moduleId === 'default-module' && this.moduleOptions) {
       this.basisData.moduleId = this.moduleOptions[0].id;
     }
     if (this.basisData.isCopy) {
@@ -1208,13 +1206,13 @@ export default {
 }
 
 .ms-opt-btn {
-  position: fixed;
+  position: absolute;
   right: 10px !important;
   z-index: 9999;
-  top: 85px;
+  top: 0;
   float: right;
   margin-right: 20px;
-  margin-top: 5px
+  margin-top: 5px;
 }
 
 /*.base-info .el-form-item :deep(.el-form-item__content) {*/

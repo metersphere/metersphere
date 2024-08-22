@@ -45,13 +45,21 @@
             @compare="compare"
             @checkout="checkout"
             @create="create"
-            @del="del"/>
-          <el-button type="primary" size="small" @click="saveApi" :disabled="disableSaveBtn" v-prevent-re-click title="ctrl + s"
-                     v-permission="[
-                       'PROJECT_API_DEFINITION:READ+EDIT_API',
-                       'PROJECT_API_DEFINITION:READ+CREATE_API',
-                       'PROJECT_API_DEFINITION:READ+COPY_API'
-                     ]">{{ $t('commons.save') }}</el-button>
+            @del="del" />
+          <el-button
+            type="primary"
+            size="small"
+            @click="saveApi"
+            :disabled="disableSaveBtn"
+            v-prevent-re-click
+            title="ctrl + s"
+            v-permission="[
+              'PROJECT_API_DEFINITION:READ+EDIT_API',
+              'PROJECT_API_DEFINITION:READ+CREATE_API',
+              'PROJECT_API_DEFINITION:READ+COPY_API',
+            ]"
+            >{{ $t('commons.save') }}</el-button
+          >
         </div>
       </el-col>
     </el-row>
@@ -99,7 +107,8 @@ import {
   delDefinitionByRefId,
   getDefinitionById,
   getDefinitionByIdAndRefId,
-  getDefinitionVersions, updateDefinitionFollows,
+  getDefinitionVersions,
+  updateDefinitionFollows,
 } from '@/api/definition';
 import MsBasisApi from './BasisApi';
 import MsBasisParameters from '../request/dubbo/BasisParameters';
@@ -112,8 +121,8 @@ import { createComponent } from '.././jmeter/components';
 import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 import { useApiStore } from '@/store';
-import {apiTestCaseCount} from '@/api/api-test-case';
-import {getDefaultVersion, setLatestVersionById} from 'metersphere-frontend/src/api/version';
+import { apiTestCaseCount } from '@/api/api-test-case';
+import { getDefaultVersion, setLatestVersionById } from 'metersphere-frontend/src/api/version';
 
 const store = useApiStore();
 const { Body } = require('@/business/definition/model/ApiTestModel');
@@ -185,7 +194,7 @@ export default {
       createNewVersionVisible: false,
       latestVersionId: '',
       hasLatest: false,
-      disableSaveBtn: false
+      disableSaveBtn: false,
     };
   },
   methods: {
@@ -246,11 +255,10 @@ export default {
       }
     },
     getDefaultVersion() {
-      getDefaultVersion(this.basisData.projectId)
-        .then(response => {
-          this.latestVersionId = response.data;
-          this.getVersionHistory();
-        });
+      getDefaultVersion(this.basisData.projectId).then((response) => {
+        this.latestVersionId = response.data;
+        this.getVersionHistory();
+      });
     },
     getVersionHistory() {
       getDefinitionVersions(this.basisData.id).then((response) => {
@@ -261,7 +269,7 @@ export default {
         }
         let latestVersionData = response.data.filter((v) => v.versionId === this.latestVersionId);
         if (latestVersionData.length > 0) {
-          this.hasLatest = false
+          this.hasLatest = false;
         } else {
           this.hasLatest = true;
         }
@@ -438,14 +446,13 @@ export default {
         projectId: this.basisData.projectId,
         type: 'API',
         versionId: row.id,
-        resourceId: this.basisData.id
-      }
+        resourceId: this.basisData.id,
+      };
       setLatestVersionById(param).then(() => {
         this.$success(this.$t('commons.modify_success'));
         this.checkout(row);
       });
     },
-
   },
 
   computed: {},
@@ -454,9 +461,9 @@ export default {
 
 <style scoped>
 .ms-opt-btn {
-  position: fixed;
+  position: absolute;
   right: 0px !important;
   z-index: 120;
-  top: 85px;
+  top: 0;
 }
 </style>
