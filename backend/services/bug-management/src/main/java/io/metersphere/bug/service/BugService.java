@@ -1364,7 +1364,20 @@ public class BugService {
      * @param currentUser 当前用户
      */
     private void handleRichTextTmpFile(BugEditRequest request, String bugId, String currentUser) {
+        filterRichTextTmpFile(request);
         bugAttachmentService.transferTmpFile(bugId, request.getProjectId(), request.getRichTextTmpFileIds(), currentUser, BugAttachmentSourceType.RICH_TEXT.name());
+    }
+
+    /**
+     * 过滤富文本临时文件
+     *
+     * @param request 请求参数
+     */
+    private void filterRichTextTmpFile(BugEditRequest request) {
+        // 项目模板带过来的图片文件不处理
+        if (CollectionUtils.isNotEmpty(request.getRichTextTmpFileIds())) {
+            request.getRichTextTmpFileIds().removeIf(tmpFileId -> request.getDescription().contains("/project/template/img/preview/" + request.getProjectId() + "/" + tmpFileId));
+        }
     }
 
     /**
