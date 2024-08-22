@@ -27,7 +27,7 @@ export const getLanguage = async () => {
         language = response.data.data.replace('_', '-');
       }
     } catch (error) {
-      language = 'zh-CN';
+      console.error(error);
     }
   }
   return language;
