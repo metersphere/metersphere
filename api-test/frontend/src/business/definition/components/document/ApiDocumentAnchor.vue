@@ -81,11 +81,11 @@
             v-else
             style="
               margin-top: 5px;
-              position: fixed;
+              position: absolute;
               float: right;
               margin-right: 0px;
               margin-left: 400px;
-              top: 90px;
+              top: 0;
               right: 40px;
             "
             v-show="!isTemplate">

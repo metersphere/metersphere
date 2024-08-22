@@ -46,12 +46,20 @@
             @create="create"
             @setLatest="setLatest"
             @del="del" />
-          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s" :disabled="disableSaveBtn" v-prevent-re-click
-                     v-permission="[
-                       'PROJECT_API_DEFINITION:READ+EDIT_API',
-                       'PROJECT_API_DEFINITION:READ+CREATE_API',
-                       'PROJECT_API_DEFINITION:READ+COPY_API'
-                     ]">{{ $t('commons.save') }}</el-button>
+          <el-button
+            type="primary"
+            size="small"
+            @click="saveApi"
+            title="ctrl + s"
+            :disabled="disableSaveBtn"
+            v-prevent-re-click
+            v-permission="[
+              'PROJECT_API_DEFINITION:READ+EDIT_API',
+              'PROJECT_API_DEFINITION:READ+CREATE_API',
+              'PROJECT_API_DEFINITION:READ+COPY_API',
+            ]"
+            >{{ $t('commons.save') }}</el-button
+          >
         </div>
       </el-col>
     </el-row>
@@ -172,7 +180,7 @@ export default {
       createNewVersionVisible: false,
       latestVersionId: '',
       hasLatest: false,
-      disableSaveBtn: false
+      disableSaveBtn: false,
     };
   },
   created: function () {
@@ -525,9 +533,9 @@ export default {
 }
 
 .ms-opt-btn {
-  position: fixed;
+  position: absolute;
   right: 10px !important;
   z-index: 120;
-  top: 85px;
+  top: 0;
 }
 </style>

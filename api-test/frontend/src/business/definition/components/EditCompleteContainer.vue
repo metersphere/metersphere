@@ -1,6 +1,6 @@
 <template>
   <ms-container v-if="isShow && !loading">
-    <ms-aside-container pageKey="API_EDIT_BASE_INFO" >
+    <ms-aside-container pageKey="API_EDIT_BASE_INFO">
       <api-base-info
         ref="apiBaseInfo"
         :api-template="apiTemplate"
@@ -10,8 +10,7 @@
         :form="currentApi"
         :is-form-alive="isFormAlive"
         :maintainer-options="maintainerOptions"
-        :module-options="moduleOptions"
-      />
+        :module-options="moduleOptions" />
     </ms-aside-container>
     <ms-main-container class="ms-api-main-container">
       <el-button-group v-if="currentApi.id" style="z-index: 10; position: fixed">
@@ -204,13 +203,17 @@ export default {
       this.apiTemplate = template;
       store.apiTemplate = this.apiTemplate;
       if (this.currentApi.fields) {
-        this.currentApi.fields.forEach(i => {
+        this.currentApi.fields.forEach((i) => {
           parseCustomFilesForItem(i);
         });
       }
       this.customFieldForm = parseCustomField(this.currentApi, this.apiTemplate, this.customFieldRules);
     });
-    if (this.currentApi.id && (this.currentProtocol === 'HTTP' || this.currentProtocol === 'TCP') && hasPermissions('PROJECT_API_DEFINITION:READ+MOCK')) {
+    if (
+      this.currentApi.id &&
+      (this.currentProtocol === 'HTTP' || this.currentProtocol === 'TCP') &&
+      hasPermissions('PROJECT_API_DEFINITION:READ+MOCK')
+    ) {
       this.mockSetting();
     }
     this.formatApi();
@@ -378,11 +381,11 @@ export default {
         this.currentValidateName = '';
         return false;
       }
-      if(this.currentApi.isCopy && this.apiTemplate && Array.isArray(this.apiTemplate.customFields)){
-        this.apiTemplate.customFields.forEach(item => {
+      if (this.currentApi.isCopy && this.apiTemplate && Array.isArray(this.apiTemplate.customFields)) {
+        this.apiTemplate.customFields.forEach((item) => {
           delete item.isEdit;
           delete item.hasParse;
-        })
+        });
       }
       buildCustomFields(this.currentApi, data, this.apiTemplate);
       this.$refs.apiConfig.saveApi(data);
@@ -531,10 +534,10 @@ export default {
 }
 
 :deep(.ms-opt-btn) {
-  position: fixed;
+  position: absolute;
   z-index: 999;
   right: 50px;
-  top: 85px;
+  top: 0;
   float: right;
   margin-right: 20px;
   margin-top: 5px;
