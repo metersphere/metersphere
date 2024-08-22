@@ -43,6 +43,9 @@ public abstract class AbstractCustomFieldValidator {
 
     protected void validateRequired(TemplateCustomFieldDTO customField, String value) throws CustomFieldValidateException {
         if (customField.getRequired() && StringUtils.isBlank(value)) {
+            if (StringUtils.equalsIgnoreCase(customField.getInternalFieldKey(),"functional_priority")) {
+                return;
+            }
             CustomFieldValidateException.throwException(String.format(Translator.get("custom_field_required_tip"), customField.getFieldName()));
         }
     }
