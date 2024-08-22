@@ -37,6 +37,14 @@
         <template #caseLevel="{ record }">
           <CaseLevel :case-level="record.priority" />
         </template>
+        <template #bugCount="{ record }">
+          <MsBugOperation
+            :can-edit="props.canEdit"
+            :bug-list="record.bugList"
+            :resource-id="record.id"
+            :bug-count="record.bugCount || 0"
+          />
+        </template>
         <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
           <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
         </template>
@@ -114,6 +122,7 @@
     MsTableProps,
   } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsBugOperation from '@/components/business/ms-bug-operation/index.vue';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ApiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
@@ -245,6 +254,14 @@
       showInTable: true,
       width: 200,
       showDrag: true,
+    },
+    {
+      title: 'testPlan.featureCase.bugCount',
+      dataIndex: 'bugCount',
+      slotName: 'bugCount',
+      width: 150,
+      showDrag: true,
+      showInTable: true,
     },
     {
       title: 'case.caseLevel',
@@ -637,6 +654,11 @@
         break;
     }
   }
+
+  const showLinkDrawer = ref(false);
+  const showCreateDrawer = ref(false);
+
+  const drawerLoading = ref(false);
 
   // 去接口用例详情页面
   function toDetail(record: PlanDetailApiCaseItem) {
