@@ -28,6 +28,7 @@ import io.metersphere.project.dto.environment.auth.DigestAuth;
 import io.metersphere.project.dto.environment.auth.HTTPAuthConfig;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -175,7 +176,7 @@ public abstract class PostmanAbstractParserParserApiDefinition<T> extends HttpAp
     private static void setRaw(JsonNode bodyNode, MsHTTPElement request) {
         JsonNode rawNode = bodyNode.get(RAW);
         JsonNode optionNode = bodyNode.get(OPTIONS);
-        if (optionNode != null) {
+        if (ObjectUtils.allNotNull(rawNode, optionNode)) {
             if (optionNode instanceof ObjectNode optionObject) {
                 JsonNode languageNode = optionObject.get(RAW).get(La);
                 if (languageNode instanceof TextNode languageText) {
