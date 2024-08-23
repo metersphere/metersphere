@@ -26,10 +26,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
-import io.metersphere.system.service.BaseBugScheduleService;
-import io.metersphere.system.service.PlatformPluginService;
-import io.metersphere.system.service.PluginLoadService;
-import io.metersphere.system.service.ServiceIntegrationService;
+import io.metersphere.system.service.*;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -51,9 +48,6 @@ public class ProjectApplicationService {
 
     @Resource
     private ExtProjectUserRoleMapper extProjectUserRoleMapper;
-
-    @Resource
-    private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
 
     @Resource
     private PluginMapper pluginMapper;
@@ -109,6 +103,12 @@ public class ProjectApplicationService {
                 application.getType()) && baseBugScheduleService != null) {
             // 缺陷同步配置开启或关闭
             baseBugScheduleService.enableOrNotBugSyncSchedule(application.getProjectId(), currentUser, Boolean.valueOf(application.getTypeValue()));
+        }
+        BaseDemandScheduleService baseDemandScheduleService = CommonBeanFactory.getBean(BaseDemandScheduleService.class);
+        if (StringUtils.equals(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name(),
+                application.getType()) && baseDemandScheduleService != null && !Boolean.parseBoolean(application.getTypeValue())) {
+            // 需求同步配置关闭
+            baseDemandScheduleService.enableOrNotDemandSyncSchedule(application.getProjectId(), currentUser, Boolean.valueOf(application.getTypeValue()));
         }
     }
 
@@ -440,10 +440,10 @@ public class ProjectApplicationService {
     /**
      * 用例关联需求配置
      *
-     * @param projectId
-     * @param configs
+     * @param projectId 项目ID
+     * @param configs 关联需求配置信息
      */
-    public void updateRelated(String projectId, Map<String, String> configs) {
+    public void updateRelated(String projectId, Map<String, String> configs, String currentUser) {
         List<ProjectApplication> relatedConfigs = configs.entrySet().stream().map(config -> new ProjectApplication(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + config.getKey().toUpperCase(), config.getValue())).collect(Collectors.toList());
         ProjectApplicationExample example = new ProjectApplicationExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "%");
@@ -454,6 +454,11 @@ public class ProjectApplicationService {
             projectApplicationMapper.batchInsert(relatedConfigs);
         } else {
             projectApplicationMapper.batchInsert(relatedConfigs);
+        }
+        // 更新需求定时任务配置
+        BaseDemandScheduleService baseDemandScheduleService = CommonBeanFactory.getBean(BaseDemandScheduleService.class);
+        if (baseDemandScheduleService != null) {
+            baseDemandScheduleService.updateDemandSyncScheduleConfig(relatedConfigs, projectId, currentUser);
         }
     }
 

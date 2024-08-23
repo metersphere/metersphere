@@ -176,7 +176,13 @@ export function getBugSyncInfo(projectId: string) {
 
 // 用例管理-获取关联需求信息
 export function getCaseRelatedInfo(projectId: string) {
-  return MSR.get<{ demand_platform_config: string; platform_key: string; case_enable: string }>({
+  return MSR.get<{
+    demand_platform_config: string;
+    platform_key: string;
+    case_enable: string;
+    sync_enable: string;
+    cron_expression: string;
+  }>({
     url: `${Url.getCaseRelatedInfoUrl}${projectId}`,
   });
 }

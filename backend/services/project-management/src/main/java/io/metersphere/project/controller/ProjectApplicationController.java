@@ -5,7 +5,6 @@ import io.metersphere.project.dto.ModuleDTO;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.project.service.ProjectService;
-import io.metersphere.sdk.constants.ApplicationScope;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.exception.MSException;
@@ -25,7 +24,6 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -153,7 +151,7 @@ public class ProjectApplicationController {
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_CASE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateRelatedRequirementsLog(#projectId, #configs)", msClass = ProjectApplicationService.class)
     public void updateRelated(@PathVariable("projectId") String projectId, @RequestBody Map<String, String> configs) {
-        projectApplicationService.updateRelated(projectId, configs);
+        projectApplicationService.updateRelated(projectId, configs, SessionUtils.getUserId());
     }
 
     @GetMapping("/case/related/info/{projectId}")
