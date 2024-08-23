@@ -494,7 +494,7 @@
     stepName: '',
     resourceId: '',
     customizeRequest: true,
-    customizeRequestEnvEnable: false,
+    customizeRequestEnvEnable: true,
     protocol: 'HTTP',
     url: '',
     activeTab: RequestComposition.HEADER,
@@ -819,6 +819,7 @@
       // 隐藏多余的字段
       fApi.value?.hidden(true, currentFormFields?.filter((e) => !fields.includes(e)) || []);
     }
+    fApi.value?.refresh(); // 刷新表单，避免字段显隐切换后部分字段不显示
     return fields;
   }
 
@@ -1305,6 +1306,7 @@
             responseActiveTab: ResponseComposition.BODY,
             stepId: props.step?.uniqueId || '',
             uniqueId: props.step?.uniqueId || '',
+            customizeRequestEnvEnable: true,
             isNew: false,
           });
           if (_stepType.value.isQuoteApi) {
@@ -1324,6 +1326,7 @@
             ...defaultApiParams,
             stepId: id,
             uniqueId: id,
+            customizeRequestEnvEnable: false,
             protocol:
               localProtocol?.length && protocolOptions.value.some((item) => item.value === localProtocol)
                 ? localProtocol
