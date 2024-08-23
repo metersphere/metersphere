@@ -452,6 +452,13 @@ public class ProjectApplicationControllerTests extends BaseTest {
         Assertions.assertNotNull(updateResultHolder);
         ProjectApplication afterRequest = creatRequest(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name(), "true");
         this.requestPost(CASE_UPDATE_URL, afterRequest);
+        Map<String, String> falseConfigs = mockCaseFalseRelatedTestData();
+        mvcResult = this.requestPostWithOkAndReturn(UPDATE_CASE_RELATED_CONFIG_URL + "/project_application_test_id", falseConfigs);
+        // 获取返回值
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
     }
 
     private Map<String, String> mockRelatedTestData() {
@@ -459,6 +466,18 @@ public class ProjectApplicationControllerTests extends BaseTest {
         Map<String, String> configs = new HashMap<>();
         configs.put("DEMAND_PLATFORM_CONFIG", jsonConfig);
         configs.put("CASE_ENABLE", "true");
+        configs.put("SYNC_ENABLE", "true");
+        configs.put("CRON_EXPRESSION", "0 0 0 * * ?");
+        return configs;
+    }
+
+    private Map<String, String> mockCaseFalseRelatedTestData() {
+        String jsonConfig = "{\"jiraKey\":\"111\",\"jiraIssueTypeId\":\"10086\",\"jiraStoryTypeId\":\"10010\"}";
+        Map<String, String> configs = new HashMap<>();
+        configs.put("DEMAND_PLATFORM_CONFIG", jsonConfig);
+        configs.put("CASE_ENABLE", "false");
+        configs.put("SYNC_ENABLE", "true");
+        configs.put("CRON_EXPRESSION", "0 0 0/1 * * ?");
         return configs;
     }
 
