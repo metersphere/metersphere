@@ -48,6 +48,9 @@ export default {
   'project.menu.notConfig': 'Third-party information not configured, click',
   'project.menu.configure': 'to configure',
   'project.menu.status': 'Status',
+  'project.menu.updateSync': 'Update mechanism',
+  'project.menu.updateSyncTip':
+    'When turned on, the associated requirements will be updated according to the set frequency.',
   'project.menu.incrementalSync': 'Incremental Synchronization',
   'project.menu.incrementalSyncTip': 'Only make content changes to existing third-party defects in MS',
   'project.menu.fullSync': 'Full Synchronization',

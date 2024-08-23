@@ -35,6 +35,39 @@
         :form-rule="platformRules"
         @mounted="handleMounted"
       />
+      <a-form-item>
+        <a-tooltip v-if="okDisabled" :content="t('project.menu.defect.enableAfterConfig')">
+          <a-switch size="small" type="line" disabled />
+        </a-tooltip>
+        <a-switch
+          v-else
+          v-model="form.SYNC_ENABLE"
+          checked-value="true"
+          unchecked-value="false"
+          size="small"
+          type="line"
+        />
+        <span class="ml-[8px] text-[var(--color-text-1)]">
+          {{ t('project.menu.updateSync') }}
+        </span>
+        <a-tooltip position="tl" :content-style="{ maxWidth: '500px' }">
+          <template #content>
+            <div class="flex flex-col">
+              <div>{{ t('project.menu.updateSyncTip') }}</div>
+            </div>
+          </template>
+          <div>
+            <MsIcon
+              class="ml-[8px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+              type="icon-icon-maybe_outlined"
+            />
+          </div>
+        </a-tooltip>
+      </a-form-item>
+      <!-- 同步频率 -->
+      <a-form-item field="CRON_EXPRESSION" :label="t('project.menu.CRON_EXPRESSION')">
+        <MsCronSelect v-model:model-value="form.CRON_EXPRESSION" />
+      </a-form-item>
     </a-form>
     <template v-if="platformOption.length" #footerLeft>
       <div class="flex flex-row items-center gap-[4px]">
@@ -74,6 +107,7 @@
 <script lang="ts" setup>
   import { FormInstance, Message } from '@arco-design/web-vue';
 
+  import MsCronSelect from '@/components/pure/ms-cron-select/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
@@ -110,7 +144,9 @@
 
   const form = reactive({
     PLATFORM_KEY: '',
-    CASE_ENABLE: 'false', // 同步开关
+    CASE_ENABLE: 'false', // 关联需求开关
+    SYNC_ENABLE: 'false', // 同步开关
+    CRON_EXPRESSION: '0 0 0 * * ?', // 同步频率
   });
 
   const formCreateValue = ref<Record<string, any>>({});
@@ -199,6 +235,8 @@
       if (res && res.platform_key) {
         form.CASE_ENABLE = res.case_enable;
         form.PLATFORM_KEY = res.platform_key;
+        form.SYNC_ENABLE = res.sync_enable;
+        form.CRON_EXPRESSION = res.cron_expression;
         formCreateValue.value = JSON.parse(res.demand_platform_config);
         // 如果平台key存在调用平台change拉取插件字段
         await handlePlatformChange(res.platform_key);

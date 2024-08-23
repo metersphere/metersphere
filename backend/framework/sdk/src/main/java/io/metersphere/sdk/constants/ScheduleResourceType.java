@@ -5,6 +5,6 @@ public enum ScheduleResourceType {
     API_SCENARIO,
     TEST_PLAN,
     CLEAN_REPORT,
-
+    DEMAND_SYNC,
     BUG_SYNC
 }

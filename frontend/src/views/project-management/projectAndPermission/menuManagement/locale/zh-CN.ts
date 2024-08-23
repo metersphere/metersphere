@@ -44,6 +44,8 @@ export default {
   'project.menu.notConfig': '未配置第三方信息，点击',
   'project.menu.configure': '进行配置',
   'project.menu.status': '状态',
+  'project.menu.updateSync': '更新机制',
+  'project.menu.updateSyncTip': '开启后，会根据设置的频率，更新已关联的需求',
   'project.menu.incrementalSync': '增量同步',
   'project.menu.incrementalSyncTip': '仅对 MS 中存在的三方缺陷做内容变更',
   'project.menu.fullSync': '全量同步',

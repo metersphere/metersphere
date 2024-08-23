@@ -37,6 +37,8 @@ public class ProjectApplicationType {
     public enum CASE_RELATED_CONFIG {
         CASE_RELATED,
         CASE_ENABLE,
+        CRON_EXPRESSION,
+        SYNC_ENABLE,
     }
 
     public enum PLATFORM_DEMAND_CONFIG {

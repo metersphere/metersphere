@@ -12,7 +12,7 @@ public class SubSearchListUtil {
 
     public static int DEFAULT_BATCH_SIZE = 50;
 
-    public <T> List<T> doForSearchList(Function<Object, List<T>> selectListFunc){
+    public static <T> List<T> doForSearchList(Function<Object, List<T>> selectListFunc){
         // 创建一个 List 来保存合并后的结果
         List<T> allResults = new ArrayList<>();
         int pageNumber = 1;
@@ -31,7 +31,7 @@ public class SubSearchListUtil {
         return allResults;
     }
 
-    public <T, V>  List<T>  doForSearchByCountList(List<V> totalList,  Function<Object, List<T>> selectInListFunc){
+    public static <T, V>  List<T>  doForSearchByCountList(List<V> totalList,  Function<Object, List<T>> selectInListFunc){
         if (CollectionUtils.isEmpty(totalList)) {
             return new ArrayList<>();
         }
