@@ -344,7 +344,7 @@
     stepId: '',
     uniqueId: '',
     resourceId: '',
-    customizeRequestEnvEnable: false,
+    customizeRequestEnvEnable: true,
     protocol: 'HTTP',
     url: '',
     activeTab: RequestComposition.HEADER,
@@ -663,6 +663,7 @@
       // 隐藏多余的字段
       fApi.value?.hidden(true, currentFormFields?.filter((e) => !fields.includes(e)) || []);
     }
+    fApi.value?.refresh(); // 刷新表单，避免字段显隐切换后部分字段不显示
     return fields;
   }
 
@@ -1005,6 +1006,7 @@
         resourceId: res.id,
         stepId: activeStep.value?.id || '',
         uniqueId: activeStep.value?.uniqueId || '',
+        customizeRequestEnvEnable: true,
         ...parseRequestBodyResult,
       };
       nextTick(() => {
