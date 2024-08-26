@@ -635,15 +635,6 @@
     () => pluginScriptMap.value[requestVModel.value.protocol]?.script || []
   );
 
-  // 处理插件表单输入框变化
-  const handlePluginFormChange = debounce(() => {
-    if (isEditableApi.value) {
-      // 复制或者新建的时候需要缓存表单数据，引用的不能更改
-      temporaryPluginFormMap[requestVModel.value.uniqueId] = fApi.value?.formData();
-    }
-    handleActiveDebugChange();
-  }, 300);
-
   /**
    * 控制插件表单字段显示
    */
@@ -666,6 +657,16 @@
     fApi.value?.refresh(); // 刷新表单，避免字段显隐切换后部分字段不显示
     return fields;
   }
+
+  // 处理插件表单输入框变化
+  const handlePluginFormChange = debounce(() => {
+    if (isEditableApi.value) {
+      // 复制或者新建的时候需要缓存表单数据，引用的不能更改
+      temporaryPluginFormMap[requestVModel.value.uniqueId] = fApi.value?.formData();
+    }
+    controlPluginFormFields(); // TODO:临时解决插件表单通过表单交互控制字段显隐未隐藏/显示环境字段的问题
+    handleActiveDebugChange();
+  }, 300);
 
   /**
    * 设置插件表单数据
