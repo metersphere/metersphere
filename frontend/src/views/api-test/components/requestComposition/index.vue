@@ -789,12 +789,6 @@
     () => pluginScriptMap.value[requestVModel.value.protocol]?.script || []
   );
 
-  // 处理插件表单输入框变化
-  const handlePluginFormChange = debounce(() => {
-    requestCompositionStore.setPluginFormMap(requestVModel.value.id, fApi.value?.formData());
-    handleActiveDebugChange();
-  }, 300);
-
   /**
    * 控制插件表单字段显示
    */
@@ -819,6 +813,13 @@
     }
     return fields;
   }
+
+  // 处理插件表单输入框变化
+  const handlePluginFormChange = debounce(() => {
+    requestCompositionStore.setPluginFormMap(requestVModel.value.id, fApi.value?.formData());
+    controlPluginFormFields(); // TODO:临时解决插件表单通过表单交互控制字段显隐未隐藏/显示环境字段的问题
+    handleActiveDebugChange();
+  }, 300);
 
   /**
    * 设置插件表单数据
