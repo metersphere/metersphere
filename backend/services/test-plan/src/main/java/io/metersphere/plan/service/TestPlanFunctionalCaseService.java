@@ -723,7 +723,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
 
     public TestPlanCaseDetailResponse getFunctionalCaseDetail(String id, String userId) {
         TestPlanFunctionalCase planFunctionalCase = testPlanFunctionalCaseMapper.selectByPrimaryKey(id);
-        if(planFunctionalCase == null){
+        if (planFunctionalCase == null) {
             throw new MSException(Translator.get("resource_not_exist"));
         }
         String caseId = planFunctionalCase.getFunctionalCaseId();
@@ -996,6 +996,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
 
     /**
      * 处理执行人为空过滤参数
+     *
      * @param request 请求参数
      */
     protected void filterCaseRequest(TestPlanCaseRequest request) {
@@ -1006,6 +1007,31 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
                 boolean containNullKey = filterExecutorIds.removeIf(id -> StringUtils.equals(id, "-"));
                 request.setNullExecutorKey(containNullKey);
             }
+        }
+    }
+
+    public void batchAssociateBug(TestPlanCaseBatchAddBugRequest request, String bugId, String userId) {
+        List<String> ids = doSelectIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            TestPlanFunctionalCaseExample example = new TestPlanFunctionalCaseExample();
+            example.createCriteria().andIdIn(ids);
+            List<TestPlanFunctionalCase> caseList = testPlanFunctionalCaseMapper.selectByExample(example);
+            Map<String, String> caseMap = caseList.stream().collect(Collectors.toMap(TestPlanFunctionalCase::getId, TestPlanFunctionalCase::getFunctionalCaseId));
+            List<BugRelationCase> list = new ArrayList<>();
+            ids.forEach(id -> {
+                BugRelationCase bugRelationCase = new BugRelationCase();
+                bugRelationCase.setId(IDGenerator.nextStr());
+                bugRelationCase.setBugId(bugId);
+                bugRelationCase.setCaseId(caseMap.get(id));
+                bugRelationCase.setCaseType(CaseType.FUNCTIONAL_CASE.getKey());
+                bugRelationCase.setCreateUser(userId);
+                bugRelationCase.setCreateTime(System.currentTimeMillis());
+                bugRelationCase.setUpdateTime(System.currentTimeMillis());
+                bugRelationCase.setTestPlanCaseId(id);
+                bugRelationCase.setTestPlanId(request.getTestPlanId());
+                list.add(bugRelationCase);
+            });
+            bugRelationCaseMapper.batchInsert(list);
         }
     }
 }

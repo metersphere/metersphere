@@ -2,6 +2,9 @@ package io.metersphere.plan.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.bug.domain.Bug;
+import io.metersphere.bug.dto.request.BugEditRequest;
+import io.metersphere.bug.service.BugService;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.*;
@@ -14,6 +17,7 @@ import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.user.UserDTO;
@@ -32,6 +36,7 @@ import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.List;
@@ -48,6 +53,8 @@ public class TestPlanFunctionalCaseController {
     private TestPlanManagementService testPlanManagementService;
     @Resource
     private TestPlanFunctionalCaseService testPlanFunctionalCaseService;
+    @Resource
+    private BugService bugService;
 
     @PostMapping(value = "/sort")
     @Operation(summary = "测试计划功能用例-功能用例拖拽排序")
@@ -201,4 +208,19 @@ public class TestPlanFunctionalCaseController {
     public void batchMove(@Validated @RequestBody BaseBatchMoveRequest request) {
         testPlanFunctionalCaseService.batchMove(request);
     }
+
+
+    @PostMapping("/batch/add-bug")
+    @Operation(summary = "测试计划-计划详情-功能用例-批量添加缺陷")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void batchAddBug(@Validated @RequestPart("request") TestPlanCaseBatchAddBugRequest request,
+                            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+        BugEditRequest bugEditRequest = new BugEditRequest();
+        BeanUtils.copyBean(bugEditRequest, request);
+        Bug bug = bugService.addOrUpdate(bugEditRequest, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), false);
+        testPlanFunctionalCaseService.batchAssociateBug(request, bug.getId(), SessionUtils.getUserId());
+    }
+
+
 }
