@@ -1204,7 +1204,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
         // 返回code
         JSONArray statusCode = response.optJSONArray("statusCode");
-        if (statusCode != null) {
+        if (statusCode != null && statusCode.length() > 0) {
             JSONObject jsonObject = statusCode.getJSONObject(0);
             if (StringUtils.isNotBlank(jsonObject.optString("value"))) {
                 statusCodeInfo.put("description", jsonObject.optString("value"));
