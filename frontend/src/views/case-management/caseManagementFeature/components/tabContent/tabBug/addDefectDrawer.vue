@@ -1,207 +1,148 @@
 <template>
   <MsDrawer
-    v-model:visible="showDrawer"
+    v-model:visible="showBugDrawer"
     :mask="true"
     :title="t('caseManagement.featureCase.createDefect')"
     :ok-text="t('common.confirm')"
     :ok-loading="drawerLoading"
-    :width="800"
+    :width="850"
     :mask-closable="true"
     unmount-on-close
     :show-continue="true"
+    no-content-padding
     @continue="handleDrawerConfirm(true)"
     @confirm="handleDrawerConfirm"
     @cancel="handleDrawerCancel"
   >
-    <a-form ref="formRef" :model="form" layout="vertical">
-      <a-form-item
-        field="title"
-        asterisk-position="end"
-        :label="t('bugManagement.bugName')"
-        :rules="[{ required: true, message: t('bugManagement.edit.nameIsRequired') }]"
-        :placeholder="t('bugManagement.edit.pleaseInputBugName')"
-      >
-        <a-input v-model="form.title" :max-length="255" />
-      </a-form-item>
-      <a-form-item
-        field="handleUserId"
-        :label="t('caseManagement.featureCase.updateUser')"
-        :rules="[{ required: true, message: t('bugManagement.edit.handleManIsRequired') }]"
-        asterisk-position="end"
-        class="w-[240px]"
-      >
-        <MsSelect
-          v-model:modelValue="form.handleUserId"
-          mode="static"
-          :placeholder="t('common.pleaseSelect')"
-          :options="handleUserOptions"
-          :search-keys="['label']"
+    <template #tbutton>
+      <div class="font-normal">
+        <a-select
+          v-model="bugTemplateId"
+          class="w-[240px]"
+          :options="templateOption"
           allow-search
-        />
-      </a-form-item>
-      <a-form-item :label="t('bugManagement.edit.content')">
-        <MsRichText
-          v-model:raw="form.description"
-          :upload-image="handleUploadImage"
-          :preview-url="`${EditorPreviewFileUrl}/${appStore.currentProjectId}`"
-        />
-      </a-form-item>
-    </a-form>
+          :placeholder="t('bugManagement.edit.defaultSystemTemplate')"
+        >
+          <template #prefix>
+            <span class="text-[var(--color-text-brand)]">{{ t('system.orgTemplate.defectTemplates') }}</span>
+          </template>
+        </a-select>
+      </div>
+    </template>
+    <div class="h-[calc(100vh-122px)] w-full p-[16px]">
+      <BugDetail
+        ref="bugDetailRef"
+        v-model:template-id="bugTemplateId"
+        is-drawer
+        :bug-id="bugId"
+        @save-params="saveParams"
+      />
+    </div>
   </MsDrawer>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { FormInstance, Message, SelectOptionData, ValidatedError } from '@arco-design/web-vue';
+  import { Message } from '@arco-design/web-vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
-  import MsSelect from '@/components/business/ms-select/index';
+  import BugDetail from '@/views/bug-management/edit.vue';
 
-  import {
-    createOrUpdateBug,
-    editorUploadFile,
-    getCustomOptionHeader,
-    getTemplateDetailInfo,
-    getTemplateOption,
-  } from '@/api/modules/bug-management/index';
-  import { EditorPreviewFileUrl } from '@/api/requrls/bug-management';
+  import { createOrUpdateBug, getTemplateOption } from '@/api/modules/bug-management';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
-  import { TemplateOption } from '@/models/common';
+  import { BugEditFormObject } from '@/models/bug-management';
 
+  const { t } = useI18n();
   const appStore = useAppStore();
 
+  interface TemplateOption {
+    label: string;
+    value: string;
+  }
+
   const props = defineProps<{
-    visible: boolean;
-    caseId: string;
+    bugId?: string;
     extraParams?: Record<string, any>;
   }>();
 
   const emit = defineEmits<{
-    (e: 'update:visible', visible: boolean): void;
     (e: 'success'): void;
   }>();
 
-  const { t } = useI18n();
-
-  const templateOptions = ref<TemplateOption[]>([]);
-  const defaultTemplateId = ref<string>('');
-
-  // TODO缺陷类型
-  const initForm: any = {
-    title: '',
-    templateId: '',
-    projectId: appStore.currentProjectId,
-    description: '',
-    customFields: [],
-  };
-
-  const form = ref({ ...initForm });
-
-  const showDrawer = computed({
-    get() {
-      return props.visible;
-    },
-    set(value) {
-      emit('update:visible', value);
-    },
+  const showBugDrawer = defineModel<boolean>('visible', {
+    required: true,
   });
 
-  const formRef = ref<FormInstance | null>(null);
-  const templateCustomFields = ref([]);
-  function handleDrawerCancel() {
-    formRef.value?.resetFields();
-    form.value = { ...initForm };
-    showDrawer.value = false;
-  }
+  const bugDetailRef = ref<InstanceType<typeof BugDetail>>();
+  const drawerLoading = ref(false);
+  const isEdit = computed(() => props.bugId);
 
-  const drawerLoading = ref<boolean>(false);
+  const bugTemplateId = ref<string>('');
 
-  function handleDrawerConfirm(isContinue: boolean) {
-    form.value.templateId = defaultTemplateId.value;
-    formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
-      if (!errors) {
-        drawerLoading.value = true;
-        templateCustomFields.value.forEach((item: any) => {
-          if (item.key === 'handleUser') {
-            item.value = form.value.handleUserId;
-          }
-        });
-        delete form.value.handleUserId;
-        try {
-          await createOrUpdateBug({
-            request: { ...form.value, customFields: templateCustomFields.value, ...props.extraParams },
-            fileList: [],
-          });
-          emit('success');
-          Message.success(t('caseManagement.featureCase.quicklyCreateDefectSuccess'));
-          if (!isContinue) {
-            handleDrawerCancel();
-          }
-          form.value = { ...initForm };
-        } catch (error) {
-          console.log(error);
-        } finally {
-          drawerLoading.value = false;
-        }
-      }
-    });
-  }
+  const templateOption = ref<TemplateOption[]>([]);
 
-  const handleUserOptions = ref<SelectOptionData[]>([]);
-
-  async function getThreePartiesOptions() {
-    const res = await getCustomOptionHeader(appStore.currentProjectId);
-
-    handleUserOptions.value = res.handleUserOption.map((e) => {
-      return {
-        value: e.value,
-        label: e.text,
-      };
-    });
-  }
-  async function initBugTemplate() {
+  const getTemplateOptions = async () => {
     try {
-      templateOptions.value = await getTemplateOption(appStore.currentProjectId);
-      form.value.templateId = templateOptions.value.find((item) => item.enableDefault)?.id as string;
-      defaultTemplateId.value = templateOptions.value.find((item) => item.enableDefault)?.id as string;
-      const result = await getTemplateDetailInfo({ id: form.value.templateId, projectId: appStore.currentProjectId });
-      templateCustomFields.value = result.customFields.map((item: any) => {
+      drawerLoading.value = true;
+      const res = await getTemplateOption(appStore.currentProjectId);
+      templateOption.value = res.map((item) => {
+        if (item.enableDefault && !isEdit.value) {
+          // 选中默认模板
+          bugTemplateId.value = item.id;
+        }
         return {
-          id: item.fieldId,
-          key: item.fieldKey,
-          name: item.fieldName,
-          type: item.type,
-          value: (Array.isArray(item.defaultValue) ? JSON.stringify(item.defaultValue) : item.defaultValue) || '',
+          label: item.name,
+          value: item.id,
         };
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      drawerLoading.value = false;
     }
+  };
+
+  function handleDrawerCancel() {
+    bugDetailRef.value?.resetForm();
+    showBugDrawer.value = false;
   }
 
-  async function handleUploadImage(file: File) {
-    const { data } = await editorUploadFile({
-      fileList: [file],
-    });
-    return data;
-  }
+  async function saveParams(isContinue: boolean, params: { request: BugEditFormObject; fileList: File[] }) {
+    try {
+      drawerLoading.value = true;
+      const { request, fileList } = params;
+      await createOrUpdateBug({ request: { ...request, ...props.extraParams }, fileList });
 
-  watch(
-    () => showDrawer.value,
-    (val) => {
-      if (val) {
-        initBugTemplate();
-        getThreePartiesOptions();
+      Message.success(props.bugId ? t('common.updateSuccess') : t('common.createSuccess'));
+
+      if (isContinue) {
+        bugDetailRef.value?.resetForm();
+      } else {
+        handleDrawerCancel();
+        emit('success');
       }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      drawerLoading.value = false;
     }
-  );
+  }
+
+  const handleDrawerConfirm = async (isContinue = false) => {
+    bugDetailRef.value?.saveHandler(isContinue);
+  };
+
+  const initDefaultFields = async () => {
+    await getTemplateOptions();
+  };
+
+  onBeforeMount(() => {
+    initDefaultFields();
+  });
 </script>
 
-<style scoped lang="less">
-  :deep(.halo-rich-text-editor .ProseMirror) {
-    min-height: 400px !important;
-  }
-</style>
+<style scoped></style>

@@ -4,7 +4,7 @@
     :mask="true"
     :title="t('caseManagement.featureCase.linkDefect')"
     :ok-text="t('caseManagement.featureCase.associated')"
-    :ok-disabled="propsRes.selectedKeys.size === 0"
+    :ok-disabled="currentCaseTable.propsRes.value.selectedKeys.size === 0"
     :width="1200"
     :mask-closable="true"
     unmount-on-close
@@ -29,15 +29,15 @@
     </div>
     <ms-base-table
       ref="tableRef"
-      v-bind="propsRes"
+      v-bind="currentCaseTable.propsRes.value"
       :action-config="{
         baseAction: [],
         moreAction: [],
       }"
-      v-on="propsEvent"
+      v-on="currentCaseTable.propsEvent.value"
     >
       <template #name="{ record }">
-        <BugNamePopover :name="record.name" :content="record.content" />
+        <BugNamePopover :name="record.name || record.title" :content="record.content || record.description || ''" />
       </template>
     </ms-base-table>
   </MsDrawer>
@@ -52,10 +52,13 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import BugNamePopover from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/bugNamePopover.vue';
 
+  import { getBugList } from '@/api/modules/bug-management';
   import { getDrawerDebugPage } from '@/api/modules/case-management/featureCase';
+  import { getTestPlanBugPage } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
+  import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import debounce from 'lodash-es/debounce';
@@ -63,13 +66,21 @@
   const { t } = useI18n();
   const appStore = useAppStore();
 
+  const getModuleTreeApiMap: Record<string, any> = {
+    [AssociatedBugApiTypeEnum.FUNCTIONAL_BUG_LIST]: getDrawerDebugPage, // 功能用例-关联缺陷
+    [AssociatedBugApiTypeEnum.TEST_PLAN_BUG_LIST]: getTestPlanBugPage, // 测试计划-关联缺陷
+    [AssociatedBugApiTypeEnum.BUG_TOTAL_LIST]: getBugList, // 总缺陷列表
+  };
+
   const currentProjectId = computed(() => appStore.currentProjectId);
 
   const props = withDefaults(
     defineProps<{
-      visible: boolean;
-      caseId: string;
+      loadApi: AssociatedBugApiTypeEnum; // 关联缺陷接口类型
       drawerLoading: boolean;
+      visible: boolean;
+      caseId?: string; // 用例id
+      isBatch?: boolean;
       showSelectorAll?: boolean;
     }>(),
     {
@@ -140,8 +151,8 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    getDrawerDebugPage,
+  const getTotalBugTable = useTable(
+    getModuleTreeApiMap[AssociatedBugApiTypeEnum.BUG_TOTAL_LIST],
     {
       scroll: { x: '100%' },
       columns,
@@ -163,6 +174,33 @@
     }
   );
 
+  const getSingleBugTable = useTable(
+    getModuleTreeApiMap[props.loadApi],
+    {
+      scroll: { x: '100%' },
+      columns,
+      tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEFECT,
+      selectable: true,
+      showSelectorAll: props.showSelectorAll,
+      heightUsed: 340,
+    },
+    (record) => {
+      return {
+        ...record,
+        tags: (record.tags || []).map((item: string, i: number) => {
+          return {
+            id: `${record.id}-${i}`,
+            name: item,
+          };
+        }),
+      };
+    }
+  );
+
+  const currentCaseTable = computed(() => {
+    return props.isBatch ? getTotalBugTable : getSingleBugTable;
+  });
+
   const keyword = ref<string>('');
 
   const showDrawer = computed({
@@ -175,7 +213,7 @@
   });
 
   function handleDrawerConfirm() {
-    const { excludeKeys, selectedKeys, selectorStatus } = propsRes.value;
+    const { excludeKeys, selectedKeys, selectorStatus } = currentCaseTable.value.propsRes.value;
     const params = {
       excludeIds: [...excludeKeys],
       selectIds: selectorStatus === 'all' ? [] : [...selectedKeys],
@@ -192,12 +230,16 @@
   }
 
   function handleDrawerCancel() {
-    resetSelector();
+    currentCaseTable.value.resetSelector();
   }
 
   function getFetch() {
-    setLoadListParams({ keyword: keyword.value, projectId: currentProjectId.value, sourceId: props.caseId });
-    loadList();
+    currentCaseTable.value.setLoadListParams({
+      keyword: keyword.value,
+      projectId: currentProjectId.value,
+      sourceId: props.caseId,
+    });
+    currentCaseTable.value.loadList();
   }
 
   const searchList = debounce(() => {
@@ -208,7 +250,7 @@
     () => props.visible,
     (val) => {
       if (val) {
-        resetSelector();
+        currentCaseTable.value.resetSelector();
         getFetch();
       }
     }

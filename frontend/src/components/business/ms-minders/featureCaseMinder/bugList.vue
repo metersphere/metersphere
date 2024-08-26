@@ -62,6 +62,7 @@
     v-model:visible="showLinkBugDrawer"
     :case-id="activeCase.id"
     :drawer-loading="drawerLoading"
+    :load-api="AssociatedBugApiTypeEnum.FUNCTIONAL_BUG_LIST"
     @save="saveHandler"
   />
 </template>
@@ -83,13 +84,14 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { TableQueryParams } from '@/models/common';
+  import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
   import { BugManagementRouteEnum } from '@/enums/routeEnum';
 
   const AddDefectDrawer = defineAsyncComponent(
     () => import('@/views/case-management/caseManagementFeature/components/tabContent/tabBug/addDefectDrawer.vue')
   );
   const LinkDefectDrawer = defineAsyncComponent(
-    () => import('@/views/case-management/caseManagementFeature/components/tabContent/tabBug/linkDefectDrawer.vue')
+    () => import('@/views/case-management/components/linkDefectDrawer.vue')
   );
 
   const props = defineProps<{

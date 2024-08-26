@@ -16,7 +16,9 @@
         :placeholder="t('bugManagement.edit.defaultSystemTemplate')"
       />
     </template>
-    <BugDetail ref="bugDetailRef" v-model:template-id="bugTemplateId" :bug-id="bugId" @save-params="saveParams" />
+    <div class="h-[calc(100vh-168px)] w-full">
+      <BugDetail ref="bugDetailRef" v-model:template-id="bugTemplateId" :bug-id="bugId" @save-params="saveParams" />
+    </div>
   </MsCard>
 </template>
 

@@ -16,7 +16,7 @@
       </a-button>
 
       <template #content>
-        <a-doption v-if="hasAnyPermission(props.linkBugPermission || []) && props.bugCount" value="linkBug">
+        <a-doption v-if="hasAnyPermission(props.linkBugPermission || []) && props.existedDefect" value="linkBug">
           {{ t('caseManagement.featureCase.linkDefect') }}
         </a-doption>
         <a-doption v-if="hasAnyPermission(['PROJECT_BUG:READ+ADD'])" value="newBug">
@@ -28,8 +28,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-
   import BugCountPopover from './bugCountPopover.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -42,6 +40,7 @@
   const props = defineProps<{
     resourceId: string; // 资源id: 功能用例id/接口用例id/场景用例id
     bugCount: number; // 缺陷数
+    existedDefect: number; // 已经存在缺陷数
     canEdit: boolean;
     bugList?: CaseBugItem[];
     linkBugPermission?: string[];

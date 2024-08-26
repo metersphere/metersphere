@@ -152,4 +152,5 @@ export default {
   'testPlan.planStartToEndTimeTip': 'The test plan timed out',
   'testPlan.planConfigReport': 'Configuration Report',
   'testPlan.planAutomaticGeneration': 'Automatic generation',
+  'testPlan.caseType': 'Use Case types',
 };

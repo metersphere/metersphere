@@ -141,4 +141,5 @@ export default {
   'testPlan.planStartToEndTimeTip': '测试计划已超时',
   'testPlan.planConfigReport': '自定义报告',
   'testPlan.planAutomaticGeneration': '自动生成',
+  'testPlan.caseType': '用例类型',
 };
