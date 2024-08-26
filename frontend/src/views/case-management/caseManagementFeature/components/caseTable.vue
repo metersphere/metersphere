@@ -15,6 +15,14 @@
         @adv-search="handleAdvSearch"
         @refresh="fetchData()"
       >
+        <template #left>
+          <div>
+            <a-button v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="mr-[12px]" type="primary" @click="caseDetail">
+              {{ t('common.newCreate') }}
+            </a-button>
+            <ImportCase ref="importCaseRef" @init-modules="emit('initModules')" @confirm-import="confirmImport" />
+          </div>
+        </template>
         <template #right>
           <a-radio-group
             v-model:model-value="showType"
@@ -172,11 +180,8 @@
               {{ t('caseManagement.featureCase.creatingCase') }}
             </MsButton>
             <span v-permission="['FUNCTIONAL_CASE:READ+IMPORT']"> {{ t('caseManagement.featureCase.or') }} </span>
-            <MsButton v-permission="['FUNCTIONAL_CASE:READ+IMPORT']" class="!mx-[8px]" @click="emit('import', 'Excel')">
-              {{ t('caseManagement.featureCase.importExcel') }}
-            </MsButton>
-            <MsButton v-permission="['FUNCTIONAL_CASE:READ+IMPORT']" @click="emit('import', 'Xmind')">
-              {{ t('caseManagement.featureCase.importXmind') }}
+            <MsButton v-permission="['FUNCTIONAL_CASE:READ+IMPORT']" class="!mx-[8px]" @click="importCase()">
+              {{ t('common.import') }}
             </MsButton>
           </div>
         </template>
@@ -380,6 +385,7 @@
   import BatchEditModal from './batchEditModal.vue';
   import CaseDetailDrawer from './caseDetailDrawer.vue';
   import FeatureCaseTree from './caseTree.vue';
+  import ImportCase from './import/index.vue';
   import AddDemandModal from './tabContent/tabDemand/addDemandModal.vue';
   import ThirdDemandDrawer from './tabContent/tabDemand/thirdDemandDrawer.vue';
 
@@ -456,7 +462,7 @@
 
   const emit = defineEmits<{
     (e: 'init', params: CaseModuleQueryParams, refreshModule?: boolean): void;
-    (e: 'import', type: 'Excel' | 'Xmind'): void;
+    (e: 'initModules'): void;
   }>();
 
   const minderStore = useMinderStore();
@@ -1013,6 +1019,22 @@
     await getLoadListParams();
     await loadList();
     emitTableParams();
+  }
+
+  // 创建用例
+  function caseDetail() {
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+    });
+  }
+  // 导入用例
+  const importCaseRef = ref<InstanceType<typeof ImportCase>>();
+  function importCase() {
+    importCaseRef.value?.importCase();
+  }
+  function confirmImport() {
+    emit('initModules');
+    initData();
   }
 
   const showDetailDrawer = ref(false);
