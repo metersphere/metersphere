@@ -57,20 +57,20 @@ export default function useMinderOperation(options: MinderOperationProps) {
     const { editor } = window;
     const { minder, fsm } = editor;
     const selectedNodes: MinderJsonNode[] = minder.getSelectedNodes();
-    if (
-      !options.canShowMoreMenu ||
-      !options.canShowMoreMenuNodeOperation ||
-      (selectedNodes.length > 1 && options.canShowBatchCopy === false)
-    ) {
-      e?.preventDefault();
-      return;
-    }
     const state = fsm.state();
     switch (state) {
       case 'input': {
         break;
       }
       case 'normal': {
+        if (
+          !options.canShowMoreMenu ||
+          !options.canShowMoreMenuNodeOperation ||
+          (selectedNodes.length > 1 && options.canShowBatchCopy === false)
+        ) {
+          e?.preventDefault();
+          return;
+        }
         minderStore.dispatchEvent(MinderEventName.COPY_NODE, undefined, undefined, undefined, selectedNodes);
         if (e?.clipboardData) {
           e.clipboardData.setData('text/plain', encode(selectedNodes));
@@ -94,15 +94,6 @@ export default function useMinderOperation(options: MinderOperationProps) {
     const { editor } = window;
     const { minder, fsm } = editor;
     const selectedNodes: MinderJsonNode[] = minder.getSelectedNodes();
-    if (
-      options.disabled ||
-      !options.canShowMoreMenu ||
-      !options.canShowMoreMenuNodeOperation ||
-      (selectedNodes.length > 1 && options.canShowBatchCut === false)
-    ) {
-      e?.preventDefault();
-      return;
-    }
     if (minder.getStatus() !== 'normal') {
       e?.preventDefault();
       return;
@@ -113,6 +104,15 @@ export default function useMinderOperation(options: MinderOperationProps) {
         break;
       }
       case 'normal': {
+        if (
+          options.disabled ||
+          !options.canShowMoreMenu ||
+          !options.canShowMoreMenuNodeOperation ||
+          (selectedNodes.length > 1 && options.canShowBatchCut === false)
+        ) {
+          e?.preventDefault();
+          return;
+        }
         markDeleteNode(minder);
         if (selectedNodes.length) {
           const newNodes = selectedNodes.map((node) => ({
@@ -140,10 +140,6 @@ export default function useMinderOperation(options: MinderOperationProps) {
    * 执行粘贴
    */
   const minderPaste = async (e?: ClipboardEvent) => {
-    if (options.disabled || !options.canShowPasteMenu) {
-      e?.preventDefault();
-      return;
-    }
     const { editor } = window;
     const { minder, fsm, MimeType } = editor;
     const Data: IData = window.kityminder.data;
@@ -163,6 +159,10 @@ export default function useMinderOperation(options: MinderOperationProps) {
         break;
       }
       case 'normal': {
+        if (options.disabled || !options.canShowPasteMenu) {
+          e?.preventDefault();
+          return;
+        }
         /*
          * 针对normal状态下通过对选中节点粘贴导入子节点文本进行单独处理
          */
