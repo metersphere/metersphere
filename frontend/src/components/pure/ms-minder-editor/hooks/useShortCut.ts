@@ -44,14 +44,12 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
 
     if (isCtrlOrCmd && combinationShortcuts[key]) {
       // 执行组合键事件
-      event.preventDefault();
       const action = combinationShortcuts[key];
       if (shortcuts[action]) {
         shortcuts[action]!();
       }
     } else if (singleShortcuts[key]) {
       // 执行单键事件
-      event.preventDefault();
       const action = singleShortcuts[key];
       if (shortcuts[action]) {
         shortcuts[action]!();
