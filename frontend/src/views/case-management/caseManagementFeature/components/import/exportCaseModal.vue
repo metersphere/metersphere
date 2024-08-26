@@ -4,38 +4,33 @@
     title-align="start"
     class="ms-modal-form ms-modal-medium"
     :ok-text="t('common.confirm')"
+    :title="t('common.import')"
     :cancel-text="t('common.cancel')"
     @close="handleCancel"
   >
-    <template #title>
-      {{
-        props.validateType === 'Excel'
-          ? t('caseManagement.featureCase.formExcelExport')
-          : t('caseManagement.featureCase.formXMindExport')
-      }}
-    </template>
     <div>
-      <a-alert class="mb-4">
+      <MsSeparateRadioButton v-model:value="validateType" :options="validateTypeOptions" />
+      <a-alert class="my-4">
         <div class="flex items-center">
-          {{ t('caseManagement.featureCase.beforeUploadTip', { type: props.validateType }) }}
+          {{ t('caseManagement.featureCase.beforeUploadTip', { type: validateType }) }}
           <MsIcon
-            :type="props.validateType === 'Excel' ? 'icon-icon_file-excel_colorful1' : 'icon-icon_file-xmind_colorful1'"
+            :type="validateType === 'Excel' ? 'icon-icon_file-excel_colorful1' : 'icon-icon_file-xmind_colorful1'"
             class="mx-1 cursor-pointer text-[rgb(var(--primary-6))]"
           ></MsIcon>
           <MsButton @click="downloadExcelTemplate">
-            {{ t('caseManagement.featureCase.downloadTemplate', { type: props.validateType }) }}
+            {{ t('caseManagement.featureCase.downloadTemplate', { type: validateType }) }}
           </MsButton>
         </div>
       </a-alert>
       <MsUpload
         v-model:file-list="fileList"
         class="mb-6 w-full"
-        :accept="props.validateType === 'Excel' ? 'excel' : 'xmind'"
+        :accept="validateType === 'Excel' ? 'excel' : 'xmind'"
         :max-size="100"
         size-unit="MB"
         main-text="caseManagement.featureCase.dragOrClick"
         :sub-text="
-          props.validateType === 'Excel'
+          validateType === 'Excel'
             ? t('caseManagement.featureCase.onlyEXcelTip')
             : t('caseManagement.featureCase.onlyXmindTip')
         "
@@ -80,7 +75,7 @@
             @click="saveConfirm"
           >
             {{
-              props.validateType === 'Excel'
+              validateType === 'Excel'
                 ? t('caseManagement.featureCase.checkImportFile')
                 : t('caseManagement.featureCase.checkTemplate')
             }}
@@ -93,9 +88,10 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { FileItem, Message } from '@arco-design/web-vue';
+  import { FileItem } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsSeparateRadioButton from '@/components/pure/ms-separate-radio-button/index.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
 
   import { downloadTemplate } from '@/api/modules/case-management/featureCase';
@@ -107,7 +103,6 @@
 
   const props = defineProps<{
     visible: boolean;
-    validateType: 'Excel' | 'Xmind';
     confirmLoading: boolean;
   }>();
 
@@ -116,7 +111,19 @@
     (e: 'save', files: FileItem[], isRecover: boolean): void;
     (e: 'close'): void;
   }>();
+
+  const validateType = defineModel<'Excel' | 'Xmind'>('validateType', { required: true });
+  const validateTypeOptions = [
+    { value: 'Excel', label: t('caseManagement.featureCase.importExcel') },
+    { value: 'Xmind', label: t('caseManagement.featureCase.importXmind') },
+  ];
   const fileList = ref<FileItem[]>([]);
+  watch(
+    () => validateType.value,
+    () => {
+      fileList.value = [];
+    }
+  );
 
   const appStore = useAppStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
@@ -127,12 +134,13 @@
   });
 
   const handleCancel = () => {
+    validateType.value = 'Excel';
     fileList.value = [];
     emit('close');
   };
 
   const fileTypeTip = computed(() => {
-    return props.validateType === 'Excel'
+    return validateType.value === 'Excel'
       ? t('caseManagement.featureCase.excelImportTip')
       : t('caseManagement.featureCase.xmindImportTip');
   });
@@ -142,8 +150,8 @@
   // 下载excel|| xmind模板
   async function downloadExcelTemplate() {
     try {
-      const res = await downloadTemplate(currentProjectId.value, props.validateType);
-      downloadByteFile(res, props.validateType === 'Excel' ? 'excel_case.xlsx' : 'xmind_case.xmind');
+      const res = await downloadTemplate(currentProjectId.value, validateType.value);
+      downloadByteFile(res, validateType.value === 'Excel' ? 'excel_case.xlsx' : 'xmind_case.xmind');
     } catch (error) {
       console.log(error);
     }
@@ -153,5 +161,3 @@
     emit('save', fileList.value, isRecover.value);
   }
 </script>
-
-<style scoped></style>

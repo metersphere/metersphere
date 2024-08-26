@@ -4,51 +4,13 @@
       <template #first>
         <div class="p-[16px] pb-0">
           <div class="feature-case h-[100%]">
-            <div class="mb-[16px] flex justify-between">
-              <a-input
-                v-model:model-value="groupKeyword"
-                :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
-                allow-clear
-                :max-length="255"
-              />
-              <a-dropdown-button
-                v-if="hasAllPermission(['FUNCTIONAL_CASE:READ+IMPORT', 'FUNCTIONAL_CASE:READ+ADD'])"
-                class="ml-2"
-                type="primary"
-                @click="handleSelect('newCase')"
-              >
-                {{ t('common.newCreate') }}
-                <template #icon>
-                  <icon-down />
-                </template>
-                <template #content>
-                  <a-doption
-                    v-permission="['FUNCTIONAL_CASE:READ+IMPORT']"
-                    value="Excel"
-                    @click="handleSelect('import', 'Excel')"
-                  >
-                    {{ t('caseManagement.featureCase.importExcel') }}
-                  </a-doption>
-                  <a-doption
-                    v-permission="['FUNCTIONAL_CASE:READ+IMPORT']"
-                    value="Xmind"
-                    @click="handleSelect('import', 'Xmind')"
-                  >
-                    {{ t('caseManagement.featureCase.importXmind') }}
-                  </a-doption>
-                </template>
-              </a-dropdown-button>
-              <a-button
-                v-else
-                v-permission="['FUNCTIONAL_CASE:READ+ADD']"
-                class="ml-2"
-                type="primary"
-                @click="handleSelect('newCase')"
-              >
-                {{ t('common.newCreate') }}
-              </a-button>
-            </div>
-
+            <a-input
+              v-model:model-value="groupKeyword"
+              :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
+              allow-clear
+              class="mb-[16px]"
+              :max-length="255"
+            />
             <div class="case h-[38px]">
               <div class="flex items-center" :class="getActiveClass('all')" @click="setActiveFolder('all')">
                 <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
@@ -123,35 +85,13 @@
             :modules-count="modulesCount"
             :module-name="activeFolderName"
             @init="initModulesCount"
-            @import="importCase"
+            @init-modules="initModules"
           />
         </div>
       </template>
     </MsSplitBox>
   </MsCard>
   <!-- </div> -->
-  <ExportExcelModal
-    v-model:visible="showExcelModal"
-    :validate-type="validateType"
-    :confirm-loading="validateLoading"
-    @save="validateTemplate"
-    @close="showExcelModal = false"
-  />
-  <ValidateModal
-    v-model:visible="validateModal"
-    :validate-type="validateType"
-    :percent="progress"
-    @cancel="cancelValidate"
-    @check-finished="checkFinished"
-  />
-  <ValidateResult
-    v-model:visible="validateResultModal"
-    :validate-type="validateType"
-    :validate-info="validateInfo"
-    :import-loading="importLoading"
-    @close="closeHandler"
-    @save="conFirmImport"
-  />
 </template>
 
 <script setup lang="ts">
@@ -169,25 +109,17 @@
   import { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import CaseTable from './components/caseTable.vue';
   import FeatureCaseTree from './components/caseTree.vue';
-  import ExportExcelModal from './components/export/exportCaseModal.vue';
-  import ValidateModal from './components/export/validateModal.vue';
-  import ValidateResult from './components/export/validateResult.vue';
 
-  import {
-    createCaseModuleTree,
-    importExcelOrXMindCase,
-    importExcelOrXMindChecked,
-  } from '@/api/modules/case-management/featureCase';
+  import { createCaseModuleTree } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
-  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
+  import { hasAnyPermission } from '@/utils/permission';
 
-  import type { CreateOrUpdateModule, ValidateInfo } from '@/models/caseManagement/featureCase';
+  import type { CreateOrUpdateModule } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
-  import type { FileItem } from '@arco-design/web-vue';
   import Message from '@arco-design/web-vue/es/message';
 
   const route = useRoute();
@@ -306,144 +238,8 @@
     tableFilterParams.value = { ...params };
   }
 
-  // 创建用例
-  function caseDetail() {
-    router.push({
-      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
-    });
-  }
-
-  const showExcelModal = ref<boolean>(false);
-  const validateType = ref<'Excel' | 'Xmind'>('Excel');
-
-  // 导入excel
-  function importCase(type: 'Excel' | 'Xmind') {
-    validateType.value = type;
-    showExcelModal.value = true;
-  }
-
-  const validateModal = ref<boolean>(false);
-
-  // 校验结果弹窗
-  const validateResultModal = ref<boolean>(false);
-
-  const validateInfo = ref<ValidateInfo>({
-    failCount: 0,
-    successCount: 0,
-    errorMessages: [],
-  });
-
-  const intervalId = ref<any>(null);
-  const progress = ref<number>(0);
-  const increment = ref<number>(0.1);
-
-  function updateProgress() {
-    progress.value = Math.floor(progress.value + increment.value);
-    if (progress.value >= 1) {
-      progress.value = 1;
-    }
-  }
-
-  function finish() {
-    clearInterval(intervalId.value);
-    progress.value = 1;
-    updateProgress();
-  }
-
-  function start() {
-    progress.value = 0;
-    increment.value = 0.1;
-    intervalId.value = setInterval(() => {
-      if (progress.value >= 1) {
-        finish();
-      } else {
-        updateProgress();
-      }
-    }, 100);
-  }
-
-  const fileList = ref<FileItem[]>([]);
-  const isCover = ref<boolean>(false);
-  const validateLoading = ref<boolean>(false);
-
-  // 校验导入模板
-  async function validateTemplate(files: FileItem[], cover: boolean) {
-    fileList.value = files;
-    isCover.value = cover;
-    validateLoading.value = true;
-    try {
-      validateModal.value = true;
-      start();
-      const params = {
-        projectId: appStore.currentProjectId,
-        versionId: '',
-        cover,
-      };
-      const result = await importExcelOrXMindChecked(
-        { request: params, fileList: files.map((item: any) => item.file) },
-        validateType.value
-      );
-      finish();
-      validateInfo.value = result.data;
-    } catch (error) {
-      validateModal.value = false;
-      console.log(error);
-    } finally {
-      validateLoading.value = false;
-    }
-  }
-
-  function checkFinished() {
-    validateResultModal.value = true;
-  }
-
-  function cancelValidate() {
-    validateModal.value = false;
-  }
-
-  function closeHandler() {
-    showExcelModal.value = false;
-    validateResultModal.value = false;
+  function initModules() {
     caseTreeRef.value.initModules();
-  }
-  const importLoading = ref<boolean>(false);
-  // 确定导入
-  async function conFirmImport() {
-    importLoading.value = true;
-    try {
-      const params = {
-        projectId: appStore.currentProjectId,
-        versionId: '',
-        cover: isCover.value,
-        count: validateInfo.value.successCount,
-      };
-      await importExcelOrXMindCase(
-        { request: params, fileList: fileList.value.map((item: any) => item.file) },
-        validateType.value
-      );
-      Message.success(t('caseManagement.featureCase.importSuccess'));
-      validateResultModal.value = false;
-      showExcelModal.value = false;
-      caseTableRef.value.initData();
-      caseTreeRef.value.initModules();
-    } catch (error) {
-      console.log(error);
-    } finally {
-      importLoading.value = false;
-    }
-  }
-
-  function handleSelect(value: string | number | Record<string, any> | undefined, type?: 'Excel' | 'Xmind') {
-    switch (value) {
-      case 'newCase':
-        caseDetail();
-        break;
-      case 'import':
-        importCase(type as 'Excel' | 'Xmind');
-        break;
-      default:
-        break;
-    }
   }
 
   function deleteNode() {
