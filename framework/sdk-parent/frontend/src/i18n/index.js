@@ -34,7 +34,7 @@ export const getLanguage = async () => {
 };
 
 const i18n = new VueI18n({
-  locale: await getLanguage(),
+  locale: getLanguage(),
   messages,
 });
 
