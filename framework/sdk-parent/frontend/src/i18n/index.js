@@ -17,18 +17,16 @@ const messages = LANG_FILES.keys().reduce((messages, path) => {
   return messages;
 }, {});
 
-export const getLanguage = async () => {
+export const getLanguage = () => {
   let language = localStorage.getItem('language');
   if (!language) {
     language = navigator.language || navigator.browserLanguage;
-    try {
-      const response = await axios.get('/system/default-locale');
+    axios.get('/system/default-locale').then((response) => {
       if (response.data && response.data.data) {
         language = response.data.data.replace('_', '-');
+        i18n.locale = language;
       }
-    } catch (error) {
-      console.error(error);
-    }
+    });
   }
   return language;
 };

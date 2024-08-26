@@ -25,12 +25,11 @@ export const getLanguage = () => {
     axios.get("/system/default-locale").then((response) => {
       if (response.data && response.data.data) {
         language = response.data.data.replace("_", "-");
+        i18n.locale = language;
       }
-      return language;
     });
-  } else {
-    return language;
   }
+  return language;
 };
 
 const i18n = new VueI18n({
