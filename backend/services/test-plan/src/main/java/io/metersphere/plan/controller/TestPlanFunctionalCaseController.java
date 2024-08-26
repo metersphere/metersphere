@@ -223,4 +223,12 @@ public class TestPlanFunctionalCaseController {
     }
 
 
+    @PostMapping("/batch/associate-bug")
+    @Operation(summary = "测试计划-计划详情-功能用例-批量关联缺陷")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void batchAssociateBug(@Validated @RequestBody TestPlanCaseBatchAssociateBugRequest request) {
+        testPlanFunctionalCaseService.batchAssociateBugByIds(request, SessionUtils.getUserId());
+    }
+
 }
