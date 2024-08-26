@@ -92,7 +92,7 @@ MeterSphere 产品版本分为社区版和企业版，详情请参见：[MeterSp
 - [Jenkins](https://www.jenkins.io/) 持续集成插件：实现在 Jenkins 流水线中触发并自动执行 MeteSphere 测试计划。
 - 自定义数据库驱动：支持对 达梦、Oracle、SQLite、Microsoft SQL Server 等数据库的连接和数据访问。
 - 接口协议插件：实现接口测试中对 TCP、Dubbo、MQTT 等协议的支持。
-- IDE 插件：[IDEA 插件](https://github.com/metersphere/metersphere-idea-plugin/) 支持在开发工具 IDEA 中一键将 API 同步到 MeterSphere。
+- IDE 插件：[MeterSphere APl Debugger 插件](https://github.com/metersphere/metersphere-idea-plugin/) 是 MeterSphere 提供的 InteliJ IDEA 插件，它可以快速提取 API 特征，实时进行 API 调试并生成 API 文档，一键同步到 MeterSphere 进行管理。
 
 ## 飞致云的其他明星项目
 
