@@ -2,6 +2,7 @@ package io.metersphere.plan.controller;
 
 import io.metersphere.bug.domain.BugRelationCase;
 import io.metersphere.bug.domain.BugRelationCaseExample;
+import io.metersphere.bug.dto.response.BugCustomFieldDTO;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.functional.domain.FunctionalCaseBlob;
@@ -33,9 +34,11 @@ import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -63,6 +66,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_EXEC_HISTORY_URL = "/test-plan/functional/case/exec/history";
     public static final String USER_URL = "/test-plan/functional/case/user-option/";
     public static final String FUNCTIONAL_CASE_BATCH_MOVE_URL = "/test-plan/functional/case/batch/move";
+    public static final String FUNCTIONAL_CASE_BATCH_ADD_BUG_URL = "/test-plan/functional/case/batch/add-bug";
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
     @Resource
@@ -284,7 +288,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
         functionalCaseStepDTO.setNum(1);
         functionalCaseStepDTO.setDesc("步骤描述");
         functionalCaseStepDTO.setResult("结果");
-        List<FunctionalCaseStepDTO>list = new ArrayList<>();
+        List<FunctionalCaseStepDTO> list = new ArrayList<>();
         list.add(functionalCaseStepDTO);
         testPlanCaseExecuteHistory.setSteps(JSON.toJSONString(list).getBytes());
         testPlanCaseExecuteHistoryMapper.updateByPrimaryKeySelective(testPlanCaseExecuteHistory);
@@ -436,6 +440,55 @@ public class TestPlanCaseControllerTests extends BaseTest {
         request.setTargetCollectionId("wxxx_1");
         request.setSelectAll(true);
         this.requestPostWithOk(FUNCTIONAL_CASE_BATCH_MOVE_URL, request);
+    }
+
+    @Test
+    @Order(19)
+    public void testBatchAddBug() throws Exception {
+        TestPlanCaseBatchAddBugRequest request = buildRequest(false);
+        List<MockMultipartFile> files = new ArrayList<>();
+        LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("files", files);
+        this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_BATCH_ADD_BUG_URL, paramMap);
+
+        request.setSelectAll(true);
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("files", files);
+        this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_BATCH_ADD_BUG_URL, paramMap);
+    }
+
+    private TestPlanCaseBatchAddBugRequest buildRequest(boolean isUpdate) {
+        TestPlanCaseBatchAddBugRequest request = new TestPlanCaseBatchAddBugRequest();
+        request.setTestPlanId("plan_1");
+        request.setProjectId("123");
+        request.setTitle("default-bug-title");
+        request.setDescription("default-bug-description");
+        request.setTemplateId("default-bug-template");
+        request.setLinkFileIds(List.of("default-bug-file-id-1"));
+        if (isUpdate) {
+            request.setId("default-bug-id");
+            request.setUnLinkRefIds(List.of("default-file-association-id"));
+            request.setDeleteLocalFileIds(List.of("default-bug-file-id"));
+            request.setLinkFileIds(List.of("default-bug-file-id-2"));
+        }
+        BugCustomFieldDTO fieldDTO1 = new BugCustomFieldDTO();
+        fieldDTO1.setId("custom-field");
+        fieldDTO1.setName("oasis");
+        BugCustomFieldDTO fieldDTO2 = new BugCustomFieldDTO();
+        fieldDTO2.setId("test_field");
+        fieldDTO2.setName(JSON.toJSONString(List.of("test")));
+        BugCustomFieldDTO handleUserField = new BugCustomFieldDTO();
+        handleUserField.setId("handleUser");
+        handleUserField.setName("处理人");
+        handleUserField.setValue("admin");
+        BugCustomFieldDTO statusField = new BugCustomFieldDTO();
+        statusField.setId("status");
+        statusField.setName("状态");
+        statusField.setValue("1");
+        request.setCustomFields(List.of(fieldDTO1, fieldDTO2, handleUserField, statusField));
+        return request;
     }
 
 }
