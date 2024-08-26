@@ -106,15 +106,11 @@
         </div>
       </template>
     </ms-base-table>
-    <AddDefectDrawer
-      v-model:visible="showDrawer"
-      :case-id="props.caseId"
-      :extra-params="{ caseId: props.caseId }"
-      @success="getFetch()"
-    />
+    <AddDefectDrawer v-model:visible="showDrawer" :extra-params="{ caseId: props.caseId }" @success="getFetch()" />
     <LinkDefectDrawer
       v-model:visible="showLinkDrawer"
       :case-id="props.caseId"
+      :load-api="AssociatedBugApiTypeEnum.FUNCTIONAL_BUG_LIST"
       :drawer-loading="drawerLoading"
       @save="saveHandler"
     />
@@ -135,9 +131,9 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import AddDefectDrawer from './addDefectDrawer.vue';
   import BugList from './bugList.vue';
-  import LinkDefectDrawer from './linkDefectDrawer.vue';
   import BugNamePopover from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/bugNamePopover.vue';
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
+  import LinkDefectDrawer from '@/views/case-management/components/linkDefectDrawer.vue';
 
   import { getBugList, getCustomOptionHeader } from '@/api/modules/bug-management';
   import {
@@ -148,11 +144,11 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
-  import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BugListItem, BugOptionItem } from '@/models/bug-management';
   import type { TableQueryParams } from '@/models/common';
+  import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
 
   import { makeColumns } from '@/views/case-management/caseManagementFeature/components/utils';
@@ -360,6 +356,7 @@
         getFetch();
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       cancelLoading.value = false;
@@ -386,6 +383,7 @@
       getFetch();
       showLinkDrawer.value = false;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       drawerLoading.value = false;

@@ -1,7 +1,7 @@
 <template>
-  <a-form ref="formRef" :model="form" layout="vertical">
-    <div class="flex flex-row">
-      <div class="left mt-[16px] w-[calc(100%-428px)] grow">
+  <a-form ref="formRef" class="h-full" :model="form" layout="vertical">
+    <div class="flex h-full">
+      <div :class="`${props.isDrawer ? 'w-[calc(100%-332px)]' : 'w-[calc(100%-428px)]'} left grow`">
         <!-- 平台默认模板不展示缺陷名称, 描述 -->
         <a-form-item
           v-if="!isPlatformDefaultTemplate"
@@ -132,7 +132,7 @@
         </MsFileList>
       </div>
       <a-divider class="ml-[16px]" direction="vertical" />
-      <div class="right mt-[16px] w-[428px] grow pr-[24px]">
+      <div :class="`${props.isDrawer ? 'w-[332px]' : 'w-[428px]'} right grow`">
         <div class="min-w-[250px] overflow-auto">
           <a-skeleton v-if="isLoading" :loading="isLoading" :animation="true">
             <a-space direction="vertical" class="w-full" size="large">
@@ -235,8 +235,9 @@
   import { convertToFileByBug } from './utils';
 
   const props = defineProps<{
-    bugId?: string;
-    templateId: string;
+    templateId: string; // 缺陷模板id
+    bugId?: string; // 缺陷id，不传递为创建
+    isDrawer?: boolean; // 是否是弹窗模式
   }>();
 
   const emit = defineEmits<{

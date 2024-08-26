@@ -180,6 +180,7 @@
   import Plan from './plan/index.vue';
   import CreateAndEditPlanDrawer from '@/views/test-plan/testPlan/createAndEditPlanDrawer.vue';
 
+  import { getBugList } from '@/api/modules/bug-management';
   import {
     archivedPlan,
     followPlanRequest,
@@ -235,11 +236,33 @@
       console.log(error);
     }
   }
+
+  const createdBugCount = ref<number>(0);
+
+  async function initBugList() {
+    if (!hasAnyPermission(['PROJECT_BUG:READ'])) {
+      return;
+    }
+    const res = await getBugList({
+      current: 1,
+      pageSize: 10,
+      sort: {},
+      filter: {},
+      keyword: '',
+      combine: {},
+      searchMode: 'AND',
+      projectId: appStore.currentProjectId,
+    });
+    createdBugCount.value = res.total || 0;
+  }
+  provide('existedDefect', createdBugCount);
+
   async function initDetail() {
     try {
       loading.value = true;
       detail.value = await getTestPlanDetail(planId.value);
       getStatistics();
+      initBugList();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

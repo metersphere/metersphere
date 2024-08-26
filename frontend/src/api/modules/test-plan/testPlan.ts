@@ -56,6 +56,7 @@ import {
   GetTestPlanModuleCountUrl,
   GetTestPlanModuleUrl,
   GetTestPlanUsersUrl,
+  GetUnAssociatedListUrl,
   MoveTestPlanModuleUrl,
   planDetailBugPageUrl,
   PlanDetailExecuteHistoryUrl,
@@ -437,4 +438,8 @@ export function testPlanAssociateModuleCount(data: TableQueryParams) {
 // 获取执行人下拉选项(空选项)
 export function getExecuteUserOption(projectId: string, keyword?: string) {
   return MSR.get({ url: `${GetTestPlanExecutorOptionsUrl}/${projectId}`, params: { keyword } });
+}
+// 获取测试计划未关联抽屉缺陷列表
+export function getTestPlanBugPage(data: TableQueryParams) {
+  return MSR.post<CommonList<CaseManagementTable>>({ url: GetUnAssociatedListUrl, data });
 }

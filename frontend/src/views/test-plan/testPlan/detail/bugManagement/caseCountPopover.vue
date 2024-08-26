@@ -47,6 +47,12 @@
       showTooltip: true,
       width: 200,
     },
+    {
+      title: 'testPlan.caseType',
+      dataIndex: 'type',
+      showTooltip: true,
+      width: 200,
+    },
   ];
 
   const { propsRes, propsEvent } = useTable(undefined, {

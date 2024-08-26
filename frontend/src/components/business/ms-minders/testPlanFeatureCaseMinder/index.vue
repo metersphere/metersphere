@@ -121,6 +121,7 @@
       v-model:visible="showLinkDefectDrawer"
       :case-id="selectNode?.data?.caseId ?? ''"
       :drawer-loading="linkDrawerLoading"
+      :load-api="AssociatedBugApiTypeEnum.TEST_PLAN_BUG_LIST"
       :show-selector-all="false"
       @save="associateSuccessHandler"
     />
@@ -182,8 +183,8 @@
   import BugList from './bugList.vue';
   import AddStep from '@/views/case-management/caseManagementFeature/components/addStep.vue';
   import AddDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/addDefectDrawer.vue';
-  import LinkDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/linkDefectDrawer.vue';
   import ReviewCommentList from '@/views/case-management/caseManagementFeature/components/tabContent/tabComment/reviewCommentList.vue';
+  import LinkDefectDrawer from '@/views/case-management/components/linkDefectDrawer.vue';
   import ExecuteForm from '@/views/test-plan/testPlan/detail/featureCase/components/executeForm.vue';
   import ExecuteSubmit from '@/views/test-plan/testPlan/detail/featureCase/detail/executeSubmit.vue';
 
@@ -201,6 +202,7 @@
   import type { TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/common';
   import type { ExecuteFeatureCaseFormParams, ExecuteHistoryItem } from '@/models/testPlan/testPlan';
+  import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { MinderEventName, MinderKeyEnum } from '@/enums/minderEnum';
 

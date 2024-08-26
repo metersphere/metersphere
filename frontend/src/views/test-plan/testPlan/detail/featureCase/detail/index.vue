@@ -223,6 +223,7 @@
     :case-id="activeCaseId"
     :drawer-loading="drawerLoading"
     :show-selector-all="false"
+    :load-api="AssociatedBugApiTypeEnum.TEST_PLAN_BUG_LIST"
     @save="associateSuccessHandler"
   />
   <AddDefectDrawer
@@ -255,9 +256,9 @@
   import BugList from './bug/index.vue';
   import ExecuteSubmit from './executeSubmit.vue';
   import AddDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/addDefectDrawer.vue';
-  import LinkDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/linkDefectDrawer.vue';
   import CaseTabDetail from '@/views/case-management/caseManagementFeature/components/tabContent/tabDetail.vue';
   import EditCaseDetailDrawer from '@/views/case-management/caseReview/components/editCaseDetailDrawer.vue';
+  import LinkDefectDrawer from '@/views/case-management/components/linkDefectDrawer.vue';
   import ExecutionHistory from '@/views/test-plan/testPlan/detail/featureCase/detail/executionHistory/index.vue';
 
   import { getBugList } from '@/api/modules/bug-management';
@@ -276,6 +277,7 @@
 
   import type { TableQueryParams } from '@/models/common';
   import type { ExecuteHistoryItem, PlanDetailFeatureCaseItem, TestPlanDetail } from '@/models/testPlan/testPlan';
+  import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 

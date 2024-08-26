@@ -155,3 +155,5 @@ export const EditPlanMinderUrl = '/test-plan/mind/data/edit';
 export const TestPlanAssociationUrl = '/test-plan/association/api/case/module/count';
 // 获取执行人下拉选项
 export const GetTestPlanExecutorOptionsUrl = '/test-plan-execute/user-option';
+// 获取测试计划未关联缺陷列表
+export const GetUnAssociatedListUrl = '/test-plan/functional/case/associate/bug/page';

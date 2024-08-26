@@ -66,7 +66,9 @@
             @change="() => handleEditLastExecResult(record)"
           >
             <template #label>
-              <span class="text-[var(--color-text-2)]"><ExecuteResult :execute-result="record.lastExecResult" /></span>
+              <span class="text-[var(--color-text-2)]">
+                <ExecuteResult :execute-result="record.lastExecResult" />
+              </span>
             </template>
             <a-option v-for="item in Object.values(executionResultMap)" :key="item.key" :value="item.key">
               <ExecuteResult :execute-result="item.key" />
@@ -77,11 +79,15 @@
           </span>
         </template>
         <template #bugCount="{ record }">
-          <BugCountPopover
-            :bug-list="record.bugList"
-            :bug-count="record.bugCount"
+          <MsBugOperation
             :can-edit="props.canEdit"
+            :bug-list="record.bugList"
+            :resource-id="record.id"
+            :bug-count="record.bugCount || 0"
+            :existed-defect="existedDefect"
             @load-list="loadList"
+            @associated="associatedDefect(false, record.id)"
+            @create="newDefect(record.id)"
           />
         </template>
         <template v-if="props.canEdit" #operation="{ record }">
@@ -167,6 +173,22 @@
       :batch-move="batchMoveFeatureCase"
       @load-list="resetCaseList"
     />
+
+    <!-- TODO 等待联调 -->
+    <AddDefectDrawer
+      v-model:visible="showCreateBugDrawer"
+      :extra-params="{ caseId: associatedCaseId }"
+      @success="refreshList"
+    />
+    <!-- TODO 等待联调 -->
+    <LinkDefectDrawer
+      v-model:visible="showLinkBugDrawer"
+      :case-id="associatedCaseId"
+      :drawer-loading="drawerLoading"
+      :load-api="AssociatedBugApiTypeEnum.TEST_PLAN_BUG_LIST"
+      :is-batch="isBatchAssociate"
+      @save="saveHandler"
+    />
   </div>
 </template>
 
@@ -188,11 +210,13 @@
     MsTableProps,
   } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import BugCountPopover from '@/components/business/ms-bug-operation/bugCountPopover.vue';
+  import MsBugOperation from '@/components/business/ms-bug-operation/index.vue';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import { getMinderOperationParams } from '@/components/business/ms-minders/caseReviewMinder/utils';
   import MsTestPlanFeatureCaseMinder from '@/components/business/ms-minders/testPlanFeatureCaseMinder/index.vue';
+  import AddDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/addDefectDrawer.vue';
+  import LinkDefectDrawer from '@/views/case-management/components/linkDefectDrawer.vue';
   import BatchApiMoveModal from '@/views/test-plan/testPlan/components/batchApiMoveModal.vue';
   import BatchUpdateExecutorModal from '@/views/test-plan/testPlan/components/batchUpdateExecutorModal.vue';
   import ExecuteForm from '@/views/test-plan/testPlan/detail/featureCase/components/executeForm.vue';
@@ -216,8 +240,9 @@
   import { characterLimit } from '@/utils';
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
-  import { DragSortParams, ModuleTreeNode } from '@/models/common';
+  import { DragSortParams, ModuleTreeNode, TableQueryParams } from '@/models/common';
   import type { ExecuteFeatureCaseFormParams, PlanDetailFeatureCaseItem } from '@/models/testPlan/testPlan';
+  import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -419,6 +444,19 @@
       };
     }
   );
+  const existedDefect = inject<Ref<number>>('existedDefect', ref(0));
+
+  function getLinkAction() {
+    return existedDefect.value
+      ? [
+          {
+            label: 'caseManagement.featureCase.linkDefect',
+            eventTag: 'linkDefect',
+            permission: ['PROJECT_BUG:READ'],
+          },
+        ]
+      : [];
+  }
 
   const batchActions = computed(() => {
     return {
@@ -440,6 +478,12 @@
           label: 'common.cancelLink',
           eventTag: 'disassociate',
           permission: ['PROJECT_TEST_PLAN:READ+ASSOCIATION'],
+        },
+        ...getLinkAction(),
+        {
+          label: 'testPlan.featureCase.noBugDataNewBug',
+          eventTag: 'newBug',
+          permission: ['PROJECT_BUG:READ+ADD'],
         },
       ],
     };
@@ -748,6 +792,49 @@
     batchExecuteForm.value = { ...defaultExecuteForm };
   }
 
+  const showLinkBugDrawer = ref<boolean>(false);
+  const associatedCaseId = ref<string>();
+  const drawerLoading = ref<boolean>(false);
+
+  // TODO 等待联调
+  function saveHandler(params: TableQueryParams) {
+    try {
+      drawerLoading.value = true;
+      Message.success(t('caseManagement.featureCase.associatedSuccess'));
+      resetCaseList();
+      initModules();
+      emit('refresh');
+      showLinkBugDrawer.value = false;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      drawerLoading.value = false;
+    }
+  }
+
+  function refreshList() {
+    resetCaseList();
+    initModules();
+    emit('refresh');
+  }
+
+  const isBatchAssociate = ref(false);
+
+  // 关联缺陷
+  function associatedDefect(isBatch: boolean, caseId?: string) {
+    isBatchAssociate.value = isBatch;
+    associatedCaseId.value = caseId;
+    showLinkBugDrawer.value = true;
+  }
+
+  const showCreateBugDrawer = ref<boolean>(false);
+  // 新建缺陷
+  function newDefect(caseId?: string) {
+    associatedCaseId.value = caseId;
+    showCreateBugDrawer.value = true;
+  }
+
   // 批量修改执行人 和 批量移动
   const batchUpdateExecutorModalVisible = ref(false);
   const batchMoveModalVisible = ref(false);
@@ -765,6 +852,12 @@
         break;
       case 'move':
         batchMoveModalVisible.value = true;
+        break;
+      case 'linkDefect':
+        associatedDefect(true);
+        break;
+      case 'newBug':
+        newDefect();
         break;
       default:
         break;
