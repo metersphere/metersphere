@@ -1013,10 +1013,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     public void batchAssociateBug(TestPlanCaseBatchAddBugRequest request, String bugId, String userId) {
         List<String> ids = doSelectIds(request);
         if (CollectionUtils.isNotEmpty(ids)) {
-            TestPlanFunctionalCaseExample example = new TestPlanFunctionalCaseExample();
-            example.createCriteria().andIdIn(ids);
-            List<TestPlanFunctionalCase> caseList = testPlanFunctionalCaseMapper.selectByExample(example);
-            Map<String, String> caseMap = caseList.stream().collect(Collectors.toMap(TestPlanFunctionalCase::getId, TestPlanFunctionalCase::getFunctionalCaseId));
+            Map<String, String> caseMap = getCaseMap(ids);
             List<BugRelationCase> list = new ArrayList<>();
             ids.forEach(id -> {
                 BugRelationCase bugRelationCase = new BugRelationCase();
@@ -1033,5 +1030,55 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             });
             bugRelationCaseMapper.batchInsert(list);
         }
+    }
+
+    private Map<String, String> getCaseMap(List<String> ids) {
+        TestPlanFunctionalCaseExample example = new TestPlanFunctionalCaseExample();
+        example.createCriteria().andIdIn(ids);
+        List<TestPlanFunctionalCase> caseList = testPlanFunctionalCaseMapper.selectByExample(example);
+        return caseList.stream().collect(Collectors.toMap(TestPlanFunctionalCase::getId, TestPlanFunctionalCase::getFunctionalCaseId));
+    }
+
+
+    public void batchAssociateBugByIds(TestPlanCaseBatchAssociateBugRequest request, String userId) {
+        List<String> ids = doSelectIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            BugRelationCaseExample example = new BugRelationCaseExample();
+            example.createCriteria().andTestPlanCaseIdIn(ids).andTestPlanIdEqualTo(request.getTestPlanId()).andBugIdIn(request.getBugIds());
+            List<BugRelationCase> bugRelationCases = bugRelationCaseMapper.selectByExample(example);
+            Map<String, List<String>> bugMap = bugRelationCases.stream()
+                    .collect(Collectors.groupingBy(
+                            BugRelationCase::getTestPlanCaseId,
+                            Collectors.mapping(BugRelationCase::getBugId, Collectors.toList())
+                    ));
+            Map<String, String> caseMap = getCaseMap(ids);
+            List<BugRelationCase> list = new ArrayList<>();
+            ids.forEach(item -> {
+                buildAssociateBugData(item, bugMap, list, request, caseMap, userId);
+            });
+            if (CollectionUtils.isNotEmpty(list)) {
+                bugRelationCaseMapper.batchInsert(list);
+            }
+        }
+    }
+
+    private void buildAssociateBugData(String id, Map<String, List<String>> bugMap, List<BugRelationCase> list, TestPlanCaseBatchAssociateBugRequest request, Map<String, String> caseMap, String userId) {
+        List<String> bugIds = request.getBugIds();
+        if (bugMap.containsKey(id)) {
+            bugIds.removeAll(bugMap.get(id));
+        }
+        bugIds.forEach(bugId -> {
+            BugRelationCase bugRelationCase = new BugRelationCase();
+            bugRelationCase.setId(IDGenerator.nextStr());
+            bugRelationCase.setBugId(bugId);
+            bugRelationCase.setCaseId(caseMap.get(id));
+            bugRelationCase.setCaseType(CaseType.FUNCTIONAL_CASE.getKey());
+            bugRelationCase.setCreateUser(userId);
+            bugRelationCase.setCreateTime(System.currentTimeMillis());
+            bugRelationCase.setUpdateTime(System.currentTimeMillis());
+            bugRelationCase.setTestPlanCaseId(id);
+            bugRelationCase.setTestPlanId(request.getTestPlanId());
+            list.add(bugRelationCase);
+        });
     }
 }

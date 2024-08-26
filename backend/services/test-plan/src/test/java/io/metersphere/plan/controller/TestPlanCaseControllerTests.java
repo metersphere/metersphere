@@ -67,6 +67,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
     public static final String USER_URL = "/test-plan/functional/case/user-option/";
     public static final String FUNCTIONAL_CASE_BATCH_MOVE_URL = "/test-plan/functional/case/batch/move";
     public static final String FUNCTIONAL_CASE_BATCH_ADD_BUG_URL = "/test-plan/functional/case/batch/add-bug";
+    public static final String FUNCTIONAL_CASE_BATCH_ASSOCIATE_BUG_URL = "/test-plan/functional/case/batch/associate-bug";
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
     @Resource
@@ -489,6 +490,18 @@ public class TestPlanCaseControllerTests extends BaseTest {
         statusField.setValue("1");
         request.setCustomFields(List.of(fieldDTO1, fieldDTO2, handleUserField, statusField));
         return request;
+    }
+
+
+    @Test
+    @Order(19)
+    public void testBatchAssociateBug() throws Exception {
+        TestPlanCaseBatchAssociateBugRequest request = new TestPlanCaseBatchAssociateBugRequest();
+        request.setBugIds(Arrays.asList("123456"));
+        request.setTestPlanId("plan_1");
+        this.requestPostWithOk(FUNCTIONAL_CASE_BATCH_ASSOCIATE_BUG_URL, request);
+        request.setSelectAll(true);
+        this.requestPostWithOk(FUNCTIONAL_CASE_BATCH_ASSOCIATE_BUG_URL, request);
     }
 
 }
