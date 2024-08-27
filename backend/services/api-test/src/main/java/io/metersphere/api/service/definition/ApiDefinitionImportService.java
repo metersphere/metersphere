@@ -191,6 +191,7 @@ public class ApiDefinitionImportService {
             ApiDefinitionModuleMapper batchApiModuleMapper = sqlSession.getMapper(ApiDefinitionModuleMapper.class);
             ApiDefinitionMapper batchApiDefinitionMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
             ApiDefinitionBlobMapper batchApiBlobMapper = sqlSession.getMapper(ApiDefinitionBlobMapper.class);
+            ExtApiTestCaseMapper batchExtApiTestCaseMapper = sqlSession.getMapper(ExtApiTestCaseMapper.class);
             ApiTestCaseMapper batchApiCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
             ApiTestCaseBlobMapper batchApiCaseBlobMapper = sqlSession.getMapper(ApiTestCaseBlobMapper.class);
             ApiDefinitionMockMapper batchApiMockMapper = sqlSession.getMapper(ApiDefinitionMockMapper.class);
@@ -198,7 +199,7 @@ public class ApiDefinitionImportService {
 
             insertModule(request, apiDefinitionPreImportAnalysisResult.getInsertModuleList(), batchApiModuleMapper, sqlSession);
             updateApiDefinitionModule(request, apiDefinitionPreImportAnalysisResult.getUpdateModuleApiList(), batchApiDefinitionMapper, sqlSession);
-            updateApiDefinition(request, apiDefinitionPreImportAnalysisResult.getUpdateApiData(), batchApiDefinitionMapper, batchApiBlobMapper, sqlSession);
+            updateApiDefinition(request, apiDefinitionPreImportAnalysisResult.getUpdateApiData(), batchApiDefinitionMapper, batchApiBlobMapper, batchExtApiTestCaseMapper, sqlSession);
             insertApiDefinition(request, apiDefinitionPreImportAnalysisResult.getInsertApiData(), batchApiDefinitionMapper, batchApiBlobMapper, sqlSession);
             insertApiTestCase(request, apiDefinitionPreImportAnalysisResult.getInsertApiCaseList(), batchApiCaseMapper, batchApiCaseBlobMapper, sqlSession);
             updateApiTestCase(request, apiDefinitionPreImportAnalysisResult.getUpdateApiCaseList(), batchApiCaseMapper, batchApiCaseBlobMapper, sqlSession);
@@ -346,7 +347,11 @@ public class ApiDefinitionImportService {
         return requestStr;
     }
 
-    private static void updateApiDefinition(ImportRequest request, List<ApiDefinitionDetail> updateRequestData, ApiDefinitionMapper apiMapper, ApiDefinitionBlobMapper apiBlobMapper, SqlSession sqlSession) {
+    private static void updateApiDefinition(ImportRequest request, List<ApiDefinitionDetail> updateRequestData,
+                                            ApiDefinitionMapper apiMapper,
+                                            ApiDefinitionBlobMapper apiBlobMapper,
+                                            ExtApiTestCaseMapper extApiTestCaseMapper,
+                                            SqlSession sqlSession) {
         SubListUtils.dealForSubList(updateRequestData, 100, list -> {
             list.forEach(t -> {
                 ApiDefinition apiDefinition = new ApiDefinition();
@@ -361,6 +366,9 @@ public class ApiDefinitionImportService {
                 apiDefinitionBlob.setRequest(JSON.toJSONBytes(t.getRequest()));
                 apiDefinitionBlob.setResponse(JSON.toJSONBytes(t.getResponse()));
                 apiBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
+
+                // 接口更新时修改用例的变更标识
+                extApiTestCaseMapper.setApiChangeByApiDefinitionId(apiDefinition.getId());
             });
             sqlSession.flushStatements();
         });
