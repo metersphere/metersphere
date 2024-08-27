@@ -768,7 +768,9 @@
                         test_plan.group_id    AS testPlanGroupId
         from test_plan_api_case resource
                  INNER JOIN test_plan ON test_plan.id = resource.test_plan_id
+                 INNER JOIN api_test_case ON resource.api_case_id = api_test_case.id
         where test_plan.project_id = #{projectId}
+          AND api_test_case.deleted is false
           AND test_plan.status != 'ARCHIVED'
     </select>
     <select id="selectDistinctExecResultByTestPlanIds"
