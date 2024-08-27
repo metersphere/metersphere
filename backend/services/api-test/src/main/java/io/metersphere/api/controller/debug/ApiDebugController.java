@@ -1,8 +1,11 @@
 package io.metersphere.api.controller.debug;
 
+import io.metersphere.api.curl.domain.CurlEntity;
+import io.metersphere.api.curl.util.CurlParserUtil;
 import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
+import io.metersphere.api.dto.request.ApiImportCurlRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.debug.ApiDebugLogService;
@@ -120,4 +123,14 @@ public class ApiDebugController {
     public List<BaseTreeNode> options(@PathVariable String projectId) {
         return fileModuleService.getTree(projectId);
     }
+
+
+    @PostMapping("/import-curl")
+    @Operation(summary = "接口测试-接口调试-导入curl")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_IMPORT)
+    public CurlEntity importCurl(@RequestBody ApiImportCurlRequest request) {
+        CurlEntity parse = CurlParserUtil.parse(request.getCurl());
+        return parse;
+    }
+
 }
