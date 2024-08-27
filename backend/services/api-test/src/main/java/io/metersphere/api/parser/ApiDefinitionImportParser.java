@@ -30,8 +30,4 @@ public interface ApiDefinitionImportParser<T> {
      */
     ApiImportDataAnalysisResult generateInsertAndUpdateData(ApiImportFileParseResult importParser, List<ApiDefinitionDetail> existenceApiDefinitionList);
 
-    /**
-     * 获取解析协议类型
-     */
-    String getParseProtocol();
 }

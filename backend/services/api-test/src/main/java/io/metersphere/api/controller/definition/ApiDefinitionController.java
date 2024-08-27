@@ -312,7 +312,7 @@ public class ApiDefinitionController {
     @PostMapping(value = "/export/{type}")
     @Operation(summary = "接口测试-接口管理-导出接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_EXPORT)
-    public ApiExportResponse export(@RequestBody ApiDefinitionBatchRequest request, @PathVariable String type) {
+    public ApiExportResponse export(@RequestBody ApiDefinitionBatchExportRequest request, @PathVariable String type) {
         return apiDefinitionExportService.export(request, type, SessionUtils.getUserId());
     }
 }

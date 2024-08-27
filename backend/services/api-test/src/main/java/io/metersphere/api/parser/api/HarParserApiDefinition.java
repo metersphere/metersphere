@@ -270,34 +270,7 @@ public class HarParserApiDefinition extends HttpApiDefinitionImportAbstractParse
 
         return resultList;
     }
-    //    private void addBodyHeader(MsHTTPElement request) {
-    //        String contentType = StringUtils.EMPTY;
-    //        if (request.getBody() != null && StringUtils.isNotBlank(request.getBody().getType())) {
-    //            switch (request.getBody().getType()) {
-    //                case Body.WWW_FROM:
-    //                    contentType = "application/x-www-form-urlencoded";
-    //                    break;
-    //                case Body.JSON_STR:
-    //                    contentType = "application/json";
-    //                    break;
-    //                case Body.XML:
-    //                    contentType = "application/xml";
-    //                    break;
-    //                case Body.BINARY:
-    //                    contentType = "application/octet-stream";
-    //                    break;
-    //            }
-    //            List<KeyValue> headers = request.getHeaders();
-    //            if (headers == null) {
-    //                headers = new ArrayList<>();
-    //                request.setHeaders(headers);
-    //            }
-    //            if (StringUtils.isNotEmpty(contentType)) {
-    //                addContentType(request.getHeaders(), contentType);
-    //            }
-    //        }
-    //    }
-
+    
     private void parseParameters(HarRequest harRequest, MsHTTPElement request) {
         List<HarQueryParam> queryStringList = harRequest.queryString;
         queryStringList.forEach(harQueryParam -> {

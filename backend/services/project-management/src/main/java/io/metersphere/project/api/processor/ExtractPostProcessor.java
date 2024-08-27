@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.metersphere.project.api.processor.extract.MsExtract;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,5 +18,5 @@ public class ExtractPostProcessor extends MsProcessor {
     /**
      * 提取器列表
      */
-    private List<MsExtract> extractors;
+    private List<MsExtract> extractors = new ArrayList<>();
 }

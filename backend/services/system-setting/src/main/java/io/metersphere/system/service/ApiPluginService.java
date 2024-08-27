@@ -4,6 +4,7 @@ import io.metersphere.plugin.api.spi.AbstractApiPlugin;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.plugin.api.spi.AbstractProtocolPlugin;
 import io.metersphere.plugin.api.spi.MsTestElement;
+import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.sdk.dto.api.task.ApiExecuteFileInfo;
@@ -62,6 +63,15 @@ public class ApiPluginService {
             }
         });
         return protocols;
+    }
+
+    public List<ProtocolDTO> getProtocolsByProjectId(String projectId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (project == null) {
+            return new ArrayList<>();
+        } else {
+            return this.getProtocols(project.getOrganizationId());
+        }
     }
 
     private List<PluginWrapper> getOrgProtocolPluginWrappers(String orgId) {

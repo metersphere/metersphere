@@ -12,9 +12,9 @@ import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.parser.ApiDefinitionImportParser;
 import io.metersphere.project.dto.environment.auth.NoAuth;
-import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.uid.IDGenerator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -29,11 +29,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class HttpApiDefinitionImportAbstractParser<T> implements ApiDefinitionImportParser<T> {
-
-    @Override
-    public String getParseProtocol() {
-        return HttpConfig.HttpProtocolType.HTTP.name();
-    }
 
     @Override
     public ApiImportDataAnalysisResult generateInsertAndUpdateData(ApiImportFileParseResult importParser, List<ApiDefinitionDetail> existenceApiDefinitionList) {
@@ -62,16 +57,6 @@ public abstract class HttpApiDefinitionImportAbstractParser<T> implements ApiDef
         return insertAndUpdateData;
     }
 
-    public String getUniqueName(String originalName, List<String> existenceNameList) {
-        String returnName = originalName;
-        int index = 1;
-        while (existenceNameList.contains(returnName)) {
-            returnName = originalName + " - " + index;
-            index++;
-        }
-        return returnName;
-    }
-
     protected String getApiTestStr(InputStream source) {
         StringBuilder testStr = null;
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(source, StandardCharsets.UTF_8))) {
@@ -91,6 +76,7 @@ public abstract class HttpApiDefinitionImportAbstractParser<T> implements ApiDef
 
     protected ApiDefinitionDetail buildApiDefinition(String name, String path, String method, String modulePath, ImportRequest importRequest) {
         ApiDefinitionDetail apiDefinition = new ApiDefinitionDetail();
+        apiDefinition.setId(IDGenerator.nextStr());
         apiDefinition.setName(name);
         apiDefinition.setPath(formatPath(path));
         apiDefinition.setProtocol(importRequest.getProtocol());
