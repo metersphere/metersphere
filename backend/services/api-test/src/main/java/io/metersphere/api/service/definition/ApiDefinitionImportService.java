@@ -52,7 +52,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.metersphere.project.utils.NodeSortUtils.DEFAULT_NODE_INTERVAL_POS;
@@ -99,6 +102,9 @@ public class ApiDefinitionImportService {
         if (StringUtils.isBlank(request.getProjectId())) {
             request.setProjectId(projectId);
         }
+        if (StringUtils.equalsIgnoreCase(request.getType(), ApiImportPlatform.Jmeter.name())) {
+            request.setSyncCase(true);
+        }
         //判断是否是定时任务进入
         if (StringUtils.equals(request.getType(), "SCHEDULE")) {
             request.setProtocol(ModuleConstants.NODE_PROTOCOL_HTTP);
@@ -118,22 +124,26 @@ public class ApiDefinitionImportService {
         this.initImportRequestAndCheck(file, request, projectId);
         ApiDefinitionImportParser<?> runService = ImportParserFactory.getImportParser(request.getPlatform());
         assert runService != null;
-        ApiImportDataAnalysisResult apiImportDataAnalysisResult;
+        ApiImportDataAnalysisResult apiImportDataAnalysisResult = new ApiImportDataAnalysisResult();
         try {
             //解析文件
             ApiImportFileParseResult fileParseResult = (ApiImportFileParseResult) runService.parse(file == null ? null : file.getInputStream(), request);
-
-            ApiDefinitionPageRequest pageRequest = new ApiDefinitionPageRequest();
-            pageRequest.setProjectId(request.getProjectId());
-            pageRequest.setProtocols(Collections.singletonList(runService.getParseProtocol()));
-            List<ApiDefinitionDetail> existenceApiDefinitionList = extApiDefinitionMapper.importList(pageRequest);
-            //分析有哪些数据需要新增、有哪些数据需要更新
-            apiImportDataAnalysisResult = runService.generateInsertAndUpdateData(fileParseResult, existenceApiDefinitionList);
+            if (!CollectionUtils.isEmpty(fileParseResult.getData())) {
+                ApiDefinitionPageRequest pageRequest = new ApiDefinitionPageRequest();
+                pageRequest.setProjectId(request.getProjectId());
+                pageRequest.setProtocols(fileParseResult.getApiProtocols());
+                List<ApiDefinitionDetail> existenceApiDefinitionList = extApiDefinitionMapper.importList(pageRequest);
+                //分析有哪些数据需要新增、有哪些数据需要更新
+                apiImportDataAnalysisResult = runService.generateInsertAndUpdateData(fileParseResult, existenceApiDefinitionList);
+            }
         } catch (Exception e) {
             LogUtils.error(e.getMessage(), e);
             throw new MSException(Translator.get("parse_data_error"));
         }
 
+        if (apiImportDataAnalysisResult.isEmpty()) {
+            throw new MSException(Translator.get("parse_empty_data"));
+        }
         try {
             //初始化版本信息，用于保存，以及以后真对具体版本导入进行拓展
             String defaultVersion = extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId());

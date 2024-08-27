@@ -1,5 +1,10 @@
 package io.metersphere.api.parser.ms;
 
+import io.metersphere.api.parser.ms.http.HeaderManagerConverter;
+import io.metersphere.api.parser.ms.http.post.*;
+import io.metersphere.api.parser.ms.http.pre.BeanShellPreProcessConverter;
+import io.metersphere.api.parser.ms.http.pre.JDBCPreProcessConverter;
+import io.metersphere.api.parser.ms.http.pre.JSR223PreProcessConverter;
 import io.metersphere.plugin.api.spi.AbstractMsElementConverter;
 import io.metersphere.plugin.sdk.util.PluginLogUtils;
 import org.apache.jmeter.testelement.TestElement;
@@ -30,6 +35,22 @@ public class MsElementConverterRegister {
         register(TestPlanConverter.class);
         register(ThreadGroupConverter.class);
         register(HTTPSamplerConverter.class);
+        register(HeaderManagerConverter.class);
+
+        register(BeanShellPostProcessConverter.class);
+        register(ConstantTimerConverter.class);
+        register(JDBCPostProcessConverter.class);
+        register(JSONPostProcessorConverter.class);
+        register(JSR223PostProcessConverter.class);
+        register(RegexExtractorConverter.class);
+        register(XPath2ExtractorConverter.class);
+        register(XPathExtractorConverter.class);
+
+        register(BeanShellPreProcessConverter.class);
+        register(JDBCPreProcessConverter.class);
+        register(JSR223PreProcessConverter.class);
+
+
     }
 
     /**

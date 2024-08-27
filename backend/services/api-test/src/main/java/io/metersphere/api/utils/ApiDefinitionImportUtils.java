@@ -1,6 +1,9 @@
 package io.metersphere.api.utils;
 
 import io.metersphere.api.constants.ApiImportPlatform;
+import io.metersphere.api.dto.converter.ApiDefinitionDetail;
+import io.metersphere.api.dto.definition.ApiDefinitionMockDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.HttpMethodConstants;
@@ -8,6 +11,10 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.log.dto.LogDTO;
+import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ApiDefinitionImportUtils {
@@ -47,5 +54,57 @@ public class ApiDefinitionImportUtils {
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(importData));
         return dto;
+    }
+
+    public static List<ApiDefinitionDetail> apiRename(List<ApiDefinitionDetail> caseList) {
+        List<ApiDefinitionDetail> returnList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(caseList)) {
+            List<String> caseNameList = new ArrayList<>();
+            for (ApiDefinitionDetail apiCase : caseList) {
+                String uniqueName = getUniqueName(apiCase.getName(), caseNameList);
+                apiCase.setName(uniqueName);
+                caseNameList.add(uniqueName);
+                returnList.add(apiCase);
+            }
+        }
+        return returnList;
+    }
+
+    public static List<ApiTestCaseDTO> apiCaseRename(List<ApiTestCaseDTO> caseList) {
+        List<ApiTestCaseDTO> returnList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(caseList)) {
+            List<String> caseNameList = new ArrayList<>();
+            for (ApiTestCaseDTO apiCase : caseList) {
+                String uniqueName = getUniqueName(apiCase.getName(), caseNameList);
+                apiCase.setName(uniqueName);
+                caseNameList.add(uniqueName);
+                returnList.add(apiCase);
+            }
+        }
+        return returnList;
+    }
+
+    public static List<ApiDefinitionMockDTO> apiMockRename(List<ApiDefinitionMockDTO> caseList) {
+        List<ApiDefinitionMockDTO> returnList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(caseList)) {
+            List<String> caseNameList = new ArrayList<>();
+            for (ApiDefinitionMockDTO apiMock : caseList) {
+                String uniqueName = ApiDefinitionImportUtils.getUniqueName(apiMock.getName(), caseNameList);
+                apiMock.setName(uniqueName);
+                caseNameList.add(uniqueName);
+                returnList.add(apiMock);
+            }
+        }
+        return returnList;
+    }
+
+    private static String getUniqueName(String originalName, List<String> existenceNameList) {
+        String returnName = originalName;
+        int index = 1;
+        while (existenceNameList.contains(returnName)) {
+            returnName = originalName + " - " + index;
+            index++;
+        }
+        return returnName;
     }
 }

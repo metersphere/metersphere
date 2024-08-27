@@ -8,6 +8,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.parser.api.postman.PostmanCollection;
 import io.metersphere.api.parser.api.postman.PostmanItem;
+import io.metersphere.api.utils.ApiDefinitionImportUtils;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -109,23 +110,9 @@ public class PostmanParserApiDefinition extends PostmanAbstractParserParserApiDe
             }
         });
         filterApiMap.forEach((key, api) -> {
-            returnMap.put(api, this.apiCaseRename(uniqueCaseMap.get(key)));
+            returnMap.put(api, ApiDefinitionImportUtils.apiRename(uniqueCaseMap.get(key)));
         });
         return returnMap;
-    }
-
-    private List<ApiDefinitionDetail> apiCaseRename(List<ApiDefinitionDetail> caseList) {
-        List<ApiDefinitionDetail> returnList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(caseList)) {
-            List<String> caseNameList = new ArrayList<>();
-            for (ApiDefinitionDetail apiCase : caseList) {
-                String uniqueName = this.getUniqueName(apiCase.getName(), caseNameList);
-                apiCase.setName(uniqueName);
-                caseNameList.add(uniqueName);
-                returnList.add(apiCase);
-            }
-        }
-        return returnList;
     }
 
 }

@@ -20,4 +20,14 @@ public class ApiImportFileParseResult {
     private Map<String, List<ApiTestCaseDTO>> caseMap = new HashMap<>();
     // mock数据
     private Map<String, List<ApiDefinitionMockDTO>> mockMap = new HashMap<>();
+
+    public List<String> getApiProtocols() {
+        List<String> protocols = new ArrayList<>();
+        for (ApiDefinitionDetail apiDefinitionDetail : data) {
+            if (!protocols.contains(apiDefinitionDetail.getProtocol())) {
+                protocols.add(apiDefinitionDetail.getProtocol());
+            }
+        }
+        return protocols;
+    }
 }

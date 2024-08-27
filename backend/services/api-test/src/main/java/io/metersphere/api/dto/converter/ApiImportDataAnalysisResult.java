@@ -3,6 +3,7 @@ package io.metersphere.api.dto.converter;
 import io.metersphere.api.dto.definition.ApiDefinitionMockDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import lombok.Data;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +18,7 @@ public class ApiImportDataAnalysisResult {
 
     // 新增接口数据
     List<ApiDefinitionDetail> insertApiList = new ArrayList<>();
-    // 存在的接口数据. Map<导入的接口 , 已存在的接口>
+    // 存在的接口数据
     List<ExistenceApiDefinitionDetail> existenceApiList = new ArrayList<>();
     // 接口的用例数据
     Map<String, List<ApiTestCaseDTO>> apiIdAndTestCaseMap = new HashMap<>();
@@ -26,5 +27,9 @@ public class ApiImportDataAnalysisResult {
 
     public void addExistenceApi(ApiDefinitionDetail importApi, ApiDefinitionDetail exportApi) {
         this.existenceApiList.add(new ExistenceApiDefinitionDetail(importApi, exportApi));
+    }
+
+    public boolean isEmpty() {
+        return CollectionUtils.isEmpty(insertApiList) && CollectionUtils.isEmpty(existenceApiList);
     }
 }

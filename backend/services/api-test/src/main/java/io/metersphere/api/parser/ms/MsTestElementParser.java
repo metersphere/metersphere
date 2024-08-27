@@ -1,9 +1,13 @@
 package io.metersphere.api.parser.ms;
 
 import io.metersphere.api.dto.request.MsScenario;
+import io.metersphere.plugin.api.spi.AbstractMsProtocolTestElement;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Author: jianxing
@@ -21,5 +25,17 @@ public class MsTestElementParser {
             }
         }
         return msScenario;
+    }
+
+    public List<AbstractMsProtocolTestElement> getAbstractMsProtocolTestElement(AbstractMsTestElement msTestElement) {
+        List<AbstractMsProtocolTestElement> result = new ArrayList<>();
+        if (msTestElement instanceof AbstractMsProtocolTestElement abstractMsProtocolTestElement) {
+            result.add(abstractMsProtocolTestElement);
+        } else {
+            for (AbstractMsTestElement child : msTestElement.getChildren()) {
+                result.addAll(this.getAbstractMsProtocolTestElement(child));
+            }
+        }
+        return result;
     }
 }

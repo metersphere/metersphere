@@ -1759,6 +1759,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
         //导入类型以及文件后缀
         Map<String, String> importTypeAndSuffix = new LinkedHashMap<>();
+        //        importTypeAndSuffix.put("jmeter", "jmx");
         importTypeAndSuffix.put("metersphere", "json");
         importTypeAndSuffix.put("postman", "json");
         importTypeAndSuffix.put("har", "har");
@@ -1997,11 +1998,40 @@ public class ApiDefinitionControllerTests extends BaseTest {
             Assertions.assertEquals(newApiDefinition.size(), 0);
             Assertions.assertEquals(newApiBlobList.size(), 0);
             Assertions.assertEquals(newApiTestCaseList.size(), 0);
+
         }
+
+        // 最后测试一把JMeter。  5个请求，其中有4个重复的。 导入之后应该是2个请求5个用例，其中1个请求有4个用例
+        File httpJmx = new File(
+                this.getClass().getClassLoader().getResource("file/import/jmeter/post-page.jmx")
+                        .getPath()
+        );
+
+        FileInputStream inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import/jmeter/post-page.jmx")).getPath()));
+        MockMultipartFile file = new MockMultipartFile("file", "post-page.jmx", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        ImportRequest request = new ImportRequest();
+        request.setProjectId(importProject.getId());
+        request.setUserId("admin");
+        request.setPlatform("Jmeter");
+        request.setSyncCase(true);
+        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file);
+        this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+        List<ApiDefinitionModule> apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
+        Assertions.assertEquals(0, apiDefinitionModuleList.size());
+        List<ApiDefinitionBlob> apiDefinitionBlobs = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
+        Assertions.assertEquals(2, apiDefinitionBlobs.size());
+
+        List<ApiTestCase> newApiTestCaseList = apiTestCaseMapper.selectByExample(apiTestCaseExample);
+        Assertions.assertEquals(5, newApiTestCaseList.size());
+        //去重处理
+        List<String> apiDefinitionIdList = newApiTestCaseList.stream().map(ApiTestCase::getApiDefinitionId).distinct().collect(Collectors.toList());
+        Assertions.assertEquals(2, apiDefinitionIdList.size());
     }
 
     private void testExportAndImport(String exportProjectId, List<ApiDefinitionBlob> exportApiBlobs) throws Exception {
-        ApiDefinitionBatchRequest exportRequest = new ApiDefinitionBatchRequest();
+        ApiDefinitionBatchExportRequest exportRequest = new ApiDefinitionBatchExportRequest();
         exportRequest.setProjectId(exportProjectId);
         exportRequest.setSelectAll(true);
         exportRequest.setExportApiCase(true);

@@ -8,6 +8,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.export.MetersphereApiExportResponse;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.api.utils.ApiDefinitionImportUtils;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.uid.IDGenerator;
@@ -60,42 +61,14 @@ public class MetersphereParserApiDefinition extends HttpApiDefinitionImportAbstr
             }
             returnDTO.getData().add(definitionImportDetail);
             if (CollectionUtils.isNotEmpty(caseList)) {
-                returnDTO.getCaseMap().put(apiID, this.apiCaseRename(caseList));
+                returnDTO.getCaseMap().put(apiID, ApiDefinitionImportUtils.apiCaseRename(caseList));
             }
             if (CollectionUtils.isNotEmpty(mockList)) {
-                returnDTO.getMockMap().put(apiID, this.apiMockRename(mockList));
+                returnDTO.getMockMap().put(apiID, ApiDefinitionImportUtils.apiMockRename(mockList));
             }
         });
 
         return returnDTO;
-    }
-
-    private List<ApiTestCaseDTO> apiCaseRename(List<ApiTestCaseDTO> caseList) {
-        List<ApiTestCaseDTO> returnList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(caseList)) {
-            List<String> caseNameList = new ArrayList<>();
-            for (ApiTestCaseDTO apiCase : caseList) {
-                String uniqueName = this.getUniqueName(apiCase.getName(), caseNameList);
-                apiCase.setName(uniqueName);
-                caseNameList.add(uniqueName);
-                returnList.add(apiCase);
-            }
-        }
-        return returnList;
-    }
-
-    private List<ApiDefinitionMockDTO> apiMockRename(List<ApiDefinitionMockDTO> caseList) {
-        List<ApiDefinitionMockDTO> returnList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(caseList)) {
-            List<String> caseNameList = new ArrayList<>();
-            for (ApiDefinitionMockDTO apiMock : caseList) {
-                String uniqueName = this.getUniqueName(apiMock.getName(), caseNameList);
-                apiMock.setName(uniqueName);
-                caseNameList.add(uniqueName);
-                returnList.add(apiMock);
-            }
-        }
-        return returnList;
     }
 
     //合并相同路径下的用例和mock
