@@ -19,16 +19,6 @@
       </a-tooltip>
     </template>
     <template #headerRight>
-      <a-switch
-        v-model="treeType"
-        size="small"
-        type="line"
-        checked-value="MODULE"
-        unchecked-value="COLLECTION"
-        class="mr-[4px]"
-        @change="loadActiveTabList"
-      />
-      <span class="mr-[14px]">{{ t('testPlan.testPlanDetail.moduleView') }}</span>
       <MsButton v-if="isEnableEdit" type="button" status="default" @click="editorCopyHandler(false)">
         <MsIcon type="icon-icon_edit_outlined" class="mr-[8px]" />
         {{ t('common.edit') }}
@@ -117,8 +107,6 @@
     />
     <FeatureCase
       v-else-if="activeTab === 'featureCase'"
-      ref="featureCaseRef"
-      :tree-type="treeType"
       :can-edit="countDetail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
@@ -127,17 +115,9 @@
       :can-edit="countDetail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
-    <ApiCase
-      v-else-if="activeTab === 'apiCase'"
-      ref="apiCaseRef"
-      :tree-type="treeType"
-      :can-edit="countDetail.status !== 'ARCHIVED'"
-      @refresh="initDetail"
-    />
+    <ApiCase v-else-if="activeTab === 'apiCase'" :can-edit="countDetail.status !== 'ARCHIVED'" @refresh="initDetail" />
     <ApiScenario
       v-else-if="activeTab === 'apiScenario'"
-      ref="apiScenarioRef"
-      :tree-type="treeType"
       :can-edit="countDetail.status !== 'ARCHIVED'"
       @refresh="initDetail"
     />
@@ -217,7 +197,6 @@
   const detail = ref<TestPlanDetail>({
     ...testPlanDefaultDetail,
   });
-  const treeType = ref<'MODULE' | 'COLLECTION'>('COLLECTION');
 
   const countDetail = ref<PassRateCountDetail>({ ...defaultDetailCount });
 
@@ -528,25 +507,6 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
-    }
-  }
-
-  const featureCaseRef = ref<InstanceType<typeof FeatureCase>>();
-  const apiCaseRef = ref<InstanceType<typeof ApiCase>>();
-  const apiScenarioRef = ref<InstanceType<typeof ApiScenario>>();
-  function loadActiveTabList() {
-    switch (activeTab.value) {
-      case 'featureCase':
-        featureCaseRef.value?.getCaseTableList();
-        return;
-      case 'apiCase':
-        apiCaseRef.value?.getCaseTableList();
-        return;
-      case 'apiScenario':
-        apiScenarioRef.value?.getCaseTableList();
-        return;
-      default:
-        return '';
     }
   }
 

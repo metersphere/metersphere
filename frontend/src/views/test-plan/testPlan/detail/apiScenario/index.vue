@@ -1,20 +1,26 @@
 <template>
   <MsSplitBox>
     <template #first>
-      <CaseTree
-        ref="caseTreeRef"
-        :modules-count="modulesCount"
-        :selected-keys="selectedKeys"
-        :tree-type="props.treeType"
-        @folder-node-select="handleFolderNodeSelect"
-        @init="initModuleTree"
-      />
+      <div class="p-[16px]">
+        <a-radio-group v-model:model-value="treeType" size="medium" class="mb-[16px] w-full" type="button">
+          <a-radio value="COLLECTION">{{ t('ms.case.associate.testSet') }}</a-radio>
+          <a-radio value="MODULE">{{ t('common.module') }}</a-radio>
+        </a-radio-group>
+        <CaseTree
+          ref="caseTreeRef"
+          :modules-count="modulesCount"
+          :selected-keys="selectedKeys"
+          :tree-type="treeType"
+          @folder-node-select="handleFolderNodeSelect"
+          @init="initModuleTree"
+        />
+      </div>
     </template>
     <template #second>
       <CaseTable
         ref="caseTableRef"
         :plan-id="planId"
-        :tree-type="props.treeType"
+        :tree-type="treeType"
         :modules-count="modulesCount"
         :module-name="moduleName"
         :module-parent-id="moduleParentId"
@@ -39,19 +45,20 @@
   import CaseTree from './components/scenarioTree.vue';
 
   import { getApiScenarioModuleCount } from '@/api/modules/test-plan/testPlan';
+  import { useI18n } from '@/hooks/useI18n';
 
   import { ModuleTreeNode } from '@/models/common';
   import type { PlanDetailApiScenarioQueryParams } from '@/models/testPlan/testPlan';
 
   const props = defineProps<{
     canEdit: boolean;
-    treeType: 'MODULE' | 'COLLECTION';
   }>();
 
   const emit = defineEmits<{
     (e: 'refresh'): void;
   }>();
 
+  const { t } = useI18n();
   const route = useRoute();
 
   const planId = ref(route.query.id as string);
@@ -92,6 +99,7 @@
     caseTreeRef.value?.initModules();
   }
 
+  const treeType = ref<'MODULE' | 'COLLECTION'>('COLLECTION');
   function getCaseTableList() {
     nextTick(() => {
       initModules();
@@ -102,8 +110,17 @@
       }
     });
   }
-
-  defineExpose({
-    getCaseTableList,
-  });
+  watch(
+    () => treeType.value,
+    () => {
+      getCaseTableList();
+    }
+  );
 </script>
+
+<style lang="less" scoped>
+  :deep(.arco-radio-button) {
+    flex: 1;
+    text-align: center;
+  }
+</style>

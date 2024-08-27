@@ -2,9 +2,13 @@
   <MsSplitBox>
     <template #first>
       <div class="p-[16px]">
+        <a-radio-group v-model:model-value="treeType" size="medium" class="mb-[16px] w-full" type="button">
+          <a-radio value="COLLECTION">{{ t('ms.case.associate.testSet') }}</a-radio>
+          <a-radio value="MODULE">{{ t('common.module') }}</a-radio>
+        </a-radio-group>
         <CaseTree
           ref="caseTreeRef"
-          :tree-type="props.treeType"
+          :tree-type="treeType"
           :modules-count="modulesCount"
           :selected-keys="selectedKeys"
           @folder-node-select="handleFolderNodeSelect"
@@ -14,7 +18,7 @@
     <template #second>
       <CaseTable
         ref="caseTableRef"
-        :tree-type="props.treeType"
+        :tree-type="treeType"
         :plan-id="planId"
         :modules-count="modulesCount"
         :module-name="moduleName"
@@ -24,6 +28,7 @@
         :can-edit="props.canEdit"
         @select-parent-node="selectParentNode"
         @refresh="emit('refresh')"
+        @set-tree-type-to-module="setTreeTypeToModule"
       ></CaseTable>
     </template>
   </MsSplitBox>
@@ -37,19 +42,20 @@
   import CaseTable from './components/caseTable.vue';
   import CaseTree from './components/caseTree.vue';
 
+  import { useI18n } from '@/hooks/useI18n';
   import useTestPlanFeatureCaseStore from '@/store/modules/testPlan/testPlanFeatureCase';
 
   import { ModuleTreeNode } from '@/models/common';
 
   const props = defineProps<{
     canEdit: boolean;
-    treeType: 'MODULE' | 'COLLECTION';
   }>();
 
   const emit = defineEmits<{
     (e: 'refresh'): void;
   }>();
 
+  const { t } = useI18n();
   const route = useRoute();
   const testPlanFeatureCaseStore = useTestPlanFeatureCaseStore();
 
@@ -79,18 +85,31 @@
     caseTreeRef.value?.selectParentNode(folderTree);
   }
 
+  const treeType = ref<'MODULE' | 'COLLECTION'>('COLLECTION');
+  function setTreeTypeToModule() {
+    treeType.value = 'MODULE'; // TODO lmy v3.4版本删除此代码
+  }
   function getCaseTableList() {
     nextTick(async () => {
       await caseTreeRef.value?.initModules();
       if (activeFolderId.value !== 'all') {
         caseTreeRef.value?.setActiveFolder('all');
       } else {
-        caseTableRef.value?.handleTreeTypeChange();
+        caseTableRef.value?.refresh();
       }
     });
   }
-
-  defineExpose({
-    getCaseTableList,
-  });
+  watch(
+    () => treeType.value,
+    () => {
+      getCaseTableList();
+    }
+  );
 </script>
+
+<style lang="less" scoped>
+  :deep(.arco-radio-button) {
+    flex: 1;
+    text-align: center;
+  }
+</style>
