@@ -14,7 +14,7 @@
         @adv-search="loadCaseList()"
         @refresh="handleRefreshAll"
       >
-        <template v-if="props.treeType === 'MODULE'" #right>
+        <template #right>
           <a-radio-group
             v-model:model-value="showType"
             type="button"
@@ -263,6 +263,7 @@
 
   const emit = defineEmits<{
     (e: 'refresh'): void;
+    (e: 'setTreeTypeToModule'): void; // TODO lmy v3.4版本删除此代码
     (e: 'selectParentNode', tree: ModuleTreeNode[]): void;
   }>();
 
@@ -549,6 +550,7 @@
     }
   );
 
+  // TODO lmy v3.4版本删除此代码
   watch(
     () => props.treeType,
     (val) => {
@@ -628,18 +630,14 @@
     refresh();
   }
 
-  function handleTreeTypeChange() {
-    if (showType.value !== 'list') {
-      showType.value = 'list';
-    }
-    loadCaseList(true);
-  }
-
   function handleShowTypeChange(val: string | number | boolean) {
     if (val === 'minder') {
       keyword.value = '';
-      // 切换到脑图刷新模块统计
-      getModuleCount();
+      if (props.treeType === 'COLLECTION') {
+        emit('setTreeTypeToModule'); // TODO lmy v3.4版本删除此代码
+        return;
+      }
+      getModuleCount(); // 切换到脑图刷新模块统计
     } else {
       loadCaseList();
     }
@@ -907,7 +905,7 @@
 
   defineExpose({
     resetSelector,
-    handleTreeTypeChange,
+    refresh,
   });
 
   await tableStore.initColumn(TableKeyEnum.TEST_PLAN_DETAIL_FEATURE_CASE_TABLE, columns.value, 'drawer', true);

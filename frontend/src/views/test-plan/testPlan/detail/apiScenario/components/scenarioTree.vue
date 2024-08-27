@@ -1,5 +1,5 @@
 <template>
-  <div class="p-[16px]">
+  <div>
     <a-input
       v-model:model-value="moduleKeyword"
       :placeholder="
