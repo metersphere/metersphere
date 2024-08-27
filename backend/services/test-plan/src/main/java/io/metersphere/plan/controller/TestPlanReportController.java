@@ -146,6 +146,9 @@ public class TestPlanReportController {
     public Pager<List<BugDTO>> pageBug(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprb.bug_num, tprb.id desc");
+        if (!request.getStartPager()) {
+            page.close();
+        }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailBugs(request));
     }
 
@@ -156,6 +159,9 @@ public class TestPlanReportController {
     public Pager<List<ReportDetailCasePageDTO>> pageFunctionalCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprfc.pos desc");
+        if (!request.getStartPager()) {
+            page.close();
+        }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.FUNCTIONAL));
     }
 
@@ -173,6 +179,9 @@ public class TestPlanReportController {
     public Pager<List<ReportDetailCasePageDTO>> pageApiCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprac.pos desc");
+        if (!request.getStartPager()) {
+            page.close();
+        }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_CASE));
     }
 
@@ -183,6 +192,9 @@ public class TestPlanReportController {
     public Pager<List<ReportDetailCasePageDTO>> pageScenarioCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpras.pos desc");
+        if (!request.getStartPager()) {
+            page.close();
+        }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_SCENARIO));
     }
 
@@ -193,6 +205,9 @@ public class TestPlanReportController {
     public Pager<List<TestPlanReportDetailResponse>> planReportPage(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpr.create_time desc");
+        if (!request.getStartPager()) {
+            page.close();
+        }
         return PageUtils.setPageInfo(page, testPlanReportService.planReportList(request));
     }
 
