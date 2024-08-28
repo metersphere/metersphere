@@ -28,6 +28,7 @@ import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
 import io.metersphere.plan.service.TestPlanApiCaseService;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -76,6 +77,9 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
     public static final String BATCH_RUN = "batch/run";
     public static final String RUN_WITH_REPORT_ID = "run/{0}?reportId={1}";
     private static final String API_CASE_BATCH_MOVE = "/batch/move";
+    private static final String BUG_ASSOCIATE_PAGE = "/associate/bug/page";
+    private static final String ASSOCIATE_BUG = "/associate/bug";
+    private static final String DISASSOCIATE_BUG = "/disassociate/bug/{0}";
 
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
@@ -525,5 +529,35 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         request.setTargetCollectionId("wxxx_2");
         request.setSelectAll(true);
         this.requestPostWithOk(API_CASE_BATCH_MOVE, request);
+    }
+
+    @Test
+    @Order(12)
+    void testAssociateBugPage() throws Exception {
+        BugPageProviderRequest request = new BugPageProviderRequest();
+        request.setSourceId("test_plan_case_id");
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setCurrent(1);
+        request.setPageSize(10);
+        this.requestPostWithOk(BUG_ASSOCIATE_PAGE, request);
+    }
+
+    @Test
+    @Order(13)
+    void testAssociateBug() throws Exception {
+        TestPlanCaseAssociateBugRequest request = new TestPlanCaseAssociateBugRequest();
+        request.setTestPlanCaseId("test_plan_case_id");
+        request.setCaseId("case_id");
+        request.setTestPlanId("test_plan_id");
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("oasis"));
+        this.requestPost(ASSOCIATE_BUG, request);
+    }
+
+    @Test
+    @Order(14)
+    void testDisassociateBug() throws Exception {
+        this.requestGet(DISASSOCIATE_BUG, "test_plan_case_id");
     }
 }

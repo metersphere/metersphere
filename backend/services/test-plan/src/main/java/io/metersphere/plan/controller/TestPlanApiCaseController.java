@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.definition.ApiReportDTO;
 import io.metersphere.api.dto.definition.ApiReportDetailDTO;
 import io.metersphere.api.service.definition.ApiReportService;
+import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
@@ -12,6 +13,8 @@ import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.service.TestPlanApiCaseBatchRunService;
 import io.metersphere.plan.service.TestPlanApiCaseLogService;
 import io.metersphere.plan.service.TestPlanApiCaseService;
+import io.metersphere.plan.service.TestPlanFunctionalCaseService;
+import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
@@ -167,5 +170,30 @@ public class TestPlanApiCaseController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchMove(#request)", msClass = TestPlanApiCaseLogService.class)
     public void batchMove(@Validated @RequestBody TestPlanApiCaseBatchMoveRequest request) {
         testPlanApiCaseService.batchMove(request);
+    }
+
+    @PostMapping("/associate/bug/page")
+    @Operation(summary = "测试计划-计划详情-接口用例-获取待关联缺陷列表")
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    public Pager<List<BugProviderDTO>> associateBugList(@Validated @RequestBody BugPageProviderRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
+        return PageUtils.setPageInfo(page, testPlanApiCaseService.bugPage(request));
+    }
+
+    @PostMapping("/associate/bug")
+    @Operation(summary = "测试计划-计划详情-接口用例-关联缺陷")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void associateBug(@Validated @RequestBody TestPlanCaseAssociateBugRequest request) {
+        testPlanApiCaseService.associateBug(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/disassociate/bug/{id}")
+    @Operation(summary = "测试计划-计划详情-接口用例-取消关联缺陷")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disassociateBugLog(#id)", msClass = TestPlanFunctionalCaseService.class)
+    public void disassociateBug(@PathVariable String id) {
+        testPlanApiCaseService.disassociateBug(id);
     }
 }

@@ -115,7 +115,7 @@ public class TestPlanFunctionalCaseController {
     }
 
     @PostMapping("/associate/bug/page")
-    @Operation(summary = "测试计划-计划详情-功能用例-获取缺陷列表")
+    @Operation(summary = "测试计划-计划详情-功能用例-获取待关联缺陷列表")
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     public Pager<List<BugProviderDTO>> associateBugList(@Validated @RequestBody BugPageProviderRequest request) {

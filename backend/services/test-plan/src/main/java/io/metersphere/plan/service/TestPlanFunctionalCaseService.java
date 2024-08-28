@@ -3,7 +3,6 @@ package io.metersphere.plan.service;
 import com.alibaba.excel.util.BooleanUtils;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiTestCase;
-import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugRelationCase;
 import io.metersphere.bug.domain.BugRelationCaseExample;
 import io.metersphere.bug.dto.CaseRelateBugDTO;
@@ -36,22 +35,16 @@ import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.AssociateBugPageRequest;
-import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.AssociateCaseDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.user.UserDTO;
-import io.metersphere.system.log.aspect.OperationLogAspect;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.mapper.ExtUserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.UserLoginService;
@@ -491,56 +484,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         }
     }
 
-    public List<BugProviderDTO> bugPage(BugPageProviderRequest request) {
-        return baseAssociateBugProvider.getBugList("bug_relation_case", "test_plan_case_id", "bug_id", request);
-    }
-
     public void associateBug(TestPlanCaseAssociateBugRequest request, String userId) {
-        List<String> ids = baseAssociateBugProvider.getSelectBugs(request, false);
-        if (CollectionUtils.isNotEmpty(ids)) {
-            SubListUtils.dealForSubList(ids, 100, subList -> {
-                List<BugRelationCase> list = new ArrayList<>();
-                subList.forEach(id -> {
-                    BugRelationCase bugRelationCase = new BugRelationCase();
-                    bugRelationCase.setId(IDGenerator.nextStr());
-                    bugRelationCase.setBugId(id);
-                    bugRelationCase.setCaseId(request.getCaseId());
-                    bugRelationCase.setCaseType(CaseType.FUNCTIONAL_CASE.getKey());
-                    bugRelationCase.setCreateUser(userId);
-                    bugRelationCase.setCreateTime(System.currentTimeMillis());
-                    bugRelationCase.setUpdateTime(System.currentTimeMillis());
-                    bugRelationCase.setTestPlanCaseId(request.getTestPlanCaseId());
-                    bugRelationCase.setTestPlanId(request.getTestPlanId());
-                    list.add(bugRelationCase);
-                });
-                bugRelationCaseMapper.batchInsert(list);
-            });
-
-        }
-    }
-
-    public void disassociateBug(String id) {
-        baseAssociateBugProvider.disassociateBug(id);
-    }
-
-    public LogDTO disassociateBugLog(String id) {
-        BugRelationCase bugRelationCase = bugRelationCaseMapper.selectByPrimaryKey(id);
-        if (bugRelationCase != null) {
-            Bug bug = bugMapper.selectByPrimaryKey(bugRelationCase.getBugId());
-            LogDTO dto = new LogDTO(
-                    null,
-                    null,
-                    bugRelationCase.getBugId(),
-                    null,
-                    OperationLogType.DISASSOCIATE.name(),
-                    OperationLogModule.TEST_PLAN,
-                    bug.getTitle() + "缺陷");
-            dto.setPath(OperationLogAspect.getPath());
-            dto.setMethod(HttpMethodConstants.GET.name());
-            dto.setOriginalValue(JSON.toJSONBytes(bugRelationCase));
-            return dto;
-        }
-        return null;
+        super.associateBug(request, userId, CaseType.FUNCTIONAL_CASE.getKey());
     }
 
     /**

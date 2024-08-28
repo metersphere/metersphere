@@ -706,6 +706,15 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         }
     }
 
+    /**
+     * 关联缺陷 (单条用例)
+     * @param request 请求参数
+     * @param userId 用户ID
+     */
+    public void associateBug(TestPlanCaseAssociateBugRequest request, String userId) {
+        super.associateBug(request, userId, CaseType.SCENARIO_CASE.getKey());
+    }
+
     private void moveCaseToCollection(List<String> ids, String targetCollectionId) {
         AtomicLong nextOrder = new AtomicLong(getNextOrder(targetCollectionId));
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);

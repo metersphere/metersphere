@@ -29,6 +29,7 @@ import io.metersphere.plan.service.TestPlanApiScenarioService;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -75,6 +76,9 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     public static final String API_SCENARIO_BATCH_UPDATE_EXECUTOR_URL = "batch/update/executor";
     private static final String URL_POST_RESOURCE_API_SCENARIO_SORT = "/sort";
     private static final String API_SCENARIO_BATCH_MOVE_URL = "/batch/move";
+    private static final String BUG_ASSOCIATE_PAGE = "/associate/bug/page";
+    private static final String ASSOCIATE_BUG = "/associate/bug";
+    private static final String DISASSOCIATE_BUG = "/disassociate/bug/{0}";
 
     @Resource
     private TestPlanApiScenarioService testPlanApiScenarioService;
@@ -569,4 +573,33 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         requestGetPermissionTest(PermissionConstants.TEST_PLAN_REPORT_READ, "/report/get/detail/plan-test-scenario-report-id/plan-test-scenario-report-step-id1");
     }
 
+    @Test
+    @Order(7)
+    void testAssociateBugPage() throws Exception {
+        BugPageProviderRequest request = new BugPageProviderRequest();
+        request.setSourceId("test_plan_case_id");
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setCurrent(1);
+        request.setPageSize(10);
+        this.requestPostWithOk(BUG_ASSOCIATE_PAGE, request);
+    }
+
+    @Test
+    @Order(8)
+    void testAssociateBug() throws Exception {
+        TestPlanCaseAssociateBugRequest request = new TestPlanCaseAssociateBugRequest();
+        request.setTestPlanCaseId("test_plan_case_id");
+        request.setCaseId("case_id");
+        request.setTestPlanId("test_plan_id");
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("oasis"));
+        this.requestPost(ASSOCIATE_BUG, request);
+    }
+
+    @Test
+    @Order(9)
+    void testDisassociateBug() throws Exception {
+        this.requestGet(DISASSOCIATE_BUG, "test_plan_case_id");
+    }
 }
