@@ -1,11 +1,12 @@
 package io.metersphere.controller;
 
 
-import io.metersphere.commons.utils.WeakConcurrentHashMap;
 import io.metersphere.controller.handler.annotation.NoResultHolder;
 import io.metersphere.service.JmeterFileService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,14 +14,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("jmeter")
 public class JmeterFileController {
     @Resource
     private JmeterFileService jmeterFileService;
-    private final WeakConcurrentHashMap<String, List<Double>> readyMap = new WeakConcurrentHashMap<>(30 * 60 * 1000);// 默认保留30分钟
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     @GetMapping("ping")
     public String checkStatus() {
@@ -32,10 +34,15 @@ public class JmeterFileController {
     public long ready(@RequestParam("reportId") String reportId, @RequestParam("ratio") String ratio,
                       @RequestParam("resourceIndex") int resourceIndex) {
         try {
-            List<Double> ratios = readyMap.getOrDefault(reportId, Arrays.stream(ratio.split(",")).map(Double::parseDouble).collect(Collectors.toList()));
-            ratios.set(resourceIndex, -1.0);
-            readyMap.put(reportId, ratios);
-            return ratios.stream().filter(r -> r > 0).count();
+            // 保存当前节点状态到redis
+            String reportIdKey = "jmeter_ready:" + reportId;
+            stringRedisTemplate.opsForHash().put(reportIdKey, resourceIndex, 1);
+            // 设置30分钟过期
+            stringRedisTemplate.expire(reportIdKey, 30 * 60, TimeUnit.SECONDS);
+            // 返回当前已经准备好的节点数量
+            List<Object> values = stringRedisTemplate.opsForHash().values(reportIdKey);
+            return Arrays.asList(ratio.split(",")).size() - CollectionUtils.size(values);
+
         } catch (Exception e) {
             return 0;
         }
