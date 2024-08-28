@@ -6,7 +6,7 @@ import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.CustomField;
-import io.metersphere.system.dto.CustomFieldDao;
+import io.metersphere.system.dto.CustomFieldDTO;
 import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.system.resolver.field.AbstractCustomFieldResolver;
 import io.metersphere.system.resolver.field.CustomFieldResolverFactory;
@@ -129,8 +129,8 @@ public class BaseCustomFieldTestService {
 
             AbstractCustomFieldResolver customFieldResolver = CustomFieldResolverFactory.getResolver(customFieldType.name());
             CustomField customField = getCustomFields().get(customFieldType);
-            CustomFieldDao customFieldDao = BeanUtils.copyBean(new CustomFieldDao(), customField);
-            customFieldDao.setRequired(true);
+            CustomFieldDTO customFieldDTO = BeanUtils.copyBean(new CustomFieldDTO(), customField);
+            customFieldDTO.setRequired(true);
             String valueStr = customFieldResolver.parse2String(objectValueMap.get(customFieldType));
             Object objectValue = customFieldResolver.parse2Value(valueStr);
             // 校验 parse2String 和 parse2Value 是否正确
@@ -157,8 +157,8 @@ public class BaseCustomFieldTestService {
     private void invokeValidate(Map<CustomFieldType, Object> valueMap, CustomFieldType customFieldType) {
         AbstractCustomFieldResolver customFieldResolver = CustomFieldResolverFactory.getResolver(customFieldType.name());
         CustomField customField = getCustomFields().get(customFieldType);
-        CustomFieldDao customFieldDao = BeanUtils.copyBean(new CustomFieldDao(), customField);
-        customFieldDao.setRequired(true);
-        customFieldResolver.validate(customFieldDao, valueMap.get(customFieldType));
+        CustomFieldDTO customFieldDTO = BeanUtils.copyBean(new CustomFieldDTO(), customField);
+        customFieldDTO.setRequired(true);
+        customFieldResolver.validate(customFieldDTO, valueMap.get(customFieldType));
     }
 }

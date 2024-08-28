@@ -6,7 +6,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class CustomFieldDao extends CustomField implements Serializable {
+public class CustomFieldDTO extends CustomField implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

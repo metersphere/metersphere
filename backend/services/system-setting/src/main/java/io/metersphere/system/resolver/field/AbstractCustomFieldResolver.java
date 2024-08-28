@@ -4,7 +4,7 @@ package io.metersphere.system.resolver.field;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.dto.CustomFieldDao;
+import io.metersphere.system.dto.CustomFieldDTO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,13 +20,13 @@ public abstract class AbstractCustomFieldResolver {
      * @param customField
      * @param value
      */
-    abstract public void validate(CustomFieldDao customField, Object value);
+    abstract public void validate(CustomFieldDTO customField, Object value);
 
     protected void throwValidateException(String name) {
         throw new MSException(FIELD_VALIDATE_ERROR, Translator.getWithArgs(FIELD_VALIDATE_ERROR.getMessage(), name));
     }
 
-    protected void validateRequired(CustomFieldDao customField, Object value) {
+    protected void validateRequired(CustomFieldDTO customField, Object value) {
         if (!customField.getRequired()) {
             return;
         }
@@ -37,7 +37,7 @@ public abstract class AbstractCustomFieldResolver {
         }
     }
 
-    protected void validateArrayRequired(CustomFieldDao customField, Object value) {
+    protected void validateArrayRequired(CustomFieldDTO customField, Object value) {
         if (!customField.getRequired()) {
             return;
         }
