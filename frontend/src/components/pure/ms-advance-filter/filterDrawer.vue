@@ -1,0 +1,315 @@
+<template>
+  <MsDrawer v-model:visible="visible" :width="800">
+    <template #title>
+      <a-input
+        v-show="isShowNameInput"
+        ref="nameInputRef"
+        v-model:model-value="formModel.name"
+        class="flex-1"
+        :max-length="255"
+        show-word-limit
+        @blur="isShowNameInput = false"
+      />
+      <div v-show="!isShowNameInput" class="flex flex-1 items-center gap-[8px] overflow-hidden">
+        <a-tooltip :content="formModel.name">
+          <div class="one-line-text"> {{ formModel.name }}</div>
+        </a-tooltip>
+        <MsIcon
+          type="icon-icon_edit_outlined"
+          class="min-w-[16px] cursor-pointer hover:text-[rgb(var(--primary-5))]"
+          @click="showNameInput"
+        />
+      </div>
+    </template>
+    <a-form ref="formRef" :model="formModel" layout="vertical">
+      <a-select v-model="formModel.andOrType" :options="andOrTypeOptions" class="w-[170px]">
+        <template #prefix> {{ t('advanceFilter.meetTheFollowingConditions') }} </template>
+      </a-select>
+      <div
+        v-for="(item, listIndex) in formModel.list"
+        :key="item.dataIndex || `filter_item_${listIndex}`"
+        class="flex items-center gap-[8px]"
+      >
+        <a-form-item class="flex-1 overflow-hidden" :field="`list[${listIndex}].dataIndex`" hide-asterisk>
+          <a-select
+            v-model="item.dataIndex"
+            allow-search
+            @change="(val: SelectValue) => dataIndexChange(val, listIndex)"
+          >
+            <div
+              v-for="(option, currentOptionsIndex) in currentOptions(item.dataIndex as string)"
+              :key="option.dataIndex"
+            >
+              <a-option :value="option.dataIndex">
+                {{ t(option.title as string) }}
+              </a-option>
+              <a-divider
+                v-if="(props?.customList || [])?.length && (props.configList || []).length - 1 === currentOptionsIndex"
+                class="!my-1"
+              />
+            </div>
+          </a-select>
+        </a-form-item>
+        <a-form-item :field="`list[${listIndex}].operator`" class="w-[120px]" hide-asterisk>
+          <a-select v-model="item.operator" :disabled="!item.dataIndex" @change="operatorChange(item, listIndex)">
+            <a-option v-for="option in operatorOptionsMap[item.type]" :key="option.value" :value="option.value">
+              {{ t(option.label as string) }}
+            </a-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item class="flex-1 overflow-hidden" :field="`list[${listIndex}].value`" hide-asterisk>
+          <a-input
+            v-if="item.type === FilterType.INPUT"
+            v-model:model-value="item.value"
+            allow-clear
+            :disabled="isValueDisabled(item)"
+            :max-length="255"
+            :placeholder="t('advanceFilter.inputPlaceholder')"
+          />
+          <a-textarea
+            v-else-if="item.type === FilterType.TEXTAREA"
+            v-model:model-value="item.value"
+            allow-clear
+            :disabled="isValueDisabled(item)"
+            :auto-size="{
+              minRows: 1,
+              maxRows: 1,
+            }"
+            :placeholder="t('advanceFilter.inputPlaceholder')"
+            :max-length="1000"
+          />
+          <MsTagsInput
+            v-else-if="item.type === FilterType.TAGS_INPUT"
+            v-model:model-value="item.value"
+            :disabled="isValueDisabled(item)"
+            allow-clear
+            unique-value
+            retain-input-value
+          />
+          <a-input-number
+            v-else-if="item.type === FilterType.NUMBER"
+            v-model:model-value="item.value"
+            allow-clear
+            :disabled="isValueDisabled(item)"
+            :max-length="255"
+            :placeholder="t('common.pleaseInput')"
+          />
+          <MsSelect
+            v-else-if="item.type === FilterType.SELECT"
+            v-model:model-value="item.value"
+            allow-clear
+            allow-search
+            :placeholder="t('common.pleaseSelect')"
+            :disabled="isValueDisabled(item)"
+            :options="item.selectProps?.options || []"
+            v-bind="item.selectProps"
+          />
+          <a-tree-select
+            v-else-if="item.type === FilterType.TREE_SELECT"
+            v-model:model-value="item.value"
+            :data="item.treeSelectData"
+            :disabled="isValueDisabled(item)"
+            v-bind="item.treeSelectProps"
+          />
+          <a-date-picker
+            v-else-if="item.type === FilterType.DATE_PICKER && item.operator !== 'between'"
+            v-model:model-value="item.value"
+            show-time
+            format="YYYY-MM-DD hh:mm"
+            :disabled="isValueDisabled(item)"
+          />
+          <a-range-picker
+            v-else-if="item.type === FilterType.DATE_PICKER && item.operator === 'between'"
+            v-model:model-value="item.value"
+            show-time
+            format="YYYY-MM-DD HH:mm"
+            :separator="t('common.to')"
+            :disabled="isValueDisabled(item)"
+          />
+          <a-radio-group
+            v-else-if="item.type === FilterType.RADIO"
+            v-model:model-value="item.value"
+            :disabled="isValueDisabled(item)"
+          >
+            <a-radio
+              v-for="it of item.radioProps?.options || []"
+              :key="it[item.radioProps?.valueKey || 'value']"
+              :value="it[item.radioProps?.valueKey || 'value']"
+            >
+              {{ it[item.radioProps?.labelKey || 'label'] }}
+            </a-radio>
+          </a-radio-group>
+          <a-checkbox-group
+            v-else-if="item.type === FilterType.CHECKBOX"
+            v-model:model-value="item.value"
+            :disabled="isValueDisabled(item)"
+          >
+            <a-checkbox
+              v-for="it of item.checkProps?.options || []"
+              :key="it[item.checkProps?.valueKey || 'value']"
+              :value="it[item.checkProps?.valueKey || 'value']"
+            >
+              {{ it[item.checkProps?.labelKey || 'label'] }}
+            </a-checkbox>
+          </a-checkbox-group>
+        </a-form-item>
+        <a-button
+          v-if="formModel.list.length > 1"
+          type="outline"
+          class="arco-btn-outline--secondary"
+          @click="handleDeleteItem(listIndex)"
+        >
+          <template #icon> <MsIcon type="icon-icon_block_outlined" class="text-[var(--color-text-4)]" /> </template>
+        </a-button>
+      </div>
+    </a-form>
+    <MsButton type="text" class="mt-[5px]" @click="handleAddItem">
+      <MsIcon type="icon-icon_add_outlined" class="mr-[3px]" />
+      {{ t('advanceFilter.addCondition') }}
+    </MsButton>
+    <template #footer>
+      <div v-show="!isSaveAsView" class="flex items-center gap-[8px]">
+        <a-button type="primary" @click="handleFilter">{{ t('common.filter') }}</a-button>
+        <a-button class="mr-[16px]">{{ t('common.reset') }}</a-button>
+        <MsButton type="text" class="!text-[var(--color-text-1)]"> {{ t('common.save') }}</MsButton>
+        <MsButton type="text" class="!text-[var(--color-text-1)]" @click="isSaveAsView = true">
+          {{ t('advanceFilter.saveAsView') }}
+        </MsButton>
+      </div>
+      <div v-show="isSaveAsView" class="flex items-center gap-[8px]">
+        <a-input
+          v-model:model-value="saveAsViewName"
+          :placeholder="t('advanceFilter.viewNamePlaceholder')"
+          class="w-[240px]"
+          :max-length="255"
+          show-word-limit
+        />
+        <a-button type="primary">{{ t('common.save') }}</a-button>
+        <a-button @click="handleCancelSaveAsView">{{ t('common.cancel') }}</a-button>
+      </div>
+    </template>
+  </MsDrawer>
+</template>
+
+<script lang="ts" setup>
+  import { FormInstance, InputInstance } from '@arco-design/web-vue';
+
+  import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+  import MsSelect from '@/components/business/ms-select';
+
+  import { useI18n } from '@/hooks/useI18n';
+
+  import { SelectValue } from '@/models/projectManagement/menuManagement';
+
+  import { defaultFormModelList, operatorOptionsMap } from './index';
+  import { AccordBelowType, BackEndEnum, FilterFormItem, FilterResult, FilterType } from './type';
+
+  const props = defineProps<{
+    configList: FilterFormItem[]; // 系统字段
+    customList?: FilterFormItem[]; // 自定义字段
+  }>();
+  const emit = defineEmits<{
+    (e: 'handleFilter', value: FilterResult): void;
+  }>();
+  const visible = defineModel<boolean>('visible', { required: true });
+
+  const { t } = useI18n();
+
+  // TODO lmy 联调
+  const formModel = ref<{ name: string; andOrType: AccordBelowType; list: FilterFormItem[] }>({
+    name: '111',
+    andOrType: 'AND',
+    list: [...defaultFormModelList],
+  });
+
+  const isShowNameInput = ref(false);
+  const nameInputRef = ref<InputInstance>();
+  function showNameInput() {
+    isShowNameInput.value = true;
+    nextTick(() => {
+      nameInputRef.value?.focus();
+    });
+  }
+
+  const andOrTypeOptions = [
+    { value: 'AND', label: t('advanceFilter.and') },
+    { value: 'OR', label: t('advanceFilter.or') },
+  ];
+
+  function getListItemByDataIndex(dataIndex: string) {
+    return [...props.configList, ...(props.customList || [])].find((item) => item.dataIndex === dataIndex);
+  }
+  // 第三列值是数组类型的
+  function valueIsArray(listItem: FilterFormItem) {
+    return (
+      listItem.selectProps?.multiple ||
+      [FilterType.CHECKBOX, FilterType.TAGS_INPUT].includes(listItem.type) ||
+      (listItem.type === FilterType.DATE_PICKER && listItem.operator === 'between')
+    );
+  }
+  // 第一列下拉数据
+  const currentOptions = computed(() => {
+    return (currentDataIndex: string) => {
+      const otherDataIndices = formModel.value.list
+        .filter((listItem) => listItem.dataIndex !== currentDataIndex)
+        .map((item: FilterFormItem) => item.dataIndex);
+      return [...props.configList, ...(props.customList || [])]
+        .filter(({ dataIndex }) => !otherDataIndices.includes(dataIndex))
+        .map((item) => ({ ...item, label: t(item.title as string) }));
+    };
+  });
+  // 改变第一列值
+  function dataIndexChange(dataIndex: SelectValue, index: number) {
+    const listItem = getListItemByDataIndex(dataIndex as string);
+    if (!listItem) return;
+    formModel.value.list[index] = { ...listItem };
+    formModel.value.list[index].value = valueIsArray(listItem) ? [] : '';
+  }
+  // 改变第二列值
+  function operatorChange(item: FilterFormItem, index: number) {
+    formModel.value.list[index].value = valueIsArray(item) ? [] : '';
+  }
+  function isValueDisabled(item: FilterFormItem) {
+    return !item.dataIndex || ['EMPTY', 'NOT_EMPTY'].includes(item.operator as string);
+  }
+
+  function handleDeleteItem(index: number) {
+    if (formModel.value.list.length === 1) return;
+    formModel.value.list.splice(index, 1);
+  }
+  function handleAddItem() {
+    const item = {
+      dataIndex: '',
+      type: FilterType.INPUT,
+      operator: '',
+      value: '',
+      backendType: BackEndEnum.STRING,
+    };
+    formModel.value.list.push(item);
+  }
+
+  const formRef = ref<FormInstance>();
+  function handleFilter() {
+    formRef.value?.validate((errors) => {
+      if (!errors) {
+        // TODO lmy 联调
+        emit('handleFilter', { accordBelow: 'AND', combine: {} });
+      }
+    });
+  }
+
+  const isSaveAsView = ref(false);
+  const saveAsViewName = ref('');
+  function handleCancelSaveAsView() {
+    isSaveAsView.value = false;
+    saveAsViewName.value = '';
+  }
+</script>
+
+<style lang="less" scoped>
+  :deep(.arco-form-item) {
+    margin-bottom: 8px;
+  }
+</style>
