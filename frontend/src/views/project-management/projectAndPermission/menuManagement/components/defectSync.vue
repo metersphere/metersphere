@@ -256,11 +256,7 @@
         await handlePlatformChange(res.platform_key);
         form.SYNC_ENABLE = res.sync_enable;
         form.PLATFORM_KEY = res.platform_key;
-        if (!isXpack.value) {
-          form.MECHANISM = 'increment';
-        } else {
-          form.MECHANISM = res.mechanism;
-        }
+        form.MECHANISM = res.mechanism;
         form.CRON_EXPRESSION = res.cron_expression;
       }
     } catch (e) {
