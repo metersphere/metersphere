@@ -5,6 +5,7 @@
     <template v-if="showType === 'list'">
       <MsAdvanceFilter
         v-model:keyword="keyword"
+        show-filter
         :filter-config-list="filterConfigList"
         :custom-fields-config-list="searchCustomFields"
         :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
@@ -976,7 +977,6 @@
       selectAll: batchParams.value.selectAll,
       selectIds: batchParams.value.selectedIds || [],
       keyword: keyword.value,
-      combine: batchParams.value.condition,
     };
   }
   // 获取父组件模块数量
@@ -1604,24 +1604,10 @@
       console.log(error);
     }
   }
-  const filterResult = ref<FilterResult>({ accordBelow: 'AND', combine: {} });
-  // 当前选择的条数
-  const currentSelectParams = ref<BatchActionQueryParams>({ selectAll: false, currentSelectCount: 0 });
   // 高级检索
-  const handleAdvSearch = (filter: FilterResult) => {
-    filterResult.value = filter;
-    const { accordBelow, combine } = filter;
+  const handleAdvSearch = async (filter: FilterResult) => {
     setAdvanceFilter(filter);
-    currentSelectParams.value = {
-      ...currentSelectParams.value,
-      condition: {
-        keyword: keyword.value,
-        searchMode: accordBelow,
-        filter: propsRes.value.filter,
-        combine,
-      },
-    };
-    initData();
+    loadList();
   };
   // 更新用例等级
   async function handleStatusChange(record: any) {

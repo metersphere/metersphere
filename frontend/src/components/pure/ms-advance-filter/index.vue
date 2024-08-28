@@ -31,22 +31,20 @@
         @search="emit('keywordSearch', keyword, filterResult)"
         @clear="handleClear"
       ></a-input-search>
-      <!-- <MsTag
-        :type="visible ? 'primary' : 'default'"
-        :theme="visible ? 'lightOutLine' : 'outline'"
-        size="large"
-        class="min-w-[64px] cursor-pointer"
-        no-margin
+      <a-button
+        v-if="props.showFilter"
+        type="outline"
+        :class="`${visible ? '' : 'arco-btn-outline--secondary'} p-[0_8px]`"
         @click="handleOpenFilter"
       >
-        <span :class="!visible ? 'text-[var(--color-text-4)]' : ''">
-          <icon-filter class="text-[16px]" />
-          <span class="ml-[4px]">
-            <span v-if="filterCount">{{ filterCount }}</span>
-            {{ t('common.filter') }}
-          </span>
-        </span>
-      </MsTag> -->
+        <template #icon>
+          <MsIcon
+            type="icon-icon_copy_outlined"
+            :class="`${visible ? 'text-[rgb(var(--primary-5))]' : 'text-[var(--color-text-4)]'}`"
+          />
+        </template>
+        {{ t('common.filter') }}
+      </a-button>
 
       <slot name="right"></slot>
       <MsTag
@@ -61,24 +59,20 @@
       </MsTag>
     </div>
   </div>
-  <FilterForm
-    v-show="visible"
-    v-model:count="filterCount"
-    :row-count="props.rowCount"
-    :visible="visible"
+  <FilterDrawer
+    v-model:visible="visible"
     :config-list="props.filterConfigList"
     :custom-list="props.customFieldsConfigList"
-    class="mt-[8px]"
-    @on-search="handleFilter"
-    @data-index-change="dataIndexChange"
-    @reset="handleResetFilter"
+    @handle-filter="handleFilter"
   />
 </template>
 
 <script setup lang="ts">
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTag from '../ms-tag/ms-tag.vue';
-  import FilterForm from './FilterForm.vue';
+  import FilterDrawer from './filterDrawer.vue';
+
+  import { useI18n } from '@/hooks/useI18n';
 
   import { FilterFormItem, FilterResult } from './type';
 
@@ -90,6 +84,7 @@
     name?: string;
     count?: number;
     notShowInputSearch?: boolean;
+    showFilter?: boolean; // 展示高级搜索按钮
   }>();
 
   const emit = defineEmits<{
@@ -99,16 +94,12 @@
     (e: 'refresh', value: FilterResult): void;
   }>();
 
+  const { t } = useI18n();
+
   const keyword = defineModel<string>('keyword', { default: '' });
   const visible = ref(false);
-  const filterCount = ref(0);
   const defaultFilterResult: FilterResult = { accordBelow: 'AND', combine: {} };
   const filterResult = ref<FilterResult>({ ...defaultFilterResult });
-
-  const handleResetFilter = () => {
-    filterResult.value = { ...defaultFilterResult };
-    emit('advSearch', { ...defaultFilterResult });
-  };
 
   const handleFilter = (filter: FilterResult) => {
     filterResult.value = filter;
@@ -117,10 +108,6 @@
 
   const handleRefresh = () => {
     emit('refresh', filterResult.value);
-  };
-
-  const dataIndexChange = (dataIndex: string) => {
-    emit('dataIndexChange', dataIndex);
   };
 
   const handleClear = () => {

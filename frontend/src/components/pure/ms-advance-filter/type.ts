@@ -38,21 +38,21 @@ export enum FilterType {
   NUMBER = 'Number',
   SELECT = 'Select',
   DATE_PICKER = 'DatePicker',
-  CASCADER = 'Cascader',
   TAGS_INPUT = 'TagsInput',
   TREE_SELECT = 'TreeSelect',
   TEXTAREA = 'textArea',
   RADIO = 'radio',
   CHECKBOX = 'checkbox',
+  CASCADER = 'Cascader',
   JIRAKEY = 'JIRAKEY',
 }
 
 export interface FilterFormItem {
-  dataIndex?: string; // 对应的row的数据key
-  title?: string; // 显示的label 国际化字符串定义在前端
-  type: FilterType; // 类型：Input,Select,DatePicker,RangePicker
-  value?: any; // 值 字符串 和 数组
-  operator?: string; // 运算符号
+  dataIndex?: string; // 第一列下拉的value
+  title?: string; // 第一列下拉显示的label
+  operator?: string; // 第二列的值
+  type: FilterType; // 类型：判断第二列下拉数据和第三列显示形式
+  value?: any; // 第三列的值
   cascaderOptions?: CascaderOption[]; // 级联选择的选项
   backendType?: BackEndEnum; // 后端类型 string array time
   selectProps?: Partial<MsSearchSelectProps>; // select的props, 参考 MsSelect
