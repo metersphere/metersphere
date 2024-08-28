@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
+import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
@@ -12,6 +13,7 @@ import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.service.TestPlanApiScenarioBatchRunService;
 import io.metersphere.plan.service.TestPlanApiScenarioLogService;
 import io.metersphere.plan.service.TestPlanApiScenarioService;
+import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
@@ -153,5 +155,30 @@ public class TestPlanApiScenarioController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchMove(#request)", msClass = TestPlanApiScenarioLogService.class)
     public void batchMove(@Validated @RequestBody BaseBatchMoveRequest request) {
         testPlanApiScenarioService.batchMove(request);
+    }
+
+    @PostMapping("/associate/bug/page")
+    @Operation(summary = "测试计划-计划详情-场景用例-获取待关联缺陷列表")
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    public Pager<List<BugProviderDTO>> associateBugList(@Validated @RequestBody BugPageProviderRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
+        return PageUtils.setPageInfo(page, testPlanApiScenarioService.bugPage(request));
+    }
+
+    @PostMapping("/associate/bug")
+    @Operation(summary = "测试计划-计划详情-场景用例-关联缺陷")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void associateBug(@Validated @RequestBody TestPlanCaseAssociateBugRequest request) {
+        testPlanApiScenarioService.associateBug(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/disassociate/bug/{id}")
+    @Operation(summary = "测试计划-计划详情-场景用例-取消关联缺陷")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disassociateBugLog(#id)", msClass = TestPlanApiScenarioService.class)
+    public void disassociateBug(@PathVariable String id) {
+        testPlanApiScenarioService.disassociateBug(id);
     }
 }
