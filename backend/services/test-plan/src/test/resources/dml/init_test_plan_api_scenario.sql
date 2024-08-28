@@ -45,3 +45,10 @@ VALUES
 
 INSERT INTO `api_scenario_module`(`id`, `name`, `pos`, `create_time`, `update_time`, `update_user`, `create_user`, `project_id`, `parent_id`)
 VALUES ('wx_scenario_module_123', '测试CSV', 64, 1716196253511, 1716196253511, '714940256100352', '714940256100352', '718255970852864', 'NONE');
+
+INSERT INTO bug_relation_case (id, case_id, bug_id, case_type, test_plan_id, test_plan_case_id, create_user, create_time, update_time) VALUES
+('bug_relate_5', 'wxxx_api_scenario_1', 'bug_5', 'FUNCTIONAL', 'wxxx_plan_1', 'wxxx_plan_scenario_1', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('bug_relate_6', 'wxxx_api_scenario_1', 'bug_6', 'FUNCTIONAL', 'wxxx_plan_1', 'wxxx_plan_scenario_1', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO bug (id, num, title, handle_users, handle_user, create_user, create_time,update_user, update_time, delete_user, delete_time, project_id, template_id, platform, status, tags, platform_bug_id, deleted, pos)
+VALUES ('bug_5', 100001, 'oasis', 'admin', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, '100001100001', 'bug-template-id', 'Local', 'open', '["default-tag"]', null, 0, 5000);
