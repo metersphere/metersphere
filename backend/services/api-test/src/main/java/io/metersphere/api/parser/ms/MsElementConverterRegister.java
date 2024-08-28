@@ -1,0 +1,76 @@
+package io.metersphere.api.parser.ms;
+
+import io.metersphere.plugin.api.spi.AbstractMsElementConverter;
+import io.metersphere.plugin.sdk.util.PluginLogUtils;
+import org.apache.jmeter.testelement.TestElement;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @Author: jianxing
+ * @CreateTime: 2023-11-03  17:14
+ */
+public class MsElementConverterRegister {
+
+    /**
+     * 解析器集合
+     * key 为 TestElement 实现类的 Class
+     * value 为对应的转换器
+     */
+    private static final Map<Class<? extends TestElement>, AbstractMsElementConverter<? extends TestElement>> parserMap = new HashMap<>();
+    private static final JmeterGeneralElementConverter generalElementConverter = new JmeterGeneralElementConverter();
+
+    static {
+        // 设置获取转换器的方法
+        AbstractMsElementConverter.setGetConverterFunc(MsElementConverterRegister::getConverter);
+
+        // 注册默认的转换器
+        register(TestPlanConverter.class);
+        register(ThreadGroupConverter.class);
+        register(HTTPSamplerConverter.class);
+    }
+
+    /**
+     * 注册 TestElement 对应的转换器
+     *
+     * @param elementConverterClass 转换器的类
+     */
+    public static void register(Class<? extends AbstractMsElementConverter<? extends TestElement>> elementConverterClass) {
+        try {
+            AbstractMsElementConverter<? extends TestElement> elementConverter = elementConverterClass.getDeclaredConstructor().newInstance();
+            // 注册到解析器集合中
+            parserMap.put(elementConverter.testElementClass, elementConverter);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
+            handleRegistrationException(elementConverterClass, e);
+        }
+    }
+
+    /**
+     * 获取对应组件的转换器
+     *
+     * @param TestElementClass 组件的类
+     * @return 转换器
+     */
+    public static AbstractMsElementConverter getConverter(Class<? extends TestElement> TestElementClass) {
+        AbstractMsElementConverter<? extends TestElement> converter = parserMap.get(TestElementClass);
+        if (converter == null) {
+            // 如果没有对应的转换器，则使用通用的转换器
+            return generalElementConverter;
+        }
+        return converter;
+    }
+
+    /**
+     * 处理注册转换器时的异常
+     *
+     * @param elementConverterClass 转换器的类
+     * @param e                     异常
+     */
+    private static void handleRegistrationException(Class<?> elementConverterClass, Exception e) {
+        PluginLogUtils.error("注册转换器失败: " + elementConverterClass, e);
+    }
+}
+

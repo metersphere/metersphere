@@ -18,7 +18,7 @@ import java.util.function.Function;
  * @createTime 2021-10-30  10:07
  * 将 MsTestElement 具体实现类转换为 HashTree
  */
-public abstract class AbstractJmeterElementConverter<T extends MsTestElement> implements JmeterElementConverter {
+public abstract class AbstractJmeterElementConverter<T extends MsTestElement> implements JmeterElementConverter<T> {
 
     public Class<? extends MsTestElement> testElementClass;
 
@@ -59,11 +59,6 @@ public abstract class AbstractJmeterElementConverter<T extends MsTestElement> im
             testElementClass = ((Class) parameterizedType.getActualTypeArguments()[0]);
         }
     }
-
-    /**
-     * 将 MsTestElement 具体实现类转换为 HashTree
-     */
-    public abstract void toHashTree(HashTree tree, T element, ParameterConfig config);
 
     /**
      * 解析 MsTestElement 的子节点
