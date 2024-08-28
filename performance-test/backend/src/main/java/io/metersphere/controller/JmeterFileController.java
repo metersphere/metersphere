@@ -36,7 +36,7 @@ public class JmeterFileController {
         try {
             // 保存当前节点状态到redis
             String reportIdKey = "jmeter_ready:" + reportId;
-            stringRedisTemplate.opsForHash().put(reportIdKey, resourceIndex, 1);
+            stringRedisTemplate.opsForHash().put(reportIdKey, reportId + "_" + resourceIndex, "1");
             // 设置30分钟过期
             stringRedisTemplate.expire(reportIdKey, 30 * 60, TimeUnit.SECONDS);
             // 返回当前已经准备好的节点数量
