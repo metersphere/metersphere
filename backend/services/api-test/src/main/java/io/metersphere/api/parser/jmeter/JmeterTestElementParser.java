@@ -4,7 +4,6 @@ import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.scenario.ScenarioOtherConfig;
 import io.metersphere.api.parser.TestElementParser;
-import io.metersphere.api.utils.JmeterElementConverterRegister;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
 import io.metersphere.plugin.api.spi.AbstractMsProtocolTestElement;

@@ -1,7 +1,7 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.utils.ApiDataUtils;
-import io.metersphere.api.utils.JmeterElementConverterRegister;
+import io.metersphere.api.parser.jmeter.JmeterElementConverterRegister;
 import io.metersphere.plugin.api.spi.AbstractApiPlugin;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
 import io.metersphere.plugin.api.spi.JmeterElementConverter;
