@@ -1,10 +1,12 @@
 package io.metersphere.plan.dto.response;
 
+import io.metersphere.plan.dto.TestPlanCaseBugDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author wx
@@ -85,4 +87,10 @@ public class TestPlanApiScenarioPageResponse implements Serializable {
 
     @Schema(description = "更新时间")
     private Long updateTime;
+
+    @Schema(description = "缺陷数量")
+    private Integer bugCount;
+
+    @Schema(description = "关联的缺陷数据")
+    private List<TestPlanCaseBugDTO> bugList;
 }

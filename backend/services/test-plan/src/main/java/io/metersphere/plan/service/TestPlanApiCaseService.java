@@ -243,16 +243,18 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             return new ArrayList<>();
         }
         List<TestPlanApiCasePageResponse> list = extTestPlanApiCaseMapper.relateApiCaseList(request, deleted);
-        buildApiCaseResponse(list, request.getTestPlanId());
+        buildApiCaseResponse(list, request.getTestPlanId(), request.getProjectId());
         return list;
     }
 
-    private void buildApiCaseResponse(List<TestPlanApiCasePageResponse> apiCaseList, String testPlanId) {
+    private void buildApiCaseResponse(List<TestPlanApiCasePageResponse> apiCaseList, String testPlanId, String projectId) {
         if (CollectionUtils.isNotEmpty(apiCaseList)) {
             Map<String, String> projectMap = getProject(apiCaseList);
             Map<String, String> userMap = getUserMap(apiCaseList);
             Map<String, String> moduleNameMap = getModuleName(apiCaseList);
-            handleCaseAndEnv(apiCaseList, projectMap, userMap, testPlanId, moduleNameMap);
+            List<String> associateIds = apiCaseList.stream().map(TestPlanApiCasePageResponse::getId).toList();
+            Map<String, List<TestPlanCaseBugDTO>> associateBugMap = queryCaseAssociateBug(associateIds, projectId);
+            handleCaseAndEnv(apiCaseList, projectMap, userMap, testPlanId, moduleNameMap, associateBugMap);
         }
     }
 
@@ -263,7 +265,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                 .collect(Collectors.toMap(ApiDefinitionModule::getId, ApiDefinitionModule::getName));
     }
 
-    private void handleCaseAndEnv(List<TestPlanApiCasePageResponse> apiCaseList, Map<String, String> projectMap, Map<String, String> userMap, String testPlanId, Map<String, String> moduleNameMap) {
+    private void handleCaseAndEnv(List<TestPlanApiCasePageResponse> apiCaseList, Map<String, String> projectMap, Map<String, String> userMap,
+                                  String testPlanId, Map<String, String> moduleNameMap, Map<String, List<TestPlanCaseBugDTO>> associateBugMap) {
         //获取二级节点环境
         List<TestPlanCollectionEnvDTO> secondEnv = extTestPlanCollectionMapper.selectSecondCollectionEnv(CaseType.API_CASE.getKey(), ModuleConstants.ROOT_NODE_PARENT_ID, testPlanId);
         Map<String, TestPlanCollectionEnvDTO> secondEnvMap = secondEnv.stream().collect(Collectors.toMap(TestPlanCollectionEnvDTO::getId, item -> item));
@@ -288,6 +291,11 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                 } else {
                     getRunEnv(collectEnv, caseEnvMap, item);
                 }
+            }
+            if (associateBugMap.containsKey(item.getId())) {
+                List<TestPlanCaseBugDTO> associateBugs = associateBugMap.get(item.getId());
+                item.setBugList(associateBugs);
+                item.setBugCount(associateBugs.size());
             }
         });
     }

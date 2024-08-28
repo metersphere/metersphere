@@ -382,17 +382,19 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     public List<TestPlanApiScenarioPageResponse> hasRelateApiScenarioList(TestPlanApiScenarioRequest request, boolean deleted) {
         filterCaseRequest(request);
         List<TestPlanApiScenarioPageResponse> list = extTestPlanApiScenarioMapper.relateApiScenarioList(request, deleted);
-        buildApiScenarioResponse(list, request.getTestPlanId());
+        buildApiScenarioResponse(list, request.getTestPlanId(), request.getProjectId());
         return list;
     }
 
-    private void buildApiScenarioResponse(List<TestPlanApiScenarioPageResponse> apiScenarioList, String testPlanId) {
+    private void buildApiScenarioResponse(List<TestPlanApiScenarioPageResponse> apiScenarioList, String testPlanId, String projectId) {
         if (CollectionUtils.isNotEmpty(apiScenarioList)) {
             Map<String, String> projectMap = getProject(apiScenarioList);
             Map<String, String> userMap = getUserMap(apiScenarioList);
             Map<String, String> moduleNameMap = getModuleName(apiScenarioList);
             Map<String, String> reportMap = getReportMap(apiScenarioList);
-            handleScenarioAndEnv(apiScenarioList, projectMap, userMap, testPlanId, moduleNameMap, reportMap);
+            List<String> associateIds = apiScenarioList.stream().map(TestPlanApiScenarioPageResponse::getId).toList();
+            Map<String, List<TestPlanCaseBugDTO>> associateBugMap = queryCaseAssociateBug(associateIds, projectId);
+            handleScenarioAndEnv(apiScenarioList, projectMap, userMap, testPlanId, moduleNameMap, reportMap, associateBugMap);
         }
     }
 
@@ -415,7 +417,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
 
     private void handleScenarioAndEnv(List<TestPlanApiScenarioPageResponse> apiScenarioList, Map<String, String> projectMap,
                                       Map<String, String> userMap, String testPlanId, Map<String, String> moduleNameMap,
-                                      Map<String, String> reportMap) {
+                                      Map<String, String> reportMap, Map<String, List<TestPlanCaseBugDTO>> associateBugMap) {
         //获取二级节点环境
         List<TestPlanCollectionEnvDTO> secondEnv = extTestPlanCollectionMapper.selectSecondCollectionEnv(CaseType.SCENARIO_CASE.getKey(), ModuleConstants.ROOT_NODE_PARENT_ID, testPlanId);
         Map<String, TestPlanCollectionEnvDTO> secondEnvMap = secondEnv.stream().collect(Collectors.toMap(TestPlanCollectionEnvDTO::getId, item -> item));
@@ -441,6 +443,11 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
                 } else {
                     getRunEnv(collectEnv, caseEnvMap, item);
                 }
+            }
+            if (associateBugMap.containsKey(item.getId())) {
+                List<TestPlanCaseBugDTO> associateBugs = associateBugMap.get(item.getId());
+                item.setBugList(associateBugs);
+                item.setBugCount(associateBugs.size());
             }
         });
     }

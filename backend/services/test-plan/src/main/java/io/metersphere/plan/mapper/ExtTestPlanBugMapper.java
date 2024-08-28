@@ -1,6 +1,7 @@
 package io.metersphere.plan.mapper;
 
 import io.metersphere.plan.dto.TestPlanBugCaseDTO;
+import io.metersphere.plan.dto.TestPlanCaseBugDTO;
 import io.metersphere.plan.dto.request.TestPlanBugPageRequest;
 import io.metersphere.plan.dto.response.TestPlanBugPageResponse;
 import org.apache.ibatis.annotations.Param;
@@ -26,4 +27,11 @@ public interface ExtTestPlanBugMapper {
 
 
 	List<TestPlanBugPageResponse> countBugByIds(@Param("planIds") List<String> planIds);
+
+	/**
+	 * 根据用例关系ID集合获取计划下用例关联的缺陷集合
+	 * @param caseIds 用例ID集合
+	 * @return 缺陷集合
+	 */
+	List<TestPlanCaseBugDTO> getCaseRelatedBug(@Param("ids") List<String> caseIds);
 }

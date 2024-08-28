@@ -41,12 +41,29 @@
 
 
     <select id="getBugRelatedCase" resultType="io.metersphere.plan.dto.TestPlanBugCaseDTO">
-        select brc.case_id as id, fc.num as num, brc.bug_id as bugId, fc.name as name
-        from bug_relation_case brc
+        select brc.case_id as id, fc.num as num, 'FUNCTIONAL' as type, brc.bug_id as bugId, fc.name as name
+            from bug_relation_case brc
             join functional_case fc on brc.case_id = fc.id
-        <!-- 后续会有其他用例, 根据关联用例类型, 取不同用例表 -->
+        union
+        select brc.case_id as id, atc.num as num, 'API' as type, brc.bug_id as bugId, atc.name as name
+            from bug_relation_case brc
+            join api_test_case atc on brc.case_id = atc.id
+        union
+        select brc.case_id as id, asi.num as num, 'SCENARIO' as type, brc.bug_id as bugId, asi.name as name
+            from bug_relation_case brc
+            join api_scenario asi on brc.case_id = asi.id
         where brc.test_plan_id = #{planId}
         and brc.bug_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getCaseRelatedBug" resultType="io.metersphere.plan.dto.TestPlanCaseBugDTO">
+        select brc.id as id, b.num as num, b.title as title, b.status as status, brc.test_plan_case_id as planCaseRefId
+        from bug_relation_case brc
+           join bug b on brc.bug_id = b.id
+        where brc.test_plan_case_id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>

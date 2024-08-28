@@ -4,19 +4,19 @@ import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugRelationCase;
 import io.metersphere.bug.mapper.BugMapper;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
+import io.metersphere.bug.service.BugStatusService;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanCollectionExample;
-import io.metersphere.plan.dto.ModuleSelectDTO;
-import io.metersphere.plan.dto.TestPlanCollectionDTO;
-import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
-import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
+import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseAssociateBugRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
+import io.metersphere.plan.mapper.ExtTestPlanBugMapper;
 import io.metersphere.plan.mapper.TestPlanCollectionMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.HttpMethodConstants;
@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 //测试计划关联表 通用方法
 @Transactional(rollbackFor = Exception.class)
@@ -62,6 +63,10 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
     private BugRelationCaseMapper bugRelationCaseMapper;
     @Resource
     private BugMapper bugMapper;
+    @Resource
+    private ExtTestPlanBugMapper extTestPlanBugMapper;
+    @Resource
+    private BugStatusService bugStatusService;
 
     public static final String MODULE_ALL = "all";
 
@@ -222,5 +227,19 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
             return dto;
         }
         return null;
+    }
+
+    /**
+     * 查询(计划关联)用例关联的缺陷
+     * @param ids 关联用例关系ID集合
+     * @param projectId 项目ID
+     * @return 缺陷集合
+     */
+    protected Map<String, List<TestPlanCaseBugDTO>> queryCaseAssociateBug(List<String> ids, String projectId) {
+        List<TestPlanCaseBugDTO> associateBugs = extTestPlanBugMapper.getCaseRelatedBug(ids);
+        List<SelectOption> statusOption = bugStatusService.getHeaderStatusOption(projectId);
+        Map<String, String> statusMap = statusOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+        associateBugs.forEach(bug -> bug.setStatus(statusMap.get(bug.getStatus())));
+        return associateBugs.stream().collect(Collectors.groupingBy(TestPlanCaseBugDTO::getPlanCaseRefId));
     }
 }

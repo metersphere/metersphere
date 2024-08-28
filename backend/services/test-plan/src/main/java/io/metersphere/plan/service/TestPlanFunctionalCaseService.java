@@ -30,7 +30,6 @@ import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.*;
 import io.metersphere.plan.mapper.*;
-import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.provider.BaseAssociateBugProvider;
@@ -260,10 +259,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         List<String> ids = functionalCaseLists.stream().map(TestPlanCasePageResponse::getCaseId).collect(Collectors.toList());
         Map<String, List<FunctionalCaseCustomFieldDTO>> collect = functionalCaseService.getCaseCustomFiledMap(ids, projectId);
         Set<String> userIds = extractUserIds(functionalCaseLists);
-        List<String> relateIds = functionalCaseLists.stream().map(TestPlanCasePageResponse::getId).collect(Collectors.toList());
-        Map<String, List<CaseRelateBugDTO>> bugListMap = getBugData(relateIds, functionalCaseLists.getFirst().getTestPlanId());
-        List<SelectOption> statusOption = bugStatusService.getHeaderStatusOption(projectId);
-        Map<String, String> statusMap = statusOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+        List<String> associateIds = functionalCaseLists.stream().map(TestPlanCasePageResponse::getId).toList();
+        Map<String, List<TestPlanCaseBugDTO>> associateBugMap = queryCaseAssociateBug(associateIds, projectId);
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
         List<String> moduleIds = functionalCaseLists.stream().map(TestPlanCasePageResponse::getModuleId).toList();
         List<FunctionalCaseModule> modules = extFunctionalCaseModuleMapper.getNameInfoByIds(moduleIds);
@@ -273,10 +270,10 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             testPlanCasePageResponse.setCreateUserName(userMap.get(testPlanCasePageResponse.getCreateUser()));
             testPlanCasePageResponse.setExecuteUserName(userMap.get(testPlanCasePageResponse.getExecuteUser()));
             testPlanCasePageResponse.setModuleName(StringUtils.isNotBlank(moduleNameMap.get(testPlanCasePageResponse.getModuleId())) ? moduleNameMap.get(testPlanCasePageResponse.getModuleId()) : Translator.get("functional_case.module.default.name"));
-            if (bugListMap.containsKey(testPlanCasePageResponse.getCaseId())) {
-                List<CaseRelateBugDTO> bugDTOList = bugListMap.get(testPlanCasePageResponse.getCaseId());
-                testPlanCasePageResponse.setBugList(handleStatus(bugDTOList, statusMap));
-                testPlanCasePageResponse.setBugCount(bugDTOList.size());
+            if (associateBugMap.containsKey(testPlanCasePageResponse.getId())) {
+                List<TestPlanCaseBugDTO> associateBugs = associateBugMap.get(testPlanCasePageResponse.getId());
+                testPlanCasePageResponse.setBugList(associateBugs);
+                testPlanCasePageResponse.setBugCount(associateBugs.size());
             }
         });
         return functionalCaseLists;
@@ -288,11 +285,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             bugDTO.setStatus(statusMap.get(bugDTO.getStatus()));
         });
         return bugDTOList;
-    }
-
-    private Map<String, List<CaseRelateBugDTO>> getBugData(List<String> ids, String testPlanId) {
-        List<CaseRelateBugDTO> bugList = bugRelateCaseMapper.getBugCountByIds(ids, testPlanId);
-        return bugList.stream().collect(Collectors.groupingBy(CaseRelateBugDTO::getCaseId));
     }
 
 
