@@ -3,7 +3,7 @@ package io.metersphere.system.resolver.field;
 
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.CustomFieldOption;
-import io.metersphere.system.dto.CustomFieldDao;
+import io.metersphere.system.dto.CustomFieldDTO;
 
 import java.util.List;
 import java.util.Set;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class CustomFieldMultipleSelectResolver extends CustomFieldSelectResolver {
 
     @Override
-    public void validate(CustomFieldDao customField, Object value) {
+    public void validate(CustomFieldDTO customField, Object value) {
         validateArrayRequired(customField, value);
         validateArray(customField.getName(), value);
         List<CustomFieldOption> options = getOptions(customField.getId());

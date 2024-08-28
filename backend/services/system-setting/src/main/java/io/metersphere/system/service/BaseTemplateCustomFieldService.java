@@ -4,7 +4,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.TemplateCustomField;
 import io.metersphere.system.domain.TemplateCustomFieldExample;
-import io.metersphere.system.dto.CustomFieldDao;
+import io.metersphere.system.dto.CustomFieldDTO;
 import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.system.mapper.TemplateCustomFieldMapper;
 import io.metersphere.system.resolver.field.AbstractCustomFieldResolver;
@@ -106,11 +106,11 @@ public class BaseTemplateCustomFieldService {
     private String parseDefaultValue(TemplateCustomFieldRequest field) {
         CustomField customField = baseCustomFieldService.getWithCheck(field.getFieldId());
         AbstractCustomFieldResolver customFieldResolver = CustomFieldResolverFactory.getResolver(customField.getType());
-        CustomFieldDao customFieldDao = BeanUtils.copyBean(new CustomFieldDao(), customField);
-        customFieldDao.setRequired(false);
+        CustomFieldDTO customFieldDTO = BeanUtils.copyBean(new CustomFieldDTO(), customField);
+        customFieldDTO.setRequired(false);
         if (BooleanUtils.isNotFalse(validateDefaultValue.get())) {
             // 创建项目时不校验默认值
-            customFieldResolver.validate(customFieldDao, field.getDefaultValue());
+            customFieldResolver.validate(customFieldDTO, field.getDefaultValue());
         }
         return customFieldResolver.parse2String(field.getDefaultValue());
     }

@@ -1,12 +1,12 @@
 package io.metersphere.system.resolver.field;
 
 
-import io.metersphere.system.dto.CustomFieldDao;
+import io.metersphere.system.dto.CustomFieldDTO;
 
 public class CustomFieldFloatResolver extends AbstractCustomFieldResolver {
 
     @Override
-    public void validate(CustomFieldDao customField, Object value) {
+    public void validate(CustomFieldDTO customField, Object value) {
         validateRequired(customField, value);
         if (value != null && !(value instanceof Number)) {
             throwValidateException(customField.getName());
