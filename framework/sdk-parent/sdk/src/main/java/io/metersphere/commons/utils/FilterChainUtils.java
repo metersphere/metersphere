@@ -83,7 +83,7 @@ public class FilterChainUtils {
         // websocket
         filterChainDefinitionMap.put("/websocket/**", "csrf");
         // 默认语言
-        filterChainDefinitionMap.put("/system/default-locale", "anon");
+        filterChainDefinitionMap.put("/default-locale", "anon");
 
         return filterChainDefinitionMap;
     }

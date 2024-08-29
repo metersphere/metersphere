@@ -7,6 +7,7 @@ import io.metersphere.commons.constants.SessionConstants;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.RsaKey;
 import io.metersphere.commons.utils.RsaUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.handler.ResultHolder;
 import io.metersphere.dto.ServiceDTO;
 import io.metersphere.dto.UserDTO;
@@ -19,6 +20,7 @@ import io.metersphere.request.LoginRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -32,11 +34,14 @@ import reactor.core.scheduler.Schedulers;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping
 public class LoginController {
+    @Value("${spring.messages.default-locale}")
+    private String defaultLocale;
 
     @Resource
     private UserLoginService userLoginService;
@@ -148,4 +153,15 @@ public class LoginController {
     public Mono<ResultHolder> listModules() {
         return Mono.just(ResultHolder.success(systemParameterService.listModules()));
     }
+
+    @GetMapping(value = "/default-locale")
+    public String defaultLocale() {
+        SessionUser user = SessionUtils.getUser();
+
+        return Optional.ofNullable(user)
+                .map(SessionUser::getLanguage)
+                .filter(StringUtils::isNotBlank)
+                .orElse(defaultLocale);
+    }
+
 }

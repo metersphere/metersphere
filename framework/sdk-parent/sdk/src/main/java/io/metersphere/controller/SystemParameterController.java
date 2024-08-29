@@ -7,8 +7,6 @@ import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.constants.PermissionConstants;
-import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.ldap.domain.LdapInfo;
 import io.metersphere.log.annotation.MsAuditLog;
@@ -17,17 +15,14 @@ import io.metersphere.request.HeaderRequest;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.SystemParameterService;
 import jakarta.annotation.Resource;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/system")
@@ -38,10 +33,6 @@ public class SystemParameterController {
     private Environment env;
     @Resource
     private BaseUserService baseUserService;
-
-    @Value("${spring.messages.default-locale}")
-    private String defaultLocale;
-
 
     @PostMapping("/edit/email")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_EDIT)
@@ -146,16 +137,4 @@ public class SystemParameterController {
         systemParameterService.editInfo(systemParameter);
         return systemParameter;
     }
-
-    @GetMapping(value = "/default-locale")
-    public String defaultLocale() {
-        SessionUser user = SessionUtils.getUser();
-        String language = Optional.ofNullable(user)
-                .map(SessionUser::getLanguage)
-                .filter(StringUtils::isNotBlank)
-                .orElse(defaultLocale);
-
-        return language.replace("_", "-");
-    }
-
 }
