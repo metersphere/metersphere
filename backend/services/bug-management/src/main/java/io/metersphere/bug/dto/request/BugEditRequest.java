@@ -55,13 +55,16 @@ public class BugEditRequest implements Serializable {
     @Schema(description = "关联附件集合, 文件ID")
     private List<String> linkFileIds;
 
-    @Schema(description = "用例ID")
+    @Schema(description = "用例ID, 创建缺陷并关联时必填")
     private String caseId;
+
+    @Schema(description = "用例类型, 创建缺陷并关联时必填", allowableValues = {"FUNCTIONAL", "API", "SCENARIO"})
+    private String caseType;
 
     @Schema(description = "测试计划ID,通过测试计划创建的必填")
     private String testPlanId;
 
-    @Schema(description = "测试计划关联的用例ID, 通过测试计划创建的必填，值是关联的id而不是用例id")
+    @Schema(description = "测试计划关联的用例ID, 通过测试计划创建的必填，值是关联的关系ID而不是用例ID")
     private String testPlanCaseId;
 
     @Schema(description = "复制的附件")
