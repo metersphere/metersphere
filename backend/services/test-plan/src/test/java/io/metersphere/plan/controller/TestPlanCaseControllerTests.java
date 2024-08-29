@@ -22,7 +22,6 @@ import io.metersphere.plan.service.TestPlanFunctionalCaseService;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.BugPageProviderRequest;
-import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -71,6 +70,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_BATCH_ASSOCIATE_BUG_URL = "/test-plan/functional/case/batch/associate-bug";
 
     public static final String FUNCTIONAL_CASE_MINDER_BATCH_ADD_BUG = "/test-plan/functional/case/minder/batch/add-bug";
+    public static final String FUNCTIONAL_CASE_MINDER_BATCH_ASSOCIATE_BUG = "/test-plan/functional/case/minder/batch/associate-bug";
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
     @Resource
@@ -510,9 +510,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
     @Test
     @Order(20)
     public void testMinderBatchAddBug() throws Exception {
-        TestPlanCaseMinderBatchAddBugRequest request = new TestPlanCaseMinderBatchAddBugRequest();
-        TestPlanCaseBatchAddBugRequest bugRequest = buildRequest(false);
-        BeanUtils.copyBean(request, bugRequest);
+        TestPlanCaseBatchAddBugRequest request = buildRequest(false);
         request.setSelectAll(true);
         List<MockMultipartFile> files = new ArrayList<>();
         LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
@@ -535,4 +533,14 @@ public class TestPlanCaseControllerTests extends BaseTest {
         this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_MINDER_BATCH_ADD_BUG, paramMap);
     }
 
+    @Test
+    @Order(21)
+    public void testMinderBatchAssociateBug() throws Exception {
+        TestPlanCaseBatchAssociateBugRequest request = new TestPlanCaseBatchAssociateBugRequest();
+        request.setBugIds(Arrays.asList("123456"));
+        request.setTestPlanId("plan_1");
+        this.requestPostWithOk(FUNCTIONAL_CASE_MINDER_BATCH_ASSOCIATE_BUG, request);
+        request.setSelectAll(true);
+        this.requestPostWithOk(FUNCTIONAL_CASE_MINDER_BATCH_ASSOCIATE_BUG, request);
+    }
 }

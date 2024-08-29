@@ -39,6 +39,7 @@ import io.metersphere.sdk.dto.AssociateCaseDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -950,9 +951,16 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     public void batchAssociateBug(TestPlanCaseBatchAddBugRequest request, String bugId, String userId) {
         List<String> ids = doSelectIds(request);
         if (CollectionUtils.isNotEmpty(ids)) {
-            Map<String, String> caseMap = getCaseMap(ids);
+            handleAssociateBug(ids, userId, bugId, request.getTestPlanId());
+
+        }
+    }
+
+    public void handleAssociateBug(List<String> ids, String userId, String bugId, String testPlanId) {
+        SubListUtils.dealForSubList(ids, 500, (subList) -> {
+            Map<String, String> caseMap = getCaseMap(subList);
             List<BugRelationCase> list = new ArrayList<>();
-            ids.forEach(id -> {
+            subList.forEach(id -> {
                 BugRelationCase bugRelationCase = new BugRelationCase();
                 bugRelationCase.setId(IDGenerator.nextStr());
                 bugRelationCase.setBugId(bugId);
@@ -962,11 +970,11 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
                 bugRelationCase.setCreateTime(System.currentTimeMillis());
                 bugRelationCase.setUpdateTime(System.currentTimeMillis());
                 bugRelationCase.setTestPlanCaseId(id);
-                bugRelationCase.setTestPlanId(request.getTestPlanId());
+                bugRelationCase.setTestPlanId(testPlanId);
                 list.add(bugRelationCase);
             });
             bugRelationCaseMapper.batchInsert(list);
-        }
+        });
     }
 
     public Map<String, String> getCaseMap(List<String> ids) {
@@ -980,23 +988,30 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     public void batchAssociateBugByIds(TestPlanCaseBatchAssociateBugRequest request, String userId) {
         List<String> ids = doSelectIds(request);
         if (CollectionUtils.isNotEmpty(ids)) {
+            handleAssociateBugByIds(ids, request, userId);
+        }
+    }
+
+    public void handleAssociateBugByIds(List<String> ids, TestPlanCaseBatchAssociateBugRequest request, String userId) {
+        SubListUtils.dealForSubList(ids, 500, (subList) -> {
             BugRelationCaseExample example = new BugRelationCaseExample();
-            example.createCriteria().andTestPlanCaseIdIn(ids).andTestPlanIdEqualTo(request.getTestPlanId()).andBugIdIn(request.getBugIds());
+            example.createCriteria().andTestPlanCaseIdIn(subList).andTestPlanIdEqualTo(request.getTestPlanId()).andBugIdIn(request.getBugIds());
             List<BugRelationCase> bugRelationCases = bugRelationCaseMapper.selectByExample(example);
             Map<String, List<String>> bugMap = bugRelationCases.stream()
                     .collect(Collectors.groupingBy(
                             BugRelationCase::getTestPlanCaseId,
                             Collectors.mapping(BugRelationCase::getBugId, Collectors.toList())
                     ));
-            Map<String, String> caseMap = getCaseMap(ids);
+            Map<String, String> caseMap = getCaseMap(subList);
             List<BugRelationCase> list = new ArrayList<>();
-            ids.forEach(item -> {
+            subList.forEach(item -> {
                 buildAssociateBugData(item, bugMap, list, request, caseMap, userId);
             });
             if (CollectionUtils.isNotEmpty(list)) {
                 bugRelationCaseMapper.batchInsert(list);
             }
-        }
+        });
+
     }
 
     private void buildAssociateBugData(String id, Map<String, List<String>> bugMap, List<BugRelationCase> list, TestPlanCaseBatchAssociateBugRequest request, Map<String, String> caseMap, String userId) {

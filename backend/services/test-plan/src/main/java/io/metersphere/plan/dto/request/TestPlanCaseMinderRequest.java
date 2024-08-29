@@ -9,7 +9,7 @@ import java.util.List;
  * @author wx
  */
 @Data
-public class TestPlanCaseMinderBatchAddBugRequest extends TestPlanCaseBatchAddBugRequest {
+public class TestPlanCaseMinderRequest extends BasePlanCaseBatchRequest {
 
     @Schema(description = "脑图选中的模块id集合")
     private List<String> minderModuleIds;
