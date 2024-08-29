@@ -56,7 +56,7 @@
     },
     {
       title: 'caseManagement.featureCase.defectState',
-      dataIndex: 'type',
+      dataIndex: 'status',
       width: 100,
     },
     ...(!props.canEdit
