@@ -27,7 +27,7 @@ public class HttpMethodHandler extends CurlHandlerChain {
         Matcher matcher = CurlPatternConstants.HTTP_METHOD_PATTERN.matcher(curl);
         Matcher defaultMatcher = CurlPatternConstants.DEFAULT_HTTP_METHOD_PATTERN.matcher(curl);
         if (matcher.find()) {
-            String method = matcher.group(1);
+            String method = matcher.group(2);
             return CurlEntity.Method.valueOf(method.toUpperCase());
         } else if (defaultMatcher.find()) {
             //如果命令中包含 -d 或 --data，没有明确请求方法，默认为 POST
