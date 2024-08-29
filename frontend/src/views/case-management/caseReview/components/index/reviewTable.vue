@@ -198,6 +198,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import useCacheStore from '@/store/modules/cache/cache';
   import useUserStore from '@/store/modules/user';
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
@@ -232,6 +233,8 @@
   }>();
   const userStore = useUserStore();
   const appStore = useAppStore();
+  const cacheStore = useCacheStore();
+
   const router = useRouter();
   const { t } = useI18n();
   const { openModal } = useModal();
@@ -254,8 +257,9 @@
       };
     });
   });
+  const isActivated = computed(() => cacheStore.cacheViews.includes(CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW));
 
-  onBeforeMount(async () => {
+  async function mountedLoad() {
     try {
       const [userRes, memberRes] = await Promise.all([
         getReviewUsers(appStore.currentProjectId, keyword.value),
@@ -384,7 +388,7 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
-  });
+  }
 
   const hasOperationPermission = computed(() =>
     hasAnyPermission(['CASE_REVIEW:READ+UPDATE', 'CASE_REVIEW:READ+DELETE'])
@@ -572,10 +576,6 @@
       ...tableQueryParams.value,
     });
   }
-
-  onBeforeMount(() => {
-    searchReview();
-  });
 
   watch(
     () => innerShowType.value,
@@ -768,6 +768,20 @@
       },
     });
   }
+
+  onBeforeMount(() => {
+    if (!isActivated.value) {
+      mountedLoad();
+      searchReview();
+    }
+  });
+
+  onActivated(() => {
+    if (isActivated.value) {
+      mountedLoad();
+      searchReview();
+    }
+  });
 
   defineExpose({
     searchReview,

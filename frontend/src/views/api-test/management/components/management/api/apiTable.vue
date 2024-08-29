@@ -287,6 +287,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import useCacheStore from '@/store/modules/cache/cache';
   import { characterLimit, downloadByteFile, operationWidth } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -294,8 +295,14 @@
   import { ApiDefinitionDetail, ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
   import { DragSortParams } from '@/models/common';
   import { RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
+  import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+
+  const cacheStore = useCacheStore();
+  defineOptions({
+    name: CacheTabTypeEnum.API_TEST_API_TABLE,
+  });
 
   const props = defineProps<{
     class?: string;
@@ -664,10 +671,26 @@
     }
   }
 
-  onBeforeMount(() => {
+  function onMountedLoad() {
     initProtocolList();
     if (props.selectedProtocols.length > 0) {
       loadApiList(true);
+    }
+  }
+
+  const isActivated = computed(() => cacheStore.cacheViews.includes(CacheTabTypeEnum.API_TEST_API_TABLE));
+
+  onBeforeMount(() => {
+    cacheStore.clearCache();
+    if (!isActivated.value) {
+      onMountedLoad();
+      cacheStore.setCache(CacheTabTypeEnum.API_TEST_API_TABLE);
+    }
+  });
+
+  onActivated(() => {
+    if (isActivated.value) {
+      onMountedLoad();
     }
   });
 

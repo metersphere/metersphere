@@ -194,6 +194,7 @@
   import useModal from '@/hooks/useModal';
   import router from '@/router';
   import { useAppStore, useTableStore } from '@/store';
+  import useCacheStore from '@/store/modules/cache/cache';
   import { customFieldDataToTableData, customFieldToColumns, downloadByteFile } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -203,6 +204,9 @@
 
   import { makeColumns } from '@/views/case-management/caseManagementFeature/components/utils';
 
+  defineOptions({
+    name: RouteEnum.BUG_MANAGEMENT_INDEX,
+  });
   const { t } = useI18n();
   const MsExportDrawer = defineAsyncComponent(() => import('@/components/pure/ms-export-drawer/index.vue'));
   const DeleteModal = defineAsyncComponent(() => import('./components/deleteModal.vue'));
@@ -231,6 +235,7 @@
   const { openDeleteModal } = useModal();
   const route = useRoute();
   const severityFilterOptions = ref<BugOptionItem[]>([]);
+  const cacheStore = useCacheStore();
 
   // 是否同步完成
   const isComplete = ref(false);
@@ -801,7 +806,7 @@
   await initFilterOptions();
   await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT, columns.concat(customColumns), 'drawer');
 
-  onMounted(() => {
+  function mountedLoad() {
     setLoadListParams({ projectId: projectId.value });
     setCurrentPlatform();
     setExportOptionData();
@@ -809,6 +814,19 @@
     if (route.query.id) {
       // 分享或成功进来的页面
       handleShowDetail(route.query.id as string, -1);
+    }
+  }
+  const isActivated = computed(() => cacheStore.cacheViews.includes(RouteEnum.BUG_MANAGEMENT_INDEX));
+
+  onMounted(() => {
+    if (!isActivated.value) {
+      mountedLoad();
+    }
+  });
+
+  onActivated(() => {
+    if (isActivated.value) {
+      mountedLoad();
     }
   });
 

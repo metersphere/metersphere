@@ -229,14 +229,19 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import useCacheStore from '@/store/modules/cache/cache';
   import { characterLimit, operationWidth } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiDefinitionMockDetail } from '@/models/apiTest/management';
   import { MockDetail } from '@/models/apiTest/mock';
   import { RequestComposition } from '@/enums/apiEnum';
+  import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  defineOptions({
+    name: CacheTabTypeEnum.API_TEST_MOCK_TABLE,
+  });
   const props = defineProps<{
     isApi?: boolean; // 接口定义详情的case tab下
     class?: string;
@@ -254,6 +259,7 @@
   }>();
 
   const appStore = useAppStore();
+  const cacheStore = useCacheStore();
   const tableStore = useTableStore();
   const { t } = useI18n();
   const { openModal } = useModal();
@@ -429,6 +435,22 @@
     },
     { immediate: true }
   );
+
+  const isActivated = computed(() => cacheStore.cacheViews.includes(CacheTabTypeEnum.API_TEST_MOCK_TABLE));
+
+  onBeforeMount(() => {
+    cacheStore.clearCache();
+    if (!isActivated.value) {
+      loadMockList();
+      cacheStore.setCache(CacheTabTypeEnum.API_TEST_MOCK_TABLE);
+    }
+  });
+
+  onActivated(() => {
+    if (isActivated.value) {
+      loadMockList();
+    }
+  });
 
   async function handleBeforeEnableChange(record: ApiDefinitionMockDetail) {
     try {

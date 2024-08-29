@@ -290,6 +290,8 @@
   const hasOperationPermission = computed(
     () => hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN:READ+ASSOCIATION']) && props.canEdit
   );
+  const isActivated = inject<Ref<boolean>>('isActivated', ref(false));
+
   const columns = computed<MsTableColumn>(() => [
     {
       title: 'ID',
@@ -589,6 +591,12 @@
 
   onBeforeMount(() => {
     loadCaseList();
+  });
+
+  onActivated(() => {
+    if (isActivated.value) {
+      loadCaseList();
+    }
   });
 
   const modulesCount = computed(() => testPlanFeatureCaseStore.modulesCount);

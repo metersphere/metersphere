@@ -1,7 +1,9 @@
 <template>
   <div class="flex flex-1 flex-col overflow-hidden">
-    <div v-if="activeApiTab.id === 'all' && currentTab === 'api'" class="flex-1 pt-[8px]">
+    <keep-alive :include="cacheStore.cacheViews">
       <apiTable
+        v-if="activeApiTab.id === 'all' && currentTab === 'api'"
+        class="flex-1 pt-[8px]"
         :active-module="props.activeModule"
         :offspring-ids="props.offspringIds"
         :selected-protocols="props.selectedProtocols"
@@ -13,8 +15,8 @@
         @import="() => emit('import')"
         @open-edit-api-tab="openApiTab"
       />
-    </div>
-    <div v-else-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
+    </keep-alive>
+    <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
       <div class="mt-[8px] flex items-center justify-between px-[16px]">
         <MsTab
           v-model:activeKey="activeApiTab.definitionActiveKey"
@@ -130,6 +132,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
+  import useCacheStore from '@/store/modules/cache/cache';
   import useUserStore from '@/store/modules/user';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -158,6 +161,9 @@
   } from '@/views/api-test/components/config';
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
+
+  const cacheStore = useCacheStore();
+
   // 懒加载requestComposition组件
   const requestComposition = defineAsyncComponent(
     () => import('@/views/api-test/components/requestComposition/index.vue')

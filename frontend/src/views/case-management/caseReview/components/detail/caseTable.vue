@@ -366,6 +366,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import useCacheStore from '@/store/modules/cache/cache';
   import useCaseReviewStore from '@/store/modules/case/caseReview';
   import useUserStore from '@/store/modules/user';
   import { characterLimit, findNodeByKey } from '@/utils';
@@ -396,6 +397,7 @@
 
   const router = useRouter();
   const route = useRoute();
+  const cacheStore = useCacheStore();
 
   const appStore = useAppStore();
   const userStore = useUserStore();
@@ -608,13 +610,27 @@
     loadList();
     getModuleCount();
   }
-
+  const isActivated = computed(() =>
+    cacheStore.cacheViews.includes(CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL)
+  );
   const reviewerTitlePopupVisible = ref(true);
-  onBeforeMount(() => {
+
+  function loadReviewCase() {
     searchCase();
     setTimeout(() => {
       reviewerTitlePopupVisible.value = false;
     }, 5000);
+  }
+  onBeforeMount(() => {
+    if (!isActivated.value) {
+      loadReviewCase();
+    }
+  });
+
+  onActivated(() => {
+    if (isActivated.value) {
+      loadReviewCase();
+    }
   });
 
   /**
@@ -1032,7 +1048,7 @@
     });
   }
 
-  onBeforeMount(async () => {
+  async function mountedLoad() {
     const [, memberRes] = await Promise.all([
       initReviewers(),
       getProjectMemberCommentOptions(appStore.currentProjectId, keyword.value),
@@ -1080,6 +1096,18 @@
         },
       },
     ];
+  }
+
+  onBeforeMount(() => {
+    if (!isActivated.value) {
+      mountedLoad();
+    }
+  });
+
+  onActivated(() => {
+    if (isActivated.value) {
+      mountedLoad();
+    }
   });
 
   defineExpose({

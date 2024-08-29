@@ -174,6 +174,9 @@
   import { ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
+  defineOptions({
+    name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL,
+  });
   const router = useRouter();
   const route = useRoute();
   const userStore = useUserStore();

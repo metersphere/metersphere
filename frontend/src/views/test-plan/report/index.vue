@@ -5,9 +5,15 @@
   </MsCard>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="testPlanReport">
   import MsCard from '@/components/pure/ms-card/index.vue';
   import ReportList from './component/reportList.vue';
+
+  import { RouteEnum } from '@/enums/routeEnum';
+
+  defineOptions({
+    name: RouteEnum.TEST_PLAN_REPORT,
+  });
 </script>
 
 <style scoped lang="less">

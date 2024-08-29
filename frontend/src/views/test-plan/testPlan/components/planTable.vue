@@ -414,6 +414,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
+  import useCacheStore from '@/store/modules/cache/cache';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -429,13 +430,15 @@
     TestPlanItem,
   } from '@/models/testPlan/testPlan';
   import { LastExecuteResults } from '@/enums/caseEnum';
-  import { TestPlanRouteEnum } from '@/enums/routeEnum';
+  import { RouteEnum, TestPlanRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
   import { planStatusOptions } from '../config';
   import { getModules } from '@/views/case-management/caseManagementFeature/components/utils';
+
+  const cacheStore = useCacheStore();
 
   const tableStore = useTableStore();
   const appStore = useAppStore();
@@ -1505,10 +1508,6 @@
     }
   );
 
-  onBeforeMount(() => {
-    fetchData();
-  });
-
   const planData = computed(() => {
     return propsRes.value.data;
   });
@@ -1605,6 +1604,20 @@
     resetFilterParams();
     fetchData();
   }
+
+  const isActivated = computed(() => cacheStore.cacheViews.includes(RouteEnum.TEST_PLAN_INDEX));
+
+  onBeforeMount(() => {
+    if (!isActivated.value) {
+      fetchData();
+    }
+  });
+
+  onActivated(() => {
+    if (isActivated.value) {
+      fetchData();
+    }
+  });
 
   defineExpose({
     fetchData,

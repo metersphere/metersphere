@@ -135,9 +135,14 @@
   import type { CreateOrUpdateModule } from '@/models/caseManagement/featureCase';
   import { ModuleTreeNode, TableQueryParams } from '@/models/common';
   import type { TestPlanItem } from '@/models/testPlan/testPlan';
+  import { RouteEnum } from '@/enums/routeEnum';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
   import Message from '@arco-design/web-vue/es/message';
+
+  defineOptions({
+    name: RouteEnum.TEST_PLAN_INDEX,
+  });
 
   const appStore = useAppStore();
   const { t } = useI18n();

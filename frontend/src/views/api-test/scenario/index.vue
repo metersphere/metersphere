@@ -65,17 +65,24 @@
           </div>
         </div>
         <a-divider class="!my-0" />
-        <div v-if="activeScenarioTab.id === 'all'" class="pageWrap overflow-x-hidden">
-          <ScenarioTable
-            ref="apiTableRef"
-            :active-module="activeModule"
-            :offspring-ids="offspringIds"
-            @refresh-module-tree="refreshTree"
-            @open-scenario="openScenarioTab"
-            @create-scenario="() => newTab()"
-          />
-        </div>
-        <div v-else-if="activeScenarioTab.isNew" class="pageWrap">
+        <keep-alive :include="cacheStore.cacheViews">
+          <MsCacheWrapper
+            v-if="activeScenarioTab.id === 'all'"
+            :key="CacheTabTypeEnum.API_SCENARIO_TABLE"
+            class="pageWrap overflow-x-hidden"
+            :cache-name="CacheTabTypeEnum.API_SCENARIO_TABLE"
+          >
+            <ScenarioTable
+              ref="apiTableRef"
+              :active-module="activeModule"
+              :offspring-ids="offspringIds"
+              @refresh-module-tree="refreshTree"
+              @open-scenario="openScenarioTab"
+              @create-scenario="() => newTab()"
+            />
+          </MsCacheWrapper>
+        </keep-alive>
+        <div v-if="activeScenarioTab.isNew && activeScenarioTab.id !== 'all'" class="pageWrap">
           <create
             ref="createRef"
             v-model:scenario="activeScenarioTab"
@@ -83,7 +90,7 @@
             @batch-debug="realExecute($event, false)"
           ></create>
         </div>
-        <div v-else class="pageWrap">
+        <div v-if="!activeScenarioTab.isNew && activeScenarioTab.id !== 'all'" class="pageWrap">
           <detail
             ref="detailRef"
             v-model:scenario="activeScenarioTab"
@@ -106,6 +113,7 @@
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
 
+  import MsCacheWrapper from '@/components/pure/ms-cache-wrapper/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
@@ -130,6 +138,7 @@
   import useLeaveTabUnSaveCheck from '@/hooks/useLeaveTabUnSaveCheck';
   import router from '@/router';
   import useAppStore from '@/store/modules/app';
+  import useCacheStore from '@/store/modules/cache/cache';
   import { filterTree, getGenerateId, mapTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -144,6 +153,7 @@
   } from '@/models/apiTest/scenario';
   import { ModuleTreeNode } from '@/models/common';
   import { ScenarioExecuteStatus, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
+  import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
   import { defaultCsvParamItem, defaultNormalParamItem, defaultScenario } from './components/config';
@@ -162,6 +172,8 @@
 
   const route = useRoute();
   const appStore = useAppStore();
+  const cacheStore = useCacheStore();
+
   const { t } = useI18n();
 
   const scenarioTabs = ref<ScenarioParams[]>([
