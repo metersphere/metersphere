@@ -37,6 +37,34 @@ const message = {
   },
   system_custom_template: {
     api_template: "接口模版"
+  },
+  qrcode:{
+    service_unconfigured: '未配置',
+    service_configured: '已配置',
+    service_unconfiguredTip: '暂未配置，可在编辑页配置并开启',
+    service_resetConfigTip: '重置成功！',
+    service_testLink: '测试连接',
+    service_testLinkStatusTip: '测试连接成功！',
+    service_enableSuccess: '启用成功',
+    service_closeSuccess: '禁用成功',
+    service_edit: '编辑',
+    service_reset: '重置',
+    service_WE_COM: '企业微信',
+    service_DING_TALK: '钉钉',
+    service_LARK: '飞书',
+    service_LARK_SUITE: '国际飞书',
+    service_corpId: '企业ID',
+    service_agentId: '应用ID',
+    service_appKey: '应用key',
+    service_appSecret: '应用密钥',
+    service_callBack: '回调域名',
+    service_enable: '状态',
+    service_valid: '是否可用',
+    service_corpId_required: '企业ID不能为空',
+    service_agentId_required: '应用ID不能为空',
+    service_appKey_required: '应用key不能为空',
+    service_appSecret_required: '应用密钥不能为空',
+    service_callBack_required: '回调域名不能为空',
   }
 }
 

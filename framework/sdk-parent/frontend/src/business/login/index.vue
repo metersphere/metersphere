@@ -11,7 +11,7 @@
               <span>{{ loginTitle }}</span>
             </div>
           </div>
-          <div class="form">
+          <div class="form" v-if="!showQrCodeTab">
             <el-form :model="form" :rules="rules" ref="form">
               <el-form-item>
                 <el-radio-group v-model="form.authenticate" @change="redirectAuth(form.authenticate)">
@@ -33,10 +33,22 @@
               </el-form-item>
             </el-form>
           </div>
-          <div class="btn">
+          <div v-if="showQrCodeTab">
+            <tab-qr-code :tab-name="activeName ? activeName : orgOptions[0].value"></tab-qr-code>
+          </div>
+          <div class="btn" v-if="!showQrCodeTab">
             <el-button type="primary" class="submit" @click="submit('form')">
               {{ $t('commons.login') }}
             </el-button>
+          </div>
+          <el-divider class="login-divider"><span style="color: #959598; font-size: 12px">更多登录方式</span></el-divider>
+          <div
+              v-if="orgOptions.length > 0"
+              class="loginType"
+              @click="switchLoginType('QR_CODE')"
+          >
+            <svg-icon v-if="!showQrCodeTab" icon-class="icon_scan_code" class-name="ms-icon"/>
+            <svg-icon v-if="showQrCodeTab" icon-class="icon_people" class-name="ms-icon"/>
           </div>
           <div class="msg">
             {{ msg }}
@@ -75,6 +87,8 @@ import {operationConfirm} from "../../utils";
 import {getModuleList} from "../../api/module";
 import {getLicense} from "../../api/license";
 import {setLanguage} from "../../i18n";
+import {getPlatformParamUrl} from "../../api/qrcode";
+import tabQrCode from "../login/tabQrCode.vue";
 
 const checkLicense = () => {
   return getLicense()
@@ -94,6 +108,7 @@ const checkLicense = () => {
 
 export default {
   name: "Login",
+  components: {tabQrCode},
   data() {
     return {
       loading: false,
@@ -110,7 +125,10 @@ export default {
       openLdap: false,
       authSources: [],
       lastUser: sessionStorage.getItem('lastUser'),
-      loginTitle: this.$t('commons.welcome')
+      loginTitle: this.$t('commons.welcome'),
+      showQrCodeTab:false,
+      activeName:'',
+      orgOptions:[]
     }
   },
   watch: {
@@ -197,6 +215,8 @@ export default {
 
   },
   created: function () {
+    this.initPlatformInfo();
+    this.activeName = localStorage.getItem('loginType') || 'WE_COM';
     document.addEventListener("keydown", this.watchEnter);
     let authenticate = localStorage.getItem('AuthenticateType');
     if (authenticate === 'LOCAL' || authenticate === 'LDAP') {
@@ -346,6 +366,28 @@ export default {
         });
       });
     },
+    async initPlatformInfo() {
+      try {
+        await getPlatformParamUrl().then(res=>{
+          if (localStorage.getItem('loginType')) {
+            this.showQrCodeTab = true;
+            this.activeName =  localStorage.getItem('loginType') || 'WE_COM';
+          }
+          this.orgOptions = res.data.map((e) => ({
+            label: e.name,
+            value: e.id,
+          }));
+        });
+
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+    },
+    switchLoginType(type) {
+      this.showQrCodeTab = this.showQrCodeTab === false;
+
+    }
   }
 }
 </script>
@@ -456,6 +498,26 @@ export default {
   height: 480px;
   margin: 165px 0px;
 }
-
+.svg-icon.ms-icon {
+  width: 18px;
+  height: 18px;
+  vertical-align: center;
+  fill: var(--primary_color);
+  border: 1px solid #ededf1;
+  border-radius: 50%;
+}
+.login-divider{
+  display: flex;
+  margin: 26px auto;
+  width: 480px;
+}
+.loginType{
+  display: flex;
+  align-items: center;
+  align-content: center;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  justify-content: center;
+}
 </style>
 
