@@ -21,12 +21,16 @@ export const getLanguage = () => {
   let language = localStorage.getItem('language');
   if (!language) {
     language = navigator.language || navigator.browserLanguage;
-    axios.get('/system/default-locale').then((response) => {
-      if (response.data && response.data.data) {
-        language = response.data.data.replace('_', '-');
-        i18n.locale = language;
-      }
-    });
+    try {
+      axios.get('/default-locale').then((response) => {
+        if (response.data) {
+          language = response.data.replace('_', '-');
+          i18n.locale = language;
+        }
+      });
+    } catch (e) {
+      return language;
+    }
   }
   return language;
 };

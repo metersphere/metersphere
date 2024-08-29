@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping
@@ -123,5 +124,15 @@ public class LoginController {
     @GetMapping(value = "/services")
     public List<ServiceDTO> services() {
         return List.of(new ServiceDTO(serviceId, port));
+    }
+
+    @GetMapping(value = "/default-locale")
+    public String defaultLocale() {
+        SessionUser user = SessionUtils.getUser();
+
+        return Optional.ofNullable(user)
+                .map(SessionUser::getLanguage)
+                .filter(StringUtils::isNotBlank)
+                .orElse(defaultLocale);
     }
 }

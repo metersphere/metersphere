@@ -22,7 +22,7 @@ export const getLanguage = () => {
   if (!language) {
     // 远程接口获取用户语言
     language = navigator.language || navigator.browserLanguage;
-    axios.get('/system/default-locale').then((response) => {
+    axios.get('/default-locale').then((response) => {
       if (response.data && response.data.data) {
         language = response.data.data.replace('_', '-');
         i18n.locale = language;
