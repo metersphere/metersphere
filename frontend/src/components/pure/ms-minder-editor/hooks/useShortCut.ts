@@ -1,7 +1,17 @@
 import type { MinderJsonNode } from '../props';
 import useMinderOperation, { type MinderOperationProps } from './useMinderOperation';
 
-type ShortcutKey = 'expand' | 'enter' | 'appendSiblingNode' | 'appendChildNode' | 'undo' | 'redo' | 'delete';
+type ShortcutKey =
+  | 'expand'
+  | 'enter'
+  | 'appendSiblingNode'
+  | 'appendChildNode'
+  | 'undo'
+  | 'redo'
+  | 'delete'
+  | 'executeToSuccess'
+  | 'executeToBlocked'
+  | 'executeToError';
 // 快捷键事件映射，combinationShortcuts中定义了组合键事件，key为组合键，value为事件名称；
 type Shortcuts = {
   [key in ShortcutKey]?: () => void;
@@ -11,6 +21,7 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
   const { minderCopy, minderCut, minderPaste } = useMinderOperation(options);
 
   const handleKeyDown = (event: KeyboardEvent) => {
+    event.preventDefault();
     const nodes: MinderJsonNode[] = window.minder.getSelectedNodes();
     if (nodes.length === 0) {
       return;
@@ -41,19 +52,26 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
       'tab': 'appendChildNode',
       'backspace': 'delete',
     };
+    // 业务快捷键
+    const businessShortcuts: { [key: string]: ShortcutKey } = {
+      s: 'executeToSuccess', // 执行结果为成功
+      b: 'executeToBlocked', // 执行结果为阻塞
+      e: 'executeToError', // 执行结果为失败
+    };
 
+    let action;
     if (isCtrlOrCmd && combinationShortcuts[key]) {
       // 执行组合键事件
-      const action = combinationShortcuts[key];
-      if (shortcuts[action]) {
-        shortcuts[action]!();
-      }
+      action = combinationShortcuts[key];
     } else if (singleShortcuts[key]) {
       // 执行单键事件
-      const action = singleShortcuts[key];
-      if (shortcuts[action]) {
-        shortcuts[action]!();
-      }
+      action = singleShortcuts[key];
+    } else if (businessShortcuts[key]) {
+      // 执行业务快捷键事件
+      action = businessShortcuts[key];
+    }
+    if (action && shortcuts[action]) {
+      shortcuts[action]!();
     }
   };
 
