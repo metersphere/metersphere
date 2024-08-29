@@ -9,7 +9,7 @@ import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
-import io.metersphere.plan.dto.request.TestPlanCaseMinderBatchAddBugRequest;
+import io.metersphere.plan.dto.request.TestPlanCaseMinderRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
@@ -77,9 +77,9 @@ public interface ExtTestPlanFunctionalCaseMapper {
 
     List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
 
-    Collection<String> selectIdsByProjectIds(@Param("request") TestPlanCaseMinderBatchAddBugRequest request);
+    Collection<String> selectIdsByProjectIds(@Param("request") TestPlanCaseMinderRequest request);
 
     List<FunctionalCaseModule> selectProjectByModuleIds(@Param("moduleIds") List<String> moduleIds);
 
-    Collection<String> selectIdsByModuleIds(@Param("request") TestPlanCaseMinderBatchAddBugRequest request, @Param("minderModuleIds") List<String> minderModuleIds);
+    Collection<String> selectIdsByModuleIds(@Param("request") TestPlanCaseMinderRequest request, @Param("minderModuleIds") List<String> minderModuleIds);
 }

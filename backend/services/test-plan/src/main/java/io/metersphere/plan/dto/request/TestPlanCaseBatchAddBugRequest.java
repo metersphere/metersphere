@@ -16,7 +16,7 @@ import java.util.List;
  * @author wx
  */
 @Data
-public class TestPlanCaseBatchAddBugRequest extends BasePlanCaseBatchRequest {
+public class TestPlanCaseBatchAddBugRequest extends TestPlanCaseMinderRequest {
 
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug.id.not_blank}", groups = {Updated.class})

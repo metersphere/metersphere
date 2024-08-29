@@ -1,15 +1,12 @@
 package io.metersphere.plan.service;
 
-import io.metersphere.bug.domain.BugRelationCase;
-import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.service.FunctionalCaseModuleService;
-import io.metersphere.plan.dto.request.TestPlanCaseMinderBatchAddBugRequest;
+import io.metersphere.plan.dto.request.TestPlanCaseBatchAddBugRequest;
+import io.metersphere.plan.dto.request.TestPlanCaseBatchAssociateBugRequest;
+import io.metersphere.plan.dto.request.TestPlanCaseMinderRequest;
 import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
-import io.metersphere.sdk.constants.CaseType;
-import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
-import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -31,36 +28,24 @@ public class TestPlanFunctionalCaseMinderService {
     private FunctionalCaseModuleService functionalCaseModuleService;
     @Resource
     private TestPlanFunctionalCaseService testPlanFunctionalCaseService;
-    @Resource
-    private BugRelationCaseMapper bugRelationCaseMapper;
 
-    public void minderBatchAssociateBug(TestPlanCaseMinderBatchAddBugRequest request, String bugId, String userId) {
+    /**
+     * 脑图批量添加缺陷
+     *
+     * @param request
+     * @param bugId
+     * @param userId
+     */
+    public void minderBatchAssociateBug(TestPlanCaseBatchAddBugRequest request, String bugId, String userId) {
         //获取脑图选中的用例id集合
         List<String> ids = getMinderSelectIds(request);
         if (CollectionUtils.isNotEmpty(ids)) {
-            SubListUtils.dealForSubList(ids, 500, (subList) -> {
-                Map<String, String> caseMap = testPlanFunctionalCaseService.getCaseMap(subList);
-                List<BugRelationCase> list = new ArrayList<>();
-                subList.forEach(id -> {
-                    BugRelationCase bugRelationCase = new BugRelationCase();
-                    bugRelationCase.setId(IDGenerator.nextStr());
-                    bugRelationCase.setBugId(bugId);
-                    bugRelationCase.setCaseId(caseMap.get(id));
-                    bugRelationCase.setCaseType(CaseType.FUNCTIONAL_CASE.getKey());
-                    bugRelationCase.setCreateUser(userId);
-                    bugRelationCase.setCreateTime(System.currentTimeMillis());
-                    bugRelationCase.setUpdateTime(System.currentTimeMillis());
-                    bugRelationCase.setTestPlanCaseId(id);
-                    bugRelationCase.setTestPlanId(request.getTestPlanId());
-                    list.add(bugRelationCase);
-                });
-                bugRelationCaseMapper.batchInsert(list);
-            });
+            testPlanFunctionalCaseService.handleAssociateBug(ids, userId, bugId, request.getTestPlanId());
         }
 
     }
 
-    private List<String> getMinderSelectIds(TestPlanCaseMinderBatchAddBugRequest request) {
+    private List<String> getMinderSelectIds(TestPlanCaseMinderRequest request) {
         if (request.isSelectAll()) {
             //全选
             List<String> ids = extTestPlanFunctionalCaseMapper.getIds(request, false);
@@ -124,4 +109,17 @@ public class TestPlanFunctionalCaseMinderService {
     }
 
 
+    /**
+     * 脑图批量关联缺陷
+     *
+     * @param request
+     * @param userId
+     */
+    public void batchAssociateBugByIds(TestPlanCaseBatchAssociateBugRequest request, String userId) {
+        List<String> ids = getMinderSelectIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            testPlanFunctionalCaseService.handleAssociateBugByIds(ids, request, userId);
+        }
+
+    }
 }
