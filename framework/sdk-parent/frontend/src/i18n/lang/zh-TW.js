@@ -2297,6 +2297,7 @@ const message = {
   system_parameter_setting: {
     mailbox_service_settings: "郵件設置",
     ldap_setting: "LDAP設置",
+    qrcode_setting: "掃碼登入",
     test_connection: "測試連接",
     SMTP_host: "SMTP主機",
     SMTP_port: "SMTP端口",
@@ -3585,6 +3586,12 @@ const message = {
   jar_config: {
     upload_limit_size: "上传文件大小不能超过 50MB!",
   },
+  qrcode:{
+    service_WE_COM: '企業微信',
+    service_DING_TALK: '釘釘',
+    service_LARK: '飛書',
+    service_LARK_SUITE: '國際飛書',
+  }
 };
 
 export default {

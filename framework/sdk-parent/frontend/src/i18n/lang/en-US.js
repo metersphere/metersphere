@@ -2391,6 +2391,7 @@ const message = {
   system_parameter_setting: {
     mailbox_service_settings: "Mailbox Settings",
     ldap_setting: "LDAP Setting",
+    qrcode_setting: "Scan code to log in",
     test_connection: "Test connection",
     SMTP_host: "SMTP host",
     SMTP_port: "SMTP port",
@@ -3717,6 +3718,12 @@ const message = {
   jar_config: {
     upload_limit_size: "Upload file size cannot exceed 50MB!",
   },
+  qrcode:{
+    service_WE_COM: 'WE_COM',
+    service_DING_TALK: 'DING_TALK',
+    service_LARK: 'LARK',
+    service_LARK_SUITE: 'LARK_SUITE',
+  }
 };
 
 export default {

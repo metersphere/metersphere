@@ -20,6 +20,9 @@
       <el-tab-pane v-if="hasLicense()" :label="$t('auth_source.title')" name="auth">
         <mx-auth/>
       </el-tab-pane>
+      <el-tab-pane v-if="hasLicense()" :label="$t('system_parameter_setting.qrcode_setting')" name="qrcode">
+        <qr-code-config/>
+      </el-tab-pane>
     </el-tabs>
   </el-card>
 </template>
@@ -31,6 +34,7 @@ import BaseSetting from "./BaseSetting";
 import MxAuth from "./MxAuth";
 import MxDisplay from "./MxDisplay";
 import MsModule from "./MsModule";
+import QrCodeConfig from "./QrCodeConfig";
 import {hasLicense} from 'metersphere-frontend/src/utils/permission';
 
 export default {
@@ -41,7 +45,8 @@ export default {
     LdapSetting,
     MxAuth,
     MxDisplay,
-    MsModule
+    MsModule,
+    QrCodeConfig
   },
   data() {
     return {
