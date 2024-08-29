@@ -121,7 +121,7 @@
         class="ms-minder-dropdown"
         :popup-translate="[0, 4]"
         position="bl"
-        trigger="click"
+        trigger="hover"
         @select="(val) => handleMinderMenuSelect(val)"
       >
         <a-tooltip :content="t('common.more')">

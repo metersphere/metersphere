@@ -29,60 +29,8 @@ interface IJumpingRuntime {
   container: HTMLElement;
 }
 
-// Nice: http://unixpapa.com/js/key.html
-function isIntendToInput(e: KeyboardEvent): boolean {
-  if (e.ctrlKey || e.metaKey || e.altKey) return false;
-
-  // a-zA-Z
-  if (e.keyCode >= 65 && e.keyCode <= 90) return true;
-
-  // 0-9 以及其上面的符号
-  if (e.keyCode >= 48 && e.keyCode <= 57) return true;
-
-  // 小键盘区域 (除回车外)
-  if (e.keyCode !== 108 && e.keyCode >= 96 && e.keyCode <= 111) return true;
-
-  // 小键盘区域 (除回车外)
-  // @yinheli from pull request
-  if (e.keyCode !== 108 && e.keyCode >= 96 && e.keyCode <= 111) return true;
-
-  // 输入法
-  if (e.keyCode === 229 || e.keyCode === 0) return true;
-
-  return false;
-}
-
 function JumpingRuntime(this: IJumpingRuntime): void {
-  const { fsm, minder, receiver } = this;
-  const receiverElement = receiver.element;
-  // normal -> *
-  receiver.listen('normal', (e: KeyboardEvent) => {
-    // 为了防止处理进入edit模式而丢失处理的首字母,此时receiver必须为enable
-    receiver.enable();
-    /**
-     * check
-     * @editor Naixor
-     * @Date 2015-12-2
-     */
-    switch (e.type) {
-      case 'keydown': {
-        if (minder.getSelectedNode()) {
-          if (isIntendToInput(e)) {
-            return fsm.jump('input', 'user-input');
-          }
-        } else {
-          receiverElement.innerHTML = '';
-        }
-        // normal -> normal shortcut
-        // fsm.jump('normal', 'shortcut-handle', e); TODO: 未来需要支持自定义快捷键处理逻辑
-        break;
-      }
-      case 'keyup': {
-        break;
-      }
-      default:
-    }
-  });
+  const { fsm, receiver } = this;
 
   // input => normal
   receiver.listen('input', (e: KeyboardEvent) => {

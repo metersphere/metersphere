@@ -19,7 +19,7 @@
     >
       <template #extractMenu>
         <!-- 缺陷 -->
-        <a-dropdown position="bl">
+        <a-dropdown trigger="hover" position="bl">
           <a-tooltip
             v-if="
               props.canEdit &&
@@ -166,6 +166,7 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
+  import useShortCut from '@/components/pure/ms-minder-editor/hooks/useShortCut';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
   import {
@@ -178,6 +179,7 @@
     setPriorityView,
   } from '@/components/pure/ms-minder-editor/script/tool/utils';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
+  import { getMinderOperationParams } from '@/components/business/ms-minders/caseReviewMinder/utils';
   import Attachment from '@/components/business/ms-minders/featureCaseMinder/attachment.vue';
   import useMinderBaseApi from '@/components/business/ms-minders/featureCaseMinder/useMinderBaseApi';
   import BugList from './bugList.vue';
@@ -189,7 +191,13 @@
   import ExecuteSubmit from '@/views/test-plan/testPlan/detail/featureCase/detail/executeSubmit.vue';
 
   import { getCasePlanMinder } from '@/api/modules/case-management/caseReview';
-  import { associateBugToPlan, executeHistory, getCaseDetail, runFeatureCase } from '@/api/modules/test-plan/testPlan';
+  import {
+    associateBugToPlan,
+    batchExecuteCase,
+    executeHistory,
+    getCaseDetail,
+    runFeatureCase,
+  } from '@/api/modules/test-plan/testPlan';
   import { defaultExecuteForm } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
@@ -201,7 +209,11 @@
   import type { StepList } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/common';
-  import type { ExecuteFeatureCaseFormParams, ExecuteHistoryItem } from '@/models/testPlan/testPlan';
+  import type {
+    BatchExecuteFeatureCaseParams,
+    ExecuteFeatureCaseFormParams,
+    ExecuteHistoryItem,
+  } from '@/models/testPlan/testPlan';
   import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { MinderEventName, MinderKeyEnum } from '@/enums/minderEnum';
@@ -304,16 +316,6 @@
       });
     }
   }
-
-  onMounted(() => {
-    initCaseTree();
-    // 固定标签颜色
-    window.minder._resourceColorMapping = {
-      [executionResultMap.SUCCESS.statusText]: 4,
-      [executionResultMap.ERROR.statusText]: 5,
-      [executionResultMap.BLOCKED.statusText]: 6,
-    };
-  });
 
   watch(
     () => props.activeModule,
@@ -549,11 +551,17 @@
   const executeVisible = ref(false);
   // 更新用例的实际结果节点
   function updateCaseActualResultNode(node: MinderJsonNode, content: string) {
-    const actualResultNode = node.children?.find((item: MinderJsonNode) =>
+    let actualResultNode = node.children?.find((item: MinderJsonNode) =>
       item.data?.resource?.includes(actualResultTag)
     );
     if (actualResultNode) {
       actualResultNode.setData('text', content ?? '').render();
+    } else {
+      actualResultNode = createNode(
+        { resource: [actualResultTag], text: content ?? '', id: `actualResult-${node.data?.id}` },
+        node
+      );
+      handleRenderNode(node, [actualResultNode]);
     }
   }
   function isActualResultNode(node: MinderJsonNode) {
@@ -583,6 +591,24 @@
       initNodeCases(node);
     }
     emit('refreshPlan');
+  }
+  async function handleShortCutExecute(status: LastExecuteResults) {
+    const selectedNodes: MinderJsonNode = window.minder.getSelectedNode();
+    if (!selectedNodes?.data?.resource?.includes(caseTag)) return;
+    try {
+      await batchExecuteCase({
+        projectId: appStore.currentProjectId,
+        testPlanId: props.planId,
+        lastExecResult: status,
+        content: '',
+        ...getMinderOperationParams(selectedNodes),
+      } as BatchExecuteFeatureCaseParams);
+      // 更新
+      handleExecuteDone(status, '');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
   const stepExecuteModelVisible = ref(false);
@@ -834,6 +860,32 @@
   function handleNodeUnselect() {
     extraVisible.value = false;
   }
+
+  const { unbindShortcuts } = useShortCut(
+    {
+      executeToError: () => {
+        handleShortCutExecute(LastExecuteResults.ERROR);
+      },
+      executeToBlocked: () => {
+        handleShortCutExecute(LastExecuteResults.BLOCKED);
+      },
+      executeToSuccess: () => {
+        handleShortCutExecute(LastExecuteResults.SUCCESS);
+      },
+    },
+    {}
+  );
+
+  onMounted(() => {
+    initCaseTree();
+    // 固定标签颜色
+    window.minder._resourceColorMapping = {
+      [executionResultMap.SUCCESS.statusText]: 4,
+      [executionResultMap.ERROR.statusText]: 5,
+      [executionResultMap.BLOCKED.statusText]: 6,
+    };
+    unbindShortcuts();
+  });
 
   defineExpose({
     initCaseTree,
