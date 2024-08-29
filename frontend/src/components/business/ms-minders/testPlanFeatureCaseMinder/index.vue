@@ -555,10 +555,15 @@
       item.data?.resource?.includes(actualResultTag)
     );
     if (actualResultNode) {
-      actualResultNode.setData('text', content ?? '').render();
-    } else {
+      if (content.length) {
+        actualResultNode.setData('text', content).render();
+      } else {
+        // 删除实际结果节点
+        window.minder.removeNode(actualResultNode);
+      }
+    } else if (content.length) {
       actualResultNode = createNode(
-        { resource: [actualResultTag], text: content ?? '', id: `actualResult-${node.data?.id}` },
+        { resource: [actualResultTag], text: content, id: `actualResult-${node.data?.id}` },
         node
       );
       handleRenderNode(node, [actualResultNode]);
