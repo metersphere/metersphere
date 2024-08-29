@@ -525,6 +525,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import useCacheStore from '@/store/modules/cache/cache';
   import { characterLimit, operationWidth } from '@/utils';
   import { translateTextToPX } from '@/utils/css';
   import { hasAnyPermission } from '@/utils/permission';
@@ -540,6 +541,7 @@
   import { DragSortParams } from '@/models/common';
   import { ResourcePoolItem } from '@/models/setting/resourcePool';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
+  import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -560,6 +562,8 @@
 
   const memberOptions = ref<{ label: string; value: string }[]>([]);
   const appStore = useAppStore();
+  const cacheStore = useCacheStore();
+
   const { t } = useI18n();
   const { openModal } = useModal();
   const tableRecord = ref<ApiScenarioTableItem>();
@@ -1433,9 +1437,22 @@
     }
   }
 
+  const isActivated = computed(() => cacheStore.cacheViews.includes(CacheTabTypeEnum.API_SCENARIO_TABLE));
+
   onBeforeMount(() => {
-    loadScenarioList();
+    cacheStore.clearCache();
+    if (!isActivated.value) {
+      loadScenarioList();
+      cacheStore.setCache(CacheTabTypeEnum.API_SCENARIO_TABLE);
+    }
   });
+
+  onActivated(() => {
+    if (isActivated.value) {
+      loadScenarioList();
+    }
+  });
+
   watch(
     () => props.activeModule,
     () => {

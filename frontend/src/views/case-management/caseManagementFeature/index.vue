@@ -122,6 +122,10 @@
 
   import Message from '@arco-design/web-vue/es/message';
 
+  defineOptions({
+    name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
+  });
+
   const route = useRoute();
 
   const router = useRouter();

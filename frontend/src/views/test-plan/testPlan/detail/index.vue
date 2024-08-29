@@ -174,6 +174,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
+  import useCacheStore from '@/store/modules/cache/cache';
   import useMinderStore from '@/store/modules/components/minder-editor';
   import useUserStore from '@/store/modules/user';
   import { characterLimit } from '@/utils';
@@ -183,6 +184,11 @@
   import type { PassRateCountDetail, TestPlanDetail, TestPlanItem } from '@/models/testPlan/testPlan';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
+
+  defineOptions({
+    name: TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL,
+  });
+  const cacheStore = useCacheStore();
 
   const userStore = useUserStore();
   const appStore = useAppStore();
@@ -562,13 +568,28 @@
       }
     }
   );
+  const isActivated = computed(() => cacheStore.cacheViews.includes(TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL));
+
+  provide('isActivated', isActivated);
 
   onBeforeMount(() => {
-    if (route.query.type === 'featureCase') {
-      activeTab.value = 'featureCase';
+    if (!isActivated.value) {
+      if (route.query.type === 'featureCase') {
+        activeTab.value = 'featureCase';
+      }
+      initDetail();
+      initPlanTree();
     }
-    initDetail();
-    initPlanTree();
+  });
+
+  onActivated(() => {
+    if (isActivated.value) {
+      if (route.query.type === 'featureCase') {
+        activeTab.value = 'featureCase';
+      }
+      initDetail();
+      initPlanTree();
+    }
   });
 </script>
 

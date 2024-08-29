@@ -415,6 +415,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
+  import useCacheStore from '@/store/modules/cache/cache';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useMinderStore from '@/store/modules/components/minder-editor';
   import {
@@ -437,12 +438,14 @@
     DragCase,
   } from '@/models/caseManagement/featureCase';
   import { ModuleTreeNode } from '@/models/common';
-  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+  import { CaseManagementRouteEnum, RouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { executionResultMap, getCaseLevels, getTableFields, statusIconMap } from './utils';
   import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
+
+  const cacheStore = useCacheStore();
 
   const MsExportDrawer = defineAsyncComponent(() => import('@/components/pure/ms-export-drawer/index.vue'));
 
@@ -1745,8 +1748,6 @@
     }
   }
 
-  const statusFilterVisible = ref(false);
-
   // 获取三方需求
   onBeforeMount(async () => {
     try {
@@ -1769,14 +1770,14 @@
     emitTableParams();
   }
 
-  onMounted(async () => {
+  async function mountedLoad() {
     if (route.query.id) {
       showCaseDetail(route.query.id as string, -1);
     }
     await initFilter();
     initData();
     getCaseExportData();
-  });
+  }
 
   watch(
     () => showType.value,
@@ -1797,8 +1798,22 @@
     }
   );
 
+  const isActivated = computed(() => cacheStore.cacheViews.includes(RouteEnum.CASE_MANAGEMENT_CASE));
+
   onBeforeUnmount(() => {
     showDetailDrawer.value = false;
+  });
+
+  onMounted(() => {
+    if (!isActivated.value) {
+      mountedLoad();
+    }
+  });
+
+  onActivated(() => {
+    if (isActivated.value) {
+      mountedLoad();
+    }
   });
 
   defineExpose({

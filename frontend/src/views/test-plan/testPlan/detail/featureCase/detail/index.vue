@@ -220,7 +220,7 @@
   <EditCaseDetailDrawer v-model:visible="editCaseVisible" :case-id="activeCaseId" @load-case="loadCase" />
   <LinkDefectDrawer
     v-model:visible="showLinkDrawer"
-    :case-id="activeCaseId"
+    :case-id="activeId"
     :drawer-loading="drawerLoading"
     :show-selector-all="false"
     :load-api="AssociatedBugApiTypeEnum.TEST_PLAN_BUG_LIST"

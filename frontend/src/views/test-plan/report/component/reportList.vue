@@ -111,6 +111,7 @@
   import useModal from '@/hooks/useModal';
   import { useTableStore } from '@/store';
   import useAppStore from '@/store/modules/app';
+  import useCacheStore from '@/store/modules/cache/cache';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -125,6 +126,8 @@
 
   const appStore = useAppStore();
   const tableStore = useTableStore();
+  const cacheStore = useCacheStore();
+
   const { t } = useI18n();
   const keyword = ref<string>('');
   const router = useRouter();
@@ -436,12 +439,22 @@
       },
     });
   }
+  const isActivated = computed(() => cacheStore.cacheViews.includes(TestPlanRouteEnum.TEST_PLAN_REPORT));
 
   onBeforeMount(() => {
     if (route.query.id) {
       showReportDetail(route.query.id as string, route.query.type === 'GROUP');
     }
     initData();
+  });
+
+  onActivated(() => {
+    if (isActivated.value) {
+      if (route.query.id) {
+        showReportDetail(route.query.id as string, route.query.type === 'GROUP');
+      }
+      initData();
+    }
   });
 </script>
 

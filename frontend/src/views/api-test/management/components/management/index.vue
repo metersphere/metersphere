@@ -70,14 +70,17 @@
     :member-options="memberOptions"
     @delete-case="(id) => handleDeleteApiFromModuleTree(id)"
   />
-  <MockTable
-    v-if="activeApiTab.id === 'all' && currentTab === 'mock'"
-    :active-module="props.activeModule"
-    :offspring-ids="props.offspringIds"
-    :selected-protocols="props.selectedProtocols"
-    :definition-detail="activeApiTab"
-    @debug="handleMockDebug"
-  />
+  <keep-alive :include="cacheStore.cacheViews">
+    <MockTable
+      v-if="activeApiTab.id === 'all' && currentTab === 'mock'"
+      :key="CacheTabTypeEnum.API_TEST_MOCK_TABLE"
+      :active-module="props.activeModule"
+      :offspring-ids="props.offspringIds"
+      :selected-protocols="props.selectedProtocols"
+      :definition-detail="activeApiTab"
+      @debug="handleMockDebug"
+    />
+  </keep-alive>
 </template>
 
 <script setup lang="ts">
@@ -98,6 +101,7 @@
   import useLeaveTabUnSaveCheck from '@/hooks/useLeaveTabUnSaveCheck';
   import useRequestCompositionStore from '@/store/modules/api/requestComposition';
   import useAppStore from '@/store/modules/app';
+  import useCacheStore from '@/store/modules/cache/cache';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ProtocolItem } from '@/models/apiTest/common';
@@ -111,6 +115,7 @@
     RequestMethods,
     ResponseComposition,
   } from '@/enums/apiEnum';
+  import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
 
   import { defaultBodyParams, defaultResponse, defaultResponseItem } from '@/views/api-test/components/config';
 
@@ -131,6 +136,7 @@
   const route = useRoute();
   const { t } = useI18n();
   const requestCompositionStore = useRequestCompositionStore();
+  const cacheStore = useCacheStore();
 
   const setActiveApi: ((params: RequestParam) => void) | undefined = inject('setActiveApi');
   const memberOptions = ref<{ label: string; value: string }[]>([]);

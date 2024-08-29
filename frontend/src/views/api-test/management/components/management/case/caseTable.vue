@@ -360,6 +360,7 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import useCacheStore from '@/store/modules/cache/cache';
   import { characterLimit, operationWidth } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -367,6 +368,7 @@
   import { ApiCaseDetail } from '@/models/apiTest/management';
   import { DragSortParams } from '@/models/common';
   import { RequestCaseStatus } from '@/enums/apiEnum';
+  import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -375,6 +377,9 @@
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
 
+  defineOptions({
+    name: CacheTabTypeEnum.API_TEST_CASE_TABLE,
+  });
   const props = defineProps<{
     isApi: boolean; // 接口定义详情的case tab下
     activeModule: string;
@@ -384,6 +389,7 @@
     memberOptions: { label: string; value: string }[];
     heightUsed?: number;
   }>();
+  const cacheStore = useCacheStore();
 
   const caseExecute = ref(false);
 
@@ -658,8 +664,20 @@
     loadCaseList();
   }
 
+  const isActivated = computed(() => cacheStore.cacheViews.includes(CacheTabTypeEnum.API_TEST_CASE_TABLE));
+
   onBeforeMount(() => {
-    loadCaseList();
+    cacheStore.clearCache();
+    if (!isActivated.value) {
+      loadCaseList();
+      cacheStore.setCache(CacheTabTypeEnum.API_TEST_CASE_TABLE);
+    }
+  });
+
+  onActivated(() => {
+    if (isActivated.value) {
+      loadCaseList();
+    }
   });
 
   watch(

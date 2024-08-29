@@ -49,6 +49,9 @@
   import { ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
+  defineOptions({
+    name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW,
+  });
   const router = useRouter();
 
   type ShowType = 'all' | 'reviewByMe' | 'createByMe';
