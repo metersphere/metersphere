@@ -942,6 +942,23 @@ public class ApiDebugControllerTests extends BaseTest {
         curl = "curl -X POST -H 'Content-Type: application/json' --data-urlencode '{\"key\":\"value\"}' https://example.com/post";
         request.setCurl(curl);
         this.requestPostWithOk(IMPORT_CURL, request);
+
+
+        curl = "curl 'http://xx:xx/test/tst1/orderAction/tes' \\\n" +
+                "  -H 'Accept: application/json, text/plain, /' \\\n" +
+                "  -H 'Accept-Language: zh-CN,zh;q=0.9' \\\n" +
+                "  -H 'Content-Type: application/x-www-form-urlencoded' \\\n" +
+                "  -H 'Cookie: _ati=4621860983598; saas_oms_session=hhh%3D' \\\n" +
+                "  -H 'Origin: http://xx:xx' \\\n" +
+                "  -H 'Proxy-Connection: keep-alive'\n" +
+                "  -H 'Referer: http://xx:xx/order/eCommerceBus/b2cOrder' \\\n" +
+                "  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36' \\\n" +
+                "  -H 'X-Requested-With: XMLHttpRequest' \\\n" +
+                "  -H 'token: xx.yy.hh' \\\n" +
+                "  --data-raw 'channel_type=1&channel_id=84&action_type=1&tid=44444' \\\n" +
+                "  --insecure";
+        request.setCurl(curl);
+        this.requestPostWithOk(IMPORT_CURL, request);
     }
 
 

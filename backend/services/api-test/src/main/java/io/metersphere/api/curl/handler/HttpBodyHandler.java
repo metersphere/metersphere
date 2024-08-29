@@ -141,8 +141,12 @@ public class HttpBodyHandler extends CurlHandlerChain {
             return xml2json(rawData);
         }
 
-        try {
+        if (isJSON(rawData)) {
             return JSONUtil.parseObject(rawData);
+        }
+
+        try {
+            return parseDefaultBody(rowMatcher);
         } catch (Exception e) {
             throw new MSException(Translator.get("curl_raw_content_is_invalid"), e);
         }

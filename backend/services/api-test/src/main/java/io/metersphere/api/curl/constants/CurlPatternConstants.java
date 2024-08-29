@@ -25,12 +25,12 @@ public interface CurlPatternConstants {
     /**
      * HTTP请求方法
      */
-    Pattern HTTP_METHOD_PATTERN = Pattern.compile("curl\\s+[^\\s]*\\s+(?:-X|--request)\\s+'?(GET|POST)'?");
+    Pattern HTTP_METHOD_PATTERN = Pattern.compile("curl\\s+(?:[^\\s]+\\s+)*(-X|--request)\\s+'?(GET|POST)'?");
 
     /**
      * 默认HTTP请求方法
      */
-    Pattern DEFAULT_HTTP_METHOD_PATTERN = Pattern.compile(".*\\s(-d|--data|--data-binary)\\s.*");
+    Pattern DEFAULT_HTTP_METHOD_PATTERN = Pattern.compile(".*\\s(-d|--data|--data-binary|--data-raw|-F)\\s.*");
 
     /**
      * 请求头
