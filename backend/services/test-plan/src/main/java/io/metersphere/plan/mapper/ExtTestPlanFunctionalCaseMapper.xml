@@ -666,4 +666,53 @@
         AND test_plan.status != 'ARCHIVED'
 
     </select>
+
+    <select id="selectIdsByProjectIds" resultType="java.lang.String">
+        SELECT
+        test_plan_functional_case.id
+        FROM
+        test_plan_functional_case
+        LEFT JOIN functional_case ON test_plan_functional_case.functional_case_id = functional_case.id
+        WHERE
+        test_plan_functional_case.test_plan_id = #{request.testPlanId}
+        AND functional_case.deleted = false
+        <include refid="queryWhereConditionByBatchQueryRequest"/>
+        and functional_case.project_id in
+        <foreach collection="request.getMinderProjectIds()" item="projectId" open="(" separator="," close=")">
+            #{projectId}
+        </foreach>
+    </select>
+
+    <select id="selectProjectByModuleIds" resultType="io.metersphere.functional.domain.FunctionalCaseModule">
+        SELECT id, project_id
+        FROM functional_case_module
+        WHERE id IN
+        <foreach collection="moduleIds" item="moduleId" separator="," open="(" close=")">
+            <choose>
+                <when test="moduleId.contains('_root')">
+                    'root'
+                </when>
+                <otherwise>
+                    #{moduleId}
+                </otherwise>
+            </choose>
+        </foreach>
+    </select>
+
+    <select id="selectIdsByModuleIds" resultType="java.lang.String">
+        SELECT
+        test_plan_functional_case.id
+        FROM
+        test_plan_functional_case
+        LEFT JOIN functional_case ON test_plan_functional_case.functional_case_id = functional_case.id
+        WHERE
+        test_plan_functional_case.test_plan_id = #{request.testPlanId}
+        AND functional_case.deleted = false
+        <include refid="queryWhereConditionByBatchQueryRequest"/>
+        and functional_case.module_id in
+        <foreach collection="minderModuleIds" item="moduleId" open="(" separator="," close=")">
+            #{moduleId}
+        </foreach>
+    </select>
+
 </mapper>

@@ -96,3 +96,8 @@ INSERT INTO service_integration(`id`, `plugin_id`, `enable`, `configuration`, `o
 INSERT INTO bug_relation_case (id, case_id, bug_id, case_type, test_plan_id, test_plan_case_id, create_user, create_time, update_time) VALUES
     ('bug_relate_1', 'fc_1', 'bug_1', 'FUNCTIONAL', 'plan_1', 'relate_case_1', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     ('bug_relate_2', 'fc_1', 'bug_2', 'FUNCTIONAL', 'plan_1', 'relate_case_1', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO functional_case_module(id, project_id, name, parent_id, pos, create_time, create_user, update_time, update_user)
+VALUES
+    ('t_1', '123', '测试模块', 'NONE', '1', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin'),
+    ('t_1_1', '123', '测试模块_1', 't_1', '2', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin');

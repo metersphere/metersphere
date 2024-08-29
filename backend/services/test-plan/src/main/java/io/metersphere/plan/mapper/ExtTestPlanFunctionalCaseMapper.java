@@ -1,5 +1,6 @@
 package io.metersphere.plan.mapper;
 
+import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
@@ -8,6 +9,7 @@ import io.metersphere.plan.dto.ResourceSelectParam;
 import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
 import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
+import io.metersphere.plan.dto.request.TestPlanCaseMinderBatchAddBugRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseRequest;
 import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
@@ -16,6 +18,7 @@ import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface ExtTestPlanFunctionalCaseMapper {
@@ -73,4 +76,10 @@ public interface ExtTestPlanFunctionalCaseMapper {
     List<String> selectTestPlanIdByFunctionCaseId(String functionalCaseId);
 
     List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
+
+    Collection<String> selectIdsByProjectIds(@Param("request") TestPlanCaseMinderBatchAddBugRequest request);
+
+    List<FunctionalCaseModule> selectProjectByModuleIds(@Param("moduleIds") List<String> moduleIds);
+
+    Collection<String> selectIdsByModuleIds(@Param("request") TestPlanCaseMinderBatchAddBugRequest request, @Param("minderModuleIds") List<String> minderModuleIds);
 }

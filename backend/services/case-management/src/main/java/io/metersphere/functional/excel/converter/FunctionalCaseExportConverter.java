@@ -4,9 +4,11 @@ import io.metersphere.functional.domain.CaseReviewHistory;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseComment;
 import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -39,10 +41,11 @@ public interface FunctionalCaseExportConverter {
     default String parseHtml(String html) {
         Pattern pattern = Pattern.compile("<p[^>]*>(.*?)</p>");
         Matcher matcher = pattern.matcher(html);
-        if (matcher.find()) {
-            String content = matcher.group(1);
-            return content;
+        List<String> contents = new ArrayList<>();
+        while (matcher.find()) {
+            contents.add(matcher.group(1));
         }
-        return StringUtils.EMPTY;
+        String join = String.join(StringUtils.SPACE, contents);
+        return join;
     }
 }

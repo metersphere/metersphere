@@ -969,7 +969,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         }
     }
 
-    private Map<String, String> getCaseMap(List<String> ids) {
+    public Map<String, String> getCaseMap(List<String> ids) {
         TestPlanFunctionalCaseExample example = new TestPlanFunctionalCaseExample();
         example.createCriteria().andIdIn(ids);
         List<TestPlanFunctionalCase> caseList = testPlanFunctionalCaseMapper.selectByExample(example);
