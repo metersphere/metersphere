@@ -1381,7 +1381,7 @@ public class BugService {
     }
 
     /**
-     * 处理并保存缺陷用例关联关系
+     * 处理并保存缺陷用例关联关系 (单条用例, 多条关联新增缺陷跳过)
      *
      * @param request     请求参数
      * @param isUpdate    是否更新
@@ -1395,7 +1395,7 @@ public class BugService {
             bugRelationCase.setId(IDGenerator.nextStr());
             bugRelationCase.setCaseId(request.getCaseId());
             bugRelationCase.setBugId(bug.getId());
-            bugRelationCase.setCaseType(CaseType.FUNCTIONAL_CASE.getKey());
+            bugRelationCase.setCaseType(request.getCaseType());
             bugRelationCase.setCreateUser(currentUser);
             bugRelationCase.setCreateTime(System.currentTimeMillis());
             bugRelationCase.setUpdateTime(System.currentTimeMillis());
