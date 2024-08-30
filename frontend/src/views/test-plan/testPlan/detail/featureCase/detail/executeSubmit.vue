@@ -1,5 +1,15 @@
 <template>
-  <ExecuteForm v-model:form="form" is-dblclick-placeholder class="execute-form" />
+  <ExecuteForm
+    v-model:achieved="achievedForm"
+    v-model:form="form"
+    is-dblclick-placeholder
+    class="execute-form"
+    @dblclick="dblclickHandler"
+  >
+    <template #headerRight>
+      <slot name="headerRight"></slot>
+    </template>
+  </ExecuteForm>
   <a-button type="primary" class="mt-[12px]" :loading="submitLoading" @click="() => submit()">
     {{ t('caseManagement.caseReview.commitResult') }}
   </a-button>
@@ -59,9 +69,8 @@
 
   const modalVisible = ref(false);
   const submitLoading = ref(false);
-
   // 双击富文本内容打开弹窗
-  onMounted(() => {
+  function dblclickHandler() {
     nextTick(() => {
       const editorContent = document.querySelector('.execute-form')?.querySelector('.editor-content');
       useEventListener(editorContent, 'dblclick', () => {
@@ -69,7 +78,7 @@
         dialogForm.value = cloneDeep(form.value);
       });
     });
-  });
+  }
 
   watch(
     () => props.stepExecutionResult,
@@ -93,12 +102,15 @@
     }
   );
 
+  const achievedForm = ref<boolean>(false);
+
   function cancel(e: Event) {
     // 点击取消/关闭，弹窗关闭，富文本内容都清空；点击空白处，弹窗关闭，将弹窗内容填入下面富文本内容里
     if (!(e.target as any)?.classList.contains('arco-modal-wrapper')) {
       dialogForm.value = { ...defaultExecuteForm };
     }
     form.value = cloneDeep(dialogForm.value);
+    achievedForm.value = false;
   }
 
   // 提交执行
@@ -128,6 +140,7 @@
       modalVisible.value = false;
       Message.success(t('common.updateSuccess'));
       form.value = { ...defaultExecuteForm };
+      achievedForm.value = false;
       emit('done', params.lastExecResult, params.content ?? '');
     } catch (error) {
       // eslint-disable-next-line no-console
