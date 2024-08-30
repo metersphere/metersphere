@@ -81,6 +81,9 @@ export const defaultReportDetail: PlanReportDetail = {
   executeRate: 0, // 执行完成率
   bugCount: 0,
   caseTotal: 0,
+  functionalTotal: 0,
+  apiCaseTotal: 0,
+  apiScenarioTotal: 0,
   executeCount: cloneDeep(defaultCount),
   functionalCount: cloneDeep(defaultCount),
   apiCaseCount: cloneDeep(defaultCount),

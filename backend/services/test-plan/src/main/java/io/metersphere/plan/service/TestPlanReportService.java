@@ -621,8 +621,12 @@ public class TestPlanReportService {
 		TestPlanReportSummary reportSummary = testPlanReportSummaries.getFirst();
 		TestPlanReportDetailResponse planReportDetail = new TestPlanReportDetailResponse();
 		BeanUtils.copyBean(planReportDetail, planReport);
+		// 用例总数需单独返回, 不然前端表格不展示, 影响执行中的数据
 		int caseTotal = (int) (reportSummary.getFunctionalCaseCount() + reportSummary.getApiCaseCount() + reportSummary.getApiScenarioCount());
 		planReportDetail.setCaseTotal(caseTotal);
+		planReportDetail.setFunctionalTotal(reportSummary.getFunctionalCaseCount().intValue());
+		planReportDetail.setApiCaseTotal(reportSummary.getApiCaseCount().intValue());
+		planReportDetail.setApiScenarioTotal(reportSummary.getApiScenarioCount().intValue());
 		planReportDetail.setBugCount(reportSummary.getBugCount().intValue());
 		// 暂时只有功能用例能关联缺陷
 		Long functionalBugCount = extTestPlanReportFunctionalCaseMapper.countBug(reportId);
