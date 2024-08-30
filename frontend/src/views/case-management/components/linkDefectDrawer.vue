@@ -48,16 +48,21 @@
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import type { MsTableColumn, MsTableProps } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import BugNamePopover from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/bugNamePopover.vue';
 
   import { getBugList } from '@/api/modules/bug-management';
   import { getDrawerDebugPage } from '@/api/modules/case-management/featureCase';
-  import { getTestPlanBugPage } from '@/api/modules/test-plan/testPlan';
+  import {
+    getTestPlanApiBugPage,
+    getTestPlanBugPage,
+    getTestPlanScenarioBugPage,
+  } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
+  import { BugListItem } from '@/models/bug-management';
   import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -67,9 +72,11 @@
   const appStore = useAppStore();
 
   const getModuleTreeApiMap: Record<string, any> = {
-    [AssociatedBugApiTypeEnum.FUNCTIONAL_BUG_LIST]: getDrawerDebugPage, // 功能用例-关联缺陷
-    [AssociatedBugApiTypeEnum.TEST_PLAN_BUG_LIST]: getTestPlanBugPage, // 测试计划-关联缺陷
+    [AssociatedBugApiTypeEnum.FUNCTIONAL_BUG_LIST]: getDrawerDebugPage, // 用例测试-功能用例-待关联缺陷列表
+    [AssociatedBugApiTypeEnum.TEST_PLAN_BUG_LIST]: getTestPlanBugPage, // 测试计划-功能用例-待关联缺陷列表
     [AssociatedBugApiTypeEnum.BUG_TOTAL_LIST]: getBugList, // 总缺陷列表
+    [AssociatedBugApiTypeEnum.API_BUG_LIST]: getTestPlanApiBugPage, // 接口用例-待关联缺陷列表
+    [AssociatedBugApiTypeEnum.SCENARIO_BUG_LIST]: getTestPlanScenarioBugPage, // 接口用例-待关联缺陷列表
   };
 
   const currentProjectId = computed(() => appStore.currentProjectId);
@@ -151,16 +158,18 @@
     },
   ];
 
+  const totalCaseProps = ref<Partial<MsTableProps<BugListItem>>>({
+    scroll: { x: '100%' },
+    columns,
+    tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEFECT,
+    selectable: true,
+    showSelectorAll: props.showSelectorAll,
+    heightUsed: 340,
+  });
+
   const getTotalBugTable = useTable(
     getModuleTreeApiMap[AssociatedBugApiTypeEnum.BUG_TOTAL_LIST],
-    {
-      scroll: { x: '100%' },
-      columns,
-      tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEFECT,
-      selectable: true,
-      showSelectorAll: props.showSelectorAll,
-      heightUsed: 340,
-    },
+    totalCaseProps.value,
     (record) => {
       return {
         ...record,
@@ -174,26 +183,25 @@
     }
   );
 
-  const getSingleBugTable = useTable(
-    getModuleTreeApiMap[props.loadApi],
-    {
-      scroll: { x: '100%' },
-      columns,
-      tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEFECT,
-      selectable: true,
-      showSelectorAll: props.showSelectorAll,
-      heightUsed: 340,
+  const getSingleBugTable = useTable(getModuleTreeApiMap[props.loadApi], totalCaseProps.value, (record) => {
+    return {
+      ...record,
+      tags: (record.tags || []).map((item: string, i: number) => {
+        return {
+          id: `${record.id}-${i}`,
+          name: item,
+        };
+      }),
+    };
+  });
+
+  watch(
+    () => props.showSelectorAll,
+    (val) => {
+      totalCaseProps.value.showSelectorAll = val;
     },
-    (record) => {
-      return {
-        ...record,
-        tags: (record.tags || []).map((item: string, i: number) => {
-          return {
-            id: `${record.id}-${i}`,
-            name: item,
-          };
-        }),
-      };
+    {
+      immediate: true,
     }
   );
 

@@ -597,4 +597,14 @@
   :deep(.arco-tabs-content) {
     @apply hidden;
   }
+  :deep(.arco-table-tr) {
+    .operation-button {
+      opacity: 0;
+    }
+    &:hover {
+      .operation-button {
+        opacity: 1;
+      }
+    }
+  }
 </style>

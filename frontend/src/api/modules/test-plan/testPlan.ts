@@ -7,7 +7,11 @@ import {
   ApiScenarioReportDetailStepUrl,
   ApiScenarioReportDetailUrl,
   archivedPlanUrl,
+  AssociatedBugToApiCaseUrl,
+  AssociatedBugToScenarioCaseUrl,
+  BatchAddBugToCaseUrl,
   batchArchivedPlanUrl,
+  BatchAssociatedBugToCaseUrl,
   batchCopyPlanUrl,
   batchDeletePlanUrl,
   BatchDisassociateApiCaseUrl,
@@ -23,6 +27,8 @@ import {
   BatchRunApiScenarioUrl,
   BatchRunCaseUrl,
   BatchUpdateCaseExecutorUrl,
+  CancelBugFromApiCaseUrl,
+  CancelBugFromScenarioCaseUrl,
   ConfigScheduleUrl,
   copyTestPlanUrl,
   deletePlanUrl,
@@ -56,7 +62,9 @@ import {
   GetTestPlanModuleCountUrl,
   GetTestPlanModuleUrl,
   GetTestPlanUsersUrl,
+  GetUnAssociatedApiBugUrl,
   GetUnAssociatedListUrl,
+  GetUnAssociatedScenarioBugUrl,
   MoveTestPlanModuleUrl,
   planDetailBugPageUrl,
   PlanDetailExecuteHistoryUrl,
@@ -439,7 +447,39 @@ export function testPlanAssociateModuleCount(data: TableQueryParams) {
 export function getExecuteUserOption(projectId: string, keyword?: string) {
   return MSR.get({ url: `${GetTestPlanExecutorOptionsUrl}/${projectId}`, params: { keyword } });
 }
-// 获取测试计划未关联抽屉缺陷列表
+// 获取测试计划-功能用例-未关联抽屉缺陷列表
 export function getTestPlanBugPage(data: TableQueryParams) {
   return MSR.post<CommonList<CaseManagementTable>>({ url: GetUnAssociatedListUrl, data });
+}
+// 获取测试计划-接口用例-未关联抽屉缺陷列表
+export function getTestPlanApiBugPage(data: TableQueryParams) {
+  return MSR.post<CommonList<CaseManagementTable>>({ url: GetUnAssociatedApiBugUrl, data });
+}
+// 获取测试计划-接口用例-未关联抽屉缺陷列表
+export function getTestPlanScenarioBugPage(data: TableQueryParams) {
+  return MSR.post<CommonList<CaseManagementTable>>({ url: GetUnAssociatedScenarioBugUrl, data });
+}
+// 测试计划-用例详情-关联缺陷
+export function associateBugToApiCase(data: TableQueryParams) {
+  return MSR.post({ url: AssociatedBugToApiCaseUrl, data });
+}
+// 测试计划-用例详情-关联缺陷
+export function associateBugToScenarioCase(data: TableQueryParams) {
+  return MSR.post({ url: AssociatedBugToScenarioCaseUrl, data });
+}
+// 测试计划-接口用例-取消关联联缺陷
+export function cancelBugFromApiCase(id: string) {
+  return MSR.get({ url: `${CancelBugFromApiCaseUrl}/${id}` });
+}
+// 测试计划-场景用例-取消关联联缺陷
+export function cancelBugFromScenarioCase(id: string) {
+  return MSR.get({ url: `${CancelBugFromScenarioCaseUrl}/${id}` });
+}
+// 测试计划-详情-批量关联缺陷
+export function batchAssociatedBugToCase(data: TableQueryParams) {
+  return MSR.post({ url: BatchAssociatedBugToCaseUrl, data });
+}
+// 测试计划-详情-批量新建缺陷
+export function batchAddBugToCase(data: TableQueryParams) {
+  return MSR.post({ url: BatchAddBugToCaseUrl, data });
 }

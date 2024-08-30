@@ -23,16 +23,18 @@
   import type { MsTableColumn, MsTableProps } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
 
-  import { testPlanCancelBug } from '@/api/modules/test-plan/testPlan';
+  import { cancelBugFromApiCase, cancelBugFromScenarioCase, testPlanCancelBug } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
 
   import type { CaseBugItem } from '@/models/testPlan/testPlan';
+  import { CaseLinkEnum } from '@/enums/caseEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
     bugList?: CaseBugItem[]; // 缺陷列表
     canEdit: boolean;
     bugCount: number;
+    caseType: CaseLinkEnum;
   }>();
 
   const emit = defineEmits<{
@@ -85,11 +87,17 @@
     propsRes.value.data = props.bugList || [];
   });
 
+  const cancelBugMap: Record<string, (id: string) => Promise<any>> = {
+    FUNCTIONAL: testPlanCancelBug,
+    API: cancelBugFromApiCase,
+    SCENARIO: cancelBugFromScenarioCase,
+  };
+
   // 取消关联缺陷
   async function cancelLink(id: string) {
     try {
       setLoading(true);
-      await testPlanCancelBug(id);
+      await cancelBugMap[props.caseType](id);
       Message.success(t('common.unLinkSuccess'));
       emit('loadList');
     } catch (error) {
