@@ -1,6 +1,7 @@
 package io.metersphere.system.mapper;
 
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.request.MemberRequest;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import org.apache.ibatis.annotations.Param;
@@ -47,4 +48,6 @@ public interface ExtUserMapper {
     Long gaInstalledTime();
 
     void updateInstalled();
+
+    List<UserExtendDTO> getMemberList(@Param("request") MemberRequest request);
 }

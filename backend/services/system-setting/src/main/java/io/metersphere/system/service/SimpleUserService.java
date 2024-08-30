@@ -12,6 +12,7 @@ import io.metersphere.system.controller.result.SystemResultCode;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
+import io.metersphere.system.dto.request.MemberRequest;
 import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.dto.request.UserRegisterRequest;
 import io.metersphere.system.dto.request.user.*;
@@ -561,6 +562,7 @@ public class SimpleUserService {
         editUser.setLanguage(request.getLanguage());
         userMapper.updateByPrimaryKeySelective(editUser);
     }
+
     public boolean updateAccount(PersonalUpdateRequest request, String operator) {
         this.checkUserEmail(request.getId(), request.getEmail());
         User editUser = new User();
@@ -598,5 +600,9 @@ public class SimpleUserService {
     public Map<String, String> getUserMapByIds(List<String> userIds) {
         List<OptionDTO> userOptions = baseUserMapper.selectUserOptionByIds(userIds);
         return userOptions.stream().collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
+    }
+
+    public List<UserExtendDTO> getMemberList(MemberRequest request) {
+        return extUserMapper.getMemberList(request);
     }
 }

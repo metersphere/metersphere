@@ -14,6 +14,7 @@ import io.metersphere.system.dto.*;
 import io.metersphere.system.dto.request.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
+import io.metersphere.system.dto.user.UserRoleOptionDto;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
@@ -81,6 +82,8 @@ public class OrganizationService {
     private static final String REMOVE_MEMBER_PATH = "/system/organization/remove-member";
     public static final Integer DEFAULT_REMAIN_DAY_COUNT = 30;
     private static final Long DEFAULT_ORGANIZATION_NUM = 100001L;
+    @Resource
+    private ExtUserRoleRelationMapper extUserRoleRelationMapper;
 
     /**
      * 分页获取系统下组织列表
@@ -207,7 +210,19 @@ public class OrganizationService {
      * @return 组织成员集合
      */
     public List<UserExtendDTO> getMemberListBySystem(OrganizationRequest request) {
-        return extOrganizationMapper.listMember(request);
+        List<UserExtendDTO> userExtendDTOS = extOrganizationMapper.listMember(request);
+        if (CollectionUtils.isNotEmpty(userExtendDTOS)) {
+            List<String> userIds = userExtendDTOS.stream().map(UserExtendDTO::getId).toList();
+            List<UserRoleOptionDto> userRole = extUserRoleRelationMapper.selectUserRoleByUserIds(userIds, request.getOrganizationId());
+            Map<String, List<UserRoleOptionDto>> roleMap = userRole.stream().collect(Collectors.groupingBy(UserRoleOptionDto::getUserId));
+            userExtendDTOS.forEach(user -> {
+                if (roleMap.containsKey(user.getId())) {
+                    user.setUserRoleList(roleMap.get(user.getId()));
+                }
+            });
+
+        }
+        return userExtendDTOS;
     }
 
     public void deleteOrganization(String organizationId) {
@@ -258,17 +273,51 @@ public class OrganizationService {
      */
     public void addMemberBySystem(OrganizationMemberRequest organizationMemberRequest, String createUserId) {
         List<LogDTO> logs = new ArrayList<>();
-        OrganizationMemberBatchRequest batchRequest = new OrganizationMemberBatchRequest();
-        batchRequest.setOrganizationIds(List.of(organizationMemberRequest.getOrganizationId()));
-        batchRequest.setUserIds(organizationMemberRequest.getUserIds());
-        addMemberBySystem(batchRequest, createUserId);
+        addMemberAndGroup(organizationMemberRequest, createUserId);
         // 添加日志
         UserExample example = new UserExample();
-        example.createCriteria().andIdIn(batchRequest.getUserIds());
+        example.createCriteria().andIdIn(organizationMemberRequest.getUserIds());
         List<User> users = userMapper.selectByExample(example);
         List<String> nameList = users.stream().map(User::getName).collect(Collectors.toList());
         setLog(organizationMemberRequest.getOrganizationId(), createUserId, OperationLogType.ADD.name(), Translator.get("add") + Translator.get("organization_member_log") + ": " + StringUtils.join(nameList, ","), ADD_MEMBER_PATH, null, null, logs);
         operationLogService.batchAdd(logs);
+    }
+
+    /**
+     * 系统-组织与项目-组织-添加成员（用户+用户组）
+     *
+     * @param request
+     * @param createUserId
+     */
+    private void addMemberAndGroup(OrganizationMemberRequest request, String createUserId) {
+        checkOrgExistByIds(List.of(request.getOrganizationId()));
+        Map<String, User> userMap = checkUserExist(request.getUserIds());
+        List<UserRoleRelation> userRoleRelations = new ArrayList<>();
+        for (String userId : request.getUserIds()) {
+            if (userMap.get(userId) == null) {
+                throw new MSException(Translator.get("user.not.exist") + ", id: " + userId);
+            }
+            //组织用户关系已存在, 不再重复添加
+            UserRoleRelationExample example = new UserRoleRelationExample();
+            example.createCriteria().andSourceIdEqualTo(request.getOrganizationId()).andUserIdEqualTo(userId);
+            if (userRoleRelationMapper.countByExample(example) > 0) {
+                continue;
+            }
+            request.getUserRoleIds().forEach(userRoleId -> {
+                UserRoleRelation userRoleRelation = new UserRoleRelation();
+                userRoleRelation.setId(IDGenerator.nextStr());
+                userRoleRelation.setUserId(userId);
+                userRoleRelation.setSourceId(request.getOrganizationId());
+                userRoleRelation.setRoleId(userRoleId);
+                userRoleRelation.setCreateTime(System.currentTimeMillis());
+                userRoleRelation.setCreateUser(createUserId);
+                userRoleRelation.setOrganizationId(request.getOrganizationId());
+                userRoleRelations.add(userRoleRelation);
+            });
+        }
+        if (CollectionUtils.isNotEmpty(userRoleRelations)) {
+            userRoleRelationMapper.batchInsert(userRoleRelations);
+        }
     }
 
     /**
@@ -460,13 +509,13 @@ public class OrganizationService {
 
     private Map<String, User> getUserMap(OrganizationMemberExtendRequest organizationMemberExtendRequest) {
         Map<String, User> userMap;
-        if(organizationMemberExtendRequest.isSelectAll()) {
+        if (organizationMemberExtendRequest.isSelectAll()) {
             OrganizationRequest organizationRequest = new OrganizationRequest();
             BeanUtils.copyBean(organizationRequest, organizationMemberExtendRequest);
             List<OrgUserExtend> orgUserExtends = extOrganizationMapper.listMemberByOrg(organizationRequest);
             List<String> excludeIds = organizationMemberExtendRequest.getExcludeIds();
             if (CollectionUtils.isNotEmpty(excludeIds)) {
-                userMap = orgUserExtends.stream().filter(user->!excludeIds.contains(user.getId())).collect(Collectors.toMap(User::getId, user -> user));
+                userMap = orgUserExtends.stream().filter(user -> !excludeIds.contains(user.getId())).collect(Collectors.toMap(User::getId, user -> user));
             } else {
                 userMap = orgUserExtends.stream().collect(Collectors.toMap(User::getId, user -> user));
             }
@@ -550,13 +599,13 @@ public class OrganizationService {
         List<String> projectIds = orgMemberExtendProjectRequest.getProjectIds();
         //用户不在当前组织内过掉
         Map<String, User> userMap;
-        if(orgMemberExtendProjectRequest.isSelectAll()) {
+        if (orgMemberExtendProjectRequest.isSelectAll()) {
             OrganizationRequest organizationRequest = new OrganizationRequest();
             BeanUtils.copyBean(organizationRequest, orgMemberExtendProjectRequest);
             List<OrgUserExtend> orgUserExtends = extOrganizationMapper.listMemberByOrg(organizationRequest);
             List<String> excludeIds = orgMemberExtendProjectRequest.getExcludeIds();
             if (CollectionUtils.isNotEmpty(excludeIds)) {
-                userMap = orgUserExtends.stream().filter(user->!excludeIds.contains(user.getId())).collect(Collectors.toMap(User::getId, user -> user));
+                userMap = orgUserExtends.stream().filter(user -> !excludeIds.contains(user.getId())).collect(Collectors.toMap(User::getId, user -> user));
             } else {
                 userMap = orgUserExtends.stream().collect(Collectors.toMap(User::getId, user -> user));
             }
@@ -1142,6 +1191,7 @@ public class OrganizationService {
 
     /**
      * 获取当前用户所拥有的组织
+     *
      * @param userId 用户ID
      * @return 组织下拉选项
      */

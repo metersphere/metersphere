@@ -46,4 +46,20 @@
         </if>
         order by urr.create_time desc
     </select>
+
+    <select id="selectUserRoleByUserIds" resultType="io.metersphere.system.dto.user.UserRoleOptionDto">
+        SELECT DISTINCT
+        user_role_relation.role_id as id,
+        user_role.`name` as name,
+        user_role_relation.user_id as userId
+        FROM
+        user_role_relation
+        LEFT JOIN user_role ON user_role_relation.role_id = user_role.id
+        where user_role_relation.user_id in
+        <foreach collection="userIds" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and organization_id = #{orgId}
+        and source_id = #{orgId}
+    </select>
 </mapper>

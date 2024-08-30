@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author song-cc-rock
@@ -19,7 +21,7 @@ public class UserExtendDTO extends User implements Serializable {
     /**
      * 是否管理员(组织, 项目)
      */
-    @Schema(description =  "是否组织/项目管理员, 是: 展示管理员标识, 否: 不展示管理员标识")
+    @Schema(description = "是否组织/项目管理员, 是: 展示管理员标识, 否: 不展示管理员标识")
     private boolean adminFlag;
 
     /**
@@ -36,4 +38,8 @@ public class UserExtendDTO extends User implements Serializable {
 
     @Schema(description = "组织ID")
     private String sourceId;
+
+    @Schema(description = "用户所属用户组")
+    private List<UserRoleOptionDto> userRoleList = new ArrayList<>();
+
 }

@@ -53,6 +53,7 @@ public class SystemOrganizationControllerTests extends BaseTest {
     public static final String ORGANIZATION_LIST_PROJECT = "/system/organization/list-project";
     public static final String ORGANIZATION_MEMBER_OPTION = "/system/organization/get-option";
     public static final String ORGANIZATION_TOTAL = "/system/organization/total";
+    public static final String MEMBER_LIST = "/system/organization/member-list";
 
     @Test
     @Order(0)
@@ -288,6 +289,7 @@ public class SystemOrganizationControllerTests extends BaseTest {
         OrganizationMemberRequest organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-3");
         organizationMemberRequest.setUserIds(List.of("admin", "default-admin"));
+        organizationMemberRequest.setUserRoleIds(List.of("default-role-1"));
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().isOk());
         // 日志校验
         checkLog(organizationMemberRequest.getOrganizationId(), OperationLogType.ADD);
@@ -326,6 +328,7 @@ public class SystemOrganizationControllerTests extends BaseTest {
         OrganizationMemberRequest organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-3");
         organizationMemberRequest.setUserIds(List.of("admin"));
+        organizationMemberRequest.setUserRoleIds(List.of("default-role-1"));
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().isOk());
         // 批量添加成员成功后, 验证是否添加成功
         OrganizationRequest organizationRequest = new OrganizationRequest();
@@ -360,21 +363,25 @@ public class SystemOrganizationControllerTests extends BaseTest {
         OrganizationMemberRequest organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-3");
         organizationMemberRequest.setUserIds(Collections.emptyList());
+        organizationMemberRequest.setUserRoleIds(List.of("default-role-1"));
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().isBadRequest());
         // 成员都不存在
         organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-3");
         organizationMemberRequest.setUserIds(Arrays.asList("SccNotExistOne", "SccNotExistTwo"));
+        organizationMemberRequest.setUserRoleIds(List.of("default-role-1"));
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().is5xxServerError());
         // 成员有一个不存在
         organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-3");
         organizationMemberRequest.setUserIds(Arrays.asList("SccNotExistOne", "default-admin"));
+        organizationMemberRequest.setUserRoleIds(List.of("default-role-1"));
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().is5xxServerError());
         // 组织不存在
         organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-x");
         organizationMemberRequest.setUserIds(Arrays.asList("admin", "default-admin"));
+        organizationMemberRequest.setUserRoleIds(List.of("default-role-1"));
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().is5xxServerError());
     }
 
@@ -545,4 +552,24 @@ public class SystemOrganizationControllerTests extends BaseTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
+
+
+    @Test
+    @Order(24)
+    public void getMemberList() throws Exception {
+        MemberRequest request = new MemberRequest();
+        request.setSourceId("default-organization-2");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        this.requestPostWithOkAndReturn(MEMBER_LIST, request);
+        MvcResult pageResult = this.requestPostWithOkAndReturn(MEMBER_LIST, request);
+        String returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Pager<List<UserExtendDTO>> result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        //返回值的页码和当前页码相同
+        Assertions.assertEquals(result.getCurrent(), request.getCurrent());
+        //返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= request.getPageSize());
+    }
+
 }
