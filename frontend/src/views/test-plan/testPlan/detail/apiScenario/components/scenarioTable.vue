@@ -109,20 +109,20 @@
       @load-list="resetCaseList"
     />
 
-    <!-- TODO 等待联调 -->
+    <!-- TODO 等待联调快填 -->
     <AddDefectDrawer
       v-model:visible="showCreateBugDrawer"
-      :extra-params="{ caseId: associatedCaseId, testPlanId: props.planId, testPlanCaseId }"
+      :extra-params="getScenarioBugParams"
+      :is-batch="isBatchAssociateOrCreate"
       @success="refreshListAndDetail()"
     />
-    <!-- TODO 等待联调 -->
     <LinkDefectDrawer
       v-model:visible="showLinkBugDrawer"
       :case-id="testPlanCaseId"
       :load-api="AssociatedBugApiTypeEnum.SCENARIO_BUG_LIST"
-      :is-batch="isBatchAssociate"
+      :is-batch="isBatchAssociateOrCreate"
       :drawer-loading="drawerLoading"
-      :show-selector-all="!isBatchAssociate"
+      :show-selector-all="!isBatchAssociateOrCreate"
       @save="saveScenarioBugHandler"
     />
   </div>
@@ -657,7 +657,7 @@
   const batchMoveModalVisible = ref(false);
 
   const existedDefect = inject<Ref<number>>('existedDefect', ref(0));
-  const isBatchAssociate = ref(false);
+  const isBatchAssociateOrCreate = ref(false);
   const showLinkBugDrawer = ref<boolean>(false);
   const associatedCaseId = ref<string>();
   const testPlanCaseId = ref<string>();
@@ -666,7 +666,7 @@
   const drawerLoading = ref<boolean>(false);
   // 关联缺陷
   function associateAndCreateDefect(isAssociate: boolean, isBatch: boolean, record?: PlanDetailApiScenarioItem) {
-    isBatchAssociate.value = isBatch;
+    isBatchAssociateOrCreate.value = isBatch;
     if (record) {
       const { id, apiScenarioId } = record;
       associatedCaseId.value = apiScenarioId;
@@ -684,7 +684,7 @@
     try {
       drawerLoading.value = true;
       const tableParams = await getTableParams(true);
-      if (isBatchAssociate.value) {
+      if (isBatchAssociateOrCreate.value) {
         await batchAssociatedBugToCase({
           selectIds: tableSelected.value as string[],
           selectAll: batchParams.value.selectAll,
@@ -713,6 +713,21 @@
     } finally {
       drawerLoading.value = false;
     }
+  }
+
+  async function getScenarioBugParams() {
+    if (isBatchAssociateOrCreate.value) {
+      const tableParams = await getTableParams(true);
+      return {
+        ...tableParams,
+        projectId: appStore.currentProjectId,
+        selectIds: tableSelected.value as string[],
+        selectAll: batchParams.value.selectAll,
+        excludeIds: batchParams.value?.excludeIds || [],
+        testPlanId: props.planId,
+      };
+    }
+    return { caseId: associatedCaseId.value, testPlanId: props.planId, testPlanCaseId: testPlanCaseId.value };
   }
 
   // 处理表格选中后批量操作

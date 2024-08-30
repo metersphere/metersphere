@@ -90,6 +90,7 @@ import {
 
 import { ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
 import type { ReportDetail, ReportStepDetail } from '@/models/apiTest/report';
+import { BugEditFormObject } from '@/models/bug-management';
 import { ReviewUserItem } from '@/models/caseManagement/caseReview';
 import type { CaseManagementTable, CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
 import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
@@ -480,6 +481,6 @@ export function batchAssociatedBugToCase(data: TableQueryParams) {
   return MSR.post({ url: BatchAssociatedBugToCaseUrl, data });
 }
 // 测试计划-详情-批量新建缺陷
-export function batchAddBugToCase(data: TableQueryParams) {
-  return MSR.post({ url: BatchAddBugToCaseUrl, data });
+export function batchAddBugToCase(data: { request: BugEditFormObject; fileList: File[] }) {
+  return MSR.uploadFile({ url: BatchAddBugToCaseUrl }, data, '', true);
 }

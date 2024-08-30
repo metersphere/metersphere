@@ -174,21 +174,21 @@
       :batch-move="batchMoveFeatureCase"
       @load-list="resetCaseList"
     />
+    <!-- TODO 等待联调快填 -->
 
-    <!-- TODO 等待联调 -->
     <AddDefectDrawer
       v-model:visible="showCreateBugDrawer"
-      :extra-params="{ caseId: associatedCaseId, testPlanId: props.planId, testPlanCaseId }"
+      :extra-params="getBugParams"
+      :is-batch="isBatchAssociateOrCreate"
       @success="refreshList()"
     />
-    <!-- TODO 等待联调 -->
     <LinkDefectDrawer
       v-model:visible="showLinkBugDrawer"
       :case-id="testPlanCaseId"
       :drawer-loading="drawerLoading"
       :load-api="AssociatedBugApiTypeEnum.TEST_PLAN_BUG_LIST"
-      :show-selector-all="!isBatchAssociate"
-      :is-batch="isBatchAssociate"
+      :show-selector-all="!isBatchAssociateOrCreate"
+      :is-batch="isBatchAssociateOrCreate"
       @save="saveFunctionBugHandler"
     />
   </div>
@@ -775,7 +775,6 @@
   const batchLoading = ref(false);
   const batchExecuteModalVisible = ref(false);
   const batchExecuteForm = ref<ExecuteFeatureCaseFormParams>({ ...defaultExecuteForm });
-
   async function handleBatchExecute() {
     try {
       batchLoading.value = true;
@@ -807,14 +806,29 @@
   const associatedCaseId = ref<string>();
   const testPlanCaseId = ref<string>();
   const drawerLoading = ref<boolean>(false);
-  const isBatchAssociate = ref(false);
+  const isBatchAssociateOrCreate = ref(false);
+
+  async function getBugParams() {
+    if (isBatchAssociateOrCreate.value) {
+      const tableParams = await getTableParams(true);
+      return {
+        ...tableParams,
+        projectId: appStore.currentProjectId,
+        selectIds: tableSelected.value as string[],
+        selectAll: batchParams.value.selectAll,
+        excludeIds: batchParams.value?.excludeIds || [],
+        testPlanId: props.planId,
+      };
+    }
+    return { caseId: associatedCaseId.value, testPlanId: props.planId, testPlanCaseId: testPlanCaseId.value };
+  }
 
   // 功能用例关联缺陷
   async function saveFunctionBugHandler(params: TableQueryParams) {
     try {
       drawerLoading.value = true;
       const tableParams = await getTableParams(true);
-      if (isBatchAssociate.value) {
+      if (isBatchAssociateOrCreate.value) {
         await batchAssociatedBugToCase({
           selectIds: tableSelected.value as string[],
           selectAll: batchParams.value.selectAll,
@@ -854,7 +868,7 @@
 
   // 关联/关联缺陷
   function associateAndCreateDefect(isAssociate: boolean, isBatch: boolean, record?: PlanDetailFeatureCaseItem) {
-    isBatchAssociate.value = isBatch;
+    isBatchAssociateOrCreate.value = isBatch;
     if (record) {
       const { id, caseId } = record;
       associatedCaseId.value = caseId;
