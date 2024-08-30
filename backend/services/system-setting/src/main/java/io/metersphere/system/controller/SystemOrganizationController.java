@@ -171,7 +171,7 @@ public class SystemOrganizationController {
     @GetMapping("/total")
     @Operation(summary = "系统设置-系统-组织与项目-组织-获取组织和项目总数")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    public Map<String, Long> getTotal(@RequestParam(value = "organizationId",required = false) String organizationId) {
+    public Map<String, Long> getTotal(@RequestParam(value = "organizationId", required = false) String organizationId) {
         return organizationService.getTotal(organizationId);
     }
 
@@ -181,7 +181,16 @@ public class SystemOrganizationController {
     @Parameter(name = "sourceId", description = "组织ID或项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     public List<UserExtendDTO> getMemberOption(@PathVariable String sourceId,
                                                @Schema(description = "查询关键字，根据邮箱和用户名查询")
-                                            @RequestParam(value = "keyword", required = false) String keyword) {
+                                               @RequestParam(value = "keyword", required = false) String keyword) {
         return simpleUserService.getMemberOption(sourceId, keyword);
+    }
+
+
+    @PostMapping("/member-list")
+    @Operation(summary = "系统设置-系统-组织与项目-获取添加成员列表")
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
+    public Pager<List<UserExtendDTO>> getMemberOptionList(@Validated @RequestBody MemberRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
+        return PageUtils.setPageInfo(page, simpleUserService.getMemberList(request));
     }
 }
