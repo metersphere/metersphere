@@ -8,6 +8,8 @@ export default {
   'advanceFilter.operator.no_check': 'uncheck',
   'advanceFilter.operator.contains': 'contain',
   'advanceFilter.operator.not_contains': 'exclude',
+  'advanceFilter.operator.belongTo': 'belong to',
+  'advanceFilter.operator.notBelongTo': 'not belong to',
   'advanceFilter.operator.start_with': 'with...start',
   'advanceFilter.operator.end_with': 'with...end',
   'advanceFilter.operator.empty': 'empty',
@@ -26,4 +28,6 @@ export default {
   'advanceFilter.or': 'Or',
   'advanceFilter.inputPlaceholder': 'Separate keywords with spaces',
   'advanceFilter.addCondition': 'Add conditions',
+  'advanceFilter.conditionRequired': 'The query condition cannot be empty',
+  'advanceFilter.filterContentRequired': 'The filtering content cannot be empty',
 };

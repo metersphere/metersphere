@@ -771,77 +771,80 @@
     ],
   };
 
-  const filterConfigList = ref<FilterFormItem[]>([]);
-  const searchCustomFields = ref<FilterFormItem[]>([]);
   const memberOptions = ref<{ label: string; value: string }[]>([]);
+  const filterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'caseManagement.featureCase.tableColumnID',
+      dataIndex: 'id',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnName',
+      dataIndex: 'name',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnModule',
+      dataIndex: 'moduleId',
+      type: FilterType.TREE_SELECT,
+      treeSelectData: caseTreeData.value,
+      treeSelectProps: {
+        fieldNames: {
+          title: 'name',
+          key: 'id',
+          children: 'children',
+        },
+        multiple: true,
+        treeCheckable: true,
+        treeCheckStrictly: true,
+        maxTagCount: 2,
+      },
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnVersion',
+      dataIndex: 'versionId',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnCreateUser',
+      dataIndex: 'createUserName',
+      type: FilterType.SELECT,
+      selectProps: {
+        mode: 'static',
+        options: memberOptions.value,
+      },
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnCreateTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnUpdateUser',
+      dataIndex: 'updateUserName',
+      type: FilterType.SELECT,
+      selectProps: {
+        mode: 'static',
+        options: memberOptions.value,
+      },
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnUpdateTime',
+      dataIndex: 'updateTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnTag',
+      dataIndex: 'tags',
+      type: FilterType.TAGS_INPUT,
+    },
+  ]);
+  const searchCustomFields = ref<FilterFormItem[]>([]);
 
   async function initFilter() {
     const result = await getCustomFieldsTable(currentProjectId.value);
     memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
     memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
-    filterConfigList.value = [
-      {
-        title: 'caseManagement.featureCase.tableColumnID',
-        dataIndex: 'id',
-        type: FilterType.INPUT,
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnName',
-        dataIndex: 'name',
-        type: FilterType.INPUT,
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnModule',
-        dataIndex: 'moduleId',
-        type: FilterType.TREE_SELECT,
-        treeSelectData: caseTreeData.value,
-        treeSelectProps: {
-          fieldNames: {
-            title: 'name',
-            key: 'id',
-            children: 'children',
-          },
-        },
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnVersion',
-        dataIndex: 'versionId',
-        type: FilterType.INPUT,
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnCreateUser',
-        dataIndex: 'createUserName',
-        type: FilterType.SELECT,
-        selectProps: {
-          mode: 'static',
-          options: memberOptions.value,
-        },
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnCreateTime',
-        dataIndex: 'createTime',
-        type: FilterType.DATE_PICKER,
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnUpdateUser',
-        dataIndex: 'updateUserName',
-        type: FilterType.SELECT,
-        selectProps: {
-          mode: 'static',
-          options: memberOptions.value,
-        },
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnUpdateTime',
-        dataIndex: 'updateTime',
-        type: FilterType.DATE_PICKER,
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnTag',
-        dataIndex: 'tags',
-        type: FilterType.TAGS_INPUT,
-      },
-    ];
     // 处理系统自定义字段
     searchCustomFields.value = result.map((item: any) => {
       const FilterTypeKey: keyof typeof FilterType = CustomTypeMaps[item.type].type;
