@@ -12,7 +12,6 @@
    * import rehypeStringify from 'rehype-stringify';
    * return unified().use(rehypeParse).use(rehypeFormat).use(rehypeStringify).processSync(content.value);
    */
-  import { useRoute } from 'vue-router';
   import { useDebounceFn, useVModel } from '@vueuse/core';
 
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
@@ -71,7 +70,6 @@
   import * as fastq from 'fastq';
 
   const { t } = useI18n();
-  const route = useRoute();
   type Task = {
     file: File;
     process: (permalink: string, fileId: string) => void;
@@ -91,6 +89,7 @@
       previewUrl?: string;
       editable?: boolean;
       limitLength?: number;
+      autoFocus?: boolean;
     }>(),
     {
       raw: '',
@@ -109,6 +108,8 @@
     (event: 'update:filedIds', value: string[]): void;
     (event: 'update', value: string): void;
     (event: 'update:commentIds', value: string): void;
+    (event: 'blur', eveValue: FocusEvent): void;
+    (event: 'focus', eveValue: FocusEvent): void;
   }>();
 
   const imagesNodesIds = useVModel(props, 'filedIds', emit);
@@ -143,6 +144,16 @@
     (val) => {
       // 更新富文本的可编辑配置
       editor.value?.setOptions({ editable: val });
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  watch(
+    () => props.autoFocus,
+    (val) => {
+      editor.value?.setOptions({ autofocus: val });
     },
     {
       immediate: true,
@@ -385,10 +396,19 @@
           limit: props.limitLength || null,
         }),
       ],
-      autofocus: false,
+      autofocus: props.autoFocus,
       editable: props.editable,
       onUpdate: () => {
         debounceOnUpdate();
+      },
+      onBlur: ({ event }) => {
+        // 避免移动到菜单上触发失去焦点切换视图
+        if (!event.relatedTarget) {
+          emit('blur', event);
+        }
+      },
+      onFocus: ({ event }) => {
+        emit('focus', event);
       },
       editorProps: {
         handleDrop: (view, event: DragEvent, _, moved) => {
