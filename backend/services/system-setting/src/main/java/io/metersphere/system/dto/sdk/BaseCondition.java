@@ -1,6 +1,7 @@
 package io.metersphere.system.dto.sdk;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -12,13 +13,20 @@ public class BaseCondition {
     @Schema(description =  "关键字")
     private String keyword;
 
-    @Schema(description = "匹配模式 所有/任一", allowableValues = {"AND", "OR"})
-    private String searchMode = "AND";
-
     @Schema(description =  "过滤字段")
     private Map<String, List<String>> filter;
 
     @Schema(description =  "高级搜索")
+    @Valid
+    private CombineSearch combineSearch;
+
+    /**
+     * todo 删除
+     */
+    private String searchMode = "AND";
+    /**
+     * todo 删除
+     */
     private Map<String, Object> combine;
 
     // 转JSON时会调用。 前台数据传过来时可以顺便处理掉转义字符
