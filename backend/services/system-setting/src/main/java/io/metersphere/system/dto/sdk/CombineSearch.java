@@ -22,20 +22,12 @@ public class CombineSearch {
     @Valid
     private List<CombineCondition> conditions;
 
-    @Schema(description = "自定义字段筛选条件")
-    @Valid
-    private List<CombineCondition> customFileConditions;
-
     public List<CombineCondition> getValidConditions(List<CombineCondition> conditions) {
         return conditions.stream().filter(CombineCondition::valid).toList();
     }
 
     public List<CombineCondition> getConditions() {
         return getValidConditions(conditions);
-    }
-
-    public List<CombineCondition> getCustomFileConditions() {
-        return getValidConditions(customFileConditions);
     }
 
     public String getSearchMode() {

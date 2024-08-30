@@ -2,6 +2,7 @@ package io.metersphere.system.dto.sdk;
 
 import io.metersphere.system.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -17,6 +18,10 @@ public class CombineCondition {
 
     @Schema(description = "期望值, BETWEEN,IN,NOT_IN 时为数组, 其他为单值")
     private Object value;
+
+    @Schema(description = "是否是自定义字段")
+    @NotNull
+    private Boolean customField = false;
 
     @Schema(description = "操作符",
             allowableValues = {"IN", "NOT_IN", "BETWEEN", "GT", "LT", "EQUALS", "NOT_EQUALS", "CONTAINS", "NOT_CONTAINS", "EMPTY", "NOT_EMPTY", "CURRENT_USER"})
