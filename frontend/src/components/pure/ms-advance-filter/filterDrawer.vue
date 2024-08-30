@@ -22,15 +22,20 @@
       </div>
     </template>
     <a-form ref="formRef" :model="formModel" layout="vertical">
-      <a-select v-model="formModel.andOrType" :options="andOrTypeOptions" class="w-[170px]">
+      <a-select v-model="formModel.andOrType" :options="andOrTypeOptions" class="mb-[12px] w-[170px]">
         <template #prefix> {{ t('advanceFilter.meetTheFollowingConditions') }} </template>
       </a-select>
       <div
         v-for="(item, listIndex) in formModel.list"
         :key="item.dataIndex || `filter_item_${listIndex}`"
-        class="flex items-center gap-[8px]"
+        class="flex items-start gap-[8px]"
       >
-        <a-form-item class="flex-1 overflow-hidden" :field="`list[${listIndex}].dataIndex`" hide-asterisk>
+        <a-form-item
+          class="flex-1 overflow-hidden"
+          :field="`list[${listIndex}].dataIndex`"
+          hide-asterisk
+          :rules="[{ required: true, message: t('advanceFilter.conditionRequired') }]"
+        >
           <a-select
             v-model="item.dataIndex"
             allow-search
@@ -57,7 +62,18 @@
             </a-option>
           </a-select>
         </a-form-item>
-        <a-form-item class="flex-1 overflow-hidden" :field="`list[${listIndex}].value`" hide-asterisk>
+        <a-form-item
+          class="flex-1 overflow-hidden"
+          :field="`list[${listIndex}].value`"
+          hide-asterisk
+          :rules="[
+            {
+              validator: (value, callback) => {
+                validateFilterValue(item, value, callback);
+              },
+            },
+          ]"
+        >
           <a-input
             v-if="item.type === FilterType.INPUT"
             v-model:model-value="item.value"
@@ -110,7 +126,13 @@
             :data="item.treeSelectData"
             :disabled="isValueDisabled(item)"
             v-bind="item.treeSelectProps"
-          />
+          >
+            <template #tree-slot-title="node">
+              <a-tooltip :content="`${node.name}`" position="tr">
+                <div class="one-line-text max-w-[170px]">{{ node.name }}</div>
+              </a-tooltip>
+            </template>
+          </a-tree-select>
           <a-date-picker
             v-else-if="item.type === FilterType.DATE_PICKER && item.operator !== 'between'"
             v-model:model-value="item.value"
@@ -202,6 +224,7 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { SelectValue } from '@/models/projectManagement/menuManagement';
+  import { OperatorEnum } from '@/enums/advancedFilterEnum';
 
   import { defaultFormModelList, operatorOptionsMap } from './index';
   import { AccordBelowType, BackEndEnum, FilterFormItem, FilterResult, FilterType } from './type';
@@ -238,6 +261,17 @@
     { value: 'OR', label: t('advanceFilter.or') },
   ];
 
+  const formRef = ref<FormInstance>();
+  function validateFilterValue(item: FilterFormItem, value: string | undefined, callback: (error?: string) => void) {
+    if (
+      item.dataIndex?.length &&
+      item.operator?.length &&
+      !['EMPTY', 'NOT_EMPTY'].includes(item.operator as string) &&
+      !value?.length
+    ) {
+      callback(t('advanceFilter.filterContentRequired'));
+    }
+  }
   function getListItemByDataIndex(dataIndex: string) {
     return [...props.configList, ...(props.customList || [])].find((item) => item.dataIndex === dataIndex);
   }
@@ -266,10 +300,27 @@
     if (!listItem) return;
     formModel.value.list[index] = { ...listItem };
     formModel.value.list[index].value = valueIsArray(listItem) ? [] : '';
+
+    // 第二列默认：包含/属于/等于
+    if (!formModel.value.list[index].operator?.length) {
+      const optionsValueList = operatorOptionsMap[formModel.value.list[index].type].map(
+        (optionItem) => optionItem.value
+      );
+      if (optionsValueList.includes(OperatorEnum.LIKE)) {
+        formModel.value.list[index].operator = OperatorEnum.LIKE;
+      } else if (optionsValueList.includes(OperatorEnum.BELONG_TO)) {
+        formModel.value.list[index].operator = OperatorEnum.BELONG_TO;
+      } else if (optionsValueList.includes(OperatorEnum.EQUAL)) {
+        formModel.value.list[index].operator = OperatorEnum.EQUAL;
+      }
+    }
   }
   // 改变第二列值
   function operatorChange(item: FilterFormItem, index: number) {
     formModel.value.list[index].value = valueIsArray(item) ? [] : '';
+    if (['EMPTY', 'NOT_EMPTY'].includes(formModel.value.list[index].operator as string)) {
+      formRef.value?.validate();
+    }
   }
   function isValueDisabled(item: FilterFormItem) {
     return !item.dataIndex || ['EMPTY', 'NOT_EMPTY'].includes(item.operator as string);
@@ -283,14 +334,12 @@
     const item = {
       dataIndex: '',
       type: FilterType.INPUT,
-      operator: '',
       value: '',
       backendType: BackEndEnum.STRING,
     };
     formModel.value.list.push(item);
   }
 
-  const formRef = ref<FormInstance>();
   function handleFilter() {
     formRef.value?.validate((errors) => {
       if (!errors) {
@@ -310,6 +359,11 @@
 
 <style lang="less" scoped>
   :deep(.arco-form-item) {
-    margin-bottom: 8px;
+    .arco-form-item-label-col {
+      display: none;
+    }
+    .arco-form-item-message {
+      margin-bottom: 2px;
+    }
   }
 </style>

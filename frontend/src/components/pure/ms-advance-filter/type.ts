@@ -1,5 +1,7 @@
 import type { MsSearchSelectProps, RadioProps } from '@/components/business/ms-select';
 
+import { OperatorEnum } from '@/enums/advancedFilterEnum';
+
 import type { CascaderOption, TreeNodeData } from '@arco-design/web-vue';
 import type { VirtualListProps } from '@arco-design/web-vue/es/_components/virtual-list-v2/interface';
 import type { TreeSelectProps } from '@arco-design/web-vue/es/tree-select/interface';
@@ -50,7 +52,7 @@ export enum FilterType {
 export interface FilterFormItem {
   dataIndex?: string; // 第一列下拉的value
   title?: string; // 第一列下拉显示的label
-  operator?: string; // 第二列的值
+  operator?: OperatorEnum; // 第二列的值
   type: FilterType; // 类型：判断第二列下拉数据和第三列显示形式
   value?: any; // 第三列的值
   cascaderOptions?: CascaderOption[]; // 级联选择的选项

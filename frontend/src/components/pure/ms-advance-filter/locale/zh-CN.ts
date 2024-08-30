@@ -9,6 +9,8 @@ export default {
   'advanceFilter.operator.no_check': '不校验',
   'advanceFilter.operator.contains': '包含',
   'advanceFilter.operator.not_contains': '不包含',
+  'advanceFilter.operator.belongTo': '属于',
+  'advanceFilter.operator.notBelongTo': '不属于',
   'advanceFilter.operator.start_with': '以...开始',
   'advanceFilter.operator.end_with': '以...结束',
   'advanceFilter.operator.empty': '为空',
@@ -27,4 +29,6 @@ export default {
   'advanceFilter.or': '任一',
   'advanceFilter.inputPlaceholder': '关键字之间以空格进行分隔',
   'advanceFilter.addCondition': '添加条件',
+  'advanceFilter.conditionRequired': '查询条件不能为空',
+  'advanceFilter.filterContentRequired': '筛选内容不能为空',
 };
