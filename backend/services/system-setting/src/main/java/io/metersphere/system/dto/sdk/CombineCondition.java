@@ -24,7 +24,7 @@ public class CombineCondition {
     private Boolean customField = false;
 
     @Schema(description = "操作符",
-            allowableValues = {"IN", "NOT_IN", "BETWEEN", "GT", "LT", "EQUALS", "NOT_EQUALS", "CONTAINS", "NOT_CONTAINS", "EMPTY", "NOT_EMPTY", "CURRENT_USER"})
+            allowableValues = {"IN", "NOT_IN", "BETWEEN", "GT", "LT", "COUNT_GT", "COUNT_LT", "EQUALS", "NOT_EQUALS", "CONTAINS", "NOT_CONTAINS", "EMPTY", "NOT_EMPTY"})
     @EnumValue(enumClass = CombineConditionOperator.class)
     private String operator;
 
@@ -54,6 +54,14 @@ public class CombineCondition {
          */
         LT,
         /**
+         * 数量大于
+         */
+        COUNT_GT,
+        /**
+         * 数量小于
+         */
+        COUNT_LT,
+        /**
          * 等于
          */
         EQUALS,
@@ -76,10 +84,6 @@ public class CombineCondition {
         /**
          * 不为空
          */
-        NOT_EMPTY,
-        /**
-         * 当前用户
-         */
-        CURRENT_USER
+        NOT_EMPTY
     }
 }
