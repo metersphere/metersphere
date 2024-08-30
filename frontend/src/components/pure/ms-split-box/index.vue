@@ -35,14 +35,20 @@
       </div>
     </template>
     <template #resize-trigger>
-      <div :class="props.direction === 'horizontal' ? 'horizontal-expand-line' : 'vertical-expand-line'">
+      <div v-if="props.notShowFirst"></div>
+      <div v-else :class="props.direction === 'horizontal' ? 'horizontal-expand-line' : 'vertical-expand-line'">
         <div v-if="isExpanded" class="expand-color-line"></div>
       </div>
     </template>
     <template #second>
       <div class="ms-split-box-second">
         <div
-          v-if="props.direction === 'horizontal' && props.expandDirection === 'left' && !props.disabled"
+          v-if="
+            !props.notShowFirst &&
+            props.direction === 'horizontal' &&
+            props.expandDirection === 'left' &&
+            !props.disabled
+          "
           class="absolute h-full w-[12px]"
         >
           <div class="expand-icon" @click="() => changeExpand()">
@@ -82,6 +88,7 @@
       disabled?: boolean; // 是否禁用
       firstContainerClass?: string; // first容器类名
       secondContainerClass?: string; // second容器类名
+      notShowFirst?: boolean;
     }>(),
     {
       size: '300px',
@@ -98,6 +105,13 @@
   const initialSize = props.size || '300px';
   const isExpanded = ref(true);
   const isExpandAnimating = ref(false); // 控制动画类
+
+  watch(
+    () => props.notShowFirst,
+    (val) => {
+      innerSize.value = val ? 0 : initialSize;
+    }
+  );
 
   watch(
     () => props.size,

@@ -22,7 +22,7 @@
       </div>
     </template>
     <a-form ref="formRef" :model="formModel" layout="vertical">
-      <a-select v-model="formModel.andOrType" :options="andOrTypeOptions" class="mb-[12px] w-[170px]">
+      <a-select v-model="formModel.searchMode" :options="searchModeOptions" class="mb-[12px] w-[170px]">
         <template #prefix> {{ t('advanceFilter.meetTheFollowingConditions') }} </template>
       </a-select>
       <div
@@ -134,14 +134,14 @@
             </template>
           </a-tree-select>
           <a-date-picker
-            v-else-if="item.type === FilterType.DATE_PICKER && item.operator !== 'between'"
+            v-else-if="item.type === FilterType.DATE_PICKER && item.operator !== OperatorEnum.BETWEEN"
             v-model:model-value="item.value"
             show-time
             format="YYYY-MM-DD hh:mm"
             :disabled="isValueDisabled(item)"
           />
           <a-range-picker
-            v-else-if="item.type === FilterType.DATE_PICKER && item.operator === 'between'"
+            v-else-if="item.type === FilterType.DATE_PICKER && item.operator === OperatorEnum.BETWEEN"
             v-model:model-value="item.value"
             show-time
             format="YYYY-MM-DD HH:mm"
@@ -192,7 +192,7 @@
     <template #footer>
       <div v-show="!isSaveAsView" class="flex items-center gap-[8px]">
         <a-button type="primary" @click="handleFilter">{{ t('common.filter') }}</a-button>
-        <a-button class="mr-[16px]">{{ t('common.reset') }}</a-button>
+        <a-button class="mr-[16px]" @click="handleReset">{{ t('common.reset') }}</a-button>
         <MsButton type="text" class="!text-[var(--color-text-1)]"> {{ t('common.save') }}</MsButton>
         <MsButton type="text" class="!text-[var(--color-text-1)]" @click="isSaveAsView = true">
           {{ t('advanceFilter.saveAsView') }}
@@ -215,6 +215,7 @@
 
 <script lang="ts" setup>
   import { FormInstance, InputInstance } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -224,10 +225,10 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { SelectValue } from '@/models/projectManagement/menuManagement';
-  import { OperatorEnum } from '@/enums/advancedFilterEnum';
+  import { FilterType, OperatorEnum } from '@/enums/advancedFilterEnum';
 
   import { defaultFormModelList, operatorOptionsMap } from './index';
-  import { AccordBelowType, BackEndEnum, FilterFormItem, FilterResult, FilterType } from './type';
+  import { AccordBelowType, FilterFormItem, FilterResult } from './type';
 
   const props = defineProps<{
     configList: FilterFormItem[]; // 系统字段
@@ -241,11 +242,12 @@
   const { t } = useI18n();
 
   // TODO lmy 联调
-  const formModel = ref<{ name: string; andOrType: AccordBelowType; list: FilterFormItem[] }>({
+  const formModel = ref<{ name: string; searchMode: AccordBelowType; list: FilterFormItem[] }>({
     name: '111',
-    andOrType: 'AND',
+    searchMode: 'AND',
     list: [...defaultFormModelList],
   });
+  const savedFormModel = ref(cloneDeep(formModel.value));
 
   const isShowNameInput = ref(false);
   const nameInputRef = ref<InputInstance>();
@@ -256,7 +258,7 @@
     });
   }
 
-  const andOrTypeOptions = [
+  const searchModeOptions = [
     { value: 'AND', label: t('advanceFilter.and') },
     { value: 'OR', label: t('advanceFilter.or') },
   ];
@@ -280,7 +282,7 @@
     return (
       listItem.selectProps?.multiple ||
       [FilterType.CHECKBOX, FilterType.TAGS_INPUT].includes(listItem.type) ||
-      (listItem.type === FilterType.DATE_PICKER && listItem.operator === 'between')
+      (listItem.type === FilterType.DATE_PICKER && listItem.operator === OperatorEnum.BETWEEN)
     );
   }
   // 第一列下拉数据
@@ -306,8 +308,8 @@
       const optionsValueList = operatorOptionsMap[formModel.value.list[index].type].map(
         (optionItem) => optionItem.value
       );
-      if (optionsValueList.includes(OperatorEnum.LIKE)) {
-        formModel.value.list[index].operator = OperatorEnum.LIKE;
+      if (optionsValueList.includes(OperatorEnum.CONTAINS)) {
+        formModel.value.list[index].operator = OperatorEnum.CONTAINS;
       } else if (optionsValueList.includes(OperatorEnum.BELONG_TO)) {
         formModel.value.list[index].operator = OperatorEnum.BELONG_TO;
       } else if (optionsValueList.includes(OperatorEnum.EQUAL)) {
@@ -335,16 +337,31 @@
       dataIndex: '',
       type: FilterType.INPUT,
       value: '',
-      backendType: BackEndEnum.STRING,
     };
     formModel.value.list.push(item);
+  }
+
+  function getParams() {
+    const conditions = formModel.value.list.map(({ value, operator, customField, dataIndex }) => ({
+      value,
+      operator,
+      customField: customField ?? false,
+      key: dataIndex,
+    }));
+    return { searchMode: formModel.value.searchMode, conditions };
+  }
+
+  // TODO lmy 根据视图重置
+  function handleReset() {
+    formModel.value = cloneDeep(savedFormModel.value);
+    emit('handleFilter', { searchMode: formModel.value.searchMode, conditions: [] });
   }
 
   function handleFilter() {
     formRef.value?.validate((errors) => {
       if (!errors) {
-        // TODO lmy 联调
-        emit('handleFilter', { accordBelow: 'AND', combine: {} });
+        visible.value = false;
+        emit('handleFilter', getParams());
       }
     });
   }

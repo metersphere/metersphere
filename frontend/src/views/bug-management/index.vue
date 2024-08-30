@@ -7,8 +7,7 @@
         :filter-config-list="filterConfigList"
         :row-count="filterRowCount"
         @keyword-search="fetchData"
-        @adv-search="handleAdvSearch"
-        @refresh="handleAdvSearch"
+        @refresh="searchData"
       >
         <template #left>
           <div class="flex gap-[12px]">
@@ -167,7 +166,7 @@
   import { Message, TableData } from '@arco-design/web-vue';
 
   import { MsAdvanceFilter, timeSelectOptions } from '@/components/pure/ms-advance-filter';
-  import { BackEndEnum, FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
+  import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import { MsExportDrawerMap, MsExportDrawerOption } from '@/components/pure/ms-export-drawer/types';
@@ -199,6 +198,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BugEditCustomField, BugListItem, BugOptionItem } from '@/models/bug-management';
+  import { FilterType } from '@/enums/advancedFilterEnum';
   import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -231,7 +231,6 @@
   const deleteVisible = ref(false);
   const batchEditVisible = ref(false);
   const keyword = ref('');
-  const filterResult = ref<FilterResult>({ accordBelow: 'AND', combine: {} });
   const { openDeleteModal } = useModal();
   const route = useRoute();
   const severityFilterOptions = ref<BugOptionItem[]>([]);
@@ -259,13 +258,11 @@
       title: 'bugManagement.ID',
       dataIndex: 'num',
       type: FilterType.INPUT,
-      backendType: BackEndEnum.NUMBER,
     },
     {
       title: 'bugManagement.bugName',
       dataIndex: 'title',
       type: FilterType.INPUT,
-      backendType: BackEndEnum.STRING,
     },
     {
       title: 'bugManagement.createTime',
@@ -496,22 +493,6 @@
     searchData();
   };
 
-  const handleAdvSearch = (filter: FilterResult) => {
-    filterResult.value = filter;
-    const { accordBelow, combine } = filter;
-    setAdvanceFilter(filter);
-    currentSelectParams.value = {
-      ...currentSelectParams.value,
-      condition: {
-        keyword: keyword.value,
-        searchMode: accordBelow,
-        filter: propsRes.value.filter,
-        combine,
-      },
-    };
-    fetchData();
-  };
-
   const exportConfirm = async (option: MsExportDrawerOption[]) => {
     try {
       exportLoading.value = true;
@@ -727,9 +708,7 @@
     }
     const condition = {
       keyword: keyword.value,
-      searchMode: filterResult.value.accordBelow,
       filter: propsRes.value.filter,
-      combine: filterResult.value.combine,
     };
     currentSelectParams.value = {
       excludeIds: params.excludeIds,

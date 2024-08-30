@@ -195,7 +195,7 @@
   import { useVModel } from '@vueuse/core';
 
   import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
+  import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -215,6 +215,7 @@
   import type { CaseManagementTable } from '@/models/caseManagement/featureCase';
   import type { CommonList, ModuleTreeNode, TableQueryParams } from '@/models/common';
   import type { ProjectListItem } from '@/models/setting/project';
+  import { FilterType } from '@/enums/advancedFilterEnum';
   import { ProtocolKeyEnum } from '@/enums/apiEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';

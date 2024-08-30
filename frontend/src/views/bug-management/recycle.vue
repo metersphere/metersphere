@@ -7,8 +7,7 @@
         :filter-config-list="filterConfigList"
         :row-count="filterRowCount"
         @keyword-search="fetchData"
-        @adv-search="handleAdvSearch"
-        @refresh="handleAdvSearch"
+        @refresh="searchData"
       >
         <template #left>
           <div></div>
@@ -59,7 +58,7 @@
   import dayjs from 'dayjs';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { BackEndEnum, FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
+  import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -81,6 +80,7 @@
   import { characterLimit, customFieldDataToTableData, customFieldToColumns } from '@/utils';
 
   import { BugEditCustomField, BugListItem, BugOptionItem } from '@/models/bug-management';
+  import { FilterType } from '@/enums/advancedFilterEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { makeColumns } from '@/views/case-management/caseManagementFeature/components/utils';
@@ -105,7 +105,6 @@
       title: 'bugManagement.bugName',
       dataIndex: 'title',
       type: FilterType.INPUT,
-      backendType: BackEndEnum.STRING,
     },
     {
       title: 'bugManagement.createTime',
@@ -115,7 +114,6 @@
   ]);
 
   const severityFilterOptions = ref<BugOptionItem[]>([]);
-  const filterResult = ref<FilterResult>({ accordBelow: 'AND', combine: {} });
   const currentSelectParams = ref<BatchActionQueryParams>({ selectAll: false, currentSelectCount: 0 });
 
   const heightUsed = computed(() => 286 + (filterVisible.value ? 160 + (filterRowCount.value - 1) * 60 : 0));
@@ -345,11 +343,6 @@
     searchData();
   };
 
-  const handleAdvSearch = (filter: FilterResult) => {
-    filterResult.value = filter;
-    fetchData();
-  };
-
   // 单个恢复
   const handleRecover = async (record: BugListItem) => {
     try {
@@ -432,9 +425,7 @@
     }
     const condition = {
       keyword: keyword.value,
-      searchMode: filterResult.value.accordBelow,
       filter: params.condition.filter,
-      combine: filterResult.value.combine,
     };
     currentSelectParams.value = {
       excludeIds: params.excludeIds,

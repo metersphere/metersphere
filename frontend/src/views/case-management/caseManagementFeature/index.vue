@@ -1,6 +1,6 @@
 <template>
   <MsCard simple no-content-padding>
-    <MsSplitBox>
+    <MsSplitBox :not-show-first="isAdvancedSearchMode">
       <template #first>
         <div class="p-[16px] pb-0">
           <div class="feature-case h-[100%]">
@@ -186,6 +186,8 @@
   const addSubVisible = ref(false);
   const caseTreeRef = ref();
   const caseTableRef = ref();
+
+  const isAdvancedSearchMode = computed(() => caseTableRef.value?.isAdvancedSearchMode);
 
   // 添加子模块
   async function confirmHandler(formValue: ConfirmValue) {
