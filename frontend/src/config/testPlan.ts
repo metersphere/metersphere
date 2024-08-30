@@ -189,7 +189,9 @@ export const seriesConfig = {
   type: 'pie',
   radius: ['75%', '93%'],
   center: ['50%', '50%'],
-  avoidLabelOverlap: false,
+  minAngle: 5, // 设置扇区的最小角度
+  minShowLabelAngle: 10, // 设置标签显示的最小角度
+  avoidLabelOverlap: true, // 避免标签重叠
   label: {
     show: false,
     position: 'center',

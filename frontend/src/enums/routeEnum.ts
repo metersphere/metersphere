@@ -112,6 +112,11 @@ export enum ShareEnum {
   SHARE_REPORT_TEST_PLAN = 'shareReportTestPlan',
 }
 
+export enum FullPageEnum {
+  FULL_PAGE = 'fullPage',
+  FULL_PAGE_TEST_PLAN_EXPORT_PDF = 'fullPageTestPlanExportPDF',
+}
+
 export const RouteEnum = {
   ...ApiTestRouteEnum,
   ...SettingRouteEnum,
@@ -123,4 +128,5 @@ export const RouteEnum = {
   ...UITestRouteEnum,
   ...WorkbenchRouteEnum,
   ...ShareEnum,
+  ...FullPageEnum,
 };

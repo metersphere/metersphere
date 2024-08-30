@@ -13,7 +13,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
   import { TriggerPopupTranslate } from '@arco-design/web-vue';
 
   import { useI18n } from '@/hooks/useI18n';

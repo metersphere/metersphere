@@ -25,6 +25,7 @@
 
   const props = defineProps<{
     detail: PlanReportDetail;
+    animation?: boolean; // 是否开启动画
   }>();
 
   const legendData = ref<LegendData[]>([]);
@@ -35,6 +36,7 @@
     tooltip: {
       ...toolTipConfig,
     },
+    animation: props.animation === undefined ? true : props.animation, // 关闭渲染动画
     series: {
       ...seriesConfig,
       data: [
@@ -78,17 +80,21 @@
   });
 
   function initExecuteOptions() {
-    executeCharOptions.value.series.data = statusConfig.map((item: StatusListType) => {
-      return {
-        value: props.detail.executeCount[item.value] || 0,
-        name: t(item.label),
-        itemStyle: {
-          color: item.color,
-          borderWidth: 2,
-          borderColor: '#ffffff',
-        },
-      };
-    });
+    const pieBorderWidth =
+      statusConfig.filter((e) => Number(props.detail.executeCount[e.value]) > 0).length === 1 ? 0 : 2;
+    executeCharOptions.value.series.data = statusConfig
+      .filter((item) => props.detail.executeCount[item.value] > 0)
+      .map((item: StatusListType) => {
+        return {
+          value: props.detail.executeCount[item.value] || 0,
+          name: t(item.label),
+          itemStyle: {
+            color: item.color,
+            borderWidth: pieBorderWidth,
+            borderColor: '#ffffff',
+          },
+        };
+      });
     legendData.value = statusConfig.map((item: StatusListType) => {
       const rate = (props.detail.executeCount[item.value] / props.detail.caseTotal) * 100;
       return {

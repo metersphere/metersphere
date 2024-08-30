@@ -367,14 +367,14 @@
     } else {
       validArr = tempArr.filter((e) => e.key === props?.detailInfo?.status);
     }
-
+    const pieBorderWidth = validArr.filter((e) => Number(detail.value[e.value]) > 0).length === 1 ? 0 : 2;
     charOptions.value.series.data = validArr.map((item: any) => {
       return {
         value: detail.value[item.value] || 0,
         name: t(item.label),
         itemStyle: {
           color: item.color,
-          borderWidth: 2,
+          borderWidth: pieBorderWidth,
           borderColor: '#ffffff',
         },
       };

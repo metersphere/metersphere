@@ -259,14 +259,14 @@
         rateKey: 'requestPendingRate',
       },
     ];
-
+    const requestChartBorderWidth = tempArr.filter((e) => Number(detail.value[e.value]) > 0).length === 1 ? 0 : 2;
     requestCharOptions.value.series.data = tempArr.map((item: any) => {
       return {
         value: detail.value[item.value] || 0,
         name: t(item.label),
         itemStyle: {
           color: item.color,
-          borderWidth: 2,
+          borderWidth: requestChartBorderWidth,
           borderColor: '#ffffff',
         },
       };
@@ -279,6 +279,11 @@
         rote: `${detail.value[item.rateKey] || 0}%`,
       };
     });
+    const stepChartBorderWidth =
+      tempArr.filter((e) => Number(detail.value[`step${e.value.charAt(0).toUpperCase() + e.value.slice(1)}`]) > 0)
+        .length === 1
+        ? 0
+        : 2;
     stepCharOptions.value.series.data = tempArr.map((item: any) => {
       const valueName = `step${item.value.charAt(0).toUpperCase() + item.value.slice(1)}`;
       return {
@@ -286,7 +291,7 @@
         name: t(item.label),
         itemStyle: {
           color: item.color,
-          borderWidth: 2,
+          borderWidth: stepChartBorderWidth,
           borderColor: '#ffffff',
         },
       };

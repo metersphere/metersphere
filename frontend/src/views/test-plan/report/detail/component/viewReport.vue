@@ -235,7 +235,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
@@ -387,17 +386,20 @@
     const passRateData = statusConfig.filter((item) => ['success'].includes(item.value));
     const { success } = caseCountDetail;
     const valueList = success ? statusConfig : passRateData;
-    return valueList.map((item: StatusListType) => {
-      return {
-        value: caseCountDetail[item.value] || 0,
-        name: t(item.label),
-        itemStyle: {
-          color: success ? item.color : '#D4D4D8',
-          borderWidth: 2,
-          borderColor: '#ffffff',
-        },
-      };
-    });
+    const chartBorderWidth = valueList.filter((e) => Number(caseCountDetail[e.value]) > 0).length === 1 ? 0 : 2;
+    return valueList
+      .filter((item) => caseCountDetail[item.value] > 0)
+      .map((item: StatusListType) => {
+        return {
+          value: caseCountDetail[item.value] || 0,
+          name: t(item.label),
+          itemStyle: {
+            color: success ? item.color : '#D4D4D8',
+            borderWidth: chartBorderWidth,
+            borderColor: '#ffffff',
+          },
+        };
+      });
   }
 
   // 初始化图表

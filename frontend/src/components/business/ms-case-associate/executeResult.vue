@@ -1,11 +1,11 @@
 <template>
   <div v-if="props.executeResult" class="flex items-center">
-    <MsIcon
+    <!-- <MsIcon
       :type="lastExecuteResultMap[props.executeResult]?.icon || ''"
       class="mr-1"
       :size="16"
       :style="{ color: lastExecuteResultMap[props.executeResult]?.color }"
-    ></MsIcon>
+    ></MsIcon> -->
     <span class="text-[14px]">{{ lastExecuteResultMap[props.executeResult]?.statusText || '-' }}</span>
   </div>
 </template>

@@ -27,6 +27,9 @@
       <MsIcon type="icon-icon_share1" class="mr-2 font-[16px]" />
       {{ t('common.share') }}
     </MsButton>
+    <MsButton type="icon" status="secondary" class="ml-4 !rounded-[var(--border-radius-small)]" @click="exportPdf">
+      导出 PDF
+    </MsButton>
   </div>
 </template>
 
@@ -39,11 +42,12 @@
 
   import { planReportShare } from '@/api/modules/test-plan/report';
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { PlanReportDetail } from '@/models/testPlan/testPlanReport';
-  import { RouteEnum } from '@/enums/routeEnum';
+  import { FullPageEnum, RouteEnum } from '@/enums/routeEnum';
 
   const props = defineProps<{
     detail: PlanReportDetail;
@@ -54,6 +58,7 @@
   const appStore = useAppStore();
   const { t } = useI18n();
   const { copy, isSupported } = useClipboard({ legacy: true });
+  const { openNewPage } = useOpenNewPage();
 
   const shareLink = ref<string>('');
   const shareLoading = ref<boolean>(false);
@@ -77,5 +82,12 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
+  }
+
+  function exportPdf() {
+    openNewPage(FullPageEnum.FULL_PAGE_TEST_PLAN_EXPORT_PDF, {
+      id: props.detail.id,
+      type: props.isGroup ? 'GROUP' : 'TEST_PLAN',
+    });
   }
 </script>

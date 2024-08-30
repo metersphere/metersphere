@@ -16,7 +16,6 @@
   import useTable from '@/components/pure/ms-table/useTable';
 
   import { getReportBugList, getReportShareBugList } from '@/api/modules/test-plan/report';
-  import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
 
   import { ReportBugItem } from '@/models/testPlan/report';
@@ -26,8 +25,6 @@
   import { detailTableExample } from '@/views/test-plan/report/detail/component/reportConfig';
 
   const { openNewPage } = useOpenNewPage();
-
-  const { t } = useI18n();
 
   const props = defineProps<{
     reportId: string;
