@@ -49,6 +49,7 @@
   import BugDetail from '@/views/bug-management/edit.vue';
 
   import { createOrUpdateBug, getTemplateOption } from '@/api/modules/bug-management';
+  import { batchAddBugToCase } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
@@ -64,11 +65,13 @@
 
   const props = defineProps<{
     bugId?: string;
-    extraParams?: Record<string, any>;
+    extraParams?: Record<string, any> | (() => Record<string, any>);
+    isBatch?: boolean;
   }>();
 
   const emit = defineEmits<{
     (e: 'success'): void;
+    (e: 'save', params: { request: BugEditFormObject; fileList: File[] }): void;
   }>();
 
   const showBugDrawer = defineModel<boolean>('visible', {
@@ -104,7 +107,6 @@
       drawerLoading.value = false;
     }
   };
-
   function handleDrawerCancel() {
     bugDetailRef.value?.resetForm();
     showBugDrawer.value = false;
@@ -114,7 +116,13 @@
     try {
       drawerLoading.value = true;
       const { request, fileList } = params;
-      await createOrUpdateBug({ request: { ...request, ...props.extraParams }, fileList });
+      if (props.isBatch) {
+        const extraParam =
+          props.extraParams && typeof props.extraParams === 'function' ? await props.extraParams() : props.extraParams;
+        await batchAddBugToCase({ request: { ...request, ...extraParam }, fileList });
+      } else {
+        await createOrUpdateBug({ request: { ...request, ...props.extraParams }, fileList });
+      }
 
       Message.success(props.bugId ? t('common.updateSuccess') : t('common.createSuccess'));
 

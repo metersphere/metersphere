@@ -109,20 +109,20 @@
       :batch-move="batchMoveApiCase"
       @load-list="resetCaseList"
     />
-    <!-- TODO 等待联调 -->
+    <!-- TODO 等待联调快填 -->
     <AddDefectDrawer
       v-model:visible="showCreateBugDrawer"
-      :extra-params="{ caseId: associatedCaseId, testPlanId: props.planId, testPlanCaseId }"
+      :extra-params="getApiBugParams"
+      :is-batch="isBatchAssociateOrCreate"
       @success="refreshDetailAndList()"
     />
-    <!-- TODO 等待联调 -->
     <LinkDefectDrawer
       v-model:visible="showLinkBugDrawer"
       :case-id="testPlanCaseId"
       :load-api="AssociatedBugApiTypeEnum.API_BUG_LIST"
-      :is-batch="isBatchAssociate"
+      :is-batch="isBatchAssociateOrCreate"
       :drawer-loading="drawerLoading"
-      :show-selector-all="!isBatchAssociate"
+      :show-selector-all="!isBatchAssociateOrCreate"
       @save="saveApiBugHandler"
     />
   </div>
@@ -672,10 +672,10 @@
   const testPlanCaseId = ref<string>();
   const existedDefect = inject<Ref<number>>('existedDefect', ref(0));
   const showCreateBugDrawer = ref<boolean>(false);
-  const isBatchAssociate = ref(false);
+  const isBatchAssociateOrCreate = ref(false);
   // 关联缺陷
   function associateAndCreateDefect(isAssociate: boolean, isBatch: boolean, record?: PlanDetailApiCaseItem) {
-    isBatchAssociate.value = isBatch;
+    isBatchAssociateOrCreate.value = isBatch;
     if (record) {
       const { id, apiTestCaseId } = record;
       associatedCaseId.value = apiTestCaseId;
@@ -695,7 +695,7 @@
     try {
       drawerLoading.value = true;
       const tableParams = await getTableParams(true);
-      if (isBatchAssociate.value) {
+      if (isBatchAssociateOrCreate.value) {
         await batchAssociatedBugToCase({
           selectIds: tableSelected.value as string[],
           selectAll: batchParams.value.selectAll,
@@ -724,6 +724,21 @@
     } finally {
       drawerLoading.value = false;
     }
+  }
+
+  async function getApiBugParams() {
+    if (isBatchAssociateOrCreate.value) {
+      const tableParams = await getTableParams(true);
+      return {
+        ...tableParams,
+        projectId: appStore.currentProjectId,
+        selectIds: tableSelected.value as string[],
+        selectAll: batchParams.value.selectAll,
+        excludeIds: batchParams.value?.excludeIds || [],
+        testPlanId: props.planId,
+      };
+    }
+    return { caseId: associatedCaseId.value, testPlanId: props.planId, testPlanCaseId: testPlanCaseId.value };
   }
 
   // 批量批量移动
