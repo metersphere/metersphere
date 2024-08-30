@@ -28,6 +28,12 @@ public class TestPlanReportDetailResponse {
     private String summary;
     @Schema(description = "用例总数")
     private Integer caseTotal;
+    @Schema(description = "功能用例总数")
+    private Integer functionalTotal;
+    @Schema(description = "接口用例总数")
+    private Integer apiCaseTotal;
+    @Schema(description = "接口场景用例总数")
+    private Integer apiScenarioTotal;
 
     /**
      * 报告分析

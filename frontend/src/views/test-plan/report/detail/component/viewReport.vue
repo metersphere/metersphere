@@ -422,9 +422,9 @@
     const apiScenarioDetail = getSummaryDetail(detail.value.apiScenarioCount || defaultCount);
     return apiScenarioDetail.successRate;
   });
-  const functionalCaseTotal = computed(() => getSummaryDetail(detail.value.functionalCount).caseTotal);
-  const apiCaseTotal = computed(() => getSummaryDetail(detail.value.apiCaseCount).caseTotal);
-  const scenarioCaseTotal = computed(() => getSummaryDetail(detail.value.apiScenarioCount).caseTotal);
+  const functionalCaseTotal = computed(() => detail.value.functionalTotal);
+  const apiCaseTotal = computed(() => detail.value.apiCaseTotal);
+  const scenarioCaseTotal = computed(() => detail.value.apiScenarioTotal);
 
   const reportAnalysisList = computed<ReportMetricsItemModel[]>(() => {
     if (props.isGroup) {

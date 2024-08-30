@@ -20,6 +20,9 @@ export interface PlanReportDetail {
   executeRate: number; // 执行完成率
   bugCount: number;
   caseTotal: number;
+  functionalTotal: number;
+  apiCaseTotal: number;
+  apiScenarioTotal: number;
   executeCount: countDetail;
   functionalCount: countDetail;
   apiCaseCount: countDetail; // 接口场景用例分析-用例数

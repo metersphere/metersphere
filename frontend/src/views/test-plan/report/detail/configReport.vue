@@ -26,6 +26,9 @@
     executeRate: 100, // 执行完成率
     bugCount: 10,
     caseTotal: 0,
+    functionalTotal: 0,
+    apiCaseTotal: 0,
+    apiScenarioTotal: 0,
     executeCount: {
       success: 0,
       error: 0,
