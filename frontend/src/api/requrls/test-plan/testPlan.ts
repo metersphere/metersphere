@@ -157,3 +157,19 @@ export const TestPlanAssociationUrl = '/test-plan/association/api/case/module/co
 export const GetTestPlanExecutorOptionsUrl = '/test-plan-execute/user-option';
 // 获取测试计划未关联缺陷列表
 export const GetUnAssociatedListUrl = '/test-plan/functional/case/associate/bug/page';
+// 获取测试计划未关联缺陷列表
+export const GetUnAssociatedApiBugUrl = '/test-plan/api/case/associate/bug/page';
+// 获取测试计划未关联缺陷列表
+export const GetUnAssociatedScenarioBugUrl = '/test-plan/api/scenario/associate/bug/page';
+// 测试计划-接口用例-单个用例关联缺陷
+export const AssociatedBugToApiCaseUrl = '/test-plan/api/case/associate/bug';
+// 测试计划-场景用例-单个用例关联缺陷
+export const AssociatedBugToScenarioCaseUrl = '/test-plan/api/scenario/associate/bug';
+// 测试计划-接口用例-取消关联联缺陷
+export const CancelBugFromApiCaseUrl = '/test-plan/api/case/disassociate/bug';
+// 测试计划-场景用例-取消关联联缺陷
+export const CancelBugFromScenarioCaseUrl = '/test-plan/api/scenario/disassociate/bug';
+// 测试计划-详情-用例列表-批量关联缺陷
+export const BatchAssociatedBugToCaseUrl = '/test-plan/functional/case/batch/associate-bug';
+// 测试计划-详情-用例列表-批量新建缺陷
+export const BatchAddBugToCaseUrl = '/test-plan/functional/case/batch/add-bug';

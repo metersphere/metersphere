@@ -80,14 +80,15 @@
         </template>
         <template #bugCount="{ record }">
           <MsBugOperation
+            :case-type="CaseLinkEnum.FUNCTIONAL"
             :can-edit="props.canEdit"
             :bug-list="record.bugList"
             :resource-id="record.id"
             :bug-count="record.bugCount || 0"
             :existed-defect="existedDefect"
-            @load-list="loadList"
-            @associated="associatedDefect(false, record.id)"
-            @create="newDefect(record.id)"
+            @load-list="refreshList()"
+            @associated="associateAndCreateDefect(true, false, record)"
+            @create="associateAndCreateDefect(false, false, record)"
           />
         </template>
         <template v-if="props.canEdit" #operation="{ record }">
@@ -177,17 +178,18 @@
     <!-- TODO 等待联调 -->
     <AddDefectDrawer
       v-model:visible="showCreateBugDrawer"
-      :extra-params="{ caseId: associatedCaseId }"
-      @success="refreshList"
+      :extra-params="{ caseId: associatedCaseId, testPlanId: props.planId, testPlanCaseId }"
+      @success="refreshList()"
     />
     <!-- TODO 等待联调 -->
     <LinkDefectDrawer
       v-model:visible="showLinkBugDrawer"
-      :case-id="associatedCaseId"
+      :case-id="testPlanCaseId"
       :drawer-loading="drawerLoading"
       :load-api="AssociatedBugApiTypeEnum.TEST_PLAN_BUG_LIST"
+      :show-selector-all="!isBatchAssociate"
       :is-batch="isBatchAssociate"
-      @save="saveHandler"
+      @save="saveFunctionBugHandler"
     />
   </div>
 </template>
@@ -222,6 +224,8 @@
   import ExecuteForm from '@/views/test-plan/testPlan/detail/featureCase/components/executeForm.vue';
 
   import {
+    associateBugToPlan,
+    batchAssociatedBugToCase,
     batchDisassociateCase,
     batchExecuteCase,
     batchMoveFeatureCase,
@@ -243,7 +247,7 @@
   import { DragSortParams, ModuleTreeNode, TableQueryParams } from '@/models/common';
   import type { ExecuteFeatureCaseFormParams, PlanDetailFeatureCaseItem } from '@/models/testPlan/testPlan';
   import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
-  import { LastExecuteResults } from '@/enums/caseEnum';
+  import { CaseLinkEnum, LastExecuteResults } from '@/enums/caseEnum';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -801,17 +805,38 @@
 
   const showLinkBugDrawer = ref<boolean>(false);
   const associatedCaseId = ref<string>();
+  const testPlanCaseId = ref<string>();
   const drawerLoading = ref<boolean>(false);
+  const isBatchAssociate = ref(false);
 
-  // TODO 等待联调
-  function saveHandler(params: TableQueryParams) {
+  // 功能用例关联缺陷
+  async function saveFunctionBugHandler(params: TableQueryParams) {
     try {
       drawerLoading.value = true;
+      const tableParams = await getTableParams(true);
+      if (isBatchAssociate.value) {
+        await batchAssociatedBugToCase({
+          selectIds: tableSelected.value as string[],
+          selectAll: batchParams.value.selectAll,
+          excludeIds: batchParams.value?.excludeIds || [],
+          ...tableParams,
+          projectId: appStore.currentProjectId,
+          bugIds: params.selectIds,
+        });
+      } else {
+        await associateBugToPlan({
+          ...params,
+          projectId: appStore.currentProjectId,
+          caseId: associatedCaseId.value,
+          testPlanId: props.planId,
+          testPlanCaseId: testPlanCaseId.value,
+        });
+      }
+
       Message.success(t('caseManagement.featureCase.associatedSuccess'));
-      resetCaseList();
-      initModules();
-      emit('refresh');
       showLinkBugDrawer.value = false;
+      resetCaseList();
+      emit('refresh');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -822,24 +847,24 @@
 
   function refreshList() {
     resetCaseList();
-    initModules();
     emit('refresh');
   }
 
-  const isBatchAssociate = ref(false);
-
-  // 关联缺陷
-  function associatedDefect(isBatch: boolean, caseId?: string) {
-    isBatchAssociate.value = isBatch;
-    associatedCaseId.value = caseId;
-    showLinkBugDrawer.value = true;
-  }
-
   const showCreateBugDrawer = ref<boolean>(false);
-  // 新建缺陷
-  function newDefect(caseId?: string) {
-    associatedCaseId.value = caseId;
-    showCreateBugDrawer.value = true;
+
+  // 关联/关联缺陷
+  function associateAndCreateDefect(isAssociate: boolean, isBatch: boolean, record?: PlanDetailFeatureCaseItem) {
+    isBatchAssociate.value = isBatch;
+    if (record) {
+      const { id, caseId } = record;
+      associatedCaseId.value = caseId;
+      testPlanCaseId.value = id;
+    }
+    if (isAssociate) {
+      showLinkBugDrawer.value = true;
+    } else {
+      showCreateBugDrawer.value = true;
+    }
   }
 
   // 批量修改执行人 和 批量移动
@@ -861,10 +886,10 @@
         batchMoveModalVisible.value = true;
         break;
       case 'linkDefect':
-        associatedDefect(true);
+        associateAndCreateDefect(true, true);
         break;
       case 'newBug':
-        newDefect();
+        associateAndCreateDefect(false, true);
         break;
       default:
         break;

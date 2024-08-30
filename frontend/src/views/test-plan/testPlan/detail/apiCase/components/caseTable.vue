@@ -39,14 +39,15 @@
         </template>
         <template #bugCount="{ record }">
           <MsBugOperation
+            :case-type="CaseLinkEnum.API"
             :can-edit="props.canEdit"
             :bug-list="record.bugList"
             :resource-id="record.id"
             :bug-count="record.bugCount || 0"
             :existed-defect="existedDefect"
-            @load-list="loadList"
-            @associated="associatedDefect(false, record.id)"
-            @create="newDefect(record.id)"
+            @load-list="refreshDetailAndList()"
+            @associated="associateAndCreateDefect(true, false, record)"
+            @create="associateAndCreateDefect(false, false, record)"
           />
         </template>
         <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
@@ -109,14 +110,20 @@
       @load-list="resetCaseList"
     />
     <!-- TODO 等待联调 -->
-    <AddDefectDrawer v-model:visible="showCreateBugDrawer" :extra-params="{ caseId: associatedCaseId }" />
+    <AddDefectDrawer
+      v-model:visible="showCreateBugDrawer"
+      :extra-params="{ caseId: associatedCaseId, testPlanId: props.planId, testPlanCaseId }"
+      @success="refreshDetailAndList()"
+    />
     <!-- TODO 等待联调 -->
     <LinkDefectDrawer
       v-model:visible="showLinkBugDrawer"
-      :case-id="associatedCaseId"
-      :load-api="AssociatedBugApiTypeEnum.TEST_PLAN_BUG_LIST"
+      :case-id="testPlanCaseId"
+      :load-api="AssociatedBugApiTypeEnum.API_BUG_LIST"
       :is-batch="isBatchAssociate"
       :drawer-loading="drawerLoading"
+      :show-selector-all="!isBatchAssociate"
+      @save="saveApiBugHandler"
     />
   </div>
 </template>
@@ -147,6 +154,8 @@
   import BatchApiMoveModal from '@/views/test-plan/testPlan/components/batchApiMoveModal.vue';
 
   import {
+    associateBugToApiCase,
+    batchAssociatedBugToCase,
     batchDisassociateApiCase,
     batchMoveApiCase,
     batchRunApiCase,
@@ -165,9 +174,10 @@
   import { characterLimit } from '@/utils';
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
-  import { DragSortParams, ModuleTreeNode } from '@/models/common';
+  import { DragSortParams, ModuleTreeNode, TableQueryParams } from '@/models/common';
   import type { PlanDetailApiCaseItem, PlanDetailApiCaseQueryParams } from '@/models/testPlan/testPlan';
   import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
+  import { CaseLinkEnum } from '@/enums/caseEnum';
   import { ReportEnum } from '@/enums/reportEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -547,6 +557,11 @@
     loadList();
   }
 
+  function refreshDetailAndList() {
+    emit('refresh');
+    loadCaseList();
+  }
+
   // 拖拽排序
   async function handleDragChange(params: DragSortParams) {
     try {
@@ -654,24 +669,61 @@
 
   const showLinkBugDrawer = ref(false);
   const associatedCaseId = ref<string>();
+  const testPlanCaseId = ref<string>();
   const existedDefect = inject<Ref<number>>('existedDefect', ref(0));
-
+  const showCreateBugDrawer = ref<boolean>(false);
   const isBatchAssociate = ref(false);
   // 关联缺陷
-  function associatedDefect(isBatch: boolean, caseId?: string) {
+  function associateAndCreateDefect(isAssociate: boolean, isBatch: boolean, record?: PlanDetailApiCaseItem) {
     isBatchAssociate.value = isBatch;
-    associatedCaseId.value = caseId;
-    showLinkBugDrawer.value = true;
+    if (record) {
+      const { id, apiTestCaseId } = record;
+      associatedCaseId.value = apiTestCaseId;
+      testPlanCaseId.value = id;
+    }
+    if (isAssociate) {
+      showLinkBugDrawer.value = true;
+    } else {
+      showCreateBugDrawer.value = true;
+    }
   }
 
   const drawerLoading = ref(false);
 
-  const showCreateBugDrawer = ref<boolean>(false);
+  // 接口用例关联缺陷
+  async function saveApiBugHandler(params: TableQueryParams) {
+    try {
+      drawerLoading.value = true;
+      const tableParams = await getTableParams(true);
+      if (isBatchAssociate.value) {
+        await batchAssociatedBugToCase({
+          selectIds: tableSelected.value as string[],
+          selectAll: batchParams.value.selectAll,
+          excludeIds: batchParams.value?.excludeIds || [],
+          ...tableParams,
+          bugIds: params.selectIds,
+          projectId: appStore.currentProjectId,
+        });
+      } else {
+        await associateBugToApiCase({
+          ...params,
+          caseId: associatedCaseId.value,
+          testPlanId: props.planId,
+          testPlanCaseId: testPlanCaseId.value,
+          projectId: appStore.currentProjectId,
+        });
+      }
 
-  // 新建缺陷
-  function newDefect(caseId?: string) {
-    associatedCaseId.value = caseId;
-    showCreateBugDrawer.value = true;
+      Message.success(t('caseManagement.featureCase.associatedSuccess'));
+      showLinkBugDrawer.value = false;
+      resetSelectorAndCaseList();
+      emit('refresh');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      drawerLoading.value = false;
+    }
   }
 
   // 批量批量移动
@@ -700,10 +752,10 @@
         batchMoveModalVisible.value = true;
         break;
       case 'linkDefect':
-        associatedDefect(true);
+        associateAndCreateDefect(true, true);
         break;
       case 'newBug':
-        newDefect();
+        associateAndCreateDefect(false, true);
         break;
       default:
         break;

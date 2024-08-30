@@ -1,14 +1,21 @@
 <template>
-  <div class="flex items-center">
-    <BugCountPopover :bug-list="bugList || []" :bug-count="bugCount" :can-edit="props.canEdit" @load-list="loadList" />
+  <div class="flex items-center" @click="selectedStyle">
+    <BugCountPopover
+      :case-type="props.caseType"
+      :bug-list="bugList || []"
+      :bug-count="bugCount"
+      :can-edit="props.canEdit"
+      @load-list="loadList"
+    />
     <a-dropdown
       v-if="hasAllPermission(['PROJECT_BUG:READ', ...(props.linkBugPermission || [])])"
       position="bl"
       @select="handleSelect"
+      @popup-visible-change="popupVisibleChange"
     >
       <a-button
         v-permission="['PROJECT_BUG:READ+ADD']"
-        class="arco-btn-outline--secondary ml-[8px] !p-[4px]"
+        :class="`${isSelected ? 'selected-class' : 'operation-button'} arco-btn-outline--secondary ml-[8px] !p-[4px]`"
         type="outline"
         size="small"
       >
@@ -34,6 +41,7 @@
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import type { CaseBugItem } from '@/models/testPlan/testPlan';
+  import { CaseLinkEnum } from '@/enums/caseEnum';
 
   const { t } = useI18n();
 
@@ -41,6 +49,7 @@
     resourceId: string; // 资源id: 功能用例id/接口用例id/场景用例id
     bugCount: number; // 缺陷数
     existedDefect: number; // 已经存在缺陷数
+    caseType: CaseLinkEnum; // 用例类型
     canEdit: boolean;
     bugList?: CaseBugItem[];
     linkBugPermission?: string[];
@@ -63,6 +72,17 @@
     }
   }
 
+  const isSelected = ref<boolean>(false);
+  function selectedStyle() {
+    isSelected.value = true;
+  }
+
+  function popupVisibleChange(val: boolean) {
+    if (!val) {
+      isSelected.value = false;
+    }
+  }
+
   function loadList() {
     emit('loadList');
   }
@@ -70,7 +90,11 @@
 
 <style scoped lang="less">
   :deep(.arco-btn-outline--secondary) {
-    &:hover {
+    border-color: var(--color-text-n8) !important;
+  }
+  .selected-class {
+    opacity: 1;
+    &.arco-btn-outline--secondary {
       border-color: rgb(var(--primary-5)) !important;
     }
   }

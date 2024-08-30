@@ -382,6 +382,13 @@ export default function useTableProps<T>(
     }
   );
 
+  watch(
+    () => props?.showSelectorAll,
+    (val) => {
+      propsRes.value.showSelectorAll = val;
+    }
+  );
+
   // 事件触发组
   const propsEvent = ref({
     // 排序触发
