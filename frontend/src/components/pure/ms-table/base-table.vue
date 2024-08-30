@@ -110,7 +110,10 @@
                 @page-size-change="pageSizeChange"
               />
               <DefaultFilter
-                v-else-if="(item.filterConfig && item.filterConfig.options?.length) || item?.filterConfig?.remoteMethod"
+                v-else-if="
+                  !props.notShowTableFilter &&
+                  ((item.filterConfig && item.filterConfig.options?.length) || item?.filterConfig?.remoteMethod)
+                "
                 class="ml-[4px]"
                 :options="item.filterConfig.options"
                 :data-index="item.dataIndex"
@@ -361,6 +364,7 @@
     firstColumnWidth?: number; // 选择、拖拽列的宽度
     paginationSize?: 'small' | 'mini' | 'medium' | 'large';
     alwaysShowSelectedCount?: boolean; // 是否总是保持显示已选项
+    notShowTableFilter?: boolean; // 不显示表头筛选
   }>();
   const emit = defineEmits<{
     (e: 'batchAction', value: BatchActionParams, queryParams: BatchActionQueryParams): void;

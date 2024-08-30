@@ -1,6 +1,6 @@
 import type { MsSearchSelectProps, RadioProps } from '@/components/business/ms-select';
 
-import { OperatorEnum } from '@/enums/advancedFilterEnum';
+import { FilterType, OperatorEnum } from '@/enums/advancedFilterEnum';
 
 import type { CascaderOption, TreeNodeData } from '@arco-design/web-vue';
 import type { VirtualListProps } from '@arco-design/web-vue/es/_components/virtual-list-v2/interface';
@@ -27,36 +27,14 @@ export interface MsCascaderProps {
   labelKey?: string; // 传入自定义的 labelKey
 }
 
-/* eslint-disable no-shadow */
-export enum BackEndEnum {
-  STRING = 'string',
-  ARRAY = 'array',
-  TIME = 'time',
-  NUMBER = 'number',
-}
-
-export enum FilterType {
-  INPUT = 'Input',
-  NUMBER = 'Number',
-  SELECT = 'Select',
-  DATE_PICKER = 'DatePicker',
-  TAGS_INPUT = 'TagsInput',
-  TREE_SELECT = 'TreeSelect',
-  TEXTAREA = 'textArea',
-  RADIO = 'radio',
-  CHECKBOX = 'checkbox',
-  CASCADER = 'Cascader',
-  JIRAKEY = 'JIRAKEY',
-}
-
 export interface FilterFormItem {
   dataIndex?: string; // 第一列下拉的value
   title?: string; // 第一列下拉显示的label
   operator?: OperatorEnum; // 第二列的值
   type: FilterType; // 类型：判断第二列下拉数据和第三列显示形式
   value?: any; // 第三列的值
+  customField?: boolean; // 是否是自定义字段
   cascaderOptions?: CascaderOption[]; // 级联选择的选项
-  backendType?: BackEndEnum; // 后端类型 string array time
   selectProps?: Partial<MsSearchSelectProps>; // select的props, 参考 MsSelect
   cascaderProps?: Partial<MsCascaderProps>; // cascader的props, 参考 MsCascader
   treeSelectData?: TreeNodeData[];
@@ -67,17 +45,15 @@ export interface FilterFormItem {
 
 export type AccordBelowType = 'AND' | 'OR';
 
-export interface CombineItem {
-  [key: string]: Pick<FilterFormItem, 'value' | 'operator' | 'backendType'>;
+export type CombineItem = Pick<FilterFormItem, 'value' | 'operator' | 'customField'>;
+export interface ConditionsItem extends CombineItem {
+  key?: string;
 }
 
 export interface FilterResult {
   // 匹配模式 所有/任一
-  accordBelow: AccordBelowType;
+  searchMode: AccordBelowType;
   // 高级搜索
-  combine: CombineItem;
-}
-
-export interface FilterFormProps {
-  configList: FilterFormItem[];
+  conditions?: ConditionsItem[];
+  combine?: any; // TODO lmy 此为防报错占位 所有高级筛选都完成后 删除这一行
 }

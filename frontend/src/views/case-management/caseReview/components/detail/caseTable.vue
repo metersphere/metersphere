@@ -334,7 +334,7 @@
   import { cloneDeep } from 'lodash-es';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import type { MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
@@ -374,6 +374,7 @@
 
   import { ReviewCaseItem, ReviewItem, ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
   import { BatchApiParams, TableQueryParams } from '@/models/common';
+  import { FilterType } from '@/enums/advancedFilterEnum';
   import { StartReviewStatus } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';

@@ -178,7 +178,7 @@
   import dayjs from 'dayjs';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
@@ -209,6 +209,7 @@
     ReviewStatus,
   } from '@/models/caseManagement/caseReview';
   import { ModuleTreeNode } from '@/models/common';
+  import { FilterType } from '@/enums/advancedFilterEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -559,11 +560,6 @@
       moduleIds,
       createByMe: innerShowType.value === 'createByMe' ? userStore.id : undefined,
       reviewByMe: innerShowType.value === 'reviewByMe' ? userStore.id : undefined,
-      combine: filter
-        ? {
-            ...filter.combine,
-          }
-        : {},
     };
     setLoadListParams(params);
     loadList();

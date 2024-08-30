@@ -95,7 +95,7 @@ export default function useTableProps<T>(
   // keyword
   const keyword = ref('');
   // 高级筛选
-  const advanceFilter = reactive<FilterResult>({ accordBelow: 'AND', combine: {} });
+  const advanceFilter = reactive<FilterResult>({ searchMode: 'AND', conditions: [] });
   // 表格请求参数集合
   const tableQueryParams = ref<TableQueryParams>({});
 
@@ -146,6 +146,12 @@ export default function useTableProps<T>(
     }
   };
 
+  // 重置表头筛选
+  const resetFilterParams = () => {
+    filterItem.value = {};
+    propsRes.value.filter = cloneDeep(filterItem.value);
+  };
+
   // 单独设置默认属性
   const setProps = (params: Partial<MsTableProps<T>>) => {
     const tmpProps = propsRes.value;
@@ -167,8 +173,12 @@ export default function useTableProps<T>(
 
   // 设置 advanceFilter
   const setAdvanceFilter = (v: CombineParams) => {
-    advanceFilter.accordBelow = v.accordBelow;
-    advanceFilter.combine = v.combine;
+    advanceFilter.searchMode = v.searchMode;
+    advanceFilter.conditions = v.conditions;
+    // 基础筛选都清空
+    loadListParams.value.filter = {};
+    keyword.value = '';
+    resetFilterParams();
   };
   // 给表格设置选中项 - add rowKey to selectedKeys
   const setTableSelected = (key: string) => {
@@ -196,10 +206,8 @@ export default function useTableProps<T>(
             current,
             pageSize: currentPageSize,
             sort: sortItem.value,
-
             keyword: keyword.value,
-            combine: advanceFilter.combine,
-            searchMode: advanceFilter.accordBelow,
+            combineSearch: advanceFilter,
             ...loadListParams.value,
             filter: {
               ...filterItem.value,
@@ -353,11 +361,6 @@ export default function useTableProps<T>(
   // 获取表格请求参数
   const getTableQueryParams = () => {
     return tableQueryParams.value;
-  };
-  // 重置表头筛选
-  const resetFilterParams = () => {
-    filterItem.value = {};
-    propsRes.value.filter = cloneDeep(filterItem.value);
   };
 
   /**

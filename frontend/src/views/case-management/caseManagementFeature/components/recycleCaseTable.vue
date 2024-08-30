@@ -68,7 +68,6 @@
             :name="moduleNamePath"
             :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
             @keyword-search="fetchData"
-            @adv-search="handleAdvSearch"
             @refresh="fetchData()"
           />
           <ms-base-table
@@ -172,7 +171,7 @@
   import dayjs from 'dayjs';
 
   import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
+  import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
@@ -205,6 +204,7 @@
 
   import type { CaseManagementTable, CustomAttributes } from '@/models/caseManagement/featureCase';
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
+  import { FilterType } from '@/enums/advancedFilterEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
@@ -901,26 +901,6 @@
       return currentItem;
     });
   }
-
-  const filterResult = ref<FilterResult>({ accordBelow: 'AND', combine: {} });
-  // 当前选择的条数
-  const currentSelectParams = ref<BatchActionQueryParams>({ selectAll: false, currentSelectCount: 0 });
-  // 高级检索
-  const handleAdvSearch = (filter: FilterResult) => {
-    filterResult.value = filter;
-    const { accordBelow, combine } = filter;
-    setAdvanceFilter(filter);
-    currentSelectParams.value = {
-      ...currentSelectParams.value,
-      condition: {
-        keyword: keyword.value,
-        searchMode: accordBelow,
-        filter: { ...propsRes.value.filter },
-        combine,
-      },
-    };
-    initRecycleList();
-  };
 
   onMounted(async () => {
     await getRecycleModules();

@@ -21,7 +21,7 @@
     </slot>
     <div class="flex flex-row gap-[12px]">
       <a-input-search
-        v-if="!props.notShowInputSearch"
+        v-if="!props.notShowInputSearch && !isAdvancedSearchMode"
         v-model:modelValue="keyword"
         size="small"
         :placeholder="props.searchPlaceholder"
@@ -34,13 +34,13 @@
       <a-button
         v-if="props.showFilter"
         type="outline"
-        :class="`${visible ? '' : 'arco-btn-outline--secondary'} p-[0_8px]`"
+        :class="`${isAdvancedSearchMode ? '' : 'arco-btn-outline--secondary'} p-[0_8px]`"
         @click="handleOpenFilter"
       >
         <template #icon>
           <MsIcon
             type="icon-icon_copy_outlined"
-            :class="`${visible ? 'text-[rgb(var(--primary-5))]' : 'text-[var(--color-text-4)]'}`"
+            :class="`${isAdvancedSearchMode ? 'text-[rgb(var(--primary-5))]' : 'text-[var(--color-text-4)]'}`"
           />
         </template>
         {{ t('common.filter') }}
@@ -90,7 +90,6 @@
   const emit = defineEmits<{
     (e: 'keywordSearch', value: string | undefined, combine: FilterResult): void; // keyword 搜索 TODO:可以去除，父组件通过 v-model:keyword 获取关键字
     (e: 'advSearch', value: FilterResult): void; // 高级搜索
-    (e: 'dataIndexChange', value: string): void; // 高级搜索选项变更
     (e: 'refresh', value: FilterResult): void;
   }>();
 
@@ -98,10 +97,12 @@
 
   const keyword = defineModel<string>('keyword', { default: '' });
   const visible = ref(false);
-  const defaultFilterResult: FilterResult = { accordBelow: 'AND', combine: {} };
-  const filterResult = ref<FilterResult>({ ...defaultFilterResult });
+  const filterResult = ref<FilterResult>({ searchMode: 'AND', conditions: [] });
 
+  const isAdvancedSearchMode = ref(false);
   const handleFilter = (filter: FilterResult) => {
+    keyword.value = '';
+    isAdvancedSearchMode.value = !!filter.conditions?.length;
     filterResult.value = filter;
     emit('advSearch', filter);
   };

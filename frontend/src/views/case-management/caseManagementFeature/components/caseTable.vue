@@ -47,11 +47,11 @@
         filter-icon-align-left
         class="mt-[16px]"
         :action-config="tableBatchActions"
+        :not-show-table-filter="isAdvancedSearchMode"
         @selected-change="handleTableSelect"
         v-on="propsEvent"
         @batch-action="handleTableBatch"
         @change="changeHandler"
-        @module-change="initData"
         @cell-click="handleCellClick"
         @filter-change="filterChange"
       >
@@ -369,7 +369,7 @@
   import { cloneDeep } from 'lodash-es';
 
   import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import { MsExportDrawerMap, MsExportDrawerOption } from '@/components/pure/ms-export-drawer/types';
@@ -438,6 +438,7 @@
     DragCase,
   } from '@/models/caseManagement/featureCase';
   import { ModuleTreeNode } from '@/models/common';
+  import { FilterType } from '@/enums/advancedFilterEnum';
   import { CaseManagementRouteEnum, RouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -914,7 +915,6 @@
     showSetting: true,
     heightUsed: 236,
     draggable: { type: 'handle' },
-    showSubdirectory: true,
     paginationSize: 'mini',
     draggableCondition: true,
   });
@@ -966,9 +966,10 @@
     };
   });
 
+  const isAdvancedSearchMode = ref(false);
   async function initTableParams() {
     let moduleIds: string[] = [];
-    if (props.activeFolder !== 'all') {
+    if (props.activeFolder !== 'all' && !isAdvancedSearchMode.value) {
       moduleIds = [props.activeFolder];
       const getAllChildren = await tableStore.getSubShow(TableKeyEnum.CASE_MANAGEMENT_TABLE);
       if (getAllChildren) {
@@ -982,12 +983,13 @@
       excludeIds: batchParams.value.excludeIds || [],
       selectAll: batchParams.value.selectAll,
       selectIds: batchParams.value.selectedIds || [],
-      keyword: keyword.value,
+      keyword: isAdvancedSearchMode.value ? '' : keyword.value,
     };
   }
   // 获取父组件模块数量
   async function emitTableParams(refreshModule = false) {
-    const tableParams = await initTableParams();
+    if (isAdvancedSearchMode.value) return;
+    const tableParams: CaseModuleQueryParams = await initTableParams();
     emit(
       'init',
       {
@@ -1612,6 +1614,8 @@
   }
   // 高级检索
   const handleAdvSearch = async (filter: FilterResult) => {
+    isAdvancedSearchMode.value = !!filter.conditions?.length;
+    await getLoadListParams(); // 基础筛选都清空
     setAdvanceFilter(filter);
     loadList();
   };
@@ -1820,6 +1824,7 @@
   });
 
   defineExpose({
+    isAdvancedSearchMode,
     emitTableParams,
     initData,
   });
