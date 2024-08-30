@@ -1,15 +1,16 @@
 <template>
-  <ViewReport
-    v-model:card-list="cardItemList"
-    :detail-info="detail"
-    :is-group="isGroup"
-    is-preview
-    @update-success="getDetail()"
-  />
+  <a-spin :loading="loading" class="h-full w-full">
+    <ViewReport
+      v-model:card-list="cardItemList"
+      :detail-info="detail"
+      :is-group="isGroup"
+      is-preview
+      @update-success="getDetail()"
+    />
+  </a-spin>
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
 
@@ -28,12 +29,17 @@
   const isGroup = computed(() => route.query.type === 'GROUP');
 
   const cardItemList = ref<configItem[]>([]);
+  const loading = ref<boolean>(false);
 
   async function getDetail() {
     try {
+      loading.value = true;
       detail.value = await getReportDetail(reportId.value);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      loading.value = false;
     }
   }
 

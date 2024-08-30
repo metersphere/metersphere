@@ -14,8 +14,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-
   import MsCard from '@/components/pure/ms-card/index.vue';
   import PlanDetailHeaderRight from '@/views/test-plan/report/detail/component/system-card/planDetailHeaderRight.vue';
 
