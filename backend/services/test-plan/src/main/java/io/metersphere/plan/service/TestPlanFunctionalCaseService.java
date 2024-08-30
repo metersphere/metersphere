@@ -1015,7 +1015,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     }
 
     private void buildAssociateBugData(String id, Map<String, List<String>> bugMap, List<BugRelationCase> list, TestPlanCaseBatchAssociateBugRequest request, Map<String, String> caseMap, String userId) {
-        List<String> bugIds = request.getBugIds();
+        List<String> bugIds = new ArrayList<>(request.getBugIds());
         if (bugMap.containsKey(id)) {
             bugIds.removeAll(bugMap.get(id));
         }
