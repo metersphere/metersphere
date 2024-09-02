@@ -9,7 +9,7 @@
           @init="(val) => (folderTree = val)"
           @new-api="addDebugTab"
           @click-api-node="openApiTab"
-          @import="importDrawerVisible = true"
+          @import="importDialogVisible = true"
           @update-api-node="handleApiUpdateFromModuleTree"
           @delete-finish="handleDeleteFinish"
         />
@@ -63,38 +63,7 @@
       </template>
     </MsSplitBox>
   </MsCard>
-  <MsDrawer
-    v-model:visible="importDrawerVisible"
-    :width="680"
-    :ok-disabled="curlCode.trim() === ''"
-    disabled-width-drag
-    @cancel="curlCode = ''"
-    @confirm="handleCurlImportConfirm"
-  >
-    <template #title>
-      <a-tooltip position="right" :content="t('apiTestDebug.importByCURLTip')">
-        <span
-          >{{ t('apiTestDebug.importByCURL') }}
-          <icon-exclamation-circle
-            class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
-            size="16"
-          />
-        </span>
-      </a-tooltip>
-    </template>
-    <div class="h-full">
-      <MsCodeEditor
-        v-if="importDrawerVisible"
-        v-model:model-value="curlCode"
-        theme="MS-text"
-        height="100%"
-        :language="LanguageEnum.PLAINTEXT"
-        :show-theme-change="false"
-        :show-full-screen="false"
-      >
-      </MsCodeEditor>
-    </div>
-  </MsDrawer>
+  <importCurlDialog v-model:visible="importDialogVisible" @done="handleImportCurlDone" />
 </template>
 
 <script lang="ts" setup>
@@ -105,14 +74,12 @@
   import { cloneDeep } from 'lodash-es';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
-  import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import moduleTree from './components/moduleTree.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
+  import importCurlDialog from '@/views/api-test/components/importCurlDialog.vue';
   import requestComposition, { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   import { localExecuteApiDebug } from '@/api/modules/api-test/common';
@@ -128,9 +95,9 @@
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveTabUnSaveCheck from '@/hooks/useLeaveTabUnSaveCheck';
   import useRequestCompositionStore from '@/store/modules/api/requestComposition';
-  import { parseCurlScript } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
+  import { CurlParseResult } from '@/models/apiTest/common';
   import { ModuleTreeNode } from '@/models/common';
   import {
     ProtocolKeyEnum,
@@ -151,8 +118,7 @@
 
   const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
   const folderTree = ref<ModuleTreeNode[]>([]);
-  const importDrawerVisible = ref(false);
-  const curlCode = ref('');
+  const importDialogVisible = ref(false);
   const loading = ref(false);
 
   async function handleDebugAddDone() {
@@ -283,20 +249,21 @@
     }
   }
 
-  function handleCurlImportConfirm() {
-    const { url, headers, queryParameters, method } = parseCurlScript(curlCode.value);
+  function handleImportCurlDone(res: CurlParseResult) {
+    const { url, method, headers, queryParams } = res;
     addDebugTab({
       url,
       method: method?.toUpperCase() || RequestMethods.GET,
       headers:
-        headers?.map((e) => ({
+        Object.keys(headers)?.map((e) => ({
           contentType: RequestContentTypeEnum.TEXT,
           description: '',
           enable: true,
-          ...e,
+          key: e,
+          value: headers[e],
         })) || [],
       query:
-        queryParameters?.map((e) => ({
+        Object.keys(queryParams)?.map((e) => ({
           paramType: RequestParamsType.STRING,
           description: '',
           required: false,
@@ -304,11 +271,11 @@
           minLength: undefined,
           encode: false,
           enable: true,
-          ...e,
+          key: e,
+          value: queryParams[e],
         })) || [],
     });
-    curlCode.value = '';
-    importDrawerVisible.value = false;
+    importDialogVisible.value = false;
     nextTick(() => {
       handleActiveDebugChange();
     });

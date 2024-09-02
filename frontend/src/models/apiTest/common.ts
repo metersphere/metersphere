@@ -463,3 +463,11 @@ export type ApiCaseReportDetail = {
   scriptIdentifier: string;
   content: RequestResult;
 };
+// curl解析结果
+export interface CurlParseResult {
+  method: RequestMethods | string;
+  url: string;
+  headers: Record<string, any>;
+  body: string;
+  queryParams: Record<string, any>;
+}

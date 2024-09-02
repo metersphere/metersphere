@@ -6,3 +6,4 @@ export const GetEnvListUrl = '/api/test/env-list'; // 获取接口测试环境�
 export const GetEnvironmentUrl = '/api/test/environment'; // 获取接口测试环境详情
 export const StopExecuteUrl = '/task/center/api/project/stop'; // 停止执行
 export const StopLocalExecuteUrl = '/api/stop'; // 停止本地执行
+export const ImportCurlUrl = '/api/debug/import-curl'; // 导入curl
