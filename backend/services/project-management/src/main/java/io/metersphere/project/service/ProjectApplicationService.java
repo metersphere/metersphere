@@ -441,7 +441,7 @@ public class ProjectApplicationService {
      * 用例关联需求配置
      *
      * @param projectId 项目ID
-     * @param configs 关联需求配置信息
+     * @param configs   关联需求配置信息
      */
     public void updateRelated(String projectId, Map<String, String> configs, String currentUser) {
         List<ProjectApplication> relatedConfigs = configs.entrySet().stream().map(config -> new ProjectApplication(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + config.getKey().toUpperCase(), config.getValue())).collect(Collectors.toList());
@@ -596,6 +596,34 @@ public class ProjectApplicationService {
             }
         }
         return getPluginName(platformKeyConfig.getTypeValue());
+    }
+
+    /**
+     * 获取项目所属平台
+     *
+     * @param projectId 项目ID
+     * @return 项目所属平台
+     */
+    public String getDemandPlatformId(String projectId) {
+        ProjectApplication platformEnableConfig = getByType(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name());
+        ProjectApplication platformSyncConfig = getByType(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.CASE_RELATED_CONFIG.SYNC_ENABLE.name());
+        ProjectApplication platformKeyConfig = getByType(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_PLATFORM_KEY");
+        boolean isEnable = platformEnableConfig != null && Boolean.parseBoolean(platformEnableConfig.getTypeValue()) && platformSyncConfig != null && platformKeyConfig != null;
+        if (!isEnable) {
+            return "Metersphere";
+        } else {
+            ServiceIntegration serviceIntegration = getPlatformServiceIntegrationWithSyncOrDemand(projectId, false);
+            if (serviceIntegration == null) {
+                // 项目未配置第三方平台
+                return "Metersphere";
+            }
+        }
+        PluginWrapper pluginWrapper = pluginLoadService.getPluginWrapper(platformKeyConfig.getTypeValue());
+        if (pluginWrapper == null) {
+            // 插件未找到
+            return "Metersphere";
+        }
+        return pluginWrapper.getPluginId();
     }
 
     /**

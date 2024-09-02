@@ -6,9 +6,13 @@ import io.metersphere.functional.dto.DemandDTO;
 import io.metersphere.functional.dto.FunctionalDemandDTO;
 import io.metersphere.functional.mapper.FunctionalCaseDemandMapper;
 import io.metersphere.functional.request.*;
+import io.metersphere.functional.service.DemandSyncService;
 import io.metersphere.functional.service.FunctionalCaseDemandService;
 import io.metersphere.plugin.platform.dto.response.PlatformDemandDTO;
 import io.metersphere.plugin.platform.utils.PluginPager;
+import io.metersphere.project.domain.ProjectApplication;
+import io.metersphere.project.mapper.ProjectApplicationMapper;
+import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.OperationLog;
 import io.metersphere.sdk.domain.OperationLogExample;
@@ -61,11 +65,15 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     @Resource
     private BasePluginTestService basePluginTestService;
     @Resource
+    private DemandSyncService demandSyncService;
+    @Resource
     private MockServerClient mockServerClient;
     @Value("${embedded.mockserver.host}")
     private String mockServerHost;
     @Value("${embedded.mockserver.port}")
     private int mockServerHostPort;
+    @Resource
+    private ProjectApplicationMapper projectApplicationMapper;
 
 
     private static final String URL_DEMAND_PAGE = "/functional/case/demand/page";
@@ -93,7 +101,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
                                 .withHeaders(
                                         new Header("Content-Type", "application/json; charset=utf-8"),
                                         new Header("Cache-Control", "public, max-age=86400"))
-                                .withBody("{\"id\":\"123456\",\"name\":\"test\"}")
+                                .withBody("{\"id\":\"123456\",\"name\":\"test\", \"issues\": [{\"key\": \"TES-1\",\"fields\": {\"summary\": \"Test\"}}], \"total\": 1}")
 
                 );
         FunctionalDemandBatchRequest functionalDemandBatchRequest = new FunctionalDemandBatchRequest();
@@ -660,6 +668,19 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
                 PluginPager.class);
 
         System.out.println(JSON.toJSONString(tableData));
+    }
+
+    @Test
+    @Order(16)
+    public void syncDemandSuccess() {
+        List<ProjectApplication> relatedConfigs = new ArrayList<>();
+        ProjectApplication projectApplication1 = new ProjectApplication("gyq_project-case-demand-test", ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED + "_cron_expression", "0 0 0 * * ?");
+        ProjectApplication projectApplication4 = new ProjectApplication("gyq_project-case-demand-test", ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED + "_sync_enable", "true");
+        relatedConfigs.add(projectApplication1);
+        relatedConfigs.add(projectApplication4);
+        projectApplicationMapper.batchInsert(relatedConfigs);
+
+        demandSyncService.syncPlatformDemandBySchedule("gyq_project-case-demand-test", "admin");
     }
 
 }
