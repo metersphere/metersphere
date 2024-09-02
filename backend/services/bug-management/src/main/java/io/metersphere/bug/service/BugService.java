@@ -2084,30 +2084,30 @@ public class BugService {
             List<PlatformCustomFieldItemDTO> platformCustomFields = platformBug.getCustomFieldList();
             // 过滤出需要同步的自定义字段{默认模板时, 需要同步所有字段; 非默认模板时, 需要同步模板中映射的字段}
             final Map<String, String> needSyncApiFieldFilterMap = needSyncApiFieldMap;
-            if (platformBug.getPlatformDefaultTemplate()) {
+			List<BugCustomFieldDTO> bugCustomFieldDTOList;
+			if (platformBug.getPlatformDefaultTemplate()) {
                 // 平台默认模板创建的缺陷
-                List<BugCustomFieldDTO> bugCustomFieldDTOList = platformCustomFields.stream()
-                        .map(platformField -> {
-                            BugCustomFieldDTO bugCustomFieldDTO = new BugCustomFieldDTO();
-                            bugCustomFieldDTO.setId(platformField.getId());
-                            bugCustomFieldDTO.setValue(platformField.getValue() == null ? null : platformField.getValue().toString());
-                            return bugCustomFieldDTO;
-                        }).collect(Collectors.toList());
-                customEditRequest.setCustomFields(bugCustomFieldDTOList);
-            } else {
+				bugCustomFieldDTOList = platformCustomFields.stream()
+						.map(platformField -> {
+							BugCustomFieldDTO bugCustomFieldDTO = new BugCustomFieldDTO();
+							bugCustomFieldDTO.setId(platformField.getId());
+							bugCustomFieldDTO.setValue(platformField.getValue() == null ? null : platformField.getValue().toString());
+							return bugCustomFieldDTO;
+						}).collect(Collectors.toList());
+			} else {
                 // 非平台默认模板创建的缺陷(使用模板API映射字段)
-                List<BugCustomFieldDTO> bugCustomFieldDTOList = platformCustomFields.stream()
-                        .filter(field -> needSyncApiFieldFilterMap.containsKey(field.getId()))
-                        .map(platformField -> {
-                            BugCustomFieldDTO bugCustomFieldDTO = new BugCustomFieldDTO();
-                            bugCustomFieldDTO.setId(needSyncApiFieldFilterMap.get(platformField.getId()));
-                            bugCustomFieldDTO.setValue(platformField.getValue() == null ? null : platformField.getValue().toString());
-                            return bugCustomFieldDTO;
-                        }).collect(Collectors.toList());
-                customEditRequest.setCustomFields(bugCustomFieldDTOList);
-            }
+				bugCustomFieldDTOList = platformCustomFields.stream()
+						.filter(field -> needSyncApiFieldFilterMap.containsKey(field.getId()))
+						.map(platformField -> {
+							BugCustomFieldDTO bugCustomFieldDTO = new BugCustomFieldDTO();
+							bugCustomFieldDTO.setId(needSyncApiFieldFilterMap.get(platformField.getId()));
+							bugCustomFieldDTO.setValue(platformField.getValue() == null ? null : platformField.getValue().toString());
+							return bugCustomFieldDTO;
+						}).collect(Collectors.toList());
+			}
+			customEditRequest.setCustomFields(bugCustomFieldDTOList);
 
-            // 保存缺陷
+			// 保存缺陷
             if (originalBug == null) {
                 // 新增
                 batchBugMapper.insertSelective(bug);

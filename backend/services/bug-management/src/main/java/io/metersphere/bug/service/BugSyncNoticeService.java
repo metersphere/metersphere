@@ -87,6 +87,10 @@ public class BugSyncNoticeService {
         inSiteNoticeSender.sendAnnouncement(messageDetail, noticeModel, MessageTemplateUtils.getContent(context, paramMap), subject);
     }
 
+    /**
+     * 设置本地语言
+     * @param language 语言
+     */
     private static void setLanguage(String language) {
         Locale locale = Locale.SIMPLIFIED_CHINESE;
         if (StringUtils.containsIgnoreCase(language, "US")) {

@@ -107,6 +107,11 @@ public class BugStatusService {
        return baseStatusFlowSettingService.getAllStatusOption(projectId, TemplateScene.BUG.name());
    }
 
+    /**
+     * 获取当前项目最新的Jira平台缺陷Key (表头状态筛选需要)
+     * @param projectId 项目ID
+     * @return JiraKey
+     */
    public String getJiraPlatformBugKeyLatest(String projectId) {
        BugExample example = new BugExample();
        example.createCriteria().andPlatformEqualTo(BugPlatform.JIRA.name()).andProjectIdEqualTo(projectId);

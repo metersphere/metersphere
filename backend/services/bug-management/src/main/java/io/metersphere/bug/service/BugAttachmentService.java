@@ -1,5 +1,6 @@
 package io.metersphere.bug.service;
 
+import com.google.common.collect.Maps;
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugLocalAttachment;
 import io.metersphere.bug.domain.BugLocalAttachmentExample;
@@ -38,11 +39,10 @@ import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.MsFileUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.service.CommonFileService;
 import io.metersphere.system.service.FileService;
+import io.metersphere.system.service.UserToolService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.io.FileUtils;
@@ -72,8 +72,6 @@ public class BugAttachmentService {
     @Resource
     private FileService fileService;
     @Resource
-    private BaseUserMapper baseUserMapper;
-    @Resource
     private FileMetadataMapper fileMetadataMapper;
     @Resource
     private BugPlatformService bugPlatformService;
@@ -87,6 +85,8 @@ public class BugAttachmentService {
     private BugLocalAttachmentMapper bugLocalAttachmentMapper;
     @Resource
     private CommonFileService commonFileService;
+    @Resource
+    private UserToolService userToolService;
 
     /**
      * 查询缺陷的附件集合
@@ -125,8 +125,7 @@ public class BugAttachmentService {
             return bugFiles;
         }
         List<String> userIds = bugFiles.stream().map(BugFileDTO::getCreateUser).distinct().toList();
-        List<OptionDTO> userOptions = baseUserMapper.selectUserOptionByIds(userIds);
-        Map<String, String> userMap = userOptions.stream().collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
+        Map<String, String> userMap = userToolService.getUserMapByIds(userIds);
         return bugFiles.stream().peek(file -> file.setCreateUserName(userMap.get(file.getCreateUser()))).toList();
     }
 
@@ -621,7 +620,7 @@ public class BugAttachmentService {
         FileRepository defaultRepository = FileCenter.getDefaultRepository();
         String systemTempDir = DefaultRepositoryDir.getSystemTempDir();
         // 添加文件与功能用例的关联关系
-        Map<String, String> addFileMap = new HashMap<>();
+        Map<String, String> addFileMap = Maps.newHashMapWithExpectedSize(8);
         LogUtils.info("开始上传富文本里的附件");
         List<BugLocalAttachment> localAttachments = fileIds.stream().map(fileId -> {
             BugLocalAttachment localAttachment = new BugLocalAttachment();

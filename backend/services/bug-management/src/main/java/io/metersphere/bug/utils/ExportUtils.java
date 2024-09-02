@@ -11,8 +11,8 @@ import java.util.function.BiFunction;
 
 public class ExportUtils {
 
-    private List<BugDTO> bugs;
-    private BugExportHeaderModel headerModel;
+    private final List<BugDTO> bugs;
+    private final BugExportHeaderModel headerModel;
 
     public ExportUtils(
             List<BugDTO> bugs,

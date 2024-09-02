@@ -79,6 +79,10 @@ public class BugCommentNoticeService {
         noticeSendService.send(NoticeConstants.TaskType.BUG_TASK, noticeModel);
     }
 
+    /**
+     * 设置本地语言
+     * @param language 语言
+     */
     private static void setLanguage(String language) {
         Locale locale = Locale.SIMPLIFIED_CHINESE;
         if (StringUtils.containsIgnoreCase(language, "US")) {

@@ -61,6 +61,14 @@ public class BugExportService {
         return filesFolder;
     }
 
+    /**
+     * 生成excel文件
+     * @param list 列表数据
+     * @param xlsxFileName excel文件名
+     * @param excelPath excel文件路径
+     * @param headerModel excel导出表头
+     * @throws Exception 异常信息
+     */
     private void generateExcelFile(List<BugDTO> list, String xlsxFileName, String excelPath, BugExportHeaderModel headerModel) throws Exception {
         if (CollectionUtils.isNotEmpty(list)) {
             // 准备数据 {评论, 内容, 关联用例数}

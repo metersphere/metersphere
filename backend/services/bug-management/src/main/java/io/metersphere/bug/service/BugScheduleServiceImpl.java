@@ -24,6 +24,12 @@ public class BugScheduleServiceImpl implements BaseBugScheduleService {
 	@Resource
 	private ScheduleService scheduleService;
 
+	/**
+	 * 更新缺陷同步定时任务配置
+	 * @param bugSyncConfigs 配置
+	 * @param projectId 项目ID
+	 * @param currentUser 当前用户
+	 */
 	@Override
 	public void updateBugSyncScheduleConfig(List<ProjectApplication> bugSyncConfigs, String projectId, String currentUser) {
 		List<ProjectApplication> syncCron = bugSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.CRON_EXPRESSION.name())).toList();
@@ -56,6 +62,12 @@ public class BugScheduleServiceImpl implements BaseBugScheduleService {
 		}
 	}
 
+	/**
+	 * 启用或禁用缺陷同步定时任务
+	 * @param projectId 项目ID
+	 * @param currentUser 当前用户
+	 * @param enable 开启或禁用
+	 */
 	@Override
 	public void enableOrNotBugSyncSchedule(String projectId, String currentUser, Boolean enable) {
 		Schedule schedule = scheduleService.getScheduleByResource(projectId, BugSyncJob.class.getName());
