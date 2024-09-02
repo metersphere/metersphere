@@ -5,7 +5,7 @@
         select b.id as id, b.num as num, b.title as title, bc.description content, b.handle_user handleUser, b.status as status, b.create_user createUser, b.create_time createTime
         from bug_relation_case brc join bug b on brc.bug_id = b.id
         left join bug_content bc on b.id = bc.bug_id
-        where brc.test_plan_id = #{request.planId}
+        where brc.test_plan_id = #{request.planId} and b.deleted = false
         <if test="request.keyword != null and request.keyword != ''">
             and (
             b.title like concat('%', #{request.keyword},'%')
@@ -29,6 +29,7 @@
         from bug_relation_case brc join bug b on brc.bug_id = b.id
         left join bug_content bc on b.id = bc.bug_id
         <where>
+            b.deleted = false
             <if test="planIds != null and planIds.size() > 0">
                 and brc.test_plan_id IN
                 <foreach collection="planIds" item="id" separator="," open="(" close=")">
