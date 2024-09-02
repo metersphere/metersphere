@@ -390,13 +390,11 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
      * @param errMsg
      */
     private void validateModule(FunctionalCaseExcelData data, StringBuilder errMsg) {
+        if (!StringUtils.startsWith(data.getModule(), "/")) {
+            data.setModule("/" + data.getModule());
+        }
         String module = data.getModule();
         if (StringUtils.isNotEmpty(module)) {
-            if (!StringUtils.startsWith(module, "/")) {
-                errMsg.append(Translator.get("module_starts_with"))
-                        .append(ERROR_MSG_SEPARATOR);
-                return;
-            }
             String[] nodes = module.split("/");
             //模块名不能为空
             for (int i = 0; i < nodes.length; i++) {

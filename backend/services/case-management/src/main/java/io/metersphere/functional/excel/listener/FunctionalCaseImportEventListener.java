@@ -500,6 +500,9 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
      * @param errMsg
      */
     private void validateModule(FunctionalCaseExcelData data, StringBuilder errMsg) {
+        if (!StringUtils.startsWith(data.getModule(), "/")) {
+            data.setModule("/" + data.getModule());
+        }
         String module = data.getModule();
         if (StringUtils.isNotEmpty(module)) {
             String[] nodes = module.split("/");
