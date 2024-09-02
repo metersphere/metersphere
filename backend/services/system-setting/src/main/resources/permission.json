@@ -308,6 +308,10 @@
             "name": "permission.system_organization_project_member.add"
           },
           {
+            "id": "ORGANIZATION_PROJECT:READ+UPDATE_MEMBER",
+            "name": "permission.system_organization_project_member.update"
+          },
+          {
             "id": "ORGANIZATION_PROJECT:READ+DELETE_MEMBER",
             "name": "permission.system_organization_project_member.delete"
           }

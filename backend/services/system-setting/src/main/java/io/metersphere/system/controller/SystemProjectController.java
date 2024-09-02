@@ -135,10 +135,7 @@ public class SystemProjectController {
     @Operation(summary = "系统设置-系统-组织与项目-项目-添加成员")
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public void addProjectMember(@Validated @RequestBody ProjectAddMemberRequest request) {
-        ProjectAddMemberBatchRequest batchRequest = new ProjectAddMemberBatchRequest();
-        batchRequest.setProjectIds(List.of(request.getProjectId()));
-        batchRequest.setUserIds(request.getUserIds());
-        systemProjectService.addProjectMember(batchRequest, SessionUtils.getUserId());
+        systemProjectService.addMemberByProject(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/remove-member/{projectId}/{userId}")

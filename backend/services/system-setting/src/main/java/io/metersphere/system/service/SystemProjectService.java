@@ -1,23 +1,31 @@
 package io.metersphere.system.service;
 
 import io.metersphere.project.domain.Project;
+import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.dto.*;
-import io.metersphere.system.dto.request.ProjectAddMemberBatchRequest;
-import io.metersphere.system.dto.request.ProjectMemberRequest;
-import io.metersphere.system.dto.request.ProjectPoolRequest;
-import io.metersphere.system.dto.request.ProjectRequest;
+import io.metersphere.system.dto.request.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
+import io.metersphere.system.mapper.UserRoleRelationMapper;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -27,6 +35,12 @@ public class SystemProjectService {
     private ExtSystemProjectMapper extSystemProjectMapper;
     @Resource
     private CommonProjectService commonProjectService;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private UserRoleRelationMapper userRoleRelationMapper;
+    @Resource
+    private OperationLogService operationLogService;
 
     private final static String PREFIX = "/system/project";
     private final static String ADD_PROJECT = PREFIX + "/add";
@@ -109,5 +123,31 @@ public class SystemProjectService {
     public List<OptionDTO> list(String keyword) {
         return extSystemProjectMapper.getSystemProject(keyword);
 
+    }
+
+    public void addMemberByProject(ProjectAddMemberRequest request, String createUser) {
+        List<LogDTO> logDTOList = new ArrayList<>();
+        List<UserRoleRelation> userRoleRelations = new ArrayList<>();
+        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+        Map<String, String> userMap = commonProjectService.addUserPre(request.getUserIds(), createUser, ADD_MEMBER, OperationLogModule.SETTING_SYSTEM_ORGANIZATION, request.getProjectId(), project);
+        request.getUserIds().forEach(userId -> {
+            request.getUserRoleIds().forEach(userRoleId -> {
+                UserRoleRelation userRoleRelation = new UserRoleRelation();
+                userRoleRelation.setId(IDGenerator.nextStr());
+                userRoleRelation.setUserId(userId);
+                userRoleRelation.setSourceId(request.getProjectId());
+                userRoleRelation.setRoleId(userRoleId);
+                userRoleRelation.setCreateTime(System.currentTimeMillis());
+                userRoleRelation.setCreateUser(createUser);
+                userRoleRelation.setOrganizationId(project.getOrganizationId());
+                userRoleRelations.add(userRoleRelation);
+                LogDTO logDTO = new LogDTO(OperationLogConstants.SYSTEM, OperationLogConstants.SYSTEM, userRoleRelation.getId(), createUser, OperationLogType.ADD.name(), OperationLogModule.SETTING_SYSTEM_ORGANIZATION, Translator.get("add") + Translator.get("project_member") + ": " + userMap.get(userId));
+                commonProjectService.setLog(logDTO, ADD_MEMBER, HttpMethodConstants.POST.name(), logDTOList);
+            });
+        });
+        if (CollectionUtils.isNotEmpty(userRoleRelations)) {
+            userRoleRelationMapper.batchInsert(userRoleRelations);
+        }
+        operationLogService.batchAdd(logDTOList);
     }
 }
