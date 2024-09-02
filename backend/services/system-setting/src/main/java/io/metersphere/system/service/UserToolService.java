@@ -2,6 +2,7 @@ package io.metersphere.system.service;
 
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.mapper.UserMapper;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -41,5 +43,15 @@ public class UserToolService {
         } else {
             return request.getSelectIds();
         }
+    }
+
+    /**
+     * 获取用户Map集合 (复用)
+     * @param userIds 用户ID集合
+     * @return 用户 <ID, NAME> 映射集合
+     */
+    public Map<String, String> getUserMapByIds(List<String> userIds) {
+        List<OptionDTO> userOptions = baseUserMapper.selectUserOptionByIds(userIds);
+        return userOptions.stream().collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
     }
 }

@@ -28,6 +28,7 @@ public class BugRelateCaseLogService {
      * @param id 取消关联的引用ID
      * @return 日志
      */
+    @SuppressWarnings("unused")
     public LogDTO getRelateLog(String id) {
         BugRelationCase bugRelationCase = bugRelationCaseMapper.selectByPrimaryKey(id);
         BugRelateCaseDTO relateCase = extBugRelateCaseMapper.getRelateCase(bugRelationCase.getCaseId(), bugRelationCase.getCaseType());

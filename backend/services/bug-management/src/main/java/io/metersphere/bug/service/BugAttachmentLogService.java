@@ -35,6 +35,7 @@ public class BugAttachmentLogService {
 	 * @param file  上传的文件
 	 * @return 日志
 	 */
+	@SuppressWarnings("unused")
 	public LogDTO uploadLog(BugUploadFileRequest request, MultipartFile file) {
 		Bug bug = bugMapper.selectByPrimaryKey(request.getBugId());
 		List<BugFileDTO> allBugFiles = bugAttachmentService.getAllBugFiles(request.getBugId());
@@ -52,6 +53,7 @@ public class BugAttachmentLogService {
 	 * @param request 请求参数
 	 * @return 日志
 	 */
+	@SuppressWarnings("unused")
 	public LogDTO deleteLog(BugDeleteFileRequest request) {
 		Bug bug = bugMapper.selectByPrimaryKey(request.getBugId());
 		List<BugFileDTO> allBugFiles = bugAttachmentService.getAllBugFiles(request.getBugId());
