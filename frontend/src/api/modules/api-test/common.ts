@@ -5,12 +5,14 @@ import {
   GetPluginOptionsUrl,
   GetPluginScriptUrl,
   GetProtocolListUrl,
+  ImportCurlUrl,
   LocalExecuteApiDebugUrl,
   StopExecuteUrl,
   StopLocalExecuteUrl,
 } from '@/api/requrls/api-test/common';
 
 import {
+  type CurlParseResult,
   ExecuteRequestParams,
   GetPluginOptionsParams,
   PluginConfig,
@@ -60,4 +62,9 @@ export function stopLocalExecute(host: string, id: string | number, type?: Scena
 // 停止执行
 export function stopExecute(id: string | number, type?: ScenarioStepType) {
   return MSR.get({ url: type ? `${StopExecuteUrl}/${type}/${id}` : `${StopExecuteUrl}/${id}` });
+}
+
+// 导入curl
+export function importByCurl(curl: string) {
+  return MSR.post<CurlParseResult>({ url: ImportCurlUrl, data: { curl } });
 }
