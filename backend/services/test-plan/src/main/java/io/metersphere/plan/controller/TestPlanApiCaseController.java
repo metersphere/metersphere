@@ -5,6 +5,9 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.definition.ApiReportDTO;
 import io.metersphere.api.dto.definition.ApiReportDetailDTO;
 import io.metersphere.api.service.definition.ApiReportService;
+import io.metersphere.bug.domain.Bug;
+import io.metersphere.bug.dto.request.BugEditRequest;
+import io.metersphere.bug.service.BugService;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiCasePageResponse;
@@ -18,6 +21,7 @@ import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.annotation.Log;
@@ -36,6 +40,7 @@ import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -51,6 +56,8 @@ public class TestPlanApiCaseController {
     private TestPlanApiCaseBatchRunService testPlanApiCaseBatchRunService;
     @Resource
     private ApiReportService apiReportService;
+    @Resource
+    private BugService bugService;
 
     @PostMapping(value = "/sort")
     @Operation(summary = "测试计划功能用例-功能用例拖拽排序")
@@ -195,5 +202,27 @@ public class TestPlanApiCaseController {
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disassociateBugLog(#id)", msClass = TestPlanFunctionalCaseService.class)
     public void disassociateBug(@PathVariable String id) {
         testPlanApiCaseService.disassociateBug(id);
+    }
+
+
+    @PostMapping("/batch/add-bug")
+    @Operation(summary = "测试计划-计划详情-接口用例-批量添加缺陷")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void batchAddBug(@Validated @RequestPart("request") TestPlanApiCaseBatchAddBugRequest request,
+                            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+        BugEditRequest bugEditRequest = new BugEditRequest();
+        BeanUtils.copyBean(bugEditRequest, request);
+        Bug bug = bugService.addOrUpdate(bugEditRequest, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), false);
+        testPlanApiCaseService.batchAssociateBug(request, bug.getId(), SessionUtils.getUserId());
+    }
+
+
+    @PostMapping("/batch/associate-bug")
+    @Operation(summary = "测试计划-计划详情-接口用例-批量关联缺陷")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void batchAssociateBug(@Validated @RequestBody TestPlanApiAssociateBugRequest request) {
+        testPlanApiCaseService.batchAssociateBugByIds(request, SessionUtils.getUserId());
     }
 }
