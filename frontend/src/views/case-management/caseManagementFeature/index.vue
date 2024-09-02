@@ -86,6 +86,7 @@
             :module-name="activeFolderName"
             @init="initModulesCount"
             @init-modules="initModules"
+            @set-active-folder="setActiveFolder('all')"
           />
         </div>
       </template>

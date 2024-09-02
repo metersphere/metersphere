@@ -180,7 +180,3 @@ export interface BatchActionQueryParams {
   currentSelectCount?: number; // 当前选中的数量
   condition?: any; // 查询条件
 }
-
-export interface CombineParams {
-  [key: string]: any;
-}

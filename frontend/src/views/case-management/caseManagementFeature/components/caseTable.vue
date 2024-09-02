@@ -468,6 +468,7 @@
   const emit = defineEmits<{
     (e: 'init', params: CaseModuleQueryParams, refreshModule?: boolean): void;
     (e: 'initModules'): void;
+    (e: 'setActiveFolder'): void;
   }>();
 
   const minderStore = useMinderStore();
@@ -856,6 +857,7 @@
         title: item.name,
         dataIndex: item.id,
         type: formType,
+        customField: true,
       };
 
       if (formObject.propsKey && formProps.options) {
@@ -919,7 +921,16 @@
     draggableCondition: true,
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setKeyword, setAdvanceFilter } = useTable(
+  const {
+    propsRes,
+    propsEvent,
+    advanceFilter,
+    loadList,
+    setLoadListParams,
+    resetSelector,
+    setKeyword,
+    setAdvanceFilter,
+  } = useTable(
     getCaseList,
     tableProps.value,
     (record) => {
@@ -962,7 +973,7 @@
     return {
       keyword: keyword.value,
       filter: propsRes.value.filter,
-      combine: batchParams.value.condition,
+      combineSearch: advanceFilter,
     };
   });
 
@@ -983,7 +994,7 @@
       excludeIds: batchParams.value.excludeIds || [],
       selectAll: batchParams.value.selectAll,
       selectIds: batchParams.value.selectedIds || [],
-      keyword: isAdvancedSearchMode.value ? '' : keyword.value,
+      keyword: keyword.value,
     };
   }
   // 获取父组件模块数量
@@ -1253,11 +1264,7 @@
         selectIds: selectAll ? [] : selectedIds,
         excludeIds: excludeIds || [],
         moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
-        condition: {
-          keyword: keyword.value,
-          filter: propsRes.value.filter,
-          combine: batchParams.value.condition,
-        },
+        condition: conditionParams.value,
         selectAll,
         systemFields: getConfirmFields(option, 'system'),
         customFields: getConfirmFields(option, 'custom'),
@@ -1329,11 +1336,7 @@
         selectIds: batchParams.value.selectedIds || [],
         selectAll: !!batchParams.value?.selectAll,
         excludeIds: batchParams.value?.excludeIds || [],
-        condition: {
-          keyword: keyword.value,
-          filter: propsRes.value.filter,
-          combine: batchParams.value.condition,
-        },
+        condition: conditionParams.value,
         projectId: currentProjectId.value,
         moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
         moduleId: selectedModuleKeys.value[0],
@@ -1409,11 +1412,7 @@
             selectIds: selectAll ? [] : selectedIds,
             excludeIds: excludeIds || [],
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
-            condition: {
-              keyword: keyword.value,
-              filter: propsRes.value.filter,
-              combine: batchParams.value.condition,
-            },
+            condition: conditionParams.value,
             selectAll,
           });
           resetSelector();
@@ -1615,6 +1614,9 @@
   // 高级检索
   const handleAdvSearch = async (filter: FilterResult) => {
     isAdvancedSearchMode.value = !!filter.conditions?.length;
+    resetSelector();
+    emit('setActiveFolder');
+    keyword.value = '';
     await getLoadListParams(); // 基础筛选都清空
     setAdvanceFilter(filter);
     loadList();
@@ -1698,7 +1700,7 @@
         selectIds: batchParams.value?.selectAll ? [] : batchParams.value.selectedIds,
         selectAll: !!batchParams.value?.selectAll,
         excludeIds: batchParams.value?.excludeIds || [],
-        condition: { keyword: keyword.value },
+        condition: conditionParams.value,
         projectId: currentProjectId.value,
         moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
         moduleId: selectedModuleKeys.value[0],
@@ -1736,11 +1738,7 @@
         demandPlatform,
         demandList,
         filter: propsRes.value.filter,
-        condition: {
-          keyword: keyword.value,
-          filter: propsRes.value.filter,
-          combine: batchParams.value.condition,
-        },
+        condition: conditionParams.value,
         functionalDemandBatchRequest,
       };
       await batchAssociationDemand(batchAddParams);
@@ -1798,7 +1796,7 @@
   watch(
     () => props.activeFolder,
     (val) => {
-      if (props.activeFolder !== 'recycle' && val) {
+      if (props.activeFolder !== 'recycle' && val && !isAdvancedSearchMode.value) {
         initData();
         resetSelector();
       }

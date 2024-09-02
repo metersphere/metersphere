@@ -9,7 +9,7 @@
         :name="moduleNamePath"
         :not-show-input-search="showType !== 'list'"
         :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
-        @keyword-search="(val, filter) => searchCase(filter)"
+        @keyword-search="searchCase()"
         @adv-search="searchCase"
         @refresh="handleRefreshAll"
       >
@@ -593,18 +593,13 @@
     });
   }
 
-  function searchCase(filter?: FilterResult) {
+  function searchCase() {
     tableParams.value = {
       projectId: appStore.currentProjectId,
       reviewId: route.query.id,
       moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
       keyword: keyword.value,
       viewFlag: props.onlyMine,
-      combine: filter
-        ? {
-            ...filter.combine,
-          }
-        : {},
     };
     setLoadListParams(tableParams.value);
     resetSelector();

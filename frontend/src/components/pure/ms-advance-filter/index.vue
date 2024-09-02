@@ -27,8 +27,8 @@
         :placeholder="props.searchPlaceholder"
         class="w-[240px]"
         allow-clear
-        @press-enter="emit('keywordSearch', keyword, filterResult)"
-        @search="emit('keywordSearch', keyword, filterResult)"
+        @press-enter="emit('keywordSearch', keyword)"
+        @search="emit('keywordSearch', keyword)"
         @clear="handleClear"
       ></a-input-search>
       <a-button
@@ -88,7 +88,7 @@
   }>();
 
   const emit = defineEmits<{
-    (e: 'keywordSearch', value: string | undefined, combine: FilterResult): void; // keyword 搜索 TODO:可以去除，父组件通过 v-model:keyword 获取关键字
+    (e: 'keywordSearch', value: string | undefined): void; // keyword 搜索 TODO:可以去除，父组件通过 v-model:keyword 获取关键字
     (e: 'advSearch', value: FilterResult): void; // 高级搜索
     (e: 'refresh', value: FilterResult): void;
   }>();
@@ -113,7 +113,7 @@
 
   const handleClear = () => {
     keyword.value = '';
-    emit('keywordSearch', '', filterResult.value);
+    emit('keywordSearch', '');
   };
 
   const handleOpenFilter = () => {
