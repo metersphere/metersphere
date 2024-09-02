@@ -13,6 +13,9 @@ import io.metersphere.api.service.scenario.ApiScenarioModuleService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.service.scenario.ApiScenarioRunService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
+import io.metersphere.bug.domain.BugRelationCase;
+import io.metersphere.bug.domain.BugRelationCaseExample;
+import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.plan.constants.AssociateCaseType;
@@ -38,6 +41,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -110,6 +114,9 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     private TestPlanConfigService testPlanConfigService;
 
     private static final String EXECUTOR = "executeUserName";
+
+    @Resource
+    private BugRelationCaseMapper bugRelationCaseMapper;
 
     @Override
     public List<TestPlanResourceExecResultDTO> selectDistinctExecResultByProjectId(String projectId) {
@@ -715,8 +722,9 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
 
     /**
      * 关联缺陷 (单条用例)
+     *
      * @param request 请求参数
-     * @param userId 用户ID
+     * @param userId  用户ID
      */
     public void associateBug(TestPlanCaseAssociateBugRequest request, String userId) {
         super.associateBug(request, userId, CaseType.SCENARIO_CASE.getKey());
@@ -764,6 +772,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
 
     /**
      * 处理执行人为空过滤参数
+     *
      * @param request 请求参数
      */
     protected void filterCaseRequest(TestPlanApiScenarioRequest request) {
@@ -775,5 +784,89 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
                 request.setNullExecutorKey(containNullKey);
             }
         }
+    }
+
+    public void batchAssociateBug(TestPlanScenarioBatchAddBugRequest request, String bugId, String userId) {
+        List<String> ids = doSelectIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            handleAssociateBug(ids, userId, bugId, request.getTestPlanId());
+        }
+
+    }
+
+    private void handleAssociateBug(List<String> ids, String userId, String bugId, String testPlanId) {
+        SubListUtils.dealForSubList(ids, 500, (subList) -> {
+            Map<String, String> caseMap = getCaseMap(subList);
+            List<BugRelationCase> list = new ArrayList<>();
+            subList.forEach(id -> {
+                BugRelationCase bugRelationCase = new BugRelationCase();
+                bugRelationCase.setId(IDGenerator.nextStr());
+                bugRelationCase.setBugId(bugId);
+                bugRelationCase.setCaseId(caseMap.get(id));
+                bugRelationCase.setCaseType(CaseType.SCENARIO_CASE.getKey());
+                bugRelationCase.setCreateUser(userId);
+                bugRelationCase.setCreateTime(System.currentTimeMillis());
+                bugRelationCase.setUpdateTime(System.currentTimeMillis());
+                bugRelationCase.setTestPlanCaseId(id);
+                bugRelationCase.setTestPlanId(testPlanId);
+                list.add(bugRelationCase);
+            });
+            bugRelationCaseMapper.batchInsert(list);
+        });
+    }
+
+    public Map<String, String> getCaseMap(List<String> ids) {
+        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+        example.createCriteria().andIdIn(ids);
+        List<TestPlanApiScenario> caseList = testPlanApiScenarioMapper.selectByExample(example);
+        return caseList.stream().collect(Collectors.toMap(TestPlanApiScenario::getId, TestPlanApiScenario::getApiScenarioId));
+    }
+
+    public void batchAssociateBugByIds(TestPlanScenarioBatchAssociateBugRequest request, String userId) {
+        List<String> ids = doSelectIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            handleAssociateBugByIds(ids, request, userId);
+        }
+    }
+
+    public void handleAssociateBugByIds(List<String> ids, TestPlanScenarioBatchAssociateBugRequest request, String userId) {
+        SubListUtils.dealForSubList(ids, 500, (subList) -> {
+            BugRelationCaseExample example = new BugRelationCaseExample();
+            example.createCriteria().andTestPlanCaseIdIn(subList).andTestPlanIdEqualTo(request.getTestPlanId()).andBugIdIn(request.getBugIds());
+            List<BugRelationCase> bugRelationCases = bugRelationCaseMapper.selectByExample(example);
+            Map<String, List<String>> bugMap = bugRelationCases.stream()
+                    .collect(Collectors.groupingBy(
+                            BugRelationCase::getTestPlanCaseId,
+                            Collectors.mapping(BugRelationCase::getBugId, Collectors.toList())
+                    ));
+            Map<String, String> caseMap = getCaseMap(subList);
+            List<BugRelationCase> list = new ArrayList<>();
+            subList.forEach(item -> {
+                buildAssociateBugData(item, bugMap, list, request, caseMap, userId);
+            });
+            if (CollectionUtils.isNotEmpty(list)) {
+                bugRelationCaseMapper.batchInsert(list);
+            }
+        });
+    }
+
+    private void buildAssociateBugData(String id, Map<String, List<String>> bugMap, List<BugRelationCase> list, TestPlanScenarioBatchAssociateBugRequest request, Map<String, String> caseMap, String userId) {
+        List<String> bugIds = new ArrayList<>(request.getBugIds());
+        if (bugMap.containsKey(id)) {
+            bugIds.removeAll(bugMap.get(id));
+        }
+        bugIds.forEach(bugId -> {
+            BugRelationCase bugRelationCase = new BugRelationCase();
+            bugRelationCase.setId(IDGenerator.nextStr());
+            bugRelationCase.setBugId(bugId);
+            bugRelationCase.setCaseId(caseMap.get(id));
+            bugRelationCase.setCaseType(CaseType.SCENARIO_CASE.getKey());
+            bugRelationCase.setCreateUser(userId);
+            bugRelationCase.setCreateTime(System.currentTimeMillis());
+            bugRelationCase.setUpdateTime(System.currentTimeMillis());
+            bugRelationCase.setTestPlanCaseId(id);
+            bugRelationCase.setTestPlanId(request.getTestPlanId());
+            list.add(bugRelationCase);
+        });
     }
 }

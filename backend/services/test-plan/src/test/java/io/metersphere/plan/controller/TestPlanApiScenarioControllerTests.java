@@ -17,6 +17,7 @@ import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.bug.dto.response.BugCustomFieldDTO;
 import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.domain.TestPlanApiScenarioExample;
@@ -48,9 +49,11 @@ import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -79,6 +82,8 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     private static final String BUG_ASSOCIATE_PAGE = "/associate/bug/page";
     private static final String ASSOCIATE_BUG = "/associate/bug";
     private static final String DISASSOCIATE_BUG = "/disassociate/bug/{0}";
+    public static final String API_SCENARIO_BATCH_ADD_BUG_URL = "/batch/add-bug";
+    public static final String API_SCENARIO_BATCH_ASSOCIATE_BUG_URL = "/batch/associate-bug";
 
     @Resource
     private TestPlanApiScenarioService testPlanApiScenarioService;
@@ -601,5 +606,65 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     @Order(9)
     void testDisassociateBug() throws Exception {
         this.requestGet(DISASSOCIATE_BUG, "test_plan_case_id");
+    }
+
+    @Test
+    @Order(15)
+    public void testBatchAddBug() throws Exception {
+        TestPlanCaseBatchAddBugRequest request = buildRequest(false);
+        List<MockMultipartFile> files = new ArrayList<>();
+        LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("files", files);
+        this.requestMultipartWithOkAndReturn(API_SCENARIO_BATCH_ADD_BUG_URL, paramMap);
+
+        request.setSelectAll(true);
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("files", files);
+        this.requestMultipartWithOkAndReturn(API_SCENARIO_BATCH_ADD_BUG_URL, paramMap);
+    }
+
+    private TestPlanCaseBatchAddBugRequest buildRequest(boolean isUpdate) {
+        TestPlanCaseBatchAddBugRequest request = new TestPlanCaseBatchAddBugRequest();
+        request.setTestPlanId("wxxx_plan_1");
+        request.setProjectId("wxx_project_1234");
+        request.setTitle("default-bug-title");
+        request.setDescription("default-bug-description");
+        request.setTemplateId("default-bug-template");
+        request.setLinkFileIds(List.of("default-bug-file-id-1"));
+        if (isUpdate) {
+            request.setId("default-bug-id");
+            request.setUnLinkRefIds(List.of("default-file-association-id"));
+            request.setDeleteLocalFileIds(List.of("default-bug-file-id"));
+            request.setLinkFileIds(List.of("default-bug-file-id-2"));
+        }
+        BugCustomFieldDTO fieldDTO1 = new BugCustomFieldDTO();
+        fieldDTO1.setId("custom-field");
+        fieldDTO1.setName("oasis");
+        BugCustomFieldDTO fieldDTO2 = new BugCustomFieldDTO();
+        fieldDTO2.setId("test_field");
+        fieldDTO2.setName(JSON.toJSONString(List.of("test")));
+        BugCustomFieldDTO handleUserField = new BugCustomFieldDTO();
+        handleUserField.setId("handleUser");
+        handleUserField.setName("处理人");
+        handleUserField.setValue("admin");
+        BugCustomFieldDTO statusField = new BugCustomFieldDTO();
+        statusField.setId("status");
+        statusField.setName("状态");
+        statusField.setValue("1");
+        request.setCustomFields(List.of(fieldDTO1, fieldDTO2, handleUserField, statusField));
+        return request;
+    }
+
+    @Test
+    @Order(19)
+    public void testBatchAssociateBug() throws Exception {
+        TestPlanCaseBatchAssociateBugRequest request = new TestPlanCaseBatchAssociateBugRequest();
+        request.setBugIds(Arrays.asList("123456"));
+        request.setTestPlanId("wxxx_plan_1");
+        this.requestPostWithOk(API_SCENARIO_BATCH_ASSOCIATE_BUG_URL, request);
+        request.setSelectAll(true);
+        this.requestPostWithOk(API_SCENARIO_BATCH_ASSOCIATE_BUG_URL, request);
     }
 }
