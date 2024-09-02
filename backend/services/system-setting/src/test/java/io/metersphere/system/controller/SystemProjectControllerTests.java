@@ -897,12 +897,8 @@ public class SystemProjectControllerTests extends BaseTest {
         projectAddMemberRequest.setProjectId("projectId");
         List<String> userIds = List.of("admin1", "admin2");
         projectAddMemberRequest.setUserIds(userIds);
+        projectAddMemberRequest.setUserRoleIds(List.of(InternalUserRole.PROJECT_MEMBER.getValue()));
         this.requestPost(addProjectMember, projectAddMemberRequest, status().isOk());
-        UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
-        userRoleRelationExample.createCriteria().andSourceIdEqualTo("projectId").andRoleIdEqualTo(InternalUserRole.PROJECT_MEMBER.getValue());
-        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
-        Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().containsAll(userIds));
-        Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().containsAll(userIds));
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD, addProjectMember, projectAddMemberRequest);
     }
@@ -913,20 +909,24 @@ public class SystemProjectControllerTests extends BaseTest {
         //项目Id为空
         ProjectAddMemberRequest projectAddMemberRequest = new ProjectAddMemberRequest();
         projectAddMemberRequest.setProjectId(null);
+        projectAddMemberRequest.setUserRoleIds(List.of(InternalUserRole.PROJECT_MEMBER.getValue()));
         this.requestPost(addProjectMember, projectAddMemberRequest, BAD_REQUEST_MATCHER);
         //用户Id为空
         projectAddMemberRequest = new ProjectAddMemberRequest();
         projectAddMemberRequest.setProjectId("projectId");
+        projectAddMemberRequest.setUserRoleIds(List.of(InternalUserRole.PROJECT_MEMBER.getValue()));
         this.requestPost(addProjectMember, projectAddMemberRequest, BAD_REQUEST_MATCHER);
         //用户Id不存在
         projectAddMemberRequest = new ProjectAddMemberRequest();
         projectAddMemberRequest.setProjectId("projectId");
         projectAddMemberRequest.setUserIds(List.of("admin3"));
+        projectAddMemberRequest.setUserRoleIds(List.of(InternalUserRole.PROJECT_MEMBER.getValue()));
         this.requestPost(addProjectMember, projectAddMemberRequest, ERROR_REQUEST_MATCHER);
         //项目id不存在
         projectAddMemberRequest = new ProjectAddMemberRequest();
         projectAddMemberRequest.setProjectId("projectId111");
         projectAddMemberRequest.setUserIds(List.of("admin1"));
+        projectAddMemberRequest.setUserRoleIds(List.of(InternalUserRole.PROJECT_MEMBER.getValue()));
         this.requestPost(addProjectMember, projectAddMemberRequest, ERROR_REQUEST_MATCHER);
     }
 

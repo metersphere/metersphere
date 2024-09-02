@@ -393,7 +393,7 @@ public class CommonProjectService {
         List<UserRoleRelation> userRoleRelations = new ArrayList<>();
         request.getProjectIds().forEach(projectId -> {
             Project project = projectMapper.selectByPrimaryKey(projectId);
-            Map<String, String> nameMap = addUserPre(request, createUser, path, module, projectId, project);
+            Map<String, String> nameMap = addUserPre(request.getUserIds(), createUser, path, module, projectId, project);
             request.getUserIds().forEach(userId -> {
                 UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
                 userRoleRelationExample.createCriteria().andUserIdEqualTo(userId)
@@ -423,17 +423,17 @@ public class CommonProjectService {
         operationLogService.batchAdd(logDTOList);
     }
 
-    private Map<String, String> addUserPre(ProjectAddMemberBatchRequest request, String createUser, String path, String module, String projectId, Project project) {
+    public Map<String, String> addUserPre(List<String> userIds, String createUser, String path, String module, String projectId, Project project) {
         checkProjectNotExist(projectId);
         UserExample userExample = new UserExample();
-        userExample.createCriteria().andIdIn(request.getUserIds()).andDeletedEqualTo(false);
+        userExample.createCriteria().andIdIn(userIds).andDeletedEqualTo(false);
         List<User> users = userMapper.selectByExample(userExample);
-        if (request.getUserIds().size() != users.size()) {
+        if (userIds.size() != users.size()) {
             throw new MSException(Translator.get("user_not_exist"));
         }
         //把id和名称放一个map中
         Map<String, String> userMap = users.stream().collect(Collectors.toMap(User::getId, User::getName));
-        this.checkOrgRoleExit(request.getUserIds(), project.getOrganizationId(), createUser, userMap, path, module);
+        this.checkOrgRoleExit(userIds, project.getOrganizationId(), createUser, userMap, path, module);
         return userMap;
     }
 
@@ -453,7 +453,7 @@ public class CommonProjectService {
         List<UserRoleRelation> userRoleRelations = new ArrayList<>();
         request.getProjectIds().forEach(projectId -> {
             Project project = projectMapper.selectByPrimaryKey(projectId);
-            Map<String, String> userMap = addUserPre(request, createUser, path, module, projectId, project);
+            Map<String, String> userMap = addUserPre(request.getUserIds(), createUser, path, module, projectId, project);
             request.getUserIds().forEach(userId -> {
                 UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
                 userRoleRelationExample.createCriteria().andUserIdEqualTo(userId)
@@ -595,7 +595,7 @@ public class CommonProjectService {
      * @param method     请求方法
      * @param logDTOList 日志集合
      */
-    private void setLog(LogDTO dto, String path, String method, List<LogDTO> logDTOList) {
+    public void setLog(LogDTO dto, String path, String method, List<LogDTO> logDTOList) {
         dto.setPath(path);
         dto.setMethod(method);
         dto.setOriginalValue(JSON.toJSONBytes(StringUtils.EMPTY));

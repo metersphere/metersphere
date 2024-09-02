@@ -32,6 +32,5 @@ public class OrganizationMemberRequest implements Serializable {
 
 
     @Schema(description = "用户组ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty(message = "{user_role.id.not_blank}")
     private List<String> userRoleIds;
 }

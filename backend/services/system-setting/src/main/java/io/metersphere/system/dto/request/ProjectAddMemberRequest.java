@@ -20,4 +20,7 @@ public class ProjectAddMemberRequest {
     private List<
             @NotBlank(message = "{user_role_relation.user_id.not_blank}", groups = {Created.class, Updated.class})
                     String> userIds;
+
+    @Schema(description = "用户组ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
+    private List<String> userRoleIds;
 }

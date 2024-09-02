@@ -193,4 +193,11 @@ public class SystemOrganizationController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, simpleUserService.getMemberList(request));
     }
+
+    @PostMapping("/update-member")
+    @Operation(summary = "系统设置-系统-组织与项目-组织-成员-更新成员用户组")
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_UPDATE)
+    public void updateMember(@Validated @RequestBody OrganizationMemberUpdateRequest organizationMemberExtendRequest) {
+        organizationService.updateMember(organizationMemberExtendRequest, SessionUtils.getUserId());
+    }
 }
