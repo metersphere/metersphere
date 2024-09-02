@@ -183,6 +183,12 @@ export interface mockParams {
 export interface ApiDefinitionBatchParams extends BatchApiParams {
   protocols: string[];
 }
+// 批量导出定义参数
+export interface ApiDefinitionBatchExportParams extends ApiDefinitionBatchParams {
+  exportApiCase: boolean;
+  exportApiMock: boolean;
+  sort: Record<string, any>;
+}
 // 批量更新定义参数
 export interface ApiDefinitionBatchUpdateParams extends ApiDefinitionBatchParams {
   type?: string;

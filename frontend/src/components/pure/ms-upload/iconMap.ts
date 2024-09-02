@@ -76,6 +76,14 @@ export const FileIconMap: FileIconMapping = {
     [UploadStatus.init]: 'icon-a-icon_file-json',
     [UploadStatus.done]: 'icon-a-icon_file-json',
   },
+  jmx: {
+    [UploadStatus.init]: 'icon-a-icon_file-JMX',
+    [UploadStatus.done]: 'icon-a-icon_file-JMX',
+  },
+  har: {
+    [UploadStatus.init]: 'icon-icon_file_har',
+    [UploadStatus.done]: 'icon-icon_file_har',
+  },
 };
 
 /**

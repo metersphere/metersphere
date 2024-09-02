@@ -2,42 +2,34 @@
   <div>
     <MsDrawer
       v-model:visible="visible"
-      width="100%"
-      :popup-container="props.popupContainer"
+      :width="960"
+      :title="t('apiTestManagement.importApi')"
       :closable="false"
       :ok-disabled="disabledConfirm"
       :ok-text="t('common.import')"
       :ok-loading="importLoading"
       disabled-width-drag
       desc
-      no-title
       @confirm="confirmImport"
       @cancel="cancelImport"
     >
-      <div class="flex items-center justify-between p-[12px_8px]">
-        <div class="font-medium text-[var(--color-text-1)]">{{ t('apiTestManagement.importApi') }}</div>
-        <a-radio-group v-model:model-value="importForm.type" type="button">
-          <a-radio :value="RequestImportType.API">{{ t('apiTestManagement.fileImport') }}</a-radio>
-          <a-radio :value="RequestImportType.SCHEDULE">{{ t('apiTestManagement.timeImport') }}</a-radio>
-        </a-radio-group>
-      </div>
-      <div
-        v-if="importType === 'file'"
-        class="my-[16px] flex items-center gap-[16px] rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[16px]"
-      >
+      <div v-if="importType === 'file'" class="mb-[16px] flex items-center gap-[16px]">
         <div
           v-for="item of platformList"
           :key="item.value"
           :class="`import-item ${importForm.platform === item.value ? 'import-item--active' : ''}`"
           @click="() => setActiveImportFormat(item.value)"
         >
-          <div class="flex h-[24px] w-[24px] items-center justify-center rounded-[var(--border-radius-small)] bg-white">
-            <MsIcon :type="item.icon" :class="`text-[${item.iconColor}]`" :size="18" />
-          </div>
           <div class="text-[var(--color-text-1)]">{{ item.name }}</div>
         </div>
       </div>
       <a-form ref="importFormRef" :model="importForm" layout="vertical">
+        <a-form-item :label="t('apiTestManagement.importType')">
+          <a-radio-group v-model:model-value="importForm.type" type="button">
+            <a-radio :value="RequestImportType.API">{{ t('apiTestManagement.fileImport') }}</a-radio>
+            <a-radio :value="RequestImportType.SCHEDULE">{{ t('apiTestManagement.timeImport') }}</a-radio>
+          </a-radio-group>
+        </a-form-item>
         <template v-if="importForm.type === RequestImportType.API">
           <a-form-item :label="t('apiTestManagement.belongModule')">
             <a-tree-select
@@ -57,56 +49,58 @@
               </template>
             </a-tree-select>
           </a-form-item>
-          <a-form-item>
-            <template #label>
-              <div class="flex items-center gap-[2px]">
-                {{ t('apiTestManagement.importMode') }}
-                <a-tooltip position="right">
-                  <icon-question-circle
-                    class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-                    size="16"
-                  />
-                  <template #content>
-                    <div>{{ t('apiTestManagement.importModeTip1') }}</div>
-                    <div>{{ t('apiTestManagement.importModeTip2') }}</div>
-                    <div>{{ t('apiTestManagement.importModeTip3') }}</div>
-                    <div>{{ t('apiTestManagement.importModeTip4') }}</div>
-                    <div class="h-[22px] w-full"></div>
-                    <div>{{ t('apiTestManagement.importModeTip5') }}</div>
-                    <div>{{ t('apiTestManagement.importModeTip6') }}</div>
-                    <div>{{ t('apiTestManagement.importModeTip7') }}</div>
-                  </template>
-                </a-tooltip>
-              </div>
-            </template>
-            <a-select v-model:model-value="importForm.coverData" class="w-[240px]">
-              <a-option :value="true">{{ t('apiTestManagement.cover') }}</a-option>
-              <a-option :value="false">{{ t('apiTestManagement.uncover') }}</a-option>
-            </a-select>
+          <a-form-item :label="t('apiTestManagement.importMode')">
+            <a-radio-group v-model:model-value="importForm.coverData">
+              <a-radio :value="true">
+                <div class="flex items-center gap-[2px]">
+                  {{ t('apiTestManagement.cover') }}
+                  <a-tooltip position="right">
+                    <icon-question-circle
+                      class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+                      size="16"
+                    />
+                    <template #content>
+                      <div>{{ t('apiTestManagement.importModeTip1') }}</div>
+                      <div>{{ t('apiTestManagement.importModeTip2') }}</div>
+                      <div>{{ t('apiTestManagement.importModeTip3') }}</div>
+                      <div>{{ t('apiTestManagement.importModeTip4') }}</div>
+                    </template>
+                  </a-tooltip>
+                </div>
+              </a-radio>
+              <a-radio :value="false">
+                <div class="flex items-center gap-[2px]">
+                  {{ t('apiTestManagement.uncover') }}
+                  <a-tooltip position="right">
+                    <icon-question-circle
+                      class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+                      size="16"
+                    />
+                    <template #content>
+                      <div>{{ t('apiTestManagement.importModeTip5') }}</div>
+                      <div>{{ t('apiTestManagement.importModeTip6') }}</div>
+                      <div>{{ t('apiTestManagement.importModeTip7') }}</div>
+                    </template>
+                  </a-tooltip>
+                </div>
+              </a-radio>
+            </a-radio-group>
           </a-form-item>
-          <a-collapse v-model:active-key="moreSettingActive" :bordered="false" :show-expand-icon="false">
-            <a-collapse-item :key="1">
-              <template #header>
-                <MsButton
-                  type="text"
-                  @click="() => (moreSettingActive.length > 0 ? (moreSettingActive = []) : (moreSettingActive = [1]))"
-                >
-                  {{ t('apiTestDebug.moreSetting') }}
-                  <icon-down v-if="moreSettingActive.length > 0" class="text-rgb(var(--primary-5))" />
-                  <icon-right v-else class="text-rgb(var(--primary-5))" />
-                </MsButton>
-              </template>
-              <div class="mt-[16px]">
-                <a-checkbox v-model:model-value="importForm.syncCase" class="mr-[24px]">
-                  {{ t('apiTestManagement.syncImportCase') }}
-                </a-checkbox>
-                <a-checkbox v-if="importForm.coverData" v-model:model-value="importForm.coverModule">
-                  {{ t('apiTestManagement.syncUpdateDirectory') }}
-                </a-checkbox>
-              </div>
-            </a-collapse-item>
-          </a-collapse>
-          <a-form-item :label="t('apiTestManagement.importType')" class="mt-[8px]">
+          <div v-if="importForm.coverData" class="mb-[16px] flex items-center gap-[4px]">
+            <a-switch v-model:model-value="importForm.coverModule" size="small" />
+            {{ t('apiTestManagement.syncUpdateDirectory') }}
+          </div>
+          <div
+            v-if="[RequestImportFormat.MeterSphere, RequestImportFormat.Postman].includes(importForm.platform)"
+            class="mb-[16px] flex items-center gap-[4px]"
+          >
+            <a-switch v-model:model-value="importForm.syncCase" size="small" />
+            {{ t('apiTestManagement.syncImportCase') }}
+          </div>
+          <a-form-item
+            v-if="importForm.platform === RequestImportFormat.SWAGGER"
+            :label="t('apiTestManagement.importMethod')"
+          >
             <a-radio-group v-model:model-value="importType" type="button">
               <a-radio value="file">{{ t('apiTestManagement.fileImport') }}</a-radio>
               <a-radio value="swaggerUrl">{{ t('apiTestManagement.urlImport') }}</a-radio>
@@ -115,19 +109,22 @@
           <MsUpload
             v-if="importType === 'file'"
             v-model:file-list="fileList"
-            accept="json"
+            :accept="uploadAccept"
             :auto-upload="false"
             draggable
             size-unit="MB"
             class="w-full"
           >
             <template #subText>
-              <div class="flex">
+              <div v-if="importForm.platform === RequestImportFormat.SWAGGER" class="flex">
                 {{ t('apiTestManagement.importSwaggerFileTip1') }}
-                <span class="text-[rgb(var(--warning-6))]" @click.stop="openLink">{{
-                  t('apiTestManagement.importSwaggerFileTip2')
-                }}</span>
+                <span class="text-[rgb(var(--warning-6))]" @click.stop="openLink">
+                  {{ t('apiTestManagement.importSwaggerFileTip2') }}
+                </span>
                 {{ t('apiTestManagement.importSwaggerFileTip3') }}
+              </div>
+              <div v-else-if="importForm.platform === RequestImportFormat.Postman" class="flex">
+                {{ t('apiTestManagement.importPostmanFileTip') }}
               </div>
             </template>
           </MsUpload>
@@ -329,7 +326,6 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCronSelect from '@/components/pure/ms-cron-select/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
@@ -356,7 +352,6 @@
   const props = defineProps<{
     visible: boolean;
     moduleTree: ModuleTreeNode[];
-    popupContainer?: string;
     activeModule: string;
   }>();
   const emit = defineEmits(['update:visible', 'done']);
@@ -372,8 +367,22 @@
     {
       name: 'Swagger',
       value: RequestImportFormat.SWAGGER,
-      icon: 'icon-icon_swagger',
-      iconColor: 'rgb(var(--success-7))',
+    },
+    {
+      name: 'Postman',
+      value: RequestImportFormat.Postman,
+    },
+    {
+      name: 'Har',
+      value: RequestImportFormat.Har,
+    },
+    {
+      name: 'Jmeter',
+      value: RequestImportFormat.Jmeter,
+    },
+    {
+      name: 'MeterSphere',
+      value: RequestImportFormat.MeterSphere,
     },
   ];
   const fileList = ref<MsFileItem[]>([]);
@@ -395,6 +404,18 @@
   };
   const importForm = ref({ ...defaultForm });
   const importFormRef = ref<FormInstance>();
+  const uploadAccept = computed(() => {
+    if ([RequestImportFormat.SWAGGER, RequestImportFormat.Postman].includes(importForm.value.platform)) {
+      return 'json';
+    }
+    if (importForm.value.platform === RequestImportFormat.Har) {
+      return 'har';
+    }
+    if (importForm.value.platform === RequestImportFormat.Jmeter) {
+      return 'jmx';
+    }
+    return 'json';
+  });
 
   watch(
     () => visible.value,
@@ -426,6 +447,9 @@
 
   function setActiveImportFormat(format: RequestImportFormat) {
     importForm.value.platform = format;
+    if (format !== RequestImportFormat.SWAGGER) {
+      importType.value = 'file';
+    }
   }
 
   function cancelImport() {
@@ -647,9 +671,10 @@
     @apply flex cursor-pointer items-center bg-white;
 
     padding: 8px;
-    gap: 6px;
     width: 200px;
+    border: 1px solid var(--color-text-n8);
     border-radius: var(--border-radius-small);
+    gap: 6px;
   }
   .import-item--active {
     border: 1px solid rgb(var(--primary-5));
