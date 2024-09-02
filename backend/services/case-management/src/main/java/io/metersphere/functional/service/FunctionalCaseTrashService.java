@@ -209,7 +209,7 @@ public class FunctionalCaseTrashService {
         }
     }
 
-    private void deleteByIds(String projectId, List<String> deleteIds, String userId) {
+    public void deleteByIds(String projectId, List<String> deleteIds, String userId) {
         deleteFunctionalCaseService.deleteFunctionalCaseResource(deleteIds, projectId);
         Map<String, Object> param = new HashMap<>();
         param.put(CaseEvent.Param.CASE_IDS, deleteIds);
