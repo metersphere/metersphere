@@ -399,6 +399,7 @@ export default function useTableProps<T>(
       sortItem.value = sortObj;
       setTableDraggable(Object.keys(sortItem.value).length === 0);
       loadList();
+      propsRes.value.sorter = sortObj;
     },
 
     // 筛选触发
@@ -452,6 +453,7 @@ export default function useTableProps<T>(
     // 重置排序
     resetSort: () => {
       sortItem.value = {};
+      propsRes.value.sorter = {};
     },
     // 重置筛选
     clearSelector: () => {

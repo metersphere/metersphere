@@ -80,11 +80,10 @@ export enum ApiScenarioStatus {
 // 接口导入支持格式
 export enum RequestImportFormat {
   SWAGGER = 'Swagger3',
-  // MeterSphere = 'MeterSphere',
-  // Postman= 'Postman',
-  // Plugin = 'Plugin',
-  // Jmeter = 'Jmeter',
-  // Har = 'Har',
+  MeterSphere = 'MeterSphere',
+  Postman = 'Postman',
+  Jmeter = 'Jmeter',
+  Har = 'Har',
 }
 // 接口导入方式
 export enum RequestImportType {

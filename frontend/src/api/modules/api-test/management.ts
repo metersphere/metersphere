@@ -107,8 +107,8 @@ import {
   ApiCaseExecuteHistoryParams,
   ApiCasePageParams,
   ApiDefinitionBatchDeleteParams,
+  type ApiDefinitionBatchExportParams,
   ApiDefinitionBatchMoveParams,
-  ApiDefinitionBatchParams,
   ApiDefinitionBatchUpdateParams,
   ApiDefinitionCreateParams,
   ApiDefinitionDeleteParams,
@@ -593,6 +593,6 @@ export function getCaseReportDetail(reportId: string, stepId: string) {
 }
 
 // 导出定义
-export function exportApiDefinition(data: ApiDefinitionBatchParams, type: string) {
+export function exportApiDefinition(data: ApiDefinitionBatchExportParams, type: string) {
   return MSR.post({ url: `${ExportDefinitionUrl}/${type}`, data });
 }

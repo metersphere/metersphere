@@ -1,48 +1,30 @@
 <template>
   <div>
     <template v-if="!props.isModal">
-      <div class="mb-[8px] flex items-center gap-[8px]">
-        <a-input
-          v-model:model-value="moduleKeyword"
-          :placeholder="props.isModal ? t('apiTestManagement.moveSearchTip') : t('apiTestManagement.searchTip')"
-          allow-clear
-        />
-        <template v-if="!props.readOnly && !props.trash">
-          <a-dropdown-button
-            v-if="hasAllPermission(['PROJECT_API_DEFINITION:READ+ADD', 'PROJECT_API_DEFINITION:READ+IMPORT'])"
-            type="primary"
-            @click="handleSelect('newApi')"
-          >
-            {{ t('common.newCreate') }}
-            <template #icon>
-              <icon-down />
-            </template>
-            <template #content>
-              <a-doption value="import" @click="handleSelect('import')">
-                {{ t('apiTestManagement.importApi') }}
-              </a-doption>
-            </template>
-          </a-dropdown-button>
-          <a-button
-            v-else-if="
-              !hasAnyPermission(['PROJECT_API_DEFINITION:READ+ADD']) &&
-              hasAnyPermission(['PROJECT_API_DEFINITION:READ+IMPORT'])
-            "
-            type="primary"
-            @click="handleSelect('import')"
-          >
-            {{ t('apiTestManagement.importApi') }}
-          </a-button>
-          <a-button
-            v-else
-            v-permission="['PROJECT_API_DEFINITION:READ+ADD']"
-            type="primary"
-            @click="handleSelect('newApi')"
-          >
-            {{ t('apiTestManagement.newApi') }}
-          </a-button>
-        </template>
+      <div v-if="!props.readOnly && !props.trash" class="mb-[8px] flex items-center gap-[8px]">
+        <a-button
+          v-permission="['PROJECT_API_DEFINITION:READ+ADD']"
+          type="primary"
+          long
+          @click="handleSelect('newApi')"
+        >
+          {{ t('apiTestManagement.newApi') }}
+        </a-button>
+        <a-button
+          v-permission="['PROJECT_API_DEFINITION:READ+IMPORT']"
+          type="outline"
+          long
+          @click="handleSelect('import')"
+        >
+          {{ t('apiTestManagement.importApi') }}
+        </a-button>
       </div>
+      <a-input
+        v-model:model-value="moduleKeyword"
+        :placeholder="props.isModal ? t('apiTestManagement.moveSearchTip') : t('apiTestManagement.searchTip')"
+        class="mb-[8px]"
+        allow-clear
+      />
       <TreeFolderAll
         v-if="!props.readOnly"
         ref="treeFolderAllRef"
@@ -193,7 +175,7 @@
   import useAppStore from '@/store/modules/app';
   import { characterLimit, mapTree } from '@/utils';
   import { getLocalStorage } from '@/utils/local-storage';
-  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
   import { ModuleTreeNode } from '@/models/common';

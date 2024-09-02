@@ -252,6 +252,42 @@
       @folder-node-select="folderNodeSelect"
     />
   </a-modal>
+  <a-modal
+    v-model:visible="showExportModal"
+    :title="t('common.export')"
+    title-align="start"
+    class="ms-modal-upload ms-modal-medium"
+    :width="400"
+  >
+    <div class="mb-[16px] flex gap-[8px]">
+      <div
+        v-for="item of platformList"
+        :key="item.value"
+        :class="`import-item ${exportPlatform === item.value ? 'import-item--active' : ''}`"
+        @click="exportPlatform = item.value"
+      >
+        <div class="text-[var(--color-text-1)]">{{ item.name }}</div>
+      </div>
+    </div>
+    <div class="mb-[16px] flex items-center gap-[4px]">
+      <a-switch v-model:model-value="exportApiCase" size="small" />
+      {{ t('apiTestManagement.exportCase') }}
+    </div>
+    <div class="flex items-center gap-[4px]">
+      <a-switch v-model:model-value="exportApiMock" size="small" />
+      {{ t('apiTestManagement.exportMock') }}
+    </div>
+    <template #footer>
+      <div class="flex justify-end">
+        <a-button type="secondary" :disabled="exportLoading" @click="cancelExport">
+          {{ t('common.cancel') }}
+        </a-button>
+        <a-button class="ml-3" type="primary" :loading="exportLoading" @click="exportApi">
+          {{ t('common.export') }}
+        </a-button>
+      </div>
+    </template>
+  </a-modal>
 </template>
 
 <script setup lang="ts">
@@ -294,7 +330,7 @@
   import { ProtocolItem } from '@/models/apiTest/common';
   import { ApiDefinitionDetail, ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
   import { DragSortParams } from '@/models/common';
-  import { RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
+  import { RequestDefinitionStatus, RequestImportFormat, RequestMethods } from '@/enums/apiEnum';
   import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -385,7 +421,7 @@
       };
     });
   });
-
+  const apiTableRef = ref();
   let columns: MsTableColumn = [
     {
       title: 'ID',
@@ -568,12 +604,6 @@
       {
         label: 'common.export',
         eventTag: 'export',
-        children: [
-          {
-            label: 'apiTestManagement.swagger.export',
-            eventTag: 'exportSwagger',
-          },
-        ],
         permission: ['PROJECT_API_DEFINITION:READ+EXPORT'],
       },
       {
@@ -939,27 +969,60 @@
     selectedModuleKeys.value = keys;
   }
 
+  const showExportModal = ref(false);
+  const platformList = [
+    {
+      name: 'Swagger',
+      value: RequestImportFormat.SWAGGER,
+    },
+    {
+      name: 'MeterSphere',
+      value: RequestImportFormat.MeterSphere,
+    },
+  ];
+  const exportPlatform = ref(RequestImportFormat.SWAGGER);
+  const exportApiCase = ref(false);
+  const exportApiMock = ref(false);
+  const exportLoading = ref(false);
+
+  function cancelExport() {
+    showExportModal.value = false;
+    exportPlatform.value = RequestImportFormat.SWAGGER;
+  }
+
   /**
    * 导出接口
    */
-  async function exportApi(type: string, record?: ApiDefinitionDetail, params?: BatchActionQueryParams) {
-    const result = await exportApiDefinition(
-      {
-        selectIds: tableSelected.value as string[],
-        selectAll: !!params?.selectAll,
-        excludeIds: params?.excludeIds || [],
-        condition: {
-          keyword: keyword.value,
-          filter: propsRes.value.filter,
+  async function exportApi() {
+    try {
+      exportLoading.value = true;
+      const result = await exportApiDefinition(
+        {
+          selectIds: tableSelected.value as string[],
+          selectAll: !!batchParams.value?.selectAll,
+          excludeIds: batchParams.value?.excludeIds || [],
+          condition: {
+            keyword: keyword.value,
+            filter: propsRes.value.filter,
+          },
+          projectId: appStore.currentProjectId,
+          moduleIds: await getModuleIds(),
+          protocols: props.selectedProtocols,
+          exportApiCase: exportApiCase.value,
+          exportApiMock: exportApiMock.value,
+          sort: propsRes.value.sorter || {},
         },
-        projectId: appStore.currentProjectId,
-        moduleIds: await getModuleIds(),
-        protocols: props.selectedProtocols,
-      },
-      type
-    );
-    const res = await getProjectInfo(appStore.currentProjectId);
-    downloadByteFile(new Blob([JSON.stringify(result)]), `Swagger_Api_${res.name}.json`);
+        exportPlatform.value
+      );
+      const res = await getProjectInfo(appStore.currentProjectId);
+      downloadByteFile(new Blob([JSON.stringify(result)]), `Swagger_Api_${res.name}.json`);
+      showExportModal.value = false;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      exportLoading.value = false;
+    }
   }
 
   /**
@@ -970,8 +1033,8 @@
     tableSelected.value = params?.selectedIds || [];
     batchParams.value = params;
     switch (event.eventTag) {
-      case 'exportSwagger':
-        exportApi('swagger', undefined, params);
+      case 'export':
+        showExportModal.value = true;
         break;
       case 'delete':
         deleteApi(undefined, true, params);
@@ -1020,7 +1083,6 @@
     }
   }
 
-  const apiTableRef = ref();
   watch(
     () => requestMethodsOptions.value,
     () => {
@@ -1030,6 +1092,19 @@
 </script>
 
 <style lang="less" scoped>
+  .import-item {
+    @apply flex cursor-pointer items-center bg-white;
+
+    padding: 8px;
+    width: 150px;
+    border: 1px solid var(--color-text-n8);
+    border-radius: var(--border-radius-small);
+    gap: 6px;
+  }
+  .import-item--active {
+    border: 1px solid rgb(var(--primary-5));
+    background-color: rgb(var(--primary-1));
+  }
   :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
     &:not(:hover) {
       border-color: transparent !important;

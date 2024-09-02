@@ -129,6 +129,7 @@ export interface MsTableProps<T> {
   paginationSize?: 'small' | 'mini' | 'medium' | 'large';
   // 行选择器禁用配置
   rowSelectionDisabledConfig?: MsTableRowSelectionDisabledConfig;
+  sorter?: Record<string, any>; // 排序
   [key: string]: any;
 }
 
