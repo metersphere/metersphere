@@ -6,7 +6,7 @@
         :filter-config-list="filterConfigList"
         :row-count="filterRowCount"
         :search-placeholder="t('caseManagement.caseReview.list.searchPlaceholder')"
-        @keyword-search="(val, filter) => searchReview(filter)"
+        @keyword-search="searchReview()"
         @adv-search="searchReview"
         @refresh="searchReview"
       >
@@ -545,7 +545,7 @@
   };
 
   const tableQueryParams = ref<any>();
-  async function searchReview(filter?: FilterResult) {
+  async function searchReview() {
     let moduleIds: string[] = [];
     if (props.activeFolder && props.activeFolder !== 'all') {
       moduleIds = [props.activeFolder];

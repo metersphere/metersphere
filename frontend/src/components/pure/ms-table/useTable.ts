@@ -11,14 +11,7 @@ import type { CommonList, TableQueryParams } from '@/models/common';
 import { SelectAllEnum } from '@/enums/tableEnum';
 
 import { FilterResult } from '../ms-advance-filter/type';
-import type {
-  CombineParams,
-  MsTableColumn,
-  MsTableDataItem,
-  MsTableErrorStatus,
-  MsTableProps,
-  SetPaginationPrams,
-} from './type';
+import type { MsTableColumn, MsTableDataItem, MsTableErrorStatus, MsTableProps, SetPaginationPrams } from './type';
 import { getCurrentRecordChildrenIds } from './utils';
 import type { TableData } from '@arco-design/web-vue';
 
@@ -172,7 +165,7 @@ export default function useTableProps<T>(
   };
 
   // 设置 advanceFilter
-  const setAdvanceFilter = (v: CombineParams) => {
+  const setAdvanceFilter = (v: FilterResult) => {
     advanceFilter.searchMode = v.searchMode;
     advanceFilter.conditions = v.conditions;
     // 基础筛选都清空
@@ -597,6 +590,7 @@ export default function useTableProps<T>(
   return {
     propsRes,
     propsEvent,
+    advanceFilter,
     setProps,
     setLoading,
     loadList,

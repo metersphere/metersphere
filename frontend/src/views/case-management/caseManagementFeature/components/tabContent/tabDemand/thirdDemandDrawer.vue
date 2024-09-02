@@ -141,7 +141,7 @@
   });
 
   const platName = computed(() => {
-    return getPlatName(props.platformInfo.value.platform_key);
+    return getPlatName(props.platformInfo.platform_key);
   });
 
   async function handleDrawerConfirm() {

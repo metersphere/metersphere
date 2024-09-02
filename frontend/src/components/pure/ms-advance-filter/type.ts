@@ -47,7 +47,7 @@ export type AccordBelowType = 'AND' | 'OR';
 
 export type CombineItem = Pick<FilterFormItem, 'value' | 'operator' | 'customField'>;
 export interface ConditionsItem extends CombineItem {
-  key?: string;
+  name?: string;
 }
 
 export interface FilterResult {

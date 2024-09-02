@@ -62,18 +62,7 @@
             </a-option>
           </a-select>
         </a-form-item>
-        <a-form-item
-          class="flex-1 overflow-hidden"
-          :field="`list[${listIndex}].value`"
-          hide-asterisk
-          :rules="[
-            {
-              validator: (value, callback) => {
-                validateFilterValue(item, value, callback);
-              },
-            },
-          ]"
-        >
+        <a-form-item class="flex-1 overflow-hidden" :field="`list[${listIndex}].value`" hide-asterisk>
           <a-input
             v-if="item.type === FilterType.INPUT"
             v-model:model-value="item.value"
@@ -264,16 +253,6 @@
   ];
 
   const formRef = ref<FormInstance>();
-  function validateFilterValue(item: FilterFormItem, value: string | undefined, callback: (error?: string) => void) {
-    if (
-      item.dataIndex?.length &&
-      item.operator?.length &&
-      !['EMPTY', 'NOT_EMPTY'].includes(item.operator as string) &&
-      !value?.length
-    ) {
-      callback(t('advanceFilter.filterContentRequired'));
-    }
-  }
   function getListItemByDataIndex(dataIndex: string) {
     return [...props.configList, ...(props.customList || [])].find((item) => item.dataIndex === dataIndex);
   }
@@ -301,7 +280,7 @@
     const listItem = getListItemByDataIndex(dataIndex as string);
     if (!listItem) return;
     formModel.value.list[index] = { ...listItem };
-    formModel.value.list[index].value = valueIsArray(listItem) ? [] : '';
+    formModel.value.list[index].value = valueIsArray(listItem) ? [] : undefined;
 
     // 第二列默认：包含/属于/等于
     if (!formModel.value.list[index].operator?.length) {
@@ -319,10 +298,7 @@
   }
   // 改变第二列值
   function operatorChange(item: FilterFormItem, index: number) {
-    formModel.value.list[index].value = valueIsArray(item) ? [] : '';
-    if (['EMPTY', 'NOT_EMPTY'].includes(formModel.value.list[index].operator as string)) {
-      formRef.value?.validate();
-    }
+    formModel.value.list[index].value = valueIsArray(item) ? [] : undefined;
   }
   function isValueDisabled(item: FilterFormItem) {
     return !item.dataIndex || ['EMPTY', 'NOT_EMPTY'].includes(item.operator as string);
@@ -346,7 +322,7 @@
       value,
       operator,
       customField: customField ?? false,
-      key: dataIndex,
+      name: dataIndex,
     }));
     return { searchMode: formModel.value.searchMode, conditions };
   }
@@ -354,7 +330,6 @@
   // TODO lmy 根据视图重置
   function handleReset() {
     formModel.value = cloneDeep(savedFormModel.value);
-    emit('handleFilter', { searchMode: formModel.value.searchMode, conditions: [] });
   }
 
   function handleFilter() {
