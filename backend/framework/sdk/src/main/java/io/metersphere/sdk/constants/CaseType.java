@@ -45,7 +45,7 @@ public enum CaseType {
 
     public static CaseType getType(String key) {
         for (CaseType caseType : CaseType.values()) {
-            if (StringUtils.equals(caseType.getKey(), key)) {
+            if (StringUtils.equalsIgnoreCase(caseType.getKey(), key)) {
                 return caseType;
             }
         }

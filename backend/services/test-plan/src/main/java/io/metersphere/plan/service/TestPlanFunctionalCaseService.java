@@ -248,12 +248,15 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
 
     public List<TestPlanCasePageResponse> getFunctionalCasePage(TestPlanCaseRequest request, boolean deleted) {
         filterCaseRequest(request);
+        // 查询中不需要项目ID参数
+        String projectId = request.getProjectId();
+        request.setProjectId(null);
         List<TestPlanCasePageResponse> functionalCaseLists = extTestPlanFunctionalCaseMapper.getCasePage(request, deleted, request.getSortString());
         if (CollectionUtils.isEmpty(functionalCaseLists)) {
             return new ArrayList<>();
         }
         //处理自定义字段值
-        return handleCustomFields(functionalCaseLists, request.getProjectId());
+        return handleCustomFields(functionalCaseLists, projectId);
     }
 
     private List<TestPlanCasePageResponse> handleCustomFields(List<TestPlanCasePageResponse> functionalCaseLists, String projectId) {
