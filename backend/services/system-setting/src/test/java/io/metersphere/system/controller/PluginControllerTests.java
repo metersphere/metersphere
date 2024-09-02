@@ -360,7 +360,7 @@ public class PluginControllerTests extends BaseTest {
     @Order(5)
     public void getPluginImg() throws Exception {
         // @@请求成功
-        mockMvc.perform(getRequestBuilder(PLUGIN_IMAGE, anotherAddPlugin.getId(), "static/jira.jpg"))
+        mockMvc.perform(getRequestBuilder(PLUGIN_IMAGE, anotherAddPlugin.getId(), "static/jira.png"))
                 .andExpect(status().isOk());
 
         assertErrorCode(this.requestGet(PLUGIN_IMAGE, anotherAddPlugin.getId(), "static/jira.doc"), FILE_NAME_ILLEGAL);
@@ -428,7 +428,8 @@ public class PluginControllerTests extends BaseTest {
                                 .withHeaders(
                                         new Header("Content-Type", "application/json; charset=utf-8"),
                                         new Header("Cache-Control", "public, max-age=86400"))
-                                .withBody("{\"id\":\"123456\",\"name\":\"test\"}")
+                                .withBody("{\"id\":\"123456\",\"name\":\"test\", \"issues\": [{\"key\": \"TES-1\",\"fields\": {\"summary\": \"Test\"}}], \"total\": 1}")
+
                 );
         this.requestPostTest(PLUGIN_OPTIONS_URL, optionsRequest);
         // 获取返回值
