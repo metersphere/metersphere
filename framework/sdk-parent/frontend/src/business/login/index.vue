@@ -49,7 +49,7 @@
               {{ $t('commons.login') }}
             </el-button>
           </div>
-          <el-divider class="login-divider"><span style="color: #959598; font-size: 12px">更多登录方式</span></el-divider>
+          <el-divider  v-if="orgOptions.length > 0"  class="login-divider"><span style="color: #959598; font-size: 12px">更多登录方式</span></el-divider>
           <div
               v-if="orgOptions.length > 0"
               class="loginType"

@@ -1,5 +1,5 @@
 <template>
-  <div class="qrcode">
+  <div class="tab_qrcode">
     <el-tabs v-model="activeName" type="border-card" class="tabPlatform" @tab-click="handleClick">
       <el-tab-pane
           v-for="item of orgOptions"
@@ -111,11 +111,17 @@ export default {
 </script>
 
 <style scoped>
-.qrcode{
+.tab_qrcode{
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: space-around;
+}
+:deep(.el-tabs__nav){
+  width: 100%;
+}
+:deep(.el-tabs__item ){
+  width: 25%;
 }
 
 .ms-icon{
@@ -138,7 +144,6 @@ export default {
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    border-radius: 8px;
     background: #ffffff;
     flex-direction: column;
   }
@@ -153,10 +158,6 @@ export default {
     line-height: 26px;
     margin-bottom: -24px;
     z-index: 100000;
-    .ed-icon {
-      margin-right: 8px;
-      font-size: 24px;
-    }
   }
 }
 .radioOneButton{
