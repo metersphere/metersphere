@@ -24,7 +24,7 @@ export default{
           goto: url,
           width: '300',
           height: '300',
-          style: 'width:300px;height:300px', // 可选的，二维码html标签的style属性
+          style: 'width:300px;height:300px;border-width: 0px;', // 可选的，二维码html标签的style属性
         });
 
         // function handleMessage
@@ -55,7 +55,6 @@ export default{
 
 <style scoped>
   .lark-suite-qrName {
-    width: 300px;
-    height: 300px;
+
   }
 </style>

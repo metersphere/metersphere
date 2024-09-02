@@ -54,7 +54,6 @@
         userStore.getIsLogin()
             .then(res => {
               this.getLanguage(res.data.language);
-              window.location.href = "/";
               sessionStorage.setItem('loginSuccess', 'true');
               sessionStorage.setItem('changePassword', weComCallback.message);
               localStorage.setItem('AuthenticateType', 'QRCODE');
@@ -66,8 +65,8 @@
               if (lang) {
                 setLanguage(lang);
               }
-              this.checkRedirectUrl()
             });
+        this.checkRedirectUrl()
       },
       getLanguage(language) {
         if (!language) {
@@ -97,6 +96,8 @@
             onLoginSuccess(code) {
               getWeComCallback(code).then(res=>{
                 const weComCallback = res.data;
+                console.log("weComCallback")
+                console.log(weComCallback)
                 this.doLogin(weComCallback)
                 localStorage.setItem('loginType', 'WE_COM');
               });

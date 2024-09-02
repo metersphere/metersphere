@@ -32,28 +32,28 @@
                           class="arco-btn-outline--secondary"
                           size="mini"
                           :disabled="
-                          !item.hasConfig || !hasAnyPermission(['SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE'])
+                          !item.hasConfig || !checkPermission('SYSTEM_SETTING:READ+EDIT')
                         "
                           @click="getValidateHandler(item.key)"
                       >{{ $t('qrcode.service_testLink') }}</el-button></span>
           </el-tooltip>
           <el-button
               v-else
-              :disabled="!item.hasConfig || !checkPermission('SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE')"
+              :disabled="!item.hasConfig || !checkPermission('SYSTEM_SETTING:READ+EDIT')"
               size="mini"
               @click="getValidateHandler(item.key)"
           >{{ $t('qrcode.service_testLink') }}
           </el-button>
           <el-button
               v-if="item.edit"
-              v-permission="['SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE']"
+              v-permission="['SYSTEM_SETTING:READ+EDIT']"
               size="mini"
               @click="editHandler(item.key)"
           >{{ $t('qrcode.service_edit') }}
           </el-button>
           <el-button
               v-else
-              v-permission="['SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE']"
+              v-permission="['SYSTEM_SETTING:READ+EDIT']"
               size="mini"
               @click="editHandler(item.key)"
           >{{ $t('commons.add') }}
@@ -73,7 +73,7 @@
                 v-else
                 v-model="item.enable"
                 size="small"
-                :disabled="!checkPermission('SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE')"
+                :disabled="!checkPermission('SYSTEM_SETTING:READ+EDIT')"
                 @change="(v) => changeStatus(v, item.key)"
             />
           </span>

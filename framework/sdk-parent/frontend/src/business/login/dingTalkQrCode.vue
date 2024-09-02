@@ -48,10 +48,10 @@ export default {
         userStore.getIsLogin()
             .then(res => {
               this.getLanguage(res.data.language);
-              window.location.href = "/";
               sessionStorage.setItem('loginSuccess', 'true');
               sessionStorage.setItem('changePassword', callback.message);
               localStorage.setItem('AuthenticateType', 'QRCODE');
+              this.checkRedirectUrl()
             })
             .catch(data => {
               // 保存公钥
@@ -60,7 +60,7 @@ export default {
               if (lang) {
                 setLanguage(lang);
               }
-              this.checkRedirectUrl()
+              window.location.href = "/";
             });
       },
       getLanguage(language) {
