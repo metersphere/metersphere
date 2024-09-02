@@ -12,6 +12,7 @@ import io.metersphere.plugin.platform.dto.response.PlatformDemandDTO;
 import io.metersphere.plugin.platform.utils.PluginPager;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
+import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.OperationLog;
@@ -74,6 +75,9 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     private int mockServerHostPort;
     @Resource
     private ProjectApplicationMapper projectApplicationMapper;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
+
 
 
     private static final String URL_DEMAND_PAGE = "/functional/case/demand/page";
@@ -681,6 +685,9 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         projectApplicationMapper.batchInsert(relatedConfigs);
 
         demandSyncService.syncPlatformDemandBySchedule("gyq_project-case-demand-test", "admin");
+
+        String demandPlatformId = projectApplicationService.getDemandPlatformId("gyq_project-case-demand-test");
+        Assertions.assertTrue(StringUtils.isNotBlank(demandPlatformId));
     }
 
 }
