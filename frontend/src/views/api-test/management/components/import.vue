@@ -24,7 +24,10 @@
         </div>
       </div>
       <a-form ref="importFormRef" :model="importForm" layout="vertical">
-        <a-form-item :label="t('apiTestManagement.importType')">
+        <a-form-item
+          v-if="importForm.platform === RequestImportFormat.SWAGGER"
+          :label="t('apiTestManagement.importType')"
+        >
           <a-radio-group v-model:model-value="importForm.type" type="button">
             <a-radio :value="RequestImportType.API">{{ t('apiTestManagement.fileImport') }}</a-radio>
             <a-radio :value="RequestImportType.SCHEDULE">{{ t('apiTestManagement.timeImport') }}</a-radio>
@@ -449,6 +452,7 @@
     importForm.value.platform = format;
     if (format !== RequestImportFormat.SWAGGER) {
       importType.value = 'file';
+      importForm.value.type = RequestImportType.API;
     }
   }
 
