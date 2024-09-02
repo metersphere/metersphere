@@ -5,6 +5,9 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
+import io.metersphere.bug.domain.Bug;
+import io.metersphere.bug.dto.request.BugEditRequest;
+import io.metersphere.bug.service.BugService;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
@@ -17,6 +20,7 @@ import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.annotation.Log;
@@ -33,6 +37,7 @@ import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -48,6 +53,8 @@ public class TestPlanApiScenarioController {
     private TestPlanApiScenarioBatchRunService testPlanApiScenarioBatchRunService;
     @Resource
     private ApiScenarioReportService apiScenarioReportService;
+    @Resource
+    private BugService bugService;
 
     @PostMapping("/page")
     @Operation(summary = "测试计划-已关联场景用例列表分页查询")
@@ -180,5 +187,27 @@ public class TestPlanApiScenarioController {
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disassociateBugLog(#id)", msClass = TestPlanApiScenarioService.class)
     public void disassociateBug(@PathVariable String id) {
         testPlanApiScenarioService.disassociateBug(id);
+    }
+
+
+    @PostMapping("/batch/add-bug")
+    @Operation(summary = "测试计划-计划详情-场景用例-批量添加缺陷")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void batchAddBug(@Validated @RequestPart("request") TestPlanScenarioBatchAddBugRequest request,
+                            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+        BugEditRequest bugEditRequest = new BugEditRequest();
+        BeanUtils.copyBean(bugEditRequest, request);
+        Bug bug = bugService.addOrUpdate(bugEditRequest, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), false);
+        testPlanApiScenarioService.batchAssociateBug(request, bug.getId(), SessionUtils.getUserId());
+    }
+
+
+    @PostMapping("/batch/associate-bug")
+    @Operation(summary = "测试计划-计划详情-场景用例-批量关联缺陷")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void batchAssociateBug(@Validated @RequestBody TestPlanScenarioBatchAssociateBugRequest request) {
+        testPlanApiScenarioService.batchAssociateBugByIds(request, SessionUtils.getUserId());
     }
 }
