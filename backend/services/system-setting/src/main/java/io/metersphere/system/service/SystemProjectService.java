@@ -10,11 +10,13 @@ import io.metersphere.system.dto.*;
 import io.metersphere.system.dto.request.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
+import io.metersphere.system.dto.user.UserRoleOptionDto;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
+import io.metersphere.system.mapper.ExtUserRoleRelationMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
@@ -26,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -41,6 +44,8 @@ public class SystemProjectService {
     private UserRoleRelationMapper userRoleRelationMapper;
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private ExtUserRoleRelationMapper extUserRoleRelationMapper;
 
     private final static String PREFIX = "/system/project";
     private final static String ADD_PROJECT = PREFIX + "/add";
@@ -74,7 +79,18 @@ public class SystemProjectService {
     }
 
     public List<UserExtendDTO> getProjectMember(ProjectMemberRequest request) {
-        return extSystemProjectMapper.getProjectMemberList(request);
+        List<UserExtendDTO> memberList = extSystemProjectMapper.getProjectMemberList(request);
+        if (CollectionUtils.isNotEmpty(memberList)) {
+            List<String> userIds = memberList.stream().map(UserExtendDTO::getId).toList();
+            List<UserRoleOptionDto> userRole = extUserRoleRelationMapper.selectProjectUserRoleByUserIds(userIds, request.getProjectId());
+            Map<String, List<UserRoleOptionDto>> roleMap = userRole.stream().collect(Collectors.groupingBy(UserRoleOptionDto::getUserId));
+            memberList.forEach(user -> {
+                if (roleMap.containsKey(user.getId())) {
+                    user.setUserRoleList(roleMap.get(user.getId()));
+                }
+            });
+        }
+        return memberList;
     }
 
     /***

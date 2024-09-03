@@ -18,4 +18,6 @@ public interface ExtUserRoleRelationMapper {
     List<UserRoleRelationUserDTO> listGlobal(@Param("request") GlobalUserRoleRelationQueryRequest request);
 
     List<UserRoleOptionDto> selectUserRoleByUserIds(@Param("userIds") List<String> userIds, @Param("orgId") String orgId);
+
+    List<UserRoleOptionDto> selectProjectUserRoleByUserIds(@Param("userIds") List<String> userIds, @Param("projectId") String projectId);
 }
