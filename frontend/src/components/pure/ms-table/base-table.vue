@@ -236,11 +236,11 @@
         <slot v-if="record.children" name="expand-icon" v-bind="{ expanded, record }">
           <div
             :class="`${
-              expanded ? 'bg-[rgb(var(--primary-1))]' : 'bg-[var(--color-text-n8)]'
+              expanded ? 'expanded-border bg-[rgb(var(--primary-1))]' : 'not-expanded-border bg-[var(--color-text-n8)]'
             } expand-btn-wrapper flex items-center justify-center`"
           >
             <MsIcon v-if="!expanded" :size="8" type="icon-icon_right_outlined" class="text-[var(--color-text-4)]" />
-            <MsIcon v-else :size="8" class="text-[rgb(var(--primary-6))]" type="icon-icon_down_outlined" />
+            <MsIcon v-else :size="8" class="text-[rgb(var(--primary-5))]" type="icon-icon_down_outlined" />
           </div>
         </slot>
       </template>
@@ -1017,6 +1017,8 @@
     background: none !important;
   }
   :deep(.arco-table .arco-table-expand-btn) {
+    width: 16px;
+    height: 16px;
     border-color: transparent;
   }
   :deep(.arco-table-tr-expand .arco-table-td) {
@@ -1050,8 +1052,14 @@
       height: 16px;
       border: none;
       border-radius: 50%;
-      // background: var(--color-text-n8);
+      background: white;
     }
+  }
+  .not-expanded-border {
+    border: 1px solid var(--color-text-n8) !important;
+  }
+  .expanded-border {
+    border: 1px solid rgb(var(--primary-5)) !important;
   }
   :deep(.arco-table .arco-table-expand-btn:hover) {
     border-color: transparent;

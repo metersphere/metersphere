@@ -13,12 +13,14 @@
     v-on="propsEvent"
   >
     <template #module="{ record }">
-      <div v-if="record.children">
-        <MsIcon class="text-[var(--color-text-4)]" :type="getMenuIcon(record.module)" />
-        <span class="ml-[4px]">{{ t(`menu.${record.module}`) }}</span>
+      <div v-if="record.children" class="flex items-center">
+        <div class="icon-class">
+          <MsIcon class="text-[12px] text-[rgb(var(--primary-4))]" :type="getMenuIcon(record.module)" />
+        </div>
+        <span>{{ t(`menu.${record.module}`) }}</span>
       </div>
       <div v-else>
-        <span class="ml-[4px]">{{ t(`project.menu.${record.type}`) }}</span>
+        <span class="ml-[28px]">{{ t(`project.menu.${record.type}`) }}</span>
       </div>
     </template>
     <template #description="{ record }">
@@ -458,7 +460,7 @@
       dataIndex: 'module',
       slotName: 'module',
       width: 221,
-      headerCellClass: 'pl-[16px]',
+      headerCellClass: 'pl-[40px]',
     },
     {
       title: 'common.desc',
@@ -477,11 +479,11 @@
 
   const noTitleColumns = [
     {
-      title: 'project.menu.name',
+      title: '',
       dataIndex: 'module',
       slotName: 'module',
       width: 221,
-      headerCellClass: 'pl-[16px]',
+      headerCellClass: 'pl-[40px]',
     },
     {
       title: '',
@@ -895,4 +897,12 @@
   );
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  .icon-class {
+    margin: 0 8px 0 16px;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(var(--primary-1));
+    @apply flex items-center justify-center rounded-full;
+  }
+</style>
