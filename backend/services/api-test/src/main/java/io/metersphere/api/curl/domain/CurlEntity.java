@@ -2,7 +2,6 @@ package io.metersphere.api.curl.domain;
 
 import lombok.Builder;
 import lombok.Data;
-import org.json.JSONObject;
 
 import java.util.Map;
 
@@ -35,7 +34,9 @@ public class CurlEntity {
     /**
      * 请求体
      */
-    private JSONObject body;
+    private Map<String, Object> body;
+
+    private String bodyType;
 
     public enum Method {
         GET,
