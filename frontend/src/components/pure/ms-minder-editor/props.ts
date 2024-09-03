@@ -216,6 +216,31 @@ export const floatMenuProps = {
     default: false,
   },
 };
+
+export interface MinderDropdownListItem {
+  value: string;
+  label: string;
+  permission?: string[];
+  onClick?: () => void;
+}
+
+export const dropdownMenuProps = {
+  // 是否显示Dropdown
+  canShowDropdown: {
+    type: Boolean,
+    default: false,
+  },
+  dropdownList: {
+    type: Array as PropType<MinderDropdownListItem[]>,
+    default() {
+      return [];
+    },
+  },
+  checkedVal: {
+    type: String as PropType<string>,
+    default: undefined,
+  },
+};
 export const batchMenuProps = {
   canShowMoreBatchMenu: {
     type: Boolean,

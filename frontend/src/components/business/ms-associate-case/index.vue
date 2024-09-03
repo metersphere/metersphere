@@ -206,7 +206,7 @@
         </CaseTable>
         <!-- 接口用例 API -->
         <ApiTable
-          v-if="associationType === CaseLinkEnum.API && showType === 'API'"
+          v-else-if="associationType === CaseLinkEnum.API && showType === 'API'"
           ref="apiTableRef"
           v-model:selectedIds="selectedIds"
           v-model:selectedModulesMaps="selectedModulesMaps"
@@ -229,7 +229,7 @@
         </ApiTable>
         <!-- 接口用例 CASE -->
         <ApiCaseTable
-          v-if="associationType === CaseLinkEnum.API && showType === 'CASE'"
+          v-else-if="associationType === CaseLinkEnum.API && showType === 'CASE'"
           ref="caseTableRef"
           v-model:selectedIds="selectedIds"
           v-model:selectedModulesMaps="selectedModulesMaps"
@@ -252,7 +252,7 @@
         </ApiCaseTable>
         <!-- 接口场景用例 -->
         <ScenarioCaseTable
-          v-if="associationType === CaseLinkEnum.SCENARIO"
+          v-else-if="associationType === CaseLinkEnum.SCENARIO"
           ref="scenarioTableRef"
           v-model:selectedModulesMaps="selectedModulesMaps"
           v-model:selectedIds="selectedIds"
@@ -637,7 +637,7 @@
     selectedProtocols.value = _protocols || [];
   }
 
-  function changeSyncCase(value: string | number | boolean, ev: Event) {
+  function changeSyncCase(value: string | number | boolean) {
     if (value) {
       if (props.nodeApiTestSet && props.nodeScenarioTestSet) {
         apiCaseCollectionId.value = props.nodeApiTestSet?.[0]?.id ?? '';

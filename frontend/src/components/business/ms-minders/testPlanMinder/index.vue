@@ -16,6 +16,9 @@
     :can-show-delete-menu="canShowDeleteMenu"
     :disabled="!hasEditPermission"
     :can-show-batch-delete="canShowBatchDelete"
+    :can-show-dropdown="canShowDropdown"
+    :dropdown-list="dropdownList"
+    :checked-val="checkedVal"
     custom-priority
     single-tag
     tag-enable
@@ -239,8 +242,10 @@
   import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import {
+    MinderDropdownListItem,
     MinderEvent,
     MinderJson,
     MinderJsonNode,
@@ -306,7 +311,6 @@
    */
   function checkNodeCanShowMenu(node: PlanMinderNode) {
     const { data } = node;
-
     if (!hasEditPermission.value && (data?.level === 1 || data?.level === 2)) {
       // 没有编辑权限，只能查看配置菜单（功能用例只有关联用例，所以配置菜单也不能看）
       if (data?.type === PlanMinderCollectionType.FUNCTIONAL) {
@@ -608,19 +612,38 @@
     selectedAssociateCasesParams.value = { ...param };
     const node: PlanMinderNode = window.minder.getSelectedNode();
     let associateType: string = '';
-    if (node && node.data?.type === PlanMinderCollectionType.SCENARIO) {
+    let nodeDataType = node?.data?.type;
+    if (!extraVisible.value) {
+      // 配置抽屉关闭时，选中的节点是测试点下的用例数节点，需要找到测试点节点
+      nodeDataType = node?.parent?.data?.type;
+    }
+    if (nodeDataType === PlanMinderCollectionType.SCENARIO) {
       associateType = PlanMinderAssociateType.SCENARIO_CASE;
     } else {
-      associateType = param?.associateType ?? node.data.type;
+      associateType = param?.associateType ?? nodeDataType;
+    }
+    if (extraVisible.value) {
+      // 配置抽屉打开，则选中的节点是测试点节点
+      node.data.associateDTOS = [
+        {
+          ...cloneDeep(param),
+          associateType,
+        },
+      ];
+    } else if (node.parent?.data) {
+      // 配置抽屉关闭，则选中的节点是测试点下的用例数节点，需要找到测试点节点赋值
+      node.parent.data.associateDTOS = [
+        {
+          ...cloneDeep(param),
+          associateType,
+        },
+      ];
     }
 
-    node.data.associateDTOS = [
-      {
-        ...cloneDeep(param),
-        associateType,
-      },
-    ];
-
+    if (!extraVisible.value) {
+      // 派发SAVE_MINDER事件触发脑图的保存处理
+      minderStore.dispatchEvent(MinderEventName.SAVE_MINDER);
+    }
     caseAssociateVisible.value = false;
   }
 
@@ -645,16 +668,14 @@
    */
   function associateCase() {
     const node: PlanMinderNode = window.minder.getSelectedNode();
-    activePlanSet.value = node;
-    switchingConfigFormData.value = true;
-    configForm.value = cloneDeep(activePlanSet.value?.data);
-    extraVisible.value = true;
+    if (extraVisible.value) {
+      activePlanSet.value = node;
+    } else if (node.parent) {
+      activePlanSet.value = node.parent as PlanMinderNode;
+    }
     currentSelectCase.value = (activePlanSet.value?.data.type as unknown as CaseLinkEnum) || CaseLinkEnum.FUNCTIONAL;
     setCaseSelectedSet();
     caseAssociateVisible.value = true;
-    nextTick(() => {
-      switchingConfigFormData.value = false;
-    });
   }
 
   function openCaseAssociateDrawer() {
@@ -681,6 +702,19 @@
     () => {
       if ([MinderEventName.EXPAND, MinderEventName.COLLAPSE].includes(minderStore.event.name)) {
         setCustomPriorityView(priorityTextMap);
+      } else if (minderStore.event.name === MinderEventName.DROPDOWN_SELECT) {
+        const node: PlanMinderNode = window.minder.getSelectedNode();
+        if (node?.data?.level === 3 && node?.data?.resource?.[0] === resourcePoolTag) {
+          if (node.parent?.data) {
+            node.parent.data.testResourcePoolId = minderStore.event.params;
+            minderStore.dispatchEvent(MinderEventName.SAVE_MINDER);
+          }
+        } else if (node?.data?.level === 3 && node?.data?.resource?.[0] === envTag) {
+          if (node.parent?.data) {
+            node.parent.data.environmentId = minderStore.event.params;
+            minderStore.dispatchEvent(MinderEventName.SAVE_MINDER);
+          }
+        }
       }
     }
   );
@@ -717,6 +751,13 @@
   );
 
   /**
+   * 是否可以显示下拉菜单
+   */
+  const canShowDropdown = ref(false);
+  const dropdownList = ref<MinderDropdownListItem[]>([]);
+  const checkedVal = ref<string>();
+
+  /**
    * 处理节点选中
    * @param node 节点
    */
@@ -730,8 +771,7 @@
       selectNodeExecuteMethod.value = undefined;
     }
     if (node.data?.level === 3 && node.data?.resource?.[0] === caseCountTag) {
-      window.minder.toggleSelect(node);
-      window.minder.selectById(node.parent?.data?.id);
+      canShowFloatMenu.value = false;
       if (!inInsertingNode.value && hasEditPermission && hasAnyPermission(['PROJECT_TEST_PLAN:READ+ASSOCIATION'])) {
         // 新增测试点时不自动弹出关联用例
         associateCase();
@@ -740,8 +780,21 @@
       node.data?.level === 3 &&
       (node.data?.resource?.[0] === resourcePoolTag || node.data?.resource?.[0] === envTag)
     ) {
-      window.minder.toggleSelect(node);
-      window.minder.selectById(node.parent?.data?.id);
+      canShowFloatMenu.value = false;
+      canShowDropdown.value = !node.parent?.data?.extended; // 继承上级配置的测试点节点不显示下拉菜单
+      if (node.data?.resource?.[0] === resourcePoolTag) {
+        dropdownList.value = resourcePoolOptions.value.map((item) => ({
+          label: item.label || '',
+          value: item.value as string,
+        }));
+        checkedVal.value = node.parent?.data?.testResourcePoolId;
+      } else {
+        dropdownList.value = environmentOptions.value.map((item) => ({
+          label: item.label || '',
+          value: item.value as string,
+        }));
+        checkedVal.value = node.parent?.data?.environmentId;
+      }
     } else {
       checkNodeCanShowMenu(node);
       if (extraVisible.value) {
@@ -968,7 +1021,7 @@
       }
       if (!configFormValidResult) return;
       loading.value = true;
-      await editPlanMinder(makeMinderParams(extraVisible.value ? window.minder.exportJson() : fullJson));
+      await editPlanMinder(makeMinderParams(window.minder.exportJson()));
       Message.success(t('common.saveSuccess'));
       emit('save');
       clearSelectedCases();
