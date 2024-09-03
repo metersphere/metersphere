@@ -219,10 +219,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
         testPlanFunctionalCaseExample.createCriteria().andIdIn(associationParam.getResourceIdList());
         testPlanFunctionalCaseMapper.deleteByExample(testPlanFunctionalCaseExample);
-        // 取消关联用例需同步删除计划-用例缺陷关系表
-        BugRelationCaseExample example = new BugRelationCaseExample();
-        example.createCriteria().andTestPlanCaseIdIn(associationParam.getResourceIdList());
-        bugRelationCaseMapper.deleteByExample(example);
         extTestPlanCaseExecuteHistoryMapper.updateDeleted(associationParam.getResourceIdList(), true);
     }
 
