@@ -1193,6 +1193,66 @@ public class TestPlanReportApiScenarioExample {
             addCriterion("test_plan_name not between", value1, value2, "testPlanName");
             return (Criteria) this;
         }
+
+        public Criteria andApiScenarioBugCountIsNull() {
+            addCriterion("api_scenario_bug_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioBugCountIsNotNull() {
+            addCriterion("api_scenario_bug_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioBugCountEqualTo(Long value) {
+            addCriterion("api_scenario_bug_count =", value, "apiScenarioBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioBugCountNotEqualTo(Long value) {
+            addCriterion("api_scenario_bug_count <>", value, "apiScenarioBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioBugCountGreaterThan(Long value) {
+            addCriterion("api_scenario_bug_count >", value, "apiScenarioBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioBugCountGreaterThanOrEqualTo(Long value) {
+            addCriterion("api_scenario_bug_count >=", value, "apiScenarioBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioBugCountLessThan(Long value) {
+            addCriterion("api_scenario_bug_count <", value, "apiScenarioBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioBugCountLessThanOrEqualTo(Long value) {
+            addCriterion("api_scenario_bug_count <=", value, "apiScenarioBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioBugCountIn(List<Long> values) {
+            addCriterion("api_scenario_bug_count in", values, "apiScenarioBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioBugCountNotIn(List<Long> values) {
+            addCriterion("api_scenario_bug_count not in", values, "apiScenarioBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioBugCountBetween(Long value1, Long value2) {
+            addCriterion("api_scenario_bug_count between", value1, value2, "apiScenarioBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiScenarioBugCountNotBetween(Long value1, Long value2) {
+            addCriterion("api_scenario_bug_count not between", value1, value2, "apiScenarioBugCount");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
