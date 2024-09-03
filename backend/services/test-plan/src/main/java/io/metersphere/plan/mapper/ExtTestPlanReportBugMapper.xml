@@ -6,7 +6,7 @@
         select distinct brc.bug_id as bugId, b.num as bugNum, b.title as bugTitle, b.status bugStatus,
                         b.handle_user bugHandleUser, count(brc.id) bugCaseCount
         from bug_relation_case brc join bug b on brc.bug_id = b.id
-        where brc.test_plan_id = #{id}
+        where brc.test_plan_id = #{id} and b.deleted = false
         group by brc.bug_id
     </select>
 

@@ -2,6 +2,7 @@ package io.metersphere.plan.service;
 
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugRelationCase;
+import io.metersphere.bug.domain.BugRelationCaseExample;
 import io.metersphere.bug.mapper.BugMapper;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.bug.service.BugStatusService;
@@ -87,6 +88,10 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
         if (CollectionUtils.isNotEmpty(associationIdList)) {
             TestPlanResourceAssociationParam associationParam = new TestPlanResourceAssociationParam(associationIdList, testPlan.getProjectId(), testPlan.getId(), testPlan.getNum(), logInsertModule.getOperator());
             disassociate.accept(associationParam);
+            // 取消关联用例需同步删除计划-用例缺陷关系表
+            BugRelationCaseExample example = new BugRelationCaseExample();
+            example.createCriteria().andTestPlanCaseIdIn(associationIdList);
+            bugRelationCaseMapper.deleteByExample(example);
             response.setAssociationCount(associationIdList.size());
         }
         return response;
