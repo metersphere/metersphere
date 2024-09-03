@@ -129,10 +129,10 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import AddDefectDrawer from './addDefectDrawer.vue';
   import BugList from './bugList.vue';
   import BugNamePopover from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/bugNamePopover.vue';
   import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
+  import AddDefectDrawer from '@/views/case-management/components/addDefectDrawer/index.vue';
   import LinkDefectDrawer from '@/views/case-management/components/linkDefectDrawer.vue';
 
   import { getBugList, getCustomOptionHeader } from '@/api/modules/bug-management';

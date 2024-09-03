@@ -9,7 +9,9 @@ import {
   archivedPlanUrl,
   AssociatedBugToApiCaseUrl,
   AssociatedBugToScenarioCaseUrl,
-  BatchAddBugToCaseUrl,
+  BatchAddBugToApiCaseUrl,
+  BatchAddBugToFunctionalCaseUrl,
+  BatchAddBugToScenarioCaseUrl,
   batchArchivedPlanUrl,
   BatchAssociatedBugToCaseUrl,
   batchCopyPlanUrl,
@@ -19,6 +21,8 @@ import {
   BatchDisassociateCaseUrl,
   BatchEditTestPlanUrl,
   BatchExecutePlanUrl,
+  BatchLinkBugToApiCaseUrl,
+  BatchLinkBugToScenarioCaseUrl,
   BatchMoveApiCaseUrl,
   BatchMoveApiScenarioUrl,
   BatchMoveFeatureCaseUrl,
@@ -480,7 +484,23 @@ export function cancelBugFromScenarioCase(id: string) {
 export function batchAssociatedBugToCase(data: TableQueryParams) {
   return MSR.post({ url: BatchAssociatedBugToCaseUrl, data });
 }
-// 测试计划-详情-批量新建缺陷
-export function batchAddBugToCase(data: { request: BugEditFormObject; fileList: File[] }) {
-  return MSR.uploadFile({ url: BatchAddBugToCaseUrl }, data, '', true);
+// 测试计划-详情-功能用例-批量新建缺陷
+export function batchAddBugToFunctionCase(data: { request: BugEditFormObject; fileList: File[] }) {
+  return MSR.uploadFile({ url: BatchAddBugToFunctionalCaseUrl }, data, '', true);
+}
+// 测试计划-详情-接口用例-批量新建缺陷
+export function batchAddBugToApiCase(data: { request: BugEditFormObject; fileList: File[] }) {
+  return MSR.uploadFile({ url: BatchAddBugToApiCaseUrl }, data, '', true);
+}
+// 测试计划-详情-场景用例-批量新建缺陷
+export function batchAddBugToScenarioCase(data: { request: BugEditFormObject; fileList: File[] }) {
+  return MSR.uploadFile({ url: BatchAddBugToScenarioCaseUrl }, data, '', true);
+}
+// 测试计划-详情-接口用例-批量关联缺陷
+export function batchLinkBugToApiCase(data: TableQueryParams) {
+  return MSR.post({ url: BatchLinkBugToApiCaseUrl, data });
+}
+// 测试计划-详情-接口用例-批量关联缺陷
+export function batchLinkBugToScenarioCase(data: TableQueryParams) {
+  return MSR.post({ url: BatchLinkBugToScenarioCaseUrl, data });
 }

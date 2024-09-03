@@ -97,6 +97,7 @@ export default {
   'testPlan.testPlanDetail.executed': 'Executed',
   'testPlan.testPlanDetail.generateReport': 'Generate report',
   'testPlan.testPlanDetail.successfullyGenerated': 'Successfully generated',
+  'testPlan.testPlanDetail.reportLink': 'The report link',
   'testPlan.bugManagement.bug': 'Defect list',
   'testPlan.bugManagement.bugName': 'name',
   'testPlan.bugManagement.defectState': 'Defect state',

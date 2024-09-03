@@ -26,6 +26,7 @@
             :placeholder="t('editor.placeholder')"
             :upload-image="handleUploadImage"
             :preview-url="`${EditorPreviewFileUrl}/${appStore.currentProjectId}`"
+            auto-height
           />
           <div v-else v-dompurify-html="form?.description || '-'" class="markdown-body"></div>
         </div>

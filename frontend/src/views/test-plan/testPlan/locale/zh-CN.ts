@@ -93,6 +93,7 @@ export default {
   'testPlan.testPlanDetail.executed': '已执行',
   'testPlan.testPlanDetail.generateReport': '生成报告',
   'testPlan.testPlanDetail.successfullyGenerated': '生成成功',
+  'testPlan.testPlanDetail.reportLink': '报告链接',
   'testPlan.bugManagement.bug': '缺陷列表',
   'testPlan.bugManagement.bugName': '名称',
   'testPlan.bugManagement.defectState': '缺陷状态',

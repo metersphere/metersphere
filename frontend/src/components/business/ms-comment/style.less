@@ -31,6 +31,22 @@
   ol {
     list-style: decimal !important;
   }
+  table {
+    @apply overflow-x-auto;
+    .ms-scroll-bar();
+    tr {
+      background: white !important;
+      th,
+      td {
+        padding: 8px;
+        min-width: 80px;
+      }
+      p {
+        margin: 0 !important;
+        text-align: left;
+      }
+    }
+  }
 }
 .ms-comment-list {
   @apply h-full;

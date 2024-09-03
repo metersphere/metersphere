@@ -419,6 +419,7 @@ export interface PlanMinderNodeData extends MinderJsonNodeData {
   retryTimes: number;
   retryInterval: number;
   stopOnFail: boolean;
+  tempCollectionNode?: boolean; // 关联用例到未保存的临时测试集节点标识
 }
 export interface PlanMinderNode extends MinderJsonNode {
   data: PlanMinderNodeData;

@@ -55,6 +55,7 @@
     id?: string;
     selectNode?: MinderJsonNode;
     stepExecutionResult?: StepExecutionResult[];
+    isDefaultActivate?: boolean; // 是否默认激活状态
   }>();
 
   const emit = defineEmits<{
@@ -102,7 +103,7 @@
     }
   );
 
-  const achievedForm = ref<boolean>(false);
+  const achievedForm = ref<boolean>(props.isDefaultActivate);
 
   function cancel(e: Event) {
     // 点击取消/关闭，弹窗关闭，富文本内容都清空；点击空白处，弹窗关闭，将弹窗内容填入下面富文本内容里

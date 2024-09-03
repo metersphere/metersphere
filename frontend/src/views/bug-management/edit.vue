@@ -230,14 +230,22 @@
   import { TableQueryParams } from '@/models/common';
   import { SelectValue } from '@/models/projectManagement/menuManagement';
   import type { CustomField } from '@/models/setting/template';
+  import { CaseLinkEnum } from '@/enums/caseEnum';
 
   import { convertToFile } from '../case-management/caseManagementFeature/components/utils';
   import { convertToFileByBug } from './utils';
+  import { getCaseTemplateContent } from '@/views/case-management/components/addDefectDrawer/utils';
 
   const props = defineProps<{
     templateId: string; // 缺陷模板id
     bugId?: string; // 缺陷id，不传递为创建
     isDrawer?: boolean; // 是否是弹窗模式
+    caseType?: CaseLinkEnum; // 用例类型
+    fillConfig?: {
+      isQuickFillContent: boolean; // 是否快速填充内容
+      detailId: string; // 快填详情id
+      name: string; // 用例明细名称
+    };
   }>();
 
   const emit = defineEmits<{
@@ -394,6 +402,18 @@
       });
     }
   };
+
+  // 设置填充内容
+  async function setFillContent() {
+    if (props.fillConfig) {
+      const { isQuickFillContent, detailId, name } = props.fillConfig;
+      if (isQuickFillContent && props.caseType) {
+        const fillContent = await getCaseTemplateContent(props.caseType, detailId);
+        form.value.description = fillContent || '';
+        form.value.title = name;
+      }
+    }
+  }
   const currentCustomFields = ref<CustomFieldItem[]>([]);
   // TODO:: Record<string, any>
   const templateChange = async (v: SelectValue, request?: BugTemplateRequest) => {
@@ -421,6 +441,8 @@
         res.systemFields.forEach((item: CustomField) => {
           form.value[item.fieldId] = item.defaultValue;
         });
+
+        setFillContent();
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);

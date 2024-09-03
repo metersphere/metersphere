@@ -86,6 +86,7 @@
             :resource-id="record.id"
             :bug-count="record.bugCount || 0"
             :existed-defect="existedDefect"
+            :permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
             @load-list="refreshList()"
             @associated="associateAndCreateDefect(true, false, record)"
             @create="associateAndCreateDefect(false, false, record)"
@@ -174,12 +175,16 @@
       :batch-move="batchMoveFeatureCase"
       @load-list="resetCaseList"
     />
-    <!-- TODO 等待联调快填 -->
-
     <AddDefectDrawer
       v-model:visible="showCreateBugDrawer"
       :extra-params="getBugParams"
       :is-batch="isBatchAssociateOrCreate"
+      :case-type="CaseLinkEnum.FUNCTIONAL"
+      :fill-config="{
+        isQuickFillContent: !isBatchAssociateOrCreate,
+        detailId: testPlanCaseId,
+        name: caseTitle,
+      }"
       @success="refreshList()"
     />
     <LinkDefectDrawer
@@ -217,7 +222,7 @@
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import { getMinderOperationParams } from '@/components/business/ms-minders/caseReviewMinder/utils';
   import MsTestPlanFeatureCaseMinder from '@/components/business/ms-minders/testPlanFeatureCaseMinder/index.vue';
-  import AddDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/addDefectDrawer.vue';
+  import AddDefectDrawer from '@/views/case-management/components/addDefectDrawer/index.vue';
   import LinkDefectDrawer from '@/views/case-management/components/linkDefectDrawer.vue';
   import BatchApiMoveModal from '@/views/test-plan/testPlan/components/batchApiMoveModal.vue';
   import BatchUpdateExecutorModal from '@/views/test-plan/testPlan/components/batchUpdateExecutorModal.vue';
@@ -803,8 +808,8 @@
   }
 
   const showLinkBugDrawer = ref<boolean>(false);
-  const associatedCaseId = ref<string>();
-  const testPlanCaseId = ref<string>();
+  const associatedCaseId = ref<string>('');
+  const testPlanCaseId = ref<string>('');
   const drawerLoading = ref<boolean>(false);
   const isBatchAssociateOrCreate = ref(false);
 
@@ -865,14 +870,16 @@
   }
 
   const showCreateBugDrawer = ref<boolean>(false);
+  const caseTitle = ref<string>('');
 
   // 关联/关联缺陷
   function associateAndCreateDefect(isAssociate: boolean, isBatch: boolean, record?: PlanDetailFeatureCaseItem) {
     isBatchAssociateOrCreate.value = isBatch;
     if (record) {
-      const { id, caseId } = record;
+      const { id, caseId, name } = record;
       associatedCaseId.value = caseId;
       testPlanCaseId.value = id;
+      caseTitle.value = name;
     }
     if (isAssociate) {
       showLinkBugDrawer.value = true;

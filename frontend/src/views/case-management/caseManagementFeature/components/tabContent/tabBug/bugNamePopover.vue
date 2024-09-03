@@ -25,8 +25,10 @@
   .bug-content-popover {
     .arco-popover-content {
       overflow: auto;
+      padding-right: 8px;
       max-height: 400px;
       .ms-scroll-bar();
+      @apply overflow-x-auto overflow-y-auto;
     }
   }
 </style>
