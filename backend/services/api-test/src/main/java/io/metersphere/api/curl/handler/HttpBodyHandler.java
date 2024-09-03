@@ -2,12 +2,13 @@ package io.metersphere.api.curl.handler;
 
 import io.metersphere.api.curl.constants.CurlPatternConstants;
 import io.metersphere.api.curl.domain.CurlEntity;
+import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.utils.JSONUtil;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.XMLUtils;
 import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.XML;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -15,6 +16,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 
@@ -24,8 +27,7 @@ import java.util.regex.Matcher;
 public class HttpBodyHandler extends CurlHandlerChain {
     @Override
     public void handle(CurlEntity entity, String curl) {
-        JSONObject body = parseBody(curl);
-        entity.setBody(body);
+        parseBody(curl, entity);
         super.nextHandle(entity, curl);
     }
 
@@ -35,31 +37,31 @@ public class HttpBodyHandler extends CurlHandlerChain {
      * @param curl
      * @return
      */
-    private JSONObject parseBody(String curl) {
+    private void parseBody(String curl, CurlEntity entity) {
         Matcher formMatcher = CurlPatternConstants.HTTP_FROM_BODY_PATTERN.matcher(curl);
         if (formMatcher.find()) {
-            return parseFormBody(formMatcher);
+            entity.setBodyType(Body.BodyType.FORM_DATA.name());
+            entity.setBody(parseFormBody(formMatcher));
         }
 
         Matcher urlencodeMatcher = CurlPatternConstants.HTTP_URLENCODE_BODY_PATTERN.matcher(curl);
         if (urlencodeMatcher.find()) {
-            return parseUrlEncodeBody(urlencodeMatcher);
+            entity.setBodyType(Body.BodyType.WWW_FORM.name());
+            entity.setBody(parseUrlEncodeBody(urlencodeMatcher));
         }
 
         Matcher rawMatcher = CurlPatternConstants.HTTP_ROW_BODY_PATTERN.matcher(curl);
         if (rawMatcher.find()) {
-            return parseRowBody(rawMatcher);
+            entity.setBody(parseRowBody(rawMatcher, entity));
         }
 
         Matcher defaultMatcher = CurlPatternConstants.DEFAULT_HTTP_BODY_PATTERN.matcher(curl);
         if (defaultMatcher.find()) {
-            return parseDefaultBody(defaultMatcher);
+            entity.setBody(parseDefaultBody(defaultMatcher, entity));
         }
-
-        return new JSONObject();
     }
 
-    private JSONObject parseDefaultBody(Matcher defaultMatcher) {
+    private Map<String, Object> parseDefaultBody(Matcher defaultMatcher, CurlEntity entity) {
         String bodyStr = "";
         if (defaultMatcher.group(1) != null) {
             //单引号数据
@@ -73,29 +75,30 @@ public class HttpBodyHandler extends CurlHandlerChain {
         }
 
         if (isJSON(bodyStr)) {
-            return JSONUtil.parseObject(bodyStr);
+            entity.setBodyType(Body.BodyType.JSON.name());
+            return JSON.parseMap(bodyStr);
         }
 
         //其他格式 a=b&c=d
+        entity.setBodyType(Body.BodyType.WWW_FORM.name());
         Matcher kvMatcher = CurlPatternConstants.DEFAULT_HTTP_BODY_PATTERN_KV.matcher(bodyStr);
-        return kvMatcher.matches() ? parseKVBody(bodyStr) : new JSONObject();
+        return kvMatcher.matches() ? parseKVBody(bodyStr) : new HashMap<>();
     }
 
-    private JSONObject parseKVBody(String kvBodyStr) {
-        JSONObject json = new JSONObject();
+    private Map<String, Object> parseKVBody(String kvBodyStr) {
+        Map<String, Object> map = new HashMap<>();
         String[] pairs = kvBodyStr.split("&");
         for (String pair : pairs) {
             int idx = pair.indexOf("=");
             String key = URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8);
             String value = URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8);
-            json.put(key, value);
+            map.put(key, value);
         }
-        return json;
+        return map;
     }
 
-    private JSONObject parseFormBody(Matcher formMatcher) {
-        JSONObject formData = new JSONObject();
-
+    private Map<String, Object> parseFormBody(Matcher formMatcher) {
+        Map<String, Object> formData = new HashMap<>();
         formMatcher.reset();
         while (formMatcher.find()) {
             //提取表单
@@ -114,12 +117,11 @@ public class HttpBodyHandler extends CurlHandlerChain {
                 }
             }
         }
-
         return formData;
     }
 
-    private JSONObject parseUrlEncodeBody(Matcher urlencodeMatcher) {
-        JSONObject urlEncodeData = new JSONObject();
+    private Map<String, Object> parseUrlEncodeBody(Matcher urlencodeMatcher) {
+        Map<String, Object> urlEncodeData = new HashMap<>();
         urlencodeMatcher.reset();
         while (urlencodeMatcher.find()) {
             String keyValueEncoded = urlencodeMatcher.group(1);
@@ -134,19 +136,21 @@ public class HttpBodyHandler extends CurlHandlerChain {
         return urlEncodeData;
     }
 
-    private JSONObject parseRowBody(Matcher rowMatcher) {
+    private Map<String, Object> parseRowBody(Matcher rowMatcher, CurlEntity entity) {
         String rawData = rowMatcher.group(1);
 
         if (isXML(rawData)) {
+            entity.setBodyType(Body.BodyType.XML.name());
             return xml2json(rawData);
         }
 
         if (isJSON(rawData)) {
-            return JSONUtil.parseObject(rawData);
+            entity.setBodyType(Body.BodyType.JSON.name());
+            return JSON.parseMap(rawData);
         }
 
         try {
-            return parseDefaultBody(rowMatcher);
+            return parseDefaultBody(rowMatcher, entity);
         } catch (Exception e) {
             throw new MSException(Translator.get("curl_raw_content_is_invalid"), e);
         }
@@ -177,11 +181,9 @@ public class HttpBodyHandler extends CurlHandlerChain {
         }
     }
 
-    private JSONObject xml2json(String xmlStr) {
+    private Map<String, Object> xml2json(String xmlStr) {
         try {
-            JSONObject orgJsonObj = XML.toJSONObject(xmlStr);
-            String jsonString = orgJsonObj.toString();
-            return JSONUtil.parseObject(jsonString);
+            return XMLUtils.xmlStringToJson(xmlStr);
         } catch (JSONException e) {
             throw new MSException(Translator.get("curl_raw_content_is_invalid"), e);
         }
