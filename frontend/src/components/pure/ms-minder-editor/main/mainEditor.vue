@@ -29,6 +29,7 @@
         <slot name="extractMenu"></slot>
       </template>
     </nodeFloatMenu>
+    <nodeDropdown v-if="props.canShowDropdown" :dropdown-list="props.dropdownList" :checked-val="props.checkedVal" />
     <batchMenu v-bind="props" />
   </div>
 </template>
@@ -37,6 +38,7 @@
   import { cloneDeep } from 'lodash-es';
 
   import batchMenu from '../menu/batchMenu.vue';
+  import nodeDropdown from '../menu/nodeDropdown.vue';
   import nodeFloatMenu from '../menu/nodeFloatMenu.vue';
   import minderHeader from './header.vue';
   import Navigator from './navigator.vue';
@@ -50,6 +52,7 @@
   import useEventListener from '../hooks/useMinderEventListener';
   import {
     batchMenuProps,
+    dropdownMenuProps,
     editMenuProps,
     floatMenuProps,
     headerProps,
@@ -72,6 +75,7 @@
     ...tagProps,
     ...priorityProps,
     ...batchMenuProps,
+    ...dropdownMenuProps,
   });
   const emit = defineEmits<{
     (e: 'save', data: MinderJson, callback: () => void): void;

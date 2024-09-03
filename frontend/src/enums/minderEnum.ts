@@ -16,6 +16,7 @@ export enum MinderEventName {
   'MINDER_CHANGED' = 'MINDER_CHANGED', // 脑图更改事件
   'SAVE_MINDER' = 'SAVE_MINDER', // 脑图保存事件
   'DRAG_FINISH' = 'DRAG_FINISH', // 脑图节点拖拽结束事件
+  'DROPDOWN_SELECT' = 'DROPDOWN_SELECT', // 下拉菜单选中事件
 }
 
 export enum MinderKeyEnum {

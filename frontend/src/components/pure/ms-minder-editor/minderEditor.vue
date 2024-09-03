@@ -39,6 +39,7 @@
   import {
     batchMenuProps,
     delProps,
+    dropdownMenuProps,
     editMenuProps,
     floatMenuProps,
     headerProps,
@@ -77,6 +78,7 @@
     ...delProps,
     ...viewMenuProps,
     ...batchMenuProps,
+    ...dropdownMenuProps,
   });
 
   const minderStore = useMinderStore();
