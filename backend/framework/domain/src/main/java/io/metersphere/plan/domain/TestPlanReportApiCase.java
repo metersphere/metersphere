@@ -73,6 +73,10 @@ public class TestPlanReportApiCase implements Serializable {
     @Schema(description = "测试计划名称")
     private String testPlanName;
 
+    @Schema(description = "接口用例关联缺陷数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_report_api_case.api_case_bug_count.not_blank}", groups = {Created.class})
+    private Long apiCaseBugCount;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -90,7 +94,8 @@ public class TestPlanReportApiCase implements Serializable {
         apiCaseExecuteResult("api_case_execute_result", "apiCaseExecuteResult", "VARCHAR", false),
         apiCaseExecuteReportId("api_case_execute_report_id", "apiCaseExecuteReportId", "VARCHAR", false),
         pos("pos", "pos", "BIGINT", false),
-        testPlanName("test_plan_name", "testPlanName", "VARCHAR", false);
+        testPlanName("test_plan_name", "testPlanName", "VARCHAR", false),
+        apiCaseBugCount("api_case_bug_count", "apiCaseBugCount", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

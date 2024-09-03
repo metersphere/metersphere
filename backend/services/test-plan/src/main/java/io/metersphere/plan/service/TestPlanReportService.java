@@ -628,9 +628,13 @@ public class TestPlanReportService {
 		planReportDetail.setApiCaseTotal(reportSummary.getApiCaseCount().intValue());
 		planReportDetail.setApiScenarioTotal(reportSummary.getApiScenarioCount().intValue());
 		planReportDetail.setBugCount(reportSummary.getBugCount().intValue());
-		// 暂时只有功能用例能关联缺陷
-		Long functionalBugCount = extTestPlanReportFunctionalCaseMapper.countBug(reportId);
-		planReportDetail.setFunctionalBugCount(functionalBugCount == null ? 0 : functionalBugCount.intValue());
+		//用例关联缺陷数
+		List<ReportBugSumDTO> bugSumList = extTestPlanReportBugMapper.countBug(reportId);
+		Map<String, Long> bugSumMap = bugSumList.stream().collect(Collectors.toMap(ReportBugSumDTO::getCaseType, ReportBugSumDTO::getBugCount));
+		planReportDetail.setFunctionalBugCount(bugSumMap.get(CaseType.FUNCTIONAL_CASE.getKey()).intValue());
+		planReportDetail.setApiBugCount(bugSumMap.get(CaseType.API_CASE.getKey()).intValue());
+		planReportDetail.setScenarioBugCount(bugSumMap.get(CaseType.SCENARIO_CASE.getKey()).intValue());
+
 		if (planReport.getIntegrated()) {
 			// 计划组报告, 需要统计计划的执行数据
 			planReportDetail.setPlanCount(reportSummary.getPlanCount().intValue());

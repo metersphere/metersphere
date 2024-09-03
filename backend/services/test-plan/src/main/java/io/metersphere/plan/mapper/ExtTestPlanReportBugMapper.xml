@@ -17,4 +17,14 @@
         where tprb.test_plan_report_id = #{request.reportId}
     </select>
 
+    <select id="countBug" resultType="io.metersphere.plan.dto.ReportBugSumDTO">
+        select 'FUNCTIONAL' as caseType, ifnull(sum(tprfc.function_case_bug_count), 0) as bugCount from test_plan_report_function_case tprfc
+        where tprfc.test_plan_report_id = #{id}
+        union
+        select 'API' as caseType, ifnull(sum(tprac.api_case_bug_count), 0) as bugCount from test_plan_report_api_case tprac
+        where tprac.test_plan_report_id = #{id}
+        union
+        select 'SCENARIO' as caseType, ifnull(sum(tpras.api_scenario_bug_count), 0) as bugCount from test_plan_report_api_scenario tpras
+        where tpras.test_plan_report_id = #{id}
+    </select>
 </mapper>

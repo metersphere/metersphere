@@ -76,6 +76,10 @@ public class TestPlanReportApiScenario implements Serializable {
     @Schema(description = "测试计划名称")
     private String testPlanName;
 
+    @Schema(description = "场景用例关联缺陷数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_report_api_scenario.api_scenario_bug_count.not_blank}", groups = {Created.class})
+    private Long apiScenarioBugCount;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -94,7 +98,8 @@ public class TestPlanReportApiScenario implements Serializable {
         apiScenarioExecuteResult("api_scenario_execute_result", "apiScenarioExecuteResult", "VARCHAR", false),
         apiScenarioExecuteReportId("api_scenario_execute_report_id", "apiScenarioExecuteReportId", "VARCHAR", false),
         pos("pos", "pos", "BIGINT", false),
-        testPlanName("test_plan_name", "testPlanName", "VARCHAR", false);
+        testPlanName("test_plan_name", "testPlanName", "VARCHAR", false),
+        apiScenarioBugCount("api_scenario_bug_count", "apiScenarioBugCount", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

@@ -1133,6 +1133,66 @@ public class TestPlanReportApiCaseExample {
             addCriterion("test_plan_name not between", value1, value2, "testPlanName");
             return (Criteria) this;
         }
+
+        public Criteria andApiCaseBugCountIsNull() {
+            addCriterion("api_case_bug_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseBugCountIsNotNull() {
+            addCriterion("api_case_bug_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseBugCountEqualTo(Long value) {
+            addCriterion("api_case_bug_count =", value, "apiCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseBugCountNotEqualTo(Long value) {
+            addCriterion("api_case_bug_count <>", value, "apiCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseBugCountGreaterThan(Long value) {
+            addCriterion("api_case_bug_count >", value, "apiCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseBugCountGreaterThanOrEqualTo(Long value) {
+            addCriterion("api_case_bug_count >=", value, "apiCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseBugCountLessThan(Long value) {
+            addCriterion("api_case_bug_count <", value, "apiCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseBugCountLessThanOrEqualTo(Long value) {
+            addCriterion("api_case_bug_count <=", value, "apiCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseBugCountIn(List<Long> values) {
+            addCriterion("api_case_bug_count in", values, "apiCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseBugCountNotIn(List<Long> values) {
+            addCriterion("api_case_bug_count not in", values, "apiCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseBugCountBetween(Long value1, Long value2) {
+            addCriterion("api_case_bug_count between", value1, value2, "apiCaseBugCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiCaseBugCountNotBetween(Long value1, Long value2) {
+            addCriterion("api_case_bug_count not between", value1, value2, "apiCaseBugCount");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
