@@ -1,5 +1,7 @@
 package io.metersphere.system.service;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
@@ -12,11 +14,15 @@ import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.dto.request.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
+import io.metersphere.system.dto.user.UserRoleOptionDto;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
+import io.metersphere.system.mapper.ExtUserRoleRelationMapper;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
+import io.metersphere.system.utils.PageUtils;
+import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +45,8 @@ public class OrganizationProjectService {
     private UserRoleRelationMapper userRoleRelationMapper;
     @Resource
     private OrganizationMapper organizationMapper;
-
+    @Resource
+    private ExtUserRoleRelationMapper extUserRoleRelationMapper;
 
     private final static String PREFIX = "/organization-project";
     private final static String ADD_PROJECT = PREFIX + "/add";
@@ -74,7 +82,19 @@ public class OrganizationProjectService {
     }
 
     public List<UserExtendDTO> getProjectMember(ProjectMemberRequest request) {
-        return extSystemProjectMapper.getProjectMemberList(request);
+        List<UserExtendDTO> userExtendDTOS = extSystemProjectMapper.getProjectMemberList(request);
+        if (CollectionUtils.isNotEmpty(userExtendDTOS)) {
+            List<String> userIds = userExtendDTOS.stream().map(UserExtendDTO::getId).toList();
+            List<UserRoleOptionDto> userRole = extUserRoleRelationMapper.selectProjectUserRoleByUserIds(userIds, request.getProjectId());
+            Map<String, List<UserRoleOptionDto>> roleMap = userRole.stream().collect(Collectors.groupingBy(UserRoleOptionDto::getUserId));
+            userExtendDTOS.forEach(user -> {
+                if (roleMap.containsKey(user.getId())) {
+                    user.setUserRoleList(roleMap.get(user.getId()));
+                }
+            });
+
+        }
+        return userExtendDTOS;
     }
 
     /***
@@ -82,8 +102,8 @@ public class OrganizationProjectService {
      * @param request
      * @param createUser
      */
-    public void addProjectMember(ProjectAddMemberBatchRequest request, String createUser) {
-        commonProjectService.addProjectMember(request, createUser, ADD_MEMBER,
+    public void orgAddProjectMember(ProjectAddMemberRequest request, String createUser) {
+        commonProjectService.addProjectUser(request, createUser, ADD_MEMBER,
                 OperationLogType.ADD.name(), Translator.get("add"), OperationLogModule.SETTING_ORGANIZATION_PROJECT);
     }
 
@@ -135,4 +155,20 @@ public class OrganizationProjectService {
     public void rename(UpdateProjectNameRequest project, String userId) {
         commonProjectService.rename(project, userId);
     }
+
+    public Pager<List<UserExtendDTO>> getMemberList(ProjectUserRequest request) {
+        checkOrgIsExist(request.getOrganizationId());
+        commonProjectService.checkProjectNotExist(request.getProjectId());
+        UserRoleRelationExample example = new UserRoleRelationExample();
+        example.createCriteria().andSourceIdEqualTo(request.getOrganizationId());
+        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
+        List<String> userIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).distinct().collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(userIds)) {
+            Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
+            return PageUtils.setPageInfo(page, extSystemProjectMapper.getUserList(userIds, request.getProjectId(), request.getKeyword()));
+        } else {
+            return new Pager<>();
+        }
+    }
+
 }

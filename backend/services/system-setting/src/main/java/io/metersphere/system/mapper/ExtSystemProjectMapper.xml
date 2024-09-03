@@ -250,4 +250,26 @@
         order by update_time desc
         limit 1000
     </select>
+
+
+    <select id="getUserList" resultType="io.metersphere.system.dto.user.UserExtendDTO">
+        select distinct   u.id,
+        u.NAME,
+        u.email, count(temp.id) > 0 as memberFlag from
+        user u left join (select * from user_role_relation urr where urr.source_id = #{projectId}) temp on temp.user_id = u.id
+        <where>
+            u.deleted = 0
+            <if test="userIds != null and userIds.size > 0 ">
+                and u.id in
+                <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                    #{userId}
+                </foreach>
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (LOCATE(#{keyword},u.name)>0 or LOCATE(#{keyword},u.email)>0)
+            </if>
+        </where>
+        group by u.id
+        order by u.create_time desc
+    </select>
 </mapper>

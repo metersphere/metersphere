@@ -132,10 +132,7 @@ public class OrganizationProjectController {
     @Operation(summary = "系统设置-组织-项目-添加成员")
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void addProjectMember(@Validated @RequestBody ProjectAddMemberRequest request) {
-        ProjectAddMemberBatchRequest batchRequest = new ProjectAddMemberBatchRequest();
-        batchRequest.setProjectIds(List.of(request.getProjectId()));
-        batchRequest.setUserIds(request.getUserIds());
-        organizationProjectService.addProjectMember(batchRequest, SessionUtils.getUserId());
+        organizationProjectService.orgAddProjectMember(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/remove-member/{projectId}/{userId}")
@@ -183,6 +180,13 @@ public class OrganizationProjectController {
     @CheckOwner(resourceId = "#request.getId()", resourceType = "project")
     public void rename(@RequestBody @Validated({Updated.class}) UpdateProjectNameRequest request) {
         organizationProjectService.rename(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/user-list")
+    @Operation(summary = "系统设置-组织-项目-分页获取成员列表")
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
+    public Pager<List<UserExtendDTO>> getMemberList(@Validated @RequestBody ProjectUserRequest request) {
+        return organizationProjectService.getMemberList(request);
     }
 
 }

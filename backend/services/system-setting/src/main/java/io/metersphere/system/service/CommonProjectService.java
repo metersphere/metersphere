@@ -17,6 +17,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.*;
 import io.metersphere.system.dto.request.ProjectAddMemberBatchRequest;
+import io.metersphere.system.dto.request.ProjectAddMemberRequest;
 import io.metersphere.system.dto.request.ProjectPoolRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
@@ -711,5 +712,35 @@ public class CommonProjectService {
         long remainDays = (System.currentTimeMillis() - deleteTime) / (1000 * 3600 * 24);
         int remainDayCount = DEFAULT_REMAIN_DAY_COUNT - (int) remainDays;
         return remainDayCount > 0 ? remainDayCount : 1;
+    }
+
+    public void addProjectUser(ProjectAddMemberRequest request, String createUser, String path, String type, String content, String module) {
+        List<LogDTO> logDTOList = new ArrayList<>();
+        List<UserRoleRelation> userRoleRelations = new ArrayList<>();
+        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+        Map<String, String> userMap = addUserPre(request.getUserIds(), createUser, path, module, request.getProjectId(), project);
+        request.getUserIds().forEach(userId -> {
+            request.getUserRoleIds().forEach(userRoleId -> {
+                UserRoleRelation userRoleRelation = new UserRoleRelation();
+                userRoleRelation.setId(IDGenerator.nextStr());
+                userRoleRelation.setUserId(userId);
+                userRoleRelation.setSourceId(request.getProjectId());
+                userRoleRelation.setRoleId(userRoleId);
+                userRoleRelation.setCreateTime(System.currentTimeMillis());
+                userRoleRelation.setCreateUser(createUser);
+                userRoleRelation.setOrganizationId(project.getOrganizationId());
+                userRoleRelations.add(userRoleRelation);
+                String logProjectId = OperationLogConstants.SYSTEM;
+                if (StringUtils.equals(module, OperationLogModule.SETTING_ORGANIZATION_PROJECT)) {
+                    logProjectId = OperationLogConstants.ORGANIZATION;
+                }
+                LogDTO logDTO = new LogDTO(logProjectId, OperationLogConstants.SYSTEM, userRoleRelation.getId(), createUser, type, module, content + Translator.get("project_member") + ": " + userMap.get(userId));
+                setLog(logDTO, path, HttpMethodConstants.POST.name(), logDTOList);
+            });
+        });
+        if (CollectionUtils.isNotEmpty(userRoleRelations)) {
+            userRoleRelationMapper.batchInsert(userRoleRelations);
+        }
+        operationLogService.batchAdd(logDTOList);
     }
 }

@@ -12,10 +12,7 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.*;
-import io.metersphere.system.dto.request.OrganizationProjectRequest;
-import io.metersphere.system.dto.request.ProjectAddMemberRequest;
-import io.metersphere.system.dto.request.ProjectMemberRequest;
-import io.metersphere.system.dto.request.ProjectPoolRequest;
+import io.metersphere.system.dto.request.*;
 import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.system.dto.user.UserDTO;
@@ -76,6 +73,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
     private final static String getMemberList = prefix + "/user-member-list/";
     private final static String getPoolOptions = prefix + "/pool-options";
     private final static String updateName = prefix + "/rename";
+    private final static String userList = prefix + "/user-list";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
@@ -742,6 +740,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         projectAddMemberRequest.setProjectId(projectId);
         List<String> userIds = List.of("admin1", "admin2");
         projectAddMemberRequest.setUserIds(userIds);
+        projectAddMemberRequest.setUserRoleIds(List.of(InternalUserRole.PROJECT_ADMIN.getValue(), InternalUserRole.PROJECT_MEMBER.getValue()));
         this.requestPost(addProjectMember, projectAddMemberRequest, status().isOk());
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId);
@@ -765,20 +764,24 @@ public class OrganizationProjectControllerTests extends BaseTest {
         //项目Id为空
         ProjectAddMemberRequest projectAddMemberRequest = new ProjectAddMemberRequest();
         projectAddMemberRequest.setProjectId(null);
+        projectAddMemberRequest.setUserRoleIds(List.of(InternalUserRole.PROJECT_ADMIN.getValue(), InternalUserRole.PROJECT_MEMBER.getValue()));
         this.requestPost(addProjectMember, projectAddMemberRequest, BAD_REQUEST_MATCHER);
         //用户Id为空
         projectAddMemberRequest = new ProjectAddMemberRequest();
         projectAddMemberRequest.setProjectId("projectId");
+        projectAddMemberRequest.setUserRoleIds(List.of(InternalUserRole.PROJECT_ADMIN.getValue(), InternalUserRole.PROJECT_MEMBER.getValue()));
         this.requestPost(addProjectMember, projectAddMemberRequest, BAD_REQUEST_MATCHER);
         //用户Id不存在
         projectAddMemberRequest = new ProjectAddMemberRequest();
         projectAddMemberRequest.setProjectId("projectId");
         projectAddMemberRequest.setUserIds(List.of("admin3"));
+        projectAddMemberRequest.setUserRoleIds(List.of(InternalUserRole.PROJECT_ADMIN.getValue(), InternalUserRole.PROJECT_MEMBER.getValue()));
         this.requestPost(addProjectMember, projectAddMemberRequest, ERROR_REQUEST_MATCHER);
         //项目id不存在
         projectAddMemberRequest = new ProjectAddMemberRequest();
         projectAddMemberRequest.setProjectId("projectId111");
         projectAddMemberRequest.setUserIds(List.of("admin1"));
+        projectAddMemberRequest.setUserRoleIds(List.of(InternalUserRole.PROJECT_ADMIN.getValue(), InternalUserRole.PROJECT_MEMBER.getValue()));
         this.requestPost(addProjectMember, projectAddMemberRequest, ERROR_REQUEST_MATCHER);
     }
 
@@ -1033,4 +1036,22 @@ public class OrganizationProjectControllerTests extends BaseTest {
         this.requestPost(updateName, project, ERROR_REQUEST_MATCHER);
     }
 
+    @Test
+    @Order(26)
+    public void testUserList() throws Exception {
+        //组织下面有成员 返回不为空
+        ProjectUserRequest request = new ProjectUserRequest();
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setOrganizationId(getDefault().getId());
+        request.setProjectId("projectId4");
+        MvcResult mvcResult = responsePost(userList, request);
+        List<UserDTO> userDTOS = parseObjectFromMvcResult(mvcResult, List.class);
+        assert userDTOS != null;
+        Assertions.assertFalse(userDTOS.isEmpty());
+
+        request.setKeyword("a");
+        responsePost(userList, request);
+
+    }
 }
