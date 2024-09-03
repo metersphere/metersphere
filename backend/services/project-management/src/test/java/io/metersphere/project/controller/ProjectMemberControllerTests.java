@@ -43,6 +43,7 @@ public class ProjectMemberControllerTests extends BaseTest {
     public static final String ADD_ROLE = "/project/member/add-role";
     public static final String BATCH_REMOVE_MEMBER = "/project/member/batch/remove";
     public static final String COMMENT_USER_OPTION = "/project/member/comment/user-option";
+    public static final String UPDATE_MEMBER_ROLE = "/project/member/update-member";
 
     @Test
     @Order(1)
@@ -300,5 +301,22 @@ public class ProjectMemberControllerTests extends BaseTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(resultMatcher)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    @Order(18)
+    public void testUpdateMemberRole() throws Exception {
+        // 不存在的用户组
+        ProjectMemberEditRequest request = new ProjectMemberEditRequest();
+        request.setProjectId("default-project-member-test");
+        request.setUserId("default-project-member-user-1");
+        request.setRoleIds(List.of("project_admin_x"));
+        this.requestPost(UPDATE_MEMBER, request, status().isOk());
+        // 存在的用户组
+        request.setRoleIds(List.of("project_admin", "project_member"));
+        this.requestPost(UPDATE_MEMBER, request, status().isOk());
+        // 权限校验
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        requestPostPermissionTest(PermissionConstants.PROJECT_USER_UPDATE, UPDATE_MEMBER, request);
     }
 }

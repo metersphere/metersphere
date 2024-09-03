@@ -57,7 +57,7 @@ public class ProjectMemberController {
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<UserExtendDTO> getMemberOption(@PathVariable String projectId,
                                                @Schema(description = "查询关键字，根据邮箱和用户名查询")
-                                            @RequestParam(value = "keyword", required = false) String keyword) {
+                                               @RequestParam(value = "keyword", required = false) String keyword) {
         return projectMemberService.getMemberOption(projectId, keyword);
     }
 
@@ -124,5 +124,13 @@ public class ProjectMemberController {
     @Operation(summary = "项目管理-成员-获取评论用户@下拉选项")
     public List<CommentUserInfo> selectCommentUser(@PathVariable String projectId, @RequestParam(value = "keyword", required = false) String keyword) {
         return projectMemberService.selectCommentUser(projectId, keyword);
+    }
+
+    @PostMapping("/update-member")
+    @Operation(summary = "系统设置-系统-组织与项-项目-更新成员用户组")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_MEMBER_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void updateProjectMemberRole(@RequestBody ProjectMemberEditRequest request) {
+        projectMemberService.updateMember(request, SessionUtils.getUserId());
     }
 }
