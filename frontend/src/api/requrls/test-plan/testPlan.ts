@@ -172,4 +172,12 @@ export const CancelBugFromScenarioCaseUrl = '/test-plan/api/scenario/disassociat
 // 测试计划-详情-用例列表-批量关联缺陷
 export const BatchAssociatedBugToCaseUrl = '/test-plan/functional/case/batch/associate-bug';
 // 测试计划-详情-用例列表-批量新建缺陷
-export const BatchAddBugToCaseUrl = '/test-plan/functional/case/batch/add-bug';
+export const BatchAddBugToFunctionalCaseUrl = '/test-plan/functional/case/batch/add-bug';
+// 测试计划-详情-接口列表-批量新建缺陷
+export const BatchAddBugToApiCaseUrl = '/test-plan/api/case/batch/add-bug';
+// 测试计划-详情-场景列表-批量新建缺陷
+export const BatchAddBugToScenarioCaseUrl = '/test-plan/api/scenario/batch/add-bug';
+// 测试计划-详情-接口用例列表-批量关联缺陷
+export const BatchLinkBugToApiCaseUrl = '/test-plan/api/case/batch/associate-bug';
+// 测试计划-详情-场景用例列表-批量关联缺陷
+export const BatchLinkBugToScenarioCaseUrl = '/test-plan/api/scenario/batch/associate-bug';

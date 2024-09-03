@@ -45,6 +45,7 @@
             :resource-id="record.id"
             :bug-count="record.bugCount || 0"
             :existed-defect="existedDefect"
+            :permission="['PROJECT_TEST_PLAN:READ+EXECUTE']"
             @load-list="refreshDetailAndList()"
             @associated="associateAndCreateDefect(true, false, record)"
             @create="associateAndCreateDefect(false, false, record)"
@@ -109,11 +110,16 @@
       :batch-move="batchMoveApiCase"
       @load-list="resetCaseList"
     />
-    <!-- TODO 等待联调快填 -->
     <AddDefectDrawer
       v-model:visible="showCreateBugDrawer"
       :extra-params="getApiBugParams"
       :is-batch="isBatchAssociateOrCreate"
+      :case-type="CaseLinkEnum.API"
+      :fill-config="{
+        isQuickFillContent: !isBatchAssociateOrCreate,
+        detailId: lastExecuteReportId,
+        name: caseTitle,
+      }"
       @success="refreshDetailAndList()"
     />
     <LinkDefectDrawer
@@ -149,14 +155,14 @@
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
-  import AddDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/addDefectDrawer.vue';
+  import AddDefectDrawer from '@/views/case-management/components/addDefectDrawer/index.vue';
   import LinkDefectDrawer from '@/views/case-management/components/linkDefectDrawer.vue';
   import BatchApiMoveModal from '@/views/test-plan/testPlan/components/batchApiMoveModal.vue';
 
   import {
     associateBugToApiCase,
-    batchAssociatedBugToCase,
     batchDisassociateApiCase,
+    batchLinkBugToApiCase,
     batchMoveApiCase,
     batchRunApiCase,
     disassociateApiCase,
@@ -286,7 +292,7 @@
       title: 'testPlan.featureCase.bugCount',
       dataIndex: 'bugCount',
       slotName: 'bugCount',
-      width: 150,
+      width: 100,
       showDrag: true,
       showInTable: true,
     },
@@ -558,6 +564,7 @@
   }
 
   function refreshDetailAndList() {
+    resetSelector();
     emit('refresh');
     loadCaseList();
   }
@@ -668,18 +675,22 @@
   }
 
   const showLinkBugDrawer = ref(false);
-  const associatedCaseId = ref<string>();
-  const testPlanCaseId = ref<string>();
+  const associatedCaseId = ref<string>('');
+  const testPlanCaseId = ref<string>('');
+  const lastExecuteReportId = ref<string>('');
   const existedDefect = inject<Ref<number>>('existedDefect', ref(0));
   const showCreateBugDrawer = ref<boolean>(false);
   const isBatchAssociateOrCreate = ref(false);
+  const caseTitle = ref<string>('');
   // 关联缺陷
   function associateAndCreateDefect(isAssociate: boolean, isBatch: boolean, record?: PlanDetailApiCaseItem) {
     isBatchAssociateOrCreate.value = isBatch;
     if (record) {
-      const { id, apiTestCaseId } = record;
+      const { id, apiTestCaseId, lastExecReportId, name } = record;
       associatedCaseId.value = apiTestCaseId;
+      lastExecuteReportId.value = lastExecReportId;
       testPlanCaseId.value = id;
+      caseTitle.value = name;
     }
     if (isAssociate) {
       showLinkBugDrawer.value = true;
@@ -696,7 +707,7 @@
       drawerLoading.value = true;
       const tableParams = await getTableParams(true);
       if (isBatchAssociateOrCreate.value) {
-        await batchAssociatedBugToCase({
+        await batchLinkBugToApiCase({
           selectIds: tableSelected.value as string[],
           selectAll: batchParams.value.selectAll,
           excludeIds: batchParams.value?.excludeIds || [],

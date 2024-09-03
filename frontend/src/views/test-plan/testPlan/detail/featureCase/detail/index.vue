@@ -255,9 +255,9 @@
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
   import BugList from './bug/index.vue';
   import ExecuteSubmit from './executeSubmit.vue';
-  import AddDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/addDefectDrawer.vue';
   import CaseTabDetail from '@/views/case-management/caseManagementFeature/components/tabContent/tabDetail.vue';
   import EditCaseDetailDrawer from '@/views/case-management/caseReview/components/editCaseDetailDrawer.vue';
+  import AddDefectDrawer from '@/views/case-management/components/addDefectDrawer/index.vue';
   import LinkDefectDrawer from '@/views/case-management/components/linkDefectDrawer.vue';
   import ExecutionHistory from '@/views/test-plan/testPlan/detail/featureCase/detail/executionHistory/index.vue';
 

@@ -34,6 +34,8 @@
     ExtensionCode,
     ExtensionCodeBlock,
     ExtensionColor,
+    ExtensionColumn,
+    ExtensionColumns,
     ExtensionCommands,
     ExtensionDocument,
     ExtensionDraggable,
@@ -54,6 +56,7 @@
     ExtensionStrike,
     ExtensionSubscript,
     ExtensionSuperscript,
+    ExtensionTable,
     ExtensionTaskList,
     ExtensionText,
     ExtensionTextAlign,
@@ -295,14 +298,15 @@
         ExtensionLink.configure({
           autolink: false,
           openOnClick: false,
+          linkOnPaste: true,
         }),
         ExtensionTextAlign.configure({
           types: ['heading', 'paragraph'],
         }),
         ExtensionUnderline,
-        // ExtensionTable.configure({
-        //   resizable: true,
-        // }),
+        ExtensionTable.configure({
+          resizable: true,
+        }),
         ExtensionSubscript,
         ExtensionSuperscript,
         ExtensionPlaceholder.configure({
@@ -394,7 +398,7 @@
         }) as Extension<any, any>,
         CharacterCount.configure({
           limit: props.limitLength || null,
-        }),
+        }) as Extension,
       ],
       autofocus: props.autoFocus,
       editable: props.editable,
@@ -594,18 +598,18 @@
     :deep(.halo-rich-text-editor .ProseMirror) {
       padding: 16px !important;
       min-height: 130px;
-      p:first-child {
+      > p:first-child {
         margin-top: 0;
       }
     }
     :deep(.halo-rich-text-editor) {
-      padding: 16px !important;
+      padding: 2px 16px 16px !important;
       .editor-header {
         .ms-scroll-bar();
 
         justify-content: start !important;
       }
-      p:first-child {
+      > p:first-child {
         margin-top: 0;
       }
     }
@@ -623,6 +627,24 @@
   }
   :deep(.editor-content) {
     .ms-scroll-bar();
+  }
+  :deep(.tableWrapper) {
+    .ms-scroll-bar();
+    table {
+      tr,
+      th {
+        background: white !important;
+      }
+      tr {
+        th,
+        td {
+          padding: 8px;
+        }
+        p {
+          margin-top: 0 !important;
+        }
+      }
+    }
   }
 </style>
 

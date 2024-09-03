@@ -88,7 +88,7 @@
   import { BugManagementRouteEnum } from '@/enums/routeEnum';
 
   const AddDefectDrawer = defineAsyncComponent(
-    () => import('@/views/case-management/caseManagementFeature/components/tabContent/tabBug/addDefectDrawer.vue')
+    () => import('@/views/case-management/components/addDefectDrawer/index.vue')
   );
   const LinkDefectDrawer = defineAsyncComponent(
     () => import('@/views/case-management/components/linkDefectDrawer.vue')

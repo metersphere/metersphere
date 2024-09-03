@@ -65,7 +65,12 @@
           </a-tooltip>
           <template #content>
             <div class="w-[440px] rounded bg-white p-[16px] shadow-[0_0_10px_rgba(0,0,0,0.05)]">
-              <ExecuteSubmit :select-node="selectNode" :test-plan-id="props.planId" @done="handleExecuteDone" />
+              <ExecuteSubmit
+                :select-node="selectNode"
+                :test-plan-id="props.planId"
+                is-default-activate
+                @done="handleExecuteDone"
+              />
             </div>
           </template>
         </a-trigger>
@@ -184,8 +189,8 @@
   import useMinderBaseApi from '@/components/business/ms-minders/featureCaseMinder/useMinderBaseApi';
   import BugList from './bugList.vue';
   import AddStep from '@/views/case-management/caseManagementFeature/components/addStep.vue';
-  import AddDefectDrawer from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/addDefectDrawer.vue';
   import ReviewCommentList from '@/views/case-management/caseManagementFeature/components/tabContent/tabComment/reviewCommentList.vue';
+  import AddDefectDrawer from '@/views/case-management/components/addDefectDrawer/index.vue';
   import LinkDefectDrawer from '@/views/case-management/components/linkDefectDrawer.vue';
   import ExecuteForm from '@/views/test-plan/testPlan/detail/featureCase/components/executeForm.vue';
   import ExecuteSubmit from '@/views/test-plan/testPlan/detail/featureCase/detail/executeSubmit.vue';

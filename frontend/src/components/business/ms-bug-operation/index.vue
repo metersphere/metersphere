@@ -8,7 +8,7 @@
       @load-list="loadList"
     />
     <a-dropdown
-      v-if="hasAllPermission(['PROJECT_BUG:READ', ...(props.linkBugPermission || [])])"
+      v-if="hasAllPermission(['PROJECT_BUG:READ', ...(props.permission || [])])"
       position="bl"
       @select="handleSelect"
       @popup-visible-change="popupVisibleChange"
@@ -23,7 +23,7 @@
       </a-button>
 
       <template #content>
-        <a-doption v-if="hasAnyPermission(props.linkBugPermission || []) && props.existedDefect" value="linkBug">
+        <a-doption v-if="hasAnyPermission(['PROJECT_BUG:READ']) && props.existedDefect" value="linkBug">
           {{ t('caseManagement.featureCase.linkDefect') }}
         </a-doption>
         <a-doption v-if="hasAnyPermission(['PROJECT_BUG:READ+ADD'])" value="newBug">
@@ -52,7 +52,7 @@
     caseType: CaseLinkEnum; // 用例类型
     canEdit: boolean;
     bugList?: CaseBugItem[];
-    linkBugPermission?: string[];
+    permission?: string[];
   }>();
 
   const emit = defineEmits<{

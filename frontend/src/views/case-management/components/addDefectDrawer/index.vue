@@ -35,6 +35,8 @@
         v-model:template-id="bugTemplateId"
         is-drawer
         :bug-id="bugId"
+        :case-type="props.caseType"
+        :fill-config="props.fillConfig"
         @save-params="saveParams"
       />
     </div>
@@ -49,11 +51,16 @@
   import BugDetail from '@/views/bug-management/edit.vue';
 
   import { createOrUpdateBug, getTemplateOption } from '@/api/modules/bug-management';
-  import { batchAddBugToCase } from '@/api/modules/test-plan/testPlan';
+  import {
+    batchAddBugToApiCase,
+    batchAddBugToFunctionCase,
+    batchAddBugToScenarioCase,
+  } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
   import { BugEditFormObject } from '@/models/bug-management';
+  import { CaseLinkEnum } from '@/enums/caseEnum';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -67,6 +74,12 @@
     bugId?: string;
     extraParams?: Record<string, any> | (() => Record<string, any>);
     isBatch?: boolean;
+    caseType?: CaseLinkEnum; // 批量添加到的用例类型
+    fillConfig?: {
+      isQuickFillContent: boolean; // 是否快速填充内容
+      detailId: string; // 功能用例为用例详情id， 注意：接口用例为最后执行报告id来获取执行详情展示断言，场景也为执行报告id查看报告详情
+      name: string; // 用例明细名称
+    };
   }>();
 
   const emit = defineEmits<{
@@ -112,16 +125,22 @@
     showBugDrawer.value = false;
   }
 
+  const batchAddApiMap: Record<string, (params: { request: BugEditFormObject; fileList: File[] }) => Promise<any>> = {
+    [CaseLinkEnum.FUNCTIONAL]: batchAddBugToFunctionCase,
+    [CaseLinkEnum.API]: batchAddBugToApiCase,
+    [CaseLinkEnum.SCENARIO]: batchAddBugToScenarioCase,
+  };
+
   async function saveParams(isContinue: boolean, params: { request: BugEditFormObject; fileList: File[] }) {
     try {
       drawerLoading.value = true;
       const { request, fileList } = params;
-      if (props.isBatch) {
-        const extraParam =
-          props.extraParams && typeof props.extraParams === 'function' ? await props.extraParams() : props.extraParams;
-        await batchAddBugToCase({ request: { ...request, ...extraParam }, fileList });
+      const extraParam =
+        props.extraParams && typeof props.extraParams === 'function' ? await props.extraParams() : props.extraParams;
+      if (props.isBatch && props.caseType) {
+        await batchAddApiMap[props.caseType]({ request: { ...request, ...extraParam }, fileList });
       } else {
-        await createOrUpdateBug({ request: { ...request, ...props.extraParams }, fileList });
+        await createOrUpdateBug({ request: { ...request, ...extraParam }, fileList });
       }
 
       Message.success(props.bugId ? t('common.updateSuccess') : t('common.createSuccess'));
