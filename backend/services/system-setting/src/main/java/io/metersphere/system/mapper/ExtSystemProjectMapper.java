@@ -41,4 +41,5 @@ public interface ExtSystemProjectMapper {
 
     List<OptionDTO> getSystemProject(@Param("keyword") String keyword);
 
+    List<UserExtendDTO> getUserList(@Param("userIds") List<String> userIds, @Param("projectId") String projectId, @Param("keyword") String keyword);
 }
