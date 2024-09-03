@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.UserViewConditionMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.system.domain.UserViewCondition">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="user_view_id" jdbcType="VARCHAR" property="userViewId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="value" jdbcType="VARCHAR" property="value" />
+    <result column="value_type" jdbcType="VARCHAR" property="valueType" />
+    <result column="custom_field" jdbcType="BIT" property="customField" />
+    <result column="operator" jdbcType="VARCHAR" property="operator" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, user_view_id, `name`, `value`, value_type, custom_field, `operator`
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.system.domain.UserViewConditionExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from user_view_condition
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_view_condition
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from user_view_condition
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.system.domain.UserViewConditionExample">
+    delete from user_view_condition
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.system.domain.UserViewCondition">
+    insert into user_view_condition (id, user_view_id, `name`, 
+      `value`, value_type, custom_field, 
+      `operator`)
+    values (#{id,jdbcType=VARCHAR}, #{userViewId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{value,jdbcType=VARCHAR}, #{valueType,jdbcType=VARCHAR}, #{customField,jdbcType=BIT}, 
+      #{operator,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.system.domain.UserViewCondition">
+    insert into user_view_condition
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userViewId != null">
+        user_view_id,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="value != null">
+        `value`,
+      </if>
+      <if test="valueType != null">
+        value_type,
+      </if>
+      <if test="customField != null">
+        custom_field,
+      </if>
+      <if test="operator != null">
+        `operator`,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="userViewId != null">
+        #{userViewId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null">
+        #{value,jdbcType=VARCHAR},
+      </if>
+      <if test="valueType != null">
+        #{valueType,jdbcType=VARCHAR},
+      </if>
+      <if test="customField != null">
+        #{customField,jdbcType=BIT},
+      </if>
+      <if test="operator != null">
+        #{operator,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.system.domain.UserViewConditionExample" resultType="java.lang.Long">
+    select count(*) from user_view_condition
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update user_view_condition
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userViewId != null">
+        user_view_id = #{record.userViewId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.value != null">
+        `value` = #{record.value,jdbcType=VARCHAR},
+      </if>
+      <if test="record.valueType != null">
+        value_type = #{record.valueType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.customField != null">
+        custom_field = #{record.customField,jdbcType=BIT},
+      </if>
+      <if test="record.operator != null">
+        `operator` = #{record.operator,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update user_view_condition
+    set id = #{record.id,jdbcType=VARCHAR},
+      user_view_id = #{record.userViewId,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      `value` = #{record.value,jdbcType=VARCHAR},
+      value_type = #{record.valueType,jdbcType=VARCHAR},
+      custom_field = #{record.customField,jdbcType=BIT},
+      `operator` = #{record.operator,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.UserViewCondition">
+    update user_view_condition
+    <set>
+      <if test="userViewId != null">
+        user_view_id = #{userViewId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null">
+        `value` = #{value,jdbcType=VARCHAR},
+      </if>
+      <if test="valueType != null">
+        value_type = #{valueType,jdbcType=VARCHAR},
+      </if>
+      <if test="customField != null">
+        custom_field = #{customField,jdbcType=BIT},
+      </if>
+      <if test="operator != null">
+        `operator` = #{operator,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.UserViewCondition">
+    update user_view_condition
+    set user_view_id = #{userViewId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      `value` = #{value,jdbcType=VARCHAR},
+      value_type = #{valueType,jdbcType=VARCHAR},
+      custom_field = #{customField,jdbcType=BIT},
+      `operator` = #{operator,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into user_view_condition
+    (id, user_view_id, `name`, `value`, value_type, custom_field, `operator`)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.userViewId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
+        #{item.value,jdbcType=VARCHAR}, #{item.valueType,jdbcType=VARCHAR}, #{item.customField,jdbcType=BIT}, 
+        #{item.operator,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into user_view_condition (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'user_view_id'.toString() == column.value">
+          #{item.userViewId,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'value'.toString() == column.value">
+          #{item.value,jdbcType=VARCHAR}
+        </if>
+        <if test="'value_type'.toString() == column.value">
+          #{item.valueType,jdbcType=VARCHAR}
+        </if>
+        <if test="'custom_field'.toString() == column.value">
+          #{item.customField,jdbcType=BIT}
+        </if>
+        <if test="'operator'.toString() == column.value">
+          #{item.operator,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
+</mapper>

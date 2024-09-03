@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.ExtUserViewMapper">
+    <select id="getLastPos" resultType="java.lang.Long">
+        select `pos` from user_view where scope_id = #{scopeId} and user_id = #{userId} and view_type = #{viewType}
+        <if test="baseOrder != null">
+            and `pos` &gt; #{baseOrder}
+        </if>
+        order by `pos` desc limit 1;
+    </select>
+</mapper>

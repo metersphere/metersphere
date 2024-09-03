@@ -22,12 +22,8 @@ public class CombineSearch {
     @Valid
     private List<CombineCondition> conditions;
 
-    public List<CombineCondition> getValidConditions(List<CombineCondition> conditions) {
-        return conditions.stream().filter(CombineCondition::valid).toList();
-    }
-
     public List<CombineCondition> getConditions() {
-        return getValidConditions(conditions);
+        return conditions;
     }
 
     public String getSearchMode() {

@@ -85,7 +85,9 @@
         <!--        <table tableName="service_integration"/>-->
         <!--        <table tableName="system_parameter"/>-->
         <!--        <table tableName="test_resource"/>-->
-                <table tableName="test_resource_pool"/>
+<!--                <table tableName="test_resource_pool"/>-->
+                <table tableName="user_view"/>
+                <table tableName="user_view_condition"/>
         <!--        <table tableName="user"/>-->
         <!--        <table tableName="user_extend"/>-->
         <!--        <table tableName="user_key"/>-->

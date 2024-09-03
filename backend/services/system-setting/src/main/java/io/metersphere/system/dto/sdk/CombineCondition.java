@@ -13,8 +13,9 @@ import org.apache.commons.lang3.StringUtils;
 @Data
 public class CombineCondition {
 
-    @Schema(description = "参数key")
-    private String key;
+    @Schema(description = "参数名称")
+    @NotNull
+    private String name;
 
     @Schema(description = "期望值, BETWEEN,IN,NOT_IN 时为数组, 其他为单值")
     private Object value;
@@ -29,7 +30,7 @@ public class CombineCondition {
     private String operator;
 
     public boolean valid() {
-        return StringUtils.isNotBlank(key) && StringUtils.isNotBlank(operator) && value != null;
+        return StringUtils.isNotBlank(name) && StringUtils.isNotBlank(operator) && value != null;
     }
 
     public enum CombineConditionOperator {
