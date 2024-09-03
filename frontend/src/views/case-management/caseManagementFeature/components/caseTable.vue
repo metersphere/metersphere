@@ -4,8 +4,9 @@
     <!-- 用例表开始 -->
     <template v-if="showType === 'list'">
       <MsAdvanceFilter
+        ref="msAdvanceFilterRef"
         v-model:keyword="keyword"
-        show-filter
+        :view-type="ViewTypeEnum.FUNCTIONAL_CASE"
         :filter-config-list="filterConfigList"
         :custom-fields-config-list="searchCustomFields"
         :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
@@ -438,7 +439,7 @@
     DragCase,
   } from '@/models/caseManagement/featureCase';
   import { ModuleTreeNode } from '@/models/common';
-  import { FilterType } from '@/enums/advancedFilterEnum';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { CaseManagementRouteEnum, RouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -977,7 +978,8 @@
     };
   });
 
-  const isAdvancedSearchMode = ref(false);
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
   async function initTableParams() {
     let moduleIds: string[] = [];
     if (props.activeFolder !== 'all' && !isAdvancedSearchMode.value) {
@@ -1613,7 +1615,6 @@
   }
   // 高级检索
   const handleAdvSearch = async (filter: FilterResult) => {
-    isAdvancedSearchMode.value = !!filter.conditions?.length;
     resetSelector();
     emit('setActiveFolder');
     keyword.value = '';

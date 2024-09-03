@@ -22,6 +22,12 @@ export default {
   'advanceFilter.operator.length.lt': '长度小于',
   'advanceFilter.operator.length.le': '长度小于等于',
 
+  'advanceFilter.view': '视图',
+  'advanceFilter.systemView': '系统视图',
+  'advanceFilter.myView': '我的视图',
+  'advanceFilter.newView': '新建视图',
+  'advanceFilter.deleteView': '删除视图',
+  'advanceFilter.clearFilter': '清空筛选',
   'advanceFilter.saveAsView': '另存为视图',
   'advanceFilter.viewNamePlaceholder': '请输入视图名称',
   'advanceFilter.meetTheFollowingConditions': '符合以下条件',
@@ -29,6 +35,9 @@ export default {
   'advanceFilter.or': '任一',
   'advanceFilter.inputPlaceholder': '关键字之间以空格进行分隔',
   'advanceFilter.addCondition': '添加条件',
+  'advanceFilter.viewNameRequired': '视图名称不能为空',
+  'advanceFilter.viewNameNotRepeat': '视图名称不能重复',
   'advanceFilter.conditionRequired': '查询条件不能为空',
   'advanceFilter.filterContentRequired': '筛选内容不能为空',
+  'advanceFilter.filterTip': '筛选模式，模块过滤仅可在当前过滤器中操作',
 };
