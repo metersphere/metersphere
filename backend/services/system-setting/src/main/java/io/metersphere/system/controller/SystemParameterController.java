@@ -100,4 +100,12 @@ public class SystemParameterController {
     public String getApiConcurrentConfig() {
         return systemParameterService.getApiConcurrentConfig();
     }
+
+    @PostMapping("/edit/upload-config")
+    @Operation(summary = "系统设置-系统-系统参数-基本设置-文件限制-保存")
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#systemParameter)", msClass = SystemParameterService.class)
+    public void editUploadConfigInfo(@Validated @RequestBody List<SystemParameter> systemParameter) {
+        systemParameterService.editUploadConfigInfo(systemParameter);
+    }
 }

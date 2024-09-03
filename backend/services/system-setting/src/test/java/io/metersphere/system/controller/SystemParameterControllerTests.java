@@ -43,6 +43,7 @@ public class SystemParameterControllerTests extends BaseTest {
     public static final String EMAIL_INFO_URL = "/system/parameter/get/email-info";
 
     public static final String EMAIL_INFO_SAVE_URL = "/system/parameter/edit/email-info";
+    public static final String UPLOAD_CONFIG_SAVE_URL = "/system/parameter/edit/upload-config";
 
 
     public static final String EMAIL_INFO_TEST_CONNECT_URL = "/system/parameter/test/email";
@@ -172,6 +173,40 @@ public class SystemParameterControllerTests extends BaseTest {
         requestPostPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ_UPDATE, BASE_INFO_SAVE_URL, systemParameters);
     }
 
+    @Test
+    @Order(6)
+    public void testEditUploadConfigInfo() throws Exception {
+        List<SystemParameter> systemParameters = new ArrayList<>() {{
+            add(new SystemParameter() {{
+                setParamKey("upload.file.size");
+                setParamValue("10");
+                setType("text");
+            }});
+        }};
+        this.requestPost(UPLOAD_CONFIG_SAVE_URL, systemParameters);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ_UPDATE, UPLOAD_CONFIG_SAVE_URL, systemParameters);
+        systemParameters = new ArrayList<>() {{
+            add(new SystemParameter() {{
+                setParamKey("upload.file.size");
+                setParamValue("20");
+                setType("text");
+            }});
+        }};
+        this.requestPost(UPLOAD_CONFIG_SAVE_URL, systemParameters);
+    }
+
+    @Test
+    @Order(7)
+    public void testEditUploadConfigInfoError() throws Exception {
+        List<SystemParameter> systemParameters = new ArrayList<>() {{
+            add(new SystemParameter() {{
+                setParamKey("upload.file");
+                setParamValue("10");
+                setType("text");
+            }});
+        }};
+        this.requestPost(UPLOAD_CONFIG_SAVE_URL, systemParameters, status().is5xxServerError());
+    }
 
     private MvcResult requestPost(String url, Object param) throws Exception {
         return mockMvc.perform(MockMvcRequestBuilders.post(url)

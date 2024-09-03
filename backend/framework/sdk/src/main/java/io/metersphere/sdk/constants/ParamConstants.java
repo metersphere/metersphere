@@ -10,7 +10,8 @@ public interface ParamConstants {
         BASE("base"),
         LDAP("ldap"),
         REGISTRY("registry"),
-        CLEAN_CONFIG("cleanConfig.operation");
+        CLEAN_CONFIG("cleanConfig.operation"),
+        UPLOAD_CONFIG("upload");
 
         private String value;
 
@@ -97,4 +98,18 @@ public interface ParamConstants {
         }
     }
 
+    enum UploadConfig implements ParamConstants {
+        UPLOAD_FILE_SIZE("upload.file.size");
+
+        private String value;
+
+        private UploadConfig(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+    }
 }
