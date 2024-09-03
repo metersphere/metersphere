@@ -57,3 +57,37 @@ export interface FilterResult {
   conditions?: ConditionsItem[];
   combine?: any; // TODO lmy 此为防报错占位 所有高级筛选都完成后 删除这一行
 }
+
+export interface ViewItem {
+  id: string;
+  userId: string;
+  name: string;
+  viewType: string; // 视图类型，例如功能用例视图
+  internal: boolean; // 是否为内置视图
+  scopeId: string; // 视图的应用范围，一般为项目ID
+  searchMode: string;
+  pos?: number; // 自定义排序
+  createTime?: number;
+  updateTime?: number;
+}
+export interface ViewList {
+  internalViews: ViewItem[];
+  customViews: ViewItem[];
+}
+export interface ViewParams extends FilterResult {
+  id?: string;
+  name: string;
+  scopeId?: string;
+}
+export interface ViewDetail extends ViewParams {
+  userId?: string;
+  viewType?: string;
+  internal?: boolean; // 是否为内置视图
+  internalViewKey?: string;
+  createTime?: number;
+  updateTime?: number;
+}
+
+export interface FilterForm extends ViewDetail {
+  list: FilterFormItem[];
+}

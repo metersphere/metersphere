@@ -1,14 +1,12 @@
 <template>
-  <MsDrawer v-model:visible="visible" :width="800">
+  <MsDrawer v-model:visible="visible" :mask="false" :width="600">
     <template #title>
-      <a-input
+      <ViewNameInput
         v-show="isShowNameInput"
-        ref="nameInputRef"
-        v-model:model-value="formModel.name"
-        class="flex-1"
-        :max-length="255"
-        show-word-limit
-        @blur="isShowNameInput = false"
+        ref="viewNameInputRef"
+        v-model:form="formModel"
+        :all-names="allViewNames"
+        @handle-submit="isShowNameInput = false"
       />
       <div v-show="!isShowNameInput" class="flex flex-1 items-center gap-[8px] overflow-hidden">
         <a-tooltip :content="formModel.name">
@@ -21,6 +19,9 @@
         />
       </div>
     </template>
+    <a-alert class="mb-[12px]" closable>
+      {{ t('advanceFilter.filterTip') }}
+    </a-alert>
     <a-form ref="formRef" :model="formModel" layout="vertical">
       <a-select v-model="formModel.searchMode" :options="searchModeOptions" class="mb-[12px] w-[170px]">
         <template #prefix> {{ t('advanceFilter.meetTheFollowingConditions') }} </template>
@@ -63,16 +64,8 @@
           </a-select>
         </a-form-item>
         <a-form-item class="flex-1 overflow-hidden" :field="`list[${listIndex}].value`" hide-asterisk>
-          <a-input
-            v-if="item.type === FilterType.INPUT"
-            v-model:model-value="item.value"
-            allow-clear
-            :disabled="isValueDisabled(item)"
-            :max-length="255"
-            :placeholder="t('advanceFilter.inputPlaceholder')"
-          />
           <a-textarea
-            v-else-if="item.type === FilterType.TEXTAREA"
+            v-if="item.type === FilterType.TEXTAREA"
             v-model:model-value="item.value"
             allow-clear
             :disabled="isValueDisabled(item)"
@@ -163,6 +156,14 @@
               {{ it[item.checkProps?.labelKey || 'label'] }}
             </a-checkbox>
           </a-checkbox-group>
+          <a-input
+            v-else
+            v-model:model-value="item.value"
+            allow-clear
+            :disabled="isValueDisabled(item)"
+            :max-length="255"
+            :placeholder="t('advanceFilter.inputPlaceholder')"
+          />
         </a-form-item>
         <a-button
           v-if="formModel.list.length > 1"
@@ -182,20 +183,26 @@
       <div v-show="!isSaveAsView" class="flex items-center gap-[8px]">
         <a-button type="primary" @click="handleFilter">{{ t('common.filter') }}</a-button>
         <a-button class="mr-[16px]" @click="handleReset">{{ t('common.reset') }}</a-button>
-        <MsButton type="text" class="!text-[var(--color-text-1)]"> {{ t('common.save') }}</MsButton>
-        <MsButton type="text" class="!text-[var(--color-text-1)]" @click="isSaveAsView = true">
+        <MsButton
+          v-if="formModel?.internalViewKey !== 'ALL_DATA'"
+          type="text"
+          class="!text-[var(--color-text-1)]"
+          @click="handleSaveView"
+        >
+          {{ t('common.save') }}
+        </MsButton>
+        <MsButton v-if="formModel?.id" type="text" class="!text-[var(--color-text-1)]" @click="handleToSaveAs">
           {{ t('advanceFilter.saveAsView') }}
         </MsButton>
       </div>
       <div v-show="isSaveAsView" class="flex items-center gap-[8px]">
-        <a-input
-          v-model:model-value="saveAsViewName"
-          :placeholder="t('advanceFilter.viewNamePlaceholder')"
+        <ViewNameInput
+          ref="saveAsViewNameInputRef"
+          v-model:form="saveAsViewForm"
           class="w-[240px]"
-          :max-length="255"
-          show-word-limit
+          :all-names="allViewNames"
         />
-        <a-button type="primary">{{ t('common.save') }}</a-button>
+        <a-button type="primary" @click="handleAddView">{{ t('common.save') }}</a-button>
         <a-button @click="handleCancelSaveAsView">{{ t('common.cancel') }}</a-button>
       </div>
     </template>
@@ -203,47 +210,74 @@
 </template>
 
 <script lang="ts" setup>
-  import { FormInstance, InputInstance } from '@arco-design/web-vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import MsSelect from '@/components/business/ms-select';
+  import ViewNameInput from './components/viewNameInput.vue';
 
+  import { addView, getViewDetail, updateView } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
 
   import { SelectValue } from '@/models/projectManagement/menuManagement';
-  import { FilterType, OperatorEnum } from '@/enums/advancedFilterEnum';
+  import { FilterType, OperatorEnum, ViewTypeEnum } from '@/enums/advancedFilterEnum';
 
-  import { defaultFormModelList, operatorOptionsMap } from './index';
-  import { AccordBelowType, FilterFormItem, FilterResult } from './type';
+  import { operatorOptionsMap } from './index';
+  import { ConditionsItem, FilterForm, FilterFormItem, FilterResult } from './type';
 
   const props = defineProps<{
     configList: FilterFormItem[]; // 系统字段
     customList?: FilterFormItem[]; // 自定义字段
+    viewType: ViewTypeEnum;
+    currentView: string; // 当前视图
+    allViewNames: string[];
   }>();
   const emit = defineEmits<{
     (e: 'handleFilter', value: FilterResult): void;
+    (e: 'refreshViewList'): void;
   }>();
   const visible = defineModel<boolean>('visible', { required: true });
 
   const { t } = useI18n();
 
-  // TODO lmy 联调
-  const formModel = ref<{ name: string; searchMode: AccordBelowType; list: FilterFormItem[] }>({
-    name: '111',
+  const defaultFormModel: FilterForm = {
+    name: '',
     searchMode: 'AND',
-    list: [...defaultFormModelList],
-  });
+    list: [{ dataIndex: '', operator: undefined, value: '', type: FilterType.INPUT }],
+  };
+  const formModel = ref<FilterForm>(cloneDeep(defaultFormModel));
   const savedFormModel = ref(cloneDeep(formModel.value));
+  function getListItemByDataIndex(dataIndex: string) {
+    return [...props.configList, ...(props.customList || [])].find((item) => item.dataIndex === dataIndex);
+  }
+  async function getUserViewDetail(id: string) {
+    try {
+      const res = await getViewDetail(props.viewType, id);
+      const list: FilterFormItem[] = (res.conditions ?? [])?.map((item: ConditionsItem) => {
+        const listItem = getListItemByDataIndex(item.name ?? '') as FilterFormItem;
+        return {
+          ...listItem,
+          operator: item.operator,
+          value: item.value,
+        };
+      });
+      formModel.value = { ...res, list };
+      savedFormModel.value = cloneDeep(formModel.value);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
 
   const isShowNameInput = ref(false);
-  const nameInputRef = ref<InputInstance>();
+  const viewNameInputRef = ref<InstanceType<typeof ViewNameInput>>();
   function showNameInput() {
     isShowNameInput.value = true;
     nextTick(() => {
-      nameInputRef.value?.focus();
+      viewNameInputRef.value?.inputFocus();
     });
   }
 
@@ -253,9 +287,6 @@
   ];
 
   const formRef = ref<FormInstance>();
-  function getListItemByDataIndex(dataIndex: string) {
-    return [...props.configList, ...(props.customList || [])].find((item) => item.dataIndex === dataIndex);
-  }
   // 第三列值是数组类型的
   function valueIsArray(listItem: FilterFormItem) {
     return (
@@ -327,11 +358,11 @@
     return { searchMode: formModel.value.searchMode, conditions };
   }
 
-  // TODO lmy 根据视图重置
+  // 重置
   function handleReset() {
     formModel.value = cloneDeep(savedFormModel.value);
   }
-
+  // 过滤
   function handleFilter() {
     formRef.value?.validate((errors) => {
       if (!errors) {
@@ -340,13 +371,77 @@
       }
     });
   }
+  watch(
+    () => props.currentView,
+    async (val) => {
+      await getUserViewDetail(val);
+      handleFilter();
+    }
+  );
 
   const isSaveAsView = ref(false);
-  const saveAsViewName = ref('');
+  const saveAsViewForm = ref({ name: '' });
+  const saveAsViewNameInputRef = ref<InstanceType<typeof ViewNameInput>>();
+  // 数据改为新建视图的空数据
+  function resetToNewViewForm() {
+    // TODO lmy 命名递增数字
+    formModel.value = {
+      ...cloneDeep(defaultFormModel),
+      name: '未命名视图001',
+    };
+    savedFormModel.value = cloneDeep(formModel.value);
+  }
+  // 保存视图
+  function handleSaveView() {
+    // TODO lmy 校验名称
+    formRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          if (formModel.value.id) {
+            await updateView(props.viewType, { ...getParams(), name: formModel.value.name, id: formModel.value.id });
+          } else {
+            await addView(props.viewType, { ...getParams(), name: formModel.value.name, id: formModel.value.id });
+          }
+          Message.success(t('common.saveSuccess'));
+          savedFormModel.value = cloneDeep(formModel.value);
+          emit('refreshViewList');
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      }
+    });
+  }
+  // 开启另存为视图模式
+  function handleToSaveAs() {
+    formRef.value?.validate((errors) => {
+      if (!errors) {
+        isSaveAsView.value = true;
+      }
+    });
+  }
+  // 取消另存为视图模式
   function handleCancelSaveAsView() {
     isSaveAsView.value = false;
-    saveAsViewName.value = '';
+    saveAsViewForm.value.name = '';
   }
+  // 新增视图
+  async function handleAddView() {
+    // TODO lmy 校验名称 saveAsViewNameInputRef
+    try {
+      await addView(props.viewType, { ...getParams(), name: formModel.value.name, id: formModel.value.id });
+      Message.success(t('common.saveSuccess'));
+      emit('refreshViewList');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  defineExpose({
+    resetToNewViewForm,
+    handleReset,
+  });
 </script>
 
 <style lang="less" scoped>

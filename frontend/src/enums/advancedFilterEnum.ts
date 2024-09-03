@@ -27,3 +27,7 @@ export enum FilterType {
   CASCADER = 'Cascader',
   JIRAKEY = 'JIRAKEY',
 }
+
+export enum ViewTypeEnum {
+  FUNCTIONAL_CASE = 'functional-case',
+}

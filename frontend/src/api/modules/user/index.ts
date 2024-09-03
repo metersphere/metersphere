@@ -1,3 +1,5 @@
+import type { ViewDetail, ViewList, ViewParams } from '@/components/pure/ms-advance-filter/type';
+
 import MSR from '@/api/http/index';
 import {
   AddAPIKEYUrl,
@@ -239,4 +241,25 @@ export function getPlatformOrgOption() {
 // 获取默认语言配置
 export function getDefaultLocale() {
   return MSR.get<LocaleType>({ url: GetDefaultLocaleUrl });
+}
+
+// 视图列表
+export function getViewList(viewType: string, scopeId: string) {
+  return MSR.get<ViewList>({ url: `/user-view/${viewType}/grouped/list`, params: scopeId });
+}
+// 视图详情
+export function getViewDetail(viewType: string, id: string) {
+  return MSR.get<ViewDetail>({ url: `/user-view/${viewType}/get/${id}` });
+}
+// 编辑视图
+export function updateView(viewType: string, data: ViewParams) {
+  return MSR.post({ url: `/user-view/${viewType}/update`, data });
+}
+// 新增视图
+export function addView(viewType: string, data: ViewParams) {
+  return MSR.post({ url: `/user-view/${viewType}/add`, data });
+}
+// 删除视图
+export function deleteView(viewType: string, id: string) {
+  return MSR.post({ url: `/user-view/${viewType}/delete/${id}` });
 }
