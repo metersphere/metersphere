@@ -27,4 +27,10 @@
         select 'SCENARIO' as caseType, ifnull(sum(tpras.api_scenario_bug_count), 0) as bugCount from test_plan_report_api_scenario tpras
         where tpras.test_plan_report_id = #{id}
     </select>
+
+    <select id="countPlanBug" resultType="io.metersphere.plan.dto.ReportBugCountDTO">
+        select brc.test_plan_case_id as refCaseId, count(brc.id) as bugCount from bug_relation_case brc join bug b on brc.bug_id = b.id
+        where brc.test_plan_id = #{id} and b.deleted = false
+        group by brc.test_plan_case_id
+    </select>
 </mapper>
