@@ -6,6 +6,7 @@ import { Recordable } from '#/global';
 export interface BaseConfig {
   url: string;
   prometheusHost: string;
+  fileMaxSize: string;
 }
 
 // 邮箱信息配置

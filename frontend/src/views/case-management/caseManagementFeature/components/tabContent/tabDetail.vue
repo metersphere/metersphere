@@ -207,7 +207,6 @@
         multiple
         draggable
         size-unit="MB"
-        :max-size="50"
         :is-all-screen="true"
         class="mb-[16px]"
         @change="handleChange"

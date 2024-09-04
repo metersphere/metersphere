@@ -52,6 +52,7 @@
   onBeforeMount(async () => {
     try {
       appStore.initSystemVersion(); // 初始化系统版本
+      appStore.initFileSizeLimit(); // 初始化文件大小限制
       // 企业版才校验license
       if (appStore.getPackageType === 'enterprise') {
         licenseStore.getValidateLicense();

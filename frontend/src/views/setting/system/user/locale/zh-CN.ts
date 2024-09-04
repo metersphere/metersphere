@@ -74,7 +74,7 @@ export default {
   'system.user.importModalTip': '用户组仅支持添加系统存在的用户组',
   'system.user.importDownload': '下载模板',
   'system.user.importModalDragText': '拖拽或点击此区域选择文件',
-  'system.user.importModalFileTip': '只支持 xls/xlsx格式文件，文件大小不超过 50M',
+  'system.user.importModalFileTip': '只支持 xls/xlsx格式文件，文件大小不超过 {size}M',
   'system.user.importModalCancel': '取消',
   'system.user.importModalConfirm': '导入',
   'system.user.importModalUploading': '文件上传中...',

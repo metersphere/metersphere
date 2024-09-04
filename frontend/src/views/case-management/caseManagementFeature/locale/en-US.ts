@@ -226,8 +226,8 @@ export default {
   'caseManagement.featureCase.formXMindExport': 'Import use cases from Xmind files',
   'caseManagement.featureCase.dragOrClick': 'Drag or click this area to select a file',
   'caseManagement.featureCase.onlyEXcelTip':
-    'Only xls and xlsx are supported, and the size of each device cannot exceed 100 MB',
-  'caseManagement.featureCase.onlyXmindTip': 'Only supports xmind, with a single size not exceeding 50M',
+    'Only xls and xlsx are supported, and the size of each device cannot exceed {size} MB',
+  'caseManagement.featureCase.onlyXmindTip': 'Only supports xmind, with a single size not exceeding {size}M',
   'caseManagement.featureCase.checkTemplate': 'Check template',
   'caseManagement.featureCase.checkImportFile': 'Check file',
   'caseManagement.featureCase.selectedRecoverCase':

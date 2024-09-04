@@ -124,7 +124,7 @@
                 <span class="text-[rgb(var(--warning-6))]" @click.stop="openLink">
                   {{ t('apiTestManagement.importSwaggerFileTip2') }}
                 </span>
-                {{ t('apiTestManagement.importSwaggerFileTip3') }}
+                {{ t('apiTestManagement.importSwaggerFileTip3', { size: appStore.getFileMaxSize }) }}
               </div>
               <div v-else-if="importForm.platform === RequestImportFormat.Postman" class="flex">
                 {{ t('apiTestManagement.importPostmanFileTip') }}

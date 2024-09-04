@@ -42,7 +42,7 @@ export default {
       defaultSystemTemplate: 'System template is defaulted',
       content: 'Bug content',
       file: 'Attachment files',
-      fileExtra: 'Max of file is 50MB',
+      fileExtra: 'Max of file is {size}MB',
       pleaseInputBugName: 'Please input bug name',
       nameIsRequired: 'Bug name cannot be empty',
       pleaseInputBugContent: 'Please input bug content',

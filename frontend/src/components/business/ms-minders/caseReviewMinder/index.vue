@@ -203,8 +203,8 @@
               {
                 data: {
                   id: 'fakeNode',
-                  text: 'fakeNode',
-                  resource: ['fakeNode'],
+                  text: '...',
+                  resource: [''],
                 },
               },
             ]

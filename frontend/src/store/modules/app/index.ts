@@ -7,7 +7,7 @@ import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
 import { getEnvironment, getEnvList } from '@/api/modules/api-test/common';
 import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
 import { getProjectList } from '@/api/modules/project-management/project';
-import { getPageConfig } from '@/api/modules/setting/config';
+import { getBaseInfo, getPageConfig } from '@/api/modules/setting/config';
 import { getPackageType, getSystemVersion } from '@/api/modules/system';
 import { getMenuList } from '@/api/modules/user';
 import defaultSettings from '@/config/settings.json';
@@ -71,6 +71,7 @@ const useAppStore = defineStore('app', {
     ordList: [],
     envList: [],
     currentEnvConfig: undefined,
+    fileMaxSize: 50,
   }),
 
   getters: {
@@ -119,6 +120,9 @@ const useAppStore = defineStore('app', {
     },
     getPackageType(state: AppState): string {
       return state.packageType;
+    },
+    getFileMaxSize(state: AppState): number {
+      return state.fileMaxSize;
     },
   },
   actions: {
@@ -400,6 +404,18 @@ const useAppStore = defineStore('app', {
         // eslint-disable-next-line no-console
         console.log(error);
       }
+    },
+    async initFileSizeLimit() {
+      try {
+        const res = await getBaseInfo();
+        this.fileMaxSize = Number(res.fileMaxSize) || 50;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+    },
+    setFileMaxSize(size: number) {
+      this.fileMaxSize = size;
     },
   },
   persist: {

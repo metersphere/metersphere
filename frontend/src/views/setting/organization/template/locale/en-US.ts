@@ -105,7 +105,7 @@ export default {
   'system.orgTemplate.expectationTip': 'Please enter expectations',
   'system.orgTemplate.actualResultTip': 'Please enter actuality',
   'system.orgTemplate.addAttachment': 'Add attachment',
-  'system.orgTemplate.addAttachmentTip': 'Support any type of file, the file size does not exceed 50MB',
+  'system.orgTemplate.addAttachmentTip': 'Support any type of file, the file size does not exceed {size}MB',
   'system.orgTemplate.enabledSuccessfully': 'Enabled successfully',
   'system.orgTemplate.thirdPartyPlatforms': 'Used to map field values for third-party platforms such as JIRA',
   'system.orgTemplate.optionsIdNoRepeat': 'The option ID must be unique',
