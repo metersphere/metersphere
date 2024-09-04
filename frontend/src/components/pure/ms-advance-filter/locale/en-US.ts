@@ -23,6 +23,7 @@ export default {
   'advanceFilter.operator.length.le': 'Length less than or equal to',
 
   'advanceFilter.view': 'View',
+  'advanceFilter.unnamedView': 'Unnamed View',
   'advanceFilter.systemView': 'System view',
   'advanceFilter.myView': 'My view',
   'advanceFilter.newView': 'New view',
@@ -40,4 +41,5 @@ export default {
   'advanceFilter.conditionRequired': 'Query condition cannot be empty',
   'advanceFilter.filterContentRequired': 'Filter content cannot be empty',
   'advanceFilter.filterTip': 'Filter mode, module filtering can only be operated in the current filter',
+  'advanceFilter.maxViewTip': 'Up to 10 views can be added',
 };

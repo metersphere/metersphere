@@ -52,7 +52,7 @@ export interface ConditionsItem extends CombineItem {
 
 export interface FilterResult {
   // 匹配模式 所有/任一
-  searchMode: AccordBelowType;
+  searchMode?: AccordBelowType;
   // 高级搜索
   conditions?: ConditionsItem[];
   combine?: any; // TODO lmy 此为防报错占位 所有高级筛选都完成后 删除这一行
@@ -69,6 +69,7 @@ export interface ViewItem {
   pos?: number; // 自定义排序
   createTime?: number;
   updateTime?: number;
+  isShowNameInput?: boolean;
 }
 export interface ViewList {
   internalViews: ViewItem[];

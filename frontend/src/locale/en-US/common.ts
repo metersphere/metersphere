@@ -208,4 +208,5 @@ export default {
   'common.cutSuccess': 'Cut successfully',
   'common.copySuccessToClipboard': 'Copied to clipboard',
   'common.casePriority': 'Case Priority',
+  'common.currentUser': 'Current user',
 };

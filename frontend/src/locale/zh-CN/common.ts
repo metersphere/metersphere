@@ -208,4 +208,5 @@ export default {
   'common.cutSuccess': '剪切成功',
   'common.copySuccessToClipboard': '已复制到剪切板',
   'common.casePriority': '用例等级',
+  'common.currentUser': '当前用户',
 };

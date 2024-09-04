@@ -2,17 +2,18 @@
   <MsDrawer v-model:visible="visible" :mask="false" :width="600">
     <template #title>
       <ViewNameInput
-        v-show="isShowNameInput"
+        v-if="isShowNameInput"
         ref="viewNameInputRef"
         v-model:form="formModel"
-        :all-names="allViewNames"
+        :all-names="allViewNames.filter((name) => name !== savedFormModel.name)"
         @handle-submit="isShowNameInput = false"
       />
-      <div v-show="!isShowNameInput" class="flex flex-1 items-center gap-[8px] overflow-hidden">
+      <div v-else class="flex flex-1 items-center gap-[8px] overflow-hidden">
         <a-tooltip :content="formModel.name">
           <div class="one-line-text"> {{ formModel.name }}</div>
         </a-tooltip>
         <MsIcon
+          v-if="formModel?.internalViewKey !== 'ALL_DATA'"
           type="icon-icon_edit_outlined"
           class="min-w-[16px] cursor-pointer hover:text-[rgb(var(--primary-5))]"
           @click="showNameInput"
@@ -91,6 +92,18 @@
             :disabled="isValueDisabled(item)"
             :max-length="255"
             :placeholder="t('common.pleaseInput')"
+          />
+          <MsSelect
+            v-else-if="item.type === FilterType.MEMBER"
+            v-model:model-value="item.value"
+            allow-clear
+            allow-search
+            :placeholder="t('common.pleaseSelect')"
+            :disabled="isValueDisabled(item)"
+            :options="props.memberOptions"
+            multiple
+            :search-keys="['label']"
+            :max-tag-count="1"
           />
           <MsSelect
             v-else-if="item.type === FilterType.SELECT"
@@ -180,12 +193,13 @@
       {{ t('advanceFilter.addCondition') }}
     </MsButton>
     <template #footer>
-      <div v-show="!isSaveAsView" class="flex items-center gap-[8px]">
+      <div v-if="!isSaveAsView" class="flex items-center gap-[8px]">
         <a-button type="primary" @click="handleFilter">{{ t('common.filter') }}</a-button>
         <a-button class="mr-[16px]" @click="handleReset">{{ t('common.reset') }}</a-button>
         <MsButton
           v-if="formModel?.internalViewKey !== 'ALL_DATA'"
           type="text"
+          :loading="saveLoading"
           class="!text-[var(--color-text-1)]"
           @click="handleSaveView"
         >
@@ -195,14 +209,14 @@
           {{ t('advanceFilter.saveAsView') }}
         </MsButton>
       </div>
-      <div v-show="isSaveAsView" class="flex items-center gap-[8px]">
+      <div v-else class="flex items-center gap-[8px]">
         <ViewNameInput
           ref="saveAsViewNameInputRef"
           v-model:form="saveAsViewForm"
           class="w-[240px]"
           :all-names="allViewNames"
         />
-        <a-button type="primary" @click="handleAddView">{{ t('common.save') }}</a-button>
+        <a-button type="primary" :loading="addLoading" @click="handleAddView">{{ t('common.save') }}</a-button>
         <a-button @click="handleCancelSaveAsView">{{ t('common.cancel') }}</a-button>
       </div>
     </template>
@@ -221,6 +235,7 @@
 
   import { addView, getViewDetail, updateView } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
   import { SelectValue } from '@/models/projectManagement/menuManagement';
   import { FilterType, OperatorEnum, ViewTypeEnum } from '@/enums/advancedFilterEnum';
@@ -234,6 +249,8 @@
     viewType: ViewTypeEnum;
     currentView: string; // 当前视图
     allViewNames: string[];
+    canNotAddView: boolean;
+    memberOptions: { label: string; value: string }[];
   }>();
   const emit = defineEmits<{
     (e: 'handleFilter', value: FilterResult): void;
@@ -242,6 +259,7 @@
   const visible = defineModel<boolean>('visible', { required: true });
 
   const { t } = useI18n();
+  const appStore = useAppStore();
 
   const defaultFormModel: FilterForm = {
     name: '',
@@ -361,6 +379,7 @@
   // 重置
   function handleReset() {
     formModel.value = cloneDeep(savedFormModel.value);
+    isShowNameInput.value = false;
   }
   // 过滤
   function handleFilter() {
@@ -378,29 +397,49 @@
       handleFilter();
     }
   );
+  watch(
+    () => visible.value,
+    async (val) => {
+      // 新建视图关闭后重新获取数据
+      if (!val && formModel.value?.id !== props.currentView) {
+        await getUserViewDetail(props.currentView);
+      }
+    }
+  );
 
-  const isSaveAsView = ref(false);
-  const saveAsViewForm = ref({ name: '' });
-  const saveAsViewNameInputRef = ref<InstanceType<typeof ViewNameInput>>();
   // 数据改为新建视图的空数据
   function resetToNewViewForm() {
-    // TODO lmy 命名递增数字
+    // 命名递增数字
+    let name = '';
+    for (let i = 1; i <= 10; i++) {
+      const defaultName = `${t('advanceFilter.unnamedView')}${String(i).padStart(3, '0')}`;
+      if (!props.allViewNames.includes(defaultName)) {
+        name = defaultName;
+        break;
+      }
+    }
     formModel.value = {
       ...cloneDeep(defaultFormModel),
-      name: '未命名视图001',
+      name,
     };
     savedFormModel.value = cloneDeep(formModel.value);
   }
   // 保存视图
-  function handleSaveView() {
-    // TODO lmy 校验名称
+  const saveLoading = ref(false);
+  function realSaveView() {
     formRef.value?.validate(async (errors) => {
       if (!errors) {
         try {
+          saveLoading.value = true;
           if (formModel.value.id) {
             await updateView(props.viewType, { ...getParams(), name: formModel.value.name, id: formModel.value.id });
           } else {
-            await addView(props.viewType, { ...getParams(), name: formModel.value.name, id: formModel.value.id });
+            await addView(props.viewType, {
+              ...getParams(),
+              scopeId: appStore.currentProjectId,
+              name: formModel.value.name,
+              id: formModel.value.id,
+            });
           }
           Message.success(t('common.saveSuccess'));
           savedFormModel.value = cloneDeep(formModel.value);
@@ -408,15 +447,34 @@
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
+        } finally {
+          saveLoading.value = false;
         }
       }
     });
   }
+  function handleSaveView() {
+    if (viewNameInputRef.value) {
+      viewNameInputRef.value?.validateForm(realSaveView);
+    } else {
+      realSaveView();
+    }
+  }
   // 开启另存为视图模式
+  const isSaveAsView = ref(false);
+  const saveAsViewForm = ref({ name: '' });
+  const saveAsViewNameInputRef = ref<InstanceType<typeof ViewNameInput>>();
   function handleToSaveAs() {
+    if (props.canNotAddView) {
+      Message.warning(t('advanceFilter.maxViewTip'));
+      return;
+    }
     formRef.value?.validate((errors) => {
       if (!errors) {
         isSaveAsView.value = true;
+        nextTick(() => {
+          saveAsViewNameInputRef.value?.inputFocus();
+        });
       }
     });
   }
@@ -426,16 +484,28 @@
     saveAsViewForm.value.name = '';
   }
   // 新增视图
-  async function handleAddView() {
-    // TODO lmy 校验名称 saveAsViewNameInputRef
+  const addLoading = ref(false);
+  async function realAddView() {
     try {
-      await addView(props.viewType, { ...getParams(), name: formModel.value.name, id: formModel.value.id });
+      addLoading.value = true;
+      await addView(props.viewType, {
+        ...getParams(),
+        scopeId: appStore.currentProjectId,
+        name: saveAsViewForm.value.name,
+        id: formModel.value.id,
+      });
       Message.success(t('common.saveSuccess'));
       emit('refreshViewList');
+      handleCancelSaveAsView();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      addLoading.value = false;
     }
+  }
+  async function handleAddView() {
+    saveAsViewNameInputRef.value?.validateForm(realAddView);
   }
 
   defineExpose({

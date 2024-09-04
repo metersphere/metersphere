@@ -412,7 +412,6 @@
   } from '@/api/modules/case-management/featureCase';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { getCaseRelatedInfo } from '@/api/modules/project-management/menuManagement';
-  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
@@ -774,7 +773,6 @@
     ],
   };
 
-  const memberOptions = ref<{ label: string; value: string }[]>([]);
   const filterConfigList = computed<FilterFormItem[]>(() => [
     {
       title: 'caseManagement.featureCase.tableColumnID',
@@ -787,7 +785,7 @@
       type: FilterType.INPUT,
     },
     {
-      title: 'caseManagement.featureCase.tableColumnModule',
+      title: 'common.belongModule',
       dataIndex: 'moduleId',
       type: FilterType.TREE_SELECT,
       treeSelectData: caseTreeData.value,
@@ -800,44 +798,59 @@
         multiple: true,
         treeCheckable: true,
         treeCheckStrictly: true,
-        maxTagCount: 2,
+        maxTagCount: 1,
       },
     },
     {
-      title: 'caseManagement.featureCase.tableColumnVersion',
-      dataIndex: 'versionId',
+      title: 'caseManagement.featureCase.tableColumnReviewResult',
+      dataIndex: 'reviewStatus',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: reviewResultOptions.value,
+      },
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnExecutionResult',
+      dataIndex: 'lastExecuteResult',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: executeResultOptions.value,
+      },
+    },
+    {
+      title: 'caseManagement.featureCase.associatedDemand',
+      dataIndex: 'demand',
       type: FilterType.INPUT,
     },
     {
-      title: 'caseManagement.featureCase.tableColumnCreateUser',
-      dataIndex: 'createUserName',
-      type: FilterType.SELECT,
-      selectProps: {
-        mode: 'static',
-        options: memberOptions.value,
-      },
+      title: 'caseManagement.featureCase.relatedAttachments',
+      dataIndex: 'attachment',
+      type: FilterType.INPUT,
     },
     {
-      title: 'caseManagement.featureCase.tableColumnCreateTime',
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
       dataIndex: 'createTime',
       type: FilterType.DATE_PICKER,
     },
     {
-      title: 'caseManagement.featureCase.tableColumnUpdateUser',
-      dataIndex: 'updateUserName',
-      type: FilterType.SELECT,
-      selectProps: {
-        mode: 'static',
-        options: memberOptions.value,
-      },
+      title: 'common.updateUserName',
+      dataIndex: 'updateUser',
+      type: FilterType.MEMBER,
     },
     {
-      title: 'caseManagement.featureCase.tableColumnUpdateTime',
+      title: 'common.updateTime',
       dataIndex: 'updateTime',
       type: FilterType.DATE_PICKER,
     },
     {
-      title: 'caseManagement.featureCase.tableColumnTag',
+      title: 'common.tag',
       dataIndex: 'tags',
       type: FilterType.TAGS_INPUT,
     },
@@ -846,8 +859,6 @@
 
   async function initFilter() {
     const result = await getCustomFieldsTable(currentProjectId.value);
-    memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
-    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
     // 处理系统自定义字段
     searchCustomFields.value = result.map((item: any) => {
       const FilterTypeKey: keyof typeof FilterType = CustomTypeMaps[item.type].type;

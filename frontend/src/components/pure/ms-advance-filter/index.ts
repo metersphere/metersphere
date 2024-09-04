@@ -38,6 +38,7 @@ export const operatorOptionsMap: Record<string, { value: string; label: string }
   [FilterType.RADIO]: COMMON_SELECTION_OPERATORS,
   [FilterType.CHECKBOX]: COMMON_SELECTION_OPERATORS,
   [FilterType.SELECT]: COMMON_SELECTION_OPERATORS,
+  [FilterType.MEMBER]: COMMON_SELECTION_OPERATORS,
   [FilterType.TAGS_INPUT]: [EMPTY, CONTAINS, NO_CONTAINS, COUNT_LT, COUNT_GT],
   [FilterType.TREE_SELECT]: [BELONG_TO, NOT_BELONG_TO],
   [FilterType.DATE_PICKER]: [BETWEEN, EQUAL, EMPTY, NOT_EMPTY],
