@@ -114,7 +114,6 @@ public class PlanRunTestPlanApiCaseService {
         String testPlanId = collection.getTestPlanId();
 
         List<TestPlanReportApiCase> testPlanReportApiCases = getTestPlanReportApiCases(testPlanReportId, collection);
-        testPlanReportApiCases.stream().sorted(Comparator.comparing(TestPlanReportApiCase::getPos));
         if (CollectionUtils.isEmpty(testPlanReportApiCases)) {
             return true;
         }
@@ -172,6 +171,7 @@ public class PlanRunTestPlanApiCaseService {
         example.createCriteria()
                 .andTestPlanReportIdEqualTo(testPlanReportId)
                 .andTestPlanCollectionIdEqualTo(collection.getId());
+        example.setOrderByClause(" pos asc");
         return testPlanReportApiCaseMapper.selectByExample(example);
     }
 

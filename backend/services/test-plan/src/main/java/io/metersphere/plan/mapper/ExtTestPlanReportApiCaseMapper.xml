@@ -16,6 +16,10 @@
         left join api_definition ad on atc.api_definition_id = ad.id
         left join api_definition_module adm on ad.module_id = adm.id
         where tpac.test_plan_id = #{id} and atc.deleted = false
+        and tpac.id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
         group by tpac.id
     </select>
 
@@ -41,6 +45,14 @@
         select id from test_plan_report_api_case
         where test_plan_report_id = #{testPlanReportId} and test_plan_collection_id = #{collectionId}
         order by pos desc
+    </select>
+    <select id="getPlanExecuteCasesId" resultType="java.lang.String">
+        select tpac.id
+        from test_plan_api_case tpac
+                 inner join api_test_case atc on atc.id = tpac.api_case_id
+        where tpac.test_plan_id = #{id}
+          and atc.deleted = false
+        order by tpac.pos desc
     </select>
 
     <sql id="filter">

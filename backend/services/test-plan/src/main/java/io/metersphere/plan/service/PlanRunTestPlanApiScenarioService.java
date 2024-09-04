@@ -106,31 +106,26 @@ public class PlanRunTestPlanApiScenarioService {
         String userId = testPlanExecutionQueue.getCreateUser();
         TestPlanCollection collection = JSON.parseObject(testPlanExecutionQueue.getTestPlanCollectionJson(), TestPlanCollection.class);
         String testPlanId = collection.getTestPlanId();
-
-        List<TestPlanReportApiScenario> testPlanReportApiScenarios = getTestPlanReportApiScenarios(testPlanReportId, collection);
-        testPlanReportApiScenarios.stream().sorted(Comparator.comparing(TestPlanReportApiScenario::getPos));
-        if (CollectionUtils.isEmpty(testPlanReportApiScenarios)) {
-            return true;
-        }
-
-        ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(collection);
-
-        Map<String, String> scenarioReportMap = initReport(testPlanReportApiScenarios, runModeConfig, userId);
-
-        List<TaskItem> taskItems = testPlanReportApiScenarios.stream()
-                .map(item -> apiExecuteService.getTaskItem(scenarioReportMap.get(item.getId()), item.getId())).toList();
-
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
+        ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(collection);
         TaskBatchRequestDTO taskRequest = testPlanApiScenarioBatchRunService.getTaskBatchRequestDTO(testPlan.getProjectId(), runModeConfig);
-        taskRequest.setTaskItems(taskItems);
         taskRequest.getTaskInfo().setParentQueueId(parentQueueId);
         taskRequest.getTaskInfo().setUserId(userId);
         taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name());
 
+        List<TestPlanReportApiScenario> testPlanReportApiScenarios = getTestPlanReportApiScenarios(testPlanReportId, collection);
+        if (CollectionUtils.isEmpty(testPlanReportApiScenarios)) {
+            return true;
+        }
+
+        Map<String, String> scenarioReportMap = initReport(testPlanReportApiScenarios, runModeConfig, userId);
+        List<TaskItem> taskItems = testPlanReportApiScenarios.stream()
+                .map(item -> apiExecuteService.getTaskItem(scenarioReportMap.get(item.getId()), item.getId())).toList();
         // 如果有父队列，则初始化执行集合，以便判断是否执行完毕
         apiExecutionSetService.initSet(parentQueueId, testPlanReportApiScenarios.stream().map(TestPlanReportApiScenario::getId).toList());
-
+        taskRequest.setTaskItems(taskItems);
         apiExecuteService.batchExecute(taskRequest);
+
         return false;
     }
 
@@ -182,8 +177,10 @@ public class PlanRunTestPlanApiScenarioService {
         example.createCriteria()
                 .andTestPlanReportIdEqualTo(testPlanReportId)
                 .andTestPlanCollectionIdEqualTo(collection.getId());
+        example.setOrderByClause(" pos asc");
         return testPlanReportApiScenarioMapper.selectByExample(example);
     }
+
 
     /**
      * 执行串行的下一个任务

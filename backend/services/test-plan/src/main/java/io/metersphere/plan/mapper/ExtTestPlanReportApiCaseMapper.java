@@ -23,7 +23,9 @@ public interface ExtTestPlanReportApiCaseMapper {
 	 * @param planId 计划ID
 	 * @return 接口用例列表
 	 */
-	List<TestPlanReportApiCase> getPlanExecuteCases(@Param("id") String planId);
+	List<TestPlanReportApiCase> getPlanExecuteCases(@Param("id") String planId, @Param("ids") List<String> ids);
+
+	List<String> getPlanExecuteCasesId(@Param("id") String planId);
 
 	/**
 	 * 获取项目下接口用例所属模块集合
