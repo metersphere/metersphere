@@ -1153,9 +1153,9 @@
   const taskId = ref('');
 
   // 下载文件
-  async function downloadFile() {
+  async function downloadFile(id: string) {
     try {
-      const response = await getCaseDownloadFile(currentProjectId.value, reportId.value);
+      const response = await getCaseDownloadFile(currentProjectId.value, id);
       const fileName = response?.headers.get('content-disposition').split('filename=')[1];
       downloadByteFile(response.data, decodeURIComponent(fileName));
     } catch (error) {
@@ -1164,7 +1164,7 @@
     }
   }
   // 提示：导出成功
-  function showExportSuccessfulMessage(count: number) {
+  function showExportSuccessfulMessage(id: string, count: number) {
     Message.success({
       content: () =>
         h('div', { class: 'flex flex-col gap-[8px] items-start' }, [
@@ -1176,7 +1176,7 @@
               {
                 type: 'text',
                 onClick() {
-                  downloadFile();
+                  downloadFile(id);
                 },
               },
               { default: () => t('common.downloadFile') }
@@ -1237,7 +1237,7 @@
         reportId.value = data.fileId;
         taskId.value = data.taskId;
         if (data.isSuccessful) {
-          showExportSuccessfulMessage(data.count);
+          showExportSuccessfulMessage(reportId.value, data.count);
         } else {
           Message.error({
             content: t('common.exportFailed'),
