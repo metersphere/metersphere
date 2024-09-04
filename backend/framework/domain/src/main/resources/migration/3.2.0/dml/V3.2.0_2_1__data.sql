@@ -20,3 +20,7 @@ INSERT INTO case_review_functional_case_user VALUES ('674739377709056', '9990094
 INSERT INTO case_review_functional_case_user VALUES ('680735152054272', '999009408442368', 'admin');
 INSERT INTO case_review_functional_case_user VALUES ('682968535048192', '999009408442368', 'admin');
 INSERT INTO case_review_functional_case_user VALUES ('693894931849216', '999009408442368', 'admin');
+
+
+-- set innodb lock wait timeout to default
+SET SESSION innodb_lock_wait_timeout = DEFAULT;
