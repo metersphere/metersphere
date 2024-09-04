@@ -9,6 +9,7 @@ import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +62,11 @@ public class TestPlanFunctionalCaseMinderService {
             }
             //模块
             if (CollectionUtils.isNotEmpty(request.getMinderModuleIds())) {
+                //处理未规划用例
+                List<String> rootIds = ids.stream().filter(id -> StringUtils.endsWith(id, "_root")).map(id -> id.replace("_root", "")).toList();
+                if (CollectionUtils.isNotEmpty(rootIds)) {
+                    ids.addAll(extTestPlanFunctionalCaseMapper.selectIdsByRootIds(rootIds, request.getTestPlanId()));
+                }
                 //获取模块及子模块
                 List<FunctionalCaseModule> modules = extTestPlanFunctionalCaseMapper.selectProjectByModuleIds(request.getMinderModuleIds());
                 Map<String, List<FunctionalCaseModule>> moduleMaps = modules.stream().collect(Collectors.groupingBy(FunctionalCaseModule::getProjectId));
@@ -68,14 +74,16 @@ public class TestPlanFunctionalCaseMinderService {
                 moduleMaps.forEach((k, v) -> {
                     buildIdsByModule(k, v, minderModuleIds);
                 });
-
-                ids.addAll(extTestPlanFunctionalCaseMapper.selectIdsByModuleIds(request, minderModuleIds));
+                if (CollectionUtils.isNotEmpty(minderModuleIds)) {
+                    ids.addAll(extTestPlanFunctionalCaseMapper.selectIdsByModuleIds(request, minderModuleIds));
+                }
             }
             //用例
             if (CollectionUtils.isNotEmpty(request.getMinderCaseIds())) {
                 ids.addAll(request.getMinderCaseIds());
             }
-            return ids;
+            //去重
+            return ids.stream().distinct().toList();
         }
     }
 
