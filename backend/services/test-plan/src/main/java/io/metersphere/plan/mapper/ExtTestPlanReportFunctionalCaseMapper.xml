@@ -9,6 +9,10 @@
         from test_plan_functional_case tpfc join functional_case fc on tpfc.functional_case_id = fc.id
         left join functional_case_module fcm on fcm.id = fc.module_id
         where tpfc.test_plan_id = #{id} and fc.deleted = false
+        and tpfc.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
         group by tpfc.id
     </select>
 
@@ -55,6 +59,14 @@
             left join functional_case fc on fc.id = tprfc.function_case_id
         where tprfc.test_plan_report_id = #{request.reportId}
         <include refid="filter"/>
+    </select>
+    <select id="getPlanExecuteCasesId" resultType="java.lang.String">
+        select tpfc.id
+        from test_plan_functional_case tpfc
+                 inner join functional_case fc on tpfc.functional_case_id = fc.id
+        where tpfc.test_plan_id = #{id}
+          and fc.deleted = false
+        order by tpfc.pos
     </select>
 
     <sql id="filter">

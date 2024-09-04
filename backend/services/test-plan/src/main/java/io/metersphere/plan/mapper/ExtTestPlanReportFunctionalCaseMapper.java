@@ -17,7 +17,7 @@ public interface ExtTestPlanReportFunctionalCaseMapper {
 	 * @param planId 计划ID
 	 * @return 功能用例列表
 	 */
-	List<TestPlanReportFunctionCase> getPlanExecuteCases(@Param("id") String planId);
+	List<TestPlanReportFunctionCase> getPlanExecuteCases(@Param("id") String planId, @Param("ids") List<String> ids);
 
 	/**
 	 * 获取项目下功能用例所属模块集合
@@ -53,4 +53,6 @@ public interface ExtTestPlanReportFunctionalCaseMapper {
 	 * @return 关联的用例集合
 	 */
 	List<ReportDetailCasePageDTO> list(@Param("request") TestPlanReportDetailPageRequest request);
+
+	List<String> getPlanExecuteCasesId(@Param("id") String testPlanId);
 }

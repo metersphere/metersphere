@@ -1,15 +1,9 @@
 package io.metersphere.plan.dto;
 
-import io.metersphere.plan.domain.TestPlanReportApiCase;
-import io.metersphere.plan.domain.TestPlanReportApiScenario;
-import io.metersphere.plan.domain.TestPlanReportBug;
-import io.metersphere.plan.domain.TestPlanReportFunctionCase;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @Builder
@@ -17,12 +11,12 @@ import java.util.List;
 @NoArgsConstructor
 public class TestPlanReportDetailCaseDTO {
 
-	private List<TestPlanReportFunctionCase> functionCases;
+	private long functionCaseCount;
 
-	private List<TestPlanReportApiCase> apiCases;
+	private long apiCaseCount;
 
-	private List<TestPlanReportApiScenario> apiScenarios;
+	private long apiScenarioCount;
 
-	private List<TestPlanReportBug> bugs;
+	private long bugCount;
 
 }

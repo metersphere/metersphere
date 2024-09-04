@@ -15,6 +15,10 @@
         from test_plan_api_scenario tpas join api_scenario aso on aso.id = tpas.api_scenario_id
         left join api_scenario_module asm on aso.module_id = asm.id
         where tpas.test_plan_id = #{id} and aso.deleted = false
+        and tpas.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
         group by tpas.id
     </select>
 
@@ -34,6 +38,14 @@
         from test_plan_report_api_scenario tpras left join  api_scenario aso on tpras.api_scenario_id = aso.id
         where tpras.test_plan_report_id = #{request.reportId}
         <include refid="filter"/>
+    </select>
+    <select id="getPlanExecuteCasesId" resultType="java.lang.String">
+        select tpas.id
+        from test_plan_api_scenario tpas
+                 inner join api_scenario aso on aso.id = tpas.api_scenario_id
+        where tpas.test_plan_id = #{id}
+          and aso.deleted = false
+        order by tpas.pos desc
     </select>
 
     <sql id="filter">
