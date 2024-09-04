@@ -23,6 +23,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.List;
 import java.util.UUID;
 
+import static io.metersphere.system.controller.result.SystemResultCode.USER_VIEW_EXIST;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -33,6 +35,7 @@ public class UserViewControllerTests extends BaseTest {
     private final String GROUPED_LIST = "grouped/list?scopeId={0}";
 
     private static UserViewDTO addUserViewDTO;
+    private static UserViewDTO anotherAddUserViewDTO;
 
     @Resource
     private UserViewService userViewService;
@@ -117,6 +120,14 @@ public class UserViewControllerTests extends BaseTest {
         UserViewDTO userViewDTO = userViewService.get(addUserViewDTO.getId(), UserViewType.FUNCTIONAL_CASE, InternalUser.ADMIN.getValue());
         Assertions.assertEquals(request, BeanUtils.copyBean(new UserViewAddRequest(), userViewDTO));
         Assertions.assertEquals(request.getConditions(), userViewDTO.getConditions());
+
+        // @@重名校验异常
+        assertErrorCode(this.requestPost(DEFAULT_ADD, request), USER_VIEW_EXIST);
+
+        request.setName(UUID.randomUUID().toString());
+        request.setConditions(null);
+        mvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
+        anotherAddUserViewDTO = getResultData(mvcResult, UserViewDTO.class);
     }
 
     @Test
@@ -134,6 +145,13 @@ public class UserViewControllerTests extends BaseTest {
         UserViewDTO userViewDTO = userViewService.get(addUserViewDTO.getId(), UserViewType.FUNCTIONAL_CASE, InternalUser.ADMIN.getValue());
         Assertions.assertEquals(request, BeanUtils.copyBean(new UserViewUpdateRequest(), userViewDTO));
         Assertions.assertEquals(request.getConditions(), userViewDTO.getConditions());
+
+        // @@ Conditions 为 null
+        request.setId(anotherAddUserViewDTO.getId());
+        assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), USER_VIEW_EXIST);
+        request.setName(UUID.randomUUID().toString());
+        request.setConditions(null);
+        this.requestPostWithOkAndReturn(DEFAULT_UPDATE, request);
     }
 
     @Test
@@ -160,7 +178,7 @@ public class UserViewControllerTests extends BaseTest {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(GROUPED_LIST, DEFAULT_PROJECT_ID);
         UserViewListGroupedDTO result = getResultData(mvcResult, UserViewListGroupedDTO.class);
         Assertions.assertEquals(result.getInternalViews().size(), 3);
-        Assertions.assertEquals(result.getCustomViews().size(), 1);
+        Assertions.assertEquals(result.getCustomViews().size(), 2);
         Assertions.assertEquals(result.getCustomViews().get(0), BeanUtils.copyBean(new UserViewListDTO(), addUserViewDTO));
     }
 

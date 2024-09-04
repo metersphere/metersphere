@@ -22,7 +22,7 @@ public enum InternalUserView {
         CombineCondition condition = new CombineCondition();
         condition.setName("follower");
         condition.setValue(getCurrentUserValue());
-        condition.setOperator(CombineCondition.CombineConditionOperator.EQUALS.name());
+        condition.setOperator(CombineCondition.CombineConditionOperator.IN.name());
         userViewDTO.setConditions(List.of(condition));
         return userViewDTO;
     }),
@@ -31,7 +31,16 @@ public enum InternalUserView {
         CombineCondition condition = new CombineCondition();
         condition.setName("create_user");
         condition.setValue(getCurrentUserValue());
-        condition.setOperator(CombineCondition.CombineConditionOperator.EQUALS.name());
+        condition.setOperator(CombineCondition.CombineConditionOperator.IN.name());
+        userViewDTO.setConditions(List.of(condition));
+        return userViewDTO;
+    }),
+    MY_REVIEW(() -> {
+        UserViewDTO userViewDTO = getUserViewDTO("my_review");
+        CombineCondition condition = new CombineCondition();
+        condition.setName("review_user");
+        condition.setValue(getCurrentUserValue());
+        condition.setOperator(CombineCondition.CombineConditionOperator.IN.name());
         userViewDTO.setConditions(List.of(condition));
         return userViewDTO;
     });
