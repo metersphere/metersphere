@@ -23,6 +23,7 @@ import io.metersphere.system.mapper.UserViewConditionMapper;
 import io.metersphere.system.mapper.UserViewMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static io.metersphere.system.controller.result.SystemResultCode.USER_VIEW_EXIST;
 
 /**
  * @Author: jianxing
@@ -90,6 +93,7 @@ public class UserViewService {
     }
 
     public UserViewDTO add(UserViewAddRequest request, String viewType, String userId) {
+        checkAddExist(request, viewType, userId);
         Long nextPos = getNextPos(request.getScopeId(), userId, viewType);
         UserView userView = BeanUtils.copyBean(new UserView(), request);
         userView.setCreateTime(System.currentTimeMillis());
@@ -113,6 +117,33 @@ public class UserViewService {
         return userViewDTO;
     }
 
+    private void checkAddExist(UserViewAddRequest request, String viewType, String userId) {
+        UserViewExample example = new UserViewExample();
+        example.createCriteria()
+                .andUserIdEqualTo(userId)
+                .andScopeIdEqualTo(request.getScopeId())
+                .andViewTypeEqualTo(viewType)
+                .andNameEqualTo(request.getName());
+        if (userViewMapper.countByExample(example) > 0) {
+            throw new MSException(USER_VIEW_EXIST);
+        }
+    }
+
+    private void checkUpdateExist(String name, String scopeId, String viewType, String userId) {
+        if (StringUtils.isBlank(name)) {
+            return;
+        }
+        UserViewExample example = new UserViewExample();
+        example.createCriteria()
+                .andUserIdEqualTo(userId)
+                .andScopeIdEqualTo(scopeId)
+                .andViewTypeEqualTo(viewType)
+                .andNameEqualTo(name);
+        if (userViewMapper.countByExample(example) > 0) {
+            throw new MSException(USER_VIEW_EXIST);
+        }
+    }
+
     public Long getNextPos(String scopeId, String userId, String viewType) {
         Long pos = extUserViewMapper.getLastPos(scopeId, userId, viewType, null);
         return (pos == null ? 0 : pos) + POS_STEP;
@@ -133,6 +164,9 @@ public class UserViewService {
     }
 
     private void addUserViewConditions(List<CombineCondition> conditions, UserView userView) {
+        if (CollectionUtils.isEmpty(conditions)) {
+            return;
+        }
         List<UserViewCondition> insertConditions = conditions.stream().map(condition -> {
             UserViewCondition userViewCondition = BeanUtils.copyBean(new UserViewCondition(), condition);
             userViewCondition.setId(IDGenerator.nextStr());
@@ -187,16 +221,19 @@ public class UserViewService {
         UserView originUserView = userViewMapper.selectByPrimaryKey(request.getId());
         // 校验权限，只能修改自己的视图
         checkOwner(userId, originUserView);
+        checkUpdateExist(request.getName(), originUserView.getScopeId(), viewType, userId);
 
         UserView userView = BeanUtils.copyBean(new UserView(), request);
         userView.setViewType(viewType);
         userView.setUpdateTime(System.currentTimeMillis());
         userViewMapper.updateByPrimaryKeySelective(userView);
 
-        // 先删除
-        deleteConditionsByViewId(originUserView.getId());
-        // 再新增
-        addUserViewConditions(request.getConditions(), userView);
+        if (request.getConditions() != null) {
+            // 先删除
+            deleteConditionsByViewId(originUserView.getId());
+            // 再新增
+            addUserViewConditions(request.getConditions(), userView);
+        }
 
         UserViewDTO userViewDTO = BeanUtils.copyBean(new UserViewDTO(), request);
         userViewDTO.setId(originUserView.getId());

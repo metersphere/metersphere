@@ -8,10 +8,18 @@ import java.util.List;
 /**
  * @Author: jianxing
  * @CreateTime: 2024-09-02  10:47
+ *
+ * 视图的类型
+ * 例如：功能用例视图
+ *
  */
 public enum UserViewType implements ValueEnum {
 
     FUNCTIONAL_CASE("functional-case",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_FOLLOW, InternalUserView.MY_CREATE)),
+    REVIEW_FUNCTIONAL_CASE("review-functional-case",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_REVIEW, InternalUserView.MY_CREATE)),
+    API_DEFINITION("api-definition",
             List.of(InternalUserView.ALL_DATA, InternalUserView.MY_FOLLOW, InternalUserView.MY_CREATE)),
     ;
 
