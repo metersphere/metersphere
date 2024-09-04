@@ -27,7 +27,6 @@ import io.metersphere.functional.mapper.ExportTaskMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseCommentMapper;
 import io.metersphere.functional.request.FunctionalCaseExportRequest;
 import io.metersphere.functional.request.FunctionalCaseImportRequest;
-import io.metersphere.functional.socket.ExportWebSocketHandler;
 import io.metersphere.functional.xmind.parser.XMindCaseParser;
 import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
 import io.metersphere.project.domain.Project;
@@ -56,6 +55,7 @@ import io.metersphere.system.mapper.SystemParameterMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.service.FileService;
 import io.metersphere.system.service.NoticeSendService;
+import io.metersphere.system.socket.ExportWebSocketHandler;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
@@ -564,6 +564,7 @@ public class FunctionalCaseFileService {
                     throw new MSException(e);
                 }
             }
+
             //生成临时EXCEL
             EasyExcel.write(createFile)
                     .head(Optional.ofNullable(headList).orElse(new ArrayList<>()))

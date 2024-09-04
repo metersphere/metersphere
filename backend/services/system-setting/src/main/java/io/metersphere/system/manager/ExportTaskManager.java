@@ -1,10 +1,13 @@
 package io.metersphere.system.manager;
 
 import io.metersphere.functional.domain.ExportTask;
+import io.metersphere.functional.domain.ExportTaskExample;
 import io.metersphere.functional.mapper.ExportTaskMapper;
 import io.metersphere.sdk.constants.KafkaTopicConstants;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.constants.ExportConstants;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
@@ -15,6 +18,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -95,5 +99,39 @@ public class ExportTaskManager {
                 map.remove(next);
             }
         }
+    }
+
+    public void exportCheck(String projectId, String exportType, String userId) {
+        ExportTaskExample exportTaskExample = new ExportTaskExample();
+        exportTaskExample.createCriteria().andTypeEqualTo(exportType).andStateEqualTo(ExportConstants.ExportState.PREPARED.toString())
+                .andCreateUserEqualTo(userId).andProjectIdEqualTo(projectId);
+        exportTaskExample.setOrderByClause("create_time desc");
+        if (exportTaskMapper.countByExample(exportTaskExample) > 0) {
+            throw new MSException(Translator.get("export_case_task_existed"));
+        }
+    }
+
+    public List<ExportTask> getExportTasks(String projectId, String exportType, String exportState, String userId, String fileId) {
+        ExportTaskExample exportTaskExample = new ExportTaskExample();
+        ExportTaskExample.Criteria criteria = exportTaskExample.createCriteria().andCreateUserEqualTo(userId).andProjectIdEqualTo(projectId);
+        if (StringUtils.isNotBlank(exportType)) {
+            criteria.andTypeEqualTo(exportType);
+        }
+        if (StringUtils.isNotBlank(exportState)) {
+            criteria.andStateEqualTo(exportState);
+        }
+        if (StringUtils.isNotBlank(fileId)) {
+            criteria.andFileIdEqualTo(fileId);
+        }
+        exportTaskExample.setOrderByClause("create_time desc");
+        return exportTaskMapper.selectByExample(exportTaskExample);
+    }
+
+    public void updateExportTask(String state, String taskId, String fileType) {
+        ExportTask exportTask = new ExportTask();
+        exportTask.setState(state);
+        exportTask.setFileType(fileType);
+        exportTask.setId(taskId);
+        exportTaskMapper.updateByPrimaryKeySelective(exportTask);
     }
 }

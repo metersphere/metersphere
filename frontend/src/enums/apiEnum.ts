@@ -85,6 +85,11 @@ export enum RequestImportFormat {
   Jmeter = 'Jmeter',
   Har = 'Har',
 }
+
+export enum RequestExportFormat {
+  SWAGGER = 'Swagger',
+  MeterSphere = 'MeterSphere',
+}
 // 接口导入方式
 export enum RequestImportType {
   API = 'API',
