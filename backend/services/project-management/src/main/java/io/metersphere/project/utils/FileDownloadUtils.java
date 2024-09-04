@@ -3,10 +3,7 @@ package io.metersphere.project.utils;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -38,6 +35,23 @@ public class FileDownloadUtils {
             response.setContentType("application/zip");
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.setHeader("Content-disposition", "attachment;filename=files.zip");
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
+    }
+
+    public static void zipFilesWithResponse(String fileName, InputStream fileInputStream, HttpServletResponse response) {
+
+        try (OutputStream outputStream = response.getOutputStream()) {
+            byte[] buffer = new byte[512];
+            int num;
+            while ((num = fileInputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, num);
+            }
+            outputStream.close();
+            response.setContentType("application/zip");
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+            response.setHeader("Content-disposition", "attachment;filename=" + fileName);
         } catch (Exception e) {
             LogUtils.error(e);
         }

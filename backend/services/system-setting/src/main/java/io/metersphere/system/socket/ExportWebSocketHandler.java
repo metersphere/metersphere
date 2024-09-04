@@ -1,4 +1,4 @@
-package io.metersphere.functional.socket;
+package io.metersphere.system.socket;
 
 import io.metersphere.sdk.constants.MsgType;
 import io.metersphere.sdk.dto.ExportMsgDTO;
