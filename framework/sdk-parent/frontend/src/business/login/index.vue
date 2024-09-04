@@ -1,5 +1,11 @@
 <template>
-  <div class="container">
+  <div
+    class="container"
+    v-if="preheat"
+    v-loading="preheat"
+    :element-loading-text="$t('commons.login_info')"
+    element-loading-spinner="el-icon-loading"></div>
+  <div class="container" v-else>
     <el-row type="flex">
       <el-col :span="12">
         <div class="content">
@@ -49,14 +55,12 @@
               {{ $t('commons.login') }}
             </el-button>
           </div>
-          <el-divider  v-if="orgOptions.length > 0"  class="login-divider"><span style="color: #959598; font-size: 12px">更多登录方式</span></el-divider>
-          <div
-              v-if="orgOptions.length > 0"
-              class="loginType"
-              @click="switchLoginType('QR_CODE')"
+          <el-divider v-if="orgOptions.length > 0" class="login-divider"
+            ><span style="color: #959598; font-size: 12px">更多登录方式</span></el-divider
           >
-            <svg-icon v-if="!showQrCodeTab" icon-class="icon_scan_code" class-name="ms-icon"/>
-            <svg-icon v-if="showQrCodeTab" icon-class="icon_people" class-name="ms-icon"/>
+          <div v-if="orgOptions.length > 0" class="loginType" @click="switchLoginType('QR_CODE')">
+            <svg-icon v-if="!showQrCodeTab" icon-class="icon_scan_code" class-name="ms-icon" />
+            <svg-icon v-if="showQrCodeTab" icon-class="icon_people" class-name="ms-icon" />
           </div>
           <div class="msg">
             {{ msg }}
@@ -86,16 +90,15 @@ import {
   getDisplayInfo,
   getLanguage,
   getSystemTheme,
-  saveBaseUrl
-} from "../../api/user";
-import {useUserStore} from "@/store"
-import {operationConfirm} from "../../utils";
-import {getModuleList} from "../../api/module";
-import {getLicense} from "../../api/license";
-import {setLanguage} from "../../i18n";
-import {getPlatformParamUrl} from "../../api/qrcode";
-import tabQrCode from "../login/tabQrCode.vue";
-
+  saveBaseUrl,
+} from '../../api/user';
+import { useUserStore } from '@/store';
+import { operationConfirm } from '../../utils';
+import { getModuleList } from '../../api/module';
+import { getLicense } from '../../api/license';
+import { setLanguage } from '../../i18n';
+import { getPlatformParamUrl } from '../../api/qrcode';
+import tabQrCode from '../login/tabQrCode.vue';
 const checkLicense = () => {
   return getLicense()
     .then((response) => {
@@ -112,8 +115,8 @@ const checkLicense = () => {
 };
 
 export default {
-  name: "Login",
-  components: {tabQrCode},
+  name: 'Login',
+  components: { tabQrCode },
   data() {
     return {
       loading: false,
@@ -122,6 +125,7 @@ export default {
         password: '',
         authenticate: 'LOCAL',
       },
+      preheat: true,
       rules: this.getDefaultRules(),
       msg: '',
       redirect: undefined,
@@ -131,10 +135,10 @@ export default {
       authSources: [],
       lastUser: sessionStorage.getItem('lastUser'),
       loginTitle: undefined,
-      showQrCodeTab:false,
-      activeName:'',
-      orgOptions:[]
-    }
+      showQrCodeTab: false,
+      activeName: '',
+      orgOptions: [],
+    };
   },
   watch: {
     $route: {
@@ -193,10 +197,12 @@ export default {
     userStore
       .getIsLogin()
       .then((res) => {
+        this.preheat = true;
         this.getLanguage(res.data.language);
         window.location.href = '/';
       })
       .catch((data) => {
+        this.preheat = false;
         // 保存公钥
         localStorage.setItem('publicKey', data.message);
         let lang = localStorage.getItem('language');
@@ -406,17 +412,16 @@ export default {
     },
     async initPlatformInfo() {
       try {
-        await getPlatformParamUrl().then(res=>{
+        await getPlatformParamUrl().then((res) => {
           if (localStorage.getItem('loginType')) {
             this.showQrCodeTab = true;
-            this.activeName =  localStorage.getItem('loginType') || 'WE_COM';
+            this.activeName = localStorage.getItem('loginType') || 'WE_COM';
           }
           this.orgOptions = res.data.map((e) => ({
             label: e.name,
             value: e.id,
           }));
         });
-
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
@@ -424,10 +429,9 @@ export default {
     },
     switchLoginType(type) {
       this.showQrCodeTab = this.showQrCodeTab === false;
-
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -546,12 +550,12 @@ export default {
   border: 1px solid #ededf1;
   border-radius: 50%;
 }
-.login-divider{
+.login-divider {
   display: flex;
   margin: 26px auto;
   width: 480px;
 }
-.loginType{
+.loginType {
   display: flex;
   align-items: center;
   align-content: center;
