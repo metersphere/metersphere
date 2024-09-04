@@ -72,7 +72,7 @@ public class TestPlanFunctionalCaseController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString("id", "functional_case")) ? request.getSortString("id", "functional_case") : "test_plan_functional_case.pos desc");
 
-        return PageUtils.setPageInfo(page, testPlanFunctionalCaseService.getFunctionalCasePage(request, false));
+        return PageUtils.setPageInfo(page, testPlanFunctionalCaseService.getFunctionalCasePage(request, false, SessionUtils.getCurrentProjectId()));
     }
 
     @PostMapping("/tree")
