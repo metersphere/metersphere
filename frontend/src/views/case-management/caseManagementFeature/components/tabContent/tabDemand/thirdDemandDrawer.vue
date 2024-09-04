@@ -32,8 +32,8 @@
       <template #demandName="{ record }">
         <span class="ml-1 text-[rgb(var(--primary-5))]">
           {{ record.demandName }}
-          <span>({{ (record.children || []).length || 0 }})</span></span
-        >
+          <span v-if="(record.children || []).length">({{ (record.children || []).length || 0 }})</span>
+        </span>
       </template>
       <template v-for="item in customFields" :key="item.slotName" #[item.dataIndex]="{ record }">
         <span> {{ getSlotName(record, item) }} </span>

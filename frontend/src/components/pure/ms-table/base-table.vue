@@ -233,7 +233,7 @@
       </template>
       <template #expand-icon="{ expanded, record }">
         <!-- @desc: 这里为了树级别展开折叠如果子级别children不存在不展示展开折叠，所以原本组件的隐藏掉，改成自定义便于控制展示隐藏 -->
-        <slot v-if="record.children" name="expand-icon" v-bind="{ expanded, record }">
+        <slot v-if="record.children && record.children.length" name="expand-icon" v-bind="{ expanded, record }">
           <div
             :class="`${
               expanded ? 'expanded-border bg-[rgb(var(--primary-1))]' : 'not-expanded-border bg-[var(--color-text-n8)]'
@@ -844,7 +844,11 @@
   }
 
   function getChecked(record: TableData) {
-    if (!record.children || (attrs.rowSelectionDisabledConfig as MsTableRowSelectionDisabledConfig)?.disabledChildren) {
+    if (
+      !record.children ||
+      (attrs.rowSelectionDisabledConfig as MsTableRowSelectionDisabledConfig)?.disabledChildren ||
+      !(attrs.rowSelectionDisabledConfig as MsTableRowSelectionDisabledConfig)?.checkStrictly
+    ) {
       return props.selectedKeys.has(record[rowKey || 'id']);
     }
 
@@ -853,6 +857,11 @@
   }
 
   function getIndeterminate(record: TableData) {
+    // 如果不是父子级关联关系不呈现半选状态
+    const { rowSelectionDisabledConfig } = attrs;
+    if (!(rowSelectionDisabledConfig as MsTableRowSelectionDisabledConfig)?.checkStrictly) {
+      return false;
+    }
     if (!record.children || (attrs.rowSelectionDisabledConfig as MsTableRowSelectionDisabledConfig)?.disabledChildren) {
       return false;
     }
@@ -1017,8 +1026,6 @@
     background: none !important;
   }
   :deep(.arco-table .arco-table-expand-btn) {
-    width: 16px;
-    height: 16px;
     border-color: transparent;
   }
   :deep(.arco-table-tr-expand .arco-table-td) {

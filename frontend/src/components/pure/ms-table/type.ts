@@ -35,8 +35,9 @@ export interface MsTableColumnFilterConfig {
 }
 
 export interface MsTableRowSelectionDisabledConfig {
-  disabledChildren?: boolean;
-  parentKey?: string;
+  disabledChildren?: boolean; // 是否禁用子节点选择
+  parentKey?: string; // 父节点Key
+  checkStrictly?: boolean; // 父子节点选择是否关联，关联存在半选状态，不关联不存在，选择父即父，选择子即子
 }
 
 export interface MsTableColumnData extends TableColumnData {
