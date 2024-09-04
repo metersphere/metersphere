@@ -67,6 +67,7 @@ export default {
   'caseManagement.featureCase.moveTo': 'Move to',
   'caseManagement.featureCase.copyTo': 'Copy to',
   'caseManagement.featureCase.associatedDemand': 'Associated demand',
+  'caseManagement.featureCase.relatedAttachments': 'Related attachments',
   'caseManagement.featureCase.generatingDependencies': 'Generative dependency',
   'caseManagement.featureCase.addToPublic': 'Add to public case',
   'caseManagement.featureCase.updateCase': 'Update Case',

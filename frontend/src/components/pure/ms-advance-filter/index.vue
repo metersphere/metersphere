@@ -34,8 +34,9 @@
       <a-select
         v-if="props.viewType"
         v-model:model-value="currentView"
+        :loading="viewListLoading"
         :trigger-props="{ contentClass: 'view-select-trigger' }"
-        class="w-[160px]"
+        class="w-[180px]"
         show-footer-on-empty
       >
         <template #prefix> {{ t('advanceFilter.view') }} </template>
@@ -45,25 +46,34 @@
           </a-option>
         </a-optgroup>
         <a-optgroup :label="t('advanceFilter.myView')">
-          <a-option v-for="item in customViews" :key="item.id" :value="item.id">
-            {{ item.name }}
-            <div class="flex">
-              <a-tooltip :content="t('common.rename')">
-                <MsButton type="text" status="secondary" class="!mr-[4px]" @click.stop="handleRenameView(item)">
-                  <MsIcon type="icon-icon_edit_outlined" class="hover:text-[rgb(var(--primary-4))]" size="12" />
-                </MsButton>
-              </a-tooltip>
-              <a-tooltip :content="t('advanceFilter.deleteView')">
-                <MsButton type="text" status="secondary" @click.stop="handleDeleteView(item)">
-                  <MsIcon
-                    type="icon-icon_delete-trash_outlined1"
-                    class="hover:text-[rgb(var(--primary-4))]"
-                    size="12"
-                  />
-                </MsButton>
-              </a-tooltip>
-            </div>
-          </a-option>
+          <template v-for="item in customViews" :key="item.id">
+            <a-option v-show="!item.isShowNameInput" :value="item.id">
+              <div>{{ item.name }}</div>
+              <div class="select-extra flex">
+                <a-tooltip :content="t('common.rename')">
+                  <MsButton type="text" status="secondary" class="!mr-[4px]" @click="handleToRenameView(item)">
+                    <MsIcon type="icon-icon_edit_outlined" class="hover:text-[rgb(var(--primary-4))]" size="12" />
+                  </MsButton>
+                </a-tooltip>
+                <a-tooltip :content="t('advanceFilter.deleteView')">
+                  <MsButton type="text" :disabled="deleteLoading" status="secondary" @click="handleDeleteView(item)">
+                    <MsIcon
+                      type="icon-icon_delete-trash_outlined1"
+                      class="hover:text-[rgb(var(--primary-4))]"
+                      size="12"
+                    />
+                  </MsButton>
+                </a-tooltip>
+              </div>
+            </a-option>
+            <ViewNameInput
+              v-if="item.isShowNameInput"
+              :ref="(el:refItem) => setNameInputRefMap(el, item)"
+              v-model:form="formModel"
+              :all-names="allViewNames.filter((name) => name !== item.name)"
+              @handle-submit="handleRenameView"
+            />
+          </template>
         </a-optgroup>
         <template #footer>
           <div class="flex cursor-pointer items-center gap-[8px]" @click="toNewView">
@@ -111,6 +121,8 @@
     :all-view-names="allViewNames"
     :config-list="props.filterConfigList"
     :custom-list="props.customFieldsConfigList"
+    :can-not-add-view="canNotAddView"
+    :member-options="memberOptions"
     @handle-filter="handleFilter"
     @refresh-view-list="getUserViewList"
   />
@@ -122,9 +134,11 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTag from '../ms-tag/ms-tag.vue';
+  import ViewNameInput from './components/viewNameInput.vue';
   import FilterDrawer from './filterDrawer.vue';
 
-  import { deleteView, getViewList } from '@/api/modules/user/index';
+  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
+  import { deleteView, getViewList, updateView } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -159,39 +173,91 @@
   const currentView = ref(''); // 当前视图
   const internalViews = ref<ViewItem[]>([]);
   const customViews = ref<ViewItem[]>([]);
+  const viewListLoading = ref(false);
   const allViewNames = computed(() => [...internalViews.value, ...customViews.value].map((item) => item.name));
+  const canNotAddView = computed(() => customViews.value.length >= 10);
   async function getUserViewList() {
     try {
+      viewListLoading.value = true;
       const res = await getViewList(props.viewType as ViewTypeEnum, appStore.currentProjectId);
       internalViews.value = res.internalViews;
       customViews.value = res.customViews;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      viewListLoading.value = false;
     }
   }
+  const memberOptions = ref<{ label: string; value: string }[]>([]);
+  async function getMemberOptions() {
+    const res = await getProjectOptions(appStore.currentProjectId);
+    memberOptions.value = [{ name: t('common.currentUser'), id: 'CURRENT_USER' }, ...res].map((e: any) => ({
+      label: e.name,
+      value: e.id,
+    }));
+  }
   onMounted(async () => {
-    await getUserViewList();
-    currentView.value = internalViews.value[0].id;
+    if (props.viewType) {
+      getMemberOptions();
+      await getUserViewList();
+      currentView.value = internalViews.value[0]?.id;
+    }
   });
 
   const filterDrawerRef = ref<InstanceType<typeof FilterDrawer>>();
   function toNewView() {
+    if (canNotAddView.value) {
+      Message.warning(t('advanceFilter.maxViewTip'));
+      return;
+    }
     visible.value = true;
     filterDrawerRef.value?.resetToNewViewForm();
   }
-  function handleRenameView(item: ViewItem) {
-    // TODO lmy 重命名
+
+  type refItem = Element | ComponentPublicInstance | null;
+  const viewNameInputRefMap: Record<string, any> = {};
+  function setNameInputRefMap(el: refItem, item: ViewItem) {
+    if (el) {
+      viewNameInputRefMap[`${item.id}`] = el;
+    }
   }
-  async function handleDeleteView(item: ViewItem) {
+  const formModel = ref({ name: '', id: '' });
+  function handleToRenameView(item: ViewItem) {
+    formModel.value.id = item.id;
+    formModel.value.name = item.name;
+    item.isShowNameInput = true;
+    nextTick(() => {
+      viewNameInputRefMap[item.id]?.inputFocus();
+    });
+  }
+  async function handleRenameView() {
     try {
-      await deleteView(item.viewType, item.id);
-      Message.success(t('common.deleteSuccess'));
+      await updateView(props.viewType as string, { name: formModel.value.name, id: formModel.value.id });
+      Message.success(t('common.saveSuccess'));
       getUserViewList();
-      currentView.value = internalViews.value[0].id;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    }
+  }
+
+  // 删除试图
+  const deleteLoading = ref(false);
+  async function handleDeleteView(item: ViewItem) {
+    try {
+      deleteLoading.value = true;
+      await deleteView(props.viewType as string, item.id);
+      Message.success(t('common.deleteSuccess'));
+      await getUserViewList();
+      if (item.id === currentView.value) {
+        currentView.value = internalViews.value[0].id;
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      deleteLoading.value = false;
     }
   }
 
@@ -241,6 +307,14 @@
   .view-select-trigger .arco-select-dropdown {
     .arco-select-option-content {
       @apply flex w-full items-center justify-between;
+    }
+    .select-extra {
+      visibility: hidden;
+    }
+    .arco-select-option:hover {
+      .select-extra {
+        visibility: visible;
+      }
     }
     .arco-select-dropdown-list-wrapper {
       max-height: 255px;

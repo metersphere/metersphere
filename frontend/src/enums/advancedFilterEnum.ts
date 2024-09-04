@@ -18,6 +18,7 @@ export enum FilterType {
   INPUT = 'Input',
   NUMBER = 'Number',
   SELECT = 'Select',
+  MEMBER = 'Member',
   DATE_PICKER = 'DatePicker',
   TAGS_INPUT = 'TagsInput',
   TREE_SELECT = 'TreeSelect',

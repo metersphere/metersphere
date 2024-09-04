@@ -245,7 +245,7 @@ export function getDefaultLocale() {
 
 // 视图列表
 export function getViewList(viewType: string, scopeId: string) {
-  return MSR.get<ViewList>({ url: `/user-view/${viewType}/grouped/list`, params: scopeId });
+  return MSR.get<ViewList>({ url: `/user-view/${viewType}/grouped/list`, params: { scopeId } });
 }
 // 视图详情
 export function getViewDetail(viewType: string, id: string) {
@@ -261,5 +261,5 @@ export function addView(viewType: string, data: ViewParams) {
 }
 // 删除视图
 export function deleteView(viewType: string, id: string) {
-  return MSR.post({ url: `/user-view/${viewType}/delete/${id}` });
+  return MSR.get({ url: `/user-view/${viewType}/delete/${id}` });
 }

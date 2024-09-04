@@ -75,6 +75,11 @@
       background-color: var(--color-text-n8);
     }
   }
+  .ms-button-text {
+    @apply p-0;
+
+    color: rgb(var(--primary-5));
+  }
   .ms-button--secondary {
     color: var(--color-text-2);
     &:not(.ms-button-text, .ms-button--disabled):hover {
@@ -105,10 +110,5 @@
   .ms-button--mini {
     padding: 0 2px;
     font-size: 12px;
-  }
-  .ms-button-text {
-    @apply p-0;
-
-    color: rgb(var(--primary-5));
   }
 </style>

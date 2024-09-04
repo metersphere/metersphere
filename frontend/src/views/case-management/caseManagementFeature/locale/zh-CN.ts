@@ -67,6 +67,7 @@ export default {
   'caseManagement.featureCase.moveTo': '移动到',
   'caseManagement.featureCase.copyTo': '复制到',
   'caseManagement.featureCase.associatedDemand': '关联需求',
+  'caseManagement.featureCase.relatedAttachments': '关联附件',
   'caseManagement.featureCase.generatingDependencies': '生成依赖关系',
   'caseManagement.featureCase.addToPublic': '添加到公共用例库',
   'caseManagement.featureCase.updateCase': '更新用例',

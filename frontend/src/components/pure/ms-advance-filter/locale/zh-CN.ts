@@ -23,6 +23,7 @@ export default {
   'advanceFilter.operator.length.le': '长度小于等于',
 
   'advanceFilter.view': '视图',
+  'advanceFilter.unnamedView': '未命名视图',
   'advanceFilter.systemView': '系统视图',
   'advanceFilter.myView': '我的视图',
   'advanceFilter.newView': '新建视图',
@@ -40,4 +41,5 @@ export default {
   'advanceFilter.conditionRequired': '查询条件不能为空',
   'advanceFilter.filterContentRequired': '筛选内容不能为空',
   'advanceFilter.filterTip': '筛选模式，模块过滤仅可在当前过滤器中操作',
+  'advanceFilter.maxViewTip': '最多可添加 10 个视图',
 };

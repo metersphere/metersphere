@@ -4,7 +4,7 @@
       class="hidden-item"
       hide-asterisk
       field="name"
-      :validate-trigger="['blur', 'input']"
+      :validate-trigger="['change', 'input']"
       :rules="[{ required: true, message: t('advanceFilter.viewNameRequired') }, { validator: validateName }]"
     >
       <a-input
@@ -60,7 +60,16 @@
     });
   }
 
+  function validateForm(cb: () => void) {
+    formRef.value?.validate(async (errors) => {
+      if (!errors) {
+        cb();
+      }
+    });
+  }
+
   defineExpose({
     inputFocus,
+    validateForm,
   });
 </script>
