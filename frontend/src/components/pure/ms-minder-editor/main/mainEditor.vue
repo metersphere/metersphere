@@ -30,7 +30,11 @@
       </template>
     </nodeFloatMenu>
     <nodeDropdown v-if="props.canShowDropdown" :dropdown-list="props.dropdownList" :checked-val="props.checkedVal" />
-    <batchMenu v-bind="props" />
+    <batchMenu v-bind="props">
+      <template #batchMenu>
+        <slot name="batchMenu"></slot>
+      </template>
+    </batchMenu>
   </div>
 </template>
 

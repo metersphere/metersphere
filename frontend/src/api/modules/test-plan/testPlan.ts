@@ -11,9 +11,11 @@ import {
   AssociatedBugToScenarioCaseUrl,
   BatchAddBugToApiCaseUrl,
   BatchAddBugToFunctionalCaseUrl,
+  BatchAddBugToMinderCaseUrl,
   BatchAddBugToScenarioCaseUrl,
   batchArchivedPlanUrl,
   BatchAssociatedBugToCaseUrl,
+  BatchAssociatedBugToMinderCaseUrl,
   batchCopyPlanUrl,
   batchDeletePlanUrl,
   BatchDisassociateApiCaseUrl,
@@ -503,4 +505,12 @@ export function batchLinkBugToApiCase(data: TableQueryParams) {
 // 测试计划-详情-接口用例-批量关联缺陷
 export function batchLinkBugToScenarioCase(data: TableQueryParams) {
   return MSR.post({ url: BatchLinkBugToScenarioCaseUrl, data });
+}
+// 测试计划-详情-脑图批量关联缺陷
+export function batchAssociatedBugToMinderCase(data: TableQueryParams) {
+  return MSR.post({ url: BatchAssociatedBugToMinderCaseUrl, data });
+}
+// 测试计划-详情-脑图批量新建缺陷
+export function batchAddBugToMinderCase(data: { request: BugEditFormObject; fileList: File[] }) {
+  return MSR.uploadFile({ url: BatchAddBugToMinderCaseUrl }, data, '', true);
 }
