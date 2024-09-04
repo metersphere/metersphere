@@ -26,6 +26,7 @@ import io.metersphere.api.service.BaseFileManagementTestService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.functional.domain.ExportTask;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.filemanagement.FileInfo;
@@ -40,6 +41,7 @@ import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.constants.ExportConstants;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.controller.handler.result.MsHttpResultCode;
 import io.metersphere.system.domain.OperationHistory;
@@ -50,6 +52,7 @@ import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
 import io.metersphere.sdk.dto.BaseCondition;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.manager.ExportTaskManager;
 import io.metersphere.system.mapper.OperationHistoryMapper;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.service.UserLoginService;
@@ -58,6 +61,7 @@ import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -2043,17 +2047,54 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertEquals(2, apiDefinitionIdList.size());
     }
 
+    @Resource
+    private ExportTaskManager exportTaskManager;
+
     private void testExportAndImport(String exportProjectId, List<ApiDefinitionBlob> exportApiBlobs) throws Exception {
         ApiDefinitionBatchExportRequest exportRequest = new ApiDefinitionBatchExportRequest();
+        String fileId = IDGenerator.nextStr();
         exportRequest.setProjectId(exportProjectId);
+        exportRequest.setFileId(fileId);
         exportRequest.setSelectAll(true);
         exportRequest.setExportApiCase(true);
         exportRequest.setExportApiMock(true);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(EXPORT + "metersphere", exportRequest);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        MetersphereApiExportResponse exportResponse = ApiDataUtils.parseObject(JSON.toJSONString(resultHolder.getData()), MetersphereApiExportResponse.class);
+        String taskId = JSON.parseObject(returnData, ResultHolder.class).getData().toString();
+        Assertions.assertTrue(StringUtils.isNotBlank(fileId));
+        List<ExportTask> taskList = exportTaskManager.getExportTasks(exportProjectId, null, null, "admin", fileId);
+        while (CollectionUtils.isEmpty(taskList)) {
+            Thread.sleep(1000);
+            taskList = exportTaskManager.getExportTasks(exportProjectId, null, null, "admin", fileId);
+        }
+        ExportTask task = taskList.getFirst();
+        while (!StringUtils.equalsIgnoreCase(task.getState(), ExportConstants.ExportState.SUCCESS.name())) {
+            Thread.sleep(1000);
+            task = exportTaskManager.getExportTasks(exportProjectId, null, null, "admin", fileId).getFirst();
+        }
+
+        mvcResult = this.download(exportProjectId, fileId);
+
+        byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
+
+        File file = new File("/tmp/test.json");
+        FileUtils.writeByteArrayToFile(file, fileBytes);
+
+        String fileContent = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+
+        MetersphereApiExportResponse exportResponse = ApiDataUtils.parseObject(fileContent, MetersphereApiExportResponse.class);
+
         apiDefinitionImportTestService.compareApiExport(exportResponse, exportApiBlobs);
+
+
+        //测试stop
+        this.requestGetWithOk("/stop/" + taskId);
+    }
+
+    private MvcResult download(String projectId, String fileId) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.get("/api/definition/download/file/" + projectId + "/" + fileId)
+                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)).andReturn();
     }
 
     protected MvcResult requestMultipart(String url, MultiValueMap<String, Object> paramMap, ResultMatcher resultMatcher) throws Exception {

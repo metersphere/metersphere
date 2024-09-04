@@ -370,4 +370,18 @@ public class ApiDefinitionLogService {
     }
 
 
+    public LogDTO exportExcelLog(ApiDefinitionBatchExportRequest request, String exportType, String userId, String orgId) {
+        LogDTO dto = new LogDTO(
+                request.getProjectId(),
+                orgId,
+                request.getFileId(),
+                userId,
+                OperationLogType.EXPORT.name(),
+                OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
+                "");
+        dto.setHistory(true);
+        dto.setPath("/api/definition/export/" + exportType);
+        dto.setMethod(HttpMethodConstants.POST.name());
+        return dto;
+    }
 }

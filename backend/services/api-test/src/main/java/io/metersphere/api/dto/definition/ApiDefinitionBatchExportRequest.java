@@ -23,6 +23,9 @@ public class ApiDefinitionBatchExportRequest extends ApiDefinitionBatchRequest i
     @Serial
     private static final long serialVersionUID = 1L;
 
+    @Schema(description = "文件id")
+    @NotBlank
+    private String fileId;
 
     @Schema(description = "是否同步导出接口用例")
     private boolean exportApiCase;

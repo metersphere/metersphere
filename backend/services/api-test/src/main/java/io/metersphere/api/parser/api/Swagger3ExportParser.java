@@ -55,6 +55,9 @@ public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
         JSONObject components = new JSONObject();
         List<JSONObject> schemas = new LinkedList<>();
         for (ApiDefinitionWithBlob apiDefinition : list) {
+            if (apiDefinition.getPath() == null) {
+                continue;
+            }
             SwaggerApiInfo swaggerApiInfo = new SwaggerApiInfo();
             swaggerApiInfo.setSummary(apiDefinition.getName());
             String moduleName = "";

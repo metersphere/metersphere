@@ -187,6 +187,7 @@ export interface ApiDefinitionBatchParams extends BatchApiParams {
 export interface ApiDefinitionBatchExportParams extends ApiDefinitionBatchParams {
   exportApiCase: boolean;
   exportApiMock: boolean;
+  fileId: string;
   sort: Record<string, any>;
 }
 // 批量更新定义参数
