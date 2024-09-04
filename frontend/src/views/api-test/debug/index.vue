@@ -110,7 +110,7 @@
   } from '@/enums/apiEnum';
 
   import { defaultBodyParams, defaultResponse } from '../components/config';
-  import { parseRequestBodyFiles } from '../components/utils';
+  import { parseCurlBody, parseRequestBodyFiles } from '../components/utils';
 
   const route = useRoute();
   const { t } = useI18n();
@@ -250,7 +250,8 @@
   }
 
   function handleImportCurlDone(res: CurlParseResult) {
-    const { url, method, headers, queryParams } = res;
+    const { url, method, headers, queryParams, bodyType, body } = res;
+    const requestBody = parseCurlBody(bodyType, body);
     addDebugTab({
       url,
       method: method?.toUpperCase() || RequestMethods.GET,
@@ -274,6 +275,7 @@
           key: e,
           value: queryParams[e],
         })) || [],
+      body: requestBody,
     });
     importDialogVisible.value = false;
     nextTick(() => {

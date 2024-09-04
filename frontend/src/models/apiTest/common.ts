@@ -468,6 +468,7 @@ export interface CurlParseResult {
   method: RequestMethods | string;
   url: string;
   headers: Record<string, any>;
-  body: string;
+  body: Record<string, any>;
+  bodyType: RequestBodyFormat;
   queryParams: Record<string, any>;
 }
