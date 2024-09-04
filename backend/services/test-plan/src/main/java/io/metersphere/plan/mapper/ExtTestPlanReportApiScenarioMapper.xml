@@ -9,14 +9,12 @@
 
     <select id="getPlanExecuteCases" resultType="io.metersphere.plan.domain.TestPlanReportApiScenario">
         select  tpas.id as testPlanApiScenarioId, aso.id as apiScenarioId, aso.num as apiScenarioNum, aso.name as apiScenarioName, aso.priority as apiScenarioPriority,
-                tpas.test_plan_collection_id testPlanCollectionId, tpas.grouped as grouped, tpas.environment_id environmentId, count(b.id) as apiScenarioBugCount,
+                tpas.test_plan_collection_id testPlanCollectionId, tpas.grouped as grouped, tpas.environment_id environmentId,
                 if(aso.module_id = 'root','未规划用例', aso.module_id) as apiScenarioModule, tpas.execute_user as apiScenarioExecuteUser,
                 ifnull(tpas.last_exec_result, 'PENDING') as apiScenarioExecuteResult, tpas.last_exec_report_id apiScenarioExecuteReportId, tpas.pos as pos
         from test_plan_api_scenario tpas join api_scenario aso on aso.id = tpas.api_scenario_id
         left join api_scenario_module asm on aso.module_id = asm.id
-        left join bug_relation_case brc on brc.test_plan_case_id = tpas.id
-        left join bug b on b.id = brc.bug_id
-        where tpas.test_plan_id = #{id} and aso.deleted = false and b.deleted = false
+        where tpas.test_plan_id = #{id} and aso.deleted = false
         group by tpas.id
     </select>
 

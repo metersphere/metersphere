@@ -430,6 +430,9 @@ public class TestPlanReportService {
 	 */
 	private TestPlanReportDetailCaseDTO genReportDetail(TestPlanReportGenPreParam genParam, TestPlanReport report) {
 		SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+		// 缺陷数
+		List<ReportBugCountDTO> bugCountList = extTestPlanReportBugMapper.countPlanBug(genParam.getTestPlanId());
+		Map<String, Long> bugCountMap = bugCountList.stream().collect(Collectors.toMap(ReportBugCountDTO::getRefCaseId, ReportBugCountDTO::getBugCount));
 		// 功能用例
 		List<TestPlanReportFunctionCase> reportFunctionCases = extTestPlanReportFunctionalCaseMapper.getPlanExecuteCases(genParam.getTestPlanId());
 		if (CollectionUtils.isNotEmpty(reportFunctionCases)) {
@@ -462,6 +465,7 @@ public class TestPlanReportService {
 				} else {
 					reportFunctionalCase.setFunctionCaseExecuteReportId(null);
 				}
+				reportFunctionalCase.setFunctionCaseBugCount(bugCountMap.containsKey(reportFunctionalCase.getTestPlanFunctionCaseId()) ? bugCountMap.get(reportFunctionalCase.getTestPlanFunctionCaseId()) : 0);
 			}
 
 			// 插入计划功能用例关联数据 -> 报告内容
@@ -491,6 +495,7 @@ public class TestPlanReportService {
 					reportApiCase.setApiCaseExecuteUser(null);
 					reportApiCase.setApiCaseExecuteReportId(IDGenerator.nextStr());
 				}
+				reportApiCase.setApiCaseBugCount(bugCountMap.containsKey(reportApiCase.getTestPlanApiCaseId()) ? bugCountMap.get(reportApiCase.getTestPlanApiCaseId()) : 0);
 			}
 			// 插入计划接口用例关联数据 -> 报告内容
 			TestPlanReportApiCaseMapper batchMapper = sqlSession.getMapper(TestPlanReportApiCaseMapper.class);
@@ -519,6 +524,7 @@ public class TestPlanReportService {
 					reportApiScenario.setApiScenarioExecuteUser(null);
 					reportApiScenario.setApiScenarioExecuteReportId(IDGenerator.nextStr());
 				}
+				reportApiScenario.setApiScenarioBugCount(bugCountMap.containsKey(reportApiScenario.getTestPlanApiScenarioId()) ? bugCountMap.get(reportApiScenario.getTestPlanApiScenarioId()) : 0);
 			}
 			// 插入计划场景用例关联数据 -> 报告内容
 			TestPlanReportApiScenarioMapper batchMapper = sqlSession.getMapper(TestPlanReportApiScenarioMapper.class);
