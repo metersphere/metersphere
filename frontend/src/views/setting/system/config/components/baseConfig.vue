@@ -2,7 +2,10 @@
   <div>
     <MsCard class="mb-[16px]" :loading="baseLoading" simple auto-height>
       <div class="mb-[16px] flex justify-between">
-        <div class="text-[var(--color-text-000)]">{{ t('system.config.baseInfo') }}</div>
+        <div class="card-title">
+          <div class="card-title-line"></div>
+          <div class="card-title-text">{{ t('system.config.baseInfo') }}</div>
+        </div>
         <a-button
           v-permission="['SYSTEM_PARAMETER_SETTING_BASE:READ+UPDATE']"
           type="outline"
@@ -16,7 +19,10 @@
     </MsCard>
     <MsCard class="mb-[16px]" :loading="emailLoading" simple auto-height>
       <div class="mb-[16px] flex justify-between">
-        <div class="text-[var(--color-text-000)]">{{ t('system.config.emailConfig') }}</div>
+        <div class="card-title">
+          <div class="card-title-line"></div>
+          <div class="card-title-text">{{ t('system.config.emailConfig') }}</div>
+        </div>
         <a-button
           v-permission="['SYSTEM_PARAMETER_SETTING_BASE:READ+UPDATE']"
           type="outline"
@@ -65,6 +71,25 @@
       >
         {{ t('system.config.email.test') }}
       </a-button>
+    </MsCard>
+    <MsCard class="mb-[16px]" :loading="fileSizeLimitLoading" simple auto-height>
+      <div class="mb-[16px] flex justify-between">
+        <div class="card-title">
+          <div class="card-title-line"></div>
+          <div class="card-title-text">
+            {{ t('system.config.fileLimit') }}
+            <div class="text-[var(--color-text-4)]">(M)</div>
+          </div>
+        </div>
+      </div>
+      <a-input-number
+        v-model:model-value="fileSizeLimit"
+        class="w-[130px]"
+        :disabled="fileSizeLimitLoading || !hasAnyPermission(['SYSTEM_PARAMETER_SETTING_BASE:READ+UPDATE'])"
+        :min="0"
+        mode="button"
+        @blur="() => saveFileSizeLimitConfig()"
+      />
     </MsCard>
     <a-modal
       v-model:visible="baseInfoModalVisible"
@@ -211,10 +236,19 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
 
-  import { getBaseInfo, getEmailInfo, saveBaseInfo, saveEmailInfo, testEmail } from '@/api/modules/setting/config';
+  import {
+    getBaseInfo,
+    getEmailInfo,
+    saveBaseInfo,
+    saveEmailInfo,
+    saveUploadConfig,
+    testEmail,
+  } from '@/api/modules/setting/config';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
   import useLicenseStore from '@/store/modules/setting/license';
   import { desensitize } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
   import { validateEmail } from '@/utils/validate';
 
   import type { EmailConfig, TestEmailParams } from '@/models/setting/config';
@@ -222,6 +256,7 @@
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();
+  const appStore = useAppStore();
 
   const baseLoading = ref(false);
   const baseModalLoading = ref(false);
@@ -234,6 +269,7 @@
   const baseInfoDesc = ref<Description[]>([]);
   // 默认示例
   const defaultUrl = 'https://metersphere.com';
+  const fileSizeLimit = ref(50);
 
   function fillDefaultUrl() {
     baseInfoForm.value.url = defaultUrl;
@@ -242,7 +278,6 @@
   /**
    * 初始化基础信息
    */
-
   const licenseStore = useLicenseStore();
   async function initBaseInfo() {
     try {
@@ -265,6 +300,7 @@
           },
         ];
       }
+      fileSizeLimit.value = Number(res.fileMaxSize);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -502,6 +538,28 @@
     }
   }
 
+  const fileSizeLimitLoading = ref(false);
+
+  async function saveFileSizeLimitConfig() {
+    try {
+      fileSizeLimitLoading.value = true;
+      await saveUploadConfig([
+        {
+          paramKey: 'upload.file.size',
+          paramValue: fileSizeLimit.value.toString(),
+          type: 'text',
+        },
+      ]);
+      Message.success(t('common.updateSuccess'));
+      appStore.setFileMaxSize(fileSizeLimit.value);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      fileSizeLimitLoading.value = false;
+    }
+  }
+
   onBeforeMount(() => {
     initBaseInfo();
     initEmailInfo();
@@ -513,6 +571,23 @@
     .arco-descriptions-item-label,
     .arco-descriptions-item-value {
       @apply pb-0;
+    }
+  }
+  .card-title {
+    @apply flex items-center;
+
+    gap: 8px;
+    .card-title-line {
+      width: 3px;
+      height: 14px;
+      border-radius: var(--border-radius-small);
+      background: rgb(var(--primary-4));
+    }
+    .card-title-text {
+      @apply flex items-center;
+
+      gap: 2px;
+      color: var(--color-text-000);
     }
   }
 </style>

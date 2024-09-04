@@ -222,4 +222,5 @@ export default {
   'system.config.qrCodeConfig.appKey.required': 'App Key is empty',
   'system.config.qrCodeConfig.appSecret.required': 'App Secret is empty',
   'system.config.qrCodeConfig.callBack.required': 'CallBack is empty',
+  'system.config.fileLimit': 'File size limit',
 };

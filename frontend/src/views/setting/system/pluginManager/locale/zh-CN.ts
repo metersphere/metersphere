@@ -28,7 +28,7 @@ export default {
   'system.plugin.tableColumnsJar': 'jar包',
   'system.plugin.tableNoData': '暂无数据，请',
   'system.plugin.pluginDescription': '请对该插件进行描述',
-  'system.plugin.supportFormat': '只支持JAR格式文件，文件大小不超过50M',
+  'system.plugin.supportFormat': '只支持JAR格式文件，文件大小不超过{size}M',
   'system.plugin.interfaceTestDescribe': '协议类的插件建议选择接口测试',
   'system.plugin.projectMangerDescribe': '项目管理平台类建议选择项目管理',
   'system.plugin.deletePluginTip': '确认删除 {name} 这个插件吗？',

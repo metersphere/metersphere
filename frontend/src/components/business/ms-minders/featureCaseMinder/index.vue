@@ -194,8 +194,8 @@
                 {
                   data: {
                     id: 'fakeNode',
-                    text: 'fakeNode',
-                    resource: ['fakeNode'],
+                    text: '...',
+                    resource: [''],
                     isNew: false,
                     changed: false,
                   },

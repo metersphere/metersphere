@@ -45,6 +45,7 @@ export interface AppState {
   ordList: { id: string; name: string }[];
   envList: EnvironmentItem[];
   currentEnvConfig?: EnvConfig; // 当前环境配置信息
+  fileMaxSize: number;
 }
 
 export interface UploadFileTaskState {

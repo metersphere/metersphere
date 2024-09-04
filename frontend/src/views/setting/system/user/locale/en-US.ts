@@ -75,7 +75,7 @@ export default {
   'system.user.importDownload': 'Download the template',
   'system.user.importModalTip': 'User groups only support adding user groups that exist in the system',
   'system.user.importModalDragText': 'Drag or click this area to select a file',
-  'system.user.importModalFileTip': 'Only supports xls/xlsx format files, and the file size should not exceed 50M',
+  'system.user.importModalFileTip': 'Only supports xls/xlsx format files, and the file size should not exceed {size}M',
   'system.user.importModalCancel': 'Cancel',
   'system.user.importModalConfirm': 'Import',
   'system.user.importModalUploading': 'File is uploading...',

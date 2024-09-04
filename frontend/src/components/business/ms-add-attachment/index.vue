@@ -47,7 +47,7 @@
         </a-dropdown>
       </div>
       <div v-if="!props.onlyButton" class="!hover:bg-[rgb(var(--primary-1))] !text-[var(--color-text-4)]">
-        {{ t('system.orgTemplate.addAttachmentTip') }}
+        {{ t('system.orgTemplate.addAttachmentTip', { size: appStore.getFileMaxSize }) }}
       </div>
     </div>
   </a-form-item>
@@ -238,6 +238,7 @@
   import { getAssociatedFileListUrl } from '@/api/modules/case-management/featureCase';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { AssociatedList } from '@/models/caseManagement/featureCase';
@@ -280,6 +281,7 @@
   }>();
 
   const { t } = useI18n();
+  const appStore = useAppStore();
 
   const fileList = defineModel<MsFileItem[]>('fileList', {
     // TODO:这里的文件含有组件内部定义的属性，应该继承MsFileItem类型并扩展声明组件定义的类型属性

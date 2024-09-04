@@ -87,7 +87,7 @@ export default {
   'apiTestManagement.syncUpdateDirectory': 'Sync Update API Directory',
   'apiTestManagement.importSwaggerFileTip1': 'Supports Swagger 3.0 version JSON files,',
   'apiTestManagement.importSwaggerFileTip2': '2.0 files can be converted to 3.0 on the official website',
-  'apiTestManagement.importSwaggerFileTip3': 'with a size limit of 50MB',
+  'apiTestManagement.importSwaggerFileTip3': 'with a size limit of {size}MB',
   'apiTestManagement.importPostmanFileTip':
     'Postman only supports file import, and only supports json files in v2.1 format',
   'apiTestManagement.urlImportPlaceholder': 'Please enter OpenAPI/URL',

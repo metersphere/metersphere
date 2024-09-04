@@ -36,6 +36,8 @@ export const TestLdapLoginUrl = '/system/authsource/ldap/test-login';
 export const SaveCleanConfigUrl = '/system/parameter/edit/clean-config';
 // 获取内存清理配置
 export const GetCleanConfigUrl = '/system/parameter/get/clean-config';
+// 设置上传配置
+export const EditUploadConfigUrl = '/system/parameter/edit/upload-config';
 
 // 获取系统主页左上角图片
 export const GetTitleImgUrl = `${import.meta.env.VITE_API_BASE_URL}/base-display/get/logo-platform`;

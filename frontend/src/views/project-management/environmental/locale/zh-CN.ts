@@ -12,7 +12,7 @@ export default {
   'project.environmental.ENVIRONMENT': '环境',
   'project.environmental.ENVIRONMENT_PARAM': '全局参数',
   'project.environmental.globalVariable': '参数',
-  'project.environmental.supportFormat': '仅支持MeterSphere导出的Json文件，单个大小不超过 50M',
+  'project.environmental.supportFormat': '仅支持MeterSphere导出的Json文件，单个大小不超过 {size}M',
   'project.environmental.importTile': '注意！导入后会覆盖原全局参数',
   'project.environmental.mustContain': '必含',
   'project.environmental.searchParamsHolder': '通过名称/标签搜索',

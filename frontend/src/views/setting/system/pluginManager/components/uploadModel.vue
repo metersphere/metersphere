@@ -69,10 +69,9 @@
       <MsUpload
         v-model:file-list="fileList"
         accept="jar"
-        :max-size="50"
         size-unit="MB"
         main-text="system.user.importModalDragText"
-        :sub-text="t('system.plugin.supportFormat')"
+        :sub-text="t('system.plugin.supportFormat', { size: appStore.getFileMaxSize })"
         :show-file-list="false"
         :auto-upload="false"
         :disabled="confirmLoading"
@@ -126,21 +125,25 @@
   import { addPlugin } from '@/api/modules/setting/pluginManger';
   import { useI18n } from '@/hooks/useI18n';
   import useVisit from '@/hooks/useVisit';
+  import useAppStore from '@/store/modules/app';
 
   import type { FileItem, FormInstance, SelectOptionData, ValidatedError } from '@arco-design/web-vue';
 
-  const { t } = useI18n();
-  const visitedKey = 'doNotShowAgain';
-  const { getIsVisited } = useVisit(visitedKey);
+  const props = defineProps<{
+    visible: boolean;
+    organizeList: SelectOptionData;
+  }>();
   const emits = defineEmits<{
     (event: 'update:visible', visible: boolean): void;
     (e: 'success'): void;
     (e: 'brash'): void;
   }>();
-  const props = defineProps<{
-    visible: boolean;
-    organizeList: SelectOptionData;
-  }>();
+
+  const { t } = useI18n();
+  const appStore = useAppStore();
+  const visitedKey = 'doNotShowAgain';
+  const { getIsVisited } = useVisit(visitedKey);
+
   const pluginVisible = ref(false);
   const fileName = ref<string>('');
   const fileList = ref<FileItem[]>([]);

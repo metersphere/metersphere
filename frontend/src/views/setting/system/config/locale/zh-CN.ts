@@ -214,4 +214,5 @@ export default {
   'system.config.qrCodeConfig.appKey.required': '应用key不能为空',
   'system.config.qrCodeConfig.appSecret.required': '应用密钥不能为空',
   'system.config.qrCodeConfig.callBack.required': '回调域名不能为空',
+  'system.config.fileLimit': '文件大小限制',
 };

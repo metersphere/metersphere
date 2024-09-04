@@ -26,13 +26,12 @@
         v-model:file-list="fileList"
         class="mb-6 w-full"
         :accept="validateType === 'Excel' ? 'excel' : 'xmind'"
-        :max-size="100"
         size-unit="MB"
         main-text="caseManagement.featureCase.dragOrClick"
         :sub-text="
           validateType === 'Excel'
-            ? t('caseManagement.featureCase.onlyEXcelTip')
-            : t('caseManagement.featureCase.onlyXmindTip')
+            ? t('caseManagement.featureCase.onlyEXcelTip', { size: appStore.getFileMaxSize })
+            : t('caseManagement.featureCase.onlyXmindTip', { size: appStore.getFileMaxSize })
         "
         :show-file-list="false"
         :auto-upload="false"
