@@ -82,4 +82,6 @@ public interface ExtTestPlanFunctionalCaseMapper {
     List<FunctionalCaseModule> selectProjectByModuleIds(@Param("moduleIds") List<String> moduleIds);
 
     Collection<String> selectIdsByModuleIds(@Param("request") TestPlanCaseMinderRequest request, @Param("minderModuleIds") List<String> minderModuleIds);
+
+    Collection<String> selectIdsByRootIds(@Param("rootIds") List<String> rootIds, @Param("testPlanId") String testPlanId);
 }

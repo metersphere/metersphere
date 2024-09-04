@@ -688,14 +688,7 @@
         FROM functional_case_module
         WHERE id IN
         <foreach collection="moduleIds" item="moduleId" separator="," open="(" close=")">
-            <choose>
-                <when test="moduleId.contains('_root')">
-                    'root'
-                </when>
-                <otherwise>
-                    #{moduleId}
-                </otherwise>
-            </choose>
+            #{moduleId}
         </foreach>
     </select>
 
@@ -713,6 +706,22 @@
         <foreach collection="minderModuleIds" item="moduleId" open="(" separator="," close=")">
             #{moduleId}
         </foreach>
+    </select>
+
+    <select id="selectIdsByRootIds" resultType="java.lang.String">
+        SELECT
+        test_plan_functional_case.id
+        FROM
+        test_plan_functional_case
+        LEFT JOIN functional_case ON test_plan_functional_case.functional_case_id = functional_case.id
+        WHERE
+            functional_case.deleted = false
+        and test_plan_functional_case.test_plan_id = #{testPlanId}
+        and functional_case.project_id in
+        <foreach collection="rootIds" item="rootId" open="(" separator="," close=")">
+            #{rootId}
+        </foreach>
+        and functional_case.module_id = 'root'
     </select>
 
 </mapper>
