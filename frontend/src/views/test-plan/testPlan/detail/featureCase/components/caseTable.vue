@@ -575,8 +575,7 @@
     const tableParams = await getTableParams(false);
     setLoadListParams({
       ...tableParams,
-      projectId:
-        props.activeModule !== 'all' && props.treeType === 'MODULE' ? props.moduleParentId : appStore.currentProjectId,
+      projectId: props.activeModule !== 'all' && props.treeType === 'MODULE' ? props.moduleParentId : '',
     });
     resetSelector();
     loadList();
