@@ -1,5 +1,7 @@
 package io.metersphere.system.service;
 
+import io.metersphere.functional.domain.ExportTaskExample;
+import io.metersphere.functional.mapper.ExportTaskMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.domain.ProjectTestResourcePool;
@@ -49,6 +51,8 @@ public class CommonProjectService {
 
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private ExportTaskMapper exportTaskMapper;
     @Resource
     private UserMapper userMapper;
     @Resource
@@ -551,6 +555,10 @@ public class CommonProjectService {
             ProjectTestResourcePoolExample projectTestResourcePoolExample = new ProjectTestResourcePoolExample();
             projectTestResourcePoolExample.createCriteria().andProjectIdEqualTo(project.getId());
             projectTestResourcePoolMapper.deleteByExample(projectTestResourcePoolExample);
+            //删除导出任务
+            ExportTaskExample exportTaskExample = new ExportTaskExample();
+            exportTaskExample.createCriteria().andProjectIdEqualTo(project.getId());
+            exportTaskMapper.deleteByExample(exportTaskExample);
             // delete project
             projectMapper.deleteByPrimaryKey(project.getId());
             LogDTO logDTO = new LogDTO(OperationLogConstants.SYSTEM, project.getOrganizationId(), project.getId(), Translator.get("scheduled_tasks"), OperationLogType.DELETE.name(), OperationLogModule.SETTING_ORGANIZATION_PROJECT, Translator.get("delete") + Translator.get("project") + ": " + project.getName());

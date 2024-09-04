@@ -314,23 +314,26 @@
     batchUpdateDefinition,
     deleteDefinition,
     exportApiDefinition,
+    getApiDownloadFile,
     getDefinitionPage,
     sortDefinition,
+    stopApiExport,
     updateDefinition,
   } from '@/api/modules/api-test/management';
   import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
+  import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
   import useCacheStore from '@/store/modules/cache/cache';
-  import { characterLimit, downloadByteFile, operationWidth } from '@/utils';
+  import { characterLimit, downloadByteFile, getGenerateId, operationWidth } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ProtocolItem } from '@/models/apiTest/common';
   import { ApiDefinitionDetail, ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
   import { DragSortParams } from '@/models/common';
-  import { RequestDefinitionStatus, RequestImportFormat, RequestMethods } from '@/enums/apiEnum';
+  import { RequestDefinitionStatus, RequestExportFormat, RequestImportFormat, RequestMethods } from '@/enums/apiEnum';
   import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -973,21 +976,122 @@
   const platformList = [
     {
       name: 'Swagger',
-      value: RequestImportFormat.SWAGGER,
+      value: RequestExportFormat.SWAGGER,
     },
     {
       name: 'MeterSphere',
-      value: RequestImportFormat.MeterSphere,
+      value: RequestExportFormat.MeterSphere,
     },
   ];
-  const exportPlatform = ref(RequestImportFormat.SWAGGER);
+  const exportPlatform = ref(RequestExportFormat.SWAGGER);
   const exportApiCase = ref(false);
   const exportApiMock = ref(false);
   const exportLoading = ref(false);
 
   function cancelExport() {
     showExportModal.value = false;
-    exportPlatform.value = RequestImportFormat.SWAGGER;
+    exportPlatform.value = RequestExportFormat.SWAGGER;
+  }
+
+  // 下载文件
+  async function downloadFile(id: string) {
+    try {
+      const response = await getApiDownloadFile(appStore.currentProjectId, id);
+      downloadByteFile(response, 'metersphere-export.json');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+  // 提示：导出成功
+  function showExportSuccessfulMessage(id: string, count: number) {
+    Message.success({
+      content: () =>
+        h('div', { class: 'flex flex-col gap-[8px] items-start' }, [
+          h('div', { class: 'font-medium' }, t('common.exportSuccessful')),
+          h('div', { class: 'flex items-center gap-[12px]' }, [
+            h('div', t('caseManagement.featureCase.exportCaseCount', { number: count })),
+            h(
+              MsButton,
+              {
+                type: 'text',
+                onClick() {
+                  downloadFile(id);
+                },
+              },
+              { default: () => t('common.downloadFile') }
+            ),
+          ]),
+        ]),
+      duration: 999999999, // 一直展示，除非手动关闭
+      closable: true,
+    });
+  }
+
+  const websocket = ref<WebSocket>();
+  const reportId = ref('');
+  const isShowExportingMessage = ref(false); // 正在导出提示显示中
+  const exportingMessage = ref();
+
+  // 开启websocket监听，接收结果
+  function startWebsocketGetExportResult() {
+    websocket.value = getSocket(reportId.value, '/ws/export');
+    websocket.value.addEventListener('message', (event) => {
+      const data = JSON.parse(event.data);
+      if (data.msgType === 'EXEC_RESULT') {
+        exportingMessage.value.close();
+        reportId.value = data.fileId;
+        // taskId.value = data.taskId;
+        if (data.isSuccessful) {
+          showExportSuccessfulMessage(reportId.value, data.count);
+        } else {
+          Message.error({
+            content: t('common.exportFailed'),
+            duration: 999999999, // 一直展示，除非手动关闭
+            closable: true,
+          });
+        }
+        websocket.value?.close();
+      }
+    });
+  }
+
+  // 取消导出
+  async function stopExport(taskId: string) {
+    try {
+      await stopApiExport(taskId);
+      exportingMessage.value.close();
+      websocket.value?.close();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+  // 提示：正在导出
+  function showExportingMessage(taskId: string) {
+    if (isShowExportingMessage.value) return;
+    isShowExportingMessage.value = true;
+    exportingMessage.value = Message.loading({
+      content: () =>
+        h('div', { class: 'flex items-center gap-[12px]' }, [
+          h('div', t('common.exporting')),
+          h(
+            MsButton,
+            {
+              type: 'text',
+              onClick() {
+                stopExport(taskId);
+              },
+            },
+            { default: () => t('common.cancel') }
+          ),
+        ]),
+      duration: 999999999, // 一直展示，除非手动关闭
+      closable: true,
+      onClose() {
+        isShowExportingMessage.value = false;
+      },
+    });
   }
 
   /**
@@ -996,7 +1100,9 @@
   async function exportApi() {
     try {
       exportLoading.value = true;
-      const result = await exportApiDefinition(
+      reportId.value = getGenerateId();
+      startWebsocketGetExportResult();
+      const res = await exportApiDefinition(
         {
           selectIds: tableSelected.value as string[],
           selectAll: !!batchParams.value?.selectAll,
@@ -1011,11 +1117,12 @@
           exportApiCase: exportApiCase.value,
           exportApiMock: exportApiMock.value,
           sort: propsRes.value.sorter || {},
+          fileId: reportId.value,
         },
         exportPlatform.value
       );
-      const res = await getProjectInfo(appStore.currentProjectId);
-      downloadByteFile(new Blob([JSON.stringify(result)]), `Swagger_Api_${res.name}.json`);
+
+      showExportingMessage(res);
       showExportModal.value = false;
     } catch (error) {
       // eslint-disable-next-line no-console

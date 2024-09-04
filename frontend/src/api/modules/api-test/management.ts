@@ -40,6 +40,7 @@ import {
   diffDataUrl,
   ExecuteCaseUrl,
   ExportDefinitionUrl,
+  GetApiDownloadFileUrl,
   GetCaseDetailUrl,
   GetCaseReportByIdUrl,
   GetCaseReportDetailUrl,
@@ -72,6 +73,7 @@ import {
   SaveOperationHistoryUrl,
   SortCaseUrl,
   SortDefinitionUrl,
+  StopApiExportUrl,
   SwitchDefinitionScheduleUrl,
   ToggleFollowCaseUrl,
   ToggleFollowDefinitionUrl,
@@ -93,6 +95,8 @@ import {
   UploadTempFileUrl,
   UploadTempMockFileUrl,
 } from '@/api/requrls/api-test/management';
+import { StopCaseExportUrl } from '@/api/requrls/case-management/featureCase';
+import { BatchDownloadFileUrl } from '@/api/requrls/project-management/fileManagement';
 
 import { ApiCaseReportDetail, ExecuteRequestParams } from '@/models/apiTest/common';
 import {
@@ -201,6 +205,25 @@ export function updateDefinition(data: ApiDefinitionUpdateParams) {
   return MSR.post({ url: UpdateDefinitionUrl, data });
 }
 
+export function stopApiExport(taskId: string) {
+  return MSR.get({ url: `${StopApiExportUrl}/${taskId}` });
+}
+
+// 获取导出的文件
+export function getApiDownloadFile(projectId: string, fileId: string) {
+  // return MSR.get(
+  //   { url: `${GetApiDownloadFileUrl}/${projectId}/${fileId}`, responseType: 'blob' },
+  //   { isTransformResponse: false, isReturnNativeResponse: true }
+  // );
+
+  return MSR.get(
+    {
+      url: `${GetApiDownloadFileUrl}/${projectId}/${fileId}`,
+      responseType: 'blob',
+    },
+    { isTransformResponse: false }
+  );
+}
 // 获取接口定义详情
 export function getDefinitionDetail(id: string | number) {
   return MSR.get<ApiDefinitionDetail>({ url: GetDefinitionDetailUrl, params: id });

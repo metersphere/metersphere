@@ -6,7 +6,6 @@ import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.dto.export.ApiExportResponse;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.ImportRequest;
@@ -32,6 +31,7 @@ import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
@@ -312,7 +312,24 @@ public class ApiDefinitionController {
     @PostMapping(value = "/export/{type}")
     @Operation(summary = "接口测试-接口管理-导出接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_EXPORT)
-    public ApiExportResponse export(@RequestBody ApiDefinitionBatchExportRequest request, @PathVariable String type) {
-        return apiDefinitionExportService.export(request, type, SessionUtils.getUserId());
+    public String newExport(@RequestBody ApiDefinitionBatchExportRequest request, @PathVariable String type) {
+        return apiDefinitionExportService.exportApiDefinition(request, type, SessionUtils.getUserId());
     }
+
+    @GetMapping("/stop/{taskId}")
+    @Operation(summary = "接口测试-接口管理-导出-停止导出")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public void caseStopExport(@PathVariable String taskId) {
+        apiDefinitionExportService.stopExport(taskId, SessionUtils.getUserId());
+    }
+
+    @GetMapping(value = "/download/file/{projectId}/{fileId}")
+    @Operation(summary = "接口测试-接口管理-下载文件")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public void downloadImgById(@PathVariable String projectId, @PathVariable String fileId, HttpServletResponse httpServletResponse) {
+        apiDefinitionExportService.downloadFile(projectId, fileId, SessionUtils.getUserId(), httpServletResponse);
+    }
+
 }

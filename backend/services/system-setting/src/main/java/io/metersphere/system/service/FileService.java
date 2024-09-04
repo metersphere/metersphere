@@ -25,6 +25,10 @@ public class FileService {
         return FileCenter.getRepository(request.getStorage()).getFile(request);
     }
 
+    public InputStream getFileAsStream(FileRequest request) throws Exception {
+        return FileCenter.getRepository(request.getStorage()).getFileAsStream(request);
+    }
+
     public void deleteFile(FileRequest request) throws Exception {
         FileCenter.getRepository(request.getStorage()).delete(request);
     }
