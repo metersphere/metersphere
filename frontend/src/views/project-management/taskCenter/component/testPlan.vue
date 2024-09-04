@@ -23,7 +23,6 @@
       v-on="propsEvent"
       @batch-action="handleTableBatch"
     >
-      <!-- TOTO 等待联调 后台接口需要调整 -->
       <template #resourceNum="{ record }">
         <div class="flex items-center">
           <PlanExpandRow
@@ -353,6 +352,10 @@
       selectable: hasOperationPermission.value,
       heightUsed: 330,
       showSelectAll: true,
+      rowSelectionDisabledConfig: {
+        parentKey: 'parent',
+        checkStrictly: true,
+      },
     }
   );
 

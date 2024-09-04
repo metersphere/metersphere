@@ -181,12 +181,46 @@ export default function useTableProps<T>(
     }
     propsRes.value.selectedKeys = selectedKeys;
   };
+  // 处理全选状态下切换分页也要处理下边的子节点
+  const processRecordItem = (item: MsTableDataItem<T>): MsTableDataItem<T> => {
+    const { rowKey, selectorStatus, excludeKeys } = propsRes.value;
+
+    if (item.updateTime) {
+      item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
+    }
+    if (item.createTime) {
+      item.createTime = dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss');
+    }
+    if (dataTransform) {
+      item = dataTransform(item);
+    }
+
+    if (selectorStatus === SelectAllEnum.ALL && !excludeKeys.has(item[rowKey])) {
+      setTableSelected(item[rowKey]);
+
+      const selectChildren = (children: MsTableDataItem<T>[]) => {
+        children.forEach((child) => {
+          if (!excludeKeys.has(child[rowKey])) {
+            setTableSelected(child[rowKey]);
+          }
+          if (child.children && child.children.length) {
+            selectChildren(child.children);
+          }
+        });
+      };
+
+      if (item.children && item.children.length) {
+        selectChildren(item.children);
+      }
+    }
+
+    return item;
+  };
 
   // 加载分页列表数据
   const loadList = async () => {
     if (propsRes.value.showPagination) {
       const { current, pageSize } = propsRes.value.msPagination as Pagination;
-      const { rowKey, selectorStatus, excludeKeys } = propsRes.value;
       let currentPageSize = pageSize;
       if (propsRes.value.tableKey) {
         // 如果表格设置了tableKey，缓存分页大小
@@ -210,21 +244,7 @@ export default function useTableProps<T>(
           const data = await loadListFunc(tableQueryParams.value);
           const tmpArr = data.list || data.data.list;
           propsRes.value.data = tmpArr.map((item: MsTableDataItem<T>) => {
-            if (item.updateTime) {
-              item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
-            }
-            if (item.createTime) {
-              item.createTime = dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss');
-            }
-            if (dataTransform) {
-              item = dataTransform(item);
-            }
-            if (selectorStatus === SelectAllEnum.ALL) {
-              if (!excludeKeys.has(item[rowKey])) {
-                setTableSelected(item[rowKey]);
-              }
-            }
-            return item;
+            return processRecordItem(item);
           });
           if (data.total === 0) {
             setTableErrorStatus('empty');
@@ -349,6 +369,57 @@ export default function useTableProps<T>(
         collectIds(item.children, rowKey);
       }
     });
+  };
+
+  // 处理父节点半选
+  const handleParentSelection = (record: MsTableDataItem<T>) => {
+    const { rowKey, selectedKeys, excludeKeys, rowSelectionDisabledConfig } = propsRes.value;
+    const key = record[rowKey || 'id'];
+    const parentKey = record[rowSelectionDisabledConfig?.parentKey || 'parent'];
+    if (!record[rowSelectionDisabledConfig?.parentKey || 'parent']) return;
+
+    const allChildrenSelected =
+      record.children && record.children.length
+        ? record.children.every((child) => selectedKeys.has(child[key]))
+        : false;
+
+    const someChildrenSelected =
+      record.children && record.children.length ? record.children.some((child) => selectedKeys.has(child[key])) : false;
+
+    if (allChildrenSelected) {
+      selectedKeys.add(parentKey);
+      excludeKeys.delete(parentKey);
+    } else if (someChildrenSelected) {
+      selectedKeys.add(parentKey);
+      excludeKeys.delete(parentKey);
+    } else {
+      selectedKeys.delete(parentKey);
+      excludeKeys.add(parentKey);
+    }
+
+    handleParentSelection(record[rowSelectionDisabledConfig?.parentKey || 'parent']);
+  };
+
+  // 选择/取消当前节点下边的子节点
+  const handleSelectChildren = (record: MsTableDataItem<T>, select: boolean) => {
+    const { rowKey, selectedKeys, excludeKeys, rowSelectionDisabledConfig } = propsRes.value;
+    const key = record[rowKey || 'id'];
+    const parentKey = record[rowSelectionDisabledConfig?.parentKey || 'parent'];
+    if (select) {
+      selectedKeys.add(key);
+      excludeKeys.delete(key);
+    } else {
+      selectedKeys.delete(key);
+      excludeKeys.add(key);
+    }
+
+    if (record.children && record.children.length) {
+      record.children.forEach((childRecord) => handleSelectChildren(childRecord, select));
+    }
+    // 处理父节点的选中状态
+    if (!select && parentKey && rowSelectionDisabledConfig?.checkStrictly) {
+      handleParentSelection(record);
+    }
   };
 
   // 获取表格请求参数
@@ -490,85 +561,31 @@ export default function useTableProps<T>(
         propsRes.value.selectorStatus = v;
       }
     },
-    // TODO: 待优化逻辑
     // 表格行的选中/取消事件
     rowSelectChange: (record: MsTableDataItem<T>) => {
-      const { rowKey } = propsRes.value;
+      const { rowKey, rowSelectionDisabledConfig } = propsRes.value;
       const key = record[rowKey || 'id'];
-      const { selectedKeys, excludeKeys, data } = propsRes.value;
-      if (props?.rowSelectionDisabledConfig?.disabledChildren) {
-        if (selectedKeys.has(key)) {
-          // 当前已选中，取消选中
-          selectedKeys.delete(key);
-          excludeKeys.add(key);
-        } else {
-          // 当前未选中，选中
-          selectedKeys.add(key);
-          if (excludeKeys.has(key)) {
-            excludeKeys.delete(key);
-          }
+      const { selectedKeys, excludeKeys } = propsRes.value;
+      if (selectedKeys.has(key)) {
+        // 当前已选中，取消选中
+        selectedKeys.delete(key);
+        excludeKeys.add(key);
+        if (rowSelectionDisabledConfig?.checkStrictly) {
+          // 取消当前节点的所有子节点
+          handleSelectChildren(record, false);
         }
-        return;
-      }
-      // 是否包含子级
-      const isHasChildrenData = data.some((item) => item.children);
-      let isSelectChildren;
-      let currentALlParentChildrenIds: string[] = [];
-      // @desc: 如果存在子级获取当前同一级别所有的ids用来判断是否子级全部选择将父节点id也添加进来
-      if (isHasChildrenData) {
-        const parentItemChildren: any = data.find((item) => item[rowKey] === record.parent)?.children || [];
-        currentALlParentChildrenIds = getCurrentRecordChildrenIds(parentItemChildren, rowKey || 'id');
-      }
-      // 非子级
-      if (!record.children) {
-        if (selectedKeys.has(key)) {
-          // 当前已选中，取消选中
-          selectedKeys.delete(key);
-          excludeKeys.add(key);
-          // @desc: 只要取消一个子级则取消他的父节点选择
-          if (record.parent) {
-            selectedKeys.delete(record.parent);
-            excludeKeys.add(record.parent);
-          }
-        } else {
-          // 当前未选中，选中
-          selectedKeys.add(key);
-          if (excludeKeys.has(key)) {
-            excludeKeys.delete(key);
-          }
-          // @desc: 判断当前子级是否已经全选,全选则将上层父级也选择
-          isSelectChildren = currentALlParentChildrenIds.every((id) => selectedKeys.has(id));
-          if (isSelectChildren && record.parent) {
-            selectedKeys.add(record.parent);
-            excludeKeys.delete(record.parent);
-          }
+      } else {
+        // 当前未选中，选中
+        selectedKeys.add(key);
+        if (excludeKeys.has(key)) {
+          excludeKeys.delete(key);
         }
+        if (rowSelectionDisabledConfig?.checkStrictly) {
+          // 选择当前节点的所有子节点
+          handleSelectChildren(record, true);
+        }
+      }
 
-        // 包含子级
-      } else if (record.children) {
-        const childrenIds = getCurrentRecordChildrenIds(record.children, rowKey || 'id');
-        const isSelectAllChildren = childrenIds.every((id) => selectedKeys.has(id));
-        const includeCurrentIds = [key, ...childrenIds];
-        // 当前父节点已选中，取消选择父节点和父节点下所有子节点
-        if (isSelectAllChildren) {
-          includeCurrentIds.forEach((id) => {
-            selectedKeys.delete(id);
-          });
-          includeCurrentIds.forEach((id) => {
-            excludeKeys.add(id);
-          });
-          //  未选中则全选父节点和下边所有子节点
-        } else {
-          selectedKeys.add(key);
-          collectIds(record.children, rowKey);
-          childrenIds.forEach((id) => {
-            excludeKeys.delete(id);
-          });
-          if (excludeKeys.has(key)) {
-            excludeKeys.delete(key);
-          }
-        }
-      }
       if (selectedKeys.size === 0 && propsRes.value.selectorStatus === SelectAllEnum.CURRENT) {
         propsRes.value.selectorStatus = SelectAllEnum.NONE;
       } else if (selectedKeys.size > 0 && propsRes.value.selectorStatus === SelectAllEnum.NONE) {

@@ -90,8 +90,8 @@
         <template #demandName="{ record }">
           <span class="ml-1 text-[rgb(var(--primary-5))]">
             {{ record.demandName }}
-            <span>({{ (record.children || []).length || 0 }})</span></span
-          >
+            <span v-if="(record.children || []).length"> ({{ (record.children || []).length || 0 }}) </span>
+          </span>
         </template>
         <template v-for="item in customFields" :key="item.slotName" #[item.dataIndex]="{ record }">
           <span> {{ getSlotName(record, item) }} </span>
@@ -211,6 +211,9 @@
     selectable: true,
     showSelectorAll: false,
     showSetting: false,
+    rowSelectionDisabledConfig: {
+      checkStrictly: false,
+    },
   });
 
   const drawerLoading = ref<boolean>(false);
@@ -419,4 +422,13 @@
   });
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  :deep(.arco-table-cell-align-left) > span:first-child {
+    padding-left: 0 !important;
+  }
+  :deep(.arco-table-cell-align-left) {
+    .arco-table-cell-inline-icon + .arco-table-td-content {
+      padding-right: 19px !important;
+    }
+  }
+</style>

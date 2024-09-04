@@ -2,8 +2,11 @@
   <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
     <template #demandName="{ record }">
       <span :class="[props.highlightName ? 'text-[rgb(var(--primary-5))]' : '']" @click="emit('open', record)">
-        {{ characterLimit(record.demandName) }} </span
-      ><span class="one-line-text text-[rgb(var(--primary-5))]">({{ (record.children || []).length || 0 }})</span>
+        {{ characterLimit(record.demandName) }}
+      </span>
+      <span v-if="(record.children || []).length" class="one-line-text text-[rgb(var(--primary-5))]">
+        ({{ (record.children || []).length || 0 }})
+      </span>
     </template>
     <template #operation="{ record }">
       <MsButton
