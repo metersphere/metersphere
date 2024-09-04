@@ -181,3 +181,8 @@ export const BatchAddBugToScenarioCaseUrl = '/test-plan/api/scenario/batch/add-b
 export const BatchLinkBugToApiCaseUrl = '/test-plan/api/case/batch/associate-bug';
 // 测试计划-详情-场景用例列表-批量关联缺陷
 export const BatchLinkBugToScenarioCaseUrl = '/test-plan/api/scenario/batch/associate-bug';
+export const BatchAddBugToCaseUrl = '/test-plan/functional/case/batch/add-bug';
+// 测试计划-详情-用例列表-脑图批量关联缺陷
+export const BatchAssociatedBugToMinderCaseUrl = '/test-plan/functional/case/minder/batch/associate-bug';
+// 测试计划-详情-用例列表-脑图批量新建缺陷
+export const BatchAddBugToMinderCaseUrl = '/test-plan/functional/case/minder/batch/add-bug';

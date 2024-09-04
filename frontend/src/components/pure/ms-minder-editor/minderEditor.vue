@@ -11,6 +11,9 @@
         <template #extractMenu>
           <slot name="extractMenu"></slot>
         </template>
+        <template #batchMenu>
+          <slot name="batchMenu"></slot>
+        </template>
       </mainEditor>
     </div>
     <div class="ms-minder-editor-extra" :class="[extraVisible ? 'ms-minder-editor-extra--visible' : '']">

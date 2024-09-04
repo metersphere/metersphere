@@ -14,24 +14,24 @@
       :can-show-more-menu-node-operation="false"
       :more-menu-other-operation-list="canShowFloatMenu && hasOperationPermission ? moreMenuOtherOperationList : []"
       disabled
+      @node-batch-select="handleNodeBatchSelect"
       @node-select="handleNodeSelect"
       @node-unselect="handleNodeUnselect"
     >
       <template #extractMenu>
         <!-- 缺陷 -->
         <a-dropdown trigger="hover" position="bl">
-          <a-tooltip
+          <MsButton
             v-if="
               props.canEdit &&
               showAssociateBugMenu &&
               hasAllPermission(['PROJECT_BUG:READ', 'PROJECT_TEST_PLAN:READ+EXECUTE'])
             "
-            :content="t('common.add')"
+            type="icon"
+            class="ms-minder-node-float-menu-icon-button"
           >
-            <MsButton type="icon" class="ms-minder-node-float-menu-icon-button">
-              <MsIcon type="icon-icon_bug" class="text-[var(--color-text-4)]" />
-            </MsButton>
-          </a-tooltip>
+            <MsIcon type="icon-icon_bug" class="text-[var(--color-text-4)]" />
+          </MsButton>
           <template #content>
             <a-doption v-permission="['PROJECT_BUG:READ+ADD']" value="new" @click="showAddDefectDrawer = true">
               {{ t('testPlan.featureCase.noBugDataNewBug') }}
@@ -49,20 +49,16 @@
           :click-outside-to-close="false"
           popup-container="body"
         >
-          <a-tooltip
+          <MsButton
             v-if="props.canEdit && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
-            :content="t('common.execute')"
+            type="icon"
+            :class="[
+              'ms-minder-node-float-menu-icon-button',
+              `${executeVisible ? 'ms-minder-node-float-menu-icon-button--focus' : ''}`,
+            ]"
           >
-            <MsButton
-              type="icon"
-              :class="[
-                'ms-minder-node-float-menu-icon-button',
-                `${executeVisible ? 'ms-minder-node-float-menu-icon-button--focus' : ''}`,
-              ]"
-            >
-              <MsIcon type="icon-icon_play-round_filled" class="text-[var(--color-text-4)]" />
-            </MsButton>
-          </a-tooltip>
+            <MsIcon type="icon-icon_play-round_filled" class="text-[var(--color-text-4)]" />
+          </MsButton>
           <template #content>
             <div class="w-[440px] rounded bg-white p-[16px] shadow-[0_0_10px_rgba(0,0,0,0.05)]">
               <ExecuteSubmit
@@ -75,20 +71,18 @@
           </template>
         </a-trigger>
         <!-- 查看详情 -->
-        <a-tooltip v-if="canShowDetail" :content="t('common.detail')">
-          <MsButton
-            type="icon"
-            :class="[
-              'ms-minder-node-float-menu-icon-button',
-              `${extraVisible ? 'ms-minder-node-float-menu-icon-button--focus' : ''}`,
-            ]"
-            @click="toggleDetail"
-          >
-            <MsIcon type="icon-icon_describe_outlined" class="text-[var(--color-text-4)]" />
-          </MsButton>
-        </a-tooltip>
+        <MsButton
+          v-if="canShowDetail"
+          type="icon"
+          :class="[
+            'ms-minder-node-float-menu-icon-button',
+            `${extraVisible ? 'ms-minder-node-float-menu-icon-button--focus' : ''}`,
+          ]"
+          @click="toggleDetail"
+        >
+          <MsIcon type="icon-icon_describe_outlined" class="text-[var(--color-text-4)]" />
+        </MsButton>
       </template>
-
       <template #extractTabContent>
         <MsDescription
           v-if="activeExtraKey === 'baseInfo'"
@@ -121,8 +115,37 @@
           show-step-detail-trigger
         />
       </template>
+      <template #batchMenu>
+        <a-dropdown trigger="hover" position="bl">
+          <MsButton
+            v-if="props.canEdit && hasAllPermission(['PROJECT_BUG:READ', 'PROJECT_TEST_PLAN:READ+EXECUTE'])"
+            type="icon"
+            class="ms-minder-node-float-menu-icon-button"
+          >
+            <MsIcon type="icon-icon_bug" class="text-[var(--color-text-4)]" />
+          </MsButton>
+          <template #content>
+            <a-doption v-permission="['PROJECT_BUG:READ+ADD']" value="new" @click="showBatchAddDefect">
+              {{ t('testPlan.featureCase.noBugDataNewBug') }}
+            </a-doption>
+            <a-doption v-permission="['PROJECT_BUG:READ']" value="link" @click="showBatchLinkDefect">
+              {{ t('caseManagement.featureCase.linkDefect') }}
+            </a-doption>
+          </template>
+        </a-dropdown>
+      </template>
     </MsMinderEditor>
     <LinkDefectDrawer
+      v-if="isMinderOperation"
+      v-model:visible="showLinkDefectDrawer"
+      :case-id="selectNode?.data?.caseId ?? ''"
+      :drawer-loading="linkDrawerLoading"
+      :load-api="AssociatedBugApiTypeEnum.BUG_TOTAL_LIST"
+      :show-selector-all="false"
+      @save="associateSuccessHandler"
+    />
+    <LinkDefectDrawer
+      v-else
       v-model:visible="showLinkDefectDrawer"
       :case-id="selectNode?.data?.caseId ?? ''"
       :drawer-loading="linkDrawerLoading"
@@ -137,7 +160,9 @@
         testPlanCaseId: selectNode?.data?.id,
         caseId: selectNode?.data?.caseId,
         testPlanId: props.planId,
+        ...batchMinderParams,
       }"
+      :is-minder-batch="isMinderOperation"
       @success="handleAddBugDone"
     />
     <a-modal
@@ -198,6 +223,7 @@
   import { getCasePlanMinder } from '@/api/modules/case-management/caseReview';
   import {
     associateBugToPlan,
+    batchAssociatedBugToMinderCase,
     batchExecuteCase,
     executeHistory,
     getCaseDetail,
@@ -274,6 +300,7 @@
       ...e,
       data: {
         ...e.data,
+        type: e.type || e.data?.type,
         id: e.id || e.data?.id || '',
         text: e.name || e.data?.text || '',
         resource: modulesCount.value[e.id] !== undefined ? [moduleTag] : e.data?.resource,
@@ -526,21 +553,41 @@
   const showAddDefectDrawer = ref(false);
   const linkDrawerLoading = ref(false);
   const bugListRef = ref<InstanceType<typeof BugList>>();
+  const batchMinderParams = ref({
+    minderModuleIds: [] as string[],
+    minderCaseIds: [] as string[],
+    minderProjectIds: [] as string[],
+  });
+  const isMinderOperation = ref(false);
+
   function handleAddBugDone() {
     if (extraVisible.value && activeExtraKey.value === 'bug') {
       bugListRef.value?.loadBugList();
     }
     emit('refreshPlan');
   }
+
   async function associateSuccessHandler(params: TableQueryParams) {
     try {
       linkDrawerLoading.value = true;
-      await associateBugToPlan({
-        ...params,
-        testPlanCaseId: selectNode.value.data?.id,
-        caseId: selectNode.value.data?.caseId,
-        testPlanId: props.planId,
-      });
+      if (isMinderOperation.value) {
+        await batchAssociatedBugToMinderCase({
+          ...params,
+          testPlanCaseId: '',
+          caseId: '',
+          testPlanId: props.planId,
+          bugIds: params.selectIds,
+          selectAll: batchMinderParams.value.minderModuleIds.includes('NONE'),
+          ...batchMinderParams.value,
+        });
+      } else {
+        await associateBugToPlan({
+          ...params,
+          testPlanCaseId: selectNode.value.data?.id,
+          caseId: selectNode.value.data?.caseId,
+          testPlanId: props.planId,
+        });
+      }
       Message.success(t('caseManagement.featureCase.associatedSuccess'));
       linkDrawerLoading.value = false;
       handleAddBugDone();
@@ -574,9 +621,11 @@
       handleRenderNode(node, [actualResultNode]);
     }
   }
+
   function isActualResultNode(node: MinderJsonNode) {
     return node.data?.resource?.includes(actualResultTag) && node.parent?.data?.resource?.includes(caseTag);
   }
+
   // 点击模块/用例/用例的实际结果执行
   function handleExecuteDone(status: LastExecuteResults, content: string) {
     const curSelectNode = window.minder.getSelectedNode();
@@ -602,6 +651,7 @@
     }
     emit('refreshPlan');
   }
+
   async function handleShortCutExecute(status: LastExecuteResults) {
     const selectedNodes: MinderJsonNode = window.minder.getSelectedNode();
     if (!selectedNodes?.data?.resource?.includes(caseTag)) return;
@@ -783,9 +833,33 @@
     return null;
   }
 
+  function setBatchMinderParams() {
+    batchMinderParams.value = {
+      minderModuleIds: [],
+      minderCaseIds: [],
+      minderProjectIds: [],
+    };
+    const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
+    selectedNodes.forEach((node) => {
+      if (node.data?.resource?.includes(caseTag)) {
+        batchMinderParams.value.minderCaseIds.push(node.data?.id || '');
+      } else if (node.data?.type === 'PROJECT') {
+        batchMinderParams.value.minderProjectIds.push(node.data?.id || '');
+      } else if (node.data?.resource?.includes(moduleTag)) {
+        batchMinderParams.value.minderModuleIds.push(node.data?.id || '');
+      }
+    });
+  }
+
   // 选中节点
   async function handleNodeSelect(node: MinderJsonNode) {
     const { data } = node;
+    if (node.data?.resource?.includes(moduleTag)) {
+      isMinderOperation.value = true; // 批量操作/脑图模块节点操作
+      setBatchMinderParams();
+    } else {
+      isMinderOperation.value = false;
+    }
     // 点击更多节点，加载更多用例
     if (data?.type === 'tmp' && node.parent?.data?.resource?.includes(moduleTag)) {
       canShowFloatMenu.value = false;
@@ -849,14 +923,14 @@
       // 用例下面所有节点都展开
       expendNodeAndChildren(node);
       node.layout();
-    } else if (data?.resource?.includes(moduleTag) && data.count > 0 && data.isLoaded !== true) {
+    } else if (data?.resource?.includes(moduleTag)) {
       // 模块节点且有用例且未加载过用例数据
-      if (data.id !== 'NONE') {
+      if (data.id !== 'NONE' && data.count > 0 && data.isLoaded !== true) {
         await initNodeCases(node);
       }
       extraVisible.value = false;
       canShowDetail.value = false;
-      showAssociateBugMenu.value = false;
+      showAssociateBugMenu.value = true;
     } else {
       extraVisible.value = false;
       canShowDetail.value = false;
@@ -867,8 +941,23 @@
     setPriorityView(true, 'P');
   }
 
+  function handleNodeBatchSelect() {
+    isMinderOperation.value = true;
+  }
+
+  function showBatchAddDefect() {
+    showAddDefectDrawer.value = true;
+    setBatchMinderParams();
+  }
+
+  function showBatchLinkDefect() {
+    showLinkDefectDrawer.value = true;
+    setBatchMinderParams();
+  }
+
   function handleNodeUnselect() {
     extraVisible.value = false;
+    isMinderOperation.value = false;
   }
 
   const { unbindShortcuts } = useShortCut(

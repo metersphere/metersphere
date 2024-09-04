@@ -230,7 +230,7 @@
       keyword: keyword.value,
       searchMode: 'AND',
       combine: {},
-      caseId: props.caseId,
+      caseId: props.caseId || '',
       condition: { keyword: keyword.value },
     };
     showDrawer.value = false;
@@ -245,7 +245,7 @@
     currentCaseTable.value.setLoadListParams({
       keyword: keyword.value,
       projectId: currentProjectId.value,
-      sourceId: props.caseId,
+      sourceId: props.caseId || '',
     });
     currentCaseTable.value.loadList();
   }

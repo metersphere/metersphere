@@ -54,6 +54,7 @@
   import {
     batchAddBugToApiCase,
     batchAddBugToFunctionCase,
+    batchAddBugToMinderCase,
     batchAddBugToScenarioCase,
   } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
@@ -80,6 +81,7 @@
       detailId: string; // 功能用例为用例详情id， 注意：接口用例为最后执行报告id来获取执行详情展示断言，场景也为执行报告id查看报告详情
       name: string; // 用例明细名称
     };
+    isMinderBatch?: boolean;
   }>();
 
   const emit = defineEmits<{
@@ -139,6 +141,8 @@
         props.extraParams && typeof props.extraParams === 'function' ? await props.extraParams() : props.extraParams;
       if (props.isBatch && props.caseType) {
         await batchAddApiMap[props.caseType]({ request: { ...request, ...extraParam }, fileList });
+      } else if (props.isMinderBatch) {
+        await batchAddBugToMinderCase({ request: { ...request, ...props.extraParams }, fileList });
       } else {
         await createOrUpdateBug({ request: { ...request, ...extraParam }, fileList });
       }
