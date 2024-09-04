@@ -11,7 +11,7 @@ module.exports = defineConfig({
   publicPath: "/",
   productionSourceMap: false,
   devServer: {
-    port: 3000,
+    port: 5244,
     client: {
       webSocketTransport: "sockjs",
       overlay: false,

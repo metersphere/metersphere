@@ -55,12 +55,15 @@
               {{ $t('commons.login') }}
             </el-button>
           </div>
-          <el-divider v-if="orgOptions.length > 0" class="login-divider"
-            ><span style="color: #959598; font-size: 12px">更多登录方式</span></el-divider
+          <el-divider v-xpack  v-if="orgOptions.length > 0"  class="login-divider"><span style="color: #959598; font-size: 12px">更多登录方式</span></el-divider>
+          <div
+            v-xpack
+              v-if="orgOptions.length > 0"
+              class="loginType"
+              @click="switchLoginType('QR_CODE')"
           >
-          <div v-if="orgOptions.length > 0" class="loginType" @click="switchLoginType('QR_CODE')">
-            <svg-icon v-if="!showQrCodeTab" icon-class="icon_scan_code" class-name="ms-icon" />
-            <svg-icon v-if="showQrCodeTab" icon-class="icon_people" class-name="ms-icon" />
+            <svg-icon v-if="!showQrCodeTab" icon-class="icon_scan_code" class-name="ms-icon"/>
+            <svg-icon v-if="showQrCodeTab" icon-class="icon_people" class-name="ms-icon"/>
           </div>
           <div class="msg">
             {{ msg }}
@@ -90,15 +93,17 @@ import {
   getDisplayInfo,
   getLanguage,
   getSystemTheme,
-  saveBaseUrl,
-} from '../../api/user';
-import { useUserStore } from '@/store';
-import { operationConfirm } from '../../utils';
-import { getModuleList } from '../../api/module';
-import { getLicense } from '../../api/license';
-import { setLanguage } from '../../i18n';
-import { getPlatformParamUrl } from '../../api/qrcode';
-import tabQrCode from '../login/tabQrCode.vue';
+  saveBaseUrl
+} from "../../api/user";
+import {useUserStore} from "@/store"
+import {getQueryVariable, getUrlParameterWidthRegExp, operationConfirm} from "../../utils";
+import {getModuleList} from "../../api/module";
+import {getLicense} from "../../api/license";
+import {setLanguage} from "../../i18n";
+import {getLarkCallback, getLarkSuiteCallback, getPlatformParamUrl} from "../../api/qrcode";
+import tabQrCode from "../login/tabQrCode.vue";
+import axios from "axios";
+
 const checkLicense = () => {
   return getLicense()
     .then((response) => {

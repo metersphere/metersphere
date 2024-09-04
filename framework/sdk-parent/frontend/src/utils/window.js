@@ -16,7 +16,7 @@ window.QRLogin= function(qrLogin) {
 // ********************************************************************************
 // Note: The width and height parameters only set the QR code iframe element's size and do not affect the container size.
 // The container's size and style must be set using CSS by the integrator.
-const IDTLoginFrameParams = {
+const frameParams = {
     id: '',       // Required, container element ID, without '#'
     width: 300,   // Optional, QR code iframe width, minimum 280, default 300
     height: 300   // Optional, QR code iframe height, minimum 280, default 300
@@ -27,7 +27,7 @@ const IDTLoginFrameParams = {
 // ********************************************************************************
 // The parameters are the same as those used for "splicing link to initiate login authorization" (some parameters are missing).
 // Added the isPre parameter to set the running environment.
-const IDTLoginLoginParams = {
+const loginParams = {
     redirect_uri: '',     // Required, URL must be encoded
     response_type: 'code', // Required, fixed value 'code'
     client_id: '',        // Required

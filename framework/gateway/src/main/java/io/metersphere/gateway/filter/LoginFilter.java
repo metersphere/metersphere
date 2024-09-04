@@ -38,6 +38,8 @@ public class LoginFilter implements WebFilter, Ordered {
         excludePatterns.add(new PathPatternParser().parse("/"));
         // 认证源查询
         excludePatterns.add(new PathPatternParser().parse("/authsource/*"));
+        //扫码源
+        excludePatterns.add(new PathPatternParser().parse("/sso/callback/we_com"));
 
         // 各模块首页
         swaggerUiConfigProperties.getUrls().forEach(v -> excludePatterns.add(new PathPatternParser().parse("/" + v.getName())));
