@@ -7,9 +7,10 @@ import {
   type ResponseDefinition,
 } from '@/models/apiTest/common';
 import type { MockBody } from '@/models/apiTest/mock';
-import { RequestConditionProcessor, RequestParamsType } from '@/enums/apiEnum';
+import { RequestBodyFormat, RequestConditionProcessor, RequestParamsType } from '@/enums/apiEnum';
 
 import {
+  defaultBodyParams,
   defaultBodyParamsItem,
   defaultHeaderParamsItem,
   defaultKeyValueParamItem,
@@ -272,4 +273,48 @@ export function filterAssertions(assertionConfig: ExecuteAssertionConfig, isExec
       },
     };
   });
+}
+
+/**
+ * 解析 curl 结果中的 body 参数
+ * @param bodyType body 类型
+ * @param body body 参数对象
+ */
+export function parseCurlBody(bodyType: RequestBodyFormat, body: Record<string, any>) {
+  const requestBody = cloneDeep(defaultBodyParams);
+  switch (bodyType) {
+    case RequestBodyFormat.JSON:
+      requestBody.bodyType = bodyType;
+      requestBody.jsonBody = {
+        ...cloneDeep(defaultBodyParams.jsonBody),
+        enableJsonSchema: false,
+        jsonValue: JSON.stringify(body),
+      };
+      break;
+    case RequestBodyFormat.FORM_DATA:
+      requestBody.bodyType = bodyType;
+      requestBody.formDataBody = {
+        ...cloneDeep(defaultBodyParams.formDataBody),
+        formValues: Object.keys(body).map((e) => ({
+          ...defaultBodyParamsItem,
+          key: e,
+          value: body[e],
+        })),
+      };
+      break;
+    case RequestBodyFormat.WWW_FORM:
+      requestBody.bodyType = bodyType;
+      requestBody.wwwFormBody = {
+        ...cloneDeep(defaultBodyParams.wwwFormBody),
+        formValues: Object.keys(body).map((e) => ({
+          ...defaultBodyParamsItem,
+          key: e,
+          value: body[e],
+        })),
+      };
+      break;
+    default:
+      break;
+  }
+  return requestBody;
 }

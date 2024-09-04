@@ -418,6 +418,7 @@
     filterAssertions,
     filterConditionsSqlValidParams,
     filterKeyValParams,
+    parseCurlBody,
     parseRequestBodyFiles,
   } from '@/views/api-test/components/utils';
   import type { Api } from '@form-create/arco-design';
@@ -1282,7 +1283,8 @@
 
   const importDialogVisible = ref(false);
   function handleImportCurlDone(res: CurlParseResult) {
-    const { url, method, headers, queryParams } = res;
+    const { url, method, headers, queryParams, bodyType, body } = res;
+    const requestBody = parseCurlBody(bodyType, body);
     requestVModel.value.url = url;
     requestVModel.value.method = method;
     requestVModel.value.headers = Object.keys(headers).map((e) => ({
@@ -1295,6 +1297,7 @@
       key: e,
       value: queryParams[e],
     }));
+    requestVModel.value.body = requestBody;
     importDialogVisible.value = false;
     nextTick(() => {
       handleActiveDebugChange();
