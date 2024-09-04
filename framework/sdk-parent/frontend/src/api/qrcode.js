@@ -29,7 +29,7 @@ export function getDingInfo() {
 }
 
 export function getDingCallback(code) {
-  return get(GetDingCallbackUrl, code );
+  return get(GetDingCallbackUrl, code);
 }
 
 export function getLarkInfo() {

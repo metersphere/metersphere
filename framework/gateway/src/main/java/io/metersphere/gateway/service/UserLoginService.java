@@ -143,9 +143,9 @@ public class UserLoginService {
     }
 
     public UserDTO loginLocalMode(String userId, String password) {
-        UserDTO user = getLoginUser(userId, Collections.singletonList(UserSource.LOCAL.name()));
+        UserDTO user = getLoginUser(userId, List.of(UserSource.LOCAL.name(), UserSource.QR_CODE.name()));
         if (user == null) {
-            user = getUserDTOByEmail(userId, UserSource.LOCAL.name());
+            user = getUserDTOByEmail(userId, UserSource.LOCAL.name(), UserSource.QR_CODE.name());
             if (user == null) {
                 throw new RuntimeException(Translator.get("password_is_incorrect"));
             }
@@ -422,7 +422,7 @@ public class UserLoginService {
         if (userId.length() > 64) {
             MSException.throwException(Translator.get("user_id_length_too_long"));
         }
-        if (password.length() > 30) {
+        if (password.length() > 50) {
             MSException.throwException(Translator.get("password_length_too_long"));
         }
         UserExample example = new UserExample();
@@ -595,7 +595,7 @@ public class UserLoginService {
                 userDTOByEmail = getUserDTOByEmail(email);
                 if (userDTO != null && userDTOByEmail == null) {
                     userDTOByEmail = new UserDTO();
-                    io.metersphere.commons.utils.BeanUtils.copyBean(userDTOByEmail, userDTO);
+                    BeanUtils.copyProperties(userDTO, userDTOByEmail);
                     userDTOByEmail.setEmail(email);
                     changeMail = true;
                 }
@@ -624,6 +624,7 @@ public class UserLoginService {
             LogUtil.info(email);
             LogUtil.info(name);
             LogUtil.info(userId);
+            userCreateInfo.setEmail(email);
             creatUser(userCreateInfo, source);
         } else {
             userId = userDTOByEmail.getId();
@@ -642,18 +643,15 @@ public class UserLoginService {
         LogUtil.info(userId);
         LoginRequest request = new LoginRequest();
         try {
-            RsaKey rsaKey = RsaUtil.getRsaKey();
             request.setAuthenticate(source);
-            request.setUsername(RsaUtil.publicEncrypt(userId, rsaKey.getPublicKey()));
-            request.setPassword(CodingUtil.md5(email));
+            request.setUsername(userId);
+            request.setPassword(email);
         } catch (Exception e) {
             LogUtil.error("login error: ", e);
             MSException.throwException("login error: " + e.getMessage());
         }
 
-        Optional<SessionUser> login = login(request, session, locale);
-        SecurityUtils.getSubject().getSession().setAttribute("authenticate", source);
-        return login;
+        return login(request, session, locale);
     }
 
     private void updateUser(String email, String userId) {
@@ -672,7 +670,7 @@ public class UserLoginService {
         PlatformSource platformSource = platformSourceMapper.selectByPrimaryKey(key);
         WeComInfoDTO weComInfoDTO = new WeComInfoDTO();
         WeComCreator weComCreator = JSON.parseObject(platformSource.getConfig(), WeComCreator.class);
-        io.metersphere.commons.utils.BeanUtils.copyBean(weComInfoDTO, weComCreator);
+        BeanUtils.copyProperties(weComCreator, weComInfoDTO);
         weComInfoDTO.setEnable(platformSource.getEnable());
         weComInfoDTO.setValid(platformSource.getValid());
         return weComInfoDTO;
@@ -683,7 +681,7 @@ public class UserLoginService {
         PlatformSource platformSource = platformSourceMapper.selectByPrimaryKey(key);
         DingTalkInfoDTO dingTalkInfoDTO = new DingTalkInfoDTO();
         DingTalkCreator dingTalkCreator = JSON.parseObject(platformSource.getConfig(), DingTalkCreator.class);
-        io.metersphere.commons.utils.BeanUtils.copyBean(dingTalkInfoDTO, dingTalkCreator);
+        BeanUtils.copyProperties(dingTalkCreator, dingTalkInfoDTO);
         dingTalkInfoDTO.setEnable(platformSource.getEnable());
         dingTalkInfoDTO.setValid(platformSource.getValid());
         return dingTalkInfoDTO;
@@ -706,16 +704,16 @@ public class UserLoginService {
 
     private void creatUser(UserRequest userCreateInfo, String source) {
         User user = new User();
-        io.metersphere.commons.utils.BeanUtils.copyBean(user, userCreateInfo);
+        BeanUtils.copyProperties(userCreateInfo, user);
         user.setCreateTime(System.currentTimeMillis());
-        user.setCreateUser(SessionUtils.getUserId());
+        user.setCreateUser("admin");
         user.setUpdateTime(System.currentTimeMillis());
         // 默认1:启用状态
         user.setStatus(UserStatus.NORMAL);
         user.setSource(source);
         // 密码使用 MD5
-        user.setPassword(CodingUtil.md5(user.getPassword()));
-        checkEmailIsExist(user.getEmail());
+        user.setEmail(user.getEmail());
+        user.setPassword(CodingUtil.md5(user.getEmail()));
         userMapper.insertSelective(user);
         //获取默认空间
         Workspace workspace = getWorkspace();
@@ -724,21 +722,26 @@ public class UserLoginService {
         //添加用户组
         addRole(workspace, project, user);
         //添加日志
-        addLog(user);
+        addLog(user, project);
 
     }
 
-    private void addLog(User user) {
+    public static void main(String[] args) {
+        String s = CodingUtil.md5("MiPiSU5wRvpn9JcmUsYJubXAiEiE@metersphere.io");
+        System.out.println(s);
+    }
+
+    private void addLog(User user, Project project) {
         OperatingLogWithBLOBs log = new OperatingLogWithBLOBs();
         log.setOperTitle(user.getName());
         log.setOperContent(user.getName());
+        log.setProjectId(project.getId());
         log.setOperPath("/sso/callback/we_com");
         log.setId(UUID.randomUUID().toString());
         log.setOperType(OperLogConstants.CREATE.name());
         log.setOperModule(OperLogModule.SYSTEM_PARAMETER_SETTING);
-        log.setProjectId(null);
         List<DetailColumn> columns = new LinkedList<>();
-        OperatingLogDetails details = new OperatingLogDetails(user.getId(), null, user.getName(),
+        OperatingLogDetails details = new OperatingLogDetails(user.getId(), project.getId(), user.getName(),
                 user.getCreateUser(), columns);
         log.setOperContent(JSON.toJSONString(details));
         log.setOperTime(System.currentTimeMillis());
@@ -824,7 +827,7 @@ public class UserLoginService {
         }
         LarkInfoDTO LarkInfoDTO = new LarkInfoDTO();
         LarkCreator larkCreator = JSON.parseObject(platformSource.getConfig(), LarkCreator.class);
-        io.metersphere.commons.utils.BeanUtils.copyBean(LarkInfoDTO, larkCreator);
+        BeanUtils.copyProperties(larkCreator, LarkInfoDTO);
         LarkInfoDTO.setEnable(platformSource.getEnable());
         LarkInfoDTO.setValid(platformSource.getValid());
         return LarkInfoDTO;

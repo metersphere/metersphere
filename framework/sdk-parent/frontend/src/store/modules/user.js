@@ -135,6 +135,13 @@ export default {
     switchProject(response) {
       this.$patch(response.data);
       sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
+    },
+    checkPermission(response){
+      return new Promise((resolve, reject) => {
+        this.$patch(response.data)
+        saveSessionStorage(response)
+        resolve(response)
+      });
     }
   }
 }

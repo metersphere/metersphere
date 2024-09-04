@@ -487,3 +487,34 @@ export function gotoNext(_this, path, step) {
     this.$router.push(path)
   }
 }
+
+export function getQueryVariable(variable) {
+  const urlString = window.location.href;
+  const queryIndex = urlString.indexOf('?');
+  if (queryIndex !== -1) {
+    const query = urlString.substring(queryIndex + 1);
+
+    // 分割查询参数
+    const params = query.split('&');
+    // 遍历参数，找到 _token 参数的值
+    let variableValue;
+    params.forEach((param) => {
+      const equalIndex = param.indexOf('=');
+      const variableName = param.substring(0, equalIndex);
+      if (variableName === variable) {
+        variableValue = param.substring(equalIndex + 1);
+      }
+    });
+    return variableValue;
+  }
+}
+
+export function getUrlParameterWidthRegExp(name) {
+  const url = window.location.href;
+  name = name.replace(/[[\]]/g, '\\$&');
+  const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`);
+  const results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}

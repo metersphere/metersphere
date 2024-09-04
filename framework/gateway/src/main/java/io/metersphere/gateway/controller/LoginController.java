@@ -166,7 +166,7 @@ public class LoginController {
     }
 
 
-    @GetMapping(value = "/callback/we_com")
+    @GetMapping(value = "/sso/callback/we_com")
     @Operation(summary = "获取企业微信登陆验证")
     @MsAuditLog(module = OperLogModule.AUTH_TITLE, type = OperLogConstants.LOGIN, title = "WE_COM")
     public Mono<ResultHolder> callbackWeCom(@RequestParam("code") String code, WebSession session, Locale locale) {
