@@ -7,6 +7,7 @@ import io.metersphere.project.service.FileManagementService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.StorageType;
+import io.metersphere.system.file.annotation.FileLimit;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -66,6 +67,7 @@ public class FileManagementController {
         return fileMetadataService.moduleCount(request, SessionUtils.getUserId());
     }
 
+    @FileLimit
     @PostMapping("/upload")
     @Operation(summary = "项目管理-文件管理-上传文件")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
@@ -74,6 +76,7 @@ public class FileManagementController {
         return fileMetadataService.upload(request, SessionUtils.getUserId(), uploadFile);
     }
 
+    @FileLimit
     @PostMapping("/re-upload")
     @Operation(summary = "项目管理-文件管理-重新上传文件")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE)

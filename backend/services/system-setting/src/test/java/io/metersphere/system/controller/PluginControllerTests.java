@@ -4,6 +4,8 @@ import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.sdk.file.LocalFileRepository;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.base.BasePluginTestService;
@@ -12,15 +14,14 @@ import io.metersphere.system.controller.param.PluginUpdateRequestDefinition;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.PluginDTO;
+import io.metersphere.system.dto.request.PlatformOptionRequest;
+import io.metersphere.system.dto.request.PluginUpdateRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.sdk.file.FileRequest;
-import io.metersphere.sdk.file.LocalFileRepository;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.PluginOrganizationMapper;
 import io.metersphere.system.mapper.PluginScriptMapper;
-import io.metersphere.system.dto.request.PlatformOptionRequest;
-import io.metersphere.system.dto.request.PluginUpdateRequest;
+import io.metersphere.system.mapper.SystemParameterMapper;
 import io.metersphere.system.service.*;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -75,6 +76,8 @@ public class PluginControllerTests extends BaseTest {
     private PluginScriptService pluginScriptService;
     @Resource
     private LocalFileRepository localFileRepository;
+    @Resource
+    private SystemParameterMapper systemParameterMapper;
     private static Plugin addPlugin;
     private static Plugin anotherAddPlugin;
 
@@ -186,7 +189,6 @@ public class PluginControllerTests extends BaseTest {
                 getDefaultMultiPartParam(request, myDriver));
         Assertions.assertEquals(jdbcDriverPluginService.getJdbcDriverClass(DEFAULT_ORGANIZATION_ID), Arrays.asList("io.jianxing.MyDriver", "com.mysql.cj.jdbc.Driver"));
 
-
         // 校验QUOTA动上传成功
         request.setName("cloud-quota-plugin");
         request.setOrganizationIds(Arrays.asList(org.getId()));
@@ -196,6 +198,9 @@ public class PluginControllerTests extends BaseTest {
         );
         this.requestMultipartWithOkAndReturn(DEFAULT_ADD,
                 getDefaultMultiPartParam(request, quota));
+        // 设置文件限制为1M
+        setMaxFileSizeTo1M();
+        this.requestMultipart(DEFAULT_ADD, getDefaultMultiPartParam(request, quota), status().is5xxServerError());
         // 清理掉
         this.requestGetWithOk(DEFAULT_DELETE, "cloud-quota-plugin");
 
@@ -457,5 +462,16 @@ public class PluginControllerTests extends BaseTest {
                 .header(SessionConstants.CSRF_TOKEN, csrfToken)
                 .content(JSON.toJSONString(param))
                 .contentType(MediaType.APPLICATION_JSON));
+    }
+
+    private void setMaxFileSizeTo1M() {
+        // 设置文件限制为1M
+        SystemParameterExample example = new SystemParameterExample();
+        example.createCriteria().andParamKeyEqualTo("upload.file.size");
+        SystemParameter systemParameter = new SystemParameter();
+        systemParameter.setParamKey("upload.file.size");
+        systemParameter.setParamValue("1");
+        systemParameter.setType("text");
+        systemParameterMapper.updateByExample(systemParameter, example);
     }
 }

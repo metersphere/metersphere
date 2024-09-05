@@ -7,6 +7,7 @@ import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.dto.PluginDTO;
 import io.metersphere.system.dto.request.PlatformOptionRequest;
 import io.metersphere.system.dto.request.PluginUpdateRequest;
+import io.metersphere.system.file.annotation.FileLimit;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.PluginLogService;
@@ -46,6 +47,7 @@ public class PluginController {
         return pluginService.list();
     }
 
+    @FileLimit
     @PostMapping("/add")
     @Operation(summary = "系统设置-系统-插件管理-创建插件")
     @RequiresPermissions(PermissionConstants.SYSTEM_PLUGIN_ADD)

@@ -21,6 +21,7 @@ import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
+import io.metersphere.system.file.annotation.FileLimit;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
@@ -74,6 +75,7 @@ public class FunctionalCaseController {
     }
 
 
+    @FileLimit
     @PostMapping("/add")
     @Operation(summary = "用例管理-功能用例-新增用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_ADD)
@@ -95,7 +97,7 @@ public class FunctionalCaseController {
         return functionalCaseService.getFunctionalCaseDetail(id, userId, true);
     }
 
-
+    @FileLimit
     @PostMapping("/update")
     @Operation(summary = "用例管理-功能用例-更新用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)

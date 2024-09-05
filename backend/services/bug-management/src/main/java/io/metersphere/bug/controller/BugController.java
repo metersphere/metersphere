@@ -22,6 +22,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
+import io.metersphere.system.file.annotation.FileLimit;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
@@ -97,6 +98,7 @@ public class BugController {
         return PageUtils.setPageInfo(page, bugService.list(request));
     }
 
+    @FileLimit
     @PostMapping("/add")
     @Operation(summary = "缺陷管理-列表-创建缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_ADD)
@@ -108,6 +110,7 @@ public class BugController {
         return bugService.addOrUpdate(request, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), false);
     }
 
+    @FileLimit
     @PostMapping("/update")
     @Operation(summary = "缺陷管理-列表-编辑缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
