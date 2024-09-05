@@ -63,7 +63,7 @@ public class TestPlanApiScenarioController {
     public Pager<List<TestPlanApiScenarioPageResponse>> page(@Validated @RequestBody TestPlanApiScenarioRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "test_plan_api_scenario.pos desc");
-        return PageUtils.setPageInfo(page, testPlanApiScenarioService.hasRelateApiScenarioList(request, false));
+        return PageUtils.setPageInfo(page, testPlanApiScenarioService.hasRelateApiScenarioList(request, false, SessionUtils.getCurrentProjectId()));
     }
 
     @PostMapping("/module/count")

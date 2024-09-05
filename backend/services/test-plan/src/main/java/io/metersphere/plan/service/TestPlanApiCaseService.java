@@ -244,13 +244,13 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      * @param deleted
      * @return
      */
-    public List<TestPlanApiCasePageResponse> hasRelateApiCaseList(TestPlanApiCaseRequest request, boolean deleted) {
+    public List<TestPlanApiCasePageResponse> hasRelateApiCaseList(TestPlanApiCaseRequest request, boolean deleted, String currentProjectId) {
         filterCaseRequest(request);
         if (CollectionUtils.isEmpty(request.getProtocols())) {
             return new ArrayList<>();
         }
         List<TestPlanApiCasePageResponse> list = extTestPlanApiCaseMapper.relateApiCaseList(request, deleted);
-        buildApiCaseResponse(list, request.getTestPlanId(), request.getProjectId());
+        buildApiCaseResponse(list, request.getTestPlanId(), currentProjectId);
         return list;
     }
 
