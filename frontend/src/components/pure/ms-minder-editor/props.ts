@@ -328,3 +328,13 @@ export const viewMenuProps = {
     default: true,
   },
 };
+
+export const navigatorProps = {
+  // 显示的快捷键列表
+  shortcutList: {
+    type: Array as PropType<string[]>,
+    default() {
+      return ['expand', 'addSibling', 'addChild', 'delete', 'cut', 'copy', 'paste', 'enter'];
+    },
+  },
+};

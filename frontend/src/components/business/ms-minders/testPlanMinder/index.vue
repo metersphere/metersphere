@@ -19,6 +19,7 @@
     :can-show-dropdown="canShowDropdown"
     :dropdown-list="dropdownList"
     :checked-val="checkedVal"
+    :shortcut-list="['expand', 'addSibling', 'addChild', 'delete']"
     custom-priority
     single-tag
     tag-enable

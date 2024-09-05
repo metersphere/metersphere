@@ -43,14 +43,22 @@
         <MsIcon type="icon-icon_full_screen_one" class="text-[var(--color-text-4)]" />
       </MsButton>
     </a-tooltip>
-    <a-button v-if="!props.disabled" type="outline" class="px-[8px] py-[2px] text-[12px]" size="small" @click="save">
+    <a-button
+      v-if="!props.disabled"
+      type="outline"
+      class="flex items-center gap-[2px] px-[8px] py-[2px] text-[12px]"
+      size="small"
+      @click="save"
+    >
       {{ t('minder.main.main.save') }}
+      <div>(<MsCtrlOrCommand :size="12" /> + S)</div>
     </a-button>
   </div>
 </template>
 
 <script lang="ts" setup>
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsCtrlOrCommand from '@/components/pure/ms-ctrl-or-command';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
   import useFullScreen from '@/hooks/useFullScreen';

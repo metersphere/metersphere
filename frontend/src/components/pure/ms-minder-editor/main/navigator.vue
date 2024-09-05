@@ -40,8 +40,8 @@
         </MsButton>
       </a-tooltip>
       <a-trigger
-        :popup-translate="[5, -105]"
-        position="right"
+        :popup-translate="[5, -20]"
+        position="rb"
         class="ms-minder-shortcut-trigger"
         @popup-visible-change="(val) => (shortcutTriggerVisible = val)"
       >
@@ -60,7 +60,7 @@
               <div>{{ t('minder.expand') }}</div>
               <div class="ms-minder-shortcut-trigger-listitem-icon">/</div>
             </div>
-            <div class="ms-minder-shortcut-trigger-listitem">
+            <div v-if="props.shortcutList.includes('copy')" class="ms-minder-shortcut-trigger-listitem">
               <div>{{ t('common.copy') }}</div>
               <div class="flex items-center gap-[4px]">
                 <div class="ms-minder-shortcut-trigger-listitem-icon">
@@ -69,13 +69,13 @@
                 <div class="ms-minder-shortcut-trigger-listitem-icon">C</div>
               </div>
             </div>
-            <div class="ms-minder-shortcut-trigger-listitem">
+            <div v-if="props.shortcutList.includes('addSibling')" class="ms-minder-shortcut-trigger-listitem">
               <div>{{ t('minder.hotboxMenu.insetBrother') }}</div>
               <div class="ms-minder-shortcut-trigger-listitem-icon">
                 <MsIcon type="icon-icon_carriage_return2" />
               </div>
             </div>
-            <div class="ms-minder-shortcut-trigger-listitem">
+            <div v-if="props.shortcutList.includes('paste')" class="ms-minder-shortcut-trigger-listitem">
               <div>{{ t('minder.hotboxMenu.paste') }}</div>
               <div class="flex items-center gap-[4px]">
                 <div class="ms-minder-shortcut-trigger-listitem-icon">
@@ -84,13 +84,13 @@
                 <div class="ms-minder-shortcut-trigger-listitem-icon">V</div>
               </div>
             </div>
-            <div class="ms-minder-shortcut-trigger-listitem">
+            <div v-if="props.shortcutList.includes('addChild')" class="ms-minder-shortcut-trigger-listitem">
               <div>{{ t('minder.hotboxMenu.insetSon') }}</div>
               <div class="ms-minder-shortcut-trigger-listitem-icon ms-minder-shortcut-trigger-listitem-icon-auto">
                 Tab
               </div>
             </div>
-            <div class="ms-minder-shortcut-trigger-listitem">
+            <div v-if="props.shortcutList.includes('cut')" class="ms-minder-shortcut-trigger-listitem">
               <div>{{ t('minder.hotboxMenu.cut') }}</div>
               <div class="flex items-center gap-[4px]">
                 <div class="ms-minder-shortcut-trigger-listitem-icon">
@@ -99,7 +99,7 @@
                 <div class="ms-minder-shortcut-trigger-listitem-icon">X</div>
               </div>
             </div>
-            <div class="ms-minder-shortcut-trigger-listitem">
+            <div v-if="props.shortcutList.includes('enter')" class="ms-minder-shortcut-trigger-listitem">
               <div>{{ t('minder.hotboxMenu.enterNode') }}</div>
               <div class="flex items-center gap-[4px]">
                 <div class="ms-minder-shortcut-trigger-listitem-icon">
@@ -119,7 +119,7 @@
                 <div class="ms-minder-shortcut-trigger-listitem-icon">Z</div>
               </div>
             </div> -->
-            <div class="ms-minder-shortcut-trigger-listitem">
+            <div v-if="props.shortcutList.includes('delete')" class="ms-minder-shortcut-trigger-listitem">
               <div>{{ t('common.delete') }}</div>
               <div class="ms-minder-shortcut-trigger-listitem-icon">
                 <MsIcon type="icon-icon_carriage_return1" />
@@ -134,6 +134,7 @@
                 <div class="ms-minder-shortcut-trigger-listitem-icon">Y</div>
               </div>
             </div> -->
+            <slot name="shortCutList"></slot>
           </div>
         </template>
       </a-trigger>
@@ -149,14 +150,17 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import { navigatorProps } from '../props';
   import { getLocalStorage, setLocalStorage } from '../script/store';
   import type { Ref } from 'vue';
+
+  const props = defineProps(navigatorProps);
 
   const { t } = useI18n();
 
   const navPreviewer: Ref<HTMLDivElement | null> = ref(null);
 
-  const isNavOpen = ref(true);
+  const isNavOpen = ref(false);
   const previewNavigator: Ref<HTMLDivElement | null> = ref(null);
   const contentView = ref('');
 

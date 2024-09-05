@@ -13,6 +13,7 @@
       :can-show-enter-node="canShowEnterNode"
       :can-show-more-menu-node-operation="false"
       :more-menu-other-operation-list="canShowFloatMenu ? moreMenuOtherOperationList : []"
+      :shortcut-list="['expand']"
       disabled
       @node-select="handleNodeSelect"
       @node-unselect="handleNodeUnselect"
@@ -91,6 +92,16 @@
             active-comment="reviewComment"
             not-show-review-name
           />
+        </div>
+      </template>
+      <template #shortCutList>
+        <div class="ms-minder-shortcut-trigger-listitem">
+          <div>{{ t('common.pass') }}</div>
+          <div class="ms-minder-shortcut-trigger-listitem-icon ms-minder-shortcut-trigger-listitem-icon-auto"> P </div>
+        </div>
+        <div class="ms-minder-shortcut-trigger-listitem">
+          <div>{{ t('common.unPass') }}</div>
+          <div class="ms-minder-shortcut-trigger-listitem-icon ms-minder-shortcut-trigger-listitem-icon-auto"> R </div>
         </div>
       </template>
     </MsMinderEditor>
@@ -191,7 +202,7 @@
       data: {
         ...e.data,
         id: e.id || e.data?.id || '',
-        text: e.name || e.data?.text || '',
+        text: e.name || e.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
         resource: modulesCount.value[e.id] !== undefined ? [moduleTag] : e.data?.resource,
         expandState: e.level === 0 ? 'expand' : 'collapse',
         count: modulesCount.value[e.id],

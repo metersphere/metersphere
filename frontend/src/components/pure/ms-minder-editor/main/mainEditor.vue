@@ -6,7 +6,11 @@
       :disabled="props.disabled"
       @save="save"
     />
-    <Navigator />
+    <Navigator :shortcut-list="props.shortcutList">
+      <template #shortCutList>
+        <slot name="shortCutList"></slot>
+      </template>
+    </Navigator>
     <div
       v-if="currentTreePath?.length > 0"
       class="absolute left-[50%] top-[16px] z-[9] w-[60%] translate-x-[-50%] overflow-hidden bg-white p-[8px]"
@@ -64,6 +68,7 @@
     MinderJson,
     MinderJsonNode,
     MinderJsonNodeData,
+    navigatorProps,
     priorityProps,
     tagProps,
   } from '../props';
@@ -80,6 +85,7 @@
     ...priorityProps,
     ...batchMenuProps,
     ...dropdownMenuProps,
+    ...navigatorProps,
   });
   const emit = defineEmits<{
     (e: 'save', data: MinderJson, callback: () => void): void;
@@ -341,7 +347,7 @@
           right: 7px;
           font-size: 12px;
           font-family: iconfont;
-          content: '\e6d5';
+          content: '\e6fe';
           color: var(--color-text-brand);
           line-height: 16px;
           transform: translateY(-50%);

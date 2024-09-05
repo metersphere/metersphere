@@ -2,6 +2,7 @@ import type { MinderJsonNode } from '../props';
 import useMinderOperation, { type MinderOperationProps } from './useMinderOperation';
 
 type ShortcutKey =
+  | 'save'
   | 'expand'
   | 'enter'
   | 'appendSiblingNode'
@@ -11,7 +12,11 @@ type ShortcutKey =
   | 'delete'
   | 'executeToSuccess'
   | 'executeToBlocked'
-  | 'executeToError';
+  | 'executeToError'
+  | 'addChildCase'
+  | 'addChildModule'
+  | 'addSiblingModule'
+  | 'addSiblingCase';
 // 快捷键事件映射，combinationShortcuts中定义了组合键事件，key为组合键，value为事件名称；
 type Shortcuts = {
   [key in ShortcutKey]?: () => void;
@@ -38,12 +43,14 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
     }
     const key = event.key.toLowerCase();
     const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+    const isShift = event.shiftKey;
 
     // 定义组合键事件
     const combinationShortcuts: { [key: string]: ShortcutKey } = {
       // z: 'undo', // 撤销 TODO:暂时不上撤销和重做
       // y: 'redo', // 重做
       enter: 'enter', // 进入节点
+      save: 'save', // 保存
     };
     // 定义单键事件
     const singleShortcuts: { [key: string]: ShortcutKey } = {
@@ -57,12 +64,21 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
       s: 'executeToSuccess', // 执行结果为成功
       b: 'executeToBlocked', // 执行结果为阻塞
       e: 'executeToError', // 执行结果为失败
+      m: 'addSiblingModule', // 添加同级模块
+      c: 'addSiblingCase', // 添加同级用例
+    };
+    const shiftCombinationShortcuts: { [key: string]: ShortcutKey } = {
+      m: 'addChildModule', // 添加子级模块
+      c: 'addChildCase', // 添加子级用例
     };
 
     let action;
     if (isCtrlOrCmd && combinationShortcuts[key]) {
       // 执行组合键事件
       action = combinationShortcuts[key];
+    } else if (isShift && shiftCombinationShortcuts[key]) {
+      // 执行 shift 组合键事件
+      action = shiftCombinationShortcuts[key];
     } else if (singleShortcuts[key]) {
       // 执行单键事件
       action = singleShortcuts[key];

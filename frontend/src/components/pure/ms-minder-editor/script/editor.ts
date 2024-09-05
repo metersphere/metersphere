@@ -1,6 +1,5 @@
 import '@7polo/kity/dist/kity';
 import '@7polo/kityminder-core';
-import clipboard from './runtime/clipboard';
 import clipboardMimetype from './runtime/clipboard-mimetype';
 import container from './runtime/container';
 import drag from './runtime/drag';
@@ -70,7 +69,6 @@ assemble(minder);
 assemble(receiver);
 assemble(input);
 assemble(clipboardMimetype);
-assemble(clipboard);
 assemble(drag);
 assemble(history);
 assemble(jumping);

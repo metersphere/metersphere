@@ -87,6 +87,8 @@
         class="w-[130px]"
         :disabled="fileSizeLimitLoading || !hasAnyPermission(['SYSTEM_PARAMETER_SETTING_BASE:READ+UPDATE'])"
         :min="0"
+        :max="1024"
+        :precision="0"
         mode="button"
         @blur="() => saveFileSizeLimitConfig()"
       />
