@@ -130,19 +130,15 @@
       <div v-if="record.type === 'API_ERROR_REPORT_RULE'" class="flex w-[100%] flex-row items-center">
         <!--接口测试 误报规则 -->
         <div class="error-report">
-          <a-input-number
-            v-model="allValueMap['FAKE_ERROR_NUM']"
-            class="w-[120px]"
-            disabled
-            :placeholder="t('project.menu.pleaseConfig')"
-          >
-            <template #append>
-              <div>{{ t('project.menu.count') }}</div>
-            </template>
-          </a-input-number>
+          {{ t('project.menu.rule.hasBeenEnabled') }}
+          <span class="text-[rgb(var(--primary-5))]" @click="pushFar(true)">
+            <!-- TODO 待测试字段后台还没有补充 -->
+            {{ allValueMap['ENABLE_FAKE_ERROR_NUM'] || 0 }}
+          </span>
+          {{ t('project.menu.rule.bar') }}
         </div>
-        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="pushFar">
-          {{ t('project.menu.API_ERROR_REPORT_RULE') }}
+        <div class="ml-[8px] cursor-pointer font-medium text-[rgb(var(--primary-5))]" @click="pushFar(false)">
+          {{ t('project.menu.rule.ruleAlertList') }}
         </div>
         <a-tooltip :content="t('project.menu.API_ERROR_REPORT_RULE_TIP')" position="right">
           <div>
@@ -479,7 +475,7 @@
 
   const noTitleColumns = [
     {
-      title: '',
+      title: 'project.menu.name',
       dataIndex: 'module',
       slotName: 'module',
       width: 221,
@@ -845,8 +841,13 @@
     relatedCaseDrawerVisible.value = true;
   };
   // 跳转到误报规则列表页
-  const pushFar = () => {
-    router.push({ name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_MENU_MANAGEMENT_ERROR_REPORT_RULE });
+  const pushFar = (isEnable: boolean) => {
+    router.push({
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_MENU_MANAGEMENT_ERROR_REPORT_RULE,
+      query: {
+        status: isEnable ? 'enable' : 'all',
+      },
+    });
   };
 
   // 获取执行资源池的名称

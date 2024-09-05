@@ -107,4 +107,7 @@ export default {
   'project.menu.rule.deleteRule': 'Confirm to delete {size} false alert rules?',
   'project.menu.rule.deleteRuleTip':
     'After deletion, it only takes effect on newly executed test reports. Please be cautious!',
+  'project.menu.rule.hasBeenEnabled': 'Have been enabled',
+  'project.menu.rule.bar': 'number',
+  'project.menu.rule.ruleAlertList': 'List of false alarm rules',
 };
