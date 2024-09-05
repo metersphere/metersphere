@@ -74,7 +74,7 @@ public class TestPlanApiCaseController {
     public Pager<List<TestPlanApiCasePageResponse>> page(@Validated @RequestBody TestPlanApiCaseRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "t.pos desc");
-        return PageUtils.setPageInfo(page, testPlanApiCaseService.hasRelateApiCaseList(request, false));
+        return PageUtils.setPageInfo(page, testPlanApiCaseService.hasRelateApiCaseList(request, false, SessionUtils.getCurrentProjectId()));
     }
 
 

@@ -386,10 +386,10 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
      * @param deleted
      * @return
      */
-    public List<TestPlanApiScenarioPageResponse> hasRelateApiScenarioList(TestPlanApiScenarioRequest request, boolean deleted) {
+    public List<TestPlanApiScenarioPageResponse> hasRelateApiScenarioList(TestPlanApiScenarioRequest request, boolean deleted, String currentProjectId) {
         filterCaseRequest(request);
         List<TestPlanApiScenarioPageResponse> list = extTestPlanApiScenarioMapper.relateApiScenarioList(request, deleted);
-        buildApiScenarioResponse(list, request.getTestPlanId(), request.getProjectId());
+        buildApiScenarioResponse(list, request.getTestPlanId(), currentProjectId);
         return list;
     }
 
