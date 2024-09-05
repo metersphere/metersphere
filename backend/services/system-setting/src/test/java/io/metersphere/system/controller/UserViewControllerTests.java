@@ -5,8 +5,8 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.constants.InternalUserView;
 import io.metersphere.system.constants.UserViewType;
+import io.metersphere.system.domain.UserView;
 import io.metersphere.system.dto.UserViewDTO;
-import io.metersphere.system.dto.UserViewListDTO;
 import io.metersphere.system.dto.UserViewListGroupedDTO;
 import io.metersphere.system.dto.request.UserViewAddRequest;
 import io.metersphere.system.dto.request.UserViewUpdateRequest;
@@ -52,24 +52,21 @@ public class UserViewControllerTests extends BaseTest {
     public void emptyList() throws Exception {
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOkAndReturn(LIST, DEFAULT_PROJECT_ID);
-        List<UserViewListDTO> result = getResultDataArray(mvcResult, UserViewListDTO.class);
+        List<UserView> result = getResultDataArray(mvcResult, UserView.class);
         Assertions.assertEquals(result.size(), 3);
-        UserViewListDTO allData = result.get(0);
+        UserView allData = result.get(0);
         Assertions.assertEquals(allData.getName(), "全部数据");
-        Assertions.assertEquals(allData.getInternalViewKey(), InternalUserView.ALL_DATA.name());
         Assertions.assertEquals(allData.getId(), InternalUserView.ALL_DATA.name().toLowerCase());
 
-        UserViewListDTO myFollow = result.get(1);
+        UserView myFollow = result.get(1);
         Assertions.assertEquals(myFollow.getName(), "我关注的");
-        Assertions.assertEquals(myFollow.getInternalViewKey(), InternalUserView.MY_FOLLOW.name());
         Assertions.assertEquals(myFollow.getId(), InternalUserView.MY_FOLLOW.name().toLowerCase());
 
-        UserViewListDTO myCreate = result.get(2);
+        UserView myCreate = result.get(2);
         Assertions.assertEquals(myCreate.getName(), "我创建的");
-        Assertions.assertEquals(myCreate.getInternalViewKey(), InternalUserView.MY_CREATE.name());
         Assertions.assertEquals(myCreate.getId(), InternalUserView.MY_CREATE.name().toLowerCase());
 
-        for (UserViewListDTO item : result) {
+        for (UserView item : result) {
             Assertions.assertEquals(item.getScopeId(), DEFAULT_PROJECT_ID);
             Assertions.assertEquals(item.getUserId(), InternalUser.ADMIN.getValue());
             Assertions.assertEquals(item.getSearchMode(), CombineSearch.SearchMode.AND.name());
@@ -134,12 +131,13 @@ public class UserViewControllerTests extends BaseTest {
     @Order(3)
     public void update() throws Exception {
         UserViewUpdateRequest request = BeanUtils.copyBean(new UserViewUpdateRequest(), addUserViewDTO);
-        request.setName(UUID.randomUUID().toString());
         request.setSearchMode(CombineSearch.SearchMode.OR.name());
         request.getConditions().get(0).setName(UUID.randomUUID().toString());
 
         // @@请求成功
         MvcResult mvcResult = this.requestPostWithOkAndReturn(DEFAULT_UPDATE, request);
+        request.setName(UUID.randomUUID().toString());
+        mvcResult = this.requestPostWithOkAndReturn(DEFAULT_UPDATE, request);
         addUserViewDTO = getResultData(mvcResult, UserViewDTO.class);
         addUserViewDTO.setConditions(request.getConditions());
         UserViewDTO userViewDTO = userViewService.get(addUserViewDTO.getId(), UserViewType.FUNCTIONAL_CASE, InternalUser.ADMIN.getValue());
@@ -167,7 +165,6 @@ public class UserViewControllerTests extends BaseTest {
         mvcResult = this.requestGetWithOkAndReturn(DEFAULT_GET, InternalUserView.ALL_DATA.name());
         resultData = getResultData(mvcResult, UserViewDTO.class);
         Assertions.assertEquals(resultData.getName(), "全部数据");
-        Assertions.assertEquals(resultData.getInternalViewKey(), InternalUserView.ALL_DATA.name());
         Assertions.assertEquals(resultData.getId(), InternalUserView.ALL_DATA.name().toLowerCase());
         Assertions.assertEquals(resultData.getConditions().size(), 0);
     }
@@ -179,7 +176,7 @@ public class UserViewControllerTests extends BaseTest {
         UserViewListGroupedDTO result = getResultData(mvcResult, UserViewListGroupedDTO.class);
         Assertions.assertEquals(result.getInternalViews().size(), 3);
         Assertions.assertEquals(result.getCustomViews().size(), 2);
-        Assertions.assertEquals(result.getCustomViews().get(0), BeanUtils.copyBean(new UserViewListDTO(), addUserViewDTO));
+        Assertions.assertEquals(result.getCustomViews().get(0), BeanUtils.copyBean(new UserView(), addUserViewDTO));
     }
 
     @Test

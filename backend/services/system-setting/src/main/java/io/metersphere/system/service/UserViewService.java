@@ -13,7 +13,6 @@ import io.metersphere.system.domain.UserViewCondition;
 import io.metersphere.system.domain.UserViewConditionExample;
 import io.metersphere.system.domain.UserViewExample;
 import io.metersphere.system.dto.UserViewDTO;
-import io.metersphere.system.dto.UserViewListDTO;
 import io.metersphere.system.dto.UserViewListGroupedDTO;
 import io.metersphere.system.dto.request.UserViewAddRequest;
 import io.metersphere.system.dto.request.UserViewUpdateRequest;
@@ -50,7 +49,7 @@ public class UserViewService {
 
     public static final Long POS_STEP = 5000L;
 
-    public List<UserViewListDTO> list(String scopeId, UserViewType viewType, String userId) {
+    public List<UserView> list(String scopeId, UserViewType viewType, String userId) {
         UserViewListGroupedDTO userViews = groupedList(scopeId, viewType, userId);
         userViews.getCustomViews().addAll(userViews.getInternalViews());
         return userViews.getCustomViews();
@@ -129,16 +128,17 @@ public class UserViewService {
         }
     }
 
-    private void checkUpdateExist(String name, String scopeId, String viewType, String userId) {
+    private void checkUpdateExist(String name, UserView orginUserView, String userId) {
         if (StringUtils.isBlank(name)) {
             return;
         }
         UserViewExample example = new UserViewExample();
         example.createCriteria()
                 .andUserIdEqualTo(userId)
-                .andScopeIdEqualTo(scopeId)
-                .andViewTypeEqualTo(viewType)
-                .andNameEqualTo(name);
+                .andScopeIdEqualTo(orginUserView.getScopeId())
+                .andViewTypeEqualTo(orginUserView.getViewType())
+                .andNameEqualTo(name)
+                .andIdNotEqualTo(orginUserView.getId());
         if (userViewMapper.countByExample(example) > 0) {
             throw new MSException(USER_VIEW_EXIST);
         }
@@ -221,7 +221,7 @@ public class UserViewService {
         UserView originUserView = userViewMapper.selectByPrimaryKey(request.getId());
         // 校验权限，只能修改自己的视图
         checkOwner(userId, originUserView);
-        checkUpdateExist(request.getName(), originUserView.getScopeId(), viewType, userId);
+        checkUpdateExist(request.getName(), originUserView, userId);
 
         UserView userView = BeanUtils.copyBean(new UserView(), request);
         userView.setViewType(viewType);
@@ -260,14 +260,14 @@ public class UserViewService {
 
     public UserViewListGroupedDTO groupedList(String scopeId, UserViewType viewType, String userId) {
         // 查询系统内置视图
-        List<UserViewListDTO> internalViews = viewType.getInternalViews().stream().map(userViewEnum -> {
-            UserViewDTO userView = userViewEnum.getUserView();
-            UserViewListDTO userViewListDTO = BeanUtils.copyBean(new UserViewListDTO(), userView);
-            userViewListDTO.setName(translateInternalView(userView.getName()));
-            userViewListDTO.setViewType(viewType.name());
-            userViewListDTO.setScopeId(scopeId);
-            userViewListDTO.setUserId(userId);
-            return userViewListDTO;
+        List<UserView> internalViews = viewType.getInternalViews().stream().map(userViewEnum -> {
+            UserViewDTO userViewDTO = userViewEnum.getUserView();
+            UserView userView = BeanUtils.copyBean(new UserView(), userViewDTO);
+            userView.setName(translateInternalView(userViewDTO.getName()));
+            userView.setViewType(viewType.name());
+            userView.setScopeId(scopeId);
+            userView.setUserId(userId);
+            return userView;
         }).collect(Collectors.toList());
 
         // 查询用户自定义视图
@@ -276,9 +276,8 @@ public class UserViewService {
                 .andUserIdEqualTo(userId)
                 .andScopeIdEqualTo(scopeId)
                 .andViewTypeEqualTo(viewType.name());
-        List<UserViewListDTO> customUserViews = userViewMapper.selectByExample(example).stream()
+        List<UserView> customUserViews = userViewMapper.selectByExample(example).stream()
                 .sorted(Comparator.comparing(UserView::getPos))
-                .map(userView -> BeanUtils.copyBean(new UserViewListDTO(), userView))
                 .collect(Collectors.toList());
 
         UserViewListGroupedDTO groupedDTO = new UserViewListGroupedDTO();
