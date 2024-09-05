@@ -14,8 +14,8 @@ import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
-import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.file.annotation.FileLimit;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
@@ -69,6 +69,7 @@ public class ApiDebugController {
         return apiDebugService.add(request, SessionUtils.getUserId());
     }
 
+    @FileLimit
     @PostMapping("/upload/temp/file")
     @Operation(summary = "上传接口调试所需的文件资源，并返回文件ID")
     @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEBUG_ADD, PermissionConstants.PROJECT_API_DEBUG_UPDATE})
