@@ -15,4 +15,7 @@ public interface ExtFunctionalCaseDemandMapper {
 
     List<FunctionalCaseDemand> selectDemandByProjectId(@Param("projectId") String projectId, @Param("platform") String platform);
 
+    List<String> selectDemandIdsByCaseId(@Param("caseId") String caseId, @Param("platform") String platform);
+
+
 }

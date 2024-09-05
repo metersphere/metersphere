@@ -37,6 +37,10 @@ public class PlatformDemandDTO {
          */
         private String demandUrl;
         /**
+         * 已关联的需求要禁用
+         */
+        private boolean disabled;
+        /**
          * 子需求集合
          */
         private List<Demand> children;
