@@ -62,7 +62,7 @@
 </template>
 
 <script async lang="ts" setup>
-  import { useRouter } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import { Message, TableData } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -97,6 +97,7 @@
   const { t } = useI18n();
   const appStore = useAppStore();
   const router = useRouter();
+  const route = useRoute();
   const currentProjectId = computed(() => appStore.currentProjectId);
   const addVisible = ref(false);
   const addLoading = ref(false);
@@ -207,6 +208,18 @@
       dataIndex: 'enable',
       width: 143,
       permission: ['PROJECT_APPLICATION_API:UPDATE'],
+      filterConfig: {
+        options: [
+          {
+            value: true,
+            label: t('common.enable'),
+          },
+          {
+            value: false,
+            label: t('common.close'),
+          },
+        ],
+      },
     },
     {
       title: 'project.menu.rule.label',
@@ -456,7 +469,14 @@
   }
 
   onMounted(() => {
-    setLoadListParams({ projectId: currentProjectId.value });
+    const { status } = route.query;
+    const enabledStatus = status === 'all' ? [] : [true];
+    setLoadListParams({
+      projectId: currentProjectId.value,
+      filter: {
+        enable: [enabledStatus],
+      },
+    });
     fetchData();
   });
 </script>
