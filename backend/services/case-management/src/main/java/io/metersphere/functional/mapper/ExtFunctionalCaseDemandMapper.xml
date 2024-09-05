@@ -24,4 +24,10 @@
         where functional_case.project_id = #{projectId} and functional_case_demand.demand_platform=#{platform}
     </select>
 
+    <select id="selectDemandIdsByCaseId" resultType="java.lang.String">
+        select demand_id
+        from functional_case_demand
+        where case_id = #{caseId} and demand_platform=#{platform}
+    </select>
+
 </mapper>

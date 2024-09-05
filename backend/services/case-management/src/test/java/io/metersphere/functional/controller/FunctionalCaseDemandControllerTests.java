@@ -666,12 +666,30 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalThirdDemandPageRequest.setProjectId("gyq_project-case-demand-test");
         functionalThirdDemandPageRequest.setPageSize(10);
         functionalThirdDemandPageRequest.setCurrent(1);
+        functionalThirdDemandPageRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
         MvcResult mvcResultDemand= this.requestPostWithOkAndReturn(URL_DEMAND_PAGE_DEMAND, functionalThirdDemandPageRequest);
         PluginPager<PlatformDemandDTO> tableData = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResultDemand.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 PluginPager.class);
+        FunctionalCaseDemand functionalCaseDemand = new FunctionalCaseDemand();
+        functionalCaseDemand.setId("测试过滤ID");
+        functionalCaseDemand.setDemandName("Test");
+        functionalCaseDemand.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
+        functionalCaseDemand.setDemandId("TES-1");
+        functionalCaseDemand.setDemandUrl("http://localhost:57767/jira/software/projects/TES/issues/TES-1");
+        functionalCaseDemand.setDemandPlatform("Metersphere");
+        functionalCaseDemand.setUpdateUser("admin");
+        functionalCaseDemand.setUpdateTime(System.currentTimeMillis());
+        functionalCaseDemand.setWithParent(false);
+        functionalCaseDemand.setCreateUser("admin");
+        functionalCaseDemand.setCreateTime(System.currentTimeMillis());
+        functionalCaseDemand.setParent("NONE");
+        functionalCaseDemandMapper.insert(functionalCaseDemand);
+        mvcResultDemand= this.requestPostWithOkAndReturn(URL_DEMAND_PAGE_DEMAND, functionalThirdDemandPageRequest);
+        tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultDemand.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                PluginPager.class);
 
-        System.out.println(JSON.toJSONString(tableData));
     }
 
     @Test
