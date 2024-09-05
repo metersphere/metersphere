@@ -715,4 +715,11 @@ public class ProjectApplicationService {
         }
         return plugin.getName();
     }
+
+    public int getEnableFakeErrorList(String projectId) {
+        FakeErrorExample example = new FakeErrorExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andEnableEqualTo(true);
+        long l = fakeErrorMapper.countByExample(example);
+        return (int) l;
+    }
 }
