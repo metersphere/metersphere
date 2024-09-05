@@ -330,7 +330,7 @@ public class FunctionalCaseFileService {
             XMindCaseParser xMindParser = new XMindCaseParser(request, customFields, user, lasePos);
             errList = xMindParser.parse(multipartFile);
             response.setErrorMessages(errList);
-            response.setSuccessCount(xMindParser.getList().size() + xMindParser.getUpdateList().size()+ xMindParser.getCheckSuccessList().size());
+            response.setSuccessCount(xMindParser.getList().size() + xMindParser.getUpdateList().size() + xMindParser.getCheckSuccessList().size());
             response.setFailCount(errList.size());
             xMindParser.clear();
             return response;
@@ -407,7 +407,7 @@ public class FunctionalCaseFileService {
             }
             xmindParser.saveData();
             response.setErrorMessages(errList);
-            response.setSuccessCount(xmindParser.getList().size() + xmindParser.getUpdateList().size()+ xmindParser.getCheckSuccessList().size());
+            response.setSuccessCount(xmindParser.getList().size() + xmindParser.getUpdateList().size() + xmindParser.getCheckSuccessList().size());
             response.setFailCount(errList.size());
             xmindParser.clear();
             return response;
@@ -882,7 +882,17 @@ public class FunctionalCaseFileService {
      */
     private Map<String, String> getModuleMap(String projectId) {
         List<BaseTreeNode> moduleTree = functionalCaseModuleService.getTree(projectId);
-        Map<String, String> moduleMap = moduleTree.stream().collect(Collectors.toMap(BaseTreeNode::getId, BaseTreeNode::getPath));
+        Map<String, String> moduleMap = buildModuleMap(moduleTree, new HashMap());
+        return moduleMap;
+    }
+
+    private Map<String, String> buildModuleMap(List<BaseTreeNode> moduleTree, Map<String, String> moduleMap) {
+        for (BaseTreeNode treeNode : moduleTree) {
+            moduleMap.put(treeNode.getId(), treeNode.getPath());
+            if (CollectionUtils.isNotEmpty(treeNode.getChildren())) {
+                buildModuleMap(treeNode.getChildren(), moduleMap);
+            }
+        }
         return moduleMap;
     }
 
