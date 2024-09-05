@@ -82,6 +82,8 @@ public class ProjectApplicationController {
         Map<String, Object> configMap = projectApplicationService.get(request, types);
         int errorNum = projectApplicationService.getFakeErrorList(request.getProjectId());
         configMap.put("FAKE_ERROR_NUM", errorNum);
+        int enableErrorNum = projectApplicationService.getEnableFakeErrorList(request.getProjectId());
+        configMap.put("ENABLE_FAKE_ERROR_NUM", enableErrorNum);
         return configMap;
     }
 
