@@ -123,7 +123,7 @@ public class DemandSyncService {
             if (demand.getDemandName().length() > 255) {
                 demand.setDemandName(demand.getDemandName().substring(0, 255));
             } else {
-                demand.setDemandName("ceshi"+demand.getDemandName());
+                demand.setDemandName(demand.getDemandName());
             }
         }
         functionalCaseDemand.setDemandName(demand.getDemandName());

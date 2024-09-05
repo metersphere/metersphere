@@ -233,13 +233,13 @@
       await initPlatformOption();
       const res = await getCaseRelatedInfo(currentProjectId.value);
       if (res && res.platform_key) {
+        formCreateValue.value = JSON.parse(res.demand_platform_config);
+        // 如果平台key存在调用平台change拉取插件字段
+        await handlePlatformChange(res.platform_key);
         form.CASE_ENABLE = res.case_enable;
         form.PLATFORM_KEY = res.platform_key;
         form.SYNC_ENABLE = res.sync_enable;
         form.CRON_EXPRESSION = res.cron_expression;
-        formCreateValue.value = JSON.parse(res.demand_platform_config);
-        // 如果平台key存在调用平台change拉取插件字段
-        await handlePlatformChange(res.platform_key);
       }
     } catch (e) {
       // eslint-disable-next-line no-console
