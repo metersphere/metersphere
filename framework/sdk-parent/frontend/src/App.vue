@@ -37,7 +37,7 @@ export default {
           sessionStorage.removeItem('changePassword');
           localStorage.setItem('default_language', weComCallback.language);
           sessionStorage.setItem('loginSuccess', 'true');
-          sessionStorage.setItem('changePassword', weComCallback.message);
+          sessionStorage.setItem('changePassword', false);
           localStorage.setItem('AuthenticateType', 'QRCODE');
           if (sessionStorage.getItem('lastUser') === getCurrentUserId()) {
             router.push({path: sessionStorage.getItem('redirectUrl') || '/'});
@@ -75,7 +75,7 @@ export default {
           sessionStorage.removeItem('changePassword');
           localStorage.setItem('default_language', weComCallback.language);
           sessionStorage.setItem('loginSuccess', 'true');
-          sessionStorage.setItem('changePassword', weComCallback.message);
+          sessionStorage.setItem('changePassword', false);
           localStorage.setItem('AuthenticateType', 'QRCODE');
           if (sessionStorage.getItem('lastUser') === getCurrentUserId()) {
             router.push({path: sessionStorage.getItem('redirectUrl') || '/'});
