@@ -29,7 +29,7 @@ public enum InternalUserView {
     MY_CREATE(() -> {
         UserViewDTO userViewDTO = getUserViewDTO("my_create");
         CombineCondition condition = new CombineCondition();
-        condition.setName("create_user");
+        condition.setName("createUser");
         condition.setValue(getCurrentUserValue());
         condition.setOperator(CombineCondition.CombineConditionOperator.IN.name());
         userViewDTO.setConditions(List.of(condition));
@@ -38,7 +38,7 @@ public enum InternalUserView {
     MY_REVIEW(() -> {
         UserViewDTO userViewDTO = getUserViewDTO("my_review");
         CombineCondition condition = new CombineCondition();
-        condition.setName("review_user");
+        condition.setName("reviewUser");
         condition.setValue(getCurrentUserValue());
         condition.setOperator(CombineCondition.CombineConditionOperator.IN.name());
         userViewDTO.setConditions(List.of(condition));
@@ -50,7 +50,6 @@ public enum InternalUserView {
         userViewDTO.setSearchMode(CombineSearch.SearchMode.AND.name());
         userViewDTO.setName(name);
         userViewDTO.setId(name);
-        userViewDTO.setInternalViewKey(name.toUpperCase());
         return userViewDTO;
     }
 

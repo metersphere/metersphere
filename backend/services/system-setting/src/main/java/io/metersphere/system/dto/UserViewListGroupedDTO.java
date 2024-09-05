@@ -1,5 +1,6 @@
 package io.metersphere.system.dto;
 
+import io.metersphere.system.domain.UserView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ import java.util.List;
 @Data
 public class UserViewListGroupedDTO {
     @Schema(description = "系统视图")
-    private List<UserViewListDTO> internalViews;
+    private List<UserView> internalViews;
     @Schema(description = "自定义视图")
-    private List<UserViewListDTO> customViews;
+    private List<UserView> customViews;
 }

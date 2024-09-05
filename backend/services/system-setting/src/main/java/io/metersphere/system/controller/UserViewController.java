@@ -1,8 +1,8 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.system.constants.UserViewType;
+import io.metersphere.system.domain.UserView;
 import io.metersphere.system.dto.UserViewDTO;
-import io.metersphere.system.dto.UserViewListDTO;
 import io.metersphere.system.dto.UserViewListGroupedDTO;
 import io.metersphere.system.dto.request.UserViewAddRequest;
 import io.metersphere.system.dto.request.UserViewUpdateRequest;
@@ -29,7 +29,7 @@ public class UserViewController {
 
     @GetMapping("/{viewType}/list")
     @Operation(summary = "视图列表")
-    public List<UserViewListDTO> list(@RequestParam String scopeId, @PathVariable String viewType) {
+    public List<UserView> list(@RequestParam String scopeId, @PathVariable String viewType) {
         UserViewType userViewType = UserViewType.getByValue(viewType);
         return userViewService.list(scopeId, userViewType, SessionUtils.getUserId());
     }
