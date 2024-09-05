@@ -936,6 +936,7 @@
   const {
     propsRes,
     propsEvent,
+    viewId,
     advanceFilter,
     loadList,
     setLoadListParams,
@@ -985,6 +986,7 @@
     return {
       keyword: keyword.value,
       filter: propsRes.value.filter,
+      viewId: viewId.value,
       combineSearch: advanceFilter,
     };
   });
@@ -1625,12 +1627,12 @@
     }
   }
   // 高级检索
-  const handleAdvSearch = async (filter: FilterResult) => {
+  const handleAdvSearch = async (filter: FilterResult, id: string) => {
     resetSelector();
     emit('setActiveFolder');
     keyword.value = '';
     await getLoadListParams(); // 基础筛选都清空
-    setAdvanceFilter(filter);
+    setAdvanceFilter(filter, id);
     loadList();
   };
   // 更新用例等级

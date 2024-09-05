@@ -84,7 +84,6 @@ export interface ViewDetail extends ViewParams {
   userId?: string;
   viewType?: string;
   internal?: boolean; // 是否为内置视图
-  internalViewKey?: string;
   createTime?: number;
   updateTime?: number;
 }

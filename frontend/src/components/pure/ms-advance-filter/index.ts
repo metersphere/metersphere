@@ -1,4 +1,4 @@
-import { FilterType, OperatorEnum } from '@/enums/advancedFilterEnum';
+import { FilterType, OperatorEnum, ViewTypeEnum } from '@/enums/advancedFilterEnum';
 
 export { default as MsAdvanceFilter } from './index.vue';
 
@@ -167,26 +167,18 @@ export const CustomTypeMaps: Record<string, any> = {
   },
 };
 
-export const defaultFormModelList = [
-  {
-    dataIndex: 'id',
-    title: 'caseManagement.featureCase.tableColumnID',
-    type: FilterType.INPUT,
-    operator: OperatorEnum.CONTAINS,
-    value: '',
-  },
-  {
-    dataIndex: 'name',
-    label: 'common.name',
-    type: FilterType.INPUT,
-    operator: OperatorEnum.CONTAINS,
-    value: '',
-  },
-  {
-    dataIndex: 'moduleId',
-    label: 'common.belongModule',
-    type: FilterType.TREE_SELECT,
-    operator: OperatorEnum.BELONG_TO,
-    value: '',
-  },
-];
+// 全部数据默认显示搜索条件：ID、名称、模块；
+// TODO lmy 计划详情功能用例增加：测试点；接口定义、计划详情接口用例增加：协议；
+export function getAllDataDefaultConditions(viewType: ViewTypeEnum) {
+  const conditions = [
+    { name: 'id', operator: OperatorEnum.CONTAINS },
+    { name: 'name', operator: OperatorEnum.CONTAINS },
+    { name: 'moduleId', operator: OperatorEnum.BELONG_TO },
+  ];
+  return conditions;
+}
+
+// 系统视图对应不显示的第一列下拉条件
+export const internalViewsHiddenConditionsMap: Record<string, string[]> = {
+  my_create: ['createUser'],
+};
