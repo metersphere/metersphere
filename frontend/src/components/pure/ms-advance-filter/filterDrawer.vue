@@ -13,7 +13,7 @@
           <div class="one-line-text"> {{ formModel.name }}</div>
         </a-tooltip>
         <MsIcon
-          v-if="formModel?.internalViewKey !== 'ALL_DATA'"
+          v-if="!isInternalViews(formModel?.id)"
           type="icon-icon_edit_outlined"
           class="min-w-[16px] cursor-pointer hover:text-[rgb(var(--primary-5))]"
           @click="showNameInput"
@@ -51,7 +51,7 @@
                 {{ t(option.title as string) }}
               </a-option>
               <a-divider
-                v-if="(props?.customList || [])?.length && (props.configList || []).length - 1 === currentOptionsIndex"
+                v-if="(props?.customList || [])?.length && (currentConfigList || []).length - 1 === currentOptionsIndex"
                 class="!my-1"
               />
             </div>
@@ -100,10 +100,11 @@
             allow-search
             :placeholder="t('common.pleaseSelect')"
             :disabled="isValueDisabled(item)"
-            :options="props.memberOptions"
-            multiple
             :search-keys="['label']"
-            :max-tag-count="1"
+            v-bind="{
+              options: props.memberOptions,
+              multiple: true,
+            }"
           />
           <MsSelect
             v-else-if="item.type === FilterType.SELECT"
@@ -197,7 +198,7 @@
         <a-button type="primary" @click="handleFilter">{{ t('common.filter') }}</a-button>
         <a-button class="mr-[16px]" @click="handleReset">{{ t('common.reset') }}</a-button>
         <MsButton
-          v-if="formModel?.internalViewKey !== 'ALL_DATA'"
+          v-if="!isInternalViews(formModel?.id)"
           type="text"
           :loading="saveLoading"
           class="!text-[var(--color-text-1)]"
@@ -205,7 +206,12 @@
         >
           {{ t('common.save') }}
         </MsButton>
-        <MsButton v-if="formModel?.id" type="text" class="!text-[var(--color-text-1)]" @click="handleToSaveAs">
+        <MsButton
+          v-if="formModel?.id && !isInternalViews(formModel?.id)"
+          type="text"
+          class="!text-[var(--color-text-1)]"
+          @click="handleToSaveAs"
+        >
           {{ t('advanceFilter.saveAsView') }}
         </MsButton>
       </div>
@@ -240,8 +246,8 @@
   import { SelectValue } from '@/models/projectManagement/menuManagement';
   import { FilterType, OperatorEnum, ViewTypeEnum } from '@/enums/advancedFilterEnum';
 
-  import { operatorOptionsMap } from './index';
-  import { ConditionsItem, FilterForm, FilterFormItem, FilterResult } from './type';
+  import { getAllDataDefaultConditions, internalViewsHiddenConditionsMap, operatorOptionsMap } from './index';
+  import { ConditionsItem, FilterForm, FilterFormItem, FilterResult, ViewItem } from './type';
 
   const props = defineProps<{
     configList: FilterFormItem[]; // 系统字段
@@ -250,6 +256,7 @@
     currentView: string; // 当前视图
     allViewNames: string[];
     canNotAddView: boolean;
+    internalViews: ViewItem[]; // 系统视图
     memberOptions: { label: string; value: string }[];
   }>();
   const emit = defineEmits<{
@@ -268,12 +275,26 @@
   };
   const formModel = ref<FilterForm>(cloneDeep(defaultFormModel));
   const savedFormModel = ref(cloneDeep(formModel.value));
+
+  const currentConfigList = computed<FilterFormItem[]>(() =>
+    props.configList.filter(
+      (item) => !(internalViewsHiddenConditionsMap[props.currentView] ?? []).includes(item.dataIndex as string)
+    )
+  );
+  function isInternalViews(id?: string): boolean {
+    return props.internalViews.some((item) => item.id === id);
+  }
+
   function getListItemByDataIndex(dataIndex: string) {
-    return [...props.configList, ...(props.customList || [])].find((item) => item.dataIndex === dataIndex);
+    return [...currentConfigList.value, ...(props.customList || [])].find((item) => item.dataIndex === dataIndex);
   }
   async function getUserViewDetail(id: string) {
     try {
       const res = await getViewDetail(props.viewType, id);
+      // 全部数据默认显示搜索条件
+      if (res?.id === 'all_data') {
+        res.conditions = [...getAllDataDefaultConditions(props.viewType)];
+      }
       const list: FilterFormItem[] = (res.conditions ?? [])?.map((item: ConditionsItem) => {
         const listItem = getListItemByDataIndex(item.name ?? '') as FilterFormItem;
         return {
@@ -289,6 +310,15 @@
       console.log(error);
     }
   }
+  watch(
+    () => visible.value,
+    async (val) => {
+      // 新建视图关闭后重新获取数据
+      if (!val && formModel.value?.id !== props.currentView) {
+        await getUserViewDetail(props.currentView);
+      }
+    }
+  );
 
   const isShowNameInput = ref(false);
   const viewNameInputRef = ref<InstanceType<typeof ViewNameInput>>();
@@ -319,7 +349,7 @@
       const otherDataIndices = formModel.value.list
         .filter((listItem) => listItem.dataIndex !== currentDataIndex)
         .map((item: FilterFormItem) => item.dataIndex);
-      return [...props.configList, ...(props.customList || [])]
+      return [...currentConfigList.value, ...(props.customList || [])]
         .filter(({ dataIndex }) => !otherDataIndices.includes(dataIndex))
         .map((item) => ({ ...item, label: t(item.title as string) }));
     };
@@ -392,18 +422,10 @@
   }
   watch(
     () => props.currentView,
-    async (val) => {
+    async (val, oldValue) => {
       await getUserViewDetail(val);
+      if (!oldValue.length) return;
       handleFilter();
-    }
-  );
-  watch(
-    () => visible.value,
-    async (val) => {
-      // 新建视图关闭后重新获取数据
-      if (!val && formModel.value?.id !== props.currentView) {
-        await getUserViewDetail(props.currentView);
-      }
     }
   );
 
@@ -424,6 +446,7 @@
     };
     savedFormModel.value = cloneDeep(formModel.value);
   }
+
   // 保存视图
   const saveLoading = ref(false);
   function realSaveView() {
@@ -460,6 +483,7 @@
       realSaveView();
     }
   }
+
   // 开启另存为视图模式
   const isSaveAsView = ref(false);
   const saveAsViewForm = ref({ name: '' });

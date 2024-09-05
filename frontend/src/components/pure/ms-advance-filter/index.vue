@@ -113,11 +113,13 @@
       </MsTag>
     </div>
   </div>
+  <!-- TODO lmy 高级搜索全部覆盖后将此代码删除：?? ViewTypeEnum.FUNCTIONAL_CASE -->
   <FilterDrawer
     ref="filterDrawerRef"
     v-model:visible="visible"
     :current-view="currentView"
-    :view-type="props.viewType as ViewTypeEnum"
+    :view-type="props.viewType ?? ViewTypeEnum.FUNCTIONAL_CASE"
+    :internal-views="internalViews"
     :all-view-names="allViewNames"
     :config-list="props.filterConfigList"
     :custom-list="props.customFieldsConfigList"
@@ -159,7 +161,7 @@
 
   const emit = defineEmits<{
     (e: 'keywordSearch', value: string | undefined): void; // keyword 搜索 TODO:可以去除，父组件通过 v-model:keyword 获取关键字
-    (e: 'advSearch', value: FilterResult): void; // 高级搜索
+    (e: 'advSearch', value: FilterResult, viewId: string): void; // 高级搜索
     (e: 'refresh', value: FilterResult): void;
   }>();
 
@@ -273,7 +275,7 @@
     // 开启高级筛选：非默认视图或有筛选条件
     isAdvancedSearchMode.value = currentView.value !== internalViews.value[0].id || haveConditions;
     filterResult.value = filter;
-    emit('advSearch', filter);
+    emit('advSearch', filter, currentView.value);
   };
 
   const handleRefresh = () => {

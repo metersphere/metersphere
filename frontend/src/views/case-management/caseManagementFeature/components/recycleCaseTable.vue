@@ -223,7 +223,7 @@
   const currentProjectId = computed(() => appStore.currentProjectId);
   const scrollWidth = ref<number>(3400);
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setAdvanceFilter, setKeyword } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setKeyword } = useTable(
     getRecycleListRequest,
     {
       tableKey: TableKeyEnum.CASE_MANAGEMENT_RECYCLE_TABLE,

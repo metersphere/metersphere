@@ -89,6 +89,8 @@ export default function useTableProps<T>(
   const keyword = ref('');
   // 高级筛选
   const advanceFilter = reactive<FilterResult>({ searchMode: 'AND', conditions: [] });
+  // 视图Id
+  const viewId = ref('');
   // 表格请求参数集合
   const tableQueryParams = ref<TableQueryParams>({});
 
@@ -165,9 +167,10 @@ export default function useTableProps<T>(
   };
 
   // 设置 advanceFilter
-  const setAdvanceFilter = (v: FilterResult) => {
+  const setAdvanceFilter = (v: FilterResult, id: string) => {
     advanceFilter.searchMode = v.searchMode;
     advanceFilter.conditions = v.conditions;
+    viewId.value = id;
     // 基础筛选都清空
     loadListParams.value.filter = {};
     keyword.value = '';
@@ -234,6 +237,7 @@ export default function useTableProps<T>(
             pageSize: currentPageSize,
             sort: sortItem.value,
             keyword: keyword.value,
+            viewId: viewId.value,
             combineSearch: advanceFilter,
             ...loadListParams.value,
             filter: {
@@ -608,6 +612,7 @@ export default function useTableProps<T>(
     propsRes,
     propsEvent,
     advanceFilter,
+    viewId,
     setProps,
     setLoading,
     loadList,
