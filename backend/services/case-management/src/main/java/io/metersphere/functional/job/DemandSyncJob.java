@@ -53,7 +53,7 @@ public class DemandSyncJob extends BaseScheduleJob {
      * @return 是否放行
      */
     private boolean checkBeforeSync(String projectId) {
-        ServiceIntegration serviceIntegration = projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand(projectId, true);
+        ServiceIntegration serviceIntegration = projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand(projectId, false);
         return serviceIntegration != null && serviceIntegration.getEnable();
     }
 }
