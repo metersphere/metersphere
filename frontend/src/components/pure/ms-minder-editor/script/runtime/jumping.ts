@@ -32,6 +32,30 @@ interface IJumpingRuntime {
 function JumpingRuntime(this: IJumpingRuntime): void {
   const { fsm, receiver } = this;
 
+  // normal -> *
+  receiver.listen('normal', (e: any) => {
+    // 为了防止处理进入edit模式而丢失处理的首字母,此时receiver必须为enable
+    receiver.enable();
+    /**
+     * check
+     * @editor Naixor
+     * @Date 2015-12-2
+     */
+    switch (e.type) {
+      case 'keydown': {
+        // normal -> normal shortcut
+        fsm.jump('normal', 'shortcut-handle', e); // 触发快捷键事件，这里可能会被脑图自定义快捷键拦截处理，若非自定义快捷键则触发脑图本身的快捷键
+        break;
+      }
+      case 'keyup': {
+        break;
+      }
+      default: {
+        break;
+      }
+    }
+  });
+
   // input => normal
   receiver.listen('input', (e: KeyboardEvent) => {
     receiver.enable();

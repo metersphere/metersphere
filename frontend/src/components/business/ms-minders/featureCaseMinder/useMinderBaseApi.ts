@@ -1,3 +1,4 @@
+import usePriority from '@/components/pure/ms-minder-editor/hooks/useMinderPriority';
 import type {
   MinderEvent,
   MinderJsonNode,
@@ -16,6 +17,7 @@ import { getGenerateId } from '@/utils';
 export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermission?: boolean }) {
   const { t } = useI18n();
   const minderStore = useMinderStore();
+  const { setPriority } = usePriority({ priorityStartWithZero: true, priorityPrefix: 'P' });
 
   const caseTag = t('common.case');
   const moduleTag = t('common.module');
@@ -361,13 +363,33 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
    * @param value 节点类型
    */
   function insertSpecifyNode(type: string, value: string) {
+    const nodeId = getGenerateId();
     execInert(type, {
-      id: getGenerateId(),
+      id: nodeId,
       text: value !== t('ms.minders.text') ? value : '',
       resource: value !== t('ms.minders.text') ? [value] : [],
       expandState: 'expand',
       isNew: true,
+      priority: value === caseTag ? 1 : undefined,
     });
+    if (value === caseTag) {
+      // 用例节点插入后，插入子节点
+      setPriority('1');
+      nextTick(() => {
+        insertSpecifyNode('AppendChildNode', prerequisiteTag);
+        // 上面插入了子节点前置条件后会选中该节点，所以下面插入同级
+        insertSpecifyNode('AppendSiblingNode', stepTag);
+        insertSpecifyNode('AppendChildNode', stepExpectTag);
+        window.minder.selectById(nodeId);
+        insertSpecifyNode('AppendChildNode', remarkTag);
+        nextTick(() => {
+          // 取消选中备注节点，选中用例节点
+          const remarkNode: MinderJsonNode = window.minder.getSelectedNode();
+          window.minder.toggleSelect(remarkNode);
+          window.minder.selectById(nodeId);
+        });
+      });
+    }
   }
 
   /**

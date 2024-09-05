@@ -68,6 +68,28 @@
         <caseCommentList v-else-if="activeExtraKey === 'comments'" :active-case="activeCase" />
         <bugList v-else :active-case="activeCase" />
       </template>
+      <template #shortCutList>
+        <div class="ms-minder-shortcut-trigger-listitem">
+          <div>{{ t('ms.minders.createSiblingModule') }}</div>
+          <div class="ms-minder-shortcut-trigger-listitem-icon ms-minder-shortcut-trigger-listitem-icon-auto"> M </div>
+        </div>
+        <div class="ms-minder-shortcut-trigger-listitem">
+          <div>{{ t('ms.minders.createSiblingCase') }}</div>
+          <div class="ms-minder-shortcut-trigger-listitem-icon ms-minder-shortcut-trigger-listitem-icon-auto"> C </div>
+        </div>
+        <div class="ms-minder-shortcut-trigger-listitem">
+          <div>{{ t('ms.minders.createChildModule') }}</div>
+          <div class="ms-minder-shortcut-trigger-listitem-icon ms-minder-shortcut-trigger-listitem-icon-auto">
+            Shift + M
+          </div>
+        </div>
+        <div class="ms-minder-shortcut-trigger-listitem">
+          <div>{{ t('ms.minders.createChildCase') }}</div>
+          <div class="ms-minder-shortcut-trigger-listitem-icon ms-minder-shortcut-trigger-listitem-icon-auto">
+            Shift + C
+          </div>
+        </div>
+      </template>
     </MsMinderEditor>
   </div>
 </template>
@@ -76,6 +98,7 @@
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import useShortCut from '@/components/pure/ms-minder-editor/hooks/useShortCut';
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
   import {
@@ -181,7 +204,7 @@
         data: {
           ...e.data,
           id: e.id || e.data?.id || '',
-          text: e.name || e.data?.text || '',
+          text: e.name || e.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
           resource: props.modulesCount[e.id] !== undefined ? [moduleTag] : e.data?.resource,
           expandState: e.level === 0 ? 'expand' : 'collapse',
           count: props.modulesCount[e.id],
@@ -634,6 +657,28 @@
     setPriorityView(true, 'P');
   }
 
+  const { unbindShortcuts } = useShortCut(
+    {
+      addChildModule: () => {
+        const node: MinderJsonNode = window.minder.getSelectedNode();
+        insertNode(node, 'AppendChildNode', moduleTag);
+      },
+      addChildCase: () => {
+        const node: MinderJsonNode = window.minder.getSelectedNode();
+        insertNode(node, 'AppendChildNode', caseTag);
+      },
+      addSiblingModule: () => {
+        const node: MinderJsonNode = window.minder.getSelectedNode();
+        insertNode(node, 'AppendSiblingNode', moduleTag);
+      },
+      addSiblingCase: () => {
+        const node: MinderJsonNode = window.minder.getSelectedNode();
+        insertNode(node, 'AppendSiblingNode', caseTag);
+      },
+    },
+    {}
+  );
+
   /**
    * 标签编辑后，如果将标签修改为模块，则删除已添加的优先级
    * @param node 选中节点
@@ -953,6 +998,10 @@
       deep: true,
     }
   );
+
+  onBeforeUnmount(() => {
+    unbindShortcuts();
+  });
 </script>
 
 <style lang="less" scoped></style>

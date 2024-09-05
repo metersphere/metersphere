@@ -14,6 +14,9 @@
         <template #batchMenu>
           <slot name="batchMenu"></slot>
         </template>
+        <template #shortCutList>
+          <slot name="shortCutList"></slot>
+        </template>
       </mainEditor>
     </div>
     <div class="ms-minder-editor-extra" :class="[extraVisible ? 'ms-minder-editor-extra--visible' : '']">
@@ -51,6 +54,7 @@
     MinderJson,
     MinderJsonNode,
     moleProps,
+    navigatorProps,
     priorityProps,
     tagProps,
     viewMenuProps,
@@ -82,6 +86,7 @@
     ...viewMenuProps,
     ...batchMenuProps,
     ...dropdownMenuProps,
+    ...navigatorProps,
   });
 
   const minderStore = useMinderStore();
@@ -137,6 +142,9 @@
           const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
           minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, undefined, [selectedNodes[0]]);
         }
+      },
+      save: () => {
+        minderStore.dispatchEvent(MinderEventName.SAVE_MINDER);
       },
       delete: () => {
         const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();

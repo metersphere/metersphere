@@ -275,7 +275,7 @@ function InputRuntime(this: any) {
       }
     }
 
-    text = text.replace(/^\n*|\n*$/g, '');
+    text = text.replace(/^\n*|\n*$/g, '').replace(/<\/?p\b[^>]*>/gi, ''); // 去除富文本内p标签
     text = text.replace(new RegExp(`(\n|\r|\n\r)(\u0020|${String.fromCharCode(160)}){4}`, 'g'), '$1\t');
     this.minder.getSelectedNode().setText(text);
     if (isBold) {

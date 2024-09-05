@@ -13,6 +13,7 @@
       :can-show-enter-node="canShowEnterNode"
       :can-show-more-menu-node-operation="false"
       :more-menu-other-operation-list="canShowFloatMenu && hasOperationPermission ? moreMenuOtherOperationList : []"
+      :shortcut-list="['expand']"
       disabled
       @node-batch-select="handleNodeBatchSelect"
       @node-select="handleNodeSelect"
@@ -133,6 +134,20 @@
             </a-doption>
           </template>
         </a-dropdown>
+      </template>
+      <template #shortCutList>
+        <div class="ms-minder-shortcut-trigger-listitem">
+          <div>{{ t('common.success') }}</div>
+          <div class="ms-minder-shortcut-trigger-listitem-icon ms-minder-shortcut-trigger-listitem-icon-auto"> S </div>
+        </div>
+        <div class="ms-minder-shortcut-trigger-listitem">
+          <div>{{ t('common.fail') }}</div>
+          <div class="ms-minder-shortcut-trigger-listitem-icon ms-minder-shortcut-trigger-listitem-icon-auto"> E </div>
+        </div>
+        <div class="ms-minder-shortcut-trigger-listitem">
+          <div>{{ t('common.block') }}</div>
+          <div class="ms-minder-shortcut-trigger-listitem-icon ms-minder-shortcut-trigger-listitem-icon-auto"> B </div>
+        </div>
       </template>
     </MsMinderEditor>
     <LinkDefectDrawer
@@ -302,7 +317,7 @@
         ...e.data,
         type: e.type || e.data?.type,
         id: e.id || e.data?.id || '',
-        text: e.name || e.data?.text || '',
+        text: e.name || e.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
         resource: modulesCount.value[e.id] !== undefined ? [moduleTag] : e.data?.resource,
         expandState: e.level === 0 ? 'expand' : 'collapse',
         count: modulesCount.value[e.id],
@@ -608,14 +623,18 @@
     );
     if (actualResultNode) {
       if (content.length) {
-        actualResultNode.setData('text', content).render();
+        actualResultNode.setData('text', content.replace(/<\/?p\b[^>]*>/gi, '')).render();
       } else {
         // 删除实际结果节点
         window.minder.removeNode(actualResultNode);
       }
     } else if (content.length) {
       actualResultNode = createNode(
-        { resource: [actualResultTag], text: content, id: `actualResult-${node.data?.id}` },
+        {
+          resource: [actualResultTag],
+          text: content.replace(/<\/?p\b[^>]*>/gi, ''),
+          id: `actualResult-${node.data?.id}`,
+        },
         node
       );
       handleRenderNode(node, [actualResultNode]);
@@ -983,6 +1002,9 @@
       [executionResultMap.ERROR.statusText]: 5,
       [executionResultMap.BLOCKED.statusText]: 6,
     };
+  });
+
+  onBeforeUnmount(() => {
     unbindShortcuts();
   });
 

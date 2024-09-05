@@ -1,4 +1,21 @@
 export default {
+  // 功能用例脑图文案
+  'ms.minders.allModule': '全部模块',
+  'ms.minders.precondition': '前置条件',
+  'ms.minders.stepDesc': '步骤描述',
+  'ms.minders.stepExpect': '预期结果',
+  'ms.minders.textDesc': '文本描述',
+  'ms.minders.remark': '备注信息',
+  'ms.minders.caseName': '用例名称',
+  'ms.minders.caseNameNotNull': '用例名称不能为空',
+  'ms.minders.commentTotal': '共 {num} 评论',
+  'ms.minders.text': '文本',
+  'ms.minders.leaveUnsavedTip': '脑图有未保存的更改，确认离开吗？',
+  'ms.minders.createSiblingModule': '添加同级模块',
+  'ms.minders.createSiblingCase': '添加同级用例',
+  'ms.minders.createChildModule': '添加子级模块',
+  'ms.minders.createChildCase': '添加子级用例',
+  // 测试规划脑图文案
   'ms.minders.failStop': '失败停止',
   'ms.minders.failRetry': '失败重试',
   'ms.minders.stepRetry': '步骤重试',

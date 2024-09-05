@@ -209,6 +209,7 @@ export function createNode(data?: MinderJsonNodeData, parentNode?: MinderJsonNod
   return window.minder.createNode(
     {
       ...data,
+      text: data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
       expandState: 'collapse',
       disabled: true,
     },

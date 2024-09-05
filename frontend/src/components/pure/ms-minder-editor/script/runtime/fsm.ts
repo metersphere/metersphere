@@ -132,6 +132,12 @@ class FSM {
 
 function FSMRuntime(this: any) {
   this.fsm = new FSM('normal');
+  this.fsm.when('normal -> normal', (exit: any, enter: any, reason: string, e: KeyboardEvent) => {
+    const arrowKey = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'];
+    if (reason === 'shortcut-handle' && arrowKey.includes(e.code)) {
+      this.minder.dispatchKeyEvent(e); // 触发脑图本身的方向快捷键事件
+    }
+  });
 }
 
 export default FSMRuntime;
