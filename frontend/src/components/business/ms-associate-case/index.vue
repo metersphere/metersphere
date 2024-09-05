@@ -602,7 +602,7 @@
           ...params,
           moduleIds: [],
           filter: {},
-          keyword: '',
+          keyword: keyword.value,
           ...props.extraModuleCountParams,
           protocols: associationType.value === CaseLinkEnum.API ? selectedProtocols.value : undefined,
         }
