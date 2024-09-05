@@ -166,46 +166,4 @@ public class LoginController {
     }
 
 
-    @GetMapping(value = "/sso/callback/we_com")
-    @Operation(summary = "获取企业微信登陆验证")
-    @MsAuditLog(module = OperLogModule.AUTH_TITLE, type = OperLogConstants.LOGIN, title = "WE_COM")
-    public Mono<ResultHolder> callbackWeCom(@RequestParam("code") String code, WebSession session, Locale locale) {
-        Optional<SessionUser> sessionUser = userLoginService.exchangeWeComToken(code, session, locale);
-        return Mono.just(sessionUser)
-                .subscribeOn(Schedulers.boundedElastic())
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not found user info or invalid password")))
-                .map(ResultHolder::success);
-    }
-
-    @GetMapping(value = "/sso/callback/ding_talk")
-    @Operation(summary = "获取钉钉登陆验证")
-    @MsAuditLog(module = OperLogModule.AUTH_TITLE, type = OperLogConstants.LOGIN, title = "DING_TALK")
-    public Mono<ResultHolder>  callbackDingTalk(@RequestParam(value = "code")String authCode, WebSession session, Locale locale) {
-        Optional<SessionUser> sessionUser = userLoginService.exchangeDingTalkToken(authCode, session, locale);
-        return Mono.just(sessionUser)
-                .subscribeOn(Schedulers.boundedElastic())
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not found user info or invalid password")))
-                .map(ResultHolder::success);
-    }
-
-    @GetMapping(value = "/sso/callback/lark")
-    @Operation(summary = "获取飞书登陆验证")
-    @MsAuditLog(module = OperLogModule.AUTH_TITLE, type = OperLogConstants.LOGIN, title = "LARK")
-    public Mono<ResultHolder>  callbackLark(@RequestParam(value = "code")String authCode, WebSession session, Locale locale) {
-        Optional<SessionUser> sessionUser = userLoginService.exchangeLarkToken(authCode, session, locale);
-        return Mono.just(sessionUser)
-                .subscribeOn(Schedulers.boundedElastic())
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not found user info or invalid password")))
-                .map(ResultHolder::success);
-    }
-
-    @GetMapping(value = "/sso/callback/lark_suite")
-    @Operation(summary = "获取国际飞书登陆验证")
-    public Mono<ResultHolder> callbackLarkSuite(@RequestParam(value = "code")String authCode, WebSession session, Locale locale) {
-        Optional<SessionUser> sessionUser = userLoginService.exchangeLarkSuiteToken(authCode, session, locale);
-        return Mono.just(sessionUser)
-                .subscribeOn(Schedulers.boundedElastic())
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not found user info or invalid password")))
-                .map(ResultHolder::success);
-    }
 }
