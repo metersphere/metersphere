@@ -522,9 +522,7 @@ public class XmindExportUtil {
             }
             textDesTopic.add(resultTopic, ITopic.ATTACHED);
 
-            if (StringUtils.isNotEmpty(desc) || StringUtils.isNotEmpty(result)) {
-                itemTopic.add(textDesTopic, ITopic.ATTACHED);
-            }
+            itemTopic.add(textDesTopic, ITopic.ATTACHED);
         } else {
             //步骤描述
             try {
@@ -563,6 +561,20 @@ public class XmindExportUtil {
                         }
 
                     }
+                }
+                if (CollectionUtils.isEmpty(arr)) {
+                    ITopic stepTopic = workbook.createTopic();
+                    stepTopic.setTitleText(Translator.get("xmind_step").concat("："));
+                    if (style != null) {
+                        stepTopic.setStyleId(style.getId());
+                    }
+                    ITopic resultTopic = workbook.createTopic();
+                    resultTopic.setTitleText(Translator.get("xmind_expectedResult").concat("："));
+                    if (style != null) {
+                        resultTopic.setStyleId(style.getId());
+                    }
+                    stepTopic.add(resultTopic, ITopic.ATTACHED);
+                    stepDesTopic.add(stepTopic, ITopic.ATTACHED);
                 }
                 itemTopic.add(stepDesTopic, ITopic.ATTACHED);
             } catch (Exception e) {
