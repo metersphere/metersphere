@@ -2332,10 +2332,10 @@ public class ApiScenarioService {
             list.forEach(item -> {
                 String method = item.getMethod() == null ? "MS_NOT_HTTP" : item.getMethod();
                 if (returnMap.containsKey(method)) {
-                    returnMap.get(method).put(item.getReferenceId(), item.getUrl());
+                    returnMap.get(method).put(item.getReferenceId(), StringUtils.trim(item.getUrl()));
                 } else {
                     Map<String, String> urlMap = new HashMap<>() {{
-                        this.put(item.getReferenceId(), item.getUrl());
+                        this.put(item.getReferenceId(), StringUtils.trim(item.getUrl()));
                     }};
                     returnMap.put(method, urlMap);
                 }

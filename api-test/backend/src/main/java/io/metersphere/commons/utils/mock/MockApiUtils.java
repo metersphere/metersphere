@@ -719,7 +719,7 @@ public class MockApiUtils {
         if (CollectionUtils.isEmpty(urlList)) {
             return false;
         }
-        String urlSuffix = url;
+        String urlSuffix = url.trim();
         if (urlSuffix.startsWith("/")) {
             urlSuffix = urlSuffix.substring(1);
         }
