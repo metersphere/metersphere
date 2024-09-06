@@ -606,9 +606,8 @@ public class ProjectApplicationService {
      */
     public String getDemandPlatformId(String projectId) {
         ProjectApplication platformEnableConfig = getByType(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name());
-        ProjectApplication platformSyncConfig = getByType(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.CASE_RELATED_CONFIG.SYNC_ENABLE.name());
         ProjectApplication platformKeyConfig = getByType(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_PLATFORM_KEY");
-        boolean isEnable = platformEnableConfig != null && Boolean.parseBoolean(platformEnableConfig.getTypeValue()) && platformSyncConfig != null && platformKeyConfig != null;
+        boolean isEnable = platformEnableConfig != null && Boolean.parseBoolean(platformEnableConfig.getTypeValue()) && platformKeyConfig != null;
         if (!isEnable) {
             return "Metersphere";
         } else {
