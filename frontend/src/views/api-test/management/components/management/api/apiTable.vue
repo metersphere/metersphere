@@ -1,35 +1,28 @@
 <template>
   <div :class="['p-[0_16px_8px_16px]', props.class]">
-    <div class="mb-[16px] flex items-center justify-end">
-      <div class="flex items-center gap-[8px]">
-        <a-input-search
-          v-model:model-value="keyword"
-          :placeholder="t('apiTestManagement.searchPlaceholder')"
-          allow-clear
-          class="mr-[8px] w-[240px]"
-          @search="loadApiList(false)"
-          @press-enter="loadApiList(false)"
-          @clear="loadApiList(false)"
-        />
-        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadApiList(false)">
-          <template #icon>
-            <icon-refresh class="text-[var(--color-text-4)]" />
-          </template>
-        </a-button>
-      </div>
-    </div>
+    <MsAdvanceFilter
+      ref="msAdvanceFilterRef"
+      v-model:keyword="keyword"
+      :view-type="ViewTypeEnum.API_DEFINITION"
+      :filter-config-list="filterConfigList"
+      :search-placeholder="t('apiTestManagement.searchPlaceholder')"
+      @keyword-search="loadApiList(false)"
+      @adv-search="handleAdvSearch"
+      @refresh="loadApiList(false)"
+    />
     <ms-base-table
       ref="apiTableRef"
       v-bind="propsRes"
       :action-config="batchActions"
       :first-column-width="44"
       no-disable
+      class="mt-[16px]"
+      :not-show-table-filter="isAdvancedSearchMode"
       filter-icon-align-left
       v-on="propsEvent"
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
       @drag-change="handleTableDragSort"
-      @module-change="loadApiList(false)"
     >
       <template #[FilterSlotNameEnum.API_TEST_API_REQUEST_METHODS]="{ filterContent }">
         <apiMethodName :method="filterContent.value" />
@@ -176,7 +169,7 @@
           :disabled="batchForm.attr === ''"
         >
           <a-option v-for="item of valueOptions" :key="item.value" :value="item.value">
-            {{ t(item.name) }}
+            {{ item.name }}
           </a-option>
         </a-select>
       </a-form-item>
@@ -294,6 +287,8 @@
   import { FormInstance, Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
+  import MsAdvanceFilter from '@/components/pure/ms-advance-filter/index.vue';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
@@ -307,7 +302,6 @@
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import moduleTree from '@/views/api-test/management/components/moduleTree.vue';
 
-  import { getProtocolList } from '@/api/modules/api-test/common';
   import {
     batchDeleteDefinition,
     batchMoveDefinition,
@@ -329,7 +323,8 @@
 
   import { ProtocolItem } from '@/models/apiTest/common';
   import { ApiDefinitionDetail, ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
-  import { DragSortParams } from '@/models/common';
+  import { DragSortParams, ModuleTreeNode } from '@/models/common';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { RequestDefinitionStatus, RequestImportFormat, RequestMethods } from '@/enums/apiEnum';
   import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -347,6 +342,7 @@
     selectedProtocols: string[]; // 查看的协议类型
     readOnly?: boolean; // 是否是只读模式
     refreshTimeStamp?: number;
+    moduleTreeData?: ModuleTreeNode[];
     memberOptions: { label: string; value: string }[];
   }>();
   const emit = defineEmits<{
@@ -354,6 +350,7 @@
     (e: 'openCopyApiTab', record: ApiDefinitionDetail): void;
     (e: 'addApiTab'): void;
     (e: 'import'): void;
+    (e: 'handleAdvSearch', isStartAdvance: boolean): void;
     (
       e: 'openEditApiTab',
       options: { apiInfo: ApiDefinitionDetail; isCopy: boolean; isExecute: boolean; isEdit: boolean }
@@ -380,22 +377,7 @@
     ])
   );
 
-  // TODO: 后期优化 放store里
-  const protocolList = ref<ProtocolItem[]>([]);
-  async function initProtocolList() {
-    try {
-      const res = await getProtocolList(appStore.currentOrgId);
-      protocolList.value = res.map((e) => ({
-        protocol: e.protocol,
-        polymorphicName: e.polymorphicName,
-        pluginId: e.pluginId,
-      }));
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
+  const protocolList = inject<Ref<ProtocolItem[]>>('protocols', ref([]));
   const requestMethodsOptions = computed(() => {
     const otherMethods = protocolList.value
       .filter((e) => e.protocol !== 'HTTP')
@@ -421,6 +403,24 @@
       };
     });
   });
+  const apiStatusOptions = [
+    {
+      name: t('apiTestManagement.processing'),
+      value: RequestDefinitionStatus.PROCESSING,
+    },
+    {
+      name: t('apiTestManagement.done'),
+      value: RequestDefinitionStatus.DONE,
+    },
+    {
+      name: t('apiTestManagement.deprecate'),
+      value: RequestDefinitionStatus.DEPRECATED,
+    },
+    {
+      name: t('apiTestManagement.debugging'),
+      value: RequestDefinitionStatus.DEBUGGING,
+    },
+  ];
   const apiTableRef = ref();
   let columns: MsTableColumn = [
     {
@@ -574,31 +574,31 @@
     );
   }
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    getDefinitionPage,
-    {
-      columns: props.readOnly ? columns : [],
-      scroll: { x: '100%' },
-      tableKey: props.readOnly ? undefined : TableKeyEnum.API_TEST,
-      showSetting: !props.readOnly,
-      selectable: hasAnyPermission([
-        'PROJECT_API_DEFINITION:READ+DELETE',
-        'PROJECT_API_DEFINITION:READ+EXECUTE',
-        'PROJECT_API_DEFINITION:READ+UPDATE',
-      ]),
-      showSelectAll: !props.readOnly,
-      draggable: hasAnyPermission(['PROJECT_API_DEFINITION:READ+UPDATE']) ? { type: 'handle', width: 32 } : undefined,
-      heightUsed: 272,
-      paginationSize: 'mini',
-      showSubdirectory: true,
-    },
-    (item) => ({
-      ...item,
-      fullPath: folderTreePathMap?.[item.moduleId],
-      createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
-      updateTime: dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss'),
-    })
-  );
+  const { propsRes, propsEvent, viewId, advanceFilter, setAdvanceFilter, loadList, setLoadListParams, resetSelector } =
+    useTable(
+      getDefinitionPage,
+      {
+        columns: props.readOnly ? columns : [],
+        scroll: { x: '100%' },
+        tableKey: props.readOnly ? undefined : TableKeyEnum.API_TEST,
+        showSetting: !props.readOnly,
+        selectable: hasAnyPermission([
+          'PROJECT_API_DEFINITION:READ+DELETE',
+          'PROJECT_API_DEFINITION:READ+EXECUTE',
+          'PROJECT_API_DEFINITION:READ+UPDATE',
+        ]),
+        showSelectAll: !props.readOnly,
+        draggable: hasAnyPermission(['PROJECT_API_DEFINITION:READ+UPDATE']) ? { type: 'handle', width: 32 } : undefined,
+        heightUsed: 272,
+        paginationSize: 'mini',
+      },
+      (item) => ({
+        ...item,
+        fullPath: folderTreePathMap?.[item.moduleId],
+        createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
+        updateTime: dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss'),
+      })
+    );
   const batchActions = {
     baseAction: [
       {
@@ -635,9 +635,11 @@
     },
   ];
 
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
   async function getModuleIds() {
     let moduleIds: string[] = [];
-    if (props.activeModule !== 'all') {
+    if (props.activeModule !== 'all' && !isAdvancedSearchMode.value) {
       moduleIds = [props.activeModule];
       const getAllChildren = await tableStore.getSubShow(TableKeyEnum.API_TEST);
       if (getAllChildren) {
@@ -653,11 +655,13 @@
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleIds,
-      protocols: props.selectedProtocols,
+      protocols: isAdvancedSearchMode.value ? protocolList.value.map((item) => item.protocol) : props.selectedProtocols,
       filter: propsRes.value.filter,
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
     };
 
-    if (!hasRefreshTree && typeof refreshModuleTreeCount === 'function') {
+    if (!hasRefreshTree && typeof refreshModuleTreeCount === 'function' && !isAdvancedSearchMode.value) {
       refreshModuleTreeCount({
         keyword: keyword.value,
         filter: propsRes.value.filter,
@@ -688,6 +692,105 @@
     }
   );
 
+  const filterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'caseManagement.featureCase.tableColumnID',
+      dataIndex: 'num',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'apiTestManagement.apiName',
+      dataIndex: 'name',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'common.belongModule',
+      dataIndex: 'moduleId',
+      type: FilterType.TREE_SELECT,
+      treeSelectData: props.moduleTreeData,
+      treeSelectProps: {
+        fieldNames: {
+          title: 'name',
+          key: 'id',
+          children: 'children',
+        },
+        multiple: true,
+        treeCheckable: true,
+        treeCheckStrictly: true,
+        maxTagCount: 1,
+      },
+    },
+    {
+      title: 'apiTestManagement.protocol',
+      dataIndex: 'protocol',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        labelKey: 'protocol',
+        valueKey: 'protocol',
+        options: protocolList.value,
+      },
+    },
+    {
+      title: 'apiTestManagement.apiType',
+      dataIndex: 'method',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        labelKey: 'key',
+        options: requestMethodsOptions.value,
+      },
+    },
+    {
+      title: 'apiTestManagement.path',
+      dataIndex: 'path',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'apiTestManagement.apiStatus',
+      dataIndex: 'status',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        labelKey: 'name',
+        options: apiStatusOptions,
+      },
+    },
+    {
+      title: 'apiTestManagement.caseTotal',
+      dataIndex: 'caseTotal',
+      type: FilterType.NUMBER,
+    },
+    {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      type: FilterType.TAGS_INPUT,
+    },
+    {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'common.updateTime',
+      dataIndex: 'updateTime',
+      type: FilterType.DATE_PICKER,
+    },
+  ]);
+  // 高级检索
+  const handleAdvSearch = async (filter: FilterResult, id: string, isStartAdvance: boolean) => {
+    resetSelector();
+    emit('handleAdvSearch', isStartAdvance);
+    keyword.value = '';
+    setAdvanceFilter(filter, id);
+    await loadApiList(false); // 基础筛选都清空
+  };
+
   async function handleStatusChange(record: ApiDefinitionDetail) {
     try {
       await updateDefinition({
@@ -702,7 +805,6 @@
   }
 
   function onMountedLoad() {
-    initProtocolList();
     if (props.selectedProtocols.length > 0) {
       loadApiList(true);
     }
@@ -731,6 +833,20 @@
     excludeIds: [],
     currentSelectCount: 0,
   });
+  async function getBatchConditionParams() {
+    const selectModules = await getModuleIds();
+    return {
+      condition: {
+        keyword: keyword.value,
+        filter: propsRes.value.filter,
+        viewId: viewId.value,
+        combineSearch: advanceFilter,
+      },
+      projectId: appStore.currentProjectId,
+      protocols: isAdvancedSearchMode.value ? protocolList.value.map((item) => item.protocol) : props.selectedProtocols,
+      moduleIds: selectModules,
+    };
+  }
 
   /**
    * 删除接口
@@ -757,18 +873,13 @@
       onBeforeOk: async () => {
         try {
           if (isBatch) {
+            const batchConditionParams = await getBatchConditionParams();
             await batchDeleteDefinition({
               selectIds,
               selectAll: !!params?.selectAll,
               excludeIds: params?.excludeIds || [],
-              condition: {
-                keyword: keyword.value,
-                filter: propsRes.value.filter,
-              },
-              projectId: appStore.currentProjectId,
-              moduleIds: await getModuleIds(),
+              ...batchConditionParams,
               deleteAll: true,
-              protocols: props.selectedProtocols,
             });
           } else {
             await deleteDefinition(record?.id as string);
@@ -842,24 +953,7 @@
   const valueOptions = computed(() => {
     switch (batchForm.value.attr) {
       case 'status':
-        return [
-          {
-            name: 'apiTestManagement.processing',
-            value: RequestDefinitionStatus.PROCESSING,
-          },
-          {
-            name: 'apiTestManagement.done',
-            value: RequestDefinitionStatus.DONE,
-          },
-          {
-            name: 'apiTestManagement.deprecate',
-            value: RequestDefinitionStatus.DEPRECATED,
-          },
-          {
-            name: 'apiTestManagement.debugging',
-            value: RequestDefinitionStatus.DEBUGGING,
-          },
-        ];
+        return apiStatusOptions;
       default:
         return [];
     }
@@ -881,17 +975,12 @@
       if (!errors) {
         try {
           batchUpdateLoading.value = true;
+          const batchConditionParams = await getBatchConditionParams();
           await batchUpdateDefinition({
             selectIds: batchParams.value?.selectedIds || [],
             selectAll: !!batchParams.value?.selectAll,
             excludeIds: batchParams.value?.excludeIds || [],
-            condition: {
-              keyword: keyword.value,
-              filter: propsRes.value.filter,
-            },
-            projectId: appStore.currentProjectId,
-            moduleIds: await getModuleIds(),
-            protocols: props.selectedProtocols,
+            ...batchConditionParams,
             type: batchForm.value.attr,
             append: batchForm.value.append,
             [batchForm.value.attr]: batchForm.value.attr === 'tags' ? batchForm.value.values : batchForm.value.value,
@@ -923,18 +1012,13 @@
   async function handleApiMove() {
     try {
       batchMoveApiLoading.value = true;
+      const batchConditionParams = await getBatchConditionParams();
       await batchMoveDefinition({
         selectIds: isBatchMove.value ? batchParams.value?.selectedIds || [] : [activeApi.value?.id || ''],
         selectAll: !!batchParams.value?.selectAll,
         excludeIds: batchParams.value?.excludeIds || [],
-        condition: {
-          keyword: keyword.value,
-          filter: propsRes.value.filter,
-        },
-        projectId: appStore.currentProjectId,
-        moduleIds: await getModuleIds(),
+        ...batchConditionParams,
         moduleId: selectedModuleKeys.value[0],
-        protocols: props.selectedProtocols,
       });
       Message.success(t('common.batchMoveSuccess'));
       if (isBatchMove.value) {
@@ -996,18 +1080,13 @@
   async function exportApi() {
     try {
       exportLoading.value = true;
+      const batchConditionParams = await getBatchConditionParams();
       const result = await exportApiDefinition(
         {
           selectIds: tableSelected.value as string[],
           selectAll: !!batchParams.value?.selectAll,
           excludeIds: batchParams.value?.excludeIds || [],
-          condition: {
-            keyword: keyword.value,
-            filter: propsRes.value.filter,
-          },
-          projectId: appStore.currentProjectId,
-          moduleIds: await getModuleIds(),
-          protocols: props.selectedProtocols,
+          ...batchConditionParams,
           exportApiCase: exportApiCase.value,
           exportApiMock: exportApiMock.value,
           sort: propsRes.value.sorter || {},

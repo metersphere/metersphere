@@ -6,6 +6,7 @@
         class="flex-1 pt-[8px]"
         :active-module="props.activeModule"
         :offspring-ids="props.offspringIds"
+        :module-tree-data="props.moduleTree"
         :selected-protocols="props.selectedProtocols"
         :refresh-time-stamp="refreshTableTimeStamp"
         :member-options="memberOptions"
@@ -14,6 +15,7 @@
         @add-api-tab="addApiTab"
         @import="() => emit('import')"
         @open-edit-api-tab="openApiTab"
+        @handle-adv-search="(val) => emit('handleAdvSearch', val)"
       />
     </keep-alive>
     <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
@@ -184,6 +186,7 @@
   const emit = defineEmits<{
     (e: 'deleteApi', id: string): void;
     (e: 'import'): void;
+    (e: 'handleAdvSearch', isStartAdvance: boolean): void;
     (e: 'openCaseTab', apiCaseDetail: ApiCaseDetail): void;
   }>();
 

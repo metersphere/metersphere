@@ -127,6 +127,7 @@
     :member-options="memberOptions"
     @handle-filter="handleFilter"
     @refresh-view-list="getUserViewList"
+    @change-view-to-first-custom="changeViewToFirstCustom"
   />
 </template>
 
@@ -149,7 +150,6 @@
   import { FilterFormItem, FilterResult, ViewItem } from './type';
 
   const props = defineProps<{
-    rowCount: number;
     filterConfigList: FilterFormItem[]; // 系统字段
     customFieldsConfigList?: FilterFormItem[]; // 自定义字段
     searchPlaceholder?: string;
@@ -161,7 +161,7 @@
 
   const emit = defineEmits<{
     (e: 'keywordSearch', value: string | undefined): void; // keyword 搜索 TODO:可以去除，父组件通过 v-model:keyword 获取关键字
-    (e: 'advSearch', value: FilterResult, viewId: string): void; // 高级搜索
+    (e: 'advSearch', value: FilterResult, viewId: string, isAdvancedSearchMode: boolean): void; // 高级搜索
     (e: 'refresh', value: FilterResult): void;
   }>();
 
@@ -275,7 +275,7 @@
     // 开启高级筛选：非默认视图或有筛选条件
     isAdvancedSearchMode.value = currentView.value !== internalViews.value[0].id || haveConditions;
     filterResult.value = filter;
-    emit('advSearch', filter, currentView.value);
+    emit('advSearch', filter, currentView.value, isAdvancedSearchMode.value);
   };
 
   const handleRefresh = () => {
@@ -295,9 +295,15 @@
   function clearFilter() {
     if (currentView.value === internalViews.value[0].id) {
       filterDrawerRef.value?.handleReset();
+      handleFilter({ searchMode: 'AND', conditions: [] });
     } else {
       currentView.value = internalViews.value[0].id;
     }
+  }
+
+  async function changeViewToFirstCustom() {
+    await getUserViewList();
+    currentView.value = customViews.value[0].id;
   }
 
   defineExpose({

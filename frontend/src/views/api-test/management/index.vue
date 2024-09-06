@@ -1,6 +1,6 @@
 <template>
   <MsCard simple no-content-padding>
-    <MsSplitBox :size="300" :max="0.5">
+    <MsSplitBox :not-show-first="isAdvancedSearchMode" :size="300" :max="0.5">
       <template #first>
         <div class="flex flex-col">
           <div class="p-[16px]" :style="{ height: `calc(100vh - 120px)` }">
@@ -56,6 +56,7 @@
             :offspring-ids="offspringIds"
             :selected-protocols="selectedProtocols"
             @import="importDrawerVisible = true"
+            @handle-adv-search="handleAdvSearch"
           />
         </div>
       </template>
@@ -194,6 +195,12 @@
       });
     }
   };
+
+  const isAdvancedSearchMode = ref(false);
+  function handleAdvSearch(isStartAdvance: boolean) {
+    isAdvancedSearchMode.value = isStartAdvance;
+    moduleTreeRef.value?.setActiveFolder('all');
+  }
 
   /** 向子孙组件提供方法和值 */
   provide('setActiveApi', setActiveApi);

@@ -641,6 +641,7 @@
   defineExpose({
     refresh,
     initModuleCount,
+    setActiveFolder,
   });
 </script>
 

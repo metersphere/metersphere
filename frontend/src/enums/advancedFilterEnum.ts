@@ -31,4 +31,6 @@ export enum FilterType {
 
 export enum ViewTypeEnum {
   FUNCTIONAL_CASE = 'functional-case',
+  API_DEFINITION = 'api-definition',
+  REVIEW_FUNCTIONAL_CASE = 'review-functional-case',
 }

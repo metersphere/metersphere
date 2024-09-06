@@ -60,10 +60,10 @@
     });
   }
 
-  function validateForm(cb: () => void) {
+  function validateForm(cb: (param?: any) => void, params?: any) {
     formRef.value?.validate(async (errors) => {
       if (!errors) {
-        cb();
+        cb(params);
       }
     });
   }

@@ -51,7 +51,7 @@
                 {{ t(option.title as string) }}
               </a-option>
               <a-divider
-                v-if="(props?.customList || [])?.length && (currentConfigList || []).length - 1 === currentOptionsIndex"
+                v-if="(props?.customList || [])?.length && !option.customField && currentOptions(item.dataIndex as string)[currentOptionsIndex+1]?.customField"
                 class="!my-1"
               />
             </div>
@@ -189,25 +189,28 @@
         </a-button>
       </div>
     </a-form>
-    <MsButton type="text" class="mt-[5px]" @click="handleAddItem">
+    <MsButton type="text" class="mt-[5px] w-[fit-content]" @click="handleAddItem">
       <MsIcon type="icon-icon_add_outlined" class="mr-[3px]" />
       {{ t('advanceFilter.addCondition') }}
     </MsButton>
     <template #footer>
       <div v-if="!isSaveAsView" class="flex items-center gap-[8px]">
-        <a-button type="primary" @click="handleFilter">{{ t('common.filter') }}</a-button>
+        <a-button v-if="!formModel?.id" type="primary" @click="handleSaveAndFilter">{{
+          t('advanceFilter.saveAndFilter')
+        }}</a-button>
+        <a-button v-if="formModel?.id" type="primary" @click="handleFilter">{{ t('common.filter') }}</a-button>
         <a-button class="mr-[16px]" @click="handleReset">{{ t('common.reset') }}</a-button>
         <MsButton
-          v-if="!isInternalViews(formModel?.id)"
+          v-if="!isInternalViews(formModel?.id) && formModel?.id"
           type="text"
           :loading="saveLoading"
           class="!text-[var(--color-text-1)]"
-          @click="handleSaveView"
+          @click="handleSaveView()"
         >
           {{ t('common.save') }}
         </MsButton>
         <MsButton
-          v-if="formModel?.id && !isInternalViews(formModel?.id)"
+          v-if="(formModel?.id && !isInternalViews(formModel?.id)) || formModel?.id === 'all_data'"
           type="text"
           class="!text-[var(--color-text-1)]"
           @click="handleToSaveAs"
@@ -262,6 +265,7 @@
   const emit = defineEmits<{
     (e: 'handleFilter', value: FilterResult): void;
     (e: 'refreshViewList'): void;
+    (e: 'changeViewToFirstCustom'): void;
   }>();
   const visible = defineModel<boolean>('visible', { required: true });
 
@@ -397,12 +401,22 @@
   }
 
   function getParams() {
-    const conditions = formModel.value.list.map(({ value, operator, customField, dataIndex }) => ({
-      value,
-      operator,
-      customField: customField ?? false,
-      name: dataIndex,
-    }));
+    const conditions = formModel.value.list.map(({ type, value, operator, customField, dataIndex }) => {
+      let timeValue;
+      // 转换成时间戳
+      if (type === FilterType.DATE_PICKER) {
+        timeValue =
+          operator === OperatorEnum.BETWEEN
+            ? [new Date(value[0]).getTime(), new Date(value[1]).getTime()]
+            : new Date(value).getTime();
+      }
+      return {
+        value: timeValue ?? value,
+        operator,
+        customField: customField ?? false,
+        name: dataIndex,
+      };
+    });
     return { searchMode: formModel.value.searchMode, conditions };
   }
 
@@ -449,7 +463,7 @@
 
   // 保存视图
   const saveLoading = ref(false);
-  function realSaveView() {
+  function realSaveView(isChangeView = false) {
     formRef.value?.validate(async (errors) => {
       if (!errors) {
         try {
@@ -466,7 +480,11 @@
           }
           Message.success(t('common.saveSuccess'));
           savedFormModel.value = cloneDeep(formModel.value);
-          emit('refreshViewList');
+          if (!isChangeView) {
+            emit('refreshViewList');
+          } else {
+            emit('changeViewToFirstCustom');
+          }
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -476,11 +494,11 @@
       }
     });
   }
-  function handleSaveView() {
+  function handleSaveView(isChangeView = false) {
     if (viewNameInputRef.value) {
-      viewNameInputRef.value?.validateForm(realSaveView);
+      viewNameInputRef.value?.validateForm(realSaveView, isChangeView);
     } else {
-      realSaveView();
+      realSaveView(isChangeView);
     }
   }
 
@@ -530,6 +548,9 @@
   }
   async function handleAddView() {
     saveAsViewNameInputRef.value?.validateForm(realAddView);
+  }
+  function handleSaveAndFilter() {
+    handleSaveView(true);
   }
 
   defineExpose({
