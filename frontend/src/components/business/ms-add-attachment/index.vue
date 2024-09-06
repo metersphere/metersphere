@@ -205,8 +205,12 @@
         :size="props.inputSize"
         allow-clear
         readonly
-        @clear="handleFileClear"
       >
+        <template v-if="inputFileName" #suffix>
+          <div class="arco-icon-hover arco-input-icon-hover arco-input-clear-btn" @click.stop="handleFileClear">
+            <icon-close />
+          </div>
+        </template>
       </a-input>
     </div>
   </template>

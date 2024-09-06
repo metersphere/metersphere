@@ -1343,7 +1343,8 @@
             responseActiveTab: ResponseComposition.BODY,
             stepId: props.step?.uniqueId || '',
             uniqueId: props.step?.uniqueId || '',
-            customizeRequestEnvEnable: true,
+            customizeRequestEnvEnable:
+              props.step?.refType === 'DIRECT' ? props.request.customizeRequestEnvEnable : true, // 自定义请求保留本身保存的是否引用环境，其他的请求固定是引用环境
             isNew: false,
           });
           if (_stepType.value.isQuoteApi) {
