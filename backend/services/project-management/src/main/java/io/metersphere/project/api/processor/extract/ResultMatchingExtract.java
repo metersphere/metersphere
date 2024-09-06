@@ -1,6 +1,6 @@
 package io.metersphere.project.api.processor.extract;
 
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 

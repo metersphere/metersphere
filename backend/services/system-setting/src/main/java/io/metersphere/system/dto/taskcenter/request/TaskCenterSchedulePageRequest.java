@@ -2,7 +2,7 @@ package io.metersphere.system.dto.taskcenter.request;
 
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.taskcenter.enums.ScheduleTagType;
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

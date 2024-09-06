@@ -1,7 +1,7 @@
 package io.metersphere.project.api.assertion.body;
 
 import io.metersphere.sdk.constants.MsAssertionCondition;
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.apache.commons.lang3.BooleanUtils;

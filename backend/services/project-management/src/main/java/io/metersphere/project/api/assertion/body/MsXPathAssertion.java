@@ -1,7 +1,7 @@
 package io.metersphere.project.api.assertion.body;
 
 
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import lombok.Data;
 
 import java.util.List;

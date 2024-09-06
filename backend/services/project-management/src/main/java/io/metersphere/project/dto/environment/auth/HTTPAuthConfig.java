@@ -1,6 +1,6 @@
 package io.metersphere.project.dto.environment.auth;
 
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import lombok.Data;
 
 import java.util.HashMap;

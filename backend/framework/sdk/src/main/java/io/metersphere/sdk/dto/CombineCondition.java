@@ -1,10 +1,13 @@
-package io.metersphere.system.dto.sdk;
+package io.metersphere.sdk.dto;
 
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
 
 /**
  * @Author: jianxing
@@ -30,7 +33,16 @@ public class CombineCondition {
     private String operator;
 
     public boolean valid() {
-        return StringUtils.isNotBlank(name) && StringUtils.isNotBlank(operator) && value != null;
+        if (value == null) {
+            return false;
+        }
+        if (value instanceof List valueList && CollectionUtils.isEmpty(valueList)) {
+            return false;
+        }
+        if (value instanceof String valueStr && StringUtils.isBlank(valueStr)) {
+            return false;
+        }
+        return StringUtils.isNotBlank(name) && StringUtils.isNotBlank(operator);
     }
 
     public enum CombineConditionOperator {

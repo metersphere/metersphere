@@ -3,7 +3,7 @@ package io.metersphere.project.api.processor;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.project.dto.CommonScriptInfo;
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

@@ -16,7 +16,7 @@ import io.metersphere.system.dto.UserViewDTO;
 import io.metersphere.system.dto.UserViewListGroupedDTO;
 import io.metersphere.system.dto.request.UserViewAddRequest;
 import io.metersphere.system.dto.request.UserViewUpdateRequest;
-import io.metersphere.system.dto.sdk.CombineCondition;
+import io.metersphere.sdk.dto.CombineCondition;
 import io.metersphere.system.mapper.ExtUserViewMapper;
 import io.metersphere.system.mapper.UserViewConditionMapper;
 import io.metersphere.system.mapper.UserViewMapper;
@@ -65,6 +65,8 @@ public class UserViewService {
                 userViewDTO.setName(translateInternalView(userView.getName()));
                 userViewDTO.setViewType(viewType.name());
                 userViewDTO.setUserId(userId);
+                // 系统内置视图，前端不展示查询条件
+                userViewDTO.setConditions(List.of());
                 return userViewDTO;
             }
         }

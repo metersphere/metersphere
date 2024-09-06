@@ -1,44 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.BaseMapper">
+    <sql id="customFiledConditions">
+        <trim suffixOverrides="AND|OR">
+            <foreach collection="${conditions}" item="condition">
+                <trim prefix="(" suffix=")">
+                    field_id = #{condition.name}
+                    and
+                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                        <property name="condition" value="condition"/>
+                        <property name="column" value="value"/>
+                    </include>
+                </trim>
+                <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                    <property name="searchMode" value="request.combineSearch.searchMode"/>
+                </include>
+            </foreach>
+        </trim>
+    </sql>
+
     <sql id="condition">
+        <trim prefix="(" suffix=")">
+            <choose>
+                <when test="${condition}.operator == 'CONTAINS'">
+                    ${column} like CONCAT('%', #{condition.value},'%')
+                </when>
+                <when test="${condition}.operator == 'NOT_CONTAINS'">
+                    ${column} not like CONCAT('%', #{condition.value},'%')
+                </when>
+                <when test="${condition}.operator == 'IN'">
+                    ${column} in
+                    <foreach collection="${condition}.value" item="v" separator="," open="(" close=")">
+                        #{v}
+                    </foreach>
+                </when>
+                <when test="${condition}.operator == 'NOT_IN'">
+                    ${column} not in
+                    <foreach collection="${condition}.value" item="v" separator="," open="(" close=")">
+                        #{v}
+                    </foreach>
+                </when>
+                <when test="${condition}.operator == 'BETWEEN'">
+                    ${column} between #{condition.value[0]} and #{condition.value[1]}
+                </when>
+                <when test="${condition}.operator == 'GT'">
+                    ${column} &gt; #{condition.value}
+                </when>
+                <when test="${condition}.operator == 'LT'">
+                    ${column} &lt; #{condition.value}
+                </when>
+                <when test="${condition}.operator == 'COUNT_GT'">
+                    JSON_LENGTH(${column}) &gt; #{condition.value}
+                </when>
+                <when test="${condition}.operator == 'COUNT_LT'">
+                    JSON_LENGTH(${column}) &lt; #{condition.value}
+                </when>
+                <when test="${condition}.operator == 'EMPTY'">
+                    ${column} is null or ${column} #{condition.value} = ''
+                </when>
+                <when test="${condition}.operator == 'NOT_EMPTY'">
+                    ${column} is not null and ${column} #{condition.value} = ''
+                </when>
+                <when test="${condition}.operator == 'EQUALS'">
+                    ${column} = #{condition.value}
+                </when>
+                <when test="${condition}.operator == 'NOT_EQUALS'">
+                    ${column} != #{condition.value}
+                </when>
+            </choose>
+        </trim>
+    </sql>
+
+    <sql id="queryType">
         <choose>
-            <when test='${object}.operator == "like"'>
-                like CONCAT('%', #{${object}.value},'%')
+            <when test="${searchMode} == 'AND'">
+                AND
             </when>
-            <when test='${object}.operator == "not like"'>
-                not like CONCAT('%', #{${object}.value},'%')
+            <when test="${searchMode} == 'OR'">
+                OR
             </when>
-            <when test='${object}.operator == "in"'>
-                in
-                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
-                    #{v}
-                </foreach>
-            </when>
-            <when test='${object}.operator == "not in"'>
-                not in
-                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
-                    #{v}
-                </foreach>
-            </when>
-            <when test='${object}.operator == "between"'>
-                between #{${object}.value[0]} and #{${object}.value[1]}
-            </when>
-            <when test='${object}.operator == "gt"'>
-                &gt; #{${object}.value}
-            </when>
-            <when test='${object}.operator == "lt"'>
-                &lt; #{${object}.value}
-            </when>
-            <when test='${object}.operator == "ge"'>
-                &gt;= #{${object}.value}
-            </when>
-            <when test='${object}.operator == "le"'>
-                &lt;= #{${object}.value}
-            </when>
-            <otherwise>
-                = #{${object}.value}
-            </otherwise>
         </choose>
     </sql>
 

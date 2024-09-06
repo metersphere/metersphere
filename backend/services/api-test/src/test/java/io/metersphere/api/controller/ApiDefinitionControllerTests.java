@@ -45,7 +45,7 @@ import io.metersphere.system.domain.OperationHistoryExample;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
-import io.metersphere.system.dto.sdk.BaseCondition;
+import io.metersphere.sdk.dto.BaseCondition;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OperationHistoryMapper;

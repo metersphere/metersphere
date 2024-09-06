@@ -1,7 +1,7 @@
 package io.metersphere.project.api.processor.extract;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import lombok.Data;
 
 /**

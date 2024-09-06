@@ -1,7 +1,7 @@
 package io.metersphere.bug.dto.request;
 
 import io.metersphere.sdk.constants.ModuleConstants;
-import io.metersphere.system.dto.sdk.BaseCondition;
+import io.metersphere.sdk.dto.BaseCondition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

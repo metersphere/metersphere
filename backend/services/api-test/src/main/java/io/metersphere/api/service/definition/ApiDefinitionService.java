@@ -50,7 +50,6 @@ import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
-import io.metersphere.system.utils.CustomFieldUtils;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -143,7 +142,6 @@ public class ApiDefinitionService extends MoveNodeService {
         if (CollectionUtils.isEmpty(request.getProtocols())) {
             return new ArrayList<>();
         }
-        CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request, userId);
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.list(request);
         processApiDefinitions(list);
         return list;
@@ -153,7 +151,6 @@ public class ApiDefinitionService extends MoveNodeService {
         if (CollectionUtils.isEmpty(request.getProtocols())) {
             return new ArrayList<>();
         }
-        CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request, userId);
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.list(request);
         if (!CollectionUtils.isEmpty(list)) {
             processApiDefinitionsDoc(list);
@@ -891,7 +888,6 @@ public class ApiDefinitionService extends MoveNodeService {
     public <T> List<String> getBatchApiIds(T dto, String projectId, List<String> protocols, boolean deleted, String userId) {
         TableBatchProcessDTO request = (TableBatchProcessDTO) dto;
         if (request.isSelectAll() && CollectionUtils.isNotEmpty(protocols)) {
-            CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request.getCondition(), userId);
             List<String> ids = extApiDefinitionMapper.getIds(request, projectId, protocols, deleted);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());

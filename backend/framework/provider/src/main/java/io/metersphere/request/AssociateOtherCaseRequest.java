@@ -1,5 +1,6 @@
 package io.metersphere.request;
 
+import io.metersphere.sdk.dto.BaseCondition;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -54,5 +55,5 @@ public class AssociateOtherCaseRequest {
     private String apiDefinitionId;
 
     @Schema(description = "查询条件")
-    private BaseProviderCondition condition = new BaseProviderCondition();
+    private BaseCondition condition = new BaseCondition();
 }

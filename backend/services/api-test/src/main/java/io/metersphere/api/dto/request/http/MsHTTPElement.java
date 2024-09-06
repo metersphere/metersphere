@@ -4,7 +4,7 @@ import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.plugin.api.spi.AbstractMsProtocolTestElement;
 import io.metersphere.project.dto.environment.auth.HTTPAuthConfig;
 import io.metersphere.sdk.constants.HttpMethodConstants;
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

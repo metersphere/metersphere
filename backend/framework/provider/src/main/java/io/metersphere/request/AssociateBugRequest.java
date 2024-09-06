@@ -1,5 +1,6 @@
 package io.metersphere.request;
 
+import io.metersphere.sdk.dto.BaseCondition;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,7 +14,7 @@ import java.util.List;
  * @author wx
  */
 @Data
-public class AssociateBugRequest extends BaseProviderCondition {
+public class AssociateBugRequest extends BaseCondition {
 
     @Schema(description = "不处理的ID")
     List<String> excludeIds;

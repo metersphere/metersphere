@@ -5,7 +5,7 @@ import io.metersphere.project.api.assertion.body.MsDocumentAssertion;
 import io.metersphere.project.api.assertion.body.MsJSONPathAssertion;
 import io.metersphere.project.api.assertion.body.MsRegexAssertion;
 import io.metersphere.project.api.assertion.body.MsXPathAssertion;
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import jakarta.validation.Valid;
 import lombok.Data;
 

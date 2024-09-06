@@ -1,6 +1,7 @@
 package io.metersphere.system.dto.sdk;
 
 import com.google.common.base.CaseFormat;
+import io.metersphere.sdk.dto.BaseCondition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;

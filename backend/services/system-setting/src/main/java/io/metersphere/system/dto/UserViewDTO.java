@@ -1,7 +1,7 @@
 package io.metersphere.system.dto;
 
 import io.metersphere.system.domain.UserView;
-import io.metersphere.system.dto.sdk.CombineCondition;
+import io.metersphere.sdk.dto.CombineCondition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -1,6 +1,7 @@
 package io.metersphere.request;
 
 import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.dto.BaseCondition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -9,7 +10,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class AssociateCaseModuleRequest extends BaseProviderCondition {
+public class AssociateCaseModuleRequest extends BaseCondition {
     @Schema(description = "模块ID(根据模块树查询时要把当前节点以及子节点都放在这里。)")
     private List<@NotBlank String> moduleIds;
 

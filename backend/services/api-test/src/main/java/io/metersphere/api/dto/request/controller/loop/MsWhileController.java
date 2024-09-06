@@ -1,7 +1,7 @@
 package io.metersphere.api.dto.request.controller.loop;
 
 import io.metersphere.api.dto.request.controller.WhileConditionType;
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import lombok.Data;
 
 @Data
