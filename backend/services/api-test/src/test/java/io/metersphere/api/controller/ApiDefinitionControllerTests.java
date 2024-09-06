@@ -33,6 +33,8 @@ import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.dto.CombineCondition;
+import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRequest;
@@ -988,10 +990,17 @@ public class ApiDefinitionControllerTests extends BaseTest {
         filters.put("version_id", List.of("1005704995741369851"));
         request.setFilter(filters);
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("name", Map.of("operator", "like", "value", "test-1"));
-        map.put("method", Map.of("operator", "in", "value", Arrays.asList("GET", "POST")));
-        request.setCombine(map);
+        CombineSearch combineSearch = new CombineSearch();
+        CombineCondition condition = new CombineCondition();
+        condition.setName("name");
+        condition.setOperator(CombineCondition.CombineConditionOperator.CONTAINS.name());
+        condition.setValue("test-1");
+        CombineCondition condition2 = new CombineCondition();
+        condition2.setName("method");
+        condition2.setOperator(CombineCondition.CombineConditionOperator.IN.name());
+        condition2.setValue(List.of("GET", "POST"));
+        combineSearch.setConditions(List.of(condition, condition2));
+        request.setCombineSearch(combineSearch);
     }
 
     private void configureKeywordSearch(ApiDefinitionPageRequest request) {
@@ -1011,26 +1020,30 @@ public class ApiDefinitionControllerTests extends BaseTest {
     }
 
     private void configureCombineSearch(ApiDefinitionPageRequest request) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("name", Map.of("operator", "like", "value", "test"));
-        map.put("method", Map.of("operator", "in", "value", Arrays.asList("GET", "POST")));
-        map.put("createUser", Map.of("operator", "current user", "value", StringUtils.EMPTY));
-        List<Map<String, Object>> customs = new ArrayList<>();
-        Map<String, Object> custom = new HashMap<>();
-        custom.put("id", "test_field");
-        custom.put("operator", "in");
-        custom.put("type", "MULTIPLE_SELECT");
-        custom.put("value", JSON.toJSONString(List.of("test", "default")));
-        customs.add(custom);
-        Map<String, Object> currentUserCustom = new HashMap<>();
-        currentUserCustom.put("id", "test_field");
-        currentUserCustom.put("operator", "current user");
-        currentUserCustom.put("type", "MULTIPLE_MEMBER");
-        currentUserCustom.put("value", "current user");
-        customs.add(currentUserCustom);
-        map.put("customs", customs);
+        CombineSearch combineSearch = new CombineSearch();
+        CombineCondition condition = new CombineCondition();
+        condition.setName("name");
+        condition.setOperator(CombineCondition.CombineConditionOperator.CONTAINS.name());
+        condition.setValue("test");
 
-        request.setCombine(map);
+        CombineCondition condition2 = new CombineCondition();
+        condition2.setName("method");
+        condition2.setOperator(CombineCondition.CombineConditionOperator.IN.name());
+        condition2.setValue(List.of("GET", "POST"));
+
+        CombineCondition condition3 = new CombineCondition();
+        condition3.setName("createUser");
+        condition3.setOperator(CombineCondition.CombineConditionOperator.IN.name());
+        condition3.setValue(List.of("currentUser"));
+
+        CombineCondition customCondition = new CombineCondition();
+        customCondition.setCustomField(true);
+        customCondition.setName("test_field");
+        customCondition.setOperator(CombineCondition.CombineConditionOperator.CONTAINS.name());
+        customCondition.setValue("test");
+
+        combineSearch.setConditions(List.of(condition, condition2, condition3, customCondition));
+        request.setCombineSearch(combineSearch);
     }
 
     private void configureDeleteSearch(ApiDefinitionPageRequest request) {

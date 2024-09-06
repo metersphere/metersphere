@@ -184,7 +184,7 @@
         <include refid="filters">
             <property name="filter" value="request.filter"/>
         </include>
-        <include refid="queryCombine">
+        <include refid="combine">
             <property name="combineSearch" value="request.combineSearch"/>
         </include>
         <include refid="queryVersionCondition">
@@ -209,7 +209,7 @@
         <include refid="filters">
             <property name="filter" value="request.condition.filter"/>
         </include>
-        <include refid="queryCombine">
+        <include refid="combine">
             <property name="combineSearch" value="request.condition.combineSearch"/>
         </include>
         <include refid="queryVersionCondition">
@@ -281,7 +281,7 @@
         </if>
     </sql>
 
-    <sql id="queryCombine">
+    <sql id="combine">
         <trim prefix="AND" suffixOverrides="AND|OR">
             <if test="${combineSearch} != null">
                 <foreach collection="${combineSearch}.userViewConditions" item="condition">
@@ -305,54 +305,10 @@
                     </include>
                 </foreach>
                 <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
-                    <if test="condition.name == 'name'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="functional_case.name"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'num'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="functional_case.num"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'moduleId'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="functional_case.module_id"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'createUser'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="functional_case.create_User"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'updateUser'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="functional_case.update_user"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'updateTime'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="functional_case.update_time"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'createTime'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="functional_case.create_time"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'tags'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="functional_case.tags"/>
-                        </include>
-                    </if>
+                    <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
+                        <property name="condition" value="condition"/>
+                        <property name="tablePrefix" value="functional_case"/>
+                    </include>
                     <if test="condition.name == 'reviewStatus'">
                         <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                             <property name="condition" value="condition"/>

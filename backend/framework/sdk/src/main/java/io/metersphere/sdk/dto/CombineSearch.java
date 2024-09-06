@@ -22,10 +22,6 @@ public class CombineSearch {
     @Valid
     private List<CombineCondition> conditions;
 
-    public List<CombineCondition> getConditions() {
-        return conditions;
-    }
-
     public String getSearchMode() {
         return StringUtils.isBlank(searchMode) ? SearchMode.AND.name() : searchMode;
     }

@@ -13,23 +13,27 @@ import io.metersphere.project.dto.DropNode;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
+import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface ExtApiDefinitionMapper {
     void deleteApiToGc(@Param("ids") List<String> ids, @Param("userId") String userId, @Param("time") long time);
-
+    @BaseConditionFilter
     List<ApiDefinitionDTO> list(@Param("request") ApiDefinitionPageRequest request);
 
+    @BaseConditionFilter
     List<ApiDefinitionDTO> listDoc(@Param("request") ApiDefinitionDocRequest request);
 
     List<ApiTestCase> selectNotInTrashCaseIdsByApiIds(@Param("apiIds") List<String> apiIds);
 
     Long getPos(@Param("projectId") String projectId);
 
+    @BaseConditionFilter
     List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("protocols") List<String> protocols, @Param("deleted") boolean deleted);
 
+    @BaseConditionFilter
     List<String> getIdsBySort(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("protocols") List<String> protocols, @Param("orderColumns") String orderColumns);
 
     List<String> getRefIds(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
@@ -40,6 +44,7 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDefinitionVersionDTO> getApiDefinitionByRefId(@Param("refId") String refId);
 
+    @BaseConditionFilter
     void batchMove(@Param("request") ApiDefinitionBatchMoveRequest request, @Param("ids") List<String> ids, @Param("userId") String userId);
 
     void batchDeleteByRefId(@Param("refIds") List<String> refIds, @Param("userId") String userId, @Param("projectId") String projectId);
@@ -52,6 +57,7 @@ public interface ExtApiDefinitionMapper {
 
     void updateLatestVersion(@Param("id") String id, @Param("projectId") String projectId);
 
+    @BaseConditionFilter
     List<ApiDefinitionDetail> importList(@Param("request") ApiDefinitionPageRequest request);
 
     List<String> selectIdsByIdsAndDeleted(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);

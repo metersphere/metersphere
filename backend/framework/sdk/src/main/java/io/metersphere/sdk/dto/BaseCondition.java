@@ -23,13 +23,9 @@ public class BaseCondition {
     @Valid
     private CombineSearch combineSearch;
 
-    /**
-     * todo 删除
-     */
+    @Deprecated
     private String searchMode = "AND";
-    /**
-     * todo 删除
-     */
+    @Deprecated
     private Map<String, Object> combine;
 
     // 转JSON时会调用。 前台数据传过来时可以顺便处理掉转义字符
