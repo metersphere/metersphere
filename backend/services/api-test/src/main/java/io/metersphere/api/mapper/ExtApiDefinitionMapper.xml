@@ -279,13 +279,9 @@
             <property name="filter" value="request.filter"/>
         </include>
 
-        <if test="request.combine != null and request.combine != ''">
-            <include refid="combine">
-                <property name="condition" value="request.combine"/>
-                <property name="name" value="request.name"/>
-                <property name="ObjectTags" value="request.combine.tags"/>
-            </include>
-        </if>
+        <include refid="combine">
+            <property name="combineSearch" value="request.combineSearch"/>
+        </include>
 
         <include refid="queryVersionCondition">
             <property name="versionTable" value="api_definition"/>
@@ -367,108 +363,71 @@
     </sql>
 
     <sql id="combine">
--- todo 待修改
-<!--        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>-->
-<!--            and api_definition.name-->
-<!--            <include refid="io.metersphere.system.mapper.BaseMapper.condition">-->
-<!--                <property name="object" value="${condition}.name"/>-->
-<!--            </include>-->
-<!--        </if>-->
-
-<!--        <if test='${condition}.id != null'>-->
-<!--            and api_definition.num-->
-<!--            <include refid="io.metersphere.system.mapper.BaseMapper.condition">-->
-<!--                <property name="object" value="${condition}.id"/>-->
-<!--            </include>-->
-<!--        </if>-->
-
-<!--        <if test="${condition}.updateTime != null">-->
-<!--            and api_definition.update_time-->
-<!--            <include refid="io.metersphere.system.mapper.BaseMapper.condition">-->
-<!--                <property name="object" value="${condition}.updateTime"/>-->
-<!--            </include>-->
-<!--        </if>-->
-
-<!--        <if test="${condition}.createTime != null">-->
-<!--            and api_definition.create_time-->
-<!--            <include refid="io.metersphere.system.mapper.BaseMapper.condition">-->
-<!--                <property name="object" value="${condition}.createTime"/>-->
-<!--            </include>-->
-<!--        </if>-->
-
-<!--        <if test="${condition}.status != null">-->
-<!--            and api_definition.status-->
-<!--            <include refid="io.metersphere.system.mapper.BaseMapper.condition">-->
-<!--                <property name="object" value="${condition}.status"/>-->
-<!--            </include>-->
-<!--        </if>-->
-
-<!--        <if test="${condition}.path != null">-->
-<!--            and api_definition.path-->
-<!--            <include refid="io.metersphere.system.mapper.BaseMapper.condition">-->
-<!--                <property name="object" value="${condition}.path"/>-->
-<!--            </include>-->
-<!--        </if>-->
-
-<!--        <if test="${condition}.method != null">-->
-<!--            and api_definition.method-->
-<!--            <include refid="io.metersphere.system.mapper.BaseMapper.condition">-->
-<!--                <property name="object" value="${condition}.method"/>-->
-<!--            </include>-->
-<!--        </if>-->
-
-<!--        <if test='${condition}.tags != null and ${ObjectTags}.operator == "not like"'>-->
-<!--            and (api_definition.tags is null or api_definition.tags-->
-<!--            <include refid="io.metersphere.system.mapper.BaseMapper.condition">-->
-<!--                <property name="object" value="${condition}.tags"/>-->
-<!--            </include>-->
-<!--            )-->
-<!--        </if>-->
-
-<!--        <if test='${condition}.tags != null and ${ObjectTags}.operator == "like"'>-->
-<!--            and api_definition.tags-->
-<!--            <include refid="io.metersphere.system.mapper.BaseMapper.condition">-->
-<!--                <property name="object" value="${condition}.tags"/>-->
-<!--            </include>-->
-<!--        </if>-->
-
-<!--        <if test="${condition}.customs != null and ${condition}.customs.size() > 0">-->
-<!--            <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">-->
-<!--                <if test="custom.value != ''">-->
-<!--                    <if test='custom.operator == "not like" or custom.operator == "not in"'>-->
-<!--                        and api_definition.id not in (-->
-<!--                    </if>-->
-<!--                    <if test='custom.operator != "not like" and custom.operator != "not in"'>-->
-<!--                        and api_definition.id in (-->
-<!--                    </if>-->
-<!--                    select api_id from api_definition_custom_field where field_id = #{custom.id}-->
-<!--                    <choose>-->
-<!--                        <when test="custom.type == 'TEXTAREA' or custom.operator == 'current user'">-->
-<!--                            and `value`-->
-<!--                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">-->
-<!--                                <property name="object" value="custom"/>-->
-<!--                            </include>-->
-<!--                        </when>-->
-<!--                        <when test="custom.type == 'MULTIPLE_MEMBER' or custom.type == 'CHECKBOX' or custom.type == 'MULTIPLE_SELECT'">-->
-<!--                            and ${custom.value}-->
-<!--                        </when>-->
-<!--                        <when test="custom.type == 'DATE' or custom.type == 'DATETIME'">-->
-<!--                            and left(replace(unix_timestamp(trim(both '"' from `value`)), '.', ''), 13)-->
-<!--                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">-->
-<!--                                <property name="object" value="custom"/>-->
-<!--                            </include>-->
-<!--                        </when>-->
-<!--                        <otherwise>-->
-<!--                            and trim(both '"' from `value`)-->
-<!--                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">-->
-<!--                                <property name="object" value="custom"/>-->
-<!--                            </include>-->
-<!--                        </otherwise>-->
-<!--                    </choose>-->
-<!--                    )-->
-<!--                </if>-->
-<!--            </foreach>-->
-<!--        </if>-->
+        <trim prefix="AND" suffixOverrides="AND|OR">
+            <if test="${combineSearch} != null">
+                <foreach collection="${combineSearch}.userViewConditions" item="condition">
+                    <if test="condition.name == 'createUser'">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                            <property name="condition" value="condition"/>
+                            <property name="column" value="api_definition.create_user"/>
+                        </include>
+                    </if>
+                    <if test="condition.name == 'follower'">
+                        api_definition.id in (
+                        select api_definition_id from api_definition_follower where
+                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                            <property name="condition" value="condition"/>
+                            <property name="column" value="user_id"/>
+                        </include>
+                        )
+                    </if>
+                    <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                        <property name="searchMode" value="${combineSearch}.searchMode"/>
+                    </include>
+                </foreach>
+                <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
+                   <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
+                       <property name="condition" value="condition"/>
+                       <property name="tablePrefix" value="api_definition"/>
+                   </include>
+                    <if test="condition.name == 'protocol'">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                            <property name="condition" value="condition"/>
+                            <property name="column" value="api_definition.protocol"/>
+                        </include>
+                    </if>
+                    <if test="condition.name == 'status'">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                            <property name="condition" value="condition"/>
+                            <property name="column" value="api_definition.status"/>
+                        </include>
+                    </if>
+                    <if test="condition.name == 'method'">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                            <property name="condition" value="condition"/>
+                            <property name="column" value="api_definition.method"/>
+                        </include>
+                    </if>
+                    <if test="condition.name == 'path'">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                            <property name="condition" value="condition"/>
+                            <property name="column" value="api_definition.path"/>
+                        </include>
+                    </if>
+                    <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                        <property name="searchMode" value="${combineSearch}.searchMode"/>
+                    </include>
+                </foreach>
+                <if test="${combineSearch}.customFiledConditions.size() > 0">
+                    api_definition.id in (
+                    select api_id from api_definition_custom_field where
+                    <include refid="io.metersphere.system.mapper.BaseMapper.customFiledConditions">
+                        <property name="conditions" value="${combineSearch}.customFiledConditions"/>
+                    </include>
+                    )
+                </if>
+            </if>
+        </trim>
     </sql>
 
     <sql id="queryVersionCondition">
@@ -492,11 +451,9 @@
     </sql>
 
     <sql id="queryWhereConditionByBaseQueryRequest">
-        <if test="request.condition.combine != null">
-            <include refid="combine">
-                <property name="condition" value="request.condition.combine"/>
-            </include>
-        </if>
+        <include refid="combine">
+            <property name="combineSearch" value="request.condition.combineSearch"/>
+        </include>
         <if test="request.condition.keyword != null">
             and (
             api_definition.num like concat('%', #{request.condition.keyword},'%')

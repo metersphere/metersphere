@@ -1,6 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.BaseMapper">
+
+    <sql id="commonSystemFieldConditions">
+        <if test="condition.name == 'name'">
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="condition" value="condition"/>
+                <property name="column" value="${tablePrefix}.name"/>
+            </include>
+        </if>
+        <if test="condition.name == 'num'">
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="condition" value="condition"/>
+                <property name="column" value="${tablePrefix}.num"/>
+            </include>
+        </if>
+        <if test="condition.name == 'moduleId'">
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="condition" value="condition"/>
+                <property name="column" value="${tablePrefix}.module_id"/>
+            </include>
+        </if>
+        <if test="condition.name == 'createUser'">
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="condition" value="condition"/>
+                <property name="column" value="${tablePrefix}.create_User"/>
+            </include>
+        </if>
+        <if test="condition.name == 'updateUser'">
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="condition" value="condition"/>
+                <property name="column" value="${tablePrefix}.update_user"/>
+            </include>
+        </if>
+        <if test="condition.name == 'updateTime'">
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="condition" value="condition"/>
+                <property name="column" value="${tablePrefix}.update_time"/>
+            </include>
+        </if>
+        <if test="condition.name == 'createTime'">
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="condition" value="condition"/>
+                <property name="column" value="${tablePrefix}.create_time"/>
+            </include>
+        </if>
+        <if test="condition.name == 'tags'">
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="condition" value="condition"/>
+                <property name="column" value="${tablePrefix}.tags"/>
+            </include>
+        </if>
+    </sql>
+
     <sql id="customFiledConditions">
         <trim suffixOverrides="AND|OR">
             <foreach collection="${conditions}" item="condition">
