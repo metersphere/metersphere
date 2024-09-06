@@ -1,5 +1,8 @@
 <template>
-  <div class="login-form" :style="props.isPreview ? 'height: inherit' : 'height: 100vh'">
+  <div v-if="preheat" class="login-form" :style="props.isPreview ? 'height: inherit' : 'height: 100vh'">
+    <a-spin v-if="preheat" :loading="preheat" tip="This may take a while..."> </a-spin>
+  </div>
+  <div v-if="!preheat" class="login-form" :style="props.isPreview ? 'height: inherit' : 'height: 100vh'">
     <div class="title">
       <div class="flex justify-center">
         <img :src="innerLogo" class="h-[60px] w-[290px]" />
@@ -132,7 +135,7 @@
   import { useAppStore, useUserStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
   import { encrypted } from '@/utils';
-  import { getLongType, setLoginExpires, setLongType } from '@/utils/auth';
+  import { getLongType, isLogin, setLoginExpires, setLongType } from '@/utils/auth';
   import { getFirstRouteNameByPermission, routerNameHasPermission } from '@/utils/permission';
 
   import type { LoginData } from '@/models/user';
@@ -149,6 +152,8 @@
   const { openModal } = useModal();
 
   const orgOptions = ref<SelectOptionData[]>([]);
+
+  const preheat = ref(false);
 
   const props = defineProps<{
     isPreview?: boolean;
@@ -308,9 +313,11 @@
     }
     getAuthDetailByType(authType).then((res) => {
       if (!res) {
+        preheat.value = false;
         return;
       }
       if (!res.enable) {
+        preheat.value = false;
         Message.error(t('login.auth_not_enable'));
         return;
       }
@@ -362,6 +369,13 @@
   onMounted(() => {
     userStore.getAuthentication();
     initPlatformInfo();
+    try {
+      isLogin().then((res) => {
+        preheat.value = res;
+      });
+    } catch (e) {
+      preheat.value = false;
+    }
   });
 </script>
 
