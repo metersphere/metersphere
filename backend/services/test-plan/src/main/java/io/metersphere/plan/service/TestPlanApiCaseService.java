@@ -463,6 +463,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         List<BaseTreeNode> returnList = new ArrayList<>();
         TestPlanCollectionExample collectionExample = new TestPlanCollectionExample();
         collectionExample.createCriteria().andTypeEqualTo(CaseType.API_CASE.getKey()).andParentIdNotEqualTo(ModuleConstants.ROOT_NODE_PARENT_ID).andTestPlanIdEqualTo(testPlanId);
+        collectionExample.setOrderByClause("pos asc");
         List<TestPlanCollection> testPlanCollections = testPlanCollectionMapper.selectByExample(collectionExample);
         testPlanCollections.forEach(item -> {
             BaseTreeNode baseTreeNode = new BaseTreeNode(item.getId(), Translator.get(item.getName(), item.getName()), CaseType.API_CASE.getKey());
