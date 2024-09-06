@@ -180,7 +180,9 @@
       v-model:file-list="fileList"
       accept="none"
       :auto-upload="false"
-      :sub-text="acceptType === 'jar' ? '' : t('project.fileManagement.normalFileSubText', { size: 50 })"
+      :sub-text="
+        acceptType === 'jar' ? '' : t('project.fileManagement.normalFileSubText', { size: appStore.getFileMaxSize })
+      "
       multiple
       draggable
       size-unit="MB"
