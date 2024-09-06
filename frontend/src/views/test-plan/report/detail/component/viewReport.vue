@@ -140,7 +140,7 @@
         </div>
         <div class="wrapper-preview-card">
           <div class="flex items-center justify-between">
-            <div v-if="item.value !== ReportCardTypeEnum.CUSTOM_CARD" class="mb-[8px] font-medium">
+            <div v-if="!notShowLabel.includes(item.value)" class="mb-[8px] font-medium">
               {{ t(item.label) }}
             </div>
             <a-radio-group
@@ -194,24 +194,14 @@
             :share-id="shareId"
             :is-preview="props.isPreview"
           />
-
-          <FeatureCaseTable
-            v-else-if="item.value === ReportCardTypeEnum.FUNCTIONAL_DETAIL"
-            :report-id="detail.id"
-            :share-id="shareId"
-            :is-preview="props.isPreview"
-            :is-group="props.isGroup"
-          />
-          <ApiAndScenarioTable
-            v-else-if="
-              item.value === ReportCardTypeEnum.API_CASE_DETAIL ||
-              item.value === ReportCardTypeEnum.SCENARIO_CASE_DETAIL
-            "
+          <TestSetTable
+            v-else-if="hasTestSet.includes(item.value)"
             :report-id="detail.id"
             :share-id="shareId"
             :active-type="item.value"
             :is-preview="props.isPreview"
             :is-group="props.isGroup"
+            :label="t(item.label)"
           />
           <CustomRichText
             v-else-if="item.value === ReportCardTypeEnum.CUSTOM_CARD"
@@ -243,15 +233,14 @@
   import MsChart from '@/components/pure/chart/index.vue';
   import SingleStatusProgress from '@/views/test-plan/report/component/singleStatusProgress.vue';
   import CustomRichText from '@/views/test-plan/report/detail/component/custom-card/customRichText.vue';
-  import ApiAndScenarioTable from '@/views/test-plan/report/detail/component/system-card/apiAndScenarioTable.vue';
   import BugTable from '@/views/test-plan/report/detail/component/system-card/bugTable.vue';
   import ExecuteAnalysis from '@/views/test-plan/report/detail/component/system-card/executeAnalysis.vue';
-  import FeatureCaseTable from '@/views/test-plan/report/detail/component/system-card/featureCaseTable.vue';
   import ReportDetailTable from '@/views/test-plan/report/detail/component/system-card/reportDetailTable.vue';
   import ReportHeader from '@/views/test-plan/report/detail/component/system-card/reportHeader.vue';
   import ReportMetricsItem from '@/views/test-plan/report/detail/component/system-card/ReportMetricsItem.vue';
   import Summary from '@/views/test-plan/report/detail/component/system-card/summary.vue';
   import SystemTrigger from '@/views/test-plan/report/detail/component/system-card/systemTrigger.vue';
+  import TestSetTable from '@/views/test-plan/report/detail/component/system-card/testTableIndex.vue';
 
   import { getReportLayout, updateReportDetail } from '@/api/modules/test-plan/report';
   import {
@@ -316,6 +305,19 @@
   });
 
   const getAnalysisHover = computed(() => (props.isPreview ? '' : 'hover-analysis cursor-not-allowed'));
+
+  const notShowLabel = [
+    ReportCardTypeEnum.CUSTOM_CARD,
+    ReportCardTypeEnum.FUNCTIONAL_DETAIL,
+    ReportCardTypeEnum.API_CASE_DETAIL,
+    ReportCardTypeEnum.SCENARIO_CASE_DETAIL,
+  ];
+
+  const hasTestSet = [
+    ReportCardTypeEnum.FUNCTIONAL_DETAIL,
+    ReportCardTypeEnum.API_CASE_DETAIL,
+    ReportCardTypeEnum.SCENARIO_CASE_DETAIL,
+  ];
 
   /**
    * 分享share

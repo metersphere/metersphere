@@ -132,7 +132,6 @@
         <div class="error-report">
           {{ t('project.menu.rule.hasBeenEnabled') }}
           <span class="text-[rgb(var(--primary-5))]" @click="pushFar(true)">
-            <!-- TODO 待测试字段后台还没有补充 -->
             {{ allValueMap['ENABLE_FAKE_ERROR_NUM'] || 0 }}
           </span>
           {{ t('project.menu.rule.bar') }}

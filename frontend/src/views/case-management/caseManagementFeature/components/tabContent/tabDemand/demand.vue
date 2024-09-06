@@ -9,15 +9,15 @@
           class="mr-2"
           @click="associatedDemand"
         >
-          {{ t('caseManagement.featureCase.associatedDemand') }}</a-button
-        >
+          {{ t('caseManagement.featureCase.associatedDemand') }}
+        </a-button>
         <a-button
           v-permission="['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE']"
           type="outline"
           @click="addDemand"
         >
-          {{ t('caseManagement.featureCase.addDemand') }}</a-button
-        >
+          {{ t('caseManagement.featureCase.addDemand') }}
+        </a-button>
       </div>
 
       <a-input-search
@@ -28,7 +28,7 @@
         @search="searchList"
         @press-enter="searchList"
         @clear="searchList"
-      ></a-input-search>
+      />
     </div>
     <AssociatedDemandTable
       ref="demandRef"
@@ -64,10 +64,10 @@
       @cancel="handleDrawerCancel"
     >
       <div class="flex items-center justify-between">
-        <div
-          ><span class="font-medium">{{ platName }}</span
-          ><span class="ml-1 text-[var(--color-text-4)]">({{ propsRes?.msPagination?.total || 0 }})</span></div
-        >
+        <div>
+          <span class="font-medium">{{ platName }}</span>
+          <span class="ml-1 text-[var(--color-text-4)]">({{ propsRes?.msPagination?.total || 0 }})</span>
+        </div>
         <a-input-search
           v-model="platformKeyword"
           :max-length="255"
@@ -213,6 +213,7 @@
     showSetting: false,
     rowSelectionDisabledConfig: {
       checkStrictly: false,
+      disabledKey: 'disabled',
     },
   });
 
@@ -242,7 +243,7 @@
   const tableRef = ref();
   const initData = async () => {
     tableRef.value?.initColumn(fullColumns);
-    setLoadListParams({ keyword: platformKeyword.value, projectId: currentProjectId.value });
+    setLoadListParams({ keyword: platformKeyword.value, projectId: currentProjectId.value, caseId: props.caseId });
     loadList();
   };
 
@@ -254,6 +255,7 @@
         current: 1,
         pageSize: 10,
         projectId: currentProjectId.value,
+        caseId: props.caseId,
       });
       customFields.value = (res.data.customHeaders || []).map((item: any) => {
         return {

@@ -5,15 +5,16 @@
     <div
       v-for="item in option"
       :key="item"
-      class="flex h-[28px] w-[49px] cursor-pointer items-center justify-center rounded-[4px]"
+      class="flex h-[28px] flex-1 cursor-pointer items-center justify-center rounded-[4px]"
       :class="{
         'w-[75px] bg-[var(--color-bg-1)] text-[rgb(var(--primary-5))]': item === props.modelValue,
-        'ml-[4px]': props.modelValue === 10,
-        'mr-[4px]': props.modelValue === 50,
+        'ml-[2px]': props.modelValue === 10,
+        'mr-[2px]': props.modelValue === 50,
       }"
       @click="handleClick(item)"
-      >{{ item }}</div
     >
+      {{ item }}
+    </div>
   </div>
 </template>
 

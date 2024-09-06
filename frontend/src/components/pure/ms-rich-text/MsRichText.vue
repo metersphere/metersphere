@@ -157,6 +157,9 @@
     () => props.autoFocus,
     (val) => {
       editor.value?.setOptions({ autofocus: val });
+      if (val) {
+        editor.value?.chain().focus();
+      }
     },
     {
       immediate: true,

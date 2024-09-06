@@ -17,12 +17,13 @@
         />
       </template>
       <template v-if="!props.onlyPageSize">
-        <div class="flex-col">
+        <div class="mt-[16px] flex-col pl-[14px]">
           <div v-for="item in nonSortColumn" :key="item.dataIndex" class="column-item">
             <div>{{ t((item.title || item.columnTitle) as string) }}</div>
             <a-switch
               v-if="item.slotName !== SpecialColumnEnum.OPERATION"
               v-model="item.showInTable"
+              :disabled="item.columnSelectorDisabled"
               size="small"
               type="line"
               @change="handleSwitchChange"
@@ -147,9 +148,9 @@
   }
   .column-item {
     display: flex;
+    padding: 8px;
     flex-flow: row nowrap;
-    justify-content: space-between;
-    align-items: center;
+    @apply flex flex-nowrap items-center justify-between;
     &:hover {
       border-radius: 6px;
       background: var(--color-text-n9);

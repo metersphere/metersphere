@@ -1019,10 +1019,12 @@
     emit(
       'init',
       {
-        ...tableParams,
+        moduleIds: tableParams.moduleIds,
         current: propsRes.value.msPagination?.current,
         pageSize: propsRes.value.msPagination?.pageSize,
         filter: propsRes.value.filter,
+        projectId: currentProjectId.value,
+        keyword: keyword.value,
       },
       refreshModule
     );

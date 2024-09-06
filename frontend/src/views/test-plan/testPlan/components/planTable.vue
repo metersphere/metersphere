@@ -925,10 +925,16 @@
       filterParams.status = ['ARCHIVED'];
     }
     emit('init', {
-      ...tableParams,
+      keyword: keyword.value,
+      type: showType.value,
+      projectId: appStore.currentProjectId,
+      moduleIds: tableParams.moduleIds,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
       filter: filterParams,
+      combine: {
+        ...batchParams.value.condition,
+      },
     });
   }
 

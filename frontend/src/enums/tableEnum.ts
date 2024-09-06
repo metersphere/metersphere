@@ -92,6 +92,9 @@ export enum TableKeyEnum {
   ASSOCIATE_CASE_API_SCENARIO = 'associateCaseApiScenario',
   ASSOCIATE_CASE = 'associateCase',
   JSON_SCHEMA = 'jsonSchema',
+  TEST_PLAN_REPORT_FUNCTIONAL_TABLE = 'testPlanReportFunctionTable',
+  TEST_PLAN_REPORT_API_TABLE = 'testPlanReportApiTable',
+  TEST_PLAN_REPORT_SCENARIO_TABLE = 'testPlanReportScenarioTable',
 }
 
 // 具有特殊功能的列
