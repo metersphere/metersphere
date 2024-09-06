@@ -491,8 +491,8 @@ public class FunctionalCaseControllerTests extends BaseTest {
         condition.setCustomField(true);
         condition.setName("TEST_FIELD_ID");
         condition.setOperator(CombineCondition.CombineConditionOperator.IN.name());
-        condition.setValue("222");
-        combineSearch.setConditions(List.of());
+        condition.setValue(List.of("222"));
+        combineSearch.setConditions(List.of(condition));
         request.setCombineSearch(combineSearch);
         MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
         Pager<List<FunctionalCasePageDTO>> tableData = JSON.parseObject(JSON.toJSONString(

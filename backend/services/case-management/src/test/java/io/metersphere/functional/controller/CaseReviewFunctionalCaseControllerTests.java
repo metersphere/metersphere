@@ -10,6 +10,8 @@ import io.metersphere.functional.mapper.CaseReviewHistoryMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.CaseReviewFunctionalCaseService;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.dto.CombineCondition;
+import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.base.BaseTest;
@@ -94,15 +96,19 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setCurrent(1);
         request.setPageSize(10);
         request.setReviewId("wx_review_id_1");
-        Map<String, Object> map = new HashMap<>();
-        map.put("customs", Arrays.asList(new LinkedHashMap() {{
-            put("id", "TEST_FIELD_ID");
-            put("operator", "in");
-            put("value", "222");
-            put("type", "List");
-        }}));
-        request.setCombine(map);
+        request.setCombineSearch(getCustomCombineSearch());
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
+    }
+
+    private CombineSearch getCustomCombineSearch() {
+        CombineSearch combineSearch = new CombineSearch();
+        CombineCondition condition = new CombineCondition();
+        condition.setCustomField(true);
+        condition.setName("TEST_FIELD_ID");
+        condition.setOperator(CombineCondition.CombineConditionOperator.IN.name());
+        condition.setValue(List.of("222"));
+        combineSearch.setConditions(List.of(condition));
+        return combineSearch;
     }
 
 
@@ -123,14 +129,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
 
         request.setReviewId("wx_review_id_1");
-        Map<String, Object> map = new HashMap<>();
-        map.put("customs", Arrays.asList(new LinkedHashMap() {{
-            put("id", "TEST_FIELD_ID");
-            put("operator", "in");
-            put("value", "222");
-            put("type", "List");
-        }}));
-        request.setCombine(map);
+        request.setCombineSearch(getCustomCombineSearch());
         request.setViewFlag(true);
         request.setViewStatusFlag(true);
         this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
@@ -206,15 +205,8 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setSelectIds(new ArrayList<>());
         request.setSelectAll(true);
         request.setExcludeIds(Arrays.asList("TEST_FUNCTIONAL_CASE_ID_1"));
-        Map<String, Object> map = new HashMap<>();
-        map.put("customs", Arrays.asList(new LinkedHashMap() {{
-            put("id", "TEST_FIELD_ID");
-            put("operator", "in");
-            put("value", "222");
-            put("type", "List");
-        }}));
         BaseCondition baseCondition = new BaseCondition();
-        baseCondition.setCombine(map);
+        baseCondition.setCombineSearch(getCustomCombineSearch());
         request.setCondition(baseCondition);
         this.requestPostWithOkAndReturn(BATCH_DELETE_URL, request);
 
