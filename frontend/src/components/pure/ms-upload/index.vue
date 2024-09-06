@@ -108,6 +108,7 @@
     isAllScreen: false,
     cutHeight: 110,
     allowRepeat: false,
+    sizeUnit: 'MB',
   });
 
   const emit = defineEmits(['update:fileList', 'change']);
@@ -141,7 +142,7 @@
     const maxSize = props.maxSize || appStore.getFileMaxSize;
     const _maxSize = props.sizeUnit === 'MB' ? maxSize * 1024 * 1024 : maxSize * 1024;
     if (props.isLimit && file.size > _maxSize) {
-      Message.warning(t('ms.upload.overSize'));
+      Message.warning(t('ms.upload.overSize', { size: maxSize, unit: props.sizeUnit }));
       return Promise.resolve(false);
     }
     if (!props.multiple) {
