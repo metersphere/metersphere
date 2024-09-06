@@ -342,6 +342,7 @@
                         select case_id from functional_case_custom_field where
                         <include refid="io.metersphere.system.mapper.BaseMapper.customFiledConditions">
                             <property name="conditions" value="${combineSearch}.customFiledConditions"/>
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
                         </include>
                     )
                 </if>

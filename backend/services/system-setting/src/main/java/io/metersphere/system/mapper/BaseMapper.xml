@@ -65,7 +65,7 @@
                     </include>
                 </trim>
                 <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
-                    <property name="searchMode" value="request.combineSearch.searchMode"/>
+                    <property name="searchMode" value="${searchMode}"/>
                 </include>
             </foreach>
         </trim>
@@ -81,13 +81,25 @@
                     ${column} not like CONCAT('%', #{condition.value},'%')
                 </when>
                 <when test="${condition}.operator == 'IN'">
-                    ${column} in
+                    <if test="'${column}' == 'value'">
+                        `value`
+                    </if>
+                    <if test="'${column}' != 'value'">
+                        ${column}
+                    </if>
+                    in
                     <foreach collection="${condition}.value" item="v" separator="," open="(" close=")">
                         #{v}
                     </foreach>
                 </when>
                 <when test="${condition}.operator == 'NOT_IN'">
-                    ${column} not in
+                    <if test="'${column}' == 'value'">
+                        `value`
+                    </if>
+                    <if test="'${column}' != 'value'">
+                        ${column}
+                    </if>
+                    not in
                     <foreach collection="${condition}.value" item="v" separator="," open="(" close=")">
                         #{v}
                     </foreach>
