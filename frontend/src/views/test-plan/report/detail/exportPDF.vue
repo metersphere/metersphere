@@ -1,6 +1,6 @@
 <template>
-  <a-spin :loading="loading" class="block">
-    <div id="report-detail" class="p-[16px]">
+  <a-spin :loading="loading" class="report-detail-container">
+    <div id="report-detail" class="report-detail">
       <div class="report-header">
         <div class="flex-1 break-all">{{ detail.name }}</div>
         <div class="one-line-text">
@@ -91,7 +91,13 @@
       </div>
 
       <div class="mt-[16px]">
-        <div v-for="item of innerCardList" v-show="showItem(item)" :key="item.id" class="card-item mt-[16px]">
+        <div
+          v-for="item of innerCardList"
+          v-show="showItem(item)"
+          :key="item.id"
+          class="card-item mt-[16px]"
+          :class="`${item.value}`"
+        >
           <div class="wrapper-preview-card">
             <div class="flex items-center justify-between">
               <div v-if="item.value !== ReportCardTypeEnum.CUSTOM_CARD" class="mb-[8px] font-medium">
@@ -107,14 +113,16 @@
             />
             <div v-else-if="item.value === ReportCardTypeEnum.SUMMARY" v-html="getContent(item).content"></div>
             <MsBaseTable v-else-if="item.value === ReportCardTypeEnum.BUG_DETAIL" v-bind="bugTableProps"> </MsBaseTable>
-            <MsBaseTable v-else-if="item.value === ReportCardTypeEnum.FUNCTIONAL_DETAIL" v-bind="caseTableProps">
-              <template #caseLevel="{ record }">
-                <CaseLevel :case-level="record.priority" />
-              </template>
-              <template #lastExecResult="{ record }">
-                <ExecuteResult :execute-result="record.executeResult" />
-              </template>
-            </MsBaseTable>
+            <div v-else-if="item.value === ReportCardTypeEnum.FUNCTIONAL_DETAIL" id="functionalCase">
+              <MsBaseTable v-bind="caseTableProps">
+                <template #caseLevel="{ record }">
+                  <CaseLevel :case-level="record.priority" />
+                </template>
+                <template #lastExecResult="{ record }">
+                  <ExecuteResult :execute-result="record.executeResult" />
+                </template>
+              </MsBaseTable>
+            </div>
             <MsBaseTable
               v-else-if="item.value === ReportCardTypeEnum.API_CASE_DETAIL"
               v-bind="useApiTable.propsRes.value"
@@ -184,6 +192,7 @@
   } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { addCommasToNumber } from '@/utils';
+  import exportPdf, { MAX_CANVAS_HEIGHT, SCALE_RATIO } from '@/utils/exportPdf';
 
   import type {
     configItem,
@@ -198,7 +207,7 @@
 
   import { defaultGroupConfig, defaultSingleConfig } from './component/reportConfig';
   import { getSummaryDetail } from '@/views/test-plan/report/utils';
-  import exportPdf from '@/workers/exportPDF/exportPDFWorker';
+  import html2canvas from 'html2canvas-pro';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -496,6 +505,7 @@
     scroll: { x: '100%', y: 'auto' },
     columns: bugColumns,
     showSelectorAll: false,
+    hoverable: false,
   });
 
   /** 用例明细 */
@@ -565,11 +575,13 @@
     propsRes: caseTableProps,
     loadList: loadCaseList,
     setLoadListParams: setLoadCaseListParams,
+    setPagination: setCasePagination,
   } = useTable(reportFeatureCaseList(), {
     scroll: { x: '100%', y: 'auto' },
     columns: caseColumns.value,
     heightUsed: 20,
     showSelectorAll: false,
+    hoverable: false,
   });
 
   /** 接口/场景明细 */
@@ -609,12 +621,14 @@
     columns: apiColumns.value,
     showSelectorAll: false,
     showSetting: false,
+    hoverable: false,
   });
   const useScenarioTable = useTable(getScenarioPage, {
     scroll: { x: '100%', y: 'auto' },
     columns: apiColumns.value,
     showSelectorAll: false,
     showSetting: false,
+    hoverable: false,
   });
 
   async function getDetail() {
@@ -632,7 +646,7 @@
         innerCardList.value = isGroup.value ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
       }
       setLoadBugListParams({ reportId: reportId.value, shareId: shareId.value ?? undefined, pageSize: 500 });
-      setLoadCaseListParams({ reportId: reportId.value, shareId: shareId.value ?? undefined, startPager: false });
+      setLoadCaseListParams({ reportId: reportId.value, shareId: shareId.value ?? undefined, pageSize: 500 });
       useApiTable.setLoadListParams({
         reportId: reportId.value,
         shareId: shareId.value ?? undefined,
@@ -645,9 +659,29 @@
       });
       await Promise.all([loadBugList(), loadCaseList(), useApiTable.loadList(), useScenarioTable.loadList()]);
       setTimeout(() => {
-        nextTick(() => {
-          exportPdf(detail.value.name, 'report-detail');
-        });
+        exportPdf(detail.value.name, 'report-detail');
+        // nextTick(async () => {
+        //   const element = document.getElementById('functionalCase');
+        //   if (element) {
+        //     while (caseTableProps.value.msPagination!.current * 500 < caseTableProps.value.msPagination!.total) {
+        //       console.log('start html2canvas', new Date().getMinutes(), new Date().getSeconds());
+        //       // eslint-disable-next-line no-await-in-loop
+        //       const canvas = await html2canvas(element, {
+        //         x: 0,
+        //         y: 848,
+        //         width: 1190,
+        //         height: MAX_CANVAS_HEIGHT,
+        //         backgroundColor: '#f9f9fe',
+        //         scale: window.devicePixelRatio * SCALE_RATIO, // 缩放增加清晰度
+        //       });
+        //       console.log('end html2canvas', new Date().getMinutes(), new Date().getSeconds());
+        //       exportPdf(detail.value.name, 'report-detail', canvas);
+        //       setCasePagination({ current: caseTableProps.value.msPagination!.current + 1 });
+        //       // eslint-disable-next-line no-await-in-loop
+        //       await loadCaseList();
+        //     }
+        //   }
+        // });
       }, 0);
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -663,6 +697,16 @@
 </script>
 
 <style lang="less" scoped>
+  .report-detail-container {
+    @apply flex justify-center;
+    .report-detail {
+      @apply overflow-x-auto;
+
+      padding: 16px;
+      width: 1190px;
+      .ms-scroll-bar();
+    }
+  }
   .report-header {
     @apply mb-4 flex items-center bg-white;
 
@@ -750,5 +794,8 @@
   }
   :deep(.arco-table-body) {
     max-height: 100% !important;
+  }
+  :deep(#ms-table-footer-wrapper) {
+    @apply hidden;
   }
 </style>
