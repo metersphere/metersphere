@@ -18,4 +18,5 @@ export default {
   'login.form.LDAPLogin': 'LDAP登录',
   'login.form.username': '用户名',
   'login.form.password': '密码',
+  'login.form.loading': '登录中',
 };

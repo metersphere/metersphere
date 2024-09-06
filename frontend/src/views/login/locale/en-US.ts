@@ -18,4 +18,5 @@ export default {
   'login.form.LDAPLogin': 'LDAP',
   'login.form.username': 'Username',
   'login.form.password': 'Password',
+  'login.form.loading': 'Logging in',
 };

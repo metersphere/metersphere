@@ -1,8 +1,8 @@
 <template>
   <div v-if="preheat" class="login-form" :style="props.isPreview ? 'height: inherit' : 'height: 100vh'">
-    <a-spin v-if="preheat" :loading="preheat" tip="This may take a while..."> </a-spin>
+    <a-spin :loading="preheat" :tip="t('login.form.loading')"> </a-spin>
   </div>
-  <div v-if="!preheat" class="login-form" :style="props.isPreview ? 'height: inherit' : 'height: 100vh'">
+  <div v-else class="login-form" :style="props.isPreview ? 'height: inherit' : 'height: 100vh'">
     <div class="title">
       <div class="flex justify-center">
         <img :src="innerLogo" class="h-[60px] w-[290px]" />
@@ -153,7 +153,7 @@
 
   const orgOptions = ref<SelectOptionData[]>([]);
 
-  const preheat = ref(false);
+  const preheat = ref(true);
 
   const props = defineProps<{
     isPreview?: boolean;
@@ -313,11 +313,9 @@
     }
     getAuthDetailByType(authType).then((res) => {
       if (!res) {
-        preheat.value = false;
         return;
       }
       if (!res.enable) {
-        preheat.value = false;
         Message.error(t('login.auth_not_enable'));
         return;
       }
