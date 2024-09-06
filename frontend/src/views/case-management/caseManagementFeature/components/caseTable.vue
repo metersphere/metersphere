@@ -10,7 +10,6 @@
         :filter-config-list="filterConfigList"
         :custom-fields-config-list="searchCustomFields"
         :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
-        :row-count="filterRowCount"
         :count="props.modulesCount[props.activeFolder] || 0"
         :name="moduleNamePath"
         @keyword-search="fetchData"
@@ -474,7 +473,6 @@
   const minderStore = useMinderStore();
 
   const keyword = ref<string>('');
-  const filterRowCount = ref(0);
   const groupKeyword = ref<string>('');
 
   const showType = ref<string>('list');
@@ -776,7 +774,7 @@
   const filterConfigList = computed<FilterFormItem[]>(() => [
     {
       title: 'caseManagement.featureCase.tableColumnID',
-      dataIndex: 'id',
+      dataIndex: 'num',
       type: FilterType.INPUT,
     },
     {

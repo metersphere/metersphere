@@ -26,7 +26,6 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
   const { minderCopy, minderCut, minderPaste } = useMinderOperation(options);
 
   const handleKeyDown = (event: KeyboardEvent) => {
-    event.preventDefault();
     const nodes: MinderJsonNode[] = window.minder.getSelectedNodes();
     if (nodes.length === 0) {
       return;

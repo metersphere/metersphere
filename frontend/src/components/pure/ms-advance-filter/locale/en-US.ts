@@ -42,4 +42,5 @@ export default {
   'advanceFilter.filterContentRequired': 'Filter content cannot be empty',
   'advanceFilter.filterTip': 'Filter mode, module filtering can only be operated in the current filter',
   'advanceFilter.maxViewTip': 'Up to 10 views can be added',
+  'advanceFilter.saveAndFilter': 'Save And filter',
 };

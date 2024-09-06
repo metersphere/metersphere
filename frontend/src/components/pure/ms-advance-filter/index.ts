@@ -77,6 +77,7 @@ export const CustomTypeMaps: Record<string, any> = {
     propsKey: 'selectProps',
     props: {
       mode: 'static',
+      multiple: true,
       valueKey: 'value',
       labelKey: 'text',
       options: [],
@@ -171,10 +172,13 @@ export const CustomTypeMaps: Record<string, any> = {
 // TODO lmy 计划详情功能用例增加：测试点；接口定义、计划详情接口用例增加：协议；
 export function getAllDataDefaultConditions(viewType: ViewTypeEnum) {
   const conditions = [
-    { name: 'id', operator: OperatorEnum.CONTAINS },
+    { name: 'num', operator: OperatorEnum.CONTAINS },
     { name: 'name', operator: OperatorEnum.CONTAINS },
     { name: 'moduleId', operator: OperatorEnum.BELONG_TO },
   ];
+  if ([ViewTypeEnum.API_DEFINITION].includes(viewType)) {
+    return [...conditions, { name: 'protocol', operator: OperatorEnum.BELONG_TO }];
+  }
   return conditions;
 }
 

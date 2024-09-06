@@ -56,6 +56,7 @@
     @import="emit('import')"
     @open-case-tab="(apiCaseDetail:ApiCaseDetail)=>newCaseTab(apiCaseDetail.id)"
     @delete-api="(id) => handleDeleteApiFromModuleTree(id)"
+    @handle-adv-search="(val) => emit('handleAdvSearch', val)"
   />
   <apiCase
     v-show="(activeApiTab.id === 'all' && currentTab === 'case') || activeApiTab.type === 'case'"
@@ -131,6 +132,7 @@
   }>();
   const emit = defineEmits<{
     (e: 'import'): void;
+    (e: 'handleAdvSearch', isStartAdvance: boolean): void;
   }>();
   const appStore = useAppStore();
   const route = useRoute();
@@ -399,9 +401,4 @@
 
 <style lang="less" scoped>
   .ms-input-group--prepend();
-  :deep(.arco-select-view-prefix) {
-    margin-right: 8px;
-    padding-right: 0;
-    border-right: 1px solid var(--color-text-input-border);
-  }
 </style>

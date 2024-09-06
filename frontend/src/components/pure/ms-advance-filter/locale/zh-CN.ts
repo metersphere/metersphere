@@ -42,4 +42,5 @@ export default {
   'advanceFilter.filterContentRequired': '筛选内容不能为空',
   'advanceFilter.filterTip': '筛选模式，模块过滤仅可在当前过滤器中操作',
   'advanceFilter.maxViewTip': '最多可添加 10 个视图',
+  'advanceFilter.saveAndFilter': '保存并筛选',
 };
