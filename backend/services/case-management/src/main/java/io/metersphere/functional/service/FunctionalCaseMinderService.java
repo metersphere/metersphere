@@ -777,11 +777,11 @@ public class FunctionalCaseMinderService {
     private MindAdditionalNode updateNode(String userId, MindAdditionalNodeRequest mindAdditionalNodeRequest, MindAdditionalNodeMapper mindAdditionalNodeMapper) {
         MindAdditionalNode mindAdditionalNode = new MindAdditionalNode();
         mindAdditionalNode.setId(mindAdditionalNodeRequest.getId());
-        if (mindAdditionalNodeRequest.getName().length() > 255) {
-            mindAdditionalNodeRequest.setName(mindAdditionalNodeRequest.getName().substring(0, 249));
-        }
         if (StringUtils.isBlank(mindAdditionalNodeRequest.getName())) {
             throw new MSException(Translator.get("minder_extra_node.text_node_empty"));
+        }
+        if (mindAdditionalNodeRequest.getName().length() > 255) {
+            mindAdditionalNodeRequest.setName(mindAdditionalNodeRequest.getName().substring(0, 249));
         }
         mindAdditionalNode.setName(mindAdditionalNodeRequest.getName());
         mindAdditionalNode.setParentId(mindAdditionalNodeRequest.getParentId());
@@ -795,11 +795,11 @@ public class FunctionalCaseMinderService {
     private MindAdditionalNode buildNode(FunctionalCaseMinderEditRequest request, String userId, MindAdditionalNodeRequest mindAdditionalNodeRequest, MindAdditionalNodeMapper additionalNodeMapper) {
         MindAdditionalNode mindAdditionalNode = new MindAdditionalNode();
         mindAdditionalNode.setId(mindAdditionalNodeRequest.getId());
-        if (mindAdditionalNodeRequest.getName().length() > 255) {
-            mindAdditionalNodeRequest.setName(mindAdditionalNodeRequest.getName().substring(0, 249));
-        }
         if (StringUtils.isBlank(mindAdditionalNodeRequest.getName())) {
             throw new MSException(Translator.get("minder_extra_node.text_node_empty"));
+        }
+        if (mindAdditionalNodeRequest.getName().length() > 255) {
+            mindAdditionalNodeRequest.setName(mindAdditionalNodeRequest.getName().substring(0, 249));
         }
         mindAdditionalNode.setName(mindAdditionalNodeRequest.getName());
         mindAdditionalNode.setParentId(mindAdditionalNodeRequest.getParentId());
