@@ -1,33 +1,48 @@
 <template>
-  <MsBaseTable v-bind="propsRes" v-on="propsEvent">
-    <template #num="{ record }">
-      <MsButton :disabled="!props.isPreview" type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
-    </template>
-    <template #caseLevel="{ record }">
-      <CaseLevel :case-level="record.priority" />
-    </template>
-    <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
-      <ExecuteResult :execute-result="filterContent.key" />
-    </template>
-    <template #lastExecResult="{ record }">
-      <ExecuteResult :execute-result="record.executeResult" />
-      <MsButton class="ml-[8px]" :disabled="!props.isPreview || !record.reportId" @click="openExecuteHistory(record)">{{
-        t('common.detail')
-      }}</MsButton>
-    </template>
-  </MsBaseTable>
-  <MsDrawer
-    v-model:visible="showDetailVisible"
-    :title="t('common.detail')"
-    :width="1200"
-    :footer="false"
-    no-content-padding
-    unmount-on-close
-  >
-    <div class="p-[16px]">
-      <ExecutionHistory show-step-result :loading="executeLoading" :execute-list="executeList" />
-    </div>
-  </MsDrawer>
+  <div :class="`${props.enabledTestSet ? 'test-set-wrapper test-set-cell' : ''}`">
+    <MsBaseTable v-bind="propsRes" v-on="propsEvent">
+      <template #num="{ record }">
+        <MsButton :disabled="!props.isPreview" type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
+      </template>
+      <template #caseLevel="{ record }">
+        <CaseLevel :case-level="record.priority" />
+      </template>
+      <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
+        <ExecuteResult :execute-result="filterContent.key" />
+      </template>
+      <template #lastExecResult="{ record }">
+        <ExecuteResult :execute-result="record.executeResult" />
+        <MsButton class="ml-[8px]" :disabled="!props.isPreview || !record.reportId" @click="openExecuteHistory(record)">
+          {{ t('common.detail') }}
+        </MsButton>
+      </template>
+      <template #expand-icon="{ record, expanded }">
+        <!-- TODO 待联调 -->
+        <div
+          class="flex items-end gap-[2px] text-[var(--color-text-4)]"
+          :class="[
+            expanded ? '!text-[rgb(var(--primary-5))]' : '',
+            record.testSetCount === 0 ? 'cursor-not-allowed' : '',
+          ]"
+        >
+          <MsIcon type="icon-icon_split_turn-down_arrow" />
+          <div v-if="record.testSetCount" class="break-keep">{{ record.testSetCount }}</div>
+        </div>
+      </template>
+    </MsBaseTable>
+    <MsDrawer
+      v-model:visible="showDetailVisible"
+      :title="t('common.detail')"
+      :width="1200"
+      :footer="false"
+      no-content-padding
+      unmount-on-close
+    >
+      <div class="p-[16px]">
+        <ExecutionHistory show-step-result :loading="executeLoading" :execute-list="executeList" />
+      </div>
+    </MsDrawer>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -50,25 +65,34 @@
   } from '@/api/modules/test-plan/report';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
+  import useTableStore from '@/hooks/useTableStore';
 
   import { FeatureCaseItem } from '@/models/testPlan/report';
   import type { ExecuteHistoryItem } from '@/models/testPlan/testPlan';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
   import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
   import { executionResultMap } from '@/views/case-management/caseManagementFeature/components/utils';
   import { detailTableExample } from '@/views/test-plan/report/detail/component/reportConfig';
 
+  const tableStore = useTableStore();
+
   const { openNewPage } = useOpenNewPage();
 
   const props = defineProps<{
+    enabledTestSet: boolean; // 开启测试集
     reportId: string;
     shareId?: string;
     isPreview?: boolean;
     isGroup?: boolean;
   }>();
   const { t } = useI18n();
+
+  const innerKeyword = defineModel<string>('keyword', {
+    required: true,
+  });
 
   const sortableConfig = computed<TableSortable | undefined>(() => {
     return props.isPreview
@@ -85,11 +109,10 @@
       dataIndex: 'num',
       slotName: 'num',
       sortIndex: 1,
-      sortable: cloneDeep(sortableConfig.value),
-      fixed: 'left',
-      width: 100,
-      ellipsis: true,
+      width: 150,
       showTooltip: true,
+      showInTable: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'case.caseName',
@@ -97,6 +120,8 @@
       showTooltip: true,
       sortable: cloneDeep(sortableConfig.value),
       width: 180,
+      showInTable: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'common.executionResult',
@@ -108,6 +133,8 @@
         options: props.isPreview ? Object.values(executionResultMap) : [],
         filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT,
       },
+      showInTable: true,
+      showDrag: true,
       width: 150,
     },
   ];
@@ -117,12 +144,16 @@
       dataIndex: 'moduleName',
       ellipsis: true,
       showTooltip: true,
+      showInTable: true,
+      showDrag: true,
       width: 200,
     },
     {
       title: 'case.caseLevel',
       dataIndex: 'priority',
       slotName: 'caseLevel',
+      showInTable: true,
+      showDrag: true,
       width: 120,
     },
 
@@ -130,12 +161,22 @@
       title: 'testPlan.featureCase.executor',
       dataIndex: 'executeUser',
       showTooltip: true,
+      showInTable: true,
+      showDrag: true,
       width: 150,
     },
     {
       title: 'testPlan.featureCase.bugCount',
       dataIndex: 'bugCount',
+      showInTable: true,
+      showDrag: true,
       width: 100,
+    },
+    {
+      title: '',
+      slotName: 'operation',
+      dataIndex: 'operation',
+      width: 30,
     },
   ];
 
@@ -144,6 +185,8 @@
       title: 'report.plan.name',
       dataIndex: 'planName',
       showTooltip: true,
+      showInTable: true,
+      showDrag: true,
       width: 200,
     },
   ];
@@ -158,15 +201,20 @@
   const reportFeatureCaseList = () => {
     return !props.shareId ? getReportFeatureCaseList : getReportShareFeatureCaseList;
   };
+
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportFeatureCaseList(), {
-    scroll: { x: '100%' },
+    tableKey: TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE,
     columns: columns.value,
-    heightUsed: 20,
+    scroll: { x: '100%' },
+    heightUsed: 236,
+    showSetting: props.isPreview,
+    isSimpleSetting: true,
+    paginationSize: 'mini',
     showSelectorAll: false,
   });
 
   async function loadCaseList() {
-    setLoadListParams({ reportId: props.reportId, shareId: props.shareId ?? undefined });
+    setLoadListParams({ reportId: props.reportId, keyword: innerKeyword.value, shareId: props.shareId ?? undefined });
     loadList();
   }
   // 跳转用例详情
@@ -218,4 +266,12 @@
     showDetailVisible.value = true;
     getExecuteStep();
   }
+
+  defineExpose({
+    loadCaseList,
+  });
+
+  await tableStore.initColumn(TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE, columns.value, 'drawer');
 </script>
+
+<style lang="less" scoped></style>

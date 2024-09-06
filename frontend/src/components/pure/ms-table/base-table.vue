@@ -49,6 +49,7 @@
               <MsCheckbox
                 v-if="attrs.selectorType === 'checkbox'"
                 :value="getChecked(record)"
+                :disabled="getDisabled(record)"
                 :indeterminate="getIndeterminate(record)"
                 @click.stop
                 @change="rowSelectChange(record)"
@@ -233,7 +234,11 @@
       </template>
       <template #expand-icon="{ expanded, record }">
         <!-- @desc: 这里为了树级别展开折叠如果子级别children不存在不展示展开折叠，所以原本组件的隐藏掉，改成自定义便于控制展示隐藏 -->
-        <slot v-if="record.children && record.children.length" name="expand-icon" v-bind="{ expanded, record }">
+        <slot
+          v-if="(record.children && record.children.length) || $attrs.expandable"
+          name="expand-icon"
+          v-bind="{ expanded, record }"
+        >
           <div
             :class="`${
               expanded ? 'expanded-border bg-[rgb(var(--primary-1))]' : 'not-expanded-border bg-[var(--color-text-n8)]'
@@ -877,6 +882,10 @@
     return false;
   }
 
+  function getDisabled(record: TableData) {
+    const disableKey = (attrs?.rowSelectionDisabledConfig as MsTableRowSelectionDisabledConfig)?.disabledKey;
+    return disableKey ? record[disableKey] : false;
+  }
   onMounted(async () => {
     await initColumn();
     batchLeft.value = getBatchLeft();

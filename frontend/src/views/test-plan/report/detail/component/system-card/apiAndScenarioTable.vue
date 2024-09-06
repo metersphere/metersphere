@@ -1,39 +1,41 @@
 <template>
-  <MsBaseTable v-bind="currentCaseTable.propsRes.value" v-on="currentCaseTable.propsEvent.value">
-    <template #num="{ record }">
-      <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
-    </template>
-    <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
-      <caseLevel :case-level="filterContent.value" />
-    </template>
-    <template #priority="{ record }">
-      <caseLevel :case-level="record.priority" />
-    </template>
-    <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
-      <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
-    </template>
+  <div :class="`${props.enabledTestSet ? 'test-set-wrapper test-set-cell' : ''}`">
+    <MsBaseTable v-bind="currentCaseTable.propsRes.value" v-on="currentCaseTable.propsEvent.value">
+      <template #num="{ record }">
+        <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
+      </template>
+      <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
+        <caseLevel :case-level="filterContent.value" />
+      </template>
+      <template #priority="{ record }">
+        <caseLevel :case-level="record.priority" />
+      </template>
+      <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
+        <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
+      </template>
 
-    <template #lastExecResult="{ record }">
-      <ExecutionStatus
-        :module-type="ReportEnum.API_REPORT"
-        :status="record.executeResult"
-        :class="[!record.executeResult ? '' : 'cursor-pointer']"
-        @click="showReport(record)"
-      />
-    </template>
-  </MsBaseTable>
-  <CaseAndScenarioReportDrawer
-    v-model:visible="reportVisible"
-    :report-id="apiReportId"
-    do-not-show-share
-    :is-scenario="props.activeType === ReportCardTypeEnum.SCENARIO_CASE_DETAIL"
-    :report-detail="
-      props.activeType === ReportCardTypeEnum.SCENARIO_CASE_DETAIL ? reportScenarioDetail : reportCaseDetail
-    "
-    :get-report-step-detail="
-      props.activeType === ReportCardTypeEnum.SCENARIO_CASE_DETAIL ? reportStepDetail : reportCaseStepDetail
-    "
-  />
+      <template #lastExecResult="{ record }">
+        <ExecutionStatus
+          :module-type="ReportEnum.API_REPORT"
+          :status="record.executeResult"
+          :class="[!record.executeResult ? '' : 'cursor-pointer']"
+          @click="showReport(record)"
+        />
+      </template>
+    </MsBaseTable>
+    <CaseAndScenarioReportDrawer
+      v-model:visible="reportVisible"
+      :report-id="apiReportId"
+      do-not-show-share
+      :is-scenario="props.activeType === ReportCardTypeEnum.SCENARIO_CASE_DETAIL"
+      :report-detail="
+        props.activeType === ReportCardTypeEnum.SCENARIO_CASE_DETAIL ? reportScenarioDetail : reportCaseDetail
+      "
+      :get-report-step-detail="
+        props.activeType === ReportCardTypeEnum.SCENARIO_CASE_DETAIL ? reportStepDetail : reportCaseStepDetail
+      "
+    />
+  </div>
 </template>
 
 <script setup lang="ts" async>
@@ -54,26 +56,35 @@
     reportStepDetail,
   } from '@/api/modules/test-plan/report';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
+  import useTableStore from '@/hooks/useTableStore';
 
   import { ApiOrScenarioCaseItem } from '@/models/testPlan/report';
   import type { PlanDetailApiCaseItem } from '@/models/testPlan/testPlan';
   import { ReportEnum } from '@/enums/reportEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
   import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
   import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
   import { detailTableExample } from '@/views/test-plan/report/detail/component/reportConfig';
 
+  const tableStore = useTableStore();
+
   const { openNewPage } = useOpenNewPage();
 
   const props = defineProps<{
     reportId: string;
+    enabledTestSet: boolean;
     shareId?: string;
     activeType: ReportCardTypeEnum;
     isPreview?: boolean;
     isGroup?: boolean;
   }>();
+
+  const innerKeyword = defineModel<string>('keyword', {
+    required: true,
+  });
 
   const staticColumns: MsTableColumn = [
     {
@@ -81,15 +92,18 @@
       dataIndex: 'num',
       slotName: 'num',
       sortIndex: 1,
-      fixed: 'left',
       width: 100,
+      showInTable: true,
       showTooltip: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'common.name',
       dataIndex: 'name',
       width: 150,
       showTooltip: true,
+      showInTable: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'report.detail.level',
@@ -100,6 +114,7 @@
         filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
       },
       width: 150,
+      showInTable: true,
       showDrag: true,
     },
     {
@@ -111,6 +126,7 @@
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS,
       },
       width: 150,
+      showInTable: true,
       showDrag: true,
     },
   ];
@@ -120,6 +136,8 @@
       dataIndex: 'planName',
       showTooltip: true,
       width: 200,
+      showInTable: true,
+      showDrag: true,
     },
   ];
   const lastStaticColumns: MsTableColumn = [
@@ -128,6 +146,7 @@
       dataIndex: 'moduleName',
       showTooltip: true,
       width: 200,
+      showInTable: true,
       showDrag: true,
     },
     {
@@ -135,6 +154,7 @@
       dataIndex: 'executeUser',
       showTooltip: true,
       width: 130,
+      showInTable: true,
       showDrag: true,
     },
     {
@@ -142,7 +162,14 @@
       dataIndex: 'bugCount',
       slotName: 'bugCount',
       width: 100,
+      showInTable: true,
       showDrag: true,
+    },
+    {
+      title: '',
+      slotName: 'operation',
+      dataIndex: 'operation',
+      width: 30,
     },
   ];
 
@@ -153,17 +180,30 @@
     return [...staticColumns, ...lastStaticColumns];
   });
 
+  const keyMap: Record<string, any> = {
+    API_CASE_DETAIL: TableKeyEnum.TEST_PLAN_REPORT_API_TABLE,
+    SCENARIO_CASE_DETAIL: TableKeyEnum.TEST_PLAN_REPORT_SCENARIO_TABLE,
+  };
+
   const useApiTable = useTable(getApiPage, {
+    tableKey: TableKeyEnum.TEST_PLAN_REPORT_API_TABLE,
     scroll: { x: '100%' },
     columns: columns.value,
     showSelectorAll: false,
-    showSetting: false,
+    heightUsed: 236,
+    showSetting: props.isPreview,
+    isSimpleSetting: true,
+    paginationSize: 'mini',
   });
   const useScenarioTable = useTable(getScenarioPage, {
+    tableKey: TableKeyEnum.TEST_PLAN_REPORT_SCENARIO_TABLE,
     scroll: { x: '100%' },
     columns: columns.value,
     showSelectorAll: false,
-    showSetting: false,
+    showSetting: props.isPreview,
+    heightUsed: 236,
+    isSimpleSetting: true,
+    paginationSize: 'mini',
   });
 
   const currentCaseTable = computed(() => {
@@ -174,6 +214,7 @@
     currentCaseTable.value.setLoadListParams({
       reportId: props.reportId,
       shareId: props.shareId ?? undefined,
+      keyword: innerKeyword.value,
     });
     currentCaseTable.value.loadList();
   }
@@ -218,4 +259,12 @@
       immediate: true,
     }
   );
+
+  defineExpose({
+    loadCaseList,
+  });
+
+  await tableStore.initColumn(keyMap[props.activeType], columns.value, 'drawer');
 </script>
+
+<style lang="less" scoped></style>

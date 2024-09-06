@@ -12,6 +12,7 @@
       :preview-url="`${ReportPlanPreviewImageUrl}/${appStore.currentProjectId}`"
       class="mt-[8px]"
       :editable="props.canEdit"
+      :auto-focus="autoFocus"
       @click="handleRichClick"
       @update="emit('handleSetSave')"
     />
@@ -67,12 +68,14 @@
   }>();
 
   const innerSummary = ref(props.richText);
-
+  const autoFocus = ref<boolean>(false);
   function handleCancel() {
+    autoFocus.value = false;
     emit('cancel');
   }
 
   function handleUpdateReportDetail() {
+    autoFocus.value = false;
     emit('updateSummary', innerSummary.value);
   }
 
@@ -134,9 +137,10 @@
   }
 
   const msRichTextRef = ref<InstanceType<typeof MsRichText>>();
+
   function handleRichClick() {
     if (!props.shareId) {
-      msRichTextRef.value?.focus();
+      autoFocus.value = true;
       emit('handleClick');
     }
   }
