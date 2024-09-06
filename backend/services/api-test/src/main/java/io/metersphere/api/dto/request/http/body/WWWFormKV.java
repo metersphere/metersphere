@@ -1,7 +1,7 @@
 package io.metersphere.api.dto.request.http.body;
 
 import io.metersphere.project.api.KeyValueEnableParam;
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import lombok.Data;
 
 /**

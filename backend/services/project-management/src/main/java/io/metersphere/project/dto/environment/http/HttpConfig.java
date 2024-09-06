@@ -3,7 +3,7 @@ package io.metersphere.project.dto.environment.http;
 import io.metersphere.project.api.KeyValueEnableParam;
 import io.metersphere.project.dto.environment.auth.HTTPAuthConfig;
 import io.metersphere.sdk.constants.ValueEnum;
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.Data;

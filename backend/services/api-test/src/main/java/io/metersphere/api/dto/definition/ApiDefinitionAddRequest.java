@@ -3,7 +3,7 @@ package io.metersphere.api.dto.definition;
 import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.domain.ApiDefinitionCustomField;
 import io.metersphere.sdk.constants.ModuleConstants;
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

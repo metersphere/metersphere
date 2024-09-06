@@ -12,6 +12,7 @@ import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -33,11 +34,12 @@ public interface ExtFunctionalCaseMapper {
 
     List<FunctionalCase> checkCaseByModuleIds(@Param("moduleIds") List<String> deleteIds);
 
+    @BaseConditionFilter
     List<FunctionalCasePageDTO> list(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted, @Param("isRepeat") boolean isRepeat);
 
     void recoverCase(@Param("ids") List<String> ids, @Param("userId") String userId, @Param("time") long time);
 
-
+    @BaseConditionFilter
     List<String> getIds(@Param("request") BaseFunctionalCaseBatchDTO request, @Param("projectId") String projectId, @Param("deleted") boolean deleted);
 
     void batchDelete(@Param("ids") List<String> ids, @Param("userId") String userId);
@@ -46,6 +48,7 @@ public interface ExtFunctionalCaseMapper {
 
     List<String> getRefIds(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
 
+    @BaseConditionFilter
     void batchMoveModule(@Param("request") FunctionalCaseBatchMoveRequest request, @Param("ids") List<String> ids, @Param("userId") String userId);
 
     List<FunctionalCase> getTagsByIds(@Param("ids") List<String> ids);
@@ -55,8 +58,10 @@ public interface ExtFunctionalCaseMapper {
 
     void recoverCaseByRefIds(@Param("refIds") List<String> refIds, @Param("userId") String userId, @Param("time") long time);
 
+    @BaseConditionFilter
     List<ModuleCountDTO> countModuleIdByRequest(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted);
 
+    @BaseConditionFilter
     long caseCount(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted);
 
     Long getPrePos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
@@ -71,6 +76,7 @@ public interface ExtFunctionalCaseMapper {
      * @param sort    排序
      * @return 通用的列表Case集合
      */
+    @BaseConditionFilter
     List<TestCaseProviderDTO> listUnRelatedCaseWithBug(@Param("request") TestCasePageProviderRequest request, @Param("deleted") boolean deleted, @Param("sort") String sort);
 
     /**
@@ -80,6 +86,7 @@ public interface ExtFunctionalCaseMapper {
      * @param deleted 是否删除状态
      * @return 关联的用例ID集合
      */
+    @BaseConditionFilter
     List<String> getSelectIdsByAssociateParam(@Param("request") AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
 
     /**

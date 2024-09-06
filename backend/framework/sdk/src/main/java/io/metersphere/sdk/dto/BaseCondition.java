@@ -1,4 +1,4 @@
-package io.metersphere.system.dto.sdk;
+package io.metersphere.sdk.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -15,6 +15,9 @@ public class BaseCondition {
 
     @Schema(description =  "过滤字段")
     private Map<String, List<String>> filter;
+
+    @Schema(description =  "视图ID")
+    private String viewId;
 
     @Schema(description =  "高级搜索")
     @Valid

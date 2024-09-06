@@ -1,6 +1,6 @@
-package io.metersphere.system.dto.sdk;
+package io.metersphere.sdk.dto;
 
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.Data;

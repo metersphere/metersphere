@@ -1,6 +1,7 @@
 package io.metersphere.request;
 
 import com.google.common.base.CaseFormat;
+import io.metersphere.sdk.dto.BaseCondition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -18,7 +19,7 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class AssociateBugPageRequest extends BaseProviderCondition {
+public class AssociateBugPageRequest extends BaseCondition {
 
     @Schema(description = "用例id", requiredMode = Schema.RequiredMode.REQUIRED)
     private String caseId;

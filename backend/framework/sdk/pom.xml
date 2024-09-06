@@ -137,6 +137,12 @@
             <version>${guava.version}</version>
         </dependency>
 
+        <!-- sdk 使用 schema 注解 -->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-core-jakarta</artifactId>
+            <version>${swagger-core-jakarta.revision}</version>
+        </dependency>
 
         <!--java json schema json格式校验-->
         <dependency>

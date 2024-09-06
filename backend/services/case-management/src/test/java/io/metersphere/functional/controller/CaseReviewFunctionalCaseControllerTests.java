@@ -14,7 +14,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.dto.sdk.BaseCondition;
+import io.metersphere.sdk.dto.BaseCondition;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.utils.Pager;

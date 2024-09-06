@@ -1,6 +1,6 @@
 package io.metersphere.project.dto.environment.http;
 
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;

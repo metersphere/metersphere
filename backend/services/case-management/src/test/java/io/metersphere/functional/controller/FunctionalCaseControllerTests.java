@@ -32,6 +32,8 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
+import io.metersphere.sdk.dto.CombineCondition;
+import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
@@ -484,14 +486,14 @@ public class FunctionalCaseControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
 
         //自定义字段 测试
-        Map<String, Object> map = new HashMap<>();
-        map.put("customs", Arrays.asList(new LinkedHashMap() {{
-            put("id", "TEST_FIELD_ID");
-            put("operator", "in");
-            put("value", "222");
-            put("type", "List");
-        }}));
-        request.setCombine(map);
+        CombineSearch combineSearch = new CombineSearch();
+        CombineCondition condition = new CombineCondition();
+        condition.setCustomField(true);
+        condition.setName("TEST_FIELD_ID");
+        condition.setOperator(CombineCondition.CombineConditionOperator.IN.name());
+        condition.setValue("222");
+        combineSearch.setConditions(List.of());
+        request.setCombineSearch(combineSearch);
         MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
         Pager<List<FunctionalCasePageDTO>> tableData = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),

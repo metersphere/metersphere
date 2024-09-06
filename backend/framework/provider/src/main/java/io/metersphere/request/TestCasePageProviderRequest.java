@@ -1,6 +1,7 @@
 package io.metersphere.request;
 
 import com.google.common.base.CaseFormat;
+import io.metersphere.sdk.dto.BaseCondition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -19,7 +20,7 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class TestCasePageProviderRequest extends BaseProviderCondition implements Serializable {
+public class TestCasePageProviderRequest extends BaseCondition implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;

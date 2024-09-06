@@ -1,6 +1,7 @@
 package io.metersphere.request;
 
 import com.google.common.base.CaseFormat;
+import io.metersphere.sdk.dto.BaseCondition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -13,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,7 +21,7 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class BugPageProviderRequest implements Serializable {
+public class BugPageProviderRequest extends BaseCondition implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -37,18 +37,6 @@ public class BugPageProviderRequest implements Serializable {
 
     @Schema(description = "排序字段（model中的字段 : asc/desc）")
     private Map<@Valid @Pattern(regexp = "^[A-Za-z]+$") String, @Valid @NotBlank String> sort;
-
-    @Schema(description = "关键字")
-    private String keyword;
-
-    @Schema(description = "匹配模式 所有/任一", allowableValues = {"AND", "OR"})
-    private String searchMode = "AND";
-
-    @Schema(description = "过滤字段")
-    private Map<String, List<String>> filter;
-
-    @Schema(description = "高级搜索")
-    private Map<String, Object> combine;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.project_id.not_blank}")

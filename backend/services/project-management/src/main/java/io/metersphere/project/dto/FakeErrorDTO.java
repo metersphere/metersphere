@@ -1,7 +1,7 @@
 package io.metersphere.project.dto;
 
 import io.metersphere.sdk.constants.FakeErrorType;
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import io.metersphere.validation.groups.Created;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

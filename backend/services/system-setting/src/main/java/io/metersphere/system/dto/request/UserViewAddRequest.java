@@ -1,6 +1,6 @@
 package io.metersphere.system.dto.request;
 
-import io.metersphere.system.dto.sdk.CombineSearch;
+import io.metersphere.sdk.dto.CombineSearch;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

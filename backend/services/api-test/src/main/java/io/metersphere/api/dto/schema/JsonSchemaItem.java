@@ -3,7 +3,7 @@ package io.metersphere.api.dto.schema;
 
 import io.metersphere.project.constants.PropertyConstant;
 import io.metersphere.sdk.constants.ValueEnum;
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;

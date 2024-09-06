@@ -10,8 +10,8 @@ import io.metersphere.system.dto.UserViewDTO;
 import io.metersphere.system.dto.UserViewListGroupedDTO;
 import io.metersphere.system.dto.request.UserViewAddRequest;
 import io.metersphere.system.dto.request.UserViewUpdateRequest;
-import io.metersphere.system.dto.sdk.CombineCondition;
-import io.metersphere.system.dto.sdk.CombineSearch;
+import io.metersphere.sdk.dto.CombineCondition;
+import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.system.mapper.UserViewMapper;
 import io.metersphere.system.service.UserViewService;
 import jakarta.annotation.Resource;
@@ -166,6 +166,11 @@ public class UserViewControllerTests extends BaseTest {
         resultData = getResultData(mvcResult, UserViewDTO.class);
         Assertions.assertEquals(resultData.getName(), "全部数据");
         Assertions.assertEquals(resultData.getId(), InternalUserView.ALL_DATA.name().toLowerCase());
+        Assertions.assertEquals(resultData.getConditions().size(), 0);
+
+        mvcResult = this.requestGetWithOkAndReturn(DEFAULT_GET, InternalUserView.MY_CREATE.name());
+        resultData = getResultData(mvcResult, UserViewDTO.class);
+        Assertions.assertEquals(resultData.getId(), InternalUserView.MY_CREATE.name().toLowerCase());
         Assertions.assertEquals(resultData.getConditions().size(), 0);
     }
 

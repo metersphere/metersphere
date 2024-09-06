@@ -2,7 +2,7 @@ package io.metersphere.api.dto.scenario;
 
 import io.metersphere.api.constants.ApiScenarioStatus;
 import io.metersphere.api.dto.ResourceUpdateFileParam;
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;

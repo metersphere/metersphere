@@ -17,7 +17,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.dto.sdk.BaseCondition;
+import io.metersphere.sdk.dto.BaseCondition;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterBatchRequest;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterPageRequest;

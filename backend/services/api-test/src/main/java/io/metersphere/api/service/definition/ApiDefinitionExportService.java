@@ -11,7 +11,6 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.utils.CustomFieldUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -74,7 +73,6 @@ public class ApiDefinitionExportService {
         }
 
         if (request.isSelectAll()) {
-            CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request.getCondition(), userId);
             List<String> ids = extApiDefinitionMapper.getIdsBySort(request, request.getProjectId(), protocols, request.getSortString());
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());

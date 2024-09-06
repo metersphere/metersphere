@@ -1,7 +1,7 @@
 package io.metersphere.api.controller.param;
 
 import io.metersphere.api.constants.ApiDefinitionStatus;
-import io.metersphere.system.valid.EnumValue;
+import io.metersphere.sdk.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

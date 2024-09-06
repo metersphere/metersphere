@@ -1,7 +1,7 @@
 package io.metersphere.plan.dto;
 
 import io.metersphere.sdk.constants.TestPlanConstants;
-import io.metersphere.system.dto.sdk.BaseCondition;
+import io.metersphere.sdk.dto.BaseCondition;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
