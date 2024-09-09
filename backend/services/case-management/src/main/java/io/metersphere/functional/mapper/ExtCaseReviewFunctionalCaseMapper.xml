@@ -52,10 +52,6 @@
         WHERE
         review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}
-        <if test="userId != null and userId != ''">
-            AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id =
-            #{request.reviewId} and crfcu.user_id = #{userId})
-        </if>
         <include refid="queryWhereCondition"/>
         order by
         <if test="sort != null and sort != ''">
@@ -142,9 +138,17 @@
         <trim prefix="AND" suffixOverrides="AND|OR">
             <if test="${combineSearch} != null">
                 <foreach collection="${combineSearch}.userViewConditions" item="condition">
-                    <if test="condition.name == 'follower'">
-                        functional_case.id in (
-                        select case_id from functional_case_follower where
+                    <if test="condition.name == 'createUser'">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                            <property name="condition" value="condition"/>
+                            <property name="column" value="functional_case.create_user"/>
+                        </include>
+                    </if>
+                    <if test="condition.name == 'reviewUser'">
+                        crfc.case_id in (
+                        select case_id from case_review_functional_case_user
+                        where review_id = #{request.reviewId}
+                        and
                         <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                             <property name="condition" value="condition"/>
                             <property name="column" value="user_id"/>
@@ -210,10 +214,6 @@
         WHERE
         review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}
-        <if test="userId != null and userId != ''">
-            AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id =
-            #{request.reviewId} and crfcu.user_id = #{userId})
-        </if>
         <include refid="queryWhereConditionByBaseQueryRequest"/>
     </select>
 
@@ -226,10 +226,6 @@
         WHERE
         review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}
-        <if test="userId != null and userId != ''">
-            AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id =
-            #{request.reviewId} and crfcu.user_id = #{userId})
-        </if>
         <include refid="queryWhereConditionByBaseQueryRequest"/>
         <if test="request.excludeIds != null and request.excludeIds.size() > 0">
             and crfc.id not in
@@ -343,10 +339,6 @@
         LEFT JOIN project ON functional_case.project_id = project.id
         WHERE crfc.review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}
-        <if test="userId != null and userId != ''">
-            AND crfc.case_id in (select crfcu.case_id from case_review_functional_case_user crfcu where crfcu.review_id
-            = #{request.reviewId} and crfcu.user_id = #{userId})
-        </if>
         <include refid="queryWhereCondition"/>
         GROUP BY module_id
     </select>
@@ -357,10 +349,6 @@
         FROM case_review_functional_case crfc LEFT JOIN functional_case ON crfc.case_id = functional_case.id
         WHERE crfc.review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}
-        <if test="userId != null and userId != ''">
-            AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id =
-            #{request.reviewId} and crfcu.user_id = #{userId})
-        </if>
         <include refid="queryWhereCondition"/>
     </select>
 

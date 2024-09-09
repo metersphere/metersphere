@@ -122,7 +122,6 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setProjectId("wx_test_project");
 
         request.setReviewId("wx_review_id_5");
-        request.setViewFlag(true);
         request.setViewStatusFlag(true);
         this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
         request.setReviewId("wx_review_id_1");
@@ -130,11 +129,9 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
         request.setReviewId("wx_review_id_1");
         request.setCombineSearch(getCustomCombineSearch());
-        request.setViewFlag(true);
         request.setViewStatusFlag(true);
         this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
         this.requestPostWithOkAndReturn(REVIEW_FUNCTIONAL_CASE_MODULE_COUNT, request);
-        request.setViewFlag(false);
         request.setViewStatusFlag(false);
         this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
 
@@ -654,7 +651,6 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setReviewId("wx_review_id_1");
         request.setCurrent(1);
         request.setPageSize(10);
-        request.setViewFlag(false);
         request.setProjectId("wx_test_project");
         MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(REVIEW_FUNCTIONAL_CASE_MODULE_COUNT, request);
         Map<String, Integer> moduleCount = JSON.parseObject(JSON.toJSONString(

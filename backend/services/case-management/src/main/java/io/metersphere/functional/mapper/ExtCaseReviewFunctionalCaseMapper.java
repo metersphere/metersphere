@@ -24,7 +24,7 @@ public interface ExtCaseReviewFunctionalCaseMapper {
     List<String> getCaseIdsByReviewId(@Param("reviewId") String reviewId);
 
     @BaseConditionFilter
-    List<ReviewFunctionalCaseDTO> page(@Param("request") ReviewFunctionalCasePageRequest request, @Param("deleted") boolean deleted, @Param("userId") String userId, @Param("sort") String sort);
+    List<ReviewFunctionalCaseDTO> page(@Param("request") ReviewFunctionalCasePageRequest request, @Param("deleted") boolean deleted, @Param("sort") String sort);
 
     Long getPos(@Param("reviewId") String reviewId);
 
@@ -33,10 +33,10 @@ public interface ExtCaseReviewFunctionalCaseMapper {
     Long getLastPos(@Param("reviewId") String reviewId, @Param("basePos") Long basePos);
 
     @BaseConditionFilter
-    List<String> getIds(@Param("request") BaseReviewCaseBatchRequest request, @Param("userId") String userId, @Param("deleted") boolean deleted);
+    List<String> getIds(@Param("request") BaseReviewCaseBatchRequest request, @Param("deleted") boolean deleted);
 
     @BaseConditionFilter
-    List<CaseReviewFunctionalCase> getListByRequest(@Param("request") BaseReviewCaseBatchRequest request, @Param("userId") String userId, @Param("deleted") boolean deleted);
+    List<CaseReviewFunctionalCase> getListByRequest(@Param("request") BaseReviewCaseBatchRequest request, @Param("deleted") boolean deleted);
 
     List<CaseReviewFunctionalCase> getList(@Param("reviewId") String reviewId, @Param("reviewIds") List<String> reviewIds, @Param("deleted") boolean deleted);
 
@@ -46,9 +46,9 @@ public interface ExtCaseReviewFunctionalCaseMapper {
     List<CaseReviewFunctionalCase> getCaseIdsByIds(@Param("ids") List<String> ids);
 
     @BaseConditionFilter
-    List<FunctionalCaseModuleCountDTO> countModuleIdByRequest(@Param("request") ReviewFunctionalCasePageRequest request, @Param("deleted") boolean deleted, @Param("userId") String userId);
+    List<FunctionalCaseModuleCountDTO> countModuleIdByRequest(@Param("request") ReviewFunctionalCasePageRequest request, @Param("deleted") boolean deleted);
 
     @BaseConditionFilter
-    long caseCount(@Param("request") ReviewFunctionalCasePageRequest request, @Param("deleted") boolean deleted, @Param("userId") String userId);
+    long caseCount(@Param("request") ReviewFunctionalCasePageRequest request, @Param("deleted") boolean deleted);
 
 }

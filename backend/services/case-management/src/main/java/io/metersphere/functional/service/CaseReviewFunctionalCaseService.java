@@ -133,8 +133,8 @@ public class CaseReviewFunctionalCaseService {
      * @param deleted deleted
      * @return ReviewFunctionalCaseDTO
      */
-    public List<ReviewFunctionalCaseDTO> page(ReviewFunctionalCasePageRequest request, boolean deleted, String userId, String viewStatusUserId) {
-        List<ReviewFunctionalCaseDTO> list = extCaseReviewFunctionalCaseMapper.page(request, deleted, userId, request.getSortString());
+    public List<ReviewFunctionalCaseDTO> page(ReviewFunctionalCasePageRequest request, boolean deleted, String viewStatusUserId) {
+        List<ReviewFunctionalCaseDTO> list = extCaseReviewFunctionalCaseMapper.page(request, deleted, request.getSortString());
         return doHandleDTO(list, request, viewStatusUserId);
     }
 
@@ -252,7 +252,7 @@ public class CaseReviewFunctionalCaseService {
 
     public List<String> doSelectIds(BaseReviewCaseBatchRequest request) {
         if (request.isSelectAll()) {
-            List<String> ids = extCaseReviewFunctionalCaseMapper.getIds(request, request.getUserId(), false);
+            List<String> ids = extCaseReviewFunctionalCaseMapper.getIds(request, false);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }
@@ -264,7 +264,7 @@ public class CaseReviewFunctionalCaseService {
 
     public List<CaseReviewFunctionalCase> doCaseReviewFunctionalCases(BaseReviewCaseBatchRequest request) {
         if (request.isSelectAll()) {
-            return extCaseReviewFunctionalCaseMapper.getListByRequest(request, request.getUserId(), false);
+            return extCaseReviewFunctionalCaseMapper.getListByRequest(request, false);
         } else {
             CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
             caseReviewFunctionalCaseExample.createCriteria().andIdIn(request.getSelectIds());
@@ -856,10 +856,10 @@ public class CaseReviewFunctionalCaseService {
         return returnList;
     }
 
-    public Map<String, Long> moduleCount(ReviewFunctionalCasePageRequest request, boolean deleted, String userId) {
+    public Map<String, Long> moduleCount(ReviewFunctionalCasePageRequest request, boolean deleted) {
         //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
         request.setModuleIds(null);
-        List<FunctionalCaseModuleCountDTO> projectModuleCountDTOList = extCaseReviewFunctionalCaseMapper.countModuleIdByRequest(request, deleted, userId);
+        List<FunctionalCaseModuleCountDTO> projectModuleCountDTOList = extCaseReviewFunctionalCaseMapper.countModuleIdByRequest(request, deleted);
         Map<String, List<FunctionalCaseModuleCountDTO>> projectCountMap = projectModuleCountDTOList.stream().collect(Collectors.groupingBy(FunctionalCaseModuleCountDTO::getProjectId));
         Map<String, Long> projectModuleCountMap = new HashMap<>();
         projectCountMap.forEach((projectId, moduleCountDTOList) -> {
@@ -879,7 +879,7 @@ public class CaseReviewFunctionalCaseService {
             projectModuleCountMap.put(projectId, (long) sum);
         });
         //查出全部用例数量
-        long allCount = extCaseReviewFunctionalCaseMapper.caseCount(request, deleted, userId);
+        long allCount = extCaseReviewFunctionalCaseMapper.caseCount(request, deleted);
         projectModuleCountMap.put(CASE_MODULE_COUNT_ALL, allCount);
         return projectModuleCountMap;
     }
