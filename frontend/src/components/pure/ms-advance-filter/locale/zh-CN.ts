@@ -21,6 +21,8 @@ export default {
   'advanceFilter.operator.length.ge': '长度大于等于',
   'advanceFilter.operator.length.lt': '长度小于',
   'advanceFilter.operator.length.le': '长度小于等于',
+  'advanceFilter.operator.count.lt': '数量小于',
+  'advanceFilter.operator.count.gt': '数量大于',
 
   'advanceFilter.view': '视图',
   'advanceFilter.unnamedView': '未命名视图',

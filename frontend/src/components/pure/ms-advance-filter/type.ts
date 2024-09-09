@@ -34,6 +34,7 @@ export interface FilterFormItem {
   type: FilterType; // 类型：判断第二列下拉数据和第三列显示形式
   value?: any; // 第三列的值
   customField?: boolean; // 是否是自定义字段
+  customFieldType?: string; // 自定义字段的类型
   cascaderOptions?: CascaderOption[]; // 级联选择的选项
   selectProps?: Partial<MsSearchSelectProps>; // select的props, 参考 MsSelect
   cascaderProps?: Partial<MsCascaderProps>; // cascader的props, 参考 MsCascader

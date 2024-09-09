@@ -1108,12 +1108,14 @@
         dataIndex: item.id,
         type: formType,
         customField: true,
+        customFieldType: item.type,
       };
 
       if (formObject.propsKey && formProps.options) {
         formProps.options = item.options;
         currentItem[formObject.propsKey] = {
           ...formProps,
+          customFieldType: item.type,
         };
       }
       return currentItem;

@@ -21,6 +21,8 @@ export default {
   'advanceFilter.operator.length.ge': 'Length greater than or equal to',
   'advanceFilter.operator.length.lt': 'Length less than',
   'advanceFilter.operator.length.le': 'Length less than or equal to',
+  'advanceFilter.operator.count.lt': 'Quantity less than',
+  'advanceFilter.operator.count.gt': 'Quantity greater than',
 
   'advanceFilter.view': 'View',
   'advanceFilter.unnamedView': 'Unnamed View',
