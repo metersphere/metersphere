@@ -556,6 +556,7 @@ const message = {
   workstation: {
     sync: '同步',
     sync_setting: '同步設置',
+    no_sync_content: '沒有需要同步的內容',
     custom_update_list_rule: '自定義待更新列表規則',
     ignore: '忽略',
     past: '過去',

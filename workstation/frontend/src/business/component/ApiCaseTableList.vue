@@ -407,14 +407,14 @@ export default {
           permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']
         },
         {
-          tip: this.$t('workstation.sync'),
+          tip: this.systemDisable ? this.$t('workstation.no_sync_content') : this.$t('workstation.sync'),
           icon: "el-icon-refresh",
           exec: this.openSyncCase,
           isDisable: this.systemDisable,
           permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
         },
         {
-          tip: this.$t('workstation.ignore'),
+          tip: this.systemDisable ? this.$t('workstation.no_sync_content') : this.$t('workstation.ignore'),
           icon: "el-icon-close",
           exec: this.openIgnoreCase,
           isDisable: this.systemDisable,

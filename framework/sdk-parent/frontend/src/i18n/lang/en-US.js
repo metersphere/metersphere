@@ -556,6 +556,7 @@ const message = {
   workstation: {
     sync: 'Synchronize',
     sync_setting: 'Sync settings',
+    no_sync_content: 'Nothing to sync',
     custom_update_list_rule: 'Customize to-be-updated list rules',
     ignore: 'Ignore',
     past: 'past',
