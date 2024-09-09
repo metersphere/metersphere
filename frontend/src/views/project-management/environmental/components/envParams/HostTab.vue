@@ -78,10 +78,7 @@
       type: 'input',
       label: 'project.environmental.host.ip',
       placeholder: 'project.environmental.host.ipPlaceholder',
-      rules: [
-        { required: true, message: t('project.environmental.host.ipIsRequire') },
-        { notRepeat: true, message: t('project.environmental.host.ipNotRepeat') },
-      ],
+      rules: [{ required: true, message: t('project.environmental.host.ipIsRequire') }],
     },
     {
       field: 'domain',

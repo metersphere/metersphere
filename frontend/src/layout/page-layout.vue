@@ -15,7 +15,7 @@
         </Suspense> -->
         <Suspense>
           <keep-alive :include="cacheStore.cacheViews">
-            <component :is="Component" :key="route.fullPath" />
+            <component :is="Component" :key="route.name" />
           </keep-alive>
         </Suspense>
       </div>

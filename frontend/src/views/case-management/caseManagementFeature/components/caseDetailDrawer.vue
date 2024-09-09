@@ -359,6 +359,7 @@
   }
 
   function updateHandler(type: string) {
+    showDrawerVisible.value = false;
     router.push({
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
       query: {
