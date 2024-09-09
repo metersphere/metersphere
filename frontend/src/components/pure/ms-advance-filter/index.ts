@@ -185,4 +185,5 @@ export function getAllDataDefaultConditions(viewType: ViewTypeEnum) {
 // 系统视图对应不显示的第一列下拉条件
 export const internalViewsHiddenConditionsMap: Record<string, string[]> = {
   my_create: ['createUser'],
+  my_review: ['reviewId'],
 };

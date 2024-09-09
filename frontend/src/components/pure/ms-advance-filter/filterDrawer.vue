@@ -404,7 +404,7 @@
     const conditions = formModel.value.list.map(({ type, value, operator, customField, dataIndex }) => {
       let timeValue;
       // 转换成时间戳
-      if (type === FilterType.DATE_PICKER) {
+      if (type === FilterType.DATE_PICKER && value?.[0] && value?.[1]) {
         timeValue =
           operator === OperatorEnum.BETWEEN
             ? [new Date(value[0]).getTime(), new Date(value[1]).getTime()]

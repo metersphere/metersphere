@@ -690,6 +690,7 @@
   watch(
     () => [props.activeModule, props.selectedProtocols],
     () => {
+      if (isAdvancedSearchMode.value) return;
       resetSelector();
       loadApiList(true);
     }

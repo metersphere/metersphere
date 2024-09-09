@@ -2,15 +2,17 @@
   <div class="h-full px-[24px] py-[16px]">
     <div class="mb-[16px]">
       <MsAdvanceFilter
+        ref="msAdvanceFilterRef"
         v-model:keyword="keyword"
+        :view-type="ViewTypeEnum.REVIEW_FUNCTIONAL_CASE"
         :filter-config-list="filterConfigList"
-        :row-count="filterRowCount"
+        :custom-fields-config-list="searchCustomFields"
         :count="modulesCount[props.activeFolder] || 0"
         :name="moduleNamePath"
         :not-show-input-search="showType !== 'list'"
         :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
         @keyword-search="searchCase()"
-        @adv-search="searchCase"
+        @adv-search="handleAdvSearch"
         @refresh="handleRefreshAll"
       >
         <template v-if="showType !== 'list'" #nameRight>
@@ -47,6 +49,7 @@
         :action-config="batchActions"
         no-disable
         filter-icon-align-left
+        :not-show-table-filter="isAdvancedSearchMode"
         v-on="propsEvent"
         @filter-change="getModuleCount"
         @batch-action="handleTableBatch"
@@ -170,7 +173,6 @@
       <MsCaseReviewMinder
         ref="msCaseReviewMinderRef"
         :module-id="props.activeFolder"
-        :view-flag="props.onlyMine"
         :view-status-flag="onlyMineStatus"
         :module-tree="moduleTree"
         :review-progress="props.reviewProgress"
@@ -333,7 +335,7 @@
   import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
-  import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -358,8 +360,11 @@
     getReviewDetailCasePage,
     getReviewUsers,
   } from '@/api/modules/case-management/caseReview';
-  import { editorUploadFile, getCaseDefaultFields } from '@/api/modules/case-management/featureCase';
-  import { getProjectMemberCommentOptions } from '@/api/modules/project-management/projectMember';
+  import {
+    editorUploadFile,
+    getCaseDefaultFields,
+    getCustomFieldsTable,
+  } from '@/api/modules/case-management/featureCase';
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { reviewResultMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
@@ -374,13 +379,13 @@
 
   import { ReviewCaseItem, ReviewItem, ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
   import { BatchApiParams, TableQueryParams } from '@/models/common';
-  import { FilterType } from '@/enums/advancedFilterEnum';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { StartReviewStatus } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
-  import { getCaseLevels } from '@/views/case-management/caseManagementFeature/components/utils';
+  import { executionResultMap, getCaseLevels } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const caseLevelFields = ref<Record<string, any>>({});
   const caseLevelList = computed(() => {
@@ -389,12 +394,11 @@
 
   const props = defineProps<{
     activeFolder: string;
-    onlyMine: boolean;
     reviewPassRule: ReviewPassRule; // 评审规则
     offspringIds: string[]; // 当前选中节点的所有子节点id
     reviewProgress: string; // 评审进度
   }>();
-  const emit = defineEmits(['refresh', 'link', 'selectParentNode']);
+  const emit = defineEmits(['refresh', 'link', 'selectParentNode', 'handleAdvSearch']);
 
   const router = useRouter();
   const route = useRoute();
@@ -409,8 +413,8 @@
   const minderSelectData = ref<MinderJsonNodeData>(); // 当前脑图选中的数据
   const minderParams = ref();
   const keyword = ref('');
-  const filterRowCount = ref(0);
-  const filterConfigList = ref<FilterFormItem[]>([]);
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
   const tableParams = ref<Record<string, any>>({});
   const onlyMineStatus = ref(false);
   const showType = ref<'list' | 'minder'>('list');
@@ -432,6 +436,14 @@
     hasAnyPermission(['CASE_REVIEW:READ+REVIEW', 'CASE_REVIEW:READ+RELEVANCE'])
   );
 
+  const executeResultOptions = computed(() => {
+    return Object.keys(executionResultMap).map((key) => {
+      return {
+        value: key,
+        label: executionResultMap[key].statusText,
+      };
+    });
+  });
   const reviewResultOptions = computed(() => {
     return Object.keys(reviewResultMap).map((key) => {
       return {
@@ -522,7 +534,17 @@
     },
   ];
   const tableStore = useTableStore();
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, getTableQueryParams } = useTable(
+  const {
+    propsRes,
+    propsEvent,
+    viewId,
+    advanceFilter,
+    setAdvanceFilter,
+    loadList,
+    setLoadListParams,
+    resetSelector,
+    getTableQueryParams,
+  } = useTable(
     getReviewDetailCasePage,
     {
       scroll: { x: '100%' },
@@ -574,6 +596,7 @@
   const modulesCount = computed(() => caseReviewStore.modulesCount);
 
   async function getModuleCount() {
+    if (isAdvancedSearchMode.value) return;
     let params: TableQueryParams;
     if (showType.value === 'list') {
       params = {
@@ -588,7 +611,6 @@
     await caseReviewStore.getModuleCount({
       ...params,
       moduleIds: [],
-      viewFlag: props.onlyMine,
       reviewId: route.query.id as string,
     });
   }
@@ -597,9 +619,11 @@
     tableParams.value = {
       projectId: appStore.currentProjectId,
       reviewId: route.query.id,
-      moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+      moduleIds:
+        props.activeFolder === 'all' || isAdvancedSearchMode.value ? [] : [props.activeFolder, ...props.offspringIds],
       keyword: keyword.value,
-      viewFlag: props.onlyMine,
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
     };
     setLoadListParams(tableParams.value);
     resetSelector();
@@ -656,16 +680,9 @@
   }
 
   watch(
-    () => props.onlyMine,
-    () => {
-      refresh();
-    }
-  );
-
-  watch(
     () => props.activeFolder,
     () => {
-      if (showType.value === 'list') {
+      if (showType.value === 'list' && !isAdvancedSearchMode.value) {
         searchCase();
       }
     }
@@ -793,7 +810,6 @@
           dialogLoading.value = true;
           await batchDisassociateReviewCase({
             reviewId: route.query.id as string,
-            userId: props.onlyMine ? userStore.id || '' : '',
             ...(showType.value === 'list'
               ? {
                   moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
@@ -856,7 +872,6 @@
       dialogLoading.value = true;
       await batchReview({
         reviewId: route.query.id as string,
-        userId: props.onlyMine ? userStore.id || '' : '',
         reviewPassRule: props.reviewPassRule,
         status: 'RE_REVIEWED',
         content: dialogForm.value.reason,
@@ -894,7 +909,6 @@
           dialogLoading.value = true;
           await batchChangeReviewer({
             reviewId: route.query.id as string,
-            userId: props.onlyMine ? userStore.id || '' : '',
             reviewerId: dialogForm.value.reviewer.length > 0 ? dialogForm.value.reviewer : record.reviewers,
             append: dialogForm.value.isAppend, // 是否追加
             ...(showType.value === 'list'
@@ -937,7 +951,6 @@
           dialogLoading.value = true;
           await batchReview({
             reviewId: route.query.id as string,
-            userId: props.onlyMine ? userStore.id || '' : '',
             reviewPassRule: props.reviewPassRule,
             status: dialogForm.value.result as StartReviewStatus,
             content: dialogForm.value.reason,
@@ -990,6 +1003,129 @@
       reviewerLoading.value = false;
     }
   }
+
+  const filterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'caseManagement.featureCase.tableColumnID',
+      dataIndex: 'num',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnName',
+      dataIndex: 'name',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'common.belongModule',
+      dataIndex: 'moduleId',
+      type: FilterType.TREE_SELECT,
+      treeSelectData: moduleTree.value,
+      treeSelectProps: {
+        fieldNames: {
+          title: 'name',
+          key: 'id',
+          children: 'children',
+        },
+        multiple: true,
+        treeCheckable: true,
+        treeCheckStrictly: true,
+        maxTagCount: 1,
+      },
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnReviewResult',
+      dataIndex: 'status',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: reviewResultOptions.value,
+      },
+    },
+    {
+      title: 'caseManagement.caseReview.reviewer',
+      dataIndex: 'reviewers',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: reviewersOptions.value,
+      },
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnExecutionResult',
+      dataIndex: 'lastExecuteResult',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: executeResultOptions.value,
+      },
+    },
+    {
+      title: 'caseManagement.featureCase.associatedDemand',
+      dataIndex: 'demand',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'caseManagement.featureCase.relatedAttachments',
+      dataIndex: 'attachment',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'common.updateUserName',
+      dataIndex: 'updateUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.updateTime',
+      dataIndex: 'updateTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      type: FilterType.TAGS_INPUT,
+    },
+  ]);
+  const searchCustomFields = ref<FilterFormItem[]>([]);
+  async function initFilter() {
+    const result = await getCustomFieldsTable(appStore.currentProjectId);
+    searchCustomFields.value = result.map((item: any) => {
+      const FilterTypeKey: keyof typeof FilterType = CustomTypeMaps[item.type].type;
+      const formType = FilterType[FilterTypeKey];
+      const formObject = CustomTypeMaps[item.type];
+      const { props: formProps } = formObject;
+      const currentItem: any = {
+        title: item.name,
+        dataIndex: item.id,
+        type: formType,
+        customField: true,
+      };
+
+      if (formObject.propsKey && formProps.options) {
+        formProps.options = item.options;
+        currentItem[formObject.propsKey] = {
+          ...formProps,
+        };
+      }
+      return currentItem;
+    });
+  }
+  // 高级检索
+  const handleAdvSearch = async (filter: FilterResult, id: string, isStartAdvance: boolean) => {
+    emit('handleAdvSearch', isStartAdvance);
+    keyword.value = '';
+    setAdvanceFilter(filter, id);
+    searchCase();
+  };
 
   function handleOperation(type?: string) {
     switch (type) {
@@ -1045,53 +1181,8 @@
   }
 
   async function mountedLoad() {
-    const [, memberRes] = await Promise.all([
-      initReviewers(),
-      getProjectMemberCommentOptions(appStore.currentProjectId, keyword.value),
-    ]);
-    const memberOptions = memberRes.map((e) => ({ label: e.name, value: e.id }));
-    filterConfigList.value = [
-      {
-        title: 'ID',
-        dataIndex: 'id',
-        type: FilterType.INPUT,
-      },
-      {
-        title: 'caseManagement.caseReview.caseName',
-        dataIndex: 'name',
-        type: FilterType.INPUT,
-      },
-      {
-        title: 'caseManagement.caseReview.reviewer',
-        dataIndex: 'reviewers',
-        type: FilterType.SELECT,
-        selectProps: {
-          mode: 'static',
-          options: reviewersOptions.value,
-        },
-      },
-      {
-        title: 'caseManagement.caseReview.reviewResult',
-        dataIndex: 'status',
-        type: FilterType.SELECT,
-        selectProps: {
-          mode: 'static',
-          options: Object.keys(reviewResultMap).map((e) => ({
-            label: t(reviewResultMap[e as ReviewResult].label),
-            value: e,
-          })),
-        },
-      },
-      {
-        title: 'caseManagement.caseReview.creator',
-        dataIndex: 'createUser',
-        type: FilterType.SELECT,
-        selectProps: {
-          mode: 'static',
-          options: memberOptions,
-        },
-      },
-    ];
+    initReviewers();
+    await initFilter();
   }
 
   onBeforeMount(() => {

@@ -117,7 +117,6 @@ export interface ReviewListQueryParams extends TableQueryParams {
 }
 // 评审详情-用例列表查询参数
 export interface ReviewDetailCaseListQueryParams extends TableQueryParams {
-  viewFlag: boolean; // 是否只看我的
   reviewId: string;
   viewStatusFlag?: boolean; // 我的评审状态
 }
@@ -132,7 +131,6 @@ export interface SortReviewCaseParams {
 // 评审详情-批量评审用例
 export interface BatchReviewCaseParams extends BatchApiParams {
   reviewId: string; // 评审id
-  userId: string; // 用户id, 用来判断是否只看我的
   reviewPassRule: ReviewPassRule; // 评审规则
   status: StartReviewStatus; // 评审结果
   content: string; // 评论内容
@@ -142,14 +140,12 @@ export interface BatchReviewCaseParams extends BatchApiParams {
 // 评审详情-批量修改评审人
 export interface BatchChangeReviewerParams extends BatchApiParams {
   reviewId: string; // 评审id
-  userId: string; // 用户id, 用来判断是否只看我的
   reviewerId: string[]; // 评审人员id
   append: boolean; // 是否追加
 }
 // 评审详情-批量取消关联用例
 export interface BatchCancelReviewCaseParams extends BatchApiParams {
   reviewId: string; // 评审id
-  userId: string; // 用户id, 用来判断是否只看我的
 }
 export interface ReviewDetailReviewersItem {
   avatar: string;
@@ -275,7 +271,6 @@ export interface CaseReviewMinderParams {
   moduleId: string;
   current?: number;
   reviewId: string;
-  viewFlag: boolean; // 是否只看我的
   viewStatusFlag: boolean; // 我的评审结果
 }
 
