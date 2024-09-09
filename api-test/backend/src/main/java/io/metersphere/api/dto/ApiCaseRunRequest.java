@@ -18,6 +18,7 @@ public class ApiCaseRunRequest {
     private String id;
     private List<String> ids;
     private List<OrderRequest> orders;
+    private String apiDefinitionId;
     private String projectId;
     private String environmentId;
     private RunModeConfigDTO config;
