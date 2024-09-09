@@ -319,11 +319,11 @@ import {
   testCaseReduction,
   updateExecuteInfo,
 } from '@/api/api-test-case';
-import { getDefinitionById } from '@/api/definition';
-import { getApiReportDetail } from '@/api/definition-report';
-import { genPerformanceTestXml } from '@/api/home';
-import { getMaintainer } from '@/api/project';
-import { getProjectVersions, synCaseBatch, versionEnableByProjectId } from '@/api/xpack';
+import {getDefinitionById} from '@/api/definition';
+import {getApiReportDetail} from '@/api/definition-report';
+import {genPerformanceTestXml} from '@/api/home';
+import {getMaintainer} from '@/api/project';
+import {getProjectVersions, synCaseBatch, versionEnableByProjectId} from '@/api/xpack';
 import MsTable from 'metersphere-frontend/src/components/table/MsTable';
 import MsTableColumn from 'metersphere-frontend/src/components/table/MsTableColumn';
 import MsTableOperator from 'metersphere-frontend/src/components/MsTableOperator';
@@ -336,7 +336,7 @@ import MsContainer from 'metersphere-frontend/src/components/MsContainer';
 import MsBottomContainer from '../BottomContainer';
 import ShowMoreBtn from '@/business/commons/ShowMoreBtn';
 import MsBatchEdit from '../basis/BatchEdit';
-import { getUUID } from 'metersphere-frontend/src/utils';
+import {getUUID} from 'metersphere-frontend/src/utils';
 import {
   API_METHOD_COLOUR,
   CASE_PRIORITY,
@@ -345,19 +345,19 @@ import {
   SQL_METHOD,
   TCP_METHOD,
 } from '../../model/JsonData';
-import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
-import { hasLicense } from 'metersphere-frontend/src/utils/permission';
-import { getBodyUploadFiles } from '@/business/definition/api-definition';
+import {getCurrentProjectID} from 'metersphere-frontend/src/utils/token';
+import {hasLicense} from 'metersphere-frontend/src/utils/permission';
+import {getBodyUploadFiles} from '@/business/definition/api-definition';
 import PriorityTableItem from '@/business/commons/PriorityTableItem';
 import MsApiCaseTableExtendBtns from '../reference/ApiCaseTableExtendBtns';
 import MsShowReference from '../reference/ShowReference';
 import MsSetEnvironment from '@/business/definition/components/basis/SetEnvironment';
 import TestPlan from '@/business/definition/components/jmeter/components/test-plan';
 import ThreadGroup from '@/business/definition/components/jmeter/components/thread-group';
-import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
+import {parseEnvironment} from '@/business/environment/model/EnvironmentModel';
 import MsTableHeaderSelectPopover from 'metersphere-frontend/src/components/table/MsTableHeaderSelectPopover';
 import MsTableAdvSearchBar from 'metersphere-frontend/src/components/search/MsTableAdvSearchBar';
-import { API_CASE_CONFIGS, API_CASE_CONFIGS_TRASH } from 'metersphere-frontend/src/components/search/search-components';
+import {API_CASE_CONFIGS, API_CASE_CONFIGS_TRASH} from 'metersphere-frontend/src/components/search/search-components';
 import {
   _filter,
   _sort,
@@ -366,17 +366,17 @@ import {
   getLastTableSortField,
   handleRowDrop,
 } from 'metersphere-frontend/src/utils/tableUtils';
-import { API_CASE_LIST } from 'metersphere-frontend/src/utils/constants';
+import {API_CASE_LIST} from 'metersphere-frontend/src/utils/constants';
 import HeaderLabelOperate from 'metersphere-frontend/src/components/head/HeaderLabelOperate';
 import ApiCaseBatchRun from '@/business/definition/components/list/ApiCaseBatchRun';
 import MsRequestResultTail from '@/business/definition/components/response/RequestResultTail';
-import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
+import {TYPE_TO_C} from '@/business/automation/scenario/Setting';
 import i18n from 'metersphere-frontend/src/i18n';
 import MsSearch from 'metersphere-frontend/src/components/search/MsSearch';
 import SyncSetting from '@/business/definition/util/SyncSetting';
-import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';
-import { useApiStore, usePerformanceStore } from '@/store';
-import { REPORT_STATUS } from '@/business/commons/js/commons';
+import {getEnvironmentByProjectId} from 'metersphere-frontend/src/api/environment';
+import {useApiStore, usePerformanceStore} from '@/store';
+import {REPORT_STATUS} from '@/business/commons/js/commons';
 import MsApiRunMode from '@/business/automation/scenario/common/ApiRunMode';
 import ApiDeleteConfirm from '@/business/definition/components/list/ApiDeleteConfirm';
 
@@ -728,6 +728,7 @@ export default {
       obj.unSelectIds = this.unSelection;
       obj.ids = Array.from(this.selectRows).map((row) => row.id);
       obj.config = config;
+      obj.apiDefinitionId = this.apiDefinitionId;
       obj.condition = this.condition;
       obj.condition.status = '';
       testCaseBatchRun(obj).then(() => {
