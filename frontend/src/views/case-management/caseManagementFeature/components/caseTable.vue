@@ -1792,12 +1792,12 @@
   }
 
   async function mountedLoad() {
+    await initFilter();
+    await initData();
+    getCaseExportData();
     if (route.query.id) {
       showCaseDetail(route.query.id as string, -1);
     }
-    await initFilter();
-    initData();
-    getCaseExportData();
   }
 
   watch(

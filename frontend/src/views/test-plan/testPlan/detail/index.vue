@@ -408,14 +408,21 @@
 
   const showPlanDrawer = ref(false);
 
-  // 生成报告  TODO 等待联调 后台要改接口
+  // 生成报告
   async function handleGenerateReport() {
     try {
       loading.value = true;
-      await generateReport({
+      const reportId = await generateReport({
         projectId: appStore.currentProjectId,
         testPlanId: detail.value.id as string,
         triggerMode: 'MANUAL',
+      });
+      router.push({
+        name: TestPlanRouteEnum.TEST_PLAN_REPORT_DETAIL,
+        query: {
+          id: reportId,
+          type: testPlanTypeEnum.TEST_PLAN,
+        },
       });
       Message.success(t('testPlan.testPlanDetail.successfullyGenerated'));
     } catch (error) {
@@ -425,14 +432,9 @@
       loading.value = false;
     }
   }
-  // 自定义报告  TODO 等待联调 后台缺接口
+  // 自定义报告
   function configReportHandler() {
     try {
-      // await generateReport({
-      //   projectId: appStore.currentProjectId,
-      //   testPlanId: record.id,
-      //   triggerMode: 'MANUAL',
-      // });
       router.push({
         name: TestPlanRouteEnum.TEST_PLAN_INDEX_CONFIG,
         query: {
