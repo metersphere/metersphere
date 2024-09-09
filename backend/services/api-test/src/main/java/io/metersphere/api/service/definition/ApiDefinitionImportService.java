@@ -20,7 +20,6 @@ import io.metersphere.project.api.KeyValueEnableParam;
 import io.metersphere.project.constants.PropertyConstant;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
-import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.ModuleConstants;
@@ -72,8 +71,6 @@ public class ApiDefinitionImportService {
     @Resource
     private ExtBaseProjectVersionMapper extBaseProjectVersionMapper;
     @Resource
-    private ProjectApplicationMapper projectApplicationMapper;
-    @Resource
     private ExtApiDefinitionModuleMapper extApiDefinitionModuleMapper;
     @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
@@ -92,11 +89,7 @@ public class ApiDefinitionImportService {
     @Resource
     private UserMapper userMapper;
     @Resource
-    private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
-    @Resource
     private ApiDefinitionMockMapper apiDefinitionMockMapper;
-    @Resource
-    private ApiDefinitionMapper apiDefinitionMapper;
 
     private void initImportRequestAndCheck(MultipartFile file, ImportRequest request, String projectId) {
         if (StringUtils.isBlank(request.getProjectId())) {
@@ -670,7 +663,7 @@ public class ApiDefinitionImportService {
 
     public Map<String, List<ApiTestCase>> selectApiTestCaseIdMap(List<String> apiDefinitionIds) {
         ApiTestCaseExample example = new ApiTestCaseExample();
-        example.createCriteria().andApiDefinitionIdIn(apiDefinitionIds);
+        example.createCriteria().andApiDefinitionIdIn(apiDefinitionIds).andDeletedEqualTo(false);
         List<ApiTestCase> apiTestCaseList = apiTestCaseMapper.selectByExample(example);
         return apiTestCaseList.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
     }
