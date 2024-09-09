@@ -156,54 +156,10 @@
                     </include>
                 </foreach>
                 <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
-                    <if test="condition.name == 'name'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="functional_case.name"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'num'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="functional_case.num"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'moduleId'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="functional_case.module_id"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'tags'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="functional_case.tags"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'createUser'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="crfc.create_User"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'updateUser'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="crfc.update_user"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'updateTime'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="crfc.update_time"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'createTime'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="crfc.create_time"/>
-                        </include>
-                    </if>
+                    <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
+                        <property name="condition" value="condition"/>
+                        <property name="tablePrefix" value="functional_case"/>
+                    </include>
                     <if test="condition.name == 'status'">
                         <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                             <property name="condition" value="condition"/>
@@ -243,48 +199,6 @@
                 </if>
             </if>
         </trim>
-    </sql>
-
-    <sql id="queryType">
-        <choose>
-            <when test='${searchMode} == "AND"'>
-                AND
-            </when>
-            <when test='${searchMode} == "OR"'>
-                OR
-            </when>
-        </choose>
-    </sql>
-
-    <sql id="queryTag">
-        <!-- 不包含 -->
-        <if test='${combineTag}.value.size() > 0 and ${combineTag}.operator == "not like"'>
-            (
-            functional_case.tags is null or functional_case.tags = '[]' or
-            <foreach collection="${combineTag}.value" item="tag" separator="and" open="(" close=")">
-                !JSON_CONTAINS(functional_case.tags, JSON_ARRAY(#{tag}))
-            </foreach>
-            )
-            <include refid="queryType">
-                <property name="searchMode" value="${searchMode}"/>
-            </include>
-        </if>
-        <!-- 包含 -->
-        <if test='${combineTag}.value.size() > 0 and ${combineTag}.operator == "like"'>
-            <foreach collection="${combineTag}.value" item="tag" separator="or" open="(" close=")">
-                JSON_CONTAINS(functional_case.tags, JSON_ARRAY(#{tag}))
-            </foreach>
-            <include refid="queryType">
-                <property name="searchMode" value="${searchMode}"/>
-            </include>
-        </if>
-        <!-- 空 -->
-        <if test='${combineTag}.operator == "is null"'>
-            (functional_case.tags is null or functional_case.tags = '[]')
-            <include refid="queryType">
-                <property name="searchMode" value="${searchMode}"/>
-            </include>
-        </if>
     </sql>
 
     <select id="getIds" resultType="java.lang.String">
