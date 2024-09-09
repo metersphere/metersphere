@@ -158,7 +158,6 @@
 
   const props = defineProps<{
     moduleId: string;
-    viewFlag: boolean; // 是否只看我的
     viewStatusFlag: boolean; // 我的评审结果
     reviewProgress: string;
     reviewPassRule: ReviewPassRule; // 评审规则
@@ -277,7 +276,6 @@
         projectId: appStore.currentProjectId,
         moduleId: node.data?.id,
         reviewId: route.query.id as string,
-        viewFlag: props.viewFlag,
         viewStatusFlag: props.viewStatusFlag,
       });
       // 移除占位的虚拟节点

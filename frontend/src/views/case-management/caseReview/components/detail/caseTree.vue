@@ -164,6 +164,7 @@
 
   defineExpose({
     initModules,
+    setActiveFolder,
     selectParentNode,
   });
 </script>

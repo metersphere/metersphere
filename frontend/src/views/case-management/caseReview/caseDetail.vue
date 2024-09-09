@@ -357,7 +357,6 @@
     });
   });
 
-  const viewFlag = ref(false);
   const onlyMineStatus = ref(false);
   const keyword = ref('');
   const caseList = ref<ReviewCaseItem[]>([]);
@@ -376,7 +375,6 @@
       const res = await getReviewDetailCasePage({
         projectId: appStore.currentProjectId,
         reviewId: reviewId.value,
-        viewFlag: viewFlag.value,
         viewStatusFlag: onlyMineStatus.value,
         keyword: keyword.value,
         current: pageNation.value.current || 1,
@@ -620,12 +618,11 @@
         total,
         pageSize,
         current,
-        viewFlag: _onlyMine,
         keyword: _keyword,
+        viewId,
+        combineSearch,
         filter,
-        combine,
         sort,
-        searchMode,
         moduleIds,
       } = lastPageParams;
       pageNation.value = {
@@ -633,14 +630,13 @@
         pageSize,
         current,
       };
-      viewFlag.value = !!_onlyMine;
       keyword.value = _keyword;
       tableFilter.value = filter;
       type.value = filter.status;
       otherListQueryParams.value = {
-        combine,
         sort,
-        searchMode,
+        viewId,
+        combineSearch,
         moduleIds,
       };
     } else {

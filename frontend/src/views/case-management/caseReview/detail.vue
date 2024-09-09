@@ -29,10 +29,6 @@
       <MsStatusTag :status="(reviewDetail.status as ReviewStatus)" class="mx-[16px]" />
     </template>
     <template #headerRight>
-      <div class="mr-[16px] flex items-center">
-        <a-switch v-model:model-value="onlyMine" size="small" class="mr-[8px]" type="line" />
-        {{ t('caseManagement.caseReview.onlyMine') }}
-      </div>
       <MsButton
         v-permission="['CASE_REVIEW:READ+UPDATE']"
         type="button"
@@ -106,7 +102,7 @@
   </MsCard>
   <!-- special-height的170: 上面卡片高度105 + mt的16 -->
   <MsCard class="mt-[16px]" :special-height="121" simple has-breadcrumb no-content-padding>
-    <MsSplitBox>
+    <MsSplitBox :not-show-first="isAdvancedSearchMode">
       <template #first>
         <div class="p-[16px]">
           <CaseTree
@@ -121,7 +117,6 @@
         <CaseTable
           ref="caseTableRef"
           :active-folder="activeFolderId"
-          :only-mine="onlyMine"
           :review-pass-rule="reviewDetail.reviewPassRule"
           :offspring-ids="offspringIds"
           :modules-count="modulesCount"
@@ -129,6 +124,7 @@
           @refresh="initDetail()"
           @link="associateDrawerVisible = true"
           @select-parent-node="selectParentNode"
+          @handle-adv-search="handleAdvSearch"
         ></CaseTable>
       </template>
     </MsSplitBox>
@@ -204,8 +200,6 @@
     }
   }
 
-  const onlyMine = ref(false);
-
   // const showTab = ref(0);
   // const tabList = ref([
   //   {
@@ -224,6 +218,12 @@
     set: (val) => val,
   });
   const caseTableRef = ref<InstanceType<typeof CaseTable>>();
+
+  const isAdvancedSearchMode = ref(false);
+  function handleAdvSearch(isStartAdvance: boolean) {
+    isAdvancedSearchMode.value = isStartAdvance;
+    folderTreeRef.value?.setActiveFolder('all');
+  }
 
   function selectParentNode(folderTree: ModuleTreeNode[]) {
     folderTreeRef.value?.selectParentNode(folderTree);
