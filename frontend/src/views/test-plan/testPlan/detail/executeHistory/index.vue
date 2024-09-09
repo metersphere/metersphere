@@ -108,7 +108,7 @@
       title: 'testPlan.executeHistory.executionStartAndEndTime',
       dataIndex: 'startTime',
       slotName: 'executionStartAndEndTime',
-      width: 300,
+      width: 350,
     },
     {
       title: 'common.operation',
@@ -124,7 +124,6 @@
       columns,
       scroll: { x: '100%' },
       selectable: false,
-      heightUsed: 298,
     },
     (record) => {
       return {

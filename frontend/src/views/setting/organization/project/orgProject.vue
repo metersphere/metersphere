@@ -274,7 +274,7 @@
   const handleEnableOrDisableProject = async (record: any, isEnable = true) => {
     const title = isEnable ? t('system.project.enableTitle') : t('system.project.endTitle');
     const content = isEnable ? t('system.project.enableContent') : t('system.project.endContent');
-    const okText = isEnable ? t('common.confirmStart') : t('common.confirmEnd');
+    const okText = isEnable ? t('common.confirmStart') : t('common.confirmClose');
     openModal({
       type: 'error',
       cancelText: t('common.cancel'),

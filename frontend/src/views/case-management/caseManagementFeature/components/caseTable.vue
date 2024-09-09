@@ -973,12 +973,13 @@
     }
   );
 
-  const batchParams = ref<BatchActionQueryParams>({
+  const initBatchParams: BatchActionQueryParams = {
     selectedIds: [],
     selectAll: false,
     excludeIds: [],
     currentSelectCount: 0,
-  });
+  };
+  const batchParams = ref<BatchActionQueryParams>(cloneDeep(initBatchParams));
 
   const conditionParams = computed(() => {
     return {
@@ -1362,6 +1363,7 @@
         Message.success(t('caseManagement.featureCase.batchMoveSuccess'));
       } else {
         await batchCopyToModules(params);
+        batchParams.value = cloneDeep(initBatchParams);
         Message.success(t('caseManagement.featureCase.batchCopySuccess'));
       }
       isMove.value = false;
