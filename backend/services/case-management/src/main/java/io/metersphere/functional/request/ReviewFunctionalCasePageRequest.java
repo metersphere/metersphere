@@ -25,9 +25,6 @@ public class ReviewFunctionalCasePageRequest extends BasePageRequest implements 
     @NotBlank(message = "{case_review.project_id.not_blank}")
     private String projectId;
 
-    @Schema(description = "是否只看我的", requiredMode = Schema.RequiredMode.REQUIRED)
-    private boolean viewFlag;
-
     @Schema(description = "模块id")
     private List<String> moduleIds;
 

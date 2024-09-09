@@ -22,10 +22,6 @@ public class BaseReviewCaseBatchRequest extends TableBatchProcessDTO implements 
     @NotBlank(message = "{case_review_user.review_id.not_blank}")
     private String reviewId;
 
-
-    @Schema(description = "userId用来判断是否只看我的")
-    private String userId;
-
     @Schema(description = "模块id")
     private List<String> moduleIds;
 }

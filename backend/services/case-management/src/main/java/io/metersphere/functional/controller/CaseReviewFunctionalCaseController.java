@@ -58,17 +58,13 @@ public class CaseReviewFunctionalCaseController {
     @Operation(summary = "用例管理-用例评审-评审列表-评审详情-已关联用例列表")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
     public Pager<List<ReviewFunctionalCaseDTO>> page(@Validated @RequestBody ReviewFunctionalCasePageRequest request) {
-        String userId = StringUtils.EMPTY;
-        if (request.isViewFlag()) {
-            userId = SessionUtils.getUserId();
-        }
         String viewStatusUserId = StringUtils.EMPTY;
         if (request.isViewStatusFlag()) {
             viewStatusUserId = SessionUtils.getUserId();
         }
 
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
-        return PageUtils.setPageInfo(page, caseReviewFunctionalCaseService.page(request, false, userId, viewStatusUserId));
+        return PageUtils.setPageInfo(page, caseReviewFunctionalCaseService.page(request, false, viewStatusUserId));
     }
 
 
@@ -86,11 +82,7 @@ public class CaseReviewFunctionalCaseController {
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
     @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "case_review")
     public Map<String, Long> moduleCount(@Validated @RequestBody ReviewFunctionalCasePageRequest request) {
-        String userId = StringUtils.EMPTY;
-        if (request.isViewFlag()) {
-            userId = SessionUtils.getUserId();
-        }
-        return caseReviewFunctionalCaseService.moduleCount(request, false, userId);
+        return caseReviewFunctionalCaseService.moduleCount(request, false);
     }
 
 

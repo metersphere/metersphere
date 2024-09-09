@@ -3,6 +3,7 @@ import io.metersphere.sdk.dto.BaseCondition;
 import io.metersphere.sdk.dto.CombineCondition;
 import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.constants.InternalUserView;
 import io.metersphere.system.dto.UserViewDTO;
 import io.metersphere.system.dto.sdk.*;
@@ -77,8 +78,10 @@ public class BaseConditionFilterAspect {
         for (InternalUserView internalUserView : InternalUserView.values()) {
             UserViewDTO userView = internalUserView.getUserView();
             if (StringUtils.equals(userView.getId(), viewId)) {
-                replaceCurrentUser(userView.getConditions());
-                dbCombineSearch.setUserViewConditions(userView.getConditions());
+                // 复制视图查询条件
+                List<CombineCondition> conditions = JSON.parseArray(JSON.toJSONString(userView.getConditions()), CombineCondition.class);
+                replaceCurrentUser(conditions);
+                dbCombineSearch.setUserViewConditions(conditions);
             }
         }
     }
