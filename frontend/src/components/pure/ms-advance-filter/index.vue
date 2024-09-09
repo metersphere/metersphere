@@ -31,57 +31,81 @@
         @search="emit('keywordSearch', keyword)"
         @clear="handleClear"
       ></a-input-search>
-      <a-select
-        v-if="props.viewType"
-        v-model:model-value="currentView"
-        :loading="viewListLoading"
-        :trigger-props="{ contentClass: 'view-select-trigger' }"
-        class="w-[180px]"
-        show-footer-on-empty
+      <!-- 在select的option里写input,鼠标点击和失焦不好使,故单独写了一个下拉trigger -->
+      <a-trigger
+        v-model:popup-visible="viewSelectOptionVisible"
+        trigger="click"
+        :popup-translate="[0, 4]"
+        content-class="arco-trigger-menu view-custom-trigger-content"
       >
-        <template #prefix> {{ t('advanceFilter.view') }} </template>
-        <a-optgroup :label="t('advanceFilter.systemView')">
-          <a-option v-for="item in internalViews" :key="item.id" :value="item.id">
-            {{ item.name }}
-          </a-option>
-        </a-optgroup>
-        <a-optgroup :label="t('advanceFilter.myView')">
-          <template v-for="item in customViews" :key="item.id">
-            <a-option v-show="!item.isShowNameInput" :value="item.id">
-              <div>{{ item.name }}</div>
-              <div class="select-extra flex">
-                <a-tooltip :content="t('common.rename')">
-                  <MsButton type="text" status="secondary" class="!mr-[4px]" @click="handleToRenameView(item)">
-                    <MsIcon type="icon-icon_edit_outlined" class="hover:text-[rgb(var(--primary-4))]" size="12" />
-                  </MsButton>
-                </a-tooltip>
-                <a-tooltip :content="t('advanceFilter.deleteView')">
-                  <MsButton type="text" :disabled="deleteLoading" status="secondary" @click="handleDeleteView(item)">
-                    <MsIcon
-                      type="icon-icon_delete-trash_outlined1"
-                      class="hover:text-[rgb(var(--primary-4))]"
-                      size="12"
-                    />
-                  </MsButton>
-                </a-tooltip>
+        <a-select
+          v-if="props.viewType"
+          v-model:model-value="currentView"
+          :loading="viewListLoading"
+          :options="[...internalViews, ...customViews].map((item) => ({ value: item.id, label: item.name }))"
+          :trigger-props="{ contentClass: 'view-select-trigger' }"
+          class="w-[180px]"
+          show-footer-on-empty
+        >
+          <template #prefix> {{ t('advanceFilter.view') }} </template>
+        </a-select>
+        <template #content>
+          <a-spin class="w-full" :loading="viewListLoading">
+            <div class="view-option-title">
+              <span>{{ t('advanceFilter.systemView') }}</span>
+              <a-divider></a-divider>
+            </div>
+            <div
+              v-for="item in internalViews"
+              :key="item.id"
+              :class="[`view-option-item ${item.id === currentView ? 'view-option-item-active' : ''}`]"
+              @click="changeView(item)"
+            >
+              {{ item.name }}
+            </div>
+            <div class="view-option-title">
+              <span>{{ t('advanceFilter.myView') }}</span>
+              <a-divider></a-divider>
+            </div>
+            <template v-for="item in customViews" :key="item.id">
+              <div
+                v-show="!item.isShowNameInput"
+                :class="[`view-option-item ${item.id === currentView ? 'view-option-item-active' : ''}`]"
+                @click="changeView(item)"
+              >
+                <div>{{ item.name }}</div>
+                <div class="select-extra flex">
+                  <a-tooltip :content="t('common.rename')">
+                    <MsButton type="text" status="secondary" class="!mr-[4px]" @click="handleToRenameView(item)">
+                      <MsIcon type="icon-icon_edit_outlined" class="hover:text-[rgb(var(--primary-4))]" size="12" />
+                    </MsButton>
+                  </a-tooltip>
+                  <a-tooltip :content="t('advanceFilter.deleteView')">
+                    <MsButton type="text" :disabled="deleteLoading" status="secondary" @click="handleDeleteView(item)">
+                      <MsIcon
+                        type="icon-icon_delete-trash_outlined1"
+                        class="hover:text-[rgb(var(--primary-4))]"
+                        size="12"
+                      />
+                    </MsButton>
+                  </a-tooltip>
+                </div>
               </div>
-            </a-option>
-            <ViewNameInput
-              v-if="item.isShowNameInput"
-              :ref="(el:refItem) => setNameInputRefMap(el, item)"
-              v-model:form="formModel"
-              :all-names="allViewNames.filter((name) => name !== item.name)"
-              @handle-submit="handleRenameView"
-            />
-          </template>
-        </a-optgroup>
-        <template #footer>
-          <div class="flex cursor-pointer items-center gap-[8px]" @click="toNewView">
-            <MsIcon type="icon-icon_add_outlined" />
-            {{ t('advanceFilter.newView') }}
-          </div>
+              <ViewNameInput
+                v-if="item.isShowNameInput"
+                :ref="(el:refItem) => setNameInputRefMap(el, item)"
+                v-model:form="formModel"
+                :all-names="allViewNames.filter((name) => name !== item.name)"
+                @handle-submit="handleRenameView"
+              />
+            </template>
+            <div class="flex cursor-pointer items-center gap-[8px] px-[8px] py-[3px]" @click="toNewView">
+              <MsIcon type="icon-icon_add_outlined" />
+              {{ t('advanceFilter.newView') }}
+            </div>
+          </a-spin>
         </template>
-      </a-select>
+      </a-trigger>
       <a-button
         v-if="props.viewType"
         type="outline"
@@ -207,6 +231,17 @@
     }
   });
 
+  const viewSelectOptionVisible = ref(false);
+  function changeView(item: ViewItem) {
+    currentView.value = item.id;
+    viewSelectOptionVisible.value = false;
+  }
+
+  async function changeViewToFirstCustom() {
+    await getUserViewList();
+    currentView.value = customViews.value[0].id;
+  }
+
   const filterDrawerRef = ref<InstanceType<typeof FilterDrawer>>();
   function toNewView() {
     if (canNotAddView.value) {
@@ -301,40 +336,59 @@
     }
   }
 
-  async function changeViewToFirstCustom() {
-    await getUserViewList();
-    currentView.value = customViews.value[0].id;
-  }
-
   defineExpose({
     isAdvancedSearchMode,
   });
 </script>
 
 <style lang="less">
-  .view-select-trigger .arco-select-dropdown {
-    .arco-select-option-content {
-      @apply flex w-full items-center justify-between;
+  .view-select-trigger {
+    display: none;
+  }
+  .view-custom-trigger-content {
+    width: 180px;
+    max-height: 300px;
+    .ms-scroll-bar();
+    .view-option-title {
+      display: flex;
+      align-items: center;
+      margin: 0 2px;
+      padding: 0 8px;
+      font-size: 12px;
+      color: var(--color-text-brand);
+      line-height: 20px;
+      .arco-divider-horizontal {
+        margin: 4px 0 4px 8px;
+        min-width: 0;
+        border-bottom-color: var(--color-text-n8);
+        flex: 1;
+      }
     }
     .select-extra {
       visibility: hidden;
     }
-    .arco-select-option:hover {
-      .select-extra {
-        visibility: visible;
+    .view-option-item {
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      @apply flex w-full items-center justify-between;
+      &:hover {
+        background-color: rgb(var(--primary-1));
+        .select-extra {
+          visibility: visible;
+        }
+      }
+      &-active {
+        color: rgb(var(--primary-5)) !important;
+        background-color: rgb(var(--primary-1)) !important;
       }
     }
-    .arco-select-dropdown-list-wrapper {
-      max-height: 255px;
+    .arco-form-item-content,
+    .arco-input-wrapper {
+      height: 28px;
     }
-    .arco-select-group-title {
-      margin: 0 2px;
-      padding: 0 8px;
-      color: var(--color-text-brand);
-    }
-    .arco-select-dropdown-footer {
-      padding: 3px 8px;
-      border: none;
+    .arco-form-item-message {
+      margin: 0;
     }
   }
 </style>

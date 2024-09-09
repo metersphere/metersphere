@@ -11,8 +11,8 @@ export const LE = { label: 'advanceFilter.operator.le', value: 'LT_OR_EQUALS' };
 export const EQUAL = { label: 'advanceFilter.operator.equal', value: OperatorEnum.EQUAL }; // 等于
 export const NOT_EQUAL = { label: 'advanceFilter.operator.notEqual', value: OperatorEnum.NOT_EQUAL }; // 不等于
 export const BETWEEN = { label: 'advanceFilter.operator.between', value: OperatorEnum.BETWEEN }; // 介于
-export const COUNT_GT = { label: 'advanceFilter.operator.length.gt', value: OperatorEnum.COUNT_GT }; // 数量大下
-export const COUNT_LT = { label: 'advanceFilter.operator.length.lt', value: OperatorEnum.COUNT_LT }; // 数量小于
+export const COUNT_GT = { label: 'advanceFilter.operator.count.gt', value: OperatorEnum.COUNT_GT }; // 数量大下
+export const COUNT_LT = { label: 'advanceFilter.operator.count.lt', value: OperatorEnum.COUNT_LT }; // 数量小于
 
 export const EMPTY = { label: 'advanceFilter.operator.empty', value: OperatorEnum.EMPTY }; // 为空
 export const NOT_EMPTY = { label: 'advanceFilter.operator.not_empty', value: OperatorEnum.NOT_EMPTY }; // 不为空
@@ -41,7 +41,7 @@ export const operatorOptionsMap: Record<string, { value: string; label: string }
   [FilterType.MEMBER]: COMMON_SELECTION_OPERATORS,
   [FilterType.TAGS_INPUT]: [EMPTY, CONTAINS, NO_CONTAINS, COUNT_LT, COUNT_GT],
   [FilterType.TREE_SELECT]: [BELONG_TO, NOT_BELONG_TO],
-  [FilterType.DATE_PICKER]: [BETWEEN, EQUAL, EMPTY, NOT_EMPTY],
+  [FilterType.DATE_PICKER]: [BETWEEN, GT, LT, EMPTY, NOT_EMPTY],
 };
 
 export const timeSelectOptions = [GE, LE];

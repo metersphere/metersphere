@@ -77,21 +77,24 @@
             :placeholder="t('advanceFilter.inputPlaceholder')"
             :max-length="1000"
           />
-          <MsTagsInput
-            v-else-if="item.type === FilterType.TAGS_INPUT"
-            v-model:model-value="item.value"
-            :disabled="isValueDisabled(item)"
-            allow-clear
-            unique-value
-            retain-input-value
-          />
           <a-input-number
-            v-else-if="item.type === FilterType.NUMBER"
+            v-else-if="
+              item.type === FilterType.NUMBER ||
+              (item.type === FilterType.TAGS_INPUT && [OperatorEnum.COUNT_LT, OperatorEnum.COUNT_GT].includes(item.operator as OperatorEnum))
+            "
             v-model:model-value="item.value"
             allow-clear
             :disabled="isValueDisabled(item)"
             :max-length="255"
             :placeholder="t('common.pleaseInput')"
+          />
+          <MsTagsInput
+            v-else-if="item.type === FilterType.TAGS_INPUT&& ![OperatorEnum.COUNT_LT, OperatorEnum.COUNT_GT].includes(item.operator as OperatorEnum)"
+            v-model:model-value="item.value"
+            :disabled="isValueDisabled(item)"
+            allow-clear
+            unique-value
+            retain-input-value
           />
           <MsSelect
             v-else-if="item.type === FilterType.MEMBER"
@@ -343,7 +346,9 @@
   function valueIsArray(listItem: FilterFormItem) {
     return (
       listItem.selectProps?.multiple ||
-      [FilterType.CHECKBOX, FilterType.TAGS_INPUT].includes(listItem.type) ||
+      [FilterType.CHECKBOX].includes(listItem.type) ||
+      (listItem.type === FilterType.TAGS_INPUT &&
+        ![OperatorEnum.COUNT_LT, OperatorEnum.COUNT_GT].includes(listItem.operator as OperatorEnum)) ||
       (listItem.type === FilterType.DATE_PICKER && listItem.operator === OperatorEnum.BETWEEN)
     );
   }
@@ -376,6 +381,8 @@
         formModel.value.list[index].operator = OperatorEnum.BELONG_TO;
       } else if (optionsValueList.includes(OperatorEnum.EQUAL)) {
         formModel.value.list[index].operator = OperatorEnum.EQUAL;
+      } else {
+        formModel.value.list[index].operator = OperatorEnum.BETWEEN; // 时间
       }
     }
   }
@@ -401,22 +408,25 @@
   }
 
   function getParams() {
-    const conditions = formModel.value.list.map(({ type, value, operator, customField, dataIndex }) => {
-      let timeValue;
-      // 转换成时间戳
-      if (type === FilterType.DATE_PICKER && value?.[0] && value?.[1]) {
-        timeValue =
-          operator === OperatorEnum.BETWEEN
-            ? [new Date(value[0]).getTime(), new Date(value[1]).getTime()]
-            : new Date(value).getTime();
+    const conditions = formModel.value.list.map(
+      ({ customFieldType, type, value, operator, customField, dataIndex }) => {
+        let timeValue;
+        // 转换成时间戳
+        if (type === FilterType.DATE_PICKER && value?.[0] && value?.[1]) {
+          timeValue =
+            operator === OperatorEnum.BETWEEN
+              ? [new Date(value[0]).getTime(), new Date(value[1]).getTime()]
+              : new Date(value).getTime();
+        }
+        return {
+          value: timeValue ?? value,
+          operator,
+          customField: customField ?? false,
+          name: dataIndex,
+          customFieldType: customFieldType ?? '',
+        };
       }
-      return {
-        value: timeValue ?? value,
-        operator,
-        customField: customField ?? false,
-        name: dataIndex,
-      };
-    });
+    );
     return { searchMode: formModel.value.searchMode, conditions };
   }
 
