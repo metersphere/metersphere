@@ -532,6 +532,10 @@ public class ApiDefinitionImportService {
             ApiDefinitionDetail importApi = existenceApiDefinitionDetail.getImportApiDefinition();
             ApiDefinitionDetail existenceApi = existenceApiDefinitionDetail.getExistenceApiDefinition();
 
+            if (StringUtils.isNotBlank(importApi.getModulePath()) && !StringUtils.startsWith(importApi.getModulePath(), "/")) {
+                importApi.setModulePath("/" + importApi.getModulePath());
+            }
+
             boolean isSameRequest = false;
             ApiDefinitionBlob apiDefinitionBlob = existenceApiDefinitionBlobMap.get(existenceApi.getId());
             MsHTTPElement existenceMsHTTPElement = null;

@@ -100,10 +100,10 @@ public class JmeterParserApiDefinition implements ApiDefinitionImportParser<ApiI
 
         for (AbstractMsProtocolTestElement protocolTestElement : msElement) {
             ApiDefinitionDetail definition = new ApiDefinitionDetail();
-            definition.setName(protocolTestElement.getName());
+            definition.setName(StringUtils.trim(protocolTestElement.getName()));
             if (protocolTestElement instanceof MsHTTPElement msHTTPElement) {
-                definition.setMethod(msHTTPElement.getMethod());
-                definition.setPath(msHTTPElement.getPath());
+                definition.setMethod(StringUtils.trim(msHTTPElement.getMethod()));
+                definition.setPath(StringUtils.trim(msHTTPElement.getPath()));
                 definition.setProtocol(ApiConstants.HTTP_PROTOCOL);
             } else {
                 definition.setProtocol(polymorphicNameMap.get(protocolTestElement.getClass().getSimpleName()));
