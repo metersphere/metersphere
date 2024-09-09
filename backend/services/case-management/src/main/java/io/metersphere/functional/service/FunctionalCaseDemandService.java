@@ -350,7 +350,10 @@ public class FunctionalCaseDemandService {
 
     public PluginPager<PlatformDemandDTO> pageDemand(FunctionalThirdDemandPageRequest request) {
         String platformId = projectApplicationService.getDemandPlatformId(request.getProjectId());
-        List<String> demandIds = extFunctionalCaseDemandMapper.selectDemandIdsByCaseId(request.getCaseId(), platformId);
+        List<String> demandIds = new ArrayList<>();
+        if (StringUtils.isNotBlank(request.getCaseId())) {
+            demandIds = extFunctionalCaseDemandMapper.selectDemandIdsByCaseId(request.getCaseId(), platformId);
+        }
         DemandPageRequest demandPageRequest = new DemandPageRequest();
         demandPageRequest.setQuery(StringUtils.replace(request.getKeyword(), "\\", ""));
         demandPageRequest.setFilter(request.getFilter());
@@ -359,15 +362,17 @@ public class FunctionalCaseDemandService {
         demandPageRequest.setProjectConfig(projectApplicationService.getProjectDemandThirdPartConfig(request.getProjectId()));
         Platform platform = projectApplicationService.getPlatform(request.getProjectId(), false);
         PluginPager<PlatformDemandDTO> platformDemandDTOPluginPager = platform.pageDemand(demandPageRequest);
-        PlatformDemandDTO data = platformDemandDTOPluginPager.getData();
-        List<PlatformDemandDTO.Demand> list = data.getList();
-        for (PlatformDemandDTO.Demand demand : list) {
-            if (demandIds.contains(demand.getDemandId())) {
-                demand.setDisabled(true);
+        if (CollectionUtils.isNotEmpty(demandIds)) {
+            PlatformDemandDTO data = platformDemandDTOPluginPager.getData();
+            List<PlatformDemandDTO.Demand> list = data.getList();
+            for (PlatformDemandDTO.Demand demand : list) {
+                if (demandIds.contains(demand.getDemandId())) {
+                    demand.setDisabled(true);
+                }
             }
+            data.setList(list);
+            platformDemandDTOPluginPager.setData(data);
         }
-        data.setList(list);
-        platformDemandDTOPluginPager.setData(data);
         return platformDemandDTOPluginPager;
     }
 }
