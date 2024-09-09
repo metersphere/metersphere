@@ -336,7 +336,7 @@
   const handleEnableOrDisableProject = async (v: string | BatchActionQueryParams, isEnable = true) => {
     const title = isEnable ? t('project.menu.rule.enableRule') : t('project.menu.rule.disableRule');
     const content = isEnable ? t('project.menu.rule.enableRuleTip') : t('project.menu.rule.disableRuleTip');
-    const okText = isEnable ? t('common.confirmEnable') : t('common.confirmClose');
+    const okText = isEnable ? t('common.confirmEnable') : t('common.confirmDisable');
     openModal({
       type: 'info',
       cancelText: t('common.cancel'),
@@ -364,7 +364,7 @@
               enable: isEnable,
             });
           }
-          Message.success(isEnable ? t('common.enableSuccess') : t('common.closeSuccess'));
+          Message.success(isEnable ? t('common.enableSuccess') : t('common.disableSuccess'));
           fetchData();
         } catch (error) {
           // eslint-disable-next-line no-console

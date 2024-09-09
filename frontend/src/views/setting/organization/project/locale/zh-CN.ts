@@ -43,7 +43,7 @@ export default {
   'system.organization.revokeDeleteToolTip': '该组织将与 30 天后自动删除',
   'system.organization.createOrganizationSuccess': '创建组织成功',
   'system.organization.enableTitle': '开启组织',
-  'system.organization.endTitle': '结束组织',
+  'system.organization.endTitle': '关闭组织',
   'system.organization.enableContent': '开启后的组织展示在组织切换列表',
   'system.organization.endContent': '结束后的组织不展示在组织切换列表',
   'system.organization.updateOrganization': '更新组织',

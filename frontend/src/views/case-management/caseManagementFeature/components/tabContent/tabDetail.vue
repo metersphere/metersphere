@@ -480,7 +480,26 @@
     });
   }
 
+  function setStepData(steps: string) {
+    if (steps) {
+      stepData.value = JSON.parse(steps).map((item: any) => {
+        return {
+          id: item.id,
+          step: item.desc,
+          expected: item.result,
+          actualResult: item.actualResult,
+          executeResult: item.executeResult,
+        };
+      });
+    } else {
+      stepData.value = [];
+    }
+  }
+
   function handleCancel() {
+    detailForm.value = { ...props.form };
+    const { steps } = detailForm.value;
+    setStepData(steps);
     isEditPreposition.value = false;
   }
 
@@ -568,19 +587,7 @@
   // 获取详情
   async function getDetails() {
     const { steps, attachments } = detailForm.value;
-    if (steps) {
-      stepData.value = JSON.parse(steps).map((item: any) => {
-        return {
-          id: item.id,
-          step: item.desc,
-          expected: item.result,
-          actualResult: item.actualResult,
-          executeResult: item.executeResult,
-        };
-      });
-    } else {
-      stepData.value = [];
-    }
+    setStepData(steps);
     const fileIds = (attachments || []).map((item: any) => item.id);
     if (fileIds.length) {
       await getCheckFileIds(fileIds);
