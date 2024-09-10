@@ -57,6 +57,7 @@ export default {
   'report.detail.systemInternalTooltip': '系统内置，不可编辑',
   'report.detail.reportNameNotEmpty': '报告名称不能为空',
   'report.detail.manualGenReportSuccess': '自定义生成报告成功',
+  'report.detail.exportPdf': '导出 PDF',
   'report.detail.exportingPdf': 'PDF报告导出中...',
   'report.detail.exportPdfSuccess': 'PDF报告导出成功',
 };

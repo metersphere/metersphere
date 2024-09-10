@@ -8,7 +8,7 @@
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ReportStatusEnum } from '@/enums/reportEnum';
+  import { iconTypeStatus } from '../detail/component/reportConfig';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -20,21 +20,6 @@
     label: string;
     color?: string;
   }
-
-  const iconTypeStatus: Record<string, any> = {
-    SUCCESS: {
-      icon: 'icon-icon_succeed_colorful',
-      label: 'common.success',
-    },
-    ERROR: {
-      icon: 'icon-icon_close_colorful',
-      label: 'common.fail',
-    },
-    DEFAULT: {
-      label: '-',
-      color: '!text-[var(--color-text-input-border)]',
-    },
-  };
 
   function getExecutionResult(): IconType {
     return iconTypeStatus[props.status] ? iconTypeStatus[props.status] : iconTypeStatus.DEFAULT;

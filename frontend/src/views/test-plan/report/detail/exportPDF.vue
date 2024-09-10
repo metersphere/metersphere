@@ -122,6 +122,7 @@
   import MsChart from '@/components/pure/chart/index.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import { lastExecuteResultMap } from '@/components/business/ms-case-associate/utils';
+  import { IconType } from '@/views/api-test/report/component/reportStatus.vue';
   import SingleStatusProgress from '@/views/test-plan/report/component/singleStatusProgress.vue';
   import ExecuteAnalysis from '@/views/test-plan/report/detail/component/system-card/executeAnalysis.vue';
   import ReportDetailTable from '@/views/test-plan/report/detail/component/system-card/reportDetailTable.vue';
@@ -131,6 +132,8 @@
     getApiPage,
     getReportBugList,
     getReportDetail,
+    getReportDetailPage,
+    getReportDetailSharePage,
     getReportFeatureCaseList,
     getReportLayout,
     getReportShareBugList,
@@ -148,7 +151,6 @@
   import exportPDF, { PAGE_PDF_WIDTH_RATIO } from '@/hooks/useExportPDF';
   import { useI18n } from '@/hooks/useI18n';
   import { addCommasToNumber } from '@/utils';
-  import exportPdf, { MAX_CANVAS_HEIGHT, SCALE_RATIO } from '@/utils/exportPdf';
 
   import type {
     configItem,
@@ -159,7 +161,7 @@
   } from '@/models/testPlan/testPlanReport';
   import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
-  import { defaultGroupConfig, defaultSingleConfig } from './component/reportConfig';
+  import { defaultGroupConfig, defaultSingleConfig, iconTypeStatus } from './component/reportConfig';
   import { getSummaryDetail } from '@/views/test-plan/report/utils';
   import { ColumnInput, RowInput } from 'jspdf-autotable';
 
@@ -570,6 +572,53 @@
     ).list;
   }
 
+  const groupColumns: MsTableColumn = [
+    {
+      title: 'report.plan.name',
+      dataIndex: 'testPlanName',
+      width: 180,
+    },
+    {
+      title: 'report.detail.testPlanGroup.result',
+      dataIndex: 'resultStatus',
+      width: 200,
+    },
+    {
+      title: 'report.detail.threshold',
+      dataIndex: 'passThreshold',
+      width: 150,
+    },
+    {
+      title: 'report.passRate',
+      dataIndex: 'passRate',
+      width: 150,
+    },
+    {
+      title: 'report.detail.testPlanGroup.useCasesCount',
+      dataIndex: 'caseTotal',
+      width: 100,
+    },
+  ];
+
+  const reportDetailList = () => {
+    return !shareId.value ? getReportDetailPage : getReportDetailSharePage;
+  };
+  const fullGroupList = ref<PlanReportDetail[]>([]);
+  async function initGroupList() {
+    fullGroupList.value = (
+      await reportDetailList()({
+        current: 1,
+        pageSize: 500,
+        reportId: reportId.value,
+        shareId: shareId.value ?? undefined,
+        startPager: false,
+      })
+    ).list;
+  }
+  function getExecutionResult(status?: string): IconType {
+    return status && iconTypeStatus[status] ? iconTypeStatus[status] : iconTypeStatus.DEFAULT;
+  }
+
   async function getDetail() {
     try {
       loading.value = true;
@@ -580,103 +629,136 @@
       reportForm.value.reportName = name;
       initOptionsData();
       if (!defaultLayout && id) {
-        getDefaultLayout();
+        await getDefaultLayout();
+        await initGroupList();
+        nextTick(async () => {
+          exportPDF(
+            name,
+            'report-detail',
+            [
+              {
+                columnStyles: {
+                  testPlanName: { cellWidth: 710 / PAGE_PDF_WIDTH_RATIO },
+                  resultStatus: { cellWidth: 130 / PAGE_PDF_WIDTH_RATIO },
+                  passThreshold: { cellWidth: 130 / PAGE_PDF_WIDTH_RATIO },
+                  passRate: { cellWidth: 130 / PAGE_PDF_WIDTH_RATIO },
+                  caseTotal: { cellWidth: 90 / PAGE_PDF_WIDTH_RATIO },
+                },
+                columns: groupColumns.map((item) => ({
+                  ...item,
+                  title: t(item.title as string),
+                  dataKey: item.dataIndex,
+                })) as ColumnInput[],
+                body: fullGroupList.value.map((e) => ({
+                  ...e,
+                  resultStatus: t(getExecutionResult(e.resultStatus).label),
+                  passRate: `${e.passRate}%`,
+                  passThreshold: `${e.passThreshold}%`,
+                })) as RowInput[],
+              },
+            ],
+            () => {
+              loading.value = false;
+              Message.success(t('report.detail.exportPdfSuccess'));
+            }
+          );
+        });
       } else {
         innerCardList.value = (isGroup.value ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig)).filter(
           (e: any) => [ReportCardTypeEnum.CUSTOM_CARD, ReportCardTypeEnum.SUMMARY].includes(e.value)
         );
+        await Promise.all([initBugList(), initCaseList(), initApiList(), initScenarioList()]);
+        nextTick(async () => {
+          exportPDF(
+            name,
+            'report-detail',
+            [
+              {
+                columnStyles: {
+                  num: { cellWidth: 120 / PAGE_PDF_WIDTH_RATIO },
+                  title: { cellWidth: 600 / PAGE_PDF_WIDTH_RATIO },
+                  status: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
+                  handleUserName: { cellWidth: 270 / PAGE_PDF_WIDTH_RATIO },
+                  relationCaseCount: { cellWidth: 90 / PAGE_PDF_WIDTH_RATIO },
+                },
+                columns: bugColumns.map((item) => ({
+                  ...item,
+                  title: t(item.title as string),
+                  dataKey: item.dataIndex,
+                })) as ColumnInput[],
+                body: fullBugList.value,
+              },
+              {
+                columnStyles: {
+                  num: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
+                  name: { cellWidth: 480 / PAGE_PDF_WIDTH_RATIO },
+                  executeResult: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
+                  priority: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
+                  moduleName: { cellWidth: 200 / PAGE_PDF_WIDTH_RATIO },
+                  executeUser: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
+                  relationCaseCount: { cellWidth: 90 / PAGE_PDF_WIDTH_RATIO },
+                },
+                columns: caseColumns.value.map((item) => ({
+                  ...item,
+                  title: t(item.title as string),
+                  dataKey: item.dataIndex,
+                })) as ColumnInput[],
+                body: fullCaseList.value.map((e: any) => ({
+                  ...e,
+                  executeResult: t(lastExecuteResultMap[e.executeResult]?.statusText || '-'),
+                  executeUser: e.executeUser?.name || '-',
+                })) as RowInput[],
+              },
+              {
+                columnStyles: {
+                  num: { cellWidth: 130 / PAGE_PDF_WIDTH_RATIO },
+                  name: { cellWidth: 450 / PAGE_PDF_WIDTH_RATIO },
+                  executeResult: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
+                  priority: { cellWidth: 80 / PAGE_PDF_WIDTH_RATIO },
+                  moduleName: { cellWidth: 200 / PAGE_PDF_WIDTH_RATIO },
+                  executeUser: { cellWidth: 130 / PAGE_PDF_WIDTH_RATIO },
+                  bugCount: { cellWidth: 90 / PAGE_PDF_WIDTH_RATIO },
+                },
+                columns: apiColumns.value.map((item) => ({
+                  ...item,
+                  title: t(item.title as string),
+                  dataKey: item.dataIndex,
+                })) as ColumnInput[],
+                body: fullApiList.value.map((e: any) => ({
+                  ...e,
+                  executeResult: t(lastExecuteResultMap[e.executeResult]?.statusText || '-'),
+                  executeUser: e.executeUser?.name || '-',
+                })) as RowInput[],
+              },
+              {
+                columnStyles: {
+                  num: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
+                  name: { cellWidth: 480 / PAGE_PDF_WIDTH_RATIO },
+                  executeResult: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
+                  priority: { cellWidth: 80 / PAGE_PDF_WIDTH_RATIO },
+                  moduleName: { cellWidth: 200 / PAGE_PDF_WIDTH_RATIO },
+                  executeUser: { cellWidth: 130 / PAGE_PDF_WIDTH_RATIO },
+                  bugCount: { cellWidth: 90 / PAGE_PDF_WIDTH_RATIO },
+                },
+                columns: apiColumns.value.map((item) => ({
+                  ...item,
+                  title: t(item.title as string),
+                  dataKey: item.dataIndex,
+                })) as ColumnInput[],
+                body: fullScenarioList.value.map((e: any) => ({
+                  ...e,
+                  executeResult: t(lastExecuteResultMap[e.executeResult]?.statusText || '-'),
+                  executeUser: e.executeUser?.name || '-',
+                })) as RowInput[],
+              },
+            ],
+            () => {
+              loading.value = false;
+              Message.success(t('report.detail.exportPdfSuccess'));
+            }
+          );
+        });
       }
-      await Promise.all([initBugList(), initCaseList(), initApiList(), initScenarioList()]);
-      nextTick(async () => {
-        exportPDF(
-          name,
-          'report-detail',
-          [
-            {
-              columnStyles: {
-                num: { cellWidth: 120 / PAGE_PDF_WIDTH_RATIO },
-                title: { cellWidth: 600 / PAGE_PDF_WIDTH_RATIO },
-                status: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
-                handleUserName: { cellWidth: 270 / PAGE_PDF_WIDTH_RATIO },
-                relationCaseCount: { cellWidth: 90 / PAGE_PDF_WIDTH_RATIO },
-              },
-              columns: bugColumns.map((item) => ({
-                ...item,
-                title: t(item.title as string),
-                dataKey: item.dataIndex,
-              })) as ColumnInput[],
-              body: fullBugList.value,
-            },
-            {
-              columnStyles: {
-                num: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
-                name: { cellWidth: 480 / PAGE_PDF_WIDTH_RATIO },
-                executeResult: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
-                priority: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
-                moduleName: { cellWidth: 200 / PAGE_PDF_WIDTH_RATIO },
-                executeUser: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
-                relationCaseCount: { cellWidth: 90 / PAGE_PDF_WIDTH_RATIO },
-              },
-              columns: caseColumns.value.map((item) => ({
-                ...item,
-                title: t(item.title as string),
-                dataKey: item.dataIndex,
-              })) as ColumnInput[],
-              body: fullCaseList.value.map((e: any) => ({
-                ...e,
-                executeResult: t(lastExecuteResultMap[e.executeResult]?.statusText || '-'),
-                executeUser: e.executeUser?.name || '-',
-              })) as RowInput[],
-            },
-            {
-              columnStyles: {
-                num: { cellWidth: 130 / PAGE_PDF_WIDTH_RATIO },
-                name: { cellWidth: 450 / PAGE_PDF_WIDTH_RATIO },
-                executeResult: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
-                priority: { cellWidth: 80 / PAGE_PDF_WIDTH_RATIO },
-                moduleName: { cellWidth: 200 / PAGE_PDF_WIDTH_RATIO },
-                executeUser: { cellWidth: 130 / PAGE_PDF_WIDTH_RATIO },
-                bugCount: { cellWidth: 90 / PAGE_PDF_WIDTH_RATIO },
-              },
-              columns: apiColumns.value.map((item) => ({
-                ...item,
-                title: t(item.title as string),
-                dataKey: item.dataIndex,
-              })) as ColumnInput[],
-              body: fullApiList.value.map((e: any) => ({
-                ...e,
-                executeResult: t(lastExecuteResultMap[e.executeResult]?.statusText || '-'),
-                executeUser: e.executeUser?.name || '-',
-              })) as RowInput[],
-            },
-            {
-              columnStyles: {
-                num: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
-                name: { cellWidth: 480 / PAGE_PDF_WIDTH_RATIO },
-                executeResult: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
-                priority: { cellWidth: 80 / PAGE_PDF_WIDTH_RATIO },
-                moduleName: { cellWidth: 200 / PAGE_PDF_WIDTH_RATIO },
-                executeUser: { cellWidth: 130 / PAGE_PDF_WIDTH_RATIO },
-                bugCount: { cellWidth: 90 / PAGE_PDF_WIDTH_RATIO },
-              },
-              columns: apiColumns.value.map((item) => ({
-                ...item,
-                title: t(item.title as string),
-                dataKey: item.dataIndex,
-              })) as ColumnInput[],
-              body: fullScenarioList.value.map((e: any) => ({
-                ...e,
-                executeResult: t(lastExecuteResultMap[e.executeResult]?.statusText || '-'),
-                executeUser: e.executeUser?.name || '-',
-              })) as RowInput[],
-            },
-          ],
-          () => {
-            loading.value = false;
-            Message.success(t('report.detail.exportPdfSuccess'));
-          }
-        );
-      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
