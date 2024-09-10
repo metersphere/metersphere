@@ -452,7 +452,6 @@
   });
 
   function updateHandler() {
-    showDrawerVisible.value = false;
     router.push({
       name: RouteEnum.BUG_MANAGEMENT_DETAIL,
       query: {

@@ -809,6 +809,10 @@
     }
   });
 
+  onDeactivated(() => {
+    detailVisible.value = false;
+  });
+
   onBeforeUnmount(() => {
     detailVisible.value = false;
   });
