@@ -106,7 +106,7 @@ public interface ParamConstants {
 
         @Override
         public String getValue() {
-            return this.value;
+            return value;
         }
     }
 
@@ -117,7 +117,8 @@ public interface ParamConstants {
         PROMETHEUS_HOST("base.prometheus.host"),
         SELENIUM_DOCKER_URL("base.selenium.docker.url"),
         RUN_MODE("base.run.mode"),
-        DOC_URL("base.doc.url");
+        DOC_URL("base.doc.url"),
+        MAX_SIZE("base.file.upload.size");
 
         private String value;
 

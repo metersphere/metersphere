@@ -28,7 +28,6 @@ import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.HeaderRequest;
 import io.metersphere.request.resourcepool.QueryResourcePoolRequest;
 import jakarta.annotation.Resource;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.apache.commons.collections.CollectionUtils;
@@ -96,7 +95,7 @@ public class SystemParameterService {
     }
 
     public void editMail(List<SystemParameter> parameters) {
-        List<SystemParameter> paramList = this.getParamList(ParamConstants.Classify.MAIL.getValue());
+        List<SystemParameter> paramList = getParamList(ParamConstants.Classify.MAIL.getValue());
         boolean empty = paramList.size() <= 0;
 
         parameters.forEach(parameter -> {
@@ -188,7 +187,7 @@ public class SystemParameterService {
     }
 
     public MailInfo mailInfo(String type) {
-        List<SystemParameter> paramList = this.getParamList(type);
+        List<SystemParameter> paramList = getParamList(type);
         MailInfo mailInfo = new MailInfo();
         if (!CollectionUtils.isEmpty(paramList)) {
             for (SystemParameter param : paramList) {
@@ -275,7 +274,7 @@ public class SystemParameterService {
 
     public BaseSystemConfigDTO getBaseInfo() {
         BaseSystemConfigDTO baseSystemConfigDTO = new BaseSystemConfigDTO();
-        List<SystemParameter> paramList = this.getParamList(ParamConstants.Classify.BASE.getValue());
+        List<SystemParameter> paramList = getParamList(ParamConstants.Classify.BASE.getValue());
         if (!CollectionUtils.isEmpty(paramList)) {
             for (SystemParameter param : paramList) {
                 if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.URL.getValue())) {
@@ -295,6 +294,9 @@ public class SystemParameterService {
                 }
                 if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.DOC_URL.getValue())) {
                     baseSystemConfigDTO.setDocUrl(param.getParamValue());
+                }
+                if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.MAX_SIZE.getValue())) {
+                    baseSystemConfigDTO.setMaxSize(param.getParamValue());
                 }
             }
         }
@@ -469,7 +471,7 @@ public class SystemParameterService {
     }
 
     public String getLogDetails() {
-        LdapInfo ldapInfo = this.getLdapInfo(ParamConstants.Classify.LDAP.getValue());
+        LdapInfo ldapInfo = getLdapInfo(ParamConstants.Classify.LDAP.getValue());
         if (ldapInfo != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(ldapInfo, SystemReference.ldapColumns);
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ldapInfo.getUrl()), null, "LDAP设置", null, columns);
@@ -479,7 +481,7 @@ public class SystemParameterService {
     }
 
     public String getMailLogDetails() {
-        MailInfo mailInfo = this.mailInfo(ParamConstants.Classify.MAIL.getValue());
+        MailInfo mailInfo = mailInfo(ParamConstants.Classify.MAIL.getValue());
         if (mailInfo != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(mailInfo, SystemReference.mailColumns);
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(mailInfo.getAccount()), null, "邮件设置", null, columns);
@@ -489,7 +491,7 @@ public class SystemParameterService {
     }
 
     public String getBaseLogDetails() {
-        BaseSystemConfigDTO configDTO = this.getBaseInfo();
+        BaseSystemConfigDTO configDTO = getBaseInfo();
         if (configDTO != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(configDTO, SystemReference.baseColumns);
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(configDTO.getUrl()), null, "基本配置", null, columns);

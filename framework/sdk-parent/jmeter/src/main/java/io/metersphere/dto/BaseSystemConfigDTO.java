@@ -12,4 +12,5 @@ public class BaseSystemConfigDTO {
     private String seleniumDockerUrl;
     private String runMode;
     private String docUrl;
+    private String maxSize;
 }

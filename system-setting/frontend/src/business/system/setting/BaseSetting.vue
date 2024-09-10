@@ -19,6 +19,9 @@
           <el-form-item :label="$t('commons.help_documentation')" prop="docUrl">
             <el-input v-model="formInline.docUrl" placeholder="https://metersphere.io/docs/index.html"/>
           </el-form-item>
+          <el-form-item :label="$t('system_config.file_upload_size')" prop="maxSize">
+            <el-input v-model="formInline.maxSize" :placeholder="$t('system_config.file_upload_tips')"/>
+          </el-form-item>
         </el-col>
       </el-row>
     </el-form>
@@ -39,8 +42,23 @@ import {getSystemBaseSetting, saveSystemBaseSetting} from "../../../api/system";
 export default {
   name: "BaseSetting",
   data() {
+    const checkUploadSize = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error(this.$t('system_config.file_upload_size_is_null')));
+      }
+      if (isNaN(value) || !Number.isInteger(Number(value))) {
+        callback(new Error(this.$t('system_config.file_upload_tips')));
+      } else {
+        const size = Number.parseInt(value);
+        if (size < 1 || size > 1024) {
+          callback(new Error(this.$t('system_config.file_upload_tips')));
+        } else {
+          callback();
+        }
+      }
+    };
     return {
-      formInline: {runMode: true, docUrl: 'https://metersphere.io/docs/index.html'},
+      formInline: {runMode: true, docUrl: 'https://metersphere.io/docs/index.html', maxSize: null},
       input: '',
       visible: true,
       showEdit: true,
@@ -65,6 +83,12 @@ export default {
             trigger: ['change', 'blur']
           },
         ],
+        maxSize: [
+          {
+            validator: checkUploadSize,
+            trigger: ['change', 'blur']
+          }
+        ],
       }
     }
   },
@@ -82,6 +106,7 @@ export default {
           res.data.docUrl = 'https://metersphere.io/docs/index.html'
         }
         this.formInline = res.data;
+        console.log(this.formInline);
         this.$nextTick(() => {
           if (this.$refs.formInline) {
             this.$refs.formInline.clearValidate();
@@ -109,7 +134,8 @@ export default {
           {paramKey: "base.concurrency", paramValue: this.formInline.concurrency, type: "text", sort: 2},
           {paramKey: "base.prometheus.host", paramValue: this.formInline.prometheusHost, type: "text", sort: 1},
           {paramKey: "base.selenium.docker.url", paramValue: this.formInline.seleniumDockerUrl, type: "text", sort: 1},
-          {paramKey: "base.doc.url", paramValue: this.formInline.docUrl, type: "text", sort: 1}
+          {paramKey: "base.doc.url", paramValue: this.formInline.docUrl, type: "text", sort: 1},
+          {paramKey: "base.file.upload.size", paramValue: this.formInline.maxSize, type: "text", sort: 1},
         ];
         this.loading = saveSystemBaseSetting(param).then(res => {
           if (res.success) {

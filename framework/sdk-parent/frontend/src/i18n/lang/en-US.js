@@ -622,6 +622,9 @@ const message = {
       url_tip: 'example: http://localhost:4444',
     },
     local_selenium_url: 'Local selenium-server URL',
+    file_upload_size: 'File size limit(MB)',
+    file_upload_size_is_null: 'The file size limit cannot be empty',
+    file_upload_tips: 'Please fill in the integer [1-1024]'
   },
   custom_field: {
     add_option: 'Add Option',
