@@ -127,10 +127,14 @@
         <trim prefix="(" suffix=")">
             <choose>
                 <when test="${condition}.operator == 'CONTAINS'">
-                    ${column} like CONCAT('%', #{condition.value},'%')
+                    <foreach collection="${condition}.value.split(' ')" item="item" separator="or">
+                        ${column} like CONCAT('%', #{item},'%')
+                    </foreach>
                 </when>
                 <when test="${condition}.operator == 'NOT_CONTAINS'">
-                    ${column} not like CONCAT('%', #{condition.value},'%')
+                    <foreach collection="${condition}.value.split(' ')" item="item" separator="and">
+                        ${column} not like CONCAT('%', #{item},'%')
+                    </foreach>
                 </when>
                 <when test="${condition}.operator == 'IN'">
                     <if test="'${column}' == 'value'">
