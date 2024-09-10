@@ -63,7 +63,6 @@
             v-model:keyword="keyword"
             :filter-config-list="filterConfigList"
             :custom-fields-config-list="searchCustomFields"
-            :row-count="filterRowCount"
             :count="recycleModulesCount[activeFolder] || 0"
             :name="moduleNamePath"
             :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
@@ -772,8 +771,6 @@
 
   const filterConfigList = ref<FilterFormItem[]>([]);
   const searchCustomFields = ref<FilterFormItem[]>([]);
-
-  const filterRowCount = ref(0);
 
   // 处理自定义字段列
   let customFieldsColumns: Record<string, any>[] = [];

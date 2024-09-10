@@ -5,7 +5,6 @@
         v-model:keyword="keyword"
         :filter-config-list="[]"
         :custom-fields-config-list="[]"
-        :row-count="0"
         :count="modulesCount[props.activeModule] || 0"
         :name="moduleNamePath"
         :not-show-input-search="showType !== 'list'"

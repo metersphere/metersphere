@@ -148,7 +148,6 @@
           v-model:keyword="keyword"
           :filter-config-list="[]"
           :custom-fields-config-list="[]"
-          :row-count="0"
           :search-placeholder="searchPlaceholder"
           @keyword-search="loadCaseList"
           @adv-search="loadCaseList"

@@ -147,7 +147,9 @@
   watch(
     () => selectedProtocols.value,
     (val) => {
-      setLocalStorage(props.protocolKey, val);
+      // 存储取消的项
+      const protocols = allProtocolList.value.filter((item) => !val.includes(item as string));
+      setLocalStorage(props.protocolKey, protocols);
       emit('selectedProtocolsChange');
       protocolIsEmptyVisible.value = !val.length;
     }
@@ -171,7 +173,7 @@
     if (!protocols) {
       selectedProtocols.value = allProtocolList.value;
     } else {
-      selectedProtocols.value = allProtocolList.value.filter((item) => protocols.includes(item as string));
+      selectedProtocols.value = allProtocolList.value.filter((item) => !protocols.includes(item as string));
     }
   });
 

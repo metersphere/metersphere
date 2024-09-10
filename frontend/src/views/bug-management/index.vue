@@ -5,7 +5,6 @@
         v-model:keyword="keyword"
         :search-placeholder="t('caseManagement.featureCase.searchByNameAndId')"
         :filter-config-list="filterConfigList"
-        :row-count="filterRowCount"
         @keyword-search="fetchData"
         @refresh="searchData"
       >
@@ -217,7 +216,6 @@
   const appStore = useAppStore();
   const projectId = computed(() => appStore.currentProjectId);
   const filterVisible = ref(false);
-  const filterRowCount = ref(0);
   const syncVisible = ref(false);
   const exportVisible = ref(false);
   const exportOptionData = ref<MsExportDrawerMap>({});
@@ -270,8 +268,6 @@
       type: FilterType.DATE_PICKER,
     },
   ]);
-
-  const heightUsed = computed(() => 286 + (filterVisible.value ? 160 + (filterRowCount.value - 1) * 60 : 0));
 
   // 获取自定义字段
   const getCustomFieldColumns = async () => {
@@ -431,25 +427,24 @@
     },
   ];
 
-  const { propsRes, propsEvent, setKeyword, setAdvanceFilter, setLoadListParams, setProps, resetSelector, loadList } =
-    useTable(
-      getBugList,
-      {
-        tableKey: TableKeyEnum.BUG_MANAGEMENT,
-        selectable: true,
-        noDisable: false,
-        showSetting: true,
-        heightUsed: 106,
-        paginationSize: 'mini',
-      },
-      (record: TableData) => ({
-        ...record,
-        handleUser: record.handleUserName,
-        createUser: record.createUserName,
-        updateUser: record.updateUserName,
-        ...customFieldDataToTableData(record.customFields, customFields.value),
-      })
-    );
+  const { propsRes, propsEvent, setKeyword, setAdvanceFilter, setLoadListParams, resetSelector, loadList } = useTable(
+    getBugList,
+    {
+      tableKey: TableKeyEnum.BUG_MANAGEMENT,
+      selectable: true,
+      noDisable: false,
+      showSetting: true,
+      heightUsed: 256,
+      paginationSize: 'mini',
+    },
+    (record: TableData) => ({
+      ...record,
+      handleUser: record.handleUserName,
+      createUser: record.createUserName,
+      updateUser: record.updateUserName,
+      ...customFieldDataToTableData(record.customFields, customFields.value),
+    })
+  );
 
   const tableBatchActions = {
     baseAction: [
@@ -748,10 +743,6 @@
   function saveSort(sortObj: { [key: string]: string }) {
     sort.value = sortObj;
   }
-
-  watchEffect(() => {
-    setProps({ heightUsed: heightUsed.value });
-  });
 
   onBeforeMount(() => {
     // 进入页面时检查当前项目轮训状态
