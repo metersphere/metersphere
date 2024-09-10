@@ -287,7 +287,7 @@
   const minderStore = useMinderStore();
   const testPlanFeatureCaseStore = useTestPlanFeatureCaseStore();
 
-  const { caseTag, moduleTag, stepTag, stepExpectTag } = useMinderBaseApi({});
+  const { moduleTag, stepTag, stepExpectTag } = useMinderBaseApi({});
   const actualResultTag = t('system.orgTemplate.actualResult');
   const importJson = ref<MinderJson>({
     root: {} as MinderJsonNode,
@@ -370,6 +370,10 @@
       initCaseTree();
     }
   );
+
+  function isCaseTag(data?: MinderJsonNodeData) {
+    return data?.caseId?.length;
+  }
 
   /**
    * 加载模块节点下的用例节点
@@ -554,7 +558,7 @@
     extraVisible.value = val !== undefined ? val : !extraVisible.value;
     const node: MinderJsonNode = window.minder.getSelectedNode();
     const { data } = node;
-    if (extraVisible.value && data?.resource?.includes(caseTag)) {
+    if (extraVisible.value && data && isCaseTag(data)) {
       activeExtraKey.value = 'history';
       initExecuteHistory(data);
       initCaseDetail(data);
@@ -642,7 +646,7 @@
   }
 
   function isActualResultNode(node: MinderJsonNode) {
-    return node.data?.resource?.includes(actualResultTag) && node.parent?.data?.resource?.includes(caseTag);
+    return node.data?.resource?.includes(actualResultTag) && isCaseTag(node.parent?.data);
   }
 
   // 点击模块/用例/用例的实际结果执行
@@ -651,9 +655,9 @@
     const node = isActualResultNode(curSelectNode) ? curSelectNode.parent : curSelectNode;
     executeVisible.value = false;
     const resource = node.data?.resource;
-    if (resource?.includes(caseTag)) {
+    if (isCaseTag(node.data)) {
       //  用例添加标签
-      node.setData('resource', [executionResultMap[status].statusText, caseTag]).render();
+      node.setData('resource', [executionResultMap[status].statusText]).render();
       // 更新用例的实际结果节点
       updateCaseActualResultNode(node, content);
       // 更新执行历史
@@ -673,7 +677,7 @@
 
   async function handleShortCutExecute(status: LastExecuteResults) {
     const selectedNodes: MinderJsonNode = window.minder.getSelectedNode();
-    if (!selectedNodes?.data?.resource?.includes(caseTag)) return;
+    if (!isCaseTag(selectedNodes?.data)) return;
     try {
       await batchExecuteCase({
         projectId: appStore.currentProjectId,
@@ -748,7 +752,7 @@
    */
   function submitStepExecuteDone(status: string, content: string) {
     // 用例更新标签
-    caseNodeAboveSelectStep.value.setData('resource', [executionResultMap[status].statusText, caseTag]).render();
+    caseNodeAboveSelectStep.value.setData('resource', [executionResultMap[status].statusText]).render();
     // 更新用例的实际结果节点
     updateCaseActualResultNode(caseNodeAboveSelectStep.value, content);
     // 更新步骤数据：标签和实际结果
@@ -844,7 +848,7 @@
       if (node?.data?.resource?.includes(resource)) {
         return node.parent;
       }
-      if (node.data?.resource?.includes(caseTag)) {
+      if (isCaseTag(node.data)) {
         return null;
       }
       node = node.parent;
@@ -860,7 +864,7 @@
     };
     const selectedNodes: MinderJsonNode[] = window.minder.getSelectedNodes();
     selectedNodes.forEach((node) => {
-      if (node.data?.resource?.includes(caseTag)) {
+      if (isCaseTag(node?.data)) {
         batchMinderParams.value.minderCaseIds.push(node.data?.id || '');
       } else if (node.data?.type === 'PROJECT') {
         batchMinderParams.value.minderProjectIds.push(node.data?.id || '');
@@ -890,7 +894,7 @@
 
     // 展示浮动菜单: 模块节点且有子节点且不是没权限的根结点、用例节点、用例节点下的实际结果
     if (
-      node.data?.resource?.includes(caseTag) ||
+      isCaseTag(node?.data) ||
       (node.data?.resource?.includes(moduleTag) &&
         (node.children || []).length > 0 &&
         !(!hasOperationPermission.value && node.type === 'root'))
@@ -918,7 +922,7 @@
     }
 
     // 不展示更多：没操作权限的用例、用例节点下的实际结果
-    if ((node.data?.resource?.includes(caseTag) && !hasOperationPermission.value) || isActualResultNode(node)) {
+    if ((isCaseTag(node?.data) && !hasOperationPermission.value) || isActualResultNode(node)) {
       canShowMoreMenu.value = false;
     } else {
       canShowMoreMenu.value = true;
@@ -933,7 +937,7 @@
 
     executeVisible.value = false;
 
-    if (data?.resource?.includes(caseTag)) {
+    if (isCaseTag(data)) {
       canShowDetail.value = true;
       showAssociateBugMenu.value = true;
       if (extraVisible.value) {

@@ -182,7 +182,6 @@
     UNDER_REVIEWED: t('caseManagement.caseReview.reviewing'),
     RE_REVIEWED: t('caseManagement.caseReview.reReview'),
   };
-  const caseTag = t('common.case');
   const moduleTag = t('common.module');
   const importJson = ref<MinderJson>({
     root: {} as MinderJsonNode,
@@ -262,6 +261,9 @@
     initCaseTree();
   });
 
+  function isCaseTag(data?: MinderJsonNodeData) {
+    return data?.caseId?.length;
+  }
   /**
    * 加载模块节点下的用例节点
    * @param node 选中节点
@@ -437,7 +439,7 @@
     extraVisible.value = val !== undefined ? val : !extraVisible.value;
     const node: MinderJsonNode = window.minder.getSelectedNode();
     const { data } = node;
-    if (extraVisible.value && data?.resource?.includes(caseTag)) {
+    if (extraVisible.value && data && isCaseTag(data)) {
       activeExtraKey.value = 'history';
       initCaseDetail(data);
       initReviewHistoryList(data);
@@ -490,8 +492,8 @@
   function handleReviewDone(status: StartReviewStatus | ReviewResult) {
     const node = window.minder.getSelectedNode();
     reviewVisible.value = false;
-    if (status !== 'UN_REVIEWED' && node.data?.resource?.includes(caseTag)) {
-      window.minder.execCommand('resource', [statusTagMap[status], caseTag]);
+    if (status !== 'UN_REVIEWED' && isCaseTag(node.data)) {
+      window.minder.execCommand('resource', [statusTagMap[status]]);
     } else if (status !== StartReviewStatus.UNDER_REVIEWED && node.data?.resource?.includes(moduleTag)) {
       // 先清空子节点，从后向前遍历时，删除节点不会影响到尚未遍历的节点
       for (let i = node.children.length - 1; i >= 0; i--) {
@@ -506,8 +508,8 @@
   // 递归更新子节点的用例标签
   function updateChildResources(status: string, node?: MinderJsonNode) {
     node?.children?.forEach((child: MinderJsonNode) => {
-      if (child.data?.resource?.includes(caseTag)) {
-        child.setData('resource', [statusTagMap[status], caseTag]).render();
+      if (isCaseTag(child.data)) {
+        child.setData('resource', [statusTagMap[status]]).render();
       } else if (child.data?.resource?.includes(moduleTag)) {
         updateChildResources(status, child);
       }
@@ -518,8 +520,8 @@
   function updateResource(status: string) {
     if (selectNode.value.data?.resource?.includes(moduleTag)) {
       updateChildResources(status, selectNode.value);
-    } else if (selectNode.value.data?.resource?.includes(caseTag)) {
-      window.minder.execCommand('resource', [statusTagMap[status], caseTag]);
+    } else if (isCaseTag(selectNode.value.data)) {
+      window.minder.execCommand('resource', [statusTagMap[status]]);
     }
   }
 
@@ -549,7 +551,7 @@
 
     // 展示浮动菜单: 模块节点且有子节点且不是没权限的根结点、用例节点
     if (
-      node.data?.resource?.includes(caseTag) ||
+      isCaseTag(node.data) ||
       (node.data?.resource?.includes(moduleTag) &&
         (node.children || []).length > 0 &&
         !(!hasOperationPermission && node.type === 'root'))
@@ -563,7 +565,7 @@
     reviewVisible.value = false;
 
     // 不展示更多：没操作权限的用例
-    if (node.data?.resource?.includes(caseTag) && !hasOperationPermission) {
+    if (isCaseTag(node.data) && !hasOperationPermission) {
       canShowMoreMenu.value = false;
     } else {
       canShowMoreMenu.value = true;
@@ -582,7 +584,7 @@
       isReviewer.value = false;
     }
 
-    if (data?.resource?.includes(caseTag)) {
+    if (isCaseTag(data)) {
       canShowDetail.value = true;
       setIsReviewer(node.data);
       if (extraVisible.value) {
