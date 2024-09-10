@@ -482,7 +482,7 @@ public class ApiScenarioService extends MoveNodeService {
         }
     }
 
-    private List<ApiScenarioCsvStep> filterNotExistCsv(ScenarioConfig scenarioConfig, List<ApiScenarioCsvStep> csvSteps) {
+    public List<ApiScenarioCsvStep> filterNotExistCsv(ScenarioConfig scenarioConfig, List<ApiScenarioCsvStep> csvSteps) {
         Set<String> csvIdSet =
                 getCsvVariables(scenarioConfig)
                         .stream()
@@ -560,7 +560,7 @@ public class ApiScenarioService extends MoveNodeService {
         }
     }
 
-    private void handleCsvUpdate(ScenarioConfig scenarioConfig, ApiScenario scenario, String userId) {
+    public void handleCsvUpdate(ScenarioConfig scenarioConfig, ApiScenario scenario, String userId) {
         if (scenarioConfig == null) {
             return;
         }
@@ -687,7 +687,7 @@ public class ApiScenarioService extends MoveNodeService {
         }
     }
 
-    private void handleCsvFileAdd(List<CsvVariable> csvVariables, List<ApiScenarioCsv> dbCsv, ApiScenario scenario, String userId) {
+    public void handleCsvFileAdd(List<CsvVariable> csvVariables, List<ApiScenarioCsv> dbCsv, ApiScenario scenario, String userId) {
         ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(scenario.getId(), scenario.getProjectId(), userId);
         // 设置本地文件相关参数
         setCsvLocalFileParam(csvVariables, dbCsv, resourceUpdateRequest);
@@ -705,7 +705,7 @@ public class ApiScenarioService extends MoveNodeService {
         apiFileResourceService.updateFileResource(resourceUpdateRequest);
     }
 
-    private void setCsvLinkFileParam(List<CsvVariable> csvVariables, List<ApiScenarioCsv> dbCsv, ApiFileResourceUpdateRequest resourceUpdateRequest) {
+    public void setCsvLinkFileParam(List<CsvVariable> csvVariables, List<ApiScenarioCsv> dbCsv, ApiFileResourceUpdateRequest resourceUpdateRequest) {
         // 获取数据库中关联的文件id
         List<String> dbRefFileIds = dbCsv.stream()
                 .filter(c -> BooleanUtils.isTrue(c.getAssociation()) && StringUtils.isNotBlank(c.getFileId()))
@@ -724,7 +724,7 @@ public class ApiScenarioService extends MoveNodeService {
         resourceUpdateRequest.setLinkFileIds(linkFileIds);
     }
 
-    private void setCsvLocalFileParam(List<CsvVariable> csvVariables, List<ApiScenarioCsv> dbCsv, ApiFileResourceUpdateRequest resourceUpdateRequest) {
+    public void setCsvLocalFileParam(List<CsvVariable> csvVariables, List<ApiScenarioCsv> dbCsv, ApiFileResourceUpdateRequest resourceUpdateRequest) {
         // 获取数据库中的本地文件
         List<String> dbLocalFileIds = dbCsv.stream()
                 .filter(c -> BooleanUtils.isFalse(c.getAssociation()))
@@ -896,7 +896,7 @@ public class ApiScenarioService extends MoveNodeService {
      * @param scenarioId
      * @param steps
      */
-    private void checkCircularRef(String scenarioId, List<ApiScenarioStepRequest> steps) {
+    public void checkCircularRef(String scenarioId, List<ApiScenarioStepRequest> steps) {
         traversalStepTree(steps, step -> {
             if (isRefOrPartialRef(step.getRefType()) && StringUtils.equals(step.getResourceId(), scenarioId)) {
                 throw new MSException(API_SCENARIO_CIRCULAR_REFERENCE);
@@ -905,7 +905,7 @@ public class ApiScenarioService extends MoveNodeService {
         });
     }
 
-    private ApiScenarioStepBlob getApiScenarioStepBlob(String stepId, Object stepDetail) {
+    public ApiScenarioStepBlob getApiScenarioStepBlob(String stepId, Object stepDetail) {
         ApiScenarioStepBlob apiScenarioStepBlob = new ApiScenarioStepBlob();
         apiScenarioStepBlob.setId(stepId);
         apiScenarioStepBlob.setContent(JSON.toJSONString(stepDetail).getBytes());
@@ -927,7 +927,7 @@ public class ApiScenarioService extends MoveNodeService {
     /**
      * 获取待更新的 ApiScenarioStepBlob 列表
      */
-    private List<ApiScenarioStepBlob> getUpdateStepBlobs(List<ApiScenarioStep> apiScenarioSteps, Map<String, Object> stepDetails) {
+    public List<ApiScenarioStepBlob> getUpdateStepBlobs(List<ApiScenarioStep> apiScenarioSteps, Map<String, Object> stepDetails) {
         if (MapUtils.isEmpty(stepDetails)) {
             return Collections.emptyList();
         }
@@ -989,7 +989,7 @@ public class ApiScenarioService extends MoveNodeService {
      * 解析步骤树结构
      * 获取待更新的 ApiScenarioStep 列表
      */
-    private List<ApiScenarioStep> getApiScenarioSteps(ApiScenarioStepCommonDTO parent,
+    public List<ApiScenarioStep> getApiScenarioSteps(ApiScenarioStepCommonDTO parent,
                                                       List<ApiScenarioStepRequest> steps, List<ApiScenarioCsvStep> csvSteps) {
         if (CollectionUtils.isEmpty(steps)) {
             return Collections.emptyList();
@@ -1185,7 +1185,7 @@ public class ApiScenarioService extends MoveNodeService {
         return partialRefStepDetail;
     }
 
-    private ApiFileResourceUpdateRequest getApiFileResourceUpdateRequest(String sourceId, String projectId, String operator) {
+    public ApiFileResourceUpdateRequest getApiFileResourceUpdateRequest(String sourceId, String projectId, String operator) {
         String apiScenarioDir = DefaultRepositoryDir.getApiScenarioDir(projectId, sourceId);
         ApiFileResourceUpdateRequest resourceUpdateRequest = new ApiFileResourceUpdateRequest();
         resourceUpdateRequest.setProjectId(projectId);

@@ -1,10 +1,10 @@
-package io.metersphere.api.parser.api;
+package io.metersphere.api.parser.api.dataimport;
 
 import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.converter.ApiDefinitionDetail;
-import io.metersphere.api.dto.converter.ApiImportDataAnalysisResult;
-import io.metersphere.api.dto.converter.ApiImportFileParseResult;
+import io.metersphere.api.dto.converter.ApiDefinitionImportDataAnalysisResult;
+import io.metersphere.api.dto.converter.ApiDefinitionImportFileParseResult;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
@@ -29,11 +29,11 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class JmeterParserApiDefinition implements ApiDefinitionImportParser<ApiImportFileParseResult> {
+public class JmeterParserApiDefinition implements ApiDefinitionImportParser<ApiDefinitionImportFileParseResult> {
 
 
     @Override
-    public ApiImportFileParseResult parse(InputStream inputSource, ImportRequest request) throws Exception {
+    public ApiDefinitionImportFileParseResult parse(InputStream inputSource, ImportRequest request) throws Exception {
         try {
             Object scriptWrapper = MsSaveService.loadElement(inputSource);
             HashTree hashTree = this.getHashTree(scriptWrapper);
@@ -49,9 +49,9 @@ public class JmeterParserApiDefinition implements ApiDefinitionImportParser<ApiI
         }
     }
 
-    private ApiImportFileParseResult genApiDefinitionImport(LinkedHashMap<ApiDefinitionDetail, List<ApiTestCaseDTO>> allImportDetails, String moduleName) {
+    private ApiDefinitionImportFileParseResult genApiDefinitionImport(LinkedHashMap<ApiDefinitionDetail, List<ApiTestCaseDTO>> allImportDetails, String moduleName) {
         Map<ApiDefinitionDetail, List<ApiTestCaseDTO>> groupWithUniqueIdentification = this.mergeApiCaseWithUniqueIdentification(allImportDetails);
-        ApiImportFileParseResult returnDTO = new ApiImportFileParseResult();
+        ApiDefinitionImportFileParseResult returnDTO = new ApiDefinitionImportFileParseResult();
         groupWithUniqueIdentification.forEach((definitionImportDetail, caseData) -> {
             String apiID = IDGenerator.nextStr();
             definitionImportDetail.setId(apiID);
@@ -142,17 +142,17 @@ public class JmeterParserApiDefinition implements ApiDefinitionImportParser<ApiI
     }
 
     @Override
-    public ApiImportDataAnalysisResult generateInsertAndUpdateData(ApiImportFileParseResult importParser, List<ApiDefinitionDetail> existenceApiDefinitionList) {
+    public ApiDefinitionImportDataAnalysisResult generateInsertAndUpdateData(ApiDefinitionImportFileParseResult importParser, List<ApiDefinitionDetail> existenceApiDefinitionList) {
         List<ApiDefinitionDetail> importDataList = importParser.getData();
         Map<String, List<ApiDefinitionDetail>> protocolImportMap = importDataList.stream().collect(Collectors.groupingBy(ApiDefinitionDetail::getProtocol));
         Map<String, List<ApiDefinitionDetail>> existenceProtocolMap = existenceApiDefinitionList.stream().collect(Collectors.groupingBy(ApiDefinitionDetail::getProtocol));
 
-        ApiImportDataAnalysisResult insertAndUpdateData = new ApiImportDataAnalysisResult();
+        ApiDefinitionImportDataAnalysisResult insertAndUpdateData = new ApiDefinitionImportDataAnalysisResult();
         for (Map.Entry<String, List<ApiDefinitionDetail>> entry : protocolImportMap.entrySet()) {
             List<ApiDefinitionDetail> importList = entry.getValue();
             List<ApiDefinitionDetail> existenceList = existenceProtocolMap.get(entry.getKey());
 
-            ApiImportDataAnalysisResult httpResult = compareApiData(importList, existenceList, entry.getKey());
+            ApiDefinitionImportDataAnalysisResult httpResult = compareApiData(importList, existenceList, entry.getKey());
             insertAndUpdateData.getInsertApiList().addAll(httpResult.getInsertApiList());
             insertAndUpdateData.getExistenceApiList().addAll(httpResult.getExistenceApiList());
         }
@@ -160,8 +160,8 @@ public class JmeterParserApiDefinition implements ApiDefinitionImportParser<ApiI
         return insertAndUpdateData;
     }
 
-    private ApiImportDataAnalysisResult compareApiData(List<ApiDefinitionDetail> importData, List<ApiDefinitionDetail> existenceApiData, String protocol) {
-        ApiImportDataAnalysisResult insertAndUpdateData = new ApiImportDataAnalysisResult();
+    private ApiDefinitionImportDataAnalysisResult compareApiData(List<ApiDefinitionDetail> importData, List<ApiDefinitionDetail> existenceApiData, String protocol) {
+        ApiDefinitionImportDataAnalysisResult insertAndUpdateData = new ApiDefinitionImportDataAnalysisResult();
 
         if (CollectionUtils.isEmpty(importData)) {
             return insertAndUpdateData;

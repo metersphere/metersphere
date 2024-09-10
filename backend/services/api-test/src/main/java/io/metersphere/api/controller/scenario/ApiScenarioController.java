@@ -6,11 +6,13 @@ import io.metersphere.api.constants.ApiResource;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
+import io.metersphere.api.dto.definition.ApiScenarioBatchExportRequest;
 import io.metersphere.api.dto.definition.ExecutePageRequest;
 import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.scenario.*;
 import io.metersphere.api.service.ApiFileResourceService;
+import io.metersphere.api.service.ApiScenarioDataTransferService;
 import io.metersphere.api.service.ApiValidateService;
 import io.metersphere.api.service.scenario.ApiScenarioLogService;
 import io.metersphere.api.service.scenario.ApiScenarioNoticeService;
@@ -58,6 +60,8 @@ public class ApiScenarioController {
     private FileModuleService fileModuleService;
     @Resource
     private ApiFileResourceService apiFileResourceService;
+    @Resource
+    private ApiScenarioDataTransferService apiScenarioDataTransferService;
 
     @PostMapping("/page")
     @Operation(summary = "接口测试-接口场景管理-场景列表(deleted 状态为 1 时为回收站数据)")
@@ -306,5 +310,24 @@ public class ApiScenarioController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "id desc");
         return PageUtils.setPageInfo(page, apiScenarioService.getReference(request));
+    }
+
+
+    @PostMapping(value = "/export/{type}")
+    @Operation(summary = "接口测试-接口场景管理-场景-导出场景")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXPORT)
+    @CheckOwner(resourceId = "#request.getResourceId()", resourceType = "api_scenario")
+    public String export(@RequestBody ApiScenarioBatchExportRequest request, @PathVariable String type) {
+        return apiScenarioDataTransferService.exportScenario(request, type, SessionUtils.getUserId());
+    }
+
+
+    @PostMapping(value = "/import", consumes = {"multipart/form-data"})
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_IMPORT)
+    @Operation(summary = "接口测试-接口场景管理-场景-导入场景")
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiScenarioImportRequest request) {
+        request.setOperator(SessionUtils.getUserId());
+        apiScenarioDataTransferService.importScenario(file, request);
     }
 }

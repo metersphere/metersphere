@@ -1,8 +1,8 @@
-package io.metersphere.api.parser.api;
+package io.metersphere.api.parser.api.dataimport;
 
 import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.dto.converter.ApiDefinitionDetail;
-import io.metersphere.api.dto.converter.ApiImportFileParseResult;
+import io.metersphere.api.dto.converter.ApiDefinitionImportFileParseResult;
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.definition.ResponseBody;
 import io.metersphere.api.dto.request.ImportRequest;
@@ -44,7 +44,7 @@ import java.net.URI;
 import java.util.*;
 
 
-public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstractParser<ApiImportFileParseResult> {
+public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstractParser<ApiDefinitionImportFileParseResult> {
 
     protected String projectId;
     private Components components;
@@ -72,7 +72,7 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
         }
     }
 
-    public ApiImportFileParseResult parse(InputStream source, ImportRequest request) throws Exception {
+    public ApiDefinitionImportFileParseResult parse(InputStream source, ImportRequest request) throws Exception {
 
         //将之前在service中的swagger地址判断放在这里。
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
@@ -101,10 +101,10 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
                 throw new MSException(Translator.get("swagger_parse_error"));
             }
         }
-        ApiImportFileParseResult apiImportFileParseResult = new ApiImportFileParseResult();
+        ApiDefinitionImportFileParseResult apiDefinitionImportFileParseResult = new ApiDefinitionImportFileParseResult();
         OpenAPI openAPI = result.getOpenAPI();
-        apiImportFileParseResult.setData(parseRequests(openAPI, request));
-        return apiImportFileParseResult;
+        apiDefinitionImportFileParseResult.setData(parseRequests(openAPI, request));
+        return apiDefinitionImportFileParseResult;
     }
 
     private List<AuthorizationValue> setAuths(ImportRequest request) {

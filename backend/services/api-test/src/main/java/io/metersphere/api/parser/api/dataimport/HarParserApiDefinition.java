@@ -1,10 +1,10 @@
-package io.metersphere.api.parser.api;
+package io.metersphere.api.parser.api.dataimport;
 
 
 import io.metersphere.api.domain.ApiDefinitionBlob;
 import io.metersphere.api.dto.converter.ApiDefinitionDetail;
-import io.metersphere.api.dto.converter.ApiImportDataAnalysisResult;
-import io.metersphere.api.dto.converter.ApiImportFileParseResult;
+import io.metersphere.api.dto.converter.ApiDefinitionImportDataAnalysisResult;
+import io.metersphere.api.dto.converter.ApiDefinitionImportFileParseResult;
 import io.metersphere.api.dto.converter.ExistenceApiDefinitionDetail;
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.definition.ResponseBody;
@@ -39,10 +39,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class HarParserApiDefinition extends HttpApiDefinitionImportAbstractParser<ApiImportFileParseResult> {
+public class HarParserApiDefinition extends HttpApiDefinitionImportAbstractParser<ApiDefinitionImportFileParseResult> {
 
     @Override
-    public ApiImportFileParseResult parse(InputStream source, ImportRequest request) throws Exception {
+    public ApiDefinitionImportFileParseResult parse(InputStream source, ImportRequest request) throws Exception {
         Har har = null;
         try {
             har = HarUtils.read(source);
@@ -53,14 +53,14 @@ public class HarParserApiDefinition extends HttpApiDefinitionImportAbstractParse
         if (ObjectUtils.isEmpty(har) || har.log == null) {
             throw new MSException("解析失败，请确认选择的是 Har 格式！");
         }
-        ApiImportFileParseResult definitionImport = new ApiImportFileParseResult();
+        ApiDefinitionImportFileParseResult definitionImport = new ApiDefinitionImportFileParseResult();
         definitionImport.setData(parseRequests(har, request));
         return definitionImport;
     }
 
     @Override
-    public ApiImportDataAnalysisResult generateInsertAndUpdateData(ApiImportFileParseResult importParser, List<ApiDefinitionDetail> existenceApiDefinitionList) {
-        ApiImportDataAnalysisResult insertAndUpdateData = super.generateInsertAndUpdateData(importParser, existenceApiDefinitionList);
+    public ApiDefinitionImportDataAnalysisResult generateInsertAndUpdateData(ApiDefinitionImportFileParseResult importParser, List<ApiDefinitionDetail> existenceApiDefinitionList) {
+        ApiDefinitionImportDataAnalysisResult insertAndUpdateData = super.generateInsertAndUpdateData(importParser, existenceApiDefinitionList);
         ApiDefinitionBlobMapper apiDefinitionBlobMapper = CommonBeanFactory.getBean(ApiDefinitionBlobMapper.class);
 
         for (ExistenceApiDefinitionDetail definitionDetail : insertAndUpdateData.getExistenceApiList()) {

@@ -3,7 +3,7 @@ package io.metersphere.system.constants;
 public class ExportConstants {
 
     public enum ExportType {
-        API_DEFINITION, CASE
+        API_SCENARIO, API_DEFINITION, CASE
     }
 
     public enum ExportState {

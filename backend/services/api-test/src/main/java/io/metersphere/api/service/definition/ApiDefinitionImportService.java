@@ -118,26 +118,26 @@ public class ApiDefinitionImportService {
     @Transactional(rollbackFor = Exception.class)
     public void apiDefinitionImport(MultipartFile file, ImportRequest request, String projectId) {
         this.initImportRequestAndCheck(file, request, projectId);
-        ApiDefinitionImportParser<?> runService = ImportParserFactory.getImportParser(request.getPlatform());
+        ApiDefinitionImportParser<?> runService = ImportParserFactory.getApiDefinitionImportParser(request.getPlatform());
         assert runService != null;
-        ApiImportDataAnalysisResult apiImportDataAnalysisResult = new ApiImportDataAnalysisResult();
+        ApiDefinitionImportDataAnalysisResult apiDefinitionImportDataAnalysisResult = new ApiDefinitionImportDataAnalysisResult();
         try {
             //解析文件
-            ApiImportFileParseResult fileParseResult = (ApiImportFileParseResult) runService.parse(file == null ? null : file.getInputStream(), request);
+            ApiDefinitionImportFileParseResult fileParseResult = (ApiDefinitionImportFileParseResult) runService.parse(file == null ? null : file.getInputStream(), request);
             if (!CollectionUtils.isEmpty(fileParseResult.getData())) {
                 ApiDefinitionPageRequest pageRequest = new ApiDefinitionPageRequest();
                 pageRequest.setProjectId(request.getProjectId());
                 pageRequest.setProtocols(fileParseResult.getApiProtocols());
                 List<ApiDefinitionDetail> existenceApiDefinitionList = extApiDefinitionMapper.importList(pageRequest);
                 //分析有哪些数据需要新增、有哪些数据需要更新
-                apiImportDataAnalysisResult = runService.generateInsertAndUpdateData(fileParseResult, existenceApiDefinitionList);
+                apiDefinitionImportDataAnalysisResult = runService.generateInsertAndUpdateData(fileParseResult, existenceApiDefinitionList);
             }
         } catch (Exception e) {
             LogUtils.error(e.getMessage(), e);
             throw new MSException(Translator.get("parse_data_error"));
         }
 
-        if (apiImportDataAnalysisResult.isEmpty()) {
+        if (apiDefinitionImportDataAnalysisResult.isEmpty()) {
             throw new MSException(Translator.get("parse_empty_data"));
         }
 
@@ -149,7 +149,7 @@ public class ApiDefinitionImportService {
                 request.setVersionId(defaultVersion);
             }
             //通过导入配置，预处理数据，确定哪些要创建、哪些要修改
-            ApiDefinitionPreImportAnalysisResult preImportAnalysisResult = this.preImportAnalysis(request, apiImportDataAnalysisResult);
+            ApiDefinitionPreImportAnalysisResult preImportAnalysisResult = this.preImportAnalysis(request, apiDefinitionImportDataAnalysisResult);
             //入库
             List<LogDTO> operationLogs = this.insertData(preImportAnalysisResult, request);
             operationLogService.batchAdd(operationLogs);
@@ -513,7 +513,7 @@ public class ApiDefinitionImportService {
     /**
      * 预导入数据分析   根据请求配置，判断哪些数据新增、哪些数据修改且修改它的哪部分数据、
      */
-    private ApiDefinitionPreImportAnalysisResult preImportAnalysis(ImportRequest request, ApiImportDataAnalysisResult insertAndUpdateData) {
+    private ApiDefinitionPreImportAnalysisResult preImportAnalysis(ImportRequest request, ApiDefinitionImportDataAnalysisResult insertAndUpdateData) {
         ApiDefinitionPreImportAnalysisResult preImportAnalysisResult = new ApiDefinitionPreImportAnalysisResult();
 
         // api模块树查询
@@ -548,7 +548,7 @@ public class ApiDefinitionImportService {
      */
     private void furtherProcessingExistenceApiData(String selectModuleId, String selectModulePath,
                                                    boolean isCoverModule,
-                                                   ApiImportDataAnalysisResult insertAndUpdateData,
+                                                   ApiDefinitionImportDataAnalysisResult insertAndUpdateData,
                                                    ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult,
                                                    Map<String, BaseTreeNode> modulePathMap) {
         for (ApiDefinitionDetail importApi : insertAndUpdateData.getInsertApiList()) {
@@ -600,7 +600,7 @@ public class ApiDefinitionImportService {
         指定了导入模块： 直接塞入指定模块中。
         未指定导入模块： 接口有模块，就放在那个模块下。  接口没模块就放在未规划模块内
      */
-    private void inertDataAnalysis(ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult, ImportRequest request, String selectModulePath, Map<String, BaseTreeNode> modulePathMap, ApiImportDataAnalysisResult analysisResult) {
+    private void inertDataAnalysis(ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult, ImportRequest request, String selectModulePath, Map<String, BaseTreeNode> modulePathMap, ApiDefinitionImportDataAnalysisResult analysisResult) {
         for (ApiDefinitionDetail apiData : analysisResult.getInsertApiList()) {
             apiDefinitionPreImportAnalysisResult.getInsertApiData().add(apiData);
             //判断是否更新用例
@@ -619,7 +619,7 @@ public class ApiDefinitionImportService {
     }
 
     // 已有数据处理
-    private void existenceDataAnalysis(ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult, ImportRequest request, String selectModulePath, Map<String, BaseTreeNode> modulePathMap, ApiImportDataAnalysisResult analysisResult) {
+    private void existenceDataAnalysis(ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult, ImportRequest request, String selectModulePath, Map<String, BaseTreeNode> modulePathMap, ApiDefinitionImportDataAnalysisResult analysisResult) {
         //不选择覆盖接口或者数据为空：终止操作
         if (CollectionUtils.isEmpty(analysisResult.getExistenceApiList()) || !request.isCoverData()) {
             return;

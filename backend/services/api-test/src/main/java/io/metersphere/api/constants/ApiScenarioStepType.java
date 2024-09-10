@@ -42,7 +42,12 @@ public enum ApiScenarioStepType {
     /**
      * 脚本操作
      */
-    SCRIPT(StepTypeGroup.REQUEST);
+    SCRIPT(StepTypeGroup.REQUEST),
+
+    /**
+     * JMeter插件
+     */
+    JMETER_COMPONENT(StepTypeGroup.REQUEST);
 
 
     private enum StepTypeGroup {
