@@ -57,6 +57,7 @@ export default {
   'report.detail.systemInternalTooltip': 'System built-in, not editable',
   'report.detail.reportNameNotEmpty': 'The report name cannot be empty',
   'report.detail.manualGenReportSuccess': 'The custom generated report was successful',
+  'report.detail.exportPdf': 'Export PDF',
   'report.detail.exportingPdf': 'Exporting PDF report...',
   'report.detail.exportPdfSuccess': 'PDF report exported successfully',
 };

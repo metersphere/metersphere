@@ -20,7 +20,7 @@
       v-if="hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+SHARE']) && !props.shareId"
       type="icon"
       status="secondary"
-      class="ml-4 !rounded-[var(--border-radius-small)]"
+      class="!mr-0 ml-4 !rounded-[var(--border-radius-small)]"
       :loading="shareLoading"
       @click="shareHandler"
     >
@@ -28,7 +28,7 @@
       {{ t('common.share') }}
     </MsButton>
     <MsButton type="icon" status="secondary" class="ml-4 !rounded-[var(--border-radius-small)]" @click="exportPdf">
-      导出 PDF
+      {{ t('report.detail.exportPdf') }}
     </MsButton>
   </div>
 </template>

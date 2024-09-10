@@ -144,7 +144,8 @@ export default async function exportPDF(
         pdf.addPage();
       }
     }
-    const lastImagePageUseHeight = (canvasHeight - IMAGE_HEIGHT) / PAGE_PDF_WIDTH_RATIO / SCALE_RATIO; // 最后一页带图片的pdf页面被图片占用的高度
+    const lastImagePageUseHeight =
+      (canvasHeight > IMAGE_HEIGHT ? canvasHeight - IMAGE_HEIGHT : canvasHeight) / PAGE_PDF_WIDTH_RATIO / SCALE_RATIO; // 最后一页带图片的pdf页面被图片占用的高度
     autoTableConfig.forEach((config, index) => {
       autoTable(pdf, {
         ...config,

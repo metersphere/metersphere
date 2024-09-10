@@ -184,4 +184,17 @@ export const detailTableExample: Record<string, any> = {
   [ReportCardTypeEnum.SCENARIO_CASE_DETAIL]: createData<ApiOrScenarioCaseItem>(scenarioCaseList),
 };
 
-export default {};
+export const iconTypeStatus: Record<string, any> = {
+  SUCCESS: {
+    icon: 'icon-icon_succeed_colorful',
+    label: 'common.success',
+  },
+  ERROR: {
+    icon: 'icon-icon_close_colorful',
+    label: 'common.fail',
+  },
+  DEFAULT: {
+    label: '-',
+    color: '!text-[var(--color-text-input-border)]',
+  },
+};
