@@ -1,14 +1,11 @@
 package io.metersphere.listener;
 
-import io.metersphere.api.event.ApiEventSource;
 import io.metersphere.functional.domain.ExportTask;
 import io.metersphere.functional.domain.ExportTaskExample;
 import io.metersphere.functional.mapper.ExportTaskMapper;
-import io.metersphere.plan.listener.ExecEventListener;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.MinioRepository;
-import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.constants.ExportConstants;
 import io.metersphere.system.service.BaseScheduleService;
@@ -53,21 +50,6 @@ public class AppStartListener implements ApplicationRunner {
         ExportTask exportTask = new ExportTask();
         exportTask.setState(ExportConstants.ExportState.STOP.name());
         exportTaskMapper.updateByExampleSelective(exportTask, exportTaskExample);
-
-        // 注册所有监听源
-        LogUtils.info("初始化接口事件源");
-        ApiEventSource apiEventSource = CommonBeanFactory.getBean(ApiEventSource.class);
-        LogUtils.info("初始化用例管理事件源");
-        //todo: 注册其他事件源
-
-        // 创建监听器对象并注册到多个事件源
-        ExecEventListener listener = CommonBeanFactory.getBean(ExecEventListener.class);
-        apiEventSource.addListener(listener);
-
-        //todo: 注册其他监听器
-
-        // 触发事件
-        apiEventSource.fireEvent("API", "Event after removing the listener test.");
         // 加载插件
         pluginLoadService.loadPlugins();
     }
