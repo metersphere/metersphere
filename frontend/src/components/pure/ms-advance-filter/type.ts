@@ -27,6 +27,12 @@ export interface MsCascaderProps {
   labelKey?: string; // 传入自定义的 labelKey
 }
 
+export interface NumberProps {
+  mode: 'embed' | 'button';
+  precision: number;
+  step: number;
+}
+
 export interface FilterFormItem {
   dataIndex?: string; // 第一列下拉的value
   title?: string; // 第一列下拉显示的label
@@ -36,6 +42,7 @@ export interface FilterFormItem {
   customField?: boolean; // 是否是自定义字段
   customFieldType?: string; // 自定义字段的类型
   cascaderOptions?: CascaderOption[]; // 级联选择的选项
+  numberProps?: Partial<NumberProps>;
   selectProps?: Partial<MsSearchSelectProps>; // select的props, 参考 MsSelect
   cascaderProps?: Partial<MsCascaderProps>; // cascader的props, 参考 MsCascader
   treeSelectData?: TreeNodeData[];

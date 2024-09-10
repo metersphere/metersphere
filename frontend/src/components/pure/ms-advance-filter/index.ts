@@ -113,7 +113,7 @@ export const CustomTypeMaps: Record<string, any> = {
     },
   },
   MEMBER: {
-    type: 'SELECT',
+    type: 'MEMBER',
     propsKey: 'selectProps',
     props: {
       mode: 'remote',
@@ -128,7 +128,7 @@ export const CustomTypeMaps: Record<string, any> = {
     },
   },
   MULTIPLE_MEMBER: {
-    type: 'SELECT',
+    type: 'MEMBER',
     propsKey: 'selectProps',
     props: {
       mode: 'remote',
@@ -165,8 +165,37 @@ export const CustomTypeMaps: Record<string, any> = {
   },
   MULTIPLE_INPUT: {
     type: 'TAGS_INPUT',
+    propsKey: 'numberProps',
+    props: {
+      precision: 0,
+    },
   },
 };
+
+// 处理自定义字段
+export function getFilterCustomFields(result: any[]) {
+  return result.map((item: any) => {
+    const FilterTypeKey: keyof typeof FilterType = CustomTypeMaps[item.type].type;
+    const formObject = CustomTypeMaps[item.type];
+    const { props: formProps } = formObject;
+    const currentItem: any = {
+      title: item.name,
+      dataIndex: item.id,
+      type: FilterType[FilterTypeKey],
+      customField: true,
+      customFieldType: item.type,
+    };
+    if (formObject.propsKey) {
+      if (item.options) {
+        formProps.options = item.options;
+      }
+      currentItem[formObject.propsKey] = {
+        ...formProps,
+      };
+    }
+    return currentItem;
+  });
+}
 
 // 全部数据默认显示搜索条件：ID、名称、模块；
 // TODO lmy 计划详情功能用例增加：测试点；接口定义、计划详情接口用例增加：协议；

@@ -1,5 +1,5 @@
 <template>
-  <MsDrawer v-model:visible="visible" :mask="false" :width="600">
+  <MsDrawer v-model:visible="visible" class="filter-drawer" :mask="false" :width="600">
     <template #title>
       <ViewNameInput
         v-if="isShowNameInput"
@@ -87,6 +87,7 @@
             :disabled="isValueDisabled(item)"
             :max-length="255"
             :placeholder="t('common.pleaseInput')"
+            v-bind="item.numberProps"
           />
           <MsTagsInput
             v-else-if="item.type === FilterType.TAGS_INPUT&& ![OperatorEnum.COUNT_LT, OperatorEnum.COUNT_GT].includes(item.operator as OperatorEnum)"
@@ -182,12 +183,7 @@
             :placeholder="t('advanceFilter.inputPlaceholder')"
           />
         </a-form-item>
-        <a-button
-          v-if="formModel.list.length > 1"
-          type="outline"
-          class="arco-btn-outline--secondary"
-          @click="handleDeleteItem(listIndex)"
-        >
+        <a-button type="outline" class="arco-btn-outline--secondary" @click="handleDeleteItem(listIndex)">
           <template #icon> <MsIcon type="icon-icon_block_outlined" class="text-[var(--color-text-4)]" /> </template>
         </a-button>
       </div>
@@ -197,7 +193,7 @@
       {{ t('advanceFilter.addCondition') }}
     </MsButton>
     <template #footer>
-      <div v-if="!isSaveAsView" class="flex items-center gap-[8px]">
+      <div v-if="!isSaveAsView" class="mb-[22px] flex items-center gap-[8px]">
         <a-button v-if="!formModel?.id" type="primary" @click="handleSaveAndFilter">{{
           t('advanceFilter.saveAndFilter')
         }}</a-button>
@@ -207,7 +203,7 @@
           v-if="!isInternalViews(formModel?.id) && formModel?.id"
           type="text"
           :loading="saveLoading"
-          class="!text-[var(--color-text-1)]"
+          class="h-[32px] !text-[var(--color-text-1)]"
           @click="handleSaveView()"
         >
           {{ t('common.save') }}
@@ -215,7 +211,7 @@
         <MsButton
           v-if="(formModel?.id && !isInternalViews(formModel?.id)) || formModel?.id === 'all_data'"
           type="text"
-          class="!text-[var(--color-text-1)]"
+          class="h-[32px] !text-[var(--color-text-1)]"
           @click="handleToSaveAs"
         >
           {{ t('advanceFilter.saveAsView') }}
@@ -228,7 +224,9 @@
           class="w-[240px]"
           :all-names="allViewNames"
         />
-        <a-button type="primary" :loading="addLoading" @click="handleAddView">{{ t('common.save') }}</a-button>
+        <a-button type="primary" class="mb-[22px]" :loading="addLoading" @click="handleAddView">{{
+          t('common.save')
+        }}</a-button>
         <a-button @click="handleCancelSaveAsView">{{ t('common.cancel') }}</a-button>
       </div>
     </template>
@@ -317,15 +315,6 @@
       console.log(error);
     }
   }
-  watch(
-    () => visible.value,
-    async (val) => {
-      // 新建视图关闭后重新获取数据
-      if (!val && formModel.value?.id !== props.currentView) {
-        await getUserViewDetail(props.currentView);
-      }
-    }
-  );
 
   const isShowNameInput = ref(false);
   const viewNameInputRef = ref<InstanceType<typeof ViewNameInput>>();
@@ -395,7 +384,6 @@
   }
 
   function handleDeleteItem(index: number) {
-    if (formModel.value.list.length === 1) return;
     formModel.value.list.splice(index, 1);
   }
   function handleAddItem() {
@@ -563,9 +551,23 @@
     handleSaveView(true);
   }
 
+  watch(
+    () => visible.value,
+    async (val) => {
+      // 新建视图关闭后重新获取数据
+      if (!val) {
+        handleCancelSaveAsView();
+        if (formModel.value?.id !== props.currentView) {
+          await getUserViewDetail(props.currentView);
+        }
+      }
+    }
+  );
+
   defineExpose({
     resetToNewViewForm,
     handleReset,
+    getUserViewDetail,
   });
 </script>
 
@@ -575,7 +577,37 @@
       display: none;
     }
     .arco-form-item-message {
-      margin-bottom: 2px;
+      margin-bottom: 0;
+    }
+    .arco-select-view {
+      height: 32px;
+      .arco-select-view-inner {
+        @apply overflow-y-auto overflow-x-hidden;
+        .ms-scroll-bar();
+      }
+    }
+  }
+</style>
+
+<style lang="less">
+  // 为了名称校验，input不移动
+  .filter-drawer {
+    .arco-drawer-header {
+      align-items: baseline;
+      padding-top: 16px;
+      height: 60px;
+      .arco-form-item-content,
+      .arco-input-wrapper,
+      .arco-form-item-wrapper-col {
+        height: 26px;
+        min-height: 26px;
+      }
+    }
+    .arco-drawer-footer {
+      padding-bottom: 0;
+      & > div {
+        align-items: start;
+      }
     }
   }
 </style>

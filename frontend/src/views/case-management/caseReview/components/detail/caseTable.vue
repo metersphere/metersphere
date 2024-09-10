@@ -335,7 +335,7 @@
   import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
-  import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { getFilterCustomFields, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -1097,29 +1097,13 @@
   ]);
   const searchCustomFields = ref<FilterFormItem[]>([]);
   async function initFilter() {
-    const result = await getCustomFieldsTable(appStore.currentProjectId);
-    searchCustomFields.value = result.map((item: any) => {
-      const FilterTypeKey: keyof typeof FilterType = CustomTypeMaps[item.type].type;
-      const formType = FilterType[FilterTypeKey];
-      const formObject = CustomTypeMaps[item.type];
-      const { props: formProps } = formObject;
-      const currentItem: any = {
-        title: item.name,
-        dataIndex: item.id,
-        type: formType,
-        customField: true,
-        customFieldType: item.type,
-      };
-
-      if (formObject.propsKey && formProps.options) {
-        formProps.options = item.options;
-        currentItem[formObject.propsKey] = {
-          ...formProps,
-          customFieldType: item.type,
-        };
-      }
-      return currentItem;
-    });
+    try {
+      const result = await getCustomFieldsTable(appStore.currentProjectId);
+      searchCustomFields.value = getFilterCustomFields(result); // 处理自定义字段
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
   // 高级检索
   const handleAdvSearch = async (filter: FilterResult, id: string, isStartAdvance: boolean) => {
