@@ -12,7 +12,8 @@
     "build/**/*.d.ts",
     "mock/**/*.ts",
     "__test__/**/*.ts",
-    "node_modules/monaco-editor/monaco.d.ts"
+    "node_modules/monaco-editor/monaco.d.ts",
+    "src/views/test-plan/report/detail/alibabapuhuiti.js"
   ], // TS解析路径配置
   "compilerOptions": {
     "allowJs": true, // 允许编译器编译JS，JSX文件

@@ -1,5 +1,5 @@
 <template>
-  <a-spin :loading="loading" class="report-detail-container">
+  <a-spin :loading="loading" :tip="t('report.detail.exportingPdf')" class="report-detail-container">
     <div id="report-detail" class="report-detail">
       <div class="report-header">
         <div class="flex-1 break-all">{{ detail.name }}</div>
@@ -89,15 +89,8 @@
           </div>
         </div>
       </div>
-
       <div class="mt-[16px]">
-        <div
-          v-for="item of innerCardList"
-          v-show="showItem(item)"
-          :key="item.id"
-          class="card-item mt-[16px]"
-          :class="`${item.value}`"
-        >
+        <div v-for="item of innerCardList" :id="`${item.value}`" :key="item.id" class="card-item mt-[16px]">
           <div class="wrapper-preview-card">
             <div class="flex items-center justify-between">
               <div v-if="item.value !== ReportCardTypeEnum.CUSTOM_CARD" class="mb-[8px] font-medium">
@@ -111,43 +104,8 @@
               :share-id="shareId"
               is-preview
             />
-            <div v-else-if="item.value === ReportCardTypeEnum.SUMMARY" v-html="getContent(item).content"></div>
-            <MsBaseTable v-else-if="item.value === ReportCardTypeEnum.BUG_DETAIL" v-bind="bugTableProps"> </MsBaseTable>
-            <div v-else-if="item.value === ReportCardTypeEnum.FUNCTIONAL_DETAIL" id="functionalCase">
-              <MsBaseTable v-bind="caseTableProps">
-                <template #caseLevel="{ record }">
-                  <CaseLevel :case-level="record.priority" />
-                </template>
-                <template #lastExecResult="{ record }">
-                  <ExecuteResult :execute-result="record.executeResult" />
-                </template>
-              </MsBaseTable>
-            </div>
-            <MsBaseTable
-              v-else-if="item.value === ReportCardTypeEnum.API_CASE_DETAIL"
-              v-bind="useApiTable.propsRes.value"
-            >
-              <template #priority="{ record }">
-                <caseLevel :case-level="record.priority" />
-              </template>
-
-              <template #lastExecResult="{ record }">
-                <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="record.executeResult" />
-              </template>
-            </MsBaseTable>
-            <MsBaseTable
-              v-else-if="item.value === ReportCardTypeEnum.SCENARIO_CASE_DETAIL"
-              v-bind="useScenarioTable.propsRes.value"
-            >
-              <template #priority="{ record }">
-                <caseLevel :case-level="record.priority" />
-              </template>
-
-              <template #lastExecResult="{ record }">
-                <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="record.executeResult" />
-              </template>
-            </MsBaseTable>
             <div v-else-if="item.value === ReportCardTypeEnum.CUSTOM_CARD" v-html="item.content"></div>
+            <div v-else-if="item.value === ReportCardTypeEnum.SUMMARY" v-html="detail.summary"></div>
           </div>
         </div>
       </div>
@@ -157,16 +115,13 @@
 
 <script setup lang="ts">
   import { useRoute } from 'vue-router';
+  import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
 
   import MsChart from '@/components/pure/chart/index.vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import useTable from '@/components/pure/ms-table/useTable';
-  import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
-  import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
-  import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
+  import { lastExecuteResultMap } from '@/components/business/ms-case-associate/utils';
   import SingleStatusProgress from '@/views/test-plan/report/component/singleStatusProgress.vue';
   import ExecuteAnalysis from '@/views/test-plan/report/detail/component/system-card/executeAnalysis.vue';
   import ReportDetailTable from '@/views/test-plan/report/detail/component/system-card/reportDetailTable.vue';
@@ -190,6 +145,7 @@
     statusConfig,
     toolTipConfig,
   } from '@/config/testPlan';
+  import exportPDF, { PAGE_PDF_WIDTH_RATIO } from '@/hooks/useExportPDF';
   import { useI18n } from '@/hooks/useI18n';
   import { addCommasToNumber } from '@/utils';
   import exportPdf, { MAX_CANVAS_HEIGHT, SCALE_RATIO } from '@/utils/exportPdf';
@@ -201,25 +157,21 @@
     ReportMetricsItemModel,
     StatusListType,
   } from '@/models/testPlan/testPlanReport';
-  import { customValueForm } from '@/models/testPlan/testPlanReport';
-  import { ReportEnum } from '@/enums/reportEnum';
   import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
   import { defaultGroupConfig, defaultSingleConfig } from './component/reportConfig';
   import { getSummaryDetail } from '@/views/test-plan/report/utils';
-  import html2canvas from 'html2canvas-pro';
+  import { ColumnInput, RowInput } from 'jspdf-autotable';
 
   const { t } = useI18n();
   const route = useRoute();
 
-  const innerCardList = defineModel<configItem[]>('cardList', {
-    default: [],
-  });
+  const innerCardList = ref<configItem[]>([]);
 
   const detail = ref<PlanReportDetail>({ ...cloneDeep(defaultReportDetail) });
   const reportId = ref<string>(route.query.id as string);
   const isGroup = computed(() => route.query.type === 'GROUP');
-  const loading = ref<boolean>(false);
+  const loading = ref<boolean>(true);
   const richText = ref<{ summary: string; richTextTmpFileIds?: string[] }>({
     summary: '',
   });
@@ -399,19 +351,6 @@
     ];
   });
 
-  function showItem(item: configItem) {
-    switch (item.value) {
-      case ReportCardTypeEnum.FUNCTIONAL_DETAIL:
-        return functionalCaseTotal.value > 0;
-      case ReportCardTypeEnum.API_CASE_DETAIL:
-        return apiCaseTotal.value > 0;
-      case ReportCardTypeEnum.SCENARIO_CASE_DETAIL:
-        return scenarioCaseTotal.value > 0;
-      default:
-        return true;
-    }
-  }
-
   const cardCount = computed(() => {
     const totalList = [functionalCaseTotal.value, apiCaseTotal.value, scenarioCaseTotal.value];
     let count = 2;
@@ -422,25 +361,24 @@
     });
     return count;
   });
-
-  const originLayoutInfo = ref([]);
+  const currentMode = ref<string>('drawer');
 
   async function getDefaultLayout() {
     try {
       const res = await getReportLayout(detail.value.id, shareId.value);
-      const result = res.map((item: any) => {
-        return {
-          id: item.id,
-          value: item.name,
-          label: item.label,
-          content: item.value || '',
-          type: item.type,
-          enableEdit: false,
-          richTextTmpFileIds: item.richTextTmpFileIds,
-        };
-      });
-      innerCardList.value = result;
-      originLayoutInfo.value = cloneDeep(result);
+      innerCardList.value = res
+        .filter((e: any) => [ReportCardTypeEnum.CUSTOM_CARD, ReportCardTypeEnum.SUMMARY].includes(e.value))
+        .map((item: any) => {
+          return {
+            id: item.id,
+            value: item.name,
+            label: item.label,
+            content: item.value || '',
+            type: item.type,
+            enableEdit: false,
+            richTextTmpFileIds: item.richTextTmpFileIds,
+          };
+        });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -448,24 +386,6 @@
   }
 
   const isDefaultLayout = ref<boolean>(false);
-
-  // 获取内容详情
-  function getContent(item: configItem): customValueForm {
-    if (isDefaultLayout.value) {
-      return {
-        content: richText.value.summary || '',
-        label: t(item.label),
-        richTextTmpFileIds: [],
-      };
-    }
-    return {
-      content: item.content || '',
-      label: t(item.label),
-      richTextTmpFileIds: item.richTextTmpFileIds,
-    };
-  }
-
-  const currentMode = ref<string>('drawer');
 
   /** 缺陷明细 */
   const bugColumns: MsTableColumn = [
@@ -497,16 +417,6 @@
   const reportBugList = () => {
     return !shareId.value ? getReportBugList : getReportShareBugList;
   };
-  const {
-    propsRes: bugTableProps,
-    loadList: loadBugList,
-    setLoadListParams: setLoadBugListParams,
-  } = useTable(reportBugList(), {
-    scroll: { x: '100%', y: 'auto' },
-    columns: bugColumns,
-    showSelectorAll: false,
-    hoverable: false,
-  });
 
   /** 用例明细 */
   const staticColumns: MsTableColumn = [
@@ -571,18 +481,6 @@
   const reportFeatureCaseList = () => {
     return !shareId.value ? getReportFeatureCaseList : getReportShareFeatureCaseList;
   };
-  const {
-    propsRes: caseTableProps,
-    loadList: loadCaseList,
-    setLoadListParams: setLoadCaseListParams,
-    setPagination: setCasePagination,
-  } = useTable(reportFeatureCaseList(), {
-    scroll: { x: '100%', y: 'auto' },
-    columns: caseColumns.value,
-    heightUsed: 20,
-    showSelectorAll: false,
-    hoverable: false,
-  });
 
   /** 接口/场景明细 */
   const apiStaticColumns: MsTableColumn = [
@@ -605,31 +503,72 @@
       title: 'common.executionResult',
       dataIndex: 'executeResult',
       slotName: 'lastExecResult',
-      width: 80,
+      width: 100,
     },
   ];
 
   const apiColumns = computed(() => {
     if (isGroup.value) {
-      return [...apiStaticColumns, ...testPlanNameColumns, ...lastStaticColumns];
+      return [
+        ...apiStaticColumns,
+        ...testPlanNameColumns,
+        ...lastStaticColumns.filter((e) => e.dataIndex !== 'priority'),
+      ];
     }
-    return [...apiStaticColumns, ...lastStaticColumns];
+    return [...apiStaticColumns, ...lastStaticColumns.filter((e) => e.dataIndex !== 'priority')];
   });
 
-  const useApiTable = useTable(getApiPage, {
-    scroll: { x: '100%', y: 'auto' },
-    columns: apiColumns.value,
-    showSelectorAll: false,
-    showSetting: false,
-    hoverable: false,
-  });
-  const useScenarioTable = useTable(getScenarioPage, {
-    scroll: { x: '100%', y: 'auto' },
-    columns: apiColumns.value,
-    showSelectorAll: false,
-    showSetting: false,
-    hoverable: false,
-  });
+  const fullCaseList = ref<any>([]);
+  async function initCaseList() {
+    fullCaseList.value = (
+      await reportFeatureCaseList()({
+        current: 1,
+        pageSize: 500,
+        reportId: reportId.value,
+        shareId: shareId.value ?? undefined,
+        startPager: false,
+      })
+    ).list;
+  }
+
+  const fullBugList = ref<any>([]);
+  async function initBugList() {
+    fullBugList.value = (
+      await reportBugList()({
+        current: 1,
+        pageSize: 500,
+        reportId: reportId.value,
+        shareId: shareId.value ?? undefined,
+        startPager: false,
+      })
+    ).list;
+  }
+
+  const fullApiList = ref<any>([]);
+  async function initApiList() {
+    fullApiList.value = (
+      await getApiPage({
+        current: 1,
+        pageSize: 500,
+        reportId: reportId.value,
+        shareId: shareId.value ?? undefined,
+        startPager: false,
+      })
+    ).list;
+  }
+
+  const fullScenarioList = ref<any>([]);
+  async function initScenarioList() {
+    fullScenarioList.value = (
+      await getScenarioPage({
+        current: 1,
+        pageSize: 500,
+        reportId: reportId.value,
+        shareId: shareId.value ?? undefined,
+        startPager: false,
+      })
+    ).list;
+  }
 
   async function getDetail() {
     try {
@@ -643,50 +582,104 @@
       if (!defaultLayout && id) {
         getDefaultLayout();
       } else {
-        innerCardList.value = isGroup.value ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
+        innerCardList.value = (isGroup.value ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig)).filter(
+          (e: any) => [ReportCardTypeEnum.CUSTOM_CARD, ReportCardTypeEnum.SUMMARY].includes(e.value)
+        );
       }
-      setLoadBugListParams({ reportId: reportId.value, shareId: shareId.value ?? undefined, pageSize: 500 });
-      setLoadCaseListParams({ reportId: reportId.value, shareId: shareId.value ?? undefined, pageSize: 500 });
-      useApiTable.setLoadListParams({
-        reportId: reportId.value,
-        shareId: shareId.value ?? undefined,
-        pageSize: 500,
+      await Promise.all([initBugList(), initCaseList(), initApiList(), initScenarioList()]);
+      nextTick(async () => {
+        exportPDF(
+          name,
+          'report-detail',
+          [
+            {
+              columnStyles: {
+                num: { cellWidth: 120 / PAGE_PDF_WIDTH_RATIO },
+                title: { cellWidth: 600 / PAGE_PDF_WIDTH_RATIO },
+                status: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
+                handleUserName: { cellWidth: 270 / PAGE_PDF_WIDTH_RATIO },
+                relationCaseCount: { cellWidth: 90 / PAGE_PDF_WIDTH_RATIO },
+              },
+              columns: bugColumns.map((item) => ({
+                ...item,
+                title: t(item.title as string),
+                dataKey: item.dataIndex,
+              })) as ColumnInput[],
+              body: fullBugList.value,
+            },
+            {
+              columnStyles: {
+                num: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
+                name: { cellWidth: 480 / PAGE_PDF_WIDTH_RATIO },
+                executeResult: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
+                priority: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
+                moduleName: { cellWidth: 200 / PAGE_PDF_WIDTH_RATIO },
+                executeUser: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
+                relationCaseCount: { cellWidth: 90 / PAGE_PDF_WIDTH_RATIO },
+              },
+              columns: caseColumns.value.map((item) => ({
+                ...item,
+                title: t(item.title as string),
+                dataKey: item.dataIndex,
+              })) as ColumnInput[],
+              body: fullCaseList.value.map((e: any) => ({
+                ...e,
+                executeResult: t(lastExecuteResultMap[e.executeResult]?.statusText || '-'),
+                executeUser: e.executeUser?.name || '-',
+              })) as RowInput[],
+            },
+            {
+              columnStyles: {
+                num: { cellWidth: 130 / PAGE_PDF_WIDTH_RATIO },
+                name: { cellWidth: 450 / PAGE_PDF_WIDTH_RATIO },
+                executeResult: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
+                priority: { cellWidth: 80 / PAGE_PDF_WIDTH_RATIO },
+                moduleName: { cellWidth: 200 / PAGE_PDF_WIDTH_RATIO },
+                executeUser: { cellWidth: 130 / PAGE_PDF_WIDTH_RATIO },
+                bugCount: { cellWidth: 90 / PAGE_PDF_WIDTH_RATIO },
+              },
+              columns: apiColumns.value.map((item) => ({
+                ...item,
+                title: t(item.title as string),
+                dataKey: item.dataIndex,
+              })) as ColumnInput[],
+              body: fullApiList.value.map((e: any) => ({
+                ...e,
+                executeResult: t(lastExecuteResultMap[e.executeResult]?.statusText || '-'),
+                executeUser: e.executeUser?.name || '-',
+              })) as RowInput[],
+            },
+            {
+              columnStyles: {
+                num: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
+                name: { cellWidth: 480 / PAGE_PDF_WIDTH_RATIO },
+                executeResult: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
+                priority: { cellWidth: 80 / PAGE_PDF_WIDTH_RATIO },
+                moduleName: { cellWidth: 200 / PAGE_PDF_WIDTH_RATIO },
+                executeUser: { cellWidth: 130 / PAGE_PDF_WIDTH_RATIO },
+                bugCount: { cellWidth: 90 / PAGE_PDF_WIDTH_RATIO },
+              },
+              columns: apiColumns.value.map((item) => ({
+                ...item,
+                title: t(item.title as string),
+                dataKey: item.dataIndex,
+              })) as ColumnInput[],
+              body: fullScenarioList.value.map((e: any) => ({
+                ...e,
+                executeResult: t(lastExecuteResultMap[e.executeResult]?.statusText || '-'),
+                executeUser: e.executeUser?.name || '-',
+              })) as RowInput[],
+            },
+          ],
+          () => {
+            loading.value = false;
+            Message.success(t('report.detail.exportPdfSuccess'));
+          }
+        );
       });
-      useScenarioTable.setLoadListParams({
-        reportId: reportId.value,
-        shareId: shareId.value ?? undefined,
-        pageSize: 500,
-      });
-      await Promise.all([loadBugList(), loadCaseList(), useApiTable.loadList(), useScenarioTable.loadList()]);
-      setTimeout(() => {
-        exportPdf(detail.value.name, 'report-detail');
-        // nextTick(async () => {
-        //   const element = document.getElementById('functionalCase');
-        //   if (element) {
-        //     while (caseTableProps.value.msPagination!.current * 500 < caseTableProps.value.msPagination!.total) {
-        //       console.log('start html2canvas', new Date().getMinutes(), new Date().getSeconds());
-        //       // eslint-disable-next-line no-await-in-loop
-        //       const canvas = await html2canvas(element, {
-        //         x: 0,
-        //         y: 848,
-        //         width: 1190,
-        //         height: MAX_CANVAS_HEIGHT,
-        //         backgroundColor: '#f9f9fe',
-        //         scale: window.devicePixelRatio * SCALE_RATIO, // 缩放增加清晰度
-        //       });
-        //       console.log('end html2canvas', new Date().getMinutes(), new Date().getSeconds());
-        //       exportPdf(detail.value.name, 'report-detail', canvas);
-        //       setCasePagination({ current: caseTableProps.value.msPagination!.current + 1 });
-        //       // eslint-disable-next-line no-await-in-loop
-        //       await loadCaseList();
-        //     }
-        //   }
-        // });
-      }, 0);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
-    } finally {
       loading.value = false;
     }
   }
@@ -695,6 +688,12 @@
     getDetail();
   });
 </script>
+
+<style lang="less">
+  .arco-spin-mask-icon {
+    @apply !fixed;
+  }
+</style>
 
 <style lang="less" scoped>
   .report-detail-container {
