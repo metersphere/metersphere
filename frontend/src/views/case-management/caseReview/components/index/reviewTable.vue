@@ -4,7 +4,6 @@
       <MsAdvanceFilter
         v-model:keyword="keyword"
         :filter-config-list="filterConfigList"
-        :row-count="filterRowCount"
         :search-placeholder="t('caseManagement.caseReview.list.searchPlaceholder')"
         @keyword-search="searchReview()"
         @adv-search="searchReview"
@@ -242,7 +241,6 @@
 
   const keyword = ref('');
 
-  const filterRowCount = ref(0);
   const filterConfigList = ref<FilterFormItem[]>([]);
   const memberOptions = ref<{ label: string; value: string }[]>([]);
   const reviewersFilters = ref<string[]>([]);

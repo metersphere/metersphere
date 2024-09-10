@@ -3,7 +3,6 @@
     v-model:keyword="keyword"
     :filter-config-list="filterConfigList"
     :custom-fields-config-list="searchCustomFields"
-    :row-count="filterRowCount"
     :search-placeholder="t('common.searchByIDNameTag')"
     @keyword-search="fetchData"
     @adv-search="fetchData"
@@ -1488,7 +1487,6 @@
    */
   const filterConfigList = ref<FilterFormItem[]>([]);
   const searchCustomFields = ref<FilterFormItem[]>([]);
-  const filterRowCount = ref(0);
 
   watch(
     () => showType.value,

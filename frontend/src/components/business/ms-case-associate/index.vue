@@ -106,7 +106,6 @@
           v-model:keyword="keyword"
           :filter-config-list="filterConfigList"
           :custom-fields-config-list="searchCustomFields"
-          :row-count="filterRowCount"
           :search-placeholder="t('caseManagement.featureCase.searchByNameAndId')"
           @keyword-search="searchCase"
           @adv-search="searchCase"
@@ -280,7 +279,6 @@
 
   const activeFolder = ref('all');
   const activeFolderName = ref(t('ms.case.associate.allCase'));
-  const filterRowCount = ref(0);
 
   const moduleKeyword = ref('');
   const folderTree = ref<ModuleTreeNode[]>([]);

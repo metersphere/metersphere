@@ -5,7 +5,6 @@
         v-model:keyword="keyword"
         :search-placeholder="t('bugManagement.recycle.searchPlaceholder')"
         :filter-config-list="filterConfigList"
-        :row-count="filterRowCount"
         @keyword-search="fetchData"
         @refresh="searchData"
       >
@@ -90,8 +89,6 @@
   const tableStore = useTableStore();
   const appStore = useAppStore();
   const projectId = computed(() => appStore.currentProjectId);
-  const filterVisible = ref(false);
-  const filterRowCount = ref(0);
   const keyword = ref('');
   // 自定义字段
   const customFields = ref<BugEditCustomField[]>([]);
@@ -115,8 +112,6 @@
 
   const severityFilterOptions = ref<BugOptionItem[]>([]);
   const currentSelectParams = ref<BatchActionQueryParams>({ selectAll: false, currentSelectCount: 0 });
-
-  const heightUsed = computed(() => 286 + (filterVisible.value ? 160 + (filterRowCount.value - 1) * 60 : 0));
 
   let columns: MsTableColumn = [
     {
@@ -283,25 +278,24 @@
     return customFieldToColumns(res);
   };
 
-  const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams, setProps, resetSelector, resetFilterParams } =
-    useTable(
-      getRecycleList,
-      {
-        tableKey: TableKeyEnum.BUG_MANAGEMENT_RECYCLE,
-        selectable: true,
-        noDisable: true,
-        showSetting: true,
-        scroll: { x: '1900px' },
-        heightUsed: 256,
-      },
-      (record: TableData) => ({
-        ...record,
-        handleUser: record.handleUserName,
-        createUser: record.createUserName,
-        updateUser: record.updateUserName,
-        ...customFieldDataToTableData(record.customFields, customFields.value),
-      })
-    );
+  const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams, resetSelector, resetFilterParams } = useTable(
+    getRecycleList,
+    {
+      tableKey: TableKeyEnum.BUG_MANAGEMENT_RECYCLE,
+      selectable: true,
+      noDisable: true,
+      showSetting: true,
+      scroll: { x: '1900px' },
+      heightUsed: 256,
+    },
+    (record: TableData) => ({
+      ...record,
+      handleUser: record.handleUserName,
+      createUser: record.createUserName,
+      updateUser: record.updateUserName,
+      ...customFieldDataToTableData(record.customFields, customFields.value),
+    })
+  );
 
   const tableAction = {
     baseAction: [
@@ -317,10 +311,6 @@
       },
     ],
   };
-
-  watchEffect(() => {
-    setProps({ heightUsed: heightUsed.value });
-  });
 
   function initTableParams() {
     return {
