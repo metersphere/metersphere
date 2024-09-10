@@ -173,6 +173,7 @@
   import { defaultDetailCount, testPlanDefaultDetail } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
   import useCacheStore from '@/store/modules/cache/cache';
   import useMinderStore from '@/store/modules/components/minder-editor';
@@ -194,6 +195,8 @@
   const appStore = useAppStore();
   const { openModal } = useModal();
   const { t } = useI18n();
+  const { openNewPage } = useOpenNewPage();
+
   const route = useRoute();
   const router = useRouter();
   const minderStore = useMinderStore();
@@ -417,12 +420,9 @@
         testPlanId: detail.value.id as string,
         triggerMode: 'MANUAL',
       });
-      router.push({
-        name: TestPlanRouteEnum.TEST_PLAN_REPORT_DETAIL,
-        query: {
-          id: reportId,
-          type: testPlanTypeEnum.TEST_PLAN,
-        },
+      openNewPage(TestPlanRouteEnum.TEST_PLAN_REPORT_DETAIL, {
+        id: reportId,
+        type: testPlanTypeEnum.TEST_PLAN,
       });
       Message.success(t('testPlan.testPlanDetail.successfullyGenerated'));
     } catch (error) {

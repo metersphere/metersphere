@@ -13,10 +13,10 @@
     @cancel="handleDrawerCancel"
   >
     <div class="flex items-center justify-between">
-      <div
-        ><span class="font-medium">{{ platName }}</span
-        ><span class="ml-1 text-[var(--color-text-4)]">({{ propsRes?.msPagination?.total || 0 }})</span></div
-      >
+      <div>
+        <span class="font-medium">{{ platName }}</span>
+        <span class="ml-1 text-[var(--color-text-4)]">({{ propsRes?.msPagination?.total || 0 }})</span>
+      </div>
       <a-input-search
         v-model="platformKeyword"
         :max-length="255"
@@ -26,7 +26,7 @@
         @search="searchHandler"
         @press-enter="searchHandler"
         @clear="searchHandler"
-      ></a-input-search>
+      />
     </div>
     <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
       <template #demandName="{ record }">
@@ -65,7 +65,7 @@
   const currentProjectId = computed(() => appStore.currentProjectId);
   const props = defineProps<{
     visible: boolean;
-    caseId: string;
+    caseId?: string; // 批量关联需求不需要用例id
     drawerLoading: boolean;
     platformInfo: Record<string, any>;
   }>();
@@ -93,6 +93,7 @@
       width: 300,
       showTooltip: true,
     },
+    // TODO 平台需求状态暂时不上
     // {
     //   title: 'caseManagement.featureCase.platformDemandState',
     //   width: 300,
@@ -118,7 +119,13 @@
     rowKey: 'demandId',
     scroll: { x: '100%' },
     selectable: true,
+    heightUsed: 290,
     showSetting: false,
+    showSelectorAll: !props.caseId,
+    rowSelectionDisabledConfig: {
+      checkStrictly: false,
+      disabledKey: props.caseId ? 'disabled' : '',
+    },
   });
 
   const tableSelected = computed(() => {
@@ -188,7 +195,7 @@
   }
 
   const initData = async () => {
-    setLoadListParams({ keyword: platformKeyword.value, projectId: currentProjectId.value });
+    setLoadListParams({ keyword: platformKeyword.value, projectId: currentProjectId.value, caseId: props.caseId });
     loadList();
   };
 
@@ -220,31 +227,17 @@
 
       fullColumns = [...columns, ...customFields.value];
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
-
-  // watch(
-  //   () => props.platformInfo.demand_platform_config,
-  //   (val) => {
-  //     if (val) {
-  //       console.log(val);
-  //       initColumn();
-  //     }
-  //   }
-  // );
-
-  // watchEffect(() => {
-  //   if (props.platformInfo.demand_platform_config) {
-
-  //   }
-  // });
 
   watch(
     () => innerLinkDemandVisible.value,
     async (val) => {
       if (val) {
         resetSelector();
+        platformKeyword.value = '';
         if (props.platformInfo.demand_platform_config) {
           nextTick(() => {
             tableRef.value?.initColumn(fullColumns);
@@ -256,4 +249,13 @@
   );
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  :deep(.arco-table-cell-align-left) > span:first-child {
+    padding-left: 0 !important;
+  }
+  :deep(.arco-table-cell-align-left) {
+    .arco-table-cell-inline-icon + .arco-table-td-content {
+      padding-right: 18px !important;
+    }
+  }
+</style>

@@ -375,7 +375,12 @@
   import { MsExportDrawerMap, MsExportDrawerOption } from '@/components/pure/ms-export-drawer/types';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
+  import type {
+    BatchActionConfig,
+    BatchActionParams,
+    BatchActionQueryParams,
+    MsTableColumn,
+  } from '@/components/pure/ms-table/type';
   import { MsTableProps } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
@@ -707,7 +712,40 @@
   ];
 
   const platformInfo = ref<Record<string, any>>({});
-  const tableBatchActions = {
+
+  const batchMoreActions = computed<BatchActionParams[]>(() => {
+    const addDemandAction = [
+      {
+        label: 'caseManagement.featureCase.addDemand',
+        eventTag: 'addDemand',
+        permission: ['FUNCTIONAL_CASE:READ+UPDATE'],
+      },
+    ];
+    const linkDemandAction = [
+      {
+        label: 'caseManagement.featureCase.associatedDemand',
+        eventTag: 'associatedDemand',
+        permission: ['FUNCTIONAL_CASE:READ+UPDATE'],
+      },
+    ];
+    const deleteMoreAction = [
+      {
+        isDivider: true,
+      },
+      {
+        label: 'common.delete',
+        eventTag: 'delete',
+        permission: ['FUNCTIONAL_CASE:READ+DELETE'],
+        danger: true,
+      },
+    ];
+    if (!Object.keys(platformInfo.value).length) {
+      return [...addDemandAction, ...deleteMoreAction];
+    }
+    return [...addDemandAction, ...linkDemandAction, ...deleteMoreAction];
+  });
+
+  const tableBatchActions: BatchActionConfig = {
     baseAction: [
       {
         label: 'caseManagement.featureCase.export',
@@ -740,35 +778,7 @@
         permission: ['FUNCTIONAL_CASE:READ+ADD'],
       },
     ],
-    moreAction: [
-      {
-        label: 'caseManagement.featureCase.addDemand',
-        eventTag: 'addDemand',
-        permission: ['FUNCTIONAL_CASE:READ+UPDATE'],
-      },
-      {
-        label: 'caseManagement.featureCase.associatedDemand',
-        eventTag: 'associatedDemand',
-        permission: ['FUNCTIONAL_CASE:READ+UPDATE'],
-      },
-      // {
-      //   label: 'caseManagement.featureCase.generatingDependencies',
-      //   eventTag: 'generatingDependencies',
-      // },
-      // {
-      //   label: 'caseManagement.featureCase.addToPublic',
-      //   eventTag: 'addToPublic',
-      // },
-      {
-        isDivider: true,
-      },
-      {
-        label: 'common.delete',
-        eventTag: 'delete',
-        permission: ['FUNCTIONAL_CASE:READ+DELETE'],
-        danger: true,
-      },
-    ],
+    moreAction: [],
   };
 
   const filterConfigList = computed<FilterFormItem[]>(() => [
@@ -1776,12 +1786,7 @@
       if (result && result.platform_key) {
         platformInfo.value = { ...result };
       }
-      if (Object.keys(result).length === 0) {
-        tableBatchActions.moreAction = [
-          ...tableBatchActions.moreAction.slice(0, 1),
-          ...tableBatchActions.moreAction.slice(-2),
-        ];
-      }
+      tableBatchActions.moreAction = batchMoreActions.value;
     } catch (error) {
       console.log(error);
     }

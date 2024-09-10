@@ -40,7 +40,7 @@
       @cancel="cancelLink"
       @open="openDemandUrl"
       @associate="linkDemandDrawer = true"
-    ></AssociatedDemandTable>
+    />
     <AddDemandModal
       ref="demandModalRef"
       v-model:visible="showAddModel"
@@ -50,54 +50,13 @@
       @save="saveHandler"
       @success="searchList()"
     />
-    <MsDrawer
+    <ThirdDemandDrawer
       v-model:visible="linkDemandDrawer"
-      :ok-disabled="tableSelected.length < 1"
-      :mask="false"
-      :title="t('caseManagement.featureCase.associatedDemand')"
-      :ok-text="t('caseManagement.featureCase.associated')"
-      :ok-loading="drawerLoading"
-      :width="960"
-      unmount-on-close
-      :show-continue="false"
-      @confirm="handleDrawerConfirm"
-      @cancel="handleDrawerCancel"
-    >
-      <div class="flex items-center justify-between">
-        <div>
-          <span class="font-medium">{{ platName }}</span>
-          <span class="ml-1 text-[var(--color-text-4)]">({{ propsRes?.msPagination?.total || 0 }})</span>
-        </div>
-        <a-input-search
-          v-model="platformKeyword"
-          :max-length="255"
-          :placeholder="t('caseManagement.featureCase.searchByIdAndName')"
-          allow-clear
-          class="mx-[8px] w-[240px]"
-          @search="searchHandler"
-          @press-enter="searchHandler"
-          @clear="searchHandler"
-        ></a-input-search>
-      </div>
-      <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
-        <template #demandId="{ record }">
-          <a-tooltip :content="record.demandId" :mouse-enter-delay="300">
-            <div class="one-line-text max-w-[300px]">
-              {{ record.demandId }}
-            </div>
-          </a-tooltip>
-        </template>
-        <template #demandName="{ record }">
-          <span class="ml-1 text-[rgb(var(--primary-5))]">
-            {{ record.demandName }}
-            <span v-if="(record.children || []).length"> ({{ (record.children || []).length || 0 }}) </span>
-          </span>
-        </template>
-        <template v-for="item in customFields" :key="item.slotName" #[item.dataIndex]="{ record }">
-          <span> {{ getSlotName(record, item) }} </span>
-        </template>
-      </ms-base-table>
-    </MsDrawer>
+      :case-id="caseId"
+      :drawer-loading="drawerLoading"
+      :platform-info="platformInfo"
+      @save="handleDrawerConfirm"
+    />
   </div>
 </template>
 
@@ -106,17 +65,13 @@
   import { Message } from '@arco-design/web-vue';
   import { debounce } from 'lodash-es';
 
-  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/type';
-  import useTable from '@/components/pure/ms-table/useTable';
   import AddDemandModal from './addDemandModal.vue';
   import AssociatedDemandTable from './associatedDemandTable.vue';
+  import ThirdDemandDrawer from './thirdDemandDrawer.vue';
 
   import {
     addDemandRequest,
     cancelAssociationDemand,
-    getThirdDemandList,
     updateDemandReq,
   } from '@/api/modules/case-management/featureCase';
   import { getCaseRelatedInfo } from '@/api/modules/project-management/menuManagement';
@@ -124,9 +79,6 @@
   import { useAppStore } from '@/store';
 
   import type { CreateOrUpdateDemand, DemandItem } from '@/models/caseManagement/featureCase';
-  import { TableKeyEnum } from '@/enums/tableEnum';
-
-  import { getPlatName } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -170,135 +122,12 @@
     modelForm.value = { ...record };
   }
 
-  const columns: MsTableColumn = [
-    {
-      title: 'caseManagement.featureCase.tableColumnID',
-      slotName: 'demandId',
-      dataIndex: 'demandId',
-      width: 200,
-      showTooltip: true,
-    },
-    {
-      title: 'caseManagement.featureCase.demandName',
-      slotName: 'demandName',
-      dataIndex: 'demandName',
-      width: 300,
-      showTooltip: true,
-    },
-    // {
-    //   title: 'caseManagement.featureCase.platformDemandState',
-    //   width: 300,
-    //   dataIndex: 'status',
-    //   showTooltip: true,
-    //   ellipsis: true,
-    // },
-    // {
-    //   title: 'caseManagement.featureCase.platformDemandHandler',
-    //   width: 300,
-    //   dataIndex: 'handler',
-    //   showTooltip: true,
-    //   ellipsis: true,
-    // },
-  ];
-  let fullColumns: MsTableColumn = [...columns];
-
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getThirdDemandList, {
-    tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEMAND_PLATFORM,
-    columns: fullColumns,
-    rowKey: 'demandId',
-    scroll: { x: '100%' },
-    heightUsed: 290,
-    selectable: true,
-    showSelectorAll: false,
-    showSetting: false,
-    rowSelectionDisabledConfig: {
-      checkStrictly: false,
-      disabledKey: 'disabled',
-    },
-  });
-
   const drawerLoading = ref<boolean>(false);
-
-  const tableSelected = computed(() => {
-    const selectedIds = [...propsRes.value.selectedKeys];
-    const filteredData: DemandItem[] = [];
-
-    function filterData(data: DemandItem[]) {
-      for (let i = 0; i < data.length; i++) {
-        const item: DemandItem = data[i];
-        if (selectedIds.includes(item.demandId)) {
-          filteredData.push(item);
-        }
-        if (item.children) {
-          filterData(item.children);
-        }
-      }
-    }
-    filterData(propsRes.value.data);
-    return filteredData;
-  });
-
-  const platformKeyword = ref<string>('');
-
-  const tableRef = ref();
-  const initData = async () => {
-    tableRef.value?.initColumn(fullColumns);
-    setLoadListParams({ keyword: platformKeyword.value, projectId: currentProjectId.value, caseId: props.caseId });
-    loadList();
-  };
-
-  const customFields = ref<any[]>([]);
-  async function initColumn() {
-    fullColumns = [...columns];
-    try {
-      const res = await getThirdDemandList({
-        current: 1,
-        pageSize: 10,
-        projectId: currentProjectId.value,
-        caseId: props.caseId,
-      });
-      customFields.value = (res.data.customHeaders || []).map((item: any) => {
-        return {
-          title: item.name,
-          slotName: item.id,
-          dataIndex: item.id,
-          width: 200,
-          options: item.options,
-        };
-      }) as any;
-      fullColumns = [...columns, ...customFields.value];
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   // 关联需求
   const linkDemandDrawer = ref<boolean>(false);
   function associatedDemand() {
-    initColumn();
     linkDemandDrawer.value = true;
-  }
-
-  const searchHandler = () => {
-    if (linkDemandDrawer.value) {
-      initData();
-      resetSelector();
-    }
-  };
-
-  function getSlotName(record: any, item: MsTableColumnData) {
-    if (item?.options) {
-      const currentRecord = {
-        ...record,
-        ...record.customFields,
-      };
-      const currentValue = currentRecord[item.dataIndex as string];
-      const currentOptions = (JSON.parse(item.options) || []).find((it: any) => it.value === currentValue);
-      if (currentOptions) {
-        return currentOptions.text;
-      }
-    }
-    return record.customFields[item.dataIndex as string] || '-';
   }
 
   function openDemandUrl(record: DemandItem) {
@@ -308,44 +137,30 @@
   }
 
   const platformInfo = ref<Record<string, any>>({});
-  async function handleDrawerConfirm() {
-    const demandList = tableSelected.value.map((item) => {
-      return {
-        demandId: item.demandId,
-        parent: item.parent,
-        demandName: item.demandName,
-        demandUrl: item.demandUrl,
-      };
-    });
 
-    const params = {
-      id: JSON.parse(platformInfo.value.demand_platform_config).zentaoId,
-      caseId: props.caseId,
-      demandPlatform: platformInfo.value.platform_key,
-      demandList: propsRes.value.selectorStatus === 'all' ? [] : demandList,
-      functionalDemandBatchRequest: {
-        keyword: platformKeyword.value,
-        excludeIds: [...propsRes.value.excludeKeys],
-        selectAll: propsRes.value.selectorStatus === 'all',
-      },
-    };
+  async function handleDrawerConfirm(associatedParams: CreateOrUpdateDemand) {
     try {
       drawerLoading.value = true;
+      const { demandPlatform, demandList, functionalDemandBatchRequest } = associatedParams;
+      const params = {
+        id: JSON.parse(platformInfo.value.demand_platform_config).zentaoId,
+        caseId: props.caseId,
+        demandPlatform,
+        demandList,
+        functionalDemandBatchRequest,
+      };
       await addDemandRequest(params);
       Message.success(t('caseManagement.featureCase.associatedSuccess'));
       linkDemandDrawer.value = false;
       demandRef.value.initData();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       drawerLoading.value = false;
     }
   }
 
-  function handleDrawerCancel() {
-    linkDemandDrawer.value = false;
-    platformKeyword.value = '';
-  }
   // 取消关联
   async function cancelLink(record: DemandItem) {
     try {
@@ -353,6 +168,7 @@
       Message.success(t('caseManagement.featureCase.cancelLinkSuccess'));
       demandRef.value.initData();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -365,25 +181,10 @@
         caseEnable.value = platformInfo.value.case_enable !== 'false';
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
-
-  watch(
-    () => linkDemandDrawer.value,
-    (val) => {
-      if (val) {
-        resetSelector();
-        nextTick(async () => {
-          await tableRef.value?.initColumn(fullColumns);
-          initData();
-        });
-      }
-    },
-    {
-      immediate: true,
-    }
-  );
 
   const confirmLoading = ref<boolean>(false);
   const demandModalRef = ref();
@@ -404,6 +205,7 @@
       demandModalRef.value.resetForm();
       demandRef.value.initData();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       confirmLoading.value = false;
@@ -418,19 +220,6 @@
   onMounted(async () => {
     initPlatform();
   });
-
-  const platName = computed(() => {
-    return getPlatName(platformInfo.value.platform_key);
-  });
 </script>
 
-<style scoped lang="less">
-  :deep(.arco-table-cell-align-left) > span:first-child {
-    padding-left: 0 !important;
-  }
-  :deep(.arco-table-cell-align-left) {
-    .arco-table-cell-inline-icon + .arco-table-td-content {
-      padding-right: 19px !important;
-    }
-  }
-</style>
+<style scoped lang="less"></style>
