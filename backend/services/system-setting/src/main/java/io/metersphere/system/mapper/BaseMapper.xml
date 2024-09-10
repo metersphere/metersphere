@@ -46,7 +46,7 @@
             </include>
         </if>
         <if test="condition.name == 'tags'">
-            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+            <include refid="io.metersphere.system.mapper.BaseMapper.arrayValueCondition">
                 <property name="condition" value="condition"/>
                 <property name="column" value="${tablePrefix}.tags"/>
             </include>
@@ -59,15 +59,67 @@
                 <trim prefix="(" suffix=")">
                     field_id = #{condition.name}
                     and
-                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                        <property name="condition" value="condition"/>
-                        <property name="column" value="value"/>
-                    </include>
+                    <choose>
+                        <when test="condition.customFieldType != null and (condition.customFieldType == 'MULTIPLE_SELECT' or condition.customFieldType == 'MULTIPLE_SELECT' or condition.customFieldType == 'MULTIPLE_INPUT')">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.arrayValueCondition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="value"/>
+                            </include>
+                        </when>
+                        <otherwise>
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="value"/>
+                            </include>
+                        </otherwise>
+                    </choose>
                 </trim>
                 <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
                     <property name="searchMode" value="${searchMode}"/>
                 </include>
             </foreach>
+        </trim>
+    </sql>
+
+    <sql id="arrayValueCondition">
+        <trim prefix="(" suffix=")">
+            <choose>
+                <when test="${condition}.operator == 'CONTAINS'">
+                    <foreach collection="${condition}.value" item="tag" separator="or" open="(" close=")">
+                        JSON_CONTAINS(${column}, JSON_ARRAY(#{tag}))
+                    </foreach>
+                </when>
+                <when test="${condition}.operator == 'IN'">
+                    <foreach collection="${condition}.value" item="tag" separator="or" open="(" close=")">
+                        JSON_CONTAINS(${column}, JSON_ARRAY(#{tag}))
+                    </foreach>
+                </when>
+                <when test="${condition}.operator == 'NOT_CONTAINS'">
+                    ${column} is null or ${column} = '[]' or
+                    <foreach collection="${condition}.value" item="tag" separator="and" open="(" close=")">
+                        !JSON_CONTAINS(${column}, JSON_ARRAY(#{tag}))
+                    </foreach>
+                </when>
+                <when test="${condition}.operator == 'NOT_IN'">
+                    ${column} is null or ${column} = '[]' or
+                    <foreach collection="${condition}.value" item="tag" separator="and" open="(" close=")">
+                        !JSON_CONTAINS(${column}, JSON_ARRAY(#{tag}))
+                    </foreach>
+                </when>
+                <when test="${condition}.operator == 'COUNT_GT'">
+                    JSON_LENGTH(${column}) &gt; #{condition.value}
+                </when>
+                <when test="${condition}.operator == 'COUNT_LT'">
+                    ${column} is null or ${column} = '[]' or
+                    JSON_LENGTH(${column}) &lt; #{condition.value}
+                </when>
+                <when test="${condition}.operator == 'EMPTY'">
+                    ${column} is null or ${column} = '[]'
+                </when>
+                <when test="${condition}.operator == 'NOT_EMPTY'">
+                    ${column} is not null and ${column} = '[]'
+                </when>
+            </choose>
         </trim>
     </sql>
 
@@ -120,10 +172,10 @@
                     JSON_LENGTH(${column}) &lt; #{condition.value}
                 </when>
                 <when test="${condition}.operator == 'EMPTY'">
-                    ${column} is null or ${column} #{condition.value} = ''
+                    ${column} is null or ${column} = ''
                 </when>
                 <when test="${condition}.operator == 'NOT_EMPTY'">
-                    ${column} is not null and ${column} #{condition.value} = ''
+                    ${column} is not null and ${column} != ''
                 </when>
                 <when test="${condition}.operator == 'EQUALS'">
                     ${column} = #{condition.value}

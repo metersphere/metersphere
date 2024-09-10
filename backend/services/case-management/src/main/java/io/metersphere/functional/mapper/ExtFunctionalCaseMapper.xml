@@ -315,6 +315,12 @@
                             <property name="column" value="functional_case.review_status"/>
                         </include>
                     </if>
+                    <if test="condition.name == 'lastExecuteResult'">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                            <property name="condition" value="condition"/>
+                            <property name="column" value="functional_case.last_execute_result"/>
+                        </include>
+                    </if>
                     <if test="condition.name == 'demand'">
                         functional_case.id in (
                             select case_id from functional_case_demand where

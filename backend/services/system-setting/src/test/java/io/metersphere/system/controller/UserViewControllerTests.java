@@ -181,7 +181,7 @@ public class UserViewControllerTests extends BaseTest {
         UserViewListGroupedDTO result = getResultData(mvcResult, UserViewListGroupedDTO.class);
         Assertions.assertEquals(result.getInternalViews().size(), 3);
         Assertions.assertEquals(result.getCustomViews().size(), 2);
-        Assertions.assertEquals(result.getCustomViews().get(0), BeanUtils.copyBean(new UserView(), addUserViewDTO));
+        Assertions.assertEquals(result.getCustomViews().getLast(), BeanUtils.copyBean(new UserView(), addUserViewDTO));
     }
 
     @Test
