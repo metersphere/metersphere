@@ -45,6 +45,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -131,6 +132,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         demandList = new ArrayList<>();
         demandDTO = new DemandDTO();
         demandDTO.setDemandName("手动加入孩子");
+        demandDTO.setDemandId("001001");
         demandDTO.setParent("001");
         demandList.add(demandDTO);
         functionalCaseDemandRequest.setDemandList(demandList);
@@ -408,8 +410,23 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     public void cancelDemand() throws Exception {
         FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID");
-        List<FunctionalCaseDemand> beforeList = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         String id = getId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
+        FunctionalCaseDemand functionalCaseDemandInDb = functionalCaseDemandMapper.selectByPrimaryKey(id);
+        FunctionalCaseDemand functionalCaseDemand = new FunctionalCaseDemand();
+        functionalCaseDemand.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
+        functionalCaseDemand.setParent(functionalCaseDemandInDb.getDemandId());
+        functionalCaseDemand.setDemandId("qwerr");
+        functionalCaseDemand.setDemandUrl("dddd");
+        functionalCaseDemand.setDemandPlatform("Metersphere");
+        functionalCaseDemand.setId(UUID.randomUUID().toString());
+        functionalCaseDemand.setWithParent(false);
+        functionalCaseDemand.setDemandName("加一下副需求");
+        functionalCaseDemand.setUpdateTime(System.currentTimeMillis());
+        functionalCaseDemand.setCreateTime(System.currentTimeMillis());
+        functionalCaseDemand.setCreateUser("admin");
+        functionalCaseDemand.setUpdateUser("admin");
+        functionalCaseDemandMapper.insert(functionalCaseDemand);
+        List<FunctionalCaseDemand> beforeList = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         mockMvc.perform(MockMvcRequestBuilders.get(URL_DEMAND_CANCEL+id).header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -419,6 +436,11 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         List<FunctionalCaseDemand> after = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         Assertions.assertTrue(beforeList.size()>after.size());
         checkLog("DEMAND_TEST_FUNCTIONAL_CASE_ID", OperationLogType.DISASSOCIATE);
+        id = getId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
+        mockMvc.perform(MockMvcRequestBuilders.get(URL_DEMAND_CANCEL+id).header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
