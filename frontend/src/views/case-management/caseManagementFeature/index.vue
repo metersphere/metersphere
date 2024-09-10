@@ -92,7 +92,6 @@
       </template>
     </MsSplitBox>
   </MsCard>
-  <!-- </div> -->
 </template>
 
 <script setup lang="ts">
