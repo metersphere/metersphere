@@ -14,7 +14,7 @@ import java.util.Map;
  * api导入数据分析结果
  */
 @Data
-public class ApiImportDataAnalysisResult {
+public class ApiDefinitionImportDataAnalysisResult {
 
     // 新增接口数据
     List<ApiDefinitionDetail> insertApiList = new ArrayList<>();

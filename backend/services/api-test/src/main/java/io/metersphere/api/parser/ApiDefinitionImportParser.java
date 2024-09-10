@@ -2,8 +2,8 @@ package io.metersphere.api.parser;
 
 
 import io.metersphere.api.dto.converter.ApiDefinitionDetail;
-import io.metersphere.api.dto.converter.ApiImportDataAnalysisResult;
-import io.metersphere.api.dto.converter.ApiImportFileParseResult;
+import io.metersphere.api.dto.converter.ApiDefinitionImportDataAnalysisResult;
+import io.metersphere.api.dto.converter.ApiDefinitionImportFileParseResult;
 import io.metersphere.api.dto.request.ImportRequest;
 
 import java.io.InputStream;
@@ -28,6 +28,6 @@ public interface ApiDefinitionImportParser<T> {
      * @param existenceApiDefinitionList    数据库中已存在的数据
      * @return 需要入库的模块、需要入库的接口、需要更新的接口
      */
-    ApiImportDataAnalysisResult generateInsertAndUpdateData(ApiImportFileParseResult importParser, List<ApiDefinitionDetail> existenceApiDefinitionList);
+    ApiDefinitionImportDataAnalysisResult generateInsertAndUpdateData(ApiDefinitionImportFileParseResult importParser, List<ApiDefinitionDetail> existenceApiDefinitionList);
 
 }

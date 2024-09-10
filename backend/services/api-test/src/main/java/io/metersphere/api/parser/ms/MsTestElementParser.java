@@ -3,12 +3,17 @@ package io.metersphere.api.parser.ms;
 import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.plugin.api.spi.AbstractMsProtocolTestElement;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.system.dto.ProtocolDTO;
+import io.metersphere.system.service.ApiPluginService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Author: jianxing
@@ -48,4 +53,24 @@ public class MsTestElementParser {
         }
         return result;
     }
+
+    //    public List<AbstractMsTestElement> getAbstractMsTestElement(AbstractMsTestElement msTestElement) {
+    //        List<AbstractMsTestElement> result = new ArrayList<>();
+    //        if (msTestElement instanceof AbstractMsProtocolTestElement abstractMsProtocolTestElement) {
+    //            result.add(abstractMsProtocolTestElement);
+    //        } else {
+    //            for (AbstractMsTestElement child : msTestElement.getChildren()) {
+    //                result.addAll(this.getAbstractMsTestElement(child));
+    //            }
+    //        }
+    //        return result;
+    //    }
+
+    public Map<String, String> getPolymorphicNameMap(String projectId) {
+        ApiPluginService apiPluginService = CommonBeanFactory.getBean(ApiPluginService.class);
+        assert apiPluginService != null;
+        List<ProtocolDTO> protocolDTOList = apiPluginService.getProtocolsByProjectId(projectId);
+        return protocolDTOList.stream().collect(Collectors.toMap(ProtocolDTO::getPolymorphicName, ProtocolDTO::getProtocol));
+    }
+
 }

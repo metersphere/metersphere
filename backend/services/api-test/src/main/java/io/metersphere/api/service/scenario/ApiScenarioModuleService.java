@@ -65,6 +65,14 @@ public class ApiScenarioModuleService extends ModuleTreeService {
         return super.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED_SCENARIO));
     }
 
+    public List<BaseTreeNode> getTree(String projectId) {
+        //接口的树结构是  模块：子模块+接口 接口为非delete状态的
+        List<BaseTreeNode> fileModuleList = extApiScenarioModuleMapper.selectBaseByRequest(new ApiScenarioModuleRequest() {{
+            this.setProjectId(projectId);
+        }});
+        return super.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED_SCENARIO));
+    }
+
     public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(ApiScenarioModuleRequest request, List<ModuleCountDTO> moduleCountDTOList) {
         //节点内容只有Id和parentId
         List<BaseTreeNode> fileModuleList = extApiScenarioModuleMapper.selectIdAndParentIdByRequest(request);

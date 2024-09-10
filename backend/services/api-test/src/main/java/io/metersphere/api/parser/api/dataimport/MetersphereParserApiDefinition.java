@@ -1,10 +1,10 @@
-package io.metersphere.api.parser.api;
+package io.metersphere.api.parser.api.dataimport;
 
 
 import io.metersphere.api.dto.converter.ApiDefinitionDetail;
 import io.metersphere.api.dto.converter.ApiDefinitionExportDetail;
-import io.metersphere.api.dto.converter.ApiImportDataAnalysisResult;
-import io.metersphere.api.dto.converter.ApiImportFileParseResult;
+import io.metersphere.api.dto.converter.ApiDefinitionImportDataAnalysisResult;
+import io.metersphere.api.dto.converter.ApiDefinitionImportFileParseResult;
 import io.metersphere.api.dto.definition.ApiDefinitionMockDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.export.MetersphereApiExportResponse;
@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class MetersphereParserApiDefinition implements ApiDefinitionImportParser<ApiImportFileParseResult> {
+public class MetersphereParserApiDefinition implements ApiDefinitionImportParser<ApiDefinitionImportFileParseResult> {
 
     @Override
-    public ApiImportFileParseResult parse(InputStream source, ImportRequest request) throws Exception {
+    public ApiDefinitionImportFileParseResult parse(InputStream source, ImportRequest request) throws Exception {
         MetersphereApiExportResponse metersphereApiExportResponse = null;
         try {
             metersphereApiExportResponse = ApiDataUtils.parseObject(source, MetersphereApiExportResponse.class);
@@ -43,10 +43,10 @@ public class MetersphereParserApiDefinition implements ApiDefinitionImportParser
     }
 
     @Override
-    public ApiImportDataAnalysisResult generateInsertAndUpdateData(ApiImportFileParseResult importParser, List<ApiDefinitionDetail> existenceAllApiList) {
+    public ApiDefinitionImportDataAnalysisResult generateInsertAndUpdateData(ApiDefinitionImportFileParseResult importParser, List<ApiDefinitionDetail> existenceAllApiList) {
         Map<String, List<ApiDefinitionDetail>> existenceProtocolMap = new HashMap<>();
 
-        ApiImportDataAnalysisResult insertAndUpdateData = new ApiImportDataAnalysisResult();
+        ApiDefinitionImportDataAnalysisResult insertAndUpdateData = new ApiDefinitionImportDataAnalysisResult();
 
         for (ApiDefinitionDetail apiDefinitionDetail : existenceAllApiList) {
             String protocol = apiDefinitionDetail.getProtocol().toUpperCase();
@@ -109,7 +109,7 @@ public class MetersphereParserApiDefinition implements ApiDefinitionImportParser
         return insertAndUpdateData;
     }
 
-    private void addTestCaseAndMock(ApiImportDataAnalysisResult insertAndUpdateData, String apiId, List<ApiTestCaseDTO> caseList, List<ApiDefinitionMockDTO> mockDTOList) {
+    private void addTestCaseAndMock(ApiDefinitionImportDataAnalysisResult insertAndUpdateData, String apiId, List<ApiTestCaseDTO> caseList, List<ApiDefinitionMockDTO> mockDTOList) {
         if (CollectionUtils.isNotEmpty(caseList)) {
             insertAndUpdateData.getApiIdAndTestCaseMap().put(apiId, caseList);
         }
@@ -118,9 +118,9 @@ public class MetersphereParserApiDefinition implements ApiDefinitionImportParser
         }
     }
 
-    private ApiImportFileParseResult genApiDefinitionImport(List<ApiDefinitionExportDetail> apiDefinitions) {
+    private ApiDefinitionImportFileParseResult genApiDefinitionImport(List<ApiDefinitionExportDetail> apiDefinitions) {
         List<ApiDefinitionExportDetail> distinctImportList = this.mergeApiCaseWithUniqueIdentification(apiDefinitions);
-        ApiImportFileParseResult returnDTO = new ApiImportFileParseResult();
+        ApiDefinitionImportFileParseResult returnDTO = new ApiDefinitionImportFileParseResult();
         distinctImportList.forEach(definitionImportDetail -> {
             String apiID = IDGenerator.nextStr();
             definitionImportDetail.setId(apiID);

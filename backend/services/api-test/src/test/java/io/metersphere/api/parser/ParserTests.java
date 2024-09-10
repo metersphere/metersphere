@@ -17,6 +17,6 @@ public class ParserTests {
     @Test
     @Order(3)
     public void testImportParserMs() throws Exception {
-        ImportParserFactory.getImportParser(ApiImportPlatform.MeterSphere.name());
+        ImportParserFactory.getApiDefinitionImportParser(ApiImportPlatform.MeterSphere.name());
     }
 }

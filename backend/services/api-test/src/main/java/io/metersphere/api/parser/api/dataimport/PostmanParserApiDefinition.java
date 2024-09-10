@@ -1,9 +1,9 @@
-package io.metersphere.api.parser.api;
+package io.metersphere.api.parser.api.dataimport;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.metersphere.api.dto.converter.ApiDefinitionDetail;
-import io.metersphere.api.dto.converter.ApiImportFileParseResult;
+import io.metersphere.api.dto.converter.ApiDefinitionImportFileParseResult;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.parser.api.postman.PostmanCollection;
@@ -19,10 +19,10 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.InputStream;
 import java.util.*;
 
-public class PostmanParserApiDefinition extends PostmanAbstractParserParserApiDefinition<ApiImportFileParseResult> {
+public class PostmanParserApiDefinition extends PostmanAbstractParserParserApiDefinition<ApiDefinitionImportFileParseResult> {
 
     @Override
-    public ApiImportFileParseResult parse(InputStream source, ImportRequest request) throws JsonProcessingException {
+    public ApiDefinitionImportFileParseResult parse(InputStream source, ImportRequest request) throws JsonProcessingException {
         LogUtils.info("PostmanParser parse");
         String testStr = getApiTestStr(source);
         PostmanCollection postmanCollection = JSON.parseObject(testStr, PostmanCollection.class);
@@ -37,7 +37,7 @@ public class PostmanParserApiDefinition extends PostmanAbstractParserParserApiDe
         LinkedHashMap<ApiDefinitionDetail, List<ApiDefinitionDetail>> allImportDetails = this.parseItem(postmanCollection.getItem(), modulePath, request);
 
         // 对于postman的导入： 本质就是将postman的数据导入为用例
-        ApiImportFileParseResult apiImport = this.genApiDefinitionImport(allImportDetails);
+        ApiDefinitionImportFileParseResult apiImport = this.genApiDefinitionImport(allImportDetails);
         LogUtils.info("PostmanParser parse end");
         return apiImport;
     }
@@ -61,9 +61,9 @@ public class PostmanParserApiDefinition extends PostmanAbstractParserParserApiDe
         return results;
     }
 
-    private ApiImportFileParseResult genApiDefinitionImport(LinkedHashMap<ApiDefinitionDetail, List<ApiDefinitionDetail>> allImportDetails) {
+    private ApiDefinitionImportFileParseResult genApiDefinitionImport(LinkedHashMap<ApiDefinitionDetail, List<ApiDefinitionDetail>> allImportDetails) {
         Map<ApiDefinitionDetail, List<ApiDefinitionDetail>> groupWithUniqueIdentification = this.mergeApiCaseWithUniqueIdentification(allImportDetails);
-        ApiImportFileParseResult returnDTO = new ApiImportFileParseResult();
+        ApiDefinitionImportFileParseResult returnDTO = new ApiDefinitionImportFileParseResult();
         groupWithUniqueIdentification.forEach((definitionImportDetail, caseData) -> {
             String apiID = IDGenerator.nextStr();
             definitionImportDetail.setId(apiID);

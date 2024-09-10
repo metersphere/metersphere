@@ -98,6 +98,7 @@ public class ApiScenarioBatchOperationController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
     public void batchRun(@Validated @RequestBody ApiScenarioBatchRunRequest request) {
+        apiValidateService.validateApiMenuInProject(request.getProjectId(), ApiResource.PROJECT.name());
         apiScenarioBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
     }
 }

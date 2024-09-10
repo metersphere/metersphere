@@ -13,7 +13,7 @@ import java.util.Map;
  * api导入文件解析结果
  */
 @Data
-public class ApiImportFileParseResult {
+public class ApiDefinitionImportFileParseResult {
     // 接口定义数据
     private List<ApiDefinitionDetail> data = new ArrayList<>();
     // 用例数据

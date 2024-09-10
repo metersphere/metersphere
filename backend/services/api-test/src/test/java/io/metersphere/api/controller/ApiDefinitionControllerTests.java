@@ -1745,7 +1745,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
     private void importTest() throws Exception {
         //测试ImportParserFactory不按规定获取会返回null
-        Assertions.assertNull(ImportParserFactory.getImportParser("test"));
+        Assertions.assertNull(ImportParserFactory.getApiDefinitionImportParser("test"));
         // 创建用于导入的项目
         //测试计划专用项目
         AddProjectRequest initProject = new AddProjectRequest();
@@ -1798,7 +1798,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
         //导入类型以及文件后缀
         Map<String, String> importTypeAndSuffix = new LinkedHashMap<>();
-        //        importTypeAndSuffix.put("jmeter", "jmx");
         importTypeAndSuffix.put("metersphere", "json");
         importTypeAndSuffix.put("postman", "json");
         importTypeAndSuffix.put("har", "har");
