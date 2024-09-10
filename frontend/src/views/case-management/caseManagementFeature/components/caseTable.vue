@@ -1,241 +1,252 @@
 <!-- eslint-disable prefer-destructuring -->
 <template>
   <div class="h-full">
-    <!-- 用例表开始 -->
-    <template v-if="showType === 'list'">
-      <MsAdvanceFilter
-        ref="msAdvanceFilterRef"
-        v-model:keyword="keyword"
-        :view-type="ViewTypeEnum.FUNCTIONAL_CASE"
-        :filter-config-list="filterConfigList"
-        :custom-fields-config-list="searchCustomFields"
-        :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
-        :count="props.modulesCount[props.activeFolder] || 0"
-        :name="moduleNamePath"
-        @keyword-search="fetchData"
-        @adv-search="handleAdvSearch"
-        @refresh="fetchData()"
+    <keep-alive :include="[CacheTabTypeEnum.CASE_MANAGEMENT_TABLE_FILTER]">
+      <MsCacheWrapper
+        v-if="showType === 'list'"
+        :key="CacheTabTypeEnum.CASE_MANAGEMENT_TABLE_FILTER"
+        :cache-name="CacheTabTypeEnum.CASE_MANAGEMENT_TABLE_FILTER"
       >
-        <template #left>
-          <div>
-            <a-button v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="mr-[12px]" type="primary" @click="caseDetail">
-              {{ t('common.newCreate') }}
-            </a-button>
-            <ImportCase ref="importCaseRef" @init-modules="emit('initModules')" @confirm-import="confirmImport" />
-          </div>
-        </template>
-        <template #right>
-          <a-radio-group
-            v-model:model-value="showType"
-            type="button"
-            size="small"
-            class="list-show-type"
-            @change="handleShowTypeChange"
-          >
-            <a-radio value="list" class="show-type-icon !m-[2px]">
-              <MsIcon :size="14" type="icon-icon_view-list_outlined" />
-            </a-radio>
-            <a-radio value="minder" class="show-type-icon !m-[2px]">
-              <MsIcon :size="14" type="icon-icon_mindnote_outlined" />
-            </a-radio>
-          </a-radio-group>
-        </template>
-      </MsAdvanceFilter>
-      <ms-base-table
-        v-bind="propsRes"
-        ref="tableRef"
-        filter-icon-align-left
-        class="mt-[16px]"
-        :action-config="tableBatchActions"
-        :not-show-table-filter="isAdvancedSearchMode"
-        @selected-change="handleTableSelect"
-        v-on="propsEvent"
-        @batch-action="handleTableBatch"
-        @change="changeHandler"
-        @cell-click="handleCellClick"
-        @filter-change="filterChange"
-      >
-        <template #num="{ record }">
-          <span type="text" class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">
-            {{ record.num }}
-          </span>
-        </template>
-        <template #name="{ record }">
-          <div class="one-line-text">{{ record.name }}</div>
-        </template>
-        <template #caseLevel="{ record }">
-          <a-select
-            v-model:model-value="record.caseLevel"
-            :placeholder="t('common.pleaseSelect')"
-            class="param-input w-full"
-            @click.stop
-            @change="() => handleStatusChange(record)"
-          >
-            <template #label>
-              <span class="text-[var(--color-text-2)]">
-                <caseLevel :case-level="record.caseLevel" />
-              </span>
-            </template>
-            <a-option v-for="item of caseLevelList" :key="item.value" :value="item.value">
-              <caseLevel :case-level="item.text" />
-            </a-option>
-          </a-select>
-        </template>
-        <!-- 用例等级 -->
-        <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
-          <caseLevel :case-level="filterContent.text" />
-        </template>
-        <!-- 执行结果 -->
-        <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
-          <ExecuteStatusTag :execute-result="filterContent.value" />
-        </template>
-        <!-- 评审结果 -->
-        <template #reviewStatus="{ record }">
-          <MsIcon
-            :type="statusIconMap[record.reviewStatus]?.icon || ''"
-            class="mr-1"
-            :class="[statusIconMap[record.reviewStatus].color]"
-          ></MsIcon>
-          <span>{{ statusIconMap[record.reviewStatus]?.statusText || '' }} </span>
-        </template>
-        <template #lastExecuteResult="{ record }">
-          <ExecuteStatusTag v-if="record.lastExecuteResult" :execute-result="record.lastExecuteResult" />
-          <span v-else>-</span>
-        </template>
-        <template #moduleId="{ record }">
-          <a-tree-select
-            v-if="record.showModuleTree"
-            v-model:modelValue="record.moduleId"
-            dropdown-class-name="tree-dropdown"
-            class="param-input w-full"
-            :data="caseTreeData"
-            :allow-search="true"
-            :field-names="{
-              title: 'name',
-              key: 'id',
-              children: 'children',
-            }"
-            :filter-tree-node="filterTreeNode"
-            :tree-props="{
-              virtualListProps: {
-                height: 200,
-              },
-            }"
-            @click.stop
-            @change="(value) => handleChangeModule(record, value)"
-          >
-            <template #tree-slot-title="node">
-              <a-tooltip :content="`${node.name}`" position="tl">
-                <div class="one-line-text max-w-[200px]">{{ node.name }}</div>
-              </a-tooltip>
-            </template>
-          </a-tree-select>
-          <a-tooltip v-else :content="getModules(record.moduleId)" position="top">
-            <span class="one-line-text inline-block" @click.stop="record.showModuleTree = true">
-              {{ getModules(record.moduleId) }}
-            </span>
-          </a-tooltip>
-        </template>
-        <!-- 渲染自定义字段开始TODO -->
-        <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
-          <a-tooltip
-            :content="getTableFields(record.customFields, item as MsTableColumn, record.createUser)"
-            position="top"
-            :mouse-enter-delay="100"
-            mini
-          >
-            <div class="one-line-text max-w-[300px]">{{
-              getTableFields(record.customFields, item as MsTableColumn, record.createUser)
-            }}</div>
-          </a-tooltip>
-        </template>
-        <!-- 渲染自定义字段结束 -->
-        <template #operation="{ record }">
-          <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" class="!mr-0" @click="operateCase(record, true)">
-            {{ t('common.edit') }}
-          </MsButton>
-          <a-divider
-            v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
-            class="!mx-2 h-[12px]"
-            direction="vertical"
-            :margin="8"
-          ></a-divider>
-          <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="!mr-0" @click="operateCase(record, false)">
-            {{ t('caseManagement.featureCase.copy') }}
-          </MsButton>
-          <a-divider
-            v-permission="['FUNCTIONAL_CASE:READ+ADD']"
-            class="!mx-2 h-[12px]"
-            direction="vertical"
-            :margin="8"
-          ></a-divider>
-          <span v-permission="['FUNCTIONAL_CASE:READ+DELETE']">
-            <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect($event, record)" />
-          </span>
-        </template>
-
-        <template v-if="(keyword || '').trim() === ''" #empty>
-          <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
-            {{ t('caseManagement.caseReview.tableNoData') }}
-            <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="!mx-[8px]" @click="createCase">
-              {{ t('caseManagement.featureCase.creatingCase') }}
-            </MsButton>
-            <span v-permission="['FUNCTIONAL_CASE:READ+IMPORT']"> {{ t('caseManagement.featureCase.or') }} </span>
-            <MsButton v-permission="['FUNCTIONAL_CASE:READ+IMPORT']" class="!mx-[8px]" @click="importCase()">
-              {{ t('common.import') }}
-            </MsButton>
-          </div>
-        </template>
-      </ms-base-table>
-    </template>
-    <!-- 用例表结束 -->
-    <div v-else class="h-full">
-      <div class="flex flex-row items-center justify-between">
-        <a-popover title="" position="bottom">
-          <div class="show-table-top-title">
-            <div class="one-line-text max-h-[32px] max-w-[300px] text-[var(--color-text-1)]">
-              {{ moduleNamePath }}
-            </div>
-            <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span>
-          </div>
-          <template #content>
-            <div class="max-w-[400px] text-[14px] font-medium text-[var(--color-text-1)]">
-              {{ moduleNamePath }}
-              <span class="text-[var(--color-text-4)]">({{ props.modulesCount[props.activeFolder] || 0 }})</span>
+        <!-- 用例表开始 -->
+        <MsAdvanceFilter
+          ref="msAdvanceFilterRef"
+          v-model:keyword="keyword"
+          :view-type="ViewTypeEnum.FUNCTIONAL_CASE"
+          :filter-config-list="filterConfigList"
+          :custom-fields-config-list="searchCustomFields"
+          :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
+          :count="props.modulesCount[props.activeFolder] || 0"
+          :name="moduleNamePath"
+          @keyword-search="fetchData"
+          @adv-search="handleAdvSearch"
+          @refresh="fetchData()"
+        >
+          <template #left>
+            <div>
+              <a-button
+                v-permission="['FUNCTIONAL_CASE:READ+ADD']"
+                class="mr-[12px]"
+                type="primary"
+                @click="caseDetail"
+              >
+                {{ t('common.newCreate') }}
+              </a-button>
+              <ImportCase ref="importCaseRef" @init-modules="emit('initModules')" @confirm-import="confirmImport" />
             </div>
           </template>
-        </a-popover>
-        <div class="flex items-center gap-[12px]">
-          <a-radio-group
-            v-model:model-value="showType"
-            type="button"
-            size="small"
-            class="list-show-type"
-            @change="handleShowTypeChange"
-          >
-            <a-radio value="list" class="show-type-icon !m-[2px]">
-              <MsIcon :size="14" type="icon-icon_view-list_outlined" />
-            </a-radio>
-            <a-radio value="minder" class="show-type-icon !m-[2px]">
-              <MsIcon :size="14" type="icon-icon_mindnote_outlined" />
-            </a-radio>
-          </a-radio-group>
+          <template #right>
+            <a-radio-group
+              v-model:model-value="showType"
+              type="button"
+              size="small"
+              class="list-show-type"
+              @change="handleShowTypeChange"
+            >
+              <a-radio value="list" class="show-type-icon !m-[2px]">
+                <MsIcon :size="14" type="icon-icon_view-list_outlined" />
+              </a-radio>
+              <a-radio value="minder" class="show-type-icon !m-[2px]">
+                <MsIcon :size="14" type="icon-icon_mindnote_outlined" />
+              </a-radio>
+            </a-radio-group>
+          </template>
+        </MsAdvanceFilter>
+        <ms-base-table
+          v-bind="propsRes"
+          ref="tableRef"
+          filter-icon-align-left
+          class="mt-[16px]"
+          :action-config="tableBatchActions"
+          :not-show-table-filter="isAdvancedSearchMode"
+          @selected-change="handleTableSelect"
+          v-on="propsEvent"
+          @batch-action="handleTableBatch"
+          @change="changeHandler"
+          @cell-click="handleCellClick"
+          @filter-change="filterChange"
+        >
+          <template #num="{ record }">
+            <span type="text" class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">
+              {{ record.num }}
+            </span>
+          </template>
+          <template #name="{ record }">
+            <div class="one-line-text">{{ record.name }}</div>
+          </template>
+          <template #caseLevel="{ record }">
+            <a-select
+              v-model:model-value="record.caseLevel"
+              :placeholder="t('common.pleaseSelect')"
+              class="param-input w-full"
+              @click.stop
+              @change="() => handleStatusChange(record)"
+            >
+              <template #label>
+                <span class="text-[var(--color-text-2)]">
+                  <caseLevel :case-level="record.caseLevel" />
+                </span>
+              </template>
+              <a-option v-for="item of caseLevelList" :key="item.value" :value="item.value">
+                <caseLevel :case-level="item.text" />
+              </a-option>
+            </a-select>
+          </template>
+          <!-- 用例等级 -->
+          <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
+            <caseLevel :case-level="filterContent.text" />
+          </template>
+          <!-- 执行结果 -->
+          <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
+            <ExecuteStatusTag :execute-result="filterContent.value" />
+          </template>
+          <!-- 评审结果 -->
+          <template #reviewStatus="{ record }">
+            <MsIcon
+              :type="statusIconMap[record.reviewStatus]?.icon || ''"
+              class="mr-1"
+              :class="[statusIconMap[record.reviewStatus].color]"
+            ></MsIcon>
+            <span>{{ statusIconMap[record.reviewStatus]?.statusText || '' }} </span>
+          </template>
+          <template #lastExecuteResult="{ record }">
+            <ExecuteStatusTag v-if="record.lastExecuteResult" :execute-result="record.lastExecuteResult" />
+            <span v-else>-</span>
+          </template>
+          <template #moduleId="{ record }">
+            <a-tree-select
+              v-if="record.showModuleTree"
+              v-model:modelValue="record.moduleId"
+              dropdown-class-name="tree-dropdown"
+              class="param-input w-full"
+              :data="caseTreeData"
+              :allow-search="true"
+              :field-names="{
+                title: 'name',
+                key: 'id',
+                children: 'children',
+              }"
+              :filter-tree-node="filterTreeNode"
+              :tree-props="{
+                virtualListProps: {
+                  height: 200,
+                },
+              }"
+              @click.stop
+              @change="(value) => handleChangeModule(record, value)"
+            >
+              <template #tree-slot-title="node">
+                <a-tooltip :content="`${node.name}`" position="tl">
+                  <div class="one-line-text max-w-[200px]">{{ node.name }}</div>
+                </a-tooltip>
+              </template>
+            </a-tree-select>
+            <a-tooltip v-else :content="getModules(record.moduleId)" position="top">
+              <span class="one-line-text inline-block" @click.stop="record.showModuleTree = true">
+                {{ getModules(record.moduleId) }}
+              </span>
+            </a-tooltip>
+          </template>
+          <!-- 渲染自定义字段开始TODO -->
+          <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
+            <a-tooltip
+              :content="getTableFields(record.customFields, item as MsTableColumn, record.createUser)"
+              position="top"
+              :mouse-enter-delay="100"
+              mini
+            >
+              <div class="one-line-text max-w-[300px]">{{
+                getTableFields(record.customFields, item as MsTableColumn, record.createUser)
+              }}</div>
+            </a-tooltip>
+          </template>
+          <!-- 渲染自定义字段结束 -->
+          <template #operation="{ record }">
+            <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" class="!mr-0" @click="operateCase(record, true)">
+              {{ t('common.edit') }}
+            </MsButton>
+            <a-divider
+              v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
+              class="!mx-2 h-[12px]"
+              direction="vertical"
+              :margin="8"
+            ></a-divider>
+            <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="!mr-0" @click="operateCase(record, false)">
+              {{ t('caseManagement.featureCase.copy') }}
+            </MsButton>
+            <a-divider
+              v-permission="['FUNCTIONAL_CASE:READ+ADD']"
+              class="!mx-2 h-[12px]"
+              direction="vertical"
+              :margin="8"
+            ></a-divider>
+            <span v-permission="['FUNCTIONAL_CASE:READ+DELETE']">
+              <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect($event, record)" />
+            </span>
+          </template>
+
+          <template v-if="(keyword || '').trim() === ''" #empty>
+            <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
+              {{ t('caseManagement.caseReview.tableNoData') }}
+              <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="!mx-[8px]" @click="createCase">
+                {{ t('caseManagement.featureCase.creatingCase') }}
+              </MsButton>
+              <span v-permission="['FUNCTIONAL_CASE:READ+IMPORT']"> {{ t('caseManagement.featureCase.or') }} </span>
+              <MsButton v-permission="['FUNCTIONAL_CASE:READ+IMPORT']" class="!mx-[8px]" @click="importCase()">
+                {{ t('common.import') }}
+              </MsButton>
+            </div>
+          </template>
+        </ms-base-table>
+      </MsCacheWrapper>
+      <!-- 用例表结束 -->
+      <div v-else class="h-full">
+        <div class="flex flex-row items-center justify-between">
+          <a-popover title="" position="bottom">
+            <div class="show-table-top-title">
+              <div class="one-line-text max-h-[32px] max-w-[300px] text-[var(--color-text-1)]">
+                {{ moduleNamePath }}
+              </div>
+              <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span>
+            </div>
+            <template #content>
+              <div class="max-w-[400px] text-[14px] font-medium text-[var(--color-text-1)]">
+                {{ moduleNamePath }}
+                <span class="text-[var(--color-text-4)]">({{ props.modulesCount[props.activeFolder] || 0 }})</span>
+              </div>
+            </template>
+          </a-popover>
+          <div class="flex items-center gap-[12px]">
+            <a-radio-group
+              v-model:model-value="showType"
+              type="button"
+              size="small"
+              class="list-show-type"
+              @change="handleShowTypeChange"
+            >
+              <a-radio value="list" class="show-type-icon !m-[2px]">
+                <MsIcon :size="14" type="icon-icon_view-list_outlined" />
+              </a-radio>
+              <a-radio value="minder" class="show-type-icon !m-[2px]">
+                <MsIcon :size="14" type="icon-icon_mindnote_outlined" />
+              </a-radio>
+            </a-radio-group>
+          </div>
+        </div>
+        <div class="mt-[16px] h-[calc(100%-32px)] border-t border-[var(--color-text-n8)]">
+          <!-- 脑图开始 -->
+          <MsFeatureCaseMinder
+            :module-id="props.activeFolder"
+            :modules-count="props.modulesCount"
+            :module-name="props.moduleName"
+            @save="handleMinderSave"
+          />
+          <MsDrawer v-model:visible="visible" :width="480" :mask="false">
+            {{ nodeData.text }}
+          </MsDrawer>
+          <!-- 脑图结束 -->
         </div>
       </div>
-      <div class="mt-[16px] h-[calc(100%-32px)] border-t border-[var(--color-text-n8)]">
-        <!-- 脑图开始 -->
-        <MsFeatureCaseMinder
-          :module-id="props.activeFolder"
-          :modules-count="props.modulesCount"
-          :module-name="props.moduleName"
-          @save="handleMinderSave"
-        />
-        <MsDrawer v-model:visible="visible" :width="480" :mask="false">
-          {{ nodeData.text }}
-        </MsDrawer>
-        <!-- 脑图结束 -->
-      </div>
-    </div>
+    </keep-alive>
   </div>
   <a-modal
     v-model:visible="showBatchMoveDrawer"
@@ -371,6 +382,7 @@
   import { getFilterCustomFields, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsCacheWrapper from '@/components/pure/ms-cache-wrapper/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import { MsExportDrawerMap, MsExportDrawerOption } from '@/components/pure/ms-export-drawer/types';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -443,6 +455,7 @@
   } from '@/models/caseManagement/featureCase';
   import { ModuleTreeNode } from '@/models/common';
   import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
+  import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
   import { CaseManagementRouteEnum, RouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
