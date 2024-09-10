@@ -33,16 +33,21 @@ public class MsJSR223PostProcessor extends MsTestElement {
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
+        if (StringUtils.isBlank(this.script)) {
+            return;
+        }
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
+
         ScriptFilter.verify(this.getScriptLanguage(), this.getName(), script);
         if (config.isOperating()) {
             if (StringUtils.isNotEmpty(script) && script.startsWith(JMeterVars.class.getCanonicalName())) {
                 return;
             }
         }
-        // 非导出操作，且不是启用状态则跳过执行
-        if (!config.isOperating() && !this.isEnable()) {
-            return;
-        }
+
         this.setEnvironmentId(ElementUtil.getScriptEnv(this.getEnvironmentId(), config, this.getProjectId()));
 
         TestElement processor = new BeanShellPostProcessor();
