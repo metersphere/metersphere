@@ -619,6 +619,9 @@ const message = {
       url_tip: '例如:http://localhost:4444',
     },
     local_selenium_url: '本地 selenium-server 地址',
+    file_upload_size: '文件大小限制(MB)',
+    file_upload_size_is_null: '文件大小限制不能爲空',
+    file_upload_tips: '請填寫[1-1024]的整數'
   },
   custom_field: {
     add_option: '添加選項',
