@@ -77,7 +77,7 @@
                 <div class="select-extra flex">
                   <a-tooltip :content="t('common.rename')">
                     <MsButton type="text" status="secondary" class="!mr-[4px]" @click="handleToRenameView(item)">
-                      <MsIcon type="icon-icon_edit_outlined" class="hover:text-[rgb(var(--primary-4))]" size="12" />
+                      <MsIcon type="icon-icon_edit_outlined" class="hover:text-[rgb(var(--primary-4))]" size="14" />
                     </MsButton>
                   </a-tooltip>
                   <a-tooltip :content="t('advanceFilter.deleteView')">
@@ -85,7 +85,7 @@
                       <MsIcon
                         type="icon-icon_delete-trash_outlined1"
                         class="hover:text-[rgb(var(--primary-4))]"
-                        size="12"
+                        size="14"
                       />
                     </MsButton>
                   </a-tooltip>
@@ -272,7 +272,10 @@
     try {
       await updateView(props.viewType as string, { name: formModel.value.name, id: formModel.value.id });
       Message.success(t('common.saveSuccess'));
-      getUserViewList();
+      await getUserViewList();
+      if (formModel.value.id === currentView.value) {
+        filterDrawerRef.value?.getUserViewDetail(currentView.value);
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

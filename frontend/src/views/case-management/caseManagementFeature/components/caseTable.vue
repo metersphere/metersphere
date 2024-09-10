@@ -368,7 +368,7 @@
   import { Message, TableChangeExtra, TableData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
-  import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { getFilterCustomFields, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -861,33 +861,21 @@
       title: 'common.tag',
       dataIndex: 'tags',
       type: FilterType.TAGS_INPUT,
+      numberProps: {
+        precision: 0,
+      },
     },
   ]);
   const searchCustomFields = ref<FilterFormItem[]>([]);
 
   async function initFilter() {
-    const result = await getCustomFieldsTable(currentProjectId.value);
-    // 处理系统自定义字段
-    searchCustomFields.value = result.map((item: any) => {
-      const FilterTypeKey: keyof typeof FilterType = CustomTypeMaps[item.type].type;
-      const formType = FilterType[FilterTypeKey];
-      const formObject = CustomTypeMaps[item.type];
-      const { props: formProps } = formObject;
-      const currentItem: any = {
-        title: item.name,
-        dataIndex: item.id,
-        type: formType,
-        customField: true,
-      };
-
-      if (formObject.propsKey && formProps.options) {
-        formProps.options = item.options;
-        currentItem[formObject.propsKey] = {
-          ...formProps,
-        };
-      }
-      return currentItem;
-    });
+    try {
+      const result = await getCustomFieldsTable(currentProjectId.value);
+      searchCustomFields.value = getFilterCustomFields(result); // 处理自定义字段
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
   function getCustomMaps(detailResult: CaseManagementTable) {
