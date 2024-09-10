@@ -365,14 +365,21 @@ public class FunctionalCaseDemandService {
         if (CollectionUtils.isNotEmpty(demandIds)) {
             PlatformDemandDTO data = platformDemandDTOPluginPager.getData();
             List<PlatformDemandDTO.Demand> list = data.getList();
-            for (PlatformDemandDTO.Demand demand : list) {
-                if (demandIds.contains(demand.getDemandId())) {
-                    demand.setDisabled(true);
-                }
-            }
+            setDisabled(list, demandIds);
             data.setList(list);
             platformDemandDTOPluginPager.setData(data);
         }
         return platformDemandDTOPluginPager;
+    }
+
+    private static void setDisabled(List<PlatformDemandDTO.Demand> list, List<String> demandIds) {
+        for (PlatformDemandDTO.Demand demand : list) {
+            if (demandIds.contains(demand.getDemandId())) {
+                demand.setDisabled(true);
+            }
+            if (CollectionUtils.isNotEmpty(demand.getChildren())) {
+                setDisabled(demand.getChildren(), demandIds);
+            }
+        }
     }
 }
