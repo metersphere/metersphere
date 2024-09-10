@@ -37,6 +37,11 @@ public class MsJSR223PreProcessor extends MsTestElement {
         if (!config.isOperating() && !this.isEnable()) {
             return;
         }
+
+        if (StringUtils.isBlank(this.script)) {
+            return;
+        }
+
         if (config.isOperating()) {
             if (StringUtils.isNotEmpty(script) && script.startsWith(JMeterVars.class.getCanonicalName())) {
                 return;
