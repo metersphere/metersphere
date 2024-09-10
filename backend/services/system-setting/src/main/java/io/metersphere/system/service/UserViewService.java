@@ -279,7 +279,7 @@ public class UserViewService {
                 .andScopeIdEqualTo(scopeId)
                 .andViewTypeEqualTo(viewType.name());
         List<UserView> customUserViews = userViewMapper.selectByExample(example).stream()
-                .sorted(Comparator.comparing(UserView::getPos))
+                .sorted((a, b) -> Comparator.comparing(UserView::getPos).compare(b, a))
                 .collect(Collectors.toList());
 
         UserViewListGroupedDTO groupedDTO = new UserViewListGroupedDTO();

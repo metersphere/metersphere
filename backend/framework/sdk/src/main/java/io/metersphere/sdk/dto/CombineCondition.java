@@ -27,12 +27,21 @@ public class CombineCondition {
     @NotNull
     private Boolean customField = false;
 
+    @Schema(description = "自定义字段的类型")
+    private String customFieldType;
+
     @Schema(description = "操作符",
             allowableValues = {"IN", "NOT_IN", "BETWEEN", "GT", "LT", "COUNT_GT", "COUNT_LT", "EQUALS", "NOT_EQUALS", "CONTAINS", "NOT_CONTAINS", "EMPTY", "NOT_EMPTY"})
     @EnumValue(enumClass = CombineConditionOperator.class)
     private String operator;
 
     public boolean valid() {
+        if (StringUtils.isBlank(name) || StringUtils.isBlank(operator)) {
+            return false;
+        }
+        if (StringUtils.equalsAny(operator, CombineConditionOperator.EMPTY.name(), CombineConditionOperator.NOT_EMPTY.name())) {
+            return true;
+        }
         if (value == null) {
             return false;
         }
@@ -42,7 +51,7 @@ public class CombineCondition {
         if (value instanceof String valueStr && StringUtils.isBlank(valueStr)) {
             return false;
         }
-        return StringUtils.isNotBlank(name) && StringUtils.isNotBlank(operator);
+        return true;
     }
 
     public enum CombineConditionOperator {
