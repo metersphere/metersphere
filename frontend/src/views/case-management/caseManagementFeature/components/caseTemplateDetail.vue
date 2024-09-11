@@ -267,7 +267,6 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
-  import useUserStore from '@/store/modules/user';
   import { downloadByteFile, filterTreeNode, getGenerateId } from '@/utils';
 
   import type {
@@ -276,15 +275,13 @@
     CreateOrUpdateCase,
     CustomAttributes,
     DetailCase,
-    OptionsField,
     StepList,
   } from '@/models/caseManagement/featureCase';
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
-  import type { CustomField } from '@/models/setting/template';
+  import type { CustomField, FieldOptions } from '@/models/setting/template';
 
   import { convertToFile, initFormCreate } from './utils';
-
-  const userStore = useUserStore();
+  import { getDefaultMemberValue } from '@/views/bug-management/utils';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -359,16 +356,6 @@
     fileList: [], // 总文件列表
   });
 
-  // 获取类型样式
-  function getSelectTypeClass(type: string) {
-    return form.value.caseEditType === type ? ['bg-[rgb(var(--primary-1))]', '!text-[rgb(var(--primary-5))]'] : [];
-  }
-
-  // 更改类型
-  const handleSelectType = (value: string | number | Record<string, any> | undefined) => {
-    form.value.caseEditType = value as string;
-  };
-
   const isLoading = ref<boolean>(true);
 
   const rowLength = ref<number>(0);
@@ -409,11 +396,9 @@
       const result = customFields.map((item: any) => {
         const memberType = ['MEMBER', 'MULTIPLE_MEMBER'];
         let initValue = item.defaultValue;
-        const optionsValue: OptionsField[] = item.options;
+        const optionsValue: FieldOptions[] = item.options;
         if (memberType.includes(item.type)) {
-          if (item.defaultValue === 'CREATE_USER' || item.defaultValue.includes('CREATE_USER')) {
-            initValue = item.type === 'MEMBER' ? userStore.id : [userStore.id];
-          }
+          initValue = getDefaultMemberValue(item, optionsValue);
         }
 
         return {
@@ -430,7 +415,7 @@
         };
       });
       formRules.value = result;
-      setSystemDefault(systemFields);
+      setSystemDefault(systemFields || []);
       isLoading.value = false;
     } catch (error) {
       // eslint-disable-next-line no-console

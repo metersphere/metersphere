@@ -230,11 +230,11 @@
   import { AssociatedList, AttachFileInfo } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
   import { SelectValue } from '@/models/projectManagement/menuManagement';
-  import type { CustomField } from '@/models/setting/template';
+  import type { CustomField, DetailCustomField, FieldOptions } from '@/models/setting/template';
   import { CaseLinkEnum } from '@/enums/caseEnum';
 
   import { convertToFile } from '../case-management/caseManagementFeature/components/utils';
-  import { convertToFileByBug } from './utils';
+  import { convertToFileByBug, getDefaultMemberValue } from './utils';
   import { getCaseTemplateContent } from '@/views/case-management/components/addDefectDrawer/utils';
 
   const props = defineProps<{
@@ -356,37 +356,42 @@
     transferVisible.value = true;
   }
 
-  // 处理表单格式
-  const getFormRules = (arr: BugEditCustomField[]) => {
-    formRules.value = [];
+  // 获取模板初始值
+  function getInitValue(item: DetailCustomField, initOptions: FieldOptions[]) {
     const memberType = ['MEMBER', 'MULTIPLE_MEMBER'];
     const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX'];
     const numberType = ['INT', 'FLOAT'];
+    if (isEditOrCopy.value) return null;
 
+    const initValue = item.defaultValue;
+    // 成员类型
+    if (memberType.includes(item.type)) {
+      return getDefaultMemberValue(item, initOptions);
+    }
+    // 多选类型
+    if (multipleType.includes(item.type)) {
+      if (Array.isArray(item.defaultValue) && item.defaultValue.length > 0) {
+        return item.defaultValue;
+      }
+      if (typeof item.defaultValue === 'string') {
+        return JSON.parse(item.defaultValue || '[]');
+      }
+    }
+    // 数字和浮点格式
+    if (numberType.includes(item.type)) {
+      return Number(initValue);
+    }
+
+    return initValue;
+  }
+
+  // 处理表单格式
+  const getFormRules = (arr: BugEditCustomField[]) => {
+    formRules.value = [];
     if (Array.isArray(arr) && arr.length) {
       formRules.value = arr.map((item: any) => {
-        const initOptions = item.options ? item.options : JSON.parse(item.platformOptionJson);
-        let initValue;
-        if (!isEditOrCopy.value) {
-          initValue = item.defaultValue;
-          if (memberType.includes(item.type)) {
-            if (item.defaultValue === 'CREATE_USER' || item.defaultValue.includes('CREATE_USER')) {
-              initValue = item.type === 'MEMBER' ? userStore.id : [userStore.id];
-            } else if (item.type === 'MULTIPLE_MEMBER' && item.defaultValue) {
-              initValue = JSON.parse(item.defaultValue);
-            }
-          } else if (multipleType.includes(item.type)) {
-            if (item.defaultValue && Array.isArray(item.defaultValue) && item.defaultValue.length > 0) {
-              initValue = item.defaultValue;
-            } else if (item.defaultValue && typeof item.defaultValue === 'string') {
-              initValue = item.defaultValue ? JSON.parse(item.defaultValue) : [];
-            }
-          } else if (numberType.includes(item.type)) {
-            initValue = Number(initValue);
-          }
-        } else {
-          initValue = null;
-        }
+        const initOptions = item.options || JSON.parse(item.platformOptionJson || '{}');
+        const initValue = getInitValue(item, initOptions);
         return {
           type: item.type,
           name: item.fieldId,
@@ -439,7 +444,8 @@
         }
         getFormRules(res.customFields.filter((field: Record<string, any>) => !field.platformSystemField));
         // 回显默认系统模板字段
-        res.systemFields.forEach((item: CustomField) => {
+        const systemFieldsDetail = res.systemFields || [];
+        systemFieldsDetail.forEach((item: CustomField) => {
           form.value[item.fieldId] = item.defaultValue;
         });
 

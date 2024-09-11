@@ -686,7 +686,7 @@
         templateForm.value.id = undefined;
       }
       selectData.value = getSelectData(customFields);
-      setCaseSystemFormField(systemFields);
+      setCaseSystemFormField(systemFields || []);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
