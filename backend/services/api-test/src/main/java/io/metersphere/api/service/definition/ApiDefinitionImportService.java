@@ -569,23 +569,21 @@ public class ApiDefinitionImportService {
                 boolean isSameModule = StringUtils.equals(importApi.getModuleId(), existenceApi.getModuleId());
                 /*
                     开启模块覆盖并覆盖接口，此时有4种情况：
+                    接口请求一样，模块一样： 不处理
                  */
-                if (isSameRequest && isSameModule) {
-                    //接口请求一样，模块一样： 不处理
-                    continue;
-                }
-
-                if (!isSameRequest && isSameModule) {
-                    //接口请求不一样，模块一样：更新接口的非模块信息
-                    this.updateApiDefinitionRequest(importApi, existenceMsHTTPElement, request.getPlatform());
-                    apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
-                } else if (isSameRequest) {
-                    //接口请求一样，模块不一样：只更新接口模块信息
-                    apiDefinitionPreImportAnalysisResult.getUpdateModuleApiList().add(importApi);
-                } else {
-                    //接口请求不一样，模块不一样：更新接口所有信息
-                    this.updateApiDefinitionRequest(importApi, existenceMsHTTPElement, request.getPlatform());
-                    apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
+                if (!isSameRequest || !isSameModule) {
+                    if (!isSameRequest && isSameModule) {
+                        //接口请求不一样，模块一样：更新接口的非模块信息
+                        this.updateApiDefinitionRequest(importApi, existenceMsHTTPElement, request.getPlatform());
+                        apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
+                    } else if (isSameRequest) {
+                        //接口请求一样，模块不一样：只更新接口模块信息
+                        apiDefinitionPreImportAnalysisResult.getUpdateModuleApiList().add(importApi);
+                    } else {
+                        //接口请求不一样，模块不一样：更新接口所有信息
+                        this.updateApiDefinitionRequest(importApi, existenceMsHTTPElement, request.getPlatform());
+                        apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
+                    }
                 }
             } else {
                 if (!isSameRequest) {
