@@ -1,6 +1,7 @@
 package io.metersphere.api.parser.ms;
 
 import io.metersphere.api.dto.ApiFile;
+import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.QueryParam;
@@ -10,7 +11,7 @@ import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.KeyValueEnableParam;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.LogUtils;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
@@ -35,6 +36,13 @@ public class HTTPSamplerConverter extends AbstractMsElementConverter<HTTPSampler
     public void toMsElement(AbstractMsTestElement parent, HTTPSamplerProxy httpSampler, HashTree hashTree) {
         MsHTTPElement msHTTPElement = this.convertHttpSampler(httpSampler);
         parent.getChildren().add(msHTTPElement);
+
+        //默认生成一个空的body
+        MsCommonElement msCommonElement = new MsCommonElement();
+        LinkedList<AbstractMsTestElement> children = new LinkedList<>();
+        children.add(msCommonElement);
+        msHTTPElement.setChildren(children);
+
         parseChild(msHTTPElement, httpSampler, hashTree);
     }
 
@@ -61,6 +69,7 @@ public class HTTPSamplerConverter extends AbstractMsElementConverter<HTTPSampler
             samplerProxy.setHeaders(headerKvList);
             // 初始化body
             Body body = new Body();
+            body.setBodyType(Body.BodyType.NONE.name());
             body.setJsonBody(new JsonBody());
             body.setFormDataBody(new FormDataBody());
             body.setWwwFormBody(new WWWFormBody());
