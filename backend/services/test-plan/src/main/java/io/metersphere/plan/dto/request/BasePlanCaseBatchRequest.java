@@ -30,4 +30,7 @@ public class BasePlanCaseBatchRequest extends TableBatchProcessDTO implements Se
 
     @Schema(description = "项目Id")
     private String projectId;
+
+    @Schema(description = "是否包含空执行人")
+    private boolean nullExecutorKey;
 }

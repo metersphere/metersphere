@@ -499,6 +499,7 @@
         </if>
         <include refid="filters">
             <property name="filter" value="request.condition.filter"/>
+            <property name="nullExecutorKey" value="request.nullExecutorKey"/>
         </include>
         <if test="request.condition.combine != null and request.condition.combine != ''">
             <include refid="combine">

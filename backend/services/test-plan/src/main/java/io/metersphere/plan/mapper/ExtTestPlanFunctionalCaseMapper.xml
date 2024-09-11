@@ -204,6 +204,7 @@
         </if>
         <include refid="filters">
             <property name="filter" value="request.condition.filter"/>
+            <property name="nullExecutorKey" value="request.nullExecutorKey"/>
         </include>
         <choose>
             <when test='request.condition.searchMode == "AND"'>

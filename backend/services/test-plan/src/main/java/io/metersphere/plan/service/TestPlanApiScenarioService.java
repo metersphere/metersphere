@@ -387,7 +387,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
      * @return
      */
     public List<TestPlanApiScenarioPageResponse> hasRelateApiScenarioList(TestPlanApiScenarioRequest request, boolean deleted, String currentProjectId) {
-        filterCaseRequest(request);
+        request.setNullExecutorKey(filterCaseRequest(request.getFilter()));
         List<TestPlanApiScenarioPageResponse> list = extTestPlanApiScenarioMapper.relateApiScenarioList(request, deleted);
         buildApiScenarioResponse(list, request.getTestPlanId(), currentProjectId);
         return list;
@@ -505,7 +505,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     }
 
     public Map<String, Long> moduleCount(TestPlanApiScenarioModuleRequest request) {
-        filterCaseRequest(request);
+        request.setNullExecutorKey(filterCaseRequest(request.getFilter()));
         switch (request.getTreeType()) {
             case TreeTypeEnums.MODULE:
                 return getModuleCount(request);
@@ -682,6 +682,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
 
     public List<String> doSelectIds(BasePlanCaseBatchRequest request) {
         if (request.isSelectAll()) {
+            request.setNullExecutorKey(filterCaseRequest(request.getCondition().getFilter()));
             List<String> ids = extTestPlanApiScenarioMapper.getIds(request, false);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
@@ -774,17 +775,16 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     /**
      * 处理执行人为空过滤参数
      *
-     * @param request 请求参数
+     * @param filter 请求参数
      */
-    protected void filterCaseRequest(TestPlanApiScenarioRequest request) {
-        Map<String, List<String>> filter = request.getFilter();
+    protected boolean filterCaseRequest(Map<String, List<String>> filter) {
         if (filter != null && filter.containsKey(EXECUTOR)) {
             List<String> filterExecutorIds = filter.get(EXECUTOR);
             if (CollectionUtils.isNotEmpty(filterExecutorIds)) {
-                boolean containNullKey = filterExecutorIds.removeIf(id -> StringUtils.equals(id, "-"));
-                request.setNullExecutorKey(containNullKey);
+                return filterExecutorIds.contains("-");
             }
         }
+        return false;
     }
 
     public void batchAssociateBug(TestPlanScenarioBatchAddBugRequest request, String bugId, String userId) {
