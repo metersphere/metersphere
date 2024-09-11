@@ -11,6 +11,7 @@ import {
   ProjectMemberOptions,
   ProjectUserGroupUrl,
   RemoveProjectMemberUrl,
+  UpdateProjectMemberUrl,
 } from '@/api/requrls/project-management/projectMember';
 
 import { ReviewUserItem } from '@/models/caseManagement/caseReview';
@@ -33,6 +34,10 @@ export function addOrUpdateProjectMember(data: ActionProjectMember) {
     return MSR.post({ url: EditProjectMemberUrl, data });
   }
   return MSR.post({ url: AddMemberToProjectUrl, data });
+}
+// 系统设置-系统-组织与项目-项目-更新成员用户组
+export function updateProjectMember(data: ActionProjectMember) {
+  return MSR.post({ url: UpdateProjectMemberUrl, data });
 }
 
 // 添加项目成员到用户组

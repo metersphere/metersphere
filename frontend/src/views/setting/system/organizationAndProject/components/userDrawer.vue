@@ -100,8 +100,8 @@
   import MsSelect from '@/components/business/ms-select';
   import AddUserModal from './addUserModal.vue';
 
-  import { addOrUpdateProjectMember, getProjectUserGroup } from '@/api/modules/project-management/projectMember';
-  import { addOrUpdate, getGlobalUserGroup } from '@/api/modules/setting/member';
+  import { getProjectUserGroup, updateProjectMember } from '@/api/modules/project-management/projectMember';
+  import { getGlobalUserGroup, updateSystemOrganizationMember } from '@/api/modules/setting/member';
   import {
     deleteUserFromOrgOrProject,
     postUserTableByOrgIdOrProjectId,
@@ -229,16 +229,13 @@
       if (!val) {
         record.selectUserGroupLoading = true;
         if (props.organizationId) {
-          await addOrUpdate(
-            {
-              organizationId: props.organizationId,
-              memberId: record.id,
-              userRoleIds: record.userRoleList.map((e) => e.id),
-            },
-            'edit'
-          );
+          await updateSystemOrganizationMember({
+            organizationId: props.organizationId,
+            memberId: record.id,
+            userRoleIds: record.userRoleList.map((e) => e.id),
+          });
         } else if (props.projectId) {
-          await addOrUpdateProjectMember({
+          await updateProjectMember({
             projectId: props.projectId,
             userId: record.id,
             roleIds: record.userRoleList.map((e) => e.id),

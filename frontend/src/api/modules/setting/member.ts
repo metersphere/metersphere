@@ -10,6 +10,7 @@ import {
   getUserList,
   inviteOrgMemberUrl,
   UpdateMemberUrl,
+  UpdateSystemOrganizationMemberUrl,
 } from '@/api/requrls/setting/member';
 
 import type { CommonList, TableQueryParams } from '@/models/common';
@@ -30,6 +31,10 @@ export function addOrUpdate(data: AddOrUpdateMemberModel, type: string) {
     return MSR.post({ url: AddMemberUrl, data });
   }
   return MSR.post({ url: UpdateMemberUrl, data });
+}
+// 系统设置-系统-组织与项目-组织-成员-更新成员用户组
+export function updateSystemOrganizationMember(data: AddOrUpdateMemberModel) {
+  return MSR.post({ url: UpdateSystemOrganizationMemberUrl, data });
 }
 // 添加到项目
 export function batchAddProject(data: BatchAddProjectModel) {
