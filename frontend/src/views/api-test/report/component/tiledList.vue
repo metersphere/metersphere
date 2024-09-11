@@ -3,6 +3,7 @@
     class="tiled-wrap p-4"
     :class="{
       'border border-solid border-[var(--color-text-n8)]': props.showType === 'API',
+      '!max-h-max': props.isExport,
     }"
   >
     <div v-if="isFailedRetry" class="mb-[8px]">
@@ -14,7 +15,19 @@
       />
     </div>
     <!-- 步骤树 -->
+    <ReadOnlyStepTree
+      v-if="props.isExport"
+      v-model:steps="currentTiledList"
+      v-model:expandedKeys="expandedKeys"
+      :show-type="props.showType"
+      :active-type="props.activeType"
+      :expand-all="isExpandAll"
+      :console="props.reportDetail.console"
+      :report-id="props.reportDetail.id"
+      :get-report-step-detail="props.getReportStepDetail"
+    />
     <StepTree
+      v-else
       ref="stepTreeRef"
       v-model:steps="currentTiledList"
       v-model:expandedKeys="expandedKeys"
@@ -45,6 +58,7 @@
   import { cloneDeep, debounce } from 'lodash-es';
 
   import MsTab from '@/components/pure/ms-tab/index.vue';
+  import ReadOnlyStepTree from './step/readOnlyTree.vue';
   import StepDrawer from './step/stepDrawer.vue';
   import StepTree from './step/stepTree.vue';
 
@@ -61,6 +75,7 @@
     showType: 'API' | 'CASE'; // 接口场景|用例
     keyWords: string;
     getReportStepDetail?: (...args: any) => Promise<any>; // 获取步骤的详情内容接口
+    isExport?: boolean; // 是否是导出pdf预览
   }>();
 
   const { t } = useI18n();
@@ -209,7 +224,9 @@
 
 <style scoped lang="less">
   .tiled-wrap {
-    min-height: calc(100vh - 424px);
+    overflow: auto;
+    max-height: calc(100vh - 162px);
     border-radius: 4px;
+    .ms-scroll-bar();
   }
 </style>

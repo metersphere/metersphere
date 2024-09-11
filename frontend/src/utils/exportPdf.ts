@@ -9,10 +9,10 @@ const FOOTER_HEIGHT = 16;
 const PAGE_HEIGHT = A4_HEIGHT - FOOTER_HEIGHT - HEADER_HEIGHT;
 const PDF_WIDTH = A4_WIDTH - 32; // 左右分别 16px 间距
 const CONTAINER_WIDTH = 1190;
-export const SCALE_RATIO = 1.2;
+export const SCALE_RATIO = window.devicePixelRatio * 1.2;
 // 实际每页高度 = PDF页面高度/页面容器宽度与 pdf 宽度的比例(这里比例*SCALE_RATIO 是因为html2canvas截图时生成的是 SCALE_RATIO 倍的清晰度)
 export const IMAGE_HEIGHT = Math.ceil(PAGE_HEIGHT * (CONTAINER_WIDTH / PDF_WIDTH) * SCALE_RATIO);
-export const MAX_CANVAS_HEIGHT = IMAGE_HEIGHT * 25; // 一次截图最大高度是 20 页整（过长会无法截完整，出现空白）
+export const MAX_CANVAS_HEIGHT = IMAGE_HEIGHT * 20; // 一次截图最大高度是 20 页整（过长会无法截完整，出现空白）
 
 /**
  * 替换svg为base64
@@ -53,7 +53,7 @@ async function convertSvgToBase64(svgElement: SVGSVGElement) {
 /**
  * 替换svg为base64
  */
-async function replaceSvgWithBase64(container: HTMLElement) {
+export async function replaceSvgWithBase64(container: HTMLElement) {
   await inlineSvgUseElements(container);
   const svgElements = container.querySelectorAll('.c-icon');
   svgElements.forEach(async (svgElement) => {
@@ -107,7 +107,7 @@ export default async function exportPDF(name: string, contentId: string) {
         width: CONTAINER_WIDTH,
         height: screenshotHeight,
         backgroundColor: '#f9f9fe',
-        scale: window.devicePixelRatio * SCALE_RATIO, // 缩放增加清晰度
+        scale: SCALE_RATIO, // 缩放增加清晰度
       });
       screenshotList.push(canvas);
       position += screenshotHeight;

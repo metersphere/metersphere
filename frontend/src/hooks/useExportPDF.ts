@@ -1,61 +1,10 @@
 import '@/assets/fonts/AlibabaPuHuiTi-3-55-Regular-normal';
 
-import { Canvg } from 'canvg';
+import { replaceSvgWithBase64 } from '@/utils/exportPdf';
+
 import html2canvas from 'html2canvas-pro';
 import JSPDF from 'jspdf';
 import autoTable, { UserOptions } from 'jspdf-autotable';
-
-/**
- * 替换svg为base64
- */
-async function inlineSvgUseElements(container: HTMLElement) {
-  const useElements = container.querySelectorAll('use');
-  useElements.forEach((useElement) => {
-    const href = useElement.getAttribute('xlink:href') || useElement.getAttribute('href');
-    if (href) {
-      const symbolId = href.substring(1);
-      const symbol = document.getElementById(symbolId);
-      if (symbol) {
-        const svgElement = useElement.closest('svg');
-        if (svgElement) {
-          svgElement.innerHTML = symbol.innerHTML;
-        }
-      }
-    }
-  });
-}
-
-/**
- * 将svg转换为base64
- */
-async function convertSvgToBase64(svgElement: SVGSVGElement) {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  const svgString = new XMLSerializer().serializeToString(svgElement);
-  if (ctx) {
-    const v = Canvg.fromString(ctx, svgString);
-    canvas.width = svgElement.clientWidth;
-    canvas.height = svgElement.clientHeight;
-    await v.render();
-  }
-  return canvas.toDataURL('image/png');
-}
-
-/**
- * 替换svg为base64
- */
-async function replaceSvgWithBase64(container: HTMLElement) {
-  await inlineSvgUseElements(container);
-  const svgElements = container.querySelectorAll('.c-icon');
-  svgElements.forEach(async (svgElement) => {
-    const img = new Image();
-    img.src = await convertSvgToBase64(svgElement as SVGSVGElement);
-    img.width = svgElement.clientWidth;
-    img.height = svgElement.clientHeight;
-    img.style.marginRight = '8px';
-    svgElement.parentNode?.replaceChild(img, svgElement);
-  });
-}
 
 const A4_WIDTH = 595;
 const A4_HEIGHT = 842;
@@ -64,7 +13,7 @@ const FOOTER_HEIGHT = 16;
 export const PAGE_HEIGHT = A4_HEIGHT - FOOTER_HEIGHT - HEADER_HEIGHT;
 export const PDF_WIDTH = A4_WIDTH - 32; // 左右分别 16px 间距
 export const CONTAINER_WIDTH = 1190;
-export const SCALE_RATIO = 1.5;
+export const SCALE_RATIO = window.devicePixelRatio * 1.5;
 export const PAGE_PDF_WIDTH_RATIO = CONTAINER_WIDTH / PDF_WIDTH; // 页面容器宽度与 pdf 宽度的比例
 // 实际每页高度 = PDF页面高度/页面容器宽度与 pdf 宽度的比例(这里比例*SCALE_RATIO 是因为html2canvas截图时生成的是 SCALE_RATIO 倍的清晰度)
 export const IMAGE_HEIGHT = Math.ceil(PAGE_HEIGHT * PAGE_PDF_WIDTH_RATIO * SCALE_RATIO);
@@ -110,7 +59,7 @@ export default async function exportPDF(
       width: CONTAINER_WIDTH,
       height: element.clientHeight,
       backgroundColor: '#f9f9fe',
-      scale: window.devicePixelRatio * SCALE_RATIO, // 缩放增加清晰度
+      scale: SCALE_RATIO, // 缩放增加清晰度
     });
     pdf.setFont('AlibabaPuHuiTi-3-55-Regular');
     pdf.setFontSize(10);

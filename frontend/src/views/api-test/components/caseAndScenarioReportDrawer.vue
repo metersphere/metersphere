@@ -9,24 +9,36 @@
     show-full-screen
   >
     <template #tbutton>
-      <a-dropdown v-if="!props.doNotShowShare" position="br" @select="shareHandler">
+      <div class="ms-drawer-right-operation-button flex items-center">
+        <a-dropdown v-if="!props.doNotShowShare" position="br" @select="shareHandler">
+          <MsButton
+            v-permission="['PROJECT_API_REPORT:READ+SHARE']"
+            type="icon"
+            status="secondary"
+            class="mr-4 !rounded-[var(--border-radius-small)] text-[var(--color-text-1)]"
+            @click="shareHandler"
+          >
+            <MsIcon type="icon-icon_share1" class="mr-2 font-[16px] text-[var(--color-text-1)]" />
+            {{ t('common.share') }}
+          </MsButton>
+          <template #content>
+            <a-doption>
+              <span>{{ t('report.detail.api.copyLink') }}</span
+              ><span>{{ t('report.detail.api.copyLinkTimeEnd', { time: shareTime }) }}</span>
+            </a-doption>
+          </template>
+        </a-dropdown>
         <MsButton
           v-permission="['PROJECT_API_REPORT:READ+SHARE']"
           type="icon"
           status="secondary"
-          class="mr-4 !rounded-[var(--border-radius-small)]"
-          @click="shareHandler"
+          class="mr-4 !rounded-[var(--border-radius-small)] text-[var(--color-text-1)]"
+          @click="exportHandler"
         >
-          <MsIcon type="icon-icon_share1" class="mr-2 font-[16px]" />
-          {{ t('common.share') }}
+          <MsIcon type="icon-icon_bottom-align_outlined" class="mr-2 font-[16px] text-[var(--color-text-1)]" />
+          {{ t('common.export') }}
         </MsButton>
-        <template #content>
-          <a-doption>
-            <span>{{ t('report.detail.api.copyLink') }}</span
-            ><span>{{ t('report.detail.api.copyLinkTimeEnd', { time: shareTime }) }}</span>
-          </a-doption>
-        </template>
-      </a-dropdown>
+      </div>
     </template>
     <CaseReportCom
       v-if="!props.isScenario"
@@ -50,10 +62,11 @@
 
   import { getShareInfo, getShareTime, reportCaseDetail, reportScenarioDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { useAppStore } from '@/store';
 
   import type { ReportDetail } from '@/models/apiTest/report';
-  import { RouteEnum } from '@/enums/routeEnum';
+  import { FullPageEnum, RouteEnum } from '@/enums/routeEnum';
 
   const props = defineProps<{
     reportId: string;
@@ -67,6 +80,7 @@
   const { t } = useI18n();
   const { copy, isSupported } = useClipboard({ legacy: true });
   const route = useRoute();
+  const { openNewPage } = useOpenNewPage();
 
   const innerVisible = defineModel<boolean>('visible', {
     required: true,
@@ -188,6 +202,16 @@
       console.log(error);
     }
   }
+
+  function exportHandler() {
+    openNewPage(
+      props.isScenario ? FullPageEnum.FULL_PAGE_SCENARIO_EXPORT_PDF : FullPageEnum.FULL_PAGE_CASE_EXPORT_PDF,
+      {
+        id: props.reportId,
+      }
+    );
+  }
+
   onMounted(() => {
     if (!props.doNotShowShare) {
       getTime();
