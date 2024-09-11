@@ -115,6 +115,7 @@
             v-model:model-value="item.value"
             allow-clear
             allow-search
+            :search-keys="['label', 'text']"
             :placeholder="t('common.pleaseSelect')"
             :disabled="isValueDisabled(item)"
             :options="item.selectProps?.options || []"
@@ -148,32 +149,6 @@
             :separator="t('common.to')"
             :disabled="isValueDisabled(item)"
           />
-          <a-radio-group
-            v-else-if="item.type === FilterType.RADIO"
-            v-model:model-value="item.value"
-            :disabled="isValueDisabled(item)"
-          >
-            <a-radio
-              v-for="it of item.radioProps?.options || []"
-              :key="it[item.radioProps?.valueKey || 'value']"
-              :value="it[item.radioProps?.valueKey || 'value']"
-            >
-              {{ it[item.radioProps?.labelKey || 'label'] }}
-            </a-radio>
-          </a-radio-group>
-          <a-checkbox-group
-            v-else-if="item.type === FilterType.CHECKBOX"
-            v-model:model-value="item.value"
-            :disabled="isValueDisabled(item)"
-          >
-            <a-checkbox
-              v-for="it of item.checkProps?.options || []"
-              :key="it[item.checkProps?.valueKey || 'value']"
-              :value="it[item.checkProps?.valueKey || 'value']"
-            >
-              {{ it[item.checkProps?.labelKey || 'label'] }}
-            </a-checkbox>
-          </a-checkbox-group>
           <a-input
             v-else
             v-model:model-value="item.value"

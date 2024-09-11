@@ -35,8 +35,6 @@ export const operatorOptionsMap: Record<string, { value: string; label: string }
   [FilterType.INPUT]: COMMON_TEXT_OPERATORS,
   [FilterType.TEXTAREA]: COMMON_TEXT_OPERATORS,
   [FilterType.NUMBER]: [GT, LT, EQUAL, EMPTY, NOT_EMPTY],
-  [FilterType.RADIO]: COMMON_SELECTION_OPERATORS,
-  [FilterType.CHECKBOX]: COMMON_SELECTION_OPERATORS,
   [FilterType.SELECT]: COMMON_SELECTION_OPERATORS,
   [FilterType.MEMBER]: COMMON_SELECTION_OPERATORS,
   [FilterType.TAGS_INPUT]: [EMPTY, CONTAINS, NO_CONTAINS, COUNT_LT, COUNT_GT],
@@ -68,6 +66,14 @@ export const statusCodeOptions = [
   LENGTH_EQUAL,
 ];
 
+const baseSelectProps = {
+  mode: 'static',
+  multiple: true,
+  valueKey: 'value',
+  labelKey: 'text',
+  options: [],
+};
+
 export const CustomTypeMaps: Record<string, any> = {
   INPUT: {
     type: 'INPUT',
@@ -75,42 +81,22 @@ export const CustomTypeMaps: Record<string, any> = {
   SELECT: {
     type: 'SELECT',
     propsKey: 'selectProps',
-    props: {
-      mode: 'static',
-      multiple: true,
-      valueKey: 'value',
-      labelKey: 'text',
-      options: [],
-    },
+    props: { ...baseSelectProps },
   },
   MULTIPLE_SELECT: {
     type: 'SELECT',
     propsKey: 'selectProps',
-    props: {
-      mode: 'static',
-      multiple: true,
-      valueKey: 'value',
-      labelKey: 'text',
-      options: [],
-    },
+    props: { ...baseSelectProps },
   },
   RADIO: {
-    type: 'RADIO',
-    propsKey: 'radioProps',
-    props: {
-      options: [],
-      valueKey: 'value',
-      labelKey: 'text',
-    },
+    type: 'SELECT',
+    propsKey: 'selectProps',
+    props: { ...baseSelectProps },
   },
   CHECKBOX: {
-    type: 'CHECKBOX',
-    propsKey: 'checkProps',
-    props: {
-      options: [],
-      valueKey: 'value',
-      labelKey: 'text',
-    },
+    type: 'SELECT',
+    propsKey: 'selectProps',
+    props: { ...baseSelectProps },
   },
   MEMBER: {
     type: 'MEMBER',
