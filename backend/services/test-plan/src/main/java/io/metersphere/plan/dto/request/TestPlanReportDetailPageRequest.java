@@ -16,4 +16,7 @@ public class TestPlanReportDetailPageRequest extends BasePageRequest {
 
 	@Schema(description = "是否分页", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
 	private Boolean startPager = true;
+
+	@Schema(description = "测试集ID")
+	private String collectionId;
 }

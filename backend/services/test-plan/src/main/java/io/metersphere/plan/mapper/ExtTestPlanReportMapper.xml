@@ -281,6 +281,9 @@
             <if test="request.reportId != null and request.reportId != ''">
                 and tpr.parent_id = #{request.reportId} and tpr.integrated = false
             </if>
+            <if test="request.keyword != null and request.keyword != ''">
+                and tpr.name like concat('%', #{request.keyword},'%')
+            </if>
             <include refid="filter"/>
             <include refid="combine">
                 <property name="condition" value="request.combine"/>

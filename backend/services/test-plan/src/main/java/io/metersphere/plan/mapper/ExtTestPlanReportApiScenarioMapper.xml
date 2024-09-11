@@ -37,8 +37,25 @@
         ifnull(tpras.api_scenario_execute_result, 'PENDING') as executeResult, tpras.api_scenario_execute_user as executeUser, aso.project_id projectId
         from test_plan_report_api_scenario tpras left join  api_scenario aso on tpras.api_scenario_id = aso.id
         where tpras.test_plan_report_id = #{request.reportId}
+        <if test="request.keyword != null and request.keyword != ''">
+            and (tpras.api_scenario_num like concat('%', #{request.keyword}, '%')
+            or tpras.api_scenario_name like concat('%', #{request.keyword}, '%'))
+        </if>
+        <if test="request.collectionId != null and request.collectionId != ''">
+            and tpras.test_plan_collection_id = #{request.collectionId}
+        </if>
         <include refid="filter"/>
     </select>
+
+    <select id="listCollection" resultType="io.metersphere.plan.dto.response.TestPlanReportDetailCollectionResponse">
+        select tpc.id as id, tpc.name as name, tp.name as planName, count(tpras.id) as count
+        from test_plan_report_api_scenario tpras
+                 join test_plan_collection tpc on tpras.test_plan_collection_id = tpc.id and tpc.type = 'SCENARIO'
+                 join test_plan tp on tpc.test_plan_id = tp.id
+        where tpras.test_plan_report_id = #{request.reportId}
+        group by tpras.test_plan_collection_id
+    </select>
+
     <select id="getPlanExecuteCasesId" resultType="java.lang.String">
         select tpas.id
         from test_plan_api_scenario tpas

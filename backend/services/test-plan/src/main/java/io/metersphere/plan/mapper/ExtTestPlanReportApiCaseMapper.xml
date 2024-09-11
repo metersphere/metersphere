@@ -38,7 +38,23 @@
         ifnull(tprac.api_case_execute_result, 'PENDING') as executeResult, tprac.api_case_execute_user as executeUser, atc.project_id projectId
         from test_plan_report_api_case tprac left join api_test_case atc on tprac.api_case_id = atc.id
         where tprac.test_plan_report_id = #{request.reportId}
+        <if test="request.keyword != null and request.keyword != ''">
+            and (tprac.api_case_num like concat('%', #{request.keyword}, '%')
+            or tprac.api_case_name like concat('%', #{request.keyword}, '%'))
+        </if>
+        <if test="request.collectionId != null and request.collectionId != ''">
+            and tprac.test_plan_collection_id = #{request.collectionId}
+        </if>
         <include refid="filter"/>
+    </select>
+
+    <select id="listCollection" resultType="io.metersphere.plan.dto.response.TestPlanReportDetailCollectionResponse">
+        select tpc.id as id, tpc.name as name, tp.name as planName, count(tprac.id) as count
+        from test_plan_report_api_case tprac
+                 join test_plan_collection tpc on tprac.test_plan_collection_id = tpc.id and tpc.type = 'API'
+                 join test_plan tp on tpc.test_plan_id = tp.id
+        where tprac.test_plan_report_id = #{request.reportId}
+        group by tprac.test_plan_collection_id
     </select>
 
     <select id="getIdsByReportIdAndCollectionId" resultType="java.lang.String">
@@ -46,6 +62,7 @@
         where test_plan_report_id = #{testPlanReportId} and test_plan_collection_id = #{collectionId}
         order by pos desc
     </select>
+
     <select id="getPlanExecuteCasesId" resultType="java.lang.String">
         select tpac.id
         from test_plan_api_case tpac
