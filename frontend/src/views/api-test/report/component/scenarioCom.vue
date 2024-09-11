@@ -48,6 +48,7 @@
         :active-type="activeTab"
         :report-detail="detail || []"
         :is-export="props.isExport"
+        class="p-[16px]"
       />
     </div>
     <!-- 报告明细结束 -->

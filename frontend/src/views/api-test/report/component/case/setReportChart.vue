@@ -34,7 +34,7 @@
       <!-- </a-popover> -->
     </div>
 
-    <div class="chart-legend grid flex-1 gap-y-3">
+    <div class="chart-legend grid flex-1 gap-y-[12px]">
       <!-- 图例开始 -->
       <div v-for="item of legendData" :key="item.value" class="grid grid-cols-3">
         <div class="flex flex-nowrap items-center">

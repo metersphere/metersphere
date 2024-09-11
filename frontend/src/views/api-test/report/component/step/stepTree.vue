@@ -382,7 +382,7 @@
     .arco-tree-node-title {
       @apply !cursor-pointer bg-white;
 
-      padding: 12px 4px;
+      padding: 8px 4px;
       &:hover {
         background-color: white !important;
       }

@@ -84,6 +84,7 @@ export default {
   'apiTestManagement.exportCase': 'Synchronous export use case',
   'apiTestManagement.exportMock': 'Export Mock Synchronously',
   'apiTestManagement.syncImportCase': 'Sync Import API Cases',
+  'apiTestManagement.syncImportMock': 'Sync Import API Mock',
   'apiTestManagement.syncUpdateDirectory': 'Sync Update API Directory',
   'apiTestManagement.importSwaggerFileTip1': 'Supports Swagger 3.0 version JSON files,',
   'apiTestManagement.importSwaggerFileTip2': '2.0 files can be converted to 3.0 on the official website',

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="tiled-wrap p-4"
+    class="tiled-wrap"
     :class="{
       'border border-solid border-[var(--color-text-n8)]': props.showType === 'API',
       '!max-h-max': props.isExport,

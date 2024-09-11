@@ -100,6 +100,13 @@
             <a-switch v-model:model-value="importForm.syncCase" size="small" />
             {{ t('apiTestManagement.syncImportCase') }}
           </div>
+          <div
+            v-if="importForm.platform === RequestImportFormat.MeterSphere"
+            class="mb-[16px] flex items-center gap-[4px]"
+          >
+            <a-switch v-model:model-value="importForm.syncMock" size="small" />
+            {{ t('apiTestManagement.syncImportMock') }}
+          </div>
           <a-form-item
             v-if="importForm.platform === RequestImportFormat.SWAGGER"
             :label="t('apiTestManagement.importMethod')"
@@ -395,6 +402,7 @@
     moduleId: '',
     coverData: false,
     syncCase: true,
+    syncMock: true,
     coverModule: false,
     swaggerUrl: '',
     authSwitch: false,
@@ -480,6 +488,7 @@
             coverModule: importForm.value.coverModule,
             coverData: importForm.value.coverData,
             syncCase: importForm.value.syncCase,
+            syncMock: importForm.value.syncMock,
             protocol: importForm.value.protocol,
             moduleId: importForm.value.moduleId,
             authSwitch: importForm.value.authSwitch,
@@ -496,6 +505,7 @@
             coverModule: importForm.value.coverModule,
             coverData: importForm.value.coverData,
             syncCase: importForm.value.syncCase,
+            syncMock: importForm.value.syncMock,
             protocol: importForm.value.protocol,
             moduleId: importForm.value.moduleId,
             swaggerUrl: importForm.value.swaggerUrl,
@@ -528,6 +538,7 @@
         coverModule: importForm.value.coverModule,
         coverData: importForm.value.coverData,
         syncCase: importForm.value.syncCase,
+        syncMock: importForm.value.syncMock,
         protocol: importForm.value.protocol,
         moduleId: importForm.value.moduleId,
         swaggerUrl: importForm.value.swaggerUrl,

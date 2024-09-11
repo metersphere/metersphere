@@ -229,6 +229,7 @@ export interface ImportApiDefinitionRequest {
   coverModule: boolean; // 是否覆盖子目录
   coverData: boolean; // 是否覆盖数据
   syncCase: boolean; // 是否同步导入用例
+  syncMock: boolean; // 是否同步导入mock
   protocol: string;
   authSwitch?: boolean;
   authUsername?: string;

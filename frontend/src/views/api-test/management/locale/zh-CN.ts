@@ -80,6 +80,7 @@ export default {
   'apiTestManagement.exportCase': '同步导出用例',
   'apiTestManagement.exportMock': '同步导出 Mock',
   'apiTestManagement.syncImportCase': '同步导入接口用例',
+  'apiTestManagement.syncImportMock': '同步导入 Mock',
   'apiTestManagement.syncUpdateDirectory': '同步更新接口所在目录',
   'apiTestManagement.importSwaggerFileTip1': '支持 Swagger 3.0 版本的 json 文件，',
   'apiTestManagement.importSwaggerFileTip2': '2.0 文件可以在官网一键转换 3.0',
