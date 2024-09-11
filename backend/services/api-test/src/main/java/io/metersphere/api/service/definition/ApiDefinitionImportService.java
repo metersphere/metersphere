@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static io.metersphere.project.utils.NodeSortUtils.DEFAULT_NODE_INTERVAL_POS;
@@ -218,7 +219,7 @@ public class ApiDefinitionImportService {
             List<ApiDefinitionCaseDTO> noticeCreateLists = new ArrayList<>();
             List<ApiDefinitionCaseDTO> noticeUpdateLists = new ArrayList<>();
             apiDefinitionPreImportAnalysisResult.getInsertModuleList().forEach(t -> {
-                operationLogs.add(ApiDefinitionImportUtils.genImportLog(project, t.getId(), t.getName(), t, OperationLogModule.API_TEST_MANAGEMENT_MODULE, request.getUserId(), OperationLogType.UPDATE.name()));
+                operationLogs.add(ApiDefinitionImportUtils.genImportLog(project, t.getId(), t.getName(), t, OperationLogModule.API_TEST_MANAGEMENT_MODULE, request.getUserId(), OperationLogType.ADD.name()));
             });
 
             apiDefinitionPreImportAnalysisResult.getUpdateModuleApiList().forEach(t -> {
@@ -455,12 +456,20 @@ public class ApiDefinitionImportService {
 
         // api模块树查询
         List<BaseTreeNode> apiModules = this.buildTreeData(request.getProjectId(), request.getProtocol());
-        Map<String, BaseTreeNode> modulePathMap = apiModules.stream().collect(Collectors.toMap(BaseTreeNode::getPath, t -> t));
+        Map<String, BaseTreeNode> modulePathMap = new HashMap<>();
+        AtomicReference<String> selectModulePath = new AtomicReference<>();
+        apiModules.forEach(item -> {
+            if (StringUtils.equals(item.getId(), request.getModuleId())) {
+                selectModulePath.set(item.getPath());
+            }
+            modulePathMap.put(item.getPath(), item);
+        });
+
         // 新增数据处理
-        this.inertDataAnalysis(preImportAnalysisResult, request, modulePathMap, insertAndUpdateData);
+        this.inertDataAnalysis(preImportAnalysisResult, request, selectModulePath.get(), modulePathMap, insertAndUpdateData);
 
         // 已有数据处理
-        this.existenceDataAnalysis(preImportAnalysisResult, request, modulePathMap, insertAndUpdateData);
+        this.existenceDataAnalysis(preImportAnalysisResult, request, selectModulePath.get(), modulePathMap, insertAndUpdateData);
 
         return preImportAnalysisResult;
     }
@@ -470,11 +479,25 @@ public class ApiDefinitionImportService {
         指定了导入模块： 直接塞入指定模块中。
         未指定导入模块： 接口有模块，就放在那个模块下。  接口没模块就放在未规划模块内
      */
-    private void inertDataAnalysis(ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult, ImportRequest request, Map<String, BaseTreeNode> modulePathMap, ApiImportDataAnalysisResult analysisResult) {
+    private void inertDataAnalysis(ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult, ImportRequest request, String selectModulePath, Map<String, BaseTreeNode> modulePathMap, ApiImportDataAnalysisResult analysisResult) {
         for (ApiDefinitionDetail apiData : analysisResult.getInsertApiList()) {
             if (StringUtils.isNotEmpty(request.getModuleId())) {
-                // 指定了导入模块： 直接塞入指定模块中。
-                apiData.setModuleId(request.getModuleId());
+                if (StringUtils.equalsIgnoreCase(request.getModuleId(), ModuleConstants.DEFAULT_NODE_ID)) {
+                    apiData.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+                } else {
+                    if (apiData.getModulePath() == null) {
+                        apiData.setModulePath(StringUtils.EMPTY);
+                    }
+                    // 指定了导入模块： 以当前模块为基准进行操作
+                    String finalModulePath = (StringUtils.isBlank(selectModulePath) ? StringUtils.EMPTY : selectModulePath)
+                            + "/" + ((StringUtils.startsWith(apiData.getModulePath(), "/") ? StringUtils.substring(apiData.getModulePath(), 1) : apiData.getModulePath()));
+                    apiData.setModulePath(finalModulePath);
+
+                    if (!modulePathMap.containsKey(finalModulePath)) {
+                        apiDefinitionPreImportAnalysisResult.getInsertModuleList().addAll(TreeNodeParseUtils.getInsertNodeByPath(modulePathMap, finalModulePath));
+                    }
+                    apiData.setModuleId(modulePathMap.get(finalModulePath).getId());
+                }
             } else {
                 // 未指定导入模块： 接口有模块，就放在那个模块下。  接口没模块就放在未规划模块内
                 if (StringUtils.isEmpty(apiData.getModulePath())) {
@@ -491,7 +514,6 @@ public class ApiDefinitionImportService {
                     apiData.setModuleId(modulePathMap.get(modulePath).getId());
                 }
             }
-            apiDefinitionPreImportAnalysisResult.getLogData().put(apiData.getId(), apiData);
             apiDefinitionPreImportAnalysisResult.getInsertApiData().add(apiData);
             //判断是否更新用例
             if (request.isSyncCase()) {
@@ -509,7 +531,7 @@ public class ApiDefinitionImportService {
     }
 
     // 已有数据处理
-    private void existenceDataAnalysis(ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult, ImportRequest request, Map<String, BaseTreeNode> modulePathMap, ApiImportDataAnalysisResult analysisResult) {
+    private void existenceDataAnalysis(ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult, ImportRequest request, String selectModulePath, Map<String, BaseTreeNode> modulePathMap, ApiImportDataAnalysisResult analysisResult) {
         //不选择覆盖接口或者数据为空：终止操作
         if (CollectionUtils.isEmpty(analysisResult.getExistenceApiList()) || !request.isCoverData()) {
             return;
@@ -541,11 +563,9 @@ public class ApiDefinitionImportService {
             String importApiId = importApi.getId();
             importApi.setId(existenceApi.getId());
             if (request.isCoverModule()) {
-                // 未指定导入模块： 接口有模块，就放在那个模块下。  接口没模块就放在未规划模块内
-                String modulePath = importApi.getModulePath();
-                if (modulePathMap.containsKey(modulePath)) {
-                    importApi.setModuleId(modulePathMap.get(modulePath).getId());
-                }
+                // 确定api的最终目录
+                this.updateApiDefinitionModule(importApi, selectModulePath, modulePathMap, request.getModuleId(), apiDefinitionPreImportAnalysisResult);
+
                 boolean isSameModule = StringUtils.equals(importApi.getModuleId(), existenceApi.getModuleId());
                 /*
                     开启模块覆盖并覆盖接口，此时有4种情况：
@@ -561,45 +581,32 @@ public class ApiDefinitionImportService {
                     apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
                 } else if (isSameRequest) {
                     //接口请求一样，模块不一样：只更新接口模块信息
-                    importApi.setModuleId(existenceApi.getModuleId());
-                    this.updateApiDefinitionModule(importApi, modulePathMap, request.getModuleId(), apiDefinitionPreImportAnalysisResult);
                     apiDefinitionPreImportAnalysisResult.getUpdateModuleApiList().add(importApi);
                 } else {
                     //接口请求不一样，模块不一样：更新接口所有信息
                     this.updateApiDefinitionRequest(importApi, existenceMsHTTPElement, request.getPlatform());
-                    this.updateApiDefinitionModule(importApi, modulePathMap, request.getModuleId(), apiDefinitionPreImportAnalysisResult);
                     apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
                 }
-                apiDefinitionPreImportAnalysisResult.getLogData().put(importApi.getId(), importApi);
-
-
             } else {
                 if (!isSameRequest) {
                     //覆盖接口、不覆盖模块、 接口请求不一样，要更新接口的非模块信息;接口请求一样不处理，
                     this.updateApiDefinitionRequest(importApi, existenceMsHTTPElement, request.getPlatform());
-                    apiDefinitionPreImportAnalysisResult.getLogData().put(importApi.getId(), importApi);
                     apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
                 }
             }
             //是否同步用例
             if (request.isSyncCase()) {
-                boolean hasSyncCase = this.existenceApiTestCasePreparation(apiDefinitionPreImportAnalysisResult,
+                this.existenceApiTestCasePreparation(apiDefinitionPreImportAnalysisResult,
                         analysisResult.getApiIdAndTestCaseMap().get(importApiId),
                         importApi.getId(),
                         existenceApiTestCaseMap.get(importApi.getId()));
-                if (hasSyncCase && !apiDefinitionPreImportAnalysisResult.getLogData().containsKey(importApi.getId())) {
-                    apiDefinitionPreImportAnalysisResult.getLogData().put(importApi.getId(), importApi);
-                }
             }
             //是否同步Mock
             if (request.isSyncMock()) {
-                boolean hasSyncCase = this.existenceApiMockPreparation(apiDefinitionPreImportAnalysisResult,
+                this.existenceApiMockPreparation(apiDefinitionPreImportAnalysisResult,
                         analysisResult.getApiIdAndMockMap().get(importApiId),
                         importApi.getId(),
                         existenceApiMockMap.get(importApi.getId()));
-                if (hasSyncCase && !apiDefinitionPreImportAnalysisResult.getLogData().containsKey(importApi.getId())) {
-                    apiDefinitionPreImportAnalysisResult.getLogData().put(importApi.getId(), importApi);
-                }
             }
         }
     }
@@ -615,34 +622,29 @@ public class ApiDefinitionImportService {
      * b).导入的接口有模块，根据导入接口的模块路径，从根目录select-or-create模块
      *
      * @param importApi                            要导入的api
+     * @param selectModulePath                           选择的路径
      * @param modulePathMap                        已有的模块路径map
      * @param importModuleId                       导入指定的模块
      * @param apiDefinitionPreImportAnalysisResult 如果有需要创建的模块，要存储在result中
      */
-    private void updateApiDefinitionModule(ApiDefinitionDetail importApi, Map<String, BaseTreeNode> modulePathMap, String importModuleId, ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult) {
-        if (StringUtils.equalsIgnoreCase(importModuleId, ModuleConstants.DEFAULT_NODE_ID)) {
+    private void updateApiDefinitionModule(ApiDefinitionDetail importApi, String selectModulePath, Map<String, BaseTreeNode> modulePathMap, String importModuleId, ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult) {
+        if (StringUtils.equalsIgnoreCase(importModuleId, ModuleConstants.DEFAULT_NODE_ID) ||
+                (StringUtils.isBlank(importModuleId) && StringUtils.isBlank(importApi.getModulePath()))) {
+            //选中的是未规划模块或者没选择模块且接口本身没模块
             importApi.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
-            return;
-        }
-
-        if (StringUtils.isNotBlank(importApi.getModulePath())) {
-            // 只要导入的接口有模块，就要通过1b 或者 2b 来进行判断
-            BaseTreeNode selectTreeNode = null;
-            if (StringUtils.isNotBlank(importModuleId)) {
-                selectTreeNode = modulePathMap.values().stream().filter(t -> StringUtils.equals(t.getId(), importModuleId)).findFirst().orElse(null);
-            }
-            String selectModulePath = selectTreeNode == null ? StringUtils.EMPTY : selectTreeNode.getPath();
-            if (!StringUtils.startsWith(importApi.getModulePath(), "/")) {
-                importApi.setModulePath("/" + importApi.getModulePath());
-            }
-            String fullPath = TreeNodeParseUtils.genFullModulePath(selectModulePath, importApi.getModulePath());
-            if (!modulePathMap.containsKey(fullPath)) {
-                apiDefinitionPreImportAnalysisResult.getInsertModuleList().addAll(TreeNodeParseUtils.getInsertNodeByPath(modulePathMap, fullPath));
-            }
-            importApi.setModuleId(modulePathMap.get(fullPath).getId());
         } else {
-            //导入的接口没模块，就要放在指定的导入模块 或者 根目录 下
-            importApi.setModuleId(StringUtils.isBlank(importModuleId) ? ModuleConstants.DEFAULT_NODE_ID : importModuleId);
+            if (importApi.getModulePath() == null) {
+                importApi.setModulePath(StringUtils.EMPTY);
+            }
+            // 指定了导入模块： 以当前模块为基准进行操作
+            String finalModulePath = (StringUtils.isBlank(selectModulePath) ? StringUtils.EMPTY : selectModulePath)
+                    + "/" + ((StringUtils.startsWith(importApi.getModulePath(), "/") ? StringUtils.substring(importApi.getModulePath(), 1) : importApi.getModulePath()));
+            importApi.setModulePath(finalModulePath);
+
+            if (!modulePathMap.containsKey(finalModulePath)) {
+                apiDefinitionPreImportAnalysisResult.getInsertModuleList().addAll(TreeNodeParseUtils.getInsertNodeByPath(modulePathMap, finalModulePath));
+            }
+            importApi.setModuleId(modulePathMap.get(finalModulePath).getId());
         }
     }
 

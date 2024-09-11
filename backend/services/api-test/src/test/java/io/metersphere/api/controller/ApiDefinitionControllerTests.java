@@ -34,6 +34,7 @@ import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.dto.BaseCondition;
 import io.metersphere.sdk.dto.CombineCondition;
 import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.sdk.exception.MSException;
@@ -49,7 +50,6 @@ import io.metersphere.system.domain.OperationHistoryExample;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
-import io.metersphere.sdk.dto.BaseCondition;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.manager.ExportTaskManager;
@@ -1859,7 +1859,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
             request.setModuleId(null);
             apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
             apiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
-            Assertions.assertEquals(apiDefinitionModuleList.size(), checkModules ? 1 : 0);
+            Assertions.assertEquals(apiDefinitionModuleList.size(), checkModules ? 2 : 0);
             Assertions.assertEquals(apiBlobList.size(), 4);
             if (checkTestCase) {
                 apiTestCaseList = apiTestCaseMapper.selectByExample(apiTestCaseExample);
@@ -1881,7 +1881,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
             this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
             request.setModuleId(null);
             apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
-            Assertions.assertEquals(apiDefinitionModuleList.size(), checkModules ? 1 : 0);
+            Assertions.assertEquals(apiDefinitionModuleList.size(), checkModules ? 2 : 0);
             List<ApiDefinitionBlob> newApiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
             apiDefinitionImportTestService.compareApiBlobList(apiBlobList, newApiBlobList, 0);
             apiBlobList = newApiBlobList;
@@ -1902,7 +1902,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
             paramMap.add("file", file);
             this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
             apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
-            Assertions.assertEquals(apiDefinitionModuleList.size(), checkModules ? 1 : 0);
+            Assertions.assertEquals(apiDefinitionModuleList.size(), checkModules ? 2 : 0);
             newApiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
             apiDefinitionImportTestService.compareApiBlobList(apiBlobList, newApiBlobList, 3);
             apiBlobList = newApiBlobList;
@@ -1922,7 +1922,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
             this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
             request.setSyncCase(false);
             apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
-            Assertions.assertEquals(apiDefinitionModuleList.size(), checkModules ? 1 : 0);
+            Assertions.assertEquals(apiDefinitionModuleList.size(), checkModules ? 2 : 0);
             newApiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
             apiDefinitionImportTestService.compareApiBlobList(apiBlobList, newApiBlobList, 0);
             apiBlobList = newApiBlobList;
@@ -1946,7 +1946,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
                 paramMap.add("file", file);
                 this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
                 apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
-                Assertions.assertTrue(apiDefinitionModuleList.size() > 1);
+                Assertions.assertTrue(apiDefinitionModuleList.size() > 2);
                 newApiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
                 apiDefinitionImportTestService.compareApiBlobList(apiBlobList, newApiBlobList, 0);
                 apiBlobList = newApiBlobList;
@@ -1964,7 +1964,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
                 paramMap.add("file", file);
                 this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
                 apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
-                Assertions.assertTrue(apiDefinitionModuleList.size() > 1);
+                Assertions.assertTrue(apiDefinitionModuleList.size() > 2);
                 newApiDefinition = apiDefinitionImportTestService.selectApiDefinitionByProjectId(importProject.getId());
                 apiDefinitionImportTestService.checkApiModuleChange(oldApiDefinition, newApiDefinition, 3);
                 newApiBlobList = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
