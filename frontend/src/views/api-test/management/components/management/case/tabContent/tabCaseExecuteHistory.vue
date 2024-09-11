@@ -257,7 +257,6 @@
 
     .ms-scroll-bar();
   }
-
   .history-table-before {
     display: flex;
     justify-content: space-between;

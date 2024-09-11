@@ -22,7 +22,7 @@
           @change="loadControlLoop"
         />
       </div>
-      <div class="flex w-full items-center justify-between rounded bg-[var(--color-text-n9)] p-4">
+      <div class="flex w-full items-center justify-between rounded bg-[var(--color-text-n9)] px-[16px] py-[8px]">
         <div class="font-medium">
           <span
             :class="{ 'text-[rgb(var(--primary-5))]': activeType === 'ResContent' }"

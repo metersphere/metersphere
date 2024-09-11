@@ -1,5 +1,5 @@
 <template>
-  <div class="report-container h-full">
+  <div class="report-container">
     <!-- 报告参数开始 -->
     <ReportDetailHeader :detail="detail" show-type="API" />
     <!-- 报告参数结束 -->
@@ -35,13 +35,19 @@
     <!-- 报告分析，报告步骤分析和请求分析结束 -->
     <!-- 报告明细开始 -->
     <div class="report-info">
-      <reportInfoHeader v-model:keyword="cascaderKeywords" v-model:active-tab="activeTab" show-type="API" />
+      <reportInfoHeader
+        v-model:keyword="cascaderKeywords"
+        v-model:active-tab="activeTab"
+        show-type="API"
+        :is-export="props.isExport"
+      />
       <TiledList
         :key-words="cascaderKeywords"
         show-type="API"
         :get-report-step-detail="props.getReportStepDetail"
         :active-type="activeTab"
         :report-detail="detail || []"
+        :is-export="props.isExport"
       />
     </div>
     <!-- 报告明细结束 -->
@@ -71,6 +77,7 @@
   const props = defineProps<{
     detailInfo?: ReportDetail;
     getReportStepDetail?: (...args: any) => Promise<any>; // 获取步骤的详情内容接口
+    isExport?: boolean; // 是否是导出pdf预览
   }>();
 
   const detail = ref<ReportDetail>({
@@ -170,6 +177,7 @@
     legend: {
       show: false,
     },
+    animation: !props.isExport, // pdf预览需要关闭渲染动画
     series: {
       name: '',
       type: 'pie',
@@ -317,7 +325,6 @@
 
 <style scoped lang="less">
   .report-container {
-    height: calc(100vh - 56px);
     background: var(--color-text-n9);
     .report-header {
       padding: 0 16px;

@@ -1,14 +1,14 @@
 <template>
-  <div class="flex h-[36px] items-center justify-between">
+  <div class="mb-[16px] flex items-center justify-between">
     <div class="flex items-center">
-      <div class="mr-2 font-medium leading-[36px]">{{ t('report.detail.api.reportDetail') }}</div>
-      <a-radio-group v-model:model-value="innerActiveTab" type="button" size="small">
+      <div class="mr-2 font-medium">{{ t('report.detail.api.reportDetail') }}</div>
+      <a-radio-group v-if="!props.isExport" v-model:model-value="innerActiveTab" type="button" size="small">
         <a-radio v-for="item of methods" :key="item.value" :value="item.value">
           {{ t(item.label) }}
         </a-radio>
       </a-radio-group>
     </div>
-    <div class="w-[240px]">
+    <div v-if="!props.isExport" class="w-[240px]">
       <MsCascader
         v-model:model-value="innerKeyword"
         mode="native"
@@ -59,6 +59,7 @@
     activeTab: 'tiled' | 'tab';
     keyword: string;
     showType: 'API' | 'CASE';
+    isExport?: boolean; // 是否是导出pdf预览
   }>();
 
   const emit = defineEmits(['update:activeTab', 'update:keyword']);

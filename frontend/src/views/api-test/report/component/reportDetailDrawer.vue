@@ -16,18 +16,28 @@
     @loaded="loadedReport"
   >
     <template #titleRight="{ loading }">
-      <div class="rightButtons flex items-center">
+      <div class="ms-drawer-right-operation-button flex items-center">
         <MsButton
           v-permission="['PROJECT_API_REPORT:READ+SHARE']"
           type="icon"
           status="secondary"
-          class="mr-4 !rounded-[var(--border-radius-small)]"
+          class="!rounded-[var(--border-radius-small)]"
           :disabled="loading"
           :loading="shareLoading"
           @click="shareHandler"
         >
           <MsIcon type="icon-icon_share1" class="mr-2 font-[16px]" />
           {{ t('common.share') }}
+        </MsButton>
+        <MsButton
+          v-permission="['PROJECT_API_REPORT:READ+SHARE']"
+          type="icon"
+          status="secondary"
+          class="mr-4 !rounded-[var(--border-radius-small)]"
+          @click="exportHandler"
+        >
+          <MsIcon type="icon-icon_bottom-align_outlined" class="mr-2 font-[16px]" />
+          {{ t('common.export') }}
         </MsButton>
       </div>
     </template>
@@ -52,14 +62,16 @@
 
   import { getShareInfo, reportScenarioDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { useAppStore } from '@/store';
 
   import type { ReportDetail } from '@/models/apiTest/report';
-  import { RouteEnum } from '@/enums/routeEnum';
+  import { FullPageEnum, RouteEnum } from '@/enums/routeEnum';
 
   const appStore = useAppStore();
   const { t } = useI18n();
   const { copy, isSupported } = useClipboard({ legacy: true });
+  const { openNewPage } = useOpenNewPage();
 
   const props = defineProps<{
     visible: boolean;
@@ -162,14 +174,16 @@
         Message.error(t('common.copyNotSupport'));
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
-  /**
-   * 导出
-   */
-  const exportLoading = ref<boolean>(false);
-  function exportHandler() {}
+
+  function exportHandler() {
+    openNewPage(FullPageEnum.FULL_PAGE_SCENARIO_EXPORT_PDF, {
+      id: props.reportId,
+    });
+  }
 
   const detailDrawerRef = ref<InstanceType<typeof MsDetailDrawer>>();
 
@@ -186,7 +200,6 @@
 <style scoped lang="less">
   .report-container {
     padding: 16px;
-    height: calc(100vh - 56px);
     background: var(--color-text-n9);
     .report-header {
       padding: 0 16px;

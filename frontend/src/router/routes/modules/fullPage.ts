@@ -14,6 +14,11 @@ const FullPage: AppRouteRecordRaw = {
       name: FullPageEnum.FULL_PAGE_TEST_PLAN_EXPORT_PDF,
       component: () => import('@/views/test-plan/report/detail/exportPDF.vue'),
     },
+    {
+      path: 'scenarioExportPDF',
+      name: FullPageEnum.FULL_PAGE_SCENARIO_EXPORT_PDF,
+      component: () => import('@/views/api-test/report/exportPDF.vue'),
+    },
   ],
 };
 
