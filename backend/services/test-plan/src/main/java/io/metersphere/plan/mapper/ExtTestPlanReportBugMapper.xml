@@ -27,6 +27,9 @@
             ifnull(tprb.bug_case_count, 0) as relationCaseCount
         from test_plan_report_bug tprb
         where tprb.test_plan_report_id = #{request.reportId}
+        <if test="request.keyword != null and request.keyword != ''">
+            and (tprb.bug_num like concat('%', #{request.keyword}, '%') or tprb.bug_title like concat('%', #{request.keyword}, '%'))
+        </if>
     </select>
 
     <select id="countBug" resultType="io.metersphere.plan.dto.ReportBugSumDTO">

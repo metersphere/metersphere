@@ -1,5 +1,6 @@
 package io.metersphere.plan.controller;
 
+import io.metersphere.plan.constants.CollectionQueryType;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.TestPlanShareInfo;
 import io.metersphere.plan.dto.request.*;
@@ -57,6 +58,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String GET_PLAN_REPORT_DETAIL_API_PAGE = "/test-plan/report/detail/api/case/page";
     private static final String GET_PLAN_REPORT_DETAIL_SCENARIO_PAGE = "/test-plan/report/detail/scenario/case/page";
     private static final String GET_PLAN_REPORT_DETAIL_PLAN_PAGE = "/test-plan/report/detail/plan/report/page";
+    private static final String GET_PLAN_REPORT_DETAIL_COLLECTION_PAGE = "/test-plan/report/detail/{1}/collection/page";
     private static final String GEN_AND_SHARE = "/test-plan/report/share/gen";
     private static final String GET_SHARE_INFO = "/test-plan/report/share/get";
     private static final String GET_SHARE_REPORT_LAYOUT = "/test-plan/report/share/get-layout";
@@ -315,13 +317,20 @@ public class TestPlanReportControllerTests extends BaseTest {
         request.setPageSize(10);
         request.setReportId(GEN_REPORT_ID);
         this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE, request);
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_COLLECTION_PAGE, request, CollectionQueryType.FUNCTIONAL);
         this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_API_PAGE, request);
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_COLLECTION_PAGE, request, CollectionQueryType.API);
         this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_SCENARIO_PAGE, request);
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_COLLECTION_PAGE, request, CollectionQueryType.SCENARIO);
         this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_PLAN_PAGE, request);
         request.setSort(Map.of("num", "asc"));
+        request.setStartPager(false);
         this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_FUNCTIONAL_PAGE, request);
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_COLLECTION_PAGE, request, CollectionQueryType.FUNCTIONAL);
         this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_API_PAGE, request);
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_COLLECTION_PAGE, request, CollectionQueryType.API);
         this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_SCENARIO_PAGE, request);
+        this.requestPostWithOk(GET_PLAN_REPORT_DETAIL_COLLECTION_PAGE, request, CollectionQueryType.SCENARIO);
     }
 
     @Test

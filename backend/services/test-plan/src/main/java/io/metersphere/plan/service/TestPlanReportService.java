@@ -4,10 +4,12 @@ import com.google.common.collect.Maps;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.service.BugCommonService;
 import io.metersphere.plan.constants.AssociateCaseType;
+import io.metersphere.plan.constants.CollectionQueryType;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanCaseExecHistoryResponse;
+import io.metersphere.plan.dto.response.TestPlanReportDetailCollectionResponse;
 import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
 import io.metersphere.plan.enums.TestPlanReportAttachmentSourceType;
@@ -768,7 +770,8 @@ public class TestPlanReportService {
 			case AssociateCaseType.API_SCENARIO -> detailCases = extTestPlanReportApiScenarioMapper.list(request);
 			default -> detailCases = new ArrayList<>();
 		}
-		List<String> distinctUserIds = detailCases.stream().map(ReportDetailCasePageDTO::getExecuteUser).distinct().toList();
+		List<String> distinctUserIds = detailCases.stream().map(ReportDetailCasePageDTO::getExecuteUser).distinct().collect(Collectors.toList());
+		distinctUserIds.removeIf(StringUtils::isEmpty);
 		Map<String, String> userMap = getUserMap(distinctUserIds);
 		detailCases.forEach(detailCase -> detailCase.setExecuteUser(userMap.getOrDefault(detailCase.getExecuteUser(), detailCase.getExecuteUser())));
 		return detailCases;
@@ -1179,6 +1182,23 @@ public class TestPlanReportService {
 	 */
 	public List<TestPlanReportDetailResponse> planReportList(TestPlanReportDetailPageRequest request) {
 		return extTestPlanReportMapper.getPlanReportListById(request);
+	}
+
+	/**
+	 * 计划报告测试集列表
+	 * @param request 请求参数
+	 * @param caseType 用例类型
+	 * @return 测试集列表
+	 */
+	public List<TestPlanReportDetailCollectionResponse> listReportCollection(TestPlanReportDetailPageRequest request, String caseType) {
+		List<TestPlanReportDetailCollectionResponse> collections;
+		switch (caseType) {
+			case CollectionQueryType.FUNCTIONAL -> collections = extTestPlanReportFunctionalCaseMapper.listCollection(request);
+			case CollectionQueryType.API -> collections = extTestPlanReportApiCaseMapper.listCollection(request);
+			case CollectionQueryType.SCENARIO -> collections = extTestPlanReportApiScenarioMapper.listCollection(request);
+			default -> collections = new ArrayList<>();
+		}
+		return collections;
 	}
 
 	/**

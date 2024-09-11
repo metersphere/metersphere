@@ -5,6 +5,7 @@ import io.metersphere.plan.dto.CaseStatusCountMap;
 import io.metersphere.plan.dto.ReportDetailCasePageDTO;
 import io.metersphere.plan.dto.TestPlanBaseModule;
 import io.metersphere.plan.dto.request.TestPlanReportDetailPageRequest;
+import io.metersphere.plan.dto.response.TestPlanReportDetailCollectionResponse;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -40,6 +41,13 @@ public interface ExtTestPlanReportApiCaseMapper {
 	 * @return 关联的用例集合
 	 */
 	List<ReportDetailCasePageDTO> list(@Param("request") TestPlanReportDetailPageRequest request);
+
+	/**
+	 * 分页查询报告关联的测试集(接口)
+	 * @param request 请求参数
+	 * @return 关联的测试集集合
+	 */
+	List<TestPlanReportDetailCollectionResponse> listCollection(@Param("request") TestPlanReportDetailPageRequest request);
 
     List<String> getIdsByReportIdAndCollectionId(@Param("testPlanReportId") String testPlanReportId, @Param("collectionId") String collectionId);
 }
