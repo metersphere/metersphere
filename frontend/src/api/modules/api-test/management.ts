@@ -19,6 +19,7 @@ import {
   BatchRecoverApiUrl,
   BatchRecoverCaseUrl,
   BatchUpdateDefinitionUrl,
+  CaseExportLogUrl,
   CasePageUrl,
   caseTableBatchSyncUrl,
   CheckDefinitionScheduleUrl,
@@ -95,8 +96,6 @@ import {
   UploadTempFileUrl,
   UploadTempMockFileUrl,
 } from '@/api/requrls/api-test/management';
-import { StopCaseExportUrl } from '@/api/requrls/case-management/featureCase';
-import { BatchDownloadFileUrl } from '@/api/requrls/project-management/fileManagement';
 
 import { ApiCaseReportDetail, ExecuteRequestParams } from '@/models/apiTest/common';
 import {
@@ -618,4 +617,9 @@ export function getCaseReportDetail(reportId: string, stepId: string) {
 // 导出定义
 export function exportApiDefinition(data: ApiDefinitionBatchExportParams, type: string) {
   return MSR.post({ url: `${ExportDefinitionUrl}/${type}`, data });
+}
+
+// 接口用例导出报告日志记录
+export function logCaseExport(reportId: string) {
+  return MSR.get({ url: `${CaseExportLogUrl}/${reportId}` });
 }

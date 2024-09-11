@@ -30,7 +30,7 @@
           {{ t('common.share') }}
         </MsButton>
         <MsButton
-          v-permission="['PROJECT_API_REPORT:READ+SHARE']"
+          v-permission="['PROJECT_API_REPORT:READ+EXPORT']"
           type="icon"
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)]"
