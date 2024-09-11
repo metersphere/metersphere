@@ -103,7 +103,7 @@ export interface CustomField {
   fieldId: string;
   required?: boolean; // 是否必填
   apiFieldId?: string; // api字段名
-  defaultValue?: string | string[] | null | number; // 默认值
+  defaultValue: string | (string | number)[] | number; // 默认值
   [key: string]: any;
 }
 
@@ -187,4 +187,21 @@ export interface defaultCaseField {
   expectedResult: string; // 预期结果
   description: string;
   [key: string]: any;
+}
+
+export interface DetailCustomField extends CustomField {
+  fieldId: string;
+  fieldName: string;
+  fieldKey: string;
+  required: boolean;
+  type: string;
+  internal: boolean;
+  internalFieldKey: string; // 系统字段标识 例如用例等级
+  options: FieldOptions[];
+  supportSearch?: boolean;
+  optionMethod?: string;
+  platformOptionJson?: string; // 三方平台下拉选项
+  platformPlaceHolder?: string;
+  platformSystemField?: any; // 三方平台字段
+  apiFieldId?: string; // 三方api
 }

@@ -8,10 +8,14 @@ import { FormRuleItem } from '@/components/pure/ms-form-create/types';
 import { getFileEnum } from '@/components/pure/ms-upload/iconMap';
 import { MsFileItem } from '@/components/pure/ms-upload/types';
 
+import useUserStore from '@/store/modules/user';
 import { findParents, Option } from '@/utils/recursion';
 
 import { BugEditCustomFieldItem } from '@/models/bug-management';
 import { AssociatedList } from '@/models/caseManagement/featureCase';
+import type { DetailCustomField, FieldOptions } from '@/models/setting/template';
+
+const userStore = useUserStore();
 
 export function convertToFileByBug(fileInfo: AssociatedList): MsFileItem {
   const gatewayAddress = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
@@ -90,4 +94,18 @@ export function makeCustomFieldsParams(formItem: FormRuleItem[]) {
     });
   }
   return customFields;
+}
+
+// 设置成员默认值
+export function getDefaultMemberValue(item: DetailCustomField, initOptions: FieldOptions[]) {
+  if ((item.defaultValue as string | string[]).includes('CREATE_USER')) {
+    const optionsIds = initOptions.map((e: any) => e.value);
+    const userId = userStore.id as string;
+    if (optionsIds.includes(userId)) {
+      item.defaultValue = item.type === 'MEMBER' ? userId : [userId];
+    } else {
+      item.defaultValue = item.type === 'MEMBER' ? '' : [];
+    }
+  }
+  return item.defaultValue;
 }

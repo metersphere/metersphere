@@ -122,7 +122,7 @@
   const defaultBugForm = ref<defaultBugField>(cloneDeep(initBugField));
 
   function getSystemField() {
-    props.systemFields.forEach((item: CustomField) => {
+    (props.systemFields || []).forEach((item: CustomField) => {
       if (props.templateType === 'BUG') {
         defaultBugForm.value[item.fieldId] = item.defaultValue;
       } else {
