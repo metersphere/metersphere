@@ -16,7 +16,6 @@ public class XPath2ExtractorConverter extends AbstractMsElementConverter<XPath2E
         xPathExtract.setResponseFormat(XPathExtract.ResponseFormat.XML.name());
         xPathExtract.setVariableName(element.getRefName());
         xPathExtract.setExpression(element.getXPathQuery());
-
         if (element.getMatchNumber() == -1) {
             xPathExtract.setResultMatchingRule(ResultMatchingExtract.ResultMatchingRuleType.ALL.name());
             xPathExtract.setResultMatchingRuleNum(-1);
@@ -27,9 +26,6 @@ public class XPath2ExtractorConverter extends AbstractMsElementConverter<XPath2E
             xPathExtract.setResultMatchingRule(ResultMatchingExtract.ResultMatchingRuleType.SPECIFIC.name());
             xPathExtract.setResultMatchingRuleNum(element.getMatchNumber());
         }
-        //        xPathExtract.setVariableType(element.getPropertyAsString("type"));
-        //        xPathExtract.setExpression(element.getPropertyAsString("expression"));
-
         ConverterUtils.addPostExtract(parent, xPathExtract);
     }
 }

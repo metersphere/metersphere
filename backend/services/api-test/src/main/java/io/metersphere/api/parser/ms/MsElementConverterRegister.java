@@ -45,6 +45,8 @@ public class MsElementConverterRegister {
         register(RegexExtractorConverter.class);
         register(XPath2ExtractorConverter.class);
         register(XPathExtractorConverter.class);
+        register(JSONPathAssertionConverter.class);
+        register(XPathAssertionConverter.class);
 
         register(BeanShellPreProcessConverter.class);
         register(JDBCPreProcessConverter.class);

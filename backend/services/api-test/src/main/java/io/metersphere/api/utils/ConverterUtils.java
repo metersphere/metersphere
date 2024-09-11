@@ -1,7 +1,10 @@
 package io.metersphere.api.utils;
 
+import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.api.assertion.MsAssertion;
+import io.metersphere.project.api.assertion.MsResponseBodyAssertion;
 import io.metersphere.project.api.processor.ExtractPostProcessor;
 import io.metersphere.project.api.processor.MsProcessor;
 import io.metersphere.project.api.processor.SQLProcessor;
@@ -100,5 +103,49 @@ public class ConverterUtils {
         msScriptElement.setResultVariable(element.getPropertyAsString("resultVariable"));
         msScriptElement.setVariableNames(element.getPropertyAsString("variableNames"));
         return msScriptElement;
+    }
+
+    public static void addAssertions(AbstractMsTestElement parent, MsResponseBodyAssertion msResponseBodyAssertion, String assertionType) {
+        if (CollectionUtils.isEmpty(parent.getChildren())) {
+            MsAssertionConfig extractPostProcessor = new MsAssertionConfig();
+            extractPostProcessor.getAssertions().add(msResponseBodyAssertion);
+            MsCommonElement msCommonElement = new MsCommonElement();
+            msCommonElement.setAssertionConfig(extractPostProcessor);
+            LinkedList<AbstractMsTestElement> children = new LinkedList<>();
+            children.add(msCommonElement);
+            parent.setChildren(children);
+        } else {
+            AbstractMsTestElement child = parent.getChildren().getFirst();
+            if (child instanceof MsCommonElement msCommonElement) {
+                MsAssertionConfig assertionConfig = msCommonElement.getAssertionConfig();
+                if (assertionConfig == null) {
+                    assertionConfig = new MsAssertionConfig();
+                    assertionConfig.getAssertions().add(msResponseBodyAssertion);
+                    msCommonElement.setAssertionConfig(assertionConfig);
+                } else {
+                    boolean hasRepBodyAssertion = false;
+                    for (MsAssertion assertion : assertionConfig.getAssertions()) {
+                        if (assertion instanceof MsResponseBodyAssertion) {
+                            hasRepBodyAssertion = true;
+                            if ("JSON_PATH".equals(assertionType)) {
+                                ((MsResponseBodyAssertion) assertion).setJsonPathAssertion(msResponseBodyAssertion.getJsonPathAssertion());
+                            } else if ("XPATH".equals(assertionType)) {
+                                ((MsResponseBodyAssertion) assertion).setXpathAssertion(msResponseBodyAssertion.getXpathAssertion());
+                            }
+                        }
+                    }
+                    if (!hasRepBodyAssertion) {
+                        assertionConfig.getAssertions().add(msResponseBodyAssertion);
+                    }
+                }
+            } else {
+                MsAssertionConfig assertionConfig = new MsAssertionConfig();
+                assertionConfig.getAssertions().add(msResponseBodyAssertion);
+                MsCommonElement msCommonElement = new MsCommonElement();
+                msCommonElement.setAssertionConfig(assertionConfig);
+                parent.getChildren().add(msCommonElement);
+            }
+        }
+
     }
 }
