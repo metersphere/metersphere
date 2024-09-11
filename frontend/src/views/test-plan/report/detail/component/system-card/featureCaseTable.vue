@@ -202,8 +202,13 @@
     return !props.shareId ? getReportFeatureCaseList : getReportShareFeatureCaseList;
   };
 
+  const tableKey = computed(() =>
+    props.isGroup
+      ? TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE_GROUP
+      : TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE
+  );
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportFeatureCaseList(), {
-    tableKey: TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE,
+    tableKey: tableKey.value,
     columns: columns.value,
     scroll: { x: '100%' },
     heightUsed: 236,
@@ -271,7 +276,7 @@
     loadCaseList,
   });
 
-  await tableStore.initColumn(TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE, columns.value, 'drawer');
+  await tableStore.initColumn(tableKey.value, columns.value, 'drawer');
 </script>
 
 <style lang="less" scoped></style>
