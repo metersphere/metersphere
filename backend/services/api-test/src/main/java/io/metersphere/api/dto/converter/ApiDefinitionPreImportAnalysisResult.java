@@ -7,9 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 接口导入数据准备结果
@@ -37,7 +35,4 @@ public class ApiDefinitionPreImportAnalysisResult {
     List<ApiDefinitionMockDTO> insertApiMockList = new ArrayList<>();
     @Schema(description = "需要修改的Mock")
     List<ApiDefinitionMockDTO> updateApiMockList = new ArrayList<>();
-
-    @Schema(description = "日志数据")
-    Map<String, ApiDefinitionDetail> logData = new HashMap<>();
 }
