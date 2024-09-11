@@ -15,7 +15,7 @@
             >
           </div>
         </template>
-        <MsIcon v-if="record.deleted" type="icon-icon_alarm_clock" class="ml-[4px] text-[rgb(var(--danger-6))]" />
+        <MsIcon v-if="record.deleted" type="icon-icon_delete_countdown" class="ml-[4px] text-[rgb(var(--danger-6))]" />
       </a-tooltip>
     </template>
     <template #creator="{ record }">

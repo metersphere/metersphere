@@ -2,7 +2,13 @@
   <MsCard simple>
     <MsTrialAlert :tip-content="t('system.authorized.orgAndProTipContent')" />
     <div class="mb-4 flex items-center justify-between">
-      <div>
+      <div class="flex items-center">
+        <a-radio-group v-model="currentTable" size="medium" class="mr-[14px]" type="button">
+          <a-radio value="organization">
+            {{ t('system.organization.organizationCount', { count: organizationCount }) }}
+          </a-radio>
+          <a-radio value="project">{{ t('system.organization.projectCount', { count: projectCount }) }}</a-radio>
+        </a-radio-group>
         <a-button
           v-if="currentTable !== 'organization' || licenseStore.hasLicense()"
           v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+ADD']"
@@ -15,23 +21,15 @@
           }}</a-button
         >
       </div>
-      <div class="flex items-center">
-        <a-input-search
-          v-model="keyword"
-          :placeholder="t('system.organization.searchIndexPlaceholder')"
-          class="w-[240px]"
-          allow-clear
-          @press-enter="handleEnter"
-          @search="handleSearch"
-          @clear="handleSearch('')"
-        ></a-input-search>
-        <a-radio-group v-model="currentTable" class="ml-[14px]" type="button">
-          <a-radio value="organization">{{
-            t('system.organization.organizationCount', { count: organizationCount })
-          }}</a-radio>
-          <a-radio value="project">{{ t('system.organization.projectCount', { count: projectCount }) }}</a-radio>
-        </a-radio-group>
-      </div>
+      <a-input-search
+        v-model="keyword"
+        :placeholder="t('system.organization.searchIndexPlaceholder')"
+        class="w-[240px]"
+        allow-clear
+        @press-enter="handleEnter"
+        @search="handleSearch"
+        @clear="handleSearch('')"
+      ></a-input-search>
     </div>
     <div>
       <SystemOrganization v-if="currentTable === 'organization'" ref="orgTableRef" :keyword="currentKeyword" />

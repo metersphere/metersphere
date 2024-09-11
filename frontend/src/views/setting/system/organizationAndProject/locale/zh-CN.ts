@@ -79,4 +79,5 @@ export default {
   'system.project.pleaseSelectAdmin': '请选择项目管理员',
   'system.project.poolIsNotNull': '资源池不能为空',
   'system.project.enterOrganization': '进入组织',
+  'system.memberList': '成员列表',
 };

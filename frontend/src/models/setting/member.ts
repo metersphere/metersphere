@@ -42,6 +42,7 @@ export interface AddOrUpdateMemberModel {
   memberIds?: string[];
   userRoleIds?: string[];
   projectIds?: string[];
+  memberId?: string;
 }
 // 添加组织成员到项目
 export interface BatchAddProjectModel {

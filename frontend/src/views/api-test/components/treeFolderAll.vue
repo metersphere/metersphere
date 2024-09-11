@@ -151,6 +151,7 @@
       const protocols = allProtocolList.value.filter((item) => !val.includes(item as string));
       setLocalStorage(props.protocolKey, protocols);
       emit('selectedProtocolsChange');
+      if (props.notShowOperation) return;
       protocolIsEmptyVisible.value = !val.length;
     }
   );

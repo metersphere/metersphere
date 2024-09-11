@@ -1,12 +1,12 @@
 <template>
   <ms-drawer
     :mask="false"
-    :width="680"
+    :width="800"
     :visible="currentVisible"
     unmount-on-close
     :footer="false"
     class="ms-drawer-no-mask"
-    :title="t('system.organization.addMemberTitle')"
+    :title="t('system.memberList')"
     @cancel="handleCancel"
   >
     <div>
@@ -36,6 +36,37 @@
             `(${t('common.admin')})`
           }}</span>
         </template>
+        <template #userGroup="{ record }">
+          <MsTagGroup
+            v-if="!record.selectUserGroupVisible"
+            :tag-list="record.userRoleList"
+            type="primary"
+            theme="outline"
+            @click="handleTagClick(record)"
+          />
+          <MsSelect
+            v-else
+            v-model:model-value="record.userRoleList"
+            :placeholder="t('system.user.createUserUserGroupPlaceholder')"
+            :options="userGroupOptions"
+            :search-keys="['name']"
+            :loading="record.selectUserGroupLoading"
+            :disabled="record.selectUserGroupLoading"
+            :fallback-option="(val) => ({
+              label: (val as Record<string, any>).name,
+              value: val,
+            })"
+            value-key="id"
+            label-key="name"
+            class="w-full max-w-[300px]"
+            allow-clear
+            multiple
+            at-least-one
+            :object-value="true"
+            @popup-visible-change="(value) => handleUserGroupChange(value, record)"
+          >
+          </MsSelect>
+        </template>
         <template #operation="{ record }">
           <MsRemoveButton
             v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+DELETE_MEMBER']"
@@ -64,9 +95,13 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
+  import MsSelect from '@/components/business/ms-select';
   import AddUserModal from './addUserModal.vue';
 
+  import { addOrUpdateProjectMember, getProjectUserGroup } from '@/api/modules/project-management/projectMember';
+  import { addOrUpdate, getGlobalUserGroup } from '@/api/modules/setting/member';
   import {
     deleteUserFromOrgOrProject,
     postUserTableByOrgIdOrProjectId,
@@ -74,6 +109,9 @@
   import { useI18n } from '@/hooks/useI18n';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
+
+  import type { LinkList } from '@/models/setting/member';
+  import type { UserListItem } from '@/models/setting/user';
 
   export interface projectDrawerProps {
     visible: boolean;
@@ -111,9 +149,16 @@
       width: 200,
     },
     {
+      title: 'system.user.tableColumnUserGroup',
+      dataIndex: 'userRoleList',
+      slotName: 'userGroup',
+      isTag: true,
+      width: 300,
+    },
+    {
       title: 'system.organization.email',
       dataIndex: 'email',
-      width: 200,
+      width: 180,
       showTooltip: true,
     },
     {
@@ -136,6 +181,8 @@
     (record: any) => ({
       ...record,
       nameTooltip: record.name + (record.adminFlag ? `(${t('common.admin')})` : ''),
+      selectUserGroupVisible: false,
+      selectUserGroupLoading: false,
     })
   );
 
@@ -158,6 +205,55 @@
     }
     await loadList();
   };
+
+  const userGroupOptions = ref<LinkList>([]);
+  const getUserGroupOptions = async () => {
+    try {
+      if (props.organizationId) {
+        userGroupOptions.value = await getGlobalUserGroup(props.organizationId);
+      } else if (props.projectId) {
+        userGroupOptions.value = await getProjectUserGroup(props.projectId);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+  function handleTagClick(record: UserListItem & Record<string, any>) {
+    if (hasAnyPermission(['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE_MEMBER'])) {
+      record.selectUserGroupVisible = true;
+    }
+  }
+  async function handleUserGroupChange(val: boolean, record: UserListItem & Record<string, any>) {
+    try {
+      if (!val) {
+        record.selectUserGroupLoading = true;
+        if (props.organizationId) {
+          await addOrUpdate(
+            {
+              organizationId: props.organizationId,
+              memberId: record.id,
+              userRoleIds: record.userRoleList.map((e) => e.id),
+            },
+            'edit'
+          );
+        } else if (props.projectId) {
+          await addOrUpdateProjectMember({
+            projectId: props.projectId,
+            userId: record.id,
+            roleIds: record.userRoleList.map((e) => e.id),
+          });
+        }
+        Message.success(t('system.user.updateUserSuccess'));
+        fetchData();
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      record.selectUserGroupLoading = false;
+    }
+  }
 
   const handleAddMember = () => {
     userVisible.value = true;
@@ -206,7 +302,19 @@
       currentVisible.value = visible;
       if (visible) {
         fetchData();
+        getUserGroupOptions();
       }
     }
   );
 </script>
+
+<style lang="less" scoped>
+  // 下拉不折行
+  :deep(.arco-select-view) {
+    height: 32px;
+    .arco-select-view-inner {
+      @apply overflow-y-auto overflow-x-hidden;
+      .ms-scroll-bar();
+    }
+  }
+</style>

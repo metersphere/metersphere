@@ -83,4 +83,5 @@ export default {
   'system.project.pleaseSelectAdmin': 'Please select project administrator',
   'system.project.poolIsNotNull': 'Resource pool cannot be empty',
   'system.project.enterOrganization': 'Enter the organization',
+  'system.memberList': 'Member list',
 };
