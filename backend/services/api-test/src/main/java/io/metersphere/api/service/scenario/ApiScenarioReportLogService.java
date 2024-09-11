@@ -87,4 +87,19 @@ public class ApiScenarioReportLogService {
         });
         operationLogService.batchAdd(logs);
     }
+
+    public void exportLog(ApiScenarioReport report, String userId) {
+        Project project = projectMapper.selectByPrimaryKey(report.getProjectId());
+        LogDTO dto = new LogDTO(
+                report.getProjectId(),
+                project.getOrganizationId(),
+                report.getId(),
+                userId,
+                OperationLogType.EXPORT.name(),
+                OperationLogModule.API_TEST_REPORT_SCENARIO,
+                report.getName());
+        dto.setPath("/api/report/scenario/export/" + report.getId());
+        dto.setMethod(HttpMethodConstants.GET.name());
+        operationLogService.add(dto);
+    }
 }

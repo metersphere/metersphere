@@ -45,6 +45,9 @@
           },
           {
             "id": "PROJECT_TEST_PLAN_REPORT:READ+DELETE"
+          },
+          {
+            "id": "PROJECT_TEST_PLAN_REPORT:READ+EXPORT"
           }
         ]
       }

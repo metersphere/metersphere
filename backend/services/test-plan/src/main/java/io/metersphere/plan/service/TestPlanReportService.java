@@ -1263,4 +1263,9 @@ public class TestPlanReportService {
 		}
 		return modules.stream().collect(Collectors.toMap(TestPlanBaseModule::getId, TestPlanBaseModule::getName));
 	}
+
+	public void exportLog(String reportId, String userId) {
+		TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(reportId);
+		Optional.ofNullable(testPlanReport).ifPresent(report -> testPlanReportLogService.exportLog(report, userId));
+	}
 }

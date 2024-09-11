@@ -220,4 +220,12 @@ public class TestPlanReportController {
     public ResponseEntity<byte[]> previewMd(@PathVariable String projectId, @PathVariable String fileId, @PathVariable("compressed") boolean compressed) {
         return testPlanReportService.previewMd(projectId, fileId, compressed);
     }
+
+
+    @GetMapping("/export/{reportId}")
+    @Operation(summary = "测试计划-报告-导出日志")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ_EXPORT)
+    public void exportLog(@PathVariable String reportId) {
+        testPlanReportService.exportLog(reportId, SessionUtils.getUserId());
+    }
 }
