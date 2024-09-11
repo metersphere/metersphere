@@ -258,4 +258,9 @@ public class ApiReportService {
         apiReport.setUpdateTime(System.currentTimeMillis());
         apiReportMapper.updateByPrimaryKeySelective(apiReport);
     }
+
+    public void exportLog(String reportId, String userId) {
+        ApiReport apiReport = apiReportMapper.selectByPrimaryKey(reportId);
+        Optional.ofNullable(apiReport).ifPresent(report -> apiReportLogService.exportLog(report, userId));
+    }
 }

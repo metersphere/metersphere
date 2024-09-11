@@ -112,4 +112,10 @@ public class ApiScenarioReportController {
         return apiScenarioReportService.getDetail(reportId, stepId);
     }
 
+    @GetMapping("/export/{reportId}")
+    @Operation(summary = "接口测试-场景报告-导出日志")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_EXPORT)
+    public void exportLog(@PathVariable String reportId) {
+        apiScenarioReportService.exportLog(reportId, SessionUtils.getUserId());
+    }
 }

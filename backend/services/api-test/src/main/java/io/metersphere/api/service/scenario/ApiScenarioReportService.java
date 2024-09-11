@@ -392,4 +392,9 @@ public class ApiScenarioReportService {
         reportExample.createCriteria().andIdIn(reportIds);
         return apiScenarioReportMapper.selectByExample(reportExample);
     }
+
+    public void exportLog(String reportId, String userId) {
+        ApiScenarioReport apiScenarioReport = apiScenarioReportMapper.selectByPrimaryKey(reportId);
+        Optional.ofNullable(apiScenarioReport).ifPresent(report -> apiScenarioReportLogService.exportLog(report, userId));
+    }
 }

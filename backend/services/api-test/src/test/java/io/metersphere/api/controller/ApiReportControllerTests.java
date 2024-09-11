@@ -80,6 +80,7 @@ public class ApiReportControllerTests extends BaseTest {
     private static final String GET = BASIC + "/get/";
     private static final String BATCH_DELETE = BASIC + "/batch/delete";
     private static final String DETAIL = BASIC + "/get/detail/";
+    private static final String EXPORT_REPORT = BASIC + "/export/";
 
 
     @Test
@@ -487,4 +488,9 @@ public class ApiReportControllerTests extends BaseTest {
                 .andExpect(status().is5xxServerError());
     }
 
+    @Test
+    @Order(5)
+    public void testExportReport() throws Exception {
+        this.requestGet(EXPORT_REPORT + "api-report-id1");
+    }
 }
