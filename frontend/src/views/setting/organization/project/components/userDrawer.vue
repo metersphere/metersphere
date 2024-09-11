@@ -98,7 +98,7 @@
   import MsSelect from '@/components/business/ms-select';
   import AddUserModal from './addUserModal.vue';
 
-  import { addOrUpdateProjectMember, getProjectUserGroup } from '@/api/modules/project-management/projectMember';
+  import { getProjectUserGroup, updateProjectMember } from '@/api/modules/project-management/projectMember';
   import { deleteProjectMemberByOrg, postProjectMemberByProjectId } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
   import { formatPhoneNumber } from '@/utils';
@@ -214,7 +214,7 @@
       if (!val) {
         record.selectUserGroupLoading = true;
         if (props.projectId) {
-          await addOrUpdateProjectMember({
+          await updateProjectMember({
             projectId: props.projectId,
             userId: record.id,
             roleIds: record.userRoleList.map((e) => e.id),
