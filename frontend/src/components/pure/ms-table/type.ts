@@ -70,6 +70,8 @@ export interface MsTableColumnData extends TableColumnData {
   isCustomParam?: boolean;
   // 插槽表格过滤筛选数据item
   filterItem?: any;
+  // 是否标签编辑列
+  allowEditTag?: boolean;
   // 自定义属性
   [key: string]: any;
 }

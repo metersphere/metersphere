@@ -92,6 +92,7 @@
             :tag-list="record.reviewNames"
             is-string-tag
             :show-num="1"
+            allow-edit
             theme="outline"
             @click="record.showModuleTree = false"
           />
