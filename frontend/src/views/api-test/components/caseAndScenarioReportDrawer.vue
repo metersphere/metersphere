@@ -205,7 +205,7 @@
 
   function exportHandler() {
     openNewPage(
-      props.isScenario ? FullPageEnum.FULL_PAGE_SCENARIO_EXPORT_PDF : FullPageEnum.FULL_PAGE_CASE_EXPORT_PDF,
+      props.isScenario ? FullPageEnum.FULL_PAGE_SCENARIO_EXPORT_PDF : FullPageEnum.FULL_PAGE_API_CASE_EXPORT_PDF,
       {
         id: props.reportId,
       }

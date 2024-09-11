@@ -16,7 +16,7 @@
     @loaded="loadedReport"
   >
     <template #titleRight="{ loading }">
-      <div class="rightButtons flex items-center">
+      <div class="ms-drawer-right-operation-button flex items-center">
         <a-dropdown position="br" @select="shareHandler">
           <MsButton
             v-permission="['PROJECT_API_REPORT:READ+SHARE']"
@@ -37,17 +37,16 @@
             </a-doption>
           </template>
         </a-dropdown>
-        <!-- <MsButton
+        <MsButton
+          v-permission="['PROJECT_API_REPORT:READ+SHARE']"
           type="icon"
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)]"
-          :disabled="loading"
-          :loading="exportLoading"
           @click="exportHandler"
         >
-          <MsIcon type="icon-icon_move_outlined" class="mr-2 font-[16px]" />
+          <MsIcon type="icon-icon_bottom-align_outlined" class="mr-2 font-[16px]" />
           {{ t('common.export') }}
-        </MsButton> -->
+        </MsButton>
       </div>
     </template>
     <template #default="{ loading }">
@@ -71,14 +70,16 @@
 
   import { getShareInfo, reportCaseDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { useAppStore } from '@/store';
 
   import type { ReportDetail } from '@/models/apiTest/report';
-  import { RouteEnum } from '@/enums/routeEnum';
+  import { FullPageEnum, RouteEnum } from '@/enums/routeEnum';
 
   const appStore = useAppStore();
   const { copy, isSupported } = useClipboard({ legacy: true });
   const { t } = useI18n();
+  const { openNewPage } = useOpenNewPage();
 
   const props = defineProps<{
     visible: boolean;
@@ -192,6 +193,12 @@
       }
     }
   );
+
+  function exportHandler() {
+    openNewPage(FullPageEnum.FULL_PAGE_API_CASE_EXPORT_PDF, {
+      id: props.reportId,
+    });
+  }
 </script>
 
 <style scoped lang="less">
