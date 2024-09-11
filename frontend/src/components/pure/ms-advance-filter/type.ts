@@ -1,4 +1,4 @@
-import type { MsSearchSelectProps, RadioProps } from '@/components/business/ms-select';
+import type { MsSearchSelectProps } from '@/components/business/ms-select';
 
 import { FilterType, OperatorEnum } from '@/enums/advancedFilterEnum';
 
@@ -47,8 +47,6 @@ export interface FilterFormItem {
   cascaderProps?: Partial<MsCascaderProps>; // cascader的props, 参考 MsCascader
   treeSelectData?: TreeNodeData[];
   treeSelectProps?: Partial<TreeSelectProps>;
-  radioProps?: Partial<RadioProps>;
-  checkProps?: Partial<RadioProps>;
 }
 
 export type AccordBelowType = 'AND' | 'OR';
