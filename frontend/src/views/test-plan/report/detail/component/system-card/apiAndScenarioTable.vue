@@ -181,12 +181,25 @@
   });
 
   const keyMap: Record<string, any> = {
-    API_CASE_DETAIL: TableKeyEnum.TEST_PLAN_REPORT_API_TABLE,
-    SCENARIO_CASE_DETAIL: TableKeyEnum.TEST_PLAN_REPORT_SCENARIO_TABLE,
+    GROUP: {
+      API_CASE_DETAIL: TableKeyEnum.TEST_PLAN_REPORT_API_TABLE_GROUP,
+      SCENARIO_CASE_DETAIL: TableKeyEnum.TEST_PLAN_REPORT_SCENARIO_TABLE_GROUP,
+    },
+    TEST_PLAN: {
+      API_CASE_DETAIL: TableKeyEnum.TEST_PLAN_REPORT_API_TABLE,
+      SCENARIO_CASE_DETAIL: TableKeyEnum.TEST_PLAN_REPORT_SCENARIO_TABLE,
+    },
   };
 
+  const tableKey = computed(() => {
+    if (props.isGroup) {
+      return keyMap.GROUP[props.activeType];
+    }
+    return keyMap.TEST_PLAN[props.activeType];
+  });
+
   const useApiTable = useTable(getApiPage, {
-    tableKey: TableKeyEnum.TEST_PLAN_REPORT_API_TABLE,
+    tableKey: tableKey.value,
     scroll: { x: '100%' },
     columns: columns.value,
     showSelectorAll: false,
@@ -195,8 +208,9 @@
     isSimpleSetting: true,
     paginationSize: 'mini',
   });
+
   const useScenarioTable = useTable(getScenarioPage, {
-    tableKey: TableKeyEnum.TEST_PLAN_REPORT_SCENARIO_TABLE,
+    tableKey: tableKey.value,
     scroll: { x: '100%' },
     columns: columns.value,
     showSelectorAll: false,
@@ -264,7 +278,7 @@
     loadCaseList,
   });
 
-  await tableStore.initColumn(keyMap[props.activeType], columns.value, 'drawer');
+  await tableStore.initColumn(tableKey.value, columns.value, 'drawer');
 </script>
 
 <style lang="less" scoped></style>
