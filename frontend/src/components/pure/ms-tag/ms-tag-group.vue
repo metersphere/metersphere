@@ -1,5 +1,9 @@
 <template>
-  <div class="flex max-w-[440px] flex-row" @click="emit('click')">
+  <div
+    v-if="showTagList.length"
+    :class="`tag-group-class ${props.allowEdit ? 'cursor-pointer' : ''}`"
+    @click="emit('click')"
+  >
     <MsTag v-for="tag of showTagList" :key="tag.id" :width="getTagWidth(tag)" :size="props.size" v-bind="attrs">
       {{ props.isStringTag ? tag : tag[props.nameKey] }}
     </MsTag>
@@ -15,6 +19,10 @@
       </MsTag>
     </a-tooltip>
   </div>
+  <!-- 避免在标签为空时，增大点击区域快速编辑 -->
+  <div v-else :class="`tag-group-class ${props.allowEdit ? 'min-h-[24px] cursor-pointer' : ''}`" @click="emit('click')">
+    -
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -29,6 +37,7 @@
       nameKey?: string;
       isStringTag?: boolean; // 是否是字符串数组的标签
       size?: Size;
+      allowEdit?: boolean;
       tagPosition?:
         | 'top'
         | 'tl'
@@ -83,4 +92,9 @@
   });
 </script>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+  .tag-group-class {
+    max-width: 440px;
+    @apply flex w-full flex-row;
+  }
+</style>

@@ -44,19 +44,31 @@
           :tag-list="record.userRoles || []"
           type="primary"
           theme="outline"
+          allow-edit
           @click="changeUser(record)"
         />
-        <a-select
+        <MsSelect
           v-else
-          v-model="record.selectUserList"
-          :popup-visible="record.showUserSelect"
-          multiple
-          class="w-full max-w-[300px]"
-          :max-tag-count="2"
-          @popup-visible-change="(value) => userGroupChange(value, record)"
-        >
-          <a-option v-for="item of userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
-        </a-select>
+          v-model:model-value="record.selectUserList"
+          v-model:loading="dialogLoading"
+          :max-tag-count="1"
+          class="w-full"
+          :options="userGroupOptions"
+          :search-keys="['name']"
+          value-key="id"
+          label-key="name"
+          allow-search
+          :multiple="true"
+          :placeholder="t('common.pleaseSelect')"
+          :at-least-one="true"
+          :fallback-option="
+              (val:any) => ({
+                label: userGroupOptions.find((e) => e.id === val)?.name || (val as string),
+                value: val,
+              })
+            "
+          @popup-visible-change="(value:boolean) => userGroupChange(value as boolean, record)"
+        />
       </template>
       <template #enable="{ record }">
         <div v-if="record.enable" class="flex items-center">
@@ -106,6 +118,7 @@
   import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsBatchModal from '@/components/business/ms-batch-modal/index.vue';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
+  import MsSelect from '@/components/business/ms-select';
   import AddMemberModal from './addMemberModal.vue';
   import inviteModal from '@/views/setting/system/components/inviteModal.vue';
 
@@ -173,6 +186,7 @@
       dataIndex: 'userRoles',
       showDrag: true,
       isTag: true,
+      allowEditTag: true,
       width: 300,
     },
     {
@@ -345,24 +359,24 @@
   const batchModalRef = ref();
   // 添加到用户组
   const addUserGroup = async (target: string[]) => {
-    const { selectedIds, excludeIds, selectAll } = batchParams.value;
-    const params = {
-      projectId: lastProjectId.value,
-      userIds: batchParams.value.selectedIds || [],
-      selectAll: !!selectAll,
-      excludeIds: excludeIds || [],
-      selectIds: selectedIds || [],
-      roleIds: target,
-      condition: {
-        keyword: keyword.value,
-        filter: {
-          ...propsRes.value.filter,
-          roleIds: roleIds.value ? [roleIds.value] : [],
-        },
-        combine: batchParams.value.condition,
-      },
-    };
     try {
+      const { selectedIds, excludeIds, selectAll } = batchParams.value;
+      const params = {
+        projectId: lastProjectId.value,
+        userIds: batchParams.value.selectedIds || [],
+        selectAll: !!selectAll,
+        excludeIds: excludeIds || [],
+        selectIds: selectedIds || [],
+        roleIds: target,
+        condition: {
+          keyword: keyword.value,
+          filter: {
+            ...propsRes.value.filter,
+            roleIds: roleIds.value ? [roleIds.value] : [],
+          },
+          combine: batchParams.value.condition,
+        },
+      };
       await batchModalRef.value.batchRequestFun(addProjectUserGroup, params);
       resetSelector();
       initData();
@@ -393,15 +407,17 @@
     addMemberVisible.value = true;
     projectMemberRef.value.initProjectMemberOptions();
   };
+  const dialogLoading = ref(false);
 
   // 编辑项目成员
   const editProjectMember = async (record: ProjectMemberItem) => {
-    const params: ActionProjectMember = {
-      projectId: lastProjectId.value,
-      userId: record.id,
-      roleIds: record.selectUserList,
-    };
     try {
+      dialogLoading.value = true;
+      const params: ActionProjectMember = {
+        projectId: lastProjectId.value,
+        userId: record.id,
+        roleIds: record.selectUserList,
+      };
       await addOrUpdateProjectMember(params);
       Message.success(t('project.member.batchUpdateSuccess'));
       record.showUserSelect = false;
@@ -409,6 +425,8 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      dialogLoading.value = false;
     }
   };
 

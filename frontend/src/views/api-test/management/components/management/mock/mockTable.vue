@@ -428,13 +428,9 @@
     });
   }
 
-  watch(
-    [() => props.activeModule, () => props.selectedProtocols],
-    () => {
-      loadMockList();
-    },
-    { immediate: true }
-  );
+  watch([() => props.activeModule, () => props.selectedProtocols], () => {
+    loadMockList();
+  });
 
   const isActivated = computed(() => cacheStore.cacheViews.includes(CacheTabTypeEnum.API_TEST_MOCK_TABLE));
 

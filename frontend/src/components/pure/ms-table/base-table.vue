@@ -67,12 +67,12 @@
         <a-table-column
           v-for="(item, idx) in currentColumns"
           :key="idx"
-          :width="item.isTag || item.isStringTag ? columnLastWidthMap[item.dataIndex as string] : item.width"
+          :width="item.isTag || item.isStringTag ? getColumnTagLastWidthMap(item) : item.width"
           :align="item.align"
           :fixed="item.fixed"
           :sortable="item.sortable"
           :filterable="item.filterable"
-          :cell-class="item.cellClass"
+          :cell-class="item.isTag || item.isStringTag ? `ms-tag-cell-class ${item.cellClass || ''}` : item.cellClass"
           :header-cell-class="`${item.filterConfig && hasSelectedFilter(item) ? 'header-cell-filter' : ''} ${
             item.headerCellClass
           }`"
@@ -143,20 +143,13 @@
               </template>
               <template v-else-if="item.isTag || item.isStringTag">
                 <slot :name="item.slotName" v-bind="{ record, rowIndex, column, columnConfig: item }">
-                  <template
-                    v-if="!record[item.dataIndex as string] || (Array.isArray(record[item.dataIndex as string]) && record[item.dataIndex as string].length === 0)"
-                  >
-                    -
-                  </template>
-                  <template v-else>
-                    <MsTagGroup
-                      :is-string-tag="item.isStringTag"
-                      :tag-list="record[item.dataIndex as string]"
-                      type="primary"
-                      theme="outline"
-                      :tag-position="item.tagPosition"
-                    />
-                  </template>
+                  <MsTagGroup
+                    :is-string-tag="item.isStringTag"
+                    :tag-list="record[item.dataIndex as string]"
+                    type="primary"
+                    theme="outline"
+                    :tag-position="item.tagPosition"
+                  />
                 </slot>
               </template>
               <template v-else-if="item.slotName === SpecialColumnEnum.OPERATION">
@@ -523,12 +516,25 @@
 
   const columnLastWidthMap = ref<Record<string, any>>({});
 
+  function getColumnTagLastWidthMap(column: MsTableColumnData) {
+    const editTgaMinColumnWidth = 200;
+    // 如果是编辑列标签则最小宽度保留200
+    if (column?.allowEditTag) {
+      if (columnLastWidthMap.value[column.dataIndex as string] < editTgaMinColumnWidth) {
+        return editTgaMinColumnWidth;
+      }
+      return columnLastWidthMap.value[column.dataIndex as string];
+    }
+    return columnLastWidthMap.value[column.dataIndex as string];
+  }
+
   // 获取单个标签的宽度
   const getTagWidth = (tag: Record<string, any>, lastText: string) => {
     const maxTagWidth = 144; // 单个标签最大宽度
     const spanPadding = 8; // 标签内边距
     const spanBorder = 2; // 标签边框
     const marginRight = 4; // 标签之间的间距
+    const fillWidth = 8; // 填充宽度
 
     const el = document.createElement('div');
     el.style.visibility = 'hidden';
@@ -542,7 +548,7 @@
 
     // 衡量宽度后将元素移除
     document.body.removeChild(el);
-    width = width > maxTagWidth ? maxTagWidth + marginRight : width + marginRight;
+    width = width > maxTagWidth ? maxTagWidth + marginRight + fillWidth : width + marginRight + fillWidth;
     return width;
   };
 
@@ -1161,6 +1167,13 @@
       @apply break-keep;
 
       color: var(--color-text-3);
+    }
+  }
+  :deep(.arco-table-td.ms-tag-cell-class) {
+    .arco-table-td-content {
+      > div {
+        width: 100%;
+      }
     }
   }
 </style>

@@ -42,23 +42,31 @@
           v-if="!record.showProjectSelect"
           :tag-list="record.projectIdNameMap || []"
           theme="outline"
+          allow-edit
           @click="changeUserOrProject(record, 'project')"
         >
         </MsTagGroup>
-        <a-select
+        <MsSelect
           v-else
-          v-model="record.selectProjectList"
-          multiple
-          :max-tag-count="2"
-          size="small"
-          class="w-full max-w-[300px]"
-          :popup-visible="record.showProjectSelect"
-          @change="(value) => selectUserOrProject(value, record, 'project')"
-          @popup-visible-change="visibleChange($event, record, 'project')"
-        >
-          <a-option v-for="item of projectOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
-        </a-select>
-        <span v-if="(record.projectIdNameMap || []).length === 0">-</span>
+          v-model:model-value="record.selectProjectList"
+          v-model:loading="dialogLoading"
+          :max-tag-count="1"
+          class="w-full"
+          :options="projectOptions"
+          :search-keys="['name']"
+          value-key="id"
+          label-key="name"
+          allow-search
+          :multiple="true"
+          :placeholder="t('common.pleaseSelect')"
+          :fallback-option="
+              (val) => ({
+                label: projectOptions.find((e) => e.id === val)?.name || (val as string),
+                value: val,
+              })
+            "
+          @popup-visible-change="(value) => visibleChange(value, record, 'project')"
+        />
       </template>
       <template #userRoleIdNameMap="{ record }">
         <MsTagGroup
@@ -66,22 +74,32 @@
           :tag-list="record.userRoleIdNameMap || []"
           type="primary"
           theme="outline"
+          allow-edit
           @click="changeUserOrProject(record, 'user')"
         >
         </MsTagGroup>
-        <a-select
+        <MsSelect
           v-else
-          v-model="record.selectUserList"
-          multiple
-          :max-tag-count="2"
-          class="w-full max-w-[300px]"
-          :popup-visible="record.showUserSelect"
-          @change="(value) => selectUserOrProject(value, record, 'user')"
+          v-model:model-value="record.selectUserList"
+          v-model:loading="dialogLoading"
+          :max-tag-count="1"
+          class="w-full"
+          :options="userGroupOptions"
+          :search-keys="['name']"
+          value-key="id"
+          label-key="name"
+          allow-search
+          :multiple="true"
+          :placeholder="t('common.pleaseSelect')"
+          :at-least-one="true"
+          :fallback-option="
+              (val) => ({
+                label: userGroupOptions.find((e) => e.id === val)?.name || (val as string),
+                value: val,
+              })
+            "
           @popup-visible-change="(value) => visibleChange(value, record, 'user')"
-        >
-          <a-option v-for="item of userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
-        </a-select>
-        <span v-if="(record.userRoleIdNameMap || []).length === 0">-</span>
+        />
       </template>
       <template #enable="{ record }">
         <div v-if="record.enable" class="flex items-center">
@@ -94,9 +112,9 @@
         </div>
       </template>
       <template #action="{ record }">
-        <MsButton v-permission="['ORGANIZATION_MEMBER:READ+UPDATE']" @click="addOrEditMember('edit', record)">{{
-          t('organization.member.edit')
-        }}</MsButton>
+        <MsButton v-permission="['ORGANIZATION_MEMBER:READ+UPDATE']" @click="addOrEditMember('edit', record)">
+          {{ t('organization.member.edit') }}
+        </MsButton>
         <MsRemoveButton
           v-permission="['ORGANIZATION_MEMBER:READ+DELETE']"
           position="br"
@@ -146,6 +164,7 @@
   import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MSBatchModal from '@/components/business/ms-batch-modal/index.vue';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
+  import MsSelect from '@/components/business/ms-select';
   import AddMemberModal from './components/addMemberModal.vue';
   import inviteModal from '@/views/setting/system/components/inviteModal.vue';
 
@@ -216,6 +235,7 @@
       showInTable: true,
       showDrag: true,
       isTag: true,
+      allowEditTag: true,
     },
     {
       title: 'organization.member.tableColunmUsergroup',
@@ -224,6 +244,7 @@
       showInTable: true,
       isTag: true,
       showDrag: true,
+      allowEditTag: true,
       width: 300,
     },
     {
@@ -278,6 +299,7 @@
     }
   );
   const keyword = ref('');
+  const dialogLoading = ref(false);
   const tableSelected = ref<(string | number)[]>([]);
   // 跨页多选
   const selectedData = ref<string[] | undefined>([]);
@@ -387,6 +409,7 @@
   // 列表编辑更新用户组和项目
   const updateUserOrProject = async (record: MemberItem) => {
     try {
+      dialogLoading.value = true;
       const params = {
         organizationId: lastOrganizationId.value,
         projectIds: [...record.selectProjectList],
@@ -403,6 +426,7 @@
     } finally {
       record.showUserSelect = false;
       record.showProjectSelect = false;
+      dialogLoading.value = false;
     }
   };
   // 编辑模式和下拉选择切换
@@ -422,17 +446,6 @@
     }
     record.selectProjectList = (record.projectIdNameMap || []).map((item) => item.id);
     record.selectUserList = (record.userRoleIdNameMap || []).map((item) => item.id);
-  };
-  // 用户和项目选择改变的回调
-  const selectUserOrProject = (value: any, record: MemberItem, type: string) => {
-    if (!hasAnyPermission(['ORGANIZATION_MEMBER:READ+UPDATE'])) {
-      return;
-    }
-    if (type === 'project') {
-      record.selectProjectList = value;
-    } else {
-      record.selectUserList = value;
-    }
   };
   // 面板切换的回调
   const visibleChange = (visible: boolean, record: MemberItem, type: string) => {

@@ -45,6 +45,7 @@
           :tag-list="record.userRoleList"
           type="primary"
           theme="outline"
+          allow-edit
           @click="handleTagClick(record)"
         />
         <MsSelect
@@ -132,6 +133,7 @@
               label: (val as Record<string, any>).name,
               value: val,
             })"
+          class="w-full"
           :object-value="true"
           value-key="id"
           label-key="name"
@@ -379,6 +381,7 @@
       slotName: 'userGroup',
       isTag: true,
       showDrag: true,
+      allowEditTag: true,
       width: 300,
     },
     {

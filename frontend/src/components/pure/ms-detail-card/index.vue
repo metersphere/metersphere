@@ -29,8 +29,7 @@
           {{ t(item.locale) }}
         </div>
         <div v-if="Array.isArray(item.value)" class="pr-[24px]">
-          <MsTagGroup v-if="item.value.length > 0" :tag-list="item.value" size="small" is-string-tag />
-          <div v-else>-</div>
+          <MsTagGroup :tag-list="item.value" size="small" is-string-tag />
         </div>
         <slot v-else :name="item.key" :value="item.value">
           <a-tooltip :content="item.value" :disabled="isEmpty(item.value)" :position="item.tooltipPosition">
