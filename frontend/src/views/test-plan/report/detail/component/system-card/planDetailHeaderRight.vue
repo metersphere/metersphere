@@ -27,7 +27,13 @@
       <MsIcon type="icon-icon_share1" class="mr-2 font-[16px]" />
       {{ t('common.share') }}
     </MsButton>
-    <MsButton type="icon" status="secondary" class="ml-4 !rounded-[var(--border-radius-small)]" @click="exportPdf">
+    <MsButton
+      v-permission="['PROJECT_TEST_PLAN_REPORT:READ+EXPORT']"
+      type="icon"
+      status="secondary"
+      class="ml-4 !rounded-[var(--border-radius-small)]"
+      @click="exportPdf"
+    >
       {{ t('report.detail.exportPdf') }}
     </MsButton>
   </div>

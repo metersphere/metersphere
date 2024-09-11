@@ -29,6 +29,7 @@ import {
   MoveModuleUrl,
   RecoverScenarioUrl,
   RecycleScenarioUrl,
+  ScenarioExportLogUrl,
   ScenarioHistoryUrl,
   ScenarioPageUrl,
   ScenarioScheduleConfigDeleteUrl,
@@ -303,4 +304,9 @@ export function updateScenarioPro(id: string | number, priority: CaseLevel | und
 // 获取跨项目信息
 export function getStepProjectInfo(id: string, type: ScenarioStepType) {
   return MSR.get<ScenarioStepResourceInfo>({ url: `${GetStepProjectInfoUrl}/${id}`, params: { resourceType: type } });
+}
+
+// 场景导出报告日志记录
+export function logScenarioExport(reportId: string) {
+  return MSR.get({ url: `${ScenarioExportLogUrl}/${reportId}` });
 }

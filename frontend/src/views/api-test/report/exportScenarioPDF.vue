@@ -14,6 +14,7 @@
   import ScenarioCom from './component/scenarioCom.vue';
 
   import { reportScenarioDetail } from '@/api/modules/api-test/report';
+  import { logScenarioExport } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import exportPDF from '@/utils/exportPdf';
 
@@ -42,9 +43,19 @@
     }
   }
 
+  async function logExport() {
+    try {
+      await logScenarioExport(route.query.id as string);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   onBeforeMount(() => {
     if (route.query.id) {
       initReportDetail();
+      logExport();
     }
   });
 </script>

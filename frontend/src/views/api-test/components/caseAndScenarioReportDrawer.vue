@@ -29,7 +29,7 @@
           </template>
         </a-dropdown>
         <MsButton
-          v-permission="['PROJECT_API_REPORT:READ+SHARE']"
+          v-permission="['PROJECT_API_REPORT:READ+EXPORT']"
           type="icon"
           status="secondary"
           class="mr-4 !rounded-[var(--border-radius-small)] text-[var(--color-text-1)]"
