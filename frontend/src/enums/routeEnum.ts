@@ -116,7 +116,7 @@ export enum FullPageEnum {
   FULL_PAGE = 'fullPage',
   FULL_PAGE_TEST_PLAN_EXPORT_PDF = 'fullPageTestPlanExportPDF',
   FULL_PAGE_SCENARIO_EXPORT_PDF = 'fullPageScenarioExportPDF',
-  FULL_PAGE_CASE_EXPORT_PDF = 'fullPageCaseExportPDF',
+  FULL_PAGE_API_CASE_EXPORT_PDF = 'fullPageApiCaseExportPDF',
 }
 
 export const RouteEnum = {

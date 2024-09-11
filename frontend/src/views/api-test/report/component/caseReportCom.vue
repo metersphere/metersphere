@@ -157,13 +157,19 @@
     <!-- 报告步骤分析结束 -->
     <!-- 报告明细开始 -->
     <div class="report-info">
-      <reportInfoHeader v-model:keyword="cascaderKeywords" v-model:active-tab="activeTab" show-type="CASE" />
+      <reportInfoHeader
+        v-model:keyword="cascaderKeywords"
+        v-model:active-tab="activeTab"
+        show-type="CASE"
+        :is-export="props.isExport"
+      />
       <TiledList
         :key-words="cascaderKeywords"
         show-type="CASE"
         :active-type="activeTab"
         :report-detail="detail || []"
         :get-report-step-detail="props.getReportStepDetail"
+        :is-export="props.isExport"
       />
     </div>
     <!-- 报告明细结束 -->
@@ -191,6 +197,7 @@
   const props = defineProps<{
     detailInfo?: ReportDetail;
     getReportStepDetail?: (...args: any) => Promise<any>; // 获取步骤的详情内容接口
+    isExport?: boolean;
   }>();
 
   const detail = ref<ReportDetail>({
