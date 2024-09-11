@@ -148,6 +148,7 @@ public class TestPlanReportController {
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprb.bug_num, tprb.id desc");
         if (!request.getStartPager()) {
             page.close();
+            page.setOrderBy("tprb.bug_num, tprb.id desc");
         }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailBugs(request));
     }
@@ -161,6 +162,7 @@ public class TestPlanReportController {
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprfc.pos desc");
         if (!request.getStartPager()) {
             page.close();
+            page.setOrderBy("tprfc.pos desc");
         }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.FUNCTIONAL));
     }
@@ -181,6 +183,7 @@ public class TestPlanReportController {
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprac.pos desc");
         if (!request.getStartPager()) {
             page.close();
+            page.setOrderBy("tprac.pos desc");
         }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_CASE));
     }
@@ -194,6 +197,7 @@ public class TestPlanReportController {
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpras.pos desc");
         if (!request.getStartPager()) {
             page.close();
+            page.setOrderBy("tpras.pos desc");
         }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_SCENARIO));
     }
