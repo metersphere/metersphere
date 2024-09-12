@@ -135,7 +135,10 @@
           {{ t(typeOptions.find((e) => e.value === record.type)?.label || '') }}
         </template>
         <template #content="{ record }">
-          <div v-if="record.module === 'SYSTEM' || record.type === 'DELETE'" class="one-line-text">
+          <div
+            v-if="record.module === 'SYSTEM' || record.type === 'DELETE' || record.module.includes('MODULE')"
+            class="one-line-text"
+          >
             {{ record.content }}
           </div>
           <MsButton v-else @click="handleNameClick(record)">
