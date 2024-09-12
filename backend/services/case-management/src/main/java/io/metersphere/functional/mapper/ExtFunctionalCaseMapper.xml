@@ -292,13 +292,13 @@
                         </include>
                     </if>
                     <if test="condition.name == 'follower'">
-                        functional_case.id in (
-                            select case_id from functional_case_follower where
-                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                <property name="condition" value="condition"/>
-                                <property name="column" value="user_id"/>
-                            </include>
-                        )
+                        <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
+                            <property name="mainIdColumn" value="functional_case.id"/>
+                            <property name="associationTable" value="functional_case_follower"/>
+                            <property name="associationIdColumn" value="case_id"/>
+                            <property name="searchColumn" value="user_id"/>
+                            <property name="condition" value="condition"/>
+                        </include>
                     </if>
                     <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
                         <property name="searchMode" value="${combineSearch}.searchMode"/>
@@ -322,36 +322,33 @@
                         </include>
                     </if>
                     <if test="condition.name == 'demand'">
-                        functional_case.id in (
-                            select case_id from functional_case_demand where
-                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                <property name="condition" value="condition"/>
-                                <property name="column" value="demand_name"/>
-                            </include>
-                        )
+                        <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
+                            <property name="mainIdColumn" value="functional_case.id"/>
+                            <property name="associationTable" value="functional_case_demand"/>
+                            <property name="associationIdColumn" value="case_id"/>
+                            <property name="searchColumn" value="demand_name"/>
+                            <property name="condition" value="condition"/>
+                        </include>
                     </if>
                     <if test="condition.name == 'attachment'">
-                        functional_case.id in (
-                        select case_id from functional_case_attachment where
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
+                            <property name="mainIdColumn" value="functional_case.id"/>
+                            <property name="associationTable" value="functional_case_attachment"/>
+                            <property name="associationIdColumn" value="case_id"/>
+                            <property name="searchColumn" value="file_name"/>
                             <property name="condition" value="condition"/>
-                            <property name="column" value="file_name"/>
                         </include>
-                        )
                     </if>
                     <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
                         <property name="searchMode" value="${combineSearch}.searchMode"/>
                     </include>
                 </foreach>
-                <if test="${combineSearch}.customFiledConditions.size() > 0">
-                    functional_case.id in (
-                        select case_id from functional_case_custom_field where
-                        <include refid="io.metersphere.system.mapper.BaseMapper.customFiledConditions">
-                            <property name="conditions" value="${combineSearch}.customFiledConditions"/>
-                            <property name="searchMode" value="${combineSearch}.searchMode"/>
-                        </include>
-                    )
-                </if>
+                <include refid="io.metersphere.system.mapper.BaseMapper.customFiledConditions">
+                    <property name="mainIdColumn" value="functional_case.id"/>
+                    <property name="associationTable" value="functional_case_custom_field"/>
+                    <property name="associationIdColumn" value="case_id"/>
+                    <property name="combineSearch" value="${combineSearch}"/>
+                </include>
             </if>
         </trim>
     </sql>
@@ -393,7 +390,6 @@
         and deleted = #{deleted}
         group by ref_id
     </select>
-
 
     <update id="batchDelete">
         update functional_case

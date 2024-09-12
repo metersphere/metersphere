@@ -54,13 +54,37 @@
     </sql>
 
     <sql id="customFiledConditions">
-        <trim suffixOverrides="AND|OR">
-            <foreach collection="${conditions}" item="condition">
-                <trim prefix="(" suffix=")">
-                    field_id = #{condition.name}
-                    and
+        <if test="${combineSearch}.customFiledEmptyConditions.size() > 0">
+            <foreach collection="${combineSearch}.customFiledEmptyConditions" item="condition">
+                ${mainIdColumn} not in (
+                    select ${associationIdColumn} from ${associationTable} where
+                    field_id = #{condition.name} and
+                    `value` is not null and `value` != ''
+                    <if test="condition.customFieldType != null and condition.isMultipleCustomField()">
+                        and `value` != '[]'
+                    </if>
+                )
+                <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                    <property name="searchMode" value="${combineSearch}.searchMode"/>
+                </include>
+            </foreach>
+        </if>
+
+        <if test="${combineSearch}.customFiledNoneConditions.size() > 0">
+            <foreach collection="${combineSearch}.customFiledNoneConditions" item="condition">
+                ${mainIdColumn} not in (
+                    select ${associationIdColumn} from  ${associationTable} where
+                    field_id = #{condition.name} and
+                    `value` is not null and `value` != ''
+                    <if test="condition.customFieldType != null and condition.isMultipleCustomField()">
+                        and `value` != '[]'
+                    </if>
+                ) or
+                ${mainIdColumn} in (
+                    select ${associationIdColumn} from ${associationTable} where
+                    field_id = #{condition.name} and
                     <choose>
-                        <when test="condition.customFieldType != null and (condition.customFieldType == 'MULTIPLE_SELECT' or condition.customFieldType == 'MULTIPLE_SELECT' or condition.customFieldType == 'MULTIPLE_INPUT')">
+                        <when test="condition.customFieldType != null and condition.isMultipleCustomField()">
                             <include refid="io.metersphere.system.mapper.BaseMapper.arrayValueCondition">
                                 <property name="condition" value="condition"/>
                                 <property name="column" value="value"/>
@@ -73,12 +97,42 @@
                             </include>
                         </otherwise>
                     </choose>
-                </trim>
+                )
                 <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
-                    <property name="searchMode" value="${searchMode}"/>
+                    <property name="searchMode" value="${combineSearch}.searchMode"/>
                 </include>
             </foreach>
-        </trim>
+        </if>
+
+        <if test="${combineSearch}.customFiledConditions.size() > 0">
+            ${mainIdColumn} in (
+                select ${associationIdColumn} from ${associationTable} where
+                <trim suffixOverrides="AND|OR">
+                    <foreach collection="${combineSearch}.customFiledConditions" item="condition">
+                        <trim prefix="(" suffix=")">
+                            field_id = #{condition.name} and
+                            <choose>
+                                <when test="condition.customFieldType != null and condition.isMultipleCustomField()">
+                                    <include refid="io.metersphere.system.mapper.BaseMapper.arrayValueCondition">
+                                        <property name="condition" value="condition"/>
+                                        <property name="column" value="value"/>
+                                    </include>
+                                </when>
+                                <otherwise>
+                                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                        <property name="condition" value="condition"/>
+                                        <property name="column" value="value"/>
+                                    </include>
+                                </otherwise>
+                            </choose>
+                        </trim>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                </trim>
+            )
+        </if>
     </sql>
 
     <sql id="arrayValueCondition">
@@ -117,10 +171,38 @@
                     ${column} is null or ${column} = '[]'
                 </when>
                 <when test="${condition}.operator == 'NOT_EMPTY'">
-                    ${column} is not null and ${column} = '[]'
+                    ${column} is not null and ${column} != '[]'
                 </when>
             </choose>
         </trim>
+    </sql>
+
+    <sql id="associationCondition">
+        <choose>
+            <when test="${condition}.operator == 'EMPTY'">
+                ${mainIdColumn} not in (
+                    select ${associationIdColumn} from ${associationTable} where
+                    ${searchColumn} is not null and ${searchColumn} != ''
+                )
+            </when>
+            <otherwise>
+                (
+                    <if test="${condition}.operator == 'NOT_IN' or ${condition}.operator == 'NOT_EQUALS' or ${condition}.operator == 'NOT_CONTAINS'">
+                        ${mainIdColumn} not in (
+                            select ${associationIdColumn} from  ${associationTable} where
+                            ${searchColumn} is not null and ${searchColumn} != ''
+                        ) or
+                    </if>
+                    ${mainIdColumn} in (
+                    select ${associationIdColumn} from  ${associationTable} where
+                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                        <property name="condition" value="${condition}"/>
+                        <property name="column" value="${searchColumn}"/>
+                    </include>
+                    )
+                )
+            </otherwise>
+        </choose>
     </sql>
 
     <sql id="condition">
