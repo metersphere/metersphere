@@ -125,7 +125,7 @@
   const currentProjectId = computed(() => appStore.currentProjectId);
 
   const props = defineProps<{
-    bugId: string; // 缺陷id
+    bugId?: string; // 缺陷id
   }>();
 
   const emit = defineEmits<{

@@ -153,8 +153,8 @@
         bugDetailRef.value?.resetForm();
       } else {
         handleDrawerCancel();
-        emit('success');
       }
+      emit('success');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

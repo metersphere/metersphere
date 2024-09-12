@@ -55,7 +55,6 @@
     scroll: { x: '100%' },
     selectable: false,
     noDisable: false,
-    debug: true,
   });
 
   const fetchData = async (id: string) => {
