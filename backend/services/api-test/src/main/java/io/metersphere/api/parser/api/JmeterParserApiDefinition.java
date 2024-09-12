@@ -184,7 +184,9 @@ public class JmeterParserApiDefinition implements ApiDefinitionImportParser<ApiI
 
         for (Map.Entry<String, ApiDefinitionDetail> entry : importDataMap.entrySet()) {
             if (savedApiDefinitionMap.containsKey(entry.getKey())) {
-                insertAndUpdateData.addExistenceApi(entry.getValue(), savedApiDefinitionMap.get(entry.getKey()));
+                List<ApiDefinitionDetail> existenceList = new ArrayList<>();
+                existenceList.add(savedApiDefinitionMap.get(entry.getKey()));
+                insertAndUpdateData.addExistenceApi(entry.getValue(), existenceList);
             } else {
                 insertAndUpdateData.getInsertApiList().add(entry.getValue());
             }

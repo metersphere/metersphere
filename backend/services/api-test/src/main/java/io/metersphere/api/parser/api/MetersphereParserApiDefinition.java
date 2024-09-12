@@ -1,12 +1,16 @@
 package io.metersphere.api.parser.api;
 
 
+import io.metersphere.api.domain.ApiDefinition;
+import io.metersphere.api.dto.converter.ApiDefinitionDetail;
 import io.metersphere.api.dto.converter.ApiDefinitionExportDetail;
+import io.metersphere.api.dto.converter.ApiImportDataAnalysisResult;
 import io.metersphere.api.dto.converter.ApiImportFileParseResult;
 import io.metersphere.api.dto.definition.ApiDefinitionMockDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.export.MetersphereApiExportResponse;
 import io.metersphere.api.dto.request.ImportRequest;
+import io.metersphere.api.parser.ApiDefinitionImportParser;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.api.utils.ApiDefinitionImportUtils;
 import io.metersphere.sdk.exception.MSException;
@@ -20,8 +24,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public class MetersphereParserApiDefinition extends HttpApiDefinitionImportAbstractParser<ApiImportFileParseResult> {
+public class MetersphereParserApiDefinition implements ApiDefinitionImportParser<ApiImportFileParseResult> {
 
     @Override
     public ApiImportFileParseResult parse(InputStream source, ImportRequest request) throws Exception {
@@ -36,6 +41,82 @@ public class MetersphereParserApiDefinition extends HttpApiDefinitionImportAbstr
             throw new MSException("解析失败，请确认选择的是 Metersphere 格式！");
         }
         return this.genApiDefinitionImport(metersphereApiExportResponse.getApiDefinitions());
+    }
+
+    @Override
+    public ApiImportDataAnalysisResult generateInsertAndUpdateData(ApiImportFileParseResult importParser, List<ApiDefinitionDetail> existenceAllApiList) {
+        Map<String, List<ApiDefinitionDetail>> existenceProtocolMap = new HashMap<>();
+
+        ApiImportDataAnalysisResult insertAndUpdateData = new ApiImportDataAnalysisResult();
+
+        for (ApiDefinitionDetail apiDefinitionDetail : existenceAllApiList) {
+            String protocol = apiDefinitionDetail.getProtocol().toUpperCase();
+            if (existenceProtocolMap.containsKey(protocol)) {
+                existenceProtocolMap.get(protocol).add(apiDefinitionDetail);
+            } else {
+                existenceProtocolMap.put(protocol, new ArrayList<ApiDefinitionDetail>() {{
+                    this.add(apiDefinitionDetail);
+                }});
+            }
+        }
+
+        Map<String, List<ApiDefinitionDetail>> importProtocolMap = new HashMap<>();
+        for (ApiDefinitionDetail apiDefinitionDetail : importParser.getData()) {
+            String protocol = apiDefinitionDetail.getProtocol().toUpperCase();
+            if (importProtocolMap.containsKey(protocol)) {
+                importProtocolMap.get(protocol).add(apiDefinitionDetail);
+            } else {
+                importProtocolMap.put(protocol, new ArrayList<ApiDefinitionDetail>() {{
+                    this.add(apiDefinitionDetail);
+                }});
+            }
+        }
+
+        for (Map.Entry<String, List<ApiDefinitionDetail>> entry : importProtocolMap.entrySet()) {
+            String protocol = entry.getKey();
+            List<ApiDefinitionDetail> importDetail = entry.getValue();
+            List<ApiDefinitionDetail> existenceApiDefinitionList = existenceProtocolMap.containsKey(protocol) ? existenceProtocolMap.get(protocol) : new ArrayList<>();
+
+            if (StringUtils.equalsIgnoreCase(protocol, "HTTP")) {
+                //HTTP类型，通过 Method & Path 组合判断，接口是否存在
+                Map<String, ApiDefinitionDetail> savedApiDefinitionMap = existenceApiDefinitionList.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), t -> t, (oldValue, newValue) -> newValue));
+                Map<String, ApiDefinitionDetail> importDataMap = importDetail.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), t -> t, (oldValue, newValue) -> newValue));
+
+                importDataMap.forEach((key, api) -> {
+                    if (savedApiDefinitionMap.containsKey(key)) {
+                        insertAndUpdateData.addExistenceApi(api, new ArrayList<>() {{
+                            this.add(savedApiDefinitionMap.get(key));
+                        }});
+                    } else {
+                        insertAndUpdateData.getInsertApiList().add(api);
+                    }
+                    this.addTestCaseAndMock(insertAndUpdateData, api.getId(), importParser.getCaseMap().get(api.getId()), importParser.getMockMap().get(api.getId()));
+                });
+            } else {
+                //非HTTP类型，通过 name判断，后续处理会过滤掉路径不一致的
+                Map<String, ApiDefinitionDetail> importDataMap = importDetail.stream().collect(Collectors.toMap(ApiDefinition::getName, t -> t, (oldValue, newValue) -> newValue));
+                Map<String, List<ApiDefinitionDetail>> savedApiDefinitionMap = existenceApiDefinitionList.stream().collect(Collectors.groupingBy(ApiDefinitionDetail::getName));
+
+                importDataMap.forEach((key, api) -> {
+                    if (savedApiDefinitionMap.containsKey(key)) {
+                        insertAndUpdateData.addExistenceApi(api, savedApiDefinitionMap.get(key));
+                    } else {
+                        insertAndUpdateData.getInsertApiList().add(api);
+                    }
+                    this.addTestCaseAndMock(insertAndUpdateData, api.getId(), importParser.getCaseMap().get(api.getId()), importParser.getMockMap().get(api.getId()));
+                });
+            }
+        }
+        return insertAndUpdateData;
+    }
+
+    private void addTestCaseAndMock(ApiImportDataAnalysisResult insertAndUpdateData, String apiId, List<ApiTestCaseDTO> caseList, List<ApiDefinitionMockDTO> mockDTOList) {
+        if (CollectionUtils.isNotEmpty(caseList)) {
+            insertAndUpdateData.getApiIdAndTestCaseMap().put(apiId, caseList);
+        }
+        if (CollectionUtils.isNotEmpty(mockDTOList)) {
+            insertAndUpdateData.getApiIdAndMockMap().put(apiId, mockDTOList);
+        }
     }
 
     private ApiImportFileParseResult genApiDefinitionImport(List<ApiDefinitionExportDetail> apiDefinitions) {
@@ -78,7 +159,11 @@ public class MetersphereParserApiDefinition extends HttpApiDefinitionImportAbstr
         Map<String, List<ApiTestCaseDTO>> uniqueCaseMap = new HashMap<>();
         Map<String, List<ApiDefinitionMockDTO>> uniqueMockMap = new HashMap<>();
         apiDefinitions.forEach((api) -> {
-            String key = api.getMethod() + StringUtils.SPACE + api.getPath();
+            String key = api.getProtocol() + StringUtils.SPACE + api.getModulePath() + StringUtils.SPACE + api.getName();
+            if (StringUtils.equalsIgnoreCase(api.getProtocol(), "http")) {
+                key = api.getMethod() + StringUtils.SPACE + api.getPath();
+            }
+
             if (!filterApiMap.containsKey(key)) {
                 filterApiMap.put(key, api);
             }

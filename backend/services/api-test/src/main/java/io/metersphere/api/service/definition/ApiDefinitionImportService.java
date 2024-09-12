@@ -15,6 +15,7 @@ import io.metersphere.api.parser.ApiDefinitionImportParser;
 import io.metersphere.api.parser.ImportParserFactory;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.api.utils.ApiDefinitionImportUtils;
+import io.metersphere.plugin.api.spi.AbstractMsProtocolTestElement;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.KeyValueEnableParam;
 import io.metersphere.project.constants.PropertyConstant;
@@ -464,14 +465,60 @@ public class ApiDefinitionImportService {
             }
             modulePathMap.put(item.getPath(), item);
         });
-
+        //  进一步处理已存在的数据
+        this.furtherProcessingExistenceApiData(request.getModuleId(), selectModulePath.get(), insertAndUpdateData, preImportAnalysisResult, modulePathMap);
         // 新增数据处理
         this.inertDataAnalysis(preImportAnalysisResult, request, selectModulePath.get(), modulePathMap, insertAndUpdateData);
-
         // 已有数据处理
         this.existenceDataAnalysis(preImportAnalysisResult, request, selectModulePath.get(), modulePathMap, insertAndUpdateData);
 
         return preImportAnalysisResult;
+    }
+
+    /**
+     * 进一步处理已存在的数据：
+     * 1.为所有数据添加模块ID
+     * 2.非HTTP的数据判断是 模块ID + 名称是否一样。 如果存在这样的数据，要更新到新增数据中。
+     *
+     * @param selectModuleId
+     * @param selectModulePath
+     * @param insertAndUpdateData
+     * @param modulePathMap
+     */
+    private void furtherProcessingExistenceApiData(String selectModuleId, String selectModulePath,
+                                                   ApiImportDataAnalysisResult insertAndUpdateData, ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult, Map<String, BaseTreeNode> modulePathMap) {
+        for (ApiDefinitionDetail importApi : insertAndUpdateData.getInsertApiList()) {
+            //为新增数据赋予模块ID
+            this.updateApiDefinitionModule(importApi, selectModulePath, modulePathMap, selectModuleId, apiDefinitionPreImportAnalysisResult);
+        }
+        List<ExistenceApiDefinitionDetail> removeList = new ArrayList<>();
+        for (ExistenceApiDefinitionDetail existenceApiDefinitionDetail : insertAndUpdateData.getExistenceApiList()) {
+            ApiDefinitionDetail importApi = existenceApiDefinitionDetail.getImportApiDefinition();
+            //为修改数据赋予模块ID
+            this.updateApiDefinitionModule(importApi, selectModulePath, modulePathMap, selectModuleId, apiDefinitionPreImportAnalysisResult);
+            if (!StringUtils.equalsIgnoreCase(importApi.getProtocol(), ModuleConstants.NODE_PROTOCOL_HTTP)) {
+                List<ApiDefinitionDetail> existenceApiList = new ArrayList<>();
+                for (ApiDefinitionDetail existenceApi : existenceApiDefinitionDetail.getExistenceApiDefinition()) {
+                    if (!StringUtils.equalsIgnoreCase(importApi.getProtocol(), ModuleConstants.NODE_PROTOCOL_HTTP)) {
+                        if (StringUtils.equals(importApi.getName(), existenceApi.getName()) && StringUtils.equals(importApi.getModuleId(), existenceApi.getModuleId())) {
+                            existenceApiList.add(existenceApi);
+                        }
+                    }
+                }
+                if (CollectionUtils.isEmpty(existenceApiList)) {
+                    //不存在相同用例，走新建逻辑
+                    insertAndUpdateData.getInsertApiList().add(importApi);
+                    removeList.add(existenceApiDefinitionDetail);
+                } else {
+                    //更新相同用例的数据集合
+                    existenceApiDefinitionDetail.setExistenceApiDefinition(existenceApiList);
+                }
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(removeList)) {
+            insertAndUpdateData.getExistenceApiList().removeAll(removeList);
+        }
     }
 
     /*
@@ -481,42 +528,6 @@ public class ApiDefinitionImportService {
      */
     private void inertDataAnalysis(ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult, ImportRequest request, String selectModulePath, Map<String, BaseTreeNode> modulePathMap, ApiImportDataAnalysisResult analysisResult) {
         for (ApiDefinitionDetail apiData : analysisResult.getInsertApiList()) {
-            if (StringUtils.isNotEmpty(request.getModuleId())) {
-                if (StringUtils.equalsIgnoreCase(request.getModuleId(), ModuleConstants.DEFAULT_NODE_ID)) {
-                    apiData.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
-                } else {
-                    if (apiData.getModulePath() == null) {
-                        apiData.setModulePath(StringUtils.EMPTY);
-                    }
-                    // 指定了导入模块： 以当前模块为基准进行操作
-                    String finalModulePath = (StringUtils.isBlank(selectModulePath) ? StringUtils.EMPTY : selectModulePath)
-                            + "/" + ((StringUtils.startsWith(apiData.getModulePath(), "/") ? StringUtils.substring(apiData.getModulePath(), 1) : apiData.getModulePath()));
-                    if (StringUtils.endsWith(finalModulePath, "/")) {
-                        finalModulePath = StringUtils.substring(finalModulePath, 0, finalModulePath.length() - 1);
-                    }
-                    apiData.setModulePath(finalModulePath);
-
-                    if (!modulePathMap.containsKey(finalModulePath)) {
-                        apiDefinitionPreImportAnalysisResult.getInsertModuleList().addAll(TreeNodeParseUtils.getInsertNodeByPath(modulePathMap, finalModulePath));
-                    }
-                    apiData.setModuleId(modulePathMap.get(finalModulePath).getId());
-                }
-            } else {
-                // 未指定导入模块： 接口有模块，就放在那个模块下。  接口没模块就放在未规划模块内
-                if (StringUtils.isEmpty(apiData.getModulePath())) {
-                    apiData.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
-                } else {
-                    String modulePath = apiData.getModulePath();
-                    if (!StringUtils.startsWith(modulePath, "/")) {
-                        modulePath = "/" + modulePath;
-                        apiData.setModulePath(modulePath);
-                    }
-                    if (!modulePathMap.containsKey(modulePath)) {
-                        apiDefinitionPreImportAnalysisResult.getInsertModuleList().addAll(TreeNodeParseUtils.getInsertNodeByPath(modulePathMap, modulePath));
-                    }
-                    apiData.setModuleId(modulePathMap.get(modulePath).getId());
-                }
-            }
             apiDefinitionPreImportAnalysisResult.getInsertApiData().add(apiData);
             //判断是否更新用例
             if (request.isSyncCase()) {
@@ -539,59 +550,86 @@ public class ApiDefinitionImportService {
         if (CollectionUtils.isEmpty(analysisResult.getExistenceApiList()) || !request.isCoverData()) {
             return;
         }
-        List<ExistenceApiDefinitionDetail> existenceApiList = analysisResult.getExistenceApiList();
+        List<ExistenceApiDefinitionDetail> allExistenceApiList = analysisResult.getExistenceApiList();
         List<String> existenceApiIdList = new ArrayList<>();
-        existenceApiList.forEach(item -> existenceApiIdList.add(item.getExistenceApiDefinition().getId()));
+        allExistenceApiList.forEach(item ->
+                item.getExistenceApiDefinition().forEach(
+                        existenceApi -> existenceApiIdList.add(existenceApi.getId())));
         Map<String, ApiDefinitionBlob> existenceApiDefinitionBlobMap = this.selectApiDefinitionBlobIdMap(existenceApiIdList);
         Map<String, List<ApiTestCase>> existenceApiTestCaseMap = this.selectApiTestCaseIdMap(existenceApiIdList);
         Map<String, List<ApiDefinitionMock>> existenceApiMockMap = this.selectApiMockIdMap(existenceApiIdList);
 
-        for (ExistenceApiDefinitionDetail existenceApiDefinitionDetail : existenceApiList) {
+        for (ExistenceApiDefinitionDetail existenceApiDefinitionDetail : allExistenceApiList) {
             ApiDefinitionDetail importApi = existenceApiDefinitionDetail.getImportApiDefinition();
-            ApiDefinitionDetail existenceApi = existenceApiDefinitionDetail.getExistenceApiDefinition();
-
-            if (StringUtils.isNotBlank(importApi.getModulePath()) && !StringUtils.startsWith(importApi.getModulePath(), "/")) {
-                importApi.setModulePath("/" + importApi.getModulePath());
-            }
-
-            boolean isSameRequest = false;
-            ApiDefinitionBlob apiDefinitionBlob = existenceApiDefinitionBlobMap.get(existenceApi.getId());
-            MsHTTPElement existenceMsHTTPElement = null;
-            if (apiDefinitionBlob != null) {
-                existenceMsHTTPElement = ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), MsHTTPElement.class);
-                //判断参数是否一样  参数类型有 请求头  请求参数  请求体
-                isSameRequest = dataIsSame(existenceMsHTTPElement, (MsHTTPElement) importApi.getRequest());
+            List<ApiDefinitionDetail> existenceApiList = existenceApiDefinitionDetail.getExistenceApiDefinition();
+            ApiDefinitionDetail existenceApi = existenceApiList.getFirst();
+            boolean isSameApi = false;
+            AbstractMsProtocolTestElement msProtocolTestElement = null;
+            for (ApiDefinitionDetail existenceApiItem : existenceApiList) {
+                ApiDefinitionBlob apiDefinitionBlob = existenceApiDefinitionBlobMap.get(existenceApi.getId());
+                if (apiDefinitionBlob != null) {
+                    msProtocolTestElement = ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsProtocolTestElement.class);
+                    if (msProtocolTestElement instanceof MsHTTPElement existenceMsHTTPElement) {
+                        //判断api是否一样：  参数类型 请求头  请求参数  请求体
+                        if (dataIsSame(existenceMsHTTPElement, (MsHTTPElement) importApi.getRequest())) {
+                            isSameApi = true;
+                            existenceApi = existenceApiItem;
+                            break;
+                        }
+                    } else {
+                        //判断api是否一样： 同目录下的接口名称
+                        if (StringUtils.equals(importApi.getModuleId(), existenceApi.getModuleId()) && StringUtils.equals(importApi.getName(), existenceApi.getName())) {
+                            isSameApi = true;
+                            existenceApi = existenceApiItem;
+                            break;
+                        }
+                    }
+                }
             }
 
             String importApiId = importApi.getId();
+
             importApi.setId(existenceApi.getId());
+
             if (request.isCoverModule()) {
-                // 确定api的最终目录
-                this.updateApiDefinitionModule(importApi, selectModulePath, modulePathMap, request.getModuleId(), apiDefinitionPreImportAnalysisResult);
 
                 boolean isSameModule = StringUtils.equals(importApi.getModuleId(), existenceApi.getModuleId());
                 /*
                     开启模块覆盖并覆盖接口，此时有4种情况：
                     接口请求一样，模块一样： 不处理
                  */
-                if (!isSameRequest || !isSameModule) {
-                    if (!isSameRequest && isSameModule) {
+                if (!isSameApi || !isSameModule) {
+                    if (!isSameApi && isSameModule) {
                         //接口请求不一样，模块一样：更新接口的非模块信息
-                        this.updateApiDefinitionRequest(importApi, existenceMsHTTPElement, request.getPlatform());
+                        this.updateApiDefinitionRequest(importApi, msProtocolTestElement, request.getPlatform());
                         apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
-                    } else if (isSameRequest) {
-                        //接口请求一样，模块不一样：只更新接口模块信息
-                        apiDefinitionPreImportAnalysisResult.getUpdateModuleApiList().add(importApi);
+                    } else if (isSameApi) {
+                        /*
+                            非http的要进行更新，例如tcp最重要的是请求内容，不更新的话就会导致导入的内容丢失
+                            而http判断是否一致主要还是请求里的key，不是value。只要key还不变就没关系
+                         */
+                        if (!StringUtils.equalsIgnoreCase(importApi.getProtocol(), "HTTP")) {
+                            apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
+                        } else {
+                            //接口请求一样，模块不一样：只更新接口模块信息
+                            apiDefinitionPreImportAnalysisResult.getUpdateModuleApiList().add(importApi);
+                        }
                     } else {
                         //接口请求不一样，模块不一样：更新接口所有信息
-                        this.updateApiDefinitionRequest(importApi, existenceMsHTTPElement, request.getPlatform());
+                        this.updateApiDefinitionRequest(importApi, msProtocolTestElement, request.getPlatform());
                         apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
                     }
                 }
             } else {
-                if (!isSameRequest) {
+                if (!isSameApi) {
                     //覆盖接口、不覆盖模块、 接口请求不一样，要更新接口的非模块信息;接口请求一样不处理，
-                    this.updateApiDefinitionRequest(importApi, existenceMsHTTPElement, request.getPlatform());
+                    this.updateApiDefinitionRequest(importApi, msProtocolTestElement, request.getPlatform());
+                    apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
+                } else if (!StringUtils.equalsIgnoreCase(importApi.getProtocol(), "HTTP")) {
+                    /*
+                        非http的要进行更新，例如tcp最重要的是请求内容，不更新的话就会导致导入的内容丢失
+                        而http判断是否一致主要还是请求里的key，不是value。只要key还不变就没关系
+                     */
                     apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
                 }
             }
@@ -629,10 +667,14 @@ public class ApiDefinitionImportService {
      * @param apiDefinitionPreImportAnalysisResult 如果有需要创建的模块，要存储在result中
      */
     private void updateApiDefinitionModule(ApiDefinitionDetail importApi, String selectModulePath, Map<String, BaseTreeNode> modulePathMap, String importModuleId, ApiDefinitionPreImportAnalysisResult apiDefinitionPreImportAnalysisResult) {
+        if (StringUtils.isNotBlank(importApi.getModulePath()) && !StringUtils.startsWith(importApi.getModulePath(), "/")) {
+            importApi.setModulePath("/" + importApi.getModulePath());
+        }
         if (StringUtils.equalsIgnoreCase(importModuleId, ModuleConstants.DEFAULT_NODE_ID) ||
                 (StringUtils.isBlank(importModuleId) && StringUtils.isBlank(importApi.getModulePath()))) {
             //选中的是未规划模块或者没选择模块且接口本身没模块
             importApi.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+            importApi.setModulePath("/" + ModuleConstants.DEFAULT_NODE_ID);
         } else {
             if (importApi.getModulePath() == null) {
                 importApi.setModulePath(StringUtils.EMPTY);
@@ -651,7 +693,7 @@ public class ApiDefinitionImportService {
         }
     }
 
-    private void updateApiDefinitionRequest(ApiDefinitionDetail importApi, MsHTTPElement existenceMsHTTPElement, String platform) {
+    private void updateApiDefinitionRequest(ApiDefinitionDetail importApi, AbstractMsProtocolTestElement existenceMsHTTPElement, String platform) {
         if (StringUtils.equals(platform, ApiImportPlatform.Swagger3.name()) && existenceMsHTTPElement != null) {
             //swagger如果接口已存在，并且要覆盖， 那么是不能覆盖原来接口的前后置数据的（因为swagger文件里没有）
             importApi.getRequest().setChildren(existenceMsHTTPElement.getChildren());

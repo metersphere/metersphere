@@ -64,8 +64,7 @@ public class HarParserApiDefinition extends HttpApiDefinitionImportAbstractParse
 
         for (ExistenceApiDefinitionDetail definitionDetail : insertAndUpdateData.getExistenceApiList()) {
             ApiDefinitionDetail importApi = definitionDetail.getImportApiDefinition();
-            ApiDefinitionDetail savedApi = definitionDetail.getExistenceApiDefinition();
-
+            ApiDefinitionDetail savedApi = definitionDetail.getExistenceApiDefinition().getFirst();
             ApiDefinitionBlob blob = apiDefinitionBlobMapper.selectByPrimaryKey(savedApi.getId());
             if (blob != null) {
                 if (blob.getRequest() != null) {
