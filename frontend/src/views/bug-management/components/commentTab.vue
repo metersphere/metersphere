@@ -102,12 +102,17 @@
     }
   });
 
+  watch(
+    () => props.bugId,
+    (val) => {
+      if (val) {
+        initData(props.bugId);
+      }
+    }
+  );
+
   defineExpose({
     initData,
-  });
-
-  watchEffect(() => {
-    initData(props.bugId);
   });
 </script>
 
