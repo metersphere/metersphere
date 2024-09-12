@@ -50,9 +50,14 @@
     <select id="listCollection" resultType="io.metersphere.plan.dto.response.TestPlanReportDetailCollectionResponse">
         select tpc.id as id, tpc.name as name, tp.name as planName, count(tpras.id) as count
         from test_plan_report_api_scenario tpras
-                 join test_plan_collection tpc on tpras.test_plan_collection_id = tpc.id and tpc.type = 'SCENARIO'
+                 right join test_plan_collection tpc on tpras.test_plan_collection_id = tpc.id and tpc.type = 'SCENARIO'
                  join test_plan tp on tpc.test_plan_id = tp.id
         where tpras.test_plan_report_id = #{request.reportId}
+        <if test="request.keyword != null and request.keyword != ''">
+            and (tpras.api_scenario_name like concat('%', #{request.keyword}, '%')
+            or tpras.api_scenario_num like concat('%', #{request.keyword}, '%'))
+        </if>
+        <include refid="filter"/>
         group by tpras.test_plan_collection_id
     </select>
 
@@ -78,6 +83,11 @@
                         <!-- 等级 -->
                         <when test="key == 'priority'">
                             and tpras.api_scenario_priority in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 计划名称 -->
+                        <when test="key == 'planName'">
+                            and tp.name in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                     </choose>
