@@ -575,13 +575,6 @@
         } else {
           activeTab.value = 'detail';
         }
-      } else {
-        if (!props.pagination && !props.tableData) return;
-        const query = { ...route.query };
-        delete query.id;
-        router.replace({
-          query,
-        });
       }
     }
   );

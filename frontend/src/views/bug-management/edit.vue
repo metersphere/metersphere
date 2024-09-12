@@ -215,7 +215,6 @@
   import { EditorPreviewFileUrl } from '@/api/requrls/bug-management';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
-  import useUserStore from '@/store/modules/user';
   import { downloadByteFile } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
   import { findParents, Option } from '@/utils/recursion';
@@ -239,6 +238,7 @@
 
   const props = defineProps<{
     templateId: string; // 缺陷模板id
+    isCopyBug?: boolean; // 是否复制
     bugId?: string; // 缺陷id，不传递为创建
     isDrawer?: boolean; // 是否是弹窗模式
     caseType?: CaseLinkEnum; // 用例类型
@@ -262,7 +262,6 @@
   const { t } = useI18n();
 
   const appStore = useAppStore();
-  const route = useRoute();
   const form = ref<BugEditFormObject>({
     projectId: appStore.currentProjectId,
     title: '',
@@ -297,11 +296,9 @@
   const associatedDrawer = ref(false);
   const loading = ref(false);
   const acceptType = ref('none'); // 模块-上传文件类型
-  const userStore = useUserStore();
-  const isEdit = computed(() => !!route.query.id && route.params.mode === 'edit');
+  const isEdit = computed(() => props.bugId && !props.isCopyBug);
   const bugId = ref<string | undefined>(props.bugId);
   const isEditOrCopy = computed(() => !!bugId.value);
-  const isCopy = computed(() => route.params.mode === 'copy');
   const isPlatformDefaultTemplate = ref(false);
   const imageUrl = ref('');
   const previewVisible = ref<boolean>(false);
@@ -310,7 +307,7 @@
   // 描述-环境/富文本临时附件ID
   const descriptionFileIdMap = ref<Record<string, string[]>>({});
 
-  const isLoading = ref<boolean>(true);
+  const isLoading = ref<boolean>(false);
   const rowLength = ref<number>(0);
 
   // 处理文件参数
@@ -593,7 +590,7 @@
       copyFiles,
       richTextTmpFileIds: isPlatformDefaultTemplate.value ? getDescriptionFileId() : descriptionFileIds.value,
     };
-    if (isCopy.value) {
+    if (props.isCopyBug) {
       delete tmpObj.id;
       delete tmpObj.richTextTmpFileIds;
     }
@@ -644,51 +641,61 @@
     return [];
   };
 
-  // 获取详情
-  const getDetailInfo = async () => {
-    loading.value = true;
-    const id = route.query.id as string;
-    if (!id) return;
-    const res = await getBugDetail(id);
-    const { customFields, templateId, attachments } = res;
-    // 根据模板ID 初始化自定义字段
-    if (isCopy.value) {
-      // 复制, 只需返回初始状态
-      await templateChange(templateId);
-    } else {
-      await templateChange(templateId, { fromStatusId: res.status, platformBugKey: res.platformBugId });
-    }
-    if (attachments && attachments.length) {
-      if (!isCopy.value) {
-        // 非Copy时, 附件列表赋值
-        attachmentsList.value = attachments;
+  // 设置模板值
+  async function setTemplateValue(bugDetail: BugEditFormObject) {
+    const { status, templateId, platformBugId } = bugDetail;
+    try {
+      if (props.isCopyBug) {
+        // 复制, 只需返回初始状态
+        await templateChange(templateId);
+      } else {
+        await templateChange(templateId, { fromStatusId: status, platformBugKey: platformBugId });
       }
-      // 检查文件是否有更新
-      const checkUpdateFileIds = await checkFileIsUpdateRequest(attachments.map((item: any) => item.fileId));
-      // 处理文件列表
-      fileList.value = attachments
-        .map((fileInfo: any) => {
-          return {
-            ...fileInfo,
-            name: fileInfo.fileName,
-            isUpdateFlag: checkUpdateFileIds.includes(fileInfo.fileId),
-            isCopyFlag: isCopy.value,
-          };
-        })
-        .map((fileInfo: any) => {
-          return convertToFileByBug(fileInfo);
-        });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  // 处理文件
+  async function handleFile(attachments: AttachFileInfo[]) {
+    if (!attachments.length) {
+      return;
+    }
+    // 非Copy时, 附件列表赋值
+    if (!props.isCopyBug) {
+      attachmentsList.value = attachments;
+    }
+    // 检查文件是否有更新
+    const checkUpdateFileIds = await checkFileIsUpdateRequest(attachments.map((item: any) => item.fileId));
+    // 处理文件列表
+    fileList.value = attachments
+      .map((fileInfo: any) => {
+        return {
+          ...fileInfo,
+          name: fileInfo.fileName,
+          isUpdateFlag: checkUpdateFileIds.includes(fileInfo.fileId),
+          isCopyFlag: props.isCopyBug,
+        };
+      })
+      .map((fileInfo: any) => {
+        return convertToFileByBug(fileInfo);
+      });
+  }
+
+  function makeCustomValue(bugDetail: BugEditFormObject) {
+    const { customFields, status } = bugDetail;
+    let tmpObj: Record<string, any> = {};
+
+    if (isEdit.value) {
+      tmpObj = { status };
     }
 
-    let tmpObj: Record<string, any> = {};
-    if (isEdit.value) {
-      tmpObj = { status: res.status };
-    }
     if (customFields && Array.isArray(customFields)) {
       const MULTIPLE_TYPE = ['MULTIPLE_SELECT', 'MULTIPLE_INPUT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
       const SINGRADIO_TYPE = ['RADIO', 'SELECT', 'MEMBER'];
       customFields.forEach((item) => {
-        if (item.id === 'status' && isCopy.value) {
+        if (item.id === 'status' && props.isCopyBug) {
           // 复制时, 状态赋值为空
           tmpObj[item.id] = '';
           // 多选类型需要过滤选项
@@ -730,34 +737,57 @@
         }
       });
     }
-    // 自定义字段赋值
-    fApi.value.setValue(tmpObj);
-    // 平台默认模板系统字段单独处理
-    if (isPlatformDefaultTemplate.value && form.value.platformSystemFields) {
-      Object.keys(form.value.platformSystemFields).forEach((key) => {
-        form.value.platformSystemFields[key] = tmpObj[key];
-      });
-    }
-    const { platformSystemFields } = form.value;
+    return tmpObj;
+  }
 
-    let copyName = '';
-    if (isCopy.value) {
-      copyName = `copy_${res.title}`;
-      if (copyName.length > 255) {
-        form.value.title = copyName.slice(0, 255);
+  // 获取详情
+  const getDetailInfo = async () => {
+    try {
+      loading.value = true;
+      const res = await getBugDetail(bugId.value as string);
+      const { templateId, attachments } = res;
+      if (templateId) {
+        await setTemplateValue(res);
       }
+      // 处理附件
+      handleFile(attachments);
+
+      // 处理自定义字段以及三方字段
+      const tmpObj = await makeCustomValue(res);
+      fApi.value.setValue(tmpObj);
+
+      // 平台默认模板系统字段单独处理
+      if (isPlatformDefaultTemplate.value && form.value.platformSystemFields) {
+        Object.keys(form.value.platformSystemFields).forEach((key) => {
+          form.value.platformSystemFields[key] = tmpObj[key];
+        });
+      }
+      const { platformSystemFields } = form.value;
+
+      let copyName = '';
+      if (props.isCopyBug) {
+        copyName = `copy_${res.title}`;
+        if (copyName.length > 255) {
+          form.value.title = copyName.slice(0, 255);
+        }
+      }
+
+      // 表单赋值
+      form.value = {
+        id: res.id,
+        title: props.isCopyBug ? copyName : res.title,
+        description: res.description,
+        templateId: res.templateId,
+        tags: res.tags || [],
+        projectId: res.projectId,
+        platformSystemFields,
+      };
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
     }
-    // 表单赋值
-    form.value = {
-      id: res.id,
-      title: isCopy.value ? copyName : res.title,
-      description: res.description,
-      templateId: res.templateId,
-      tags: res.tags || [],
-      projectId: res.projectId,
-      platformSystemFields,
-    };
-    loading.value = false;
   };
 
   // 监视自定义字段改变处理formCreate
