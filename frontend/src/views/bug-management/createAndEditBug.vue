@@ -17,7 +17,13 @@
       />
     </template>
     <div class="h-[calc(100vh-168px)] w-full">
-      <BugDetail ref="bugDetailRef" v-model:template-id="bugTemplateId" :bug-id="bugId" @save-params="saveParams" />
+      <BugDetail
+        ref="bugDetailRef"
+        v-model:template-id="bugTemplateId"
+        :bug-id="bugId"
+        :is-copy-bug="isCopy"
+        @save-params="saveParams"
+      />
     </div>
   </MsCard>
 </template>
