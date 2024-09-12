@@ -146,6 +146,8 @@ public class BugNoticeService {
         // 构建通知对象
         BugNoticeDTO notice = new BugNoticeDTO();
         BeanUtils.copyBean(notice, bugDTO);
+        notice.setHandleUser(bugDTO.getHandleUserName());
+        notice.setStatus(bugDTO.getStatusName());
         // 自定义字段解析{name: value}
         if (CollectionUtils.isNotEmpty(bugDTO.getCustomFields())) {
             List<OptionDTO> fields = new ArrayList<>();
