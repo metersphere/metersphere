@@ -39,7 +39,7 @@ public enum InternalUserView {
     MY_REVIEW(() -> {
         UserViewDTO userViewDTO = getUserViewDTO("my_review");
         CombineCondition condition = new CombineCondition();
-        condition.setName("reviewUser");
+        condition.setName("reviewers");
         condition.setValue(getCurrentUserArrayValue());
         condition.setOperator(CombineCondition.CombineConditionOperator.IN.name());
         userViewDTO.setConditions(List.of(condition));

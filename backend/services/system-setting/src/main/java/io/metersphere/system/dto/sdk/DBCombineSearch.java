@@ -23,7 +23,15 @@ public class DBCombineSearch extends CombineSearch {
      */
     private List<CombineCondition> systemFieldConditions;
     /**
-     * 自定义字段筛选条件
+     * 自定义字段为空的筛选条件
+     */
+    private List<CombineCondition> customFiledEmptyConditions;
+    /**
+     * 自定义字段中 NOT_IN NOT_EQUALS NOT_CONTAINS COUNT_LT 的条件
+     */
+    private List<CombineCondition> customFiledNoneConditions;
+    /**
+     * 其他的自定义字段筛选条件
      */
     private List<CombineCondition> customFiledConditions;
 }

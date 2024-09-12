@@ -1,10 +1,12 @@
 package io.metersphere.sdk.dto;
 
+import io.metersphere.sdk.constants.CustomFieldType;
 import io.metersphere.sdk.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -34,6 +36,19 @@ public class CombineCondition {
             allowableValues = {"IN", "NOT_IN", "BETWEEN", "GT", "LT", "COUNT_GT", "COUNT_LT", "EQUALS", "NOT_EQUALS", "CONTAINS", "NOT_CONTAINS", "EMPTY", "NOT_EMPTY"})
     @EnumValue(enumClass = CombineConditionOperator.class)
     private String operator;
+
+    /**
+     * 是否是多选自定义字段
+     * BaseMapper.xml 中调用
+     * @return
+     */
+    public Boolean isMultipleCustomField() {
+        if (BooleanUtils.isTrue(customField)) {
+            return StringUtils.equalsAny(customFieldType, CustomFieldType.MULTIPLE_SELECT.name(),
+                    CustomFieldType.MULTIPLE_INPUT.name(), CustomFieldType.MULTIPLE_MEMBER.name(), CustomFieldType.CHECKBOX.name());
+        }
+        return false;
+    }
 
     public boolean valid() {
         if (StringUtils.isBlank(name) || StringUtils.isBlank(operator)) {

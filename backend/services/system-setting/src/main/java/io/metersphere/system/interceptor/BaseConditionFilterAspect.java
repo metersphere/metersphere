@@ -18,7 +18,10 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author: jianxing
@@ -63,13 +66,40 @@ public class BaseConditionFilterAspect {
         }
         List<CombineCondition> validConditions = getValidConditions(combineSearch.getConditions());
         replaceCurrentUser(validConditions);
-        List<CombineCondition> systemFieldConditions = validConditions.stream().filter(item -> !BooleanUtils.isTrue(item.getCustomField())).toList();
-        List<CombineCondition> customFieldConditions = validConditions.stream().filter(item -> BooleanUtils.isTrue(item.getCustomField())).toList();
+        List<CombineCondition> systemFieldConditions = validConditions.stream()
+                .filter(item -> !BooleanUtils.isTrue(item.getCustomField()))
+                .toList();
+        List<CombineCondition> customFieldConditions = validConditions.stream()
+                .filter(item -> BooleanUtils.isTrue(item.getCustomField()))
+                .collect(Collectors.toList());
 
         // 拆分系统字段和自定义字段
         DBCombineSearch dbCombineSearch = BeanUtils.copyBean(new DBCombineSearch(), combineSearch);
         dbCombineSearch.setSystemFieldConditions(systemFieldConditions);
+
+        // 拆分自定义字段操作符为空的条件
+        List<CombineCondition> customFiledEmptyConditions = new ArrayList<>(0);
+        // 拆分自定义字段操作符为 NOT_IN NOT_EQUALS NOT_CONTAINS 的条件
+        List<CombineCondition> customFiledNoneConditions = new ArrayList<>(0);
+        Iterator<CombineCondition> iterator = customFieldConditions.iterator();
+        while (iterator.hasNext()) {
+            CombineCondition customFieldCondition = iterator.next();
+            if (StringUtils.equalsAny(customFieldCondition.getOperator(), CombineCondition.CombineConditionOperator.EMPTY.name())) {
+                customFiledEmptyConditions.add(customFieldCondition);
+                iterator.remove();
+            } else if (StringUtils.equalsAny(customFieldCondition.getOperator(),
+                    CombineCondition.CombineConditionOperator.COUNT_LT.name(),
+                    CombineCondition.CombineConditionOperator.NOT_IN.name(),
+                    CombineCondition.CombineConditionOperator.NOT_EQUALS.name(),
+                    CombineCondition.CombineConditionOperator.NOT_CONTAINS.name())) {
+                customFiledNoneConditions.add(customFieldCondition);
+                iterator.remove();
+            }
+        }
+        dbCombineSearch.setCustomFiledEmptyConditions(customFiledEmptyConditions);
+        dbCombineSearch.setCustomFiledNoneConditions(customFiledNoneConditions);
         dbCombineSearch.setCustomFiledConditions(customFieldConditions);
+
         baseCondition.setCombineSearch(dbCombineSearch);
 
         // 处理视图查询条件
