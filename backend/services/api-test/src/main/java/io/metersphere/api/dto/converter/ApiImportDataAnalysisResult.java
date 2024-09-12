@@ -25,8 +25,8 @@ public class ApiImportDataAnalysisResult {
     // 接口的mock数据
     Map<String, List<ApiDefinitionMockDTO>> apiIdAndMockMap = new HashMap<>();
 
-    public void addExistenceApi(ApiDefinitionDetail importApi, ApiDefinitionDetail exportApi) {
-        this.existenceApiList.add(new ExistenceApiDefinitionDetail(importApi, exportApi));
+    public void addExistenceApi(ApiDefinitionDetail importApi, List<ApiDefinitionDetail> exportApiList) {
+        this.existenceApiList.add(new ExistenceApiDefinitionDetail(importApi, exportApiList));
     }
 
     public boolean isEmpty() {

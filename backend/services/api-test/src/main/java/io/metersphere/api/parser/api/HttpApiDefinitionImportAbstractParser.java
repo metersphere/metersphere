@@ -40,7 +40,9 @@ public abstract class HttpApiDefinitionImportAbstractParser<T> implements ApiDef
 
         importDataMap.forEach((key, api) -> {
             if (savedApiDefinitionMap.containsKey(key)) {
-                insertAndUpdateData.addExistenceApi(api, savedApiDefinitionMap.get(key));
+                insertAndUpdateData.addExistenceApi(api, new ArrayList<>() {{
+                    this.add(savedApiDefinitionMap.get(key));
+                }});
             } else {
                 insertAndUpdateData.getInsertApiList().add(api);
             }

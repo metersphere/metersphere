@@ -6,7 +6,6 @@ import io.metersphere.api.dto.export.ApiExportResponse;
 import io.metersphere.api.dto.export.MetersphereApiExportResponse;
 import io.metersphere.api.dto.mockserver.MockMatchRule;
 import io.metersphere.api.dto.mockserver.MockResponse;
-import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.sdk.constants.ModuleConstants;
@@ -59,7 +58,7 @@ public class MetersphereExportParser {
                     dto.setStatus(apiTestCaseWithBlob.getStatus());
                     dto.setLastReportStatus(apiTestCaseWithBlob.getLastReportStatus());
                     dto.setTags(apiTestCaseWithBlob.getTags());
-                    dto.setRequest(ApiDataUtils.parseObject(new String(apiTestCaseWithBlob.getRequest()), MsHTTPElement.class));
+                    dto.setRequest(ApiDataUtils.parseObject(new String(apiTestCaseWithBlob.getRequest()), AbstractMsTestElement.class));
                     detail.getApiTestCaseList().add(dto);
                 }
             }
