@@ -88,18 +88,22 @@ public class ApiReportLogService {
         operationLogService.batchAdd(logs);
     }
 
-    public void exportLog(ApiReport report, String userId) {
-        Project project = projectMapper.selectByPrimaryKey(report.getProjectId());
-        LogDTO dto = new LogDTO(
-                report.getProjectId(),
-                project.getOrganizationId(),
-                report.getId(),
-                userId,
-                OperationLogType.EXPORT.name(),
-                OperationLogModule.API_REPORT,
-                report.getName());
-        dto.setPath("/api/report/case/export/" + report.getId());
-        dto.setMethod(HttpMethodConstants.GET.name());
-        operationLogService.add(dto);
+    public void exportLog(List<ApiReport> reports, String userId, String projectId, String path) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        List<LogDTO> logs = new ArrayList<>();
+        reports.forEach(report -> {
+            LogDTO dto = new LogDTO(
+                    projectId,
+                    project.getOrganizationId(),
+                    report.getId(),
+                    userId,
+                    OperationLogType.EXPORT.name(),
+                    OperationLogModule.API_REPORT,
+                    report.getName());
+            dto.setPath(path);
+            dto.setMethod(HttpMethodConstants.POST.name());
+            logs.add(dto);
+        });
+        operationLogService.batchAdd(logs);
     }
 }

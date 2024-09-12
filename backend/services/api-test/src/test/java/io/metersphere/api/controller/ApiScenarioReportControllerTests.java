@@ -87,7 +87,8 @@ public class ApiScenarioReportControllerTests extends BaseTest {
     private static final String GET = BASIC + "/get/";
     private static final String BATCH_DELETE = BASIC + "/batch/delete";
     private static final String DETAIL = BASIC + "/get/detail/";
-    private static final String EXPORT_REPORT = BASIC + "/export/";
+    private static final String EXPORT_REPORT = BASIC + "/export/{0}";
+    private static final String BATCH_EXPORT_REPORT = BASIC + "/batch-export";
 
     @Test
     @Order(1)
@@ -536,6 +537,15 @@ public class ApiScenarioReportControllerTests extends BaseTest {
     @Test
     @Order(9)
     public void testExportReport() throws Exception {
-        this.requestGet(EXPORT_REPORT + "scenario-report-id1");
+        this.requestPost(EXPORT_REPORT, null, "scenario-report-id1");
+    }
+
+    @Test
+    @Order(10)
+    public void testBatchExportReport() throws Exception {
+        ApiReportBatchRequest request = new ApiReportBatchRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSelectAll(true);
+        this.requestPost(BATCH_EXPORT_REPORT, request);
     }
 }

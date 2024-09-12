@@ -259,8 +259,18 @@ public class ApiReportService {
         apiReportMapper.updateByPrimaryKeySelective(apiReport);
     }
 
-    public void exportLog(String reportId, String userId) {
+    public void exportLog(String reportId, String userId, String projectId) {
         ApiReport apiReport = apiReportMapper.selectByPrimaryKey(reportId);
-        Optional.ofNullable(apiReport).ifPresent(report -> apiReportLogService.exportLog(report, userId));
+        Optional.ofNullable(apiReport).ifPresent(report -> apiReportLogService.exportLog(List.of(report), userId, projectId, "/api/report/case/export/" + reportId));
+    }
+
+    public void batchExportLog(ApiReportBatchRequest request, String userId, String projectId) {
+        List<String> ids = doSelectIds(request);
+        if(CollectionUtils.isNotEmpty(ids)){
+            ApiReportExample example = new ApiReportExample();
+            example.createCriteria().andIdIn(ids);
+            List<ApiReport> reports = apiReportMapper.selectByExample(example);
+            apiReportLogService.exportLog(reports, userId, projectId, "/api/report/case/batch-export");
+        }
     }
 }

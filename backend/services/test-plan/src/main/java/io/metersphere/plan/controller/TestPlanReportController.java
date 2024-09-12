@@ -225,12 +225,20 @@ public class TestPlanReportController {
     }
 
 
-    @GetMapping("/export/{reportId}")
+    @PostMapping("/export/{reportId}")
     @Operation(summary = "测试计划-报告-导出日志")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ_EXPORT)
     public void exportLog(@PathVariable String reportId) {
-        testPlanReportService.exportLog(reportId, SessionUtils.getUserId());
+        testPlanReportService.exportLog(reportId, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
     }
+
+    @PostMapping("/batch-export")
+    @Operation(summary = "测试计划-报告-批量导出日志")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ_EXPORT)
+    public void batchExportLog(@Validated @RequestBody TestPlanReportBatchRequest request) {
+        testPlanReportService.batchExportLog(request, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
+    }
+
 
     @PostMapping("/detail/{type}/collection/page")
     @Operation(summary = "测试计划-报告-详情-测试集分页查询(不同用例类型)")
