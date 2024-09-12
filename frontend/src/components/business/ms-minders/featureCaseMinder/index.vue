@@ -295,7 +295,9 @@
   });
   const activeExtraKey = ref<'baseInfo' | 'attachment' | 'comments' | 'bug'>('baseInfo');
 
+  const isContentChanging = ref(false);
   function handleMinderNodeContentChange(node?: MinderJsonNode) {
+    isContentChanging.value = true;
     if (extraVisible.value) {
       // 已打开用例详情抽屉，更改用例节点文本时同步更新抽屉内的用例名称
       activeCase.value = {
@@ -304,6 +306,9 @@
       };
     }
     handleContentChange(node);
+    setTimeout(() => {
+      isContentChanging.value = false;
+    }, 300); // 300ms 是脑图编辑器的 debounce 时间，300ms 后触发选中事件
   }
 
   const fileList = ref<MsFileItem[]>([]);
@@ -637,8 +642,10 @@
         toggleDetail(true);
       }
       // 用例下面所有节点都展开
-      expendNodeAndChildren(node);
-      node.layout();
+      if (!isContentChanging.value) {
+        expendNodeAndChildren(node);
+        node.layout();
+      }
     } else if (data?.resource?.includes(moduleTag) && data.count > 0 && data.isLoaded !== true) {
       // 模块节点且有用例且未加载过用例数据
       await initNodeCases(node);
