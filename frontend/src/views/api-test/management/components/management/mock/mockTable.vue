@@ -365,12 +365,12 @@
   const batchActions = {
     baseAction: [
       {
-        label: 'mockManagement.batchEdit',
+        label: 'common.edit',
         eventTag: 'edit',
         permission: ['PROJECT_API_DEFINITION_MOCK:READ+UPDATE'],
       },
       {
-        label: 'mockManagement.batchDelete',
+        label: 'common.delete',
         eventTag: 'delete',
         danger: true,
         permission: ['PROJECT_API_DEFINITION_MOCK:READ+DELETE'],

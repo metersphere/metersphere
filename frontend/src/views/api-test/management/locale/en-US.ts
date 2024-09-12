@@ -281,8 +281,6 @@ export default {
   'mockManagement.empty': 'Empty',
   'mockManagement.notEmpty': 'Not Empty',
   'mockManagement.regular': 'Regular Expression',
-  'mockManagement.batchEdit': 'Batch Edit',
-  'mockManagement.batchDelete': 'Batch Delete',
   'mockManagement.noMatchRules': 'No matching rules found',
   'mockManagement.responseDelay': 'Response delay',
 };
