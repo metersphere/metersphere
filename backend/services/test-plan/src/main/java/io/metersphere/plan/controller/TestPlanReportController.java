@@ -90,6 +90,14 @@ public class TestPlanReportController {
         testPlanReportService.batchSetReportDelete(request, SessionUtils.getUserId());
     }
 
+    @PostMapping("/batch-param")
+    @Operation(summary = "测试计划-报告-获取批量参数")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public List<String> getBatchParam(@Validated @RequestBody TestPlanReportBatchRequest request) {
+        return testPlanReportService.getBatchIds(request);
+    }
+
     @PostMapping("/manual-gen")
     @Operation(summary = "测试计划-详情-手动生成报告")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)

@@ -951,7 +951,7 @@ public class TestPlanReportService {
 	 * @param request 请求参数
 	 * @return ID集合
 	 */
-	private List<String> getBatchIds(TestPlanReportBatchRequest request) {
+	public List<String> getBatchIds(TestPlanReportBatchRequest request) {
 		if (request.isSelectAll()) {
 			List<String> batchIds = extTestPlanReportMapper.getReportBatchIdsByParam(request);
 			if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {

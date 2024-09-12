@@ -16,6 +16,7 @@ import io.metersphere.plan.dto.TestPlanShareInfo;
 import io.metersphere.plan.dto.request.TestPlanReportShareRequest;
 import io.metersphere.plan.dto.request.TestPlanShareReportDetailRequest;
 import io.metersphere.plan.dto.response.TestPlanCaseExecHistoryResponse;
+import io.metersphere.plan.dto.response.TestPlanReportDetailCollectionResponse;
 import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanShareResponse;
 import io.metersphere.plan.service.TestPlanReportService;
@@ -27,6 +28,8 @@ import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -180,5 +183,16 @@ public class TestPlanReportShareController {
         ShareInfo shareInfo = testPlanReportShareService.checkResource(shareId);
         testPlanReportShareService.validateExpired(shareInfo);
         return testPlanReportService.getFunctionalExecuteResult(reportId);
+    }
+
+    @PostMapping("/detail/{type}/collection/page")
+    @Operation(summary = "测试计划-报告-详情-测试集分页查询(不同用例类型)")
+    @Parameter(name = "type", description = "用例类型", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED), example = "functional, api, scenario")
+    public Pager<List<TestPlanReportDetailCollectionResponse>> collectionPage(@PathVariable String type, @Validated @RequestBody TestPlanShareReportDetailRequest request) {
+        ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
+        testPlanReportShareService.validateExpired(shareInfo);
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpc.pos desc");
+        return PageUtils.setPageInfo(page, testPlanReportService.listReportCollection(request, type));
     }
 }
