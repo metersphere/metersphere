@@ -661,19 +661,31 @@
     {
       addChildModule: () => {
         const node: MinderJsonNode = window.minder.getSelectedNode();
-        insertNode(node, 'AppendChildNode', moduleTag);
+        if (node.data?.resource?.includes(moduleTag) && node.data?.id !== 'root') {
+          // 非未规划模块节点下才能添加子模块
+          insertNode(node, 'AppendChildNode', moduleTag);
+        }
       },
       addChildCase: () => {
         const node: MinderJsonNode = window.minder.getSelectedNode();
-        insertNode(node, 'AppendChildNode', caseTag);
+        if (node.data?.resource?.includes(moduleTag) && node.data?.id !== 'NONE') {
+          // 模块节点且不是虚拟根模块节点下才能添加用例
+          insertNode(node, 'AppendChildNode', caseTag);
+        }
       },
       addSiblingModule: () => {
         const node: MinderJsonNode = window.minder.getSelectedNode();
-        insertNode(node, 'AppendSiblingNode', moduleTag);
+        if (node.parent?.data?.resource?.includes(moduleTag) && node.parent?.data?.id !== 'root') {
+          // 父节点是模块节点且不是未规划模块，才能添加兄弟模块节点
+          insertNode(node, 'AppendSiblingNode', moduleTag);
+        }
       },
       addSiblingCase: () => {
         const node: MinderJsonNode = window.minder.getSelectedNode();
-        insertNode(node, 'AppendSiblingNode', caseTag);
+        if (node.parent?.data?.resource?.includes(moduleTag) && node.parent?.data?.id !== 'NONE') {
+          // 父节点是模块节点且不是虚拟根模块节点，才能添加兄弟用例节点
+          insertNode(node, 'AppendSiblingNode', caseTag);
+        }
       },
     },
     {}
