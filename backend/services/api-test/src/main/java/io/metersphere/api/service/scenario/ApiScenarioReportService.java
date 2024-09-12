@@ -393,8 +393,18 @@ public class ApiScenarioReportService {
         return apiScenarioReportMapper.selectByExample(reportExample);
     }
 
-    public void exportLog(String reportId, String userId) {
+    public void exportLog(String reportId, String userId, String projectId) {
         ApiScenarioReport apiScenarioReport = apiScenarioReportMapper.selectByPrimaryKey(reportId);
-        Optional.ofNullable(apiScenarioReport).ifPresent(report -> apiScenarioReportLogService.exportLog(report, userId));
+        Optional.ofNullable(apiScenarioReport).ifPresent(report -> apiScenarioReportLogService.exportLog(List.of(report), userId, projectId, "/api/report/scenario/export/" + reportId));
+    }
+
+    public void batchExportLog(ApiReportBatchRequest request, String userId, String projectId) {
+        List<String> ids = doSelectIds(request);
+        if(CollectionUtils.isNotEmpty(ids)){
+            ApiScenarioReportExample example = new ApiScenarioReportExample();
+            example.createCriteria().andIdIn(ids);
+            List<ApiScenarioReport> reports = apiScenarioReportMapper.selectByExample(example);
+            apiScenarioReportLogService.exportLog(reports, userId, projectId, "/api/report/scenario/batch-export");
+        }
     }
 }

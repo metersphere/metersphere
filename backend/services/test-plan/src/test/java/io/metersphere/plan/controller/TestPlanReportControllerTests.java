@@ -72,7 +72,8 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String GET_SHARE_REPORT_API_REPORT_LIST = "/test-plan/report/share/detail/api-report";
     private static final String GET_SHARE_REPORT_SCENARIO_REPORT_LIST = "/test-plan/report/share/detail/scenario-report";
     private static final String GET_SHARE_REPORT_DETAIL_FUNCTIONAL_RESULT = "/test-plan/report/share/detail/functional/case/step";
-    private static final String GET_EXPORT_REPORT = "/test-plan/report/export/";
+    private static final String EXPORT_REPORT = "/test-plan/report/export/{0}";
+    private static final String BATCH_EXPORT_REPORT = "/test-plan/report/batch-export";
 
     @Autowired
     private TestPlanReportMapper testPlanReportMapper;
@@ -487,7 +488,16 @@ public class TestPlanReportControllerTests extends BaseTest {
     @Test
     @Order(25)
     void testExportReport() throws Exception {
-        this.requestGet(GET_EXPORT_REPORT + "test-plan-report-id-1");
-        this.requestGet(GET_EXPORT_REPORT + "test-plan-report-id-3");
+        this.requestPost(EXPORT_REPORT,null,"test-plan-report-id-1");
+        this.requestPost(EXPORT_REPORT,null,"test-plan-report-id-3");
+    }
+
+    @Test
+    @Order(26)
+    void testBatchExportReport() throws Exception {
+        TestPlanReportBatchRequest request = new TestPlanReportBatchRequest();
+        request.setProjectId("100001100001");
+        request.setSelectAll(true);
+        this.requestPost(BATCH_EXPORT_REPORT, request);
     }
 }

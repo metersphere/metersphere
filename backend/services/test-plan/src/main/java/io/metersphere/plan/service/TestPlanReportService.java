@@ -1284,8 +1284,18 @@ public class TestPlanReportService {
 		return modules.stream().collect(Collectors.toMap(TestPlanBaseModule::getId, TestPlanBaseModule::getName));
 	}
 
-	public void exportLog(String reportId, String userId) {
+	public void exportLog(String reportId, String userId, String projectId) {
 		TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(reportId);
-		Optional.ofNullable(testPlanReport).ifPresent(report -> testPlanReportLogService.exportLog(report, userId));
+		Optional.ofNullable(testPlanReport).ifPresent(report -> testPlanReportLogService.exportLog(List.of(report), userId, projectId, "/test-plan/report/export/" + reportId));
+	}
+
+	public void batchExportLog(TestPlanReportBatchRequest request, String userId, String projectId) {
+		List<String> reportIds = getBatchIds(request);
+		if (CollectionUtils.isNotEmpty(reportIds)) {
+			TestPlanReportExample example = new TestPlanReportExample();
+			example.createCriteria().andIdIn(reportIds);
+			List<TestPlanReport> reports = testPlanReportMapper.selectByExample(example);
+			testPlanReportLogService.exportLog(reports, userId, projectId, "/test-plan/report/batch-export");
+		}
 	}
 }

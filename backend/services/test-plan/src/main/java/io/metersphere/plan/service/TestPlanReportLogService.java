@@ -137,18 +137,22 @@ public class TestPlanReportLogService {
 		operationLogService.add(log);
 	}
 
-	public void exportLog(TestPlanReport report, String userId) {
-		Project project = projectMapper.selectByPrimaryKey(report.getProjectId());
-		LogDTO log = new LogDTO(
-				report.getProjectId(),
-				project.getOrganizationId(),
-				report.getId(),
-				userId,
-				OperationLogType.EXPORT.name(),
-				report.getIntegrated() ? OperationLogModule.TEST_PLAN_GROUP_REPORT : OperationLogModule.TEST_PLAN_REPORT,
-				report.getName());
-		log.setMethod(HttpMethodConstants.GET.name());
-		log.setPath("/test-plan/report/export/" + report.getId());
-		operationLogService.add(log);
+	public void exportLog(List<TestPlanReport> reports, String userId, String projectId, String path) {
+		Project project = projectMapper.selectByPrimaryKey(projectId);
+		List<LogDTO> logs = new ArrayList<>();
+		reports.forEach(report -> {
+			LogDTO log = new LogDTO(
+					projectId,
+					project.getOrganizationId(),
+					report.getId(),
+					userId,
+					OperationLogType.EXPORT.name(),
+					report.getIntegrated() ? OperationLogModule.TEST_PLAN_GROUP_REPORT : OperationLogModule.TEST_PLAN_REPORT,
+					report.getName());
+			log.setMethod(HttpMethodConstants.POST.name());
+			log.setPath(path);
+			logs.add(log);
+		});
+		operationLogService.batchAdd(logs);
 	}
 }
