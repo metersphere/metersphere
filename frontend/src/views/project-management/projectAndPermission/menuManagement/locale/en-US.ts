@@ -35,6 +35,8 @@ export default {
   'project.menu.CASE_RE_REVIEW': 'Re-review',
   'project.menu.CASE_RELATED': 'Related Requirements',
   'project.menu.BUG_SYNC': 'Defect Synchronization',
+  'project.menu.bugThirdIntegrationTip':
+    'No integration of third-party management platform, please contact your administrator',
   'project.menu.SYNC_ENABLE': 'Status',
   'project.menu.MECHANISM': 'Interface Test Update Synchronization Rule',
   'project.menu.row1': 'The system displays data that meets the rules in My To-Do List - To Be Updated',
@@ -43,6 +45,8 @@ export default {
   'project.menu.row4': 'Associate test cases with third-party project management platforms',
   'project.menu.row5':
     'When changes occur in test cases during the review process, the test case status automatically switches to re-review',
+  'project.menu.reArraignment':
+    'Name of the ”case“, "information on use case steps" change triggers, other changes not trigger',
   'project.menu.row6': 'When enabled, the interface definition module will not validate URL duplication',
   'project.menu.row7': 'Automatically synchronize interface CASE when the interface definition changes',
   'project.menu.notConfig': 'Third-party information not configured, click',
