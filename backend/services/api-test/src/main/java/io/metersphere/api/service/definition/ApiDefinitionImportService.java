@@ -491,6 +491,9 @@ public class ApiDefinitionImportService {
                     // 指定了导入模块： 以当前模块为基准进行操作
                     String finalModulePath = (StringUtils.isBlank(selectModulePath) ? StringUtils.EMPTY : selectModulePath)
                             + "/" + ((StringUtils.startsWith(apiData.getModulePath(), "/") ? StringUtils.substring(apiData.getModulePath(), 1) : apiData.getModulePath()));
+                    if (StringUtils.endsWith(finalModulePath, "/")) {
+                        finalModulePath = StringUtils.substring(finalModulePath, 0, finalModulePath.length() - 1);
+                    }
                     apiData.setModulePath(finalModulePath);
 
                     if (!modulePathMap.containsKey(finalModulePath)) {
@@ -637,8 +640,10 @@ public class ApiDefinitionImportService {
             // 指定了导入模块： 以当前模块为基准进行操作
             String finalModulePath = (StringUtils.isBlank(selectModulePath) ? StringUtils.EMPTY : selectModulePath)
                     + "/" + ((StringUtils.startsWith(importApi.getModulePath(), "/") ? StringUtils.substring(importApi.getModulePath(), 1) : importApi.getModulePath()));
+            if (StringUtils.endsWith(finalModulePath, "/")) {
+                finalModulePath = StringUtils.substring(finalModulePath, 0, finalModulePath.length() - 1);
+            }
             importApi.setModulePath(finalModulePath);
-
             if (!modulePathMap.containsKey(finalModulePath)) {
                 apiDefinitionPreImportAnalysisResult.getInsertModuleList().addAll(TreeNodeParseUtils.getInsertNodeByPath(modulePathMap, finalModulePath));
             }
