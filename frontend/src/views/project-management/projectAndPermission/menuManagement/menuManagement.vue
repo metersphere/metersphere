@@ -49,9 +49,10 @@
       <template v-if="record.type === 'BUG_SYNC'">
         <!-- 同步缺陷 -->
         <span>{{ t('project.menu.row2') }}</span>
-        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="showDefectDrawer">
-          {{ t('project.menu.BUG_SYNC') }}
-        </div>
+        <!-- TODO 接口没有字段，先不上 -->
+        <!-- <a-tooltip :content="t('project.menu.bugThirdIntegrationTip')" :mouse-enter-delay="300"> -->
+        <MsButton class="ml-[8px]" @click="showDefectDrawer"> {{ t('project.menu.BUG_SYNC') }}</MsButton>
+        <!-- </a-tooltip> -->
       </template>
       <div v-if="record.type === 'CASE_PUBLIC'">
         <!-- 用例 公共用例库 -->
@@ -66,7 +67,13 @@
       </div>
       <div v-if="record.type === 'CASE_RE_REVIEW'">
         <!-- 用例 重新提审 -->
-        {{ t('project.menu.row5') }}
+        <span>{{ t('project.menu.row5') }}</span>
+        <a-tooltip :content="t('project.menu.reArraignment')" position="top" :mouse-enter-delay="300">
+          <MsIcon
+            class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+            type="icon-icon-maybe_outlined"
+          />
+        </a-tooltip>
       </div>
       <div v-if="record.type === 'API_URL_REPEATABLE'">
         <!-- 接口测试 接口定义URL可重复  -->
@@ -235,9 +242,14 @@
     <template #operation="{ record }">
       <!-- 缺陷 同步缺陷状态 -->
       <div v-permission="['PROJECT_APPLICATION_BUG:UPDATE']">
-        <a-tooltip v-if="record.type === 'BUG_SYNC' && !allValueMap['BUG_SYNC_SYNC_ENABLE']" position="tr">
+        <a-tooltip
+          v-if="record.type === 'BUG_SYNC' && !allValueMap['BUG_SYNC_SYNC_ENABLE']"
+          class="ms-tooltip-white"
+          position="br"
+          :mouse-enter-delay="300"
+        >
           <template #content>
-            <span>
+            <span class="text-[var(--color-text-1)]">
               {{ t('project.menu.notConfig') }}
               <span class="cursor-pointer text-[rgb(var(--primary-4))]" @click="showDefectDrawer">
                 {{ t(`project.menu.${record.type}`) }}
@@ -270,9 +282,14 @@
       />
       <!-- 测试用例 关联需求 -->
       <div v-permission="['PROJECT_APPLICATION_CASE:UPDATE']">
-        <a-tooltip v-if="record.type === 'CASE_RELATED' && !allValueMap['CASE_RELATED_CASE_ENABLE']" position="tr">
+        <a-tooltip
+          v-if="record.type === 'CASE_RELATED' && !allValueMap['CASE_RELATED_CASE_ENABLE']"
+          class="ms-tooltip-white"
+          position="left"
+          :mouse-enter-delay="300"
+        >
           <template #content>
-            <span>
+            <span class="text-[var(--color-text-1)]">
               {{ t('project.menu.notConfig') }}
               <span class="cursor-pointer text-[rgb(var(--primary-4))]" @click="showDefectDrawer">
                 {{ t(`project.menu.${record.type}`) }}
@@ -392,6 +409,7 @@
   import { Message, TableData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import useTable from '@/components/pure/ms-table/useTable';

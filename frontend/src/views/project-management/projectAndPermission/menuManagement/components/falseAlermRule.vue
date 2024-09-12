@@ -474,7 +474,7 @@
     setLoadListParams({
       projectId: currentProjectId.value,
       filter: {
-        enable: [enabledStatus],
+        enable: enabledStatus,
       },
     });
     fetchData();

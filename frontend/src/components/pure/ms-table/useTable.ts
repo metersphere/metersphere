@@ -12,7 +12,6 @@ import { SelectAllEnum } from '@/enums/tableEnum';
 
 import { FilterResult } from '../ms-advance-filter/type';
 import type { MsTableColumn, MsTableDataItem, MsTableErrorStatus, MsTableProps, SetPaginationPrams } from './type';
-import { getCurrentRecordChildrenIds } from './utils';
 import type { TableData } from '@arco-design/web-vue';
 
 export interface Pagination {
@@ -250,6 +249,7 @@ export default function useTableProps<T>(
           propsRes.value.data = tmpArr.map((item: MsTableDataItem<T>) => {
             return processRecordItem(item);
           });
+          propsRes.value.filter = cloneDeep({ ...filterItem.value, ...loadListParams.value.filter });
           if (data.total === 0) {
             setTableErrorStatus('empty');
           } else {
