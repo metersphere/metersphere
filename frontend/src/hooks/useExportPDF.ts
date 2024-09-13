@@ -18,19 +18,7 @@ export const PAGE_PDF_WIDTH_RATIO = CONTAINER_WIDTH / PDF_WIDTH; // 页面容器
 // 实际每页高度 = PDF页面高度/页面容器宽度与 pdf 宽度的比例(这里比例*SCALE_RATIO 是因为html2canvas截图时生成的是 SCALE_RATIO 倍的清晰度)
 export const IMAGE_HEIGHT = Math.ceil(PAGE_HEIGHT * PAGE_PDF_WIDTH_RATIO * SCALE_RATIO);
 
-const commonOdfTableConfig: Partial<UserOptions> = {
-  headStyles: {
-    fillColor: '#793787',
-  },
-  styles: {
-    font: 'AlibabaPuHuiTi-3-55-Regular',
-  },
-  rowPageBreak: 'avoid',
-  margin: { top: 16, left: 16, right: 16, bottom: 16 },
-  tableWidth: PDF_WIDTH,
-};
-
-export type PdfTableConfig = Pick<UserOptions, 'columnStyles' | 'columns' | 'body'>;
+export type PdfTableConfig = Pick<UserOptions, 'tableId' | 'columnStyles' | 'columns' | 'body'>;
 
 /**
  * 导出PDF
@@ -43,6 +31,7 @@ export default async function exportPDF(
   name: string,
   contentId: string,
   autoTableConfig: PdfTableConfig[],
+  tableTitleMap?: Record<string, string>,
   doneCallback?: () => void
 ) {
   const element = document.getElementById(contentId);
@@ -95,6 +84,26 @@ export default async function exportPDF(
     }
     const lastImagePageUseHeight =
       (canvasHeight > IMAGE_HEIGHT ? canvasHeight - IMAGE_HEIGHT : canvasHeight) / PAGE_PDF_WIDTH_RATIO / SCALE_RATIO; // 最后一页带图片的pdf页面被图片占用的高度
+
+    const commonOdfTableConfig: Partial<UserOptions> = {
+      headStyles: {
+        fillColor: '#793787',
+      },
+      styles: {
+        font: 'AlibabaPuHuiTi-3-55-Regular',
+      },
+      rowPageBreak: 'avoid',
+      margin: { top: 16, left: 16, right: 16, bottom: 16 },
+      tableWidth: PDF_WIDTH,
+      willDrawPage: (data) => {
+        const title = tableTitleMap?.[data.table.id as string];
+        if (title && data.cursor) {
+          pdf.text(title, 16, data.cursor.y + 4);
+          // 在文字后加入 8px 高的空白
+          data.cursor.y += 12;
+        }
+      },
+    };
     autoTableConfig.forEach((config, index) => {
       autoTable(pdf, {
         ...config,

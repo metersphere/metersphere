@@ -72,3 +72,5 @@ export const getReportShareLayoutUrl = '/test-plan/report/share/get-layout';
 export const TestPlanReportExportUrl = '/test-plan/report/export';
 // 测试计划-报告-批量导出日志
 export const TestPlanBatchReportExportUrl = '/test-plan/report/batch-export';
+// 测试计划-报告-批量导出获取报告 ID 集合
+export const TestPlanBatchReportExportGetIdsUrl = '/test-plan/report/batch-param';

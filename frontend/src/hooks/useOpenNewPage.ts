@@ -48,8 +48,40 @@ export default function useOpenNewPage() {
     );
   }
 
+  function openNewPageWithParams(
+    name: RouteRecordName | undefined,
+    query: Record<string, any> = {},
+    params: Record<string, any> = {}
+  ) {
+    const pId = query.pId || appStore.currentProjectId;
+    if (pId) {
+      // 如果传入参数指定了项目 id，则使用传入的项目 id
+      delete query.pId;
+    }
+    const orgId = query.orgId || appStore.currentOrgId;
+    if (orgId) {
+      // 如果传入参数指定了组织 id，则使用传入的组织 id
+      delete query.orgId;
+    }
+    const queryParams = new URLSearchParams(query).toString();
+    const newTab = window.open(
+      `${window.location.origin}#${router.resolve({ name }).fullPath}?orgId=${orgId}&pId=${pId}&${queryParams}`,
+      '_blank'
+    );
+
+    // 等待新标签页加载完成后发送消息
+    if (newTab) {
+      newTab.onload = () => {
+        setTimeout(() => {
+          newTab.postMessage(JSON.stringify(params), window.location.origin);
+        }, 300);
+      };
+    }
+  }
+
   return {
     openNewPage,
     openNewPageWidthSingleParam,
+    openNewPageWithParams,
   };
 }

@@ -182,3 +182,8 @@ export function logTestPlanReportExport(reportId: string) {
 export function logTestPlanReportBatchExport(data: BatchApiParams) {
   return MSR.post({ url: reportUrl.TestPlanBatchReportExportUrl, data });
 }
+
+// 批量导出报告日志
+export function testPlanBatchReportExportGetIds(data: BatchApiParams) {
+  return MSR.post<string[]>({ url: reportUrl.TestPlanBatchReportExportGetIdsUrl, data });
+}

@@ -1,5 +1,7 @@
 import { TreeNodeData } from '@arco-design/web-vue';
 
+import type { FilterResult } from '@/components/pure/ms-advance-filter/type';
+
 import { RequestMethods } from '@/enums/apiEnum';
 
 // 请求返回结构
@@ -51,6 +53,7 @@ export interface BatchApiParams {
   versionId?: string; // 版本 ID
   refId?: string; // 版本来源
   protocols?: string[]; // 协议集合
+  combineSearch?: FilterResult;
 }
 
 // 移动模块树
