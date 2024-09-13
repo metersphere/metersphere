@@ -141,6 +141,7 @@
       if (item.children && item.children.length > 0 && !props.rowSelectionDisabledConfig?.disabledChildren) {
         return hasUnselectedChildren(item.children, selectedKeys, rowKey);
       }
+      // 有数据没有勾选上，且该数据没有被禁用
       return (
         !selectedKeys.has(item[rowKey]) &&
         !(props?.rowSelectionDisabledConfig?.disabledKey && item[props?.rowSelectionDisabledConfig?.disabledKey])
@@ -150,7 +151,7 @@
 
   const handleCheckChange = () => {
     if (hasUnselectedChildren(props.currentData, props.selectedKeys, props.rowKey)) {
-      // 当前页有数据没有勾选上，此时点击全选按钮代表全部选中
+      // 当前页有数据没有勾选上，且该数据没有被禁用，此时点击全选按钮代表全部选中
       handleSelect(SelectAllEnum.CURRENT, false);
     } else {
       // 否则是当前页全部数据已勾选，此时点击全选按钮代表取消当前页面数据勾选
