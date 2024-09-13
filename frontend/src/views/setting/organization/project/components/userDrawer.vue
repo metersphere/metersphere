@@ -41,6 +41,7 @@
             :tag-list="record.userRoleList"
             type="primary"
             theme="outline"
+            allow-edit
             @click="handleTagClick(record)"
           />
           <MsSelect
@@ -78,10 +79,12 @@
     </div>
   </MsDrawer>
   <AddUserModal
+    v-model:visible="userVisible"
+    is-organization
+    :user-group-options="userGroupOptions"
     :project-id="props.projectId"
     :organization-id="props.organizationId"
-    :visible="userVisible"
-    @cancel="handleHideUserModal"
+    @submit="handleAddMemberSubmit"
   />
 </template>
 
@@ -96,7 +99,7 @@
   import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
   import MsSelect from '@/components/business/ms-select';
-  import AddUserModal from './addUserModal.vue';
+  import AddUserModal from '@/views/setting/system/organizationAndProject/components/addUserModal.vue';
 
   import { getProjectUserGroup, updateProjectMember } from '@/api/modules/project-management/projectMember';
   import { deleteProjectMemberByOrg, postProjectMemberByProjectId } from '@/api/modules/setting/organizationAndProject';
@@ -139,6 +142,7 @@
       title: 'system.user.tableColumnUserGroup',
       dataIndex: 'userRoleList',
       slotName: 'userGroup',
+      allowEditTag: true,
       isTag: true,
       width: 300,
     },
@@ -235,12 +239,9 @@
     userVisible.value = true;
   };
 
-  const handleHideUserModal = (shouldSearch: boolean) => {
-    userVisible.value = false;
-    if (shouldSearch) {
-      fetchData();
-      emit('requestFetchData');
-    }
+  const handleAddMemberSubmit = () => {
+    fetchData();
+    emit('requestFetchData');
   };
 
   const handleRemove = async (record: TableData) => {

@@ -1,114 +1,223 @@
 <template>
   <a-modal
     v-model:visible="currentVisible"
+    :width="680"
     title-align="start"
     class="ms-modal-form ms-modal-medium"
-    :ok-text="t('system.organization.addMember')"
+    :title="t('system.organization.addMember')"
     :mask-closable="false"
     unmount-on-close
     @cancel="handleCancel"
   >
-    <template #title> {{ t('system.organization.addMember') }} </template>
-    <div class="form">
-      <a-form ref="formRef" class="rounded-[4px]" :model="form" layout="vertical">
-        <a-form-item
-          field="name"
-          asterisk-position="end"
-          :label="t('system.organization.member')"
-          :rules="[{ required: true, message: t('system.organization.addMemberRequired') }]"
-        >
-          <MsUserSelector
-            v-model="form.name"
-            :type="UserRequestTypeEnum.SYSTEM_ORGANIZATION"
-            disabled-key="memberFlag"
-            :load-option-params="{ sourceId: props.organizationId || props.projectId }"
-          />
-        </a-form-item>
-      </a-form>
+    <div class="mb-[16px] flex justify-end">
+      <a-input-search
+        v-model="keyword"
+        :placeholder="t('ms.case.associate.searchPlaceholder')"
+        allow-clear
+        class="w-[240px]"
+        @press-enter="initData"
+        @search="initData"
+        @clear="initData"
+      />
     </div>
+    <MsBaseTable
+      v-bind="propsRes"
+      :action-config="{
+        baseAction: [],
+        moreAction: [],
+      }"
+      v-on="propsEvent"
+    ></MsBaseTable>
     <template #footer>
-      <a-button type="secondary" :loading="loading" @click="handleCancel">
-        {{ t('common.cancel') }}
-      </a-button>
-      <a-button type="primary" :loading="loading" :disabled="form.name.length === 0" @click="handleAddMember">
-        {{ t('common.add') }}
-      </a-button>
+      <div class="flex justify-between">
+        <div class="flex items-center gap-[8px]">
+          <div class="text-nowrap">{{ t('project.member.tableColumnUserGroup') }}</div>
+          <MsSelect
+            v-model:model-value="userGroupIds"
+            multiple
+            mode="static"
+            allow-clear
+            class="!w-[240px] text-start"
+            :search-keys="['name']"
+            value-key="id"
+            label-key="name"
+            :placeholder="t('project.member.selectUserScope')"
+            :options="currentUserGroupOptions"
+          />
+        </div>
+        <div class="flex gap-[12px]">
+          <a-button type="secondary" :loading="loading" @click="handleCancel">
+            {{ t('common.cancel') }}
+          </a-button>
+          <a-button
+            type="primary"
+            :loading="loading"
+            :disabled="!userGroupIds.length || !tableSelected.length"
+            @click="handleAddMember"
+          >
+            {{ t('common.add') }}
+          </a-button>
+        </div>
+      </div>
     </template>
   </a-modal>
 </template>
 
 <script lang="ts" setup>
-  import { onUnmounted, reactive, ref, watchEffect } from 'vue';
-  import { type FormInstance, Message, type ValidatedError } from '@arco-design/web-vue';
+  import { Message } from '@arco-design/web-vue';
 
-  import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
-  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import MsSelect from '@/components/business/ms-select';
 
-  import { addUserToOrgOrProject } from '@/api/modules/setting/organizationAndProject';
+  import { getProjectUserGroup } from '@/api/modules/project-management/projectMember';
+  import { getGlobalUserGroup, getOrganizationMemberListPage } from '@/api/modules/setting/member';
+  import {
+    addProjectMemberByOrg,
+    addUserToOrgOrProject,
+    getSystemMemberListPage,
+  } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
 
-  const { t } = useI18n();
+  import type { LinkList } from '@/models/setting/member';
+
   const props = defineProps<{
-    visible: boolean;
+    isOrganization?: boolean; // 组织下的
+    userGroupOptions?: LinkList;
     organizationId?: string;
     projectId?: string;
   }>();
-
   const emit = defineEmits<{
-    (e: 'cancel'): void;
     (e: 'submit'): void;
   }>();
-
-  const currentVisible = ref(props.visible);
-  const loading = ref(false);
-
-  const form = reactive({
-    name: [],
+  const currentVisible = defineModel<boolean>('visible', {
+    required: true,
   });
 
-  const formRef = ref<FormInstance>();
+  const { t } = useI18n();
 
-  watchEffect(() => {
-    currentVisible.value = props.visible;
-  });
+  const columns = [
+    {
+      title: 'common.name',
+      dataIndex: 'name',
+      width: 200,
+      showTooltip: true,
+    },
+    {
+      title: 'system.organization.email',
+      dataIndex: 'email',
+      showTooltip: true,
+      width: 250,
+    },
+  ];
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetPagination } = useTable(
+    !props.isOrganization ? getSystemMemberListPage : getOrganizationMemberListPage,
+    {
+      columns,
+      scroll: { x: '100%' },
+      size: 'mini',
+      selectable: true,
+      showSelectAll: true,
+      showSelectorAll: false,
+      rowSelectionDisabledConfig: {
+        disabledKey: 'memberFlag',
+      },
+      paginationSize: 'mini',
+    }
+  );
+
+  const keyword = ref<string>('');
+  const currentUserGroupOptions = ref<LinkList>([]);
+  const userGroupIds = ref<string[]>([]);
+  const tableSelected = computed(() => [...propsRes.value.selectedKeys]);
+
+  function initData() {
+    setLoadListParams({
+      keyword: keyword.value,
+      sourceId: props.projectId ?? props.organizationId,
+      projectId: props.projectId,
+      organizationId: props.organizationId,
+    });
+    loadList();
+  }
+  const getUserGroupOptions = async () => {
+    try {
+      if (props.organizationId && !props.isOrganization) {
+        // 系统-组织与项目-组织-成员用户组下拉
+        currentUserGroupOptions.value = await getGlobalUserGroup(props.organizationId);
+      } else if (props.projectId) {
+        // 系统-组织与项目-项目-成员用户组下拉 和 组织-项目-成员用户组下拉
+        currentUserGroupOptions.value = await getProjectUserGroup(props.projectId);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+  watch(
+    () => currentVisible.value,
+    (value) => {
+      if (value) {
+        initData();
+        if (!props.userGroupOptions) {
+          getUserGroupOptions();
+        } else {
+          currentUserGroupOptions.value = props.userGroupOptions;
+        }
+        if (props.projectId) {
+          userGroupIds.value = ['project_member'];
+        } else if (props.organizationId) {
+          userGroupIds.value = ['org_member'];
+        }
+      }
+    }
+  );
 
   const handleCancel = () => {
-    form.name = [];
-    emit('cancel');
+    currentVisible.value = false;
+    keyword.value = '';
+    userGroupIds.value = [];
+    resetPagination();
+    resetSelector();
   };
 
-  const handleAddMember = () => {
-    formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
-      if (errors) {
-        loading.value = false;
+  const loading = ref(false);
+  const handleAddMember = async () => {
+    try {
+      loading.value = true;
+      if (!props.isOrganization) {
+        // 系统-组织与项目
+        await addUserToOrgOrProject({
+          userRoleIds: userGroupIds.value,
+          userIds: tableSelected.value,
+          projectId: props.projectId,
+          organizationId: props.organizationId,
+        });
+      } else {
+        // 组织-项目
+        await addProjectMemberByOrg({
+          userRoleIds: userGroupIds.value,
+          userIds: tableSelected.value,
+          projectId: props.projectId,
+        });
       }
-      const { organizationId, projectId } = props;
-      try {
-        loading.value = true;
-        await addUserToOrgOrProject({ userIds: form.name, organizationId, projectId });
-        Message.success(t('system.organization.addSuccess'));
-        handleCancel();
-        emit('submit');
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
-      } finally {
-        loading.value = false;
-      }
-    });
+      Message.success(t('system.organization.addSuccess'));
+      emit('submit');
+      handleCancel();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    } finally {
+      loading.value = false;
+    }
   };
-
-  onUnmounted(() => {
-    form.name = [];
-    loading.value = false;
-  });
 </script>
 
 <style lang="less" scoped>
-  .option-name {
-    color: var(--color-text-1);
-  }
-  .option-email {
-    color: var(--color-text-4);
+  :deep(.ms-pagination) {
+    gap: 8px;
+    .ms-pagination-item-previous {
+      margin-left: 0;
+    }
   }
 </style>

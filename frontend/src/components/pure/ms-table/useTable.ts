@@ -365,7 +365,11 @@ export default function useTableProps<T>(
   };
   const collectIds = (data: MsTableDataItem<T>[], rowKey: string) => {
     data.forEach((item: MsTableDataItem<T>) => {
-      if (item[rowKey] && !propsRes.value.selectedKeys.has(item[rowKey])) {
+      if (
+        item[rowKey] &&
+        !propsRes.value.selectedKeys.has(item[rowKey]) &&
+        !(props?.rowSelectionDisabledConfig?.disabledKey && item[props?.rowSelectionDisabledConfig?.disabledKey])
+      ) {
         propsRes.value.selectedKeys.add(item[rowKey]);
         propsRes.value.excludeKeys.delete(item[rowKey]);
       }

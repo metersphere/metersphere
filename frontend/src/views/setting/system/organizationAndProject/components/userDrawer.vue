@@ -42,6 +42,7 @@
             :tag-list="record.userRoleList"
             type="primary"
             theme="outline"
+            allow-edit
             @click="handleTagClick(record)"
           />
           <MsSelect
@@ -79,11 +80,11 @@
     </div>
   </ms-drawer>
   <AddUserModal
+    v-model:visible="userVisible"
+    :user-group-options="userGroupOptions"
     :project-id="props.projectId"
     :organization-id="props.organizationId"
-    :visible="userVisible"
-    @cancel="handleHideUserModal"
-    @submit="handleAddMembeSubmit"
+    @submit="handleAddMemberSubmit"
   />
 </template>
 
@@ -152,6 +153,7 @@
       title: 'system.user.tableColumnUserGroup',
       dataIndex: 'userRoleList',
       slotName: 'userGroup',
+      allowEditTag: true,
       isTag: true,
       width: 300,
     },
@@ -255,13 +257,9 @@
   const handleAddMember = () => {
     userVisible.value = true;
   };
-  const handleAddMembeSubmit = () => {
+  const handleAddMemberSubmit = () => {
     fetchData();
     emit('requestFetchData');
-  };
-
-  const handleHideUserModal = () => {
-    userVisible.value = false;
   };
 
   const handleRemove = async (record: TableData) => {

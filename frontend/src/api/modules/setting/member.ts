@@ -5,6 +5,7 @@ import {
   BatchAddUserGroupUrl,
   DeleteMemberUrl,
   GetMemberListUrl,
+  GetOrganizationMemberListPageUrl,
   getProjectListUrl,
   getUserGroupList,
   getUserList,
@@ -63,4 +64,8 @@ export function getProjectList(organizationId: string, keyword?: string) {
 // 添加到用户组
 export function inviteOrgMember(data: InviteOrgMemberParams) {
   return MSR.post({ url: inviteOrgMemberUrl, data }, { isReturnNativeResponse: true });
+}
+// 系统设置-组织-项目-分页获取成员列表
+export function getOrganizationMemberListPage(data: TableQueryParams) {
+  return MSR.post({ url: GetOrganizationMemberListPageUrl, data });
 }

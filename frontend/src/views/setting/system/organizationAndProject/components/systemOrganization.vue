@@ -79,12 +79,7 @@
     :visible="orgVisible"
     @cancel="handleAddOrgModalCancel"
   />
-  <AddUserModal
-    :organization-id="currentOrganizationId"
-    :visible="userVisible"
-    @cancel="handleAddUserModalCancel"
-    @submit="fetchData"
-  />
+  <AddUserModal v-model:visible="userVisible" :organization-id="currentOrganizationId" @submit="fetchData" />
   <ProjectDrawer v-bind="currentProjectDrawer" @cancel="handleProjectDrawerCancel" />
   <UserDrawer v-bind="currentUserDrawer" @request-fetch-data="fetchData" @cancel="handleUserDrawerCancel" />
 </template>
@@ -334,9 +329,6 @@
     currentUserDrawer.visible = false;
   };
 
-  const handleAddUserModalCancel = () => {
-    userVisible.value = false;
-  };
   const handleAddOrgModalCancel = (shouldSearch: boolean) => {
     orgVisible.value = false;
     if (shouldSearch) {

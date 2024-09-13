@@ -89,8 +89,19 @@
       :current-project="currentUpdateProject"
       @cancel="handleAddProjectModalCancel"
     />
-    <AddUserModal :project-id="currentProjectId" :visible="userVisible" @cancel="handleAddUserModalCancel" />
-    <UserDrawer v-bind="currentUserDrawer" @request-fetch-data="fetchData" @cancel="handleUserDrawerCancel" />
+    <AddUserModal
+      v-model:visible="userVisible"
+      is-organization
+      :project-id="currentProjectId"
+      :organization-id="currentOrgId"
+      @submit="fetchData"
+    />
+    <UserDrawer
+      v-bind="currentUserDrawer"
+      :organization-id="currentOrgId"
+      @request-fetch-data="fetchData"
+      @cancel="handleUserDrawerCancel"
+    />
   </MsCard>
 </template>
 
@@ -111,8 +122,8 @@
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsUserAdminDiv from '@/components/pure/ms-user-admin-div/index.vue';
   import AddProjectModal from './components/addProjectModal.vue';
-  import AddUserModal from './components/addUserModal.vue';
   import UserDrawer from './components/userDrawer.vue';
+  import AddUserModal from '@/views/setting/system/organizationAndProject/components/addUserModal.vue';
 
   import {
     deleteProjectByOrg,
@@ -332,12 +343,6 @@
     currentUserDrawer.visible = false;
   };
 
-  const handleAddUserModalCancel = (shouldSearch: boolean) => {
-    userVisible.value = false;
-    if (shouldSearch) {
-      fetchData();
-    }
-  };
   const handleAddProjectModalCancel = (shouldSearch: boolean) => {
     addProjectVisible.value = false;
     currentUpdateProject.value = undefined;

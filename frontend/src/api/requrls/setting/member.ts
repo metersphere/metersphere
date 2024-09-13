@@ -18,3 +18,5 @@ export const getSystemProjectListUrl = '/system/project/list';
 export const inviteOrgMemberUrl = '/organization/user/invite';
 // 系统设置-系统-组织与项目-组织-成员-更新成员用户组
 export const UpdateSystemOrganizationMemberUrl = '/system/organization/update-member';
+// 系统设置-组织-项目-分页获取成员列表
+export const GetOrganizationMemberListPageUrl = '/organization/project/user-list';
