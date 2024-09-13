@@ -20,7 +20,7 @@ public class Body {
      * 同时持久化多个类型的请求体
      */
     @NotBlank
-    private String bodyType;
+    private String bodyType = BodyType.NONE.name();
     /**
      * None 请求体
      * 当 bodyType 为 NONE 时，使用该字段

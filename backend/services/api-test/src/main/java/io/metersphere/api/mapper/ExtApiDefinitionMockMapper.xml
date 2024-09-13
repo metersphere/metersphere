@@ -62,6 +62,7 @@
     </select>
 
     <resultMap id="ApiMockDetailMap" type="io.metersphere.api.dto.definition.ApiMockWithBlob">
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler"/>
         <result column="matching" jdbcType="LONGVARBINARY" property="matching"/>
         <result column="response" jdbcType="LONGVARBINARY" property="response"/>
     </resultMap>

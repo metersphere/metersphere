@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition;
 
+import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.dto.request.http.body.JsonBody;
 import io.metersphere.api.dto.request.http.body.RawBody;
 import io.metersphere.api.dto.request.http.body.XmlBody;
@@ -20,7 +21,7 @@ public class ResponseBody implements Serializable {
 
     @NotBlank
     @Size(max = 20)
-    private String bodyType;
+    private String bodyType = Body.BodyType.NONE.name();
 
     @Valid
     private JsonBody jsonBody = new JsonBody();
