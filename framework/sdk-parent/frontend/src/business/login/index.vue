@@ -242,6 +242,7 @@ export default {
       }
     },
     submit(form) {
+      localStorage.setItem('loginType', 'PASSWORD');
       this.$refs[form].validate((valid) => {
         if (valid) {
           this.doLogin();
@@ -418,7 +419,7 @@ export default {
     async initPlatformInfo() {
       try {
         await getPlatformParamUrl().then((res) => {
-          if (localStorage.getItem('loginType')) {
+          if (localStorage.getItem('loginType') && localStorage.getItem('loginType') !== 'PASSWORD') {
             this.showQrCodeTab = true;
             this.activeName = localStorage.getItem('loginType') || 'WE_COM';
           }
