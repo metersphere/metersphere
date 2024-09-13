@@ -59,5 +59,7 @@ export default {
   'report.detail.manualGenReportSuccess': 'The custom generated report was successful',
   'report.detail.exportPdf': 'Export PDF',
   'report.detail.exportingPdf': 'Exporting PDF report...',
-  'report.detail.exportPdfSuccess': 'PDF report exported successfully',
+  'report.detail.exportPdfSuccess': '{name} report exported successfully',
+  'report.detail.batchExportPdfSuccess': 'Batch export of PDF reports completed',
+  'report.detail.batchExportingPdf': 'Export progress: {current}/{total}',
 };

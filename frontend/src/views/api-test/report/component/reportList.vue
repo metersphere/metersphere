@@ -271,7 +271,7 @@
       dataIndex: 'operation',
       fixed: 'right',
       title: hasAnyPermission(['PROJECT_API_REPORT:READ+DELETE']) ? 'common.operation' : '',
-      width: hasAnyPermission(['PROJECT_API_REPORT:READ+DELETE']) ? 130 : 50,
+      width: hasAnyPermission(['PROJECT_API_REPORT:READ+DELETE']) ? 100 : 50,
     },
   ];
 

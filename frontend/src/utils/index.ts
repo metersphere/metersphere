@@ -153,12 +153,12 @@ export function desensitize(str: string): string {
  * @param str 标题的动态内容
  * @returns 转化后的字符串
  */
-export function characterLimit(str?: string): string {
+export function characterLimit(str?: string, length?: number): string {
   if (!str) return '';
-  if (str.length <= 20) {
+  if (str.length <= (length || 20)) {
     return str;
   }
-  return `${str.slice(0, 20 - 3)}...`;
+  return `${str.slice(0, length || 20 - 3)}...`;
 }
 
 /**

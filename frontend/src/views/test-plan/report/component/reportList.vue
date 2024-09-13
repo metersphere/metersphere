@@ -135,7 +135,7 @@
   const keyword = ref<string>('');
   const router = useRouter();
   const route = useRoute();
-  const { openNewPage } = useOpenNewPage();
+  const { openNewPage, openNewPageWithParams } = useOpenNewPage();
 
   type ReportShowType = 'All' | 'INDEPENDENT' | 'INTEGRATED';
   const showType = ref<ReportShowType>('All');
@@ -340,6 +340,11 @@
         eventTag: 'batchStop',
         permission: ['PROJECT_TEST_PLAN_REPORT:READ+DELETE'],
       },
+      {
+        label: 'common.export',
+        eventTag: 'batchExport',
+        permission: ['PROJECT_TEST_PLAN_REPORT:READ+EXPORT'],
+      },
     ],
   };
 
@@ -362,30 +367,40 @@
       projectId: appStore.currentProjectId,
     };
 
-    openModal({
-      type: 'error',
-      title: t('report.delete.tip', {
-        count: params?.currentSelectCount || params?.selectedIds?.length,
-      }),
-      content: '',
-      okText: t('common.confirmDelete'),
-      cancelText: t('common.cancel'),
-      okButtonProps: {
-        status: 'danger',
-      },
-      onBeforeOk: async () => {
-        try {
-          await reportBathDelete(batchParams.value);
-          Message.success(t('apiTestDebug.deleteSuccess'));
-          resetSelector();
-          initData();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        }
-      },
-      hideCancel: false,
-    });
+    if (event.eventTag === 'batchExport') {
+      openNewPageWithParams(
+        FullPageEnum.FULL_PAGE_TEST_PLAN_EXPORT_PDF,
+        {
+          type: showType.value,
+        },
+        batchParams.value
+      );
+    } else if (event.eventTag === 'batchStop') {
+      openModal({
+        type: 'error',
+        title: t('report.delete.tip', {
+          count: params?.currentSelectCount || params?.selectedIds?.length,
+        }),
+        content: '',
+        okText: t('common.confirmDelete'),
+        cancelText: t('common.cancel'),
+        okButtonProps: {
+          status: 'danger',
+        },
+        onBeforeOk: async () => {
+          try {
+            await reportBathDelete(batchParams.value);
+            Message.success(t('apiTestDebug.deleteSuccess'));
+            resetSelector();
+            initData();
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log(error);
+          }
+        },
+        hideCancel: false,
+      });
+    }
   };
 
   function searchList() {

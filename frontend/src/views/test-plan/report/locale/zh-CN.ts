@@ -58,6 +58,8 @@ export default {
   'report.detail.reportNameNotEmpty': '报告名称不能为空',
   'report.detail.manualGenReportSuccess': '自定义生成报告成功',
   'report.detail.exportPdf': '导出 PDF',
-  'report.detail.exportingPdf': 'PDF报告导出中...',
-  'report.detail.exportPdfSuccess': 'PDF报告导出成功',
+  'report.detail.exportingPdf': 'PDF 报告导出中...',
+  'report.detail.exportPdfSuccess': '{name} 报告导出成功',
+  'report.detail.batchExportPdfSuccess': '批量导出 PDF 报告已完成',
+  'report.detail.batchExportingPdf': '导出进度：{current}/{total}',
 };
