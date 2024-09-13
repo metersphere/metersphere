@@ -83,9 +83,9 @@
 </template>
 
 <script>
-import { getCurrentUserId, publicKeyEncrypt } from '../../utils/token';
-import { DEFAULT_LANGUAGE, PRIMARY_COLOR } from '../../utils/constants';
-import { hasLicense, hasPermissions, saveLicense } from '../../utils/permission';
+import {getCurrentUserId, publicKeyEncrypt} from '../../utils/token';
+import {DEFAULT_LANGUAGE, PRIMARY_COLOR, UPLOAD_LIMIT} from '../../utils/constants';
+import {hasLicense, hasPermissions, saveLicense} from '../../utils/permission';
 import {
   checkLdapOpen,
   getAuthSource,
@@ -96,13 +96,13 @@ import {
   saveBaseUrl
 } from "../../api/user";
 import {useUserStore} from "@/store"
-import {getQueryVariable, getUrlParameterWidthRegExp, operationConfirm} from "../../utils";
+import {operationConfirm} from "../../utils";
 import {getModuleList} from "../../api/module";
 import {getLicense} from "../../api/license";
 import {setLanguage} from "../../i18n";
-import {getLarkCallback, getLarkSuiteCallback, getPlatformParamUrl} from "../../api/qrcode";
+import {getPlatformParamUrl} from "../../api/qrcode";
 import tabQrCode from "../login/tabQrCode.vue";
-import axios from "axios";
+import {getSystemBaseSetting} from "@/api/system";
 
 const checkLicense = () => {
   return getLicense()
@@ -336,6 +336,7 @@ export default {
         sessionStorage.setItem('changePassword', response.message);
         localStorage.setItem('AuthenticateType', this.form.authenticate);
         this.getLanguage(response.data.language);
+        this.setMaxUploadSize();
         // 检查登录用户的权限
         this.checkRedirectUrl();
       });
@@ -347,6 +348,14 @@ export default {
           localStorage.setItem(DEFAULT_LANGUAGE, language);
         });
       }
+    },
+    setMaxUploadSize() {
+      getSystemBaseSetting().then((res) => {
+        let maxSize = res.data.maxSize;
+        if (maxSize) {
+          localStorage.setItem(UPLOAD_LIMIT, maxSize);
+        }
+      });
     },
     redirectAuth(authId) {
       if (authId === 'LDAP' || authId === 'LOCAL') {

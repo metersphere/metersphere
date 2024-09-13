@@ -27,7 +27,7 @@
             <i class="el-icon-upload"></i>
             <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
             <div class="el-upload__tip" slot="tip">
-              {{ $t('api_test.api_import.file_size_limit') }} {{'，' + $t('api_test.api_import.ms_env_import_file_limit') }}
+              {{ $t('api_test.api_import.file_size_limit', {size: this.uploadSize}) }} {{'，' + $t('api_test.api_import.ms_env_import_file_limit') }}
             </div>
           </el-upload>
         </el-col>
@@ -44,6 +44,7 @@
 <script>
 
 import {importEnvironment} from "../../../api/environment";
+import {getUploadSizeLimit} from "metersphere-frontend/src/utils/index";
 
 export default {
   name: "EnvironmentImport",
@@ -72,7 +73,11 @@ export default {
       }
     }
   },
-
+  computed: {
+    uploadSize() {
+      return getUploadSizeLimit();
+    }
+  },
 
   methods: {
     handleFileChange(file, uploadFiles) {
@@ -124,13 +129,13 @@ export default {
     handleRemove() {
 
     },
-    uploadValidate(file) {    //判断文件扩展名是不是.json，以及文件大小是否超过20M
+    uploadValidate(file) {    //判断文件扩展名是不是.json，以及文件大小是否超过系统限制
       const extension = file.name.substring(file.name.lastIndexOf('.') + 1);
       if (!(extension === 'json')) {
         this.$warning(this.$t('api_test.api_import.ms_env_import_file_limit'));
       }
-      if (file.size / 1024 / 1024 > 20) {
-        this.$warning(this.$t('api_test.api_import.file_size_limit'));
+      if (file.size / 1024 / 1024 > this.uploadSize) {
+        this.$warning(this.$t('api_test.api_import.file_size_limit', {size: this.uploadSize}));
       }
     },
     open() {

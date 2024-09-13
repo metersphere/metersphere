@@ -38,6 +38,7 @@
 <script>
 
 import {getSystemBaseSetting, saveSystemBaseSetting} from "../../../api/system";
+import {UPLOAD_LIMIT} from 'metersphere-frontend/src/utils/constants';
 
 export default {
   name: "BaseSetting",
@@ -106,7 +107,6 @@ export default {
           res.data.docUrl = 'https://metersphere.io/docs/index.html'
         }
         this.formInline = res.data;
-        console.log(this.formInline);
         this.$nextTick(() => {
           if (this.$refs.formInline) {
             this.$refs.formInline.clearValidate();
@@ -139,6 +139,9 @@ export default {
         ];
         this.loading = saveSystemBaseSetting(param).then(res => {
           if (res.success) {
+            if (this.formInline.maxSize) {
+              localStorage.setItem(UPLOAD_LIMIT, this.formInline.maxSize);
+            }
             this.$success(this.$t('commons.save_success'));
           } else {
             this.$error(this.$t('commons.save_failed'));

@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.FileMetadataDTO;
+import io.metersphere.file.annotation.MsFileLimit;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.metadata.vo.*;
@@ -45,6 +46,7 @@ public class FileMetadataController {
         return PageUtils.setPageInfo(page, fileMetadataService.getFileMetadataByProject(projectId, request));
     }
 
+    @MsFileLimit
     @PostMapping(value = "/create")
     @RequiresPermissions("PROJECT_FILE:READ+UPLOAD+JAR")
     @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = FileMetadataService.class)

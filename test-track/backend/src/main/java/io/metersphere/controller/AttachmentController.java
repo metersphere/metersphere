@@ -6,6 +6,7 @@ import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.constants.AttachmentType;
+import io.metersphere.file.annotation.MsFileLimit;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.metadata.service.FileMetadataService;
@@ -36,6 +37,7 @@ public class AttachmentController {
     @Resource
     private FileMetadataService fileMetadataService;
 
+    @MsFileLimit
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #file.getOriginalFilename(), false)", msClass = AttachmentService.class)
     @PostMapping(value = "/issue/upload", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
@@ -46,6 +48,7 @@ public class AttachmentController {
         attachmentService.uploadAttachment(request, file);
     }
 
+    @MsFileLimit
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #file.getOriginalFilename(), false)", msClass = AttachmentService.class)
     @PostMapping(value = "/testcase/upload", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)

@@ -5,15 +5,16 @@ import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.file.annotation.MsFileLimit;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.PluginDTO;
 import io.metersphere.request.PluginRequest;
 import io.metersphere.service.PluginService;
+import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 
 
@@ -24,6 +25,7 @@ public class PluginController {
     @Resource
     private PluginService pluginService;
 
+    @MsFileLimit
     @PostMapping("/add/{scenario}")
     @RequiresPermissions(PermissionConstants.SYSTEM_PLUGIN_UPLOAD)
     @MsAuditLog(module = OperLogModule.PLUGIN_MANAGE, type = OperLogConstants.CREATE, title = "#file.getOriginalFilename()", msClass = PluginService.class)

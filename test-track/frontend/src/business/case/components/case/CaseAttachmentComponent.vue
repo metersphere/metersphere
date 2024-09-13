@@ -91,7 +91,7 @@
     <el-button v-popover:popover icon="el-icon-plus" size="small" class="add-attachment">{{
       $t("case.add_attachment")
     }}</el-button>
-    <div class="opt-tip">{{ $t("case.file_size_limit") }}</div>
+    <div class="opt-tip">{{ $t("case.file_size_limit", {size: uploadSize}) }}</div>
     <div class="attachment-preview">
       <case-attachment-viewer
         :tableData="tableData"
@@ -117,6 +117,7 @@ import {byteToSize, getCurrentUser, getTypeByFileName, hasPermission,} from "@/b
 import axios from "axios";
 import {getUUID} from "metersphere-frontend/src/utils";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import {getUploadSizeLimit} from "metersphere-frontend/src/utils/index";
 
 import {
   attachmentList,
@@ -171,6 +172,9 @@ export default {
     },
     hasProjectFilePermission() {
       return hasPermission("PROJECT_FILE:READ");
+    },
+    uploadSize() {
+      return getUploadSizeLimit();
     }
   },
   watch: {
@@ -200,11 +204,11 @@ export default {
      *  upload file methods
      */
     fileValidator(file) {
-      return file.size < 50 * 1024 * 1024;
+      return file.size < this.uploadSize * 1024 * 1024;
     },
     beforeUpload(file) {
       if (!this.fileValidator(file)) {
-        this.$error(this.$t("case.file_size_out_of_bounds"), false);
+        this.$error(this.$t("case.file_size_out_of_bounds", {size: this.uploadSize}), false);
         return false;
       }
 
@@ -267,7 +271,6 @@ export default {
         // 失败回调
         progress = 100;
         progressCallback({ progress, status: "error" });
-        this.$success(this.$t('attachment.upload_error'), false)
         self.cancelFileToken.forEach((token, index, array) => {
           if (token.name === file.name) {
             array.splice(token, 1);
@@ -287,7 +290,7 @@ export default {
       this.tableData = [...arr];
     },
     handleExceed(files, fileList) {
-      this.$error(this.$t("load_test.file_size_limit"), false);
+      this.$error(this.$t("load_test.file_size_limit", {size: this.uploadSize}), false);
     },
     handleSuccess(response, file, fileList) {
       let readyFiles = fileList.filter((item) => item.status === "ready");

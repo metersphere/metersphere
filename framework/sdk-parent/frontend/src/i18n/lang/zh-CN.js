@@ -1960,7 +1960,7 @@ const message = {
       label: '导入',
       title: '接口测试导入',
       data_format: '数据格式',
-      file_size_limit: '文件大小不超过 50 M',
+      file_size_limit: '文件大小不超过 {size} M',
       support_format: '支持p12,jks,pfx格式',
       tip: '说明',
       export_tip: '导出方法',
