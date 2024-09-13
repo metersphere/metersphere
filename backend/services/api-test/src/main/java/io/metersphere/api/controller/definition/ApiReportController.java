@@ -78,6 +78,14 @@ public class ApiReportController {
         apiReportService.batchDelete(request, SessionUtils.getUserId());
     }
 
+    @PostMapping("/batch-param")
+    @Operation(summary = "接口测试-接口报告-获取用例报告批量参数")
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
+    public List<String> batchParam(@Validated @RequestBody ApiReportBatchRequest request) {
+        return apiReportService.doSelectIds(request);
+    }
+
     @GetMapping("/get/{id}")
     @Operation(summary = "接口测试-接口报告-报告获取")
     @CheckOwner(resourceId = "#id", resourceType = "api_report")

@@ -78,6 +78,14 @@ public class ApiScenarioReportController {
         apiScenarioReportService.batchDelete(request, SessionUtils.getUserId());
     }
 
+    @PostMapping("/batch-param")
+    @Operation(summary = "接口测试-接口报告-获取场景报告批量参数")
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
+    public List<String> batchParam(@Validated @RequestBody ApiReportBatchRequest request) {
+        return apiScenarioReportService.doSelectIds(request);
+    }
+
     @GetMapping("/get/{id}")
     @Operation(summary = "接口测试-接口报告-报告获取")
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario_report")
