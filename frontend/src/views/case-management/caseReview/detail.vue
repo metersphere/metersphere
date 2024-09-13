@@ -35,7 +35,7 @@
         status="default"
         @click="associateDrawerVisible = true"
       >
-        <MsIcon type="icon-icon_link-record_outlined1" class="mr-[8px]" />
+        <MsIcon type="icon-icon_link-record_outlined" class="mr-[8px]" />
         {{ t('ms.case.associate.title') }}
       </MsButton>
       <MsButton v-permission="['CASE_REVIEW:READ+UPDATE']" type="button" status="default" @click="editReview">
