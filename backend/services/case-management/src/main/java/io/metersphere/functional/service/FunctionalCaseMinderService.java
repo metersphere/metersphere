@@ -372,7 +372,7 @@ public class FunctionalCaseMinderService {
             List<FunctionalCase> allChildrenCaseInDB = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(targetCaseParentIdsNoRepeat)) {
                 functionalCaseExample = new FunctionalCaseExample();
-                functionalCaseExample.createCriteria().andModuleIdIn(targetCaseParentIdsNoRepeat);
+                functionalCaseExample.createCriteria().andModuleIdIn(targetCaseParentIdsNoRepeat).andProjectIdEqualTo(request.getProjectId());
                 allChildrenCaseInDB = functionalCaseMapper.selectByExample(functionalCaseExample);
             }
 
@@ -381,14 +381,14 @@ public class FunctionalCaseMinderService {
             List<FunctionalCaseModule> allChildrenByCaseInDB = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(caseModuleIds)) {
                 functionalCaseModuleExample = new FunctionalCaseModuleExample();
-                functionalCaseModuleExample.createCriteria().andParentIdIn(caseModuleIds);
+                functionalCaseModuleExample.createCriteria().andParentIdIn(caseModuleIds).andProjectIdEqualTo(request.getProjectId());;
                 allChildrenByCaseInDB = moduleMapper.selectByExample(functionalCaseModuleExample);
             }
             allChildrenInDB.addAll(allChildrenByCaseInDB);
 
 
             MindAdditionalNodeExample mindAdditionalNodeExample = new MindAdditionalNodeExample();
-            mindAdditionalNodeExample.createCriteria().andIdIn(targetIds);
+            mindAdditionalNodeExample.createCriteria().andIdIn(targetIds).andProjectIdEqualTo(request.getProjectId());;
             List<MindAdditionalNode> mindAdditionalNodes = additionalNodeMapper.selectByExample(mindAdditionalNodeExample);
             Map<String, String> targetTextMap = new HashMap<>();
             List<String> targetTextParentIds = new ArrayList<>();
@@ -423,7 +423,7 @@ public class FunctionalCaseMinderService {
 
             if (CollectionUtils.isNotEmpty(textModuleFilterCaseIds)) {
                 functionalCaseExample = new FunctionalCaseExample();
-                functionalCaseExample.createCriteria().andModuleIdIn(textModuleFilterCaseIds);
+                functionalCaseExample.createCriteria().andModuleIdIn(textModuleFilterCaseIds).andProjectIdEqualTo(request.getProjectId());;
                 List<FunctionalCase> allChildrenCaseByTextInDB = functionalCaseMapper.selectByExample(functionalCaseExample);
                 allChildrenCaseInDB.addAll(allChildrenCaseByTextInDB);
             }
@@ -659,6 +659,7 @@ public class FunctionalCaseMinderService {
                 List<FunctionalCase> oldCase = functionalCaseMapper.selectByExample(functionalCaseExample);
                 Map<String, FunctionalCase> oldCaseMap = oldCase.stream().collect(Collectors.toMap(FunctionalCase::getId, t -> t));
                 FunctionalCaseBlobExample functionalCaseBlobExample = new FunctionalCaseBlobExample();
+                functionalCaseBlobExample.createCriteria().andIdIn(caseIds);
                 List<FunctionalCaseBlob> functionalCaseBlobs = functionalCaseBlobMapper.selectByExample(functionalCaseBlobExample);
                 Map<String, FunctionalCaseBlob> oldBlobMap = functionalCaseBlobs.stream().collect(Collectors.toMap(FunctionalCaseBlob::getId, t -> t));
 
@@ -1035,6 +1036,7 @@ public class FunctionalCaseMinderService {
         functionalCase.setUpdateTime(System.currentTimeMillis());
         functionalCase.setCreateUser(null);
         functionalCase.setCreateTime(null);
+        functionalCase.setTags(null);
         //更新用例
         caseMapper.updateByPrimaryKeySelective(functionalCase);
         return caseMapper.selectByPrimaryKey(functionalCase.getId());
