@@ -41,19 +41,21 @@ public class JmeterParserApiDefinition implements ApiDefinitionImportParser<ApiI
             AbstractMsTestElement msTestElement = parser.parse(hashTree);
             List<AbstractMsProtocolTestElement> msElement = parser.getAbstractMsProtocolTestElement(msTestElement);
             LinkedHashMap<ApiDefinitionDetail, List<ApiTestCaseDTO>> allImportDetails = this.parseImportFile(request.getProjectId(), msElement);
-            return this.genApiDefinitionImport(allImportDetails);
+            String moduleName = StringUtils.trim(parser.parseTestPlanName(hashTree));
+            return this.genApiDefinitionImport(allImportDetails, moduleName);
         } catch (Exception e) {
             LogUtils.error(e);
             throw new MSException("当前JMX版本不兼容");
         }
     }
 
-    private ApiImportFileParseResult genApiDefinitionImport(LinkedHashMap<ApiDefinitionDetail, List<ApiTestCaseDTO>> allImportDetails) {
+    private ApiImportFileParseResult genApiDefinitionImport(LinkedHashMap<ApiDefinitionDetail, List<ApiTestCaseDTO>> allImportDetails, String moduleName) {
         Map<ApiDefinitionDetail, List<ApiTestCaseDTO>> groupWithUniqueIdentification = this.mergeApiCaseWithUniqueIdentification(allImportDetails);
         ApiImportFileParseResult returnDTO = new ApiImportFileParseResult();
         groupWithUniqueIdentification.forEach((definitionImportDetail, caseData) -> {
             String apiID = IDGenerator.nextStr();
             definitionImportDetail.setId(apiID);
+            definitionImportDetail.setModulePath(moduleName);
             returnDTO.getData().add(definitionImportDetail);
             caseData.forEach(item -> {
                 item.setId(IDGenerator.nextStr());

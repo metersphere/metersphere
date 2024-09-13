@@ -2036,7 +2036,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         paramMap.add("file", file);
         this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
         List<ApiDefinitionModule> apiDefinitionModuleList = apiDefinitionModuleMapper.selectByExample(moduleExample);
-        Assertions.assertEquals(0, apiDefinitionModuleList.size());
+        Assertions.assertEquals(1, apiDefinitionModuleList.size());
         List<ApiDefinitionBlob> apiDefinitionBlobs = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
         Assertions.assertEquals(2, apiDefinitionBlobs.size());
 
