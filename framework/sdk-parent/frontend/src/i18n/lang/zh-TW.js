@@ -1959,7 +1959,7 @@ const message = {
       label: '導入',
       title: '接口測試導入',
       data_format: '數據格式',
-      file_size_limit: '文件大小不超過 50 M',
+      file_size_limit: '文件大小不超過 {size} M',
       support_format: '支持p12,jks,pfx格式',
       tip: '說明',
       export_tip: '導出方法',

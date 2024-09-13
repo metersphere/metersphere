@@ -244,7 +244,7 @@
                 </div>
                 <div class="local-upload-tips">
                   <span slot="tip" class="el-upload__tip">
-                    {{ $t("test_track.case.upload_tip") }}
+                    {{ $t("test_track.case.upload_tip", [0, uploadSize]) }}
                   </span>
                 </div>
               </el-col>
@@ -343,31 +343,31 @@ import TestCaseIssueList from "@/business/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/issue/IssueEditDetail";
 import {byteToSize, getTypeByFileName, getUUID,} from "metersphere-frontend/src/utils";
 import {
-    getCurrentProjectID,
-    getCurrentUser,
-    getCurrentUserId,
-    getCurrentWorkspaceId,
+  getCurrentProjectID,
+  getCurrentUser,
+  getCurrentUserId,
+  getCurrentWorkspaceId,
 } from "metersphere-frontend/src/utils/token";
 import {hasLicense, hasPermission,} from "metersphere-frontend/src/utils/permission";
 import {
-    enableThirdPartTemplate,
-    getComments,
-    getFollow,
-    getIssuePartTemplateWithProject,
-    getPlatformFormOption,
-    getPlatformTransitions,
-    getTapdCurrentOwner,
-    getTapdUser,
-    saveFollow,
-    saveOrUpdateIssue,
+  enableThirdPartTemplate,
+  getComments,
+  getFollow,
+  getIssuePartTemplateWithProject,
+  getPlatformFormOption,
+  getPlatformTransitions,
+  getTapdCurrentOwner,
+  getTapdUser,
+  saveFollow,
+  saveOrUpdateIssue,
 } from "@/api/issue";
 import {
-    attachmentList,
-    deleteIssueAttachment,
-    dumpAttachment,
-    relatedIssueAttachment,
-    unrelatedIssueAttachment,
-    uploadIssueAttachment,
+  attachmentList,
+  deleteIssueAttachment,
+  dumpAttachment,
+  relatedIssueAttachment,
+  unrelatedIssueAttachment,
+  uploadIssueAttachment,
 } from "@/api/attachment";
 import CustomFiledFormItem from "metersphere-frontend/src/components/form/CustomFiledFormItem";
 import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
@@ -379,6 +379,7 @@ import axios from "axios";
 import MsFileMetadataList from "metersphere-frontend/src/components/environment/commons/variable/QuoteFileList";
 import MsFileBatchMove from "metersphere-frontend/src/components/environment/commons/variable/FileBatchMove";
 import {parseMdImage, saveMarkDownImg} from "@/business/utils/sdk-utils";
+import {getUploadSizeLimit} from "metersphere-frontend/src/utils/index";
 
 export default {
   name: "IssueEditDetail",
@@ -523,6 +524,9 @@ export default {
     hasProjectFilePermission() {
       return hasPermission("PROJECT_FILE:READ");
     },
+    uploadSize() {
+      return getUploadSizeLimit();
+    }
   },
   watch: {
     tabActiveName() {
@@ -856,11 +860,11 @@ export default {
       }
     },
     fileValidator(file) {
-      return file.size < 50 * 1024 * 1024;
+      return file.size < this.uploadSize * 1024 * 1024;
     },
     beforeUpload(file) {
       if (!this.fileValidator(file)) {
-        this.$error(this.$t("case.file_size_out_of_bounds"), false);
+        this.$error(this.$t("case.file_size_out_of_bounds", {size: this.uploadSize}), false);
         return false;
       }
 
@@ -947,7 +951,7 @@ export default {
       this.tableData = [...arr];
     },
     handleExceed(files, fileList) {
-      this.$error(this.$t("load_test.file_size_limit"));
+      this.$error(this.$t("load_test.file_size_limit", {size: this.uploadSize}), false);
     },
     handleSuccess(response, file, fileList) {
       let readyFiles = fileList.filter((item) => item.status === "success");

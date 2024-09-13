@@ -4,6 +4,7 @@ import {
   ORIGIN_COLOR,
   ORIGIN_COLOR_SHALLOW,
   PRIMARY_COLOR,
+  UPLOAD_LIMIT,
 } from "./constants";
 import i18n from "../i18n";
 import html2canvas from "html2canvas";
@@ -517,4 +518,8 @@ export function getUrlParameterWidthRegExp(name) {
   if (!results) return null;
   if (!results[2]) return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+export function getUploadSizeLimit() {
+  return localStorage.getItem(UPLOAD_LIMIT);
 }

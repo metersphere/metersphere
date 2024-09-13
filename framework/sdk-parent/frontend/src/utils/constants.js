@@ -18,6 +18,7 @@ export const LicenseKey = 'License';
 export const PROJECT_VERSION_ENABLE = 'PROJECT_VERSION_ENABLE';
 export const DEFAULT_LANGUAGE = 'default_language';
 export const CURRENT_LANGUAGE = 'current_language';
+export const UPLOAD_LIMIT = "upload_limit";
 
 export const ROLE_ADMIN = 'admin';
 export const ROLE_ORG_ADMIN = 'org_admin';

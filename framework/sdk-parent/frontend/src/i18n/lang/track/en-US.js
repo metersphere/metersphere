@@ -178,7 +178,7 @@ export default {
       "Disassociating the project will also cancel the associated test cases under the project",
     img_loading_fail: "Image failed to load",
     pdf_loading_fail: "PDF loading failed",
-    upload_tip: "file size limit[0-50MB]",
+    upload_tip: "File size limit [{0}-{1}]MB",
     add_attachment: "Add",
     attachment: "Attachment",
     dump_module: "Please select dump directory",

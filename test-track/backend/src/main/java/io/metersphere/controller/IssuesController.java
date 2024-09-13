@@ -16,6 +16,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.IssuesStatusCountDao;
 import io.metersphere.excel.domain.ExcelResponse;
+import io.metersphere.file.annotation.MsFileLimit;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
@@ -85,6 +86,7 @@ public class IssuesController {
         return PageUtils.setPageInfo(page, issuesService.relateList(request));
     }
 
+    @MsFileLimit
     @PostMapping(value = "/add", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_CREATE)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#issuesRequest)", msClass = IssuesService.class)

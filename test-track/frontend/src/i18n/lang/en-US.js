@@ -106,8 +106,8 @@ const message = {
     commented: "Commented",
     add_attachment: "Add Attachment",
     file_size_limit:
-      "Any type of file is supported, and the file size does not exceed 50MB",
-    file_size_out_of_bounds: "File size does not exceed 50MB",
+      "Any type of file is supported, and the file size does not exceed {size} MB",
+    file_size_out_of_bounds: "File size does not exceed {size} MB",
     upload_at: "upload",
     relate_at: "relate",
     add_steps: "Add Steps",

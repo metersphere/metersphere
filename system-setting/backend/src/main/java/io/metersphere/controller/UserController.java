@@ -13,6 +13,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserGroupPermissionDTO;
 import io.metersphere.excel.domain.ExcelResponse;
+import io.metersphere.file.annotation.MsFileLimit;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
@@ -228,6 +229,7 @@ public class UserController {
         userService.userTemplateExport(response);
     }
 
+    @MsFileLimit
     @PostMapping("/import")
     @MsAuditLog(module = OperLogModule.SYSTEM_USER, type = OperLogConstants.IMPORT)
     public ExcelResponse testCaseImport(MultipartFile file, HttpServletRequest request) {

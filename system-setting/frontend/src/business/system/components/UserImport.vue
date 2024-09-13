@@ -35,7 +35,7 @@
         :file-list="fileList">
         <i class="el-icon-upload"></i>
         <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
-        <div class="el-upload__tip" slot="tip">{{ $t('api_test.api_import.file_size_limit') }}</div>
+        <div class="el-upload__tip" slot="tip">{{ $t('api_test.api_import.file_size_limit', {size: this.uploadSize}) }}</div>
       </el-upload>
     </el-row>
     <el-row>
@@ -54,6 +54,7 @@ import MsTableButton from 'metersphere-frontend/src/components/MsTableButton';
 import {listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {exportUserExample, userImport} from "../../../api/user";
+import {getUploadSizeLimit} from "metersphere-frontend/src/utils/index";
 
 export default {
   name: "UserImport",
@@ -69,6 +70,11 @@ export default {
       isLoading: false
     }
   },
+  computed: {
+    uploadSize() {
+      return getUploadSizeLimit();
+    }
+  },
   methods: {
     handleExceed(files, fileList) {
       this.$warning(this.$t('test_track.case.import.upload_limit_count'));
@@ -79,7 +85,7 @@ export default {
         this.$warning(this.$t('test_track.case.import.upload_limit_format'));
         return false;
       }
-      if (file.size / 1024 / 1024 > 50) {
+      if (file.size / 1024 / 1024 > this.uploadSize) {
         this.$warning(this.$t('commons.upload_limit_size'));
         return false;
       }
