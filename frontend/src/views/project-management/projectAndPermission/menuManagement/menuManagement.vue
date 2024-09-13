@@ -761,17 +761,15 @@
       case MenuEnum.workstation:
         return 'icon-icon_pc_filled';
       case MenuEnum.testPlan:
-        return 'icon-icon_test-tracking_filled';
+        return 'icon-a-icon_test-tracking_filled1';
       case MenuEnum.bugManagement:
         return 'icon-icon_defect';
       case MenuEnum.caseManagement:
-        return 'icon-icon_functional_testing';
+        return 'icon-icon_functional_testing1';
       case MenuEnum.apiTest:
-        return 'icon-icon_api-test-filled';
-      case MenuEnum.uiTest:
-        return 'icon-icon_ui-test-filled';
+        return 'icon-icon_api-test-filled2';
       default:
-        return 'icon-icon_performance-test-filled';
+        return '';
     }
   };
 
