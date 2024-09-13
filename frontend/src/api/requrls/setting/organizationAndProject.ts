@@ -27,6 +27,8 @@ export const getDisableOrgUrl = '/system/organization/disable/';
 export const getDeleteOrgUrl = '/system/organization/delete/';
 // 获取系统默认组织
 export const getOrgDefaultUrl = '/system/organization/default';
+// 系统设置-系统-组织与项目-获取添加成员列表
+export const getMemberListPageUrl = '/system/organization/member-list';
 
 // 系统-项目
 // 更新项目信息
@@ -74,8 +76,6 @@ export const postModifyProjectNameByOrgUrl = '/organization/project/rename';
 export const postAddProjectByOrgUrl = '/organization/project/add';
 // 添加项目成员
 export const postAddProjectMemberByOrgUrl = '/organization/project/add-members';
-// 获取用户列表
-export const getUserTableByOrgIdOrProjectIdUrl = '/organization/project/user-list/';
 // 恢复项目
 export const getRecoverProjectByOrgUrl = '/organization/project/revoke/';
 // 移除项目成员

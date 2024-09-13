@@ -141,7 +141,10 @@
       if (item.children && item.children.length > 0 && !props.rowSelectionDisabledConfig?.disabledChildren) {
         return hasUnselectedChildren(item.children, selectedKeys, rowKey);
       }
-      return !selectedKeys.has(item[rowKey]);
+      return (
+        !selectedKeys.has(item[rowKey]) &&
+        !(props?.rowSelectionDisabledConfig?.disabledKey && item[props?.rowSelectionDisabledConfig?.disabledKey])
+      );
     });
   }
 

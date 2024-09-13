@@ -64,12 +64,7 @@
     :visible="addProjectVisible"
     @cancel="handleAddProjectModalCancel"
   />
-  <AddUserModal
-    :project-id="currentProjectId"
-    :visible="userVisible"
-    @submit="fetchData"
-    @cancel="handleAddUserModalCancel"
-  />
+  <AddUserModal v-model:visible="userVisible" :project-id="currentProjectId" @submit="fetchData" />
   <UserDrawer v-bind="currentUserDrawer" @request-fetch-data="fetchData" @cancel="handleUserDrawerCancel" />
 </template>
 
@@ -301,9 +296,6 @@
     currentUserDrawer.currentName = '';
   };
 
-  const handleAddUserModalCancel = () => {
-    userVisible.value = false;
-  };
   const handleAddProjectModalCancel = (shouldSearch: boolean) => {
     if (shouldSearch) {
       fetchData();

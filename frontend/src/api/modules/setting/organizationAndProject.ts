@@ -85,6 +85,10 @@ export function addUserToOrgOrProject(data: AddUserToOrgOrProjectParams) {
 export function getUserByOrganizationOrProject(sourceId: string, keyword: string) {
   return MSR.get({ url: `${orgUrl.getUserByOrgOrProjectUrl}${sourceId}`, params: { keyword } });
 }
+// 系统设置-系统-组织与项目-获取添加成员列表
+export function getSystemMemberListPage(data: TableQueryParams) {
+  return MSR.post({ url: orgUrl.getMemberListPageUrl, data });
+}
 
 // 系统-获取管理员下拉选项
 export function getAdminByOrganizationOrProject(keyword: string) {
