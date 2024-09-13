@@ -97,6 +97,7 @@ export const RunCaseUrl = '/api/case/run'; // 执行接口用例
 export const GetCaseReportByIdUrl = '/api/report/case/get/'; // 接口用例报告获取
 export const GetCaseReportDetailUrl = '/api/report/case/get/detail/'; // 接口用例报告获取
 export const CaseExportLogUrl = '/api/report/case/export'; // 接口用例导出报告日志记录
+export const CaseBatchExportLogUrl = '/api/report/case/batch-export'; // 接口用例批量导出报告日志记录
 
 /**
  * 接口用例回收站

@@ -3,7 +3,7 @@ import * as reportUrl from '@/api/requrls/test-plan/report';
 
 import type { GetShareId } from '@/models/apiTest/report';
 import { ReportDetail, ReportStepDetail } from '@/models/apiTest/report';
-import { CommonList, TableQueryParams } from '@/models/common';
+import { type BatchApiParams, CommonList, TableQueryParams } from '@/models/common';
 import {
   ApiOrScenarioCaseItem,
   FeatureCaseItem,
@@ -173,4 +173,12 @@ export function getReportLayout(reportId: string, shareId?: string) {
   return MSR.get({ url: `${reportUrl.getReportLayoutUrl}/${reportId}` });
 }
 
-export default {};
+// 导出报告日志
+export function logTestPlanReportExport(reportId: string) {
+  return MSR.post({ url: `${reportUrl.TestPlanReportExportUrl}/${reportId}` });
+}
+
+// 批量导出报告日志
+export function logTestPlanReportBatchExport(data: BatchApiParams) {
+  return MSR.post({ url: reportUrl.TestPlanBatchReportExportUrl, data });
+}

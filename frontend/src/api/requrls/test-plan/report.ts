@@ -68,3 +68,7 @@ export const ManualReportGenUrl = '/test-plan/report/manual-gen';
 export const getReportLayoutUrl = '/test-plan/report/get-layout';
 // 测试计划-报告-详情-获取报告布局-分享
 export const getReportShareLayoutUrl = '/test-plan/report/share/get-layout';
+// 测试计划-报告-导出日志
+export const TestPlanReportExportUrl = '/test-plan/report/export';
+// 测试计划-报告-批量导出日志
+export const TestPlanBatchReportExportUrl = '/test-plan/report/batch-export';

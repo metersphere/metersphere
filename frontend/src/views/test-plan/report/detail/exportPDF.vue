@@ -139,6 +139,7 @@
     getReportShareBugList,
     getReportShareFeatureCaseList,
     getScenarioPage,
+    logTestPlanReportExport,
   } from '@/api/modules/test-plan/report';
   import {
     commonConfig,
@@ -769,8 +770,13 @@
     }
   }
 
+  async function logExport() {
+    await logTestPlanReportExport(route.query.id as string);
+  }
+
   onBeforeMount(() => {
     getDetail();
+    logExport();
   });
 </script>
 

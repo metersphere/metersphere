@@ -80,12 +80,15 @@
         <span>{{ dayjs(record.operationTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
       </template>
       <template #operation="{ record }">
-        <MsButton
-          v-permission="['PROJECT_TEST_PLAN_REPORT:READ+DELETE']"
-          class="!mr-0"
-          @click="handleDelete(record.id, record.name)"
-        >
+        <MsButton v-permission="['PROJECT_TEST_PLAN_REPORT:READ+DELETE']" @click="handleDelete(record.id, record.name)">
           {{ t('ms.comment.delete') }}
+        </MsButton>
+        <MsButton
+          v-permission="['PROJECT_TEST_PLAN_REPORT:READ+EXPORT']"
+          class="!mr-0"
+          @click="() => exportPdf(record, record.integrated)"
+        >
+          {{ t('common.export') }}
         </MsButton>
       </template>
     </ms-base-table>
@@ -93,7 +96,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
@@ -109,6 +111,7 @@
   import { reportBathDelete, reportDelete, reportList, reportRename } from '@/api/modules/test-plan/report';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { useTableStore } from '@/store';
   import useAppStore from '@/store/modules/app';
   import useCacheStore from '@/store/modules/cache/cache';
@@ -118,7 +121,7 @@
   import { BatchApiParams } from '@/models/common';
   import { ReportExecStatus } from '@/enums/apiEnum';
   import { PlanReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
-  import { TestPlanRouteEnum } from '@/enums/routeEnum';
+  import { FullPageEnum, TestPlanRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
@@ -132,6 +135,7 @@
   const keyword = ref<string>('');
   const router = useRouter();
   const route = useRoute();
+  const { openNewPage } = useOpenNewPage();
 
   type ReportShowType = 'All' | 'INDEPENDENT' | 'INTEGRATED';
   const showType = ref<ReportShowType>('All');
@@ -439,6 +443,14 @@
       },
     });
   }
+
+  function exportPdf(record: any, type: boolean) {
+    openNewPage(FullPageEnum.FULL_PAGE_TEST_PLAN_EXPORT_PDF, {
+      id: record.id,
+      type: type ? 'GROUP' : 'TEST_PLAN',
+    });
+  }
+
   const isActivated = computed(() => cacheStore.cacheViews.includes(TestPlanRouteEnum.TEST_PLAN_REPORT));
 
   onBeforeMount(() => {

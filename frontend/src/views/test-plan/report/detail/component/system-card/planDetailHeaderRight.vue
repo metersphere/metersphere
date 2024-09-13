@@ -34,6 +34,7 @@
       class="ml-4 !rounded-[var(--border-radius-small)]"
       @click="exportPdf"
     >
+      <MsIcon type="icon-icon_into-item_outlined" class="mr-2 font-[16px]" />
       {{ t('report.detail.exportPdf') }}
     </MsButton>
   </div>
