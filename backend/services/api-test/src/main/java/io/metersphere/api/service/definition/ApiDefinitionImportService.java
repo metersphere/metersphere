@@ -139,6 +139,7 @@ public class ApiDefinitionImportService {
         if (apiImportDataAnalysisResult.isEmpty()) {
             throw new MSException(Translator.get("parse_empty_data"));
         }
+
         try {
             //初始化版本信息，用于保存，以及以后真对具体版本导入进行拓展
             String defaultVersion = extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId());
@@ -219,6 +220,11 @@ public class ApiDefinitionImportService {
             Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
             List<ApiDefinitionCaseDTO> noticeCreateLists = new ArrayList<>();
             List<ApiDefinitionCaseDTO> noticeUpdateLists = new ArrayList<>();
+            List<ApiDefinitionCaseDTO> noticeCaseCreateLists = new ArrayList<>();
+            List<ApiDefinitionCaseDTO> noticeCaseUpdateLists = new ArrayList<>();
+            List<ApiDefinitionCaseDTO> noticeMockCreateLists = new ArrayList<>();
+            List<ApiDefinitionCaseDTO> noticeMockUpdateLists = new ArrayList<>();
+
             apiDefinitionPreImportAnalysisResult.getInsertModuleList().forEach(t -> {
                 operationLogs.add(ApiDefinitionImportUtils.genImportLog(project, t.getId(), t.getName(), t, OperationLogModule.API_TEST_MANAGEMENT_MODULE, request.getUserId(), OperationLogType.ADD.name()));
             });
@@ -248,12 +254,66 @@ public class ApiDefinitionImportService {
                 operationLogs.add(ApiDefinitionImportUtils.genImportLog(project, t.getId(), t.getName(), apiDefinitionDTO, OperationLogModule.API_TEST_MANAGEMENT_DEFINITION, request.getUserId(), OperationLogType.IMPORT.name()));
             });
 
+            // 更新、修改用例
+            apiDefinitionPreImportAnalysisResult.getInsertApiCaseList().forEach(t -> {
+                ApiTestCaseDTO apiTestCaseDTO = new ApiTestCaseDTO();
+                BeanUtils.copyBean(apiTestCaseDTO, t);
+                ApiDefinitionCaseDTO apiDefinitionCaseDTO = new ApiDefinitionCaseDTO();
+                BeanUtils.copyBean(apiDefinitionCaseDTO, apiTestCaseDTO);
+                noticeCaseCreateLists.add(apiDefinitionCaseDTO);
+                operationLogs.add(ApiDefinitionImportUtils.genImportLog(project, t.getId(), t.getName(), apiTestCaseDTO, OperationLogModule.API_TEST_MANAGEMENT_CASE, request.getUserId(), OperationLogType.IMPORT.name()));
+            });
+
+            apiDefinitionPreImportAnalysisResult.getUpdateApiCaseList().forEach(t -> {
+                ApiTestCaseDTO apiTestCaseDTO = new ApiTestCaseDTO();
+                BeanUtils.copyBean(apiTestCaseDTO, t);
+                ApiDefinitionCaseDTO apiDefinitionCaseDTO = new ApiDefinitionCaseDTO();
+                BeanUtils.copyBean(apiDefinitionCaseDTO, apiTestCaseDTO);
+                noticeCaseUpdateLists.add(apiDefinitionCaseDTO);
+                operationLogs.add(ApiDefinitionImportUtils.genImportLog(project, t.getId(), t.getName(), apiTestCaseDTO, OperationLogModule.API_TEST_MANAGEMENT_CASE, request.getUserId(), OperationLogType.UPDATE.name()));
+            });
+
+            //更新、修改Mock
+            apiDefinitionPreImportAnalysisResult.getInsertApiMockList().forEach(t -> {
+                ApiDefinitionMockDTO apiMockDTO = new ApiDefinitionMockDTO();
+                BeanUtils.copyBean(apiMockDTO, t);
+                ApiDefinitionCaseDTO noticeMockDTO = new ApiDefinitionCaseDTO();
+                BeanUtils.copyBean(noticeMockDTO, apiMockDTO);
+                noticeMockCreateLists.add(noticeMockDTO);
+                operationLogs.add(ApiDefinitionImportUtils.genImportLog(project, t.getId(), t.getName(), apiMockDTO, OperationLogModule.API_TEST_MANAGEMENT_MOCK, request.getUserId(), OperationLogType.IMPORT.name()));
+            });
+
+            apiDefinitionPreImportAnalysisResult.getUpdateApiMockList().forEach(t -> {
+                ApiDefinitionMockDTO apiMockDTO = new ApiDefinitionMockDTO();
+                BeanUtils.copyBean(apiMockDTO, t);
+                ApiDefinitionCaseDTO apiDefinitionCaseDTO = new ApiDefinitionCaseDTO();
+                BeanUtils.copyBean(apiDefinitionCaseDTO, apiMockDTO);
+                noticeMockUpdateLists.add(apiDefinitionCaseDTO);
+                operationLogs.add(ApiDefinitionImportUtils.genImportLog(project, t.getId(), t.getName(), apiMockDTO, OperationLogModule.API_TEST_MANAGEMENT_MOCK, request.getUserId(), OperationLogType.UPDATE.name()));
+            });
+
             //发送通知
-            List<Map> createResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(noticeCreateLists), Map.class));
             User user = userMapper.selectByPrimaryKey(request.getUserId());
+            List<Map> createResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(noticeCreateLists), Map.class));
             commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.CREATE, createResources, user, request.getProjectId());
             List<Map> updateResources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(noticeUpdateLists), Map.class));
             commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.UPDATE, updateResources, user, request.getProjectId());
+            if (CollectionUtils.isNotEmpty(noticeCaseCreateLists)) {
+                List<Map> rsources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(noticeCaseCreateLists), Map.class));
+                commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.CASE_CREATE, rsources, user, request.getProjectId());
+            }
+            if (CollectionUtils.isNotEmpty(noticeCaseUpdateLists)) {
+                List<Map> rsources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(noticeCaseUpdateLists), Map.class));
+                commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.CASE_UPDATE, rsources, user, request.getProjectId());
+            }
+            if (CollectionUtils.isNotEmpty(noticeMockCreateLists)) {
+                List<Map> rsources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(noticeMockCreateLists), Map.class));
+                commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.MOCK_CREATE, rsources, user, request.getProjectId());
+            }
+            if (CollectionUtils.isNotEmpty(noticeMockUpdateLists)) {
+                List<Map> rsources = new ArrayList<>(JSON.parseArray(JSON.toJSONString(noticeMockUpdateLists), Map.class));
+                commonNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.MOCK_UPDATE, rsources, user, request.getProjectId());
+            }
         }
         return operationLogs;
     }
@@ -1015,7 +1075,9 @@ public class ApiDefinitionImportService {
     public List<BaseTreeNode> buildTreeData(String projectId, String protocol) {
         ApiModuleRequest request = new ApiModuleRequest();
         request.setProjectId(projectId);
-        request.setProtocols(List.of(protocol));
+        if (StringUtils.isNotEmpty(protocol)) {
+            request.setProtocols(List.of(protocol));
+        }
         List<BaseTreeNode> apiModuleList = extApiDefinitionModuleMapper.selectBaseByRequest(request);
         return this.buildTreeAndCountResource(apiModuleList, true, Translator.get(UNPLANNED_API));
     }

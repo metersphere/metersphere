@@ -1,7 +1,5 @@
 package io.metersphere.api.service.definition;
 
-import io.metersphere.api.domain.ApiDefinitionModule;
-import io.metersphere.api.domain.ApiDefinitionModuleExample;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.export.ApiExportResponse;
 import io.metersphere.api.mapper.ApiDefinitionModuleMapper;
@@ -24,6 +22,7 @@ import io.metersphere.sdk.util.MsFileUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.constants.ExportConstants;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.manager.ExportTaskManager;
@@ -44,6 +43,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -76,8 +76,19 @@ public class ApiDefinitionExportService {
     private ApiDefinitionLogService apiDefinitionLogService;
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private ApiDefinitionImportService apiDefinitionImportService;
+
     private static final String EXPORT_CASE_TMP_DIR = "tmp";
 
+    private Map<String, String> buildModuleIdPathMap(String projectId) {
+        List<BaseTreeNode> apiModules = apiDefinitionImportService.buildTreeData(projectId, null);
+        Map<String, String> modulePathMap = new HashMap<>();
+        apiModules.forEach(item -> {
+            modulePathMap.put(item.getId(), item.getPath());
+        });
+        return modulePathMap;
+    }
     public ApiExportResponse genApiExportResponse(ApiDefinitionBatchExportRequest request, String type, String userId) {
         List<String> ids = this.getBatchExportApiIds(request, request.getProjectId(), userId);
         if (CollectionUtils.isEmpty(ids)) {
@@ -85,10 +96,7 @@ public class ApiDefinitionExportService {
         }
         List<ApiDefinitionWithBlob> list = this.selectAndSortByIds(ids);
         List<String> moduleIds = list.stream().map(ApiDefinitionWithBlob::getModuleId).toList();
-        ApiDefinitionModuleExample example = new ApiDefinitionModuleExample();
-        example.createCriteria().andIdIn(moduleIds);
-        List<ApiDefinitionModule> definitionModules = apiDefinitionModuleMapper.selectByExample(example);
-        Map<String, String> moduleMap = definitionModules.stream().collect(Collectors.toMap(ApiDefinitionModule::getId, ApiDefinitionModule::getName));
+        Map<String, String> moduleMap = this.buildModuleIdPathMap(request.getProjectId());
         return switch (type.toLowerCase()) {
             case "swagger" -> exportSwagger(request, list, moduleMap);
             case "metersphere" -> exportMetersphere(request, list, moduleMap);
