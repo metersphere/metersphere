@@ -240,7 +240,7 @@
       detailForm.value = cloneDeep(record as RequestParam);
       detailForm.value.name = `copy_${record?.name}`;
       detailForm.value.isCopy = true;
-      environmentId.value = record?.environmentId;
+      environmentId.value = record?.environmentId ?? environmentId.value;
       if (detailForm.value.name.length > 255) {
         detailForm.value.name = detailForm.value.name.slice(0, 255);
       }
@@ -249,7 +249,7 @@
     if (!isCopy && record?.id) {
       isEdit.value = true;
       detailForm.value = cloneDeep(record as RequestParam);
-      environmentId.value = record.environmentId;
+      environmentId.value = record.environmentId ?? environmentId.value;
       detailForm.value.isNew = false;
     }
     appStore.hideLoading();
