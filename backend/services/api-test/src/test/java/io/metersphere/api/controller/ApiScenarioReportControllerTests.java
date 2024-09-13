@@ -86,6 +86,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
     private static final String DELETE = BASIC + "/delete/";
     private static final String GET = BASIC + "/get/";
     private static final String BATCH_DELETE = BASIC + "/batch/delete";
+    private static final String BATCH_PARAM = BASIC + "/batch-param";
     private static final String DETAIL = BASIC + "/get/detail/";
     private static final String EXPORT_REPORT = BASIC + "/export/{0}";
     private static final String BATCH_EXPORT_REPORT = BASIC + "/batch-export";
@@ -189,7 +190,8 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         requestPostPermissionTest(PermissionConstants.PROJECT_API_REPORT_READ, PAGE, request);
     }
 
-    protected ResultActions requestGetWithOk(String url, Object... uriVariables) throws Exception {
+    @Override
+	protected ResultActions requestGetWithOk(String url, Object... uriVariables) throws Exception {
         return mockMvc.perform(getRequestBuilder(url, uriVariables))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -242,6 +244,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         Assertions.assertTrue(apiReport.getDeleted());
         request.setSelectAll(true);
         responsePost(BATCH_DELETE, request);
+        responsePost(BATCH_PARAM, request);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_REPORT_DELETE, BATCH_DELETE, request);
     }
