@@ -754,7 +754,7 @@
     // 用例更新标签
     caseNodeAboveSelectStep.value.setData('resource', [executionResultMap[status].statusText]).render();
     // 更新用例的实际结果节点
-    updateCaseActualResultNode(caseNodeAboveSelectStep.value, content);
+    updateCaseActualResultNode(toRaw(caseNodeAboveSelectStep.value), content);
     // 更新步骤数据：标签和实际结果
     caseNodeAboveSelectStep.value.children.forEach((child: MinderJsonNode) => {
       const step = stepData.value.find((item) => item.id === child.data?.id);
