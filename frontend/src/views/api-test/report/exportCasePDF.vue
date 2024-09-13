@@ -13,7 +13,7 @@
 
   import CaseReportCom from './component/caseReportCom.vue';
 
-  import { logCaseExport } from '@/api/modules/api-test/management';
+  import { logCaseReportExport } from '@/api/modules/api-test/management';
   import { reportCaseDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
   import exportPDF from '@/utils/exportPdf';
@@ -45,7 +45,7 @@
 
   async function logExport() {
     try {
-      await logCaseExport(route.query.id as string);
+      await logCaseReportExport(route.query.id as string);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

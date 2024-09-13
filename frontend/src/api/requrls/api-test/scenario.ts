@@ -42,3 +42,4 @@ export const BatchDeleteScenarioUrl = '/api/scenario/batch-operation/delete';
 export const ExecuteHistoryUrl = '/api/scenario/execute/page'; // 场景执行历史
 export const ScenarioHistoryUrl = '/api/scenario/operation-history/page'; // 场景变更历史
 export const ScenarioExportLogUrl = '/api/report/scenario/export'; // 场景导出报告日志记录
+export const ScenarioBatchExportLogUrl = '/api/report/scenario/batch-export'; // 场景批量导出报告日志记录

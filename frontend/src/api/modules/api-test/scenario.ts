@@ -29,6 +29,7 @@ import {
   MoveModuleUrl,
   RecoverScenarioUrl,
   RecycleScenarioUrl,
+  ScenarioBatchExportLogUrl,
   ScenarioExportLogUrl,
   ScenarioHistoryUrl,
   ScenarioPageUrl,
@@ -69,6 +70,7 @@ import {
 } from '@/models/apiTest/scenario';
 import {
   AddModuleParams,
+  type BatchApiParams,
   CommonList,
   DragSortParams,
   ModuleTreeNode,
@@ -307,6 +309,11 @@ export function getStepProjectInfo(id: string, type: ScenarioStepType) {
 }
 
 // 场景导出报告日志记录
-export function logScenarioExport(reportId: string) {
-  return MSR.get({ url: `${ScenarioExportLogUrl}/${reportId}` });
+export function logScenarioReportExport(reportId: string) {
+  return MSR.post({ url: `${ScenarioExportLogUrl}/${reportId}` });
+}
+
+// 场景导出报告日志记录
+export function logScenarioReportBatchExport(data: BatchApiParams) {
+  return MSR.post({ url: `${ScenarioBatchExportLogUrl}`, data });
 }

@@ -19,6 +19,7 @@ import {
   BatchRecoverApiUrl,
   BatchRecoverCaseUrl,
   BatchUpdateDefinitionUrl,
+  CaseBatchExportLogUrl,
   CaseExportLogUrl,
   CasePageUrl,
   caseTableBatchSyncUrl,
@@ -620,6 +621,11 @@ export function exportApiDefinition(data: ApiDefinitionBatchExportParams, type: 
 }
 
 // 接口用例导出报告日志记录
-export function logCaseExport(reportId: string) {
-  return MSR.get({ url: `${CaseExportLogUrl}/${reportId}` });
+export function logCaseReportExport(reportId: string) {
+  return MSR.post({ url: `${CaseExportLogUrl}/${reportId}` });
+}
+
+// 接口用例导出报告日志记录
+export function logCaseReportBatchExport(data: BatchApiParams) {
+  return MSR.post({ url: `${CaseBatchExportLogUrl}`, data });
 }

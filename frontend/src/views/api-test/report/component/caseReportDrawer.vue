@@ -44,7 +44,7 @@
           class="mr-4 !rounded-[var(--border-radius-small)]"
           @click="exportHandler"
         >
-          <MsIcon type="icon-icon_bottom-align_outlined" class="mr-2 font-[16px]" />
+          <MsIcon type="icon-icon_into-item_outlined" class="mr-2 font-[16px]" />
           {{ t('common.export') }}
         </MsButton>
       </div>

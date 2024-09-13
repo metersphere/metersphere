@@ -71,12 +71,12 @@
         <span>{{ dayjs(record.operationTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
       </template>
       <template #operation="{ record }">
-        <MsButton
-          v-permission="['PROJECT_API_REPORT:READ+DELETE']"
-          class="!mr-0"
-          @click="handleDelete(record.id, record.name)"
-          >{{ t('ms.comment.delete') }}</MsButton
-        >
+        <MsButton v-permission="['PROJECT_API_REPORT:READ+DELETE']" @click="handleDelete(record.id, record.name)">
+          {{ t('ms.comment.delete') }}
+        </MsButton>
+        <MsButton v-permission="['PROJECT_API_REPORT:READ+EXPORT']" @click="() => exportPdf(record, record.integrated)">
+          {{ t('common.export') }}
+        </MsButton>
       </template>
     </ms-base-table>
     <ReportDetailDrawer
@@ -126,6 +126,7 @@
   } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { useTableStore } from '@/store';
   import useAppStore from '@/store/modules/app';
   import { characterLimit } from '@/utils';
@@ -134,6 +135,7 @@
   import { BatchApiParams } from '@/models/common';
   import { ReportExecStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
+  import { FullPageEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
@@ -144,6 +146,7 @@
   const appStore = useAppStore();
   const tableStore = useTableStore();
   const route = useRoute();
+  const { openNewPage } = useOpenNewPage();
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -485,6 +488,18 @@
         showCaseDetailDrawer.value = true;
       }
     }
+  }
+
+  function exportPdf(record: any, type: boolean) {
+    openNewPage(
+      props.moduleType === ReportEnum.API_SCENARIO_REPORT
+        ? FullPageEnum.FULL_PAGE_SCENARIO_EXPORT_PDF
+        : FullPageEnum.FULL_PAGE_API_CASE_EXPORT_PDF,
+      {
+        id: record.id,
+        type: type ? 'GROUP' : 'TEST_PLAN',
+      }
+    );
   }
 
   onMounted(() => {
