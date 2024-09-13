@@ -112,8 +112,8 @@
         <apiStatus :status="filterContent.value" />
       </template>
       <template #createName="{ record }">
-        <a-tooltip :content="`${record.createName}`" position="tl">
-          <div class="one-line-text">{{ characterLimit(record.createName) }}</div>
+        <a-tooltip :content="`${record.createName}`" position="tr">
+          <div class="one-line-text">{{ record.createName }}</div>
         </a-tooltip>
       </template>
       <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
@@ -530,7 +530,7 @@
     },
     {
       title: 'case.tableColumnUpdateUser',
-      dataIndex: 'updateUser',
+      dataIndex: 'updateName',
       showInTable: false,
       showTooltip: true,
       width: 180,
@@ -561,7 +561,6 @@
         placeholderText: t('caseManagement.featureCase.PleaseSelect'),
       },
       showInTable: true,
-      showTooltip: true,
       width: 180,
       showDrag: true,
     },
