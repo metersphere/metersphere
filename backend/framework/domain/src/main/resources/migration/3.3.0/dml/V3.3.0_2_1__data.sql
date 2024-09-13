@@ -11,3 +11,5 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 -- 初始化默认参数文件上传大小
 INSERT INTO system_parameter (param_key, param_value, type) VALUES ('upload.file.size', '50', 'text');
 
+-- 初次安装初始化用户缺少cft_token字段值
+UPDATE user SET cft_token = '/sU3a0dtnm5Ykmyj8LfCjA==' WHERE id = 'admin';
