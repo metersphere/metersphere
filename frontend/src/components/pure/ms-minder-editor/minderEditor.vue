@@ -143,7 +143,8 @@
           minderStore.dispatchEvent(MinderEventName.ENTER_NODE, undefined, undefined, undefined, [selectedNodes[0]]);
         }
       },
-      save: () => {
+      save: (event: KeyboardEvent) => {
+        event.preventDefault();
         minderStore.dispatchEvent(MinderEventName.SAVE_MINDER);
       },
       delete: () => {

@@ -13,7 +13,7 @@
       :can-show-enter-node="canShowEnterNode"
       :can-show-more-menu-node-operation="false"
       :more-menu-other-operation-list="canShowFloatMenu && hasOperationPermission ? moreMenuOtherOperationList : []"
-      :shortcut-list="['expand']"
+      :shortcut-list="['expand', 'enter']"
       disabled
       @node-batch-select="handleNodeBatchSelect"
       @node-select="handleNodeSelect"

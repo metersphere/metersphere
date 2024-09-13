@@ -16,10 +16,12 @@ type ShortcutKey =
   | 'addChildCase'
   | 'addChildModule'
   | 'addSiblingModule'
-  | 'addSiblingCase';
+  | 'addSiblingCase'
+  | 'reviewPass'
+  | 'reviewReject';
 // 快捷键事件映射，combinationShortcuts中定义了组合键事件，key为组合键，value为事件名称；
 type Shortcuts = {
-  [key in ShortcutKey]?: () => void;
+  [key in ShortcutKey]?: (event: KeyboardEvent) => void;
 };
 
 export default function useShortCut(shortcuts: Shortcuts, options: MinderOperationProps) {
@@ -49,7 +51,7 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
       // z: 'undo', // 撤销 TODO:暂时不上撤销和重做
       // y: 'redo', // 重做
       enter: 'enter', // 进入节点
-      save: 'save', // 保存
+      s: 'save', // 保存
     };
     // 定义单键事件
     const singleShortcuts: { [key: string]: ShortcutKey } = {
@@ -63,6 +65,8 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
       s: 'executeToSuccess', // 执行结果为成功
       b: 'executeToBlocked', // 执行结果为阻塞
       e: 'executeToError', // 执行结果为失败
+      p: 'reviewPass', // 评审结果为通过
+      r: 'reviewReject', // 评审结果为失败
       m: 'addSiblingModule', // 添加同级模块
       c: 'addSiblingCase', // 添加同级用例
     };
@@ -72,6 +76,7 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
     };
 
     let action;
+
     if (isCtrlOrCmd && combinationShortcuts[key]) {
       // 执行组合键事件
       action = combinationShortcuts[key];
@@ -86,7 +91,7 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
       action = businessShortcuts[key];
     }
     if (action && shortcuts[action]) {
-      shortcuts[action]!();
+      shortcuts[action]!(event);
     }
   };
 

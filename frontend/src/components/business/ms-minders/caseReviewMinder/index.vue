@@ -13,7 +13,7 @@
       :can-show-enter-node="canShowEnterNode"
       :can-show-more-menu-node-operation="false"
       :more-menu-other-operation-list="canShowFloatMenu ? moreMenuOtherOperationList : []"
-      :shortcut-list="['expand']"
+      :shortcut-list="['expand', 'enter']"
       disabled
       @node-select="handleNodeSelect"
       @node-unselect="handleNodeUnselect"
@@ -94,7 +94,7 @@
           />
         </div>
       </template>
-      <template #shortCutList>
+      <!-- <template #shortCutList>
         <div class="ms-minder-shortcut-trigger-listitem">
           <div>{{ t('common.pass') }}</div>
           <div class="ms-minder-shortcut-trigger-listitem-icon ms-minder-shortcut-trigger-listitem-icon-auto"> P </div>
@@ -103,7 +103,7 @@
           <div>{{ t('common.unPass') }}</div>
           <div class="ms-minder-shortcut-trigger-listitem-icon ms-minder-shortcut-trigger-listitem-icon-auto"> R </div>
         </div>
-      </template>
+      </template> -->
     </MsMinderEditor>
   </div>
 </template>
