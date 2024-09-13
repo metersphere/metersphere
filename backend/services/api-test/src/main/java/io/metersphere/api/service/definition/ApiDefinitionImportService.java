@@ -351,9 +351,9 @@ public class ApiDefinitionImportService {
 
     private void insertApiTestCase(ImportRequest request, List<ApiTestCaseDTO> insertApiCaseData, ApiTestCaseMapper apiTestCaseMapper, ApiTestCaseBlobMapper apiTestCaseBlobMapper, SqlSession sqlSession) {
         insertApiCaseData.forEach(t -> {
+            t.setId(IDGenerator.nextStr());
             ApiTestCase apiTestCase = new ApiTestCase();
             BeanUtils.copyBean(apiTestCase, t);
-            apiTestCase.setId(IDGenerator.nextStr());
             apiTestCase.setProjectId(request.getProjectId());
             apiTestCase.setPos(getImportNextOrder(request.getProjectId()));
             apiTestCase.setNum(NumGenerator.nextNum(request.getProjectId(), ApplicationNumScope.API_DEFINITION));
@@ -383,9 +383,9 @@ public class ApiDefinitionImportService {
                 api = batchApiMapper.selectByPrimaryKey(t.getApiDefinitionId());
                 apiDefinitionIdMap.put(t.getApiDefinitionId(), api);
             }
+            t.setId(IDGenerator.nextStr());
             ApiDefinitionMock apiMock = new ApiDefinitionMock();
             BeanUtils.copyBean(apiMock, t);
-            apiMock.setId(IDGenerator.nextStr());
             apiMock.setProjectId(request.getProjectId());
             apiMock.setExpectNum(String.valueOf(NumGenerator.nextNum(request.getProjectId() + "_" + api.getNum(), ApplicationNumScope.API_MOCK)));
             apiMock.setVersionId(request.getVersionId());
