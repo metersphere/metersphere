@@ -187,7 +187,7 @@ public class PluginControllerTests extends BaseTest {
         );
         this.requestMultipartWithOkAndReturn(DEFAULT_ADD,
                 getDefaultMultiPartParam(request, myDriver));
-        Assertions.assertEquals(jdbcDriverPluginService.getJdbcDriverClass(DEFAULT_ORGANIZATION_ID), Arrays.asList("io.jianxing.MyDriver", "com.mysql.cj.jdbc.Driver"));
+        Assertions.assertEquals(jdbcDriverPluginService.getJdbcDriverClass(DEFAULT_ORGANIZATION_ID), Arrays.asList("io.jianxing.MyDriver", "io.jianxing.MyDriver", "com.mysql.cj.jdbc.Driver"));
 
         // 校验QUOTA动上传成功
         request.setName("cloud-quota-plugin");

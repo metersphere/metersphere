@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.UUID;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 
@@ -37,19 +39,23 @@ public class BaseApiPluginTestService {
         if (hasJdbcPlugin()) {
             return jdbcPlugin;
         }
+        jdbcPlugin = addPlugin("file/jdbc-sampler-v3.x.jar");
+        return jdbcPlugin;
+    }
+
+    public Plugin addPlugin(String filePath) throws IOException {
         PluginUpdateRequest request = new PluginUpdateRequest();
         File jarFile = new File(
-                this.getClass().getClassLoader().getResource("file/jdbc-sampler-v3.x.jar")
+                this.getClass().getClassLoader().getResource(filePath)
                         .getPath()
         );
         FileInputStream inputStream = new FileInputStream(jarFile);
         MockMultipartFile mockMultipartFile = new MockMultipartFile(jarFile.getName(), jarFile.getName(), "jar", inputStream);
-        request.setName("测试jdbc插件");
+        request.setName(UUID.randomUUID().toString());
         request.setGlobal(true);
         request.setEnable(true);
         request.setCreateUser(ADMIN.name());
-        jdbcPlugin = pluginService.add(request, mockMultipartFile);
-        return jdbcPlugin;
+        return pluginService.add(request, mockMultipartFile);
     }
     
 

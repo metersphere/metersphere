@@ -6,8 +6,13 @@ package io.metersphere.system.service;
  */
 public interface PluginChangeService {
     /**
-     * 插件时调用
+     * 插件加载时调用
      * @param pluginId 插件ID
      */
     void handlePluginLoad(String pluginId);
+    /**
+     * 插件卸载时调用
+     * @param pluginId 插件ID
+     */
+    void handlePluginUnLoad(String pluginId);
 }

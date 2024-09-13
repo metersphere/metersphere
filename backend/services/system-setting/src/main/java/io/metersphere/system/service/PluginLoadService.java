@@ -210,6 +210,7 @@ public class PluginLoadService {
      */
     public synchronized void unloadPlugin(String pluginId) {
         if (hasPlugin(pluginId)) {
+            pluginChangeServiceInvoker.handlePluginUnLoad(pluginId);
             msPluginManager.deletePlugin(pluginId);
         }
     }

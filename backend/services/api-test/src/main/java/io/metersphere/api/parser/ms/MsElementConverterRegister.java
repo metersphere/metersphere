@@ -51,8 +51,6 @@ public class MsElementConverterRegister {
         register(BeanShellPreProcessConverter.class);
         register(JDBCPreProcessConverter.class);
         register(JSR223PreProcessConverter.class);
-
-
     }
 
     /**
@@ -69,6 +67,15 @@ public class MsElementConverterRegister {
                  NoSuchMethodException e) {
             handleRegistrationException(elementConverterClass, e);
         }
+    }
+
+    /**
+     *  注销 TestElement 对应的转换器
+     *
+     * @param elementConverterClass 转换器的类
+     */
+    public static void unRegister(Class<? extends AbstractMsElementConverter<? extends TestElement>> elementConverterClass) {
+        parserMap.remove(elementConverterClass);
     }
 
     /**

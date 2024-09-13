@@ -9,6 +9,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.parser.ApiDefinitionImportParser;
+import io.metersphere.api.parser.jmeter.xstream.MsSaveService;
 import io.metersphere.api.parser.ms.MsTestElementParser;
 import io.metersphere.api.utils.ApiDefinitionImportUtils;
 import io.metersphere.plugin.api.spi.AbstractMsProtocolTestElement;
@@ -21,7 +22,6 @@ import io.metersphere.system.service.ApiPluginService;
 import io.metersphere.system.uid.IDGenerator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.save.SaveService;
 import org.apache.jorphan.collections.HashTree;
 
 import java.io.InputStream;
@@ -35,7 +35,7 @@ public class JmeterParserApiDefinition implements ApiDefinitionImportParser<ApiI
     @Override
     public ApiImportFileParseResult parse(InputStream inputSource, ImportRequest request) throws Exception {
         try {
-            Object scriptWrapper = SaveService.loadElement(inputSource);
+            Object scriptWrapper = MsSaveService.loadElement(inputSource);
             HashTree hashTree = this.getHashTree(scriptWrapper);
             MsTestElementParser parser = new MsTestElementParser();
             AbstractMsTestElement msTestElement = parser.parse(hashTree);

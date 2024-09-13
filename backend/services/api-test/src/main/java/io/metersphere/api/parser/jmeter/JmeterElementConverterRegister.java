@@ -64,6 +64,15 @@ public class JmeterElementConverterRegister {
     }
 
     /**
+     *  注销 MsTestElement 对应的转换器
+     *
+     * @param elementConverterClass 转换器的类
+     */
+    public static void unRegister(Class<? extends AbstractJmeterElementConverter<? extends MsTestElement>> elementConverterClass) {
+        parserMap.remove(elementConverterClass);
+    }
+
+    /**
      * 获取对应组件的转换器
      *
      * @param msTestElementClass 组件的类

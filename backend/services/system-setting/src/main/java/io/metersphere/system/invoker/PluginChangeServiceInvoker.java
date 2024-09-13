@@ -24,4 +24,9 @@ public class PluginChangeServiceInvoker implements PluginChangeService {
     public void handlePluginLoad(String pluginId) {
         this.pluginChangeServices.forEach(service -> service.handlePluginLoad(pluginId));
     }
+
+    @Override
+    public void handlePluginUnLoad(String pluginId) {
+        this.pluginChangeServices.forEach(service -> service.handlePluginUnLoad(pluginId));
+    }
 }
