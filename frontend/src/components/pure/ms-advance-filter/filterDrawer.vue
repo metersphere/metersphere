@@ -126,6 +126,15 @@
             v-model:model-value="item.value"
             :data="item.treeSelectData"
             :disabled="isValueDisabled(item)"
+            allow-search
+            :placeholder="t('common.pleaseSelect')"
+            :filter-tree-node="filterTreeNode"
+            :tree-props="{
+              virtualListProps: {
+                height: 200,
+                threshold: 200,
+              },
+            }"
             v-bind="item.treeSelectProps"
           >
             <template #tree-slot-title="node">
@@ -221,6 +230,7 @@
   import { addView, getViewDetail, updateView } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { filterTreeNode } from '@/utils';
 
   import { SelectValue } from '@/models/projectManagement/menuManagement';
   import { FilterType, OperatorEnum, ViewTypeEnum } from '@/enums/advancedFilterEnum';
