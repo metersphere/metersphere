@@ -1,9 +1,9 @@
 package io.metersphere.api.utils;
 
+import io.metersphere.api.parser.jmeter.xstream.MsSaveService;
 import io.metersphere.api.parser.ms.MsTestElementParser;
 import io.metersphere.plugin.api.spi.AbstractMsProtocolTestElement;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
-import org.apache.jmeter.save.SaveService;
 import org.apache.jorphan.collections.HashTree;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer;
@@ -39,7 +39,7 @@ public class MsTestElementParserTest {
                         .getPath()
         );
 
-        Object scriptWrapper = SaveService.loadElement(new FileInputStream(httpJmx));
+        Object scriptWrapper = MsSaveService.loadElement(new FileInputStream(httpJmx));
         HashTree hashTree = getHashTree(scriptWrapper);
         MsTestElementParser parser = new MsTestElementParser();
         AbstractMsTestElement msTestElement = parser.parse(hashTree);
@@ -51,7 +51,7 @@ public class MsTestElementParserTest {
                 this.getClass().getClassLoader().getResource("file/import/jmeter/single.jmx")
                         .getPath()
         );
-        scriptWrapper = SaveService.loadElement(new FileInputStream(httpJmx));
+        scriptWrapper = MsSaveService.loadElement(new FileInputStream(httpJmx));
         hashTree = getHashTree(scriptWrapper);
         parser = new MsTestElementParser();
         msTestElement = parser.parse(hashTree);

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" enabled="true">
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="172474118045900001" enabled="true">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <longProp name="ThreadGroup.delay">0</longProp>
+        <longProp name="ThreadGroup.duration">0</longProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="LoopController" enabled="true">
+          <intProp name="LoopController.loops">1</intProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <TCPSampler guiclass="TCPSamplerGui" testclass="TCPSampler" testname="12312312" enabled="true">
+          <stringProp name="TCPSampler.classname">TCPClientImpl</stringProp>
+          <stringProp name="TCPSampler.ctimeout">5000</stringProp>
+          <boolProp name="TCPSampler.reUseConnection">false</boolProp>
+          <boolProp name="TCPSampler.nodelay">false</boolProp>
+          <stringProp name="TCPSampler.closeConnection">false</stringProp>
+          <stringProp name="TCPSampler.timeout">5000</stringProp>
+          <stringProp name="TCPSampler.request">123123</stringProp>
+          <stringProp name="MS_RESOURCE_ID">913573930622976</stringProp>
+          <stringProp name="MS_STEP_ID">913573930622976</stringProp>
+          <stringProp name="MS_REPORT_ID">172474118045900001</stringProp>
+          <stringProp name="PROJECT_ID">718255970852864</stringProp>
+          <stringProp name="MS_CUSTOM_URL">TCP://null:null</stringProp>
+          <stringProp name="xxx">{&quot;reportId&quot;:&quot;172474118045900001&quot;,&quot;parseDisabledElement&quot;:false,&quot;enableGlobalCookie&quot;:true,&quot;envConfig&quot;:{&quot;id&quot;:&quot;2160780881534976&quot;,&quot;projectId&quot;:&quot;718255970852864&quot;,&quot;name&quot;:&quot;百度云&quot;,&quot;config&quot;:{&quot;commonParams&quot;:{&quot;requestTimeout&quot;:60000,&quot;responseTimeout&quot;:60000},&quot;commonVariables&quot;:[{&quot;key&quot;:&quot;&quot;,&quot;value&quot;:&quot;&quot;,&quot;id&quot;:&quot;aa0d9ff3-e0da-4f24-bf0c-51728e37bcd4&quot;,&quot;paramType&quot;:&quot;CONSTANT&quot;,&quot;enable&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;tags&quot;:[],&quot;notBlankValue&quot;:false,&quot;valid&quot;:false}],&quot;httpConfig&quot;:[{&quot;id&quot;:&quot;4062c143-b73c-4109-bceb-6a60a8067f34&quot;,&quot;protocol&quot;:&quot;https&quot;,&quot;hostname&quot;:&quot;www.baidu.com&quot;,&quot;url&quot;:&quot;https://www.baidu.com&quot;,&quot;type&quot;:&quot;NONE&quot;,&quot;pathMatchRule&quot;:{&quot;condition&quot;:&quot;CONTAINS&quot;,&quot;path&quot;:&quot;&quot;},&quot;moduleMatchRule&quot;:{&quot;modules&quot;:[]},&quot;headers&quot;:[],&quot;description&quot;:&quot;&quot;,&quot;order&quot;:1,&quot;authConfig&quot;:{&quot;authType&quot;:&quot;NONE&quot;,&quot;basicAuth&quot;:{&quot;userName&quot;:&quot;&quot;,&quot;password&quot;:&quot;&quot;,&quot;valid&quot;:false},&quot;digestAuth&quot;:{&quot;userName&quot;:&quot;&quot;,&quot;password&quot;:&quot;&quot;,&quot;valid&quot;:false},&quot;httpauthValid&quot;:false},&quot;moduleMatchRuleOrder&quot;:2}],&quot;dataSources&quot;:[{&quot;id&quot;:&quot;1ab74c5f-eea2-4d35-9bbc-e8e17e96185e&quot;,&quot;dataSource&quot;:&quot;DM&quot;,&quot;driver&quot;:&quot;dm.jdbc.driver.DmDriver&quot;,&quot;driverId&quot;:&quot;dm.jdbc.driver.DmDriver&amp;dm.jdbc.driver.DmDriver&quot;,&quot;dbUrl&quot;:&quot;jdbc:dm://123.56.8.132:5236/SYS&quot;,&quot;username&quot;:&quot;SYSDBA&quot;,&quot;password&quot;:&quot;SYSDBA001&quot;,&quot;poolMax&quot;:1,&quot;timeout&quot;:1000}],&quot;hostConfig&quot;:{&quot;enable&quot;:false,&quot;hosts&quot;:[{&quot;ip&quot;:null,&quot;domain&quot;:null,&quot;description&quot;:null}]},&quot;preProcessorConfig&quot;:{&quot;apiProcessorConfig&quot;:{&quot;planProcessorConfig&quot;:{&quot;processors&quot;:[]},&quot;scenarioProcessorConfig&quot;:{&quot;processors&quot;:[]},&quot;requestProcessorConfig&quot;:{&quot;processors&quot;:[]}}},&quot;postProcessorConfig&quot;:{&quot;apiProcessorConfig&quot;:{&quot;planProcessorConfig&quot;:{&quot;processors&quot;:[]},&quot;scenarioProcessorConfig&quot;:{&quot;processors&quot;:[]},&quot;requestProcessorConfig&quot;:{&quot;processors&quot;:[]}}},&quot;assertionConfig&quot;:{&quot;assertions&quot;:[]},&quot;pluginConfigMap&quot;:{}},&quot;mock&quot;:false,&quot;description&quot;:null},&quot;globalParams&quot;:null,&quot;retryOnFail&quot;:false,&quot;retryConfig&quot;:null,&quot;testElementClassPluginIdMap&quot;:{&quot;io.metersphere.plugin.sofa.rpc.SofaRpcSamplerModule&quot;:&quot;sofa-rpc-sampler&quot;,&quot;io.metersphere.plugin.sampler.MsSpxTradeSampler&quot;:&quot;SpxSampler&quot;,&quot;io.metersphere.plugin.redis.mode.RedisSamplerModule&quot;:&quot;redis-sampler&quot;,&quot;io.metersphere.plugin.mongo.mode.MongoSamplerModule&quot;:&quot;metersphere-plugin-mongo&quot;,&quot;io.metersphere.plugin.tcp.TCPSamplerModule&quot;:&quot;tcp-sampler&quot;},&quot;testElementClassProtocolMap&quot;:{&quot;io.metersphere.plugin.sofa.rpc.SofaRpcSamplerModule&quot;:&quot;MongoDB&quot;,&quot;io.metersphere.plugin.sampler.MsSpxTradeSampler&quot;:&quot;MongoDB&quot;,&quot;io.metersphere.plugin.redis.mode.RedisSamplerModule&quot;:&quot;MongoDB&quot;,&quot;io.metersphere.plugin.mongo.mode.MongoSamplerModule&quot;:&quot;MongoDB&quot;,&quot;io.metersphere.plugin.tcp.TCPSamplerModule&quot;:&quot;MongoDB&quot;}}</stringProp>
+        </TCPSampler>
+        <hashTree>
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="脚本名称" enabled="true">
+            <boolProp name="cacheKey">false</boolProp>
+            <stringProp name="PROJECT_ID">718255970852864</stringProp>
+            <stringProp name="script">log.info(&quot;=======&quot;);</stringProp>
+            <stringProp name="scriptLanguage">beanshell</stringProp>
+          </JSR223PostProcessor>
+          <hashTree/>
+        </hashTree>
+        <DebugSampler guiclass="TestBeanGUI" testclass="DebugSampler" testname="RunningDebugSampler" enabled="true">
+          <boolProp name="displayJMeterProperties">false</boolProp>
+          <boolProp name="displayJMeterVariables">true</boolProp>
+          <boolProp name="displaySystemProperties">false</boolProp>
+        </DebugSampler>
+        <hashTree/>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

@@ -11,7 +11,10 @@ public class MsPluginManager extends DefaultPluginManager {
     @Override
     protected ExtensionFinder createExtensionFinder() {
         DefaultExtensionFinder extensionFinder = (DefaultExtensionFinder) super.createExtensionFinder();
+        // 添加 jdbc 驱动支持
         extensionFinder.add(new JdbcDriverServiceProviderExtensionFinder(this));
+        // 添加 SPI 支持
+        extensionFinder.addServiceProviderExtensionFinder();
         return extensionFinder;
     }
 
