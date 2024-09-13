@@ -363,8 +363,9 @@
     </sql>
 
     <sql id="combine">
-        <trim prefix="AND" suffixOverrides="AND|OR">
-            <if test="${combineSearch} != null">
+        <trim prefix="AND">
+            <trim prefix="(" suffix=")" suffixOverrides="AND|OR">
+                <if test="${combineSearch} != null">
                 <foreach collection="${combineSearch}.userViewConditions" item="condition">
                     <if test="condition.name == 'createUser'">
                         <include refid="io.metersphere.system.mapper.BaseMapper.condition">
@@ -425,6 +426,7 @@
                     <property name="combineSearch" value="${combineSearch}"/>
                 </include>
             </if>
+            </trim>
         </trim>
     </sql>
 

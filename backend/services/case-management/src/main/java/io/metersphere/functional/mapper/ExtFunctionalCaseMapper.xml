@@ -282,74 +282,76 @@
     </sql>
 
     <sql id="combine">
-        <trim prefix="AND" suffixOverrides="AND|OR">
-            <if test="${combineSearch} != null">
-                <foreach collection="${combineSearch}.userViewConditions" item="condition">
-                    <if test="condition.name == 'createUser'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="functional_case.create_user"/>
+        <trim prefix="AND">
+            <trim prefix="(" suffix=")" suffixOverrides="AND|OR">
+                <if test="${combineSearch} != null">
+                    <foreach collection="${combineSearch}.userViewConditions" item="condition">
+                        <if test="condition.name == 'createUser'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="functional_case.create_user"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'follower'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
+                                <property name="mainIdColumn" value="functional_case.id"/>
+                                <property name="associationTable" value="functional_case_follower"/>
+                                <property name="associationIdColumn" value="case_id"/>
+                                <property name="searchColumn" value="user_id"/>
+                                <property name="condition" value="condition"/>
+                            </include>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
                         </include>
-                    </if>
-                    <if test="condition.name == 'follower'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
-                            <property name="mainIdColumn" value="functional_case.id"/>
-                            <property name="associationTable" value="functional_case_follower"/>
-                            <property name="associationIdColumn" value="case_id"/>
-                            <property name="searchColumn" value="user_id"/>
+                    </foreach>
+                    <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
                             <property name="condition" value="condition"/>
+                            <property name="tablePrefix" value="functional_case"/>
                         </include>
-                    </if>
-                    <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
-                        <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        <if test="condition.name == 'reviewStatus'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="functional_case.review_status"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'lastExecuteResult'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="functional_case.last_execute_result"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'demand'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
+                                <property name="mainIdColumn" value="functional_case.id"/>
+                                <property name="associationTable" value="functional_case_demand"/>
+                                <property name="associationIdColumn" value="case_id"/>
+                                <property name="searchColumn" value="demand_name"/>
+                                <property name="condition" value="condition"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'attachment'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
+                                <property name="mainIdColumn" value="functional_case.id"/>
+                                <property name="associationTable" value="functional_case_attachment"/>
+                                <property name="associationIdColumn" value="case_id"/>
+                                <property name="searchColumn" value="file_name"/>
+                                <property name="condition" value="condition"/>
+                            </include>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                    <include refid="io.metersphere.system.mapper.BaseMapper.customFiledConditions">
+                        <property name="mainIdColumn" value="functional_case.id"/>
+                        <property name="associationTable" value="functional_case_custom_field"/>
+                        <property name="associationIdColumn" value="case_id"/>
+                        <property name="combineSearch" value="${combineSearch}"/>
                     </include>
-                </foreach>
-                <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
-                    <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
-                        <property name="condition" value="condition"/>
-                        <property name="tablePrefix" value="functional_case"/>
-                    </include>
-                    <if test="condition.name == 'reviewStatus'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="functional_case.review_status"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'lastExecuteResult'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="condition" value="condition"/>
-                            <property name="column" value="functional_case.last_execute_result"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'demand'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
-                            <property name="mainIdColumn" value="functional_case.id"/>
-                            <property name="associationTable" value="functional_case_demand"/>
-                            <property name="associationIdColumn" value="case_id"/>
-                            <property name="searchColumn" value="demand_name"/>
-                            <property name="condition" value="condition"/>
-                        </include>
-                    </if>
-                    <if test="condition.name == 'attachment'">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
-                            <property name="mainIdColumn" value="functional_case.id"/>
-                            <property name="associationTable" value="functional_case_attachment"/>
-                            <property name="associationIdColumn" value="case_id"/>
-                            <property name="searchColumn" value="file_name"/>
-                            <property name="condition" value="condition"/>
-                        </include>
-                    </if>
-                    <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
-                        <property name="searchMode" value="${combineSearch}.searchMode"/>
-                    </include>
-                </foreach>
-                <include refid="io.metersphere.system.mapper.BaseMapper.customFiledConditions">
-                    <property name="mainIdColumn" value="functional_case.id"/>
-                    <property name="associationTable" value="functional_case_custom_field"/>
-                    <property name="associationIdColumn" value="case_id"/>
-                    <property name="combineSearch" value="${combineSearch}"/>
-                </include>
-            </if>
+                </if>
+            </trim>
         </trim>
     </sql>
 
