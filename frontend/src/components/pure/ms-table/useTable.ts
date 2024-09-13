@@ -365,6 +365,7 @@ export default function useTableProps<T>(
   };
   const collectIds = (data: MsTableDataItem<T>[], rowKey: string) => {
     data.forEach((item: MsTableDataItem<T>) => {
+      // 有数据没有勾选上，且该数据没有被禁用
       if (
         item[rowKey] &&
         !propsRes.value.selectedKeys.has(item[rowKey]) &&
