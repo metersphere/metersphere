@@ -171,9 +171,14 @@
     await getTemplateOptions();
   };
 
-  onBeforeMount(() => {
-    initDefaultFields();
-  });
+  watch(
+    () => showBugDrawer.value,
+    (val) => {
+      if (val) {
+        initDefaultFields();
+      }
+    }
+  );
 </script>
 
 <style scoped></style>

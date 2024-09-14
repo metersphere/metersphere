@@ -957,7 +957,6 @@ export function customFieldDataToTableData(customFieldData: Record<string, any>[
   if (!customFieldData || !customFields) return {};
 
   const tableData: Record<string, any> = {};
-
   customFieldData.forEach((field) => {
     const customField = customFields.find((item) => item.fieldId === field.id);
     if (!customField) return;

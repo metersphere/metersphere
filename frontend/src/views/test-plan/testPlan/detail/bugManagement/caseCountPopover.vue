@@ -79,7 +79,7 @@
     columns,
     size: 'mini',
     tableKey: TableKeyEnum.TEST_PLAN_DETAIL_BUG_TABLE_CASE_COUNT,
-    scroll: { x: '100%' },
+    scroll: { x: '100%', y: 400 },
     showSelectorAll: false,
     heightUsed: 340,
     showPagination: false,
