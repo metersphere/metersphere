@@ -92,7 +92,7 @@
     <select id="getIdsBySort" resultType="java.lang.String">
         SELECT id
         FROM api_definition
-        where project_id = #{projectId} and deleted is false
+        where project_id = #{projectId} and deleted = #{deleted}
         <if test="protocols != null and protocols.size() > 0">
             AND protocol in
             <foreach collection="protocols" item="protocol" separator="," open="(" close=")">
@@ -281,6 +281,8 @@
 
         <include refid="combine">
             <property name="combineSearch" value="request.combineSearch"/>
+            <property name="projectId" value="${request.projectId}"/>
+            <property name="deleted" value="${request.deleted}"/>
         </include>
 
         <include refid="queryVersionCondition">
@@ -415,6 +417,47 @@
                             <property name="column" value="api_definition.path"/>
                         </include>
                     </if>
+                    <if test="condition.name == 'caseTotal'">
+                        <choose>
+                            <when test="condition.operator == 'NOT_EMPTY'">
+                                api_definition.id in (
+                                    select api_definition_id from api_test_case where deleted = ${deleted}
+                                    and project_id = '${projectId}'
+                                )
+                            </when>
+                            <when test="condition.operator == 'EMPTY'">
+                                api_definition.id not in (
+                                    select api_definition_id from api_test_case where deleted = ${deleted}
+                                    and project_id = '${projectId}'
+                                )
+                            </when>
+                            <when test="(condition.operator == 'LT' and condition.value &lt; 1) or (condition.operator == 'EQUALS' and condition.value &lt; 0)">
+                                1=2
+                            </when>
+                            <otherwise>
+                                <if test="condition.operator == 'LT' or (condition.operator == 'EQUALS' and condition.value == 0)">
+                                    api_definition.id not in (
+                                        select api_definition_id from api_test_case where deleted = ${deleted}
+                                        and project_id = '${projectId}'
+                                    )
+                                    <if test="condition.value &gt; 1">
+                                        OR
+                                    </if>
+                                </if>
+                                <if test="(condition.operator == 'EQUALS' and condition.value &gt; 0) or (condition.operator == 'LT' and condition.value &gt; 1) or condition.operator == 'GT'">
+                                    api_definition.id in (
+                                        select api_definition_id from api_test_case where deleted = ${deleted}
+                                        and project_id = '${projectId}'
+                                        group by api_definition_id having
+                                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                            <property name="condition" value="condition"/>
+                                            <property name="column" value="count(id)"/>
+                                        </include>
+                                    )
+                                </if>
+                            </otherwise>
+                        </choose>
+                    </if>
                     <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
                         <property name="searchMode" value="${combineSearch}.searchMode"/>
                     </include>
@@ -453,8 +496,10 @@
     <sql id="queryWhereConditionByBaseQueryRequest">
         <include refid="combine">
             <property name="combineSearch" value="request.condition.combineSearch"/>
+            <property name="projectId" value="${projectId}"/>
+            <property name="deleted" value="${deleted}"/>
         </include>
-        <if test="request.condition.keyword != null">
+        <if test="request.condition.keyword != null and request.condition.keyword != ''">
             and (
             api_definition.num like concat('%', #{request.condition.keyword},'%')
             or api_definition.name like concat('%', #{request.condition.keyword},'%')

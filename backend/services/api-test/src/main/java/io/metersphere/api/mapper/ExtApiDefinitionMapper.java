@@ -34,7 +34,7 @@ public interface ExtApiDefinitionMapper {
     List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("protocols") List<String> protocols, @Param("deleted") boolean deleted);
 
     @BaseConditionFilter
-    List<String> getIdsBySort(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("protocols") List<String> protocols, @Param("orderColumns") String orderColumns);
+    List<String> getIdsBySort(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("protocols") List<String> protocols, @Param("orderColumns") String orderColumns, @Param("deleted") boolean deleted);
 
     List<String> getRefIds(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
 
