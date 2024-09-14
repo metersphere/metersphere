@@ -14,7 +14,7 @@
       @popup-visible-change="popupVisibleChange"
     >
       <a-button
-        v-permission="['PROJECT_BUG:READ+ADD']"
+        v-permission="['PROJECT_BUG:READ']"
         :class="`${isSelected ? 'selected-class' : 'operation-button'} arco-btn-outline--secondary ml-[8px] !p-[4px]`"
         type="outline"
         size="small"

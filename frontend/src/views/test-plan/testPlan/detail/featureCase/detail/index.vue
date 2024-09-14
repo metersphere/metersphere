@@ -234,6 +234,12 @@
         caseId: activeCaseId,
         testPlanId:route.query.id as string,
       }"
+    :fill-config="{
+      isQuickFillContent: true,
+      detailId: activeId,
+      name: planDetail.name,
+    }"
+    :case-type="CaseLinkEnum.FUNCTIONAL"
     @success="loadBugListAndCaseDetail"
   />
 </template>
@@ -278,7 +284,7 @@
   import type { TableQueryParams } from '@/models/common';
   import type { ExecuteHistoryItem, PlanDetailFeatureCaseItem, TestPlanDetail } from '@/models/testPlan/testPlan';
   import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
-  import { LastExecuteResults } from '@/enums/caseEnum';
+  import { CaseLinkEnum, LastExecuteResults } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import {
