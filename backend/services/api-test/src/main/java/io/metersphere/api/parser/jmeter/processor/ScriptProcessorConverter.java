@@ -38,16 +38,6 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
         String name = StringUtils.isEmpty(scriptProcessor.getName()) ? scriptProcessor.getClass().getSimpleName() : scriptProcessor.getName();
         testElement.setName(name);
 
-        // 设置环境变量
-        ApiParamConfig apiParamConfig = (ApiParamConfig) config;
-        EnvironmentInfoDTO envConfig = apiParamConfig.getEnvConfig(scriptProcessor.getProjectId());
-        if (envConfig != null) {
-            String envId = envConfig.getId();
-            if (StringUtils.isNotEmpty(scriptProcessor.getScript())) {
-                scriptProcessor.setScript(StringUtils.replace(scriptProcessor.getScript(), ENV_VARIABLE_EXPRESSION, "\"" + MS_RUNNING_ENV_PREFIX + envId + ".\""));
-            }
-        }
-
         // python 和 js cache 打开
         boolean cacheKey = StringUtils.equalsAny(scriptProcessor.getScriptLanguage(), ScriptLanguageType.PYTHON.name(), ScriptLanguageType.JAVASCRIPT.name());
         testElement.setProperty(JmeterProperty.CACHE_KEY, cacheKey);
@@ -64,6 +54,17 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
             scriptLanguage = scriptProcessor.getCommonScriptInfo().getScriptLanguage();
             script = scriptProcessor.getCommonScriptInfo().getScript();
         }
+
+        // 设置环境变量
+        ApiParamConfig apiParamConfig = (ApiParamConfig) config;
+        EnvironmentInfoDTO envConfig = apiParamConfig.getEnvConfig(scriptProcessor.getProjectId());
+        if (envConfig != null) {
+            String envId = envConfig.getId();
+            if (StringUtils.isNotEmpty(script)) {
+                script = StringUtils.replace(script, ENV_VARIABLE_EXPRESSION, "\"" + MS_RUNNING_ENV_PREFIX + envId + ".\"");
+            }
+        }
+
         if (scriptLanguage == null || StringUtils.equalsIgnoreCase(scriptLanguage, ScriptLanguageType.BEANSHELL_JSR233.name())) {
             scriptLanguage = ScriptLanguageType.BEANSHELL.name();
         }
