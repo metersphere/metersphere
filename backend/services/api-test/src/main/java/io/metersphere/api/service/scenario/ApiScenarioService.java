@@ -1743,7 +1743,9 @@ public class ApiScenarioService extends MoveNodeService {
         ApiScenarioStep step = apiScenarioStepMapper.selectByPrimaryKey(stepId);
         StepParser stepParser = StepParserFactory.getStepParser(step.getStepType());
         Object stepDetail = stepParser.parseDetail(step);
-        if (stepDetail instanceof AbstractMsTestElement msTestElement) {
+        if (stepDetail instanceof MsScriptElement msScriptElement) {
+            apiCommonService.setEnableCommonScriptProcessorInfo(msScriptElement);
+        } else if (stepDetail instanceof AbstractMsTestElement msTestElement) {
             // 设置关联的文件的最新信息
             if (isRef(step.getRefType())) {
                 if (isApi(step.getStepType())) {
@@ -1756,10 +1758,7 @@ public class ApiScenarioService extends MoveNodeService {
                 }
             }
             apiCommonService.setLinkFileInfo(step.getId(), msTestElement);
-
             apiCommonService.setEnableCommonScriptProcessorInfo(msTestElement);
-        } else if (stepDetail instanceof MsScriptElement msScriptElement) {
-            apiCommonService.setEnableCommonScriptProcessorInfo(msScriptElement);
         }
         return JSON.parseObject(JSON.toJSONString(stepDetail));
     }
