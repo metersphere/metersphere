@@ -397,7 +397,11 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             body.setJsonSchema(jsonSchemaItem);
             body.setFormat("JSON-SCHEMA");
         } else if (StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_XML_VALUE)) {
-            body.setRaw(parseXmlBody(schema, bodyData));
+            try {
+                body.setRaw(parseXmlBody(schema, bodyData));
+            } catch (Exception e) {
+                body.setRaw(e.getMessage());
+            }
         } else if (StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE)) {
             parseKvBody(schema, body, bodyData, infoMap);
         } else {
