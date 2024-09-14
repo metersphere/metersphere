@@ -2,8 +2,8 @@
   <MsDrawer
     v-model:visible="showBugDrawer"
     :mask="true"
-    :title="t('caseManagement.featureCase.createDefect')"
-    :ok-text="t('common.confirm')"
+    :title="t('case.saveContinueText')"
+    :ok-text="t('common.create')"
     :ok-loading="drawerLoading"
     :width="850"
     :mask-closable="true"
