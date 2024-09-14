@@ -316,8 +316,12 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
             case MediaType.APPLICATION_XML_VALUE -> {
                 body.setBodyType(Body.BodyType.XML.name());
                 XmlBody xml = new XmlBody();
-                String xmlBody = parseXmlBody(value, jsonSchemaItem);
-                xml.setValue(xmlBody);
+                try {
+                    String xmlBody = parseXmlBody(value, jsonSchemaItem);
+                    xml.setValue(xmlBody);
+                } catch (Exception e) {
+                    xml.setValue(e.getMessage());
+                }
                 body.setXmlBody(xml);
             }
             case MediaType.MULTIPART_FORM_DATA_VALUE -> {
