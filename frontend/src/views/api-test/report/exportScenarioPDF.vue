@@ -1,7 +1,13 @@
 <template>
-  <a-spin :loading="loading" :tip="t('report.detail.exportingPdf')" class="report-detail-container">
+  <a-spin
+    :loading="batchLoading || loading"
+    :tip="batchLoading ? batchExportTip : t('report.detail.exportingPdf')"
+    class="report-detail-container"
+  >
     <div id="report-detail" class="report-detail">
-      <div class="mb-[16px] rounded-[var(--border-radius-small)] bg-white p-[16px]">{{ reportStepDetail?.name }}</div>
+      <div class="mb-[16px] break-all rounded-[var(--border-radius-small)] bg-white p-[16px]">
+        {{ reportStepDetail?.name }}
+      </div>
       <ScenarioCom :detail-info="reportStepDetail" is-export />
     </div>
   </a-spin>
@@ -14,11 +20,16 @@
   import ScenarioCom from './component/scenarioCom.vue';
 
   import { reportScenarioDetail } from '@/api/modules/api-test/report';
-  import { logScenarioReportExport } from '@/api/modules/api-test/scenario';
+  import {
+    getScenarioBatchExportParams,
+    logScenarioReportBatchExport,
+    logScenarioReportExport,
+  } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import exportPDF from '@/utils/exportPdf';
 
   import { ReportDetail } from '@/models/apiTest/report';
+  import { BatchApiParams } from '@/models/common';
 
   const route = useRoute();
   const { t } = useI18n();
@@ -26,33 +37,75 @@
   const loading = ref(false);
   const reportStepDetail = ref<ReportDetail>();
 
-  async function initReportDetail() {
+  async function initReportDetail(id?: string) {
     try {
       loading.value = true;
-      reportStepDetail.value = await reportScenarioDetail(route.query.id as string);
-      setTimeout(() => {
-        nextTick(async () => {
-          await exportPDF(reportStepDetail.value?.name || '', 'report-detail');
-          loading.value = false;
-          Message.success(t('report.detail.exportPdfSuccess'));
-        });
-      }, 500);
+      reportStepDetail.value = await reportScenarioDetail(id || (route.query.id as string));
+      await new Promise((resolve) => {
+        setTimeout(async () => {
+          await nextTick(async () => {
+            await exportPDF(reportStepDetail.value?.name || '', 'report-detail');
+            loading.value = false;
+            Message.success(t('report.detail.exportPdfSuccess'));
+            resolve(true);
+          });
+        }, 500); // TODO:树组件渲染延迟导致导出 pdf 时内容不全，暂时延迟 500ms
+      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
     }
   }
 
-  async function logExport() {
-    try {
+  async function logExport(params?: BatchApiParams) {
+    if (params) {
+      await logScenarioReportBatchExport(params);
+    } else {
       await logScenarioReportExport(route.query.id as string);
+    }
+  }
+
+  const batchLoading = ref<boolean>(false);
+  const batchIds = ref<string[]>([]);
+  const exportCurrent = ref<number>(0);
+  const exportTotal = ref<number>(0);
+  const batchExportTip = computed(() =>
+    t('report.detail.batchExportingPdf', { current: exportCurrent.value, total: exportTotal.value })
+  );
+
+  async function initBatchIds(params: BatchApiParams) {
+    try {
+      batchLoading.value = true;
+      batchIds.value = await getScenarioBatchExportParams(params);
+      exportTotal.value = batchIds.value.length;
+      while (batchIds.value.length > 0) {
+        exportCurrent.value += 1;
+        // eslint-disable-next-line no-await-in-loop
+        await initReportDetail(batchIds.value.shift());
+      }
+      nextTick(() => {
+        // 等最后一条成功提示后清空
+        Message.clear();
+        Message.success(t('report.detail.batchExportPdfSuccess'));
+      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      batchLoading.value = false;
     }
   }
 
   onBeforeMount(() => {
+    window.addEventListener('message', (event) => {
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+      // 初始化批量导出报告 id 集合
+      const batchParams = event.data;
+      initBatchIds(batchParams);
+      logExport(batchParams);
+    });
     if (route.query.id) {
       initReportDetail();
       logExport();

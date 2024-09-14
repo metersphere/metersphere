@@ -77,7 +77,11 @@
                     <div v-show="step.code" class="mr-2 text-[var(--color-text-4)]">
                       {{ t('report.detail.api.statusCode') }}</div
                     >
-                    <div v-show="step.code" class="max-w-[200px]" :style="{ color: statusCodeColor(step.code) }">
+                    <div
+                      v-show="step.code"
+                      class="max-w-[200px] break-all"
+                      :style="{ color: statusCodeColor(step.code) }"
+                    >
                       {{ step.code || '-' }}
                     </div>
                   </div>

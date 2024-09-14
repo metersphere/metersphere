@@ -235,6 +235,9 @@
   const activeTab = ref<'tiled' | 'tab'>('tiled');
 
   function getRote(count: number, countTotal: number) {
+    if (Number.isNaN(count) || Number.isNaN(countTotal) || countTotal === 0) {
+      return '0.00';
+    }
     return (((count || 0) / countTotal) * 100).toFixed(2);
   }
   function initOptionsData() {

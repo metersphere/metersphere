@@ -1,7 +1,13 @@
 <template>
-  <a-spin :loading="loading" :tip="t('report.detail.exportingPdf')" class="report-detail-container">
+  <a-spin
+    :loading="batchLoading || loading"
+    :tip="batchLoading ? batchExportTip : t('report.detail.exportingPdf')"
+    class="report-detail-container"
+  >
     <div id="report-detail" class="report-detail">
-      <div class="mb-[16px] rounded-[var(--border-radius-small)] bg-white p-[16px]">{{ reportStepDetail?.name }}</div>
+      <div class="mb-[16px] break-all rounded-[var(--border-radius-small)] bg-white p-[16px]">
+        {{ reportStepDetail?.name }}
+      </div>
       <CaseReportCom :detail-info="reportStepDetail" is-export />
     </div>
   </a-spin>
@@ -13,12 +19,17 @@
 
   import CaseReportCom from './component/caseReportCom.vue';
 
-  import { logCaseReportExport } from '@/api/modules/api-test/management';
+  import {
+    getCaseBatchExportParams,
+    logCaseReportBatchExport,
+    logCaseReportExport,
+  } from '@/api/modules/api-test/management';
   import { reportCaseDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
   import exportPDF from '@/utils/exportPdf';
 
   import { ReportDetail } from '@/models/apiTest/report';
+  import { BatchApiParams } from '@/models/common';
 
   const route = useRoute();
   const { t } = useI18n();
@@ -26,10 +37,10 @@
   const loading = ref(false);
   const reportStepDetail = ref<ReportDetail>();
 
-  async function initReportDetail() {
+  async function initReportDetail(id?: string) {
     try {
       loading.value = true;
-      reportStepDetail.value = await reportCaseDetail(route.query.id as string);
+      reportStepDetail.value = await reportCaseDetail(id || (route.query.id as string));
       setTimeout(() => {
         nextTick(async () => {
           await exportPDF(reportStepDetail.value?.name || '', 'report-detail');
@@ -43,16 +54,55 @@
     }
   }
 
-  async function logExport() {
-    try {
+  async function logExport(params?: BatchApiParams) {
+    if (params) {
+      await logCaseReportBatchExport(params);
+    } else {
       await logCaseReportExport(route.query.id as string);
+    }
+  }
+
+  const batchLoading = ref<boolean>(false);
+  const batchIds = ref<string[]>([]);
+  const exportCurrent = ref<number>(0);
+  const exportTotal = ref<number>(0);
+  const batchExportTip = computed(() =>
+    t('report.detail.batchExportingPdf', { current: exportCurrent.value, total: exportTotal.value })
+  );
+
+  async function initBatchIds(params: BatchApiParams) {
+    try {
+      batchLoading.value = true;
+      batchIds.value = await getCaseBatchExportParams(params);
+      exportTotal.value = batchIds.value.length;
+      while (batchIds.value.length > 0) {
+        exportCurrent.value += 1;
+        // eslint-disable-next-line no-await-in-loop
+        await initReportDetail(batchIds.value.shift());
+      }
+      nextTick(() => {
+        // 等最后一条成功提示后清空
+        Message.clear();
+        Message.success(t('report.detail.batchExportPdfSuccess'));
+      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      batchLoading.value = false;
     }
   }
 
   onBeforeMount(() => {
+    window.addEventListener('message', (event) => {
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+      // 初始化批量导出报告 id 集合
+      const batchParams = event.data;
+      initBatchIds(batchParams);
+      logExport(batchParams);
+    });
     if (route.query.id) {
       initReportDetail();
       logExport();
