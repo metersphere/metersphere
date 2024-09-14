@@ -165,6 +165,7 @@ export default {
   'apiTestManagement.pleaseInputJsonSchema': '请先输入 Schema 后再进行自动生成',
   'apiTestManagement.protocolIsEmpty': '接口协议为空',
   'apiTestManagement.protocolEmptyTip': '列表展示数据为空，请选择协议',
+  'apiTestManagement.exportSwaggerTip': 'Swagger格式仅支持导出HTTP协议的请求',
   'case.execute.selectEnv': '环境选择',
   'case.execute.defaultEnv': '默认环境',
   'case.execute.newEnv': '新环境',
