@@ -209,7 +209,8 @@ public class ApiDefinitionExportService {
         }
 
         if (request.isSelectAll()) {
-            List<String> ids = extApiDefinitionMapper.getIdsBySort(request, request.getProjectId(), protocols, request.getSortString());
+            String sortString = StringUtils.isBlank(request.getSortString()) ? "pos desc,id desc" : request.getSortString();
+            List<String> ids = extApiDefinitionMapper.getIdsBySort(request, request.getProjectId(), protocols, sortString);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }

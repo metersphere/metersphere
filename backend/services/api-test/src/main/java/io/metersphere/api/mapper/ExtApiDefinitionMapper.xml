@@ -107,7 +107,7 @@
         </if>
         <include refid="queryWhereConditionByBaseQueryRequest"/>
         <if test="orderColumns != null">
-            ORDER BY #{orderColumns}
+            ORDER BY ${orderColumns}
         </if>
     </select>
 
