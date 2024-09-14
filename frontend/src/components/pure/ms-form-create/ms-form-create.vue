@@ -166,7 +166,7 @@
       };
 
       if (optionsItem.children) {
-        mappedItem.children = mapOption(optionsItem.children);
+        mappedItem.children = mapOption(optionsItem.children || []);
       }
       return mappedItem;
     });
@@ -186,8 +186,8 @@
       } else {
         fieldType = FieldTypeFormRules[currentTypeForm].type;
       }
-      const options = item?.options;
-      const currentOptions = mapOption(options || []);
+      const options = Array.isArray(item?.options) ? item?.options : [];
+      const currentOptions = mapOption(options);
       const ruleItem: any = {
         type: fieldType, // 表单类型
         field: item.name, // 字段
@@ -279,7 +279,7 @@
   }
 
   function getControlFormItems() {
-    const convertedData = formItems.value.map((item: FormItem) => convertItem(item));
+    const convertedData = (formItems.value || []).map((item: FormItem) => convertItem(item));
     formRuleList.value = convertedData;
   }
 
