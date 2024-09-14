@@ -91,7 +91,7 @@
             <div class="diff-item">
               <div class="flex">
                 <a-tooltip
-                  :content="`【${apiDetailInfo?.num}】${apiDetailInfo?.name}`"
+                  :content="`[${apiDetailInfo?.num}]${apiDetailInfo?.name}`"
                   :mouse-enter-delay="300"
                   position="br"
                 >
@@ -108,11 +108,7 @@
             </div>
             <div class="diff-item">
               <div class="flex">
-                <a-tooltip
-                  :content="`【${caseDetail?.num}】${caseDetail?.name}`"
-                  :mouse-enter-delay="300"
-                  position="br"
-                >
+                <a-tooltip :content="`[${caseDetail?.num}] ${caseDetail?.name}`" :mouse-enter-delay="300" position="br">
                   <div class="title-type one-line-text"> [{{ caseDetail?.num }}] {{ caseDetail?.name }} </div>
                 </a-tooltip>
               </div>

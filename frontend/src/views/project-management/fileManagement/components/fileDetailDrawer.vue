@@ -472,7 +472,7 @@
 
     routeQuery.value = { id };
     if (type === 'FUNCTIONAL_CASE') {
-      routerName = CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL;
+      routerName = CaseManagementRouteEnum.CASE_MANAGEMENT_CASE;
     } else if (type === 'BUG') {
       routerName = BugManagementRouteEnum.BUG_MANAGEMENT;
     } else if (type === 'API_DEBUG') {
