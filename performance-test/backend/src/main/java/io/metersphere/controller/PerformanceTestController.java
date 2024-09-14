@@ -15,6 +15,7 @@ import io.metersphere.consul.CacheNode;
 import io.metersphere.consul.ConsulService;
 import io.metersphere.dto.FileOperationRequest;
 import io.metersphere.dto.*;
+import io.metersphere.file.annotation.MsFileLimit;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.metadata.service.FileMetadataService;
@@ -83,6 +84,7 @@ public class PerformanceTestController {
         return performanceTestService.getLoadTestBytestId(testId);
     }
 
+    @MsFileLimit
     @PostMapping(value = "/save", consumes = {"multipart/form-data"})
     @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_CREATE)
@@ -103,6 +105,7 @@ public class PerformanceTestController {
         return loadTest;
     }
 
+    @MsFileLimit
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
     @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_EDIT)

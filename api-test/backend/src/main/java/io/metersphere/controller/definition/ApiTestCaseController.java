@@ -14,6 +14,7 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.MsExecResponseDTO;
+import io.metersphere.file.annotation.MsFileLimit;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
@@ -115,6 +116,7 @@ public class ApiTestCaseController {
         return returnList;
     }
 
+    @MsFileLimit
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     @RequiresPermissions(value= {PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_CASE, PermissionConstants.PROJECT_API_DEFINITION_READ_COPY_CASE}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request)", msClass = ApiTestCaseService.class)
@@ -123,6 +125,7 @@ public class ApiTestCaseController {
         return apiTestCaseService.create(request, bodyFiles);
     }
 
+    @MsFileLimit
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_CASE)
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request)", title = "#request.name", content = "#msClass.getLogDetails(#request)", msClass = ApiTestCaseService.class)
