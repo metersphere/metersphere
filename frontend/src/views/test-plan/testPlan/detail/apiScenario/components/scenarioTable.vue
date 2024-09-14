@@ -127,7 +127,7 @@
       :load-api="AssociatedBugApiTypeEnum.SCENARIO_BUG_LIST"
       :is-batch="isBatchAssociateOrCreate"
       :drawer-loading="drawerLoading"
-      :show-selector-all="!isBatchAssociateOrCreate"
+      :show-selector-all="false"
       @save="saveScenarioBugHandler"
     />
   </div>

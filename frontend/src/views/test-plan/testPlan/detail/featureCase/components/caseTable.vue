@@ -191,7 +191,7 @@
       :case-id="testPlanCaseId"
       :drawer-loading="drawerLoading"
       :load-api="AssociatedBugApiTypeEnum.TEST_PLAN_BUG_LIST"
-      :show-selector-all="!isBatchAssociateOrCreate"
+      :show-selector-all="false"
       :is-batch="isBatchAssociateOrCreate"
       @save="saveFunctionBugHandler"
     />

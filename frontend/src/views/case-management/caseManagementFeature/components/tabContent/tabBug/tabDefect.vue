@@ -112,6 +112,7 @@
       :case-id="props.caseId"
       :load-api="AssociatedBugApiTypeEnum.FUNCTIONAL_BUG_LIST"
       :drawer-loading="drawerLoading"
+      :show-selector-all="false"
       @save="saveHandler"
     />
   </div>

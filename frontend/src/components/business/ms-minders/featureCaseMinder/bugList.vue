@@ -63,6 +63,7 @@
     :case-id="activeCase.id"
     :drawer-loading="drawerLoading"
     :load-api="AssociatedBugApiTypeEnum.FUNCTIONAL_BUG_LIST"
+    :show-selector-all="false"
     @save="saveHandler"
   />
 </template>
