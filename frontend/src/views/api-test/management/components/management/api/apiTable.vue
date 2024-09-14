@@ -262,13 +262,18 @@
         <div class="text-[var(--color-text-1)]">{{ item.name }}</div>
       </div>
     </div>
-    <div class="mb-[16px] flex items-center gap-[4px]">
-      <a-switch v-model:model-value="exportApiCase" size="small" />
-      {{ t('apiTestManagement.exportCase') }}
-    </div>
-    <div class="flex items-center gap-[4px]">
-      <a-switch v-model:model-value="exportApiMock" size="small" />
-      {{ t('apiTestManagement.exportMock') }}
+    <template v-if="exportPlatform === RequestExportFormat.MeterSphere">
+      <div class="mb-[16px] flex items-center gap-[4px]">
+        <a-switch v-model:model-value="exportApiCase" size="small" />
+        {{ t('apiTestManagement.exportCase') }}
+      </div>
+      <div class="flex items-center gap-[4px]">
+        <a-switch v-model:model-value="exportApiMock" size="small" />
+        {{ t('apiTestManagement.exportMock') }}
+      </div>
+    </template>
+    <div v-else-if="exportPlatform === RequestExportFormat.SWAGGER" class="text-[var(--color-text-4)]">
+      {{ t('apiTestManagement.exportSwaggerTip') }}
     </div>
     <template #footer>
       <div class="flex justify-end">
@@ -314,7 +319,6 @@
     stopApiExport,
     updateDefinition,
   } from '@/api/modules/api-test/management';
-  import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -328,7 +332,7 @@
   import { ApiDefinitionDetail, ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
   import { DragSortParams, ModuleTreeNode } from '@/models/common';
   import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
-  import { RequestDefinitionStatus, RequestExportFormat, RequestImportFormat, RequestMethods } from '@/enums/apiEnum';
+  import { RequestDefinitionStatus, RequestExportFormat, RequestMethods } from '@/enums/apiEnum';
   import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
