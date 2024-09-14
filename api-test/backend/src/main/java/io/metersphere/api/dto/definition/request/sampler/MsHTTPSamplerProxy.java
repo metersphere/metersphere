@@ -404,11 +404,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
                     String path = postQueryParameters(envPath);
-                    if (HTTPConstants.DELETE.equals(this.getMethod()) && !path.startsWith("${") && !path.startsWith("/${")) {
-                        if (!path.startsWith("/")) {
-                            path = "/" + path;
-                        }
-                    }
                     sampler.setProperty(HTTPSamplerBase.PATH, path);
                 }
             } else {
