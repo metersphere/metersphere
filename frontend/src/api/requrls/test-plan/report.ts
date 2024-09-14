@@ -74,3 +74,15 @@ export const TestPlanReportExportUrl = '/test-plan/report/export';
 export const TestPlanBatchReportExportUrl = '/test-plan/report/batch-export';
 // 测试计划-报告-批量导出获取报告 ID 集合
 export const TestPlanBatchReportExportGetIdsUrl = '/test-plan/report/batch-param';
+// 测试计划-报告-详情-报告-用例明细-测试点
+export const getCollectFunctionalUrl = '/test-plan/report/detail/functional/collection/page';
+// 测试计划-报告-详情-报告-接口明细-测试点
+export const getCollectApiUrl = '/test-plan/report/detail/api/collection/page';
+// 测试计划-报告-详情-报告-场景明细-测试点
+export const getCollectScenarioUrl = '/test-plan/report/detail/scenario/collection/page';
+// 测试计划-报告-详情-分享-报告-用例明细-测试点
+export const getShareCollectFunctionalUrl = '/test-plan/report/share/detail/functional/collection/page';
+// 测试计划-报告-详情-分享-报告-接口明细-测试点
+export const getShareCollectionApiUrl = '/test-plan/report/share/detail/api/collection/page';
+// 测试计划-报告-详情-分享-报告-场景明细-测试点
+export const getShareCollectScenarioUrl = '/test-plan/report/share/detail/scenario/collection/page';

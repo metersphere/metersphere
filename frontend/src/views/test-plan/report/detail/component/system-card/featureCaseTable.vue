@@ -1,5 +1,5 @@
 <template>
-  <div :class="`${props.enabledTestSet ? 'test-set-wrapper test-set-cell' : ''}`">
+  <div :class="`${props.enabledTestSet ? 'test-set-wrapper' : ''}`">
     <MsBaseTable v-bind="propsRes" v-on="propsEvent">
       <template #num="{ record }">
         <MsButton :disabled="!props.isPreview" type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
@@ -17,7 +17,6 @@
         </MsButton>
       </template>
       <template #expand-icon="{ record, expanded }">
-        <!-- TODO 待联调 -->
         <div
           class="flex items-end gap-[2px] text-[var(--color-text-4)]"
           :class="[
@@ -84,9 +83,9 @@
   const props = defineProps<{
     enabledTestSet: boolean; // 开启测试集
     reportId: string;
+    testSetId?: string; // 测试集id
     shareId?: string;
     isPreview?: boolean;
-    isGroup?: boolean;
   }>();
   const { t } = useI18n();
 
@@ -102,6 +101,7 @@
         }
       : undefined;
   });
+  const isGroup = inject<Ref<boolean>>('isPlanGroup', ref(false));
 
   const staticColumns: MsTableColumn = [
     {
@@ -186,13 +186,14 @@
       dataIndex: 'planName',
       showTooltip: true,
       showInTable: true,
-      showDrag: true,
+      showDrag: false,
+      columnSelectorDisabled: true,
       width: 200,
     },
   ];
 
   const columns = computed(() => {
-    if (props.isGroup) {
+    if (isGroup.value) {
       return [...staticColumns, ...testPlanNameColumns, ...lastStaticColumns];
     }
     return [...staticColumns, ...lastStaticColumns];
@@ -203,7 +204,7 @@
   };
 
   const tableKey = computed(() =>
-    props.isGroup
+    isGroup.value
       ? TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE_GROUP
       : TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE
   );
@@ -219,7 +220,12 @@
   });
 
   async function loadCaseList() {
-    setLoadListParams({ reportId: props.reportId, keyword: innerKeyword.value, shareId: props.shareId ?? undefined });
+    setLoadListParams({
+      reportId: props.reportId,
+      keyword: innerKeyword.value,
+      shareId: props.shareId ?? undefined,
+      collectionId: props.testSetId,
+    });
     loadList();
   }
   // 跳转用例详情
@@ -231,18 +237,19 @@
   }
 
   watch(
-    [() => props.reportId, () => props.isPreview],
-    () => {
-      if (props.reportId && props.isPreview) {
+    () => props.reportId,
+    (val) => {
+      if (val) {
         loadCaseList();
-      } else {
-        propsRes.value.data = detailTableExample[ReportCardTypeEnum.FUNCTIONAL_DETAIL];
       }
-    },
-    {
-      immediate: true,
     }
   );
+
+  onMounted(() => {
+    if (props.isPreview && props.reportId) {
+      loadCaseList();
+    }
+  });
 
   const showDetailVisible = ref<boolean>(false);
 
@@ -271,6 +278,18 @@
     showDetailVisible.value = true;
     getExecuteStep();
   }
+
+  watch(
+    () => props.isPreview,
+    (val) => {
+      if (!val) {
+        propsRes.value.data = detailTableExample[ReportCardTypeEnum.FUNCTIONAL_DETAIL];
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
 
   defineExpose({
     loadCaseList,
