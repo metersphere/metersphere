@@ -12,7 +12,7 @@
     <div class="mb-[16px] flex justify-end">
       <a-input-search
         v-model="keyword"
-        :placeholder="t('ms.case.associate.searchPlaceholder')"
+        :placeholder="t('system.organization.searchByNameOrEmailPlaceholder')"
         allow-clear
         class="w-[240px]"
         @press-enter="initData"
@@ -34,7 +34,6 @@
           <div class="text-nowrap">{{ t('project.member.tableColumnUserGroup') }}</div>
           <MsSelect
             v-model:model-value="userGroupIds"
-            multiple
             mode="static"
             allow-clear
             class="!w-[240px] text-start"
@@ -42,7 +41,10 @@
             value-key="id"
             label-key="name"
             :placeholder="t('project.member.selectUserScope')"
-            :options="currentUserGroupOptions"
+            v-bind="{
+              options: currentUserGroupOptions,
+              multiple: true,
+            }"
           />
         </div>
         <div class="flex gap-[12px]">
