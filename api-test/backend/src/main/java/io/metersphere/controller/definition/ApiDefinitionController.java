@@ -27,6 +27,7 @@ import io.metersphere.dto.BaseCase;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RelationshipEdgeDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
+import io.metersphere.file.annotation.MsFileLimit;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
@@ -101,7 +102,7 @@ public class ApiDefinitionController {
         return apiDefinitionService.listBatch(request);
     }
 
-
+    @MsFileLimit
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     @RequiresPermissions(value= {PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_API, PermissionConstants.PROJECT_API_DEFINITION_READ_COPY_API}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
@@ -110,6 +111,7 @@ public class ApiDefinitionController {
         return apiDefinitionService.create(request, bodyFiles);
     }
 
+    @MsFileLimit
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
@@ -182,6 +184,7 @@ public class ApiDefinitionController {
         return apiDefinitionService.getById(id);
     }
 
+    @MsFileLimit
     @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})
     @RequiresPermissions(value = {PermissionConstants.PROJECT_API_DEFINITION_READ_DEBUG, PermissionConstants.PROJECT_API_DEFINITION_READ_RUN}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.DEBUG, title = "#request.name", project = "#request.projectId")
@@ -189,6 +192,7 @@ public class ApiDefinitionController {
         return apiDefinitionService.run(request, bodyFiles);
     }
 
+    @MsFileLimit
     @PostMapping(value = "/run", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_RUN)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.EXECUTE, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")

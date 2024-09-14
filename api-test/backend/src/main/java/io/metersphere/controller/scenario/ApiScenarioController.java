@@ -18,6 +18,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.commons.utils.WebSocketUtil;
 import io.metersphere.dto.BaseCase;
 import io.metersphere.dto.MsExecResponseDTO;
+import io.metersphere.file.annotation.MsFileLimit;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
@@ -121,6 +122,7 @@ public class ApiScenarioController {
         return apiAutomationService.list(request);
     }
 
+    @MsFileLimit
     @PostMapping(value = "/create")
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiScenarioService.class)
     @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE, PermissionConstants.PROJECT_API_SCENARIO_READ_COPY}, logical = Logical.OR)
@@ -129,6 +131,7 @@ public class ApiScenarioController {
         return apiAutomationService.create(request, bodyFiles, scenarioFiles);
     }
 
+    @MsFileLimit
     @PostMapping(value = "/update")
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiScenarioService.class)
     @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_EDIT, PermissionConstants.PROJECT_API_SCENARIO_READ_COPY}, logical = Logical.OR)
@@ -231,6 +234,7 @@ public class ApiScenarioController {
         return apiAutomationService.getScenarioStep(ids);
     }
 
+    @MsFileLimit
     @PostMapping(value = "/run/debug")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_DEBUG, PermissionConstants.PROJECT_API_SCENARIO_READ_RUN}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.DEBUG, title = "#request.scenarioName", sourceId = "#request.scenarioId", project = "#request.projectId")
@@ -346,6 +350,7 @@ public class ApiScenarioController {
         return ResponseEntity.ok().contentType(MediaType.parseMediaType("application/octet-stream")).header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileOperationRequest.getName() + "\"").body(bytes);
     }
 
+    @MsFileLimit
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_IMPORT_SCENARIO)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.IMPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")

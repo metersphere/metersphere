@@ -7,6 +7,7 @@ import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.ProjectDTO;
+import io.metersphere.file.annotation.MsFileLimit;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.ProjectRequest;
 import io.metersphere.service.BaseProjectService;
@@ -37,6 +38,7 @@ public class BaseProjectController {
         return baseProjectService.getUserProject(request, SessionUtils.getCurrentProjectId());
     }
 
+    @MsFileLimit
     @PostMapping(value = "upload/files/{projectId}", consumes = {"multipart/form-data"})
     @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.IMPORT, content = "#msClass.getLogDetails(#projectId)", msClass = BaseProjectService.class)
     public List<FileMetadata> uploadFiles(@PathVariable String projectId, @RequestPart(value = "file", required = false) List<MultipartFile> files) {

@@ -102,7 +102,7 @@ import {getLicense} from "../../api/license";
 import {setLanguage} from "../../i18n";
 import {getPlatformParamUrl} from "../../api/qrcode";
 import tabQrCode from "../login/tabQrCode.vue";
-import {getSystemBaseSetting} from "@/api/system";
+import {getSystemBaseSetting} from "../../api/system";
 
 const checkLicense = () => {
   return getLicense()
