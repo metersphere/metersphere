@@ -187,7 +187,14 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         if (httpConfig != null) {
             // 接口调试没有环境，不取环境的配置
             String protocol = httpConfig.getProtocol().toLowerCase();
-            url = protocol + "://" + (httpConfig.getHostname() + "/" + url).replace("//", "/");
+            String hostName = httpConfig.getHostname();
+            if (hostName.lastIndexOf("/") == hostName.length() - 1) {
+                hostName = hostName.substring(0, hostName.length() - 1);
+            }
+            if (url.indexOf("/") == 0) {
+                url = url.substring(1);
+            }
+            url = protocol + "://" + (hostName + "/" + url);
         }
         url = getPathWithQueryRest(msHTTPElement, url);
         return getPathWithQuery(url, msHTTPElement.getQuery());
