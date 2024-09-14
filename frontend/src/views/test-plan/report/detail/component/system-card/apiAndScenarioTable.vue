@@ -1,5 +1,5 @@
 <template>
-  <div :class="`${props.enabledTestSet ? 'test-set-wrapper test-set-cell' : ''}`">
+  <div :class="`${props.enabledTestSet ? 'test-set-wrapper' : ''}`">
     <MsBaseTable v-bind="currentCaseTable.propsRes.value" v-on="currentCaseTable.propsEvent.value">
       <template #num="{ record }">
         <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
@@ -38,7 +38,7 @@
   </div>
 </template>
 
-<script setup lang="ts" async>
+<script setup lang="ts">
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -76,15 +76,16 @@
   const props = defineProps<{
     reportId: string;
     enabledTestSet: boolean;
+    testSetId?: string; // 测试集id
     shareId?: string;
     activeType: ReportCardTypeEnum;
     isPreview?: boolean;
-    isGroup?: boolean;
   }>();
 
   const innerKeyword = defineModel<string>('keyword', {
     required: true,
   });
+  const isGroup = inject<Ref<boolean>>('isPlanGroup', ref(false));
 
   const staticColumns: MsTableColumn = [
     {
@@ -137,7 +138,8 @@
       showTooltip: true,
       width: 200,
       showInTable: true,
-      showDrag: true,
+      showDrag: false,
+      columnSelectorDisabled: true,
     },
   ];
   const lastStaticColumns: MsTableColumn = [
@@ -174,7 +176,7 @@
   ];
 
   const columns = computed(() => {
-    if (props.isGroup) {
+    if (isGroup.value) {
       return [...staticColumns, ...testPlanNameColumns, ...lastStaticColumns];
     }
     return [...staticColumns, ...lastStaticColumns];
@@ -192,7 +194,7 @@
   };
 
   const tableKey = computed(() => {
-    if (props.isGroup) {
+    if (isGroup.value) {
       return keyMap.GROUP[props.activeType];
     }
     return keyMap.TEST_PLAN[props.activeType];
@@ -229,6 +231,7 @@
       reportId: props.reportId,
       shareId: props.shareId ?? undefined,
       keyword: innerKeyword.value,
+      collectionId: props.testSetId,
     });
     currentCaseTable.value.loadList();
   }
@@ -259,13 +262,27 @@
     }
   }
 
+  onMounted(() => {
+    if (props.reportId) {
+      currentCaseTable.value.resetPagination();
+      loadCaseList();
+    }
+  });
+
   watch(
-    [() => props.reportId, () => props.isPreview],
-    () => {
-      if (props.reportId && props.isPreview) {
+    () => props.reportId,
+    (val) => {
+      if (val) {
         currentCaseTable.value.resetPagination();
         loadCaseList();
-      } else {
+      }
+    }
+  );
+
+  watch(
+    () => props.isPreview,
+    (val) => {
+      if (!val) {
         currentCaseTable.value.propsRes.value.data = detailTableExample[props.activeType];
       }
     },

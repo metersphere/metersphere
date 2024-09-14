@@ -98,3 +98,11 @@ export type SelectedReportCardTypes =
   | ReportCardTypeEnum.FUNCTIONAL_DETAIL
   | ReportCardTypeEnum.API_CASE_DETAIL
   | ReportCardTypeEnum.SCENARIO_CASE_DETAIL;
+
+// 测试集列表
+export interface testPlanSetItem {
+  id: string;
+  name: string; // 测试集名称
+  count: number;
+  planName: string; // 计划名称
+}

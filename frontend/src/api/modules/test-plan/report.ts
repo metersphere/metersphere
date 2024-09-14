@@ -11,7 +11,7 @@ import {
   UpdateReportDetailParams,
 } from '@/models/testPlan/report';
 import type { ExecuteHistoryItem } from '@/models/testPlan/testPlan';
-import { manualReportGenParams, PlanReportDetail } from '@/models/testPlan/testPlanReport';
+import { manualReportGenParams, PlanReportDetail, testPlanSetItem } from '@/models/testPlan/testPlanReport';
 
 // 报告列表
 export function reportList(data: TableQueryParams) {
@@ -187,3 +187,26 @@ export function logTestPlanReportBatchExport(data: BatchApiParams) {
 export function testPlanBatchReportExportGetIds(data: BatchApiParams) {
   return MSR.post<string[]>({ url: reportUrl.TestPlanBatchReportExportGetIdsUrl, data });
 }
+// 报告-详情-用例明细测试点
+export function getCollectFunctionalPage(data: TableQueryParams) {
+  if (data.shareId) {
+    return MSR.post<CommonList<testPlanSetItem>>({ url: `${reportUrl.getShareCollectFunctionalUrl}`, data });
+  }
+  return MSR.post<CommonList<testPlanSetItem>>({ url: `${reportUrl.getCollectFunctionalUrl}`, data });
+}
+// 报告-详情-接口明细测试点
+export function getCollectApiPage(data: TableQueryParams) {
+  if (data.shareId) {
+    return MSR.post<CommonList<testPlanSetItem>>({ url: `${reportUrl.getShareCollectionApiUrl}`, data });
+  }
+  return MSR.post<CommonList<testPlanSetItem>>({ url: `${reportUrl.getCollectApiUrl}`, data });
+}
+// 报告-详情-场景明细测试点
+export function getCollectScenarioPage(data: TableQueryParams) {
+  if (data.shareId) {
+    return MSR.post<CommonList<testPlanSetItem>>({ url: `${reportUrl.getShareCollectScenarioUrl}`, data });
+  }
+  return MSR.post<CommonList<testPlanSetItem>>({ url: `${reportUrl.getCollectScenarioUrl}`, data });
+}
+
+export default {};

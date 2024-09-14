@@ -1,4 +1,38 @@
 <template>
+  <div class="mb-[8px] flex items-center justify-between">
+    <div class="font-medium"> {{ props.label }} </div>
+    <div v-if="props.isPreview" class="flex items-center">
+      <a-input-search
+        v-model:model-value="keyword"
+        :placeholder="t('common.searchByIdName')"
+        allow-clear
+        class="mr-[8px] w-[240px]"
+        @search="loadReportDetailList"
+        @press-enter="loadReportDetailList"
+        @clear="loadReportDetailList"
+      />
+      <a-radio-group
+        v-if="props.isPreview"
+        v-model:model-value="currentMode"
+        type="button"
+        size="medium"
+        @change="handleModeChange"
+      >
+        <a-radio value="drawer">
+          <div class="mode-button">
+            <MsIcon :class="{ 'active-color': currentMode === 'drawer' }" type="icon-icon_drawer" />
+            <span class="mode-button-title">{{ t('msTable.columnSetting.drawer') }}</span>
+          </div>
+        </a-radio>
+        <a-radio value="new_window">
+          <div class="mode-button">
+            <MsIcon :class="{ 'active-color': currentMode === 'new_window' }" type="icon-icon_into-item_outlined" />
+            <span class="mode-button-title">{{ t('msTable.columnSetting.newWindow') }}</span>
+          </div>
+        </a-radio>
+      </a-radio-group>
+    </div>
+  </div>
   <MsBaseTable v-bind="propsRes" no-disable filter-icon-align-left v-on="propsEvent">
     <template #passRateTitle="{ columnConfig }">
       <div class="flex items-center text-[var(--color-text-3)]">
@@ -66,11 +100,10 @@
     reportId: string;
     shareId?: string;
     isPreview?: boolean;
+    label?: string;
   }>();
 
-  const innerCurrentMode = defineModel<string>('currentMode', {
-    default: 'drawer',
-  });
+  const keyword = ref<string>('');
 
   const statusResultOptions = computed(() => {
     return Object.keys(PlanReportStatus).map((key) => {
@@ -149,16 +182,14 @@
   );
 
   function loadReportDetailList() {
-    setLoadListParams({ reportId: props.reportId, shareId: props.shareId ?? undefined });
+    setLoadListParams({ reportId: props.reportId, shareId: props.shareId ?? undefined, keyword: keyword.value });
     loadList();
   }
 
   watch(
-    [() => props.reportId, () => props.isPreview],
-    () => {
-      if (props.reportId && props.isPreview) {
-        loadReportDetailList();
-      } else {
+    () => props.isPreview,
+    (val) => {
+      if (!val) {
         propsRes.value.data = detailTableExample[ReportCardTypeEnum.SUB_PLAN_DETAIL];
       }
     },
@@ -167,19 +198,39 @@
     }
   );
 
+  onMounted(() => {
+    if (props.reportId) {
+      loadReportDetailList();
+    }
+  });
+
+  watch(
+    () => props.reportId,
+    (val) => {
+      if (val) {
+        loadReportDetailList();
+      }
+    }
+  );
+
   const reportVisible = ref(false);
 
   const independentReportId = ref<string>('');
+  const currentMode = ref<string>('drawer');
 
   function openReport(record: PlanReportDetail) {
     independentReportId.value = record.id;
-    if (innerCurrentMode.value === 'drawer') {
+    if (currentMode.value === 'drawer') {
       reportVisible.value = true;
     } else {
       openNewPage(RouteEnum.TEST_PLAN_REPORT_DETAIL, {
         id: record.id,
       });
     }
+  }
+
+  function handleModeChange(value: string | number | boolean, ev: Event) {
+    currentMode.value = value as string;
   }
 </script>
 

@@ -140,39 +140,16 @@
         </div>
         <div class="wrapper-preview-card">
           <div class="flex items-center justify-between">
-            <div v-if="!notShowLabel.includes(item.value)" class="mb-[8px] font-medium">
+            <div v-if="item.value === ReportCardTypeEnum.SUMMARY" class="mb-[8px] font-medium">
               {{ t(item.label) }}
             </div>
-            <a-radio-group
-              v-if="item.value === ReportCardTypeEnum.SUB_PLAN_DETAIL && props.isPreview"
-              class="mb-2"
-              :model-value="currentMode"
-              type="button"
-              @change="handleModeChange"
-            >
-              <a-radio value="drawer">
-                <div class="mode-button">
-                  <MsIcon :class="{ 'active-color': currentMode === 'drawer' }" type="icon-icon_drawer" />
-                  <span class="mode-button-title">{{ t('msTable.columnSetting.drawer') }}</span>
-                </div>
-              </a-radio>
-              <a-radio value="new_window">
-                <div class="mode-button">
-                  <MsIcon
-                    :class="{ 'active-color': currentMode === 'new_window' }"
-                    type="icon-icon_into-item_outlined"
-                  />
-                  <span class="mode-button-title">{{ t('msTable.columnSetting.newWindow') }}</span>
-                </div>
-              </a-radio>
-            </a-radio-group>
           </div>
           <ReportDetailTable
             v-if="item.value === ReportCardTypeEnum.SUB_PLAN_DETAIL"
-            v-model:current-mode="currentMode"
             :report-id="detail.id"
             :share-id="shareId"
             :is-preview="props.isPreview"
+            :label="t(item.label)"
           />
           <Summary
             v-if="item.value === ReportCardTypeEnum.SUMMARY"
@@ -193,14 +170,14 @@
             :report-id="detail.id"
             :share-id="shareId"
             :is-preview="props.isPreview"
+            :label="t(item.label)"
           />
-          <TestSetTable
+          <TestSetTableIndex
             v-else-if="hasTestSet.includes(item.value)"
             :report-id="detail.id"
             :share-id="shareId"
             :active-type="item.value"
             :is-preview="props.isPreview"
-            :is-group="props.isGroup"
             :label="t(item.label)"
           />
           <CustomRichText
@@ -240,7 +217,7 @@
   import ReportMetricsItem from '@/views/test-plan/report/detail/component/system-card/ReportMetricsItem.vue';
   import Summary from '@/views/test-plan/report/detail/component/system-card/summary.vue';
   import SystemTrigger from '@/views/test-plan/report/detail/component/system-card/systemTrigger.vue';
-  import TestSetTable from '@/views/test-plan/report/detail/component/system-card/testTableIndex.vue';
+  import TestSetTableIndex from '@/views/test-plan/report/detail/component/system-card/testTableIndex.vue';
 
   import { getReportLayout, updateReportDetail } from '@/api/modules/test-plan/report';
   import {
@@ -306,19 +283,13 @@
 
   const getAnalysisHover = computed(() => (props.isPreview ? '' : 'hover-analysis cursor-not-allowed'));
 
-  const notShowLabel = [
-    ReportCardTypeEnum.CUSTOM_CARD,
-    ReportCardTypeEnum.FUNCTIONAL_DETAIL,
-    ReportCardTypeEnum.API_CASE_DETAIL,
-    ReportCardTypeEnum.SCENARIO_CASE_DETAIL,
-  ];
-
+  const isPlanGroup = ref(props.isGroup);
+  provide('isPlanGroup', isPlanGroup);
   const hasTestSet = [
     ReportCardTypeEnum.FUNCTIONAL_DETAIL,
     ReportCardTypeEnum.API_CASE_DETAIL,
     ReportCardTypeEnum.SCENARIO_CASE_DETAIL,
   ];
-
   /**
    * 分享share
    */
@@ -543,23 +514,27 @@
 
   const isDefaultLayout = ref<boolean>(false);
 
-  watchEffect(() => {
-    if (props.detailInfo) {
-      detail.value = cloneDeep(props.detailInfo);
-      const { defaultLayout, id, name, summary } = detail.value;
-      isDefaultLayout.value = defaultLayout;
-      richText.value.summary = summary;
-      reportForm.value.reportName = name;
-      initOptionsData();
-      if (props.isPreview) {
-        if (!defaultLayout && id) {
-          getDefaultLayout();
-        } else {
-          innerCardList.value = props.isGroup ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
+  watch(
+    () => props.detailInfo,
+    (val) => {
+      if (val) {
+        detail.value = cloneDeep(props.detailInfo);
+        const { defaultLayout, id, name, summary } = detail.value;
+        isDefaultLayout.value = defaultLayout;
+        richText.value.summary = summary;
+        reportForm.value.reportName = name;
+        initOptionsData();
+        if (props.isPreview) {
+          if (!defaultLayout && id) {
+            getDefaultLayout();
+          } else {
+            innerCardList.value = props.isGroup ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
+          }
         }
       }
-    }
-  });
+    },
+    { deep: true }
+  );
 
   // 获取内容详情
   function getContent(item: configItem): customValueForm {
@@ -599,12 +574,6 @@
     } else {
       cardItem.content = content;
     }
-  }
-
-  const currentMode = ref<string>('drawer');
-
-  function handleModeChange(value: string | number | boolean, ev: Event) {
-    currentMode.value = value as string;
   }
 
   function getColor(index: number, type: string) {

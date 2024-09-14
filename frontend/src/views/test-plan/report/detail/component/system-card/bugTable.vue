@@ -1,4 +1,18 @@
 <template>
+  <div class="mb-[8px] flex items-center justify-between">
+    <div class="font-medium"> {{ props.label }} </div>
+    <div v-if="props.isPreview" class="flex items-center">
+      <a-input-search
+        v-model:model-value="keyword"
+        :placeholder="t('common.searchByIdName')"
+        allow-clear
+        class="w-[240px]"
+        @search="loadCaseList"
+        @press-enter="loadCaseList"
+        @clear="loadCaseList"
+      />
+    </div>
+  </div>
   <MsBaseTable v-bind="propsRes" v-on="propsEvent">
     <template #num="{ record }">
       <MsButton :disabled="!props.isPreview" type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
@@ -16,6 +30,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
 
   import { getReportBugList, getReportShareBugList } from '@/api/modules/test-plan/report';
+  import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
 
   import { ReportBugItem } from '@/models/testPlan/report';
@@ -24,13 +39,18 @@
 
   import { detailTableExample } from '@/views/test-plan/report/detail/component/reportConfig';
 
+  const { t } = useI18n();
+
   const { openNewPage } = useOpenNewPage();
 
   const props = defineProps<{
     reportId: string;
     shareId?: string;
     isPreview?: boolean;
+    label: string;
   }>();
+
+  const keyword = ref<string>('');
 
   const sortableConfig = computed<TableSortable | undefined>(() => {
     return props.isPreview
@@ -86,8 +106,8 @@
     showSelectorAll: false,
   });
 
-  async function loadCaseList() {
-    setLoadListParams({ reportId: props.reportId, shareId: props.shareId ?? undefined });
+  function loadCaseList() {
+    setLoadListParams({ reportId: props.reportId, shareId: props.shareId ?? undefined, keyword: keyword.value });
     loadList();
   }
 
@@ -98,12 +118,25 @@
     });
   }
 
+  onMounted(() => {
+    if (props.reportId) {
+      loadCaseList();
+    }
+  });
+
   watch(
-    [() => props.reportId, () => props.isPreview],
-    () => {
-      if (props.reportId && props.isPreview) {
+    () => props.reportId,
+    (val) => {
+      if (val) {
         loadCaseList();
-      } else {
+      }
+    }
+  );
+
+  watch(
+    () => props.isPreview,
+    (val) => {
+      if (!val) {
         propsRes.value.data = detailTableExample[ReportCardTypeEnum.BUG_DETAIL];
       }
     },
