@@ -291,7 +291,7 @@
           <template #content>
             <span class="text-[var(--color-text-1)]">
               {{ t('project.menu.notConfig') }}
-              <span class="cursor-pointer text-[rgb(var(--primary-4))]" @click="showDefectDrawer">
+              <span class="cursor-pointer text-[rgb(var(--primary-4))]" @click="showRelatedCaseDrawer">
                 {{ t(`project.menu.${record.type}`) }}
               </span>
               {{ t('project.menu.configure') }}
