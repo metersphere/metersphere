@@ -2045,6 +2045,17 @@ public class ApiDefinitionControllerTests extends BaseTest {
         //去重处理
         List<String> apiDefinitionIdList = newApiTestCaseList.stream().map(ApiTestCase::getApiDefinitionId).distinct().collect(Collectors.toList());
         Assertions.assertEquals(2, apiDefinitionIdList.size());
+
+        // 导入额外的har文件
+        inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import/har/testjsandcss.har")).getPath()));
+        file = new MockMultipartFile("file", "post-page.har", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        request.setPlatform("har");
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file);
+        this.requestMultipartWithOkAndReturn(IMPORT, paramMap);
+        apiDefinitionBlobs = apiDefinitionImportTestService.selectBlobByProjectId(importProject.getId());
+        Assertions.assertTrue(apiDefinitionBlobs.size() > 2);
     }
 
     @Resource

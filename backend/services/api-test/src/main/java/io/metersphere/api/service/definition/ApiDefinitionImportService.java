@@ -52,6 +52,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -319,7 +320,7 @@ public class ApiDefinitionImportService {
     }
 
     private void insertApiDefinition(ImportRequest request, List<ApiDefinitionDetail> insertApiData, ApiDefinitionMapper apiMapper, ApiDefinitionBlobMapper apiBlobMapper, SqlSession sqlSession) {
-        insertApiData.forEach(t -> {
+        for (ApiDefinitionDetail t : insertApiData) {
             ApiDefinition apiDefinition = new ApiDefinition();
             BeanUtils.copyBean(apiDefinition, t);
             if (StringUtils.isEmpty(apiDefinition.getId())) {
@@ -342,10 +343,10 @@ public class ApiDefinitionImportService {
             //插入blob数据
             ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
             apiDefinitionBlob.setId(apiDefinition.getId());
-            apiDefinitionBlob.setRequest(JSON.toJSONBytes(t.getRequest()));
-            apiDefinitionBlob.setResponse(JSON.toJSONBytes(t.getResponse()));
+            apiDefinitionBlob.setRequest(ApiDataUtils.toJSONString(t.getRequest()).getBytes(StandardCharsets.UTF_8));
+            apiDefinitionBlob.setResponse(ApiDataUtils.toJSONString(t.getResponse()).getBytes(StandardCharsets.UTF_8));
             apiBlobMapper.insertSelective(apiDefinitionBlob);
-        });
+        }
         sqlSession.flushStatements();
     }
 

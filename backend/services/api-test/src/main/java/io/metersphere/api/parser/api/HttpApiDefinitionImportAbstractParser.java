@@ -79,7 +79,12 @@ public abstract class HttpApiDefinitionImportAbstractParser<T> implements ApiDef
     protected ApiDefinitionDetail buildApiDefinition(String name, String path, String method, String modulePath, ImportRequest importRequest) {
         ApiDefinitionDetail apiDefinition = new ApiDefinitionDetail();
         apiDefinition.setId(IDGenerator.nextStr());
-        apiDefinition.setName(StringUtils.trim(name));
+        if (name != null) {
+            apiDefinition.setName(StringUtils.trim(name));
+            if (apiDefinition.getName().length() > 255) {
+                apiDefinition.setName(apiDefinition.getName().substring(0, 250) + "...");
+            }
+        }
         apiDefinition.setPath(formatPath(StringUtils.trim(path)));
         apiDefinition.setProtocol(StringUtils.trim(importRequest.getProtocol()));
         apiDefinition.setMethod(StringUtils.trim(method));

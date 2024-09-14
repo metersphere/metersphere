@@ -20,6 +20,7 @@ import io.metersphere.api.parser.api.har.model.*;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.api.utils.JSONUtil;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -240,6 +241,10 @@ public class HarParserApiDefinition extends HttpApiDefinitionImportAbstractParse
         for (HarEntry entry : harEntryList) {
             HarRequest harRequest = entry.request;
             if (harRequest != null) {
+                // css 、 js 略过
+                if (StringUtils.equalsIgnoreCase(harRequest.method, HttpMethodConstants.GET.name()) && StringUtils.endsWithAny(harRequest.url, ".css", ".js")) {
+                    continue;
+                }
                 String url = harRequest.url;
                 if (url == null) {
                     continue;
@@ -358,7 +363,7 @@ public class HarParserApiDefinition extends HttpApiDefinitionImportAbstractParse
         if (StringUtils.equalsIgnoreCase("GET", requestBody.method) || requestBody.postData == null) {
             return;
         }
-        String bodyType = content.mimeType;
+        String bodyType = Body.BodyType.NONE.name();
         if (StringUtils.isEmpty(bodyType)) {
             body.setRawBody(new RawBody() {{
                 this.setValue(content.text);
@@ -427,12 +432,9 @@ public class HarParserApiDefinition extends HttpApiDefinitionImportAbstractParse
                 }});
             } else if (bodyType.startsWith(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE)) {
                 bodyType = Body.BodyType.BINARY.name();
-                List<HarPostParam> postParams = content.params;
-                //                for (HarPostParam postParam : postParams) {
-                //                    KeyValue kv = new KeyValue(postParam.name, postParam.value);
-                //                    body.getFormDataBody().add(kv);
-                //                }
+                body.setBinaryBody(new BinaryBody());
             } else {
+                bodyType = Body.BodyType.RAW.name();
                 body.setRawBody(new RawBody() {{
                     this.setValue(content.text);
                 }});
