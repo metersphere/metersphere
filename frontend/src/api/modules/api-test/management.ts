@@ -43,6 +43,7 @@ import {
   ExecuteCaseUrl,
   ExportDefinitionUrl,
   GetApiDownloadFileUrl,
+  GetCaseBatchExportParamsUrl,
   GetCaseDetailUrl,
   GetCaseReportByIdUrl,
   GetCaseReportDetailUrl,
@@ -628,4 +629,9 @@ export function logCaseReportExport(reportId: string) {
 // 接口用例导出报告日志记录
 export function logCaseReportBatchExport(data: BatchApiParams) {
   return MSR.post({ url: `${CaseBatchExportLogUrl}`, data });
+}
+
+// 接口用例导出报告id集合
+export function getCaseBatchExportParams(data: BatchApiParams) {
+  return MSR.post({ url: `${GetCaseBatchExportParamsUrl}`, data });
 }

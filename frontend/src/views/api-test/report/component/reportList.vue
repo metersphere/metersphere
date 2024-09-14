@@ -146,7 +146,7 @@
   const appStore = useAppStore();
   const tableStore = useTableStore();
   const route = useRoute();
-  const { openNewPage } = useOpenNewPage();
+  const { openNewPage, openNewPageWithParams } = useOpenNewPage();
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -271,7 +271,7 @@
       dataIndex: 'operation',
       fixed: 'right',
       title: hasAnyPermission(['PROJECT_API_REPORT:READ+DELETE']) ? 'common.operation' : '',
-      width: hasAnyPermission(['PROJECT_API_REPORT:READ+DELETE']) ? 100 : 50,
+      width: hasAnyPermission(['PROJECT_API_REPORT:READ+DELETE']) ? 130 : 50,
     },
   ];
 
@@ -340,6 +340,11 @@
         eventTag: 'batchStop',
         permission: ['PROJECT_API_REPORT:READ+DELETE'],
       },
+      {
+        label: 'common.export',
+        eventTag: 'batchExport',
+        permission: ['PROJECT_TEST_PLAN_REPORT:READ+EXPORT'],
+      },
     ],
   };
 
@@ -364,31 +369,42 @@
       },
       projectId: appStore.currentProjectId,
     };
-
-    openModal({
-      type: 'error',
-      title: t('report.delete.tip', {
-        count: params?.currentSelectCount || params?.selectedIds?.length,
-      }),
-      content: '',
-      okText: t('common.confirmDelete'),
-      cancelText: t('common.cancel'),
-      okButtonProps: {
-        status: 'danger',
-      },
-      onBeforeOk: async () => {
-        try {
-          await reportBathDelete(props.moduleType, batchParams.value);
-          Message.success(t('apiTestDebug.deleteSuccess'));
-          resetSelector();
-          initData();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        }
-      },
-      hideCancel: false,
-    });
+    if (event.eventTag === 'batchExport') {
+      openNewPageWithParams(
+        props.moduleType === ReportEnum.API_SCENARIO_REPORT
+          ? FullPageEnum.FULL_PAGE_SCENARIO_EXPORT_PDF
+          : FullPageEnum.FULL_PAGE_API_CASE_EXPORT_PDF,
+        {
+          type: showType.value,
+        },
+        batchParams.value
+      );
+    } else {
+      openModal({
+        type: 'error',
+        title: t('report.delete.tip', {
+          count: params?.currentSelectCount || params?.selectedIds?.length,
+        }),
+        content: '',
+        okText: t('common.confirmDelete'),
+        cancelText: t('common.cancel'),
+        okButtonProps: {
+          status: 'danger',
+        },
+        onBeforeOk: async () => {
+          try {
+            await reportBathDelete(props.moduleType, batchParams.value);
+            Message.success(t('apiTestDebug.deleteSuccess'));
+            resetSelector();
+            initData();
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log(error);
+          }
+        },
+        hideCancel: false,
+      });
+    }
   };
 
   function searchList() {

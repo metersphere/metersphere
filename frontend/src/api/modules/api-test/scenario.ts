@@ -20,6 +20,7 @@ import {
   FollowScenarioUrl,
   GetModuleCountUrl,
   GetModuleTreeUrl,
+  GetScenarioBatchExportParamsUrl,
   GetScenarioStepUrl,
   GetScenarioUrl,
   GetStepProjectInfoUrl,
@@ -316,4 +317,9 @@ export function logScenarioReportExport(reportId: string) {
 // 场景导出报告日志记录
 export function logScenarioReportBatchExport(data: BatchApiParams) {
   return MSR.post({ url: `${ScenarioBatchExportLogUrl}`, data });
+}
+
+// 场景导出报告id集合
+export function getScenarioBatchExportParams(data: BatchApiParams) {
+  return MSR.post({ url: `${GetScenarioBatchExportParamsUrl}`, data });
 }
