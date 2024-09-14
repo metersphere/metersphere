@@ -15,7 +15,7 @@ public interface CurlPatternConstants {
     /**
      * URL路径
      */
-    Pattern URL_PATH_PATTERN = Pattern.compile("(?:\\s|^)(?:'|\")?(https?://[^\\s'\"]*(?:\\?[^\\s'\"]*)?)(?:'|\")?(?:\\s|$)");
+    Pattern URL_PATH_PATTERN = Pattern.compile("(?:\\s|^)(?:'|\")?(https?://[^?\\s'\"]*)(?:\\?[^\\s'\"]*)?(?:'|\")?(?:\\s|$)");
 
     /**
      * URL_PARAMS请求参数
