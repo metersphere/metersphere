@@ -601,7 +601,7 @@
     return customFields.map((item: any) => {
       const currentFormRules = FieldTypeFormRules[item.type];
       let selectOptions: any = [];
-      const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER', 'MULTIPLE_INPUT'];
+      const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
       if (item.options && item.options.length) {
         selectOptions = item.options.map((optionItem: any) => {
           return {

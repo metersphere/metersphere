@@ -184,7 +184,6 @@
 </template>
 
 <script setup lang="ts">
-  import { useRoute } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -387,7 +386,7 @@
     formRules.value = [];
     if (Array.isArray(arr) && arr.length) {
       formRules.value = arr.map((item: any) => {
-        const initOptions = item.options || JSON.parse(item.platformOptionJson || '{}');
+        const initOptions = item.options || JSON.parse(item.platformOptionJson || '[]');
         const initValue = getInitValue(item, initOptions);
         return {
           type: item.type,
