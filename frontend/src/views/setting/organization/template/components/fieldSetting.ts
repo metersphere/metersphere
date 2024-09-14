@@ -306,27 +306,30 @@ export const getTotalFieldOptionList = (totalData: DefinedFieldItem[]) => {
  */
 export const getCustomDetailFields = (totalData: DefinedFieldItem[], customFields: CustomField[]) => {
   const customFieldsIds = customFields.map((index: any) => index.fieldId);
-  return totalData.filter((item) => {
-    const currentCustomFieldIndex = customFieldsIds.findIndex((it: any) => it === item.id);
-    if (customFieldsIds.indexOf(item.id) > -1) {
-      const currentForm = item.formRules?.map((it: any) => {
-        it.props.modelValue = customFields[currentCustomFieldIndex].defaultValue;
-        return {
-          ...it,
-          value: customFields[currentCustomFieldIndex].defaultValue,
-          effect: {
-            required: item.required,
-          },
-        };
-      });
-      const formItem = item;
-      formItem.formRules = cloneDeep(currentForm);
-      formItem.apiFieldId = customFields[currentCustomFieldIndex].apiFieldId;
-      formItem.required = customFields[currentCustomFieldIndex].required;
-      return true;
-    }
-    return false;
-  });
+  return totalData
+    .filter((item) => {
+      const index = customFieldsIds.findIndex((it: any) => it === item.id);
+      if (customFieldsIds.indexOf(item.id) > -1) {
+        const currentForm = item.formRules?.map((it: any) => {
+          it.props.modelValue = customFields[index].defaultValue;
+          return {
+            ...it,
+            value: customFields[index].defaultValue,
+            effect: {
+              required: item.required,
+            },
+          };
+        });
+        const formItem = item;
+        formItem.formRules = cloneDeep(currentForm);
+        formItem.apiFieldId = customFields[index].apiFieldId;
+        formItem.required = customFields[index].required;
+        formItem.index = index;
+        return true;
+      }
+      return false;
+    })
+    .sort((f1, f2) => f1.index - f2.index);
 };
 
 export default {};
