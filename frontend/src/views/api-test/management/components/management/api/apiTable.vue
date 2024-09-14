@@ -768,6 +768,10 @@
       title: 'apiTestManagement.caseTotal',
       dataIndex: 'caseTotal',
       type: FilterType.NUMBER,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
     },
     {
       title: 'common.tag',

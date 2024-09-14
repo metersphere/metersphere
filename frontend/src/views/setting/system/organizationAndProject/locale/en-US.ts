@@ -11,6 +11,7 @@ export default {
   'system.organization.addMember': 'Add Member',
   'system.organization.addMemberTitle': 'Add Member',
   'system.organization.addMemberPlaceholder': 'Please select member',
+  'system.organization.searchByNameOrEmailPlaceholder': 'Search by Name/Email',
   'system.organization.addMemberRequired': 'Please select member',
   'system.organization.searchPlaceholder': 'Please enter the organization name to query',
   'system.organization.addOrganization': 'Add organization',

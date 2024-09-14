@@ -73,7 +73,11 @@
                 :class="[`view-option-item ${item.id === currentView ? 'view-option-item-active' : ''}`]"
                 @click="changeView(item)"
               >
-                <div>{{ item.name }}</div>
+                <a-tooltip :content="item.name">
+                  <div class="one-line-text">
+                    {{ item.name }}
+                  </div>
+                </a-tooltip>
                 <div class="select-extra flex">
                   <a-tooltip :content="t('common.rename')">
                     <MsButton type="text" status="secondary" class="!mr-[4px]" @click="handleToRenameView(item)">
