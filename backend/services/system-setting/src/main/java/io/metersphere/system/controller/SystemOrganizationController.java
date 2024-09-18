@@ -10,6 +10,7 @@ import io.metersphere.system.dto.request.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.OrganizationService;
 import io.metersphere.system.service.SimpleUserService;
@@ -198,6 +199,6 @@ public class SystemOrganizationController {
     @Operation(summary = "系统设置-系统-组织与项目-组织-成员-更新成员用户组")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_UPDATE)
     public void updateMember(@Validated @RequestBody OrganizationMemberUpdateRequest organizationMemberExtendRequest) {
-        organizationService.updateMember(organizationMemberExtendRequest, SessionUtils.getUserId());
+        organizationService.updateMember(organizationMemberExtendRequest, SessionUtils.getUserId(), "/system/organization/update-member", OperationLogModule.SETTING_SYSTEM_ORGANIZATION);
     }
 }
