@@ -8,7 +8,16 @@
         </a-radio>
       </a-radio-group>
     </div>
-    <div v-if="!props.isExport" class="w-[240px]">
+    <div v-if="!props.isExport" class="grid grid-cols-2">
+      <a-input-search
+        v-model:model-value="innerKeywordName"
+        :placeholder="t('report.detail.api.placeHolderName')"
+        allow-clear
+        class="mx-[8px] w-[240px]"
+        @search="searchList"
+        @press-enter="searchList"
+        @clear="reset"
+      />
       <MsCascader
         v-model:model-value="innerKeyword"
         mode="native"
@@ -58,14 +67,24 @@
   const props = defineProps<{
     activeTab: 'tiled' | 'tab';
     keyword: string;
+    keywordName: string;
     showType: 'API' | 'CASE';
     isExport?: boolean; // 是否是导出pdf预览
   }>();
 
-  const emit = defineEmits(['update:activeTab', 'update:keyword']);
+  const emit = defineEmits(['update:activeTab', 'update:keyword', 'update:keywordName', 'search', 'reset']);
 
   const innerActiveTab = useVModel(props, 'activeTab', emit);
   const innerKeyword = useVModel(props, 'keyword', emit);
+  const innerKeywordName = useVModel(props, 'keywordName', emit);
+
+  function searchList() {
+    emit('search');
+  }
+
+  function reset() {
+    emit('reset');
+  }
 
   const methods = ref([
     {

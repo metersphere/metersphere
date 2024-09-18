@@ -36,12 +36,17 @@
     <!-- 报告明细开始 -->
     <div class="report-info">
       <reportInfoHeader
+        v-model:keywordName="keywordName"
         v-model:keyword="cascaderKeywords"
         v-model:active-tab="activeTab"
         show-type="API"
         :is-export="props.isExport"
+        @search="searchHandler"
+        @reset="resetHandler"
       />
       <TiledList
+        ref="tiledListRef"
+        v-model:keyword-name="keywordName"
         :key-words="cascaderKeywords"
         show-type="API"
         :get-report-step-detail="props.getReportStepDetail"
@@ -144,6 +149,7 @@
     }
     return '';
   });
+  const keywordName = ref<string>('');
 
   const reportAnalysisList = computed<ReportMetricsItemModel[]>(() => [
     {
@@ -317,6 +323,15 @@
         rote: `${getRote(detail.value[valueName], detail.value.stepTotal)}%`,
       };
     });
+  }
+
+  const tiledListRef = ref<InstanceType<typeof TiledList>>();
+  function searchHandler() {
+    tiledListRef.value?.updateDebouncedSearch();
+  }
+
+  function resetHandler() {
+    tiledListRef.value?.initStepTree();
   }
 
   watchEffect(() => {

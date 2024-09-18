@@ -162,12 +162,17 @@
     <!-- 报告明细开始 -->
     <div class="report-info">
       <reportInfoHeader
+        v-model:keywordName="keywordName"
         v-model:keyword="cascaderKeywords"
         v-model:active-tab="activeTab"
         show-type="CASE"
         :is-export="props.isExport"
+        @search="searchHandler"
+        @reset="resetHandler"
       />
       <TiledList
+        ref="tiledListRef"
+        v-model:keyword-name="keywordName"
         :key-words="cascaderKeywords"
         show-type="CASE"
         :active-type="activeTab"
@@ -245,6 +250,7 @@
   });
 
   const cascaderKeywords = ref<string>('');
+  const keywordName = ref<string>('');
 
   const getTotalTime = computed(() => {
     if (detail.value) {
@@ -399,6 +405,15 @@
         rote: `${detail.value[item.rateKey] || 0}%`,
       };
     });
+  }
+
+  const tiledListRef = ref<InstanceType<typeof TiledList>>();
+  function searchHandler() {
+    tiledListRef.value?.updateDebouncedSearch();
+  }
+
+  function resetHandler() {
+    tiledListRef.value?.initStepTree();
   }
 
   watchEffect(() => {

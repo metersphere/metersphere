@@ -73,4 +73,5 @@ export default {
   'report.detail.api.caseSaveEnv': 'Case saved environment',
   'report.detail.api.scenarioSavedEnv': 'Scenario saved environment',
   'report.detail.api.noResponseContent': 'There is no response',
+  'report.detail.api.placeHolderName': 'To search by name',
 };
