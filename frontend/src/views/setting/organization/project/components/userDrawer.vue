@@ -265,6 +265,7 @@
     () => {
       setLoadListParams({ projectId: props.projectId });
       fetchData();
+      getUserGroupOptions();
     }
   );
   watch(

@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -64,8 +65,8 @@ public class ProjectMemberController {
 
     @GetMapping("/get-role/option/{projectId}")
     @Operation(summary = "项目管理-成员-获取用户组下拉选项")
-    @RequiresPermissions(PermissionConstants.PROJECT_USER_READ)
-    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    //@RequiresPermissions(PermissionConstants.PROJECT_USER_READ)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_USER_READ, PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ}, logical = Logical.OR)
     public List<OptionDTO> getRoleOption(@PathVariable String projectId) {
         return projectMemberService.getRoleOption(projectId);
     }
@@ -130,7 +131,6 @@ public class ProjectMemberController {
     @PostMapping("/update-member")
     @Operation(summary = "系统设置-系统-组织与项-项目-更新成员用户组")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_MEMBER_UPDATE)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void updateProjectMemberRole(@RequestBody ProjectMemberEditRequest request) {
         projectMemberService.updateMember(request, SessionUtils.getUserId(), "/project/member/update-member", OperationLogModule.SETTING_ORGANIZATION_PROJECT);
     }
