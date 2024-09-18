@@ -118,6 +118,16 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
             authorizationValue.setValue(authValue);
             auths.add(authorizationValue);
         }
+
+        // 设置 headers
+        if (StringUtils.isNotBlank(request.getSwaggerToken())) {
+            AuthorizationValue authorizationValue = new AuthorizationValue();
+            authorizationValue.setType(HEADER);
+            authorizationValue.setKeyName("token");
+            authorizationValue.setValue(request.getSwaggerToken());
+            auths.add(authorizationValue);
+        }
+
         return CollectionUtils.size(auths) == 0 ? null : auths;
     }
 

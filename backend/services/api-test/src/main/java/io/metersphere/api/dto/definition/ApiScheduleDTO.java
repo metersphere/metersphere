@@ -17,6 +17,8 @@ public class ApiScheduleDTO {
     private String moduleId;
     @Schema(description = "swagger地址", requiredMode = Schema.RequiredMode.REQUIRED)
     private String swaggerUrl;
+    @Schema(description = "swagger token", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String swaggerToken;
     @Schema(description = "是否覆盖模块")
     private Boolean coverModule = false;
     @Schema(description = "是否同步导入用例")
