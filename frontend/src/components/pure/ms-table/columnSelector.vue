@@ -160,7 +160,9 @@
       subdirectoryVal.value
     );
     emit('update:visible', false);
-    emit('initData');
+    if (hasChange.value) {
+      emit('initData');
+    }
   };
 
   const loadColumn = (key: TableKeyEnum) => {
