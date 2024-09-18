@@ -304,14 +304,3 @@
     }
   );
 </script>
-
-<style lang="less" scoped>
-  // 下拉不折行
-  :deep(.arco-select-view) {
-    height: 32px;
-    .arco-select-view-inner {
-      @apply overflow-y-auto overflow-x-hidden;
-      .ms-scroll-bar();
-    }
-  }
-</style>
