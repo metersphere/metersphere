@@ -389,11 +389,13 @@ export default function useTableProps<T>(
 
     const allChildrenSelected =
       record.children && record.children.length
-        ? record.children.every((child) => selectedKeys.has(child[key]))
+        ? record.children.every((child: any) => selectedKeys.has(child[key]))
         : false;
 
     const someChildrenSelected =
-      record.children && record.children.length ? record.children.some((child) => selectedKeys.has(child[key])) : false;
+      record.children && record.children.length
+        ? record.children.some((child: any) => selectedKeys.has(child[key]))
+        : false;
 
     if (allChildrenSelected) {
       selectedKeys.add(parentKey);
@@ -423,7 +425,7 @@ export default function useTableProps<T>(
     }
 
     if (record.children && record.children.length) {
-      record.children.forEach((childRecord) => handleSelectChildren(childRecord, select));
+      record.children.forEach((childRecord: any) => handleSelectChildren(childRecord, select));
     }
     // 处理父节点的选中状态
     if (!select && parentKey && rowSelectionDisabledConfig?.checkStrictly) {
