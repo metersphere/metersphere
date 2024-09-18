@@ -504,6 +504,7 @@
             api_definition.num like concat('%', #{request.condition.keyword},'%')
             or api_definition.name like concat('%', #{request.condition.keyword},'%')
             or api_definition.tags like concat('%', #{request.condition.keyword},'%')
+            or api_definition.path like concat('%', #{request.condition.keyword},'%')
             )
         </if>
         <include refid="filters">
