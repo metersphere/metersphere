@@ -44,6 +44,11 @@
               allow-search
               allow-clear
               :filter-tree-node="filterTreeNode"
+              :fallback-option="(key: string | number) => ({
+                name: t('apiTestManagement.moduleNotExist'),
+                key,
+                disabled: true,
+              })"
             >
               <template #tree-slot-title="node">
                 <a-tooltip :content="`${node.name}`" position="tl">
@@ -261,6 +266,11 @@
               :field-names="{ title: 'name', key: 'id', children: 'children' }"
               allow-search
               :filter-tree-node="filterTreeNode"
+              :fallback-option="(key: string | number) => ({
+                name: t('apiTestManagement.moduleNotExist'),
+                key,
+                disabled: true,
+              })"
             >
               <template #tree-slot-title="node">
                 <a-tooltip :content="`${node.name}`" position="tl">

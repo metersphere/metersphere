@@ -450,7 +450,6 @@
       background-color: var(--color-text-n9);
     }
   }
-
   :deep(.arco-select-view-multiple.arco-select-view-size-medium .arco-select-view-tag) {
     margin-top: 1px;
     margin-bottom: 1px;
