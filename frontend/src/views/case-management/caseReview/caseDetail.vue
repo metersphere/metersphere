@@ -564,7 +564,7 @@
       const index = caseList.value.findIndex((e) => e.caseId === activeCaseId.value);
 
       // 如果过滤的状态和评审状态不一样，则这条将从当前列表排除
-      const oneMissingCase = type.value.length && !type.value.includes(status);
+      const oneMissingCase = type.value?.length && !type.value.includes(status);
       if (oneMissingCase) {
         if ((pageNation.value.current - 1) * pageNation.value.pageSize + index + 1 < pageNation.value.total) {
           // 不是最后一个
