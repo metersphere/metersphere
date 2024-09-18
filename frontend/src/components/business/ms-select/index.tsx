@@ -450,7 +450,9 @@ export default defineComponent(
       if (typeof props.optionLabelRender === 'function') {
         return label;
       }
-      const option = remoteOriginOptions.value.find((e) => e[props.labelKey || 'label'] === label);
+      const option = remoteOriginOptions.value.find(
+        (e) => e[props.labelKey || 'label'].toLowerCase() === label?.toLowerCase()
+      );
       return option ? option[props.labelKey || 'label'] : props.optionNotExitsText || t('ms.select.optionsNotExits');
     }
 
