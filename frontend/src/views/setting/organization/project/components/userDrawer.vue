@@ -48,7 +48,6 @@
             v-else
             v-model:model-value="record.userRoleList"
             :placeholder="t('system.user.createUserUserGroupPlaceholder')"
-            :options="userGroupOptions"
             :search-keys="['name']"
             :loading="record.selectUserGroupLoading"
             :disabled="record.selectUserGroupLoading"
@@ -60,8 +59,11 @@
             label-key="name"
             class="w-full max-w-[300px]"
             allow-clear
-            multiple
-            at-least-one
+            v-bind="{
+              options: userGroupOptions,
+              multiple: true,
+            }"
+            :at-least-one="true"
             :object-value="true"
             @popup-visible-change="(value) => handleUserGroupChange(value, record)"
           >

@@ -36,7 +36,7 @@ export default function useSelect(config: UseSelectOption) {
         const innerViewWidth = selectViewInner.value?.getBoundingClientRect().width;
         let lastWidth = innerViewWidth - 60; // 60px 是“+N”的标签宽度+聚焦输入框的宽度
         const childrenNodes = selectViewInner.value.children;
-        if (maxTagCount.value >= 1 && maxTagCount.value < config.selectVal.value.length) {
+        if (maxTagCount.value >= 1 && maxTagCount.value < config.selectVal.value?.length) {
           return;
         }
         for (let i = 0; i < childrenNodes.length; i++) {
