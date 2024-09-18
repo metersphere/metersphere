@@ -425,7 +425,13 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
         } else {
             name = path;
         }
-        String modulePath = CollectionUtils.isNotEmpty(operation.getTags()) ? StringUtils.join("/", operation.getTags().getFirst()) : StringUtils.EMPTY;
+        String modulePath = StringUtils.EMPTY;
+        if (CollectionUtils.isNotEmpty(operation.getTags())) {
+            modulePath = operation.getTags().getFirst();
+            if (!StringUtils.startsWith(modulePath, "/")) {
+                modulePath = "/" + modulePath;
+            }
+        }
         return buildApiDefinition(name, path, method, modulePath, importRequest);
     }
 
