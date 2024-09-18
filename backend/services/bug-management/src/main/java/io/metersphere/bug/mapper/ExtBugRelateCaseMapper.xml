@@ -132,6 +132,7 @@
             b.title as name,
             b.handle_user handleUser,
             b.create_user createUser,
+            createUser.name AS createUserName,
             b.`status`,
             bc.description as content,
             brc.test_plan_id testPlanId,
@@ -140,6 +141,7 @@
             bug_relation_case brc
                 INNER JOIN bug b ON brc.bug_id = b.id
                 INNER JOIN bug_content bc ON brc.bug_id = bc.bug_id
+        LEFT JOIN user createUser ON b.create_user = createUser.id
         left join test_plan tp on brc.test_plan_id = tp.id
         <where>
             <include refid="queryWhereConditionByProvider"/>
@@ -287,6 +289,7 @@
         b.title as name,
         b.handle_user handleUser,
         b.create_user createUser,
+        createUser.name AS createUserName,
         b.`status`,
         bc.description as content,
         brc.test_plan_id testPlanId,
@@ -296,6 +299,7 @@
         INNER JOIN bug b ON brc.bug_id = b.id
         INNER JOIN bug_content bc ON brc.bug_id = bc.bug_id
         left join test_plan tp on brc.test_plan_id = tp.id
+        LEFT JOIN user createUser ON b.create_user = createUser.id
         <where>
             <if test="request.testPlanCaseId != null and request.testPlanCaseId != ''">
                 and brc.test_plan_case_id = #{request.testPlanCaseId}
