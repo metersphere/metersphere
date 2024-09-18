@@ -1840,7 +1840,7 @@ public class BugService {
         // 本地模板自定义字段去重
         List<TemplateCustomFieldDTO> headerCustomFields = allCustomFields.stream().filter(distinctByKey(TemplateCustomFieldDTO::getFieldId)).collect(Collectors.toList());
         // 填充自定义字段成员类型的选项值
-        List<SelectOption> memberOption = bugCommonService.getHeaderHandlerOption(projectId);
+        List<SelectOption> memberOption = bugCommonService.getLocalHandlerOption(projectId);
         List<CustomFieldOption> memberCustomOption = memberOption.stream().map(option -> {
             CustomFieldOption customFieldOption = new CustomFieldOption();
             customFieldOption.setValue(option.getValue());
