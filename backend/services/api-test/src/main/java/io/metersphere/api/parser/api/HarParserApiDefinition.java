@@ -242,7 +242,7 @@ public class HarParserApiDefinition extends HttpApiDefinitionImportAbstractParse
             HarRequest harRequest = entry.request;
             if (harRequest != null) {
                 // css 、 js 略过
-                if (StringUtils.equalsIgnoreCase(harRequest.method, HttpMethodConstants.GET.name()) && StringUtils.endsWithAny(harRequest.url, ".css", ".js")) {
+                if (StringUtils.equalsIgnoreCase(harRequest.method, HttpMethodConstants.GET.name()) && StringUtils.endsWithAny(harRequest.url.toLowerCase(), ".css", ".js", ".png", ".jpg", ".jpeg")) {
                     continue;
                 }
                 String url = harRequest.url;

@@ -680,6 +680,12 @@ public class ApiDefinitionImportService {
                         this.updateApiDefinitionRequest(importApi, msProtocolTestElement, request.getPlatform());
                         apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
                     }
+                } else if (!StringUtils.equalsIgnoreCase(importApi.getProtocol(), "HTTP")) {
+                    /*
+                        非http的要进行更新，例如tcp最重要的是请求内容，不更新的话就会导致导入的内容丢失
+                        而http判断是否一致主要还是请求里的key，不是value。只要key还不变就没关系
+                     */
+                    apiDefinitionPreImportAnalysisResult.getUpdateApiData().add(importApi);
                 }
             } else {
                 if (!isSameApi) {
