@@ -107,7 +107,8 @@ public class OrganizationController {
 
     @GetMapping("/user/role/list/{organizationId}")
     @Operation(summary = "系统设置-组织-成员-获取当前组织下的所有自定义用户组以及组织级别的用户组")
-    @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_READ)
+    //@RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_READ)
+    @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_MEMBER_READ, PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ}, logical = Logical.OR)
     public List<OptionDTO> getUserRoleList(@PathVariable(value = "organizationId") String organizationId) {
         return organizationService.getUserRoleList(organizationId);
     }
