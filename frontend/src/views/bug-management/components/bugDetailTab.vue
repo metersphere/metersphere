@@ -85,28 +85,32 @@
       }"
       :upload-func="uploadOrAssociationFile"
       :handle-delete="deleteFileHandler"
-      :show-delete="props.allowEdit"
       :init-file-save-tips="t('ms.upload.waiting_save')"
+      :show-delete="false"
       @finish="uploadFileOver"
     >
       <template #actions="{ item }">
         <div>
           <!-- 本地文件 -->
-          <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
+          <div v-if="item.local || item.status === 'init'" class="flex items-center font-normal">
             <MsButton
               v-if="item.status !== 'init' && item.status !== 'uploading' && item.file.type.includes('image')"
               type="button"
               status="primary"
-              class="!mr-[4px]"
+              class="!mx-0"
               @click="handlePreview(item)"
             >
               {{ t('ms.upload.preview') }}
             </MsButton>
+            <a-divider
+              v-if="item.status !== 'init' && item.status !== 'uploading' && item.file.type.includes('image')"
+              direction="vertical"
+            />
             <MsButton
               v-if="item.status === 'done' && hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
               type="button"
               status="primary"
-              class="!mr-[4px]"
+              class="!mx-0"
               @click="transferHandler(item)"
             >
               {{ t('caseManagement.featureCase.storage') }}
@@ -121,44 +125,72 @@
               source-id-key="bugId"
               @finish="emit('updateSuccess')"
             />
+            <a-divider
+              v-if="item.status === 'done' && hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
+              direction="vertical"
+            />
             <MsButton
               v-if="item.status === 'done'"
               type="button"
               status="primary"
-              class="!mr-[4px]"
+              class="!mx-0"
               @click="downloadFile(item)"
             >
               {{ t('caseManagement.featureCase.download') }}
             </MsButton>
+            <a-divider v-if="item.status === 'done'" direction="vertical" />
+            <MsButton
+              v-if="item.status !== 'uploading' && hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
+              type="button"
+              :status="item.deleteContent ? 'primary' : 'danger'"
+              class="!mx-0"
+              @click="deleteFileHandler(item)"
+            >
+              {{ t(item.deleteContent) || t('ms.upload.delete') }}
+            </MsButton>
           </div>
           <!-- 关联文件 -->
-          <div v-else class="flex flex-nowrap">
+          <div v-else class="flex items-center font-normal">
             <MsButton
               v-if="item.status !== 'init' && item.file.type.includes('image')"
               type="button"
               status="primary"
-              class="!mr-[4px]"
+              class="!mx-0"
               @click="handlePreview(item)"
             >
               {{ t('ms.upload.preview') }}
             </MsButton>
+            <a-divider v-if="item.status !== 'init' && item.file.type.includes('image')" direction="vertical" />
+
             <MsButton
               v-if="item.status === 'done'"
               type="button"
               status="primary"
-              class="!mr-[4px]"
+              class="!mx-0"
               @click="downloadFile(item)"
             >
               {{ t('caseManagement.featureCase.download') }}
             </MsButton>
+            <a-divider v-if="item.status === 'done'" direction="vertical" />
+
             <MsButton
               v-if="item.isUpdateFlag && hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
               type="button"
               status="primary"
-              class="!mr-[4px]"
+              class="!mx-0"
               @click="handleUpdateFile(item)"
             >
               {{ t('common.update') }}
+            </MsButton>
+            <a-divider v-if="item.isUpdateFlag && hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])" direction="vertical" />
+            <MsButton
+              v-if="item.status === 'done' && hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
+              type="button"
+              :status="item.deleteContent ? 'primary' : 'danger'"
+              class="!mx-0"
+              @click="deleteFileHandler(item)"
+            >
+              {{ t(item.deleteContent) }}
             </MsButton>
           </div>
         </div>

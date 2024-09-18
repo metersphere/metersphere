@@ -2,7 +2,7 @@
   <MsDrawer
     v-model:visible="showBugDrawer"
     :mask="true"
-    :title="t('case.saveContinueText')"
+    :title="bugId ? t('bugManagement.editBug') : t('caseManagement.featureCase.createDefect')"
     :ok-text="t('common.create')"
     :ok-loading="drawerLoading"
     :width="850"

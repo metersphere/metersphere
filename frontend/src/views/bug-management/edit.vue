@@ -59,24 +59,26 @@
           v-model:file-list="fileList"
           :init-file-save-tips="t('ms.upload.waiting_save')"
           mode="static"
+          :show-delete="false"
         >
           <template #actions="{ item }">
             <!-- 本地文件 -->
-            <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
+            <div v-if="item.local || item.status === 'init'" class="flex items-center font-normal">
               <MsButton
                 v-if="item.status !== 'init' && item.file.type.includes('image')"
                 type="button"
                 status="primary"
-                class="!mr-[4px]"
+                class="!mx-0"
                 @click="handlePreview(item)"
               >
                 {{ t('ms.upload.preview') }}
               </MsButton>
+              <a-divider v-if="item.status !== 'init' && item.file.type.includes('image')" direction="vertical" />
               <MsButton
                 v-if="item.status !== 'init'"
                 type="button"
                 status="primary"
-                class="!mr-[4px]"
+                class="!mx-0"
                 @click="transferFile(item)"
               >
                 {{ t('caseManagement.featureCase.storage') }}
@@ -90,43 +92,67 @@
                 source-id-key="bugId"
                 @finish="getDetailInfo()"
               />
+              <a-divider v-if="item.status !== 'init'" direction="vertical" />
               <MsButton
                 v-if="item.status !== 'init'"
                 type="button"
                 status="primary"
-                class="!mr-[4px]"
+                class="!mx-0"
                 @click="downloadFile(item)"
               >
                 {{ t('common.download') }}
               </MsButton>
+              <a-divider v-if="item.status !== 'init'" direction="vertical" />
+              <MsButton
+                v-if="item.status !== 'uploading'"
+                type="button"
+                :status="item.deleteContent ? 'primary' : 'danger'"
+                class="!mx-0"
+                @click="deleteFile(item)"
+              >
+                {{ t(item.deleteContent) || t('ms.upload.delete') }}
+              </MsButton>
             </div>
             <!-- 关联文件 -->
-            <div v-else class="flex flex-nowrap">
+            <div v-else class="flex items-center font-normal">
               <MsButton
                 v-if="item.status !== 'init' && item.file.type.includes('image')"
                 type="button"
                 status="primary"
-                class="!mr-[4px]"
+                class="!mx-0"
                 @click="handlePreview(item)"
               >
                 {{ t('ms.upload.preview') }}
               </MsButton>
-              <MsButton v-if="bugId" type="button" status="primary" class="!mr-[4px]" @click="downloadFile(item)">
+              <a-divider v-if="item.status !== 'init' && item.file.type.includes('image')" direction="vertical" />
+              <MsButton v-if="bugId" type="button" status="primary" class="!mx-0" @click="downloadFile(item)">
                 {{ t('common.download') }}
               </MsButton>
+              <a-divider v-if="bugId" direction="vertical" />
               <MsButton
                 v-if="bugId && item.isUpdateFlag"
                 type="button"
+                class="!mx-0"
                 status="primary"
                 @click="handleUpdateFile(item)"
               >
                 {{ t('common.update') }}
               </MsButton>
+              <a-divider v-if="bugId && item.isUpdateFlag" direction="vertical" />
+              <MsButton
+                v-if="item.status !== 'uploading'"
+                type="button"
+                :status="item.deleteContent ? 'primary' : 'danger'"
+                class="!mx-0"
+                @click="deleteFile(item)"
+              >
+                {{ t(item.deleteContent) }}
+              </MsButton>
             </div>
           </template>
           <template #title="{ item }">
-            <span v-if="item.isUpdateFlag" class="ml-4 flex items-center font-normal text-[rgb(var(--warning-6))]"
-              ><icon-exclamation-circle-fill /> <span>{{ t('caseManagement.featureCase.fileIsUpdated') }}</span>
+            <span v-if="item.isUpdateFlag" class="ml-4 flex items-center font-normal text-[rgb(var(--warning-6))]">
+              <icon-exclamation-circle-fill /> <span>{{ t('caseManagement.featureCase.fileIsUpdated') }}</span>
             </span>
           </template>
         </MsFileList>
@@ -788,6 +814,13 @@
       loading.value = false;
     }
   };
+
+  function deleteFile(item: MsFileItem) {
+    const index = fileList.value.findIndex((e) => e.uid === item.uid);
+    if (index !== -1) {
+      fileList.value.splice(index, 1);
+    }
+  }
 
   // 监视自定义字段改变处理formCreate
   watch(

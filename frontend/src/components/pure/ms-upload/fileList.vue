@@ -43,7 +43,7 @@
               <div class="m-b[2px] flex items-center">
                 <a-tooltip :content="item.file.name">
                   <div class="show-file-name">
-                    <div class="file-name-first one-line-text max-w-[421px] pl-[4px] font-normal">
+                    <div class="file-name-first one-line-text max-w-[300px] pl-[4px] font-normal">
                       {{ item.file.name.slice(0, item.file.name.indexOf('.')) }}
                     </div>
                     <span class="font-normal text-[var(--color-text-1)]">
