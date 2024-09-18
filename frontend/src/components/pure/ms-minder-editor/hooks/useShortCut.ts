@@ -77,9 +77,11 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
 
     let action;
 
-    if (isCtrlOrCmd && combinationShortcuts[key]) {
+    if (isCtrlOrCmd) {
       // 执行组合键事件
-      action = combinationShortcuts[key];
+      if (combinationShortcuts[key]) {
+        action = combinationShortcuts[key];
+      }
     } else if (isShift && shiftCombinationShortcuts[key]) {
       // 执行 shift 组合键事件
       action = shiftCombinationShortcuts[key];
