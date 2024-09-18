@@ -137,6 +137,7 @@
       dataIndex: 'name',
       showTooltip: true,
       width: 200,
+      fixed: 'left',
     },
     {
       title: 'system.user.tableColumnUserGroup',
@@ -155,11 +156,13 @@
     {
       title: 'system.organization.phone',
       dataIndex: 'phone',
+      width: 130,
     },
     {
       title: hasOperationPermission.value ? 'system.organization.operation' : '',
       slotName: 'operation',
       width: hasOperationPermission.value ? 60 : 20,
+      fixed: 'right',
     },
   ];
 
