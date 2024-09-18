@@ -26,6 +26,7 @@
   } from '@/api/modules/api-test/management';
   import { reportCaseDetail } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
+  import { characterLimit } from '@/utils';
   import exportPDF from '@/utils/exportPdf';
 
   import { ReportDetail } from '@/models/apiTest/report';
@@ -45,7 +46,9 @@
         nextTick(async () => {
           await exportPDF(reportStepDetail.value?.name || '', 'report-detail');
           loading.value = false;
-          Message.success(t('report.detail.exportPdfSuccess'));
+          Message.success(
+            t('report.detail.exportPdfSuccess', { name: characterLimit(reportStepDetail.value?.name, 50) })
+          );
         });
       }, 500);
     } catch (error) {
@@ -98,10 +101,12 @@
       if (event.origin !== window.location.origin) {
         return;
       }
+      const { data, eventId } = JSON.parse(event.data);
+      // 发送响应回旧标签页
+      window.opener.postMessage(eventId, window.location.origin);
       // 初始化批量导出报告 id 集合
-      const batchParams = event.data;
-      initBatchIds(batchParams);
-      logExport(batchParams);
+      initBatchIds(data);
+      logExport(data);
     });
     if (route.query.id) {
       initReportDetail();

@@ -830,10 +830,12 @@
       if (event.origin !== window.location.origin) {
         return;
       }
+      const { data, eventId } = JSON.parse(event.data);
+      // 发送响应回旧标签页
+      window.opener.postMessage(eventId, window.location.origin);
       // 初始化批量导出报告 id 集合
-      const batchParams = event.data;
-      initBatchIds(batchParams);
-      logExport(batchParams);
+      initBatchIds(data);
+      logExport(data);
     });
     if (reportId.value) {
       getDetail();
