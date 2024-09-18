@@ -42,15 +42,18 @@
     try {
       loading.value = true;
       reportStepDetail.value = await reportCaseDetail(id || (route.query.id as string));
-      setTimeout(() => {
-        nextTick(async () => {
-          await exportPDF(reportStepDetail.value?.name || '', 'report-detail');
-          loading.value = false;
-          Message.success(
-            t('report.detail.exportPdfSuccess', { name: characterLimit(reportStepDetail.value?.name, 50) })
-          );
-        });
-      }, 500);
+      await new Promise((resolve) => {
+        setTimeout(async () => {
+          await nextTick(async () => {
+            await exportPDF(reportStepDetail.value?.name || '', 'report-detail');
+            loading.value = false;
+            Message.success(
+              t('report.detail.exportPdfSuccess', { name: characterLimit(reportStepDetail.value?.name, 50) })
+            );
+            resolve(true);
+          });
+        }, 500); // TODO:树组件渲染延迟导致导出 pdf 时内容不全，暂时延迟 500ms
+      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

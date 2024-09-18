@@ -723,7 +723,7 @@
 
   function getCurrentList(data: TableData[], key: string, id: string) {
     return data.find((item) => {
-      const currentChildrenIds = (item.children || []).map((e) => e[key]);
+      const currentChildrenIds = (item.children || []).map((e: any) => e[key]);
       if (currentChildrenIds?.includes(id)) {
         return true;
       }
