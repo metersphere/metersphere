@@ -363,8 +363,9 @@ public class HarParserApiDefinition extends HttpApiDefinitionImportAbstractParse
         if (StringUtils.equalsIgnoreCase("GET", requestBody.method) || requestBody.postData == null) {
             return;
         }
-        String bodyType = Body.BodyType.NONE.name();
+        String bodyType = content.mimeType;
         if (StringUtils.isEmpty(bodyType)) {
+            bodyType = Body.BodyType.RAW.name();
             body.setRawBody(new RawBody() {{
                 this.setValue(content.text);
             }});
