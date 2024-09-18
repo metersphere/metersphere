@@ -173,6 +173,7 @@ export default {
   'apiTestManagement.protocolIsEmpty': 'The protocol is empty',
   'apiTestManagement.protocolEmptyTip': 'List display data is empty, please select protocol',
   'apiTestManagement.exportSwaggerTip': 'Swagger format only supports exporting HTTP protocol requests',
+  'apiTestManagement.moduleNotExist': 'Module does not exist',
   'case.execute.selectEnv': 'Select Environment',
   'case.execute.defaultEnv': 'Default Environment',
   'case.execute.newEnv': 'New Environment',
