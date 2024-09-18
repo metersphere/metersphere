@@ -1,6 +1,7 @@
 import { RouteRecordName, useRouter } from 'vue-router';
 
 import { useAppStore } from '@/store';
+import { getGenerateId } from '@/utils';
 
 /**
  * 打开新页面
@@ -71,11 +72,27 @@ export default function useOpenNewPage() {
 
     // 等待新标签页加载完成后发送消息
     if (newTab) {
+      let timeInterval: NodeJS.Timeout;
+      const eventId = `${name as string}-${getGenerateId()}`;
       newTab.onload = () => {
-        setTimeout(() => {
-          newTab.postMessage(JSON.stringify(params), window.location.origin);
-        }, 300);
+        timeInterval = setInterval(() => {
+          newTab.postMessage(
+            JSON.stringify({
+              eventId,
+              data: params,
+            }),
+            window.location.origin
+          );
+        }, 100);
       };
+      window.addEventListener('message', (event) => {
+        if (event.origin !== window.location.origin) {
+          return;
+        }
+        if (event.data === eventId) {
+          clearInterval(timeInterval);
+        }
+      });
     }
   }
 
