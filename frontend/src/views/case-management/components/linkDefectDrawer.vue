@@ -39,6 +39,11 @@
       <template #name="{ record }">
         <BugNamePopover :name="record.name || record.title" :content="record.content || record.description || ''" />
       </template>
+      <template #createUserName="{ record }">
+        <a-tooltip :content="`${record.createUserName}`" position="tl">
+          <div class="one-line-text">{{ record.createUserName || '-' }}</div>
+        </a-tooltip>
+      </template>
     </ms-base-table>
   </MsDrawer>
 </template>
@@ -142,7 +147,7 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnCreateUser',
-      slotName: 'createUser',
+      slotName: 'createUserName',
       dataIndex: 'createUser',
       showInTable: true,
       showTooltip: true,

@@ -79,6 +79,14 @@
             </a-tooltip>
           </div>
         </template>
+        <template #description="{ record }">
+          <a-tooltip position="tl" class="ms-tooltip-white">
+            <div v-dompurify-html="record.description || '-'"></div>
+            <template #content>
+              <div v-dompurify-html="record.description || '-'"></div>
+            </template>
+          </a-tooltip>
+        </template>
       </MsBaseTable>
     </div>
   </MsCard>
@@ -764,6 +772,10 @@
           };
         } else {
           item.showInTable = false;
+        }
+        if (item.title === '内容') {
+          item.slotName = 'description';
+          item.showTooltip = false;
         }
       });
     } catch (error) {

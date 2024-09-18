@@ -113,23 +113,23 @@
           projectId: currentProjectId,
         }"
         :upload-func="uploadOrAssociationFile"
-        :handle-delete="deleteFileHandler"
-        :show-delete="props.allowEdit && !props.isTestPlan"
+        :show-delete="false"
         @finish="uploadFileOver"
       >
         <template #actions="{ item }">
           <div v-if="props.allowEdit">
             <!-- 本地文件 -->
-            <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
+            <div v-if="item.local || item.status === 'init'" class="flex items-center font-normal">
               <MsButton
                 v-if="item.file.type.includes('/image')"
                 type="button"
                 status="primary"
-                class="!mr-[4px]"
+                class="!mr-0"
                 @click="handlePreview(item)"
               >
                 {{ t('ms.upload.preview') }}
               </MsButton>
+              <a-divider v-if="item.file.type.includes('/image')" direction="vertical" />
               <SaveAsFilePopover
                 v-if="!props.isTestPlan && item.uid === activeTransferFileParams?.uid"
                 v-model:visible="transferVisible"
@@ -141,52 +141,109 @@
                 @finish="emit('updateSuccess')"
               />
               <MsButton
-                v-if="!props.isTestPlan"
+                v-if="props.allowEdit && !props.isTestPlan && hasAllPermission(['FUNCTIONAL_CASE:READ+UPDATE'])"
                 type="button"
                 status="primary"
-                class="!mr-[4px]"
+                class="!mr-0"
                 @click="transferFileHandler(item)"
               >
                 {{ t('caseManagement.featureCase.storage') }}
               </MsButton>
+              <a-divider
+                v-if="props.allowEdit && !props.isTestPlan && hasAllPermission(['FUNCTIONAL_CASE:READ+UPDATE'])"
+                direction="vertical"
+              />
               <MsButton
-                v-if="item.status === 'done'"
+                v-if="
+                  item.status === 'done' &&
+                  props.allowEdit &&
+                  !props.isTestPlan &&
+                  hasAllPermission(['FUNCTIONAL_CASE:READ+UPDATE'])
+                "
                 type="button"
                 status="primary"
-                class="!mr-[4px]"
+                class="!mr-0"
                 @click="downloadFile(item)"
               >
                 {{ t('caseManagement.featureCase.download') }}
               </MsButton>
+              <a-divider
+                v-if="
+                  item.status === 'done' &&
+                  props.allowEdit &&
+                  !props.isTestPlan &&
+                  hasAllPermission(['FUNCTIONAL_CASE:READ+UPDATE'])
+                "
+                direction="vertical"
+              />
+              <MsButton
+                v-if="item.status !== 'uploading' && props.allowEdit && !props.isTestPlan"
+                type="button"
+                :status="item.deleteContent ? 'primary' : 'danger'"
+                class="!mr-0"
+                @click="deleteFileHandler(item)"
+              >
+                {{ t(item.deleteContent) || t('ms.upload.delete') }}
+              </MsButton>
             </div>
             <!-- 关联文件 -->
-            <div v-else class="flex flex-nowrap">
+            <div v-else class="flex items-center font-normal">
               <MsButton
                 v-if="item.file.type.includes('/image')"
                 type="button"
                 status="primary"
-                class="!mr-[4px]"
+                class="!mr-0"
                 @click="handlePreview(item)"
               >
                 {{ t('ms.upload.preview') }}
               </MsButton>
+              <a-divider v-if="item.file.type.includes('/image')" direction="vertical" />
               <MsButton
                 v-if="item.status === 'done'"
                 type="button"
                 status="primary"
-                class="!mr-[4px]"
+                class="!mr-0"
                 @click="downloadFile(item)"
               >
                 {{ t('caseManagement.featureCase.download') }}
               </MsButton>
+              <a-divider v-if="item.status === 'done'" direction="vertical" />
               <MsButton
-                v-if="item.isUpdateFlag"
+                v-if="
+                  item.isUpdateFlag &&
+                  props.allowEdit &&
+                  !props.isTestPlan &&
+                  hasAllPermission(['FUNCTIONAL_CASE:READ+UPDATE'])
+                "
                 type="button"
                 status="primary"
-                class="!mr-[4px]"
+                class="!mr-0"
                 @click="handleUpdateFile(item)"
               >
                 {{ t('common.update') }}
+              </MsButton>
+              <a-divider
+                v-if="
+                  item.isUpdateFlag &&
+                  props.allowEdit &&
+                  !props.isTestPlan &&
+                  hasAllPermission(['FUNCTIONAL_CASE:READ+UPDATE'])
+                "
+                direction="vertical"
+              />
+              <MsButton
+                v-if="
+                  item.status !== 'uploading' &&
+                  props.allowEdit &&
+                  !props.isTestPlan &&
+                  hasAllPermission(['FUNCTIONAL_CASE:READ+UPDATE'])
+                "
+                type="button"
+                :status="item.deleteContent ? 'primary' : 'danger'"
+                class="!mr-0"
+                @click="deleteFileHandler(item)"
+              >
+                {{ t(item.deleteContent) }}
               </MsButton>
             </div>
           </div>
@@ -262,6 +319,7 @@
   import useAppStore from '@/store/modules/app';
   import { characterLimit, downloadByteFile, getGenerateId, sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
+  import { hasAllPermission } from '@/utils/permission';
 
   import type { AssociatedList, DetailCase, StepList } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
