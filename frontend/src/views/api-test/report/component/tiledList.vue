@@ -82,6 +82,10 @@
 
   const tiledList = ref<ScenarioItemType[]>([]);
 
+  const innerKeyword = defineModel<string>('keywordName', {
+    default: '',
+  });
+
   const isExpandAll = ref(false); // 是否展开全部
 
   const showStepDrawer = ref<boolean>(false);
@@ -156,21 +160,44 @@
     ScenarioStepType.CUSTOM_REQUEST,
     ScenarioStepType.SCRIPT,
   ]);
+
   function searchStep() {
     const splitLevel = props.keyWords.split('-');
-    const stepTypeStatus = splitLevel[1];
+    const stepTypeStatus = splitLevel[1] || '';
     const stepType = splitLevel[0] === 'CUSTOM_REQUEST' ? ['API', 'API_CASE', 'CUSTOM_REQUEST'] : splitLevel[0];
+    const nameSearch = innerKeyword.value?.toLowerCase(); // 传入的 name 检索关键字
 
     const search = (_data: ScenarioItemType[]) => {
       const result: ScenarioItemType[] = [];
 
       _data.forEach((item) => {
         const isStepChildren = item.children && item?.children.length && showApiType.value.includes(item.stepType);
-        if (
-          stepType.includes(item.stepType) &&
-          ((item.status && item.status === stepTypeStatus && stepTypeStatus !== 'scriptIdentifier') ||
-            (stepTypeStatus.includes('scriptIdentifier') && item.scriptIdentifier))
-        ) {
+
+        // 匹配步骤类型
+        const matchStepType = stepType.includes(item.stepType);
+
+        // 匹配步骤状态
+        const matchStepStatus =
+          (item.status && item.status === stepTypeStatus && stepTypeStatus !== 'scriptIdentifier') ||
+          (stepTypeStatus.includes('scriptIdentifier') && item.scriptIdentifier);
+
+        // 条件匹配逻辑
+        let matchesStepCondition;
+
+        // 如果传入了 name 且有状态
+        if (nameSearch && stepTypeStatus) {
+          matchesStepCondition = matchStepType && matchStepStatus && item.name?.toLowerCase().includes(nameSearch);
+        }
+        // 仅传入了 name 没有状态或类型
+        else if (nameSearch) {
+          matchesStepCondition = item.name?.toLowerCase().includes(nameSearch);
+        }
+        // 没有传入 name 只按状态和类型检索
+        else {
+          matchesStepCondition = matchStepType && matchStepStatus;
+        }
+
+        if (matchesStepCondition) {
           const resItem = {
             ...item,
             expanded: false,
@@ -189,14 +216,12 @@
 
             if (isStepChildren) {
               filterItem.stepChildren = cloneDeep(item.children);
-
               filterItem.children = [];
             }
             result.push(filterItem);
           }
         }
       });
-
       return result;
     };
 
@@ -205,7 +230,7 @@
 
   // 防抖搜索
   const updateDebouncedSearch = debounce(() => {
-    if (props.keyWords) {
+    if (props.keyWords || innerKeyword.value) {
       tiledList.value = searchStep();
     }
   }, 300);
@@ -220,6 +245,11 @@
       }
     }
   );
+
+  defineExpose({
+    updateDebouncedSearch,
+    initStepTree,
+  });
 </script>
 
 <style scoped lang="less">
