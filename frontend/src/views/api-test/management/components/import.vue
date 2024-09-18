@@ -157,6 +157,9 @@
                 allow-clear
               ></a-input>
             </a-form-item>
+            <a-form-item field="token" label="token" asterisk-position="end">
+              <a-input v-model:model-value="importForm.swaggerToken" class="w-[700px]" allow-clear></a-input>
+            </a-form-item>
             <div class="mb-[16px] flex items-center gap-[8px]">
               <a-switch v-model:model-value="importForm.authSwitch" type="line" size="small"></a-switch>
               {{ t('apiTestManagement.basicAuth') }}
@@ -223,6 +226,9 @@
               class="w-[550px]"
               allow-clear
             ></a-input>
+          </a-form-item>
+          <a-form-item field="token" label="token" asterisk-position="end">
+            <a-input v-model:model-value="importForm.swaggerToken" class="w-[700px]" allow-clear></a-input>
           </a-form-item>
           <div class="mb-[16px] flex items-center gap-[8px]">
             <a-switch v-model:model-value="importForm.authSwitch" type="line" size="small"></a-switch>
@@ -415,6 +421,7 @@
     syncMock: true,
     coverModule: false,
     swaggerUrl: '',
+    swaggerToken: '',
     authSwitch: false,
     authUsername: '',
     authPassword: '',
@@ -519,6 +526,7 @@
             protocol: importForm.value.protocol,
             moduleId: importForm.value.moduleId,
             swaggerUrl: importForm.value.swaggerUrl,
+            swaggerToken: importForm.value.swaggerToken,
             authSwitch: importForm.value.authSwitch,
             authUsername: importForm.value.authUsername,
             authPassword: importForm.value.authPassword,
@@ -552,6 +560,7 @@
         protocol: importForm.value.protocol,
         moduleId: importForm.value.moduleId,
         swaggerUrl: importForm.value.swaggerUrl,
+        swaggerToken: importForm.value.swaggerToken,
         authSwitch: importForm.value.authSwitch,
         authUsername: importForm.value.authUsername,
         authPassword: importForm.value.authPassword,

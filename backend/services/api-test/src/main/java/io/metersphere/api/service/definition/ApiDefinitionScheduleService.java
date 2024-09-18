@@ -61,6 +61,7 @@ public class ApiDefinitionScheduleService {
         basicAuth.setUserName(request.getAuthUsername());
         basicAuth.setPassword(request.getAuthPassword());
         basicAuth.setAuthSwitch(request.isAuthSwitch());
+        basicAuth.setToken(request.getSwaggerToken());
         apiSwagger.setConfig(ApiDataUtils.toJSONString(basicAuth));
         apiDefinitionSwaggerMapper.insertSelective(apiSwagger);
 
@@ -166,6 +167,7 @@ public class ApiDefinitionScheduleService {
             apiScheduleDTO.setAuthUsername(basicAuth.getUserName());
             apiScheduleDTO.setAuthPassword(basicAuth.getPassword());
             apiScheduleDTO.setAuthSwitch(basicAuth.getAuthSwitch());
+            apiScheduleDTO.setSwaggerToken(basicAuth.getToken());
         }
         apiScheduleDTO.setEnable(schedule.getEnable());
         apiScheduleDTO.setValue(schedule.getValue());

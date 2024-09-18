@@ -31,6 +31,7 @@ public class ApiScheduleRequest {
     @NotBlank(message = "{api_definition_swagger.swagger_url.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 500, message = "{api_definition_swagger.swagger_url.length_range}", groups = {Created.class, Updated.class})
     private String swaggerUrl;
+    private String swaggerToken;
     private String taskId;
     @Schema(description = "是否覆盖模块")
     private Boolean coverModule = false;

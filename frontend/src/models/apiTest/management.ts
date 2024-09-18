@@ -237,6 +237,7 @@ export interface ImportApiDefinitionRequest {
   uniquelyIdentifies?: string;
   resourceId?: string;
   swaggerUrl?: string;
+  swaggerToken?: string;
   moduleId: string;
   projectId: string;
   name?: string;
