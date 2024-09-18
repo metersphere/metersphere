@@ -818,6 +818,7 @@
   };
 
   const handleInitColumn = async () => {
+    emit('sorterChange', {});
     await initColumn();
   };
 
