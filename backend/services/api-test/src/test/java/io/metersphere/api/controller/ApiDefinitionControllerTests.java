@@ -134,6 +134,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
     private static final String EXPORT = "/export/";
     private static ApiDefinition apiDefinition;
+    private static ApiDefinition tcpApiDefinition;
 
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
@@ -302,7 +303,12 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setProtocol("TCP");
         request.setMethod(null);
         request.setPath(null);
-        this.requestPostWithOk(ADD, request);
+        mvcResult = this.requestPostWithOkAndReturn(ADD, request);
+        resultData = getResultData(mvcResult, ApiDefinition.class);
+        tcpApiDefinition = apiDefinitionMapper.selectByPrimaryKey(resultData.getId());
+
+        // @@TCP重名校验异常
+        assertErrorCode(this.requestPost(ADD, request), ApiResultCode.API_DEFINITION_EXIST);
 
         // @@响应名+响应码唯一校验异常
         request.setName("test123-response");
@@ -556,6 +562,11 @@ public class ApiDefinitionControllerTests extends BaseTest {
         this.requestPostWithOk(UPDATE, updateStatusRequest);
         apiDefinition = apiDefinitionMapper.selectByPrimaryKey(updateStatusRequest.getId());
         Assertions.assertEquals(apiDefinition.getStatus(), ApiDefinitionStatus.DONE.name());
+
+        ApiDefinitionUpdateRequest tcpRequest = new ApiDefinitionUpdateRequest();
+        tcpRequest.setId(tcpApiDefinition.getId());
+        tcpRequest.setDescription("TEST");
+        this.requestPostWithOk(UPDATE, tcpRequest);
 
         // @@重名校验异常
         ApiDefinitionUpdateRequest repeatRequest = new ApiDefinitionUpdateRequest();

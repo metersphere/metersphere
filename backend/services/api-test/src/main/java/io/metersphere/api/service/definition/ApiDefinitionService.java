@@ -261,9 +261,8 @@ public class ApiDefinitionService extends MoveNodeService {
         BeanUtils.copyBean(apiDefinition, request);
         apiDefinition.setTags(ServiceUtils.parseTags(apiDefinition.getTags()));
         checkResponseNameCode(request.getResponse());
-        if (originApiDefinition.getProtocol().equals(ModuleConstants.NODE_PROTOCOL_HTTP)) {
-            checkUpdateExist(apiDefinition, originApiDefinition);
-        }
+        checkUpdateExist(apiDefinition, originApiDefinition);
+
         apiDefinition.setUpdateUser(userId);
         apiDefinition.setUpdateTime(System.currentTimeMillis());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
@@ -537,39 +536,59 @@ public class ApiDefinitionService extends MoveNodeService {
     }
 
     private void checkAddExist(ApiDefinition apiDefinition) {
-        if (!StringUtils.equals(apiDefinition.getProtocol(), ApiConstants.HTTP_PROTOCOL)) {
-            return;
-        }
         ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria()
-                .andPathEqualTo(apiDefinition.getPath())
-                .andMethodEqualTo(apiDefinition.getMethod())
-                .andProtocolEqualTo(apiDefinition.getProtocol())
-                .andProjectIdEqualTo(apiDefinition.getProjectId())
-                .andDeletedEqualTo(false);
+        if (StringUtils.equals(apiDefinition.getProtocol(), ApiConstants.HTTP_PROTOCOL)) {
+            example.createCriteria()
+                    .andPathEqualTo(apiDefinition.getPath())
+                    .andMethodEqualTo(apiDefinition.getMethod())
+                    .andProtocolEqualTo(apiDefinition.getProtocol())
+                    .andProjectIdEqualTo(apiDefinition.getProjectId())
+                    .andDeletedEqualTo(false);
+        } else {
+            example.createCriteria()
+                    .andNameEqualTo(apiDefinition.getName())
+                    .andProtocolEqualTo(apiDefinition.getProtocol())
+                    .andModuleIdEqualTo(apiDefinition.getModuleId())
+                    .andProjectIdEqualTo(apiDefinition.getProjectId())
+                    .andDeletedEqualTo(false);
+        }
         if (CollectionUtils.isNotEmpty(apiDefinitionMapper.selectByExample(example))) {
             throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
         }
     }
 
     private void checkUpdateExist(ApiDefinition apiDefinition, ApiDefinition originApiDefinition) {
-        if (!StringUtils.equals(originApiDefinition.getProtocol(), ApiConstants.HTTP_PROTOCOL)) {
-            return;
-        }
-        if (StringUtils.isNotEmpty(apiDefinition.getPath()) || StringUtils.isNotEmpty(apiDefinition.getMethod())) {
-            ApiDefinitionExample example = new ApiDefinitionExample();
-            String method = StringUtils.isBlank(apiDefinition.getMethod()) ? originApiDefinition.getMethod() : apiDefinition.getMethod();
-            String path = StringUtils.isBlank(apiDefinition.getPath()) ? originApiDefinition.getPath() : apiDefinition.getPath();
-            example.createCriteria()
-                    .andPathEqualTo(path)
-                    .andMethodEqualTo(method)
-                    .andIdNotEqualTo(originApiDefinition.getId())
-                    .andProtocolEqualTo(originApiDefinition.getProtocol())
-                    .andProjectIdEqualTo(originApiDefinition.getProjectId())
-                    .andRefIdNotEqualTo(originApiDefinition.getRefId())
-                    .andDeletedEqualTo(false);
-            if (apiDefinitionMapper.countByExample(example) > 0) {
-                throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
+        if (StringUtils.equals(originApiDefinition.getProtocol(), ApiConstants.HTTP_PROTOCOL)) {
+            if (StringUtils.isNotEmpty(apiDefinition.getPath()) || StringUtils.isNotEmpty(apiDefinition.getMethod())) {
+                ApiDefinitionExample example = new ApiDefinitionExample();
+                String method = StringUtils.isBlank(apiDefinition.getMethod()) ? originApiDefinition.getMethod() : apiDefinition.getMethod();
+                String path = StringUtils.isBlank(apiDefinition.getPath()) ? originApiDefinition.getPath() : apiDefinition.getPath();
+                example.createCriteria()
+                        .andPathEqualTo(path)
+                        .andMethodEqualTo(method)
+                        .andIdNotEqualTo(originApiDefinition.getId())
+                        .andProtocolEqualTo(originApiDefinition.getProtocol())
+                        .andProjectIdEqualTo(originApiDefinition.getProjectId())
+                        .andRefIdNotEqualTo(originApiDefinition.getRefId())
+                        .andDeletedEqualTo(false);
+                if (apiDefinitionMapper.countByExample(example) > 0) {
+                    throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
+                }
+            }
+        } else {
+            if (StringUtils.isNotBlank(apiDefinition.getName())) {
+                ApiDefinitionExample example = new ApiDefinitionExample();
+                example.createCriteria()
+                        .andNameEqualTo(apiDefinition.getName())
+                        .andIdNotEqualTo(originApiDefinition.getId())
+                        .andProtocolEqualTo(originApiDefinition.getProtocol())
+                        .andModuleIdEqualTo(originApiDefinition.getModuleId())
+                        .andProjectIdEqualTo(originApiDefinition.getProjectId())
+                        .andRefIdNotEqualTo(originApiDefinition.getRefId())
+                        .andDeletedEqualTo(false);
+                if (apiDefinitionMapper.countByExample(example) > 0) {
+                    throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
+                }
             }
         }
     }
