@@ -10,6 +10,7 @@ import io.metersphere.system.dto.request.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.response.UserInviteResponse;
 import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.OrganizationService;
 import io.metersphere.system.service.SimpleUserService;
@@ -75,7 +76,7 @@ public class OrganizationController {
     @Operation(summary = "系统设置-组织-成员-更新用户")
     @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_MEMBER_UPDATE, PermissionConstants.PROJECT_USER_READ_ADD, PermissionConstants.PROJECT_USER_READ_DELETE}, logical = Logical.OR)
     public void updateMember(@Validated @RequestBody OrganizationMemberUpdateRequest organizationMemberExtendRequest) {
-        organizationService.updateMember(organizationMemberExtendRequest, SessionUtils.getUserId());
+        organizationService.updateMember(organizationMemberExtendRequest, SessionUtils.getUserId(), "/organization/update-member", OperationLogModule.SETTING_ORGANIZATION_MEMBER);
     }
 
     @PostMapping("/project/add-member")

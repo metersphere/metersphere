@@ -171,7 +171,7 @@ public class ProjectMemberService {
      * @param request       请求参数
      * @param currentUserId 当前用户ID
      */
-    public void updateMember(ProjectMemberEditRequest request, String currentUserId) {
+    public void updateMember(ProjectMemberEditRequest request, String currentUserId, String path, String module) {
         // 操作记录
         List<LogDTO> logs = new ArrayList<>();
         // 项目不存在
@@ -214,7 +214,7 @@ public class ProjectMemberService {
             roleExample.createCriteria().andIdIn(oldRoleIds);
             oldRoles = userRoleMapper.selectByExample(roleExample);
         }
-        setLog(request.getProjectId(), request.getUserId(), currentUserId, OperationLogType.UPDATE.name(), "/project/member/update", HttpMethodConstants.POST.name(), oldRoles, newRoles, logs);
+        setLog(request.getProjectId(), request.getUserId(), currentUserId, OperationLogType.UPDATE.name(), path, HttpMethodConstants.POST.name(), oldRoles, newRoles, logs, module);
         operationLogService.batchAdd(logs);
     }
 
@@ -242,7 +242,7 @@ public class ProjectMemberService {
         example.createCriteria().andSourceIdEqualTo(projectId).andUserIdEqualTo(userId);
         userRoleRelationMapper.deleteByExample(example);
         // 操作记录
-        setLog(projectId, userId, currentUserId, OperationLogType.DELETE.name(), "/project/member/remove", HttpMethodConstants.GET.name(), null, null, logs);
+        setLog(projectId, userId, currentUserId, OperationLogType.DELETE.name(), "/project/member/remove", HttpMethodConstants.GET.name(), null, null, logs, OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MEMBER);
         operationLogService.batchAdd(logs);
     }
 
@@ -323,7 +323,7 @@ public class ProjectMemberService {
                 roleExample.createCriteria().andIdIn(roleIds);
                 List<UserRole> userRoles = userRoleMapper.selectByExample(roleExample);
                 // 追加了哪些用户组
-                setLog(request.getProjectId(), userId, currentUserId, operationType, path, HttpMethodConstants.POST.name(), null, userRoles, logs);
+                setLog(request.getProjectId(), userId, currentUserId, operationType, path, HttpMethodConstants.POST.name(), null, userRoles, logs, OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MEMBER);
             }
         });
         if (!CollectionUtils.isEmpty(relations)) {
@@ -363,7 +363,7 @@ public class ProjectMemberService {
         // 操作记录
         userIds.forEach(userId -> {
             // 操作记录
-            setLog(request.getProjectId(), userId, currentUserId, OperationLogType.DELETE.name(), "/project/member/remove", HttpMethodConstants.GET.name(), null, null, logs);
+            setLog(request.getProjectId(), userId, currentUserId, OperationLogType.DELETE.name(), "/project/member/remove", HttpMethodConstants.GET.name(), null, null, logs, OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MEMBER);
         });
         operationLogService.batchAdd(logs);
     }
@@ -416,7 +416,7 @@ public class ProjectMemberService {
      * @param method       请求方法
      * @param logs         日志集合
      */
-    private void setLog(String projectId, String memberId, String createUserId, String type, String path, String method, Object originalVal, Object modifiedVal, List<LogDTO> logs) {
+    private void setLog(String projectId, String memberId, String createUserId, String type, String path, String method, Object originalVal, Object modifiedVal, List<LogDTO> logs, String module) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         User user = userMapper.selectByPrimaryKey(memberId);
         LogDTO dto = new LogDTO(
@@ -425,7 +425,7 @@ public class ProjectMemberService {
                 memberId,
                 createUserId,
                 type,
-                OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MEMBER,
+                module,
                 user.getName());
         dto.setPath(path);
         dto.setMethod(method);

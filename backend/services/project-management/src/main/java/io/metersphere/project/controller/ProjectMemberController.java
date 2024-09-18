@@ -12,6 +12,7 @@ import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.dto.user.response.UserInviteResponse;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.service.SimpleUserService;
 import io.metersphere.system.utils.PageUtils;
@@ -89,7 +90,7 @@ public class ProjectMemberController {
     @RequiresPermissions(PermissionConstants.PROJECT_USER_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void updateMember(@RequestBody ProjectMemberEditRequest request) {
-        projectMemberService.updateMember(request, SessionUtils.getUserId());
+        projectMemberService.updateMember(request, SessionUtils.getUserId(), "/project/member/update", OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MEMBER);
     }
 
     @GetMapping("/remove/{projectId}/{userId}")
@@ -131,6 +132,6 @@ public class ProjectMemberController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_MEMBER_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void updateProjectMemberRole(@RequestBody ProjectMemberEditRequest request) {
-        projectMemberService.updateMember(request, SessionUtils.getUserId());
+        projectMemberService.updateMember(request, SessionUtils.getUserId(), "/project/member/update-member", OperationLogModule.SETTING_ORGANIZATION_PROJECT);
     }
 }

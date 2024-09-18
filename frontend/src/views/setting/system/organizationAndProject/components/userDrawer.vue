@@ -283,12 +283,14 @@
     () => props.organizationId,
     () => {
       fetchData();
+      getUserGroupOptions();
     }
   );
   watch(
     () => props.projectId,
     () => {
       fetchData();
+      getUserGroupOptions();
     }
   );
   watch(
