@@ -175,6 +175,7 @@
         testPlanCaseId: selectNode?.data?.id,
         caseId: selectNode?.data?.caseId,
         testPlanId: props.planId,
+        selectAll: batchMinderParams.minderModuleIds.includes('NONE'),
         ...batchMinderParams,
       }"
       :is-minder-batch="isMinderOperation"
