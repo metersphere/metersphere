@@ -57,14 +57,14 @@
             </div>
           </a-select>
         </a-form-item>
-        <a-form-item :field="`list[${listIndex}].operator`" class="w-[120px]" hide-asterisk>
+        <a-form-item :field="`list[${listIndex}].operator`" class="w-[105px]" hide-asterisk>
           <a-select v-model="item.operator" :disabled="!item.dataIndex" @change="operatorChange(item, listIndex)">
             <a-option v-for="option in operatorOptionsMap[item.type]" :key="option.value" :value="option.value">
               {{ t(option.label as string) }}
             </a-option>
           </a-select>
         </a-form-item>
-        <a-form-item class="flex-1 overflow-hidden" :field="`list[${listIndex}].value`" hide-asterisk>
+        <a-form-item class="flex-[1.5] overflow-hidden" :field="`list[${listIndex}].value`" hide-asterisk>
           <a-textarea
             v-if="item.type === FilterType.TEXTAREA"
             v-model:model-value="item.value"
@@ -126,6 +126,7 @@
             v-model:model-value="item.value"
             :data="item.treeSelectData"
             :disabled="isValueDisabled(item)"
+            allow-clear
             allow-search
             :placeholder="t('common.pleaseSelect')"
             :filter-tree-node="filterTreeNode"
@@ -137,6 +138,9 @@
             }"
             v-bind="item.treeSelectProps"
           >
+            <template #label="{ data }">
+              <div class="one-line-text">{{ data.label }}</div>
+            </template>
             <template #tree-slot-title="node">
               <a-tooltip :content="`${node.name}`" position="tr">
                 <div class="one-line-text max-w-[170px]">{{ node.name }}</div>
@@ -147,7 +151,7 @@
             v-else-if="item.type === FilterType.DATE_PICKER && item.operator !== OperatorEnum.BETWEEN"
             v-model:model-value="item.value"
             show-time
-            format="YYYY-MM-DD hh:mm"
+            format="YYYY-MM-DD HH:mm"
             :disabled="isValueDisabled(item)"
           />
           <a-range-picker
@@ -563,13 +567,6 @@
     }
     .arco-form-item-message {
       margin-bottom: 0;
-    }
-    .arco-select-view {
-      height: 32px;
-      .arco-select-view-inner {
-        @apply overflow-y-auto overflow-x-hidden;
-        .ms-scroll-bar();
-      }
     }
   }
 </style>

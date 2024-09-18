@@ -118,7 +118,7 @@
       >
         <template #icon>
           <MsIcon
-            type="icon-icon_copy_outlined"
+            type="icon-icon_filter"
             :class="`${isAdvancedSearchMode ? 'text-[rgb(var(--primary-5))]' : 'text-[var(--color-text-4)]'}`"
           />
         </template>
@@ -240,6 +240,17 @@
     currentView.value = item.id;
     viewSelectOptionVisible.value = false;
   }
+
+  watch(
+    () => viewSelectOptionVisible.value,
+    (val) => {
+      if (!val) {
+        customViews.value.forEach((item) => {
+          item.isShowNameInput = false;
+        });
+      }
+    }
+  );
 
   async function changeViewToFirstCustom() {
     await getUserViewList();
