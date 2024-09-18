@@ -21,18 +21,22 @@ import java.util.*;
 
 /**
  * @author jianxing
- * 支持加载 jdbc 驱动
+ * 支持加载 jdbc 驱动和 xstream 的 Converter
  * pf4j 中 ServiceProviderExtensionFinder 本身是支持 SPI
  * 默认会读取 META-INF/services 下的文件
  * 但是遍历 JarEntry 发现 jdbc 资源中没有 META-INF/services 只有 META-INF/services/java.sql.Driver
  * 所以使用默认的 ServiceProviderExtensionFinder 会无法加载，这里重写后只修改了 EXTENSIONS_RESOURCE
  */
-public class JdbcDriverServiceProviderExtensionFinder extends ServiceProviderExtensionFinder {
+public class MsServiceProviderExtensionFinder extends ServiceProviderExtensionFinder {
 
-    // 重写后只修改了这个常量
-    public static final String EXTENSIONS_RESOURCE = ServiceProviderExtensionStorage.EXTENSIONS_RESOURCE + "/java.sql.Driver";
+    public static final String EXTENSIONS_RESOURCE = ServiceProviderExtensionStorage.EXTENSIONS_RESOURCE;
 
-    public JdbcDriverServiceProviderExtensionFinder(PluginManager pluginManager) {
+    /**
+     * 需要支持的 SPI 文件
+     */
+    public static final List<String> SPI_FILES = List.of("java.sql.Driver", "com.thoughtworks.xstream.converters.Converter");
+
+    public MsServiceProviderExtensionFinder(PluginManager pluginManager) {
         super(pluginManager);
     }
 
@@ -43,11 +47,14 @@ public class JdbcDriverServiceProviderExtensionFinder extends ServiceProviderExt
 
         final Set<String> bucket = new HashSet<>();
         try {
-            Enumeration<URL> urls = getClass().getClassLoader().getResources(EXTENSIONS_RESOURCE);
-            if (urls.hasMoreElements()) {
-                jdbcCollectExtensions(urls, bucket);
-            } else {
-                LogUtils.debug("Cannot find '{}'", EXTENSIONS_RESOURCE);
+            for (String spiFile : SPI_FILES) {
+                String spiResource = EXTENSIONS_RESOURCE + "/" + spiFile;
+                Enumeration<URL> urls = getClass().getClassLoader().getResources(spiResource);
+                if (urls.hasMoreElements()) {
+                    jdbcCollectExtensions(urls, bucket);
+                } else {
+                    LogUtils.debug("Cannot find '{}'", spiResource);
+                }
             }
 
             debugExtensions(bucket);
@@ -71,11 +78,14 @@ public class JdbcDriverServiceProviderExtensionFinder extends ServiceProviderExt
             LogUtils.debug("Reading extensions storages for plugin '{}'", pluginId);
             final Set<String> bucket = new HashSet<>();
             try {
-                Enumeration<URL> urls = ((PluginClassLoader) plugin.getPluginClassLoader()).findResources(EXTENSIONS_RESOURCE);
-                if (urls.hasMoreElements()) {
-                    jdbcCollectExtensions(urls, bucket);
-                } else {
-                    LogUtils.debug("Cannot find '{}'", EXTENSIONS_RESOURCE);
+                for (String spiFile : SPI_FILES) {
+                    String spiResource = EXTENSIONS_RESOURCE + "/" + spiFile;
+                    Enumeration<URL> urls = ((PluginClassLoader) plugin.getPluginClassLoader()).findResources(spiResource);
+                    if (urls.hasMoreElements()) {
+                        jdbcCollectExtensions(urls, bucket);
+                    } else {
+                        LogUtils.debug("Cannot find '{}'", spiResource);
+                    }
                 }
 
                 debugExtensions(bucket);
@@ -101,7 +111,7 @@ public class JdbcDriverServiceProviderExtensionFinder extends ServiceProviderExt
         Path extensionPath;
 
         if (url.toURI().getScheme().equals("jar")) {
-            extensionPath = FileUtils.getPath(url.toURI(), EXTENSIONS_RESOURCE);
+            extensionPath = FileUtils.getPath(url.toURI(), EXTENSIONS_RESOURCE + "/" + url.getPath().substring(url.getPath().lastIndexOf("/") + 1));
         } else {
             extensionPath = Paths.get(url.toURI());
         }
@@ -115,7 +125,7 @@ public class JdbcDriverServiceProviderExtensionFinder extends ServiceProviderExt
 
     private Set<String> jdbcReadExtensions(Path extensionPath) throws IOException {
         final Set<String> result = new HashSet<>();
-        Files.walkFileTree(extensionPath, Collections.<FileVisitOption>emptySet(), 1, new SimpleFileVisitor<Path>() {
+        Files.walkFileTree(extensionPath, Collections.emptySet(), 1, new SimpleFileVisitor<>() {
 
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {

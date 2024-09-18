@@ -5,16 +5,14 @@ import org.pf4j.*;
 /**
  * @author jianxing
  * 为了支持加载使用 SPI 机制加载的 jdbc 驱动
- * 这里加入自定义的 JdbcDriverServiceProviderExtensionFinder 和 JdbcDriverPluginDescriptorFinder
+ * 这里加入自定义的 MsServiceProviderExtensionFinder 和 JdbcDriverPluginDescriptorFinder
  */
 public class MsPluginManager extends DefaultPluginManager {
     @Override
     protected ExtensionFinder createExtensionFinder() {
         DefaultExtensionFinder extensionFinder = (DefaultExtensionFinder) super.createExtensionFinder();
-        // 添加 jdbc 驱动支持
-        extensionFinder.add(new JdbcDriverServiceProviderExtensionFinder(this));
-        // 添加 SPI 支持
-        extensionFinder.addServiceProviderExtensionFinder();
+        // 添加 SPI 发现机制，只发现指定实现类
+        extensionFinder.add(new MsServiceProviderExtensionFinder(this));
         return extensionFinder;
     }
 
