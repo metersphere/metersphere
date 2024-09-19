@@ -4,13 +4,13 @@ import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
-@Data
-@EqualsAndHashCode(callSuper = false)
+@Getter
+@Setter
 public class ApiDefinitionDetail extends ApiDefinition {
 
     @Schema(description = "请求内容")
