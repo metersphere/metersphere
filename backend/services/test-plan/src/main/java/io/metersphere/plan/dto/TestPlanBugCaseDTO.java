@@ -18,4 +18,6 @@ public class TestPlanBugCaseDTO {
 	private String bugId;
 	@Schema(description = "用例名称")
 	private String name;
+	@Schema(description = "项目ID")
+	private String projectId;
 }

@@ -60,7 +60,8 @@
         where tprfc.test_plan_report_id = #{request.reportId}
         <if test="request.keyword != null and request.keyword != ''">
             and (tprfc.function_case_num like concat('%', #{request.keyword}, '%')
-            or tprfc.function_case_name like concat('%', #{request.keyword}, '%'))
+            or tprfc.function_case_name like concat('%', #{request.keyword}, '%')
+            or tprfc.function_case_module like concat('%', #{request.keyword}, '%'))
         </if>
         <if test="request.collectionId != null and request.collectionId != ''">
             and tprfc.test_plan_collection_id = #{request.collectionId}

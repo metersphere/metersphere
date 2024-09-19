@@ -42,7 +42,7 @@
 
 
     <select id="getBugRelatedCase" resultType="io.metersphere.plan.dto.TestPlanBugCaseDTO">
-        select brc.case_id as id, fc.num as num, 'FUNCTIONAL' as type, brc.bug_id as bugId, fc.name as name
+        select brc.case_id as id, fc.num as num, 'FUNCTIONAL' as type, brc.bug_id as bugId, fc.name as name, fc.project_id as projectId
             from bug_relation_case brc
             join functional_case fc on brc.case_id = fc.id
         where brc.test_plan_id = #{planId}
@@ -51,7 +51,7 @@
             #{id}
         </foreach>
         union all
-        select brc.case_id as id, atc.num as num, 'API' as type, brc.bug_id as bugId, atc.name as name
+        select brc.case_id as id, atc.num as num, 'API' as type, brc.bug_id as bugId, atc.name as name, atc.project_id as projectId
             from bug_relation_case brc
             join api_test_case atc on brc.case_id = atc.id
         where brc.test_plan_id = #{planId}
@@ -60,7 +60,7 @@
             #{id}
         </foreach>
         union all
-        select brc.case_id as id, asi.num as num, 'SCENARIO' as type, brc.bug_id as bugId, asi.name as name
+        select brc.case_id as id, asi.num as num, 'SCENARIO' as type, brc.bug_id as bugId, asi.name as name, asi.project_id as projectId
             from bug_relation_case brc
             join api_scenario asi on brc.case_id = asi.id
         where brc.test_plan_id = #{planId}
