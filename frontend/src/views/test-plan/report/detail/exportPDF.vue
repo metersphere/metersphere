@@ -166,6 +166,7 @@
 
   import { BatchApiParams } from '@/models/common';
   import type {
+    componentItem,
     configItem,
     countDetail,
     PlanReportDetail,
@@ -182,6 +183,7 @@
   const route = useRoute();
 
   const innerCardList = ref<configItem[]>([]);
+  const layoutShowCards = ref<componentItem[]>([]);
 
   const detail = ref<PlanReportDetail>({ ...cloneDeep(defaultReportDetail) });
   const reportId = ref<string>(route.query.id as string);
@@ -376,6 +378,7 @@
   async function getDefaultLayout() {
     try {
       const res = await getReportLayout(detail.value.id, shareId.value);
+      layoutShowCards.value = res;
       innerCardList.value = res
         .filter((e: any) => [ReportCardTypeEnum.CUSTOM_CARD, ReportCardTypeEnum.SUMMARY].includes(e.name))
         .map((item: any) => {
@@ -679,7 +682,32 @@
         })) as RowInput[],
       });
     }
-    await Promise.all([initBugList(), initCaseList(), initApiList(), initScenarioList()]);
+    const pageRequest = [];
+    if (
+      isDefaultLayout.value ||
+      (!isDefaultLayout.value && layoutShowCards.value.some((e) => e.name === ReportCardTypeEnum.BUG_DETAIL))
+    ) {
+      pageRequest.push(initBugList());
+    }
+    if (
+      isDefaultLayout.value ||
+      (!isDefaultLayout.value && layoutShowCards.value.some((e) => e.name === ReportCardTypeEnum.FUNCTIONAL_DETAIL))
+    ) {
+      pageRequest.push(initCaseList());
+    }
+    if (
+      isDefaultLayout.value ||
+      (!isDefaultLayout.value && layoutShowCards.value.some((e) => e.name === ReportCardTypeEnum.API_CASE_DETAIL))
+    ) {
+      pageRequest.push(initApiList());
+    }
+    if (
+      !isDefaultLayout.value &&
+      layoutShowCards.value.some((e) => e.name === ReportCardTypeEnum.SCENARIO_CASE_DETAIL)
+    ) {
+      pageRequest.push(initScenarioList());
+    }
+    await Promise.all(pageRequest);
     if (fullBugList.value.length > 0) {
       tableArr.push({
         tableId: 'bug',
