@@ -7,6 +7,7 @@ import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.dto.request.BugEditRequest;
+import io.metersphere.bug.service.BugLogService;
 import io.metersphere.bug.service.BugService;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.dto.request.*;
@@ -55,6 +56,8 @@ public class TestPlanApiScenarioController {
     private ApiScenarioReportService apiScenarioReportService;
     @Resource
     private BugService bugService;
+    @Resource
+    private BugLogService bugLogService;
 
     @PostMapping("/page")
     @Operation(summary = "测试计划-已关联场景用例列表分页查询")
@@ -199,6 +202,7 @@ public class TestPlanApiScenarioController {
         BugEditRequest bugEditRequest = new BugEditRequest();
         BeanUtils.copyBean(bugEditRequest, request);
         Bug bug = bugService.addOrUpdate(bugEditRequest, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), false);
+        bugLogService.minderAddLog(bugEditRequest, files, SessionUtils.getCurrentOrganizationId(), bug.getId(), SessionUtils.getUserId());
         testPlanApiScenarioService.batchAssociateBug(request, bug.getId(), SessionUtils.getUserId());
     }
 

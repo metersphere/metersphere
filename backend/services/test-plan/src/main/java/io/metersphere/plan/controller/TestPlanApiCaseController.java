@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.ApiReportDetailDTO;
 import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.dto.request.BugEditRequest;
+import io.metersphere.bug.service.BugLogService;
 import io.metersphere.bug.service.BugService;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.dto.request.*;
@@ -58,6 +59,8 @@ public class TestPlanApiCaseController {
     private ApiReportService apiReportService;
     @Resource
     private BugService bugService;
+    @Resource
+    private BugLogService bugLogService;
 
     @PostMapping(value = "/sort")
     @Operation(summary = "测试计划功能用例-功能用例拖拽排序")
@@ -214,6 +217,7 @@ public class TestPlanApiCaseController {
         BugEditRequest bugEditRequest = new BugEditRequest();
         BeanUtils.copyBean(bugEditRequest, request);
         Bug bug = bugService.addOrUpdate(bugEditRequest, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), false);
+        bugLogService.minderAddLog(bugEditRequest, files, SessionUtils.getCurrentOrganizationId(), bug.getId(), SessionUtils.getUserId());
         testPlanApiCaseService.batchAssociateBug(request, bug.getId(), SessionUtils.getUserId());
     }
 
