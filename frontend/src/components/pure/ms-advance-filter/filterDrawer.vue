@@ -121,32 +121,16 @@
             :options="item.selectProps?.options || []"
             v-bind="item.selectProps"
           />
-          <a-tree-select
+          <MsTreeSelect
             v-else-if="item.type === FilterType.TREE_SELECT"
             v-model:model-value="item.value"
-            :data="item.treeSelectData"
+            :data="item.treeSelectData ?? []"
             :disabled="isValueDisabled(item)"
             allow-clear
-            allow-search
-            :placeholder="t('common.pleaseSelect')"
-            :filter-tree-node="filterTreeNode"
-            :tree-props="{
-              virtualListProps: {
-                height: 200,
-                threshold: 200,
-              },
-            }"
             v-bind="item.treeSelectProps"
-          >
-            <template #label="{ data }">
-              <div class="one-line-text">{{ data.label }}</div>
-            </template>
-            <template #tree-slot-title="node">
-              <a-tooltip :content="`${node.name}`" position="tr">
-                <div class="one-line-text max-w-[170px]">{{ node.name }}</div>
-              </a-tooltip>
-            </template>
-          </a-tree-select>
+            :placeholder="t('common.pleaseSelect')"
+            :field-names="item.treeSelectProps?.fieldNames"
+          />
           <a-date-picker
             v-else-if="item.type === FilterType.DATE_PICKER && item.operator !== OperatorEnum.BETWEEN"
             v-model:model-value="item.value"
@@ -228,13 +212,13 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+  import MsTreeSelect from '@/components/pure/ms-tree-select/index.vue';
   import MsSelect from '@/components/business/ms-select';
   import ViewNameInput from './components/viewNameInput.vue';
 
   import { addView, getViewDetail, updateView } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { filterTreeNode } from '@/utils';
 
   import { SelectValue } from '@/models/projectManagement/menuManagement';
   import { FilterType, OperatorEnum, ViewTypeEnum } from '@/enums/advancedFilterEnum';
