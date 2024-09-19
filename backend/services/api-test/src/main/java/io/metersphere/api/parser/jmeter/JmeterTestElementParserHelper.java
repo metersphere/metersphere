@@ -49,12 +49,12 @@ public class JmeterTestElementParserHelper {
     public static UserParameters getUserParameters(List<CommonVariables> constantVariables, List<CommonVariables> listVariables) {
         List<CommonVariables> variableResults = new ArrayList<>();
         listVariables.forEach(listVariable -> {
-            // 按 ',' 分割，但是支持 \, 转义
+            // 按 ',' 分割，但是支持 '\,' 转义
             String[] arrays = listVariable.getValue().replaceAll("[\r\n]", "").split("(?<!\\\\),");
             for (int i = 0; i < arrays.length; i++) {
                 CommonVariables commonVariables = BeanUtils.copyBean(new CommonVariables(), listVariable);
                 commonVariables.setKey(listVariable.getKey() + "_" + (i + 1));
-                commonVariables.setValue(arrays[i]);
+                commonVariables.setValue(arrays[i].replace("\\,", ","));
                 variableResults.add(commonVariables);
             }
         });
