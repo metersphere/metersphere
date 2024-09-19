@@ -31,12 +31,7 @@
             <template #avatar>
               <a-avatar shape="square" class="rounded-[var(--border-radius-mini)] bg-[var(--color-text-n9)]">
                 <a-image v-if="item.file.type.includes('image/')" :src="item.url" width="40" height="40" hide-footer />
-                <MsIcon
-                  v-else
-                  :type="getFileIcon(item)"
-                  size="24"
-                  :class="item.status === UploadStatus.init ? 'text-[var(--color-text-4)]' : ''"
-                />
+                <MsIcon v-else :type="getFileIcon(item)" size="24" :class="'text-[var(--color-text-4)]'" />
               </a-avatar>
             </template>
             <template #title>
