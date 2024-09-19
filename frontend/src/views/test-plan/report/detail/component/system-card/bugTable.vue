@@ -81,7 +81,7 @@
     },
     {
       title: 'bugManagement.status',
-      dataIndex: 'status',
+      dataIndex: 'statusName',
       width: 100,
       showTooltip: true,
     },

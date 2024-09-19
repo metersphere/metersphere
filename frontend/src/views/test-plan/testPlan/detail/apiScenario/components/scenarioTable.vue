@@ -392,6 +392,18 @@
       tableRef.value?.initColumn(columns.value);
     }
   );
+  const existedDefect = inject<Ref<number>>('existedDefect', ref(0));
+  function getLinkAction() {
+    return existedDefect.value
+      ? [
+          {
+            label: 'caseManagement.featureCase.linkDefect',
+            eventTag: 'linkDefect',
+            permission: ['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_BUG:READ'],
+          },
+        ]
+      : [];
+  }
 
   const batchActions = computed(() => {
     return {
@@ -409,15 +421,11 @@
           eventTag: 'disassociate',
           permission: ['PROJECT_TEST_PLAN:READ+ASSOCIATION'],
         },
-        {
-          label: 'caseManagement.featureCase.linkDefect',
-          eventTag: 'linkDefect',
-          permission: ['PROJECT_BUG:READ'],
-        },
+        ...getLinkAction(),
         {
           label: 'testPlan.featureCase.noBugDataNewBug',
           eventTag: 'newBug',
-          permission: ['PROJECT_BUG:READ+ADD'],
+          permission: ['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_BUG:READ+ADD'],
         },
       ],
     };
@@ -662,7 +670,6 @@
   const batchUpdateParams = ref();
   const batchMoveModalVisible = ref(false);
 
-  const existedDefect = inject<Ref<number>>('existedDefect', ref(0));
   const isBatchAssociateOrCreate = ref(false);
   const showLinkBugDrawer = ref<boolean>(false);
   const associatedCaseId = ref<string>('');

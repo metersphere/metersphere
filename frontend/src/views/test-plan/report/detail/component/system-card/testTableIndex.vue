@@ -6,7 +6,7 @@
       <span class="mx-[16px]"> {{ t('ms.case.associate.testSet') }}</span>
       <a-input-search
         v-model:model-value="keyword"
-        :placeholder="t('common.searchByIdName')"
+        :placeholder="t('report.detail.caseDetailSearchPlaceholder')"
         allow-clear
         class="w-[240px]"
         @search="searchList"

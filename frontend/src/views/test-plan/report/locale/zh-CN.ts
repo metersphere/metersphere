@@ -26,6 +26,7 @@ export default {
   'report.completed': '已完成',
   'report.detail.reportSummary': '报告总结',
   'report.detail.bugDetails': '缺陷明细',
+  'report.detail.caseDetailSearchPlaceholder': '通过ID/名称/模块名称搜索',
   'report.detail.featureCaseDetails': '用例明细',
   'report.detail.executionAnalysis': '执行分析',
   'report.detail.threshold': '通过阈值',

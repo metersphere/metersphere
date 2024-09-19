@@ -401,6 +401,7 @@
     getPlanDetailApiCaseList,
     tableProps.value
   );
+  const existedDefect = inject<Ref<number>>('existedDefect', ref(0));
 
   const tableRef = ref<InstanceType<typeof MsBaseTable>>();
   watch(
@@ -409,6 +410,18 @@
       tableRef.value?.initColumn(columns.value);
     }
   );
+
+  function getLinkAction() {
+    return existedDefect.value
+      ? [
+          {
+            label: 'caseManagement.featureCase.linkDefect',
+            eventTag: 'linkDefect',
+            permission: ['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_BUG:READ'],
+          },
+        ]
+      : [];
+  }
 
   const batchActions = computed(() => {
     return {
@@ -426,15 +439,11 @@
           eventTag: 'disassociate',
           permission: ['PROJECT_TEST_PLAN:READ+ASSOCIATION'],
         },
-        {
-          label: 'caseManagement.featureCase.linkDefect',
-          eventTag: 'linkDefect',
-          permission: ['PROJECT_BUG:READ'],
-        },
+        ...getLinkAction(),
         {
           label: 'testPlan.featureCase.noBugDataNewBug',
           eventTag: 'newBug',
-          permission: ['PROJECT_BUG:READ+ADD'],
+          permission: ['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_BUG:READ+ADD'],
         },
       ],
     };
@@ -677,7 +686,6 @@
   const associatedCaseId = ref<string>('');
   const testPlanCaseId = ref<string>('');
   const lastExecuteReportId = ref<string>('');
-  const existedDefect = inject<Ref<number>>('existedDefect', ref(0));
   const showCreateBugDrawer = ref<boolean>(false);
   const isBatchAssociateOrCreate = ref(false);
   const caseTitle = ref<string>('');
