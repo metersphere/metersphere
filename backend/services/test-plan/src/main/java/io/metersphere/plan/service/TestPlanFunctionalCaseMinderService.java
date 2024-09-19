@@ -63,7 +63,7 @@ public class TestPlanFunctionalCaseMinderService {
             //模块
             if (CollectionUtils.isNotEmpty(request.getMinderModuleIds())) {
                 //处理未规划用例
-                List<String> rootIds = ids.stream().filter(id -> StringUtils.endsWith(id, "_root")).map(id -> id.replace("_root", "")).toList();
+                List<String> rootIds = request.getMinderModuleIds().stream().filter(id -> StringUtils.endsWith(id, "_root")).map(id -> id.replace("_root", "")).toList();
                 if (CollectionUtils.isNotEmpty(rootIds)) {
                     ids.addAll(extTestPlanFunctionalCaseMapper.selectIdsByRootIds(rootIds, request.getTestPlanId()));
                 }
