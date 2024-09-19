@@ -138,7 +138,7 @@
                 :is-platform-default-template="isPlatformDefaultTemplate"
                 :platform-system-fields="platformSystemFields"
                 :current-platform="props.currentPlatform"
-                @update-success="detailDrawerRef?.initDetail()"
+                @update-success="updateSuccessHandler"
               />
               <BasicInfo
                 v-if="activeTab === 'basicInfo'"
@@ -564,6 +564,14 @@
       fileList: [file],
     });
     return data;
+  }
+
+  async function updateSuccessHandler() {
+    if (props.pagination) {
+      detailDrawerRef.value?.initDetail();
+    } else {
+      updateSuccess();
+    }
   }
 
   watch(
