@@ -112,7 +112,7 @@ public class HTTPSamplerConverter extends AbstractMsElementConverter<HTTPSampler
                     source.getArguments().getArgumentsAsMap().forEach((k, v) -> samplerProxy.getBody().setRawBody(new RawBody() {{
                         this.setValue(v);
                     }}));
-                } else if (StringUtils.isNotEmpty(bodyType) || ("POST".equalsIgnoreCase(source.getMethod()) && source.getArguments().getArgumentsAsMap().size() > 0)) {
+                } else if (StringUtils.isNotEmpty(bodyType) || (StringUtils.equalsAnyIgnoreCase(source.getMethod(), "POST", "PUT") && !source.getArguments().getArgumentsAsMap().isEmpty())) {
                     samplerProxy.getBody().setBodyType(Body.BodyType.WWW_FORM.name());
                     List<WWWFormKV> keyValues = new LinkedList<>();
                     source.getArguments().getArguments().forEach(params -> {
