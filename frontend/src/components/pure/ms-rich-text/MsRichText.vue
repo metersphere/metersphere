@@ -34,8 +34,6 @@
     ExtensionCode,
     ExtensionCodeBlock,
     ExtensionColor,
-    ExtensionColumn,
-    ExtensionColumns,
     ExtensionCommands,
     ExtensionDocument,
     ExtensionDraggable,

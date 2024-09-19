@@ -108,16 +108,12 @@
               :share-id="shareId"
               is-preview
             />
-            <div
-              v-else-if="item.value === ReportCardTypeEnum.CUSTOM_CARD"
-              ref="customCardRef"
-              v-html="item.content"
-            ></div>
-            <div
-              v-else-if="item.value === ReportCardTypeEnum.SUMMARY"
-              ref="summaryRef"
-              v-html="isDefaultLayout ? detail.summary : item.content"
-            ></div>
+            <div v-else-if="item.value === ReportCardTypeEnum.CUSTOM_CARD" ref="customCardRef">
+              <MsRichText :raw="item.content" :editable="false" />
+            </div>
+            <div v-else-if="item.value === ReportCardTypeEnum.SUMMARY" ref="summaryRef">
+              <MsRichText :raw="isDefaultLayout ? detail.summary : item.content" :editable="false" />
+            </div>
           </div>
         </div>
       </div>
@@ -132,6 +128,7 @@
   import dayjs from 'dayjs';
 
   import MsChart from '@/components/pure/chart/index.vue';
+  import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import { lastExecuteResultMap } from '@/components/business/ms-case-associate/utils';
   import { IconType } from '@/views/api-test/report/component/reportStatus.vue';
@@ -784,13 +781,17 @@
         // 可能存在多个自定义卡片
         customCardRef.value.forEach((item) => {
           if (item) {
-            customCardImages = customCardImages.concat(Array.from(item.querySelectorAll('img')));
+            customCardImages = customCardImages.concat(
+              Array.from(item.querySelectorAll('img')).filter((e) => e.className !== 'ProseMirror-separator')
+            );
           }
         });
       }
       if (summaryRef.value[0]) {
         // 只有一个总结
-        summaryImages = Array.from(summaryRef.value[0].querySelectorAll('img'));
+        summaryImages = Array.from(summaryRef.value[0].querySelectorAll('img')).filter(
+          (e) => e.className !== 'ProseMirror-separator'
+        );
       }
       if (customCardImages.length > 0 || summaryImages.length > 0) {
         let loadedImageCount = 0;
@@ -995,5 +996,17 @@
   }
   :deep(#ms-table-footer-wrapper) {
     @apply hidden;
+  }
+  .rich-wrapper {
+    @apply border-none;
+    :deep(.halo-rich-text-editor) {
+      @apply !p-0;
+      .editor-header {
+        @apply hidden;
+      }
+      .tiptap {
+        @apply !p-0;
+      }
+    }
   }
 </style>
