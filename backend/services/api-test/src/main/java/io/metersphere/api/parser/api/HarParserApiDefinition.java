@@ -100,12 +100,11 @@ public class HarParserApiDefinition extends HttpApiDefinitionImportAbstractParse
         if (CollectionUtils.isEmpty(importApi.getResponse())) {
             importApi.setResponse(savedApi.getResponse());
         } else {
-
             if (CollectionUtils.isEmpty(savedApi.getResponse())) {
                 importApi.getResponse().getFirst().setDefaultFlag(true);
             } else {
                 List<HttpResponse> existenceResponseList = savedApi.getResponse();
-                for (HttpResponse importRsp : savedApi.getResponse()) {
+                for (HttpResponse importRsp : importApi.getResponse()) {
                     boolean isExistence = false;
                     for (HttpResponse existenceRsp : existenceResponseList) {
                         if (StringUtils.equals(importRsp.getName(), existenceRsp.getName())) {
@@ -119,6 +118,9 @@ public class HarParserApiDefinition extends HttpApiDefinitionImportAbstractParse
                         importRsp.setId(IDGenerator.nextStr());
                         existenceResponseList.add(importRsp);
                     }
+                }
+                if (CollectionUtils.isNotEmpty(existenceResponseList)) {
+                    importApi.setResponse(existenceResponseList);
                 }
             }
         }
