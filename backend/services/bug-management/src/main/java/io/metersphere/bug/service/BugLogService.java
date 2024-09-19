@@ -15,6 +15,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,8 @@ public class BugLogService {
     private BugService bugService;
     @Resource
     private BugContentMapper bugContentMapper;
+    @Resource
+    private OperationLogService operationLogService;
 
 
     /**
@@ -167,5 +170,16 @@ public class BugLogService {
         Optional<BugCustomFieldDTO> find = request.getCustomFields().stream().filter(field -> StringUtils.equalsAny(field.getId(), "summary", "title")).findFirst();
         BugCustomFieldDTO titleField = find.orElseGet(BugCustomFieldDTO::new);
         return StringUtils.isNotBlank(request.getTitle()) ? request.getTitle() : titleField.getValue();
+    }
+
+
+    @SuppressWarnings("unused")
+    public void minderAddLog(BugEditRequest request, List<MultipartFile> files, String orgId, String bugId, String userId) {
+        LogDTO dto = new LogDTO(request.getProjectId(), orgId, bugId, userId, OperationLogType.ADD.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, getPlatformTitle(request));
+        dto.setHistory(true);
+        dto.setPath("/test-plan/functional/case/minder/batch/add-bug");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setModifiedValue(JSON.toJSONBytes(request));
+        operationLogService.add(dto);
     }
 }
