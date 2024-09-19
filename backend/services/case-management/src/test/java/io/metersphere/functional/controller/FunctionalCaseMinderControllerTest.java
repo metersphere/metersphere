@@ -5,7 +5,11 @@ import io.metersphere.functional.dto.*;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
+import io.metersphere.plan.domain.TestPlanCollection;
+import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.mapper.TestPlanCaseExecuteHistoryMapper;
+import io.metersphere.plan.mapper.TestPlanCollectionMapper;
+import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
@@ -26,6 +30,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -49,6 +54,9 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     //测试计划
     public static final String FUNCTIONAL_CASE_PLAN_LIST_URL = "/functional/mind/case/plan/list";
 
+    public static final String FUNCTIONAL_CASE_COLLECTION_LIST_URL = "/functional/mind/case/collection/list";
+
+
 
     @Resource
     private FunctionalCaseBlobMapper functionalCaseBlobMapper;
@@ -62,6 +70,10 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
     private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
     @Resource
     private TestPlanCaseExecuteHistoryMapper testPlanCaseExecuteHistoryMapper;
+    @Resource
+    private TestPlanCollectionMapper testPlanCollectionMapper;
+    @Resource
+    private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
 
     @Test
     @Order(1)
@@ -455,6 +467,63 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
                 Pager.class);
         Assertions.assertNotNull(tableData.getList());
         Assertions.assertEquals(2, tableData.getList().size());
+    }
+
+    @Test
+    @Order(6)
+    public void testGetCaseCollectionList() throws Exception {
+        TestPlanCollection testPlanCollection = new TestPlanCollection();
+        testPlanCollection.setTestPlanId("TEST_MINDER_PLAN_ID_1");
+        testPlanCollection.setParentId("NONE");
+        testPlanCollection.setPos(500L);
+        testPlanCollection.setType("FUNCTIONAL");
+        testPlanCollection.setCreateTime(System.currentTimeMillis());
+        testPlanCollection.setName("功能用例");
+        String id = UUID.randomUUID().toString();
+        testPlanCollection.setId(id);
+        testPlanCollection.setCreateUser("admin");
+        testPlanCollection.setExtended(true);
+        testPlanCollection.setGrouped(false);
+        testPlanCollection.setTestResourcePoolId("100001100001");
+        testPlanCollection.setExecuteMethod("PARALLEL");
+        testPlanCollection.setEnvironmentId("NONE");
+        testPlanCollection.setRetryOnFail(false);
+        testPlanCollection.setStopOnFail(false);
+        testPlanCollectionMapper.insert(testPlanCollection);
+        testPlanCollection = new TestPlanCollection();
+        testPlanCollection.setTestPlanId("TEST_MINDER_PLAN_ID_1");
+        testPlanCollection.setParentId(id);
+        testPlanCollection.setPos(500L);
+        testPlanCollection.setType("FUNCTIONAL");
+        testPlanCollection.setCreateTime(System.currentTimeMillis());
+        testPlanCollection.setName("基本功能点");
+        String collectionId = UUID.randomUUID().toString();
+        testPlanCollection.setId(collectionId);
+        testPlanCollection.setCreateUser("admin");
+        testPlanCollection.setExtended(true);
+        testPlanCollection.setGrouped(false);
+        testPlanCollection.setTestResourcePoolId("100001100001");
+        testPlanCollection.setExecuteMethod("PARALLEL");
+        testPlanCollection.setEnvironmentId("NONE");
+        testPlanCollection.setRetryOnFail(false);
+        testPlanCollection.setStopOnFail(false);
+        testPlanCollectionMapper.insert(testPlanCollection);
+        TestPlanFunctionalCase testPlanFunctionalCase = new TestPlanFunctionalCase();
+        testPlanFunctionalCase.setId("test_plan_functional_case_minder_id1");
+        testPlanFunctionalCase.setTestPlanCollectionId(collectionId);
+        testPlanFunctionalCaseMapper.updateByPrimaryKeySelective(testPlanFunctionalCase);
+
+        FunctionalCaseCollectionMindRequest request = new FunctionalCaseCollectionMindRequest();
+        request.setProjectId("project-case-minder-test");
+        request.setCollectionId(collectionId);
+        request.setPlanId("TEST_MINDER_PLAN_ID_1");
+        request.setCurrent(1);
+        MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_COLLECTION_LIST_URL, request);
+        Pager<List<FunctionalMinderTreeDTO>> tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        Assertions.assertNotNull(tableData.getList());
+        Assertions.assertEquals(1, tableData.getList().size());
         //System.out.println(JSON.toJSONString(tableData.getList()));
     }
 
