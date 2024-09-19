@@ -289,13 +289,16 @@
       if (res?.id === 'all_data') {
         res.conditions = [...getAllDataDefaultConditions(props.viewType)];
       }
-      const list: FilterFormItem[] = (res.conditions ?? [])?.map((item: ConditionsItem) => {
+      const list: FilterFormItem[] = [];
+      (res.conditions ?? [])?.forEach((item: ConditionsItem) => {
         const listItem = getListItemByDataIndex(item.name ?? '') as FilterFormItem;
-        return {
-          ...listItem,
-          operator: item.operator,
-          value: item.value,
-        };
+        if (listItem) {
+          list.push({
+            ...listItem,
+            operator: item.operator,
+            value: item.value,
+          });
+        }
       });
       formModel.value = { ...res, list };
       savedFormModel.value = cloneDeep(formModel.value);
@@ -341,6 +344,19 @@
         .map((item) => ({ ...item, label: t(item.title as string) }));
     };
   });
+  // 第二列默认：包含/属于/等于
+  function getDefaultOperator(list: string[]) {
+    if (list.includes(OperatorEnum.CONTAINS)) {
+      return OperatorEnum.CONTAINS;
+    }
+    if (list.includes(OperatorEnum.BELONG_TO)) {
+      return OperatorEnum.BELONG_TO;
+    }
+    if (list.includes(OperatorEnum.EQUAL)) {
+      return OperatorEnum.EQUAL;
+    }
+    return OperatorEnum.BETWEEN; // 时间
+  }
   // 改变第一列值
   function dataIndexChange(dataIndex: SelectValue, index: number) {
     const listItem = getListItemByDataIndex(dataIndex as string);
@@ -353,15 +369,7 @@
       const optionsValueList = operatorOptionsMap[formModel.value.list[index].type].map(
         (optionItem) => optionItem.value
       );
-      if (optionsValueList.includes(OperatorEnum.CONTAINS)) {
-        formModel.value.list[index].operator = OperatorEnum.CONTAINS;
-      } else if (optionsValueList.includes(OperatorEnum.BELONG_TO)) {
-        formModel.value.list[index].operator = OperatorEnum.BELONG_TO;
-      } else if (optionsValueList.includes(OperatorEnum.EQUAL)) {
-        formModel.value.list[index].operator = OperatorEnum.EQUAL;
-      } else {
-        formModel.value.list[index].operator = OperatorEnum.BETWEEN; // 时间
-      }
+      formModel.value.list[index].operator = getDefaultOperator(optionsValueList);
     }
   }
   // 改变第二列值
