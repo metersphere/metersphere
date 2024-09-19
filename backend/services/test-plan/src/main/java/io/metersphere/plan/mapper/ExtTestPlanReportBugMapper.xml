@@ -23,7 +23,7 @@
     </select>
 
     <select id="list" resultType="io.metersphere.bug.dto.response.BugDTO">
-        select distinct tprb.bug_id as id, tprb.bug_num as num, tprb.bug_title as title, tprb.bug_status as status, tprb.bug_handle_user as handleUserName,
+        select distinct tprb.bug_id as id, tprb.bug_num as num, tprb.bug_title as title, tprb.bug_status as status, tprb.bug_status as statusName, tprb.bug_handle_user as handleUserName,
             ifnull(tprb.bug_case_count, 0) as relationCaseCount
         from test_plan_report_bug tprb
         where tprb.test_plan_report_id = #{request.reportId}
