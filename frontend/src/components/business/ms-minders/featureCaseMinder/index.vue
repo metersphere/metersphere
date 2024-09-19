@@ -204,7 +204,7 @@
         data: {
           ...e.data,
           id: e.id || e.data?.id || '',
-          text: e.name || e.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
+          text: e.name || e.data?.text || '',
           resource: props.modulesCount[e.id] !== undefined ? [moduleTag] : e.data?.resource,
           expandState: e.level === 0 ? 'expand' : 'collapse',
           count: props.modulesCount[e.id],
@@ -445,6 +445,7 @@
         const child = window.minder.createNode(
           {
             ...e.data,
+            text: e.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
             expandState: 'collapse',
             isNew: false,
           },
@@ -457,6 +458,7 @@
           const grandChild = window.minder.createNode(
             {
               ...item.data,
+              text: item.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
               expandState: 'collapse',
               isNew: false,
             },
@@ -469,6 +471,7 @@
             const greatGrandChild = window.minder.createNode(
               {
                 ...subItem.data,
+                text: subItem.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
                 expandState: 'collapse',
                 isNew: false,
               },
@@ -542,6 +545,7 @@
         const child = window.minder.createNode(
           {
             ...e.data,
+            text: e.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
             expandState: 'collapse',
             isNew: false,
           },
@@ -554,6 +558,7 @@
           const grandChild = window.minder.createNode(
             {
               ...item.data,
+              text: item.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
               expandState: 'collapse',
               isNew: false,
             },
@@ -566,6 +571,7 @@
             const greatGrandChild = window.minder.createNode(
               {
                 ...subItem.data,
+                text: subItem.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
                 expandState: 'collapse',
                 isNew: false,
               },
@@ -578,7 +584,6 @@
         window.minder.renderNodeBatch(grandChildren);
       });
       node.expand();
-      // node.renderTree();
       if (node.children && node.children.length > 0) {
         waitingRenderNodes = waitingRenderNodes.concat(node.children);
       }

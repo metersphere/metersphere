@@ -296,6 +296,7 @@
         const child = createNode(
           {
             ...(e.data as MinderJsonNodeData),
+            text: e.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
             resource: [
               ...(statusTagMap[e.data?.status] ? [statusTagMap[e.data?.status]] : []),
               ...(e.data?.resource ?? []),
