@@ -25,7 +25,7 @@ public interface CurlPatternConstants {
     /**
      * HTTP请求方法
      */
-    Pattern HTTP_METHOD_PATTERN = Pattern.compile("curl\\s+(?:[^\\s]+\\s+)*(-X|--request)\\s+'?(GET|POST)'?");
+    Pattern HTTP_METHOD_PATTERN = Pattern.compile("curl\\s+(?:[^\\s]+\\s+)*(-X|--request)\\s+'?(GET|POST|PUT|DELETE|PATCH|OPTIONS|HEAD|CONNECT)'?");
 
     /**
      * 默认HTTP请求方法
