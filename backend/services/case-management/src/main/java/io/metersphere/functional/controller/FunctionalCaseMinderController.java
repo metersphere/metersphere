@@ -86,4 +86,12 @@ public class FunctionalCaseMinderController {
         return PageUtils.setPageInfo(page, functionalCaseMinderService.getPlanMindFunctionalCase(request, false));
     }
 
+    @PostMapping("/collection/list")
+    @Operation(summary = "测试集-功能用例-脑图用例跟根据测试集ID查询列表")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_MINDER)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public  Pager<List<FunctionalMinderTreeDTO>> getCollectionFunctionalCaseMinderTree(@Validated @RequestBody FunctionalCaseCollectionMindRequest request) { Page<Object> page = PageHelper.startPage(request.getCurrent(), 100 );
+        return PageUtils.setPageInfo(page, functionalCaseMinderService.getCollectionMindFunctionalCase(request, false));
+    }
+
 }

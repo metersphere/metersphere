@@ -690,6 +690,35 @@
         order by fc.pos desc
     </select>
 
+    <select id="getCaseCustomFieldListByCollection" resultType="io.metersphere.functional.domain.FunctionalCaseCustomField">
+        SELECT
+        fccf.case_id, fccf.field_id, fccf.value
+        FROM
+        functional_case_custom_field fccf
+        LEFT JOIN functional_case fc ON fccf.case_id = fc.id
+        LEFT JOIN test_plan_functional_case tpfc ON tpfc.functional_case_id = fc.id
+        LEFT JOIN custom_field cf ON cf.id = fccf.field_id
+        WHERE
+        fc.deleted = false
+        AND
+        fc.project_Id = #{request.projectId}
+        AND
+        tpfc.test_plan_collection_id = #{request.collectionId}
+        AND
+        tpfc.test_plan_id = #{request.planId}
+        AND
+        cf.name = 'functional_priority'
+        AND cf.scene = 'FUNCTIONAL'
+        AND cf.internal= true
+        <if test="fieldIds != null and fieldIds.size() > 0">
+            and fccf.field_id in
+            <foreach collection="fieldIds" item="fieldId" open="(" separator="," close=")">
+                #{fieldId}
+            </foreach>
+        </if>
+        order by fc.pos desc
+    </select>
+
 
     <select id="getMinderCaseReviewList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">
         SELECT
@@ -755,6 +784,34 @@
         fc.project_Id = #{request.projectId}
         AND
         fc.module_id = #{request.moduleId}
+    </select>
+
+    <select id="getMinderCollectionList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">
+        SELECT
+            tpfc.id as id,
+            history.`status` as reviewStatus,
+            fc.module_id as moduleId,
+            fc.name as name,
+            fc.id as caseId,
+            fc.project_id,  fc.template_id, fc.pos, fc.case_edit_type,
+            IFNULL(history.`steps`, fcb.steps) as steps, execute_history.`steps` as executeSteps, fcb.text_description, fcb.expected_result, fcb.prerequisite, fcb.description, history.`content`
+        FROM
+            test_plan_functional_case tpfc
+                LEFT JOIN functional_case fc ON tpfc.functional_case_id = fc.id
+                LEFT JOIN functional_case_blob fcb ON fcb.id = fc.id
+                LEFT JOIN (select  * from (SELECT  tpceh.test_plan_case_id, tpceh.`status`,tpceh.`steps`, tpceh.`content`, ROW_NUMBER() OVER (PARTITION BY tpceh.test_plan_case_id ORDER BY tpceh.create_time DESC) as rn from test_plan_case_execute_history tpceh where tpceh.test_plan_id = #{request.planId} and tpceh.deleted = false
+
+                                           order by tpceh.create_time desc ) as history_filter WHERE rn = 1 ) as history  ON history.test_plan_case_id = tpfc.id
+                LEFT JOIN (select  * from (SELECT  tpceh.test_plan_case_id, tpceh.`status`,tpceh.`steps`, ROW_NUMBER() OVER (PARTITION BY tpceh.test_plan_case_id ORDER BY tpceh.create_time DESC) as rn from test_plan_case_execute_history tpceh where tpceh.test_plan_id = #{request.planId} and tpceh.deleted = false and tpceh.steps IS NOT NULL
+
+                                           order by tpceh.create_time desc ) as history_filter WHERE rn = 1 ) as execute_history  ON execute_history.test_plan_case_id = tpfc.id
+        WHERE
+            tpfc.test_plan_id = #{request.planId}
+          AND fc.deleted = #{deleted}
+          AND
+            fc.project_Id = #{request.projectId}
+          AND
+            tpfc.test_plan_collection_id = #{request.collectionId}
     </select>
 
     <select id="selectBaseMindNodeByProjectId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">

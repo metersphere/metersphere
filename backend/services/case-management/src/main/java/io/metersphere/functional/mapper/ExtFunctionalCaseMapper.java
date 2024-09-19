@@ -96,13 +96,16 @@ public interface ExtFunctionalCaseMapper {
 
     List<FunctionalCaseCustomField> getCaseCustomFieldList(@Param("request") FunctionalCaseMindRequest request, @Param("deleted") boolean deleted, @Param("fieldIds") List<String> fieldIds);
 
-
+    List<FunctionalCaseCustomField> getCaseCustomFieldListByCollection(@Param("request") FunctionalCaseCollectionMindRequest request, @Param("deleted") boolean deleted, @Param("fieldIds") List<String> fieldIds);
     /**
      * 根据模块ID获取用例评审脑图展示数据
      */
     List<FunctionalCaseMindDTO> getMinderCaseReviewList(@Param("request") FunctionalCaseReviewMindRequest request, @Param("deleted") boolean delete, @Param("userId") String userId, @Param("viewStatusUserId") String viewStatusUserId);
 
     List<FunctionalCaseMindDTO> getMinderTestPlanList(@Param("request") FunctionalCasePlanMindRequest request, @Param("deleted") boolean delete);
+
+    List<FunctionalCaseMindDTO> getMinderCollectionList(@Param("request") FunctionalCaseCollectionMindRequest request, @Param("deleted") boolean delete);
+
 
     List<BaseTreeNode> selectBaseMindNodeByProjectId(@Param("projectId") String projectId);
 
