@@ -43,7 +43,11 @@
               <div class="m-b[2px] flex items-center">
                 <a-tooltip :content="item.file.name">
                   <div class="show-file-name">
-                    <div class="file-name-first one-line-text max-w-[300px] pl-[4px] font-normal">
+                    <div
+                      :class="`file-name-first one-line-text pl-[4px] font-normal max-w-[${
+                        props.fileNameMaxWidth || '300px'
+                      }]`"
+                    >
                       {{ item.file.name.slice(0, item.file.name.indexOf('.')) }}
                     </div>
                     <span class="font-normal text-[var(--color-text-1)]">
@@ -226,6 +230,7 @@
       showUploadTypeDesc?: boolean; // 自定义上传类型关联于&上传于
       initFileSaveTips?: string; // 上传初始文件时的提示
       buttonInTitle?: boolean; // 按钮是否在标题中
+      fileNameMaxWidth?: string; // 文件名称最大宽度
     }>(),
     {
       mode: 'remote',
