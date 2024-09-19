@@ -219,7 +219,7 @@
 
   import type { CustomFieldItem } from '@/models/bug-management';
   import { BugEditCustomField, BugEditFormObject } from '@/models/bug-management';
-  import { RouteEnum } from '@/enums/routeEnum';
+  import { BugManagementRouteEnum, RouteEnum } from '@/enums/routeEnum';
 
   const router = useRouter();
   const route = useRoute();
@@ -466,8 +466,10 @@
   const shareLoading = ref<boolean>(false);
 
   function shareHandler() {
-    const { origin } = window.location;
-    const url = `${origin}/#${route.path}?id=${detailInfo.value.id}&pId=${appStore.currentProjectId}&orgId=${appStore.currentOrgId}`;
+    const url = `${window.location.origin}#${
+      router.resolve({ name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX }).fullPath
+    }?
+      id=${detailInfo.value.id}&orgId=${appStore.currentOrgId}&pId=${appStore.currentProjectId}`;
     if (isSupported) {
       copy(url);
       Message.info(t('bugManagement.detail.shareTip'));
