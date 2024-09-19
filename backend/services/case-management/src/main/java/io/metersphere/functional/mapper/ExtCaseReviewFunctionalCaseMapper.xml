@@ -193,6 +193,15 @@
                                 <property name="condition" value="condition"/>
                             </include>
                         </if>
+                        <if test="condition.name == 'reviewers'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
+                                <property name="mainIdColumn" value="crfc.case_id"/>
+                                <property name="associationTable" value="case_review_functional_case_user"/>
+                                <property name="associationIdColumn" value="case_id"/>
+                                <property name="searchColumn" value="user_id"/>
+                                <property name="condition" value="condition"/>
+                            </include>
+                        </if>
                         <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
                             <property name="searchMode" value="${combineSearch}.searchMode"/>
                         </include>
