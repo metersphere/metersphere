@@ -410,7 +410,8 @@
   function insertNode(node: PlanMinderNode, type: string) {
     if (
       (node.data?.level === 2 && type === 'AppendChildNode') ||
-      (node.data?.level === 1 && type === 'AppendSiblingNode')
+      (node.data?.level === 1 && type === 'AppendSiblingNode') ||
+      node.data?.level > 2
     ) {
       return;
     }
