@@ -10,7 +10,7 @@
     <select id="getPlanExecuteCases" resultType="io.metersphere.plan.domain.TestPlanReportApiCase">
         select  tpac.id as testPlanApiCaseId, atc.id as apiCaseId, atc.num as apiCaseNum, atc.name as apiCaseName, atc.priority as apiCasePriority,
                 tpac.test_plan_collection_id testPlanCollectionId, tpac.environment_id as environmentId,
-                if(ad.module_id = 'root','未规划用例', ad.module_id) as apiCaseModule, tpac.execute_user as apiCaseExecuteUser,
+                if(ad.module_id = 'root','未规划接口', ad.module_id) as apiCaseModule, tpac.execute_user as apiCaseExecuteUser,
                 ifnull(tpac.last_exec_result, 'PENDING') as apiCaseExecuteResult, tpac.last_exec_report_id apiCaseExecuteReportId, tpac.pos as pos
         from test_plan_api_case tpac join api_test_case atc on atc.id = tpac.api_case_id
         left join api_definition ad on atc.api_definition_id = ad.id
@@ -40,7 +40,8 @@
         where tprac.test_plan_report_id = #{request.reportId}
         <if test="request.keyword != null and request.keyword != ''">
             and (tprac.api_case_num like concat('%', #{request.keyword}, '%')
-            or tprac.api_case_name like concat('%', #{request.keyword}, '%'))
+            or tprac.api_case_name like concat('%', #{request.keyword}, '%')
+            or tprac.api_case_module like concat('%', #{request.keyword}, '%'))
         </if>
         <if test="request.collectionId != null and request.collectionId != ''">
             and tprac.test_plan_collection_id = #{request.collectionId}

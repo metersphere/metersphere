@@ -10,7 +10,7 @@
     <select id="getPlanExecuteCases" resultType="io.metersphere.plan.domain.TestPlanReportApiScenario">
         select  tpas.id as testPlanApiScenarioId, aso.id as apiScenarioId, aso.num as apiScenarioNum, aso.name as apiScenarioName, aso.priority as apiScenarioPriority,
                 tpas.test_plan_collection_id testPlanCollectionId, tpas.grouped as grouped, tpas.environment_id environmentId,
-                if(aso.module_id = 'root','未规划用例', aso.module_id) as apiScenarioModule, tpas.execute_user as apiScenarioExecuteUser,
+                if(aso.module_id = 'root','未规划场景', aso.module_id) as apiScenarioModule, tpas.execute_user as apiScenarioExecuteUser,
                 ifnull(tpas.last_exec_result, 'PENDING') as apiScenarioExecuteResult, tpas.last_exec_report_id apiScenarioExecuteReportId, tpas.pos as pos
         from test_plan_api_scenario tpas join api_scenario aso on aso.id = tpas.api_scenario_id
         left join api_scenario_module asm on aso.module_id = asm.id
@@ -39,7 +39,8 @@
         where tpras.test_plan_report_id = #{request.reportId}
         <if test="request.keyword != null and request.keyword != ''">
             and (tpras.api_scenario_num like concat('%', #{request.keyword}, '%')
-            or tpras.api_scenario_name like concat('%', #{request.keyword}, '%'))
+            or tpras.api_scenario_name like concat('%', #{request.keyword}, '%')
+            or tpras.api_scenario_module like concat('%', #{request.keyword}, '%'))
         </if>
         <if test="request.collectionId != null and request.collectionId != ''">
             and tpras.test_plan_collection_id = #{request.collectionId}
