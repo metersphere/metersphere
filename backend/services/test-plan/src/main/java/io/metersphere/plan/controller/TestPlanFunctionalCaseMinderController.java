@@ -2,6 +2,7 @@ package io.metersphere.plan.controller;
 
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.dto.request.BugEditRequest;
+import io.metersphere.bug.service.BugLogService;
 import io.metersphere.bug.service.BugService;
 import io.metersphere.plan.dto.request.TestPlanCaseBatchAddBugRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseBatchAssociateBugRequest;
@@ -29,6 +30,8 @@ public class TestPlanFunctionalCaseMinderController {
     private BugService bugService;
     @Resource
     private TestPlanFunctionalCaseMinderService testPlanFunctionalCaseMinderService;
+    @Resource
+    private BugLogService bugLogService;
 
     @PostMapping("/batch/add-bug")
     @Operation(summary = "测试计划-功能用例-脑图-批量添加缺陷")
@@ -39,6 +42,7 @@ public class TestPlanFunctionalCaseMinderController {
         BugEditRequest bugEditRequest = new BugEditRequest();
         BeanUtils.copyBean(bugEditRequest, request);
         Bug bug = bugService.addOrUpdate(bugEditRequest, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), false);
+        bugLogService.minderAddLog(bugEditRequest, files, SessionUtils.getCurrentOrganizationId(), bug.getId(), SessionUtils.getUserId());
         testPlanFunctionalCaseMinderService.minderBatchAssociateBug(request, bug.getId(), SessionUtils.getUserId());
     }
 
