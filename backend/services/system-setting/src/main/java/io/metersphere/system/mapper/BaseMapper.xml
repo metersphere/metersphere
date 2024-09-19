@@ -72,14 +72,42 @@
 
         <if test="${combineSearch}.customFiledNoneConditions.size() > 0">
             <foreach collection="${combineSearch}.customFiledNoneConditions" item="condition">
-                ${mainIdColumn} not in (
-                    select ${associationIdColumn} from  ${associationTable} where
-                    field_id = #{condition.name} and
-                    `value` is not null and `value` != ''
-                    <if test="condition.customFieldType != null and condition.isMultipleCustomField()">
-                        and `value` != '[]'
-                    </if>
-                ) or
+                <trim prefix="(" suffix=")">
+                    ${mainIdColumn} not in (
+                        select ${associationIdColumn} from  ${associationTable} where
+                        field_id = #{condition.name} and
+                        `value` is not null and `value` != ''
+                        <if test="condition.customFieldType != null and condition.isMultipleCustomField()">
+                            and `value` != '[]'
+                        </if>
+                    ) or
+                    ${mainIdColumn} in (
+                        select ${associationIdColumn} from ${associationTable} where
+                        field_id = #{condition.name} and
+                        <choose>
+                            <when test="condition.customFieldType != null and condition.isMultipleCustomField()">
+                                <include refid="io.metersphere.system.mapper.BaseMapper.arrayValueCondition">
+                                    <property name="condition" value="condition"/>
+                                    <property name="column" value="value"/>
+                                </include>
+                            </when>
+                            <otherwise>
+                                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                    <property name="condition" value="condition"/>
+                                    <property name="column" value="value"/>
+                                </include>
+                            </otherwise>
+                        </choose>
+                    )
+                </trim>
+                <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                    <property name="searchMode" value="${combineSearch}.searchMode"/>
+                </include>
+            </foreach>
+        </if>
+
+        <if test="${combineSearch}.customFiledConditions.size() > 0">
+            <foreach collection="${combineSearch}.customFiledConditions" item="condition">
                 ${mainIdColumn} in (
                     select ${associationIdColumn} from ${associationTable} where
                     field_id = #{condition.name} and
@@ -103,36 +131,6 @@
                 </include>
             </foreach>
         </if>
-
-        <if test="${combineSearch}.customFiledConditions.size() > 0">
-            ${mainIdColumn} in (
-                select ${associationIdColumn} from ${associationTable} where
-                <trim suffixOverrides="AND|OR">
-                    <foreach collection="${combineSearch}.customFiledConditions" item="condition">
-                        <trim prefix="(" suffix=")">
-                            field_id = #{condition.name} and
-                            <choose>
-                                <when test="condition.customFieldType != null and condition.isMultipleCustomField()">
-                                    <include refid="io.metersphere.system.mapper.BaseMapper.arrayValueCondition">
-                                        <property name="condition" value="condition"/>
-                                        <property name="column" value="value"/>
-                                    </include>
-                                </when>
-                                <otherwise>
-                                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                        <property name="condition" value="condition"/>
-                                        <property name="column" value="value"/>
-                                    </include>
-                                </otherwise>
-                            </choose>
-                        </trim>
-                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
-                            <property name="searchMode" value="${combineSearch}.searchMode"/>
-                        </include>
-                    </foreach>
-                </trim>
-            )
-        </if>
     </sql>
 
     <sql id="arrayValueCondition">
@@ -151,13 +149,13 @@
                 <when test="${condition}.operator == 'NOT_CONTAINS'">
                     ${column} is null or ${column} = '[]' or
                     <foreach collection="${condition}.value" item="tag" separator="and" open="(" close=")">
-                        !JSON_CONTAINS(${column}, JSON_ARRAY(#{tag}))
+                        not JSON_CONTAINS(${column}, JSON_ARRAY(#{tag}))
                     </foreach>
                 </when>
                 <when test="${condition}.operator == 'NOT_IN'">
                     ${column} is null or ${column} = '[]' or
                     <foreach collection="${condition}.value" item="tag" separator="and" open="(" close=")">
-                        !JSON_CONTAINS(${column}, JSON_ARRAY(#{tag}))
+                        not JSON_CONTAINS(${column}, JSON_ARRAY(#{tag}))
                     </foreach>
                 </when>
                 <when test="${condition}.operator == 'COUNT_GT'">
