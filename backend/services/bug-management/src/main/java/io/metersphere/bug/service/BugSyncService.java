@@ -71,7 +71,7 @@ public class BugSyncService {
     }
 
     /**
-     * 同步存量缺陷
+     * 同步缺陷
      * @param projectId 项目ID
      */
     public void syncBugs(String projectId, String currentUser, String language, String triggerMode) {

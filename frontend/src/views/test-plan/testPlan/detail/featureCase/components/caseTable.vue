@@ -463,7 +463,7 @@
           {
             label: 'caseManagement.featureCase.linkDefect',
             eventTag: 'linkDefect',
-            permission: ['PROJECT_BUG:READ'],
+            permission: ['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_BUG:READ'],
           },
         ]
       : [];
@@ -494,7 +494,7 @@
         {
           label: 'testPlan.featureCase.noBugDataNewBug',
           eventTag: 'newBug',
-          permission: ['PROJECT_BUG:READ+ADD'],
+          permission: ['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_BUG:READ+ADD'],
         },
       ],
     };
