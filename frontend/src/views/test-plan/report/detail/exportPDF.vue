@@ -108,8 +108,16 @@
               :share-id="shareId"
               is-preview
             />
-            <div v-else-if="item.value === ReportCardTypeEnum.CUSTOM_CARD" v-html="item.content"></div>
-            <div v-else-if="item.value === ReportCardTypeEnum.SUMMARY" v-html="detail.summary"></div>
+            <div
+              v-else-if="item.value === ReportCardTypeEnum.CUSTOM_CARD"
+              ref="customCardRef"
+              v-html="item.content"
+            ></div>
+            <div
+              v-else-if="item.value === ReportCardTypeEnum.SUMMARY"
+              ref="summaryRef"
+              v-html="isDefaultLayout ? detail.summary : item.content"
+            ></div>
           </div>
         </div>
       </div>
@@ -182,6 +190,8 @@
   const reportId = ref<string>(route.query.id as string);
   const isGroup = computed(() => route.query.type === 'GROUP');
   const loading = ref<boolean>(true);
+  const customCardRef = ref<(HTMLElement | null)[]>([]);
+  const summaryRef = ref<(HTMLElement | null)[]>([]);
 
   /**
    * 分享share
@@ -370,7 +380,7 @@
     try {
       const res = await getReportLayout(detail.value.id, shareId.value);
       innerCardList.value = res
-        .filter((e: any) => [ReportCardTypeEnum.CUSTOM_CARD, ReportCardTypeEnum.SUMMARY].includes(e.value))
+        .filter((e: any) => [ReportCardTypeEnum.CUSTOM_CARD, ReportCardTypeEnum.SUMMARY].includes(e.name))
         .map((item: any) => {
           return {
             id: item.id,
@@ -620,6 +630,25 @@
     return status && iconTypeStatus[status] ? iconTypeStatus[status] : iconTypeStatus.DEFAULT;
   }
 
+  function doExport(name: string, tableArr: PdfTableConfig[]) {
+    exportPDF(
+      name,
+      'report-detail',
+      tableArr,
+      {
+        group: t('report.detail.subPlanDetails'),
+        bug: t('report.detail.bugDetails'),
+        case: t('report.detail.featureCaseDetails'),
+        apiCase: t('report.detail.apiCaseDetails'),
+        scenario: t('report.detail.scenarioCaseDetails'),
+      },
+      () => {
+        loading.value = false;
+        Message.success(t('report.detail.exportPdfSuccess', { name: characterLimit(name, 50) }));
+      }
+    );
+  }
+
   async function realExportPdf(name: string) {
     const tableArr: PdfTableConfig[] = [];
     if (!isDefaultLayout.value) {
@@ -749,22 +778,37 @@
       });
     }
     await nextTick(async () => {
-      exportPDF(
-        name,
-        'report-detail',
-        tableArr,
-        {
-          group: t('report.detail.subPlanDetails'),
-          bug: t('report.detail.bugDetails'),
-          case: t('report.detail.featureCaseDetails'),
-          apiCase: t('report.detail.apiCaseDetails'),
-          scenario: t('report.detail.scenarioCaseDetails'),
-        },
-        () => {
-          loading.value = false;
-          Message.success(t('report.detail.exportPdfSuccess', { name: characterLimit(name, 50) }));
-        }
-      );
+      let customCardImages: HTMLImageElement[] = [];
+      let summaryImages: HTMLImageElement[] = [];
+      if (customCardRef.value[0]) {
+        // 可能存在多个自定义卡片
+        customCardRef.value.forEach((item) => {
+          if (item) {
+            customCardImages = customCardImages.concat(Array.from(item.querySelectorAll('img')));
+          }
+        });
+      }
+      if (summaryRef.value[0]) {
+        // 只有一个总结
+        summaryImages = Array.from(summaryRef.value[0].querySelectorAll('img'));
+      }
+      if (customCardImages.length > 0 || summaryImages.length > 0) {
+        let loadedImageCount = 0;
+        await new Promise((resolve) => {
+          const images = [...customCardImages, ...summaryImages];
+          images.forEach((image) => {
+            image.onload = () => {
+              loadedImageCount += 1;
+              if (loadedImageCount === images.length) {
+                doExport(name, tableArr);
+                resolve(true);
+              }
+            };
+          });
+        });
+      } else {
+        doExport(name, tableArr);
+      }
     });
   }
 
