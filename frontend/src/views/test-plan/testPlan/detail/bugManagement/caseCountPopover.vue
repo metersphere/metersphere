@@ -7,7 +7,7 @@
       <div class="w-[500px]">
         <MsBaseTable v-bind="propsRes" v-on="propsEvent">
           <template #num="{ record }">
-            <MsButton size="mini" type="text" @click="goCaseDetail(record.id)">{{ record.num }}</MsButton>
+            <MsButton size="mini" type="text" @click="goCaseDetail(record)">{{ record.num }}</MsButton>
           </template>
           <template #type="{ record }">
             <span>{{ getCaseType(record.type) || '-' }}</span>
@@ -27,9 +27,9 @@
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
 
-  import type { PlanDetailBugItem } from '@/models/testPlan/testPlan';
+  import type { PlanDetailBugItem, RelateCasesType } from '@/models/testPlan/testPlan';
   import { CaseLinkEnum } from '@/enums/caseEnum';
-  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+  import { ApiTestRouteEnum, CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
@@ -38,7 +38,6 @@
 
   const { openNewPage } = useOpenNewPage();
   const { t } = useI18n();
-
   const columns: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnID',
@@ -88,11 +87,30 @@
   function popupChange() {
     propsRes.value.data = props.bugItem.relateCases;
   }
-
-  function goCaseDetail(id: string) {
-    openNewPage(CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, {
-      id,
-    });
+  // TODO 待测试，目前后台还没有加字段
+  function goCaseDetail(record: RelateCasesType) {
+    const { id, type, projectId } = record;
+    switch (type) {
+      case CaseLinkEnum.API:
+        openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
+          cId: id,
+          pId: projectId,
+        });
+        break;
+      case CaseLinkEnum.FUNCTIONAL:
+        openNewPage(CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, {
+          id,
+        });
+        break;
+      case CaseLinkEnum.SCENARIO:
+        openNewPage(ApiTestRouteEnum.API_TEST_SCENARIO, {
+          id,
+          pId: projectId,
+        });
+        break;
+      default:
+        break;
+    }
   }
 </script>
 

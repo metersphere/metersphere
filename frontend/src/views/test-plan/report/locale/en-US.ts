@@ -26,6 +26,7 @@ export default {
   'report.passRateTip': 'Pass rate: successful cases in the plan / cases in the plan * 100%',
   'report.detail.reportSummary': 'Report summary',
   'report.detail.bugDetails': 'Bug details',
+  'report.detail.caseDetailSearchPlaceholder': 'Search by ID/ name/module name',
   'report.detail.featureCaseDetails': 'Case details',
   'report.detail.executionAnalysis': 'Execution Analysis',
   'report.detail.threshold': 'Pass threshold',

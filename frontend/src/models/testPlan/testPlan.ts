@@ -5,7 +5,7 @@ import type { saveParams } from '@/components/business/ms-associate-case/types';
 import type { customFieldsItem } from '@/models/caseManagement/featureCase';
 import type { TableQueryParams } from '@/models/common';
 import { BatchApiParams, DragSortParams } from '@/models/common';
-import { LastExecuteResults } from '@/enums/caseEnum';
+import { CaseLinkEnum, LastExecuteResults } from '@/enums/caseEnum';
 import {
   type PlanMinderAssociateType,
   type PlanMinderCollectionType,
@@ -136,16 +136,20 @@ export interface UseCountType {
   testProgress: string; // 测试进度
 }
 
+export interface RelateCasesType {
+  id: string;
+  bugId: string;
+  name: string;
+  projectId: string;
+  type: CaseLinkEnum;
+}
+
 // 计划详情缺陷列表
 export interface PlanDetailBugItem {
   id: string;
   num: string;
   title: string;
-  relateCases: {
-    id: string;
-    bugId: string;
-    name: string;
-  }[];
+  relateCases: RelateCasesType[];
   handleUser: string;
   status: string;
   createUser: string;
