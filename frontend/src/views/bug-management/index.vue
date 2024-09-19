@@ -80,7 +80,7 @@
           </div>
         </template>
         <template #description="{ record }">
-          <a-tooltip position="tl" class="ms-tooltip-white">
+          <a-tooltip :disabled="!record.description" position="tl" class="ms-tooltip-white">
             <div v-dompurify-html="record.description || '-'"></div>
             <template #content>
               <div v-dompurify-html="record.description || '-'"></div>

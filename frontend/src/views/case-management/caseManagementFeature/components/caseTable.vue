@@ -513,7 +513,6 @@
         hideCancel: false,
       });
     } else if (val === 'minder') {
-      keyword.value = '';
       // 切换到脑图刷新模块统计
       emit('init', { moduleIds: [props.activeFolder], projectId: appStore.currentProjectId, pageSize: 10, current: 1 });
     }

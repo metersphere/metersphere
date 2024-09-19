@@ -648,7 +648,6 @@
 
   function handleShowTypeChange(val: string | number | boolean) {
     if (val === 'minder') {
-      keyword.value = '';
       if (props.treeType === 'COLLECTION') {
         emit('setTreeTypeToModule'); // TODO lmy v3.4版本删除此代码
         return;
