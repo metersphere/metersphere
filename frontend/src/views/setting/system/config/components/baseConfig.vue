@@ -90,6 +90,7 @@
         :max="1024"
         :precision="0"
         mode="button"
+        model-event="input"
         @blur="() => saveFileSizeLimitConfig()"
       />
     </MsCard>
@@ -545,6 +546,9 @@
   async function saveFileSizeLimitConfig() {
     try {
       fileSizeLimitLoading.value = true;
+      if (fileSizeLimit.value === undefined || fileSizeLimit.value === null || fileSizeLimit.value === 0) {
+        fileSizeLimit.value = 1024;
+      }
       await saveUploadConfig([
         {
           paramKey: 'upload.file.size',
