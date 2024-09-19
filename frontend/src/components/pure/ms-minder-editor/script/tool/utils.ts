@@ -225,7 +225,10 @@ export function createNode(data?: MinderJsonNodeData, parentNode?: MinderJsonNod
 export function renderSubNodes(parentNode: MinderJsonNode, children?: MinderJsonNode[]) {
   return (
     children?.map((item: MinderJsonNode) => {
-      const grandChild = createNode(item.data, parentNode);
+      const grandChild = createNode(
+        { ...item.data, text: item.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '' } as MinderJsonNodeData,
+        parentNode
+      );
       const greatGrandChildren = renderSubNodes(grandChild, item.children);
       window.minder.renderNodeBatch(greatGrandChildren);
       return grandChild;

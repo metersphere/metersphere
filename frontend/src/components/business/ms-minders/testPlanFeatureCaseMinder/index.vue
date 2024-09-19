@@ -407,6 +407,7 @@
         const child = createNode(
           {
             ...(e.data as MinderJsonNodeData),
+            text: e.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
             resource: [
               ...(executionResultMap[e.data?.status]?.statusText
                 ? [executionResultMap[e.data?.status].statusText]
