@@ -60,6 +60,7 @@
           :init-file-save-tips="t('ms.upload.waiting_save')"
           mode="static"
           :show-delete="false"
+          :file-name-max-width="props.fileNameMaxWidth"
         >
           <template #actions="{ item }">
             <!-- 本地文件 -->
@@ -267,6 +268,7 @@
     bugId?: string; // 缺陷id，不传递为创建
     isDrawer?: boolean; // 是否是弹窗模式
     caseType?: CaseLinkEnum; // 用例类型
+    fileNameMaxWidth?: string; // 文件名称最大宽度
     fillConfig?: {
       isQuickFillContent: boolean; // 是否快速填充内容
       detailId: string; // 快填详情id
