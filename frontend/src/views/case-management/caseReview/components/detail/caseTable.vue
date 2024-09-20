@@ -93,6 +93,7 @@
             is-string-tag
             :show-num="1"
             allow-edit
+            show-table
             theme="outline"
             @click="record.showModuleTree = false"
           />

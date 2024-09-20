@@ -4,16 +4,31 @@
     :class="`tag-group-class ${props.allowEdit ? 'cursor-pointer' : ''}`"
     @click="emit('click')"
   >
-    <MsTag v-for="tag of showTagList" :key="tag.id" :width="getTagWidth(tag)" :size="props.size" v-bind="attrs">
-      {{ props.isStringTag ? tag : tag[props.nameKey] }}
+    <MsTag
+      v-for="tag of showTagList"
+      :key="tag.id"
+      class="ms-tag-group"
+      :width="getTagWidth(tag)"
+      :size="props.size"
+      v-bind="attrs"
+    >
+      {{ getTagContent(tag) }}
     </MsTag>
     <a-tooltip
-      v-if="props.tagList.length > props.showNum"
+      :disabled="!(props.tagList.length > props.showNum)"
       :content="tagsTooltip"
       :position="props.tagPosition"
       :mouse-enter-delay="300"
     >
-      <MsTag :width="numberTagWidth" :size="props.size" tooltip-disabled v-bind="attrs">
+      <MsTag
+        v-show="props.tagList.length > props.showNum"
+        class="ms-tag-num"
+        :width="numberTagWidth"
+        :min-width="60"
+        :size="props.size"
+        tooltip-disabled
+        v-bind="attrs"
+      >
         +
         {{ props.tagList.length - props.showNum }}
       </MsTag>
@@ -30,6 +45,8 @@
 
   import MsTag, { Size } from './ms-tag.vue';
 
+  import { characterLimit } from '@/utils';
+
   const props = withDefaults(
     defineProps<{
       tagList: Array<any>;
@@ -38,6 +55,7 @@
       isStringTag?: boolean; // 是否是字符串数组的标签
       size?: Size;
       allowEdit?: boolean;
+      showTable?: boolean;
       tagPosition?:
         | 'top'
         | 'tl'
@@ -71,6 +89,10 @@
   });
 
   const showTagList = computed(() => {
+    // 在表格展示则全部展示，按照自适应去展示标签个数
+    if (props.showTable) {
+      return filterTagList.value;
+    }
     return filterTagList.value.slice(0, props.showNum);
   });
 
@@ -90,11 +112,25 @@
     const numberStr = `${props.tagList.length - props.showNum}`;
     return numberStr.length + 4;
   });
+
+  function getTagContent(tag: { [x: string]: any }) {
+    let tagContent = props.isStringTag ? tag : tag[props.nameKey];
+    if (tagContent.length > 16) {
+      tagContent = characterLimit(tagContent, 9);
+    }
+    return tagContent;
+  }
 </script>
 
 <style scoped lang="less">
   .tag-group-class {
+    overflow: hidden;
     max-width: 440px;
+    white-space: nowrap;
     @apply flex w-full flex-row;
+  }
+  .ms-tag-group {
+    min-width: min-content !important;
+    max-width: 144px !important;
   }
 </style>

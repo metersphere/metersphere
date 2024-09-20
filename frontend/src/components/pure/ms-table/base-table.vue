@@ -18,6 +18,7 @@
       @change="(data: TableData[], extra: TableChangeExtra, currentData: TableData[]) => handleDragChange(data, extra, currentData)"
       @sorter-change="(dataIndex: string,direction: string) => handleSortChange(dataIndex, direction)"
       @cell-click="(record: TableData,column: TableColumnData,ev: Event) => emit('cell-click',record, column,ev)"
+      @column-resize="columnResize"
     >
       <template #optional="{ rowIndex, record }">
         <slot name="optional" v-bind="{ rowIndex, record }" />
@@ -64,10 +65,12 @@
             <div v-if="attrs.showPagination && props.showSelectorAll" class="w-[16px]"></div>
           </template>
         </a-table-column>
+        <!-- 最小宽度200+16的内边距 -->
         <a-table-column
           v-for="(item, idx) in currentColumns"
           :key="idx"
-          :width="item.isTag || item.isStringTag ? getColumnTagLastWidthMap(item) : item.width"
+          :width="item.isTag || item.isStringTag ? 216 : item.width"
+          :min-width="item.isTag || item.isStringTag ? 216 : 80"
           :align="item.align"
           :fixed="item.fixed"
           :sortable="item.sortable"
@@ -148,6 +151,7 @@
                     :tag-list="record[item.dataIndex as string]"
                     type="primary"
                     theme="outline"
+                    show-table
                     :tag-position="item.tagPosition"
                   />
                 </slot>
@@ -299,6 +303,7 @@
 
 <script lang="ts" setup>
   import { Message } from '@arco-design/web-vue';
+  import { debounce } from 'lodash-es';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
@@ -513,103 +518,103 @@
       immediate: true,
     }
   );
+  // TODO 第一个方案的标签列优化，暂时不删除，会影响排序问题暂不用
+  // const columnLastWidthMap = ref<Record<string, any>>({});
 
-  const columnLastWidthMap = ref<Record<string, any>>({});
+  // function getColumnTagLastWidthMap(column: MsTableColumnData) {
+  //   const editTgaMinColumnWidth = 200;
+  //   // 如果是编辑列标签则最小宽度保留200
+  //   if (column?.allowEditTag) {
+  //     if (columnLastWidthMap.value[column.dataIndex as string] < editTgaMinColumnWidth) {
+  //       return editTgaMinColumnWidth;
+  //     }
+  //     return columnLastWidthMap.value[column.dataIndex as string];
+  //   }
+  //   return columnLastWidthMap.value[column.dataIndex as string];
+  // }
 
-  function getColumnTagLastWidthMap(column: MsTableColumnData) {
-    const editTgaMinColumnWidth = 200;
-    // 如果是编辑列标签则最小宽度保留200
-    if (column?.allowEditTag) {
-      if (columnLastWidthMap.value[column.dataIndex as string] < editTgaMinColumnWidth) {
-        return editTgaMinColumnWidth;
-      }
-      return columnLastWidthMap.value[column.dataIndex as string];
-    }
-    return columnLastWidthMap.value[column.dataIndex as string];
-  }
+  // // 获取单个标签的宽度
+  // const getTagWidth = (tag: Record<string, any>, lastText: string) => {
+  //   const maxTagWidth = 144; // 单个标签最大宽度
+  //   const spanPadding = 8; // 标签内边距
+  //   const spanBorder = 2; // 标签边框
+  //   const marginRight = 4; // 标签之间的间距
+  //   const fillWidth = 8; // 填充宽度
 
-  // 获取单个标签的宽度
-  const getTagWidth = (tag: Record<string, any>, lastText: string) => {
-    const maxTagWidth = 144; // 单个标签最大宽度
-    const spanPadding = 8; // 标签内边距
-    const spanBorder = 2; // 标签边框
-    const marginRight = 4; // 标签之间的间距
-    const fillWidth = 8; // 填充宽度
+  //   const el = document.createElement('div');
+  //   el.style.visibility = 'hidden';
+  //   el.style.position = 'absolute';
+  //   el.style.fontSize = '12px';
+  //   // 最后一个标签显示为 +n，按照+n的宽度来计算
+  //   el.textContent = lastText || tag.name || tag;
 
-    const el = document.createElement('div');
-    el.style.visibility = 'hidden';
-    el.style.position = 'absolute';
-    el.style.fontSize = '12px';
-    // 最后一个标签显示为 +n，按照+n的宽度来计算
-    el.textContent = lastText || tag.name || tag;
+  //   document.body.appendChild(el);
+  //   let width = el.offsetWidth + spanPadding * 2 + spanBorder;
 
-    document.body.appendChild(el);
-    let width = el.offsetWidth + spanPadding * 2 + spanBorder;
+  //   // 衡量宽度后将元素移除
+  //   document.body.removeChild(el);
+  //   width = width > maxTagWidth ? maxTagWidth + marginRight + fillWidth : width + marginRight + fillWidth;
+  //   return width;
+  // };
 
-    // 衡量宽度后将元素移除
-    document.body.removeChild(el);
-    width = width > maxTagWidth ? maxTagWidth + marginRight + fillWidth : width + marginRight + fillWidth;
-    return width;
-  };
+  // // 获取所有行里边对应列标签宽度总和
+  // const getRowTagTotalWidth = (tags: TableData[]) => {
+  //   const maxShowTagCount = 3; // 包含数字标签最多展示3个
+  //   const tablePadding = 24; // 表单元格内边距总和
 
-  // 获取所有行里边对应列标签宽度总和
-  const getRowTagTotalWidth = (tags: TableData[]) => {
-    const maxShowTagCount = 3; // 包含数字标签最多展示3个
-    const tablePadding = 24; // 表单元格内边距总和
+  //   const tagArr = tags.length > maxShowTagCount ? tags.slice(0, maxShowTagCount) : tags;
+  //   const totalWidth = tagArr.reduce((acc, tag, index) => {
+  //     const lastText = index === maxShowTagCount - 1 ? `+${tags.length - maxShowTagCount - 1}` : '';
+  //     const width = getTagWidth(tag, lastText);
+  //     return acc + width;
+  //   }, 0);
 
-    const tagArr = tags.length > maxShowTagCount ? tags.slice(0, maxShowTagCount) : tags;
-    const totalWidth = tagArr.reduce((acc, tag, index) => {
-      const lastText = index === maxShowTagCount - 1 ? `+${tags.length - maxShowTagCount - 1}` : '';
-      const width = getTagWidth(tag, lastText);
-      return acc + width;
-    }, 0);
+  //   return totalWidth + tablePadding;
+  // };
 
-    return totalWidth + tablePadding;
-  };
+  // const getAllTagsFromData = (rows: TableData[], dataIndex: string): any[] => {
+  //   const allTags: Record<string, any>[] = [];
 
-  const getAllTagsFromData = (rows: TableData[], dataIndex: string): any[] => {
-    const allTags: Record<string, any>[] = [];
+  //   const collectTags = (nodes: TableData[]) => {
+  //     nodes.forEach((node) => {
+  //       if (node[dataIndex]) {
+  //         allTags.push(node[dataIndex]);
+  //       }
+  //       if (node.children && node.children.length > 0) {
+  //         collectTags(node.children);
+  //       }
+  //     });
+  //   };
 
-    const collectTags = (nodes: TableData[]) => {
-      nodes.forEach((node) => {
-        if (node[dataIndex]) {
-          allTags.push(node[dataIndex]);
-        }
-        if (node.children && node.children.length > 0) {
-          collectTags(node.children);
-        }
-      });
-    };
+  //   collectTags(rows);
+  //   return allTags;
+  // };
 
-    collectTags(rows);
-    return allTags;
-  };
+  // // TODO 求总和里边最大宽度作为标签列宽 这里需要考虑一下性能优化
+  // const getMaxRowTagWidth = (rows: TableData[], dataIndex: string) => {
+  //   const allTags = getAllTagsFromData(rows, dataIndex);
+  //   const rowWidths = (allTags || []).map((tags: any) => {
+  //     return getRowTagTotalWidth(tags);
+  //   });
+  //   // 确保返回非负值
+  //   return Math.max(...rowWidths, 0);
+  // };
 
-  // TODO 求总和里边最大宽度作为标签列宽 这里需要考虑一下性能优化
-  const getMaxRowTagWidth = (rows: TableData[], dataIndex: string) => {
-    const allTags = getAllTagsFromData(rows, dataIndex);
-    const rowWidths = (allTags || []).map((tags: any) => {
-      return getRowTagTotalWidth(tags);
-    });
-    // 确保返回非负值
-    return Math.max(...rowWidths, 0);
-  };
-
-  watch(
-    () => attrs.data,
-    (val) => {
-      if (val) {
-        const minTagWidth = 60; // 确保标签行没有标签标题正常展示宽度最少为60
-        currentColumns.value.forEach((column) => {
-          const dataIndex = column.dataIndex as string;
-          if (column.isTag || column.isStringTag) {
-            const lastWidth = getMaxRowTagWidth((val as TableData[]) || [], dataIndex);
-            columnLastWidthMap.value[dataIndex] = lastWidth < minTagWidth ? minTagWidth : lastWidth;
-          }
-        });
-      }
-    }
-  );
+  // watch(
+  //   () => attrs.data,
+  //   (val) => {
+  //     if (val) {
+  //       const minTagWidth = 60; // 确保标签行没有标签标题正常展示宽度最少为60
+  //       currentColumns.value.forEach((column) => {
+  //         const dataIndex = column.dataIndex as string;
+  //         if (column.isTag || column.isStringTag) {
+  //           const lastWidth = getMaxRowTagWidth((val as TableData[]) || [], dataIndex);
+  //           columnLastWidthMap.value[dataIndex] = lastWidth < minTagWidth ? minTagWidth : lastWidth;
+  //         }
+  //       });
+  //     }
+  //   }
+  // );
 
   function handleRadioChange(val: boolean, record: TableData) {
     if (val) {
@@ -904,6 +909,88 @@
     }
     return false;
   }
+  // TODO 方案二（试行）： 通过样式获取来控制自适应调整列宽，展示标签显示数量 目前没有测到有影响的地方
+  // 单个标签列的可见性处理
+  function updateTagVisibility(cell: HTMLElement) {
+    const labelsGroupList = cell.querySelectorAll<HTMLElement>('.ms-tag-group') || [];
+    const moreTipsNumber = cell.querySelector<HTMLElement>('.ms-tag-num');
+
+    const availableWidth = cell.clientWidth; // 获取当前列的可用宽度
+    let totalWidth = 0;
+    let hiddenTags = 0;
+    const visibleTags: HTMLElement[] = [];
+    labelsGroupList.forEach((label: HTMLElement) => {
+      label.style.display = 'inline-block'; // 重置标签的显示状态
+      totalWidth += label.offsetWidth; // 计算当前标签的总宽度
+      // 暂时不隐藏标签，先收集显示的标签
+      visibleTags.push(label);
+
+      if (moreTipsNumber && totalWidth + moreTipsNumber.offsetWidth > availableWidth) {
+        // 需要隐藏的标签数量不能少于1个
+        if (visibleTags.length > 1) {
+          // 隐藏超出的标签
+          label.style.display = 'none';
+          hiddenTags++;
+        } else {
+          // 如果可见标签少于等于1个，强制显示
+          label.style.display = 'inline-block';
+        }
+      }
+    });
+
+    if (hiddenTags > 0 && moreTipsNumber) {
+      moreTipsNumber.textContent = `+${hiddenTags}`;
+      moreTipsNumber.style.display = 'inline-block'; // 显示隐藏数量
+    } else if (moreTipsNumber) {
+      moreTipsNumber.style.display = 'none'; // 没有隐藏的标签时隐藏数量标签
+    }
+  }
+
+  // 更新所有行的标签可见性
+  const updateAllTagVisibility = () => {
+    const cellsTagGroupList = document.querySelectorAll<HTMLElement>('.tag-group-class') || [];
+    cellsTagGroupList.forEach((cell: HTMLElement) => {
+      updateTagVisibility(cell);
+    });
+  };
+
+  function columnResize(dataIndex: string) {
+    if (dataIndex) {
+      updateAllTagVisibility();
+    }
+  }
+  let lastWindowWidth = window.innerWidth;
+
+  const updateTagAdaptive = debounce(() => {
+    const currentWidth = window.innerWidth;
+
+    // 仅在屏幕尺寸宽度发生变化时重新适应
+    if (currentWidth !== lastWindowWidth) {
+      lastWindowWidth = currentWidth;
+      updateAllTagVisibility();
+    }
+  }, 100);
+
+  watch(
+    () => attrs.data,
+    (val) => {
+      if (val) {
+        nextTick(() => {
+          updateAllTagVisibility();
+        });
+      }
+    }
+  );
+
+  onMounted(() => {
+    // 监听窗口大小变化
+    window.addEventListener('resize', updateTagAdaptive);
+  });
+
+  // 组件卸载时移除监听器
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', updateTagAdaptive);
+  });
 
   watch(
     () => props.columns,
