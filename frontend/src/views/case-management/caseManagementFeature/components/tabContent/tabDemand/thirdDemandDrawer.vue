@@ -121,7 +121,7 @@
     selectable: true,
     heightUsed: 290,
     showSetting: false,
-    showSelectorAll: !props.caseId,
+    showSelectorAll: false,
     rowSelectionDisabledConfig: {
       checkStrictly: false,
       disabledKey: props.caseId ? 'disabled' : '',

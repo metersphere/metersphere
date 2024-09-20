@@ -32,9 +32,11 @@
   import { getReportBugList, getReportShareBugList } from '@/api/modules/test-plan/report';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
+  import useTableStore from '@/hooks/useTableStore';
 
   import { ReportBugItem } from '@/models/testPlan/report';
   import { BugManagementRouteEnum } from '@/enums/routeEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
   import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
   import { detailTableExample } from '@/views/test-plan/report/detail/component/reportConfig';
@@ -42,6 +44,7 @@
   const { t } = useI18n();
 
   const { openNewPage } = useOpenNewPage();
+  const tableStore = useTableStore();
 
   const props = defineProps<{
     reportId: string;
@@ -60,6 +63,7 @@
         }
       : undefined;
   });
+  const isGroup = inject<Ref<boolean>>('isPlanGroup', ref(false));
 
   const columns: MsTableColumn = [
     {
@@ -71,6 +75,7 @@
       fixed: 'left',
       width: 100,
       showTooltip: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'bugManagement.bugName',
@@ -78,31 +83,49 @@
       width: 150,
       showTooltip: true,
       sortable: cloneDeep(sortableConfig.value),
+      columnSelectorDisabled: true,
     },
     {
       title: 'bugManagement.status',
       dataIndex: 'statusName',
       width: 100,
       showTooltip: true,
+      showDrag: true,
     },
     {
       title: 'bugManagement.handleMan',
       dataIndex: 'handleUserName',
       showTooltip: true,
+      showDrag: true,
       width: 125,
     },
     {
       title: 'bugManagement.numberOfCase',
       dataIndex: 'relationCaseCount',
+      showDrag: true,
       width: 80,
+    },
+    {
+      title: '',
+      slotName: 'operation',
+      dataIndex: 'operation',
+      width: 30,
     },
   ];
   const reportBugList = () => {
     return !props.shareId ? getReportBugList : getReportShareBugList;
   };
+
+  const tableKey = computed(() =>
+    isGroup.value
+      ? TableKeyEnum.TEST_PLAN_REPORT_BUG_TABLE_DETAIL_GROUP
+      : TableKeyEnum.TEST_PLAN_REPORT_BUG_TABLE_DETAIL
+  );
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportBugList(), {
+    tableKey: tableKey.value,
     scroll: { x: '100%' },
-    columns,
+    showSetting: props.isPreview,
+    isSimpleSetting: true,
     showSelectorAll: false,
   });
 
@@ -144,4 +167,5 @@
       immediate: true,
     }
   );
+  await tableStore.initColumn(tableKey.value, columns, 'drawer');
 </script>
