@@ -92,6 +92,7 @@ export default async function exportPDF(
       styles: {
         font: 'AlibabaPuHuiTi-3-55-Regular',
       },
+      pageBreak: 'avoid',
       rowPageBreak: 'avoid',
       margin: { top: 16, left: 16, right: 16, bottom: 16 },
       tableWidth: PDF_WIDTH,

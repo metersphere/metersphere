@@ -162,6 +162,7 @@
   } from '@/config/testPlan';
   import exportPDF, { PAGE_PDF_WIDTH_RATIO, PdfTableConfig } from '@/hooks/useExportPDF';
   import { useI18n } from '@/hooks/useI18n';
+  import useTableStore from '@/hooks/useTableStore';
   import { addCommasToNumber, characterLimit } from '@/utils';
 
   import { BatchApiParams } from '@/models/common';
@@ -173,6 +174,7 @@
     ReportMetricsItemModel,
     StatusListType,
   } from '@/models/testPlan/testPlanReport';
+  import { TableKeyEnum } from '@/enums/tableEnum';
   import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
   import { defaultGroupConfig, defaultSingleConfig, iconTypeStatus } from './component/reportConfig';
@@ -401,7 +403,7 @@
   const isDefaultLayout = ref<boolean>(false);
 
   /** 缺陷明细 */
-  const bugColumns: MsTableColumn = [
+  const bugDefaultColumns: MsTableColumn = [
     {
       title: 'ID',
       dataIndex: 'num',
@@ -484,7 +486,7 @@
     },
   ];
 
-  const caseColumns = computed(() => {
+  const caseDefaultColumns = computed(() => {
     if (isGroup.value) {
       return [...staticColumns, ...testPlanNameColumns, ...lastStaticColumns];
     }
@@ -520,7 +522,7 @@
     },
   ];
 
-  const apiColumns = computed(() => {
+  const apiDefaultColumns = computed(() => {
     if (isGroup.value) {
       return [
         ...apiStaticColumns,
@@ -649,6 +651,47 @@
     );
   }
 
+  const tableStore = useTableStore();
+  const keyMap: Record<string, any> = {
+    GROUP: {
+      [ReportCardTypeEnum.API_CASE_DETAIL]: TableKeyEnum.TEST_PLAN_REPORT_API_TABLE_GROUP,
+      [ReportCardTypeEnum.SCENARIO_CASE_DETAIL]: TableKeyEnum.TEST_PLAN_REPORT_SCENARIO_TABLE_GROUP,
+      [ReportCardTypeEnum.BUG_DETAIL]: TableKeyEnum.TEST_PLAN_REPORT_BUG_TABLE_DETAIL_GROUP,
+      [ReportCardTypeEnum.FUNCTIONAL_DETAIL]: TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE_GROUP,
+    },
+    TEST_PLAN: {
+      [ReportCardTypeEnum.API_CASE_DETAIL]: TableKeyEnum.TEST_PLAN_REPORT_API_TABLE,
+      [ReportCardTypeEnum.SCENARIO_CASE_DETAIL]: TableKeyEnum.TEST_PLAN_REPORT_SCENARIO_TABLE,
+      [ReportCardTypeEnum.BUG_DETAIL]: TableKeyEnum.TEST_PLAN_REPORT_BUG_TABLE_DETAIL,
+      [ReportCardTypeEnum.FUNCTIONAL_DETAIL]: TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE,
+    },
+  };
+
+  function getTableKey(type: ReportCardTypeEnum) {
+    if (isGroup.value) {
+      return keyMap.GROUP[type];
+    }
+    return keyMap.TEST_PLAN[type];
+  }
+
+  async function initTablesColumns() {
+    const bugColumns = await tableStore.getShowInTableColumns(getTableKey(ReportCardTypeEnum.BUG_DETAIL));
+    const functionalCaseColumns = await tableStore.getShowInTableColumns(
+      getTableKey(ReportCardTypeEnum.FUNCTIONAL_DETAIL)
+    );
+    const apiColumns = await tableStore.getShowInTableColumns(getTableKey(ReportCardTypeEnum.API_CASE_DETAIL));
+    const scenarioColumns = await tableStore.getShowInTableColumns(
+      getTableKey(ReportCardTypeEnum.SCENARIO_CASE_DETAIL)
+    );
+
+    return {
+      apiColumns: apiColumns || apiDefaultColumns,
+      scenarioColumns: scenarioColumns || apiDefaultColumns,
+      bugColumns: bugColumns || bugDefaultColumns,
+      functionalCaseColumns: functionalCaseColumns || caseDefaultColumns,
+    };
+  }
+
   async function realExportPdf(name: string) {
     const tableArr: PdfTableConfig[] = [];
     if (!isDefaultLayout.value) {
@@ -709,6 +752,7 @@
       pageRequest.push(initScenarioList());
     }
     await Promise.all(pageRequest);
+    const { apiColumns, scenarioColumns, bugColumns, functionalCaseColumns } = await initTablesColumns();
     if (fullBugList.value.length > 0) {
       tableArr.push({
         tableId: 'bug',
@@ -734,9 +778,9 @@
         executeResult: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
         testPlanName: { cellWidth: 240 / PAGE_PDF_WIDTH_RATIO },
         priority: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
-        moduleName: { cellWidth: 200 / PAGE_PDF_WIDTH_RATIO },
+        moduleName: { cellWidth: 180 / PAGE_PDF_WIDTH_RATIO },
         executeUser: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
-        relationCaseCount: { cellWidth: 90 / PAGE_PDF_WIDTH_RATIO },
+        relationCaseCount: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
       };
       if (!isGroup.value) {
         delete columnStyles.testPlanName;
@@ -745,7 +789,7 @@
       tableArr.push({
         tableId: 'case',
         columnStyles,
-        columns: caseColumns.value.map((item) => ({
+        columns: functionalCaseColumns.map((item) => ({
           ...item,
           title: t(item.title as string),
           dataKey: item.dataIndex,
@@ -763,9 +807,9 @@
       executeResult: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
       testPlanName: { cellWidth: 230 / PAGE_PDF_WIDTH_RATIO },
       priority: { cellWidth: 80 / PAGE_PDF_WIDTH_RATIO },
-      moduleName: { cellWidth: 170 / PAGE_PDF_WIDTH_RATIO },
+      moduleName: { cellWidth: 160 / PAGE_PDF_WIDTH_RATIO },
       executeUser: { cellWidth: 120 / PAGE_PDF_WIDTH_RATIO },
-      bugCount: { cellWidth: 90 / PAGE_PDF_WIDTH_RATIO },
+      bugCount: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
     };
     if (!isGroup.value) {
       delete apiColumnStyles.testPlanName;
@@ -775,7 +819,7 @@
       tableArr.push({
         tableId: 'apiCase',
         columnStyles: apiColumnStyles,
-        columns: apiColumns.value.map((item) => ({
+        columns: apiColumns.map((item) => ({
           ...item,
           title: t(item.title as string),
           dataKey: item.dataIndex,
@@ -791,7 +835,7 @@
       tableArr.push({
         tableId: 'scenario',
         columnStyles: apiColumnStyles,
-        columns: apiColumns.value.map((item) => ({
+        columns: scenarioColumns.map((item) => ({
           ...item,
           title: t(item.title as string),
           dataKey: item.dataIndex,
