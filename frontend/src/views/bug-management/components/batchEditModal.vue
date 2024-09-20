@@ -22,11 +22,15 @@
           :label="t('bugManagement.batchUpdate.attribute')"
           :rules="[{ required: true, message: t('bugManagement.batchUpdate.required.attribute') }]"
         >
-          <a-select v-model:model-value="form.attribute" @change="handleAttributeChange">
+          <a-select
+            v-model:model-value="form.attribute"
+            :place-holder="t('common.pleaseSelect')"
+            @change="handleAttributeChange"
+          >
             <a-optgroup :label="t('bugManagement.batchUpdate.systemFiled')">
-              <a-option v-for="item in systemOptionList" :key="item.value" :value="item.value">{{
-                item.label
-              }}</a-option>
+              <a-option v-for="item in systemOptionList" :key="item.value" :value="item.value">
+                {{ item.label }}
+              </a-option>
             </a-optgroup>
           </a-select>
         </a-form-item>
@@ -44,10 +48,14 @@
             <a-date-picker v-model:model-value="form.inputValue" :disabled="!form.attribute" />
           </template>
           <template v-else-if="valueMode === 'single_select'">
-            <a-select v-model:model-value="form.inputValue" :disabled="!form.attribute">
-              <a-option v-for="item in customFiledOption" :key="item.value" :value="item.value">{{
-                item.text
-              }}</a-option>
+            <a-select
+              v-model:model-value="form.inputValue"
+              :place-holder="t('common.pleaseSelect')"
+              :disabled="!form.attribute"
+            >
+              <a-option v-for="item in customFiledOption" :key="item.value" :value="item.value">
+                {{ item.text }}
+              </a-option>
             </a-select>
           </template>
         </a-form-item>
@@ -73,9 +81,9 @@
           </template>
           <template v-else-if="valueMode === 'multiple_select'">
             <a-select v-model:model-value="form.value" :disabled="!form.attribute" multiple>
-              <a-option v-for="item in customFiledOption" :key="item.value" :value="item.value">{{
-                item.text
-              }}</a-option>
+              <a-option v-for="item in customFiledOption" :key="item.value" :value="item.value">
+                {{ item.text }}
+              </a-option>
             </a-select>
           </template>
         </a-form-item>
