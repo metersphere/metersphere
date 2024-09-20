@@ -98,6 +98,8 @@ export enum TableKeyEnum {
   TEST_PLAN_REPORT_API_TABLE_GROUP = 'testPlanReportApiTableGroup',
   TEST_PLAN_REPORT_SCENARIO_TABLE = 'testPlanReportScenarioTable',
   TEST_PLAN_REPORT_SCENARIO_TABLE_GROUP = 'testPlanReportScenarioTableGroup',
+  TEST_PLAN_REPORT_BUG_TABLE_DETAIL = 'testPlanReportBugDetailTable',
+  TEST_PLAN_REPORT_BUG_TABLE_DETAIL_GROUP = 'testPlanReportBugDetailTableGroup',
 }
 
 // 具有特殊功能的列
