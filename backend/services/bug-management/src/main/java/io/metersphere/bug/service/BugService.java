@@ -1374,10 +1374,9 @@ public class BugService {
      * @param request 请求参数
      */
     private void filterRichTextTmpFile(BugEditRequest request) {
-        // 项目模板带过来的图片文件不处理
+        // 非缺陷来源的图片过滤不处理
         if (CollectionUtils.isNotEmpty(request.getRichTextTmpFileIds())) {
-            request.getRichTextTmpFileIds().removeIf(tmpFileId -> request.getDescription().contains("/project/template/img/preview/" + request.getProjectId() + "/" + tmpFileId) ||
-                    request.getDescription().contains("/attachment/download/file/" + request.getProjectId() + "/" + tmpFileId));
+            request.getRichTextTmpFileIds().removeIf(tmpFileId -> !request.getDescription().contains("/bug/attachment/preview/md/" + request.getProjectId() + "/" + tmpFileId));
         }
     }
 
