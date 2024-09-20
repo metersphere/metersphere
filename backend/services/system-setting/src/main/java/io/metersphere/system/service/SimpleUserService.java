@@ -255,11 +255,6 @@ public class SimpleUserService {
     }
 
     public UserImportResponse importByExcel(MultipartFile excelFile, String source, String sessionId) {
-
-        if (excelFile.getSize() > maxImportFileSize.toBytes()) {
-            throw new MSException(Translator.get("file.size.is.too.large"));
-        }
-
         UserImportResponse importResponse = new UserImportResponse();
         ExcelParseDTO<UserExcelRowDTO> excelParseDTO = new ExcelParseDTO<>();
         try {
