@@ -97,10 +97,12 @@ public class DemandSyncService {
         demandRelateQueryRequest.setRelateDemandIds(new ArrayList<>(demandIds));
         PlatformDemandDTO demands = platform.getDemands(demandRelateQueryRequest);
         if (demands == null) {
+            deleteIds.addAll(demandIds);
             return;
         }
         List<PlatformDemandDTO.Demand> demandList = demands.getList();
         if (CollectionUtils.isEmpty(demandList)) {
+            deleteIds.addAll(demandIds);
             return;
         }
         List<String> platformIds = demandList.stream().map(PlatformDemandDTO.Demand::getDemandId).toList();
