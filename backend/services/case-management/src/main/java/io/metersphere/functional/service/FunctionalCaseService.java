@@ -190,6 +190,7 @@ public class FunctionalCaseService {
         List<String> uploadFileIds = functionalCaseAttachmentService.uploadFile(request.getProjectId(), caseId, files, true, userId);
 
         //上传富文本里的文件
+        filterCaseDetailTmpFile(request);
         functionalCaseAttachmentService.uploadMinioFile(caseId, request.getProjectId(), request.getCaseDetailFileIds(), userId, CaseFileSourceType.CASE_DETAIL.toString());
 
         //关联附件
@@ -209,6 +210,16 @@ public class FunctionalCaseService {
         saveAddDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.ADD.name(), OperationLogModule.FUNCTIONAL_CASE);
 
         return functionalCase;
+    }
+
+    private void filterCaseDetailTmpFile(FunctionalCaseAddRequest request) {
+        // 非用例上传的图片文件不处理
+        if (CollectionUtils.isNotEmpty(request.getCaseDetailFileIds())) {
+            request.getCaseDetailFileIds().removeIf(tmpFileId -> !request.getDescription().contains("/attachment/download/file/" + request.getProjectId() + "/" + tmpFileId));
+            request.getCaseDetailFileIds().removeIf(tmpFileId -> !request.getTextDescription().contains("/attachment/download/file/" + request.getProjectId() + "/" + tmpFileId));
+            request.getCaseDetailFileIds().removeIf(tmpFileId -> !request.getExpectedResult().contains("/attachment/download/file/" + request.getProjectId() + "/" + tmpFileId));
+            request.getCaseDetailFileIds().removeIf(tmpFileId -> !request.getPrerequisite().contains("/attachment/download/file/" + request.getProjectId() + "/" + tmpFileId));
+        }
     }
 
     private void copyAttachment(FunctionalCaseAddRequest request, String userId, List<String> uploadFileIds, String caseId) {
@@ -1277,7 +1288,7 @@ public class FunctionalCaseService {
     }
 
     private void setCustomFieldValue(Object value, FunctionalCaseCustomField caseCustomField) {
-        if (value !=null && (StringUtils.equalsIgnoreCase(value.toString(), "[]") || value instanceof List)) {
+        if (value != null && (StringUtils.equalsIgnoreCase(value.toString(), "[]") || value instanceof List)) {
             //数组类型
             caseCustomField.setValue(JSON.toJSONString(value));
         } else {

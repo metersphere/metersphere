@@ -353,6 +353,10 @@ public class FunctionalCaseControllerTests extends BaseTest {
         functionalCaseAddRequest.setName("测试用例新增");
         functionalCaseAddRequest.setCaseEditType("STEP");
         functionalCaseAddRequest.setModuleId("default_module_id");
+        functionalCaseAddRequest.setDescription("");
+        functionalCaseAddRequest.setExpectedResult("");
+        functionalCaseAddRequest.setTextDescription("");
+        functionalCaseAddRequest.setPrerequisite("");
         return functionalCaseAddRequest;
     }
 
