@@ -150,9 +150,6 @@ public class FileMetadataService {
     }
 
     public FileMetadata genFileMetadata(String fileSpecifyName, String filePath, String storage, long size, boolean enable, String projectId, String moduleId, String operator) {
-        if (size > maxFileSize.toBytes()) {
-            throw new MSException(Translator.get("file.size.is.too.large"));
-        }
         FileMetadata fileMetadata = new FileMetadata();
         this.parseAndSetFileNameType(filePath, fileMetadata);
         //如果开启了开关，检查是否是jar文件

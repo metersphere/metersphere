@@ -44,9 +44,6 @@ public class CommonFileService {
      */
     public String uploadTempImgFile(MultipartFile file) {
         String fileName = StringUtils.trim(file.getOriginalFilename());
-        if (file.getSize() > maxFileSize.toBytes()) {
-            throw new MSException(Translator.get("file.size.is.too.large"));
-        }
         if (StringUtils.isBlank(fileName)) {
             throw new MSException(Translator.get("file.name.cannot.be.empty"));
         }

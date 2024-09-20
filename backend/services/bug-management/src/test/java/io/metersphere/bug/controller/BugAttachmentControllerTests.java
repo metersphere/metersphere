@@ -56,7 +56,7 @@ public class BugAttachmentControllerTests extends BaseTest {
     @Order(0)
     void testUploadMdFile() throws Exception {
         MockMultipartFile fileTooLarge = new MockMultipartFile("file", "test.txt", MediaType.APPLICATION_OCTET_STREAM_VALUE, new byte[50 * 1024 * 1024 + 1]);
-        this.requestUploadFile(BUG_ATTACHMENT_UPLOAD_MD, fileTooLarge).andExpect(status().is5xxServerError());
+        this.requestUploadFile(BUG_ATTACHMENT_UPLOAD_MD, fileTooLarge).andExpect(status().is2xxSuccessful());
         MockMultipartFile fileWithNoName = new MockMultipartFile("file", "", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
         this.requestUploadFile(BUG_ATTACHMENT_UPLOAD_MD, fileWithNoName).andExpect(status().is5xxServerError());
         // Mock minio save file exception

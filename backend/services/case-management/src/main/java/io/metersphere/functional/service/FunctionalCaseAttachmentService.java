@@ -15,8 +15,6 @@ import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.service.FileAssociationService;
-import io.metersphere.system.service.CommonFileService;
-import io.metersphere.system.service.FileService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
@@ -29,6 +27,8 @@ import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.service.CommonFileService;
+import io.metersphere.system.service.FileService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -109,9 +109,6 @@ public class FunctionalCaseAttachmentService {
                 fileRequest.setFileName(file.getOriginalFilename());
                 fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCaseDir(projectId, caseId) + "/" + fileId);
                 fileRequest.setStorage(StorageType.MINIO.name());
-                if (file.getSize() > maxFileSize.toBytes()) {
-                    throw new MSException(Translator.get("file.size.is.too.large"));
-                }
                 try {
                     fileService.upload(file, fileRequest);
                 } catch (Exception e) {
