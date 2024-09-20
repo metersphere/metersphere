@@ -692,7 +692,6 @@
 
   function handleShowTypeChange(val: string | number | boolean) {
     if (val === 'minder') {
-      keyword.value = '';
       // 切换到脑图刷新模块统计
       getModuleCount();
     } else {
