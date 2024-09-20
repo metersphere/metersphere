@@ -36,6 +36,12 @@
                             and t.create_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <when test="key=='orgId'">
+                            and t.id in (
+                            select tpo.test_resource_pool_id from test_resource_pool_organization tpo where tpo.org_id in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            )
+                        </when>
                     </choose>
                 </if>
             </foreach>
