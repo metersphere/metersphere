@@ -17,7 +17,9 @@
         :class="props.checkedVal === item.value ? 'ms-minder-node-dropdown-item--active' : ''"
         @click="item.onClick && item.onClick()"
       >
-        <div>{{ item.label }}</div>
+        <a-tooltip :content="item.label" :mouse-enter-delay="500">
+          <div class="one-line-text">{{ item.label }}</div>
+        </a-tooltip>
       </a-doption>
     </template>
   </a-dropdown>
@@ -45,6 +47,7 @@
 
 <style lang="less">
   .ms-minder-node-dropdown {
+    max-width: 350px;
     max-height: 350px;
     .ms-minder-node-dropdown-item--active {
       color: rgb(var(--primary-5)) !important;
