@@ -183,7 +183,7 @@
   const route = useRoute();
 
   const innerCardList = ref<configItem[]>([]);
-  const layoutShowCards = ref<componentItem[]>([]);
+  const layoutShowCards = ref<any[]>([]);
 
   const detail = ref<PlanReportDetail>({ ...cloneDeep(defaultReportDetail) });
   const reportId = ref<string>(route.query.id as string);
@@ -657,6 +657,7 @@
       innerCardList.value = (isGroup.value ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig)).filter(
         (e: any) => [ReportCardTypeEnum.CUSTOM_CARD, ReportCardTypeEnum.SUMMARY].includes(e.value)
       );
+      layoutShowCards.value = isGroup.value ? cloneDeep(defaultGroupConfig) : cloneDeep(defaultSingleConfig);
     }
     if (isGroup.value) {
       await initGroupList();
@@ -702,8 +703,8 @@
       pageRequest.push(initApiList());
     }
     if (
-      !isDefaultLayout.value &&
-      layoutShowCards.value.some((e) => e.name === ReportCardTypeEnum.SCENARIO_CASE_DETAIL)
+      isDefaultLayout.value ||
+      (!isDefaultLayout.value && layoutShowCards.value.some((e) => e.name === ReportCardTypeEnum.SCENARIO_CASE_DETAIL))
     ) {
       pageRequest.push(initScenarioList());
     }
