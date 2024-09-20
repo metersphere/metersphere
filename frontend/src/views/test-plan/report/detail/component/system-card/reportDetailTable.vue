@@ -4,7 +4,7 @@
     <div v-if="props.isPreview" class="flex items-center">
       <a-input-search
         v-model:model-value="keyword"
-        :placeholder="t('common.searchByIdName')"
+        :placeholder="t('report.detail.api.placeHolderName')"
         allow-clear
         class="mr-[8px] w-[240px]"
         @search="loadReportDetailList"
