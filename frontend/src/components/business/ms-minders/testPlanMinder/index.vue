@@ -1025,6 +1025,7 @@
       loading.value = true;
       await editPlanMinder(makeMinderParams(window.minder.exportJson()));
       Message.success(t('common.saveSuccess'));
+      inInsertingNode.value = false;
       emit('save');
       clearSelectedCases();
       handleConfigCancel();
