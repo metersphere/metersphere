@@ -121,11 +121,17 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
 
         // 设置 headers
         if (StringUtils.isNotBlank(request.getSwaggerToken())) {
-            AuthorizationValue authorizationValue = new AuthorizationValue();
-            authorizationValue.setType(HEADER);
-            authorizationValue.setKeyName("token");
-            authorizationValue.setValue(request.getSwaggerToken());
-            auths.add(authorizationValue);
+            String[] tokenRows = StringUtils.split(request.getSwaggerToken(), StringUtils.LF);
+            for (String row : tokenRows) {
+                String[] tokenArr = StringUtils.split(row, ":");
+                if (tokenArr.length == 2) {
+                    AuthorizationValue authorizationValue = new AuthorizationValue();
+                    authorizationValue.setType(HEADER);
+                    authorizationValue.setKeyName(tokenArr[0]);
+                    authorizationValue.setValue(tokenArr[1]);
+                    auths.add(authorizationValue);
+                }
+            }
         }
 
         return CollectionUtils.size(auths) == 0 ? null : auths;
