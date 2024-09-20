@@ -22,6 +22,9 @@ public class FunctionalCaseBatchEditRequest extends BaseFunctionalCaseBatchDTO {
     @Schema(description = "是否追加")
     private boolean append;
 
+    @Schema(description = "是否清空")
+    private boolean clear;
+
     @Schema(description = "标签")
     private List<String> tags;
 
