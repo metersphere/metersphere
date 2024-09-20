@@ -56,7 +56,7 @@ public interface CurlPatternConstants {
     /**
      * --form 请求体
      */
-    Pattern HTTP_FROM_BODY_PATTERN = Pattern.compile("--form\\s+'(.*?)'|-F\\s+'(.*?)'");
+    Pattern HTTP_FROM_BODY_PATTERN = Pattern.compile("--form\\s+['\"](.*?)['\"]|-F\\s+['\"](.*?)['\"]");
 
 
     /**
