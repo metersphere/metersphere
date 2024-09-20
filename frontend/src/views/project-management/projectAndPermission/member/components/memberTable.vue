@@ -45,6 +45,7 @@
           type="primary"
           theme="outline"
           allow-edit
+          show-table
           @click="changeUser(record)"
         />
         <MsSelect

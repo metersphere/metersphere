@@ -43,6 +43,7 @@
           :tag-list="record.projectIdNameMap || []"
           theme="outline"
           allow-edit
+          show-table
           @click="changeUserOrProject(record, 'project')"
         >
         </MsTagGroup>
@@ -75,6 +76,7 @@
           type="primary"
           theme="outline"
           allow-edit
+          show-table
           @click="changeUserOrProject(record, 'user')"
         >
         </MsTagGroup>

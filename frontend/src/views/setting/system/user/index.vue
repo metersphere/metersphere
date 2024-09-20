@@ -46,6 +46,7 @@
           type="primary"
           theme="outline"
           allow-edit
+          show-table
           @click="handleTagClick(record)"
         />
         <MsSelect
