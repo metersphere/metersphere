@@ -1015,7 +1015,15 @@ public class FunctionalCaseService {
                 });
                 sqlSession.flushStatements();
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-            } else {
+            } else if (request.isClear()) {
+                //清空标签
+                FunctionalCase functionalCase = new FunctionalCase();
+                functionalCase.setTags(new ArrayList<>());
+                functionalCase.setProjectId(request.getProjectId());
+                functionalCase.setUpdateTime(System.currentTimeMillis());
+                functionalCase.setUpdateUser(userId);
+                extFunctionalCaseMapper.batchUpdate(functionalCase, ids);
+            }else {
                 //替换标签
                 FunctionalCase functionalCase = new FunctionalCase();
                 functionalCase.setTags(request.getTags());

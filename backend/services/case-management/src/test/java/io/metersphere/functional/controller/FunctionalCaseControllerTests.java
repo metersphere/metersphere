@@ -659,16 +659,19 @@ public class FunctionalCaseControllerTests extends BaseTest {
         FunctionalCaseBatchEditRequest request = new FunctionalCaseBatchEditRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setAppend(false);
+        request.setClear(false);
         request.setSelectAll(false);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
         request.setSelectIds(Arrays.asList("TEST_FUNCTIONAL_CASE_ID_1", "TEST_FUNCTIONAL_CASE_ID_2"));
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
         request.setAppend(true);
+        request.setClear(false);
         request.setTags(Arrays.asList("追加标签_1", "追加标签_2"));
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
         request.setTags(Arrays.asList("追加标签_1", "追加标签_2", "追加标签_3", "追加标签_4", "追加标签_5", "追加标签_6", "追加标签_7", "追加标签_8", "追加标签_9", "追加标签_10", "追加标签_11"));
         this.requestPost(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
         request.setAppend(false);
+        request.setClear(false);
         request.setTags(Arrays.asList("覆盖标签1", "覆盖标签2"));
         request.setSelectAll(true);
         CaseCustomFieldDTO caseCustomFieldDTO = new CaseCustomFieldDTO();
@@ -676,6 +679,14 @@ public class FunctionalCaseControllerTests extends BaseTest {
         caseCustomFieldDTO.setValue("批量编辑自定义字段");
         request.setCustomField(caseCustomFieldDTO);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey("TEST_FUNCTIONAL_CASE_ID_1");
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCase.getTags()));
+        request.setAppend(false);
+        request.setClear(true);
+        request.setSelectAll(true);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
+        functionalCase = functionalCaseMapper.selectByPrimaryKey("TEST_FUNCTIONAL_CASE_ID_1");
+        Assertions.assertTrue(CollectionUtils.isEmpty(functionalCase.getTags()));
     }
 
 
