@@ -158,7 +158,12 @@
               ></a-input>
             </a-form-item>
             <a-form-item field="token" label="token" asterisk-position="end">
-              <a-input v-model:model-value="importForm.swaggerToken" class="w-[700px]" allow-clear></a-input>
+              <a-textarea
+                v-model:model-value="importForm.swaggerToken"
+                :auto-size="{ minRows: 1 }"
+                class="w-[700px]"
+                allow-clear
+              />
             </a-form-item>
             <div class="mb-[16px] flex items-center gap-[8px]">
               <a-switch v-model:model-value="importForm.authSwitch" type="line" size="small"></a-switch>
@@ -228,7 +233,12 @@
             ></a-input>
           </a-form-item>
           <a-form-item field="token" label="token" asterisk-position="end">
-            <a-input v-model:model-value="importForm.swaggerToken" class="w-[700px]" allow-clear></a-input>
+            <a-textarea
+              v-model:model-value="importForm.swaggerToken"
+              :auto-size="{ minRows: 1 }"
+              class="w-[700px]"
+              allow-clear
+            />
           </a-form-item>
           <div class="mb-[16px] flex items-center gap-[8px]">
             <a-switch v-model:model-value="importForm.authSwitch" type="line" size="small"></a-switch>
