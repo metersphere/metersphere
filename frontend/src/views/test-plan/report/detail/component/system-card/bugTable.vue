@@ -116,11 +116,14 @@
     return !props.shareId ? getReportBugList : getReportShareBugList;
   };
 
-  const tableKey = computed(() =>
-    isGroup.value
-      ? TableKeyEnum.TEST_PLAN_REPORT_BUG_TABLE_DETAIL_GROUP
-      : TableKeyEnum.TEST_PLAN_REPORT_BUG_TABLE_DETAIL
-  );
+  const tableKey = computed(() => {
+    if (props.isPreview) {
+      return isGroup.value
+        ? TableKeyEnum.TEST_PLAN_REPORT_BUG_TABLE_DETAIL_GROUP
+        : TableKeyEnum.TEST_PLAN_REPORT_BUG_TABLE_DETAIL;
+    }
+    return TableKeyEnum.TEST_PLAN_REPORT_BUG_TABLE_DETAIL_NOT_PREVIEW;
+  });
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportBugList(), {
     tableKey: tableKey.value,
     scroll: { x: '100%' },
