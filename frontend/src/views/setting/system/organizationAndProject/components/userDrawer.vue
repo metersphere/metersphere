@@ -24,9 +24,9 @@
           :placeholder="t('system.organization.searchUserPlaceholder')"
           class="w-[230px]"
           allow-clear
-          @search="searchUser"
-          @press-enter="searchUser"
-          @clear="searchUser"
+          @search="fetchData"
+          @press-enter="fetchData"
+          @clear="fetchData"
         ></a-input-search>
       </div>
       <ms-base-table class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
@@ -172,7 +172,7 @@
     { title: hasOperationPermission.value ? 'system.organization.operation' : '', slotName: 'operation', width: 60 },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
     postUserTableByOrgIdOrProjectId,
     {
       columns: projectColumn,
@@ -190,11 +190,6 @@
     })
   );
 
-  async function searchUser() {
-    setKeyword(keyword.value);
-    await loadList();
-  }
-
   const handleCancel = () => {
     keyword.value = '';
     emit('cancel');
@@ -202,10 +197,10 @@
 
   const fetchData = async () => {
     if (props.organizationId) {
-      setLoadListParams({ organizationId: props.organizationId });
+      setLoadListParams({ organizationId: props.organizationId, keyword: keyword.value });
     }
     if (props.projectId) {
-      setLoadListParams({ projectId: props.projectId });
+      setLoadListParams({ projectId: props.projectId, keyword: keyword.value });
     }
     await loadList();
   };
@@ -281,28 +276,16 @@
     }
   };
 
-  watch(
-    () => props.organizationId,
-    () => {
+  watch([() => props.projectId, () => props.organizationId, () => props.visible], () => {
+    if (props.visible) {
       fetchData();
       getUserGroupOptions();
     }
-  );
-  watch(
-    () => props.projectId,
-    () => {
-      fetchData();
-      getUserGroupOptions();
-    }
-  );
+  });
   watch(
     () => props.visible,
     (visible) => {
       currentVisible.value = visible;
-      if (visible) {
-        fetchData();
-        getUserGroupOptions();
-      }
     }
   );
 </script>

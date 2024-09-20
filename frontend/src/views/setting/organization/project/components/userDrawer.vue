@@ -23,9 +23,9 @@
           allow-clear
           :placeholder="t('system.organization.searchUserPlaceholder')"
           class="w-[230px]"
-          @search="searchUser"
-          @press-enter="searchUser"
-          @clear="searchUser"
+          @search="fetchData"
+          @press-enter="fetchData"
+          @clear="fetchData"
         ></a-input-search>
       </div>
       <ms-base-table class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
@@ -168,7 +168,7 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
     postProjectMemberByProjectId,
     {
       heightUsed: 240,
@@ -188,17 +188,13 @@
     }
   );
 
-  async function searchUser() {
-    setKeyword(keyword.value);
-    await loadList();
-  }
-
   const handleCancel = () => {
     keyword.value = '';
     emit('cancel');
   };
 
   const fetchData = async () => {
+    setLoadListParams({ projectId: props.projectId, keyword: keyword.value });
     await loadList();
   };
 
@@ -262,22 +258,16 @@
       console.error(error);
     }
   };
-  watch(
-    () => props.projectId,
-    () => {
-      setLoadListParams({ projectId: props.projectId });
+  watch([() => props.projectId, () => props.visible], () => {
+    if (props.visible) {
       fetchData();
       getUserGroupOptions();
     }
-  );
+  });
   watch(
     () => props.visible,
     (visible) => {
       currentVisible.value = visible;
-      if (visible) {
-        fetchData();
-        getUserGroupOptions();
-      }
     }
   );
 </script>
