@@ -1094,6 +1094,10 @@
       title: 'common.tag',
       dataIndex: 'tags',
       type: FilterType.TAGS_INPUT,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
     },
   ]);
   const searchCustomFields = ref<FilterFormItem[]>([]);
