@@ -141,6 +141,28 @@ public class TestResourcePoolService {
             if (pool.getAllOrg() || CollectionUtils.isNotEmpty(testResourcePoolOrganizations)) {
                 testResourcePoolDTO.setInUsed(true);
             }
+            //增加组织名称
+            if (pool.getAllOrg()) {
+                testResourcePoolDTO.setOrgNames(List.of(Translator.get("all_organization")));
+            } else if (CollectionUtils.isNotEmpty(testResourcePoolOrganizations)) {
+                List<String> orgIds = testResourcePoolOrganizations.stream().map(TestResourcePoolOrganization::getOrgId).distinct().toList();
+                OrganizationExample organizationExample = new OrganizationExample();
+                organizationExample.createCriteria().andIdIn(orgIds);
+                List<Organization> organizations = organizationMapper.selectByExample(organizationExample);
+                List<String> orgNameList = organizations.stream().map(Organization::getName).distinct().toList();
+                testResourcePoolDTO.setOrgNames(orgNameList);
+            }
+            //获取最大并发
+            if (StringUtils.equalsIgnoreCase(pool.getType(),ResourcePoolTypeEnum.NODE.toString())) {
+                int concurrentNumber = 0;
+                for (TestResourceNodeDTO testResourceNodeDTO : testResourceDTO.getNodesList()) {
+                    concurrentNumber = concurrentNumber+testResourceNodeDTO.getConcurrentNumber();
+                }
+                testResourcePoolDTO.setMaxConcurrentNumber(concurrentNumber);
+            } else {
+                testResourcePoolDTO.setMaxConcurrentNumber(testResourceDTO.getConcurrentNumber());
+            }
+            //TODO： 调接口获取剩余并发
             testResourcePoolDTOS.add(testResourcePoolDTO);
         });
         return testResourcePoolDTOS;

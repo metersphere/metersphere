@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class TestResourcePoolDTO extends TestResourcePool {
@@ -12,5 +14,14 @@ public class TestResourcePoolDTO extends TestResourcePool {
 
     @Schema(description =  "资源池是否在使用中")
     private Boolean inUsed;
+
+    @Schema(description =  "最大并发数")
+    private int maxConcurrentNumber;
+
+    @Schema(description =  "剩余并发数")
+    private Boolean lastConcurrentNumber;;
+
+    @Schema(description =  "组织名称集合")
+    private List<String> orgNames;
 
 }
