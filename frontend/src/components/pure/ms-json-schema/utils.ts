@@ -48,6 +48,7 @@ export function parseTableDataToJsonSchema(
           enable: schemaItem.enable,
           properties: {},
           required: [],
+          description: schemaItem.description,
         };
         schemaItem.children.forEach((child) => {
           const childSchema = parseTableDataToJsonSchema(child, false);
