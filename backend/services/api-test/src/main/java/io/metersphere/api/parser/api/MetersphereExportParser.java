@@ -56,7 +56,6 @@ public class MetersphereExportParser {
                     dto.setName(apiTestCaseWithBlob.getName());
                     dto.setPriority(apiTestCaseWithBlob.getPriority());
                     dto.setStatus(apiTestCaseWithBlob.getStatus());
-                    dto.setLastReportStatus(apiTestCaseWithBlob.getLastReportStatus());
                     dto.setTags(apiTestCaseWithBlob.getTags());
                     dto.setRequest(ApiDataUtils.parseObject(new String(apiTestCaseWithBlob.getRequest()), AbstractMsTestElement.class));
                     detail.getApiTestCaseList().add(dto);
