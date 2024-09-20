@@ -160,7 +160,7 @@
       </div>
       <a-divider class="ml-[16px]" direction="vertical" />
       <div :class="`${props.isDrawer ? 'w-[332px]' : 'w-[428px]'} right grow`">
-        <div class="min-w-[250px] overflow-auto">
+        <div :class="`min-w-[250px] overflow-x-hidden ${props.isDrawer ? 'max-w-[316px]' : 'max-w-[412px]'}`">
           <a-skeleton v-if="isLoading" :loading="isLoading" :animation="true">
             <a-space direction="vertical" class="w-full" size="large">
               <a-skeleton-line :rows="12" :line-height="30" :line-spacing="30" />

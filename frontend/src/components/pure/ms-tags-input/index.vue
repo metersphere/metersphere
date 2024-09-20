@@ -35,9 +35,8 @@
         </template>
       </a-input-tag>
     </div>
-    <!-- 为空优先级最高，为空则提示外部校验的内容输入回车并且不超过64 -->
     <div
-      v-if="isError && innerModelValue.length"
+      v-if="isError && (!props.emptyPriorityHighest || innerModelValue.length)"
       class="ml-[1px] mr-[4px] flex justify-start text-[12px] text-[rgb(var(--danger-6))]"
     >
       {{ t('common.tagInputMaxLength', { number: props.maxLength }) }}
@@ -69,6 +68,7 @@
       disabled?: boolean;
       noTooltip?: boolean;
       inputValidator?: (value: string) => boolean;
+      emptyPriorityHighest?: boolean; // 是否是空优先级最高
     }>(),
     {
       retainInputValue: true,
