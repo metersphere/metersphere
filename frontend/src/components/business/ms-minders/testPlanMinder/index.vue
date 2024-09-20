@@ -307,6 +307,13 @@
   );
 
   /**
+   * 是否可以显示下拉菜单
+   */
+  const canShowDropdown = ref(false);
+  const dropdownList = ref<MinderDropdownListItem[]>([]);
+  const checkedVal = ref<string>();
+
+  /**
    * 检测节点可展示的菜单项
    * @param node 选中节点
    */
@@ -753,17 +760,11 @@
   );
 
   /**
-   * 是否可以显示下拉菜单
-   */
-  const canShowDropdown = ref(false);
-  const dropdownList = ref<MinderDropdownListItem[]>([]);
-  const checkedVal = ref<string>();
-
-  /**
    * 处理节点选中
    * @param node 节点
    */
   function handleNodeSelect(node: PlanMinderNode) {
+    canShowDropdown.value = false;
     if (checkConfigFormUnsaved()) {
       return;
     }
