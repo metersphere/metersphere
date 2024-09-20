@@ -12,7 +12,7 @@
         v-model:model-value="form.name"
         :max-length="255"
         :placeholder="t('advanceFilter.viewNamePlaceholder')"
-        show-word-limit
+        :show-word-limit="!props.notShowWordLimit"
         @press-enter="handleSubmit"
         @blur="handleSubmit"
       />
@@ -27,6 +27,7 @@
 
   const props = defineProps<{
     allNames: string[];
+    notShowWordLimit?: boolean;
   }>();
   const form = defineModel<Record<string, any>>('form', {
     required: true,
