@@ -135,14 +135,14 @@
             v-else-if="item.type === FilterType.DATE_PICKER && item.operator !== OperatorEnum.BETWEEN"
             v-model:model-value="item.value"
             show-time
-            format="YYYY-MM-DD HH:mm"
+            value-format="timestamp"
             :disabled="isValueDisabled(item)"
           />
           <a-range-picker
             v-else-if="item.type === FilterType.DATE_PICKER && item.operator === OperatorEnum.BETWEEN"
             v-model:model-value="item.value"
             show-time
-            format="YYYY-MM-DD HH:mm"
+            value-format="timestamp"
             :separator="t('common.to')"
             :disabled="isValueDisabled(item)"
           />
@@ -377,25 +377,15 @@
   }
 
   function getParams() {
-    const conditions = formModel.value.list.map(
-      ({ customFieldType, type, value, operator, customField, dataIndex }) => {
-        let timeValue;
-        // 转换成时间戳
-        if (type === FilterType.DATE_PICKER && value?.[0] && value?.[1]) {
-          timeValue =
-            operator === OperatorEnum.BETWEEN
-              ? [new Date(value[0]).getTime(), new Date(value[1]).getTime()]
-              : new Date(value).getTime();
-        }
-        return {
-          value: timeValue ?? value,
-          operator,
-          customField: customField ?? false,
-          name: dataIndex,
-          customFieldType: customFieldType ?? '',
-        };
-      }
-    );
+    const conditions = formModel.value.list.map(({ customFieldType, value, operator, customField, dataIndex }) => {
+      return {
+        value,
+        operator,
+        customField: customField ?? false,
+        name: dataIndex,
+        customFieldType: customFieldType ?? '',
+      };
+    });
     return { searchMode: formModel.value.searchMode, conditions };
   }
 
