@@ -51,7 +51,6 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
       // z: 'undo', // 撤销 TODO:暂时不上撤销和重做
       // y: 'redo', // 重做
       enter: 'enter', // 进入节点
-      s: 'save', // 保存
     };
     // 定义单键事件
     const singleShortcuts: { [key: string]: ShortcutKey } = {
@@ -97,9 +96,32 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
     }
   };
 
+  const handleShortcutSave = (event: KeyboardEvent) => {
+    const { editor } = window;
+    const { fsm } = editor;
+    const state = fsm.state();
+    switch (state) {
+      case 'input': {
+        // 输入状态下不响应快捷键
+        return;
+      }
+      default:
+    }
+    const key = event.key.toLowerCase();
+    const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+
+    if (isCtrlOrCmd && key === 's') {
+      // 执行快捷键保存事件
+      if (shortcuts.save) {
+        shortcuts.save(event);
+      }
+    }
+  };
+
   onMounted(() => {
     const minderContainer = document.querySelector('.ms-minder-container');
     if (minderContainer) {
+      window.addEventListener('keydown', handleShortcutSave);
       minderContainer.addEventListener('keydown', (e) => handleKeyDown(e as KeyboardEvent));
       minderContainer.addEventListener('copy', (e) => minderCopy(e as ClipboardEvent));
       minderContainer.addEventListener('cut', (e) => minderCut(e as ClipboardEvent));
@@ -110,6 +132,7 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
   function unbindShortcuts() {
     const minderContainer = document.querySelector('.ms-minder-container');
     if (minderContainer) {
+      window.removeEventListener('keydown', handleShortcutSave);
       minderContainer.removeEventListener('keydown', (e) => handleKeyDown(e as KeyboardEvent));
       minderContainer.removeEventListener('copy', (e) => minderCopy(e as ClipboardEvent));
       minderContainer.removeEventListener('cut', (e) => minderCut(e as ClipboardEvent));
