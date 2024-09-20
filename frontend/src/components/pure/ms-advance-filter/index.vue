@@ -19,13 +19,13 @@
         <slot name="nameRight"></slot>
       </div>
     </slot>
-    <div class="flex flex-row gap-[12px]">
+    <div class="flex flex-row gap-[8px]">
       <a-input-search
         v-if="!props.notShowInputSearch && !isAdvancedSearchMode"
         v-model:modelValue="keyword"
         size="small"
         :placeholder="props.searchPlaceholder"
-        class="w-[240px]"
+        class="w-[187px]"
         allow-clear
         @press-enter="emit('keywordSearch', keyword)"
         @search="emit('keywordSearch', keyword)"
@@ -44,7 +44,7 @@
           :loading="viewListLoading"
           :options="[...internalViews, ...customViews].map((item) => ({ value: item.id, label: item.name }))"
           :trigger-props="{ contentClass: 'view-select-trigger' }"
-          class="w-[180px]"
+          class="w-[145px]"
           show-footer-on-empty
         >
           <template #prefix> {{ t('advanceFilter.view') }} </template>
@@ -100,6 +100,7 @@
                 :ref="(el:refItem) => setNameInputRefMap(el, item)"
                 v-model:form="formModel"
                 :all-names="allViewNames.filter((name) => name !== item.name)"
+                not-show-word-limit
                 @handle-submit="handleRenameView"
               />
             </template>
@@ -364,7 +365,7 @@
     display: none;
   }
   .view-custom-trigger-content {
-    width: 180px;
+    width: 145px;
     max-height: 300px;
     .ms-scroll-bar();
     .view-option-title {
