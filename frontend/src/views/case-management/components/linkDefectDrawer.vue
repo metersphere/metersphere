@@ -263,6 +263,7 @@
     () => props.visible,
     (val) => {
       if (val) {
+        keyword.value = '';
         currentCaseTable.value.resetSelector();
         getFetch();
       }

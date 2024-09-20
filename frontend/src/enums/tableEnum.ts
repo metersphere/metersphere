@@ -94,11 +94,14 @@ export enum TableKeyEnum {
   JSON_SCHEMA = 'jsonSchema',
   TEST_PLAN_REPORT_FUNCTIONAL_TABLE = 'testPlanReportFunctionTable',
   TEST_PLAN_REPORT_FUNCTIONAL_TABLE_GROUP = 'testPlanReportFunctionTableGroup',
+  TEST_PLAN_REPORT_FUNCTIONAL_TABLE_NOT_PREVIEW = 'testPlanReportFunctionTableNotPreview',
   TEST_PLAN_REPORT_API_TABLE = 'testPlanReportApiTable',
+  TEST_PLAN_REPORT_API_TABLE_NOT_PREVIEW = 'testPlanReportApiTableNotPreview',
   TEST_PLAN_REPORT_API_TABLE_GROUP = 'testPlanReportApiTableGroup',
   TEST_PLAN_REPORT_SCENARIO_TABLE = 'testPlanReportScenarioTable',
   TEST_PLAN_REPORT_SCENARIO_TABLE_GROUP = 'testPlanReportScenarioTableGroup',
   TEST_PLAN_REPORT_BUG_TABLE_DETAIL = 'testPlanReportBugDetailTable',
+  TEST_PLAN_REPORT_BUG_TABLE_DETAIL_NOT_PREVIEW = 'testPlanReportBugDetailTableNotPreview',
   TEST_PLAN_REPORT_BUG_TABLE_DETAIL_GROUP = 'testPlanReportBugDetailTableGroup',
 }
 

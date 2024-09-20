@@ -203,11 +203,14 @@
     return !props.shareId ? getReportFeatureCaseList : getReportShareFeatureCaseList;
   };
 
-  const tableKey = computed(() =>
-    isGroup.value
-      ? TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE_GROUP
-      : TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE
-  );
+  const tableKey = computed(() => {
+    if (props.isPreview) {
+      return isGroup.value
+        ? TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE_GROUP
+        : TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE;
+    }
+    return TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE_NOT_PREVIEW;
+  });
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportFeatureCaseList(), {
     tableKey: tableKey.value,
     columns: columns.value,

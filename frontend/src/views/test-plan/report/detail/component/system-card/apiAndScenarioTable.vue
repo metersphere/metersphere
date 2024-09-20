@@ -194,10 +194,10 @@
   };
 
   const tableKey = computed(() => {
-    if (isGroup.value) {
-      return keyMap.GROUP[props.activeType];
+    if (props.isPreview) {
+      return isGroup.value ? keyMap.GROUP[props.activeType] : keyMap.TEST_PLAN[props.activeType];
     }
-    return keyMap.TEST_PLAN[props.activeType];
+    return TableKeyEnum.TEST_PLAN_REPORT_API_TABLE_NOT_PREVIEW;
   });
 
   const useApiTable = useTable(getApiPage, {
