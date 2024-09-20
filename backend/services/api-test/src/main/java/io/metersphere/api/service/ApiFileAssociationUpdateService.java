@@ -42,6 +42,9 @@ public class ApiFileAssociationUpdateService implements FileAssociationUpdateSer
             case FileAssociationSourceUtil.SOURCE_TYPE_API_SCENARIO_STEP ->
                     Objects.requireNonNull(CommonBeanFactory.getBean(ApiScenarioService.class))
                             .handleStepFileAssociationUpgrade(originFileAssociation, newFileMetadata);
+            case FileAssociationSourceUtil.SOURCE_TYPE_API_SCENARIO ->
+                    Objects.requireNonNull(CommonBeanFactory.getBean(ApiScenarioService.class))
+                            .handleScenarioFileAssociationUpgrade(originFileAssociation, newFileMetadata);
             default -> {
             }
         }

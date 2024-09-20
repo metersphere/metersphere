@@ -26,12 +26,10 @@ import io.metersphere.api.utils.ApiScenarioBatchOperationUtils;
 import io.metersphere.functional.domain.FunctionalCaseTestExample;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
-import io.metersphere.project.domain.FileAssociation;
-import io.metersphere.project.domain.FileMetadata;
-import io.metersphere.project.domain.Project;
-import io.metersphere.project.domain.ProjectExample;
+import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.MoveNodeService;
 import io.metersphere.sdk.constants.*;
@@ -137,6 +135,8 @@ public class ApiScenarioService extends MoveNodeService {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private ApiScenarioCsvMapper apiScenarioCsvMapper;
+    @Resource
+    private FileMetadataMapper fileMetadataMapper;
     @Resource
     private ApiScenarioCsvStepMapper apiScenarioCsvStepMapper;
     @Resource
@@ -508,10 +508,10 @@ public class ApiScenarioService extends MoveNodeService {
         handleCsvDataUpdate(csvVariables, scenario, List.of());
 
         // 处理文件的上传
-        handleCsvFileUpdate(csvVariables, List.of(), scenario, creator);
+        handleCsvFileAdd(csvVariables, List.of(), scenario, creator);
     }
 
-    private List<CsvVariable> getCsvVariables(ScenarioConfig scenarioConfig) {
+    public List<CsvVariable> getCsvVariables(ScenarioConfig scenarioConfig) {
         if (scenarioConfig == null || scenarioConfig.getVariable() == null || scenarioConfig.getVariable().getCsvVariables() == null) {
             return List.of();
         }
@@ -569,18 +569,90 @@ public class ApiScenarioService extends MoveNodeService {
 
         List<CsvVariable> csvVariables = getCsvVariables(scenarioConfig);
         List<ApiScenarioCsv> dbCsv = getApiScenarioCsv(scenario.getId());
+        List<String> dbCsvIds = dbCsv.stream()
+                .map(ApiScenarioCsv::getId)
+                .toList();
+
+        handleRefUpgradeFile(csvVariables, dbCsv);
 
         // 更新 csv 相关数据表
-        handleCsvDataUpdate(csvVariables, scenario, dbCsv);
+        handleCsvDataUpdate(csvVariables, scenario, dbCsvIds);
 
         // 处理文件的上传和删除
         handleCsvFileUpdate(csvVariables, dbCsv, scenario, userId);
     }
 
-    private void handleCsvDataUpdate(List<CsvVariable> csvVariables, ApiScenario scenario, List<ApiScenarioCsv> dbCsv) {
-        List<String> dbCsvIds = dbCsv.stream()
-                .map(ApiScenarioCsv::getId)
-                .toList();
+    /**
+     * 当文件管理更新了关联资源的 csv 文件版本时
+     * 前端文件并未更新，这里使用时，进行对比，使用较新的文件版本
+     * @param csvVariables
+     * @param dbCsv
+     */
+    public void handleRefUpgradeFile(List<CsvVariable> csvVariables, List<ApiScenarioCsv> dbCsv) {
+        try {
+            // 获取数据库中关联的 csv 文件
+            List<ApiScenarioCsv> dbAssociationCsvList = dbCsv.stream().filter(ApiScenarioCsv::getAssociation).toList();
+            Map<String, ApiScenarioCsv> dbAssociationCsvIdMap = dbAssociationCsvList.stream()
+                    .collect(Collectors.toMap(ApiScenarioCsv::getId, Function.identity()));
+
+            // 获取与数据库中数据 fileId 不一致的 csv
+            List<CsvVariable> changeAssociationCsvList = csvVariables.stream().filter(csvVariable -> {
+                ApiScenarioCsv apiScenarioCsv = dbAssociationCsvIdMap.get(csvVariable.getId());
+                if (apiScenarioCsv != null && csvVariable.getFile() != null && StringUtils.isNotBlank(csvVariable.getFile().getFileId())
+                        && !StringUtils.equals(apiScenarioCsv.getFileId(), csvVariable.getFile().getFileId())) {
+                    return true;
+                }
+                return false;
+            }).toList();
+
+            if (CollectionUtils.isEmpty(changeAssociationCsvList)) {
+                return;
+            }
+
+            // 查询关联的csv文件信息
+            List<String> dbAssociationCsvFileIds = changeAssociationCsvList.stream().map(csvVariable -> csvVariable.getFile().getFileId()).toList();
+            FileMetadataExample fileMetadataExample = new FileMetadataExample();
+            fileMetadataExample.createCriteria().andIdIn(dbAssociationCsvFileIds);
+            List<FileMetadata> dbAssociationCsvFiles = fileMetadataMapper.selectByExample(fileMetadataExample);
+            Map<String, FileMetadata> dbAssociationCsvFileMap = dbAssociationCsvFiles.stream()
+                    .collect(Collectors.toMap(FileMetadata::getId, Function.identity()));
+
+            // 查询csv文件的版本信息
+            List<String> refIds = dbAssociationCsvFiles.stream().map(FileMetadata::getRefId).toList();
+            FileMetadataExample example = new FileMetadataExample();
+            example.createCriteria().andRefIdIn(refIds);
+            List<FileMetadata> fileMetadataList = fileMetadataMapper.selectByExample(example)
+                    .stream()
+                    .sorted(Comparator.comparing(FileMetadata::getUpdateTime).reversed())
+                    .collect(Collectors.toList());
+            Map<String, List<FileMetadata>> refFileMap = fileMetadataList.stream().collect(Collectors.groupingBy(FileMetadata::getRefId));
+
+            for (CsvVariable changeAssociation : changeAssociationCsvList) {
+                String fileId = changeAssociation.getFile().getFileId();
+                FileMetadata fileMetadata = dbAssociationCsvFileMap.get(fileId);
+                ApiScenarioCsv dbAssociationCsv = dbAssociationCsvIdMap.get(changeAssociation.getId());
+                // 遍历同一文件的不同版本
+                List<FileMetadata> refFileList = refFileMap.get(fileMetadata.getRefId());
+                if (refFileList != null) {
+                    for (FileMetadata refFile : refFileList) {
+                        if (StringUtils.equals(refFile.getId(), fileId)) {
+                            // 如果前端参数的版本较新，则不处理
+                            break;
+                        } else if (StringUtils.equals(refFile.getId(), dbAssociationCsv.getFileId())) {
+                            // 如果数据库中的文件版本较新，则说明文件管理中更新了当前引用的文件版本，使用数据库中的文件信息
+                            changeAssociation.getFile().setFileId(dbAssociationCsv.getFileId());
+                            changeAssociation.getFile().setFileName(dbAssociationCsv.getFileName());
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
+    }
+
+    private void handleCsvDataUpdate(List<CsvVariable> csvVariables, ApiScenario scenario, List<String> dbCsvIds) {
 
         List<String> csvIds = csvVariables.stream()
                 .map(CsvVariable::getId)
@@ -616,7 +688,7 @@ public class ApiScenarioService extends MoveNodeService {
         }
     }
 
-    private void handleCsvFileUpdate(List<CsvVariable> csvVariables, List<ApiScenarioCsv> dbCsv, ApiScenario scenario, String userId) {
+    private void handleCsvFileAdd(List<CsvVariable> csvVariables, List<ApiScenarioCsv> dbCsv, ApiScenario scenario, String userId) {
         ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(scenario.getId(), scenario.getProjectId(), userId);
         // 设置本地文件相关参数
         setCsvLocalFileParam(csvVariables, dbCsv, resourceUpdateRequest);
@@ -625,17 +697,26 @@ public class ApiScenarioService extends MoveNodeService {
         apiFileResourceService.addFileResource(resourceUpdateRequest);
     }
 
+    private void handleCsvFileUpdate(List<CsvVariable> csvVariables, List<ApiScenarioCsv> dbCsv, ApiScenario scenario, String userId) {
+        ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(scenario.getId(), scenario.getProjectId(), userId);
+        // 设置本地文件相关参数
+        setCsvLocalFileParam(csvVariables, dbCsv, resourceUpdateRequest);
+        // 设置关联文件相关参数
+        setCsvLinkFileParam(csvVariables, dbCsv, resourceUpdateRequest);
+        apiFileResourceService.updateFileResource(resourceUpdateRequest);
+    }
+
     private void setCsvLinkFileParam(List<CsvVariable> csvVariables, List<ApiScenarioCsv> dbCsv, ApiFileResourceUpdateRequest resourceUpdateRequest) {
         // 获取数据库中关联的文件id
         List<String> dbRefFileIds = dbCsv.stream()
-                .filter(c -> BooleanUtils.isTrue(c.getAssociation()))
+                .filter(c -> BooleanUtils.isTrue(c.getAssociation()) && StringUtils.isNotBlank(c.getFileId()))
                 .map(ApiScenarioCsv::getFileId)
                 .toList();
 
         // 获取请求中关联的文件id
         List<String> refFileIds = csvVariables.stream()
                 .map(CsvVariable::getFile)
-                .filter(c -> BooleanUtils.isFalse(c.getLocal()))
+                .filter(c -> BooleanUtils.isFalse(c.getLocal()) && StringUtils.isNotBlank(c.getFileId()))
                 .map(ApiFile::getFileId).toList();
 
         List<String> unlinkFileIds = ListUtils.subtract(dbRefFileIds, refFileIds);
@@ -665,7 +746,7 @@ public class ApiScenarioService extends MoveNodeService {
         resourceUpdateRequest.setUploadFileIds(addLocal);
     }
 
-    private List<ApiScenarioCsv> getApiScenarioCsv(String scenarioId) {
+    public List<ApiScenarioCsv> getApiScenarioCsv(String scenarioId) {
         ApiScenarioCsvExample apiScenarioCsvExample = new ApiScenarioCsvExample();
         apiScenarioCsvExample.createCriteria().andScenarioIdEqualTo(scenarioId);
         return apiScenarioCsvMapper.selectByExample(apiScenarioCsvExample);
@@ -2284,7 +2365,7 @@ public class ApiScenarioService extends MoveNodeService {
         } catch (Exception e) {
             LogUtils.error(e);
         }
-        if (msTestElement instanceof MsHTTPElement msHTTPElement) {
+        if (msTestElement != null && msTestElement instanceof MsHTTPElement msHTTPElement) {
             List<ApiFile> updateFiles = apiCommonService.getApiFilesByFileId(originFileAssociation.getFileId(), msHTTPElement);
             // 替换文件的Id和name
             apiCommonService.replaceApiFileInfo(updateFiles, newFileMetadata);
@@ -2293,6 +2374,31 @@ public class ApiScenarioService extends MoveNodeService {
                 apiScenarioStepBlob.setContent(ApiDataUtils.toJSONString(msTestElement).getBytes());
                 apiScenarioStepBlobMapper.updateByPrimaryKeySelective(apiScenarioStepBlob);
             }
+        }
+    }
+
+    public void handleScenarioFileAssociationUpgrade(FileAssociation originFileAssociation, FileMetadata newFileMetadata) {
+        String scenarioId = originFileAssociation.getSourceId();
+        // 查询步骤详情
+        ApiScenarioBlob apiScenarioBlob = apiScenarioBlobMapper.selectByPrimaryKey(originFileAssociation.getSourceId());
+
+        if (apiScenarioBlob == null || apiScenarioBlob.getConfig() == null) {
+            return;
+        }
+
+        List<CsvVariable> csvVariables = getCsvVariables(scenarioId);
+        List<ApiFile> updateFiles = new ArrayList<>(csvVariables.size());
+        for (CsvVariable csvVariable : csvVariables) {
+            ApiFile apiFile = csvVariable.getFile();
+            if (apiFile != null && StringUtils.equals(originFileAssociation.getFileId(), apiFile.getFileId())) {
+                updateFiles.add(apiFile);
+            }
+        }
+        if (CollectionUtils.isNotEmpty(updateFiles)) {
+            // 替换文件的Id和name
+            apiCommonService.replaceApiFileInfo(updateFiles, newFileMetadata);
+            List<String> dbCsvIds = csvVariables.stream().map(CsvVariable::getId).toList();
+            handleCsvDataUpdate(csvVariables, apiScenarioMapper.selectByPrimaryKey(originFileAssociation.getSourceId()), dbCsvIds);
         }
     }
 
