@@ -68,7 +68,7 @@
           :rules="[{ required: true, message: t('common.inputPleaseEnterTags') }]"
         >
           <template v-if="valueMode === 'tags'">
-            <MsTagsInput v-model:modelValue="form.value" :disabled="!form.attribute"></MsTagsInput>
+            <MsTagsInput v-model:modelValue="form.value" empty-priority-highest :disabled="!form.attribute" />
             <div class="text-[12px] leading-[20px] text-[var(--color-text-4)]">{{ t('ms.tagsInput.tagLimitTip') }}</div>
           </template>
           <template v-else-if="valueMode === 'user_selector'">

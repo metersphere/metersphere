@@ -327,7 +327,11 @@
 
   const tiledListRef = ref<InstanceType<typeof TiledList>>();
   function searchHandler() {
-    tiledListRef.value?.updateDebouncedSearch();
+    if (keywordName.value) {
+      tiledListRef.value?.updateDebouncedSearch();
+    } else {
+      tiledListRef.value?.initStepTree();
+    }
   }
 
   function resetHandler() {

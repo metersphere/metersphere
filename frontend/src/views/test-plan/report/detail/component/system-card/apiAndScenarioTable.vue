@@ -242,6 +242,9 @@
   const apiReportId = ref<string>('');
 
   function showReport(record: ApiOrScenarioCaseItem) {
+    if (!record.reportId) {
+      return;
+    }
     if (!record.executeResult || record.executeResult === 'STOPPED') return;
     reportVisible.value = true;
     apiReportId.value = record.reportId;

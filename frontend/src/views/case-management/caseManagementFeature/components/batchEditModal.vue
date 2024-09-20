@@ -37,7 +37,7 @@
           asterisk-position="end"
           :rules="[{ required: true, message: t('common.inputPleaseEnterTags') }]"
         >
-          <MsTagsInput v-model:modelValue="form.tags" allow-clear></MsTagsInput>
+          <MsTagsInput v-model:modelValue="form.tags" allow-clear empty-priority-highest></MsTagsInput>
           <div class="text-[12px] leading-[20px] text-[var(--color-text-4)]">{{ t('ms.tagsInput.tagLimitTip') }}</div>
         </a-form-item>
 
