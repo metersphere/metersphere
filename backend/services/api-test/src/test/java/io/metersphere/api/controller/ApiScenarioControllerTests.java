@@ -643,6 +643,8 @@ public class ApiScenarioControllerTests extends BaseTest {
         request.setPriority("P0 update");
         request.setStatus(ApiScenarioStatus.DEPRECATED.name());
         List<ApiScenarioStepRequest> steps = getApiScenarioStepRequests();
+        ApiScenarioBlob apiScenarioBlob = apiScenarioBlobMapper.selectByPrimaryKey(addApiScenario.getId());
+        request.setScenarioConfig(JSON.parseObject(new String(apiScenarioBlob.getConfig()), ScenarioConfig.class));
 
         // 验证修改基础信息
         this.requestPostWithOk(DEFAULT_UPDATE, request);

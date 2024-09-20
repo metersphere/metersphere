@@ -102,6 +102,10 @@ public class ApiScenarioRunService {
         msScenario.setScenarioConfig(getScenarioConfig(request, true));
         msScenario.setProjectId(request.getProjectId());
 
+        List<ApiScenarioCsv> dbCsv = apiScenarioService.getApiScenarioCsv(apiScenario.getId());
+        List<CsvVariable> csvVariables = apiScenarioService.getCsvVariables(msScenario.getScenarioConfig());
+        apiScenarioService.handleRefUpgradeFile(csvVariables, dbCsv);
+
         // 处理特殊的步骤详情
         apiScenarioService.addSpecialStepDetails(request.getSteps(), request.getStepDetails());
 
@@ -375,6 +379,10 @@ public class ApiScenarioRunService {
         msScenario.setScenarioConfig(getScenarioConfig(request, hasSave));
         msScenario.setProjectId(request.getProjectId());
         msScenario.setResourceId(request.getId());
+
+        List<ApiScenarioCsv> dbCsv = apiScenarioService.getApiScenarioCsv(apiScenario.getId());
+        List<CsvVariable> csvVariables = apiScenarioService.getCsvVariables(msScenario.getScenarioConfig());
+        apiScenarioService.handleRefUpgradeFile(csvVariables, dbCsv);
 
         // 处理特殊的步骤详情
         apiScenarioService.addSpecialStepDetails(request.getSteps(), request.getStepDetails());
