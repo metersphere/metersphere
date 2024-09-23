@@ -46,7 +46,7 @@ public interface CurlPatternConstants {
      * -d/--data 请求体
      */
     Pattern DEFAULT_HTTP_BODY_PATTERN = Pattern.compile("(?:--data|-d)\\s+(?:'([^']*)'|\"([^\"]*)\"|(\\S+))", Pattern.DOTALL);
-    Pattern DEFAULT_HTTP_BODY_PATTERN_KV = Pattern.compile("^([^=&]+=[^=&]+)(?:&[^=&]+=[^=&]+)*$", Pattern.DOTALL);
+    Pattern DEFAULT_HTTP_BODY_PATTERN_KV = Pattern.compile("^([^=&]+=[^=&]*)(?:&[^=&]+=[^=&]*)*$", Pattern.DOTALL);
 
     /**
      * --data-raw 请求体

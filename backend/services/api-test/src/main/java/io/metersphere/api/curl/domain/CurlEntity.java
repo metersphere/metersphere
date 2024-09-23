@@ -34,7 +34,7 @@ public class CurlEntity {
     /**
      * 请求体
      */
-    private Map<String, Object> body;
+    private Object body;
 
     private String bodyType;
 
