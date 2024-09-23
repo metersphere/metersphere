@@ -16,9 +16,17 @@
         </a-radio>
       </a-radio-group>
       <div v-if="showType === 'link'" class="flex items-center justify-between">
-        <a-button v-if="hasEditPermission" class="mr-3" type="primary" @click="linkBug">
-          {{ t('caseManagement.featureCase.linkDefect') }}
-        </a-button>
+        <a-tooltip :disabled="!!bugTotal">
+          <template #content>
+            {{ t('caseManagement.featureCase.noAssociatedDefect') }}
+            <span v-permission="['PROJECT_BUG:READ+ADD']" class="text-[rgb(var(--primary-4))]" @click="createBug">
+              {{ t('testPlan.featureCase.noBugDataNewBug') }}
+            </span>
+          </template>
+          <a-button v-if="hasEditPermission" :disabled="!bugTotal" class="mr-3" type="primary" @click="linkBug">
+            {{ t('caseManagement.featureCase.linkDefect') }}
+          </a-button>
+        </a-tooltip>
         <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="outline" @click="createBug">
           {{ t('caseManagement.featureCase.createDefect') }}
         </a-button>
@@ -75,6 +83,7 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsList from '@/components/pure/ms-list/index.vue';
 
+  import { getBugList } from '@/api/modules/bug-management';
   import {
     associatedDebug,
     cancelAssociatedDebug,
@@ -203,8 +212,27 @@
     }
   }
 
+  const bugTotal = ref<number>(0);
+  async function initBugList() {
+    if (!hasAnyPermission(['PROJECT_BUG:READ'])) {
+      return;
+    }
+    const res = await getBugList({
+      current: 1,
+      pageSize: 10,
+      sort: {},
+      filter: {},
+      keyword: '',
+      combine: {},
+      searchMode: 'AND',
+      projectId: appStore.currentProjectId,
+    });
+    bugTotal.value = res.total;
+  }
+
   onBeforeMount(() => {
     loadBugList();
+    initBugList();
   });
 </script>
 

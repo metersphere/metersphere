@@ -18,7 +18,7 @@
         ></a-input-search>
       </div>
       <div v-if="showType === 'link'" class="flex items-center">
-        <a-tooltip v-if="!total">
+        <a-tooltip :disabled="!!total">
           <template #content>
             {{ t('caseManagement.featureCase.noAssociatedDefect') }}
             <span v-permission="['PROJECT_BUG:READ+ADD']" class="text-[rgb(var(--primary-4))]" @click="createDefect">{{
@@ -27,7 +27,7 @@
           </template>
           <a-button
             v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
-            :disabled="total ? false : true"
+            :disabled="!total"
             class="mr-3"
             type="primary"
             @click="linkDefect"
@@ -35,15 +35,6 @@
             {{ t('caseManagement.featureCase.linkDefect') }}
           </a-button>
         </a-tooltip>
-        <a-button
-          v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']) && total"
-          :disabled="total ? false : true"
-          class="mr-3"
-          type="primary"
-          @click="linkDefect"
-        >
-          {{ t('caseManagement.featureCase.linkDefect') }}
-        </a-button>
         <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="outline" @click="createDefect"
           >{{ t('testPlan.featureCase.noBugDataNewBug') }}
         </a-button>
