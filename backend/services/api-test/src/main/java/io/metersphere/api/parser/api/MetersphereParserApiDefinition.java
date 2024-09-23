@@ -1,7 +1,6 @@
 package io.metersphere.api.parser.api;
 
 
-import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.converter.ApiDefinitionDetail;
 import io.metersphere.api.dto.converter.ApiDefinitionExportDetail;
 import io.metersphere.api.dto.converter.ApiImportDataAnalysisResult;
@@ -94,7 +93,7 @@ public class MetersphereParserApiDefinition implements ApiDefinitionImportParser
                 });
             } else {
                 //非HTTP类型，通过 name判断，后续处理会过滤掉路径不一致的
-                Map<String, ApiDefinitionDetail> importDataMap = importDetail.stream().collect(Collectors.toMap(ApiDefinition::getName, t -> t, (oldValue, newValue) -> newValue));
+                Map<String, ApiDefinitionDetail> importDataMap = importDetail.stream().collect(Collectors.toMap(t -> t.getModulePath() + t.getName(), t -> t, (oldValue, newValue) -> newValue));
                 Map<String, List<ApiDefinitionDetail>> savedApiDefinitionMap = existenceApiDefinitionList.stream().collect(Collectors.groupingBy(ApiDefinitionDetail::getName));
 
                 importDataMap.forEach((key, api) -> {
