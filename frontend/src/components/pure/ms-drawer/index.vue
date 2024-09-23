@@ -280,11 +280,12 @@
 
     max-width: 100vw;
     .arco-drawer-header {
+      display: flex;
       height: 56px;
       border-bottom: 1px solid var(--color-text-n8);
       .arco-drawer-title {
-        @apply w-full;
-
+        flex: 1;
+        overflow: hidden;
         line-height: 24px;
         .ms-drawer-right-operation-button {
           .ms-button-icon,
