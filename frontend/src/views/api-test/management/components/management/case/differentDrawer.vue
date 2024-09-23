@@ -31,18 +31,6 @@
                 </div>
               </a-checkbox>
             </a-checkbox-group>
-            <a-divider v-if="showSyncConfig" direction="vertical" :margin="0" class="!mr-[8px]" />
-            <a-switch
-              v-model:model-value="form.ignoreApiChange"
-              :before-change="(val) => changeIgnore(val)"
-              size="small"
-            />
-            <div class="ml-[8px]">{{ t('case.ignoreAllChange') }}</div>
-            <a-divider direction="vertical" :margin="8"></a-divider>
-            <a-switch v-if="showSyncConfig" v-model:model-value="form.deleteRedundantParam" size="small" />
-            <div v-if="showSyncConfig" class="ml-[8px] font-normal text-[var(--color-text-1)]">
-              {{ t('case.deleteNotCorrespondValue') }}
-            </div>
             <a-divider v-if="showSyncConfig" direction="vertical" :margin="0" class="!ml-[8px]" />
           </div>
           <a-button class="mx-[12px]" type="secondary" @click="cancel">{{ t('common.cancel') }}</a-button>
@@ -71,18 +59,31 @@
       </div>
     </template>
     <!-- 图例 -->
-    <div class="legend-container">
-      <div class="flex items-center">
-        <div class="item mr-[8px]">
-          <div class="legend add"></div>
-          {{ t('case.diffAdd') }}
+    <div class="grid grid-cols-12 px-[16px]">
+      <div class="col-span-5"></div>
+      <div class="legend-container col-span-2">
+        <div class="flex items-center">
+          <div class="item mr-[8px]">
+            <div class="legend add"></div>
+            {{ t('case.diffAdd') }}
+          </div>
+          <div class="item">
+            <div class="legend delete"></div>
+            {{ t('common.delete') }}
+          </div>
         </div>
-        <div class="item">
-          <div class="legend delete"></div>
-          {{ t('common.delete') }}
+      </div>
+      <div class="col-span-5 flex items-center justify-end">
+        <a-switch v-model:model-value="form.ignoreApiChange" :before-change="(val) => changeIgnore(val)" size="small" />
+        <div class="ml-[8px]">{{ t('case.ignoreAllChange') }}</div>
+        <a-divider v-if="showSyncConfig" direction="vertical" :margin="8"></a-divider>
+        <a-switch v-if="showSyncConfig" v-model:model-value="form.deleteRedundantParam" size="small" />
+        <div v-if="showSyncConfig" class="ml-[8px] font-normal text-[var(--color-text-1)]">
+          {{ t('case.deleteNotCorrespondValue') }}
         </div>
       </div>
     </div>
+
     <!-- 对比 -->
     <div class="diff-container">
       <MsCard simple auto-height no-content-padding>
