@@ -84,9 +84,7 @@ public class MsJDBCPreProcessor extends MsTestElement {
         // 参数
         ElementUtil.jdbcArguments(this.getName(), this.getVariables(), tree);
         if (CollectionUtils.isNotEmpty(hashTree)) {
-            hashTree.forEach(el -> {
-                el.toHashTree(samplerHashTree, el.getHashTree(), config);
-            });
+            hashTree.forEach(el -> el.toHashTree(samplerHashTree, el.getHashTree(), config));
         }
     }
 

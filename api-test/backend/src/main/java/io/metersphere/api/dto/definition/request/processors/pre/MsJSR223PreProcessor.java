@@ -56,9 +56,7 @@ public class MsJSR223PreProcessor extends MsTestElement {
 
         final HashTree jsr223PreTree = tree.add(getShellProcessor());
         if (CollectionUtils.isNotEmpty(hashTree)) {
-            hashTree.forEach(el -> {
-                el.toHashTree(jsr223PreTree, el.getHashTree(), config);
-            });
+            hashTree.forEach(el -> el.toHashTree(jsr223PreTree, el.getHashTree(), config));
         }
     }
 

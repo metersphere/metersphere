@@ -3,7 +3,9 @@ package io.metersphere.api.dto.definition.request.sampler;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.processors.post.MsJDBCPostProcessor;
+import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJDBCPreProcessor;
+import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
@@ -151,7 +153,8 @@ public class MsJDBCSampler extends MsTestElement {
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree = ElementUtil.order(hashTree);
             hashTree.forEach(el -> {
-                if (el instanceof MsJDBCPreProcessor || el instanceof MsJDBCPostProcessor) {
+                if (el instanceof MsJDBCPreProcessor || el instanceof MsJDBCPostProcessor ||
+                        el instanceof MsJSR223PreProcessor || el instanceof MsJSR223PostProcessor) {
                     el.setParent(this);
                 }
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
