@@ -254,11 +254,9 @@ public class TestPlanReportController {
     @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
     @Parameter(name = "type", description = "用例类型", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED), example = "functional, api, scenario")
     public Pager<List<TestPlanReportDetailCollectionResponse>> collectionPage(@PathVariable String type, @Validated @RequestBody TestPlanReportDetailPageRequest request) {
-        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpc.pos desc");
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         if (!request.getStartPager()) {
             page.close();
-            page.setOrderBy("tpc.pos desc");
         }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportCollection(request, type));
     }
