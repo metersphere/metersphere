@@ -2,7 +2,7 @@
   <!-- TODO:第一版没有模板 -->
   <!-- <MsFormCreate v-model:api="fApi" :rule="currentApiTemplateRules" :option="options" /> -->
   <a-form ref="formRef" :model="requestVModel" layout="vertical">
-    <a-form-item
+    <!-- <a-form-item
       field="name"
       :label="t('apiTestManagement.apiName')"
       class="mb-[16px] w-[60%]"
@@ -16,7 +16,7 @@
         allow-clear
         @change="handleActiveApiChange"
       />
-    </a-form-item>
+    </a-form-item> -->
     <a-form-item asterisk-position="end" :label="t('common.desc')" class="mb-[16px] w-[60%]">
       <a-textarea v-model:model-value="requestVModel.description" :max-length="1000" @change="handleActiveApiChange" />
     </a-form-item>
