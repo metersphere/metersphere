@@ -339,6 +339,17 @@
                                 <property name="searchColumn" value="file_name"/>
                                 <property name="condition" value="condition"/>
                             </include>
+                            <choose>
+                                <when test="condition.operator == 'NOT_IN' or condition.operator == 'NOT_EQUALS' or condition.operator == 'NOT_CONTAINS'">
+                                    and
+                                </when>
+                                <otherwise>
+                                    or
+                                </otherwise>
+                            </choose>
+                            <include refid="associationAttachmentCondition">
+                                <property name="condition" value="condition"/>
+                            </include>
                         </if>
                         <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
                             <property name="searchMode" value="${combineSearch}.searchMode"/>
@@ -353,6 +364,42 @@
                 </if>
             </trim>
         </trim>
+    </sql>
+
+    <sql id="associationAttachmentCondition">
+        <choose>
+            <when test="${condition}.operator == 'EMPTY'">
+                functional_case.id not in (
+                    select file_association.source_id from file_association where file_association.source_type = 'FUNCTIONAL_CASE'
+                )
+            </when>
+            <otherwise>
+                (
+                functional_case.id
+                <if test="${condition}.operator == 'NOT_IN' or ${condition}.operator == 'NOT_EQUALS' or ${condition}.operator == 'NOT_CONTAINS'">
+                    not
+                </if>
+                in (
+                    select file_association.source_id from file_association join file_metadata on file_association.file_id = file_metadata.id
+                    and file_association.source_type = 'FUNCTIONAL_CASE' and
+                    <choose>
+                        <when test="${condition}.operator == 'NOT_IN' or ${condition}.operator == 'NOT_EQUALS' or ${condition}.operator == 'NOT_CONTAINS'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.associationReversalCondition">
+                                <property name="condition" value="${condition}"/>
+                                <property name="column" value="file_metadata.original_name"/>
+                            </include>
+                        </when>
+                        <otherwise>
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="${condition}"/>
+                                <property name="column" value="file_metadata.original_name"/>
+                            </include>
+                        </otherwise>
+                    </choose>
+                    )
+                )
+            </otherwise>
+        </choose>
     </sql>
 
     <sql id="queryVersionCondition">
