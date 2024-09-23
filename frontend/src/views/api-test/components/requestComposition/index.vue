@@ -218,6 +218,20 @@
             </a-button>
           </template>
         </div>
+        <div v-if="props.isDefinition" class="w-full">
+          <a-input
+            v-model:model-value="requestVModel.name"
+            :max-length="255"
+            :placeholder="t('apiTestManagement.apiNamePlaceholder')"
+            :style="isNameError ? 'border: 1px solid rgb(var(--danger-6));z-index: 10' : ''"
+            allow-clear
+            @input="() => (isNameError = false)"
+            @change="handleActiveDebugChange"
+          />
+          <div v-if="isNameError" class="name-input-tip">
+            <span>{{ t('apiTestManagement.apiNameRequired') }}</span>
+          </div>
+        </div>
       </div>
     </div>
     <div :class="`${!props.isCase ? 'request-tab-and-response' : ''} flex-1`">
@@ -1584,6 +1598,7 @@
 
   const apiBaseFormRef = ref<InstanceType<typeof apiBaseForm>>();
   const isUrlError = ref(false);
+  const isNameError = ref(false);
   const tempApiDetail = ref<RequestParam>();
   const saveNewApiModalVisible = ref(false);
 
@@ -1592,7 +1607,12 @@
       isUrlError.value = true;
       return;
     }
+    if (requestVModel.value.name === '') {
+      isNameError.value = true;
+      return;
+    }
     isUrlError.value = false;
+    isNameError.value = false;
     if (value === 'saveAsApi') {
       const params = makeRequestParams();
       tempApiDetail.value = {
@@ -1722,6 +1742,14 @@
 
     margin-top: -14px;
     padding-left: 226px;
+    font-size: 12px;
+    color: rgb(var(--danger-6));
+    line-height: 16px;
+  }
+  .name-input-tip {
+    @apply w-full;
+
+    margin-top: 4px;
     font-size: 12px;
     color: rgb(var(--danger-6));
     line-height: 16px;
