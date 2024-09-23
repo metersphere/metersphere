@@ -56,7 +56,8 @@
         where tpras.test_plan_report_id = #{request.reportId}
         <if test="request.keyword != null and request.keyword != ''">
             and (tpras.api_scenario_name like concat('%', #{request.keyword}, '%')
-            or tpras.api_scenario_num like concat('%', #{request.keyword}, '%'))
+            or tpras.api_scenario_num like concat('%', #{request.keyword}, '%')
+            or tpras.api_scenario_module like concat('%', #{request.keyword}, '%'))
         </if>
         <include refid="filter"/>
         group by tpras.test_plan_collection_id
