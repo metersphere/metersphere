@@ -18,11 +18,12 @@ export function parseTableDataToJsonSchema(
     if (!schemaItem || !schemaItem.title) return undefined;
     let schema: JsonSchema | JsonSchemaItem = { type: schemaItem.type };
 
-    // 对于 null 类型，只设置 type 和 enable 属性
+    // 对于 null 类型，只设置 type、enable、description 属性
     if (schemaItem.type === 'null') {
       return {
         type: 'null',
         enable: schemaItem.enable,
+        description: schemaItem.description,
       };
     }
 
@@ -68,6 +69,7 @@ export function parseTableDataToJsonSchema(
           items: schemaItem.children.map((child) => parseTableDataToJsonSchema(child, false) as JsonSchemaItem),
           minItems: schemaItem.minItems,
           maxItems: schemaItem.maxItems,
+          description: schemaItem.description,
         };
       }
     }
