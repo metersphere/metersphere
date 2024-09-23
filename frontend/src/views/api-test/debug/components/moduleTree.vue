@@ -2,30 +2,7 @@
   <div class="flex h-full flex-col p-[12px_16px]">
     <div class="mb-[8px] flex items-center gap-[8px]">
       <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiTestDebug.searchTip')" allow-clear />
-      <a-dropdown-button
-        v-if="hasAllPermission(['PROJECT_API_DEBUG:READ+ADD', 'PROJECT_API_DEBUG:READ+IMPORT'])"
-        type="primary"
-        @click="handleSelect('newApi')"
-      >
-        {{ t('common.newCreate') }}
-        <template #icon>
-          <icon-down />
-        </template>
-        <template #content>
-          <a-doption value="import" @click="handleSelect('import')">
-            {{ t('apiTestDebug.importApi') }}
-          </a-doption>
-        </template>
-      </a-dropdown-button>
-      <a-button
-        v-else-if="
-          !hasAnyPermission(['PROJECT_API_DEBUG:READ+ADD']) && hasAnyPermission(['PROJECT_API_DEBUG:READ+IMPORT'])
-        "
-        type="primary"
-      >
-        {{ t('apiTestDebug.importApi') }}
-      </a-button>
-      <a-button v-else v-permission="['PROJECT_API_DEBUG:READ+ADD']" type="primary">
+      <a-button v-permission="['PROJECT_API_DEBUG:READ+ADD']" type="primary">
         {{ t('apiTestDebug.newApi') }}
       </a-button>
     </div>
@@ -170,7 +147,7 @@
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
   import { characterLimit, mapTree } from '@/utils';
-  import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ModuleTreeNode } from '@/models/common';
 
@@ -183,20 +160,6 @@
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
-
-  function handleSelect(value: string | number | Record<string, any> | undefined) {
-    switch (value) {
-      case 'newApi':
-        emit('newApi');
-        break;
-      case 'import':
-        emit('import');
-        break;
-
-      default:
-        break;
-    }
-  }
 
   const isExpandAll = ref(props.isExpandAll);
   const rootModulesName = ref<string[]>([]); // 根模块名称列表
