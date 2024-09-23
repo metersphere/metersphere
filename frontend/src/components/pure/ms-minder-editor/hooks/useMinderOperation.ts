@@ -302,11 +302,11 @@ export default function useMinderOperation(options: MinderOperationProps) {
       return;
     }
     if (
-      selectedNodes.length === 1 &&
+      selectedNodes.length >= 1 &&
       (options.canShowDeleteMenu || (options.canShowMoreMenu && options.canShowMoreMenuNodeOperation)) &&
       !options.disabled
     ) {
-      // 单个节点操作，如果允许删除操作，则执行删除操作
+      // 如果允许删除操作，则执行删除操作
       const newNodes = selectedNodes.map((node) => ({
         ...node,
         parent: node.parent, // 保存父节点信息，因为删除节点后 parent 会被置空

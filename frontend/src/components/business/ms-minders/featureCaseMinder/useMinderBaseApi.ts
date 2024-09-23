@@ -389,17 +389,29 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
           window.minder.selectById(nodeId);
         });
       });
+    } else if (value === stepTag) {
+      // 步骤描述节点插入后，插入子节点
+      nextTick(() => {
+        insertSpecifyNode('AppendChildNode', stepExpectTag);
+        nextTick(() => {
+          // 取消选中期望结果节点，选中步骤描述节点
+          const expectNode: MinderJsonNode = window.minder.getSelectedNode();
+          window.minder.toggleSelect(expectNode);
+          window.minder.selectById(nodeId);
+        });
+      });
+    } else if (value === textDescTag) {
+      // 文本描述节点插入后，插入子节点
+      nextTick(() => {
+        insertSpecifyNode('AppendChildNode', stepExpectTag);
+        nextTick(() => {
+          // 取消选中期望结果节点，选中文本描述节点
+          const expectNode: MinderJsonNode = window.minder.getSelectedNode();
+          window.minder.toggleSelect(expectNode);
+          window.minder.selectById(nodeId);
+        });
+      });
     }
-  }
-
-  /**
-   * 插入步骤描述
-   */
-  function insetStepDesc(type: 'AppendChildNode' | 'AppendSiblingNode') {
-    insertSpecifyNode(type, stepTag);
-    nextTick(() => {
-      insertSpecifyNode('AppendChildNode', stepExpectTag);
-    });
   }
 
   /**
@@ -411,15 +423,13 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
   function insertNode(node: MinderJsonNode, type: string, value?: string) {
     switch (type) {
       case 'AppendChildNode':
-        if (value) {
-          insertSpecifyNode('AppendChildNode', value);
-          break;
-        }
         if (node.data?.resource?.includes(moduleTag)) {
           execInert('AppendChildNode');
         } else if (node.data?.resource?.includes(caseTag)) {
           // 给用例插入子节点
-          if (!node.children || node.children.length === 0) {
+          if (value) {
+            insertSpecifyNode('AppendChildNode', value);
+          } else if (!node.children || node.children.length === 0) {
             // 当前用例还没有子节点，默认添加一个前置操作
             insertSpecifyNode('AppendChildNode', prerequisiteTag);
           } else if (node.children.length > 0) {
@@ -445,7 +455,7 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
               insertSpecifyNode('AppendChildNode', remarkTag);
             } else if (!hasTextDesc) {
               // 没有文本描述，则默认添加一个步骤描述
-              insetStepDesc('AppendChildNode');
+              insertSpecifyNode('AppendChildNode', stepTag);
             }
           }
         } else if (
@@ -490,7 +500,7 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
             insertSpecifyNode('AppendSiblingNode', remarkTag);
           } else if (!hasTextDesc) {
             // 没有文本描述，则默认添加一个步骤描述
-            insetStepDesc('AppendSiblingNode');
+            insertSpecifyNode('AppendChildNode', stepTag);
           }
         } else if (node.parent?.data?.resource?.includes(moduleTag) || !node.parent?.data?.resource) {
           // 当前节点的父节点是模块或没有标签，则默认添加一个文本节点
