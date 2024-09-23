@@ -4,6 +4,8 @@ import jakarta.annotation.Resource;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 
+import java.util.Locale;
+
 public class Translator {
     private static MessageSource messageSource;
 
@@ -27,9 +29,18 @@ public class Translator {
     }
 
     /**
+     * 单Key翻译，并指定默认语言
+     */
+    public static String get(String key, Locale locale) {
+        return messageSource.getMessage(key, null,  locale);
+    }
+
+    /**
      * 带参数
      */
     public static String getWithArgs(String key, Object... args) {
         return messageSource.getMessage(key, args, "Not Support Key: " + key, LocaleContextHolder.getLocale());
     }
+
+
 }
