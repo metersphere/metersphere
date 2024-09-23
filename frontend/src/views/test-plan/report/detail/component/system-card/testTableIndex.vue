@@ -123,6 +123,7 @@
   const showSetTable = computed(() => (props.isPreview ? enabledTestSet.value : false));
 
   function changeHandler(value: boolean) {
+    keyword.value = '';
     testPlanReportStore.setTestStatus(isGroup.value, value, props.activeType);
   }
 </script>

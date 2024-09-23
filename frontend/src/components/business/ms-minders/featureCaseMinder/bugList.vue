@@ -1,17 +1,10 @@
 <template>
   <a-spin :loading="bugListLoading" class="block h-full pl-[16px]">
     <div class="flex items-center justify-between">
-      <div class="flex items-center justify-between">
-        <a-button v-if="hasEditPermission" class="mr-3" type="primary" @click="linkBug">
-          {{ t('caseManagement.featureCase.linkDefect') }}
-        </a-button>
-        <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="outline" @click="createBug">
-          {{ t('caseManagement.featureCase.createDefect') }}
-        </a-button>
-      </div>
       <a-radio-group
         v-model:model-value="showType"
         type="button"
+        size="medium"
         class="file-show-type ml-[4px]"
         @change="handleShowTypeChange"
       >
@@ -22,6 +15,14 @@
           {{ t('caseManagement.featureCase.testPlan') }}
         </a-radio>
       </a-radio-group>
+      <div v-if="showType === 'link'" class="flex items-center justify-between">
+        <a-button v-if="hasEditPermission" class="mr-3" type="primary" @click="linkBug">
+          {{ t('caseManagement.featureCase.linkDefect') }}
+        </a-button>
+        <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="outline" @click="createBug">
+          {{ t('caseManagement.featureCase.createDefect') }}
+        </a-button>
+      </div>
     </div>
     <MsList
       v-model:data="bugList"
