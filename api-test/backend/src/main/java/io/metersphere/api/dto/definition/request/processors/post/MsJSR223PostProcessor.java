@@ -64,9 +64,7 @@ public class MsJSR223PostProcessor extends MsTestElement {
 
         final HashTree jsr223PostTree = tree.add(processor);
         if (CollectionUtils.isNotEmpty(hashTree)) {
-            hashTree.forEach(el -> {
-                el.toHashTree(jsr223PostTree, el.getHashTree(), config);
-            });
+            hashTree.forEach(el -> el.toHashTree(jsr223PostTree, el.getHashTree(), config));
         }
     }
 }

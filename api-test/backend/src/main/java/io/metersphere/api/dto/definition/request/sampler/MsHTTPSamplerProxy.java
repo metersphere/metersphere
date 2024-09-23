@@ -44,7 +44,6 @@ import org.apache.jmeter.config.KeystoreConfig;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerBase;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPArgument;
-import org.apache.jmeter.protocol.http.util.HTTPConstants;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -254,25 +253,21 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree = ElementUtil.order(hashTree);
             for (MsTestElement el : hashTree) {
-                if (el instanceof MsJDBCPreProcessor || el instanceof MsJDBCPostProcessor) {
+                if (el instanceof MsJDBCPreProcessor || el instanceof MsJDBCPostProcessor ||
+                        el instanceof MsJSR223PreProcessor || el instanceof MsJSR223PostProcessor) {
                     el.setParent(this);
                 }
-                if (el.getEnvironmentId() == null) {
-                    if (this.getEnvironmentId() == null) {
-                        el.setEnvironmentId(useEnvironment);
-                    } else {
-                        // http内部的子组件， 实际使用ID以useEnvironment为准
-                        if (StringUtils.isEmpty(this.useEnvironment)) {
-                            el.setEnvironmentId(this.getEnvironmentId());
-                        } else {
-                            el.setEnvironmentId(this.useEnvironment);
-                        }
 
-                    }
+                if (el.getEnvironmentId() == null) {
+                    el.setEnvironmentId(StringUtils.isBlank(this.getEnvironmentId()) ?
+                            (StringUtils.isBlank(this.useEnvironment) ? this.getEnvironmentId() : this.useEnvironment) :
+                            useEnvironment);
                 }
+
                 el.toHashTree(httpSamplerTree, el.getHashTree(), config);
             }
         }
+
         //根据配置增加全局前后至脚本
         if (httpConfig != null) {
             JMeterScriptUtil.setScriptByHttpConfig(httpConfig, httpSamplerTree, config, useEnvironment, this.getEnvironmentId(), true);

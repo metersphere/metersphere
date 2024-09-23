@@ -4,6 +4,7 @@ import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.processors.post.MsJDBCPostProcessor;
+import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJDBCPreProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -168,7 +169,8 @@ public class MsTCPSampler extends MsTestElement {
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree = ElementUtil.order(hashTree);
             hashTree.forEach(el -> {
-                if (el instanceof MsJDBCPreProcessor || el instanceof MsJDBCPostProcessor) {
+                if (el instanceof MsJDBCPreProcessor || el instanceof MsJDBCPostProcessor ||
+                        el instanceof MsJSR223PreProcessor || el instanceof MsJSR223PostProcessor) {
                     el.setParent(this);
                 }
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);

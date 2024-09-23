@@ -7,6 +7,10 @@ import io.github.ningyu.jmeter.plugin.dubbo.sample.MethodArgument;
 import io.github.ningyu.jmeter.plugin.util.Constants;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.processors.post.MsJDBCPostProcessor;
+import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
+import io.metersphere.api.dto.definition.request.processors.pre.MsJDBCPreProcessor;
+import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.definition.request.sampler.dubbo.MsConfigCenter;
 import io.metersphere.api.dto.definition.request.sampler.dubbo.MsConsumerAndService;
 import io.metersphere.api.dto.definition.request.sampler.dubbo.MsRegistryCenter;
@@ -106,6 +110,10 @@ public class MsDubboSampler extends MsTestElement {
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree = ElementUtil.order(hashTree);
             hashTree.forEach(el -> {
+                if (el instanceof MsJDBCPreProcessor || el instanceof MsJDBCPostProcessor ||
+                        el instanceof MsJSR223PreProcessor || el instanceof MsJSR223PostProcessor) {
+                    el.setParent(this);
+                }
                 el.toHashTree(testPlanTree, el.getHashTree(), config);
             });
         }
