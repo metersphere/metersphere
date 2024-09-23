@@ -204,6 +204,12 @@ public class TestResourcePoolService {
         TestResourceDTO testResourceDTO = JSON.parseObject(testResourceDTOStr, TestResourceDTO.class);
         if (CollectionUtils.isEmpty(testResourceDTO.getNodesList())) {
             testResourceDTO.setNodesList(new ArrayList<>());
+        } else {
+            for (TestResourceNodeDTO testResourceNodeDTO : testResourceDTO.getNodesList()) {
+                if (testResourceNodeDTO.getSingleTaskConcurrentNumber() == null) {
+                    testResourceNodeDTO.setSingleTaskConcurrentNumber(3);
+                }
+            }
         }
         TestResourceReturnDTO testResourceReturnDTO = new TestResourceReturnDTO();
         BeanUtils.copyBean(testResourceReturnDTO, testResourceDTO);

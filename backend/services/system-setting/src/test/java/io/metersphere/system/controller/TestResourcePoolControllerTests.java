@@ -83,7 +83,8 @@ class TestResourcePoolControllerTests extends BaseTest {
             "       \"ip\":\"192.168.20.17\",\n" +
             "       \"port\": \"1194\",\n" +
             "       \"monitor\": \"9100\",\n" +
-            "       \"concurrentNumber\": 100\n" +
+            "       \"concurrentNumber\": \"100\",\n" +
+            "      \"singleTaskConcurrentNumber\": 3\n" +
             "   }],\n" +
             "\"ip\":\"172.2.130.1\",\n" +
             "\"token\":\"dsdfssdsvgsd\",\n" +
@@ -104,7 +105,8 @@ class TestResourcePoolControllerTests extends BaseTest {
             "      \"ip\": \"172.16.200.8\",\n" +
             "      \"port\": \"8082\",\n" +
             "      \"monitor\": \"9100\",\n" +
-            "      \"concurrentNumber\": 100\n" +
+            "      \"concurrentNumber\": \"100\",\n" +
+            "      \"singleTaskConcurrentNumber\": 3\n" +
             "    }\n" +
             "  ],\n" +
             "  \"orgIds\": [\"sys_default_organization_2\",\"sys_default_organization_3\"],\n" +
@@ -335,7 +337,7 @@ class TestResourcePoolControllerTests extends BaseTest {
         Assertions.assertTrue((CollectionUtils.isNotEmpty(testResourcePoolReturnDTO.getTestResourceReturnDTO().getOrgIdNameMap())));
 
 
-        Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNodesList().size() > 0);
+        Assertions.assertFalse(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNodesList().isEmpty());
         for (TestResourceNodeDTO testResourceNodeDTO : testResourcePoolReturnDTO.getTestResourceReturnDTO().getNodesList()) {
             Assertions.assertNotNull(testResourceNodeDTO.getIp());
             Assertions.assertNotNull(testResourceNodeDTO.getPort());
