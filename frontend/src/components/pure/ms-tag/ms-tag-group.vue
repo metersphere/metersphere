@@ -7,12 +7,15 @@
     <MsTag
       v-for="tag of showTagList"
       :key="tag.id"
-      class="ms-tag-group"
+      :class="`${props.showTable ? 'ms-tag-group' : ''}`"
       :width="getTagWidth(tag)"
       :size="props.size"
       v-bind="attrs"
     >
       {{ getTagContent(tag) }}
+      <template v-if="props.showTable" #tooltipContent>
+        {{ props.isStringTag ? tag : tag[props.nameKey] }}
+      </template>
     </MsTag>
     <a-tooltip
       :disabled="!(props.tagList.length > props.showNum)"
@@ -114,9 +117,9 @@
   });
 
   function getTagContent(tag: { [x: string]: any }) {
-    let tagContent = props.isStringTag ? tag : tag[props.nameKey];
-    if (tagContent.length > 16) {
-      tagContent = characterLimit(tagContent, 9);
+    const tagContent = props.isStringTag ? tag : tag[props.nameKey];
+    if (props.showTable) {
+      return tagContent.length > 16 ? characterLimit(tagContent, 9) : tagContent;
     }
     return tagContent;
   }
