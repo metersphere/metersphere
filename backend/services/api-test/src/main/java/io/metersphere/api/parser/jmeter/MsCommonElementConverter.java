@@ -78,11 +78,23 @@ public class MsCommonElementConverter extends AbstractJmeterElementConverter<MsC
             }
         }
 
-        assertionConfig.getAssertions()
-                .forEach(assertion -> {
-                    assertion.setProjectId(element.getProjectId());
-                    AssertionConverterFactory.getConverter(assertion.getClass()).parse(tree, assertion, config, isIgnoreAssertStatus(assertions));
-                });
+        // 将状态码断言放最前面，否则会影响脚本断言的效果，即使脚本断言失败，总状态还是显示成功
+        List<MsAssertion> sortAssertions = new ArrayList<>(assertions.size());
+        assertions.forEach(item -> {
+            if (item instanceof MsResponseCodeAssertion) {
+                sortAssertions.add(item);
+            }
+        });
+        assertions.forEach(item -> {
+            if (!(item instanceof MsResponseCodeAssertion)) {
+                sortAssertions.add(item);
+            }
+        });
+        sortAssertions
+            .forEach(assertion -> {
+                assertion.setProjectId(element.getProjectId());
+                AssertionConverterFactory.getConverter(assertion.getClass()).parse(tree, assertion, config, isIgnoreAssertStatus(assertions));
+            });
     }
 
     /**
