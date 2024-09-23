@@ -502,6 +502,15 @@
     });
   });
 
+  // 解决safar1浏览器对富文本0bject.has0wn兼容引发空白问题
+  function applyPolyfills() {
+    if (!Object.hasOwn) {
+      Object.hasOwn = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+    }
+  }
+
+  applyPolyfills();
+
   onBeforeUnmount(() => {
     editor.value?.destroy();
   });
