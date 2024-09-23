@@ -61,7 +61,7 @@ public class HttpBodyHandler extends CurlHandlerChain {
         }
     }
 
-    private Map<String, Object> parseDefaultBody(Matcher defaultMatcher, CurlEntity entity) {
+    private Object parseDefaultBody(Matcher defaultMatcher, CurlEntity entity) {
         String bodyStr = "";
         if (defaultMatcher.group(1) != null) {
             //单引号数据
@@ -77,6 +77,10 @@ public class HttpBodyHandler extends CurlHandlerChain {
         if (isJSON(bodyStr)) {
             entity.setBodyType(Body.BodyType.JSON.name());
             return JSON.parseMap(bodyStr);
+        }
+        if(isXML(bodyStr)){
+            entity.setBodyType(Body.BodyType.XML.name());
+            return bodyStr;
         }
 
         //其他格式 a=b&c=d
@@ -136,12 +140,12 @@ public class HttpBodyHandler extends CurlHandlerChain {
         return urlEncodeData;
     }
 
-    private Map<String, Object> parseRowBody(Matcher rowMatcher, CurlEntity entity) {
+    private Object parseRowBody(Matcher rowMatcher, CurlEntity entity) {
         String rawData = rowMatcher.group(1);
 
         if (isXML(rawData)) {
             entity.setBodyType(Body.BodyType.XML.name());
-            return xml2json(rawData);
+            return rawData;
         }
 
         if (isJSON(rawData)) {
@@ -168,9 +172,10 @@ public class HttpBodyHandler extends CurlHandlerChain {
     public static boolean isXML(String xmlStr) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setFeature("disallow-doctype-decl", false);
-            factory.setFeature("external-general-entities", false);
-            factory.setFeature("external-parameter-entities", false);
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false);
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+
 
             DocumentBuilder builder = factory.newDocumentBuilder();
             InputSource is = new InputSource(new StringReader(xmlStr));
@@ -178,14 +183,6 @@ public class HttpBodyHandler extends CurlHandlerChain {
             return true;
         } catch (Exception e) {
             return false;
-        }
-    }
-
-    private Map<String, Object> xml2json(String xmlStr) {
-        try {
-            return XMLUtils.xmlStringToJson(xmlStr);
-        } catch (JSONException e) {
-            throw new MSException(Translator.get("curl_raw_content_is_invalid"), e);
         }
     }
 
