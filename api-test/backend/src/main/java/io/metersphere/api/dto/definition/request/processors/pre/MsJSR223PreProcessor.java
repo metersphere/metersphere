@@ -48,6 +48,10 @@ public class MsJSR223PreProcessor extends MsTestElement {
             }
         }
         ScriptFilter.verify(this.getScriptLanguage(), this.getName(), script);
+        // 复制脚本环境ID未改变情况下，使用父级环境ID
+        if (this.getParent() != null && !StringUtils.equals(this.getParent().getEnvironmentId(), this.getEnvironmentId())) {
+            this.setEnvironmentId(this.getParent().getEnvironmentId());
+        }
         this.setEnvironmentId(ElementUtil.getScriptEnv(this.getEnvironmentId(), config, this.getProjectId()));
 
         final HashTree jsr223PreTree = tree.add(getShellProcessor());

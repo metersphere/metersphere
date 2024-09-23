@@ -47,7 +47,10 @@ public class MsJSR223PostProcessor extends MsTestElement {
                 return;
             }
         }
-
+        // 复制脚本环境ID未改变情况下，使用父级环境ID
+        if (this.getParent() != null && !StringUtils.equals(this.getParent().getEnvironmentId(), this.getEnvironmentId())) {
+            this.setEnvironmentId(this.getParent().getEnvironmentId());
+        }
         this.setEnvironmentId(ElementUtil.getScriptEnv(this.getEnvironmentId(), config, this.getProjectId()));
 
         TestElement processor = new BeanShellPostProcessor();
