@@ -238,7 +238,7 @@
         text-align: center;
       }
       .ms-minder-editor-extra-content {
-        @apply relative  flex-1 overflow-y-auto;
+        @apply relative  flex-1 overflow-auto;
         .ms-scroll-bar();
 
         margin-top: 16px;
