@@ -63,7 +63,7 @@ public class DeleteCaseReviewService {
         caseReviewExample.createCriteria().andIdIn(ids).andProjectIdEqualTo(projectId);
         caseReviewMapper.deleteByExample(caseReviewExample);
 
-        // 7. 批量刷新评审中其他用例的评审状态
+        // 7. 批量刷新评审中所有用例的评审状态
         Map<String, List<CaseReviewFunctionalCase>> reviewFunctionalCaseMap = reviewFunctionalCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getReviewId));
         reviewFunctionalCaseMap.forEach((reviewId, reviewFunctionalCaseList) -> caseReviewCaseProvider.refreshReviewCaseStatus(reviewFunctionalCaseList));
     }

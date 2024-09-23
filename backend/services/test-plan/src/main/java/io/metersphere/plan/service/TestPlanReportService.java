@@ -577,6 +577,7 @@ public class TestPlanReportService {
 						return;
 					}
 					List<TestPlanReportBug> reportBugs = extTestPlanReportBugMapper.getPlanBugs(genParam.getTestPlanId(), subList);
+					bugCount.addAndGet(reportBugs.size());
 					// MS处理人会与第三方的值冲突, 分开查询
 					List<SelectOption> headerOptions = bugCommonService.getHeaderHandlerOption(genParam.getProjectId());
 					Map<String, String> headerHandleUserMap = headerOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
