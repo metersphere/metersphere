@@ -9,7 +9,6 @@
           @init="(val) => (folderTree = val)"
           @new-api="addDebugTab"
           @click-api-node="openApiTab"
-          @import="importDialogVisible = true"
           @update-api-node="handleApiUpdateFromModuleTree"
           @delete-finish="handleDeleteFinish"
         />
@@ -56,6 +55,7 @@
                 create: 'PROJECT_API_DEBUG:READ+ADD',
                 saveASApi: 'PROJECT_API_DEFINITION:READ+ADD',
               }"
+              @import="importDialogVisible = true"
               @add-done="handleDebugAddDone"
             />
           </div>

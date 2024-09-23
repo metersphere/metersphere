@@ -79,7 +79,16 @@
               :style="isUrlError ? 'border: 1px solid rgb(var(--danger-6));z-index: 10' : ''"
               @input="() => (isUrlError = false)"
               @change="handleUrlChange"
-            />
+            >
+              <template v-if="hasAnyPermission(['PROJECT_API_DEBUG:READ+IMPORT'])" #suffix>
+                <MsIcon
+                  type="icon-icon_curl"
+                  :size="18"
+                  class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
+                  @click="emit('import')"
+                />
+              </template>
+            </a-input>
           </a-input-group>
           <div v-if="isUrlError" class="url-input-tip">
             <span>{{ t('apiTestDebug.apiUrlRequired') }}</span>
@@ -606,6 +615,7 @@
     (e: 'execute', executeType: 'localExec' | 'serverExec'): void;
     (e: 'addDone'): void;
     (e: 'requestTabClick'): void;
+    (e: 'import'): void;
   }>();
 
   const appStore = useAppStore();
