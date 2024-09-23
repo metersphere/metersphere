@@ -538,6 +538,7 @@
       .arco-menu-item {
         @apply mb-0 !bg-transparent;
 
+        min-width: 56px;
         color: var(--color-text-1) !important;
         &:hover,
         .arco-icon:hover {
@@ -601,6 +602,12 @@
 
       padding-top: 12px !important;
       padding-bottom: 32px !important;
+      &::-webkit-scrollbar {
+        display: none; /* 隐藏滚动条 */
+      }
+
+      -ms-overflow-style: none; /* 适用于 Internet Explorer 和 Edge */
+      scrollbar-width: none; /* 适用于 Firefox */
       .arco-menu-item,
       .arco-menu-inline--bottom {
         @apply flex-col p-0;
