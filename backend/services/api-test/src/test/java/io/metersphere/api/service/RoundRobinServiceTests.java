@@ -25,10 +25,10 @@ public class RoundRobinServiceTests {
     @Order(1)
     public void testInit() throws Exception {
         List<TestResourceNodeDTO> nodes = new LinkedList<>();
-        nodes.add(new TestResourceNodeDTO("172.0.0.1", "8080", 10));
-        nodes.add(new TestResourceNodeDTO("172.0.0.2", "8080", 10));
-        nodes.add(new TestResourceNodeDTO("172.0.0.3", "8080", 10));
-        nodes.add(new TestResourceNodeDTO("172.0.0.4", "8080", 10));
+        nodes.add(new TestResourceNodeDTO("172.0.0.1", "8080", 10, 3));
+        nodes.add(new TestResourceNodeDTO("172.0.0.2", "8080", 10, 3));
+        nodes.add(new TestResourceNodeDTO("172.0.0.3", "8080", 10, 3));
+        nodes.add(new TestResourceNodeDTO("172.0.0.4", "8080", 10, 3));
 
         roundRobinService.initializeNodes("test", nodes);
     }
@@ -49,14 +49,14 @@ public class RoundRobinServiceTests {
     @Order(3)
     public void testInitAfter() throws Exception {
         List<TestResourceNodeDTO> nodes = new LinkedList<>();
-        nodes.add(new TestResourceNodeDTO("172.0.0.1", "8080", 10));
-        nodes.add(new TestResourceNodeDTO("172.0.0.2", "8080", 10));
-        nodes.add(new TestResourceNodeDTO("172.0.0.3", "8080", 10));
+        nodes.add(new TestResourceNodeDTO("172.0.0.1", "8080", 10, 3));
+        nodes.add(new TestResourceNodeDTO("172.0.0.2", "8080", 10, 3));
+        nodes.add(new TestResourceNodeDTO("172.0.0.3", "8080", 10, 3));
         roundRobinService.initializeNodes("test", nodes);
 
-        nodes.add(new TestResourceNodeDTO("172.0.0.3", "8080", 10));
-        nodes.add(new TestResourceNodeDTO("172.0.0.7", "8080", 10));
-        nodes.add(new TestResourceNodeDTO("172.0.0.6", "8080", 10));
+        nodes.add(new TestResourceNodeDTO("172.0.0.3", "8080", 10, 3));
+        nodes.add(new TestResourceNodeDTO("172.0.0.7", "8080", 10, 3));
+        nodes.add(new TestResourceNodeDTO("172.0.0.6", "8080", 10, 3));
         roundRobinService.initializeNodes("test", nodes);
 
     }

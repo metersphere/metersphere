@@ -30,4 +30,10 @@ public class TestResourceNodeDTO {
     @Schema(description =  "接口测试,性能测试最大并发数")
     private Integer concurrentNumber;
 
+    /**
+     * 接口测试 性能测试 最大并发数
+     */
+    @Schema(description =  "接口测试,性能测试单个任务最大并发数，有可能为null，为null则置为3")
+    private Integer singleTaskConcurrentNumber = 3;
+
 }
