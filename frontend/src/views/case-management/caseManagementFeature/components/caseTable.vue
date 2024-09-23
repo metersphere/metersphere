@@ -1034,7 +1034,7 @@
         pageSize: propsRes.value.msPagination?.pageSize,
         filter: propsRes.value.filter,
         projectId: currentProjectId.value,
-        keyword: keyword.value,
+        keyword: showType.value === 'list' ? keyword.value : '',
       },
       refreshModule
     );
