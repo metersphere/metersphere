@@ -2,10 +2,8 @@ package io.metersphere.api.jmeter;
 
 import io.metersphere.jmeter.LocalRunner;
 import io.metersphere.utils.LoggerUtil;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.NoArgsConstructor;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.engine.StandardJMeterEngine;
 import org.apache.jorphan.collections.HashTree;
@@ -17,14 +15,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @NoArgsConstructor
 public class ApiLocalRunner extends LocalRunner {
-    private final static Map<String, StandardJMeterEngine> runningTasks = new ConcurrentHashMap<>();
-    private boolean isRunning = true;
+    private static final Map<String, StandardJMeterEngine> runningTasks = new ConcurrentHashMap<>();
     private HashTree jmxTree;
 
     public ApiLocalRunner(HashTree jmxTree) {
         this.jmxTree = jmxTree;
     }
-
 
     public void run(String report) {
         StandardJMeterEngine engine = new StandardJMeterEngine();
@@ -34,12 +30,15 @@ public class ApiLocalRunner extends LocalRunner {
             LoggerUtil.info("LocalRunner 开始执行报告", report);
             engine.runTest();
         } catch (Exception e) {
+            LoggerUtil.error("运行报告时出错", e);
             engine.stopTest(true);
+        } finally {
+            runningTasks.remove(report); // Ensure removal on completion
         }
     }
 
     public static void stop(String report) {
-        if (MapUtils.isNotEmpty(runningTasks)) {
+        if (StringUtils.isNotEmpty(report)) {
             StandardJMeterEngine engine = runningTasks.get(report);
             if (engine != null) {
                 engine.stopTest(true);
@@ -54,26 +53,7 @@ public class ApiLocalRunner extends LocalRunner {
         }
     }
 
-    @PostConstruct
-    public void checkRunningTasks() {
-        new Thread(() -> {
-            while (isRunning) {
-                try {
-                    Thread.sleep(1000 * 60);
-                    if (MapUtils.isNotEmpty(runningTasks)) {
-                        runningTasks.keySet().stream()
-                                .filter(reportId -> !runningTasks.get(reportId).isActive())
-                                .forEach(runningTasks::remove);
-                    }
-                } catch (Exception e) {
-                    LoggerUtil.error("检查运行中的任务异常：", e);
-                }
-            }
-        }).start();
-    }
-
     @PreDestroy
     public void destroy() {
-        isRunning = false;
     }
 }
