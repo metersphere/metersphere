@@ -171,7 +171,7 @@
         sorter: true,
       },
       fixed: 'left',
-      width: 100,
+      width: 110,
       columnSelectorDisabled: true,
     },
     {
