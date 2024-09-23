@@ -185,18 +185,26 @@
             </when>
             <otherwise>
                 (
+                    ${mainIdColumn}
                     <if test="${condition}.operator == 'NOT_IN' or ${condition}.operator == 'NOT_EQUALS' or ${condition}.operator == 'NOT_CONTAINS'">
-                        ${mainIdColumn} not in (
-                            select ${associationIdColumn} from  ${associationTable} where
-                            ${searchColumn} is not null and ${searchColumn} != ''
-                        ) or
+                       not
                     </if>
-                    ${mainIdColumn} in (
-                    select ${associationIdColumn} from  ${associationTable} where
-                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                        <property name="condition" value="${condition}"/>
-                        <property name="column" value="${searchColumn}"/>
-                    </include>
+                    in (
+                        select ${associationIdColumn} from  ${associationTable} where
+                        <choose>
+                            <when test="${condition}.operator == 'NOT_IN' or ${condition}.operator == 'NOT_EQUALS' or ${condition}.operator == 'NOT_CONTAINS'">
+                                <include refid="io.metersphere.system.mapper.BaseMapper.associationReversalCondition">
+                                    <property name="condition" value="${condition}"/>
+                                    <property name="column" value="${searchColumn}"/>
+                                </include>
+                            </when>
+                            <otherwise>
+                                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                    <property name="condition" value="${condition}"/>
+                                    <property name="column" value="${searchColumn}"/>
+                                </include>
+                            </otherwise>
+                        </choose>
                     )
                 )
             </otherwise>
@@ -269,6 +277,33 @@
                 <when test="${condition}.operator == 'NOT_EQUALS'">
                     ${column} != #{condition.value}
                     or ${column} is null
+                </when>
+            </choose>
+        </trim>
+    </sql>
+
+    <sql id="associationReversalCondition">
+        <trim prefix="(" suffix=")">
+            <choose>
+                <when test="${condition}.operator == 'NOT_CONTAINS'">
+                    <foreach collection="${condition}.value.split(' ')" item="item" separator="and">
+                        ${column} like CONCAT('%', #{item},'%')
+                    </foreach>
+                </when>
+                <when test="${condition}.operator == 'NOT_IN'">
+                    <if test="'${column}' == 'value'">
+                        `value`
+                    </if>
+                    <if test="'${column}' != 'value'">
+                        ${column}
+                    </if>
+                    in
+                    <foreach collection="${condition}.value" item="v" separator="," open="(" close=")">
+                        #{v}
+                    </foreach>
+                </when>
+                <when test=" ${condition}.operator == 'NOT_EQUALS'">
+                    ${column} = #{condition.value}
                 </when>
             </choose>
         </trim>
