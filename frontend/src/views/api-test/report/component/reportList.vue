@@ -343,7 +343,7 @@
       {
         label: 'common.export',
         eventTag: 'batchExport',
-        permission: ['PROJECT_TEST_PLAN_REPORT:READ+EXPORT'],
+        permission: ['PROJECT_API_REPORT:READ+EXPORT'],
       },
     ],
   };
