@@ -214,6 +214,7 @@
                 <when test="${condition}.operator == 'NOT_CONTAINS'">
                     <foreach collection="${condition}.value.split(' ')" item="item" separator="or">
                         ${column} not like CONCAT('%', #{item},'%')
+                        or ${column} is null
                     </foreach>
                 </when>
                 <when test="${condition}.operator == 'IN'">
@@ -239,6 +240,7 @@
                     <foreach collection="${condition}.value" item="v" separator="," open="(" close=")">
                         #{v}
                     </foreach>
+                    or ${column} is null
                 </when>
                 <when test="${condition}.operator == 'BETWEEN'">
                     ${column} between #{condition.value[0]} and #{condition.value[1]}
@@ -266,6 +268,7 @@
                 </when>
                 <when test="${condition}.operator == 'NOT_EQUALS'">
                     ${column} != #{condition.value}
+                    or ${column} is null
                 </when>
             </choose>
         </trim>
