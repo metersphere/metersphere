@@ -18,7 +18,10 @@
       <div :class="`one-line-text min-w-[20px] ${props.maxWidth || '144px'}`">
         <slot></slot>
       </div>
-      <template #content>
+      <template v-if="$slots.tooltipContent" #content>
+        <slot name="tooltipContent"></slot>
+      </template>
+      <template v-else #content>
         <slot></slot>
       </template>
     </a-tooltip>
