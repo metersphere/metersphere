@@ -345,6 +345,12 @@
       showDrag: true,
     },
     {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      showDrag: true,
+      isTag: true,
+    },
+    {
       title: 'caseManagement.featureCase.tableColumnCreateTime',
       slotName: 'createTime',
       dataIndex: 'createTime',
