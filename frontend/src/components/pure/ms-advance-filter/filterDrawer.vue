@@ -127,6 +127,7 @@
             :data="item.treeSelectData ?? []"
             :disabled="isValueDisabled(item)"
             allow-clear
+            :multiple="item.treeSelectProps?.multiple"
             v-bind="item.treeSelectProps"
             :placeholder="t('common.pleaseSelect')"
             :field-names="item.treeSelectProps?.fieldNames"

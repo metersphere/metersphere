@@ -8,8 +8,10 @@
   >
     <a-tree-select
       v-model:model-value="selectValue"
+      v-model:input-value="inputValue"
       :data="props.data"
       :disabled="props.disabled"
+      :multiple="props.multiple"
       :field-names="props.fieldNames"
       allow-search
       :filter-tree-node="filterTreeNode"
@@ -20,6 +22,11 @@
         },
       }"
       v-bind="$attrs"
+      @input-value-change="handleInputValueChange"
+      @popup-visible-change="handlePopupVisibleChange"
+      @change="handleChange"
+      @keyup="handleKeyup"
+      @clear="handleClear"
     >
       <template #label="{ data: slotData }">
         <div class="one-line-text">{{ slotData.label }}</div>
@@ -44,8 +51,12 @@
     data: TreeNodeData[];
     fieldNames?: TreeFieldNames;
     disabled?: boolean;
+    multiple?: boolean;
   }>();
   const selectValue = defineModel<any>('modelValue', { required: true });
+
+  const inputValue = ref('');
+  const tempInputValue = ref('');
 
   const getTreeSelectTooltip = computed(() => {
     return () => {
@@ -68,6 +79,38 @@
       return treeSelectTooltip;
     };
   });
+
+  /**
+   * 处理输入框搜索值变化
+   * @param val 搜索值
+   */
+  function handleInputValueChange(val: string) {
+    inputValue.value = val;
+    if (val !== '') {
+      // 只存储有值的搜索值，因为当搜索完选中一个选项后，arco-tree-select 会自动清空输入框，这里需要过滤掉
+      tempInputValue.value = val;
+    }
+  }
+  function handlePopupVisibleChange(val: boolean) {
+    if (!val) {
+      tempInputValue.value = '';
+    }
+  }
+  function handleChange() {
+    if (props.multiple) {
+      nextTick(() => {
+        inputValue.value = tempInputValue.value;
+      });
+    }
+  }
+  function handleKeyup(e: KeyboardEvent) {
+    if (e.code === 'Backspace' && inputValue.value === '') {
+      tempInputValue.value = '';
+    }
+  }
+  function handleClear() {
+    tempInputValue.value = '';
+  }
 </script>
 
 <style lang="less">
