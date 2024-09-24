@@ -108,7 +108,7 @@
             :parent-id="nodeData.id"
             :node-id="nodeData.id"
             :field-config="{ field: renameFolderTitle }"
-            :all-names="(nodeData.parent? nodeData.parent.children || [] : folderTree).map((e: ModuleTreeNode) => e.name || '')"
+            :all-names="(nodeData.parent? nodeData.parent.children || [] : folderTree).filter((e:ModuleTreeNode) => e.id !== nodeData.id).map((e: ModuleTreeNode) => e.name || '')"
             :update-module-api="updateModule"
             @close="resetFocusNodeKey"
             @rename-finish="initModules"
