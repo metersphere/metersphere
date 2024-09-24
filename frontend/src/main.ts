@@ -19,6 +19,10 @@ import localforage from 'localforage';
 import VueDOMPurifyHTML from 'vue-dompurify-html';
 import { getDefaultLocale } from './api/modules/user';
 import useLocale from './locale/useLocale';
+import applyPolyfills from '@/utils/polyfill';
+
+// 局部兼容未生效，解决全局兼容富文本js源码报错导致，safari浏览器对富文本0bject.has0wn兼容引发空白问题
+applyPolyfills();
 
 async function bootstrap() {
   const app = createApp(App);
