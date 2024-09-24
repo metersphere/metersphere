@@ -521,8 +521,8 @@
 
   const contentStyles = computed(() => {
     return {
-      maxHeight: props.autoHeight ? '800px' : props.maxHeight || '260px',
-      overflow: 'auto',
+      maxHeight: props.autoHeight ? '' : props.maxHeight || '260px',
+      overflow: props.autoHeight ? 'hidden' : 'auto',
     };
   });
 
