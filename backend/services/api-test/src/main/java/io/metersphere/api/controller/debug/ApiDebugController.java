@@ -14,6 +14,7 @@ import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.file.annotation.FileLimit;
 import io.metersphere.system.log.annotation.Log;
@@ -30,6 +31,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author : jianxing
@@ -132,6 +135,12 @@ public class ApiDebugController {
     @RequiresPermissions(value = {PermissionConstants.PROJECT_API_DEBUG_READ, PermissionConstants.PROJECT_API_SCENARIO_ADD}, logical = Logical.OR)
     public CurlEntity importCurl(@RequestBody ApiImportCurlRequest request) {
         CurlEntity parse = CurlParserUtil.parse(request.getCurl());
+        Optional.ofNullable(parse.getBody()).ifPresent(body -> {
+            if (parse.getMethod() == CurlEntity.Method.GET) {
+                Map map = JSON.parseMap(JSON.toFormatJSONString(body));
+                parse.getQueryParams().putAll(map);
+            }
+        });
         return parse;
     }
 
