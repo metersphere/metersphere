@@ -111,7 +111,10 @@
             <div v-else-if="item.value === ReportCardTypeEnum.CUSTOM_CARD" ref="customCardRef">
               <MsRichText :raw="item.content" :editable="false" />
             </div>
-            <div v-else-if="item.value === ReportCardTypeEnum.SUMMARY" ref="summaryRef">
+            <div
+              v-else-if="item.value === ReportCardTypeEnum.SUMMARY && (isDefaultLayout ? detail.summary : item.content)"
+              ref="summaryRef"
+            >
               <MsRichText :raw="isDefaultLayout ? detail.summary : item.content" :editable="false" />
             </div>
           </div>
