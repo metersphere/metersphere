@@ -237,7 +237,7 @@
     :fill-config="{
       isQuickFillContent: true,
       detailId: activeId,
-      name: planDetail.name,
+      name: caseDetail.name,
     }"
     :case-type="CaseLinkEnum.FUNCTIONAL"
     @success="loadBugListAndCaseDetail"
