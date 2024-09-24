@@ -80,7 +80,7 @@
               @input="() => (isUrlError = false)"
               @change="handleUrlChange"
             >
-              <template v-if="hasAnyPermission(['PROJECT_API_DEBUG:READ+IMPORT'])" #suffix>
+              <template v-if="!props.isDefinition" #suffix>
                 <MsIcon
                   type="icon-icon_curl"
                   :size="18"
