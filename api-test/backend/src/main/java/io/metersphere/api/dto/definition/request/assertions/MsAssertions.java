@@ -48,10 +48,10 @@ public class MsAssertions extends MsTestElement {
         if (StringUtils.isEmpty(this.getName())) {
             this.setName("Assertion");
         }
-        addAssertions(tree);
+        addAssertions(tree, config);
     }
 
-    private void addAssertions(HashTree hashTree) {
+    private void addAssertions(HashTree hashTree, ParameterConfig config) {
         // 增加JSON文档结构校验
         if (this.getDocument() != null && this.getDocument().getType().equals("JSON") && this.getDocument().isEnable()) {
             if (StringUtils.isNotEmpty(this.getDocument().getData().getJsonFollowAPI()) && !this.getDocument().getData().getJsonFollowAPI().equals("false")) {
@@ -101,7 +101,7 @@ public class MsAssertions extends MsTestElement {
 
         if (CollectionUtils.isNotEmpty(this.getJsr223())) {
             this.getJsr223().stream().filter(MsAssertionJSR223::isValid).forEach(assertion ->
-                    hashTree.add(jsr223Assertion(assertion))
+                    hashTree.add(jsr223Assertion(assertion, config))
             );
         }
 
@@ -215,7 +215,7 @@ public class MsAssertions extends MsTestElement {
         return assertion;
     }
 
-    private TestElement jsr223Assertion(MsAssertionJSR223 assertionJSR223) {
+    private TestElement jsr223Assertion(MsAssertionJSR223 assertionJSR223, ParameterConfig config) {
         TestElement assertion = new JSR223Assertion();
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         assertion.setProperty(TestElement.TEST_CLASS, JSR223Assertion.class.getName());
@@ -236,10 +236,14 @@ public class MsAssertions extends MsTestElement {
             assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("BeanShellAssertionGui"));
             assertion.setProperty(BeanShellAssertion.SCRIPT, assertionJSR223.getScript());
         }
-        if (StringUtils.isNotEmpty(assertionJSR223.getDesc())) {
+        if (StringUtils.isNotBlank(assertionJSR223.getDesc())) {
             assertion.setName("JSR223" + delimiter + this.getName() + delimiter + assertionJSR223.getDesc() + delimiterScript + assertionJSR223.getScript());
         } else {
             assertion.setName("JSR223" + delimiter + this.getName() + delimiter + "JSR223Assertion" + delimiterScript + assertionJSR223.getScript());
+        }
+        // 导出操作，使用自定义名称
+        if (config != null && config.isOperating()) {
+            assertion.setName(StringUtils.isNotBlank(assertionJSR223.getDesc()) ? assertionJSR223.getDesc() : this.getName());
         }
         assertion.setEnabled(this.isEnable());
         assertion.setProperty("cacheKey", "false");
