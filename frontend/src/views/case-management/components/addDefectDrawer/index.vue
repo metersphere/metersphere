@@ -10,6 +10,7 @@
     unmount-on-close
     :show-continue="true"
     no-content-padding
+    :save-continue-text="t('case.saveContinueText')"
     @continue="handleDrawerConfirm(true)"
     @confirm="handleDrawerConfirm"
     @cancel="handleDrawerCancel"
