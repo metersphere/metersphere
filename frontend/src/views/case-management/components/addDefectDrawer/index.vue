@@ -5,7 +5,7 @@
     :title="bugId ? t('bugManagement.editBug') : t('caseManagement.featureCase.createDefect')"
     :ok-text="t('common.create')"
     :ok-loading="drawerLoading"
-    :width="900"
+    :width="1200"
     :mask-closable="true"
     unmount-on-close
     :show-continue="true"
@@ -38,7 +38,7 @@
         :bug-id="bugId"
         :case-type="props.caseType"
         :fill-config="props.fillConfig"
-        file-name-max-width="200px"
+        file-name-max-width="300px"
         @save-params="saveParams"
       />
     </div>
