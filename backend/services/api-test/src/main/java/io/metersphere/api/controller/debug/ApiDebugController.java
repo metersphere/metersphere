@@ -129,7 +129,7 @@ public class ApiDebugController {
 
     @PostMapping("/import-curl")
     @Operation(summary = "接口测试-接口调试-导入curl")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_IMPORT)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_DEBUG_READ, PermissionConstants.PROJECT_API_SCENARIO_ADD}, logical = Logical.OR)
     public CurlEntity importCurl(@RequestBody ApiImportCurlRequest request) {
         CurlEntity parse = CurlParserUtil.parse(request.getCurl());
         return parse;

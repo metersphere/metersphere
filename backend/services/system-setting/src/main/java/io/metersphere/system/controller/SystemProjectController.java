@@ -133,7 +133,6 @@ public class SystemProjectController {
     @PostMapping("/add-member")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD)
     @Operation(summary = "系统设置-系统-组织与项目-项目-添加成员")
-    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public void addProjectMember(@Validated @RequestBody ProjectAddMemberRequest request) {
         systemProjectService.addMemberByProject(request, SessionUtils.getUserId());
     }

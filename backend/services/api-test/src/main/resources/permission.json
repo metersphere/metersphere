@@ -21,9 +21,6 @@
             "id": "PROJECT_API_DEBUG:READ+DELETE"
           },
           {
-            "id": "PROJECT_API_DEBUG:READ+IMPORT"
-          },
-          {
             "id": "PROJECT_API_DEBUG:READ+EXECUTE"
           }
         ]
