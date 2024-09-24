@@ -1,13 +1,7 @@
 <template>
   <a-spin :loading="bugListLoading" class="block h-full pl-[16px]">
-    <div class="flex items-center justify-between">
-      <a-radio-group
-        v-model:model-value="showType"
-        type="button"
-        size="medium"
-        class="file-show-type ml-[4px]"
-        @change="handleShowTypeChange"
-      >
+    <div class="flex items-center justify-between gap-[24px]">
+      <a-radio-group v-model:model-value="showType" type="button" class="ml-[4px]" @change="handleShowTypeChange">
         <a-radio value="link" class="show-type-icon p-[2px]">
           {{ t('caseManagement.featureCase.directLink') }}
         </a-radio>
