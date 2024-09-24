@@ -107,9 +107,9 @@ export default async function exportPDF(
     };
     autoTableConfig.forEach((config, index) => {
       autoTable(pdf, {
+        ...(commonOdfTableConfig as UserOptions),
         ...config,
         startY: index === 0 && lastImagePageUseHeight > 0 ? lastImagePageUseHeight + 32 : undefined, // 第一页表格如果和图片同一页，则需要设置 startY 为当前图片占用高度+32，以避免表格遮挡图片
-        ...(commonOdfTableConfig as UserOptions),
         didDrawPage: (data) => {
           pdf.text(
             `${data.doc.internal.getCurrentPageInfo().pageNumber}`,

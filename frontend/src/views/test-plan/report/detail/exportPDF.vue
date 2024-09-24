@@ -167,7 +167,6 @@
 
   import { BatchApiParams } from '@/models/common';
   import type {
-    componentItem,
     configItem,
     countDetail,
     PlanReportDetail,
@@ -685,10 +684,10 @@
     );
 
     return {
-      apiColumns: apiColumns || apiDefaultColumns,
-      scenarioColumns: scenarioColumns || apiDefaultColumns,
-      bugColumns: bugColumns || bugDefaultColumns,
-      functionalCaseColumns: functionalCaseColumns || caseDefaultColumns,
+      apiColumns: apiColumns.length > 0 ? apiColumns : apiDefaultColumns.value,
+      scenarioColumns: scenarioColumns.length > 0 ? scenarioColumns : apiDefaultColumns.value,
+      bugColumns: bugColumns.length > 0 ? bugColumns : bugDefaultColumns,
+      functionalCaseColumns: functionalCaseColumns.length > 0 ? functionalCaseColumns : caseDefaultColumns.value,
     };
   }
 
@@ -869,16 +868,23 @@
       if (customCardImages.length > 0 || summaryImages.length > 0) {
         let loadedImageCount = 0;
         await new Promise((resolve) => {
-          const images = [...customCardImages, ...summaryImages];
-          images.forEach((image) => {
-            image.onload = () => {
-              loadedImageCount += 1;
-              if (loadedImageCount === images.length) {
-                doExport(name, tableArr);
-                resolve(true);
-              }
-            };
-          });
+          const images = [...customCardImages, ...summaryImages].filter((image) => !image.complete); // 图片的加载是异步的，与 JS 解析是同时进行，所以需要过滤掉此时已经加载完毕的图片
+          if (images.length > 0) {
+            // 此时还有未加载完成的图片，则给图片绑定加载事件，等待图片加载完毕后导出
+            images.forEach((image) => {
+              image.onload = () => {
+                loadedImageCount += 1;
+                if (loadedImageCount === images.length) {
+                  doExport(name, tableArr);
+                  resolve(true);
+                }
+              };
+            });
+          } else {
+            // 此时图片都已加载完毕，则直接导出 PDF
+            doExport(name, tableArr);
+            resolve(true);
+          }
         });
       } else {
         doExport(name, tableArr);
