@@ -280,7 +280,7 @@ export function filterAssertions(assertionConfig: ExecuteAssertionConfig, isExec
  * @param bodyType body 类型
  * @param body body 参数对象
  */
-export function parseCurlBody(bodyType: RequestBodyFormat, body: Record<string, any>) {
+export function parseCurlBody(bodyType: RequestBodyFormat, body: Record<string, any> | string) {
   const requestBody = cloneDeep(defaultBodyParams);
   switch (bodyType) {
     case RequestBodyFormat.JSON:
@@ -291,6 +291,13 @@ export function parseCurlBody(bodyType: RequestBodyFormat, body: Record<string, 
         jsonValue: JSON.stringify(body),
       };
       break;
+    case RequestBodyFormat.XML:
+      requestBody.bodyType = bodyType;
+      requestBody.xmlBody = {
+        ...cloneDeep(defaultBodyParams.xmlBody),
+        value: body as string,
+      };
+      break;
     case RequestBodyFormat.FORM_DATA:
       requestBody.bodyType = bodyType;
       requestBody.formDataBody = {
@@ -298,7 +305,7 @@ export function parseCurlBody(bodyType: RequestBodyFormat, body: Record<string, 
         formValues: Object.keys(body).map((e) => ({
           ...defaultBodyParamsItem,
           key: e,
-          value: body[e],
+          value: (body as Record<string, any>)[e],
         })),
       };
       break;
@@ -309,7 +316,7 @@ export function parseCurlBody(bodyType: RequestBodyFormat, body: Record<string, 
         formValues: Object.keys(body).map((e) => ({
           ...defaultBodyParamsItem,
           key: e,
-          value: body[e],
+          value: (body as Record<string, any>)[e],
         })),
       };
       break;

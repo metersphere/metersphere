@@ -2,7 +2,7 @@
   <div class="flex h-full flex-col p-[12px_16px]">
     <div class="mb-[8px] flex items-center gap-[8px]">
       <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiTestDebug.searchTip')" allow-clear />
-      <a-button v-permission="['PROJECT_API_DEBUG:READ+ADD']" type="primary">
+      <a-button v-permission="['PROJECT_API_DEBUG:READ+ADD']" type="primary" @click="emit('newApi')">
         {{ t('apiTestDebug.newApi') }}
       </a-button>
     </div>
