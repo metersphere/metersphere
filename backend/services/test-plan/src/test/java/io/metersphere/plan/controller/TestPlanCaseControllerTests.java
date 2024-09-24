@@ -209,6 +209,8 @@ public class TestPlanCaseControllerTests extends BaseTest {
         associateBugPageRequest.setPageSize(10);
         associateBugPageRequest.setTestPlanCaseId("relate_case_1");
         this.requestPostWithOkAndReturn("/test-plan/functional/case/has/associate/bug/page", associateBugPageRequest);
+        ids.add("bug_5");
+        this.requestPostWithOkAndReturn("/test-plan/functional/case/associate/bug", request);
 
 
     }

@@ -164,6 +164,7 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
 
     /**
      * 获取待关联的缺陷列表
+     *
      * @param request 请求参数
      * @return 缺陷列表
      */
@@ -173,13 +174,16 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
 
     /**
      * 用例关联缺陷(单条用例)
-     * @param request 请求参数
-     * @param userId 用户ID
+     *
+     * @param request  请求参数
+     * @param userId   用户ID
      * @param caseType 用例类型
      */
     public void associateBug(TestPlanCaseAssociateBugRequest request, String userId, String caseType) {
         List<String> ids = baseAssociateBugProvider.getSelectBugs(request, false);
-        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(ids)) {
+        if (CollectionUtils.isNotEmpty(ids)) {
+            List<String> bugIds = getCaseBugIds(request);
+            ids.removeAll(bugIds);
             SubListUtils.dealForSubList(ids, 100, subList -> {
                 List<BugRelationCase> list = new ArrayList<>();
                 subList.forEach(id -> {
@@ -201,8 +205,17 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
         }
     }
 
+    private List<String> getCaseBugIds(TestPlanCaseAssociateBugRequest request) {
+        BugRelationCaseExample example = new BugRelationCaseExample();
+        example.createCriteria().andTestPlanCaseIdEqualTo(request.getTestPlanCaseId()).andCaseIdEqualTo(request.getCaseId()).andTestPlanIdEqualTo(request.getTestPlanId());
+        List<BugRelationCase> bugRelationCases = bugRelationCaseMapper.selectByExample(example);
+        return bugRelationCases.stream().map(BugRelationCase::getBugId).toList();
+    }
+
+
     /**
      * 取消关联缺陷
+     *
      * @param id 关系ID
      */
     public void disassociateBug(String id) {
@@ -211,6 +224,7 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
 
     /**
      * 取消关联缺陷日志
+     *
      * @param id 关系ID
      * @return 日志
      */
@@ -236,7 +250,8 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
 
     /**
      * 查询(计划关联)用例关联的缺陷
-     * @param ids 关联用例关系ID集合
+     *
+     * @param ids       关联用例关系ID集合
      * @param projectId 项目ID
      * @return 缺陷集合
      */
