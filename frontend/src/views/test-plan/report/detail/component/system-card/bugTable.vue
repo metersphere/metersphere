@@ -125,6 +125,7 @@
     return TableKeyEnum.TEST_PLAN_REPORT_BUG_TABLE_DETAIL_NOT_PREVIEW;
   });
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportBugList(), {
+    columns,
     tableKey: tableKey.value,
     scroll: { x: '100%' },
     showSetting: props.isPreview,
