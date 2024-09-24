@@ -982,7 +982,7 @@ export default {
         });
     },
     handleDeleteBatch() {
-      let title = this.$t('test_track.case.batch_delete_completely_confirm', [this.$refs.table.selectIds.length]);
+      let title = this.$t('test_track.case.batch_delete_completely_confirm', [this.selectCounts]);
       this.$confirm(this.$t('test_track.case.batch_delete_tip'), title, {
           cancelButtonText: this.$t("commons.cancel"),
           confirmButtonText: this.$t("commons.delete"),
