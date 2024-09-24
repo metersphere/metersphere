@@ -1,5 +1,5 @@
 <template>
-  <a-popover position="br" content-class="bug-count-popover">
+  <a-popover position="left" content-class="bug-count-popover">
     <div class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">{{ props.bugCount ?? 0 }}</div>
     <template #content>
       <div class="w-[500px]">
@@ -76,7 +76,7 @@
     columns: columns.value,
     size: 'mini',
     tableKey: TableKeyEnum.TEST_PLAN_DETAIL_CASE_TABLE_BUG_COUNT,
-    scroll: { x: '100%', y: 400 },
+    scroll: { x: '100%', y: 320 },
     showSelectorAll: false,
     showPagination: false,
   });
@@ -108,12 +108,10 @@
   }
 </script>
 
-<style scoped lang="less">
+<style lang="less">
   .bug-count-popover {
     width: 540px;
-    height: 500px;
-    @apply overflow-y-auto overflow-x-hidden;
-    .ms-scroll-bar();
+    height: 400px;
     .arco-popover-content {
       @apply h-full;
     }

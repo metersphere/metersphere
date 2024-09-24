@@ -80,12 +80,7 @@
           </div>
         </template>
         <template #description="{ record }">
-          <a-tooltip :disabled="!record.description" position="tl" class="ms-tooltip-white">
-            <div v-dompurify-html="record.description || '-'"></div>
-            <template #content>
-              <div v-dompurify-html="record.description || '-'"></div>
-            </template>
-          </a-tooltip>
+          <BugNamePopover :name="record.title" :content="record.description" />
         </template>
       </MsBaseTable>
     </div>
@@ -182,6 +177,7 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import BugDetailDrawer from './components/bug-detail-drawer.vue';
+  import BugNamePopover from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/bugNamePopover.vue';
 
   import {
     checkBugExist,
