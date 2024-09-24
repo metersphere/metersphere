@@ -140,6 +140,8 @@ public class ApiDefinitionExportService {
     }
 
     public String exportApiDefinitionZip(ApiDefinitionBatchExportRequest request, String exportType, String userId) throws Exception {
+        // 为避免客户端未及时开启ws，此处延迟1s
+        Thread.sleep(1000);
         File tmpDir = null;
         String fileType = "";
         try {
@@ -183,13 +185,13 @@ public class ApiDefinitionExportService {
             ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), taskId, ids.size(), true, MsgType.EXEC_RESULT.name());
             ExportWebSocketHandler.sendMessageSingle(exportMsgDTO);
         } catch (Exception e) {
+            LogUtils.error(e);
             List<ExportTask> exportTasks = exportTaskManager.getExportTasks(request.getProjectId(), ExportConstants.ExportType.API_DEFINITION.name(), ExportConstants.ExportState.PREPARED.toString(), userId, null);
             if (CollectionUtils.isNotEmpty(exportTasks)) {
                 exportTaskManager.updateExportTask(ExportConstants.ExportState.ERROR.name(), exportTasks.getFirst().getId(), fileType);
             }
             ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), "", 0, false, MsgType.EXEC_RESULT.name());
             ExportWebSocketHandler.sendMessageSingle(exportMsgDTO);
-            LogUtils.error(e);
             throw new MSException(e);
         } finally {
             MsFileUtils.deleteDir(tmpDir.getPath());

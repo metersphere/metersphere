@@ -141,11 +141,13 @@ public class ServiceUtils {
     private static final int MAX_TAG_SIZE = 10;
 
     public static List<String> parseTags(List<String> tags) {
-        if (CollectionUtils.isNotEmpty(tags) && tags.size() > MAX_TAG_SIZE) {
+        if (CollectionUtils.isEmpty(tags)) {
+            return tags;
+        } else if (tags.size() > MAX_TAG_SIZE) {
             List<String> returnTags = new ArrayList<>(tags.stream().distinct().toList());
             return returnTags.subList(0, MAX_TAG_SIZE);
         } else {
-            return tags;
+            return new ArrayList<>(tags.stream().distinct().toList());
         }
     }
 }
