@@ -584,7 +584,7 @@
         order by `pos` desc limit 1;
     </select>
     <select id="getApiDefinitionExecuteInfo" resultType="io.metersphere.api.dto.ApiDefinitionExecuteInfo">
-        select id as resource_id, module_id, path, method
+        select id as resource_id, module_id, path, method, num
         from api_definition
         where protocol = 'HTTP'
             and id in

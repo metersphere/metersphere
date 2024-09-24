@@ -80,7 +80,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
 
         sampler.setMethod(msHTTPElement.getMethod());
         // path 设置完整的url
-        sampler.setPath(getPath(msHTTPElement, httpConfig));
+        sampler.setPath(getPath(msHTTPElement, httpConfig, envConfig));
 
         setHttpOtherConfig(msHTTPElement.getOtherConfig(), sampler);
 
@@ -182,16 +182,20 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         return authManager;
     }
 
-    private String getPath(MsHTTPElement msHTTPElement, HttpConfig httpConfig) {
+    private String getPath(MsHTTPElement msHTTPElement, HttpConfig httpConfig, EnvironmentInfoDTO envConfig) {
         String url = msHTTPElement.getPath();
         if (httpConfig != null) {
             // 接口调试没有环境，不取环境的配置
             String protocol = httpConfig.getProtocol().toLowerCase();
             String hostName = httpConfig.getHostname();
-            if (hostName.lastIndexOf("/") == hostName.length() - 1) {
+            if (StringUtils.endsWith(hostName, "/")) {
                 hostName = hostName.substring(0, hostName.length() - 1);
             }
-            if (url.indexOf("/") == 0) {
+            // 如果是 mock 返回的url格式是 /mock-server/projectNum/apiNum
+            if (BooleanUtils.isTrue(envConfig.getMock()) && msHTTPElement.getNum() != null) {
+                hostName = StringUtils.join(hostName, "/", msHTTPElement.getNum());
+            }
+            if (StringUtils.startsWith(url, "/")) {
                 url = url.substring(1);
             }
             url = protocol + "://" + (hostName + "/" + url);
@@ -360,10 +364,6 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
                 match = true;
             }
             if (match) {
-                // 如果是mock 返回的url格式是 /mock-server/projectNum/apiNum
-                if (BooleanUtils.isTrue(envConfig.getMock())) {
-                    httpConfig.setHostname(StringUtils.join(httpConfig.getHostname(), "/", msHTTPElement.getNum()));
-                }
                 return httpConfig;
             }
         }
