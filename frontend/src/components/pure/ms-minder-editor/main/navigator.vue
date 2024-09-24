@@ -151,7 +151,7 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { navigatorProps } from '../props';
-  import { getLocalStorage, setLocalStorage } from '../script/store';
+  import { setLocalStorage } from '../script/store';
   import type { Ref } from 'vue';
 
   const props = defineProps(navigatorProps);
@@ -160,7 +160,7 @@
 
   const navPreviewer: Ref<HTMLDivElement | null> = ref(null);
 
-  const isNavOpen = ref(false);
+  const isNavOpen = ref(window.localStorage.getItem('navigator-hidden') || false);
   const previewNavigator: Ref<HTMLDivElement | null> = ref(null);
   const contentView = ref('');
 
@@ -170,11 +170,6 @@
   let connectionThumb = reactive<any>({});
   let paper = reactive<any>({});
   let minder = reactive<any>({});
-
-  // 避免缓存
-  function getNavOpenState() {
-    return getLocalStorage('navigator-hidden');
-  }
 
   const zoomPercent = ref(50); // 默认 100%缩放（滑动条是从 50% 开始，所以减 50）
   /**
@@ -291,13 +286,11 @@
   }
 
   function toggleNavOpen() {
-    let isNavOpenState = false;
-    isNavOpenState = !JSON.parse(getNavOpenState());
-    isNavOpen.value = isNavOpenState;
+    isNavOpen.value = !isNavOpen.value;
     setLocalStorage('navigator-hidden', isNavOpen.value);
 
     nextTick(() => {
-      if (isNavOpenState) {
+      if (isNavOpen.value) {
         bind();
         updateContentView();
         updateVisibleView();
@@ -306,6 +299,7 @@
       }
     });
   }
+
   function navigate() {
     function moveView(center: Record<string, any>, duration?: number) {
       if (!minder.getPaper || !visibleView.width || !visibleView.height) return;
