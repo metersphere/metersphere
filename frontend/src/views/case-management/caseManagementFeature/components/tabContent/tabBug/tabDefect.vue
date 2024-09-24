@@ -3,8 +3,12 @@
     <div class="mb-[16px] flex items-center justify-between">
       <div>
         <a-radio-group v-model:model-value="showType" type="button" size="medium">
-          <a-radio value="link">{{ t('caseManagement.featureCase.directLink') }}</a-radio>
-          <a-radio value="testPlan">{{ t('caseManagement.featureCase.testPlan') }}</a-radio>
+          <a-radio value="link" class="show-type-icon p-[2px]">
+            {{ t('caseManagement.featureCase.directLink') }}
+          </a-radio>
+          <a-radio value="testPlan" class="show-type-icon p-[2px]">
+            {{ t('caseManagement.featureCase.testPlan') }}
+          </a-radio>
         </a-radio-group>
         <a-input-search
           v-model:model-value="keyword"
