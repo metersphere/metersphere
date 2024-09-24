@@ -9,7 +9,7 @@ const FOOTER_HEIGHT = 16;
 const PAGE_HEIGHT = A4_HEIGHT - FOOTER_HEIGHT - HEADER_HEIGHT;
 const PDF_WIDTH = A4_WIDTH - 32; // 左右分别 16px 间距
 const CONTAINER_WIDTH = 1190;
-export const SCALE_RATIO = window.devicePixelRatio * 1.2;
+export const SCALE_RATIO = window.devicePixelRatio * 1.5;
 // 实际每页高度 = PDF页面高度/页面容器宽度与 pdf 宽度的比例(这里比例*SCALE_RATIO 是因为html2canvas截图时生成的是 SCALE_RATIO 倍的清晰度)
 export const IMAGE_HEIGHT = Math.ceil(PAGE_HEIGHT * (CONTAINER_WIDTH / PDF_WIDTH) * SCALE_RATIO);
 export const MAX_CANVAS_HEIGHT = IMAGE_HEIGHT * 20; // 一次截图最大高度是 20 页整（过长会无法截完整，出现空白）
@@ -131,7 +131,7 @@ export default async function exportPDF(name: string, contentId: string) {
           }
           // 将大分页的画布图片裁剪成pdf 页面内容大小，并渲染到临时画布上
           tempContext.drawImage(_canvas, 0, -pagePosition, canvasWidth, canvasHeight);
-          const tempCanvasData = cropCanvas.toDataURL('image/jpeg', 0.8);
+          const tempCanvasData = cropCanvas.toDataURL('image/jpeg', 1);
           // 将临时画布图片渲染到 pdf 上
           pdf.addImage(tempCanvasData, 'jpeg', 16, 16, PDF_WIDTH, PAGE_HEIGHT);
         }

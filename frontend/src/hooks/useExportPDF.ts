@@ -91,15 +91,16 @@ export default async function exportPDF(
       },
       styles: {
         font: 'AlibabaPuHuiTi-3-55-Regular',
+        fontSize: 8,
       },
-      pageBreak: 'avoid',
+      pageBreak: 'auto',
       rowPageBreak: 'avoid',
       margin: { top: 16, left: 16, right: 16, bottom: 16 },
       tableWidth: PDF_WIDTH,
       willDrawPage: (data) => {
         const title = tableTitleMap?.[data.table.id as string];
         if (title && data.cursor) {
-          pdf.text(title, 16, data.cursor.y + 4);
+          pdf.text(title, 10, data.cursor.y + 4);
           // 在文字后加入 8px 高的空白
           data.cursor.y += 12;
         }
