@@ -1,5 +1,3 @@
-import { computed, nextTick, onBeforeUnmount, onMounted, Ref, ref, watch } from 'vue';
-
 import { calculateMaxDepth } from '@/utils';
 
 import type { CascaderOption, SelectOptionData } from '@arco-design/web-vue';
