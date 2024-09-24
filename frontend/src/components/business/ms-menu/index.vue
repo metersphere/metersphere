@@ -381,7 +381,7 @@
                       : 'relative flex flex-1 items-center gap-[8px] overflow-hidden hover:!bg-transparent',
                   ]}
                 >
-                  <MsAvatar is-user size={20} class="!mr-0 w-[20px] hover:!bg-transparent" />
+                  <MsAvatar is-user size={28} class="!mr-0 w-[20px] hover:!bg-transparent" />
                   <div class="one-line-text flex-1 hover:!bg-transparent">
                     {collapsed.value ? null : userStore.name}
                   </div>
