@@ -7,6 +7,7 @@
     :mouse-enter-delay="300"
   >
     <a-tree-select
+      ref="treeSelectRef"
       v-model:model-value="selectValue"
       v-model:input-value="inputValue"
       :data="props.data"
@@ -22,6 +23,7 @@
         },
       }"
       v-bind="$attrs"
+      :max-tag-count="maxTagCount"
       @input-value-change="handleInputValueChange"
       @popup-visible-change="handlePopupVisibleChange"
       @change="handleChange"
@@ -43,20 +45,52 @@
 <script lang="ts" setup>
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
+  import useSelect from '@/hooks/useSelect';
   import { filterTreeNode, findNodeByKey } from '@/utils';
 
   import type { TreeFieldNames, TreeNodeData } from '@arco-design/web-vue';
 
-  const props = defineProps<{
-    data: TreeNodeData[];
-    fieldNames?: TreeFieldNames;
-    disabled?: boolean;
-    multiple?: boolean;
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      data: TreeNodeData[];
+      fieldNames?: TreeFieldNames;
+      disabled?: boolean;
+      multiple?: boolean;
+      shouldCalculateMaxTag?: boolean;
+    }>(),
+    {
+      shouldCalculateMaxTag: true,
+    }
+  );
   const selectValue = defineModel<any>('modelValue', { required: true });
 
   const inputValue = ref('');
   const tempInputValue = ref('');
+
+  const treeSelectRef = ref();
+  const { maxTagCount, calculateMaxTag } = useSelect({
+    selectRef: treeSelectRef,
+    selectVal: selectValue,
+  });
+  watch(
+    () => selectValue.value,
+    () => {
+      if (props.shouldCalculateMaxTag !== false && props.multiple) {
+        calculateMaxTag();
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+  watch(
+    () => props.data,
+    () => {
+      if (props.shouldCalculateMaxTag !== false && props.multiple) {
+        calculateMaxTag();
+      }
+    }
+  );
 
   const getTreeSelectTooltip = computed(() => {
     return () => {

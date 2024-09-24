@@ -726,7 +726,6 @@
         multiple: true,
         treeCheckable: true,
         treeCheckStrictly: true,
-        maxTagCount: 1,
       },
     },
     {
