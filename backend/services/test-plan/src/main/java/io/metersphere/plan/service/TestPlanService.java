@@ -780,7 +780,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                     if (CollectionUtils.isNotEmpty(collect.get(id).getTags())) {
                         List<String> tags = collect.get(id).getTags();
                         tags.addAll(request.getTags());
-                        testPlan.setTags(ServiceUtils.parseTags(tags));
+                        testPlan.setTags(ServiceUtils.parseTags(tags.stream().distinct().toList()));
                     } else {
                         testPlan.setTags(ServiceUtils.parseTags(request.getTags()));
                     }
