@@ -340,7 +340,7 @@ export default {
       this.loading = false;
     },
     setFormData() {
-      if (this.form && this.data && this.data[this.prop]) {
+      if (this.form && this.data) {
         this.$set(this.form, this.data[this.formProp], this.data[this.prop]);
       }
     },

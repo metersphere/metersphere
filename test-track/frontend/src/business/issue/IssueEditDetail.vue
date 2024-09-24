@@ -641,7 +641,9 @@ export default {
       };
       if (platform === "Tapd") {
         this.hasTapdId = true;
-        this.getTapdCurrentOwner();
+        if (this.form.id) {
+          this.getTapdCurrentOwner();
+        }
         getTapdUser(data).then((response) => {
           this.tapdUsers = response.data;
         });
