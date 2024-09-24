@@ -541,25 +541,16 @@ public class XmindExportUtil {
                         if (style != null) {
                             stepTopic.setStyleId(style.getId());
                         }
-
-                        boolean hasResult = false;
                         if (obj.containsKey("result")) {
                             String result = obj.get("result");
-                            if (StringUtils.isNotEmpty(result)) {
-                                hasResult = true;
-                                ITopic resultTopic = workbook.createTopic();
-                                resultTopic.setTitleText(Translator.get("xmind_expectedResult").concat("：").concat(result));
-                                if (style != null) {
-                                    resultTopic.setStyleId(style.getId());
-                                }
-                                stepTopic.add(resultTopic, ITopic.ATTACHED);
+                            ITopic resultTopic = workbook.createTopic();
+                            resultTopic.setTitleText(Translator.get("xmind_expectedResult").concat("：").concat(result));
+                            if (style != null) {
+                                resultTopic.setStyleId(style.getId());
                             }
+                            stepTopic.add(resultTopic, ITopic.ATTACHED);
                         }
-
-                        if (StringUtils.isNotEmpty(desc) || hasResult) {
-                            stepDesTopic.add(stepTopic, ITopic.ATTACHED);
-                        }
-
+                        stepDesTopic.add(stepTopic, ITopic.ATTACHED);
                     }
                 }
                 if (CollectionUtils.isEmpty(arr)) {
