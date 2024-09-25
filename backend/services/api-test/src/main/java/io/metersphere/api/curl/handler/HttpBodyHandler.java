@@ -50,9 +50,15 @@ public class HttpBodyHandler extends CurlHandlerChain {
             entity.setBody(parseUrlEncodeBody(urlencodeMatcher));
         }
 
+        Matcher xmlJsonMatcher = CurlPatternConstants.HTTP_XML_JSON_BODY_PATTERN.matcher(curl);
+        if (xmlJsonMatcher.find()) {
+            entity.setBody(parseRowBody(xmlJsonMatcher, entity));
+        }
+
         Matcher rawMatcher = CurlPatternConstants.HTTP_ROW_BODY_PATTERN.matcher(curl);
         if (rawMatcher.find()) {
-            entity.setBody(parseRowBody(rawMatcher, entity));
+            entity.setBodyType(Body.BodyType.RAW.name());
+            entity.setBody(rawMatcher.group(1));
         }
 
         Matcher defaultMatcher = CurlPatternConstants.DEFAULT_HTTP_BODY_PATTERN.matcher(curl);
