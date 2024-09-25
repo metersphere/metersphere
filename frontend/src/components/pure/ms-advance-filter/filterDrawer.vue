@@ -282,11 +282,23 @@
       const list: FilterFormItem[] = [];
       (res.conditions ?? [])?.forEach((item: ConditionsItem) => {
         const listItem = getListItemByDataIndex(item.name ?? '') as FilterFormItem;
+        let { value } = item;
+        // 过滤掉已经删除的选项
+        if (FilterType.SELECT === listItem?.type) {
+          const valueKeyList = listItem.selectProps?.options?.map(
+            (option) => option[listItem.selectProps?.valueKey ?? 'value']
+          );
+          value = value?.filter((valueItem: string) => valueKeyList?.includes(valueItem));
+        } else if (FilterType.MEMBER === listItem?.type) {
+          value = value?.filter((valueItem: string) =>
+            props.memberOptions?.map((option) => option.value).includes(valueItem)
+          );
+        }
         if (listItem) {
           list.push({
             ...listItem,
             operator: item.operator,
-            value: item.value,
+            value,
           });
         }
       });
