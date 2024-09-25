@@ -51,26 +51,32 @@
         @module-change="searchList"
       >
         <template #name="{ record, rowIndex }">
-          <MsTag
-            v-if="record.fileType.toLowerCase() === 'jar'"
-            theme="light"
-            type="success"
-            :self-style="
-              record.enable
-                ? {}
-                : {
-                    color: 'var(--color-text-4)',
-                    backgroundColor: 'var(--color-text-n9)',
-                  }
-            "
-          >
-            {{ t(record.enable ? 'common.enable' : 'common.disable') }}
-          </MsTag>
-          <a-tooltip :content="record.name">
-            <a-button type="text" class="px-0" @click="openFileDetail(record.id, rowIndex)">
-              <div class="one-line-text max-w-[168px]">{{ record.name }}</div>
-            </a-button>
-          </a-tooltip>
+          <div class="flex w-full justify-start overflow-hidden">
+            <MsTag
+              v-if="record.fileType.toLowerCase() === 'jar'"
+              theme="light"
+              type="success"
+              :self-style="
+                record.enable
+                  ? {}
+                  : {
+                      color: 'var(--color-text-4)',
+                      backgroundColor: 'var(--color-text-n9)',
+                    }
+              "
+            >
+              {{ t(record.enable ? 'common.enable' : 'common.disable') }}
+            </MsTag>
+            <a-tooltip :content="record.name">
+              <a-button
+                type="text"
+                class="max-w-full flex-1 justify-start px-0"
+                @click="openFileDetail(record.id, rowIndex)"
+              >
+                <div class="one-line-text">{{ record.name }}</div>
+              </a-button>
+            </a-tooltip>
+          </div>
         </template>
         <template #size="{ record }">
           <span>{{ formatFileSize(record.size) }}</span>
