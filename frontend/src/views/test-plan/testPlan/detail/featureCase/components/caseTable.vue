@@ -349,6 +349,7 @@
       dataIndex: 'tags',
       showDrag: true,
       isTag: true,
+      isStringTag: true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnCreateTime',

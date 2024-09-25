@@ -117,7 +117,7 @@
   });
 
   function getTagContent(tag: { [x: string]: any }) {
-    const tagContent = props.isStringTag ? tag : tag[props.nameKey];
+    const tagContent = (props.isStringTag ? tag : tag[props.nameKey]) || '';
     if (props.showTable) {
       return tagContent.length > 16 ? characterLimit(tagContent, 9) : tagContent;
     }
