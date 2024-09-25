@@ -15,7 +15,7 @@
   >
     <slot name="icon"></slot>
     <a-tooltip :disabled="props.tooltipDisabled">
-      <div :class="`one-line-text min-w-[20px] ${props.maxWidth || '144px'}`">
+      <div :class="`one-line-text ${props.maxWidth || '144px'}`">
         <slot></slot>
       </div>
       <template v-if="$slots.tooltipContent" #content>
