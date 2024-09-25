@@ -930,11 +930,8 @@
         });
         const { lastDataIsDefault } = filterKeyValParams(arr, defaultLineData.value, false);
         if (
-          hasNoIdItem &&
-          !props.disabledExceptParam &&
-          !props.disabledParamValue &&
-          !lastDataIsDefault &&
-          !props.isTreeTable
+          (hasNoIdItem && !lastDataIsDefault) ||
+          (!props.disabledExceptParam && !props.disabledParamValue && !lastDataIsDefault && !props.isTreeTable)
         ) {
           addTableLine(arr.length - 1, false, true);
         }
