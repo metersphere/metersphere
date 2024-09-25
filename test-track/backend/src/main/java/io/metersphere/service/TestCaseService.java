@@ -429,7 +429,7 @@ public class TestCaseService {
         return testCaseDTO;
     }
 
-    public TestCaseWithBLOBs editTestCase(EditTestCaseRequest testCase, boolean handleDemand) {
+    public TestCaseWithBLOBs editTestCase(EditTestCaseRequest testCase, boolean handleDemand, Function<TestCaseWithBLOBs, Boolean> checkRepeatFunction) {
         checkTestCustomNum(testCase);
         testCase.setUpdateTime(System.currentTimeMillis());
         TestCaseWithBLOBs originCase = testCaseMapper.selectByPrimaryKey(testCase.getId());
@@ -476,7 +476,7 @@ public class TestCaseService {
         // latest 字段 createNewVersionOrNot 已经设置过了，不更新
         testCase.setLatest(null);
 
-        checkTestCaseExist(testCase, true);
+        checkTestCaseExist(testCase, true, checkRepeatFunction);
         testCaseMapper.updateByPrimaryKeySelective(testCase);
 
         TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(testCase.getId());
@@ -487,7 +487,7 @@ public class TestCaseService {
     }
 
     public TestCaseWithBLOBs editTestCase(EditTestCaseRequest testCase) {
-        return editTestCase(testCase, true);
+        return editTestCase(testCase, true, null);
     }
 
     /**
@@ -653,6 +653,10 @@ public class TestCaseService {
     }
 
     public void checkTestCaseExist(TestCaseWithBLOBs testCase, boolean isEdit) {
+        checkTestCaseExist(testCase, isEdit, null);
+    }
+
+    public void checkTestCaseExist(TestCaseWithBLOBs testCase, boolean isEdit, Function<TestCaseWithBLOBs, Boolean> checkRepeatFunction) {
 
         // 全部字段值相同才判断为用例存在
         if (testCase != null) {
@@ -692,7 +696,13 @@ public class TestCaseService {
                     String remark = tc.getRemark() == null ? StringUtils.EMPTY : tc.getRemark();
                     String prerequisite = tc.getPrerequisite() == null ? StringUtils.EMPTY : tc.getPrerequisite();
                     if (StringUtils.equals(steps, caseSteps) && StringUtils.equals(remark, caseRemark) && StringUtils.equals(prerequisite, casePrerequisite)) {
-                        MSException.throwException(Translator.get("test_case_already_exists_in_module"));
+                       if (checkRepeatFunction != null) {
+                           if (checkRepeatFunction.apply(tc)) {
+                               MSException.throwException(Translator.get("test_case_already_exists_in_module"));
+                           }
+                       } else {
+                           MSException.throwException(Translator.get("test_case_already_exists_in_module"));
+                       }
                     }
                 }
             }
@@ -2571,6 +2581,8 @@ public class TestCaseService {
         deleteToGcBatch(request.getIds(), request.getProjectId());
         testCaseNodeService.minderEdit(request);
         List<TestCaseMinderEditRequest.TestCaseMinderEditItem> data = request.getData();
+        Map<String, TestCaseMinderEditRequest.TestCaseMinderEditItem> caseMap = data.stream()
+                .collect(Collectors.toMap(TestCaseMinderEditRequest.TestCaseMinderEditItem::getId, Function.identity()));
         if (CollectionUtils.isNotEmpty(data)) {
             String lastAddId = null;
             for (TestCaseMinderEditRequest.TestCaseMinderEditItem item : data) {
@@ -2583,7 +2595,22 @@ public class TestCaseService {
                     BeanUtils.copyBean(editRequest, item);
                     editRequest.setCustomFields(null);
                     editRequest.setTags(null);
-                    editTestCase(editRequest, false);
+                    editTestCase(editRequest, false, (repeatCase) -> {
+                        TestCaseMinderEditRequest.TestCaseMinderEditItem testCaseMinderEditItem = caseMap.get(repeatCase.getId());
+                        if (testCaseMinderEditItem != null) {
+                            // 如果数据库检查有重复用例，则校验下当前编辑的用例是否确定重复
+                            if (StringUtils.equals(editRequest.getName(), testCaseMinderEditItem.getName())
+                                    && StringUtils.equals(editRequest.getNodeId(), testCaseMinderEditItem.getNodeId())
+                                    && StringUtils.equals(editRequest.getPriority(), testCaseMinderEditItem.getPriority())
+                                    && StringUtils.equals(editRequest.getRemark(), testCaseMinderEditItem.getRemark())
+                                    && StringUtils.equals(editRequest.getSteps(), testCaseMinderEditItem.getSteps())
+                                    && StringUtils.equals(editRequest.getPrerequisite(), testCaseMinderEditItem.getPrerequisite())) {
+                                return true;
+                            }
+                            return false;
+                        }
+                        return true;
+                    });
                     changeOrder(item, request.getProjectId());
                     lastAddId = null;
                 } else {
