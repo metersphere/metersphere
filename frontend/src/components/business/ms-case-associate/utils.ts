@@ -48,4 +48,10 @@ export const lastExecuteResultMap: Record<string, any> = {
     statusText: 'common.fail',
     color: '',
   },
+  FAKE_ERROR: {
+    icon: 'icon-icon_warning_colorful',
+    statusText: 'common.fakeError',
+    label: 'FAKE_ERROR',
+    color: '',
+  },
 };
