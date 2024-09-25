@@ -57,7 +57,7 @@
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
-    name: string;
+    name?: string;
     id: string;
     remoteFunc(params: Record<string, any>): Promise<any>; // 远程模式下的请求函数，返回一个 Promise
   }>();

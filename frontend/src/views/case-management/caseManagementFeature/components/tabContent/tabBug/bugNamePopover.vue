@@ -1,5 +1,5 @@
 <template>
-  <a-tooltip :content="props.name">
+  <a-tooltip :content="props.name" :disabled="!props.name">
     <div class="one-line-text max-w-[calc(100%-32px)]"> {{ props.name }}</div>
   </a-tooltip>
   <a-popover class="bug-content-popover" title="" position="right" style="width: 480px">
@@ -16,7 +16,7 @@
   const { t } = useI18n();
 
   const props = defineProps<{
-    name: string;
+    name?: string;
     content: string;
   }>();
 </script>
