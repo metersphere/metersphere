@@ -903,7 +903,7 @@ export function getCustomFieldIndex(field: CustomFieldItem) {
 // 表格自定义字段转column
 export function customFieldToColumns(customFields: CustomFieldItem[]) {
   return customFields.map((field) => {
-    const { fieldName, fieldKey, fieldId, options, platformOptionJson } = field;
+    const { fieldName, fieldKey, fieldId, options, platformOptionJson, type } = field;
     const column: MsTableColumnData = {
       title: fieldName,
       dataIndex: ['handleUser', 'status'].includes(fieldId) ? fieldKey : getCustomFieldIndex(field),
@@ -912,6 +912,7 @@ export function customFieldToColumns(customFields: CustomFieldItem[]) {
       showInTable: true,
       width: 200,
       options: options || JSON.parse(platformOptionJson),
+      type,
     };
     return column;
   });

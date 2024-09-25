@@ -48,6 +48,7 @@
             :file-save-as-api="transferFileRequest"
             :file-module-options-api="getTransferFileTree"
             source-id-key="caseId"
+            @finish="emit('uploadSuccess')"
           >
             <span :id="item.uid"></span>
           </SaveAsFilePopover>

@@ -79,8 +79,8 @@
             </a-tooltip>
           </div>
         </template>
-        <template #description="{ record }">
-          <BugNamePopover :name="record.title" :content="record.description" />
+        <template v-for="item in richPreviewColumns" :key="item.slotName" #[item.slotName]="{ record }">
+          <BugNamePopover :content="record[item.dataIndex] || ''" />
         </template>
       </MsBaseTable>
     </div>
@@ -769,8 +769,8 @@
         } else {
           item.showInTable = false;
         }
-        if (item.title === '内容') {
-          item.slotName = 'description';
+        if (item.type === 'RICH_TEXT') {
+          item.slotName = item.dataIndex;
           item.showTooltip = false;
         }
       });
@@ -779,6 +779,10 @@
       console.log(error);
     }
   }
+
+  const richPreviewColumns = computed<Record<string, any>[]>(() => {
+    return customColumns.filter((item) => item.type === 'RICH_TEXT');
+  });
 
   await getColumnHeaders();
   await initFilterOptions();

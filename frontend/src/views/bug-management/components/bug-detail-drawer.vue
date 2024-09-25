@@ -126,7 +126,7 @@
             class="no-content relative border-b"
           />
         </div>
-        <div class="leftWrapper h-full">
+        <div :class="`leftWrapper ${!commentInputIsActive ? 'h-[calc(100vh-178px)]' : 'h-[calc(100vh-382px)]'}`">
           <a-spin :loading="detailLoading" class="w-full">
             <div class="tab-pane-container">
               <BugDetailTab
@@ -179,6 +179,13 @@
       />
     </template>
   </MsDetailDrawer>
+  <DeleteModal
+    :id="props.detailId"
+    v-model:visible="deleteVisible"
+    :name="detailInfo.title"
+    :remote-func="deleteSingleBug"
+    @submit="handleSingleDelete"
+  />
 </template>
 
 <script setup lang="ts">
@@ -220,6 +227,8 @@
   import type { CustomFieldItem } from '@/models/bug-management';
   import { BugEditCustomField, BugEditFormObject } from '@/models/bug-management';
   import { BugManagementRouteEnum, RouteEnum } from '@/enums/routeEnum';
+
+  const DeleteModal = defineAsyncComponent(() => import('@/views/bug-management/components/deleteModal.vue'));
 
   const router = useRouter();
   const route = useRoute();
@@ -498,35 +507,21 @@
       followLoading.value = false;
     }
   }
+  const deleteVisible = ref(false);
 
   // 删除用例
   function deleteHandler() {
-    const { id, name } = detailInfo.value;
-    openDeleteModal({
-      title: t('bugManagement.detail.deleteTitle', { name: characterLimit(name) }),
-      content: t('bugManagement.detail.deleteContent'),
-      onBeforeOk: async () => {
-        try {
-          const params = {
-            id,
-            deleteAll: false,
-            projectId: currentProjectId.value,
-          };
-          await deleteSingleBug(params);
-          Message.success(t('common.deleteSuccess'));
-          emit('submit');
-          if (!props.pagination && !props.tableData) {
-            showDrawerVisible.value = false;
-          } else {
-            detailDrawerRef.value?.openNextDetail();
-          }
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        }
-      },
-    });
+    deleteVisible.value = true;
   }
+
+  const handleSingleDelete = () => {
+    emit('submit');
+    if (!props.pagination && !props.tableData) {
+      showDrawerVisible.value = false;
+    } else {
+      detailDrawerRef.value?.openNextDetail();
+    }
+  };
   // 复制bug
   function handleCopy() {
     router.push({
