@@ -140,7 +140,15 @@
     method: RequestMethods.GET,
     unSaved: false,
     headers: [],
-    body: cloneDeep(defaultBodyParams),
+    body: {
+      ...cloneDeep(defaultBodyParams),
+      jsonBody: {
+        jsonValue: '',
+        enableJsonSchema: false,
+        jsonSchemaTableData: [],
+        jsonSchemaTableSelectedRowKeys: [],
+      },
+    },
     query: [],
     rest: [],
     polymorphicName: '',
