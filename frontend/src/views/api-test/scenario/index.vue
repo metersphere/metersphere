@@ -29,8 +29,9 @@
           <MsEditableTab
             v-model:active-tab="activeScenarioTab"
             v-model:tabs="scenarioTabs"
-            v-permission="['PROJECT_API_SCENARIO:READ+ADD']"
+            v-permission="['PROJECT_API_SCENARIO:READ']"
             class="flex-1 overflow-hidden"
+            :show-add="hasAnyPermission(['PROJECT_API_SCENARIO:READ+ADD'])"
             @add="() => newTab()"
           >
             <template #label="{ tab }">
