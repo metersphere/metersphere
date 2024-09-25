@@ -534,17 +534,15 @@ log.info("Response Data: " + responseData);
 // 你可以进一步处理响应数据
 // 例如：保存响应数据到变量
 vars.put("responseData", responseData);`,
-  assertion:
-    '// 获取响应状态码\n' +
-    'int responseCode = prev.getResponseCode();\n' +
-    '// 设置期望的状态码\n' +
-    'int expectedCode = 200;\n' +
-    '// 断言失败条件\n' +
-    'if (responseCode != expectedCode) {\n' +
-    '    AssertionResult.setFailure(true);\n' +
-    // eslint-disable-next-line no-template-curly-in-string
-    '    AssertionResult.setFailureMessage("Expected response code: ${expectedCode}, but got: ${responseCode}")\n' +
-    '}',
+  assertion: `// 获取响应状态码
+String responseCode = prev.getResponseCode();
+// 设置期望的状态码
+String expectedCode = "200";
+// 断言失败条件
+if (!responseCode.equals(expectedCode)) {
+    Failure = true;
+    FailureMessage = "Expected response code: " + expectedCode + ", but got: " + responseCode;
+}`,
   scenario: `import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -576,6 +574,22 @@ client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
             return null;
         });`,
 };
+
+export const BeanShellJSR233ScriptExampleMap = {
+  preOperation: BeanShellScriptExampleMap.preOperation,
+  postOperation: BeanShellScriptExampleMap.postOperation,
+  assertion: `// 获取响应状态码
+String responseCode = prev.getResponseCode();
+// 设置期望的状态码
+String expectedCode = "200";
+// 断言失败条件
+if (!responseCode.equals(expectedCode)) {
+    AssertionResult.setFailure(true);
+    AssertionResult.setFailureMessage("Expected response code: " + expectedCode + ", but got: " + responseCode);
+}`,
+  scenario: BeanShellScriptExampleMap.scenario,
+};
+
 export interface ScriptExampleMap {
   [key: string]: {
     preOperation: string;
@@ -614,17 +628,16 @@ vars.put("variable_name", "variable_value");
 // 你可以进一步处理响应数据
 // 例如：保存响应数据到变量
 vars.put("responseData", responseData);`,
-    assertion:
-      '// 获取响应状态码\n' +
-      'var responseCode = prev.getResponseCode();\n' +
-      '// 设置期望的状态码\n' +
-      'var expectedCode = 200;\n' +
-      '// 断言失败条件\n' +
-      'if (responseCode != expectedCode) {\n' +
-      '    AssertionResult.setFailure(true);\n' +
-      // eslint-disable-next-line no-template-curly-in-string
-      '    AssertionResult.setFailureMessage(`Expected response code: ${expectedCode}, but got: ${responseCode}`)\n' +
-      '}\n',
+    assertion: `// 获取响应状态码
+var responseCode = prev.getResponseCode();
+// 设置期望的状态码
+var expectedCode = 200;
+// 断言失败条件
+if (responseCode != expectedCode) {
+    AssertionResult.setFailure(true);
+    AssertionResult.setFailureMessage(\`Expected response code: \${expectedCode}, but got: \${responseCode}\`)
+}
+`,
     scenario: `// 导入必要的 Java 类
 var URL = java.net.URL;
 var HttpURLConnection = java.net.HttpURLConnection;
@@ -725,7 +738,7 @@ with urllib.request.urlopen(request) as response:
     log.info(f"Status Code: {status_code}")`,
   },
   [LanguageEnum.BEANSHELL]: BeanShellScriptExampleMap,
-  [LanguageEnum.BEANSHELL_JSR233]: BeanShellScriptExampleMap,
+  [LanguageEnum.BEANSHELL_JSR233]: BeanShellJSR233ScriptExampleMap,
   [LanguageEnum.GROOVY]: {
     preOperation: `// 生成或获取 token
 def token = "Bearer " + "MeterSphere 123456"
@@ -749,17 +762,15 @@ vars.put("variable_name", "variable_value");
 // 你可以进一步处理响应数据
 // 例如：保存响应数据到变量
 vars.put("responseData", responseData);`,
-    assertion:
-      '// 获取响应状态码\n' +
-      'def responseCode = prev.getResponseCode()\n' +
-      '// 设置期望的状态码\n' +
-      'def expectedCode = 200\n' +
-      '// 断言失败条件\n' +
-      'if (responseCode != expectedCode) {\n' +
-      '    AssertionResult.setFailure(true)\n' +
-      // eslint-disable-next-line no-template-curly-in-string
-      '    AssertionResult.setFailureMessage("Expected response code: ${expectedCode}, but got: ${responseCode}")\n' +
-      '}',
+    assertion: `// 获取响应状态码
+def responseCode = prev.getResponseCode()
+// 设置期望的状态码
+def expectedCode = "200"
+// 断言失败条件
+if (responseCode != expectedCode) {
+    AssertionResult.setFailure(true)
+    AssertionResult.setFailureMessage("Expected response code: \${expectedCode}, but got: \${responseCode}")
+}`,
     scenario: `import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.CloseableHttpClient
