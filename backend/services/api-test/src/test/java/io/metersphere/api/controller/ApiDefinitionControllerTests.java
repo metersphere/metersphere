@@ -2099,15 +2099,19 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
         byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
 
-        File file = new File("/tmp/test.json");
-        FileUtils.writeByteArrayToFile(file, fileBytes);
+        File zipFile = new File("/tmp/api-export/downloadFiles.zip");
+        FileUtils.writeByteArrayToFile(zipFile, fileBytes);
 
-        String fileContent = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+        File[] files = MsFileUtils.unZipFile(zipFile, "/tmp/api-export/unzip/");
+        assert files != null;
+        Assertions.assertEquals(files.length, 1);
+        String fileContent = FileUtils.readFileToString(files[0], StandardCharsets.UTF_8);
 
         MetersphereApiExportResponse exportResponse = ApiDataUtils.parseObject(fileContent, MetersphereApiExportResponse.class);
 
         apiDefinitionImportTestService.compareApiExport(exportResponse, exportApiBlobs);
 
+        MsFileUtils.deleteDir("/tmp/api-export/");
 
         //测试stop
         this.requestGetWithOk("/stop/" + taskId);
