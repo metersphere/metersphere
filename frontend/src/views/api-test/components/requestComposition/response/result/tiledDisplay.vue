@@ -3,7 +3,10 @@
     <!-- 展开折叠列表 -->
     <div v-if="props.requestResult?.responseResult.responseCode" class="tiledList">
       <div v-for="item of props.menuList" :key="item.value" class="menu-list-wrapper">
-        <div v-if="isShowContent(item.value)" class="menu-list">
+        <div
+          v-if="isShowContent(item.value)"
+          :class="`${props.activeType === 'SubRequest' ? 'top-[90px]' : 'top-[38px]'} menu-list`"
+        >
           <div class="flex items-center">
             <MsButton
               v-if="!expandIds.includes(item.value)"
@@ -87,6 +90,7 @@
     requestResult?: RequestResult;
     console?: string;
     environmentName?: string;
+    activeType: string; // 激活类型
     menuList: { label: string; value: keyof typeof ResponseComposition }[];
     reportId?: string;
   }>();
@@ -167,7 +171,6 @@
     .menu-list-wrapper {
       .menu-list {
         position: sticky;
-        top: 50px;
         z-index: 999999;
         height: 40px;
         line-height: 40px;
