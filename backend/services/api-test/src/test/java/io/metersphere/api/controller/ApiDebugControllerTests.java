@@ -959,6 +959,14 @@ public class ApiDebugControllerTests extends BaseTest {
                 "  --insecure";
         request.setCurl(curl);
         this.requestPostWithOk(IMPORT_CURL, request);
+
+        curl = "curl -I https://example.com";
+        request.setCurl(curl);
+        this.requestPostWithOk(IMPORT_CURL, request);
+
+        curl = "curl --head https://example.com";
+        request.setCurl(curl);
+        this.requestPostWithOk(IMPORT_CURL, request);
     }
 
 
