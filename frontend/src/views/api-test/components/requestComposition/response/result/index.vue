@@ -87,7 +87,7 @@
           </a-popover>
         </div>
       </div>
-      <div v-if="activeType === 'SubRequest'" class="my-4 flex justify-start">
+      <div v-if="activeType === 'SubRequest'" class="flex justify-start bg-white py-4">
         <MsPagination
           v-model:page-size="pageSize"
           v-model:current="current"
@@ -101,6 +101,7 @@
     <a-spin v-if="props.mode === 'tiled'" class="w-full" :loading="loading">
       <Suspense>
         <TiledDisplay
+          :active-type="activeType"
           :menu-list="responseCompositionTabList"
           :request-result="activeStepDetailCopy?.content"
           :console="props.console"
