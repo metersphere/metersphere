@@ -1107,7 +1107,7 @@
         h('div', { class: 'flex flex-col gap-[8px] items-start' }, [
           h('div', { class: 'font-medium' }, t('common.exportSuccessful')),
           h('div', { class: 'flex items-center gap-[12px]' }, [
-            h('div', t('caseManagement.featureCase.exportCaseCount', { number: count })),
+            h('div', t('caseManagement.featureCase.exportApiCount', { number: count })),
             h(
               MsButton,
               {

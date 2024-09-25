@@ -61,6 +61,7 @@ export default {
   'caseManagement.featureCase.exportExcel.cellSplitting': 'Cell Splitting',
   'caseManagement.featureCase.exportExcel.cellSplittingTip': '1 step per cell, 1 test case occupies multiple rows',
   'caseManagement.featureCase.exportExcel.defaultTip': '1 test case per row, multiple steps in one cell',
+  'caseManagement.featureCase.exportApiCount': '{ number } interface successfully exported',
   'caseManagement.featureCase.exportCaseCount': '{ number } test cases successfully exported',
   'caseManagement.featureCase.exportXMind': 'Exporting Mind (xmind)',
   'caseManagement.featureCase.exportXMindNoUnit': 'Exporting XMind',

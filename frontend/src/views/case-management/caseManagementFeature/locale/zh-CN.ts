@@ -61,6 +61,7 @@ export default {
   'caseManagement.featureCase.exportExcel.cellSplitting': '单元格拆分',
   'caseManagement.featureCase.exportExcel.cellSplittingTip': '1 个步骤占用 1 个单元格，1 条用例占用多行',
   'caseManagement.featureCase.exportExcel.defaultTip': '1 条用例占 1 行，多个步骤在 1 个单元格内',
+  'caseManagement.featureCase.exportApiCount': '{ number } 条接口已成功导出',
   'caseManagement.featureCase.exportCaseCount': '{ number } 条用例已成功导出',
   'caseManagement.featureCase.exportXMind': '导出思维导图 (xmind)',
   'caseManagement.featureCase.exportXMindNoUnit': '导出思维导图',
