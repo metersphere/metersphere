@@ -673,6 +673,8 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             if (model != null && properties != null) {
                 JSONObject bodyParameters = getBodyParameters(properties, new HashSet<>());
                 return bodyParameters.toString();
+            } else {
+                return model.getDefaultValue() == null ? StringUtils.EMPTY : model.getDefaultValue().toString();
             }
         }
         return StringUtils.EMPTY;
