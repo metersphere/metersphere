@@ -87,6 +87,16 @@ public class MinioConfig {
                         null,
                         null,
                         null));
+        rules.add(
+                new LifecycleRule(
+                        Status.ENABLED,
+                        null,
+                        new Expiration((ZonedDateTime) null, 1, null),
+                        new RuleFilter("system/export/api"),
+                        "api-file",
+                        null,
+                        null,
+                        null));
         LifecycleConfiguration config = new LifecycleConfiguration(rules);
         try {
             minioClient.setBucketLifecycle(

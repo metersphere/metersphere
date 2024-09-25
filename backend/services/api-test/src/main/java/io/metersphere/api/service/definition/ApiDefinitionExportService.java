@@ -16,10 +16,7 @@ import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.ExportMsgDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRequest;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.MsFileUtils;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.constants.ExportConstants;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -89,14 +86,9 @@ public class ApiDefinitionExportService {
         });
         return modulePathMap;
     }
-    public ApiExportResponse genApiExportResponse(ApiDefinitionBatchExportRequest request, String type, String userId) {
-        List<String> ids = this.getBatchExportApiIds(request, request.getProjectId(), userId);
-        if (CollectionUtils.isEmpty(ids)) {
-            return null;
-        }
-        List<ApiDefinitionWithBlob> list = this.selectAndSortByIds(ids);
-        List<String> moduleIds = list.stream().map(ApiDefinitionWithBlob::getModuleId).toList();
-        Map<String, String> moduleMap = this.buildModuleIdPathMap(request.getProjectId());
+
+    public ApiExportResponse genApiExportResponse(ApiDefinitionBatchExportRequest request, Map<String, String> moduleMap, String type, String userId) {
+        List<ApiDefinitionWithBlob> list = this.selectAndSortByIds(request.getSelectIds());
         return switch (type.toLowerCase()) {
             case "swagger" -> exportSwagger(request, list, moduleMap);
             case "metersphere" -> exportMetersphere(request, list, moduleMap);
@@ -119,7 +111,7 @@ public class ApiDefinitionExportService {
                         }
                     });
             returnId = exportTask.getId();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             LogUtils.error("导出失败：" + e);
             throw new MSException(e);
         }
@@ -129,10 +121,10 @@ public class ApiDefinitionExportService {
     @Resource
     private FileService fileService;
 
-    public void uploadFileToMinio(String fileType, File file, String fileId) throws Exception {
+    public void uploadFileToMinioExportFolder(File file, String fileName) throws Exception {
         FileRequest fileRequest = new FileRequest();
-        fileRequest.setFileName(fileId.concat(".").concat(fileType));
-        fileRequest.setFolder(DefaultRepositoryDir.getExportExcelTempDir());
+        fileRequest.setFileName(fileName);
+        fileRequest.setFolder(DefaultRepositoryDir.getExportApiTempDir());
         fileRequest.setStorage(StorageType.MINIO.name());
         try (FileInputStream inputStream = new FileInputStream(file)) {
             fileService.upload(inputStream, fileRequest);
@@ -156,18 +148,35 @@ public class ApiDefinitionExportService {
             if (CollectionUtils.isEmpty(ids)) {
                 return null;
             }
-            ApiExportResponse exportResponse = this.genApiExportResponse(request, exportType, userId);
-            File createFile = new File(tmpDir.getPath() + File.separatorChar + request.getFileId() + ".json");
-            if (!createFile.exists()) {
-                try {
-                    createFile.createNewFile();
-                } catch (IOException e) {
-                    throw new MSException(e);
+
+            Map<String, String> moduleMap = this.buildModuleIdPathMap(request.getProjectId());
+
+            String fileFolder = tmpDir.getPath() + File.separatorChar + request.getFileId();
+            int fileIndex = 1;
+            SubListUtils.dealForSubList(ids, 1000, subList -> {
+                request.setSelectIds(subList);
+                ApiExportResponse exportResponse = this.genApiExportResponse(request, moduleMap, exportType, userId);
+                File createFile = new File(fileFolder + File.separatorChar + fileIndex + ".json");
+                if (!createFile.exists()) {
+                    try {
+                        createFile.getParentFile().mkdirs();
+                        createFile.createNewFile();
+                    } catch (IOException e) {
+                        throw new MSException(e);
+                    }
                 }
+                try {
+                    FileUtils.writeByteArrayToFile(createFile, JSON.toJSONString(exportResponse).getBytes());
+                } catch (Exception e) {
+                    LogUtils.error(e);
+                }
+            });
+            File zipFile = MsFileUtils.zipFile(tmpDir.getPath(), request.getFileId());
+            if (zipFile == null) {
+                return null;
             }
-            FileUtils.writeByteArrayToFile(createFile, JSON.toJSONString(exportResponse).getBytes());
-            fileType = "json";
-            uploadFileToMinio(fileType, createFile, request.getFileId());
+
+            uploadFileToMinioExportFolder(zipFile, request.getFileId());
 
             // 生成日志
             LogDTO logDTO = apiDefinitionLogService.exportExcelLog(request, exportType, userId, projectMapper.selectByPrimaryKey(request.getProjectId()).getOrganizationId());
@@ -261,8 +270,8 @@ public class ApiDefinitionExportService {
         ExportTask tasksFirst = exportTasks.getFirst();
         Project project = projectMapper.selectByPrimaryKey(projectId);
         FileRequest fileRequest = new FileRequest();
-        fileRequest.setFileName(tasksFirst.getFileId().concat(".").concat("json"));
-        fileRequest.setFolder(DefaultRepositoryDir.getExportExcelTempDir());
+        fileRequest.setFileName(tasksFirst.getFileId());
+        fileRequest.setFolder(DefaultRepositoryDir.getExportApiTempDir());
         fileRequest.setStorage(StorageType.MINIO.name());
         String fileName = "Metersphere_case_" + project.getName() + "." + tasksFirst.getFileType();
         try {

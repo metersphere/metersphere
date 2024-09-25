@@ -49,7 +49,7 @@ public class FileDownloadUtils {
                 outputStream.write(buffer, 0, num);
             }
             outputStream.close();
-            response.setContentType("application/zip");
+            response.setContentType("application/octet-stream");
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.setHeader("Content-disposition", "attachment;filename=" + fileName);
         } catch (Exception e) {
