@@ -33,10 +33,6 @@ import static io.metersphere.sdk.util.XMLUtils.elementToMap;
 public class HttpRequestParamDiffUtils {
 
     public static boolean isRequestParamDiff(Object request1, Object request2) {
-        return isRequestParamDiff(new ApiCaseSyncItemRequest(), request1, request2);
-    }
-
-    public static boolean isRequestParamDiff(ApiCaseSyncItemRequest syncItemRequest, Object request1, Object request2) {
         if (!(request1 instanceof MsHTTPElement)) {
             // 其他协议不比较
             return false;
@@ -47,12 +43,6 @@ public class HttpRequestParamDiffUtils {
         boolean isRestDiff = isParamKeyDiff(httpElement1.getRest(), httpElement2.getRest());
         boolean isHeaderDiff = isParamKeyDiff(httpElement1.getHeaders(), httpElement2.getHeaders());
         boolean isBodyDiff = isBodyDiff(httpElement1.getBody(), httpElement2.getBody());
-
-        // 设置需要同步的同步项, 减少比较次数
-        syncItemRequest.setBody(isBodyDiff && BooleanUtils.isTrue(syncItemRequest.getBody()));
-        syncItemRequest.setHeader(isHeaderDiff && BooleanUtils.isTrue(syncItemRequest.getHeader()));
-        syncItemRequest.setQuery(isQueryDiff && BooleanUtils.isTrue(syncItemRequest.getQuery()));
-        syncItemRequest.setRest(isRestDiff && BooleanUtils.isTrue(syncItemRequest.getRest()));
 
         if (isQueryDiff || isRestDiff || isHeaderDiff || isBodyDiff) {
             return true;

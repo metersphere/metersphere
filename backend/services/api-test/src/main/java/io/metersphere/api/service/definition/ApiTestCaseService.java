@@ -1044,7 +1044,7 @@ public class ApiTestCaseService extends MoveNodeService {
                 AbstractMsTestElement apiMsTestElement = getApiMsTestElement(apiDefinitionBlob);
                 ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(apiTestCase.getId());
                 AbstractMsTestElement apiTestCaseMsTestElement = getTestElement(apiTestCaseBlob);
-                boolean requestParamDifferent = HttpRequestParamDiffUtils.isRequestParamDiff(request.getSyncItems(), apiMsTestElement, apiTestCaseMsTestElement);
+                boolean requestParamDifferent = HttpRequestParamDiffUtils.isRequestParamDiff(apiMsTestElement, apiTestCaseMsTestElement);
                 if (requestParamDifferent) {
                     // 如果参数与定义不一致，则同步参数，并记录日志和发送通知
                     ApiTestCaseLogDTO originCase = BeanUtils.copyBean(new ApiTestCaseLogDTO(), apiTestCase);
