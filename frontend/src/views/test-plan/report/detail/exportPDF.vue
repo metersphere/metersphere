@@ -799,7 +799,7 @@
         body: fullCaseList.value.map((e: any) => ({
           ...e,
           executeResult: t(lastExecuteResultMap[e.executeResult]?.statusText || '-'),
-          executeUser: e.executeUser?.name || '-',
+          executeUser: e.executeUser || '-',
         })) as RowInput[],
       });
     }
@@ -829,7 +829,7 @@
         body: fullApiList.value.map((e: any) => ({
           ...e,
           executeResult: t(lastExecuteResultMap[e.executeResult]?.statusText || '-'),
-          executeUser: e.executeUser?.name || '-',
+          executeUser: e.executeUser || '-',
         })) as RowInput[],
       });
     }
@@ -845,7 +845,7 @@
         body: fullScenarioList.value.map((e: any) => ({
           ...e,
           executeResult: t(lastExecuteResultMap[e.executeResult]?.statusText || '-'),
-          executeUser: e.executeUser?.name || '-',
+          executeUser: e.executeUser || '-',
         })) as RowInput[],
       });
     }
