@@ -79,19 +79,14 @@
         <include refid="filters">
             <property name="filter" value="request.condition.filter"/>
         </include>
-        <choose>
-            <when test='request.condition.searchMode == "AND"'>
-                AND <include refid="baseQueryCombine"/>
-            </when>
-            <when test='request.condition.searchMode == "OR"'>
-                and (
-                <include refid="baseQueryCombine"/>
-                )
-            </when>
-        </choose>
+        <if test="request.condition.combine != null">
+            <include refid="combine">
+                <property name="combineSearch" value="request.condition.combineSearch"/>
+            </include>
+        </if>
     </sql>
 
-    <sql id="baseQueryCombine">
+    <!--<sql id="baseQueryCombine">
         <if test="request.condition.combine != null">
             <include refid="combine">
                 <property name="condition" value="request.condition.combine"/>
@@ -102,7 +97,7 @@
             </include>
         </if>
         1=1
-    </sql>
+    </sql>-->
 
 
     <sql id="queryWhereCondition">
@@ -131,19 +126,12 @@
         <include refid="filters">
             <property name="filter" value="request.filter"/>
         </include>
-        <choose>
-            <when test='request.searchMode == "AND"'>
-                AND <include refid="queryCombine"/>
-            </when>
-            <when test='request.searchMode == "OR"'>
-                and (
-                <include refid="queryCombine"/>
-                )
-            </when>
-        </choose>
+        <include refid="combine">
+            <property name="combineSearch" value="request.combineSearch"/>
+        </include>
     </sql>
 
-    <sql id="queryCombine">
+    <!--<sql id="queryCombine">
         <include refid="combine">
             <property name="condition" value="request.combine"/>
             <property name="name" value="request.name"/>
@@ -152,7 +140,7 @@
             <property name="ObjectModuleIds" value="request.combine.moduleIds"/>
         </include>
         1=1
-    </sql>
+    </sql>-->
 
     <sql id="queryType">
         <choose>
@@ -197,6 +185,80 @@
     </sql>
 
     <sql id="combine">
+        <trim prefix="AND">
+            <trim prefix="(" suffix=")" suffixOverrides="AND|OR">
+                <if test="${combineSearch} != null">
+                    <foreach collection="${combineSearch}.userViewConditions" item="condition">
+                        <if test="condition.name == 'createUser'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="case_review.create_user"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'reviewers'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
+                                <property name="mainIdColumn" value="case_review.id"/>
+                                <property name="associationTable" value="case_review_functional_case_user"/>
+                                <property name="associationIdColumn" value="review_id"/>
+                                <property name="searchColumn" value="user_id"/>
+                                <property name="condition" value="condition"/>
+                            </include>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                    <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
+                            <property name="condition" value="condition"/>
+                            <property name="tablePrefix" value="case_review"/>
+                        </include>
+                        <if test="condition.name == 'status'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="case_review.status"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'reviewPassRule'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="case_review.review_pass_rule"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'startTime'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="case_review.start_time"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'endTime'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="case_review.end_time"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'caseCount'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="case_review.case_count"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'passRate'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="case_review.pass_rate"/>
+                            </include>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                </if>
+            </trim>
+        </trim>
+    </sql>
+
+    <!--<sql id="combine">
         <if test="request.combine != null">
             <if test='${condition}.name != null'>
                 case_review.name
@@ -374,7 +436,7 @@
                 </include>
             </if>
         </if>
-    </sql>
+    </sql>-->
 
     <sql id="condition">
         <choose>
