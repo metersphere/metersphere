@@ -161,7 +161,12 @@
         </a-button>
       </div>
     </a-form>
-    <MsButton type="text" class="mt-[5px] w-[fit-content]" @click="handleAddItem">
+    <MsButton
+      :disabled="formModel.list?.length === [...props.configList, ...(props.customList ?? [])].length"
+      type="text"
+      class="mt-[5px] w-[fit-content]"
+      @click="handleAddItem"
+    >
       <MsIcon type="icon-icon_add_outlined" class="mr-[3px]" />
       {{ t('advanceFilter.addCondition') }}
     </MsButton>
@@ -528,6 +533,10 @@
     async (val) => {
       // 新建视图关闭后重新获取数据
       if (!val) {
+        if (isShowNameInput.value) {
+          formModel.value.name = savedFormModel.value.name;
+          isShowNameInput.value = false;
+        }
         handleCancelSaveAsView();
         if (formModel.value?.id !== props.currentView) {
           await getUserViewDetail(props.currentView);
@@ -563,7 +572,7 @@
       height: 60px;
       .arco-form-item-content,
       .arco-input-wrapper,
-      .arco-form-item-wrapper-col {
+      .arco-form-item-content-wrapper {
         height: 26px;
         min-height: 26px;
       }
