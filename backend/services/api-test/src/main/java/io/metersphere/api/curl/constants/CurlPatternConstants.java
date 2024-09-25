@@ -52,7 +52,8 @@ public interface CurlPatternConstants {
     /**
      * --data-raw 请求体
      */
-    Pattern HTTP_ROW_BODY_PATTERN = Pattern.compile("--data-raw '(.+?)'(?s)", Pattern.DOTALL);
+    Pattern HTTP_XML_JSON_BODY_PATTERN = Pattern.compile("--data-raw '(.+?)'(?s)", Pattern.DOTALL);
+    Pattern HTTP_ROW_BODY_PATTERN = Pattern.compile("--data-binary\\s+['\"](.+?)['\"](?s)", Pattern.DOTALL);
 
     /**
      * --form 请求体

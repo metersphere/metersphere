@@ -298,6 +298,13 @@ export function parseCurlBody(bodyType: RequestBodyFormat, body: Record<string, 
         value: body as string,
       };
       break;
+    case RequestBodyFormat.RAW:
+      requestBody.bodyType = bodyType;
+      requestBody.rawBody = {
+        ...cloneDeep(defaultBodyParams.rawBody),
+        value: body as string,
+      };
+      break;
     case RequestBodyFormat.FORM_DATA:
       requestBody.bodyType = bodyType;
       requestBody.formDataBody = {
