@@ -4,7 +4,7 @@
                               v-permission="btn.permissions"
                               :disabled="isDisable(btn)"
                               :class="btn.class" :row-data="row"
-                              :tip="btn.tip" :icon="btn.icon" :type="btn.type"
+                              :tip="tip(btn)" :icon="btn.icon" :type="btn.type"
                               :isDivButton="btn.isDivButton" :is-text-button="btn.isTextButton"
                               :is-more-operate="btn.isMoreOperate" :child-operate="btn.childOperate"
                               @exec="click(btn)" @click.stop="clickStop(btn)"/>
@@ -42,6 +42,13 @@ export default {
         }
       }
       return false;
+    },
+    tip(btn) {
+      if (btn.tip instanceof Function) {
+        return btn.tip(this.row);
+      } else {
+        return btn.tip;
+      }
     }
   }
 };

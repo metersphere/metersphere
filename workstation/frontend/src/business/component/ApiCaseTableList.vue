@@ -407,14 +407,14 @@ export default {
           permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']
         },
         {
-          tip: this.systemDisable ? this.$t('workstation.no_sync_content') : this.$t('workstation.sync'),
+          tip: this.systemSyncTip,
           icon: "el-icon-refresh",
           exec: this.openSyncCase,
           isDisable: this.systemDisable,
           permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
         },
         {
-          tip: this.systemDisable ? this.$t('workstation.no_sync_content') : this.$t('workstation.ignore'),
+          tip: this.systemIgnoreTip,
           icon: "el-icon-close",
           exec: this.openIgnoreCase,
           isDisable: this.systemDisable,
@@ -1061,7 +1061,22 @@ export default {
     },
     systemDisable(row) {
       return row.toBeUpdated !== true;
-    }
+    },
+    systemSyncTip(row){
+      if (row.toBeUpdated !== true) {
+        return this.$t('workstation.no_sync_content')
+      } else {
+        return this.$t('workstation.sync')
+      }
+    },
+    systemIgnoreTip(row){
+      if (row.toBeUpdated !== true) {
+        return this.$t('workstation.no_sync_content')
+      } else {
+        return this.$t('workstation.ignore')
+      }
+    },
+
 
   },
 };
