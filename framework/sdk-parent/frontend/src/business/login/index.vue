@@ -42,7 +42,7 @@
                   :placeholder="$t('commons.password')"
                   show-password
                   autocomplete="off"
-                  maxlength="30"
+                  maxlength="65"
                   show-word-limit />
               </el-form-item>
             </el-form>
