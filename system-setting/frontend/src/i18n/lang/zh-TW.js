@@ -45,6 +45,7 @@ const message = {
     service_resetConfigTip: '重置成功！',
     service_testLink: '測試連接',
     service_testLinkStatusTip: '測試連接成功！',
+    service_testLinkStatusErrorTip: '測試連接失敗！',
     service_enableSuccess: '啟用成功',
     service_closeSuccess: '停用成功',
     service_edit: '編輯',

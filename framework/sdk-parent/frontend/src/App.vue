@@ -67,7 +67,7 @@ export default {
     if (state.split('#')[0] === 'fit2cloud-lark-suite-qr' && state.split('#')[1] === "/") {
       this.loading = true;
       try {
-        axios.get("/sso/callback/lark?lark_suite="+code).then((response) => {
+        axios.get("/sso/callback/lark_suite?code="+code).then((response) => {
           const weComCallback = response.data.data;
           const userStore = useUserStore()
           // 删除缓存

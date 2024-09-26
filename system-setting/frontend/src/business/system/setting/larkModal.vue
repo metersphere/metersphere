@@ -114,9 +114,13 @@ export default {
         if (valid) {
           this.loading = true;
           try {
-            validateLarkConfig(this.weComForm);
-            this.larkForm.valid = true;
-            this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
+            validateLarkConfig(this.weComForm).then(res => {
+              this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
+              this.larkForm.valid = true;
+            }).catch(e => {
+              this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
+              this.larkForm.valid = false;
+            });
           } catch (error) {
             this.larkForm.valid = false;
             // eslint-disable-next-line no-console

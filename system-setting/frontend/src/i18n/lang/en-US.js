@@ -45,6 +45,7 @@ const message = {
     service_resetConfigTip: 'Reset successful!',
     service_testLink: 'test connection',
     service_testLinkStatusTip: 'Test connection successful!',
+    service_testLinkStatusErrorTip: 'Test connection error!',
     service_enableSuccess: 'Activated successfully',
     service_closeSuccess: 'Disabled successfully',
     service_edit: 'edit',

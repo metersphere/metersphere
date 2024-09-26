@@ -119,9 +119,13 @@ export default {
         if (valid) {
           this.loading = true;
           try {
-            validateWeComConfig(this.weComForm);
-            this.weComForm.valid = true;
-            this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
+            validateWeComConfig(this.weComForm).then(res => {
+              this.weComForm.valid = true;
+              this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
+            }).catch(e => {
+              this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
+              this.weComForm.valid = false;
+            });
           } catch (error) {
             this.weComForm.valid = false;
             // eslint-disable-next-line no-console

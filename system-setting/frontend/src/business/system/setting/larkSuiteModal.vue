@@ -115,9 +115,13 @@ export default {
         if (valid) {
           this.loading = true;
           try {
-            validateLarkSuiteConfig(this.larkSuiteForm);
-            this.larkForm.valid = true;
-            this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
+            validateLarkSuiteConfig(this.larkSuiteForm).then(res => {
+              this.larkForm.valid = true;
+              this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
+            }).catch(e => {
+              this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
+              this.larkForm.valid = false;
+            });
           } catch (error) {
             this.larkForm.valid = false;
             // eslint-disable-next-line no-console
