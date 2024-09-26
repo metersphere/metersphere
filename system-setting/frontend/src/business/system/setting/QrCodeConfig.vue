@@ -236,15 +236,30 @@ export default {
       this.loading = true;
       try {
         if (key === 'WE_COM') {
-          await validateWeComConfig(this.weComInfo);
+          validateWeComConfig(this.weComInfo).then(res => {
+            this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
+          }).catch(e => {
+            this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
+          });
         } else if (key === 'DING_TALK') {
-          await validateDingTalkConfig(this.dingTalkInfo);
+          validateDingTalkConfig(this.dingTalkInfo).then(res => {
+            this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
+          }).catch(e => {
+            this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
+          });
         } else if (key === 'LARK') {
-          await validateLarkConfig(this.larkInfo);
+          validateLarkConfig(this.larkInfo).then(res => {
+            this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
+          }).catch(e => {
+            this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
+          });
         } else if (key === 'LARK_SUITE') {
-          await validateLarkSuiteConfig(this.larkInfo);
+          await validateLarkSuiteConfig(this.larkInfo).then(res => {
+            this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
+          }).catch(e => {
+            this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
+          });
         }
-        this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
       } catch (error) {
         if (key === 'WE_COM') {
           await closeValidateWeCom();
@@ -274,15 +289,22 @@ export default {
       };
       try {
         if (key === 'WE_COM') {
-          await enableWeCom(params);
+          await enableWeCom(params).then(res => {
+            this.$message.success(this.$t(message));
+          });
         } else if (key === 'DING_TALK') {
-          await enableDingTalk(params);
+          await enableDingTalk(params).then(res => {
+            this.$message.success(this.$t(message));
+          });
         } else if (key === 'LARK') {
-          await enableLark(params);
+          await enableLark(params).then(res => {
+            this.$message.success(this.$t(message));
+          });
         } else if (key === 'LARK_SUITE') {
-          await enableLarkSuite(params);
+          await enableLarkSuite(params).then(res => {
+            this.$message.success(this.$t(message));
+          });
         }
-        this.$message.success(this.$t(message));
         this.loadList();
       } catch (error) {
         // eslint-disable-next-line no-console

@@ -118,6 +118,9 @@ export default {
           this.loading = validateDingTalkConfig(this.dingTalkForm).then(res => {
             this.dingTalkForm.valid = true;
             this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
+          }).catch(e => {
+            this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
+            this.dingTalkForm.valid = false;
           });
         } else {
           console.log('error submit!!');
