@@ -368,8 +368,12 @@
 
     <sql id="associationAttachmentCondition">
         <choose>
-            <when test="${condition}.operator == 'EMPTY'">
-                functional_case.id not in (
+            <when test="${condition}.operator == 'EMPTY' or ${condition}.operator == 'NOT_EMPTY'">
+                functional_case.id
+                <if test="${condition}.operator == 'EMPTY'">
+                    not
+                </if>
+                in (
                     select file_association.source_id from file_association where file_association.source_type = 'FUNCTIONAL_CASE'
                 )
             </when>
@@ -382,20 +386,32 @@
                 in (
                     select file_association.source_id from file_association join file_metadata on file_association.file_id = file_metadata.id
                     and file_association.source_type = 'FUNCTIONAL_CASE' and
-                    <choose>
-                        <when test="${condition}.operator == 'NOT_IN' or ${condition}.operator == 'NOT_EQUALS' or ${condition}.operator == 'NOT_CONTAINS'">
-                            <include refid="io.metersphere.system.mapper.BaseMapper.associationReversalCondition">
-                                <property name="condition" value="${condition}"/>
-                                <property name="column" value="file_metadata.original_name"/>
-                            </include>
-                        </when>
-                        <otherwise>
-                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                <property name="condition" value="${condition}"/>
-                                <property name="column" value="file_metadata.original_name"/>
-                            </include>
-                        </otherwise>
-                    </choose>
+                    <trim prefix="(" suffix=")">
+                        <choose>
+                            <when test="${condition}.operator == 'CONTAINS' or ${condition}.operator == 'NOT_CONTAINS'">
+                                <foreach collection="${condition}.value.split(' ')" item="item" separator="and">
+                                    <foreach collection="item.split('\\.')" index="index" item="subItem">
+                                        <if test="index == 0">
+                                            file_metadata.name like CONCAT('%', #{subItem},'%')
+                                        </if>
+                                        <if test="index == 1">
+                                            and file_metadata.`type` like CONCAT('%', #{subItem},'%')
+                                        </if>
+                                    </foreach>
+                                </foreach>
+                            </when>
+                            <when test="${condition}.operator == 'EQUALS' or ${condition}.operator == 'NOT_EQUALS'">
+                                <foreach collection="${condition}.value.split('\\.')" index="index" item="item">
+                                    <if test="index == 0">
+                                        file_metadata.name = #{item}
+                                    </if>
+                                    <if test="index == 1">
+                                        and file_metadata.`type` = #{item}
+                                    </if>
+                                </foreach>
+                            </when>
+                        </choose>
+                    </trim>
                     )
                 )
             </otherwise>
