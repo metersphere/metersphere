@@ -564,7 +564,7 @@
 
   function loadBugListAndCaseDetail() {
     addSuccess();
-    loadCaseDetail();
+    loadCase();
   }
 
   async function associateSuccessHandler(params: TableQueryParams) {
