@@ -25,6 +25,7 @@
   import { setFavicon, watchStyle, watchTheme } from '@/utils/theme';
 
   import { getLarkCallback, getLarkSuiteCallback, getPublicKeyRequest } from './api/modules/user';
+  import { hasAnyPermission } from './utils/permission';
   import enUS from '@arco-design/web-vue/es/locale/lang/en-us';
   import zhCN from '@arco-design/web-vue/es/locale/lang/zh-cn';
 
@@ -52,7 +53,9 @@
   onBeforeMount(async () => {
     try {
       appStore.initSystemVersion(); // 初始化系统版本
-      appStore.initFileSizeLimit(); // 初始化文件大小限制
+      if (hasAnyPermission(['SYSTEM_PARAMETER_SETTING_BASE:READ'])) {
+        appStore.initFileSizeLimit(); // 初始化文件大小限制
+      }
       // 企业版才校验license
       if (appStore.getPackageType === 'enterprise') {
         licenseStore.getValidateLicense();

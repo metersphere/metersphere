@@ -424,7 +424,11 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
     switch (type) {
       case 'AppendChildNode':
         if (node.data?.resource?.includes(moduleTag)) {
-          execInert('AppendChildNode');
+          if (value) {
+            insertSpecifyNode('AppendChildNode', value);
+          } else {
+            execInert('AppendChildNode');
+          }
         } else if (node.data?.resource?.includes(caseTag)) {
           // 给用例插入子节点
           if (value) {
