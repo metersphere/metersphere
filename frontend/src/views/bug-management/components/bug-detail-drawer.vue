@@ -105,19 +105,7 @@
       </div>
     </template>
     <template #default>
-      <div
-        ref="wrapperRef"
-        :class="[
-          `${
-            activeTab === 'comment' && hasAnyPermission(['PROJECT_BUG:READ+COMMENT']) && !commentInputIsActive
-              ? 'h-[calc(100%-72px)]'
-              : commentInputIsActive
-              ? 'h-[calc(100%-286px)]'
-              : 'h-full'
-          }`,
-          'bg-white',
-        ]"
-      >
+      <div ref="wrapperRef" class="bg-white">
         <div class="header relative h-[48px] pl-2">
           <MsTab
             v-model:active-key="activeTab"
@@ -126,8 +114,10 @@
             class="no-content relative border-b"
           />
         </div>
-        <div :class="`leftWrapper ${!commentInputIsActive ? 'h-[calc(100vh-178px)]' : 'h-[calc(100vh-382px)]'}`">
-          <a-spin :loading="detailLoading" class="w-full">
+        <div
+          :class="`${!commentInputIsActive ? 'h-[calc(100vh-174px)]' : 'h-[calc(100vh-378px)]'} content-wrapper w-full`"
+        >
+          <a-spin :loading="detailLoading" class="h-full w-full">
             <div class="tab-pane-container">
               <BugDetailTab
                 v-if="activeTab === 'detail'"
@@ -591,6 +581,10 @@
       padding: 0 16px;
       border-bottom: 1px solid var(--color-text-n8);
     }
+  }
+  .content-wrapper {
+    @apply overflow-y-auto overflow-x-hidden;
+    .ms-scroll-bar();
   }
   .rightWrapper {
     .baseItem {
