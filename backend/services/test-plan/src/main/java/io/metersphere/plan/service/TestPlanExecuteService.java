@@ -341,6 +341,7 @@ public class TestPlanExecuteService {
         TestPlanCollection parentCollection = testPlanCollectionMapper.selectByPrimaryKey(executionQueue.getSourceID());
         TestPlanCollectionExample example = new TestPlanCollectionExample();
         example.createCriteria().andParentIdEqualTo(executionQueue.getSourceID());
+        example.setOrderByClause("pos asc");
         List<TestPlanCollection> childrenList = testPlanCollectionMapper.selectByExample(example);
 
         int pos = 0;
