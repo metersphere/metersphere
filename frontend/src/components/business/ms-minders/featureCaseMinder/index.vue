@@ -217,7 +217,7 @@
                 {
                   data: {
                     id: 'fakeNode',
-                    text: '...',
+                    text: t('ms.minders.moreCase'),
                     resource: [''],
                     isNew: false,
                     changed: false,
@@ -493,7 +493,7 @@
         const moreNode = window.minder.createNode(
           {
             id: `tmp-${data.id}`,
-            text: '...',
+            text: t('ms.minders.moreCase'),
             type: 'tmp',
             expandState: 'collapse',
             current: 1,
@@ -592,7 +592,7 @@
         const moreNode = window.minder.createNode(
           {
             id: `tmp-${data.id}`,
-            text: '...',
+            text: t('ms.minders.moreCase'),
             type: 'tmp',
             expandState: 'collapse',
             current: current + 1,

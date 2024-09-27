@@ -15,6 +15,8 @@ export default {
   'ms.minders.createSiblingCase': 'Insert sibling Case',
   'ms.minders.createChildModule': 'Insert child Module',
   'ms.minders.createChildCase': 'Insert child Case',
+  'ms.minders.moreCase': 'More Cases...',
+  'ms.minders.moreModule': 'More Modules...',
   // 测试规划脑图文案
   'ms.minders.failStop': 'Failure stop',
   'ms.minders.failRetry': 'Retry on failure',

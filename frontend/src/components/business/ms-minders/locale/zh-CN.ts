@@ -15,6 +15,8 @@ export default {
   'ms.minders.createSiblingCase': '添加同级用例',
   'ms.minders.createChildModule': '添加子级模块',
   'ms.minders.createChildCase': '添加子级用例',
+  'ms.minders.moreCase': '更多用例...',
+  'ms.minders.moreModule': '更多模块...',
   // 测试规划脑图文案
   'ms.minders.failStop': '失败停止',
   'ms.minders.failRetry': '失败重试',
