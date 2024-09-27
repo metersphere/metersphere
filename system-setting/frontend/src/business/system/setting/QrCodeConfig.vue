@@ -233,48 +233,37 @@ export default {
     // 外部测试连接
     async getValidateHandler(key) {
       this.loading = true;
-      try {
-        if (key === 'WE_COM') {
-          validateWeComConfig(this.weComInfo).then(res => {
-            this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
-          }).catch(e => {
-            this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
-          });
-        } else if (key === 'DING_TALK') {
-          validateDingTalkConfig(this.dingTalkInfo).then(res => {
-            this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
-          }).catch(e => {
-            this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
-          });
-        } else if (key === 'LARK') {
-          validateLarkConfig(this.larkInfo).then(res => {
-            this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
-          }).catch(e => {
-            this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
-          });
-        } else if (key === 'LARK_SUITE') {
-          await validateLarkSuiteConfig(this.larkInfo).then(res => {
-            this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
-          }).catch(e => {
-            this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
-          });
-        }
-      } catch (error) {
-        if (key === 'WE_COM') {
-          await closeValidateWeCom();
-        } else if (key === 'DING_TALK') {
-          await closeValidateDingTalk();
-        } else if (key === 'LARK') {
-          await closeValidateLark();
-        } else if (key === 'LARK_SUITE') {
-          await closeValidateLarkSuite();
-        }
-        // eslint-disable-next-line no-console
-        console.log(error);
-      } finally {
-        this.loadList();
-        this.loading = false;
+      if (key === 'WE_COM') {
+        validateWeComConfig(this.weComInfo).then(res => {
+          this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
+        }).catch(e => {
+          closeValidateWeCom();
+          this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
+        });
+      } else if (key === 'DING_TALK') {
+        validateDingTalkConfig(this.dingTalkInfo).then(res => {
+          this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
+        }).catch(e => {
+          closeValidateDingTalk();
+          this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
+        });
+      } else if (key === 'LARK') {
+        validateLarkConfig(this.larkInfo).then(res => {
+          this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
+        }).catch(e => {
+          closeValidateLark();
+          this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
+        });
+      } else if (key === 'LARK_SUITE') {
+        await validateLarkSuiteConfig(this.larkInfo).then(res => {
+          this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
+        }).catch(e => {
+          closeValidateLarkSuite();
+          this.$message.error(this.$t('qrcode.service_testLinkStatusErrorTip'));
+        });
       }
+      this.loadList();
+      this.loading = false;
     },
     checkPermission(key){
         return true;
