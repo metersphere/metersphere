@@ -188,6 +188,7 @@
     treePath: [],
   });
   const loading = ref(false);
+  const largeModulesMap = ref<Record<string, MinderJsonNode[]>>({}); // 存储大数据量的模块节点
 
   const modulesCount = computed(() => caseReviewStore.modulesCount);
 
@@ -195,30 +196,49 @@
    * 初始化用例模块树
    */
   async function initCaseTree() {
-    const tree = mapTree<MinderJsonNode>(props.moduleTree, (e) => ({
-      ...e,
-      data: {
-        ...e.data,
-        id: e.id || e.data?.id || '',
-        text: e.name || e.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
-        resource: modulesCount.value[e.id] !== undefined ? [moduleTag] : e.data?.resource,
-        expandState: e.level === 0 ? 'expand' : 'collapse',
-        count: modulesCount.value[e.id],
-        disabled: true,
-      },
-      children:
-        modulesCount.value[e.id] > 0 && !e.children?.length
-          ? [
-              {
-                data: {
-                  id: 'fakeNode',
-                  text: t('ms.minders.moreCase'),
-                  resource: [''],
+    const tree = mapTree<MinderJsonNode>(props.moduleTree, (e) => {
+      if (e.children && e.children.length > 50) {
+        // 每层超过 50 个节点，只展示 50 个
+        largeModulesMap.value[e.id] = e.children; // 存储大数据量的模块节点
+      }
+      const showingChildren = largeModulesMap.value[e.id]?.splice(0, 50) || e.children || [];
+      if (showingChildren.length === 50) {
+        showingChildren.push({
+          data: {
+            id: `tmp-${e.id}`,
+            type: 'tmpModule',
+            text: t('ms.minders.moreModule'),
+            resource: [],
+            isNew: false,
+            changed: false,
+          },
+        });
+      }
+      return {
+        ...e,
+        data: {
+          ...e.data,
+          id: e.id || e.data?.id || '',
+          text: e.name || e.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
+          resource: modulesCount.value[e.id] !== undefined ? [moduleTag] : e.data?.resource,
+          expandState: e.level === 0 ? 'expand' : 'collapse',
+          count: modulesCount.value[e.id],
+          disabled: true,
+        },
+        children:
+          modulesCount.value[e.id] > 0 && !e.children?.length
+            ? [
+                {
+                  data: {
+                    id: 'fakeNode',
+                    text: t('ms.minders.moreCase'),
+                    resource: [''],
+                  },
                 },
-              },
-            ]
-          : e.children,
-    }));
+              ]
+            : showingChildren,
+      };
+    });
     importJson.value.root = {
       children: tree,
       data: {
@@ -535,12 +555,77 @@
     isReviewer.value = caseReviewerList.value.some((child) => child.userId === userStore.id);
   }
 
+  function loadMoreModules(id: string) {
+    const node: MinderJsonNode = window.minder.getNodeById(id);
+    const children = largeModulesMap.value[id];
+    if (children) {
+      const fakeNode = node.children?.find((e) => e.data?.id === `tmp-${id}`); // 移除占位的虚拟节点
+      if (fakeNode) {
+        window.minder.removeNode(fakeNode);
+      }
+      const waitingRenderNodes: MinderJsonNode[] = [];
+      children.splice(0, 50).forEach((e) => {
+        const child = window.minder.createNode(
+          {
+            ...e.data,
+            id: e.id || e.data?.id || '',
+            text: e.name || e.data?.text || '',
+            resource: [moduleTag],
+            expandState: 'collapse',
+            count: modulesCount.value[e.id],
+            isNew: false,
+            changed: false,
+          },
+          node
+        );
+        if (modulesCount.value[e.id] > 0 && !e.children?.length) {
+          const fakeChildNode = window.minder.createNode(
+            {
+              id: 'fakeNode',
+              text: t('ms.minders.moreCase'),
+              resource: [],
+              isNew: false,
+              changed: false,
+            },
+            child
+          );
+          waitingRenderNodes.push(fakeChildNode);
+        }
+        waitingRenderNodes.push(child);
+      });
+      if (children.length > 0) {
+        // 有更多模块
+        const moreNode = window.minder.createNode(
+          {
+            id: `tmp-${id}`,
+            text: t('ms.minders.moreModule'),
+            type: 'tmpModule',
+            resource: [],
+            isNew: false,
+            changed: false,
+          },
+          node
+        );
+        waitingRenderNodes.push(moreNode);
+      }
+      window.minder.renderNodeBatch(waitingRenderNodes);
+      node.layout();
+      // 加载完模块数据后，更新当前importJson数据
+      replaceNodeInTree([importJson.value.root], node.data?.id || '', window.minder.exportNode(node), 'data', 'id');
+    }
+  }
+
   /**
    * 处理节点选中
    * @param node 节点
    */
   async function handleNodeSelect(node: MinderJsonNode) {
     const { data } = node;
+    if (data?.type === 'tmpModule') {
+      // 点击更多节点，加载更多模块
+      loadMoreModules(node.parent?.data?.id || '');
+      return;
+    }
     // 点击更多节点，加载更多用例
     if (data?.type === 'tmp' && node.parent?.data?.resource?.includes(moduleTag)) {
       canShowFloatMenu.value = false;

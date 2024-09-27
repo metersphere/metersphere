@@ -177,6 +177,7 @@
     root: {} as MinderJsonNode,
     treePath: [],
   });
+  const largeModulesMap = ref<Record<string, MinderJsonNode[]>>({}); // 存储大数据量的模块节点
   const caseTree = ref<MinderJsonNode[]>([]);
   const loading = ref(false);
   const tempMinderParams = ref<FeatureCaseMinderUpdateParams>({
@@ -199,33 +200,52 @@
         projectId: appStore.currentProjectId,
         moduleId: '', // 始终加载全部，然后再进入对应的模块节点
       });
-      caseTree.value = mapTree<MinderJsonNode>(res, (e) => ({
-        ...e,
-        data: {
-          ...e.data,
-          id: e.id || e.data?.id || '',
-          text: e.name || e.data?.text || '',
-          resource: props.modulesCount[e.id] !== undefined ? [moduleTag] : e.data?.resource,
-          expandState: e.level === 0 ? 'expand' : 'collapse',
-          count: props.modulesCount[e.id],
-          isNew: false,
-          changed: false,
-        },
-        children:
-          props.modulesCount[e.id] > 0 && !e.children?.length
-            ? [
-                {
-                  data: {
-                    id: 'fakeNode',
-                    text: t('ms.minders.moreCase'),
-                    resource: [''],
-                    isNew: false,
-                    changed: false,
+      caseTree.value = mapTree<MinderJsonNode>(res, (e) => {
+        if (e.children && e.children.length > 50) {
+          // 每层超过 50 个节点，只展示 50 个
+          largeModulesMap.value[e.id] = e.children; // 存储大数据量的模块节点
+        }
+        const showingChildren = largeModulesMap.value[e.id]?.splice(0, 50) || e.children || [];
+        if (showingChildren.length === 50) {
+          showingChildren.push({
+            data: {
+              id: `tmp-${e.id}`,
+              type: 'tmpModule',
+              text: t('ms.minders.moreModule'),
+              resource: [],
+              isNew: false,
+              changed: false,
+            },
+          });
+        }
+        return {
+          ...e,
+          data: {
+            ...e.data,
+            id: e.id || e.data?.id || '',
+            text: e.name || e.data?.text || '',
+            resource: props.modulesCount[e.id] !== undefined ? [moduleTag] : e.data?.resource,
+            expandState: e.level === 0 ? 'expand' : 'collapse',
+            count: props.modulesCount[e.id],
+            isNew: false,
+            changed: false,
+          },
+          children:
+            props.modulesCount[e.id] > 0 && !e.children?.length
+              ? [
+                  {
+                    data: {
+                      id: 'fakeNode',
+                      text: t('ms.minders.moreCase'),
+                      resource: [],
+                      isNew: false,
+                      changed: false,
+                    },
                   },
-                },
-              ]
-            : e.children,
-      }));
+                ]
+              : showingChildren,
+        };
+      });
       importJson.value.root = {
         children: caseTree.value,
         data: {
@@ -614,6 +634,66 @@
     }
   }
 
+  function loadMoreModules(id: string) {
+    const node: MinderJsonNode = window.minder.getNodeById(id);
+    const children = largeModulesMap.value[id];
+    if (children) {
+      const fakeNode = node.children?.find((e) => e.data?.id === `tmp-${id}`); // 移除占位的虚拟节点
+      if (fakeNode) {
+        window.minder.removeNode(fakeNode);
+      }
+      const waitingRenderNodes: MinderJsonNode[] = [];
+      children.splice(0, 50).forEach((e) => {
+        const child = window.minder.createNode(
+          {
+            ...e.data,
+            id: e.id || e.data?.id || '',
+            text: e.name || e.data?.text || '',
+            resource: [moduleTag],
+            expandState: 'collapse',
+            count: props.modulesCount[e.id],
+            isNew: false,
+            changed: false,
+          },
+          node
+        );
+        if (props.modulesCount[e.id] > 0 && !e.children?.length) {
+          const fakeChildNode = window.minder.createNode(
+            {
+              id: 'fakeNode',
+              text: t('ms.minders.moreCase'),
+              resource: [],
+              isNew: false,
+              changed: false,
+            },
+            child
+          );
+          waitingRenderNodes.push(fakeChildNode);
+        }
+        waitingRenderNodes.push(child);
+      });
+      if (children.length > 0) {
+        // 有更多模块
+        const moreNode = window.minder.createNode(
+          {
+            id: `tmp-${id}`,
+            type: 'tmpModule',
+            text: t('ms.minders.moreModule'),
+            resource: [],
+            isNew: false,
+            changed: false,
+          },
+          node
+        );
+        waitingRenderNodes.push(moreNode);
+      }
+      window.minder.renderNodeBatch(waitingRenderNodes);
+      node.layout();
+      // 加载完模块数据后，更新当前importJson数据
+      replaceNodeInTree([importJson.value.root], node.data?.id || '', window.minder.exportNode(node), 'data', 'id');
+    }
+  }
+
   const showDetailMenu = ref(false);
   const canShowEnterNode = ref(false);
   /**
@@ -623,6 +703,11 @@
   async function handleNodeSelect(node: MinderJsonNode) {
     const { data } = node;
     checkNodeCanShowMenu(node);
+    if (data?.type === 'tmpModule') {
+      // 点击更多节点，加载更多模块
+      loadMoreModules(node.parent?.data?.id || '');
+      return;
+    }
     if (data?.type === 'tmp' && node.parent?.data?.resource?.includes(moduleTag)) {
       // 点击更多节点，加载更多用例
       await loadMoreCases(node.parent, data.current);
