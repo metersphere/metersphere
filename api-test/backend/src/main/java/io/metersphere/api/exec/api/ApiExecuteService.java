@@ -188,6 +188,9 @@ public class ApiExecuteService {
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setName(request.getId());
         testPlan.setHashTree(new LinkedList<>());
+        testPlan.setProjectJarIds(NewDriverManager.getJars(new ArrayList<>() {{
+            this.add(request.getProjectId());
+        }}, new BooleanPool()).keySet().stream().toList());
         MsThreadGroup threadGroup = new MsThreadGroup();
         threadGroup.setName(request.getId());
         threadGroup.setHashTree(new LinkedList<>());
