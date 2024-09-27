@@ -119,9 +119,12 @@ export default {
 }
 :deep(.el-tabs__nav){
   width: 100%;
+  display: flex;
 }
 :deep(.el-tabs__item ){
-  width: 25%;
+  width: 100%;
+  margin-left: 1px !important;
+  margin-top: 0px !important;
 }
 
 .ms-icon{
