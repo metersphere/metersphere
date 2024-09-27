@@ -19,9 +19,9 @@
           <span class="one-line-text mr-1 max-w-[300px] font-medium text-[var(--color-text-000)]">{{
             projectDetail?.name
           }}</span>
-          <span class="button mr-1" :class="[projectDetail?.deleted ? 'delete-button' : 'enable-button']">{{
-            projectDetail?.deleted ? t('project.basicInfo.deleted') : t('project.basicInfo.enable')
-          }}</span>
+          <span class="button mr-1" :class="[projectDetail?.deleted ? 'delete-button' : 'enable-button']">
+            {{ projectDetail?.deleted ? t('project.basicInfo.deleted') : t('project.basicInfo.enable') }}
+          </span>
         </div>
         <div class="one-line-text text-[12px] text-[--color-text-4]">{{ projectDetail?.description }}</div>
       </div>
@@ -95,6 +95,10 @@
     isVisible.value = true;
     projectDetailRef.value.editProject(projectDetail.value);
   };
+
+  watch(currentProjectId, () => {
+    getProjectDetail();
+  });
 
   onBeforeMount(async () => {
     getProjectDetail();
