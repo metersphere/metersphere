@@ -504,7 +504,7 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
             insertSpecifyNode('AppendSiblingNode', remarkTag);
           } else if (!hasTextDesc) {
             // 没有文本描述，则默认添加一个步骤描述
-            insertSpecifyNode('AppendChildNode', stepTag);
+            insertSpecifyNode('AppendSiblingNode', stepTag);
           }
         } else if (node.parent?.data?.resource?.includes(moduleTag) || !node.parent?.data?.resource) {
           // 当前节点的父节点是模块或没有标签，则默认添加一个文本节点
