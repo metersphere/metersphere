@@ -320,7 +320,7 @@ public class ApiDefinitionController {
 
     @GetMapping("/stop/{taskId}")
     @Operation(summary = "接口测试-接口管理-导出-停止导出")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_EXPORT)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public void caseStopExport(@PathVariable String taskId) {
         apiDefinitionExportService.stopExport(taskId, SessionUtils.getUserId());
@@ -328,7 +328,7 @@ public class ApiDefinitionController {
 
     @GetMapping(value = "/download/file/{projectId}/{fileId}")
     @Operation(summary = "接口测试-接口管理-下载文件")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_EXPORT)
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_EXPORT)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public void downloadImgById(@PathVariable String projectId, @PathVariable String fileId, HttpServletResponse httpServletResponse) {
         apiDefinitionExportService.downloadFile(projectId, fileId, SessionUtils.getUserId(), httpServletResponse);
