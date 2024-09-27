@@ -1008,7 +1008,7 @@ const message = {
     special_characters_are_not_supported: '不支持特殊字符',
     mobile_number_format_is_incorrect: '手機號碼格式不正確',
     email_format_is_incorrect: '郵箱格式不正確',
-    password_format_is_incorrect: '有效密碼：8-30位，英文大小寫字母+數字+特殊字符（可選）',
+    password_format_is_incorrect: '有效密碼：6-65位，英文大小寫字母+數字+特殊字符（可選）',
     old_password: '舊密碼',
     new_password: '新密碼',
     repeat_password: '確認密碼',

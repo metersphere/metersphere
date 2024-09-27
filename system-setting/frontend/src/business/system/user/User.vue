@@ -241,7 +241,7 @@ export default {
           {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
           {
             required: true,
-            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,30}$/,
+            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{6,65}$/,
             message: this.$t('member.password_format_is_incorrect'),
             trigger: 'blur'
           }
@@ -250,7 +250,7 @@ export default {
           {required: true, message: this.$t('user.input_password'), trigger: 'blur'},
           {
             required: true,
-            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,30}$/,
+            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{6,65}$/,
             message: this.$t('member.password_format_is_incorrect'),
             trigger: 'blur'
           }
@@ -258,7 +258,7 @@ export default {
         confirmpassword: [
           {
             required: true,
-            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,30}$/,
+            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{6,65}$/,
             message: this.$t('member.password_format_is_incorrect'),
             trigger: 'blur'
           },
