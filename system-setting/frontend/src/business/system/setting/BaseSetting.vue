@@ -86,6 +86,7 @@ export default {
         ],
         maxSize: [
           {
+            required: true,
             validator: checkUploadSize,
             trigger: ['change', 'blur']
           }
@@ -127,6 +128,7 @@ export default {
       this.show = true;
       this.$refs[formInline].validate(valid => {
         if (!valid) {
+          this.edit();
           return false;
         }
         let param = [

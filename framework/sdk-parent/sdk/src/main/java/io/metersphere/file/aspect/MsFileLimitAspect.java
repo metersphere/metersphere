@@ -48,7 +48,7 @@ public class MsFileLimitAspect {
 			if (arg instanceof MultipartFile file) {
 				// 判断文件大小是否超过限制
 				if (file.getSize() > fileMaxSize * 1024 * 1024) {
-					MSException.throwException(Translator.get("file_upload.size_limit"));
+					MSException.throwException(Translator.get("file_upload.size_limit") + fileMaxSize + "MB!");
 				}
 			}
 			// 多个文件
@@ -61,7 +61,7 @@ public class MsFileLimitAspect {
 					if (f instanceof MultipartFile file) {
 						// 判断文件大小是否超过限制
 						if (file.getSize() > fileMaxSize * 1024 * 1024) {
-							MSException.throwException(Translator.get("file_upload.size_limit"));
+							MSException.throwException(Translator.get("file_upload.size_limit") + fileMaxSize + "MB!");
 						}
 					}
 				});
