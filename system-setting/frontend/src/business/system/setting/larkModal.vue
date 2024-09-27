@@ -114,7 +114,7 @@ export default {
         if (valid) {
           this.loading = true;
           try {
-            validateLarkConfig(this.weComForm).then(res => {
+            validateLarkConfig(this.larkForm).then(res => {
               this.$message.success(this.$t('qrcode.service_testLinkStatusTip'));
               this.larkForm.valid = true;
             }).catch(e => {
