@@ -58,6 +58,8 @@ export default {
           this.loading = false;
           router.push({name: "login_redirect", path: redirectUrl || '/', query: {}});
           localStorage.setItem('loginType', 'LARK');
+        }).catch((err)=>{
+          this.$message.error(err.response.data.message);
         })
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -96,6 +98,8 @@ export default {
           this.loading = false;
           router.push({name: "login_redirect", path: redirectUrl || '/', query: {}});
           localStorage.setItem('loginType', 'LARK_SUITE');
+        }).catch((err)=>{
+          this.$message.error(err.response.data.message);
         })
       } catch (err) {
         // eslint-disable-next-line no-console

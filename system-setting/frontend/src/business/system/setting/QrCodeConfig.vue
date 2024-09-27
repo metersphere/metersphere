@@ -96,7 +96,6 @@ import {
     validateLarkSuiteConfig,
     validateWeComConfig
 } from "@/api/qrcode";
-import {hasPermission} from "metersphere-frontend/src/utils/permission";
 import WeComModal from "@/business/system/setting/weComModal.vue";
 import DingTalkModal from "@/business/system/setting/dingTalkModal.vue";
 import LarkModal from "@/business/system/setting/larkModal.vue";

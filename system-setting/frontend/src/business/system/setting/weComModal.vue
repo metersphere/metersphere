@@ -5,6 +5,7 @@
     title-align="start"
     width="680px"
     :loading="loading"
+    :close-on-click-modal="false"
     :before-close="cancelEdit"
   >
     <el-form :rules="rules" class="ms-form" ref="weComForm" :model="weComForm" layout="vertical" size="mini">

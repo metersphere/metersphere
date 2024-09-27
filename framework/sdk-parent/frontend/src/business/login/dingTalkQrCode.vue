@@ -74,6 +74,7 @@ export default {
                     localStorage.setItem('loginType', 'DING_TALK');
                   }
                 }).catch((err)=>{
+                  this.$message.error(err.response.data.message);
                   console.log("axios")
                   console.log(err)
                 });

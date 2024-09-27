@@ -1,5 +1,6 @@
 <template>
   <el-dialog
+    :close-on-click-modal="false"
     :title="$t('qrcode.service_LARK')"
     :visible.sync="detailVisible"
     title-align="start"

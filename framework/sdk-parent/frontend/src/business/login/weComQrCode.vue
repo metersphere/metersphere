@@ -79,6 +79,8 @@
                 sessionStorage.setItem('lastUser', getCurrentUserId());
                 router.push({name: "login_redirect", path: redirectUrl || '/', query: {}});
                 localStorage.setItem('loginType', 'WE_COM');
+              }).catch((err)=>{
+                this.$message.error(err.response.data.message);
               });
             },
             onLoginFail(err) {
