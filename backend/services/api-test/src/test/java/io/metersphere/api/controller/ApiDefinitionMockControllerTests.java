@@ -607,6 +607,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setType("Tags");
         request.setAppend(true);
+        request.setClear(false);
         request.setSelectAll(true);
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag3", "tag4")));
         requestPostWithOkAndReturn(BATCH_EDIT, request);
@@ -623,9 +624,15 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         //覆盖标签
         request.setTags(new LinkedHashSet<>(List.of("tag1")));
         request.setAppend(false);
+        request.setClear(false);
         requestPostWithOkAndReturn(BATCH_EDIT, request);
         apiDefinitionMockMapper.selectByExample(example).forEach(apiTestCase -> {
             Assertions.assertEquals(apiTestCase.getTags(), List.of("tag1"));
+        });
+        request.setClear(true);
+        requestPostWithOkAndReturn(BATCH_EDIT, request);
+        apiDefinitionMockMapper.selectByExample(example).forEach(apiTestCase -> {
+            Assertions.assertTrue(CollectionUtils.isEmpty(apiTestCase.getTags()));
         });
         //标签为空  报错
         request.setTags(new LinkedHashSet<>());

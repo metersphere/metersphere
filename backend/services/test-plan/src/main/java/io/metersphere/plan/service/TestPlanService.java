@@ -791,10 +791,10 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 });
                 sqlSession.flushStatements();
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-            } else {
+            } else  {
                 //替换标签
                 TestPlan testPlan = new TestPlan();
-                testPlan.setTags(ServiceUtils.parseTags(request.getTags()));
+                testPlan.setTags(request.isClear() ? new ArrayList<>() : ServiceUtils.parseTags(request.getTags()));
                 testPlan.setProjectId(request.getProjectId());
                 testPlan.setUpdateTime(System.currentTimeMillis());
                 testPlan.setUpdateUser(userId);

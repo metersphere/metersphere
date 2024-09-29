@@ -809,8 +809,6 @@
             tpfc.test_plan_id = #{request.planId}
           AND fc.deleted = #{deleted}
           AND
-            fc.project_Id = #{request.projectId}
-          AND
             tpfc.test_plan_collection_id = #{request.collectionId}
     </select>
 

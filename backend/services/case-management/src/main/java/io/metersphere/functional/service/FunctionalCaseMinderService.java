@@ -1348,8 +1348,13 @@ public class FunctionalCaseMinderService {
     public List<FunctionalMinderTreeDTO> getCollectionMindFunctionalCase(FunctionalCaseCollectionMindRequest request, boolean deleted) {
         List<FunctionalMinderTreeDTO> list = new ArrayList<>();
         List<FunctionalCaseMindDTO> functionalCaseMindDTOList = extFunctionalCaseMapper.getMinderCollectionList(request, deleted);
-        List<String> fieldIds = getFieldIds(request.getProjectId());
-        List<FunctionalCaseCustomField> caseCustomFieldList = extFunctionalCaseMapper.getCaseCustomFieldListByCollection(request, deleted, fieldIds);
+        List<String> projectIds = functionalCaseMindDTOList.stream().map(FunctionalCaseMindDTO::getProjectId).distinct().toList();
+        List<FunctionalCaseCustomField> caseCustomFieldList = new ArrayList<>();
+        for (String projectId : projectIds) {
+            List<String> fieldIds = getFieldIds(projectId);
+            List<FunctionalCaseCustomField> caseCustomFieldListByProjectId = extFunctionalCaseMapper.getCaseCustomFieldListByCollection(request, deleted, fieldIds);
+            caseCustomFieldList.addAll(caseCustomFieldListByProjectId);
+        }
         Map<String, String> priorityMap = caseCustomFieldList.stream().collect(Collectors.toMap(FunctionalCaseCustomField::getCaseId, FunctionalCaseCustomField::getValue));
         //构造父子级数据
         buildList(functionalCaseMindDTOList, list, priorityMap, "TEST_PLAN");

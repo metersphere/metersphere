@@ -651,7 +651,7 @@ public class ApiDefinitionService extends MoveNodeService {
         } else {
             //替换标签
             ApiDefinition apiDefinition = new ApiDefinition();
-            apiDefinition.setTags(ServiceUtils.parseTags(request.getTags()));
+            apiDefinition.setTags(request.isClear() ? new ArrayList<>() : ServiceUtils.parseTags(request.getTags()));
             apiDefinition.setProjectId(request.getProjectId());
             apiDefinition.setUpdateTime(System.currentTimeMillis());
             apiDefinition.setUpdateUser(userId);

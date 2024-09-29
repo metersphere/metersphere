@@ -535,7 +535,7 @@ public class ApiTestCaseService extends MoveNodeService {
                 });
             }
         } else {
-            updateCase.setTags(ServiceUtils.parseTags(request.getTags()));
+            updateCase.setTags(request.isClear() ? new ArrayList<>() : ServiceUtils.parseTags(request.getTags()));
             mapper.updateByExampleSelective(updateCase, example);
         }
     }

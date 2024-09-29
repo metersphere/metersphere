@@ -750,14 +750,24 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1001", "1002"));
         apiDefinitionBatchUpdateRequest.setTags(new LinkedHashSet<>(List.of("tag-append", "tag-append1")));
         apiDefinitionBatchUpdateRequest.setAppend(true);
+        apiDefinitionBatchUpdateRequest.setClear(false);
         this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
         assertBatchUpdateApiDefinition(apiDefinitionBatchUpdateRequest, List.of("1001", "1002"));
         // 修改标签，覆盖
         apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1003", "1004"));
         apiDefinitionBatchUpdateRequest.setTags(new LinkedHashSet<>(List.of("tag-append", "tag-append1")));
         apiDefinitionBatchUpdateRequest.setAppend(false);
+        apiDefinitionBatchUpdateRequest.setClear(false);
         this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
         assertBatchUpdateApiDefinition(apiDefinitionBatchUpdateRequest, List.of("1003", "1004"));
+        apiDefinitionBatchUpdateRequest.setClear(true);
+        this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
+        ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
+        apiDefinitionExample.createCriteria().andIdIn(List.of("1003", "1004"));
+        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
+        for (ApiDefinition definition : apiDefinitions) {
+            Assertions.assertTrue(CollectionUtils.isEmpty(definition.getTags()));
+        }
         // 自定义字段覆盖
         apiDefinitionBatchUpdateRequest.setType("customs");
         apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1002", "1003", "1004"));
@@ -766,6 +776,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         field.setValue(JSON.toJSONString(List.of("test1-batch")));
         apiDefinitionBatchUpdateRequest.setCustomField(field);
         apiDefinitionBatchUpdateRequest.setAppend(false);
+        apiDefinitionBatchUpdateRequest.setClear(false);
         this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
         // 修改协议类型
         apiDefinitionBatchUpdateRequest.setType("method");
