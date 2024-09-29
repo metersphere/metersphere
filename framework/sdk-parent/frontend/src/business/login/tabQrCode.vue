@@ -122,9 +122,12 @@ export default {
   display: flex;
 }
 :deep(.el-tabs__item ){
+  display: flex;
   width: 100%;
-  margin-left: 1px !important;
+  vertical-align: baseline;
   margin-top: 0px !important;
+  flex-wrap: nowrap;
+  justify-content: center;
 }
 
 .ms-icon{
