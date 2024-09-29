@@ -383,7 +383,7 @@ public class UserLoginService {
         if (userId.length() > 64) {
             MSException.throwException(Translator.get("user_id_length_too_long"));
         }
-        if (password.length() > 50) {
+        if (password.length() > 65) {
             MSException.throwException(Translator.get("password_length_too_long"));
         }
         UserExample example = new UserExample();
