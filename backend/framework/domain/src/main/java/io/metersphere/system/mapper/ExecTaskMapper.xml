@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.ExecTaskMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.system.domain.ExecTask">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="num" jdbcType="BIGINT" property="num" />
+    <result column="task_name" jdbcType="VARCHAR" property="taskName" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="case_count" jdbcType="BIGINT" property="caseCount" />
+    <result column="result" jdbcType="VARCHAR" property="result" />
+    <result column="task_type" jdbcType="VARCHAR" property="taskType" />
+    <result column="trigger_mode" jdbcType="VARCHAR" property="triggerMode" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="start_time" jdbcType="BIGINT" property="startTime" />
+    <result column="end_time" jdbcType="BIGINT" property="endTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, num, task_name, `status`, case_count, `result`, task_type, trigger_mode, project_id, 
+    organization_id, create_time, create_user, start_time, end_time
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.system.domain.ExecTaskExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from exec_task
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from exec_task
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from exec_task
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.system.domain.ExecTaskExample">
+    delete from exec_task
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.system.domain.ExecTask">
+    insert into exec_task (id, num, task_name, 
+      `status`, case_count, `result`, 
+      task_type, trigger_mode, project_id, 
+      organization_id, create_time, create_user, 
+      start_time, end_time)
+    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{taskName,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{caseCount,jdbcType=BIGINT}, #{result,jdbcType=VARCHAR}, 
+      #{taskType,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
+      #{organizationId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
+      #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.system.domain.ExecTask">
+    insert into exec_task
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="num != null">
+        num,
+      </if>
+      <if test="taskName != null">
+        task_name,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="caseCount != null">
+        case_count,
+      </if>
+      <if test="result != null">
+        `result`,
+      </if>
+      <if test="taskType != null">
+        task_type,
+      </if>
+      <if test="triggerMode != null">
+        trigger_mode,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="organizationId != null">
+        organization_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="startTime != null">
+        start_time,
+      </if>
+      <if test="endTime != null">
+        end_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=BIGINT},
+      </if>
+      <if test="taskName != null">
+        #{taskName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="caseCount != null">
+        #{caseCount,jdbcType=BIGINT},
+      </if>
+      <if test="result != null">
+        #{result,jdbcType=VARCHAR},
+      </if>
+      <if test="taskType != null">
+        #{taskType,jdbcType=VARCHAR},
+      </if>
+      <if test="triggerMode != null">
+        #{triggerMode,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationId != null">
+        #{organizationId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null">
+        #{startTime,jdbcType=BIGINT},
+      </if>
+      <if test="endTime != null">
+        #{endTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.system.domain.ExecTaskExample" resultType="java.lang.Long">
+    select count(*) from exec_task
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update exec_task
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=BIGINT},
+      </if>
+      <if test="record.taskName != null">
+        task_name = #{record.taskName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.caseCount != null">
+        case_count = #{record.caseCount,jdbcType=BIGINT},
+      </if>
+      <if test="record.result != null">
+        `result` = #{record.result,jdbcType=VARCHAR},
+      </if>
+      <if test="record.taskType != null">
+        task_type = #{record.taskType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.triggerMode != null">
+        trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.organizationId != null">
+        organization_id = #{record.organizationId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.startTime != null">
+        start_time = #{record.startTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.endTime != null">
+        end_time = #{record.endTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update exec_task
+    set id = #{record.id,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=BIGINT},
+      task_name = #{record.taskName,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      case_count = #{record.caseCount,jdbcType=BIGINT},
+      `result` = #{record.result,jdbcType=VARCHAR},
+      task_type = #{record.taskType,jdbcType=VARCHAR},
+      trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      organization_id = #{record.organizationId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      start_time = #{record.startTime,jdbcType=BIGINT},
+      end_time = #{record.endTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.ExecTask">
+    update exec_task
+    <set>
+      <if test="num != null">
+        num = #{num,jdbcType=BIGINT},
+      </if>
+      <if test="taskName != null">
+        task_name = #{taskName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="caseCount != null">
+        case_count = #{caseCount,jdbcType=BIGINT},
+      </if>
+      <if test="result != null">
+        `result` = #{result,jdbcType=VARCHAR},
+      </if>
+      <if test="taskType != null">
+        task_type = #{taskType,jdbcType=VARCHAR},
+      </if>
+      <if test="triggerMode != null">
+        trigger_mode = #{triggerMode,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationId != null">
+        organization_id = #{organizationId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null">
+        start_time = #{startTime,jdbcType=BIGINT},
+      </if>
+      <if test="endTime != null">
+        end_time = #{endTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.ExecTask">
+    update exec_task
+    set num = #{num,jdbcType=BIGINT},
+      task_name = #{taskName,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      case_count = #{caseCount,jdbcType=BIGINT},
+      `result` = #{result,jdbcType=VARCHAR},
+      task_type = #{taskType,jdbcType=VARCHAR},
+      trigger_mode = #{triggerMode,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      organization_id = #{organizationId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      start_time = #{startTime,jdbcType=BIGINT},
+      end_time = #{endTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into exec_task
+    (id, num, task_name, `status`, case_count, `result`, task_type, trigger_mode, project_id, 
+      organization_id, create_time, create_user, start_time, end_time)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.taskName,jdbcType=VARCHAR}, 
+        #{item.status,jdbcType=VARCHAR}, #{item.caseCount,jdbcType=BIGINT}, #{item.result,jdbcType=VARCHAR}, 
+        #{item.taskType,jdbcType=VARCHAR}, #{item.triggerMode,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
+        #{item.organizationId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into exec_task (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'num'.toString() == column.value">
+          #{item.num,jdbcType=BIGINT}
+        </if>
+        <if test="'task_name'.toString() == column.value">
+          #{item.taskName,jdbcType=VARCHAR}
+        </if>
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=VARCHAR}
+        </if>
+        <if test="'case_count'.toString() == column.value">
+          #{item.caseCount,jdbcType=BIGINT}
+        </if>
+        <if test="'result'.toString() == column.value">
+          #{item.result,jdbcType=VARCHAR}
+        </if>
+        <if test="'task_type'.toString() == column.value">
+          #{item.taskType,jdbcType=VARCHAR}
+        </if>
+        <if test="'trigger_mode'.toString() == column.value">
+          #{item.triggerMode,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'organization_id'.toString() == column.value">
+          #{item.organizationId,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'start_time'.toString() == column.value">
+          #{item.startTime,jdbcType=BIGINT}
+        </if>
+        <if test="'end_time'.toString() == column.value">
+          #{item.endTime,jdbcType=BIGINT}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
+</mapper>
