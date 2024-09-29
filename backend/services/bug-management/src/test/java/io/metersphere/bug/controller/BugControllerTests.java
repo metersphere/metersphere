@@ -51,6 +51,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -380,16 +381,29 @@ public class BugControllerTests extends BaseTest {
         // TAG追加
         request.setTags(List.of("TAG", "TEST_TAG"));
         request.setAppend(true);
+        request.setClear(false);
         this.requestPost(BUG_BATCH_UPDATE, request, status().isOk());
         // TAG覆盖
         request.setExcludeIds(List.of("default-bug-id-tapd1"));
         request.setTags(List.of("A", "B"));
         request.setAppend(false);
+        request.setClear(false);
         this.requestPost(BUG_BATCH_UPDATE, request, status().isOk());
         // 勾选部分
         request.setSelectAll(false);
         request.setSelectIds(List.of("default-bug-id"));
         this.requestPost(BUG_BATCH_UPDATE, request, status().isOk());
+        //TAG追加 清空
+        Bug bug = bugMapper.selectByPrimaryKey("default-bug-id");
+        Assertions.assertEquals(2, bug.getTags().size());
+        request.setAppend(false);
+        request.setClear(true);
+        this.requestPost(BUG_BATCH_UPDATE, request, status().isOk());
+        bug = bugMapper.selectByPrimaryKey("default-bug-id");
+        Assertions.assertTrue(CollectionUtils.isEmpty(bug.getTags()));
+
+
+
     }
 
     @Test

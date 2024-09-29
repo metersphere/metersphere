@@ -138,8 +138,6 @@ public class FunctionalCaseService {
     @Resource
     private FunctionalCaseDemandMapper functionalCaseDemandMapper;
     @Resource
-    private FunctionalCaseTestMapper functionalCaseTestMapper;
-    @Resource
     private ExtFunctionalCaseTestMapper extFunctionalCaseTestMapper;
     @Resource
     private BugRelationCaseMapper bugRelationCaseMapper;
@@ -1026,18 +1024,10 @@ public class FunctionalCaseService {
                 });
                 sqlSession.flushStatements();
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-            } else if (request.isClear()) {
-                //清空标签
-                FunctionalCase functionalCase = new FunctionalCase();
-                functionalCase.setTags(new ArrayList<>());
-                functionalCase.setProjectId(request.getProjectId());
-                functionalCase.setUpdateTime(System.currentTimeMillis());
-                functionalCase.setUpdateUser(userId);
-                extFunctionalCaseMapper.batchUpdate(functionalCase, ids);
-            }else {
+            } else {
                 //替换标签
                 FunctionalCase functionalCase = new FunctionalCase();
-                functionalCase.setTags(request.getTags());
+                functionalCase.setTags(request.isClear() ? new ArrayList<>() : ServiceUtils.parseTags(request.getTags()));
                 functionalCase.setProjectId(request.getProjectId());
                 functionalCase.setUpdateTime(System.currentTimeMillis());
                 functionalCase.setUpdateUser(userId);

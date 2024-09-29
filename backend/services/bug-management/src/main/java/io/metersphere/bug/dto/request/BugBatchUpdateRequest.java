@@ -16,6 +16,9 @@ public class BugBatchUpdateRequest extends BugBatchRequest{
     @Schema(description = "是否追加", requiredMode = Schema.RequiredMode.REQUIRED)
     private boolean append;
 
+    @Schema(description = "是否清空")
+    private boolean clear;
+
     @Schema(description = "更新人")
     private String updateUser;
 

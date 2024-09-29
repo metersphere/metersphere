@@ -331,7 +331,7 @@ public class ApiScenarioService extends MoveNodeService {
                 });
             }
         } else {
-            updateScenario.setTags(ServiceUtils.parseTags(request.getTags().stream().distinct().toList()));
+            updateScenario.setTags(request.isClear() ? new ArrayList<>() : ServiceUtils.parseTags(request.getTags().stream().distinct().toList()));
             mapper.updateByExampleSelective(updateScenario, example);
         }
     }
@@ -583,6 +583,7 @@ public class ApiScenarioService extends MoveNodeService {
     /**
      * 当文件管理更新了关联资源的 csv 文件版本时
      * 前端文件并未更新，这里使用时，进行对比，使用较新的文件版本
+     *
      * @param csvVariables
      * @param dbCsv
      */

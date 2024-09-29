@@ -449,7 +449,7 @@ public class ApiDefinitionMockService {
                 });
             }
         } else {
-            updateMock.setTags(ServiceUtils.parseTags(request.getTags()));
+            updateMock.setTags(request.isClear() ? new ArrayList<>() : ServiceUtils.parseTags(request.getTags()));
             mapper.updateByExampleSelective(updateMock, example);
         }
     }

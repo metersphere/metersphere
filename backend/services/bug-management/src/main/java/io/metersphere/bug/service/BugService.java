@@ -410,7 +410,7 @@ public class BugService {
         example.createCriteria().andIdIn(batchIds);
         List<Bug> bugs = bugMapper.selectByExample(example);
         String currentPlatform = projectApplicationService.getPlatformName(bugs.getFirst().getProjectId());
-        List<String> platformBugIds =  new ArrayList<>();
+        List<String> platformBugIds = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(bugs)) {
             Map<String, List<Bug>> groupBugs = bugs.stream().collect(Collectors.groupingBy(Bug::getPlatform));
             // 根据不同平台, 删除缺陷
@@ -492,7 +492,7 @@ public class BugService {
         List<String> batchIds = getBatchIdsByRequest(request);
         // 批量日志{修改之前}
         List<LogDTO> logs = getBatchLogByRequest(batchIds, OperationLogType.UPDATE.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, "/bug/batch-update",
-                request.getProjectId(), true, request.isAppend(), request.getTags(), currentUser);
+                request.getProjectId(), true, request.isAppend(), request.isClear() ? new ArrayList<>() : request.getTags(), currentUser);
         operationLogService.batchAdd(logs);
         // 目前只做标签的批量编辑
         if (request.isAppend()) {
@@ -513,8 +513,8 @@ public class BugService {
             sqlSession.flushStatements();
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         } else {
-            request.setTags(ServiceUtils.parseTags(request.getTags()));
-            // 标签(覆盖)
+            // 标签(清空/覆盖)
+            request.setTags(request.isClear() ? new ArrayList<>() : ServiceUtils.parseTags(request.getTags()));
             request.setUpdateUser(currentUser);
             request.setUpdateTime(System.currentTimeMillis());
             extBugMapper.batchUpdate(request, batchIds);
@@ -721,10 +721,11 @@ public class BugService {
 
     /**
      * 处理平台全量缺陷
-     * @param project 项目
-     * @param request 同步请求参数
+     *
+     * @param project     项目
+     * @param request     同步请求参数
      * @param currentUser 当前用户
-     * @param language 语言
+     * @param language    语言
      * @param triggerMode 触发方式
      */
     private void doSyncAllPlatformBugs(Project project, BugSyncRequest request, String currentUser, String language, String triggerMode) {
@@ -1455,7 +1456,8 @@ public class BugService {
 
     /**
      * 是否插件默认模板
-     * @param templateId 模板ID
+     *
+     * @param templateId     模板ID
      * @param pluginTemplate 插件模板
      * @return 是否插件默认模板
      */
@@ -1969,9 +1971,8 @@ public class BugService {
     }
 
     /**
-     *
-     * @param atomicPos 位置
-     * @param batchBugMapper 批量操作缺陷
+     * @param atomicPos             位置
+     * @param batchBugMapper        批量操作缺陷
      * @param batchBugContentMapper 批量操作缺陷内容
      */
     private void handleSaveBug(BugSyncSaveModel saveModel, AtomicLong atomicPos, BugMapper batchBugMapper, BugContentMapper batchBugContentMapper) {
@@ -1995,7 +1996,7 @@ public class BugService {
                 // 非平台默认模板时, 设置需要处理的字段
                 if (!platformBug.getPlatformDefaultTemplate()) {
                     List<TemplateCustomFieldDTO> defaultTemplateCustomFields = saveModel.getMsDefaultTemplate().getCustomFields();
-                    needSyncApiFieldMap  = defaultTemplateCustomFields.stream().filter(field -> StringUtils.isNotBlank(field.getApiFieldId()))
+                    needSyncApiFieldMap = defaultTemplateCustomFields.stream().filter(field -> StringUtils.isNotBlank(field.getApiFieldId()))
                             .collect(Collectors.toMap(TemplateCustomFieldDTO::getApiFieldId, TemplateCustomFieldDTO::getFieldId));
                 }
             } else {
@@ -2015,7 +2016,7 @@ public class BugService {
                 // 非平台默认模板时, 设置需要处理的字段
                 if (!platformBug.getPlatformDefaultTemplate()) {
                     List<TemplateCustomField> templateCustomFields = saveModel.getTemplateFieldMap().get(platformBug.getTemplateId());
-                    needSyncApiFieldMap  = templateCustomFields.stream().filter(field -> StringUtils.isNotBlank(field.getApiFieldId()))
+                    needSyncApiFieldMap = templateCustomFields.stream().filter(field -> StringUtils.isNotBlank(field.getApiFieldId()))
                             .collect(Collectors.toMap(TemplateCustomField::getApiFieldId, TemplateCustomField::getFieldId));
                 }
             }
@@ -2084,30 +2085,30 @@ public class BugService {
             List<PlatformCustomFieldItemDTO> platformCustomFields = platformBug.getCustomFieldList();
             // 过滤出需要同步的自定义字段{默认模板时, 需要同步所有字段; 非默认模板时, 需要同步模板中映射的字段}
             final Map<String, String> needSyncApiFieldFilterMap = needSyncApiFieldMap;
-			List<BugCustomFieldDTO> bugCustomFieldDTOList;
-			if (platformBug.getPlatformDefaultTemplate()) {
+            List<BugCustomFieldDTO> bugCustomFieldDTOList;
+            if (platformBug.getPlatformDefaultTemplate()) {
                 // 平台默认模板创建的缺陷
-				bugCustomFieldDTOList = platformCustomFields.stream()
-						.map(platformField -> {
-							BugCustomFieldDTO bugCustomFieldDTO = new BugCustomFieldDTO();
-							bugCustomFieldDTO.setId(platformField.getId());
-							bugCustomFieldDTO.setValue(platformField.getValue() == null ? null : platformField.getValue().toString());
-							return bugCustomFieldDTO;
-						}).collect(Collectors.toList());
-			} else {
+                bugCustomFieldDTOList = platformCustomFields.stream()
+                        .map(platformField -> {
+                            BugCustomFieldDTO bugCustomFieldDTO = new BugCustomFieldDTO();
+                            bugCustomFieldDTO.setId(platformField.getId());
+                            bugCustomFieldDTO.setValue(platformField.getValue() == null ? null : platformField.getValue().toString());
+                            return bugCustomFieldDTO;
+                        }).collect(Collectors.toList());
+            } else {
                 // 非平台默认模板创建的缺陷(使用模板API映射字段)
-				bugCustomFieldDTOList = platformCustomFields.stream()
-						.filter(field -> needSyncApiFieldFilterMap.containsKey(field.getId()))
-						.map(platformField -> {
-							BugCustomFieldDTO bugCustomFieldDTO = new BugCustomFieldDTO();
-							bugCustomFieldDTO.setId(needSyncApiFieldFilterMap.get(platformField.getId()));
-							bugCustomFieldDTO.setValue(platformField.getValue() == null ? null : platformField.getValue().toString());
-							return bugCustomFieldDTO;
-						}).collect(Collectors.toList());
-			}
-			customEditRequest.setCustomFields(bugCustomFieldDTOList);
+                bugCustomFieldDTOList = platformCustomFields.stream()
+                        .filter(field -> needSyncApiFieldFilterMap.containsKey(field.getId()))
+                        .map(platformField -> {
+                            BugCustomFieldDTO bugCustomFieldDTO = new BugCustomFieldDTO();
+                            bugCustomFieldDTO.setId(needSyncApiFieldFilterMap.get(platformField.getId()));
+                            bugCustomFieldDTO.setValue(platformField.getValue() == null ? null : platformField.getValue().toString());
+                            return bugCustomFieldDTO;
+                        }).collect(Collectors.toList());
+            }
+            customEditRequest.setCustomFields(bugCustomFieldDTOList);
 
-			// 保存缺陷
+            // 保存缺陷
             if (originalBug == null) {
                 // 新增
                 batchBugMapper.insertSelective(bug);

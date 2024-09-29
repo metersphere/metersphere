@@ -27,6 +27,8 @@ public class ApiMockBatchEditRequest extends ApiTestCaseBatchRequest implements 
     private String type;
     @Schema(description = "是否追加标签")
     private boolean append = false;
+    @Schema(description = "默认不清空所有标签")
+    private boolean clear = false;
     @Schema(description = "状态  开启/关闭")
     private boolean enable;
 

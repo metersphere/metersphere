@@ -2384,6 +2384,7 @@ public class TestPlanTests extends BaseTest {
         request.setProjectId("songtianyang-fix-wx");
         request.setSelectIds(Arrays.asList("wx_test_plan_id_1"));
         request.setAppend(false);
+        request.setClear(false);
         request.setTags(Arrays.asList("tag3", "tag4"));
         this.requestPostWithOk(URL_TEST_PLAN_BATCH_EDIT, request);
         //检查标签是否覆盖
@@ -2393,6 +2394,7 @@ public class TestPlanTests extends BaseTest {
         Assertions.assertTrue(testPlan.getTags().contains("tag4"));
 
         request.setAppend(true);
+        request.setClear(false);
         request.setTags(Arrays.asList("tag1", "tag2"));
         this.requestPostWithOk(URL_TEST_PLAN_BATCH_EDIT, request);
         testPlan = testPlanMapper.selectByPrimaryKey("wx_test_plan_id_1");
@@ -2417,6 +2419,12 @@ public class TestPlanTests extends BaseTest {
         Assertions.assertTrue(testPlan.getTags().contains("tag8"));
         Assertions.assertTrue(testPlan.getTags().contains("tag9"));
         Assertions.assertTrue(testPlan.getTags().contains("tag0"));
+        request.setAppend(false);
+        request.setClear(true);
+        request.setSelectAll(true);
+        this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_EDIT, request);
+        testPlan = testPlanMapper.selectByPrimaryKey("wx_test_plan_id_1");
+        Assertions.assertTrue(CollectionUtils.isEmpty(testPlan.getTags()));
     }
 
     @Test
