@@ -48,10 +48,9 @@ public class TestPlanApiCaseExecuteCallbackService implements ApiExecuteCallback
     /**
      * 批量串行的测试集执行时
      * 测试集下用例执行完成时回调
-     * @param parentQueueId
      */
     @Override
-    public void executeNextCollection(String parentQueueId) {
+    public void executeNextCollection(String parentQueueId, boolean isStopOnFailure) {
         testPlanApiCaseBatchRunService.executeNextCollection(parentQueueId);
     }
 

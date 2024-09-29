@@ -35,8 +35,8 @@ public class ApiExecuteCallbackServiceInvoker {
         getCallbackService(getApiExecuteResourceType(resourceType)).executeNextTask(queue, queueDetail);
     }
 
-    public static void executeNextCollection(String resourceType, String collectionQueueId) {
-        getCallbackService(getApiExecuteResourceType(resourceType)).executeNextCollection(collectionQueueId);
+    public static void executeNextCollection(String resourceType, String collectionQueueId, boolean isStopOnFailure) {
+        getCallbackService(getApiExecuteResourceType(resourceType)).executeNextCollection(collectionQueueId, isStopOnFailure);
     }
 
     public static void stopCollectionOnFailure(String resourceType, String collectionQueueId) {

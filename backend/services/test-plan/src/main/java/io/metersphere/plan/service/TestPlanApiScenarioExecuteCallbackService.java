@@ -51,7 +51,7 @@ public class TestPlanApiScenarioExecuteCallbackService implements ApiExecuteCall
      * @param collectionQueueId
      */
     @Override
-    public void executeNextCollection(String collectionQueueId) {
+    public void executeNextCollection(String collectionQueueId, boolean isStopOnFailure) {
         testPlanApiScenarioBatchRunService.executeNextCollection(collectionQueueId);
     }
 

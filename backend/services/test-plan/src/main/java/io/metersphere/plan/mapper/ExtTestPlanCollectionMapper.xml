@@ -59,4 +59,9 @@
         ORDER BY pos
         limit 1
     </select>
+    <select id="getParentStopOnFailure" resultType="java.lang.Boolean">
+        select stop_on_fail
+        from test_plan_collection
+        where id IN (select parent_id from test_plan_collection where id = #{0})
+    </select>
 </mapper>
