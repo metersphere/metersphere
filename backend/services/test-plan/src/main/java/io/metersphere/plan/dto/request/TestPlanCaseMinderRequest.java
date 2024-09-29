@@ -19,4 +19,7 @@ public class TestPlanCaseMinderRequest extends BasePlanCaseBatchRequest {
 
     @Schema(description = "脑图选中的项目id集合")
     private List<String> minderProjectIds;
+
+    @Schema(description = "脑图选中的测试集id集合")
+    private List<String> minderCollectionIds;
 }

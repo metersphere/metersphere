@@ -56,9 +56,9 @@ public class TestPlanFunctionalCaseMinderService {
             return ids;
         } else {
             List<String> ids = new ArrayList<>();
-            //项目
-            if (CollectionUtils.isNotEmpty(request.getMinderProjectIds())) {
-                ids.addAll(extTestPlanFunctionalCaseMapper.selectIdsByProjectIds(request));
+            //项目 或 测试集
+            if (CollectionUtils.isNotEmpty(request.getMinderProjectIds()) || CollectionUtils.isNotEmpty(request.getMinderCollectionIds())) {
+                ids.addAll(extTestPlanFunctionalCaseMapper.selectIdsByProjectIdsOrCollectionIds(request));
             }
             //模块
             if (CollectionUtils.isNotEmpty(request.getMinderModuleIds())) {

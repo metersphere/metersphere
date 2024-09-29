@@ -77,7 +77,7 @@ public interface ExtTestPlanFunctionalCaseMapper {
 
     List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
 
-    Collection<String> selectIdsByProjectIds(@Param("request") TestPlanCaseMinderRequest request);
+    Collection<String> selectIdsByProjectIdsOrCollectionIds(@Param("request") TestPlanCaseMinderRequest request);
 
     List<FunctionalCaseModule> selectProjectByModuleIds(@Param("moduleIds") List<String> moduleIds);
 
