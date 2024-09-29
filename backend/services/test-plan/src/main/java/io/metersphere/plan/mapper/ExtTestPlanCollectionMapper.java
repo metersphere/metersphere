@@ -15,4 +15,6 @@ public interface ExtTestPlanCollectionMapper {
     TestPlanCollectionEnvDTO selectFirstCollectionEnv(@Param("type") String type, @Param("parentId") String parentId, @Param("testPlanId") String testPlanId);
 
     String selectDefaultCollectionId(@Param("testPlanId")String newTestPlanId,@Param("type") String key);
+
+    boolean getParentStopOnFailure(String collectionId);
 }

@@ -52,7 +52,7 @@ public class PlanRunApiCaseExecuteCallbackService implements ApiExecuteCallbackS
      * @param parentQueueId
      */
     @Override
-    public void executeNextCollection(String parentQueueId) {
-        testPlanExecuteService.collectionExecuteQueueFinish(parentQueueId);
+    public void executeNextCollection(String parentQueueId, boolean isStopOnFailure) {
+        testPlanExecuteService.collectionExecuteQueueFinish(parentQueueId, isStopOnFailure);
     }
 }

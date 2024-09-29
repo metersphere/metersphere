@@ -5,10 +5,7 @@ import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.TestPlanBatchExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanReportGenRequest;
-import io.metersphere.plan.mapper.TestPlanCollectionMapper;
-import io.metersphere.plan.mapper.TestPlanConfigMapper;
-import io.metersphere.plan.mapper.TestPlanMapper;
-import io.metersphere.plan.mapper.TestPlanReportMapper;
+import io.metersphere.plan.mapper.*;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.queue.TestPlanExecutionQueue;
 import io.metersphere.sdk.exception.MSException;
@@ -34,6 +31,8 @@ public class TestPlanExecuteService {
 
     @Resource
     private TestPlanMapper testPlanMapper;
+    @Resource
+    private ExtTestPlanCollectionMapper extTestPlanCollectionMapper;
     @Resource
     private TestPlanConfigMapper testPlanConfigMapper;
     @Resource
@@ -424,7 +423,7 @@ public class TestPlanExecuteService {
 
         if (execOver) {
             // 如果没有要执行的用例（可能会出现空测试集的情况），直接调用回调
-            collectionExecuteQueueFinish(queueId);
+            collectionExecuteQueueFinish(queueId, false);
         }
     }
 
@@ -433,7 +432,7 @@ public class TestPlanExecuteService {
     }
 
     //测试集执行完成
-    public void collectionExecuteQueueFinish(String paramQueueId) {
+    public void collectionExecuteQueueFinish(String paramQueueId, boolean isStopOnFailure) {
         LogUtils.info("收到测试集执行完成的信息： [{}]", paramQueueId);
         String queueID = paramQueueId;
         String[] queueIdArr = queueID.split("_");
@@ -454,13 +453,13 @@ public class TestPlanExecuteService {
                 boolean execError = false;
                 try {
                     LogUtils.info("测试集该节点的串行执行完成！ --- 队列ID[{}],队列类型[{}]，开始执行下一个队列：ID[{}],类型[{}]", queueID, queueType, nextQueue.getQueueId(), nextQueue.getQueueType());
-                    this.executeNextNode(nextQueue);
+                    this.executeNextNode(nextQueue, isStopOnFailure);
                 } catch (Exception e) {
                     Log.error("测试集下一个节点执行失败！", e);
                     execError = true;
                 }
                 if (execError) {
-                    this.collectionExecuteQueueFinish(nextQueue.getQueueId());
+                    this.collectionExecuteQueueFinish(nextQueue.getQueueId(), true);
                 }
             } else {
                 //当前测试集执行完毕
@@ -485,7 +484,7 @@ public class TestPlanExecuteService {
                 boolean execError = false;
                 try {
                     LogUtils.info("用例类型该节点的串行执行完成！ --- 队列ID[{}],队列类型[{}]，开始执行下一个队列：ID[{}],类型[{}]", queueID, queueType, nextQueue.getQueueId(), nextQueue.getQueueType());
-                    this.executeNextNode(nextQueue);
+                    this.executeNextNode(nextQueue, false);
                 } catch (Exception e) {
                     execError = true;
                 }
@@ -524,7 +523,7 @@ public class TestPlanExecuteService {
                 boolean execError = false;
                 try {
                     LogUtils.info("测试计划该节点的串行执行完成！ --- 队列ID[{}],队列类型[{}]，开始执行下一个队列：ID[{}],类型[{}]", queueID, queueType, nextQueue.getQueueId(), nextQueue.getQueueType());
-                    this.executeNextNode(nextQueue);
+                    this.executeNextNode(nextQueue, false);
                 } catch (Exception e) {
                     execError = true;
                 }
@@ -554,7 +553,7 @@ public class TestPlanExecuteService {
                 boolean execError = false;
                 try {
                     LogUtils.info("计划组该节点的串行执行完成！ --- 队列ID[{}],队列类型[{}]，开始执行下一个队列：ID[{}],类型[{}]", queueID, queueType, nextQueue.getQueueId(), nextQueue.getQueueType());
-                    this.executeNextNode(nextQueue);
+                    this.executeNextNode(nextQueue, false);
                 } catch (Exception e) {
                     execError = true;
                 }
@@ -571,7 +570,7 @@ public class TestPlanExecuteService {
         }
     }
 
-    private void executeNextNode(TestPlanExecutionQueue queue) {
+    private void executeNextNode(TestPlanExecutionQueue queue, boolean isStopOnFailure) {
         LogUtils.info("开始执行下一个节点： --- 队列ID[{}],队列类型[{}]，预生成报告ID[{}]", queue.getQueueId(), queue.getQueueType(), queue.getPrepareReportId());
         if (StringUtils.equalsIgnoreCase(queue.getQueueType(), QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE)) {
             this.executeTestPlanOrGroup(queue);
@@ -582,7 +581,21 @@ public class TestPlanExecuteService {
         } else if (StringUtils.equalsIgnoreCase(queue.getQueueType(), QUEUE_PREFIX_TEST_PLAN_CASE_TYPE)) {
             this.executeByTestPlanCollection(queue);
         } else if (StringUtils.equalsIgnoreCase(queue.getQueueType(), QUEUE_PREFIX_TEST_PLAN_COLLECTION)) {
-            this.executeCase(queue);
+            // 判断是否是失败停止。 如果是失败停止，要检测父类是否也同样配置了失败停止。是的话，不再执行。
+            if (this.isCaseTypeExecuteStop(queue.getSourceID(), isStopOnFailure)) {
+                this.collectionExecuteQueueFinish(queue.getQueueId(), isStopOnFailure);
+            } else {
+                this.executeCase(queue);
+            }
+        }
+    }
+
+    private boolean isCaseTypeExecuteStop(String collectionId, boolean isStopOnFailure) {
+        boolean caseTypeStopOnFailure = extTestPlanCollectionMapper.getParentStopOnFailure(collectionId);
+        if (isStopOnFailure) {
+            return caseTypeStopOnFailure;
+        } else {
+            return false;
         }
     }
 
