@@ -388,7 +388,7 @@ public class ServiceUtils {
         if (MapUtils.isNotEmpty(request.getCombine()) && ObjectUtils.isNotEmpty((request.getCombine().get("customs")))) {
             List<Map<String, Object>> customs = (List<Map<String, Object>>) request.getCombine().get("customs");
             customs.forEach(custom -> {
-                if(StringUtils.equalsIgnoreCase(custom.get("operator").toString(), "current user")){
+                if (StringUtils.equalsIgnoreCase(custom.get("operator").toString(), "current user")) {
                     String userId = SessionUtils.getUserId();
                     custom.put("value", userId);
                 }
@@ -490,7 +490,7 @@ public class ServiceUtils {
     }
 
     public static void buildCombineTagsToSupportMultiple(BaseQueryRequest request) {
-        if (request.getCombine() != null && request.getCombine().containsKey("tags")) {
+        if (request != null && request.getCombine() != null && request.getCombine().containsKey("tags")) {
             Map<String, Object> tagsMap = (Map<String, Object>) request.getCombine().get("tags");
             Object tagVal = tagsMap.get("value");
             if (tagVal != null) {
