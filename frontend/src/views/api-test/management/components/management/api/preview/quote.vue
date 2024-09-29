@@ -119,6 +119,13 @@
     });
   }
 
+  watch(
+    () => props.sourceId,
+    () => {
+      loadQuoteList();
+    }
+  );
+
   onBeforeMount(() => {
     loadQuoteList();
   });

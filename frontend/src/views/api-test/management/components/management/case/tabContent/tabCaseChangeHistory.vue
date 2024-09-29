@@ -118,6 +118,13 @@
     loadHistory(value as string[]);
   }
 
+  watch(
+    () => props.sourceId,
+    () => {
+      loadHistory();
+    }
+  );
+
   onBeforeMount(() => {
     if (hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ', 'PROJECT_API_DEFINITION_CASE:READ+UPDATE'])) {
       loadHistory();

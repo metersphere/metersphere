@@ -260,6 +260,14 @@
       executeHistoryRef.value?.loadExecuteList();
     }
   }
+  watch(
+    () => caseDetail.value.id,
+    () => {
+      if (activeKey.value === 'executeHistory') {
+        executeHistoryRef.value?.loadExecuteList(caseDetail.value.id as string);
+      }
+    }
+  );
 
   const executeRef = ref<InstanceType<typeof executeButton>>();
   const isPriorityLocalExec = computed(() => executeRef.value?.isPriorityLocalExec ?? false);
