@@ -73,22 +73,6 @@
           <a-option value="none">{{ t('project.environmental.http.none') }}</a-option>
         </a-select>
       </a-form-item> -->
-      <a-form-item class="mb-[16px]" field="description" :label="t('common.desc')">
-        <a-textarea v-model="form.description" :max-length="1000" auto-size :placeholder="t('common.pleaseInput')" />
-      </a-form-item>
-      <!-- 选择UI测试模块 -->
-      <!-- <a-form-item
-        v-if="showUIModule"
-        class="mb-[16px]"
-        field="enableCondition"
-        asterisk-position="end"
-        :label="t('project.environmental.http.uiModuleSelect')"
-        :rules="[{ required: true, message: t('project.environmental.http.hostNameRequired') }]"
-      >
-        <a-select v-model:model-value="form.uiModule" multiple :placeholder="t('common.pleaseSelect')">
-          <a-option value="none">{{ t('project.environmental.http.none') }}</a-option>
-        </a-select>
-      </a-form-item> -->
       <!-- 展示模块 -->
       <!-- TODO 模块还没有加 -->
       <a-form-item
@@ -170,6 +154,22 @@
           />
         </a-input-group>
       </a-form-item>
+      <a-form-item class="mb-[16px]" field="description" :label="t('common.desc')">
+        <a-textarea v-model="form.description" :max-length="1000" auto-size :placeholder="t('common.pleaseInput')" />
+      </a-form-item>
+      <!-- 选择UI测试模块 -->
+      <!-- <a-form-item
+        v-if="showUIModule"
+        class="mb-[16px]"
+        field="enableCondition"
+        asterisk-position="end"
+        :label="t('project.environmental.http.uiModuleSelect')"
+        :rules="[{ required: true, message: t('project.environmental.http.hostNameRequired') }]"
+      >
+        <a-select v-model:model-value="form.uiModule" multiple :placeholder="t('common.pleaseSelect')">
+          <a-option value="none">{{ t('project.environmental.http.none') }}</a-option>
+        </a-select>
+      </a-form-item> -->
       <httpHeader
         v-model:params="form.headers"
         :layout="activeLayout"
