@@ -2136,8 +2136,7 @@ public class TestPlanService {
     }
 
     public void runBatch(TestPlanRunRequest request) {
-        List<String> ids = request.getTestPlanIds();
-        if (CollectionUtils.isEmpty(ids) && !request.getIsAll()) {
+        if (CollectionUtils.isEmpty(request.getTestPlanIds()) && !request.getIsAll()) {
             return;
         }
         LoggerUtil.info("开始查询测试计划");
@@ -2147,12 +2146,11 @@ public class TestPlanService {
             planList.addAll(testPlanDTOWithMetrics);
         } else {
             TestPlanExample example = new TestPlanExample();
-            example.createCriteria().andIdIn(ids);
+            example.createCriteria().andIdIn(request.getTestPlanIds());
             example.createCriteria().andProjectIdEqualTo(request.getProjectId());
             planList = testPlanMapper.selectByExampleWithBLOBs(example);
         }
 
-        Map<String, TestPlanWithBLOBs> testPlanMap = planList.stream().collect(Collectors.toMap(TestPlan::getId, a -> a, (k1, k2) -> k1));
         Map<String, String> executeQueue = new LinkedHashMap<>();
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -2178,9 +2176,7 @@ public class TestPlanService {
             MSException.throwException(Translator.get("track_test_plan") + ": " + haveExecCaseBuilder.toString() + ": " + Translator.get("plan_warning"));
         }
 
-        for (String id : ids) {
-            TestPlanWithBLOBs testPlan = testPlanMap.get(id);
-
+        for (TestPlanWithBLOBs testPlan : planList) {
             String planReportId = UUID.randomUUID().toString();
 
             //检查资源池运行情况
@@ -2203,7 +2199,7 @@ public class TestPlanService {
             testPlanExecutionQueueService.batchSave(planExecutionQueues);
         }
         // 开始选择执行模式
-        runByMode(request, testPlanMap, planExecutionQueues);
+        runByMode(request, planList.stream().collect(Collectors.toMap(TestPlan::getId, a -> a, (k1, k2) -> k1)), planExecutionQueues);
     }
 
 
