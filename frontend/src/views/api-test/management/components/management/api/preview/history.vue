@@ -96,6 +96,13 @@
     loadList();
   }
 
+  watch(
+    () => props.sourceId,
+    () => {
+      loadHistory();
+    }
+  );
+
   onBeforeMount(() => {
     loadHistory();
   });

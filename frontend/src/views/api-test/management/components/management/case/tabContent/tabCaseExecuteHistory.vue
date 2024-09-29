@@ -222,11 +222,11 @@
     })
   );
 
-  function loadExecuteList() {
+  function loadExecuteList(sourceId?: string) {
     setLoadListParams({
       projectId: appStore.currentProjectId,
       keyword: keyword.value,
-      id: props.sourceId,
+      id: sourceId ?? props.sourceId,
     });
     loadList();
   }
