@@ -672,7 +672,7 @@
 
     </select>
 
-    <select id="selectIdsByProjectIds" resultType="java.lang.String">
+    <select id="selectIdsByProjectIdsOrCollectionIds" resultType="java.lang.String">
         SELECT
         test_plan_functional_case.id
         FROM
@@ -682,10 +682,18 @@
         test_plan_functional_case.test_plan_id = #{request.testPlanId}
         AND functional_case.deleted = false
         <include refid="queryWhereConditionByBatchQueryRequest"/>
-        and functional_case.project_id in
-        <foreach collection="request.getMinderProjectIds()" item="projectId" open="(" separator="," close=")">
-            #{projectId}
-        </foreach>
+        <if test="request.getMinderProjectIds() != null and request.getMinderProjectIds().size() > 0">
+            and functional_case.project_id in
+            <foreach collection="request.getMinderProjectIds()" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="request.getMinderCollectionIds() != null and request.getMinderCollectionIds().size() > 0">
+            and test_plan_functional_case.test_plan_collection_id IN
+            <foreach collection="request.getMinderCollectionIds()" item="collectionId" separator="," open="(" close=")">
+                #{collectionId}
+            </foreach>
+        </if>
     </select>
 
     <select id="selectProjectByModuleIds" resultType="io.metersphere.functional.domain.FunctionalCaseModule">

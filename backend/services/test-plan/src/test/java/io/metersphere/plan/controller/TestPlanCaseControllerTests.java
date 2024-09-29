@@ -529,6 +529,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
         request.setMinderProjectIds(List.of("123"));
         request.setMinderModuleIds(List.of("t_1"));
         request.setMinderCaseIds(List.of("fc_1"));
+        request.setMinderCollectionIds(List.of("123"));
         paramMap = new LinkedMultiValueMap<>();
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("files", files);
