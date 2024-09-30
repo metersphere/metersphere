@@ -5,6 +5,7 @@ import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
 import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.utils.Pager;
+import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -17,19 +18,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Tag(name = "系统任务中心")
+@Tag(name = "组织任务中心")
 @RestController
-@RequestMapping("/system/task-center")
-public class SystemTaskHubController {
+@RequestMapping("/organization/task-center")
+public class OrganizationTaskHubController {
 
     @Resource
     private BaseTaskHubService baseTaskHubService;
 
     @PostMapping("/exec-task/page")
-    @Operation(summary = "系统-任务中心-执行任务列表")
-    @RequiresPermissions(PermissionConstants.SYSTEM_TASK_CENTER_READ)
+    @Operation(summary = "组织-任务中心-执行任务列表")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_TASK_CENTER_READ)
     public Pager<List<TaskHubDTO>> projectList(@Validated @RequestBody BasePageRequest request) {
-        return baseTaskHubService.getTaskList(request, null, null);
+        return baseTaskHubService.getTaskList(request, SessionUtils.getCurrentOrganizationId(), null);
     }
-
 }
