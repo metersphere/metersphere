@@ -223,7 +223,9 @@ export default {
   },
   created: function () {
     document.addEventListener('keydown', this.watchEnter);
-    this.initPlatformInfo();
+    if (hasLicense()) {
+      this.initPlatformInfo();
+    }
     this.activeName = localStorage.getItem('loginType') || 'WE_COM';
     let authenticate = localStorage.getItem('AuthenticateType');
     if (authenticate === 'LOCAL' || authenticate === 'LDAP') {
