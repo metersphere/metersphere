@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.ExtExecTaskMapper">
+    <select id="selectList" resultType="io.metersphere.system.dto.taskhub.TaskHubDTO">
+        SELECT *
+        FROM exec_task
+        <where>
+            <if test="request.keyword != null and request.keyword != ''">
+                and (
+                exec_task.num like concat('%', #{request.keyword},'%')
+                or exec_task.task_name like concat('%', #{request.keyword},'%')
+                )
+            </if>
+            <if test="orgId != null">
+                and exec_task.organization_id = #{orgId}
+            </if>
+            <if test="projectId != null">
+                and exec_task.projectId = #{projectId}
+            </if>
+        </where>
+    </select>
+
+</mapper>
