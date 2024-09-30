@@ -59,6 +59,7 @@
     selectNode?: MinderJsonNode;
     stepExecutionResult?: StepExecutionResult[];
     isDefaultActivate?: boolean; // 是否默认激活状态
+    treeType?: 'MODULE' | 'COLLECTION';
   }>();
 
   const emit = defineEmits<{
@@ -132,7 +133,7 @@
       if (props.selectNode) {
         await batchExecuteCase({
           ...params,
-          ...getMinderOperationParams(props.selectNode),
+          ...getMinderOperationParams(props.selectNode, props.treeType === 'COLLECTION'),
         } as BatchExecuteFeatureCaseParams);
       } else {
         await runFeatureCase({

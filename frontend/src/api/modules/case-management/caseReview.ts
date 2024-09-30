@@ -15,6 +15,7 @@ import {
   EditReviewUrl,
   FollowReviewUrl,
   GetAssociatedIdsUrl,
+  GetCasePlanCollectionMinderUrl,
   GetCasePlanMinderUrl,
   getCaseReviewerListUrl,
   GetCaseReviewHistoryListUrl,
@@ -219,7 +220,10 @@ export function getCaseReviewMinder(data: CaseReviewMinderParams) {
 }
 
 // 获取测试计划用例脑图
-export function getCasePlanMinder(data: CasePlanMinderParams) {
+export function getCasePlanMinder(treeType: 'MODULE' | 'COLLECTION', data: CasePlanMinderParams) {
+  if (treeType === 'COLLECTION') {
+    return MSR.post<CommonList<MinderJsonNode>>({ url: `${GetCasePlanCollectionMinderUrl}`, data });
+  }
   return MSR.post<CommonList<MinderJsonNode>>({ url: `${GetCasePlanMinderUrl}`, data });
 }
 

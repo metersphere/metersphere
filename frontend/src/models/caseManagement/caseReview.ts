@@ -277,7 +277,8 @@ export interface CaseReviewMinderParams {
 // 测试计划用例脑图
 export interface CasePlanMinderParams {
   projectId: string;
-  moduleId: string;
+  moduleId?: string;
+  collectionId?: string;
   current?: number;
   planId: string;
 }
