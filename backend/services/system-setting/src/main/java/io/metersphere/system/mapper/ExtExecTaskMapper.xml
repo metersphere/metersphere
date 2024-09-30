@@ -15,7 +15,7 @@
                 and exec_task.organization_id = #{orgId}
             </if>
             <if test="projectId != null">
-                and exec_task.projectId = #{projectId}
+                and exec_task.project_id = #{projectId}
             </if>
         </where>
     </select>

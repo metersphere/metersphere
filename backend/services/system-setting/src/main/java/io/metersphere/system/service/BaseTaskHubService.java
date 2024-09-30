@@ -29,12 +29,14 @@ public class BaseTaskHubService {
      * 系统-获取执行任务列表
      *
      * @param request
+     * @param orgId
+     * @param projectId
      * @return
      */
-    public Pager<List<TaskHubDTO>> getTaskList(BasePageRequest request) {
+    public Pager<List<TaskHubDTO>> getTaskList(BasePageRequest request, String orgId, String projectId) {
         Page<Object> page = PageMethod.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "start_time desc");
-        return PageUtils.setPageInfo(page, getPage(request, null, null));
+        return PageUtils.setPageInfo(page, getPage(request, orgId, projectId));
     }
 
     private List<TaskHubDTO> getPage(BasePageRequest request, String orgId, String projectId) {
