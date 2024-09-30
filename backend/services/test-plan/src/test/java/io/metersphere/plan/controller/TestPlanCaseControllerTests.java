@@ -13,7 +13,7 @@ import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
 import io.metersphere.plan.domain.TestPlanFunctionalCase;
 import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
-import io.metersphere.plan.dto.ModuleSelectDTO;
+import io.metersphere.system.dto.ModuleSelectDTO;
 import io.metersphere.plan.dto.TestPlanCollectionAssociateDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.mapper.TestPlanCaseExecuteHistoryMapper;

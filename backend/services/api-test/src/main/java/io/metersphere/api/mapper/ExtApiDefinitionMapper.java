@@ -93,4 +93,11 @@ public interface ExtApiDefinitionMapper {
     List<ApiDefinition> selectByProjectNum(String projectNum);
 
     List<ApiDefinitionWithBlob> selectApiDefinitionWithBlob(@Param("ids") List<String> ids);
+
+    List<ApiDefinition> selectAllApi(@Param("projectId") String projectId,  @Param("protocols") List<String> protocols);
+
+
+    List<ApiDefinition> getListBySelectModules(@Param("projectId") String projectId, @Param("moduleIds") List<String> moduleIds,  @Param("protocols") List<String> protocols);
+
+    List<ApiDefinition> getListBySelectIds(@Param("ids") List<String> ids,  @Param("protocols") List<String> protocols);
 }

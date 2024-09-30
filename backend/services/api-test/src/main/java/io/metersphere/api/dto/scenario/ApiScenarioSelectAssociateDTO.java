@@ -1,4 +1,4 @@
-package io.metersphere.plan.dto;
+package io.metersphere.api.dto.scenario;
 
 import io.metersphere.system.dto.ModuleSelectDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,11 +13,15 @@ import java.util.Map;
 /**
  * @author guoyuqi
  */
+
 @Data
-public class TestPlanCollectionAssociateDTO implements Serializable {
+public class ApiScenarioSelectAssociateDTO implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    @Schema(description = "接口场景ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String scenarioId;
 
     @Schema(description = "是否选择所有模块")
     private boolean selectAllModule = false;
@@ -25,24 +29,14 @@ public class TestPlanCollectionAssociateDTO implements Serializable {
     @Schema(description = "模块下的id集合属性", requiredMode = Schema.RequiredMode.REQUIRED)
     private Map<String, ModuleSelectDTO> moduleMaps;
 
-    @Schema(description = "关联关系的type(功能：FUNCTIONAL/接口定义：API/接口用例：API_CASE/场景：API_SCENARIO)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "关联关系的type(接口定义：API/接口用例：API_CASE/场景：API_SCENARIO)", requiredMode = Schema.RequiredMode.REQUIRED)
     private String associateType;
 
     @Schema(description = "项目id",requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.project_id.not_blank}")
     private String projectId;
 
-    @Schema(description = "是否同步添加功能用例的关联用例")
-    private boolean syncCase = false;
-
-    @Schema(description = "接口计划集id")
-    private String apiCaseCollectionId;
-
-    @Schema(description = "场景计划集id")
-    private String apiScenarioCollectionId;
-
     @Schema(description = "协议")
     private List<String> protocols;
-
 
 }
