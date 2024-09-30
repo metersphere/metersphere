@@ -28,7 +28,6 @@
         :can-edit="props.canEdit"
         @select-parent-node="selectParentNode"
         @refresh="emit('refresh')"
-        @set-tree-type-to-module="setTreeTypeToModule"
       ></CaseTable>
     </template>
   </MsSplitBox>
@@ -86,9 +85,6 @@
   }
 
   const treeType = ref<'MODULE' | 'COLLECTION'>('COLLECTION');
-  function setTreeTypeToModule() {
-    treeType.value = 'MODULE'; // TODO lmy v3.4版本删除此代码
-  }
   function getCaseTableList() {
     nextTick(async () => {
       await caseTreeRef.value?.initModules();

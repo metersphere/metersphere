@@ -126,6 +126,7 @@
         ref="msTestPlanFeatureCaseMinderRef"
         :active-module="props.activeModule"
         :module-tree="moduleTree"
+        :tree-type="props.treeType"
         :plan-id="props.planId"
         :can-edit="props.canEdit"
         @operation="handleMinderOperation"
@@ -271,7 +272,6 @@
 
   const emit = defineEmits<{
     (e: 'refresh'): void;
-    (e: 'setTreeTypeToModule'): void; // TODO lmy v3.4版本删除此代码
     (e: 'selectParentNode', tree: ModuleTreeNode[]): void;
   }>();
 
@@ -567,16 +567,6 @@
     }
   );
 
-  // TODO lmy v3.4版本删除此代码
-  watch(
-    () => props.treeType,
-    (val) => {
-      if (val === 'COLLECTION') {
-        showType.value = 'list';
-      }
-    }
-  );
-
   async function loadCaseList(refreshTreeCount = true) {
     const tableParams = await getTableParams(false);
     setLoadListParams({
@@ -655,10 +645,6 @@
 
   function handleShowTypeChange(val: string | number | boolean) {
     if (val === 'minder') {
-      if (props.treeType === 'COLLECTION') {
-        emit('setTreeTypeToModule'); // TODO lmy v3.4版本删除此代码
-        return;
-      }
       getModuleCount(); // 切换到脑图刷新模块统计
     } else {
       loadCaseList();
@@ -925,7 +911,7 @@
   function handleMinderOperation(type: string, node: MinderJsonNode) {
     minderSelectData.value = node.data;
     batchUpdateParams.value = {
-      ...getMinderOperationParams(node),
+      ...getMinderOperationParams(node, props.treeType === 'COLLECTION'),
       testPlanId: props.planId,
       projectId: node.data?.id !== 'NONE' ? node.data?.projectId : '',
     };

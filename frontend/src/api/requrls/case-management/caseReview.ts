@@ -31,3 +31,4 @@ export const getCaseReviewerListUrl = '/case/review/detail/reviewer/list'; // �
 export const GetCaseReviewMinderUrl = '/functional/mind/case/review/list'; // 获取评审脑图数据
 export const GetReviewerAndStatusUrl = '/case/review/detail/reviewer/status/total'; // 脑图-获取用例评审最终结果和每个评审人最终的评审结果
 export const GetCasePlanMinderUrl = '/functional/mind/case/plan/list'; // 获取测试计划用例脑图
+export const GetCasePlanCollectionMinderUrl = '/functional/mind/case/collection/list'; // 获取测试计划用例脑图-测试点

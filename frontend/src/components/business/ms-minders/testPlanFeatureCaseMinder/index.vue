@@ -64,6 +64,7 @@
             <div class="w-[440px] rounded bg-white p-[16px] shadow-[0_0_10px_rgba(0,0,0,0.05)]">
               <ExecuteSubmit
                 :select-node="selectNode"
+                :tree-type="props.treeType"
                 :test-plan-id="props.planId"
                 is-default-activate
                 @done="handleExecuteDone"
@@ -175,7 +176,8 @@
         testPlanCaseId: selectNode?.data?.id,
         caseId: selectNode?.data?.caseId,
         testPlanId: props.planId,
-        selectAll: batchMinderParams.minderModuleIds.includes('NONE'),
+        selectAll:
+          batchMinderParams.minderModuleIds.includes('NONE') || batchMinderParams.minderCollectionIds.includes('NONE'),
         ...batchMinderParams,
       }"
       :is-minder-batch="isMinderOperation"
@@ -225,7 +227,10 @@
     setPriorityView,
   } from '@/components/pure/ms-minder-editor/script/tool/utils';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
-  import { getMinderOperationParams } from '@/components/business/ms-minders/caseReviewMinder/utils';
+  import {
+    getMinderOperationParams,
+    isModuleOrCollection,
+  } from '@/components/business/ms-minders/caseReviewMinder/utils';
   import Attachment from '@/components/business/ms-minders/featureCaseMinder/attachment.vue';
   import useMinderBaseApi from '@/components/business/ms-minders/featureCaseMinder/useMinderBaseApi';
   import BugList from './bugList.vue';
@@ -276,6 +281,7 @@
     moduleTree: ModuleTreeNode[];
     planId: string;
     canEdit: boolean; // 已归档的测试计划不能操作
+    treeType: 'MODULE' | 'COLLECTION';
   }>();
 
   const emit = defineEmits<{
@@ -319,11 +325,13 @@
         type: e.type || e.data?.type,
         id: e.id || e.data?.id || '',
         text: e.name || e.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
-        resource: modulesCount.value[e.id] !== undefined ? [moduleTag] : e.data?.resource,
+        resource:
+          modulesCount.value[e.id] !== undefined && props.treeType === 'MODULE' ? [moduleTag] : e.data?.resource,
         expandState: e.level === 0 ? 'expand' : 'collapse',
         count: modulesCount.value[e.id],
         disabled: true,
-        projectId: getMinderNodeParentId(e),
+        projectId: props.treeType === 'MODULE' ? getMinderNodeParentId(e) : appStore.currentProjectId,
+        isModuleOrCollection: true, // 模块或测试点
       },
       children:
         modulesCount.value[e.id] > 0 && !e.children?.length
@@ -343,9 +351,10 @@
       data: {
         id: 'NONE',
         text: t('testPlan.testPlanIndex.functionalUseCase'),
-        resource: [moduleTag],
+        resource: props.treeType === 'MODULE' ? [moduleTag] : [],
         disabled: true,
         count: modulesCount.value.all,
+        isModuleOrCollection: true, // 模块或测试点
       },
     };
     importJson.value.treePath = [];
@@ -365,12 +374,9 @@
     }
   }
 
-  watch(
-    () => props.activeModule,
-    () => {
-      initCaseTree();
-    }
-  );
+  watch([() => props.activeModule, () => props.treeType], () => {
+    initCaseTree();
+  });
 
   function isCaseTag(data?: MinderJsonNodeData) {
     return data?.caseId?.length;
@@ -385,9 +391,9 @@
     try {
       loading.value = true;
       if (!node?.data) return;
-      const { list, total } = await getCasePlanMinder({
+      const { list, total } = await getCasePlanMinder(props.treeType, {
         current: (loadMoreCurrent ?? 0) + 1,
-        moduleId: node.data?.id,
+        ...(props.treeType === 'COLLECTION' ? { collectionId: node.data?.id } : { moduleId: node.data?.id }),
         projectId: node.data?.projectId,
         planId: props.planId,
       });
@@ -577,6 +583,7 @@
   const batchMinderParams = ref({
     minderModuleIds: [] as string[],
     minderCaseIds: [] as string[],
+    minderCollectionIds: [] as string[],
     minderProjectIds: [] as string[],
   });
   const isMinderOperation = ref(false);
@@ -598,7 +605,9 @@
           caseId: '',
           testPlanId: props.planId,
           bugIds: params.selectIds,
-          selectAll: batchMinderParams.value.minderModuleIds.includes('NONE'),
+          selectAll:
+            batchMinderParams.value.minderModuleIds.includes('NONE') ||
+            batchMinderParams.value.minderCollectionIds.includes('NONE'),
           ...batchMinderParams.value,
         });
       } else {
@@ -656,7 +665,6 @@
     const curSelectNode = window.minder.getSelectedNode();
     const node = isActualResultNode(curSelectNode) ? curSelectNode.parent : curSelectNode;
     executeVisible.value = false;
-    const resource = node.data?.resource;
     if (isCaseTag(node.data)) {
       //  用例添加标签
       node.setData('resource', [executionResultMap[status].statusText]).render();
@@ -666,7 +674,7 @@
       if (extraVisible.value && activeExtraKey.value === 'history') {
         initExecuteHistory(node.data);
       }
-    } else if (resource?.includes(moduleTag)) {
+    } else if (isModuleOrCollection(node.data)) {
       // 先清空子节点，从后向前遍历时，删除节点不会影响到尚未遍历的节点
       for (let i = node.children.length - 1; i >= 0; i--) {
         window.minder.removeNode(node.children[i]);
@@ -686,7 +694,7 @@
         testPlanId: props.planId,
         lastExecResult: status,
         content: '',
-        ...getMinderOperationParams(selectedNodes),
+        ...getMinderOperationParams(selectedNodes, props.treeType === 'COLLECTION'),
       } as BatchExecuteFeatureCaseParams);
       // 更新
       handleExecuteDone(status, '');
@@ -860,6 +868,7 @@
 
   function setBatchMinderParams() {
     batchMinderParams.value = {
+      minderCollectionIds: [],
       minderModuleIds: [],
       minderCaseIds: [],
       minderProjectIds: [],
@@ -870,8 +879,12 @@
         batchMinderParams.value.minderCaseIds.push(node.data?.id || '');
       } else if (node.data?.type === 'PROJECT') {
         batchMinderParams.value.minderProjectIds.push(node.data?.id || '');
-      } else if (node.data?.resource?.includes(moduleTag)) {
-        batchMinderParams.value.minderModuleIds.push(node.data?.id || '');
+      } else if (isModuleOrCollection(node.data)) {
+        if (props.treeType === 'COLLECTION') {
+          batchMinderParams.value.minderCollectionIds.push(node.data?.id || '');
+        } else {
+          batchMinderParams.value.minderModuleIds.push(node.data?.id || '');
+        }
       }
     });
   }
@@ -879,14 +892,14 @@
   // 选中节点
   async function handleNodeSelect(node: MinderJsonNode) {
     const { data } = node;
-    if (node.data?.resource?.includes(moduleTag)) {
+    if (isModuleOrCollection(node.data)) {
       isMinderOperation.value = true; // 批量操作/脑图模块节点操作
       setBatchMinderParams();
     } else {
       isMinderOperation.value = false;
     }
     // 点击更多节点，加载更多用例
-    if (data?.type === 'tmp' && node.parent?.data?.resource?.includes(moduleTag)) {
+    if (data?.type === 'tmp' && node.parent && isModuleOrCollection(node.parent?.data)) {
       canShowFloatMenu.value = false;
       await initNodeCases(node.parent, data.current);
       setPriorityView(true, 'P');
@@ -897,7 +910,7 @@
     // 展示浮动菜单: 模块节点且有子节点且不是没权限的根结点、用例节点、用例节点下的实际结果
     if (
       isCaseTag(node?.data) ||
-      (node.data?.resource?.includes(moduleTag) &&
+      (isModuleOrCollection(node.data) &&
         (node.children || []).length > 0 &&
         !(!hasOperationPermission.value && node.type === 'root'))
     ) {
@@ -931,7 +944,7 @@
     }
 
     // 展示进入节点菜单: 模块节点
-    if (data?.resource?.includes(moduleTag) && (node.children || []).length > 0 && node.type !== 'root') {
+    if (isModuleOrCollection(data) && (node.children || []).length > 0 && node.type !== 'root') {
       canShowEnterNode.value = true;
     } else {
       canShowEnterNode.value = false;
@@ -948,7 +961,7 @@
       // 用例下面所有节点都展开
       expendNodeAndChildren(node);
       node.layout();
-    } else if (data?.resource?.includes(moduleTag)) {
+    } else if (data && isModuleOrCollection(data)) {
       // 模块节点且有用例且未加载过用例数据
       if (data.id !== 'NONE' && data.count > 0 && data.isLoaded !== true) {
         await initNodeCases(node);
