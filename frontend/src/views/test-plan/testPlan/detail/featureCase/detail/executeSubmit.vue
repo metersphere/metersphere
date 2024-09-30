@@ -10,9 +10,12 @@
       <slot name="headerRight"></slot>
     </template>
   </ExecuteForm>
-  <a-button type="primary" class="mt-[12px]" :loading="submitLoading" @click="() => submit()">
-    {{ t('caseManagement.caseReview.commitResult') }}
-  </a-button>
+  <div class="mt-[12px] flex items-center">
+    <a-button type="primary" :loading="submitLoading" @click="() => submit()">
+      {{ t('caseManagement.caseReview.commitResult') }}
+    </a-button>
+    <slot name="commitRight"></slot>
+  </div>
   <a-modal
     v-model:visible="modalVisible"
     :title="t('testPlan.featureCase.startExecution')"

@@ -19,6 +19,7 @@ export default {
   'testPlan.testPlanIndex.useCount': 'Use cases',
   'testPlan.testPlanIndex.bugCount': 'bug count',
   'testPlan.featureCase.bug': 'bug',
+  'testPlan.featureCase.addBug': 'Add bug',
   'testPlan.testPlanIndex.belongModule': 'belong module',
   'testPlan.testPlanIndex.createTime': 'create time',
   'testPlan.testPlanIndex.operation': 'operation',

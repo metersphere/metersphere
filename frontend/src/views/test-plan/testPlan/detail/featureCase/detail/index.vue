@@ -128,7 +128,7 @@
                       <div class="flex items-center">
                         <a-switch v-model:model-value="autoNext" size="small" />
                         <div class="mx-[8px]">{{ t('caseManagement.caseReview.autoNext') }}</div>
-                        <a-tooltip position="top">
+                        <a-tooltip position="tr">
                           <template #content>
                             <div>{{ t('testPlan.featureCase.autoNextTip1') }}</div>
                             <div>{{ t('testPlan.featureCase.autoNextTip2') }}</div>
@@ -138,59 +138,58 @@
                             size="16"
                           />
                         </a-tooltip>
-                        <MsTag type="danger" theme="light" size="medium" class="ml-4">
-                          <MsIcon type="icon-icon_defect" class="!text-[14px] text-[rgb(var(--danger-6))]" size="16" />
-                          <span class="ml-1 text-[rgb(var(--danger-6))]"> {{ t('testPlan.featureCase.bug') }}</span>
-                          <span class="ml-1 text-[rgb(var(--danger-6))]">{{ caseDetail.bugListCount }}</span>
-                        </MsTag>
-                        <a-dropdown @select="handleSelect">
-                          <a-button
-                            v-if="hasAllPermission(['PROJECT_BUG:READ', 'PROJECT_TEST_PLAN:READ+EXECUTE'])"
-                            type="outline"
-                            size="small"
-                            class="ml-1"
-                          >
-                            <template #icon> <icon-plus class="text-[12px]" /> </template>
-                          </a-button>
-                          <template #content>
-                            <a-doption
-                              v-permission="['PROJECT_BUG:READ+ADD']"
-                              :disabled="!hasAnyPermission(['PROJECT_BUG:READ+ADD'])"
-                              value="new"
-                              >{{ t('common.newCreate') }}</a-doption
-                            >
-                            <a-doption
-                              v-if="createdBugCount > 0 && hasAnyPermission(['PROJECT_BUG:READ'])"
-                              :disabled="!hasAnyPermission(['PROJECT_BUG:READ'])"
-                              value="link"
-                              >{{ t('common.associated') }}</a-doption
-                            >
-                            <a-popover v-else title="" position="left">
-                              <a-doption
-                                v-if="createdBugCount < 1 && hasAnyPermission(['PROJECT_BUG:READ'])"
-                                :disabled="!hasAnyPermission(['PROJECT_BUG:READ'])"
-                                value="link"
-                                >{{ t('common.associated') }}</a-doption
-                              >
-                              <template #content>
-                                <div class="flex items-center text-[14px]">
-                                  <span class="text-[var(--color-text-4)]">{{
-                                    t('testPlan.featureCase.noBugDataTooltip')
-                                  }}</span>
-                                  <MsButton
-                                    :disabled="!hasAnyPermission(['PROJECT_BUG:READ+ADD'])"
-                                    type="text"
-                                    @click="handleSelect('new')"
-                                  >
-                                    {{ t('testPlan.featureCase.noBugDataNewBug') }}
-                                  </MsButton>
-                                </div>
-                              </template>
-                            </a-popover>
-                          </template>
-                        </a-dropdown>
                       </div>
                     </div>
+                  </template>
+                  <template #commitRight>
+                    <a-dropdown @select="handleSelect">
+                      <a-button
+                        v-if="hasAllPermission(['PROJECT_BUG:READ', 'PROJECT_TEST_PLAN:READ+EXECUTE'])"
+                        type="outline"
+                        class="ml-[12px]"
+                      >
+                        <template #icon> <MsIcon type="icon-icon_add_outlined"></MsIcon> </template>
+                        {{ t('testPlan.featureCase.addBug') }}
+                      </a-button>
+                      <template #content>
+                        <a-doption
+                          v-permission="['PROJECT_BUG:READ+ADD']"
+                          :disabled="!hasAnyPermission(['PROJECT_BUG:READ+ADD'])"
+                          value="new"
+                        >
+                          {{ t('testPlan.featureCase.noBugDataNewBug') }}
+                        </a-doption>
+                        <a-doption
+                          v-if="createdBugCount > 0 && hasAnyPermission(['PROJECT_BUG:READ'])"
+                          :disabled="!hasAnyPermission(['PROJECT_BUG:READ'])"
+                          value="link"
+                        >
+                          {{ t('caseManagement.featureCase.linkDefect') }}
+                        </a-doption>
+                        <a-popover v-else title="" position="left">
+                          <a-doption
+                            v-if="createdBugCount < 1 && hasAnyPermission(['PROJECT_BUG:READ'])"
+                            :disabled="!hasAnyPermission(['PROJECT_BUG:READ'])"
+                            value="link"
+                            >{{ t('caseManagement.featureCase.linkDefect') }}</a-doption
+                          >
+                          <template #content>
+                            <div class="flex items-center text-[14px]">
+                              <span class="text-[var(--color-text-4)]">{{
+                                t('testPlan.featureCase.noBugDataTooltip')
+                              }}</span>
+                              <MsButton
+                                :disabled="!hasAnyPermission(['PROJECT_BUG:READ+ADD'])"
+                                type="text"
+                                @click="handleSelect('new')"
+                              >
+                                {{ t('testPlan.featureCase.noBugDataNewBug') }}
+                              </MsButton>
+                            </div>
+                          </template>
+                        </a-popover>
+                      </template>
+                    </a-dropdown>
                   </template>
                 </ExecuteSubmit>
               </div>
