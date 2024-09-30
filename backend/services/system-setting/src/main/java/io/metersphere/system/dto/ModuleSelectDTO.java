@@ -1,4 +1,4 @@
-package io.metersphere.plan.dto;
+package io.metersphere.system.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

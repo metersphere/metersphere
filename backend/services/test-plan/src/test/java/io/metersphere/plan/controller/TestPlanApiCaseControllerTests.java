@@ -22,7 +22,7 @@ import io.metersphere.bug.dto.response.BugCustomFieldDTO;
 import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.TestPlanApiCase;
 import io.metersphere.plan.domain.TestPlanApiCaseExample;
-import io.metersphere.plan.dto.ModuleSelectDTO;
+import io.metersphere.system.dto.ModuleSelectDTO;
 import io.metersphere.plan.dto.TestPlanCollectionAssociateDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;

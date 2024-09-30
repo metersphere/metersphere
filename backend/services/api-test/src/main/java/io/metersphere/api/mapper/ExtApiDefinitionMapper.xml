@@ -679,4 +679,69 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="selectAllCase" resultType="io.metersphere.api.domain.ApiDefinition">
+        select
+        api_definition.id,
+        api_definition.name,
+        api_definition.method,
+        api_definition.num,
+        api_definition.pos
+        from api_definition
+        where api_definition.deleted = false
+        and api_definition.project_id = #{projectId}
+        <if test="protocols != null and protocols.size() > 0">
+            and api_definition.protocol in
+            <foreach collection="protocols" item="protocol" separator="," open="(" close=")">
+                #{protocol}
+            </foreach>
+        </if>
+        order by api_definition.pos asc
+    </select>
+
+    <select id="getListBySelectModules" resultType="io.metersphere.api.domain.ApiDefinition">
+        select
+        api_definition.id,
+        api_definition.name,
+        api_definition.method,
+        api_definition.num,
+        api_definition.pos
+        from api_definition
+        where api_definition.deleted = false
+        and api_definition.project_id = #{projectId}
+        and api_definition.module_id in
+        <foreach collection="moduleIds" item="moduleId" open="(" separator="," close=")">
+            #{moduleId}
+        </foreach>
+        <if test="protocols != null and protocols.size() > 0">
+            and api_definition.protocol in
+            <foreach collection="protocols" item="protocol" separator="," open="(" close=")">
+                #{protocol}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getListBySelectIds" resultType="io.metersphere.api.domain.ApiDefinition">
+        select
+        api_definition.id,
+        api_definition.name,
+        api_definition.method,
+        api_definition.num,
+        api_definition.pos
+        from api_definition
+        where api_definition.deleted = false
+        and api_definition.project_id = #{projectId}
+        and api_definition.id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        <if test="protocols != null and protocols.size() > 0">
+            and api_definition.protocol in
+            <foreach collection="protocols" item="protocol" separator="," open="(" close=")">
+                #{protocol}
+            </foreach>
+        </if>
+    </select>
+
+
 </mapper>

@@ -2,7 +2,7 @@ package io.metersphere.plan.controller;
 
 import io.metersphere.plan.domain.TestPlanCollection;
 import io.metersphere.plan.domain.TestPlanCollectionExample;
-import io.metersphere.plan.dto.ModuleSelectDTO;
+import io.metersphere.system.dto.ModuleSelectDTO;
 import io.metersphere.plan.dto.TestPlanCollectionAssociateDTO;
 import io.metersphere.plan.dto.TestPlanCollectionMinderEditDTO;
 import io.metersphere.plan.dto.TestPlanCollectionMinderTreeDTO;
