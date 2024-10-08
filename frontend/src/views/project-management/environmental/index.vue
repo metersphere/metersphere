@@ -277,13 +277,13 @@
     listEnv,
   } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
-  import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
   import useProjectEnvStore, {
     ALL_PARAM,
     NEW_ENV_GROUP,
     NEW_ENV_PARAM,
+    NEW_ENV_PARAM_COPY,
   } from '@/store/modules/setting/useProjectEnvStore';
   import { downloadByteFile } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
@@ -340,6 +340,11 @@
         eventTag: 'rename',
         disabled: isMock,
         permission: ['PROJECT_ENVIRONMENT:READ+UPDATE'],
+      },
+      {
+        label: t('common.copy'),
+        eventTag: 'copy',
+        permission: ['PROJECT_ENVIRONMENT:READ+ADD'],
       },
       {
         label: t('common.export'),
@@ -546,16 +551,20 @@
 
   // 处理删除环境
   const handleDeleteEnv = async (id: string) => {
-    if (store.currentId === NEW_ENV_PARAM) {
-      // 删除id为newEnvParam的环境
+    const isNewEnvParam = id === NEW_ENV_PARAM || id === NEW_ENV_PARAM_COPY;
+    const isCurrentIdNewEnvParam = store.currentId === NEW_ENV_PARAM || store.currentId === NEW_ENV_PARAM_COPY;
+
+    if (isCurrentIdNewEnvParam) {
       envList.value = envList.value.filter((item) => item.id !== id);
       store.setCurrentId(envList.value[0].id);
     }
-    if (id === NEW_ENV_PARAM) {
+
+    if (isNewEnvParam) {
       envList.value = envList.value.filter((item) => item.id !== id);
       store.setCurrentId(envList.value[0].id);
       return;
     }
+
     const matchingItem = envList.value.find((item) => item.id === id);
     const itemName = matchingItem ? matchingItem.name : null;
     openModal({
@@ -679,6 +688,25 @@
     store.setCurrentGroupId(id);
   };
 
+  // 复制
+  function copyEnvHandler(id: string) {
+    const currentItem = envList.value.find((item) => item.id === id);
+    const tmpArr = envList.value;
+    if (currentItem) {
+      let copyName = `copy_${currentItem.name}`;
+      if (copyName.length > 255) {
+        copyName = copyName.slice(0, 255);
+      }
+      tmpArr.unshift({
+        ...currentItem,
+        name: copyName,
+        id: NEW_ENV_PARAM_COPY,
+      });
+      store.setCurrentId(NEW_ENV_PARAM_COPY);
+      store.initEnvDetail(id);
+    }
+  }
+
   // 处理MoreAction
   const handleMoreAction = (item: ActionsItem, id: string, scopeType: EnvAuthTypeEnum) => {
     const { eventTag } = item;
@@ -719,6 +747,9 @@
           popVisible.value[id] = visibleItem;
         }
         break;
+      case 'copy':
+        copyEnvHandler(id);
+        break;
       default:
         break;
     }
@@ -747,6 +778,7 @@
     if (!envId) {
       initData(keyword.value, true);
     } else {
+      initData(keyword.value, false);
       store.initEnvDetail();
     }
   }
