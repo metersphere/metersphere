@@ -1,6 +1,6 @@
 <template>
   <div :class="`${props.enabledTestSet ? 'test-set-wrapper' : ''}`">
-    <MsBaseTable v-bind="propsRes" :row-class="getRowClass" v-on="propsEvent">
+    <MsBaseTable ref="tableRef" v-bind="propsRes" :row-class="getRowClass" v-on="propsEvent">
       <template #num="{ record }">
         <MsButton :disabled="!props.isPreview" type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
       </template>
@@ -211,6 +211,7 @@
     }
     return TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE_NOT_PREVIEW;
   });
+
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(reportFeatureCaseList(), {
     tableKey: tableKey.value,
     columns: columns.value,
@@ -218,11 +219,21 @@
     heightUsed: 236,
     showSetting: props.isPreview,
     isSimpleSetting: true,
+    isHiddenSetting: props.enabledTestSet,
     paginationSize: 'mini',
     showSelectorAll: false,
   });
 
+  async function setCurrentPageSize() {
+    const pageSize = await tableStore.getPageSize(tableKey.value);
+    if (propsRes.value.msPagination && propsRes.value.msPagination.pageSize) {
+      propsRes.value.msPagination.pageSize = pageSize;
+    }
+  }
+
+  const tableRef = ref();
   async function loadCaseList() {
+    await setCurrentPageSize();
     setLoadListParams({
       reportId: props.reportId,
       keyword: innerKeyword.value,
@@ -238,21 +249,6 @@
       pId: record.projectId,
     });
   }
-
-  watch(
-    () => props.reportId,
-    (val) => {
-      if (val) {
-        loadCaseList();
-      }
-    }
-  );
-
-  onMounted(() => {
-    if (props.isPreview && props.reportId) {
-      loadCaseList();
-    }
-  });
 
   const showDetailVisible = ref<boolean>(false);
 
@@ -300,11 +296,28 @@
     }
   );
 
+  watch(
+    () => props.reportId,
+    (val) => {
+      if (val) {
+        loadCaseList();
+      }
+    }
+  );
+
+  onMounted(() => {
+    if (props.isPreview && props.reportId) {
+      loadCaseList();
+    }
+  });
+
   defineExpose({
     loadCaseList,
   });
 
-  await tableStore.initColumn(tableKey.value, columns.value, 'drawer');
+  if (!props.enabledTestSet) {
+    await tableStore.initColumn(tableKey.value, columns.value, 'drawer');
+  }
 </script>
 
 <style lang="less" scoped></style>

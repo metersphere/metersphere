@@ -23,20 +23,40 @@
     <template #empty>
       <span></span>
     </template>
+    <template #outContent>
+      <span></span>
+    </template>
+    <template #operation>
+      <ColumnSelectorIcon
+        :table-key="props.tableKey"
+        :is-simple="true"
+        :only-page-size="false"
+        :show-pagination="true"
+        @init-data="handleInitColumn"
+        @page-size-change="pageSizeChange"
+      />
+    </template>
   </MsBaseTable>
 </template>
 
 <script setup lang="ts">
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import ColumnSelectorIcon from '@/components/pure/ms-table/columnSelectorIcon.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import ApiAndScenarioTable from '@/views/test-plan/report/detail/component/system-card/apiAndScenarioTable.vue';
   import FeatureCaseTable from '@/views/test-plan/report/detail/component/system-card/featureCaseTable.vue';
 
   import { getCollectApiPage, getCollectFunctionalPage, getCollectScenarioPage } from '@/api/modules/test-plan/report';
+  import useTableStore from '@/hooks/useTableStore';
 
   import type { SelectedReportCardTypes } from '@/models/testPlan/testPlanReport';
+  import { TableKeyEnum } from '@/enums/tableEnum';
   import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
+
+  import { getApiDetailColumn, getFeatureColumns } from '@/views/test-plan/report/utils';
+
+  const tableStore = useTableStore();
 
   const props = defineProps<{
     enabledTestSet: boolean;
@@ -45,9 +65,18 @@
     reportId: string;
     shareId?: string;
     isPreview?: boolean;
+    tableKey: TableKeyEnum;
   }>();
 
-  const expandedKeys = ref<string[]>([]);
+  const emit = defineEmits<{
+    (e: 'pageSizeChange', pageSize: number): void;
+    (e: 'initColumn'): void;
+  }>();
+
+  const expandedKeys = defineModel<string[]>('expandedKeys', {
+    required: true,
+  });
+
   const isGroup = inject<Ref<boolean>>('isPlanGroup', ref(false));
 
   const expandable = reactive({
@@ -119,6 +148,20 @@
           showDrag: true,
           width: 300,
         },
+        {
+          title: '',
+          dataIndex: 'other',
+          slotName: 'other',
+          showInTable: true,
+          showDrag: true,
+          width: 300,
+        },
+        {
+          title: '',
+          titleSlotName: 'operation',
+          slotName: 'outContent',
+          width: 30,
+        },
       ];
     }
     return [
@@ -146,6 +189,20 @@
         showDrag: true,
         width: 300,
       },
+      {
+        title: '',
+        dataIndex: 'empty',
+        slotName: 'empty',
+        showInTable: true,
+        showDrag: true,
+        width: 300,
+      },
+      {
+        title: '',
+        titleSlotName: 'operation',
+        slotName: 'outContent',
+        width: 30,
+      },
     ];
   });
 
@@ -163,6 +220,7 @@
     columns: columns.value,
     scroll: { x: '100%' },
     heightUsed: 320,
+    isSimpleSetting: true,
     showSelectorAll: false,
   });
 
@@ -188,6 +246,34 @@
       }
     }
   );
+
+  // 页码改变
+  async function pageSizeChange(pageSize: number) {
+    emit('pageSizeChange', pageSize);
+  }
+  // 列配置改变
+  async function handleInitColumn() {
+    emit('initColumn');
+  }
+
+  function getTestSetColumns(): MsTableColumn | undefined {
+    const apiAndScenarioDetail = [ReportCardTypeEnum.API_CASE_DETAIL, ReportCardTypeEnum.SCENARIO_CASE_DETAIL];
+    if (props.activeType === ReportCardTypeEnum.FUNCTIONAL_DETAIL) {
+      return getFeatureColumns(isGroup.value, props.isPreview);
+    }
+    if (apiAndScenarioDetail.includes(props.activeType)) {
+      return getApiDetailColumn(isGroup.value, props.isPreview);
+    }
+  }
+
+  async function initSetColumnConfig() {
+    const detailColumns = await getTestSetColumns();
+    if (detailColumns && props.enabledTestSet) {
+      await tableStore.initColumn(props.tableKey, detailColumns, 'drawer');
+    }
+  }
+
+  initSetColumnConfig();
 
   defineExpose({
     loadCaseList,

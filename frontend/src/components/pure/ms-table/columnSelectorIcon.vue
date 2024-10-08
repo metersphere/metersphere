@@ -7,7 +7,7 @@
     trigger="click"
     @hide="handleCancel"
   >
-    <icon-settings class="setting-icon" />
+    <icon-settings :class="`setting-icon ${props.isHiddenSetting ? 'invisible' : 'visible'}`" />
     <template #content>
       <div class="flex items-center justify-between p-[16px]">
         <div class="text-[16px] font-medium text-[var(--color-text-1)]">{{ t('msTable.columnSetting.display') }}</div>
@@ -74,7 +74,11 @@
       </div>
     </template>
   </a-popover>
-  <icon-settings v-else class="setting-icon" @click="handleShowSetting" />
+  <icon-settings
+    v-else
+    :class="`setting-icon ${props.isHiddenSetting ? 'invisible' : 'visible'}`"
+    @click="handleShowSetting"
+  />
 </template>
 
 <script setup lang="ts">
@@ -112,6 +116,7 @@
     isSimple: boolean;
     onlyPageSize?: boolean;
     showPagination?: boolean;
+    isHiddenSetting?: boolean; // 是否隐藏设置
   }>();
 
   const emit = defineEmits<{
