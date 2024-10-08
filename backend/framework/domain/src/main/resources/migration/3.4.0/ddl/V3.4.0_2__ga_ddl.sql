@@ -70,5 +70,11 @@ CREATE INDEX idx_start_time ON exec_task_item(start_time desc);
 CREATE INDEX idx_end_time ON exec_task_item(end_time desc);
 CREATE INDEX idx_executor ON exec_task_item(executor);
 
+
+ALTER TABLE project
+    ADD all_resource_pool BIT DEFAULT b'0' NOT NULL COMMENT '全部资源池';
+
+CREATE INDEX idx_all_resource_pool ON project(all_resource_pool);
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

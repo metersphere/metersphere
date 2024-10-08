@@ -691,6 +691,34 @@ public class FunctionalCaseControllerTests extends BaseTest {
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
         functionalCase = functionalCaseMapper.selectByPrimaryKey("TEST_FUNCTIONAL_CASE_ID_1");
         Assertions.assertTrue(CollectionUtils.isEmpty(functionalCase.getTags()));
+        request.setAppend(false);
+        request.setClear(false);
+        request.setTags(Arrays.asList("覆盖标签1", "覆盖标签2"));
+        request.setSelectAll(true);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
+        functionalCase = functionalCaseMapper.selectByPrimaryKey("TEST_FUNCTIONAL_CASE_ID_1");
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCase.getTags()));
+        request.setAppend(false);
+        request.setClear(false);
+        request.setTags(new ArrayList<>());
+        request.setSelectAll(true);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
+        functionalCase = functionalCaseMapper.selectByPrimaryKey("TEST_FUNCTIONAL_CASE_ID_1");
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCase.getTags()));
+        request.setAppend(false);
+        request.setClear(true);
+        request.setTags(new ArrayList<>());
+        request.setSelectAll(true);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
+        functionalCase = functionalCaseMapper.selectByPrimaryKey("TEST_FUNCTIONAL_CASE_ID_1");
+        Assertions.assertTrue(CollectionUtils.isEmpty(functionalCase.getTags()));
+        request.setAppend(false);
+        request.setClear(false);
+        request.setTags(new ArrayList<>());
+        request.setSelectAll(true);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
+        functionalCase = functionalCaseMapper.selectByPrimaryKey("TEST_FUNCTIONAL_CASE_ID_1");
+        Assertions.assertTrue(CollectionUtils.isEmpty(functionalCase.getTags()));
     }
 
 

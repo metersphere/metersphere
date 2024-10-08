@@ -2,7 +2,6 @@ package io.metersphere.api.dto.definition;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -18,10 +17,7 @@ public class ApiMockBatchEditRequest extends ApiTestCaseBatchRequest implements 
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "标签")
-    private LinkedHashSet<
-            @NotBlank
-            @Size(min = 1, max = 64, message = "{api_test_case.tag.length_range}")
-                    String> tags;
+    private LinkedHashSet<String> tags;
     @Schema(description = "批量编辑的类型 状态 :Status,标签: Tags")
     @NotBlank
     private String type;

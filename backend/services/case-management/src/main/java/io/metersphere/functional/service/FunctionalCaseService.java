@@ -1033,7 +1033,15 @@ public class FunctionalCaseService {
                 functionalCase.setUpdateUser(userId);
                 extFunctionalCaseMapper.batchUpdate(functionalCase, ids);
             }
+        } else if (request.isClear()){
+            FunctionalCase functionalCase = new FunctionalCase();
+            functionalCase.setTags(new ArrayList<>());
+            functionalCase.setProjectId(request.getProjectId());
+            functionalCase.setUpdateTime(System.currentTimeMillis());
+            functionalCase.setUpdateUser(userId);
+            extFunctionalCaseMapper.batchUpdate(functionalCase, ids);
         }
+
 
     }
 

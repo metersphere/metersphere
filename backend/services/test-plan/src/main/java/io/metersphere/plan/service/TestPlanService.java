@@ -800,6 +800,14 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                 testPlan.setUpdateUser(userId);
                 extTestPlanMapper.batchUpdate(testPlan, ids);
             }
+        } else if (request.isClear()){
+            //替换标签
+            TestPlan testPlan = new TestPlan();
+            testPlan.setTags(new ArrayList<>());
+            testPlan.setProjectId(request.getProjectId());
+            testPlan.setUpdateTime(System.currentTimeMillis());
+            testPlan.setUpdateUser(userId);
+            extTestPlanMapper.batchUpdate(testPlan, ids);
         }
 
     }

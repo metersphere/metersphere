@@ -2425,6 +2425,28 @@ public class TestPlanTests extends BaseTest {
         this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_EDIT, request);
         testPlan = testPlanMapper.selectByPrimaryKey("wx_test_plan_id_1");
         Assertions.assertTrue(CollectionUtils.isEmpty(testPlan.getTags()));
+        request.setTags(List.of("tag1"));
+        request.setAppend(false);
+        request.setClear(false);
+        request.setSelectAll(true);
+        this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_EDIT, request);
+        testPlan = testPlanMapper.selectByPrimaryKey("wx_test_plan_id_1");
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(testPlan.getTags()));
+        request.setTags(new ArrayList<>());
+        request.setAppend(false);
+        request.setClear(false);
+        request.setSelectAll(true);
+        this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_EDIT, request);
+        testPlan = testPlanMapper.selectByPrimaryKey("wx_test_plan_id_1");
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(testPlan.getTags()));
+        request.setTags(new ArrayList<>());
+        request.setAppend(false);
+        request.setClear(true);
+        request.setSelectAll(true);
+        this.requestPostWithOkAndReturn(URL_TEST_PLAN_BATCH_EDIT, request);
+        testPlan = testPlanMapper.selectByPrimaryKey("wx_test_plan_id_1");
+        Assertions.assertTrue(CollectionUtils.isEmpty(testPlan.getTags()));
+
     }
 
     @Test

@@ -123,6 +123,7 @@ public class CommonProjectService {
         project.setUpdateUser(createUser);
         project.setCreateUser(createUser);
         project.setEnable(addProjectDTO.getEnable());
+        project.setAllResourcePool(addProjectDTO.isAllResourcePool());
         project.setDescription(addProjectDTO.getDescription());
         addProjectDTO.setId(project.getId());
         BeanUtils.copyBean(projectDTO, project);
