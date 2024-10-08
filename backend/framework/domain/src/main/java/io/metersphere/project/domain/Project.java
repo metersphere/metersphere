@@ -1,16 +1,12 @@
 package io.metersphere.project.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
-
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import lombok.Data;
 
 @Data
 public class Project implements Serializable {
@@ -63,6 +59,10 @@ public class Project implements Serializable {
     @Schema(description = "模块设置")
     private String moduleSetting;
 
+    @Schema(description = "全部资源池", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{project.all_resource_pool.not_blank}", groups = {Created.class})
+    private Boolean allResourcePool;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -79,7 +79,8 @@ public class Project implements Serializable {
         deleted("deleted", "deleted", "BIT", false),
         deleteUser("delete_user", "deleteUser", "VARCHAR", false),
         enable("enable", "enable", "BIT", true),
-        moduleSetting("module_setting", "moduleSetting", "VARCHAR", false);
+        moduleSetting("module_setting", "moduleSetting", "VARCHAR", false),
+        allResourcePool("all_resource_pool", "allResourcePool", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

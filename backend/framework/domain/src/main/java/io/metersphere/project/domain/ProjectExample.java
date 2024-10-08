@@ -1023,6 +1023,66 @@ public class ProjectExample {
             addCriterion("module_setting not between", value1, value2, "moduleSetting");
             return (Criteria) this;
         }
+
+        public Criteria andAllResourcePoolIsNull() {
+            addCriterion("all_resource_pool is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllResourcePoolIsNotNull() {
+            addCriterion("all_resource_pool is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllResourcePoolEqualTo(Boolean value) {
+            addCriterion("all_resource_pool =", value, "allResourcePool");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllResourcePoolNotEqualTo(Boolean value) {
+            addCriterion("all_resource_pool <>", value, "allResourcePool");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllResourcePoolGreaterThan(Boolean value) {
+            addCriterion("all_resource_pool >", value, "allResourcePool");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllResourcePoolGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("all_resource_pool >=", value, "allResourcePool");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllResourcePoolLessThan(Boolean value) {
+            addCriterion("all_resource_pool <", value, "allResourcePool");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllResourcePoolLessThanOrEqualTo(Boolean value) {
+            addCriterion("all_resource_pool <=", value, "allResourcePool");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllResourcePoolIn(List<Boolean> values) {
+            addCriterion("all_resource_pool in", values, "allResourcePool");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllResourcePoolNotIn(List<Boolean> values) {
+            addCriterion("all_resource_pool not in", values, "allResourcePool");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllResourcePoolBetween(Boolean value1, Boolean value2) {
+            addCriterion("all_resource_pool between", value1, value2, "allResourcePool");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllResourcePoolNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("all_resource_pool not between", value1, value2, "allResourcePool");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

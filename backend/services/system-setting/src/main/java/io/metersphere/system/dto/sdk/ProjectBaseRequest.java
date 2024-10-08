@@ -32,6 +32,9 @@ public class ProjectBaseRequest {
     @Schema(description = "是否启用")
     private Boolean enable;
 
+    @Schema(description = "全部资源池")
+    private boolean allResourcePool = false;
+
     @Schema(description = "模块设置", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private List<String> moduleIds;
 
