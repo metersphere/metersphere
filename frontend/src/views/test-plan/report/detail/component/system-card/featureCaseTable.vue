@@ -1,6 +1,6 @@
 <template>
   <div :class="`${props.enabledTestSet ? 'test-set-wrapper' : ''}`">
-    <MsBaseTable v-bind="propsRes" v-on="propsEvent">
+    <MsBaseTable v-bind="propsRes" :row-class="getRowClass" v-on="propsEvent">
       <template #num="{ record }">
         <MsButton :disabled="!props.isPreview" type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
       </template>
@@ -276,10 +276,16 @@
     }
   }
 
+  const selectedId = ref<string>('');
   function openExecuteHistory(record: FeatureCaseItem) {
     executeReportId.value = record.reportId;
+    selectedId.value = record.reportId;
     showDetailVisible.value = true;
     getExecuteStep();
+  }
+
+  function getRowClass(record: FeatureCaseItem) {
+    return record.reportId === selectedId.value ? 'selected-row-class' : '';
   }
 
   watch(
