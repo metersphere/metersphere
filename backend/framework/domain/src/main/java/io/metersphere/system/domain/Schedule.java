@@ -1,8 +1,10 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,6 +64,9 @@ public class Schedule implements Serializable {
     @Schema(description = "配置")
     private String config;
 
+    @Schema(description = "业务ID")
+    private Long num;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -78,7 +83,8 @@ public class Schedule implements Serializable {
         updateTime("update_time", "updateTime", "BIGINT", false),
         projectId("project_id", "projectId", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
-        config("config", "config", "VARCHAR", false);
+        config("config", "config", "VARCHAR", false),
+        num("num", "num", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

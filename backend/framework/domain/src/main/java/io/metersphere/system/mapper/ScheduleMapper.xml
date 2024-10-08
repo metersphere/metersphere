@@ -16,6 +16,7 @@
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="config" jdbcType="VARCHAR" property="config" />
+    <result column="num" jdbcType="BIGINT" property="num" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -77,7 +78,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `key`, `type`, `value`, job, resource_type, `enable`, resource_id, create_user, 
-    create_time, update_time, project_id, `name`, config
+    create_time, update_time, project_id, `name`, config, num
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.ScheduleExample" resultMap="BaseResultMap">
     select
@@ -114,12 +115,12 @@
       `value`, job, resource_type, 
       `enable`, resource_id, create_user, 
       create_time, update_time, project_id, 
-      `name`, config)
+      `name`, config, num)
     values (#{id,jdbcType=VARCHAR}, #{key,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{value,jdbcType=VARCHAR}, #{job,jdbcType=VARCHAR}, #{resourceType,jdbcType=VARCHAR}, 
       #{enable,jdbcType=BIT}, #{resourceId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, 
-      #{name,jdbcType=VARCHAR}, #{config,jdbcType=VARCHAR})
+      #{name,jdbcType=VARCHAR}, #{config,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.Schedule">
     insert into schedule
@@ -166,6 +167,9 @@
       <if test="config != null">
         config,
       </if>
+      <if test="num != null">
+        num,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -209,6 +213,9 @@
       </if>
       <if test="config != null">
         #{config,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -263,6 +270,9 @@
       <if test="record.config != null">
         config = #{record.config,jdbcType=VARCHAR},
       </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -283,7 +293,8 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
-      config = #{record.config,jdbcType=VARCHAR}
+      config = #{record.config,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -330,6 +341,9 @@
       <if test="config != null">
         config = #{config,jdbcType=VARCHAR},
       </if>
+      <if test="num != null">
+        num = #{num,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -347,20 +361,22 @@
       update_time = #{updateTime,jdbcType=BIGINT},
       project_id = #{projectId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
-      config = #{config,jdbcType=VARCHAR}
+      config = #{config,jdbcType=VARCHAR},
+      num = #{num,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into schedule
     (id, `key`, `type`, `value`, job, resource_type, `enable`, resource_id, create_user, 
-      create_time, update_time, project_id, `name`, config)
+      create_time, update_time, project_id, `name`, config, num)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.key,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, 
         #{item.value,jdbcType=VARCHAR}, #{item.job,jdbcType=VARCHAR}, #{item.resourceType,jdbcType=VARCHAR}, 
         #{item.enable,jdbcType=BIT}, #{item.resourceId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
         #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, 
-        #{item.name,jdbcType=VARCHAR}, #{item.config,jdbcType=VARCHAR})
+        #{item.name,jdbcType=VARCHAR}, #{item.config,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -414,6 +430,9 @@
         </if>
         <if test="'config'.toString() == column.value">
           #{item.config,jdbcType=VARCHAR}
+        </if>
+        <if test="'num'.toString() == column.value">
+          #{item.num,jdbcType=BIGINT}
         </if>
       </foreach>
       )

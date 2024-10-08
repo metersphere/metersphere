@@ -206,11 +206,28 @@
         "name": "permission.organization_task_center.name",
         "permissions": [
           {
-            "id": "SYSTEM_TASK_CENTER:READ"
+            "id": "SYSTEM_CASE_TASK_CENTER:READ",
+            "name": "permission.case_task_center.read"
           },
           {
-            "id": "SYSTEM_TASK_CENTER:READ+STOP",
-            "name": "permission.organization_task_center.stop"
+            "id": "SYSTEM_CASE_TASK_CENTER:EXEC+STOP",
+            "name": "permission.case_task_center.exec"
+          },
+          {
+            "id": "SYSTEM_CASE_TASK_CENTER:READ+DELETE",
+            "name": "permission.case_task_center.delete"
+          },
+          {
+            "id": "SYSTEM_SCHEDULE_TASK_CENTER:READ",
+            "name": "permission.schedule_task_center.read"
+          },
+          {
+            "id": "SYSTEM_SCHEDULE_TASK_CENTER:READ+UPDATE",
+            "name": "permission.schedule_task_center.update"
+          },
+          {
+            "id": "SYSTEM_SCHEDULE_TASK_CENTER:READ+DELETE",
+            "name": "permission.schedule_task_center.delete"
           }
         ]
       }

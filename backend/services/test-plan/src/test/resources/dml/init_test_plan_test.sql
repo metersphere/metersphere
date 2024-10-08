@@ -27,8 +27,8 @@ VALUES ('wx_test_plan_id_1', 5000, 'songtianyang-fix-wx', 'NONE', '1', '测试�
         1714980158000, 'admin', 1714980158000, 'admin', 1714980158000, 1714980158000, 1714980158000, 1714980158000, '11');
 
 -- 定时任务(复制)
-INSERT INTO `schedule` (`id`, `key`, `type`, `value`, `job`, `resource_type`, `enable`, `resource_id`, `create_user`, `create_time`, `update_time`, `project_id`, `name`, `config`) VALUE
-('schedule-id-oasis', 'oasis_test_plan_id_2', 'CRON', '0 0 0/6 * * ?', 'io.metersphere.plan.job.TestPlanScheduleJob', 'TEST_PLAN', true, 'oasis_test_plan_id_2', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'songtianyang-fix-wx', '计划-复制', '{"runMode":"SERIAL"}');
+INSERT INTO `schedule` (`id`, `key`, `type`, `value`, `job`, `resource_type`, `enable`, `resource_id`, `create_user`, `create_time`, `update_time`, `project_id`, `name`, `config`, `num`) VALUE
+('schedule-id-oasis', 'oasis_test_plan_id_2', 'CRON', '0 0 0/6 * * ?', 'io.metersphere.plan.job.TestPlanScheduleJob', 'TEST_PLAN', true, 'oasis_test_plan_id_2', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'songtianyang-fix-wx', '计划-复制', '{"runMode":"SERIAL"}', 123);
 
 INSERT INTO `test_plan_functional_case`(`id`, `test_plan_id`, `functional_case_id`, `create_time`, `create_user`, `execute_user`, `last_exec_time`, `last_exec_result`, `pos`, `test_plan_collection_id`) VALUES
     ('wx_tpfc_1', 'wx_test_plan_id_4', 'wx_fc_1', 1714980158000, 'admin', NULL, NULL, NULL, 1, '123'),

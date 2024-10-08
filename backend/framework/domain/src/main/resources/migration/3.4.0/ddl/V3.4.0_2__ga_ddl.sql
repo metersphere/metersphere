@@ -76,5 +76,8 @@ ALTER TABLE project
 
 CREATE INDEX idx_all_resource_pool ON project(all_resource_pool);
 
+
+ALTER TABLE schedule ADD COLUMN num bigint not null comment '业务ID';
+CREATE INDEX idx_num ON schedule(`num`);
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
