@@ -6,6 +6,7 @@ import { getApiCaseReport, getApiCaseReportStep, getCaseDetail } from '@/api/mod
 import { useI18n } from '@/hooks/useI18n';
 
 import { ResponseAssertionTableItem } from '@/models/apiTest/common';
+import type { StepList } from '@/models/caseManagement/featureCase';
 import { FullResponseAssertionType } from '@/enums/apiEnum';
 import { CaseLinkEnum } from '@/enums/caseEnum';
 
@@ -21,36 +22,58 @@ export const detailContentMap: Record<string, string> = {
 };
 // 获取步骤表格
 function getStepsTable(steps: string) {
+  const alertStatus = ['BLOCKED', 'ERROR'];
+  const formatContent = (rows: StepList, key: keyof StepList) => {
+    const valueKey = key as keyof StepList;
+    return alertStatus.includes(rows.status as string)
+      ? `<span style="color:#f00"> ${rows[valueKey]} </span>`
+      : `<span> ${rows[valueKey]} </span>`;
+  };
   const templateFieldColumns = [
     {
       title: 'system.orgTemplate.numberIndex',
       dataIndex: 'num',
       slotName: 'num',
       width: 30,
+      format: (rows: StepList) => {
+        return formatContent(rows, 'num');
+      },
     },
     {
       title: 'system.orgTemplate.useCaseStep',
       slotName: 'caseStep',
       dataIndex: 'step',
       width: 200,
+      format: (rows: StepList) => {
+        return formatContent(rows, 'step');
+      },
     },
     {
       title: 'system.orgTemplate.expectedResult',
       dataIndex: 'expected',
       slotName: 'expectedResult',
       width: 200,
+      format: (rows: StepList) => {
+        return formatContent(rows, 'expected');
+      },
     },
     {
       title: 'system.orgTemplate.actualResult',
       dataIndex: 'actualResult',
       slotName: 'actualResult',
       width: 200,
+      format: (rows: StepList) => {
+        return formatContent(rows, 'actualResult');
+      },
     },
     {
       title: 'system.orgTemplate.stepExecutionResult',
       dataIndex: 'executeResult',
       slotName: 'lastExecResult',
       width: 120,
+      format: (rows: StepList) => {
+        return formatContent(rows, 'executeResult');
+      },
     },
   ];
   const stepsData = JSON.parse(steps).map((item: any, index: number) => {
@@ -61,6 +84,7 @@ function getStepsTable(steps: string) {
       expected: item.result,
       actualResult: item.actualResult,
       executeResult: item.executeResult ? executionResultMap[item.executeResult].statusText : '-',
+      status: item.executeResult,
     };
   });
   if (!stepsData.length) {

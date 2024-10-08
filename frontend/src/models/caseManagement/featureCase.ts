@@ -81,6 +81,7 @@ export interface CaseManagementTable {
 
 // 选择类型步骤和预期结果列表
 export interface StepList {
+  num?: string;
   id: string;
   step: string; // 步骤
   expected: string; // 预期
@@ -88,6 +89,7 @@ export interface StepList {
   showExpected: boolean; // 编辑预期模式
   actualResult?: string; // 实际
   executeResult?: string; // 步骤执行结果
+  status?: string;
 }
 
 export type StepExecutionResult = Pick<StepList, 'actualResult' | 'executeResult'>;
