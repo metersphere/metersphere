@@ -73,4 +73,6 @@ export default {
   'system.project.removeName': '确认移除 {name} 这个用户吗？',
   'system.project.descriptionPlaceholder': '请对该项目进行描述',
   'system.project.enterProject': '进入项目',
+  'system.project.allResPool': '全部资源池',
+  'system.project.specifyResPool': '指定资源池',
 };

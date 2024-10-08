@@ -26,6 +26,7 @@ export interface CreateOrUpdateSystemProjectParams {
   // 资源池
   resourcePoolIds: string[];
   // 列表里的
+  all: boolean; // 默认全部资源池
 }
 
 export interface CreateOrUpdateOrgProjectParams {
@@ -63,4 +64,5 @@ export interface OrgProjectTableItem {
   orgAdmins: Record<string, any>;
   moduleIds: string[];
   resourcePoolList: ResourcePoolItem[];
+  all: boolean;
 }
