@@ -5,6 +5,7 @@ import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.ScheduleResourceType;
 import io.metersphere.sdk.constants.ScheduleType;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.service.BaseDemandScheduleService;
@@ -43,7 +44,7 @@ public class DemandScheduleServiceImpl implements BaseDemandScheduleService {
                 scheduleService.addOrUpdateCronJob(s, DemandSyncJob.getJobKey(projectId), DemandSyncJob.getTriggerKey(projectId), DemandSyncJob.class);
             }, () -> {
                 Schedule request = new Schedule();
-                request.setName("Demand Sync Job");
+                request.setName(Translator.get("demand.sync.job"));
                 request.setResourceId(projectId);
                 request.setKey(IDGenerator.nextStr());
                 request.setProjectId(projectId);

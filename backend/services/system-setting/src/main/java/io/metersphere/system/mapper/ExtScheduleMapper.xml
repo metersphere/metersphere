@@ -249,4 +249,167 @@
           </if>
     </select>
 
+
+    <select id="selectScheduleList" resultType="io.metersphere.system.dto.taskhub.TaskHubScheduleDTO">
+        select task.* from (
+        <!-- api导入 -->
+        SELECT
+        schedule.id,
+        schedule.project_id,
+        resource_type,
+        schedule.num as num,
+        ads.name as taskname,
+        ads.id as resource_id,
+        schedule.value,
+        schedule.enable,
+        schedule.create_user AS createUserName,
+        schedule.create_time,
+        QRTZ_TRIGGERS.NEXT_FIRE_TIME AS next_time,
+        project.organization_id,
+        project.name as projectName
+        FROM
+        schedule
+        inner join api_definition_swagger ads on schedule.resource_id = ads.id
+        left join project on schedule.project_id = project.id
+        left join QRTZ_TRIGGERS on ads.id = QRTZ_TRIGGERS.TRIGGER_NAME
+        union all
+        <!-- 接口场景 -->
+        SELECT
+        schedule.id,
+        schedule.project_id,
+        resource_type,
+        schedule.num as num,
+        api_scenario.name as taskname,
+        api_scenario.id as resource_id,
+        schedule.value,
+        schedule.enable,
+        schedule.create_user AS createUserName,
+        schedule.create_time,
+        QRTZ_TRIGGERS.NEXT_FIRE_TIME AS next_time,
+        project.organization_id,
+        project.name as projectName
+        FROM
+        schedule
+        inner join api_scenario on schedule.resource_id = api_scenario.id
+        left join project on schedule.project_id = project.id
+        left join QRTZ_TRIGGERS on api_scenario.id = QRTZ_TRIGGERS.TRIGGER_NAME
+        union all
+        <!-- 测试计划 -->
+        SELECT
+        schedule.id,
+        schedule.project_id,
+        resource_type,
+        schedule.num as num,
+        test_plan.name as taskname,
+        test_plan.id as resource_id,
+        schedule.value,
+        schedule.enable,
+        schedule.create_user AS createUserName,
+        schedule.create_time,
+        QRTZ_TRIGGERS.NEXT_FIRE_TIME AS next_time,
+        project.organization_id,
+        project.name as projectName
+        FROM
+        schedule
+        inner join test_plan on schedule.resource_id = test_plan.id
+        left join project on schedule.project_id = project.id
+        left join QRTZ_TRIGGERS on test_plan.id = QRTZ_TRIGGERS.TRIGGER_NAME
+        union all
+        <!-- 缺陷 -->
+        SELECT DISTINCT
+        schedule.id,
+        schedule.project_id,
+        resource_type,
+        schedule.num as num,
+        schedule.name as taskname,
+        '' as resource_id,
+        schedule.value,
+        schedule.enable,
+        schedule.create_user AS createUserName,
+        schedule.create_time,
+        QRTZ_TRIGGERS.NEXT_FIRE_TIME AS next_time,
+        project.organization_id,
+        project.name as projectName
+        FROM
+        schedule
+        left join project on schedule.project_id = project.id
+        left join QRTZ_TRIGGERS on schedule.job = QRTZ_TRIGGERS.JOB_GROUP and schedule.resource_id =
+        QRTZ_TRIGGERS.TRIGGER_NAME
+        where resource_type = 'BUG_SYNC'
+        union all
+        <!-- 需求 -->
+        SELECT DISTINCT
+        schedule.id,
+        schedule.project_id,
+        resource_type,
+        schedule.num as num,
+        schedule.name as taskname,
+        '' as resource_id,
+        schedule.value,
+        schedule.enable,
+        schedule.create_user AS createUserId,
+        schedule.create_time,
+        QRTZ_TRIGGERS.NEXT_FIRE_TIME AS nextTime,
+        project.organization_id,
+        project.name as projectName
+        FROM
+        schedule
+        left join project on schedule.project_id = project.id
+        left join QRTZ_TRIGGERS on schedule.job = QRTZ_TRIGGERS.JOB_GROUP and schedule.resource_id =
+        QRTZ_TRIGGERS.TRIGGER_NAME
+        where resource_type ='DEMAND_SYNC'
+        ) task
+        <where>
+            <include refid="taskCenterQuery">
+                <property name="request" value="request"/>
+                <property name="projectIds" value="projectIds"/>
+            </include>
+        </where>
+    </select>
+
+    <sql id="taskCenterQuery">
+        <if test="projectIds != null and projectIds.size() > 0">
+            and task.project_id IN
+            <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            task.taskname like concat('%', #{request.keyword},'%')
+            or
+            task.num like concat('%', #{request.keyword},'%')
+            )
+        </if>
+        <include refid="taskCenterFilters">
+            <property name="filter" value="request.filter"/>
+        </include>
+    </sql>
+
+    <sql id="taskCenterFilters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='resourceType'">
+                            and task.resource_type in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='projectIds'">
+                            and task.project_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='organizationIds'">
+                            and task.organization_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
 </mapper>

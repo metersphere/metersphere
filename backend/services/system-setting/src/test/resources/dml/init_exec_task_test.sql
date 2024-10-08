@@ -3,3 +3,14 @@ VALUES
     ('1', 1, '测试任务1', 'SUCCESS', 10, 'SUCCESS', 'FUNCTIONAL', 'API', '100001100001', '100001', 1727676089639, 'wx', 1727676089639, 1727676089639),
     ('2', 2, '测试任务2', 'SUCCESS', 11, 'SUCCESS', 'FUNCTIONAL', 'API', '12345567', '11234', 1727676089639, 'wx', 1727676089639, 1727676089639),
     ('3', 3, '测试任务3', 'SUCCESS', 11, 'SUCCESS', 'FUNCTIONAL', 'API', '100001100001', '11234', 1727676089639, 'wx', 1727676089639, 1727676089639);
+
+
+
+
+INSERT INTO `schedule` (`id`, `key`, `type`, `value`, `job`, `resource_type`, `enable`, `resource_id`, `create_user`, `create_time`, `update_time`, `project_id`, `name`, `config`, `num`)
+VALUES
+    ('wx_1', 'wx_key_1', 'cron', '1233213', 'JobClass1', 'API_IMPORT', b'1', 'NONE', 'admin', 1640776000000, 1640777000000, '100001100001', 'Schedule 1', '{\"param1\": \"value1\", \"param2\": \"value2\"}', 100),
+    ('wx_2', 'wx_key_2', 'cron', '1231321231', 'JobClass15', 'BUG_SYNC', b'0', 'NONE', 'admin', 1640777400000, 1640778400000, '100001100001', 'Schedule 15', '', 101),
+    ('wx_3', 'wx_key_3', 'cron', '50 15 10 20 05 ?', 'JobClass22', 'DEMAND_SYNC', b'1', 'NONE', 'admin', 1640778100000, 1640779100000, '100001100001', 'Schedule 22', '', 102),
+    ('wx_4', 'wx_key_4', 'cron', '59 46 16 01 06 ?', 'JobClass29', 'API_SCENARIO', b'1', 'NONE', 'admin', 1640778800000, 1640779800000, '100001100001', 'Schedule 29', '{\"param1\": \"value1\", \"param2\": \"value2\"}', 103),
+    ('wx_5', 'wx_key_5', 'cron', '59 46 16 01 06 ?', 'JobClass29', 'TEST_PLAN', b'1', 'NONE', 'admin', 1640778800000, 1640779800000, '100001100001', 'Schedule 29', '{\"param1\": \"value1\", \"param2\": \"value2\"}', 104);
