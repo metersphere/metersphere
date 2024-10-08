@@ -209,4 +209,6 @@ export default {
   'common.copySuccessToClipboard': '已复制到剪切板',
   'common.casePriority': '用例等级',
   'common.currentUser': '当前用户',
+  'common.type': '类型',
+  'common.batchUpdate': '更新为',
 };

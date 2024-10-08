@@ -57,7 +57,6 @@ export default {
   'apiTestManagement.batchModalSubTitle': '(Selected {count} APIs)',
   'apiTestManagement.chooseAttr': 'Choose Attribute',
   'apiTestManagement.attrRequired': 'Attribute cannot be empty',
-  'apiTestManagement.batchUpdate': 'Batch Update to',
   'apiTestManagement.valueRequired': 'Value cannot be empty',
   'apiTestManagement.envRequired': 'Environment value cannot be empty',
   'apiTestManagement.reportNameRequired': 'Report name cannot be empty',

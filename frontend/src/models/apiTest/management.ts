@@ -199,6 +199,7 @@ export interface ApiDefinitionBatchUpdateParams extends ApiDefinitionBatchParams
   versionId?: string;
   tags?: string[];
   customField?: Record<string, any>;
+  clear?: boolean; // 是否清空标签
 }
 // 批量移动定义参数
 export interface ApiDefinitionBatchMoveParams extends ApiDefinitionBatchParams {
@@ -355,6 +356,7 @@ export interface ApiCaseBatchEditParams extends ApiCaseBatchParams {
   environmentId?: string;
   type: string;
   append?: boolean;
+  clear?: boolean;
 }
 // 添加用例参数
 export interface AddApiCaseParams extends ExecuteRequestParams {

@@ -70,7 +70,6 @@ export default {
   'api_scenario.table.batchModalSubTitle': '（已选 {count} 条场景）',
   'api_scenario.table.chooseAttr': '选择属性',
   'api_scenario.table.attrRequired': '属性不能为空',
-  'api_scenario.table.batchUpdate': '批量更新为',
   'api_scenario.table.valueRequired': '属性值不能为空',
   'api_scenario.table.deleteScenarioTipTitle': '确认删除 {name} 吗？',
   'api_scenario.table.batchDeleteScenarioTip': '确认删除已选中的 {count} 条场景吗？',

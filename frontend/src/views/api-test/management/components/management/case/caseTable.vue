@@ -209,10 +209,22 @@
       </a-form-item>
       <a-form-item
         v-if="batchForm.attr === 'tags'"
+        :class="`${selectedTagType === TagUpdateTypeEnum.CLEAR ? 'mb-0' : 'mb-[16px]'}`"
+        field="type"
+        :label="t('common.type')"
+      >
+        <a-radio-group v-model:model-value="selectedTagType" size="small">
+          <a-radio :value="TagUpdateTypeEnum.UPDATE"> {{ t('common.update') }}</a-radio>
+          <a-radio :value="TagUpdateTypeEnum.APPEND"> {{ t('caseManagement.featureCase.appendTag') }}</a-radio>
+          <a-radio :value="TagUpdateTypeEnum.CLEAR">{{ t('common.clear') }}</a-radio>
+        </a-radio-group>
+      </a-form-item>
+      <a-form-item
+        v-if="batchForm.attr === 'tags' && selectedTagType !== TagUpdateTypeEnum.CLEAR"
         field="values"
-        :label="t('apiTestManagement.batchUpdate')"
+        :label="t('common.batchUpdate')"
         :validate-trigger="['blur', 'input']"
-        :rules="[{ required: true, message: t('common.inputPleaseEnterTags') }]"
+        :rules="[{ required: false, message: t('common.inputPleaseEnterTags') }]"
         asterisk-position="end"
         class="mb-0"
         required
@@ -228,9 +240,9 @@
         <div class="text-[12px] leading-[20px] text-[var(--color-text-4)]">{{ t('ms.tagsInput.tagLimitTip') }}</div>
       </a-form-item>
       <a-form-item
-        v-else
+        v-if="batchForm.attr !== 'tags'"
         field="value"
-        :label="t('apiTestManagement.batchUpdate')"
+        :label="t('common.batchUpdate')"
         :rules="[{ required: true, message: t('apiTestManagement.valueRequired') }]"
         asterisk-position="end"
         class="mb-0"
@@ -243,26 +255,7 @@
       </a-form-item>
     </a-form>
     <template #footer>
-      <div class="flex" :class="[batchForm.attr === 'tags' ? 'justify-between' : 'justify-end']">
-        <div
-          v-if="batchForm.attr === 'tags'"
-          class="flex flex-row items-center justify-center"
-          style="padding-top: 10px"
-        >
-          <a-switch v-model="batchForm.append" class="mr-1" size="small" type="line" />
-          <span class="flex items-center">
-            <span class="mr-1">{{ t('caseManagement.featureCase.appendTag') }}</span>
-            <span class="mt-[2px]">
-              <a-tooltip>
-                <IconQuestionCircle class="h-[16px] w-[16px] text-[rgb(var(--primary-5))]" />
-                <template #content>
-                  <div>{{ t('caseManagement.featureCase.enableTags') }}</div>
-                  <div>{{ t('caseManagement.featureCase.closeTags') }}</div>
-                </template>
-              </a-tooltip>
-            </span>
-          </span>
-        </div>
+      <div class="flex justify-end">
         <div class="flex justify-end">
           <a-button type="secondary" :disabled="batchEditLoading" @click="cancelBatchEdit">
             {{ t('common.cancel') }}
@@ -370,6 +363,7 @@
   import { DragSortParams } from '@/models/common';
   import { RequestCaseStatus } from '@/enums/apiEnum';
   import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
+  import { TagUpdateTypeEnum } from '@/enums/commonEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -855,6 +849,8 @@
       append: false,
     };
   }
+  const selectedTagType = ref<TagUpdateTypeEnum>(TagUpdateTypeEnum.UPDATE);
+
   function handleBatchEditCase() {
     batchFormRef.value?.validate(async (errors) => {
       if (!errors) {
@@ -867,7 +863,8 @@
             excludeIds: batchParams.value?.excludeIds || [],
             ...batchConditionParams,
             type: batchForm.value.attr.charAt(0).toUpperCase() + batchForm.value.attr.slice(1), // 首字母大写
-            append: batchForm.value.append,
+            append: selectedTagType.value === TagUpdateTypeEnum.APPEND,
+            clear: selectedTagType.value === TagUpdateTypeEnum.CLEAR,
             [batchForm.value.attr]: batchForm.value.attr === 'tags' ? batchForm.value.values : batchForm.value.value,
           });
           Message.success(t('common.updateSuccess'));

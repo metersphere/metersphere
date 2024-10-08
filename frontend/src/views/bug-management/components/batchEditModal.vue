@@ -24,7 +24,7 @@
         >
           <a-select
             v-model:model-value="form.attribute"
-            :place-holder="t('common.pleaseSelect')"
+            :placeholder="t('common.pleaseSelect')"
             @change="handleAttributeChange"
           >
             <a-optgroup :label="t('bugManagement.batchUpdate.systemFiled')">
@@ -52,6 +52,7 @@
               v-model:model-value="form.inputValue"
               :place-holder="t('common.pleaseSelect')"
               :disabled="!form.attribute"
+              :placeholder="t('common.pleaseSelect')"
             >
               <a-option v-for="item in customFiledOption" :key="item.value" :value="item.value">
                 {{ item.text }}
@@ -59,6 +60,31 @@
             </a-select>
           </template>
         </a-form-item>
+        <div v-else-if="valueMode === 'tags'">
+          <a-form-item class="mb-[16px]" field="type" :label="t('common.type')">
+            <a-radio-group v-model:model-value="selectedTagType" size="small">
+              <a-radio :value="TagUpdateTypeEnum.UPDATE"> {{ t('common.update') }}</a-radio>
+              <a-radio :value="TagUpdateTypeEnum.APPEND"> {{ t('caseManagement.featureCase.appendTag') }}</a-radio>
+              <a-radio :value="TagUpdateTypeEnum.CLEAR">{{ t('common.clear') }}</a-radio>
+            </a-radio-group>
+          </a-form-item>
+          <a-form-item
+            v-if="valueMode === 'tags' && selectedTagType !== TagUpdateTypeEnum.CLEAR"
+            field="value"
+            :validate-trigger="['blur', 'input']"
+            :label="t('common.batchUpdate')"
+            asterisk-position="end"
+            :rules="[{ required: true, message: t('common.inputPleaseEnterTags') }]"
+          >
+            <MsTagsInput
+              v-model:modelValue="form.value"
+              allow-clear
+              empty-priority-highest
+              :disabled="!form.attribute"
+            />
+            <div class="text-[12px] leading-[20px] text-[var(--color-text-4)]">{{ t('ms.tagsInput.tagLimitTip') }}</div>
+          </a-form-item>
+        </div>
         <a-form-item
           v-else
           field="value"
@@ -67,11 +93,7 @@
           :validate-trigger="['blur', 'input']"
           :rules="[{ required: true, message: t('common.inputPleaseEnterTags') }]"
         >
-          <template v-if="valueMode === 'tags'">
-            <MsTagsInput v-model:modelValue="form.value" empty-priority-highest :disabled="!form.attribute" />
-            <div class="text-[12px] leading-[20px] text-[var(--color-text-4)]">{{ t('ms.tagsInput.tagLimitTip') }}</div>
-          </template>
-          <template v-else-if="valueMode === 'user_selector'">
+          <template v-if="valueMode === 'user_selector'">
             <MsUserSelector
               v-model:model-value="form.value"
               :type="UserRequestTypeEnum.PROJECT_PERMISSION_MEMBER"
@@ -90,31 +112,15 @@
       </a-form>
     </div>
     <template #footer>
-      <div class="flex flex-row items-center justify-between">
-        <div>
-          <div v-if="showAppend" class="flex flex-row items-center gap-[4px]">
-            <a-switch v-model:model-value="form.append" size="small" type="line" />
-            <span class="text-[var(--color-text-1)]">{{ t('bugManagement.batchUpdate.appendLabel') }}</span>
-            <a-tooltip position="top">
-              <template #content>
-                <div>{{ t('bugManagement.batchUpdate.openAppend') }}</div>
-                <div>{{ t('bugManagement.batchUpdate.closeAppend') }}</div>
-              </template>
-              <MsIcon
-                type="icon-icon-maybe_outlined"
-                class="text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-              />
-            </a-tooltip>
-          </div>
-        </div>
-        <div class="flex flex-row gap-[8px]"
-          ><a-button type="secondary" :loading="loading" @click="handleCancel">
+      <div class="flex flex-row items-center justify-end">
+        <div class="flex flex-row gap-[8px]">
+          <a-button type="secondary" :loading="loading" @click="handleCancel">
             {{ t('common.cancel') }}
           </a-button>
           <a-button type="primary" :loading="loading" @click="handleConfirm">
             {{ t('common.update') }}
-          </a-button></div
-        >
+          </a-button>
+        </div>
       </div>
     </template>
   </a-modal>
@@ -136,6 +142,7 @@
   import type { BugBatchUpdateFiledType } from '@/models/bug-management';
   import { BugBatchUpdateFiledForm, BugEditCustomField } from '@/models/bug-management';
   import { SelectValue } from '@/models/projectManagement/menuManagement';
+  import { TagUpdateTypeEnum } from '@/enums/commonEnum';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -185,6 +192,7 @@
     form.value = [];
     form.inputValue = '';
     form.append = false;
+    valueMode.value = 'single_select';
   };
 
   const handleCancel = () => {
@@ -222,6 +230,7 @@
       }
     }
   };
+  const selectedTagType = ref<TagUpdateTypeEnum>(TagUpdateTypeEnum.UPDATE);
 
   const handleConfirm = () => {
     formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
@@ -232,7 +241,8 @@
             ...props.selectParam,
             projectId: appStore.currentProjectId,
             [form.attribute]: form.value || form.inputValue,
-            append: form.append,
+            append: selectedTagType.value === TagUpdateTypeEnum.APPEND,
+            clear: selectedTagType.value === TagUpdateTypeEnum.CLEAR,
           };
           await updateBatchBug(tmpObj);
           Message.success(t('common.updateSuccess'));

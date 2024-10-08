@@ -60,7 +60,6 @@ export default {
   'api_scenario.table.batchModalSubTitle': '(Selected {count} scenarios)',
   'api_scenario.table.chooseAttr': 'Choose Attribute',
   'api_scenario.table.attrRequired': 'Attribute cannot be empty',
-  'api_scenario.table.batchUpdate': 'Batch Update to',
   'api_scenario.table.valueRequired': 'Attribute value cannot be empty',
   'api_scenario.table.deleteScenarioTipTitle': 'Confirm Delete {name}?',
   'api_scenario.table.batchDeleteScenarioTip': 'Confirm delete {count} selected scenarios?',
