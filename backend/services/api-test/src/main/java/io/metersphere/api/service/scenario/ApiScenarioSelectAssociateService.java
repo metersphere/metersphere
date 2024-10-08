@@ -1,23 +1,10 @@
 package io.metersphere.api.service.scenario;
 
-import io.metersphere.api.domain.ApiDefinition;
-import io.metersphere.api.domain.ApiScenario;
-import io.metersphere.api.domain.ApiTestCase;
-import io.metersphere.api.dto.scenario.ApiScenarioSelectAssociateDTO;
 import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.api.mapper.ExtApiTestCaseMapper;
-import io.metersphere.sdk.dto.AssociateCaseDTO;
-import io.metersphere.system.dto.ModuleSelectDTO;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class ApiScenarioSelectAssociateService {
@@ -32,7 +19,7 @@ public class ApiScenarioSelectAssociateService {
     public static final String MODULE_ALL = "all";
 
 
-    public void getSelectDto(ApiScenarioSelectAssociateDTO request) {
+    /*public void getSelectDto(ApiScenarioSelectAssociateDTO request) {
         boolean selectAllModule = request.isSelectAllModule();
         Map<String, ModuleSelectDTO> moduleMaps = request.getModuleMaps();
         moduleMaps.remove(MODULE_ALL);
@@ -145,9 +132,9 @@ public class ApiScenarioSelectAssociateService {
         }
     }
 
-    /**
+    *//**
      * 获取关联时的相关id数据
-     */
+     *//*
     protected AssociateCaseDTO getCaseIds(Map<String, ModuleSelectDTO> moduleMaps) {
         // 排除的ids
         List<String> excludeIds = moduleMaps.values().stream()
@@ -165,6 +152,6 @@ public class ApiScenarioSelectAssociateService {
                 .toList();
 
         return new AssociateCaseDTO(excludeIds, selectIds, moduleIds);
-    }
+    }*/
 
 }
