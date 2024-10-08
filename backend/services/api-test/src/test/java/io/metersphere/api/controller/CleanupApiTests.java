@@ -207,6 +207,7 @@ public class CleanupApiTests {
         schedule.setId(IDGenerator.nextStr());
         schedule.setCreateTime(System.currentTimeMillis());
         schedule.setUpdateTime(System.currentTimeMillis());
+        schedule.setNum(1123L);
         scheduleMapper.insertSelective(schedule);
         schedule = new Schedule();
         schedule.setName("test-111");
@@ -222,6 +223,7 @@ public class CleanupApiTests {
         schedule.setId(IDGenerator.nextStr());
         schedule.setCreateTime(System.currentTimeMillis());
         schedule.setUpdateTime(System.currentTimeMillis());
+        schedule.setNum(123456L);
         scheduleMapper.insertSelective(schedule);
     }
 

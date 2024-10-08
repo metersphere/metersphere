@@ -19,5 +19,8 @@ public enum ApplicationNumScope {
 
     // Test Case
     CASE_MANAGEMENT,
-    REVIEW_CASE_MANAGEMENT
+    REVIEW_CASE_MANAGEMENT,
+
+    // Task
+    TASK
 }

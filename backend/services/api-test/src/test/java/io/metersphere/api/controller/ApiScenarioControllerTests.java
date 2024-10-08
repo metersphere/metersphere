@@ -276,6 +276,7 @@ public class ApiScenarioControllerTests extends BaseTest {
                 apiScenario.setEnvironmentId(environments.getFirst().getId());
                 schedule.setValue("1111");
             }
+            schedule.setNum(1231L);
             scheduleMapper.insertSelective(schedule);
             apiScenarioMapper.insertSelective(apiScenario);
         }
