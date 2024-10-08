@@ -67,10 +67,10 @@
         </div>
         <div class="flex-1">
           <a-divider class="!my-0 !mb-0" />
-          <div class="case h-[40px] !px-[24px]">
-            <div class="flex items-center" :class="getActiveClass('recycle')" @click="setActiveFolder('recycle')">
+          <div class="case h-[40px] !px-[24px]" @click="setActiveFolder('recycle')">
+            <div class="flex items-center" :class="getActiveClass('recycle')">
               <MsIcon type="icon-icon_delete-trash_outlined1" class="folder-icon" />
-              <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.recycle') }}</div>
+              <div class="folder-name mx-[4px]">{{ t('common.recycle') }}</div>
             </div>
             <div class="folder-count">{{ recycleModulesCount.all || 0 }}</div>
           </div>

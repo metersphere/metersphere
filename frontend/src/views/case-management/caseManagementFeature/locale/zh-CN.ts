@@ -11,7 +11,6 @@ export default {
   'caseManagement.featureCase.caseEmptyRecycle': '暂无用例数据',
   'caseManagement.featureCase.addSubModule': '添加子模块',
   'caseManagement.featureCase.rename': '重命名',
-  'caseManagement.featureCase.recycle': '回收站',
   'caseManagement.featureCase.versionPlaceholder': '默认为最新版本',
   'caseManagement.featureCase.searchByNameAndId': '通过 ID/名称/标签搜索',
   'caseManagement.featureCase.searchByIdAndName': '通过 ID/名称搜索',

@@ -5,7 +5,6 @@ export default {
   'apiScenario.importScenario': '导入场景',
   'apiScenario.tree.selectorPlaceholder': '请输入模块名称进行搜索',
   'apiScenario.tree.folder.allScenario': '全部场景',
-  'apiScenario.tree.recycleBin': '回收站',
   'apiScenario.tree.noMatchModule': '暂无匹配的模块',
   'apiScenario.createSubModule': '新建子模块',
   'apiScenario.module.deleteTipTitle': '是否删除 {name} 模块？',
