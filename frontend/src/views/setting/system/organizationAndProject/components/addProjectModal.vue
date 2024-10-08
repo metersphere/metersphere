@@ -73,14 +73,14 @@
         </a-form-item>
         <a-form-item
           v-if="showPool"
-          field="all"
+          field="allResourcePool"
           asterisk-position="end"
           :label="t('system.project.resourcePool')"
           :rules="[{ required: showPool, message: t('system.project.poolIsNotNull') }]"
           class="!mb-0"
         >
           <!-- TOTO 等待联调 -->
-          <a-radio-group v-model="form.all" class="mb-[16px]">
+          <a-radio-group v-model="form.allResourcePool" class="mb-[16px]">
             <a-radio :value="true">
               {{ t('system.project.allResPool') }}
             </a-radio>
@@ -88,7 +88,7 @@
           </a-radio-group>
         </a-form-item>
         <a-form-item
-          v-if="!form.all"
+          v-if="!form.allResourcePool"
           field="resourcePoolIds"
           hide-asterisk
           hide-label
@@ -213,7 +213,7 @@
     enable: true,
     moduleIds: allModuleIds,
     resourcePoolIds: [],
-    all: true,
+    allResourcePool: true,
   });
 
   const currentVisible = defineModel<boolean>('visible', {

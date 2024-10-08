@@ -265,7 +265,8 @@
   }
 
   const showAddProjectModal = (record: OrgProjectTableItem) => {
-    const { id, name, description, enable, adminList, organizationId, moduleIds, resourcePoolList, all } = record;
+    const { id, name, description, enable, adminList, organizationId, moduleIds, resourcePoolList, allResourcePool } =
+      record;
     addProjectVisible.value = true;
     currentUpdateProject.value = {
       id,
@@ -276,7 +277,7 @@
       organizationId,
       moduleIds,
       resourcePoolIds: resourcePoolList.map((item: { id: string }) => item.id),
-      all,
+      allResourcePool,
     };
   };
 
