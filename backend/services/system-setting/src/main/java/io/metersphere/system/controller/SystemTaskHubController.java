@@ -27,8 +27,8 @@ public class SystemTaskHubController {
 
     @PostMapping("/exec-task/page")
     @Operation(summary = "系统-任务中心-执行任务列表")
-    @RequiresPermissions(PermissionConstants.SYSTEM_TASK_CENTER_READ)
-    public Pager<List<TaskHubDTO>> projectList(@Validated @RequestBody BasePageRequest request) {
+    @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ)
+    public Pager<List<TaskHubDTO>> execTaskList(@Validated @RequestBody BasePageRequest request) {
         return baseTaskHubService.getTaskList(request, null, null);
     }
 

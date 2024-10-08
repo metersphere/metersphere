@@ -1,11 +1,13 @@
 package io.metersphere.system.schedule;
 
+import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.dto.request.ScheduleConfig;
 import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -17,6 +19,7 @@ import org.quartz.TriggerKey;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Transactional(rollbackFor = Exception.class)
 public class ScheduleService {
@@ -32,7 +35,12 @@ public class ScheduleService {
         schedule.setId(IDGenerator.nextStr());
         schedule.setCreateTime(System.currentTimeMillis());
         schedule.setUpdateTime(System.currentTimeMillis());
+        schedule.setNum(getNextNum(schedule.getProjectId()));
         scheduleMapper.insert(schedule);
+    }
+
+    public long getNextNum(String projectId) {
+        return NumGenerator.nextNum(projectId, ApplicationNumScope.TASK);
     }
 
 
@@ -153,6 +161,7 @@ public class ScheduleService {
             schedule.setCreateUser(operator);
             schedule.setCreateTime(System.currentTimeMillis());
             schedule.setUpdateTime(System.currentTimeMillis());
+            schedule.setNum(getNextNum(scheduleConfig.getProjectId()));
             scheduleMapper.insert(schedule);
         }
         //通知

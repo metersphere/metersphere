@@ -324,6 +324,15 @@ public class PermissionConstants {
     /*------ start: SYSTEM_TASK_CENTER ------*/
     public static final String SYSTEM_TASK_CENTER_READ = "SYSTEM_TASK_CENTER:READ";
     public static final String SYSTEM_TASK_CENTER_READ_STOP = "SYSTEM_TASK_CENTER:READ+STOP";
+
+    //用例执行任务
+    public static final String SYSTEM_CASE_TASK_CENTER_READ = "SYSTEM_CASE_TASK_CENTER:READ";
+    public static final String SYSTEM_CASE_TASK_CENTER_EXEC_STOP = "SYSTEM_CASE_TASK_CENTER:EXEC+STOP";
+    public static final String SYSTEM_CASE_TASK_CENTER_DELETE = "SYSTEM_CASE_TASK_CENTER:READ+DELETE";
+    //后台任务
+    public static final String SYSTEM_SCHEDULE_TASK_CENTER_READ = "SYSTEM_SCHEDULE_TASK_CENTER:READ";
+    public static final String SYSTEM_SCHEDULE_TASK_CENTER_READ_UPDATE = "SYSTEM_SCHEDULE_TASK_CENTER:READ+UPDATE";
+    public static final String SYSTEM_SCHEDULE_TASK_CENTER_READ_DELETE = "SYSTEM_SCHEDULE_TASK_CENTER:READ+DELETE";
     /*------ end: SYSTEM_TASK_CENTER ------*/
 
     /*------ start: ORGANIZATION_TASK_CENTER_READ ------*/

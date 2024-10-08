@@ -70,5 +70,10 @@ CREATE INDEX idx_start_time ON exec_task_item(start_time desc);
 CREATE INDEX idx_end_time ON exec_task_item(end_time desc);
 CREATE INDEX idx_executor ON exec_task_item(executor);
 
+
+-- 定时任务表新增num
+ALTER TABLE schedule ADD COLUMN num bigint not null comment '业务ID';
+CREATE INDEX idx_num ON schedule(`num`);
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
