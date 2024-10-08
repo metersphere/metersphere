@@ -62,7 +62,7 @@
         <dingtalk-client.version>2.0.77</dingtalk-client.version>
         <minio.version>8.5.9</minio.version>
         <commons-collections4.version>4.4</commons-collections4.version>
-        <kubernetes-client.version>6.8.0</kubernetes-client.version>
+        <kubernetes-client.version>6.13.4</kubernetes-client.version>
         <jgit.version>6.8.0.202311291450-r</jgit.version>
         <embedded.version>3.1.6</embedded.version>
         <otp-java.version>2.0.1</otp-java.version>
@@ -84,7 +84,7 @@
         <commons-jexl.version>2.1.1</commons-jexl.version>
         <commons-jexl3.version>3.3</commons-jexl3.version>
         <revision>3.x</revision>
-        <monitoring-engine.revision>3.1</monitoring-engine.revision>
+        <monitoring-engine.revision>3.2</monitoring-engine.revision>
         <swagger-core-jakarta.revision>2.2.20</swagger-core-jakarta.revision>
 
     </properties>
