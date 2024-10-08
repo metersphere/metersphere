@@ -51,7 +51,7 @@ public class KubernetesProvider {
     public static void exec(TestResourceDTO resource, Object runRequest, String command) {
         try (KubernetesClient client = getKubernetesClient(resource)) {
             Pod pod = getExecPod(client, resource);
-            LogUtils.info("CURL 命令：【 " + command + " 】");
+            LogUtils.info("当前执行 Pod：【 " + pod.getMetadata().getName() + " 】");
             client.pods().inNamespace(client.getNamespace()).withName(pod.getMetadata().getName())
                     .redirectingInput()
                     .writingOutput(System.out)

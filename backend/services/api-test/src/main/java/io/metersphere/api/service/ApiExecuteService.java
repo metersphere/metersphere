@@ -593,7 +593,9 @@ public class ApiExecuteService {
                 !commonProjectService.validateProjectResourcePool(testResourcePool, projectId)) {
             throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
         }
-        return testResourcePoolService.getTestResourcePoolDetail(resourcePoolId);
+        TestResourcePoolReturnDTO poolReturnDTO = testResourcePoolService.getTestResourcePoolDetail(resourcePoolId);
+        poolReturnDTO.setType(testResourcePool.getType());
+        return poolReturnDTO;
     }
 
     public String getProjectApiResourcePoolId(String projectId) {
