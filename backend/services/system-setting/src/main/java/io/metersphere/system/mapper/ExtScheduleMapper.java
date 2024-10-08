@@ -4,9 +4,11 @@ import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.dto.ProjectDTO;
+import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.taskcenter.TaskCenterScheduleDTO;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterScheduleBatchRequest;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterSchedulePageRequest;
+import io.metersphere.system.dto.taskhub.TaskHubScheduleDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -41,4 +43,6 @@ public interface ExtScheduleMapper {
 
 
     int countByProjectIds(@Param("ids") List<String> ids);
+
+    List<TaskHubScheduleDTO> selectScheduleList(@Param("request") BasePageRequest request, @Param("projectIds") List<String> projectIds);
 }

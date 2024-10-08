@@ -5,6 +5,7 @@ import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.ScheduleResourceType;
 import io.metersphere.sdk.constants.ScheduleType;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.service.BaseBugScheduleService;
@@ -46,7 +47,7 @@ public class BugScheduleServiceImpl implements BaseBugScheduleService {
 				scheduleService.addOrUpdateCronJob(s, BugSyncJob.getJobKey(projectId), BugSyncJob.getTriggerKey(projectId), BugSyncJob.class);
 			}, () -> {
 				Schedule request = new Schedule();
-				request.setName("Bug Sync Job");
+				request.setName(Translator.get("bug.sync.job"));
 				request.setResourceId(projectId);
 				request.setKey(IDGenerator.nextStr());
 				request.setProjectId(projectId);
