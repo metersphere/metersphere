@@ -11,7 +11,6 @@ export default {
     'No use case data yet, please click the button above to create or import',
   'caseManagement.featureCase.addSubModule': 'Add submodules',
   'caseManagement.featureCase.rename': 'rename',
-  'caseManagement.featureCase.recycle': 'Recycle',
   'caseManagement.featureCase.versionPlaceholder': 'The default is the latest version',
   'caseManagement.featureCase.searchByNameAndId': 'Search by ID, name, or tag',
   'caseManagement.featureCase.searchByIdAndName': 'Search by ID or name',

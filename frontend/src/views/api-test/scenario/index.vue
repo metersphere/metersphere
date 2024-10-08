@@ -15,12 +15,12 @@
             ></scenarioModuleTree>
           </div>
           <a-divider margin="0" />
-          <div class="case">
-            <div class="flex items-center px-[20px]" :class="getActiveClass('recycle')" @click="redirectRecycle()">
+          <div class="case h-[40px] !px-[24px]" @click="redirectRecycle()">
+            <div class="flex items-center" :class="getActiveClass('recycle')">
               <MsIcon type="icon-icon_delete-trash_outlined1" class="folder-icon" />
-              <div class="folder-name mx-[4px]">{{ t('apiScenario.tree.recycleBin') }}</div>
-              <div class="folder-count">({{ recycleModulesCount || 0 }})</div>
+              <div class="folder-name mx-[4px]">{{ t('common.recycle') }}</div>
             </div>
+            <div class="folder-count">{{ recycleModulesCount || 0 }}</div>
           </div>
         </div>
       </template>

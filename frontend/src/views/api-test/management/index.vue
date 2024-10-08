@@ -3,7 +3,7 @@
     <MsSplitBox :not-show-first="isAdvancedSearchMode" :size="300" :max="0.5">
       <template #first>
         <div class="flex flex-col">
-          <div class="p-[16px]" :style="{ height: `calc(100vh - 120px)` }">
+          <div class="p-[16px]">
             <moduleTree
               ref="moduleTreeRef"
               :active-node-id="activeNodeId"
@@ -20,16 +20,12 @@
           </div>
           <div class="flex-1">
             <a-divider class="!my-0 !mb-0" />
-            <div class="case">
-              <div
-                class="flex items-center px-[20px]"
-                :class="getActiveClass('recycle')"
-                @click="setActiveFolder('recycle')"
-              >
+            <div class="case h-[40px] !px-[24px]" @click="setActiveFolder('recycle')">
+              <div class="flex items-center" :class="getActiveClass('recycle')">
                 <MsIcon type="icon-icon_delete-trash_outlined1" class="folder-icon" />
-                <div class="folder-name mx-[4px]">{{ t('caseManagement.featureCase.recycle') }}</div>
-                <div class="folder-count">({{ recycleModulesCount || 0 }})</div>
+                <div class="folder-name mx-[4px]">{{ t('common.recycle') }}</div>
               </div>
+              <div class="folder-count">{{ recycleModulesCount || 0 }}</div>
             </div>
           </div>
         </div>
