@@ -12,6 +12,7 @@ import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,8 +27,10 @@ public interface ExtApiTestCaseMapper {
 
     Long getPos(@Param("projectId") String projectId);
 
+    @BaseConditionFilter
     List<ApiTestCaseDTO> listByRequest(@Param("request") ApiTestCasePageRequest request, @Param("deleted") boolean deleted, @Param("isRepeat") boolean isRepeat, @Param("testPlanId") String testPlanId);
 
+    @BaseConditionFilter
     List<String> getIds(@Param("request") ApiTestCaseBatchRequest request, @Param("deleted") boolean deleted);
 
     void batchMoveGc(@Param("ids") List<String> ids, @Param("userId") String userId, @Param("deleteTime") long deleteTime);

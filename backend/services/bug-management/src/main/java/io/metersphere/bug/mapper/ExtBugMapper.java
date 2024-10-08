@@ -7,6 +7,7 @@ import io.metersphere.bug.dto.response.BugTagEditDTO;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.request.AssociateBugRequest;
 import io.metersphere.request.BugPageProviderRequest;
+import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public interface ExtBugMapper {
      * @param sort    排序参数
      * @return 缺陷列表
      */
+    @BaseConditionFilter
     List<BugDTO> list(@Param("request") BugPageRequest request, @Param("sort") String sort);
 
     /**
@@ -28,6 +30,7 @@ public interface ExtBugMapper {
      * @param request 请求查询参数
      * @return 缺陷列表
      */
+    @BaseConditionFilter
     List<String> getIdsByPageRequest(@Param("request") BugPageRequest request);
 
     /**
@@ -95,6 +98,7 @@ public interface ExtBugMapper {
      * @param deleted 是否删除
      * @return 缺陷集合
      */
+    @BaseConditionFilter
     List<BugProviderDTO> listByProviderRequest(@Param("table") String sourceType, @Param("sourceName") String sourceName, @Param("bugColumnName") String bugColumnName, @Param("request") BugPageProviderRequest bugPageProviderRequest, @Param("deleted") boolean deleted);
 
     /**
@@ -103,5 +107,6 @@ public interface ExtBugMapper {
      * @param deleted 是否删除
      * @return 缺陷ID集合
      */
+    @BaseConditionFilter
     List<String> getIdsByProvider(@Param("request") AssociateBugRequest request, @Param("deleted") boolean deleted);
 }

@@ -486,6 +486,9 @@
         <include refid="filters">
             <property name="filter" value="request.condition.filter"/>
         </include>
+        <include refid="combine">
+            <property name="combineSearch" value="request.condition.combineSearch"/>
+        </include>
         <include refid="queryVersionCondition">
             <property name="versionTable" value="atc"/>
         </include>
@@ -520,6 +523,9 @@
         </if>
         <include refid="filters">
             <property name="filter" value="request.filter"/>
+        </include>
+        <include refid="combine">
+            <property name="combineSearch" value="request.combineSearch"/>
         </include>
         <include refid="queryVersionCondition">
             <property name="versionTable" value="atc"/>
@@ -571,6 +577,125 @@
                 </if>
             </foreach>
         </if>
+    </sql>
+
+    <sql id="combine">
+        <trim prefix="AND">
+            <trim prefix="(" suffix=")" suffixOverrides="AND|OR">
+                <if test="${combineSearch} != null">
+                    <foreach collection="${combineSearch}.userViewConditions" item="condition">
+                        <if test="condition.name == 'createUser'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="api_test_case.create_user"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'follower'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
+                                <property name="mainIdColumn" value="api_test_case.id"/>
+                                <property name="associationTable" value="api_test_case_follower"/>
+                                <property name="associationIdColumn" value="case_id"/>
+                                <property name="searchColumn" value="user_id"/>
+                                <property name="condition" value="condition"/>
+                            </include>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                    <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
+                            <property name="condition" value="condition"/>
+                            <property name="tablePrefix" value="atc"/>
+                        </include>
+                        <!-- 协议 -->
+                        <if test="condition.name == 'protocol'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="a.protocol"/>
+                            </include>
+                        </if>
+                        <!-- 用例等级 -->
+                        <if test="condition.name == 'priority'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="atc.priority"/>
+                            </include>
+                        </if>
+                        <!-- 路径 -->
+                        <if test="condition.name == 'path'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="a.path"/>
+                            </include>
+                        </if>
+                        <!-- 状态 -->
+                        <if test="condition.name == 'status'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="atc.status"/>
+                            </include>
+                        </if>
+                        <!-- 用例通过率 -->
+                        <if test="condition.name == 'passRate'">
+                            <choose>
+                                <when test="condition.operator == 'NOT_EMPTY'">
+                                    atc.id in (
+                                        select atcr.api_test_case_id as id
+                                        from api_report ar left join api_test_case_record atcr on atcr.api_report_id = ar.id
+                                        group by atcr.api_test_case_id
+                                    )
+                                </when>
+                                <when test="condition.operator == 'EMPTY'">
+                                    atc.id not in (
+                                        select atcr.api_test_case_id as id
+                                        from api_report ar left join api_test_case_record atcr on atcr.api_report_id = ar.id
+                                        group by atcr.api_test_case_id
+                                    )
+                                </when>
+                                <when test="(condition.operator == 'LT' and condition.value == 0) or (condition.operator == 'GT' and condition.value &gt; 100 )">
+                                    1=2
+                                </when>
+                                <otherwise>
+                                    atc.id in (
+                                        select atcr.api_test_case_id as id, format(sum(if(ar.`status` = 'success', 1, 0)) / count(ar.id) * 100, 2) as passRate
+                                        from api_report ar left join api_test_case_record atcr on atcr.api_report_id = ar.id
+                                        group by atcr.api_test_case_id having
+                                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                            <property name="condition" value="condition"/>
+                                            <property name="column" value="passRate"/>
+                                        </include>
+                                    )
+                                </otherwise>
+                            </choose>
+                        </if>
+                        <!-- 用例环境 -->
+                        <if test="condition.name == 'env'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="atc.environment_id"/>
+                            </include>
+                        </if>
+                        <!-- 执行结果 -->
+                        <if test="condition.name == 'lastReportStatus'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="atc.last_report_status"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'apiChange'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="atc.api_change"/>
+                            </include>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                </if>
+            </trim>
+        </trim>
     </sql>
 
     <sql id="queryVersionCondition">
