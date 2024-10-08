@@ -135,6 +135,7 @@ export interface MsTableProps<T> {
   rowSelectionDisabledConfig?: MsTableRowSelectionDisabledConfig;
   sorter?: Record<string, any>; // 排序
   hoverable?: boolean; // 是否展示hover效果
+  isHiddenSetting?: boolean; // 是否隐藏设置
   [key: string]: any;
 }
 

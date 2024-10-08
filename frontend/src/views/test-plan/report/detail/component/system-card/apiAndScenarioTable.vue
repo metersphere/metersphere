@@ -212,6 +212,7 @@
     heightUsed: 236,
     showSetting: props.isPreview,
     isSimpleSetting: true,
+    isHiddenSetting: props.enabledTestSet,
     paginationSize: 'mini',
   });
 
@@ -223,6 +224,7 @@
     showSetting: props.isPreview,
     heightUsed: 236,
     isSimpleSetting: true,
+    isHiddenSetting: props.enabledTestSet,
     paginationSize: 'mini',
   });
 
@@ -230,7 +232,16 @@
     return props.activeType === ReportCardTypeEnum.API_CASE_DETAIL ? useApiTable : useScenarioTable;
   });
 
+  async function setCurrentPageSize() {
+    const pageSize = await tableStore.getPageSize(tableKey.value);
+    const { propsRes } = currentCaseTable.value;
+    if (propsRes.value.msPagination && propsRes.value.msPagination.pageSize) {
+      propsRes.value.msPagination.pageSize = pageSize;
+    }
+  }
+
   async function loadCaseList() {
+    setCurrentPageSize();
     currentCaseTable.value.setLoadListParams({
       reportId: props.reportId,
       shareId: props.shareId ?? undefined,
@@ -308,7 +319,9 @@
     loadCaseList,
   });
 
-  await tableStore.initColumn(tableKey.value, columns.value, 'drawer');
+  if (!props.enabledTestSet) {
+    await tableStore.initColumn(tableKey.value, columns.value, 'drawer');
+  }
 </script>
 
 <style lang="less" scoped></style>

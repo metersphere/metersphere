@@ -109,6 +109,7 @@
                 :is-simple="(attrs.isSimpleSetting as boolean)"
                 :only-page-size="!!attrs.onlyPageSize"
                 :show-pagination="!!attrs.showPagination"
+                :is-hidden-setting="!!attrs.isHiddenSetting"
                 @show-setting="handleShowSetting"
                 @init-data="handleInitColumn"
                 @page-size-change="pageSizeChange"

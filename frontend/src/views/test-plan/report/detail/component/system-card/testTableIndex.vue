@@ -20,11 +20,15 @@
     v-if="showSetTable"
     ref="testSetTableRef"
     v-model:keyword="keyword"
+    v-model:expandedKeys="expandedKeys"
     :active-type="props.activeType"
     :report-id="props.reportId"
     :share-id="props.shareId"
     :is-preview="props.isPreview"
     :enabled-test-set="enabledTestSet"
+    :table-key="tableKey"
+    @page-size-change="pageSizeChange"
+    @init-column="handleInitColumn"
   />
   <!-- 功能用例明细 -->
   <FeatureCaseTable
@@ -55,8 +59,10 @@
   import FeatureCaseTable from '@/views/test-plan/report/detail/component/system-card/featureCaseTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useTableStore from '@/hooks/useTableStore';
   import useTestPlanReportStore from '@/store/modules/testPlan/testPlanReport';
 
+  import { TableKeyEnum } from '@/enums/tableEnum';
   import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
   const props = defineProps<{
@@ -68,12 +74,14 @@
   }>();
   const { t } = useI18n();
   const testPlanReportStore = useTestPlanReportStore();
+  const tableStore = useTableStore();
 
   const keyword = ref<string>('');
+  const expandedKeys = ref<string[]>([]);
 
   const testSetTableRef = ref<InstanceType<typeof TestSetTable>>();
-  const featureCaseTableRef = ref<InstanceType<typeof TestSetTable>>();
-  const apiAndScenarioTableRef = ref<InstanceType<typeof TestSetTable>>();
+  const featureCaseTableRef = ref<InstanceType<typeof FeatureCaseTable>>();
+  const apiAndScenarioTableRef = ref<InstanceType<typeof ApiAndScenarioTable>>();
   const isGroup = inject<Ref<boolean>>('isPlanGroup', ref(false));
 
   const enabledTestSet = computed({
@@ -93,6 +101,32 @@
       apiAndScenarioTableRef.value?.loadCaseList();
     }
   }
+
+  const tableKeyMap: Record<string, Record<string, TableKeyEnum>> = {
+    [ReportCardTypeEnum.FUNCTIONAL_DETAIL]: {
+      GROUP: TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE_GROUP,
+      TEST_PLAN: TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE,
+      NOT_PREVIEW: TableKeyEnum.TEST_PLAN_REPORT_FUNCTIONAL_TABLE_NOT_PREVIEW,
+    },
+    [ReportCardTypeEnum.API_CASE_DETAIL]: {
+      GROUP: TableKeyEnum.TEST_PLAN_REPORT_API_TABLE_GROUP,
+      TEST_PLAN: TableKeyEnum.TEST_PLAN_REPORT_API_TABLE,
+      NOT_PREVIEW: TableKeyEnum.TEST_PLAN_REPORT_API_TABLE_NOT_PREVIEW,
+    },
+    [ReportCardTypeEnum.SCENARIO_CASE_DETAIL]: {
+      GROUP: TableKeyEnum.TEST_PLAN_REPORT_SCENARIO_TABLE_GROUP,
+      TEST_PLAN: TableKeyEnum.TEST_PLAN_REPORT_SCENARIO_TABLE,
+      NOT_PREVIEW: TableKeyEnum.TEST_PLAN_REPORT_API_TABLE_NOT_PREVIEW,
+    },
+  };
+
+  const tableKey = computed(() => {
+    if (props.isPreview) {
+      const groupKey = isGroup.value ? 'GROUP' : 'TEST_PLAN';
+      return tableKeyMap[props.activeType][groupKey];
+    }
+    return tableKeyMap[props.activeType].NOT_PREVIEW;
+  });
 
   function clearHandler() {
     keyword.value = '';
@@ -125,6 +159,18 @@
   function changeHandler(value: boolean) {
     keyword.value = '';
     testPlanReportStore.setTestStatus(isGroup.value, value, props.activeType);
+  }
+
+  // 页码改变
+  async function pageSizeChange(pageSize: number) {
+    await tableStore.setPageSize(tableKey.value, pageSize);
+  }
+
+  // 列配置改变
+  async function handleInitColumn() {
+    if (enabledTestSet.value) {
+      expandedKeys.value = [];
+    }
   }
 </script>
 
