@@ -33,7 +33,7 @@ public class KubernetesExecEngine implements ApiEngine {
     @Override
     public void execute(String command) {
         // 初始化任务
-        LogUtils.info("K8s 开始执行: {}", command);
+        LogUtils.info("CURL 命令：【 " + command + " 】");
         this.runApi(command);
     }
 
