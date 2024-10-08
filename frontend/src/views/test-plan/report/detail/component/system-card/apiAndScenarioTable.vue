@@ -1,6 +1,10 @@
 <template>
   <div :class="`${props.enabledTestSet ? 'test-set-wrapper' : ''}`">
-    <MsBaseTable v-bind="currentCaseTable.propsRes.value" v-on="currentCaseTable.propsEvent.value">
+    <MsBaseTable
+      v-bind="currentCaseTable.propsRes.value"
+      :row-class="getRowClass"
+      v-on="currentCaseTable.propsEvent.value"
+    >
       <template #num="{ record }">
         <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
       </template>
@@ -240,6 +244,7 @@
   const reportVisible = ref(false);
 
   const apiReportId = ref<string>('');
+  const selectedReportId = ref<string>('');
 
   function showReport(record: ApiOrScenarioCaseItem) {
     if (!record.reportId) {
@@ -248,6 +253,11 @@
     if (!record.executeResult || record.executeResult === 'STOPPED') return;
     reportVisible.value = true;
     apiReportId.value = record.reportId;
+    selectedReportId.value = record.reportId;
+  }
+
+  function getRowClass(record: ApiOrScenarioCaseItem) {
+    return record.reportId === selectedReportId.value ? 'selected-row-class' : '';
   }
 
   // 去接口用例详情页面

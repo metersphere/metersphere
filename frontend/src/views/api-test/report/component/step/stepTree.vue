@@ -5,6 +5,7 @@
         ref="treeRef"
         v-model:selected-keys="selectedKeys"
         v-model:expanded-keys="innerExpandedKeys"
+        v-model:focus-node-key="focusStepKey"
         v-model:data="steps"
         :expand-all="props.expandAll"
         :field-names="{ title: 'name', key: 'stepId', children: 'children' }"
@@ -66,16 +67,9 @@
                   <div v-if="props.showType === 'API' && showCondition.includes(step.stepType)" class="flex-shrink-0">
                     <ConditionStatus class="mx-1" :status="step.stepType || ''" />
                   </div>
-
-                  <a-tooltip :content="step.name" position="tl">
-                    <div
-                      class="step-name-container"
-                      :class="{
-                        'w-full flex-grow': showApiType.includes(step.stepType),
-                      }"
-                      @click="showDetail($event, step)"
-                    >
-                      <div class="one-line-text mx-[4px] max-w-[300px] text-[var(--color-text-1)]">
+                  <a-tooltip :content="step.name" :disabled="!step.name">
+                    <div class="step-name-container" @click="showDetail($event, step)">
+                      <div class="step-name-text one-line-text ml-[4px] font-normal">
                         {{ step.name }}
                       </div>
                     </div>
@@ -317,7 +311,6 @@
     }
     activeItem.value = cloneDeep(item);
     emit('detail', activeItem.value);
-    event.stopPropagation();
   }
 
   // 响应状态码对应颜色
@@ -390,10 +383,9 @@
         @apply flex w-full flex-1 items-center;
 
         gap: 8px;
-        margin-right: 6px;
       }
       .step-name-container {
-        @apply flex items-center;
+        @apply flex flex-1 items-center overflow-hidden;
 
         margin-right: 16px;
         &:hover {
@@ -422,7 +414,7 @@
     }
     .ms-tree-node-extra {
       gap: 4px;
-      background-color: white !important;
+      background-color: var(--color-text-n9) !important;
     }
   }
   :deep(.arco-tree-node-selected) {
@@ -433,11 +425,8 @@
       }
     }
   }
-  :deep(.step-tree-node-focus) {
-    background-color: white !important;
-    .arco-tree-node-title {
-      background-color: white;
-    }
+  :deep(.step-tree-node-title) {
+    @apply w-full;
   }
   .resTime,
   .resSize,
@@ -484,11 +473,14 @@
       border-radius: 6px;
     }
   }
-  :deep(.ms-tree-container .ms-tree .arco-tree-node .arco-tree-node-title) {
-    background: white;
-  }
-  :deep(.ms-tree-container .ms-tree .arco-tree-node-selected) {
-    background: white;
+  :deep(.step-tree-node-focus) {
+    background-color: var(--color-text-n9) !important;
+    .arco-tree-node-title {
+      background-color: var(--color-text-n9) !important;
+    }
+    .ms-tree-node-extra {
+      @apply !visible !w-auto;
+    }
   }
   .line {
     position: absolute;
@@ -496,8 +488,5 @@
     width: 100%;
     height: 1px;
     background: var(--color-text-n8);
-  }
-  :deep(.step-tree-node-title) {
-    width: 100%;
   }
 </style>
