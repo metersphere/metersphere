@@ -56,7 +56,6 @@ export default {
   'apiTestManagement.batchModalSubTitle': '（已选 {count} 个接口）',
   'apiTestManagement.chooseAttr': '选择属性',
   'apiTestManagement.attrRequired': '属性不能为空',
-  'apiTestManagement.batchUpdate': '批量更新为',
   'apiTestManagement.valueRequired': '属性值不能为空',
   'apiTestManagement.envRequired': '环境值不能为空',
   'apiTestManagement.reportNameRequired': '报告名称不能为空',

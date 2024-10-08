@@ -336,8 +336,20 @@
       </a-form-item>
       <a-form-item
         v-if="batchForm.attr === 'Tags'"
+        :class="`${selectedTagType === TagUpdateTypeEnum.CLEAR ? 'mb-0' : 'mb-[16px]'}`"
+        field="type"
+        :label="t('common.type')"
+      >
+        <a-radio-group v-model:model-value="selectedTagType" size="small">
+          <a-radio :value="TagUpdateTypeEnum.UPDATE"> {{ t('common.update') }}</a-radio>
+          <a-radio :value="TagUpdateTypeEnum.APPEND"> {{ t('caseManagement.featureCase.appendTag') }}</a-radio>
+          <a-radio :value="TagUpdateTypeEnum.CLEAR">{{ t('common.clear') }}</a-radio>
+        </a-radio-group>
+      </a-form-item>
+      <a-form-item
+        v-if="batchForm.attr === 'Tags' && selectedTagType !== TagUpdateTypeEnum.CLEAR"
         field="values"
-        :label="t('api_scenario.table.batchUpdate')"
+        :label="t('common.batchUpdate')"
         :validate-trigger="['blur', 'input']"
         :rules="[{ required: true, message: t('common.inputPleaseEnterTags') }]"
         asterisk-position="end"
@@ -357,7 +369,7 @@
       <a-form-item
         v-else-if="batchForm.attr === 'Priority'"
         field="value"
-        :label="t('api_scenario.table.batchUpdate')"
+        :label="t('common.batchUpdate')"
         :rules="[{ required: true, message: t('api_scenario.table.valueRequired') }]"
         asterisk-position="end"
         class="mb-0"
@@ -371,7 +383,7 @@
       <a-form-item
         v-else-if="batchForm.attr === 'Environment'"
         field="value"
-        :label="t('api_scenario.table.batchUpdate')"
+        :label="t('common.batchUpdate')"
         :rules="[{ required: true, message: t('api_scenario.table.valueRequired') }]"
         asterisk-position="end"
         class="mb-0"
@@ -383,9 +395,9 @@
         </a-select>
       </a-form-item>
       <a-form-item
-        v-else
+        v-else-if="batchForm.attr !== 'Tags'"
         field="value"
-        :label="t('api_scenario.table.batchUpdate')"
+        :label="t('common.batchUpdate')"
         :rules="[{ required: true, message: t('api_scenario.table.valueRequired') }]"
         asterisk-position="end"
         class="mb-0"
@@ -398,26 +410,7 @@
       </a-form-item>
     </a-form>
     <template #footer>
-      <div class="flex" :class="[batchForm.attr === 'Tags' ? 'justify-between' : 'justify-end']">
-        <div
-          v-if="batchForm.attr === 'Tags'"
-          class="flex flex-row items-center justify-center"
-          style="padding-top: 10px"
-        >
-          <a-switch v-model="batchForm.append" class="mr-1" size="small" type="line" />
-          <span class="flex items-center">
-            <span class="mr-1">{{ t('caseManagement.featureCase.appendTag') }}</span>
-            <span class="mt-[2px]">
-              <a-tooltip>
-                <IconQuestionCircle class="h-[16px] w-[16px] text-[rgb(var(--primary-5))]" />
-                <template #content>
-                  <div>{{ t('caseManagement.featureCase.enableTags') }}</div>
-                  <div>{{ t('caseManagement.featureCase.closeTags') }}</div>
-                </template>
-              </a-tooltip>
-            </span>
-          </span>
-        </div>
+      <div class="flex justify-end">
         <div class="flex justify-end">
           <a-button type="secondary" :disabled="batchUpdateLoading" @click="cancelBatch">
             {{ t('common.cancel') }}
@@ -429,7 +422,6 @@
       </div>
     </template>
   </a-modal>
-  <!--  </MsDialog>-->
   <a-modal
     v-model:visible="moveModalVisible"
     title-align="start"
@@ -543,6 +535,7 @@
   import { ResourcePoolItem } from '@/models/setting/resourcePool';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
   import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
+  import { TagUpdateTypeEnum } from '@/enums/commonEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -1146,6 +1139,7 @@
 
   const showBatchModal = ref(false);
   const batchUpdateLoading = ref(false);
+  const selectedTagType = ref<TagUpdateTypeEnum>(TagUpdateTypeEnum.UPDATE);
 
   const batchFormRef = ref<FormInstance>();
 
@@ -1227,9 +1221,10 @@
             priority: '',
             status: '',
             tags: [],
-            append: batchForm.value.append,
+            append: selectedTagType.value === TagUpdateTypeEnum.APPEND,
             grouped: false,
             envId: '',
+            clear: selectedTagType.value === TagUpdateTypeEnum.CLEAR,
           };
 
           if (batchForm.value.attr === 'Priority') {

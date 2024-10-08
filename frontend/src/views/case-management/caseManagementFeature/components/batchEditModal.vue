@@ -7,12 +7,6 @@
     :confirm="confirmHandler"
     :close="closeHandler"
     unmount-on-close
-    :switch-props="{
-      switchName: t('caseManagement.featureCase.appendTag'),
-      switchTooltip: t('caseManagement.featureCase.enableTags'),
-      showSwitch: form.selectedAttrsId === 'systemTags' ? true : false,
-      enable: form.append,
-    }"
   >
     <div class="form">
       <a-form ref="formRef" :model="form" layout="vertical">
@@ -31,9 +25,21 @@
         </a-form-item>
         <a-form-item
           v-if="form.selectedAttrsId === 'systemTags'"
+          class="mb-[16px]"
+          field="type"
+          :label="t('common.type')"
+        >
+          <a-radio-group v-model:model-value="selectedTagType" size="small">
+            <a-radio :value="TagUpdateTypeEnum.UPDATE"> {{ t('common.update') }}</a-radio>
+            <a-radio :value="TagUpdateTypeEnum.APPEND"> {{ t('caseManagement.featureCase.appendTag') }}</a-radio>
+            <a-radio :value="TagUpdateTypeEnum.CLEAR">{{ t('common.clear') }}</a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item
+          v-if="form.selectedAttrsId === 'systemTags' && selectedTagType !== TagUpdateTypeEnum.CLEAR"
           field="tags"
           :validate-trigger="['blur', 'input']"
-          :label="t('caseManagement.featureCase.batchUpdate')"
+          :label="t('common.batchUpdate')"
           asterisk-position="end"
           :rules="[{ required: true, message: t('common.inputPleaseEnterTags') }]"
         >
@@ -42,7 +48,7 @@
         </a-form-item>
 
         <MsFormCreate
-          v-else
+          v-if="form.selectedAttrsId !== 'systemTags' && selectedTagType !== TagUpdateTypeEnum.CLEAR"
           ref="formCreateRef"
           v-model:api="fApi"
           v-model:form-item="formItem"
@@ -69,6 +75,7 @@
 
   import type { CustomAttributes } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
+  import { TagUpdateTypeEnum } from '@/enums/commonEnum';
 
   import Message from '@arco-design/web-vue/es/message';
 
@@ -98,11 +105,12 @@
   const form = ref({ ...initForm });
 
   const formRef = ref<FormInstance | null>(null);
+  const selectedTagType = ref<TagUpdateTypeEnum>(TagUpdateTypeEnum.UPDATE);
 
   const initDefaultForm: FormItem = {
     type: 'SELECT',
     name: 'name',
-    label: 'caseManagement.featureCase.batchUpdate',
+    label: 'common.batchUpdate',
     value: '',
     options: [],
     props: {
@@ -151,7 +159,7 @@
         return {
           type: val,
           name: item.fieldId,
-          label: 'caseManagement.featureCase.batchUpdate',
+          label: 'common.batchUpdate',
           value: formValue,
           options: item.options,
           props: {
@@ -173,7 +181,7 @@
     form.value.tags = [];
   }
 
-  async function confirmHandler(enable: boolean | undefined) {
+  async function confirmHandler() {
     await formRef.value?.validate().then(async (error) => {
       if (!error) {
         try {
@@ -191,13 +199,14 @@
             selectAll: !!selectAll,
             excludeIds: excludeIds || [],
             projectId: currentProjectId.value,
-            append: enable as boolean,
+            append: selectedTagType.value === TagUpdateTypeEnum.APPEND,
             tags: form.value.tags,
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
             customField: form.value.selectedAttrsId === 'systemTags' ? {} : customField,
             condition: {
               ...props.condition,
             },
+            clear: selectedTagType.value === TagUpdateTypeEnum.CLEAR,
           };
           await batchEditAttrs(params);
           Message.success(t('caseManagement.featureCase.editSuccess'));

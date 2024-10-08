@@ -34,3 +34,9 @@ export enum ShapeFlags {
   COMPONENT_SHOULD_KEEP_ALIVE = 256,
   COMPONENT_KEPT_ALIVE = 512,
 }
+
+export enum TagUpdateTypeEnum {
+  UPDATE = 'UPDATE',
+  APPEND = 'APPEND',
+  CLEAR = 'CLEAR',
+}

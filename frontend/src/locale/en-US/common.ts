@@ -209,4 +209,6 @@ export default {
   'common.copySuccessToClipboard': 'Copied to clipboard',
   'common.casePriority': 'Case Priority',
   'common.currentUser': 'Current user',
+  'common.type': 'Type',
+  'common.batchUpdate': 'Updated to',
 };
