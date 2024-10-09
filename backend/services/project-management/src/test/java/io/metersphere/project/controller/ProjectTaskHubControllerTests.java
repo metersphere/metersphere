@@ -18,6 +18,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
      * 项目任务中心测试用例
      */
     public static final String PROJECT_TASK_PAGE = "/project/task-center/exec-task/page";
+    public static final String PROJECT_SCHEDULE_TASK_PAGE = "/project/task-center/schedule/page";
 
     @Test
     @Order(1)
@@ -28,6 +29,25 @@ public class ProjectTaskHubControllerTests extends BaseTest {
         request.setCurrent(1);
         request.setPageSize(10);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(PROJECT_TASK_PAGE, request);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
+    /**
+     * 项目后台任务
+     */
+    @Test
+    @Order(2)
+    public void getProjectSchedulePage() throws Exception {
+        BasePageRequest request = new BasePageRequest();
+        this.requestPost(PROJECT_SCHEDULE_TASK_PAGE, request);
+        request.setCurrent(1);
+        request.setPageSize(10);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(PROJECT_SCHEDULE_TASK_PAGE, request);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
