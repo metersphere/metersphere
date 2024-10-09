@@ -13,3 +13,6 @@ INSERT INTO system_parameter (param_key, param_value, type) VALUES ('upload.file
 
 -- 初次安装初始化用户缺少cft_token字段值
 UPDATE user SET cft_token = '/sU3a0dtnm5Ykmyj8LfCjA==' WHERE id = 'admin';
+
+-- set innodb lock wait timeout to default
+SET SESSION innodb_lock_wait_timeout = DEFAULT;
