@@ -698,6 +698,19 @@
         order by api_scenario.pos asc
     </select>
 
+    <select id="selectAllCaseExcludeSelf" resultType="io.metersphere.api.domain.ApiScenario">
+        select
+        api_scenario.id,
+        api_scenario.name,
+        api_scenario.project_id,
+        api_scenario.num,
+        api_scenario.version_id
+        from api_scenario
+        where api_scenario.deleted = false
+        and api_scenario.project_id = #{projectId}
+        order by api_scenario.pos asc
+    </select>
+
     <select id="getListBySelectModules" resultType="io.metersphere.api.domain.ApiScenario">
         select
         api_scenario.id,

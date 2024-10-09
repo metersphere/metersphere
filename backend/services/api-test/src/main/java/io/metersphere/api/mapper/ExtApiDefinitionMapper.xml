@@ -680,12 +680,14 @@
         </foreach>
     </select>
 
-    <select id="selectAllCase" resultType="io.metersphere.api.domain.ApiDefinition">
+    <select id="selectAllApi" resultType="io.metersphere.api.domain.ApiDefinition">
         select
         api_definition.id,
         api_definition.name,
         api_definition.method,
         api_definition.num,
+        api_definition.project_id,
+        api_definition.version_id,
         api_definition.pos
         from api_definition
         where api_definition.deleted = false
@@ -705,6 +707,8 @@
         api_definition.name,
         api_definition.method,
         api_definition.num,
+        api_definition.project_id,
+        api_definition.version_id,
         api_definition.pos
         from api_definition
         where api_definition.deleted = false
@@ -727,6 +731,8 @@
         api_definition.name,
         api_definition.method,
         api_definition.num,
+        api_definition.project_id,
+        api_definition.version_id,
         api_definition.pos
         from api_definition
         where api_definition.deleted = false

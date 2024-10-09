@@ -765,7 +765,12 @@
         select
         api_test_case.id,
         api_test_case.create_user,
-        api_test_case.environment_id
+        api_test_case.environment_id,
+        api_test_case.name,
+        api_test_case.project_id,
+        api_test_case.num,
+        api_test_case.version_id,
+        api_test_case.pos
         from api_test_case
         INNER JOIN api_definition ON api_test_case.api_definition_id = api_definition.id
         where api_test_case.deleted = false
@@ -790,6 +795,10 @@
         api_test_case.id,
         api_test_case.create_user,
         api_test_case.environment_id,
+        api_test_case.name,
+        api_test_case.project_id,
+        api_test_case.num,
+        api_test_case.version_id,
         api_test_case.pos
         from api_test_case
         inner join api_definition on api_definition.id = api_test_case.api_definition_id
@@ -817,6 +826,10 @@
         api_test_case.id,
         api_test_case.create_user,
         api_test_case.environment_id,
+        api_test_case.name,
+        api_test_case.project_id,
+        api_test_case.num,
+        api_test_case.version_id,
         api_test_case.pos
         from api_test_case
         inner join api_definition on api_definition.id = api_test_case.api_definition_id
