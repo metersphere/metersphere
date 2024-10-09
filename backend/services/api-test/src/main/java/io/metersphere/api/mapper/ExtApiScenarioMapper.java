@@ -11,13 +11,17 @@ import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface ExtApiScenarioMapper {
+
+    @BaseConditionFilter
     List<ApiScenarioDTO> list(@Param("request") ApiScenarioPageRequest request, @Param("isRepeat") boolean isRepeat, @Param("testPlanId") String testPlanId);
 
+    @BaseConditionFilter
     List<String> getIds(@Param("request") ApiScenarioBatchRequest request, @Param("deleted") boolean deleted);
 
     List<ApiScenario> getInfoByIds(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);

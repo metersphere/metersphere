@@ -683,6 +683,7 @@
                                 <property name="column" value="atc.last_report_status"/>
                             </include>
                         </if>
+                        <!-- 接口存在更新 -->
                         <if test="condition.name == 'apiChange'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>

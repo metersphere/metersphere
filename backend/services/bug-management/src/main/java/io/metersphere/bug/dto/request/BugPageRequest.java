@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * @author song-cc-rock
+ */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class BugPageRequest extends BasePageRequest {
