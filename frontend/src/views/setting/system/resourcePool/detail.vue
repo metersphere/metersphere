@@ -432,12 +432,15 @@
       uiGrid: '',
       girdConcurrentNumber: 1,
       podThreads: 1,
-      concurrentNumber: 1,
+      concurrentNumber: 10,
+      // TODO 单个任务并发数等待联调
+      singleTaskConcurrentNumber: 3,
       nodesList: [
         {
           ip: '',
           port: '',
-          concurrentNumber: 1,
+          concurrentNumber: 10,
+          singleTaskConcurrentNumber: 3,
         },
       ],
       ip: '',
@@ -474,6 +477,13 @@
     return 10;
   });
 
+  const maxSingleTaskConcurrentNumber = computed(() => {
+    if (isXpack.value) {
+      return 9999999;
+    }
+    return 3;
+  });
+
   onBeforeMount(async () => {
     orgOptions.value = await getSystemOrgOption();
     if (!isXpack.value) {
@@ -489,7 +499,8 @@
       loading.value = true;
       const res = await getPoolInfo(route.query.id);
       const { testResourceReturnDTO } = res;
-      const { girdConcurrentNumber, podThreads, concurrentNumber, orgIdNameMap } = testResourceReturnDTO;
+      const { girdConcurrentNumber, podThreads, concurrentNumber, orgIdNameMap, singleTaskConcurrentNumber } =
+        testResourceReturnDTO;
       form.value = {
         ...res,
         addType: 'single',
@@ -499,7 +510,8 @@
           ...testResourceReturnDTO,
           girdConcurrentNumber: girdConcurrentNumber || 1,
           podThreads: podThreads || 1,
-          concurrentNumber: concurrentNumber || 1,
+          concurrentNumber: concurrentNumber || 10,
+          singleTaskConcurrentNumber: singleTaskConcurrentNumber || 3,
           orgIds: orgIdNameMap?.map((e) => e.id) || [],
         },
       };
@@ -611,7 +623,27 @@
       min: 1,
       max: maxConcurrentNumber.value,
       tooltip: licenseStore.hasLicense() ? '' : t('system.resourcePool.concurrentNumberMinToolTip'),
-      defaultValue: 1,
+      defaultValue: 10,
+    },
+    {
+      field: 'singleTaskConcurrentNumber',
+      type: 'inputNumber',
+      label: 'system.resourcePool.singleTaskConcurrentNumber',
+      rules: [
+        { required: true, message: t('system.resourcePool.singleConcurrentNumberRequired') },
+        {
+          validator: (val, cb) => {
+            if (val <= 0) {
+              cb(t('system.resourcePool.singleConcurrentNumberMin'));
+            }
+          },
+        },
+      ],
+      placeholder: 'system.resourcePool.singleConcurrentNumberPlaceholder',
+      min: 1,
+      max: maxSingleTaskConcurrentNumber.value,
+      tooltip: licenseStore.hasLicense() ? '' : t('system.resourcePool.singleConcurrentNumberMinToolTip'),
+      defaultValue: 3,
     },
   ]);
 
@@ -630,11 +662,11 @@
     let res = '';
     for (let i = 0; i < nodesList?.length; i++) {
       const node = nodesList[i];
-      // 按顺序拼接：ip、port、monitor、concurrentNumber
+      // 按顺序拼接：ip、port、monitor、concurrentNumber、singleTaskConcurrentNumber
       if (!Object.values(node).every((e) => isEmpty(e))) {
         res += `${node.ip},${node.port === undefined ? '' : node.port},${
           node.concurrentNumber === undefined ? '' : node.concurrentNumber
-        }\r`;
+        },${node.singleTaskConcurrentNumber === undefined ? '' : node.singleTaskConcurrentNumber}\r`;
       }
     }
     editorContent.value = res;
@@ -665,6 +697,7 @@
             ip: line[0],
             port: line[1],
             concurrentNumber: Number(line[2]),
+            singleTaskConcurrentNumber: Number(line[3]),
           };
           if (i === 0) {
             // 第四个是concurrentNumber，需要是数字

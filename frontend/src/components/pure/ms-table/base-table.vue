@@ -150,7 +150,7 @@
                   <MsTagGroup
                     :is-string-tag="item.isStringTag"
                     :tag-list="record[item.dataIndex as string]"
-                    type="primary"
+                    :type="item.tagPrimary || 'primary'"
                     theme="outline"
                     show-table
                     :tag-position="item.tagPosition"
