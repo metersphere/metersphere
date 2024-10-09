@@ -34,7 +34,7 @@
               <div
                 class="flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[var(--color-text-brand)] px-[2px] !text-white"
               >
-                {{ step.sort }}
+                {{ step.index }}
               </div>
               <div class="step-node-content flex justify-between">
                 <div class="flex flex-1 items-center">

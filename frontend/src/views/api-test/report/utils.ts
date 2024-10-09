@@ -7,11 +7,13 @@ const { t } = useI18n();
 export function addFoldField(node: ScenarioItemType) {
   if (node.children && node.children.length > 0) {
     node.fold = true;
+    node.index = node.sort;
     node.children.forEach((child: ScenarioItemType) => {
       addFoldField(child);
     });
   } else {
     node.fold = true;
+    node.index = node.sort;
   }
 }
 

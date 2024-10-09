@@ -91,7 +91,8 @@ export interface ScenarioItemType {
   stepId: string;
   reportId: string;
   name: string; // 步骤名称
-  sort: number; // 序号
+  sort: number; // 临时序号
+  index: number; // 序号
   stepType: string; // 步骤类型/API/CASE等
   parentId: string; // 父级id
   status: string; // 结果状态 SUCCESS/ERROR
