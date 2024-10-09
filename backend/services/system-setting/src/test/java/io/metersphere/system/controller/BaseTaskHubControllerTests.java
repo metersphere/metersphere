@@ -3,7 +3,11 @@ package io.metersphere.system.controller;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.ExecTask;
+import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.dto.sdk.BasePageRequest;
+import io.metersphere.system.service.BaseTaskHubService;
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,11 +16,16 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BaseTaskHubControllerTests extends BaseTest {
+
+    @Resource
+    private BaseTaskHubService baseTaskHubService;
 
     /**
      * 系统任务中心测试用例
@@ -86,7 +95,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
      * 组织后台任务
      */
     @Test
-    @Order(2)
+    @Order(21)
     public void getOrgSchedulePage() throws Exception {
         BasePageRequest request = new BasePageRequest();
         this.requestPost(ORG_SCHEDULE_TASK_PAGE, request);
@@ -98,5 +107,41 @@ public class BaseTaskHubControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+    }
+
+
+    @Test
+    @Order(21)
+    public void testInsert() throws Exception {
+        baseTaskHubService.insertExecTaskAndDetail(new ArrayList<>());
+        ExecTaskItem execTaskItem = new ExecTaskItem();
+        execTaskItem.setId("1111");
+        execTaskItem.setTaskId("1");
+        execTaskItem.setResourceId("1");
+        execTaskItem.setStatus("SUCCESS");
+        execTaskItem.setResourcePoolId("1");
+        execTaskItem.setResourceType("FUNCTIONAL");
+        execTaskItem.setProjectId("1234");
+        execTaskItem.setOrganizationId("1234123");
+        execTaskItem.setExecutor("admin");
+        baseTaskHubService.insertExecTaskAndDetail(List.of(execTaskItem));
+
+
+        baseTaskHubService.insertExecTaskAndDetail(new ArrayList<>(), new ArrayList<>());
+        execTaskItem.setId("2333");
+        ExecTask execTask = new ExecTask();
+        execTask.setId("121321");
+        execTask.setNum(123L);
+        execTask.setTaskName("名称");
+        execTask.setStatus("SUCCESS");
+        execTask.setCaseCount(123L);
+        execTask.setTaskType("API_CASE");
+        execTask.setTriggerMode("API");
+        execTask.setProjectId("1234");
+        execTask.setOrganizationId("123432");
+        execTask.setCreateTime(System.currentTimeMillis());
+        execTask.setCreateUser("admin");
+        baseTaskHubService.insertExecTaskAndDetail(List.of(execTask), List.of(execTaskItem));
+
     }
 }

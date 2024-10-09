@@ -2,18 +2,23 @@ package io.metersphere.system.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
+import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.system.domain.ExecTask;
+import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
 import io.metersphere.system.dto.taskhub.TaskHubScheduleDTO;
-import io.metersphere.system.mapper.ExtExecTaskMapper;
-import io.metersphere.system.mapper.ExtOrganizationMapper;
-import io.metersphere.system.mapper.ExtScheduleMapper;
+import io.metersphere.system.mapper.*;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +44,8 @@ public class BaseTaskHubService {
     ExtOrganizationMapper extOrganizationMapper;
     @Resource
     UserLoginService userLoginService;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
 
     /**
      * 系统-获取执行任务列表
@@ -103,4 +110,47 @@ public class BaseTaskHubService {
         return extOrganizationMapper.getOrgListByProjectIds(projectIds);
     }
 
+
+    /**
+     * 单任务详情数据入库接口
+     *
+     * @param items
+     */
+    public void insertExecTaskAndDetail(List<ExecTaskItem> items) {
+        if (CollectionUtils.isNotEmpty(items)) {
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            ExecTaskItemMapper itemMapper = sqlSession.getMapper(ExecTaskItemMapper.class);
+            SubListUtils.dealForSubList(items, 1000, subList -> {
+                subList.forEach(itemMapper::insertSelective);
+            });
+            sqlSession.flushStatements();
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
+
+
+    /**
+     * 批量任务&任务详情入库接口
+     *
+     * @param tasks
+     * @param items
+     */
+    public void insertExecTaskAndDetail(List<ExecTask> tasks, List<ExecTaskItem> items) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        if (CollectionUtils.isNotEmpty(tasks)) {
+            ExecTaskMapper execTaskMapper = sqlSession.getMapper(ExecTaskMapper.class);
+            SubListUtils.dealForSubList(tasks, 1000, subList -> {
+                subList.forEach(execTaskMapper::insertSelective);
+            });
+        }
+
+        if (CollectionUtils.isNotEmpty(items)) {
+            ExecTaskItemMapper itemMapper = sqlSession.getMapper(ExecTaskItemMapper.class);
+            SubListUtils.dealForSubList(items, 1000, subList -> {
+                subList.forEach(itemMapper::insertSelective);
+            });
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
 }
