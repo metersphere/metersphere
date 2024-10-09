@@ -316,6 +316,7 @@
   import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useShortcutSave from '@/hooks/useShortcutSave';
   import useAppStore from '@/store/modules/app';
   import { characterLimit, downloadByteFile, getGenerateId, sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
@@ -787,9 +788,17 @@
     }
   }
 
-  onMounted(() => {
+  const { registerCatchSaveShortcut, removeCatchSaveShortcut } = useShortcutSave(handleOK);
+  onMounted(async () => {
     detailForm.value = { ...props.form };
-    getDetails();
+    await getDetails();
+    if (isEditPreposition.value) {
+      registerCatchSaveShortcut();
+    }
+  });
+
+  onBeforeUnmount(() => {
+    removeCatchSaveShortcut();
   });
 
   defineExpose({

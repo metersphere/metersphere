@@ -43,6 +43,7 @@
   import { createCaseRequest, updateCaseRequest } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
+  import useShortcutSave from '@/hooks/useShortcutSave';
   import useVisit from '@/hooks/useVisit';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { scrollIntoView } from '@/utils/dom';
@@ -179,6 +180,17 @@
       title.value = t('caseManagement.featureCase.creatingCase');
       okText.value = t('mscard.defaultConfirm');
     }
+  });
+
+  const { registerCatchSaveShortcut, removeCatchSaveShortcut } = useShortcutSave(() => {
+    saveHandler();
+  });
+  onMounted(() => {
+    registerCatchSaveShortcut();
+  });
+
+  onBeforeUnmount(() => {
+    removeCatchSaveShortcut();
   });
 </script>
 

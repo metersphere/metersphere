@@ -69,6 +69,7 @@
               @change="handleActiveDebugChange"
             />
             <a-input
+              ref="urlInputRef"
               v-model:model-value="requestVModel.url"
               :max-length="255"
               :placeholder="
@@ -229,6 +230,7 @@
         </div>
         <div v-if="props.isDefinition" class="w-full">
           <a-input
+            ref="nameInputRef"
             v-model:model-value="requestVModel.name"
             :max-length="255"
             :placeholder="t('apiTestManagement.apiNamePlaceholder')"
@@ -486,7 +488,7 @@
 
 <script setup lang="ts">
   // TODO:代码拆分，结构优化
-  import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
+  import { FormInstance, InputInstance, Message, SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep, debounce } from 'lodash-es';
 
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
@@ -511,12 +513,12 @@
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
+  import useShortcutSave from '@/hooks/useShortcutSave';
   import useRequestCompositionStore from '@/store/modules/api/requestComposition';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
   import { filterTree, filterTreeNode, getGenerateId, parseQueryParams } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
-  import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import {
@@ -1703,16 +1705,37 @@
     memberOptions.value = await getProjectOptions(appStore.currentProjectId);
     memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
   }
+
+  const nameInputRef = ref<InputInstance>();
+  const urlInputRef = ref<InputInstance>();
+  function inputBlur() {
+    urlInputRef.value?.blur();
+    nameInputRef.value?.blur();
+  }
+  const { registerCatchSaveShortcut, removeCatchSaveShortcut } = useShortcutSave(() => {
+    inputBlur(); // 先失焦再保存
+    if (!props.isDefinition) {
+      handleSaveShortcut();
+    } else {
+      handleSelect('save');
+    }
+  });
+
   onMounted(() => {
     initMemberOptions();
-    if (!props.isDefinition) {
-      registerCatchSaveShortcut(handleSaveShortcut);
+    if (
+      !props.isCase &&
+      (requestVModel.value.isNew
+        ? props.permissionMap && hasAnyPermission([props.permissionMap.create])
+        : props.permissionMap && hasAnyPermission([props.permissionMap.update]))
+    ) {
+      registerCatchSaveShortcut();
     }
   });
 
   onBeforeUnmount(() => {
-    if (!props.isDefinition) {
-      removeCatchSaveShortcut(handleSaveShortcut);
+    if (!props.isCase) {
+      removeCatchSaveShortcut();
     }
   });
 
