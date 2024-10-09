@@ -205,5 +205,43 @@
         ]
       }
     ]
+  },
+  {
+    "id": "PROJECT_TASK_CENTER",
+    "name": "permission.project_task_center.name",
+    "type": "PROJECT",
+    "children": [
+      {
+        "id": "PROJECT_CASE_TASK_CENTER",
+        "name": "permission.project_case_task_center.name",
+        "permissions": [
+          {
+            "id": "PROJECT_CASE_TASK_CENTER:READ"
+          },
+          {
+            "id": "PROJECT_CASE_TASK_CENTER:EXEC+STOP",
+            "name": "permission.project_case_task_center.exec"
+          },
+          {
+            "id": "PROJECT_CASE_TASK_CENTER:READ+DELETE"
+          }
+        ]
+      },
+      {
+        "id": "PROJECT_SCHEDULE_TASK_CENTER",
+        "name": "permission.project_schedule_task_center.name",
+        "permissions": [
+          {
+            "id": "PROJECT_SCHEDULE_TASK_CENTER:READ"
+          },
+          {
+            "id": "PROJECT_SCHEDULE_TASK_CENTER:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_SCHEDULE_TASK_CENTER:READ+DELETE"
+          }
+        ]
+      }
+    ]
   }
 ]

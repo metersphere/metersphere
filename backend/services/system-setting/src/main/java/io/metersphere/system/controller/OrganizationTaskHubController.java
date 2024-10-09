@@ -33,7 +33,7 @@ public class OrganizationTaskHubController {
 
     @PostMapping("/exec-task/page")
     @Operation(summary = "组织-任务中心-执行任务列表")
-    @RequiresPermissions(PermissionConstants.ORGANIZATION_TASK_CENTER_READ)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_READ)
     public Pager<List<TaskHubDTO>> projectList(@Validated @RequestBody BasePageRequest request) {
         return baseTaskHubService.getTaskList(request, SessionUtils.getCurrentOrganizationId(), null);
     }
@@ -41,7 +41,7 @@ public class OrganizationTaskHubController {
 
     @PostMapping("/schedule/page")
     @Operation(summary = "组织-任务中心-后台执行任务列表")
-    @RequiresPermissions(PermissionConstants.SYSTEM_SCHEDULE_TASK_CENTER_READ)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_SCHEDULE_TASK_CENTER_READ)
     public Pager<List<TaskHubScheduleDTO>> scheduleList(@Validated @RequestBody BasePageRequest request) {
         List<OptionDTO> projectList = baseProjectMapper.getProjectOptionsByOrgId(SessionUtils.getCurrentOrganizationId());
         List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
