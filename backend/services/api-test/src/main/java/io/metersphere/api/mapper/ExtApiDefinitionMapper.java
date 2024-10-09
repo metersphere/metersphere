@@ -20,6 +20,7 @@ import java.util.List;
 
 public interface ExtApiDefinitionMapper {
     void deleteApiToGc(@Param("ids") List<String> ids, @Param("userId") String userId, @Param("time") long time);
+
     @BaseConditionFilter
     List<ApiDefinitionDTO> list(@Param("request") ApiDefinitionPageRequest request);
 
@@ -94,10 +95,10 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDefinitionWithBlob> selectApiDefinitionWithBlob(@Param("ids") List<String> ids);
 
-    List<ApiDefinition> selectAllApi(@Param("projectId") String projectId,  @Param("protocols") List<String> protocols);
+    List<ApiDefinition> selectAllApi(@Param("projectId") String projectId, @Param("protocols") List<String> protocols);
 
 
-    List<ApiDefinition> getListBySelectModules(@Param("projectId") String projectId, @Param("moduleIds") List<String> moduleIds,  @Param("protocols") List<String> protocols);
+    List<ApiDefinition> getListBySelectModules(@Param("projectId") String projectId, @Param("moduleIds") List<String> moduleIds, @Param("protocols") List<String> protocols);
 
-    List<ApiDefinition> getListBySelectIds(@Param("ids") List<String> ids,  @Param("protocols") List<String> protocols);
+    List<ApiDefinition> getListBySelectIds(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("protocols") List<String> protocols);
 }

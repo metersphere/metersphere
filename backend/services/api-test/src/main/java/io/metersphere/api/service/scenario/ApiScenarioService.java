@@ -1393,6 +1393,9 @@ public class ApiScenarioService extends MoveNodeService {
      * 设置部分引用的步骤的启用状态
      */
     private void setChildPartialRefEnable(List<? extends ApiScenarioStepCommonDTO> steps, PartialRefStepDetail partialRefStepDetail) {
+        if (CollectionUtils.isEmpty(steps)) {
+            return;
+        }
         for (ApiScenarioStepCommonDTO step : steps) {
             if (StringUtils.equals(step.getRefType(), ApiScenarioStepRefType.REF.name())) {
                 // 引用的启用不修改
@@ -1429,7 +1432,8 @@ public class ApiScenarioService extends MoveNodeService {
      * @param steps
      * @return
      */
-    private Map<String, String> getPartialRefStepDetailMap(List<? extends ApiScenarioStepCommonDTO> steps) {
+
+    public Map<String, String> getPartialRefStepDetailMap(List<? extends ApiScenarioStepCommonDTO> steps) {
         steps.forEach(step -> {
             if (isPartialRef(step)) {
 
@@ -1671,7 +1675,7 @@ public class ApiScenarioService extends MoveNodeService {
     /**
      * 设置部分引用的步骤的启用状态
      */
-    private void setPartialRefStepsEnable(List<? extends ApiScenarioStepCommonDTO> steps, Map<String, String> stepDetailMap) {
+    public void setPartialRefStepsEnable(List<? extends ApiScenarioStepCommonDTO> steps, Map<String, String> stepDetailMap) {
         if (CollectionUtils.isEmpty(steps)) {
             return;
         }
@@ -1718,7 +1722,7 @@ public class ApiScenarioService extends MoveNodeService {
      * @param parentStepMap   当前场景所有的步骤，key 为父步骤ID，value 为子步骤列表
      * @param scenarioStepMap 所有场景步骤，key 为场景ID，value 为子步骤列表
      */
-    private List<ApiScenarioStepDTO> buildStepTree(List<ApiScenarioStepDTO> steps,
+    public List<ApiScenarioStepDTO> buildStepTree(List<ApiScenarioStepDTO> steps,
                                                    Map<String, List<ApiScenarioStepDTO>> parentStepMap,
                                                    Map<String, List<ApiScenarioStepDTO>> scenarioStepMap,
                                                    Set<String> stepIdSet) {
@@ -1779,14 +1783,14 @@ public class ApiScenarioService extends MoveNodeService {
     /**
      * 判断步骤是否是引用的场景
      */
-    private boolean isRefOrPartialScenario(ApiScenarioStepDTO step) {
+    public boolean isRefOrPartialScenario(ApiScenarioStepDTO step) {
         return isRefOrPartialRef(step.getRefType()) && isScenarioStep(step.getStepType());
     }
 
     /**
      * 递归获取所有的场景步骤
      */
-    private List<ApiScenarioStepDTO> getAllStepsByScenarioIds(List<String> scenarioIds) {
+    public List<ApiScenarioStepDTO> getAllStepsByScenarioIds(List<String> scenarioIds) {
         List<ApiScenarioStepDTO> steps = getStepDTOByScenarioIds(scenarioIds);
         if (CollectionUtils.isEmpty(steps)) {
             return steps;
