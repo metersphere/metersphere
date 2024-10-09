@@ -235,7 +235,7 @@ public class ProjectUserRoleControllerTests extends BaseTest {
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         // 返回总条数是否为init_project_user_role.sql中的数据总数
-        Assertions.assertEquals(1, JSON.parseArray(JSON.toJSONString(resultHolder.getData())).size());
+        Assertions.assertEquals(2, JSON.parseArray(JSON.toJSONString(resultHolder.getData())).size());
         // 权限校验
         requestGetPermissionTest(PermissionConstants.PROJECT_GROUP_READ, PROJECT_USER_ROLE_PERMISSION_SETTING + "/default-pro-role-id-3");
     }
