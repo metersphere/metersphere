@@ -36,6 +36,7 @@
                p.delete_user,
                p.update_user,
                p.enable,
+               p.all_resource_pool,
                o.name as organization_name,
                p.module_setting
         FROM project p
