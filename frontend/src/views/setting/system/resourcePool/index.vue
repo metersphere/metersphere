@@ -1,23 +1,34 @@
 <template>
   <MsCard :loading="loading" simple>
     <MsTrialAlert :tip-content="t('system.authorized.resourcePoolTipContent')" />
-    <div class="mb-4 flex items-center justify-between">
-      <a-button v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+ADD']" v-xpack type="primary" @click="addPool">
-        {{ t('system.resourcePool.createPool') }}
-      </a-button>
-      <a-input-search
-        v-model:model-value="keyword"
-        :placeholder="t('system.resourcePool.searchPool')"
-        class="w-[230px]"
-        allow-clear
-        @search="searchPool"
-        @press-enter="searchPool"
-        @clear="searchPool"
-      ></a-input-search>
+
+    <div class="mb-[16px]">
+      <MsAdvanceFilter
+        v-model:keyword="keyword"
+        :filter-config-list="filterConfigList"
+        :search-placeholder="t('system.resourcePool.searchPool')"
+        @keyword-search="searchPool()"
+        @adv-search="searchPool"
+        @refresh="searchPool"
+      >
+        <template #left>
+          <a-button v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+ADD']" v-xpack type="primary" @click="addPool">
+            {{ t('system.resourcePool.createPool') }}
+          </a-button>
+        </template>
+      </MsAdvanceFilter>
     </div>
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
       <template #name="{ record }">
         <div class="flex w-full items-center justify-start gap-[8px]">
+          <a-tooltip :content="t('system.resourcePool.viewCapacityInfo')" :mouse-enter-delay="300" position="bottom">
+            <MsIcon
+              type="icon-icon_pie_filled"
+              class="cursor-pointer text-[rgb(var(--primary-5))]"
+              size="16"
+              @click="capacityDetail(record)"
+            />
+          </a-tooltip>
           <a-button
             type="text"
             class="px-0"
@@ -50,6 +61,9 @@
             </template>
           </a-tooltip>
         </div>
+      </template>
+      <template #lastConcurrentNumber="{ record }">
+        {{ record.lastConcurrentNumber || 0 }}
       </template>
       <template #action="{ record }">
         <MsButton v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']" @click="editPool(record)">
@@ -101,6 +115,7 @@
     :default-val="activePool?.testResourceReturnDTO.jobDefinition || ''"
     read-only
   />
+  <CapacityDrawer v-model:visible="showCapacityDrawer" :active-record="activeRecord" />
 </template>
 
 <script setup lang="ts">
@@ -110,6 +125,8 @@
   import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
 
+  import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import type { Description } from '@/components/pure/ms-description/index.vue';
@@ -119,6 +136,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag, { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTrialAlert from '@/components/business/ms-trial-alert/index.vue';
+  import CapacityDrawer from './components/capacityDrawer.vue';
   import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
 
   import { delPoolInfo, getPoolInfo, getPoolList, togglePoolStatus } from '@/api/modules/setting/resourcePool';
@@ -152,6 +170,29 @@
       title: 'system.resourcePool.tableColumnStatus',
       slotName: 'enable',
       dataIndex: 'enable',
+    },
+    {
+      title: 'system.resourcePool.concurrentNumber',
+      dataIndex: 'maxConcurrentNumber',
+      showTooltip: true,
+      width: 150,
+    },
+    {
+      title: 'system.resourcePool.remainingConcurrency',
+      slotName: 'lastConcurrentNumber',
+      dataIndex: 'lastConcurrentNumber',
+      showTooltip: true,
+      width: 150,
+    },
+    {
+      title: 'system.resourcePool.orgRange',
+      slotName: 'orgNames',
+      dataIndex: 'orgNames',
+      showInTable: true,
+      showDrag: true,
+      isTag: true,
+      isStringTag: true,
+      tagPrimary: 'default',
     },
     {
       title: 'common.desc',
@@ -194,6 +235,7 @@
   });
 
   const keyword = ref('');
+  const filterConfigList = ref<FilterFormItem[]>([]);
 
   onMounted(async () => {
     setKeyword(keyword.value);
@@ -451,6 +493,14 @@
     } finally {
       drawerLoading.value = false;
     }
+  }
+  const showCapacityDrawer = ref<boolean>(false);
+  const activeRecord = ref<ResourcePoolItem>();
+  // TODO 等待联调
+  // 查看容量信息
+  function capacityDetail(record: ResourcePoolItem) {
+    showCapacityDrawer.value = true;
+    activeRecord.value = record;
   }
 
   onMounted(() => {

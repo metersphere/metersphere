@@ -19,6 +19,7 @@ export enum TableKeyEnum {
   API_SCENARIO = 'apiScenario',
   SYSTEM_USER = 'systemUser',
   SYSTEM_RESOURCEPOOL = 'systemResourcePool',
+  SYSTEM_RESOURCE_POOL_CAPACITY = 'systemResourcePoolCapacity',
   SYSTEM_AUTH = 'systemAuth',
   SYSTEM_ORGANIZATION = 'systemOrganization',
   SYSTEM_PROJECT = 'systemProject',

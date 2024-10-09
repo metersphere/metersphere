@@ -88,7 +88,7 @@ export default {
   'system.resourcePool.concurrentNumberPlaceholder': 'Please enter the maximum number of concurrency',
   'system.resourcePool.nodeResourceRequired': 'Please fill in the Node resources added in batches correctly',
   'system.resourcePool.nodeConfigEditorTip':
-    'Writing format: IP, Port, maximum concurrent number; such as 192.168.1.52,8082,1',
+    'Writing format: IP, Port, maximum concurrent number; such as 192.168.1.52,8082,10,3',
   'system.resourcePool.testResourceDTO.ip': 'IP Address/Domain Name',
   'system.resourcePool.testResourceDTO.ipRequired': 'Please fill in IP address / domain name',
   'system.resourcePool.testResourceDTO.ipPlaceholder': 'example.com',
@@ -131,4 +131,17 @@ export default {
   'system.resourcePool.concurrentNumberMinToolTip':
     'The maximum number of concurrent requests for a single node in the Community version is 10. If you want more, you can apply',
   'system.resourcePool.notExit': 'Resource pool does not exist',
+  'system.resourcePool.remainingConcurrency': 'Remaining Concurrency',
+  'system.resourcePool.taskID': 'Task ID',
+  'system.resourcePool.taskName': 'Task name',
+  'system.resourcePool.useCaseName': 'UseCase Name',
+  'system.resourcePool.capacityNode': 'Node',
+  'system.resourcePool.viewCapacityInfo': 'Click to view capacity information',
+  'system.resourcePool.memory': 'Memory',
+  'system.resourcePool.singleTaskConcurrentNumber': 'Maximum concurrency of a single task',
+  'system.resourcePool.singleConcurrentNumberRequired': 'A single task maximum concurrency can not be empty',
+  'system.resourcePool.singleConcurrentNumberMin': 'A single task maximum concurrency can not be empty',
+  'system.resourcePool.singleConcurrentNumberPlaceholder': 'Enter the maximum number of concurrent tasks',
+  'system.resourcePool.singleConcurrentNumberMinToolTip':
+    'Community edition a single task maximum concurrency of 3, if you need a larger concurrency, can apply for',
 };

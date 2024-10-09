@@ -3,6 +3,7 @@ export interface NodesListItem {
   ip: string;
   port: string;
   concurrentNumber: number;
+  singleTaskConcurrentNumber: number; // 单个任务最大并发数
 }
 
 // 应用组织id和name映射对象
@@ -18,6 +19,7 @@ export interface TestResourceDTO {
   token: string; // k8s token
   namespace: string; // k8s 命名空间
   concurrentNumber: number; // k8s 最大并发数
+  singleTaskConcurrentNumber: number; // 单个任务最大并发数
   podThreads: number; // k8s 单pod最大线程数
   jobDefinition: string; // k8s job自定义模板
   deployName: string; // k8s api测试部署名称

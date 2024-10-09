@@ -1,3 +1,5 @@
+import { TagType } from '@/components/pure/ms-tag/ms-tag.vue';
+
 import type { TableQueryParams } from '@/models/common';
 import { ColumnEditTypeEnum, SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
 import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -72,6 +74,7 @@ export interface MsTableColumnData extends TableColumnData {
   filterItem?: any;
   // 是否标签编辑列
   allowEditTag?: boolean;
+  tagPrimary?: TagType;
   // 自定义属性
   [key: string]: any;
 }
