@@ -137,6 +137,7 @@
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveTabUnSaveCheck from '@/hooks/useLeaveTabUnSaveCheck';
+  import useShortcutSave from '@/hooks/useShortcutSave';
   import router from '@/router';
   import useAppStore from '@/store/modules/app';
   import useCacheStore from '@/store/modules/cache/cache';
@@ -666,9 +667,10 @@
   }
 
   function saveScenario() {
-    if (activeScenarioTab.value.isNew) {
+    if (activeScenarioTab.value.id === 'all') return;
+    if (activeScenarioTab.value.isNew && hasAnyPermission(['PROJECT_API_SCENARIO:READ+ADD'])) {
       createRef.value?.validScenarioForm(realSaveScenario);
-    } else {
+    } else if (!activeScenarioTab.value.isNew && hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE'])) {
       detailRef.value?.validScenarioForm(realSaveScenario);
     }
   }
@@ -708,11 +710,17 @@
     }
   }
 
-  onBeforeMount(() => {
+  const { registerCatchSaveShortcut, removeCatchSaveShortcut } = useShortcutSave(saveScenario);
+  onBeforeMount(async () => {
     selectRecycleCount();
     if (route.query.id) {
-      openScenarioTab(route.query.id as string);
+      await openScenarioTab(route.query.id as string);
     }
+    registerCatchSaveShortcut();
+  });
+
+  onBeforeUnmount(() => {
+    removeCatchSaveShortcut();
   });
 
   useLeaveTabUnSaveCheck(scenarioTabs.value, ['PROJECT_API_SCENARIO:READ+ADD', 'PROJECT_API_SCENARIO:READ+UPDATE']);

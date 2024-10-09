@@ -324,6 +324,7 @@
       title: 'mockManagement.operationUser',
       slotName: 'createUserName',
       dataIndex: 'createUserName',
+      showTooltip: true,
       width: 200,
       showDrag: true,
     },

@@ -226,6 +226,7 @@
   } from '@/api/modules/api-test/management';
   import { requestBodyTypeMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
+  import useShortcutSave from '@/hooks/useShortcutSave';
   import useAppStore from '@/store/modules/app';
 
   import { ResponseDefinition } from '@/models/apiTest/common';
@@ -565,32 +566,6 @@
     }
   }
 
-  watch(
-    () => visible.value,
-    (val) => {
-      if (val) {
-        if (props.detailId) {
-          initMockDetail();
-        } else {
-          fileList.value = [];
-          const { body } = props.definitionDetail;
-          mockDetail.value.mockMatchRule.body = {
-            ...mockDetail.value.mockMatchRule.body,
-            bodyType: body.bodyType,
-            binaryBody: cloneDeep(body.binaryBody),
-            jsonBody: cloneDeep(body.jsonBody),
-            xmlBody: cloneDeep(body.xmlBody),
-            rawBody: cloneDeep(body.rawBody),
-          };
-          showFirstHasDataTab();
-        }
-      }
-    },
-    {
-      immediate: true,
-    }
-  );
-
   async function handleFileChange(files: MsFileItem[], file?: MsFileItem) {
     try {
       if (file?.local && file.file) {
@@ -746,6 +721,52 @@
       }
     });
   }
+
+  const { registerCatchSaveShortcut, removeCatchSaveShortcut } = useShortcutSave(() => {
+    handleSave();
+  });
+
+  watch(
+    () => visible.value,
+    async (val) => {
+      if (val) {
+        if (props.detailId) {
+          await initMockDetail();
+        } else {
+          fileList.value = [];
+          const { body } = props.definitionDetail;
+          mockDetail.value.mockMatchRule.body = {
+            ...mockDetail.value.mockMatchRule.body,
+            bodyType: body.bodyType,
+            binaryBody: cloneDeep(body.binaryBody),
+            jsonBody: cloneDeep(body.jsonBody),
+            xmlBody: cloneDeep(body.xmlBody),
+            rawBody: cloneDeep(body.rawBody),
+          };
+          showFirstHasDataTab();
+        }
+        if (!isReadOnly.value) {
+          registerCatchSaveShortcut();
+        }
+      } else {
+        removeCatchSaveShortcut();
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  watch(
+    () => isReadOnly.value,
+    (val) => {
+      if (!val) {
+        registerCatchSaveShortcut();
+      } else {
+        removeCatchSaveShortcut();
+      }
+    }
+  );
 </script>
 
 <style lang="less" scoped></style>

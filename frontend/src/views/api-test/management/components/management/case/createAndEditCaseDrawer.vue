@@ -126,6 +126,7 @@
   } from '@/api/modules/api-test/management';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
+  import useShortcutSave from '@/hooks/useShortcutSave';
   import useAppStore from '@/store/modules/app';
   import { getGenerateId } from '@/utils';
 
@@ -318,6 +319,21 @@
       }
     });
   }
+
+  const { registerCatchSaveShortcut, removeCatchSaveShortcut } = useShortcutSave(() => {
+    handleDrawerConfirm(false);
+  });
+  watch(
+    () => innerVisible.value,
+    (val) => {
+      if (val) {
+        registerCatchSaveShortcut();
+      } else {
+        removeCatchSaveShortcut();
+      }
+    }
+  );
+
   const executeRef = ref<InstanceType<typeof executeButton>>();
   const reportId = ref('');
   const websocket = ref<WebSocket>();

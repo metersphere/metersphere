@@ -240,6 +240,7 @@
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { EditorPreviewFileUrl } from '@/api/requrls/bug-management';
   import { useI18n } from '@/hooks/useI18n';
+  import useShortcutSave from '@/hooks/useShortcutSave';
   import { useAppStore } from '@/store';
   import { downloadByteFile } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
@@ -867,11 +868,19 @@
     }
   );
 
-  onMounted(() => {
+  const { registerCatchSaveShortcut, removeCatchSaveShortcut } = useShortcutSave(() => {
+    saveHandler();
+  });
+  onMounted(async () => {
     if (isEditOrCopy.value) {
       // 获取详情
-      getDetailInfo();
+      await getDetailInfo();
     }
+    registerCatchSaveShortcut();
+  });
+
+  onBeforeUnmount(() => {
+    removeCatchSaveShortcut();
   });
 
   defineExpose({
