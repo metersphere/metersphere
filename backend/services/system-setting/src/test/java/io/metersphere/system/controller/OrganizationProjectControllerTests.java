@@ -605,6 +605,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         ProjectDTO result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         Project currentProject = projectMapper.selectByPrimaryKey(project.getId());
         compareProjectDTO(currentProject, result);
+        Assertions.assertFalse(currentProject.getAllResourcePool());
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
@@ -634,9 +635,11 @@ public class OrganizationProjectControllerTests extends BaseTest {
         moduleIds.add("apiTest");
         moduleIds.add("uiTest");
         project.setModuleIds(moduleIds);
+        project.setAllResourcePool(true);
         mvcResult = this.responsePost(updateProject, project);
         result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         currentProject = projectMapper.selectByPrimaryKey(project.getId());
+        Assertions.assertTrue(currentProject.getAllResourcePool());
         compareProjectDTO(currentProject, result);
         //断言模块设置
         projectExtend = projectMapper.selectByPrimaryKey("projectId2");

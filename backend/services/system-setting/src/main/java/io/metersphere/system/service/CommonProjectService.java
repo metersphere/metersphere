@@ -283,6 +283,7 @@ public class CommonProjectService {
         project.setDescription(updateProjectDto.getDescription());
         project.setOrganizationId(updateProjectDto.getOrganizationId());
         project.setEnable(updateProjectDto.getEnable());
+        project.setAllResourcePool(updateProjectDto.isAllResourcePool());
         project.setUpdateUser(updateUser);
         project.setCreateUser(null);
         project.setCreateTime(null);
