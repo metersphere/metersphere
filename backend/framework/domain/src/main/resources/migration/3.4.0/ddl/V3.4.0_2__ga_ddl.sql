@@ -93,7 +93,9 @@ CREATE TABLE api_doc_share (
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     PRIMARY KEY (id)
-)  COMMENT = '接口文档分享';
+) ENGINE = InnoDB
+DEFAULT CHARSET = utf8mb4
+COLLATE = utf8mb4_general_ci COMMENT = '接口文档分享';
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
