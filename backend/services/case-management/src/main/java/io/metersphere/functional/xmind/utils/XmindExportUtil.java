@@ -444,6 +444,9 @@ public class XmindExportUtil {
                     case "tags":
                         preTopic.setTitleText(columns.getSystemColumns().get(item).concat("：").concat(parseTag(dto.getTags())));
                         break;
+                    case "description":
+                        preTopic.setTitleText(columns.getSystemColumns().get(item).concat("：").concat(dto.getDescription()));
+                        break;
                     default:
                         break;
                 }
