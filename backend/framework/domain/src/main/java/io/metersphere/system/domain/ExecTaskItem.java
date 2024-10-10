@@ -27,6 +27,11 @@ public class ExecTaskItem implements Serializable {
     @Size(min = 1, max = 50, message = "{exec_task_item.resource_id.length_range}", groups = {Created.class, Updated.class})
     private String resourceId;
 
+    @Schema(description = "资源名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{exec_task_item.resource_name.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{exec_task_item.resource_name.length_range}", groups = {Created.class, Updated.class})
+    private String resourceName;
+
     @Schema(description = "任务来源（任务组下的任务id）")
     private String taskOrigin;
 
@@ -81,6 +86,7 @@ public class ExecTaskItem implements Serializable {
         id("id", "id", "VARCHAR", false),
         taskId("task_id", "taskId", "VARCHAR", false),
         resourceId("resource_id", "resourceId", "VARCHAR", false),
+        resourceName("resource_name", "resourceName", "VARCHAR", false),
         taskOrigin("task_origin", "taskOrigin", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
         result("result", "result", "VARCHAR", true),

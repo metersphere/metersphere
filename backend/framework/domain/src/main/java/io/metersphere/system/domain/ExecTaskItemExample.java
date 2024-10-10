@@ -314,6 +314,76 @@ public class ExecTaskItemExample {
             return (Criteria) this;
         }
 
+        public Criteria andResourceNameIsNull() {
+            addCriterion("resource_name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceNameIsNotNull() {
+            addCriterion("resource_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceNameEqualTo(String value) {
+            addCriterion("resource_name =", value, "resourceName");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceNameNotEqualTo(String value) {
+            addCriterion("resource_name <>", value, "resourceName");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceNameGreaterThan(String value) {
+            addCriterion("resource_name >", value, "resourceName");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceNameGreaterThanOrEqualTo(String value) {
+            addCriterion("resource_name >=", value, "resourceName");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceNameLessThan(String value) {
+            addCriterion("resource_name <", value, "resourceName");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceNameLessThanOrEqualTo(String value) {
+            addCriterion("resource_name <=", value, "resourceName");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceNameLike(String value) {
+            addCriterion("resource_name like", value, "resourceName");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceNameNotLike(String value) {
+            addCriterion("resource_name not like", value, "resourceName");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceNameIn(List<String> values) {
+            addCriterion("resource_name in", values, "resourceName");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceNameNotIn(List<String> values) {
+            addCriterion("resource_name not in", values, "resourceName");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceNameBetween(String value1, String value2) {
+            addCriterion("resource_name between", value1, value2, "resourceName");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceNameNotBetween(String value1, String value2) {
+            addCriterion("resource_name not between", value1, value2, "resourceName");
+            return (Criteria) this;
+        }
+
         public Criteria andTaskOriginIsNull() {
             addCriterion("task_origin is null");
             return (Criteria) this;

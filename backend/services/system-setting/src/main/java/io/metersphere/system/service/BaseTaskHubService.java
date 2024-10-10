@@ -8,7 +8,9 @@ import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
+import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
 import io.metersphere.system.dto.taskhub.TaskHubScheduleDTO;
+import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -46,6 +48,8 @@ public class BaseTaskHubService {
     UserLoginService userLoginService;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private ExtExecTaskItemMapper extExecTaskItemMapper;
 
     /**
      * 系统-获取执行任务列表
@@ -152,5 +156,22 @@ public class BaseTaskHubService {
         }
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+
+    /**
+     * 用例任务详情列表查询
+     *
+     * @param request
+     * @return
+     */
+    public Pager<List<TaskHubItemDTO>> getCaseTaskItemList(TaskHubItemRequest request, String orgId, String projectId) {
+        Page<Object> page = PageMethod.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "id asc");
+        return PageUtils.setPageInfo(page, getCaseTaskItemPage(request, orgId, projectId));
+    }
+
+    private List<TaskHubItemDTO> getCaseTaskItemPage(TaskHubItemRequest request, String orgId, String projectId) {
+        return extExecTaskItemMapper.selectList(request, orgId, projectId);
     }
 }

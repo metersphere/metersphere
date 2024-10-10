@@ -6,6 +6,7 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.dto.sdk.BasePageRequest;
+import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.service.BaseTaskHubService;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
@@ -32,6 +33,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
      */
     public static final String SYSTEM_TASK_PAGE = "/system/task-center/exec-task/page";
     public static final String SYSTEM_SCHEDULE_TASK_PAGE = "/system/task-center/schedule/page";
+    public static final String SYSTEM_TASK_ITEM_PAGE = "/system/task-center/exec-task/item/page";
 
     @Test
     @Order(1)
@@ -61,6 +63,26 @@ public class BaseTaskHubControllerTests extends BaseTest {
         request.setCurrent(1);
         request.setPageSize(10);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(SYSTEM_SCHEDULE_TASK_PAGE, request);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
+    /**
+     * 系统后台任务
+     */
+    @Test
+    @Order(3)
+    public void getSystemTaskItemPage() throws Exception {
+        TaskHubItemRequest request = new TaskHubItemRequest();
+        request.setTaskId("1");
+        this.requestPost(SYSTEM_TASK_ITEM_PAGE, request);
+        request.setCurrent(1);
+        request.setPageSize(10);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(SYSTEM_TASK_ITEM_PAGE, request);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -124,6 +146,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
         execTaskItem.setProjectId("1234");
         execTaskItem.setOrganizationId("1234123");
         execTaskItem.setExecutor("admin");
+        execTaskItem.setResourceName("测试");
         baseTaskHubService.insertExecTaskAndDetail(List.of(execTaskItem));
 
 

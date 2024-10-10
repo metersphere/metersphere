@@ -31,8 +31,6 @@ public class ExecTask implements Serializable {
     private String status;
 
     @Schema(description = "用例数量", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{exec_task.case_count.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 19, message = "{exec_task.case_count.length_range}", groups = {Created.class, Updated.class})
     private Long caseCount;
 
     @Schema(description = "执行结果")

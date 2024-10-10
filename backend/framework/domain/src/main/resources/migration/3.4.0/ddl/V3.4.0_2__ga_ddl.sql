@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS exec_task_item(
     `id` VARCHAR(50) NOT NULL   COMMENT '主键ID' ,
     `task_id` VARCHAR(50) NOT NULL   COMMENT '任务ID' ,
     `resource_id` VARCHAR(50) NOT NULL   COMMENT '资源ID' ,
+    `resource_name` VARCHAR(255) NOT NULL   COMMENT '资源名称' ,
     `task_origin` VARCHAR(50)    COMMENT '任务来源（任务组下的任务id）' ,
     `status` VARCHAR(20) NOT NULL   COMMENT '执行状态' ,
     `result` VARCHAR(255)    COMMENT '执行结果' ,
@@ -59,6 +60,7 @@ CREATE TABLE IF NOT EXISTS exec_task_item(
 
 CREATE INDEX idx_task_id ON exec_task_item(task_id);
 CREATE INDEX idx_resource_id ON exec_task_item(resource_id);
+CREATE INDEX idx_resource_name ON exec_task_item(resource_name);
 CREATE INDEX idx_status ON exec_task_item(status);
 CREATE INDEX idx_result ON exec_task_item(result);
 CREATE INDEX idx_resource_pool_id ON exec_task_item(resource_pool_id);
