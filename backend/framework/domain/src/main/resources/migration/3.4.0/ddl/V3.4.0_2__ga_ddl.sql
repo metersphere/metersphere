@@ -77,5 +77,23 @@ CREATE INDEX idx_all_resource_pool ON project(all_resource_pool);
 
 ALTER TABLE schedule ADD COLUMN num bigint not null comment '业务ID';
 CREATE INDEX idx_num ON schedule(`num`);
+
+-- 接口文档分享表
+CREATE TABLE api_doc_share (
+    `id` VARCHAR(50) NOT NULL   COMMENT '主键' ,
+    `name` VARCHAR(255) NOT NULL   COMMENT '名称' ,
+    `is_public` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否公开; 0: 私有、1: 公开' ,
+    `password` VARCHAR(10)    COMMENT '访问密码; 私有时需要访问密码' ,
+    `allow_export` BIT(1)   DEFAULT 0 COMMENT '允许导出; 0: 不允许、1: 允许' ,
+    `api_range` VARCHAR(10) NOT NULL  DEFAULT 'ALL' COMMENT '接口范围; 全部接口(ALL)、模块(MODULE)、路径(PATH)、标签(TAG)' ,
+    `range_match_symbol` VARCHAR(10)    COMMENT '范围匹配符; 包含(CONTAINS)、等于(EQUALS)' ,
+    `range_match_val` VARCHAR(1000)    COMMENT '范围匹配值; eg: 选中路径范围时, 该值作为路径匹配' ,
+    `invalid_time` INT    COMMENT '失效时间值' ,
+    `invalid_unit` VARCHAR(10)    COMMENT '失效时间单位; 小时(HOUR)、天(DAY)、月(MONTH)、年(YEAR)' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    PRIMARY KEY (id)
+)  COMMENT = '接口文档分享';
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
