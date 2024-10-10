@@ -219,6 +219,7 @@ public class FunctionalCaseFileService {
             testCaseDTO.setName(Translator.get("test_case") + i);
             testCaseDTO.setModule(path.toString());
             testCaseDTO.setPrerequisite(Translator.get("test_case_prerequisite"));
+            testCaseDTO.setDescription(Translator.get("test_case_remark"));
             testCaseDTO.setCaseEditType("STEP");
             String textDescription = "";
             String expectedResult = "";
@@ -653,7 +654,8 @@ public class FunctionalCaseFileService {
         //构建步骤
         buildExportStep(data, functionalCaseBlob, functionalCase.getCaseEditType(), textDescriptionList, expectedResultList);
         data.setPrerequisite(parseHtml(new String(functionalCaseBlob.getPrerequisite() == null ? new byte[0] : functionalCaseBlob.getPrerequisite(), StandardCharsets.UTF_8)));
-
+        //备注
+        data.setDescription(parseHtml(new String(functionalCaseBlob.getDescription() == null ? new byte[0] : functionalCaseBlob.getDescription(), StandardCharsets.UTF_8)));
         //标签
         data.setTags(JSON.toJSONString(functionalCase.getTags()));
         data.setCaseEditType(functionalCase.getCaseEditType());
