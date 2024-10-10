@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.api.mapper.ApiDocShareMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiDocShare">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="is_public" jdbcType="BIT" property="isPublic" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="allow_export" jdbcType="BIT" property="allowExport" />
+    <result column="api_range" jdbcType="VARCHAR" property="apiRange" />
+    <result column="range_match_symbol" jdbcType="VARCHAR" property="rangeMatchSymbol" />
+    <result column="range_match_val" jdbcType="VARCHAR" property="rangeMatchVal" />
+    <result column="invalid_time" jdbcType="INTEGER" property="invalidTime" />
+    <result column="invalid_unit" jdbcType="VARCHAR" property="invalidUnit" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, `name`, is_public, `password`, allow_export, api_range, range_match_symbol, range_match_val, 
+    invalid_time, invalid_unit, create_time, create_user
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDocShareExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from api_doc_share
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from api_doc_share
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from api_doc_share
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiDocShareExample">
+    delete from api_doc_share
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.api.domain.ApiDocShare">
+    insert into api_doc_share (id, `name`, is_public, 
+      `password`, allow_export, api_range, 
+      range_match_symbol, range_match_val, invalid_time, 
+      invalid_unit, create_time, create_user
+      )
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{isPublic,jdbcType=BIT}, 
+      #{password,jdbcType=VARCHAR}, #{allowExport,jdbcType=BIT}, #{apiRange,jdbcType=VARCHAR}, 
+      #{rangeMatchSymbol,jdbcType=VARCHAR}, #{rangeMatchVal,jdbcType=VARCHAR}, #{invalidTime,jdbcType=INTEGER}, 
+      #{invalidUnit,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDocShare">
+    insert into api_doc_share
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="isPublic != null">
+        is_public,
+      </if>
+      <if test="password != null">
+        `password`,
+      </if>
+      <if test="allowExport != null">
+        allow_export,
+      </if>
+      <if test="apiRange != null">
+        api_range,
+      </if>
+      <if test="rangeMatchSymbol != null">
+        range_match_symbol,
+      </if>
+      <if test="rangeMatchVal != null">
+        range_match_val,
+      </if>
+      <if test="invalidTime != null">
+        invalid_time,
+      </if>
+      <if test="invalidUnit != null">
+        invalid_unit,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="isPublic != null">
+        #{isPublic,jdbcType=BIT},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="allowExport != null">
+        #{allowExport,jdbcType=BIT},
+      </if>
+      <if test="apiRange != null">
+        #{apiRange,jdbcType=VARCHAR},
+      </if>
+      <if test="rangeMatchSymbol != null">
+        #{rangeMatchSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="rangeMatchVal != null">
+        #{rangeMatchVal,jdbcType=VARCHAR},
+      </if>
+      <if test="invalidTime != null">
+        #{invalidTime,jdbcType=INTEGER},
+      </if>
+      <if test="invalidUnit != null">
+        #{invalidUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiDocShareExample" resultType="java.lang.Long">
+    select count(*) from api_doc_share
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update api_doc_share
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isPublic != null">
+        is_public = #{record.isPublic,jdbcType=BIT},
+      </if>
+      <if test="record.password != null">
+        `password` = #{record.password,jdbcType=VARCHAR},
+      </if>
+      <if test="record.allowExport != null">
+        allow_export = #{record.allowExport,jdbcType=BIT},
+      </if>
+      <if test="record.apiRange != null">
+        api_range = #{record.apiRange,jdbcType=VARCHAR},
+      </if>
+      <if test="record.rangeMatchSymbol != null">
+        range_match_symbol = #{record.rangeMatchSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="record.rangeMatchVal != null">
+        range_match_val = #{record.rangeMatchVal,jdbcType=VARCHAR},
+      </if>
+      <if test="record.invalidTime != null">
+        invalid_time = #{record.invalidTime,jdbcType=INTEGER},
+      </if>
+      <if test="record.invalidUnit != null">
+        invalid_unit = #{record.invalidUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update api_doc_share
+    set id = #{record.id,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      is_public = #{record.isPublic,jdbcType=BIT},
+      `password` = #{record.password,jdbcType=VARCHAR},
+      allow_export = #{record.allowExport,jdbcType=BIT},
+      api_range = #{record.apiRange,jdbcType=VARCHAR},
+      range_match_symbol = #{record.rangeMatchSymbol,jdbcType=VARCHAR},
+      range_match_val = #{record.rangeMatchVal,jdbcType=VARCHAR},
+      invalid_time = #{record.invalidTime,jdbcType=INTEGER},
+      invalid_unit = #{record.invalidUnit,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      create_user = #{record.createUser,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiDocShare">
+    update api_doc_share
+    <set>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="isPublic != null">
+        is_public = #{isPublic,jdbcType=BIT},
+      </if>
+      <if test="password != null">
+        `password` = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="allowExport != null">
+        allow_export = #{allowExport,jdbcType=BIT},
+      </if>
+      <if test="apiRange != null">
+        api_range = #{apiRange,jdbcType=VARCHAR},
+      </if>
+      <if test="rangeMatchSymbol != null">
+        range_match_symbol = #{rangeMatchSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="rangeMatchVal != null">
+        range_match_val = #{rangeMatchVal,jdbcType=VARCHAR},
+      </if>
+      <if test="invalidTime != null">
+        invalid_time = #{invalidTime,jdbcType=INTEGER},
+      </if>
+      <if test="invalidUnit != null">
+        invalid_unit = #{invalidUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiDocShare">
+    update api_doc_share
+    set `name` = #{name,jdbcType=VARCHAR},
+      is_public = #{isPublic,jdbcType=BIT},
+      `password` = #{password,jdbcType=VARCHAR},
+      allow_export = #{allowExport,jdbcType=BIT},
+      api_range = #{apiRange,jdbcType=VARCHAR},
+      range_match_symbol = #{rangeMatchSymbol,jdbcType=VARCHAR},
+      range_match_val = #{rangeMatchVal,jdbcType=VARCHAR},
+      invalid_time = #{invalidTime,jdbcType=INTEGER},
+      invalid_unit = #{invalidUnit,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      create_user = #{createUser,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into api_doc_share
+    (id, `name`, is_public, `password`, allow_export, api_range, range_match_symbol, 
+      range_match_val, invalid_time, invalid_unit, create_time, create_user)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.isPublic,jdbcType=BIT}, 
+        #{item.password,jdbcType=VARCHAR}, #{item.allowExport,jdbcType=BIT}, #{item.apiRange,jdbcType=VARCHAR}, 
+        #{item.rangeMatchSymbol,jdbcType=VARCHAR}, #{item.rangeMatchVal,jdbcType=VARCHAR}, 
+        #{item.invalidTime,jdbcType=INTEGER}, #{item.invalidUnit,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.createUser,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into api_doc_share (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'is_public'.toString() == column.value">
+          #{item.isPublic,jdbcType=BIT}
+        </if>
+        <if test="'password'.toString() == column.value">
+          #{item.password,jdbcType=VARCHAR}
+        </if>
+        <if test="'allow_export'.toString() == column.value">
+          #{item.allowExport,jdbcType=BIT}
+        </if>
+        <if test="'api_range'.toString() == column.value">
+          #{item.apiRange,jdbcType=VARCHAR}
+        </if>
+        <if test="'range_match_symbol'.toString() == column.value">
+          #{item.rangeMatchSymbol,jdbcType=VARCHAR}
+        </if>
+        <if test="'range_match_val'.toString() == column.value">
+          #{item.rangeMatchVal,jdbcType=VARCHAR}
+        </if>
+        <if test="'invalid_time'.toString() == column.value">
+          #{item.invalidTime,jdbcType=INTEGER}
+        </if>
+        <if test="'invalid_unit'.toString() == column.value">
+          #{item.invalidUnit,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
+</mapper>
