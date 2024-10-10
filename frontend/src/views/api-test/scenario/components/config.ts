@@ -1,3 +1,5 @@
+import { useI18n } from '@/hooks/useI18n';
+
 import { type CsvVariable, Scenario, ScenarioStepConfig } from '@/models/apiTest/scenario';
 import {
   ApiScenarioStatus,
@@ -6,6 +8,15 @@ import {
   ScenarioStepLoopTypeEnum,
   WhileConditionType,
 } from '@/enums/apiEnum';
+
+const { t } = useI18n();
+
+// 场景状态选项
+export const scenarioStatusOptions = [
+  { label: t('apiTestManagement.processing'), value: ApiScenarioStatus.UNDERWAY },
+  { label: t('apiTestManagement.deprecate'), value: ApiScenarioStatus.DEPRECATED },
+  { label: t('apiTestManagement.done'), value: ApiScenarioStatus.COMPLETED },
+];
 
 // 循环控制器
 export const defaultLoopController = {

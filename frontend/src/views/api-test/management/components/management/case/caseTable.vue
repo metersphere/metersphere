@@ -761,7 +761,13 @@
     {
       title: 'case.caseEnvironment',
       dataIndex: 'environmentName',
-      type: FilterType.INPUT,
+      type: FilterType.SELECT,
+      selectProps: {
+        labelKey: 'name',
+        valueKey: 'id',
+        multiple: true,
+        options: appStore.envList,
+      },
     },
     {
       title: 'common.tag',

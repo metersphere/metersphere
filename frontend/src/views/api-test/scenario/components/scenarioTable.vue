@@ -1,35 +1,27 @@
 <template>
   <div :class="['p-[16px]', props.class]">
-    <div class="mb-[16px] flex items-center justify-between">
-      <div class="flex items-center"></div>
-      <div class="items-right flex gap-[8px]">
-        <a-input-search
-          v-model:model-value="keyword"
-          :placeholder="t('api_scenario.table.searchPlaceholder')"
-          allow-clear
-          class="mr-[8px] w-[240px]"
-          @clear="loadScenarioList(true)"
-          @search="loadScenarioList(true)"
-          @press-enter="loadScenarioList"
-        />
-        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadScenarioList(true)">
-          <template #icon>
-            <icon-refresh class="text-[var(--color-text-4)]" />
-          </template>
-        </a-button>
-      </div>
-    </div>
+    <MsAdvanceFilter
+      ref="msAdvanceFilterRef"
+      v-model:keyword="keyword"
+      :view-type="ViewTypeEnum.API_SCENARIO"
+      :filter-config-list="filterConfigList"
+      :search-placeholder="t('api_scenario.table.searchPlaceholder')"
+      @keyword-search="loadScenarioList(true)"
+      @adv-search="handleAdvSearch"
+      @refresh="loadScenarioList(true)"
+    />
     <ms-base-table
+      class="mt-[16px]"
       v-bind="propsRes"
       :action-config="batchActions"
       :first-column-width="44"
       no-disable
       filter-icon-align-left
+      :not-show-table-filter="isAdvancedSearchMode"
       v-on="propsEvent"
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
       @drag-change="changeHandler"
-      @module-change="loadScenarioList(false)"
     >
       <template #num="{ record }">
         <div>
@@ -481,6 +473,8 @@
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
 
+  import MsAdvanceFilter from '@/components/pure/ms-advance-filter/index.vue';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCronSelect from '@/components/pure/ms-cron-select/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -524,15 +518,10 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { Environment } from '@/models/apiTest/management';
-  import {
-    ApiScenarioBatchParam,
-    ApiScenarioBatchParams,
-    ApiScenarioScheduleConfig,
-    ApiScenarioTableItem,
-    ApiScenarioUpdateDTO,
-  } from '@/models/apiTest/scenario';
-  import { DragSortParams } from '@/models/common';
+  import { ApiScenarioScheduleConfig, ApiScenarioTableItem, ApiScenarioUpdateDTO } from '@/models/apiTest/scenario';
+  import { DragSortParams, ModuleTreeNode } from '@/models/common';
   import { ResourcePoolItem } from '@/models/setting/resourcePool';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { ApiScenarioStatus } from '@/enums/apiEnum';
   import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
   import { TagUpdateTypeEnum } from '@/enums/commonEnum';
@@ -541,20 +530,22 @@
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { casePriorityOptions } from '@/views/api-test/components/config';
+  import { scenarioStatusOptions } from '@/views/api-test/scenario/components/config';
 
   const props = defineProps<{
     class?: string;
     activeModule: string;
     offspringIds: string[];
+    moduleTree: ModuleTreeNode[]; // 模块树
     readOnly?: boolean; // 是否是只读模式
   }>();
   const emit = defineEmits<{
     (e: 'openScenario', record: ApiScenarioTableItem, action?: 'copy' | 'execute'): void;
     (e: 'refreshModuleTree', params: any): void;
     (e: 'createScenario'): void;
+    (e: 'handleAdvSearch', isStartAdvance: boolean): void;
   }>();
 
-  const memberOptions = ref<{ label: string; value: string }[]>([]);
   const appStore = useAppStore();
   const cacheStore = useCacheStore();
 
@@ -807,31 +798,31 @@
       width: operationWidth(215, 200),
     },
   ];
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    getScenarioPage,
-    {
-      columns: props.readOnly ? columns : [],
-      scroll: { x: '100%' },
-      tableKey: TableKeyEnum.API_SCENARIO,
-      showSetting: !props.readOnly,
-      selectable: hasAnyPermission([
-        'PROJECT_API_SCENARIO:READ+UPDATE',
-        'PROJECT_API_SCENARIO:READ+EXECUTE',
-        'PROJECT_API_SCENARIO:READ+DELETE',
-      ]),
-      showSelectAll: !props.readOnly,
-      draggable: hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE']) ? { type: 'handle', width: 32 } : undefined,
-      heightUsed: 282,
-      showSubdirectory: true,
-      paginationSize: 'mini',
-    },
-    (item) => ({
-      ...item,
-      requestPassRate: item.requestPassRate ? `${item.requestPassRate}%` : '-',
-      createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
-      updateTime: dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss'),
-    })
-  );
+  const { propsRes, propsEvent, viewId, advanceFilter, setAdvanceFilter, loadList, setLoadListParams, resetSelector } =
+    useTable(
+      getScenarioPage,
+      {
+        columns: props.readOnly ? columns : [],
+        scroll: { x: '100%' },
+        tableKey: TableKeyEnum.API_SCENARIO,
+        showSetting: !props.readOnly,
+        selectable: hasAnyPermission([
+          'PROJECT_API_SCENARIO:READ+UPDATE',
+          'PROJECT_API_SCENARIO:READ+EXECUTE',
+          'PROJECT_API_SCENARIO:READ+DELETE',
+        ]),
+        showSelectAll: !props.readOnly,
+        draggable: hasAnyPermission(['PROJECT_API_SCENARIO:READ+UPDATE']) ? { type: 'handle', width: 32 } : undefined,
+        heightUsed: 282,
+        paginationSize: 'mini',
+      },
+      (item) => ({
+        ...item,
+        requestPassRate: item.requestPassRate ? `${item.requestPassRate}%` : '-',
+        createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
+        updateTime: dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss'),
+      })
+    );
   const batchActions = {
     baseAction: [
       {
@@ -907,28 +898,152 @@
 
   const tableStore = useTableStore();
 
-  async function loadScenarioList(refreshTreeCount?: boolean) {
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
+  async function getModuleIds() {
     let moduleIds: string[] = [];
-    if (props.activeModule && props.activeModule !== 'all') {
+    if (props.activeModule !== 'all' && !isAdvancedSearchMode.value) {
       moduleIds = [props.activeModule];
       const getAllChildren = await tableStore.getSubShow(TableKeyEnum.API_SCENARIO);
       if (getAllChildren) {
         moduleIds = [props.activeModule, ...props.offspringIds];
       }
     }
-    memberOptions.value = await getProjectOptions(appStore.currentProjectId, keyword.value);
-    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
+    return moduleIds;
+  }
+  async function loadScenarioList(refreshTreeCount?: boolean) {
+    const moduleIds = await getModuleIds();
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleIds,
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
     };
     setLoadListParams(params);
     await loadList();
-    if (refreshTreeCount) {
+    if (refreshTreeCount && !isAdvancedSearchMode.value) {
       emit('refreshModuleTree', params);
     }
   }
+
+  const filterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'caseManagement.featureCase.tableColumnID',
+      dataIndex: 'num',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'apiScenario.table.columns.name',
+      dataIndex: 'name',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'common.belongModule',
+      dataIndex: 'moduleId',
+      type: FilterType.TREE_SELECT,
+      treeSelectData: props.moduleTree,
+      treeSelectProps: {
+        fieldNames: {
+          title: 'name',
+          key: 'id',
+          children: 'children',
+        },
+        multiple: true,
+        treeCheckable: true,
+        treeCheckStrictly: true,
+      },
+    },
+    {
+      title: 'apiScenario.table.columns.level',
+      dataIndex: 'priority',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: casePriorityOptions,
+      },
+    },
+    {
+      title: 'apiScenario.table.columns.status',
+      dataIndex: 'status',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: scenarioStatusOptions,
+      },
+    },
+    {
+      title: 'apiScenario.table.columns.runResult',
+      dataIndex: 'lastReportStatus',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: statusList.value,
+      },
+    },
+    {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      type: FilterType.TAGS_INPUT,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'apiScenario.table.columns.scenarioEnv',
+      dataIndex: 'environmentName',
+      type: FilterType.SELECT,
+      selectProps: {
+        labelKey: 'name',
+        valueKey: 'id',
+        multiple: true,
+        options: appStore.envList,
+      },
+    },
+    {
+      title: 'apiScenario.table.columns.steps',
+      dataIndex: 'stepTotal',
+      type: FilterType.NUMBER,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'apiScenario.table.columns.passRate',
+      dataIndex: 'requestPassRate',
+      type: FilterType.NUMBER,
+    },
+    {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'apiScenario.table.columns.updateUser',
+      dataIndex: 'updateUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.updateTime',
+      dataIndex: 'updateTime',
+      type: FilterType.DATE_PICKER,
+    },
+  ]);
+  // 高级检索
+  const handleAdvSearch = async (filter: FilterResult, id: string, isStartAdvance: boolean) => {
+    resetSelector();
+    emit('handleAdvSearch', isStartAdvance);
+    keyword.value = '';
+    setAdvanceFilter(filter, id);
+    await loadScenarioList(false); // 基础筛选都清空
+  };
 
   async function handleStatusChange(record: ApiScenarioUpdateDTO) {
     try {
@@ -952,19 +1067,26 @@
 
   const tableSelected = ref<(string | number)[]>([]);
 
-  const batchParams = ref<ApiScenarioBatchParam>();
-
-  const batchOptionParams = ref<ApiScenarioBatchParams>({
-    projectId: appStore.currentProjectId,
-    selectIds: [],
-    selectAll: false,
-    condition: {},
-  });
+  const batchParams = ref<BatchActionQueryParams>();
+  const batchOptionParams = ref<any>();
+  async function getBatchConditionParams() {
+    const selectModules = await getModuleIds();
+    return {
+      condition: {
+        keyword: keyword.value,
+        filter: propsRes.value.filter,
+        viewId: viewId.value,
+        combineSearch: advanceFilter,
+      },
+      projectId: appStore.currentProjectId,
+      moduleIds: selectModules,
+    };
+  }
 
   /**
    * 删除接口
    */
-  function deleteScenario(record?: ApiScenarioTableItem, isBatch?: boolean, params?: ApiScenarioBatchParam) {
+  function deleteScenario(record?: ApiScenarioTableItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('api_scenario.table.deleteScenarioTipTitle', { name: characterLimit(record?.name) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
@@ -997,14 +1119,13 @@
       onBeforeOk: async () => {
         try {
           if (isBatch) {
+            const batchConditionParams = await getBatchConditionParams();
             await batchRecycleScenario({
               selectIds,
               selectAll: !!params?.selectAll,
               excludeIds: params?.excludeIds || [],
-              condition: { ...params?.condition, keyword: keyword.value, filter: propsRes.value.filter },
-              projectId: appStore.currentProjectId,
-              moduleIds: params?.moduleIds || [],
               deleteAll: true,
+              ...batchConditionParams,
             });
           } else {
             await recycleScenario(record?.id as string);
@@ -1206,17 +1327,13 @@
       if (!errors) {
         try {
           batchUpdateLoading.value = true;
+          const batchConditionParams = await getBatchConditionParams();
 
           const batchEditParam = {
             selectIds: batchParams.value?.selectedIds || [],
             selectAll: !!batchParams.value?.selectAll,
             excludeIds: batchParams.value?.excludeIds || [],
-            condition: {
-              keyword: keyword.value,
-              filter: propsRes.value.filter,
-            },
-            projectId: appStore.currentProjectId,
-            moduleIds: batchParams.value?.moduleIds || [],
+            ...batchConditionParams,
             type: batchForm.value?.attr,
             priority: '',
             status: '',
@@ -1271,16 +1388,12 @@
       } else if (isBatchCopy.value) {
         optionType = 'batchCopy';
       }
+      const batchConditionParams = await getBatchConditionParams();
       const res = await batchOptionScenario(optionType, {
         selectIds: batchParams.value?.selectedIds || [],
         selectAll: !!batchParams.value?.selectAll,
         excludeIds: batchParams.value?.excludeIds || [],
-        condition: {
-          keyword: keyword.value,
-          filter: propsRes.value.filter,
-        },
-        projectId: appStore.currentProjectId,
-        moduleIds: batchParams.value?.moduleIds || [],
+        ...batchConditionParams,
         targetModuleId: selectedBatchOptModuleKey.value,
       });
 
@@ -1330,24 +1443,7 @@
   async function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     tableSelected.value = params?.selectedIds || [];
 
-    // 构建批量处理的基础参数
-    let moduleIds: string[] = [];
-    const getAllChildren = await tableStore.getSubShow(TableKeyEnum.API_SCENARIO);
-    if (getAllChildren) {
-      moduleIds = [...props.offspringIds];
-    }
-    if (props.activeModule !== 'all') {
-      moduleIds.push(props.activeModule);
-    }
-
-    batchParams.value = { ...params, moduleIds: [] };
-    batchParams.value.moduleIds = moduleIds;
-    if (batchParams.value.condition) {
-      batchParams.value.condition.filter = { ...propsRes.value.filter };
-      batchParams.value.condition.keyword = keyword.value;
-    } else {
-      batchParams.value.condition = { filter: { ...propsRes.value.filter }, keyword: keyword.value };
-    }
+    batchParams.value = { ...params };
     switch (event.eventTag) {
       case 'delete':
         deleteScenario(undefined, true, batchParams.value);
@@ -1373,22 +1469,7 @@
         moveModalVisible.value = true;
         break;
       case 'execute':
-        batchOptionParams.value = {
-          projectId: appStore.currentProjectId,
-          selectIds: [],
-          selectAll: false,
-          condition: {
-            keyword: keyword.value,
-            filter: propsRes.value.filter,
-          },
-        };
-
-        // 构建执行的参数
-        batchOptionParams.value.selectAll = params.selectAll;
-        batchOptionParams.value.excludeIds = params.excludeIds;
-        batchOptionParams.value.selectIds = params.selectedIds?.length ? params.selectedIds : [];
-        batchOptionParams.value.moduleIds = moduleIds;
-        batchOptionParams.value.condition = batchParams.value?.condition || {};
+        batchOptionParams.value = await getBatchConditionParams();
 
         showBatchExecute.value = true;
         break;

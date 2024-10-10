@@ -176,10 +176,6 @@ export interface ExecutePageParams extends TableQueryParams {
   id: string;
 }
 
-export interface ApiScenarioBatchParam extends BatchActionQueryParams {
-  moduleIds: string[];
-}
-
 // 场景-执行历史-请求参数
 export interface ExecuteHistoryItem {
   id: string;
