@@ -446,6 +446,7 @@
   });
   defineExpose({
     refresh,
+    setActiveFolder,
     initModuleCount,
   });
 </script>

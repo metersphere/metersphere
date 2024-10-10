@@ -1,6 +1,6 @@
 <template>
   <MsCard no-content-padding simple>
-    <MsSplitBox :size="300" :max="0.5">
+    <MsSplitBox :not-show-first="isAdvancedSearchMode" :size="300" :max="0.5">
       <template #first>
         <div class="flex h-full flex-col">
           <div class="flex-1 p-[16px]">
@@ -75,11 +75,13 @@
           >
             <ScenarioTable
               ref="apiTableRef"
+              :module-tree="moduleTree"
               :active-module="activeModule"
               :offspring-ids="offspringIds"
               @refresh-module-tree="refreshTree"
               @open-scenario="openScenarioTab"
               @create-scenario="() => newTab()"
+              @handle-adv-search="handleAdvSearch"
             />
           </MsCacheWrapper>
         </keep-alive>
@@ -501,6 +503,11 @@
   }
 
   const scenarioModuleTreeRef = ref<InstanceType<typeof scenarioModuleTree>>();
+  const isAdvancedSearchMode = ref(false);
+  function handleAdvSearch(isStartAdvance: boolean) {
+    isAdvancedSearchMode.value = isStartAdvance;
+    scenarioModuleTreeRef.value?.setActiveFolder('all');
+  }
 
   function handleModuleInit(tree: any, _protocol: string, pathMap: Record<string, any>) {
     moduleTree.value = tree;
