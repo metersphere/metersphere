@@ -9,34 +9,28 @@
       >
         {{ t('caseManagement.featureCase.creatingCase') }}
       </a-button>
-      <div class="flex gap-[8px]">
-        <a-input-search
-          v-model:model-value="keyword"
-          :placeholder="t('apiTestManagement.searchPlaceholder')"
-          allow-clear
-          class="mr-[8px] w-[240px]"
-          @search="loadCaseList"
-          @press-enter="loadCaseList"
-          @clear="loadCaseList"
-        />
-        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadCaseList">
-          <template #icon>
-            <icon-refresh class="text-[var(--color-text-4)]" />
-          </template>
-        </a-button>
-      </div>
+      <MsAdvanceFilter
+        ref="msAdvanceFilterRef"
+        v-model:keyword="keyword"
+        :view-type="ViewTypeEnum.API_CASE"
+        :filter-config-list="filterConfigList"
+        :search-placeholder="t('apiTestManagement.searchPlaceholder')"
+        @keyword-search="loadCaseList()"
+        @adv-search="handleAdvSearch"
+        @refresh="loadCaseList()"
+      />
     </div>
     <ms-base-table
       v-bind="propsRes"
       :action-config="batchActions"
       :first-column-width="44"
       no-disable
+      :not-show-table-filter="isAdvancedSearchMode"
       filter-icon-align-left
       v-on="propsEvent"
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
       @drag-change="handleDragChange"
-      @module-change="loadCaseList"
     >
       <template v-if="hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+ADD']) && props.isApi" #empty>
         <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
@@ -318,6 +312,8 @@
   import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
+  import MsAdvanceFilter from '@/components/pure/ms-advance-filter/index.vue';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -358,9 +354,11 @@
   import { characterLimit, operationWidth } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
+  import { ProtocolItem } from '@/models/apiTest/common';
   import type { batchSyncForm } from '@/models/apiTest/management';
   import { ApiCaseDetail } from '@/models/apiTest/management';
   import { DragSortParams } from '@/models/common';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { RequestCaseStatus } from '@/enums/apiEnum';
   import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
   import { TagUpdateTypeEnum } from '@/enums/commonEnum';
@@ -388,7 +386,11 @@
 
   const caseExecute = ref(false);
 
-  const emit = defineEmits(['openCaseTab', 'openCaseTabAndExecute']);
+  const emit = defineEmits<{
+    (e: 'openCaseTab', record: ApiCaseDetail): void;
+    (e: 'openCaseTabAndExecute', record: ApiCaseDetail): void;
+    (e: 'handleAdvSearch', isStartAdvance: boolean): void;
+  }>();
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -404,23 +406,15 @@
       'PROJECT_API_DEFINITION_CASE:READ+EXECUTE',
     ])
   );
-
-  const requestCaseStatusOptions = computed(() => {
-    return Object.values(RequestCaseStatus).map((key) => {
-      return {
-        value: key,
-        label: key,
-      };
-    });
-  });
   const lastReportStatusListOptions = computed(() => {
     return Object.keys(ReportStatus).map((key) => {
       return {
         value: key,
-        ...Object.keys(ReportStatus[key]),
+        label: t(ReportStatus[key].label),
       };
     });
   });
+  const protocolList = inject<Ref<ProtocolItem[]>>('protocols', ref([]));
   const columns: MsTableColumn = [
     {
       title: 'ID',
@@ -474,7 +468,7 @@
         sorter: true,
       },
       filterConfig: {
-        options: requestCaseStatusOptions.value,
+        options: caseStatusOptions,
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_STATUS,
       },
       width: 150,
@@ -579,23 +573,23 @@
       width: operationWidth(230, hasOperationPermission.value ? 200 : 50),
     },
   ];
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getCasePage, {
-    scroll: { x: '100%' },
-    tableKey: TableKeyEnum.API_TEST_MANAGEMENT_CASE,
-    showSetting: true,
-    selectable: hasAnyPermission([
-      'PROJECT_API_DEFINITION_CASE:READ+DELETE',
-      'PROJECT_API_DEFINITION_CASE:READ+EXECUTE',
-      'PROJECT_API_DEFINITION_CASE:READ+UPDATE',
-    ]),
-    showSelectAll: true,
-    draggable: hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+UPDATE'])
-      ? { type: 'handle', width: 32 }
-      : undefined,
-    heightUsed: (props.heightUsed || 0) + 282,
-    showSubdirectory: true,
-    paginationSize: 'mini',
-  });
+  const { propsRes, propsEvent, viewId, advanceFilter, setAdvanceFilter, loadList, setLoadListParams, resetSelector } =
+    useTable(getCasePage, {
+      scroll: { x: '100%' },
+      tableKey: TableKeyEnum.API_TEST_MANAGEMENT_CASE,
+      showSetting: true,
+      selectable: hasAnyPermission([
+        'PROJECT_API_DEFINITION_CASE:READ+DELETE',
+        'PROJECT_API_DEFINITION_CASE:READ+EXECUTE',
+        'PROJECT_API_DEFINITION_CASE:READ+UPDATE',
+      ]),
+      showSelectAll: true,
+      draggable: hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+UPDATE'])
+        ? { type: 'handle', width: 32 }
+        : undefined,
+      heightUsed: (props.heightUsed || 0) + 282,
+      paginationSize: 'mini',
+    });
   const batchActions = {
     baseAction: [
       {
@@ -630,9 +624,11 @@
     },
   ];
 
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
   async function getModuleIds() {
     let moduleIds: string[] = [];
-    if (props.activeModule !== 'all') {
+    if (props.activeModule !== 'all' && !isAdvancedSearchMode.value) {
       moduleIds = [props.activeModule];
       const getAllChildren = await tableStore.getSubShow(TableKeyEnum.API_TEST_MANAGEMENT_CASE);
       if (getAllChildren) {
@@ -648,7 +644,10 @@
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleIds: selectModules,
-      protocols: props.selectedProtocols,
+      protocols: isAdvancedSearchMode.value ? protocolList.value.map((item) => item.protocol) : props.selectedProtocols,
+      filter: propsRes.value.filter,
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
     };
     setLoadListParams(params);
     loadList();
@@ -688,6 +687,120 @@
       loadCaseListAndResetSelector();
     }
   );
+
+  const filterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'caseManagement.featureCase.tableColumnID',
+      dataIndex: 'num',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'case.caseName',
+      dataIndex: 'name',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'apiTestManagement.protocol',
+      dataIndex: 'protocol',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        labelKey: 'protocol',
+        valueKey: 'protocol',
+        options: protocolList.value,
+      },
+    },
+    {
+      title: 'case.caseLevel',
+      dataIndex: 'priority',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: casePriorityOptions,
+      },
+    },
+    {
+      title: 'case.apiParamsChange',
+      dataIndex: 'apiChange',
+      type: FilterType.BOOLEAN,
+      selectProps: {
+        options: [
+          { label: t('case.withoutChanges'), value: false },
+          { label: t('case.withChanges'), value: true },
+        ],
+      },
+    },
+    {
+      title: 'apiTestManagement.path',
+      dataIndex: 'path',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'apiTestManagement.apiStatus',
+      dataIndex: 'status',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: caseStatusOptions.map((item) => ({ label: t(item.label), value: item.value })),
+      },
+    },
+    {
+      title: 'case.lastReportStatus',
+      dataIndex: 'lastReportStatus',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: lastReportStatusListOptions.value,
+      },
+    },
+    {
+      title: 'case.passRate',
+      dataIndex: 'passRate',
+      type: FilterType.NUMBER,
+    },
+    {
+      title: 'case.caseEnvironment',
+      dataIndex: 'environmentName',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      type: FilterType.TAGS_INPUT,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'common.updateUserName',
+      dataIndex: 'updateUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.updateTime',
+      dataIndex: 'updateTime',
+      type: FilterType.DATE_PICKER,
+    },
+  ]);
+  // 高级检索
+  const handleAdvSearch = async (filter: FilterResult, id: string, isStartAdvance: boolean) => {
+    resetSelector();
+    emit('handleAdvSearch', isStartAdvance);
+    keyword.value = '';
+    setAdvanceFilter(filter, id);
+    await loadCaseList(); // 基础筛选都清空
+  };
 
   async function handleStatusChange(record: ApiCaseDetail) {
     try {
@@ -735,9 +848,11 @@
       condition: {
         keyword: keyword.value,
         filter: propsRes.value.filter,
+        viewId: viewId.value,
+        combineSearch: advanceFilter,
       },
       projectId: appStore.currentProjectId,
-      protocols: props.selectedProtocols,
+      protocols: isAdvancedSearchMode.value ? protocolList.value.map((item) => item.protocol) : props.selectedProtocols,
       moduleIds: selectModules,
       apiDefinitionId: props.apiDetail?.id as string,
     };

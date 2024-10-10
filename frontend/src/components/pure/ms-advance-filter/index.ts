@@ -36,6 +36,7 @@ export const operatorOptionsMap: Record<string, { value: string; label: string }
   [FilterType.TEXTAREA]: COMMON_TEXT_OPERATORS,
   [FilterType.NUMBER]: [GT, LT, EQUAL, EMPTY, NOT_EMPTY],
   [FilterType.SELECT]: COMMON_SELECTION_OPERATORS,
+  [FilterType.BOOLEAN]: [EQUAL],
   [FilterType.MEMBER]: COMMON_SELECTION_OPERATORS,
   [FilterType.TAGS_INPUT]: [EMPTY, CONTAINS, NO_CONTAINS, COUNT_LT, COUNT_GT],
   [FilterType.TREE_SELECT]: [BELONG_TO, NOT_BELONG_TO],

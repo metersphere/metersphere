@@ -16,6 +16,7 @@
           :member-options="memberOptions"
           @open-case-tab="openCaseTab"
           @open-case-tab-and-execute="openCaseTabAndExecute"
+          @handle-adv-search="(val) => emit('handleAdvSearch', val)"
         />
       </MsCacheWrapper>
     </keep-alive>
@@ -64,6 +65,7 @@
   }>();
   const emit = defineEmits<{
     (e: 'deleteCase', id: string): void;
+    (e: 'handleAdvSearch', isStartAdvance: boolean): void;
   }>();
 
   const route = useRoute();
