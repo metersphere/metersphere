@@ -18,4 +18,4 @@ VALUES
 
 
 INSERT INTO `exec_task_item`(`id`, `task_id`, `resource_id`, `resource_name`, `task_origin`, `status`, `result`, `resource_pool_id`, `resource_pool_node`, `resource_type`, `project_id`, `organization_id`, `thread_id`, `start_time`, `end_time`, `executor`)
-VALUES ('1', '1', '1', '1', '1', 'SUCCESS', 'SUCCESS', '1', '1', 'API_CASE', '1', '1', '1', NULL, NULL, 'admin');
+VALUES ('1', '1', '1', '1', '1', 'SUCCESS', 'SUCCESS', '1', '1', 'API_CASE', '100001100001', '100001', '1', NULL, NULL, 'admin');
