@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS exec_task(
     `case_count` BIGINT NOT NULL   COMMENT '用例数量' ,
     `result` VARCHAR(64)    COMMENT '执行结果' ,
     `task_type` VARCHAR(50) NOT NULL   COMMENT '任务类型' ,
+    `test_plan_id` VARCHAR(50)  COMMENT '测试计划id' ,
     `trigger_mode` VARCHAR(20) NOT NULL   COMMENT '执行模式' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
     `organization_id` VARCHAR(50) NOT NULL   COMMENT '组织ID' ,
@@ -28,8 +29,6 @@ CREATE INDEX idx_status ON exec_task(status);
 CREATE INDEX idx_result ON exec_task(result);
 CREATE INDEX idx_project_id ON exec_task(project_id);
 CREATE INDEX idx_organization_id ON exec_task(organization_id);
-CREATE INDEX idx_create_time ON exec_task(create_time desc);
-CREATE INDEX idx_create_user ON exec_task(create_user);
 CREATE INDEX idx_start_time ON exec_task(start_time);
 CREATE INDEX idx_end_time ON exec_task(end_time);
 CREATE INDEX idx_trigger_mode ON exec_task(trigger_mode);
@@ -63,11 +62,8 @@ CREATE INDEX idx_resource_id ON exec_task_item(resource_id);
 CREATE INDEX idx_resource_name ON exec_task_item(resource_name);
 CREATE INDEX idx_status ON exec_task_item(status);
 CREATE INDEX idx_result ON exec_task_item(result);
-CREATE INDEX idx_resource_pool_id ON exec_task_item(resource_pool_id);
-CREATE INDEX idx_resource_pool_node ON exec_task_item(resource_pool_node);
 CREATE INDEX idx_project_id ON exec_task_item(project_id);
 CREATE INDEX idx_organization_id ON exec_task_item(organization_id);
-CREATE INDEX idx_thread_id ON exec_task_item(thread_id);
 CREATE INDEX idx_start_time ON exec_task_item(start_time desc);
 CREATE INDEX idx_end_time ON exec_task_item(end_time desc);
 CREATE INDEX idx_executor ON exec_task_item(executor);
