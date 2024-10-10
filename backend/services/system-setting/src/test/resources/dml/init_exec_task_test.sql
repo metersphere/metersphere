@@ -14,3 +14,8 @@ VALUES
     ('wx_3', 'wx_key_3', 'cron', '50 15 10 20 05 ?', 'JobClass22', 'DEMAND_SYNC', b'1', 'NONE', 'admin', 1640778100000, 1640779100000, '100001100001', 'Schedule 22', '', 102),
     ('wx_4', 'wx_key_4', 'cron', '59 46 16 01 06 ?', 'JobClass29', 'API_SCENARIO', b'1', 'NONE', 'admin', 1640778800000, 1640779800000, '100001100001', 'Schedule 29', '{\"param1\": \"value1\", \"param2\": \"value2\"}', 103),
     ('wx_5', 'wx_key_5', 'cron', '59 46 16 01 06 ?', 'JobClass29', 'TEST_PLAN', b'1', 'NONE', 'admin', 1640778800000, 1640779800000, '100001100001', 'Schedule 29', '{\"param1\": \"value1\", \"param2\": \"value2\"}', 104);
+
+
+
+INSERT INTO `exec_task_item`(`id`, `task_id`, `resource_id`, `resource_name`, `task_origin`, `status`, `result`, `resource_pool_id`, `resource_pool_node`, `resource_type`, `project_id`, `organization_id`, `thread_id`, `start_time`, `end_time`, `executor`)
+VALUES ('1', '1', '1', '1', '1', 'SUCCESS', 'SUCCESS', '1', '1', 'API_CASE', '1', '1', '1', NULL, NULL, 'admin');

@@ -3,7 +3,9 @@ package io.metersphere.system.controller;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
+import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
 import io.metersphere.system.dto.taskhub.TaskHubScheduleDTO;
+import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.utils.Pager;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,6 +41,13 @@ public class SystemTaskHubController {
     @RequiresPermissions(PermissionConstants.SYSTEM_SCHEDULE_TASK_CENTER_READ)
     public Pager<List<TaskHubScheduleDTO>> scheduleList(@Validated @RequestBody BasePageRequest request) {
         return baseTaskHubService.getScheduleTaskList(request, null);
+    }
+
+    @PostMapping("/exec-task/item/page")
+    @Operation(summary = "系统-任务中心-用例执行任务详情列表")
+    @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ)
+    public Pager<List<TaskHubItemDTO>> itemPageList(@Validated @RequestBody TaskHubItemRequest request) {
+        return baseTaskHubService.getCaseTaskItemList(request, null, null);
     }
 
 }

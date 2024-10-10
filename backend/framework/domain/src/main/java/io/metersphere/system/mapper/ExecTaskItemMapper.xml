@@ -5,6 +5,7 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="task_id" jdbcType="VARCHAR" property="taskId" />
     <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="resource_name" jdbcType="VARCHAR" property="resourceName" />
     <result column="task_origin" jdbcType="VARCHAR" property="taskOrigin" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="result" jdbcType="VARCHAR" property="result" />
@@ -77,8 +78,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, task_id, resource_id, task_origin, `status`, `result`, resource_pool_id, resource_pool_node, 
-    resource_type, project_id, organization_id, thread_id, start_time, end_time, executor
+    id, task_id, resource_id, resource_name, task_origin, `status`, `result`, resource_pool_id, 
+    resource_pool_node, resource_type, project_id, organization_id, thread_id, start_time, 
+    end_time, executor
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.ExecTaskItemExample" resultMap="BaseResultMap">
     select
@@ -112,17 +114,17 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.ExecTaskItem">
     insert into exec_task_item (id, task_id, resource_id, 
-      task_origin, `status`, `result`, 
-      resource_pool_id, resource_pool_node, resource_type, 
-      project_id, organization_id, thread_id, 
-      start_time, end_time, executor
-      )
+      resource_name, task_origin, `status`, 
+      `result`, resource_pool_id, resource_pool_node, 
+      resource_type, project_id, organization_id, 
+      thread_id, start_time, end_time, 
+      executor)
     values (#{id,jdbcType=VARCHAR}, #{taskId,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
-      #{taskOrigin,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{result,jdbcType=VARCHAR}, 
-      #{resourcePoolId,jdbcType=VARCHAR}, #{resourcePoolNode,jdbcType=VARCHAR}, #{resourceType,jdbcType=VARCHAR}, 
-      #{projectId,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, #{threadId,jdbcType=VARCHAR}, 
-      #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, #{executor,jdbcType=VARCHAR}
-      )
+      #{resourceName,jdbcType=VARCHAR}, #{taskOrigin,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+      #{result,jdbcType=VARCHAR}, #{resourcePoolId,jdbcType=VARCHAR}, #{resourcePoolNode,jdbcType=VARCHAR}, 
+      #{resourceType,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, 
+      #{threadId,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, 
+      #{executor,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.ExecTaskItem">
     insert into exec_task_item
@@ -135,6 +137,9 @@
       </if>
       <if test="resourceId != null">
         resource_id,
+      </if>
+      <if test="resourceName != null">
+        resource_name,
       </if>
       <if test="taskOrigin != null">
         task_origin,
@@ -182,6 +187,9 @@
       </if>
       <if test="resourceId != null">
         #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceName != null">
+        #{resourceName,jdbcType=VARCHAR},
       </if>
       <if test="taskOrigin != null">
         #{taskOrigin,jdbcType=VARCHAR},
@@ -239,6 +247,9 @@
       <if test="record.resourceId != null">
         resource_id = #{record.resourceId,jdbcType=VARCHAR},
       </if>
+      <if test="record.resourceName != null">
+        resource_name = #{record.resourceName,jdbcType=VARCHAR},
+      </if>
       <if test="record.taskOrigin != null">
         task_origin = #{record.taskOrigin,jdbcType=VARCHAR},
       </if>
@@ -285,6 +296,7 @@
     set id = #{record.id,jdbcType=VARCHAR},
       task_id = #{record.taskId,jdbcType=VARCHAR},
       resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      resource_name = #{record.resourceName,jdbcType=VARCHAR},
       task_origin = #{record.taskOrigin,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       `result` = #{record.result,jdbcType=VARCHAR},
@@ -309,6 +321,9 @@
       </if>
       <if test="resourceId != null">
         resource_id = #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceName != null">
+        resource_name = #{resourceName,jdbcType=VARCHAR},
       </if>
       <if test="taskOrigin != null">
         task_origin = #{taskOrigin,jdbcType=VARCHAR},
@@ -353,6 +368,7 @@
     update exec_task_item
     set task_id = #{taskId,jdbcType=VARCHAR},
       resource_id = #{resourceId,jdbcType=VARCHAR},
+      resource_name = #{resourceName,jdbcType=VARCHAR},
       task_origin = #{taskOrigin,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       `result` = #{result,jdbcType=VARCHAR},
@@ -369,14 +385,14 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into exec_task_item
-    (id, task_id, resource_id, task_origin, `status`, `result`, resource_pool_id, resource_pool_node, 
-      resource_type, project_id, organization_id, thread_id, start_time, end_time, executor
-      )
+    (id, task_id, resource_id, resource_name, task_origin, `status`, `result`, resource_pool_id, 
+      resource_pool_node, resource_type, project_id, organization_id, thread_id, start_time, 
+      end_time, executor)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.taskId,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, 
-        #{item.taskOrigin,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.result,jdbcType=VARCHAR}, 
-        #{item.resourcePoolId,jdbcType=VARCHAR}, #{item.resourcePoolNode,jdbcType=VARCHAR}, 
+        #{item.resourceName,jdbcType=VARCHAR}, #{item.taskOrigin,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, 
+        #{item.result,jdbcType=VARCHAR}, #{item.resourcePoolId,jdbcType=VARCHAR}, #{item.resourcePoolNode,jdbcType=VARCHAR}, 
         #{item.resourceType,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.organizationId,jdbcType=VARCHAR}, 
         #{item.threadId,jdbcType=VARCHAR}, #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}, 
         #{item.executor,jdbcType=VARCHAR})
@@ -400,6 +416,9 @@
         </if>
         <if test="'resource_id'.toString() == column.value">
           #{item.resourceId,jdbcType=VARCHAR}
+        </if>
+        <if test="'resource_name'.toString() == column.value">
+          #{item.resourceName,jdbcType=VARCHAR}
         </if>
         <if test="'task_origin'.toString() == column.value">
           #{item.taskOrigin,jdbcType=VARCHAR}
