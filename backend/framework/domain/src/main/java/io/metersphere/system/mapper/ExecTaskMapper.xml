@@ -9,6 +9,7 @@
     <result column="case_count" jdbcType="BIGINT" property="caseCount" />
     <result column="result" jdbcType="VARCHAR" property="result" />
     <result column="task_type" jdbcType="VARCHAR" property="taskType" />
+    <result column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
     <result column="trigger_mode" jdbcType="VARCHAR" property="triggerMode" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
@@ -76,8 +77,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, num, task_name, `status`, case_count, `result`, task_type, trigger_mode, project_id, 
-    organization_id, create_time, create_user, start_time, end_time
+    id, num, task_name, `status`, case_count, `result`, task_type, test_plan_id, trigger_mode, 
+    project_id, organization_id, create_time, create_user, start_time, end_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.ExecTaskExample" resultMap="BaseResultMap">
     select
@@ -112,14 +113,16 @@
   <insert id="insert" parameterType="io.metersphere.system.domain.ExecTask">
     insert into exec_task (id, num, task_name, 
       `status`, case_count, `result`, 
-      task_type, trigger_mode, project_id, 
-      organization_id, create_time, create_user, 
-      start_time, end_time)
+      task_type, test_plan_id, trigger_mode, 
+      project_id, organization_id, create_time, 
+      create_user, start_time, end_time
+      )
     values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{taskName,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{caseCount,jdbcType=BIGINT}, #{result,jdbcType=VARCHAR}, 
-      #{taskType,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
-      #{organizationId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT})
+      #{taskType,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{createUser,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.ExecTask">
     insert into exec_task
@@ -144,6 +147,9 @@
       </if>
       <if test="taskType != null">
         task_type,
+      </if>
+      <if test="testPlanId != null">
+        test_plan_id,
       </if>
       <if test="triggerMode != null">
         trigger_mode,
@@ -188,6 +194,9 @@
       </if>
       <if test="taskType != null">
         #{taskType,jdbcType=VARCHAR},
+      </if>
+      <if test="testPlanId != null">
+        #{testPlanId,jdbcType=VARCHAR},
       </if>
       <if test="triggerMode != null">
         #{triggerMode,jdbcType=VARCHAR},
@@ -242,6 +251,9 @@
       <if test="record.taskType != null">
         task_type = #{record.taskType,jdbcType=VARCHAR},
       </if>
+      <if test="record.testPlanId != null">
+        test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
+      </if>
       <if test="record.triggerMode != null">
         trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
       </if>
@@ -277,6 +289,7 @@
       case_count = #{record.caseCount,jdbcType=BIGINT},
       `result` = #{record.result,jdbcType=VARCHAR},
       task_type = #{record.taskType,jdbcType=VARCHAR},
+      test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       organization_id = #{record.organizationId,jdbcType=VARCHAR},
@@ -308,6 +321,9 @@
       </if>
       <if test="taskType != null">
         task_type = #{taskType,jdbcType=VARCHAR},
+      </if>
+      <if test="testPlanId != null">
+        test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       </if>
       <if test="triggerMode != null">
         trigger_mode = #{triggerMode,jdbcType=VARCHAR},
@@ -341,6 +357,7 @@
       case_count = #{caseCount,jdbcType=BIGINT},
       `result` = #{result,jdbcType=VARCHAR},
       task_type = #{taskType,jdbcType=VARCHAR},
+      test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       trigger_mode = #{triggerMode,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       organization_id = #{organizationId,jdbcType=VARCHAR},
@@ -352,15 +369,16 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into exec_task
-    (id, num, task_name, `status`, case_count, `result`, task_type, trigger_mode, project_id, 
-      organization_id, create_time, create_user, start_time, end_time)
+    (id, num, task_name, `status`, case_count, `result`, task_type, test_plan_id, trigger_mode, 
+      project_id, organization_id, create_time, create_user, start_time, end_time)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.taskName,jdbcType=VARCHAR}, 
         #{item.status,jdbcType=VARCHAR}, #{item.caseCount,jdbcType=BIGINT}, #{item.result,jdbcType=VARCHAR}, 
-        #{item.taskType,jdbcType=VARCHAR}, #{item.triggerMode,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
-        #{item.organizationId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT})
+        #{item.taskType,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.triggerMode,jdbcType=VARCHAR}, 
+        #{item.projectId,jdbcType=VARCHAR}, #{item.organizationId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -393,6 +411,9 @@
         </if>
         <if test="'task_type'.toString() == column.value">
           #{item.taskType,jdbcType=VARCHAR}
+        </if>
+        <if test="'test_plan_id'.toString() == column.value">
+          #{item.testPlanId,jdbcType=VARCHAR}
         </if>
         <if test="'trigger_mode'.toString() == column.value">
           #{item.triggerMode,jdbcType=VARCHAR}
