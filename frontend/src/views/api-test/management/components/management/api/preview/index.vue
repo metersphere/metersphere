@@ -7,6 +7,14 @@
           <apiMethodName :method="previewDetail.method as RequestMethods" tag-size="small" is-tag />
         </template>
         <template #titleAppend>
+          <a-tooltip :content="t('report.detail.api.copyLink')">
+            <MsIcon
+              type="icon-icon_copy_outlined"
+              class="cursor-pointer text-[var(--color-text-4)]"
+              :size="16"
+              @click="share"
+            />
+          </a-tooltip>
           <a-tooltip :content="t(previewDetail.follow ? 'common.forked' : 'common.notForked')">
             <MsIcon
               v-permission="['PROJECT_API_DEFINITION:READ+UPDATE']"
@@ -16,14 +24,6 @@
               class="cursor-pointer"
               :size="16"
               @click="toggleFollowReview"
-            />
-          </a-tooltip>
-          <a-tooltip :content="t('report.detail.api.copyLink')">
-            <MsIcon
-              type="icon-icon_share1"
-              class="cursor-pointer text-[var(--color-text-4)]"
-              :size="16"
-              @click="share"
             />
           </a-tooltip>
         </template>

@@ -9,7 +9,11 @@
       @keyword-search="loadApiList(false)"
       @adv-search="handleAdvSearch"
       @refresh="loadApiList(false)"
-    />
+    >
+      <template #right>
+        <ShareButton @create="createShare" @show-share-list="showShareList" />
+      </template>
+    </MsAdvanceFilter>
     <ms-base-table
       ref="apiTableRef"
       v-bind="propsRes"
@@ -280,6 +284,8 @@
       </div>
     </template>
   </a-modal>
+  <CreateShareModal v-model:visible="showShareModal" :edit-id="editId" @close="cancelHandler" />
+  <ShareListDrawer v-model:visible="showShareListDrawer" @edit-or-create="editHandler" />
 </template>
 
 <script setup lang="ts">
@@ -296,6 +302,9 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import { MsTreeNodeData } from '@/components/business/ms-tree/types';
+  import CreateShareModal from './createShareModal.vue';
+  import ShareButton from './shareButton.vue';
+  import ShareListDrawer from './shareListDrawer.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
@@ -1276,6 +1285,27 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
+  }
+
+  const showShareModal = ref<boolean>(false);
+  // 创建分享
+  function createShare() {
+    showShareModal.value = true;
+  }
+  const showShareListDrawer = ref<boolean>(false);
+  // 分享列表
+  function showShareList() {
+    showShareListDrawer.value = true;
+  }
+
+  const editId = ref<string>();
+  function editHandler(id?: string) {
+    editId.value = id;
+    showShareModal.value = true;
+  }
+
+  function cancelHandler() {
+    editId.value = '';
   }
 
   watch(

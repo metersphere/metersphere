@@ -135,7 +135,6 @@
       border-right: 1px solid var(--color-text-n7);
       border-bottom: 1px solid var(--color-text-n7);
       border-radius: 0 4px 4px 0;
-      background: var(--color-text-n8);
     }
     :deep(.arco-select-focused) {
       border-color: rgb(var(--primary-7));
