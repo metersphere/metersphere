@@ -310,18 +310,21 @@
                             <property name="condition" value="condition"/>
                             <property name="tablePrefix" value="functional_case"/>
                         </include>
+                        <!-- 评审结果 -->
                         <if test="condition.name == 'reviewStatus'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
                                 <property name="column" value="functional_case.review_status"/>
                             </include>
                         </if>
+                        <!-- 执行结果 -->
                         <if test="condition.name == 'lastExecuteResult'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
                                 <property name="column" value="functional_case.last_execute_result"/>
                             </include>
                         </if>
+                        <!-- 关联需求 -->
                         <if test="condition.name == 'demand'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
                                 <property name="mainIdColumn" value="functional_case.id"/>
@@ -331,6 +334,7 @@
                                 <property name="condition" value="condition"/>
                             </include>
                         </if>
+                        <!-- 关联附件 -->
                         <if test="condition.name == 'attachment'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
                                 <property name="mainIdColumn" value="functional_case.id"/>

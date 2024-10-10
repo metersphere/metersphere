@@ -16,6 +16,7 @@ import io.metersphere.plan.dto.response.TestPlanCasePageResponse;
 import io.metersphere.project.dto.DropNode;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
+import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;
@@ -37,6 +38,7 @@ public interface ExtTestPlanFunctionalCaseMapper {
 
     DropNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
 
+    @BaseConditionFilter
     List<TestPlanCasePageResponse> getCasePage(@Param("request") TestPlanCaseRequest request, @Param("deleted") boolean deleted, @Param("sort") String sort);
 
     List<TestPlanFunctionalCase> selectByTestPlanIdAndNotDeleted(String testPlanId);
@@ -49,6 +51,7 @@ public interface ExtTestPlanFunctionalCaseMapper {
 
     long caseCount(@Param("request") TestPlanCaseRequest request, @Param("deleted") boolean deleted);
 
+    @BaseConditionFilter
     List<String> getIds(@Param("request") BasePlanCaseBatchRequest request, @Param("deleted") boolean deleted);
 
     /**

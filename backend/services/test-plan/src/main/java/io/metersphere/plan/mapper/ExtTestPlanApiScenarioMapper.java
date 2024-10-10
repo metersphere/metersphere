@@ -15,6 +15,7 @@ import io.metersphere.plan.dto.response.TestPlanApiScenarioPageResponse;
 import io.metersphere.project.dto.DropNode;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
+import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public interface ExtTestPlanApiScenarioMapper {
 
     List<TestPlanApiScenario> selectByTestPlanIdAndNotDeleted(String testPlanId);
 
+    @BaseConditionFilter
     List<TestPlanApiScenarioPageResponse> relateApiScenarioList(@Param("request") TestPlanApiScenarioRequest request, @Param("deleted") boolean deleted);
 
     List<FunctionalCaseModuleCountDTO> countModuleIdByRequest(@Param("request") TestPlanApiScenarioModuleRequest request, @Param("deleted") boolean deleted);
@@ -61,6 +63,7 @@ public interface ExtTestPlanApiScenarioMapper {
 
     List<TestPlanApiScenario> getScenarioExecuteInfoByIds(@Param("ids") List<String> ids);
 
+    @BaseConditionFilter
     List<String> getIds(@Param("request") BasePlanCaseBatchRequest request, @Param("deleted") boolean deleted);
 
     void batchUpdateExecutor(@Param("ids") List<String> ids, @Param("userId") String userId);

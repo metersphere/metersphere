@@ -180,7 +180,7 @@
                         <if test="condition.name == 'createUser'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
-                                <property name="column" value="api_definition_mock.create_user"/>
+                                <property name="column" value="m.create_user"/>
                             </include>
                         </if>
                         <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
