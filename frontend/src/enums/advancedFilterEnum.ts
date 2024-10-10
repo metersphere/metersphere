@@ -23,14 +23,13 @@ export enum FilterType {
   TAGS_INPUT = 'TagsInput',
   TREE_SELECT = 'TreeSelect',
   TEXTAREA = 'textArea',
-  RADIO = 'radio',
-  CHECKBOX = 'checkbox',
-  CASCADER = 'Cascader',
-  JIRAKEY = 'JIRAKEY',
+  BOOLEAN = 'boolean',
 }
 
 export enum ViewTypeEnum {
   FUNCTIONAL_CASE = 'functional-case',
   API_DEFINITION = 'api-definition',
   REVIEW_FUNCTIONAL_CASE = 'review-functional-case',
+  API_CASE = 'api-case',
+  API_MOCK = 'api-mock',
 }

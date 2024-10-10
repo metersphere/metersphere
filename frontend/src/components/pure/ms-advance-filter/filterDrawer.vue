@@ -111,7 +111,7 @@
             }"
           />
           <MsSelect
-            v-else-if="item.type === FilterType.SELECT"
+            v-else-if="item.type === FilterType.SELECT || item.type === FilterType.BOOLEAN"
             v-model:model-value="item.value"
             allow-clear
             allow-search
@@ -329,7 +329,6 @@
   function valueIsArray(listItem: FilterFormItem) {
     return (
       listItem.selectProps?.multiple ||
-      [FilterType.CHECKBOX].includes(listItem.type) ||
       (listItem.type === FilterType.TAGS_INPUT &&
         ![OperatorEnum.COUNT_LT, OperatorEnum.COUNT_GT].includes(listItem.operator as OperatorEnum)) ||
       (listItem.type === FilterType.DATE_PICKER && listItem.operator === OperatorEnum.BETWEEN)

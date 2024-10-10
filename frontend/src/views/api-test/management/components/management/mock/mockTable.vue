@@ -9,22 +9,16 @@
       >
         {{ t('mockManagement.createMock') }}
       </a-button>
-      <div class="flex gap-[8px]">
-        <a-input-search
-          v-model:model-value="keyword"
-          :placeholder="t('apiTestManagement.searchPlaceholder')"
-          allow-clear
-          class="mr-[8px] w-[240px]"
-          @search="loadMockList"
-          @press-enter="loadMockList"
-          @clear="loadMockList"
-        />
-        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="loadMockList">
-          <template #icon>
-            <icon-refresh class="text-[var(--color-text-4)]" />
-          </template>
-        </a-button>
-      </div>
+      <MsAdvanceFilter
+        ref="msAdvanceFilterRef"
+        v-model:keyword="keyword"
+        :view-type="ViewTypeEnum.API_MOCK"
+        :filter-config-list="filterConfigList"
+        :search-placeholder="t('apiTestManagement.searchPlaceholder')"
+        @keyword-search="loadMockList"
+        @adv-search="handleAdvSearch"
+        @refresh="loadMockList"
+      />
     </div>
     <ms-base-table
       v-bind="propsRes"
@@ -32,10 +26,10 @@
       :first-column-width="44"
       no-disable
       filter-icon-align-left
+      :not-show-table-filter="isAdvancedSearchMode"
       v-on="propsEvent"
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
-      @module-change="loadMockList()"
     >
       <template #expectNum="{ record }">
         <MsButton type="text" @click="handleOpenDetail(record)">
@@ -198,6 +192,8 @@
   import { useClipboard } from '@vueuse/core';
   import { FormInstance, Message } from '@arco-design/web-vue';
 
+  import MsAdvanceFilter from '@/components/pure/ms-advance-filter/index.vue';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
@@ -227,9 +223,11 @@
   import { characterLimit, operationWidth } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
+  import { ProtocolItem } from '@/models/apiTest/common';
   import { ApiDefinitionMockDetail } from '@/models/apiTest/management';
   import { MockDetail } from '@/models/apiTest/mock';
-  import { RequestComposition } from '@/enums/apiEnum';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
+  import { RequestComposition, RequestMethods } from '@/enums/apiEnum';
   import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
   import { TagUpdateTypeEnum } from '@/enums/commonEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -251,6 +249,7 @@
     (e: 'init', params: any): void;
     (e: 'change'): void;
     (e: 'debug', mock: MockDetail): void;
+    (e: 'handleAdvSearch', isStartAdvance: boolean): void;
   }>();
 
   const appStore = useAppStore();
@@ -260,6 +259,7 @@
   const { openModal } = useModal();
 
   const keyword = ref('');
+  const protocolList = inject<Ref<ProtocolItem[]>>('protocols', ref([]));
 
   let columns: MsTableColumn = [
     {
@@ -346,18 +346,18 @@
       width: operationWidth(230, 200),
     },
   ];
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getDefinitionMockPage, {
-    columns: props.readOnly ? columns : [],
-    scroll: { x: '100%' },
-    tableKey: props.readOnly ? undefined : TableKeyEnum.API_TEST_MANAGEMENT_MOCK,
-    showSetting: !props.readOnly,
-    selectable: true,
-    heightUsed: (props.heightUsed || 0) + 282,
-    showSelectAll: !props.readOnly,
-    draggable: props.readOnly ? undefined : { type: 'handle', width: 32 },
-    showSubdirectory: true,
-    paginationSize: 'mini',
-  });
+  const { propsRes, propsEvent, viewId, advanceFilter, setAdvanceFilter, loadList, setLoadListParams, resetSelector } =
+    useTable(getDefinitionMockPage, {
+      columns: props.readOnly ? columns : [],
+      scroll: { x: '100%' },
+      tableKey: props.readOnly ? undefined : TableKeyEnum.API_TEST_MANAGEMENT_MOCK,
+      showSetting: !props.readOnly,
+      selectable: true,
+      heightUsed: (props.heightUsed || 0) + 282,
+      showSelectAll: !props.readOnly,
+      draggable: props.readOnly ? undefined : { type: 'handle', width: 32 },
+      paginationSize: 'mini',
+    });
   const batchActions = {
     baseAction: [
       {
@@ -390,9 +390,11 @@
 
   const tableQueryParams = ref<any>();
 
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
   async function getModuleIds() {
     let moduleIds: string[] = [];
-    if (props.activeModule !== 'all') {
+    if (props.activeModule !== 'all' && !isAdvancedSearchMode.value) {
       moduleIds = [props.activeModule];
       const getAllChildren = await tableStore.getSubShow(TableKeyEnum.API_TEST_MANAGEMENT_MOCK);
       if (getAllChildren) {
@@ -407,10 +409,12 @@
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
-      protocols: props.selectedProtocols,
+      protocols: isAdvancedSearchMode.value ? protocolList.value.map((item) => item.protocol) : props.selectedProtocols,
       apiDefinitionId: props.definitionDetail.id !== 'all' ? props.definitionDetail.id : undefined,
       filter: {},
       moduleIds: selectModules,
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
     };
     setLoadListParams(params);
     loadList();
@@ -443,6 +447,96 @@
       loadMockList();
     }
   });
+
+  const requestMethodsOptions = computed(() => {
+    const otherMethods = protocolList.value
+      .filter((e) => e.protocol !== 'HTTP')
+      .map((item) => {
+        return {
+          value: item.protocol,
+          key: item.protocol,
+        };
+      });
+    const httpMethods = Object.values(RequestMethods).map((e) => {
+      return {
+        value: e,
+        key: e,
+      };
+    });
+    return [...httpMethods, ...otherMethods];
+  });
+
+  const filterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'caseManagement.featureCase.tableColumnID',
+      dataIndex: 'num',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'mockManagement.name',
+      dataIndex: 'name',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'apiTestManagement.protocol',
+      dataIndex: 'protocol',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        labelKey: 'protocol',
+        valueKey: 'protocol',
+        options: protocolList.value,
+      },
+    },
+    {
+      title: 'apiTestManagement.apiType',
+      dataIndex: 'apiMethod',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        labelKey: 'key',
+        options: requestMethodsOptions.value,
+      },
+    },
+    {
+      title: 'common.status',
+      dataIndex: 'enable',
+      type: FilterType.BOOLEAN,
+      selectProps: {
+        options: [
+          { label: t('system.config.email.close'), value: false },
+          { label: t('system.config.email.open'), value: true },
+        ],
+      },
+    },
+    {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      type: FilterType.TAGS_INPUT,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'mockManagement.operationUser',
+      dataIndex: 'createUserName',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.updateTime',
+      dataIndex: 'updateTime',
+      type: FilterType.DATE_PICKER,
+    },
+  ]);
+  // 高级检索
+  const handleAdvSearch = async (filter: FilterResult, id: string, isStartAdvance: boolean) => {
+    resetSelector();
+    emit('handleAdvSearch', isStartAdvance);
+    keyword.value = '';
+    setAdvanceFilter(filter, id);
+    await loadMockList(); // 基础筛选都清空
+  };
 
   async function handleBeforeEnableChange(record: ApiDefinitionMockDetail) {
     try {
@@ -494,10 +588,16 @@
               selectIds,
               selectAll: !!params?.selectAll,
               excludeIds: params?.excludeIds || [],
-              condition: { keyword: keyword.value },
+              condition: {
+                keyword: keyword.value,
+                viewId: viewId.value,
+                combineSearch: advanceFilter,
+              },
               projectId: appStore.currentProjectId,
               moduleIds: selectModules,
-              protocols: props.selectedProtocols,
+              protocols: isAdvancedSearchMode.value
+                ? protocolList.value.map((item) => item.protocol)
+                : props.selectedProtocols,
             });
           } else {
             await deleteMock({
@@ -605,6 +705,8 @@
             excludeIds: batchParams.value?.excludeIds || [],
             condition: {
               keyword: keyword.value,
+              viewId: viewId.value,
+              combineSearch: advanceFilter,
             },
             projectId: appStore.currentProjectId,
             moduleIds: await getModuleIds(),
@@ -612,7 +714,9 @@
             append: selectedTagType.value === TagUpdateTypeEnum.APPEND,
             tags: batchForm.value.attr === 'Tags' ? batchForm.value.values : [],
             enable: batchForm.value.attr === 'Status' ? batchForm.value.value : false,
-            protocols: props.selectedProtocols,
+            protocols: isAdvancedSearchMode.value
+              ? protocolList.value.map((item) => item.protocol)
+              : props.selectedProtocols,
             clear: selectedTagType.value === TagUpdateTypeEnum.CLEAR,
           });
           Message.success(t('common.updateSuccess'));

@@ -234,6 +234,9 @@ export default {
   'case.updateCase': 'Update Case',
   'case.changeDifferences': 'Interface versus use case differences',
   'case.apiParamsHasChange': 'Interface parameter is changed',
+  'case.apiParamsChange': 'Interface parameter change',
+  'case.withChanges': 'With changes',
+  'case.withoutChanges': 'Without changes',
   'case.apiSyncChange': 'Sync',
   'case.apiSyncModalAlert':
     'Interface definition request parameter synchronization to the interface use case, may result in abnormal interfaces to perform case execution!',

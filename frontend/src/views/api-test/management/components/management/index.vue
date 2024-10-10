@@ -70,6 +70,7 @@
     :offspring-ids="props.offspringIds"
     :member-options="memberOptions"
     @delete-case="(id) => handleDeleteApiFromModuleTree(id)"
+    @handle-adv-search="(val) => emit('handleAdvSearch', val)"
   />
   <keep-alive :include="cacheStore.cacheViews">
     <MockTable
@@ -80,6 +81,7 @@
       :selected-protocols="props.selectedProtocols"
       :definition-detail="activeApiTab"
       @debug="handleMockDebug"
+      @handle-adv-search="(val) => emit('handleAdvSearch', val)"
     />
   </keep-alive>
 </template>
@@ -279,6 +281,7 @@
       apiTabs.value[0].label = t('mockManagement.allMock');
     }
     changeActiveApiTabToFirst();
+    emit('handleAdvSearch', false);
   }
 
   watch(
