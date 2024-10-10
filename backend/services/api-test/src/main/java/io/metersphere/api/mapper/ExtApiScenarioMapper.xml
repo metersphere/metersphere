@@ -333,17 +333,10 @@
                             </include>
                         </if>
                         <!-- 执行结果 -->
-                        <if test="condition.name == 'lastReportStatus'">
+                        <if test="condition.name == 'lastExecuteResult'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
                                 <property name="column" value="api_scenario.last_report_status"/>
-                            </include>
-                        </if>
-                        <!-- 步骤数 -->
-                        <if test="condition.name == 'stepTotal'">
-                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                <property name="condition" value="condition"/>
-                                <property name="column" value="api_scenario.step_total"/>
                             </include>
                         </if>
                         <!-- 步骤数 -->

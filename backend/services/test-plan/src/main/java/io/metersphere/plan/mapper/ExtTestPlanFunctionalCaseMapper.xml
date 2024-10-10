@@ -166,17 +166,9 @@
             <property name="filter" value="request.filter"/>
             <property name="nullExecutorKey" value="request.nullExecutorKey"/>
         </include>
-        <choose>
-            <when test='request.searchMode == "AND"'>
-                AND
-                <include refid="queryCombine"/>
-            </when>
-            <when test='request.searchMode == "OR"'>
-                and (
-                <include refid="queryCombine"/>
-                )
-            </when>
-        </choose>
+        <include refid="combine">
+            <property name="combineSearch" value="request.combineSearch"/>
+        </include>
         <include refid="queryVersionCondition">
             <property name="versionTable" value="functional_case"/>
         </include>
@@ -210,17 +202,9 @@
             <property name="filter" value="request.condition.filter"/>
             <property name="nullExecutorKey" value="request.nullExecutorKey"/>
         </include>
-        <choose>
-            <when test='request.condition.searchMode == "AND"'>
-                AND
-                <include refid="batchQueryCombine"/>
-            </when>
-            <when test='request.condition.searchMode == "OR"'>
-                and (
-                <include refid="batchQueryCombine"/>
-                )
-            </when>
-        </choose>
+        <include refid="combine">
+            <property name="combineSearch" value="request.condition.combineSearch"/>
+        </include>
     </sql>
 
     <sql id="filters">
@@ -308,131 +292,128 @@
         </if>
     </sql>
 
-    <sql id="batchQueryCombine">
-        <if test="request.condition.combine != null">
-            <include refid="combine">
-                <property name="condition" value="request.condition.combine"/>
-                <property name="searchMode" value="request.condition.searchMode"/>
-            </include>
-        </if>
-        1=1
-    </sql>
-
-    <sql id="queryCombine">
-        <if test="request.combine != null">
-            <include refid="combine">
-                <property name="condition" value="request.combine"/>
-                <property name="searchMode" value="request.searchMode"/>
-            </include>
-        </if>
-        1=1
-    </sql>
 
     <sql id="combine">
-        <!-- 名称 -->
-        <if test='${condition}.name != null'>
-            functional_case.name
-            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                <property name="object" value="${condition}.name"/>
-            </include>
-            <include refid="queryType">
-                <property name="searchMode" value="${searchMode}"/>
-            </include>
-        </if>
-        <!-- id -->
-        <if test='${condition}.id != null'>
-            functional_case.num
-            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                <property name="object" value="${condition}.id"/>
-            </include>
-            <include refid="queryType">
-                <property name="searchMode" value="${searchMode}"/>
-            </include>
-        </if>
-        <!-- 所属模块 -->
-        <if test='${condition}.moduleId != null'>
-            functional_case.moduleId
-            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                <property name="object" value="${condition}.moduleId"/>
-            </include>
-            <include refid="queryType">
-                <property name="searchMode" value="${searchMode}"/>
-            </include>
-        </if>
-        <!-- 创建人 -->
-        <if test='${condition}.createUser != null'>
-            functional_case.create_user
-            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                <property name="object" value="${condition}.createUser"/>
-            </include>
-            <include refid="queryType">
-                <property name="searchMode" value="${searchMode}"/>
-            </include>
-        </if>
-        <!-- 创建时间 -->
-        <if test='${condition}.createTime != null'>
-            functional_case.create_time
-            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                <property name="object" value="${condition}.createTime"/>
-            </include>
-            <include refid="queryType">
-                <property name="searchMode" value="${searchMode}"/>
-            </include>
-        </if>
-        <!-- 更新人 -->
-        <if test='${condition}.updateUser != null'>
-            functional_case.update_user
-            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                <property name="object" value="${condition}.updateUser"/>
-            </include>
-            <include refid="queryType">
-                <property name="searchMode" value="${searchMode}"/>
-            </include>
-        </if>
-        <!-- 更新时间 -->
-        <if test='${condition}.updateTime != null'>
-            functional_case.update_time
-            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                <property name="object" value="${condition}.updateTime"/>
-            </include>
-            <include refid="queryType">
-                <property name="searchMode" value="${searchMode}"/>
-            </include>
-        </if>
-        <!-- 标签 -->
-        <if test='${condition}.tags != null'>
-            <include refid="queryTag">
-                <property name="searchMode" value="${searchMode}"/>
-                <property name="combineTag" value="${condition}.tags"/>
-            </include>
-        </if>
-        <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
-            <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
-                functional_case.id ${custom.operator} (
-                select case_id from functional_case_custom_field where field_id = #{custom.id}
+        <trim prefix="AND">
+            <trim prefix="(" suffix=")" suffixOverrides="AND|OR">
+                <if test="${combineSearch} != null">
+                    <foreach collection="${combineSearch}.userViewConditions" item="condition">
+                        <if test="condition.name == 'createUser'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="functional_case.create_user"/>
+                            </include>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                    <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
+                            <property name="condition" value="condition"/>
+                            <property name="tablePrefix" value="functional_case"/>
+                        </include>
+                        <!-- 评审结果 -->
+                        <if test="condition.name == 'reviewStatus'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="functional_case.review_status"/>
+                            </include>
+                        </if>
+                        <!-- 执行人 -->
+                        <if test="condition.name == 'executeUser'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="test_plan_functional_case.execute_user"/>
+                            </include>
+                        </if>
+                        <!-- 执行结果 -->
+                        <if test="condition.name == 'lastExecuteResult'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="test_plan_functional_case.last_exec_result"/>
+                            </include>
+                        </if>
+                        <!-- 关联需求 -->
+                        <if test="condition.name == 'demand'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
+                                <property name="mainIdColumn" value="functional_case.id"/>
+                                <property name="associationTable" value="functional_case_demand"/>
+                                <property name="associationIdColumn" value="case_id"/>
+                                <property name="searchColumn" value="demand_name"/>
+                                <property name="condition" value="condition"/>
+                            </include>
+                        </if>
+                        <!-- 关联附件 -->
+                        <if test="condition.name == 'attachment'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
+                                <property name="mainIdColumn" value="functional_case.id"/>
+                                <property name="associationTable" value="functional_case_attachment"/>
+                                <property name="associationIdColumn" value="case_id"/>
+                                <property name="searchColumn" value="file_name"/>
+                                <property name="condition" value="condition"/>
+                            </include>
+                            <choose>
+                                <when test="condition.operator == 'NOT_IN' or condition.operator == 'NOT_EQUALS' or condition.operator == 'NOT_CONTAINS'">
+                                    and
+                                </when>
+                                <otherwise>
+                                    or
+                                </otherwise>
+                            </choose>
+                            <include refid="associationAttachmentCondition">
+                                <property name="condition" value="condition"/>
+                            </include>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                    <include refid="io.metersphere.system.mapper.BaseMapper.customFiledConditions">
+                        <property name="mainIdColumn" value="functional_case.id"/>
+                        <property name="associationTable" value="functional_case_custom_field"/>
+                        <property name="associationIdColumn" value="case_id"/>
+                        <property name="combineSearch" value="${combineSearch}"/>
+                    </include>
+                </if>
+            </trim>
+        </trim>
+    </sql>
+
+    <sql id="associationAttachmentCondition">
+        <choose>
+            <when test="${condition}.operator == 'EMPTY'">
+                functional_case.id not in (
+                select file_association.source_id from file_association where file_association.source_type = 'FUNCTIONAL_CASE'
+                )
+            </when>
+            <otherwise>
+                (
+                functional_case.id
+                <if test="${condition}.operator == 'NOT_IN' or ${condition}.operator == 'NOT_EQUALS' or ${condition}.operator == 'NOT_CONTAINS'">
+                    not
+                </if>
+                in (
+                select file_association.source_id from file_association join file_metadata on file_association.file_id = file_metadata.id
+                and file_association.source_type = 'FUNCTIONAL_CASE' and
                 <choose>
-                    <when test="custom.type == 'List'">
-                        and JSON_CONTAINS(`value`, json_array(#{custom.value}))
-                    </when>
-                    <when test="custom.type == 'date' or custom.type == 'datetime'">
-                        and `value`
-                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="object" value="custom"/>
+                    <when test="${condition}.operator == 'NOT_IN' or ${condition}.operator == 'NOT_EQUALS' or ${condition}.operator == 'NOT_CONTAINS'">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.associationReversalCondition">
+                            <property name="condition" value="${condition}"/>
+                            <property name="column" value="file_metadata.original_name"/>
                         </include>
                     </when>
                     <otherwise>
-                        and trim(both '"' from `value`)
                         <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                            <property name="object" value="custom"/>
+                            <property name="condition" value="${condition}"/>
+                            <property name="column" value="file_metadata.original_name"/>
                         </include>
                     </otherwise>
                 </choose>
                 )
-                <include refid="queryType">
-                    <property name="searchMode" value="${searchMode}"/>
-                </include>
-            </foreach>
-        </if>
+                )
+            </otherwise>
+        </choose>
     </sql>
 
     <sql id="queryVersionCondition">

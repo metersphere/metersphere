@@ -4,10 +4,14 @@ import io.metersphere.plan.dto.TestPlanBugCaseDTO;
 import io.metersphere.plan.dto.TestPlanCaseBugDTO;
 import io.metersphere.plan.dto.request.TestPlanBugPageRequest;
 import io.metersphere.plan.dto.response.TestPlanBugPageResponse;
+import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * @author song-cc-rock
+ */
 public interface ExtTestPlanBugMapper {
 
 	/**
@@ -15,6 +19,7 @@ public interface ExtTestPlanBugMapper {
 	 * @param request 请求参数
 	 * @return 缺陷列表
 	 */
+	@BaseConditionFilter
 	List<TestPlanBugPageResponse> list(@Param("request") TestPlanBugPageRequest request);
 
 	/**

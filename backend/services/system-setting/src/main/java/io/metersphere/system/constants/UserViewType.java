@@ -28,7 +28,29 @@ public enum UserViewType implements ValueEnum {
     API_SCENARIO("api-scenario",
             List.of(InternalUserView.ALL_DATA, InternalUserView.MY_FOLLOW, InternalUserView.MY_CREATE)),
     BUG("bug",
-            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_FOLLOW, InternalUserView.MY_CREATE));
+            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_FOLLOW, InternalUserView.MY_CREATE)),
+    /**
+     * 计划详情用例&&缺陷列表
+     */
+    PLAN_FUNCTIONAL_CASE("plan-functional-case",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE)),
+    PLAN_API_CASE("plan-api-case",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE)),
+    PLAN_API_SCENARIO("plan-api-scenario",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE)),
+    PLAN_BUG("plan-bug",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE)),
+    /**
+     * 计划关联用例&&缺陷弹窗
+     */
+    PLAN_FUNCTIONAL_CASE_DRAWER("plan-functional-case-drawer",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE)),
+    PLAN_API_CASE_DRAWER("plan-api-case-drawer",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE)),
+    PLAN_API_SCENARIO_DRAWER("plan-api-scenario-drawer",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE)),
+    PLAN_BUG_DRAWER("plan-bug--drawer",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE));
 
 
     private String value;
