@@ -72,7 +72,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
 
 
     /**
-     * 系统后台任务
+     * 系统任务详情
      */
     @Test
     @Order(3)
@@ -96,6 +96,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
      */
     public static final String ORG_TASK_PAGE = "/organization/task-center/exec-task/page";
     public static final String ORG_SCHEDULE_TASK_PAGE = "/organization/task-center/schedule/page";
+    public static final String ORG_TASK_ITEM_PAGE = "/organization/task-center/exec-task/item/page";
 
     @Test
     @Order(20)
@@ -130,6 +131,28 @@ public class BaseTaskHubControllerTests extends BaseTest {
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
     }
+
+
+    /**
+     * 组织任务详情
+     */
+    @Test
+    @Order(3)
+    public void getOrgTaskItemPage() throws Exception {
+        TaskHubItemRequest request = new TaskHubItemRequest();
+        request.setTaskId("1");
+        this.requestPost(ORG_TASK_ITEM_PAGE, request);
+        request.setCurrent(1);
+        request.setPageSize(10);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(ORG_TASK_ITEM_PAGE, request);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
 
 
     @Test

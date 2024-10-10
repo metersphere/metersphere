@@ -4,7 +4,9 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
+import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
 import io.metersphere.system.dto.taskhub.TaskHubScheduleDTO;
+import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.mapper.BaseProjectMapper;
 import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.utils.Pager;
@@ -46,5 +48,13 @@ public class OrganizationTaskHubController {
         List<OptionDTO> projectList = baseProjectMapper.getProjectOptionsByOrgId(SessionUtils.getCurrentOrganizationId());
         List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
         return baseTaskHubService.getScheduleTaskList(request, projectIds);
+    }
+
+
+    @PostMapping("/exec-task/item/page")
+    @Operation(summary = "组织-任务中心-用例执行任务详情列表")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_READ)
+    public Pager<List<TaskHubItemDTO>> itemPageList(@Validated @RequestBody TaskHubItemRequest request) {
+        return baseTaskHubService.getCaseTaskItemList(request, SessionUtils.getCurrentOrganizationId(), null);
     }
 }
