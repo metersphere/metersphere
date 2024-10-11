@@ -101,4 +101,6 @@ public interface ExtApiDefinitionMapper {
     List<ApiDefinition> getListBySelectModules(@Param("projectId") String projectId, @Param("moduleIds") List<String> moduleIds, @Param("protocols") List<String> protocols);
 
     List<ApiDefinition> getListBySelectIds(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("protocols") List<String> protocols);
+
+    Long countByShareParam(@Param("projectId") String projectId, @Param("condition") String condition);
 }

@@ -49,7 +49,7 @@ public enum UserViewType implements ValueEnum {
             List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE)),
     PLAN_API_SCENARIO_DRAWER("plan-api-scenario-drawer",
             List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE)),
-    PLAN_BUG_DRAWER("plan-bug--drawer",
+    PLAN_BUG_DRAWER("plan-bug-drawer",
             List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE));
 
 
