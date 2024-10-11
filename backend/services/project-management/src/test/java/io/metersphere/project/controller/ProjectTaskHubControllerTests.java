@@ -13,6 +13,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class ProjectTaskHubControllerTests extends BaseTest {
     /**
@@ -21,6 +22,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     public static final String PROJECT_TASK_PAGE = "/project/task-center/exec-task/page";
     public static final String PROJECT_SCHEDULE_TASK_PAGE = "/project/task-center/schedule/page";
     public static final String PROJECT_TASK_ITEM_PAGE = "/project/task-center/exec-task/item/page";
+    public static final String PROJECT_STATISTICS = "/project/task-center/exec-task/statistics";
 
     @Test
     @Order(1)
@@ -70,6 +72,19 @@ public class ProjectTaskHubControllerTests extends BaseTest {
         request.setCurrent(1);
         request.setPageSize(10);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(PROJECT_TASK_ITEM_PAGE, request);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
+    @Test
+    @Order(4)
+    public void getProStatistics() throws Exception {
+        List<String> ids = List.of("pro_1","pro_2");
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(PROJECT_STATISTICS, ids);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);

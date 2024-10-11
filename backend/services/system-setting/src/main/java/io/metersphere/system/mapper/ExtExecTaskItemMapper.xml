@@ -12,11 +12,14 @@
                 or exec_task_item.resource_name like concat('%', #{request.keyword},'%')
                 )
             </if>
-            <if test="orgId != null">
+            <if test="orgId != null and orgId != ''">
                 and exec_task_item.organization_id = #{orgId}
             </if>
-            <if test="projectId != null">
+            <if test="projectId != null and projectId != ''">
                 and exec_task_item.project_id = #{projectId}
+            </if>
+            <if test="request.resourcePoolId != null and request.resourcePoolId != ''">
+                and exec_task_item.resource_pool_id = #{request.resourcePoolId}
             </if>
         </where>
     </select>
@@ -28,6 +31,12 @@
         <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
             #{taskId}
         </foreach>
+        <if test="orgId != null and orgId != ''">
+            and exec_task_item.organization_id = #{orgId}
+        </if>
+        <if test="projectId != null and projectId != ''">
+            and exec_task_item.project_id = #{projectId}
+        </if>
     </select>
 
 </mapper>

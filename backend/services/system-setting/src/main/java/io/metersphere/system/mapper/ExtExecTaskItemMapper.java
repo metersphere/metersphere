@@ -15,5 +15,5 @@ import java.util.List;
 public interface ExtExecTaskItemMapper {
     List<TaskHubItemDTO> selectList(@Param("request") TaskHubItemRequest request, @Param("orgId") String orgId, @Param("projectId") String projectId);
 
-    List<ExecTaskItem> selectItemByTaskIds(@Param("taskIds") List<String> taskIds);
+    List<ExecTaskItem> selectItemByTaskIds(@Param("taskIds") List<String> taskIds, @Param("orgId") String orgId, @Param("projectId") String projectId);
 }

@@ -185,11 +185,13 @@ public class BaseTaskHubService {
      * 计算任务通过率和执行进度
      *
      * @param taskIds
+     * @param orgId
+     * @param projectId
      * @return
      */
-    public List<TaskStatisticsResponse> calculateRate(List<String> taskIds) {
+    public List<TaskStatisticsResponse> calculateRate(List<String> taskIds, String orgId, String projectId) {
         List<TaskStatisticsResponse> responseList = new ArrayList<>();
-        List<ExecTaskItem> taskItemList = extExecTaskItemMapper.selectItemByTaskIds(taskIds);
+        List<ExecTaskItem> taskItemList = extExecTaskItemMapper.selectItemByTaskIds(taskIds, orgId, projectId);
         Map<String, List<ExecTaskItem>> taskItems = taskItemList.stream().collect(Collectors.groupingBy(ExecTaskItem::getTaskId));
         taskItems.forEach((taskId, items) -> {
             //成功数量
