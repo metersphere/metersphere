@@ -10,6 +10,7 @@ import io.metersphere.api.dto.request.controller.MsScriptElement;
 import io.metersphere.api.parser.TestElementParser;
 import io.metersphere.api.parser.TestElementParserFactory;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.engine.EngineFactory;
 import io.metersphere.engine.MsHttpClient;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -31,6 +32,7 @@ import io.metersphere.sdk.util.*;
 import io.metersphere.system.config.MinioProperties;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.TestResourcePool;
+import io.metersphere.system.dto.pool.TestResourceDTO;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
 import io.metersphere.system.service.*;
@@ -213,19 +215,38 @@ public class ApiExecuteService {
             // 获取资源池
             TestResourcePoolReturnDTO testResourcePoolDTO = getGetResourcePoolNodeDTO(taskInfo.getRunModeConfig(), taskInfo.getProjectId());
 
-            TestResourceNodeDTO testResourceNodeDTO = getNextExecuteNode(testResourcePoolDTO);
 
             if (StringUtils.isNotBlank(testResourcePoolDTO.getServerUrl())) {
                 // 如果资源池配置了当前站点，则使用资源池的
                 taskInfo.setMsUrl(testResourcePoolDTO.getServerUrl());
             }
-            taskInfo.setPoolSize(testResourceNodeDTO.getConcurrentNumber());
-            String endpoint = MsHttpClient.getEndpoint(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
-            LogUtils.info("开始发送请求【 {}_{} 】到 {} 节点执行", taskItem.getReportId(), taskItem.getResourceId(), endpoint);
-            if (StringUtils.equalsAny(taskInfo.getRunMode(), ApiExecuteRunMode.FRONTEND_DEBUG.name(), ApiExecuteRunMode.BACKEND_DEBUG.name())) {
-                MsHttpClient.debugApi(endpoint, taskRequest);
+
+            // 判断是否为 K8S 资源池
+            boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.name());
+            boolean isDebugMode = StringUtils.equalsAny(taskInfo.getRunMode(), ApiExecuteRunMode.FRONTEND_DEBUG.name(), ApiExecuteRunMode.BACKEND_DEBUG.name());
+
+            if (isK8SResourcePool) {
+                TestResourceDTO testResourceDTO = new TestResourceDTO();
+                BeanUtils.copyBean(testResourceDTO, testResourcePoolDTO.getTestResourceReturnDTO());
+                taskInfo.setPoolSize(testResourceDTO.getConcurrentNumber());
+                LogUtils.info("开始发送请求【 {}_{} 】到 K8S 资源池执行", taskItem.getReportId(), taskItem.getResourceId());
+                if (isDebugMode) {
+                    EngineFactory.debugApi(taskRequest, testResourceDTO);
+                } else {
+                    EngineFactory.runApi(taskRequest, testResourceDTO);
+                }
             } else {
-                MsHttpClient.runApi(endpoint, taskRequest);
+                TestResourceNodeDTO testResourceNodeDTO = getNextExecuteNode(testResourcePoolDTO);
+                taskInfo.setPoolSize(testResourceNodeDTO.getConcurrentNumber());
+
+                String endpoint = MsHttpClient.getEndpoint(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
+                LogUtils.info("开始发送请求【 {}_{} 】到 {} 节点执行", taskItem.getReportId(), taskItem.getResourceId(), endpoint);
+
+                if (isDebugMode) {
+                    MsHttpClient.debugApi(endpoint, taskRequest);
+                } else {
+                    MsHttpClient.runApi(endpoint, taskRequest);
+                }
             }
 
         } catch (HttpServerErrorException e) {

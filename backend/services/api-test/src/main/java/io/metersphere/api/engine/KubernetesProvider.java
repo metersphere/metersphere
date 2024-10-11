@@ -77,6 +77,7 @@ public class KubernetesProvider {
             if (runRequest != null) {
                 LogUtils.info("请求参数：{}", JSON.toJSONString(runRequest));
                 // TODO: Add proper error handling based on response or task request details
+                throw new MSException("K8S 节点执行错误：" + t.getMessage(), t);
             } else {
                 throw new MSException("K8S 节点执行错误：" + t.getMessage(), t);
             }

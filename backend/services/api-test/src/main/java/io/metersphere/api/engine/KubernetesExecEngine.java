@@ -3,6 +3,7 @@ package io.metersphere.api.engine;
 import io.metersphere.engine.ApiEngine;
 import io.metersphere.sdk.dto.api.task.TaskBatchRequestDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.dto.pool.TestResourceDTO;
 
@@ -43,6 +44,7 @@ public class KubernetesExecEngine implements ApiEngine {
         } catch (Exception e) {
             LogUtils.error("K8S 执行异常：", e);
             rollbackOnFailure();  // 错误处理逻辑
+            throw new MSException("K8S 节点执行错误：" + e.getMessage(), e);
         }
     }
 
