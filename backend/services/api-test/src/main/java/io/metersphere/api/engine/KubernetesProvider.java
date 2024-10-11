@@ -57,11 +57,20 @@ public class KubernetesProvider {
      * @param command
      * @throws Exception
      */
-    public static void exec(TestResourceDTO resource, String command) throws Exception {
+    protected static void exec(TestResourceDTO resource, Object runRequest, String scriptId, String command) throws Exception {
+        // 防止执行非法命令
+        if (StringUtils.isEmpty(command) || !StringUtils.contains(command, scriptId)) {
+            throw new MSException("Invalid command: " + command);
+        }
         ExecWatch execWatch = null;
         try (KubernetesClient client = getKubernetesClient(resource)) {
             Pod pod = getExecPod(client, resource);
             LogUtils.info("当前执行 Pod：【 " + pod.getMetadata().getName() + " 】");
+            // 创建文件
+            String createFile = "echo -e \"" + JSON.toJSONString(runRequest) + "\" > " + scriptId;
+
+            // 删除文件
+            String deleteFile = "rm -f " + scriptId;
 
             // 同步执行命令
             execWatch = client.pods().inNamespace(client.getNamespace())
@@ -69,8 +78,7 @@ public class KubernetesProvider {
                     .redirectingInput()
                     .writingOutput(System.out)
                     .writingError(System.err)
-                    .withTTY()
-                    .exec(SHELL_COMMAND, "-c", command);
+                    .withTTY().exec(SHELL_COMMAND, "-c", createFile + " && " + command + " && " + deleteFile);
 
             // 等待命令执行完成，获取结果
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -107,7 +115,7 @@ public class KubernetesProvider {
      * @param runRequest
      * @param command
      */
-    public static void exec(TestResourceDTO resource, Object runRequest, String command) {
+    public static void execCommand(TestResourceDTO resource, Object runRequest, String command) {
         try (KubernetesClient client = getKubernetesClient(resource)) {
             Pod pod = getExecPod(client, resource);
             LogUtils.info("当前执行 Pod：【 " + pod.getMetadata().getName() + " 】");

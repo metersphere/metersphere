@@ -22,6 +22,7 @@ public class KubernetesExecEngine implements ApiEngine {
      */
     private final Object request;
     private final TestResourceDTO resource;
+    private final String scriptId;
 
     /**
      * 单调执行构造函数
@@ -29,9 +30,10 @@ public class KubernetesExecEngine implements ApiEngine {
      * @param request
      * @param resource
      */
-    public KubernetesExecEngine(TaskRequestDTO request, TestResourceDTO resource) {
+    public KubernetesExecEngine(TaskRequestDTO request, TestResourceDTO resource, String scriptId) {
         this.request = request;
         this.resource = resource;
+        this.scriptId = scriptId;
     }
 
     /**
@@ -40,9 +42,10 @@ public class KubernetesExecEngine implements ApiEngine {
      * @param batchRequestDTO
      * @param resource
      */
-    public KubernetesExecEngine(TaskBatchRequestDTO batchRequestDTO, TestResourceDTO resource) {
+    public KubernetesExecEngine(TaskBatchRequestDTO batchRequestDTO, TestResourceDTO resource, String scriptId) {
         this.resource = resource;
         this.request = batchRequestDTO;
+        this.scriptId = scriptId;
     }
 
     /**
@@ -51,21 +54,22 @@ public class KubernetesExecEngine implements ApiEngine {
      * @param reportIds
      * @param resource
      */
-    public KubernetesExecEngine(List<String> reportIds, TestResourceDTO resource) {
+    public KubernetesExecEngine(List<String> reportIds, TestResourceDTO resource, String scriptId) {
         this.resource = resource;
         this.request = reportIds;
+        this.scriptId = scriptId;
     }
 
     @Override
     public void execute(String command) {
         // 初始化任务
         LogUtils.info("CURL 命令：【 " + command + " 】");
-        this.runApi(command);
+        this.runApi(command, request);
     }
 
-    private void runApi(String command) {
+    private void runApi(String command, Object request) {
         try {
-            KubernetesProvider.exec(resource, command);
+            KubernetesProvider.exec(resource, request, scriptId, command);
         } catch (HttpServerErrorException e) {
             handleHttpServerError(e);
         } catch (Exception e) {
