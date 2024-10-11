@@ -120,6 +120,7 @@
   const selectedKeys = useVModel(props, 'selectedKeys', emit);
   const treeFolderAllRef = ref<InstanceType<typeof TreeFolderAll>>();
   const selectedProtocols = computed<string[]>(() => treeFolderAllRef.value?.selectedProtocols ?? []);
+  const allProtocolList = computed<string[]>(() => treeFolderAllRef.value?.allProtocolList ?? []);
 
   //  初始化模块树
   async function initModules() {
@@ -149,7 +150,7 @@
       return e;
     });
     activeFolder.value = node.id;
-    emit('folderNodeSelect', _selectedKeys as string[], offspringIds, node.name, getNodeParentId(node));
+    emit('folderNodeSelect', _selectedKeys as string[], offspringIds, getNodeParentId(node));
   }
 
   // 初始化模块文件数量
@@ -176,6 +177,7 @@
   });
 
   defineExpose({
+    allProtocolList,
     initModules,
     setActiveFolder,
   });

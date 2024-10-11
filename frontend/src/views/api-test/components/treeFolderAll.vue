@@ -180,6 +180,7 @@
 
   defineExpose({
     selectedProtocols,
+    allProtocolList,
   });
 </script>
 

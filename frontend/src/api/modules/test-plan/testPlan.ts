@@ -311,7 +311,7 @@ export function getPlanDetailApiCaseList(data: PlanDetailApiCaseQueryParams) {
 }
 // 计划详情-接口用例模块树
 export function getApiCaseModule(data: PlanDetailApiCaseTreeParams) {
-  return MSR.post<ModuleTreeNode[]>({ url: GetApiCaseModuleUrl, data });
+  return MSR.post<ModuleTreeNode[]>({ url: GetApiCaseModuleUrl, data }, { ignoreCancelToken: true });
 }
 // 计划详情-接口用例-获取模块数量
 export function getApiCaseModuleCount(data: PlanDetailApiCaseQueryParams) {
