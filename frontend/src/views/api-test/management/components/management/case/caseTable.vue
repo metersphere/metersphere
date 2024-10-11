@@ -676,6 +676,7 @@
   watch(
     () => props.activeModule,
     () => {
+      if (isAdvancedSearchMode.value) return;
       loadCaseListAndResetSelector();
     }
   );
@@ -757,6 +758,9 @@
       title: 'case.passRate',
       dataIndex: 'passRate',
       type: FilterType.NUMBER,
+      numberProps: {
+        min: 0,
+      },
     },
     {
       title: 'case.caseEnvironment',

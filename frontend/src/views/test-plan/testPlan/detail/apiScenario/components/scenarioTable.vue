@@ -1,15 +1,14 @@
 <template>
   <div class="p-[16px]">
     <MsAdvanceFilter
+      ref="msAdvanceFilterRef"
       v-model:keyword="keyword"
-      :filter-config-list="[]"
-      :custom-fields-config-list="[]"
-      :count="props.modulesCount[props.activeModule] || 0"
-      :name="moduleNamePath"
+      :view-type="ViewTypeEnum.PLAN_API_SCENARIO"
+      :filter-config-list="filterConfigList"
       :search-placeholder="t('common.searchByIdName')"
       @keyword-search="loadCaseList()"
-      @adv-search="loadCaseList()"
-      @refresh="handleRefreshAll"
+      @adv-search="handleAdvSearch"
+      @refresh="handleRefreshAll()"
     />
     <a-spin :loading="tableLoading" class="w-full">
       <MsBaseTable
@@ -17,12 +16,12 @@
         class="mt-[16px]"
         v-bind="propsRes"
         :action-config="batchActions"
+        :not-show-table-filter="isAdvancedSearchMode"
         v-on="propsEvent"
         @batch-action="handleTableBatch"
         @drag-change="handleDragChange"
         @selected-change="handleTableSelect"
         @filter-change="getModuleCount"
-        @module-change="loadCaseList(false)"
       >
         <template #num="{ record }">
           <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
@@ -137,7 +136,8 @@
   import { computed, onBeforeMount, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
-  import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import MsAdvanceFilter from '@/components/pure/ms-advance-filter/index.vue';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsPopconfirm from '@/components/pure/ms-popconfirm/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -157,6 +157,7 @@
   import LinkDefectDrawer from '@/views/case-management/components/linkDefectDrawer.vue';
   import BatchApiMoveModal from '@/views/test-plan/testPlan/components/batchApiMoveModal.vue';
 
+  import { getAssociatedProjectOptions } from '@/api/modules/case-management/featureCase';
   import {
     associateBugToScenarioCase,
     batchDisassociateApiScenario,
@@ -164,6 +165,7 @@
     batchMoveApiScenario,
     batchRunApiScenario,
     disassociateApiScenario,
+    getApiScenarioModule,
     getApiScenarioReport,
     getApiScenarioReportStep,
     getPlanDetailApiScenarioList,
@@ -179,7 +181,9 @@
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import { DragSortParams, ModuleTreeNode, TableQueryParams } from '@/models/common';
+  import type { ProjectListItem } from '@/models/setting/project';
   import type { PlanDetailApiScenarioItem, PlanDetailApiScenarioQueryParams } from '@/models/testPlan/testPlan';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { ReportEnum } from '@/enums/reportEnum';
@@ -188,10 +192,9 @@
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
+  import { scenarioStatusOptions } from '@/views/api-test/scenario/components/config';
 
   const props = defineProps<{
-    modulesCount: Record<string, number>; // 模块数量统计对象
-    moduleName: string;
     moduleParentId: string;
     activeModule: string;
     offspringIds: string[];
@@ -205,6 +208,7 @@
     (e: 'getModuleCount', params: PlanDetailApiScenarioQueryParams): void;
     (e: 'refresh'): void;
     (e: 'initModules'): void;
+    (e: 'handleAdvSearch', isStartAdvance: boolean): void;
   }>();
 
   const { t } = useI18n();
@@ -214,9 +218,6 @@
   const appStore = useAppStore();
 
   const keyword = ref('');
-  const moduleNamePath = computed(() => {
-    return props.activeModule === 'all' ? t('apiScenario.allScenario') : props.moduleName;
-  });
 
   const hasOperationPermission = computed(
     () => hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN:READ+ASSOCIATION']) && props.canEdit
@@ -374,16 +375,13 @@
     tableKey: TableKeyEnum.TEST_PLAN_DETAIL_API_CASE,
     showSetting: true,
     heightUsed: 445,
-    showSubdirectory: true,
     draggable: { type: 'handle' },
     draggableCondition: true,
     selectable: hasOperationPermission.value,
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    getPlanDetailApiScenarioList,
-    tableProps.value
-  );
+  const { propsRes, propsEvent, viewId, advanceFilter, setAdvanceFilter, loadList, setLoadListParams, resetSelector } =
+    useTable(getPlanDetailApiScenarioList, tableProps.value);
 
   const tableRef = ref<InstanceType<typeof MsBaseTable>>();
   watch(
@@ -431,9 +429,11 @@
     };
   });
 
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
   async function getModuleIds() {
     let moduleIds: string[] = [];
-    if (props.activeModule !== 'all') {
+    if (props.activeModule !== 'all' && !isAdvancedSearchMode.value) {
       moduleIds = [props.activeModule];
       const getAllChildren = await tableStore.getSubShow(TableKeyEnum.TEST_PLAN_DETAIL_API_CASE);
       if (getAllChildren) {
@@ -456,6 +456,8 @@
         condition: {
           keyword: keyword.value,
           filter: propsRes.value.filter,
+          viewId: viewId.value,
+          combineSearch: advanceFilter,
         },
         projectId: props.activeModule !== 'all' && props.treeType === 'MODULE' ? props.moduleParentId : '',
         ...commonParams,
@@ -487,10 +489,12 @@
     const tableParams = await getTableParams(false);
     setLoadListParams({
       ...tableParams,
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
       projectId: props.activeModule !== 'all' && props.treeType === 'MODULE' ? props.moduleParentId : '',
     });
     loadList();
-    if (refreshTreeCount) {
+    if (refreshTreeCount && !isAdvancedSearchMode.value) {
       emit('getModuleCount', {
         ...tableParams,
         current: propsRes.value.msPagination?.current,
@@ -499,9 +503,191 @@
     }
   }
 
+  const projectList = ref<ProjectListItem[]>([]);
+  async function initProjectList() {
+    try {
+      projectList.value = await getAssociatedProjectOptions(appStore.currentOrgId, CaseLinkEnum.SCENARIO);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  const anotherTree = ref<ModuleTreeNode[]>([]);
+  async function initAnotherModules() {
+    try {
+      const res = await getApiScenarioModule({
+        testPlanId: props.planId,
+        treeType: props.treeType === 'MODULE' ? 'COLLECTION' : 'MODULE',
+      });
+      anotherTree.value = res;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  const filterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'caseManagement.featureCase.tableColumnID',
+      dataIndex: 'num',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'apiScenario.table.columns.name',
+      dataIndex: 'name',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'ms.minders.testSet',
+      dataIndex: 'testPlanCollectionId',
+      type: FilterType.SELECT,
+      selectProps: {
+        labelKey: 'name',
+        valueKey: 'id',
+        multiple: true,
+        options: props.treeType !== 'MODULE' ? props.moduleTree : anotherTree.value,
+      },
+    },
+    {
+      title: 'common.belongModule',
+      dataIndex: 'moduleId',
+      type: FilterType.TREE_SELECT,
+      treeSelectData: props.treeType === 'MODULE' ? props.moduleTree : anotherTree.value,
+      treeSelectProps: {
+        fieldNames: {
+          title: 'name',
+          key: 'id',
+          children: 'children',
+        },
+        multiple: true,
+        treeCheckable: true,
+        treeCheckStrictly: true,
+      },
+    },
+    {
+      title: 'common.belongProject',
+      dataIndex: 'projectName',
+      type: FilterType.SELECT,
+      selectProps: {
+        labelKey: 'name',
+        valueKey: 'id',
+        multiple: true,
+        options: projectList.value,
+      },
+    },
+    {
+      title: 'apiScenario.table.columns.level',
+      dataIndex: 'priority',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: casePriorityOptions,
+      },
+    },
+    {
+      title: 'apiTestManagement.apiStatus',
+      dataIndex: 'status',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: scenarioStatusOptions,
+      },
+    },
+    {
+      title: 'common.executionResult',
+      dataIndex: 'lastExecResult',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: lastReportStatusListOptions.value,
+      },
+    },
+    {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      type: FilterType.TAGS_INPUT,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'testPlan.featureCase.bugCount',
+      dataIndex: 'bugCount',
+      type: FilterType.NUMBER,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'report.detail.api.executeEnv',
+      dataIndex: 'environmentName',
+      type: FilterType.SELECT,
+      selectProps: {
+        labelKey: 'name',
+        valueKey: 'id',
+        multiple: true,
+        options: appStore.envList,
+      },
+    },
+    {
+      title: 'apiScenario.table.columns.steps',
+      dataIndex: 'stepTotal',
+      type: FilterType.NUMBER,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'apiScenario.table.columns.passRate',
+      dataIndex: 'requestPassRate',
+      type: FilterType.NUMBER,
+      numberProps: {
+        min: 0,
+      },
+    },
+    {
+      title: 'testPlan.featureCase.executor',
+      dataIndex: 'executeUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'apiScenario.table.columns.updateUser',
+      dataIndex: 'updateUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.updateTime',
+      dataIndex: 'updateTime',
+      type: FilterType.DATE_PICKER,
+    },
+  ]);
+  // 高级检索
+  const handleAdvSearch = async (filter: FilterResult, id: string, isStartAdvance: boolean) => {
+    resetSelector();
+    emit('handleAdvSearch', isStartAdvance);
+    keyword.value = '';
+    setAdvanceFilter(filter, id);
+    await loadCaseList(); // 基础筛选都清空
+  };
+
   watch(
     () => props.activeModule,
     () => {
+      if (isAdvancedSearchMode.value) return;
       loadCaseList();
     }
   );
@@ -789,6 +975,8 @@
 
   onBeforeMount(() => {
     loadCaseList();
+    initAnotherModules();
+    initProjectList();
   });
 
   defineExpose({

@@ -141,7 +141,7 @@
       return e;
     });
     activeFolder.value = node.id;
-    emit('folderNodeSelect', _selectedKeys as string[], offspringIds, node.name, getNodeParentId(node));
+    emit('folderNodeSelect', _selectedKeys as string[], offspringIds, getNodeParentId(node));
   }
 
   onBeforeMount(() => {

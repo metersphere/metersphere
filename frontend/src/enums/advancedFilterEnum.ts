@@ -33,4 +33,7 @@ export enum ViewTypeEnum {
   REVIEW_FUNCTIONAL_CASE = 'review-functional-case',
   API_CASE = 'api-case',
   API_MOCK = 'api-mock',
+  PLAN_API_SCENARIO = 'plan-api-scenario',
+  PLAN_API_CASE = 'plan-api-case',
+  PLAN_FUNCTIONAL_CASE = 'plan-functional-case',
 }
