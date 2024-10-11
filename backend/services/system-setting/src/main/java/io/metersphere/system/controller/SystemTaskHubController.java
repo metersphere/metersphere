@@ -58,7 +58,7 @@ public class SystemTaskHubController {
     @Operation(summary = "系统-任务中心-获取任务统计{通过率}接口")
     @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ)
     @Parameter(name = "ids", description = "任务ID集合", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
-    public List<TaskStatisticsResponse> selectTestPlanMetricById(@RequestBody List<String> ids) {
-        return baseTaskHubService.calculateRate(ids);
+    public List<TaskStatisticsResponse> calculateRate(@RequestBody List<String> ids) {
+        return baseTaskHubService.calculateRate(ids, null, null);
     }
 }
