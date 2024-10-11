@@ -34,6 +34,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_TASK_PAGE = "/system/task-center/exec-task/page";
     public static final String SYSTEM_SCHEDULE_TASK_PAGE = "/system/task-center/schedule/page";
     public static final String SYSTEM_TASK_ITEM_PAGE = "/system/task-center/exec-task/item/page";
+    public static final String SYSTEM_STATISTICS = "/system/task-center/exec-task/statistics";
 
     @Test
     @Order(1)
@@ -83,6 +84,21 @@ public class BaseTaskHubControllerTests extends BaseTest {
         request.setCurrent(1);
         request.setPageSize(10);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(SYSTEM_TASK_ITEM_PAGE, request);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+    /**
+     * 系统用例任务完成率统计
+     */
+    @Test
+    @Order(3)
+    public void getStatistics() throws Exception {
+        List<String> ids = List.of("1","2");
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(SYSTEM_STATISTICS, ids);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);

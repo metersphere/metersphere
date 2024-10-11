@@ -2,6 +2,9 @@ package io.metersphere.system.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
+import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.sdk.constants.ExecStatus;
+import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
@@ -11,6 +14,7 @@ import io.metersphere.system.dto.taskhub.TaskHubDTO;
 import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
 import io.metersphere.system.dto.taskhub.TaskHubScheduleDTO;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
+import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -50,6 +54,8 @@ public class BaseTaskHubService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private ExtExecTaskItemMapper extExecTaskItemMapper;
+    @Resource
+    private TestPlanMapper testPlanMapper;
 
     /**
      * 系统-获取执行任务列表
@@ -174,4 +180,38 @@ public class BaseTaskHubService {
     private List<TaskHubItemDTO> getCaseTaskItemPage(TaskHubItemRequest request, String orgId, String projectId) {
         return extExecTaskItemMapper.selectList(request, orgId, projectId);
     }
+
+    /**
+     * 计算任务通过率和执行进度
+     *
+     * @param taskIds
+     * @return
+     */
+    public List<TaskStatisticsResponse> calculateRate(List<String> taskIds) {
+        List<TaskStatisticsResponse> responseList = new ArrayList<>();
+        List<ExecTaskItem> taskItemList = extExecTaskItemMapper.selectItemByTaskIds(taskIds);
+        Map<String, List<ExecTaskItem>> taskItems = taskItemList.stream().collect(Collectors.groupingBy(ExecTaskItem::getTaskId));
+        taskItems.forEach((taskId, items) -> {
+            //成功数量
+            long successCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ResultStatus.SUCCESS.name(), item.getStatus())).count();
+            //失败数量
+            long errorCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ResultStatus.ERROR.name(), item.getStatus())).count();
+            //误报数量
+            long fakeErrorCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ResultStatus.FAKE_ERROR.name(), item.getStatus())).count();
+            //未执行数量
+            long pendingCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ExecStatus.PENDING.name(), item.getStatus())).count();
+
+            TaskStatisticsResponse response = new TaskStatisticsResponse();
+            response.setId(taskId);
+            response.setCaseTotal(items.size());
+            response.setSuccessCount(successCount);
+            response.setErrorCount(errorCount);
+            response.setFakeErrorCount(fakeErrorCount);
+            response.setPendingCount(pendingCount);
+            response.calculateExecuteRate();
+            responseList.add(response);
+        });
+        return responseList;
+    }
+
 }
