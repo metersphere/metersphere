@@ -112,17 +112,7 @@ export interface AuthTableItem {
   // 对应表格权限的复选框组的绑定值
   perChecked?: string[];
   operationObject?: string;
-  isSystem?: boolean;
-  isOrganization?: boolean;
-  isProject?: boolean;
-  isWorkstation?: boolean;
-  isTestPlan?: boolean;
-  isBugManagement?: boolean;
-  isCaseManagement?: boolean;
-  isApiTest?: boolean;
-  isUiTest?: boolean;
-  isLoadTest?: boolean;
-  isPersonal?: boolean;
+  rowSpan?: number;
   indeterminate?: boolean;
 }
 export interface SavePermissions {

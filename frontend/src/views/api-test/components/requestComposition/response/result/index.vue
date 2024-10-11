@@ -22,7 +22,10 @@
           @change="loadControlLoop"
         />
       </div>
-      <div class="flex w-full items-center justify-between rounded bg-[var(--color-text-n9)] px-[16px] py-[8px]">
+      <div
+        v-if="!props.hideResponseTime"
+        class="flex w-full items-center justify-between rounded bg-[var(--color-text-n9)] px-[16px] py-[8px]"
+      >
         <div class="font-medium">
           <span
             :class="{ 'text-[rgb(var(--primary-5))]': activeType === 'ResContent' }"
@@ -128,7 +131,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
 
@@ -148,6 +150,7 @@
 
   const props = defineProps<{
     mode: 'tiled' | 'tab'; // 平铺 | tab形式
+    hideResponseTime?: boolean; // 是否隐藏响应时间栏
     stepItem?: ScenarioItemType; // 步骤详情
     console?: string;
     isPriorityLocalExec?: boolean;

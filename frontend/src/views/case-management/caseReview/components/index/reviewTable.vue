@@ -177,7 +177,7 @@
   import dayjs from 'dayjs';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
+  import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';

@@ -155,7 +155,7 @@
               <div v-if="!step.fold" class="line"></div>
             </div>
             <!-- 折叠展开内容 -->
-            <div v-if="showResContent(step)" class="foldContent mt-4 pl-2">
+            <div v-if="showResContent(step)" class="foldContent mt-[18px] pl-2">
               <Suspense>
                 <StepDetailContent
                   :mode="props.activeType"
@@ -167,6 +167,7 @@
                   :report-id="props?.reportId"
                   :steps="steps"
                   :get-report-step-detail="props.getReportStepDetail"
+                  hide-response-time
                 />
               </Suspense>
             </div>

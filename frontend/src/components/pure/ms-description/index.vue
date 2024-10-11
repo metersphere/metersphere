@@ -13,7 +13,8 @@
       v-for="(item, index) of props.descriptions"
       :key="item.label"
       class="ms-description-item"
-      :style="{ marginBottom: props.descriptions.length - index <= props.column ? '' : '16px' }"
+      :class="item.class"
+      :style="{ marginBottom: props.descriptions.length - index <= props.column ? '' : `${props.lineGap}px` }"
     >
       <a-tooltip :content="item.label">
         <div :class="`ms-description-item-label one-line-text max-w-[${props.labelWidth || '120px'}]`">
@@ -153,6 +154,7 @@
     label: string;
     value: (string | number) | (string | number)[];
     key?: string;
+    class?: string;
     isTag?: boolean; // 是否标签
     tagClass?: string; // 标签自定义类名
     tagType?: TagType; // 标签类型
@@ -188,10 +190,12 @@
       descriptions: Description[];
       labelWidth?: string;
       oneLineValue?: boolean;
+      lineGap?: number;
       addTagFunc?: (val: string, item: Description) => Promise<void>;
     }>(),
     {
       column: 1,
+      lineGap: 16,
     }
   );
   const emit = defineEmits<{
