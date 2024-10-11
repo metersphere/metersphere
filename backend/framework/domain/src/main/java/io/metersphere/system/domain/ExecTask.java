@@ -41,8 +41,8 @@ public class ExecTask implements Serializable {
     @Size(min = 1, max = 50, message = "{exec_task.task_type.length_range}", groups = {Created.class, Updated.class})
     private String taskType;
 
-    @Schema(description = "测试计划id")
-    private String testPlanId;
+    @Schema(description = "测试计划id/测试计划组id")
+    private String resourceId;
 
     @Schema(description = "执行模式", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{exec_task.trigger_mode.not_blank}", groups = {Created.class})
@@ -81,7 +81,7 @@ public class ExecTask implements Serializable {
         caseCount("case_count", "caseCount", "BIGINT", false),
         result("result", "result", "VARCHAR", true),
         taskType("task_type", "taskType", "VARCHAR", false),
-        testPlanId("test_plan_id", "testPlanId", "VARCHAR", false),
+        resourceId("resource_id", "resourceId", "VARCHAR", false),
         triggerMode("trigger_mode", "triggerMode", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
         organizationId("organization_id", "organizationId", "VARCHAR", false),

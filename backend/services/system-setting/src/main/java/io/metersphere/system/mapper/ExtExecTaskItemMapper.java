@@ -1,5 +1,6 @@
 package io.metersphere.system.mapper;
 
+import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
 import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
@@ -13,4 +14,6 @@ import java.util.List;
  */
 public interface ExtExecTaskItemMapper {
     List<TaskHubItemDTO> selectList(@Param("request") TaskHubItemRequest request, @Param("orgId") String orgId, @Param("projectId") String projectId);
+
+    List<ExecTaskItem> selectItemByTaskIds(@Param("taskIds") List<String> taskIds);
 }

@@ -21,4 +21,13 @@
         </where>
     </select>
 
+    <select id="selectItemByTaskIds" resultType="io.metersphere.system.domain.ExecTaskItem">
+        select  id, task_id, `status`, result
+        from exec_task_item
+        where task_id in
+        <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+    </select>
+
 </mapper>

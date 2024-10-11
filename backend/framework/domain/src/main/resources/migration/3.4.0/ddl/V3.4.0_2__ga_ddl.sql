@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS exec_task(
     `case_count` BIGINT NOT NULL   COMMENT '用例数量' ,
     `result` VARCHAR(64)    COMMENT '执行结果' ,
     `task_type` VARCHAR(50) NOT NULL   COMMENT '任务类型' ,
-    `test_plan_id` VARCHAR(50)  COMMENT '测试计划id' ,
+    `resource_id` VARCHAR(50)  COMMENT '测试计划id/测试计划组id' ,
     `trigger_mode` VARCHAR(20) NOT NULL   COMMENT '执行模式' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
     `organization_id` VARCHAR(50) NOT NULL   COMMENT '组织ID' ,

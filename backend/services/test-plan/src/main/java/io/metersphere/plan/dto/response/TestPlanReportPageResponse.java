@@ -1,7 +1,7 @@
 package io.metersphere.plan.dto.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.metersphere.plan.serializer.CustomRateSerializer;
+import io.metersphere.system.serializer.CustomRateSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

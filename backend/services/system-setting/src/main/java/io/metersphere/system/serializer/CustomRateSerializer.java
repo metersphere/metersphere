@@ -1,4 +1,4 @@
-package io.metersphere.plan.serializer;
+package io.metersphere.system.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
