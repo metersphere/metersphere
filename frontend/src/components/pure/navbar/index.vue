@@ -167,7 +167,7 @@
       </li>
     </ul>
   </div>
-  <TaskCenterModal v-model:visible="taskCenterVisible" />
+  <TaskCenterDrawer v-model:visible="taskCenterVisible" />
   <MessageCenterDrawer v-model:visible="messageCenterVisible" />
   <AddProjectModal :visible="projectVisible" @cancel="projectVisible = false" />
 </template>
@@ -180,13 +180,13 @@
 
   import MessageBox from '@/components/pure/message-box/index.vue';
   import MessageCenterDrawer from '@/components/business/ms-message/MessageCenterDrawer.vue';
+  import TaskCenterDrawer from '@/components/business/ms-task-center-drawer/index.vue';
   import TopMenu from '@/components/business/ms-top-menu/index.vue';
-  import TaskCenterModal from './taskCenterModal.vue';
   import AddProjectModal from '@/views/setting/organization/project/components/addProjectModal.vue';
 
   import { getMessageUnReadCount } from '@/api/modules/message';
   import { switchProject } from '@/api/modules/project-management/project';
-  import { updateBaseInfo, updateLanguage } from '@/api/modules/user';
+  import { updateLanguage } from '@/api/modules/user';
   import { MENU_LEVEL, type PathMapRoute } from '@/config/pathMap';
   import { useI18n } from '@/hooks/useI18n';
   import usePathMap from '@/hooks/usePathMap';

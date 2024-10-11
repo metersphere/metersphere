@@ -82,7 +82,6 @@
   import useLicenseStore from '@/store/modules/setting/license';
 
   import {
-    type AuthScopeType,
     AuthTableItem,
     CurrentUserGroupItem,
     SavePermissions,
@@ -131,18 +130,6 @@
 
   const loading = ref(false);
 
-  const systemSpan = ref(1);
-  const projectSpan = ref(1);
-  const organizationSpan = ref(1);
-  const workstationSpan = ref(1);
-  const testPlanSpan = ref(1);
-  const bugManagementSpan = ref(1);
-  const caseManagementSpan = ref(1);
-  const uiTestSpan = ref(1);
-  const apiTestSpan = ref(1);
-  const loadTestSpan = ref(1);
-  const personalSpan = ref(1);
-
   // 表格的总全选
   const allChecked = ref(false);
   const allIndeterminate = ref(false);
@@ -171,61 +158,9 @@
   }) => {
     const { record, column } = data;
     if ((column as TableColumnData).dataIndex === 'ability') {
-      if (record.isSystem) {
-        return {
-          rowspan: systemSpan.value,
-        };
-      }
-      if (record.isOrganization) {
-        return {
-          rowspan: organizationSpan.value,
-        };
-      }
-      if (record.isProject) {
-        return {
-          rowspan: projectSpan.value,
-        };
-      }
-      if (record.isWorkstation) {
-        return {
-          rowspan: workstationSpan.value,
-        };
-      }
-      if (record.isTestPlan) {
-        return {
-          rowspan: testPlanSpan.value,
-        };
-      }
-      if (record.isBugManagement) {
-        return {
-          rowspan: bugManagementSpan.value,
-        };
-      }
-      if (record.isCaseManagement) {
-        return {
-          rowspan: caseManagementSpan.value,
-        };
-      }
-      if (record.isUiTest) {
-        return {
-          rowspan: uiTestSpan.value,
-        };
-      }
-      if (record.isApiTest) {
-        return {
-          rowspan: apiTestSpan.value,
-        };
-      }
-      if (record.isLoadTest) {
-        return {
-          rowspan: loadTestSpan.value,
-        };
-      }
-      if (record.isPersonal) {
-        return {
-          rowspan: personalSpan.value,
-        };
-      }
+      return {
+        rowspan: record.rowSpan,
+      };
     }
   };
 
@@ -236,7 +171,7 @@
    * @param item
    * @param type
    */
-  const makeData = (item: UserGroupAuthSetting, type: AuthScopeType) => {
+  const makeData = (item: UserGroupAuthSetting) => {
     const result: AuthTableItem[] = [];
     item.children?.forEach((child, index) => {
       if (!child.license || (child.license && licenseStore.hasLicense())) {
@@ -261,17 +196,7 @@
           perChecked,
           ability: index === 0 ? item.name : undefined,
           operationObject: t(child.name),
-          isSystem: index === 0 && type === 'SYSTEM',
-          isOrganization: index === 0 && type === 'ORGANIZATION',
-          isProject: index === 0 && type === 'PROJECT',
-          isWorkstation: index === 0 && type === 'WORKSTATION',
-          isTestPlan: index === 0 && type === 'TEST_PLAN',
-          isBugManagement: index === 0 && type === 'BUG_MANAGEMENT',
-          isCaseManagement: index === 0 && type === 'CASE_MANAGEMENT',
-          isUiTest: index === 0 && type === 'UI_TEST',
-          isLoadTest: index === 0 && type === 'LOAD_TEST',
-          isApiTest: index === 0 && type === 'API_TEST',
-          isPersonal: index === 0 && type === 'PERSONAL',
+          rowSpan: index === 0 ? item.children?.length || 1 : undefined,
         });
       }
     });
@@ -281,30 +206,7 @@
   const transformData = (data: UserGroupAuthSetting[]) => {
     const result: AuthTableItem[] = [];
     data.forEach((item) => {
-      if (item.id === 'SYSTEM') {
-        systemSpan.value = item.children?.length || 0;
-      } else if (item.id === 'PROJECT') {
-        projectSpan.value = item.children?.length || 0;
-      } else if (item.id === 'ORGANIZATION') {
-        organizationSpan.value = item.children?.length || 0;
-      } else if (item.id === 'WORKSTATION') {
-        workstationSpan.value = item.children?.length || 0;
-      } else if (item.id === 'TEST_PLAN') {
-        testPlanSpan.value = item.children?.length || 0;
-      } else if (item.id === 'BUG_MANAGEMENT') {
-        bugManagementSpan.value = item.children?.length || 0;
-      } else if (item.id === 'CASE_MANAGEMENT') {
-        caseManagementSpan.value = item.children?.length || 0;
-      } else if (item.id === 'UI_TEST') {
-        uiTestSpan.value = item.children?.length || 0;
-      } else if (item.id === 'API_TEST') {
-        apiTestSpan.value = item.children?.length || 0;
-      } else if (item.id === 'LOAD_TEST') {
-        loadTestSpan.value = item.children?.length || 0;
-      } else if (item.id === 'PERSONAL') {
-        personalSpan.value = item.children?.length || 0;
-      }
-      result.push(...makeData(item, item.id));
+      result.push(...makeData(item));
     });
     return result;
   };

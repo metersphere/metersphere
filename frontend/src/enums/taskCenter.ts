@@ -1,20 +1,10 @@
-// 模板展示字段icon
+// 任务中心 tab  枚举
 export enum TaskCenterEnum {
-  API_CASE = 'API_CASE', // 接口用例
-  API_SCENARIO = 'API_SCENARIO', // 接口场景 API场景
-  UI_TEST = 'UI_TEST', // ui测试
-  LOAD_TEST = 'LOAD_TEST', // 性能测试
-  TEST_PLAN = 'TEST_PLAN', // 测试计划
-  TEST_RESOURCE = 'TEST_RESOURCE', // 测试资源
-  API_IMPORT = 'API_IMPORT', // API导入
+  CASE = 'CASE',
+  DETAIL = 'DETAIL',
+  BACKEND = 'BACKEND',
+  API_IMPORT = 'API_IMPORT',
 }
-export type ResourceTypeMapKey =
-  | TaskCenterEnum.API_CASE
-  | TaskCenterEnum.API_SCENARIO
-  | TaskCenterEnum.UI_TEST
-  | TaskCenterEnum.LOAD_TEST
-  | TaskCenterEnum.TEST_PLAN;
-
 // 执行方式
 export enum ExecutionMethods {
   SCHEDULE = 'SCHEDULE', // 定时任务

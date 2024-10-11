@@ -1,7 +1,5 @@
 // 模板展示字段icon
-import { useI18n } from '@/hooks/useI18n';
 
-const { t } = useI18n();
 export enum ReportEnum {
   API_SCENARIO_REPORT = 'API_SCENARIO_REPORT',
   API_REPORT = 'API_REPORT',
