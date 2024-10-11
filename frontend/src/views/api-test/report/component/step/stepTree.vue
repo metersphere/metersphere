@@ -37,7 +37,7 @@
                 {{ step.index }}
               </div>
               <div class="step-node-content flex justify-between">
-                <div class="flex flex-1 items-center">
+                <div class="flex max-w-[calc(100%-566px)] flex-1 items-center">
                   <!-- 步骤展开折叠按钮 -->
                   <a-tooltip
                     v-if="step.children?.length > 0"
@@ -381,6 +381,7 @@
         background-color: white !important;
       }
       .step-node-content {
+        width: calc(100% - 16px);
         @apply flex w-full flex-1 items-center;
 
         gap: 8px;
