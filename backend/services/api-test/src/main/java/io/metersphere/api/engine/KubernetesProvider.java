@@ -9,7 +9,6 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.dto.pool.TestResourceDTO;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -33,13 +32,11 @@ public class KubernetesProvider {
     }
 
     public static Pod getExecPod(KubernetesClient client, TestResourceDTO credential) {
-        List<Pod> pods = client.pods().inNamespace(credential.getNamespace()).list().getItems();
-        if (CollectionUtils.isEmpty(pods)) {
-            throw new MSException("Execution node not found");
-        }
-        List<Pod> nodePods = pods.stream()
-                .filter(s -> RUNNING_PHASE.equals(s.getStatus().getPhase())
-                        && StringUtils.startsWith(s.getMetadata().getGenerateName(), credential.getDeployName()))
+        List<Pod> nodePods = client.pods()
+                .inNamespace(credential.getNamespace())
+                .list().getItems()
+                .stream()
+                .filter(s -> RUNNING_PHASE.equals(s.getStatus().getPhase()))
                 .toList();
 
         if (CollectionUtils.isEmpty(nodePods)) {
@@ -77,10 +74,8 @@ public class KubernetesProvider {
             if (runRequest != null) {
                 LogUtils.info("请求参数：{}", JSON.toJSONString(runRequest));
                 // TODO: Add proper error handling based on response or task request details
-                throw new MSException("K8S 节点执行错误：" + t.getMessage(), t);
-            } else {
-                throw new MSException("K8S 节点执行错误：" + t.getMessage(), t);
             }
+            throw new MSException("K8S 节点执行错误：" + t.getMessage(), t);
         }
 
         @Override
