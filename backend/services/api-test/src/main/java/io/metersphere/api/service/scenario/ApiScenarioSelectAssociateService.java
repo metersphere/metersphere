@@ -104,6 +104,7 @@ public class ApiScenarioSelectAssociateService {
             step.setResourceId(item.getId());
             step.setRefType(request.getRefType());
             step.setProjectId(item.getProjectId());
+            step.setOriginProjectId(item.getProjectId());
             step.setResourceNum(item.getNum().toString());
             step.setVersionId(item.getVersionId());
             steps.add(step);
@@ -158,6 +159,7 @@ public class ApiScenarioSelectAssociateService {
             step.setResourceId(item.getId());
             step.setRefType(request.getRefType());
             step.setProjectId(item.getProjectId());
+            step.setOriginProjectId(item.getProjectId());
             step.setResourceNum(item.getNum().toString());
             step.setVersionId(item.getVersionId());
             steps.add(step);
@@ -243,6 +245,7 @@ public class ApiScenarioSelectAssociateService {
             step.setResourceId(apiScenario.getId());
             step.setRefType(request.getRefType());
             step.setProjectId(apiScenario.getProjectId());
+            step.setOriginProjectId(apiScenario.getProjectId());
             step.setResourceNum(apiScenario.getNum().toString());
             step.setVersionId(apiScenario.getVersionId());
             step.setChildren(stepList);
