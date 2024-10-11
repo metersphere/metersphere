@@ -10,11 +10,9 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.dto.pool.TestResourceDTO;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -22,7 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class KubernetesProvider {
 
     private static final String RUNNING_PHASE = "Running";
-    private static final String SHELL_COMMAND = "sh";
+    private static final String SHELL_COMMAND = "#!/bin/bash";
 
     public static KubernetesClient getKubernetesClient(TestResourceDTO credential) {
         ConfigBuilder configBuilder = new ConfigBuilder()
@@ -67,38 +65,28 @@ public class KubernetesProvider {
             Pod pod = getExecPod(client, resource);
             LogUtils.info("当前执行 Pod：【 " + pod.getMetadata().getName() + " 】");
             // 创建文件
-            String createFile = "echo -e \"" + JSON.toJSONString(runRequest) + "\" > " + scriptId;
+            String parameters = "cat <<EOF > " + scriptId + StringUtils.LF + JSON.toFormatJSONString(runRequest) + StringUtils.LF + "EOF" + StringUtils.LF;
 
             // 删除文件
-            String deleteFile = "rm -f " + scriptId;
+            String deleteFile = "rm -f " + scriptId + StringUtils.LF;
 
+            String commandX = SHELL_COMMAND + StringUtils.LF + parameters + command + StringUtils.LF + deleteFile;
+
+            LogUtils.info("执行命令：【 " + commandX + " 】");
             // 同步执行命令
             execWatch = client.pods().inNamespace(client.getNamespace())
                     .withName(pod.getMetadata().getName())
                     .redirectingInput()
                     .writingOutput(System.out)
                     .writingError(System.err)
-                    .withTTY().exec(SHELL_COMMAND, "-c", createFile + " && " + command + " && " + deleteFile);
+                    .withTTY().exec(commandX);
 
             // 等待命令执行完成，获取结果
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
-
-            try (InputStream inputStream = execWatch.getOutput();
-                 InputStream errStream = execWatch.getError()) {
-
-                // 读取标准输出和错误输出
-                IOUtils.copy(inputStream, outputStream);
-                IOUtils.copy(errStream, errorStream);
-
+            try (InputStream error = execWatch.getError()) {
                 // 判断是否有错误输出
-                if (errorStream.size() > 0) {
-                    throw new MSException("Kubernetes exec error: " + errorStream);
+                if (error != null && error.available() > 0) {
+                    throw new MSException("Kubernetes exec error");
                 }
-
-                // 输出结果
-                String result = outputStream.toString();
-                LogUtils.info("命令执行结果: " + result);
             }
         } finally {
             // 确保 ExecWatch 被关闭以释放资源
