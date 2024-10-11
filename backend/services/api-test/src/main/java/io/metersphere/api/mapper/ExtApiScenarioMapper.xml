@@ -710,7 +710,11 @@
         api_scenario.create_user,
         api_scenario.environment_id,
         api_scenario.grouped,
-        api_scenario.pos
+        api_scenario.pos,
+        api_scenario.name,
+        api_scenario.project_id,
+        api_scenario.num,
+        api_scenario.version_id
         from api_scenario
         where api_scenario.deleted = false
         and api_scenario.project_id = #{projectId}
@@ -731,7 +735,11 @@
         api_scenario.create_user,
         api_scenario.environment_id,
         api_scenario.grouped,
-        api_scenario.pos
+        api_scenario.pos,
+        api_scenario.name,
+        api_scenario.project_id,
+        api_scenario.num,
+        api_scenario.version_id
         from api_scenario
         where api_scenario.deleted = false
         and api_scenario.project_id = #{projectId}
