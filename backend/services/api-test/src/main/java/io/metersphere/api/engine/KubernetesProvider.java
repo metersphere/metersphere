@@ -9,6 +9,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.dto.pool.TestResourceDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -36,7 +37,7 @@ public class KubernetesProvider {
                 .inNamespace(credential.getNamespace())
                 .list().getItems()
                 .stream()
-                .filter(s -> RUNNING_PHASE.equals(s.getStatus().getPhase()))
+                .filter(s -> RUNNING_PHASE.equals(s.getStatus().getPhase()) && StringUtils.startsWith(s.getMetadata().getGenerateName(), "task-runner"))
                 .toList();
 
         if (CollectionUtils.isEmpty(nodePods)) {
