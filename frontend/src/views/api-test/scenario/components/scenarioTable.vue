@@ -917,10 +917,8 @@
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleIds,
-      viewId: viewId.value,
-      combineSearch: advanceFilter,
     };
-    setLoadListParams(params);
+    setLoadListParams({ ...params, viewId: viewId.value, combineSearch: advanceFilter });
     await loadList();
     if (refreshTreeCount && !isAdvancedSearchMode.value) {
       emit('refreshModuleTree', params);
@@ -1014,6 +1012,9 @@
       title: 'apiScenario.table.columns.passRate',
       dataIndex: 'requestPassRate',
       type: FilterType.NUMBER,
+      numberProps: {
+        min: 0,
+      },
     },
     {
       title: 'common.creator',
@@ -1533,6 +1534,7 @@
   watch(
     () => props.activeModule,
     () => {
+      if (isAdvancedSearchMode.value) return;
       resetSelector();
       loadScenarioList();
     }

@@ -355,7 +355,7 @@ export function getPlanDetailApiScenarioList(data: PlanDetailApiScenarioQueryPar
 }
 // 计划详情-接口场景模块树
 export function getApiScenarioModule(data: PlanDetailApiCaseTreeParams) {
-  return MSR.post<ModuleTreeNode[]>({ url: GetApiScenarioModuleUrl, data });
+  return MSR.post<ModuleTreeNode[]>({ url: GetApiScenarioModuleUrl, data }, { ignoreCancelToken: true });
 }
 // 计划详情-接口场景-获取模块数量
 export function getApiScenarioModuleCount(data: PlanDetailApiScenarioQueryParams) {

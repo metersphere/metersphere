@@ -1,5 +1,5 @@
 <template>
-  <MsSplitBox>
+  <MsSplitBox :not-show-first="isAdvancedSearchMode">
     <template #first>
       <div class="p-[16px]">
         <a-radio-group v-model:model-value="treeType" size="medium" class="mb-[16px] w-full" type="button">
@@ -21,8 +21,6 @@
         ref="caseTableRef"
         :plan-id="planId"
         :tree-type="treeType"
-        :modules-count="modulesCount"
-        :module-name="moduleName"
         :module-parent-id="moduleParentId"
         :active-module="activeFolderId"
         :offspring-ids="offspringIds"
@@ -30,6 +28,7 @@
         :can-edit="props.canEdit"
         @get-module-count="getModuleCount"
         @refresh="emit('refresh')"
+        @handle-adv-search="handleAdvSearch"
         @init-modules="initModules"
       ></CaseTable>
     </template>
@@ -74,17 +73,15 @@
 
   const caseTableRef = ref<InstanceType<typeof CaseTable>>();
   const activeFolderId = ref<string>('all');
-  const moduleName = ref<string>('');
   const moduleParentId = ref<string>('');
   const offspringIds = ref<string[]>([]);
   const selectedKeys = computed({
     get: () => [activeFolderId.value],
     set: (val) => val,
   });
-  function handleFolderNodeSelect(ids: string[], _offspringIds: string[], name?: string, parentId?: string) {
+  function handleFolderNodeSelect(ids: string[], _offspringIds: string[], parentId?: string) {
     [activeFolderId.value] = ids;
     offspringIds.value = [..._offspringIds];
-    moduleName.value = name ?? '';
     moduleParentId.value = parentId ?? '';
     caseTableRef.value?.resetSelector();
   }
@@ -97,6 +94,12 @@
   const caseTreeRef = ref<InstanceType<typeof CaseTree>>();
   function initModules() {
     caseTreeRef.value?.initModules();
+  }
+
+  const isAdvancedSearchMode = ref(false);
+  function handleAdvSearch(isStartAdvance: boolean) {
+    isAdvancedSearchMode.value = isStartAdvance;
+    caseTreeRef.value?.setActiveFolder('all');
   }
 
   const treeType = ref<'MODULE' | 'COLLECTION'>('COLLECTION');

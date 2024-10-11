@@ -246,7 +246,6 @@
     heightUsed?: number;
   }>();
   const emit = defineEmits<{
-    (e: 'init', params: any): void;
     (e: 'change'): void;
     (e: 'debug', mock: MockDetail): void;
     (e: 'handleAdvSearch', isStartAdvance: boolean): void;
@@ -388,8 +387,6 @@
     },
   ];
 
-  const tableQueryParams = ref<any>();
-
   const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
   const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
   async function getModuleIds() {
@@ -418,17 +415,10 @@
     };
     setLoadListParams(params);
     loadList();
-    tableQueryParams.value = {
-      ...params,
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
-    };
-    emit('init', {
-      ...tableQueryParams.value,
-    });
   }
 
   watch([() => props.activeModule, () => props.selectedProtocols], () => {
+    if (isAdvancedSearchMode.value) return;
     loadMockList();
   });
 

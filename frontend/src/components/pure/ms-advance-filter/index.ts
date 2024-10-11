@@ -185,15 +185,19 @@ export function getFilterCustomFields(result: any[]) {
 }
 
 // 全部数据默认显示搜索条件：ID、名称、模块；
-// TODO lmy 计划详情功能用例增加：测试点；接口定义、计划详情接口用例增加：协议；
 export function getAllDataDefaultConditions(viewType: ViewTypeEnum) {
   const conditions = [
     { name: 'num', operator: OperatorEnum.CONTAINS },
     { name: 'name', operator: OperatorEnum.CONTAINS },
     { name: 'moduleId', operator: OperatorEnum.BELONG_TO },
   ];
-  if ([ViewTypeEnum.API_DEFINITION].includes(viewType)) {
-    return [...conditions, { name: 'protocol', operator: OperatorEnum.BELONG_TO }];
+  if ([ViewTypeEnum.API_DEFINITION, ViewTypeEnum.PLAN_API_CASE].includes(viewType)) {
+    conditions.push({ name: 'protocol', operator: OperatorEnum.BELONG_TO });
+  }
+  if (
+    [ViewTypeEnum.PLAN_API_SCENARIO, ViewTypeEnum.PLAN_API_CASE, ViewTypeEnum.PLAN_FUNCTIONAL_CASE].includes(viewType)
+  ) {
+    conditions.push({ name: 'testPlanCollectionId', operator: OperatorEnum.BELONG_TO });
   }
   return conditions;
 }
