@@ -12,6 +12,7 @@
     <result column="range_match_val" jdbcType="VARCHAR" property="rangeMatchVal" />
     <result column="invalid_time" jdbcType="INTEGER" property="invalidTime" />
     <result column="invalid_unit" jdbcType="VARCHAR" property="invalidUnit" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
@@ -75,7 +76,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, is_public, `password`, allow_export, api_range, range_match_symbol, range_match_val, 
-    invalid_time, invalid_unit, create_time, create_user
+    invalid_time, invalid_unit, project_id, create_time, create_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDocShareExample" resultMap="BaseResultMap">
     select
@@ -111,13 +112,13 @@
     insert into api_doc_share (id, `name`, is_public, 
       `password`, allow_export, api_range, 
       range_match_symbol, range_match_val, invalid_time, 
-      invalid_unit, create_time, create_user
-      )
+      invalid_unit, project_id, create_time, 
+      create_user)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{isPublic,jdbcType=BIT}, 
       #{password,jdbcType=VARCHAR}, #{allowExport,jdbcType=BIT}, #{apiRange,jdbcType=VARCHAR}, 
       #{rangeMatchSymbol,jdbcType=VARCHAR}, #{rangeMatchVal,jdbcType=VARCHAR}, #{invalidTime,jdbcType=INTEGER}, 
-      #{invalidUnit,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}
-      )
+      #{invalidUnit,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{createUser,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDocShare">
     insert into api_doc_share
@@ -151,6 +152,9 @@
       </if>
       <if test="invalidUnit != null">
         invalid_unit,
+      </if>
+      <if test="projectId != null">
+        project_id,
       </if>
       <if test="createTime != null">
         create_time,
@@ -189,6 +193,9 @@
       </if>
       <if test="invalidUnit != null">
         #{invalidUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -237,6 +244,9 @@
       <if test="record.invalidUnit != null">
         invalid_unit = #{record.invalidUnit,jdbcType=VARCHAR},
       </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
@@ -260,6 +270,7 @@
       range_match_val = #{record.rangeMatchVal,jdbcType=VARCHAR},
       invalid_time = #{record.invalidTime,jdbcType=INTEGER},
       invalid_unit = #{record.invalidUnit,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
@@ -296,6 +307,9 @@
       <if test="invalidUnit != null">
         invalid_unit = #{invalidUnit,jdbcType=VARCHAR},
       </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
@@ -316,6 +330,7 @@
       range_match_val = #{rangeMatchVal,jdbcType=VARCHAR},
       invalid_time = #{invalidTime,jdbcType=INTEGER},
       invalid_unit = #{invalidUnit,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
@@ -323,14 +338,15 @@
   <insert id="batchInsert" parameterType="map">
     insert into api_doc_share
     (id, `name`, is_public, `password`, allow_export, api_range, range_match_symbol, 
-      range_match_val, invalid_time, invalid_unit, create_time, create_user)
+      range_match_val, invalid_time, invalid_unit, project_id, create_time, create_user
+      )
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.isPublic,jdbcType=BIT}, 
         #{item.password,jdbcType=VARCHAR}, #{item.allowExport,jdbcType=BIT}, #{item.apiRange,jdbcType=VARCHAR}, 
         #{item.rangeMatchSymbol,jdbcType=VARCHAR}, #{item.rangeMatchVal,jdbcType=VARCHAR}, 
-        #{item.invalidTime,jdbcType=INTEGER}, #{item.invalidUnit,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.createUser,jdbcType=VARCHAR})
+        #{item.invalidTime,jdbcType=INTEGER}, #{item.invalidUnit,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -372,6 +388,9 @@
         </if>
         <if test="'invalid_unit'.toString() == column.value">
           #{item.invalidUnit,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}

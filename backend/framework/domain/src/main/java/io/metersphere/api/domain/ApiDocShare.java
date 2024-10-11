@@ -24,32 +24,38 @@ public class ApiDocShare implements Serializable {
     @Size(min = 1, max = 255, message = "{api_doc_share.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "是否公开; 0: 私有、1: 公开", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "是否公开;0: 私有、1: 公开", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_doc_share.is_public.not_blank}", groups = {Created.class})
     private Boolean isPublic;
 
-    @Schema(title = "访问密码; 私有时需要访问密码")
+    @Schema(title = "访问密码;私有时需要访问密码")
     private String password;
 
-    @Schema(title = "允许导出; 0: 不允许、1: 允许")
+    @Schema(title = "允许导出;0: 不允许、1: 允许", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_doc_share.allow_export.not_blank}", groups = {Created.class})
     private Boolean allowExport;
 
-    @Schema(title = "接口范围; 全部接口(ALL)、模块(MODULE)、路径(PATH)、标签(TAG)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "接口范围;全部接口(ALL)、模块(MODULE)、路径(PATH)、标签(TAG)", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_doc_share.api_range.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 10, message = "{api_doc_share.api_range.length_range}", groups = {Created.class, Updated.class})
     private String apiRange;
 
-    @Schema(title = "范围匹配符; 包含(CONTAINS)、等于(EQUALS)")
+    @Schema(title = "范围匹配符;包含(CONTAINS)、等于(EQUALS)")
     private String rangeMatchSymbol;
 
-    @Schema(title = "范围匹配值; eg: 选中路径范围时, 该值作为路径匹配")
+    @Schema(title = "范围匹配值;eg: 选中路径范围时, 该值作为路径匹配")
     private String rangeMatchVal;
 
     @Schema(title = "失效时间值")
     private Integer invalidTime;
 
-    @Schema(title = "失效时间单位; 小时(HOUR)、天(DAY)、月(MONTH)、年(YEAR)")
+    @Schema(title = "失效时间单位;小时(HOUR)、天(DAY)、月(MONTH)、年(YEAR)")
     private String invalidUnit;
+
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_doc_share.project_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_doc_share.project_id.length_range}", groups = {Created.class, Updated.class})
+    private String projectId;
 
     @Schema(title = "创建时间")
     private Long createTime;
@@ -70,6 +76,7 @@ public class ApiDocShare implements Serializable {
         rangeMatchVal("range_match_val", "rangeMatchVal", "VARCHAR", false),
         invalidTime("invalid_time", "invalidTime", "INTEGER", false),
         invalidUnit("invalid_unit", "invalidUnit", "VARCHAR", false),
+        projectId("project_id", "projectId", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false);
 

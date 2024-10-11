@@ -147,7 +147,7 @@
             <if test="!request.useTrash">
                 b.deleted = 0
             </if>
-            <if test="request.projectId">
+            <if test="request.projectId != null and request.projectId != ''">
                 and b.project_id = #{request.projectId}
             </if>
             <if test="request.keyword != null and request.keyword != ''">
