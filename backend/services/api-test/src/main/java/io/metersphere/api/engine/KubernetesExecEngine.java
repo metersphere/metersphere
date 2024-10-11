@@ -4,10 +4,17 @@ import io.metersphere.engine.ApiEngine;
 import io.metersphere.sdk.dto.api.task.TaskBatchRequestDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.exception.TaskRunnerResultCode;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.pool.TestResourceDTO;
+import org.springframework.web.client.HttpServerErrorException;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
+import static io.metersphere.api.controller.result.ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR;
 
 public class KubernetesExecEngine implements ApiEngine {
     /**
@@ -16,16 +23,34 @@ public class KubernetesExecEngine implements ApiEngine {
     private final Object request;
     private final TestResourceDTO resource;
 
+    /**
+     * 单调执行构造函数
+     *
+     * @param request
+     * @param resource
+     */
     public KubernetesExecEngine(TaskRequestDTO request, TestResourceDTO resource) {
         this.request = request;
         this.resource = resource;
     }
 
+    /**
+     * 批量执行构造函数
+     *
+     * @param batchRequestDTO
+     * @param resource
+     */
     public KubernetesExecEngine(TaskBatchRequestDTO batchRequestDTO, TestResourceDTO resource) {
         this.resource = resource;
         this.request = batchRequestDTO;
     }
 
+    /**
+     * 停止执行构造函数
+     *
+     * @param reportIds
+     * @param resource
+     */
     public KubernetesExecEngine(List<String> reportIds, TestResourceDTO resource) {
         this.resource = resource;
         this.request = reportIds;
@@ -40,18 +65,33 @@ public class KubernetesExecEngine implements ApiEngine {
 
     private void runApi(String command) {
         try {
-            KubernetesProvider.exec(resource, request, command);
+            KubernetesProvider.exec(resource, command);
+        } catch (HttpServerErrorException e) {
+            handleHttpServerError(e);
         } catch (Exception e) {
-            LogUtils.error("K8S 执行异常：", e);
-            rollbackOnFailure();  // 错误处理逻辑
-            throw new MSException("K8S 节点执行错误：" + e.getMessage(), e);
+            handleGeneralError(e);
         }
     }
 
+    private void handleHttpServerError(HttpServerErrorException e) {
+        LogUtils.error("K8S 执行异常：", e);
 
-    // 错误回滚处理
-    private void rollbackOnFailure() {
-        // TODO: 实现回滚处理逻辑
-        LogUtils.info("执行失败，回滚操作启动。");
+        // 获取错误代码并处理
+        int errorCode = Optional.ofNullable(e.getResponseBodyAs(ResultHolder.class))
+                .map(ResultHolder::getCode)
+                .orElseThrow(() -> new MSException(RESOURCE_POOL_EXECUTE_ERROR, "Unknown error code"));
+
+        // 匹配资源池的错误代码并抛出相应异常
+        TaskRunnerResultCode resultCode = Arrays.stream(TaskRunnerResultCode.values())
+                .filter(code -> code.getCode() == errorCode)
+                .findFirst()
+                .orElseThrow(() -> new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage()));
+
+        throw new MSException(resultCode, e.getMessage());
+    }
+
+    private void handleGeneralError(Exception e) {
+        LogUtils.error("K8S 执行异常：", e);
+        throw new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage());
     }
 }
