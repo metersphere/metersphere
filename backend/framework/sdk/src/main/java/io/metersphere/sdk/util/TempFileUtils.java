@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 
 public class TempFileUtils {
-    private static final String TEMP_FILE_FOLDER = "/tmp/metersphere/file/";
+    private static final String TEMP_FILE_FOLDER = "/opt/metersphere/file-preview/";
     private static final int CREATE_FILE_BYTES_MAX_LENGTH = 256;
     private TempFileUtils() {
     }
