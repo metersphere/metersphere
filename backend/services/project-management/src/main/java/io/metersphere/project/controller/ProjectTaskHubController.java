@@ -2,6 +2,7 @@ package io.metersphere.project.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BasePageRequest;
+import io.metersphere.system.dto.taskhub.ResourcePoolOptionsDTO;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
 import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
 import io.metersphere.system.dto.taskhub.TaskHubScheduleDTO;
@@ -17,10 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -61,5 +59,13 @@ public class ProjectTaskHubController {
     @Parameter(name = "ids", description = "任务ID集合", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     public List<TaskStatisticsResponse> calculateRate(@RequestBody List<String> ids) {
         return baseTaskHubService.calculateRate(ids, null, SessionUtils.getCurrentProjectId());
+    }
+
+
+    @GetMapping("/resource-pool/options")
+    @Operation(summary = "项目-任务中心-获取资源池下拉选项")
+    @RequiresPermissions(PermissionConstants.PROJECT_CASE_TASK_CENTER_READ)
+    public List<ResourcePoolOptionsDTO> getUserProject() {
+        return baseTaskHubService.getProjectResourcePoolOptions(SessionUtils.getCurrentProjectId());
     }
 }

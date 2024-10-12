@@ -60,4 +60,31 @@
     </sql>
 
 
+
+    <select id="selectAllResourcePool" resultType="io.metersphere.system.domain.TestResourcePool">
+        SELECT id, name
+        FROM test_resource_pool
+        where deleted = false
+        <if test="poolIds != null and poolIds.size() > 0 ">
+            and (all_org = true or id
+            <foreach collection="poolIds" item="poolId" open="(" separator="," close=")">
+                #{poolId}
+            </foreach>
+            )
+        </if>
+        <if test="poolIds == null or poolIds.size() == 0">
+            and all_org = true
+        </if>
+    </select>
+
+
+    <select id="selectProjectAllResourcePool" resultType="io.metersphere.system.domain.TestResourcePool">
+        SELECT id, name
+        FROM test_resource_pool
+        where deleted = false and id in
+        <foreach collection="poolIds" item="poolId" open="(" separator="," close=")">
+            #{poolId}
+        </foreach>
+    </select>
+
 </mapper>

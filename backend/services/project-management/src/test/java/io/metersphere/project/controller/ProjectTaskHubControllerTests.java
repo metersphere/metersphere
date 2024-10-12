@@ -23,6 +23,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     public static final String PROJECT_SCHEDULE_TASK_PAGE = "/project/task-center/schedule/page";
     public static final String PROJECT_TASK_ITEM_PAGE = "/project/task-center/exec-task/item/page";
     public static final String PROJECT_STATISTICS = "/project/task-center/exec-task/statistics";
+    public static final String PROJECT_RESOURCE_POOL_OPTIONS = "/project/task-center/resource-pool/options";
 
     @Test
     @Order(1)
@@ -85,6 +86,20 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     public void getProStatistics() throws Exception {
         List<String> ids = List.of("pro_1","pro_2");
         MvcResult mvcResult = this.requestPostWithOkAndReturn(PROJECT_STATISTICS, ids);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+    /**
+     * 组织获取资源池下拉选项
+     */
+    @Test
+    @Order(5)
+    public void getOrgResourcePoolOptions() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(PROJECT_RESOURCE_POOL_OPTIONS);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);

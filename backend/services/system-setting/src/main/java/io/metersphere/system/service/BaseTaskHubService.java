@@ -2,6 +2,9 @@ package io.metersphere.system.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
+import io.metersphere.project.domain.ProjectTestResourcePool;
+import io.metersphere.project.domain.ProjectTestResourcePoolExample;
+import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.util.JSON;
@@ -59,6 +62,12 @@ public class BaseTaskHubService {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private TestResourcePoolBlobMapper testResourcePoolBlobMapper;
+    @Resource
+    private TestResourcePoolOrganizationMapper testResourcePoolOrganizationMapper;
+    @Resource
+    private ExtResourcePoolMapper extResourcePoolMapper;
+    @Resource
+    private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
 
     /**
      * 系统-获取执行任务列表
@@ -230,15 +239,19 @@ public class BaseTaskHubService {
         TestResourcePoolExample example = new TestResourcePoolExample();
         example.createCriteria().andDeletedEqualTo(false);
         List<TestResourcePool> allResourcePools = testResourcePoolMapper.selectByExample(example);
+        Map<String, List<TestResourcePoolBlob>> poolMap = getPoolMap(allResourcePools);
+        return handleOptions(allResourcePools, poolMap);
+
+    }
+
+    private Map<String, List<TestResourcePoolBlob>> getPoolMap(List<TestResourcePool> allResourcePools) {
         List<String> ids = allResourcePools.stream().map(TestResourcePool::getId).toList();
         //获取全部资源池节点
         TestResourcePoolBlobExample blobExample = new TestResourcePoolBlobExample();
         blobExample.createCriteria().andIdIn(ids);
         List<TestResourcePoolBlob> testResourcePoolBlobs = testResourcePoolBlobMapper.selectByExampleWithBLOBs(blobExample);
         Map<String, List<TestResourcePoolBlob>> poolMap = testResourcePoolBlobs.stream().collect(Collectors.groupingBy(TestResourcePoolBlob::getId));
-
-        return handleOptions(allResourcePools, poolMap);
-
+        return poolMap;
     }
 
     private List<ResourcePoolOptionsDTO> handleOptions(List<TestResourcePool> allResourcePools, Map<String, List<TestResourcePoolBlob>> poolMap) {
@@ -264,4 +277,43 @@ public class BaseTaskHubService {
         return options;
     }
 
+
+    /**
+     * 获取组织下的资源池及节点下拉选项
+     *
+     * @param orgId
+     * @return
+     */
+    public List<ResourcePoolOptionsDTO> getOrgResourcePoolOptions(String orgId) {
+        TestResourcePoolOrganizationExample example = new TestResourcePoolOrganizationExample();
+        example.createCriteria().andOrgIdEqualTo(orgId);
+        List<TestResourcePoolOrganization> orgPools = testResourcePoolOrganizationMapper.selectByExample(example);
+        List<String> poolIds = orgPools.stream().map(TestResourcePoolOrganization::getTestResourcePoolId).toList();
+        List<TestResourcePool> allResourcePools = extResourcePoolMapper.selectAllResourcePool(poolIds);
+        if (CollectionUtils.isEmpty(allResourcePools)) {
+            return null;
+        }
+        Map<String, List<TestResourcePoolBlob>> poolMap = getPoolMap(allResourcePools);
+        return handleOptions(allResourcePools, poolMap);
+    }
+
+
+    /**
+     * 获取项目下的资源池及节点下拉选项
+     *
+     * @param projectId
+     * @return
+     */
+    public List<ResourcePoolOptionsDTO> getProjectResourcePoolOptions(String projectId) {
+        ProjectTestResourcePoolExample example = new ProjectTestResourcePoolExample();
+        example.createCriteria().andProjectIdEqualTo(projectId);
+        List<ProjectTestResourcePool> projectPools = projectTestResourcePoolMapper.selectByExample(example);
+        List<String> poolIds = projectPools.stream().map(ProjectTestResourcePool::getTestResourcePoolId).toList();
+        if (CollectionUtils.isNotEmpty(poolIds)) {
+            List<TestResourcePool> allResourcePools = extResourcePoolMapper.selectProjectAllResourcePool(poolIds);
+            Map<String, List<TestResourcePoolBlob>> poolMap = getPoolMap(allResourcePools);
+            return handleOptions(allResourcePools, poolMap);
+        }
+        return null;
+    }
 }

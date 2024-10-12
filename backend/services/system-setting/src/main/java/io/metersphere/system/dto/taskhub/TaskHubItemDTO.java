@@ -10,6 +10,9 @@ import lombok.Data;
 @Data
 public class TaskHubItemDTO extends ExecTaskItem {
 
+    @Schema(description = "业务id")
+    private Long num;
+
     @Schema(description = "任务名称")
     private String taskName;
 
