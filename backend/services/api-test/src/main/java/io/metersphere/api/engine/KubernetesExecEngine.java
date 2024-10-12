@@ -22,6 +22,7 @@ public class KubernetesExecEngine implements ApiEngine {
      */
     private final Object request;
     private final TestResourceDTO resource;
+    private final String optToken;
 
     /**
      * 单调执行构造函数
@@ -29,9 +30,10 @@ public class KubernetesExecEngine implements ApiEngine {
      * @param request
      * @param resource
      */
-    public KubernetesExecEngine(TaskRequestDTO request, TestResourceDTO resource) {
+    public KubernetesExecEngine(TaskRequestDTO request, TestResourceDTO resource, String optToken) {
         this.request = request;
         this.resource = resource;
+        this.optToken = optToken;
     }
 
     /**
@@ -40,9 +42,10 @@ public class KubernetesExecEngine implements ApiEngine {
      * @param batchRequestDTO
      * @param resource
      */
-    public KubernetesExecEngine(TaskBatchRequestDTO batchRequestDTO, TestResourceDTO resource) {
+    public KubernetesExecEngine(TaskBatchRequestDTO batchRequestDTO, TestResourceDTO resource, String optToken) {
         this.resource = resource;
         this.request = batchRequestDTO;
+        this.optToken = optToken;
     }
 
     /**
@@ -51,21 +54,22 @@ public class KubernetesExecEngine implements ApiEngine {
      * @param reportIds
      * @param resource
      */
-    public KubernetesExecEngine(List<String> reportIds, TestResourceDTO resource) {
+    public KubernetesExecEngine(List<String> reportIds, TestResourceDTO resource, String optToken) {
         this.resource = resource;
         this.request = reportIds;
+        this.optToken = optToken;
     }
 
     @Override
-    public void execute(String command) {
+    public void execute(String path) {
         // 初始化任务
-        LogUtils.info("CURL 命令：【 " + command + " 】");
-        this.runApi(command, request);
+        LogUtils.info("CURL 执行方法：【 " + path + " 】");
+        this.runApi(path, request);
     }
 
-    private void runApi(String command, Object request) {
+    private void runApi(String apiPath, Object request) {
         try {
-            KubernetesProvider.exec(resource, request, command);
+            KubernetesProvider.exec(resource, request, apiPath, optToken);
         } catch (HttpServerErrorException e) {
             handleHttpServerError(e);
         } catch (Exception e) {

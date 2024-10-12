@@ -11,17 +11,16 @@ import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.dto.SocketMsgDTO;
 import io.metersphere.sdk.dto.api.result.ProcessResultDTO;
 import io.metersphere.sdk.dto.api.result.TaskResultDTO;
+import io.metersphere.sdk.dto.api.task.TaskBatchRequestDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.WebSocketUtils;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.dto.pool.TestResourceDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -29,6 +28,7 @@ public class KubernetesProvider {
 
     private static final String RUNNING_PHASE = "Running";
     private static final String SHELL_COMMAND = "sh";
+    private static final String LOCAL_URL = "http://127.0.0.1:8000";
 
     public static KubernetesClient getKubernetesClient(TestResourceDTO credential) {
         ConfigBuilder configBuilder = new ConfigBuilder()
@@ -43,39 +43,111 @@ public class KubernetesProvider {
     }
 
     public static Pod getExecPod(KubernetesClient client, TestResourceDTO credential) {
-        List<Pod> nodePods = client.pods()
-                .inNamespace(credential.getNamespace())
-                .list().getItems()
-                .stream()
-                .filter(s -> RUNNING_PHASE.equals(s.getStatus().getPhase()) && StringUtils.startsWith(s.getMetadata().getGenerateName(), "task-runner"))
-                .toList();
-
+        List<Pod> nodePods = getPods(client, credential);
         if (CollectionUtils.isEmpty(nodePods)) {
             throw new MSException("Execution node not found");
         }
         return nodePods.get(ThreadLocalRandom.current().nextInt(nodePods.size()));
     }
 
+    public static List<Pod> getPods(KubernetesClient client, TestResourceDTO credential) {
+        return client.pods()
+                .inNamespace(credential.getNamespace())
+                .list().getItems()
+                .stream()
+                .filter(s -> RUNNING_PHASE.equals(s.getStatus().getPhase()) && StringUtils.startsWith(s.getMetadata().getGenerateName(), "task-runner"))
+                .toList();
+    }
+
     /**
      * 执行命令
      *
      * @param resource
-     * @param command
+     * @param apiPath
      */
-    protected static void exec(TestResourceDTO resource, Object runRequest, String command) {
+    protected static void exec(TestResourceDTO resource, Object runRequest, String apiPath, String optToken) {
         try (KubernetesClient client = getKubernetesClient(resource)) {
-            Pod pod = getExecPod(client, resource);
-            LogUtils.info("当前执行 Pod：【 " + pod.getMetadata().getName() + " 】");
-            LogUtils.info("执行命令：【 " + command + " 】");
-            // 同步执行命令
+
+            if (runRequest instanceof TaskBatchRequestDTO request) {
+                // 均分给每一个 Pod
+                List<Pod> pods = getPods(client, resource);
+                if (pods.isEmpty()) {
+                    throw new MSException("No available pods found for execution.");
+                }
+
+                // Distribute tasks across nodes
+                List<TaskBatchRequestDTO> distributedTasks = distributeTasksAmongNodes(request, pods.size(), resource);
+
+                // Execute distributed tasks on each pod
+                for (int i = 0; i < pods.size(); i++) {
+                    Pod pod = pods.get(i);
+                    TaskBatchRequestDTO subTaskRequest = distributedTasks.get(i);
+                    List<String> taskKeys = subTaskRequest.getTaskItems().stream()
+                            .map(taskItem -> taskItem.getReportId() + "_" + taskItem.getResourceId())
+                            .toList();
+
+                    LogUtils.info("Sending batch tasks to pod {} for execution:\n{}", pod.getMetadata().getName(), taskKeys);
+                    executeCommandOnPod(client, pod, subTaskRequest, apiPath, optToken);
+                }
+            } else if (runRequest instanceof TaskRequestDTO) {
+                // 随机一个 Pod 执行
+                Pod pod = getExecPod(client, resource);
+                LogUtils.info("Executing task on pod: {}", pod.getMetadata().getName());
+                executeCommandOnPod(client, pod, runRequest, apiPath, optToken);
+            } else {
+                // 发送给每一个 Pod
+                LogUtils.info("Stop tasks [{}] on Pods", runRequest);
+                List<Pod> nodesList = getPods(client, resource);
+                for (Pod pod : nodesList) {
+                    executeCommandOnPod(client, pod, runRequest, apiPath, optToken);
+                }
+            }
+        } catch (Exception e) {
+            LogUtils.error("Failed to execute tasks on Kubernetes.", e);
+        }
+    }
+
+    /**
+     * Distributes tasks across nodes for parallel execution.
+     */
+    private static List<TaskBatchRequestDTO> distributeTasksAmongNodes(TaskBatchRequestDTO request, int podCount, TestResourceDTO resource) {
+        List<TaskBatchRequestDTO> distributedTasks = new ArrayList<>(podCount);
+
+        for (int i = 0; i < request.getTaskItems().size(); i++) {
+            int nodeIndex = i % podCount;
+            TaskBatchRequestDTO distributeTask;
+            if (distributedTasks.size() < podCount) {
+                distributeTask = BeanUtils.copyBean(new TaskBatchRequestDTO(), request);
+                distributeTask.setTaskItems(new ArrayList<>());
+                distributedTasks.add(distributeTask);
+            } else {
+                distributeTask = distributedTasks.get(nodeIndex);
+            }
+            distributeTask.getTaskInfo().setPoolSize(resource.getConcurrentNumber());
+            distributeTask.getTaskItems().add(request.getTaskItems().get(i));
+        }
+        return distributedTasks;
+    }
+
+    /**
+     * Executes the curl command on a given Kubernetes pod.
+     */
+    private static void executeCommandOnPod(KubernetesClient client, Pod pod, Object runRequest, String apiPath, String optToken) {
+        try {
+            String command = buildCurlCommand(apiPath, runRequest, optToken);
+
+            LogUtils.info("Executing command on pod {}: 【{}】", pod.getMetadata().getName(), command);
+
+            // Execute the command on the pod
             client.pods().inNamespace(client.getNamespace())
                     .withName(pod.getMetadata().getName())
                     .redirectingInput()
                     .writingOutput(System.out)
                     .writingError(System.err)
-                    .withTTY()
                     .usingListener(new SimpleListener(runRequest))
-                    .exec(SHELL_COMMAND, "-c", command + StringUtils.LF);
+                    .exec(SHELL_COMMAND, "-c", command);
+        } catch (Exception e) {
+            LogUtils.error("Failed to execute command on pod {} ", pod.getMetadata().getName(), e);
         }
     }
 
@@ -89,7 +161,6 @@ public class KubernetesProvider {
         public void onFailure(Throwable t, Response response) {
             LogUtils.error("K8s 监听失败", t);
             if (runRequest != null) {
-                LogUtils.info("请求参数：{}", JSON.toJSONString(runRequest));
                 handleGeneralError(runRequest, t);
                 return;
             }
@@ -143,4 +214,25 @@ public class KubernetesProvider {
 
         return result;
     }
+
+    private static String buildCurlCommand(String path, Object request, String optToken) {
+        return String.format(
+                "curl -H \"Accept: application/json\" " +
+                        "-H \"Content-type: application/json\" " +
+                        "-H \"otp-token: %s\" " +
+                        "-X POST -d '%s' " +
+                        "--connect-timeout %d " +
+                        "--max-time %d " +
+                        "--retry %d " +
+                        "%s%s",
+                optToken,                      // otp-token
+                JSON.toFormatJSONString(request), // 请求体
+                30,                            // 连接超时（秒）
+                120,                           // 最大时间（秒）
+                3,                             // 重试次数
+                LOCAL_URL,                     // 本地 URL
+                path                           // 具体 API 路径
+        );
+    }
+
 }
