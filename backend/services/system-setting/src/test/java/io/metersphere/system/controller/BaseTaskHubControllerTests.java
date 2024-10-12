@@ -129,6 +129,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String ORG_SCHEDULE_TASK_PAGE = "/organization/task-center/schedule/page";
     public static final String ORG_TASK_ITEM_PAGE = "/organization/task-center/exec-task/item/page";
     public static final String ORG_STATISTICS = "/organization/task-center/exec-task/statistics";
+    public static final String ORG_RESOURCE_POOL_OPTIONS = "/organization/task-center/resource-pool/options";
 
     @Test
     @Order(20)
@@ -190,6 +191,21 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public void getOrgStatistics() throws Exception {
         List<String> ids = List.of("1", "2");
         MvcResult mvcResult = this.requestPostWithOkAndReturn(ORG_STATISTICS, ids);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
+    /**
+     * 组织获取资源池下拉选项
+     */
+    @Test
+    @Order(5)
+    public void getOrgResourcePoolOptions() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(ORG_RESOURCE_POOL_OPTIONS);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);

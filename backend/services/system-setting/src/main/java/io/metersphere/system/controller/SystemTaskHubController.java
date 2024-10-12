@@ -63,13 +63,12 @@ public class SystemTaskHubController {
 
     @GetMapping("/resource-pool/options")
     @Operation(summary = "系统-任务中心-获取资源池下拉选项")
+    @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ)
     public List<ResourcePoolOptionsDTO> getUserProject() {
         return baseTaskHubService.getResourcePoolOptions();
     }
 
     //TODO 检查节点状态
-
-    //TODO 组织&项目 获取资源池下拉选项
 
     //TODO 系统&组织&项目 任务按钮操作：删除 停止 失败重跑 查看报告   批量删除 批量停止  批量失败重跑
 

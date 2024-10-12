@@ -3,12 +3,13 @@
 <mapper namespace="io.metersphere.system.mapper.ExtExecTaskItemMapper">
 
     <select id="selectList" resultType="io.metersphere.system.dto.taskhub.TaskHubItemDTO">
-        SELECT *
+        SELECT exec_task_item.*, exec_task.num
         FROM exec_task_item
+        inner join exec_task on exec_task_item.task_id = exec_task.id
         <where>
             <if test="request.keyword != null and request.keyword != ''">
                 and (
-                exec_task_item.task_id like concat('%', #{request.keyword},'%')
+                exec_task.num like concat('%', #{request.keyword},'%')
                 or exec_task_item.resource_name like concat('%', #{request.keyword},'%')
                 )
             </if>
