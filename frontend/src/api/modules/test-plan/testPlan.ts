@@ -251,7 +251,7 @@ export function getFeatureCaseModuleCount(data: PlanDetailFeatureCaseListQueryPa
 }
 // 计划详情-功能用例模块树
 export function getFeatureCaseModule(data: PlanDetailApiCaseTreeParams) {
-  return MSR.post<ModuleTreeNode[]>({ url: GetFeatureCaseModuleUrl, data });
+  return MSR.post<ModuleTreeNode[]>({ url: GetFeatureCaseModuleUrl, data }, { ignoreCancelToken: true });
 }
 // 计划详情-功能用例列表-取消关联用例
 export function disassociateCase(data: DisassociateCaseParams) {

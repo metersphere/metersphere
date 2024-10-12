@@ -75,7 +75,7 @@
     treeType: 'MODULE' | 'COLLECTION';
   }>();
   const emit = defineEmits<{
-    (e: 'folderNodeSelect', ids: string[], _offspringIds: string[], nodeName?: string, parentId?: string): void;
+    (e: 'folderNodeSelect', ids: string[], _offspringIds: string[], parentId?: string): void;
     (e: 'init', params: ModuleTreeNode[]): void;
     (e: 'changeProtocol', selectedProtocols: string[]): void;
   }>();
