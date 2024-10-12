@@ -2,16 +2,15 @@
   <div class="h-full p-[16px]">
     <div class="mb-[16px]">
       <MsAdvanceFilter
+        ref="msAdvanceFilterRef"
         v-model:keyword="keyword"
-        :filter-config-list="[]"
-        :custom-fields-config-list="[]"
-        :count="modulesCount[props.activeModule] || 0"
-        :name="moduleNamePath"
-        :not-show-input-search="showType !== 'list'"
-        :search-placeholder="t('ms.case.associate.searchPlaceholder')"
+        :view-type="ViewTypeEnum.PLAN_API_SCENARIO"
+        :filter-config-list="filterConfigList"
+        :custom-fields-config-list="searchCustomFields"
+        :search-placeholder="t('common.searchByIdName')"
         @keyword-search="loadCaseList()"
-        @adv-search="loadCaseList()"
-        @refresh="handleRefreshAll"
+        @adv-search="handleAdvSearch"
+        @refresh="handleRefreshAll()"
       >
         <template #right>
           <a-radio-group
@@ -37,12 +36,12 @@
         v-bind="propsRes"
         :action-config="batchActions"
         :selectable="hasOperationPermission"
+        :not-show-table-filter="isAdvancedSearchMode"
         v-on="propsEvent"
         @batch-action="handleTableBatch"
         @drag-change="handleDragChange"
         @selected-change="handleTableSelect"
         @filter-change="getModuleCount"
-        @module-change="loadCaseList(false)"
       >
         <template #num="{ record }">
           <MsButton type="text" @click="toCaseDetail(record)">{{ record.num }}</MsButton>
@@ -205,7 +204,8 @@
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
-  import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { getFilterCustomFields, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import type { MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
   import MsPopconfirm from '@/components/pure/ms-popconfirm/index.vue';
@@ -228,6 +228,7 @@
   import BatchUpdateExecutorModal from '@/views/test-plan/testPlan/components/batchUpdateExecutorModal.vue';
   import ExecuteForm from '@/views/test-plan/testPlan/detail/featureCase/components/executeForm.vue';
 
+  import { getAssociatedProjectOptions, getCustomFieldsTable } from '@/api/modules/case-management/featureCase';
   import {
     associateBugToPlan,
     batchAssociatedBugToCase,
@@ -236,6 +237,7 @@
     batchMoveFeatureCase,
     batchUpdateCaseExecutor,
     disassociateCase,
+    getFeatureCaseModule,
     getPlanDetailFeatureCaseList,
     runFeatureCase,
     sortFeatureCase,
@@ -250,7 +252,9 @@
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import { DragSortParams, ModuleTreeNode, TableQueryParams } from '@/models/common';
+  import type { ProjectListItem } from '@/models/setting/project';
   import type { ExecuteFeatureCaseFormParams, PlanDetailFeatureCaseItem } from '@/models/testPlan/testPlan';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
   import { CaseLinkEnum, LastExecuteResults } from '@/enums/caseEnum';
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
@@ -258,10 +262,13 @@
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { casePriorityOptions } from '@/views/api-test/components/config';
-  import { executionResultMap, getCaseLevels } from '@/views/case-management/caseManagementFeature/components/utils';
+  import {
+    executionResultMap,
+    getCaseLevels,
+    statusIconMap,
+  } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const props = defineProps<{
-    moduleName: string;
     moduleParentId: string;
     activeModule: string;
     offspringIds: string[];
@@ -272,6 +279,7 @@
 
   const emit = defineEmits<{
     (e: 'refresh'): void;
+    (e: 'handleAdvSearch', isStartAdvance: boolean): void;
     (e: 'selectParentNode', tree: ModuleTreeNode[]): void;
   }>();
 
@@ -291,9 +299,6 @@
 
   const showType = ref<'list' | 'minder'>('list');
   const keyword = ref('');
-  const moduleNamePath = computed(() => {
-    return props.activeModule === 'all' ? t('caseManagement.featureCase.allCase') : props.moduleName;
-  });
 
   const hasOperationPermission = computed(
     () => hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE', 'PROJECT_TEST_PLAN:READ+ASSOCIATION']) && props.canEdit
@@ -446,22 +451,27 @@
     tableKey: TableKeyEnum.TEST_PLAN_DETAIL_FEATURE_CASE_TABLE,
     showSetting: true,
     heightUsed: 445,
-    showSubdirectory: true,
     draggable: { type: 'handle' },
     draggableCondition: true,
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, getTableQueryParams } = useTable(
-    getPlanDetailFeatureCaseList,
-    tableProps.value,
-    (record) => {
-      return {
-        ...record,
-        lastExecResult: record.lastExecResult ?? LastExecuteResults.PENDING,
-        caseLevel: getCaseLevels(record.customFields),
-      };
-    }
-  );
+  const {
+    propsRes,
+    propsEvent,
+    viewId,
+    advanceFilter,
+    setAdvanceFilter,
+    loadList,
+    setLoadListParams,
+    resetSelector,
+    getTableQueryParams,
+  } = useTable(getPlanDetailFeatureCaseList, tableProps.value, (record) => {
+    return {
+      ...record,
+      lastExecResult: record.lastExecResult ?? LastExecuteResults.PENDING,
+      caseLevel: getCaseLevels(record.customFields),
+    };
+  });
   const existedDefect = inject<Ref<number>>('existedDefect', ref(0));
 
   function getLinkAction() {
@@ -514,10 +524,11 @@
       tableRef.value?.initColumn(columns.value);
     }
   );
-
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
   async function getModuleIds() {
     let moduleIds: string[] = [];
-    if (props.activeModule !== 'all') {
+    if (props.activeModule !== 'all' && !isAdvancedSearchMode.value) {
       moduleIds = [props.activeModule];
       const getAllChildren = await tableStore.getSubShow(TableKeyEnum.TEST_PLAN_DETAIL_FEATURE_CASE_TABLE);
       if (getAllChildren) {
@@ -540,6 +551,8 @@
         condition: {
           keyword: keyword.value,
           filter: propsRes.value.filter,
+          viewId: viewId.value,
+          combineSearch: advanceFilter,
         },
         projectId: props.activeModule !== 'all' && props.treeType === 'MODULE' ? props.moduleParentId : '',
         ...commonParams,
@@ -571,11 +584,13 @@
     const tableParams = await getTableParams(false);
     setLoadListParams({
       ...tableParams,
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
       projectId: props.activeModule !== 'all' && props.treeType === 'MODULE' ? props.moduleParentId : '',
     });
     resetSelector();
     loadList();
-    if (refreshTreeCount) {
+    if (refreshTreeCount && !isAdvancedSearchMode.value) {
       testPlanFeatureCaseStore.getModuleCount({
         ...tableParams,
         current: propsRes.value.msPagination?.current,
@@ -584,17 +599,195 @@
     }
   }
 
+  const projectList = ref<ProjectListItem[]>([]);
+  async function initProjectList() {
+    try {
+      projectList.value = await getAssociatedProjectOptions(appStore.currentOrgId, CaseLinkEnum.SCENARIO);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  const anotherTree = ref<ModuleTreeNode[]>([]);
+  async function initAnotherModules() {
+    try {
+      const res = await getFeatureCaseModule({
+        testPlanId: props.planId,
+        treeType: props.treeType === 'MODULE' ? 'COLLECTION' : 'MODULE',
+      });
+      anotherTree.value = res;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  const reviewResultOptions = computed(() => {
+    return Object.keys(statusIconMap).map((key) => {
+      return {
+        value: key,
+        label: statusIconMap[key].statusText,
+      };
+    });
+  });
+
+  const filterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'caseManagement.featureCase.tableColumnID',
+      dataIndex: 'num',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'case.caseName',
+      dataIndex: 'name',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'ms.minders.testSet',
+      dataIndex: 'testPlanCollectionId',
+      type: FilterType.SELECT,
+      selectProps: {
+        labelKey: 'name',
+        valueKey: 'id',
+        multiple: true,
+        options: props.treeType !== 'MODULE' ? moduleTree.value : anotherTree.value,
+      },
+    },
+    {
+      title: 'common.belongModule',
+      dataIndex: 'moduleId',
+      type: FilterType.TREE_SELECT,
+      treeSelectData: props.treeType === 'MODULE' ? moduleTree.value : anotherTree.value,
+      treeSelectProps: {
+        fieldNames: {
+          title: 'name',
+          key: 'id',
+          children: 'children',
+        },
+        multiple: true,
+        treeCheckable: true,
+        treeCheckStrictly: true,
+      },
+    },
+    {
+      title: 'common.belongProject',
+      dataIndex: 'projectName',
+      type: FilterType.SELECT,
+      selectProps: {
+        labelKey: 'name',
+        valueKey: 'id',
+        multiple: true,
+        options: projectList.value,
+      },
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnReviewResult',
+      dataIndex: 'reviewStatus',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: reviewResultOptions.value,
+      },
+    },
+    {
+      title: 'common.executionResult',
+      dataIndex: 'lastExecResult',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        valueKey: 'key',
+        labelKey: 'statusText',
+        options: Object.values(executionResultMap),
+      },
+    },
+    {
+      title: 'caseManagement.featureCase.associatedDemand',
+      dataIndex: 'demand',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'caseManagement.featureCase.relatedAttachments',
+      dataIndex: 'attachment',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      type: FilterType.TAGS_INPUT,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'testPlan.featureCase.bugCount',
+      dataIndex: 'bugCount',
+      type: FilterType.NUMBER,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'testPlan.featureCase.executor',
+      dataIndex: 'executeUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'apiScenario.table.columns.updateUser',
+      dataIndex: 'updateUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.updateTime',
+      dataIndex: 'updateTime',
+      type: FilterType.DATE_PICKER,
+    },
+  ]);
+  const searchCustomFields = ref<FilterFormItem[]>([]);
+  async function initFilter() {
+    try {
+      const result = await getCustomFieldsTable(appStore.currentProjectId);
+      searchCustomFields.value = getFilterCustomFields(result); // 处理自定义字段
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+  // 高级检索
+  const handleAdvSearch = async (filter: FilterResult, id: string, isStartAdvance: boolean) => {
+    resetSelector();
+    emit('handleAdvSearch', isStartAdvance);
+    keyword.value = '';
+    setAdvanceFilter(filter, id);
+    await loadCaseList(); // 基础筛选都清空
+  };
+
   watch(
     () => props.activeModule,
     () => {
-      if (showType.value === 'list') {
+      if (showType.value === 'list' && !isAdvancedSearchMode.value) {
         loadCaseList();
       }
     }
   );
 
-  onBeforeMount(() => {
+  onBeforeMount(async () => {
+    await initFilter();
     loadCaseList();
+    initProjectList();
+    initAnotherModules();
   });
 
   onActivated(() => {
