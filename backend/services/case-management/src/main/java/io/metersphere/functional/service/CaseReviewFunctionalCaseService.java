@@ -940,7 +940,9 @@ public class CaseReviewFunctionalCaseService {
         }
         if (hasReReview.get() && reReviewTime[0] >= createTime[0]) {
             for (OptionDTO optionDTO : optionDTOS) {
-                optionDTO.setName(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
+                if (!StringUtils.equalsIgnoreCase(optionDTO.getName(), FunctionalCaseReviewStatus.UN_REVIEWED.toString()) ) {
+                    optionDTO.setName(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
+                }
             }
         }
         return optionDTOS;
