@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.domain.ApiDocShare;
 import io.metersphere.api.dto.definition.ApiDocShareDTO;
+import io.metersphere.api.dto.definition.ApiDocShareDetail;
 import io.metersphere.api.dto.definition.request.ApiDocShareCheckRequest;
 import io.metersphere.api.dto.definition.request.ApiDocShareEditRequest;
 import io.metersphere.api.dto.definition.request.ApiDocSharePageRequest;
@@ -83,5 +84,12 @@ public class ApiDocShareController {
 	@Operation(summary = "接口测试-接口管理-校验分享密码")
 	public Boolean delete(@Validated @RequestBody ApiDocShareCheckRequest request) {
 		return apiDocShareService.check(request);
+	}
+
+	@GetMapping("/detail/{id}")
+	@Operation(summary = "接口测试-接口管理-查看链接")
+	@Parameter(name = "id", description = "分享ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+	public ApiDocShareDetail detail(@PathVariable String id) {
+		return apiDocShareService.detail(id);
 	}
 }
