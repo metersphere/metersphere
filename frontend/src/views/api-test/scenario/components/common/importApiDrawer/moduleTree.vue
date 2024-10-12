@@ -15,7 +15,9 @@
     </div>
     <div class="folder" @click="setActiveFolder('all')">
       <div :class="allFolderClass">
-        <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
+        <slot>
+          <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
+        </slot>
         <div class="folder-name">{{ folderText }}</div>
         <div class="folder-count">({{ allScenarioCount }})</div>
       </div>
@@ -23,6 +25,8 @@
     <a-spin class="w-full" :loading="loading">
       <MsTree
         v-model:selected-keys="selectedKeys"
+        v-model:checked-keys="checkedKeys"
+        v-model:halfCheckedKeys="halfCheckedKeys"
         :data="folderTree"
         :keyword="moduleKeyword"
         :default-expand-all="isExpandAll"
@@ -42,15 +46,30 @@
         }"
         block-node
         title-tooltip-position="left"
+        :checkable="!props.singleSelect"
+        check-strictly
         @select="handleNodeSelect"
+        @check="checkNode"
       >
         <template #title="nodeData">
           <div class="inline-flex w-full gap-[8px]">
             <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-            <div class="ms-tree-node-count ml-[4px] text-[var(--color-text-4)]"
-              >({{ moduleCountMap[nodeData.id] || 0 }})</div
-            >
+            <div class="ms-tree-node-count ml-[4px] text-[var(--color-text-4)]">
+              {{ nodeData.count || 0 }}/{{ nodeData.totalCount }}
+            </div>
           </div>
+        </template>
+        <template #extra="nodeData">
+          <MsButton
+            v-if="nodeData.children && nodeData.children.length && !props.singleSelect"
+            @click="selectCurrent(nodeData, !!checkedKeys.includes(nodeData.id))"
+          >
+            {{
+              checkedKeys.includes(nodeData.id)
+                ? t('ms.case.associate.cancelCurrent')
+                : t('ms.case.associate.selectCurrent')
+            }}
+          </MsButton>
         </template>
       </MsTree>
     </a-spin>
@@ -58,7 +77,10 @@
 </template>
 
 <script setup lang="ts">
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import type { moduleKeysType } from '@/components/business/ms-associate-case/types';
+  import useCalculateTreeCount from '@/components/business/ms-associate-case/useCalculateTreeCount';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
@@ -77,6 +99,7 @@
       type: 'api' | 'case' | 'scenario';
       protocol: string;
       projectId: string;
+      singleSelect?: boolean;
     }>(),
     {
       type: 'api',
@@ -84,6 +107,11 @@
   );
   const emit = defineEmits<{
     (e: 'select', ids: (string | number)[], node: MsTreeNodeData): void;
+    (e: 'init', tree: ModuleTreeNode[], moduleCount: Record<string, any>): void;
+    (e: 'updateSelectedModules', val: Record<string, Record<string, moduleKeysType>>): void;
+    (e: 'check', _checkedKeys: Array<string | number>, checkedNodes: MsTreeNodeData): void;
+    (e: 'selectParent', node: MsTreeNodeData, isSelected: boolean): void;
+    (e: 'checkAllModule', isCheckedAll: boolean): void;
   }>();
 
   const { t } = useI18n();
@@ -94,6 +122,13 @@
   const isExpandAll = ref(false);
   const moduleCountMap = ref<Record<string, number>>({});
   const selectedKeys = ref<string[]>([]);
+
+  const checkedKeys = defineModel<(string | number)[]>('checkedKeys', {
+    required: true,
+  });
+  const halfCheckedKeys = defineModel<(string | number)[]>('halfCheckedKeys', {
+    required: true,
+  });
   const folderText = computed(() => {
     if (props.type === 'api' || props.type === 'case') {
       return t('apiTestManagement.allApi');
@@ -111,6 +146,7 @@
     selectedKeys.value = [id];
     emit('select', [], { id, name: folderText.value });
   }
+  const { calculateTreeCount } = useCalculateTreeCount();
 
   /**
    * 初始化模块树
@@ -124,12 +160,15 @@
         projectId: props.projectId,
         moduleIds: [],
       };
+      let result: ModuleTreeNode[] = [];
       if (type === 'api' || type === 'case') {
         // case 的模块与 api 的一致
-        folderTree.value = await getModuleTreeOnlyModules(params);
+        result = await getModuleTreeOnlyModules(params);
       } else if (type === 'scenario') {
-        folderTree.value = await getScenarioModuleTree(params);
+        result = await getScenarioModuleTree(params);
       }
+      folderTree.value = calculateTreeCount(result, moduleCountMap.value);
+      emit('init', folderTree.value, moduleCountMap.value);
       setActiveFolder('all');
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -168,9 +207,17 @@
     emit('select', [keys[0], ...offspringIds], node);
   }
 
-  function init(type = props.type) {
+  async function init(type = props.type) {
+    await initModuleCount(type);
     initModules(type);
-    initModuleCount(type);
+  }
+
+  function checkNode(_checkedKeys: Array<string | number>, checkedNodes: MsTreeNodeData) {
+    emit('check', _checkedKeys, checkedNodes);
+  }
+
+  function selectCurrent(node: MsTreeNodeData, isSelected: boolean) {
+    emit('selectParent', node, isSelected);
   }
 
   defineExpose({
@@ -182,7 +229,7 @@
   .folder {
     @apply flex cursor-pointer items-center justify-between;
 
-    padding: 8px 4px;
+    padding: 8px 4px 8px 0;
     border-radius: var(--border-radius-small);
     &:hover {
       background-color: rgb(var(--primary-1));

@@ -30,6 +30,7 @@ import {
   MoveModuleUrl,
   RecoverScenarioUrl,
   RecycleScenarioUrl,
+  ScenarioAssociateExportUrl,
   ScenarioBatchExportLogUrl,
   ScenarioExportLogUrl,
   ScenarioHistoryUrl,
@@ -63,6 +64,7 @@ import {
   ExecuteHistoryItem,
   ExecutePageParams,
   GetSystemRequestParams,
+  ImportSystemData,
   Scenario,
   ScenarioDetail,
   ScenarioHistoryItem,
@@ -322,4 +324,8 @@ export function logScenarioReportBatchExport(data: BatchApiParams) {
 // 场景导出报告id集合
 export function getScenarioBatchExportParams(data: BatchApiParams) {
   return MSR.post({ url: `${GetScenarioBatchExportParamsUrl}`, data });
+}
+// 场景导出报告id集合
+export function scenarioAssociateExport(data: ImportSystemData) {
+  return MSR.post({ url: `${ScenarioAssociateExportUrl}`, data });
 }

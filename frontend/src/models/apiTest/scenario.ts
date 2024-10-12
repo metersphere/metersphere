@@ -1,4 +1,4 @@
-import { BatchActionQueryParams } from '@/components/pure/ms-table/type';
+import type { saveParams } from '@/components/business/ms-associate-case/types';
 import type { CaseLevel } from '@/components/business/ms-case-associate/types';
 
 import { ApiDefinitionCustomField, ApiRunModeRequest } from '@/models/apiTest/management';
@@ -510,4 +510,20 @@ export interface ScenarioStepResourceInfo {
   projectId: string;
   projectName: string;
   delete: boolean;
+}
+
+export interface ScenarioAssociateCaseParams {
+  scenarioId?: string | number;
+  moduleMaps?: Record<string, saveParams>;
+  selectAllModule: boolean; // 是否全选
+  refType: 'COPY' | 'REF';
+  projectId: string;
+  protocols: string[];
+  associateType?: string;
+}
+// 多模块关联
+export interface ImportSystemData {
+  API: ScenarioAssociateCaseParams; // 接口
+  CASE: ScenarioAssociateCaseParams; // 用例
+  SCENARIO: ScenarioAssociateCaseParams; // 场景
 }

@@ -18,7 +18,12 @@
           <div class="flex flex-col">
             <div class="mb-[12px] flex items-center gap-[8px] overflow-hidden">
               <MsProjectSelect v-model:project="currentProject" class="flex-1 overflow-hidden" @change="resetModule" />
-              <a-select v-if="activeKey !== 'scenario'" v-model:model-value="protocol" class="w-[90px]">
+              <a-select
+                v-if="activeKey !== 'scenario'"
+                v-model:model-value="protocol"
+                class="w-[90px]"
+                @change="clearSelected()"
+              >
                 <a-tooltip
                   v-for="item of protocolOptions"
                   :key="item.value as string"
@@ -33,24 +38,39 @@
             </div>
             <moduleTree
               ref="moduleTreeRef"
+              v-model:checkedKeys="currentUseTreeSelection.checkedKeys"
+              v-model:halfCheckedKeys="currentUseTreeSelection.halfCheckedKeys"
               :type="activeKey"
               :project-id="currentProject"
               :protocol="protocol"
+              :single-select="props.singleSelect"
+              @select-parent="currentUseTreeSelection.selectParent"
+              @check="currentUseTreeSelection.checkNode"
               @select="handleModuleSelect"
-            />
+              @init="initModuleTreeData"
+            >
+              <a-checkbox
+                v-if="!props.singleSelect"
+                v-model:model-value="currentUseTreeSelection.isCheckedAll"
+                class="mr-[8px]"
+                :indeterminate="currentUseTreeSelection.indeterminate"
+                @change="currentUseTreeSelection.checkAllModule"
+                @click.stop
+              />
+            </moduleTree>
           </div>
         </div>
         <div class="table-container">
           <apiTable
             ref="apiTableRef"
+            v-model:apiSelectedModulesMaps="apiUseTreeSelection.selectedModulesMaps.value"
+            v-model:caseSelectedModulesMaps="caseUseTreeSelection.selectedModulesMaps.value"
+            v-model:scenarioSelectedModulesMaps="scenarioUseTreeSelection.selectedModulesMaps.value"
             :module="activeModule"
             :type="activeKey"
             :protocol="protocol"
             :project-id="currentProject"
             :module-ids="moduleIds"
-            :selected-apis="selectedApis"
-            :selected-cases="selectedCases"
-            :selected-scenarios="selectedScenarios"
             :scenario-id="props.scenarioId"
             :case-id="props.caseId"
             :api-id="props.apiId"
@@ -58,7 +78,8 @@
             :search-placeholder="
               activeKey === 'scenario' ? t('apiScenario.quoteTableSearchTip2') : t('apiScenario.quoteTableSearchTip')
             "
-            @select="handleTableSelect"
+            :module-tree="folderTree"
+            :modules-count="modulesCount"
           />
         </div>
       </div>
@@ -67,32 +88,42 @@
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-[4px]">
           <div class="second-text">{{ t('apiScenario.sumSelected') }}</div>
-          <div class="main-text">{{ totalSelected }}</div>
+          <div class="main-text">{{ totalCount }}</div>
           <a-divider direction="vertical" :margin="4"></a-divider>
           <div class="second-text">{{ t('apiScenario.api') }}</div>
-          <div class="main-text">{{ selectedApis.length }}</div>
+          <div class="main-text">{{ apiTotal }}</div>
           <a-divider direction="vertical" :margin="4"></a-divider>
           <div class="second-text">{{ t('apiScenario.case') }}</div>
-          <div class="main-text">{{ selectedCases.length }}</div>
+          <div class="main-text">{{ caseTotal }}</div>
           <a-divider direction="vertical" :margin="4"></a-divider>
           <div class="second-text">{{ t('apiScenario.scenario') }}</div>
-          <div class="main-text">{{ selectedScenarios.length }}</div>
-          <a-divider v-show="totalSelected > 0" direction="vertical" :margin="4"></a-divider>
+          <div class="main-text">{{ scenarioTotal }}</div>
+          <a-divider v-show="totalCount > 0" direction="vertical" :margin="4"></a-divider>
           <MsButton
-            v-show="totalSelected > 0 && !props.singleSelect"
+            v-show="totalCount && !props.singleSelect"
             type="text"
             class="!mr-0 ml-[4px]"
-            @click="clearAll"
+            @click="clearSelected"
           >
             {{ t('common.clear') }}
           </MsButton>
         </div>
         <div class="flex items-center gap-[12px]">
           <a-button type="secondary" :disabled="loading" @click="handleCancel">{{ t('common.cancel') }}</a-button>
-          <a-button type="primary" :loading="loading" :disabled="totalSelected === 0" @click="handleCopy">
+          <a-button
+            type="primary"
+            :loading="loading"
+            :disabled="totalCount === 0"
+            @click="handleCopyOrQuote(ScenarioStepRefType.COPY)"
+          >
             {{ t('common.copy') }}
           </a-button>
-          <a-button type="primary" :loading="loading" :disabled="totalSelected === 0" @click="handleQuote">
+          <a-button
+            type="primary"
+            :loading="loading"
+            :disabled="totalCount === 0"
+            @click="handleCopyOrQuote(ScenarioStepRefType.REF)"
+          >
             {{ t('common.quote') }}
           </a-button>
         </div>
@@ -108,20 +139,23 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import { MsTableDataItem } from '@/components/pure/ms-table/type';
+  import type { moduleKeysType, saveParams } from '@/components/business/ms-associate-case/types';
+  import useTreeSelection from '@/components/business/ms-associate-case/useTreeSelection';
   import { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import moduleTree from './moduleTree.vue';
   import MsProjectSelect from './projectSelect.vue';
   import apiTable from './table.vue';
 
   import { getProtocolList } from '@/api/modules/api-test/common';
-  import { getSystemRequest } from '@/api/modules/api-test/scenario';
+  import { scenarioAssociateExport } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { getGenerateId, mapTree } from '@/utils';
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
 
   import type { ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
-  import type { ApiScenarioTableItem } from '@/models/apiTest/scenario';
+  import type { ApiScenarioTableItem, ImportSystemData } from '@/models/apiTest/scenario';
+  import type { ModuleTreeNode } from '@/models/common';
   import { ProtocolKeyEnum, ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
 
   export interface ImportData {
@@ -150,27 +184,6 @@
   const activeKey = ref<'api' | 'case' | 'scenario'>('api');
 
   const loading = ref(false);
-  const selectedApis = ref<MsTableDataItem<ApiDefinitionDetail>[]>([]);
-  const selectedCases = ref<MsTableDataItem<ApiCaseDetail>[]>([]);
-  const selectedScenarios = ref<MsTableDataItem<ApiScenarioTableItem>[]>([]);
-  const totalSelected = computed(() => {
-    return selectedApis.value.length + selectedCases.value.length + selectedScenarios.value.length;
-  });
-
-  function handleTableSelect(data: MsTableDataItem<ApiCaseDetail | ApiDefinitionDetail | ApiScenarioTableItem>[]) {
-    if (props.singleSelect) {
-      selectedApis.value = [];
-      selectedCases.value = [];
-      selectedScenarios.value = [];
-    }
-    if (activeKey.value === 'api') {
-      selectedApis.value = data as MsTableDataItem<ApiDefinitionDetail>[];
-    } else if (activeKey.value === 'case') {
-      selectedCases.value = data as MsTableDataItem<ApiCaseDetail>[];
-    } else if (activeKey.value === 'scenario') {
-      selectedScenarios.value = data as MsTableDataItem<ApiScenarioTableItem>[];
-    }
-  }
 
   const activeModule = ref<MsTreeNodeData>({});
   const currentProject = ref(appStore.currentProjectId);
@@ -221,15 +234,7 @@
     moduleIds.value = ids;
     apiTableRef.value?.loadPage(ids);
   }
-
-  function clearAll() {
-    selectedApis.value = [];
-    selectedCases.value = [];
-    selectedScenarios.value = [];
-  }
-
   function handleCancel() {
-    clearAll();
     visible.value = false;
   }
 
@@ -237,111 +242,185 @@
    * 获取复制或引用的步骤数据
    * @param refType 复制或引用
    */
-  async function getScenarioSteps(
+  function getScenarioSteps(
     refType: ScenarioStepRefType.COPY | ScenarioStepRefType.REF,
-    other: {
-      api: MsTableDataItem<ApiDefinitionDetail>[];
-      case: MsTableDataItem<ApiCaseDetail>[];
-    }
+    scenarioData: MsTableDataItem<ApiScenarioTableItem>[]
   ) {
-    const scenarioMap: Record<string, MsTableDataItem<ApiScenarioTableItem>[]> = {};
-    // 可以跨项目选择，但是接口的项目 id 是单个，所以需要按项目分组
-    selectedScenarios.value.forEach((e) => {
-      if (!scenarioMap[e.projectId]) {
-        scenarioMap[e.projectId] = [];
+    let fullScenarioArr: MsTableDataItem<ApiScenarioTableItem>[] = [];
+    if (refType === ScenarioStepRefType.COPY) {
+      // 复制需要递归给每个节点生成新的uniqueId，并记录copyFromStepId
+      fullScenarioArr = mapTree<MsTableDataItem<ApiScenarioTableItem>>(scenarioData, (node) => {
+        const id = getGenerateId();
+        if (
+          node.parent &&
+          node.parent.stepType === ScenarioStepType.API_SCENARIO &&
+          [ScenarioStepRefType.REF, ScenarioStepRefType.PARTIAL_REF].includes(node.parent.refType)
+        ) {
+          // 如果根节点是引用场景
+          node.isQuoteScenarioStep = true; // 标记为引用场景下的子步骤
+          node.isRefScenarioStep = node.parent.refType === ScenarioStepRefType.REF; // 标记为完全引用场景
+          node.draggable = false; // 引用场景下的任何步骤不可拖拽
+        } else if (node.parent) {
+          // 如果有父节点
+          node.isQuoteScenarioStep = node.parent.isQuoteScenarioStep; // 复用父节点的引用场景标记
+          node.isRefScenarioStep = node.parent.isRefScenarioStep; // 复用父节点的是否完全引用场景标记
+          node.draggable = !node.parent.isQuoteScenarioStep; // 引用场景下的任何步骤不可拖拽
+        }
+        return {
+          ...node,
+          copyFromStepId: node.id,
+          originProjectId: node.projectId,
+          id: node.isQuoteScenarioStep ? node.id : id, // 引用场景下的步骤 id 不变，其他情况的步骤生成新的 id
+          uniqueId: id,
+        };
+      });
+    } else {
+      // 引用只需要给场景节点生成新的步骤 id，内部步骤只需要生成uniqueId作为前端渲染 id
+      fullScenarioArr = scenarioData.map((e) => {
+        const id = getGenerateId();
+        return {
+          ...e,
+          children: mapTree<MsTableDataItem<ApiScenarioTableItem>>(e.children || [], (node) => {
+            const childId = getGenerateId();
+            return {
+              ...node,
+              originProjectId: node.projectId,
+              uniqueId: childId,
+              isQuoteScenarioStep: true,
+              isRefScenarioStep: true, // 默认是完全引用的
+              draggable: false,
+            };
+          }),
+          id,
+          uniqueId: id,
+          originProjectId: e.projectId,
+          draggable: false,
+        };
+      });
+    }
+    return fullScenarioArr;
+  }
+
+  const folderTree = ref<ModuleTreeNode[]>([]);
+  const modulesCount = ref<Record<string, any>>({});
+
+  const selectedModuleProps = ref({
+    modulesTree: folderTree.value,
+    moduleCount: modulesCount.value,
+  });
+
+  const activeTypeKey = computed(() => activeKey.value.toLocaleUpperCase());
+
+  function initModuleTreeData(tree: ModuleTreeNode[], moduleCount: Record<string, any>) {
+    folderTree.value = tree;
+    modulesCount.value = moduleCount;
+    selectedModuleProps.value.modulesTree = tree;
+    selectedModuleProps.value.moduleCount = moduleCount;
+  }
+
+  const apiUseTreeSelection = useTreeSelection(selectedModuleProps.value);
+
+  const caseUseTreeSelection = useTreeSelection(selectedModuleProps.value);
+
+  const scenarioUseTreeSelection = useTreeSelection(selectedModuleProps.value);
+
+  const useTreeHooksMap = ref<Record<string, any>>({
+    API: apiUseTreeSelection,
+    CASE: caseUseTreeSelection,
+    SCENARIO: scenarioUseTreeSelection,
+  });
+
+  const apiTotal = computed(() => apiUseTreeSelection.totalCount.value || 0);
+  const caseTotal = computed(() => caseUseTreeSelection.totalCount.value || 0);
+  const scenarioTotal = computed(() => scenarioUseTreeSelection.totalCount.value || 0);
+  const totalCount = computed(() => apiTotal.value + caseTotal.value + scenarioTotal.value);
+
+  const currentUseTreeSelection = ref();
+
+  watch(
+    () => activeTypeKey.value,
+    (val) => {
+      currentUseTreeSelection.value = useTreeHooksMap.value[val];
+    },
+    {
+      deep: true,
+      immediate: true,
+    }
+  );
+
+  watch(
+    () => folderTree.value,
+    (val) => {
+      if (val) {
+        selectedModuleProps.value.modulesTree = val;
       }
-      scenarioMap[e.projectId].push(e);
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  watch(
+    () => modulesCount.value,
+    (val) => {
+      if (val) {
+        selectedModuleProps.value.moduleCount = val;
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  function getMapParams(modulesMaps: Record<string, moduleKeysType>) {
+    const selectedParams: Record<string, saveParams> = {};
+    Object.entries(modulesMaps).forEach(([moduleId, selectedProps]) => {
+      const { selectAll, selectIds, excludeIds, count } = selectedProps;
+      selectedParams[moduleId] = {
+        count,
+        selectAll,
+        selectIds: [...selectIds],
+        excludeIds: [...excludeIds],
+      };
     });
-    const scenarioRequestArr: any[] = [];
-    Object.keys(scenarioMap).forEach((projectId) => {
-      // 组装请求
-      scenarioRequestArr.push(
-        getSystemRequest({
-          scenarioRequest: {
-            projectId,
-            unselectedIds: [],
-            selectedIds: scenarioMap[projectId].map((e) => e.id),
-          },
-          refType,
-        })
-      );
-    });
+    return selectedParams;
+  }
+
+  function makeParams(type: ScenarioStepRefType.COPY | ScenarioStepRefType.REF) {
+    const params: ImportSystemData = {
+      API: {
+        scenarioId: props.scenarioId,
+        moduleMaps: getMapParams(apiUseTreeSelection.selectedModulesMaps.value),
+        selectAllModule: apiUseTreeSelection.isCheckedAll.value,
+        refType: type,
+        projectId: currentProject.value,
+        protocols: [protocol.value],
+      },
+      CASE: {
+        scenarioId: props.scenarioId,
+        moduleMaps: getMapParams(caseUseTreeSelection.selectedModulesMaps.value),
+        selectAllModule: caseUseTreeSelection.isCheckedAll.value,
+        refType: type,
+        projectId: currentProject.value,
+        protocols: [protocol.value],
+      },
+      SCENARIO: {
+        scenarioId: props.scenarioId,
+        moduleMaps: getMapParams(scenarioUseTreeSelection.selectedModulesMaps.value),
+        selectAllModule: scenarioUseTreeSelection.isCheckedAll.value,
+        refType: type,
+        projectId: currentProject.value,
+        protocols: [protocol.value],
+      },
+    };
+    return params;
+  }
+
+  const insertTree = ref([]);
+  async function getImportStepTree(params: ImportSystemData) {
     try {
       loading.value = true;
-      const allRes = await Promise.all(scenarioRequestArr);
-      let fullScenarioArr: MsTableDataItem<ApiScenarioTableItem>[] = [];
-      allRes.forEach((res) => {
-        fullScenarioArr.push(...res);
-      });
-      if (refType === ScenarioStepRefType.COPY) {
-        // 复制需要递归给每个节点生成新的uniqueId，并记录copyFromStepId
-        fullScenarioArr = mapTree<MsTableDataItem<ApiScenarioTableItem>>(fullScenarioArr, (node) => {
-          const id = getGenerateId();
-          if (
-            node.parent &&
-            node.parent.stepType === ScenarioStepType.API_SCENARIO &&
-            [ScenarioStepRefType.REF, ScenarioStepRefType.PARTIAL_REF].includes(node.parent.refType)
-          ) {
-            // 如果根节点是引用场景
-            node.isQuoteScenarioStep = true; // 标记为引用场景下的子步骤
-            node.isRefScenarioStep = node.parent.refType === ScenarioStepRefType.REF; // 标记为完全引用场景
-            node.draggable = false; // 引用场景下的任何步骤不可拖拽
-          } else if (node.parent) {
-            // 如果有父节点
-            node.isQuoteScenarioStep = node.parent.isQuoteScenarioStep; // 复用父节点的引用场景标记
-            node.isRefScenarioStep = node.parent.isRefScenarioStep; // 复用父节点的是否完全引用场景标记
-            node.draggable = !node.parent.isQuoteScenarioStep; // 引用场景下的任何步骤不可拖拽
-          }
-          return {
-            ...node,
-            copyFromStepId: node.id,
-            originProjectId: node.projectId,
-            id: node.isQuoteScenarioStep ? node.id : id, // 引用场景下的步骤 id 不变，其他情况的步骤生成新的 id
-            uniqueId: id,
-          };
-        });
-        emit(
-          'copy',
-          cloneDeep({
-            api: other.api,
-            case: other.case,
-            scenario: fullScenarioArr,
-          })
-        );
-        handleCancel();
-      } else {
-        // 引用只需要给场景节点生成新的步骤 id，内部步骤只需要生成uniqueId作为前端渲染 id
-        fullScenarioArr = fullScenarioArr.map((e) => {
-          const id = getGenerateId();
-          return {
-            ...e,
-            children: mapTree<MsTableDataItem<ApiScenarioTableItem>>(e.children || [], (node) => {
-              const childId = getGenerateId();
-              return {
-                ...node,
-                originProjectId: node.projectId,
-                uniqueId: childId,
-                isQuoteScenarioStep: true,
-                isRefScenarioStep: true, // 默认是完全引用的
-                draggable: false,
-              };
-            }),
-            id,
-            uniqueId: id,
-            originProjectId: e.projectId,
-            draggable: false,
-          };
-        });
-        emit(
-          'quote',
-          cloneDeep({
-            api: other.api,
-            case: other.case,
-            scenario: fullScenarioArr,
-          })
-        );
-        handleCancel();
-      }
+      insertTree.value = await scenarioAssociateExport(params);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -350,58 +429,52 @@
     }
   }
 
-  async function handleCopy() {
-    const copyApis = selectedApis.value.map((e) => ({
-      ...e,
-      originProjectId: e.projectId,
-    }));
-    const copyCases = selectedCases.value.map((e) => ({
-      ...e,
-      originProjectId: e.projectId,
-    }));
-    if (selectedScenarios.value.length > 0) {
-      await getScenarioSteps(ScenarioStepRefType.COPY, {
-        api: copyApis,
-        case: copyCases,
-      });
-    } else {
+  async function handleCopyOrQuote(refType: ScenarioStepRefType.COPY | ScenarioStepRefType.REF) {
+    const params = makeParams(refType);
+    await getImportStepTree(params);
+    const copyApis: MsTableDataItem<ApiDefinitionDetail>[] = insertTree.value.filter(
+      (item: any) => item.stepType === 'API'
+    );
+    const copyCases: MsTableDataItem<ApiCaseDetail>[] = insertTree.value.filter(
+      (item: any) => item.stepType === 'API_CASE'
+    );
+    const selectedScenario: MsTableDataItem<ApiScenarioTableItem>[] = insertTree.value.filter(
+      (item: any) => item.stepType === 'API_SCENARIO'
+    );
+
+    let fullScenarioArr: MsTableDataItem<ApiScenarioTableItem>[] = [];
+
+    if (selectedScenario.length > 0) {
+      fullScenarioArr = getScenarioSteps(refType, selectedScenario);
+    }
+
+    if (refType === ScenarioStepRefType.COPY) {
       emit(
         'copy',
         cloneDeep({
           api: copyApis,
           case: copyCases,
-          scenario: selectedScenarios.value,
+          scenario: fullScenarioArr,
         })
       );
-      handleCancel();
-    }
-  }
-
-  async function handleQuote() {
-    const quoteApis = selectedApis.value.map((e) => ({
-      ...e,
-      originProjectId: e.projectId,
-    }));
-    const quoteCases = selectedCases.value.map((e) => ({
-      ...e,
-      originProjectId: e.projectId,
-    }));
-    if (selectedScenarios.value.length > 0) {
-      await getScenarioSteps(ScenarioStepRefType.REF, {
-        api: quoteApis,
-        case: quoteCases,
-      });
     } else {
       emit(
         'quote',
         cloneDeep({
-          api: quoteApis,
-          case: quoteCases,
-          scenario: selectedScenarios.value,
+          api: copyApis,
+          case: copyCases,
+          scenario: fullScenarioArr,
         })
       );
-      handleCancel();
     }
+
+    handleCancel();
+  }
+  // 清空全部
+  function clearSelected() {
+    apiUseTreeSelection.clearSelector();
+    caseUseTreeSelection.clearSelector();
+    scenarioUseTreeSelection.clearSelector();
   }
 
   onBeforeMount(async () => {

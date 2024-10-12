@@ -56,7 +56,7 @@
         <div class="inline-flex w-full gap-[8px]">
           <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
           <div class="ms-tree-node-count ml-[4px] flex items-center text-[var(--color-text-brand)]">
-            {{ nodeData.count || 0 }}
+            {{ nodeData.count || 0 }}/{{ nodeData.totalCount }}
           </div>
         </div>
       </template>
@@ -64,12 +64,13 @@
         <MsButton
           v-if="nodeData.children && nodeData.children.length"
           @click="selectCurrent(nodeData, !!checkedKeys.includes(nodeData.id))"
-          >{{
+        >
+          {{
             checkedKeys.includes(nodeData.id)
               ? t('ms.case.associate.cancelCurrent')
               : t('ms.case.associate.selectCurrent')
-          }}</MsButton
-        >
+          }}
+        </MsButton>
       </template>
     </MsTree>
   </a-spin>
@@ -80,6 +81,7 @@
   import { useVModel } from '@vueuse/core';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import useCalculateTreeCount from '@/components/business/ms-associate-case/useCalculateTreeCount';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import TreeFolderAll from '@/views/api-test/components/treeFolderAll.vue';
@@ -161,44 +163,7 @@
 
   const treeFolderAllRef = ref<InstanceType<typeof TreeFolderAll>>();
   const selectedProtocols = computed<string[]>(() => treeFolderAllRef.value?.selectedProtocols ?? []);
-  // 递归计算并更新节点的 count
-  function processTreeData(nodes: MsTreeNodeData[]): MsTreeNodeData[] {
-    const traverse = (node: MsTreeNodeData): number => {
-      let totalChildrenCount = 0;
-
-      if (node.children && node.children.length > 0) {
-        totalChildrenCount = node.children.reduce((sum, child) => {
-          return sum + traverse(child);
-        }, 0);
-        node.count -= totalChildrenCount;
-      }
-
-      return node.count + totalChildrenCount;
-    };
-
-    nodes.forEach((node: MsTreeNodeData) => traverse(node));
-    return nodes;
-  }
-
-  function calculateTreeCount(treeData: MsTreeNodeData[]) {
-    caseTree.value = mapTree<ModuleTreeNode>(treeData, (node) => {
-      return {
-        ...node,
-        count: props.modulesCount[node.id],
-      };
-    });
-
-    const updatedModuleTreeCount = processTreeData(caseTree.value) as MsTreeNodeData[];
-    caseTree.value = mapTree<ModuleTreeNode>(updatedModuleTreeCount, (node) => {
-      return {
-        ...node,
-        count: node.count,
-      };
-    });
-    allCount.value = props.modulesCount.all || 0;
-
-    emit('init', caseTree.value, selectedProtocols.value);
-  }
+  const { calculateTreeCount } = useCalculateTreeCount();
   /**
    * 初始化模块树
    */
@@ -214,8 +179,9 @@
 
       const res = await getModuleTreeFunc(props.getModulesApiType, props.activeTab, getModuleParams);
 
-      calculateTreeCount(res);
-
+      caseTree.value = calculateTreeCount(res, props.modulesCount);
+      allCount.value = props.modulesCount.all || 0;
+      emit('init', caseTree.value, selectedProtocols.value);
       if (setDefault) {
         setActiveFolder('all');
       }
@@ -246,7 +212,8 @@
   watch(
     () => props.modulesCount,
     () => {
-      calculateTreeCount(caseTree.value);
+      allCount.value = props.modulesCount.all || 0;
+      caseTree.value = calculateTreeCount(caseTree.value, props.modulesCount);
     },
     {
       deep: true,
