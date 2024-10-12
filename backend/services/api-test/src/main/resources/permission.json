@@ -50,6 +50,10 @@
           },
           {
             "id": "PROJECT_API_DEFINITION:READ+EXPORT"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION:READ+SHARE",
+            "name": "permission.api_doc.share"
           }
         ]
       },

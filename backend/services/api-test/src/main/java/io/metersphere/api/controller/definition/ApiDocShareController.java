@@ -6,8 +6,11 @@ import io.metersphere.api.domain.ApiDocShare;
 import io.metersphere.api.dto.definition.ApiDocShareDTO;
 import io.metersphere.api.dto.definition.request.ApiDocShareEditRequest;
 import io.metersphere.api.dto.definition.request.ApiDocSharePageRequest;
+import io.metersphere.api.service.definition.ApiDocShareLogService;
 import io.metersphere.api.service.definition.ApiDocShareService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -51,6 +54,7 @@ public class ApiDocShareController {
 	@Operation(summary = "接口测试-接口管理-新增分享")
 	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
 	@CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+	@Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiDocShareLogService.class)
 	public ApiDocShare add(@Validated({Created.class}) @RequestBody ApiDocShareEditRequest request) {
 		return apiDocShareService.create(request, SessionUtils.getUserId());
 	}
@@ -59,6 +63,7 @@ public class ApiDocShareController {
 	@Operation(summary = "接口测试-接口管理-更新分享")
 	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
 	@CheckOwner(resourceId = "#request.getId()", resourceType = "api_doc_share")
+	@Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiDocShareLogService.class)
 	public ApiDocShare update(@Validated({Updated.class}) @RequestBody ApiDocShareEditRequest request) {
 		return apiDocShareService.update(request);
 	}
@@ -68,6 +73,7 @@ public class ApiDocShareController {
 	@Parameter(name = "id", description = "分享ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
 	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
 	@CheckOwner(resourceId = "#id", resourceType = "api_doc_share")
+	@Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiDocShareLogService.class)
 	public void delete(@PathVariable String id) {
 		apiDocShareService.delete(id);
 	}
