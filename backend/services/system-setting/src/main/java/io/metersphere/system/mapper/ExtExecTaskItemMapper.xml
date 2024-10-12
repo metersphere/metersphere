@@ -18,8 +18,17 @@
             <if test="projectId != null and projectId != ''">
                 and exec_task_item.project_id = #{projectId}
             </if>
-            <if test="request.resourcePoolId != null and request.resourcePoolId != ''">
-                and exec_task_item.resource_pool_id = #{request.resourcePoolId}
+            <if test="request.resourcePoolIds != null and request.resourcePoolIds.size() > 0">
+                and exec_task_item.resource_pool_id in
+                <foreach collection="request.resourcePoolIds" item="resourcePoolId" separator="," open="(" close=")">
+                    #{request.resourcePoolId}
+                </foreach>
+            </if>
+            <if test="request.resourcePoolNodes != null and request.resourcePoolNodes.size() > 0">
+                and exec_task_item.resource_pool_node in
+                <foreach collection="request.resourcePoolNodes" item="resourcePoolNode" separator="," open="(" close=")">
+                    #{request.resourcePoolNode}
+                </foreach>
             </if>
         </where>
     </select>

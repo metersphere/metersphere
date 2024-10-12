@@ -2,6 +2,7 @@ package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BasePageRequest;
+import io.metersphere.system.dto.taskhub.ResourcePoolOptionsDTO;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
 import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
 import io.metersphere.system.dto.taskhub.TaskHubScheduleDTO;
@@ -16,10 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -61,4 +59,23 @@ public class SystemTaskHubController {
     public List<TaskStatisticsResponse> calculateRate(@RequestBody List<String> ids) {
         return baseTaskHubService.calculateRate(ids, null, null);
     }
+
+
+    @GetMapping("/resource-pool/options")
+    @Operation(summary = "系统-任务中心-获取资源池下拉选项")
+    public List<ResourcePoolOptionsDTO> getUserProject() {
+        return baseTaskHubService.getResourcePoolOptions();
+    }
+
+    //TODO 检查节点状态
+
+    //TODO 组织&项目 获取资源池下拉选项
+
+    //TODO 系统&组织&项目 任务按钮操作：删除 停止 失败重跑 查看报告   批量删除 批量停止  批量失败重跑
+
+
+    //TODO 系统&组织&项目 任务详情按钮操作：查看 停止  批量停止
+
+
+    //TODO 系统&组织&项目 后台任务操作：删除  批量开启  批量关闭
 }
