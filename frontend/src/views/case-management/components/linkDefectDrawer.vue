@@ -13,22 +13,24 @@
     @confirm="handleDrawerConfirm"
     @cancel="handleDrawerCancel"
   >
-    <div class="mb-4 flex items-center justify-between">
-      <div class="font-medium">{{ t('caseManagement.featureCase.defectList') }}</div>
-      <div>
-        <a-input-search
-          v-model:model-value="keyword"
-          :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
-          allow-clear
-          class="mx-[8px] w-[240px]"
-          @search="searchList"
-          @press-enter="searchList"
-          @clear="searchList"
-        ></a-input-search>
-      </div>
-    </div>
+    <MsAdvanceFilter
+      ref="msAdvanceFilterRef"
+      v-model:keyword="keyword"
+      :view-type="ViewTypeEnum.PLAN_BUG_DRAWER"
+      :filter-config-list="filterConfigList"
+      :custom-fields-config-list="searchCustomFields"
+      :search-placeholder="t('caseManagement.featureCase.searchByNameAndId')"
+      @keyword-search="getFetch()"
+      @adv-search="handleAdvSearch"
+      @refresh="searchList()"
+    >
+      <template #left>
+        <div class="font-medium">{{ t('caseManagement.featureCase.defectList') }}</div>
+      </template>
+    </MsAdvanceFilter>
     <ms-base-table
       ref="tableRef"
+      class="mt-[16px]"
       v-bind="currentCaseTable.propsRes.value"
       :action-config="{
         baseAction: [],
@@ -51,14 +53,17 @@
 <script setup lang="ts">
   import { ref } from 'vue';
 
+  import { getFilterCustomFields, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn, MsTableProps } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import BugNamePopover from '@/views/case-management/caseManagementFeature/components/tabContent/tabBug/bugNamePopover.vue';
 
-  import { getBugList } from '@/api/modules/bug-management';
+  import { getBugList, getCustomFieldHeader, getCustomOptionHeader } from '@/api/modules/bug-management';
   import { getDrawerDebugPage } from '@/api/modules/case-management/featureCase';
+  import { getPlatformOptions } from '@/api/modules/project-management/menuManagement';
   import {
     getTestPlanApiBugPage,
     getTestPlanBugPage,
@@ -67,8 +72,11 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
-  import { BugListItem } from '@/models/bug-management';
+  import { BugEditCustomField, BugListItem, BugOptionItem } from '@/models/bug-management';
+  import { PoolOption } from '@/models/projectManagement/menuManagement';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
+  import { MenuEnum } from '@/enums/commonEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import debounce from 'lodash-es/debounce';
@@ -251,9 +259,129 @@
       keyword: keyword.value,
       projectId: currentProjectId.value,
       sourceId: props.caseId || '',
+      viewId: currentCaseTable.value.viewId.value,
+      combineSearch: currentCaseTable.value.advanceFilter,
     });
     currentCaseTable.value.loadList();
   }
+
+  // 获取自定义字段
+  const searchCustomFields = ref<FilterFormItem[]>([]);
+  const getCustomFieldColumns = async () => {
+    try {
+      const res = await getCustomFieldHeader(currentProjectId.value);
+      searchCustomFields.value = getFilterCustomFields(
+        res.filter((item: BugEditCustomField) => item.fieldId !== 'title')
+      );
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+
+  const statusOption = ref<BugOptionItem[]>([]);
+  async function initFilterOptions() {
+    try {
+      const res = await getCustomOptionHeader(appStore.currentProjectId);
+      statusOption.value = res.statusOption;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+    }
+  }
+
+  const platformOption = ref<PoolOption[]>([]);
+  const initPlatformOption = async () => {
+    try {
+      const res = await getPlatformOptions(appStore.currentOrgId, MenuEnum.bugManagement);
+      platformOption.value = [...res, { id: 'Local', name: 'Local' }];
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+
+  const filterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'bugManagement.ID',
+      dataIndex: 'num',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'bugManagement.bugName',
+      dataIndex: 'title',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'bugManagement.belongPlatform',
+      dataIndex: 'platform',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        labelKey: 'name',
+        valueKey: 'id',
+        options: platformOption.value,
+      },
+    },
+    {
+      title: 'caseManagement.featureCase.defectState',
+      dataIndex: 'status',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        labelKey: 'text',
+        options: statusOption.value,
+      },
+    },
+    {
+      title: 'bugManagement.numberOfCase',
+      dataIndex: 'relationCaseCount',
+      type: FilterType.NUMBER,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'bugManagement.handleMan',
+      dataIndex: 'handleUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      type: FilterType.TAGS_INPUT,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'apiScenario.table.columns.updateUser',
+      dataIndex: 'updateUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.updateTime',
+      dataIndex: 'updateTime',
+      type: FilterType.DATE_PICKER,
+    },
+  ]);
+  // 高级检索
+  const handleAdvSearch = (filter: FilterResult, id: string) => {
+    keyword.value = '';
+    currentCaseTable.value.setAdvanceFilter(filter, id);
+    getFetch(); // 基础筛选都清空
+  };
 
   const searchList = debounce(() => {
     getFetch();
@@ -269,6 +397,12 @@
       }
     }
   );
+
+  onBeforeMount(() => {
+    initFilterOptions();
+    getCustomFieldColumns();
+    initPlatformOption();
+  });
 </script>
 
 <style lang="less">
