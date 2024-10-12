@@ -35,6 +35,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_SCHEDULE_TASK_PAGE = "/system/task-center/schedule/page";
     public static final String SYSTEM_TASK_ITEM_PAGE = "/system/task-center/exec-task/item/page";
     public static final String SYSTEM_STATISTICS = "/system/task-center/exec-task/statistics";
+    public static final String SYSTEM_RESOURCE_POOL_OPTIONS = "/system/task-center/resource-pool/options";
 
     @Test
     @Order(1)
@@ -97,8 +98,22 @@ public class BaseTaskHubControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void getStatistics() throws Exception {
-        List<String> ids = List.of("1","2");
+        List<String> ids = List.of("1", "2");
         MvcResult mvcResult = this.requestPostWithOkAndReturn(SYSTEM_STATISTICS, ids);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+    /**
+     * 系统获取资源池下拉选项
+     */
+    @Test
+    @Order(3)
+    public void getSystemResourcePoolOptions() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(SYSTEM_RESOURCE_POOL_OPTIONS);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -173,7 +188,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void getOrgStatistics() throws Exception {
-        List<String> ids = List.of("1","2");
+        List<String> ids = List.of("1", "2");
         MvcResult mvcResult = this.requestPostWithOkAndReturn(ORG_STATISTICS, ids);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -181,8 +196,6 @@ public class BaseTaskHubControllerTests extends BaseTest {
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
     }
-
-
 
 
     @Test

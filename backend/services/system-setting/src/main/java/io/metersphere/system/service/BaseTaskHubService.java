@@ -2,14 +2,15 @@ package io.metersphere.system.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
-import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.ResultStatus;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.SubListUtils;
-import io.metersphere.system.domain.ExecTask;
-import io.metersphere.system.domain.ExecTaskItem;
+import io.metersphere.system.domain.*;
+import io.metersphere.system.dto.pool.TestResourceDTO;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.taskhub.ResourcePoolOptionsDTO;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
 import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
 import io.metersphere.system.dto.taskhub.TaskHubScheduleDTO;
@@ -55,7 +56,9 @@ public class BaseTaskHubService {
     @Resource
     private ExtExecTaskItemMapper extExecTaskItemMapper;
     @Resource
-    private TestPlanMapper testPlanMapper;
+    private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private TestResourcePoolBlobMapper testResourcePoolBlobMapper;
 
     /**
      * 系统-获取执行任务列表
@@ -214,6 +217,51 @@ public class BaseTaskHubService {
             responseList.add(response);
         });
         return responseList;
+    }
+
+
+    /**
+     * 获取所有资源池及节点下拉选项
+     *
+     * @return
+     */
+    public List<ResourcePoolOptionsDTO> getResourcePoolOptions() {
+        //获取全部资源池
+        TestResourcePoolExample example = new TestResourcePoolExample();
+        example.createCriteria().andDeletedEqualTo(false);
+        List<TestResourcePool> allResourcePools = testResourcePoolMapper.selectByExample(example);
+        List<String> ids = allResourcePools.stream().map(TestResourcePool::getId).toList();
+        //获取全部资源池节点
+        TestResourcePoolBlobExample blobExample = new TestResourcePoolBlobExample();
+        blobExample.createCriteria().andIdIn(ids);
+        List<TestResourcePoolBlob> testResourcePoolBlobs = testResourcePoolBlobMapper.selectByExampleWithBLOBs(blobExample);
+        Map<String, List<TestResourcePoolBlob>> poolMap = testResourcePoolBlobs.stream().collect(Collectors.groupingBy(TestResourcePoolBlob::getId));
+
+        return handleOptions(allResourcePools, poolMap);
+
+    }
+
+    private List<ResourcePoolOptionsDTO> handleOptions(List<TestResourcePool> allResourcePools, Map<String, List<TestResourcePoolBlob>> poolMap) {
+        List<ResourcePoolOptionsDTO> options = new ArrayList<>();
+        allResourcePools.forEach(item -> {
+            ResourcePoolOptionsDTO optionsDTO = new ResourcePoolOptionsDTO();
+            optionsDTO.setId(item.getId());
+            optionsDTO.setName(item.getName());
+            if (poolMap.containsKey(item.getId())) {
+                TestResourcePoolBlob first = poolMap.get(item.getId()).getFirst();
+                TestResourceDTO testResourceDTO = JSON.parseObject(new String(first.getConfiguration()), TestResourceDTO.class);
+                List<OptionDTO> children = new ArrayList<>();
+                testResourceDTO.getNodesList().forEach(node -> {
+                    OptionDTO childrenDTO = new OptionDTO();
+                    childrenDTO.setId(node.getIp().concat(":").concat(node.getPort()));
+                    childrenDTO.setName(node.getIp().concat(":").concat(node.getPort()));
+                    children.add(childrenDTO);
+                });
+                optionsDTO.setChildren(children);
+            }
+            options.add(optionsDTO);
+        });
+        return options;
     }
 
 }

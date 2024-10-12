@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author wx
@@ -20,5 +21,8 @@ public class TaskHubItemRequest extends BasePageRequest implements Serializable 
     private String taskId;
 
     @Schema(description = "资源池id")
-    private String resourcePoolId;
+    private List<String> resourcePoolIds;
+
+    @Schema(description = "资源池节点")
+    private List<String> resourcePoolNodes;
 }
