@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.util.CollectionUtils;
 
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -144,6 +145,7 @@ public class KubernetesProvider {
                     .redirectingInput()
                     .writingOutput(System.out)
                     .writingError(System.err)
+                    .withTTY()
                     .usingListener(new SimpleListener(runRequest))
                     .exec(SHELL_COMMAND, "-c", command);
         } catch (Exception e) {
@@ -160,11 +162,9 @@ public class KubernetesProvider {
         @Override
         public void onFailure(Throwable t, Response response) {
             LogUtils.error("K8s 监听失败", t);
-            if (runRequest != null) {
+            if (runRequest != null && !(t instanceof SocketException)) {
                 handleGeneralError(runRequest, t);
-                return;
             }
-            throw new MSException("K8S 节点执行错误：" + t.getMessage(), t);
         }
 
         @Override
