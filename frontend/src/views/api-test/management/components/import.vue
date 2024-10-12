@@ -373,7 +373,7 @@
     importDefinition,
     switchDefinitionSchedule,
   } from '@/api/modules/api-test/management';
-  import { getScheduleProApiCaseList } from '@/api/modules/project-management/taskCenter';
+  import { getScheduleProApiCaseList } from '@/api/modules/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';

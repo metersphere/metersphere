@@ -13,7 +13,7 @@
 
   import { ReportExecStatus } from '@/enums/apiEnum';
 
-  import { executeStatusMap } from './utils';
+  import { executeStatusMap } from './config';
 
   const props = defineProps<{
     status: ReportExecStatus;

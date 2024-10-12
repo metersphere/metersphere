@@ -16,11 +16,24 @@
   <ms-base-table
     v-bind="propsRes"
     :action-config="tableBatchActions"
+    no-disable
     v-on="propsEvent"
     @batch-action="handleTableBatch"
   >
+    <template #num="{ record }">
+      <a-button type="text" class="max-w-full justify-start px-0" @click="openTask(record.id)">
+        <a-tooltip :content="record.id">
+          <div class="one-line-text">
+            {{ record.num }}
+          </div>
+        </a-tooltip>
+      </a-button>
+    </template>
     <template #status="{ record }">
       <a-switch v-model:model-value="record.enable" size="small"></a-switch>
+    </template>
+    <template #resourceType="{ record }">
+      {{ t(scheduleTaskTypeMap[record.resourceType]) }}
     </template>
     <template #action="{ record }">
       <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" @click="deleteTask(record)">
@@ -41,6 +54,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
+  import { getOrganizationScheduleList, getProjectScheduleList, getSystemScheduleList } from '@/api/modules/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -48,6 +62,12 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  import { scheduleTaskTypeMap } from './config';
+
+  const props = defineProps<{
+    type: 'system' | 'project' | 'org';
+  }>();
 
   const { t } = useI18n();
   const { openModal } = useModal();
@@ -60,13 +80,16 @@
     {
       title: 'ID',
       dataIndex: 'num',
+      slotName: 'num',
       width: 100,
+      fixed: 'left',
     },
     {
       title: 'ms.taskCenter.taskName',
-      dataIndex: 'name',
+      dataIndex: 'taskName',
       showTooltip: true,
       width: 200,
+      fixed: 'left',
     },
     {
       title: 'common.status',
@@ -76,19 +99,20 @@
     },
     {
       title: 'ms.taskCenter.type',
-      dataIndex: 'type',
-      slotName: 'type',
+      dataIndex: 'resourceType',
+      slotName: 'resourceType',
       width: 120,
     },
     {
       title: 'ms.taskCenter.runRule',
-      dataIndex: 'rule',
-      width: 100,
+      dataIndex: 'value',
+      width: 120,
     },
     {
       title: 'ms.taskCenter.operationUser',
-      dataIndex: 'operationUser',
-      width: 100,
+      dataIndex: 'createUserName',
+      width: 150,
+      showTooltip: true,
     },
     {
       title: 'ms.taskCenter.operationTime',
@@ -125,6 +149,32 @@
       width: 60,
     },
   ];
+  if (props.type === 'system') {
+    columns.splice(1, 0, [
+      {
+        title: 'common.belongProject',
+        dataIndex: 'belongProject',
+        showTooltip: true,
+        width: 100,
+      },
+      {
+        title: 'common.belongOrg',
+        dataIndex: 'belongOrg',
+        showTooltip: true,
+        width: 100,
+      },
+    ]);
+  } else if (props.type === 'org') {
+    columns.splice(1, 0, [
+      {
+        title: 'common.belongProject',
+        dataIndex: 'belongProject',
+        showTooltip: true,
+        width: 100,
+      },
+    ]);
+  }
+
   await tableStore.initColumn(TableKeyEnum.TASK_CENTER_SYSTEM_TASK, columns, 'drawer');
 
   const tableBatchActions = {
@@ -139,26 +189,15 @@
       },
     ],
   };
+
+  const currentScheduleList = {
+    system: getSystemScheduleList,
+    org: getOrganizationScheduleList,
+    project: getProjectScheduleList,
+  }[props.type];
+
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    () =>
-      Promise.resolve({
-        list: [
-          {
-            id: '1',
-            num: 10086,
-            name: '测试任务',
-            status: 'success',
-            type: 'API 导入',
-            rule: '每 1 小时',
-            enable: true,
-            operationUser: 'admin',
-            operationTime: '2021-09-01 12:00:00',
-            lastFinishTime: '2021-09-01 12:00:00',
-            nextExecuteTime: '2021-09-01 12:00:00',
-          },
-        ],
-        total: 1,
-      }),
+    currentScheduleList,
     {
       tableKey: TableKeyEnum.TASK_CENTER_SYSTEM_TASK,
       scroll: { x: '100%' },
@@ -186,7 +225,7 @@
    * 删除任务
    */
   function deleteTask(record?: any, isBatch?: boolean, params?: BatchActionQueryParams) {
-    let title = t('ms.taskCenter.deleteTaskTitle', { name: characterLimit(record?.name) });
+    let title = t('ms.taskCenter.deleteTaskTitle', { name: characterLimit(record?.taskName) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('ms.taskCenter.deleteTimeTaskTitle', {
