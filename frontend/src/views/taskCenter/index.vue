@@ -4,11 +4,13 @@
       <a-tab-pane v-for="item of tabList" :key="item.value" :title="item.label" />
     </a-tabs>
     <a-divider margin="0"></a-divider>
-    <Suspense>
-      <caseTaskTable v-if="activeTab === TaskCenterEnum.CASE" :type="props.type" />
-      <caseTaskDetailTable v-else-if="activeTab === TaskCenterEnum.DETAIL" :type="props.type" />
-      <systemTaskTable v-else-if="activeTab === TaskCenterEnum.BACKEND" />
-    </Suspense>
+    <div class="ms-taskCenter-content">
+      <Suspense>
+        <caseTaskTable v-if="activeTab === TaskCenterEnum.CASE" :type="props.type" @go-detail="goTaskDetail" />
+        <caseTaskDetailTable v-else-if="activeTab === TaskCenterEnum.DETAIL" :id="activeTaskId" :type="props.type" />
+        <systemTaskTable v-else-if="activeTab === TaskCenterEnum.BACKEND" :type="props.type" />
+      </Suspense>
+    </div>
   </div>
 </template>
 
@@ -47,6 +49,12 @@
   ]);
 
   const activeTab = ref<TaskCenterEnum>((route.query.type as TaskCenterEnum) || TaskCenterEnum.CASE);
+  const activeTaskId = ref('');
+
+  function goTaskDetail(id: string) {
+    activeTaskId.value = id;
+    activeTab.value = TaskCenterEnum.DETAIL;
+  }
 </script>
 
 <style scoped lang="less">

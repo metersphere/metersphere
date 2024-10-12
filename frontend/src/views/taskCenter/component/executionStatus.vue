@@ -24,7 +24,7 @@
 
   import { TaskCenterEnum } from '@/enums/taskCenter';
 
-  import { executeResultMap } from './utils';
+  import { executeResultMap } from './config';
 
   const { t } = useI18n();
   const props = defineProps<{

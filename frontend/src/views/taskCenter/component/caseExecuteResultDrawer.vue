@@ -57,7 +57,7 @@
 
   import { ReportExecStatus } from '@/enums/apiEnum';
 
-  import { executeResultMap } from './utils';
+  import { executeResultMap } from './config';
 
   const props = defineProps<{
     id: string;

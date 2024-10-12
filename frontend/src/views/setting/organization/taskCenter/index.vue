@@ -9,4 +9,8 @@
   import TaskCenter from '@/views/taskCenter/index.vue';
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+  :deep(.ms-taskCenter-content) {
+    padding: 0 16px;
+  }
+</style>

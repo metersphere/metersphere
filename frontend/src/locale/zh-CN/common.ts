@@ -194,7 +194,7 @@ export default {
   'common.updateUserName': '更新人',
   'common.updateTime': '更新时间',
   'common.belongProject': '所属项目',
-  'common.belongOrg': '所属项目',
+  'common.belongOrg': '所属组织',
   'common.noMatchData': '暂无匹配数据',
   'common.name': '名称',
   'common.stopped': '已停止',

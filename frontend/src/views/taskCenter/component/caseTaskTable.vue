@@ -9,7 +9,7 @@
       @press-enter="searchTask"
       @clear="searchTask"
     />
-    <MsTag no-margin size="large" :tooltip-disabled="true" class="cursor-pointer" theme="outline" @click="searchTask">
+    <MsTag no-margin size="large" :tooltip-disabled="true" class="cursor-pointer" theme="outline" @click="refresh">
       <MsIcon class="text-[16px] text-[var(color-text-4)]" :size="32" type="icon-icon_reset_outlined" />
     </MsTag>
   </div>
@@ -19,40 +19,41 @@
     v-on="propsEvent"
     @batch-action="handleTableBatch"
   >
-    <template #num="{ record }">
+    <template #id="{ record }">
       <a-button type="text" class="max-w-full justify-start px-0" @click="showTaskDetail(record.id)">
-        <div class="one-line-text">
-          {{ record.num }}
-        </div>
+        <a-tooltip :content="record.id">
+          <div class="one-line-text">
+            {{ record.id }}
+          </div>
+        </a-tooltip>
       </a-button>
     </template>
-    <template #executeStatus="{ record }">
-      <execStatus :status="record.executeStatus" />
+    <template #status="{ record }">
+      <execStatus :status="record.status" />
     </template>
     <template #[FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_STATUS]="{ filterContent }">
       <execStatus :status="filterContent.value" />
     </template>
-    <template #executeResult="{ record }">
-      <executionStatus :status="record.executeResult" />
+    <template #result="{ record }">
+      <executionStatus :status="record.result" />
     </template>
     <template #[FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_RESULT]="{ filterContent }">
       <executionStatus :status="filterContent.value" />
     </template>
-    <template #executeFinishedRate="{ record }">
+    <template #triggerMode="{ record }">
+      {{ t(executeMethodMap[record.triggerMode]) }}
+    </template>
+    <template #executeRate="{ record }">
       <a-popover trigger="hover" position="bottom">
-        <div>{{ record.executeFinishedRate }}</div>
+        <div>{{ record.executeRate }}%</div>
         <template #content>
           <div class="flex w-[130px] flex-col gap-[8px]">
             <div class="ms-taskCenter-execute-rate-item">
-              <div class="ms-taskCenter-execute-rate-item-label">{{ t('ms.taskCenter.passThreshold') }}</div>
-              <div class="ms-taskCenter-execute-rate-item-value">{{ record.passThreshold }}</div>
-            </div>
-            <div class="ms-taskCenter-execute-rate-item">
               <div class="ms-taskCenter-execute-rate-item-label">
-                {{ record.testPlanId ? t('ms.taskCenter.executeFinishedRate') : t('ms.taskCenter.executeProgress') }}
+                {{ t('ms.taskCenter.executeFinishedRate') }}
               </div>
               <div class="ms-taskCenter-execute-rate-item-value">
-                {{ `${((record.unExecuteCount / record.caseCount) * 100).toFixed(2)}%` }}
+                {{ `${record.executeRate}%` }}
               </div>
             </div>
             <div class="ms-taskCenter-execute-rate-item">
@@ -62,7 +63,7 @@
                 ></div>
                 {{ t(executeFinishedRateMap.UN_EXECUTE.label) }}
               </div>
-              <div class="ms-taskCenter-execute-rate-item-value">{{ record.unExecuteCount }}</div>
+              <div class="ms-taskCenter-execute-rate-item-value">{{ record.pendingCount }}</div>
             </div>
             <div class="ms-taskCenter-execute-rate-item">
               <div class="ms-taskCenter-execute-rate-item-label">
@@ -82,16 +83,6 @@
               </div>
               <div class="ms-taskCenter-execute-rate-item-value">{{ record.fakeErrorCount }}</div>
             </div>
-            <div v-if="record.testPlanId" class="ms-taskCenter-execute-rate-item">
-              <div class="ms-taskCenter-execute-rate-item-label">
-                <div
-                  :class="`ms-taskCenter-execute-rate-item-label-point`"
-                  :style="{ backgroundColor: executeFinishedRateMap.BLOCK.color }"
-                ></div>
-                {{ t(executeFinishedRateMap.BLOCK.label) }}
-              </div>
-              <div class="ms-taskCenter-execute-rate-item-value">{{ record.blockCount }}</div>
-            </div>
             <div class="ms-taskCenter-execute-rate-item">
               <div class="ms-taskCenter-execute-rate-item-label">
                 <div
@@ -106,17 +97,29 @@
       </a-popover>
     </template>
     <template #action="{ record }">
-      <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" @click="stopTask(record)">
+      <MsButton
+        v-if="[ExecuteStatusEnum.RUNNING, ExecuteStatusEnum.RERUNNING].includes(record.status)"
+        v-permission="['SYSTEM_USER:READ+DELETE']"
+        @click="stopTask(record)"
+      >
         {{ t('common.stop') }}
       </MsButton>
-      <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" @click="deleteTask(record)">
+      <MsButton v-else v-permission="['SYSTEM_USER:READ+DELETE']" @click="deleteTask(record)">
         {{ t('common.delete') }}
       </MsButton>
-      <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" @click="rerunTask(record)">
+      <MsButton
+        v-if="record.status === ExecuteStatusEnum.COMPLETED && record.result === ExecuteResultEnum.ERROR"
+        v-permission="['SYSTEM_USER:READ+DELETE']"
+        @click="rerunTask(record)"
+      >
         {{ t('ms.taskCenter.rerun') }}
       </MsButton>
-      <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" @click="checkReport(record)">
-        {{ t('ms.taskCenter.checkReport') }}
+      <MsButton
+        v-if="record.status === ExecuteStatusEnum.COMPLETED"
+        v-permission="['SYSTEM_USER:READ+DELETE']"
+        @click="checkReport(record)"
+      >
+        {{ t('ms.taskCenter.executeResult') }}
       </MsButton>
     </template>
   </ms-base-table>
@@ -135,6 +138,14 @@
   import execStatus from './execStatus.vue';
   import executionStatus from './executionStatus.vue';
 
+  import {
+    getOrganizationExecuteTaskList,
+    getOrganizationExecuteTaskStatistics,
+    getProjectExecuteTaskList,
+    getProjectExecuteTaskStatistics,
+    getSystemExecuteTaskList,
+    getSystemExecuteTaskStatistics,
+  } from '@/api/modules/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -143,11 +154,15 @@
 
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { ExecuteResultEnum, ExecuteStatusEnum } from '@/enums/taskCenter';
 
-  import { executeFinishedRateMap, executeMethodMap, executeResultMap, executeStatusMap } from './utils';
+  import { executeFinishedRateMap, executeMethodMap, executeResultMap, executeStatusMap } from './config';
 
   const props = defineProps<{
     type: 'system' | 'project' | 'org';
+  }>();
+  const emit = defineEmits<{
+    (e: 'goDetail', id: string): void;
   }>();
 
   const { t } = useI18n();
@@ -160,25 +175,27 @@
   const columns: MsTableColumn = [
     {
       title: 'ID',
-      dataIndex: 'num',
-      slotName: 'num',
-      width: 100,
+      dataIndex: 'id',
+      slotName: 'id',
+      width: 180,
       columnSelectorDisabled: true,
+      fixed: 'left',
     },
     {
       title: 'ms.taskCenter.taskName',
-      dataIndex: 'name',
+      dataIndex: 'taskName',
       showTooltip: true,
       width: 200,
+      fixed: 'left',
     },
     {
       title: 'ms.taskCenter.executeStatus',
-      dataIndex: 'executeStatus',
-      slotName: 'executeStatus',
+      dataIndex: 'status',
+      slotName: 'status',
       width: 90,
       filterConfig: {
         options: Object.keys(executeStatusMap).map((key) => ({
-          label: t(executeStatusMap[key].label),
+          label: t(executeStatusMap[key as ExecuteStatusEnum].label),
           value: key,
         })),
         filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_STATUS,
@@ -186,7 +203,8 @@
     },
     {
       title: 'ms.taskCenter.executeMethod',
-      dataIndex: 'executeMethod',
+      dataIndex: 'triggerMode',
+      slotName: 'triggerMode',
       width: 90,
       filterConfig: {
         options: Object.keys(executeMethodMap).map((key) => ({
@@ -198,8 +216,8 @@
     },
     {
       title: 'ms.taskCenter.executeResult',
-      dataIndex: 'executeResult',
-      slotName: 'executeResult',
+      dataIndex: 'result',
+      slotName: 'result',
       width: 90,
       filterConfig: {
         options: Object.keys(executeResultMap).map((key) => ({
@@ -217,8 +235,8 @@
     },
     {
       title: 'ms.taskCenter.executeFinishedRate',
-      dataIndex: 'executeFinishedRate',
-      slotName: 'executeFinishedRate',
+      dataIndex: 'executeRate',
+      slotName: 'executeRate',
       width: 100,
     },
     {
@@ -249,17 +267,23 @@
       },
     },
     {
+      title: 'ms.taskCenter.operationUser',
+      dataIndex: 'createUser',
+      width: 100,
+      showTooltip: true,
+    },
+    {
       title: 'common.operation',
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 220,
+      width: 180,
     },
   ];
 
   if (props.type === 'system') {
     columns.splice(
-      1,
+      2,
       0,
       {
         title: 'common.belongProject',
@@ -275,13 +299,25 @@
       }
     );
   } else if (props.type === 'org') {
-    columns.splice(1, 0, {
+    columns.splice(2, 0, {
       title: 'common.belongProject',
       dataIndex: 'belongProject',
       showTooltip: true,
       width: 100,
     });
   }
+
+  const currentExecuteTaskList = {
+    system: getSystemExecuteTaskList,
+    project: getProjectExecuteTaskList,
+    org: getOrganizationExecuteTaskList,
+  }[props.type];
+
+  const currentExecuteTaskStatistics = {
+    system: getSystemExecuteTaskStatistics,
+    project: getProjectExecuteTaskStatistics,
+    org: getOrganizationExecuteTaskStatistics,
+  }[props.type];
 
   const tableBatchActions = {
     baseAction: [
@@ -300,33 +336,7 @@
     ],
   };
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    () =>
-      Promise.resolve({
-        list: [
-          {
-            id: '1',
-            num: 10086,
-            name: '测试任务',
-            belongProject: '测试项目',
-            belongOrg: '测试组织',
-            executeStatus: 'PENDING',
-            executeMethod: '手动执行',
-            executeResult: 'SUCCESS',
-            caseCount: 100,
-            executeFinishedRate: '100%',
-            startTime: 1630000000000,
-            createTime: 1630000000000,
-            endTime: 1630000000000,
-            passThreshold: '100%',
-            unExecuteCount: 0,
-            successCount: 100,
-            fakeErrorCount: 0,
-            blockCount: 0,
-            errorCount: 0,
-          },
-        ],
-        total: 1,
-      }),
+    currentExecuteTaskList,
     {
       tableKey: TableKeyEnum.TASK_CENTER_CASE_TASK,
       scroll: { x: '1000px' },
@@ -350,14 +360,14 @@
   }
 
   function showTaskDetail(id: string) {
-    console.log('showTaskDetail', id);
+    emit('goDetail', id);
   }
 
   /**
    * 删除任务
    */
   function deleteTask(record?: any, isBatch?: boolean, params?: BatchActionQueryParams) {
-    let title = t('ms.taskCenter.deleteTaskTitle', { name: characterLimit(record?.name) });
+    let title = t('ms.taskCenter.deleteTaskTitle', { name: characterLimit(record?.taskName) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('ms.taskCenter.deleteCaseTaskTitle', {
@@ -396,7 +406,7 @@
   }
 
   function stopTask(record?: any, isBatch?: boolean, params?: BatchActionQueryParams) {
-    let title = t('ms.taskCenter.stopTaskTitle', { name: characterLimit(record?.name) });
+    let title = t('ms.taskCenter.stopTaskTitle', { name: characterLimit(record?.taskName) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('ms.taskCenter.batchStopTaskTitle', {
@@ -458,8 +468,34 @@
     console.log('checkReport', record);
   }
 
-  onMounted(() => {
-    loadList();
+  async function initTaskStatistics() {
+    try {
+      const res = await currentExecuteTaskStatistics(propsRes.value.data.map((item) => item.id));
+      res.forEach((item) => {
+        const target = propsRes.value.data.find((task) => task.id === item.id);
+        if (target) {
+          target.executeRate = item.executeRate;
+          target.pendingCount = item.pendingCount;
+          target.successCount = item.successCount;
+          target.fakeErrorCount = item.fakeErrorCount;
+          target.errorCount = item.errorCount;
+          target.caseTotal = item.caseTotal;
+        }
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  async function refresh() {
+    await loadList();
+    initTaskStatistics();
+  }
+
+  onMounted(async () => {
+    await loadList();
+    initTaskStatistics();
   });
 
   await tableStore.initColumn(TableKeyEnum.TASK_CENTER_CASE_TASK, columns, 'drawer');

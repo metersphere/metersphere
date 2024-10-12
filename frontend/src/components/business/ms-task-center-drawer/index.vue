@@ -25,7 +25,7 @@
   .ms-task-center-drawer {
     .arco-drawer-body {
       padding-top: 0;
-      :deep(.arco-tabs-tab) {
+      .arco-tabs-tab {
         margin-left: 0;
       }
     }

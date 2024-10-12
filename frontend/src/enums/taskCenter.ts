@@ -19,3 +19,17 @@ export enum ExecutionMethodsLabel {
   API = 'project.taskCenter.interfaceCall', // 接口调用
   BATCH = 'project.taskCenter.batchExecution', // 批量执行
 }
+
+export enum ExecuteStatusEnum {
+  PENDING = 'PENDING', // 待执行
+  RUNNING = 'RUNNING', // 执行中
+  COMPLETED = 'COMPLETED', // 执行完成
+  RERUNNING = 'RERUNNING', // 失败重跑
+  STOPPED = 'STOPPED', // 执行中止
+}
+
+export enum ExecuteResultEnum {
+  SUCCESS = 'SUCCESS',
+  ERROR = 'ERROR',
+  FAKE_ERROR = 'FAKE_ERROR',
+}

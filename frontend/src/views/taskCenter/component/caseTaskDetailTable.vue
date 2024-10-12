@@ -32,35 +32,50 @@
     v-on="propsEvent"
     @batch-action="handleTableBatch"
   >
-    <template #executeStatus="{ record }">
-      <execStatus :status="record.executeStatus" />
+    <template #status="{ record }">
+      <execStatus :status="record.status" />
     </template>
     <template #[FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_STATUS]="{ filterContent }">
       <execStatus :status="filterContent.value" />
     </template>
-    <template #executeResult="{ record }">
-      <executionStatus :status="record.executeResult" />
+    <template #result="{ record }">
+      <executionStatus :status="record.result" />
     </template>
     <template #[FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_RESULT]="{ filterContent }">
       <executionStatus :status="filterContent.value" />
     </template>
-    <template #node="{ record }">
-      <div>{{ record.node }}</div>
+    <template #triggerMode="{ record }">
+      {{ t(executeMethodMap[record.triggerMode]) }}
+    </template>
+    <template #resourcePoolNode="{ record }">
+      <div>{{ record.resourcePoolNode }}</div>
       <a-tooltip :content="t('ms.taskCenter.nodeErrorTip')">
         <icon-exclamation-circle-fill class="!text-[rgb(var(--warning-6))]" :size="18" />
       </a-tooltip>
     </template>
     <template #action="{ record }">
-      <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" @click="stopTask(record)">
+      <MsButton
+        v-if="[ExecuteStatusEnum.RUNNING, ExecuteStatusEnum.RERUNNING].includes(record.status)"
+        v-permission="['SYSTEM_USER:READ+DELETE']"
+        @click="stopTask(record)"
+      >
         {{ t('common.stop') }}
       </MsButton>
-      <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" @click="deleteTask(record)">
+      <MsButton v-else v-permission="['SYSTEM_USER:READ+DELETE']" @click="deleteTask(record)">
         {{ t('common.delete') }}
       </MsButton>
-      <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" @click="rerunTask(record)">
+      <MsButton
+        v-if="record.status === ExecuteStatusEnum.COMPLETED && record.result === ExecuteResultEnum.ERROR"
+        v-permission="['SYSTEM_USER:READ+DELETE']"
+        @click="rerunTask(record)"
+      >
         {{ t('ms.taskCenter.rerun') }}
       </MsButton>
-      <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" @click="checkExecuteResult(record)">
+      <MsButton
+        v-if="record.status === ExecuteStatusEnum.COMPLETED"
+        v-permission="['SYSTEM_USER:READ+DELETE']"
+        @click="checkExecuteResult(record)"
+      >
         {{ t('ms.taskCenter.executeResult') }}
       </MsButton>
     </template>
@@ -85,6 +100,11 @@
   import executionStatus from './executionStatus.vue';
   import scenarioExecuteResultDrawer from './scenarioExecuteResultDrawer.vue';
 
+  import {
+    getOrganizationExecuteTaskDetailList,
+    getProjectExecuteTaskDetailList,
+    getSystemExecuteTaskDetailList,
+  } from '@/api/modules/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -93,11 +113,13 @@
 
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { ExecuteResultEnum, ExecuteStatusEnum } from '@/enums/taskCenter';
 
-  import { executeMethodMap, executeResultMap, executeStatusMap } from './utils';
+  import { executeMethodMap, executeResultMap, executeStatusMap } from './config';
 
   const props = defineProps<{
     type: 'system' | 'project' | 'org';
+    id?: string;
   }>();
 
   const { t } = useI18n();
@@ -113,24 +135,27 @@
   const columns: MsTableColumn = [
     {
       title: t('ms.taskCenter.taskID'),
-      dataIndex: 'num',
-      width: 100,
+      dataIndex: 'taskId',
+      width: 180,
       columnSelectorDisabled: true,
+      showTooltip: true,
+      fixed: 'left',
     },
     {
       title: 'ms.taskCenter.taskName',
-      dataIndex: 'name',
+      dataIndex: 'taskName',
       showTooltip: true,
       width: 200,
+      fixed: 'left',
     },
     {
       title: 'ms.taskCenter.executeStatus',
-      dataIndex: 'executeStatus',
-      slotName: 'executeStatus',
+      dataIndex: 'status',
+      slotName: 'status',
       width: 100,
       filterConfig: {
         options: Object.keys(executeStatusMap).map((key) => ({
-          label: t(executeStatusMap[key].label),
+          label: t(executeStatusMap[key as ExecuteStatusEnum].label),
           value: key,
         })),
         filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_STATUS,
@@ -138,7 +163,7 @@
     },
     {
       title: 'ms.taskCenter.executeMethod',
-      dataIndex: 'executeMethod',
+      dataIndex: 'triggerMode',
       width: 100,
       filterConfig: {
         options: Object.keys(executeMethodMap).map((key) => ({
@@ -150,8 +175,8 @@
     },
     {
       title: 'ms.taskCenter.executeResult',
-      dataIndex: 'executeResult',
-      slotName: 'executeResult',
+      dataIndex: 'result',
+      slotName: 'result',
       width: 100,
       filterConfig: {
         options: Object.keys(executeResultMap).map((key) => ({
@@ -164,24 +189,24 @@
     },
     {
       title: 'ms.taskCenter.resourcePool',
-      dataIndex: 'resourcePools',
+      dataIndex: 'resourcePoolName',
       isStringTag: true,
       isTag: true,
     },
     {
       title: 'ms.taskCenter.node',
-      dataIndex: 'node',
-      slotName: 'node',
+      dataIndex: 'resourcePoolNode',
+      slotName: 'resourcePoolNode',
       width: 100,
     },
     {
       title: 'ms.taskCenter.queue',
-      dataIndex: 'queue',
+      dataIndex: 'lineNum',
       width: 100,
     },
     {
       title: 'ms.taskCenter.threadID',
-      dataIndex: 'threadID',
+      dataIndex: 'threadId',
       width: 100,
     },
     {
@@ -203,16 +228,22 @@
       },
     },
     {
+      title: 'ms.taskCenter.operationUser',
+      dataIndex: 'executor',
+      width: 100,
+      showTooltip: true,
+    },
+    {
       title: 'common.operation',
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 220,
+      width: 180,
     },
   ];
 
   if (props.type === 'system') {
-    columns.splice(1, 0, [
+    columns.splice(2, 0, [
       {
         title: 'common.belongProject',
         dataIndex: 'belongProject',
@@ -227,7 +258,7 @@
       },
     ]);
   } else if (props.type === 'org') {
-    columns.splice(1, 0, [
+    columns.splice(2, 0, [
       {
         title: 'common.belongProject',
         dataIndex: 'belongProject',
@@ -236,8 +267,6 @@
       },
     ]);
   }
-
-  await tableStore.initColumn(TableKeyEnum.TASK_CENTER_CASE_TASK_DETAIL, columns, 'drawer');
 
   const tableBatchActions = {
     baseAction: [
@@ -255,29 +284,15 @@
       },
     ],
   };
+
+  const currentExecuteTaskDetailList = {
+    system: getSystemExecuteTaskDetailList,
+    project: getProjectExecuteTaskDetailList,
+    org: getOrganizationExecuteTaskDetailList,
+  }[props.type];
+
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    () =>
-      Promise.resolve({
-        list: [
-          {
-            id: '1',
-            num: 10086,
-            name: 'test',
-            belongProject: 'test',
-            belongOrg: 'test',
-            executeStatus: 'PENDING',
-            executeMethod: '手动执行',
-            executeResult: 'SUCCESS',
-            resourcePools: ['test'],
-            node: '11.11.1',
-            queue: '10',
-            threadID: '1736',
-            startExecuteTime: 1629782400000,
-            endExecuteTime: 1629782400000,
-          },
-        ],
-        total: 1,
-      }),
+    currentExecuteTaskDetailList,
     {
       tableKey: TableKeyEnum.TASK_CENTER_CASE_TASK_DETAIL,
       scroll: { x: '1000px' },
@@ -289,6 +304,7 @@
     (item) => {
       return {
         ...item,
+        resourcePoolName: [item.resourcePoolName],
         startExecuteTime: dayjs(item.startExecuteTime).format('YYYY-MM-DD HH:mm:ss'),
         endExecuteTime: dayjs(item.endExecuteTime).format('YYYY-MM-DD HH:mm:ss'),
       };
@@ -304,7 +320,7 @@
    * 删除任务
    */
   function deleteTask(record?: any, isBatch?: boolean, params?: BatchActionQueryParams) {
-    let title = t('ms.taskCenter.deleteTaskTitle', { name: characterLimit(record?.name) });
+    let title = t('ms.taskCenter.deleteTaskTitle', { name: characterLimit(record?.taskName) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('ms.taskCenter.deleteCaseTaskTitle', {
@@ -343,7 +359,7 @@
   }
 
   function stopTask(record?: any, isBatch?: boolean, params?: BatchActionQueryParams) {
-    let title = t('ms.taskCenter.stopTaskTitle', { name: characterLimit(record?.name) });
+    let title = t('ms.taskCenter.stopTaskTitle', { name: characterLimit(record?.taskName) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('ms.taskCenter.batchStopTaskTitle', {
@@ -412,8 +428,13 @@
   }
 
   onMounted(() => {
-    loadList();
+    if (props.id) {
+      keyword.value = props.id;
+    }
+    searchTask();
   });
+
+  await tableStore.initColumn(TableKeyEnum.TASK_CENTER_CASE_TASK_DETAIL, columns, 'drawer');
 </script>
 
 <style lang="less" scoped></style>

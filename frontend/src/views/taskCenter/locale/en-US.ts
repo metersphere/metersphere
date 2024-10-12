@@ -50,4 +50,7 @@ export default {
   'ms.taskCenter.scheduledTask': 'Scheduled Execution',
   'ms.taskCenter.batchCaseTask': 'Batch Case Execution Task',
   'ms.taskCenter.batchScenarioTask': 'Batch Scenario Execution Task',
+  'ms.taskCenter.apiImport': 'API Import',
+  'ms.taskCenter.apiScenario': 'Api Scenario',
+  'ms.taskCenter.thirdPartSync': 'Third-party sync',
 };
