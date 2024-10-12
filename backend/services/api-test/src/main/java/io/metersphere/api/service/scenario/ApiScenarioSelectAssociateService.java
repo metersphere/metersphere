@@ -5,6 +5,7 @@ import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioCsvStep;
 import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.dto.definition.ApiTestCaseAssociateDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioSelectAssociateDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioStepDTO;
@@ -99,6 +100,13 @@ public class ApiScenarioSelectAssociateService {
     private static void getApiSteps(ApiScenarioSelectAssociateDTO request, List<ApiDefinition> apiDefinitionList, List<ApiScenarioStepDTO> steps) {
         apiDefinitionList.forEach(item -> {
             ApiScenarioStepDTO step = new ApiScenarioStepDTO();
+            LinkedHashMap<String, Object> config = new LinkedHashMap<>();
+            config.put("enable", true);
+            config.put("id", "");
+            config.put("method", item.getMethod());
+            config.put("name", "");
+            config.put("protocol", item.getProtocol());
+            step.setConfig(config);
             step.setStepType(ApiScenarioStepType.API.name());
             step.setName(item.getName());
             step.setResourceId(item.getId());
@@ -118,20 +126,20 @@ public class ApiScenarioSelectAssociateService {
         moduleMaps.remove(MODULE_ALL);
         if (selectAllModule) {
             // 选择了全部模块
-            List<ApiTestCase> apiTestCaseList = extApiTestCaseMapper.selectAllApiCase(true, request.getProjectId(), null, request.getProtocols());
+            List<ApiTestCaseAssociateDTO> apiTestCaseList = extApiTestCaseMapper.selectAllApiCaseWithAssociate(request.getProjectId(),  request.getProtocols());
             getCaseSteps(request, apiTestCaseList, steps);
         } else {
             AssociateCaseDTO dto = getCaseIds(moduleMaps);
-            List<ApiTestCase> apiTestCaseList = new ArrayList<>();
+            List<ApiTestCaseAssociateDTO> apiTestCaseList = new ArrayList<>();
             //获取全选的模块数据
             if (CollectionUtils.isNotEmpty(dto.getModuleIds())) {
-                apiTestCaseList = extApiTestCaseMapper.getListBySelectModules(true, request.getProjectId(), dto.getModuleIds(), null, request.getProtocols());
+                apiTestCaseList = extApiTestCaseMapper.getListBySelectModulesWithAssociate( request.getProjectId(), dto.getModuleIds(), request.getProtocols());
             }
 
             if (CollectionUtils.isNotEmpty(dto.getSelectIds())) {
                 CollectionUtils.removeAll(dto.getSelectIds(), apiTestCaseList.stream().map(ApiTestCase::getId).toList());
                 //获取选中的ids数据
-                List<ApiTestCase> selectIdList = extApiTestCaseMapper.getListBySelectIds(request.getProjectId(), dto.getSelectIds(), null, request.getProtocols());
+                List<ApiTestCaseAssociateDTO> selectIdList = extApiTestCaseMapper.getListBySelectIdsWithAssociate(request.getProjectId(), dto.getSelectIds(),  request.getProtocols());
                 apiTestCaseList.addAll(selectIdList);
             }
 
@@ -142,7 +150,7 @@ public class ApiScenarioSelectAssociateService {
             }
 
             if (CollectionUtils.isNotEmpty(apiTestCaseList)) {
-                List<ApiTestCase> list = apiTestCaseList.stream().sorted(Comparator.comparing(ApiTestCase::getPos)).toList();
+                List<ApiTestCaseAssociateDTO> list = apiTestCaseList.stream().sorted(Comparator.comparing(ApiTestCase::getPos)).toList();
                 getCaseSteps(request, list, steps);
             }
 
@@ -151,10 +159,17 @@ public class ApiScenarioSelectAssociateService {
         return steps;
     }
 
-    private static void getCaseSteps(ApiScenarioSelectAssociateDTO request, List<ApiTestCase> apiTestCaseList, List<ApiScenarioStepDTO> steps) {
+    private static void getCaseSteps(ApiScenarioSelectAssociateDTO request, List<ApiTestCaseAssociateDTO> apiTestCaseList, List<ApiScenarioStepDTO> steps) {
         apiTestCaseList.forEach(item -> {
             ApiScenarioStepDTO step = new ApiScenarioStepDTO();
             step.setStepType(ApiScenarioStepType.API_CASE.name());
+            LinkedHashMap<String, Object> config = new LinkedHashMap<>();
+            config.put("enable", true);
+            config.put("id", "");
+            config.put("method", item.getMethod());
+            config.put("name", "");
+            config.put("protocol", item.getProtocol());
+            step.setConfig(config);
             step.setName(item.getName());
             step.setResourceId(item.getId());
             step.setRefType(request.getRefType());

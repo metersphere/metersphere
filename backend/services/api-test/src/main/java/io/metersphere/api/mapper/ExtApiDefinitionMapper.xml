@@ -688,6 +688,7 @@
         api_definition.num,
         api_definition.project_id,
         api_definition.version_id,
+        api_definition.protocol,
         api_definition.pos
         from api_definition
         where api_definition.deleted = false
@@ -709,6 +710,7 @@
         api_definition.num,
         api_definition.project_id,
         api_definition.version_id,
+        api_definition.protocol,
         api_definition.pos
         from api_definition
         where api_definition.deleted = false
@@ -733,6 +735,7 @@
         api_definition.num,
         api_definition.project_id,
         api_definition.version_id,
+        api_definition.protocol,
         api_definition.pos
         from api_definition
         where api_definition.deleted = false

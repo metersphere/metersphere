@@ -111,6 +111,12 @@ public interface ExtApiTestCaseMapper {
 
     List<ApiTestCase> getListBySelectIds(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("testPlanId") String testPlanId, @Param("protocols") List<String> protocols);
 
+    List<ApiTestCaseAssociateDTO>selectAllApiCaseWithAssociate(@Param("projectId") String projectId, @Param("protocols") List<String> protocols);
+
+    List<ApiTestCaseAssociateDTO> getListBySelectModulesWithAssociate(@Param("projectId") String projectId, @Param("moduleIds") List<String> moduleIds, @Param("protocols") List<String> protocols);
+
+    List<ApiTestCaseAssociateDTO> getListBySelectIdsWithAssociate(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("protocols") List<String> protocols);
+
     List<ApiTestCase> getCaseListBySelectIds(@Param("isRepeat") boolean isRepeat, @Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("testPlanId") String testPlanId, @Param("protocols") List<String> protocols);
 
     void setApiChangeByApiDefinitionId(@Param("apiDefinitionId") String apiDefinitionId);
