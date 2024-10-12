@@ -10,6 +10,10 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * @author song-cc-rock
+ */
+
 @Data
 public class ApiDocShareEditRequest implements Serializable {
 

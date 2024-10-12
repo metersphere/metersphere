@@ -2,6 +2,7 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.ApiDocShare;
 import io.metersphere.api.dto.definition.ApiDocShareDTO;
+import io.metersphere.api.dto.definition.request.ApiDocShareCheckRequest;
 import io.metersphere.api.dto.definition.request.ApiDocShareEditRequest;
 import io.metersphere.api.dto.definition.request.ApiDocSharePageRequest;
 import io.metersphere.api.mapper.ApiDocShareMapper;
@@ -19,6 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * @author song-cc-rock
+ */
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiDocShareService {
@@ -32,11 +37,22 @@ public class ApiDocShareService {
 
 	public static final String RANGE_ALL = "ALL";
 
+	/**
+	 * 分页获取分享列表
+	 * @param request 分页请求参数
+	 * @return 分享列表
+	 */
 	public List<ApiDocShareDTO> list(ApiDocSharePageRequest request) {
 		List<ApiDocShareDTO> list = extApiDocShareMapper.list(request);
 		return buildApiShareExtra(list);
 	}
 
+	/**
+	 * 创建分享
+	 * @param request 请求参数
+	 * @param currentUser 当前用户
+	 * @return 分享
+	 */
 	public ApiDocShare create(ApiDocShareEditRequest request, String currentUser) {
 		ApiDocShare docShare = new ApiDocShare();
 		BeanUtils.copyBean(docShare, request);
@@ -47,6 +63,11 @@ public class ApiDocShareService {
 		return docShare;
 	}
 
+	/**
+	 * 更新分享
+	 * @param request 请求参数
+	 * @return 分享
+	 */
 	public ApiDocShare update(ApiDocShareEditRequest request) {
 		checkExit(request.getId());
 		ApiDocShare docShare = new ApiDocShare();
@@ -55,9 +76,27 @@ public class ApiDocShareService {
 		return docShare;
 	}
 
+	/**
+	 * 删除分享
+	 * @param id 分享ID
+	 */
 	public void delete(String id) {
 		checkExit(id);
 		apiDocShareMapper.deleteByPrimaryKey(id);
+	}
+
+	/**
+	 * 检查分享密码
+	 * @param request 校验请求参数
+	 * @return 是否正确
+	 */
+	public Boolean check(ApiDocShareCheckRequest request) {
+		checkExit(request.getDocShareId());
+		ApiDocShare docShare = apiDocShareMapper.selectByPrimaryKey(request.getDocShareId());
+		if (StringUtils.isBlank(docShare.getPassword())) {
+			return true;
+		}
+		return StringUtils.equals(docShare.getPassword(), request.getPassword());
 	}
 
 	/**
