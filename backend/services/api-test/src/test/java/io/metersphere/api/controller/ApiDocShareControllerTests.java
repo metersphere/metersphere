@@ -31,6 +31,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 	private final static String DELETE = BASE_PATH + "delete/";
 	private final static String PAGE = BASE_PATH + "page";
 	private final static String CHECK = BASE_PATH + "check";
+	private final static String DETAIL = BASE_PATH + "detail/";
 
 	@Order(1)
 	@Test
@@ -51,6 +52,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 		checkRequest.setDocShareId(docShare.getId());
 		checkRequest.setPassword("123456");
 		this.requestPostWithOk(CHECK, checkRequest);
+		this.requestGetWithOk(DETAIL + docShare.getId());
 		request.setId(docShare.getId());
 		request.setName("share-2");
 		request.setPassword(StringUtils.EMPTY);
@@ -60,6 +62,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 		request.setInvalidUnit("HOUR");
 		this.requestPostWithOk(UPDATE, request);
 		this.requestPostWithOk(CHECK, checkRequest);
+		this.requestGetWithOk(DETAIL + docShare.getId());
 		this.requestGetWithOk(DELETE + docShare.getId());
 		// 不存在的ID
 		this.requestGet(DELETE + "not-exist-id").andExpect(status().is5xxServerError());

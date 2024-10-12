@@ -2,6 +2,7 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.ApiDocShare;
 import io.metersphere.api.dto.definition.ApiDocShareDTO;
+import io.metersphere.api.dto.definition.ApiDocShareDetail;
 import io.metersphere.api.dto.definition.request.ApiDocShareCheckRequest;
 import io.metersphere.api.dto.definition.request.ApiDocShareEditRequest;
 import io.metersphere.api.dto.definition.request.ApiDocSharePageRequest;
@@ -91,12 +92,28 @@ public class ApiDocShareService {
 	 * @return 是否正确
 	 */
 	public Boolean check(ApiDocShareCheckRequest request) {
-		checkExit(request.getDocShareId());
-		ApiDocShare docShare = apiDocShareMapper.selectByPrimaryKey(request.getDocShareId());
+		ApiDocShare docShare = checkExit(request.getDocShareId());
 		if (StringUtils.isBlank(docShare.getPassword())) {
 			return true;
 		}
 		return StringUtils.equals(docShare.getPassword(), request.getPassword());
+	}
+
+	/**
+	 * 获取分享详情
+	 * @param id 分享ID
+	 * @return 分享详情
+	 */
+	public ApiDocShareDetail detail(String id) {
+		ApiDocShare docShare = checkExit(id);
+		ApiDocShareDetail detail = ApiDocShareDetail.builder().allowExport(docShare.getAllowExport()).isPublic(docShare.getIsPublic()).build();
+		if (docShare.getInvalidTime() == null || StringUtils.isBlank(docShare.getInvalidUnit())) {
+			detail.setInvalid(false);
+		} else {
+			Long deadline = calculateDeadline(docShare.getInvalidTime(), docShare.getInvalidUnit(), docShare.getCreateTime());
+			detail.setInvalid(deadline < System.currentTimeMillis());
+		}
+		return detail;
 	}
 
 	/**
@@ -169,10 +186,11 @@ public class ApiDocShareService {
 	 * 是否存在
 	 * @param id 分享ID
 	 */
-	private void checkExit(String id) {
+	private ApiDocShare checkExit(String id) {
 		ApiDocShare docShare = apiDocShareMapper.selectByPrimaryKey(id);
 		if (docShare == null) {
 			throw new MSException(Translator.get("api_doc_share.not_exist"));
 		}
+		return docShare;
 	}
 }
