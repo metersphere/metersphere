@@ -86,7 +86,6 @@
   const route = useRoute();
   const appStore = useAppStore();
 
-  const projectId = computed(() => appStore.currentProjectId);
   const keyword = ref<string>('');
   const planId = ref(route.query.id as string);
 
@@ -187,10 +186,15 @@
   // 获取自定义字段
   const searchCustomFields = ref<FilterFormItem[]>([]);
   const getCustomFieldColumns = async () => {
-    const res = await getCustomFieldHeader(projectId.value);
-    searchCustomFields.value = getFilterCustomFields(
-      res.filter((item: BugEditCustomField) => item.fieldId !== 'title')
-    );
+    try {
+      const res = await getCustomFieldHeader(appStore.currentProjectId);
+      searchCustomFields.value = getFilterCustomFields(
+        res.filter((item: BugEditCustomField) => item.fieldId !== 'title')
+      );
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   };
 
   const statusOption = ref<BugOptionItem[]>([]);
