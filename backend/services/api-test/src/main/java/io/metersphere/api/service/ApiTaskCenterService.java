@@ -6,6 +6,7 @@ import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.report.ReportDTO;
 import io.metersphere.api.mapper.ExtApiReportMapper;
 import io.metersphere.api.mapper.ExtApiScenarioReportMapper;
+import io.metersphere.engine.EngineFactory;
 import io.metersphere.engine.MsHttpClient;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -19,6 +20,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.dto.builder.LogDTOBuilder;
+import io.metersphere.system.dto.pool.TestResourceDTO;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
@@ -272,23 +274,116 @@ public class ApiTaskCenterService {
                               String userId,
                               String module) {
         Map<String, List<String>> poolIdMap = reports.stream()
-                .collect(Collectors.groupingBy(ReportDTO::getPoolId, Collectors.mapping(ReportDTO::getId, Collectors.toList())));
+                .collect(Collectors.groupingBy(ReportDTO::getPoolId,
+                        Collectors.mapping(ReportDTO::getId, Collectors.toList())));
+
         poolIdMap.forEach((poolId, reportList) -> {
             TestResourcePoolReturnDTO testResourcePoolDTO = testResourcePoolService.getTestResourcePoolDetail(poolId);
-            List<TestResourceNodeDTO> nodesList = testResourcePoolDTO.getTestResourceReturnDTO().getNodesList();
-            if (CollectionUtils.isNotEmpty(nodesList)) {
-                stopTask(request, reportList, nodesList, reports);
+
+            // Remove excluded report IDs
+            if (request.getExcludeIds() != null && !request.getExcludeIds().isEmpty()) {
+                reportList.removeAll(request.getExcludeIds());
+            }
+
+            boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.name());
+
+            if (isK8SResourcePool) {
+                handleK8STask(request, reports, reportList, testResourcePoolDTO);
+            } else {
+                List<TestResourceNodeDTO> nodesList = testResourcePoolDTO.getTestResourceReturnDTO().getNodesList();
+                if (CollectionUtils.isNotEmpty(nodesList)) {
+                    stopTask(request, reportList, nodesList, reports);
+                }
             }
         });
-        // 保存日志 获取所有的reportId
-        List<String> reportIds = reports.stream().map(ReportDTO::getId).toList();
-        SubListUtils.dealForSubList(reportIds, 100, (subList) -> {
-            if (request.getModuleType().equals(TaskCenterResourceType.API_CASE.toString())) {
-                //记录日志
-                saveLog(subList, userId, StringUtils.join(module, "_REAL_TIME_API_CASE"), TaskCenterResourceType.API_CASE.toString());
-            } else if (request.getModuleType().equals(TaskCenterResourceType.API_SCENARIO.toString())) {
-                saveLog(subList, userId, StringUtils.join(module, "_REAL_TIME_API_SCENARIO"), TaskCenterResourceType.API_SCENARIO.toString());
+
+        logReports(request, reports, userId, module);
+    }
+
+    private void handleK8STask(TaskCenterBatchRequest request, List<ReportDTO> reports,
+                               List<String> reportList, TestResourcePoolReturnDTO testResourcePoolDTO) {
+        TaskRequestDTO taskRequestDTO = new TaskRequestDTO();
+        TaskResultDTO result = createStoppedTaskResult();
+
+        // Prepare mapping for integration and resource IDs
+        Map<String, Boolean> integrationMap = prepareIntegrationMap(reports);
+        Map<String, String> resourceIdMap = prepareResourceIdMap(reports);
+        Map<String, String> testPlanIdMap = prepareTestPlanIdMap(reports);
+
+        SubListUtils.dealForSubList(reportList, 100, subList -> {
+            try {
+                TestResourceDTO testResourceDTO = new TestResourceDTO();
+                BeanUtils.copyBean(testResourceDTO, testResourcePoolDTO.getTestResourceReturnDTO());
+                EngineFactory.stopApi(subList, testResourceDTO);
+            } catch (Exception e) {
+                LogUtils.error(e);
+            } finally {
+                processSubListReports(subList, request, result, taskRequestDTO, integrationMap, resourceIdMap, testPlanIdMap);
             }
+        });
+    }
+
+    private TaskResultDTO createStoppedTaskResult() {
+        TaskResultDTO result = new TaskResultDTO();
+        result.setRequestResults(Collections.emptyList());
+        result.setHasEnded(true);
+
+        ProcessResultDTO processResultDTO = new ProcessResultDTO();
+        processResultDTO.setStatus(ExecStatus.STOPPED.name());
+        result.setProcessResultDTO(processResultDTO);
+        result.setConsole("任务已终止");
+
+        return result;
+    }
+
+    private void processSubListReports(List<String> subList, TaskCenterBatchRequest request,
+                                       TaskResultDTO result, TaskRequestDTO taskRequestDTO,
+                                       Map<String, Boolean> integrationMap, Map<String, String> resourceIdMap,
+                                       Map<String, String> testPlanIdMap) {
+        subList.forEach(reportId -> {
+            TaskInfo taskInfo = taskRequestDTO.getTaskInfo();
+            taskInfo.setResourceType(request.getModuleType());
+
+            TaskItem taskItem = new TaskItem();
+            taskItem.setReportId(reportId);
+            taskItem.setResourceId(resourceIdMap.get(reportId));
+
+            // Set resource type based on the test plan ID
+            String testPlanId = testPlanIdMap.get(reportId);
+            if (testPlanId != null && !"NONE".equals(testPlanId)) {
+                taskInfo.setResourceType(getResourceType(request.getModuleType()));
+            }
+
+            // Set integrated report information
+            taskInfo.getRunModeConfig().setIntegratedReport(integrationMap.get(reportId));
+            if (Boolean.TRUE.equals(integrationMap.get(reportId))) {
+                taskInfo.getRunModeConfig().getCollectionReport().setReportId(reportId);
+            }
+
+            taskRequestDTO.setTaskItem(taskItem);
+            result.setRequest(taskRequestDTO);
+            kafkaTemplate.send(KafkaTopicConstants.API_REPORT_TOPIC, JSON.toJSONString(result));
+        });
+    }
+
+    private String getResourceType(String moduleType) {
+        return TaskCenterResourceType.API_CASE.toString().equals(moduleType)
+                ? ApiExecuteResourceType.TEST_PLAN_API_CASE.name()
+                : TaskCenterResourceType.API_SCENARIO.toString().equals(moduleType)
+                ? ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name()
+                : "";
+    }
+
+    private void logReports(TaskCenterBatchRequest request, List<ReportDTO> reports,
+                            String userId, String module) {
+        List<String> reportIds = reports.stream().map(ReportDTO::getId).toList();
+        SubListUtils.dealForSubList(reportIds, 100, subList -> {
+            String logPrefix = StringUtils.join(module, "_REAL_TIME_");
+            String resourceType = request.getModuleType().equals(TaskCenterResourceType.API_CASE.toString())
+                    ? TaskCenterResourceType.API_CASE.toString()
+                    : TaskCenterResourceType.API_SCENARIO.toString();
+
+            saveLog(subList, userId, logPrefix + resourceType, resourceType);
         });
     }
 
@@ -296,31 +391,18 @@ public class ApiTaskCenterService {
                          List<String> reportList,
                          List<TestResourceNodeDTO> nodesList,
                          List<ReportDTO> reports) {
-        // 根据报告id分组
-        Map<String, Boolean> integrationMap = reports.stream()
-                .collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getIntegrated));
-        Map<String, String> resourceIdMap = reports.stream()
-                .collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getResourceId));
-        Map<String, String> testPlanIdMap = reports.stream()
-                .collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getTestPlanId));
+        Map<String, Boolean> integrationMap = prepareIntegrationMap(reports);
+        Map<String, String> resourceIdMap = prepareResourceIdMap(reports);
+        Map<String, String> testPlanIdMap = prepareTestPlanIdMap(reports);
 
-        // 如果需要排除的报告ID不为空，则从reportList中移除
+        // Remove excluded report IDs
         if (request.getExcludeIds() != null && !request.getExcludeIds().isEmpty()) {
             reportList.removeAll(request.getExcludeIds());
         }
 
         nodesList.parallelStream().forEach(node -> {
             String endpoint = MsHttpClient.getEndpoint(node.getIp(), node.getPort());
-
-            // 初始化 TaskRequestDTO 和 TaskResultDTO
-            TaskRequestDTO taskRequestDTO = new TaskRequestDTO();
-            TaskResultDTO result = new TaskResultDTO();
-            result.setRequestResults(Collections.emptyList());
-            result.setHasEnded(true);
-            ProcessResultDTO processResultDTO = new ProcessResultDTO();
-            processResultDTO.setStatus(ExecStatus.STOPPED.name());
-            result.setProcessResultDTO(processResultDTO);
-            result.setConsole("任务已终止");
+            TaskResultDTO result = createStoppedTaskResult();
 
             SubListUtils.dealForSubList(reportList, 100, subList -> {
                 try {
@@ -329,41 +411,23 @@ public class ApiTaskCenterService {
                 } catch (Exception e) {
                     LogUtils.error(e);
                 } finally {
-                    subList.forEach(reportId -> {
-                        TaskInfo taskInfo = taskRequestDTO.getTaskInfo();
-                        taskInfo.setResourceType(request.getModuleType());
-
-                        TaskItem taskItem = new TaskItem();
-                        taskItem.setReportId(reportId);
-                        taskItem.setResourceId(resourceIdMap.get(reportId));
-                        // 设置任务信息的资源类型
-                        String testPlanId = testPlanIdMap.get(reportId);
-                        if (testPlanId != null && !"NONE".equals(testPlanId)) {
-                            String moduleType = request.getModuleType();
-                            taskInfo.setResourceType(
-                                    TaskCenterResourceType.API_CASE.toString().equals(moduleType)
-                                            ? ApiExecuteResourceType.TEST_PLAN_API_CASE.name()
-                                            : TaskCenterResourceType.API_SCENARIO.toString().equals(moduleType)
-                                            ? ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name()
-                                            : taskInfo.getResourceType()
-                            );
-                        }
-
-                        // 设置集成报告
-                        taskInfo.getRunModeConfig().setIntegratedReport(integrationMap.get(reportId));
-                        if (Boolean.TRUE.equals(integrationMap.get(reportId))) {
-                            taskInfo.getRunModeConfig().getCollectionReport().setReportId(reportId);
-                        }
-
-                        taskRequestDTO.setTaskItem(taskItem);
-                        result.setRequest(taskRequestDTO);
-                        kafkaTemplate.send(KafkaTopicConstants.API_REPORT_TOPIC, JSON.toJSONString(result));
-                    });
+                    processSubListReports(subList, request, result, new TaskRequestDTO(), integrationMap, resourceIdMap, testPlanIdMap);
                 }
             });
         });
     }
 
+    private Map<String, Boolean> prepareIntegrationMap(List<ReportDTO> reports) {
+        return reports.stream().collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getIntegrated));
+    }
+
+    private Map<String, String> prepareResourceIdMap(List<ReportDTO> reports) {
+        return reports.stream().collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getResourceId));
+    }
+
+    private Map<String, String> prepareTestPlanIdMap(List<ReportDTO> reports) {
+        return reports.stream().collect(Collectors.toMap(ReportDTO::getId, ReportDTO::getTestPlanId));
+    }
 
     private void saveLog(List<String> ids, String userId, String module, String type) {
         List<ReportDTO> reports = new ArrayList<>();

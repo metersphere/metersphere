@@ -6,19 +6,19 @@ import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.report.ReportDTO;
 import io.metersphere.api.mapper.ExtApiScenarioReportMapper;
 import io.metersphere.api.service.ApiTaskCenterService;
+import io.metersphere.engine.EngineFactory;
 import io.metersphere.engine.MsHttpClient;
 import io.metersphere.plan.mapper.ExtTestPlanReportMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
 import io.metersphere.sdk.constants.TaskCenterResourceType;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.DateUtils;
-import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.SubListUtils;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.dto.builder.LogDTOBuilder;
+import io.metersphere.system.dto.pool.TestResourceDTO;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
@@ -336,9 +336,23 @@ public class TestPlanTaskCenterService {
                 .collect(Collectors.groupingBy(ReportDTO::getPoolId, Collectors.mapping(ReportDTO::getId, Collectors.toList())));
         poolIdMap.forEach((poolId, reportList) -> {
             TestResourcePoolReturnDTO testResourcePoolDTO = testResourcePoolService.getTestResourcePoolDetail(poolId);
-            List<TestResourceNodeDTO> nodesList = testResourcePoolDTO.getTestResourceReturnDTO().getNodesList();
-            if (CollectionUtils.isNotEmpty(nodesList)) {
-                stopTask(request, reportList, nodesList);
+            // 判断是否为 K8S 资源池
+            boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.name());
+            if (isK8SResourcePool) {
+                SubListUtils.dealForSubList(reportList, 100, (subList) -> {
+                    try {
+                        TestResourceDTO testResourceDTO = new TestResourceDTO();
+                        BeanUtils.copyBean(testResourceDTO, testResourcePoolDTO.getTestResourceReturnDTO());
+                        EngineFactory.stopApi(subList, testResourceDTO);
+                    } catch (Exception e) {
+                        LogUtils.error(e);
+                    }
+                });
+            } else {
+                List<TestResourceNodeDTO> nodesList = testResourcePoolDTO.getTestResourceReturnDTO().getNodesList();
+                if (CollectionUtils.isNotEmpty(nodesList)) {
+                    stopTask(request, reportList, nodesList);
+                }
             }
         });
     }
