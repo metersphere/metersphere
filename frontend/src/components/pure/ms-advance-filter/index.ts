@@ -150,6 +150,9 @@ export const CustomTypeMaps: Record<string, any> = {
   TEXTAREA: {
     type: 'TEXTAREA',
   },
+  RICH_TEXT: {
+    type: 'TEXTAREA',
+  },
   MULTIPLE_INPUT: {
     type: 'TAGS_INPUT',
     propsKey: 'numberProps',
@@ -166,15 +169,15 @@ export function getFilterCustomFields(result: any[]) {
     const formObject = CustomTypeMaps[item.type];
     const { props: formProps } = formObject;
     const currentItem: any = {
-      title: item.name,
-      dataIndex: item.id,
+      title: item.name ?? item.fieldName,
+      dataIndex: item.id ?? item.fieldId,
       type: FilterType[FilterTypeKey],
       customField: true,
       customFieldType: item.type,
     };
     if (formObject.propsKey) {
-      if (item.options) {
-        formProps.options = item.options;
+      if (item.options || item.platformOptionJson) {
+        formProps.options = item.options ?? JSON.parse(item.platformOptionJson);
       }
       currentItem[formObject.propsKey] = {
         ...formProps,
@@ -193,6 +196,9 @@ export function getAllDataDefaultConditions(viewType: ViewTypeEnum) {
   ];
   if ([ViewTypeEnum.API_DEFINITION, ViewTypeEnum.PLAN_API_CASE].includes(viewType)) {
     conditions.push({ name: 'protocol', operator: OperatorEnum.BELONG_TO });
+  }
+  if ([ViewTypeEnum.BUG, ViewTypeEnum.PLAN_BUG, ViewTypeEnum.PLAN_BUG_DRAWER].includes(viewType)) {
+    conditions.push({ name: 'title', operator: OperatorEnum.CONTAINS });
   }
   if (
     [ViewTypeEnum.PLAN_API_SCENARIO, ViewTypeEnum.PLAN_API_CASE, ViewTypeEnum.PLAN_FUNCTIONAL_CASE].includes(viewType)

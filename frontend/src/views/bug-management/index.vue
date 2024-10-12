@@ -2,11 +2,15 @@
   <MsCard simple no-content-padding>
     <div class="h-full p-[16px]">
       <MsAdvanceFilter
+        ref="msAdvanceFilterRef"
         v-model:keyword="keyword"
-        :search-placeholder="t('caseManagement.featureCase.searchByNameAndId')"
+        :view-type="ViewTypeEnum.BUG"
         :filter-config-list="filterConfigList"
-        @keyword-search="fetchData"
-        @refresh="searchData"
+        :custom-fields-config-list="searchCustomFields"
+        :search-placeholder="t('caseManagement.featureCase.searchByNameAndId')"
+        @keyword-search="fetchData()"
+        @adv-search="handleAdvSearch"
+        @refresh="searchData()"
       >
         <template #left>
           <div class="flex gap-[12px]">
@@ -28,6 +32,7 @@
         class="mt-[16px]"
         v-bind="propsRes"
         :action-config="tableBatchActions"
+        :not-show-table-filter="isAdvancedSearchMode"
         v-on="propsEvent"
         @batch-action="handleTableBatch"
         @sorter-change="saveSort"
@@ -167,8 +172,8 @@
   import { useIntervalFn } from '@vueuse/core';
   import { Message, TableData } from '@arco-design/web-vue';
 
-  import { MsAdvanceFilter, timeSelectOptions } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
+  import { getFilterCustomFields, MsAdvanceFilter, timeSelectOptions } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import { MsExportDrawerMap, MsExportDrawerOption } from '@/components/pure/ms-export-drawer/types';
@@ -192,6 +197,7 @@
     getSyncStatus,
     syncBugEnterprise,
   } from '@/api/modules/bug-management';
+  import { getPlatformOptions } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import router from '@/router';
@@ -201,7 +207,9 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BugEditCustomField, BugListItem, BugOptionItem } from '@/models/bug-management';
-  import { FilterType } from '@/enums/advancedFilterEnum';
+  import { PoolOption } from '@/models/projectManagement/menuManagement';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
+  import { MenuEnum } from '@/enums/commonEnum';
   import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -219,7 +227,6 @@
   const tableStore = useTableStore();
   const appStore = useAppStore();
   const projectId = computed(() => appStore.currentProjectId);
-  const filterVisible = ref(false);
   const syncVisible = ref(false);
   const exportVisible = ref(false);
   const exportOptionData = ref<MsExportDrawerMap>({});
@@ -255,28 +262,16 @@
   const handleSyncCancel = () => {
     syncVisible.value = false;
   };
-  const filterConfigList = reactive<FilterFormItem[]>([
-    {
-      title: 'bugManagement.ID',
-      dataIndex: 'num',
-      type: FilterType.INPUT,
-    },
-    {
-      title: 'bugManagement.bugName',
-      dataIndex: 'title',
-      type: FilterType.INPUT,
-    },
-    {
-      title: 'bugManagement.createTime',
-      dataIndex: 'createTime',
-      type: FilterType.DATE_PICKER,
-    },
-  ]);
+
+  const searchCustomFields = ref<FilterFormItem[]>([]);
 
   // 获取自定义字段
   const getCustomFieldColumns = async () => {
     const res = await getCustomFieldHeader(projectId.value);
     customFields.value = res;
+    searchCustomFields.value = getFilterCustomFields(
+      res.filter((item: BugEditCustomField) => item.fieldId !== 'title')
+    );
 
     //  实例化自定义字段的filters
     customFields.value.forEach((item) => {
@@ -431,7 +426,17 @@
     },
   ];
 
-  const { propsRes, propsEvent, setKeyword, setAdvanceFilter, setLoadListParams, resetSelector, loadList } = useTable(
+  const {
+    propsRes,
+    propsEvent,
+    viewId,
+    advanceFilter,
+    setAdvanceFilter,
+    setKeyword,
+    setLoadListParams,
+    resetSelector,
+    loadList,
+  } = useTable(
     getBugList,
     {
       tableKey: TableKeyEnum.BUG_MANAGEMENT,
@@ -471,14 +476,15 @@
     ],
   };
 
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
+
   function initTableParams() {
     return {
       keyword: keyword.value,
       projectId: projectId.value,
-      condition: {
-        keyword: keyword.value,
-        filter: propsRes.value.filter,
-      },
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
     };
   }
 
@@ -490,6 +496,103 @@
   const fetchData = async (v = '') => {
     setKeyword(v);
     searchData();
+  };
+
+  const statusOption = ref<BugOptionItem[]>([]);
+
+  const platformOption = ref<PoolOption[]>([]);
+  const initPlatformOption = async () => {
+    try {
+      const res = await getPlatformOptions(appStore.currentOrgId, MenuEnum.bugManagement);
+      platformOption.value = [...res, { id: 'Local', name: 'Local' }];
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+
+  const filterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'bugManagement.ID',
+      dataIndex: 'num',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'bugManagement.bugName',
+      dataIndex: 'title',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'bugManagement.belongPlatform',
+      dataIndex: 'platform',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        labelKey: 'name',
+        valueKey: 'id',
+        options: platformOption.value,
+      },
+    },
+    {
+      title: 'bugManagement.status',
+      dataIndex: 'status',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        labelKey: 'text',
+        options: statusOption.value,
+      },
+    },
+    {
+      title: 'bugManagement.numberOfCase',
+      dataIndex: 'relationCaseCount',
+      type: FilterType.NUMBER,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'bugManagement.handleMan',
+      dataIndex: 'handleUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      type: FilterType.TAGS_INPUT,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'apiScenario.table.columns.updateUser',
+      dataIndex: 'updateUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.updateTime',
+      dataIndex: 'updateTime',
+      type: FilterType.DATE_PICKER,
+    },
+  ]);
+  // 高级检索
+  const handleAdvSearch = (filter: FilterResult, id: string) => {
+    resetSelector();
+    keyword.value = '';
+    setAdvanceFilter(filter, id);
+    searchData(); // 基础筛选都清空
   };
 
   const exportConfirm = async (option: MsExportDrawerOption[]) => {
@@ -708,6 +811,8 @@
     const condition = {
       keyword: keyword.value,
       filter: propsRes.value.filter,
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
     };
     currentSelectParams.value = {
       excludeIds: params.excludeIds,
@@ -734,6 +839,7 @@
 
   async function initFilterOptions() {
     const res = await getCustomOptionHeader(appStore.currentProjectId);
+    statusOption.value = res.statusOption;
     const filterOptionsMaps: Record<string, any> = {
       status: res.statusOption,
       handleUser: res.handleUserOption,
@@ -786,6 +892,7 @@
 
   await getColumnHeaders();
   await initFilterOptions();
+  await initPlatformOption();
   await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT, columns.concat(customColumns), 'drawer');
 
   function mountedLoad() {
