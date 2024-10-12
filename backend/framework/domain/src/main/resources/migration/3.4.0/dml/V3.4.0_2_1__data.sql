@@ -98,7 +98,8 @@ WHERE urp.permission_id = 'SYSTEM_TASK_CENTER:READ+STOP'
   and user_role.type = 'SYSTEM'
   and user_role.id != 'admin';
 
-
+-- 初始化项目管理员定义分享权限
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_DEFINITION:READ+SHARE');
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
