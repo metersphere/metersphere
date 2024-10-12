@@ -686,7 +686,6 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         ReviewerAndStatusDTO reviewerAndStatusDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), ReviewerAndStatusDTO.class);
-        System.out.println(reviewerAndStatusDTO);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(reviewerAndStatusDTO.getReviewerStatus()));
 
         BatchReviewFunctionalCaseRequest request = new BatchReviewFunctionalCaseRequest();
@@ -705,8 +704,15 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         reviewerAndStatusDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), ReviewerAndStatusDTO.class);
-        System.out.println(reviewerAndStatusDTO);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(reviewerAndStatusDTO.getReviewerStatus()));
+        result = mockMvc.perform(MockMvcRequestBuilders.get(GET_CASE_REVIEWER_AND_STATUS + "/wx_review_id_5/gyq_case_id_d").header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        reviewerAndStatusDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), ReviewerAndStatusDTO.class);
     }
 
 
