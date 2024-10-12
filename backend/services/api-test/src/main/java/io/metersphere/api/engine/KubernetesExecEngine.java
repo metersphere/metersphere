@@ -57,15 +57,15 @@ public class KubernetesExecEngine implements ApiEngine {
     }
 
     @Override
-    public void execute(String command) {
+    public void execute(String path) {
         // 初始化任务
-        LogUtils.info("CURL 命令：【 " + command + " 】");
-        this.runApi(command, request);
+        LogUtils.info("CURL 执行方法：【 " + path + " 】");
+        this.runApi(path, request);
     }
 
-    private void runApi(String command, Object request) {
+    private void runApi(String apiPath, Object request) {
         try {
-            KubernetesProvider.exec(resource, request, command);
+            KubernetesProvider.exec(resource, request, apiPath);
         } catch (HttpServerErrorException e) {
             handleHttpServerError(e);
         } catch (Exception e) {

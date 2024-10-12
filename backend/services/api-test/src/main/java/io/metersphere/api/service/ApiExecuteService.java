@@ -288,39 +288,49 @@ public class ApiExecuteService {
             // 如果资源池配置了当前站点，则使用资源池的
             taskInfo.setMsUrl(testResourcePool.getServerUrl());
         }
-
-        // 将任务按资源池的数量拆分
-        List<TestResourceNodeDTO> nodesList = testResourcePool.getTestResourceReturnDTO().getNodesList();
-        List<TaskBatchRequestDTO> distributeTasks = new ArrayList<>(nodesList.size());
-        for (int i = 0; i < taskRequest.getTaskItems().size(); i++) {
-            TaskBatchRequestDTO distributeTask;
-            int nodeIndex = i % nodesList.size();
-            if (distributeTasks.size() < nodesList.size()) {
-                distributeTask = BeanUtils.copyBean(new TaskBatchRequestDTO(), taskRequest);
-                distributeTask.setTaskItems(new ArrayList<>());
-                distributeTasks.add(distributeTask);
-            } else {
-                distributeTask = distributeTasks.get(nodeIndex);
-            }
-            distributeTask.getTaskInfo().setPoolSize(nodesList.get(nodeIndex).getConcurrentNumber());
-            distributeTask.getTaskItems().add(taskRequest.getTaskItems().get(i));
-        }
-
-        for (int i = 0; i < nodesList.size(); i++) {
-            // todo 优化某个资源池不可用的情况，以及清理 executionSet
-            TestResourceNodeDTO testResourceNode = nodesList.get(i);
-            TaskBatchRequestDTO subTaskRequest = distributeTasks.get(i);
-            String endpoint = MsHttpClient.getEndpoint(testResourceNode.getIp(), testResourceNode.getPort());
+        // 判断是否为 K8S 资源池
+        boolean isK8SResourcePool = StringUtils.equals(testResourcePool.getType(), ResourcePoolTypeEnum.K8S.name());
+        if (isK8SResourcePool) {
+            TestResourceDTO testResourceDTO = new TestResourceDTO();
+            BeanUtils.copyBean(testResourceDTO, testResourcePool.getTestResourceReturnDTO());
+            taskInfo.setPoolSize(testResourceDTO.getConcurrentNumber());
             try {
-                List<String> taskKeys = subTaskRequest.getTaskItems().stream()
-                        .map(taskItem -> taskItem.getReportId() + "_" + taskItem.getResourceId())
-                        .toList();
-                LogUtils.info("开始发送批量任务到 {} 节点执行:\n" + taskKeys, endpoint);
-
-                MsHttpClient.batchRunApi(endpoint, subTaskRequest);
+                EngineFactory.batchRunApi(taskRequest, testResourceDTO);
             } catch (Exception e) {
-                LogUtils.error("发送批量任务到 {} 节点执行失败", endpoint);
                 LogUtils.error(e);
+            }
+        } else {
+            // 将任务按资源池的数量拆分
+            List<TestResourceNodeDTO> nodesList = testResourcePool.getTestResourceReturnDTO().getNodesList();
+            List<TaskBatchRequestDTO> distributeTasks = new ArrayList<>(nodesList.size());
+            for (int i = 0; i < taskRequest.getTaskItems().size(); i++) {
+                TaskBatchRequestDTO distributeTask;
+                int nodeIndex = i % nodesList.size();
+                if (distributeTasks.size() < nodesList.size()) {
+                    distributeTask = BeanUtils.copyBean(new TaskBatchRequestDTO(), taskRequest);
+                    distributeTask.setTaskItems(new ArrayList<>());
+                    distributeTasks.add(distributeTask);
+                } else {
+                    distributeTask = distributeTasks.get(nodeIndex);
+                }
+                distributeTask.getTaskInfo().setPoolSize(nodesList.get(nodeIndex).getConcurrentNumber());
+                distributeTask.getTaskItems().add(taskRequest.getTaskItems().get(i));
+            }
+            for (int i = 0; i < nodesList.size(); i++) {
+                // todo 优化某个资源池不可用的情况，以及清理 executionSet
+                TestResourceNodeDTO testResourceNode = nodesList.get(i);
+                TaskBatchRequestDTO subTaskRequest = distributeTasks.get(i);
+                String endpoint = MsHttpClient.getEndpoint(testResourceNode.getIp(), testResourceNode.getPort());
+                try {
+                    List<String> taskKeys = subTaskRequest.getTaskItems().stream()
+                            .map(taskItem -> taskItem.getReportId() + "_" + taskItem.getResourceId())
+                            .toList();
+                    LogUtils.info("开始发送批量任务到 {} 节点执行:\n" + taskKeys, endpoint);
+                    MsHttpClient.batchRunApi(endpoint, subTaskRequest);
+                } catch (Exception e) {
+                    LogUtils.error("发送批量任务到 {} 节点执行失败", endpoint);
+                    LogUtils.error(e);
+                }
             }
         }
     }
