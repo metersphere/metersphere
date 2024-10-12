@@ -22,7 +22,6 @@ public class KubernetesExecEngine implements ApiEngine {
      */
     private final Object request;
     private final TestResourceDTO resource;
-    private final String scriptId;
 
     /**
      * 单调执行构造函数
@@ -30,10 +29,9 @@ public class KubernetesExecEngine implements ApiEngine {
      * @param request
      * @param resource
      */
-    public KubernetesExecEngine(TaskRequestDTO request, TestResourceDTO resource, String scriptId) {
+    public KubernetesExecEngine(TaskRequestDTO request, TestResourceDTO resource) {
         this.request = request;
         this.resource = resource;
-        this.scriptId = scriptId;
     }
 
     /**
@@ -42,10 +40,9 @@ public class KubernetesExecEngine implements ApiEngine {
      * @param batchRequestDTO
      * @param resource
      */
-    public KubernetesExecEngine(TaskBatchRequestDTO batchRequestDTO, TestResourceDTO resource, String scriptId) {
+    public KubernetesExecEngine(TaskBatchRequestDTO batchRequestDTO, TestResourceDTO resource) {
         this.resource = resource;
         this.request = batchRequestDTO;
-        this.scriptId = scriptId;
     }
 
     /**
@@ -54,10 +51,9 @@ public class KubernetesExecEngine implements ApiEngine {
      * @param reportIds
      * @param resource
      */
-    public KubernetesExecEngine(List<String> reportIds, TestResourceDTO resource, String scriptId) {
+    public KubernetesExecEngine(List<String> reportIds, TestResourceDTO resource) {
         this.resource = resource;
         this.request = reportIds;
-        this.scriptId = scriptId;
     }
 
     @Override
@@ -69,7 +65,7 @@ public class KubernetesExecEngine implements ApiEngine {
 
     private void runApi(String command, Object request) {
         try {
-            KubernetesProvider.exec(resource, request, scriptId, command);
+            KubernetesProvider.exec(resource, request, command);
         } catch (HttpServerErrorException e) {
             handleHttpServerError(e);
         } catch (Exception e) {

@@ -5,7 +5,6 @@ import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.kubernetes.client.dsl.ExecListener;
-import io.fabric8.kubernetes.client.dsl.ExecWatch;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -13,7 +12,6 @@ import io.metersphere.system.dto.pool.TestResourceDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -49,73 +47,28 @@ public class KubernetesProvider {
     }
 
     /**
-     * 同步执行命令
+     * 执行命令
      *
      * @param resource
      * @param command
-     * @throws Exception
      */
-    protected static void exec(TestResourceDTO resource, Object runRequest, String scriptId, String command) throws Exception {
-        // 防止执行非法命令
-        if (StringUtils.isEmpty(command) || !StringUtils.contains(command, scriptId)) {
-            throw new MSException("Invalid command: " + command);
-        }
-        ExecWatch execWatch = null;
+    protected static void exec(TestResourceDTO resource, Object runRequest, String command) {
         try (KubernetesClient client = getKubernetesClient(resource)) {
             Pod pod = getExecPod(client, resource);
             LogUtils.info("当前执行 Pod：【 " + pod.getMetadata().getName() + " 】");
-            // 创建文件
-            String parameters = "cat <<EOF > " + scriptId + StringUtils.LF + JSON.toFormatJSONString(runRequest) + StringUtils.LF + "EOF" + StringUtils.LF;
 
-            // 删除文件
-            String deleteFile = "rm -f " + scriptId + StringUtils.LF;
-
-            String commandX = SHELL_COMMAND + StringUtils.LF + parameters + command + StringUtils.LF + deleteFile;
+            String commandX = SHELL_COMMAND + StringUtils.LF + command + StringUtils.LF;
 
             LogUtils.info("执行命令：【 " + commandX + " 】");
             // 同步执行命令
-            execWatch = client.pods().inNamespace(client.getNamespace())
+            client.pods().inNamespace(client.getNamespace())
                     .withName(pod.getMetadata().getName())
-                    .redirectingInput()
-                    .writingOutput(System.out)
-                    .writingError(System.err)
-                    .withTTY().exec(commandX);
-
-            // 等待命令执行完成，获取结果
-            try (InputStream error = execWatch.getError()) {
-                // 判断是否有错误输出
-                if (error != null && error.available() > 0) {
-                    throw new MSException("Kubernetes exec error");
-                }
-            }
-        } finally {
-            // 确保 ExecWatch 被关闭以释放资源
-            if (execWatch != null) {
-                execWatch.close();
-            }
-        }
-    }
-
-    /**
-     * 异步执行命令
-     *
-     * @param resource
-     * @param runRequest
-     * @param command
-     */
-    public static void execCommand(TestResourceDTO resource, Object runRequest, String command) {
-        try (KubernetesClient client = getKubernetesClient(resource)) {
-            Pod pod = getExecPod(client, resource);
-            LogUtils.info("当前执行 Pod：【 " + pod.getMetadata().getName() + " 】");
-            client.pods().inNamespace(client.getNamespace()).withName(pod.getMetadata().getName())
                     .redirectingInput()
                     .writingOutput(System.out)
                     .writingError(System.err)
                     .withTTY()
                     .usingListener(new SimpleListener(runRequest))
-                    .exec(SHELL_COMMAND, "-c", command);
-        } catch (Exception e) {
-            throw new MSException("Error during Kubernetes execution: " + e.getMessage(), e);
+                    .exec(commandX);
         }
     }
 
