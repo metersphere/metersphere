@@ -123,12 +123,12 @@ export default function useCreateActions() {
           resourceName: item.resourceName || item.name,
         };
       }
-      if (item.protocol) {
+      if (item.protocol || item.config?.protocol) {
         // 自定义请求、api、case 添加协议和方法
         config = {
           ...config,
           protocol: item.protocol,
-          method: item.method,
+          method: item.method || item.config?.method,
         };
       }
       return {

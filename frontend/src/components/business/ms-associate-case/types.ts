@@ -1,4 +1,5 @@
 export interface moduleKeysType {
+  all?: string;
   selectAll: boolean;
   selectIds: Set<string>;
   excludeIds: Set<string>;

@@ -23,6 +23,9 @@
       no-disable
       filter-icon-align-left
       v-on="currentTable.propsEvent.value"
+      @row-select-change="currentUseModuleSelection.rowSelectChange"
+      @select-all-change="currentUseModuleSelection.selectAllChange"
+      @clear-selector="currentUseModuleSelection.clearSelector"
     >
       <template v-if="props.protocol === 'HTTP'" #methodFilter="{ columnConfig }">
         <a-trigger
@@ -151,6 +154,8 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableDataItem } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import type { moduleKeysType } from '@/components/business/ms-associate-case/types';
+  import useModuleSelection from '@/components/business/ms-associate-case/useModuleSelection';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import { MsTreeNodeData } from '@/components/business/ms-tree/types';
@@ -162,11 +167,9 @@
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
 
-  import { ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
-  import { ApiScenarioTableItem } from '@/models/apiTest/scenario';
+  import { ModuleTreeNode } from '@/models/common';
   import { ApiScenarioStatus, RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
-  import { SelectAllEnum } from '@/enums/tableEnum';
 
   import { casePriorityOptions } from '@/views/api-test/components/config';
 
@@ -176,17 +179,13 @@
     protocol: string;
     projectId: string | number;
     moduleIds: (string | number)[]; // 模块 id 以及它的子孙模块 id集合
-    selectedApis: MsTableDataItem<ApiDefinitionDetail>[]; // 已选中的接口
-    selectedCases: MsTableDataItem<ApiCaseDetail>[]; // 已选中的用例
-    selectedScenarios: MsTableDataItem<ApiScenarioTableItem>[]; // 已选中的场景
     scenarioId?: string | number;
     caseId?: string | number;
     apiId?: string | number;
     singleSelect?: boolean; // 是否单选
     searchPlaceholder: string; // 搜索框提示词。场景和接口、用例不一样，需要区分。
-  }>();
-  const emit = defineEmits<{
-    (e: 'select', data: MsTableDataItem<ApiCaseDetail | ApiDefinitionDetail | ApiScenarioTableItem>[]): void;
+    moduleTree: ModuleTreeNode[];
+    modulesCount: Record<string, any>;
   }>();
 
   const { t } = useI18n();
@@ -194,6 +193,16 @@
   const priorityFilterVisible = ref(false);
   const priorityFilters = ref<string[]>([]);
   const keyword = ref('');
+
+  const innerApiSelectedModulesMaps = defineModel<Record<string, moduleKeysType>>('apiSelectedModulesMaps', {
+    required: true,
+  });
+  const innerCaseSelectedModulesMaps = defineModel<Record<string, moduleKeysType>>('caseSelectedModulesMaps', {
+    required: true,
+  });
+  const innerScenarioSelectedModulesMaps = defineModel<Record<string, moduleKeysType>>('scenarioSelectedModulesMaps', {
+    required: true,
+  });
 
   const tableConfig = {
     scroll: { x: 700 },
@@ -404,10 +413,6 @@
   const methodFilters = ref<string[]>([]);
   const statusFilterVisible = ref(false);
   const statusFilters = ref<string[]>([]);
-  const tableSelectedData = ref<MsTableDataItem<ApiCaseDetail | ApiDefinitionDetail | ApiScenarioTableItem>[]>([]);
-  const tableSelectedKeys = computed(() => {
-    return tableSelectedData.value.map((e) => e.id);
-  });
   // 当前展示的表格数据类型
   const currentTable = computed(() => {
     switch (props.type) {
@@ -420,61 +425,6 @@
         return useScenarioTable;
     }
   });
-
-  /**
-   * 表格单行选中事件处理
-   */
-  function handleRowSelectChange(record: ApiCaseDetail | ApiDefinitionDetail | ApiScenarioTableItem) {
-    const selectedData = currentTable.value.propsRes.value.data.find((e: any) => e.id === record.id);
-    if (tableSelectedKeys.value.includes(record.id)) {
-      // 取消选中
-      tableSelectedData.value = tableSelectedData.value.filter((e) => e.id !== record.id);
-    } else if (selectedData) {
-      tableSelectedData.value.push(selectedData);
-    }
-    emit('select', tableSelectedData.value);
-  }
-
-  const selectedKey = ref('');
-
-  watch(
-    () => selectedKey.value,
-    (val) => {
-      const selectedData = currentTable.value.propsRes.value.data.find((e: any) => e.id === val);
-      tableSelectedData.value = selectedData ? [selectedData] : [];
-      emit('select', tableSelectedData.value);
-    }
-  );
-
-  function clearSelector() {
-    tableSelectedData.value = [];
-    currentTable.value.clearSelector();
-    emit('select', []);
-  }
-
-  /**
-   * 表格全选事件处理
-   */
-  function handleSelectAllChange(v: SelectAllEnum) {
-    if (v === SelectAllEnum.CURRENT) {
-      tableSelectedData.value.push(...currentTable.value.propsRes.value.data);
-    } else {
-      const dataSet = new Set(currentTable.value.propsRes.value.data.map((e) => e.id));
-      tableSelectedData.value = tableSelectedData.value.filter((e) => !dataSet.has(e.id));
-    }
-    emit('select', tableSelectedData.value);
-  }
-
-  // 绑定表格事件
-  useApiTable.propsEvent.value.rowSelectChange = handleRowSelectChange;
-  useApiTable.propsEvent.value.selectAllChange = handleSelectAllChange;
-  useApiTable.propsEvent.value.clearSelector = clearSelector;
-  useCaseTable.propsEvent.value.rowSelectChange = handleRowSelectChange;
-  useCaseTable.propsEvent.value.selectAllChange = handleSelectAllChange;
-  useCaseTable.propsEvent.value.clearSelector = clearSelector;
-  useScenarioTable.propsEvent.value.rowSelectChange = handleRowSelectChange;
-  useScenarioTable.propsEvent.value.selectAllChange = handleSelectAllChange;
-  useScenarioTable.propsEvent.value.clearSelector = clearSelector;
 
   function loadPage(ids?: (string | number)[]) {
     nextTick(() => {
@@ -497,29 +447,11 @@
 
   watch(
     () => props.type,
-    (val) => {
-      switch (val) {
-        case 'api':
-          tableSelectedData.value = props.selectedApis;
-          break;
-        case 'case':
-          tableSelectedData.value = props.selectedCases;
-          break;
-        case 'scenario':
-        default:
-          tableSelectedData.value = props.selectedScenarios;
-          break;
-      }
+    () => {
       keyword.value = '';
     }
   );
 
-  watch(
-    () => tableSelectedKeys.value,
-    (arr) => {
-      currentTable.value.propsRes.value.selectedKeys = new Set(arr);
-    }
-  );
   function resetPriorityFilter() {
     priorityFilterVisible.value = false;
     priorityFilters.value = [];
@@ -554,6 +486,92 @@
     priorityFilters.value = [];
     loadPage();
   }
+
+  const tableSelectedProps = ref({
+    modulesTree: props.moduleTree,
+    moduleCount: props.modulesCount,
+  });
+
+  watch(
+    () => props.moduleTree,
+    (val) => {
+      if (val) {
+        tableSelectedProps.value.modulesTree = val;
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  watch(
+    () => props.modulesCount,
+    (val) => {
+      if (val) {
+        tableSelectedProps.value.moduleCount = val;
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  const apiUseModuleSelection = useModuleSelection(
+    innerApiSelectedModulesMaps.value,
+    useApiTable.propsRes.value,
+    tableSelectedProps.value
+  );
+
+  const caseUseModuleSelection = useModuleSelection(
+    innerCaseSelectedModulesMaps.value,
+    useCaseTable.propsRes.value,
+    tableSelectedProps.value
+  );
+
+  const scenarioUseModuleSelection = useModuleSelection(
+    innerScenarioSelectedModulesMaps.value,
+    useScenarioTable.propsRes.value,
+    tableSelectedProps.value
+  );
+
+  const useModuleHooksMap = ref<Record<string, any>>({
+    API: apiUseModuleSelection,
+    CASE: caseUseModuleSelection,
+    SCENARIO: scenarioUseModuleSelection,
+  });
+
+  const currentUseModuleSelection = ref();
+
+  watch(
+    () => props.type,
+    (val) => {
+      const key = (val || 'api').toLocaleUpperCase();
+      currentUseModuleSelection.value = useModuleHooksMap.value[key];
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  function clearSelectorAll() {
+    apiUseModuleSelection.clearSelector();
+    caseUseModuleSelection.clearSelector();
+    scenarioUseModuleSelection.clearSelector();
+  }
+
+  const selectedKey = ref('');
+
+  watch(
+    () => selectedKey.value,
+    (val) => {
+      const selectedData = currentTable.value.propsRes.value.data.find((e: any) => e.id === val);
+      if (selectedData) {
+        clearSelectorAll();
+        currentUseModuleSelection.value.setUnSelectNode(selectedData.moduleId);
+        currentUseModuleSelection.value.updateSelectModule(selectedData.moduleId, selectedData.id);
+      }
+    }
+  );
 
   function openApiDetail(id: string | number) {
     let routeName: RouteRecordName;

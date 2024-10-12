@@ -44,3 +44,4 @@ export const ScenarioHistoryUrl = '/api/scenario/operation-history/page'; // 场
 export const ScenarioExportLogUrl = '/api/report/scenario/export'; // 场景导出报告日志记录
 export const ScenarioBatchExportLogUrl = '/api/report/scenario/batch-export'; // 场景批量导出报告日志记录
 export const GetScenarioBatchExportParamsUrl = '/api/report/scenario/batch-param'; // 场景批量导出报告id 集合
+export const ScenarioAssociateExportUrl = '/api/scenario/associate/all'; // 接口场景管理-场景导入系统参数
