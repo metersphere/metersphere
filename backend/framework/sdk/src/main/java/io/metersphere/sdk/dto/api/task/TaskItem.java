@@ -14,6 +14,12 @@ public class TaskItem implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 任务项ID
+     */
+    @NotBlank
+    private String id;
+
     @NotBlank
     private String reportId;
     /**

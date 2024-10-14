@@ -24,10 +24,12 @@ import io.metersphere.api.service.queue.ApiExecutionSetService;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.processor.MsProcessor;
 import io.metersphere.project.api.processor.TimeWaitingProcessor;
+import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.dto.environment.http.HttpConfigModuleMatchRule;
 import io.metersphere.project.dto.environment.http.SelectModule;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.EnvironmentGroupService;
 import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.sdk.constants.*;
@@ -35,7 +37,10 @@ import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.util.DateUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.domain.ExecTask;
+import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.service.ApiPluginService;
+import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.MapUtils;
@@ -81,6 +86,10 @@ public class ApiScenarioRunService {
     private ApiScenarioBlobMapper apiScenarioBlobMapper;
     @Resource
     private ApiExecutionSetService apiExecutionSetService;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private BaseTaskHubService baseTaskHubService;
 
     public TaskRequestDTO run(String id, String reportId, String userId) {
         ApiScenarioDetail apiScenarioDetail = getForRun(id);
@@ -179,6 +188,23 @@ public class ApiScenarioRunService {
                                      String reportId,
                                      String userId) {
 
+        Project project = projectMapper.selectByPrimaryKey(apiScenario.getProjectId());
+
+        ExecTask execTask = apiCommonService.newExecTask(project.getId(), userId);
+        execTask.setCaseCount(1L);
+        execTask.setTaskName(apiScenario.getName());
+        execTask.setOrganizationId(project.getOrganizationId());
+        execTask.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        execTask.setTaskType(ExecTaskType.API_SCENARIO.name());
+
+        ExecTaskItem execTaskItem = apiCommonService.newExecTaskItem(execTask.getId(), project.getId(), userId);
+        execTaskItem.setOrganizationId(project.getOrganizationId());
+        execTaskItem.setResourceType(ApiExecuteResourceType.API_SCENARIO.name());
+        execTaskItem.setResourceId(apiScenario.getId());
+        execTaskItem.setResourceName(apiScenario.getName());
+
+        baseTaskHubService.insertExecTaskAndDetail(execTask, execTaskItem);
+
         msScenario.setResourceId(apiScenario.getId());
 
         // 解析生成场景树，并保存临时变量
@@ -191,6 +217,8 @@ public class ApiScenarioRunService {
         TaskRequestDTO taskRequest = getTaskRequest(reportId, apiScenario.getId(), apiScenario.getProjectId(), ApiExecuteRunMode.RUN.name());
         TaskInfo taskInfo = taskRequest.getTaskInfo();
         TaskItem taskItem = taskRequest.getTaskItem();
+        taskItem.setId(execTaskItem.getId());
+        taskInfo.setTaskId(execTask.getId());
         taskInfo.getRunModeConfig().setPoolId(poolId);
         taskInfo.setSaveResult(true);
         taskInfo.getRunModeConfig().setEnvironmentId(parseParam.getEnvironmentId());
@@ -208,6 +236,7 @@ public class ApiScenarioRunService {
 
         ApiScenarioParamConfig parseConfig = getApiScenarioParamConfig(apiScenario.getProjectId(), parseParam, tmpParam.getScenarioParseEnvInfo());
         parseConfig.setReportId(reportId);
+        parseConfig.setTaskItemId(taskItem.getId());
 
         // 初始化报告
         ApiScenarioReport scenarioReport = getScenarioReport(userId);
@@ -314,6 +343,7 @@ public class ApiScenarioRunService {
 
         ApiScenarioParamConfig parseConfig = getApiScenarioParamConfig(apiScenarioDetail.getProjectId(), parseParam, tmpParam.getScenarioParseEnvInfo());
         parseConfig.setReportId(reportId);
+        parseConfig.setTaskItemId(taskItem.getId());
         parseConfig.setRetryOnFail(request.getRunModeConfig().getRetryOnFail());
         parseConfig.setRetryConfig(request.getRunModeConfig().getRetryConfig());
 
@@ -380,9 +410,11 @@ public class ApiScenarioRunService {
         msScenario.setProjectId(request.getProjectId());
         msScenario.setResourceId(request.getId());
 
-        List<ApiScenarioCsv> dbCsv = apiScenarioService.getApiScenarioCsv(apiScenario.getId());
-        List<CsvVariable> csvVariables = apiScenarioService.getCsvVariables(msScenario.getScenarioConfig());
-        apiScenarioService.handleRefUpgradeFile(csvVariables, dbCsv);
+        if (!hasSave) {
+            List<ApiScenarioCsv> dbCsv = apiScenarioService.getApiScenarioCsv(apiScenario.getId());
+            List<CsvVariable> csvVariables = apiScenarioService.getCsvVariables(msScenario.getScenarioConfig());
+            apiScenarioService.handleRefUpgradeFile(csvVariables, dbCsv);
+        }
 
         // 处理特殊的步骤详情
         apiScenarioService.addSpecialStepDetails(request.getSteps(), request.getStepDetails());
@@ -396,14 +428,16 @@ public class ApiScenarioRunService {
         TaskRequestDTO taskRequest = getTaskRequest(request.getReportId(), request.getId(), request.getProjectId(),
                 apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
         TaskInfo taskInfo = taskRequest.getTaskInfo();
+        taskInfo.setTaskId(request.getReportId());
         TaskItem taskItem = taskRequest.getTaskItem();
+        taskItem.setId(request.getReportId());
         taskInfo.setSaveResult(false);
         taskInfo.setRealTime(true);
         taskItem.setRequestCount(tmpParam.getRequestCount().get());
 
         ApiScenarioParamConfig parseConfig = getApiScenarioParamConfig(request.getProjectId(), request, tmpParam.getScenarioParseEnvInfo());
         parseConfig.setReportId(request.getReportId());
-
+        parseConfig.setTaskItemId(taskItem.getId());
 
         return apiExecuteService.execute(runRequest, taskRequest, parseConfig);
     }
@@ -516,12 +550,15 @@ public class ApiScenarioRunService {
     }
 
     public ApiScenarioRecord getApiScenarioRecord(ApiScenario apiScenario, ApiScenarioReport scenarioReport) {
+        return getApiScenarioRecord(apiScenario.getId(), scenarioReport);
+    }
+
+    public ApiScenarioRecord getApiScenarioRecord(String apiScenarioId, ApiScenarioReport scenarioReport) {
         ApiScenarioRecord scenarioRecord = new ApiScenarioRecord();
-        scenarioRecord.setApiScenarioId(apiScenario.getId());
+        scenarioRecord.setApiScenarioId(apiScenarioId);
         scenarioRecord.setApiScenarioReportId(scenarioReport.getId());
         return scenarioRecord;
     }
-
 
     public ApiScenarioReport getScenarioReport(String userId) {
         ApiScenarioReport scenarioReport = new ApiScenarioReport();

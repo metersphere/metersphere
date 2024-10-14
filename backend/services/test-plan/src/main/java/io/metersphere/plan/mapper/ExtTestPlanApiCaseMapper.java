@@ -4,10 +4,7 @@ import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.plan.domain.TestPlanApiCase;
-import io.metersphere.plan.dto.ApiCaseModuleDTO;
-import io.metersphere.plan.dto.ResourceSelectParam;
-import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
-import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
+import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.TestPlanApiCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseModuleRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
@@ -74,12 +71,15 @@ public interface ExtTestPlanApiCaseMapper {
 
     List<TestPlanApiCase> getApiCaseExecuteInfoByIds(@Param("ids") List<String> ids);
 
+    List<TestPlanApiCaseBatchRunDTO> getSelectIdAndCollectionId(@Param("request") TestPlanApiCaseBatchRequest request);
 
-    List<TestPlanApiCase> getSelectIdAndCollectionId(@Param("request") TestPlanApiCaseBatchRequest request);
+    List<TestPlanApiCaseBatchRunDTO> getBatchRunInfoByIds(@Param("ids") List<String> ids);
 
     List<TestPlanApiCase> getPlanApiCaseNotDeletedByCollectionIds(@Param("collectionIds") List<String> collectionIds);
 
     List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId);
 
     List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
+
+    Integer countByPlanId(@Param("planId") String planId);
 }

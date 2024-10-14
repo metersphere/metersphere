@@ -16,6 +16,11 @@ public class ExecutionQueueDetail implements Serializable {
     private String resourceId;
 
     /**
+     * 资源id，每个资源在同一个运行队列中唯一
+     */
+    private String taskItemId;
+
+    /**
      * 排序
      */
     private Integer sort;

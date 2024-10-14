@@ -1,5 +1,7 @@
 package io.metersphere.sdk.constants;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * 接口执行时的资源类型
  *
@@ -27,5 +29,13 @@ public enum ApiExecuteRunMode {
     /**
      * 定时任务
      */
-    SCHEDULE
+    SCHEDULE;
+
+    public static boolean isDebug(String runMode) {
+        return StringUtils.equalsAny(runMode, ApiExecuteRunMode.FRONTEND_DEBUG.name(), ApiExecuteRunMode.BACKEND_DEBUG.name());
+    }
+
+    public static boolean isFrontendDebug(String runMode) {
+        return StringUtils.equals(runMode, ApiExecuteRunMode.FRONTEND_DEBUG.name());
+    }
 }

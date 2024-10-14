@@ -3,10 +3,7 @@ package io.metersphere.plan.mapper;
 import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.plan.domain.TestPlanApiScenario;
-import io.metersphere.plan.dto.ApiScenarioModuleDTO;
-import io.metersphere.plan.dto.ResourceSelectParam;
-import io.metersphere.plan.dto.TestPlanCaseRunResultCount;
-import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
+import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioBatchRunRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioModuleRequest;
@@ -68,7 +65,7 @@ public interface ExtTestPlanApiScenarioMapper {
 
     void batchUpdateExecutor(@Param("ids") List<String> ids, @Param("userId") String userId);
 
-    List<TestPlanApiScenario> getSelectIdAndCollectionId(@Param("request")  TestPlanApiScenarioBatchRunRequest request);
+    List<TestPlanApiScenarioBatchRunDTO> getSelectIdAndCollectionId(@Param("request")  TestPlanApiScenarioBatchRunRequest request);
 
     List<String> getIdsByReportIdAndCollectionId(@Param("testPlanReportId") String testPlanReportId, @Param("collectionId") String collectionId);
 
@@ -77,4 +74,8 @@ public interface ExtTestPlanApiScenarioMapper {
     List<TestPlanResourceExecResultDTO> selectDistinctExecResult(String projectId);
 
     List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
+
+    List<TestPlanApiScenarioBatchRunDTO> getBatchRunInfoByIds(@Param("ids") List<String> ids);
+
+    Integer countByPlanId(@Param("planId") String planId);
 }

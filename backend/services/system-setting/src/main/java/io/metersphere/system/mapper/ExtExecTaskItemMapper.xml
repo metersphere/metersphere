@@ -33,6 +33,14 @@
             </if>
         </where>
     </select>
+    <select id="selectExecInfoByResourceIds" resultType="io.metersphere.system.domain.ExecTaskItem">
+        SELECT id, resource_id
+        FROM exec_task_item
+        WHERE resource_id IN
+        <foreach collection="resourceIds" item="resourceId" open="(" separator="," close=")">
+            #{resourceId}
+        </foreach>
+    </select>
 
     <select id="selectItemByTaskIds" resultType="io.metersphere.system.domain.ExecTaskItem">
         select  id, task_id, `status`, result

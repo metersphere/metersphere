@@ -238,7 +238,6 @@
         and t.test_plan_id = #{request.testPlanId}
         <include refid="queryApiCaseWhereCondition"/>
     </select>
-
     <select id="selectByTestPlanIdAndNotDeleted" resultType="io.metersphere.plan.domain.TestPlanApiCase">
         SELECT t.*
         FROM test_plan_api_case t
@@ -665,8 +664,8 @@
         </foreach>
     </select>
 
-    <select id="getSelectIdAndCollectionId" resultType="io.metersphere.plan.domain.TestPlanApiCase">
-        SELECT t.id as id, t.test_plan_collection_id as test_plan_collection_id
+    <select id="getSelectIdAndCollectionId" resultType="io.metersphere.plan.dto.TestPlanApiCaseBatchRunDTO">
+        SELECT t.id as id, t.test_plan_collection_id as test_plan_collection_id, atc.name as name, t.environment_id, atc.id as api_case_id
         FROM test_plan_api_case t
         INNER JOIN api_test_case atc ON t.api_case_id = atc.id
         INNER JOIN api_definition a ON atc.api_definition_id = a.id
@@ -716,5 +715,21 @@
             #{testPlanId}
         </foreach>
         AND test_plan.status != 'ARCHIVED'
+    </select>
+    <select id="getBatchRunInfoByIds" resultType="io.metersphere.plan.dto.TestPlanApiCaseBatchRunDTO">
+        SELECT id, test_plan_collection_id, environment_id, api_case_id as api_case_id
+        FROM test_plan_api_case
+        where
+        id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="countByPlanId" resultType="java.lang.Integer">
+        select count(0)
+        from test_plan_api_case tpac join api_test_case atc on atc.id = tpac.api_case_id
+        <where>
+            atc.deleted = false and tpac.test_plan_id = #{planId}
+        </where>
     </select>
 </mapper>

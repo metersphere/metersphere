@@ -12,21 +12,22 @@ import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.api.service.queue.ApiExecutionSetService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.service.scenario.ApiScenarioRunService;
-import io.metersphere.plan.domain.TestPlan;
-import io.metersphere.plan.domain.TestPlanCollection;
-import io.metersphere.plan.domain.TestPlanReportApiScenario;
-import io.metersphere.plan.domain.TestPlanReportApiScenarioExample;
+import io.metersphere.plan.domain.*;
 import io.metersphere.plan.mapper.ExtTestPlanApiScenarioMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanReportApiScenarioMapper;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.constants.TaskTriggerMode;
 import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.dto.queue.TestPlanExecutionQueue;
+import io.metersphere.sdk.util.DateUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.system.domain.ExecTaskItem;
+import io.metersphere.system.mapper.ExtExecTaskItemMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -66,6 +67,8 @@ public class PlanRunTestPlanApiScenarioService {
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
     private ApiScenarioReportService apiScenarioReportService;
+    @Resource
+    private ExtExecTaskItemMapper extExecTaskItemMapper;
 
     /**
      * 串行批量执行
@@ -84,10 +87,15 @@ public class PlanRunTestPlanApiScenarioService {
             return true;
         }
 
-        String queueId = testPlanExecutionQueue.getPrepareReportId() + "_" + collection.getId();
-
         // 先初始化集成报告，设置好报告ID，再初始化执行队列
-        ExecutionQueue queue = apiBatchRunBaseService.initExecutionqueue(queueId, ids, runModeConfig, ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name(), parentQueueId, userId);
+        ExecutionQueue queue = apiBatchRunBaseService.initExecutionQueue(testPlanExecutionQueue.getTaskId(), runModeConfig, ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name(), parentQueueId, userId);
+
+        SubListUtils.dealForSubList(ids, 100, subIds -> {
+            List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectExecInfoByResourceIds(subIds);
+            // 初始化队列项
+            apiBatchRunBaseService.initExecutionQueueDetails(queue.getQueueId(), execTaskItems);
+        });
+
         // 执行第一个任务
         ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
         executeNextTask(queue, nextDetail);
@@ -109,18 +117,31 @@ public class PlanRunTestPlanApiScenarioService {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
         ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(collection);
         TaskBatchRequestDTO taskRequest = testPlanApiScenarioBatchRunService.getTaskBatchRequestDTO(testPlan.getProjectId(), runModeConfig);
+        taskRequest.getTaskInfo().setTaskId(testPlanExecutionQueue.getTaskId());
         taskRequest.getTaskInfo().setParentQueueId(parentQueueId);
         taskRequest.getTaskInfo().setUserId(userId);
         taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name());
+        Map<String, String> resourceTaskItemMap = new HashMap<>();
 
         List<TestPlanReportApiScenario> testPlanReportApiScenarios = getTestPlanReportApiScenarios(testPlanReportId, collection);
         if (CollectionUtils.isEmpty(testPlanReportApiScenarios)) {
             return true;
         }
 
+        SubListUtils.dealForSubList(testPlanReportApiScenarios, 100,
+                subTestPlanReportApiCases-> {
+                    List<String> subIds = subTestPlanReportApiCases.stream().map(TestPlanReportApiScenario::getId).toList();
+                    extExecTaskItemMapper.selectExecInfoByResourceIds(subIds)
+                            .forEach(execTaskItem -> resourceTaskItemMap.put(execTaskItem.getResourceId(), execTaskItem.getId()));
+                });
+
         Map<String, String> scenarioReportMap = initReport(testPlanReportApiScenarios, runModeConfig, userId);
         List<TaskItem> taskItems = testPlanReportApiScenarios.stream()
-                .map(item -> apiExecuteService.getTaskItem(scenarioReportMap.get(item.getId()), item.getId())).toList();
+                .map(item -> {
+                    TaskItem taskItem = apiExecuteService.getTaskItem(scenarioReportMap.get(item.getId()), item.getId());
+                    taskItem.setId(resourceTaskItemMap.get(item.getId()));
+                    return taskItem;
+                }).toList();
         // 如果有父队列，则初始化执行集合，以便判断是否执行完毕
         apiExecutionSetService.initSet(parentQueueId, testPlanReportApiScenarios.stream().map(TestPlanReportApiScenario::getId).toList());
         taskRequest.setTaskItems(taskItems);
@@ -150,10 +171,11 @@ public class PlanRunTestPlanApiScenarioService {
         List<ApiScenarioReport> apiScenarioReports = new ArrayList<>(testPlanReportApiScenarios.size());
         List<ApiScenarioRecord> apiScenarioRecords = new ArrayList<>(testPlanReportApiScenarios.size());
         Map<String, String> resourceReportMap = new HashMap<>();
+        String projectId = "";
         for (TestPlanReportApiScenario testPlanReportApiScenario : testPlanReportApiScenarios) {
             ApiScenario apiScenario = apiScenarioMap.get(testPlanReportApiScenario.getApiScenarioId());
             // 初始化报告
-            ApiScenarioReport apiScenarioReport = testPlanApiScenarioBatchRunService.getScenarioReport(runModeConfig, apiScenario, userId);
+            ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, testPlanReportApiScenario, projectId, userId);
             apiScenarioReport.setTestPlanScenarioId(testPlanReportApiScenario.getTestPlanApiScenarioId());
             // 报告预生成，方便停止测试计划时直接更新报告状态
             apiScenarioReport.setId(testPlanReportApiScenario.getApiScenarioExecuteReportId());
@@ -170,6 +192,19 @@ public class PlanRunTestPlanApiScenarioService {
         }
         apiScenarioReportService.insertApiScenarioReport(apiScenarioReports, apiScenarioRecords);
         return resourceReportMap;
+    }
+
+    private ApiScenarioReport getScenarioReport(ApiRunModeConfigDTO runModeConfig, TestPlanReportApiScenario testPlanReportApiScenario, String projectId, String userId) {
+        ApiScenarioReport apiScenarioReport = apiScenarioRunService.getScenarioReport(userId);
+        apiScenarioReport.setName(testPlanReportApiScenario.getApiScenarioName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
+        apiScenarioReport.setProjectId(projectId);
+        apiScenarioReport.setEnvironmentId(runModeConfig.getEnvironmentId());
+        apiScenarioReport.setRunMode(runModeConfig.getRunMode());
+        apiScenarioReport.setPoolId(runModeConfig.getPoolId());
+        apiScenarioReport.setTriggerMode(TaskTriggerMode.BATCH.name());
+        apiScenarioReport.setTestPlanScenarioId(testPlanReportApiScenario.getId());
+        apiScenarioReport.setEnvironmentId(apiBatchRunBaseService.getEnvId(runModeConfig, testPlanReportApiScenario.getEnvironmentId()));
+        return apiScenarioReport;
     }
 
     private List<TestPlanReportApiScenario> getTestPlanReportApiScenarios(String testPlanReportId, TestPlanCollection collection) {
@@ -205,7 +240,9 @@ public class PlanRunTestPlanApiScenarioService {
         String reportId = initScenarioReport(runModeConfig, List.of(testPlanReportApiScenario), Map.of(apiScenario.getId(), apiScenario), queue.getUserId()).get(resourceId);
         TaskRequestDTO taskRequest = testPlanApiScenarioBatchRunService.getTaskRequestDTO(apiScenario.getProjectId(), queue.getRunModeConfig());
         TaskItem taskItem = apiExecuteService.getTaskItem(reportId, queueDetail.getResourceId());
+        taskItem.setId(queueDetail.getTaskItemId());
         taskRequest.setTaskItem(taskItem);
+        taskRequest.getTaskInfo().setTaskId(queue.getTaskId());
         taskRequest.getTaskInfo().setQueueId(queue.getQueueId());
         taskRequest.getTaskInfo().setUserId(queue.getUserId());
         taskRequest.getTaskInfo().setParentQueueId(queue.getParentQueueId());

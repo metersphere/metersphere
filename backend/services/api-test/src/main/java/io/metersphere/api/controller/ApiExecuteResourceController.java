@@ -27,19 +27,6 @@ public class ApiExecuteResourceController {
     /**
      * 获取执行脚本
      *
-     * @param reportId
-     * @param testId
-     * @return
-     */
-    @GetMapping("script")
-    @Operation(summary = "获取执行脚本")
-    public String getScript(@RequestParam("reportId") String reportId, @RequestParam("testId") String testId) {
-        return apiExecuteResourceService.getRunScript(reportId, testId);
-    }
-
-    /**
-     * 获取执行脚本
-     *
      * @return
      */
     @PostMapping("script")
@@ -55,11 +42,10 @@ public class ApiExecuteResourceController {
      */
     @PostMapping("/file")
     @Operation(summary = "下载执行所需的文件")
-    public void downloadFile(@RequestParam("reportId") String reportId,
-                             @RequestParam("testId") String testId,
+    public void downloadFile(@RequestParam("taskItemId") String taskItemId,
                              @RequestBody FileRequest fileRequest,
                              HttpServletResponse response) throws Exception {
-        apiExecuteService.downloadFile(reportId, testId, fileRequest, response);
+        apiExecuteService.downloadFile(taskItemId, fileRequest, response);
     }
 
 }

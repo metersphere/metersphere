@@ -1,6 +1,7 @@
 package io.metersphere.plan.service;
 
 import com.google.common.collect.Maps;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.service.BugCommonService;
 import io.metersphere.plan.constants.AssociateCaseType;
@@ -16,6 +17,8 @@ import io.metersphere.plan.enums.TestPlanReportAttachmentSourceType;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.plan.utils.CountUtils;
 import io.metersphere.plugin.platform.dto.SelectOption;
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
@@ -23,11 +26,13 @@ import io.metersphere.sdk.file.FileCopyRequest;
 import io.metersphere.sdk.file.FileRepository;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.*;
+import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.service.CommonFileService;
 import io.metersphere.system.service.FileService;
 import io.metersphere.system.service.SimpleUserService;
@@ -110,6 +115,12 @@ public class TestPlanReportService {
 	private TestPlanReportComponentMapper componentMapper;
 	@Resource
 	private CommonFileService commonFileService;
+	@Resource
+	private ApiCommonService apiCommonService;
+	@Resource
+	private BaseTaskHubService baseTaskHubService;
+	@Resource
+	private ProjectMapper projectMapper;
 
 	private static final int MAX_REPORT_NAME_LENGTH = 300;
 
@@ -308,8 +319,13 @@ public class TestPlanReportService {
 	 * @param currentUser 当前用户
 	 */
 	@Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
-	public Map<String, String> genReportByExecution(String prepareReportId, TestPlanReportGenRequest request, String currentUser) {
-		return genReport(prepareReportId, request, false, currentUser, null);
+	public Map<String, String> genReportByExecution(String prepareReportId, String taskId, TestPlanReportGenRequest request, String currentUser) {
+		return genReport(prepareReportId, taskId, request, false, currentUser, null);
+	}
+
+	@Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+	public Map<String, String> genReport(String prepareReportId, TestPlanReportGenRequest request, boolean manual, String currentUser, String manualReportName) {
+		return genReport(prepareReportId, null, request, manual, currentUser, manualReportName);
 	}
 
 	/**
@@ -321,7 +337,7 @@ public class TestPlanReportService {
 	 * @param currentUser      当前用户
 	 * @param manualReportName 手动生成报告名称
 	 */
-	public Map<String, String> genReport(String prepareReportId, TestPlanReportGenRequest request, boolean manual, String currentUser, String manualReportName) {
+	public Map<String, String> genReport(String prepareReportId, String taskId, TestPlanReportGenRequest request, boolean manual, String currentUser, String manualReportName) {
 		Map<String, String> preReportMap = Maps.newHashMapWithExpectedSize(8);
 		TestPlanReportManualParam reportManualParam = TestPlanReportManualParam.builder().manualName(manualReportName).targetId(request.getTestPlanId()).build();
 		try {
@@ -345,6 +361,7 @@ public class TestPlanReportService {
 					genPreParam.setStartTime(null);
 				}
 				genPreParam.setUseManual(manual);
+				genPreParam.setTaskId(taskId);
 				// 如果是测试计划的独立报告，使用参数中的预生成的报告id。否则只有测试计划组报告使用该id
 				String prepareItemReportId = isGroupReports ? IDGenerator.nextStr() : prepareReportId;
 				TestPlanReport preReport = preGenReport(prepareItemReportId, genPreParam, currentUser, childPlanIds, reportManualParam);
@@ -437,6 +454,8 @@ public class TestPlanReportService {
 		List<ReportBugCountDTO> bugCountList = extTestPlanReportBugMapper.countPlanBug(genParam.getTestPlanId());
 		Map<String, Long> bugCountMap = bugCountList.stream().collect(Collectors.toMap(ReportBugCountDTO::getRefCaseId, ReportBugCountDTO::getBugCount));
 
+		Project project = projectMapper.selectByPrimaryKey(genParam.getProjectId());
+
 		AtomicLong funcCaseCount = new AtomicLong();
 		AtomicLong apiCaseCount = new AtomicLong();
 		AtomicLong apiScenarioCount = new AtomicLong();
@@ -525,6 +544,11 @@ public class TestPlanReportService {
 					TestPlanReportApiCaseMapper batchMapper = sqlSession.getMapper(TestPlanReportApiCaseMapper.class);
 					batchMapper.batchInsert(reportApiCases);
 					sqlSession.flushStatements();
+
+					if (StringUtils.isNotBlank(genParam.getTaskId())) {
+						reportApiCases.sort(Comparator.comparing(TestPlanReportApiCase::getPos).reversed());
+						initApiCaseExecTaskItem(genParam.getTaskId(), reportApiCases, report.getCreateUser(), project);
+					}
 				});
 			}
 			testPlanReportApiCaseIdList = null;
@@ -563,6 +587,11 @@ public class TestPlanReportService {
 					TestPlanReportApiScenarioMapper batchMapper = sqlSession.getMapper(TestPlanReportApiScenarioMapper.class);
 					batchMapper.batchInsert(reportApiScenarios);
 					sqlSession.flushStatements();
+
+					if (StringUtils.isNotBlank(genParam.getTaskId())) {
+						reportApiScenarios.sort(Comparator.comparing(TestPlanReportApiScenario::getPos).reversed());
+						initScenarioExecTaskItem(genParam.getTaskId(), reportApiScenarios, report.getCreateUser(), project);
+					}
 				});
 			}
 			reportApiScenarioIdList = null;
@@ -611,6 +640,31 @@ public class TestPlanReportService {
 				.functionCaseCount(funcCaseCount.get()).apiCaseCount(apiCaseCount.get()).apiScenarioCount(apiScenarioCount.get()).bugCount(bugCount.get()).build();
 	}
 
+	private void initApiCaseExecTaskItem(String taskId, List<TestPlanReportApiCase> apiTestCases, String userId, Project project) {
+		List<ExecTaskItem> execTaskItems = new ArrayList<>(apiTestCases.size());
+		for (TestPlanReportApiCase apiTestCase : apiTestCases) {
+			ExecTaskItem execTaskItem = apiCommonService.newExecTaskItem(taskId, project.getId(), userId);
+			execTaskItem.setOrganizationId(project.getOrganizationId());
+			execTaskItem.setResourceType(ApiExecuteResourceType.PLAN_RUN_API_CASE.name());
+			execTaskItem.setResourceId(apiTestCase.getId());
+			execTaskItem.setResourceName(apiTestCase.getApiCaseName());
+			execTaskItems.add(execTaskItem);
+		}
+		baseTaskHubService.insertExecTaskDetail(execTaskItems);
+	}
+
+	private void initScenarioExecTaskItem(String taskId, List<TestPlanReportApiScenario> testPlanReportApiScenarios, String userId, Project project) {
+		List<ExecTaskItem> execTaskItems = new ArrayList<>(testPlanReportApiScenarios.size());
+		for (TestPlanReportApiScenario testPlanReportApiScenario : testPlanReportApiScenarios) {
+			ExecTaskItem execTaskItem = apiCommonService.newExecTaskItem(taskId, project.getId(), userId);
+			execTaskItem.setOrganizationId(project.getOrganizationId());
+			execTaskItem.setResourceType(ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name());
+			execTaskItem.setResourceId(testPlanReportApiScenario.getId());
+			execTaskItem.setResourceName(testPlanReportApiScenario.getApiScenarioName());
+			execTaskItems.add(execTaskItem);
+		}
+		baseTaskHubService.insertExecTaskDetail(execTaskItems);
+	}
 
 	/**
 	 * 报告结果后置处理 (汇总操作结束后调用)

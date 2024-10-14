@@ -16,9 +16,21 @@ import java.util.List;
 public class TaskInfo implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 任务ID
+     */
+    private String taskId;
     private String msUrl;
     private String kafkaConfig;
     private String minioConfig;
+    /**
+     * 单个任务的并发数
+     */
+    private int perTaskSize;
+    /**
+     * 资源池的并发数
+     */
     private int poolSize;
     /**
      * 批量执行时的队列ID

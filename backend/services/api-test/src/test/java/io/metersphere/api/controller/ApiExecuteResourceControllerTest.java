@@ -1,8 +1,6 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
-import io.metersphere.api.service.debug.ApiDebugService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.file.FileCopyRequest;
@@ -33,25 +31,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ApiExecuteResourceControllerTest extends BaseTest {
 
     private static final String BASE_PATH = "/api/execute/resource/";
-    private static final String SCRIPT = "script?reportId={0}&testId={1}";
-    private static final String FILE = "file?reportId={0}&testId={1}";
+    private static final String FILE = "file?taskItemId={0}";
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-    @Resource
-    private ApiExecuteService apiExecuteService;
-    @Resource
-    private ApiDebugService apiDebugService;
     @Resource
     private ApiFileResourceService apiFileResourceService;
 
     @Override
     public String getBasePath() {
         return BASE_PATH;
-    }
-
-    @Test
-    public void getScript() throws Exception {
-        this.requestGetWithOk(SCRIPT, "reportId", "testId");
     }
 
     @Test
@@ -62,18 +50,17 @@ public class ApiExecuteResourceControllerTest extends BaseTest {
         FileRequest fileRequest = new FileCopyRequest();
         fileRequest.setFileName(fileName);
         fileRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + fileId);
-        mockMvc.perform(getPostRequestBuilder(FILE, fileRequest, "reportId", "testId"))
+        mockMvc.perform(getPostRequestBuilder(FILE, fileRequest, "reportId"))
                 .andExpect(status().isOk());
 
         String reportId = UUID.randomUUID().toString();
-        String testId = UUID.randomUUID().toString();
-        String scriptRedisKey = apiExecuteService.getTaskKey(reportId, testId);
+        String scriptRedisKey = reportId;
         stringRedisTemplate.opsForValue().set(scriptRedisKey, "aaa");
-        mockMvc.perform(getPostRequestBuilder(FILE, fileRequest,  reportId, testId))
+        mockMvc.perform(getPostRequestBuilder(FILE, fileRequest,  reportId))
                 .andExpect(status().isOk());
 
         fileRequest.setStorage(StorageType.MINIO.name());
-        mockMvc.perform(getPostRequestBuilder(FILE, fileRequest,  reportId, testId))
+        mockMvc.perform(getPostRequestBuilder(FILE, fileRequest,  reportId))
                 .andExpect(status().isOk());
 
     }

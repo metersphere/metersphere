@@ -218,7 +218,6 @@ public class BaseTaskHubControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
     }
 
-
     @Test
     @Order(4)
     public void getOrgStatistics() throws Exception {
@@ -261,10 +260,10 @@ public class BaseTaskHubControllerTests extends BaseTest {
     }
 
 
+
     @Test
     @Order(21)
     public void testInsert() throws Exception {
-        baseTaskHubService.insertExecTaskAndDetail(new ArrayList<>());
         ExecTaskItem execTaskItem = new ExecTaskItem();
         execTaskItem.setId("1111");
         execTaskItem.setTaskId("1");
@@ -276,10 +275,9 @@ public class BaseTaskHubControllerTests extends BaseTest {
         execTaskItem.setOrganizationId("1234123");
         execTaskItem.setExecutor("admin");
         execTaskItem.setResourceName("测试");
-        baseTaskHubService.insertExecTaskAndDetail(List.of(execTaskItem));
-
 
         baseTaskHubService.insertExecTaskAndDetail(new ArrayList<>(), new ArrayList<>());
+
         execTaskItem.setId("2333");
         ExecTask execTask = new ExecTask();
         execTask.setId("121321");
@@ -293,6 +291,9 @@ public class BaseTaskHubControllerTests extends BaseTest {
         execTask.setOrganizationId("123432");
         execTask.setCreateTime(System.currentTimeMillis());
         execTask.setCreateUser("admin");
+        baseTaskHubService.insertExecTaskAndDetail(execTask, List.of(execTaskItem));
+        execTask.setId("121329");
+        execTaskItem.setId("2333555");
         baseTaskHubService.insertExecTaskAndDetail(List.of(execTask), List.of(execTaskItem));
 
     }

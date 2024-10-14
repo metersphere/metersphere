@@ -1434,12 +1434,6 @@ public class ApiScenarioService extends MoveNodeService {
      */
 
     public Map<String, String> getPartialRefStepDetailMap(List<? extends ApiScenarioStepCommonDTO> steps) {
-        steps.forEach(step -> {
-            if (isPartialRef(step)) {
-
-            }
-        });
-
         List<String> needBlobStepIds = steps.stream()
                 .filter(this::isPartialRef)
                 .map(ApiScenarioStepCommonDTO::getId)

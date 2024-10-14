@@ -971,4 +971,12 @@
             #{id}
         </foreach>
     </select>
+    <select id="getNameInfo" resultType="io.metersphere.api.domain.ApiTestCase">
+        SELECT id,name
+        FROM api_test_case
+        WHERE id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

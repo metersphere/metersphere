@@ -25,8 +25,14 @@ import io.metersphere.project.dto.CommonScriptInfo;
 import io.metersphere.project.service.CustomFunctionService;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
+import io.metersphere.sdk.constants.ApplicationNumScope;
+import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.domain.ExecTask;
+import io.metersphere.system.domain.ExecTaskItem;
+import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -388,5 +394,28 @@ public class ApiCommonService {
      */
     public void setApiDefinitionExecuteInfo(AbstractMsTestElement msTestElement, ApiDefinition apiDefinition) {
         setApiDefinitionExecuteInfo(msTestElement, BeanUtils.copyBean(new ApiDefinitionExecuteInfo(), apiDefinition));
+    }
+
+    public ExecTask newExecTask(String projectId, String userId) {
+        ExecTask execTask = new ExecTask();
+        execTask.setNum(NumGenerator.nextNum(projectId, ApplicationNumScope.TASK));
+        execTask.setProjectId(projectId);
+        execTask.setId(IDGenerator.nextStr());
+        execTask.setCreateTime(System.currentTimeMillis());
+        execTask.setCreateUser(userId);
+        execTask.setStatus(ExecStatus.PENDING.name());
+        return execTask;
+    }
+
+    public ExecTaskItem newExecTaskItem(String taskId, String projectId, String userId) {
+        ExecTaskItem execTaskItem = new ExecTaskItem();
+        execTaskItem.setId(IDGenerator.nextStr());
+        execTaskItem.setTaskId(taskId);
+        execTaskItem.setProjectId(projectId);
+        execTaskItem.setExecutor(userId);
+        execTaskItem.setStatus(ExecStatus.PENDING.name());
+        execTaskItem.setResourcePoolId(StringUtils.EMPTY);
+        execTaskItem.setResourcePoolNode(StringUtils.EMPTY);
+        return execTaskItem;
     }
 }

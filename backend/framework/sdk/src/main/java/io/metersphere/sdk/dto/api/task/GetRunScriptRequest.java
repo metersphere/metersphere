@@ -38,4 +38,14 @@ public class GetRunScriptRequest implements Serializable {
      * @see io.metersphere.sdk.constants.ApiExecuteResourceType
      */
     private String resourceType;
+    /**
+     * 是否需要解析脚本
+     * 接口详情页面，需要传试试详情，会其他解析脚本，needParseScript 为 false
+     * 不传详情执行时，通过 task-runner 发起解析脚本请求，needParseScript 为 true
+     */
+    private Boolean needParseScript = false;
+    /**
+     * 线程ID
+     */
+    private String threadId;
 }

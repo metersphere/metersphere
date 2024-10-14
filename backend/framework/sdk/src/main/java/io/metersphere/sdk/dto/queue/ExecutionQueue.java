@@ -14,6 +14,11 @@ public class ExecutionQueue implements Serializable {
     private String queueId;
 
     /**
+     * taskId
+     */
+    private String taskId;
+
+    /**
      * 执行人
      */
     private String userId;

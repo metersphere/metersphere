@@ -111,7 +111,7 @@ public class JmeterTestElementParser implements TestElementParser {
 
         ThreadGroup threadGroup = new ThreadGroup();
         threadGroup.setEnabled(true);
-        threadGroup.setName(config.getReportId());
+        threadGroup.setName(config.getTaskItemId());
         threadGroup.setProperty(TestElement.TEST_CLASS, ThreadGroup.class.getName());
         threadGroup.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ThreadGroupGui"));
         threadGroup.setNumThreads(1);

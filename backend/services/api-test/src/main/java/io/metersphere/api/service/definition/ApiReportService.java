@@ -66,6 +66,10 @@ public class ApiReportService {
     @Resource
     private ApiReportNoticeService apiReportNoticeService;
 
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void insertApiReport(ApiReport report) {
+        apiReportMapper.insertSelective(report);
+    }
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiReport(List<ApiReport> reports, List<ApiTestCaseRecord> records) {

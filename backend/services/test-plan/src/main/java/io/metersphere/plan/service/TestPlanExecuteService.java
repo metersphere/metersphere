@@ -1,16 +1,21 @@
 package io.metersphere.plan.service;
 
 import com.esotericsoftware.minlog.Log;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.TestPlanBatchExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanReportGenRequest;
 import io.metersphere.plan.mapper.*;
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.queue.TestPlanExecutionQueue;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.domain.ExecTask;
+import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -52,6 +57,16 @@ public class TestPlanExecuteService {
     private TestPlanReportMapper testPlanReportMapper;
     @Resource
     private TestPlanExecuteSupportService testPlanExecuteSupportService;
+    @Resource
+    private ApiCommonService apiCommonService;
+    @Resource
+    private BaseTaskHubService baseTaskHubService;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
+    @Resource
+    private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
 
     // 停止测试计划的执行
     public void stopTestPlanRunning(String testPlanReportId) {
@@ -139,7 +154,8 @@ public class TestPlanExecuteService {
                     request.getExecuteId(),
                     request.getRunMode(),
                     request.getExecutionSource(),
-                    reportId
+                    reportId,
+                    IDGenerator.nextStr()
             );
 
             testPlanExecuteSupportService.setRedisForList(
@@ -180,6 +196,7 @@ public class TestPlanExecuteService {
                                     testPlanId,
                                     runMode,
                                     TaskTriggerMode.BATCH.name(),
+                                    IDGenerator.nextStr(),
                                     IDGenerator.nextStr()
                             )
                     );
@@ -208,6 +225,12 @@ public class TestPlanExecuteService {
             throw new MSException("test_plan.error");
         }
 
+        Project project = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
+        Integer caseTotal = extTestPlanApiCaseMapper.countByPlanId(testPlan.getId()) + extTestPlanApiScenarioMapper.countByPlanId(testPlan.getId());
+
+        // 初始化任务
+        ExecTask execTask = initExecTask(executionQueue.getTaskId(), caseTotal, testPlan.getName(), project, executionQueue.getCreateUser(), executionQueue.getExecutionSource());
+
         TestPlanReportGenRequest genReportRequest = new TestPlanReportGenRequest();
         genReportRequest.setTriggerMode(executionQueue.getExecutionSource());
         genReportRequest.setTestPlanId(executionQueue.getSourceID());
@@ -216,7 +239,7 @@ public class TestPlanExecuteService {
 
             List<TestPlan> children = testPlanService.selectNotArchivedChildren(testPlan.getId());
             // 预生成计划组报告
-            Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), genReportRequest, executionQueue.getCreateUser());
+            Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), execTask.getId(), genReportRequest, executionQueue.getCreateUser());
 
             long pos = 0;
             List<TestPlanExecutionQueue> childrenQueue = new ArrayList<>();
@@ -235,7 +258,8 @@ public class TestPlanExecuteService {
                                 child.getId(),
                                 executionQueue.getRunMode(),
                                 executionQueue.getExecutionSource(),
-                                reportMap.get(child.getId())
+                                reportMap.get(child.getId()),
+                                executionQueue.getTaskId()
                         )
                 );
             }
@@ -265,12 +289,24 @@ public class TestPlanExecuteService {
 
             return executionQueue.getPrepareReportId();
         } else {
-            Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), genReportRequest, executionQueue.getCreateUser());
+            Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), execTask.getId(), genReportRequest, executionQueue.getCreateUser());
             executionQueue.setPrepareReportId(reportMap.get(executionQueue.getSourceID()));
             testPlanService.setExecuteConfig(executionQueue.getSourceID(), executionQueue.getPrepareReportId());
             this.executeTestPlan(executionQueue);
             return executionQueue.getPrepareReportId();
         }
+    }
+
+    private ExecTask initExecTask(String taskId, int caseSize, String name, Project project, String userId, String triggerMode) {
+        ExecTask execTask = apiCommonService.newExecTask(project.getId(), userId);
+        execTask.setId(taskId);
+        execTask.setCaseCount(Long.valueOf(caseSize));
+        execTask.setTaskName(name);
+        execTask.setOrganizationId(project.getOrganizationId());
+        execTask.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        execTask.setTaskType(ExecTaskType.TEST_PLAN.name());
+        baseTaskHubService.insertExecTask(execTask);
+        return execTask;
     }
 
     //执行测试计划里不同类型的用例  回调：caseTypeExecuteQueueFinish
@@ -310,7 +346,8 @@ public class TestPlanExecuteService {
                                 collection.getId(),
                                 runMode,
                                 executionQueue.getExecutionSource(),
-                                executionQueue.getPrepareReportId())
+                                executionQueue.getPrepareReportId(),
+                                executionQueue.getTaskId())
                 );
             }
             LogUtils.info("测试计划执行节点 --- 队列ID[{}],队列类型[{}],父队列ID[{}],父队列类型[{}],执行模式[{}]", queueId, queueType, executionQueue.getParentQueueId(), executionQueue.getParentQueueType(), runMode);
@@ -362,7 +399,8 @@ public class TestPlanExecuteService {
                             collection.getId(),
                             runMode,
                             executionQueue.getExecutionSource(),
-                            executionQueue.getPrepareReportId()) {{
+                            executionQueue.getPrepareReportId(),
+                            executionQueue.getTaskId()) {{
                         this.setTestPlanCollectionJson(JSON.toJSONString(collection));
                     }}
             );

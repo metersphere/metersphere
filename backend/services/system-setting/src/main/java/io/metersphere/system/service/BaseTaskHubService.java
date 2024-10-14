@@ -28,6 +28,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -136,22 +137,45 @@ public class BaseTaskHubService {
         return extOrganizationMapper.getOrgListByProjectIds(projectIds);
     }
 
+    /**
+     * 单任务详情数据入库接口
+     *
+     * @param item
+     */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void insertExecTaskAndDetail(ExecTask task, ExecTaskItem item) {
+        execTaskMapper.insertSelective(task);
+        execTaskItemMapper.insertSelective(item);
+    }
+
+    /**
+     * 单任务详情数据入库接口
+     *
+     * @param task
+     */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void insertExecTask(ExecTask task) {
+        execTaskMapper.insertSelective(task);
+    }
 
     /**
      * 单任务详情数据入库接口
      *
      * @param items
      */
-    public void insertExecTaskAndDetail(List<ExecTaskItem> items) {
-        if (CollectionUtils.isNotEmpty(items)) {
-            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-            ExecTaskItemMapper itemMapper = sqlSession.getMapper(ExecTaskItemMapper.class);
-            SubListUtils.dealForSubList(items, 1000, subList -> {
-                subList.forEach(itemMapper::insertSelective);
-            });
-            sqlSession.flushStatements();
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        }
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void insertExecTaskDetail(List<ExecTaskItem> items) {
+        insertExecTaskAndDetail(List.of(), items);
+    }
+
+    /**
+     * 单任务详情数据入库接口
+     *
+     * @param items
+     */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void insertExecTaskAndDetail(ExecTask task, List<ExecTaskItem> items) {
+        insertExecTaskAndDetail(List.of(task), items);
     }
 
 
@@ -161,6 +185,7 @@ public class BaseTaskHubService {
      * @param tasks
      * @param items
      */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertExecTaskAndDetail(List<ExecTask> tasks, List<ExecTaskItem> items) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         if (CollectionUtils.isNotEmpty(tasks)) {

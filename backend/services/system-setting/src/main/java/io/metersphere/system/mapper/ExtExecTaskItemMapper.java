@@ -1,8 +1,6 @@
 package io.metersphere.system.mapper;
 
 import io.metersphere.system.domain.ExecTaskItem;
-import io.metersphere.system.dto.sdk.BasePageRequest;
-import io.metersphere.system.dto.taskhub.TaskHubDTO;
 import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import org.apache.ibatis.annotations.Param;
@@ -18,4 +16,6 @@ public interface ExtExecTaskItemMapper {
     List<ExecTaskItem> selectItemByTaskIds(@Param("taskIds") List<String> taskIds, @Param("orgId") String orgId, @Param("projectId") String projectId);
 
     List<ExecTaskItem> selectPoolNodeByIds(@Param("ids") List<String> ids);
+
+    List<ExecTaskItem> selectExecInfoByResourceIds(@Param("resourceIds") List<String> resourceIds);
 }

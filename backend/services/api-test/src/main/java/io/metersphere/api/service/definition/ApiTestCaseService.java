@@ -32,6 +32,8 @@ import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.*;
+import io.metersphere.system.domain.ExecTask;
+import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
@@ -40,6 +42,7 @@ import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
@@ -116,6 +119,8 @@ public class ApiTestCaseService extends MoveNodeService {
     private FunctionalCaseTestMapper functionalCaseTestMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private BaseTaskHubService baseTaskHubService;
 
     private static final String CASE_TABLE = "api_test_case";
 
@@ -719,6 +724,22 @@ public class ApiTestCaseService extends MoveNodeService {
      */
     public TaskRequestDTO executeRun(ApiResourceRunRequest runRequest, ApiTestCase apiTestCase, String reportId, String userId) {
         String poolId = apiExecuteService.getProjectApiResourcePoolId(apiTestCase.getProjectId());
+        Project project = projectMapper.selectByPrimaryKey(apiTestCase.getProjectId());
+
+        ExecTask execTask = apiCommonService.newExecTask(project.getId(), userId);
+        execTask.setCaseCount(1L);
+        execTask.setTaskName(apiTestCase.getName());
+        execTask.setOrganizationId(project.getOrganizationId());
+        execTask.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        execTask.setTaskType(ExecTaskType.API_CASE.name());
+
+        ExecTaskItem execTaskItem = apiCommonService.newExecTaskItem(execTask.getId(), project.getId(), userId);
+        execTaskItem.setOrganizationId(project.getOrganizationId());
+        execTaskItem.setResourceType(ApiExecuteResourceType.API_CASE.name());
+        execTaskItem.setResourceId(apiTestCase.getId());
+        execTaskItem.setResourceName(apiTestCase.getName());
+
+        baseTaskHubService.insertExecTaskAndDetail(execTask, execTaskItem);
 
         TaskRequestDTO taskRequest = getTaskRequest(reportId, apiTestCase.getId(), apiTestCase.getProjectId(), ApiExecuteRunMode.RUN.name());
         TaskItem taskItem = taskRequest.getTaskItem();
@@ -726,6 +747,8 @@ public class ApiTestCaseService extends MoveNodeService {
         taskInfo.getRunModeConfig().setPoolId(poolId);
         taskInfo.setSaveResult(true);
         taskInfo.setUserId(userId);
+        taskInfo.setTaskId(execTask.getId());
+        taskItem.setId(execTaskItem.getId());
 
         if (StringUtils.isEmpty(taskItem.getReportId())) {
             taskInfo.setRealTime(false);
@@ -752,9 +775,11 @@ public class ApiTestCaseService extends MoveNodeService {
     public TaskRequestDTO debug(ApiCaseRunRequest request, String userId) {
         TaskRequestDTO taskRequest = getTaskRequest(request.getReportId(), request.getId(),
                 request.getProjectId(), apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
+        taskRequest.getTaskInfo().setTaskId(UUID.randomUUID().toString());
         taskRequest.getTaskInfo().setSaveResult(false);
         taskRequest.getTaskInfo().setRealTime(true);
         taskRequest.getTaskInfo().setUserId(userId);
+        taskRequest.getTaskItem().setId(UUID.randomUUID().toString());
 
         ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
 
@@ -771,6 +796,7 @@ public class ApiTestCaseService extends MoveNodeService {
         apiParamConfig.setEnvConfig(environmentService.get(envId));
 
         taskRequest.getTaskInfo().getRunModeConfig().setEnvironmentId(envId);
+        apiParamConfig.setTaskItemId(taskRequest.getTaskItem().getId());
         // 设置 method 等信息
         apiCommonService.setApiDefinitionExecuteInfo(runRequest.getTestElement(), apiDefinition);
 
@@ -872,8 +898,12 @@ public class ApiTestCaseService extends MoveNodeService {
     }
 
     public ApiTestCaseRecord getApiTestCaseRecord(ApiTestCase apiTestCase, ApiReport apiReport) {
+        return getApiTestCaseRecord(apiTestCase.getId(), apiReport);
+    }
+
+    public ApiTestCaseRecord getApiTestCaseRecord(String caseId, ApiReport apiReport) {
         ApiTestCaseRecord apiTestCaseRecord = new ApiTestCaseRecord();
-        apiTestCaseRecord.setApiTestCaseId(apiTestCase.getId());
+        apiTestCaseRecord.setApiTestCaseId(caseId);
         apiTestCaseRecord.setApiReportId(apiReport.getId());
         return apiTestCaseRecord;
     }
