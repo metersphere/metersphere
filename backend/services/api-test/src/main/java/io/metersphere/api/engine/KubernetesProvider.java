@@ -70,8 +70,8 @@ public class KubernetesProvider {
      * @param apiPath
      */
     protected static void exec(TestResourceDTO resource, Object runRequest, String apiPath, String optToken) {
-        try (KubernetesClient client = getKubernetesClient(resource)) {
-
+        KubernetesClient client = getKubernetesClient(resource);
+        try {
             if (runRequest instanceof TaskBatchRequestDTO request) {
                 // 均分给每一个 Pod
                 List<Pod> pods = getPods(client, resource);
@@ -107,7 +107,9 @@ public class KubernetesProvider {
                 }
             }
         } catch (Exception e) {
-            LogUtils.error("Failed to execute tasks on Kubernetes.", e);
+            LogUtils.error("Failed to execute command", e);
+            client.close();
+            throw new MSException("Failed to execute command", e);
         }
     }
 
@@ -149,14 +151,14 @@ public class KubernetesProvider {
                     .writingOutput(System.out)
                     .writingError(System.err)
                     .withTTY()
-                    .usingListener(new SimpleListener(runRequest))
+                    .usingListener(new SimpleListener(runRequest, client))
                     .exec(SHELL_COMMAND, "-c", command);
         } catch (Exception e) {
             LogUtils.error("Failed to execute command on pod {} ", pod.getMetadata().getName(), e);
         }
     }
 
-    private record SimpleListener(Object runRequest) implements ExecListener {
+    private record SimpleListener(Object runRequest, KubernetesClient client) implements ExecListener {
         @Override
         public void onOpen() {
             LogUtils.info("K8s 开启监听");
@@ -173,7 +175,8 @@ public class KubernetesProvider {
         @Override
         public void onClose(int code, String reason) {
             LogUtils.info("K8s 监听关闭：code=" + code + ", reason=" + reason);
-            // No additional actions needed for now
+            // 关闭客户端
+            client.close();
         }
     }
 
