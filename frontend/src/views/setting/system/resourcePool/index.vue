@@ -199,10 +199,10 @@
       dataIndex: 'description',
       showTooltip: true,
     },
-    // {
-    //   title: 'system.resourcePool.tableColumnType',
-    //   dataIndex: 'type',
-    // },
+    {
+      title: 'system.resourcePool.tableColumnType',
+      dataIndex: 'type',
+    },
     {
       title: 'system.resourcePool.tableColumnCreateTime',
       dataIndex: 'createTime',
