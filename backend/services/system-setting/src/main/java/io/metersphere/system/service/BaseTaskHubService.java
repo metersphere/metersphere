@@ -11,12 +11,10 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.pool.TestResourceDTO;
+import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.dto.taskhub.ResourcePoolOptionsDTO;
-import io.metersphere.system.dto.taskhub.TaskHubDTO;
-import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
-import io.metersphere.system.dto.taskhub.TaskHubScheduleDTO;
+import io.metersphere.system.dto.taskhub.*;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
 import io.metersphere.system.mapper.*;
@@ -68,6 +66,8 @@ public class BaseTaskHubService {
     private ExtResourcePoolMapper extResourcePoolMapper;
     @Resource
     private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
+    @Resource
+    private NodeResourcePoolService nodeResourcePoolService;
 
     /**
      * 系统-获取执行任务列表
@@ -315,5 +315,31 @@ public class BaseTaskHubService {
             return handleOptions(allResourcePools, poolMap);
         }
         return null;
+    }
+
+    public List<ResourcePoolStatusDTO> getResourcePoolStatus(List<String> ids) {
+        List<ResourcePoolStatusDTO> statusDTOS = new ArrayList<>();
+        List<ExecTaskItem> itemList = extExecTaskItemMapper.selectPoolNodeByIds(ids);
+        Map<String, List<ExecTaskItem>> poolNodeMap = itemList.stream().collect(Collectors.groupingBy(ExecTaskItem::getResourcePoolNode));
+        poolNodeMap.forEach((k, v) -> {
+            String[] split = k.split(":");
+            TestResourceNodeDTO node = new TestResourceNodeDTO();
+            boolean status = false;
+            try {
+                node.setIp(split[0]);
+                node.setPort(split[1]);
+                status = nodeResourcePoolService.validateNode(node);
+            } catch (Exception e) {
+                status = false;
+            }
+            boolean finalStatus = status;
+            v.forEach(item -> {
+                ResourcePoolStatusDTO poolStatusDTO = new ResourcePoolStatusDTO();
+                poolStatusDTO.setId(item.getId());
+                poolStatusDTO.setStatus(finalStatus);
+                statusDTOS.add(poolStatusDTO);
+            });
+        });
+        return statusDTOS;
     }
 }

@@ -49,4 +49,11 @@
         </if>
     </select>
 
+    <select id="selectPoolNodeByIds" resultType="io.metersphere.system.domain.ExecTaskItem">
+        select id, resource_pool_node from exec_task_item where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>
