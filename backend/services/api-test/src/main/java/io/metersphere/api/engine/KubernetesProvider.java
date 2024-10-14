@@ -59,7 +59,10 @@ public class KubernetesProvider {
                 .inNamespace(credential.getNamespace())
                 .list().getItems()
                 .stream()
-                .filter(s -> RUNNING_PHASE.equals(s.getStatus().getPhase()) && StringUtils.startsWith(s.getMetadata().getGenerateName(), "task-runner"))
+                .filter(s -> RUNNING_PHASE.equals(s.getStatus().getPhase()) &&
+                        StringUtils.isNotBlank(credential.getDeployName()) &&
+                        StringUtils.isNotBlank(s.getMetadata().getGenerateName()) &&
+                        StringUtils.startsWith(s.getMetadata().getGenerateName(), credential.getDeployName()))
                 .toList();
     }
 
@@ -222,24 +225,25 @@ public class KubernetesProvider {
     }
 
     private static String buildCurlCommand(String path, Object request, String optToken) {
-        return String.format(
-                "curl -H \"Accept: application/json\" " +
-                        "-H \"Content-type: application/json\" " +
-                        "-H \"otp-token: %s\" " +
-                        "-X POST -d '%s' " +
-                        "--connect-timeout %d " +
-                        "--max-time %d " +
-                        "--retry-max-time %d " +
-                        "--retry %d " +
-                        "%s%s",
-                optToken,                      // otp-token
+        return String.format("""
+                        curl -H "Accept: application/json" \
+                        -H "Content-type: application/json" \
+                        -H "otp-token: %s" \
+                        -X POST -d '%s' \
+                        --connect-timeout %d \
+                        --max-time %d \
+                        --retry-max-time %d \
+                        --retry %d \
+                        %s%s
+                        """,
+                optToken,                       // otp-token
                 JSON.toFormatJSONString(request), // 请求体
-                30,                            // 连接超时（秒）
-                120,                           // 最大时间（秒）
-                3,                             // 最大重试时间（秒）
-                3,                             // 重试次数
-                LOCAL_URL,                     // 本地 URL
-                path                           // 具体 API 路径
+                30,                             // 连接超时（秒）
+                120,                            // 最大时间（秒）
+                3,                              // 最大重试时间（秒）
+                3,                              // 重试次数
+                LOCAL_URL,                      // 本地 URL
+                path                            // 具体 API 路径
         );
     }
 
