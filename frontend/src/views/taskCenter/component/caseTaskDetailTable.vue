@@ -135,7 +135,7 @@
   const columns: MsTableColumn = [
     {
       title: t('ms.taskCenter.taskID'),
-      dataIndex: 'taskId',
+      dataIndex: 'num',
       width: 180,
       columnSelectorDisabled: true,
       showTooltip: true,
