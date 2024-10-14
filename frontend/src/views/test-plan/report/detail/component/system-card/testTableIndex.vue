@@ -72,6 +72,7 @@
     shareId?: string;
     isPreview?: boolean;
   }>();
+
   const { t } = useI18n();
   const testPlanReportStore = useTestPlanReportStore();
   const tableStore = useTableStore();
