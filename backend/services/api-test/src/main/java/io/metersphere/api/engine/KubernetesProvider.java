@@ -151,14 +151,14 @@ public class KubernetesProvider {
                     .writingOutput(System.out)
                     .writingError(System.err)
                     .withTTY()
-                    .usingListener(new SimpleListener(runRequest, client))
+                    .usingListener(new SimpleListener(runRequest))
                     .exec(SHELL_COMMAND, "-c", command);
         } catch (Exception e) {
             LogUtils.error("Failed to execute command on pod {} ", pod.getMetadata().getName(), e);
         }
     }
 
-    private record SimpleListener(Object runRequest, KubernetesClient client) implements ExecListener {
+    private record SimpleListener(Object runRequest) implements ExecListener {
         @Override
         public void onOpen() {
             LogUtils.info("K8s 开启监听");
@@ -175,8 +175,6 @@ public class KubernetesProvider {
         @Override
         public void onClose(int code, String reason) {
             LogUtils.info("K8s 监听关闭：code=" + code + ", reason=" + reason);
-            // 关闭客户端
-            client.close();
         }
     }
 
