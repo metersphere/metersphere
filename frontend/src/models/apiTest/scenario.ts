@@ -1,3 +1,4 @@
+import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
 import type { saveParams } from '@/components/business/ms-associate-case/types';
 import type { CaseLevel } from '@/components/business/ms-case-associate/types';
 
@@ -7,6 +8,7 @@ import {
   RequestAssertionCondition,
   RequestComposition,
   RequestDefinitionStatus,
+  type RequestImportFormat,
   RequestMethods,
   ScenarioExecuteStatus,
   ScenarioFailureStrategy,
@@ -521,9 +523,30 @@ export interface ScenarioAssociateCaseParams {
   protocols: string[];
   associateType?: string;
 }
+
 // 多模块关联
 export interface ImportSystemData {
   API: ScenarioAssociateCaseParams; // 接口
   CASE: ScenarioAssociateCaseParams; // 用例
   SCENARIO: ScenarioAssociateCaseParams; // 场景
+}
+
+// 导入场景请求参数
+export interface ImportScenarioRequest {
+  moduleId: string;
+  projectId: string;
+  type: RequestImportFormat.MeterSphere | RequestImportFormat.Jmeter;
+  coverData: boolean;
+}
+
+// 导入场景参数
+export interface ImportScenarioParams {
+  file: File | null;
+  request: ImportScenarioRequest;
+}
+
+// 导出场景参数
+export interface ExportScenarioParams extends BatchActionQueryParams {
+  apiScenarioId: string;
+  fileId: string;
 }

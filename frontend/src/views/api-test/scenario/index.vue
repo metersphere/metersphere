@@ -12,6 +12,7 @@
               @init="handleModuleInit"
               @new-scenario="() => newTab()"
               @change="handleModuleChange"
+              @import="importDrawerVisible = true"
             ></scenarioModuleTree>
           </div>
           <a-divider margin="0" />
@@ -104,6 +105,13 @@
       </template>
     </MsSplitBox>
   </MsCard>
+  <importScenario
+    v-model:visible="importDrawerVisible"
+    :module-tree="moduleTree"
+    :active-module="activeModule"
+    popup-container="#managementContainer"
+    @done="handleImportDone"
+  />
 </template>
 
 <script setup lang="ts">
@@ -123,6 +131,7 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsEnvironmentSelect from '@/components/business/ms-environment-select/index.vue';
+  import importScenario from './components/import.vue';
   import scenarioModuleTree from './components/scenarioModuleTree.vue';
   import executeButton from '@/views/api-test/components/executeButton.vue';
   import ScenarioTable from '@/views/api-test/scenario/components/scenarioTable.vue';
@@ -715,6 +724,13 @@
         appStore.hideLoading();
       });
     }
+  }
+
+  const importDrawerVisible = ref(false);
+
+  async function handleImportDone() {
+    await scenarioModuleTreeRef.value?.refresh();
+    apiTableRef.value?.loadScenarioList();
   }
 
   const { registerCatchSaveShortcut, removeCatchSaveShortcut } = useShortcutSave(saveScenario);
