@@ -30,12 +30,15 @@ public class KubernetesProvider {
     private static final String RUNNING_PHASE = "Running";
     private static final String SHELL_COMMAND = "sh";
     private static final String LOCAL_URL = "http://127.0.0.1:8000";
+    private static final int TIMEOUT = 120000;
 
     public static KubernetesClient getKubernetesClient(TestResourceDTO credential) {
         ConfigBuilder configBuilder = new ConfigBuilder()
                 .withMasterUrl(credential.getIp())
                 .withOauthToken(credential.getToken())
                 .withTrustCerts(true)
+                .withConnectionTimeout(TIMEOUT)  // 120秒连接超时
+                .withRequestTimeout(TIMEOUT)    // 120秒请求超时
                 .withNamespace(credential.getNamespace());
 
         return new KubernetesClientBuilder()
@@ -223,12 +226,14 @@ public class KubernetesProvider {
                         "-X POST -d '%s' " +
                         "--connect-timeout %d " +
                         "--max-time %d " +
+                        "--retry-max-time %d" +
                         "--retry %d " +
                         "%s%s",
                 optToken,                      // otp-token
                 JSON.toFormatJSONString(request), // 请求体
                 30,                            // 连接超时（秒）
                 120,                           // 最大时间（秒）
+                3,                             // 最大重试时间（秒）
                 3,                             // 重试次数
                 LOCAL_URL,                     // 本地 URL
                 path                           // 具体 API 路径
