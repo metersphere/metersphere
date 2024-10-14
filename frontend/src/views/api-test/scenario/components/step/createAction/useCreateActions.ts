@@ -127,7 +127,7 @@ export default function useCreateActions() {
         // 自定义请求、api、case 添加协议和方法
         config = {
           ...config,
-          protocol: item.protocol,
+          protocol: item.protocol || item.config?.protocol,
           method: item.method || item.config?.method,
         };
       }
