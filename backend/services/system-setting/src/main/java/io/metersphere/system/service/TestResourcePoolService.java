@@ -111,9 +111,11 @@ public class TestResourcePoolService {
         if (CollectionUtils.isEmpty(testResourceDTO.getNodesList())) {
             testResourceDTO.setNodesList(new ArrayList<>());
         }
-        TestResourcePoolValidateService testResourcePoolValidateService = CommonBeanFactory.getBean(TestResourcePoolValidateService.class);
-        if (testResourcePoolValidateService != null) {
-            testResourcePoolValidateService.validateNodeList(testResourceDTO.getNodesList());
+        if (StringUtils.equalsIgnoreCase(testResourcePool.getType(), ResourcePoolTypeEnum.NODE.name())){
+            TestResourcePoolValidateService testResourcePoolValidateService = CommonBeanFactory.getBean(TestResourcePoolValidateService.class);
+            if (testResourcePoolValidateService != null) {
+                testResourcePoolValidateService.validateNodeList(testResourceDTO.getNodesList());
+            }
         }
         String configuration = JSON.toJSONString(testResourceDTO);
         TestResourcePoolBlob testResourcePoolBlob = new TestResourcePoolBlob();
