@@ -37,6 +37,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_STATISTICS = "/system/task-center/exec-task/statistics";
     public static final String SYSTEM_RESOURCE_POOL_OPTIONS = "/system/task-center/resource-pool/options";
     public static final String SYSTEM_RESOURCE_POOL_STATUS = "/system/task-center/resource-pool/status";
+    public static final String SYSTEM_TASK_STOP = "/system/task-center/exec-task/stop/";
 
     @Test
     @Order(1)
@@ -139,6 +140,21 @@ public class BaseTaskHubControllerTests extends BaseTest {
 
 
     /**
+     * 系统执行任务停止
+     */
+    @Test
+    @Order(4)
+    public void systemTaskStop() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(SYSTEM_TASK_STOP + "1");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
+    /**
      * 组织任务中心测试用例
      */
     public static final String ORG_TASK_PAGE = "/organization/task-center/exec-task/page";
@@ -146,6 +162,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String ORG_TASK_ITEM_PAGE = "/organization/task-center/exec-task/item/page";
     public static final String ORG_STATISTICS = "/organization/task-center/exec-task/statistics";
     public static final String ORG_RESOURCE_POOL_OPTIONS = "/organization/task-center/resource-pool/options";
+    public static final String ORG_TASK_STOP = "/organization/task-center/exec-task/stop/";
 
     @Test
     @Order(20)
@@ -222,6 +239,20 @@ public class BaseTaskHubControllerTests extends BaseTest {
     @Order(5)
     public void getOrgResourcePoolOptions() throws Exception {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(ORG_RESOURCE_POOL_OPTIONS);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+    /**
+     * 组织执行任务停止
+     */
+    @Test
+    @Order(4)
+    public void orgTaskStop() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(ORG_TASK_STOP + "1");
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);

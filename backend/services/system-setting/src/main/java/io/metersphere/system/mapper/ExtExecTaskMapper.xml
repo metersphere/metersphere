@@ -20,4 +20,17 @@
         </where>
     </select>
 
+    <update id="updateTaskStatus">
+        UPDATE exec_task
+        SET `status` = #{execTask.status},
+            create_user = #{execTask.createUser}
+        WHERE
+            id = #{execTask.id}
+        <if test="execTask.projectId != null and execTask.projectId != ''">
+           and project_id = #{execTask.projectId}
+        </if>
+        <if test="execTask.organizationId != null and execTask.organizationId != ''">
+            and organization_id = #{execTask.organizationId}
+        </if>
+    </update>
 </mapper>
