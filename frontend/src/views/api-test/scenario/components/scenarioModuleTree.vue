@@ -1,24 +1,37 @@
 <template>
   <div class="h-full">
     <div class="mb-[8px] flex items-center gap-[8px]">
-      <a-input
-        v-model:model-value="moduleKeyword"
-        :placeholder="t('apiScenario.tree.selectorPlaceholder')"
-        allow-clear
-      />
       <a-button
         v-permission="['PROJECT_API_SCENARIO:READ+ADD']"
         type="primary"
-        value="newScenario"
+        long
         @click="
           () => {
             emit('newScenario');
           }
         "
       >
-        {{ t('common.newCreate') }}</a-button
+        {{ t('apiScenario.createScenario') }}
+      </a-button>
+      <a-button
+        v-permission="['PROJECT_API_SCENARIO:READ+ADD']"
+        type="outline"
+        long
+        @click="
+          () => {
+            emit('import');
+          }
+        "
       >
+        {{ t('apiScenario.importScenario') }}
+      </a-button>
     </div>
+    <a-input
+      v-model:model-value="moduleKeyword"
+      :placeholder="t('apiScenario.tree.selectorPlaceholder')"
+      class="mb-[8px]"
+      allow-clear
+    />
     <div class="folder" @click="setActiveFolder('all')">
       <div :class="allFolderClass">
         <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />

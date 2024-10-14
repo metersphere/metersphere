@@ -3,6 +3,11 @@ export default {
   'apiScenario.allScenario': 'All Scenarios',
   'apiScenario.createScenario': 'Create Scenario',
   'apiScenario.importScenario': 'Import Scenario',
+  'apiScenario.importScenarioCoverTip': 'If the same scene already exists in the system, it will be overwritten.',
+  'apiScenario.importScenarioUncoverTip1':
+    '1. If the same scene already exists in the system (with a unique name under the module), no changes will be made',
+  'apiScenario.importScenarioUncoverTip2': '2. If the scenario does not exist in the system, add',
+  'apiScenario.importScenarioUploadTip': '仅支持 json格式文件，单个大小不超过 {size} MB',
   'apiScenario.tree.selectorPlaceholder': 'Please enter module name',
   'apiScenario.tree.folder.allScenario': 'All Scenarios',
   'apiScenario.tree.noMatchModule': 'No matching module found',

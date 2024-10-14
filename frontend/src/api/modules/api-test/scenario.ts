@@ -17,6 +17,7 @@ import {
   dragSortUrl,
   ExecuteHistoryUrl,
   ExecuteScenarioUrl,
+  ExportScenarioUrl,
   FollowScenarioUrl,
   GetModuleCountUrl,
   GetModuleTreeUrl,
@@ -27,6 +28,7 @@ import {
   GetSystemRequestUrl,
   GetTrashModuleCountUrl,
   GetTrashModuleTreeUrl,
+  ImportScenarioUrl,
   MoveModuleUrl,
   RecoverScenarioUrl,
   RecycleScenarioUrl,
@@ -63,7 +65,9 @@ import {
   ApiScenarioUpdateDTO,
   ExecuteHistoryItem,
   ExecutePageParams,
+  type ExportScenarioParams,
   GetSystemRequestParams,
+  type ImportScenarioParams,
   ImportSystemData,
   Scenario,
   ScenarioDetail,
@@ -325,7 +329,18 @@ export function logScenarioReportBatchExport(data: BatchApiParams) {
 export function getScenarioBatchExportParams(data: BatchApiParams) {
   return MSR.post({ url: `${GetScenarioBatchExportParamsUrl}`, data });
 }
+
 // 场景导出报告id集合
 export function scenarioAssociateExport(data: ImportSystemData) {
   return MSR.post({ url: `${ScenarioAssociateExportUrl}`, data });
+}
+
+// 导入场景
+export function importScenario(params: ImportScenarioParams) {
+  return MSR.uploadFile({ url: ImportScenarioUrl }, { fileList: [params.file], request: params.request }, 'file');
+}
+
+// 导出场景
+export function exportScenario(data: ExportScenarioParams) {
+  return MSR.post({ url: ExportScenarioUrl, data });
 }
