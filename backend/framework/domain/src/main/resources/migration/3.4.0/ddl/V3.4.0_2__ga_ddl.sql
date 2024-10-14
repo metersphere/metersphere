@@ -82,7 +82,7 @@ CREATE INDEX idx_num ON schedule(`num`);
 CREATE TABLE api_doc_share (
     `id` VARCHAR(50) NOT NULL   COMMENT '主键' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '名称' ,
-    `is_public` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否公开; 0: 私有、1: 公开' ,
+    `is_private` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否私有;0: 公开、1: 私有' ,
     `password` VARCHAR(10)    COMMENT '访问密码; 私有时需要访问密码' ,
     `allow_export` BIT(1) NOT NULL  DEFAULT 0 COMMENT '允许导出; 0: 不允许、1: 允许' ,
     `api_range` VARCHAR(10) NOT NULL  DEFAULT 'ALL' COMMENT '接口范围; 全部接口(ALL)、模块(MODULE)、路径(PATH)、标签(TAG)' ,

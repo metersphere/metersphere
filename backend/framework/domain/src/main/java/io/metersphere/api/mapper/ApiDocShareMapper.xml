@@ -4,7 +4,7 @@
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiDocShare">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="is_public" jdbcType="BIT" property="isPublic" />
+    <result column="is_private" jdbcType="BIT" property="isPrivate" />
     <result column="password" jdbcType="VARCHAR" property="password" />
     <result column="allow_export" jdbcType="BIT" property="allowExport" />
     <result column="api_range" jdbcType="VARCHAR" property="apiRange" />
@@ -75,8 +75,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, is_public, `password`, allow_export, api_range, range_match_symbol, range_match_val, 
-    invalid_time, invalid_unit, project_id, create_time, create_user
+    id, `name`, is_private, `password`, allow_export, api_range, range_match_symbol, 
+    range_match_val, invalid_time, invalid_unit, project_id, create_time, create_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDocShareExample" resultMap="BaseResultMap">
     select
@@ -109,12 +109,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiDocShare">
-    insert into api_doc_share (id, `name`, is_public, 
+    insert into api_doc_share (id, `name`, is_private, 
       `password`, allow_export, api_range, 
       range_match_symbol, range_match_val, invalid_time, 
       invalid_unit, project_id, create_time, 
       create_user)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{isPublic,jdbcType=BIT}, 
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{isPrivate,jdbcType=BIT}, 
       #{password,jdbcType=VARCHAR}, #{allowExport,jdbcType=BIT}, #{apiRange,jdbcType=VARCHAR}, 
       #{rangeMatchSymbol,jdbcType=VARCHAR}, #{rangeMatchVal,jdbcType=VARCHAR}, #{invalidTime,jdbcType=INTEGER}, 
       #{invalidUnit,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
@@ -129,8 +129,8 @@
       <if test="name != null">
         `name`,
       </if>
-      <if test="isPublic != null">
-        is_public,
+      <if test="isPrivate != null">
+        is_private,
       </if>
       <if test="password != null">
         `password`,
@@ -170,8 +170,8 @@
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
-      <if test="isPublic != null">
-        #{isPublic,jdbcType=BIT},
+      <if test="isPrivate != null">
+        #{isPrivate,jdbcType=BIT},
       </if>
       <if test="password != null">
         #{password,jdbcType=VARCHAR},
@@ -220,8 +220,8 @@
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.isPublic != null">
-        is_public = #{record.isPublic,jdbcType=BIT},
+      <if test="record.isPrivate != null">
+        is_private = #{record.isPrivate,jdbcType=BIT},
       </if>
       <if test="record.password != null">
         `password` = #{record.password,jdbcType=VARCHAR},
@@ -262,7 +262,7 @@
     update api_doc_share
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
-      is_public = #{record.isPublic,jdbcType=BIT},
+      is_private = #{record.isPrivate,jdbcType=BIT},
       `password` = #{record.password,jdbcType=VARCHAR},
       allow_export = #{record.allowExport,jdbcType=BIT},
       api_range = #{record.apiRange,jdbcType=VARCHAR},
@@ -283,8 +283,8 @@
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="isPublic != null">
-        is_public = #{isPublic,jdbcType=BIT},
+      <if test="isPrivate != null">
+        is_private = #{isPrivate,jdbcType=BIT},
       </if>
       <if test="password != null">
         `password` = #{password,jdbcType=VARCHAR},
@@ -322,7 +322,7 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiDocShare">
     update api_doc_share
     set `name` = #{name,jdbcType=VARCHAR},
-      is_public = #{isPublic,jdbcType=BIT},
+      is_private = #{isPrivate,jdbcType=BIT},
       `password` = #{password,jdbcType=VARCHAR},
       allow_export = #{allowExport,jdbcType=BIT},
       api_range = #{apiRange,jdbcType=VARCHAR},
@@ -337,12 +337,12 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_doc_share
-    (id, `name`, is_public, `password`, allow_export, api_range, range_match_symbol, 
+    (id, `name`, is_private, `password`, allow_export, api_range, range_match_symbol, 
       range_match_val, invalid_time, invalid_unit, project_id, create_time, create_user
       )
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.isPublic,jdbcType=BIT}, 
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.isPrivate,jdbcType=BIT}, 
         #{item.password,jdbcType=VARCHAR}, #{item.allowExport,jdbcType=BIT}, #{item.apiRange,jdbcType=VARCHAR}, 
         #{item.rangeMatchSymbol,jdbcType=VARCHAR}, #{item.rangeMatchVal,jdbcType=VARCHAR}, 
         #{item.invalidTime,jdbcType=INTEGER}, #{item.invalidUnit,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
@@ -365,8 +365,8 @@
         <if test="'name'.toString() == column.value">
           #{item.name,jdbcType=VARCHAR}
         </if>
-        <if test="'is_public'.toString() == column.value">
-          #{item.isPublic,jdbcType=BIT}
+        <if test="'is_private'.toString() == column.value">
+          #{item.isPrivate,jdbcType=BIT}
         </if>
         <if test="'password'.toString() == column.value">
           #{item.password,jdbcType=VARCHAR}

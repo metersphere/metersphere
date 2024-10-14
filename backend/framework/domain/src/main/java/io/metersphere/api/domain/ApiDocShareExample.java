@@ -244,63 +244,63 @@ public class ApiDocShareExample {
             return (Criteria) this;
         }
 
-        public Criteria andIsPublicIsNull() {
-            addCriterion("is_public is null");
+        public Criteria andIsPrivateIsNull() {
+            addCriterion("is_private is null");
             return (Criteria) this;
         }
 
-        public Criteria andIsPublicIsNotNull() {
-            addCriterion("is_public is not null");
+        public Criteria andIsPrivateIsNotNull() {
+            addCriterion("is_private is not null");
             return (Criteria) this;
         }
 
-        public Criteria andIsPublicEqualTo(Boolean value) {
-            addCriterion("is_public =", value, "isPublic");
+        public Criteria andIsPrivateEqualTo(Boolean value) {
+            addCriterion("is_private =", value, "isPrivate");
             return (Criteria) this;
         }
 
-        public Criteria andIsPublicNotEqualTo(Boolean value) {
-            addCriterion("is_public <>", value, "isPublic");
+        public Criteria andIsPrivateNotEqualTo(Boolean value) {
+            addCriterion("is_private <>", value, "isPrivate");
             return (Criteria) this;
         }
 
-        public Criteria andIsPublicGreaterThan(Boolean value) {
-            addCriterion("is_public >", value, "isPublic");
+        public Criteria andIsPrivateGreaterThan(Boolean value) {
+            addCriterion("is_private >", value, "isPrivate");
             return (Criteria) this;
         }
 
-        public Criteria andIsPublicGreaterThanOrEqualTo(Boolean value) {
-            addCriterion("is_public >=", value, "isPublic");
+        public Criteria andIsPrivateGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("is_private >=", value, "isPrivate");
             return (Criteria) this;
         }
 
-        public Criteria andIsPublicLessThan(Boolean value) {
-            addCriterion("is_public <", value, "isPublic");
+        public Criteria andIsPrivateLessThan(Boolean value) {
+            addCriterion("is_private <", value, "isPrivate");
             return (Criteria) this;
         }
 
-        public Criteria andIsPublicLessThanOrEqualTo(Boolean value) {
-            addCriterion("is_public <=", value, "isPublic");
+        public Criteria andIsPrivateLessThanOrEqualTo(Boolean value) {
+            addCriterion("is_private <=", value, "isPrivate");
             return (Criteria) this;
         }
 
-        public Criteria andIsPublicIn(List<Boolean> values) {
-            addCriterion("is_public in", values, "isPublic");
+        public Criteria andIsPrivateIn(List<Boolean> values) {
+            addCriterion("is_private in", values, "isPrivate");
             return (Criteria) this;
         }
 
-        public Criteria andIsPublicNotIn(List<Boolean> values) {
-            addCriterion("is_public not in", values, "isPublic");
+        public Criteria andIsPrivateNotIn(List<Boolean> values) {
+            addCriterion("is_private not in", values, "isPrivate");
             return (Criteria) this;
         }
 
-        public Criteria andIsPublicBetween(Boolean value1, Boolean value2) {
-            addCriterion("is_public between", value1, value2, "isPublic");
+        public Criteria andIsPrivateBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_private between", value1, value2, "isPrivate");
             return (Criteria) this;
         }
 
-        public Criteria andIsPublicNotBetween(Boolean value1, Boolean value2) {
-            addCriterion("is_public not between", value1, value2, "isPublic");
+        public Criteria andIsPrivateNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_private not between", value1, value2, "isPrivate");
             return (Criteria) this;
         }
 

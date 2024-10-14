@@ -3,6 +3,7 @@ package io.metersphere.api.controller;
 import io.metersphere.api.domain.ApiDocShare;
 import io.metersphere.api.dto.definition.request.ApiDocShareCheckRequest;
 import io.metersphere.api.dto.definition.request.ApiDocShareEditRequest;
+import io.metersphere.api.dto.definition.request.ApiDocShareModuleRequest;
 import io.metersphere.api.dto.definition.request.ApiDocSharePageRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,6 +34,8 @@ public class ApiDocShareControllerTests extends BaseTest {
 	private final static String PAGE = BASE_PATH + "page";
 	private final static String CHECK = BASE_PATH + "check";
 	private final static String DETAIL = BASE_PATH + "detail/";
+	private final static String MODULE_TREE = BASE_PATH + "module/tree";
+	private final static String MODULE_COUNT = BASE_PATH + "module/count";
 
 	@Order(1)
 	@Test
@@ -40,7 +44,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 		request.setName("share-1");
 		request.setProjectId(DEFAULT_PROJECT_ID);
 		request.setApiRange("ALL");
-		request.setIsPublic(false);
+		request.setIsPrivate(false);
 		request.setPassword("123456");
 		request.setAllowExport(false);
 		MvcResult mvcResult = this.requestPostWithOk(ADD, request).andReturn();
@@ -53,6 +57,11 @@ public class ApiDocShareControllerTests extends BaseTest {
 		checkRequest.setPassword("123456");
 		this.requestPostWithOk(CHECK, checkRequest);
 		this.requestGetWithOk(DETAIL + docShare.getId());
+		ApiDocShareModuleRequest moduleRequest = new ApiDocShareModuleRequest();
+		moduleRequest.setShareId(docShare.getId());
+		moduleRequest.setProjectId(DEFAULT_PROJECT_ID);
+		moduleRequest.setProtocols(List.of("HTTP", "SPX", "Redis", "MongoDB"));
+		this.requestPostWithOk(MODULE_TREE, moduleRequest);
 		request.setId(docShare.getId());
 		request.setName("share-2");
 		request.setPassword(StringUtils.EMPTY);
@@ -63,6 +72,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 		this.requestPostWithOk(UPDATE, request);
 		this.requestPostWithOk(CHECK, checkRequest);
 		this.requestGetWithOk(DETAIL + docShare.getId());
+		this.requestPostWithOk(MODULE_TREE, moduleRequest);
 		this.requestGetWithOk(DELETE + docShare.getId());
 		// 不存在的ID
 		this.requestGet(DELETE + "not-exist-id").andExpect(status().is5xxServerError());
@@ -75,7 +85,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 		request.setName("share-1");
 		request.setProjectId(DEFAULT_PROJECT_ID);
 		request.setApiRange("ALL");
-		request.setIsPublic(false);
+		request.setIsPrivate(false);
 		request.setAllowExport(false);
 		this.requestPostWithOk(ADD, request);
 		request.setInvalidTime(1);
@@ -86,12 +96,30 @@ public class ApiDocShareControllerTests extends BaseTest {
 		request.setApiRange("PATH");
 		request.setRangeMatchSymbol("EQUALS");
 		request.setRangeMatchVal("path-1");
-		this.requestPostWithOk(ADD, request);
+		MvcResult mvcResult = this.requestPostWithOk(ADD, request).andReturn();
+		String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+		ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+		ApiDocShare docShare = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), ApiDocShare.class);
+		ApiDocShareModuleRequest moduleRequest = new ApiDocShareModuleRequest();
+		moduleRequest.setShareId(docShare.getId());
+		moduleRequest.setProjectId(DEFAULT_PROJECT_ID);
+		moduleRequest.setProtocols(List.of("HTTP", "SPX", "Redis", "MongoDB"));
+		this.requestPostWithOk(MODULE_COUNT, moduleRequest);
 		request.setRangeMatchSymbol("CONTAINS");
-		this.requestPostWithOk(ADD, request);
+		MvcResult mvcResult1 = this.requestPostWithOk(ADD, request).andReturn();
+		String returnData1 = mvcResult1.getResponse().getContentAsString(StandardCharsets.UTF_8);
+		ResultHolder resultHolder1 = JSON.parseObject(returnData1, ResultHolder.class);
+		ApiDocShare docShare1 = JSON.parseObject(JSON.toJSONString(resultHolder1.getData()), ApiDocShare.class);
+		moduleRequest.setShareId(docShare1.getId());
+		this.requestPostWithOk(MODULE_COUNT, moduleRequest);
 		request.setApiRange("TAG");
 		request.setRangeMatchVal("tag-1,tag-2");
-		this.requestPostWithOk(ADD, request);
+		MvcResult mvcResult2 = this.requestPostWithOk(ADD, request).andReturn();
+		String returnData2 = mvcResult2.getResponse().getContentAsString(StandardCharsets.UTF_8);
+		ResultHolder resultHolder2 = JSON.parseObject(returnData2, ResultHolder.class);
+		ApiDocShare docShare2 = JSON.parseObject(JSON.toJSONString(resultHolder2.getData()), ApiDocShare.class);
+		moduleRequest.setShareId(docShare2.getId());
+		this.requestPostWithOk(MODULE_COUNT, moduleRequest);
 		ApiDocSharePageRequest pageRequest = new ApiDocSharePageRequest();
 		pageRequest.setProjectId(DEFAULT_PROJECT_ID);
 		pageRequest.setCurrent(1);
