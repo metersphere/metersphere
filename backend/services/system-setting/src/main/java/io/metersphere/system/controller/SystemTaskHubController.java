@@ -2,10 +2,7 @@ package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BasePageRequest;
-import io.metersphere.system.dto.taskhub.ResourcePoolOptionsDTO;
-import io.metersphere.system.dto.taskhub.TaskHubDTO;
-import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
-import io.metersphere.system.dto.taskhub.TaskHubScheduleDTO;
+import io.metersphere.system.dto.taskhub.*;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
 import io.metersphere.system.service.BaseTaskHubService;
@@ -15,6 +12,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -68,6 +66,13 @@ public class SystemTaskHubController {
         return baseTaskHubService.getResourcePoolOptions();
     }
 
+    @PostMapping("/resource-pool/status")
+    @Operation(summary = "任务详情节点状态接口")
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ, PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_READ, PermissionConstants.PROJECT_CASE_TASK_CENTER_READ}, logical = Logical.OR)
+    @Parameter(name = "ids", description = "详情ID集合", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    public List<ResourcePoolStatusDTO> resourcePoolStatus(@RequestBody List<String> ids) {
+        return baseTaskHubService.getResourcePoolStatus(ids);
+    }
     //TODO 检查节点状态
 
     //TODO 系统&组织&项目 任务按钮操作：删除 停止 失败重跑 查看报告   批量删除 批量停止  批量失败重跑

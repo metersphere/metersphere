@@ -78,7 +78,7 @@ public class NodeResourcePoolService {
         }
     }
 
-    private boolean validateNode(TestResourceNodeDTO node) {
+    public boolean validateNode(TestResourceNodeDTO node) {
         try {
             ResultHolder body = TaskRunnerClient.get(String.format(nodeControllerUrl, node.getIp(), node.getPort()));
             if (body == null) {

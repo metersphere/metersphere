@@ -16,4 +16,6 @@ public interface ExtExecTaskItemMapper {
     List<TaskHubItemDTO> selectList(@Param("request") TaskHubItemRequest request, @Param("orgId") String orgId, @Param("projectId") String projectId);
 
     List<ExecTaskItem> selectItemByTaskIds(@Param("taskIds") List<String> taskIds, @Param("orgId") String orgId, @Param("projectId") String projectId);
+
+    List<ExecTaskItem> selectPoolNodeByIds(@Param("ids") List<String> ids);
 }

@@ -36,6 +36,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_TASK_ITEM_PAGE = "/system/task-center/exec-task/item/page";
     public static final String SYSTEM_STATISTICS = "/system/task-center/exec-task/statistics";
     public static final String SYSTEM_RESOURCE_POOL_OPTIONS = "/system/task-center/resource-pool/options";
+    public static final String SYSTEM_RESOURCE_POOL_STATUS = "/system/task-center/resource-pool/status";
 
     @Test
     @Order(1)
@@ -98,7 +99,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void getStatistics() throws Exception {
-        List<String> ids = List.of("1", "2");
+        List<String> ids = List.of("1");
         MvcResult mvcResult = this.requestPostWithOkAndReturn(SYSTEM_STATISTICS, ids);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -114,6 +115,21 @@ public class BaseTaskHubControllerTests extends BaseTest {
     @Order(3)
     public void getSystemResourcePoolOptions() throws Exception {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(SYSTEM_RESOURCE_POOL_OPTIONS);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+    /**
+     * 校验资源池节点状态
+     */
+    @Test
+    @Order(3)
+    public void getResourcePoolStatus() throws Exception {
+        List<String> ids = List.of("1");
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(SYSTEM_RESOURCE_POOL_STATUS, ids);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
