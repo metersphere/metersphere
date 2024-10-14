@@ -407,7 +407,7 @@ public class ApiTaskCenterService {
             SubListUtils.dealForSubList(reportList, 100, subList -> {
                 try {
                     LogUtils.info(String.format("开始发送停止请求到 %s 节点执行", endpoint), subList.toString());
-                    MsHttpClient.stopApi(endpoint, subList);
+//                    MsHttpClient.stopApi(endpoint, subList); todo taskIds
                 } catch (Exception e) {
                     LogUtils.error(e);
                 } finally {
