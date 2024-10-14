@@ -7,11 +7,12 @@ import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.scenario.ApiScenarioDetail;
 import io.metersphere.api.dto.scenario.ApiScenarioParseParam;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.scenario.ApiScenarioRunService;
-import io.metersphere.sdk.constants.ApiBatchRunMode;
-import io.metersphere.sdk.constants.ApiExecuteRunMode;
-import io.metersphere.sdk.constants.TaskTriggerMode;
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskInfo;
 import io.metersphere.sdk.dto.api.task.TaskItem;
@@ -19,6 +20,8 @@ import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.domain.ExecTask;
+import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.schedule.BaseScheduleJob;
 import io.metersphere.system.uid.IDGenerator;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +34,8 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
     protected void businessExecute(JobExecutionContext context) {
         ApiExecuteService apiExecuteService = CommonBeanFactory.getBean(ApiExecuteService.class);
         ApiScenarioRunService apiScenarioRunService = CommonBeanFactory.getBean(ApiScenarioRunService.class);
+        ApiCommonService apiCommonService = CommonBeanFactory.getBean(ApiCommonService.class);
+        ProjectMapper projectMapper = CommonBeanFactory.getBean(ProjectMapper.class);
         ApiRunModeConfigDTO apiRunModeConfigDTO = JSON.parseObject(context.getJobDetail().getJobDataMap().get("config").toString(), ApiRunModeConfigDTO.class);
 
         ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(resourceId);
@@ -58,18 +63,35 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
 
         ApiResourceRunRequest runRequest = apiScenarioRunService.getApiResourceRunRequest(msScenario, tmpParam);
 
+        Project project = projectMapper.selectByPrimaryKey(apiScenarioDetail.getProjectId());
+        ExecTask execTask = apiCommonService.newExecTask(project.getId(), userId);
+        execTask.setCaseCount(1L);
+        execTask.setTaskName(apiScenarioDetail.getName());
+        execTask.setOrganizationId(project.getOrganizationId());
+        execTask.setTriggerMode(TaskTriggerMode.SCHEDULE.name());
+        execTask.setTaskType(ExecTaskType.API_SCENARIO.name());
+
+        ExecTaskItem execTaskItem = apiCommonService.newExecTaskItem(execTask.getId(), project.getId(), userId);
+        execTaskItem.setOrganizationId(project.getOrganizationId());
+        execTaskItem.setResourceType(ApiExecuteResourceType.API_SCENARIO.name());
+        execTaskItem.setResourceId(apiScenarioDetail.getId());
+        execTaskItem.setResourceName(apiScenarioDetail.getName());
+
         TaskRequestDTO taskRequest = apiScenarioRunService.getTaskRequest(IDGenerator.nextStr(), apiScenarioDetail.getId(), apiScenarioDetail.getProjectId(), ApiExecuteRunMode.SCHEDULE.name());
         TaskInfo taskInfo = taskRequest.getTaskInfo();
         TaskItem taskItem = taskRequest.getTaskItem();
         taskInfo.getRunModeConfig().setPoolId(apiRunModeConfigDTO.getPoolId());
+        taskInfo.setTaskId(execTask.getId());
         taskInfo.setSaveResult(true);
         taskInfo.setRealTime(false);
         taskInfo.setUserId(userId);
         taskInfo.getRunModeConfig().setEnvironmentId(parseParam.getEnvironmentId());
         taskItem.setRequestCount(tmpParam.getRequestCount().get());
+        taskItem.setId(execTaskItem.getId());
 
         ApiScenarioParamConfig parseConfig = apiScenarioRunService.getApiScenarioParamConfig(msScenario.getProjectId(), parseParam, tmpParam.getScenarioParseEnvInfo());
         parseConfig.setReportId(taskItem.getReportId());
+        parseConfig.setTaskItemId(taskItem.getId());
 
         // 初始化报告
         ApiScenarioReport scenarioReport = apiScenarioRunService.getScenarioReport(userId);

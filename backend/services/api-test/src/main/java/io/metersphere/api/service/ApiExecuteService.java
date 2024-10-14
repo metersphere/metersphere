@@ -31,10 +31,12 @@ import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.config.MinioProperties;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.dto.pool.TestResourceDTO;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
+import io.metersphere.system.mapper.ExecTaskItemMapper;
 import io.metersphere.system.service.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
@@ -43,7 +45,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jmeter.util.JMeterUtils;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
@@ -99,6 +105,10 @@ public class ApiExecuteService {
     private ApiCommonService apiCommonService;
     @Resource
     private JdbcDriverPluginService jdbcDriverPluginService;
+    @Resource
+    private ExecTaskItemMapper execTaskItemMapper;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
 
     @PostConstruct
     private void init() {
@@ -122,10 +132,6 @@ public class ApiExecuteService {
         }
     }
 
-    public String getTaskKey(String reportId, String testId) {
-        return reportId + "_" + testId;
-    }
-
     public TaskRequestDTO execute(ApiResourceRunRequest runRequest, TaskRequestDTO taskRequest, ApiParamConfig parameterConfig) {
         TaskInfo taskInfo = taskRequest.getTaskInfo();
         TaskItem taskItem = taskRequest.getTaskItem();
@@ -136,12 +142,12 @@ public class ApiExecuteService {
         taskInfo.setNeedParseScript(false);
 
         // 将测试脚本缓存到 redis
-        String scriptRedisKey = getTaskKey(taskItem.getReportId(), taskItem.getResourceId());
+        String scriptRedisKey = taskItem.getId();
         stringRedisTemplate.opsForValue().set(scriptRedisKey, executeScript, 1, TimeUnit.DAYS);
 
         setTaskItemFileParam(runRequest, taskItem);
 
-        if (StringUtils.equals(taskInfo.getRunMode(), ApiExecuteRunMode.FRONTEND_DEBUG.name())) {
+        if (ApiExecuteRunMode.isFrontendDebug(taskInfo.getRunMode())) {
             taskInfo = setTaskRequestParams(taskInfo);
             // 清空mino和kafka配置信息，避免前端获取
             taskInfo.setMinioConfig(null);
@@ -215,7 +221,6 @@ public class ApiExecuteService {
             // 获取资源池
             TestResourcePoolReturnDTO testResourcePoolDTO = getGetResourcePoolNodeDTO(taskInfo.getRunModeConfig(), taskInfo.getProjectId());
 
-
             if (StringUtils.isNotBlank(testResourcePoolDTO.getServerUrl())) {
                 // 如果资源池配置了当前站点，则使用资源池的
                 taskInfo.setMsUrl(testResourcePoolDTO.getServerUrl());
@@ -223,7 +228,7 @@ public class ApiExecuteService {
 
             // 判断是否为 K8S 资源池
             boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.name());
-            boolean isDebugMode = StringUtils.equalsAny(taskInfo.getRunMode(), ApiExecuteRunMode.FRONTEND_DEBUG.name(), ApiExecuteRunMode.BACKEND_DEBUG.name());
+            boolean isDebugMode = ApiExecuteRunMode.isDebug(taskInfo.getRunMode());
 
             if (isK8SResourcePool) {
                 TestResourceDTO testResourceDTO = new TestResourceDTO();
@@ -237,6 +242,10 @@ public class ApiExecuteService {
                 }
             } else {
                 TestResourceNodeDTO testResourceNodeDTO = getNextExecuteNode(testResourcePoolDTO);
+                if (!ApiExecuteRunMode.isDebug(taskInfo.getRunMode())) {
+                    updateTaskItemNodeInfo(taskItem, testResourcePoolDTO, testResourceNodeDTO, execTaskItemMapper);
+                }
+                taskInfo.setPerTaskSize(Optional.ofNullable(testResourceNodeDTO.getSingleTaskConcurrentNumber()).orElse(3));
                 taskInfo.setPoolSize(testResourceNodeDTO.getConcurrentNumber());
 
                 String endpoint = MsHttpClient.getEndpoint(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
@@ -272,6 +281,15 @@ public class ApiExecuteService {
         taskInfo.setKafkaConfig(null);
 
         return taskRequest;
+    }
+
+    private void updateTaskItemNodeInfo(TaskItem taskItem, TestResourcePoolReturnDTO testResourcePoolDTO, TestResourceNodeDTO testResourceNodeDTO, ExecTaskItemMapper execTaskItemMapper) {
+        // 非调试模式，更新任务项的资源池信息
+        ExecTaskItem execTaskItem = new ExecTaskItem();
+        execTaskItem.setId(taskItem.getId());
+        execTaskItem.setResourcePoolId(testResourcePoolDTO.getId());
+        execTaskItem.setResourcePoolNode(StringUtils.join(testResourceNodeDTO.getIp(), ":", testResourceNodeDTO.getPort()));
+        execTaskItemMapper.updateByPrimaryKeySelective(execTaskItem);
     }
 
     /**
@@ -321,9 +339,14 @@ public class ApiExecuteService {
                 TestResourceNodeDTO testResourceNode = nodesList.get(i);
                 TaskBatchRequestDTO subTaskRequest = distributeTasks.get(i);
                 String endpoint = MsHttpClient.getEndpoint(testResourceNode.getIp(), testResourceNode.getPort());
+
+                if (!ApiExecuteRunMode.isDebug(taskInfo.getRunMode())) {
+                    batchUpdateTaskItemNodeInfo(testResourcePool, testResourceNode, subTaskRequest);
+                }
+
                 try {
                     List<String> taskKeys = subTaskRequest.getTaskItems().stream()
-                            .map(taskItem -> taskItem.getReportId() + "_" + taskItem.getResourceId())
+                            .map(TaskItem::getId)
                             .toList();
                     LogUtils.info("开始发送批量任务到 {} 节点执行:\n" + taskKeys, endpoint);
                     MsHttpClient.batchRunApi(endpoint, subTaskRequest);
@@ -332,6 +355,22 @@ public class ApiExecuteService {
                     LogUtils.error(e);
                 }
             }
+        }
+    }
+
+    private void batchUpdateTaskItemNodeInfo(TestResourcePoolReturnDTO testResourcePool, TestResourceNodeDTO testResourceNode, TaskBatchRequestDTO batchRequest) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        try {
+            if (CollectionUtils.isNotEmpty(batchRequest.getTaskItems())) {
+                ExecTaskItemMapper batchExecTaskItemMapper = sqlSession.getMapper(ExecTaskItemMapper.class);
+                batchRequest.getTaskItems().forEach(taskItem -> {
+                    // 非调试模式，更新任务项的资源池信息
+                    updateTaskItemNodeInfo(taskItem, testResourcePool, testResourceNode, batchExecTaskItemMapper);
+                });
+            }
+        } finally {
+            sqlSession.flushStatements();
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
 
@@ -419,11 +458,13 @@ public class ApiExecuteService {
         // 设置执行参数
         TaskRequestDTO taskRequest = getTaskRequest(reportId, testId, runRequest.getProjectId());
         TaskInfo taskInfo = taskRequest.getTaskInfo();
+        taskInfo.setTaskId(reportId);
         setServerInfoParam(taskInfo);
         taskInfo.setRealTime(true);
         taskInfo.setSaveResult(false);
         taskInfo.setResourceType(ApiExecuteResourceType.API_DEBUG.name());
         taskInfo.setRunMode(ApiExecuteRunMode.BACKEND_DEBUG.name());
+        taskRequest.getTaskItem().setId(reportId);
 
         return execute(apiRunRequest, taskRequest, new ApiParamConfig());
     }
@@ -644,9 +685,8 @@ public class ApiExecuteService {
         return (String) configMap.get(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
     }
 
-    public void downloadFile(String reportId, String testId, FileRequest fileRequest, HttpServletResponse response) throws Exception {
-        String key = getTaskKey(reportId, testId);
-        if (BooleanUtils.isTrue(stringRedisTemplate.hasKey(key))) {
+    public void downloadFile(String taskItemId, FileRequest fileRequest, HttpServletResponse response) throws Exception {
+        if (BooleanUtils.isTrue(stringRedisTemplate.hasKey(taskItemId))) {
             FileRepository repository = StringUtils.isBlank(fileRequest.getStorage()) ? FileCenter.getDefaultRepository()
                     : FileCenter.getRepository(fileRequest.getStorage());
             write2Response(repository.getFileAsStream(fileRequest), response);

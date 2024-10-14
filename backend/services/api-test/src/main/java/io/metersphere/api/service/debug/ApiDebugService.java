@@ -215,10 +215,13 @@ public class ApiDebugService extends MoveNodeService {
 
         TaskRequestDTO taskRequest = apiExecuteService.getTaskRequest(request.getReportId(), request.getId(), request.getProjectId());
         TaskInfo taskInfo = taskRequest.getTaskInfo();
+        taskInfo.setTaskId(request.getReportId());
         taskInfo.setSaveResult(false);
         taskInfo.setRealTime(true);
         taskInfo.setResourceType(ApiResourceType.API_DEBUG.name());
         taskInfo.setRunMode(apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
+        taskRequest.getTaskItem().setId(request.getReportId());
+        apiParamConfig.setTaskItemId(taskRequest.getTaskItem().getId());
         return apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
     }
 

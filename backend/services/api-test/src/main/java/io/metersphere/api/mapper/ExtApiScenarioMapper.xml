@@ -72,7 +72,14 @@
             #{id}
         </foreach>
     </select>
-
+    <select id="getNameInfo" resultType="io.metersphere.api.domain.ApiScenario">
+        SELECT id, name
+        FROM api_scenario
+        WHERE id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
     <select id="listByProviderRequest" resultMap="TestCaseProviderDTO">
         SELECT
         api_scenario.id,

@@ -41,4 +41,7 @@ public class TestPlanReportGenPreParam {
 
 	@Schema(description = "是否手动生成报告")
 	private Boolean useManual;
+
+	@Schema(description = "执行的任务ID")
+	private String taskId;
 }

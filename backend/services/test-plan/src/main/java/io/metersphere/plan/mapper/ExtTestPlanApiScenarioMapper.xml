@@ -456,9 +456,12 @@
         AND api_scenario.deleted = #{deleted}
         <include refid="queryWhereConditionByBatchQueryRequest"/>
     </select>
-    <select id="getSelectIdAndCollectionId" resultType="io.metersphere.plan.domain.TestPlanApiScenario">
+    <select id="getSelectIdAndCollectionId" resultType="io.metersphere.plan.dto.TestPlanApiScenarioBatchRunDTO">
         SELECT
-        test_plan_api_scenario.id as id, test_plan_api_scenario.test_plan_collection_id as testPlanCollectionId
+        test_plan_api_scenario.id as id, test_plan_api_scenario.test_plan_collection_id as testPlanCollectionId,
+        test_plan_api_scenario.environment_id as environmentId,
+        api_scenario.name as name,
+        api_scenario.id as apiScenarioId,
         FROM
         test_plan_api_scenario
         INNER JOIN api_scenario on api_scenario.id = test_plan_api_scenario.api_scenario_id
@@ -556,6 +559,15 @@
         AND test_plan.status != 'ARCHIVED'
     </select>
 
+    <select id="getBatchRunInfoByIds" resultType="io.metersphere.plan.dto.TestPlanApiScenarioBatchRunDTO">
+        SELECT id, test_plan_collection_id, environment_id, api_scenario_id
+        FROM test_plan_api_scenario
+        where
+        id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 
     <update id="batchUpdateExecutor">
         update test_plan_api_scenario
@@ -565,4 +577,12 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="countByPlanId" resultType="java.lang.Integer">
+        select count(0)
+        from test_plan_api_scenario tpas join api_scenario asce on asce.id = tpas.api_scenario_id
+        <where>
+            asce.deleted = false and tpas.test_plan_id = #{planId}
+        </where>
+    </select>
 </mapper>

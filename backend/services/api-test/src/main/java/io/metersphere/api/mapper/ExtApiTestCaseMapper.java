@@ -59,8 +59,9 @@ public interface ExtApiTestCaseMapper {
 
     List<ApiTestCase> getTestCaseByProvider(@Param("request") AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
 
-
     List<ApiTestCase> getTagsByIds(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
+
+    List<ApiTestCase> getNameInfo(@Param("ids") List<String> ids);
 
     List<ExecuteReportDTO> getExecuteList(@Param("request") ExecutePageRequest request);
 

@@ -28,6 +28,8 @@ import io.metersphere.sdk.dto.queue.TestPlanExecutionQueue;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.system.domain.ExecTaskItem;
+import io.metersphere.system.mapper.ExtExecTaskItemMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import jodd.util.StringUtil;
@@ -71,6 +73,8 @@ public class PlanRunTestPlanApiCaseService {
     private TestPlanApiBatchRunBaseService testPlanApiBatchRunBaseService;
     @Resource
     private ExtTestPlanReportApiCaseMapper extTestPlanReportApiCaseMapper;
+    @Resource
+    private ExtExecTaskItemMapper extExecTaskItemMapper;
 
     /**
      * 串行批量执行
@@ -89,9 +93,14 @@ public class PlanRunTestPlanApiCaseService {
             return true;
         }
 
-        String queueId = testPlanExecutionQueue.getPrepareReportId() + "_" + collection.getId();
         // 先初始化集成报告，设置好报告ID，再初始化执行队列
-        ExecutionQueue queue = apiBatchRunBaseService.initExecutionqueue(queueId, ids, runModeConfig, ApiExecuteResourceType.PLAN_RUN_API_CASE.name(), parentQueueId, userId);
+        ExecutionQueue queue = apiBatchRunBaseService.initExecutionQueue(testPlanExecutionQueue.getTaskId(), runModeConfig, ApiExecuteResourceType.PLAN_RUN_API_CASE.name(), parentQueueId, userId);
+
+        SubListUtils.dealForSubList(ids, 100, subIds -> {
+            List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectExecInfoByResourceIds(subIds);
+            // 初始化队列项
+            apiBatchRunBaseService.initExecutionQueueDetails(queue.getQueueId(), execTaskItems);
+        });
 
         // 执行第一个任务
         ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
@@ -119,12 +128,19 @@ public class PlanRunTestPlanApiCaseService {
         }
 
         List<ApiTestCase> apiTestCases = new ArrayList<>(testPlanReportApiCases.size());
+        Map<String, String> resourceTaskItemMap = new HashMap<>();
 
         List<String> caseIds = testPlanReportApiCases.stream()
                 .map(TestPlanReportApiCase::getApiCaseId).collect(Collectors.toList());
 
         // 分批查询
         SubListUtils.dealForSubList(caseIds, 100, subIds -> apiTestCases.addAll(extApiTestCaseMapper.getApiCaseExecuteInfoByIds(subIds)));
+        SubListUtils.dealForSubList(testPlanReportApiCases, 100,
+                subTestPlanReportApiCases-> {
+                    List<String> subIds = subTestPlanReportApiCases.stream().map(TestPlanReportApiCase::getId).toList();
+                    extExecTaskItemMapper.selectExecInfoByResourceIds(subIds)
+                            .forEach(execTaskItem -> resourceTaskItemMap.put(execTaskItem.getResourceId(), execTaskItem.getId()));
+                });
 
         Map<String, ApiTestCase> apiCaseMap = apiTestCases.stream()
                 .collect(Collectors.toMap(ApiTestCase::getId, Function.identity()));
@@ -146,6 +162,7 @@ public class PlanRunTestPlanApiCaseService {
                 continue;
             }
             TaskItem taskItem = apiExecuteService.getTaskItem(reportId, id);
+            taskItem.setId(resourceTaskItemMap.get(testPlanReportApiCase.getId()));
             taskItem.setRequestCount(1L);
             taskItems.add(taskItem);
         }
@@ -158,6 +175,7 @@ public class PlanRunTestPlanApiCaseService {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
         TaskBatchRequestDTO taskRequest = apiTestCaseBatchRunService.getTaskBatchRequestDTO(testPlan.getProjectId(), runModeConfig);
         taskRequest.setTaskItems(taskItems);
+        taskRequest.getTaskInfo().setTaskId(testPlanExecutionQueue.getTaskId());
         taskRequest.getTaskInfo().setParentQueueId(parentQueueId);
         taskRequest.getTaskInfo().setUserId(userId);
         taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.PLAN_RUN_API_CASE.name());
@@ -197,11 +215,13 @@ public class PlanRunTestPlanApiCaseService {
         // 独立报告，执行到当前任务时初始化报告
         String reportId = initApiReport(runModeConfig, List.of(testPlanReportApiCase), Map.of(apiTestCase.getId(), apiTestCase), queue.getUserId()).get(resourceId);
         TaskRequestDTO taskRequest = testPlanApiCaseBatchRunService.getTaskRequestDTO(reportId, testPlanReportApiCase.getId(), apiTestCase, runModeConfig);
+        taskRequest.getTaskInfo().setTaskId(queue.getTaskId());
         taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.PLAN_RUN_API_CASE.name());
         taskRequest.getTaskInfo().setQueueId(queue.getQueueId());
         taskRequest.getTaskInfo().setUserId(queue.getUserId());
         taskRequest.getTaskInfo().setParentQueueId(queue.getParentQueueId());
         taskRequest.getTaskItem().setRequestCount(1L);
+        taskRequest.getTaskItem().setId(queueDetail.getTaskItemId());
 
         apiExecuteService.execute(taskRequest);
     }
@@ -234,7 +254,7 @@ public class PlanRunTestPlanApiCaseService {
             // 创建报告和用例的关联关系
             ApiTestCaseRecord apiTestCaseRecord = apiTestCaseService.getApiTestCaseRecord(apiTestCase, apiReport);
             apiTestCaseRecords.add(apiTestCaseRecord);
-            apiReportSteps.add(testPlanApiCaseBatchRunService.getApiReportStep(testPlanReportApiCase.getId(), apiTestCase, apiReport.getId(), 1));
+            apiReportSteps.add(testPlanApiCaseBatchRunService.getApiReportStep(testPlanReportApiCase.getId(), apiTestCase.getName(), apiReport.getId(), 1));
             resourceReportMap.put(testPlanReportApiCase.getId(), apiReport.getId());
         }
         apiReportService.insertApiReport(apiReports, apiTestCaseRecords);

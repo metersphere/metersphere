@@ -18,10 +18,6 @@ import java.util.Map;
 @Data
 public class ApiParamConfig extends ParameterConfig {
     /**
-     * 报告ID
-     */
-    private String reportId;
-    /**
      * 使用全局cookie
      */
     private Boolean enableGlobalCookie = true;

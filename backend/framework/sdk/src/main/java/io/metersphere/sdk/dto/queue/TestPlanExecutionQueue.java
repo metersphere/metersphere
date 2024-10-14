@@ -32,13 +32,16 @@ public class TestPlanExecutionQueue {
     private String prepareReportId;
     // 测试集Json
     private String testPlanCollectionJson;
+    // 任务ID
+    private String taskId;
 
     // 是否是队列的最后一个
     private boolean isLastOne = false;
     // 是否执行完毕
     private boolean executeFinish = false;
 
-    public TestPlanExecutionQueue(long pos, String createUser, long createTime, String queueId, String queueType, String parentQueueId, String parentQueueType, String sourceID, String runMode, String executionSource, String prepareReportId) {
+    public TestPlanExecutionQueue(long pos, String createUser, long createTime, String queueId, String queueType, String parentQueueId, String parentQueueType, String sourceID, String runMode,
+                                  String executionSource, String prepareReportId, String taskId) {
         this.pos = pos;
         this.createUser = createUser;
         this.createTime = createTime;
@@ -50,5 +53,6 @@ public class TestPlanExecutionQueue {
         this.runMode = runMode;
         this.executionSource = executionSource;
         this.prepareReportId = prepareReportId;
+        this.taskId = taskId;
     }
 }

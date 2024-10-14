@@ -9,6 +9,7 @@ import io.metersphere.sdk.dto.api.task.TaskInfo;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.domain.ExecTaskItem;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -24,15 +25,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ApiBatchRunBaseService {
     @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
+
     /**
      * 初始化执行队列
      *
      * @param resourceIds
-     * @param runModeConfig
      * @return
      */
-    public ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, String userId) {
-        return initExecutionqueue(resourceIds, runModeConfig, resourceType, null, userId);
+    public ExecutionQueue initExecutionqueue(List<String> resourceIds, String resourceType, String userId) {
+        return initExecutionqueue(resourceIds, null, resourceType, null, userId);
     }
 
     /**
@@ -59,22 +60,44 @@ public class ApiBatchRunBaseService {
             queue.setQueueId(queueId);
         }
         queue.setParentQueueId(parentQueueId);
-        List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetails(resourceIds);
+        List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetailsByIds(resourceIds);
         apiExecutionQueueService.insertQueue(queue, queueDetails);
+        return queue;
+    }
+
+    public ExecutionQueue initExecutionQueue(String taskId, ApiRunModeConfigDTO runModeConfig, String resourceType, String parentQueueId, String userId) {
+        return initExecutionQueue(taskId, null, runModeConfig, resourceType, parentQueueId, userId);
+    }
+
+    /**
+     * 初始化执行队列
+     *
+     * @param runModeConfig
+     * @return
+     */
+    public ExecutionQueue initExecutionQueue(String taskId, String queueId, ApiRunModeConfigDTO runModeConfig, String resourceType, String parentQueueId, String userId) {
+        ExecutionQueue queue = getExecutionQueue(runModeConfig, resourceType, userId);
+        queue.setTaskId(taskId);
+        if (StringUtils.isNotBlank(queueId)) {
+            queue.setQueueId(queueId);
+        }
+        queue.setParentQueueId(parentQueueId);
+        apiExecutionQueueService.insertQueue(queue);
         return queue;
     }
 
     /**
      * 初始化执行队列
      *
-     * @param resourceIds
+     * @param
      * @return
      */
-    public ExecutionQueue initExecutionqueue(List<String> resourceIds, String resourceType, String userId) {
-        return initExecutionqueue(resourceIds, null, resourceType, null, userId);
+    public void initExecutionQueueDetails(String queueId, List<ExecTaskItem> execTaskItems) {
+        List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetails(execTaskItems);
+        apiExecutionQueueService.insertQueueDetail(queueId, queueDetails);
     }
 
-    public List<ExecutionQueueDetail> getExecutionQueueDetails(List<String> resourceIds) {
+    public List<ExecutionQueueDetail> getExecutionQueueDetailsByIds(List<String> resourceIds) {
         List<ExecutionQueueDetail> queueDetails = new ArrayList<>();
         AtomicInteger sort = new AtomicInteger(1);
         for (String resourceId : resourceIds) {
@@ -83,6 +106,19 @@ public class ApiBatchRunBaseService {
             queueDetail.setSort(sort.getAndIncrement());
             queueDetails.add(queueDetail);
         }
+        return queueDetails;
+    }
+
+    public List<ExecutionQueueDetail> getExecutionQueueDetails(List<ExecTaskItem> execTaskItems) {
+        List<ExecutionQueueDetail> queueDetails = new ArrayList<>();
+        AtomicInteger sort = new AtomicInteger(1);
+        execTaskItems.forEach(execTaskItem -> {
+            ExecutionQueueDetail queueDetail = new ExecutionQueueDetail();
+            queueDetail.setResourceId(execTaskItem.getResourceId());
+            queueDetail.setTaskItemId(execTaskItem.getId());
+            queueDetail.setSort(sort.getAndIncrement());
+            queueDetails.add(queueDetail);
+        });
         return queueDetails;
     }
 
@@ -96,7 +132,7 @@ public class ApiBatchRunBaseService {
         return queue;
     }
 
-    public ApiScenarioReport computeRequestRate(ApiScenarioReport report , long total) {
+    public ApiScenarioReport computeRequestRate(ApiScenarioReport report, long total) {
         // 计算各个概率
         double successRate = calculateRate(report.getSuccessCount(), total);
         double errorRate = calculateRate(report.getErrorCount(), total);

@@ -11,6 +11,13 @@ import java.util.Map;
  */
 @Data
 public abstract class ParameterConfig {
+    /**
+     * 任务项的唯一ID
+     */
+    private String taskItemId;
+    /**
+     * 报告ID
+     */
     private String reportId;
     /**
      * 解析时，是否解析 enable 为 false 的组件

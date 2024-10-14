@@ -8,6 +8,7 @@ import io.metersphere.api.mapper.ApiScenarioModuleMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.scenario.ApiScenarioModuleService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
@@ -43,6 +44,8 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.ExecTask;
+import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.ModuleSelectDTO;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -113,6 +116,8 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
     private TestPlanConfigService testPlanConfigService;
+    @Resource
+    private ApiCommonService apiCommonService;
 
     private static final String EXECUTOR = "executeUserName";
 
@@ -331,12 +336,32 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(testPlanApiScenario.getTestPlanCollectionId());
         runModeConfig.setEnvironmentId(apiBatchRunBaseService.getEnvId(runModeConfig, testPlanApiScenario.getEnvironmentId()));
         TaskRequestDTO taskRequest = getTaskRequest(reportId, id, apiScenario.getProjectId(), ApiExecuteRunMode.RUN.name());
+
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanApiScenario.getTestPlanId());
+        Project project = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
+
+        ExecTask execTask = apiCommonService.newExecTask(project.getId(), userId);
+        execTask.setCaseCount(1L);
+        execTask.setTaskName(apiScenario.getName());
+        execTask.setOrganizationId(project.getOrganizationId());
+        execTask.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        execTask.setTaskType(ExecTaskType.TEST_PLAN_API_SCENARIO.name());
+
+        ExecTaskItem execTaskItem = apiCommonService.newExecTaskItem(execTask.getId(), project.getId(), userId);
+        execTaskItem.setOrganizationId(project.getOrganizationId());
+        execTaskItem.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name());
+        execTaskItem.setResourceId(testPlanApiScenario.getId());
+        execTaskItem.setResourceName(apiScenario.getName());
+
         TaskInfo taskInfo = taskRequest.getTaskInfo();
-        TaskItem taskItem = taskRequest.getTaskItem();
+        taskInfo.setTaskId(execTask.getId());
         taskInfo.setRunModeConfig(runModeConfig);
         taskInfo.setSaveResult(true);
         taskInfo.setRealTime(true);
         taskInfo.setUserId(userId);
+
+        TaskItem taskItem = taskRequest.getTaskItem();
+        taskItem.setId(execTaskItem.getId());
 
         if (StringUtils.isEmpty(taskItem.getReportId())) {
             taskInfo.setRealTime(false);
@@ -746,31 +771,6 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         });
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-    }
-
-    public List<TestPlanApiScenario> getSelectIdAndCollectionId(TestPlanApiScenarioBatchRunRequest request) {
-        if (request.isSelectAll()) {
-            List<TestPlanApiScenario> testPlanApiCases = extTestPlanApiScenarioMapper.getSelectIdAndCollectionId(request);
-            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
-                testPlanApiCases.removeAll(request.getExcludeIds());
-            }
-            return testPlanApiCases;
-        } else {
-            TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
-            example.createCriteria().andIdIn(request.getSelectIds());
-            Map<String, TestPlanApiScenario> testPlanApiScenarioMap = testPlanApiScenarioMapper.selectByExample(example)
-                    .stream()
-                    .collect(Collectors.toMap(TestPlanApiScenario::getId, Function.identity()));
-            List<TestPlanApiScenario> testPlanApiScenarios = new ArrayList<>(request.getSelectIds().size());
-            // 按ID的顺序排序
-            for (String id : request.getSelectIds()) {
-                TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMap.get(id);
-                if (testPlanApiScenario != null) {
-                    testPlanApiScenarios.add(testPlanApiScenario);
-                }
-            }
-            return testPlanApiScenarios;
-        }
     }
 
     /**

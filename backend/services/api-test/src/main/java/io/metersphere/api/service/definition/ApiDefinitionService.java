@@ -1195,10 +1195,12 @@ public class ApiDefinitionService extends MoveNodeService {
 
         TaskRequestDTO taskRequest = apiExecuteService.getTaskRequest(request.getReportId(), request.getId(), request.getProjectId());
         TaskInfo taskInfo = taskRequest.getTaskInfo();
+        taskInfo.setTaskId(request.getReportId());
         taskInfo.setSaveResult(false);
         taskInfo.setRealTime(true);
         taskInfo.setResourceType(ApiResourceType.API.name());
         taskInfo.setRunMode(apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
+        taskRequest.getTaskItem().setId(request.getReportId());
 
         AbstractMsTestElement msTestElement = runRequest.getTestElement();
 

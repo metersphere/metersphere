@@ -34,6 +34,20 @@ public class ApiExecutionQueueService {
         stringRedisTemplate.expire(QUEUE_DETAIL_PREFIX + queue.getQueueId(), 1, TimeUnit.DAYS);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void insertQueue(ExecutionQueue queue) {
+        // 保存队列信息
+        stringRedisTemplate.opsForValue().setIfAbsent(QUEUE_PREFIX + queue.getQueueId(), JSON.toJSONString(queue), 1, TimeUnit.DAYS);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void insertQueueDetail(String queueId, List<ExecutionQueueDetail> queueDetails) {
+        // 保存队列详情信息
+        List<String> queueStrItems = queueDetails.stream().map(JSON::toJSONString).toList();
+        stringRedisTemplate.opsForList().rightPushAll(QUEUE_DETAIL_PREFIX + queueId, queueStrItems);
+        stringRedisTemplate.expire(QUEUE_DETAIL_PREFIX + queueId, 1, TimeUnit.DAYS);
+    }
+
     /**
      * 获取下一个节点
      */

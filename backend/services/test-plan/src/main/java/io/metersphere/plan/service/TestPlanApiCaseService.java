@@ -10,6 +10,7 @@ import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.mapper.ExtApiDefinitionModuleMapper;
 import io.metersphere.api.mapper.ExtApiTestCaseMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
@@ -45,6 +46,8 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.ExecTask;
+import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.ModuleSelectDTO;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -122,6 +125,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private static final String DEBUG_MODULE_COUNT_ALL = "all";
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Resource
+    private ApiCommonService apiCommonService;
 
     private static final String EXECUTOR = "executeUserName";
 
@@ -557,32 +562,6 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         }
     }
 
-    public List<TestPlanApiCase> getSelectIdAndCollectionId(TestPlanApiCaseBatchRequest request) {
-        if (request.isSelectAll()) {
-            List<TestPlanApiCase> testPlanApiCases = extTestPlanApiCaseMapper.getSelectIdAndCollectionId(request);
-            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
-                testPlanApiCases.removeAll(request.getExcludeIds());
-            }
-            return testPlanApiCases;
-        } else {
-            TestPlanApiCaseExample example = new TestPlanApiCaseExample();
-            example.createCriteria().andIdIn(request.getSelectIds());
-            Map<String, TestPlanApiCase> testPlanApiCaseMap = testPlanApiCaseMapper.selectByExample(example)
-                    .stream()
-                    .collect(Collectors.toMap(TestPlanApiCase::getId, Function.identity()));
-            List<TestPlanApiCase> testPlanApiCases = new ArrayList<>(request.getSelectIds().size());
-            // 按ID的顺序排序
-            for (String id : request.getSelectIds()) {
-                TestPlanApiCase testPlanApiCase = testPlanApiCaseMap.get(id);
-                if (testPlanApiCase != null) {
-                    testPlanApiCases.add(testPlanApiCase);
-                }
-            }
-            return testPlanApiCases;
-        }
-    }
-
-
     /**
      * 批量更新执行人
      *
@@ -772,12 +751,30 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         runModeConfig.setEnvironmentId(apiBatchRunBaseService.getEnvId(runModeConfig, testPlanApiCase.getEnvironmentId()));
         runModeConfig.setRunMode(ApiBatchRunMode.PARALLEL.name());
         TaskRequestDTO taskRequest = getTaskRequest(reportId, id, apiTestCase.getProjectId(), ApiExecuteRunMode.RUN.name());
+
+        Project project = projectMapper.selectByPrimaryKey(apiTestCase.getProjectId());
+
+        ExecTask execTask = apiCommonService.newExecTask(project.getId(), userId);
+        execTask.setCaseCount(1L);
+        execTask.setTaskName(apiTestCase.getName());
+        execTask.setOrganizationId(project.getOrganizationId());
+        execTask.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        execTask.setTaskType(ExecTaskType.TEST_PLAN_API_CASE.name());
+
+        ExecTaskItem execTaskItem = apiCommonService.newExecTaskItem(execTask.getId(), project.getId(), userId);
+        execTaskItem.setOrganizationId(project.getOrganizationId());
+        execTaskItem.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
+        execTaskItem.setResourceId(apiTestCase.getId());
+        execTaskItem.setResourceName(apiTestCase.getName());
+
         TaskInfo taskInfo = taskRequest.getTaskInfo();
         TaskItem taskItem = taskRequest.getTaskItem();
+        taskInfo.setTaskId(execTask.getId());
         taskInfo.setRunModeConfig(runModeConfig);
         taskInfo.setSaveResult(true);
         taskInfo.setRealTime(true);
         taskInfo.setUserId(userId);
+        taskItem.setId(execTaskItem.getId());
 
         if (StringUtils.isEmpty(taskItem.getReportId())) {
             taskInfo.setRealTime(false);
