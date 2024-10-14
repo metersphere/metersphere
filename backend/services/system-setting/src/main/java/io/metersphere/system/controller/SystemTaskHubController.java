@@ -2,11 +2,17 @@ package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BasePageRequest;
+import io.metersphere.system.dto.taskcenter.request.TaskCenterBatchRequest;
 import io.metersphere.system.dto.taskhub.*;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.service.BaseTaskHubLogService;
 import io.metersphere.system.service.BaseTaskHubService;
+import io.metersphere.system.service.SystemOrganizationLogService;
 import io.metersphere.system.utils.Pager;
+import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -73,7 +79,15 @@ public class SystemTaskHubController {
     public List<ResourcePoolStatusDTO> resourcePoolStatus(@RequestBody List<String> ids) {
         return baseTaskHubService.getResourcePoolStatus(ids);
     }
-    //TODO 检查节点状态
+
+
+    @GetMapping("/exec-task/stop/{id}")
+    @Operation(summary = "系统-任务中心-用例执行任务-停止任务")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.systemStopLog(#id)", msClass = BaseTaskHubLogService.class)
+    @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_EXEC_STOP)
+    public void stopTask(@PathVariable String id) {
+        baseTaskHubService.stopTask(id, SessionUtils.getUserId(), null, null);
+    }
 
     //TODO 系统&组织&项目 任务按钮操作：删除 停止 失败重跑 查看报告   批量删除 批量停止  批量失败重跑
 

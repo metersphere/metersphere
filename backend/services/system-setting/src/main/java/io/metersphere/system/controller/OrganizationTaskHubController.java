@@ -9,7 +9,10 @@ import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
 import io.metersphere.system.dto.taskhub.TaskHubScheduleDTO;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.BaseProjectMapper;
+import io.metersphere.system.service.BaseTaskHubLogService;
 import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -74,5 +77,14 @@ public class OrganizationTaskHubController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_READ)
     public List<ResourcePoolOptionsDTO> getUserProject() {
         return baseTaskHubService.getOrgResourcePoolOptions(SessionUtils.getCurrentOrganizationId());
+    }
+
+
+    @GetMapping("/exec-task/stop/{id}")
+    @Operation(summary = "组织-任务中心-用例执行任务-停止任务")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.orgStopLog(#id)", msClass = BaseTaskHubLogService.class)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_EXEC_STOP)
+    public void stopTask(@PathVariable String id) {
+        baseTaskHubService.stopTask(id, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), null);
     }
 }

@@ -68,6 +68,10 @@ public class BaseTaskHubService {
     private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
     @Resource
     private NodeResourcePoolService nodeResourcePoolService;
+    @Resource
+    private ExecTaskMapper execTaskMapper;
+    @Resource
+    private ExecTaskItemMapper execTaskItemMapper;
 
     /**
      * 系统-获取执行任务列表
@@ -317,6 +321,12 @@ public class BaseTaskHubService {
         return null;
     }
 
+    /**
+     * 获取任务详情列表资源节点状态
+     *
+     * @param ids
+     * @return
+     */
     public List<ResourcePoolStatusDTO> getResourcePoolStatus(List<String> ids) {
         List<ResourcePoolStatusDTO> statusDTOS = new ArrayList<>();
         List<ExecTaskItem> itemList = extExecTaskItemMapper.selectPoolNodeByIds(ids);
@@ -341,5 +351,35 @@ public class BaseTaskHubService {
             });
         });
         return statusDTOS;
+    }
+
+
+    /**
+     * 停止任务
+     *
+     * @param id
+     * @param userId
+     * @param orgId
+     * @param projectId
+     */
+    public void stopTask(String id, String userId, String orgId, String projectId) {
+        //1.更新任务状态
+        ExecTask execTask = new ExecTask();
+        execTask.setId(id);
+        execTask.setStatus(ExecStatus.STOPPED.name());
+        execTask.setCreateUser(userId);
+        execTask.setProjectId(projectId);
+        execTask.setOrganizationId(orgId);
+        extExecTaskMapper.updateTaskStatus(execTask);
+        //2.更新任务明细状态
+        ExecTaskItemExample itemExample = new ExecTaskItemExample();
+        itemExample.createCriteria().andTaskIdEqualTo(id);
+        ExecTaskItem execTaskItem = new ExecTaskItem();
+        execTaskItem.setStatus(ExecStatus.STOPPED.name());
+        execTaskItem.setExecutor(userId);
+        execTaskItemMapper.updateByExampleSelective(execTaskItem, itemExample);
+        //TODO 3.调用jmeter触发停止
+
+
     }
 }
