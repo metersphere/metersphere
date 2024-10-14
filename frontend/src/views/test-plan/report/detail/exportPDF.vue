@@ -142,6 +142,9 @@
 
   import {
     getApiPage,
+    getCollectApiPage,
+    getCollectFunctionalPage,
+    getCollectScenarioPage,
     getReportBugList,
     getReportDetail,
     getReportDetailPage,
@@ -166,6 +169,7 @@
   import exportPDF, { PAGE_PDF_WIDTH_RATIO, PdfTableConfig } from '@/hooks/useExportPDF';
   import { useI18n } from '@/hooks/useI18n';
   import useTableStore from '@/hooks/useTableStore';
+  import useTestPlanReportStore from '@/store/modules/testPlan/testPlanReport';
   import { addCommasToNumber, characterLimit } from '@/utils';
 
   import { BatchApiParams } from '@/models/common';
@@ -185,6 +189,7 @@
 
   const { t } = useI18n();
   const route = useRoute();
+  const testPlanReportStore = useTestPlanReportStore();
 
   const innerCardList = ref<configItem[]>([]);
   const layoutShowCards = ref<any[]>([]);
@@ -523,6 +528,43 @@
       width: 100,
     },
   ];
+  const scenarioTestSetColumns = computed<MsTableColumn>(() => {
+    if (isGroup.value) {
+      return [
+        {
+          title: 'ms.case.associate.testSet',
+          dataIndex: 'name',
+        },
+        {
+          title: 'report.plan.name',
+          dataIndex: 'planName',
+        },
+        {
+          title: '',
+          dataIndex: 'other',
+        },
+        {
+          title: '',
+          dataIndex: 'other',
+        },
+      ];
+    }
+    return [
+      {
+        title: 'ms.case.associate.testSet',
+        dataIndex: 'name',
+      },
+      // 字段很少第一级别靠左展示，填充表头
+      {
+        title: '',
+        dataIndex: 'other',
+      },
+      {
+        title: '',
+        dataIndex: 'empty',
+      },
+    ];
+  });
 
   const apiDefaultColumns = computed(() => {
     if (isGroup.value) {
@@ -537,15 +579,25 @@
 
   const fullCaseList = ref<any>([]);
   async function initCaseList() {
-    fullCaseList.value = (
-      await reportFeatureCaseList()({
-        current: 1,
-        pageSize: 500,
-        reportId: reportId.value,
-        shareId: shareId.value ?? undefined,
-        startPager: false,
-      })
-    ).list;
+    fullCaseList.value = testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.FUNCTIONAL_DETAIL)
+      ? (
+          await getCollectFunctionalPage({
+            current: 1,
+            pageSize: 500,
+            reportId: reportId.value,
+            shareId: shareId.value ?? undefined,
+            startPager: false,
+          })
+        ).list
+      : (
+          await reportFeatureCaseList()({
+            current: 1,
+            pageSize: 500,
+            reportId: reportId.value,
+            shareId: shareId.value ?? undefined,
+            startPager: false,
+          })
+        ).list;
   }
 
   const fullBugList = ref<any>([]);
@@ -563,28 +615,48 @@
 
   const fullApiList = ref<any>([]);
   async function initApiList() {
-    fullApiList.value = (
-      await getApiPage({
-        current: 1,
-        pageSize: 500,
-        reportId: reportId.value,
-        shareId: shareId.value ?? undefined,
-        startPager: false,
-      })
-    ).list;
+    fullApiList.value = testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.API_CASE_DETAIL)
+      ? (
+          await getCollectApiPage({
+            current: 1,
+            pageSize: 500,
+            reportId: reportId.value,
+            shareId: shareId.value ?? undefined,
+            startPager: false,
+          })
+        ).list
+      : (
+          await getApiPage({
+            current: 1,
+            pageSize: 500,
+            reportId: reportId.value,
+            shareId: shareId.value ?? undefined,
+            startPager: false,
+          })
+        ).list;
   }
 
   const fullScenarioList = ref<any>([]);
   async function initScenarioList() {
-    fullScenarioList.value = (
-      await getScenarioPage({
-        current: 1,
-        pageSize: 500,
-        reportId: reportId.value,
-        shareId: shareId.value ?? undefined,
-        startPager: false,
-      })
-    ).list;
+    fullScenarioList.value = testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.SCENARIO_CASE_DETAIL)
+      ? (
+          await getCollectScenarioPage({
+            current: 1,
+            pageSize: 500,
+            reportId: reportId.value,
+            shareId: shareId.value ?? undefined,
+            startPager: false,
+          })
+        ).list
+      : (
+          await getScenarioPage({
+            current: 1,
+            pageSize: 500,
+            reportId: reportId.value,
+            shareId: shareId.value ?? undefined,
+            startPager: false,
+          })
+        ).list;
   }
 
   const groupColumns: MsTableColumn = [
@@ -685,10 +757,15 @@
     const scenarioColumns = await tableStore.getShowInTableColumns(
       getTableKey(ReportCardTypeEnum.SCENARIO_CASE_DETAIL)
     );
-
+    let _scenarioColumns = scenarioColumns;
+    if (testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.SCENARIO_CASE_DETAIL)) {
+      _scenarioColumns = scenarioTestSetColumns.value;
+    } else if (scenarioColumns.length === 0) {
+      _scenarioColumns = apiDefaultColumns.value;
+    }
     return {
       apiColumns: apiColumns.length > 0 ? apiColumns : apiDefaultColumns.value,
-      scenarioColumns: scenarioColumns.length > 0 ? scenarioColumns : apiDefaultColumns.value,
+      scenarioColumns: _scenarioColumns,
       bugColumns: bugColumns.length > 0 ? bugColumns : bugDefaultColumns,
       functionalCaseColumns: functionalCaseColumns.length > 0 ? functionalCaseColumns : caseDefaultColumns.value,
     };
