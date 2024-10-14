@@ -402,11 +402,18 @@
   const selectedKeys = ref<string[]>([]);
 
   watchEffect(() => {
-    if (activeResponse.value.body.jsonBody.jsonSchema) {
+    if (
+      activeResponse.value.body.jsonBody.jsonSchema &&
+      (!activeResponse.value.body.jsonBody.jsonSchemaTableData ||
+        activeResponse.value.body.jsonBody.jsonSchemaTableData.length === 0)
+    ) {
       const { result, ids } = parseSchemaToJsonSchemaTableData(activeResponse.value.body.jsonBody.jsonSchema);
       activeResponse.value.body.jsonBody.jsonSchemaTableData = result;
       selectedKeys.value = ids;
-    } else {
+    } else if (
+      !activeResponse.value.body.jsonBody.jsonSchemaTableData ||
+      activeResponse.value.body.jsonBody.jsonSchemaTableData.length === 0
+    ) {
       activeResponse.value.body.jsonBody.jsonSchemaTableData = [];
       selectedKeys.value = [];
     }
