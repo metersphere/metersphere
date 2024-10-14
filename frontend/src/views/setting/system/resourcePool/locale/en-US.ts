@@ -86,6 +86,8 @@ export default {
   'system.resourcePool.concurrentNumberRequired': 'Please enter the maximum number of concurrency',
   'system.resourcePool.concurrentNumberMin': 'The maximum concurrent number must be greater than or equal to 1',
   'system.resourcePool.concurrentNumberPlaceholder': 'Please enter the maximum number of concurrency',
+  'system.resourcePool.concurrentNumberTip':
+    'The maximum number of concurrent users for a single node in the community version is 10. If you need a higher number of concurrent users, you can apply for a trial of the enterprise version.',
   'system.resourcePool.nodeResourceRequired': 'Please fill in the Node resources added in batches correctly',
   'system.resourcePool.nodeConfigEditorTip':
     'Writing format: IP, Port, maximum concurrent number; such as 192.168.1.52,8082,10,3',
@@ -109,6 +111,8 @@ export default {
   'system.resourcePool.testResourceDTO.apiTestImagePlaceholder': 'Please fill in the API image',
   'system.resourcePool.testResourceDTO.concurrentNumber': 'Maximum concurrency',
   'system.resourcePool.testResourceDTO.podThreads': 'Maximum number of threads per Pod',
+  'system.resourcePool.testResourceDTO.podThreadsTip':
+    'The maximum number of concurrent tasks for the community version is 3. If you need a higher number of concurrent tasks, you can apply for a trial of the enterprise version.',
   'system.resourcePool.testResourceDTO.downloadRoleYaml': 'Download YAML files',
   'system.resourcePool.testResourceDTO.downloadRoleYamlTip':
     'Please fill in the namespace before downloading the YAML file',
