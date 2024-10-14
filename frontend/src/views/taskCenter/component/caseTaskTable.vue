@@ -19,11 +19,11 @@
     v-on="propsEvent"
     @batch-action="handleTableBatch"
   >
-    <template #id="{ record }">
-      <a-button type="text" class="max-w-full justify-start px-0" @click="showTaskDetail(record.id)">
-        <a-tooltip :content="record.id">
+    <template #num="{ record }">
+      <a-button type="text" class="max-w-full justify-start px-0" @click="showTaskDetail(record.num)">
+        <a-tooltip :content="record.num">
           <div class="one-line-text">
-            {{ record.id }}
+            {{ record.num }}
           </div>
         </a-tooltip>
       </a-button>
@@ -175,9 +175,9 @@
   const columns: MsTableColumn = [
     {
       title: 'ID',
-      dataIndex: 'id',
-      slotName: 'id',
-      width: 180,
+      dataIndex: 'num',
+      slotName: 'num',
+      width: 100,
       columnSelectorDisabled: true,
       fixed: 'left',
     },
@@ -470,18 +470,21 @@
 
   async function initTaskStatistics() {
     try {
-      const res = await currentExecuteTaskStatistics(propsRes.value.data.map((item) => item.id));
-      res.forEach((item) => {
-        const target = propsRes.value.data.find((task) => task.id === item.id);
-        if (target) {
-          target.executeRate = item.executeRate;
-          target.pendingCount = item.pendingCount;
-          target.successCount = item.successCount;
-          target.fakeErrorCount = item.fakeErrorCount;
-          target.errorCount = item.errorCount;
-          target.caseTotal = item.caseTotal;
-        }
-      });
+      const ids = propsRes.value.data.map((item) => item.id);
+      if (ids.length > 0) {
+        const res = await currentExecuteTaskStatistics(ids);
+        res.forEach((item) => {
+          const target = propsRes.value.data.find((task) => task.id === item.id);
+          if (target) {
+            target.executeRate = item.executeRate;
+            target.pendingCount = item.pendingCount;
+            target.successCount = item.successCount;
+            target.fakeErrorCount = item.fakeErrorCount;
+            target.errorCount = item.errorCount;
+            target.caseTotal = item.caseTotal;
+          }
+        });
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -494,9 +497,18 @@
   }
 
   onMounted(async () => {
-    await loadList();
-    initTaskStatistics();
+    loadList();
   });
+
+  watch(
+    () => propsRes.value.data,
+    () => {
+      initTaskStatistics();
+    },
+    {
+      immediate: true,
+    }
+  );
 
   await tableStore.initColumn(TableKeyEnum.TASK_CENTER_CASE_TASK, columns, 'drawer');
 </script>
