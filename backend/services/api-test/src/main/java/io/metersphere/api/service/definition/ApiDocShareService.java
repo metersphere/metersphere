@@ -5,21 +5,27 @@ import io.metersphere.api.dto.definition.ApiDocShareDTO;
 import io.metersphere.api.dto.definition.ApiDocShareDetail;
 import io.metersphere.api.dto.definition.request.ApiDocShareCheckRequest;
 import io.metersphere.api.dto.definition.request.ApiDocShareEditRequest;
+import io.metersphere.api.dto.definition.request.ApiDocShareModuleRequest;
 import io.metersphere.api.dto.definition.request.ApiDocSharePageRequest;
 import io.metersphere.api.mapper.ApiDocShareMapper;
 import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.mapper.ExtApiDocShareMapper;
 import io.metersphere.sdk.constants.MsAssertionCondition;
+import io.metersphere.sdk.dto.CombineCondition;
+import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author song-cc-rock
@@ -35,6 +41,8 @@ public class ApiDocShareService {
 	private ApiDocShareMapper apiDocShareMapper;
 	@Resource
 	private ExtApiDocShareMapper extApiDocShareMapper;
+	@Resource
+	private ApiDefinitionModuleService apiDefinitionModuleService;
 
 	public static final String RANGE_ALL = "ALL";
 
@@ -106,7 +114,7 @@ public class ApiDocShareService {
 	 */
 	public ApiDocShareDetail detail(String id) {
 		ApiDocShare docShare = checkExit(id);
-		ApiDocShareDetail detail = ApiDocShareDetail.builder().allowExport(docShare.getAllowExport()).isPublic(docShare.getIsPublic()).build();
+		ApiDocShareDetail detail = ApiDocShareDetail.builder().allowExport(docShare.getAllowExport()).isPrivate(docShare.getIsPrivate()).build();
 		if (docShare.getInvalidTime() == null || StringUtils.isBlank(docShare.getInvalidUnit())) {
 			detail.setInvalid(false);
 		} else {
@@ -114,6 +122,26 @@ public class ApiDocShareService {
 			detail.setInvalid(deadline < System.currentTimeMillis());
 		}
 		return detail;
+	}
+
+	/**
+	 * 查询分享左侧模块树
+	 * @param request 请求参数
+	 * @return 模块树
+	 */
+	public List<BaseTreeNode> getShareTree(ApiDocShareModuleRequest request) {
+		ApiDocShare docShare = checkExit(request.getShareId());
+		return apiDefinitionModuleService.getTree(buildModuleParam(request, docShare), false, true);
+	}
+
+	/**
+	 * 查询分享左侧模块树节点数量
+	 * @param request 请求参数
+	 * @return 模块树节点数量
+	 */
+	public Map<String, Long> getShareTreeCount(ApiDocShareModuleRequest request) {
+		ApiDocShare docShare = checkExit(request.getShareId());
+		return apiDefinitionModuleService.moduleCount(buildModuleParam(request, docShare), false);
 	}
 
 	/**
@@ -163,6 +191,41 @@ public class ApiDocShareService {
 	}
 
 	/**
+	 * 构建模块树查询参数
+	 * @param request 查询参数
+	 * @param docShare 分享对象
+	 * @return 模块树查询参数
+	 */
+	public ApiDocShareModuleRequest buildModuleParam(ApiDocShareModuleRequest request, ApiDocShare docShare) {
+		// 设置接口范围查询条件
+		if (!StringUtils.equals(docShare.getApiRange(), RANGE_ALL) && !StringUtils.isBlank(docShare.getRangeMatchVal())) {
+			CombineSearch combineSearch = new CombineSearch();
+			switch (docShare.getApiRange()) {
+				case "MODULE" -> request.setModuleIds(List.of(docShare.getRangeMatchVal()));
+				case "PATH" -> {
+					if (StringUtils.equals(docShare.getRangeMatchSymbol(), MsAssertionCondition.EQUALS.name())) {
+						CombineCondition condition = buildModuleCondition("path", docShare.getRangeMatchVal(), MsAssertionCondition.EQUALS.name());
+						combineSearch.setConditions(List.of(condition));
+					} else {
+						CombineCondition condition = buildModuleCondition("path", docShare.getRangeMatchVal(), MsAssertionCondition.CONTAINS.name());
+						combineSearch.setConditions(List.of(condition));
+					}
+				}
+				case "TAG" -> {
+					// 暂时只有包含操作
+					String[] tags = StringUtils.split(docShare.getRangeMatchVal(), ",");
+					CombineCondition condition = buildModuleCondition("tags", Arrays.asList(tags), MsAssertionCondition.CONTAINS.name());
+					combineSearch.setConditions(List.of(condition));
+				}
+				default -> {
+				}
+			}
+			request.setCombineSearch(combineSearch);
+		}
+		return request;
+	}
+
+	/**
 	 * 计算截止时间
 	 * @param val 时间值
 	 * @param unit 时间单位
@@ -192,5 +255,22 @@ public class ApiDocShareService {
 			throw new MSException(Translator.get("api_doc_share.not_exist"));
 		}
 		return docShare;
+	}
+
+	/**
+	 * 组合左侧模块树的查询条件
+	 * @param name 条件字段名
+	 * @param val 条件字段值
+	 * @param operator 操作符
+	 * @return 组合查询条件
+	 */
+	private CombineCondition buildModuleCondition(String name, Object val, String operator) {
+		CombineCondition condition = new CombineCondition();
+		condition.setCustomField(false);
+		condition.setCustomFieldType(StringUtils.EMPTY);
+		condition.setName(name);
+		condition.setValue(val);
+		condition.setOperator(operator);
+		return condition;
 	}
 }

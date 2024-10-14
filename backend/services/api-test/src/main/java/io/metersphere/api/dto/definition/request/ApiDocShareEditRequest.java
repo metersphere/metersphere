@@ -19,7 +19,7 @@ public class ApiDocShareEditRequest implements Serializable {
 
 	@Schema(title = "主键", requiredMode = Schema.RequiredMode.REQUIRED)
 	@NotBlank(message = "{api_doc_share.id.not_blank}", groups = {Updated.class})
-	@Size(min = 1, max = 50, message = "{api_doc_share.id.length_range}", groups = {Created.class, Updated.class})
+	@Size(min = 1, max = 50, message = "{api_doc_share.id.length_range}", groups = {Updated.class})
 	private String id;
 
 	@Schema(description = "分享名称", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -44,9 +44,9 @@ public class ApiDocShareEditRequest implements Serializable {
 	@Schema(title = "失效时间单位;小时(HOUR)、天(DAY)、月(MONTH)、年(YEAR)")
 	private String invalidUnit;
 
-	@Schema(title = "是否公开;0: 私有、1: 公开", requiredMode = Schema.RequiredMode.REQUIRED)
-	@NotNull(message = "{api_doc_share.is_public.not_blank}", groups = {Created.class})
-	private Boolean isPublic;
+	@Schema(title = "是否私有;0: 公开、1: 私有", requiredMode = Schema.RequiredMode.REQUIRED)
+	@NotNull(message = "{api_doc_share.is_private.not_blank}", groups = {Created.class})
+	private Boolean isPrivate;
 
 	@Schema(title = "访问密码;私有时需要访问密码")
 	private String password;

@@ -16,7 +16,7 @@ public class ApiDocShareDetail implements Serializable {
 	@Schema(title = "是否失效")
 	private Boolean invalid;
 	@Schema(title = "是否公开")
-	private Boolean isPublic;
+	private Boolean isPrivate;
 	@Schema(title = "是否允许导出")
 	private Boolean allowExport;
 }

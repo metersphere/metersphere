@@ -24,15 +24,14 @@ public class ApiDocShare implements Serializable {
     @Size(min = 1, max = 255, message = "{api_doc_share.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "是否公开;0: 私有、1: 公开", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_doc_share.is_public.not_blank}", groups = {Created.class})
-    private Boolean isPublic;
+    @Schema(title = "是否私有;0: 公开、1: 私有", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_doc_share.is_private.not_blank}", groups = {Created.class})
+    private Boolean isPrivate;
 
     @Schema(title = "访问密码;私有时需要访问密码")
     private String password;
 
-    @Schema(title = "允许导出;0: 不允许、1: 允许", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_doc_share.allow_export.not_blank}", groups = {Created.class})
+    @Schema(title = "允许导出;0: 不允许、1: 允许")
     private Boolean allowExport;
 
     @Schema(title = "接口范围;全部接口(ALL)、模块(MODULE)、路径(PATH)、标签(TAG)", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -68,7 +67,7 @@ public class ApiDocShare implements Serializable {
     public enum Column {
         id("id", "id", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
-        isPublic("is_public", "isPublic", "BIT", false),
+        isPrivate("is_private", "isPrivate", "BIT", false),
         password("password", "password", "VARCHAR", true),
         allowExport("allow_export", "allowExport", "BIT", false),
         apiRange("api_range", "apiRange", "VARCHAR", false),

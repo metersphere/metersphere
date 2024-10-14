@@ -7,10 +7,12 @@ import io.metersphere.api.dto.definition.ApiDocShareDTO;
 import io.metersphere.api.dto.definition.ApiDocShareDetail;
 import io.metersphere.api.dto.definition.request.ApiDocShareCheckRequest;
 import io.metersphere.api.dto.definition.request.ApiDocShareEditRequest;
+import io.metersphere.api.dto.definition.request.ApiDocShareModuleRequest;
 import io.metersphere.api.dto.definition.request.ApiDocSharePageRequest;
 import io.metersphere.api.service.definition.ApiDocShareLogService;
 import io.metersphere.api.service.definition.ApiDocShareService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
@@ -30,20 +32,21 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author song-cc-rock
  */
 @RestController
 @RequestMapping(value = "/api/doc/share")
-@Tag(name = "接口测试-接口管理-分享")
+@Tag(name = "接口测试-接口管理-接口定义-分享")
 public class ApiDocShareController {
 
 	@Resource
 	private ApiDocShareService apiDocShareService;
 
 	@PostMapping(value = "/page")
-	@Operation(summary = "接口测试-接口管理-分页获取分享列表")
+	@Operation(summary = "接口测试-接口管理-接口定义-分页获取分享列表")
 	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
 	@CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
 	public Pager<List<ApiDocShareDTO>> page(@Validated @RequestBody ApiDocSharePageRequest request) {
@@ -53,7 +56,7 @@ public class ApiDocShareController {
 	}
 
 	@PostMapping(value = "/add")
-	@Operation(summary = "接口测试-接口管理-新增分享")
+	@Operation(summary = "接口测试-接口管理-接口定义-新增分享")
 	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
 	@CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
 	@Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiDocShareLogService.class)
@@ -62,7 +65,7 @@ public class ApiDocShareController {
 	}
 
 	@PostMapping(value = "/update")
-	@Operation(summary = "接口测试-接口管理-更新分享")
+	@Operation(summary = "接口测试-接口管理-接口定义-更新分享")
 	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
 	@CheckOwner(resourceId = "#request.getId()", resourceType = "api_doc_share")
 	@Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiDocShareLogService.class)
@@ -71,7 +74,7 @@ public class ApiDocShareController {
 	}
 
 	@GetMapping("/delete/{id}")
-	@Operation(summary = "接口测试-接口管理-删除分享")
+	@Operation(summary = "接口测试-接口管理-接口定义-删除分享")
 	@Parameter(name = "id", description = "分享ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
 	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
 	@CheckOwner(resourceId = "#id", resourceType = "api_doc_share")
@@ -81,15 +84,27 @@ public class ApiDocShareController {
 	}
 
 	@PostMapping("/check")
-	@Operation(summary = "接口测试-接口管理-校验分享密码")
+	@Operation(summary = "接口测试-接口管理-接口定义-校验分享密码")
 	public Boolean delete(@Validated @RequestBody ApiDocShareCheckRequest request) {
 		return apiDocShareService.check(request);
 	}
 
 	@GetMapping("/detail/{id}")
-	@Operation(summary = "接口测试-接口管理-查看链接")
+	@Operation(summary = "接口测试-接口管理-接口定义-查看链接")
 	@Parameter(name = "id", description = "分享ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
 	public ApiDocShareDetail detail(@PathVariable String id) {
 		return apiDocShareService.detail(id);
+	}
+
+	@PostMapping("/module/tree")
+	@Operation(summary = "接口测试-接口管理-接口定义-模块树")
+	public List<BaseTreeNode> getShareDocTree(@Validated @RequestBody ApiDocShareModuleRequest request) {
+		return apiDocShareService.getShareTree(request);
+	}
+
+	@PostMapping("/module/count")
+	@Operation(summary = "接口测试-接口管理-接口定义-模块树数量")
+	public Map<String, Long> getShareDocTreeCount(@Validated @RequestBody ApiDocShareModuleRequest request) {
+		return apiDocShareService.getShareTreeCount(request);
 	}
 }
