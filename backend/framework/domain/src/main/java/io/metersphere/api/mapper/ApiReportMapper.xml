@@ -35,7 +35,6 @@
     <result column="script_identifier" jdbcType="VARCHAR" property="scriptIdentifier" />
     <result column="exec_status" jdbcType="VARCHAR" property="execStatus" />
     <result column="plan" jdbcType="BIT" property="plan" />
-    <result column="associated_task_id" jdbcType="VARCHAR" property="associatedTaskId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -101,7 +100,7 @@
     pool_id, integrated, project_id, environment_id, error_count, fake_error_count, pending_count, 
     success_count, assertion_count, assertion_success_count, request_error_rate, request_pending_rate, 
     request_fake_error_rate, request_pass_rate, assertion_pass_rate, script_identifier, 
-    exec_status, `plan`, associated_task_id
+    exec_status, `plan`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiReportExample" resultMap="BaseResultMap">
     select
@@ -145,8 +144,7 @@
       assertion_success_count, request_error_rate, 
       request_pending_rate, request_fake_error_rate, 
       request_pass_rate, assertion_pass_rate, script_identifier, 
-      exec_status, `plan`, associated_task_id
-      )
+      exec_status, `plan`)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{testPlanCaseId,jdbcType=VARCHAR}, 
       #{createUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, 
       #{deleted,jdbcType=BIT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
@@ -158,8 +156,7 @@
       #{assertionSuccessCount,jdbcType=BIGINT}, #{requestErrorRate,jdbcType=VARCHAR}, 
       #{requestPendingRate,jdbcType=VARCHAR}, #{requestFakeErrorRate,jdbcType=VARCHAR}, 
       #{requestPassRate,jdbcType=VARCHAR}, #{assertionPassRate,jdbcType=VARCHAR}, #{scriptIdentifier,jdbcType=VARCHAR}, 
-      #{execStatus,jdbcType=VARCHAR}, #{plan,jdbcType=BIT}, #{associatedTaskId,jdbcType=VARCHAR}
-      )
+      #{execStatus,jdbcType=VARCHAR}, #{plan,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiReport">
     insert into api_report
@@ -263,9 +260,6 @@
       <if test="plan != null">
         `plan`,
       </if>
-      <if test="associatedTaskId != null">
-        associated_task_id,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -366,9 +360,6 @@
       </if>
       <if test="plan != null">
         #{plan,jdbcType=BIT},
-      </if>
-      <if test="associatedTaskId != null">
-        #{associatedTaskId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -480,9 +471,6 @@
       <if test="record.plan != null">
         `plan` = #{record.plan,jdbcType=BIT},
       </if>
-      <if test="record.associatedTaskId != null">
-        associated_task_id = #{record.associatedTaskId,jdbcType=VARCHAR},
-      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -522,8 +510,7 @@
       assertion_pass_rate = #{record.assertionPassRate,jdbcType=VARCHAR},
       script_identifier = #{record.scriptIdentifier,jdbcType=VARCHAR},
       exec_status = #{record.execStatus,jdbcType=VARCHAR},
-      `plan` = #{record.plan,jdbcType=BIT},
-      associated_task_id = #{record.associatedTaskId,jdbcType=VARCHAR}
+      `plan` = #{record.plan,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -627,9 +614,6 @@
       <if test="plan != null">
         `plan` = #{plan,jdbcType=BIT},
       </if>
-      <if test="associatedTaskId != null">
-        associated_task_id = #{associatedTaskId,jdbcType=VARCHAR},
-      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -666,8 +650,7 @@
       assertion_pass_rate = #{assertionPassRate,jdbcType=VARCHAR},
       script_identifier = #{scriptIdentifier,jdbcType=VARCHAR},
       exec_status = #{execStatus,jdbcType=VARCHAR},
-      `plan` = #{plan,jdbcType=BIT},
-      associated_task_id = #{associatedTaskId,jdbcType=VARCHAR}
+      `plan` = #{plan,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
@@ -677,7 +660,7 @@
       pool_id, integrated, project_id, environment_id, error_count, fake_error_count, 
       pending_count, success_count, assertion_count, assertion_success_count, request_error_rate, 
       request_pending_rate, request_fake_error_rate, request_pass_rate, assertion_pass_rate, 
-      script_identifier, exec_status, `plan`, associated_task_id)
+      script_identifier, exec_status, `plan`)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.testPlanCaseId,jdbcType=VARCHAR}, 
@@ -692,7 +675,7 @@
         #{item.requestPendingRate,jdbcType=VARCHAR}, #{item.requestFakeErrorRate,jdbcType=VARCHAR}, 
         #{item.requestPassRate,jdbcType=VARCHAR}, #{item.assertionPassRate,jdbcType=VARCHAR}, 
         #{item.scriptIdentifier,jdbcType=VARCHAR}, #{item.execStatus,jdbcType=VARCHAR}, 
-        #{item.plan,jdbcType=BIT}, #{item.associatedTaskId,jdbcType=VARCHAR})
+        #{item.plan,jdbcType=BIT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -803,9 +786,6 @@
         </if>
         <if test="'plan'.toString() == column.value">
           #{item.plan,jdbcType=BIT}
-        </if>
-        <if test="'associated_task_id'.toString() == column.value">
-          #{item.associatedTaskId,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

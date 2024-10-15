@@ -151,9 +151,6 @@ public class ApiScenarioReport implements Serializable {
     @NotNull(message = "{api_scenario_report.plan.not_blank}", groups = {Created.class})
     private Boolean plan;
 
-    @Schema(description = "关联任务id(集合报告)/任务项id")
-    private String associatedTaskId;
-
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -190,8 +187,7 @@ public class ApiScenarioReport implements Serializable {
         scriptIdentifier("script_identifier", "scriptIdentifier", "VARCHAR", false),
         waitingTime("waiting_time", "waitingTime", "BIGINT", false),
         execStatus("exec_status", "execStatus", "VARCHAR", false),
-        plan("plan", "plan", "BIT", true),
-        associatedTaskId("associated_task_id", "associatedTaskId", "VARCHAR", false);
+        plan("plan", "plan", "BIT", true);
 
         private static final String BEGINNING_DELIMITER = "`";
 
