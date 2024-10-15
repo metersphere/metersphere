@@ -295,11 +295,11 @@
               }
               return res;
             });
-          } else if (typeof results === 'object') {
+          } else if (typeof results === 'object' && results !== null) {
             traverseJSONObject(results);
             matchResult.value = results;
           } else {
-            matchResult.value = results === null ? `${results}` : results || [];
+            matchResult.value = results === null || results === false ? `${results}` : results || [];
           }
         } catch (error) {
           matchResult.value = JSONPath({ json: props.response || '', path: expressionForm.value.expression }) || [];
