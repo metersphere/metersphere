@@ -2,8 +2,8 @@ package io.metersphere.api.parser.api;
 
 import io.metersphere.api.dto.converter.ApiDefinitionExportDetail;
 import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.dto.export.ApiExportResponse;
-import io.metersphere.api.dto.export.MetersphereApiExportResponse;
+import io.metersphere.api.dto.export.ApiDefinitionExportResponse;
+import io.metersphere.api.dto.export.MetersphereApiDefinitionExportResponse;
 import io.metersphere.api.dto.mockserver.MockMatchRule;
 import io.metersphere.api.dto.mockserver.MockResponse;
 import io.metersphere.api.utils.ApiDataUtils;
@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
 
 public class MetersphereExportParser {
 
-    public ApiExportResponse parse(List<ApiDefinitionWithBlob> apiDefinitionList, List<ApiTestCaseWithBlob> apiTestCaseList, List<ApiMockWithBlob> apiMockList, Map<String, String> moduleMap) {
+    public ApiDefinitionExportResponse parse(List<ApiDefinitionWithBlob> apiDefinitionList, List<ApiTestCaseWithBlob> apiTestCaseList, List<ApiMockWithBlob> apiMockList, Map<String, String> moduleMap) {
 
         Map<String, List<ApiTestCaseWithBlob>> apiTestCaseMap = apiTestCaseList.stream().collect(Collectors.groupingBy(ApiTestCaseWithBlob::getApiDefinitionId));
         Map<String, List<ApiMockWithBlob>> apiMockMap = apiMockList.stream().collect(Collectors.groupingBy(ApiMockWithBlob::getApiDefinitionId));
 
-        MetersphereApiExportResponse response = new MetersphereApiExportResponse();
+        MetersphereApiDefinitionExportResponse response = new MetersphereApiDefinitionExportResponse();
         for (ApiDefinitionWithBlob blob : apiDefinitionList) {
             ApiDefinitionExportDetail detail = new ApiDefinitionExportDetail();
             if (blob.getRequest() != null) {

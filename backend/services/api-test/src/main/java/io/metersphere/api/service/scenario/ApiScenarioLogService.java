@@ -18,6 +18,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -232,5 +233,20 @@ public class ApiScenarioLogService {
                 }
         );
         operationLogService.batchAdd(logs);
+    }
+
+    public LogDTO exportExcelLog(String sourceId, String exportType, String userId, @NotNull Project project) {
+        LogDTO dto = new LogDTO(
+                project.getId(),
+                project.getOrganizationId(),
+                sourceId,
+                userId,
+                OperationLogType.EXPORT.name(),
+                OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO,
+                "");
+        dto.setHistory(true);
+        dto.setPath("/api/scenario/export/" + exportType);
+        dto.setMethod(HttpMethodConstants.POST.name());
+        return dto;
     }
 }

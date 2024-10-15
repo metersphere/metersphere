@@ -2,7 +2,7 @@ package io.metersphere.api.service;
 
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.converter.ApiDefinitionExportDetail;
-import io.metersphere.api.dto.export.MetersphereApiExportResponse;
+import io.metersphere.api.dto.export.MetersphereApiDefinitionExportResponse;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
@@ -99,7 +99,7 @@ public class ApiDefinitionImportTestService extends ApiDefinitionImportService {
         Assertions.assertEquals(moduleChangeCount, diffApiCount);
     }
 
-    public void compareApiExport(MetersphereApiExportResponse exportResponse, List<ApiDefinitionBlob> exportApiBlobs) {
+    public void compareApiExport(MetersphereApiDefinitionExportResponse exportResponse, List<ApiDefinitionBlob> exportApiBlobs) {
         Assertions.assertEquals(exportResponse.getApiDefinitions().size(), exportApiBlobs.size());
         List<ApiDefinitionExportDetail> compareList = new ArrayList<>();
         for (ApiDefinitionBlob blob : exportApiBlobs) {

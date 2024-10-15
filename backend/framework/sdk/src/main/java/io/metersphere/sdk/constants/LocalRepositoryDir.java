@@ -55,7 +55,6 @@ public class LocalRepositoryDir {
     public static String getSystemTempDir() {
         return SYSTEM_TEMP_DIR;
     }
-
     public static String getSystemCacheDir() {
         return SYSTEM_CACHE_DIR;
     }

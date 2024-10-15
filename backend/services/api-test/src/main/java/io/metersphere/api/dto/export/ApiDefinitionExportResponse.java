@@ -9,7 +9,7 @@ import java.io.Serializable;
  * @author wx
  */
 @Data
-public class ApiExportResponse implements Serializable {
+public class ApiDefinitionExportResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;

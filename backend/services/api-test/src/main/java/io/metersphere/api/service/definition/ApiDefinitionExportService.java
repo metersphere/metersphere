@@ -1,8 +1,7 @@
 package io.metersphere.api.service.definition;
 
 import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.dto.export.ApiExportResponse;
-import io.metersphere.api.mapper.ApiDefinitionModuleMapper;
+import io.metersphere.api.dto.export.ApiDefinitionExportResponse;
 import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.mapper.ExtApiDefinitionMockMapper;
 import io.metersphere.api.mapper.ExtApiTestCaseMapper;
@@ -31,13 +30,10 @@ import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,11 +48,8 @@ import java.util.stream.Collectors;
 @Service
 public class ApiDefinitionExportService {
 
-
     @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
-    @Resource
-    private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
@@ -75,10 +68,12 @@ public class ApiDefinitionExportService {
     private OperationLogService operationLogService;
     @Resource
     private ApiDefinitionImportService apiDefinitionImportService;
+    @Resource
+    private FileService fileService;
 
-    private static final String EXPORT_CASE_TMP_DIR = "tmp";
+    private static final String EXPORT_CASE_TMP_DIR = "apiDefinition";
 
-    private Map<String, String> buildModuleIdPathMap(String projectId) {
+    public Map<String, String> buildModuleIdPathMap(String projectId) {
         List<BaseTreeNode> apiModules = apiDefinitionImportService.buildTreeData(projectId, null);
         Map<String, String> modulePathMap = new HashMap<>();
         apiModules.forEach(item -> {
@@ -87,12 +82,12 @@ public class ApiDefinitionExportService {
         return modulePathMap;
     }
 
-    public ApiExportResponse genApiExportResponse(ApiDefinitionBatchExportRequest request, Map<String, String> moduleMap, String type, String userId) {
+    public ApiDefinitionExportResponse genApiExportResponse(ApiDefinitionBatchExportRequest request, Map<String, String> moduleMap, String type, String userId) {
         List<ApiDefinitionWithBlob> list = this.selectAndSortByIds(request.getSelectIds());
         return switch (type.toLowerCase()) {
             case "swagger" -> exportSwagger(request, list, moduleMap);
             case "metersphere" -> exportMetersphere(request, list, moduleMap);
-            default -> new ApiExportResponse();
+            default -> new ApiDefinitionExportResponse();
         };
     }
 
@@ -118,31 +113,17 @@ public class ApiDefinitionExportService {
         return returnId;
     }
 
-    @Resource
-    private FileService fileService;
-
-    public void uploadFileToMinioExportFolder(File file, String fileName) throws Exception {
-        FileRequest fileRequest = new FileRequest();
-        fileRequest.setFileName(fileName);
-        fileRequest.setFolder(DefaultRepositoryDir.getExportApiTempDir());
-        fileRequest.setStorage(StorageType.MINIO.name());
-        try (FileInputStream inputStream = new FileInputStream(file)) {
-            fileService.upload(inputStream, fileRequest);
-        }
-    }
-
     public String exportApiDefinitionZip(ApiDefinitionBatchExportRequest request, String exportType, String userId) throws Exception {
         // 为避免客户端未及时开启ws，此处延迟1s
         Thread.sleep(1000);
-        File tmpDir = null;
-        String fileType = "";
+        File tmpDir = new File(LocalRepositoryDir.getSystemTempDir() + File.separatorChar + EXPORT_CASE_TMP_DIR + "_" + IDGenerator.nextStr());
+        if (!tmpDir.mkdirs()) {
+            throw new MSException(Translator.get("upload_fail"));
+        }
+        String fileType = "zip";
         try {
             User user = userMapper.selectByPrimaryKey(userId);
             noticeSendService.setLanguage(user.getLanguage());
-            tmpDir = new File(LocalRepositoryDir.getSystemTempDir() + File.separatorChar + EXPORT_CASE_TMP_DIR + "_" + IDGenerator.nextStr());
-            if (!tmpDir.exists() && !tmpDir.mkdirs()) {
-                throw new MSException(Translator.get("upload_fail"));
-            }
             //获取导出的ids集合
             List<String> ids = this.getBatchExportApiIds(request, request.getProjectId(), userId);
             if (CollectionUtils.isEmpty(ids)) {
@@ -155,44 +136,23 @@ public class ApiDefinitionExportService {
             int fileIndex = 1;
             SubListUtils.dealForSubList(ids, 1000, subList -> {
                 request.setSelectIds(subList);
-                ApiExportResponse exportResponse = this.genApiExportResponse(request, moduleMap, exportType, userId);
-                File createFile = new File(fileFolder + File.separatorChar + fileIndex + ".json");
-                if (!createFile.exists()) {
-                    try {
-                        createFile.getParentFile().mkdirs();
-                        createFile.createNewFile();
-                    } catch (IOException e) {
-                        throw new MSException(e);
-                    }
-                }
-                try {
-                    FileUtils.writeByteArrayToFile(createFile, JSON.toJSONString(exportResponse).getBytes());
-                } catch (Exception e) {
-                    LogUtils.error(e);
-                }
+                ApiDefinitionExportResponse exportResponse = this.genApiExportResponse(request, moduleMap, exportType, userId);
+                TempFileUtils.writeExportFile(fileFolder + File.separatorChar + fileIndex + ".json", exportResponse);
             });
             File zipFile = MsFileUtils.zipFile(tmpDir.getPath(), request.getFileId());
             if (zipFile == null) {
                 return null;
             }
-
-            uploadFileToMinioExportFolder(zipFile, request.getFileId());
+            fileService.upload(zipFile, new FileRequest(DefaultRepositoryDir.getExportApiTempDir(), StorageType.MINIO.name(), request.getFileId()));
 
             // 生成日志
             LogDTO logDTO = apiDefinitionLogService.exportExcelLog(request, exportType, userId, projectMapper.selectByPrimaryKey(request.getProjectId()).getOrganizationId());
             operationLogService.add(logDTO);
 
-            List<ExportTask> exportTasks = exportTaskManager.getExportTasks(request.getProjectId(), ExportConstants.ExportType.API_DEFINITION.name(), ExportConstants.ExportState.PREPARED.toString(), userId, null);
-            String taskId;
-            if (CollectionUtils.isNotEmpty(exportTasks)) {
-                taskId = exportTasks.getFirst().getId();
-                exportTaskManager.updateExportTask(ExportConstants.ExportState.SUCCESS.name(), taskId, fileType);
-            } else {
-                taskId = MsgType.CONNECT.name();
-            }
-
-            ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), taskId, ids.size(), true, MsgType.EXEC_RESULT.name());
-            ExportWebSocketHandler.sendMessageSingle(exportMsgDTO);
+            String taskId = exportTaskManager.getExportTaskId(request.getProjectId(), ExportConstants.ExportType.API_DEFINITION.name(), ExportConstants.ExportState.PREPARED.toString(), userId, null, fileType);
+            ExportWebSocketHandler.sendMessageSingle(
+                    new ExportMsgDTO(request.getFileId(), taskId, ids.size(), true, MsgType.EXEC_RESULT.name())
+            );
         } catch (Exception e) {
             LogUtils.error(e);
             List<ExportTask> exportTasks = exportTaskManager.getExportTasks(request.getProjectId(), ExportConstants.ExportType.API_DEFINITION.name(), ExportConstants.ExportState.PREPARED.toString(), userId, null);
@@ -231,7 +191,7 @@ public class ApiDefinitionExportService {
         }
     }
 
-    private ApiExportResponse exportSwagger(ApiDefinitionBatchRequest request, List<ApiDefinitionWithBlob> list, Map<String, String> moduleMap) {
+    private ApiDefinitionExportResponse exportSwagger(ApiDefinitionBatchRequest request, List<ApiDefinitionWithBlob> list, Map<String, String> moduleMap) {
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         Swagger3ExportParser swagger3Parser = new Swagger3ExportParser();
         try {
@@ -241,7 +201,7 @@ public class ApiDefinitionExportService {
         }
     }
 
-    private ApiExportResponse exportMetersphere(ApiDefinitionBatchExportRequest request, List<ApiDefinitionWithBlob> list, Map<String, String> moduleMap) {
+    private ApiDefinitionExportResponse exportMetersphere(ApiDefinitionBatchExportRequest request, List<ApiDefinitionWithBlob> list, Map<String, String> moduleMap) {
         try {
             List<String> apiIds = list.stream().map(ApiDefinitionWithBlob::getId).toList();
             List<ApiTestCaseWithBlob> apiTestCaseWithBlobs = new ArrayList<>();
@@ -273,7 +233,7 @@ public class ApiDefinitionExportService {
         fileRequest.setFileName(tasksFirst.getFileId());
         fileRequest.setFolder(DefaultRepositoryDir.getExportApiTempDir());
         fileRequest.setStorage(StorageType.MINIO.name());
-        String fileName = "Metersphere_case_" + project.getName() + "." + tasksFirst.getFileType();
+        String fileName = "Metersphere_api_" + project.getName() + "." + tasksFirst.getFileType();
         try {
             InputStream fileInputStream = fileService.getFileAsStream(fileRequest);
             FileDownloadUtils.zipFilesWithResponse(fileName, fileInputStream, httpServletResponse);

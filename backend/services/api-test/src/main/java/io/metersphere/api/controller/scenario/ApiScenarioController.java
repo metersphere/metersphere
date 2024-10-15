@@ -37,6 +37,7 @@ import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -329,5 +330,21 @@ public class ApiScenarioController {
     public void testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiScenarioImportRequest request) {
         request.setOperator(SessionUtils.getUserId());
         apiScenarioDataTransferService.importScenario(file, request);
+    }
+
+    @GetMapping("/stop/{taskId}")
+    @Operation(summary = "接口测试-接口场景管理-导出-停止导出")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXPORT)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public void caseStopExport(@PathVariable String taskId) {
+        apiScenarioDataTransferService.stopExport(taskId, SessionUtils.getUserId());
+    }
+
+    @GetMapping(value = "/download/file/{projectId}/{fileId}")
+    @Operation(summary = "接口测试-接口场景管理-下载文件")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXPORT)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public void downloadImgById(@PathVariable String projectId, @PathVariable String fileId, HttpServletResponse httpServletResponse) {
+        apiScenarioDataTransferService.downloadFile(projectId, fileId, SessionUtils.getUserId(), httpServletResponse);
     }
 }

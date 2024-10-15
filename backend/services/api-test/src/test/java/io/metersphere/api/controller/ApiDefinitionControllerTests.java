@@ -9,7 +9,7 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.dto.export.MetersphereApiExportResponse;
+import io.metersphere.api.dto.export.MetersphereApiDefinitionExportResponse;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.ImportRequest;
@@ -2117,7 +2117,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertEquals(files.length, 1);
         String fileContent = FileUtils.readFileToString(files[0], StandardCharsets.UTF_8);
 
-        MetersphereApiExportResponse exportResponse = ApiDataUtils.parseObject(fileContent, MetersphereApiExportResponse.class);
+        MetersphereApiDefinitionExportResponse exportResponse = ApiDataUtils.parseObject(fileContent, MetersphereApiDefinitionExportResponse.class);
 
         apiDefinitionImportTestService.compareApiExport(exportResponse, exportApiBlobs);
 
