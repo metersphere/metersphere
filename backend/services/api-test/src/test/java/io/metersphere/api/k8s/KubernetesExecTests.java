@@ -63,7 +63,7 @@ public class KubernetesExecTests extends BaseTest {
         List<String> request = new ArrayList<>();
         TestResourceDTO resource = new TestResourceDTO();
         try {
-            EngineFactory.stopApi(request, resource);
+            EngineFactory.stopApiTask(request, resource);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
