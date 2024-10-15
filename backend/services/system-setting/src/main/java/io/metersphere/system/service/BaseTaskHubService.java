@@ -80,6 +80,8 @@ public class BaseTaskHubService {
     private ProjectMapper projectMapper;
     @Resource
     private OrganizationMapper organizationMapper;
+    @Resource
+    private UserMapper userMapper;
 
     /**
      * 系统-获取执行任务列表
@@ -102,26 +104,45 @@ public class BaseTaskHubService {
     }
 
     private void handleList(List<TaskHubDTO> list) {
-        if(CollectionUtils.isEmpty(list)){
+        if (CollectionUtils.isEmpty(list)) {
             return;
         }
         List<String> projectIds = list.stream().map(TaskHubDTO::getProjectId).distinct().toList();
         List<String> organizationIds = list.stream().map(TaskHubDTO::getProjectId).distinct().toList();
-        ProjectExample projectExample = new ProjectExample();
-        projectExample.createCriteria().andIdIn(projectIds);
-        List<Project> projectList = projectMapper.selectByExample(projectExample);
-        Map<String, String> projectMaps = projectList.stream().collect(Collectors.toMap(Project::getId, Project::getName));
+        List<String> userIds = list.stream().map(TaskHubDTO::getCreateUser).distinct().toList();
+        Map<String, String> projectMaps = getProjectMaps(projectIds);
+        Map<String, String> organizationMaps = getOrganizationMaps(organizationIds);
+        Map<String, String> userMaps = getUserMaps(userIds);
+        list.forEach(item -> {
+            item.setProjectName(projectMaps.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
+            item.setOrganizationName(organizationMaps.getOrDefault(item.getOrganizationId(), StringUtils.EMPTY));
+            item.setCreateUserName(userMaps.getOrDefault(item.getCreateUser(), StringUtils.EMPTY));
+        });
 
+    }
+
+    private Map<String, String> getUserMaps(List<String> userIds) {
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdIn(userIds);
+        List<User> userList = userMapper.selectByExample(userExample);
+        Map<String, String> userMaps = userList.stream().collect(Collectors.toMap(User::getId, User::getName));
+        return userMaps;
+    }
+
+    private Map<String, String> getOrganizationMaps(List<String> organizationIds) {
         OrganizationExample organizationExample = new OrganizationExample();
         organizationExample.createCriteria().andIdIn(organizationIds);
         List<Organization> organizationList = organizationMapper.selectByExample(organizationExample);
         Map<String, String> organizationMaps = organizationList.stream().collect(Collectors.toMap(Organization::getId, Organization::getName));
+        return organizationMaps;
+    }
 
-        list.forEach(item -> {
-            item.setProjectName(projectMaps.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
-            item.setOrganizationName(organizationMaps.getOrDefault(item.getOrganizationId(), StringUtils.EMPTY));
-        });
-
+    private Map<String, String> getProjectMaps(List<String> projectIds) {
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andIdIn(projectIds);
+        List<Project> projectList = projectMapper.selectByExample(projectExample);
+        Map<String, String> projectMaps = projectList.stream().collect(Collectors.toMap(Project::getId, Project::getName));
+        return projectMaps;
     }
 
 
@@ -251,7 +272,20 @@ public class BaseTaskHubService {
     }
 
     private List<TaskHubItemDTO> getCaseTaskItemPage(TaskHubItemRequest request, String orgId, String projectId) {
-        return extExecTaskItemMapper.selectList(request, orgId, projectId);
+        List<TaskHubItemDTO> itemDTOS = extExecTaskItemMapper.selectList(request, orgId, projectId);
+        handleTaskItem(itemDTOS);
+        return itemDTOS;
+    }
+
+    private void handleTaskItem(List<TaskHubItemDTO> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
+        List<String> userIds = list.stream().map(TaskHubItemDTO::getExecutor).distinct().toList();
+        Map<String, String> userMaps = getUserMaps(userIds);
+        list.forEach(item -> {
+            item.setUserName(userMaps.getOrDefault(item.getExecutor(), StringUtils.EMPTY));
+        });
     }
 
     /**
