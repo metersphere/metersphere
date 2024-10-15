@@ -632,9 +632,4 @@ class TestResourcePoolControllerTests extends BaseTest {
         return testResourcePoolDTO;
     }
 
-    @Test
-    void resourceEnumName() throws Exception {
-        System.out.println(ResourcePoolTypeEnum.K8S.getName());
-    }
-
 }

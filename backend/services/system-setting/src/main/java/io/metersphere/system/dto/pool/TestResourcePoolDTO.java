@@ -19,7 +19,7 @@ public class TestResourcePoolDTO extends TestResourcePool {
     private int maxConcurrentNumber;
 
     @Schema(description =  "剩余并发数")
-    private Boolean lastConcurrentNumber;;
+    private int lastConcurrentNumber;;
 
     @Schema(description =  "组织名称集合")
     private List<String> orgNames;
