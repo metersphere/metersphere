@@ -337,7 +337,7 @@ public class TestPlanTaskCenterService {
         poolIdMap.forEach((poolId, reportList) -> {
             TestResourcePoolReturnDTO testResourcePoolDTO = testResourcePoolService.getTestResourcePoolDetail(poolId);
             // 判断是否为 K8S 资源池
-            boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.name());
+            boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.getName());
             if (isK8SResourcePool) {
                 SubListUtils.dealForSubList(reportList, 100, (subList) -> {
                     try {
