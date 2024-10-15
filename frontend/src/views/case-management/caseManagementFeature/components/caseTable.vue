@@ -426,10 +426,10 @@
     stopCaseExport,
     updateCaseRequest,
   } from '@/api/modules/case-management/featureCase';
-  import { getSocket } from '@/api/modules/project-management/commonScript';
   import { getCaseRelatedInfo } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useWebsocket from '@/hooks/useWebsocket';
   import { useAppStore, useTableStore } from '@/store';
   import useCacheStore from '@/store/modules/cache/cache';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
@@ -1252,26 +1252,31 @@
     });
   }
   // 开启websocket监听，接收结果
-  function startWebsocketGetExportResult() {
-    websocket.value = getSocket(reportId.value, '/ws/export');
-    websocket.value.addEventListener('message', (event) => {
-      const data = JSON.parse(event.data);
-      if (data.msgType === 'EXEC_RESULT') {
-        exportingMessage.value.close();
-        reportId.value = data.fileId;
-        taskId.value = data.taskId;
-        if (data.isSuccessful) {
-          showExportSuccessfulMessage(reportId.value, data.count);
-        } else {
-          Message.error({
-            content: t('common.exportFailed'),
-            duration: 999999999, // 一直展示，除非手动关闭
-            closable: true,
-          });
+  async function startWebsocketGetExportResult() {
+    const { createSocket, websocket: _websocket } = useWebsocket({
+      reportId: reportId.value,
+      socketUrl: '/ws/export',
+      onMessage: (event) => {
+        const data = JSON.parse(event.data);
+        if (data.msgType === 'EXEC_RESULT') {
+          exportingMessage.value.close();
+          reportId.value = data.fileId;
+          taskId.value = data.taskId;
+          if (data.isSuccessful) {
+            showExportSuccessfulMessage(reportId.value, data.count);
+          } else {
+            Message.error({
+              content: t('common.exportFailed'),
+              duration: 999999999, // 一直展示，除非手动关闭
+              closable: true,
+            });
+          }
+          websocket.value?.close();
         }
-        websocket.value?.close();
-      }
+      },
     });
+    await createSocket();
+    websocket.value = _websocket.value;
   }
 
   function getConfirmFields(option: MsExportDrawerOption[], columnType: string) {
@@ -1284,7 +1289,7 @@
       exportLoading.value = true;
       const { selectedIds, selectAll, excludeIds } = batchParams.value;
       reportId.value = getGenerateId();
-      startWebsocketGetExportResult();
+      await startWebsocketGetExportResult();
       const params = {
         projectId: currentProjectId.value,
         selectIds: selectAll ? [] : selectedIds,
@@ -1329,7 +1334,7 @@
         taskId.value = res.taskId;
         Message.error(t('caseManagement.featureCase.alreadyExportTasks'));
         if (!websocket.value) {
-          startWebsocketGetExportResult();
+          await startWebsocketGetExportResult();
         }
         showExportingMessage();
       }

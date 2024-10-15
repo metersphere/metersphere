@@ -510,10 +510,10 @@
 
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
   import { addCase } from '@/api/modules/api-test/management';
-  import { getSocket } from '@/api/modules/project-management/commonScript';
   import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useShortcutSave from '@/hooks/useShortcutSave';
+  import useWebsocket from '@/hooks/useWebsocket';
   import useRequestCompositionStore from '@/store/modules/api/requestComposition';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
@@ -1026,40 +1026,42 @@
   /**
    * 开启websocket监听，接收执行结果
    */
-  function debugSocket(executeType?: 'localExec' | 'serverExec') {
-    websocket.value = getSocket(
-      reportId.value,
-      executeType === 'localExec' ? '/ws/debug' : '',
-      executeType === 'localExec' ? localExecuteUrl.value : ''
-    );
-    websocket.value.addEventListener('message', (event) => {
-      const data = JSON.parse(event.data);
-      if (data.msgType === 'EXEC_RESULT') {
-        if (requestVModel.value.reportId === data.reportId) {
-          // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
-          requestVModel.value.response = data.taskResult;
-          requestVModel.value.executeLoading = false;
-          requestVModel.value.isExecute = false;
-        } else {
-          // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
-          temporaryResponseMap[data.reportId] = data.taskResult;
+  async function debugSocket(executeType?: 'localExec' | 'serverExec') {
+    const { createSocket, websocket: _websocket } = useWebsocket({
+      reportId: reportId.value,
+      socketUrl: executeType === 'localExec' ? '/ws/debug' : '',
+      host: executeType === 'localExec' ? localExecuteUrl.value : '',
+      onMessage: (event) => {
+        const data = JSON.parse(event.data);
+        if (data.msgType === 'EXEC_RESULT') {
+          if (requestVModel.value.reportId === data.reportId) {
+            // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
+            requestVModel.value.response = data.taskResult;
+            requestVModel.value.executeLoading = false;
+            requestVModel.value.isExecute = false;
+          } else {
+            // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
+            temporaryResponseMap[data.reportId] = data.taskResult;
+          }
+        } else if (data.msgType === 'EXEC_END') {
+          // 执行结束，关闭websocket
+          websocket.value?.close();
+          if (requestVModel.value.reportId === data.reportId) {
+            requestVModel.value.executeLoading = false;
+            requestVModel.value.isExecute = false;
+          }
         }
-      } else if (data.msgType === 'EXEC_END') {
-        // 执行结束，关闭websocket
-        websocket.value?.close();
-        if (requestVModel.value.reportId === data.reportId) {
-          requestVModel.value.executeLoading = false;
-          requestVModel.value.isExecute = false;
-        }
-      }
+      },
     });
+    await createSocket();
+    websocket.value = _websocket.value;
   }
 
   /**
    * 生成请求参数
    * @param executeType 执行类型，执行时传入
    */
-  function makeRequestParams(executeType?: 'localExec' | 'serverExec') {
+  async function makeRequestParams(executeType?: 'localExec' | 'serverExec') {
     const isExecute = executeType === 'localExec' || executeType === 'serverExec';
     const { formDataBody, wwwFormBody, jsonBody } = requestVModel.value.body;
     const polymorphicName = protocolOptions.value.find(
@@ -1120,7 +1122,7 @@
     reportId.value = getGenerateId();
     requestVModel.value.reportId = reportId.value; // 存储报告ID
     if (isExecute && !props.isCase) {
-      debugSocket(executeType); // 开启websocket
+      await debugSocket(executeType); // 开启websocket
     }
     let requestName = '';
     let requestModuleId = '';
@@ -1199,7 +1201,7 @@
         await nextTick();
         requestVModel.value.executeLoading = true;
         requestVModel.value.response = cloneDeep(defaultResponse);
-        const res = await props.executeApi(makeRequestParams(executeType) as ExecuteRequestParams);
+        const res = await props.executeApi((await makeRequestParams(executeType)) as ExecuteRequestParams);
         if (executeType === 'localExec' && props.localExecuteApi && localExecuteUrl.value) {
           await props.localExecuteApi(localExecuteUrl.value, res);
         }
@@ -1217,7 +1219,7 @@
             if (!props.executeApi) return;
             requestVModel.value.executeLoading = true;
             requestVModel.value.response = cloneDeep(defaultResponse);
-            const res = await props.executeApi(makeRequestParams(executeType) as ExecuteRequestParams);
+            const res = await props.executeApi((await makeRequestParams(executeType)) as ExecuteRequestParams);
             if (executeType === 'localExec' && props.localExecuteApi && localExecuteUrl.value) {
               await props.localExecuteApi(localExecuteUrl.value, res);
             }
@@ -1347,7 +1349,7 @@
         saveLoading.value = true;
       }
       let params;
-      const requestParams = makeRequestParams();
+      const requestParams = await makeRequestParams();
       if (props.isDefinition) {
         params = {
           ...(fullParams || requestParams),
@@ -1551,7 +1553,7 @@
       if (!errors) {
         try {
           saveCaseLoading.value = true;
-          const definitionParams = makeRequestParams();
+          const definitionParams = await makeRequestParams();
           if (requestVModel.value.isNew) {
             // 未保存过的接口保存为用例，先保存接口定义，再保存为用例
             await realSave(definitionParams, true);
@@ -1614,7 +1616,7 @@
   const tempApiDetail = ref<RequestParam>();
   const saveNewApiModalVisible = ref(false);
 
-  function handleSelect(value: string | number | Record<string, any> | undefined) {
+  async function handleSelect(value: string | number | Record<string, any> | undefined) {
     if (requestVModel.value.url === '' && requestVModel.value.protocol === 'HTTP') {
       isUrlError.value = true;
       return;
@@ -1626,7 +1628,7 @@
     isUrlError.value = false;
     isNameError.value = false;
     if (value === 'saveAsApi') {
-      const params = makeRequestParams();
+      const params = await makeRequestParams();
       tempApiDetail.value = {
         ...params,
         ...params.request,

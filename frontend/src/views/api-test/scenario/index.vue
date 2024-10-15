@@ -211,45 +211,50 @@
    * 开启websocket监听，接收执行结果
    */
   function debugSocket(scenario: Scenario, executeType?: 'localExec' | 'serverExec') {
-    websocketMap[scenario.reportId] = getSocket(
-      scenario.reportId || '',
-      executeType === 'localExec' ? '/ws/debug' : '',
-      executeType === 'localExec' ? localExecuteUrl.value : ''
-    );
-    websocketMap[scenario.reportId].addEventListener('message', (event) => {
-      const data = JSON.parse(event.data);
-      if (data.msgType === 'EXEC_RESULT') {
-        if (scenario.reportId === data.reportId) {
-          // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
-          data.taskResult.requestResults.forEach((result: RequestResult) => {
-            if (result.stepId) {
-              // 过滤掉前后置配置的执行结果，没有步骤 id
-              if (scenario.stepResponses[result.stepId] === undefined) {
-                scenario.stepResponses[result.stepId] = [];
+    return new Promise((resolve) => {
+      websocketMap[scenario.reportId] = getSocket(
+        scenario.reportId || '',
+        executeType === 'localExec' ? '/ws/debug' : '',
+        executeType === 'localExec' ? localExecuteUrl.value : ''
+      );
+      websocketMap[scenario.reportId].addEventListener('message', (event) => {
+        const data = JSON.parse(event.data);
+        if (data.msgType === 'EXEC_RESULT') {
+          if (scenario.reportId === data.reportId) {
+            // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
+            data.taskResult.requestResults.forEach((result: RequestResult) => {
+              if (result.stepId) {
+                // 过滤掉前后置配置的执行结果，没有步骤 id
+                if (scenario.stepResponses[result.stepId] === undefined) {
+                  scenario.stepResponses[result.stepId] = [];
+                }
+                scenario.stepResponses[result.stepId].push({
+                  ...result,
+                  console: data.taskResult.console,
+                });
+                if (result.status === ScenarioExecuteStatus.FAKE_ERROR) {
+                  scenario.executeFakeErrorCount += 1;
+                } else if (result.isSuccessful) {
+                  scenario.executeSuccessCount += 1;
+                } else {
+                  scenario.executeFailCount += 1;
+                }
               }
-              scenario.stepResponses[result.stepId].push({
-                ...result,
-                console: data.taskResult.console,
-              });
-              if (result.status === ScenarioExecuteStatus.FAKE_ERROR) {
-                scenario.executeFakeErrorCount += 1;
-              } else if (result.isSuccessful) {
-                scenario.executeSuccessCount += 1;
-              } else {
-                scenario.executeFailCount += 1;
-              }
-            }
-          });
+            });
+          }
+        } else if (data.msgType === 'EXEC_END') {
+          // 执行结束，关闭websocket
+          websocketMap[scenario.reportId]?.close();
+          if (scenario.reportId === data.reportId) {
+            scenario.executeLoading = false;
+            scenario.isExecute = false;
+            setStepExecuteStatus(scenario);
+          }
         }
-      } else if (data.msgType === 'EXEC_END') {
-        // 执行结束，关闭websocket
-        websocketMap[scenario.reportId]?.close();
-        if (scenario.reportId === data.reportId) {
-          scenario.executeLoading = false;
-          scenario.isExecute = false;
-          setStepExecuteStatus(scenario);
-        }
-      }
+      });
+      websocketMap[scenario.reportId].addEventListener('open', () => {
+        resolve(true);
+      });
     });
   }
 
@@ -275,8 +280,8 @@
       activeScenarioTab.value.stepResponses = {};
       activeScenarioTab.value.reportId = executeParams.reportId; // 存储报告ID
       activeScenarioTab.value.executeType = executeType; // 存储报告ID
-      debugSocket(activeScenarioTab.value, executeType); // 开启websocket
       activeScenarioTab.value.isDebug = !isExecute;
+      await debugSocket(activeScenarioTab.value, executeType); // 开启websocket
       let res;
       if (isExecute && executeType !== 'localExec' && !activeScenarioTab.value.isNew) {
         // 执行场景且非本地执行且非未保存场景

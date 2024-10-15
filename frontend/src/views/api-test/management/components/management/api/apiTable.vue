@@ -322,10 +322,10 @@
     stopApiExport,
     updateDefinition,
   } from '@/api/modules/api-test/management';
-  import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
+  import useWebsocket from '@/hooks/useWebsocket';
   import useAppStore from '@/store/modules/app';
   import useCacheStore from '@/store/modules/cache/cache';
   import { characterLimit, downloadByteFile, getGenerateId, operationWidth } from '@/utils';
@@ -1136,26 +1136,31 @@
   const exportingMessage = ref();
 
   // 开启websocket监听，接收结果
-  function startWebsocketGetExportResult() {
-    websocket.value = getSocket(reportId.value, '/ws/export');
-    websocket.value.addEventListener('message', (event) => {
-      const data = JSON.parse(event.data);
-      if (data.msgType === 'EXEC_RESULT') {
-        exportingMessage.value.close();
-        reportId.value = data.fileId;
-        // taskId.value = data.taskId;
-        if (data.isSuccessful) {
-          showExportSuccessfulMessage(reportId.value, data.count);
-        } else {
-          Message.error({
-            content: t('common.exportFailed'),
-            duration: 999999999, // 一直展示，除非手动关闭
-            closable: true,
-          });
+  async function startWebsocketGetExportResult() {
+    const { createSocket, websocket: _websocket } = useWebsocket({
+      reportId: reportId.value,
+      socketUrl: '/ws/export',
+      onMessage: (event) => {
+        const data = JSON.parse(event.data);
+        if (data.msgType === 'EXEC_RESULT') {
+          exportingMessage.value.close();
+          reportId.value = data.fileId;
+          // taskId.value = data.taskId;
+          if (data.isSuccessful) {
+            showExportSuccessfulMessage(reportId.value, data.count);
+          } else {
+            Message.error({
+              content: t('common.exportFailed'),
+              duration: 999999999, // 一直展示，除非手动关闭
+              closable: true,
+            });
+          }
+          websocket.value?.close();
         }
-        websocket.value?.close();
-      }
+      },
     });
+    await createSocket();
+    websocket.value = _websocket.value;
   }
 
   // 取消导出
@@ -1203,7 +1208,7 @@
     try {
       exportLoading.value = true;
       reportId.value = getGenerateId();
-      startWebsocketGetExportResult();
+      await startWebsocketGetExportResult();
       const batchConditionParams = await getBatchConditionParams();
       const res = await exportApiDefinition(
         {

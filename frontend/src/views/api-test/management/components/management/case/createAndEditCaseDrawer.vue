@@ -124,9 +124,9 @@
     updateCase,
     uploadTempFileCase,
   } from '@/api/modules/api-test/management';
-  import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useShortcutSave from '@/hooks/useShortcutSave';
+  import useWebsocket from '@/hooks/useWebsocket';
   import useAppStore from '@/store/modules/app';
   import { getGenerateId } from '@/utils';
 
@@ -277,9 +277,9 @@
         }
         drawerLoading.value = true;
         // 给后端传的参数
-        if (!requestCompositionRef.value?.makeRequestParams()) return;
-        const { linkFileIds, uploadFileIds, request, unLinkFileIds, deleteFileIds } =
-          requestCompositionRef.value.makeRequestParams();
+        const requestParams = await requestCompositionRef.value?.makeRequestParams();
+        if (!requestParams) return;
+        const { linkFileIds, uploadFileIds, request, unLinkFileIds, deleteFileIds } = requestParams;
         const { name, priority, status, tags, id } = detailForm.value;
         const params: AddApiCaseParams = {
           projectId: appStore.currentProjectId,
@@ -339,35 +339,37 @@
   const websocket = ref<WebSocket>();
   const temporaryResponseMap: Record<string, any> = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
   // 开启websocket监听，接收执行结果
-  function debugSocket(executeType?: 'localExec' | 'serverExec') {
-    websocket.value = getSocket(
-      reportId.value,
-      executeType === 'localExec' ? '/ws/debug' : '',
-      executeType === 'localExec' ? executeRef.value?.localExecuteUrl : ''
-    );
-    websocket.value.addEventListener('message', (event) => {
-      const data = JSON.parse(event.data);
-      if (data.msgType === 'EXEC_RESULT') {
-        if (detailForm.value.reportId === data.reportId) {
-          // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
-          detailForm.value.response = data.taskResult; // 渲染出用例详情和创建用例抽屉的响应数据
+  async function debugSocket(executeType?: 'localExec' | 'serverExec') {
+    const { createSocket, websocket: _websocket } = useWebsocket({
+      reportId: reportId.value,
+      socketUrl: executeType === 'localExec' ? '/ws/debug' : '',
+      host: executeType === 'localExec' ? executeRef.value?.localExecuteUrl : '',
+      onMessage: (event) => {
+        const data = JSON.parse(event.data);
+        if (data.msgType === 'EXEC_RESULT') {
+          if (detailForm.value.reportId === data.reportId) {
+            // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
+            detailForm.value.response = data.taskResult; // 渲染出用例详情和创建用例抽屉的响应数据
+            detailForm.value.executeLoading = false;
+          } else {
+            // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
+            temporaryResponseMap[data.reportId] = data.taskResult;
+          }
+        } else if (data.msgType === 'EXEC_END') {
+          // 执行结束，关闭websocket
+          websocket.value?.close();
           detailForm.value.executeLoading = false;
-        } else {
-          // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
-          temporaryResponseMap[data.reportId] = data.taskResult;
         }
-      } else if (data.msgType === 'EXEC_END') {
-        // 执行结束，关闭websocket
-        websocket.value?.close();
-        detailForm.value.executeLoading = false;
-      }
+      },
     });
+    await createSocket();
+    websocket.value = _websocket.value;
   }
   async function handleExecute(executeType?: 'localExec' | 'serverExec') {
     try {
       detailForm.value.executeLoading = true;
       detailForm.value.response = cloneDeep(defaultResponse);
-      const makeRequestParams = requestCompositionRef.value?.makeRequestParams(executeType); // 写在reportId之前，防止覆盖reportId
+      const makeRequestParams = await requestCompositionRef.value?.makeRequestParams(executeType); // 写在reportId之前，防止覆盖reportId
       reportId.value = getGenerateId();
       detailForm.value.reportId = reportId.value; // 存储报告ID
       let res;
@@ -381,7 +383,7 @@
         linkFileIds: makeRequestParams?.linkFileIds,
         uploadFileIds: makeRequestParams?.uploadFileIds,
       };
-      debugSocket(executeType); // 开启websocket
+      await debugSocket(executeType); // 开启websocket
       if (!(detailForm.value.id as string).startsWith('c') && executeType === 'serverExec') {
         // 已创建的服务端
         res = await runCase({
