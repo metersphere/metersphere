@@ -8,7 +8,6 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.project.mapper.ProjectVersionMapper;
 import io.metersphere.project.request.ProjectSwitchRequest;
-import io.metersphere.sdk.constants.ApplicationScope;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
@@ -291,6 +290,22 @@ public class ProjectService {
                 })
                 .orElse(allProject);
 
+    }
+
+    /**
+     * 获取项目下可用的资源池
+     * @param projectId 项目ID
+     * @return 资源池列表
+     */
+    public List<TestResourcePool> getPoolOption(String projectId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (project.getAllResourcePool()) {
+            TestResourcePoolExample example = new TestResourcePoolExample();
+            example.createCriteria().andEnableEqualTo(true).andDeletedEqualTo(false);
+            return testResourcePoolMapper.selectByExample(example);
+        } else {
+            return extProjectMapper.getResourcePoolOption(projectId, "api_test");
+        }
     }
 }
 

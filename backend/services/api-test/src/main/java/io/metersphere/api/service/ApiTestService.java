@@ -16,6 +16,7 @@ import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.project.service.CustomFunctionService;
 import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.project.service.ProjectApplicationService;
+import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.domain.Environment;
@@ -66,6 +67,8 @@ public class ApiTestService {
     private FileService fileService;
     @Resource
     private CustomFunctionService customFunctionService;
+    @Resource
+    private ProjectService projectService;
 
     public List<ProtocolDTO> getProtocols(String orgId) {
         List<ProtocolDTO> protocols = apiPluginService.getProtocols(orgId);
@@ -127,7 +130,7 @@ public class ApiTestService {
 
     public List<TestResourcePool> getPoolOption(String projectId) {
         //获取资源池
-        return extProjectMapper.getResourcePoolOption(projectId, "api_test");
+        return projectService.getPoolOption(projectId);
     }
 
     public String getPoolId(String projectId) {
