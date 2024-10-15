@@ -14,4 +14,6 @@ public interface ExtExecTaskMapper {
     List<TaskHubDTO> selectList(@Param("request") BasePageRequest request, @Param("orgId") String orgId, @Param("projectId") String projectId);
 
     void updateTaskStatus(@Param("execTask") ExecTask execTask);
+
+    void deleteTaskById(@Param("id") String id, @Param("orgId") String orgId, @Param("projectId") String projectId);
 }

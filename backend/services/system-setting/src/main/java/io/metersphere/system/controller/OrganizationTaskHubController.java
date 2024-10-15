@@ -87,4 +87,13 @@ public class OrganizationTaskHubController {
     public void stopTask(@PathVariable String id) {
         baseTaskHubService.stopTask(id, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), null);
     }
+
+
+    @GetMapping("/exec-task/delete/{id}")
+    @Operation(summary = "组织-任务中心-用例执行任务-删除任务")
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.orgDeleteLog(#id)", msClass = BaseTaskHubLogService.class)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_DELETE)
+    public void deleteTask(@PathVariable String id) {
+        baseTaskHubService.deleteTask(id, SessionUtils.getCurrentOrganizationId(), null);
+    }
 }
