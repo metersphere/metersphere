@@ -285,7 +285,7 @@ public class ApiTaskCenterService {
                 reportList.removeAll(request.getExcludeIds());
             }
 
-            boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.name());
+            boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.getName());
 
             if (isK8SResourcePool) {
                 handleK8STask(request, reports, reportList, testResourcePoolDTO);

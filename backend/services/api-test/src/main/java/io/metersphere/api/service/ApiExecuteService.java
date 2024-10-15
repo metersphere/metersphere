@@ -227,7 +227,7 @@ public class ApiExecuteService {
             }
 
             // 判断是否为 K8S 资源池
-            boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.name());
+            boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.getName());
             boolean isDebugMode = ApiExecuteRunMode.isDebug(taskInfo.getRunMode());
 
             if (isK8SResourcePool) {
@@ -310,7 +310,7 @@ public class ApiExecuteService {
             taskInfo.setMsUrl(testResourcePool.getServerUrl());
         }
         // 判断是否为 K8S 资源池
-        boolean isK8SResourcePool = StringUtils.equals(testResourcePool.getType(), ResourcePoolTypeEnum.K8S.name());
+        boolean isK8SResourcePool = StringUtils.equals(testResourcePool.getType(), ResourcePoolTypeEnum.K8S.getName());
         if (isK8SResourcePool) {
             TestResourceDTO testResourceDTO = new TestResourceDTO();
             BeanUtils.copyBean(testResourceDTO, testResourcePool.getTestResourceReturnDTO());

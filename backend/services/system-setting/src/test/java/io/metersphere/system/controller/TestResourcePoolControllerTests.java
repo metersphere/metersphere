@@ -246,7 +246,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     void addTestResourcePoolSeven() throws Exception {
         //资源池的应用与类型无关 这里资源池正确的顺序就到此为止。换个类型只测一遍就行
         // 不选全部资源池，部分有值 资源池节点为NODE use： api
-        this.addTestResourcePoolSuccess("test_pool_7", false, true, true, false, false, false, ResourcePoolTypeEnum.K8S.name());
+        this.addTestResourcePoolSuccess("test_pool_7", false, true, true, false, false, false, ResourcePoolTypeEnum.K8S.getName());
     }
 
 
@@ -299,7 +299,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Test
     @Order(11)
     void getResourcePoolsDetailWidthBlobK8s() throws Exception {
-        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob_k8s", false, true, true, true, true, false, ResourcePoolTypeEnum.K8S.name());
+        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob_k8s", false, true, true, true, true, false, ResourcePoolTypeEnum.K8S.getName());
         String id = testResourcePoolRequest1.getId();
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/detail/" + id)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -349,7 +349,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Test
     @Order(13)
     void getResourcePoolsDetailWidthBlobNoOrgIds() throws Exception {
-        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob_no_org_id", true, false, true, false, false, false, ResourcePoolTypeEnum.K8S.name());
+        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob_no_org_id", true, false, true, false, false, false, ResourcePoolTypeEnum.K8S.getName());
         String id = testResourcePoolRequest1.getId();
         QueryResourcePoolRequest request = new QueryResourcePoolRequest();
         request.setCurrent(1);
@@ -375,7 +375,7 @@ class TestResourcePoolControllerTests extends BaseTest {
         String id = "1034";
         getDetail("/test/resource/pool/detail/" + id, ERROR_REQUEST_MATCHER);
 
-        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob_no_node", true, false, true, false, false, true, ResourcePoolTypeEnum.K8S.name());
+        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob_no_node", true, false, true, false, false, true, ResourcePoolTypeEnum.K8S.getName());
         getDetail("/test/resource/pool/detail/" + testResourcePoolRequest1.getId(), status().isOk());
 
     }
@@ -397,7 +397,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Order(15)
     void updateTestResourcePool() throws Exception {
         createMockUrl();
-        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob2", false, true, true, false, false, false, ResourcePoolTypeEnum.K8S.name());
+        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob2", false, true, true, false, false, false, ResourcePoolTypeEnum.K8S.getName());
         String id = testResourcePoolRequest1.getId();
         TestResourcePoolRequest testResourcePoolRequest = new TestResourcePoolRequest();
         testResourcePoolRequest.setId(id);
@@ -422,7 +422,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Order(16)
     void updateTestResourcePoolWithOrgIds() throws Exception {
         createMockUrl();
-        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob3", false, true, true, false, false, false, ResourcePoolTypeEnum.K8S.name());
+        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob3", false, true, true, false, false, false, ResourcePoolTypeEnum.K8S.getName());
         String id = testResourcePoolRequest1.getId();
         TestResourcePoolRequest testResourcePoolRequest = new TestResourcePoolRequest();
         testResourcePoolRequest.setId(id);
@@ -494,7 +494,7 @@ class TestResourcePoolControllerTests extends BaseTest {
             testResourcePoolRequest.setId("");
             this.requestPost(urlType, url, id, testResourcePoolRequest, status().isBadRequest());
 
-            TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob2", false, true, true, false, false, false, ResourcePoolTypeEnum.K8S.name());
+            TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob2", false, true, true, false, false, false, ResourcePoolTypeEnum.K8S.getName());
             id = testResourcePoolRequest1.getId();
         }
 
