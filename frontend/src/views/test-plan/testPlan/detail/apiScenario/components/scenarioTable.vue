@@ -526,6 +526,12 @@
       console.log(error);
     }
   }
+  watch(
+    () => props.treeType,
+    () => {
+      initAnotherModules();
+    }
+  );
 
   const filterConfigList = computed<FilterFormItem[]>(() => [
     {

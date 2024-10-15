@@ -622,6 +622,12 @@
       console.log(error);
     }
   }
+  watch(
+    () => props.treeType,
+    () => {
+      initAnotherModules();
+    }
+  );
 
   const reviewResultOptions = computed(() => {
     return Object.keys(statusIconMap).map((key) => {

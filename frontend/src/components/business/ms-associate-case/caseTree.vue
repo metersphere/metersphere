@@ -163,6 +163,7 @@
 
   const treeFolderAllRef = ref<InstanceType<typeof TreeFolderAll>>();
   const selectedProtocols = computed<string[]>(() => treeFolderAllRef.value?.selectedProtocols ?? []);
+  const allProtocolList = computed<string[]>(() => treeFolderAllRef.value?.allProtocolList ?? []);
   const { calculateTreeCount } = useCalculateTreeCount();
   /**
    * 初始化模块树
@@ -238,6 +239,11 @@
       }
     }
   );
+
+  defineExpose({
+    setActiveFolder,
+    allProtocolList,
+  });
 </script>
 
 <style scoped lang="less">

@@ -341,6 +341,8 @@
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
+  import { apiStatusOptions } from '@/views/api-test/components/config';
+
   const cacheStore = useCacheStore();
   defineOptions({
     name: CacheTabTypeEnum.API_TEST_API_TABLE,
@@ -414,24 +416,7 @@
       };
     });
   });
-  const apiStatusOptions = [
-    {
-      name: t('apiTestManagement.processing'),
-      value: RequestDefinitionStatus.PROCESSING,
-    },
-    {
-      name: t('apiTestManagement.done'),
-      value: RequestDefinitionStatus.DONE,
-    },
-    {
-      name: t('apiTestManagement.deprecate'),
-      value: RequestDefinitionStatus.DEPRECATED,
-    },
-    {
-      name: t('apiTestManagement.debugging'),
-      value: RequestDefinitionStatus.DEBUGGING,
-    },
-  ];
+
   const apiTableRef = ref();
   let columns: MsTableColumn = [
     {
