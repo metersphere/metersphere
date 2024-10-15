@@ -372,6 +372,20 @@ public class ApiScenarioReportService {
     }
 
     /**
+     * 更新进行中的报告状态和开始执行时间
+     *
+     * @param reportId
+     */
+    public void updateReportRunningStatus(String reportId) {
+        ApiScenarioReport scenarioReport = new ApiScenarioReport();
+        scenarioReport.setId(reportId);
+        scenarioReport.setExecStatus(ExecStatus.RUNNING.name());
+        scenarioReport.setStartTime(System.currentTimeMillis());
+        scenarioReport.setUpdateTime(System.currentTimeMillis());
+        apiScenarioReportMapper.updateByPrimaryKeySelective(scenarioReport);
+    }
+
+    /**
      * 更新执行中的场景报告
      *
      * @param reportId

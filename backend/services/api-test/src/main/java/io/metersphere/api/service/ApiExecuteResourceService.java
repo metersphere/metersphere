@@ -57,9 +57,9 @@ public class ApiExecuteResourceService {
             // 非调试执行，更新报告状态
             switch (apiExecuteResourceType) {
                 case API_SCENARIO, TEST_PLAN_API_SCENARIO, PLAN_RUN_API_SCENARIO ->
-                        apiScenarioReportService.updateReportStatus(reportId, ExecStatus.RUNNING.name());
+                        apiScenarioReportService.updateReportRunningStatus(reportId);
                 case API_CASE, TEST_PLAN_API_CASE, PLAN_RUN_API_CASE ->
-                        apiReportService.updateReportStatus(reportId, ExecStatus.RUNNING.name());
+                        apiReportService.updateReportRunningStatus(reportId);
                 default -> throw new MSException("不支持的资源类型: " + request.getResourceType());
             }
         }
