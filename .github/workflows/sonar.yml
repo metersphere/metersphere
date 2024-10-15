@@ -30,6 +30,8 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+      - name: Remove monitoring-engine JAR
+        run: rm -f ~/.m2/repository/io/metersphere/monitoring-engine
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
