@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS exec_task(
     `trigger_mode` VARCHAR(20) NOT NULL   COMMENT '执行模式' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
     `organization_id` VARCHAR(50) NOT NULL   COMMENT '组织ID' ,
+    `integrated` bit(1) NOT NULL DEFAULT 0 COMMENT '是否是集成报告',
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `start_time` BIGINT    COMMENT '开始时间' ,
@@ -97,6 +98,10 @@ CREATE TABLE api_doc_share (
 ) ENGINE = InnoDB
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_general_ci COMMENT = '接口文档分享';
+
+
+ALTER TABLE api_report ADD COLUMN associated_task_id VARCHAR(50) COMMENT '关联任务id(集合报告)/任务项id';
+ALTER TABLE api_scenario_report ADD COLUMN associated_task_id VARCHAR(50) COMMENT '关联任务id(集合报告)/任务项id';
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
