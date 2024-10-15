@@ -29,7 +29,6 @@ public class KubernetesProvider {
 
     private static final String RUNNING_PHASE = "Running";
     private static final String SHELL_COMMAND = "sh";
-    private static final String LOCAL_URL = "http://127.0.0.1:8000";
     private static final int TIMEOUT = 120000;
 
     public static KubernetesClient getKubernetesClient(TestResourceDTO credential) {
@@ -70,9 +69,9 @@ public class KubernetesProvider {
      * 执行命令
      *
      * @param resource
-     * @param apiPath
+     * @param command
      */
-    protected static void exec(TestResourceDTO resource, Object runRequest, String apiPath, String optToken) {
+    protected static void exec(TestResourceDTO resource, Object runRequest, String command) {
         KubernetesClient client = getKubernetesClient(resource);
         try {
             if (runRequest instanceof TaskBatchRequestDTO request) {
@@ -94,19 +93,19 @@ public class KubernetesProvider {
                             .toList();
 
                     LogUtils.info("Sending batch tasks to pod {} for execution:\n{}", pod.getMetadata().getName(), taskKeys);
-                    executeCommandOnPod(client, pod, subTaskRequest, apiPath, optToken);
+                    executeCommandOnPod(client, pod, subTaskRequest, command);
                 }
             } else if (runRequest instanceof TaskRequestDTO) {
                 // 随机一个 Pod 执行
                 Pod pod = getExecPod(client, resource);
                 LogUtils.info("Executing task on pod: {}", pod.getMetadata().getName());
-                executeCommandOnPod(client, pod, runRequest, apiPath, optToken);
+                executeCommandOnPod(client, pod, runRequest, command);
             } else {
                 // 发送给每一个 Pod
                 LogUtils.info("Stop tasks [{}] on Pods", runRequest);
                 List<Pod> nodesList = getPods(client, resource);
                 for (Pod pod : nodesList) {
-                    executeCommandOnPod(client, pod, runRequest, apiPath, optToken);
+                    executeCommandOnPod(client, pod, runRequest, command);
                 }
             }
         } catch (Exception e) {
@@ -141,10 +140,8 @@ public class KubernetesProvider {
     /**
      * Executes the curl command on a given Kubernetes pod.
      */
-    private static void executeCommandOnPod(KubernetesClient client, Pod pod, Object runRequest, String apiPath, String optToken) {
+    private static void executeCommandOnPod(KubernetesClient client, Pod pod, Object runRequest, String command) {
         try {
-            String command = buildCurlCommand(apiPath, runRequest, optToken);
-
             LogUtils.info("Executing command on pod {}: 【{}】", pod.getMetadata().getName(), command);
 
             // Execute the command on the pod
@@ -223,28 +220,4 @@ public class KubernetesProvider {
 
         return result;
     }
-
-    private static String buildCurlCommand(String path, Object request, String optToken) {
-        return String.format("""
-                        curl -H "Accept: application/json" \
-                        -H "Content-type: application/json" \
-                        -H "otp-token: %s" \
-                        -X POST -d '%s' \
-                        --connect-timeout %d \
-                        --max-time %d \
-                        --retry-max-time %d \
-                        --retry %d \
-                        %s%s
-                        """,
-                optToken,                       // otp-token
-                JSON.toFormatJSONString(request), // 请求体
-                30,                             // 连接超时（秒）
-                120,                            // 最大时间（秒）
-                3,                              // 最大重试时间（秒）
-                3,                              // 重试次数
-                LOCAL_URL,                      // 本地 URL
-                path                            // 具体 API 路径
-        );
-    }
-
 }
