@@ -108,6 +108,7 @@ export default {
   'apiScenario.requestScenario': '请求/场景',
   'apiScenario.importSystemApi': '导入系统请求',
   'apiScenario.customApi': '自定义请求',
+  'apiScenario.jmeterComponent': '未知组件',
   'apiScenario.logicControl': '逻辑控制',
   'apiScenario.loopControl': '循环控制器',
   'apiScenario.tutorial': '使用教程',

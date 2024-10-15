@@ -99,6 +99,7 @@ export default {
   'apiScenario.requestScenario': 'Request/Scenario',
   'apiScenario.importSystemApi': 'Import System Request',
   'apiScenario.customApi': 'Custom Request',
+  'apiScenario.jmeterComponent': 'Unknown Component',
   'apiScenario.logicControl': 'Logic Control',
   'apiScenario.loopControl': 'Loop Controller',
   'apiScenario.tutorial': 'Tutorial',

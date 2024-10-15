@@ -32,6 +32,7 @@
     [ScenarioStepType.ONCE_ONLY_CONTROLLER]: { label: 'apiScenario.onlyOnceControl', color: 'rgba(211, 68, 0, 1)' },
     [ScenarioStepType.SCRIPT]: { label: 'apiScenario.scriptOperation', color: 'rgba(20, 225, 198, 1)' },
     [ScenarioStepType.CUSTOM_REQUEST]: { label: 'apiScenario.customApi', color: 'rgb(var(--link-4))' },
+    [ScenarioStepType.JMETER_COMPONENT]: { label: 'apiScenario.jmeterComponent', color: 'rgba(211, 68, 0, 1)' },
   };
 
   const type = computed(() => {
