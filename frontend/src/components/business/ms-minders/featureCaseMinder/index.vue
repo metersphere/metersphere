@@ -1088,7 +1088,7 @@
       Message.success(t('common.saveSuccess'));
       resetMinderParams();
       emit('save');
-      callback(true);
+      callback(false);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

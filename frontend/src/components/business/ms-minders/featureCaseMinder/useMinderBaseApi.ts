@@ -382,12 +382,12 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
         insertSpecifyNode('AppendChildNode', stepExpectTag);
         window.minder.selectById(nodeId);
         insertSpecifyNode('AppendChildNode', remarkTag);
-        nextTick(() => {
+        setTimeout(() => {
           // 取消选中备注节点，选中用例节点
           const remarkNode: MinderJsonNode = window.minder.getSelectedNode();
           window.minder.toggleSelect(remarkNode);
           window.minder.selectById(nodeId);
-        });
+        }, 0);
       });
     } else if (value === stepTag) {
       // 步骤描述节点插入后，插入子节点
