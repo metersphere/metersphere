@@ -241,6 +241,9 @@ public class ApiExecuteService {
                     EngineFactory.runApi(taskRequest, testResourceDTO);
                 }
             } else {
+                if (CollectionUtils.isEmpty(testResourcePoolDTO.getTestResourceReturnDTO().getNodesList())) {
+                    throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
+                }
                 TestResourceNodeDTO testResourceNodeDTO = getNextExecuteNode(testResourcePoolDTO);
                 if (!ApiExecuteRunMode.isDebug(taskInfo.getRunMode())) {
                     updateTaskItemNodeInfo(taskItem, testResourcePoolDTO, testResourceNodeDTO, execTaskItemMapper);
@@ -320,6 +323,9 @@ public class ApiExecuteService {
         } else {
             // 将任务按资源池的数量拆分
             List<TestResourceNodeDTO> nodesList = testResourcePool.getTestResourceReturnDTO().getNodesList();
+            if (CollectionUtils.isEmpty(nodesList)) {
+                throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
+            }
             List<TaskBatchRequestDTO> distributeTasks = new ArrayList<>(nodesList.size());
             for (int i = 0; i < taskRequest.getTaskItems().size(); i++) {
                 TaskBatchRequestDTO distributeTask;
@@ -412,7 +418,7 @@ public class ApiExecuteService {
         }
         TestResourcePoolReturnDTO resourcePool = getAvailableResourcePoolDTO(projectId, poolId);
 
-        if (resourcePool == null || CollectionUtils.isEmpty(resourcePool.getTestResourceReturnDTO().getNodesList())) {
+        if (resourcePool == null) {
             throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
         }
         return resourcePool;
