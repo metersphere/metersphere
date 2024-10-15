@@ -196,7 +196,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Order(1)
     void addTestResourcePoolOne() throws Exception {
         // 选全部资源池，部分没值 资源池节点为NODE use： api load ui
-        this.addTestResourcePoolSuccess("test_pool_1", true, false, true, true, true, false, ResourcePoolTypeEnum.NODE.name());
+        this.addTestResourcePoolSuccess("test_pool_1", true, false, true, true, true, false, ResourcePoolTypeEnum.NODE.getName());
 
     }
 
@@ -204,7 +204,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Order(2)
     void addTestResourcePoolTwo() throws Exception {
         // 选全部资源池，部分没值 资源池节点为NODE use： api load
-        this.addTestResourcePoolSuccess("test_pool_2", true, false, true, true, false, false, ResourcePoolTypeEnum.NODE.name());
+        this.addTestResourcePoolSuccess("test_pool_2", true, false, true, true, false, false, ResourcePoolTypeEnum.NODE.getName());
 
     }
 
@@ -212,7 +212,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Order(3)
     void addTestResourcePoolThree() throws Exception {
         // 选全部资源池，部分没值 资源池节点为NODE use： api
-        this.addTestResourcePoolSuccess("test_pool_3", true, false, true, false, false, false, ResourcePoolTypeEnum.NODE.name());
+        this.addTestResourcePoolSuccess("test_pool_3", true, false, true, false, false, false, ResourcePoolTypeEnum.NODE.getName());
 
     }
 
@@ -220,7 +220,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Order(4)
     void addTestResourcePoolFour() throws Exception {
         // 选全部资源池，部分没值 资源池节点为NODE use：
-        this.addTestResourcePoolSuccess("test_pool_4", true, false, false, false, false, false, ResourcePoolTypeEnum.NODE.name());
+        this.addTestResourcePoolSuccess("test_pool_4", true, false, false, false, false, false, ResourcePoolTypeEnum.NODE.getName());
 
     }
 
@@ -229,7 +229,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     void addTestResourcePoolFive() throws Exception {
         //用途只是标记，没有实际影响所以这里每种只测一遍。其余以api为例
         // 选全部资源池，部分有值 资源池节点为NODE use： api
-        this.addTestResourcePoolSuccess("test_pool_5", true, true, true, false, false, false, ResourcePoolTypeEnum.NODE.name());
+        this.addTestResourcePoolSuccess("test_pool_5", true, true, true, false, false, false, ResourcePoolTypeEnum.NODE.getName());
 
     }
 
@@ -237,7 +237,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Order(6)
     void addTestResourcePoolSix() throws Exception {
         // 不选全部资源池，部分有值 资源池节点为NODE use： api
-        this.addTestResourcePoolSuccess("test_pool_6", false, true, true, false, false, false, ResourcePoolTypeEnum.NODE.name());
+        this.addTestResourcePoolSuccess("test_pool_6", false, true, true, false, false, false, ResourcePoolTypeEnum.NODE.getName());
 
     }
 
@@ -323,7 +323,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Test
     @Order(12)
     void getResourcePoolsDetailWidthBlobNode() throws Exception {
-        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob_node", false, true, true, true, true, false, ResourcePoolTypeEnum.NODE.name());
+        TestResourcePool testResourcePoolRequest1 = this.addTestResourcePoolSuccess("test_pool_blob_node", false, true, true, true, true, false, ResourcePoolTypeEnum.NODE.getName());
         String id = testResourcePoolRequest1.getId();
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/detail/" + id)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -402,7 +402,7 @@ class TestResourcePoolControllerTests extends BaseTest {
         TestResourcePoolRequest testResourcePoolRequest = new TestResourcePoolRequest();
         testResourcePoolRequest.setId(id);
         testResourcePoolRequest.setName("test_pool_update");
-        testResourcePoolRequest.setType(ResourcePoolTypeEnum.NODE.name());
+        testResourcePoolRequest.setType(ResourcePoolTypeEnum.NODE.getName());
         setResources(testResourcePoolRequest, false, false);
         testResourcePoolRequest.setApiTest(true);
         testResourcePoolRequest.setLoadTest(false);
@@ -427,7 +427,7 @@ class TestResourcePoolControllerTests extends BaseTest {
         TestResourcePoolRequest testResourcePoolRequest = new TestResourcePoolRequest();
         testResourcePoolRequest.setId(id);
         testResourcePoolRequest.setName("test_pool_update_1");
-        testResourcePoolRequest.setType(ResourcePoolTypeEnum.NODE.name());
+        testResourcePoolRequest.setType(ResourcePoolTypeEnum.NODE.getName());
         setResources(testResourcePoolRequest, true, false);
         testResourcePoolRequest.setApiTest(true);
         testResourcePoolRequest.setLoadTest(false);
@@ -585,7 +585,7 @@ class TestResourcePoolControllerTests extends BaseTest {
         }
         //没类型
         if (!noType) {
-            testResourcePoolDTO.setType(ResourcePoolTypeEnum.NODE.name());
+            testResourcePoolDTO.setType(ResourcePoolTypeEnum.NODE.getName());
         }
         //没资源池（用途为API 或者 性能测试的校验）
         if (!noResources) {
@@ -630,6 +630,11 @@ class TestResourcePoolControllerTests extends BaseTest {
         }
 
         return testResourcePoolDTO;
+    }
+
+    @Test
+    void resourceEnumName() throws Exception {
+        System.out.println(ResourcePoolTypeEnum.K8S.getName());
     }
 
 }
