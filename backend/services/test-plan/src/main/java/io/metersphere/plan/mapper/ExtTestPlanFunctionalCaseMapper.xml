@@ -168,6 +168,7 @@
         </include>
         <include refid="combine">
             <property name="combineSearch" value="request.combineSearch"/>
+            <property name="planId" value="${request.testPlanId}"/>
         </include>
         <include refid="queryVersionCondition">
             <property name="versionTable" value="functional_case"/>
@@ -313,6 +314,20 @@
                             <property name="condition" value="condition"/>
                             <property name="tablePrefix" value="functional_case"/>
                         </include>
+                        <!-- 测试点 -->
+                        <if test="condition.name == 'testPlanCollectionId'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="test_plan_collection.id"/>
+                            </include>
+                        </if>
+                        <!-- 所属项目 -->
+                        <if test="condition.name == 'projectName'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="functional_case.project_id"/>
+                            </include>
+                        </if>
                         <!-- 评审结果 -->
                         <if test="condition.name == 'reviewStatus'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
@@ -328,7 +343,7 @@
                             </include>
                         </if>
                         <!-- 执行结果 -->
-                        <if test="condition.name == 'lastExecuteResult'">
+                        <if test="condition.name == 'lastExecResult'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
                                 <property name="column" value="test_plan_functional_case.last_exec_result"/>
@@ -364,6 +379,47 @@
                             <include refid="associationAttachmentCondition">
                                 <property name="condition" value="condition"/>
                             </include>
+                        </if>
+                        <!-- 缺陷数 -->
+                        <if test="condition.name == 'bugCount'">
+                            <choose>
+                                <when test="condition.operator == 'NOT_EMPTY'">
+                                    test_plan_functional_case.id in (
+                                        select distinct brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
+                                        where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'FUNCTIONAL'
+                                    )
+                                </when>
+                                <when test="condition.operator == 'EMPTY'">
+                                    test_plan_functional_case.id not in (
+                                        select distinct brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
+                                        where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'FUNCTIONAL'
+                                    )
+                                </when>
+                                <when test="(condition.operator == 'LT' and condition.value &lt; 1) or (condition.operator == 'EQUALS' and condition.value &lt; 0)">
+                                    1=2
+                                </when>
+                                <otherwise>
+                                    <if test="condition.operator == 'LT' or (condition.operator == 'EQUALS' and condition.value == 0)">
+                                        test_plan_functional_case.id not in (
+                                            select distinct brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
+                                            where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'FUNCTIONAL'
+                                        )
+                                        <if test="condition.value &gt; 1">
+                                            OR
+                                        </if>
+                                    </if>
+                                    <if test="(condition.operator == 'EQUALS' and condition.value &gt; 0) or (condition.operator == 'LT' and condition.value &gt; 1) or condition.operator == 'GT'">
+                                        test_plan_functional_case.id in (
+                                            select brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
+                                            where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'FUNCTIONAL' group by brc.test_plan_case_id having
+                                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                                <property name="condition" value="condition"/>
+                                                <property name="column" value="count(brc.id)"/>
+                                            </include>
+                                        )
+                                    </if>
+                                </otherwise>
+                            </choose>
                         </if>
                         <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
                             <property name="searchMode" value="${combineSearch}.searchMode"/>

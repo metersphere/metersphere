@@ -340,7 +340,7 @@
                             </include>
                         </if>
                         <!-- 执行结果 -->
-                        <if test="condition.name == 'lastExecuteResult'">
+                        <if test="condition.name == 'lastReportStatus'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
                                 <property name="column" value="api_scenario.last_report_status"/>
@@ -354,24 +354,27 @@
                             </include>
                         </if>
                         <!-- 通过率 -->
-                        <if test="condition.name == 'passRate'">
+                        <if test="condition.name == 'requestPassRate'">
                             <choose>
                                 <when test="condition.operator == 'NOT_EMPTY'">
                                     api_scenario.request_pass_rate is not null and api_scenario.request_pass_rate != '' and api_scenario.request_pass_rate != 'Calculating'
                                 </when>
                                 <when test="condition.operator == 'EMPTY'">
-                                    api_scenario.request_pass_rate is null or api_scenario.request_pass_rate == '' or api_scenario.request_pass_rate == 'Calculating'
+                                    api_scenario.request_pass_rate is null or api_scenario.request_pass_rate = '' or api_scenario.request_pass_rate = 'Calculating'
                                 </when>
                                 <when test="(condition.operator == 'LT' and condition.value == 0) or (condition.operator == 'GT' and condition.value &gt; 100 )">
                                     1=2
                                 </when>
                                 <otherwise>
-                                    api_scenario.request_pass_rate ${condition.operator} #{condition.value}
+                                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                        <property name="condition" value="condition"/>
+                                        <property name="column" value="api_scenario.request_pass_rate"/>
+                                    </include>
                                 </otherwise>
                             </choose>
                         </if>
                         <!-- 环境 -->
-                        <if test="condition.name == 'env'">
+                        <if test="condition.name == 'environmentName'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
                                 <property name="column" value="api_scenario.environment_id"/>

@@ -45,6 +45,8 @@ public enum UserViewType implements ValueEnum {
      */
     PLAN_FUNCTIONAL_CASE_DRAWER("plan-functional-case-drawer",
             List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE)),
+    PLAN_API_DEFINITION_DRAWER("plan-api-definition-drawer",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE)),
     PLAN_API_CASE_DRAWER("plan-api-case-drawer",
             List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE)),
     PLAN_API_SCENARIO_DRAWER("plan-api-scenario-drawer",

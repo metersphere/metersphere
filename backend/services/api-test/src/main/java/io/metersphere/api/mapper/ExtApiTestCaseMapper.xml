@@ -658,26 +658,28 @@
                                 </when>
                                 <otherwise>
                                     atc.id in (
-                                        select atcr.api_test_case_id as id, format(sum(if(ar.`status` = 'success', 1, 0)) / count(ar.id) * 100, 2) as passRate
-                                        from api_report ar left join api_test_case_record atcr on atcr.api_report_id = ar.id
-                                        group by atcr.api_test_case_id having
-                                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                            <property name="condition" value="condition"/>
-                                            <property name="column" value="passRate"/>
-                                        </include>
+                                        select rate_tmp.id from (
+                                            select atcr.api_test_case_id as id, format(sum(if(ar.`status` = 'success', 1, 0)) / count(ar.id) * 100, 2) as passRate
+                                            from api_report ar left join api_test_case_record atcr on atcr.api_report_id = ar.id
+                                            group by atcr.api_test_case_id having
+                                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                                <property name="condition" value="condition"/>
+                                                <property name="column" value="passRate"/>
+                                            </include>
+                                        ) rate_tmp
                                     )
                                 </otherwise>
                             </choose>
                         </if>
                         <!-- 用例环境 -->
-                        <if test="condition.name == 'env'">
+                        <if test="condition.name == 'environmentName'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
                                 <property name="column" value="atc.environment_id"/>
                             </include>
                         </if>
                         <!-- 执行结果 -->
-                        <if test="condition.name == 'lastExecuteResult'">
+                        <if test="condition.name == 'lastReportStatus'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
                                 <property name="column" value="atc.last_report_status"/>
