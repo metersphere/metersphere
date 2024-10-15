@@ -223,7 +223,7 @@
         options: Object.keys(executeResultMap).map((key) => ({
           label: t(executeResultMap[key].label),
           value: key,
-          icon: executeResultMap[key].icon,
+          icon: executeResultMap[key]?.icon,
         })),
         filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_RESULT,
       },
