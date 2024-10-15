@@ -68,8 +68,8 @@ public class KubernetesProvider {
     /**
      * 执行命令
      *
-     * @param resource
-     * @param command
+     * @param resource 资源
+     * @param command  命令
      */
     protected static void exec(TestResourceDTO resource, Object runRequest, String command) {
         KubernetesClient client = getKubernetesClient(resource);
@@ -150,7 +150,6 @@ public class KubernetesProvider {
                     .redirectingInput()
                     .writingOutput(System.out)
                     .writingError(System.err)
-                    .withTTY()
                     .usingListener(new SimpleListener(runRequest, client))
                     .exec(SHELL_COMMAND, "-c", command);
         } catch (Exception e) {
@@ -167,7 +166,7 @@ public class KubernetesProvider {
         @Override
         public void onFailure(Throwable t, Response response) {
             LogUtils.error("K8s 监听失败", t);
-            if (runRequest != null && !(t instanceof SocketException)) {
+            if (runRequest != null) {
                 handleGeneralError(runRequest, t);
             }
         }
