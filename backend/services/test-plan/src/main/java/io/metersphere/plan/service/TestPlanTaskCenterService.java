@@ -343,7 +343,7 @@ public class TestPlanTaskCenterService {
                     try {
                         TestResourceDTO testResourceDTO = new TestResourceDTO();
                         BeanUtils.copyBean(testResourceDTO, testResourcePoolDTO.getTestResourceReturnDTO());
-                        EngineFactory.stopApi(subList, testResourceDTO);
+                        EngineFactory.stopApiTask(subList, testResourceDTO);
                     } catch (Exception e) {
                         LogUtils.error(e);
                     }
@@ -369,7 +369,7 @@ public class TestPlanTaskCenterService {
             SubListUtils.dealForSubList(reportList, 100, (subList) -> {
                 try {
                     LogUtils.info(String.format("开始发送停止请求到 %s 节点执行", endpoint), subList.toString());
-                    MsHttpClient.stopApi(endpoint, subList);
+                    MsHttpClient.stopApiTask(endpoint, subList);
                 } catch (Exception e) {
                     LogUtils.error(e);
                 }
