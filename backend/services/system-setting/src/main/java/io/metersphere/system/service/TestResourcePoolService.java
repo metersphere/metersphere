@@ -78,7 +78,7 @@ public class TestResourcePoolService {
     }
 
     private static boolean checkNodeOrK8s(TestResourceDTO testResourceDTO, String type) {
-        if (StringUtils.equalsIgnoreCase(type, ResourcePoolTypeEnum.NODE.name())) {
+        if (StringUtils.equalsIgnoreCase(type, ResourcePoolTypeEnum.NODE.getName())) {
             NodeResourcePoolService resourcePoolService = CommonBeanFactory.getBean(NodeResourcePoolService.class);
             if (resourcePoolService != null) {
                 return resourcePoolService.validate(testResourceDTO);
@@ -111,7 +111,7 @@ public class TestResourcePoolService {
         if (CollectionUtils.isEmpty(testResourceDTO.getNodesList())) {
             testResourceDTO.setNodesList(new ArrayList<>());
         }
-        if (StringUtils.equalsIgnoreCase(testResourcePool.getType(), ResourcePoolTypeEnum.NODE.name())){
+        if (StringUtils.equalsIgnoreCase(testResourcePool.getType(), ResourcePoolTypeEnum.NODE.getName())){
             TestResourcePoolValidateService testResourcePoolValidateService = CommonBeanFactory.getBean(TestResourcePoolValidateService.class);
             if (testResourcePoolValidateService != null) {
                 testResourcePoolValidateService.validateNodeList(testResourceDTO.getNodesList());
@@ -155,7 +155,7 @@ public class TestResourcePoolService {
                 testResourcePoolDTO.setOrgNames(orgNameList);
             }
             //获取最大并发
-            if (StringUtils.equalsIgnoreCase(pool.getType(),ResourcePoolTypeEnum.NODE.toString())) {
+            if (StringUtils.equalsIgnoreCase(pool.getType(),ResourcePoolTypeEnum.NODE.getName())) {
                 int concurrentNumber = 0;
                 for (TestResourceNodeDTO testResourceNodeDTO : testResourceDTO.getNodesList()) {
                     concurrentNumber = concurrentNumber+testResourceNodeDTO.getConcurrentNumber();
