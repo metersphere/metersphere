@@ -4,6 +4,7 @@ import io.metersphere.functional.domain.ExportTask;
 import io.metersphere.functional.domain.ExportTaskExample;
 import io.metersphere.functional.mapper.ExportTaskMapper;
 import io.metersphere.sdk.constants.KafkaTopicConstants;
+import io.metersphere.sdk.constants.MsgType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -11,6 +12,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.constants.ExportConstants;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -111,6 +113,17 @@ public class ExportTaskManager {
         }
     }
 
+    public String getExportTaskId(String projectId, String exportType, String exportState, String userId, String fileId, String fileType) {
+        List<ExportTask> exportTasks = this.getExportTasks(projectId, exportType, exportState, userId, fileId);
+        String taskId;
+        if (CollectionUtils.isNotEmpty(exportTasks)) {
+            taskId = exportTasks.getFirst().getId();
+            this.updateExportTask(ExportConstants.ExportState.SUCCESS.name(), taskId, fileType);
+        } else {
+            taskId = MsgType.CONNECT.name();
+        }
+        return taskId;
+    }
     public List<ExportTask> getExportTasks(String projectId, String exportType, String exportState, String userId, String fileId) {
         ExportTaskExample exportTaskExample = new ExportTaskExample();
         ExportTaskExample.Criteria criteria = exportTaskExample.createCriteria().andCreateUserEqualTo(userId).andProjectIdEqualTo(projectId);

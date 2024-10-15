@@ -4,8 +4,10 @@ import io.metersphere.sdk.dto.FileMetadataRepositoryDTO;
 import io.metersphere.sdk.dto.FileModuleRepositoryDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class FileRequest {
 
     private String folder;
@@ -21,6 +23,12 @@ public class FileRequest {
 
     public void setGitFileRequest(FileModuleRepositoryDTO repository, FileMetadataRepositoryDTO file) {
         gitFileRequest = new GitFileRequest(repository.getUrl(), repository.getToken(), repository.getUserName(), file.getBranch(), file.getCommitId());
+    }
+
+    public FileRequest(String folder, String storage, String fileName) {
+        this.folder = folder;
+        this.storage = storage;
+        this.fileName = fileName;
     }
 }
 

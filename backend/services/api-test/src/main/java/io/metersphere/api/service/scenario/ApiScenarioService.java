@@ -8,6 +8,7 @@ import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.ExecutePageRequest;
 import io.metersphere.api.dto.definition.ExecuteReportDTO;
+import io.metersphere.api.dto.export.MetersphereApiScenarioExportResponse;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.controller.MsScriptElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
@@ -23,6 +24,7 @@ import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.api.utils.ApiScenarioBatchOperationUtils;
+import io.metersphere.api.utils.ApiScenarioUtils;
 import io.metersphere.functional.domain.FunctionalCaseTestExample;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -64,6 +66,7 @@ import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ScheduleUtils;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.collections.MapUtils;
@@ -2462,5 +2465,51 @@ public class ApiScenarioService extends MoveNodeService {
         apiStepResourceInfo.setId(resourceId);
         setParamFunc.accept(apiStepResourceInfo, resource);
         return apiStepResourceInfo;
+    }
+
+    public MetersphereApiScenarioExportResponse selectAndSortScenarioDetailWithIds(@Valid List<@NotBlank(message = "{id must not be blank}") String> scenarioIds) {
+        MetersphereApiScenarioExportResponse response = new MetersphereApiScenarioExportResponse();
+
+        // 数据准备
+        {
+            ApiScenarioExample scenarioExample = new ApiScenarioExample();
+            scenarioExample.createCriteria().andIdIn(scenarioIds);
+            List<ApiScenario> exportApiScenarios = apiScenarioMapper.selectByExample(scenarioExample);
+
+            // 获取所有步骤（包含引用的场景）
+            List<ApiScenarioStepDTO> allSteps = getAllStepsByScenarioIds(scenarioIds)
+                    .stream()
+                    .distinct() // 这里可能存在多次引用相同场景，步骤可能会重复，去重
+                    .collect(Collectors.toList());
+
+            //查询引用的场景ID
+            List<String> stepScenarioIds = allSteps.stream().filter(step -> isScenarioStep(step.getStepType())).map(ApiScenarioStepDTO::getResourceId).toList();
+
+            // 查询所有场景的blob
+            List<String> allScenarioIds = new ArrayList<>(scenarioIds);
+            allScenarioIds.addAll(stepScenarioIds);
+            ApiScenarioBlobExample scenarioBlobExample = new ApiScenarioBlobExample();
+            scenarioBlobExample.createCriteria().andIdIn(allScenarioIds);
+            Map<String, ApiScenarioBlob> scenarioBlobMap = apiScenarioBlobMapper.selectByExampleWithBLOBs(scenarioBlobExample).stream().collect(Collectors.toMap(ApiScenarioBlob::getId, Function.identity()));
+            // 场景CSV相关的信息
+            ApiScenarioCsvExample apiScenarioCsvExample = new ApiScenarioCsvExample();
+            apiScenarioCsvExample.createCriteria().andScenarioIdIn(allScenarioIds);
+            response.setApiScenarioCsvList(apiScenarioCsvMapper.selectByExample(apiScenarioCsvExample));
+
+            // 导出的场景
+            response.setExportScenarioList(ApiScenarioUtils.parseApiScenarioDetail(exportApiScenarios, scenarioBlobMap));
+
+            //步骤引用的场景
+            if (CollectionUtils.isNotEmpty(stepScenarioIds)) {
+                scenarioExample.clear();
+                scenarioExample.createCriteria().andIdIn(stepScenarioIds);
+                List<ApiScenario> otherScenarios = apiScenarioMapper.selectByExample(scenarioExample);
+                response.setExportScenarioList(ApiScenarioUtils.parseApiScenarioDetail(otherScenarios, scenarioBlobMap));
+            }
+            
+            response.setScenarioStepBlobMap(getPartialRefStepDetailMap(allSteps));
+        }
+
+        return response;
     }
 }

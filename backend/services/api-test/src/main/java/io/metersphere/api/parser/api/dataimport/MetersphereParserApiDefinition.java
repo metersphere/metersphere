@@ -7,7 +7,7 @@ import io.metersphere.api.dto.converter.ApiDefinitionImportDataAnalysisResult;
 import io.metersphere.api.dto.converter.ApiDefinitionImportFileParseResult;
 import io.metersphere.api.dto.definition.ApiDefinitionMockDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
-import io.metersphere.api.dto.export.MetersphereApiExportResponse;
+import io.metersphere.api.dto.export.MetersphereApiDefinitionExportResponse;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.parser.ApiDefinitionImportParser;
 import io.metersphere.api.utils.ApiDataUtils;
@@ -29,9 +29,9 @@ public class MetersphereParserApiDefinition implements ApiDefinitionImportParser
 
     @Override
     public ApiDefinitionImportFileParseResult parse(InputStream source, ImportRequest request) throws Exception {
-        MetersphereApiExportResponse metersphereApiExportResponse = null;
+        MetersphereApiDefinitionExportResponse metersphereApiExportResponse = null;
         try {
-            metersphereApiExportResponse = ApiDataUtils.parseObject(source, MetersphereApiExportResponse.class);
+            metersphereApiExportResponse = ApiDataUtils.parseObject(source, MetersphereApiDefinitionExportResponse.class);
         } catch (Exception e) {
             LogUtils.error(e.getMessage(), e);
             throw new MSException(e.getMessage());

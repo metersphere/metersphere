@@ -1,23 +1,35 @@
 package io.metersphere.api.service;
 
+import io.metersphere.api.constants.ApiScenarioExportType;
+import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
+import io.metersphere.api.dto.converter.ApiDefinitionExportDetail;
 import io.metersphere.api.dto.converter.ApiScenarioPreImportAnalysisResult;
-import io.metersphere.api.dto.definition.ApiScenarioBatchExportRequest;
+import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.export.ApiScenarioExportResponse;
+import io.metersphere.api.dto.export.MetersphereApiScenarioExportResponse;
 import io.metersphere.api.dto.scenario.*;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.parser.ApiScenarioImportParser;
 import io.metersphere.api.parser.ImportParserFactory;
+import io.metersphere.api.service.definition.ApiDefinitionExportService;
+import io.metersphere.api.service.scenario.ApiScenarioLogService;
 import io.metersphere.api.service.scenario.ApiScenarioModuleService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
+import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.api.utils.ApiDefinitionImportUtils;
 import io.metersphere.api.utils.ApiScenarioImportUtils;
+import io.metersphere.functional.domain.ExportTask;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.sdk.constants.DefaultRepositoryDir;
-import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.project.utils.FileDownloadUtils;
+import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.dto.ExportMsgDTO;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.constants.ExportConstants;
 import io.metersphere.system.domain.User;
@@ -30,9 +42,13 @@ import io.metersphere.system.manager.ExportTaskManager;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.CommonNoticeSendService;
+import io.metersphere.system.service.FileService;
+import io.metersphere.system.service.NoticeSendService;
+import io.metersphere.system.socket.ExportWebSocketHandler;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.TreeNodeParseUtils;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -46,6 +62,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -55,6 +73,12 @@ import static io.metersphere.project.utils.NodeSortUtils.DEFAULT_NODE_INTERVAL_P
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiScenarioDataTransferService {
+
+    private final ThreadLocal<Long> currentApiScenarioOrder = new ThreadLocal<>();
+
+    private final ThreadLocal<Long> currentModuleOrder = new ThreadLocal<>();
+
+    private static final String EXPORT_CASE_TMP_DIR = "apiScenario";
 
     @Resource
     private ProjectMapper projectMapper;
@@ -66,7 +90,13 @@ public class ApiScenarioDataTransferService {
     private ExportTaskManager exportTaskManager;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
+    @Resource
+    private ExtApiDefinitionMapper extApiDefinitionMapper;
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
 
+    @Resource
+    private FileService fileService;
     @Resource
     private CommonNoticeSendService commonNoticeSendService;
     @Resource
@@ -79,17 +109,17 @@ public class ApiScenarioDataTransferService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private OperationLogService operationLogService;
-
-    private final ThreadLocal<Long> currentApiScenarioOrder = new ThreadLocal<>();
-
-    private final ThreadLocal<Long> currentModuleOrder = new ThreadLocal<>();
-
+    @Resource
+    private NoticeSendService noticeSendService;
+    @Resource
+    private ApiScenarioLogService apiScenarioLogService;
+    @Resource
+    private ApiDefinitionExportService apiDefinitionExportService;
 
     public String exportScenario(ApiScenarioBatchExportRequest request, String type, String userId) {
         String returnId;
         try {
             exportTaskManager.exportCheck(request.getProjectId(), ExportConstants.ExportType.API_SCENARIO.toString(), userId);
-
             returnId = exportTaskManager.exportAsyncTask(
                     request.getProjectId(),
                     request.getFileId(), userId,
@@ -323,7 +353,7 @@ public class ApiScenarioDataTransferService {
                 module.setParentId(t.getParentId());
                 module.setProjectId(projectId);
                 module.setCreateUser(operator);
-                module.setPos(getImportNextModuleOrder(apiScenarioModuleService::getNextOrder, projectId));
+                module.setPos(getImportNextOrder(apiScenarioModuleService::getNextOrder, currentModuleOrder, projectId));
                 module.setCreateTime(System.currentTimeMillis());
                 module.setUpdateUser(operator);
                 module.setUpdateTime(module.getCreateTime());
@@ -352,7 +382,7 @@ public class ApiScenarioDataTransferService {
                 ApiScenario scenario = new ApiScenario();
                 BeanUtils.copyBean(scenario, t);
                 scenario.setNum(apiScenarioService.getNextNum(projectId));
-                scenario.setPos(getImportNextModuleOrder(apiScenarioService::getNextOrder, projectId));
+                scenario.setPos(getImportNextOrder(apiScenarioService::getNextOrder, currentApiScenarioOrder, projectId));
                 scenario.setLatest(true);
                 scenario.setCreateUser(operator);
                 scenario.setUpdateUser(operator);
@@ -479,13 +509,13 @@ public class ApiScenarioDataTransferService {
         }
     }
 
-    private Long getImportNextModuleOrder(Function<String, Long> subFunc, String projectId) {
-        Long order = currentModuleOrder.get();
+    private Long getImportNextOrder(Function<String, Long> subFunc, ThreadLocal<Long> nextOrder, String projectId) {
+        Long order = nextOrder.get();
         if (order == null) {
             order = subFunc.apply(projectId);
         }
         order = order + DEFAULT_NODE_INTERVAL_POS;
-        currentModuleOrder.set(order);
+        nextOrder.set(order);
         return order;
     }
 
@@ -542,8 +572,167 @@ public class ApiScenarioDataTransferService {
         return analysisResult;
     }
 
-    private String exportApiScenarioZip(ApiScenarioBatchExportRequest request, String type, String userId) {
-        // todo 场景导出
+    private String exportApiScenarioZip(ApiScenarioBatchExportRequest request, String exportType, String userId) throws Exception {
+        File tmpDir = new File(LocalRepositoryDir.getSystemTempDir() + File.separatorChar + EXPORT_CASE_TMP_DIR + "_" + IDGenerator.nextStr());
+        if (!tmpDir.mkdirs()) {
+            throw new MSException(Translator.get("upload_fail"));
+        }
+        String fileType = "zip";
+        try {
+            User user = userMapper.selectByPrimaryKey(userId);
+            noticeSendService.setLanguage(user.getLanguage());
+            //获取导出的ids集合
+            List<String> ids = apiScenarioService.doSelectIds(request, false);
+            if (CollectionUtils.isEmpty(ids)) {
+                return null;
+            }
+            Map<String, String> moduleMap = this.apiScenarioModuleService.getTree(request.getProjectId()).stream().collect(Collectors.toMap(BaseTreeNode::getId, BaseTreeNode::getPath));
+
+            String fileFolder = tmpDir.getPath() + File.separatorChar + request.getFileId();
+            int fileIndex = 1;
+            SubListUtils.dealForSubList(ids, 500, subList -> {
+                request.setSelectIds(subList);
+                ApiScenarioExportResponse exportResponse = this.genMetersphereExportResponse(request, moduleMap, exportType, userId);
+                TempFileUtils.writeExportFile(fileFolder + File.separatorChar + "scenario_export_" + fileIndex + ".ms", exportResponse);
+            });
+            File zipFile = MsFileUtils.zipFile(tmpDir.getPath(), request.getFileId());
+            if (zipFile == null) {
+                return null;
+            }
+            fileService.upload(zipFile, new FileRequest(DefaultRepositoryDir.getExportApiTempDir(), StorageType.MINIO.name(), request.getFileId()));
+
+            // 生成日志
+            LogDTO logDTO = apiScenarioLogService.exportExcelLog(request.getFileId(), exportType, userId, projectMapper.selectByPrimaryKey(request.getProjectId()));
+            operationLogService.add(logDTO);
+
+            String taskId = exportTaskManager.getExportTaskId(request.getProjectId(), ExportConstants.ExportType.API_SCENARIO.name(), ExportConstants.ExportState.PREPARED.toString(), userId, null, fileType);
+            ExportWebSocketHandler.sendMessageSingle(
+                    new ExportMsgDTO(request.getFileId(), taskId, ids.size(), true, MsgType.EXEC_RESULT.name())
+            );
+        } catch (Exception e) {
+            LogUtils.error(e);
+            List<ExportTask> exportTasks = exportTaskManager.getExportTasks(request.getProjectId(), ExportConstants.ExportType.API_SCENARIO.name(), ExportConstants.ExportState.PREPARED.toString(), userId, null);
+            if (CollectionUtils.isNotEmpty(exportTasks)) {
+                exportTaskManager.updateExportTask(ExportConstants.ExportState.ERROR.name(), exportTasks.getFirst().getId(), fileType);
+            }
+            ExportMsgDTO exportMsgDTO = new ExportMsgDTO(request.getFileId(), "", 0, false, MsgType.EXEC_RESULT.name());
+            ExportWebSocketHandler.sendMessageSingle(exportMsgDTO);
+            throw new MSException(e);
+        } finally {
+            MsFileUtils.deleteDir(tmpDir.getPath());
+        }
         return null;
+    }
+
+    private ApiScenarioExportResponse genMetersphereExportResponse(ApiScenarioBatchExportRequest request, Map<String, String> moduleMap, String exportType, String userId) {
+        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+        MetersphereApiScenarioExportResponse response = apiScenarioService.selectAndSortScenarioDetailWithIds(request.getSelectIds());
+        response.setProjectId(project.getId());
+        response.setOrganizationId(project.getOrganizationId());
+
+        if (StringUtils.equalsIgnoreCase(ApiScenarioExportType.METERSPHERE_ALL_DATA.name(), exportType)) {
+            // 全量导出，导出引用的api、apiCase
+            List<String> apiDefinitionIdList = new ArrayList<>();
+            List<String> apiCaseIdList = new ArrayList<>();
+            response.getScenarioStepList().forEach(step -> {
+                if (StringUtils.isNotBlank(step.getResourceId())) {
+                    if (StringUtils.equalsIgnoreCase(step.getStepType(), ApiScenarioStepType.API.name())) {
+                        if (!apiDefinitionIdList.contains(step.getResourceId())) {
+                            apiDefinitionIdList.add(step.getResourceId());
+                        }
+                    } else if (StringUtils.equalsIgnoreCase(step.getStepType(), ApiScenarioStepType.API_CASE.name())) {
+                        if (!apiCaseIdList.contains(step.getResourceId())) {
+                            apiCaseIdList.add(step.getResourceId());
+                        }
+                    }
+                }
+            });
+            List<ApiTestCaseWithBlob> apiTestCaseWithBlobs = extApiTestCaseMapper.selectAllDetailByApiIds(apiCaseIdList);
+            if (CollectionUtils.isNotEmpty(apiCaseIdList)) {
+                apiTestCaseWithBlobs.forEach(item -> {
+                    if (!apiDefinitionIdList.contains(item.getApiDefinitionId())) {
+                        apiDefinitionIdList.add(item.getApiDefinitionId());
+                    }
+                });
+            }
+
+            Map<String, Map<String, String>> projectApiModuleIdMap = new HashMap<>();
+            if (CollectionUtils.isNotEmpty(apiDefinitionIdList)) {
+                List<ApiDefinitionWithBlob> apiList = extApiDefinitionMapper.selectApiDefinitionWithBlob(apiDefinitionIdList);
+                List<String> projectIdList = apiList.stream().map(ApiDefinitionWithBlob::getProjectId).distinct().toList();
+                projectIdList.forEach(projectId -> projectApiModuleIdMap.put(projectId, apiDefinitionExportService.buildModuleIdPathMap(request.getProjectId())));
+
+                for (ApiDefinitionWithBlob blob : apiList) {
+                    ApiDefinitionExportDetail detail = new ApiDefinitionExportDetail();
+                    if (blob.getRequest() != null) {
+                        detail.setRequest(ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class));
+                    }
+                    if (blob.getResponse() != null) {
+                        detail.setResponse(ApiDataUtils.parseArray(new String(blob.getResponse()), HttpResponse.class));
+                    }
+                    detail.setName(blob.getName());
+                    detail.setProtocol(blob.getProtocol());
+                    detail.setMethod(blob.getMethod());
+                    detail.setPath(blob.getPath());
+                    detail.setStatus(blob.getStatus());
+                    detail.setTags(blob.getTags());
+                    detail.setPos(blob.getPos());
+                    detail.setDescription(blob.getDescription());
+
+                    String moduleName;
+                    if (StringUtils.equals(blob.getModuleId(), ModuleConstants.DEFAULT_NODE_ID)) {
+                        moduleName = Translator.get("api_unplanned_request");
+                    } else if (projectApiModuleIdMap.containsKey(detail.getProjectId()) && projectApiModuleIdMap.get(detail.getProjectId()).containsKey(blob.getModuleId())) {
+                        moduleName = projectApiModuleIdMap.get(detail.getProjectId()).get(blob.getModuleId());
+                    } else {
+                        detail.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+                        moduleName = Translator.get("api_unplanned_request");
+                    }
+                    detail.setModulePath(moduleName);
+                    response.addExportApi(detail);
+
+                }
+            }
+            if (CollectionUtils.isNotEmpty(apiTestCaseWithBlobs)) {
+                for (ApiTestCaseWithBlob apiTestCaseWithBlob : apiTestCaseWithBlobs) {
+                    ApiTestCaseDTO dto = new ApiTestCaseDTO();
+                    dto.setName(apiTestCaseWithBlob.getName());
+                    dto.setPriority(apiTestCaseWithBlob.getPriority());
+                    dto.setStatus(apiTestCaseWithBlob.getStatus());
+                    dto.setTags(apiTestCaseWithBlob.getTags());
+                    dto.setRequest(ApiDataUtils.parseObject(new String(apiTestCaseWithBlob.getRequest()), AbstractMsTestElement.class));
+                    response.addExportApiCase(dto);
+                }
+            }
+
+        } else {
+            // 普通导出,所有的引用都改为复制，并且Api、ApiCase改为CUSTOM_REQUEST
+            response.setStepTypeToCustomRequest();
+        }
+        return response;
+    }
+
+    public void stopExport(String taskId, String userId) {
+        exportTaskManager.sendStopMessage(taskId, userId);
+    }
+
+    public void downloadFile(String projectId, String fileId, String userId, HttpServletResponse httpServletResponse) {
+        List<ExportTask> exportTasks = exportTaskManager.getExportTasks(projectId, ExportConstants.ExportType.API_SCENARIO.name(), ExportConstants.ExportState.SUCCESS.toString(), userId, fileId);
+        if (CollectionUtils.isEmpty(exportTasks)) {
+            return;
+        }
+        ExportTask tasksFirst = exportTasks.getFirst();
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFileName(tasksFirst.getFileId());
+        fileRequest.setFolder(DefaultRepositoryDir.getExportApiTempDir());
+        fileRequest.setStorage(StorageType.MINIO.name());
+        String fileName = "Metersphere_scenario_" + project.getName() + "." + tasksFirst.getFileType();
+        try {
+            InputStream fileInputStream = fileService.getFileAsStream(fileRequest);
+            FileDownloadUtils.zipFilesWithResponse(fileName, fileInputStream, httpServletResponse);
+        } catch (Exception e) {
+            throw new MSException("get file error");
+        }
     }
 }

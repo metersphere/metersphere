@@ -24,12 +24,12 @@ import org.springframework.http.MediaType;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class Swagger3ExportParser implements ExportParser<ApiExportResponse> {
+public class Swagger3ExportParser implements ExportParser<ApiDefinitionExportResponse> {
 
 
     @Override
-    public ApiExportResponse parse(List<ApiDefinitionWithBlob> list, Project project, Map<String, String> moduleMap) throws Exception {
-        SwaggerApiExportResponse response = new SwaggerApiExportResponse();
+    public ApiDefinitionExportResponse parse(List<ApiDefinitionWithBlob> list, Project project, Map<String, String> moduleMap) throws Exception {
+        SwaggerApiDefinitionExportResponse response = new SwaggerApiDefinitionExportResponse();
         //openapi
         response.setOpenapi("3.0.2");
         //info

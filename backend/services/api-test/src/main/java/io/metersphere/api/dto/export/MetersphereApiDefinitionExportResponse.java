@@ -10,7 +10,7 @@ import java.util.List;
  * @author wx
  */
 @Data
-public class MetersphereApiExportResponse extends ApiExportResponse {
+public class MetersphereApiDefinitionExportResponse extends ApiDefinitionExportResponse {
 
     private List<ApiDefinitionExportDetail> apiDefinitions = new ArrayList<>();
 

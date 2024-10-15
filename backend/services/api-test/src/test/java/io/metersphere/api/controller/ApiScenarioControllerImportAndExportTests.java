@@ -1,21 +1,33 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.dto.definition.ApiDefinitionBatchExportRequest;
+import io.metersphere.api.dto.export.MetersphereApiScenarioExportResponse;
 import io.metersphere.api.dto.scenario.ApiScenarioImportRequest;
+import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.functional.domain.ExportTask;
 import io.metersphere.project.domain.Project;
+import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.MsFileUtils;
 import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.constants.ExportConstants;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.manager.ExportTaskManager;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -81,9 +93,14 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
         }
     }
 
+    @Resource
+    private ExportTaskManager exportTaskManager;
+
     @Test
-    @Order(1)
+    @Order(2)
     public void testExport() throws Exception {
+        MsFileUtils.deleteDir("/tmp/api-scenario-export/");
+
         ApiDefinitionBatchExportRequest exportRequest = new ApiDefinitionBatchExportRequest();
         String fileId = IDGenerator.nextStr();
         exportRequest.setProjectId(project.getId());
@@ -93,5 +110,43 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
         exportRequest.setExportApiMock(true);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_POST_EXPORT + "metersphere", exportRequest);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        JSON.parseObject(returnData, ResultHolder.class).getData().toString();
+        Assertions.assertTrue(StringUtils.isNotBlank(fileId));
+        List<ExportTask> taskList = exportTaskManager.getExportTasks(exportRequest.getProjectId(), null, null, "admin", fileId);
+        while (CollectionUtils.isEmpty(taskList)) {
+            Thread.sleep(1000);
+            taskList = exportTaskManager.getExportTasks(exportRequest.getProjectId(), null, null, "admin", fileId);
+        }
+
+        ExportTask task = taskList.getFirst();
+        while (!StringUtils.equalsIgnoreCase(task.getState(), ExportConstants.ExportState.SUCCESS.name())) {
+            Thread.sleep(1000);
+            task = exportTaskManager.getExportTasks(exportRequest.getProjectId(), null, null, "admin", fileId).getFirst();
+        }
+
+        mvcResult = this.download(exportRequest.getProjectId(), fileId);
+
+        byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
+
+        File zipFile = new File("/tmp/api-scenario-export/downloadFiles.zip");
+        FileUtils.writeByteArrayToFile(zipFile, fileBytes);
+
+        File[] files = MsFileUtils.unZipFile(zipFile, "/tmp/api-scenario-export/unzip/");
+        assert files != null;
+        Assertions.assertEquals(files.length, 1);
+        String fileContent = FileUtils.readFileToString(files[0], StandardCharsets.UTF_8);
+
+        MetersphereApiScenarioExportResponse exportResponse = ApiDataUtils.parseObject(fileContent, MetersphereApiScenarioExportResponse.class);
+
+        Assertions.assertEquals(exportResponse.getExportScenarioList().size(), 3);
+
+        MsFileUtils.deleteDir("/tmp/api-scenario-export/");
+    }
+
+    private MvcResult download(String projectId, String fileId) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.get("/api/scenario/download/file/" + projectId + "/" + fileId)
+                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)).andReturn();
     }
 }

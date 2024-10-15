@@ -14,7 +14,7 @@ public class ApiScenarioImportRequest {
     @NotBlank
     private String projectId;
 
-    @Schema(description = "导入的类型  暂定  METERSPHERE  JMETER")
+    @Schema(description = "导入的类型  METERSPHERE/JMETER")
     @NotBlank
     private String type;
 

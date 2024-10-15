@@ -764,5 +764,4 @@
         WHERE module_id = #{0}
           AND deleted = false
     </select>
-
 </mapper>

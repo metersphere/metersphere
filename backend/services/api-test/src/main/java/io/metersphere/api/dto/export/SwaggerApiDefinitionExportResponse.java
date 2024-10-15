@@ -9,7 +9,7 @@ import java.util.List;
  * @author wx
  */
 @Data
-public class SwaggerApiExportResponse extends ApiExportResponse{
+public class SwaggerApiDefinitionExportResponse extends ApiDefinitionExportResponse {
 
     private String openapi;
     private SwaggerInfo info;

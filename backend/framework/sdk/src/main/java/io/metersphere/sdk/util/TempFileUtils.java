@@ -1,5 +1,6 @@
 package io.metersphere.sdk.util;
 
+import io.metersphere.sdk.exception.MSException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -137,5 +138,22 @@ public class TempFileUtils {
             }
         }
         return previewByte;
+    }
+
+    public static void writeExportFile(String fileAbsoluteName, Object exportResponse) {
+        File createFile = new File(fileAbsoluteName);
+        if (!createFile.exists()) {
+            try {
+                createFile.getParentFile().mkdirs();
+                createFile.createNewFile();
+            } catch (IOException e) {
+                throw new MSException(e);
+            }
+        }
+        try {
+            FileUtils.writeByteArrayToFile(createFile, JSON.toJSONString(exportResponse).getBytes());
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
     }
 }
