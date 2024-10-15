@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS exec_task(
     `task_name` VARCHAR(255) NOT NULL   COMMENT '任务名称' ,
     `status` VARCHAR(20) NOT NULL   COMMENT '状态' ,
     `case_count` BIGINT NOT NULL   COMMENT '用例数量' ,
-    `result` VARCHAR(64) NOT NULL DEFAULT 'PENDING'  COMMENT '执行结果' ,
+    `result` VARCHAR(20) NOT NULL DEFAULT 'PENDING'  COMMENT '执行结果' ,
     `task_type` VARCHAR(50) NOT NULL   COMMENT '任务类型' ,
     `resource_id` VARCHAR(50)  COMMENT '测试计划id/测试计划组id' ,
     `trigger_mode` VARCHAR(20) NOT NULL   COMMENT '执行模式' ,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS exec_task_item(
     `resource_name` VARCHAR(255) NOT NULL   COMMENT '资源名称' ,
     `task_origin` VARCHAR(50)    COMMENT '任务来源（任务组下的任务id）' ,
     `status` VARCHAR(20) NOT NULL   COMMENT '执行状态' ,
-    `result` VARCHAR(255) NOT NULL DEFAULT 'PENDING'  COMMENT '执行结果' ,
+    `result` VARCHAR(20) NOT NULL DEFAULT 'PENDING'  COMMENT '执行结果' ,
     `resource_pool_id` VARCHAR(50) NOT NULL   COMMENT '资源池ID' ,
     `resource_pool_node` VARCHAR(50)    COMMENT '节点' ,
     `resource_type` VARCHAR(50) NOT NULL   COMMENT '资源类型' ,
@@ -99,9 +99,14 @@ CREATE TABLE api_doc_share (
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_general_ci COMMENT = '接口文档分享';
 
-
-ALTER TABLE api_report ADD COLUMN associated_task_id VARCHAR(50) COMMENT '关联任务id(集合报告)/任务项id';
-ALTER TABLE api_scenario_report ADD COLUMN associated_task_id VARCHAR(50) COMMENT '关联任务id(集合报告)/任务项id';
+-- 报告与任务关联表
+CREATE TABLE IF NOT EXISTS api_report_relate_task(
+    `task_resource_id` VARCHAR(50) NOT NULL   COMMENT '任务id/任务项id' ,
+    `report_id` VARCHAR(50) NOT NULL   COMMENT '报告id' ,
+    PRIMARY KEY (task_resource_id,report_id)
+    ) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '报告与任务关联表';
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

@@ -108,7 +108,7 @@ public class BaseTaskHubService {
             return;
         }
         List<String> projectIds = list.stream().map(TaskHubDTO::getProjectId).distinct().toList();
-        List<String> organizationIds = list.stream().map(TaskHubDTO::getProjectId).distinct().toList();
+        List<String> organizationIds = list.stream().map(TaskHubDTO::getOrganizationId).distinct().toList();
         List<String> userIds = list.stream().map(TaskHubDTO::getCreateUser).distinct().toList();
         Map<String, String> projectMaps = getProjectMaps(projectIds);
         Map<String, String> organizationMaps = getOrganizationMaps(organizationIds);
