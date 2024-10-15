@@ -5,10 +5,12 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.domain.ApiDocShare;
 import io.metersphere.api.dto.definition.ApiDocShareDTO;
 import io.metersphere.api.dto.definition.ApiDocShareDetail;
+import io.metersphere.api.dto.definition.ApiModuleRequest;
 import io.metersphere.api.dto.definition.request.ApiDocShareCheckRequest;
 import io.metersphere.api.dto.definition.request.ApiDocShareEditRequest;
 import io.metersphere.api.dto.definition.request.ApiDocShareModuleRequest;
 import io.metersphere.api.dto.definition.request.ApiDocSharePageRequest;
+import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDocShareLogService;
 import io.metersphere.api.service.definition.ApiDocShareService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -44,6 +46,8 @@ public class ApiDocShareController {
 
 	@Resource
 	private ApiDocShareService apiDocShareService;
+	@Resource
+	private ApiDefinitionModuleService apiDefinitionModuleService;
 
 	@PostMapping(value = "/page")
 	@Operation(summary = "接口测试-接口管理-接口定义-分页获取分享列表")
@@ -98,8 +102,8 @@ public class ApiDocShareController {
 
 	@PostMapping("/module/tree")
 	@Operation(summary = "接口测试-接口管理-接口定义-模块树")
-	public List<BaseTreeNode> getShareDocTree(@Validated @RequestBody ApiDocShareModuleRequest request) {
-		return apiDocShareService.getShareTree(request);
+	public List<BaseTreeNode> getShareDocTree(@Validated @RequestBody ApiModuleRequest request) {
+		return apiDefinitionModuleService.getTree(request, false, true);
 	}
 
 	@PostMapping("/module/count")

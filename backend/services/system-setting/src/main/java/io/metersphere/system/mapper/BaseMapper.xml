@@ -24,7 +24,7 @@
         <if test="condition.name == 'createUser'">
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="condition" value="condition"/>
-                <property name="column" value="${tablePrefix}.create_User"/>
+                <property name="column" value="${tablePrefix}.create_user"/>
             </include>
         </if>
         <if test="condition.name == 'updateUser'">

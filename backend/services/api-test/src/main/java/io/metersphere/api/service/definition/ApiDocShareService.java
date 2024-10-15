@@ -16,7 +16,6 @@ import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -125,16 +124,6 @@ public class ApiDocShareService {
 	}
 
 	/**
-	 * 查询分享左侧模块树
-	 * @param request 请求参数
-	 * @return 模块树
-	 */
-	public List<BaseTreeNode> getShareTree(ApiDocShareModuleRequest request) {
-		ApiDocShare docShare = checkExit(request.getShareId());
-		return apiDefinitionModuleService.getTree(buildModuleParam(request, docShare), false, true);
-	}
-
-	/**
 	 * 查询分享左侧模块树节点数量
 	 * @param request 请求参数
 	 * @return 模块树节点数量
@@ -167,7 +156,14 @@ public class ApiDocShareService {
 		StringBuilder condition = new StringBuilder();
 		if (!StringUtils.equals(docShare.getApiRange(), RANGE_ALL) && !StringUtils.isBlank(docShare.getRangeMatchVal())) {
 			switch (docShare.getApiRange()) {
-				case "MODULE" -> condition.append("module_id = '").append(docShare.getRangeMatchVal()).append("'");
+				case "MODULE" -> {
+					String[] moduleIds = StringUtils.split(docShare.getRangeMatchVal(), ",");
+					condition.append("module_id in (");
+					for (String moduleId : moduleIds) {
+						condition.append("\"").append(moduleId).append("\", ");
+					}
+					condition.replace(condition.lastIndexOf(","), condition.length() - 1, ")");
+				}
 				case "PATH" -> {
 					if (StringUtils.equals(docShare.getRangeMatchSymbol(), MsAssertionCondition.EQUALS.name())) {
 						condition.append("path = '").append(docShare.getRangeMatchVal()).append("'");
@@ -201,7 +197,11 @@ public class ApiDocShareService {
 		if (!StringUtils.equals(docShare.getApiRange(), RANGE_ALL) && !StringUtils.isBlank(docShare.getRangeMatchVal())) {
 			CombineSearch combineSearch = new CombineSearch();
 			switch (docShare.getApiRange()) {
-				case "MODULE" -> request.setModuleIds(List.of(docShare.getRangeMatchVal()));
+				case "MODULE" -> {
+					String[] moduleIds = StringUtils.split(docShare.getRangeMatchVal(), ",");
+					CombineCondition condition = buildModuleCondition("moduleId", Arrays.asList(moduleIds), "IN");
+					combineSearch.setConditions(List.of(condition));
+				}
 				case "PATH" -> {
 					if (StringUtils.equals(docShare.getRangeMatchSymbol(), MsAssertionCondition.EQUALS.name())) {
 						CombineCondition condition = buildModuleCondition("path", docShare.getRangeMatchVal(), MsAssertionCondition.EQUALS.name());

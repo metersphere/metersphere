@@ -6,7 +6,7 @@
     <select id="list" resultType="io.metersphere.api.dto.definition.ApiDocShareDTO">
         select id, name, is_private isPrivate, create_user createUser, create_time createTime,
                api_range apiRange, range_match_symbol rangeMatchSymbol, range_match_val rangeMatchVal,
-               invalid_time invalidTime, invalid_unit invalidUnit, project_id projectId
+               invalid_time invalidTime, invalid_unit invalidUnit, project_id projectId, password
         from api_doc_share
         <include refid="queryWhereCondition"/>
     </select>

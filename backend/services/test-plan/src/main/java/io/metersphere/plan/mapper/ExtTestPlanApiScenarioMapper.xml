@@ -149,6 +149,7 @@
 
         <include refid="combine">
             <property name="combineSearch" value="request.combineSearch"/>
+            <property name="planId" value="${request.testPlanId}"/>
         </include>
 
         <include refid="queryVersionCondition">
@@ -268,6 +269,20 @@
                             <property name="condition" value="condition"/>
                             <property name="tablePrefix" value="api_scenario"/>
                         </include>
+                        <!-- 测试点 -->
+                        <if test="condition.name == 'testPlanCollectionId'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="test_plan_collection.id"/>
+                            </include>
+                        </if>
+                        <!-- 所属项目 -->
+                        <if test="condition.name == 'projectName'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="api_scenario.project_id"/>
+                            </include>
+                        </if>
                         <!-- 场景等级 -->
                         <if test="condition.name == 'priority'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
@@ -290,7 +305,7 @@
                             </include>
                         </if>
                         <!-- 执行结果 -->
-                        <if test="condition.name == 'lastExecuteResult'">
+                        <if test="condition.name == 'lastExecResult'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
                                 <property name="column" value="test_plan_api_scenario.last_exec_result"/>
@@ -304,28 +319,72 @@
                             </include>
                         </if>
                         <!-- 通过率 -->
-                        <if test="condition.name == 'passRate'">
+                        <if test="condition.name == 'requestPassRate'">
                             <choose>
                                 <when test="condition.operator == 'NOT_EMPTY'">
                                     api_scenario.request_pass_rate is not null and api_scenario.request_pass_rate != '' and api_scenario.request_pass_rate != 'Calculating'
                                 </when>
                                 <when test="condition.operator == 'EMPTY'">
-                                    api_scenario.request_pass_rate is null or api_scenario.request_pass_rate == '' or api_scenario.request_pass_rate == 'Calculating'
+                                    api_scenario.request_pass_rate is null or api_scenario.request_pass_rate = '' or api_scenario.request_pass_rate = 'Calculating'
                                 </when>
                                 <when test="(condition.operator == 'LT' and condition.value == 0) or (condition.operator == 'GT' and condition.value &gt; 100 )">
                                     1=2
                                 </when>
                                 <otherwise>
-                                    api_scenario.request_pass_rate ${condition.operator} #{condition.value}
+                                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                        <property name="condition" value="condition"/>
+                                        <property name="column" value="api_scenario.request_pass_rate"/>
+                                    </include>
                                 </otherwise>
                             </choose>
                         </if>
                         <!-- 环境 -->
-                        <if test="condition.name == 'env'">
+                        <if test="condition.name == 'environmentName'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
                                 <property name="column" value="api_scenario.environment_id"/>
                             </include>
+                        </if>
+                        <!-- 缺陷数 -->
+                        <if test="condition.name == 'bugCount'">
+                            <choose>
+                                <when test="condition.operator == 'NOT_EMPTY'">
+                                    test_plan_api_scenario.id in (
+                                        select distinct brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
+                                        where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'SCENARIO'
+                                    )
+                                </when>
+                                <when test="condition.operator == 'EMPTY'">
+                                    test_plan_api_scenario.id not in (
+                                        select distinct brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
+                                        where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'SCENARIO'
+                                    )
+                                </when>
+                                <when test="(condition.operator == 'LT' and condition.value &lt; 1) or (condition.operator == 'EQUALS' and condition.value &lt; 0)">
+                                    1=2
+                                </when>
+                                <otherwise>
+                                    <if test="condition.operator == 'LT' or (condition.operator == 'EQUALS' and condition.value == 0)">
+                                        test_plan_api_scenario.id not in (
+                                            select distinct brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
+                                            where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'SCENARIO'
+                                        )
+                                        <if test="condition.value &gt; 1">
+                                            OR
+                                        </if>
+                                    </if>
+                                    <if test="(condition.operator == 'EQUALS' and condition.value &gt; 0) or (condition.operator == 'LT' and condition.value &gt; 1) or condition.operator == 'GT'">
+                                        test_plan_api_scenario.id in (
+                                            select brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
+                                            where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'SCENARIO' group by brc.test_plan_case_id having
+                                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                                <property name="condition" value="condition"/>
+                                                <property name="column" value="count(brc.id)"/>
+                                            </include>
+                                        )
+                                    </if>
+                                </otherwise>
+                            </choose>
                         </if>
                         <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
                             <property name="searchMode" value="${combineSearch}.searchMode"/>

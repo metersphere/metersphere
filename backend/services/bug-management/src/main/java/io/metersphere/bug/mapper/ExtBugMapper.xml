@@ -252,6 +252,13 @@
                             <property name="condition" value="condition"/>
                             <property name="tablePrefix" value="b"/>
                         </include>
+                        <!-- 标题 -->
+                        <if test="condition.name == 'title'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="b.title"/>
+                            </include>
+                        </if>
                         <!-- 状态 -->
                         <if test="condition.name == 'status'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
@@ -274,7 +281,7 @@
                             </include>
                         </if>
                         <!-- 用例数 -->
-                        <if test="condition.name == 'caseTotal'">
+                        <if test="condition.name == 'relationCaseCount'">
                             <choose>
                                 <when test="condition.operator == 'NOT_EMPTY'">
                                     b.id in (
@@ -304,7 +311,7 @@
                                     <if test="(condition.operator == 'EQUALS' and condition.value &gt; 0) or (condition.operator == 'LT' and condition.value &gt; 1) or condition.operator == 'GT'">
                                         b.id in (
                                             select distinct b.id from bug b join bug_relation_case brc on b.id = brc.bug_id
-                                            where deleted = ${deleted} and project_id = '${projectId}' group b.id having
+                                            where b.deleted = ${deleted} and b.project_id = '${projectId}' group by b.id having
                                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                                 <property name="condition" value="condition"/>
                                                 <property name="column" value="count(b.id)"/>
@@ -319,7 +326,7 @@
                         </include>
                     </foreach>
                     <include refid="io.metersphere.system.mapper.BaseMapper.customFiledConditions">
-                        <property name="mainIdColumn" value="bug.id"/>
+                        <property name="mainIdColumn" value="b.id"/>
                         <property name="associationTable" value="bug_custom_field"/>
                         <property name="associationIdColumn" value="bug_id"/>
                         <property name="combineSearch" value="${combineSearch}"/>
@@ -335,11 +342,16 @@
         </if>
         <if test="request.keyword != null and request.keyword != ''">
             and (
-            b.title like concat('%', #{request.keyword},'%')
-            or b.num like concat('%', #{request.keyword},'%')
-            or b.tags like concat('%', #{request.keyword},'%')
+                b.title like concat('%', #{request.keyword},'%')
+                or b.num like concat('%', #{request.keyword},'%')
+                or b.tags like concat('%', #{request.keyword},'%')
             )
         </if>
+        <include refid="combine">
+            <property name="combineSearch" value="request.combineSearch"/>
+            <property name="projectId" value="${request.projectId}"/>
+            <property name="deleted" value="${request.useTrash}"/>
+        </include>
     </sql>
 </mapper>
 

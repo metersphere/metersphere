@@ -192,6 +192,13 @@
                             <property name="condition" value="condition"/>
                             <property name="tablePrefix" value="m"/>
                         </include>
+                        <!-- ID -->
+                        <if test="condition.name == 'expectNum'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="m.expect_num"/>
+                            </include>
+                        </if>
                         <!-- 协议 -->
                         <if test="condition.name == 'protocol'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
@@ -200,14 +207,14 @@
                             </include>
                         </if>
                         <!-- 请求类型 -->
-                        <if test="condition.name == 'method'">
+                        <if test="condition.name == 'apiMethod'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
                                 <property name="column" value="d.method"/>
                             </include>
                         </if>
                         <!-- 状态 -->
-                        <if test="condition.name == 'status'">
+                        <if test="condition.name == 'enable'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
                                 <property name="column" value="m.enable"/>
