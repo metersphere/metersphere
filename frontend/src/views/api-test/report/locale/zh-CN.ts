@@ -49,6 +49,7 @@ export default {
   'report.detail.api.apiCase': '接口用例',
   'report.detail.api.customRequest': '自定义请求',
   'report.detail.api': '接口定义',
+  'report.detail.api_scenario': '场景用例',
   'report.detail.api.resBody': '响应体',
   'report.detail.api.resHeader': '响应头',
   'report.detail.api.realReq': '实际请求',

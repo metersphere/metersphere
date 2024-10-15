@@ -163,6 +163,9 @@
     ScenarioStepType.IF_CONTROLLER,
     ScenarioStepType.ONCE_ONLY_CONTROLLER,
     ScenarioStepType.TEST_PLAN_API_CASE,
+    ScenarioStepType.API_SCENARIO,
+    ScenarioStepType.CONSTANT_TIMER,
+    ScenarioStepType.SCRIPT,
   ]);
 
   function getShowExpand(item: ScenarioItemType) {
