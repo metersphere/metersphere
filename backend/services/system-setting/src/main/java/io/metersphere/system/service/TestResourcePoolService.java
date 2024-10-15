@@ -3,11 +3,10 @@ package io.metersphere.system.service;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
+import io.metersphere.sdk.dto.pool.ResourcePoolNodeMetric;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.*;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.pool.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
@@ -17,6 +16,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.TaskRunnerClient;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -47,6 +47,8 @@ public class TestResourcePoolService {
     private OrganizationMapper organizationMapper;
     @Resource
     private ExtResourcePoolMapper extResourcePoolMapper;
+
+    private final static String poolControllerUrl = "http://%s:%s/metric";
 
 
     public void checkAndSaveOrgRelation(TestResourcePool testResourcePool, String id, TestResourceDTO testResourceDTO) {
@@ -111,7 +113,7 @@ public class TestResourcePoolService {
         if (CollectionUtils.isEmpty(testResourceDTO.getNodesList())) {
             testResourceDTO.setNodesList(new ArrayList<>());
         }
-        if (StringUtils.equalsIgnoreCase(testResourcePool.getType(), ResourcePoolTypeEnum.NODE.getName())){
+        if (StringUtils.equalsIgnoreCase(testResourcePool.getType(), ResourcePoolTypeEnum.NODE.getName())) {
             TestResourcePoolValidateService testResourcePoolValidateService = CommonBeanFactory.getBean(TestResourcePoolValidateService.class);
             if (testResourcePoolValidateService != null) {
                 testResourcePoolValidateService.validateNodeList(testResourceDTO.getNodesList());
@@ -155,19 +157,44 @@ public class TestResourcePoolService {
                 testResourcePoolDTO.setOrgNames(orgNameList);
             }
             //获取最大并发
-            if (StringUtils.equalsIgnoreCase(pool.getType(),ResourcePoolTypeEnum.NODE.getName())) {
+            if (StringUtils.equalsIgnoreCase(pool.getType(), ResourcePoolTypeEnum.NODE.getName())) {
+                int maxConcurrentNumber = 0;
                 int concurrentNumber = 0;
+                int occupiedConcurrentNumber = 0;
                 for (TestResourceNodeDTO testResourceNodeDTO : testResourceDTO.getNodesList()) {
-                    concurrentNumber = concurrentNumber+testResourceNodeDTO.getConcurrentNumber();
+                    maxConcurrentNumber = maxConcurrentNumber + testResourceNodeDTO.getConcurrentNumber();
+                    //TODO： 调接口获取剩余并发
+                    ResourcePoolNodeMetric nodeMetric = getNodeMetric();
+                    concurrentNumber = concurrentNumber + nodeMetric.getConcurrentNumber();
+                    occupiedConcurrentNumber = occupiedConcurrentNumber + nodeMetric.getOccupiedConcurrentNumber();
                 }
-                testResourcePoolDTO.setMaxConcurrentNumber(concurrentNumber);
+                testResourcePoolDTO.setLastConcurrentNumber(concurrentNumber-occupiedConcurrentNumber);
+                testResourcePoolDTO.setMaxConcurrentNumber(maxConcurrentNumber);
             } else {
                 testResourcePoolDTO.setMaxConcurrentNumber(testResourceDTO.getConcurrentNumber());
             }
-            //TODO： 调接口获取剩余并发
+
             testResourcePoolDTOS.add(testResourcePoolDTO);
         });
         return testResourcePoolDTOS;
+    }
+
+    public ResourcePoolNodeMetric getNodeMetric() {
+        ResourcePoolNodeMetric resourcePoolNodeMetric = new ResourcePoolNodeMetric();
+        try {
+            ResultHolder body = TaskRunnerClient.get(poolControllerUrl);
+            if (body == null) {
+                return null;
+            }
+            if (body.getData() != null && StringUtils.equalsIgnoreCase("OK", body.getData().toString())) {
+                return null;
+            }
+            resourcePoolNodeMetric = JSON.parseObject(JSON.toJSONString(body.getData()), ResourcePoolNodeMetric.class);
+        } catch (Exception e) {
+            LogUtils.error(e.getMessage(), e);
+        }
+
+        return resourcePoolNodeMetric;
     }
 
     public void checkTestResourcePool(TestResourcePool testResourcePool) {
@@ -264,7 +291,7 @@ public class TestResourcePoolService {
      * 校验该组织是否有权限使用该资源池
      *
      * @param resourcePool 资源池对象
-     * @param orgId 组织id
+     * @param orgId        组织id
      * @return boolean
      */
     public boolean validateOrgResourcePool(TestResourcePool resourcePool, String orgId) {
