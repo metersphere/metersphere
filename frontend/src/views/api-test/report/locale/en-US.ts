@@ -51,6 +51,7 @@ export default {
   'report.detail.api.apiCase': 'Api Case',
   'report.detail.api.customRequest': 'Custom request',
   'report.detail.api': 'Api',
+  'report.detail.api_scenario': 'Scenario',
   'report.detail.api.resBody': 'response body',
   'report.detail.api.resHeader': 'headers',
   'report.detail.api.realReq': 'real request',

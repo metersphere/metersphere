@@ -70,6 +70,9 @@
     ScenarioStepType.LOOP_CONTROLLER,
     ScenarioStepType.IF_CONTROLLER,
     ScenarioStepType.ONCE_ONLY_CONTROLLER,
+    ScenarioStepType.API_SCENARIO,
+    ScenarioStepType.CONSTANT_TIMER,
+    ScenarioStepType.SCRIPT,
   ]);
 </script>
 

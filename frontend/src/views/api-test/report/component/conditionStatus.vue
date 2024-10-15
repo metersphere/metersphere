@@ -20,6 +20,8 @@
     [ScenarioStepType.API_CASE]: { label: 'report.detail.api.apiCase', color: 'rgb(var(--link-4))' },
     [ScenarioStepType.CUSTOM_REQUEST]: { label: 'report.detail.api.customRequest', color: 'rgb(var(--link-4))' },
     [ScenarioStepType.API]: { label: 'report.detail.api', color: 'rgb(var(--link-4))' },
+    [ScenarioStepType.API_SCENARIO]: { label: 'report.detail.api_scenario', color: 'rgba(167, 98, 191, 1)' },
+    [ScenarioStepType.CONSTANT_TIMER]: { label: 'apiScenario.waitTime', color: 'rgb(var(--warning-6))' },
   };
 
   const getClass = computed(() => {
