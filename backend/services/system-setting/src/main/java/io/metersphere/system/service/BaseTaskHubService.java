@@ -2,8 +2,11 @@ package io.metersphere.system.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.domain.ProjectTestResourcePool;
 import io.metersphere.project.domain.ProjectTestResourcePoolExample;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.ResultStatus;
@@ -73,6 +76,10 @@ public class BaseTaskHubService {
     private ExecTaskMapper execTaskMapper;
     @Resource
     private ExecTaskItemMapper execTaskItemMapper;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private OrganizationMapper organizationMapper;
 
     /**
      * 系统-获取执行任务列表
@@ -89,7 +96,32 @@ public class BaseTaskHubService {
     }
 
     private List<TaskHubDTO> getPage(BasePageRequest request, String orgId, String projectId) {
-        return extExecTaskMapper.selectList(request, orgId, projectId);
+        List<TaskHubDTO> list = extExecTaskMapper.selectList(request, orgId, projectId);
+        handleList(list);
+        return list;
+    }
+
+    private void handleList(List<TaskHubDTO> list) {
+        if(CollectionUtils.isEmpty(list)){
+            return;
+        }
+        List<String> projectIds = list.stream().map(TaskHubDTO::getProjectId).distinct().toList();
+        List<String> organizationIds = list.stream().map(TaskHubDTO::getProjectId).distinct().toList();
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andIdIn(projectIds);
+        List<Project> projectList = projectMapper.selectByExample(projectExample);
+        Map<String, String> projectMaps = projectList.stream().collect(Collectors.toMap(Project::getId, Project::getName));
+
+        OrganizationExample organizationExample = new OrganizationExample();
+        organizationExample.createCriteria().andIdIn(organizationIds);
+        List<Organization> organizationList = organizationMapper.selectByExample(organizationExample);
+        Map<String, String> organizationMaps = organizationList.stream().collect(Collectors.toMap(Organization::getId, Organization::getName));
+
+        list.forEach(item -> {
+            item.setProjectName(projectMaps.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
+            item.setOrganizationName(organizationMaps.getOrDefault(item.getOrganizationId(), StringUtils.EMPTY));
+        });
+
     }
 
 
@@ -236,13 +268,13 @@ public class BaseTaskHubService {
         Map<String, List<ExecTaskItem>> taskItems = taskItemList.stream().collect(Collectors.groupingBy(ExecTaskItem::getTaskId));
         taskItems.forEach((taskId, items) -> {
             //成功数量
-            long successCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ResultStatus.SUCCESS.name(), item.getStatus())).count();
+            long successCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ResultStatus.SUCCESS.name(), item.getResult())).count();
             //失败数量
-            long errorCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ResultStatus.ERROR.name(), item.getStatus())).count();
+            long errorCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ResultStatus.ERROR.name(), item.getResult())).count();
             //误报数量
-            long fakeErrorCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ResultStatus.FAKE_ERROR.name(), item.getStatus())).count();
+            long fakeErrorCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ResultStatus.FAKE_ERROR.name(), item.getResult())).count();
             //未执行数量
-            long pendingCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ExecStatus.PENDING.name(), item.getStatus())).count();
+            long pendingCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ExecStatus.PENDING.name(), item.getResult())).count();
 
             TaskStatisticsResponse response = new TaskStatisticsResponse();
             response.setId(taskId);

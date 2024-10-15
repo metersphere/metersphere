@@ -4,6 +4,7 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -71,6 +72,10 @@ public class ExecTask implements Serializable {
     @Schema(description = "结束时间")
     private Long endTime;
 
+    @Schema(description = "是否是集成报告", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{exec_task.integrated.not_blank}", groups = {Created.class})
+    private Boolean integrated;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -88,7 +93,8 @@ public class ExecTask implements Serializable {
         createTime("create_time", "createTime", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         startTime("start_time", "startTime", "BIGINT", false),
-        endTime("end_time", "endTime", "BIGINT", false);
+        endTime("end_time", "endTime", "BIGINT", false),
+        integrated("integrated", "integrated", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
