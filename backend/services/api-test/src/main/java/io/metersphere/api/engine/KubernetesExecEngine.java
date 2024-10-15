@@ -26,8 +26,8 @@ public class KubernetesExecEngine implements ApiEngine {
     /**
      * 单调执行构造函数
      *
-     * @param request
-     * @param resource
+     * @param request 任务请求参数
+     * @param resource 资源池
      */
     public KubernetesExecEngine(TaskRequestDTO request, TestResourceDTO resource) {
         this.request = request;
@@ -37,8 +37,8 @@ public class KubernetesExecEngine implements ApiEngine {
     /**
      * 批量执行构造函数
      *
-     * @param batchRequestDTO
-     * @param resource
+     * @param batchRequestDTO 批量任务请求参数
+     * @param resource 资源池
      */
     public KubernetesExecEngine(TaskBatchRequestDTO batchRequestDTO, TestResourceDTO resource) {
         this.resource = resource;
@@ -48,8 +48,8 @@ public class KubernetesExecEngine implements ApiEngine {
     /**
      * 停止执行构造函数
      *
-     * @param reportIds
-     * @param resource
+     * @param reportIds 任务ID列表
+     * @param resource 资源池
      */
     public KubernetesExecEngine(List<String> reportIds, TestResourceDTO resource) {
         this.resource = resource;
