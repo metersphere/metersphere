@@ -148,6 +148,9 @@ public class ApiReport implements Serializable {
     @NotNull(message = "{api_report.plan.not_blank}", groups = {Created.class})
     private Boolean plan;
 
+    @Schema(description = "关联任务id(集合报告)/任务项id")
+    private String associatedTaskId;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -183,7 +186,8 @@ public class ApiReport implements Serializable {
         assertionPassRate("assertion_pass_rate", "assertionPassRate", "VARCHAR", false),
         scriptIdentifier("script_identifier", "scriptIdentifier", "VARCHAR", false),
         execStatus("exec_status", "execStatus", "VARCHAR", false),
-        plan("plan", "plan", "BIT", true);
+        plan("plan", "plan", "BIT", true),
+        associatedTaskId("associated_task_id", "associatedTaskId", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

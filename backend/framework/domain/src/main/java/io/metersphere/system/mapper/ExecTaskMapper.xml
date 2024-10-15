@@ -17,6 +17,7 @@
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="start_time" jdbcType="BIGINT" property="startTime" />
     <result column="end_time" jdbcType="BIGINT" property="endTime" />
+    <result column="integrated" jdbcType="BIT" property="integrated" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -78,7 +79,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, num, task_name, `status`, case_count, `result`, task_type, resource_id, trigger_mode, 
-    project_id, organization_id, create_time, create_user, start_time, end_time
+    project_id, organization_id, create_time, create_user, start_time, end_time, integrated
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.ExecTaskExample" resultMap="BaseResultMap">
     select
@@ -115,14 +116,14 @@
       `status`, case_count, `result`, 
       task_type, resource_id, trigger_mode, 
       project_id, organization_id, create_time, 
-      create_user, start_time, end_time
-      )
+      create_user, start_time, end_time, 
+      integrated)
     values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{taskName,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{caseCount,jdbcType=BIGINT}, #{result,jdbcType=VARCHAR}, 
       #{taskType,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, 
       #{projectId,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{createUser,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}
-      )
+      #{createUser,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, 
+      #{integrated,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.ExecTask">
     insert into exec_task
@@ -172,6 +173,9 @@
       <if test="endTime != null">
         end_time,
       </if>
+      <if test="integrated != null">
+        integrated,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -218,6 +222,9 @@
       </if>
       <if test="endTime != null">
         #{endTime,jdbcType=BIGINT},
+      </if>
+      <if test="integrated != null">
+        #{integrated,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -275,6 +282,9 @@
       <if test="record.endTime != null">
         end_time = #{record.endTime,jdbcType=BIGINT},
       </if>
+      <if test="record.integrated != null">
+        integrated = #{record.integrated,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -296,7 +306,8 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       start_time = #{record.startTime,jdbcType=BIGINT},
-      end_time = #{record.endTime,jdbcType=BIGINT}
+      end_time = #{record.endTime,jdbcType=BIGINT},
+      integrated = #{record.integrated,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -346,6 +357,9 @@
       <if test="endTime != null">
         end_time = #{endTime,jdbcType=BIGINT},
       </if>
+      <if test="integrated != null">
+        integrated = #{integrated,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -364,21 +378,23 @@
       create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
       start_time = #{startTime,jdbcType=BIGINT},
-      end_time = #{endTime,jdbcType=BIGINT}
+      end_time = #{endTime,jdbcType=BIGINT},
+      integrated = #{integrated,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into exec_task
     (id, num, task_name, `status`, case_count, `result`, task_type, resource_id, trigger_mode, 
-      project_id, organization_id, create_time, create_user, start_time, end_time)
+      project_id, organization_id, create_time, create_user, start_time, end_time, integrated
+      )
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.taskName,jdbcType=VARCHAR}, 
         #{item.status,jdbcType=VARCHAR}, #{item.caseCount,jdbcType=BIGINT}, #{item.result,jdbcType=VARCHAR}, 
         #{item.taskType,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, #{item.triggerMode,jdbcType=VARCHAR}, 
         #{item.projectId,jdbcType=VARCHAR}, #{item.organizationId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.createUser,jdbcType=VARCHAR}, #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}
-        )
+        #{item.createUser,jdbcType=VARCHAR}, #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}, 
+        #{item.integrated,jdbcType=BIT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -435,6 +451,9 @@
         </if>
         <if test="'end_time'.toString() == column.value">
           #{item.endTime,jdbcType=BIGINT}
+        </if>
+        <if test="'integrated'.toString() == column.value">
+          #{item.integrated,jdbcType=BIT}
         </if>
       </foreach>
       )

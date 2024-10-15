@@ -2273,6 +2273,76 @@ public class ApiReportExample {
             addCriterion("`plan` not between", value1, value2, "plan");
             return (Criteria) this;
         }
+
+        public Criteria andAssociatedTaskIdIsNull() {
+            addCriterion("associated_task_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssociatedTaskIdIsNotNull() {
+            addCriterion("associated_task_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssociatedTaskIdEqualTo(String value) {
+            addCriterion("associated_task_id =", value, "associatedTaskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssociatedTaskIdNotEqualTo(String value) {
+            addCriterion("associated_task_id <>", value, "associatedTaskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssociatedTaskIdGreaterThan(String value) {
+            addCriterion("associated_task_id >", value, "associatedTaskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssociatedTaskIdGreaterThanOrEqualTo(String value) {
+            addCriterion("associated_task_id >=", value, "associatedTaskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssociatedTaskIdLessThan(String value) {
+            addCriterion("associated_task_id <", value, "associatedTaskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssociatedTaskIdLessThanOrEqualTo(String value) {
+            addCriterion("associated_task_id <=", value, "associatedTaskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssociatedTaskIdLike(String value) {
+            addCriterion("associated_task_id like", value, "associatedTaskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssociatedTaskIdNotLike(String value) {
+            addCriterion("associated_task_id not like", value, "associatedTaskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssociatedTaskIdIn(List<String> values) {
+            addCriterion("associated_task_id in", values, "associatedTaskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssociatedTaskIdNotIn(List<String> values) {
+            addCriterion("associated_task_id not in", values, "associatedTaskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssociatedTaskIdBetween(String value1, String value2) {
+            addCriterion("associated_task_id between", value1, value2, "associatedTaskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssociatedTaskIdNotBetween(String value1, String value2) {
+            addCriterion("associated_task_id not between", value1, value2, "associatedTaskId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

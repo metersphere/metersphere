@@ -1103,6 +1103,66 @@ public class ExecTaskExample {
             addCriterion("end_time not between", value1, value2, "endTime");
             return (Criteria) this;
         }
+
+        public Criteria andIntegratedIsNull() {
+            addCriterion("integrated is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedIsNotNull() {
+            addCriterion("integrated is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedEqualTo(Boolean value) {
+            addCriterion("integrated =", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedNotEqualTo(Boolean value) {
+            addCriterion("integrated <>", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedGreaterThan(Boolean value) {
+            addCriterion("integrated >", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("integrated >=", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedLessThan(Boolean value) {
+            addCriterion("integrated <", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedLessThanOrEqualTo(Boolean value) {
+            addCriterion("integrated <=", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedIn(List<Boolean> values) {
+            addCriterion("integrated in", values, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedNotIn(List<Boolean> values) {
+            addCriterion("integrated not in", values, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedBetween(Boolean value1, Boolean value2) {
+            addCriterion("integrated between", value1, value2, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("integrated not between", value1, value2, "integrated");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
