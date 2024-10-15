@@ -65,7 +65,7 @@ public class CustomFunctionController {
     @RequiresPermissions(PermissionConstants.PROJECT_CUSTOM_FUNCTION_READ)
     @CheckOwner(resourceId = "#id", resourceType = "custom_function")
     public CustomFunctionDTO get(@PathVariable String id) {
-        return customFunctionService.get(id);
+        return customFunctionService.getWithCheck(id);
     }
 
     @PostMapping("/add")
