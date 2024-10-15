@@ -7,6 +7,7 @@
       baseAction: [],
       moreAction: [],
     }"
+    :not-show-table-filter="props.isAdvancedSearchMode"
     always-show-selected-count
     v-on="propsEvent"
     @filter-change="getModuleCount"
@@ -50,6 +51,8 @@
 <script setup lang="ts">
   import { ref } from 'vue';
 
+  import { getFilterCustomFields } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -58,11 +61,13 @@
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
+  import { getCustomFieldsTable } from '@/api/modules/case-management/featureCase';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useTableStore from '@/hooks/useTableStore';
 
   import type { CaseManagementTable } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
+  import { FilterType } from '@/enums/advancedFilterEnum';
   import { CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
@@ -93,6 +98,7 @@
     modulesCount: Record<string, any>;
     getPageApiType: keyof typeof CasePageApiTypeEnum; // 获取未关联分页Api
     extraTableParams?: TableQueryParams; // 查询表格的额外参数
+    isAdvancedSearchMode?: boolean;
   }>();
 
   const emit = defineEmits<{
@@ -229,7 +235,17 @@
     return getPublicLinkCaseListMap[props.getPageApiType][props.activeSourceType];
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetFilterParams, setTableSelected } = useTable(
+  const {
+    propsRes,
+    propsEvent,
+    viewId,
+    advanceFilter,
+    setAdvanceFilter,
+    loadList,
+    setLoadListParams,
+    resetFilterParams,
+    setTableSelected,
+  } = useTable(
     getPageList.value,
     {
       tableKey: TableKeyEnum.ASSOCIATE_CASE,
@@ -278,13 +294,119 @@
       });
     }
     const tableParams = await getTableParams();
-    setLoadListParams(tableParams);
-    loadList();
-    emit('getModuleCount', {
+    setLoadListParams({
       ...tableParams,
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
+      moduleIds: props.isAdvancedSearchMode ? [] : tableParams.moduleIds,
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
     });
+    loadList();
+    if (!props.isAdvancedSearchMode) {
+      emit('getModuleCount', {
+        ...tableParams,
+        current: propsRes.value.msPagination?.current,
+        pageSize: propsRes.value.msPagination?.pageSize,
+      });
+    }
+  }
+
+  const filterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'caseManagement.featureCase.tableColumnID',
+      dataIndex: 'num',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnName',
+      dataIndex: 'name',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'common.belongModule',
+      dataIndex: 'moduleId',
+      type: FilterType.TREE_SELECT,
+      treeSelectData: props.moduleTree,
+      treeSelectProps: {
+        fieldNames: {
+          title: 'name',
+          key: 'id',
+          children: 'children',
+        },
+        multiple: true,
+        treeCheckable: true,
+        treeCheckStrictly: true,
+      },
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnReviewResult',
+      dataIndex: 'reviewStatus',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: reviewResultOptions.value,
+      },
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnExecutionResult',
+      dataIndex: 'lastExecuteResult',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: executeResultOptions.value,
+      },
+    },
+    {
+      title: 'caseManagement.featureCase.associatedDemand',
+      dataIndex: 'demand',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'caseManagement.featureCase.relatedAttachments',
+      dataIndex: 'attachment',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'common.updateUserName',
+      dataIndex: 'updateUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.updateTime',
+      dataIndex: 'updateTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      type: FilterType.TAGS_INPUT,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+  ]);
+  const searchCustomFields = ref<FilterFormItem[]>([]);
+  async function initFilter() {
+    try {
+      const result = await getCustomFieldsTable(props.currentProject);
+      searchCustomFields.value = getFilterCustomFields(result); // 处理自定义字段
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+  function setCaseAdvanceFilter(filter: FilterResult, id: string) {
+    setAdvanceFilter(filter, id);
   }
 
   const tableRef = ref<InstanceType<typeof MsBaseTable>>();
@@ -353,18 +475,37 @@
     }
   );
 
-  watch([() => props.currentProject, () => props.activeModule], () => {
-    resetFilterParams();
-    loadCaseList();
-  });
+  watch(
+    () => props.currentProject,
+    () => {
+      resetFilterParams();
+      loadCaseList();
+      initFilter();
+    }
+  );
+
+  watch(
+    () => props.activeModule,
+    () => {
+      if (!props.isAdvancedSearchMode) {
+        resetFilterParams();
+        loadCaseList();
+        initFilter();
+      }
+    }
+  );
 
   onMounted(() => {
     loadCaseList();
+    initFilter();
   });
 
   defineExpose({
     getFunctionalSaveParams,
     loadCaseList,
+    filterConfigList,
+    searchCustomFields,
+    setCaseAdvanceFilter,
   });
 
   await tableStore.initColumn(TableKeyEnum.ASSOCIATE_CASE, columns, 'drawer');

@@ -186,6 +186,25 @@ export const casePriorityOptions = [
   { label: 'P3', value: 'P3' },
 ];
 
+export const apiStatusOptions = [
+  {
+    name: t('apiTestManagement.processing'),
+    value: RequestDefinitionStatus.PROCESSING,
+  },
+  {
+    name: t('apiTestManagement.done'),
+    value: RequestDefinitionStatus.DONE,
+  },
+  {
+    name: t('apiTestManagement.deprecate'),
+    value: RequestDefinitionStatus.DEPRECATED,
+  },
+  {
+    name: t('apiTestManagement.debugging'),
+    value: RequestDefinitionStatus.DEBUGGING,
+  },
+];
+
 // 用例状态选项
 export const caseStatusOptions = [
   { label: 'apiTestManagement.processing', value: RequestCaseStatus.PROCESSING },

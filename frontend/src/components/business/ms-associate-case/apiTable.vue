@@ -8,6 +8,7 @@
       baseAction: [],
       moreAction: [],
     }"
+    :not-show-table-filter="props.isAdvancedSearchMode"
     always-show-selected-count
     v-on="propsEvent"
     @filter-change="getModuleCount"
@@ -39,6 +40,7 @@
 </template>
 
 <script setup lang="ts">
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -53,6 +55,7 @@
 
   import { ApiDefinitionDetail } from '@/models/apiTest/management';
   import type { TableQueryParams } from '@/models/common';
+  import { FilterType } from '@/enums/advancedFilterEnum';
   import { RequestMethods } from '@/enums/apiEnum';
   import { CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
@@ -63,6 +66,7 @@
   import type { moduleKeysType } from './types';
   import useModuleSelection from './useModuleSelection';
   import { getPublicLinkCaseListMap } from './utils/page';
+  import { apiStatusOptions } from '@/views/api-test/components/config';
 
   const { t } = useI18n();
   const { openNewPage } = useOpenNewPage();
@@ -80,6 +84,8 @@
     showType: string;
     getPageApiType: keyof typeof CasePageApiTypeEnum; // 获取未关联分页Api
     extraTableParams?: TableQueryParams; // 查询表格的额外参数
+    allProtocolList: string[];
+    isAdvancedSearchMode?: boolean;
     protocols: string[];
     moduleTree: MsTreeNodeData[];
     modulesCount: Record<string, any>;
@@ -193,6 +199,9 @@
   const {
     propsRes,
     propsEvent,
+    viewId,
+    advanceFilter,
+    setAdvanceFilter,
     loadList,
     setLoadListParams,
     setPagination,
@@ -239,13 +248,120 @@
       });
     }
     const tableParams = await getTableParams();
-    setLoadListParams(tableParams);
-    loadList();
-    emit('getModuleCount', {
+    setLoadListParams({
       ...tableParams,
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
+      moduleIds: props.isAdvancedSearchMode ? [] : tableParams.moduleIds,
+      protocols: props.isAdvancedSearchMode ? props.allProtocolList : props.protocols || [],
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
     });
+    loadList();
+    if (!props.isAdvancedSearchMode) {
+      emit('getModuleCount', {
+        ...tableParams,
+        current: propsRes.value.msPagination?.current,
+        pageSize: propsRes.value.msPagination?.pageSize,
+      });
+    }
+  }
+
+  const filterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'caseManagement.featureCase.tableColumnID',
+      dataIndex: 'num',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'apiTestManagement.apiName',
+      dataIndex: 'name',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'common.belongModule',
+      dataIndex: 'moduleId',
+      type: FilterType.TREE_SELECT,
+      treeSelectData: props.moduleTree,
+      treeSelectProps: {
+        fieldNames: {
+          title: 'name',
+          key: 'id',
+          children: 'children',
+        },
+        multiple: true,
+        treeCheckable: true,
+        treeCheckStrictly: true,
+      },
+    },
+    {
+      title: 'apiTestManagement.protocol',
+      dataIndex: 'protocol',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: props.allProtocolList?.map((item) => ({ label: item, value: item })),
+      },
+    },
+    {
+      title: 'apiTestManagement.apiType',
+      dataIndex: 'method',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        labelKey: 'key',
+        options: requestMethodsOptions.value,
+      },
+    },
+    {
+      title: 'apiTestManagement.path',
+      dataIndex: 'path',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'apiTestManagement.apiStatus',
+      dataIndex: 'status',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        labelKey: 'name',
+        options: apiStatusOptions,
+      },
+    },
+    {
+      title: 'apiTestManagement.caseTotal',
+      dataIndex: 'caseTotal',
+      type: FilterType.NUMBER,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      type: FilterType.TAGS_INPUT,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'common.updateTime',
+      dataIndex: 'updateTime',
+      type: FilterType.DATE_PICKER,
+    },
+  ]);
+  function setCaseAdvanceFilter(filter: FilterResult, id: string) {
+    setAdvanceFilter(filter, id);
   }
 
   watch(
@@ -277,7 +393,7 @@
   watch(
     () => props.activeModule,
     (val) => {
-      if (val) {
+      if (val && !props.isAdvancedSearchMode) {
         resetSelector();
         resetFilterParams();
         loadApiList();
@@ -346,6 +462,8 @@
   defineExpose({
     getApiSaveParams,
     loadApiList,
+    filterConfigList,
+    setCaseAdvanceFilter,
   });
 
   await tableStore.initColumn(TableKeyEnum.ASSOCIATE_CASE_API, columns, 'drawer');

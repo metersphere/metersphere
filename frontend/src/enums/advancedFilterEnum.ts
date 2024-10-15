@@ -39,4 +39,8 @@ export enum ViewTypeEnum {
   BUG = 'bug',
   PLAN_BUG = 'plan-bug',
   PLAN_BUG_DRAWER = 'plan-bug-drawer',
+  PLAN_API_SCENARIO_DRAWER = 'plan-api-scenario-drawer',
+  PLAN_API_CASE_DRAWER = 'plan-api-case-drawer',
+  PLAN_API_DEFINITION_DRAWER = 'plan-api-definition-drawer',
+  PLAN_FUNCTIONAL_CASE_DRAWER = 'plan-functional-case-drawer',
 }

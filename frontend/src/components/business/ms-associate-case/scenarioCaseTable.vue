@@ -7,6 +7,7 @@
       baseAction: [],
       moreAction: [],
     }"
+    :not-show-table-filter="props.isAdvancedSearchMode"
     always-show-selected-count
     v-on="propsEvent"
     @filter-change="getModuleCount"
@@ -47,6 +48,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
 
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -62,6 +64,7 @@
 
   import { ApiCaseDetail } from '@/models/apiTest/management';
   import type { TableQueryParams } from '@/models/common';
+  import { FilterType } from '@/enums/advancedFilterEnum';
   import { CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
@@ -73,6 +76,7 @@
   import useModuleSelection from './useModuleSelection';
   import { getPublicLinkCaseListMap } from './utils/page';
   import { casePriorityOptions } from '@/views/api-test/components/config';
+  import { scenarioStatusOptions } from '@/views/api-test/scenario/components/config';
 
   const { t } = useI18n();
   const { openNewPage } = useOpenNewPage();
@@ -89,6 +93,7 @@
     extraTableParams?: TableQueryParams; // 查询表格的额外参数
     moduleTree: MsTreeNodeData[];
     modulesCount: Record<string, any>;
+    isAdvancedSearchMode?: boolean;
   }>();
 
   const emit = defineEmits<{
@@ -208,19 +213,26 @@
     return getPublicLinkCaseListMap[props.getPageApiType][props.activeSourceType];
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetFilterParams, setTableSelected } = useTable(
-    getPageList.value,
-    {
-      tableKey: TableKeyEnum.ASSOCIATE_CASE_API_SCENARIO,
-      showSetting: true,
-      isSimpleSetting: true,
-      onlyPageSize: true,
-      selectable: true,
-      showSelectAll: true,
-      heightUsed: 310,
-      showSelectorAll: false,
-    }
-  );
+  const {
+    propsRes,
+    propsEvent,
+    viewId,
+    advanceFilter,
+    setAdvanceFilter,
+    loadList,
+    setLoadListParams,
+    resetFilterParams,
+    setTableSelected,
+  } = useTable(getPageList.value, {
+    tableKey: TableKeyEnum.ASSOCIATE_CASE_API_SCENARIO,
+    showSetting: true,
+    isSimpleSetting: true,
+    onlyPageSize: true,
+    selectable: true,
+    showSelectAll: true,
+    heightUsed: 310,
+    showSelectorAll: false,
+  });
 
   async function getTableParams() {
     const { excludeKeys } = propsRes.value;
@@ -250,13 +262,138 @@
       });
     }
     const tableParams = await getTableParams();
-    setLoadListParams(tableParams);
-    loadList();
-    emit('getModuleCount', {
+    setLoadListParams({
       ...tableParams,
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
+      moduleIds: props.isAdvancedSearchMode ? [] : tableParams.moduleIds,
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
     });
+    loadList();
+    if (!props.isAdvancedSearchMode) {
+      emit('getModuleCount', {
+        ...tableParams,
+        current: propsRes.value.msPagination?.current,
+        pageSize: propsRes.value.msPagination?.pageSize,
+      });
+    }
+  }
+
+  const filterConfigList = computed<FilterFormItem[]>(() => {
+    return [
+      {
+        title: 'caseManagement.featureCase.tableColumnID',
+        dataIndex: 'num',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'apiScenario.table.columns.name',
+        dataIndex: 'name',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'common.belongModule',
+        dataIndex: 'moduleId',
+        type: FilterType.TREE_SELECT,
+        treeSelectData: props.moduleTree,
+        treeSelectProps: {
+          fieldNames: {
+            title: 'name',
+            key: 'id',
+            children: 'children',
+          },
+          multiple: true,
+          treeCheckable: true,
+          treeCheckStrictly: true,
+        },
+      },
+      {
+        title: 'apiScenario.table.columns.level',
+        dataIndex: 'priority',
+        type: FilterType.SELECT,
+        selectProps: {
+          multiple: true,
+          options: casePriorityOptions,
+        },
+      },
+      {
+        title: 'apiScenario.table.columns.status',
+        dataIndex: 'status',
+        type: FilterType.SELECT,
+        selectProps: {
+          multiple: true,
+          options: scenarioStatusOptions,
+        },
+      },
+      {
+        title: 'apiScenario.table.columns.runResult',
+        dataIndex: 'lastReportStatus',
+        type: FilterType.SELECT,
+        selectProps: {
+          multiple: true,
+          options: statusList.value,
+        },
+      },
+      {
+        title: 'common.tag',
+        dataIndex: 'tags',
+        type: FilterType.TAGS_INPUT,
+        numberProps: {
+          min: 0,
+          precision: 0,
+        },
+      },
+      {
+        title: 'apiScenario.table.columns.scenarioEnv',
+        dataIndex: 'environmentName',
+        type: FilterType.SELECT,
+        selectProps: {
+          labelKey: 'name',
+          valueKey: 'id',
+          multiple: true,
+          options: appStore.envList,
+        },
+      },
+      {
+        title: 'apiScenario.table.columns.steps',
+        dataIndex: 'stepTotal',
+        type: FilterType.NUMBER,
+        numberProps: {
+          min: 0,
+          precision: 0,
+        },
+      },
+      {
+        title: 'apiScenario.table.columns.passRate',
+        dataIndex: 'requestPassRate',
+        type: FilterType.NUMBER,
+        numberProps: {
+          min: 0,
+        },
+      },
+      {
+        title: 'common.creator',
+        dataIndex: 'createUser',
+        type: FilterType.MEMBER,
+      },
+      {
+        title: 'common.createTime',
+        dataIndex: 'createTime',
+        type: FilterType.DATE_PICKER,
+      },
+      {
+        title: 'apiScenario.table.columns.updateUser',
+        dataIndex: 'updateUser',
+        type: FilterType.MEMBER,
+      },
+      {
+        title: 'common.updateTime',
+        dataIndex: 'updateTime',
+        type: FilterType.DATE_PICKER,
+      },
+    ];
+  });
+  function setCaseAdvanceFilter(filter: FilterResult, id: string) {
+    setAdvanceFilter(filter, id);
   }
 
   const tableRef = ref<InstanceType<typeof MsBaseTable>>();
@@ -325,16 +462,31 @@
       pId: record.projectId,
     });
   }
-  watch([() => props.currentProject, () => props.activeModule], () => {
-    resetFilterParams();
-    loadScenarioList();
-  });
+  watch(
+    () => props.currentProject,
+    () => {
+      resetFilterParams();
+      loadScenarioList();
+    }
+  );
+
+  watch(
+    () => props.activeModule,
+    () => {
+      if (!props.isAdvancedSearchMode) {
+        resetFilterParams();
+        loadScenarioList();
+      }
+    }
+  );
 
   onMounted(() => {
     loadScenarioList();
   });
 
   defineExpose({
+    filterConfigList,
+    setCaseAdvanceFilter,
     getScenarioSaveParams,
     loadScenarioList,
   });

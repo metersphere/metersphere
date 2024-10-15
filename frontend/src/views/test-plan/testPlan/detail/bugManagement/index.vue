@@ -198,6 +198,7 @@
   };
 
   const statusOption = ref<BugOptionItem[]>([]);
+  const handleUserOption = ref<BugOptionItem[]>([]);
 
   const platformOption = ref<PoolOption[]>([]);
   const initPlatformOption = async () => {
@@ -228,7 +229,7 @@
       selectProps: {
         multiple: true,
         labelKey: 'name',
-        valueKey: 'id',
+        valueKey: 'name',
         options: platformOption.value,
       },
     },
@@ -254,7 +255,12 @@
     {
       title: 'bugManagement.handleMan',
       dataIndex: 'handleUser',
-      type: FilterType.MEMBER,
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        labelKey: 'text',
+        options: handleUserOption.value,
+      },
     },
     {
       title: 'common.tag',
@@ -298,6 +304,7 @@
     if (hasAnyPermission(['PROJECT_BUG:READ'])) {
       const res = await getCustomOptionHeader(appStore.currentProjectId);
       statusOption.value = res.statusOption;
+      handleUserOption.value = res.handleUserOption;
       const optionsMap: Record<string, any> = {
         status: res.statusOption,
       };

@@ -114,7 +114,7 @@
       </div>
     </template>
     <div class="flex h-[calc(100vh-118px)]">
-      <div class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
+      <div v-show="!isAdvancedSearchMode" class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
         <CaseTree
           ref="caseTreeRef"
           v-model:checkedKeys="checkedKeys"
@@ -143,18 +143,20 @@
           </div>
         </CaseTree>
       </div>
-      <div class="relative flex w-[calc(100%-293px)] flex-col p-[16px]">
+      <div :class="[`relative flex ${!isAdvancedSearchMode ? 'w-[calc(100%-293px)]' : 'w-full'} flex-col p-[16px]`]">
         <MsAdvanceFilter
+          ref="msAdvanceFilterRef"
           v-model:keyword="keyword"
-          :filter-config-list="[]"
-          :custom-fields-config-list="[]"
+          :view-type="viewType"
+          :filter-config-list="filterConfigList"
+          :custom-fields-config-list="searchCustomFields"
           :search-placeholder="searchPlaceholder"
-          @keyword-search="loadCaseList"
-          @adv-search="loadCaseList"
-          @refresh="loadCaseList"
+          @keyword-search="loadCaseList()"
+          @adv-search="handleAdvSearch"
+          @refresh="loadCaseList()"
         >
           <template #left>
-            <div class="flex w-full items-center justify-between">
+            <div class="flex items-center">
               <a-radio-group
                 v-if="associationType === 'API'"
                 v-model="showType"
@@ -187,6 +189,7 @@
           ref="functionalTableRef"
           v-model:selectedIds="selectedIds"
           v-model:selectedModulesMaps="selectedModulesMaps"
+          :is-advanced-search-mode="isAdvancedSearchMode"
           :association-type="associateType"
           :get-page-api-type="getPageApiType"
           :active-module="activeFolder"
@@ -219,6 +222,8 @@
           :active-source-type="associationType"
           :keyword="keyword"
           :show-type="showType"
+          :is-advanced-search-mode="isAdvancedSearchMode"
+          :all-protocol-list="allProtocolList"
           :protocols="selectedProtocols"
           :module-tree="moduleTree"
           :modules-count="modulesCount"
@@ -242,6 +247,8 @@
           :active-source-type="associationType"
           :keyword="keyword"
           :show-type="showType"
+          :is-advanced-search-mode="isAdvancedSearchMode"
+          :all-protocol-list="allProtocolList"
           :protocols="selectedProtocols"
           :module-tree="moduleTree"
           :modules-count="modulesCount"
@@ -267,6 +274,8 @@
           :keyword="keyword"
           :module-tree="moduleTree"
           :total-count="totalCount"
+          :is-advanced-search-mode="isAdvancedSearchMode"
+          :all-protocol-list="allProtocolList"
           @get-module-count="initModulesCount"
           @refresh="loadCaseList"
         >
@@ -353,6 +362,7 @@
   import { isEqual } from 'lodash-es';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import ApiCaseTable from './apiCaseTable.vue';
   import ApiTable from './apiTable.vue';
@@ -369,6 +379,7 @@
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
   import type { ProjectListItem } from '@/models/setting/project';
   import type { AssociateCaseRequestParams } from '@/models/testPlan/testPlan';
+  import { ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { CaseModulesApiTypeEnum, CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
 
@@ -410,6 +421,7 @@
     (e: 'init', val: TableQueryParams): void; // 初始化模块数量
     (e: 'close'): void;
     (e: 'save', params: any): void; // 保存对外传递关联table 相关参数
+    (e: 'handleAdvSearch', isStartAdvance: boolean): void;
   }>();
 
   const keyword = ref<string>('');
@@ -630,6 +642,65 @@
         break;
     }
   }
+  const caseTreeRef = ref<InstanceType<typeof CaseTree>>();
+  const allProtocolList = computed<string[]>(() => caseTreeRef.value?.allProtocolList ?? []);
+
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
+
+  const viewType = computed(() => {
+    switch (associationType.value) {
+      case CaseLinkEnum.FUNCTIONAL:
+        return ViewTypeEnum.PLAN_FUNCTIONAL_CASE_DRAWER;
+      case CaseLinkEnum.API:
+        return showType.value === 'API' ? ViewTypeEnum.PLAN_API_DEFINITION_DRAWER : ViewTypeEnum.PLAN_API_CASE_DRAWER;
+      case CaseLinkEnum.SCENARIO:
+        return ViewTypeEnum.PLAN_API_SCENARIO_DRAWER;
+      default:
+        return ViewTypeEnum.PLAN_FUNCTIONAL_CASE_DRAWER;
+    }
+  });
+  function setAdvanceFilter(filter: FilterResult, id: string) {
+    switch (associationType.value) {
+      case CaseLinkEnum.FUNCTIONAL:
+        return functionalTableRef.value?.setCaseAdvanceFilter(filter, id);
+      case CaseLinkEnum.API:
+        return showType.value === 'API'
+          ? apiTableRef.value?.setCaseAdvanceFilter(filter, id)
+          : caseTableRef.value?.setCaseAdvanceFilter(filter, id);
+      case CaseLinkEnum.SCENARIO:
+        return scenarioTableRef.value?.setCaseAdvanceFilter(filter, id);
+      default:
+        break;
+    }
+  }
+  const filterConfigList = computed<FilterFormItem[]>(() => {
+    switch (associationType.value) {
+      case CaseLinkEnum.FUNCTIONAL:
+        return functionalTableRef.value?.filterConfigList ?? [];
+      case CaseLinkEnum.API:
+        return (
+          (showType.value === 'API' ? apiTableRef.value?.filterConfigList : caseTableRef.value?.filterConfigList) ?? []
+        );
+      case CaseLinkEnum.SCENARIO:
+        return scenarioTableRef.value?.filterConfigList ?? [];
+      default:
+        return [];
+    }
+  });
+  const searchCustomFields = computed(() => {
+    if (associationType.value === CaseLinkEnum.FUNCTIONAL) {
+      return functionalTableRef.value?.searchCustomFields;
+    }
+    return [];
+  });
+  // 高级检索
+  const handleAdvSearch = async (filter: FilterResult, id: string) => {
+    keyword.value = '';
+    caseTreeRef.value?.setActiveFolder('all');
+    setAdvanceFilter(filter, id);
+    await loadCaseList(); // 基础筛选都清空
+  };
 
   function initModuleTree(tree: ModuleTreeNode[], _protocols?: string[]) {
     moduleTree.value = tree;

@@ -194,11 +194,21 @@ export function getAllDataDefaultConditions(viewType: ViewTypeEnum) {
     { name: 'name', operator: OperatorEnum.CONTAINS },
     { name: 'moduleId', operator: OperatorEnum.BELONG_TO },
   ];
-  if ([ViewTypeEnum.API_DEFINITION, ViewTypeEnum.PLAN_API_CASE].includes(viewType)) {
+  if (
+    [
+      ViewTypeEnum.API_DEFINITION,
+      ViewTypeEnum.PLAN_API_CASE,
+      ViewTypeEnum.PLAN_API_DEFINITION_DRAWER,
+      ViewTypeEnum.PLAN_API_CASE_DRAWER,
+    ].includes(viewType)
+  ) {
     conditions.push({ name: 'protocol', operator: OperatorEnum.BELONG_TO });
   }
   if ([ViewTypeEnum.BUG, ViewTypeEnum.PLAN_BUG, ViewTypeEnum.PLAN_BUG_DRAWER].includes(viewType)) {
     conditions.push({ name: 'title', operator: OperatorEnum.CONTAINS });
+  }
+  if ([ViewTypeEnum.API_MOCK].includes(viewType)) {
+    conditions.push({ name: 'expectNum', operator: OperatorEnum.CONTAINS });
   }
   if (
     [ViewTypeEnum.PLAN_API_SCENARIO, ViewTypeEnum.PLAN_API_CASE, ViewTypeEnum.PLAN_FUNCTIONAL_CASE].includes(viewType)

@@ -236,6 +236,14 @@
     }
   });
 
+  watch(
+    () => props.viewType,
+    async () => {
+      await getUserViewList();
+      currentView.value = internalViews.value[0]?.id;
+    }
+  );
+
   const viewSelectOptionVisible = ref(false);
   function changeView(item: ViewItem) {
     currentView.value = item.id;

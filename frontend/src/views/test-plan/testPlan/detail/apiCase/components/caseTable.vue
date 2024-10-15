@@ -549,6 +549,12 @@
       console.log(error);
     }
   }
+  watch(
+    () => props.treeType,
+    () => {
+      initAnotherModules();
+    }
+  );
 
   const filterConfigList = computed<FilterFormItem[]>(() => [
     {
@@ -633,17 +639,6 @@
       selectProps: {
         multiple: true,
         options: caseStatusOptions.map((item) => ({ label: t(item.label), value: item.value })),
-      },
-    },
-    {
-      title: 'case.apiParamsChange',
-      dataIndex: 'apiChange',
-      type: FilterType.BOOLEAN,
-      selectProps: {
-        options: [
-          { label: t('case.withoutChanges'), value: false },
-          { label: t('case.withChanges'), value: true },
-        ],
       },
     },
     {

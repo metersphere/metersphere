@@ -459,7 +459,7 @@
   const filterConfigList = computed<FilterFormItem[]>(() => [
     {
       title: 'caseManagement.featureCase.tableColumnID',
-      dataIndex: 'num',
+      dataIndex: 'expectNum',
       type: FilterType.INPUT,
     },
     {
@@ -510,7 +510,7 @@
     },
     {
       title: 'mockManagement.operationUser',
-      dataIndex: 'createUserName',
+      dataIndex: 'createUser',
       type: FilterType.MEMBER,
     },
     {

@@ -310,6 +310,21 @@
     }
   }
 
+  watch([() => props.configList, () => props.customList], ([newConfigList, newCustomList]) => {
+    formModel.value.list.forEach((formModelListItem: FilterFormItem, index) => {
+      const listItem = [...newConfigList, ...(newCustomList ?? [])].find(
+        (item) => item.dataIndex === formModelListItem.dataIndex
+      );
+      if (listItem) {
+        formModel.value.list[index] = {
+          ...listItem,
+          operator: formModelListItem.operator,
+          value: formModelListItem.value,
+        };
+      }
+    });
+  });
+
   const isShowNameInput = ref(false);
   const viewNameInputRef = ref<InstanceType<typeof ViewNameInput>>();
   function showNameInput() {
@@ -424,7 +439,7 @@
     () => props.currentView,
     async (val, oldValue) => {
       await getUserViewDetail(val);
-      if (!oldValue.length) return;
+      if (!oldValue?.length) return;
       handleFilter();
     }
   );

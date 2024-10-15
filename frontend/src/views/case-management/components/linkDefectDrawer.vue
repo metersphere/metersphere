@@ -280,10 +280,12 @@
   };
 
   const statusOption = ref<BugOptionItem[]>([]);
+  const handleUserOption = ref<BugOptionItem[]>([]);
   async function initFilterOptions() {
     try {
       const res = await getCustomOptionHeader(appStore.currentProjectId);
       statusOption.value = res.statusOption;
+      handleUserOption.value = res.handleUserOption;
     } catch (error) {
       // eslint-disable-next-line no-console
     }
@@ -318,7 +320,7 @@
       selectProps: {
         multiple: true,
         labelKey: 'name',
-        valueKey: 'id',
+        valueKey: 'name',
         options: platformOption.value,
       },
     },
@@ -344,7 +346,12 @@
     {
       title: 'bugManagement.handleMan',
       dataIndex: 'handleUser',
-      type: FilterType.MEMBER,
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        labelKey: 'text',
+        options: handleUserOption.value,
+      },
     },
     {
       title: 'common.tag',
