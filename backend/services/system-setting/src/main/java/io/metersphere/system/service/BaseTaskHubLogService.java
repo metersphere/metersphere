@@ -89,4 +89,69 @@ public class BaseTaskHubLogService {
         return dto;
     }
 
+
+    /**
+     * 系统删除任务日志
+     * @param id
+     * @return
+     */
+    public LogDTO systemDeleteLog(String id) {
+        ExecTask execTask = execTaskMapper.selectByPrimaryKey(id);
+        LogDTO dto = null;
+        if (execTask != null) {
+            dto = new LogDTO(
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
+                    execTask.getId(),
+                    null,
+                    OperationLogType.DELETE.name(),
+                    OperationLogModule.SETTING_SYSTEM_TASK_CENTER,
+                    execTask.getTaskName());
+        }
+        return dto;
+    }
+
+    /**
+     * 组织删除任务日志
+     * @param id
+     * @return
+     */
+    public LogDTO orgDeleteLog(String id) {
+        ExecTask execTask = execTaskMapper.selectByPrimaryKey(id);
+        LogDTO dto = null;
+        if (execTask != null) {
+            dto = new LogDTO(
+                    OperationLogConstants.ORGANIZATION,
+                    null,
+                    execTask.getId(),
+                    null,
+                    OperationLogType.DELETE.name(),
+                    OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER,
+                    execTask.getTaskName());
+        }
+        return dto;
+    }
+
+
+    /**
+     * 项目删除任务日志
+     * @param id
+     * @return
+     */
+    public LogDTO projectDeleteLog(String id) {
+        ExecTask execTask = execTaskMapper.selectByPrimaryKey(id);
+        LogDTO dto = null;
+        if (execTask != null) {
+            dto = new LogDTO(
+                    null,
+                    null,
+                    execTask.getId(),
+                    null,
+                    OperationLogType.DELETE.name(),
+                    OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER,
+                    execTask.getTaskName());
+        }
+        return dto;
+    }
+
 }

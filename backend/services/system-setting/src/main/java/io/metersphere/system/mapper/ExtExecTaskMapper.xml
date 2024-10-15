@@ -32,5 +32,19 @@
         <if test="execTask.organizationId != null and execTask.organizationId != ''">
             and organization_id = #{execTask.organizationId}
         </if>
+        and `status` = 'RUNNING'
     </update>
+
+    <delete id="deleteTaskById">
+        DELETE
+        FROM exec_task
+        WHERE id = #{id}
+        <if test="projectId != null and projectId != ''">
+            and project_id = #{projectId}
+        </if>
+        <if test="orgId != null and orgId != ''">
+            and organization_id = #{orgId}
+        </if>
+        and `status` in ('PENDING', 'STOPPED', 'COMPLETED')
+    </delete>
 </mapper>

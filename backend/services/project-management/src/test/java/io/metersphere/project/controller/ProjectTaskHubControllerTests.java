@@ -25,6 +25,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     public static final String PROJECT_STATISTICS = "/project/task-center/exec-task/statistics";
     public static final String PROJECT_RESOURCE_POOL_OPTIONS = "/project/task-center/resource-pool/options";
     public static final String PROJECT_TASK_STOP = "/project/task-center/exec-task/stop/";
+    public static final String PROJECT_TASK_DELETE = "/project/task-center/exec-task/delete/";
 
     @Test
     @Order(1)
@@ -115,6 +116,21 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     @Order(6)
     public void projectTaskStop() throws Exception {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(PROJECT_TASK_STOP + "1");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
+    /**
+     * 项目执行任务删除
+     */
+    @Test
+    @Order(5)
+    public void projectTaskDelete() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(PROJECT_TASK_DELETE + "4");
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);

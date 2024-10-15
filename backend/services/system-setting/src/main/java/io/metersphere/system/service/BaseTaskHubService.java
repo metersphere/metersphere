@@ -398,7 +398,7 @@ public class BaseTaskHubService {
         extExecTaskMapper.updateTaskStatus(execTask);
         //2.更新任务明细状态
         ExecTaskItemExample itemExample = new ExecTaskItemExample();
-        itemExample.createCriteria().andTaskIdEqualTo(id);
+        itemExample.createCriteria().andTaskIdEqualTo(id).andStatusEqualTo(ExecStatus.RUNNING.name());
         ExecTaskItem execTaskItem = new ExecTaskItem();
         execTaskItem.setStatus(ExecStatus.STOPPED.name());
         execTaskItem.setExecutor(userId);
@@ -406,5 +406,15 @@ public class BaseTaskHubService {
         //TODO 3.调用jmeter触发停止
 
 
+    }
+
+    public void deleteTask(String id, String orgId, String projectId) {
+        //1.删除任务
+        extExecTaskMapper.deleteTaskById(id, orgId, projectId);
+        //2.删除任务明细
+        ExecTaskItemExample itemExample = new ExecTaskItemExample();
+        itemExample.createCriteria().andTaskIdEqualTo(id);
+        execTaskItemMapper.deleteByExample(itemExample);
+        //TODO jmeter执行队列中移除
     }
 }
