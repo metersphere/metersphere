@@ -255,6 +255,21 @@ public class ApiReportService {
      *
      * @param reportId
      */
+    public void updateReportRunningStatus(String reportId) {
+        ApiReport apiReport = new ApiReport();
+        apiReport.setId(reportId);
+        apiReport.setExecStatus(ExecStatus.RUNNING.name());
+        apiReport.setStartTime(System.currentTimeMillis());
+        apiReport.setUpdateTime(System.currentTimeMillis());
+        apiReportMapper.updateByPrimaryKeySelective(apiReport);
+    }
+
+
+    /**
+     * 更新执行中的用例报告
+     *
+     * @param reportId
+     */
     public void updateReportStatus(String reportId, String status) {
         ApiReport apiReport = new ApiReport();
         apiReport.setId(reportId);
