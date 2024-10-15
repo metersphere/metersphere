@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.system.mapper.ExtExecTaskItemMapper">
 
     <select id="selectList" resultType="io.metersphere.system.dto.taskhub.TaskHubItemDTO">
-        SELECT exec_task_item.*, exec_task.num
+        SELECT exec_task_item.*, exec_task.num, exec_task.task_name, exec_task.trigger_mode
         FROM exec_task_item
         inner join exec_task on exec_task_item.task_id = exec_task.id
         <where>
