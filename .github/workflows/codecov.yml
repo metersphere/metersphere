@@ -31,6 +31,10 @@ jobs:
           cache: 'maven'
           cache-dependency-path: '**/pom.xml' # optional
           check-latest: true
+
+      - name: Remove monitoring-engine JAR
+        run: rm -rf ~/.m2/repository/io/metersphere/monitoring-engine
+
       - name: Build with Maven - other
         run: mvn -B package -DskipAntRunForJenkins --file pom.xml -pl '!frontend'
       - name: Upload coverage reports to Codecov
