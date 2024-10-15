@@ -6,11 +6,16 @@ import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.plugin.api.dto.ApiPluginSelectOption;
 import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.project.constants.ScriptLanguageType;
+import io.metersphere.project.domain.CustomFunction;
 import io.metersphere.project.domain.ProjectTestResourcePool;
 import io.metersphere.project.domain.ProjectTestResourcePoolExample;
+import io.metersphere.project.dto.CommonScriptInfo;
+import io.metersphere.project.dto.customfunction.request.CustomFunctionRequest;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
+import io.metersphere.project.service.CustomFunctionService;
+import io.metersphere.sdk.constants.InternalUser;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.Environment;
@@ -35,6 +40,7 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
@@ -58,6 +64,7 @@ public class ApiTestControllerTests extends BaseTest {
     protected static final String PLUGIN_SCRIPT = "plugin/script/{0}";
     protected static final String ENV_LIST = "env-list/{0}";
     protected static final String ENVIRONMENT = "environment/{0}";
+    protected static final String COMMON_SCRIPT = "common-script/{scriptId}";
 
     @Resource
     private BaseResourcePoolTestService baseResourcePoolTestService;
@@ -69,6 +76,8 @@ public class ApiTestControllerTests extends BaseTest {
     private BaseEnvTestService baseEnvTestService;
     @Resource
     private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
+    @Resource
+    private CustomFunctionService customFunctionService;
 
     @Override
     protected String getBasePath() {
@@ -225,6 +234,35 @@ public class ApiTestControllerTests extends BaseTest {
         Assertions.assertNull(environmentConfig.getPreProcessorConfig());
         Assertions.assertNull(environmentConfig.getPostProcessorConfig());
         Assertions.assertNull(environmentConfig.getAssertionConfig());
+    }
+
+    @Test
+    public void getCommonScriptInfo() throws Exception {
+        MvcResult mvcResult = this.requestGetAndReturn(COMMON_SCRIPT, "111");
+        Assertions.assertNull(parseResponse(mvcResult).get("data"));
+
+        // 创建测试数据
+        CustomFunctionRequest request = new CustomFunctionRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setName(UUID.randomUUID().toString());
+        request.setStatus("UNDERWAY");
+        request.setScript("script");
+        // 执行方法调用
+        request.setName(UUID.randomUUID().toString());
+        CustomFunction customFunction = customFunctionService.add(request, InternalUser.ADMIN.getValue());
+        mvcResult = this.requestGetAndReturn(COMMON_SCRIPT, customFunction.getId());
+        CommonScriptInfo resultData = getResultData(mvcResult, CommonScriptInfo.class);
+
+        Assertions.assertEquals(resultData.getScript(), request.getScript());
+        Assertions.assertEquals(resultData.getName(), request.getName());
+
+        // @@校验权限
+        requestGetPermissionsTest(new ArrayList<>() {{
+            add(PermissionConstants.PROJECT_API_DEFINITION_READ);
+            add(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ);
+            add(PermissionConstants.PROJECT_API_DEBUG_READ);
+            add(PermissionConstants.PROJECT_API_SCENARIO_READ);
+        }}, COMMON_SCRIPT, "11");
     }
 
     @Test

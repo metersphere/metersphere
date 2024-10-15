@@ -7,9 +7,13 @@ import io.metersphere.plugin.api.dto.ApiPluginOptionsRequest;
 import io.metersphere.plugin.api.dto.ApiPluginSelectOption;
 import io.metersphere.plugin.api.spi.AbstractApiPlugin;
 import io.metersphere.plugin.api.spi.AbstractProtocolPlugin;
+import io.metersphere.project.api.KeyValueParam;
+import io.metersphere.project.dto.CommonScriptInfo;
+import io.metersphere.project.dto.customfunction.CustomFunctionDTO;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
 import io.metersphere.project.mapper.ExtProjectMapper;
+import io.metersphere.project.service.CustomFunctionService;
 import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.ProjectApplicationType;
@@ -17,6 +21,7 @@ import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.dto.ProtocolDTO;
@@ -59,6 +64,8 @@ public class ApiTestService {
     private ProjectApplicationService projectApplicationService;
     @Resource
     private FileService fileService;
+    @Resource
+    private CustomFunctionService customFunctionService;
 
     public List<ProtocolDTO> getProtocols(String orgId) {
         List<ProtocolDTO> protocols = apiPluginService.getProtocols(orgId);
@@ -157,5 +164,21 @@ public class ApiTestService {
         response.setHeader("Content-disposition", "attachment;filename=" + fileName);
         response.getOutputStream().write(content);
         response.getOutputStream().flush();
+    }
+
+    public CommonScriptInfo getCommonScriptInfo(String scriptId) {
+        CustomFunctionDTO customFunctionDTO = customFunctionService.get(scriptId);
+        if (customFunctionDTO == null) {
+            return null;
+        }
+        CommonScriptInfo commonScriptInfo = new CommonScriptInfo();
+        commonScriptInfo.setScriptLanguage(customFunctionDTO.getType());
+        commonScriptInfo.setScript(customFunctionDTO.getScript());
+        commonScriptInfo.setName(customFunctionDTO.getName());
+        commonScriptInfo.setId(customFunctionDTO.getId());
+        if (StringUtils.isNotBlank(customFunctionDTO.getParams())) {
+            commonScriptInfo.setParams(JSON.parseArray(customFunctionDTO.getParams(), KeyValueParam.class));
+        }
+        return commonScriptInfo;
     }
 }

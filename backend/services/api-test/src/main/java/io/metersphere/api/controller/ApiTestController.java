@@ -6,6 +6,7 @@ import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiTestService;
 import io.metersphere.jmeter.mock.Mock;
 import io.metersphere.plugin.api.dto.ApiPluginSelectOption;
+import io.metersphere.project.dto.CommonScriptInfo;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -150,5 +151,17 @@ public class ApiTestController {
             return;
         }
         apiTestService.download(path.asText(), response);
+    }
+
+    @GetMapping("/common-script/{scriptId}")
+    @Operation(summary = "获取最新的公共脚本信息")
+    @RequiresPermissions(value = {
+            PermissionConstants.PROJECT_API_DEFINITION_READ,
+            PermissionConstants.PROJECT_API_DEFINITION_CASE_READ,
+            PermissionConstants.PROJECT_API_DEBUG_READ,
+            PermissionConstants.PROJECT_API_SCENARIO_READ
+    }, logical = Logical.OR)
+    public CommonScriptInfo getCommonScriptInfo(@PathVariable String scriptId) {
+        return apiTestService.getCommonScriptInfo(scriptId);
     }
 }

@@ -83,8 +83,19 @@ public class CustomFunctionService {
         list.forEach(item -> handleCustomFunctionBlob(item.getId(), item));
     }
 
-    public CustomFunctionDTO get(String id) {
+    public CustomFunctionDTO getWithCheck(String id) {
         CustomFunction customFunction = checkCustomFunction(id);
+        CustomFunctionDTO customFunctionDTO = new CustomFunctionDTO();
+        handleCustomFunctionBlob(id, customFunctionDTO);
+        BeanUtils.copyBean(customFunctionDTO, customFunction);
+        return customFunctionDTO;
+    }
+
+    public CustomFunctionDTO get(String id) {
+        CustomFunction customFunction = customFunctionMapper.selectByPrimaryKey(id);
+        if (customFunction == null) {
+            return null;
+        }
         CustomFunctionDTO customFunctionDTO = new CustomFunctionDTO();
         handleCustomFunctionBlob(id, customFunctionDTO);
         BeanUtils.copyBean(customFunctionDTO, customFunction);
