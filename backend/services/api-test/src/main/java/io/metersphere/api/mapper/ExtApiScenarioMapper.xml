@@ -762,6 +762,7 @@
         SELECT id, name
         FROM api_scenario
         WHERE module_id = #{0}
+          AND deleted = false
     </select>
 
 </mapper>

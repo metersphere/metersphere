@@ -519,11 +519,13 @@ public class ApiScenarioDataTransferService {
             if (modulePathMap.containsKey(modulePath)) {
                 List<ApiScenario> existenceScenarios = extApiScenarioMapper.selectBaseInfoByModuleId(modulePathMap.get(modulePath).getId());
                 Map<String, String> existenceNameIdMap = existenceScenarios.stream().collect(Collectors.toMap(ApiScenario::getName, ApiScenario::getId));
+                String finalModulePath = modulePath;
                 scenarios.forEach(scenario -> {
                     if (existenceNameIdMap.containsKey(scenario.getName())) {
                         scenario.setId(existenceNameIdMap.get(scenario.getName()));
                         analysisResult.getUpdateApiScenarioData().add(scenario);
                     } else {
+                        scenario.setModuleId(modulePathMap.get(finalModulePath).getId());
                         analysisResult.getInsertApiScenarioData().add(scenario);
                     }
                 });

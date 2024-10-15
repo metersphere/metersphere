@@ -1,6 +1,7 @@
 package io.metersphere.api.parser.api.dataimport;
 
 import io.metersphere.api.constants.ApiScenarioStatus;
+import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.dto.request.MsJMeterComponent;
 import io.metersphere.api.dto.request.controller.*;
@@ -51,6 +52,7 @@ public class JmeterParserApiScenario implements ApiScenarioImportParser {
         apiScenarioDetail.setName(scenarioName);
         apiScenarioDetail.setPriority("P0");
         apiScenarioDetail.setStatus(ApiScenarioStatus.UNDERWAY.name());
+        apiScenarioDetail.setGrouped(false);
         apiScenarioDetail.setDeleted(false);
         apiScenarioDetail.setLatest(true);
         apiScenarioDetail.setProjectId(projectId);
@@ -72,20 +74,26 @@ public class JmeterParserApiScenario implements ApiScenarioImportParser {
             apiScenarioStep.setProjectId(projectId);
             apiScenarioStep.setName(msTestElement.getName());
             apiScenarioStep.setUniqueId(IDGenerator.nextStr());
-
+            msTestElement.setStepId(apiScenarioStep.getId());
+            msTestElement.setProjectId(apiScenarioStep.getProjectId());
             byte[] stepBlobContent = null;
             if (msTestElement instanceof MsHTTPElement msHTTPElement) {
-                apiScenarioStep.setConfig(JSON.toJSONString(new ProtocolConfig("HTTP", msHTTPElement.getMethod())));
+                apiScenarioStep.setConfig(new ProtocolConfig("HTTP", msHTTPElement.getMethod()));
                 apiScenarioStep.setStepType(ApiScenarioStepType.CUSTOM_REQUEST.name());
+                apiScenarioStep.setRefType(ApiScenarioStepRefType.DIRECT.name());
+                msHTTPElement.setCustomizeRequest(true);
                 stepBlobContent = JSON.toJSONString(msTestElement).getBytes();
-            } else if (msTestElement instanceof AbstractMsProtocolTestElement) {
+            } else if (msTestElement instanceof AbstractMsProtocolTestElement msProtocolTestElement) {
                 apiScenarioStep.setStepType(ApiScenarioStepType.CUSTOM_REQUEST.name());
+                msProtocolTestElement.setCustomizeRequest(true);
                 String protocol = polymorphicNameMap.get(msTestElement.getClass().getSimpleName());
-                apiScenarioStep.setConfig(JSON.toJSONString(new ProtocolConfig(protocol, protocol)));
+                apiScenarioStep.setConfig(new ProtocolConfig(protocol, protocol));
+                apiScenarioStep.setRefType(ApiScenarioStepRefType.DIRECT.name());
                 stepBlobContent = JSON.toJSONString(msTestElement).getBytes();
             } else if (msTestElement instanceof MsJMeterComponent) {
                 apiScenarioStep.setStepType(this.getStepType(msTestElement));
-                apiScenarioStep.setConfig("{}");
+                apiScenarioStep.setConfig(new HashMap<>());
+                apiScenarioStep.setRefType(ApiScenarioStepRefType.DIRECT.name());
             } else {
                 apiScenarioStep.setStepType(this.getStepType(msTestElement));
                 apiScenarioStep.setConfig(JSON.toJSONString(msTestElement));

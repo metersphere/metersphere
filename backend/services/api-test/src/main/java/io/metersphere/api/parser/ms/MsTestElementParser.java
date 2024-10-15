@@ -54,18 +54,6 @@ public class MsTestElementParser {
         return result;
     }
 
-    //    public List<AbstractMsTestElement> getAbstractMsTestElement(AbstractMsTestElement msTestElement) {
-    //        List<AbstractMsTestElement> result = new ArrayList<>();
-    //        if (msTestElement instanceof AbstractMsProtocolTestElement abstractMsProtocolTestElement) {
-    //            result.add(abstractMsProtocolTestElement);
-    //        } else {
-    //            for (AbstractMsTestElement child : msTestElement.getChildren()) {
-    //                result.addAll(this.getAbstractMsTestElement(child));
-    //            }
-    //        }
-    //        return result;
-    //    }
-
     public Map<String, String> getPolymorphicNameMap(String projectId) {
         ApiPluginService apiPluginService = CommonBeanFactory.getBean(ApiPluginService.class);
         assert apiPluginService != null;
