@@ -29,11 +29,8 @@ public class DemandScheduleServiceImpl implements BaseDemandScheduleService {
     public void updateDemandSyncScheduleConfig(List<ProjectApplication> bugSyncConfigs, String projectId, String currentUser) {
         List<ProjectApplication> syncCron = bugSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.CASE_RELATED_CONFIG.CRON_EXPRESSION.name())).toList();
         List<ProjectApplication> caseEnable = bugSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name())).toList();
-        List<ProjectApplication> syncEnable = bugSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.CASE_RELATED_CONFIG.SYNC_ENABLE.name())).toList();
         if (CollectionUtils.isNotEmpty(syncCron)) {
-            Boolean enableCase = Boolean.valueOf(caseEnable.getFirst().getTypeValue());
-            Boolean enableSync = Boolean.valueOf(syncEnable.getFirst().getTypeValue());
-            Boolean enable = enableCase && enableSync;
+            Boolean enable = Boolean.valueOf(caseEnable.getFirst().getTypeValue());
             String typeValue = syncCron.getFirst().getTypeValue();
             Schedule schedule = scheduleService.getScheduleByResource(projectId, DemandSyncJob.class.getName());
             Optional<Schedule> optional = Optional.ofNullable(schedule);

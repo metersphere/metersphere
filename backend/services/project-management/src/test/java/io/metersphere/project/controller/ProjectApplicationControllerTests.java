@@ -466,7 +466,6 @@ public class ProjectApplicationControllerTests extends BaseTest {
         Map<String, String> configs = new HashMap<>();
         configs.put("DEMAND_PLATFORM_CONFIG", jsonConfig);
         configs.put("CASE_ENABLE", "true");
-        configs.put("SYNC_ENABLE", "true");
         configs.put("CRON_EXPRESSION", "0 0 0 * * ?");
         return configs;
     }
@@ -476,7 +475,6 @@ public class ProjectApplicationControllerTests extends BaseTest {
         Map<String, String> configs = new HashMap<>();
         configs.put("DEMAND_PLATFORM_CONFIG", jsonConfig);
         configs.put("CASE_ENABLE", "false");
-        configs.put("SYNC_ENABLE", "true");
         configs.put("CRON_EXPRESSION", "0 0 0/1 * * ?");
         return configs;
     }
