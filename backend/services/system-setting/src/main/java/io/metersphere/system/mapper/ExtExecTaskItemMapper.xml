@@ -6,32 +6,7 @@
         SELECT exec_task_item.*, exec_task.num, exec_task.task_name, exec_task.trigger_mode
         FROM exec_task_item
         inner join exec_task on exec_task_item.task_id = exec_task.id
-        <where>
-            <if test="request.keyword != null and request.keyword != ''">
-                and (
-                exec_task.num like concat('%', #{request.keyword},'%')
-                or exec_task_item.resource_name like concat('%', #{request.keyword},'%')
-                )
-            </if>
-            <if test="orgId != null and orgId != ''">
-                and exec_task_item.organization_id = #{orgId}
-            </if>
-            <if test="projectId != null and projectId != ''">
-                and exec_task_item.project_id = #{projectId}
-            </if>
-            <if test="request.resourcePoolIds != null and request.resourcePoolIds.size() > 0">
-                and exec_task_item.resource_pool_id in
-                <foreach collection="request.resourcePoolIds" item="resourcePoolId" separator="," open="(" close=")">
-                    #{request.resourcePoolId}
-                </foreach>
-            </if>
-            <if test="request.resourcePoolNodes != null and request.resourcePoolNodes.size() > 0">
-                and exec_task_item.resource_pool_node in
-                <foreach collection="request.resourcePoolNodes" item="resourcePoolNode" separator="," open="(" close=")">
-                    #{request.resourcePoolNode}
-                </foreach>
-            </if>
-        </where>
+        <include refid="queryWhereCondition"/>
     </select>
     <select id="selectExecInfoByResourceIds" resultType="io.metersphere.system.domain.ExecTaskItem">
         SELECT id, resource_id
@@ -63,5 +38,58 @@
             #{id}
         </foreach>
     </select>
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="orgId != null and orgId != ''">
+                and exec_task_item.organization_id = #{orgId}
+            </if>
+            <if test="request.keyword != null and request.keyword != ''">
+                and (
+                exec_task.num like concat('%', #{request.keyword},'%')
+                or exec_task_item.resource_name like concat('%', #{request.keyword},'%')
+                )
+            </if>
+            <if test="projectId != null and projectId != ''">
+                and exec_task_item.project_id = #{projectId}
+            </if>
+            <if test="request.resourcePoolIds != null and request.resourcePoolIds.size() > 0">
+                and exec_task_item.resource_pool_id in
+                <foreach collection="request.resourcePoolIds" item="resourcePoolId" separator="," open="(" close=")">
+                    #{resourcePoolId}
+                </foreach>
+            </if>
+            <if test="request.resourcePoolNodes != null and request.resourcePoolNodes.size() > 0">
+                and exec_task_item.resource_pool_node in
+                <foreach collection="request.resourcePoolNodes" item="resourcePoolNode" separator="," open="(" close=")">
+                    #{resourcePoolNode}
+                </foreach>
+            </if>
+            <include refid="filters">
+                <property name="filter" value="request.filter"/>
+            </include>
+        </where>
+    </sql>
+
+    <sql id="filters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <!-- 状态 -->
+                        <when test="key=='status'">
+                            and exec_task_item.status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 执行结果 -->
+                        <when test="key=='result'">
+                            and exec_task_item.result in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
 
 </mapper>

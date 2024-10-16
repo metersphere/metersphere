@@ -164,7 +164,7 @@ public class TestResourcePoolService {
                 for (TestResourceNodeDTO testResourceNodeDTO : testResourceDTO.getNodesList()) {
                     maxConcurrentNumber = maxConcurrentNumber + testResourceNodeDTO.getConcurrentNumber();
                     //TODO： 调接口获取剩余并发
-                    ResourcePoolNodeMetric nodeMetric = getNodeMetric();
+                    ResourcePoolNodeMetric nodeMetric = getNodeMetric(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
                     if (nodeMetric != null) {
                         concurrentNumber = concurrentNumber + (nodeMetric.getConcurrentNumber() == null ? 0 :nodeMetric.getConcurrentNumber());
                         occupiedConcurrentNumber = occupiedConcurrentNumber +(nodeMetric.getOccupiedConcurrentNumber() == null ? 0 :nodeMetric.getOccupiedConcurrentNumber());
@@ -181,10 +181,10 @@ public class TestResourcePoolService {
         return testResourcePoolDTOS;
     }
 
-    public ResourcePoolNodeMetric getNodeMetric() {
+    public ResourcePoolNodeMetric getNodeMetric(String ip, String port) {
         ResourcePoolNodeMetric resourcePoolNodeMetric = new ResourcePoolNodeMetric();
         try {
-            ResultHolder body = TaskRunnerClient.get(poolControllerUrl);
+            ResultHolder body = TaskRunnerClient.get(String.format(poolControllerUrl, ip, port));
             if (body == null) {
                 return null;
             }
@@ -307,4 +307,7 @@ public class TestResourcePoolService {
         return testResourcePoolOrganizationMapper.countByExample(example) >= 1;
     }
 
+    public ResourcePoolNodeMetric getTestResourcePoolCapacityDetail(TestResourcePoolCapacityRequest request) {
+        return getNodeMetric(request.getIp(), request.getPort());
+    }
 }
