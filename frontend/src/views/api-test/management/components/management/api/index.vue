@@ -9,7 +9,6 @@
         :module-tree-data="props.moduleTree"
         :selected-protocols="props.selectedProtocols"
         :refresh-time-stamp="refreshTableTimeStamp"
-        :member-options="memberOptions"
         @open-api-tab="(record, isExecute) => openApiTab({ apiInfo: record, isCopy: false, isExecute })"
         @open-copy-api-tab="openApiTab({ apiInfo: $event, isCopy: true })"
         @add-api-tab="addApiTab"
@@ -91,7 +90,6 @@
           :selected-protocols="[activeApiTab.protocol]"
           :api-detail="activeApiTab"
           :offspring-ids="props.offspringIds"
-          :member-options="memberOptions"
           :height-used="32"
           @open-case-tab="openCaseTab"
         />
@@ -180,7 +178,6 @@
     moduleTree: ModuleTreeNode[]; // 模块树
     selectedProtocols: string[];
     currentTab: string;
-    memberOptions: { label: string; value: string }[];
   }>();
 
   const emit = defineEmits<{

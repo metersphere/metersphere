@@ -13,7 +13,6 @@
           :is-api="false"
           :active-module="props.activeModule"
           :selected-protocols="props.selectedProtocols"
-          :member-options="memberOptions"
           @open-case-tab="openCaseTab"
           @open-case-tab-and-execute="openCaseTabAndExecute"
           @handle-adv-search="(val) => emit('handleAdvSearch', val)"
@@ -60,7 +59,6 @@
     selectedProtocols: string[];
     offspringIds: string[];
     moduleTree: ModuleTreeNode[]; // 模块树
-    memberOptions: { label: string; value: string }[];
     currentTab: string;
   }>();
   const emit = defineEmits<{

@@ -19,7 +19,6 @@
         :offspring-ids="offspringIds"
         class="flex-1 overflow-hidden !pl-0 !pr-[16px]"
         :selected-protocols="selectedProtocols"
-        :member-options="memberOptions"
         read-only
       />
     </div>
@@ -38,7 +37,6 @@
   const props = defineProps<{
     visible: boolean;
     mode: 'pre' | 'post'; // pre: 前置依赖，post: 后置依赖
-    memberOptions: { label: string; value: string }[];
   }>();
 
   const { t } = useI18n();

@@ -362,7 +362,6 @@
     readOnly?: boolean; // 是否是只读模式
     refreshTimeStamp?: number;
     moduleTreeData?: ModuleTreeNode[];
-    memberOptions: { label: string; value: string }[];
   }>();
   const emit = defineEmits<{
     (e: 'openApiTab', record: ApiDefinitionDetail, isExecute?: boolean): void;
