@@ -379,7 +379,6 @@
     selectedProtocols: string[]; // 查看的协议类型
     apiDetail?: RequestParam;
     offspringIds: string[];
-    memberOptions: { label: string; value: string }[];
     heightUsed?: number;
   }>();
   const cacheStore = useCacheStore();

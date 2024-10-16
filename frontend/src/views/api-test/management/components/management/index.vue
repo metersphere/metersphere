@@ -52,7 +52,6 @@
     :selected-protocols="props.selectedProtocols"
     :module-tree="props.moduleTree"
     :current-tab="currentTab"
-    :member-options="memberOptions"
     @import="emit('import')"
     @open-case-tab="(apiCaseDetail:ApiCaseDetail)=>newCaseTab(apiCaseDetail.id)"
     @delete-api="(id) => handleDeleteApiFromModuleTree(id)"
@@ -68,7 +67,6 @@
     :module-tree="props.moduleTree"
     :current-tab="currentTab"
     :offspring-ids="props.offspringIds"
-    :member-options="memberOptions"
     @delete-case="(id) => handleDeleteApiFromModuleTree(id)"
     @handle-adv-search="(val) => emit('handleAdvSearch', val)"
   />
@@ -99,7 +97,6 @@
   import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
   import { getProtocolList } from '@/api/modules/api-test/common';
-  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveTabUnSaveCheck from '@/hooks/useLeaveTabUnSaveCheck';
   import useRequestCompositionStore from '@/store/modules/api/requestComposition';
@@ -143,11 +140,6 @@
   const cacheStore = useCacheStore();
 
   const setActiveApi: ((params: RequestParam) => void) | undefined = inject('setActiveApi');
-  const memberOptions = ref<{ label: string; value: string }[]>([]);
-  async function initMemberOptions() {
-    memberOptions.value = await getProjectOptions(appStore.currentProjectId);
-    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
-  }
   const currentTab = ref('api');
   const tabOptions = [
     { label: 'API', value: 'api' },
@@ -370,7 +362,6 @@
   }
 
   onBeforeMount(() => {
-    initMemberOptions();
     initProtocolList();
     if ((route.query.tab as string) === 'case') {
       currentTab.value = 'case';

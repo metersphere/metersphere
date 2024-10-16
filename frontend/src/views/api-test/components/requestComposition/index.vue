@@ -478,12 +478,7 @@
     v-model:visible="saveNewApiModalVisible"
     :detail="tempApiDetail"
   ></saveAsApiModal>
-  <addDependencyDrawer
-    v-if="props.isDefinition"
-    v-model:visible="showAddDependencyDrawer"
-    :member-options="memberOptions"
-    :mode="addDependencyMode"
-  />
+  <addDependencyDrawer v-if="props.isDefinition" v-model:visible="showAddDependencyDrawer" :mode="addDependencyMode" />
 </template>
 
 <script setup lang="ts">
@@ -510,7 +505,6 @@
 
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
   import { addCase } from '@/api/modules/api-test/management';
-  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useShortcutSave from '@/hooks/useShortcutSave';
   import useWebsocket from '@/hooks/useWebsocket';
@@ -1702,11 +1696,6 @@
   function handleCancel() {
     saveModalFormRef.value?.resetFields();
   }
-  const memberOptions = ref<{ label: string; value: string }[]>([]);
-  async function initMemberOptions() {
-    memberOptions.value = await getProjectOptions(appStore.currentProjectId);
-    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
-  }
 
   const nameInputRef = ref<InputInstance>();
   const urlInputRef = ref<InputInstance>();
@@ -1724,7 +1713,6 @@
   });
 
   onMounted(() => {
-    initMemberOptions();
     if (
       !props.isCase &&
       (requestVModel.value.isNew
