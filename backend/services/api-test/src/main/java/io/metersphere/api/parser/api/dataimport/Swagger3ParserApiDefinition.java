@@ -769,7 +769,7 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
 
     private JsonSchemaItem parseBoolean(BooleanSchema booleanSchema) {
         JsonSchemaItem jsonSchemaItem = parseSchemaItem(booleanSchema);
-        jsonSchemaItem.setType(PropertyConstant.NUMBER);
+        jsonSchemaItem.setType(PropertyConstant.BOOLEAN);
         return jsonSchemaItem;
     }
 
