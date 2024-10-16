@@ -102,4 +102,11 @@ public class TaskInfo implements Serializable {
      * 记录执行时的环境变量
      */
     private List<String> environmentVariables;
+
+    /**
+     * 是否是批量执行
+     * 包括用例的批量执行
+     * 测试计划的执行
+     */
+    private Boolean batch = false;
 }

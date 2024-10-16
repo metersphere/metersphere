@@ -392,6 +392,7 @@ public class ApiScenarioBatchRunService {
 
     public TaskInfo getTaskInfo(String projectId, ApiRunModeConfigDTO runModeConfig) {
         TaskInfo taskInfo = apiScenarioRunService.getTaskInfo(projectId, ApiExecuteRunMode.RUN.name());
+        taskInfo.setBatch(true);
         return apiBatchRunBaseService.setBatchRunTaskInfoParam(runModeConfig, taskInfo);
     }
 

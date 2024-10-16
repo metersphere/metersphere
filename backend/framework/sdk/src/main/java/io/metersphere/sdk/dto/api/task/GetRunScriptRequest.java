@@ -48,4 +48,14 @@ public class GetRunScriptRequest implements Serializable {
      * 线程ID
      */
     private String threadId;
+    /**
+     * 是否是批量执行
+     * 包括用例的批量执行
+     * 测试计划的执行
+     */
+    private Boolean batch;
+    /**
+     * 任务ID
+     */
+    private String taskId;
 }

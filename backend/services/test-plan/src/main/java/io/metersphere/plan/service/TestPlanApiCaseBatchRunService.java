@@ -403,6 +403,7 @@ public class TestPlanApiCaseBatchRunService {
 
     private TaskInfo getTaskInfo(String projectId, ApiRunModeConfigDTO runModeConfig) {
         TaskInfo taskInfo = apiTestCaseBatchRunService.getTaskInfo(projectId, runModeConfig);
+        taskInfo.setBatch(true);
         taskInfo.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
         return taskInfo;
     }
