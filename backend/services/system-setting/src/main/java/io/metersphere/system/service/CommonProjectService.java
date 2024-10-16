@@ -688,14 +688,16 @@ public class CommonProjectService {
      * @return
      */
     public boolean validateProjectResourcePool(TestResourcePool resourcePool, String projectId) {
-        ProjectTestResourcePoolExample example = new ProjectTestResourcePoolExample();
-        example.createCriteria()
-                .andProjectIdEqualTo(projectId)
-                .andTestResourcePoolIdEqualTo(resourcePool.getId());
-        if (projectTestResourcePoolMapper.countByExample(example) < 1) {
-            return false;
-        }
         Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (!project.getAllResourcePool()) {
+            ProjectTestResourcePoolExample example = new ProjectTestResourcePoolExample();
+            example.createCriteria()
+                    .andProjectIdEqualTo(projectId)
+                    .andTestResourcePoolIdEqualTo(resourcePool.getId());
+            if (projectTestResourcePoolMapper.countByExample(example) < 1) {
+                return false;
+            }
+        }
         // 校验组织是否有权限
         return testResourcePoolService.validateOrgResourcePool(resourcePool, project.getOrganizationId());
     }

@@ -171,18 +171,13 @@ public class ProjectService {
     }
 
     public List<OptionDTO> getPoolOptions(String projectId) {
-        checkProjectNotExist(projectId);
-        List<String> poolIds = getPoolIds(projectId);
-        if (CollectionUtils.isEmpty(poolIds)) {
-            return new ArrayList<>();
-        }
-        TestResourcePoolExample example = new TestResourcePoolExample();
-        TestResourcePoolExample.Criteria criteria = example.createCriteria();
-        criteria.andIdIn(poolIds).andEnableEqualTo(true).andDeletedEqualTo(false);
-        List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
-        return testResourcePools.stream().map(testResourcePool ->
-                new OptionDTO(testResourcePool.getId(), testResourcePool.getName())
-        ).toList();
+        List<TestResourcePool> pools = getPoolOption(projectId);
+        return pools.stream().map(pool -> {
+            OptionDTO option = new OptionDTO();
+            option.setId(pool.getId());
+            option.setName(pool.getName());
+            return option;
+        }).toList();
     }
 
     public static Project checkResourceExist(String id) {
