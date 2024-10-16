@@ -2,6 +2,7 @@ package io.metersphere.api.controller;
 
 import io.metersphere.api.domain.ApiDocShare;
 import io.metersphere.api.dto.definition.request.*;
+import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -35,6 +37,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 	private final static String MODULE_TREE = BASE_PATH + "module/tree";
 	private final static String MODULE_COUNT = BASE_PATH + "module/count";
 	private final static String EXPORT = BASE_PATH + "export/Swagger";
+	private final static String DOWNLOAD = BASE_PATH + "download/file/";
 
 	@Order(1)
 	@Test
@@ -79,6 +82,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 		exportRequest.setSelectAll(false);
 		exportRequest.setSelectIds(List.of("export-id"));
 		this.requestPost(EXPORT, exportRequest);
+		this.download(DEFAULT_PROJECT_ID, "export-id");
 		this.requestGetWithOk(DELETE + docShare.getId());
 		// 不存在的ID
 		this.requestGet(DELETE + "not-exist-id").andExpect(status().is5xxServerError());
@@ -131,5 +135,11 @@ public class ApiDocShareControllerTests extends BaseTest {
 		pageRequest.setCurrent(1);
 		pageRequest.setPageSize(10);
 		this.requestPostWithOk(PAGE, pageRequest);
+	}
+
+	private MvcResult download(String projectId, String fileId) throws Exception {
+		return mockMvc.perform(MockMvcRequestBuilders.get(DOWNLOAD + projectId + "/" + fileId)
+				.header(SessionConstants.HEADER_TOKEN, sessionId)
+				.header(SessionConstants.CSRF_TOKEN, csrfToken)).andReturn();
 	}
 }

@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
@@ -37,7 +38,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping(value = "/api/doc/share")
-@Tag(name = "接口测试-接口管理-接口定义-分享")
+@Tag(name = "接口测试-定义-分享")
 public class ApiDocShareController {
 
 	@Resource
@@ -46,7 +47,7 @@ public class ApiDocShareController {
 	private ApiDefinitionExportService apiDefinitionExportService;
 
 	@PostMapping(value = "/page")
-	@Operation(summary = "接口测试-接口管理-接口定义-分页获取分享列表")
+	@Operation(summary = "接口测试-定义-分页获取分享列表")
 	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
 	@CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
 	public Pager<List<ApiDocShareDTO>> page(@Validated @RequestBody ApiDocSharePageRequest request) {
@@ -56,7 +57,7 @@ public class ApiDocShareController {
 	}
 
 	@PostMapping(value = "/add")
-	@Operation(summary = "接口测试-接口管理-接口定义-新增分享")
+	@Operation(summary = "接口测试-定义-新增分享")
 	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
 	@CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
 	@Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiDocShareLogService.class)
@@ -65,7 +66,7 @@ public class ApiDocShareController {
 	}
 
 	@PostMapping(value = "/update")
-	@Operation(summary = "接口测试-接口管理-接口定义-更新分享")
+	@Operation(summary = "接口测试-定义-更新分享")
 	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
 	@CheckOwner(resourceId = "#request.getId()", resourceType = "api_doc_share")
 	@Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiDocShareLogService.class)
@@ -74,7 +75,7 @@ public class ApiDocShareController {
 	}
 
 	@GetMapping("/delete/{id}")
-	@Operation(summary = "接口测试-接口管理-接口定义-删除分享")
+	@Operation(summary = "接口测试-定义-删除分享")
 	@Parameter(name = "id", description = "分享ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
 	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
 	@CheckOwner(resourceId = "#id", resourceType = "api_doc_share")
@@ -84,40 +85,46 @@ public class ApiDocShareController {
 	}
 
 	@PostMapping("/check")
-	@Operation(summary = "接口测试-接口管理-接口定义-校验分享密码")
+	@Operation(summary = "接口测试-定义-校验分享密码")
 	public Boolean delete(@Validated @RequestBody ApiDocShareCheckRequest request) {
 		return apiDocShareService.check(request);
 	}
 
 	@GetMapping("/detail/{id}")
-	@Operation(summary = "接口测试-接口管理-接口定义-分享-查看链接")
+	@Operation(summary = "接口测试-定义-分享-查看链接")
 	@Parameter(name = "id", description = "分享ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
 	public ApiDocShareDetail detail(@PathVariable String id) {
 		return apiDocShareService.detail(id);
 	}
 
 	@PostMapping("/module/tree")
-	@Operation(summary = "接口测试-接口管理-接口定义-分享-模块树")
+	@Operation(summary = "接口测试-定义-分享-模块树")
 	public List<BaseTreeNode> getShareDocTree(@Validated @RequestBody ApiDocShareModuleRequest request) {
 		return apiDocShareService.getShareTree(request);
 	}
 
 	@PostMapping("/module/count")
-	@Operation(summary = "接口测试-接口管理-接口定义-分享-模块树数量")
+	@Operation(summary = "接口测试-定义-分享-模块树数量")
 	public Map<String, Long> getShareDocTreeCount(@Validated @RequestBody ApiDocShareModuleRequest request) {
 		return apiDocShareService.getShareTreeCount(request);
 	}
 
 	@PostMapping("/export/{type}")
-	@Operation(summary = "接口测试-接口管理-接口定义-分享-导出")
+	@Operation(summary = "接口测试-定义-分享-导出")
 	public String export(@RequestBody ApiDocShareExportRequest request, @PathVariable String type) {
 		return apiDocShareService.export(request, type, SessionUtils.getUserId());
 	}
 
 	@GetMapping("/stop/{taskId}")
-	@Operation(summary = "接口测试-接口管理-导出-停止导出")
+	@Operation(summary = "接口测试-定义-分享-导出-停止导出")
 	public void caseStopExport(@PathVariable String taskId) {
 		apiDefinitionExportService.stopExport(taskId, SessionUtils.getUserId());
+	}
+
+	@GetMapping(value = "/download/file/{projectId}/{fileId}")
+	@Operation(summary = "接口测试-定义-分享-导出-下载文件")
+	public void downloadImgById(@PathVariable String projectId, @PathVariable String fileId, HttpServletResponse httpServletResponse) {
+		apiDefinitionExportService.downloadFile(projectId, fileId, SessionUtils.getUserId(), httpServletResponse);
 	}
 
 }
