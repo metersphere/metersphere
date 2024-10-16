@@ -3,10 +3,7 @@ package io.metersphere.api.service.definition;
 import io.metersphere.api.domain.ApiDocShare;
 import io.metersphere.api.dto.definition.ApiDocShareDTO;
 import io.metersphere.api.dto.definition.ApiDocShareDetail;
-import io.metersphere.api.dto.definition.request.ApiDocShareCheckRequest;
-import io.metersphere.api.dto.definition.request.ApiDocShareEditRequest;
-import io.metersphere.api.dto.definition.request.ApiDocShareModuleRequest;
-import io.metersphere.api.dto.definition.request.ApiDocSharePageRequest;
+import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.mapper.ApiDocShareMapper;
 import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.mapper.ExtApiDocShareMapper;
@@ -16,8 +13,10 @@ import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +41,8 @@ public class ApiDocShareService {
 	private ExtApiDocShareMapper extApiDocShareMapper;
 	@Resource
 	private ApiDefinitionModuleService apiDefinitionModuleService;
+	@Resource
+	private ApiDefinitionExportService apiDefinitionExportService;
 
 	public static final String RANGE_ALL = "ALL";
 
@@ -124,6 +125,16 @@ public class ApiDocShareService {
 	}
 
 	/**
+	 * 查询分享左侧模块树
+	 * @param request 请求参数
+	 * @return 模块树节点数量
+	 */
+	public List<BaseTreeNode> getShareTree(ApiDocShareModuleRequest request) {
+		ApiDocShare docShare = checkExit(request.getShareId());
+		return apiDefinitionModuleService.getTree(buildModuleParam(request, docShare), false, true);
+	}
+
+	/**
 	 * 查询分享左侧模块树节点数量
 	 * @param request 请求参数
 	 * @return 模块树节点数量
@@ -131,6 +142,23 @@ public class ApiDocShareService {
 	public Map<String, Long> getShareTreeCount(ApiDocShareModuleRequest request) {
 		ApiDocShare docShare = checkExit(request.getShareId());
 		return apiDefinitionModuleService.moduleCount(buildModuleParam(request, docShare), false);
+	}
+
+	/**
+	 * 导出接口定义
+	 * @param request 请求参数
+	 * @param type 类型
+	 * @param currentUser 当前用户
+	 * @return 接口定义导出返回
+	 */
+	public String export(ApiDocShareExportRequest request, String type, String currentUser) {
+		if (request.isSelectAll()) {
+			ApiDocShare docShare = checkExit(request.getShareId());
+			List<String> shareIds = getShareIdsByParam(docShare);
+			request.setSelectAll(false);
+			request.setSelectIds(shareIds);
+		}
+		return apiDefinitionExportService.exportApiDefinition(request, type, currentUser);
 	}
 
 	/**
@@ -153,6 +181,16 @@ public class ApiDocShareService {
 	 * @return 数量
 	 */
 	public Integer countApiShare(ApiDocShareDTO docShare) {
+		List<String> shareIds = getShareIdsByParam(docShare);
+		return CollectionUtils.isEmpty(shareIds) ? 0 : shareIds.size();
+	}
+
+	/**
+	 * 根据分享信息获取分享的定义ID集合
+	 * @param docShare 分享信息
+	 * @return 分享的定义ID集合
+	 */
+	public List<String> getShareIdsByParam(ApiDocShare docShare) {
 		StringBuilder condition = new StringBuilder();
 		if (!StringUtils.equals(docShare.getApiRange(), RANGE_ALL) && !StringUtils.isBlank(docShare.getRangeMatchVal())) {
 			switch (docShare.getApiRange()) {
@@ -183,7 +221,7 @@ public class ApiDocShareService {
 				}
 			}
 		}
-		return extApiDefinitionMapper.countByShareParam(docShare.getProjectId(), condition.toString()).intValue();
+		return extApiDefinitionMapper.getIdsByShareParam(docShare.getProjectId(), condition.toString());
 	}
 
 	/**

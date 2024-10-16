@@ -4,7 +4,7 @@
 <mapper namespace="io.metersphere.api.mapper.ExtApiDocShareMapper">
 
     <select id="list" resultType="io.metersphere.api.dto.definition.ApiDocShareDTO">
-        select id, name, is_private isPrivate, create_user createUser, create_time createTime,
+        select id, name, is_private isPrivate, create_user createUser, create_time createTime, allow_export allowExport,
                api_range apiRange, range_match_symbol rangeMatchSymbol, range_match_val rangeMatchVal,
                invalid_time invalidTime, invalid_unit invalidUnit, project_id projectId, password
         from api_doc_share

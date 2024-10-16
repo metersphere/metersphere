@@ -752,8 +752,8 @@
         </if>
     </select>
 
-    <select id="countByShareParam" resultType="java.lang.Long">
-        select count(*) from api_definition where project_id = #{projectId} and deleted = 0
+    <select id="getIdsByShareParam" resultType="java.lang.String">
+        select id from api_definition where project_id = #{projectId} and deleted = 0
         <if test="condition != null and condition != ''">
             and ${condition}
         </if>
