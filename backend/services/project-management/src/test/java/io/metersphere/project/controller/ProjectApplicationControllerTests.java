@@ -116,6 +116,25 @@ public class ProjectApplicationControllerTests extends BaseTest {
      * ==========测试计划配置 end==========
      */
 
+    /**
+     * ========== 任务中心 start==========
+     */
+    public static final String TASK_UPDATE_URL = "/project/application/update/task";
+    public static final String GET_TASK_URL = "/project/application/task";
+    // 任务中心 - 获取配置
+    @Test
+    @Order(4)
+    public void testGetTask() throws Exception {
+        ProjectApplicationRequest request = this.getRequest("TASK");
+        this.requestPostWithOkAndReturn(GET_TASK_URL, request);
+    }
+    // 任务中心 - 获取配置
+    @Test
+    @Order(5)
+    public void testUpdateTask() throws Exception {
+        ProjectApplication request = creatRequest(ProjectApplicationType.TASK.TASK_CLEAN_REPORT.name(), "1D");
+        this.requestPostWithOkAndReturn(TASK_UPDATE_URL, request);
+    }
 
 
     /**

@@ -72,6 +72,16 @@ public class CleanUpReportJob {
                     map.put(ProjectApplicationType.API.API_CLEAN_REPORT.name(), "3M");
                 }
 
+                // task
+                applicationExample.clear();
+                applicationExample.createCriteria().andProjectIdEqualTo(project.getId()).andTypeEqualTo(ProjectApplicationType.TASK.TASK_CLEAN_REPORT.name());
+                List<ProjectApplication> task = projectApplicationMapper.selectByExample(applicationExample);
+                if (CollectionUtils.isNotEmpty(task)) {
+                    map.put(ProjectApplicationType.TASK.TASK_CLEAN_REPORT.name(), task.getFirst().getTypeValue());
+                } else {
+                    map.put(ProjectApplicationType.TASK.TASK_CLEAN_REPORT.name(), "3M");
+                }
+
                 Map<String, BaseCleanUpReport> beansOfType = applicationContext.getBeansOfType(BaseCleanUpReport.class);
                 beansOfType.forEach((k, v) -> {
                     v.cleanReport(map, project.getId());

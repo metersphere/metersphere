@@ -317,6 +317,16 @@ public class ProjectApplicationService {
         return delLog(application, OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT, "接口测试配置");
     }
 
+    /**
+     * 任务中心 日志
+     *
+     * @param application 配置项
+     * @return 日志
+     */
+    public LogDTO updateTaskLog(ProjectApplication application) {
+        return delLog(application, OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT, "任务中心配置");
+    }
+
 
     /**
      * 用例管理 日志

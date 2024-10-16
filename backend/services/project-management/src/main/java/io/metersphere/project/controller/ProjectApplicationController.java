@@ -87,6 +87,22 @@ public class ProjectApplicationController {
         return configMap;
     }
 
+    @PostMapping("/update/task")
+    @Operation(summary = "任务中心-配置")
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_TASK_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateTaskLog(#application)", msClass = ProjectApplicationService.class)
+    public void updateTask(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
+        projectApplicationService.update(application, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/task")
+    @Operation(summary = "任务中心-获取配置")
+    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_TASK_READ)
+    public Map<String, Object> getTask(@Validated @RequestBody ProjectApplicationRequest request) {
+        List<String> types = Arrays.stream(ProjectApplicationType.TASK.values()).map(ProjectApplicationType.TASK::name).collect(Collectors.toList());
+        return projectApplicationService.get(request, types);
+    }
+
     @GetMapping("/api/user/{projectId}")
     @Operation(summary = "接口测试-获取审核人")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_API_READ)
