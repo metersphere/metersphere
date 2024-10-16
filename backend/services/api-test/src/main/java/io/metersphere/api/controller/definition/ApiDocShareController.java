@@ -5,12 +5,8 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.domain.ApiDocShare;
 import io.metersphere.api.dto.definition.ApiDocShareDTO;
 import io.metersphere.api.dto.definition.ApiDocShareDetail;
-import io.metersphere.api.dto.definition.ApiModuleRequest;
-import io.metersphere.api.dto.definition.request.ApiDocShareCheckRequest;
-import io.metersphere.api.dto.definition.request.ApiDocShareEditRequest;
-import io.metersphere.api.dto.definition.request.ApiDocShareModuleRequest;
-import io.metersphere.api.dto.definition.request.ApiDocSharePageRequest;
-import io.metersphere.api.service.definition.ApiDefinitionModuleService;
+import io.metersphere.api.dto.definition.request.*;
+import io.metersphere.api.service.definition.ApiDefinitionExportService;
 import io.metersphere.api.service.definition.ApiDocShareLogService;
 import io.metersphere.api.service.definition.ApiDocShareService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -47,7 +43,7 @@ public class ApiDocShareController {
 	@Resource
 	private ApiDocShareService apiDocShareService;
 	@Resource
-	private ApiDefinitionModuleService apiDefinitionModuleService;
+	private ApiDefinitionExportService apiDefinitionExportService;
 
 	@PostMapping(value = "/page")
 	@Operation(summary = "接口测试-接口管理-接口定义-分页获取分享列表")
@@ -94,21 +90,34 @@ public class ApiDocShareController {
 	}
 
 	@GetMapping("/detail/{id}")
-	@Operation(summary = "接口测试-接口管理-接口定义-查看链接")
+	@Operation(summary = "接口测试-接口管理-接口定义-分享-查看链接")
 	@Parameter(name = "id", description = "分享ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
 	public ApiDocShareDetail detail(@PathVariable String id) {
 		return apiDocShareService.detail(id);
 	}
 
 	@PostMapping("/module/tree")
-	@Operation(summary = "接口测试-接口管理-接口定义-模块树")
-	public List<BaseTreeNode> getShareDocTree(@Validated @RequestBody ApiModuleRequest request) {
-		return apiDefinitionModuleService.getTree(request, false, true);
+	@Operation(summary = "接口测试-接口管理-接口定义-分享-模块树")
+	public List<BaseTreeNode> getShareDocTree(@Validated @RequestBody ApiDocShareModuleRequest request) {
+		return apiDocShareService.getShareTree(request);
 	}
 
 	@PostMapping("/module/count")
-	@Operation(summary = "接口测试-接口管理-接口定义-模块树数量")
+	@Operation(summary = "接口测试-接口管理-接口定义-分享-模块树数量")
 	public Map<String, Long> getShareDocTreeCount(@Validated @RequestBody ApiDocShareModuleRequest request) {
 		return apiDocShareService.getShareTreeCount(request);
 	}
+
+	@PostMapping("/export/{type}")
+	@Operation(summary = "接口测试-接口管理-接口定义-分享-导出")
+	public String export(@RequestBody ApiDocShareExportRequest request, @PathVariable String type) {
+		return apiDocShareService.export(request, type, SessionUtils.getUserId());
+	}
+
+	@GetMapping("/stop/{taskId}")
+	@Operation(summary = "接口测试-接口管理-导出-停止导出")
+	public void caseStopExport(@PathVariable String taskId) {
+		apiDefinitionExportService.stopExport(taskId, SessionUtils.getUserId());
+	}
+
 }

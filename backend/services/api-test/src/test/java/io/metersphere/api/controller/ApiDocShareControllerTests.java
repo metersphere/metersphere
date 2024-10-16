@@ -1,10 +1,8 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.domain.ApiDocShare;
-import io.metersphere.api.dto.definition.request.ApiDocShareCheckRequest;
-import io.metersphere.api.dto.definition.request.ApiDocShareEditRequest;
-import io.metersphere.api.dto.definition.request.ApiDocShareModuleRequest;
-import io.metersphere.api.dto.definition.request.ApiDocSharePageRequest;
+import io.metersphere.api.dto.definition.request.*;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -36,6 +34,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 	private final static String DETAIL = BASE_PATH + "detail/";
 	private final static String MODULE_TREE = BASE_PATH + "module/tree";
 	private final static String MODULE_COUNT = BASE_PATH + "module/count";
+	private final static String EXPORT = BASE_PATH + "export/Swagger";
 
 	@Order(1)
 	@Test
@@ -73,6 +72,13 @@ public class ApiDocShareControllerTests extends BaseTest {
 		this.requestPostWithOk(CHECK, checkRequest);
 		this.requestGetWithOk(DETAIL + docShare.getId());
 		this.requestPostWithOk(MODULE_TREE, moduleRequest);
+		ApiDocShareExportRequest exportRequest = new ApiDocShareExportRequest();
+		BeanUtils.copyBean(exportRequest, moduleRequest);
+		exportRequest.setSelectAll(true);
+		this.requestPostWithOk(EXPORT, exportRequest);
+		exportRequest.setSelectAll(false);
+		exportRequest.setSelectIds(List.of("export-id"));
+		this.requestPost(EXPORT, exportRequest);
 		this.requestGetWithOk(DELETE + docShare.getId());
 		// 不存在的ID
 		this.requestGet(DELETE + "not-exist-id").andExpect(status().is5xxServerError());
