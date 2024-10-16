@@ -22,4 +22,12 @@ public interface ExtExecTaskItemMapper {
     List<ExecTaskItem> getResourcePoolsByTaskIds(@Param("taskIds") List<String> taskIds);
 
     void batchUpdateTaskItemStatus(@Param("taskIds") List<String> taskIds, @Param("userId") String userId, @Param("organizationId") String organizationId, @Param("projectId") String projectId, @Param("status") String status);
+
+    /**
+     * 查询时间范围内的任务项ID集合
+     * @param timeMills 时间戳
+     * @param projectId 项目ID
+     * @return 任务项ID列表
+     */
+    List<String> getTaskItemIdsByTime(@Param("timeMills") long timeMills, @Param("projectId") String projectId);
 }

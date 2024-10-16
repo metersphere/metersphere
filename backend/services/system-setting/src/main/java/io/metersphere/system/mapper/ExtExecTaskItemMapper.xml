@@ -17,6 +17,10 @@
         </foreach>
     </select>
 
+    <select id="getTaskItemIdsByTime" resultType="java.lang.String">
+        select id from exec_task_item where project_id = #{projectId} and start_time &lt;= #{timeMills}
+    </select>
+
     <select id="selectItemByTaskIds" resultType="io.metersphere.system.domain.ExecTaskItem">
         select  id, task_id, `status`, result
         from exec_task_item

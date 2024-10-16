@@ -40,6 +40,8 @@ public class CleanupApiReportServiceImpl implements BaseCleanUpReport {
     private ApiScenarioReportLogMapper apiScenarioReportLogMapper;
     @Resource
     private ApiScenarioReportDetailBlobMapper apiScenarioReportDetailBlobMapper;
+    @Resource
+    private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
 
     @Override
     public void cleanReport(Map<String, String> map, String projectId) {
@@ -54,6 +56,9 @@ public class CleanupApiReportServiceImpl implements BaseCleanUpReport {
             ApiReport report = new ApiReport();
             report.setDeleted(true);
             apiReportMapper.updateByExampleSelective(report, reportExample);
+            // 任务执行结果存在报告，明细做保留
+            List<String> taskReportIds = getTaskReportIds(ids);
+            ids.removeAll(taskReportIds);
             deleteApiReport(ids);
             apiReportCount = extApiReportMapper.countApiReportByTime(timeMills, projectId);
         }
@@ -65,9 +70,24 @@ public class CleanupApiReportServiceImpl implements BaseCleanUpReport {
             ApiScenarioReport report = new ApiScenarioReport();
             report.setDeleted(true);
             apiScenarioReportMapper.updateByExampleSelective(report, reportExample);
+            // 任务执行结果存在报告，明细做保留
+            List<String> taskReportIds = getTaskReportIds(ids);
+            ids.removeAll(taskReportIds);
             deleteScenarioReport(ids);
             scenarioReportCount = extApiScenarioReportMapper.countScenarioReportByTime(timeMills, projectId);
         }
+    }
+
+    /**
+     * 获取任务报告ID
+     * @param reportIds 报告ID集合
+     * @return 任务报告ID集合
+     */
+    private List<String> getTaskReportIds(List<String> reportIds) {
+        ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
+        example.createCriteria().andReportIdIn(reportIds);
+        List<ApiReportRelateTask> relateTasks = apiReportRelateTaskMapper.selectByExample(example);
+        return relateTasks.stream().map(ApiReportRelateTask::getReportId).toList();
     }
 
     private void deleteApiReport(List<String> ids) {

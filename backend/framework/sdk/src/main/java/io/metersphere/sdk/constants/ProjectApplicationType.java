@@ -14,6 +14,16 @@ public class ProjectApplicationType {
 
     }
 
+    /**
+     * 任务中心
+     */
+    public enum TASK {
+        /**
+         * 清理报告
+         */
+        TASK_CLEAN_REPORT,
+    }
+
     //接口测试
     public enum API {
         API_URL_REPEATABLE,

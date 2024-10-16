@@ -1,6 +1,9 @@
 package io.metersphere.plan.service;
 
 import com.google.common.collect.Maps;
+import io.metersphere.api.domain.ApiReportRelateTask;
+import io.metersphere.api.domain.ApiReportRelateTaskExample;
+import io.metersphere.api.mapper.ApiReportRelateTaskMapper;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.service.BugCommonService;
@@ -121,6 +124,8 @@ public class TestPlanReportService {
 	private BaseTaskHubService baseTaskHubService;
 	@Resource
 	private ProjectMapper projectMapper;
+	@Resource
+	private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
 
 	private static final int MAX_REPORT_NAME_LENGTH = 300;
 
@@ -190,13 +195,19 @@ public class TestPlanReportService {
 	 */
 	public void cleanAndDeleteReport(List<String> reportIdList) {
 		if (CollectionUtils.isNotEmpty(reportIdList)) {
+			// 获取任务执行结果报告ID集合
+			ApiReportRelateTaskExample taskReportExample = new ApiReportRelateTaskExample();
+			taskReportExample.createCriteria().andReportIdIn(reportIdList);
+			List<ApiReportRelateTask> relateTasks = apiReportRelateTaskMapper.selectByExample(taskReportExample);
+			List<String> taskReportIds = relateTasks.stream().map(ApiReportRelateTask::getReportId).toList();
 			SubListUtils.dealForSubList(reportIdList, SubListUtils.DEFAULT_BATCH_SIZE, subList -> {
 				TestPlanReportExample example = new TestPlanReportExample();
 				example.createCriteria().andIdIn(subList);
 				TestPlanReport testPlanReport = new TestPlanReport();
 				testPlanReport.setDeleted(true);
 				testPlanReportMapper.updateByExampleSelective(testPlanReport, example);
-
+				// 任务执行结果存在报告，明细做保留
+				subList.removeAll(taskReportIds);
 				this.deleteTestPlanReportBlobs(subList);
 			});
 		}
