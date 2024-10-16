@@ -22,6 +22,8 @@ public abstract class StepParserFactory {
         stepParserMap.put(ApiScenarioStepType.LOOP_CONTROLLER.name(), new LoopControllerStepParser());
         stepParserMap.put(ApiScenarioStepType.ONCE_ONLY_CONTROLLER.name(), new OnceOnlyControllerStepParser());
         stepParserMap.put(ApiScenarioStepType.IF_CONTROLLER.name(), new IfControllerStepParser());
+        stepParserMap.put(ApiScenarioStepType.JMETER_COMPONENT.name(), new JMeterComponentStepParser());
+
     }
 
     public static StepParser getStepParser(String stepType) {
