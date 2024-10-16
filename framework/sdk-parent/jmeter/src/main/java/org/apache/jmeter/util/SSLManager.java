@@ -137,7 +137,7 @@ public abstract class SSLManager {
                     log.info("Total of {} aliases loaded OK from PKCS11", keyStore.getAliasCount());
                 } else {
                     File initStore = new File(fileName);
-                    if (fileName.length() > 0 && initStore.exists()) {
+                    if (!fileName.isEmpty() && initStore.exists()) {
                         retryLoadKeys(initStore, true);
                         if (log.isInfoEnabled()) {
                             log.info("Total of {} aliases loaded OK from keystore {}",
@@ -152,7 +152,7 @@ public abstract class SSLManager {
                             if (threadContext != null && threadContext.getCurrentSampler() != null) {
                                 String resourceId = threadContext.getCurrentSampler().getPropertyAsString("MS-KEYSTORE-ID");
                                 if (StringUtils.isNotBlank(resourceId) && keyMap.containsKey(resourceId)) {
-                                    log.info("重新加载认证文件{}", resourceId);
+                                    log.info("Reloading authentication file for resource ID：{}", resourceId);
                                     KeystoreDTO dto = keyMap.get(resourceId);
                                     // 加载认证文件
                                     try (InputStream in = new FileInputStream(new File(dto.getPath()))) {
@@ -161,7 +161,7 @@ public abstract class SSLManager {
                                 }
                             }
                         } catch (Exception e) {
-                            log.error("证书处理失败{}", e.getMessage());
+                            log.error("Failed to process keystore：{}", e.getMessage());
                         }
                     }
                 }
