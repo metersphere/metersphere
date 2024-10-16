@@ -495,6 +495,7 @@
   import quoteSqlSourceDrawer from '../quoteSqlSourceDrawer.vue';
 
   import { getProtocolList } from '@/api/modules/api-test/common';
+  import { getCommonScript } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
@@ -580,6 +581,19 @@
     }
   }
 
+  async function getCommonScriptLatest() {
+    if (!condition.value.commonScriptInfo?.id) {
+      return;
+    }
+    try {
+      const res = await getCommonScript(condition.value.commonScriptInfo.id);
+      condition.value.commonScriptInfo = res;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   watch(
     () => appStore.currentEnvConfig?.id,
     () => {
@@ -595,6 +609,7 @@
     () => condition.value.id,
     () => {
       filterDataSource();
+      getCommonScriptLatest();
     }
   );
 
@@ -1015,6 +1030,9 @@
         console.log(error);
       }
     }
+  });
+  onMounted(() => {
+    getCommonScriptLatest();
   });
   watch(
     () => condition.value.commonScriptInfo,
