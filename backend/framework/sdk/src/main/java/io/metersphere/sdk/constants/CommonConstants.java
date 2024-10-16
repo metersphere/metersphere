@@ -6,4 +6,5 @@ package io.metersphere.sdk.constants;
  */
 public class CommonConstants {
     public static final String DEFAULT_NULL_VALUE = "NONE";
+    public static final String RUNNING_TASK_PREFIX = "RUNNING_TASK:";
 }

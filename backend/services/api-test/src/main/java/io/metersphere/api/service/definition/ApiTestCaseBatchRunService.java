@@ -435,6 +435,7 @@ public class ApiTestCaseBatchRunService {
 
     public TaskInfo getTaskInfo(String projectId, ApiRunModeConfigDTO runModeConfig) {
         TaskInfo taskInfo = apiTestCaseService.getTaskInfo(projectId, ApiExecuteRunMode.RUN.name());
+        taskInfo.setBatch(true);
         return apiBatchRunBaseService.setBatchRunTaskInfoParam(runModeConfig, taskInfo);
     }
 

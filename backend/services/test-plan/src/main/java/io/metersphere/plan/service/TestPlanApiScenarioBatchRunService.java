@@ -391,6 +391,7 @@ public class TestPlanApiScenarioBatchRunService {
 
     private TaskInfo getTaskInfo(String projectId, ApiRunModeConfigDTO runModeConfig) {
         TaskInfo taskInfo = apiScenarioBatchRunService.getTaskInfo(projectId, runModeConfig);
+        taskInfo.setBatch(true);
         taskInfo.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name());
         return taskInfo;
     }
