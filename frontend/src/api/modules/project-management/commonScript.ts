@@ -7,6 +7,7 @@ import {
   GetCommonScriptDetailUrl,
   GetCommonScriptPageUrl,
   GetCommonScriptStatusUrl,
+  getCommonScriptUrl,
   GetCustomFuncColumnsOptionUrl,
   GetFormApiImportModuleCountUrl,
   GetFormApiImportPageListUrl,
@@ -17,6 +18,7 @@ import {
   UpdateCommonScriptUrl,
 } from '@/api/requrls/project-management/commonScript';
 
+import type { CommonScriptInfo } from '@/models/apiTest/common';
 import type { ModulesTreeType } from '@/models/caseManagement/featureCase';
 import { CommonList, TableQueryParams } from '@/models/common';
 import type {
@@ -113,4 +115,9 @@ export const apiSocket = (url: string, host?: string) => {
 
 export function getSocket(reportId: string | number, socketUrl?: string, host?: string) {
   return apiSocket(`${socketUrl || ConnectionWebsocketUrl}/${reportId}`, host);
+}
+
+// 获取单个公共脚本详情
+export function getCommonScript(scriptId: string) {
+  return MSR.get<CommonScriptInfo>({ url: `${getCommonScriptUrl}/${scriptId}` });
 }
