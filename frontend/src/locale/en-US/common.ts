@@ -174,6 +174,7 @@ export default {
   'common.refresh': 'Refresh',
   'common.searchByIdName': 'Search by ID/name',
   'common.searchByIDNameTag': 'Search by ID/name/tag',
+  'common.searchByName': 'Search by name',
   'common.archive': 'archive',
   'common.running': 'Running',
   'common.unExecute': 'Pending',

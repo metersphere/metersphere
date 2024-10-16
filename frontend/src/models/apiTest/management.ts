@@ -105,6 +105,7 @@ export interface ApiDefinitionGetModuleParams {
   projectId: string;
   versionId?: string;
   refId?: string;
+  shareId?: string;
 }
 
 // 环境-选中的模块
@@ -437,4 +438,39 @@ export interface diffSyncParams {
   id: string;
   deleteRedundantParam: boolean; // 是否删除多余参数
   apiCaseRequest: RequestParam; // 用例详情请求request
+}
+
+export type ApiRangeType = 'ALL' | 'MODULE' | 'PATH' | 'TAG';
+
+// 接口定义-接口文档-分享
+export interface ShareDetail {
+  id?: string;
+  name: string;
+  apiRange: ApiRangeType; // 接口范围;全部接口(ALL)、模块(MODULE)、路径(PATH)、标签(TAG)
+  rangeMatchSymbol: string; // 范围匹配符
+  rangeMatchVal: string; // 范围匹配值;eg: 选中路径范围时, 该值作为路径匹配
+  isPrivate: boolean; // 是否公开
+  password: string; // 访问密码
+  allowExport: boolean; // 允许导出
+  projectId: string;
+  invalidTime?: string; // 失效时间值
+  invalidUnit?: string; // 失效时间单位;小时(HOUR)、天(DAY)、月(MONTH)、年(YEAR)
+}
+// 分享列表
+export interface shareItem extends ShareDetail {
+  createTime: number;
+  createUser: string;
+  invalid: boolean;
+  apiShareNum: number;
+  deadline: number;
+}
+export interface CheckSharePsdType {
+  docShareId: string;
+  password: string;
+}
+// 分享详情
+export interface ShareDetailType {
+  invalid: boolean;
+  allowExport: boolean;
+  isPrivate: boolean;
 }

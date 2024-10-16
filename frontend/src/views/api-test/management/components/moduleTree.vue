@@ -1,7 +1,7 @@
 <template>
   <div>
     <template v-if="!props.isModal">
-      <div v-if="!props.readOnly && !props.trash" class="mb-[8px] flex items-center gap-[8px]">
+      <div v-if="!props.readOnly && !props.trash && !props.docShareId" class="mb-[8px] flex items-center gap-[8px]">
         <a-button
           v-permission="['PROJECT_API_DEFINITION:READ+ADD']"
           type="primary"
@@ -34,21 +34,26 @@
         :folder-name="t('apiTestManagement.allApi')"
         :all-count="allFileCount"
         :active-folder="selectedKeys[0] as string"
-        :show-expand-api="!props.readOnly && !props.trash"
+        :show-expand-api="!props.readOnly && !props.trash && !props.docShareId"
         @set-active-folder="setActiveFolder"
         @change-api-expand="changeApiExpand"
         @selected-protocols-change="selectedProtocolsChange"
       >
         <template #expandRight>
           <popConfirm
-            v-if="hasAnyPermission(['PROJECT_API_DEFINITION:READ+ADD']) && !props.readOnly && !props.trash"
+            v-if="
+              hasAnyPermission(['PROJECT_API_DEFINITION:READ+ADD']) &&
+              !props.readOnly &&
+              !props.trash &&
+              !props.docShareId
+            "
             mode="add"
             :all-names="rootModulesName"
             parent-id="NONE"
             :add-module-api="addModule"
             @add-finish="handleAddFinish"
           >
-            <MsButton type="icon" class="!mr-0 p-[2px]">
+            <MsButton v-if="!props.docShareId" type="icon" class="!mr-0 p-[2px]">
               <MsIcon
                 type="icon-icon_create_planarity"
                 size="18"
@@ -56,6 +61,11 @@
               />
             </MsButton>
           </popConfirm>
+          <a-tooltip v-if="props.docShareId && shareDetailInfo?.allowExport" :content="t('common.export')">
+            <MsButton type="icon" status="secondary" class="!mr-[4px] p-[4px]" @click="changeApiExpand">
+              <MsIcon type="icon-icon_top-align_outlined" :size="16" @click="exportShare" />
+            </MsButton>
+          </a-tooltip>
         </template>
       </TreeFolderAll>
     </template>
@@ -162,6 +172,8 @@
     getModuleCount,
     getModuleTree,
     getModuleTreeOnlyModules,
+    getShareModuleCount,
+    getShareModuleTree,
     getTrashModuleCount,
     getTrashModuleTree,
     moveModule,
@@ -173,11 +185,11 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
-  import { characterLimit, mapTree } from '@/utils';
+  import { characterLimit, filterTree, mapTree, TreeNode } from '@/utils';
   import { getLocalStorage } from '@/utils/local-storage';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
+  import { ApiDefinitionGetModuleParams, ShareDetailType } from '@/models/apiTest/management';
   import { ModuleTreeNode } from '@/models/common';
   import { ProtocolKeyEnum } from '@/enums/apiEnum';
 
@@ -189,6 +201,7 @@
       activeNodeId?: string | number; // 当前选中节点 id
       isModal?: boolean; // 是否弹窗模式，只读且只可见模块树
       trash?: boolean; // 是否是回收站
+      docShareId?: string; // 是否分享文档
     }>(),
     {
       activeModule: 'all',
@@ -207,6 +220,8 @@
     'updateApiNode',
     'deleteNode',
     'execute',
+    'openCurrentNode',
+    'exportShare',
   ]);
 
   const appStore = useAppStore();
@@ -253,14 +268,14 @@
   const virtualListProps = computed(() => {
     if (props.readOnly || props.isModal) {
       return {
-        height: 'calc(60vh - 190px)',
+        height: props.docShareId ? 'calc(60vh - 150px)' : 'calc(60vh - 190px)',
         threshold: 200,
         fixedSize: true,
         buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
       };
     }
     return {
-      height: 'calc(100vh - 273px)',
+      height: props.docShareId ? 'calc(100vh - 233px)' : 'calc(100vh - 273px)',
       threshold: 200,
       fixedSize: true,
       buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
@@ -268,7 +283,7 @@
   });
 
   const moduleKeyword = ref(''); // 只用于前端过滤树节点，不传入后台查询！！！
-  const folderTree = ref<ModuleTreeNode[]>([]);
+  const folderTree = ref<TreeNode<ModuleTreeNode>[]>([]);
   const focusNodeKey = ref<string | number>('');
   const selectedKeys = ref<Array<string | number>>([props.activeModule]);
   const loading = ref(false);
@@ -340,6 +355,29 @@
     protocols: selectedProtocols.value,
     moduleIds: [],
   });
+  // 分享详情
+  const shareDetailInfo = inject<Ref<ShareDetailType>>('shareDetailInfo');
+
+  const apiNodes = ref<TreeNode<ModuleTreeNode>[]>([]);
+  const currentNode = ref<TreeNode<ModuleTreeNode> | null>(null);
+  // 设置当前节点
+  const setCurrentNode = (id: string, isSelectedNode = false) => {
+    currentNode.value = apiNodes.value.find((node) => node.id === id) || null;
+    selectedKeys.value = [id];
+    emit('openCurrentNode', currentNode.value, apiNodes.value, isSelectedNode);
+  };
+
+  const getTreeNodeList = (nodes: TreeNode<ModuleTreeNode>[]) => {
+    nodes.forEach((node: TreeNode<ModuleTreeNode>) => {
+      if (node.type === 'API') {
+        apiNodes.value.push(node);
+      }
+      if (node.children) {
+        getTreeNodeList(node.children);
+      }
+    });
+  };
+
   async function initModuleCount(params: ApiDefinitionGetModuleParams) {
     try {
       lastModuleCountParam.value = params;
@@ -378,7 +416,44 @@
       emit('folderNodeSelect', _selectedKeys, offspringIds);
     } else if (node.type === 'API') {
       emit('clickApiNode', node);
+      if (props.docShareId) {
+        setCurrentNode(node.id, true);
+      }
     }
+  }
+  // 分享模块count
+  async function initShareModuleCount(params: ApiDefinitionGetModuleParams) {
+    try {
+      modulesCount.value = await getShareModuleCount({
+        ...params,
+        shareId: props.docShareId,
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+  // 分享模块树
+  async function initShareModuleTree() {
+    await initShareModuleCount(lastModuleCountParam.value);
+    let res;
+    res = await getShareModuleTree({
+      keyword: '',
+      protocols: selectedProtocols.value,
+      projectId: appStore.currentProjectId,
+      moduleIds: [],
+    });
+    res = mapTree<ModuleTreeNode>(res, (node) => ({
+      ...node,
+      count: modulesCount.value[node.id] || 0,
+      draggable: node.id !== 'root' && !(props.readOnly || props.isModal),
+      disabled: props.readOnly || props.isModal ? node.id === selectedKeys.value[0] : false,
+      hideMoreAction: node.id === 'root' || !!props.docShareId,
+    }));
+
+    // 过滤count为0 且类型为 MODULE 的节点
+    res = filterTree(res, (node) => !(node.count === 0 && node.type === 'MODULE'));
+    return res;
   }
 
   /**
@@ -389,7 +464,14 @@
     try {
       loading.value = true;
       let res;
-      if (props.trash) {
+      if (props.docShareId) {
+        res = await initShareModuleTree();
+        folderTree.value = res;
+        getTreeNodeList(folderTree.value);
+        if (apiNodes.value.length) {
+          setCurrentNode(apiNodes.value[0].id);
+        }
+      } else if (props.trash) {
         res = await getTrashModuleTree({
           // 回收站下的模块
           keyword: '',
@@ -429,7 +511,7 @@
             disabled: e.id === selectedKeys.value[0],
           };
         });
-      } else {
+      } else if (!props.docShareId) {
         folderTree.value = mapTree<ModuleTreeNode>(res, (e, fullPath) => {
           // 拼接当前节点的完整路径
           nodePathObj[e.id] = {
@@ -452,7 +534,9 @@
       console.log(error);
     } finally {
       loading.value = false;
-      initModuleCount(lastModuleCountParam.value);
+      if (!props.docShareId) {
+        initModuleCount(lastModuleCountParam.value);
+      }
     }
   }
 
@@ -461,6 +545,36 @@
     lastModuleCountParam.value.protocols = selectedProtocols.value;
     initModules();
   }
+
+  // 获取上一条ID
+  const getPreviousApiId = () => {
+    if (!currentNode.value) return null;
+    const index = apiNodes.value.indexOf(currentNode.value);
+    return index > 0 ? apiNodes.value[index - 1].id : null;
+  };
+
+  // 获取下一条ID
+  const getNextApiId = () => {
+    if (!currentNode.value) return null;
+    const index = apiNodes.value.indexOf(currentNode.value);
+    return index < apiNodes.value.length - 1 ? apiNodes.value[index + 1].id : null;
+  };
+
+  // 上一条
+  const previousApi = () => {
+    const previousId = getPreviousApiId();
+    if (previousId) {
+      setCurrentNode(previousId);
+    }
+  };
+
+  // 下一条
+  const nextApi = () => {
+    const nextId = getNextApiId();
+    if (nextId) {
+      setCurrentNode(nextId);
+    }
+  };
 
   watch(
     () => props.isExpandAll,
@@ -630,6 +744,11 @@
     }
   }
 
+  // 导出分享
+  function exportShare() {
+    emit('exportShare');
+  }
+
   onBeforeMount(() => {
     initProtocolList();
   });
@@ -642,6 +761,9 @@
     refresh,
     initModuleCount,
     setActiveFolder,
+    setCurrentNode,
+    previousApi,
+    nextApi,
   });
 </script>
 

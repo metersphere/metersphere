@@ -14,7 +14,7 @@
         </a-button>
         <a-input-search
           v-model:model-value="keyword"
-          :placeholder="t('apiScenario.params.searchPlaceholder')"
+          :placeholder="t('common.searchByName')"
           allow-clear
           class="mx-[8px] w-[240px]"
           @search="searchList"
@@ -23,19 +23,21 @@
         />
       </div>
       <MsBaseTable v-bind="propsRes" no-disable :row-class="getRowClass" v-on="propsEvent">
-        <template #accessRestriction="{ record }">
-          {{ record.accessRestriction ? t('apiTestManagement.passwordView') : t('apiTestManagement.publicityView') }}
+        <template #isPrivate="{ record }">
+          {{ record.isPrivate ? t('apiTestManagement.passwordView') : t('apiTestManagement.publicityView') }}
         </template>
         <template #operation="{ record }">
-          <MsButton class="!mx-0" @click="viewLink(record)">
-            {{ t('apiTestManagement.viewLink') }}
-          </MsButton>
+          <a-tooltip :disabled="!!record.apiShareNum" :content="t('apiTestManagement.apiShareNumberTip')">
+            <MsButton class="!mx-0" :disabled="!record.apiShareNum" @click="viewLink(record)">
+              {{ t('apiTestManagement.viewLink') }}
+            </MsButton>
+          </a-tooltip>
           <a-divider direction="vertical" :margin="8" />
-          <MsButton class="!mx-0" @click="editShare(record.id)">
+          <MsButton class="!mx-0" @click="editShare(record)">
             {{ t('common.edit') }}
           </MsButton>
           <a-divider direction="vertical" :margin="8" />
-          <MsButton class="!mx-0" @click="deleteShare(record)">
+          <MsButton class="!mx-0" @click="deleteHandler(record)">
             {{ t('common.delete') }}
           </MsButton>
         </template>
@@ -47,6 +49,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
+  import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -54,12 +57,14 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
 
+  import { deleteShare, getSharePage } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
-  import { useTableStore } from '@/store';
+  import { useAppStore, useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
 
+  import type { ShareDetail, shareItem } from '@/models/apiTest/management';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -70,9 +75,10 @@
   const { t } = useI18n();
 
   const tableStore = useTableStore();
+  const appStore = useAppStore();
 
   const emit = defineEmits<{
-    (e: 'editOrCreate', id?: string): void;
+    (e: 'editOrCreate', record?: ShareDetail): void;
   }>();
 
   const innerVisible = defineModel<boolean>('visible', {
@@ -90,8 +96,14 @@
     },
     {
       title: 'apiTestManagement.accessRestriction',
-      slotName: 'accessRestriction',
-      dataIndex: 'accessRestriction',
+      slotName: 'isPrivate',
+      dataIndex: 'isPrivate',
+      showDrag: true,
+    },
+    {
+      title: 'apiTestManagement.apiShareNum',
+      slotName: 'apiShareNum',
+      dataIndex: 'apiShareNum',
       showDrag: true,
     },
     {
@@ -103,7 +115,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      width: 150,
+      width: 200,
       showDrag: true,
     },
     {
@@ -129,30 +141,45 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setKeyword } = useTable(undefined, {
-    tableKey: TableKeyEnum.SYSTEM_RESOURCE_POOL_CAPACITY,
-    scroll: { y: 'auto' },
-    selectable: false,
-    showSetting: true,
-    heightUsed: 310,
-    showSelectAll: false,
-  });
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
+    getSharePage,
+    {
+      tableKey: TableKeyEnum.SYSTEM_RESOURCE_POOL_CAPACITY,
+      scroll: { x: '100%' },
+      selectable: false,
+      showSetting: true,
+      heightUsed: 310,
+      showSelectAll: false,
+    },
+    (item) => ({
+      ...item,
+      deadline: item.deadline ? dayjs(item.deadline).format('YYYY-MM-DD HH:mm:ss') : '-',
+    })
+  );
 
   // 查看链接
-  function viewLink(record: any) {
+  function viewLink(record: shareItem) {
     openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
-      dId: record.id,
-      pId: record.projectId,
+      docShareId: record.id,
     });
   }
 
   // 编辑
-  function editShare(id: string) {
-    emit('editOrCreate', id);
+  function editShare(record: ShareDetail) {
+    emit('editOrCreate', record);
+  }
+
+  const keyword = ref<string>('');
+  function searchList() {
+    setLoadListParams({
+      keyword: keyword.value,
+      projectId: appStore.currentProjectId,
+    });
+    loadList();
   }
 
   // 删除
-  function deleteShare(record: any) {
+  function deleteHandler(record: shareItem) {
     openModal({
       type: 'error',
       title: t('common.deleteConfirmTitle', { name: characterLimit(record.name) }),
@@ -164,8 +191,13 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          Message.success(t('caseManagement.featureCase.deleteSuccess'));
+          if (record.id) {
+            await deleteShare(record.id);
+            Message.success(t('caseManagement.featureCase.deleteSuccess'));
+            searchList();
+          }
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
@@ -173,16 +205,21 @@
     });
   }
 
-  const keyword = ref<string>('');
-
-  function searchList() {}
-
-  function getRowClass(record: any) {
-    return record.expired ? 'grey-row-class' : '';
+  function getRowClass(record: shareItem) {
+    return record.invalid ? 'grey-row-class' : '';
   }
 
-  onMounted(() => {
-    searchList();
+  watch(
+    () => innerVisible.value,
+    (val) => {
+      if (val) {
+        searchList();
+      }
+    }
+  );
+
+  defineExpose({
+    searchList,
   });
 
   await tableStore.initColumn(TableKeyEnum.SYSTEM_RESOURCE_POOL_CAPACITY, columns, 'drawer');

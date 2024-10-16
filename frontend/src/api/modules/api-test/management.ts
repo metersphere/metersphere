@@ -7,6 +7,7 @@ import {
   AddDefinitionUrl,
   AddMockUrl,
   AddModuleUrl,
+  AddShareUrl,
   BatchCleanOutApiUrl,
   BatchDeleteCaseUrl,
   BatchDeleteDefinitionUrl,
@@ -24,6 +25,7 @@ import {
   CasePageUrl,
   caseTableBatchSyncUrl,
   CheckDefinitionScheduleUrl,
+  checkSharePsdUrl,
   clearThisChangeUrl,
   ConvertJsonSchemaToJsonUrl,
   CopyMockUrl,
@@ -39,6 +41,7 @@ import {
   DeleteModuleUrl,
   DeleteRecycleApiUrl,
   DeleteRecycleCaseUrl,
+  DeleteShareUrl,
   diffDataUrl,
   ExecuteCaseUrl,
   ExportDefinitionUrl,
@@ -59,6 +62,7 @@ import {
   GetModuleTreeUrl,
   GetPoolId,
   GetPoolOptionUrl,
+  GetSharePageUrl,
   getSyncedCaseDetailUrl,
   GetTrashModuleCountUrl,
   GetTrashModuleTreeUrl,
@@ -74,6 +78,9 @@ import {
   RecycleCasePageUrl,
   RunCaseUrl,
   SaveOperationHistoryUrl,
+  shareDetailUrl,
+  shareModuleCountUrl,
+  shareModuleTreeUrl,
   SortCaseUrl,
   SortDefinitionUrl,
   StopApiExportUrl,
@@ -94,6 +101,7 @@ import {
   UpdateMockStatusUrl,
   UpdateMockUrl,
   UpdateModuleUrl,
+  UpdateShareUrl,
   UploadTempFileCaseUrl,
   UploadTempFileUrl,
   UploadTempMockFileUrl,
@@ -127,6 +135,7 @@ import {
   ApiDefinitionUpdateParams,
   BatchRecoverApiParams,
   CheckScheduleParams,
+  CheckSharePsdType,
   CreateImportApiDefinitionScheduleParams,
   DefinitionHistoryItem,
   DefinitionHistoryPageParams,
@@ -136,19 +145,22 @@ import {
   ImportApiDefinitionParams,
   mockParams,
   RecoverDefinitionParams,
+  ShareDetail,
+  ShareDetailType,
+  shareItem,
   UpdateScheduleParams,
 } from '@/models/apiTest/management';
 import type { BatchEditMockParams, MockDetail, MockParams, UpdateMockParams } from '@/models/apiTest/mock';
-import {
+import type {
   AddModuleParams,
-  type BatchApiParams,
+  BatchApiParams,
   CommonList,
   DragSortParams,
   ModuleTreeNode,
   MoveModules,
+  TableQueryParams,
   TransferFileParams,
 } from '@/models/common';
-import { TableQueryParams } from '@/models/common';
 import { ResourcePoolItem } from '@/models/setting/resourcePool';
 
 // 更新模块
@@ -634,4 +646,41 @@ export function logCaseReportBatchExport(data: BatchApiParams) {
 // 接口用例导出报告id集合
 export function getCaseBatchExportParams(data: BatchApiParams) {
   return MSR.post({ url: `${GetCaseBatchExportParamsUrl}`, data });
+}
+
+// 接口定义-接口文档
+// 接口测试-接口管理-新增分享
+export function addShare(data: ShareDetail) {
+  return MSR.post({ url: `${AddShareUrl}`, data });
+}
+// 接口测试-接口管理-更新分享
+export function updateShare(data: ShareDetail) {
+  return MSR.post({ url: `${UpdateShareUrl}`, data });
+}
+// 接口测试-接口管理-删除分享
+export function deleteShare(id: string) {
+  return MSR.get({ url: DeleteShareUrl, params: id });
+}
+// 接口测试-接口管理-分享列表
+export function getSharePage(data: TableQueryParams) {
+  return MSR.post<CommonList<shareItem>>({ url: `${GetSharePageUrl}`, data });
+}
+// 接口测试-接口管理-分享详情
+export function shareDetail(id: string) {
+  return MSR.get<ShareDetailType>({ url: shareDetailUrl, params: id });
+}
+
+//  接口测试-接口管理-校验分享密码
+export function checkSharePsd(data: CheckSharePsdType) {
+  return MSR.post<CommonList<shareItem>>({ url: `${checkSharePsdUrl}`, data });
+}
+
+//  接口测试-接口管理-分享模块树
+export function getShareModuleTree(data: ApiDefinitionGetModuleParams) {
+  return MSR.post<ModuleTreeNode[]>({ url: shareModuleTreeUrl, data });
+}
+
+//  接口测试-接口管理-分享模块数量
+export function getShareModuleCount(data: ApiDefinitionGetModuleParams) {
+  return MSR.post({ url: shareModuleCountUrl, data });
 }
