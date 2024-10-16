@@ -307,6 +307,7 @@
         form.organizationId = props.currentProject.organizationId;
         form.moduleIds = props.currentProject.moduleIds;
         form.resourcePoolIds = props.currentProject.resourcePoolIds;
+        form.allResourcePool = props.currentProject.allResourcePool;
       }
     } else {
       // 新建
