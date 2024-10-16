@@ -97,8 +97,7 @@
       class="relative mx-[16px] border-b"
     />
   </MsCard>
-  <!-- special-height的169: 上面卡片高度153 + mt的16 -->
-  <MsCard class="mt-[16px]" :special-height="169" simple has-breadcrumb no-content-padding>
+  <MsCard class="mt-[16px]" simple has-breadcrumb no-content-padding>
     <Plan
       v-if="activeTab === 'plan'"
       :plan-id="planId"

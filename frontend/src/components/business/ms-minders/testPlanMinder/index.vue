@@ -812,8 +812,6 @@
         nextTick(() => {
           switchingConfigFormData.value = false;
         });
-      } else if (showConfigMenu.value) {
-        toggleConfig();
       }
     }
   }
