@@ -674,6 +674,7 @@
       if (extraVisible.value && activeExtraKey.value === 'history') {
         initExecuteHistory(node.data);
       }
+      window.minder.refresh();
     } else if (isModuleOrCollection(node.data)) {
       // 先清空子节点，从后向前遍历时，删除节点不会影响到尚未遍历的节点
       for (let i = node.children.length - 1; i >= 0; i--) {

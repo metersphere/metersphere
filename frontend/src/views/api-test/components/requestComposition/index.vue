@@ -1309,8 +1309,9 @@
     try {
       if (!props.updateApi) return;
       saveLoading.value = true;
+      const requestParams = await makeRequestParams();
       const res = await props.updateApi({
-        ...makeRequestParams(),
+        ...requestParams,
         ...props.otherParams,
       });
       Message.success(t('common.updateSuccess'));
