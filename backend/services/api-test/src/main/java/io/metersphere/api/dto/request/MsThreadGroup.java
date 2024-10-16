@@ -6,6 +6,5 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class MsJMeterComponent extends AbstractMsTestElement {
-    private String testElementContent;
+public class MsThreadGroup extends AbstractMsTestElement {
 }

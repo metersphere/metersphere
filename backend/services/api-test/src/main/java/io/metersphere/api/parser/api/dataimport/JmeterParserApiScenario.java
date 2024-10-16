@@ -4,6 +4,7 @@ import io.metersphere.api.constants.ApiScenarioStatus;
 import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.dto.request.MsJMeterComponent;
+import io.metersphere.api.dto.request.MsThreadGroup;
 import io.metersphere.api.dto.request.controller.*;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.scenario.ApiScenarioImportDetail;
@@ -26,7 +27,10 @@ import org.apache.jorphan.collections.HashTree;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class JmeterParserApiScenario implements ApiScenarioImportParser {
 
@@ -39,31 +43,71 @@ public class JmeterParserApiScenario implements ApiScenarioImportParser {
             MsTestElementParser parser = new MsTestElementParser();
             AbstractMsTestElement msTestElement = parser.parse(hashTree);
             Map<String, String> polymorphicNameMap = parser.getPolymorphicNameMap(request.getProjectId());
-            String scenarioName = StringUtils.trim(parser.parseTestPlanName(hashTree));
-            return Collections.singletonList(this.parseImportFile(request.getProjectId(), msTestElement, polymorphicNameMap, scenarioName));
+            return this.parseImportFile(request.getProjectId(), msTestElement, polymorphicNameMap);
         } catch (Exception e) {
             LogUtils.error(e);
             throw new MSException("当前JMX版本不兼容");
         }
     }
 
-    private ApiScenarioImportDetail parseImportFile(String projectId, AbstractMsTestElement msElementList, Map<String, String> polymorphicNameMap, String scenarioName) {
-        ApiScenarioImportDetail apiScenarioDetail = new ApiScenarioImportDetail();
-        apiScenarioDetail.setName(scenarioName);
-        apiScenarioDetail.setPriority("P0");
-        apiScenarioDetail.setStatus(ApiScenarioStatus.UNDERWAY.name());
-        apiScenarioDetail.setGrouped(false);
-        apiScenarioDetail.setDeleted(false);
-        apiScenarioDetail.setLatest(true);
-        apiScenarioDetail.setProjectId(projectId);
+    private List<ApiScenarioImportDetail> parseImportFile(String projectId, AbstractMsTestElement msElementList, Map<String, String> polymorphicNameMap) {
+        List<AbstractMsTestElement> scenarioTestElementList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(msElementList.getChildren())) {
+            for (AbstractMsTestElement msTestElement : msElementList.getChildren()) {
+                if (msTestElement instanceof MsThreadGroup) {
+                    scenarioTestElementList.add(msTestElement);
+                }
+            }
+        }
 
-        ApiScenarioStepParseResult stepParseResult = this.parseScenarioStep(msElementList.getChildren(), projectId, polymorphicNameMap);
+        if (CollectionUtils.isEmpty(scenarioTestElementList)) {
+            // 无法分辨ThreadGroup,当做一个场景来处理
+            scenarioTestElementList.add(msElementList);
+        }
 
-        apiScenarioDetail.setSteps(stepParseResult.getStepList());
-        apiScenarioDetail.setStepDetails(stepParseResult.getStepDetails());
+        List<ApiScenarioImportDetail> importList = new ArrayList<>();
+        for (AbstractMsTestElement msTestElement : scenarioTestElementList) {
+            ApiScenarioImportDetail apiScenarioDetail = new ApiScenarioImportDetail();
+            apiScenarioDetail.setName(StringUtils.trim(msTestElement.getName()));
+            apiScenarioDetail.setPriority("P0");
+            apiScenarioDetail.setStatus(ApiScenarioStatus.UNDERWAY.name());
+            apiScenarioDetail.setGrouped(false);
+            apiScenarioDetail.setDeleted(false);
+            apiScenarioDetail.setLatest(true);
+            apiScenarioDetail.setProjectId(projectId);
+            ApiScenarioStepParseResult stepParseResult = this.parseScenarioStep(msTestElement.getChildren(), projectId, polymorphicNameMap);
+            apiScenarioDetail.setSteps(stepParseResult.getStepList());
+            apiScenarioDetail.setStepDetails(stepParseResult.getStepDetails());
+            apiScenarioDetail.setStepTotal(CollectionUtils.size(apiScenarioDetail.getSteps()));
 
-        apiScenarioDetail.setStepTotal(CollectionUtils.size(apiScenarioDetail.getSteps()));
-        return apiScenarioDetail;
+            importList.add(apiScenarioDetail);
+        }
+        importList = this.apiScenarioRename(importList);
+        return importList;
+    }
+
+    public List<ApiScenarioImportDetail> apiScenarioRename(List<ApiScenarioImportDetail> scenarioList) {
+        List<ApiScenarioImportDetail> returnList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(scenarioList)) {
+            List<String> nameList = new ArrayList<>();
+            for (ApiScenarioImportDetail scenario : scenarioList) {
+                String uniqueName = getUniqueName(scenario.getName(), nameList);
+                scenario.setName(uniqueName);
+                nameList.add(uniqueName);
+                returnList.add(scenario);
+            }
+        }
+        return returnList;
+    }
+
+    private String getUniqueName(String originalName, List<String> existenceNameList) {
+        String returnName = originalName;
+        int index = 1;
+        while (existenceNameList.contains(returnName)) {
+            returnName = originalName + " - " + index;
+            index++;
+        }
+        return returnName;
     }
 
     private ApiScenarioStepParseResult parseScenarioStep(List<AbstractMsTestElement> msElementList, String projectId, Map<String, String> polymorphicNameMap) {
@@ -94,6 +138,7 @@ public class JmeterParserApiScenario implements ApiScenarioImportParser {
                 apiScenarioStep.setStepType(this.getStepType(msTestElement));
                 apiScenarioStep.setConfig(new HashMap<>());
                 apiScenarioStep.setRefType(ApiScenarioStepRefType.DIRECT.name());
+                stepBlobContent = JSON.toJSONString(msTestElement).getBytes();
             } else {
                 apiScenarioStep.setStepType(this.getStepType(msTestElement));
                 apiScenarioStep.setConfig(JSON.toJSONString(msTestElement));

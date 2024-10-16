@@ -12,6 +12,7 @@ import org.apache.jmeter.testelement.TestElement;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Author: jianxing
@@ -33,7 +34,6 @@ public class MsElementConverterRegister {
 
         // 注册默认的转换器
         register(TestPlanConverter.class);
-        register(ThreadGroupConverter.class);
         register(HTTPSamplerConverter.class);
         register(HeaderManagerConverter.class);
 
@@ -47,10 +47,14 @@ public class MsElementConverterRegister {
         register(XPathExtractorConverter.class);
         register(JSONPathAssertionConverter.class);
         register(XPathAssertionConverter.class);
+        register(ThreadGroupConverter.class);
 
         register(BeanShellPreProcessConverter.class);
         register(JDBCPreProcessConverter.class);
         register(JSR223PreProcessConverter.class);
+
+        register(ResultCollectorConverter.class);
+        register(DebugSampleConverter.class);
     }
 
     /**
@@ -86,11 +90,8 @@ public class MsElementConverterRegister {
      */
     public static AbstractMsElementConverter getConverter(Class<? extends TestElement> TestElementClass) {
         AbstractMsElementConverter<? extends TestElement> converter = parserMap.get(TestElementClass);
-        if (converter == null) {
-            // 如果没有对应的转换器，则使用通用的转换器
-            return generalElementConverter;
-        }
-        return converter;
+        // 如果没有对应的转换器，则使用通用的转换器
+        return Objects.requireNonNullElse(converter, generalElementConverter);
     }
 
     /**

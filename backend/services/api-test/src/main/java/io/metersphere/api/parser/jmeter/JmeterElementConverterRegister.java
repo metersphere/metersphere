@@ -42,6 +42,7 @@ public class JmeterElementConverterRegister {
         register(MsLoopControllerConverter.class);
         register(MsOnceOnlyControllerConverter.class);
         register(MsConstantTimerControllerConverter.class);
+        register(MsJMeterComponentConverter.class);
 
         // 注册转换器拦截器
         AbstractJmeterElementConverter.registerConvertInterceptor(new RetryInterceptor());
