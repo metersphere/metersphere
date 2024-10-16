@@ -73,6 +73,9 @@ class TestResourcePoolControllerTests extends BaseTest {
 
     private static final String TEST_RESOURCE_POOL_ADD = "/test/resource/pool/add";
     private static final String TEST_RESOURCE_POOL_UPDATE = "/test/resource/pool/update";
+    private static final String TEST_RESOURCE_POOL_CAPACITY_LIST = "/test/resource/pool/capacity/task/list";
+    private static final String TEST_RESOURCE_POOL_CAPACITY_DETAIL = "/test/resource/pool/capacity/detail";
+
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
@@ -630,6 +633,49 @@ class TestResourcePoolControllerTests extends BaseTest {
         }
 
         return testResourcePoolDTO;
+    }
+
+    @Test
+    @Order(18)
+    public void getTestResourcePoolCapacityDetail() throws Exception {
+        TestResourcePoolCapacityRequest  request = new TestResourcePoolCapacityRequest();
+        request.setPoolId("test_pool_1");
+        request.setIp("172.16.200.8");
+        request.setPort("8082");
+        this.requestPost(TEST_RESOURCE_POOL_CAPACITY_DETAIL, request);
+        request.setCurrent(1);
+        request.setPageSize(10);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(TEST_RESOURCE_POOL_CAPACITY_DETAIL, request);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+    @Test
+    @Order(19)
+    public void getSystemTaskItemPage() throws Exception {
+        TestResourcePoolCapacityRequest  request = new TestResourcePoolCapacityRequest();
+        request.setPoolId("test_pool_1");
+        request.setIp("172.16.200.8");
+        request.setPort("8082");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(TEST_RESOURCE_POOL_CAPACITY_LIST, request);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        request.setIp(null);
+        request.setPort(null);
+        mvcResult = this.requestPostWithOkAndReturn(TEST_RESOURCE_POOL_CAPACITY_LIST, request);
+        // 获取返回值
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
     }
 
 }
