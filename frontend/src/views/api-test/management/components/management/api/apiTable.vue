@@ -284,8 +284,13 @@
       </div>
     </template>
   </a-modal>
-  <CreateShareModal v-model:visible="showShareModal" :edit-id="editId" @close="cancelHandler" />
-  <ShareListDrawer v-model:visible="showShareListDrawer" @edit-or-create="editHandler" />
+  <CreateShareModal
+    v-model:visible="showShareModal"
+    :record="editRecord"
+    @close="cancelHandler"
+    @load-list="loadShareList"
+  />
+  <ShareListDrawer ref="shareListRef" v-model:visible="showShareListDrawer" @edit-or-create="editHandler" />
 </template>
 
 <script setup lang="ts">
@@ -332,6 +337,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ProtocolItem } from '@/models/apiTest/common';
+  import type { ShareDetail } from '@/models/apiTest/management';
   import { ApiDefinitionDetail, ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
   import { DragSortParams, ModuleTreeNode } from '@/models/common';
   import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
@@ -1288,14 +1294,25 @@
     showShareListDrawer.value = true;
   }
 
-  const editId = ref<string>();
-  function editHandler(id?: string) {
-    editId.value = id;
+  const editRecord = ref<ShareDetail>();
+  // 编辑分享
+  function editHandler(record?: ShareDetail) {
+    editRecord.value = record;
     showShareModal.value = true;
   }
+  const shareListRef = ref<InstanceType<typeof ShareListDrawer>>();
 
   function cancelHandler() {
-    editId.value = '';
+    showShareModal.value = false;
+    editRecord.value = undefined;
+  }
+  // 创建分享后打开分享列表
+  function loadShareList() {
+    if (!showShareListDrawer.value) {
+      showShareListDrawer.value = true;
+    } else {
+      shareListRef.value?.searchList();
+    }
   }
 
   watch(

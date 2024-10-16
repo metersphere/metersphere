@@ -30,21 +30,21 @@
         </div>
         <div
           v-for="item in shareList"
-          :key="item.value"
-          :class="[`share-option-item ${item.value === currentShare ? 'share-option-item-active' : ''} w-full`]"
+          :key="item.id"
+          :class="[`share-option-item ${item.id === currentShare ? 'share-option-item-active' : ''} w-full`]"
           @click="changeShare(item)"
         >
           <div class="flex w-full items-center justify-between">
-            <a-tooltip :content="item.label">
+            <a-tooltip :content="item.name">
               <div class="one-line-text max-w-[100px]">
-                {{ item.label }}
+                {{ item.name }}
               </div>
             </a-tooltip>
             <MsIcon
               type="icon-icon_copy_outlined"
               class="cursor-pointer text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
               :size="16"
-              @click="copyShareLink(item.value)"
+              @click="copyShareLink(item.id as string)"
             />
           </div>
         </div>
@@ -55,9 +55,18 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { SelectOptionData } from '@arco-design/web-vue';
+  import { useClipboard } from '@vueuse/core';
+  import { Message, SelectOptionData } from '@arco-design/web-vue';
 
+  import { getSharePage } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
+
+  import type { shareItem } from '@/models/apiTest/management';
+
+  const appStore = useAppStore();
+
+  const { copy, isSupported } = useClipboard({ legacy: true });
 
   const { t } = useI18n();
 
@@ -65,11 +74,6 @@
     (e: 'create'): void;
     (e: 'showShareList'): void;
   }>();
-
-  const isSelectedShare = ref(false);
-  function visibleChange(val: boolean) {
-    isSelectedShare.value = val;
-  }
 
   const internalShare = ref([
     {
@@ -82,16 +86,7 @@
     },
   ]);
 
-  const shareList = ref([
-    {
-      label: '001',
-      value: '001',
-    },
-    {
-      label: '002',
-      value: '002',
-    },
-  ]);
+  const shareList = ref<shareItem[]>();
 
   const currentShare = ref<string>('');
   // 创建分享
@@ -102,6 +97,14 @@
   // 分享列表
   function showShareList() {
     emit('showShareList');
+  }
+
+  const isSelectedShare = ref(false);
+  function visibleChange(val: boolean) {
+    isSelectedShare.value = val;
+    if (!val) {
+      currentShare.value = '';
+    }
   }
 
   function changeShare(item: SelectOptionData) {
@@ -118,8 +121,44 @@
         break;
     }
   }
+
   // 快捷复制分享
-  function copyShareLink(value: string) {}
+  function copyShareLink(value: string) {
+    if (isSupported) {
+      // 判断路由中是不是有dId参数，有的话只是修改当前的值就可以了
+      const url = window.location.href;
+      const dIdParam = `&docShareId=${value}`;
+      copy(`${url}${dIdParam}`);
+      Message.success(t('apiTestManagement.shareUrlCopied'));
+    } else {
+      Message.error(t('common.copyNotSupport'));
+    }
+  }
+
+  async function initShareList() {
+    try {
+      const res = await getSharePage({
+        current: 1,
+        pageSize: 10,
+        sort: {},
+        combineSearch: {
+          searchMode: 'AND',
+          conditions: [],
+        },
+        projectId: appStore.currentProjectId,
+        filter: {},
+      });
+
+      shareList.value = res.list;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  onBeforeMount(() => {
+    initShareList();
+  });
 </script>
 
 <style scoped lang="less">
@@ -149,7 +188,7 @@
     }
   }
   .share-option-item {
-    padding: 3px 8px;
+    padding: 4px 8px;
     border-radius: 4px;
     cursor: pointer;
     @apply flex w-full items-center justify-between;

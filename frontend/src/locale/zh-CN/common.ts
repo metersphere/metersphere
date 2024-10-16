@@ -174,6 +174,7 @@ export default {
   'common.refresh': '刷新',
   'common.searchByIdName': '通过 ID/名称搜索',
   'common.searchByIDNameTag': '通过 ID/名称/标签搜索',
+  'common.searchByName': '通过名称搜索',
   'common.archive': '归档',
   'common.running': '执行中',
   'common.unExecute': '未执行',

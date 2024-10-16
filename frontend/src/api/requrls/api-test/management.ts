@@ -112,3 +112,13 @@ export const AddCaseUrl = '/api/case/add'; // 添加用例
 
 export const GetPoolOptionUrl = '/api/test/pool-option'; // 获取接口资源池
 export const GetPoolId = '/api/test/get-pool/'; // 获取项目应用设置的资源池id
+
+// 接口定义文档
+export const AddShareUrl = '/api/doc/share/add'; // 接口测试-接口管理-新增分享
+export const UpdateShareUrl = '/api/doc/share/update'; // 接口测试-接口管理-更新分享
+export const DeleteShareUrl = '/api/doc/share/delete'; // 接口测试-接口管理-删除分享
+export const GetSharePageUrl = '/api/doc/share/page'; // 接口测试-接口管理-分享列表
+export const checkSharePsdUrl = '/api/doc/share/check'; // 接口测试-接口管理-校验分享密码
+export const shareDetailUrl = '/api/doc/share/detail'; // 接口测试-接口管理-查看链接
+export const shareModuleTreeUrl = '/api/doc/share/module/tree'; // 接口测试-接口管理-模块树
+export const shareModuleCountUrl = '/api/doc/share/module/count'; // 接口测试-接口管理-模块数量

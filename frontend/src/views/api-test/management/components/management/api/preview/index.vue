@@ -7,7 +7,7 @@
           <apiMethodName :method="previewDetail.method as RequestMethods" tag-size="small" is-tag />
         </template>
         <template #titleAppend>
-          <a-tooltip :content="t('report.detail.api.copyLink')">
+          <a-tooltip v-if="!docShareId" :content="t('report.detail.api.copyLink')">
             <MsIcon
               type="icon-icon_copy_outlined"
               class="cursor-pointer text-[var(--color-text-4)]"
@@ -15,7 +15,7 @@
               @click="share"
             />
           </a-tooltip>
-          <a-tooltip :content="t(previewDetail.follow ? 'common.forked' : 'common.notForked')">
+          <a-tooltip v-if="!docShareId" :content="t(previewDetail.follow ? 'common.forked' : 'common.notForked')">
             <MsIcon
               v-permission="['PROJECT_API_DEFINITION:READ+UPDATE']"
               :loading="followLoading"
@@ -26,10 +26,22 @@
               @click="toggleFollowReview"
             />
           </a-tooltip>
+          <!-- 分享导出 TODO 联调 -->
+          <a-tooltip v-if="docShareId && shareDetailInfo?.allowExport" :content="t('common.export')">
+            <MsIcon
+              type="icon-icon_top-align_outlined"
+              class="cursor-pointer text-[var(--color-text-4)]"
+              :size="16"
+              @click="exportShare"
+            />
+          </a-tooltip>
         </template>
       </MsDetailCard>
     </div>
-    <a-tabs v-model:active-key="activeKey" animation lazy-load>
+    <div v-if="docShareId" class="px-[16px]">
+      <detailTab :detail="previewDetail" :protocols="props.protocols" />
+    </div>
+    <a-tabs v-else v-model:active-key="activeKey" animation lazy-load>
       <a-tab-pane key="detail" :title="t('apiTestManagement.detail')" class="px-[18px] py-[16px]">
         <detailTab :detail="previewDetail" :protocols="props.protocols" />
       </a-tab-pane>
@@ -64,6 +76,7 @@
   import { toggleFollowDefinition } from '@/api/modules/api-test/management';
 
   import { ProtocolItem } from '@/models/apiTest/common';
+  import { ShareDetailType } from '@/models/apiTest/management';
   import { RequestMethods } from '@/enums/apiEnum';
 
   import { getValidRequestTableParams } from '@/views/api-test/components/utils';
@@ -78,6 +91,8 @@
   const { t } = useI18n();
 
   const previewDetail = ref<RequestParam>(cloneDeep(props.detail));
+  const docShareId: string | undefined = inject('docShareId');
+  const shareDetailInfo = inject<Ref<ShareDetailType>>('shareDetailInfo');
 
   watch(
     () => props.detail.id,
@@ -174,6 +189,8 @@
   }
 
   const activeKey = ref('detail');
+  // 导出分享 TODO 等待联调
+  function exportShare() {}
 </script>
 
 <style lang="less" scoped>
