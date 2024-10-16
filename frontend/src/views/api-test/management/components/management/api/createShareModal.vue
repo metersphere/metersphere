@@ -35,18 +35,18 @@
             :placeholder="t('common.pleaseSelect')"
             :field-names="{ title: 'name', key: 'id', children: 'children' }"
           />
-          <a-input
-            v-if="form.apiRange === 'PATH'"
-            v-model="form.rangeMatchVal"
-            class="w-full"
-            :max-length="255"
-            :placeholder="t('project.environmental.http.pathPlaceholder')"
-          />
-          <a-select v-if="form.apiRange === 'TAG'" v-model="form.rangeMatchSymbol" class="w-[120px]">
+          <a-select v-if="['TAG', 'PATH'].includes(form.apiRange)" v-model="form.rangeMatchSymbol" class="w-[120px]">
             <a-option v-for="item in tagOperators" :key="item.value" :value="item.value">
               {{ t(item.label) }}
             </a-option>
           </a-select>
+          <a-input
+            v-if="form.apiRange === 'PATH'"
+            v-model="form.rangeMatchVal"
+            :max-length="255"
+            class="flex-1"
+            :placeholder="t('project.environmental.http.pathPlaceholder')"
+          />
           <MsTagsInput
             v-if="form.apiRange === 'TAG'"
             v-model:model-value="tags"
@@ -100,7 +100,7 @@
   import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
-  import { CONTAINS } from '@/components/pure/ms-advance-filter/index';
+  import { CONTAINS, EQUAL } from '@/components/pure/ms-advance-filter/index';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import MsTimeSelectorVue from '@/components/pure/ms-time-selector/MsTimeSelector.vue';
   import MsTreeSelect from '@/components/pure/ms-tree-select/index.vue';
@@ -168,7 +168,9 @@
     },
   ]);
 
-  const tagOperators = ref([CONTAINS]);
+  const tagOperators = computed(() => {
+    return form.value.apiRange === 'PATH' ? [CONTAINS, EQUAL] : [CONTAINS];
+  });
 
   function handleTimeChange(value: string) {
     invalidTimeValue.value = value;

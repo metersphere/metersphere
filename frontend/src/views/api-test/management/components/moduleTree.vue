@@ -442,6 +442,8 @@
       protocols: selectedProtocols.value,
       projectId: appStore.currentProjectId,
       moduleIds: [],
+      // TODO 后台测试
+      shareId: props.docShareId,
     });
     res = mapTree<ModuleTreeNode>(res, (node) => ({
       ...node,
@@ -451,8 +453,8 @@
       hideMoreAction: node.id === 'root' || !!props.docShareId,
     }));
 
-    // 过滤count为0 且类型为 MODULE 的节点
-    res = filterTree(res, (node) => !(node.count === 0 && node.type === 'MODULE'));
+    // 过滤count为0 且类型为 MODULE 的节点 TODO 后台测试用 先不过滤
+    // res = filterTree(res, (node) => !(node.count === 0 && node.type === 'MODULE'));
     return res;
   }
 
