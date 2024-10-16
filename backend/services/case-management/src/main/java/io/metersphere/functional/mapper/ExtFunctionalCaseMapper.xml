@@ -695,7 +695,7 @@
     </select>
 
     <select id="getCaseCustomFieldListByCollection" resultType="io.metersphere.functional.domain.FunctionalCaseCustomField">
-        SELECT
+        SELECT distinct
         fccf.case_id, fccf.field_id, fccf.value
         FROM
         functional_case_custom_field fccf
