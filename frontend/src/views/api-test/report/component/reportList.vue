@@ -50,12 +50,6 @@
           :script-identifier="props.moduleType === ReportEnum.API_SCENARIO_REPORT ? record.scriptIdentifier : null"
         />
       </template>
-      <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_STATUS]="{ filterContent }">
-        <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
-      </template>
-      <template #execStatus="{ record }">
-        <ExecStatus :status="record.execStatus" />
-      </template>
       <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT]="{ filterContent }">
         <ExecStatus :status="filterContent.value" />
       </template>
@@ -212,23 +206,7 @@
         sorter: true,
       },
       showInTable: true,
-      width: 200,
-      showDrag: true,
-    },
-    {
-      title: 'report.status',
-      dataIndex: 'execStatus',
-      slotName: 'execStatus',
-      filterConfig: {
-        options: ExecStatusList.value,
-        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT,
-      },
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
-      showInTable: true,
-      width: 200,
+      width: 150,
       showDrag: true,
     },
     {

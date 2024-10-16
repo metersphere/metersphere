@@ -64,12 +64,6 @@
       <template #resultStatus="{ record }">
         <ExecutionStatus v-if="record.resultStatus !== '-'" :status="record.resultStatus" />
       </template>
-      <template #execStatus="{ record }">
-        <ExecStatus :status="record.execStatus" />
-      </template>
-      <template #[FilterSlotNameEnum.TEST_PLAN_REPORT_EXEC_STATUS]="{ filterContent }">
-        <ExecStatus :status="filterContent.value" />
-      </template>
       <template #[FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER]="{ filterContent }">
         <ExecutionStatus :status="filterContent.value" />
       </template>
@@ -211,19 +205,6 @@
       columnSelectorDisabled: true,
     },
     {
-      title: 'report.execStatus',
-      dataIndex: 'execStatus',
-      slotName: 'execStatus',
-      filterConfig: {
-        options: executeResultOptions.value,
-        filterSlotName: FilterSlotNameEnum.TEST_PLAN_REPORT_EXEC_STATUS,
-      },
-      showInTable: true,
-      width: 200,
-      showDrag: true,
-    },
-
-    {
       title: 'report.result',
       dataIndex: 'resultStatus',
       slotName: 'resultStatus',
@@ -236,7 +217,7 @@
         filterSlotName: FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER,
       },
       showInTable: true,
-      width: 200,
+      width: 150,
       showDrag: true,
     },
     {
