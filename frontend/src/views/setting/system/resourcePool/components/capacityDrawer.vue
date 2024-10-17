@@ -11,11 +11,13 @@
       <div class="flex items-center gap-[16px]">
         <div class="count-resources">
           {{ t('system.resourcePool.concurrentNumber') }}
-          <span class="capacity-count">{{ capacityDetail.concurrentNumber }}</span>
+          <span class="capacity-count">{{ capacityDetail.concurrentNumber ?? 0 }}</span>
         </div>
         <div class="count-resources">
           {{ t('system.resourcePool.remainingConcurrency') }}
-          <span class="capacity-count">{{ capacityDetail.occupiedConcurrentNumber }}</span>
+          <span class="capacity-count">{{
+            capacityDetail.concurrentNumber - capacityDetail.occupiedConcurrentNumber
+          }}</span>
         </div>
       </div>
     </template>
@@ -26,7 +28,7 @@
           class="mr-[16px] w-[200px]"
           :placeholder="t('common.pleaseSelect')"
           allow-clear
-          @change="(val)=>changeNode(val as string)"
+          @change="changeNode"
         >
           <template #prefix>
             <div class="text-[var(--color-text-brand)]">{{ t('system.resourcePool.capacityNode') }}</div>
@@ -38,11 +40,17 @@
           </a-tooltip>
         </a-select>
         <CapacityProgress
+          v-show="selectedNode"
           :name="t('system.resourcePool.memory')"
-          :percent="capacityDetail.memoryUsage"
+          :percent="capacityDetail.memoryUsage ?? 0"
           color="rgb(var(--link-6))"
         />
-        <CapacityProgress name="CPU" :percent="capacityDetail.cpuusage" color="rgb(var(--success-6))" />
+        <CapacityProgress
+          v-show="selectedNode"
+          name="CPU"
+          :percent="capacityDetail.cpuusage ?? 0"
+          color="rgb(var(--success-6))"
+        />
       </div>
       <MsTag no-margin size="large" :tooltip-disabled="true" class="cursor-pointer" theme="outline" @click="searchList">
         <MsIcon class="text-[16px] text-[var(color-text-4)]" :size="32" type="icon-icon_reset_outlined" />
@@ -232,20 +240,16 @@
     }
   }
 
-  function changeNode(value: string) {
+  function changeNode() {
     searchList();
-    if (value) {
-      initCapacityDetail();
-    } else {
-      resetCapacityDetail();
-    }
+    initCapacityDetail();
   }
 
   watch(
     () => innerVisible.value,
     (val) => {
       if (val) {
-        searchList();
+        changeNode();
       } else {
         selectedNode.value = '';
         resetCapacityDetail();
