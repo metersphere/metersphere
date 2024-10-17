@@ -364,6 +364,7 @@
   }
 
   defineExpose({
+    clearFilter,
     isAdvancedSearchMode,
   });
 </script>
