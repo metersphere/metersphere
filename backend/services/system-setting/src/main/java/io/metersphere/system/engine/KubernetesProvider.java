@@ -1,4 +1,4 @@
-package io.metersphere.api.engine;
+package io.metersphere.system.engine;
 
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.ConfigBuilder;
@@ -219,4 +219,25 @@ public class KubernetesProvider {
 
         return result;
     }
+
+    public static boolean validateNamespaceExists(TestResourceDTO testResourceDTO) {
+        LogUtils.info("Test resource config: {}", testResourceDTO);
+        try (KubernetesClient kubernetesClient = getKubernetesClient(testResourceDTO)) {
+            // 校验 KubernetesClient 是否为空，避免后续调用产生 NullPointerException
+            if (kubernetesClient == null) {
+                throw new IllegalArgumentException("Kubernetes client initialization failed. Please check your configuration.");
+            }
+
+            // 直接获取 pods 并进行非空判断
+            List<Pod> pods = getPods(kubernetesClient, testResourceDTO);
+            if (org.apache.commons.collections.CollectionUtils.isEmpty(pods)) {
+                throw new RuntimeException("No execution pods found for the given resource: " + testResourceDTO.getNamespace());
+            }
+        } catch (Exception e) {
+            LogUtils.error("Failed to validate namespace exists", e);
+            return false;
+        }
+        return true;
+    }
+
 }
