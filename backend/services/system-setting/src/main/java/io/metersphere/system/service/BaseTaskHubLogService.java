@@ -3,15 +3,21 @@ package io.metersphere.system.service;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.ExecTask;
+import io.metersphere.system.domain.ExecTaskExample;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.dto.sdk.request.UserRoleUpdateRequest;
+import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.mapper.ExecTaskMapper;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author wx
@@ -21,7 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class BaseTaskHubLogService {
     @Resource
     private ExecTaskMapper execTaskMapper;
-
+    @Resource
+    private BaseTaskHubService baseTaskHubService;
 
     /**
      * 系统停止任务日志
@@ -42,6 +49,34 @@ public class BaseTaskHubLogService {
                     execTask.getTaskName());
         }
         return dto;
+    }
+
+    /**
+     * 系统批量停止任务日志
+     *
+     * @param request
+     * @return
+     */
+    public List<LogDTO> systemBatchStopLog(TableBatchProcessDTO request) {
+        List<String> ids = baseTaskHubService.getTaskIds(request);
+        ExecTaskExample example = new ExecTaskExample();
+        example.createCriteria().andIdIn(ids);
+        List<ExecTask> execTasks = execTaskMapper.selectByExample(example);
+        List<LogDTO> logDTOList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(execTasks)) {
+            execTasks.forEach(item -> {
+                LogDTO dto = new LogDTO(
+                        OperationLogConstants.SYSTEM,
+                        OperationLogConstants.SYSTEM,
+                        item.getId(),
+                        null,
+                        OperationLogType.STOP.name(),
+                        OperationLogModule.SETTING_SYSTEM_TASK_CENTER,
+                        item.getTaskName());
+                logDTOList.add(dto);
+            });
+        }
+        return logDTOList;
     }
 
 

@@ -6,7 +6,9 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.dto.sdk.BasePageRequest;
+import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
+import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.service.BaseTaskHubService;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
@@ -27,6 +29,8 @@ public class BaseTaskHubControllerTests extends BaseTest {
 
     @Resource
     private BaseTaskHubService baseTaskHubService;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
 
     /**
      * 系统任务中心测试用例
@@ -39,6 +43,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_RESOURCE_POOL_STATUS = "/system/task-center/resource-pool/status";
     public static final String SYSTEM_TASK_STOP = "/system/task-center/exec-task/stop/";
     public static final String SYSTEM_TASK_DELETE = "/system/task-center/exec-task/delete/";
+    public static final String SYSTEM_TASK_BATCH_STOP = "/system/task-center/exec-task/batch-stop/";
 
     @Test
     @Order(1)
@@ -146,7 +151,8 @@ public class BaseTaskHubControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void systemTaskStop() throws Exception {
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(SYSTEM_TASK_STOP + "1");
+        this.requestGet(SYSTEM_TASK_STOP + "1");
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(SYSTEM_TASK_STOP + "2");
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -159,7 +165,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
      * 系统执行任务删除
      */
     @Test
-    @Order(4)
+    @Order(7)
     public void systemTaskDelete() throws Exception {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(SYSTEM_TASK_DELETE + "4");
         // 获取返回值
@@ -167,6 +173,21 @@ public class BaseTaskHubControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+    }
+
+
+    /**
+     * 系统执行任务停止
+     */
+    @Test
+    @Order(5)
+    public void systemTaskBatchStop() throws Exception {
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
+        request.setSelectAll(true);
+        this.requestPost(SYSTEM_TASK_BATCH_STOP, request);
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("1", "2"));
+        this.requestPost(SYSTEM_TASK_BATCH_STOP, request);
     }
 
 
@@ -266,21 +287,24 @@ public class BaseTaskHubControllerTests extends BaseTest {
      * 组织执行任务停止
      */
     @Test
-    @Order(4)
+    @Order(24)
     public void orgTaskStop() throws Exception {
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(ORG_TASK_STOP + "1");
+        this.requestGet(SYSTEM_TASK_STOP + "1");
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(ORG_TASK_STOP + "2");
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+        testResourcePoolMapper.deleteByPrimaryKey("1");
+        testResourcePoolMapper.deleteByPrimaryKey("2");
     }
 
     /**
      * 组织执行任务删除
      */
     @Test
-    @Order(5)
+    @Order(25)
     public void orgTaskDelete() throws Exception {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(ORG_TASK_DELETE + "4");
         // 获取返回值
@@ -289,7 +313,6 @@ public class BaseTaskHubControllerTests extends BaseTest {
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
     }
-
 
 
     @Test
