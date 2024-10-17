@@ -92,4 +92,38 @@
         </if>
     </sql>
 
+
+    <select id="getResourcePoolsByTaskIds" resultType="io.metersphere.system.domain.ExecTaskItem">
+        SELECT
+        id,
+        task_id,
+        resource_pool_node,
+        resource_pool_id
+        FROM
+        exec_task_item
+        <if test="taskIds != null and taskIds.size() > 0">
+            WHERE task_id IN
+            <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+                #{taskId}
+            </foreach>
+        </if>
+    </select>
+
+
+    <update id="batchUpdateTaskItemStatus">
+        UPDATE exec_task_item
+        SET `status` = #{status},
+        executor = #{userId}
+        WHERE  task_id in
+        <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+        <if test="projectId != null and projectId != ''">
+            and project_id = #{projectId}
+        </if>
+        <if test="organizationId != null and organizationId != ''">
+            and organization_id = #{organizationId}
+        </if>
+        and `status` = 'RUNNING'
+    </update>
 </mapper>

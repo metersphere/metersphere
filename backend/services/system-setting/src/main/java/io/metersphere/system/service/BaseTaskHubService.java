@@ -2,6 +2,8 @@ package io.metersphere.system.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
+import io.metersphere.engine.EngineFactory;
+import io.metersphere.engine.MsHttpClient;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.domain.ProjectTestResourcePool;
@@ -9,14 +11,19 @@ import io.metersphere.project.domain.ProjectTestResourcePoolExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.sdk.constants.ExecStatus;
+import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
 import io.metersphere.sdk.constants.ResultStatus;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.pool.TestResourceDTO;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
+import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.*;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
@@ -82,6 +89,8 @@ public class BaseTaskHubService {
     private OrganizationMapper organizationMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private TestResourcePoolService testResourcePoolService;
 
     /**
      * 系统-获取执行任务列表
@@ -282,10 +291,21 @@ public class BaseTaskHubService {
             return;
         }
         List<String> userIds = list.stream().map(TaskHubItemDTO::getExecutor).distinct().toList();
+        List<String> resourcePoolIds = list.stream().map(TaskHubItemDTO::getResourcePoolId).distinct().toList();
         Map<String, String> userMaps = getUserMaps(userIds);
+        Map<String, String> resourcePoolMaps = getResourcePoolMaps(resourcePoolIds);
         list.forEach(item -> {
             item.setUserName(userMaps.getOrDefault(item.getExecutor(), StringUtils.EMPTY));
+            item.setResourcePoolName(resourcePoolMaps.getOrDefault(item.getResourcePoolId(), StringUtils.EMPTY));
         });
+    }
+
+    private Map<String, String> getResourcePoolMaps(List<String> resourcePoolIds) {
+        TestResourcePoolExample poolExample = new TestResourcePoolExample();
+        poolExample.createCriteria().andIdIn(resourcePoolIds);
+        List<TestResourcePool> poolList = testResourcePoolMapper.selectByExample(poolExample);
+        Map<String, String> poolMaps = poolList.stream().collect(Collectors.toMap(TestResourcePool::getId, TestResourcePool::getName));
+        return poolMaps;
     }
 
     /**
@@ -455,23 +475,57 @@ public class BaseTaskHubService {
      */
     public void stopTask(String id, String userId, String orgId, String projectId) {
         //1.更新任务状态
-        ExecTask execTask = new ExecTask();
-        execTask.setId(id);
-        execTask.setStatus(ExecStatus.STOPPED.name());
-        execTask.setCreateUser(userId);
-        execTask.setProjectId(projectId);
-        execTask.setOrganizationId(orgId);
-        extExecTaskMapper.updateTaskStatus(execTask);
+        extExecTaskMapper.batchUpdateTaskStatus(List.of(id), userId, orgId, projectId, ExecStatus.STOPPED.name());
+
         //2.更新任务明细状态
-        ExecTaskItemExample itemExample = new ExecTaskItemExample();
-        itemExample.createCriteria().andTaskIdEqualTo(id).andStatusEqualTo(ExecStatus.RUNNING.name());
-        ExecTaskItem execTaskItem = new ExecTaskItem();
-        execTaskItem.setStatus(ExecStatus.STOPPED.name());
-        execTaskItem.setExecutor(userId);
-        execTaskItemMapper.updateByExampleSelective(execTaskItem, itemExample);
-        //TODO 3.调用jmeter触发停止
+        extExecTaskItemMapper.batchUpdateTaskItemStatus(List.of(id), userId, orgId, projectId, ExecStatus.STOPPED.name());
+        handleStopTask(List.of(id));
+    }
 
+    private void handleStopTask(List<String> ids) {
+        //获取详情资源池
+        List<ExecTaskItem> list = extExecTaskItemMapper.getResourcePoolsByTaskIds(ids);
+        Map<String, List<ExecTaskItem>> resourcePoolMaps = list.stream().collect(Collectors.groupingBy(ExecTaskItem::getResourcePoolId));
+        resourcePoolMaps.forEach((k, v) -> {
+            //判断资源池类型
+            TestResourcePoolReturnDTO testResourcePoolDTO = testResourcePoolService.getTestResourcePoolDetail(k);
+            boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.getName());
+            if (isK8SResourcePool) {
+                List<String> taskIds = list.stream().map(ExecTaskItem::getTaskId).distinct().toList();
+                //K8S
+                handleK8STask(taskIds, testResourcePoolDTO);
+            } else {
+                Map<String, List<ExecTaskItem>> nodeItem = list.stream().collect(Collectors.groupingBy(ExecTaskItem::getResourcePoolNode));
+                handleNodeTask(nodeItem);
+            }
+        });
+    }
 
+    private void handleNodeTask(Map<String, List<ExecTaskItem>> nodeItem) {
+        //通过任务向节点发起停止
+        nodeItem.forEach((node, items) -> {
+            String endpoint = "http://".concat(node);
+            List<String> itemIds = items.stream().map(ExecTaskItem::getId).toList();
+            SubListUtils.dealForSubList(itemIds, 100, subList -> {
+                try {
+                    LogUtils.info(String.format("开始发送停止请求到 %s 节点执行", endpoint), subList.toString());
+                    MsHttpClient.stopApiTaskItem(endpoint, subList);
+                } catch (Exception e) {
+                }
+            });
+        });
+    }
+
+    private void handleK8STask(List<String> taskIds, TestResourcePoolReturnDTO testResourcePoolDTO) {
+        SubListUtils.dealForSubList(taskIds, 100, subList -> {
+            try {
+                TestResourceDTO testResourceDTO = new TestResourceDTO();
+                BeanUtils.copyBean(testResourceDTO, testResourcePoolDTO.getTestResourceReturnDTO());
+                EngineFactory.stopApiTask(subList, testResourceDTO);
+            } catch (Exception e) {
+                LogUtils.error(e);
+            }
+        });
     }
 
     public void deleteTask(String id, String orgId, String projectId) {
@@ -482,5 +536,29 @@ public class BaseTaskHubService {
         itemExample.createCriteria().andTaskIdEqualTo(id);
         execTaskItemMapper.deleteByExample(itemExample);
         //TODO jmeter执行队列中移除
+    }
+
+    public void batchStopTask(TableBatchProcessDTO request, String userId, String orgId, String projectId) {
+        List<String> ids = getTaskIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            //1.更新任务状态
+            extExecTaskMapper.batchUpdateTaskStatus(ids, userId, orgId, projectId, ExecStatus.STOPPED.name());
+            //2.更新任务明细状态
+            extExecTaskItemMapper.batchUpdateTaskItemStatus(ids, userId, orgId, projectId, ExecStatus.STOPPED.name());
+            handleStopTask(ids);
+        }
+
+    }
+
+    public List<String> getTaskIds(TableBatchProcessDTO request) {
+        if (request.isSelectAll()) {
+            List<String> ids = extExecTaskMapper.getIds(request);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            return request.getSelectIds();
+        }
     }
 }

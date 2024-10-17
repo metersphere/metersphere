@@ -2,7 +2,7 @@ package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BasePageRequest;
-import io.metersphere.system.dto.taskcenter.request.TaskCenterBatchRequest;
+import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.*;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
@@ -10,7 +10,6 @@ import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.BaseTaskHubLogService;
 import io.metersphere.system.service.BaseTaskHubService;
-import io.metersphere.system.service.SystemOrganizationLogService;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -83,10 +82,19 @@ public class SystemTaskHubController {
 
     @GetMapping("/exec-task/stop/{id}")
     @Operation(summary = "系统-任务中心-用例执行任务-停止任务")
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.systemStopLog(#id)", msClass = BaseTaskHubLogService.class)
+    @Log(type = OperationLogType.STOP, expression = "#msClass.systemStopLog(#id)", msClass = BaseTaskHubLogService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_EXEC_STOP)
     public void stopTask(@PathVariable String id) {
         baseTaskHubService.stopTask(id, SessionUtils.getUserId(), null, null);
+    }
+
+
+    @PostMapping("/exec-task/batch-stop")
+    @Operation(summary = "系统-任务中心-用例执行任务-批量停止任务")
+    @Log(type = OperationLogType.STOP, expression = "#msClass.systemBatchStopLog(#request)", msClass = BaseTaskHubLogService.class)
+    @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_EXEC_STOP)
+    public void batchStopTask(@Validated @RequestBody TableBatchProcessDTO request) {
+        baseTaskHubService.batchStopTask(request, SessionUtils.getUserId(), null, null);
     }
 
 

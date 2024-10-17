@@ -19,4 +19,12 @@ VALUES
 
 
 INSERT INTO `exec_task_item`(`id`, `task_id`, `resource_id`, `resource_name`, `task_origin`, `status`, `result`, `resource_pool_id`, `resource_pool_node`, `resource_type`, `project_id`, `organization_id`, `thread_id`, `start_time`, `end_time`, `executor`)
-VALUES ('1', '1', '1', '1', '1', 'SUCCESS', 'SUCCESS', '1', '1', 'API_CASE', '100001100001', '100001', '1', NULL, NULL, 'admin');
+VALUES
+    ('1', '1', '1', '1', '1', 'SUCCESS', 'SUCCESS', '1', '1', 'API_CASE', '100001100001', '100001', '1', NULL, NULL, 'admin'),
+    ('2', '2', '1', '2', '3', 'SUCCESS', 'SUCCESS', '2', '1', 'API_CASE', '100001100001', '100001', '1', NULL, NULL, 'admin');
+
+
+INSERT INTO `test_resource_pool` (`id`, `name`, `type`, `description`, `enable`, `create_time`, `update_time`, `create_user`, `server_url`, `all_org`, `deleted`)
+VALUES
+    ('1', 'LOCAL', 'Node', '测试资源池', b'1', 1705894549000, 1705894549000, 'admin', NULL, b'1', b'0'),
+    ('2', 'LOCAL', 'Kubernetes', 'Kubernetes测试资源池', b'1', 1705894549000, 1705894549000, 'admin', NULL, b'1', b'0');

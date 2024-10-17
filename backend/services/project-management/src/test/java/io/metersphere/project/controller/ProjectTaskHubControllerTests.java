@@ -115,7 +115,8 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     @Test
     @Order(6)
     public void projectTaskStop() throws Exception {
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(PROJECT_TASK_STOP + "1");
+        this.requestGet(PROJECT_TASK_STOP + "pro_1");
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(PROJECT_TASK_STOP + "pro_2");
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
