@@ -74,11 +74,12 @@
         :validate-trigger="['blur']"
         :rules="form.isPrivate ? [{ validator: validatePassword }] : []"
       >
-        <a-input
+        <a-input-password
           v-model:model-value="form.password"
           class="w-[240px]"
           :max-length="6"
           :placeholder="t('apiTestManagement.enterPassword')"
+          autocomplete="new-password"
         />
       </a-form-item>
       <div class="mb-[16px] flex items-center">

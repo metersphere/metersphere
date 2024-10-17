@@ -61,7 +61,7 @@
               />
             </MsButton>
           </popConfirm>
-          <a-tooltip v-if="props.docShareId && shareDetailInfo?.allowExport" :content="t('common.export')">
+          <a-tooltip v-if="props.docShareId && shareDetailInfo.allowExport" :content="t('common.export')">
             <MsButton type="icon" status="secondary" class="!mr-[4px] p-[4px]" @click="changeApiExpand">
               <MsIcon type="icon-icon_top-align_outlined" :size="16" @click="exportShare" />
             </MsButton>
@@ -356,7 +356,14 @@
     moduleIds: [],
   });
   // 分享详情
-  const shareDetailInfo = inject<Ref<ShareDetailType>>('shareDetailInfo');
+  const shareDetailInfo = inject<Ref<ShareDetailType>>(
+    'shareDetailInfo',
+    ref({
+      invalid: false,
+      allowExport: false,
+      isPrivate: false,
+    })
+  );
 
   const apiNodes = ref<TreeNode<ModuleTreeNode>[]>([]);
   const currentNode = ref<TreeNode<ModuleTreeNode> | null>(null);
@@ -747,7 +754,7 @@
 
   // 导出分享
   function exportShare() {
-    emit('exportShare');
+    emit('exportShare', true);
   }
 
   onBeforeMount(() => {

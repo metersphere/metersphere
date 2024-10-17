@@ -85,7 +85,7 @@
     detail: RequestParam;
     protocols: ProtocolItem[];
   }>();
-  const emit = defineEmits(['updateFollow']);
+  const emit = defineEmits(['updateFollow', 'exportShare']);
 
   const { copy, isSupported } = useClipboard({ legacy: true });
   const { t } = useI18n();
@@ -189,8 +189,10 @@
   }
 
   const activeKey = ref('detail');
-  // 导出分享 TODO 等待联调
-  function exportShare() {}
+  // 导出分享
+  function exportShare() {
+    emit('exportShare');
+  }
 </script>
 
 <style lang="less" scoped>
