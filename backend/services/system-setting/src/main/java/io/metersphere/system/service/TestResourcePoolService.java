@@ -11,6 +11,7 @@ import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.pool.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.QueryResourcePoolRequest;
+import io.metersphere.system.engine.KubernetesProvider;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
@@ -95,11 +96,7 @@ public class TestResourcePoolService {
                 return false;
             }
         } else {
-            KubernetesResourcePoolService resourcePoolService = CommonBeanFactory.getBean(KubernetesResourcePoolService.class);
-            if (resourcePoolService == null) {
-                return false;
-            }
-            return resourcePoolService.validate(testResourceDTO);
+            return KubernetesProvider.validateNamespaceExists(testResourceDTO);
         }
     }
 

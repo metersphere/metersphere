@@ -1,4 +1,4 @@
-package io.metersphere.api.engine;
+package io.metersphere.system.engine;
 
 import io.metersphere.engine.ApiEngine;
 import io.metersphere.sdk.dto.api.task.TaskBatchRequestDTO;
@@ -14,8 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static io.metersphere.api.controller.result.ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR;
-
 public class KubernetesExecEngine implements ApiEngine {
     /**
      * 任务请求参数 @LINK TaskRequestDTO or TaskBatchRequestDTO or List<String>
@@ -26,7 +24,7 @@ public class KubernetesExecEngine implements ApiEngine {
     /**
      * 单调执行构造函数
      *
-     * @param request 任务请求参数
+     * @param request  任务请求参数
      * @param resource 资源池
      */
     public KubernetesExecEngine(TaskRequestDTO request, TestResourceDTO resource) {
@@ -38,7 +36,7 @@ public class KubernetesExecEngine implements ApiEngine {
      * 批量执行构造函数
      *
      * @param batchRequestDTO 批量任务请求参数
-     * @param resource 资源池
+     * @param resource        资源池
      */
     public KubernetesExecEngine(TaskBatchRequestDTO batchRequestDTO, TestResourceDTO resource) {
         this.resource = resource;
@@ -49,7 +47,7 @@ public class KubernetesExecEngine implements ApiEngine {
      * 停止执行构造函数
      *
      * @param reportIds 任务ID列表
-     * @param resource 资源池
+     * @param resource  资源池
      */
     public KubernetesExecEngine(List<String> reportIds, TestResourceDTO resource) {
         this.resource = resource;
@@ -79,19 +77,19 @@ public class KubernetesExecEngine implements ApiEngine {
         // 获取错误代码并处理
         int errorCode = Optional.ofNullable(e.getResponseBodyAs(ResultHolder.class))
                 .map(ResultHolder::getCode)
-                .orElseThrow(() -> new MSException(RESOURCE_POOL_EXECUTE_ERROR, "Unknown error code"));
+                .orElseThrow(() -> new MSException("Unknown error code"));
 
         // 匹配资源池的错误代码并抛出相应异常
         TaskRunnerResultCode resultCode = Arrays.stream(TaskRunnerResultCode.values())
                 .filter(code -> code.getCode() == errorCode)
                 .findFirst()
-                .orElseThrow(() -> new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage()));
+                .orElseThrow(() -> new MSException(e.getMessage()));
 
         throw new MSException(resultCode, e.getMessage());
     }
 
     private void handleGeneralError(Exception e) {
         LogUtils.error("K8S 执行异常：", e);
-        throw new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage());
+        throw new MSException(e.getMessage());
     }
 }
