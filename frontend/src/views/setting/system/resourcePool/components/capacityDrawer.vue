@@ -11,15 +11,14 @@
       <div class="flex items-center gap-[16px]">
         <div class="count-resources">
           {{ t('system.resourcePool.concurrentNumber') }}
-          <span class="capacity-count">100</span>
+          <span class="capacity-count">{{ capacityDetail.concurrentNumber }}</span>
         </div>
         <div class="count-resources">
           {{ t('system.resourcePool.remainingConcurrency') }}
-          <span class="capacity-count">100</span>
+          <span class="capacity-count">{{ capacityDetail.occupiedConcurrentNumber }}</span>
         </div>
       </div>
     </template>
-    <!-- TODO 等待联调 -->
     <div class="flex items-center justify-between p-[16px]">
       <div class="flex items-center gap-[8px]">
         <a-select
@@ -27,18 +26,23 @@
           class="mr-[16px] w-[200px]"
           :placeholder="t('common.pleaseSelect')"
           allow-clear
+          @change="(val)=>changeNode(val as string)"
         >
           <template #prefix>
             <div class="text-[var(--color-text-brand)]">{{ t('system.resourcePool.capacityNode') }}</div>
           </template>
-          <template #tree-slot-title="node">
-            <a-tooltip :content="`${node.name}`" position="tl">
-              <div class="one-line-text w-[180px]">{{ node.name }}</div>
-            </a-tooltip>
-          </template>
+          <a-tooltip v-for="item of nodeList" :key="item.ip" :mouse-enter-delay="500" :content="item.ip">
+            <a-option :value="item.ip">
+              {{ item.ip }}
+            </a-option>
+          </a-tooltip>
         </a-select>
-        <CapacityProgress :name="t('system.resourcePool.memory')" :percent="0.3" color="rgb(var(--link-6))" />
-        <CapacityProgress name="CPU" :percent="0.3" color="rgb(var(--success-6))" />
+        <CapacityProgress
+          :name="t('system.resourcePool.memory')"
+          :percent="capacityDetail.memoryUsage"
+          color="rgb(var(--link-6))"
+        />
+        <CapacityProgress name="CPU" :percent="capacityDetail.cpuusage" color="rgb(var(--success-6))" />
       </div>
       <MsTag no-margin size="large" :tooltip-disabled="true" class="cursor-pointer" theme="outline" @click="searchList">
         <MsIcon class="text-[16px] text-[var(color-text-4)]" :size="32" type="icon-icon_reset_outlined" />
@@ -49,15 +53,15 @@
         <template #[FilterSlotNameEnum.TEST_PLAN_REPORT_EXEC_STATUS]="{ filterContent }">
           <ExecStatus :status="filterContent.value" />
         </template>
-        <template #execStatus="{ record }">
-          <ExecStatus :status="record.execStatus" />
+        <template #result="{ record }">
+          <ExecutionStatus v-if="record.result !== '-'" :status="record.result" :module-type="ReportEnum.API_REPORT" />
         </template>
 
         <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_STATUS]="{ filterContent }">
           <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
         </template>
         <template #status="{ record }">
-          <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="record.status" />
+          <ExecStatus :status="record.status" />
         </template>
       </ms-base-table>
     </div>
@@ -76,10 +80,11 @@
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import ExecStatus from '@/views/test-plan/report/component/execStatus.vue';
 
+  import { getCapacityDetail, getCapacityTaskList } from '@/api/modules/setting/resourcePool';
   import { useI18n } from '@/hooks/useI18n';
   import { useTableStore } from '@/store';
 
-  import type { ResourcePoolItem } from '@/models/setting/resourcePool';
+  import type { CapacityDetailType, NodesListItem, ResourcePoolItem } from '@/models/setting/resourcePool';
   import { ReportExecStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -106,33 +111,35 @@
   });
 
   const statusList = computed(() => {
-    return Object.keys(ReportStatus).map((key) => {
-      return {
-        value: key,
-        label: t(ReportStatus[key].label),
-      };
-    });
+    return Object.keys(ReportStatus)
+      .map((key) => {
+        return {
+          value: key,
+          label: t(ReportStatus[key].label),
+        };
+      })
+      .filter((e) => e.value !== 'FAKE_ERROR');
   });
 
   const columns: MsTableColumn = [
     {
       title: 'system.resourcePool.taskID',
       slotName: 'ID',
-      dataIndex: 'id',
+      dataIndex: 'num',
       showTooltip: true,
-      width: 200,
+      width: 120,
       columnSelectorDisabled: true,
     },
     {
       title: 'system.resourcePool.taskName',
       slotName: 'taskName',
-      dataIndex: 'enable',
+      dataIndex: 'taskName',
       showDrag: true,
     },
     {
       title: 'system.resourcePool.useCaseName',
-      slotName: 'useCaseName',
-      dataIndex: 'useCaseName',
+      slotName: 'resourceName',
+      dataIndex: 'resourceName',
       showTooltip: true,
       width: 150,
       showDrag: true,
@@ -151,9 +158,9 @@
     },
     {
       title: 'common.executionResult',
-      slotName: 'execStatus',
-      dataIndex: 'execStatus',
-
+      slotName: 'result',
+      dataIndex: 'result',
+      width: 200,
       filterConfig: {
         options: statusList.value,
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_STATUS,
@@ -171,9 +178,9 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setKeyword } = useTable(undefined, {
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getCapacityTaskList, {
     tableKey: TableKeyEnum.SYSTEM_RESOURCE_POOL_CAPACITY,
-    scroll: { y: 'auto' },
+    scroll: { x: '100%' },
     selectable: false,
     showSetting: true,
     heightUsed: 310,
@@ -181,10 +188,70 @@
   });
 
   const selectedNode = ref<string>('');
+  const nodeList = computed<NodesListItem[]>(() => props.activeRecord?.testResourceDTO.nodesList ?? []);
+  const nodePort = computed(() => nodeList.value.find((e) => e.ip === selectedNode.value)?.port ?? '');
 
   async function searchList() {
+    setLoadListParams({
+      poolId: props.activeRecord?.id,
+      ip: selectedNode.value,
+      port: nodePort.value,
+    });
     loadList();
   }
+
+  const defaultCapacityDetail: CapacityDetailType = {
+    concurrentNumber: 0,
+    occupiedConcurrentNumber: 0,
+    memoryUsage: 0,
+    cpuusage: 0,
+  };
+
+  const capacityDetail = ref<CapacityDetailType>({
+    ...defaultCapacityDetail,
+  });
+
+  function resetCapacityDetail() {
+    capacityDetail.value = {
+      ...defaultCapacityDetail,
+    };
+  }
+
+  async function initCapacityDetail() {
+    try {
+      capacityDetail.value = await getCapacityDetail({
+        poolId: props.activeRecord?.id,
+        ip: selectedNode.value,
+        port: nodePort.value,
+        current: 1,
+        pageSize: 10,
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  function changeNode(value: string) {
+    searchList();
+    if (value) {
+      initCapacityDetail();
+    } else {
+      resetCapacityDetail();
+    }
+  }
+
+  watch(
+    () => innerVisible.value,
+    (val) => {
+      if (val) {
+        searchList();
+      } else {
+        selectedNode.value = '';
+        resetCapacityDetail();
+      }
+    }
+  );
 
   await tableStore.initColumn(TableKeyEnum.SYSTEM_RESOURCE_POOL_CAPACITY, columns, 'drawer');
 </script>

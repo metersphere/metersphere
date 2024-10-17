@@ -4,6 +4,8 @@ import {
   DeletePoolUrl,
   DetailPoolUrl,
   EnablePoolUrl,
+  PoolCapacityDetailUrl,
+  PoolCapacityTaskUrl,
   PoolListUrl,
   UpdatePoolUrl,
 } from '@/api/requrls/setting/resourcePool';
@@ -11,6 +13,8 @@ import {
 import type { CommonList, TableQueryParams } from '@/models/common';
 import type {
   AddResourcePoolParams,
+  CapacityDetailType,
+  CapacityTaskItem,
   ResourcePoolDetail,
   ResourcePoolItem,
   UpdateResourcePoolParams,
@@ -46,4 +50,14 @@ export function delPoolInfo(poolId: string) {
 // 启用/禁用资源池
 export function togglePoolStatus(poolId: string) {
   return MSR.post({ url: EnablePoolUrl, params: poolId });
+}
+
+// 获取资源池容量列表
+export function getCapacityTaskList(data: TableQueryParams) {
+  return MSR.post<CommonList<CapacityTaskItem>>({ url: PoolCapacityTaskUrl, data });
+}
+
+// 获取资源池容量详情
+export function getCapacityDetail(data: TableQueryParams) {
+  return MSR.post<CapacityDetailType>({ url: PoolCapacityDetailUrl, data });
 }

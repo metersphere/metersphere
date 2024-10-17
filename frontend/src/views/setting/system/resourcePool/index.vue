@@ -20,25 +20,30 @@
     </div>
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
       <template #name="{ record }">
-        <div class="flex w-full items-center justify-start gap-[8px]">
-          <a-tooltip :content="t('system.resourcePool.viewCapacityInfo')" :mouse-enter-delay="300" position="bottom">
-            <MsIcon
-              type="icon-icon_pie_filled"
-              class="cursor-pointer text-[rgb(var(--primary-5))]"
-              size="16"
-              @click="capacityDetail(record)"
-            />
+        <div class="flex items-center gap-[8px]">
+          <a-tooltip
+            v-if="record.type !== 'Kubernetes'"
+            :content="t('system.resourcePool.viewCapacityInfo')"
+            :mouse-enter-delay="300"
+            position="bottom"
+          >
+            <div class="w-[16px]">
+              <MsIcon
+                type="icon-icon_pie_filled"
+                class="cursor-pointer text-[rgb(var(--primary-5))]"
+                size="16"
+                @click="capacityDetail(record)"
+              />
+            </div>
           </a-tooltip>
-          <a-button
-            type="text"
-            class="px-0"
-            :class="record.id === '100001100001' ? '' : 'max-w-full justify-start'"
+          <div
+            :class="`one-line-text cursor-pointer text-[rgb(var(--primary-5))]  ${
+              record.id === '100001100001' ? 'max-w-[calc(100%-60px)]' : 'max-w-[calc(100%-16px)]'
+            }`"
             @click="showPoolDetail(record.id)"
           >
-            <div class="one-line-text">
-              {{ record.name }}
-            </div>
-          </a-button>
+            {{ record.name }}
+          </div>
           <MsTag v-if="record.id === '100001100001'" size="small" tooltip-disabled>{{ t('common.default') }}</MsTag>
         </div>
       </template>
@@ -61,9 +66,6 @@
             </template>
           </a-tooltip>
         </div>
-      </template>
-      <template #lastConcurrentNumber="{ record }">
-        {{ record.lastConcurrentNumber || 0 }}
       </template>
       <template #action="{ record }">
         <MsButton v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']" @click="editPool(record)">
@@ -126,7 +128,7 @@
   import { Message } from '@arco-design/web-vue';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
+  import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import type { Description } from '@/components/pure/ms-description/index.vue';
@@ -226,13 +228,22 @@
     columns.pop();
   }
   await tableStore.initColumn(TableKeyEnum.SYSTEM_RESOURCEPOOL, columns, 'drawer');
-  const { propsRes, propsEvent, loadList, setKeyword } = useTable(getPoolList, {
-    tableKey: TableKeyEnum.SYSTEM_RESOURCEPOOL,
-    columns,
-    scroll: { y: 'auto' },
-    selectable: false,
-    showSelectAll: false,
-  });
+  const { propsRes, propsEvent, loadList, setKeyword } = useTable(
+    getPoolList,
+    {
+      tableKey: TableKeyEnum.SYSTEM_RESOURCEPOOL,
+      columns,
+      scroll: { y: 'auto' },
+      selectable: false,
+      showSelectAll: false,
+    },
+    (item) => {
+      return {
+        ...item,
+        lastConcurrentNumber: item.type === 'Kubernetes' ? '-' : item.lastConcurrentNumber || 0,
+      };
+    }
+  );
 
   const keyword = ref('');
   const filterConfigList = ref<FilterFormItem[]>([]);

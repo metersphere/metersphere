@@ -431,7 +431,6 @@
       girdConcurrentNumber: 1,
       podThreads: 1,
       concurrentNumber: 10,
-      // TODO 单个任务并发数等待联调
       singleTaskConcurrentNumber: 3,
       nodesList: [
         {

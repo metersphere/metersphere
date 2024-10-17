@@ -1,11 +1,10 @@
 <template>
-  <!-- TODO 等待联调 -->
   <div class="progress-capacity">
     <div class="capacity-attr">
       <span>{{ props.name }}</span>
-      <span class="capacity-value"> {{ props.percent * 100 }} %</span>
+      <span class="capacity-value"> {{ Number.isNaN(props.percent) ? 0 : Number(props.percent.toFixed(1)) }} %</span>
     </div>
-    <a-progress :percent="props.percent" :show-text="false" :color="props.color" />
+    <a-progress :percent="percentValue" :show-text="false" :color="props.color" />
   </div>
 </template>
 
@@ -15,6 +14,10 @@
     percent: number;
     color: string;
   }>();
+
+  const percentValue = computed(() => {
+    return Number(props.percent / 100);
+  });
 </script>
 
 <style scoped lang="less">
