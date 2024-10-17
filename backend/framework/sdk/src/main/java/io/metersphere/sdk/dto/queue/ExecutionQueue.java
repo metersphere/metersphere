@@ -34,6 +34,12 @@ public class ExecutionQueue implements Serializable {
     private String parentQueueId;
 
     /**
+     * 父集合 ID，用于测试计划用例批量执行
+     * 其中测试集并行执行时，需要记录所有所有的任务项，以判断执行完成
+     */
+    private String parentSetId;
+
+    /**
      * 资源类型 / API，CASE，PLAN_CASE,PLAN_SCENARIO，API_SCENARIO
      * {@link io.metersphere.sdk.constants.ApiExecuteResourceType}
      */

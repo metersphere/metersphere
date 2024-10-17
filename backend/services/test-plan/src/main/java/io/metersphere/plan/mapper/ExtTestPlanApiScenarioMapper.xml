@@ -637,11 +637,14 @@
         </foreach>
     </update>
 
-    <select id="countByPlanId" resultType="java.lang.Integer">
+    <select id="countByPlanIds" resultType="java.lang.Integer">
         select count(0)
         from test_plan_api_scenario tpas join api_scenario asce on asce.id = tpas.api_scenario_id
         <where>
-            asce.deleted = false and tpas.test_plan_id = #{planId}
+            asce.deleted = false and tpas.test_plan_id in
+            <foreach collection="planIds" item="planId" open="(" separator="," close=")">
+                #{planId}
+            </foreach>
         </where>
     </select>
 </mapper>

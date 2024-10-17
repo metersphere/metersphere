@@ -9,6 +9,7 @@ import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
+import io.metersphere.api.service.queue.ApiExecutionSetService;
 import io.metersphere.api.service.scenario.ApiScenarioBatchRunService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.service.scenario.ApiScenarioRunService;
@@ -29,6 +30,7 @@ import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
+import io.metersphere.system.mapper.ExtExecTaskItemMapper;
 import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
@@ -76,11 +78,13 @@ public class TestPlanApiScenarioBatchRunService {
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
     @Resource
-    private ExtTestPlanMapper extTestPlanMapper;
+    private ApiExecutionSetService apiExecutionSetService;
     @Resource
     private ApiCommonService apiCommonService;
     @Resource
     private BaseTaskHubService baseTaskHubService;
+    @Resource
+    private ExtExecTaskItemMapper extExecTaskItemMapper;
 
     /**
      * 异步批量执行
@@ -129,25 +133,35 @@ public class TestPlanApiScenarioBatchRunService {
             TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
             Project project = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
 
+            // 初始化任务
+            ExecTask execTask = initExecTask(testPlanApiScenarios.size(), project, userId);
+
+            // 初始化任务项
+            List<ExecTaskItem> execTaskItems = initExecTaskItem(testPlanApiScenarios, userId, project, execTask);
+
             if (apiBatchRunBaseService.isParallel(rootCollection.getExecuteMethod())) {
+                List<String> taskIds = execTaskItems.stream().map(ExecTaskItem::getId).toList();
+                // 记录任务项，用于统计整体执行情况
+                apiExecutionSetService.initSet(execTask.getId(), taskIds);
+
                 // 并行执行测试集
                 for (TestPlanCollection collection : testPlanCollections) {
                     List<TestPlanApiScenarioBatchRunDTO> collectionCases = collectionMap.get(collection.getId());
                     ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(rootCollection, collection);
                     if (apiBatchRunBaseService.isParallel(runModeConfig.getRunMode())) {
                         //  并行执行测试集中的用例
-                        parallelExecute(collectionCases, runModeConfig, null, project, userId);
+                        parallelExecute(execTask.getId(), collectionCases, runModeConfig, null, execTask.getId(), project, userId);
                     } else {
                         // 串行执行测试集中的用例
-                        serialExecute(collectionCases, runModeConfig, null, project, userId);
+                        serialExecute(execTask.getId(), collectionCases, runModeConfig, null, execTask.getId(), userId);
                     }
                 }
             } else {
                 // 串行执行测试集
                 List<String> serialCollectionIds = testPlanCollections.stream().map(TestPlanCollection::getId).toList();
                 // 生成测试集队列
-                ExecutionQueue collectionQueue = apiBatchRunBaseService.initExecutionqueue(serialCollectionIds,
-                        ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), userId);
+                ExecutionQueue collectionQueue = apiBatchRunBaseService.initExecutionqueue(execTask.getId(), serialCollectionIds, null,
+                        ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), null, userId);
 
                 Map<String, List<String>> collectionIdMap = collectionMap.entrySet().stream()
                         .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().map(TestPlanApiScenarioBatchRunDTO::getId).toList()));
@@ -184,7 +198,9 @@ public class TestPlanApiScenarioBatchRunService {
     public void executeNextCollection(String collectionQueueId) {
         ExecutionQueue collectionQueue = apiExecutionQueueService.getQueue(collectionQueueId);
         if (collectionQueue == null) {
-            // 失败停止后，队列被删除
+            // 失败停止，或者执行完成，更新任务状态
+            apiBatchRunBaseService.updateTaskStatus(collectionQueueId);
+            apiBatchRunBaseService.removeRunningTaskCache(collectionQueueId);
             return;
         }
         String userId = collectionQueue.getUserId();
@@ -199,9 +215,9 @@ public class TestPlanApiScenarioBatchRunService {
 
         ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(collection);
         if (apiBatchRunBaseService.isParallel(runModeConfig.getRunMode())) {
-            parallelExecute(testPlanApiScenarios, runModeConfig, collectionQueueId, project, userId);
+            parallelExecute(collectionQueueId, testPlanApiScenarios, runModeConfig, collectionQueueId, null, project, userId);
         } else {
-            serialExecute(testPlanApiScenarios, runModeConfig, collectionQueueId, project, userId);
+            serialExecute(collectionQueueId, testPlanApiScenarios, runModeConfig, collectionQueueId, null, userId);
         }
     }
 
@@ -213,13 +229,23 @@ public class TestPlanApiScenarioBatchRunService {
      * 串行批量执行
      *
      */
-    public void serialExecute(List<TestPlanApiScenarioBatchRunDTO> testPlanApiScenarios, ApiRunModeConfigDTO runModeConfig, String parentQueueId, Project project, String userId) {
-        // 初始化任务
-        ExecTask execTask = initExecTask(testPlanApiScenarios.size(), runModeConfig, project, userId);
-        // 初始化任务项
-        List<ExecTaskItem> execTaskItems = initExecTaskItem(testPlanApiScenarios, userId, project, execTask);
+    public void serialExecute(String taskId,
+                              List<TestPlanApiScenarioBatchRunDTO> testPlanApiScenarios,
+                              ApiRunModeConfigDTO runModeConfig,
+                              String parentQueueId,
+                              String parentSetId,
+                              String userId) {
+
         // 先初始化集成报告，设置好报告ID，再初始化执行队列
-        ExecutionQueue queue = apiBatchRunBaseService.initExecutionQueue(execTask.getId(), runModeConfig, ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), parentQueueId, userId);
+        ExecutionQueue queue = apiBatchRunBaseService.initExecutionQueue(taskId, null, runModeConfig, ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), parentQueueId, parentSetId, userId);
+
+        List<ExecTaskItem> execTaskItems = new ArrayList<>();
+        SubListUtils.dealForSubList(testPlanApiScenarios, 100,
+                subTestPlanReportApiCases-> {
+                    List<String> subIds = subTestPlanReportApiCases.stream().map(TestPlanApiScenarioBatchRunDTO::getId).toList();
+                    execTaskItems.addAll(extExecTaskItemMapper.selectExecInfoByTaskIdAndResourceIds(taskId, subIds));
+                });
+
         // 初始化队列项
         apiBatchRunBaseService.initExecutionQueueDetails(queue.getQueueId(), execTaskItems);
         // 执行第一个任务
@@ -231,43 +257,57 @@ public class TestPlanApiScenarioBatchRunService {
      * 并行批量执行
      *
      */
-    public void parallelExecute(List<TestPlanApiScenarioBatchRunDTO> testPlanApiScenarios, ApiRunModeConfigDTO runModeConfig, String parentQueueId, Project project, String userId) {
+    public void parallelExecute(String taskId,
+                                List<TestPlanApiScenarioBatchRunDTO> testPlanApiScenarios,
+                                ApiRunModeConfigDTO runModeConfig,
+                                String parentQueueId,
+                                String parentSetId,
+                                Project project,
+                                String userId) {
 
         Map<String, String> scenarioReportMap = initReport(testPlanApiScenarios, runModeConfig, project.getId(), userId);
 
-        // 初始化任务
-        ExecTask execTask = initExecTask(testPlanApiScenarios.size(), runModeConfig, project, userId);
-
-        // 初始化任务项
-        Map<String, String> resourceExecTaskItemMap = initExecTaskItem(testPlanApiScenarios, userId, project, execTask)
-                .stream()
-                .collect(Collectors.toMap(ExecTaskItem::getResourceId, ExecTaskItem::getId));
+        Map<String, String> resourceTaskItemMap = getResourceTaskItemMap(taskId, testPlanApiScenarios);
 
         List<TaskItem> taskItems = testPlanApiScenarios.stream()
                 .map(testPlanApiScenario -> {
                     String id = testPlanApiScenario.getId();
                     TaskItem taskItem = apiExecuteService.getTaskItem(scenarioReportMap.get(id), id);
-                    taskItem.setId(resourceExecTaskItemMap.get(id));
+                    taskItem.setId(resourceTaskItemMap.get(id));
                     return taskItem;
                 }).toList();
 
+        List<String> taskIds = taskItems.stream().map(TaskItem::getId).toList();
+        if (StringUtils.isNotBlank(parentQueueId)) {
+            // 如果有父队列，则初始化执行集合，以便判断是否执行完毕
+            apiExecutionSetService.initSet(parentQueueId, taskIds);
+        }
+
         TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(project.getId(), runModeConfig);
         taskRequest.setTaskItems(taskItems);
-        taskRequest.getTaskInfo().setTaskId(execTask.getId());
+        taskRequest.getTaskInfo().setTaskId(taskId);
         taskRequest.getTaskInfo().setUserId(userId);
         taskRequest.getTaskInfo().setParentQueueId(parentQueueId);
+        taskRequest.getTaskInfo().setParentSetId(parentSetId);
 
         apiExecuteService.batchExecute(taskRequest);
     }
 
-    private ExecTask initExecTask(int caseSize, ApiRunModeConfigDTO runModeConfig, Project project, String userId) {
+    private Map<String, String> getResourceTaskItemMap(String taskId, List<TestPlanApiScenarioBatchRunDTO> testPlanApiCases) {
+        Map<String, String> resourceTaskItemMap = new HashMap<>();
+        SubListUtils.dealForSubList(testPlanApiCases, 100,
+                subTestPlanReportApiCases-> {
+                    List<String> subIds = subTestPlanReportApiCases.stream().map(TestPlanApiScenarioBatchRunDTO::getId).toList();
+                    extExecTaskItemMapper.selectExecInfoByTaskIdAndResourceIds(taskId, subIds)
+                            .forEach(execTaskItem -> resourceTaskItemMap.put(execTaskItem.getResourceId(), execTaskItem.getId()));
+                });
+        return resourceTaskItemMap;
+    }
+
+    private ExecTask initExecTask(int caseSize, Project project, String userId) {
         ExecTask execTask = apiCommonService.newExecTask(project.getId(), userId);
         execTask.setCaseCount(Long.valueOf(caseSize));
-        if (runModeConfig.isIntegratedReport()) {
-            execTask.setTaskName(runModeConfig.getCollectionReport().getReportName());
-        } else {
-            execTask.setTaskName(Translator.get("api_batch_task_name"));
-        }
+        execTask.setTaskName(Translator.get("api_batch_task_name"));
         execTask.setOrganizationId(project.getOrganizationId());
         execTask.setTriggerMode(TaskTriggerMode.MANUAL.name());
         execTask.setTaskType(ExecTaskType.TEST_PLAN_API_SCENARIO.name());
@@ -289,7 +329,7 @@ public class TestPlanApiScenarioBatchRunService {
         return execTaskItems;
     }
 
-    public Map<String, String> initReport( List<TestPlanApiScenarioBatchRunDTO> testPlanApiScenarios,
+    public Map<String, String> initReport(List<TestPlanApiScenarioBatchRunDTO> testPlanApiScenarios,
                                            ApiRunModeConfigDTO runModeConfig, String projectId, String userId) {
         List<ApiScenarioReport> apiScenarioReports = new ArrayList<>(testPlanApiScenarios.size());
         List<ApiScenarioRecord> apiScenarioRecords = new ArrayList<>(testPlanApiScenarios.size());
@@ -333,6 +373,7 @@ public class TestPlanApiScenarioBatchRunService {
         taskRequest.getTaskInfo().setTaskId(queue.getTaskId());
         taskRequest.getTaskInfo().setUserId(queue.getUserId());
         taskRequest.getTaskInfo().setParentQueueId(queue.getParentQueueId());
+        taskRequest.getTaskInfo().setParentSetId(queue.getParentSetId());
 
         apiExecuteService.execute(taskRequest);
     }

@@ -30,4 +30,10 @@ public interface ExtExecTaskItemMapper {
      * @return 任务项ID列表
      */
     List<String> getTaskItemIdsByTime(@Param("timeMills") long timeMills, @Param("projectId") String projectId);
+
+    List<ExecTaskItem> selectExecInfoByTaskIdAndResourceIds(@Param("taskId") String taskId, @Param("resourceIds") List<String> resourceIds);
+
+    Boolean hasErrorItem(@Param("taskId") String taskId);
+
+    Boolean hasFakeErrorItem(@Param("taskId") String taskId);
 }
