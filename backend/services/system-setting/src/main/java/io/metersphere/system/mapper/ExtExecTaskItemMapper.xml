@@ -21,6 +21,15 @@
         select id from exec_task_item where project_id = #{projectId} and start_time &lt;= #{timeMills}
     </select>
 
+    <select id="selectExecInfoByTaskIdAndResourceIds" resultType="io.metersphere.system.domain.ExecTaskItem">
+        SELECT id, resource_id
+        FROM exec_task_item
+        WHERE task_id = #{taskId} and resource_id IN
+        <foreach collection="resourceIds" item="resourceId" open="(" separator="," close=")">
+            #{resourceId}
+        </foreach>
+    </select>
+
     <select id="selectItemByTaskIds" resultType="io.metersphere.system.domain.ExecTaskItem">
         select  id, task_id, `status`, result
         from exec_task_item
@@ -130,4 +139,18 @@
         </if>
         and `status` = 'RUNNING'
     </update>
+
+    <select id="hasErrorItem" resultType="java.lang.Boolean">
+        SELECT COUNT(1)
+        FROM exec_task_item
+        WHERE task_id = #{taskId} AND `result` = 'ERROR'
+            limit 1
+    </select>
+
+    <select id="hasFakeErrorItem" resultType="java.lang.Boolean">
+        SELECT COUNT(1)
+        FROM exec_task_item
+        WHERE task_id = #{taskId} AND `result` = 'FAKE_ERROR'
+            limit 1
+    </select>
 </mapper>

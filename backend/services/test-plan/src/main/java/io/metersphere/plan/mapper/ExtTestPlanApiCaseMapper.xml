@@ -783,11 +783,14 @@
             #{id}
         </foreach>
     </select>
-    <select id="countByPlanId" resultType="java.lang.Integer">
+    <select id="countByPlanIds" resultType="java.lang.Integer">
         select count(0)
         from test_plan_api_case tpac join api_test_case atc on atc.id = tpac.api_case_id
         <where>
-            atc.deleted = false and tpac.test_plan_id = #{planId}
+            atc.deleted = false and tpac.test_plan_id in
+            <foreach collection="planIds" item="planId" open="(" separator="," close=")">
+                #{planId}
+            </foreach>
         </where>
     </select>
 </mapper>

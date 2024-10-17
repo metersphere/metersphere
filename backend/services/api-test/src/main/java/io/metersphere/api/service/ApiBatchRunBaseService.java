@@ -4,14 +4,20 @@ import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.CommonConstants;
+import io.metersphere.sdk.constants.ExecStatus;
+import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskInfo;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
+import io.metersphere.system.mapper.ExecTaskMapper;
+import io.metersphere.system.mapper.ExtExecTaskItemMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +31,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ApiBatchRunBaseService {
     @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
+    @Resource
+    private ExtExecTaskItemMapper extExecTaskItemMapper;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private ExecTaskMapper execTaskMapper;
 
     /**
      * 初始化执行队列
@@ -66,7 +78,7 @@ public class ApiBatchRunBaseService {
     }
 
     public ExecutionQueue initExecutionQueue(String taskId, ApiRunModeConfigDTO runModeConfig, String resourceType, String parentQueueId, String userId) {
-        return initExecutionQueue(taskId, null, runModeConfig, resourceType, parentQueueId, userId);
+        return initExecutionQueue(taskId, null, runModeConfig, resourceType, parentQueueId, null, userId);
     }
 
     /**
@@ -75,13 +87,19 @@ public class ApiBatchRunBaseService {
      * @param runModeConfig
      * @return
      */
-    public ExecutionQueue initExecutionQueue(String taskId, String queueId, ApiRunModeConfigDTO runModeConfig, String resourceType, String parentQueueId, String userId) {
+    public ExecutionQueue initExecutionQueue(String taskId, String queueId,
+                                             ApiRunModeConfigDTO runModeConfig,
+                                             String resourceType,
+                                             String parentQueueId,
+                                             String parentSetId,
+                                             String userId) {
         ExecutionQueue queue = getExecutionQueue(runModeConfig, resourceType, userId);
         queue.setTaskId(taskId);
         if (StringUtils.isNotBlank(queueId)) {
             queue.setQueueId(queueId);
         }
         queue.setParentQueueId(parentQueueId);
+        queue.setParentSetId(parentSetId);
         apiExecutionQueueService.insertQueue(queue);
         return queue;
     }
@@ -188,5 +206,29 @@ public class ApiBatchRunBaseService {
             return caseEnvId;
         }
         return runModeConfig.getEnvironmentId();
+    }
+
+    public void updateTaskStatus(String taskId) {
+        // 更新任务状态
+        ExecTask execTask = new ExecTask();
+        execTask.setEndTime(System.currentTimeMillis());
+        execTask.setId(taskId);
+        execTask.setStatus(ExecStatus.COMPLETED.name());
+        if (extExecTaskItemMapper.hasErrorItem(taskId)) {
+            execTask.setResult(ResultStatus.ERROR.name());
+        } else if (extExecTaskItemMapper.hasFakeErrorItem(taskId)) {
+            execTask.setResult(ResultStatus.FAKE_ERROR.name());
+        } else {
+            execTask.setResult(ResultStatus.SUCCESS.name());
+        }
+        execTaskMapper.updateByPrimaryKeySelective(execTask);
+    }
+
+    /**
+     * 清理正在运行的任务缓存
+     * @param taskId
+     */
+    public void removeRunningTaskCache(String taskId) {
+        stringRedisTemplate.delete(CommonConstants.RUNNING_TASK_PREFIX + taskId);
     }
 }
