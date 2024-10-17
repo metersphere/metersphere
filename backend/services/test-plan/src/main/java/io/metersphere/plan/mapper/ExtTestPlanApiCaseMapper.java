@@ -81,5 +81,5 @@ public interface ExtTestPlanApiCaseMapper {
 
     List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
 
-    Integer countByPlanId(@Param("planId") String planId);
+    Integer countByPlanIds(@Param("planIds") List<String> planIds);
 }

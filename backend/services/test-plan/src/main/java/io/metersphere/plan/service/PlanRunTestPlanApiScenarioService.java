@@ -142,8 +142,10 @@ public class PlanRunTestPlanApiScenarioService {
                     taskItem.setId(resourceTaskItemMap.get(item.getId()));
                     return taskItem;
                 }).toList();
-        // 如果有父队列，则初始化执行集合，以便判断是否执行完毕
-        apiExecutionSetService.initSet(parentQueueId, testPlanReportApiScenarios.stream().map(TestPlanReportApiScenario::getId).toList());
+
+        // 初始化执行集合，以便判断是否执行完毕
+        apiExecutionSetService.initSet(parentQueueId, taskItems.stream().map(TaskItem::getId).toList());
+
         taskRequest.setTaskItems(taskItems);
         apiExecuteService.batchExecute(taskRequest);
 

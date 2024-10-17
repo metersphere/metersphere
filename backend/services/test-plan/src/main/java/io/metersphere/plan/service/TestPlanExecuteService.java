@@ -1,6 +1,7 @@
 package io.metersphere.plan.service;
 
 import com.esotericsoftware.minlog.Log;
+import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.TestPlanBatchExecuteRequest;
@@ -67,6 +68,8 @@ public class TestPlanExecuteService {
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
     private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
+    @Resource
+    private ApiBatchRunBaseService apiBatchRunBaseService;
 
     // 停止测试计划的执行
     public void stopTestPlanRunning(String testPlanReportId) {
@@ -226,11 +229,6 @@ public class TestPlanExecuteService {
         }
 
         Project project = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
-        Integer caseTotal = extTestPlanApiCaseMapper.countByPlanId(testPlan.getId()) + extTestPlanApiScenarioMapper.countByPlanId(testPlan.getId());
-
-        // 初始化任务
-        ExecTask execTask = initExecTask(executionQueue.getTaskId(), caseTotal, testPlan.getName(), project, executionQueue.getCreateUser(), executionQueue.getExecutionSource());
-
         TestPlanReportGenRequest genReportRequest = new TestPlanReportGenRequest();
         genReportRequest.setTriggerMode(executionQueue.getExecutionSource());
         genReportRequest.setTestPlanId(executionQueue.getSourceID());
@@ -238,6 +236,15 @@ public class TestPlanExecuteService {
         if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
 
             List<TestPlan> children = testPlanService.selectNotArchivedChildren(testPlan.getId());
+            List<String> childPlanIds = children.stream().map(TestPlan::getId).toList();
+            Integer caseTotal = 0;
+            if (CollectionUtils.isNotEmpty(childPlanIds)) {
+                caseTotal = extTestPlanApiCaseMapper.countByPlanIds(childPlanIds) +
+                        extTestPlanApiScenarioMapper.countByPlanIds(childPlanIds);
+            }
+            // 初始化任务
+            ExecTask execTask = initExecTask(executionQueue.getTaskId(), caseTotal, testPlan.getName(), project, executionQueue.getCreateUser(), executionQueue.getExecutionSource());
+
             // 预生成计划组报告
             Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), execTask.getId(), genReportRequest, executionQueue.getCreateUser());
 
@@ -289,6 +296,11 @@ public class TestPlanExecuteService {
 
             return executionQueue.getPrepareReportId();
         } else {
+            Integer caseTotal = extTestPlanApiCaseMapper.countByPlanIds(List.of(testPlan.getId())) +
+                    extTestPlanApiScenarioMapper.countByPlanIds(List.of(testPlan.getId()));
+            // 初始化任务
+            ExecTask execTask = initExecTask(executionQueue.getTaskId(), caseTotal, testPlan.getName(), project, executionQueue.getCreateUser(), executionQueue.getExecutionSource());
+
             Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), execTask.getId(), genReportRequest, executionQueue.getCreateUser());
             executionQueue.setPrepareReportId(reportMap.get(executionQueue.getSourceID()));
             testPlanService.setExecuteConfig(executionQueue.getSourceID(), executionQueue.getPrepareReportId());
@@ -303,7 +315,7 @@ public class TestPlanExecuteService {
         execTask.setCaseCount(Long.valueOf(caseSize));
         execTask.setTaskName(name);
         execTask.setOrganizationId(project.getOrganizationId());
-        execTask.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        execTask.setTriggerMode(triggerMode);
         execTask.setTaskType(ExecTaskType.TEST_PLAN.name());
         baseTaskHubService.insertExecTask(execTask);
         return execTask;
@@ -642,22 +654,32 @@ public class TestPlanExecuteService {
         if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE)) {
             if (StringUtils.equalsIgnoreCase(queue.getQueueType(), QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE)) {
                 // 计划组报告汇总并统计
-                testPlanExecuteSupportService.summaryTestPlanReport(queue.getQueueId(), true, false);
+                finishTaskAndSummaryTestPlanReport(queue.getTaskId(), queue.getQueueId(), true, false);
             } else if (StringUtils.equalsIgnoreCase(queue.getQueueType(), QUEUE_PREFIX_TEST_PLAN_CASE_TYPE)) {
                 /*
                     此时处于批量勾选执行中的游离态测试计划执行。所以队列顺序为：QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE -> QUEUE_PREFIX_TEST_PLAN_CASE_TYPE。
                     此时queue节点为testPlanCollection的节点。  而测试计划节点（串行状态下）在执行之前就被弹出了。
                     所以获取报告ID的方式为读取queueId （caseType队列和collection队列的queueId都是报告ID）
                  */
-                testPlanExecuteSupportService.summaryTestPlanReport(queue.getQueueId(), false, false);
+                finishTaskAndSummaryTestPlanReport(queue.getTaskId(), queue.getQueueId(), false, false);
             }
             this.testPlanGroupQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
         } else if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_GROUP_EXECUTE)) {
             // 计划报告汇总并统计
-            testPlanExecuteSupportService.summaryTestPlanReport(queue.getQueueId(), false, false);
+            finishTaskAndSummaryTestPlanReport(queue.getTaskId(), queue.getQueueId(), false, false);
             this.testPlanExecuteQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
         } else if (StringUtils.equalsIgnoreCase(queue.getParentQueueType(), QUEUE_PREFIX_TEST_PLAN_CASE_TYPE)) {
             this.caseTypeExecuteQueueFinish(queue.getParentQueueId(), queue.getParentQueueType());
         }
+    }
+
+    public void finishTaskAndSummaryTestPlanReport(String taskId, String reportId, boolean isGroupReport, boolean isStop) {
+        TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(reportId);
+        if (StringUtils.isBlank(testPlanReport.getParentId()) && StringUtils.isNotBlank(taskId)) {
+            // 执行完成，更新任务状态
+            apiBatchRunBaseService.updateTaskStatus(taskId);
+            apiBatchRunBaseService.removeRunningTaskCache(taskId);
+        }
+        testPlanExecuteSupportService.summaryTestPlanReport(reportId, isGroupReport, isStop);
     }
 }

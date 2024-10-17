@@ -136,9 +136,6 @@ public class ApiTestCaseBatchRunService {
         // 执行第一个任务
         ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
 
-        // 集成报告，执行前先设置成 RUNNING
-        setRunningIntegrateReport(runModeConfig);
-
         executeNextTask(queue, nextDetail);
     }
 
@@ -183,14 +180,8 @@ public class ApiTestCaseBatchRunService {
 
         if (runModeConfig.isIntegratedReport()) {
             // 初始化集成报告
-            ApiReport apiReport = initIntegratedReport(runModeConfig, ids, userId, request.getProjectId());
-            // 集成报告才需要初始化执行集合，用于统计整体执行情况
-            apiExecutionSetService.initSet(apiReport.getId(), ids);
+            initIntegratedReport(runModeConfig, ids, userId, request.getProjectId());
         }
-
-        // todo
-        // 集成报告，执行前先设置成 RUNNING
-        setRunningIntegrateReport(runModeConfig);
 
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
 
@@ -221,6 +212,9 @@ public class ApiTestCaseBatchRunService {
                 taskItem.setRequestCount(1L);
                 taskItems.add(taskItem);
             }
+
+            // 记录任务项，用于统计整体执行情况
+            apiExecutionSetService.initSet(execTask.getId(), new ArrayList<>(resourceExecTaskItemMap.values()));
 
             TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(request.getProjectId(), runModeConfig);
             taskRequest.getTaskInfo().setTaskId(execTask.getId());
@@ -258,18 +252,6 @@ public class ApiTestCaseBatchRunService {
             apiTestCases.add(apiTestCase);
         }
         return apiTestCases;
-    }
-
-
-    /**
-     * 集成报告，执行前先设置成 RUNNING
-     *
-     * @param runModeConfig
-     */
-    private void setRunningIntegrateReport(ApiRunModeConfigDTO runModeConfig) {
-        if (runModeConfig.isIntegratedReport()) {
-            apiReportService.updateReportStatus(runModeConfig.getCollectionReport().getReportId(), ExecStatus.RUNNING.name());
-        }
     }
 
     private Map<String, String> initParallelReport(ApiRunModeConfigDTO runModeConfig, List<ApiTestCase> apiTestCases, String userId) {
