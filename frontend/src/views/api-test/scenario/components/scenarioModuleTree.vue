@@ -62,7 +62,7 @@
         </popConfirm>
       </div>
     </div>
-    <a-spin class="w-full" :style="{ height: `calc(100vh - 248px)` }" :loading="loading">
+    <a-spin class="w-full" :style="{ height: `calc(100vh - 273px)` }" :loading="loading">
       <MsTree
         v-model:focus-node-key="focusNodeKey"
         v-model:selected-keys="selectedKeys"
