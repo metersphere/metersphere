@@ -1,5 +1,6 @@
 package io.metersphere.system.service;
 
+import io.metersphere.engine.EngineFactory;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
@@ -11,7 +12,6 @@ import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.pool.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.QueryResourcePoolRequest;
-import io.metersphere.system.engine.KubernetesProvider;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
@@ -96,7 +96,7 @@ public class TestResourcePoolService {
                 return false;
             }
         } else {
-            return KubernetesProvider.validateNamespaceExists(testResourceDTO);
+            return EngineFactory.validateNamespaceExists(testResourceDTO);
         }
     }
 
