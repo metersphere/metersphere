@@ -685,6 +685,15 @@ class TestResourcePoolControllerTests extends BaseTest {
         testResourcePool.setEnable(true);
         testResourcePool.setDeleted(true);
         testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
+        request.setPoolId("test_pool_1");
+        request.setIp(null);
+        mvcResult = this.requestPostWithOkAndReturn(TEST_RESOURCE_POOL_CAPACITY_LIST, request);
+        // 获取返回值
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+
     }
 
     @Test
