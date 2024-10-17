@@ -19,6 +19,14 @@ const useDocShareCheckStore = defineStore('shareCheckStore', {
         localStorage.setItem(key, 'true');
       }
     },
+    // 将 docShareId 和 userId  已经验证更新密码后移除验证重新验证
+    removeDocAsVerified(docShareId: string, userId: string) {
+      const key: string = `verified_${docShareId}_${userId}`;
+      if (!this.verifiedDocs.includes(key)) {
+        this.verifiedDocs = this.verifiedDocs.filter((e) => e === key);
+        localStorage.removeItem(key);
+      }
+    },
   },
 });
 

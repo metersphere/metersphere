@@ -666,7 +666,7 @@ export function deleteShare(id: string) {
 }
 // 接口测试-接口管理-分享列表
 export function getSharePage(data: TableQueryParams) {
-  return MSR.post<CommonList<shareItem>>({ url: `${GetSharePageUrl}`, data });
+  return MSR.post<CommonList<shareItem>>({ url: `${GetSharePageUrl}`, data }, { ignoreCancelToken: true });
 }
 // 接口测试-接口管理-分享详情
 export function shareDetail(id: string) {

@@ -183,7 +183,7 @@ export default {
   'apiTestManagement.sharePasswordPlaceholder': 'Please enter the share password',
   'apiTestManagement.apiShareNum': 'Api number',
   'apiTestManagement.apiShareNumberTip': 'The number of shared interfaces is 0, please check!',
-  'apiTestManagement.apiSharePsdError': 'Password error!',
+  'apiTestManagement.apiSharePsdError': 'Password error',
   'apiTestManagement.allowExport': 'Allow export',
   'apiTestManagement.pleaseEnterName': 'Please enter name',
   'apiTestManagement.module': 'Module',
