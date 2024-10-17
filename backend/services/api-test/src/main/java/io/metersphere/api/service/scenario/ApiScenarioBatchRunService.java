@@ -143,10 +143,6 @@ public class ApiScenarioBatchRunService {
             apiBatchRunBaseService.initExecutionQueueDetails(queue.getQueueId(), execTaskItems);
         });
 
-        // todo
-        // 集成报告，执行前先设置成 RUNNING
-        setRunningIntegrateReport(runModeConfig);
-
         // 执行第一个任务
         ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
         executeNextTask(queue, nextDetail);
@@ -162,9 +158,6 @@ public class ApiScenarioBatchRunService {
 
         ApiRunModeConfigDTO runModeConfig = getRunModeConfig(request);
 
-        // 集成报告，执行前先设置成 RUNNING
-        setRunningIntegrateReport(runModeConfig);
-
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
 
         // 初始化任务
@@ -172,9 +165,7 @@ public class ApiScenarioBatchRunService {
 
         if (runModeConfig.isIntegratedReport()) {
             // 初始化集成报告
-            ApiScenarioReport apiScenarioReport = initIntegratedReport(runModeConfig, userId, request.getProjectId());
-            // 集成报告才需要初始化执行集合，用于统计整体执行情况
-            apiExecutionSetService.initSet(apiScenarioReport.getId(), ids);
+            initIntegratedReport(runModeConfig, userId, request.getProjectId());
         }
 
         // 分批查询
@@ -207,6 +198,9 @@ public class ApiScenarioBatchRunService {
                 taskItem.setRequestCount(1L);
                 taskItems.add(taskItem);
             }
+
+            // 记录任务项，用于统计整体执行情况
+            apiExecutionSetService.initSet(execTask.getId(), new ArrayList<>(resourceExecTaskItemMap.values()));
 
             TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(request.getProjectId(), runModeConfig);
             taskRequest.getTaskInfo().setTaskId(execTask.getId());
@@ -274,17 +268,6 @@ public class ApiScenarioBatchRunService {
         }
         baseTaskHubService.insertExecTaskDetail(execTaskItems);
         return execTaskItems;
-    }
-
-    /**
-     * 集成报告，执行前先设置成 RUNNING
-     *
-     * @param runModeConfig
-     */
-    private void setRunningIntegrateReport(ApiRunModeConfigDTO runModeConfig) {
-        if (runModeConfig.isIntegratedReport()) {
-            apiScenarioReportService.updateReportStatus(runModeConfig.getCollectionReport().getReportId(), ExecStatus.RUNNING.name());
-        }
     }
 
     public void initApiScenarioReportStep(List<ApiScenario> apiScenarios, String reportId) {

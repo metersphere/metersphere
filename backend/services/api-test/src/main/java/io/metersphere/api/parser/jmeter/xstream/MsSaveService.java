@@ -249,6 +249,9 @@ public class MsSaveService {
     public static Properties loadPluginAliasProperties(ClassLoader classLoader) throws IOException {
         Properties nameMap = new Properties();
         InputStream resourceAsStream = classLoader.getResourceAsStream(JMETER_ELEMENT_ALIAS_PROPERTIES);
+        if (resourceAsStream == null) {
+            return nameMap;
+        }
         nameMap.load(resourceAsStream);
         nameMap.forEach((k, v) -> pluginAliasMap.put((String) k, (String) v));
         return nameMap;

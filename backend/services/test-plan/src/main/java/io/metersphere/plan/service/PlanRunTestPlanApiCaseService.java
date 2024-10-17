@@ -34,7 +34,6 @@ import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import jodd.util.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -167,10 +166,8 @@ public class PlanRunTestPlanApiCaseService {
             taskItems.add(taskItem);
         }
 
-        if (StringUtils.isNotBlank(parentQueueId)) {
-            // 如果有父队列，则初始化执行集合，以便判断是否执行完毕
-            apiExecutionSetService.initSet(parentQueueId, testPlanReportApiCases.stream().map(TestPlanReportApiCase::getId).toList());
-        }
+        // 初始化执行集合，以便判断是否执行完毕
+        apiExecutionSetService.initSet(parentQueueId, taskItems.stream().map(TaskItem::getId).toList());
 
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
         TaskBatchRequestDTO taskRequest = apiTestCaseBatchRunService.getTaskBatchRequestDTO(testPlan.getProjectId(), runModeConfig);

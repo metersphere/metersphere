@@ -77,5 +77,5 @@ public interface ExtTestPlanApiScenarioMapper {
 
     List<TestPlanApiScenarioBatchRunDTO> getBatchRunInfoByIds(@Param("ids") List<String> ids);
 
-    Integer countByPlanId(@Param("planId") String planId);
+    Integer countByPlanIds(@Param("planIds") List<String> planIds);
 }
