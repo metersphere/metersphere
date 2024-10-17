@@ -63,3 +63,35 @@ export type UpdateResourcePoolParams = Omit<ResourcePoolInfo, 'testResourceDTO'>
   id: string;
   testResourceDTO?: Partial<TestResourceDTO>;
 };
+// 资源池容量列表项
+export interface CapacityTaskItem {
+  id: string;
+  taskId: string;
+  resourceId: string;
+  resourceName: string;
+  taskOrigin: string; // 任务来源（任务组下的任务id
+  status: string; // 执行状态
+  result: string; // 执行结果
+  resourcePoolId: string;
+  resourcePoolNode: string;
+  resourceType: string; // 资源类型
+  projectId: string;
+  organizationId: string;
+  threadId: string; // 线程id
+  startTime: number;
+  endTime: number;
+  executor: string; // 执行人
+  num: number;
+  taskName: string;
+  userName: string;
+  resourcePoolName: string;
+  triggerMode: string;
+  lineNum: number;
+}
+
+export interface CapacityDetailType {
+  concurrentNumber: number; // 最大并发数
+  occupiedConcurrentNumber: number; // 剩余并发数
+  memoryUsage: number; // 内存使用量
+  cpuusage: number; // CPU占用量
+}
