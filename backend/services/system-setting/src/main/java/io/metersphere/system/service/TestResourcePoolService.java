@@ -170,10 +170,12 @@ public class TestResourcePoolService {
             if (StringUtils.equalsIgnoreCase(pool.getType(), ResourcePoolTypeEnum.NODE.getName())) {
                 nodeMap.put(pool.getId(), testResourceDTO.getNodesList());
                 poolDTOMap.put(pool.getId(), testResourcePoolDTO);
-                Set<String> nodeSet = testResourceDTO.getNodesList().stream()
-                        .map(node -> node.getIp() + ":" + node.getPort())
-                        .collect(Collectors.toSet());
-                nodeSets.addAll(nodeSet);
+                if (pool.getEnable()) {
+                    Set<String> nodeSet = testResourceDTO.getNodesList().stream()
+                            .map(node -> node.getIp() + ":" + node.getPort())
+                            .collect(Collectors.toSet());
+                    nodeSets.addAll(nodeSet);
+                }
             } else {
                 //处理k8s资源池
                 testResourcePoolDTO.setMaxConcurrentNumber(testResourceDTO.getConcurrentNumber());
@@ -181,7 +183,7 @@ public class TestResourcePoolService {
             }
         });
         //处理node资源池
-        Map<String,Integer>lastConcurrentNumberMap = new HashMap<>();
+        Map<String, Integer> lastConcurrentNumberMap = new HashMap<>();
 
         List<Future<Map<String, Integer>>> futures = new ArrayList<>();
         for (String nodeSet : nodeSets) {
@@ -189,7 +191,7 @@ public class TestResourcePoolService {
                 String[] split = nodeSet.split(":");
                 ResourcePoolNodeMetric nodeMetric = getNodeMetric(split[0], split[1]);
                 Map<String, Integer> resultMap = new HashMap<>();
-                if (nodeMetric!=null) {
+                if (nodeMetric != null) {
                     resultMap.put(nodeSet, nodeMetric.getConcurrentNumber() - nodeMetric.getOccupiedConcurrentNumber());
                 }
                 return resultMap;
@@ -201,20 +203,22 @@ public class TestResourcePoolService {
                 lastConcurrentNumberMap.putAll(future.get());
             } catch (InterruptedException | ExecutionException e) {
                 // 处理异常
-                LogUtils.error("获取剩余并发数失败："+ e);
+                LogUtils.error("获取剩余并发数失败：" + e);
             }
         }
-        nodeMap.forEach((poolId,nodeList)->{
+        nodeMap.forEach((poolId, nodeList) -> {
             int lastConcurrentNumber = 0;
             int maxConcurrentNumber = 0;
             for (TestResourceNodeDTO testResourceNodeDTO : nodeList) {
-                if (lastConcurrentNumberMap.get(testResourceNodeDTO.getIp() + ":" + testResourceNodeDTO.getPort())!=null) {
-                    lastConcurrentNumber = lastConcurrentNumber+lastConcurrentNumberMap.get(testResourceNodeDTO.getIp() + ":" + testResourceNodeDTO.getPort());
+                if (lastConcurrentNumberMap.get(testResourceNodeDTO.getIp() + ":" + testResourceNodeDTO.getPort()) != null) {
+                    lastConcurrentNumber = lastConcurrentNumber + lastConcurrentNumberMap.get(testResourceNodeDTO.getIp() + ":" + testResourceNodeDTO.getPort());
                 }
                 maxConcurrentNumber = maxConcurrentNumber + testResourceNodeDTO.getConcurrentNumber();
             }
             TestResourcePoolDTO testResourcePoolDTO = poolDTOMap.get(poolId);
-            testResourcePoolDTO.setLastConcurrentNumber(lastConcurrentNumber);
+            if (testResourcePoolDTO.getEnable()) {
+                testResourcePoolDTO.setLastConcurrentNumber(lastConcurrentNumber);
+            }
             testResourcePoolDTO.setMaxConcurrentNumber(maxConcurrentNumber);
             testResourcePoolDTOS.add(testResourcePoolDTO);
         });
@@ -353,7 +357,7 @@ public class TestResourcePoolService {
     }
 
     @PreDestroy
-    private void shutdownExecutor() {
+    public void shutdownExecutor() {
         executor.shutdown();
     }
 }
