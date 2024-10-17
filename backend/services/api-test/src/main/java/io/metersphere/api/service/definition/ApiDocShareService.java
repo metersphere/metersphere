@@ -1,6 +1,7 @@
 package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.ApiDocShare;
+import io.metersphere.api.domain.ApiDocShareExample;
 import io.metersphere.api.dto.definition.ApiDocShareDTO;
 import io.metersphere.api.dto.definition.ApiDocShareDetail;
 import io.metersphere.api.dto.definition.request.*;
@@ -63,6 +64,7 @@ public class ApiDocShareService {
 	 * @return 分享
 	 */
 	public ApiDocShare create(ApiDocShareEditRequest request, String currentUser) {
+		checkDuplicateName(request);
 		ApiDocShare docShare = new ApiDocShare();
 		BeanUtils.copyBean(docShare, request);
 		docShare.setId(IDGenerator.nextStr());
@@ -79,6 +81,7 @@ public class ApiDocShareService {
 	 */
 	public ApiDocShare update(ApiDocShareEditRequest request) {
 		checkExit(request.getId());
+		checkDuplicateName(request);
 		ApiDocShare docShare = new ApiDocShare();
 		BeanUtils.copyBean(docShare, request);
 		apiDocShareMapper.updateByPrimaryKeySelective(docShare);
@@ -293,6 +296,23 @@ public class ApiDocShareService {
 			throw new MSException(Translator.get("api_doc_share.not_exist"));
 		}
 		return docShare;
+	}
+
+	/**
+	 * 检查分享名称是否重名
+	 * @param request 请求参数
+	 */
+	private void checkDuplicateName(ApiDocShareEditRequest request) {
+		ApiDocShareExample example = new ApiDocShareExample();
+		ApiDocShareExample.Criteria criteria = example.createCriteria();
+		criteria.andNameEqualTo(request.getName());
+		criteria.andProjectIdEqualTo(request.getProjectId());
+		if (StringUtils.isNotBlank(request.getId())) {
+			criteria.andIdNotEqualTo(request.getId());
+		}
+		if (apiDocShareMapper.countByExample(example) > 0) {
+			throw new MSException(Translator.get("api_doc_share.name_duplicate"));
+		}
 	}
 
 	/**

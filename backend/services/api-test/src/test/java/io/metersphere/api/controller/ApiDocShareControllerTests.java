@@ -92,17 +92,19 @@ public class ApiDocShareControllerTests extends BaseTest {
 	@Test
 	public void page() throws Exception {
 		ApiDocShareEditRequest request = new ApiDocShareEditRequest();
-		request.setName("share-1");
+		request.setName("share-2");
 		request.setProjectId(DEFAULT_PROJECT_ID);
 		request.setApiRange("ALL");
 		request.setIsPrivate(false);
 		request.setAllowExport(false);
-		this.requestPostWithOk(ADD, request);
+		this.requestPost(ADD, request);
+		request.setName("share-3");
 		request.setInvalidTime(1);
 		request.setInvalidUnit("HOUR");
 		request.setApiRange("MODULE");
 		request.setRangeMatchVal("module-1");
 		this.requestPostWithOk(ADD, request);
+		request.setName("share-4");
 		request.setApiRange("PATH");
 		request.setRangeMatchSymbol("EQUALS");
 		request.setRangeMatchVal("path-1");
@@ -115,6 +117,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 		moduleRequest.setProjectId(DEFAULT_PROJECT_ID);
 		moduleRequest.setProtocols(List.of("HTTP", "SPX", "Redis", "MongoDB"));
 		this.requestPostWithOk(MODULE_COUNT, moduleRequest);
+		request.setName("share-5");
 		request.setRangeMatchSymbol("CONTAINS");
 		MvcResult mvcResult1 = this.requestPostWithOk(ADD, request).andReturn();
 		String returnData1 = mvcResult1.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -122,6 +125,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 		ApiDocShare docShare1 = JSON.parseObject(JSON.toJSONString(resultHolder1.getData()), ApiDocShare.class);
 		moduleRequest.setShareId(docShare1.getId());
 		this.requestPostWithOk(MODULE_COUNT, moduleRequest);
+		request.setName("share-6");
 		request.setApiRange("TAG");
 		request.setRangeMatchVal("tag-1,tag-2");
 		MvcResult mvcResult2 = this.requestPostWithOk(ADD, request).andReturn();
@@ -130,6 +134,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 		ApiDocShare docShare2 = JSON.parseObject(JSON.toJSONString(resultHolder2.getData()), ApiDocShare.class);
 		moduleRequest.setShareId(docShare2.getId());
 		this.requestPostWithOk(MODULE_COUNT, moduleRequest);
+		this.requestPost(ADD, request).andExpect(status().is5xxServerError());
 		ApiDocSharePageRequest pageRequest = new ApiDocSharePageRequest();
 		pageRequest.setProjectId(DEFAULT_PROJECT_ID);
 		pageRequest.setCurrent(1);
