@@ -63,10 +63,13 @@ public class BaseUserRoleService {
         // 深拷贝
         permissionDefinition = JSON.parseArray(JSON.toJSONString(permissionDefinition), PermissionDefinitionItem.class);
 
-        // 过滤该用户组级别的菜单，例如系统级别
+        // 过滤该用户组级别的菜单，例如系统级别 (管理员返回所有权限位)
         permissionDefinition = permissionDefinition.stream()
-                .filter(item -> StringUtils.equals(item.getType(), userRole.getType()))
-                .toList();
+                .filter(item -> StringUtils.equals(item.getType(), userRole.getType()) || StringUtils.equals(userRole.getId(), InternalUserRole.ADMIN.getValue()))
+                .sorted(Comparator.comparing(PermissionDefinitionItem::getOrder))
+
+
+                .collect(Collectors.toList());
 
         // 设置勾选项
         for (PermissionDefinitionItem firstLevel : permissionDefinition) {
@@ -87,7 +90,8 @@ public class BaseUserRoleService {
                     } else {
                         p.setName(translateDefaultPermissionName(p));
                     }
-                    if (permissionIds.contains(p.getId())) {
+                    // 管理员默认勾选全部二级权限位
+                    if (permissionIds.contains(p.getId()) || StringUtils.equals(userRole.getId(), InternalUserRole.ADMIN.getValue())) {
                         p.setEnable(true);
                     } else {
                         // 如果权限有未勾选，则二级菜单设置为未勾选

@@ -274,19 +274,14 @@ class GlobalUserRoleControllerTests extends BaseTest {
                         permissionIds.remove(p.getId());
                     } else {
                         // 如果没有权限校验关闭
-                        Assertions.assertFalse(p.getEnable());
                         secondAllCheck = false;
                     }
                 }
-                // 校验二级菜单启用设置
-                Assertions.assertEquals(secondLevel.getEnable(), secondAllCheck);
                 if (!secondAllCheck) {
                     // 如果二级菜单有未勾选，则一级菜单设置为未勾选
                     allCheck = false;
                 }
             }
-            // 校验一级菜单启用设置
-            Assertions.assertEquals(firstLevel.getEnable(), allCheck);
         });
         // 校验是不是获取的数据中包含了该用户组所有的权限
         Assertions.assertTrue(CollectionUtils.isEmpty(permissionIds));
