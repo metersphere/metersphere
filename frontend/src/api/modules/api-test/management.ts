@@ -45,6 +45,7 @@ import {
   diffDataUrl,
   ExecuteCaseUrl,
   ExportDefinitionUrl,
+  ExportShareDefinitionUrl,
   GetApiDownloadFileUrl,
   GetCaseBatchExportParamsUrl,
   GetCaseDetailUrl,
@@ -62,6 +63,7 @@ import {
   GetModuleTreeUrl,
   GetPoolId,
   GetPoolOptionUrl,
+  GetShareApiDownloadFileUrl,
   GetSharePageUrl,
   getSyncedCaseDetailUrl,
   GetTrashModuleCountUrl,
@@ -84,6 +86,7 @@ import {
   SortCaseUrl,
   SortDefinitionUrl,
   StopApiExportUrl,
+  StopShareApiExportUrl,
   SwitchDefinitionScheduleUrl,
   ToggleFollowCaseUrl,
   ToggleFollowDefinitionUrl,
@@ -683,4 +686,24 @@ export function getShareModuleTree(data: ApiDefinitionGetModuleParams) {
 //  接口测试-接口管理-分享模块数量
 export function getShareModuleCount(data: ApiDefinitionGetModuleParams) {
   return MSR.post({ url: shareModuleCountUrl, data });
+}
+
+// 导出分享定义文档
+export function exportShareApiDefinition(data: ApiDefinitionBatchExportParams, type: string) {
+  return MSR.post({ url: `${ExportShareDefinitionUrl}/${type}`, data });
+}
+
+// 获取分享导出的文件
+export function getShareApiDownloadFile(projectId: string, fileId: string) {
+  return MSR.get(
+    {
+      url: `${GetShareApiDownloadFileUrl}/${projectId}/${fileId}`,
+      responseType: 'blob',
+    },
+    { isTransformResponse: false }
+  );
+}
+// 停止分享导出
+export function stopShareApiExport(taskId: string) {
+  return MSR.get({ url: `${StopShareApiExportUrl}/${taskId}` });
 }

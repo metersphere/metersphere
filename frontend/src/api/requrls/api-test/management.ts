@@ -122,3 +122,6 @@ export const checkSharePsdUrl = '/api/doc/share/check'; // 接口测试-接口�
 export const shareDetailUrl = '/api/doc/share/detail'; // 接口测试-接口管理-查看链接
 export const shareModuleTreeUrl = '/api/doc/share/module/tree'; // 接口测试-接口管理-模块树
 export const shareModuleCountUrl = '/api/doc/share/module/count'; // 接口测试-接口管理-模块数量
+export const ExportShareDefinitionUrl = '/api/doc/share/export'; // 导入分享接口定义
+export const GetShareApiDownloadFileUrl = '/api/doc/share/download/file'; // 下载导出的文档
+export const StopShareApiExportUrl = '/api/doc/share/stop'; // 停止分享导出

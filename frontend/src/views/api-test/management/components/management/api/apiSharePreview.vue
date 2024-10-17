@@ -4,6 +4,7 @@
       :detail="activeApiDetail"
       :protocols="props.selectedProtocols"
       @update-follow="activeApiDetail.follow = !activeApiDetail.follow"
+      @export-share="handlerExportShare"
     />
   </div>
   <div class="doc-toggle-footer">
@@ -91,6 +92,7 @@
 
   const emit = defineEmits<{
     (e: 'toggleDetail', type: string): void;
+    (e: 'exportShare', all: boolean): void;
   }>();
 
   const localProtocol = localStorage.getItem(ProtocolKeyEnum.API_NEW_PROTOCOL);
@@ -116,6 +118,7 @@
     rest: [],
     polymorphicName: '',
     name: '',
+    num: '',
     path: '',
     projectId: '',
     uploadFileIds: [],
@@ -213,6 +216,10 @@
   // 切换上一条&下一条
   function toggleApiDetail(type: string) {
     emit('toggleDetail', type);
+  }
+  // 导出分享
+  function handlerExportShare() {
+    emit('exportShare', false);
   }
 
   watch(

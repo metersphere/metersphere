@@ -9,7 +9,12 @@
   >
     <div class="p-[16px]">
       <div class="mb-4 flex items-center justify-between">
-        <a-button class="w-[84px]" type="primary" @click="emit('editOrCreate')">
+        <a-button
+          v-permission="['PROJECT_API_DEFINITION_DOC:READ+SHARE']"
+          class="w-[84px]"
+          type="primary"
+          @click="emit('editOrCreate')"
+        >
           {{ t('apiTestManagement.newCreateShare') }}
         </a-button>
         <a-input-search
@@ -27,19 +32,21 @@
           {{ record.isPrivate ? t('apiTestManagement.passwordView') : t('apiTestManagement.publicityView') }}
         </template>
         <template #operation="{ record }">
-          <a-tooltip :disabled="!!record.apiShareNum" :content="t('apiTestManagement.apiShareNumberTip')">
-            <MsButton class="!mx-0" :disabled="!record.apiShareNum" @click="viewLink(record)">
-              {{ t('apiTestManagement.viewLink') }}
+          <div v-permission="['PROJECT_API_DEFINITION_DOC:READ+SHARE']" class="flex items-center">
+            <a-tooltip :disabled="!!record.apiShareNum" :content="t('apiTestManagement.apiShareNumberTip')">
+              <MsButton class="!mx-0" :disabled="!record.apiShareNum" @click="viewLink(record)">
+                {{ t('apiTestManagement.viewLink') }}
+              </MsButton>
+            </a-tooltip>
+            <a-divider direction="vertical" :margin="8" />
+            <MsButton class="!mx-0" @click="editShare(record)">
+              {{ t('common.edit') }}
             </MsButton>
-          </a-tooltip>
-          <a-divider direction="vertical" :margin="8" />
-          <MsButton class="!mx-0" @click="editShare(record)">
-            {{ t('common.edit') }}
-          </MsButton>
-          <a-divider direction="vertical" :margin="8" />
-          <MsButton class="!mx-0" @click="deleteHandler(record)">
-            {{ t('common.delete') }}
-          </MsButton>
+            <a-divider direction="vertical" :margin="8" />
+            <MsButton class="!mx-0" @click="deleteHandler(record)">
+              {{ t('common.delete') }}
+            </MsButton>
+          </div>
         </template>
       </MsBaseTable>
     </div>
@@ -62,7 +69,8 @@
   import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { useAppStore, useTableStore } from '@/store';
-  import { characterLimit } from '@/utils';
+  import { characterLimit, operationWidth } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { ShareDetail, shareItem } from '@/models/apiTest/management';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
@@ -131,11 +139,11 @@
       showDrag: true,
     },
     {
-      title: 'common.operation',
+      title: hasAnyPermission(['PROJECT_API_DEFINITION_DOC:READ+SHARE']) ? 'common.operation' : '',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 180,
+      width: operationWidth(215, hasAnyPermission(['PROJECT_API_DEFINITION_DOC:READ+SHARE']) ? 180 : 50),
       showInTable: true,
       showDrag: false,
     },

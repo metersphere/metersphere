@@ -18,6 +18,7 @@
               @delete-node="handleDeleteApiFromModuleTree"
               @execute="handleExecute"
               @open-current-node="openCurrentNode"
+              @export-share="handleExportShare"
             />
           </div>
           <div v-if="!docShareId" class="flex-1">
@@ -66,6 +67,7 @@
             :previous-node="previousNode"
             :next-node="nextNode"
             @toggle-detail="toggleDetail"
+            @export-share="handleExportShare"
           />
         </div>
       </template>
@@ -107,6 +109,12 @@
         </a-button>
       </template>
     </a-modal>
+    <ApiExportModal
+      v-model:visible="showExportModal"
+      :batch-params="batchParams"
+      :condition-params="getConditionParams"
+      is-share
+    />
   </MsCard>
 </template>
 
@@ -120,10 +128,12 @@
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
+  import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
   import { RequestParam } from '../components/requestComposition/index.vue';
   import importApi from './components/import.vue';
   import management from './components/management/index.vue';
   import moduleTree from './components/moduleTree.vue';
+  import ApiExportModal from '@/views/api-test/management/components/management/api/apiExportModal.vue';
   import ApiSharePreview from '@/views/api-test/management/components/management/api/apiSharePreview.vue';
 
   import { getProtocolList } from '@/api/modules/api-test/common';
@@ -318,9 +328,41 @@
     formRef.value?.resetFields();
     checkForm.value.password = '';
   }
-
-  const shareDetailInfo = ref<ShareDetailType>();
   const currentNode = ref();
+
+  const showExportModal = ref(false);
+  const batchParams = ref<BatchActionQueryParams>({
+    selectedIds: [],
+    selectAll: false,
+    excludeIds: [],
+  });
+
+  // 导出全部|导出单个
+  function handleExportShare(all: boolean) {
+    batchParams.value.selectAll = all;
+    batchParams.value.selectedIds = all ? [] : [currentNode.value?.id];
+    showExportModal.value = true;
+  }
+
+  function getConditionParams() {
+    return {
+      condition: {
+        keyword: '',
+        filter: {},
+        viewId: '',
+      },
+      projectId: appStore.currentProjectId,
+      protocols: selectedProtocols.value,
+      moduleIds: [],
+      shareId: docShareId.value,
+    };
+  }
+
+  const shareDetailInfo = ref<ShareDetailType>({
+    invalid: false,
+    allowExport: false,
+    isPrivate: false,
+  });
 
   // 获取分享详情
   async function getShareDetail() {
@@ -393,7 +435,7 @@
   provide('refreshModuleTreeCount', refreshModuleTreeCount);
   provide('folderTreePathMap', folderTreePathMap.value);
   provide('docShareId', docShareId.value);
-  provide('shareDetailInfo', shareDetailInfo.value);
+  provide('shareDetailInfo', shareDetailInfo);
 </script>
 
 <style lang="less" scoped>

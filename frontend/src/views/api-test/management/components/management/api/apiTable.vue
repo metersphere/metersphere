@@ -11,7 +11,11 @@
       @refresh="loadApiList(false)"
     >
       <template #right>
-        <ShareButton @create="createShare" @show-share-list="showShareList" />
+        <ShareButton
+          v-if="hasAnyPermission(['PROJECT_API_DEFINITION_DOC:READ+SHARE'])"
+          @create="createShare"
+          @show-share-list="showShareList"
+        />
       </template>
     </MsAdvanceFilter>
     <ms-base-table
@@ -243,47 +247,12 @@
       @folder-node-select="folderNodeSelect"
     />
   </a-modal>
-  <a-modal
+  <ApiExportModal
     v-model:visible="showExportModal"
-    :title="t('common.export')"
-    title-align="start"
-    class="ms-modal-upload ms-modal-medium"
-    :width="400"
-  >
-    <div class="mb-[16px] flex gap-[8px]">
-      <div
-        v-for="item of platformList"
-        :key="item.value"
-        :class="`import-item ${exportPlatform === item.value ? 'import-item--active' : ''}`"
-        @click="exportPlatform = item.value"
-      >
-        <div class="text-[var(--color-text-1)]">{{ item.name }}</div>
-      </div>
-    </div>
-    <template v-if="exportPlatform === RequestExportFormat.MeterSphere">
-      <div class="mb-[16px] flex items-center gap-[4px]">
-        <a-switch v-model:model-value="exportApiCase" size="small" />
-        {{ t('apiTestManagement.exportCase') }}
-      </div>
-      <div class="flex items-center gap-[4px]">
-        <a-switch v-model:model-value="exportApiMock" size="small" />
-        {{ t('apiTestManagement.exportMock') }}
-      </div>
-    </template>
-    <div v-else-if="exportPlatform === RequestExportFormat.SWAGGER" class="text-[var(--color-text-4)]">
-      {{ t('apiTestManagement.exportSwaggerTip') }}
-    </div>
-    <template #footer>
-      <div class="flex justify-end">
-        <a-button type="secondary" :disabled="exportLoading" @click="cancelExport">
-          {{ t('common.cancel') }}
-        </a-button>
-        <a-button class="ml-3" type="primary" :loading="exportLoading" @click="exportApi">
-          {{ t('common.export') }}
-        </a-button>
-      </div>
-    </template>
-  </a-modal>
+    :batch-params="batchParams"
+    :condition-params="getBatchConditionParams"
+    :sorter="propsRes.sorter || {}"
+  />
   <CreateShareModal
     v-model:visible="showShareModal"
     :record="editRecord"
@@ -313,6 +282,7 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import ApiExportModal from '@/views/api-test/management/components/management/api/apiExportModal.vue';
   import moduleTree from '@/views/api-test/management/components/moduleTree.vue';
 
   import {
@@ -320,20 +290,16 @@
     batchMoveDefinition,
     batchUpdateDefinition,
     deleteDefinition,
-    exportApiDefinition,
-    getApiDownloadFile,
     getDefinitionPage,
     sortDefinition,
-    stopApiExport,
     updateDefinition,
   } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
-  import useWebsocket from '@/hooks/useWebsocket';
   import useAppStore from '@/store/modules/app';
   import useCacheStore from '@/store/modules/cache/cache';
-  import { characterLimit, downloadByteFile, getGenerateId, operationWidth } from '@/utils';
+  import { characterLimit, operationWidth } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ProtocolItem } from '@/models/apiTest/common';
@@ -341,7 +307,7 @@
   import { ApiDefinitionDetail, ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
   import { DragSortParams, ModuleTreeNode } from '@/models/common';
   import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
-  import { RequestDefinitionStatus, RequestExportFormat, RequestMethods } from '@/enums/apiEnum';
+  import { RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
   import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
   import { TagUpdateTypeEnum } from '@/enums/commonEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -1065,164 +1031,6 @@
   }
 
   const showExportModal = ref(false);
-  const platformList = [
-    {
-      name: 'Swagger',
-      value: RequestExportFormat.SWAGGER,
-    },
-    {
-      name: 'MeterSphere',
-      value: RequestExportFormat.MeterSphere,
-    },
-  ];
-  const exportPlatform = ref(RequestExportFormat.SWAGGER);
-  const exportApiCase = ref(false);
-  const exportApiMock = ref(false);
-  const exportLoading = ref(false);
-
-  function cancelExport() {
-    showExportModal.value = false;
-    exportPlatform.value = RequestExportFormat.SWAGGER;
-  }
-
-  // 下载文件
-  async function downloadFile(id: string) {
-    try {
-      const response = await getApiDownloadFile(appStore.currentProjectId, id);
-      downloadByteFile(response, 'metersphere-export.json');
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-  // 提示：导出成功
-  function showExportSuccessfulMessage(id: string, count: number) {
-    Message.success({
-      content: () =>
-        h('div', { class: 'flex flex-col gap-[8px] items-start' }, [
-          h('div', { class: 'font-medium' }, t('common.exportSuccessful')),
-          h('div', { class: 'flex items-center gap-[12px]' }, [
-            h('div', t('caseManagement.featureCase.exportApiCount', { number: count })),
-            h(
-              MsButton,
-              {
-                type: 'text',
-                onClick() {
-                  downloadFile(id);
-                },
-              },
-              { default: () => t('common.downloadFile') }
-            ),
-          ]),
-        ]),
-      duration: 10000, // 10s 自动关闭
-      closable: true,
-    });
-  }
-
-  const websocket = ref<WebSocket>();
-  const reportId = ref('');
-  const isShowExportingMessage = ref(false); // 正在导出提示显示中
-  const exportingMessage = ref();
-
-  // 开启websocket监听，接收结果
-  async function startWebsocketGetExportResult() {
-    const { createSocket, websocket: _websocket } = useWebsocket({
-      reportId: reportId.value,
-      socketUrl: '/ws/export',
-      onMessage: (event) => {
-        const data = JSON.parse(event.data);
-        if (data.msgType === 'EXEC_RESULT') {
-          exportingMessage.value.close();
-          reportId.value = data.fileId;
-          // taskId.value = data.taskId;
-          if (data.isSuccessful) {
-            showExportSuccessfulMessage(reportId.value, data.count);
-          } else {
-            Message.error({
-              content: t('common.exportFailed'),
-              duration: 999999999, // 一直展示，除非手动关闭
-              closable: true,
-            });
-          }
-          websocket.value?.close();
-        }
-      },
-    });
-    await createSocket();
-    websocket.value = _websocket.value;
-  }
-
-  // 取消导出
-  async function stopExport(taskId: string) {
-    try {
-      await stopApiExport(taskId);
-      exportingMessage.value.close();
-      websocket.value?.close();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-  // 提示：正在导出
-  function showExportingMessage(taskId: string) {
-    if (isShowExportingMessage.value) return;
-    isShowExportingMessage.value = true;
-    exportingMessage.value = Message.loading({
-      content: () =>
-        h('div', { class: 'flex items-center gap-[12px]' }, [
-          h('div', t('common.exporting')),
-          h(
-            MsButton,
-            {
-              type: 'text',
-              onClick() {
-                stopExport(taskId);
-              },
-            },
-            { default: () => t('common.cancel') }
-          ),
-        ]),
-      duration: 999999999, // 一直展示，除非手动关闭
-      closable: true,
-      onClose() {
-        isShowExportingMessage.value = false;
-      },
-    });
-  }
-
-  /**
-   * 导出接口
-   */
-  async function exportApi() {
-    try {
-      exportLoading.value = true;
-      reportId.value = getGenerateId();
-      await startWebsocketGetExportResult();
-      const batchConditionParams = await getBatchConditionParams();
-      const res = await exportApiDefinition(
-        {
-          selectIds: tableSelected.value as string[],
-          selectAll: !!batchParams.value?.selectAll,
-          excludeIds: batchParams.value?.excludeIds || [],
-          ...batchConditionParams,
-          exportApiCase: exportApiCase.value,
-          exportApiMock: exportApiMock.value,
-          sort: propsRes.value.sorter || {},
-          fileId: reportId.value,
-        },
-        exportPlatform.value
-      );
-
-      showExportingMessage(res);
-      showExportModal.value = false;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      exportLoading.value = false;
-    }
-  }
 
   /**
    * 处理表格选中后批量操作
@@ -1323,19 +1131,6 @@
 </script>
 
 <style lang="less" scoped>
-  .import-item {
-    @apply flex cursor-pointer items-center bg-white;
-
-    padding: 8px;
-    width: 150px;
-    border: 1px solid var(--color-text-n8);
-    border-radius: var(--border-radius-small);
-    gap: 6px;
-  }
-  .import-item--active {
-    border: 1px solid rgb(var(--primary-5));
-    background-color: rgb(var(--primary-1));
-  }
   :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
     &:not(:hover) {
       border-color: transparent !important;
