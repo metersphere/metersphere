@@ -25,4 +25,6 @@ public class PermissionDefinitionItem {
     private List<Permission> permissions;
     @Schema(description =  "子菜单")
     private List<PermissionDefinitionItem> children;
+    @Schema(description =  "排序")
+    private Integer order;
 }
