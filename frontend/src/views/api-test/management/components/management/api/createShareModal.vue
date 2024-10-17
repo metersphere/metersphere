@@ -62,10 +62,11 @@
         <MsTimeSelectorVue v-model="invalidTimeValue" @change="handleTimeChange" />
       </a-form-item>
       <div class="mb-[16px] flex items-center">
-        <a-switch v-model:model-value="form.isPrivate" class="mr-[8px]" size="small" />
+        <a-switch v-model:model-value="form.isPrivate" class="mr-[8px]" size="small" @change="changePrivate" />
         {{ t('apiTestManagement.passwordAccess') }}
       </div>
       <a-form-item
+        v-if="form.isPrivate"
         field="password"
         :label="t('apiTestManagement.effectiveTime')"
         asterisk-position="end"
@@ -88,8 +89,14 @@
       </div>
     </a-form>
     <template #footer>
-      <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
-      <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleConfirm">
+      <a-button type="secondary" :disabled="confirmLoading" @click="handleCancel">{{ t('common.cancel') }}</a-button>
+      <a-button
+        class="ml-[12px]"
+        :disabled="isDisabledSave"
+        type="primary"
+        :loading="confirmLoading"
+        @click="handleConfirm"
+      >
         {{ okText }}
       </a-button>
     </template>
@@ -108,12 +115,17 @@
 
   import { addShare, getEnvModules, updateShare } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
-  import { useAppStore } from '@/store';
+  import { useAppStore, useUserStore } from '@/store';
+  import useDocShareCheckStore from '@/store/modules/api/docShareCheck';
   import { TreeNode } from '@/utils';
 
   import type { ShareDetail } from '@/models/apiTest/management';
   import type { ModuleTreeNode } from '@/models/common';
   import { OperatorEnum } from '@/enums/advancedFilterEnum';
+
+  const userStore = useUserStore();
+
+  const docCheckStore = useDocShareCheckStore();
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -243,7 +255,7 @@
   });
 
   const confirmLoading = ref<boolean>(false);
-
+  const originPassword = ref<string>('');
   function handleConfirm() {
     formRef.value?.validate(async (errors) => {
       if (!errors) {
@@ -262,6 +274,12 @@
             params.rangeMatchVal = moduleIds.value.join(',');
           }
           if (props?.record?.id) {
+            if (originPassword.value !== form.value.password) {
+              // 清空校验
+              if (docCheckStore.isDocVerified(props?.record?.id, userStore.id || '')) {
+                docCheckStore.removeDocAsVerified(props?.record?.id, userStore.id || '');
+              }
+            }
             await updateShare(params);
           } else {
             await addShare(params);
@@ -310,6 +328,7 @@
 
   function initDetail() {
     if (props.record?.id) {
+      originPassword.value = form.value.password;
       form.value = {
         ...props.record,
       };
@@ -324,6 +343,10 @@
     }
   }
 
+  function changePrivate() {
+    form.value.password = '';
+  }
+
   watch(
     () => innerVisible.value,
     (val) => {
@@ -333,6 +356,19 @@
       }
     }
   );
+
+  const isDisabledSave = computed(() => {
+    switch (form.value.apiRange) {
+      case 'MODULE':
+        return !moduleIds.value.length;
+      case 'PATH':
+        return !form.value.rangeMatchVal.length;
+      case 'TAG':
+        return !tags.value.length;
+      default:
+        return false;
+    }
+  });
 </script>
 
 <style scoped></style>

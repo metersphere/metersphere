@@ -13,6 +13,7 @@
       <template #right>
         <ShareButton
           v-if="hasAnyPermission(['PROJECT_API_DEFINITION_DOC:READ+SHARE'])"
+          ref="shareButtonRef"
           @create="createShare"
           @show-share-list="showShareList"
         />
@@ -1108,6 +1109,7 @@
     showShareModal.value = true;
   }
   const shareListRef = ref<InstanceType<typeof ShareListDrawer>>();
+  const shareButtonRef = ref<InstanceType<typeof ShareButton>>();
 
   function cancelHandler() {
     showShareModal.value = false;
@@ -1120,6 +1122,7 @@
     } else {
       shareListRef.value?.searchList();
     }
+    shareButtonRef.value?.initShareList();
   }
 
   watch(

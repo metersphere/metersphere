@@ -40,12 +40,16 @@
                 {{ item.name }}
               </div>
             </a-tooltip>
-            <MsIcon
-              type="icon-icon_copy_outlined"
-              class="cursor-pointer text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-              :size="16"
-              @click="copyShareLink(item.id as string)"
-            />
+            <a-tooltip :disabled="!!item.apiShareNum" position="tr" :content="t('apiTestManagement.apiShareNumberTip')">
+              <MsIcon
+                type="icon-icon_copy_outlined"
+                :class="`text-[var(--color-text-4)] ${
+                  item.apiShareNum ? 'cursor-pointer hover:text-[rgb(var(--primary-5))]' : ''
+                }`"
+                :size="16"
+                @click="copyShareLink(item.id as string)"
+              />
+            </a-tooltip>
           </div>
         </div>
       </div>
@@ -158,6 +162,10 @@
 
   onBeforeMount(() => {
     initShareList();
+  });
+
+  defineExpose({
+    initShareList,
   });
 </script>
 

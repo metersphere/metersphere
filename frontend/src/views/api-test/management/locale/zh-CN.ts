@@ -176,7 +176,7 @@ export default {
   'apiTestManagement.sharePasswordPlaceholder': '请输入分享密码',
   'apiTestManagement.apiShareNum': '接口数量',
   'apiTestManagement.apiShareNumberTip': '分享的接口数量为0，请检查！',
-  'apiTestManagement.apiSharePsdError': '密码错误！',
+  'apiTestManagement.apiSharePsdError': '密码错误',
   'apiTestManagement.allowExport': '允许导出',
   'apiTestManagement.pleaseEnterName': '请输入名称',
   'apiTestManagement.module': '模块',
