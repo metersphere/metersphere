@@ -1149,6 +1149,7 @@
 
   defineExpose({
     resetSelector,
+    getModuleCount,
     refresh,
   });
 
