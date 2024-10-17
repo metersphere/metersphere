@@ -635,9 +635,23 @@ class TestResourcePoolControllerTests extends BaseTest {
         return testResourcePoolDTO;
     }
 
+
+
     @Test
     @Order(18)
     public void getTestResourcePoolCapacityDetail() throws Exception {
+        TestResourcePool testResourcePool = new TestResourcePool();
+        testResourcePool.setId("gyq_pool_delete_enable");
+        testResourcePool.setType("NODE");
+        testResourcePool.setEnable(true);
+        testResourcePool.setDeleted(true);
+        testResourcePool.setAllOrg(true);
+        testResourcePool.setName("测试");
+        testResourcePool.setUpdateTime(System.currentTimeMillis());
+        testResourcePool.setCreateTime(System.currentTimeMillis());
+        testResourcePool.setCreateUser("admin");
+        testResourcePool.setServerUrl("172.06.200.15");
+        testResourcePoolMapper.insert(testResourcePool);
         TestResourcePoolCapacityRequest  request = new TestResourcePoolCapacityRequest();
         request.setPoolId("test_pool_1");
         request.setIp("172.16.200.8");
@@ -651,6 +665,26 @@ class TestResourcePoolControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+        request.setPoolId("gyq_pool_delete_enable");
+        mvcResult = this.requestPostWithOkAndReturn(TEST_RESOURCE_POOL_CAPACITY_LIST, request);
+        // 获取返回值
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        testResourcePool.setEnable(false);
+        testResourcePool.setDeleted(false);
+        testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
+        request.setPoolId("gyq_pool_delete_enable");
+        mvcResult = this.requestPostWithOkAndReturn(TEST_RESOURCE_POOL_CAPACITY_LIST, request);
+        // 获取返回值
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        testResourcePool.setEnable(true);
+        testResourcePool.setDeleted(true);
+        testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
     }
 
     @Test
@@ -676,6 +710,33 @@ class TestResourcePoolControllerTests extends BaseTest {
         resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+        request.setPoolId("null");
+        mvcResult = this.requestPostWithOkAndReturn(TEST_RESOURCE_POOL_CAPACITY_LIST, request);
+        // 获取返回值
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+
+        request.setPoolId("gyq_pool_delete_enable");
+        mvcResult = this.requestPostWithOkAndReturn(TEST_RESOURCE_POOL_CAPACITY_LIST, request);
+        // 获取返回值
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        TestResourcePool testResourcePool = new TestResourcePool();
+        testResourcePool.setId("gyq_pool_delete_enable");
+        testResourcePool.setDeleted(false);
+        testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
+        request.setPoolId("gyq_pool_delete_enable");
+        mvcResult = this.requestPostWithOkAndReturn(TEST_RESOURCE_POOL_CAPACITY_LIST, request);
+        // 获取返回值
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+
     }
 
 }
