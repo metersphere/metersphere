@@ -188,6 +188,8 @@ export default {
   'apiTestManagement.deleteShareTip': '删除后，分享链接会导致正在访问该链接的用户访问异常，请谨慎操作！',
   'apiTestManagement.passwordView': '密码',
   'apiTestManagement.publicityView': '公开',
+  'apiTestManagement.resourceID': '资源 ID',
+  'apiTestManagement.swaggerUrl': 'Swagger URL',
   'case.execute.selectEnv': '环境选择',
   'case.execute.defaultEnv': '默认环境',
   'case.execute.newEnv': '新环境',

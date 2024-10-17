@@ -1,8 +1,8 @@
 <template>
   <MsDrawer v-model:visible="visible" :title="title" :width="800" :footer="false">
     <ms-base-table v-bind="propsRes" ref="tableRef" v-on="propsEvent" @filter-change="filterChange">
-      <template #name="{ record, rowIndex }">
-        <a-button type="text" class="max-w-full justify-start px-0" @click="showReportDetail(record.id, rowIndex)">
+      <template #name="{ record }">
+        <a-button type="text" class="max-w-full justify-start px-0" @click="showReportDetail(record)">
           <div class="one-line-text">
             {{ record.num }}
           </div>
@@ -43,6 +43,7 @@
       </template>
     </ms-base-table>
   </MsDrawer>
+  <ReportDrawer v-model:visible="reportVisible" :report-id="independentReportId" />
 </template>
 
 <script setup lang="ts">
@@ -55,6 +56,7 @@
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import ExecStatus from '@/views/test-plan/report/component/execStatus.vue';
+  import ReportDrawer from '@/views/test-plan/testPlan/detail/reportDrawer.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import useTableStore from '@/hooks/useTableStore';
@@ -224,8 +226,12 @@
     initData(dataIndex, value);
   }
 
-  function showReportDetail(id: string, rowIndex: number) {
-    console.log(id, rowIndex);
+  const reportVisible = ref(false);
+  const independentReportId = ref<string>('');
+
+  function showReportDetail(record: any) {
+    independentReportId.value = record.id;
+    reportVisible.value = true;
   }
 </script>
 

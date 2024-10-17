@@ -216,4 +216,5 @@ export default {
   'common.currentUser': '当前用户',
   'common.type': '类型',
   'common.batchUpdate': '更新为',
+  'common.checkDetail': '查看详情',
 };

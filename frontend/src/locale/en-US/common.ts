@@ -216,4 +216,5 @@ export default {
   'common.currentUser': 'Current user',
   'common.type': 'Type',
   'common.batchUpdate': 'Updated to',
+  'common.checkDetail': 'View details',
 };

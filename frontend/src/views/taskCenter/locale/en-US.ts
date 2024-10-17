@@ -8,7 +8,7 @@ export default {
   'ms.taskCenter.taskName': 'Task Name',
   'ms.taskCenter.executeStatus': 'Execution Status',
   'ms.taskCenter.executeMethod': 'Execution Method',
-  'ms.taskCenter.executeResult': 'Execution Result',
+  'ms.taskCenter.executeResult': 'Result',
   'ms.taskCenter.caseCount': 'Case Count',
   'ms.taskCenter.executeFinishedRate': 'Execution Completion Rate',
   'ms.taskCenter.createTime': 'Initiation Time',
@@ -53,4 +53,6 @@ export default {
   'ms.taskCenter.apiImport': 'API Import',
   'ms.taskCenter.apiScenario': 'Api Scenario',
   'ms.taskCenter.thirdPartSync': 'Third-party sync',
+  'ms.taskCenter.openTaskSuccess': 'Task started successfully',
+  'ms.taskCenter.closeTaskSuccess': 'Task closed successfully',
 };

@@ -196,6 +196,8 @@ export default {
     'Delete, share a link can lead to user access is to access the link is unusual, please careful operation',
   'apiTestManagement.passwordView': 'Password',
   'apiTestManagement.publicityView': 'Public',
+  'apiTestManagement.resourceID': 'Resource ID',
+  'apiTestManagement.swaggerUrl': 'Swagger URL',
   'case.execute.selectEnv': 'Select Environment',
   'case.execute.defaultEnv': 'Default Environment',
   'case.execute.newEnv': 'New Environment',

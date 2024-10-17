@@ -193,8 +193,11 @@
   import { LOCALE_OPTIONS } from '@/locale';
   import useLocale from '@/locale/useLocale';
   import useAppStore from '@/store/modules/app';
+  import useGlobalStore from '@/store/modules/global';
   import useUserStore from '@/store/modules/user';
   import { getFirstRouteNameByPermission, hasAnyPermission } from '@/utils/permission';
+
+  import { GlobalEventNameEnum } from '@/enums/commonEnum';
 
   import { IconInfoCircle } from '@arco-design/web-vue/es/icon';
   import type { LocaleType } from '#/global';
@@ -208,6 +211,7 @@
 
   const appStore = useAppStore();
   const userStore = useUserStore();
+  const globalStore = useGlobalStore();
   const route = useRoute();
   const router = useRouter();
   const { t } = useI18n();
@@ -291,6 +295,15 @@
   function goTaskCenter() {
     taskCenterVisible.value = true;
   }
+  watch(
+    () => globalStore.getGlobalEvent,
+    (event) => {
+      if (event && event.id && event.name === GlobalEventNameEnum.OPEN_TASK_CENTER) {
+        goTaskCenter();
+      }
+    }
+  );
+
   function goMessageCenter() {
     messageCenterVisible.value = true;
   }
