@@ -326,7 +326,7 @@
           <template #label>
             <div class="flex items-center gap-[4px]">
               <div>{{ t('system.resourcePool.testResourceDTO.concurrentNumber') }}</div>
-              <a-tooltip :content="t('system.resourcePool.concurrentNumberTip')" position="tl" mini>
+              <a-tooltip v-if="!isXpack" :content="t('system.resourcePool.concurrentNumberTip')" position="tl" mini>
                 <icon-question-circle class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]" />
               </a-tooltip>
             </div>
@@ -346,7 +346,12 @@
           <template #label>
             <div class="flex items-center gap-[4px]">
               <div>{{ t('system.resourcePool.testResourceDTO.podThreads') }}</div>
-              <a-tooltip :content="t('system.resourcePool.testResourceDTO.podThreadsTip')" position="tl" mini>
+              <a-tooltip
+                v-if="!isXpack"
+                :content="t('system.resourcePool.testResourceDTO.podThreadsTip')"
+                position="tl"
+                mini
+              >
                 <icon-question-circle class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]" />
               </a-tooltip>
             </div>
