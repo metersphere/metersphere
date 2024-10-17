@@ -350,6 +350,10 @@ public class TestResourcePoolService {
     }
 
     public ResourcePoolNodeMetric getTestResourcePoolCapacityDetail(TestResourcePoolCapacityRequest request) {
+        TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(request.getPoolId());
+        if (testResourcePool == null || !testResourcePool.getEnable() || testResourcePool.getDeleted()) {
+            return null;
+        }
         return getNodeMetric(request.getIp(), request.getPort());
     }
 
