@@ -22,7 +22,7 @@
       <template #name="{ record }">
         <div class="flex items-center gap-[8px]">
           <a-tooltip
-            v-if="record.type !== 'Kubernetes'"
+            v-if="record.type === 'Node' && record.enable"
             :content="t('system.resourcePool.viewCapacityInfo')"
             :mouse-enter-delay="300"
             position="bottom"
@@ -176,13 +176,6 @@
     {
       title: 'system.resourcePool.concurrentNumber',
       dataIndex: 'maxConcurrentNumber',
-      showTooltip: true,
-      width: 150,
-    },
-    {
-      title: 'system.resourcePool.remainingConcurrency',
-      slotName: 'lastConcurrentNumber',
-      dataIndex: 'lastConcurrentNumber',
       showTooltip: true,
       width: 150,
     },
