@@ -53,4 +53,6 @@ export default {
   'ms.taskCenter.apiImport': 'API导入',
   'ms.taskCenter.apiScenario': '接口场景',
   'ms.taskCenter.thirdPartSync': '第三方同步',
+  'ms.taskCenter.openTaskSuccess': '任务开启成功',
+  'ms.taskCenter.closeTaskSuccess': '任务关闭成功',
 };

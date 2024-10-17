@@ -30,14 +30,21 @@
       </a-button>
     </template>
     <template #status="{ record }">
-      <a-switch v-model:model-value="record.enable" size="small"></a-switch>
+      <a-switch
+        v-model:model-value="record.enable"
+        size="small"
+        :before-change="() => handleBeforeEnableChange(record)"
+      ></a-switch>
     </template>
     <template #resourceType="{ record }">
       {{ t(scheduleTaskTypeMap[record.resourceType]) }}
     </template>
     <template #action="{ record }">
-      <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" @click="deleteTask(record)">
+      <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" class="!mr-[12px]" @click="deleteTask(record)">
         {{ t('common.delete') }}
+      </MsButton>
+      <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" class="!mr-0" @click="checkDetail(record)">
+        {{ t('common.detail') }}
       </MsButton>
     </template>
   </ms-base-table>
@@ -57,10 +64,12 @@
   import { getOrganizationScheduleList, getProjectScheduleList, getSystemScheduleList } from '@/api/modules/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useTableStore from '@/hooks/useTableStore';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
+  import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { scheduleTaskTypeMap } from './config';
@@ -71,6 +80,7 @@
 
   const { t } = useI18n();
   const { openModal } = useModal();
+  const { openNewPage } = useOpenNewPage();
   const tableStore = useTableStore();
 
   const keyword = ref('');
@@ -146,7 +156,7 @@
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 60,
+      width: 110,
     },
   ];
   if (props.type === 'system') {
@@ -209,9 +219,9 @@
     (item) => {
       return {
         ...item,
-        operationTime: dayjs(item.operationTime).format('YYYY-MM-DD HH:mm:ss'),
-        lastFinishTime: dayjs(item.lastFinishTime).format('YYYY-MM-DD HH:mm:ss'),
-        nextExecuteTime: dayjs(item.nextExecuteTime).format('YYYY-MM-DD HH:mm:ss'),
+        operationTime: item.operationTime ? dayjs(item.operationTime).format('YYYY-MM-DD HH:mm:ss') : '-',
+        lastFinishTime: item.lastFinishTime ? dayjs(item.lastFinishTime).format('YYYY-MM-DD HH:mm:ss') : '-',
+        nextExecuteTime: item.nextExecuteTime ? dayjs(item.nextExecuteTime).format('YYYY-MM-DD HH:mm:ss') : '-',
       };
     }
   );
@@ -269,6 +279,23 @@
 
   function closeTask(record?: any, isBatch?: boolean, params?: BatchActionQueryParams) {
     console.log(record);
+  }
+
+  function checkDetail(record: any) {
+    openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
+      taskDrawer: true,
+    });
+  }
+
+  async function handleBeforeEnableChange(record: any) {
+    try {
+      Message.success(t(record.enable ? 'ms.taskCenter.closeTaskSuccess' : 'ms.taskCenter.openTaskSuccess'));
+      return true;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      return false;
+    }
   }
 
   /**

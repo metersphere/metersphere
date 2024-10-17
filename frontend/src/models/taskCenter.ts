@@ -1,3 +1,5 @@
+import type { ExecuteTriggerMode } from '@/enums/taskCenter';
+
 import type { TableQueryParams } from './common';
 
 export interface TaskCenterSystemTaskItem {
@@ -32,7 +34,7 @@ export interface TaskCenterTaskItem {
   result: string; // 执行结果
   taskType: string; // 任务类型
   resourceId: string;
-  triggerMode: string; // 触发方式
+  triggerMode: ExecuteTriggerMode; // 执行方式
   projectId: string;
   organizationId: string;
   createTime: number;
@@ -42,6 +44,7 @@ export interface TaskCenterTaskItem {
   organizationName: string; // 所属组织名称
   projectName: string; // 所属项目名称
   createUserName: string; // 创建人
+  [key: string]: any;
 }
 
 export interface TaskCenterTaskDetailItem {
@@ -76,4 +79,9 @@ export interface TaskCenterStatisticsItem {
   fakeErrorCount: number; // 误报数
   pendingCount: number; // 待执行数
   caseTotal: number; // 用例总数
+}
+
+export interface TaskCenterResourcePoolStatus {
+  id: string;
+  status: boolean; // 状态, true: 正常, false: 异常
 }

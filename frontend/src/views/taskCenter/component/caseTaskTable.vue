@@ -44,10 +44,16 @@
       {{ t(executeMethodMap[record.triggerMode]) }}
     </template>
     <template #executeRate="{ record }">
-      <a-popover trigger="hover" position="bottom">
-        <div>{{ record.executeRate }}%</div>
+      <a-popover
+        v-model:popup-visible="record.executeRatePopVisible"
+        trigger="hover"
+        position="bottom"
+        :disabled="record.caseTotal === 0 || record.status === ExecuteStatusEnum.PENDING"
+        @popup-visible-change="($event) => handleExecuteRatePopVisibleChange($event, record)"
+      >
+        <div>{{ record.executeRate || '0.00' }}%</div>
         <template #content>
-          <div class="flex w-[130px] flex-col gap-[8px]">
+          <a-spin :loading="record.loading" class="flex w-[130px] flex-col gap-[8px]">
             <div class="ms-taskCenter-execute-rate-item">
               <div class="ms-taskCenter-execute-rate-item-label">
                 {{ t('ms.taskCenter.executeFinishedRate') }}
@@ -92,7 +98,7 @@
               </div>
               <div class="ms-taskCenter-execute-rate-item-value">{{ record.errorCount }}</div>
             </div>
-          </div>
+          </a-spin>
         </template>
       </a-popover>
     </template>
@@ -123,6 +129,7 @@
       </MsButton>
     </template>
   </ms-base-table>
+  <batchTaskReportDrawer v-model:visible="taskReportDrawerVisible" type="case" :module-type="reportModuleType" />
 </template>
 
 <script setup lang="ts">
@@ -135,6 +142,7 @@
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import batchTaskReportDrawer from './batchTaskReportDrawer.vue';
   import execStatus from './execStatus.vue';
   import executionStatus from './executionStatus.vue';
 
@@ -145,16 +153,26 @@
     getProjectExecuteTaskStatistics,
     getSystemExecuteTaskList,
     getSystemExecuteTaskStatistics,
+    organizationDeleteTask,
+    organizationStopTask,
+    projectDeleteTask,
+    projectStopTask,
+    systemDeleteTask,
+    systemStopTask,
   } from '@/api/modules/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useTableStore from '@/hooks/useTableStore';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
+  import { TaskCenterTaskItem } from '@/models/taskCenter';
+  import { ReportEnum } from '@/enums/reportEnum';
+  import { ApiTestRouteEnum, TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
-  import { ExecuteResultEnum, ExecuteStatusEnum } from '@/enums/taskCenter';
+  import { ExecuteResultEnum, ExecuteStatusEnum, ExecuteTaskType, ExecuteTriggerMode } from '@/enums/taskCenter';
 
   import { executeFinishedRateMap, executeMethodMap, executeResultMap, executeStatusMap } from './config';
 
@@ -167,6 +185,7 @@
 
   const { t } = useI18n();
   const { openModal } = useModal();
+  const { openNewPage } = useOpenNewPage();
   const tableStore = useTableStore();
 
   const keyword = ref('');
@@ -268,7 +287,7 @@
     },
     {
       title: 'ms.taskCenter.operationUser',
-      dataIndex: 'createUser',
+      dataIndex: 'createUserName',
       width: 100,
       showTooltip: true,
     },
@@ -319,6 +338,18 @@
     org: getOrganizationExecuteTaskStatistics,
   }[props.type];
 
+  const currentStopTask = {
+    system: projectStopTask,
+    project: organizationStopTask,
+    org: systemStopTask,
+  }[props.type];
+
+  const currentDeleteTask = {
+    system: projectDeleteTask,
+    project: organizationDeleteTask,
+    org: systemDeleteTask,
+  }[props.type];
+
   const tableBatchActions = {
     baseAction: [
       {
@@ -347,9 +378,11 @@
     (item) => {
       return {
         ...item,
-        startTime: dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss'),
-        createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
-        endTime: dayjs(item.endTime).format('YYYY-MM-DD HH:mm:ss'),
+        loading: false,
+        executeRatePopVisible: false,
+        startTime: item.startTime ? dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss') : '-',
+        createTime: item.createTime ? dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') : '-',
+        endTime: item.endTime ? dayjs(item.endTime).format('YYYY-MM-DD HH:mm:ss') : '-',
       };
     }
   );
@@ -357,115 +390,6 @@
   function searchTask() {
     setLoadListParams({ keyword: keyword.value });
     loadList();
-  }
-
-  function showTaskDetail(id: string) {
-    emit('goDetail', id);
-  }
-
-  /**
-   * 删除任务
-   */
-  function deleteTask(record?: any, isBatch?: boolean, params?: BatchActionQueryParams) {
-    let title = t('ms.taskCenter.deleteTaskTitle', { name: characterLimit(record?.taskName) });
-    let selectIds = [record?.id || ''];
-    if (isBatch) {
-      title = t('ms.taskCenter.deleteCaseTaskTitle', {
-        count: params?.currentSelectCount || tableSelected.value.length,
-      });
-      selectIds = tableSelected.value as string[];
-    }
-    openModal({
-      type: 'error',
-      title,
-      content: t('ms.taskCenter.deleteCaseTaskTip'),
-      okText: t('common.confirmDelete'),
-      cancelText: t('common.cancel'),
-      okButtonProps: {
-        status: 'danger',
-      },
-      maskClosable: false,
-      onBeforeOk: async () => {
-        try {
-          // await deleteUserInfo({
-          //   selectIds,
-          //   selectAll: !!params?.selectAll,
-          //   excludeIds: params?.excludeIds || [],
-          //   condition: { keyword: keyword.value },
-          // });
-          Message.success(t('common.deleteSuccess'));
-          resetSelector();
-          loadList();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        }
-      },
-      hideCancel: false,
-    });
-  }
-
-  function stopTask(record?: any, isBatch?: boolean, params?: BatchActionQueryParams) {
-    let title = t('ms.taskCenter.stopTaskTitle', { name: characterLimit(record?.taskName) });
-    let selectIds = [record?.id || ''];
-    if (isBatch) {
-      title = t('ms.taskCenter.batchStopTaskTitle', {
-        count: params?.currentSelectCount || tableSelected.value.length,
-      });
-      selectIds = tableSelected.value as string[];
-    }
-    openModal({
-      type: 'warning',
-      title,
-      content: t('ms.taskCenter.stopTimeTaskTip'),
-      okText: t('common.stopConfirm'),
-      cancelText: t('common.cancel'),
-      maskClosable: false,
-      onBeforeOk: async () => {
-        try {
-          // await deleteUserInfo({
-          //   selectIds,
-          //   selectAll: !!params?.selectAll,
-          //   excludeIds: params?.excludeIds || [],
-          //   condition: { keyword: keyword.value },
-          // });
-          Message.success(t('common.stopped'));
-          resetSelector();
-          loadList();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        }
-      },
-      hideCancel: false,
-    });
-  }
-
-  /**
-   * 处理表格选中后批量操作
-   * @param event 批量操作事件对象
-   */
-  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
-    tableSelected.value = params.selectedIds || [];
-    batchModalParams.value = params;
-    switch (event.eventTag) {
-      case 'delete':
-        deleteTask(undefined, true, params);
-        break;
-      case 'stop':
-        stopTask(undefined, true, params);
-        break;
-      default:
-        break;
-    }
-  }
-
-  function rerunTask(record: any) {
-    console.log('rerunTask', record);
-  }
-
-  function checkReport(record: any) {
-    console.log('checkReport', record);
   }
 
   async function initTaskStatistics() {
@@ -496,8 +420,156 @@
     initTaskStatistics();
   }
 
+  async function handleExecuteRatePopVisibleChange(visible: boolean, record: TaskCenterTaskItem) {
+    if (visible) {
+      try {
+        record.loading = true;
+        const res = await currentExecuteTaskStatistics([record.id]);
+        record.executeRate = res[0].executeRate;
+        record.pendingCount = res[0].pendingCount;
+        record.successCount = res[0].successCount;
+        record.fakeErrorCount = res[0].fakeErrorCount;
+        record.errorCount = res[0].errorCount;
+        record.caseTotal = res[0].caseTotal;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      } finally {
+        record.loading = false;
+      }
+    }
+  }
+
+  function showTaskDetail(id: string) {
+    emit('goDetail', id);
+  }
+
+  /**
+   * 删除任务
+   */
+  function deleteTask(record?: TaskCenterTaskItem, isBatch?: boolean, params?: BatchActionQueryParams) {
+    let title = t('ms.taskCenter.deleteTaskTitle', { name: characterLimit(record?.taskName) });
+    let selectIds = [record?.id || ''];
+    if (isBatch) {
+      title = t('ms.taskCenter.deleteCaseTaskTitle', {
+        count: params?.currentSelectCount || tableSelected.value.length,
+      });
+      selectIds = tableSelected.value as string[];
+    }
+    openModal({
+      type: 'error',
+      title,
+      content: t('ms.taskCenter.deleteCaseTaskTip'),
+      okText: t('common.confirmDelete'),
+      cancelText: t('common.cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      maskClosable: false,
+      onBeforeOk: async () => {
+        try {
+          if (isBatch) {
+            // await deleteUserInfo({
+            //   selectIds,
+            //   selectAll: !!params?.selectAll,
+            //   excludeIds: params?.excludeIds || [],
+            //   condition: { keyword: keyword.value },
+            // });
+          } else {
+            await currentDeleteTask(record?.id || '');
+          }
+          Message.success(t('common.deleteSuccess'));
+          resetSelector();
+          refresh();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
+  function stopTask(record?: TaskCenterTaskItem, isBatch?: boolean, params?: BatchActionQueryParams) {
+    let title = t('ms.taskCenter.stopTaskTitle', { name: characterLimit(record?.taskName) });
+    let selectIds = [record?.id || ''];
+    if (isBatch) {
+      title = t('ms.taskCenter.batchStopTaskTitle', {
+        count: params?.currentSelectCount || tableSelected.value.length,
+      });
+      selectIds = tableSelected.value as string[];
+    }
+    openModal({
+      type: 'warning',
+      title,
+      content: t('ms.taskCenter.stopTimeTaskTip'),
+      okText: t('common.stopConfirm'),
+      cancelText: t('common.cancel'),
+      maskClosable: false,
+      onBeforeOk: async () => {
+        try {
+          if (isBatch) {
+            // await deleteUserInfo({
+            //   selectIds,
+            //   selectAll: !!params?.selectAll,
+            //   excludeIds: params?.excludeIds || [],
+            //   condition: { keyword: keyword.value },
+            // });
+          } else {
+            await currentStopTask(record?.id || '');
+          }
+          Message.success(t('common.stopped'));
+          resetSelector();
+          refresh();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
+  /**
+   * 处理表格选中后批量操作
+   * @param event 批量操作事件对象
+   */
+  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+    tableSelected.value = params.selectedIds || [];
+    batchModalParams.value = params;
+    switch (event.eventTag) {
+      case 'delete':
+        deleteTask(undefined, true, params);
+        break;
+      case 'stop':
+        stopTask(undefined, true, params);
+        break;
+      default:
+        break;
+    }
+  }
+
+  function rerunTask(record: TaskCenterTaskItem) {
+    console.log('rerunTask', record);
+  }
+
+  const taskReportDrawerVisible = ref(false);
+  const reportModuleType = ref();
+  function checkReport(record: TaskCenterTaskItem) {
+    if (record.taskType.includes('BATCH')) {
+      reportModuleType.value = record.taskType.includes('CASE')
+        ? ReportEnum.API_REPORT
+        : ReportEnum.API_SCENARIO_REPORT;
+      taskReportDrawerVisible.value = true;
+    } else if (record.taskType === ExecuteTaskType.API_SCENARIO) {
+      openNewPage(ApiTestRouteEnum.API_TEST_REPORT);
+    } else if (record.taskType === ExecuteTaskType.TEST_PLAN) {
+      openNewPage(TestPlanRouteEnum.TEST_PLAN_REPORT);
+    }
+  }
+
   onMounted(async () => {
-    loadList();
+    searchTask();
   });
 
   watch(

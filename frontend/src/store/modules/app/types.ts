@@ -12,10 +12,10 @@ export interface AppState {
   navbar: boolean;
   menu: boolean;
   hideMenu: boolean;
-  menuCollapse: boolean;
+  menuCollapse: boolean; // 菜单是否折叠
   footer: boolean;
   menuWidth: number;
-  collapsedWidth: number;
+  collapsedWidth: number; // 菜单折叠宽度
   globalSettings: boolean;
   device: string;
   tabBar: boolean;
@@ -45,7 +45,7 @@ export interface AppState {
   ordList: { id: string; name: string }[];
   envList: EnvironmentItem[];
   currentEnvConfig?: EnvConfig; // 当前环境配置信息
-  fileMaxSize: number;
+  fileMaxSize: number; // 文件上传最大限制
 }
 
 export interface UploadFileTaskState {

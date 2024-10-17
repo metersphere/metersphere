@@ -150,6 +150,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBugOperation from '@/components/business/ms-bug-operation/index.vue';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import MsRichMessage from '@/components/business/ms-rich-message/index.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
@@ -177,7 +178,8 @@
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
-  import { characterLimit } from '@/utils';
+  import useGlobalStore from '@/store/modules/global';
+  import { characterLimit, getGenerateId } from '@/utils';
   import { hasAllPermission, hasAnyPermission } from '@/utils/permission';
 
   import { DragSortParams, ModuleTreeNode, TableQueryParams } from '@/models/common';
@@ -186,10 +188,12 @@
   import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
+  import { GlobalEventNameEnum } from '@/enums/commonEnum';
   import { ReportEnum } from '@/enums/reportEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { TaskCenterEnum } from '@/enums/taskCenter';
 
   import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
   import { scenarioStatusOptions } from '@/views/api-test/scenario/components/config';
@@ -216,6 +220,7 @@
   const { openModal } = useModal();
   const { openNewPage } = useOpenNewPage();
   const appStore = useAppStore();
+  const globalStore = useGlobalStore();
 
   const keyword = ref('');
 
@@ -793,7 +798,35 @@
     try {
       tableLoading.value = true;
       await runApiScenario(record.id);
-      Message.success(t('common.executionSuccess'));
+      Message.success({
+        content: () =>
+          h(
+            'div',
+            {
+              style: {
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              },
+            },
+            [
+              h(MsRichMessage, {
+                content: t('case.detail.execute.success'),
+                onGoDetail() {
+                  globalStore.dispatchGlobalEvent({
+                    id: getGenerateId(),
+                    name: GlobalEventNameEnum.OPEN_TASK_CENTER,
+                    params: {
+                      tab: TaskCenterEnum.DETAIL,
+                    },
+                  });
+                },
+              }),
+            ]
+          ),
+        duration: 5000,
+        closable: true,
+      });
       resetSelectorAndCaseList();
       emit('refresh');
     } catch (error) {
@@ -815,7 +848,35 @@
         excludeIds: batchParams.value?.excludeIds || [],
         ...tableParams,
       });
-      Message.success(t('common.operationSuccess'));
+      Message.success({
+        content: () =>
+          h(
+            'div',
+            {
+              style: {
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              },
+            },
+            [
+              h(MsRichMessage, {
+                content: t('case.detail.execute.success'),
+                onGoDetail() {
+                  globalStore.dispatchGlobalEvent({
+                    id: getGenerateId(),
+                    name: GlobalEventNameEnum.OPEN_TASK_CENTER,
+                    params: {
+                      tab: TaskCenterEnum.DETAIL,
+                    },
+                  });
+                },
+              }),
+            ]
+          ),
+        duration: 5000,
+        closable: true,
+      });
       resetSelectorAndCaseList();
       emit('refresh');
     } catch (error) {

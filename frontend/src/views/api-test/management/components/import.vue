@@ -214,7 +214,7 @@
                 :max-length="255"
                 class="w-[550px]"
               ></a-input>
-              <MsButton type="text" @click="taskDrawerVisible = true">
+              <MsButton type="text" @click="emit('openTaskDrawer')">
                 {{ t('apiTestManagement.timeTaskList') }}
               </MsButton>
             </div>
@@ -328,52 +328,20 @@
         </template>
       </a-form>
     </MsDrawer>
-    <MsDrawer v-model:visible="taskDrawerVisible" :width="960" :title="t('apiTestManagement.timeTask')" :footer="false">
-      <div class="mb-[16px] flex items-center justify-end">
-        <a-input-search
-          v-model:model-value="keyword"
-          :placeholder="t('apiTestManagement.searchTaskPlaceholder')"
-          allow-clear
-          class="mr-[8px] w-[240px]"
-          @search="loadTaskList"
-          @press-enter="loadTaskList"
-          @clear="loadTaskList"
-        />
-      </div>
-      <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
-        <template #action="{ record }">
-          <a-switch
-            v-model:modelValue="record.enable"
-            type="line"
-            size="small"
-            :before-change="() => handleBeforeEnableChange(record)"
-          ></a-switch>
-        </template>
-      </ms-base-table>
-    </MsDrawer>
   </div>
 </template>
 
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
   import { FormInstance, Message } from '@arco-design/web-vue';
-  import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCronSelect from '@/components/pure/ms-cron-select/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import useTable from '@/components/pure/ms-table/useTable';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
 
-  import {
-    createDefinitionSchedule,
-    importDefinition,
-    switchDefinitionSchedule,
-  } from '@/api/modules/api-test/management';
-  import { getScheduleProApiCaseList } from '@/api/modules/taskCenter';
+  import { createDefinitionSchedule, importDefinition } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
@@ -381,16 +349,14 @@
 
   import type { ImportApiDefinitionParams, ImportApiDefinitionRequest } from '@/models/apiTest/management';
   import type { ModuleTreeNode } from '@/models/common';
-  import { TimingTaskCenterApiCaseItem } from '@/models/projectManagement/taskCenter';
   import { RequestImportFormat, RequestImportType } from '@/enums/apiEnum';
-  import { TaskCenterEnum } from '@/enums/taskCenter';
 
   const props = defineProps<{
     visible: boolean;
     moduleTree: ModuleTreeNode[];
     activeModule: string;
   }>();
-  const emit = defineEmits(['update:visible', 'done']);
+  const emit = defineEmits(['update:visible', 'done', 'openTaskDrawer']);
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -481,7 +447,6 @@
 
   const cronValue = ref('0 0 0/1 * * ?');
   const importLoading = ref(false);
-  const taskDrawerVisible = ref(false);
 
   function setActiveImportFormat(format: RequestImportFormat) {
     importForm.value.platform = format;
@@ -583,7 +548,7 @@
       importType.value = 'time';
       fileList.value = [];
       moreSettingActive.value = [];
-      taskDrawerVisible.value = true;
+      emit('openTaskDrawer');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -602,107 +567,6 @@
         }
       }
     });
-  }
-
-  const keyword = ref('');
-  const columns: MsTableColumn = [
-    {
-      title: 'project.taskCenter.resourceID',
-      dataIndex: 'resourceNum',
-      slotName: 'resourceNum',
-      width: 140,
-      showInTable: true,
-      showTooltip: true,
-    },
-    {
-      title: 'project.taskCenter.resourceName',
-      slotName: 'resourceName',
-      dataIndex: 'resourceName',
-      width: 200,
-      showDrag: true,
-      showTooltip: true,
-    },
-    {
-      title: 'project.taskCenter.swaggerUrl',
-      slotName: 'swaggerUrl',
-      dataIndex: 'swaggerUrl',
-      width: 300,
-      showDrag: false,
-      showTooltip: true,
-      columnSelectorDisabled: true,
-      showInTable: true,
-    },
-    {
-      title: 'apiTestManagement.taskRunRule',
-      dataIndex: 'value',
-      width: 140,
-    },
-    {
-      title: 'apiTestManagement.taskNextRunTime',
-      dataIndex: 'nextTime',
-      showTooltip: true,
-      width: 180,
-    },
-    {
-      title: 'apiTestManagement.taskOperator',
-      dataIndex: 'createUserName',
-      showTooltip: true,
-      width: 150,
-    },
-    {
-      title: 'apiTestManagement.taskOperationTime',
-      dataIndex: 'createTime',
-      width: 180,
-    },
-    {
-      title: 'common.operation',
-      slotName: 'action',
-      dataIndex: 'operation',
-      fixed: 'right',
-      width: 80,
-    },
-  ];
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
-    getScheduleProApiCaseList,
-    {
-      columns,
-      scroll: { x: '100%' },
-    },
-    (item) => ({
-      ...item,
-      operationTime: dayjs(item.operationTime).format('YYYY-MM-DD HH:mm:ss'),
-      nextTime: item.nextTime ? dayjs(item.nextTime).format('YYYY-MM-DD HH:mm:ss') : '-',
-    })
-  );
-  function loadTaskList() {
-    setLoadListParams({
-      keyword: keyword.value,
-      moduleType: TaskCenterEnum.API_IMPORT,
-    });
-    loadList();
-  }
-
-  watch(
-    () => taskDrawerVisible.value,
-    (value) => {
-      if (value) {
-        loadTaskList();
-      }
-    }
-  );
-
-  async function handleBeforeEnableChange(record: TimingTaskCenterApiCaseItem) {
-    try {
-      await switchDefinitionSchedule(record.id);
-      Message.success(
-        t(record.enable ? 'apiTestManagement.disableTaskSuccess' : 'apiTestManagement.enableTaskSuccess')
-      );
-      return true;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      return false;
-    }
   }
 
   function openLink() {

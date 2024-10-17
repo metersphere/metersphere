@@ -49,8 +49,8 @@
     </template>
     <template #resourcePoolNode="{ record }">
       <div>{{ record.resourcePoolNode }}</div>
-      <a-tooltip :content="t('ms.taskCenter.nodeErrorTip')">
-        <icon-exclamation-circle-fill class="!text-[rgb(var(--warning-6))]" :size="18" />
+      <a-tooltip v-if="record.resourcePoolNodeStatus === false" :content="t('ms.taskCenter.nodeErrorTip')">
+        <icon-exclamation-circle-fill class="ml-[4px] !text-[rgb(var(--warning-6))]" :size="18" />
       </a-tooltip>
     </template>
     <template #action="{ record }">
@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-  import { Message } from '@arco-design/web-vue';
+  import { CascaderOption, Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -102,8 +102,12 @@
 
   import {
     getOrganizationExecuteTaskDetailList,
+    getOrgTaskCenterResourcePools,
     getProjectExecuteTaskDetailList,
+    getProjectTaskCenterResourcePools,
+    getResourcePoolsStatus,
     getSystemExecuteTaskDetailList,
+    getSystemTaskCenterResourcePools,
   } from '@/api/modules/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -111,6 +115,7 @@
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
+  import { TaskCenterTaskDetailItem } from '@/models/taskCenter';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
   import { ExecuteResultEnum, ExecuteStatusEnum } from '@/enums/taskCenter';
@@ -128,7 +133,7 @@
 
   const keyword = ref('');
   const resourcePool = ref([]);
-  const resourcePoolOptions = ref([]);
+  const resourcePoolOptions = ref<CascaderOption[]>([]);
   const tableSelected = ref<string[]>([]);
   const batchModalParams = ref();
 
@@ -164,6 +169,7 @@
     {
       title: 'ms.taskCenter.executeMethod',
       dataIndex: 'triggerMode',
+      slotName: 'triggerMode',
       width: 100,
       filterConfig: {
         options: Object.keys(executeMethodMap).map((key) => ({
@@ -197,7 +203,7 @@
       title: 'ms.taskCenter.node',
       dataIndex: 'resourcePoolNode',
       slotName: 'resourcePoolNode',
-      width: 100,
+      width: 180,
     },
     {
       title: 'ms.taskCenter.queue',
@@ -207,7 +213,8 @@
     {
       title: 'ms.taskCenter.threadID',
       dataIndex: 'threadId',
-      width: 100,
+      showTooltip: true,
+      width: 190,
     },
     {
       title: 'ms.taskCenter.startExecuteTime',
@@ -229,7 +236,7 @@
     },
     {
       title: 'ms.taskCenter.operationUser',
-      dataIndex: 'executor',
+      dataIndex: 'userName',
       width: 100,
       showTooltip: true,
     },
@@ -305,8 +312,8 @@
       return {
         ...item,
         resourcePoolName: [item.resourcePoolName],
-        startExecuteTime: dayjs(item.startExecuteTime).format('YYYY-MM-DD HH:mm:ss'),
-        endExecuteTime: dayjs(item.endExecuteTime).format('YYYY-MM-DD HH:mm:ss'),
+        startExecuteTime: item.startExecuteTime ? dayjs(item.startExecuteTime).format('YYYY-MM-DD HH:mm:ss') : '-',
+        endExecuteTime: item.endExecuteTime ? dayjs(item.endExecuteTime).format('YYYY-MM-DD HH:mm:ss') : '-',
       };
     }
   );
@@ -319,7 +326,7 @@
   /**
    * 删除任务
    */
-  function deleteTask(record?: any, isBatch?: boolean, params?: BatchActionQueryParams) {
+  function deleteTask(record?: TaskCenterTaskDetailItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('ms.taskCenter.deleteTaskTitle', { name: characterLimit(record?.taskName) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
@@ -358,7 +365,7 @@
     });
   }
 
-  function stopTask(record?: any, isBatch?: boolean, params?: BatchActionQueryParams) {
+  function stopTask(record?: TaskCenterTaskDetailItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('ms.taskCenter.stopTaskTitle', { name: characterLimit(record?.taskName) });
     let selectIds = [record?.id || ''];
     if (isBatch) {
@@ -415,23 +422,67 @@
     }
   }
 
-  function rerunTask(record: any) {
+  function rerunTask(record: TaskCenterTaskDetailItem) {
     console.log('rerunTask', record);
   }
 
   const executeResultId = ref('');
   const caseExecuteResultDrawerVisible = ref(false);
   const scenarioExecuteResultDrawerVisible = ref(false);
-  function checkExecuteResult(record: any) {
+  function checkExecuteResult(record: TaskCenterTaskDetailItem) {
     executeResultId.value = record.id;
-    scenarioExecuteResultDrawerVisible.value = true;
+    if (record.resourceType === 'API_SCENARIO') {
+      scenarioExecuteResultDrawerVisible.value = true;
+    } else {
+      caseExecuteResultDrawerVisible.value = true;
+    }
   }
 
-  onMounted(() => {
+  const currentResourcePoolRequest = {
+    system: getProjectTaskCenterResourcePools,
+    project: getOrgTaskCenterResourcePools,
+    org: getSystemTaskCenterResourcePools,
+  }[props.type];
+
+  async function initResourcePools() {
+    try {
+      const res = await currentResourcePoolRequest();
+      resourcePoolOptions.value = res.map((item) => ({
+        key: item,
+        value: item,
+      }));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  async function initCurrentPageResourcePoolsStatus() {
+    const ids = propsRes.value.data.map((item) => item.id);
+    if (ids.length === 0) {
+      return;
+    }
+    try {
+      const res = await getResourcePoolsStatus(ids);
+      res.forEach((item) => {
+        const target = propsRes.value.data.find((task) => task.id === item.id);
+        if (target) {
+          target.resourcePoolNodeStatus = item.status;
+        }
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  onMounted(async () => {
     if (props.id) {
       keyword.value = props.id;
     }
-    searchTask();
+    initResourcePools();
+    await loadList();
+    initCurrentPageResourcePoolsStatus();
   });
 
   await tableStore.initColumn(TableKeyEnum.TASK_CENTER_CASE_TASK_DETAIL, columns, 'drawer');

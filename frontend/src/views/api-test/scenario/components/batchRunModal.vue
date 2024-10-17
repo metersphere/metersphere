@@ -104,15 +104,21 @@
   import { FormInstance, Message } from '@arco-design/web-vue';
 
   import { BatchActionQueryParams } from '@/components/pure/ms-table/type';
+  import MsRichMessage from '@/components/business/ms-rich-message/index.vue';
 
   import { getEnvList } from '@/api/modules/api-test/common';
   import { getPoolId, getPoolOption } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import useGlobalStore from '@/store/modules/global';
+  import { getGenerateId } from '@/utils';
 
   import { Environment } from '@/models/apiTest/management';
   import { ResourcePoolItem } from '@/models/setting/resourcePool';
+  import { GlobalEventNameEnum } from '@/enums/commonEnum';
+  import { TaskCenterEnum } from '@/enums/taskCenter';
 
+  const globalStore = useGlobalStore();
   const { t } = useI18n();
   const batchExecuteFormRef = ref<FormInstance>();
   const batchExecuteForm = ref({
@@ -213,7 +219,35 @@
             versionId: '',
             refId: '',
           });
-          Message.success(t('case.detail.execute.success'));
+          Message.success({
+            content: () =>
+              h(
+                'div',
+                {
+                  style: {
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  },
+                },
+                [
+                  h(MsRichMessage, {
+                    content: t('case.detail.execute.success'),
+                    onGoDetail() {
+                      globalStore.dispatchGlobalEvent({
+                        id: getGenerateId(),
+                        name: GlobalEventNameEnum.OPEN_TASK_CENTER,
+                        params: {
+                          tab: TaskCenterEnum.DETAIL,
+                        },
+                      });
+                    },
+                  }),
+                ]
+              ),
+            duration: 5000,
+            closable: true,
+          });
           cancelBatchExecute();
           resetBatchExecuteForm();
           emit('finished');

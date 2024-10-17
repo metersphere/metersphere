@@ -33,3 +33,18 @@ export enum ExecuteResultEnum {
   ERROR = 'ERROR',
   FAKE_ERROR = 'FAKE_ERROR',
 }
+
+export enum ExecuteTriggerMode {
+  MANUAL = 'MANUAL',
+  BATCH = 'BATCH',
+  API = 'API',
+  SCHEDULE = 'SCHEDULE',
+}
+
+export enum ExecuteTaskType {
+  API_IMPORT = 'API_IMPORT',
+  API_SCENARIO = 'API_SCENARIO',
+  BUG_SYNC = 'BUG_SYNC',
+  DEMAND_SYNC = 'DEMAND_SYNC',
+  TEST_PLAN = 'TEST_PLAN',
+}

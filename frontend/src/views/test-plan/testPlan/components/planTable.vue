@@ -362,7 +362,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
-  import { FormInstance, Message } from '@arco-design/web-vue';
+  import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
 
@@ -381,6 +381,7 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import MsRichMessage from '@/components/business/ms-rich-message/index.vue';
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
   import executeHistoryTable from '../detail/executeHistory/index.vue';
   import ActionModal from './actionModal.vue';
@@ -391,7 +392,7 @@
   import PlanExpandRow from '@/views/test-plan/testPlan/components/planExpandRow.vue';
 
   import {
-    addTestPlan,
+    // addTestPlan,
     archivedPlan,
     batchArchivedPlan,
     batchCopyPlan,
@@ -414,12 +415,13 @@
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
   import useCacheStore from '@/store/modules/cache/cache';
-  import { characterLimit } from '@/utils';
+  import useGlobalStore from '@/store/modules/global';
+  import { characterLimit, getGenerateId } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { DragSortParams, ModuleTreeNode, TableQueryParams } from '@/models/common';
   import type {
-    AddTestPlanParams,
+    // AddTestPlanParams,
     BatchExecutePlan,
     BatchMoveParams,
     CreateTask,
@@ -429,18 +431,20 @@
     TestPlanItem,
   } from '@/models/testPlan/testPlan';
   import { LastExecuteResults } from '@/enums/caseEnum';
+  import { GlobalEventNameEnum } from '@/enums/commonEnum';
   import { RouteEnum, TestPlanRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { TaskCenterEnum } from '@/enums/taskCenter';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
 
   import { planStatusOptions } from '../config';
   import { getModules } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const cacheStore = useCacheStore();
-
   const tableStore = useTableStore();
   const appStore = useAppStore();
+  const globalStore = useGlobalStore();
   const router = useRouter();
   const { t } = useI18n();
   const { openModal } = useModal();
@@ -1001,7 +1005,35 @@
     try {
       await executePlanOrGroup(executeForm.value);
       cancelHandler();
-      Message.success(t('case.detail.execute.success'));
+      Message.success({
+        content: () =>
+          h(
+            'div',
+            {
+              style: {
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              },
+            },
+            [
+              h(MsRichMessage, {
+                content: t('case.detail.execute.success'),
+                onGoDetail() {
+                  globalStore.dispatchGlobalEvent({
+                    id: getGenerateId(),
+                    name: GlobalEventNameEnum.OPEN_TASK_CENTER,
+                    params: {
+                      tab: TaskCenterEnum.CASE,
+                    },
+                  });
+                },
+              }),
+            ]
+          ),
+        duration: 5000,
+        closable: true,
+      });
       fetchData();
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -1022,7 +1054,35 @@
         executionSource: 'MANUAL',
       };
       await executeSinglePlan(params);
-      Message.success(t('case.detail.execute.success'));
+      Message.success({
+        content: () =>
+          h(
+            'div',
+            {
+              style: {
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              },
+            },
+            [
+              h(MsRichMessage, {
+                content: t('case.detail.execute.success'),
+                onGoDetail() {
+                  globalStore.dispatchGlobalEvent({
+                    id: getGenerateId(),
+                    name: GlobalEventNameEnum.OPEN_TASK_CENTER,
+                    params: {
+                      tab: TaskCenterEnum.CASE,
+                    },
+                  });
+                },
+              }),
+            ]
+          ),
+        duration: 5000,
+        closable: true,
+      });
       fetchData();
       cancelHandler();
     } catch (error) {
@@ -1535,73 +1595,73 @@
     emitTableParams();
   }
 
-  const showQuickCreateForm = ref(false);
-  const quickCreateFormRef = ref<FormInstance>();
+  // const showQuickCreateForm = ref(false);
+  // const quickCreateFormRef = ref<FormInstance>();
 
-  const initPlanGroupForm: AddTestPlanParams = {
-    groupId: 'NONE',
-    name: '',
-    projectId: appStore.currentProjectId,
-    moduleId: '',
-    cycle: [],
-    tags: [],
-    description: '',
-    testPlanning: false,
-    automaticStatusUpdate: true,
-    repeatCase: false,
-    passThreshold: 100,
-    type: testPlanTypeEnum.GROUP,
-    baseAssociateCaseRequest: { selectIds: [], selectAll: false, condition: {} },
-  };
-  const quickCreateForm = ref<AddTestPlanParams>(cloneDeep(initPlanGroupForm));
+  // const initPlanGroupForm: AddTestPlanParams = {
+  //   groupId: 'NONE',
+  //   name: '',
+  //   projectId: appStore.currentProjectId,
+  //   moduleId: '',
+  //   cycle: [],
+  //   tags: [],
+  //   description: '',
+  //   testPlanning: false,
+  //   automaticStatusUpdate: true,
+  //   repeatCase: false,
+  //   passThreshold: 100,
+  //   type: testPlanTypeEnum.GROUP,
+  //   baseAssociateCaseRequest: { selectIds: [], selectAll: false, condition: {} },
+  // };
+  // const quickCreateForm = ref<AddTestPlanParams>(cloneDeep(initPlanGroupForm));
 
-  const quickCreateLoading = ref(false);
+  // const quickCreateLoading = ref(false);
 
-  function quickCreateCancel() {
-    showQuickCreateForm.value = false;
-    quickCreateForm.value = cloneDeep(initPlanGroupForm);
-    quickCreateFormRef.value?.resetFields();
-  }
+  // function quickCreateCancel() {
+  //   showQuickCreateForm.value = false;
+  //   quickCreateForm.value = cloneDeep(initPlanGroupForm);
+  //   quickCreateFormRef.value?.resetFields();
+  // }
 
   /**
    * 快速创建测试计划或者测试计划组
    */
-  const createType = ref<keyof typeof testPlanTypeEnum>(showType.value);
+  // const createType = ref<keyof typeof testPlanTypeEnum>(showType.value);
   //  TODO: 快捷创建先不上
-  function quickCreateConfirm() {
-    quickCreateFormRef.value?.validate(async (errors) => {
-      if (!errors) {
-        try {
-          quickCreateLoading.value = true;
-          const params = {
-            ...cloneDeep(quickCreateForm.value),
-            groupId: 'NONE',
-            projectId: appStore.currentProjectId,
-            moduleId: props.activeFolder === 'all' ? 'root' : props.activeFolder,
-            testPlanning: false,
-            automaticStatusUpdate: true,
-            repeatCase: false,
-            passThreshold: 100,
-            type: showType.value === testPlanTypeEnum.ALL ? createType.value : showType.value,
-          };
-          await addTestPlan(params);
-          Message.success(t('common.createSuccess'));
-          quickCreateCancel();
-          fetchData();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        } finally {
-          quickCreateLoading.value = false;
-        }
-      }
-    });
-  }
+  // function quickCreateConfirm() {
+  //   quickCreateFormRef.value?.validate(async (errors) => {
+  //     if (!errors) {
+  //       try {
+  //         quickCreateLoading.value = true;
+  //         const params = {
+  //           ...cloneDeep(quickCreateForm.value),
+  //           groupId: 'NONE',
+  //           projectId: appStore.currentProjectId,
+  //           moduleId: props.activeFolder === 'all' ? 'root' : props.activeFolder,
+  //           testPlanning: false,
+  //           automaticStatusUpdate: true,
+  //           repeatCase: false,
+  //           passThreshold: 100,
+  //           type: showType.value === testPlanTypeEnum.ALL ? createType.value : showType.value,
+  //         };
+  //         await addTestPlan(params);
+  //         Message.success(t('common.createSuccess'));
+  //         quickCreateCancel();
+  //         fetchData();
+  //       } catch (error) {
+  //         // eslint-disable-next-line no-console
+  //         console.log(error);
+  //       } finally {
+  //         quickCreateLoading.value = false;
+  //       }
+  //     }
+  //   });
+  // }
   // TODO: 快捷创建先不上
-  function handleSelect(value: string | number | Record<string, any> | undefined) {
-    showQuickCreateForm.value = true;
-    createType.value = value as keyof typeof testPlanTypeEnum;
-  }
+  // function handleSelect(value: string | number | Record<string, any> | undefined) {
+  //   showQuickCreateForm.value = true;
+  //   createType.value = value as keyof typeof testPlanTypeEnum;
+  // }
 
   // 查看已归档测试计划以及计划组
   function archivedChangeHandler() {

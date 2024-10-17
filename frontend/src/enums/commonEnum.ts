@@ -40,3 +40,7 @@ export enum TagUpdateTypeEnum {
   APPEND = 'APPEND',
   CLEAR = 'CLEAR',
 }
+
+export enum GlobalEventNameEnum {
+  OPEN_TASK_CENTER = 'openTaskCenter',
+}

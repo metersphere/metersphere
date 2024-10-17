@@ -47,6 +47,7 @@
               :active-module="activeModule"
               popup-container="#managementContainer"
               @done="handleImportDone"
+              @open-task-drawer="taskDrawerVisible = true"
             />
           </div>
           <management
@@ -116,6 +117,7 @@
       is-share
     />
   </MsCard>
+  <importTaskDrawer v-model:visible="taskDrawerVisible" />
 </template>
 
 <script lang="ts" setup>
@@ -131,6 +133,7 @@
   import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
   import { RequestParam } from '../components/requestComposition/index.vue';
   import importApi from './components/import.vue';
+  import importTaskDrawer from './components/importTaskDrawer.vue';
   import management from './components/management/index.vue';
   import moduleTree from './components/moduleTree.vue';
   import ApiExportModal from '@/views/api-test/management/components/management/api/apiExportModal.vue';
@@ -423,9 +426,13 @@
     });
   }
 
+  const taskDrawerVisible = ref(false);
   onBeforeMount(() => {
     if (docShareId.value) {
       getShareDetail();
+    }
+    if (route.query.taskDrawer) {
+      taskDrawerVisible.value = true;
     }
   });
 
