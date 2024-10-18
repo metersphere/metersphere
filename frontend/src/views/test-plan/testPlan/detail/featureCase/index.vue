@@ -93,10 +93,8 @@
       await caseTreeRef.value?.initModules();
       if (activeFolderId.value !== 'all') {
         caseTreeRef.value?.setActiveFolder('all');
-        caseTableRef.value?.getModuleCount();
-      } else {
-        caseTableRef.value?.refresh();
       }
+      caseTableRef.value?.refresh();
     });
   }
   watch(
