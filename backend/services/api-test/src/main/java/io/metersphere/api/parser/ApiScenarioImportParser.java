@@ -1,11 +1,10 @@
 package io.metersphere.api.parser;
 
 
-import io.metersphere.api.dto.scenario.ApiScenarioImportDetail;
+import io.metersphere.api.dto.converter.ApiScenarioImportParseResult;
 import io.metersphere.api.dto.scenario.ApiScenarioImportRequest;
 
 import java.io.InputStream;
-import java.util.List;
 
 public interface ApiScenarioImportParser {
 
@@ -16,6 +15,6 @@ public interface ApiScenarioImportParser {
      * @param request 导入的请求参数
      * @return 解析后的数据
      */
-    List<ApiScenarioImportDetail> parse(InputStream source, ApiScenarioImportRequest request) throws Exception;
+    ApiScenarioImportParseResult parse(InputStream source, ApiScenarioImportRequest request) throws Exception;
 
 }

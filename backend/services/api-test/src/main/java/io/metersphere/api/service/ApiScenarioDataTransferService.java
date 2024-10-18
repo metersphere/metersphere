@@ -5,6 +5,7 @@ import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.converter.ApiDefinitionExportDetail;
+import io.metersphere.api.dto.converter.ApiScenarioImportParseResult;
 import io.metersphere.api.dto.converter.ApiScenarioPreImportAnalysisResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.export.ApiScenarioExportResponse;
@@ -140,21 +141,21 @@ public class ApiScenarioDataTransferService {
 
     public void importScenario(MultipartFile file, ApiScenarioImportRequest request) {
         ApiScenarioImportParser parser = ImportParserFactory.getApiScenarioImportParser(request.getType());
-        List<ApiScenarioImportDetail> importScenarios;
+        ApiScenarioImportParseResult parseResult;
         try {
             assert parser != null;
-            importScenarios = parser.parse(file.getInputStream(), request);
+            parseResult = parser.parse(file.getInputStream(), request);
         } catch (Exception e) {
             LogUtils.error(e.getMessage(), e);
             throw new MSException(Translator.get("parse_data_error"));
         }
 
-        if (CollectionUtils.isEmpty(importScenarios)) {
+        if (CollectionUtils.isEmpty(parseResult.getImportScenarioList())) {
             throw new MSException(Translator.get("parse_empty_data"));
         }
         //解析
         ApiScenarioPreImportAnalysisResult preImportAnalysisResult = this.importAnalysis(
-                importScenarios, request.getModuleId(), apiScenarioModuleService.getTree(request.getProjectId()));
+                parseResult, request.getModuleId(), apiScenarioModuleService.getTree(request.getProjectId()));
 
         //存储
         this.save(preImportAnalysisResult, request.getProjectId(), request.getOperator(), request.isCoverData());
@@ -519,12 +520,13 @@ public class ApiScenarioDataTransferService {
         return order;
     }
 
-    private ApiScenarioPreImportAnalysisResult importAnalysis(List<ApiScenarioImportDetail> importScenarios, String moduleId, List<BaseTreeNode> apiScenarioModules) {
+    private ApiScenarioPreImportAnalysisResult importAnalysis(ApiScenarioImportParseResult parseResult, String moduleId, List<BaseTreeNode> apiScenarioModules) {
         ApiScenarioPreImportAnalysisResult analysisResult = new ApiScenarioPreImportAnalysisResult();
 
         Map<String, String> moduleIdPathMap = apiScenarioModules.stream().collect(Collectors.toMap(BaseTreeNode::getId, BaseTreeNode::getPath));
         Map<String, BaseTreeNode> modulePathMap = apiScenarioModules.stream().collect(Collectors.toMap(BaseTreeNode::getPath, k -> k, (k1, k2) -> k1));
 
+        List<ApiScenarioImportDetail> importScenarios = parseResult.getImportScenarioList();
         for (ApiScenarioImportDetail importScenario : importScenarios) {
             if (StringUtils.isBlank(moduleId) || StringUtils.equalsIgnoreCase(moduleId, ModuleConstants.DEFAULT_NODE_ID) || !moduleIdPathMap.containsKey(moduleId)) {
                 importScenario.setModuleId(ModuleConstants.DEFAULT_NODE_ID);

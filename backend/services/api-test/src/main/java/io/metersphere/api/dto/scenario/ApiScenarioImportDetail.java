@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +18,7 @@ public class ApiScenarioImportDetail extends ApiScenario {
     @Schema(description = "模块路径")
     private String modulePath;
     @Schema(description = "步骤详情")
-    private Map<String, Object> stepDetails;
+    private Map<String, Object> stepDetails = new HashMap<>();
     @Schema(description = "步骤集合")
-    private List<ApiScenarioStepRequest> steps;
+    private List<ApiScenarioStepRequest> steps = new ArrayList<>();
 }
