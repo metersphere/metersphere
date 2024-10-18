@@ -16,10 +16,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.Plugin;
-import io.metersphere.system.domain.ServiceIntegration;
-import io.metersphere.system.domain.TestResourcePoolExample;
-import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -143,27 +140,44 @@ public class ProjectApplicationService {
             poolType = ProjectApplicationType.API.API_RESOURCE_POOL_ID.name();
             moduleType = "api_test";
         }
+        Project project = projectMapper.selectByPrimaryKey(projectId);
         if (StringUtils.isNotBlank(poolType) && StringUtils.isNotBlank(moduleType)) {
             if (configMap.containsKey(poolType)) {
                 //如果是适用于所有的组织
                 int count = 0;
                 TestResourcePoolExample example = new TestResourcePoolExample();
-                example.createCriteria().andIdEqualTo(configMap.get(poolType).toString()).andAllOrgEqualTo(true);
-                if (testResourcePoolMapper.countByExample(example) > 0) {
-                    count = extProjectMapper.resourcePoolIsExist(configMap.get(poolType).toString(), projectId);
-                } else {
-                    //指定组织  则需要关联组织-资源池的关系表  看看是否再全部存在
-                    count = extProjectMapper.resourcePoolIsExistByOrg(configMap.get(poolType).toString(), projectId);
+                if (project.getAllResourcePool()) {
+                    example.createCriteria().andIdEqualTo(configMap.get(poolType).toString()).andEnableEqualTo(true).andDeletedEqualTo(false);
+                    count = (int) testResourcePoolMapper.countByExample(example);
+                }else {
+                    example.createCriteria().andIdEqualTo(configMap.get(poolType).toString()).andAllOrgEqualTo(true);
+                    if (testResourcePoolMapper.countByExample(example) > 0) {
+                        count = extProjectMapper.resourcePoolIsExist(configMap.get(poolType).toString(), projectId);
+                    } else {
+                        //指定组织  则需要关联组织-资源池的关系表  看看是否再全部存在
+                        count = extProjectMapper.resourcePoolIsExistByOrg(configMap.get(poolType).toString(), projectId);
+                    }
                 }
                 if (count == 0) {
                     configMap.remove(poolType);
                 }
             }
             if (!configMap.containsKey(poolType)) {
-                List<ProjectTestResourcePool> projectTestResourcePools = extProjectMapper.getResourcePool(projectId);
-                if (CollectionUtils.isNotEmpty(projectTestResourcePools)) {
-                    projectTestResourcePools.sort(Comparator.comparing(ProjectTestResourcePool::getTestResourcePoolId));
-                    configMap.put(poolType, projectTestResourcePools.getFirst().getTestResourcePoolId());
+                if (project.getAllResourcePool()){
+                    TestResourcePoolExample example = new TestResourcePoolExample();
+                    example.createCriteria().andEnableEqualTo(true).andDeletedEqualTo(false);
+                    List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
+                    if (CollectionUtils.isNotEmpty(testResourcePools)) {
+                        testResourcePools.sort(Comparator.comparing(TestResourcePool::getId));
+                        configMap.put(poolType, testResourcePools.getFirst().getId());
+                    }
+
+                } else {
+                    List<ProjectTestResourcePool> projectTestResourcePools = extProjectMapper.getResourcePool(projectId);
+                    if (CollectionUtils.isNotEmpty(projectTestResourcePools)) {
+                        projectTestResourcePools.sort(Comparator.comparing(ProjectTestResourcePool::getTestResourcePoolId));
+                        configMap.put(poolType, projectTestResourcePools.getFirst().getTestResourcePoolId());
+                    }
                 }
             }
         }

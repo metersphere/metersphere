@@ -6,7 +6,9 @@ import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
 import io.metersphere.plan.dto.request.TestPlanCollectionMinderEditRequest;
 import io.metersphere.plan.mapper.*;
+import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ExtProjectMapper;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.CaseType;
 import io.metersphere.sdk.constants.CommonConstants;
@@ -15,7 +17,9 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.TestResourcePool;
+import io.metersphere.system.domain.TestResourcePoolExample;
 import io.metersphere.system.dto.sdk.SessionUser;
+import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -68,6 +72,12 @@ public class TestPlanCollectionMinderService {
     private ExtProjectMapper extProjectMapper;
 
     @Resource
+    private ProjectMapper projectMapper;
+
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
+
+    @Resource
     private TestPlanMapper testPlanMapper;
 
     /**
@@ -79,7 +89,15 @@ public class TestPlanCollectionMinderService {
         List<TestPlanCollectionMinderTreeDTO> list = new ArrayList<>();
         List<TestPlanCollectionConfigDTO> testPlanCollections = extTestPlanCollectionMapper.getList(planId);
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
-        List<TestResourcePool> apiTest = extProjectMapper.getResourcePoolOption(testPlan.getProjectId(), "api_test");
+        Project project = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
+        List<TestResourcePool> apiTest;
+        if (project.getAllResourcePool()) {
+            TestResourcePoolExample example = new TestResourcePoolExample();
+            example.createCriteria().andEnableEqualTo(true).andDeletedEqualTo(false);
+            apiTest= testResourcePoolMapper.selectByExample(example);
+        } else {
+           apiTest = extProjectMapper.getResourcePoolOption(testPlan.getProjectId(), "api_test");
+        }
         Map<String, String> resourcePoolMap = apiTest.stream().collect(Collectors.toMap(TestResourcePool::getId, TestResourcePool::getName));
         testPlanCollections.forEach(t->{
             if (StringUtils.isBlank(resourcePoolMap.get(t.getTestResourcePoolId()))) {

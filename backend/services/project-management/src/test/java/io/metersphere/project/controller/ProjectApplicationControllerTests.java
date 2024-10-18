@@ -2,10 +2,11 @@ package io.metersphere.project.controller;
 
 import io.metersphere.project.controller.param.ProjectApplicationDefinition;
 import io.metersphere.project.controller.param.ProjectApplicationRequestDefinition;
+import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
-import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.ProjectApplicationType;
@@ -18,7 +19,6 @@ import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.request.ServiceIntegrationUpdateRequest;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
-import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.Setter;
@@ -59,9 +59,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
-    private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
-    @Resource
-    private TestResourcePoolOrganizationMapper testResourcePoolOrganizationMapper;
+    private ProjectMapper projectMapper;
 
     public static final String PROJECT_ID = "project_application_test_id";
     public static final String TIME_TYPE_VALUE = "3M";
@@ -207,6 +205,22 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Order(19)
     public void testGetApi() throws Exception {
         ProjectApplicationRequest request = this.getRequest("API");
+        this.requestPostWithOkAndReturn(GET_API_URL, request);
+        Project initProject = new Project();
+        initProject.setId("GYQALL");
+        initProject.setNum(null);
+        initProject.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        initProject.setName("测试项目版本");
+        initProject.setDescription("测试项目版本");
+        initProject.setCreateUser("admin");
+        initProject.setUpdateUser("admin");
+        initProject.setCreateTime(System.currentTimeMillis());
+        initProject.setUpdateTime(System.currentTimeMillis());
+        initProject.setEnable(true);
+        initProject.setModuleSetting("[\"apiTest\",\"uiTest\"]");
+        initProject.setAllResourcePool(true);
+        projectMapper.insertSelective(initProject);
+        request.setProjectId("GYQALL");
         this.requestPostWithOkAndReturn(GET_API_URL, request);
     }
 
