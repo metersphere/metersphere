@@ -280,4 +280,7 @@ export default {
   'apiScenario.csvQuote': 'CSV 引用',
   'apiScenario.csvNameNotNull': 'CSV 名称不能为空',
   'apiScenario.csvFileNotNull': 'CSV 文件不能为空',
+  'apiScenario.export.type.simple': '普通导出',
+  'apiScenario.export.type.all': '保留引用关系',
+  'apiScenario.export.simple.tooltip': '将引用或复制的请求步骤处理为自定义请求',
 };

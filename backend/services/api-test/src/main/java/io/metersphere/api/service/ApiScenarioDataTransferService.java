@@ -647,13 +647,16 @@ public class ApiScenarioDataTransferService {
                     }
                 }
             });
-            List<ApiTestCaseWithBlob> apiTestCaseWithBlobs = extApiTestCaseMapper.selectAllDetailByApiIds(apiCaseIdList);
+            List<ApiTestCaseWithBlob> apiTestCaseWithBlobs = null;
             if (CollectionUtils.isNotEmpty(apiCaseIdList)) {
-                apiTestCaseWithBlobs.forEach(item -> {
-                    if (!apiDefinitionIdList.contains(item.getApiDefinitionId())) {
-                        apiDefinitionIdList.add(item.getApiDefinitionId());
-                    }
-                });
+                apiTestCaseWithBlobs = extApiTestCaseMapper.selectAllDetailByApiIds(apiCaseIdList);
+                if (CollectionUtils.isNotEmpty(apiCaseIdList)) {
+                    apiTestCaseWithBlobs.forEach(item -> {
+                        if (!apiDefinitionIdList.contains(item.getApiDefinitionId())) {
+                            apiDefinitionIdList.add(item.getApiDefinitionId());
+                        }
+                    });
+                }
             }
 
             Map<String, Map<String, String>> projectApiModuleIdMap = new HashMap<>();

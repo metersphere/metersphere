@@ -465,6 +465,13 @@
     is-scenario
     :report-id="tableRecord?.lastReportId || ''"
   />
+  <!--  场景导出-->
+  <ScenarioExportModal
+    v-model:visible="showExportModal"
+    :batch-params="batchParams"
+    :condition-params="getBatchConditionParams"
+    :sorter="propsRes.sorter || {}"
+  />
 </template>
 
 <script setup lang="ts">
@@ -488,8 +495,10 @@
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
+  import ApiExportModal from '@/views/api-test/management/components/management/api/apiExportModal.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import BatchRunModal from '@/views/api-test/scenario/components/batchRunModal.vue';
+  import ScenarioExportModal from '@/views/api-test/scenario/components/common/exportScenario/scenarioExportModal.vue';
   import operationScenarioModuleTree from '@/views/api-test/scenario/components/operationScenarioModuleTree.vue';
 
   import { getEnvList } from '@/api/modules/api-test/common';
@@ -547,7 +556,7 @@
 
   const appStore = useAppStore();
   const cacheStore = useCacheStore();
-
+  const showExportModal = ref(false);
   const { t } = useI18n();
   const { openModal } = useModal();
   const tableRecord = ref<ApiScenarioTableItem>();
@@ -825,6 +834,11 @@
   const batchActions = {
     baseAction: [
       {
+        label: 'common.export',
+        eventTag: 'export',
+        permission: ['PROJECT_API_SCENARIO:READ+EXPORT'],
+      },
+      {
         label: 'common.edit',
         eventTag: 'edit',
         permission: ['PROJECT_API_SCENARIO:READ+UPDATE'],
@@ -1067,7 +1081,7 @@
 
   const tableSelected = ref<(string | number)[]>([]);
 
-  const batchParams = ref<BatchActionQueryParams>();
+  const batchParams = ref<BatchActionQueryParams>({ selectAll: false });
   const batchOptionParams = ref<any>();
   async function getBatchConditionParams() {
     const selectModules = await getModuleIds();
@@ -1445,6 +1459,9 @@
 
     batchParams.value = { ...params };
     switch (event.eventTag) {
+      case 'export':
+        showExportModal.value = true;
+        break;
       case 'delete':
         deleteScenario(undefined, true, batchParams.value);
         break;
