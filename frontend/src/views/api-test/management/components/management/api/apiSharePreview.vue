@@ -68,7 +68,6 @@
   import { ProtocolItem } from '@/models/apiTest/common';
   import { ModuleTreeNode } from '@/models/common';
   import {
-    ProtocolKeyEnum,
     RequestAuthType,
     RequestComposition,
     RequestDefinitionStatus,
@@ -95,14 +94,13 @@
     (e: 'exportShare', all: boolean): void;
   }>();
 
-  const localProtocol = localStorage.getItem(ProtocolKeyEnum.API_NEW_PROTOCOL);
   const initDefaultId = `definition-${Date.now()}`;
   const defaultDefinitionParams: RequestParam = {
     type: 'api',
     definitionActiveKey: 'definition',
     id: initDefaultId,
     moduleId: '',
-    protocol: localProtocol || 'HTTP',
+    protocol: 'HTTP',
     tags: [],
     status: RequestDefinitionStatus.PROCESSING,
     description: '',
@@ -226,6 +224,7 @@
     () => props.apiInfo,
     (val) => {
       if (val) {
+        activeApiDetail.value.protocol = val.attachInfo.protocol;
         initDetail();
       }
     },
