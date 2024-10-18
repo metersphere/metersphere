@@ -664,7 +664,12 @@
       title: 'common.belongModule',
       dataIndex: 'moduleId',
       type: FilterType.TREE_SELECT,
-      treeSelectData: props.treeType === 'MODULE' ? moduleTree.value : anotherTree.value,
+      treeSelectData: (props.treeType === 'MODULE' ? moduleTree.value : anotherTree.value).map((node) => {
+        return {
+          ...node,
+          disabled: true, // 项目层级的禁用掉
+        };
+      }),
       treeSelectProps: {
         fieldNames: {
           title: 'name',
