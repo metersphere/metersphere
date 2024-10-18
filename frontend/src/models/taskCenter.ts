@@ -8,6 +8,7 @@ export interface TaskCenterSystemTaskItem {
   projectId: string; // 项目ID
   organizationId: string; // 组织ID
   id: string;
+  reportId: string;
   taskName: string;
   resourceId: string; // 资源ID
   num: number;
@@ -27,6 +28,7 @@ export interface TaskCenterTaskDetailParams extends TableQueryParams {
 
 export interface TaskCenterTaskItem {
   id: string;
+  reportId: string;
   num: number;
   taskName: string;
   status: string; // 执行状态
@@ -49,6 +51,7 @@ export interface TaskCenterTaskItem {
 
 export interface TaskCenterTaskDetailItem {
   id: string;
+  reportId: string;
   taskId: string; // 任务ID
   resourceId: string;
   resourceName: string;
@@ -84,4 +87,10 @@ export interface TaskCenterStatisticsItem {
 export interface TaskCenterResourcePoolStatus {
   id: string;
   status: boolean; // 状态, true: 正常, false: 异常
+}
+
+export interface TaskCenterResourcePoolItem {
+  id: string;
+  name: string;
+  children: TaskCenterResourcePoolItem[];
 }

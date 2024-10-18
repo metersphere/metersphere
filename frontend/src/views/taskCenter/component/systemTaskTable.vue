@@ -21,7 +21,7 @@
     @batch-action="handleTableBatch"
   >
     <template #num="{ record }">
-      <a-button type="text" class="max-w-full justify-start px-0" @click="openTask(record.id)">
+      <a-button type="text" class="max-w-full justify-start px-0" @click="checkDetail(record)">
         <a-tooltip :content="record.id">
           <div class="one-line-text">
             {{ record.num }}
@@ -39,8 +39,20 @@
     <template #resourceType="{ record }">
       {{ t(scheduleTaskTypeMap[record.resourceType]) }}
     </template>
+    <template #runRule="{ record }">
+      <MsCronSelect
+        v-model:model-value="record.value"
+        v-model:loading="record.runRuleLoading"
+        @change="(val) => handleRunRuleChange(val, record)"
+      />
+    </template>
     <template #action="{ record }">
-      <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" class="!mr-[12px]" @click="deleteTask(record)">
+      <MsButton
+        v-if="['API_IMPORT', 'TEST_PLAN', 'API_SCENARIO'].includes(record.resourceType)"
+        v-permission="['SYSTEM_USER:READ+DELETE']"
+        class="!mr-[12px]"
+        @click="deleteTask(record)"
+      >
         {{ t('common.delete') }}
       </MsButton>
       <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" class="!mr-0" @click="checkDetail(record)">
@@ -55,6 +67,7 @@
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsCronSelect from '@/components/pure/ms-cron-select/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
@@ -69,7 +82,7 @@
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ApiTestRouteEnum } from '@/enums/routeEnum';
+  import { ApiTestRouteEnum, TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { scheduleTaskTypeMap } from './config';
@@ -115,8 +128,9 @@
     },
     {
       title: 'ms.taskCenter.runRule',
+      slotName: 'runRule',
       dataIndex: 'value',
-      width: 120,
+      width: 220,
     },
     {
       title: 'ms.taskCenter.operationUser',
@@ -219,6 +233,7 @@
     (item) => {
       return {
         ...item,
+        runRuleLoading: false,
         operationTime: item.operationTime ? dayjs(item.operationTime).format('YYYY-MM-DD HH:mm:ss') : '-',
         lastFinishTime: item.lastFinishTime ? dayjs(item.lastFinishTime).format('YYYY-MM-DD HH:mm:ss') : '-',
         nextExecuteTime: item.nextExecuteTime ? dayjs(item.nextExecuteTime).format('YYYY-MM-DD HH:mm:ss') : '-',
@@ -282,9 +297,28 @@
   }
 
   function checkDetail(record: any) {
-    openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
-      taskDrawer: true,
-    });
+    switch (record.resourceType) {
+      case 'API_IMPORT':
+        openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
+          taskDrawer: true,
+        });
+        break;
+      case 'TEST_PLAN':
+        openNewPage(TestPlanRouteEnum.TEST_PLAN_REPORT_DETAIL, {
+          reportId: record.reportId,
+        });
+        break;
+      case 'API_SCENARIO':
+        openNewPage(ApiTestRouteEnum.API_TEST_REPORT, {
+          reportId: record.reportId,
+        });
+        break;
+      default:
+        openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
+          taskDrawer: true,
+        });
+        break;
+    }
   }
 
   async function handleBeforeEnableChange(record: any) {
@@ -313,6 +347,22 @@
         break;
       default:
         break;
+    }
+  }
+
+  async function handleRunRuleChange(
+    val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[],
+    record: any
+  ) {
+    try {
+      record.runRuleLoading = true;
+      // await runRuleChange();
+      Message.success(t('common.updateSuccess'));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      record.runRuleLoading = false;
     }
   }
 

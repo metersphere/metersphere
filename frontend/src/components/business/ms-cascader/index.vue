@@ -14,6 +14,10 @@
     :placeholder="props.placeholder"
     :loading="props.loading"
     :value-key="props.valueKey"
+    :field-names="{
+      label: props.labelKey,
+      value: props.valueKey,
+    }"
     :path-mode="false"
     @change="handleMsCascaderChange"
     @clear="clearValues"
@@ -56,7 +60,11 @@
     :virtual-list-props="props.virtualListProps"
     :loading="props.loading"
     :value-key="props.valueKey"
-    :path-mode="false"
+    :field-names="{
+      label: props.labelKey,
+      value: props.valueKey,
+    }"
+    :path-mode="props.pathMode"
     @change="(val) => emit('change', val)"
   >
     <template v-if="props.prefix" #prefix>
@@ -215,7 +223,7 @@
 
   // TODO: 临时解决 arco-design 的 cascader 组件已选项的label只能是带路径‘/’的 path-mode 的问题
   function getInputLabel(data: CascaderOption) {
-    const isTagCount = data[props.labelKey].includes('+');
+    const isTagCount = (data[props.labelKey] || data.label).includes('+');
     if (isTagCount) {
       return data.label;
     }
@@ -226,7 +234,7 @@
   }
 
   function getInputLabelTooltip(data: CascaderOption) {
-    const isTagCount = data[props.labelKey].includes('+');
+    const isTagCount = (data[props.labelKey] || data.label).includes('+');
     const label = getInputLabel(data);
     if (isTagCount && Array.isArray(innerValue.value)) {
       return Object.values(selectedLabelObj).join('，');
