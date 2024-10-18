@@ -379,7 +379,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         scenarioReport.setPoolId(runModeConfig.getPoolId());
         scenarioReport.setEnvironmentId(runModeConfig.getEnvironmentId());
         scenarioReport.setTestPlanScenarioId(testPlanApiScenario.getId());
-        apiScenarioRunService.initApiReport(apiScenario, scenarioReport);
+        apiScenarioRunService.initApiReport(taskItem.getId(), apiScenario, scenarioReport);
 
         return apiExecuteService.execute(taskRequest);
     }

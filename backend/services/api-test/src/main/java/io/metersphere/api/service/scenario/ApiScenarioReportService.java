@@ -53,6 +53,8 @@ public class ApiScenarioReportService {
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
     @Resource
+    private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
+    @Resource
     private ApiScenarioReportLogService apiScenarioReportLogService;
     @Resource
     private ExtApiScenarioReportDetailBlobMapper extApiScenarioReportDetailBlobMapper;
@@ -73,7 +75,18 @@ public class ApiScenarioReportService {
     private static final int BATCH_SIZE = 1000;
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void insertApiScenarioReport(ApiScenarioReport report, ApiReportRelateTask taskRelation) {
+        apiScenarioReportMapper.insertSelective(report);
+        apiReportRelateTaskMapper.insertSelective(taskRelation);
+    }
+
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiScenarioReport(List<ApiScenarioReport> reports, List<ApiScenarioRecord> records) {
+        this.insertApiScenarioReport(reports, records, null);
+    }
+
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void insertApiScenarioReport(List<ApiScenarioReport> reports, List<ApiScenarioRecord> records, List<ApiReportRelateTask> taskRelations) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         if (CollectionUtils.isNotEmpty(reports)) {
             ApiScenarioReportMapper reportMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
@@ -85,6 +98,12 @@ public class ApiScenarioReportService {
             ApiScenarioRecordMapper detailMapper = sqlSession.getMapper(ApiScenarioRecordMapper.class);
             SubListUtils.dealForSubList(records, 1000, subList -> {
                 subList.forEach(detailMapper::insertSelective);
+            });
+        }
+        if (CollectionUtils.isNotEmpty(taskRelations)) {
+            ApiReportRelateTaskMapper taskRelationMapper = sqlSession.getMapper(ApiReportRelateTaskMapper.class);
+            SubListUtils.dealForSubList(taskRelations, 1000, subList -> {
+                subList.forEach(taskRelationMapper::insertSelective);
             });
         }
         sqlSession.flushStatements();

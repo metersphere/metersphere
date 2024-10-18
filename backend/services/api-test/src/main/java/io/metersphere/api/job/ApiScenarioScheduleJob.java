@@ -102,7 +102,7 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
         scenarioReport.setEnvironmentId(parseParam.getEnvironmentId());
         scenarioReport.setWaitingTime(apiScenarioRunService.getGlobalWaitTime(parseParam.getScenarioConfig()));
 
-        apiScenarioRunService.initApiReport(apiScenarioDetail, scenarioReport);
+        apiScenarioRunService.initApiReport(taskItem.getId(), apiScenarioDetail, scenarioReport);
 
         // 初始化报告步骤
         apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getSteps(), taskItem.getReportId());

@@ -1,5 +1,6 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.api.domain.ApiReportRelateTask;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioRecord;
 import io.metersphere.api.domain.ApiScenarioReport;
@@ -135,7 +136,7 @@ public class PlanRunTestPlanApiScenarioService {
                             .forEach(execTaskItem -> resourceTaskItemMap.put(execTaskItem.getResourceId(), execTaskItem.getId()));
                 });
 
-        Map<String, String> scenarioReportMap = initReport(testPlanReportApiScenarios, runModeConfig, userId);
+        Map<String, String> scenarioReportMap = initReport(resourceTaskItemMap, testPlanReportApiScenarios, runModeConfig, userId);
         List<TaskItem> taskItems = testPlanReportApiScenarios.stream()
                 .map(item -> {
                     TaskItem taskItem = apiExecuteService.getTaskItem(scenarioReportMap.get(item.getId()), item.getId());
@@ -152,7 +153,9 @@ public class PlanRunTestPlanApiScenarioService {
         return false;
     }
 
-    private Map<String, String> initReport(List<TestPlanReportApiScenario> testPlanReportApiScenarios, ApiRunModeConfigDTO runModeConfig, String userId) {
+    private Map<String, String> initReport(Map<String, String> resourceExecTaskItemMap,
+                                           List<TestPlanReportApiScenario> testPlanReportApiScenarios,
+                                           ApiRunModeConfigDTO runModeConfig, String userId) {
 
         List<ApiScenario> apiScenarios = new ArrayList<>(testPlanReportApiScenarios.size());
 
@@ -165,13 +168,17 @@ public class PlanRunTestPlanApiScenarioService {
                 .collect(Collectors.toMap(ApiScenario::getId, Function.identity()));
 
         // 初始化独立报告，执行时初始化步骤
-        return initScenarioReport(runModeConfig, testPlanReportApiScenarios, apiScenarioMap, userId);
+        return initScenarioReport(resourceExecTaskItemMap, runModeConfig, testPlanReportApiScenarios, apiScenarioMap, userId);
     }
 
-    public Map<String, String> initScenarioReport(ApiRunModeConfigDTO runModeConfig, List<TestPlanReportApiScenario> testPlanReportApiScenarios,
+    public Map<String, String> initScenarioReport(Map<String, String> resourceExecTaskItemMap,
+                                                  ApiRunModeConfigDTO runModeConfig,
+                                                  List<TestPlanReportApiScenario> testPlanReportApiScenarios,
                                                   Map<String, ApiScenario> apiScenarioMap, String userId) {
         List<ApiScenarioReport> apiScenarioReports = new ArrayList<>(testPlanReportApiScenarios.size());
         List<ApiScenarioRecord> apiScenarioRecords = new ArrayList<>(testPlanReportApiScenarios.size());
+        List<ApiReportRelateTask> apiReportRelateTasks = new ArrayList<>();
+
         Map<String, String> resourceReportMap = new HashMap<>();
         String projectId = "";
         for (TestPlanReportApiScenario testPlanReportApiScenario : testPlanReportApiScenarios) {
@@ -191,8 +198,14 @@ public class PlanRunTestPlanApiScenarioService {
             scenarioRecord.setApiScenarioReportId(apiScenarioReport.getId());
             apiScenarioRecords.add(scenarioRecord);
             resourceReportMap.put(testPlanReportApiScenario.getId(), apiScenarioReport.getId());
+
+            // 创建报告和任务的关联关系
+            ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
+            apiReportRelateTask.setReportId(apiScenario.getId());
+            apiReportRelateTask.setTaskResourceId(resourceExecTaskItemMap.get(apiScenario.getId()));
+            apiReportRelateTasks.add(apiReportRelateTask);
         }
-        apiScenarioReportService.insertApiScenarioReport(apiScenarioReports, apiScenarioRecords);
+        apiScenarioReportService.insertApiScenarioReport(apiScenarioReports, apiScenarioRecords, apiReportRelateTasks);
         return resourceReportMap;
     }
 
@@ -239,7 +252,7 @@ public class PlanRunTestPlanApiScenarioService {
         ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(testPlanReportApiScenario.getApiScenarioId());
 
         // 独立报告，执行到当前任务时初始化报告
-        String reportId = initScenarioReport(runModeConfig, List.of(testPlanReportApiScenario), Map.of(apiScenario.getId(), apiScenario), queue.getUserId()).get(resourceId);
+        String reportId = initScenarioReport(Map.of(testPlanReportApiScenario.getId(), queueDetail.getTaskItemId()), runModeConfig, List.of(testPlanReportApiScenario), Map.of(apiScenario.getId(), apiScenario), queue.getUserId()).get(resourceId);
         TaskRequestDTO taskRequest = testPlanApiScenarioBatchRunService.getTaskRequestDTO(apiScenario.getProjectId(), queue.getRunModeConfig());
         TaskItem taskItem = apiExecuteService.getTaskItem(reportId, queueDetail.getResourceId());
         taskItem.setId(queueDetail.getTaskItemId());

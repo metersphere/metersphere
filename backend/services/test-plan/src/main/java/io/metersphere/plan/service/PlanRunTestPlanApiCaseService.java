@@ -1,9 +1,6 @@
 package io.metersphere.plan.service;
 
-import io.metersphere.api.domain.ApiReport;
-import io.metersphere.api.domain.ApiReportStep;
-import io.metersphere.api.domain.ApiTestCase;
-import io.metersphere.api.domain.ApiTestCaseRecord;
+import io.metersphere.api.domain.*;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.mapper.ExtApiTestCaseMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
@@ -146,7 +143,7 @@ public class PlanRunTestPlanApiCaseService {
 
         ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(collection);
         // 初始化报告，返回用例和报告的 map
-        Map<String, String> caseReportMap = initApiReport(runModeConfig, testPlanReportApiCases, apiCaseMap, userId);
+        Map<String, String> caseReportMap = initApiReport(resourceTaskItemMap, runModeConfig, testPlanReportApiCases, apiCaseMap, userId);
 
         List<TaskItem> taskItems = new ArrayList<>(testPlanReportApiCases.size());
 
@@ -210,7 +207,7 @@ public class PlanRunTestPlanApiCaseService {
         ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testPlanReportApiCase.getApiCaseId());
 
         // 独立报告，执行到当前任务时初始化报告
-        String reportId = initApiReport(runModeConfig, List.of(testPlanReportApiCase), Map.of(apiTestCase.getId(), apiTestCase), queue.getUserId()).get(resourceId);
+        String reportId = initApiReport(Map.of(apiTestCase.getId(), queueDetail.getTaskItemId()), runModeConfig, List.of(testPlanReportApiCase), Map.of(apiTestCase.getId(), apiTestCase), queue.getUserId()).get(resourceId);
         TaskRequestDTO taskRequest = testPlanApiCaseBatchRunService.getTaskRequestDTO(reportId, testPlanReportApiCase.getId(), apiTestCase, runModeConfig);
         taskRequest.getTaskInfo().setTaskId(queue.getTaskId());
         taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.PLAN_RUN_API_CASE.name());
@@ -229,13 +226,15 @@ public class PlanRunTestPlanApiCaseService {
      * @param runModeConfig
      * @return
      */
-    public Map<String, String> initApiReport(ApiRunModeConfigDTO runModeConfig, List<TestPlanReportApiCase> testPlanReportApiCases,
+    public Map<String, String> initApiReport(Map<String, String> resourceExecTaskItemMap,
+                                             ApiRunModeConfigDTO runModeConfig, List<TestPlanReportApiCase> testPlanReportApiCases,
                                              Map<String, ApiTestCase> caseMap, String userId) {
 
         Map<String, String> resourceReportMap = new HashMap<>();
         List<ApiReport> apiReports = new ArrayList<>();
         List<ApiTestCaseRecord> apiTestCaseRecords = new ArrayList<>();
         List<ApiReportStep> apiReportSteps = new ArrayList<>();
+        List<ApiReportRelateTask> apiReportRelateTasks = new ArrayList<>();
 
         for (TestPlanReportApiCase testPlanReportApiCase : testPlanReportApiCases) {
             ApiTestCase apiTestCase = caseMap.get(testPlanReportApiCase.getApiCaseId());
@@ -253,8 +252,14 @@ public class PlanRunTestPlanApiCaseService {
             apiTestCaseRecords.add(apiTestCaseRecord);
             apiReportSteps.add(testPlanApiCaseBatchRunService.getApiReportStep(testPlanReportApiCase.getId(), apiTestCase.getName(), apiReport.getId(), 1));
             resourceReportMap.put(testPlanReportApiCase.getId(), apiReport.getId());
+
+            // 创建报告和任务的关联关系
+            ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
+            apiReportRelateTask.setReportId(apiReport.getId());
+            apiReportRelateTask.setTaskResourceId(resourceExecTaskItemMap.get(apiReport.getId()));
+            apiReportRelateTasks.add(apiReportRelateTask);
         }
-        apiReportService.insertApiReport(apiReports, apiTestCaseRecords);
+        apiReportService.insertApiReport(apiReports, apiTestCaseRecords, apiReportRelateTasks);
         apiReportService.insertApiReportStep(apiReportSteps);
         return resourceReportMap;
     }
