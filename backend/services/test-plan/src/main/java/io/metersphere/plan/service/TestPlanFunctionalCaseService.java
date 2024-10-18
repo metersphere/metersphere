@@ -358,10 +358,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             }
             List<BaseTreeNode> baseTreeNodes = functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, needCreatRoot, Translator.get("functional_case.module.default.name"));
             for (BaseTreeNode baseTreeNode : baseTreeNodes) {
-                if (StringUtils.equals(baseTreeNode.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
-                    // 默认拼项目id
-                    baseTreeNode.setId(projectId + "_" + ModuleConstants.DEFAULT_NODE_ID);
-                }
+                // 节点ID, 拼接项目ID
+                baseTreeNode.setId(projectId + "_" + baseTreeNode.getId());
                 projectNode.addChild(baseTreeNode);
             }
         });

@@ -90,7 +90,7 @@
         project_version.name as version_name
         from api_definition a left join project_version on project_version.id = a.version_id
         where a.deleted = false
-        <include refid="queryWhereCondition"/>
+        <include refid="queryWhereApiDefinitionCondition"/>
         and exists (
             select id
             from api_test_case atc
@@ -107,7 +107,7 @@
     </select>
 
 
-    <sql id="queryWhereCondition">
+    <sql id="queryWhereApiDefinitionCondition">
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
             and a.module_id in
             <foreach collection="request.moduleIds" item="moduleId" separator="," open="(" close=")">
@@ -135,8 +135,10 @@
             <property name="filter" value="request.filter"/>
         </include>
 
-        <include refid="combine">
+        <include refid="queryApiDefinitionCombine">
             <property name="combineSearch" value="request.combineSearch"/>
+            <property name="projectId" value="${request.projectId}"/>
+            <property name="deleted" value="${request.deleted}"/>
         </include>
 
         <include refid="queryVersionCondition">
@@ -383,6 +385,106 @@
         </if>
     </sql>
 
+    <sql id="queryApiDefinitionCombine">
+        <trim prefix="AND">
+            <trim prefix="(" suffix=")" suffixOverrides="AND|OR">
+                <if test="${combineSearch} != null">
+                    <foreach collection="${combineSearch}.userViewConditions" item="condition">
+                        <if test="condition.name == 'createUser'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="a.create_user"/>
+                            </include>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                    <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
+                            <property name="condition" value="condition"/>
+                            <property name="tablePrefix" value="a"/>
+                        </include>
+                        <if test="condition.name == 'protocol'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="a.protocol"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'status'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="a.status"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'method'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="a.method"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'path'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="a.path"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'caseTotal'">
+                            <choose>
+                                <when test="condition.operator == 'NOT_EMPTY'">
+                                    a.id in (
+                                        select api_definition_id from api_test_case where deleted = ${deleted}
+                                        and project_id = '${projectId}'
+                                    )
+                                </when>
+                                <when test="condition.operator == 'EMPTY'">
+                                    a.id not in (
+                                        select api_definition_id from api_test_case where deleted = ${deleted}
+                                        and project_id = '${projectId}'
+                                    )
+                                </when>
+                                <when test="(condition.operator == 'LT' and condition.value &lt; 1) or (condition.operator == 'EQUALS' and condition.value &lt; 0)">
+                                    1=2
+                                </when>
+                                <otherwise>
+                                    <if test="condition.operator == 'LT' or (condition.operator == 'EQUALS' and condition.value == 0)">
+                                        a.id not in (
+                                            select api_definition_id from api_test_case where deleted = ${deleted}
+                                            and project_id = '${projectId}'
+                                        )
+                                        <if test="condition.value &gt; 1">
+                                            OR
+                                        </if>
+                                    </if>
+                                    <if test="(condition.operator == 'EQUALS' and condition.value &gt; 0) or (condition.operator == 'LT' and condition.value &gt; 1) or condition.operator == 'GT'">
+                                        a.id in (
+                                            select api_definition_id from api_test_case where deleted = ${deleted}
+                                            and project_id = '${projectId}'
+                                            group by api_definition_id having
+                                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                                <property name="condition" value="condition"/>
+                                                <property name="column" value="count(id)"/>
+                                            </include>
+                                        )
+                                    </if>
+                                </otherwise>
+                            </choose>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                    <include refid="io.metersphere.system.mapper.BaseMapper.customFiledConditions">
+                        <property name="mainIdColumn" value="a.id"/>
+                        <property name="associationTable" value="api_definition_custom_field"/>
+                        <property name="associationIdColumn" value="api_id"/>
+                        <property name="combineSearch" value="${combineSearch}"/>
+                    </include>
+                </if>
+            </trim>
+        </trim>
+    </sql>
+
     <sql id="combine">
         <trim prefix="AND">
             <trim prefix="(" suffix=")" suffixOverrides="AND|OR">
@@ -399,10 +501,27 @@
                         </include>
                     </foreach>
                     <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.baseSystemFieldConditions">
                             <property name="condition" value="condition"/>
                             <property name="tablePrefix" value="atc"/>
                         </include>
+                        <!-- 所属模块(项目ID_模块ID 组合查询) -->
+                        <if test="condition.name == 'moduleId'">
+                            <choose>
+                                <when test="condition.operator == 'IN'">
+                                    concat(a.project_id, '_', a.module_id)  in
+                                    <foreach collection="condition.value" item="v" separator="," open="(" close=")">
+                                        #{v}
+                                    </foreach>
+                                </when>
+                                <when test="condition.operator == 'NOT_IN'">
+                                    concat(a.project_id, '_', a.module_id) not in
+                                    <foreach collection="condition.value" item="v" separator="," open="(" close=")">
+                                        #{v}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </if>
                         <!-- 测试点 -->
                         <if test="condition.name == 'testPlanCollectionId'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
@@ -450,16 +569,16 @@
                             <choose>
                                 <when test="condition.operator == 'NOT_EMPTY'">
                                     atc.id in (
-                                        select atcr.api_test_case_id as id
-                                        from api_report ar left join api_test_case_record atcr on atcr.api_report_id = ar.id
-                                        group by atcr.api_test_case_id
+                                    select atcr.api_test_case_id as id
+                                    from api_report ar left join api_test_case_record atcr on atcr.api_report_id = ar.id
+                                    group by atcr.api_test_case_id
                                     )
                                 </when>
                                 <when test="condition.operator == 'EMPTY'">
                                     atc.id not in (
-                                        select atcr.api_test_case_id as id
-                                        from api_report ar left join api_test_case_record atcr on atcr.api_report_id = ar.id
-                                        group by atcr.api_test_case_id
+                                    select atcr.api_test_case_id as id
+                                    from api_report ar left join api_test_case_record atcr on atcr.api_report_id = ar.id
+                                    group by atcr.api_test_case_id
                                     )
                                 </when>
                                 <when test="(condition.operator == 'LT' and condition.value == 0) or (condition.operator == 'GT' and condition.value &gt; 100 )">
@@ -467,15 +586,15 @@
                                 </when>
                                 <otherwise>
                                     atc.id in (
-                                        select rate_tmp.id from (
-                                        select atcr.api_test_case_id as id, format(sum(if(ar.`status` = 'success', 1, 0)) / count(ar.id) * 100, 2) as passRate
-                                        from api_report ar left join api_test_case_record atcr on atcr.api_report_id = ar.id
-                                        group by atcr.api_test_case_id having
-                                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                            <property name="condition" value="condition"/>
-                                            <property name="column" value="passRate"/>
-                                        </include>
-                                        ) rate_tmp
+                                    select rate_tmp.id from (
+                                    select atcr.api_test_case_id as id, format(sum(if(ar.`status` = 'success', 1, 0)) / count(ar.id) * 100, 2) as passRate
+                                    from api_report ar left join api_test_case_record atcr on atcr.api_report_id = ar.id
+                                    group by atcr.api_test_case_id having
+                                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                        <property name="condition" value="condition"/>
+                                        <property name="column" value="passRate"/>
+                                    </include>
+                                    ) rate_tmp
                                     )
                                 </otherwise>
                             </choose>
@@ -506,14 +625,14 @@
                             <choose>
                                 <when test="condition.operator == 'NOT_EMPTY'">
                                     t.id in (
-                                        select distinct brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
-                                        where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'API'
+                                    select distinct brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
+                                    where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'API'
                                     )
                                 </when>
                                 <when test="condition.operator == 'EMPTY'">
                                     t.id not in (
-                                        select distinct brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
-                                        where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'API'
+                                    select distinct brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
+                                    where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'API'
                                     )
                                 </when>
                                 <when test="(condition.operator == 'LT' and condition.value &lt; 1) or (condition.operator == 'EQUALS' and condition.value &lt; 0)">
@@ -522,8 +641,8 @@
                                 <otherwise>
                                     <if test="condition.operator == 'LT' or (condition.operator == 'EQUALS' and condition.value == 0)">
                                         t.id not in (
-                                            select distinct brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
-                                            where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'API'
+                                        select distinct brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
+                                        where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'API'
                                         )
                                         <if test="condition.value &gt; 1">
                                             OR
@@ -531,12 +650,12 @@
                                     </if>
                                     <if test="(condition.operator == 'EQUALS' and condition.value &gt; 0) or (condition.operator == 'LT' and condition.value &gt; 1) or condition.operator == 'GT'">
                                         t.id in (
-                                            select brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
-                                            where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'API' group by brc.test_plan_case_id having
-                                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                                <property name="condition" value="condition"/>
-                                                <property name="column" value="count(brc.id)"/>
-                                            </include>
+                                        select brc.test_plan_case_id from bug_relation_case brc join bug b on brc.bug_id = b.id
+                                        where b.deleted = false and brc.test_plan_id = '${planId}' and brc.case_type = 'API' group by brc.test_plan_case_id having
+                                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                            <property name="condition" value="condition"/>
+                                            <property name="column" value="count(brc.id)"/>
+                                        </include>
                                         )
                                     </if>
                                 </otherwise>
@@ -561,8 +680,7 @@
     </sql>
 
     <select id="countModuleIdByRequest" resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
-        SELECT CASE WHEN a.module_id = 'root' THEN CONCAT(atc.project_id, '_', a.module_id) ELSE a.module_id END AS
-        moduleId,
+        SELECT concat(atc.project_id, '_', a.module_id) as moduleId,
         count(atc.id) AS dataCount, atc.project_id AS projectId, project.name AS projectName
         FROM test_plan_api_case t
         INNER JOIN api_test_case atc ON t.api_case_id = atc.id

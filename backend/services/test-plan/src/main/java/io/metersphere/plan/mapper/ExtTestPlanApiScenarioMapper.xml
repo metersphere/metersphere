@@ -265,10 +265,27 @@
                         </include>
                     </foreach>
                     <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.baseSystemFieldConditions">
                             <property name="condition" value="condition"/>
                             <property name="tablePrefix" value="api_scenario"/>
                         </include>
+                        <!-- 所属模块(项目ID_模块ID 组合查询) -->
+                        <if test="condition.name == 'moduleId'">
+                            <choose>
+                                <when test="condition.operator == 'IN'">
+                                    concat(api_scenario.project_id, '_', api_scenario.module_id)  in
+                                    <foreach collection="condition.value" item="v" separator="," open="(" close=")">
+                                        #{v}
+                                    </foreach>
+                                </when>
+                                <when test="condition.operator == 'NOT_IN'">
+                                    concat(api_scenario.project_id, '_', api_scenario.module_id) not in
+                                    <foreach collection="condition.value" item="v" separator="," open="(" close=")">
+                                        #{v}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </if>
                         <!-- 测试点 -->
                         <if test="condition.name == 'testPlanCollectionId'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
@@ -409,8 +426,7 @@
 
 
     <select id="countModuleIdByRequest" resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
-        SELECT CASE WHEN api_scenario.module_id = 'root' THEN CONCAT(api_scenario.project_id, '_',
-        api_scenario.module_id) ELSE api_scenario.module_id END AS moduleId,
+        SELECT concat(api_scenario.project_id, '_', api_scenario.module_id) as moduleId,
         count(api_scenario.id) AS dataCount, api_scenario.project_id AS projectId, project.name AS projectName
         FROM test_plan_api_scenario
         INNER JOIN api_scenario on api_scenario.id = test_plan_api_scenario.api_scenario_id

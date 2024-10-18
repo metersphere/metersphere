@@ -513,10 +513,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             }
             List<BaseTreeNode> baseTreeNodes = apiDefinitionModuleService.buildTreeAndCountResource(nodeByNodeIds, needCreateRoot, Translator.get("api_unplanned_request"));
             for (BaseTreeNode baseTreeNode : baseTreeNodes) {
-                if (StringUtils.equals(baseTreeNode.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
-                    // 默认拼项目id
-                    baseTreeNode.setId(projectId + "_" + ModuleConstants.DEFAULT_NODE_ID);
-                }
+                baseTreeNode.setId(projectId + "_" + baseTreeNode.getId());
                 projectNode.addChild(baseTreeNode);
             }
         });
