@@ -3,6 +3,7 @@ package io.metersphere.system.controller;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.ResourcePoolOptionsDTO;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
 import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
@@ -89,11 +90,30 @@ public class OrganizationTaskHubController {
     }
 
 
+    @PostMapping("/exec-task/batch-stop")
+    @Operation(summary = "组织-任务中心-用例执行任务-批量停止任务")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.orgBatchStopLog(#id)", msClass = BaseTaskHubLogService.class)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_EXEC_STOP)
+    public void batchStopTask(@Validated @RequestBody TableBatchProcessDTO request) {
+        baseTaskHubService.batchStopTask(request, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), null);
+    }
+
+
+
     @GetMapping("/exec-task/delete/{id}")
     @Operation(summary = "组织-任务中心-用例执行任务-删除任务")
     @Log(type = OperationLogType.DELETE, expression = "#msClass.orgDeleteLog(#id)", msClass = BaseTaskHubLogService.class)
     @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_DELETE)
     public void deleteTask(@PathVariable String id) {
         baseTaskHubService.deleteTask(id, SessionUtils.getCurrentOrganizationId(), null);
+    }
+
+
+    @PostMapping("/exec-task/batch-delete")
+    @Operation(summary = "组织-任务中心-用例执行任务-批量删除任务")
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.orgBatchDeleteLog(#request)", msClass = BaseTaskHubLogService.class)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_DELETE)
+    public void batchDeleteTask(@Validated @RequestBody TableBatchProcessDTO request) {
+        baseTaskHubService.batchDeleteTask(request, SessionUtils.getCurrentOrganizationId(), null);
     }
 }

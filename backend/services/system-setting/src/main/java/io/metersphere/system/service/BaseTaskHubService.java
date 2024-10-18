@@ -2,6 +2,8 @@ package io.metersphere.system.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
+import io.metersphere.api.domain.ApiReportRelateTaskExample;
+import io.metersphere.api.mapper.ApiReportRelateTaskMapper;
 import io.metersphere.engine.EngineFactory;
 import io.metersphere.engine.MsHttpClient;
 import io.metersphere.project.domain.Project;
@@ -91,6 +93,8 @@ public class BaseTaskHubService {
     private UserMapper userMapper;
     @Resource
     private TestResourcePoolService testResourcePoolService;
+    @Resource
+    private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
 
     /**
      * 系统-获取执行任务列表
@@ -530,12 +534,22 @@ public class BaseTaskHubService {
 
     public void deleteTask(String id, String orgId, String projectId) {
         //1.删除任务
-        extExecTaskMapper.deleteTaskById(id, orgId, projectId);
+        extExecTaskMapper.deleteTaskByIds(List.of(id), orgId, projectId);
         //2.删除任务明细
         ExecTaskItemExample itemExample = new ExecTaskItemExample();
         itemExample.createCriteria().andTaskIdEqualTo(id);
         execTaskItemMapper.deleteByExample(itemExample);
-        //TODO jmeter执行队列中移除
+        //3.删除任务与报告关联关系
+        deleteReportRelateTask(List.of(id));
+        handleStopTask(List.of(id));
+    }
+
+    private void deleteReportRelateTask(List<String> ids) {
+        List<String> itemIds = extExecTaskItemMapper.getItemIdByTaskIds(ids);
+        itemIds.addAll(ids);
+        ApiReportRelateTaskExample reportExample = new ApiReportRelateTaskExample();
+        reportExample.createCriteria().andTaskResourceIdIn(itemIds);
+        apiReportRelateTaskMapper.deleteByExample(reportExample);
     }
 
     public void batchStopTask(TableBatchProcessDTO request, String userId, String orgId, String projectId) {
@@ -559,6 +573,21 @@ public class BaseTaskHubService {
             return ids;
         } else {
             return request.getSelectIds();
+        }
+    }
+
+    public void batchDeleteTask(TableBatchProcessDTO request, String orgId, String projectId) {
+        List<String> ids = getTaskIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            //1.删除任务
+            extExecTaskMapper.deleteTaskByIds(ids, orgId, projectId);
+            //2.删除任务明细
+            ExecTaskItemExample itemExample = new ExecTaskItemExample();
+            itemExample.createCriteria().andTaskIdIn(ids);
+            execTaskItemMapper.deleteByExample(itemExample);
+            //3.删除任务与报告关联关系
+            deleteReportRelateTask(ids);
+            handleStopTask(ids);
         }
     }
 }

@@ -4,6 +4,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BasePageRequest;
+import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Order;
@@ -26,6 +27,8 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     public static final String PROJECT_RESOURCE_POOL_OPTIONS = "/project/task-center/resource-pool/options";
     public static final String PROJECT_TASK_STOP = "/project/task-center/exec-task/stop/";
     public static final String PROJECT_TASK_DELETE = "/project/task-center/exec-task/delete/";
+    public static final String PROJECT_TASK_BATCH_STOP = "/project/task-center/exec-task/batch-stop/";
+    public static final String PROJECT_TASK_BATCH_DELETE = "/organization/task-center/exec-task/batch-delete/";
 
     @Test
     @Order(1)
@@ -124,6 +127,20 @@ public class ProjectTaskHubControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
     }
 
+    /**
+     * 系统执行任务停止
+     */
+    @Test
+    @Order(23)
+    public void projectTaskBatchStop() throws Exception {
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
+        request.setSelectAll(true);
+        this.requestPost(PROJECT_TASK_BATCH_STOP, request);
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("pro_1", "pro_2"));
+        this.requestPost(PROJECT_TASK_BATCH_STOP, request);
+    }
+
 
     /**
      * 项目执行任务删除
@@ -137,5 +154,14 @@ public class ProjectTaskHubControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+    }
+
+    @Test
+    @Order(6)
+    public void projectBatchTaskDelete() throws Exception {
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("1"));
+        this.requestPost(PROJECT_TASK_BATCH_DELETE, request);
     }
 }
