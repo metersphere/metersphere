@@ -13,7 +13,7 @@ import java.util.List;
 public interface ExtExecTaskMapper {
     List<TaskHubDTO> selectList(@Param("request") BasePageRequest request, @Param("orgId") String orgId, @Param("projectId") String projectId);
 
-    void deleteTaskById(@Param("id") String id, @Param("orgId") String orgId, @Param("projectId") String projectId);
+    void deleteTaskByIds(@Param("ids") List<String> ids, @Param("orgId") String orgId, @Param("projectId") String projectId);
 
     List<String> getIds(@Param("request") TableBatchProcessDTO request);
 

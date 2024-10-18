@@ -1,11 +1,8 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.OperationLogConstants;
-import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskExample;
-import io.metersphere.system.domain.UserRole;
-import io.metersphere.system.dto.sdk.request.UserRoleUpdateRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -32,6 +29,7 @@ public class BaseTaskHubLogService {
 
     /**
      * 系统停止任务日志
+     *
      * @param id
      * @return
      */
@@ -82,6 +80,7 @@ public class BaseTaskHubLogService {
 
     /**
      * 组织停止任务日志
+     *
      * @param id
      * @return
      */
@@ -102,9 +101,38 @@ public class BaseTaskHubLogService {
     }
 
 
+    /**
+     * 组织批量停止任务日志
+     *
+     * @param request
+     * @return
+     */
+    public List<LogDTO> orgBatchStopLog(TableBatchProcessDTO request) {
+        List<String> ids = baseTaskHubService.getTaskIds(request);
+        ExecTaskExample example = new ExecTaskExample();
+        example.createCriteria().andIdIn(ids);
+        List<ExecTask> execTasks = execTaskMapper.selectByExample(example);
+        List<LogDTO> logDTOList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(execTasks)) {
+            execTasks.forEach(item -> {
+                LogDTO dto = new LogDTO(
+                        OperationLogConstants.ORGANIZATION,
+                        null,
+                        item.getId(),
+                        null,
+                        OperationLogType.STOP.name(),
+                        OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER,
+                        item.getTaskName());
+                logDTOList.add(dto);
+            });
+        }
+        return logDTOList;
+    }
+
 
     /**
      * 项目停止任务日志
+     *
      * @param id
      * @return
      */
@@ -126,7 +154,37 @@ public class BaseTaskHubLogService {
 
 
     /**
+     * 项目批量停止任务日志
+     *
+     * @param request
+     * @return
+     */
+    public List<LogDTO> projectBatchStopLog(TableBatchProcessDTO request) {
+        List<String> ids = baseTaskHubService.getTaskIds(request);
+        ExecTaskExample example = new ExecTaskExample();
+        example.createCriteria().andIdIn(ids);
+        List<ExecTask> execTasks = execTaskMapper.selectByExample(example);
+        List<LogDTO> logDTOList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(execTasks)) {
+            execTasks.forEach(item -> {
+                LogDTO dto = new LogDTO(
+                        null,
+                        null,
+                        item.getId(),
+                        null,
+                        OperationLogType.STOP.name(),
+                        OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER,
+                        item.getTaskName());
+                logDTOList.add(dto);
+            });
+        }
+        return logDTOList;
+    }
+
+
+    /**
      * 系统删除任务日志
+     *
      * @param id
      * @return
      */
@@ -147,7 +205,36 @@ public class BaseTaskHubLogService {
     }
 
     /**
+     * 系统批量删除任务日志
+     *
+     * @param request
+     * @return
+     */
+    public List<LogDTO> systemBatchDeleteLog(TableBatchProcessDTO request) {
+        List<String> ids = baseTaskHubService.getTaskIds(request);
+        ExecTaskExample example = new ExecTaskExample();
+        example.createCriteria().andIdIn(ids);
+        List<ExecTask> execTasks = execTaskMapper.selectByExample(example);
+        List<LogDTO> logDTOList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(execTasks)) {
+            execTasks.forEach(item -> {
+                LogDTO dto = new LogDTO(
+                        OperationLogConstants.SYSTEM,
+                        OperationLogConstants.SYSTEM,
+                        item.getId(),
+                        null,
+                        OperationLogType.DELETE.name(),
+                        OperationLogModule.SETTING_SYSTEM_TASK_CENTER,
+                        item.getTaskName());
+                logDTOList.add(dto);
+            });
+        }
+        return logDTOList;
+    }
+
+    /**
      * 组织删除任务日志
+     *
      * @param id
      * @return
      */
@@ -167,9 +254,37 @@ public class BaseTaskHubLogService {
         return dto;
     }
 
+    /**
+     * 组织批量删除任务日志
+     *
+     * @param request
+     * @return
+     */
+    public List<LogDTO> orgBatchDeleteLog(TableBatchProcessDTO request) {
+        List<String> ids = baseTaskHubService.getTaskIds(request);
+        ExecTaskExample example = new ExecTaskExample();
+        example.createCriteria().andIdIn(ids);
+        List<ExecTask> execTasks = execTaskMapper.selectByExample(example);
+        List<LogDTO> logDTOList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(execTasks)) {
+            execTasks.forEach(item -> {
+                LogDTO dto = new LogDTO(
+                        OperationLogConstants.ORGANIZATION,
+                        null,
+                        item.getId(),
+                        null,
+                        OperationLogType.DELETE.name(),
+                        OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER,
+                        item.getTaskName());
+                logDTOList.add(dto);
+            });
+        }
+        return logDTOList;
+    }
 
     /**
      * 项目删除任务日志
+     *
      * @param id
      * @return
      */
@@ -189,4 +304,32 @@ public class BaseTaskHubLogService {
         return dto;
     }
 
+
+    /**
+     * 项目批量删除任务日志
+     *
+     * @param request
+     * @return
+     */
+    public List<LogDTO> projectBatchDeleteLog(TableBatchProcessDTO request) {
+        List<String> ids = baseTaskHubService.getTaskIds(request);
+        ExecTaskExample example = new ExecTaskExample();
+        example.createCriteria().andIdIn(ids);
+        List<ExecTask> execTasks = execTaskMapper.selectByExample(example);
+        List<LogDTO> logDTOList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(execTasks)) {
+            execTasks.forEach(item -> {
+                LogDTO dto = new LogDTO(
+                        null,
+                        null,
+                        item.getId(),
+                        null,
+                        OperationLogType.DELETE.name(),
+                        OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER,
+                        item.getTaskName());
+                logDTOList.add(dto);
+            });
+        }
+        return logDTOList;
+    }
 }
