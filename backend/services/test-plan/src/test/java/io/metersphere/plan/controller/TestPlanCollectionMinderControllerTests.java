@@ -1,16 +1,20 @@
 package io.metersphere.plan.controller;
 
+import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanCollection;
 import io.metersphere.plan.domain.TestPlanCollectionExample;
-import io.metersphere.system.dto.ModuleSelectDTO;
 import io.metersphere.plan.dto.TestPlanCollectionAssociateDTO;
 import io.metersphere.plan.dto.TestPlanCollectionMinderEditDTO;
 import io.metersphere.plan.dto.TestPlanCollectionMinderTreeDTO;
 import io.metersphere.plan.dto.request.TestPlanCollectionMinderEditRequest;
 import io.metersphere.plan.mapper.TestPlanCollectionMapper;
+import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.ModuleSelectDTO;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
@@ -40,11 +44,34 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
 
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private TestPlanMapper testPlanMapper;
 
     @Test
     @Order(1)
     @Sql(scripts = {"/dml/init_test_plan_mind.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     void tesPagePlanReportSuccess() throws Exception {
+        Project initProject = new Project();
+        initProject.setId("GYQALLPOOL");
+        initProject.setNum(null);
+        initProject.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        initProject.setName("测试项目版本");
+        initProject.setDescription("测试项目版本");
+        initProject.setCreateUser("admin");
+        initProject.setUpdateUser("admin");
+        initProject.setCreateTime(System.currentTimeMillis());
+        initProject.setUpdateTime(System.currentTimeMillis());
+        initProject.setEnable(true);
+        initProject.setModuleSetting("[\"apiTest\",\"uiTest\"]");
+        initProject.setAllResourcePool(true);
+        projectMapper.insertSelective(initProject);
+
+        TestPlan testPlan = new TestPlan();
+        testPlan.setId("gyq_plan_1");
+        testPlan.setProjectId("GYQALLPOOL");
+        testPlanMapper.updateByPrimaryKeySelective(testPlan);
 
         MvcResult mvcResult = this.requestGetWithOkAndReturn(PLAN_MIND + "gyq_plan_1");
         // 获取返回值
@@ -53,6 +80,20 @@ public class TestPlanCollectionMinderControllerTests extends BaseTest {
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         List<TestPlanCollectionMinderTreeDTO> testPlanCollectionMinderTreeDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), TestPlanCollectionMinderTreeDTO.class);
+        // 返回值不为空
+        Assertions.assertNotNull(testPlanCollectionMinderTreeDTOS);
+
+        testPlan.setId("gyq_plan_1");
+        testPlan.setProjectId("gyq_plan_project");
+        testPlanMapper.updateByPrimaryKeySelective(testPlan);
+
+        mvcResult = this.requestGetWithOkAndReturn(PLAN_MIND + "gyq_plan_1");
+        // 获取返回值
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        testPlanCollectionMinderTreeDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), TestPlanCollectionMinderTreeDTO.class);
         // 返回值不为空
         Assertions.assertNotNull(testPlanCollectionMinderTreeDTOS);
     }

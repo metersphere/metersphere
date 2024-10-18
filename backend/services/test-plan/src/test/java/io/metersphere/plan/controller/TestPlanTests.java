@@ -19,6 +19,7 @@ import io.metersphere.plan.utils.TestPlanTestUtils;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.filemanagement.request.FileModuleCreateRequest;
 import io.metersphere.project.dto.filemanagement.request.FileModuleUpdateRequest;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -93,6 +94,8 @@ public class TestPlanTests extends BaseTest {
     private CommonProjectService commonProjectService;
     @Resource
     private TestPlanTestService testPlanTestService;
+    @Resource
+    private ProjectMapper projectMapper;
 
     private static final List<CheckLogModel> LOG_CHECK_LIST = new ArrayList<>();
 
@@ -2452,6 +2455,24 @@ public class TestPlanTests extends BaseTest {
     @Test
     @Order(308)
     void testInitDefaultCollection() {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey("init_plan_id");
+        Project project1 = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
+        if (project1 == null) {
+            Project initProject = new Project();
+            initProject.setId(testPlan.getProjectId());
+            initProject.setNum(null);
+            initProject.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+            initProject.setName("测试项目版本");
+            initProject.setDescription("测试项目版本");
+            initProject.setCreateUser("admin");
+            initProject.setUpdateUser("admin");
+            initProject.setCreateTime(System.currentTimeMillis());
+            initProject.setUpdateTime(System.currentTimeMillis());
+            initProject.setEnable(true);
+            initProject.setModuleSetting("[\"apiTest\",\"uiTest\"]");
+            initProject.setAllResourcePool(true);
+            projectMapper.insertSelective(initProject);
+        }
         testPlanService.initDefaultPlanCollection("init_plan_id", "admin");
     }
 
