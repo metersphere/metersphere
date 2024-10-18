@@ -197,26 +197,7 @@
       : isEqual(store.currentEnvDetailInfo, store.backupEnvDetailInfo);
   });
 
-  // 初始化插件
-  const initPlugin = async () => {
-    try {
-      envPluginList.value = await getEnvPlugin(appStore.currentProjectId);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  };
-  await initPlugin();
-  await store.initContentTabList([...sourceTabList, ...pluginTabList.value, ...settingList]);
-  contentTabList.value = ((await store.getContentTabList()) || []).filter((item) => item.isShow);
-  // 插件状态存储
-
-  const handleReset = () => {
-    envForm.value?.resetFields();
-    emit('resetEnv');
-  };
-
-  function getParameters() {
+  function getParameters(isNew = false) {
     const paramsConfig = cloneDeep(store.currentEnvDetailInfo.config);
 
     const httpConfigList = paramsConfig.httpConfig.map((e) => {
@@ -225,6 +206,12 @@
         headers: filterKeyValParams(e.headers, defaultHeaderParamsItem, true).validParams,
       };
     });
+    if (isNew) {
+      store.currentEnvDetailInfo.name = store.currentEnvDetailInfo.name
+        ? store.currentEnvDetailInfo.name
+        : t('project.environmental.newEnv');
+    }
+
     return {
       ...cloneDeep(store.currentEnvDetailInfo),
       config: {
@@ -234,11 +221,14 @@
     };
   }
 
-  const saveCallBack = async () => {
+  const saveCallBack = async (isNew = false) => {
     // 校验通过回调保存
     loading.value = true;
     store.currentEnvDetailInfo.mock = true;
-    await updateOrAddEnv({ fileList: [], request: getParameters() });
+    await updateOrAddEnv({
+      fileList: [],
+      request: getParameters(isNew),
+    });
     setIsSave(true);
     loading.value = false;
     Message.success(store.currentEnvDetailInfo.id ? t('common.updateSuccess') : t('common.saveSuccess'));
@@ -263,6 +253,29 @@
         }
       }
     });
+  };
+
+  defineExpose({
+    saveCallBack,
+  });
+
+  // 初始化插件
+  const initPlugin = async () => {
+    try {
+      envPluginList.value = await getEnvPlugin(appStore.currentProjectId);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+  await initPlugin();
+  await store.initContentTabList([...sourceTabList, ...pluginTabList.value, ...settingList]);
+  contentTabList.value = ((await store.getContentTabList()) || []).filter((item) => item.isShow);
+  // 插件状态存储
+
+  const handleReset = () => {
+    envForm.value?.resetFields();
+    emit('resetEnv');
   };
 
   watchEffect(() => {
