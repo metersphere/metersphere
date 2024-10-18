@@ -3,6 +3,14 @@
     v-model:model-value="cron"
     :disabled="props.disabled"
     :class="props.class"
+    :loading="loading"
+    :fallback-option="
+      (val) => ({
+        label: `${val}`,
+        value: val,
+      })
+    "
+    :placeholder="t('ms.cron.select.placeholder')"
     allow-create
     @change="emit('change', $event)"
   >
@@ -39,6 +47,9 @@
 
   const cron = defineModel<string>('modelValue', {
     required: true,
+  });
+  const loading = defineModel<boolean>('loading', {
+    required: false,
   });
 
   const syncFrequencyOptions = [

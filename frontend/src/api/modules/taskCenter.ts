@@ -28,6 +28,7 @@ import {
 import type { CommonList, TableQueryParams } from '@/models/common';
 import type { TimingTaskCenterApiCaseItem } from '@/models/projectManagement/taskCenter';
 import type {
+  TaskCenterResourcePoolItem,
   TaskCenterResourcePoolStatus,
   TaskCenterStatisticsItem,
   TaskCenterSystemTaskItem,
@@ -58,7 +59,7 @@ export function getProjectExecuteTaskStatistics(data: string[]) {
 
 // 项目任务-获取资源池列表
 export function getProjectTaskCenterResourcePools() {
-  return MSR.get<string[]>({ url: projectTaskCenterResourcePoolsUrl });
+  return MSR.get<TaskCenterResourcePoolItem[]>({ url: projectTaskCenterResourcePoolsUrl });
 }
 
 // 项目任务-停止任务
@@ -98,7 +99,7 @@ export function getSystemExecuteTaskStatistics(data: string[]) {
 
 // 系统任务-获取资源池列表
 export function getSystemTaskCenterResourcePools() {
-  return MSR.get<string[]>({ url: systemTaskCenterResourcePoolsUrl });
+  return MSR.get<TaskCenterResourcePoolItem[]>({ url: systemTaskCenterResourcePoolsUrl });
 }
 
 // 系统任务-停止任务
@@ -138,7 +139,7 @@ export function getOrganizationExecuteTaskStatistics(data: string[]) {
 
 // 组织任务-获取资源池列表
 export function getOrgTaskCenterResourcePools() {
-  return MSR.get<string[]>({ url: organizationTaskCenterResourcePoolsUrl });
+  return MSR.get<TaskCenterResourcePoolItem[]>({ url: organizationTaskCenterResourcePoolsUrl });
 }
 
 // 组织任务-停止任务

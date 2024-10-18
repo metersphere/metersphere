@@ -15,10 +15,11 @@
       :options="resourcePoolOptions"
       :placeholder="t('common.pleaseSelect')"
       option-size="small"
-      label-key="value"
-      value-key="key"
+      label-key="name"
+      value-key="id"
       class="w-[240px]"
       :prefix="t('ms.taskCenter.resourcePool')"
+      label-path-mode
       @change="searchTask"
     >
     </MsCascader>
@@ -141,7 +142,7 @@
     {
       title: t('ms.taskCenter.taskID'),
       dataIndex: 'num',
-      width: 180,
+      width: 100,
       columnSelectorDisabled: true,
       showTooltip: true,
       fixed: 'left',
@@ -447,10 +448,7 @@
   async function initResourcePools() {
     try {
       const res = await currentResourcePoolRequest();
-      resourcePoolOptions.value = res.map((item) => ({
-        key: item,
-        value: item,
-      }));
+      resourcePoolOptions.value = res;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

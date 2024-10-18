@@ -130,6 +130,32 @@
     </template>
   </ms-base-table>
   <batchTaskReportDrawer v-model:visible="taskReportDrawerVisible" type="case" :module-type="reportModuleType" />
+  <CaseReportDrawer
+    v-model:visible="showCaseDetailDrawer"
+    :report-id="activeDetailId"
+    :active-report-index="activeReportIndex"
+    :table-data="propsRes.data"
+    :page-change="propsEvent.pageChange"
+    :pagination="{
+      current: 1,
+      pageSize: 10,
+      total: 1,
+    }"
+    :share-time="shareTime"
+  />
+  <ReportDetailDrawer
+    v-model:visible="showDetailDrawer"
+    :report-id="activeDetailId"
+    :active-report-index="activeReportIndex"
+    :table-data="propsRes.data"
+    :page-change="propsEvent.pageChange"
+    :pagination="{
+      current: 1,
+      pageSize: 10,
+      total: 1,
+    }"
+    :share-time="shareTime"
+  />
 </template>
 
 <script setup lang="ts">
@@ -145,7 +171,10 @@
   import batchTaskReportDrawer from './batchTaskReportDrawer.vue';
   import execStatus from './execStatus.vue';
   import executionStatus from './executionStatus.vue';
+  import CaseReportDrawer from '@/views/api-test/report/component/caseReportDrawer.vue';
+  import ReportDetailDrawer from '@/views/api-test/report/component/reportDetailDrawer.vue';
 
+  import { getShareTime } from '@/api/modules/api-test/report';
   import {
     getOrganizationExecuteTaskList,
     getOrganizationExecuteTaskStatistics,
@@ -164,15 +193,16 @@
   import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useTableStore from '@/hooks/useTableStore';
+  import useAppStore from '@/store/modules/app';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { TaskCenterTaskItem } from '@/models/taskCenter';
   import { ReportEnum } from '@/enums/reportEnum';
-  import { ApiTestRouteEnum, TestPlanRouteEnum } from '@/enums/routeEnum';
+  import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
-  import { ExecuteResultEnum, ExecuteStatusEnum, ExecuteTaskType, ExecuteTriggerMode } from '@/enums/taskCenter';
+  import { ExecuteResultEnum, ExecuteStatusEnum, ExecuteTaskType } from '@/enums/taskCenter';
 
   import { executeFinishedRateMap, executeMethodMap, executeResultMap, executeStatusMap } from './config';
 
@@ -187,6 +217,7 @@
   const { openModal } = useModal();
   const { openNewPage } = useOpenNewPage();
   const tableStore = useTableStore();
+  const appStore = useAppStore();
 
   const keyword = ref('');
   const tableSelected = ref<string[]>([]);
@@ -553,6 +584,45 @@
     console.log('rerunTask', record);
   }
 
+  /**
+   * 报告详情 showReportDetail
+   */
+  const activeDetailId = ref<string>('');
+  const activeReportIndex = ref<number>(0);
+  const showDetailDrawer = ref<boolean>(false);
+  const showCaseDetailDrawer = ref<boolean>(false);
+
+  function showReportDetail(record: TaskCenterTaskItem) {
+    activeDetailId.value = record.id;
+    if (record.taskType === 'API_SCENARIO') {
+      showDetailDrawer.value = true;
+    } else {
+      showCaseDetailDrawer.value = true;
+    }
+  }
+
+  const shareTime = ref<string>('');
+  async function getTime() {
+    try {
+      const res = await getShareTime(appStore.currentProjectId);
+      const match = res.match(/^(\d+)([MYHD])$/);
+      if (match) {
+        const value = parseInt(match[1], 10);
+        const type = match[2];
+        const translations: Record<string, string> = {
+          M: t('msTimeSelector.month'),
+          Y: t('msTimeSelector.year'),
+          H: t('msTimeSelector.hour'),
+          D: t('msTimeSelector.day'),
+        };
+        shareTime.value = value + (translations[type] || translations.D);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   const taskReportDrawerVisible = ref(false);
   const reportModuleType = ref();
   function checkReport(record: TaskCenterTaskItem) {
@@ -561,8 +631,8 @@
         ? ReportEnum.API_REPORT
         : ReportEnum.API_SCENARIO_REPORT;
       taskReportDrawerVisible.value = true;
-    } else if (record.taskType === ExecuteTaskType.API_SCENARIO) {
-      openNewPage(ApiTestRouteEnum.API_TEST_REPORT);
+    } else if (['API_CASE', 'API_SCENARIO'].includes(record.taskType)) {
+      showReportDetail(record);
     } else if (record.taskType === ExecuteTaskType.TEST_PLAN) {
       openNewPage(TestPlanRouteEnum.TEST_PLAN_REPORT);
     }
@@ -570,6 +640,7 @@
 
   onMounted(async () => {
     searchTask();
+    getTime();
   });
 
   watch(

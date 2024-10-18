@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="props.pagination?.total > 1">
     <a-tooltip
       :content="activeDetailIsFirst ? t('ms.prevNextButton.noPrev') : t('ms.prevNextButton.prev')"
       :mouse-enter-delay="300"
