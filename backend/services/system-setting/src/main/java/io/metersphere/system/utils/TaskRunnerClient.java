@@ -57,6 +57,22 @@ public class TaskRunnerClient {
         return retry(url, null, action);
     }
 
+    public static ResultHolder post(String url, Object param, Object... uriVariables) throws Exception {
+        // 定义action
+        Action action = (u, body) -> {
+            String token = totpGenerator.now();
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(MsHttpHeaders.OTP_TOKEN, token);
+            headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
+            headers.add(HttpHeaders.ACCEPT, "application/json");
+            HttpEntity<Object> httpEntity = new HttpEntity<>(param, headers);
+            ResponseEntity<ResultHolder> entity = restTemplateWithTimeOut.exchange(u, HttpMethod.POST, httpEntity, ResultHolder.class, uriVariables);
+            return entity.getBody();
+        };
+
+        return retry(url, null, action);
+    }
+
     private static ResultHolder retry(String url, Object requestBody, Action action) throws Exception {
         ResultHolder body;
         try {

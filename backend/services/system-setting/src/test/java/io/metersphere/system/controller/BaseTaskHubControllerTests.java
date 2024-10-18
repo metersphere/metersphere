@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -47,6 +48,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_TASK_BATCH_DELETE = "/system/task-center/exec-task/batch-delete/";
     public static final String SYSTEM_TASK_ITEM_STOP = "/system/task-center/exec-task/item/stop/";
     public static final String SYSTEM_TASK_ITEM_BATCH_STOP = "/system/task-center/exec-task/item/batch-stop";
+    public static final String SYSTEM_TASK_ITEM_ORDER = "/system/task-center/exec-task/item/order";
 
     @Test
     @Order(1)
@@ -178,6 +180,14 @@ public class BaseTaskHubControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
     }
 
+    @Test
+    @Order(4)
+    public void systemGetTaskItemOrder() throws Exception {
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(SYSTEM_TASK_ITEM_ORDER, List.of("1"));
+        HashMap resultData = getResultData(mvcResult, HashMap.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultData);
+    }
 
     /**
      * 系统执行任务删除
@@ -244,6 +254,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String ORG_TASK_DELETE = "/organization/task-center/exec-task/delete/";
     public static final String ORG_TASK_BATCH_STOP = "/organization/task-center/exec-task/batch-stop/";
     public static final String ORG_TASK_BATCH_DELETE = "/organization/task-center/exec-task/batch-delete/";
+    public static final String ORG_TASK_ITEM_ORDER = "/organization/task-center/exec-task/item/order";
 
     @Test
     @Order(20)
@@ -358,6 +369,17 @@ public class BaseTaskHubControllerTests extends BaseTest {
         this.requestPost(ORG_TASK_BATCH_STOP, request);
     }
 
+    /**
+     * 获取任务项的排队信息
+     */
+    @Test
+    @Order(23)
+    public void orgGetTaskItemOrder() throws Exception {
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(ORG_TASK_ITEM_ORDER, List.of("1"));
+        HashMap resultData = getResultData(mvcResult, HashMap.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultData);
+    }
 
     @Test
     @Order(23)

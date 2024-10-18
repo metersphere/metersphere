@@ -19,6 +19,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.pool.TestResourceDTO;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
@@ -33,6 +34,7 @@ import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
+import io.metersphere.system.utils.TaskRunnerClient;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,10 +46,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -96,6 +95,8 @@ public class BaseTaskHubService {
     private TestResourcePoolService testResourcePoolService;
     @Resource
     private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
+
+    private final static String GET_TASK_ITEM_ORDER_URL = "http://%s/api/task/item/order";
 
     /**
      * 系统-获取执行任务列表
@@ -590,7 +591,6 @@ public class BaseTaskHubService {
         }
     }
 
-
     /**
      * 停止任务项
      *
@@ -658,5 +658,47 @@ public class BaseTaskHubService {
         } else {
             return request.getSelectIds();
         }
+    }
+
+    public Map<String, Integer> getTaskItemOrder(List<String> taskIdItemIds) {
+        List<ExecTaskItem> taskItemIds = getTaskItemByIds(taskIdItemIds);
+        Map<String, List<ExecTaskItem>> nodeResourceMap = taskItemIds.stream()
+                .collect(Collectors.groupingBy(ExecTaskItem::getResourcePoolNode));
+
+        Map<String, Integer> taskItemOrderMap = new HashMap<>();
+
+        List<Thread> threads = new ArrayList<>();
+        nodeResourceMap.forEach((node, items) -> {
+            if (StringUtils.isNotBlank(node)) {
+                Thread thread = Thread.startVirtualThread(() -> taskItemOrderMap.putAll(getTaskItemOrder(node, taskIdItemIds)));
+                threads.add(thread);
+            }
+        });
+
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                LogUtils.error(e);
+            }
+        }
+
+        return taskItemOrderMap;
+    }
+
+    public Map<String, Integer> getTaskItemOrder(String node, List<String> taskIdItemIds) {
+        try {
+            ResultHolder body = TaskRunnerClient.post(String.format(GET_TASK_ITEM_ORDER_URL, node), taskIdItemIds);
+            return JSON.parseMap(JSON.toJSONString(body.getData()));
+        } catch (Exception e) {
+            LogUtils.error(e.getMessage(), e);
+        }
+        return Map.of();
+    }
+
+    private List<ExecTaskItem> getTaskItemByIds(List<String> taskIdItemIds) {
+        ExecTaskItemExample itemExample = new ExecTaskItemExample();
+        itemExample.createCriteria().andIdIn(taskIdItemIds);
+        return execTaskItemMapper.selectByExample(itemExample);
     }
 }
