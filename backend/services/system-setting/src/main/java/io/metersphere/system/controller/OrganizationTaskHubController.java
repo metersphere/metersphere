@@ -1,5 +1,6 @@
 package io.metersphere.system.controller;
 
+import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
@@ -8,9 +9,11 @@ import io.metersphere.system.dto.taskhub.ResourcePoolOptionsDTO;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
 import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
 import io.metersphere.system.dto.taskhub.TaskHubScheduleDTO;
+import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
 import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.BaseProjectMapper;
 import io.metersphere.system.service.BaseTaskHubLogService;
@@ -99,9 +102,9 @@ public class OrganizationTaskHubController {
         List<String> ids = baseTaskHubService.getTaskIds(request, SessionUtils.getCurrentOrganizationId(), null);
         baseTaskHubService.batchStopTask(ids, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), null);
         //日志
-        baseTaskHubLogService.orgBatchStopLog(ids);
+        baseTaskHubLogService.taskBatchLog(ids, SessionUtils.getUserId(), OperationLogType.STOP.name(), OperationLogConstants.ORGANIZATION, SessionUtils.getCurrentOrganizationId(),
+                "/organization/task-center/exec-task/batch-stop", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
     }
-
 
 
     @GetMapping("/exec-task/delete/{id}")
@@ -120,6 +123,26 @@ public class OrganizationTaskHubController {
         List<String> ids = baseTaskHubService.getTaskIds(request, SessionUtils.getCurrentOrganizationId(), null);
         baseTaskHubService.batchDeleteTask(ids, SessionUtils.getCurrentOrganizationId(), null);
         //日志
-        baseTaskHubLogService.orgBatchDeleteLog(ids);
+        baseTaskHubLogService.taskBatchLog(ids, SessionUtils.getUserId(), OperationLogType.DELETE.name(), OperationLogConstants.ORGANIZATION, SessionUtils.getCurrentOrganizationId(),
+                "/organization/task-center/exec-task/batch-delete", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
+    }
+
+
+    @GetMapping("/exec-task/item/stop/{id}")
+    @Operation(summary = "组织-任务中心-用例任务详情-停止")
+    @Log(type = OperationLogType.STOP, expression = "#msClass.orgStopItemLog(#id)", msClass = BaseTaskHubLogService.class)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_EXEC_STOP)
+    public void stopTaskItem(@PathVariable String id) {
+        baseTaskHubService.stopTaskItem(id, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), null);
+    }
+
+    @PostMapping("/exec-task/item/batch-stop")
+    @Operation(summary = "组织-任务中心-用例任务详情-批量停止")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_EXEC_STOP)
+    public void batchStopTaskItem(@Validated @RequestBody TaskHubItemBatchRequest request) {
+        List<String> itemIds = baseTaskHubService.getTaskItemIds(request, SessionUtils.getCurrentOrganizationId(), null);
+        baseTaskHubService.batchStopTaskItem(itemIds, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), null);
+        baseTaskHubLogService.taskItemBatchLog(itemIds, SessionUtils.getUserId(), OperationLogType.STOP.name(), OperationLogConstants.ORGANIZATION, SessionUtils.getCurrentOrganizationId(),
+                "/organization/task-center/exec-task/item/batch-stop", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
     }
 }
