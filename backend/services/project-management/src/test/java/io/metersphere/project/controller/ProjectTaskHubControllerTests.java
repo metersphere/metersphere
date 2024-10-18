@@ -14,6 +14,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 
 public class ProjectTaskHubControllerTests extends BaseTest {
@@ -28,6 +29,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     public static final String PROJECT_TASK_STOP = "/project/task-center/exec-task/stop/";
     public static final String PROJECT_TASK_DELETE = "/project/task-center/exec-task/delete/";
     public static final String PROJECT_TASK_BATCH_STOP = "/project/task-center/exec-task/batch-stop/";
+    public static final String PROJECT_TASK_ITEM_ORDER = "/project/task-center/exec-task/item/order";
     public static final String PROJECT_TASK_BATCH_DELETE = "/organization/task-center/exec-task/batch-delete/";
 
     @Test
@@ -141,6 +143,17 @@ public class ProjectTaskHubControllerTests extends BaseTest {
         this.requestPost(PROJECT_TASK_BATCH_STOP, request);
     }
 
+    /**
+     * 获取任务项的排队信息
+     */
+    @Test
+    @Order(23)
+    public void projectGetTaskItemOrder() throws Exception {
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(PROJECT_TASK_ITEM_ORDER, List.of("1"));
+        HashMap resultData = getResultData(mvcResult, HashMap.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultData);
+    }
 
     /**
      * 项目执行任务删除

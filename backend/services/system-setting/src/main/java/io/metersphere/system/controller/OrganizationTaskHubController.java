@@ -27,6 +27,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "组织任务中心")
 @RestController
@@ -102,7 +103,12 @@ public class OrganizationTaskHubController {
         baseTaskHubLogService.orgBatchStopLog(ids);
     }
 
-
+    @PostMapping("/exec-task/item/order")
+    @Operation(summary = "系统-任务中心-用例执行任务-获取任务项的排队信息")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_READ)
+    public Map<String, Integer> getTaskItemOrder(@RequestBody List<String> taskIdItemIds) {
+        return baseTaskHubService.getTaskItemOrder(taskIdItemIds);
+    }
 
     @GetMapping("/exec-task/delete/{id}")
     @Operation(summary = "组织-任务中心-用例执行任务-删除任务")
