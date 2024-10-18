@@ -1,5 +1,6 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.api.domain.ApiReportRelateTask;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioRecord;
 import io.metersphere.api.domain.ApiScenarioReport;
@@ -265,9 +266,9 @@ public class TestPlanApiScenarioBatchRunService {
                                 Project project,
                                 String userId) {
 
-        Map<String, String> scenarioReportMap = initReport(testPlanApiScenarios, runModeConfig, project.getId(), userId);
-
         Map<String, String> resourceTaskItemMap = getResourceTaskItemMap(taskId, testPlanApiScenarios);
+
+        Map<String, String> scenarioReportMap = initReport(resourceTaskItemMap, testPlanApiScenarios, runModeConfig, project.getId(), userId);
 
         List<TaskItem> taskItems = testPlanApiScenarios.stream()
                 .map(testPlanApiScenario -> {
@@ -329,10 +330,12 @@ public class TestPlanApiScenarioBatchRunService {
         return execTaskItems;
     }
 
-    public Map<String, String> initReport(List<TestPlanApiScenarioBatchRunDTO> testPlanApiScenarios,
-                                           ApiRunModeConfigDTO runModeConfig, String projectId, String userId) {
+    public Map<String, String> initReport(Map<String, String> resourceExecTaskItemMap,
+                                          List<TestPlanApiScenarioBatchRunDTO> testPlanApiScenarios,
+                                          ApiRunModeConfigDTO runModeConfig, String projectId, String userId) {
         List<ApiScenarioReport> apiScenarioReports = new ArrayList<>(testPlanApiScenarios.size());
         List<ApiScenarioRecord> apiScenarioRecords = new ArrayList<>(testPlanApiScenarios.size());
+        List<ApiReportRelateTask> apiReportRelateTasks = new ArrayList<>(testPlanApiScenarios.size());
         Map<String, String> resourceReportMap = new HashMap<>();
         for (TestPlanApiScenarioBatchRunDTO testPlanApiScenario : testPlanApiScenarios) {
             // 初始化报告
@@ -343,8 +346,14 @@ public class TestPlanApiScenarioBatchRunService {
             ApiScenarioRecord apiScenarioRecord = apiScenarioRunService.getApiScenarioRecord(testPlanApiScenario.getApiScenarioId(), apiScenarioReport);
             apiScenarioRecords.add(apiScenarioRecord);
             resourceReportMap.put(testPlanApiScenario.getId(), apiScenarioReport.getId());
+
+            // 创建报告和任务的关联关系
+            ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
+            apiReportRelateTask.setReportId(apiScenarioReport.getId());
+            apiReportRelateTask.setTaskResourceId(resourceExecTaskItemMap.get(apiScenarioReport.getId()));
+            apiReportRelateTasks.add(apiReportRelateTask);
         }
-        apiScenarioReportService.insertApiScenarioReport(apiScenarioReports, apiScenarioRecords);
+        apiScenarioReportService.insertApiScenarioReport(apiScenarioReports, apiScenarioRecords, apiReportRelateTasks);
         return resourceReportMap;
     }
 
@@ -362,7 +371,7 @@ public class TestPlanApiScenarioBatchRunService {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
 
         // 独立报告，执行到当前任务时初始化报告
-        String reportId = initScenarioReport(runModeConfig, BeanUtils.copyBean(new TestPlanApiScenarioBatchRunDTO(), testPlanApiScenario), testPlan.getId(), queue.getUserId())
+        String reportId = initScenarioReport(queueDetail.getTaskItemId(), runModeConfig, BeanUtils.copyBean(new TestPlanApiScenarioBatchRunDTO(), testPlanApiScenario), testPlan.getId(), queue.getUserId())
                 .getApiScenarioReportId();
 
         TaskRequestDTO taskRequest = getTaskRequestDTO(apiScenario.getProjectId(), queue.getRunModeConfig());
@@ -444,13 +453,18 @@ public class TestPlanApiScenarioBatchRunService {
      * @param testPlanApiScenario
      * @return
      */
-    public ApiScenarioRecord initScenarioReport(ApiRunModeConfigDTO runModeConfig, TestPlanApiScenarioBatchRunDTO testPlanApiScenario, String projectId, String userId) {
+    public ApiScenarioRecord initScenarioReport(String taskItemId, ApiRunModeConfigDTO runModeConfig, TestPlanApiScenarioBatchRunDTO testPlanApiScenario, String projectId, String userId) {
         // 初始化报告
         ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, testPlanApiScenario, projectId, userId);
         apiScenarioReport.setId(IDGenerator.nextStr());
         // 创建报告和用例的关联关系
         ApiScenarioRecord apiScenarioRecord = apiScenarioRunService.getApiScenarioRecord(testPlanApiScenario.getApiScenarioId(), apiScenarioReport);
-        apiScenarioReportService.insertApiScenarioReport(List.of(apiScenarioReport), List.of(apiScenarioRecord));
+        // 创建报告和任务的关联关系
+        ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
+        apiReportRelateTask.setReportId(apiScenarioReport.getId());
+        apiReportRelateTask.setTaskResourceId(taskItemId);
+
+        apiScenarioReportService.insertApiScenarioReport(List.of(apiScenarioReport), List.of(apiScenarioRecord), List.of(apiReportRelateTask));
         return apiScenarioRecord;
     }
 

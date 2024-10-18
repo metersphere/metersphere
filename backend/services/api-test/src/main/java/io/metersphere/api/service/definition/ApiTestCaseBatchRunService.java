@@ -107,7 +107,7 @@ public class ApiTestCaseBatchRunService {
 
         if (runModeConfig.isIntegratedReport()) {
             // 初始化集成报告
-            initIntegratedReport(runModeConfig, userId, request.getProjectId());
+            initIntegratedReport(execTask.getId(), runModeConfig, userId, request.getProjectId());
         }
 
         // 先初始化集成报告，设置好报告ID，再初始化执行队列
@@ -178,15 +178,15 @@ public class ApiTestCaseBatchRunService {
 
         ApiRunModeConfigDTO runModeConfig = getRunModeConfig(request);
 
-        if (runModeConfig.isIntegratedReport()) {
-            // 初始化集成报告
-            initIntegratedReport(runModeConfig, ids, userId, request.getProjectId());
-        }
-
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
 
         // 初始化任务
         ExecTask execTask = initExecTask(ids, runModeConfig, project, userId);
+
+        if (runModeConfig.isIntegratedReport()) {
+            // 初始化集成报告
+            initIntegratedReport(execTask.getId(), runModeConfig, ids, userId, request.getProjectId());
+        }
 
         // 分批查询
         SubListUtils.dealForSubList(ids, TASK_BATCH_SIZE, subIds -> {
@@ -197,7 +197,7 @@ public class ApiTestCaseBatchRunService {
                     .collect(Collectors.toMap(ExecTaskItem::getResourceId, ExecTaskItem::getId));
 
             // 初始化报告，返回用例和报告的 map
-            Map<String, String> caseReportMap = initParallelReport(runModeConfig, apiTestCases, userId);
+            Map<String, String> caseReportMap = initParallelReport(resourceExecTaskItemMap, runModeConfig, apiTestCases, userId);
 
             List<TaskItem> taskItems = new ArrayList<>(subIds.size());
 
@@ -254,7 +254,7 @@ public class ApiTestCaseBatchRunService {
         return apiTestCases;
     }
 
-    private Map<String, String> initParallelReport(ApiRunModeConfigDTO runModeConfig, List<ApiTestCase> apiTestCases, String userId) {
+    private Map<String, String> initParallelReport(Map<String, String> resourceExecTaskItemMap, ApiRunModeConfigDTO runModeConfig, List<ApiTestCase> apiTestCases, String userId) {
         // 先初始化所有报告
         if (runModeConfig.isIntegratedReport()) {
             // 获取集成报告ID
@@ -263,7 +263,7 @@ public class ApiTestCaseBatchRunService {
             return null;
         } else {
             // 初始化非集成报告
-            List<ApiTestCaseRecord> apiTestCaseRecords = initApiReport(runModeConfig, apiTestCases, userId);
+            List<ApiTestCaseRecord> apiTestCaseRecords = initApiReport(resourceExecTaskItemMap, runModeConfig, apiTestCases, userId);
             return apiTestCaseRecords.stream()
                     .collect(Collectors.toMap(ApiTestCaseRecord::getApiTestCaseId, ApiTestCaseRecord::getApiReportId));
         }
@@ -308,7 +308,7 @@ public class ApiTestCaseBatchRunService {
      * @param ids
      * @return
      */
-    private ApiReport initIntegratedReport(ApiRunModeConfigDTO runModeConfig, List<String> ids, String userId, String projectId) {
+    private ApiReport initIntegratedReport(String taskId, ApiRunModeConfigDTO runModeConfig, List<String> ids, String userId, String projectId) {
         ApiReport apiReport = getApiReport(runModeConfig, userId);
         apiReport.setName(runModeConfig.getCollectionReport().getReportName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
         apiReport.setIntegrated(true);
@@ -320,7 +320,13 @@ public class ApiTestCaseBatchRunService {
             record.setApiTestCaseId(id);
             return record;
         }).toList();
-        apiReportService.insertApiReport(List.of(apiReport), records);
+
+        // 创建报告和任务的关联关系
+        ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
+        apiReportRelateTask.setReportId(apiReport.getId());
+        apiReportRelateTask.setTaskResourceId(taskId);
+
+        apiReportService.insertApiReport(List.of(apiReport), records, List.of(apiReportRelateTask));
         // 设置集成报告执行参数
         runModeConfig.getCollectionReport().setReportId(apiReport.getId());
         return apiReport;
@@ -332,12 +338,18 @@ public class ApiTestCaseBatchRunService {
      * @param runModeConfig
      * @return
      */
-    private ApiReport initIntegratedReport(ApiRunModeConfigDTO runModeConfig, String userId, String projectId) {
+    private ApiReport initIntegratedReport(String taskId, ApiRunModeConfigDTO runModeConfig, String userId, String projectId) {
         ApiReport apiReport = getApiReport(runModeConfig, userId);
         apiReport.setName(runModeConfig.getCollectionReport().getReportName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
         apiReport.setIntegrated(true);
         apiReport.setProjectId(projectId);
-        apiReportService.insertApiReport(apiReport);
+
+        // 创建报告和任务的关联关系
+        ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
+        apiReportRelateTask.setReportId(apiReport.getId());
+        apiReportRelateTask.setTaskResourceId(taskId);
+
+        apiReportService.insertApiReport(apiReport, apiReportRelateTask);
         // 设置集成报告执行参数
         runModeConfig.getCollectionReport().setReportId(apiReport.getId());
         return apiReport;
@@ -381,7 +393,7 @@ public class ApiTestCaseBatchRunService {
             reportId = runModeConfig.getCollectionReport().getReportId() + IDGenerator.nextStr();
         } else {
             // 独立报告，执行到当前任务时初始化报告
-            reportId = initApiReport(runModeConfig, List.of(apiTestCase), queue.getUserId()).getFirst().getApiReportId();
+            reportId = initApiReport(Map.of(apiTestCase.getId(), taskItemId), runModeConfig, List.of(apiTestCase), queue.getUserId()).getFirst().getApiReportId();
         }
 
         if (apiTestCase == null) {
@@ -428,10 +440,12 @@ public class ApiTestCaseBatchRunService {
      * @param apiTestCases
      * @return
      */
-    public List<ApiTestCaseRecord> initApiReport(ApiRunModeConfigDTO runModeConfig, List<ApiTestCase> apiTestCases, String userId) {
+    public List<ApiTestCaseRecord> initApiReport(Map<String, String> resourceExecTaskItemMap,
+                                                 ApiRunModeConfigDTO runModeConfig, List<ApiTestCase> apiTestCases, String userId) {
         List<ApiReport> apiReports = new ArrayList<>();
         List<ApiTestCaseRecord> apiTestCaseRecords = new ArrayList<>();
         List<ApiReportStep> apiReportSteps = new ArrayList<>();
+        List<ApiReportRelateTask> apiReportRelateTasks = new ArrayList<>();
         for (ApiTestCase apiTestCase : apiTestCases) {
             // 初始化报告
             ApiReport apiReport = getApiReport(runModeConfig, apiTestCase, userId);
@@ -440,8 +454,15 @@ public class ApiTestCaseBatchRunService {
             ApiTestCaseRecord apiTestCaseRecord = apiTestCaseService.getApiTestCaseRecord(apiTestCase, apiReport);
             apiTestCaseRecords.add(apiTestCaseRecord);
             apiReportSteps.add(getApiReportStep(apiTestCase, apiReport.getId(), 1));
+
+            // 创建报告和任务的关联关系
+            ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
+            apiReportRelateTask.setReportId(apiReport.getId());
+            apiReportRelateTask.setTaskResourceId(resourceExecTaskItemMap.get(apiTestCase.getId()));
+            apiReportRelateTasks.add(apiReportRelateTask);
         }
-        apiReportService.insertApiReport(apiReports, apiTestCaseRecords);
+
+        apiReportService.insertApiReport(apiReports, apiTestCaseRecords, apiReportRelateTasks);
         apiReportService.insertApiReportStep(apiReportSteps);
         return apiTestCaseRecords;
     }

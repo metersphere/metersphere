@@ -760,7 +760,7 @@ public class ApiTestCaseService extends MoveNodeService {
         }
 
         // 初始化报告
-        initApiReport(apiTestCase, reportId, poolId, userId);
+        initApiReport(taskItem.getId(), apiTestCase, reportId, poolId, userId);
 
         return doExecute(taskRequest, runRequest, apiTestCase.getApiDefinitionId(), apiTestCase.getEnvironmentId());
     }
@@ -861,7 +861,7 @@ public class ApiTestCaseService extends MoveNodeService {
      * @param userId
      * @return
      */
-    public ApiTestCaseRecord initApiReport(ApiTestCase apiTestCase, String reportId, String poolId, String userId) {
+    public ApiTestCaseRecord initApiReport(String taskItemId, ApiTestCase apiTestCase, String reportId, String poolId, String userId) {
 
         // 初始化报告
         ApiReport apiReport = getApiReport(apiTestCase, reportId, poolId, userId);
@@ -869,9 +869,15 @@ public class ApiTestCaseService extends MoveNodeService {
         // 创建报告和用例的关联关系
         ApiTestCaseRecord apiTestCaseRecord = getApiTestCaseRecord(apiTestCase, apiReport);
 
-        apiReportService.insertApiReport(List.of(apiReport), List.of(apiTestCaseRecord));
+        // 创建报告和任务的关联关系
+        ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
+        apiReportRelateTask.setReportId(reportId);
+        apiReportRelateTask.setTaskResourceId(taskItemId);
+
+        apiReportService.insertApiReport(List.of(apiReport), List.of(apiTestCaseRecord), List.of(apiReportRelateTask));
         //初始化步骤
         apiReportService.insertApiReportStep(List.of(getApiReportStep(apiTestCase.getId(), apiTestCase.getName(), reportId, 1L)));
+
         return apiTestCaseRecord;
     }
 

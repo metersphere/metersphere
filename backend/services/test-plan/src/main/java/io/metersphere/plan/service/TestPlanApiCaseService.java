@@ -786,7 +786,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         }
 
         // 初始化报告
-        initApiReport(apiTestCase, testPlanApiCase, reportId, runModeConfig, userId);
+        initApiReport(taskItem.getId(), apiTestCase, testPlanApiCase, reportId, runModeConfig, userId);
 
         return apiExecuteService.execute(taskRequest);
     }
@@ -811,7 +811,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      *
      * @return
      */
-    public ApiTestCaseRecord initApiReport(ApiTestCase apiTestCase, TestPlanApiCase testPlanApiCase, String reportId, ApiRunModeConfigDTO runModeConfig, String userId) {
+    public ApiTestCaseRecord initApiReport(String taskItemId, ApiTestCase apiTestCase, TestPlanApiCase testPlanApiCase, String reportId, ApiRunModeConfigDTO runModeConfig, String userId) {
         // 初始化报告
         ApiReport apiReport = apiTestCaseService.getApiReport(apiTestCase, reportId, runModeConfig.getPoolId(), userId);
         apiReport.setEnvironmentId(runModeConfig.getEnvironmentId());
@@ -820,7 +820,12 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         // 创建报告和用例的关联关系
         ApiTestCaseRecord apiTestCaseRecord = apiTestCaseService.getApiTestCaseRecord(apiTestCase, apiReport);
 
-        apiReportService.insertApiReport(List.of(apiReport), List.of(apiTestCaseRecord));
+        // 创建报告和任务的关联关系
+        ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
+        apiReportRelateTask.setReportId(apiReport.getId());
+        apiReportRelateTask.setTaskResourceId(taskItemId);
+
+        apiReportService.insertApiReport(List.of(apiReport), List.of(apiTestCaseRecord), List.of(apiReportRelateTask));
 
         //初始化步骤
         apiReportService.insertApiReportStep(List.of(getApiReportStep(testPlanApiCase, apiTestCase, reportId)));

@@ -1,9 +1,6 @@
 package io.metersphere.api.service.scenario;
 
-import io.metersphere.api.domain.ApiScenario;
-import io.metersphere.api.domain.ApiScenarioRecord;
-import io.metersphere.api.domain.ApiScenarioReport;
-import io.metersphere.api.domain.ApiScenarioReportStep;
+import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.scenario.ApiScenarioBatchRunRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioDetail;
 import io.metersphere.api.mapper.ApiScenarioMapper;
@@ -115,7 +112,7 @@ public class ApiScenarioBatchRunService {
 
         // 初始化集成报告
         if (runModeConfig.isIntegratedReport()) {
-            initIntegratedReport(runModeConfig, userId, request.getProjectId());
+            initIntegratedReport(execTask.getId(), runModeConfig, userId, request.getProjectId());
         }
 
         // 先初始化集成报告，设置好报告ID，再初始化执行队列
@@ -136,8 +133,12 @@ public class ApiScenarioBatchRunService {
                 // 集合报告初始化一级步骤
                 initApiScenarioReportStep(apiScenarios, reportId);
             } else {
+                // 初始化任务项
+                Map<String, String> resourceExecTaskItemMap = execTaskItems
+                        .stream()
+                        .collect(Collectors.toMap(ExecTaskItem::getResourceId, ExecTaskItem::getId));
                 // 非集合报告，初始化独立报告，执行时初始化步骤
-                initScenarioReport(runModeConfig, apiScenarios, userId);
+                initScenarioReport(resourceExecTaskItemMap, runModeConfig, apiScenarios, userId);
             }
             // 初始化队列项
             apiBatchRunBaseService.initExecutionQueueDetails(queue.getQueueId(), execTaskItems);
@@ -165,25 +166,26 @@ public class ApiScenarioBatchRunService {
 
         if (runModeConfig.isIntegratedReport()) {
             // 初始化集成报告
-            initIntegratedReport(runModeConfig, userId, request.getProjectId());
+            initIntegratedReport(execTask.getId(), runModeConfig, userId, request.getProjectId());
         }
 
         // 分批查询
         SubListUtils.dealForSubList(ids, TASK_BATCH_SIZE, subIds -> {
             List<ApiScenario> apiScenarios = getOrderScenarios(subIds, runModeConfig);
             Map<String, String> caseReportMap = null;
-            if (runModeConfig.isIntegratedReport()) {
-                // 集合报告初始化一级步骤
-                initApiScenarioReportStep(apiScenarios, runModeConfig.getCollectionReport().getReportId());
-            } else {
-                // 非集合报告，初始化独立报告，执行时初始化步骤
-                caseReportMap = initScenarioReport(runModeConfig, apiScenarios, userId);
-            }
 
             // 初始化任务项
             Map<String, String> resourceExecTaskItemMap = initExecTaskItem(subIds, apiScenarios, userId, project, execTask)
                     .stream()
                     .collect(Collectors.toMap(ExecTaskItem::getResourceId, ExecTaskItem::getId));
+
+            if (runModeConfig.isIntegratedReport()) {
+                // 集合报告初始化一级步骤
+                initApiScenarioReportStep(apiScenarios, runModeConfig.getCollectionReport().getReportId());
+            } else {
+                // 非集合报告，初始化独立报告，执行时初始化步骤
+                caseReportMap = initScenarioReport(resourceExecTaskItemMap, runModeConfig, apiScenarios, userId);
+            }
 
             List<TaskItem> taskItems = new ArrayList<>(ids.size());
 
@@ -302,12 +304,18 @@ public class ApiScenarioBatchRunService {
      * @param runModeConfig
      * @return
      */
-    private ApiScenarioReport initIntegratedReport(ApiRunModeConfigDTO runModeConfig, String userId, String projectId) {
+    private ApiScenarioReport initIntegratedReport(String taskId, ApiRunModeConfigDTO runModeConfig, String userId, String projectId) {
         ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, userId);
         apiScenarioReport.setName(runModeConfig.getCollectionReport().getReportName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
         apiScenarioReport.setIntegrated(true);
         apiScenarioReport.setProjectId(projectId);
-        apiScenarioReportMapper.insertSelective(apiScenarioReport);
+
+        // 创建报告和任务的关联关系
+        ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
+        apiReportRelateTask.setReportId(apiScenarioReport.getId());
+        apiReportRelateTask.setTaskResourceId(taskId);
+
+        apiScenarioReportService.insertApiScenarioReport(apiScenarioReport, apiReportRelateTask);
         // 设置集成报告执行参数
         runModeConfig.getCollectionReport().setReportId(apiScenarioReport.getId());
         return apiScenarioReport;
@@ -345,7 +353,7 @@ public class ApiScenarioBatchRunService {
             reportId = runModeConfig.getCollectionReport().getReportId() + IDGenerator.nextStr();
         } else {
             // 独立报告，执行到当前任务时初始化报告
-            reportId = initScenarioReport(runModeConfig, apiScenario, queue.getUserId()).getApiScenarioReportId();
+            reportId = initScenarioReport(queueDetail.getTaskItemId(), runModeConfig, apiScenario, queue.getUserId()).getApiScenarioReportId();
         }
 
         TaskRequestDTO taskRequest = getTaskRequestDTO(apiScenario.getProjectId(), queue.getRunModeConfig());
@@ -379,9 +387,11 @@ public class ApiScenarioBatchRunService {
         return apiBatchRunBaseService.setBatchRunTaskInfoParam(runModeConfig, taskInfo);
     }
 
-    public Map<String, String> initScenarioReport(ApiRunModeConfigDTO runModeConfig, List<ApiScenario> apiScenarios, String userId) {
+    public Map<String, String> initScenarioReport(Map<String, String> resourceExecTaskItemMap, ApiRunModeConfigDTO runModeConfig,
+                                                  List<ApiScenario> apiScenarios, String userId) {
         List<ApiScenarioReport> apiScenarioReports = new ArrayList<>(apiScenarios.size());
         List<ApiScenarioRecord> apiScenarioRecords = new ArrayList<>(apiScenarios.size());
+        List<ApiReportRelateTask> apiReportRelateTasks = new ArrayList<>();
         for (ApiScenario apiScenario : apiScenarios) {
             // 初始化报告
             ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, apiScenario, userId);
@@ -390,8 +400,13 @@ public class ApiScenarioBatchRunService {
             // 创建报告和用例的关联关系
             ApiScenarioRecord apiScenarioRecord = apiScenarioRunService.getApiScenarioRecord(apiScenario, apiScenarioReport);
             apiScenarioRecords.add(apiScenarioRecord);
+            // 创建报告和任务的关联关系
+            ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
+            apiReportRelateTask.setReportId(apiScenarioReport.getId());
+            apiReportRelateTask.setTaskResourceId(resourceExecTaskItemMap.get(apiScenario.getId()));
+            apiReportRelateTasks.add(apiReportRelateTask);
         }
-        apiScenarioReportService.insertApiScenarioReport(apiScenarioReports, apiScenarioRecords);
+        apiScenarioReportService.insertApiScenarioReport(apiScenarioReports, apiScenarioRecords, apiReportRelateTasks);
         return apiScenarioRecords.stream().collect(Collectors.toMap(ApiScenarioRecord::getApiScenarioId, ApiScenarioRecord::getApiScenarioReportId));
     }
 
@@ -402,13 +417,19 @@ public class ApiScenarioBatchRunService {
      * @param apiScenario
      * @return
      */
-    public ApiScenarioRecord initScenarioReport(ApiRunModeConfigDTO runModeConfig, ApiScenario apiScenario, String userId) {
+    public ApiScenarioRecord initScenarioReport(String taskItemId, ApiRunModeConfigDTO runModeConfig, ApiScenario apiScenario, String userId) {
         // 初始化报告
         ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, apiScenario, userId);
         apiScenarioReport.setId(IDGenerator.nextStr());
         // 创建报告和用例的关联关系
         ApiScenarioRecord apiScenarioRecord = apiScenarioRunService.getApiScenarioRecord(apiScenario, apiScenarioReport);
-        apiScenarioReportService.insertApiScenarioReport(List.of(apiScenarioReport), List.of(apiScenarioRecord));
+
+        // 创建报告和任务的关联关系
+        ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
+        apiReportRelateTask.setReportId(apiScenarioReport.getId());
+        apiReportRelateTask.setTaskResourceId(taskItemId);
+
+        apiScenarioReportService.insertApiScenarioReport(List.of(apiScenarioReport), List.of(apiScenarioRecord), List.of(apiReportRelateTask));
         return apiScenarioRecord;
     }
 

@@ -65,6 +65,8 @@ public class ApiReportService {
     private EnvironmentGroupMapper environmentGroupMapper;
     @Resource
     private ApiReportNoticeService apiReportNoticeService;
+    @Resource
+    private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiReport(ApiReport report) {
@@ -72,7 +74,18 @@ public class ApiReportService {
     }
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void insertApiReport(ApiReport report, ApiReportRelateTask taskRelation) {
+        apiReportMapper.insertSelective(report);
+        apiReportRelateTaskMapper.insertSelective(taskRelation);
+    }
+
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiReport(List<ApiReport> reports, List<ApiTestCaseRecord> records) {
+        this.insertApiReport(reports, records, null);
+    }
+
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void insertApiReport(List<ApiReport> reports, List<ApiTestCaseRecord> records, List<ApiReportRelateTask> taskRelations) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         if (CollectionUtils.isNotEmpty(reports)) {
             ApiReportMapper reportMapper = sqlSession.getMapper(ApiReportMapper.class);
@@ -84,6 +97,13 @@ public class ApiReportService {
             ApiTestCaseRecordMapper detailMapper = sqlSession.getMapper(ApiTestCaseRecordMapper.class);
             SubListUtils.dealForSubList(records, 1000, subList -> {
                 subList.forEach(detailMapper::insertSelective);
+            });
+        }
+
+        if (CollectionUtils.isNotEmpty(taskRelations)) {
+            ApiReportRelateTaskMapper taskRelationMapper = sqlSession.getMapper(ApiReportRelateTaskMapper.class);
+            SubListUtils.dealForSubList(taskRelations, 1000, subList -> {
+                subList.forEach(taskRelationMapper::insertSelective);
             });
         }
         sqlSession.flushStatements();

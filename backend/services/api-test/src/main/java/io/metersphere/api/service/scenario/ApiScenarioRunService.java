@@ -247,7 +247,7 @@ public class ApiScenarioRunService {
         scenarioReport.setEnvironmentId(parseParam.getEnvironmentId());
         scenarioReport.setWaitingTime(getGlobalWaitTime(parseParam.getScenarioConfig()));
 
-        initApiReport(apiScenario, scenarioReport);
+        initApiReport(taskItem.getId(), apiScenario, scenarioReport);
 
         // 初始化报告步骤
         initScenarioReportSteps(steps, taskItem.getReportId());
@@ -476,7 +476,7 @@ public class ApiScenarioRunService {
      * @param apiScenario
      * @return
      */
-    public ApiScenarioRecord initApiReport(ApiScenario apiScenario, ApiScenarioReport scenarioReport) {
+    public ApiScenarioRecord initApiReport(String taskItemId, ApiScenario apiScenario, ApiScenarioReport scenarioReport) {
         // 初始化报告
         scenarioReport.setName(apiScenario.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
         scenarioReport.setProjectId(apiScenario.getProjectId());
@@ -484,7 +484,12 @@ public class ApiScenarioRunService {
         // 创建报告和用例的关联关系
         ApiScenarioRecord scenarioRecord = getApiScenarioRecord(apiScenario, scenarioReport);
 
-        apiScenarioReportService.insertApiScenarioReport(List.of(scenarioReport), List.of(scenarioRecord));
+        // 创建报告和任务的关联关系
+        ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
+        apiReportRelateTask.setReportId(scenarioReport.getId());
+        apiReportRelateTask.setTaskResourceId(taskItemId);
+
+        apiScenarioReportService.insertApiScenarioReport(List.of(scenarioReport), List.of(scenarioRecord), List.of(apiReportRelateTask));
         return scenarioRecord;
     }
 
