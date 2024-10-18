@@ -7,6 +7,7 @@ import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
+import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.service.BaseTaskHubService;
@@ -44,8 +45,8 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_RESOURCE_POOL_STATUS = "/system/task-center/resource-pool/status";
     public static final String SYSTEM_TASK_STOP = "/system/task-center/exec-task/stop/";
     public static final String SYSTEM_TASK_DELETE = "/system/task-center/exec-task/delete/";
-    public static final String SYSTEM_TASK_BATCH_STOP = "/system/task-center/exec-task/batch-stop/";
-    public static final String SYSTEM_TASK_BATCH_DELETE = "/system/task-center/exec-task/batch-delete/";
+    public static final String SYSTEM_TASK_BATCH_STOP = "/system/task-center/exec-task/batch-stop";
+    public static final String SYSTEM_TASK_BATCH_DELETE = "/system/task-center/exec-task/batch-delete";
     public static final String SYSTEM_TASK_ITEM_STOP = "/system/task-center/exec-task/item/stop/";
     public static final String SYSTEM_TASK_ITEM_BATCH_STOP = "/system/task-center/exec-task/item/batch-stop";
     public static final String SYSTEM_TASK_ITEM_ORDER = "/system/task-center/exec-task/item/order";
@@ -252,9 +253,11 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String ORG_RESOURCE_POOL_OPTIONS = "/organization/task-center/resource-pool/options";
     public static final String ORG_TASK_STOP = "/organization/task-center/exec-task/stop/";
     public static final String ORG_TASK_DELETE = "/organization/task-center/exec-task/delete/";
-    public static final String ORG_TASK_BATCH_STOP = "/organization/task-center/exec-task/batch-stop/";
-    public static final String ORG_TASK_BATCH_DELETE = "/organization/task-center/exec-task/batch-delete/";
+    public static final String ORG_TASK_BATCH_STOP = "/organization/task-center/exec-task/batch-stop";
+    public static final String ORG_TASK_BATCH_DELETE = "/organization/task-center/exec-task/batch-delete";
     public static final String ORG_TASK_ITEM_ORDER = "/organization/task-center/exec-task/item/order";
+    public static final String ORG_TASK_ITEM_STOP = "/organization/task-center/exec-task/item/stop/";
+    public static final String ORG_TASK_ITEM_BATCH_STOP = "/organization/task-center/exec-task/item/batch-stop";
 
     @Test
     @Order(20)
@@ -354,6 +357,21 @@ public class BaseTaskHubControllerTests extends BaseTest {
         testResourcePoolMapper.deleteByPrimaryKey("2");
     }
 
+    /**
+     * 组织执行任务项停止
+     */
+    @Test
+    @Order(23)
+    public void orgTaskItemStop() throws Exception {
+        this.requestGet(ORG_TASK_ITEM_STOP + "1");
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(ORG_TASK_ITEM_STOP + "2");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
 
     /**
      * 系统执行任务停止
@@ -379,6 +397,15 @@ public class BaseTaskHubControllerTests extends BaseTest {
         HashMap resultData = getResultData(mvcResult, HashMap.class);
         // 返回请求正常
         Assertions.assertNotNull(resultData);
+    }
+
+    @Test
+    @Order(23)
+    public void orgTaskItemBatchStop() throws Exception {
+        TaskHubItemBatchRequest request = new TaskHubItemBatchRequest();
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("1", "2"));
+        this.requestPostWithOkAndReturn(ORG_TASK_ITEM_BATCH_STOP, request);
     }
 
     @Test
