@@ -12,18 +12,18 @@
       />
     </div>
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
+      <template #status="{ record }">
+        <a-switch
+          v-model:modelValue="record.enable"
+          type="line"
+          size="small"
+          :before-change="() => handleBeforeEnableChange(record)"
+        ></a-switch>
+      </template>
       <template #action="{ record }">
-        <div class="flex items-center gap-[12px]">
-          <a-switch
-            v-model:modelValue="record.enable"
-            type="line"
-            size="small"
-            :before-change="() => handleBeforeEnableChange(record)"
-          ></a-switch>
-          <MsButton @click="deleteTask(record)">
-            {{ t('common.delete') }}
-          </MsButton>
-        </div>
+        <MsButton @click="deleteTask(record)">
+          {{ t('common.delete') }}
+        </MsButton>
       </template>
     </ms-base-table>
   </MsDrawer>
@@ -55,7 +55,7 @@
       title: 'apiTestManagement.resourceID',
       dataIndex: 'resourceNum',
       slotName: 'resourceNum',
-      width: 140,
+      width: 90,
       showInTable: true,
       showTooltip: true,
     },
@@ -83,6 +83,12 @@
       width: 140,
     },
     {
+      title: 'common.status',
+      dataIndex: 'status',
+      slotName: 'status',
+      width: 80,
+    },
+    {
       title: 'apiTestManagement.taskNextRunTime',
       dataIndex: 'nextTime',
       showTooltip: true,
@@ -104,7 +110,7 @@
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 110,
+      width: 60,
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(

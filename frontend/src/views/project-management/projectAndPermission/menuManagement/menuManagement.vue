@@ -405,7 +405,7 @@
   /**
    * @description 项目管理-项目与权限-菜单管理
    */
-  import { useRouter } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import { Message, TableData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
@@ -433,6 +433,7 @@
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
   const appStore = useAppStore();
+  const route = useRoute();
   const router = useRouter();
   const currentProjectId = computed(() => appStore.currentProjectId);
   const { t } = useI18n();
@@ -873,7 +874,19 @@
   };
 
   const initExpendKeys = async () => {
-    if (router.currentRoute.value.redirectedFrom) {
+    if (route.query.module) {
+      await expandChange({ module: route.query.module as MenuEnum });
+      switch (route.query.module as MenuEnum) {
+        case MenuEnum.bugManagement:
+          showDefectDrawer();
+          break;
+        case MenuEnum.caseManagement:
+          showRelatedCaseDrawer();
+          break;
+        default:
+          break;
+      }
+    } else if (router.currentRoute.value.redirectedFrom) {
       // 从误报规则跳转回来的
       await expandChange({ module: MenuEnum.apiTest });
     } else {

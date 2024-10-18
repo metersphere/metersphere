@@ -423,10 +423,6 @@
     }
   }
 
-  function rerunTask(record: TaskCenterTaskDetailItem) {
-    console.log('rerunTask', record);
-  }
-
   const executeResultId = ref('');
   const caseExecuteResultDrawerVisible = ref(false);
   const scenarioExecuteResultDrawerVisible = ref(false);
@@ -468,6 +464,24 @@
           target.resourcePoolNodeStatus = item.status;
         }
       });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  async function rerunTask(record: TaskCenterTaskDetailItem) {
+    try {
+      // await deleteUserInfo({
+      //   selectIds,
+      //   selectAll: !!params?.selectAll,
+      //   excludeIds: params?.excludeIds || [],
+      //   condition: { keyword: keyword.value },
+      // });
+      Message.success(t('common.executionSuccess'));
+      resetSelector();
+      await loadList();
+      initCurrentPageResourcePoolsStatus();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
