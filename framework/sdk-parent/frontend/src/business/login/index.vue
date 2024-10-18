@@ -192,6 +192,11 @@ export default {
           this.loginTitle = response.data[3].paramValue;
         }
 
+        if (response.data && response.data[6] && response.data[6].paramValue) {
+          this.sysTitle = response.data[6].paramValue || "MeterSphere";
+          localStorage.setItem("default-sys-title", this.sysTitle);
+        }
+
         let title = response.data[4].paramValue;
         if (title) {
           document.title = title;

@@ -137,7 +137,7 @@ export default {
               }
             ],
             title: _this.$t("shepherd.step1.title"),
-            text: _this.$t("shepherd.step1.text")
+            text: _this.$t("shepherd.step1.text", [localStorage.getItem("default-sys-title") || "MeterSphere"])
           },
           {
             attachTo: {
@@ -188,7 +188,7 @@ export default {
               }
             ],
             title: _this.$t("shepherd.step3.title"),
-            text: _this.$t("shepherd.step3.text")
+            text: _this.$t("shepherd.step3.text", [localStorage.getItem("default-sys-title") || "MeterSphere"])
           },
           {
             attachTo: {
