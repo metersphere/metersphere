@@ -622,8 +622,9 @@
     const node: PlanMinderNode = window.minder.getSelectedNode();
     let associateType: string = '';
     let nodeDataType = node?.data?.type;
-    if (!extraVisible.value) {
-      // 配置抽屉关闭时，选中的节点是测试点下的用例数节点，需要找到测试点节点
+    const isCaseCountTag = node.data?.resource?.[0] === caseCountTag;
+    if (isCaseCountTag) {
+      // 选中的节点是测试点下的用例数节点，需要找到测试点节点
       nodeDataType = node?.parent?.data?.type;
     }
     if (nodeDataType === PlanMinderCollectionType.SCENARIO) {
@@ -631,8 +632,8 @@
     } else {
       associateType = param?.associateType ?? nodeDataType;
     }
-    if (extraVisible.value) {
-      // 配置抽屉打开，则选中的节点是测试点节点
+    if (!isCaseCountTag) {
+      // 选中的节点是测试点节点
       node.data.associateDTOS = [
         {
           ...cloneDeep(param),
@@ -640,7 +641,7 @@
         },
       ];
     } else if (node.parent?.data) {
-      // 配置抽屉关闭，则选中的节点是测试点下的用例数节点，需要找到测试点节点赋值
+      // 选中的节点是测试点下的用例数节点，需要找到测试点节点赋值
       node.parent.data.associateDTOS = [
         {
           ...cloneDeep(param),
@@ -677,10 +678,10 @@
    */
   function associateCase() {
     const node: PlanMinderNode = window.minder.getSelectedNode();
-    if (extraVisible.value) {
-      activePlanSet.value = node;
-    } else if (node.parent) {
+    if (node.data?.resource?.[0] === caseCountTag) {
       activePlanSet.value = node.parent as PlanMinderNode;
+    } else {
+      activePlanSet.value = node;
     }
     currentSelectCase.value = (activePlanSet.value?.data.type as unknown as CaseLinkEnum) || CaseLinkEnum.FUNCTIONAL;
     setCaseSelectedSet();
