@@ -8,9 +8,6 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 接口导入数据准备结果
- */
 @Data
 public class ApiScenarioPreImportAnalysisResult {
 

@@ -34,9 +34,7 @@ import org.springframework.util.MultiValueMap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -75,22 +73,17 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
     @Test
     @Order(1)
     public void testImport() throws Exception {
-        Map<String, String> importTypeAndSuffix = new LinkedHashMap<>();
-        //        importTypeAndSuffix.put("metersphere", "json");
-        importTypeAndSuffix.put("jmeter", "jmx");
-        for (Map.Entry<String, String> entry : importTypeAndSuffix.entrySet()) {
-            ApiScenarioImportRequest request = new ApiScenarioImportRequest();
-            request.setProjectId(project.getId());
-            request.setType(entry.getKey());
-            String importType = entry.getKey();
-            String fileSuffix = entry.getValue();
-            FileInputStream inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import-scenario/" + importType + "/simple." + fileSuffix)).getPath()));
-            MockMultipartFile file = new MockMultipartFile("file", "simple." + fileSuffix, MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
-            MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
-            paramMap.add("request", JSON.toJSONString(request));
-            paramMap.add("file", file);
-            this.requestMultipartWithOkAndReturn(URL_POST_IMPORT, paramMap);
-        }
+        ApiScenarioImportRequest request = new ApiScenarioImportRequest();
+        request.setProjectId(project.getId());
+        request.setType("jmeter");
+        String importType = "jmeter";
+        String fileSuffix = "jmx";
+        FileInputStream inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import-scenario/" + importType + "/simple." + fileSuffix)).getPath()));
+        MockMultipartFile file = new MockMultipartFile("file", "simple." + fileSuffix, MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file);
+        this.requestMultipartWithOkAndReturn(URL_POST_IMPORT, paramMap);
     }
 
     @Resource
@@ -142,6 +135,21 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
         Assertions.assertEquals(exportResponse.getExportScenarioList().size(), 3);
 
         MsFileUtils.deleteDir("/tmp/api-scenario-export/");
+    }
+
+    @Test
+    @Order(3)
+    public void testImportMs() throws Exception {
+        ApiScenarioImportRequest request = new ApiScenarioImportRequest();
+        request.setProjectId(project.getId());
+        request.setType("metersphere");
+        String importType = "metersphere";
+        FileInputStream inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import-scenario/" + importType + "/all.ms")).getPath()));
+        MockMultipartFile file = new MockMultipartFile("file", "all.ms", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file);
+        this.requestMultipartWithOkAndReturn(URL_POST_IMPORT, paramMap);
     }
 
     private MvcResult download(String projectId, String fileId) throws Exception {

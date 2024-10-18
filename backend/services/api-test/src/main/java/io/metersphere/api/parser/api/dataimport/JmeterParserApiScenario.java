@@ -3,6 +3,8 @@ package io.metersphere.api.parser.api.dataimport;
 import io.metersphere.api.constants.ApiScenarioStatus;
 import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
+import io.metersphere.api.dto.converter.ApiScenarioImportParseResult;
+import io.metersphere.api.dto.converter.ApiScenarioStepParseResult;
 import io.metersphere.api.dto.request.MsJMeterComponent;
 import io.metersphere.api.dto.request.MsThreadGroup;
 import io.metersphere.api.dto.request.controller.*;
@@ -19,7 +21,6 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.uid.IDGenerator;
-import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,14 +37,16 @@ public class JmeterParserApiScenario implements ApiScenarioImportParser {
 
 
     @Override
-    public List<ApiScenarioImportDetail> parse(InputStream inputSource, ApiScenarioImportRequest request) throws Exception {
+    public ApiScenarioImportParseResult parse(InputStream inputSource, ApiScenarioImportRequest request) throws Exception {
         try {
             Object scriptWrapper = MsSaveService.loadElement(inputSource);
             HashTree hashTree = this.getHashTree(scriptWrapper);
             MsTestElementParser parser = new MsTestElementParser();
             AbstractMsTestElement msTestElement = parser.parse(hashTree);
             Map<String, String> polymorphicNameMap = parser.getPolymorphicNameMap(request.getProjectId());
-            return this.parseImportFile(request.getProjectId(), msTestElement, polymorphicNameMap);
+            return new ApiScenarioImportParseResult() {{
+                this.setImportScenarioList(parseImportFile(request.getProjectId(), msTestElement, polymorphicNameMap));
+            }};
         } catch (Exception e) {
             LogUtils.error(e);
             throw new MSException("当前JMX版本不兼容");
@@ -184,11 +187,6 @@ public class JmeterParserApiScenario implements ApiScenarioImportParser {
     }
 }
 
-@Data
-class ApiScenarioStepParseResult {
-    private List<ApiScenarioStepRequest> stepList = new ArrayList<>();
-    private Map<String, Object> stepDetails = new HashMap<>();
-}
 
 class ProtocolConfig {
     String id;
