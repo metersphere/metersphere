@@ -980,6 +980,17 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="selectAllDetailByIds" resultMap="ApiTestCaseDetailMap">
+        SELECT apiTestCase.*,apiTestCaseBlob.request
+        FROM api_test_case apiTestCase
+        INNER JOIN api_test_case_blob apiTestCaseBlob ON apiTestCase.id = apiTestCaseBlob.id
+        WHERE apiTestCase.id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <select id="getNameInfo" resultType="io.metersphere.api.domain.ApiTestCase">
         SELECT id,name
         FROM api_test_case

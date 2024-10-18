@@ -1446,6 +1446,13 @@ public class ApiScenarioService extends MoveNodeService {
                 .collect(Collectors.toMap(ApiScenarioStepBlob::getId, blob -> new String(blob.getContent())));
     }
 
+    public Map<String, String> getStepDetailMap(List<? extends ApiScenarioStepCommonDTO> steps) {
+        List<String> stepIdList = steps.stream()
+                .map(ApiScenarioStepCommonDTO::getId).distinct()
+                .toList();
+        return getStepBlobByIds(stepIdList).stream()
+                .collect(Collectors.toMap(ApiScenarioStepBlob::getId, blob -> new String(blob.getContent())));
+    }
     public List<ApiScenarioStepBlob> getStepBlobByIds(List<String> stepIds) {
         if (CollectionUtils.isEmpty(stepIds)) {
             return Collections.emptyList();
@@ -2467,7 +2474,7 @@ public class ApiScenarioService extends MoveNodeService {
         return apiStepResourceInfo;
     }
 
-    public MetersphereApiScenarioExportResponse selectAndSortScenarioDetailWithIds(@Valid List<@NotBlank(message = "{id must not be blank}") String> scenarioIds) {
+    public MetersphereApiScenarioExportResponse selectAndSortScenarioDetailWithIds(@Valid List<@NotBlank(message = "{id must not be blank}") String> scenarioIds, Map<String, String> moduleMap) {
         MetersphereApiScenarioExportResponse response = new MetersphereApiScenarioExportResponse();
 
         // 数据准备
@@ -2481,13 +2488,18 @@ public class ApiScenarioService extends MoveNodeService {
                     .stream()
                     .distinct() // 这里可能存在多次引用相同场景，步骤可能会重复，去重
                     .collect(Collectors.toList());
+            response.setScenarioStepList(allSteps);
 
             //查询引用的场景ID
             List<String> stepScenarioIds = allSteps.stream().filter(step -> isScenarioStep(step.getStepType())).map(ApiScenarioStepDTO::getResourceId).toList();
 
             // 查询所有场景的blob
             List<String> allScenarioIds = new ArrayList<>(scenarioIds);
-            allScenarioIds.addAll(stepScenarioIds);
+            stepScenarioIds.forEach(stepScenarioId -> {
+                if (!allScenarioIds.contains(stepScenarioId)) {
+                    allScenarioIds.add(stepScenarioId);
+                }
+            });
             ApiScenarioBlobExample scenarioBlobExample = new ApiScenarioBlobExample();
             scenarioBlobExample.createCriteria().andIdIn(allScenarioIds);
             Map<String, ApiScenarioBlob> scenarioBlobMap = apiScenarioBlobMapper.selectByExampleWithBLOBs(scenarioBlobExample).stream().collect(Collectors.toMap(ApiScenarioBlob::getId, Function.identity()));
@@ -2497,17 +2509,17 @@ public class ApiScenarioService extends MoveNodeService {
             response.setApiScenarioCsvList(apiScenarioCsvMapper.selectByExample(apiScenarioCsvExample));
 
             // 导出的场景
-            response.setExportScenarioList(ApiScenarioUtils.parseApiScenarioDetail(exportApiScenarios, scenarioBlobMap));
+            response.setExportScenarioList(ApiScenarioUtils.parseApiScenarioDetail(exportApiScenarios, scenarioBlobMap, moduleMap));
 
             //步骤引用的场景
             if (CollectionUtils.isNotEmpty(stepScenarioIds)) {
                 scenarioExample.clear();
                 scenarioExample.createCriteria().andIdIn(stepScenarioIds);
                 List<ApiScenario> otherScenarios = apiScenarioMapper.selectByExample(scenarioExample);
-                response.setExportScenarioList(ApiScenarioUtils.parseApiScenarioDetail(otherScenarios, scenarioBlobMap));
+                response.setRelatedScenarioList(ApiScenarioUtils.parseApiScenarioDetail(otherScenarios, scenarioBlobMap, moduleMap));
             }
-            
-            response.setScenarioStepBlobMap(getPartialRefStepDetailMap(allSteps));
+
+            response.setScenarioStepBlobMap(getStepDetailMap(allSteps));
         }
 
         return response;
