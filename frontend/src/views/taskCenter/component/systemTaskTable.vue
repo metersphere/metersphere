@@ -82,8 +82,10 @@
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ApiTestRouteEnum, TestPlanRouteEnum } from '@/enums/routeEnum';
+  import { MenuEnum } from '@/enums/commonEnum';
+  import { ApiTestRouteEnum, ProjectManagementRouteEnum, TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { SystemTaskType } from '@/enums/taskCenter';
 
   import { scheduleTaskTypeMap } from './config';
 
@@ -288,35 +290,68 @@
     });
   }
 
-  function openTask(record?: any, isBatch?: boolean, params?: BatchActionQueryParams) {
-    console.log(record);
+  function openTask(params?: BatchActionQueryParams) {
+    try {
+      // await deleteUserInfo({
+      //   selectIds,
+      //   selectAll: !!params?.selectAll,
+      //   excludeIds: params?.excludeIds || [],
+      //   condition: { keyword: keyword.value },
+      // });
+      Message.success(t('ms.taskCenter.openTaskSuccess'));
+      resetSelector();
+      loadList();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
-  function closeTask(record?: any, isBatch?: boolean, params?: BatchActionQueryParams) {
-    console.log(record);
+  function closeTask(params?: BatchActionQueryParams) {
+    try {
+      // await deleteUserInfo({
+      //   selectIds,
+      //   selectAll: !!params?.selectAll,
+      //   excludeIds: params?.excludeIds || [],
+      //   condition: { keyword: keyword.value },
+      // });
+      Message.success(t('ms.taskCenter.closeTaskSuccess'));
+      resetSelector();
+      loadList();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
   function checkDetail(record: any) {
     switch (record.resourceType) {
-      case 'API_IMPORT':
+      case SystemTaskType.API_IMPORT:
         openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
           taskDrawer: true,
         });
         break;
-      case 'TEST_PLAN':
-        openNewPage(TestPlanRouteEnum.TEST_PLAN_REPORT_DETAIL, {
-          reportId: record.reportId,
+      case SystemTaskType.TEST_PLAN:
+        openNewPage(TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL, {
+          id: record.resourceId,
         });
         break;
-      case 'API_SCENARIO':
-        openNewPage(ApiTestRouteEnum.API_TEST_REPORT, {
-          reportId: record.reportId,
+      case SystemTaskType.API_SCENARIO:
+        openNewPage(ApiTestRouteEnum.API_TEST_SCENARIO, {
+          id: record.resourceId,
+        });
+        break;
+      case SystemTaskType.BUG_SYNC:
+        openNewPage(ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT, {
+          module: MenuEnum.bugManagement,
+        });
+        break;
+      case SystemTaskType.DEMAND_SYNC:
+        openNewPage(ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT, {
+          module: MenuEnum.caseManagement,
         });
         break;
       default:
-        openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
-          taskDrawer: true,
-        });
         break;
     }
   }
@@ -340,10 +375,10 @@
     batchModalParams.value = params;
     switch (event.eventTag) {
       case 'open':
-        openTask(undefined, true, params);
+        openTask(params);
         break;
       case 'close':
-        closeTask(undefined, true, params);
+        closeTask(params);
         break;
       default:
         break;

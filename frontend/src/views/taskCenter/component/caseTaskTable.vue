@@ -202,7 +202,7 @@
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
-  import { ExecuteResultEnum, ExecuteStatusEnum, ExecuteTaskType } from '@/enums/taskCenter';
+  import { ExecuteResultEnum, ExecuteStatusEnum, ExecuteTaskType, SystemTaskType } from '@/enums/taskCenter';
 
   import { executeFinishedRateMap, executeMethodMap, executeResultMap, executeStatusMap } from './config';
 
@@ -580,8 +580,22 @@
     }
   }
 
-  function rerunTask(record: TaskCenterTaskItem) {
-    console.log('rerunTask', record);
+  async function rerunTask(record: TaskCenterTaskItem) {
+    try {
+      // await deleteUserInfo({
+      //   selectIds,
+      //   selectAll: !!params?.selectAll,
+      //   excludeIds: params?.excludeIds || [],
+      //   condition: { keyword: keyword.value },
+      // });
+      Message.success(t('common.executionSuccess'));
+      resetSelector();
+      await loadList();
+      initTaskStatistics();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
   /**
@@ -594,7 +608,7 @@
 
   function showReportDetail(record: TaskCenterTaskItem) {
     activeDetailId.value = record.id;
-    if (record.taskType === 'API_SCENARIO') {
+    if ([ExecuteTaskType.API_SCENARIO, ExecuteTaskType.TEST_PLAN_API_SCENARIO].includes(record.taskType)) {
       showDetailDrawer.value = true;
     } else {
       showCaseDetailDrawer.value = true;
@@ -631,10 +645,19 @@
         ? ReportEnum.API_REPORT
         : ReportEnum.API_SCENARIO_REPORT;
       taskReportDrawerVisible.value = true;
-    } else if (['API_CASE', 'API_SCENARIO'].includes(record.taskType)) {
+    } else if (
+      [
+        ExecuteTaskType.API_CASE,
+        ExecuteTaskType.API_SCENARIO,
+        ExecuteTaskType.TEST_PLAN_API_CASE,
+        ExecuteTaskType.TEST_PLAN_API_SCENARIO,
+      ].includes(record.taskType)
+    ) {
       showReportDetail(record);
-    } else if (record.taskType === ExecuteTaskType.TEST_PLAN) {
-      openNewPage(TestPlanRouteEnum.TEST_PLAN_REPORT);
+    } else if ([ExecuteTaskType.TEST_PLAN_GROUP, ExecuteTaskType.TEST_PLAN].includes(record.taskType)) {
+      openNewPage(TestPlanRouteEnum.TEST_PLAN_REPORT, {
+        id: record.reportId,
+      });
     }
   }
 

@@ -1,4 +1,4 @@
-import type { ExecuteTriggerMode } from '@/enums/taskCenter';
+import type { ExecuteTaskType, ExecuteTriggerMode } from '@/enums/taskCenter';
 
 import type { TableQueryParams } from './common';
 
@@ -34,7 +34,7 @@ export interface TaskCenterTaskItem {
   status: string; // 执行状态
   caseCount: number;
   result: string; // 执行结果
-  taskType: string; // 任务类型
+  taskType: ExecuteTaskType; // 任务类型
   resourceId: string;
   triggerMode: ExecuteTriggerMode; // 执行方式
   projectId: string;
