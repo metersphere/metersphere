@@ -626,7 +626,7 @@ public class ApiScenarioDataTransferService {
 
     private ApiScenarioExportResponse genMetersphereExportResponse(ApiScenarioBatchExportRequest request, Map<String, String> moduleMap, String exportType, String userId) {
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
-        MetersphereApiScenarioExportResponse response = apiScenarioService.selectAndSortScenarioDetailWithIds(request.getSelectIds());
+        MetersphereApiScenarioExportResponse response = apiScenarioService.selectAndSortScenarioDetailWithIds(request.getSelectIds(), moduleMap);
         response.setProjectId(project.getId());
         response.setOrganizationId(project.getOrganizationId());
 
@@ -649,7 +649,7 @@ public class ApiScenarioDataTransferService {
             });
             List<ApiTestCaseWithBlob> apiTestCaseWithBlobs = null;
             if (CollectionUtils.isNotEmpty(apiCaseIdList)) {
-                apiTestCaseWithBlobs = extApiTestCaseMapper.selectAllDetailByApiIds(apiCaseIdList);
+                apiTestCaseWithBlobs = extApiTestCaseMapper.selectAllDetailByIds(apiCaseIdList);
                 if (CollectionUtils.isNotEmpty(apiCaseIdList)) {
                     apiTestCaseWithBlobs.forEach(item -> {
                         if (!apiDefinitionIdList.contains(item.getApiDefinitionId())) {

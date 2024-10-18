@@ -127,4 +127,6 @@ public interface ExtApiTestCaseMapper {
     void clearApiChange(@Param("ids")  List<String> ids);
 
     List<ApiTestCaseWithBlob> selectAllDetailByApiIds(@Param("apiIds") List<String> apiIds);
+
+    List<ApiTestCaseWithBlob> selectAllDetailByIds(@Param("ids") List<String> apiIds);
 }

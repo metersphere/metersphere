@@ -10,6 +10,8 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ApiScenarioDetail extends ApiScenario {
+    @Schema(description = "模块路径")
+    private String modulePath;
     @Schema(description = "场景的通用配置")
     private ScenarioConfig scenarioConfig = new ScenarioConfig();
     @Schema(description = "步骤")
