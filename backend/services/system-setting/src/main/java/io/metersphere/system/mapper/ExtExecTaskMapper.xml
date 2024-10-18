@@ -47,6 +47,12 @@
     <select id="getIds" resultType="java.lang.String">
         select id from exec_task
         <where>
+            <if test="projectId != null and projectId != ''">
+                and exec_task.project_id = #{projectId}
+            </if>
+            <if test="organizationId != null and organizationId != ''">
+                and exec_task.organization_id = #{organizationId}
+            </if>
             <include refid="queryWhereConditionByBaseQueryRequest"/>
         </where>
     </select>

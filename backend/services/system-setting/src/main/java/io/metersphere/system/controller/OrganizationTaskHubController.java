@@ -37,6 +37,8 @@ public class OrganizationTaskHubController {
     private BaseTaskHubService baseTaskHubService;
     @Resource
     BaseProjectMapper baseProjectMapper;
+    @Resource
+    private BaseTaskHubLogService baseTaskHubLogService;
 
     @PostMapping("/exec-task/page")
     @Operation(summary = "组织-任务中心-执行任务列表")
@@ -92,10 +94,12 @@ public class OrganizationTaskHubController {
 
     @PostMapping("/exec-task/batch-stop")
     @Operation(summary = "组织-任务中心-用例执行任务-批量停止任务")
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.orgBatchStopLog(#id)", msClass = BaseTaskHubLogService.class)
     @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_EXEC_STOP)
     public void batchStopTask(@Validated @RequestBody TableBatchProcessDTO request) {
-        baseTaskHubService.batchStopTask(request, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), null);
+        List<String> ids = baseTaskHubService.getTaskIds(request, SessionUtils.getCurrentOrganizationId(), null);
+        baseTaskHubService.batchStopTask(ids, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), null);
+        //日志
+        baseTaskHubLogService.orgBatchStopLog(ids);
     }
 
 
@@ -111,9 +115,11 @@ public class OrganizationTaskHubController {
 
     @PostMapping("/exec-task/batch-delete")
     @Operation(summary = "组织-任务中心-用例执行任务-批量删除任务")
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.orgBatchDeleteLog(#request)", msClass = BaseTaskHubLogService.class)
     @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_DELETE)
     public void batchDeleteTask(@Validated @RequestBody TableBatchProcessDTO request) {
-        baseTaskHubService.batchDeleteTask(request, SessionUtils.getCurrentOrganizationId(), null);
+        List<String> ids = baseTaskHubService.getTaskIds(request, SessionUtils.getCurrentOrganizationId(), null);
+        baseTaskHubService.batchDeleteTask(ids, SessionUtils.getCurrentOrganizationId(), null);
+        //日志
+        baseTaskHubLogService.orgBatchDeleteLog(ids);
     }
 }

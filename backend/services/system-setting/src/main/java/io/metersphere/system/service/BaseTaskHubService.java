@@ -27,6 +27,7 @@ import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.*;
+import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
 import io.metersphere.system.mapper.*;
@@ -552,8 +553,7 @@ public class BaseTaskHubService {
         apiReportRelateTaskMapper.deleteByExample(reportExample);
     }
 
-    public void batchStopTask(TableBatchProcessDTO request, String userId, String orgId, String projectId) {
-        List<String> ids = getTaskIds(request);
+    public void batchStopTask(List<String> ids, String userId, String orgId, String projectId) {
         if (CollectionUtils.isNotEmpty(ids)) {
             //1.更新任务状态
             extExecTaskMapper.batchUpdateTaskStatus(ids, userId, orgId, projectId, ExecStatus.STOPPED.name());
@@ -564,9 +564,9 @@ public class BaseTaskHubService {
 
     }
 
-    public List<String> getTaskIds(TableBatchProcessDTO request) {
+    public List<String> getTaskIds(TableBatchProcessDTO request, String orgId, String projectId) {
         if (request.isSelectAll()) {
-            List<String> ids = extExecTaskMapper.getIds(request);
+            List<String> ids = extExecTaskMapper.getIds(request, orgId, projectId);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }
@@ -576,8 +576,7 @@ public class BaseTaskHubService {
         }
     }
 
-    public void batchDeleteTask(TableBatchProcessDTO request, String orgId, String projectId) {
-        List<String> ids = getTaskIds(request);
+    public void batchDeleteTask(List<String> ids, String orgId, String projectId) {
         if (CollectionUtils.isNotEmpty(ids)) {
             //1.删除任务
             extExecTaskMapper.deleteTaskByIds(ids, orgId, projectId);
@@ -588,6 +587,76 @@ public class BaseTaskHubService {
             //3.删除任务与报告关联关系
             deleteReportRelateTask(ids);
             handleStopTask(ids);
+        }
+    }
+
+
+    /**
+     * 停止任务项
+     *
+     * @param id
+     * @param userId
+     * @param orgId
+     * @param projectId
+     */
+    public void stopTaskItem(String id, String userId, String orgId, String projectId) {
+        //1.更新任务明细状态
+        extExecTaskItemMapper.batchUpdateTaskItemStatusByIds(List.of(id), userId, orgId, projectId, ExecStatus.STOPPED.name());
+        //2.通过任务项id停止任务
+        handleStopTaskItem(List.of(id));
+    }
+
+
+    private void handleStopTaskItem(List<String> ids) {
+        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.getResourcePoolsByItemIds(ids);
+        Map<String, List<ExecTaskItem>> resourcePoolMaps = execTaskItems.stream().collect(Collectors.groupingBy(ExecTaskItem::getResourcePoolId));
+        resourcePoolMaps.forEach((k, v) -> {
+            //判断资源池类型
+            TestResourcePoolReturnDTO testResourcePoolDTO = testResourcePoolService.getTestResourcePoolDetail(k);
+            boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.getName());
+            if (isK8SResourcePool) {
+                List<String> itemIds = v.stream().map(ExecTaskItem::getId).toList();
+                //K8S 通过任务项id停止任务项
+                handleK8STaskItem(itemIds, testResourcePoolDTO);
+            } else {
+                Map<String, List<ExecTaskItem>> nodeItem = execTaskItems.stream().collect(Collectors.groupingBy(ExecTaskItem::getResourcePoolNode));
+                handleNodeTask(nodeItem);
+            }
+        });
+    }
+
+    private void handleK8STaskItem(List<String> itemIds, TestResourcePoolReturnDTO testResourcePoolDTO) {
+        SubListUtils.dealForSubList(itemIds, 100, subList -> {
+            try {
+                TestResourceDTO testResourceDTO = new TestResourceDTO();
+                BeanUtils.copyBean(testResourceDTO, testResourcePoolDTO.getTestResourceReturnDTO());
+                EngineFactory.stopApiTaskItem(subList, testResourceDTO);
+            } catch (Exception e) {
+                LogUtils.error(e);
+            }
+        });
+    }
+
+    public void batchStopTaskItem(List<String> itemIds, String userId, String orgId, String projectId) {
+        if (CollectionUtils.isNotEmpty(itemIds)) {
+            //1.更新任务明细状态
+            extExecTaskItemMapper.batchUpdateTaskItemStatusByIds(itemIds, userId, orgId, projectId, ExecStatus.STOPPED.name());
+            //2.通过任务项id停止任务
+            handleStopTaskItem(itemIds);
+        }
+
+    }
+
+
+    public List<String> getTaskItemIds(TaskHubItemBatchRequest request, String orgId, String projectId) {
+        if (request.isSelectAll()) {
+            List<String> ids = extExecTaskItemMapper.getIds(request, orgId, projectId);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            return request.getSelectIds();
         }
     }
 }

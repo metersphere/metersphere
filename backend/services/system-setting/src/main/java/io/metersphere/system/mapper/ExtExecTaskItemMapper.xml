@@ -99,6 +99,11 @@
                             and exec_task_item.result in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <!-- 执行方式 -->
+                        <when test="key=='triggerMode'">
+                            and exec_task.trigger_mode in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
                     </choose>
                 </if>
             </foreach>
@@ -160,4 +165,65 @@
             #{taskId}
         </foreach>
     </select>
+
+
+    <update id="batchUpdateTaskItemStatusByIds">
+        UPDATE exec_task_item
+        SET `status` = #{status},
+        executor = #{userId}
+        WHERE  id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        <if test="projectId != null and projectId != ''">
+            and project_id = #{projectId}
+        </if>
+        <if test="organizationId != null and organizationId != ''">
+            and organization_id = #{organizationId}
+        </if>
+        and `status` = 'RUNNING'
+    </update>
+
+
+    <select id="getResourcePoolsByItemIds" resultType="io.metersphere.system.domain.ExecTaskItem">
+        SELECT
+        id,
+        resource_pool_node,
+        resource_pool_id
+        FROM
+        exec_task_item
+        <if test="ids != null and ids.size() > 0">
+            WHERE id IN
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+
+    <select id="getIds" resultType="java.lang.String">
+        select id from exec_task_item
+        inner join exec_task on exec_task_item.task_id = exec_task.id
+        <where>
+            <if test="projectId != null and projectId != ''">
+                and exec_task_item.project_id = #{projectId}
+            </if>
+            <if test="organizationId != null and organizationId != ''">
+                and exec_task_item.organization_id = #{organizationId}
+            </if>
+            <include refid="queryWhereConditionByBaseQueryRequest"/>
+        </where>
+    </select>
+
+    <sql id="queryWhereConditionByBaseQueryRequest">
+        <if test="request.condition.keyword != null and request.condition.keyword != ''">
+            and (
+            exec_task.num like concat('%', #{request.keyword},'%')
+            or exec_task_item.resource_name like concat('%', #{request.keyword},'%')
+            )
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
+        </include>
+    </sql>
 </mapper>

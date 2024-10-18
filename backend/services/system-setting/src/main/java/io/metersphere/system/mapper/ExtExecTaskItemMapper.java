@@ -1,6 +1,7 @@
 package io.metersphere.system.mapper;
 
 import io.metersphere.system.domain.ExecTaskItem;
+import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import org.apache.ibatis.annotations.Param;
@@ -25,6 +26,7 @@ public interface ExtExecTaskItemMapper {
 
     /**
      * 查询时间范围内的任务项ID集合
+     *
      * @param timeMills 时间戳
      * @param projectId 项目ID
      * @return 任务项ID列表
@@ -38,4 +40,10 @@ public interface ExtExecTaskItemMapper {
     Boolean hasFakeErrorItem(@Param("taskId") String taskId);
 
     List<String> getItemIdByTaskIds(@Param("taskIds") List<String> taskIds);
+
+    void batchUpdateTaskItemStatusByIds(@Param("ids") List<String> ids, @Param("userId") String userId, @Param("organizationId") String organizationId, @Param("projectId") String projectId, @Param("status") String status);
+
+    List<ExecTaskItem> getResourcePoolsByItemIds(@Param("ids") List<String> ids);
+
+    List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("organizationId") String organizationId, @Param("projectId") String projectId);
 }

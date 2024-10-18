@@ -33,6 +33,8 @@ public class ProjectTaskHubController {
 
     @Resource
     private BaseTaskHubService baseTaskHubService;
+    @Resource
+    private BaseTaskHubLogService baseTaskHubLogService;
 
     @PostMapping("/exec-task/page")
     @Operation(summary = "项目-任务中心-执行任务列表")
@@ -85,10 +87,11 @@ public class ProjectTaskHubController {
 
     @PostMapping("/exec-task/batch-stop")
     @Operation(summary = "项目-任务中心-用例执行任务-批量停止任务")
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.projectBatchStopLog(#id)", msClass = BaseTaskHubLogService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_CASE_TASK_CENTER_EXEC_STOP)
     public void batchStopTask(@Validated @RequestBody TableBatchProcessDTO request) {
-        baseTaskHubService.batchStopTask(request, SessionUtils.getUserId(), null, SessionUtils.getCurrentProjectId());
+        List<String> ids = baseTaskHubService.getTaskIds(request, null, SessionUtils.getCurrentProjectId());
+        baseTaskHubService.batchStopTask(ids, SessionUtils.getUserId(), null, SessionUtils.getCurrentProjectId());
+        baseTaskHubLogService.projectBatchStopLog(ids);
     }
 
 
@@ -102,9 +105,10 @@ public class ProjectTaskHubController {
 
     @PostMapping("/exec-task/batch-delete")
     @Operation(summary = "项目-任务中心-用例执行任务-批量删除任务")
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.projectBatchDeleteLog(#id)", msClass = BaseTaskHubLogService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_CASE_TASK_CENTER_DELETE)
-    public void batchDeleteTask(@PathVariable String id) {
-        baseTaskHubService.deleteTask(id, null, SessionUtils.getCurrentProjectId());
+    public void batchDeleteTask(@Validated @RequestBody TableBatchProcessDTO request) {
+        List<String> ids = baseTaskHubService.getTaskIds(request, null, SessionUtils.getCurrentProjectId());
+        baseTaskHubService.batchDeleteTask(ids, null, SessionUtils.getCurrentProjectId());
+        baseTaskHubLogService.projectBatchDeleteLog(ids);
     }
 }
