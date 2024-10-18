@@ -131,4 +131,5 @@ export default {
   'project.environmental.http.noneDataExist': '已存在启用范围为无的域名！',
   'project.environmental.http.selectModule': '请选择模块',
   'script.delete.confirm': '删除后无法恢复, 请谨慎操作！',
+  'project.environmental.env.existNewEnvTip': '当前新增环境未保存，是否保存？',
 };

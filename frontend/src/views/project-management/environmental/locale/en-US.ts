@@ -131,4 +131,5 @@ export default {
   'project.environmental.http.selectModule': 'Please select module',
   'script.delete.confirm': 'After deletion, it cannot be restored. Please exercise caution.',
   'script.delete.scenario': 'scenario',
+  'project.environmental.env.existNewEnvTip': 'The new environment is not save, save?',
 };

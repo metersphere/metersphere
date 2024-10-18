@@ -62,6 +62,7 @@
                 <MsButton
                   v-permission="['PROJECT_ENVIRONMENT:READ+ADD']"
                   type="icon"
+                  :disabled="!!hasUnSaveData"
                   class="!mr-0 p-[2px]"
                   @click="handleCreateEnv"
                 >
@@ -107,13 +108,16 @@
                         >
                           <div class="flex flex-row items-center gap-[8px]">
                             <icon-drag-dot-vertical
-                              v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
+                              v-if="
+                                hasAnyPermission(['PROJECT_ENVIRONMENT:READ+UPDATE']) &&
+                                !excludeActionType.includes(element.id)
+                              "
                               class="drag-handle env-item-drag-icon"
                             />
                             <MsMoreAction
                               v-permission="['PROJECT_ENVIRONMENT:READ+DELETE', 'PROJECT_ENVIRONMENT:READ+EXPORT']"
                               trigger="click"
-                              :list="envMoreAction(element.mock || false)"
+                              :list="envMoreAction(element)"
                               @select="
                                 (value) => handleMoreAction(value, element.id, EnvAuthTypeEnum.ENVIRONMENT_PARAM)
                               "
@@ -219,6 +223,7 @@
         <!-- 环境变量 -->
         <EnvParamBox
           v-else-if="showType === 'PROJECT' && activeKey !== ALL_PARAM"
+          ref="envParamBoxRef"
           @reset-env="resetHandler"
           @ok="successHandler"
         />
@@ -331,34 +336,40 @@
   const exportOptionData = ref<MsExportDrawerMap>({
     systemColumns: {},
   });
+  const excludeActionType = [NEW_ENV_PARAM_COPY, NEW_ENV_PARAM];
 
   // 默认环境MoreAction
-  const envMoreAction = (isMock: boolean | undefined) => {
+  const envMoreAction = (item: EnvListItem) => {
+    const allowAction = excludeActionType.includes(item.id)
+      ? []
+      : [
+          {
+            label: t('common.rename'),
+            eventTag: 'rename',
+            disabled: item.mock || false,
+            permission: ['PROJECT_ENVIRONMENT:READ+UPDATE'],
+          },
+          {
+            label: t('common.copy'),
+            eventTag: 'copy',
+            permission: ['PROJECT_ENVIRONMENT:READ+ADD'],
+          },
+          {
+            label: t('common.export'),
+            eventTag: 'export',
+            permission: ['PROJECT_ENVIRONMENT:READ+EXPORT'],
+          },
+          {
+            isDivider: true,
+          },
+        ];
     return [
-      {
-        label: t('common.rename'),
-        eventTag: 'rename',
-        disabled: isMock,
-        permission: ['PROJECT_ENVIRONMENT:READ+UPDATE'],
-      },
-      {
-        label: t('common.copy'),
-        eventTag: 'copy',
-        permission: ['PROJECT_ENVIRONMENT:READ+ADD'],
-      },
-      {
-        label: t('common.export'),
-        eventTag: 'export',
-        permission: ['PROJECT_ENVIRONMENT:READ+EXPORT'],
-      },
-      {
-        isDivider: true,
-      },
+      ...allowAction,
       {
         label: t('common.delete'),
         danger: true,
         eventTag: 'delete',
-        disabled: isMock,
+        disabled: item.mock || false,
         permission: ['PROJECT_ENVIRONMENT:READ+DELETE'],
       },
     ];
@@ -438,21 +449,6 @@
   const handleEnvImport = () => {
     importVisible.value = true;
     importAuthType.value = EnvAuthTypeEnum.ENVIRONMENT;
-  };
-
-  // 创建环境变量
-  const handleCreateEnv = () => {
-    const tmpArr = envList.value;
-    const unSaveEnv = envList.value.filter((item) => item.id === NEW_ENV_PARAM).length < 1;
-    if (unSaveEnv) {
-      tmpArr.unshift({
-        id: NEW_ENV_PARAM,
-        name: t('project.environmental.newEnv'),
-        description: '',
-      });
-      store.setCurrentId(NEW_ENV_PARAM);
-      envList.value = tmpArr;
-    }
   };
   // 创建环境组
   const handleCreateGroup = () => {
@@ -641,7 +637,7 @@
     store.initEnvDetail();
   }
 
-  const envGroupBoxRef = ref();
+  const envGroupBoxRef = ref<InstanceType<typeof EnvGroupBox>>();
 
   const handleRenameCancelGroup = async (element: EnvListItem) => {
     groupPopVisible.value[element.id].visible = false;
@@ -649,10 +645,54 @@
 
   const envSuccessCroupHandler = async (element: EnvListItem) => {
     await initGroupList();
-    envGroupBoxRef.value.initDetail(element.id);
+    envGroupBoxRef.value?.initDetail(element.id);
   };
 
+  const envParamBoxRef = ref<InstanceType<typeof EnvParamBox>>();
+  function openModalTip(id: string, isNew = false) {
+    const tipContent = isNew ? t('project.environmental.env.existNewEnvTip') : t('apiTestDebug.unsavedLeave');
+    const confirmText = isNew ? t('common.save') : t('common.stay');
+    openModal({
+      type: 'warning',
+      title: t('common.tip'),
+      content: tipContent,
+      hideCancel: isNew,
+      okText: confirmText,
+      onBeforeOk: async () => {
+        if (isNew) {
+          try {
+            const isNewEnv = envList.value.some((item) => item.id === NEW_ENV_PARAM);
+            await envParamBoxRef.value?.saveCallBack(isNewEnv);
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log(error);
+          }
+        } else {
+          store.setCurrentId(id);
+        }
+      },
+    });
+  }
+
+  const hasUnSaveData = computed(() => envList.value.find((item) => excludeActionType.includes(item.id)));
+
+  const handleListItemClickGroup = (element: EnvListItem) => {
+    const { id } = element;
+    store.setCurrentGroupId(id);
+  };
+
+  function checkHasNewEnv() {
+    if (hasUnSaveData.value) {
+      openModalTip(hasUnSaveData.value.id, true);
+      return true;
+    }
+    return false;
+  }
+
   const handleListItemClick = (element: EnvListItem) => {
+    if (checkHasNewEnv()) {
+      return;
+    }
     const { id } = element;
     // 校验是否切换
     if (store.currentId !== id) {
@@ -666,30 +706,34 @@
           : isEqual(store.currentEnvDetailInfo, store.backupEnvDetailInfo);
       if (isChangeEnvValue) {
         store.setCurrentId(id);
+      } else if (hasUnSaveData.value) {
+        openModalTip(id, true);
       } else {
-        // 如果有未保存的tab则提示用户
-        openModal({
-          type: 'warning',
-          title: t('common.tip'),
-          content: t('apiTestDebug.unsavedLeave'),
-          hideCancel: false,
-          cancelText: t('common.stay'),
-          okText: t('common.leave'),
-          onBeforeOk: async () => {
-            store.setCurrentId(id);
-          },
-        });
+        openModalTip(id);
       }
     }
   };
 
-  const handleListItemClickGroup = (element: EnvListItem) => {
-    const { id } = element;
-    store.setCurrentGroupId(id);
+  // 创建环境变量
+  const handleCreateEnv = () => {
+    const tmpArr = envList.value;
+    const unSaveEnv = envList.value.filter((item) => item.id === NEW_ENV_PARAM).length < 1;
+    if (unSaveEnv) {
+      tmpArr.unshift({
+        id: NEW_ENV_PARAM,
+        name: t('project.environmental.newEnv'),
+        description: '',
+      });
+      store.setCurrentId(NEW_ENV_PARAM);
+      envList.value = tmpArr;
+    }
   };
 
   // 复制
   function copyEnvHandler(id: string) {
+    if (checkHasNewEnv()) {
+      return;
+    }
     const currentItem = envList.value.find((item) => item.id === id);
     const tmpArr = envList.value;
     if (currentItem) {
