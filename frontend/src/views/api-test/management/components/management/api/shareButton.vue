@@ -47,7 +47,7 @@
                   item.apiShareNum ? 'cursor-pointer hover:text-[rgb(var(--primary-5))]' : ''
                 }`"
                 :size="16"
-                @click="copyShareLink(item.id as string)"
+                @click="copyShareLink(item)"
               />
             </a-tooltip>
           </div>
@@ -127,11 +127,14 @@
   }
 
   // 快捷复制分享
-  function copyShareLink(value: string) {
+  function copyShareLink(item: shareItem) {
+    if (!item.apiShareNum) {
+      return;
+    }
     if (isSupported) {
       // 判断路由中是不是有dId参数，有的话只是修改当前的值就可以了
       const url = window.location.href;
-      const dIdParam = `&docShareId=${value}`;
+      const dIdParam = `&docShareId=${item.id}`;
       copy(`${url}${dIdParam}`);
       Message.success(t('apiTestManagement.shareUrlCopied'));
     } else {
