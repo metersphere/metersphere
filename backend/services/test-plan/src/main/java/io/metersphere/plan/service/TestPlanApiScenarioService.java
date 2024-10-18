@@ -67,7 +67,6 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -671,10 +670,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
             }
             List<BaseTreeNode> baseTreeNodes = apiScenarioModuleService.buildTreeAndCountResource(nodeByNodeIds, needCreateRoot, Translator.get("api_unplanned_scenario"));
             for (BaseTreeNode baseTreeNode : baseTreeNodes) {
-                if (StringUtils.equals(baseTreeNode.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
-                    // 默认拼项目id
-                    baseTreeNode.setId(projectId + "_" + ModuleConstants.DEFAULT_NODE_ID);
-                }
+                baseTreeNode.setId(projectId + "_" + baseTreeNode.getId());
                 projectNode.addChild(baseTreeNode);
             }
         });

@@ -604,10 +604,17 @@
                         </include>
                     </foreach>
                     <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.baseSystemFieldConditions">
                             <property name="condition" value="condition"/>
                             <property name="tablePrefix" value="atc"/>
                         </include>
+                        <!-- 模块ID -->
+                        <if test="condition.name == 'moduleId'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="a.module_id"/>
+                            </include>
+                        </if>
                         <!-- 协议 -->
                         <if test="condition.name == 'protocol'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">

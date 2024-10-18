@@ -3,6 +3,16 @@
 <mapper namespace="io.metersphere.system.mapper.BaseMapper">
 
     <sql id="commonSystemFieldConditions">
+        <include refid="io.metersphere.system.mapper.BaseMapper.baseSystemFieldConditions" />
+        <if test="condition.name == 'moduleId'">
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="condition" value="condition"/>
+                <property name="column" value="${tablePrefix}.module_id"/>
+            </include>
+        </if>
+    </sql>
+
+    <sql id="baseSystemFieldConditions">
         <if test="condition.name == 'name'">
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="condition" value="condition"/>
@@ -13,12 +23,6 @@
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="condition" value="condition"/>
                 <property name="column" value="${tablePrefix}.num"/>
-            </include>
-        </if>
-        <if test="condition.name == 'moduleId'">
-            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                <property name="condition" value="condition"/>
-                <property name="column" value="${tablePrefix}.module_id"/>
             </include>
         </if>
         <if test="condition.name == 'createUser'">
