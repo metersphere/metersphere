@@ -5,9 +5,9 @@
       <div class="card" v-if="!nextVisible">
         <img src="/assets/guide/visual-collaboration.png" class="image" alt="MS">
         <div class="content">
-          <p class="title" ><img src="../../../assets/guide/hard.png" alt="MS">{{ $t("guide.home.title") }}</p>
+          <p class="title" ><img src="../../../assets/guide/hard.png" alt="MS">{{ $t("guide.home.title", [defaultSysTitle]) }}</p>
           <div class="bottom clearfix">
-            <p class="desc">{{ $t("guide.home.desc") }}</p>
+            <p class="desc">{{ $t("guide.home.desc", [defaultSysTitle]) }}</p>
             <el-button type="primary" round size="small" class="button" @click="openNext">
               {{ $t("guide.home.button") }}
             </el-button>
@@ -95,10 +95,12 @@ export default {
           button: 'guide.performance.button',
           id: 3
         }
-      ]
+      ],
+      defaultSysTitle: ''
     }
   },
-  created() {
+  mounted() {
+    this.defaultSysTitle = localStorage.getItem("default-sys-title") || "MeterSphere";
   },
   methods: {
     openNext() {

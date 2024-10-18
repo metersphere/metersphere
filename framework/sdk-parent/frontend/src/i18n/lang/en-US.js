@@ -3474,7 +3474,7 @@ const message = {
   shepherd: {
     step1: {
       title: 'A Workspaces and Projects',
-      text: 'MeterSphere uses [workspace] and [project] to isolate test data, and you can switch between workspace and project in the top menu.',
+      text: '{0} uses [workspace] and [project] to isolate test data, and you can switch between workspace and project in the top menu.',
     },
     step2: {
       title: 'Side navigation menu',
@@ -3482,7 +3482,7 @@ const message = {
     },
     step3: {
       title: 'One workspace holds multiple projects',
-      text: 'A "project" is a collection of use cases and members. Various types of tests on MeterSphere are viewed and managed through projects.',
+      text: 'A "project" is a collection of use cases and members. Various types of tests on {0} are viewed and managed through projects.',
     },
     step4: {
       title: 'Top function menu',
@@ -3498,8 +3498,8 @@ const message = {
   },
   guide: {
     home: {
-      title: 'Welcome to MeterSphere!',
-      desc: 'A quickstart guide to see what MeterSphere can do for you.',
+      title: 'Welcome to {0}!',
+      desc: 'A quickstart guide to see what {0} can do for you.',
       button: 'Lets get started',
     },
     test: {
