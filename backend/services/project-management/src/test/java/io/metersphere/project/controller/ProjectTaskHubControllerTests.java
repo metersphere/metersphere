@@ -5,6 +5,7 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
+import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Order;
@@ -28,9 +29,11 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     public static final String PROJECT_RESOURCE_POOL_OPTIONS = "/project/task-center/resource-pool/options";
     public static final String PROJECT_TASK_STOP = "/project/task-center/exec-task/stop/";
     public static final String PROJECT_TASK_DELETE = "/project/task-center/exec-task/delete/";
-    public static final String PROJECT_TASK_BATCH_STOP = "/project/task-center/exec-task/batch-stop/";
+    public static final String PROJECT_TASK_BATCH_STOP = "/project/task-center/exec-task/batch-stop";
     public static final String PROJECT_TASK_ITEM_ORDER = "/project/task-center/exec-task/item/order";
-    public static final String PROJECT_TASK_BATCH_DELETE = "/organization/task-center/exec-task/batch-delete/";
+    public static final String PROJECT_TASK_BATCH_DELETE = "/organization/task-center/exec-task/batch-delete";
+    public static final String PROJECT_TASK_ITEM_STOP = "/project/task-center/exec-task/item/stop/";
+    public static final String PROJECT_TASK_ITEM_BATCH_STOP = "/project/task-center/exec-task/item/batch-stop";
 
     @Test
     @Order(1)
@@ -176,5 +179,32 @@ public class ProjectTaskHubControllerTests extends BaseTest {
         request.setSelectAll(false);
         request.setSelectIds(List.of("1"));
         this.requestPost(PROJECT_TASK_BATCH_DELETE, request);
+    }
+
+
+
+    /**
+     * 项目执行任务项停止
+     */
+    @Test
+    @Order(4)
+    public void projectTaskItemStop() throws Exception {
+        this.requestGet(PROJECT_TASK_ITEM_STOP + "pro_1");
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(PROJECT_TASK_ITEM_STOP + "pro_2");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
+    @Test
+    @Order(4)
+    public void projectTaskItemBatchStop() throws Exception {
+        TaskHubItemBatchRequest request = new TaskHubItemBatchRequest();
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("pro_1", "pro_2"));
+        this.requestPostWithOkAndReturn(PROJECT_TASK_ITEM_BATCH_STOP, request);
     }
 }
