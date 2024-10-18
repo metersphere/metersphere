@@ -1,6 +1,7 @@
 import type { CaseLevel } from '@/components/business/ms-case-associate/types';
 
 import MSR from '@/api/http/index';
+import { ExportDefinitionUrl, StopApiExportUrl } from '@/api/requrls/api-test/management';
 import {
   AddModuleUrl,
   AddScenarioUrl,
@@ -19,6 +20,7 @@ import {
   ExecuteScenarioUrl,
   ExportScenarioUrl,
   FollowScenarioUrl,
+  GetExportScenarioFileUrl,
   GetModuleCountUrl,
   GetModuleTreeUrl,
   GetScenarioBatchExportParamsUrl,
@@ -44,6 +46,7 @@ import {
   ScenarioTransferModuleOptionsUrl,
   ScenarioTrashPageUrl,
   ScenarioUploadTempFileUrl,
+  StopExportScenarioUrl,
   UpdateModuleUrl,
   UpdateScenarioPriorityUrl,
   UpdateScenarioStatusUrl,
@@ -51,6 +54,7 @@ import {
 } from '@/api/requrls/api-test/scenario';
 
 import { ExecuteConditionProcessor } from '@/models/apiTest/common';
+import type { ApiDefinitionBatchExportParams } from '@/models/apiTest/management';
 import {
   ApiScenarioBatchDeleteParams,
   ApiScenarioBatchEditParams,
@@ -341,6 +345,22 @@ export function importScenario(params: ImportScenarioParams) {
 }
 
 // 导出场景
-export function exportScenario(data: ExportScenarioParams) {
-  return MSR.post({ url: ExportScenarioUrl, data });
+export function exportScenario(data: ExportScenarioParams, type: string) {
+  return MSR.post({ url: `${ExportScenarioUrl}/${type}`, data });
+}
+
+// 停止导出场景
+export function stopScenarioExport(taskId: string) {
+  return MSR.get({ url: `${StopExportScenarioUrl}/${taskId}` });
+}
+
+// 获取导出的文件
+export function getScenarioDownloadFile(projectId: string, fileId: string) {
+  return MSR.get(
+    {
+      url: `${GetExportScenarioFileUrl}/${projectId}/${fileId}`,
+      responseType: 'blob',
+    },
+    { isTransformResponse: false }
+  );
 }

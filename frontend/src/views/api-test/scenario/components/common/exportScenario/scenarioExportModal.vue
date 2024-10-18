@@ -6,29 +6,19 @@
     class="ms-modal-upload ms-modal-medium"
     :width="400"
   >
-    <div class="mb-[16px] flex gap-[8px]">
-      <div
-        v-for="item of platformList"
-        :key="item.value"
-        :class="`import-item ${exportPlatform === item.value ? 'import-item--active' : ''}`"
-        @click="exportPlatform = item.value"
-      >
-        <div class="text-[var(--color-text-1)]">{{ item.name }}</div>
-      </div>
-    </div>
-    <template v-if="exportPlatform === RequestExportFormat.MeterSphere">
-      <div class="mb-[16px] flex items-center gap-[4px]">
-        <a-switch v-model:model-value="exportApiCase" size="small" />
-        {{ t('apiTestManagement.exportCase') }}
-      </div>
-      <div class="flex items-center gap-[4px]">
-        <a-switch v-model:model-value="exportApiMock" size="small" />
-        {{ t('apiTestManagement.exportMock') }}
-      </div>
-    </template>
-    <div v-else-if="exportPlatform === RequestExportFormat.SWAGGER" class="text-[var(--color-text-4)]">
-      {{ t('apiTestManagement.exportSwaggerTip') }}
-    </div>
+    <a-radio-group v-model:model-value="exportTypeRadio">
+      <a-radio :value="ScenarioExportType.SIMPLE"
+        >{{ t('apiScenario.export.type.simple') }}
+        <a-tooltip :content="t('apiScenario.export.simple.tooltip')" position="tl">
+          <icon-question-circle
+            class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+            size="16"
+          />
+        </a-tooltip>
+      </a-radio>
+      <a-radio :value="ScenarioExportType.ALL">{{ t('apiScenario.export.type.all') }}</a-radio>
+    </a-radio-group>
+
     <template #footer>
       <div class="flex justify-end">
         <a-button type="secondary" :disabled="exportLoading" @click="cancelExport">
@@ -49,20 +39,13 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
 
-  import {
-    exportApiDefinition,
-    exportShareApiDefinition,
-    getApiDownloadFile,
-    getShareApiDownloadFile,
-    stopApiExport,
-    stopShareApiExport,
-  } from '@/api/modules/api-test/management';
+  import { exportScenario, getScenarioDownloadFile, stopScenarioExport } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import useWebsocket from '@/hooks/useWebsocket';
   import useAppStore from '@/store/modules/app';
   import { downloadByteFile, getGenerateId } from '@/utils';
 
-  import { RequestExportFormat } from '@/enums/apiEnum';
+  import { ScenarioExportType } from '@/enums/apiEnum';
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -76,25 +59,11 @@
 
   const visible = defineModel<boolean>('visible', { required: true });
 
-  const exportPlatform = ref(RequestExportFormat.SWAGGER);
-  const exportApiCase = ref(false);
-  const exportApiMock = ref(false);
   const exportLoading = ref(false);
-
-  const platformList = [
-    {
-      name: 'Swagger',
-      value: RequestExportFormat.SWAGGER,
-    },
-    {
-      name: 'MeterSphere',
-      value: RequestExportFormat.MeterSphere,
-    },
-  ];
+  const exportTypeRadio = ref(ScenarioExportType.SIMPLE);
 
   function cancelExport() {
     visible.value = false;
-    exportPlatform.value = RequestExportFormat.SWAGGER;
   }
 
   const websocket = ref<WebSocket>();
@@ -102,13 +71,11 @@
   const isShowExportingMessage = ref(false); // 正在导出提示显示中
   const exportingMessage = ref();
 
-  const getApiDownload = computed(() => (props.isShare ? getShareApiDownloadFile : getApiDownloadFile));
-
   // 下载文件
   async function downloadFile(id: string) {
     try {
-      const response = await getApiDownload.value(appStore.currentProjectId, id);
-      downloadByteFile(response, 'metersphere-definition.zip');
+      const response = await getScenarioDownloadFile(appStore.currentProjectId, id);
+      downloadByteFile(response, 'metersphere-scenaro.zip');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -166,11 +133,10 @@
     websocket.value = _websocket.value;
   }
 
-  const stopShareApi = computed(() => (props.isShare ? stopShareApiExport : stopApiExport));
   // 取消导出
   async function stopExport(taskId: string) {
     try {
-      await stopShareApi.value(taskId);
+      await stopScenarioExport(taskId);
       exportingMessage.value.close();
       websocket.value?.close();
     } catch (error) {
@@ -205,7 +171,6 @@
     });
   }
 
-  const exportApiRequest = computed(() => (props.isShare ? exportShareApiDefinition : exportApiDefinition));
   /**
    * 导出接口
    */
@@ -217,18 +182,16 @@
       const batchConditionParams =
         typeof props.conditionParams === 'function' ? await props.conditionParams() : props.conditionParams;
       const { selectedIds, selectAll, excludeIds } = props.batchParams;
-      const res = await exportApiRequest.value(
+      const res = await exportScenario(
         {
           selectIds: selectedIds || [],
           selectAll: !!selectAll,
           excludeIds: excludeIds || [],
           ...batchConditionParams,
-          exportApiCase: exportApiCase.value,
-          exportApiMock: exportApiMock.value,
           sort: props.sorter || {},
           fileId: reportId.value,
         },
-        exportPlatform.value
+        exportTypeRadio.value
       );
       showExportingMessage(res);
       visible.value = false;
