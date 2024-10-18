@@ -4,6 +4,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.*;
+import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
 import io.metersphere.system.log.annotation.Log;
@@ -31,6 +32,8 @@ public class SystemTaskHubController {
 
     @Resource
     private BaseTaskHubService baseTaskHubService;
+    @Resource
+    private BaseTaskHubLogService baseTaskHubLogService;
 
     @PostMapping("/exec-task/page")
     @Operation(summary = "系统-任务中心-执行任务列表")
@@ -91,10 +94,12 @@ public class SystemTaskHubController {
 
     @PostMapping("/exec-task/batch-stop")
     @Operation(summary = "系统-任务中心-用例执行任务-批量停止任务")
-    @Log(type = OperationLogType.STOP, expression = "#msClass.systemBatchStopLog(#request)", msClass = BaseTaskHubLogService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_EXEC_STOP)
     public void batchStopTask(@Validated @RequestBody TableBatchProcessDTO request) {
-        baseTaskHubService.batchStopTask(request, SessionUtils.getUserId(), null, null);
+        List<String> ids = baseTaskHubService.getTaskIds(request, null, null);
+        baseTaskHubService.batchStopTask(ids, SessionUtils.getUserId(), null, null);
+        //系統日志
+        baseTaskHubLogService.systemBatchStopLog(ids);
     }
 
 
@@ -109,16 +114,36 @@ public class SystemTaskHubController {
 
     @PostMapping("/exec-task/batch-delete")
     @Operation(summary = "系统-任务中心-用例执行任务-批量删除任务")
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.systemBatchDeleteLog(#request)", msClass = BaseTaskHubLogService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_DELETE)
     public void batchDeleteTask(@Validated @RequestBody TableBatchProcessDTO request) {
-        baseTaskHubService.batchDeleteTask(request, SessionUtils.getCurrentOrganizationId(), null);
+        List<String> ids = baseTaskHubService.getTaskIds(request, null, null);
+        baseTaskHubService.batchDeleteTask(ids, SessionUtils.getCurrentOrganizationId(), null);
+        //系統日志
+        baseTaskHubLogService.systemBatchDeleteLog(ids);
     }
 
     //TODO 系统&组织&项目 任务按钮操作：失败重跑 查看报告 批量失败重跑
 
 
-    //TODO 系统&组织&项目 任务详情按钮操作：查看 停止  批量停止
+    @GetMapping("/exec-task/item/stop/{id}")
+    @Operation(summary = "系统-任务中心-用例任务详情-停止任务")
+    @Log(type = OperationLogType.STOP, expression = "#msClass.systemStopItemLog(#id)", msClass = BaseTaskHubLogService.class)
+    @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_EXEC_STOP)
+    public void stopTaskItem(@PathVariable String id) {
+        baseTaskHubService.stopTaskItem(id, SessionUtils.getUserId(), null, null);
+    }
+
+    @PostMapping("/exec-task/item/batch-stop")
+    @Operation(summary = "系统-任务中心-用例任务详情-批量停止任务")
+    @Log(type = OperationLogType.STOP, expression = "#msClass.systemBatchStopItemLog(#request)", msClass = BaseTaskHubLogService.class)
+    @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_EXEC_STOP)
+    public void batchStopTaskItem(@Validated @RequestBody TaskHubItemBatchRequest request) {
+        List<String> itemIds = baseTaskHubService.getTaskItemIds(request, null, null);
+        baseTaskHubService.batchStopTaskItem(itemIds, SessionUtils.getUserId(), null, null);
+        baseTaskHubLogService.systemBatchStopItemLog(itemIds);
+
+    }
+    //TODO 系统&组织&项目 任务详情按钮操作：查看
 
 
     //TODO 系统&组织&项目 后台任务操作：删除  批量开启  批量关闭

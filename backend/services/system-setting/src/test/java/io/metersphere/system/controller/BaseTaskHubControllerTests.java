@@ -45,6 +45,8 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_TASK_DELETE = "/system/task-center/exec-task/delete/";
     public static final String SYSTEM_TASK_BATCH_STOP = "/system/task-center/exec-task/batch-stop/";
     public static final String SYSTEM_TASK_BATCH_DELETE = "/system/task-center/exec-task/batch-delete/";
+    public static final String SYSTEM_TASK_ITEM_STOP = "/system/task-center/exec-task/item/stop/";
+    public static final String SYSTEM_TASK_ITEM_BATCH_STOP = "/system/task-center/exec-task/item/batch-stop";
 
     @Test
     @Order(1)
@@ -161,6 +163,21 @@ public class BaseTaskHubControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
     }
 
+    /**
+     * 系统任务项停止
+     */
+    @Test
+    @Order(4)
+    public void systemTaskItemStop() throws Exception {
+        this.requestGet(SYSTEM_TASK_ITEM_STOP + "1");
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(SYSTEM_TASK_ITEM_STOP + "2");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
 
     /**
      * 系统执行任务删除
@@ -198,6 +215,20 @@ public class BaseTaskHubControllerTests extends BaseTest {
         request.setSelectAll(false);
         request.setSelectIds(List.of("1", "2"));
         this.requestPost(SYSTEM_TASK_BATCH_STOP, request);
+    }
+
+    /**
+     * 系统任务项停止
+     */
+    @Test
+    @Order(5)
+    public void systemTaskItemBatchStop() throws Exception {
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
+        request.setSelectAll(true);
+        this.requestPost(SYSTEM_TASK_ITEM_BATCH_STOP, request);
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("1", "2"));
+        this.requestPost(SYSTEM_TASK_ITEM_BATCH_STOP, request);
     }
 
 
