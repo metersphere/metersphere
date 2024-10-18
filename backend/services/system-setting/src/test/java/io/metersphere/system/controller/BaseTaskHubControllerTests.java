@@ -44,6 +44,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_TASK_STOP = "/system/task-center/exec-task/stop/";
     public static final String SYSTEM_TASK_DELETE = "/system/task-center/exec-task/delete/";
     public static final String SYSTEM_TASK_BATCH_STOP = "/system/task-center/exec-task/batch-stop/";
+    public static final String SYSTEM_TASK_BATCH_DELETE = "/system/task-center/exec-task/batch-delete/";
 
     @Test
     @Order(1)
@@ -175,6 +176,15 @@ public class BaseTaskHubControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
     }
 
+    @Test
+    @Order(7)
+    public void systemBatchTaskDelete() throws Exception {
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("1"));
+        this.requestPost(SYSTEM_TASK_BATCH_DELETE, request);
+    }
+
 
     /**
      * 系统执行任务停止
@@ -201,6 +211,8 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String ORG_RESOURCE_POOL_OPTIONS = "/organization/task-center/resource-pool/options";
     public static final String ORG_TASK_STOP = "/organization/task-center/exec-task/stop/";
     public static final String ORG_TASK_DELETE = "/organization/task-center/exec-task/delete/";
+    public static final String ORG_TASK_BATCH_STOP = "/organization/task-center/exec-task/batch-stop/";
+    public static final String ORG_TASK_BATCH_DELETE = "/organization/task-center/exec-task/batch-delete/";
 
     @Test
     @Order(20)
@@ -299,6 +311,32 @@ public class BaseTaskHubControllerTests extends BaseTest {
         testResourcePoolMapper.deleteByPrimaryKey("1");
         testResourcePoolMapper.deleteByPrimaryKey("2");
     }
+
+
+    /**
+     * 系统执行任务停止
+     */
+    @Test
+    @Order(23)
+    public void orgTaskBatchStop() throws Exception {
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
+        request.setSelectAll(true);
+        this.requestPost(ORG_TASK_BATCH_STOP, request);
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("1", "2"));
+        this.requestPost(ORG_TASK_BATCH_STOP, request);
+    }
+
+
+    @Test
+    @Order(23)
+    public void orgBatchTaskDelete() throws Exception {
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("1"));
+        this.requestPost(ORG_TASK_BATCH_DELETE, request);
+    }
+
 
     /**
      * 组织执行任务删除

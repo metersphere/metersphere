@@ -153,4 +153,11 @@
         WHERE task_id = #{taskId} AND `result` = 'FAKE_ERROR'
             limit 1
     </select>
+
+    <select id="getItemIdByTaskIds" resultType="java.lang.String">
+        select id from exec_task_item where task_id in
+        <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+    </select>
 </mapper>

@@ -106,7 +106,16 @@ public class SystemTaskHubController {
         baseTaskHubService.deleteTask(id, null, null);
     }
 
-    //TODO 系统&组织&项目 任务按钮操作：删除 停止 失败重跑 查看报告   批量删除 批量停止  批量失败重跑
+
+    @PostMapping("/exec-task/batch-delete")
+    @Operation(summary = "系统-任务中心-用例执行任务-批量删除任务")
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.systemBatchDeleteLog(#request)", msClass = BaseTaskHubLogService.class)
+    @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_DELETE)
+    public void batchDeleteTask(@Validated @RequestBody TableBatchProcessDTO request) {
+        baseTaskHubService.batchDeleteTask(request, SessionUtils.getCurrentOrganizationId(), null);
+    }
+
+    //TODO 系统&组织&项目 任务按钮操作：失败重跑 查看报告 批量失败重跑
 
 
     //TODO 系统&组织&项目 任务详情按钮操作：查看 停止  批量停止

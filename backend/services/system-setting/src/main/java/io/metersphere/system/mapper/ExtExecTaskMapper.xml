@@ -27,10 +27,13 @@
     </sql>
 
 
-    <delete id="deleteTaskById">
+    <delete id="deleteTaskByIds">
         DELETE
         FROM exec_task
-        WHERE id = #{id}
+        WHERE id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
         <if test="projectId != null and projectId != ''">
             and project_id = #{projectId}
         </if>

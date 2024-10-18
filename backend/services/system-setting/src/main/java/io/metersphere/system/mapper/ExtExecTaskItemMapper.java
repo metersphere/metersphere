@@ -36,4 +36,6 @@ public interface ExtExecTaskItemMapper {
     Boolean hasErrorItem(@Param("taskId") String taskId);
 
     Boolean hasFakeErrorItem(@Param("taskId") String taskId);
+
+    List<String> getItemIdByTaskIds(@Param("taskIds") List<String> taskIds);
 }
