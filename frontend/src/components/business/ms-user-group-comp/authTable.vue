@@ -11,7 +11,12 @@
         :pagination="false"
       >
         <template #columns>
-          <a-table-column :width="100" :title="t('system.userGroup.function')" data-index="ability" />
+          <a-table-column
+            cell-class="auth-type-class"
+            :width="100"
+            :title="t('system.userGroup.function')"
+            data-index="ability"
+          />
           <a-table-column :width="150" :title="t('system.userGroup.operationObject')" data-index="operationObject" />
           <a-table-column>
             <template #title>
@@ -56,7 +61,11 @@
         </template>
       </a-table>
     </div>
-    <div v-if="props.showBottom" v-permission="props.savePermission || []" class="footer">
+    <div
+      v-if="props.showBottom && props.current.id !== 'admin'"
+      v-permission="props.savePermission || []"
+      class="footer"
+    >
       <ms-button :disabled="!canSave" @click="handleReset">{{ t('system.userGroup.reset') }}</ms-button>
       <a-button v-permission="props.savePermission || []" :disabled="!canSave" type="primary" @click="handleSave">
         {{ t('system.userGroup.save') }}
@@ -407,7 +416,7 @@
   .group-auth-table {
     @apply flex-1 overflow-hidden;
 
-    padding: 0 16px;
+    padding: 0 16px 16px;
     :deep(.arco-table-container) {
       border-top: 1px solid var(--color-text-n8) !important;
       border-left: 1px solid var(--color-text-n8) !important;
@@ -419,6 +428,9 @@
       background-color: var(--color-text-n9);
       line-height: normal;
     }
+  }
+  :deep(.auth-type-class) {
+    background-color: var(--color-text-n9);
   }
   .footer {
     display: flex;

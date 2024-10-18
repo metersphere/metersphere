@@ -13,10 +13,11 @@
       </template>
       <template #second>
         <div class="flex h-full flex-col overflow-hidden pt-[16px]">
-          <div class="mb-4 flex flex-row items-center justify-between px-[16px]">
-            <a-tooltip :content="currentUserGroupItem.name">
-              <div class="one-line-text max-w-[300px] font-medium">{{ currentUserGroupItem.name }}</div>
-            </a-tooltip>
+          <div class="flex flex-row items-center justify-between px-[16px]">
+            <a-radio-group v-if="couldShowUser" v-model="currentTable" class="mb-[16px]" type="button" size="medium">
+              <a-radio value="auth" class="show-type-icon p-[2px]">{{ t('system.userGroup.auth') }}</a-radio>
+              <a-radio value="user" class="show-type-icon p-[2px]">{{ t('system.userGroup.user') }}</a-radio>
+            </a-radio-group>
             <div class="flex items-center">
               <a-input-search
                 v-if="currentTable === 'user'"
@@ -26,21 +27,12 @@
                 @press-enter="handleEnter"
                 @search="handleSearch"
                 @clear="handleSearch('')"
-              ></a-input-search>
-              <a-radio-group
-                v-if="couldShowUser && couldShowAuth"
-                v-model="currentTable"
-                class="ml-[14px]"
-                type="button"
-              >
-                <a-radio v-if="couldShowAuth" value="auth">{{ t('system.userGroup.auth') }}</a-radio>
-                <a-radio v-if="couldShowUser" value="user">{{ t('system.userGroup.user') }}</a-radio>
-              </a-radio-group>
+              />
             </div>
           </div>
           <div class="flex-1 overflow-hidden">
             <UserTable
-              v-if="currentTable === 'user' && couldShowUser"
+              v-if="currentTable === 'user'"
               ref="userRef"
               :keyword="currentKeyword"
               :current="currentUserGroupItem"
@@ -49,7 +41,7 @@
               :update-permission="['SYSTEM_USER_ROLE:READ+UPDATE']"
             />
             <AuthTable
-              v-if="currentTable === 'auth' && couldShowAuth"
+              v-if="currentTable === 'auth'"
               :current="currentUserGroupItem"
               :save-permission="['SYSTEM_USER_ROLE:READ+UPDATE']"
               :disabled="!hasAnyPermission(['SYSTEM_USER_ROLE:READ+UPDATE'])"
@@ -127,7 +119,6 @@
   };
 
   const couldShowUser = computed(() => currentUserGroupItem.value.type === AuthScopeEnum.SYSTEM);
-  const couldShowAuth = computed(() => currentUserGroupItem.value.id !== 'admin');
   const handleCollapse = (collapse: boolean) => {
     leftCollapse.value = collapse;
     if (collapse) {
@@ -138,14 +129,13 @@
     }
   };
   watchEffect(() => {
-    if (!couldShowAuth.value) {
-      currentTable.value = 'user';
-    } else if (!couldShowUser.value) {
+    if (!couldShowUser.value) {
       currentTable.value = 'auth';
     } else {
       currentTable.value = 'auth';
     }
   });
+
   onMounted(() => {
     ugLeftRef.value?.initData(router.currentRoute.value.query.id as string, true);
   });

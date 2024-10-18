@@ -14,11 +14,15 @@
         </div>
       </template>
       <template #second>
-        <div class="p-[16px]">
-          <div class="flex flex-row items-center justify-between">
-            <a-radio-group v-if="couldShowUser && couldShowAuth" v-model="currentTable" class="ml-[14px]" type="button">
-              <a-radio v-if="couldShowAuth" value="auth">{{ t('system.userGroup.auth') }}</a-radio>
-              <a-radio v-if="couldShowUser" value="user">{{ t('system.userGroup.user') }}</a-radio>
+        <div>
+          <div class="flex flex-row items-center justify-between p-[16px]">
+            <a-radio-group v-if="couldShowUser && couldShowAuth" v-model="currentTable" size="medium" type="button">
+              <a-radio v-if="couldShowAuth" value="auth" class="show-type-icon p-[2px]">
+                {{ t('system.userGroup.auth') }}
+              </a-radio>
+              <a-radio v-if="couldShowUser" value="user" class="show-type-icon p-[2px]">
+                {{ t('system.userGroup.user') }}
+              </a-radio>
             </a-radio-group>
             <div class="flex items-center">
               <a-input-search
@@ -32,7 +36,7 @@
               ></a-input-search>
             </div>
           </div>
-          <div class="mt-[16px]">
+          <div>
             <UserTable
               v-if="currentTable === 'user' && couldShowUser"
               ref="userRef"
