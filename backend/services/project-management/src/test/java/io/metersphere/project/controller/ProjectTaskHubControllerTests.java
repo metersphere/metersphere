@@ -35,6 +35,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     public static final String PROJECT_TASK_ITEM_STOP = "/project/task-center/exec-task/item/stop/";
     public static final String PROJECT_TASK_ITEM_BATCH_STOP = "/project/task-center/exec-task/item/batch-stop";
     public static final String PROJECT_SCHEDULE_TASK_DELETE = "/project/task-center/schedule/delete/";
+    public static final String PROJECT_SCHEDULE_TASK_SWITCH = "/project/task-center/schedule/switch/";
 
     @Test
     @Order(1)
@@ -222,5 +223,11 @@ public class ProjectTaskHubControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+    }
+
+    @Test
+    @Order(6)
+    public void projectScheduleTaskSwitch() throws Exception {
+        this.requestGet(PROJECT_SCHEDULE_TASK_SWITCH + "pro_wx_1");
     }
 }
