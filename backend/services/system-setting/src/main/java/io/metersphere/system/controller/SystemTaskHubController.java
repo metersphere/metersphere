@@ -156,6 +156,11 @@ public class SystemTaskHubController {
     }
     //TODO 系统&组织&项目 任务详情按钮操作：查看
 
-
+    @GetMapping("/schedule/delete/{id}")
+    @Operation(summary = "系统-任务中心-系统后台任务-删除")
+    @RequiresPermissions(PermissionConstants.SYSTEM_SCHEDULE_TASK_CENTER_READ_DELETE)
+    public void deleteScheduleTask(@PathVariable String id) {
+        baseTaskHubService.deleteScheduleTask(id, SessionUtils.getUserId(), "/system/task-center/schedule/delete/", OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
+    }
     //TODO 系统&组织&项目 后台任务操作：删除  批量开启  批量关闭
 }

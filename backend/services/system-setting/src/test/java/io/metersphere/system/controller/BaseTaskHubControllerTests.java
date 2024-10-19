@@ -51,6 +51,8 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_TASK_ITEM_BATCH_STOP = "/system/task-center/exec-task/item/batch-stop";
     public static final String SYSTEM_TASK_ITEM_ORDER = "/system/task-center/exec-task/item/order";
 
+    public static final String SYSTEM_SCHEDULE_TASK_DELETE = "/system/task-center/schedule/delete/";
+
     @Test
     @Order(1)
     @Sql(scripts = {"/dml/init_exec_task_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
@@ -242,6 +244,21 @@ public class BaseTaskHubControllerTests extends BaseTest {
         this.requestPost(SYSTEM_TASK_ITEM_BATCH_STOP, request);
     }
 
+    /**
+     * 系统后台任务删除
+     */
+    @Test
+    @Order(7)
+    public void systemScheduleTaskDelete() throws Exception {
+        this.requestGet(SYSTEM_SCHEDULE_TASK_DELETE + "1231");
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(SYSTEM_SCHEDULE_TASK_DELETE + "wx_1");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
 
     /**
      * 组织任务中心测试用例
@@ -258,6 +275,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String ORG_TASK_ITEM_ORDER = "/organization/task-center/exec-task/item/order";
     public static final String ORG_TASK_ITEM_STOP = "/organization/task-center/exec-task/item/stop/";
     public static final String ORG_TASK_ITEM_BATCH_STOP = "/organization/task-center/exec-task/item/batch-stop";
+    public static final String ORG_SCHEDULE_TASK_DELETE = "/organization/task-center/schedule/delete/";
 
     @Test
     @Order(20)
@@ -425,6 +443,21 @@ public class BaseTaskHubControllerTests extends BaseTest {
     @Order(25)
     public void orgTaskDelete() throws Exception {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(ORG_TASK_DELETE + "4");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+    /**
+     * 系统后台任务删除
+     */
+    @Test
+    @Order(26)
+    public void orgScheduleTaskDelete() throws Exception {
+        this.requestGet(ORG_SCHEDULE_TASK_DELETE + "123143");
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(ORG_SCHEDULE_TASK_DELETE + "wx_2");
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);

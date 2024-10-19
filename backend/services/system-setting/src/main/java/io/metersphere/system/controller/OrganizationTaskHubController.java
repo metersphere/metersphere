@@ -151,4 +151,12 @@ public class OrganizationTaskHubController {
         baseTaskHubLogService.taskItemBatchLog(itemIds, SessionUtils.getUserId(), OperationLogType.STOP.name(), OperationLogConstants.ORGANIZATION, SessionUtils.getCurrentOrganizationId(),
                 "/organization/task-center/exec-task/item/batch-stop", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
     }
+
+
+    @GetMapping("/schedule/delete/{id}")
+    @Operation(summary = "组织-任务中心-系统后台任务-删除")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_SCHEDULE_TASK_CENTER_READ_DELETE)
+    public void deleteScheduleTask(@PathVariable String id) {
+        baseTaskHubService.deleteScheduleTask(id, SessionUtils.getUserId(), "/organization/task-center/schedule/delete/", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
+    }
 }

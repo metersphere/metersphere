@@ -34,6 +34,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     public static final String PROJECT_TASK_BATCH_DELETE = "/organization/task-center/exec-task/batch-delete";
     public static final String PROJECT_TASK_ITEM_STOP = "/project/task-center/exec-task/item/stop/";
     public static final String PROJECT_TASK_ITEM_BATCH_STOP = "/project/task-center/exec-task/item/batch-stop";
+    public static final String PROJECT_SCHEDULE_TASK_DELETE = "/project/task-center/schedule/delete/";
 
     @Test
     @Order(1)
@@ -206,5 +207,20 @@ public class ProjectTaskHubControllerTests extends BaseTest {
         request.setSelectAll(false);
         request.setSelectIds(List.of("pro_1", "pro_2"));
         this.requestPostWithOkAndReturn(PROJECT_TASK_ITEM_BATCH_STOP, request);
+    }
+
+    /**
+     * 项目后台任务删除
+     */
+    @Test
+    @Order(5)
+    public void projectScheduleTaskDelete() throws Exception {
+        this.requestGet(PROJECT_SCHEDULE_TASK_DELETE + "123143");
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(PROJECT_SCHEDULE_TASK_DELETE + "pro_wx_1");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
     }
 }

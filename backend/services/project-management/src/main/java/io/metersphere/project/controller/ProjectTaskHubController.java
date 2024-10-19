@@ -142,4 +142,11 @@ public class ProjectTaskHubController {
                 "/project/task-center/exec-task/item/batch-stop", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
 
     }
+
+    @GetMapping("/schedule/delete/{id}")
+    @Operation(summary = "项目-任务中心-系统后台任务-删除")
+    @RequiresPermissions(PermissionConstants.PROJECT_SCHEDULE_TASK_CENTER_READ_DELETE)
+    public void deleteScheduleTask(@PathVariable String id) {
+        baseTaskHubService.deleteScheduleTask(id, SessionUtils.getUserId(), "/project/task-center/schedule/delete/", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
+    }
 }

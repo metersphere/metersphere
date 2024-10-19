@@ -13,3 +13,11 @@ INSERT INTO `test_resource_pool` (`id`, `name`, `type`, `description`, `enable`,
 VALUES
     ('1', 'LOCAL', 'Node', '测试资源池', b'1', 1705894549000, 1705894549000, 'admin', NULL, b'1', b'0'),
     ('2', 'LOCAL', 'Kubernetes', 'Kubernetes测试资源池', b'1', 1705894549000, 1705894549000, 'admin', NULL, b'1', b'0');
+
+
+INSERT INTO `schedule` (`id`, `key`, `type`, `value`, `job`, `resource_type`, `enable`, `resource_id`, `create_user`, `create_time`, `update_time`, `project_id`, `name`, `config`, `num`)
+VALUES
+    ('pro_wx_1', 'wx_key_1', 'cron', '1233213', 'JobClass1', 'API_IMPORT', b'1', '12134', 'admin', 1640776000000, 1640777000000, '100001100001', 'Schedule 1', '{\"param1\": \"value1\", \"param2\": \"value2\"}', 100),
+    ('pro_wx_2', 'wx_key_2', 'cron', '1231321231', 'JobClass15', 'BUG_SYNC', b'0', '2234', 'admin', 1640777400000, 1640778400000, '100001100001', 'Schedule 15', '', 101),
+    ('wx_3', 'wx_key_3', 'cron', '50 15 10 20 05 ?', 'JobClass22', 'DEMAND_SYNC', b'1', '3234', 'admin', 1640778100000, 1640779100000, '100001100001', 'Schedule 22', '', 102);
+
