@@ -159,4 +159,12 @@ public class OrganizationTaskHubController {
     public void deleteScheduleTask(@PathVariable String id) {
         baseTaskHubService.deleteScheduleTask(id, SessionUtils.getUserId(), "/organization/task-center/schedule/delete/", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
     }
+
+
+    @GetMapping("/schedule/switch/{id}")
+    @Operation(summary = "组织-任务中心-后台任务开启关闭")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_SCHEDULE_TASK_CENTER_READ_UPDATE)
+    public void enable(@PathVariable String id) {
+        baseTaskHubService.enable(id, SessionUtils.getUserId(), "/organization/task-center/schedule/switch/", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
+    }
 }

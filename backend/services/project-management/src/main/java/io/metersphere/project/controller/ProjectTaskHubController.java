@@ -149,4 +149,11 @@ public class ProjectTaskHubController {
     public void deleteScheduleTask(@PathVariable String id) {
         baseTaskHubService.deleteScheduleTask(id, SessionUtils.getUserId(), "/project/task-center/schedule/delete/", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
     }
+
+    @GetMapping("/schedule/switch/{id}")
+    @Operation(summary = "项目-任务中心-后台任务开启关闭")
+    @RequiresPermissions(PermissionConstants.PROJECT_SCHEDULE_TASK_CENTER_READ_UPDATE)
+    public void enable(@PathVariable String id) {
+        baseTaskHubService.enable(id, SessionUtils.getUserId(), "/project/task-center/schedule/switch/", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
+    }
 }

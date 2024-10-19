@@ -52,6 +52,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_TASK_ITEM_ORDER = "/system/task-center/exec-task/item/order";
 
     public static final String SYSTEM_SCHEDULE_TASK_DELETE = "/system/task-center/schedule/delete/";
+    public static final String SYSTEM_SCHEDULE_TASK_SWITCH = "/system/task-center/schedule/switch/";
 
     @Test
     @Order(1)
@@ -215,6 +216,12 @@ public class BaseTaskHubControllerTests extends BaseTest {
         this.requestPost(SYSTEM_TASK_BATCH_DELETE, request);
     }
 
+    @Test
+    @Order(6)
+    public void systemScheduleTaskSwitch() throws Exception {
+        this.requestGet(SYSTEM_SCHEDULE_TASK_SWITCH + "wx_1");
+    }
+
 
     /**
      * 系统执行任务停止
@@ -276,6 +283,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String ORG_TASK_ITEM_STOP = "/organization/task-center/exec-task/item/stop/";
     public static final String ORG_TASK_ITEM_BATCH_STOP = "/organization/task-center/exec-task/item/batch-stop";
     public static final String ORG_SCHEDULE_TASK_DELETE = "/organization/task-center/schedule/delete/";
+    public static final String ORG_SCHEDULE_TASK_SWITCH = "/organization/task-center/schedule/switch/";
 
     @Test
     @Order(20)
@@ -463,6 +471,12 @@ public class BaseTaskHubControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+    }
+
+    @Test
+    @Order(27)
+    public void orgScheduleTaskSwitch() throws Exception {
+        this.requestGet(ORG_SCHEDULE_TASK_SWITCH + "wx_1");
     }
 
 

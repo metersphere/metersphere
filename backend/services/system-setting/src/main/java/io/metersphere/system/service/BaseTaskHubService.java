@@ -35,6 +35,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.*;
+import io.metersphere.system.schedule.ApiScheduleNoticeService;
 import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -46,6 +47,8 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.quartz.JobKey;
+import org.quartz.TriggerKey;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -110,6 +113,8 @@ public class BaseTaskHubService {
     private ExtSwaggerMapper extSwaggerMapper;
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    ApiScheduleNoticeService apiScheduleNoticeService;
 
     /**
      * 系统-获取执行任务列表
@@ -761,5 +766,20 @@ public class BaseTaskHubService {
             throw new MSException(Translator.get("schedule_not_exist"));
         }
         return schedule;
+    }
+
+    public void enable(String id, String userId, String path, String module) {
+        Schedule schedule = checkScheduleExit(id);
+        schedule.setEnable(!schedule.getEnable());
+        scheduleService.editSchedule(schedule);
+        try {
+            scheduleService.addOrUpdateCronJob(schedule, new JobKey(schedule.getKey(), schedule.getJob()),
+                    new TriggerKey(schedule.getKey(), schedule.getJob()), Class.forName(schedule.getJob()));
+        } catch (ClassNotFoundException e) {
+            LogUtils.error(e);
+            throw new RuntimeException(e);
+        }
+        apiScheduleNoticeService.sendScheduleNotice(schedule, userId);
+        saveLog(List.of(schedule), userId, path, HttpMethodConstants.GET.name(), module, OperationLogType.UPDATE.name());
     }
 }
