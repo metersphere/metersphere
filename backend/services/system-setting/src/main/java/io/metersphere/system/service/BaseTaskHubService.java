@@ -12,26 +12,30 @@ import io.metersphere.project.domain.ProjectTestResourcePool;
 import io.metersphere.project.domain.ProjectTestResourcePoolExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
-import io.metersphere.sdk.constants.ExecStatus;
-import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
-import io.metersphere.sdk.constants.ResultStatus;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.*;
+import io.metersphere.system.dto.ProjectDTO;
+import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.system.dto.pool.TestResourceDTO;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
+import io.metersphere.system.dto.taskcenter.enums.ScheduleTagType;
 import io.metersphere.system.dto.taskhub.*;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.*;
+import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.TaskRunnerClient;
@@ -97,6 +101,15 @@ public class BaseTaskHubService {
     private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
 
     private final static String GET_TASK_ITEM_ORDER_URL = "http://%s/api/task/item/order";
+
+    @Resource
+    private ScheduleService scheduleService;
+    @Resource
+    private ScheduleMapper scheduleMapper;
+    @Resource
+    private ExtSwaggerMapper extSwaggerMapper;
+    @Resource
+    private OperationLogService operationLogService;
 
     /**
      * 系统-获取执行任务列表
@@ -700,5 +713,53 @@ public class BaseTaskHubService {
         ExecTaskItemExample itemExample = new ExecTaskItemExample();
         itemExample.createCriteria().andIdIn(taskIdItemIds);
         return execTaskItemMapper.selectByExample(itemExample);
+    }
+
+    public void deleteScheduleTask(String id, String userId, String path, String module) {
+        Schedule schedule = checkScheduleExit(id);
+        if (!StringUtils.equalsAnyIgnoreCase(schedule.getResourceType(), ScheduleResourceType.BUG_SYNC.name(), ScheduleResourceType.DEMAND_SYNC.name())) {
+            if (StringUtils.equals(schedule.getResourceType(), ScheduleTagType.API_IMPORT.name())) {
+                extSwaggerMapper.deleteByPrimaryKey(schedule.getResourceId());
+            }
+            scheduleService.deleteByResourceId(schedule.getResourceId(), schedule.getJob());
+            saveLog(List.of(schedule), userId, path, HttpMethodConstants.GET.name(), module, OperationLogType.DELETE.name());
+        }
+    }
+
+    private void saveLog(List<Schedule> scheduleList, String userId, String path, String method, String module, String type) {
+        //取出所有的项目id
+        if (scheduleList.isEmpty()) {
+            return;
+        }
+        List<String> projectIds = scheduleList.stream().map(Schedule::getProjectId).distinct().toList();
+        //根据项目id取出组织id
+        List<ProjectDTO> orgList = extScheduleMapper.getOrgListByProjectIds(projectIds);
+        //生成map key:项目id value:组织id
+        Map<String, String> orgMap = orgList.stream().collect(Collectors.toMap(ProjectDTO::getId, ProjectDTO::getOrganizationId));
+        List<LogDTO> logs = new ArrayList<>();
+        scheduleList.forEach(s -> {
+            LogDTO dto = LogDTOBuilder.builder()
+                    .projectId(s.getProjectId())
+                    .organizationId(orgMap.get(s.getProjectId()))
+                    .type(type)
+                    .module(module)
+                    .method(method)
+                    .path(path)
+                    .sourceId(s.getResourceId())
+                    .content(s.getName())
+                    .createUser(userId)
+                    .build().getLogDTO();
+            logs.add(dto);
+        });
+        operationLogService.batchAdd(logs);
+    }
+
+
+    public Schedule checkScheduleExit(String id) {
+        Schedule schedule = scheduleMapper.selectByPrimaryKey(id);
+        if (schedule == null) {
+            throw new MSException(Translator.get("schedule_not_exist"));
+        }
+        return schedule;
     }
 }
