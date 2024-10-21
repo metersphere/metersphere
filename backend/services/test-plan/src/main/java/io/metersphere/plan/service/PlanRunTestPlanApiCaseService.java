@@ -207,7 +207,7 @@ public class PlanRunTestPlanApiCaseService {
         ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testPlanReportApiCase.getApiCaseId());
 
         // 独立报告，执行到当前任务时初始化报告
-        String reportId = initApiReport(Map.of(apiTestCase.getId(), queueDetail.getTaskItemId()), runModeConfig, List.of(testPlanReportApiCase), Map.of(apiTestCase.getId(), apiTestCase), queue.getUserId()).get(resourceId);
+        String reportId = initApiReport(Map.of(testPlanReportApiCase.getId(), queueDetail.getTaskItemId()), runModeConfig, List.of(testPlanReportApiCase), Map.of(apiTestCase.getId(), apiTestCase), queue.getUserId()).get(resourceId);
         TaskRequestDTO taskRequest = testPlanApiCaseBatchRunService.getTaskRequestDTO(reportId, testPlanReportApiCase.getId(), apiTestCase, runModeConfig);
         taskRequest.getTaskInfo().setTaskId(queue.getTaskId());
         taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.PLAN_RUN_API_CASE.name());
@@ -256,7 +256,7 @@ public class PlanRunTestPlanApiCaseService {
             // 创建报告和任务的关联关系
             ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
             apiReportRelateTask.setReportId(apiReport.getId());
-            apiReportRelateTask.setTaskResourceId(resourceExecTaskItemMap.get(apiReport.getId()));
+            apiReportRelateTask.setTaskResourceId(resourceExecTaskItemMap.get(testPlanReportApiCase.getId()));
             apiReportRelateTasks.add(apiReportRelateTask);
         }
         apiReportService.insertApiReport(apiReports, apiTestCaseRecords, apiReportRelateTasks);

@@ -132,14 +132,8 @@ public class ApiScenarioBatchRunService {
                 initIntegratedReportCaseRecord(reportId, subIds);
                 // 集合报告初始化一级步骤
                 initApiScenarioReportStep(apiScenarios, reportId);
-            } else {
-                // 初始化任务项
-                Map<String, String> resourceExecTaskItemMap = execTaskItems
-                        .stream()
-                        .collect(Collectors.toMap(ExecTaskItem::getResourceId, ExecTaskItem::getId));
-                // 非集合报告，初始化独立报告，执行时初始化步骤
-                initScenarioReport(resourceExecTaskItemMap, runModeConfig, apiScenarios, userId);
             }
+
             // 初始化队列项
             apiBatchRunBaseService.initExecutionQueueDetails(queue.getQueueId(), execTaskItems);
         });
