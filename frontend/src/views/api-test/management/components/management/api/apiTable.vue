@@ -12,7 +12,7 @@
     >
       <template #right>
         <ShareButton
-          v-if="hasAnyPermission(['PROJECT_API_DEFINITION_DOC:READ+SHARE'])"
+          v-if="hasAnyPermission(['PROJECT_API_DEFINITION:READ+SHARE'])"
           ref="shareButtonRef"
           @create="createShare"
           @show-share-list="showShareList"

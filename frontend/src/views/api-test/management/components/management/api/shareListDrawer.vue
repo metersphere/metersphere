@@ -10,7 +10,7 @@
     <div class="p-[16px]">
       <div class="mb-4 flex items-center justify-between">
         <a-button
-          v-permission="['PROJECT_API_DEFINITION_DOC:READ+SHARE']"
+          v-permission="['PROJECT_API_DEFINITION:READ+SHARE']"
           class="w-[84px]"
           type="primary"
           @click="emit('editOrCreate')"
@@ -32,7 +32,7 @@
           {{ record.isPrivate ? t('apiTestManagement.passwordView') : t('apiTestManagement.publicityView') }}
         </template>
         <template #operation="{ record }">
-          <div v-permission="['PROJECT_API_DEFINITION_DOC:READ+SHARE']" class="flex items-center">
+          <div v-permission="['PROJECT_API_DEFINITION:READ+SHARE']" class="flex items-center">
             <a-tooltip :disabled="!!record.apiShareNum" :content="t('apiTestManagement.apiShareNumberTip')">
               <MsButton class="!mx-0" :disabled="!record.apiShareNum" @click="viewLink(record)">
                 {{ t('apiTestManagement.viewLink') }}
@@ -139,11 +139,11 @@
       showDrag: true,
     },
     {
-      title: hasAnyPermission(['PROJECT_API_DEFINITION_DOC:READ+SHARE']) ? 'common.operation' : '',
+      title: hasAnyPermission(['PROJECT_API_DEFINITION:READ+SHARE']) ? 'common.operation' : '',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: operationWidth(215, hasAnyPermission(['PROJECT_API_DEFINITION_DOC:READ+SHARE']) ? 180 : 50),
+      width: operationWidth(215, hasAnyPermission(['PROJECT_API_DEFINITION:READ+SHARE']) ? 180 : 50),
       showInTable: true,
       showDrag: false,
     },
