@@ -179,7 +179,6 @@
       };
 
       const res = await getModuleTreeFunc(props.getModulesApiType, props.activeTab, getModuleParams);
-
       caseTree.value = calculateTreeCount(res, props.modulesCount);
       allCount.value = props.modulesCount.all || 0;
       emit('init', caseTree.value, selectedProtocols.value);
@@ -212,9 +211,12 @@
    */
   watch(
     () => props.modulesCount,
-    () => {
-      allCount.value = props.modulesCount.all || 0;
-      caseTree.value = calculateTreeCount(caseTree.value, props.modulesCount);
+    (val) => {
+      if (val) {
+        caseTree.value = calculateTreeCount(caseTree.value, props.modulesCount);
+        allCount.value = val.all || 0;
+        emit('init', caseTree.value, selectedProtocols.value);
+      }
     },
     {
       deep: true,
