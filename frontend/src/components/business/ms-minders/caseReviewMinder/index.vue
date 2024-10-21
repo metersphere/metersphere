@@ -513,7 +513,8 @@
   function handleReviewDone(status: StartReviewStatus | ReviewResult) {
     const node = window.minder.getSelectedNode();
     reviewVisible.value = false;
-    if (status !== 'UN_REVIEWED' && isCaseTag(node.data)) {
+    // 如果是用例，则status是获取后端的值，可直接替换标签
+    if (isCaseTag(node.data)) {
       window.minder.execCommand('resource', [statusTagMap[status]]);
     } else if (status !== StartReviewStatus.UNDER_REVIEWED && node.data?.resource?.includes(moduleTag)) {
       // 先清空子节点，从后向前遍历时，删除节点不会影响到尚未遍历的节点
