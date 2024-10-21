@@ -59,7 +59,7 @@
         </div>
       </a-form-item>
       <a-form-item field="effectiveTime" :label="t('apiTestManagement.effectiveTime')" asterisk-position="end">
-        <MsTimeSelectorVue v-model="invalidTimeValue" @change="handleTimeChange" />
+        <MsTimeSelectorVue v-model="invalidTimeValue" allow-empty @change="handleTimeChange" />
       </a-form-item>
       <div class="mb-[16px] flex items-center">
         <a-switch v-model:model-value="form.isPrivate" class="mr-[8px]" size="small" @change="changePrivate" />
