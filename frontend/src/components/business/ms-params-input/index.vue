@@ -37,8 +37,8 @@
                   :options="paramTypeOptions"
                   :placeholder="t('ms.paramsInput.mockTypePlaceholder')"
                   option-size="small"
-                  label-key="value"
-                  value-key="key"
+                  label-key="label"
+                  value-key="value"
                   @change="handleParamTypeChange"
                 >
                   <template #label="{ data }">
@@ -126,8 +126,8 @@
                   :options="JMeterVarsOptions"
                   :placeholder="t('ms.paramsInput.mockTypePlaceholder')"
                   option-size="small"
-                  label-key="value"
-                  value-key="key"
+                  label-key="label"
+                  value-key="value"
                   @change="handleJMeterTypeChange"
                 >
                   <template #label="{ data }">
