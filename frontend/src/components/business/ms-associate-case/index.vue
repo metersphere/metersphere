@@ -464,7 +464,9 @@
     () => moduleTree.value,
     (val) => {
       if (val) {
-        selectedModuleProps.value.modulesTree = val;
+        if (val) {
+          selectedModuleProps.value.modulesTree = val;
+        }
       }
     },
     {
@@ -613,7 +615,7 @@
           ...params,
           moduleIds: [],
           filter: {},
-          keyword: keyword.value,
+          keyword: '',
           ...props.extraModuleCountParams,
           protocols: associationType.value === CaseLinkEnum.API ? selectedProtocols.value : undefined,
         }
