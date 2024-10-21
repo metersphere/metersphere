@@ -16,12 +16,22 @@ import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.sdk.constants.ExecStatus;
+import io.metersphere.sdk.constants.ExecTaskType;
+import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
+import io.metersphere.sdk.constants.ResultStatus;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.*;
+import io.metersphere.system.dto.BatchExecTaskReportDTO;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.system.dto.pool.TestResourceDTO;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
+import io.metersphere.system.dto.request.BatchExecTaskPageRequest;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
@@ -836,6 +846,19 @@ public class BaseTaskHubService {
         } catch (ClassNotFoundException e) {
             LogUtils.error(e);
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 查询批量执行任务报告列表
+     * @param request 请求参数
+     * @return 执行任务报告集合
+     */
+    public List<BatchExecTaskReportDTO> listBatchTaskReport(BatchExecTaskPageRequest request) {
+        if (StringUtils.equals(ExecTaskType.API_CASE_BATCH.name(), request.getBatchType())) {
+            return extExecTaskItemMapper.list(request, "api_report");
+        } else {
+            return extExecTaskItemMapper.list(request, "api_scenario_report");
         }
     }
 }

@@ -2,6 +2,8 @@ package io.metersphere.system.mapper;
 
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
+import io.metersphere.system.dto.BatchExecTaskReportDTO;
+import io.metersphere.system.dto.request.BatchExecTaskPageRequest;
 import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import org.apache.ibatis.annotations.Param;
@@ -46,4 +48,12 @@ public interface ExtExecTaskItemMapper {
     List<ExecTaskItem> getResourcePoolsByItemIds(@Param("ids") List<String> ids);
 
     List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("organizationId") String organizationId, @Param("projectId") String projectId);
+
+    /**
+     * 查询批量执行任务报告
+     * @param request 请求参数
+     * @param tableName 表名
+     * @return 执行任务报告集合
+     */
+    List<BatchExecTaskReportDTO> list(@Param("request") BatchExecTaskPageRequest request, @Param("tableName") String tableName);
 }
