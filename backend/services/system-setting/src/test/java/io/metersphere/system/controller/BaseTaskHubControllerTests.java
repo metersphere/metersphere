@@ -53,6 +53,8 @@ public class BaseTaskHubControllerTests extends BaseTest {
 
     public static final String SYSTEM_SCHEDULE_TASK_DELETE = "/system/task-center/schedule/delete/";
     public static final String SYSTEM_SCHEDULE_TASK_SWITCH = "/system/task-center/schedule/switch/";
+    public static final String SYSTEM_SCHEDULE_TASK_BATCH_ENABLE = "/system/task-center/schedule/batch-enable";
+    public static final String SYSTEM_SCHEDULE_TASK_BATCH_DISABLE = "/system/task-center/schedule/batch-disable";
 
     @Test
     @Order(1)
@@ -267,6 +269,28 @@ public class BaseTaskHubControllerTests extends BaseTest {
     }
 
 
+    @Test
+    @Order(7)
+    public void systemScheduleBatchEnable() throws Exception {
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
+        request.setSelectAll(true);
+        this.requestPost(SYSTEM_SCHEDULE_TASK_BATCH_ENABLE, request);
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("wx_1", "wx_2"));
+        this.requestPost(SYSTEM_SCHEDULE_TASK_BATCH_ENABLE, request);
+    }
+
+    @Test
+    @Order(8)
+    public void systemScheduleBatchDisable() throws Exception {
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
+        request.setSelectAll(true);
+        this.requestPost(SYSTEM_SCHEDULE_TASK_BATCH_DISABLE, request);
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("wx_1", "wx_2"));
+        this.requestPost(SYSTEM_SCHEDULE_TASK_BATCH_DISABLE, request);
+    }
+
     /**
      * 组织任务中心测试用例
      */
@@ -284,6 +308,8 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String ORG_TASK_ITEM_BATCH_STOP = "/organization/task-center/exec-task/item/batch-stop";
     public static final String ORG_SCHEDULE_TASK_DELETE = "/organization/task-center/schedule/delete/";
     public static final String ORG_SCHEDULE_TASK_SWITCH = "/organization/task-center/schedule/switch/";
+    public static final String ORG_SCHEDULE_TASK_BATCH_ENABLE = "/organization/task-center/schedule/batch-enable";
+    public static final String ORG_SCHEDULE_TASK_BATCH_DISABLE = "/organization/task-center/schedule/batch-disable";
 
     @Test
     @Order(20)
@@ -477,6 +503,24 @@ public class BaseTaskHubControllerTests extends BaseTest {
     @Order(27)
     public void orgScheduleTaskSwitch() throws Exception {
         this.requestGet(ORG_SCHEDULE_TASK_SWITCH + "wx_1");
+    }
+
+
+    @Test
+    @Order(28)
+    public void orgScheduleBatchEnable() throws Exception {
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
+        request.setSelectAll(true);
+        this.requestPost(ORG_SCHEDULE_TASK_BATCH_ENABLE, request);
+    }
+
+
+    @Test
+    @Order(28)
+    public void orgScheduleBatchDisable() throws Exception {
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
+        request.setSelectAll(true);
+        this.requestPost(ORG_SCHEDULE_TASK_BATCH_DISABLE, request);
     }
 
 

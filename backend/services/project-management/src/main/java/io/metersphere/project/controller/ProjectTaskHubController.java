@@ -2,6 +2,7 @@ package io.metersphere.project.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BasePageRequest;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.ResourcePoolOptionsDTO;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
@@ -155,5 +156,21 @@ public class ProjectTaskHubController {
     @RequiresPermissions(PermissionConstants.PROJECT_SCHEDULE_TASK_CENTER_READ_UPDATE)
     public void enable(@PathVariable String id) {
         baseTaskHubService.enable(id, SessionUtils.getUserId(), "/project/task-center/schedule/switch/", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
+    }
+
+
+    @PostMapping("/schedule/batch-enable")
+    @Operation(summary = "项目-任务中心-后台任务-批量开启")
+    @RequiresPermissions(PermissionConstants.PROJECT_SCHEDULE_TASK_CENTER_READ_UPDATE)
+    public void batchEnable(@Validated @RequestBody TableBatchProcessDTO request) {
+        baseTaskHubService.scheduleBatchOperation(request, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId(), "/project/task-center/schedule/batch-enable", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER, true, List.of(SessionUtils.getCurrentProjectId()));
+    }
+
+
+    @PostMapping("/schedule/batch-disable")
+    @Operation(summary = "项目-任务中心-后台任务-批量关闭")
+    @RequiresPermissions(PermissionConstants.PROJECT_SCHEDULE_TASK_CENTER_READ_UPDATE)
+    public void batchDisable(@Validated @RequestBody TableBatchProcessDTO request) {
+        baseTaskHubService.scheduleBatchOperation(request, SessionUtils.getUserId(), null, "/project/task-center/schedule/batch-disable", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER, false, List.of(SessionUtils.getCurrentProjectId()));
     }
 }

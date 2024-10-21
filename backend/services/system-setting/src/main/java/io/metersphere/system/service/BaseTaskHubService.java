@@ -35,6 +35,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.*;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.schedule.ApiScheduleNoticeService;
 import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.utils.PageUtils;
@@ -782,4 +783,45 @@ public class BaseTaskHubService {
         apiScheduleNoticeService.sendScheduleNotice(schedule, userId);
         saveLog(List.of(schedule), userId, path, HttpMethodConstants.GET.name(), module, OperationLogType.UPDATE.name());
     }
+
+
+    public void scheduleBatchOperation(TableBatchProcessDTO request, String userId, String projectId, String path, String module, boolean enable, List<String> projectIds) {
+        List<Schedule> scheduleList = getSchedule(request, projectIds, enable);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ScheduleMapper batchMapper = sqlSession.getMapper(ScheduleMapper.class);
+        SubListUtils.dealForSubList(scheduleList, 100, list -> {
+            list.forEach(s -> {
+                s.setEnable(enable);
+                batchMapper.updateByPrimaryKeySelective(s);
+                try {
+                    scheduleService.addOrUpdateCronJob(s, new JobKey(s.getKey(), s.getJob()),
+                            new TriggerKey(s.getKey(), s.getJob()), Class.forName(s.getJob()));
+                } catch (ClassNotFoundException e) {
+                    LogUtils.error(e);
+                    throw new RuntimeException(e);
+                }
+            });
+            sqlSession.flushStatements();
+        });
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        apiScheduleNoticeService.batchSendNotice(projectId, scheduleList, userMapper.selectByPrimaryKey(userId), enable ? NoticeConstants.Event.OPEN : NoticeConstants.Event.CLOSE);
+        saveLog(scheduleList, userId, path, HttpMethodConstants.POST.name(), module, OperationLogType.UPDATE.name());
+    }
+
+    private List<Schedule> getSchedule(TableBatchProcessDTO request, List<String> projectIds, boolean enable) {
+        List<Schedule> list;
+        if (request.isSelectAll()) {
+            list = extScheduleMapper.getSchedules(request, projectIds);
+        } else {
+            ScheduleExample example = new ScheduleExample();
+            example.createCriteria().andIdIn(request.getSelectIds());
+            list = scheduleMapper.selectByExample(example);
+        }
+        list = list.stream().filter(s -> s.getEnable() != enable).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+            list.removeIf(schedule -> request.getExcludeIds().contains(schedule.getId()));
+        }
+        return list;
+    }
+
 }
