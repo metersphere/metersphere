@@ -81,6 +81,7 @@
     organizationBatchCloseTask,
     organizationBatchOpenTask,
     organizationDeleteSchedule,
+    organizationEditCron,
     organizationScheduleSwitch,
   } from '@/api/modules/taskCenter/organization';
   import {
@@ -88,6 +89,7 @@
     projectBatchCloseTask,
     projectBatchOpenTask,
     projectDeleteSchedule,
+    projectEditCron,
     projectScheduleSwitch,
   } from '@/api/modules/taskCenter/project';
   import {
@@ -95,6 +97,7 @@
     systemBatchCloseTask,
     systemBatchOpenTask,
     systemDeleteSchedule,
+    systemEditCron,
     systemScheduleSwitch,
   } from '@/api/modules/taskCenter/system';
   import { useI18n } from '@/hooks/useI18n';
@@ -437,13 +440,18 @@
     }
   }
 
+  const currentEditCron = {
+    system: systemEditCron,
+    org: organizationEditCron,
+    project: projectEditCron,
+  }[props.type];
   async function handleRunRuleChange(
     val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[],
     record: TaskCenterSystemTaskItem
   ) {
     try {
       record.runRuleLoading = true;
-      // await runRuleChange();
+      await currentEditCron(val as string, record.id);
       Message.success(t('common.updateSuccess'));
     } catch (error) {
       // eslint-disable-next-line no-console

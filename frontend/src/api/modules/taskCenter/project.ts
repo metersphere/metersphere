@@ -5,8 +5,10 @@ import {
   projectBatchOpenTaskUrl,
   projectBatchStopTaskDetailUrl,
   projectBatchStopTaskUrl,
+  projectBatchTaskReportUrl,
   projectDeleteScheduleUrl,
   projectDeleteTaskUrl,
+  projectEditCronUrl,
   projectExecuteTaskDetailListUrl,
   projectExecuteTaskListUrl,
   projectExecuteTaskStatisticsUrl,
@@ -23,6 +25,7 @@ import type { CommonList, TableQueryParams } from '@/models/common';
 import type { TimingTaskCenterApiCaseItem } from '@/models/projectManagement/taskCenter';
 import type {
   TaskCenterBatchParams,
+  TaskCenterBatchTaskReportItem,
   TaskCenterResourcePoolItem,
   TaskCenterStatisticsItem,
   TaskCenterSystemTaskItem,
@@ -113,4 +116,14 @@ export function projectBatchOpenTask(data: TaskCenterBatchParams) {
 // 项目任务-批量关闭后台任务
 export function projectBatchCloseTask(data: TaskCenterBatchParams) {
   return MSR.post({ url: projectBatchCloseTaskUrl, data });
+}
+
+// 项目任务-编辑 cron 表达式
+export function projectEditCron(cron: string, id: string) {
+  return MSR.post({ url: projectEditCronUrl, data: { cron, id } });
+}
+
+// 项目任务-批量任务报告列表
+export function projectBatchTaskReportList(data: TaskCenterBatchParams) {
+  return MSR.post<CommonList<TaskCenterBatchTaskReportItem>>({ url: projectBatchTaskReportUrl, data });
 }

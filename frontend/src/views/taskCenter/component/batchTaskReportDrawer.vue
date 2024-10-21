@@ -58,17 +58,22 @@
   import ExecStatus from '@/views/test-plan/report/component/execStatus.vue';
   import ReportDrawer from '@/views/test-plan/testPlan/detail/reportDrawer.vue';
 
+  import { organizationBatchTaskReportList } from '@/api/modules/taskCenter/organization';
+  import { projectBatchTaskReportList } from '@/api/modules/taskCenter/project';
+  import { systemBatchTaskReportList } from '@/api/modules/taskCenter/system';
   import { useI18n } from '@/hooks/useI18n';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
 
+  import { TaskCenterBatchTaskReportItem } from '@/models/taskCenter';
   import { ReportExecStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   const props = defineProps<{
-    type: 'case' | 'scenario';
+    range: 'system' | 'project' | 'org';
+    type: 'CASE' | 'SCENARIO';
     moduleType: keyof typeof ReportEnum;
   }>();
 
@@ -78,7 +83,7 @@
 
   const visible = defineModel<boolean>('visible', { required: true });
   const title = computed(() =>
-    props.type === 'case' ? t('ms.taskCenter.batchCaseTask') : t('ms.taskCenter.batchScenarioTask')
+    props.type === 'CASE' ? t('ms.taskCenter.batchCaseTask') : t('ms.taskCenter.batchScenarioTask')
   );
   const keyword = ref<string>('');
 
@@ -187,8 +192,13 @@
 
   await tableStore.initColumn(TableKeyEnum.API_TEST_REPORT, columns, 'drawer');
 
+  const currentList = {
+    system: systemBatchTaskReportList,
+    org: organizationBatchTaskReportList,
+    project: projectBatchTaskReportList,
+  }[props.range];
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
-    () => Promise.resolve({ list: [], total: 0 }),
+    currentList,
     {
       tableKey: TableKeyEnum.API_TEST_REPORT,
       scroll: {
@@ -229,7 +239,7 @@
   const reportVisible = ref(false);
   const independentReportId = ref<string>('');
 
-  function showReportDetail(record: any) {
+  function showReportDetail(record: TaskCenterBatchTaskReportItem) {
     independentReportId.value = record.id;
     reportVisible.value = true;
   }
