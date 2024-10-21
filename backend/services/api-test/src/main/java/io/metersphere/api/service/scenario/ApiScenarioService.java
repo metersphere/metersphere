@@ -2025,12 +2025,18 @@ public class ApiScenarioService extends MoveNodeService {
             }
 
             List<ApiScenarioStep> stepList = apiScenarioStepMap.get(apiScenario.getId());
+            Map<String, String> originStepIdMap = new HashMap<>();
             if (CollectionUtils.isNotEmpty(stepList)) {
                 stepList.forEach(step -> {
+                    String originStepId = step.getId();
                     ApiScenarioStep copyStep = new ApiScenarioStep();
                     BeanUtils.copyBean(copyStep, step);
                     copyStep.setId(IDGenerator.nextStr());
                     copyStep.setScenarioId(copyScenario.getId());
+                    originStepIdMap.put(originStepId, copyStep.getId());
+                    if (StringUtils.isNotBlank(step.getParentId()) && originStepIdMap.containsKey(step.getParentId())) {
+                        copyStep.setParentId(originStepIdMap.get(step.getParentId()));
+                    }
                     insertApiScenarioStepList.add(copyStep);
 
                     //这块的批量复制不处理csv文件和场景的配置信息
