@@ -29,6 +29,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useLocalForage from '@/hooks/useLocalForage';
   import useGlobalStore from '@/store/modules/global';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { GlobalEventNameEnum } from '@/enums/commonEnum';
   import { TaskCenterEnum } from '@/enums/taskCenter';
@@ -43,23 +44,40 @@
   const globalStore = useGlobalStore();
   const { getItem, setItem } = useLocalForage();
 
-  const tabList = ref([
-    {
-      value: TaskCenterEnum.CASE,
-      label: t('ms.taskCenter.caseTaskList'),
-    },
-    {
-      value: TaskCenterEnum.DETAIL,
-      label: t('ms.taskCenter.caseTaskDetailList'),
-    },
-    {
-      value: TaskCenterEnum.BACKEND,
-      label: t('ms.taskCenter.backendTaskList'),
-    },
-  ]);
+  const tabList = ref<Record<string, any>[]>([]);
 
   const activeTab = ref<TaskCenterEnum>((route.query.type as TaskCenterEnum) || TaskCenterEnum.CASE);
   const activeTaskId = ref('');
+
+  function initTabList() {
+    if (
+      (props.type === 'project' && hasAnyPermission(['PROJECT_CASE_TASK_CENTER:READ'])) ||
+      (props.type === 'org' && hasAnyPermission(['ORGANIZATION_CASE_TASK_CENTER:READ'])) ||
+      (props.type === 'system' && hasAnyPermission(['SYSTEM_CASE_TASK_CENTER:READ']))
+    ) {
+      tabList.value.push(
+        {
+          value: TaskCenterEnum.CASE,
+          label: t('ms.taskCenter.caseTaskList'),
+        },
+        {
+          value: TaskCenterEnum.DETAIL,
+          label: t('ms.taskCenter.caseTaskDetailList'),
+        }
+      );
+    }
+    if (
+      (props.type === 'project' && hasAnyPermission(['PROJECT_SCHEDULE_TASK_CENTER:READ'])) ||
+      (props.type === 'org' && hasAnyPermission(['ORGANIZATION_SCHEDULE_TASK_CENTER:READ'])) ||
+      (props.type === 'system' && hasAnyPermission(['SYSTEM_SCHEDULE_TASK_CENTER:READ']))
+    ) {
+      tabList.value.push({
+        value: TaskCenterEnum.BACKEND,
+        label: t('ms.taskCenter.backendTaskList'),
+      });
+    }
+  }
+  initTabList();
 
   function goTaskDetail(id: string) {
     activeTaskId.value = id;

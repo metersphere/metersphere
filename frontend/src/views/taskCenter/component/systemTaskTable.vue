@@ -41,21 +41,23 @@
     </template>
     <template #runRule="{ record }">
       <MsCronSelect
+        v-if="hasAnyPermission([getCurrentPermission('EDIT')])"
         v-model:model-value="record.value"
         v-model:loading="record.runRuleLoading"
         @change="(val) => handleRunRuleChange(val, record)"
       />
+      <span v-else>{{ record.value }}</span>
     </template>
     <template #action="{ record }">
       <MsButton
         v-if="['API_IMPORT', 'TEST_PLAN', 'API_SCENARIO'].includes(record.resourceType)"
-        v-permission="['SYSTEM_USER:READ+DELETE']"
+        v-permission="[getCurrentPermission('DELETE')]"
         class="!mr-[12px]"
         @click="deleteTask(record)"
       >
         {{ t('common.delete') }}
       </MsButton>
-      <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" class="!mr-0" @click="checkDetail(record)">
+      <MsButton class="!mr-0" @click="checkDetail(record)">
         {{ t('common.detail') }}
       </MsButton>
     </template>
@@ -120,7 +122,6 @@
   const tableStore = useTableStore();
 
   const keyword = ref('');
-  const tableSelected = ref<string[]>([]);
   const batchModalParams = ref();
   const columns: MsTableColumn = [
     {
@@ -163,7 +164,7 @@
     },
     {
       title: 'ms.taskCenter.operationTime',
-      dataIndex: 'operationTime',
+      dataIndex: 'createTime',
       width: 170,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -181,7 +182,7 @@
     },
     {
       title: 'ms.taskCenter.nextExecuteTime',
-      dataIndex: 'nextExecuteTime',
+      dataIndex: 'nextTime',
       width: 170,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -257,12 +258,29 @@
       return {
         ...item,
         runRuleLoading: false,
-        operationTime: item.operationTime ? dayjs(item.operationTime).format('YYYY-MM-DD HH:mm:ss') : '-',
+        createTime: item.createTime ? dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') : '-',
         lastFinishTime: item.lastFinishTime ? dayjs(item.lastFinishTime).format('YYYY-MM-DD HH:mm:ss') : '-',
-        nextExecuteTime: item.nextExecuteTime ? dayjs(item.nextExecuteTime).format('YYYY-MM-DD HH:mm:ss') : '-',
+        nextTime: item.nextTime ? dayjs(item.nextTime).format('YYYY-MM-DD HH:mm:ss') : '-',
       };
     }
   );
+
+  function getCurrentPermission(action: 'DELETE' | 'EDIT') {
+    return {
+      system: {
+        DELETE: 'SYSTEM_SCHEDULE_TASK_CENTER:READ+DELETE',
+        EDIT: 'SYSTEM_SCHEDULE_TASK_CENTER:READ+UPDATE',
+      },
+      org: {
+        DELETE: 'ORGANIZATION_SCHEDULE_TASK_CENTER:READ+DELETE',
+        EDIT: 'ORGANIZATION_SCHEDULE_TASK_CENTER:READ+UPDATE',
+      },
+      project: {
+        DELETE: 'PROJECT_SCHEDULE_TASK_CENTER:READ+DELETE',
+        EDIT: 'PROJECT_SCHEDULE_TASK_CENTER:READ+UPDATE',
+      },
+    }[props.type][action];
+  }
 
   function searchTask() {
     setLoadListParams({ keyword: keyword.value });

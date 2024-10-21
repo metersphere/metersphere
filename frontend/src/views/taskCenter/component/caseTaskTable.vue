@@ -105,12 +105,12 @@
     <template #action="{ record }">
       <MsButton
         v-if="[ExecuteStatusEnum.RUNNING, ExecuteStatusEnum.RERUNNING].includes(record.status)"
-        v-permission="['SYSTEM_USER:READ+DELETE']"
+        v-permission="[getCurrentPermission('STOP')]"
         @click="stopTask(record)"
       >
         {{ t('common.stop') }}
       </MsButton>
-      <MsButton v-else v-permission="['SYSTEM_USER:READ+DELETE']" @click="deleteTask(record)">
+      <MsButton v-else v-permission="[getCurrentPermission('DELETE')]" @click="deleteTask(record)">
         {{ t('common.delete') }}
       </MsButton>
       <!-- <MsButton
@@ -205,7 +205,6 @@
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
   import { characterLimit } from '@/utils';
-  import { hasAnyPermission } from '@/utils/permission';
 
   import { TaskCenterTaskItem } from '@/models/taskCenter';
   import { ReportEnum } from '@/enums/reportEnum';
@@ -366,6 +365,23 @@
       showTooltip: true,
       width: 100,
     });
+  }
+
+  function getCurrentPermission(action: 'STOP' | 'DELETE') {
+    return {
+      system: {
+        STOP: 'SYSTEM_CASE_TASK_CENTER:EXEC+STOP',
+        DELETE: 'SYSTEM_CASE_TASK_CENTER:READ+DELETE',
+      },
+      org: {
+        STOP: 'ORGANIZATION_CASE_TASK_CENTER:EXEC+STOP',
+        DELETE: 'ORGANIZATION_CASE_TASK_CENTER:READ+DELETE',
+      },
+      project: {
+        STOP: 'PROJECT_CASE_TASK_CENTER:EXEC+STOP',
+        DELETE: 'PROJECT_CASE_TASK_CENTER:READ+DELETE',
+      },
+    }[props.type][action];
   }
 
   const currentExecuteTaskList = {
