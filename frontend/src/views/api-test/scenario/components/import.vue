@@ -145,7 +145,7 @@
   const importForm = ref({ ...defaultForm });
   const importFormRef = ref<FormInstance>();
   const fileAccept = computed(() => {
-    return importForm.value.type === RequestImportFormat.MeterSphere ? 'json' : 'jmx';
+    return importForm.value.type === RequestImportFormat.MeterSphere ? 'ms' : 'jmx';
   });
 
   watch(

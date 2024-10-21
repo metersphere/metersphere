@@ -758,10 +758,11 @@
             #{id}
         </foreach>
     </select>
-    <select id="selectBaseInfoByModuleId" resultType="io.metersphere.api.domain.ApiScenario">
+    <select id="selectBaseInfoByModuleIdAndProjectId" resultType="io.metersphere.api.domain.ApiScenario">
         SELECT id, name
         FROM api_scenario
-        WHERE module_id = #{0}
+        WHERE module_id = #{moduleId}
+          AND project_id = #{projectId}
           AND deleted = false
     </select>
 </mapper>

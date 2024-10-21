@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.scenario;
 
 import io.metersphere.api.domain.ApiScenario;
+import io.metersphere.api.domain.ApiScenarioCsv;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,4 +22,13 @@ public class ApiScenarioImportDetail extends ApiScenario {
     private Map<String, Object> stepDetails = new HashMap<>();
     @Schema(description = "步骤集合")
     private List<ApiScenarioStepRequest> steps = new ArrayList<>();
+    @Schema(description = "CSV相关信息")
+    private List<ApiScenarioCsv> apiScenarioCsvList = new ArrayList<>();
+
+    public void setApiScenarioCsvList(List<ApiScenarioCsv> apiScenarioCsvList) {
+        apiScenarioCsvList.forEach(csv -> {
+            csv.setScenarioId(this.getId());
+        });
+        this.apiScenarioCsvList = apiScenarioCsvList;
+    }
 }

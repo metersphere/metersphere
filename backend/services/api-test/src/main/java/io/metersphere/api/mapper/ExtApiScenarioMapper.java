@@ -95,7 +95,7 @@ public interface ExtApiScenarioMapper {
 
     List<ApiScenario> getListBySelectIds(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("testPlanId") String testPlanId);
 
-    List<ApiScenario> selectBaseInfoByModuleId(String id);
+    List<ApiScenario> selectBaseInfoByModuleIdAndProjectId(@Param("moduleId") String moduleId, @Param("projectId") String projectId);
 
     List<ApiScenario> getNameInfo(@Param("ids") List<String> ids);
 }

@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.export;
 
+import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.ApiScenarioCsv;
 import io.metersphere.api.dto.converter.ApiDefinitionDetail;
@@ -59,6 +60,14 @@ public class MetersphereApiScenarioExportResponse extends ApiScenarioExportRespo
         scenarioStepList.forEach(step -> {
             if (StringUtils.equalsAnyIgnoreCase(step.getStepType(), ApiScenarioStepType.API.name(), ApiScenarioStepType.API_CASE.name())) {
                 step.setStepType(ApiScenarioStepType.CUSTOM_REQUEST.name());
+            }
+        });
+    }
+
+    public void setRefTypeToCopy() {
+        scenarioStepList.forEach(step -> {
+            if (StringUtils.equalsAnyIgnoreCase(step.getStepType(), ApiScenarioStepType.API.name(), ApiScenarioStepType.API_SCENARIO.name(), ApiScenarioStepType.API_CASE.name())) {
+                step.setRefType(ApiScenarioStepRefType.COPY.name());
             }
         });
     }
