@@ -24,6 +24,7 @@ export interface TaskCenterSystemTaskItem {
 
 export interface TaskCenterBatchParams extends TableQueryParams {
   taskId?: string;
+  batchType?: string;
   resourcePoolIds?: string[];
   resourcePoolNodes?: string[];
 }
@@ -95,4 +96,16 @@ export interface TaskCenterResourcePoolItem {
   id: string;
   name: string;
   children: TaskCenterResourcePoolItem[];
+}
+
+export interface TaskCenterBatchTaskReportItem {
+  id: string;
+  source: string;
+  integrated: boolean; // 是否集合报告
+  name: string;
+  status: string;
+  execResult: string;
+  triggerMode: ExecuteTriggerMode;
+  createUser: string;
+  createTime: number;
 }

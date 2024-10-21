@@ -5,8 +5,10 @@ import {
   organizationBatchOpenTaskUrl,
   organizationBatchStopTaskDetailUrl,
   organizationBatchStopTaskUrl,
+  organizationBatchTaskReportUrl,
   organizationDeleteScheduleUrl,
   organizationDeleteTaskUrl,
+  organizationEditCronUrl,
   organizationExecuteTaskDetailListUrl,
   organizationExecuteTaskListUrl,
   organizationExecuteTaskStatisticsUrl,
@@ -21,6 +23,7 @@ import {
 import type { CommonList, TableQueryParams } from '@/models/common';
 import type {
   TaskCenterBatchParams,
+  TaskCenterBatchTaskReportItem,
   TaskCenterResourcePoolItem,
   TaskCenterStatisticsItem,
   TaskCenterSystemTaskItem,
@@ -106,4 +109,14 @@ export function organizationBatchOpenTask(data: TaskCenterBatchParams) {
 // 组织任务-批量关闭后台任务
 export function organizationBatchCloseTask(data: TaskCenterBatchParams) {
   return MSR.post({ url: organizationBatchCloseTaskUrl, data });
+}
+
+// 组织任务-编辑 cron 表达式
+export function organizationEditCron(cron: string, id: string) {
+  return MSR.post({ url: organizationEditCronUrl, data: { cron, id } });
+}
+
+// 组织任务-批量任务报告列表
+export function organizationBatchTaskReportList(data: TaskCenterBatchParams) {
+  return MSR.post<CommonList<TaskCenterBatchTaskReportItem>>({ url: organizationBatchTaskReportUrl, data });
 }

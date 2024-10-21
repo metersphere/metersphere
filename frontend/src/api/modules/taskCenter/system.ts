@@ -5,8 +5,10 @@ import {
   systemBatchOpenTaskUrl,
   systemBatchStopTaskDetailUrl,
   systemBatchStopTaskUrl,
+  systemBatchTaskReportUrl,
   systemDeleteScheduleUrl,
   systemDeleteTaskUrl,
+  systemEditCronUrl,
   systemExecuteTaskDetailListUrl,
   systemExecuteTaskListUrl,
   systemExecuteTaskStatisticsUrl,
@@ -22,6 +24,7 @@ import {
 import type { CommonList, TableQueryParams } from '@/models/common';
 import type {
   TaskCenterBatchParams,
+  TaskCenterBatchTaskReportItem,
   TaskCenterResourcePoolItem,
   TaskCenterResourcePoolStatus,
   TaskCenterStatisticsItem,
@@ -113,4 +116,14 @@ export function systemBatchOpenTask(data: TaskCenterBatchParams) {
 // 系统任务-批量关闭后台任务
 export function systemBatchCloseTask(data: TaskCenterBatchParams) {
   return MSR.post({ url: systemBatchCloseTaskUrl, data });
+}
+
+// 系统任务-编辑 cron 表达式
+export function systemEditCron(cron: string, id: string) {
+  return MSR.post({ url: systemEditCronUrl, data: { cron, id } });
+}
+
+// 系统任务-批量任务报告列表
+export function systemBatchTaskReportList(data: TaskCenterBatchParams) {
+  return MSR.post<CommonList<TaskCenterBatchTaskReportItem>>({ url: systemBatchTaskReportUrl, data });
 }

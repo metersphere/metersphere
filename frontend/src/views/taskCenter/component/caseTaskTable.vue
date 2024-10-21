@@ -129,7 +129,12 @@
       </MsButton>
     </template>
   </ms-base-table>
-  <batchTaskReportDrawer v-model:visible="taskReportDrawerVisible" type="case" :module-type="reportModuleType" />
+  <batchTaskReportDrawer
+    v-model:visible="taskReportDrawerVisible"
+    :range="reportModuleType"
+    :type="reportModuleType"
+    :module-type="reportModuleType"
+  />
   <CaseReportDrawer
     v-model:visible="showCaseDetailDrawer"
     :report-id="activeDetailId"
@@ -649,7 +654,7 @@
   const showCaseDetailDrawer = ref<boolean>(false);
 
   function showReportDetail(record: TaskCenterTaskItem) {
-    activeDetailId.value = record.id;
+    activeDetailId.value = record.reportId;
     if ([ExecuteTaskType.API_SCENARIO, ExecuteTaskType.TEST_PLAN_API_SCENARIO].includes(record.taskType)) {
       showDetailDrawer.value = true;
     } else {
@@ -681,11 +686,13 @@
 
   const taskReportDrawerVisible = ref(false);
   const reportModuleType = ref();
+  const reportBatchType = ref();
   function checkReport(record: TaskCenterTaskItem) {
     if (record.taskType.includes('BATCH')) {
       reportModuleType.value = record.taskType.includes('CASE')
         ? ReportEnum.API_REPORT
         : ReportEnum.API_SCENARIO_REPORT;
+      reportBatchType.value = record.taskType.includes('CASE') ? 'CASE' : 'SCENARIO';
       taskReportDrawerVisible.value = true;
     } else if (
       [
