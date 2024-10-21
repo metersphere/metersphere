@@ -312,9 +312,6 @@ public class ApiScenarioService extends MoveNodeService {
     private void batchUpdateTags(ApiScenarioExample example, ApiScenario updateScenario,
                                  ApiScenarioBatchEditRequest request, List<String> ids,
                                  ApiScenarioMapper mapper) {
-        if (CollectionUtils.isEmpty(request.getTags())) {
-            throw new MSException(Translator.get("tags_is_null"));
-        }
         if (request.isAppend()) {
             Map<String, ApiScenario> scenarioMap = extApiScenarioMapper.getTagsByIds(ids, false)
                     .stream()
