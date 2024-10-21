@@ -9,7 +9,7 @@
         <template #titleAppend>
           <a-tooltip v-if="!docShareId" :content="t('report.detail.api.copyLink')">
             <MsIcon
-              type="icon-icon_copy_outlined"
+              type="icon-icon_unlink"
               class="cursor-pointer text-[var(--color-text-4)]"
               :size="16"
               @click="share"
