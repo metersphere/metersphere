@@ -13,6 +13,8 @@
         <div class="arco-table-filters-content-list">
           <div class="arco-table-filters-content-wrap max-h-[300px] px-[12px] py-[4px]">
             <a-checkbox-group v-if="props.mode === 'static'" v-model="checkedList" size="mini" direction="vertical">
+              <!-- 用于执行结果排队空统一让后台传递PENDING，展示内容为 -  -->
+              <a-checkbox v-if="props.emptyFilter" value="PENDING">-</a-checkbox>
               <a-checkbox
                 v-for="(item, index) of props.options"
                 :key="item[props.valueKey || 'value']"
@@ -97,6 +99,7 @@
       placeholderText?: string;
       dataIndex?: string | undefined;
       filter: Record<string, any>;
+      emptyFilter?: boolean; // 增加-空选项查询
     }>(),
     {
       mode: 'static',
