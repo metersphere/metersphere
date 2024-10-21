@@ -84,6 +84,12 @@
         </where>
     </sql>
 
+    <sql id="queryBatchWhereCondition">
+        <include refid="batchFilters">
+            <property name="filter" value="request.filter"/>
+        </include>
+    </sql>
+
     <sql id="filters">
         <if test="${filter} != null and ${filter}.size() > 0">
             <foreach collection="${filter}.entrySet()" index="key" item="values">
@@ -110,6 +116,31 @@
         </if>
     </sql>
 
+    <sql id="batchFilters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <!-- 状态 -->
+                        <when test="key=='status'">
+                            and r.status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 执行结果 -->
+                        <when test="key=='result'">
+                            and r.result in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 执行方式 -->
+                        <when test="key=='triggerMode'">
+                            and r.trigger_mode in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
 
     <select id="getResourcePoolsByTaskIds" resultType="io.metersphere.system.domain.ExecTaskItem">
         SELECT
@@ -233,5 +264,6 @@
         from exec_task_item eti join api_report_relate_task arrt on arrt.task_resource_id = eti.id
         join ${tableName} r on arrt.report_id = r.id and r.deleted = 0
         where eti.task_id = #{request.taskId}
+        <include refid="queryBatchWhereCondition"/>
     </select>
 </mapper>

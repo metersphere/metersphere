@@ -20,4 +20,7 @@ public class ApiDocShareDTO extends ApiDocShare {
 
 	@Schema(title = "截止日期")
 	private Long deadline;
+
+	@Schema(title = "创建人")
+	private String createUserName;
 }

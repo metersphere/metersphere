@@ -19,6 +19,23 @@
             <if test="request.keyword != null and request.keyword != ''">
                 and name like concat('%', #{request.keyword},'%')
             </if>
+            <include refid="filter"/>
         </where>
+    </sql>
+
+    <sql id="filter">
+        <if test="request.filter != null and request.filter.size() > 0">
+            <foreach collection="request.filter.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <!-- 创建人 -->
+                        <when test="key == 'createUser'">
+                            and create_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
     </sql>
 </mapper>
