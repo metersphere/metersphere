@@ -55,4 +55,5 @@ export default {
   'ms.taskCenter.thirdPartSync': '第三方同步',
   'ms.taskCenter.openTaskSuccess': '任务开启成功',
   'ms.taskCenter.closeTaskSuccess': '任务关闭成功',
+  'ms.taskCenter.waitQueue': '等待排队',
 };

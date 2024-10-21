@@ -19,11 +19,13 @@ export interface TaskCenterSystemTaskItem {
   createUserId: string;
   createUserName: string;
   createTime: number;
+  [key: string]: any;
 }
 
-export interface TaskCenterTaskDetailParams extends TableQueryParams {
-  taskId: string;
-  resourcePoolId: string;
+export interface TaskCenterBatchParams extends TableQueryParams {
+  taskId?: string;
+  resourcePoolIds?: string[];
+  resourcePoolNodes?: string[];
 }
 
 export interface TaskCenterTaskItem {
@@ -71,7 +73,7 @@ export interface TaskCenterTaskDetailItem {
   userName: string;
   resourcePoolName: string;
   triggerMode: string; // 触发方式
-  lineNum: number;
+  lineNum: number | string;
 }
 
 export interface TaskCenterStatisticsItem {

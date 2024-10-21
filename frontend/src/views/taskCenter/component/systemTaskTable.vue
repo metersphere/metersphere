@@ -74,7 +74,27 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
-  import { getOrganizationScheduleList, getProjectScheduleList, getSystemScheduleList } from '@/api/modules/taskCenter';
+  import {
+    getOrganizationScheduleList,
+    organizationBatchCloseTask,
+    organizationBatchOpenTask,
+    organizationDeleteSchedule,
+    organizationScheduleSwitch,
+  } from '@/api/modules/taskCenter/organization';
+  import {
+    getProjectScheduleList,
+    projectBatchCloseTask,
+    projectBatchOpenTask,
+    projectDeleteSchedule,
+    projectScheduleSwitch,
+  } from '@/api/modules/taskCenter/project';
+  import {
+    getSystemScheduleList,
+    systemBatchCloseTask,
+    systemBatchOpenTask,
+    systemDeleteSchedule,
+    systemScheduleSwitch,
+  } from '@/api/modules/taskCenter/system';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
@@ -82,6 +102,7 @@
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
+  import { TaskCenterSystemTaskItem } from '@/models/taskCenter';
   import { MenuEnum } from '@/enums/commonEnum';
   import { ApiTestRouteEnum, ProjectManagementRouteEnum, TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -222,7 +243,7 @@
     project: getProjectScheduleList,
   }[props.type];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, getTableQueryParams, resetSelector } = useTable(
     currentScheduleList,
     {
       tableKey: TableKeyEnum.TASK_CENTER_SYSTEM_TASK,
@@ -248,18 +269,17 @@
     loadList();
   }
 
+  const currentDeleteSchedule = {
+    system: systemDeleteSchedule,
+    org: organizationDeleteSchedule,
+    project: projectDeleteSchedule,
+  }[props.type];
+
   /**
    * 删除任务
    */
-  function deleteTask(record?: any, isBatch?: boolean, params?: BatchActionQueryParams) {
-    let title = t('ms.taskCenter.deleteTaskTitle', { name: characterLimit(record?.taskName) });
-    let selectIds = [record?.id || ''];
-    if (isBatch) {
-      title = t('ms.taskCenter.deleteTimeTaskTitle', {
-        count: params?.currentSelectCount || tableSelected.value.length,
-      });
-      selectIds = tableSelected.value as string[];
-    }
+  function deleteTask(record: TaskCenterSystemTaskItem) {
+    const title = t('ms.taskCenter.deleteTaskTitle', { name: characterLimit(record?.taskName) });
     openModal({
       type: 'error',
       title,
@@ -272,12 +292,7 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          // await deleteUserInfo({
-          //   selectIds,
-          //   selectAll: !!params?.selectAll,
-          //   excludeIds: params?.excludeIds || [],
-          //   condition: { keyword: keyword.value },
-          // });
+          await currentDeleteSchedule(record?.id || '');
           Message.success(t('common.deleteSuccess'));
           resetSelector();
           loadList();
@@ -290,14 +305,19 @@
     });
   }
 
-  function openTask(params?: BatchActionQueryParams) {
+  const currentBatchOpenSchedule = {
+    system: systemBatchOpenTask,
+    org: organizationBatchOpenTask,
+    project: projectBatchOpenTask,
+  }[props.type];
+  async function openTask(params?: BatchActionQueryParams) {
     try {
-      // await deleteUserInfo({
-      //   selectIds,
-      //   selectAll: !!params?.selectAll,
-      //   excludeIds: params?.excludeIds || [],
-      //   condition: { keyword: keyword.value },
-      // });
+      await currentBatchOpenSchedule({
+        selectIds: params?.selectIds || [],
+        selectAll: !!params?.selectAll,
+        excludeIds: params?.excludeIds || [],
+        ...getTableQueryParams(),
+      });
       Message.success(t('ms.taskCenter.openTaskSuccess'));
       resetSelector();
       loadList();
@@ -307,14 +327,19 @@
     }
   }
 
-  function closeTask(params?: BatchActionQueryParams) {
+  const currentBatchCloseSchedule = {
+    system: systemBatchCloseTask,
+    org: organizationBatchCloseTask,
+    project: projectBatchCloseTask,
+  }[props.type];
+  async function closeTask(params?: BatchActionQueryParams) {
     try {
-      // await deleteUserInfo({
-      //   selectIds,
-      //   selectAll: !!params?.selectAll,
-      //   excludeIds: params?.excludeIds || [],
-      //   condition: { keyword: keyword.value },
-      // });
+      await currentBatchCloseSchedule({
+        selectIds: params?.selectIds || [],
+        selectAll: !!params?.selectAll,
+        excludeIds: params?.excludeIds || [],
+        ...getTableQueryParams(),
+      });
       Message.success(t('ms.taskCenter.closeTaskSuccess'));
       resetSelector();
       loadList();
@@ -324,7 +349,7 @@
     }
   }
 
-  function checkDetail(record: any) {
+  function checkDetail(record: TaskCenterSystemTaskItem) {
     switch (record.resourceType) {
       case SystemTaskType.API_IMPORT:
         openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
@@ -356,8 +381,17 @@
     }
   }
 
-  async function handleBeforeEnableChange(record: any) {
+  const currentSwitchSchedule = {
+    system: systemScheduleSwitch,
+    org: organizationScheduleSwitch,
+    project: projectScheduleSwitch,
+  }[props.type];
+  /**
+   * 启用/关闭任务
+   */
+  async function handleBeforeEnableChange(record: TaskCenterSystemTaskItem) {
     try {
+      await currentSwitchSchedule(record.id);
       Message.success(t(record.enable ? 'ms.taskCenter.closeTaskSuccess' : 'ms.taskCenter.openTaskSuccess'));
       return true;
     } catch (error) {
@@ -387,7 +421,7 @@
 
   async function handleRunRuleChange(
     val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[],
-    record: any
+    record: TaskCenterSystemTaskItem
   ) {
     try {
       record.runRuleLoading = true;

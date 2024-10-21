@@ -55,4 +55,5 @@ export default {
   'ms.taskCenter.thirdPartSync': 'Third-party sync',
   'ms.taskCenter.openTaskSuccess': 'Task started successfully',
   'ms.taskCenter.closeTaskSuccess': 'Task closed successfully',
+  'ms.taskCenter.waitQueue': 'Waiting in line',
 };
