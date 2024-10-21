@@ -21,4 +21,7 @@ public class TaskHubDTO extends ExecTask {
     @Schema(description = "操作人名称")
     private String createUserName;
 
+    @Schema(description = "报告ID")
+    private String reportId;
+
 }
