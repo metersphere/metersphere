@@ -136,7 +136,7 @@ public class ApiReportController {
 
 
     @GetMapping("/task-report/{id}")
-    @Operation(summary = "系统-任务中心-场景用例执行任务详情-查看")
+    @Operation(summary = "系统-任务中心-接口用例执行任务详情-查看")
     @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ)
     public List<ApiReportDetailDTO> viewCaseItemReport(@PathVariable String id) {
         return apiReportService.viewCaseTaskItemReport(id);

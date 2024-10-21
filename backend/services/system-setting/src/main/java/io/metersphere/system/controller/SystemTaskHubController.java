@@ -205,7 +205,7 @@ public class SystemTaskHubController {
     @PostMapping("/schedule/update-cron")
     @Operation(summary = "系统-任务中心-后台任务更新cron表达式")
     @RequiresPermissions(PermissionConstants.SYSTEM_SCHEDULE_TASK_CENTER_READ_UPDATE)
-    public void updateValue(@PathVariable ScheduleRequest request) {
+    public void updateValue(@Validated @RequestBody ScheduleRequest request) {
         baseTaskHubService.updateCron(request);
     }
 

@@ -3,6 +3,7 @@ package io.metersphere.api.controller.scenario;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
+import io.metersphere.api.dto.definition.ApiReportDetailDTO;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.report.ApiScenarioReportListDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
@@ -132,5 +133,21 @@ public class ApiScenarioReportController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_EXPORT)
     public void batchExportLog(@Validated @RequestBody ApiReportBatchRequest request) {
         apiScenarioReportService.batchExportLog(request, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
+    }
+
+
+    @GetMapping("/task-step/{id}")
+    @Operation(summary = "系统-任务中心-场景用例执行任务详情-查看(任务步骤)")
+    @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ)
+    public ApiScenarioReportDTO viewScenarioItemReport(@PathVariable String id) {
+        return apiScenarioReportService.viewScenarioItemReport(id);
+    }
+
+    @GetMapping("/task-report/{reportId}/{stepId}")
+    @Operation(summary = "系统-任务中心-场景用例执行任务详情-查看(步骤结果)")
+    @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ)
+    public List<ApiScenarioReportDetailDTO> getScenarioReportDetail(@PathVariable String reportId,
+                                                      @PathVariable String stepId) {
+        return apiScenarioReportService.getDetail(reportId, stepId);
     }
 }

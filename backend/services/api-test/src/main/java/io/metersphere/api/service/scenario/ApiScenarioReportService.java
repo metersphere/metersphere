@@ -3,6 +3,7 @@ package io.metersphere.api.service.scenario;
 import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
+import io.metersphere.api.dto.definition.ApiReportDetailDTO;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.report.ApiScenarioReportListDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
@@ -18,8 +19,10 @@ import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.mapper.ExtExecTaskMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
@@ -73,6 +76,8 @@ public class ApiScenarioReportService {
     private static final String SPLITTER = "_";
     private static final int MAX = 50000;
     private static final int BATCH_SIZE = 1000;
+    @Resource
+    private ExtExecTaskMapper extExecTaskMapper;
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiScenarioReport(ApiScenarioReport report, ApiReportRelateTask taskRelation) {
@@ -439,5 +444,32 @@ public class ApiScenarioReportService {
             List<ApiScenarioReport> reports = apiScenarioReportMapper.selectByExample(example);
             apiScenarioReportLogService.exportLog(reports, userId, projectId, "/api/report/scenario/batch-export");
         }
+    }
+
+    public ApiScenarioReportDTO viewScenarioItemReport(String id) {
+        List<ExecTask> taskList = extExecTaskMapper.selectTypeByItemId(id);
+
+        if (CollectionUtils.isNotEmpty(taskList)) {
+            if (taskList.getFirst().getIntegrated()) {
+                //场景集合报告  TODO
+                return new ApiScenarioReportDTO();
+            } else {
+                //场景非集合报告
+                return scenarioReportDetail(id);
+            }
+        }
+        return new ApiScenarioReportDTO();
+    }
+
+    private ApiScenarioReportDTO scenarioReportDetail(String id) {
+        ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
+        example.createCriteria().andTaskResourceIdEqualTo(id);
+        List<ApiReportRelateTask> apiReportRelateTasks = apiReportRelateTaskMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(apiReportRelateTasks)) {
+            //报告id
+            String reportId = apiReportRelateTasks.getFirst().getReportId();
+            return get(reportId);
+        }
+        return new ApiScenarioReportDTO();
     }
 }

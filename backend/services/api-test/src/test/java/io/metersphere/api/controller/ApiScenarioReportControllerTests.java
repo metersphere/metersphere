@@ -42,6 +42,8 @@ import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -90,6 +92,8 @@ public class ApiScenarioReportControllerTests extends BaseTest {
     private static final String DETAIL = BASIC + "/get/detail/";
     private static final String EXPORT_REPORT = BASIC + "/export/{0}";
     private static final String BATCH_EXPORT_REPORT = BASIC + "/batch-export";
+    private static final String TASK_STEP = BASIC + "/task-step/{0}";
+    private static final String TASK_REPORT = BASIC + "/task-report/";
 
     @Test
     @Order(1)
@@ -550,5 +554,18 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setSelectAll(true);
         this.requestPost(BATCH_EXPORT_REPORT, request);
+    }
+
+    @Test
+    @Order(11)
+    @Sql(scripts = {"/dml/init_scenario_task_item_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    public void getTaskStep() throws Exception {
+        this.requestGet(TASK_STEP, "scenario_1");
+    }
+
+    @Test
+    @Order(12)
+    public void getTaskReport() throws Exception {
+        this.requestGet(TASK_REPORT + "test-scenario-report-id" + "/" + "test-scenario-report-step-id1");
     }
 }
