@@ -31,7 +31,11 @@
 
   const { t } = useI18n();
 
-  const props = defineProps<{ defaultValue?: string; disabled?: boolean }>();
+  const props = defineProps<{
+    defaultValue?: string;
+    disabled?: boolean;
+    allowEmpty?: boolean; // 允许为空
+  }>();
   const emit = defineEmits<{
     (e: 'change', value: string): void;
   }>();
@@ -43,7 +47,7 @@
   function parseValue(v?: string) {
     // 使用正则表达式匹配输入字符串，提取类型和值
     if (!v) {
-      return { type: 'H', value: 0 };
+      return { type: 'H', value: props.allowEmpty ? '' : 0 };
     }
     const match = v.match(/^(\d+(\.\d+)?)([MYHD])$/);
     if (match) {
@@ -52,9 +56,9 @@
       return { type, value };
     }
     // 如果输入字符串不匹配格式，可以抛出错误或返回一个默认值
-    return { type: 'H', value: 0 };
+    return { type: 'H', value: props.allowEmpty ? '' : 0 };
   }
-  const numberValue = ref(0);
+  const numberValue = ref();
   const typeValue = ref('H');
 
   function initNumberAndType() {
@@ -103,7 +107,10 @@
   watch(
     () => modelValue.value,
     () => {
-      initNumberAndType();
+      if (!props.allowEmpty) {
+        numberValue.value = 0;
+        initNumberAndType();
+      }
     },
     {
       immediate: true,
