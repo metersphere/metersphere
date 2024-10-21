@@ -42,10 +42,11 @@ public interface ExtScheduleMapper {
 
     List<Schedule> getSchedule(@Param("request") TaskCenterScheduleBatchRequest request, @Param("projectIds") List<String> projectIds);
 
-
     int countByProjectIds(@Param("ids") List<String> ids);
 
     List<TaskHubScheduleDTO> selectScheduleList(@Param("request") BasePageRequest request, @Param("projectIds") List<String> projectIds);
 
     List<Schedule> getSchedules(@Param("request") TableBatchProcessDTO request, @Param("projectIds") List<String> projectIds);
+
+    List<TaskHubScheduleDTO> getLastAndNextTime(@Param("resourceIds") List<String> resourceIds);
 }

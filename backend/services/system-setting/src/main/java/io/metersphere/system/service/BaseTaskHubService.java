@@ -51,13 +51,16 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.quartz.CronExpression;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -233,10 +236,35 @@ public class BaseTaskHubService {
                     .flatMap(item -> Stream.of(item.getCreateUserName()))
                     .collect(Collectors.toSet());
             Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userSet));
-            list.forEach(item -> {
+
+            List<String> resourceIds = list.stream()
+                    .filter(item -> StringUtils.isNotBlank(item.getResourceId()))
+                    .map(TaskHubScheduleDTO::getResourceId)
+                    .toList();
+
+            Map<String, TaskHubScheduleDTO> trigerTimeMap = Map.of();
+            if (CollectionUtils.isNotEmpty(resourceIds)) {
+                trigerTimeMap = extScheduleMapper.getLastAndNextTime(resourceIds)
+                        .stream()
+                        .collect(Collectors.toMap(TaskHubScheduleDTO::getResourceId, Function.identity()));
+            }
+
+            for (TaskHubScheduleDTO item : list) {
                 item.setCreateUserName(userMap.getOrDefault(item.getCreateUserName(), StringUtils.EMPTY));
                 item.setOrganizationName(orgMap.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
-            });
+                if (trigerTimeMap.get(item.getResourceId()) != null) {
+                    item.setNextTime(trigerTimeMap.get(item.getResourceId()).getNextTime());
+                    item.setLastTime(trigerTimeMap.get(item.getResourceId()).getLastTime());
+                } else {
+                    try {
+                        CronExpression cron = new CronExpression(item.getValue());
+                        Date date = new Date(System.currentTimeMillis());
+                        item.setNextTime(cron.getNextValidTimeAfter(date).getTime());
+                    } catch (ParseException e) {
+                        LogUtils.error(e);
+                    }
+                }
+            }
         }
 
     }
