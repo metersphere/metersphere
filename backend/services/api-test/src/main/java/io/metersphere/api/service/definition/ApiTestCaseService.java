@@ -518,9 +518,6 @@ public class ApiTestCaseService extends MoveNodeService {
     private void batchUpdateTags(ApiTestCaseExample example, ApiTestCase updateCase,
                                  ApiCaseBatchEditRequest request, List<String> ids,
                                  ApiTestCaseMapper mapper) {
-        if (CollectionUtils.isEmpty(request.getTags())) {
-            throw new MSException(Translator.get("tags_is_null"));
-        }
         if (request.isAppend()) {
             Map<String, ApiTestCase> caseMap = extApiTestCaseMapper.getTagsByIds(ids, false)
                     .stream()

@@ -426,11 +426,7 @@ public class ApiDefinitionMockService {
     private void batchUpdateTags(ApiDefinitionMockExample example, ApiDefinitionMock updateMock,
                                  ApiMockBatchEditRequest request, List<String> ids,
                                  ApiDefinitionMockMapper mapper) {
-        if (CollectionUtils.isEmpty(request.getTags())) {
-            throw new MSException(Translator.get("tags_is_null"));
-        }
         if (request.isAppend()) {
-            List<ApiDefinitionMock> tagsByIds = extApiDefinitionMockMapper.getTagsByIds(ids);
             Map<String, ApiDefinitionMock> mockMap = extApiDefinitionMockMapper.getTagsByIds(ids)
                     .stream()
                     .collect(Collectors.toMap(ApiDefinitionMock::getId, Function.identity()));
