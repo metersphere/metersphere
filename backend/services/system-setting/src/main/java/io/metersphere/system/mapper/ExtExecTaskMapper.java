@@ -1,5 +1,6 @@
 package io.metersphere.system.mapper;
 
+import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
@@ -26,4 +27,6 @@ public interface ExtExecTaskMapper {
      * @return 任务ID列表
      */
     List<String> getTaskIdsByTime(@Param("timeMills") long timeMills, @Param("projectId") String projectId);
+
+    List<ExecTask> selectTypeByItemId(@Param("itemId") String itemId);
 }

@@ -27,6 +27,7 @@ import io.metersphere.sdk.mapper.ShareInfoMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.TestResourcePoolExample;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
@@ -37,6 +38,8 @@ import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -83,6 +86,7 @@ public class ApiReportControllerTests extends BaseTest {
     private static final String DETAIL = BASIC + "/get/detail/";
     private static final String EXPORT_REPORT = BASIC + "/export/{0}";
     private static final String BATCH_EXPORT_REPORT = BASIC + "/batch-export";
+    private static final String TASK_REPORT = BASIC + "/task-report/{0}";
 
 
     @Test
@@ -505,5 +509,12 @@ public class ApiReportControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setSelectAll(true);
         this.requestPost(BATCH_EXPORT_REPORT, request);
+    }
+
+    @Test
+    @Order(7)
+    @Sql(scripts = {"/dml/init_task_item_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    public void getTaskReport() throws Exception {
+        this.requestGet(TASK_REPORT, "1");
     }
 }

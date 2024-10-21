@@ -15,8 +15,10 @@ import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.mapper.ExtExecTaskMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
@@ -67,6 +69,10 @@ public class ApiReportService {
     private ApiReportNoticeService apiReportNoticeService;
     @Resource
     private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
+    @Resource
+    private ApiReportStepMapper apiReportStepMapper;
+    @Resource
+    private ExtExecTaskMapper extExecTaskMapper;
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiReport(ApiReport report) {
@@ -311,5 +317,46 @@ public class ApiReportService {
             List<ApiReport> reports = apiReportMapper.selectByExample(example);
             apiReportLogService.exportLog(reports, userId, projectId, "/api/report/case/batch-export");
         }
+    }
+
+    public List<ApiReportDetailDTO> viewCaseTaskItemReport(String id) {
+        List<ExecTask> taskList = extExecTaskMapper.selectTypeByItemId(id);
+
+        if (CollectionUtils.isNotEmpty(taskList)) {
+            if (taskList.getFirst().getIntegrated()) {
+                //集合报告  TODO
+                return new ArrayList<>();
+            } else {
+                //非集合报告
+                return reportDetail(id);
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    private List<ApiReportDetailDTO> reportDetail(String id) {
+        List<ApiReportDetailDTO> list = new ArrayList<>();
+        ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
+        example.createCriteria().andTaskResourceIdEqualTo(id);
+        List<ApiReportRelateTask> apiReportRelateTasks = apiReportRelateTaskMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(apiReportRelateTasks)) {
+            //报告id
+            String reportId = apiReportRelateTasks.getFirst().getReportId();
+            //获取步骤id
+            String stepId = getStepId(reportId);
+
+            list = getDetail(reportId, stepId);
+        }
+        return list;
+    }
+
+    private String getStepId(String reportId) {
+        ApiReportStepExample example = new ApiReportStepExample();
+        example.createCriteria().andReportIdEqualTo(reportId);
+        List<ApiReportStep> apiReportSteps = apiReportStepMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(apiReportSteps)) {
+            return apiReportSteps.getFirst().getStepId();
+        }
+        return null;
     }
 }
