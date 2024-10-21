@@ -494,7 +494,9 @@
       Message.success(t('caseManagement.featureCase.editSuccess'));
       detailInfo.value.name = titleName.value;
       isEditTitle.value = false;
-      updateSuccess();
+      nextTick(() => {
+        updateSuccess();
+      });
     } catch (error) {
       console.log(error);
     } finally {
