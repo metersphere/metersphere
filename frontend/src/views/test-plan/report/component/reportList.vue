@@ -11,16 +11,21 @@
           v-model:model-value="keyword"
           :placeholder="t('project.menu.nameSearch')"
           allow-clear
-          class="mx-[8px] w-[240px]"
+          class="w-[240px]"
           @search="searchList"
           @press-enter="searchList"
           @clear="searchList"
         />
-        <a-button type="outline" class="arco-btn-outline--secondary !p-[8px]" @click="initData()">
-          <template #icon>
-            <icon-refresh class="text-[var(--color-text-4)]" />
-          </template>
-        </a-button>
+        <MsTag
+          no-margin
+          size="large"
+          :tooltip-disabled="true"
+          class="cursor-pointer"
+          theme="outline"
+          @click="initData()"
+        >
+          <MsIcon class="text-[16px] text-[var(color-text-4)]" :size="32" type="icon-icon_reset_outlined" />
+        </MsTag>
       </div>
     </div>
     <!-- 报告列表 -->
