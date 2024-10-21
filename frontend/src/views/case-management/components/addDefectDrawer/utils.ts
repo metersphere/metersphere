@@ -26,8 +26,8 @@ function getStepsTable(steps: string) {
   const formatContent = (rows: StepList, key: keyof StepList) => {
     const valueKey = key as keyof StepList;
     return alertStatus.includes(rows.status as string)
-      ? `<span style="color:#f00"> ${rows[valueKey]} </span>`
-      : `<span> ${rows[valueKey]} </span>`;
+      ? `<span style="color:#f00"> ${rows[valueKey] || '-'} </span>`
+      : `<span> ${rows[valueKey] || '-'} </span>`;
   };
   const templateFieldColumns = [
     {

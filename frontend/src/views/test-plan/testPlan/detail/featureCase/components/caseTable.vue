@@ -1070,10 +1070,11 @@
   function associateAndCreateDefect(isAssociate: boolean, isBatch: boolean, record?: PlanDetailFeatureCaseItem) {
     isBatchAssociateOrCreate.value = isBatch;
     if (record) {
-      const { id, caseId, name } = record;
+      const { id, caseId, name, lastExecResult } = record;
       associatedCaseId.value = caseId;
       testPlanCaseId.value = id;
-      caseTitle.value = name;
+      const lastStatusName = `_${t(executionResultMap[lastExecResult]?.statusText ?? '')}`;
+      caseTitle.value = `${name}${lastStatusName}`;
     }
     if (isAssociate) {
       showLinkBugDrawer.value = true;

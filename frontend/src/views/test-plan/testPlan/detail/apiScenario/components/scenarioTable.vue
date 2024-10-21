@@ -189,7 +189,7 @@
   import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { GlobalEventNameEnum } from '@/enums/commonEnum';
-  import { ReportEnum } from '@/enums/reportEnum';
+  import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -941,11 +941,12 @@
   function associateAndCreateDefect(isAssociate: boolean, isBatch: boolean, record?: PlanDetailApiScenarioItem) {
     isBatchAssociateOrCreate.value = isBatch;
     if (record) {
-      const { id, apiScenarioId, lastExecReportId, name } = record;
+      const { id, apiScenarioId, lastExecReportId, name, lastExecResult } = record;
       associatedCaseId.value = apiScenarioId;
       testPlanCaseId.value = id;
       lastExecuteReportId.value = lastExecReportId;
-      caseTitle.value = name;
+      const lastStatusName = `_${t(ReportStatus[lastExecResult]?.label ?? '')}`;
+      caseTitle.value = `${name}${lastStatusName}`;
     }
     if (isAssociate) {
       showLinkBugDrawer.value = true;
