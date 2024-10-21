@@ -236,7 +236,7 @@
     :fill-config="{
       isQuickFillContent: true,
       detailId: activeId,
-      name: caseDetail.name,
+      name: caseTitle,
     }"
     :case-type="CaseLinkEnum.FUNCTIONAL"
     @success="loadBugListAndCaseDetail"
@@ -255,7 +255,6 @@
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
   import MsTab from '@/components/pure/ms-tab/index.vue';
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
   import BugList from './bug/index.vue';
@@ -392,6 +391,12 @@
     },
   ]);
   const descriptions = ref<Description[]>([]);
+
+  const caseTitle = computed(() => {
+    const { lastExecuteResult, name } = caseDetail.value;
+    const lastStatusName = `_${t(executionResultMap[lastExecuteResult]?.statusText ?? '')}`;
+    return `${name}${lastStatusName}`;
+  });
 
   // 获取用例详情
   async function loadCaseDetail() {
