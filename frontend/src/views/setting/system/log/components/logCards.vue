@@ -136,7 +136,12 @@
         </template>
         <template #content="{ record }">
           <div
-            v-if="record.module === 'SYSTEM' || record.type === 'DELETE' || record.module.includes('MODULE')"
+            v-if="
+              record.module === 'SYSTEM' ||
+              record.type === 'DELETE' ||
+              record.module.includes('MODULE') ||
+              record.module.includes('TASK_CENTER')
+            "
             class="one-line-text"
           >
             {{ record.content }}
@@ -564,6 +569,7 @@
 
   function handleNameClick(record: LogItem) {
     if (record.type === 'DELETE') {
+      // 删除操作或任务中心相关操作只展示内容，不跳转
       return;
     }
     const routeQuery: Record<string, any> = {

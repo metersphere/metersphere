@@ -27,8 +27,8 @@
             v-if="props.step && [ScenarioStepType.API, ScenarioStepType.CUSTOM_REQUEST].includes(props.step?.stepType)"
             :step="props.step"
           />
-          <a-tooltip v-if="!isShowEditStepNameInput" :content="title" position="bottom">
-            <div class="flex flex-1 items-center gap-[4px] overflow-hidden">
+          <div v-if="!isShowEditStepNameInput" class="flex flex-1 items-center gap-[4px] overflow-hidden">
+            <a-tooltip :content="title" position="bottom">
               <div class="one-line-text">
                 {{ title }}
               </div>
@@ -38,8 +38,8 @@
                 class="min-w-[16px] cursor-pointer hover:text-[rgb(var(--primary-5))]"
                 @click="isShowEditStepNameInput = true"
               />
-            </div>
-          </a-tooltip>
+            </a-tooltip>
+          </div>
           <a-input
             v-if="isShowEditStepNameInput"
             v-model:model-value="requestVModel.stepName"
