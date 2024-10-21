@@ -412,4 +412,23 @@
             </foreach>
         </if>
     </sql>
+
+
+    <select id="getSchedules" resultType="io.metersphere.system.domain.Schedule">
+        select id, enable from schedule
+        <where>
+            <if test="projectIds != null and projectIds.size() > 0">
+                and task.project_id IN
+                <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="request.condition.keyword != null and request.condition.keyword != ''">
+                and (
+                schedule.num like concat('%', #{request.keyword},'%')
+                or schedule.name like concat('%', #{request.keyword},'%')
+                )
+            </if>
+        </where>
+    </select>
 </mapper>

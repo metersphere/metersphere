@@ -167,4 +167,24 @@ public class OrganizationTaskHubController {
     public void enable(@PathVariable String id) {
         baseTaskHubService.enable(id, SessionUtils.getUserId(), "/organization/task-center/schedule/switch/", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
     }
+
+
+    @PostMapping("/schedule/batch-enable")
+    @Operation(summary = "组织-任务中心-后台任务-批量开启")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_SCHEDULE_TASK_CENTER_READ_UPDATE)
+    public void batchEnable(@Validated @RequestBody TableBatchProcessDTO request) {
+        List<OptionDTO> projectList = baseProjectMapper.getProjectOptionsByOrgId(SessionUtils.getCurrentOrganizationId());
+        List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
+        baseTaskHubService.scheduleBatchOperation(request, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId(), "/organization/task-center/schedule/batch-enable", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, true,projectIds);
+    }
+
+
+    @PostMapping("/schedule/batch-disable")
+    @Operation(summary = "组织-任务中心-后台任务-批量关闭")
+    @RequiresPermissions(PermissionConstants.SYSTEM_SCHEDULE_TASK_CENTER_READ_UPDATE)
+    public void batchDisable(@Validated @RequestBody TableBatchProcessDTO request) {
+        List<OptionDTO> projectList = baseProjectMapper.getProjectOptionsByOrgId(SessionUtils.getCurrentOrganizationId());
+        List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
+        baseTaskHubService.scheduleBatchOperation(request, SessionUtils.getUserId(), null, "/organization/task-center/schedule/batch-disable", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, false, projectIds);
+    }
 }

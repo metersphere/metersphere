@@ -36,6 +36,8 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     public static final String PROJECT_TASK_ITEM_BATCH_STOP = "/project/task-center/exec-task/item/batch-stop";
     public static final String PROJECT_SCHEDULE_TASK_DELETE = "/project/task-center/schedule/delete/";
     public static final String PROJECT_SCHEDULE_TASK_SWITCH = "/project/task-center/schedule/switch/";
+    public static final String PROJECT_SCHEDULE_TASK_BATCH_ENABLE = "/project/task-center/schedule/batch-enable";
+    public static final String PROJECT_SCHEDULE_TASK_BATCH_DISABLE = "/project/task-center/schedule/batch-disable";
 
     @Test
     @Order(1)
@@ -184,7 +186,6 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     }
 
 
-
     /**
      * 项目执行任务项停止
      */
@@ -229,5 +230,27 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     @Order(6)
     public void projectScheduleTaskSwitch() throws Exception {
         this.requestGet(PROJECT_SCHEDULE_TASK_SWITCH + "pro_wx_1");
+    }
+
+    /**
+     * 系统后台任务删除
+     */
+    @Test
+    @Order(7)
+    public void projectScheduleBatchEnable() throws Exception {
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
+        request.setSelectAll(true);
+        this.requestPost(PROJECT_SCHEDULE_TASK_BATCH_ENABLE, request);
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("pro_wx_1", "pro_wx_1"));
+        this.requestPost(PROJECT_SCHEDULE_TASK_BATCH_ENABLE, request);
+    }
+
+    @Test
+    @Order(8)
+    public void projectScheduleBatchDisable() throws Exception {
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
+        request.setSelectAll(true);
+        this.requestPost(PROJECT_SCHEDULE_TASK_BATCH_DISABLE, request);
     }
 }
