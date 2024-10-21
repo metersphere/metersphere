@@ -217,4 +217,5 @@ export default {
   'common.type': 'Type',
   'common.batchUpdate': 'Updated to',
   'common.checkDetail': 'View details',
+  'common.operator': 'Operator',
 };

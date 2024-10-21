@@ -960,9 +960,6 @@
             ...batchParams.value,
             ...tableParams.value,
             reviewCommentFileIds: reviewCommentFileIds.value,
-            condition: {
-              filter: propsRes.value.filter,
-            },
           });
           Message.success(t('caseManagement.caseReview.reviewSuccess'));
           dialogVisible.value = false;
@@ -1155,7 +1152,13 @@
    * @param event 批量操作事件对象
    */
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
-    batchParams.value = { ...params, selectIds: params?.selectedIds || [], condition: {} };
+    batchParams.value = {
+      ...params,
+      selectIds: params?.selectedIds || [],
+      condition: {
+        filter: propsRes.value.filter,
+      },
+    };
     handleOperation(event.eventTag);
   }
 
