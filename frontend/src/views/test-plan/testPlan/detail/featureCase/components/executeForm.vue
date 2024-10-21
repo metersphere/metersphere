@@ -11,7 +11,7 @@
       </div>
     </a-form-item>
     <a-form-item field="content" asterisk-position="end" class="mb-0">
-      <div class="flex w-full items-center">
+      <div class="textarea-input flex w-full items-center">
         <a-textarea
           v-if="props.isDblclickPlaceholder && !achievedForm"
           v-model="form.content"
@@ -20,7 +20,6 @@
           :auto-size="{ minRows: 1 }"
           style="resize: vertical"
           :max-length="1000"
-          @click="achievedForm = true"
         />
         <MsRichText
           v-if="!props.isDblclickPlaceholder || achievedForm"

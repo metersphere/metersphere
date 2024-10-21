@@ -4,7 +4,8 @@
     v-model:form="form"
     is-dblclick-placeholder
     class="execute-form"
-    @dblclick="dblclickHandler"
+    @dblclick="dblOrClickHandler"
+    @click="dblOrClickHandler"
   >
     <template #headerRight>
       <slot name="headerRight"></slot>
@@ -64,6 +65,7 @@
 
   const emit = defineEmits<{
     (e: 'done', status: LastExecuteResults, content: string): void;
+    (e: 'dblclick'): void;
   }>();
 
   const { t } = useI18n();
@@ -74,14 +76,52 @@
 
   const modalVisible = ref(false);
   const submitLoading = ref(false);
-  // 双击富文本内容打开弹窗
-  function dblclickHandler() {
+  // 双击富文本内容或者双击描述文本框打开弹窗
+  const achievedForm = ref<boolean>(props.isDefaultActivate);
+
+  const clickTimeout = ref<ReturnType<typeof setTimeout> | null>();
+
+  // 双击处理逻辑
+  function handleDblClick() {
+    if (clickTimeout.value) {
+      clearTimeout(clickTimeout.value); // 清除单击的处理
+      clickTimeout.value = null;
+    }
+    modalVisible.value = true;
+    dialogForm.value = cloneDeep(form.value); // 克隆表单数据到弹窗表单
+  }
+
+  // 单击处理逻辑
+  function handleClick() {
+    if (clickTimeout.value) {
+      clearTimeout(clickTimeout.value);
+    }
+    clickTimeout.value = setTimeout(() => {
+      if (!achievedForm.value) {
+        achievedForm.value = true; // 切换到富文本框
+      }
+      clickTimeout.value = null;
+    }, 200);
+  }
+
+  function dblOrClickHandler() {
     nextTick(() => {
       const editorContent = document.querySelector('.execute-form')?.querySelector('.editor-content');
-      useEventListener(editorContent, 'dblclick', () => {
-        modalVisible.value = true;
-        dialogForm.value = cloneDeep(form.value);
-      });
+      const textareaContent = document.querySelector('.execute-form')?.querySelector('.textarea-input');
+
+      const bindEvents = (element: Element | null) => {
+        if (element) {
+          useEventListener(element, 'dblclick', handleDblClick);
+          useEventListener(element, 'click', handleClick);
+        }
+      };
+
+      if (editorContent) {
+        bindEvents(editorContent);
+      }
+      if (textareaContent) {
+        bindEvents(textareaContent);
+      }
     });
   }
 
@@ -106,8 +146,6 @@
       form.value = { ...defaultExecuteForm };
     }
   );
-
-  const achievedForm = ref<boolean>(props.isDefaultActivate);
 
   function cancel(e: Event) {
     // 点击取消/关闭，弹窗关闭，富文本内容都清空；点击空白处，弹窗关闭，将弹窗内容填入下面富文本内容里
