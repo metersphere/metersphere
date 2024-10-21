@@ -48,7 +48,7 @@ public class ApiDocShareController {
 
 	@PostMapping(value = "/page")
 	@Operation(summary = "接口测试-定义-分页获取分享列表")
-	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
+	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_SHARE)
 	@CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
 	public Pager<List<ApiDocShareDTO>> page(@Validated @RequestBody ApiDocSharePageRequest request) {
 		Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -58,7 +58,7 @@ public class ApiDocShareController {
 
 	@PostMapping(value = "/add")
 	@Operation(summary = "接口测试-定义-新增分享")
-	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
+	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_SHARE)
 	@CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
 	@Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiDocShareLogService.class)
 	public ApiDocShare add(@Validated({Created.class}) @RequestBody ApiDocShareEditRequest request) {
@@ -67,7 +67,7 @@ public class ApiDocShareController {
 
 	@PostMapping(value = "/update")
 	@Operation(summary = "接口测试-定义-更新分享")
-	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
+	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_SHARE)
 	@CheckOwner(resourceId = "#request.getId()", resourceType = "api_doc_share")
 	@Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiDocShareLogService.class)
 	public ApiDocShare update(@Validated({Updated.class}) @RequestBody ApiDocShareEditRequest request) {
@@ -77,7 +77,7 @@ public class ApiDocShareController {
 	@GetMapping("/delete/{id}")
 	@Operation(summary = "接口测试-定义-删除分享")
 	@Parameter(name = "id", description = "分享ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
-	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DOC_SHARE)
+	@RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_SHARE)
 	@CheckOwner(resourceId = "#id", resourceType = "api_doc_share")
 	@Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiDocShareLogService.class)
 	public void delete(@PathVariable String id) {
