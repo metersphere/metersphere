@@ -40,7 +40,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
 
   import { switchDefinitionSchedule } from '@/api/modules/api-test/management';
-  import { getScheduleProApiCaseList } from '@/api/modules/taskCenter';
+  import { getScheduleProApiCaseList, projectDeleteSchedule } from '@/api/modules/taskCenter/project';
   import { useI18n } from '@/hooks/useI18n';
 
   import { TimingTaskCenterApiCaseItem } from '@/models/projectManagement/taskCenter';
@@ -139,6 +139,9 @@
       if (value) {
         loadTaskList();
       }
+    },
+    {
+      immediate: true,
     }
   );
 
@@ -158,7 +161,7 @@
 
   async function deleteTask(record: TimingTaskCenterApiCaseItem) {
     try {
-      // await switchDefinitionSchedule(record.id);
+      await projectDeleteSchedule(record.id);
       Message.success(t('common.deleteSuccess'));
       loadTaskList();
     } catch (error) {

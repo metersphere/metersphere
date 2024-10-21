@@ -6,7 +6,12 @@
     <a-divider margin="0"></a-divider>
     <div class="ms-taskCenter-content">
       <Suspense>
-        <caseTaskTable v-if="activeTab === TaskCenterEnum.CASE" :type="props.type" @go-detail="goTaskDetail" />
+        <caseTaskTable
+          v-if="activeTab === TaskCenterEnum.CASE"
+          :type="props.type"
+          @go-detail="goTaskDetail"
+          @init="activeTaskId = ''"
+        />
         <caseTaskDetailTable v-else-if="activeTab === TaskCenterEnum.DETAIL" :id="activeTaskId" :type="props.type" />
         <systemTaskTable v-else-if="activeTab === TaskCenterEnum.BACKEND" :type="props.type" />
       </Suspense>

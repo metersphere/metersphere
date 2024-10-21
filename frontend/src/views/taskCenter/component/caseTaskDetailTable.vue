@@ -62,16 +62,13 @@
       >
         {{ t('common.stop') }}
       </MsButton>
-      <MsButton v-else v-permission="['SYSTEM_USER:READ+DELETE']" @click="deleteTask(record)">
-        {{ t('common.delete') }}
-      </MsButton>
-      <MsButton
+      <!-- <MsButton
         v-if="record.status === ExecuteStatusEnum.COMPLETED && record.result === ExecuteResultEnum.ERROR"
         v-permission="['SYSTEM_USER:READ+DELETE']"
         @click="rerunTask(record)"
       >
         {{ t('ms.taskCenter.rerun') }}
-      </MsButton>
+      </MsButton> -->
       <MsButton
         v-if="record.status === ExecuteStatusEnum.COMPLETED"
         v-permission="['SYSTEM_USER:READ+DELETE']"
@@ -104,12 +101,25 @@
   import {
     getOrganizationExecuteTaskDetailList,
     getOrgTaskCenterResourcePools,
+    organizationBatchStopTaskDetail,
+    organizationStopTaskDetail,
+    organizationTaskOrder,
+  } from '@/api/modules/taskCenter/organization';
+  import {
     getProjectExecuteTaskDetailList,
     getProjectTaskCenterResourcePools,
+    projectBatchStopTaskDetail,
+    projectStopTaskDetail,
+    projectTaskOrder,
+  } from '@/api/modules/taskCenter/project';
+  import {
     getResourcePoolsStatus,
     getSystemExecuteTaskDetailList,
     getSystemTaskCenterResourcePools,
-  } from '@/api/modules/taskCenter';
+    systemBatchStopTaskDetail,
+    systemStopTaskDetail,
+    systemTaskOrder,
+  } from '@/api/modules/taskCenter/system';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -219,7 +229,7 @@
     },
     {
       title: 'ms.taskCenter.startExecuteTime',
-      dataIndex: 'startExecuteTime',
+      dataIndex: 'startTime',
       width: 170,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -228,7 +238,7 @@
     },
     {
       title: 'ms.taskCenter.endExecuteTime',
-      dataIndex: 'endExecuteTime',
+      dataIndex: 'endTime',
       width: 170,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -246,7 +256,7 @@
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 180,
+      width: 150,
     },
   ];
 
@@ -282,14 +292,10 @@
         label: 'common.stop',
         eventTag: 'stop',
       },
-      {
-        label: 'ms.taskCenter.rerun',
-        eventTag: 'rerun',
-      },
-      {
-        label: 'common.delete',
-        eventTag: 'delete',
-      },
+      // {
+      //   label: 'ms.taskCenter.rerun',
+      //   eventTag: 'rerun',
+      // },
     ],
   };
 
@@ -299,7 +305,7 @@
     org: getOrganizationExecuteTaskDetailList,
   }[props.type];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, getTableQueryParams, resetSelector } = useTable(
     currentExecuteTaskDetailList,
     {
       tableKey: TableKeyEnum.TASK_CENTER_CASE_TASK_DETAIL,
@@ -313,8 +319,8 @@
       return {
         ...item,
         resourcePoolName: [item.resourcePoolName],
-        startExecuteTime: item.startExecuteTime ? dayjs(item.startExecuteTime).format('YYYY-MM-DD HH:mm:ss') : '-',
-        endExecuteTime: item.endExecuteTime ? dayjs(item.endExecuteTime).format('YYYY-MM-DD HH:mm:ss') : '-',
+        startTime: item.startTime ? dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss') : '-',
+        endTime: item.endTime ? dayjs(item.endTime).format('YYYY-MM-DD HH:mm:ss') : '-',
       };
     }
   );
@@ -324,47 +330,17 @@
     loadList();
   }
 
-  /**
-   * 删除任务
-   */
-  function deleteTask(record?: TaskCenterTaskDetailItem, isBatch?: boolean, params?: BatchActionQueryParams) {
-    let title = t('ms.taskCenter.deleteTaskTitle', { name: characterLimit(record?.taskName) });
-    let selectIds = [record?.id || ''];
-    if (isBatch) {
-      title = t('ms.taskCenter.deleteCaseTaskTitle', {
-        count: params?.currentSelectCount || tableSelected.value.length,
-      });
-      selectIds = tableSelected.value as string[];
-    }
-    openModal({
-      type: 'error',
-      title,
-      content: t('ms.taskCenter.deleteCaseTaskTip'),
-      okText: t('common.confirmDelete'),
-      cancelText: t('common.cancel'),
-      okButtonProps: {
-        status: 'danger',
-      },
-      maskClosable: false,
-      onBeforeOk: async () => {
-        try {
-          // await deleteUserInfo({
-          //   selectIds,
-          //   selectAll: !!params?.selectAll,
-          //   excludeIds: params?.excludeIds || [],
-          //   condition: { keyword: keyword.value },
-          // });
-          Message.success(t('common.deleteSuccess'));
-          resetSelector();
-          loadList();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        }
-      },
-      hideCancel: false,
-    });
-  }
+  const currentStopTask = {
+    system: systemStopTaskDetail,
+    project: projectStopTaskDetail,
+    org: organizationStopTaskDetail,
+  }[props.type];
+
+  const currentBatchStopTask = {
+    system: systemBatchStopTaskDetail,
+    project: projectBatchStopTaskDetail,
+    org: organizationBatchStopTaskDetail,
+  }[props.type];
 
   function stopTask(record?: TaskCenterTaskDetailItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('ms.taskCenter.stopTaskTitle', { name: characterLimit(record?.taskName) });
@@ -387,12 +363,16 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          // await deleteUserInfo({
-          //   selectIds,
-          //   selectAll: !!params?.selectAll,
-          //   excludeIds: params?.excludeIds || [],
-          //   condition: { keyword: keyword.value },
-          // });
+          if (isBatch) {
+            await currentBatchStopTask({
+              selectIds,
+              selectAll: !!params?.selectAll,
+              excludeIds: params?.excludeIds || [],
+              ...getTableQueryParams(),
+            });
+          } else {
+            await currentStopTask(record?.id || '');
+          }
           Message.success(t('common.stopped'));
           resetSelector();
           loadList();
@@ -412,9 +392,6 @@
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     batchModalParams.value = params;
     switch (event.eventTag) {
-      case 'delete':
-        deleteTask(undefined, true, params);
-        break;
       case 'stop':
         stopTask(undefined, true, params);
         break;
@@ -451,6 +428,9 @@
     }
   }
 
+  /**
+   * 初始化当前页所有任务的资源池状态
+   */
   async function initCurrentPageResourcePoolsStatus() {
     const ids = propsRes.value.data.map((item) => item.id);
     if (ids.length === 0) {
@@ -470,31 +450,74 @@
     }
   }
 
-  async function rerunTask(record: TaskCenterTaskDetailItem) {
+  const currentQueueRequest = {
+    system: systemTaskOrder,
+    project: projectTaskOrder,
+    org: organizationTaskOrder,
+  }[props.type];
+
+  /**
+   * 初始化当前页所有任务的排队状态
+   */
+  async function initCurrentPageQueue() {
+    const ids = propsRes.value.data.map((item) => item.id);
+    if (ids.length === 0) {
+      return;
+    }
     try {
-      // await deleteUserInfo({
-      //   selectIds,
-      //   selectAll: !!params?.selectAll,
-      //   excludeIds: params?.excludeIds || [],
-      //   condition: { keyword: keyword.value },
-      // });
-      Message.success(t('common.executionSuccess'));
-      resetSelector();
-      await loadList();
-      initCurrentPageResourcePoolsStatus();
+      const res = await currentQueueRequest(ids);
+      propsRes.value.data.forEach((item) => {
+        const queue = res[item.id];
+        if (queue) {
+          item.lineNum = queue;
+        } else {
+          item.lineNum = t('ms.taskCenter.waitQueue');
+        }
+      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
     }
   }
 
+  // async function rerunTask(record: TaskCenterTaskDetailItem) {
+  //   try {
+  //     // await deleteUserInfo({
+  //     //   selectIds,
+  //     //   selectAll: !!params?.selectAll,
+  //     //   excludeIds: params?.excludeIds || [],
+  //     //   condition: { keyword: keyword.value },
+  //     // });
+  //     Message.success(t('common.executionSuccess'));
+  //     resetSelector();
+  //     await loadList();
+  //     initCurrentPageResourcePoolsStatus();
+  //   } catch (error) {
+  //     // eslint-disable-next-line no-console
+  //     console.log(error);
+  //   }
+  // }
+
+  watch(
+    () => propsRes.value.data,
+    () => {
+      initCurrentPageResourcePoolsStatus();
+      initCurrentPageQueue();
+    },
+    {
+      immediate: true,
+    }
+  );
+
   onMounted(async () => {
     if (props.id) {
       keyword.value = props.id;
+      setLoadListParams({ keyword: props.id });
     }
     initResourcePools();
     await loadList();
     initCurrentPageResourcePoolsStatus();
+    initCurrentPageQueue();
   });
 
   await tableStore.initColumn(TableKeyEnum.TASK_CENTER_CASE_TASK_DETAIL, columns, 'drawer');

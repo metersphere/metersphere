@@ -113,19 +113,19 @@
       <MsButton v-else v-permission="['SYSTEM_USER:READ+DELETE']" @click="deleteTask(record)">
         {{ t('common.delete') }}
       </MsButton>
-      <MsButton
+      <!-- <MsButton
         v-if="record.status === ExecuteStatusEnum.COMPLETED && record.result === ExecuteResultEnum.ERROR"
         v-permission="['SYSTEM_USER:READ+DELETE']"
         @click="rerunTask(record)"
       >
         {{ t('ms.taskCenter.rerun') }}
-      </MsButton>
+      </MsButton> -->
       <MsButton
         v-if="record.status === ExecuteStatusEnum.COMPLETED"
         v-permission="['SYSTEM_USER:READ+DELETE']"
         @click="checkReport(record)"
       >
-        {{ t('ms.taskCenter.executeResult') }}
+        {{ t('ms.taskCenter.checkReport') }}
       </MsButton>
     </template>
   </ms-base-table>
@@ -178,17 +178,27 @@
   import {
     getOrganizationExecuteTaskList,
     getOrganizationExecuteTaskStatistics,
-    getProjectExecuteTaskList,
-    getProjectExecuteTaskStatistics,
-    getSystemExecuteTaskList,
-    getSystemExecuteTaskStatistics,
+    organizationBatchDeleteTask,
+    organizationBatchStopTask,
     organizationDeleteTask,
     organizationStopTask,
+  } from '@/api/modules/taskCenter/organization';
+  import {
+    getProjectExecuteTaskList,
+    getProjectExecuteTaskStatistics,
+    projectBatchDeleteTask,
+    projectBatchStopTask,
     projectDeleteTask,
     projectStopTask,
+  } from '@/api/modules/taskCenter/project';
+  import {
+    getSystemExecuteTaskList,
+    getSystemExecuteTaskStatistics,
+    systemBatchDeleteTask,
+    systemBatchStopTask,
     systemDeleteTask,
     systemStopTask,
-  } from '@/api/modules/taskCenter';
+  } from '@/api/modules/taskCenter/system';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
@@ -202,7 +212,7 @@
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
-  import { ExecuteResultEnum, ExecuteStatusEnum, ExecuteTaskType, SystemTaskType } from '@/enums/taskCenter';
+  import { ExecuteStatusEnum, ExecuteTaskType } from '@/enums/taskCenter';
 
   import { executeFinishedRateMap, executeMethodMap, executeResultMap, executeStatusMap } from './config';
 
@@ -211,6 +221,7 @@
   }>();
   const emit = defineEmits<{
     (e: 'goDetail', id: string): void;
+    (e: 'init'): void;
   }>();
 
   const { t } = useI18n();
@@ -369,35 +380,23 @@
     org: getOrganizationExecuteTaskStatistics,
   }[props.type];
 
-  const currentStopTask = {
-    system: projectStopTask,
-    project: organizationStopTask,
-    org: systemStopTask,
-  }[props.type];
-
-  const currentDeleteTask = {
-    system: projectDeleteTask,
-    project: organizationDeleteTask,
-    org: systemDeleteTask,
-  }[props.type];
-
   const tableBatchActions = {
     baseAction: [
       {
         label: 'common.stop',
         eventTag: 'stop',
       },
-      {
-        label: 'ms.taskCenter.rerun',
-        eventTag: 'rerun',
-      },
+      // {
+      //   label: 'ms.taskCenter.rerun',
+      //   eventTag: 'rerun',
+      // },
       {
         label: 'common.delete',
         eventTag: 'delete',
       },
     ],
   };
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, getTableQueryParams, resetSelector } = useTable(
     currentExecuteTaskList,
     {
       tableKey: TableKeyEnum.TASK_CENTER_CASE_TASK,
@@ -475,6 +474,18 @@
     emit('goDetail', id);
   }
 
+  const currentDeleteTask = {
+    system: systemDeleteTask,
+    project: projectDeleteTask,
+    org: organizationDeleteTask,
+  }[props.type];
+
+  const currentBatchDeleteTask = {
+    system: systemBatchDeleteTask,
+    project: projectBatchDeleteTask,
+    org: organizationBatchDeleteTask,
+  }[props.type];
+
   /**
    * 删除任务
    */
@@ -500,12 +511,12 @@
       onBeforeOk: async () => {
         try {
           if (isBatch) {
-            // await deleteUserInfo({
-            //   selectIds,
-            //   selectAll: !!params?.selectAll,
-            //   excludeIds: params?.excludeIds || [],
-            //   condition: { keyword: keyword.value },
-            // });
+            await currentBatchDeleteTask({
+              selectIds,
+              selectAll: !!params?.selectAll,
+              excludeIds: params?.excludeIds || [],
+              ...getTableQueryParams(),
+            });
           } else {
             await currentDeleteTask(record?.id || '');
           }
@@ -521,6 +532,21 @@
     });
   }
 
+  const currentStopTask = {
+    system: projectStopTask,
+    project: organizationStopTask,
+    org: systemStopTask,
+  }[props.type];
+
+  const currentBatchStopTask = {
+    system: projectBatchStopTask,
+    project: organizationBatchStopTask,
+    org: systemBatchStopTask,
+  }[props.type];
+
+  /**
+   * 停止任务
+   */
   function stopTask(record?: TaskCenterTaskItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('ms.taskCenter.stopTaskTitle', { name: characterLimit(record?.taskName) });
     let selectIds = [record?.id || ''];
@@ -540,12 +566,12 @@
       onBeforeOk: async () => {
         try {
           if (isBatch) {
-            // await deleteUserInfo({
-            //   selectIds,
-            //   selectAll: !!params?.selectAll,
-            //   excludeIds: params?.excludeIds || [],
-            //   condition: { keyword: keyword.value },
-            // });
+            await currentBatchStopTask({
+              selectIds,
+              selectAll: !!params?.selectAll,
+              excludeIds: params?.excludeIds || [],
+              ...getTableQueryParams(),
+            });
           } else {
             await currentStopTask(record?.id || '');
           }
@@ -580,23 +606,23 @@
     }
   }
 
-  async function rerunTask(record: TaskCenterTaskItem) {
-    try {
-      // await deleteUserInfo({
-      //   selectIds,
-      //   selectAll: !!params?.selectAll,
-      //   excludeIds: params?.excludeIds || [],
-      //   condition: { keyword: keyword.value },
-      // });
-      Message.success(t('common.executionSuccess'));
-      resetSelector();
-      await loadList();
-      initTaskStatistics();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
+  // async function rerunTask(record: TaskCenterTaskItem) {
+  //   try {
+  //     // await deleteUserInfo({
+  //     //   selectIds,
+  //     //   selectAll: !!params?.selectAll,
+  //     //   excludeIds: params?.excludeIds || [],
+  //     //   condition: { keyword: keyword.value },
+  //     // });
+  //     Message.success(t('common.executionSuccess'));
+  //     resetSelector();
+  //     await loadList();
+  //     initTaskStatistics();
+  //   } catch (error) {
+  //     // eslint-disable-next-line no-console
+  //     console.log(error);
+  //   }
+  // }
 
   /**
    * 报告详情 showReportDetail
@@ -664,6 +690,7 @@
   onMounted(async () => {
     searchTask();
     getTime();
+    emit('init');
   });
 
   watch(
