@@ -938,7 +938,7 @@
         ? minderSelectData.value?.count
         : batchParams.value.currentSelectCount || tableSelected.value.length;
     const batchDisassociateTitle =
-      showType.value !== 'list' && minderSelectData.value?.resource?.includes(t('common.case'))
+      showType.value !== 'list' && minderSelectData.value?.caseId?.length
         ? t('testPlan.featureCase.disassociateTip', { name: characterLimit(minderSelectData.value?.text) })
         : t('caseManagement.caseReview.disassociateConfirmTitle', { count });
     openModal({

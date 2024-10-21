@@ -117,7 +117,7 @@
         notifier: submitForm.value.notifiers?.join(';') ?? '',
       };
       let minderCaseStatus;
-      const isMinderCase = props.selectNode && props.selectNode.data?.resource?.includes(t('common.case'));
+      const isMinderCase = props.selectNode && props.selectNode.data?.caseId?.length;
       if (isMinderCase) {
         minderCaseStatus = await minderReviewCase({
           ...params,
