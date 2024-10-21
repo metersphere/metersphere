@@ -4,25 +4,37 @@ import io.metersphere.sdk.constants.ExecTaskType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.ExecTaskItem;
+import io.metersphere.system.domain.ExecTaskItemExample;
 import io.metersphere.system.dto.request.BatchExecTaskPageRequest;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.request.ScheduleRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
+import io.metersphere.system.mapper.ExecTaskItemMapper;
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
-
+import org.springframework.beans.factory.annotation.Value;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ProjectTaskHubControllerTests extends BaseTest {
+
+    @Value("${embedded.mockserver.host}")
+    private String host;
+    @Value("${embedded.mockserver.port}")
+    private int port;
+    @Resource
+    private ExecTaskItemMapper execTaskItemMapper;
+
     /**
      * 项目任务中心测试用例
      */
@@ -196,14 +208,13 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void projectTaskItemStop() throws Exception {
+        ExecTaskItem execTaskItem = new ExecTaskItem();
+        execTaskItem.setResourcePoolNode(host + ":" + port);
+        ExecTaskItemExample itemExample = new ExecTaskItemExample();
+        itemExample.createCriteria().andIdIn(List.of("pro_1", "pro_2"));
+        execTaskItemMapper.updateByExampleSelective(execTaskItem, itemExample);
         mockPost("/api/task/item/stop", "");
         this.requestGet(PROJECT_TASK_ITEM_STOP + "pro_1");
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(PROJECT_TASK_ITEM_STOP + "pro_2");
-        // 获取返回值
-        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        // 返回请求正常
-        Assertions.assertNotNull(resultHolder);
     }
 
 

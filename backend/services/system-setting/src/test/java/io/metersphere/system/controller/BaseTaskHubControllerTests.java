@@ -1,37 +1,34 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.ExecTaskType;
-import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
+import io.metersphere.system.domain.ExecTaskItemExample;
 import io.metersphere.system.dto.request.BatchExecTaskPageRequest;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.request.ScheduleRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
+import io.metersphere.system.mapper.ExecTaskItemMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.service.BaseTaskHubService;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -42,6 +39,12 @@ public class BaseTaskHubControllerTests extends BaseTest {
     private BaseTaskHubService baseTaskHubService;
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
+    @Value("${embedded.mockserver.host}")
+    private String host;
+    @Value("${embedded.mockserver.port}")
+    private int port;
+    @Resource
+    private ExecTaskItemMapper execTaskItemMapper;
 
     /**
      * 系统任务中心测试用例
@@ -64,10 +67,10 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_SCHEDULE_TASK_SWITCH = "/system/task-center/schedule/switch/";
     public static final String SYSTEM_SCHEDULE_TASK_BATCH_ENABLE = "/system/task-center/schedule/batch-enable";
     public static final String SYSTEM_SCHEDULE_TASK_BATCH_DISABLE = "/system/task-center/schedule/batch-disable";
-	public static final String SYSTEM_TASK_BATCH_PAGE = "/system/task-center/exec-task/batch/page";
+    public static final String SYSTEM_TASK_BATCH_PAGE = "/system/task-center/exec-task/batch/page";
     public static final String SYSTEM_SCHEDULE_TASK_UPDATE_CRON = "/system/task-center/schedule/update-cron";
 
-	@Test
+    @Test
     @Order(1)
     @Sql(scripts = {"/dml/init_exec_task_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void getSystemTaskPage() throws Exception {
@@ -173,6 +176,11 @@ public class BaseTaskHubControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void systemTaskStop() throws Exception {
+        ExecTaskItem execTaskItem = new ExecTaskItem();
+        execTaskItem.setResourcePoolNode(host + ":" + port);
+        ExecTaskItemExample itemExample = new ExecTaskItemExample();
+        itemExample.createCriteria().andIdIn(List.of("1", "2"));
+        execTaskItemMapper.updateByExampleSelective(execTaskItem, itemExample);
         mockPost("/api/task/item/stop", "");
         this.requestGet(SYSTEM_TASK_STOP + "1");
         mockPost("/api/task/stop", "");
@@ -327,9 +335,9 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String ORG_SCHEDULE_TASK_BATCH_ENABLE = "/organization/task-center/schedule/batch-enable";
     public static final String ORG_SCHEDULE_TASK_BATCH_DISABLE = "/organization/task-center/schedule/batch-disable";
     public static final String ORG_SCHEDULE_TASK_UPDATE_CRON = "/organization/task-center/schedule/update-cron";
-	public static final String ORG_TASK_BATCH_PAGE = "/organization/task-center/exec-task/batch/page";
+    public static final String ORG_TASK_BATCH_PAGE = "/organization/task-center/exec-task/batch/page";
 
-	@Test
+    @Test
     @Order(20)
     public void getOrgTaskPage() throws Exception {
         BasePageRequest request = new BasePageRequest();
