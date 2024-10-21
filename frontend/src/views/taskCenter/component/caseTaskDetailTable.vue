@@ -57,7 +57,7 @@
     <template #action="{ record }">
       <MsButton
         v-if="[ExecuteStatusEnum.RUNNING, ExecuteStatusEnum.RERUNNING].includes(record.status)"
-        v-permission="['SYSTEM_USER:READ+DELETE']"
+        v-permission="[getCurrentPermission('STOP')]"
         @click="stopTask(record)"
       >
         {{ t('common.stop') }}
@@ -69,11 +69,7 @@
       >
         {{ t('ms.taskCenter.rerun') }}
       </MsButton> -->
-      <MsButton
-        v-if="record.status === ExecuteStatusEnum.COMPLETED"
-        v-permission="['SYSTEM_USER:READ+DELETE']"
-        @click="checkExecuteResult(record)"
-      >
+      <MsButton v-if="record.status === ExecuteStatusEnum.COMPLETED" @click="checkExecuteResult(record)">
         {{ t('ms.taskCenter.executeResult') }}
       </MsButton>
     </template>
@@ -124,12 +120,11 @@
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import { characterLimit } from '@/utils';
-  import { hasAnyPermission } from '@/utils/permission';
 
   import { TaskCenterTaskDetailItem } from '@/models/taskCenter';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
-  import { ExecuteResultEnum, ExecuteStatusEnum } from '@/enums/taskCenter';
+  import { ExecuteStatusEnum } from '@/enums/taskCenter';
 
   import { executeMethodMap, executeResultMap, executeStatusMap } from './config';
 
@@ -284,6 +279,20 @@
         width: 100,
       },
     ]);
+  }
+
+  function getCurrentPermission(action: 'STOP') {
+    return {
+      system: {
+        STOP: 'SYSTEM_CASE_TASK_CENTER:EXEC+STOP',
+      },
+      org: {
+        STOP: 'ORGANIZATION_CASE_TASK_CENTER:EXEC+STOP',
+      },
+      project: {
+        STOP: 'PROJECT_CASE_TASK_CENTER:EXEC+STOP',
+      },
+    }[props.type][action];
   }
 
   const tableBatchActions = {

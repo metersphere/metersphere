@@ -93,7 +93,7 @@
           </template>
         </a-popover>
       </li>
-      <li>
+      <li v-permission="['PROJECT_CASE_TASK_CENTER:READ', 'PROJECT_SCHEDULE_TASK_CENTER:READ']">
         <a-tooltip :content="t('settings.navbar.task')">
           <a-button type="secondary" @click="goTaskCenter">
             <template #icon>

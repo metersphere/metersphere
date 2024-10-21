@@ -143,7 +143,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/system/taskCenter/index.vue'),
           meta: {
             locale: 'menu.projectManagement.taskCenter',
-            roles: ['SYSTEM_TASK_CENTER:READ'],
+            roles: [' SYSTEM_CASE_TASK_CENTER:READ'],
             isTopMenu: true,
           },
         },
@@ -406,7 +406,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/organization/taskCenter/index.vue'),
           meta: {
             locale: 'menu.projectManagement.taskCenter',
-            roles: ['ORGANIZATION_TASK_CENTER:READ'],
+            roles: ['ORGANIZATION_CASE_TASK_CENTER:READ'],
             isTopMenu: true,
           },
         },
