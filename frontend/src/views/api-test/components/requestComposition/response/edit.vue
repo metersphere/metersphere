@@ -433,7 +433,7 @@
       try {
         bodyLoading.value = true;
         let schema = activeResponse.value.body.jsonBody.jsonSchema;
-        if (!schema && activeResponse.value.body.jsonBody.jsonSchemaTableData) {
+        if (activeResponse.value.body.jsonBody.jsonSchemaTableData) {
           // 若jsonSchema不存在，先将表格数据转换为 json schema格式
           schema = parseTableDataToJsonSchema(activeResponse.value.body.jsonBody.jsonSchemaTableData[0]);
         }
