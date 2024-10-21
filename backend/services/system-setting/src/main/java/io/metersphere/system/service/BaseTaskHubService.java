@@ -119,6 +119,8 @@ public class BaseTaskHubService {
     private OperationLogService operationLogService;
     @Resource
     ApiScheduleNoticeService apiScheduleNoticeService;
+    @Resource
+    private UserToolService userToolService;
 
 
     /**
@@ -862,10 +864,18 @@ public class BaseTaskHubService {
      * @return 执行任务报告集合
      */
     public List<BatchExecTaskReportDTO> listBatchTaskReport(BatchExecTaskPageRequest request) {
+        List<BatchExecTaskReportDTO> batchReportList;
         if (StringUtils.equals(ExecTaskType.API_CASE_BATCH.name(), request.getBatchType())) {
-            return extExecTaskItemMapper.list(request, "api_report");
+            batchReportList = extExecTaskItemMapper.list(request, "api_report");
         } else {
-            return extExecTaskItemMapper.list(request, "api_scenario_report");
+            batchReportList = extExecTaskItemMapper.list(request, "api_scenario_report");
         }
+        if (CollectionUtils.isEmpty(batchReportList)) {
+            return new ArrayList<>();
+        }
+        List<String> userIds = batchReportList.stream().map(BatchExecTaskReportDTO::getCreateUser).toList();
+        Map<String, String> userMap = userToolService.getUserMapByIds(userIds);
+        batchReportList.forEach(item -> item.setCreateUserName(userMap.get(item.getCreateUser())));
+        return batchReportList;
     }
 }

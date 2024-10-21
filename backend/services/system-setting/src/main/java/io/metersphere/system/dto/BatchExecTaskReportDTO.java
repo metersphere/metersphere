@@ -25,6 +25,8 @@ public class BatchExecTaskReportDTO {
 	private String triggerMode;
 	@Schema(description = "创建人")
 	private String createUser;
+	@Schema(description = "创建人名称")
+	private String createUserName;
 	@Schema(description = "创建时间")
 	private Long createTime;
 }

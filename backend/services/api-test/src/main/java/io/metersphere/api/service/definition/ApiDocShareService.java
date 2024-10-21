@@ -15,6 +15,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.service.UserToolService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -22,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,8 @@ import java.util.Map;
 @Transactional(rollbackFor = Exception.class)
 public class ApiDocShareService {
 
+	@Resource
+	private UserToolService userToolService;
 	@Resource
 	private ExtApiDefinitionMapper extApiDefinitionMapper;
 	@Resource
@@ -53,8 +57,11 @@ public class ApiDocShareService {
 	 * @return 分享列表
 	 */
 	public List<ApiDocShareDTO> list(ApiDocSharePageRequest request) {
-		List<ApiDocShareDTO> list = extApiDocShareMapper.list(request);
-		return buildApiShareExtra(list);
+		List<ApiDocShareDTO> shareList = extApiDocShareMapper.list(request);
+		if (CollectionUtils.isEmpty(shareList)) {
+			return new ArrayList<>();
+		}
+		return buildApiShareExtra(shareList);
 	}
 
 	/**
@@ -170,10 +177,13 @@ public class ApiDocShareService {
 	 * @return 分享列表
 	 */
 	public List<ApiDocShareDTO> buildApiShareExtra(List<ApiDocShareDTO> docShares) {
+		List<String> distinctUserIds = docShares.stream().map(ApiDocShareDTO::getCreateUser).distinct().toList();
+		Map<String, String> userMap = userToolService.getUserMapByIds(distinctUserIds);
 		docShares.forEach(docShare -> {
 			docShare.setDeadline(calculateDeadline(docShare.getInvalidTime(), docShare.getInvalidUnit(), docShare.getCreateTime()));
 			docShare.setInvalid(docShare.getDeadline() != null && docShare.getDeadline() < System.currentTimeMillis());
 			docShare.setApiShareNum(countApiShare(docShare));
+			docShare.setCreateUserName(userMap.get(docShare.getCreateUser()));
 		});
 		return docShares;
 	}
