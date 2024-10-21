@@ -1334,6 +1334,7 @@
       values: [],
       append: false,
     };
+    selectedTagType.value = TagUpdateTypeEnum.UPDATE;
   }
 
   function batchUpdate() {

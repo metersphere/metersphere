@@ -179,6 +179,7 @@
     form.value = { ...initForm };
     formRules.value = [{ ...initDefaultForm }];
     form.value.tags = [];
+    selectedTagType.value = TagUpdateTypeEnum.UPDATE;
   }
 
   async function confirmHandler() {

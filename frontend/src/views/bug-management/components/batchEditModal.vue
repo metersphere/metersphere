@@ -186,6 +186,7 @@
   const showAppend = ref(false);
 
   const formRef = ref<FormInstance>();
+  const selectedTagType = ref<TagUpdateTypeEnum>(TagUpdateTypeEnum.UPDATE);
 
   const formReset = () => {
     form.attribute = '';
@@ -193,6 +194,7 @@
     form.inputValue = '';
     form.append = false;
     valueMode.value = 'single_select';
+    selectedTagType.value = TagUpdateTypeEnum.UPDATE;
   };
 
   const handleCancel = () => {
@@ -230,7 +232,6 @@
       }
     }
   };
-  const selectedTagType = ref<TagUpdateTypeEnum>(TagUpdateTypeEnum.UPDATE);
 
   const handleConfirm = () => {
     formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {

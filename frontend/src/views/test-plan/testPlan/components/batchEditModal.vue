@@ -130,6 +130,7 @@
   ];
 
   const formRef = ref<FormInstance | null>(null);
+  const selectedTagType = ref<TagUpdateTypeEnum>(TagUpdateTypeEnum.UPDATE);
 
   function closeHandler() {
     isVisible.value = false;
@@ -140,10 +141,10 @@
       tags: [],
       value: '',
     };
+    selectedTagType.value = TagUpdateTypeEnum.UPDATE;
   }
 
   const batchEditLoading = ref(false);
-  const selectedTagType = ref<TagUpdateTypeEnum>(TagUpdateTypeEnum.UPDATE);
 
   function confirmHandler() {
     formRef.value?.validate(async (errors) => {
