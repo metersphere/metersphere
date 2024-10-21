@@ -155,7 +155,7 @@ public class ApiScenarioDataTransferService {
         }
         //解析
         ApiScenarioPreImportAnalysisResult preImportAnalysisResult = this.importAnalysis(
-                parseResult, request.getModuleId(), apiScenarioModuleService.getTree(request.getProjectId()));
+                parseResult, request.getProjectId(), request.getModuleId(), apiScenarioModuleService.getTree(request.getProjectId()));
 
         //存储
         this.save(preImportAnalysisResult, request.getProjectId(), request.getOperator(), request.isCoverData());
@@ -212,13 +212,11 @@ public class ApiScenarioDataTransferService {
     }
 
     private void updateScenarios(String projectId, String operator, List<ApiScenarioImportDetail> updateApiScenarioData, SqlSession sqlSession) {
-        // 创建场景
         if (CollectionUtils.isEmpty(updateApiScenarioData)) {
             return;
         }
         ApiScenarioMapper scenarioBatchMapper = sqlSession.getMapper(ApiScenarioMapper.class);
         ApiScenarioBlobMapper scenarioBlobBatchMapper = sqlSession.getMapper(ApiScenarioBlobMapper.class);
-        ApiScenarioCsvMapper csvBatchMapper = sqlSession.getMapper(ApiScenarioCsvMapper.class);
         ApiScenarioCsvStepMapper csvStepBatchMapper = sqlSession.getMapper(ApiScenarioCsvStepMapper.class);
         ApiScenarioStepMapper stepBatchMapper = sqlSession.getMapper(ApiScenarioStepMapper.class);
         ApiScenarioStepBlobMapper stepBlobBatchMapper = sqlSession.getMapper(ApiScenarioStepBlobMapper.class);
@@ -520,7 +518,7 @@ public class ApiScenarioDataTransferService {
         return order;
     }
 
-    private ApiScenarioPreImportAnalysisResult importAnalysis(ApiScenarioImportParseResult parseResult, String moduleId, List<BaseTreeNode> apiScenarioModules) {
+    private ApiScenarioPreImportAnalysisResult importAnalysis(ApiScenarioImportParseResult parseResult, String projectId, String moduleId, List<BaseTreeNode> apiScenarioModules) {
         ApiScenarioPreImportAnalysisResult analysisResult = new ApiScenarioPreImportAnalysisResult();
 
         Map<String, String> moduleIdPathMap = apiScenarioModules.stream().collect(Collectors.toMap(BaseTreeNode::getId, BaseTreeNode::getPath));
@@ -549,7 +547,7 @@ public class ApiScenarioDataTransferService {
                 modulePath = "/" + modulePath;
             }
             if (modulePathMap.containsKey(modulePath)) {
-                List<ApiScenario> existenceScenarios = extApiScenarioMapper.selectBaseInfoByModuleId(modulePathMap.get(modulePath).getId());
+                List<ApiScenario> existenceScenarios = extApiScenarioMapper.selectBaseInfoByModuleIdAndProjectId(modulePathMap.get(modulePath).getId(), projectId);
                 Map<String, String> existenceNameIdMap = existenceScenarios.stream().collect(Collectors.toMap(ApiScenario::getName, ApiScenario::getId, (k1, k2) -> k1));
                 String finalModulePath = modulePath;
                 scenarios.forEach(scenario -> {
@@ -611,6 +609,7 @@ public class ApiScenarioDataTransferService {
             ExportWebSocketHandler.sendMessageSingle(
                     new ExportMsgDTO(request.getFileId(), taskId, ids.size(), true, MsgType.EXEC_RESULT.name())
             );
+            return taskId;
         } catch (Exception e) {
             LogUtils.error(e);
             List<ExportTask> exportTasks = exportTaskManager.getExportTasks(request.getProjectId(), ExportConstants.ExportType.API_SCENARIO.name(), ExportConstants.ExportState.PREPARED.toString(), userId, null);
@@ -623,7 +622,6 @@ public class ApiScenarioDataTransferService {
         } finally {
             MsFileUtils.deleteDir(tmpDir.getPath());
         }
-        return null;
     }
 
     private ApiScenarioExportResponse genMetersphereExportResponse(ApiScenarioBatchExportRequest request, Map<String, String> moduleMap, String exportType, String userId) {
@@ -712,6 +710,7 @@ public class ApiScenarioDataTransferService {
 
         } else {
             // 普通导出,所有的引用都改为复制，并且Api、ApiCase改为CUSTOM_REQUEST
+            response.setRefTypeToCopy();
             response.setStepTypeToCustomRequest();
         }
         return response;

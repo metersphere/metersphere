@@ -1817,6 +1817,53 @@ public class ApiScenarioService extends MoveNodeService {
         return steps;
     }
 
+    private List<ApiScenarioStepDTO> parseConfig(List<ApiScenarioStepDTO> steps, String parentId) {
+        List<ApiScenarioStepDTO> returnList = new ArrayList<>();
+        // 将 config 转换成对象
+        steps.forEach(dto -> {
+            ApiScenarioStepDTO returnDTO = new ApiScenarioStepDTO();
+            BeanUtils.copyBean(returnDTO, dto);
+            if (!StringUtils.equalsIgnoreCase(parentId, dto.getId())) {
+                returnDTO.setParentId(parentId);
+            }
+            if (returnDTO.getConfig() != null && StringUtils.isNotBlank(returnDTO.getConfig().toString())) {
+                if (returnDTO.getConfig() instanceof String configVal) {
+                    returnDTO.setConfig(JSON.parseObject(configVal));
+                }
+            }
+            returnList.add(returnDTO);
+        });
+        return returnList;
+    }
+
+    /**
+     * 递归获取所有的场景步骤
+     */
+    public List<ApiScenarioStepDTO> buildScenarioSteps(List<String> scenarioIds) {
+        List<ApiScenarioStepDTO> returnList = new ArrayList<>();
+
+        List<ApiScenarioStepDTO> steps = getStepDTOByScenarioIds(scenarioIds);
+        if (CollectionUtils.isEmpty(steps)) {
+            return returnList;
+        } else {
+            returnList.addAll(this.parseConfig(steps, null));
+        }
+
+        List<ApiScenarioStepDTO> refScenarioSteps = steps.stream().filter(this::isRefOrPartialScenario).toList();
+        while (CollectionUtils.isNotEmpty(refScenarioSteps)) {
+            List<ApiScenarioStepDTO> childStep = new ArrayList<>();
+            for (ApiScenarioStepDTO step : refScenarioSteps) {
+                childStep = getStepDTOByScenarioIds(Collections.singletonList(step.getResourceId()));
+                if (CollectionUtils.isNotEmpty(childStep)) {
+                    returnList.addAll(this.parseConfig(childStep, step.getId()));
+                }
+            }
+            refScenarioSteps = childStep.stream().filter(this::isRefOrPartialScenario).toList();
+        }
+        // 嵌套获取引用的场景步骤
+        return returnList;
+    }
+
     private List<ApiScenarioStepDTO> getStepDTOByScenarioIds(List<String> scenarioIds) {
         if (CollectionUtils.isEmpty(scenarioIds)) {
             return Collections.emptyList();
@@ -2487,7 +2534,7 @@ public class ApiScenarioService extends MoveNodeService {
             List<ApiScenario> exportApiScenarios = apiScenarioMapper.selectByExample(scenarioExample);
 
             // 获取所有步骤（包含引用的场景）
-            List<ApiScenarioStepDTO> allSteps = getAllStepsByScenarioIds(scenarioIds)
+            List<ApiScenarioStepDTO> allSteps = buildScenarioSteps(scenarioIds)
                     .stream()
                     .distinct() // 这里可能存在多次引用相同场景，步骤可能会重复，去重
                     .collect(Collectors.toList());

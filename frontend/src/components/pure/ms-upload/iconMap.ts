@@ -84,6 +84,10 @@ export const FileIconMap: FileIconMapping = {
     [UploadStatus.init]: 'icon-icon_file_har',
     [UploadStatus.done]: 'icon-icon_file_har',
   },
+  ms: {
+    [UploadStatus.init]: 'icon-icon_file_ms',
+    [UploadStatus.done]: 'icon-icon_file_ms',
+  },
 };
 
 /**
