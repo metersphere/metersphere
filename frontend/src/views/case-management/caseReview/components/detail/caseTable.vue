@@ -960,6 +960,9 @@
             ...batchParams.value,
             ...tableParams.value,
             reviewCommentFileIds: reviewCommentFileIds.value,
+            condition: {
+              filter: propsRes.value.filter,
+            },
           });
           Message.success(t('caseManagement.caseReview.reviewSuccess'));
           dialogVisible.value = false;
