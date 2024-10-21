@@ -1,11 +1,13 @@
 package io.metersphere.system.controller;
 
+import io.metersphere.sdk.constants.ExecTaskType;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
+import io.metersphere.system.dto.request.BatchExecTaskPageRequest;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.request.ScheduleRequest;
@@ -62,9 +64,10 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_SCHEDULE_TASK_SWITCH = "/system/task-center/schedule/switch/";
     public static final String SYSTEM_SCHEDULE_TASK_BATCH_ENABLE = "/system/task-center/schedule/batch-enable";
     public static final String SYSTEM_SCHEDULE_TASK_BATCH_DISABLE = "/system/task-center/schedule/batch-disable";
+	public static final String SYSTEM_TASK_BATCH_PAGE = "/system/task-center/exec-task/batch/page";
     public static final String SYSTEM_SCHEDULE_TASK_UPDATE_CRON = "/system/task-center/schedule/update-cron";
 
-    @Test
+	@Test
     @Order(1)
     @Sql(scripts = {"/dml/init_exec_task_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void getSystemTaskPage() throws Exception {
@@ -324,8 +327,9 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String ORG_SCHEDULE_TASK_BATCH_ENABLE = "/organization/task-center/schedule/batch-enable";
     public static final String ORG_SCHEDULE_TASK_BATCH_DISABLE = "/organization/task-center/schedule/batch-disable";
     public static final String ORG_SCHEDULE_TASK_UPDATE_CRON = "/organization/task-center/schedule/update-cron";
+	public static final String ORG_TASK_BATCH_PAGE = "/organization/task-center/exec-task/batch/page";
 
-    @Test
+	@Test
     @Order(20)
     public void getOrgTaskPage() throws Exception {
         BasePageRequest request = new BasePageRequest();
@@ -389,6 +393,18 @@ public class BaseTaskHubControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+    }
+
+    @Test
+    @Order(5)
+    public void getBatchTaskPage() throws Exception {
+        BatchExecTaskPageRequest request = new BatchExecTaskPageRequest();
+        request.setBatchType(ExecTaskType.API_CASE_BATCH.name());
+        request.setTaskId("task-id");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        this.requestPostWithOk(SYSTEM_TASK_BATCH_PAGE, request);
+        this.requestPostWithOk(ORG_TASK_BATCH_PAGE, request);
     }
 
 

@@ -1,7 +1,11 @@
 package io.metersphere.system.controller;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.page.PageMethod;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.BatchExecTaskReportDTO;
+import io.metersphere.system.dto.request.BatchExecTaskPageRequest;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
@@ -19,6 +23,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.BaseProjectMapper;
 import io.metersphere.system.service.BaseTaskHubLogService;
 import io.metersphere.system.service.BaseTaskHubService;
+import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,6 +31,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -196,4 +202,14 @@ public class OrganizationTaskHubController {
     public void updateValue(@PathVariable ScheduleRequest request) {
         baseTaskHubService.updateCron(request);
     }
+
+    @PostMapping("/exec-task/batch/page")
+    @Operation(summary = "组织-任务中心-用例执行任务-批量任务列表")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_READ)
+    public Pager<List<BatchExecTaskReportDTO>> batchTaskList(@Validated @RequestBody BatchExecTaskPageRequest request) {
+        Page<Object> page = PageMethod.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "r.start_time desc");
+        return PageUtils.setPageInfo(page, baseTaskHubService.listBatchTaskReport(request));
+    }
+
 }

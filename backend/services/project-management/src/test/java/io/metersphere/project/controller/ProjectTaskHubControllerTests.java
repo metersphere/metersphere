@@ -1,8 +1,10 @@
 package io.metersphere.project.controller;
 
+import io.metersphere.sdk.constants.ExecTaskType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.request.BatchExecTaskPageRequest;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.request.ScheduleRequest;
@@ -18,6 +20,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProjectTaskHubControllerTests extends BaseTest {
     /**
@@ -40,8 +43,9 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     public static final String PROJECT_SCHEDULE_TASK_BATCH_ENABLE = "/project/task-center/schedule/batch-enable";
     public static final String PROJECT_SCHEDULE_TASK_BATCH_DISABLE = "/project/task-center/schedule/batch-disable";
     public static final String PROJECT_SCHEDULE_TASK_UPDATE_CRON = "/organization/task-center/schedule/update-cron";
+	public static final String PROJECT_BATCH_TASK_PAGE = "/project/task-center/exec-task/batch/page";
 
-    @Test
+	@Test
     @Order(1)
     @Sql(scripts = {"/dml/init_project_exec_task_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void getProjectTaskPage() throws Exception {
@@ -166,7 +170,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
      * 项目执行任务删除
      */
     @Test
-    @Order(5)
+    @Order(7)
     public void projectTaskDelete() throws Exception {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(PROJECT_TASK_DELETE + "4");
         // 获取返回值
@@ -177,7 +181,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(6)
+    @Order(8)
     public void projectBatchTaskDelete() throws Exception {
         TableBatchProcessDTO request = new TableBatchProcessDTO();
         request.setSelectAll(false);
@@ -263,5 +267,19 @@ public class ProjectTaskHubControllerTests extends BaseTest {
         request.setCron("0 0 0 1 * ?");
         request.setId("pro_wx_1");
         this.requestPost(PROJECT_SCHEDULE_TASK_UPDATE_CRON, request);
+    }
+
+    @Test
+    @Order(10)
+    public void getProjectBatchTaskPage() throws Exception {
+        BatchExecTaskPageRequest request = new BatchExecTaskPageRequest();
+        request.setBatchType(ExecTaskType.API_CASE_BATCH.name());
+        request.setTaskId("pro_4");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        this.requestPostWithOk(PROJECT_BATCH_TASK_PAGE, request);
+        request.setSort(Map.of("startTime", "asc"));
+        request.setBatchType(ExecTaskType.API_SCENARIO_BATCH.name());
+        this.requestPostWithOk(PROJECT_BATCH_TASK_PAGE, request);
     }
 }
