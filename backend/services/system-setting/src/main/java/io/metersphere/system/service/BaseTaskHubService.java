@@ -27,6 +27,7 @@ import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskcenter.enums.ScheduleTagType;
 import io.metersphere.system.dto.taskhub.*;
+import io.metersphere.system.dto.taskhub.request.ScheduleRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
@@ -116,6 +117,7 @@ public class BaseTaskHubService {
     private OperationLogService operationLogService;
     @Resource
     ApiScheduleNoticeService apiScheduleNoticeService;
+
 
     /**
      * 系统-获取执行任务列表
@@ -824,4 +826,16 @@ public class BaseTaskHubService {
         return list;
     }
 
+    public void updateCron(ScheduleRequest request) {
+        Schedule schedule = checkScheduleExit(request.getId());
+        schedule.setValue(request.getCron());
+        scheduleService.editSchedule(schedule);
+        try {
+            scheduleService.addOrUpdateCronJob(schedule, new JobKey(schedule.getKey(), schedule.getJob()),
+                    new TriggerKey(schedule.getKey(), schedule.getJob()), Class.forName(schedule.getJob()));
+        } catch (ClassNotFoundException e) {
+            LogUtils.error(e);
+            throw new RuntimeException(e);
+        }
+    }
 }

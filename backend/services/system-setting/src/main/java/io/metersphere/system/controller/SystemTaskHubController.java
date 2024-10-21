@@ -5,12 +5,14 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.*;
+import io.metersphere.system.dto.taskhub.request.ScheduleRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.service.BaseTaskHubLogService;
 import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.utils.Pager;
@@ -185,5 +187,12 @@ public class SystemTaskHubController {
         baseTaskHubService.scheduleBatchOperation(request, SessionUtils.getUserId(), null, "/system/task-center/schedule/batch-disable", OperationLogModule.SETTING_SYSTEM_TASK_CENTER, false, null);
     }
 
-    //TODO 系统&组织&项目 后台任务操作：删除  批量开启  批量关闭
+
+    @PostMapping("/schedule/update-cron")
+    @Operation(summary = "系统-任务中心-后台任务更新cron表达式")
+    @RequiresPermissions(PermissionConstants.SYSTEM_SCHEDULE_TASK_CENTER_READ_UPDATE)
+    public void updateValue(@PathVariable ScheduleRequest request) {
+        baseTaskHubService.updateCron(request);
+    }
+
 }
