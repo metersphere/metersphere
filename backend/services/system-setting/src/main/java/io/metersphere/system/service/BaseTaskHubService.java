@@ -2,6 +2,7 @@ package io.metersphere.system.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
+import io.metersphere.api.domain.ApiReportRelateTask;
 import io.metersphere.api.domain.ApiReportRelateTaskExample;
 import io.metersphere.api.mapper.ApiReportRelateTaskMapper;
 import io.metersphere.engine.EngineFactory;
@@ -16,14 +17,6 @@ import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.sdk.constants.ExecStatus;
-import io.metersphere.sdk.constants.ExecTaskType;
-import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
-import io.metersphere.sdk.constants.ResultStatus;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.BatchExecTaskReportDTO;
 import io.metersphere.system.dto.ProjectDTO;
@@ -41,7 +34,6 @@ import io.metersphere.system.dto.taskhub.request.ScheduleRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
-import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
@@ -156,13 +148,16 @@ public class BaseTaskHubService {
         List<String> projectIds = list.stream().map(TaskHubDTO::getProjectId).distinct().toList();
         List<String> organizationIds = list.stream().map(TaskHubDTO::getOrganizationId).distinct().toList();
         List<String> userIds = list.stream().map(TaskHubDTO::getCreateUser).distinct().toList();
+        List<String> taskIds = list.stream().map(TaskHubDTO::getId).distinct().toList();
         Map<String, String> projectMaps = getProjectMaps(projectIds);
         Map<String, String> organizationMaps = getOrganizationMaps(organizationIds);
         Map<String, String> userMaps = getUserMaps(userIds);
+        Map<String, String> taskReportMap = getTaskReportMap(taskIds);
         list.forEach(item -> {
             item.setProjectName(projectMaps.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
             item.setOrganizationName(organizationMaps.getOrDefault(item.getOrganizationId(), StringUtils.EMPTY));
             item.setCreateUserName(userMaps.getOrDefault(item.getCreateUser(), StringUtils.EMPTY));
+            item.setReportId(taskReportMap.getOrDefault(item.getId(), StringUtils.EMPTY));
         });
 
     }
@@ -189,6 +184,18 @@ public class BaseTaskHubService {
         List<Project> projectList = projectMapper.selectByExample(projectExample);
         Map<String, String> projectMaps = projectList.stream().collect(Collectors.toMap(Project::getId, Project::getName));
         return projectMaps;
+    }
+
+    /**
+     * 获取任务的报告集合
+     * @param taskIds 任务ID集合
+     * @return 报告集合
+     */
+    private Map<String, String> getTaskReportMap(List<String> taskIds) {
+        ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
+        example.createCriteria().andTaskResourceIdIn(taskIds);
+        List<ApiReportRelateTask> reportRelateTasks = apiReportRelateTaskMapper.selectByExample(example);
+        return reportRelateTasks.stream().collect(Collectors.toMap(ApiReportRelateTask::getTaskResourceId, ApiReportRelateTask::getReportId));
     }
 
 
