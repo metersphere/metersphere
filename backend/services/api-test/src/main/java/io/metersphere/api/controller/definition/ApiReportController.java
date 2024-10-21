@@ -133,4 +133,12 @@ public class ApiReportController {
     public void batchExportLog(@Validated @RequestBody ApiReportBatchRequest request) {
         apiReportService.batchExportLog(request, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
     }
+
+
+    @GetMapping("/task-report/{id}")
+    @Operation(summary = "系统-任务中心-场景用例执行任务详情-查看")
+    @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ)
+    public List<ApiReportDetailDTO> viewCaseItemReport(@PathVariable String id) {
+        return apiReportService.viewCaseTaskItemReport(id);
+    }
 }

@@ -114,7 +114,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
 
 
     @Test
-    @Order(4)
+    @Order(5)
     public void getProStatistics() throws Exception {
         List<String> ids = List.of("pro_1", "pro_2");
         MvcResult mvcResult = this.requestPostWithOkAndReturn(PROJECT_STATISTICS, ids);
@@ -219,7 +219,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
 
 
     @Test
-    @Order(4)
+    @Order(5)
     public void projectTaskItemBatchStop() throws Exception {
         mockPost("/api/task/item/stop", "");
         TaskHubItemBatchRequest request = new TaskHubItemBatchRequest();

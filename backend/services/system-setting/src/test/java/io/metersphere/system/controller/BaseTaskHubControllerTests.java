@@ -191,7 +191,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
      * 系统任务项停止
      */
     @Test
-    @Order(4)
+    @Order(5)
     public void systemTaskItemStop() throws Exception {
         mockPost("/api/task/item/stop", "");
         this.requestGet(SYSTEM_TASK_ITEM_STOP + "1");
@@ -200,7 +200,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     public void systemGetTaskItemOrder() throws Exception {
         MvcResult mvcResult = this.requestPostWithOkAndReturn(SYSTEM_TASK_ITEM_ORDER, List.of("1"));
         HashMap resultData = getResultData(mvcResult, HashMap.class);
@@ -392,7 +392,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     public void getOrgStatistics() throws Exception {
         List<String> ids = List.of("1", "2");
         MvcResult mvcResult = this.requestPostWithOkAndReturn(ORG_STATISTICS, ids);
