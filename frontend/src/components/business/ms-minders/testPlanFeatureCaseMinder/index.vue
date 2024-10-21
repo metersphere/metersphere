@@ -117,14 +117,14 @@
           show-step-detail-trigger
         />
       </template>
-      <template #batchMenu>
+      <template v-if="canShowBatchAddDefect" #batchMenu>
         <a-dropdown trigger="hover" position="bl">
           <MsButton
             v-if="props.canEdit && hasAllPermission(['PROJECT_BUG:READ', 'PROJECT_TEST_PLAN:READ+EXECUTE'])"
             type="icon"
             class="ms-minder-node-float-menu-icon-button"
           >
-            <MsIcon type="icon-icon_bug" class="text-[var(--color-text-4)]" />
+            <MsIcon type="icon-icon_bug" class="text-[rgb(var(--danger-6))]" />
           </MsButton>
           <template #content>
             <a-doption v-permission="['PROJECT_BUG:READ+ADD']" value="new" @click="showBatchAddDefect">
@@ -980,8 +980,14 @@
     setPriorityView(true, 'P');
   }
 
-  function handleNodeBatchSelect() {
+  const canShowBatchAddDefect = ref(false);
+  function handleNodeBatchSelect(nodes: MinderJsonNode[]) {
     isMinderOperation.value = true;
+    if (nodes.every((node) => isModuleOrCollection(node.data) || node.data?.caseId)) {
+      canShowBatchAddDefect.value = true;
+    } else {
+      canShowBatchAddDefect.value = false;
+    }
   }
 
   function showBatchAddDefect() {
