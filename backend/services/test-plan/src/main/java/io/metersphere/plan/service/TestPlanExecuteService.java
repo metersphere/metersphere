@@ -675,7 +675,7 @@ public class TestPlanExecuteService {
 
     public void finishTaskAndSummaryTestPlanReport(String taskId, String reportId, boolean isGroupReport, boolean isStop) {
         TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(reportId);
-        if (StringUtils.isBlank(testPlanReport.getParentId()) && StringUtils.isNotBlank(taskId)) {
+        if (StringUtils.equals(testPlanReport.getParentId(), reportId) && StringUtils.isNotBlank(taskId)) {
             // 执行完成，更新任务状态
             apiBatchRunBaseService.updateTaskStatus(taskId);
             apiBatchRunBaseService.removeRunningTaskCache(taskId);

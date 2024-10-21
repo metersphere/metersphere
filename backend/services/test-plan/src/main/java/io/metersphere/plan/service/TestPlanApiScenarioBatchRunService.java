@@ -308,7 +308,7 @@ public class TestPlanApiScenarioBatchRunService {
     private ExecTask initExecTask(int caseSize, Project project, String userId) {
         ExecTask execTask = apiCommonService.newExecTask(project.getId(), userId);
         execTask.setCaseCount(Long.valueOf(caseSize));
-        execTask.setTaskName(Translator.get("api_batch_task_name"));
+        execTask.setTaskName(Translator.get("api_scenario_batch_task_name"));
         execTask.setOrganizationId(project.getOrganizationId());
         execTask.setTriggerMode(TaskTriggerMode.MANUAL.name());
         execTask.setTaskType(ExecTaskType.TEST_PLAN_API_SCENARIO.name());
@@ -350,7 +350,7 @@ public class TestPlanApiScenarioBatchRunService {
             // 创建报告和任务的关联关系
             ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
             apiReportRelateTask.setReportId(apiScenarioReport.getId());
-            apiReportRelateTask.setTaskResourceId(resourceExecTaskItemMap.get(apiScenarioReport.getId()));
+            apiReportRelateTask.setTaskResourceId(resourceExecTaskItemMap.get(testPlanApiScenario.getId()));
             apiReportRelateTasks.add(apiReportRelateTask);
         }
         apiScenarioReportService.insertApiScenarioReport(apiScenarioReports, apiScenarioRecords, apiReportRelateTasks);
