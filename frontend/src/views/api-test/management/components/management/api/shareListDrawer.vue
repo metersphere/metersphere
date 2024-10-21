@@ -145,7 +145,7 @@
       showDrag: true,
     },
     {
-      title: 'common.creator',
+      title: 'common.operator',
       dataIndex: 'createUser',
       slotName: 'createUserName',
       showInTable: true,
