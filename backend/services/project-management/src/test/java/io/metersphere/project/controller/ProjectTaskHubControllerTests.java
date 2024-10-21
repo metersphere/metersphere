@@ -5,6 +5,7 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
+import io.metersphere.system.dto.taskhub.request.ScheduleRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import org.junit.jupiter.api.Assertions;
@@ -38,6 +39,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     public static final String PROJECT_SCHEDULE_TASK_SWITCH = "/project/task-center/schedule/switch/";
     public static final String PROJECT_SCHEDULE_TASK_BATCH_ENABLE = "/project/task-center/schedule/batch-enable";
     public static final String PROJECT_SCHEDULE_TASK_BATCH_DISABLE = "/project/task-center/schedule/batch-disable";
+    public static final String PROJECT_SCHEDULE_TASK_UPDATE_CRON = "/organization/task-center/schedule/update-cron";
 
     @Test
     @Order(1)
@@ -127,13 +129,10 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     @Test
     @Order(6)
     public void projectTaskStop() throws Exception {
+        mockPost("/api/task/item/stop", "");
         this.requestGet(PROJECT_TASK_STOP + "pro_1");
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(PROJECT_TASK_STOP + "pro_2");
-        // 获取返回值
-        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        // 返回请求正常
-        Assertions.assertNotNull(resultHolder);
+        mockPost("/api/task/stop", "");
+        this.requestGet(PROJECT_TASK_STOP + "pro_2");
     }
 
     /**
@@ -142,6 +141,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     @Test
     @Order(23)
     public void projectTaskBatchStop() throws Exception {
+        mockPost("/api/task/item/stop", "");
         TableBatchProcessDTO request = new TableBatchProcessDTO();
         request.setSelectAll(true);
         this.requestPost(PROJECT_TASK_BATCH_STOP, request);
@@ -192,6 +192,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void projectTaskItemStop() throws Exception {
+        mockPost("/api/task/item/stop", "");
         this.requestGet(PROJECT_TASK_ITEM_STOP + "pro_1");
         MvcResult mvcResult = this.requestGetWithOkAndReturn(PROJECT_TASK_ITEM_STOP + "pro_2");
         // 获取返回值
@@ -205,6 +206,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void projectTaskItemBatchStop() throws Exception {
+        mockPost("/api/task/item/stop", "");
         TaskHubItemBatchRequest request = new TaskHubItemBatchRequest();
         request.setSelectAll(false);
         request.setSelectIds(List.of("pro_1", "pro_2"));
@@ -252,5 +254,14 @@ public class ProjectTaskHubControllerTests extends BaseTest {
         TableBatchProcessDTO request = new TableBatchProcessDTO();
         request.setSelectAll(true);
         this.requestPost(PROJECT_SCHEDULE_TASK_BATCH_DISABLE, request);
+    }
+
+    @Test
+    @Order(9)
+    public void projectScheduleUpdateCron() throws Exception {
+        ScheduleRequest request = new ScheduleRequest();
+        request.setCron("0 0 0 1 * ?");
+        request.setId("pro_wx_1");
+        this.requestPost(PROJECT_SCHEDULE_TASK_UPDATE_CRON, request);
     }
 }

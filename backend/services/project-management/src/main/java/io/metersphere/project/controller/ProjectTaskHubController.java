@@ -8,6 +8,7 @@ import io.metersphere.system.dto.taskhub.ResourcePoolOptionsDTO;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
 import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
 import io.metersphere.system.dto.taskhub.TaskHubScheduleDTO;
+import io.metersphere.system.dto.taskhub.request.ScheduleRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
@@ -172,5 +173,12 @@ public class ProjectTaskHubController {
     @RequiresPermissions(PermissionConstants.PROJECT_SCHEDULE_TASK_CENTER_READ_UPDATE)
     public void batchDisable(@Validated @RequestBody TableBatchProcessDTO request) {
         baseTaskHubService.scheduleBatchOperation(request, SessionUtils.getUserId(), null, "/project/task-center/schedule/batch-disable", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER, false, List.of(SessionUtils.getCurrentProjectId()));
+    }
+
+    @PostMapping("/schedule/update-cron")
+    @Operation(summary = "项目-任务中心-后台任务更新cron表达式")
+    @RequiresPermissions(PermissionConstants.PROJECT_SCHEDULE_TASK_CENTER_READ_UPDATE)
+    public void updateValue(@PathVariable ScheduleRequest request) {
+        baseTaskHubService.updateCron(request);
     }
 }

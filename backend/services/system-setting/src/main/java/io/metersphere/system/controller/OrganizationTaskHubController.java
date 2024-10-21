@@ -9,6 +9,7 @@ import io.metersphere.system.dto.taskhub.ResourcePoolOptionsDTO;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
 import io.metersphere.system.dto.taskhub.TaskHubItemDTO;
 import io.metersphere.system.dto.taskhub.TaskHubScheduleDTO;
+import io.metersphere.system.dto.taskhub.request.ScheduleRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
@@ -181,10 +182,18 @@ public class OrganizationTaskHubController {
 
     @PostMapping("/schedule/batch-disable")
     @Operation(summary = "组织-任务中心-后台任务-批量关闭")
-    @RequiresPermissions(PermissionConstants.SYSTEM_SCHEDULE_TASK_CENTER_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_SCHEDULE_TASK_CENTER_READ_UPDATE)
     public void batchDisable(@Validated @RequestBody TableBatchProcessDTO request) {
         List<OptionDTO> projectList = baseProjectMapper.getProjectOptionsByOrgId(SessionUtils.getCurrentOrganizationId());
         List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
         baseTaskHubService.scheduleBatchOperation(request, SessionUtils.getUserId(), null, "/organization/task-center/schedule/batch-disable", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, false, projectIds);
+    }
+
+
+    @PostMapping("/schedule/update-cron")
+    @Operation(summary = "组织-任务中心-后台任务更新cron表达式")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_SCHEDULE_TASK_CENTER_READ_UPDATE)
+    public void updateValue(@PathVariable ScheduleRequest request) {
+        baseTaskHubService.updateCron(request);
     }
 }

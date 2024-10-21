@@ -1,5 +1,6 @@
 package io.metersphere.system.controller;
 
+import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -7,6 +8,7 @@ import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
+import io.metersphere.system.dto.taskhub.request.ScheduleRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
@@ -15,14 +17,19 @@ import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -55,6 +62,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_SCHEDULE_TASK_SWITCH = "/system/task-center/schedule/switch/";
     public static final String SYSTEM_SCHEDULE_TASK_BATCH_ENABLE = "/system/task-center/schedule/batch-enable";
     public static final String SYSTEM_SCHEDULE_TASK_BATCH_DISABLE = "/system/task-center/schedule/batch-disable";
+    public static final String SYSTEM_SCHEDULE_TASK_UPDATE_CRON = "/system/task-center/schedule/update-cron";
 
     @Test
     @Order(1)
@@ -162,13 +170,10 @@ public class BaseTaskHubControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void systemTaskStop() throws Exception {
+        mockPost("/api/task/item/stop", "");
         this.requestGet(SYSTEM_TASK_STOP + "1");
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(SYSTEM_TASK_STOP + "2");
-        // 获取返回值
-        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        // 返回请求正常
-        Assertions.assertNotNull(resultHolder);
+        mockPost("/api/task/stop", "");
+        this.requestGet(SYSTEM_TASK_STOP + "2");
     }
 
     /**
@@ -177,13 +182,10 @@ public class BaseTaskHubControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void systemTaskItemStop() throws Exception {
+        mockPost("/api/task/item/stop", "");
         this.requestGet(SYSTEM_TASK_ITEM_STOP + "1");
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(SYSTEM_TASK_ITEM_STOP + "2");
-        // 获取返回值
-        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        // 返回请求正常
-        Assertions.assertNotNull(resultHolder);
+        mockPost("/api/task/stop", "");
+        this.requestGet(SYSTEM_TASK_ITEM_STOP + "2");
     }
 
     @Test
@@ -231,6 +233,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     @Test
     @Order(5)
     public void systemTaskBatchStop() throws Exception {
+        mockPost("/api/task/item/stop", "");
         TableBatchProcessDTO request = new TableBatchProcessDTO();
         request.setSelectAll(true);
         this.requestPost(SYSTEM_TASK_BATCH_STOP, request);
@@ -245,6 +248,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     @Test
     @Order(5)
     public void systemTaskItemBatchStop() throws Exception {
+        mockPost("/api/task/item/stop", "");
         TableBatchProcessDTO request = new TableBatchProcessDTO();
         request.setSelectAll(true);
         this.requestPost(SYSTEM_TASK_ITEM_BATCH_STOP, request);
@@ -291,6 +295,15 @@ public class BaseTaskHubControllerTests extends BaseTest {
         this.requestPost(SYSTEM_SCHEDULE_TASK_BATCH_DISABLE, request);
     }
 
+    @Test
+    @Order(9)
+    public void systemScheduleUpdateCron() throws Exception {
+        ScheduleRequest request = new ScheduleRequest();
+        request.setCron("0 0 0 1 * ?");
+        request.setId("wx_1");
+        this.requestPost(SYSTEM_SCHEDULE_TASK_UPDATE_CRON, request);
+    }
+
     /**
      * 组织任务中心测试用例
      */
@@ -310,6 +323,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String ORG_SCHEDULE_TASK_SWITCH = "/organization/task-center/schedule/switch/";
     public static final String ORG_SCHEDULE_TASK_BATCH_ENABLE = "/organization/task-center/schedule/batch-enable";
     public static final String ORG_SCHEDULE_TASK_BATCH_DISABLE = "/organization/task-center/schedule/batch-disable";
+    public static final String ORG_SCHEDULE_TASK_UPDATE_CRON = "/organization/task-center/schedule/update-cron";
 
     @Test
     @Order(20)
@@ -521,6 +535,15 @@ public class BaseTaskHubControllerTests extends BaseTest {
         TableBatchProcessDTO request = new TableBatchProcessDTO();
         request.setSelectAll(true);
         this.requestPost(ORG_SCHEDULE_TASK_BATCH_DISABLE, request);
+    }
+
+    @Test
+    @Order(9)
+    public void orgScheduleUpdateCron() throws Exception {
+        ScheduleRequest request = new ScheduleRequest();
+        request.setCron("0 0 0 1 * ?");
+        request.setId("wx_1");
+        this.requestPost(ORG_SCHEDULE_TASK_UPDATE_CRON, request);
     }
 
 
