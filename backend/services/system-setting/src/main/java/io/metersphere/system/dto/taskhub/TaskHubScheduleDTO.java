@@ -45,6 +45,9 @@ public class TaskHubScheduleDTO implements Serializable {
     @Schema(description = "运行规则（cron表达式）")
     private String value;
 
+    @Schema(description = "上次完成时间")
+    private Long lastTime;
+
     @Schema(description = "下次执行时间")
     private Long nextTime;
 

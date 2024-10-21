@@ -366,6 +366,13 @@
             </include>
         </where>
     </select>
+    <select id="getLastAndNextTime" resultType="io.metersphere.system.dto.taskhub.TaskHubScheduleDTO">
+        SELECT JOB_NAME AS resource_id, NEXT_FIRE_TIME AS nextTime, PREV_FIRE_TIME AS lastTime
+        FROM QRTZ_TRIGGERS WHERE TRIGGER_NAME IN
+        <foreach collection="resourceIds" item="resourceId" separator="," open="(" close=")">
+            #{resourceId}
+        </foreach>
+    </select>
 
     <sql id="taskCenterQuery">
         <if test="projectIds != null and projectIds.size() > 0">
