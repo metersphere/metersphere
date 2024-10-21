@@ -233,6 +233,7 @@ public class ApiExecuteService {
             if (isK8SResourcePool) {
                 TestResourceDTO testResourceDTO = new TestResourceDTO();
                 BeanUtils.copyBean(testResourceDTO, testResourcePoolDTO.getTestResourceReturnDTO());
+                taskInfo.setPerTaskSize(testResourceDTO.getPodThreads());
                 taskInfo.setPoolSize(testResourceDTO.getConcurrentNumber());
                 LogUtils.info("开始发送请求【 {}_{} 】到 K8S 资源池执行", taskItem.getReportId(), taskItem.getResourceId());
                 if (isDebugMode) {
@@ -315,6 +316,7 @@ public class ApiExecuteService {
             TestResourceDTO testResourceDTO = new TestResourceDTO();
             BeanUtils.copyBean(testResourceDTO, testResourcePool.getTestResourceReturnDTO());
             taskInfo.setPoolSize(testResourceDTO.getConcurrentNumber());
+            taskInfo.setPerTaskSize(testResourceDTO.getPodThreads());
             try {
                 EngineFactory.batchRunApi(taskRequest, testResourceDTO);
             } catch (Exception e) {
@@ -337,6 +339,7 @@ public class ApiExecuteService {
                 } else {
                     distributeTask = distributeTasks.get(nodeIndex);
                 }
+                taskInfo.setPerTaskSize(Optional.ofNullable(nodesList.get(nodeIndex).getSingleTaskConcurrentNumber()).orElse(3));
                 distributeTask.getTaskInfo().setPoolSize(nodesList.get(nodeIndex).getConcurrentNumber());
                 distributeTask.getTaskItems().add(taskRequest.getTaskItems().get(i));
             }
