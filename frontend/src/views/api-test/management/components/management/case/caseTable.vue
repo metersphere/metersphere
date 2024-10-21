@@ -963,6 +963,8 @@
     }
   });
 
+  const selectedTagType = ref<TagUpdateTypeEnum>(TagUpdateTypeEnum.UPDATE);
+
   function cancelBatchEdit() {
     showBatchEditModal.value = false;
     batchFormRef.value?.resetFields();
@@ -972,8 +974,8 @@
       values: [],
       append: false,
     };
+    selectedTagType.value = TagUpdateTypeEnum.UPDATE;
   }
-  const selectedTagType = ref<TagUpdateTypeEnum>(TagUpdateTypeEnum.UPDATE);
 
   function handleBatchEditCase() {
     batchFormRef.value?.validate(async (errors) => {

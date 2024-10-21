@@ -672,6 +672,8 @@
     },
   ];
 
+  const selectedTagType = ref<TagUpdateTypeEnum>(TagUpdateTypeEnum.UPDATE);
+
   function cancelBatch() {
     showBatchModal.value = false;
     batchFormRef.value?.resetFields();
@@ -681,8 +683,8 @@
       values: [],
       append: false,
     };
+    selectedTagType.value = TagUpdateTypeEnum.UPDATE;
   }
-  const selectedTagType = ref<TagUpdateTypeEnum>(TagUpdateTypeEnum.UPDATE);
 
   function batchUpdate() {
     batchFormRef.value?.validate(async (errors) => {
