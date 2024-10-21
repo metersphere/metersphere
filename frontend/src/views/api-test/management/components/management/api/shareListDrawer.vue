@@ -31,6 +31,11 @@
         <template #isPrivate="{ record }">
           {{ record.isPrivate ? t('apiTestManagement.passwordView') : t('apiTestManagement.publicityView') }}
         </template>
+        <template #createUserName="{ record }">
+          <a-tooltip :content="`${record.createUserName}`" position="tl">
+            <div class="one-line-text">{{ record.createUserName || '-' }}</div>
+          </a-tooltip>
+        </template>
         <template #operation="{ record }">
           <div v-permission="['PROJECT_API_DEFINITION:READ+SHARE']" class="flex items-center">
             <a-tooltip :disabled="!!record.apiShareNum" :content="t('apiTestManagement.apiShareNumberTip')">
@@ -75,6 +80,7 @@
   import type { ShareDetail, shareItem } from '@/models/apiTest/management';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterRemoteMethodsEnum } from '@/enums/tableFilterEnum';
 
   const { openNewPage } = useOpenNewPage();
 
@@ -139,6 +145,22 @@
       showDrag: true,
     },
     {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      slotName: 'createUserName',
+      showInTable: true,
+      width: 200,
+      showDrag: true,
+      filterConfig: {
+        mode: 'remote',
+        loadOptionParams: {
+          projectId: appStore.currentProjectId,
+        },
+        remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
+        placeholderText: t('common.pleaseSelect'),
+      },
+    },
+    {
       title: hasAnyPermission(['PROJECT_API_DEFINITION:READ+SHARE']) ? 'common.operation' : '',
       slotName: 'operation',
       dataIndex: 'operation',
@@ -156,7 +178,7 @@
       scroll: { x: '100%' },
       selectable: false,
       showSetting: true,
-      heightUsed: 310,
+      heightUsed: 272,
       showSelectAll: false,
     },
     (item) => ({
