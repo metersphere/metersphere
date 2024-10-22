@@ -455,7 +455,7 @@ public class ApiScenarioReportService {
         if (CollectionUtils.isNotEmpty(taskList)) {
             if (taskList.getFirst().getIntegrated()) {
                 //场景集合报告
-                return getScenarioReportDetail(id, taskList.getFirst().getId());
+                return getScenarioReportDetail(taskList.getFirst().getId(), id);
             } else {
                 //场景非集合报告
                 return scenarioReportDetail(id);

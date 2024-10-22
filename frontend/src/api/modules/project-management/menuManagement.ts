@@ -63,6 +63,9 @@ export function postUpdateMenu(data: MenuTableListParams, suffix: string) {
     case MenuEnum.uiTest:
       suffixUrl = 'ui';
       break;
+    case MenuEnum.taskCenter:
+      suffixUrl = 'task';
+      break;
     default:
       suffixUrl = 'performance-test';
       break;
@@ -90,6 +93,9 @@ export function getConfigByMenuItem(data: MenuTableListParams) {
       break;
     case MenuEnum.uiTest:
       suffix = 'ui';
+      break;
+    case MenuEnum.taskCenter:
+      suffix = 'task';
       break;
     default:
       suffix = 'performance-test';

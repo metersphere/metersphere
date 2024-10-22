@@ -439,6 +439,8 @@ public class ProjectApplicationService {
         String moduleSetting = extProjectMapper.getModuleSetting(projectId);
         Map<String, Boolean> moduleMap = new HashMap<>();
         List<ModuleDTO> moduleDTOList = new ArrayList<>();
+        // 任务中心设置项默认展示
+        moduleMap.put("taskCenter", true);
         if (StringUtils.isNotEmpty(moduleSetting)) {
             ProjectApplicationExample example = new ProjectApplicationExample();
             JSON.parseArray(moduleSetting).forEach(module -> {

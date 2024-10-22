@@ -19,6 +19,7 @@ export enum MenuEnum {
   caseManagement = 'caseManagement',
   apiTest = 'apiTest',
   uiTest = 'uiTest',
+  taskCenter = 'taskCenter',
 }
 
 export enum ShapeFlags {
