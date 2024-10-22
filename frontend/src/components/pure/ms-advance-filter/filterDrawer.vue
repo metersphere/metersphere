@@ -142,6 +142,7 @@
             show-time
             value-format="timestamp"
             :disabled="isValueDisabled(item)"
+            v-bind="item.dataProps"
           />
           <a-range-picker
             v-else-if="item.type === FilterType.DATE_PICKER && item.operator === OperatorEnum.BETWEEN"
@@ -150,6 +151,7 @@
             value-format="timestamp"
             :separator="t('common.to')"
             :disabled="isValueDisabled(item)"
+            v-bind="item.dataProps"
           />
           <a-input
             v-else
