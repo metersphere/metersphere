@@ -8,6 +8,7 @@ import io.metersphere.plugin.api.dto.ApiPluginSelectOption;
 import io.metersphere.plugin.api.spi.AbstractApiPlugin;
 import io.metersphere.plugin.api.spi.AbstractProtocolPlugin;
 import io.metersphere.project.api.KeyValueParam;
+import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.dto.CommonScriptInfo;
 import io.metersphere.project.dto.customfunction.CustomFunctionDTO;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
@@ -134,7 +135,12 @@ public class ApiTestService {
     }
 
     public String getPoolId(String projectId) {
+        // 查询接口默认资源池
+        ProjectApplication resourcePoolConfig = projectApplicationService.getByType(projectId, ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
         Map<String, Object> configMap = new HashMap<>();
+        if (resourcePoolConfig != null && StringUtils.isNotBlank(resourcePoolConfig.getTypeValue())) {
+            configMap.put(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name(), resourcePoolConfig.getTypeValue());
+        }
         projectApplicationService.putResourcePool(projectId, configMap, "apiTest");
         if (configMap.isEmpty()) {
             return null;
