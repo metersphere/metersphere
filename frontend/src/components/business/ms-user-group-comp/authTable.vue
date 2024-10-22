@@ -62,7 +62,7 @@
       </a-table>
     </div>
     <div
-      v-if="props.showBottom && props.current.id !== 'admin'"
+      v-if="props.showBottom && props.current.id !== 'admin' && !systemAdminDisabled"
       v-permission="props.savePermission || []"
       class="footer"
     >
