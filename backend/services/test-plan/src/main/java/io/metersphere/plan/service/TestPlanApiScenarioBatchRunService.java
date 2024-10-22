@@ -311,7 +311,7 @@ public class TestPlanApiScenarioBatchRunService {
         execTask.setTaskName(Translator.get("api_scenario_batch_task_name"));
         execTask.setOrganizationId(project.getOrganizationId());
         execTask.setTriggerMode(TaskTriggerMode.BATCH.name());
-        execTask.setTaskType(ExecTaskType.TEST_PLAN_API_SCENARIO.name());
+        execTask.setTaskType(ExecTaskType.TEST_PLAN_API_SCENARIO_BATCH.name());
         baseTaskHubService.insertExecTask(execTask);
         return execTask;
     }
