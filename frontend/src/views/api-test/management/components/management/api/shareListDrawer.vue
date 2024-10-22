@@ -93,6 +93,7 @@
 
   const emit = defineEmits<{
     (e: 'editOrCreate', record?: ShareDetail): void;
+    (e: 'loadList'): void;
   }>();
 
   const innerVisible = defineModel<boolean>('visible', {
@@ -224,6 +225,7 @@
           if (record.id) {
             await deleteShare(record.id);
             Message.success(t('caseManagement.featureCase.deleteSuccess'));
+            emit('loadList');
             searchList();
           }
         } catch (error) {

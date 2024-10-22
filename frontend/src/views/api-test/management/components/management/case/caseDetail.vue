@@ -6,6 +6,14 @@
           <caseLevel :case-level="caseDetail.priority as CaseLevel" />
         </template>
         <template v-if="!props.isDrawer" #titleAppend>
+          <a-tooltip :content="t('report.detail.api.copyLink')">
+            <MsIcon
+              type="icon-icon_unlink"
+              class="cursor-pointer text-[var(--color-text-4)] hover:bg-[var(--color-bg-3)]"
+              :size="16"
+              @click="share"
+            />
+          </a-tooltip>
           <a-tooltip :content="t(caseDetail.follow ? 'common.forked' : 'common.notForked')">
             <MsIcon
               v-permission="['PROJECT_API_DEFINITION_CASE:READ+UPDATE']"
@@ -19,14 +27,6 @@
               class="cursor-pointer"
               :size="16"
               @click="follow"
-            />
-          </a-tooltip>
-          <a-tooltip :content="t('report.detail.api.copyLink')">
-            <MsIcon
-              type="icon-icon_share1"
-              class="cursor-pointer text-[var(--color-text-4)] hover:bg-[var(--color-bg-3)]"
-              :size="16"
-              @click="share"
             />
           </a-tooltip>
         </template>
