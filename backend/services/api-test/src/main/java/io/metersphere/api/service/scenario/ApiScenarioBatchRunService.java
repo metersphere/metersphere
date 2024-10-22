@@ -246,7 +246,7 @@ public class ApiScenarioBatchRunService {
             execTask.setTaskName(Translator.get("api_scenario_batch_task_name"));
         }
         execTask.setOrganizationId(project.getOrganizationId());
-        execTask.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        execTask.setTriggerMode(TaskTriggerMode.BATCH.name());
         execTask.setTaskType(ExecTaskType.API_SCENARIO_BATCH.name());
         baseTaskHubService.insertExecTask(execTask);
         return execTask;
