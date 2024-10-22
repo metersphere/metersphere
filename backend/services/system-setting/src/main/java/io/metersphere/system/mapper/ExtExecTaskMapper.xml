@@ -125,6 +125,7 @@
                exec_task.integrated,
                exec_task.create_time as createTime,
                exec_task_item.result as result,
+               exec_task_item.status as status,
                exec_task_item.resource_pool_id as resourcePoolId,
                exec_task_item.resource_pool_node as resourcePoolNode,
                 exec_task_item.thread_id as threadId,

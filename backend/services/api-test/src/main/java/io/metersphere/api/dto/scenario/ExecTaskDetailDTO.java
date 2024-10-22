@@ -23,6 +23,9 @@ public class ExecTaskDetailDTO extends ApiScenarioReportDTO{
     @Schema(description = "结果")
     private String result;
 
+    @Schema(description = "状态")
+    private String status;
+
     @Schema(description = "节点")
     private String resourcePoolNode;
 

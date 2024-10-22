@@ -33,6 +33,9 @@ public class ExecTaskItemDetailDTO implements Serializable {
     @Schema(description = "结果")
     private String result;
 
+    @Schema(description = "状态")
+    private String status;
+
     @Schema(description = "资源池ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String resourcePoolId;
 
