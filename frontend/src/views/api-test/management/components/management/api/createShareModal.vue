@@ -58,8 +58,8 @@
           />
         </div>
       </a-form-item>
-      <a-form-item field="effectiveTime" :label="t('apiTestManagement.effectiveTime')" asterisk-position="end">
-        <MsTimeSelectorVue v-model="invalidTimeValue" allow-empty @change="handleTimeChange" />
+      <a-form-item field="invalidTime" :label="t('apiTestManagement.invalidTime')" asterisk-position="end">
+        <a-date-picker v-model:model-value="form.invalidTime" show-time value-format="timestamp" class="w-[400px]" />
       </a-form-item>
       <div class="mb-[16px] flex items-center">
         <a-switch v-model:model-value="form.isPrivate" class="mr-[8px]" size="small" @change="changePrivate" />
@@ -107,10 +107,10 @@
   import { ref } from 'vue';
   import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
+  import dayjs from 'dayjs';
 
   import { CONTAINS, EQUAL } from '@/components/pure/ms-advance-filter/index';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
-  import MsTimeSelectorVue from '@/components/pure/ms-time-selector/MsTimeSelector.vue';
   import MsTreeSelect from '@/components/pure/ms-tree-select/index.vue';
 
   import { addShare, getEnvModules, updateShare } from '@/api/modules/api-test/management';
@@ -148,8 +148,7 @@
     apiRange: 'ALL',
     rangeMatchSymbol: OperatorEnum.CONTAINS,
     rangeMatchVal: '',
-    invalidTime: '',
-    invalidUnit: '',
+    invalidTime: 0,
     isPrivate: false,
     password: '',
     allowExport: false,
@@ -158,7 +157,6 @@
 
   const tags = ref<string[]>([]);
   const moduleIds = ref<string[]>([]);
-  const invalidTimeValue = ref('');
 
   const form = ref<ShareDetail>({ ...initForm });
 
@@ -185,10 +183,6 @@
     return form.value.apiRange === 'PATH' ? [CONTAINS, EQUAL] : [CONTAINS];
   });
 
-  function handleTimeChange(value: string) {
-    invalidTimeValue.value = value;
-  }
-
   const okText = computed(() => {
     return props?.record?.id ? t('common.update') : t('common.newCreate');
   });
@@ -214,46 +208,6 @@
     emit('close');
   }
 
-  const timeValueUnit = computed(() => {
-    let time: string | undefined;
-    let unit: string | undefined;
-
-    if (invalidTimeValue.value) {
-      // 匹配时间部分和单位部分，时间部分为数字，单位部分为H, D, M, Y
-      const match = invalidTimeValue.value.match(/^(\d+)([HDMY])$/);
-
-      if (match) {
-        const [_, timeValue, symbol] = match;
-
-        time = timeValue; // 时间部分
-        const unitSymbol = symbol; // 单位部分 (H, D, M, Y)
-
-        // 根据符号转换为全称
-        switch (unitSymbol) {
-          case 'H':
-            unit = 'HOUR';
-            break;
-          case 'D':
-            unit = 'DAY';
-            break;
-          case 'M':
-            unit = 'MONTH';
-            break;
-          case 'Y':
-            unit = 'YEAR';
-            break;
-          default:
-            unit = undefined; // 如果有其他单位，默认不处理
-        }
-      }
-    }
-
-    return {
-      time,
-      unit,
-    };
-  });
-
   const confirmLoading = ref<boolean>(false);
   const originPassword = ref<string>('');
   function handleConfirm() {
@@ -263,8 +217,7 @@
         try {
           const params: ShareDetail = {
             ...form.value,
-            invalidTime: timeValueUnit.value.time,
-            invalidUnit: timeValueUnit.value.unit,
+            invalidTime: dayjs(form.value.invalidTime).valueOf(),
             projectId: appStore.currentProjectId,
           };
           if (form.value.apiRange === 'TAG') {
@@ -311,35 +264,19 @@
     }
   }
 
-  function getOriginalUnit() {
-    switch (props.record?.invalidUnit) {
-      case 'HOUR':
-        return 'H';
-      case 'DAY':
-        return 'D';
-      case 'MONTH':
-        return 'M';
-      case 'YEAR':
-        return 'Y';
-      default:
-        return '';
-    }
-  }
-
   function initDetail() {
     if (props.record?.id) {
       originPassword.value = form.value.password;
       form.value = {
         ...props.record,
       };
-      const { rangeMatchVal, invalidTime } = form.value;
+      const { rangeMatchVal } = form.value;
       if (form.value.apiRange === 'TAG') {
         tags.value = rangeMatchVal.split(',');
       }
       if (form.value.apiRange === 'MODULE') {
         moduleIds.value = rangeMatchVal.split(',');
       }
-      invalidTimeValue.value = `${invalidTime}${getOriginalUnit()}`;
     }
   }
 

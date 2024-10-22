@@ -453,8 +453,7 @@ export interface ShareDetail {
   password: string; // 访问密码
   allowExport: boolean; // 允许导出
   projectId: string;
-  invalidTime?: string; // 失效时间值
-  invalidUnit?: string; // 失效时间单位;小时(HOUR)、天(DAY)、月(MONTH)、年(YEAR)
+  invalidTime?: number; // 失效时间值
 }
 // 分享列表
 export interface shareItem extends ShareDetail {

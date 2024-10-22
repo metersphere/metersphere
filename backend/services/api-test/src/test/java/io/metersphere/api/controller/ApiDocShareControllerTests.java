@@ -69,7 +69,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 		request.setPassword(StringUtils.EMPTY);
 		request.setApiRange("MODULE");
 		request.setRangeMatchVal("module-1");
-		request.setInvalidTime(1);
+		request.setInvalidTime(System.currentTimeMillis());
 		request.setInvalidUnit("HOUR");
 		this.requestPostWithOk(UPDATE, request);
 		this.requestPostWithOk(CHECK, checkRequest);
@@ -99,7 +99,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 		request.setAllowExport(false);
 		this.requestPost(ADD, request);
 		request.setName("share-3");
-		request.setInvalidTime(1);
+		request.setInvalidTime(System.currentTimeMillis());
 		request.setInvalidUnit("HOUR");
 		request.setApiRange("MODULE");
 		request.setRangeMatchVal("module-1");

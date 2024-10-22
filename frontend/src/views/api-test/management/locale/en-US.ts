@@ -179,6 +179,7 @@ export default {
   'apiTestManagement.newCreatedList': 'New list',
   'apiTestManagement.interfaceRange': 'Interface range',
   'apiTestManagement.effectiveTime': 'Effective time',
+  'apiTestManagement.invalidTime': 'Deadline',
   'apiTestManagement.passwordAccess': 'Password access',
   'apiTestManagement.sharePasswordPlaceholder': 'Please enter the share password',
   'apiTestManagement.apiShareNum': 'Api number',
