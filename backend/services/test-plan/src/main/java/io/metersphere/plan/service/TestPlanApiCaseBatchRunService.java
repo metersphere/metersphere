@@ -310,7 +310,7 @@ public class TestPlanApiCaseBatchRunService {
         execTask.setCaseCount(Long.valueOf(caseSize));
         execTask.setTaskName(Translator.get("api_batch_task_name"));
         execTask.setOrganizationId(project.getOrganizationId());
-        execTask.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        execTask.setTriggerMode(TaskTriggerMode.BATCH.name());
         execTask.setTaskType(ExecTaskType.TEST_PLAN_API_CASE.name());
         baseTaskHubService.insertExecTask(execTask);
         return execTask;
