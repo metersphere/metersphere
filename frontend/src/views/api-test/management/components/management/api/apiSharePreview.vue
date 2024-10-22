@@ -8,7 +8,7 @@
     />
   </div>
   <div class="doc-toggle-footer">
-    <div v-if="props?.previousNode" class="doc-toggle" @click="toggleApiDetail('prev')">
+    <div v-if="props?.previousNode" class="doc-toggle cursor-pointer" @click="toggleApiDetail('prev')">
       <MsIcon
         type="icon-icon_pull-left_outlined"
         :class="` text-[var(--color-text-4)] ${props.previousNode ? 'hover:text-[rgb(var(--primary-5))]' : ''}`"
@@ -29,8 +29,8 @@
         </div>
       </a-tooltip>
     </div>
-    <div v-else></div>
-    <div v-if="props?.nextNode" class="doc-toggle justify-end" @click="toggleApiDetail('next')">
+    <div v-else :class="`doc-toggle ${props?.previousNode ? 'cursor-pointer' : ''}`"></div>
+    <div v-if="props?.nextNode" class="doc-toggle cursor-pointer justify-end" @click="toggleApiDetail('next')">
       <apiMethodName
         :method="
           props?.nextNode?.attachInfo.protocol === 'HTTP'
@@ -241,7 +241,8 @@
 
     @apply flex w-full items-center justify-between bg-white;
     .doc-toggle {
-      @apply flex flex-1 cursor-pointer items-center gap-2;
+      max-width: 50%;
+      @apply flex flex-1 items-center gap-2;
       .doc-toggle-name {
         max-width: 300px;
       }
