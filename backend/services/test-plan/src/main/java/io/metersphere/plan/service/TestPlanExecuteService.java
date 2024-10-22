@@ -1,6 +1,8 @@
 package io.metersphere.plan.service;
 
 import com.esotericsoftware.minlog.Log;
+import io.metersphere.api.domain.ApiReportRelateTask;
+import io.metersphere.api.mapper.ApiReportRelateTaskMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.plan.domain.*;
@@ -70,6 +72,8 @@ public class TestPlanExecuteService {
     private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
     @Resource
     private ApiBatchRunBaseService apiBatchRunBaseService;
+    @Resource
+    private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
 
     // 停止测试计划的执行
     public void stopTestPlanRunning(String testPlanReportId) {
@@ -243,7 +247,7 @@ public class TestPlanExecuteService {
                         extTestPlanApiScenarioMapper.countByPlanIds(childPlanIds);
             }
             // 初始化任务
-            ExecTask execTask = initExecTask(executionQueue.getTaskId(), caseTotal, testPlan.getName(), project, executionQueue.getCreateUser(), executionQueue.getExecutionSource());
+            ExecTask execTask = initExecTask(executionQueue.getTaskId(), caseTotal, testPlan.getName(), project, executionQueue.getCreateUser(), executionQueue.getExecutionSource(), executionQueue.getPrepareReportId());
 
             // 预生成计划组报告
             Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), execTask.getId(), genReportRequest, executionQueue.getCreateUser());
@@ -299,7 +303,7 @@ public class TestPlanExecuteService {
             Integer caseTotal = extTestPlanApiCaseMapper.countByPlanIds(List.of(testPlan.getId())) +
                     extTestPlanApiScenarioMapper.countByPlanIds(List.of(testPlan.getId()));
             // 初始化任务
-            ExecTask execTask = initExecTask(executionQueue.getTaskId(), caseTotal, testPlan.getName(), project, executionQueue.getCreateUser(), executionQueue.getExecutionSource());
+            ExecTask execTask = initExecTask(executionQueue.getTaskId(), caseTotal, testPlan.getName(), project, executionQueue.getCreateUser(), executionQueue.getExecutionSource(), executionQueue.getPrepareReportId());
 
             Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), execTask.getId(), genReportRequest, executionQueue.getCreateUser());
             executionQueue.setPrepareReportId(reportMap.get(executionQueue.getSourceID()));
@@ -309,7 +313,7 @@ public class TestPlanExecuteService {
         }
     }
 
-    private ExecTask initExecTask(String taskId, int caseSize, String name, Project project, String userId, String triggerMode) {
+    private ExecTask initExecTask(String taskId, int caseSize, String name, Project project, String userId, String triggerMode, String reportId) {
         ExecTask execTask = apiCommonService.newExecTask(project.getId(), userId);
         execTask.setId(taskId);
         execTask.setCaseCount(Long.valueOf(caseSize));
@@ -318,6 +322,12 @@ public class TestPlanExecuteService {
         execTask.setTriggerMode(triggerMode);
         execTask.setTaskType(ExecTaskType.TEST_PLAN.name());
         baseTaskHubService.insertExecTask(execTask);
+
+        // 创建报告和任务的关联关系
+        ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
+        apiReportRelateTask.setReportId(reportId);
+        apiReportRelateTask.setTaskResourceId(taskId);
+        apiReportRelateTaskMapper.insertSelective(apiReportRelateTask);
         return execTask;
     }
 
