@@ -31,6 +31,7 @@ export interface NumberProps {
   mode: 'embed' | 'button';
   precision: number;
   step: number;
+  suffix: string;
 }
 
 export interface FilterFormItem {

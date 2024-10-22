@@ -88,7 +88,11 @@
             :max-length="255"
             :placeholder="t('common.pleaseInput')"
             v-bind="item.numberProps"
-          />
+          >
+            <template v-if="item.numberProps?.suffix" #suffix>
+              {{ item.numberProps.suffix }}
+            </template>
+          </a-input-number>
           <MsTagsInput
             v-else-if="item.type === FilterType.TAGS_INPUT&& ![OperatorEnum.COUNT_LT, OperatorEnum.COUNT_GT].includes(item.operator as OperatorEnum)"
             v-model:model-value="item.value"
