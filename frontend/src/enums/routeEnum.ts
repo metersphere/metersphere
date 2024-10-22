@@ -108,6 +108,7 @@ export enum SettingRouteEnum {
 export enum ShareEnum {
   SHARE = 'share',
   SHARE_REPORT_SCENARIO = 'shareReportScenario',
+  SHARE_DEFINITION_API = 'shareDefinitionApi',
   SHARE_REPORT_CASE = 'shareReportCase',
   SHARE_REPORT_TEST_PLAN = 'shareReportTestPlan',
 }

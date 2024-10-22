@@ -1,5 +1,5 @@
 <template>
-  <div class="h-[calc(100%-32px)]">
+  <div class="h-[calc(100%-64px)]">
     <ApiPreview
       :detail="activeApiDetail"
       :protocols="props.selectedProtocols"
@@ -238,7 +238,6 @@
     bottom: 0;
     z-index: 99;
     padding: 16px;
-    height: 22px;
 
     @apply flex w-full items-center justify-between bg-white;
     .doc-toggle {

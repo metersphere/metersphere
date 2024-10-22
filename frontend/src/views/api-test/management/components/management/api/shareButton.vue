@@ -67,11 +67,11 @@
   import { useAppStore } from '@/store';
 
   import type { shareItem } from '@/models/apiTest/management';
+  import { RouteEnum } from '@/enums/routeEnum';
 
   const appStore = useAppStore();
 
   const { copy, isSupported } = useClipboard({ legacy: true });
-
   const { t } = useI18n();
 
   const emit = defineEmits<{
@@ -133,9 +133,9 @@
     }
     if (isSupported) {
       // 判断路由中是不是有dId参数，有的话只是修改当前的值就可以了
-      const url = window.location.href;
-      const dIdParam = `&docShareId=${item.id}`;
-      copy(`${url}${dIdParam}`);
+      const shareLinkUrl = `${origin}/#/${RouteEnum.SHARE}/${RouteEnum.SHARE_DEFINITION_API}`;
+      const dIdParam = `?orgId=${appStore.currentOrgId}&pId=${appStore.currentProjectId}&docShareId=${item.id}`;
+      copy(`${shareLinkUrl}${dIdParam}`);
       Message.success(t('apiTestManagement.shareUrlCopied'));
     } else {
       Message.error(t('common.copyNotSupport'));

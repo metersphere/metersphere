@@ -46,6 +46,17 @@ const ShareRoute: AppRouteRecordRaw = {
         isTopMenu: false,
       },
     },
+    // 接口文档分享
+    {
+      path: 'shareDefinitionApi',
+      name: ShareEnum.SHARE_DEFINITION_API,
+      component: () => import('@/views/api-test/management/components/management/api/shareApiDocIndex.vue'),
+      meta: {
+        locale: '',
+        roles: ['*'],
+        isTopMenu: false,
+      },
+    },
   ],
 };
 

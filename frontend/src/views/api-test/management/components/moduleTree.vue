@@ -268,14 +268,14 @@
   const virtualListProps = computed(() => {
     if (props.readOnly || props.isModal) {
       return {
-        height: props.docShareId ? 'calc(60vh - 150px)' : 'calc(60vh - 190px)',
+        height: 'calc(60vh - 190px)',
         threshold: 200,
         fixedSize: true,
         buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
       };
     }
     return {
-      height: props.docShareId ? 'calc(100vh - 233px)' : 'calc(100vh - 273px)',
+      height: props.docShareId ? 'calc(100vh - 150px)' : 'calc(100vh - 273px)',
       threshold: 200,
       fixedSize: true,
       buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
