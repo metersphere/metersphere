@@ -558,7 +558,7 @@ public class TestPlanReportService {
 
 					if (StringUtils.isNotBlank(genParam.getTaskId())) {
 						reportApiCases.sort(Comparator.comparing(TestPlanReportApiCase::getPos).reversed());
-						initApiCaseExecTaskItem(genParam.getTaskId(), reportApiCases, report.getCreateUser(), project);
+						initApiCaseExecTaskItem(genParam.getTaskId(), genParam.getTaskId(), reportApiCases, report.getCreateUser(), project);
 					}
 				});
 			}
@@ -601,7 +601,7 @@ public class TestPlanReportService {
 
 					if (StringUtils.isNotBlank(genParam.getTaskId())) {
 						reportApiScenarios.sort(Comparator.comparing(TestPlanReportApiScenario::getPos).reversed());
-						initScenarioExecTaskItem(genParam.getTaskId(), reportApiScenarios, report.getCreateUser(), project);
+						initScenarioExecTaskItem(genParam.getTaskId(), genParam.getTestPlanId(), reportApiScenarios, report.getCreateUser(), project);
 					}
 				});
 			}
@@ -651,7 +651,7 @@ public class TestPlanReportService {
 				.functionCaseCount(funcCaseCount.get()).apiCaseCount(apiCaseCount.get()).apiScenarioCount(apiScenarioCount.get()).bugCount(bugCount.get()).build();
 	}
 
-	private void initApiCaseExecTaskItem(String taskId, List<TestPlanReportApiCase> apiTestCases, String userId, Project project) {
+	private void initApiCaseExecTaskItem(String taskId, String testPlanId, List<TestPlanReportApiCase> apiTestCases, String userId, Project project) {
 		List<ExecTaskItem> execTaskItems = new ArrayList<>(apiTestCases.size());
 		for (TestPlanReportApiCase apiTestCase : apiTestCases) {
 			ExecTaskItem execTaskItem = apiCommonService.newExecTaskItem(taskId, project.getId(), userId);
@@ -659,12 +659,13 @@ public class TestPlanReportService {
 			execTaskItem.setResourceType(ApiExecuteResourceType.PLAN_RUN_API_CASE.name());
 			execTaskItem.setResourceId(apiTestCase.getId());
 			execTaskItem.setResourceName(apiTestCase.getApiCaseName());
+			execTaskItem.setTaskOrigin(testPlanId);
 			execTaskItems.add(execTaskItem);
 		}
 		baseTaskHubService.insertExecTaskDetail(execTaskItems);
 	}
 
-	private void initScenarioExecTaskItem(String taskId, List<TestPlanReportApiScenario> testPlanReportApiScenarios, String userId, Project project) {
+	private void initScenarioExecTaskItem(String taskId, String testPlanId, List<TestPlanReportApiScenario> testPlanReportApiScenarios, String userId, Project project) {
 		List<ExecTaskItem> execTaskItems = new ArrayList<>(testPlanReportApiScenarios.size());
 		for (TestPlanReportApiScenario testPlanReportApiScenario : testPlanReportApiScenarios) {
 			ExecTaskItem execTaskItem = apiCommonService.newExecTaskItem(taskId, project.getId(), userId);
@@ -672,6 +673,7 @@ public class TestPlanReportService {
 			execTaskItem.setResourceType(ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name());
 			execTaskItem.setResourceId(testPlanReportApiScenario.getId());
 			execTaskItem.setResourceName(testPlanReportApiScenario.getApiScenarioName());
+			execTaskItem.setTaskOrigin(testPlanId);
 			execTaskItems.add(execTaskItem);
 		}
 		baseTaskHubService.insertExecTaskDetail(execTaskItems);
