@@ -759,6 +759,7 @@
       type: FilterType.NUMBER,
       numberProps: {
         min: 0,
+        suffix: '%',
       },
     },
     {
