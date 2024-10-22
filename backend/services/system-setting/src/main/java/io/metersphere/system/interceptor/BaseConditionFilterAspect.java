@@ -66,7 +66,8 @@ public class BaseConditionFilterAspect {
         }
         List<CombineCondition> validConditions = getValidConditions(combineSearch.getConditions());
         validConditions.forEach(item -> {
-            if (item.getValue() != null && item.getValue() instanceof String strValue) {
+            if (item.getValue() != null && item.getValue() instanceof String strValue
+                    && !StringUtils.equals(item.getOperator(), CombineCondition.CombineConditionOperator.EQUALS.name())) {
                 // 转义 mysql 的特殊字符
                 item.setValue(BaseCondition.transferKeyword(strValue));
             }
