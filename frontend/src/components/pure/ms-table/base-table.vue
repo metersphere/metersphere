@@ -919,10 +919,11 @@
     const availableWidth = cell.clientWidth; // 获取当前列的可用宽度
     let totalWidth = 0;
     let hiddenTags = 0;
+    const marginRight = 3;
     const visibleTags: HTMLElement[] = [];
     labelsGroupList.forEach((label: HTMLElement) => {
       label.style.display = 'inline-block'; // 重置标签的显示状态
-      totalWidth += label.offsetWidth; // 计算当前标签的总宽度
+      totalWidth += label.offsetWidth + marginRight; // 计算当前标签的总宽度
       // 暂时不隐藏标签，先收集显示的标签
       visibleTags.push(label);
 
