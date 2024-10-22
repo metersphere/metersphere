@@ -4,7 +4,7 @@
       <template #name="{ record }">
         <a-button type="text" class="max-w-full justify-start px-0" @click="showReportDetail(record)">
           <div class="one-line-text">
-            {{ record.num }}
+            {{ record.name }}
           </div>
         </a-button>
       </template>
@@ -25,7 +25,8 @@
         <ExecutionStatus :module-type="props.moduleType" :status="filterContent.value" />
       </template>
       <template #execStatus="{ record }">
-        <ExecStatus :status="record.execStatus" />
+        <ExecStatus v-if="record.execStatus" :status="record.execStatus" />
+        <span v-else>-</span>
       </template>
       <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT]="{ filterContent }">
         <ExecStatus :status="filterContent.value" />
@@ -38,12 +39,37 @@
       <template #triggerMode="{ record }">
         <span>{{ t(TriggerModeLabel[record.triggerMode as keyof typeof TriggerModeLabel]) }}</span>
       </template>
-      <template #operationTime="{ record }">
-        <span>{{ dayjs(record.operationTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
+      <template #createTime="{ record }">
+        <span>{{ dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
       </template>
     </ms-base-table>
   </MsDrawer>
-  <ReportDrawer v-model:visible="reportVisible" :report-id="independentReportId" />
+  <CaseReportDrawer
+    v-model:visible="showCaseDetailDrawer"
+    :report-id="activeDetailId"
+    :active-report-index="activeReportIndex"
+    :table-data="propsRes.data"
+    :page-change="propsEvent.pageChange"
+    :pagination="{
+      current: 1,
+      pageSize: 10,
+      total: 1,
+    }"
+    :share-time="shareTime"
+  />
+  <ReportDetailDrawer
+    v-model:visible="showDetailDrawer"
+    :report-id="activeDetailId"
+    :active-report-index="activeReportIndex"
+    :table-data="propsRes.data"
+    :page-change="propsEvent.pageChange"
+    :pagination="{
+      current: 1,
+      pageSize: 10,
+      total: 1,
+    }"
+    :share-time="shareTime"
+  />
 </template>
 
 <script setup lang="ts">
@@ -54,31 +80,35 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import CaseReportDrawer from '@/views/api-test/report/component/caseReportDrawer.vue';
+  import ReportDetailDrawer from '@/views/api-test/report/component/reportDetailDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import ExecStatus from '@/views/test-plan/report/component/execStatus.vue';
-  import ReportDrawer from '@/views/test-plan/testPlan/detail/reportDrawer.vue';
 
+  import { getShareTime } from '@/api/modules/api-test/report';
   import { organizationBatchTaskReportList } from '@/api/modules/taskCenter/organization';
   import { projectBatchTaskReportList } from '@/api/modules/taskCenter/project';
   import { systemBatchTaskReportList } from '@/api/modules/taskCenter/system';
   import { useI18n } from '@/hooks/useI18n';
-  import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
 
-  import { TaskCenterBatchTaskReportItem } from '@/models/taskCenter';
+  import { TaskCenterTaskItem } from '@/models/taskCenter';
   import { ReportExecStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
-  import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { ExecuteTaskType } from '@/enums/taskCenter';
+
+  import { executeMethodMap } from './config';
 
   const props = defineProps<{
     range: 'system' | 'project' | 'org';
     type: 'CASE' | 'SCENARIO';
     moduleType: keyof typeof ReportEnum;
+    taskId: string;
+    batchType: ExecuteTaskType;
   }>();
 
   const { t } = useI18n();
-  const tableStore = useTableStore();
   const appStore = useAppStore();
 
   const visible = defineModel<boolean>('visible', { required: true });
@@ -125,13 +155,13 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      ellipsis: true,
+      fixed: 'left',
     },
     {
       title: 'report.type',
       slotName: 'integrated',
       dataIndex: 'integrated',
-      width: 150,
+      width: 120,
     },
     {
       title: 'report.result',
@@ -146,7 +176,7 @@
         sorter: true,
       },
       showInTable: true,
-      width: 200,
+      width: 120,
     },
     {
       title: 'report.status',
@@ -161,27 +191,34 @@
         sorter: true,
       },
       showInTable: true,
-      width: 200,
+      width: 120,
     },
     {
       title: 'report.trigger.mode',
       dataIndex: 'triggerMode',
       slotName: 'triggerMode',
       showInTable: true,
-      width: 150,
+      filterConfig: {
+        options: Object.keys(executeMethodMap).map((key) => ({
+          label: t(executeMethodMap[key]),
+          value: key,
+        })),
+        filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_METHOD,
+      },
+      width: 100,
     },
     {
       title: 'report.operator',
       slotName: 'createUserName',
       dataIndex: 'createUserName',
       showInTable: true,
-      width: 300,
+      width: 150,
       showTooltip: true,
     },
     {
       title: 'report.operating',
-      dataIndex: 'startTime',
-      slotName: 'startTime',
+      dataIndex: 'createTime',
+      slotName: 'createTime',
       width: 180,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -189,8 +226,6 @@
       },
     },
   ];
-
-  await tableStore.initColumn(TableKeyEnum.API_TEST_REPORT, columns, 'drawer');
 
   const currentList = {
     system: systemBatchTaskReportList,
@@ -200,7 +235,7 @@
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
     currentList,
     {
-      tableKey: TableKeyEnum.API_TEST_REPORT,
+      columns,
       scroll: {
         x: '100%',
       },
@@ -224,6 +259,8 @@
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleType: props.moduleType,
+      taskId: props.taskId,
+      batchType: props.batchType,
       filter: {
         integrated: typeFilter.value,
         ...filterParams,
@@ -236,13 +273,55 @@
     initData(dataIndex, value);
   }
 
-  const reportVisible = ref(false);
-  const independentReportId = ref<string>('');
+  /**
+   * 报告详情 showReportDetail
+   */
+  const activeDetailId = ref<string>('');
+  const activeReportIndex = ref<number>(0);
+  const showDetailDrawer = ref<boolean>(false);
+  const showCaseDetailDrawer = ref<boolean>(false);
 
-  function showReportDetail(record: TaskCenterBatchTaskReportItem) {
-    independentReportId.value = record.id;
-    reportVisible.value = true;
+  function showReportDetail(record: TaskCenterTaskItem) {
+    activeDetailId.value = record.id;
+    if ([ExecuteTaskType.API_SCENARIO_BATCH, ExecuteTaskType.TEST_PLAN_API_SCENARIO_BATCH].includes(props.batchType)) {
+      showDetailDrawer.value = true;
+    } else {
+      showCaseDetailDrawer.value = true;
+    }
   }
+
+  const shareTime = ref<string>('');
+  async function getTime() {
+    try {
+      const res = await getShareTime(appStore.currentProjectId);
+      const match = res.match(/^(\d+)([MYHD])$/);
+      if (match) {
+        const value = parseInt(match[1], 10);
+        const type = match[2];
+        const translations: Record<string, string> = {
+          M: t('msTimeSelector.month'),
+          Y: t('msTimeSelector.year'),
+          H: t('msTimeSelector.hour'),
+          D: t('msTimeSelector.day'),
+        };
+        shareTime.value = value + (translations[type] || translations.D);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  watch(
+    () => visible.value,
+    (val) => {
+      if (val) {
+        initData();
+        getTime();
+      }
+    },
+    { immediate: true }
+  );
 </script>
 
 <style lang="less" scoped></style>

@@ -47,3 +47,12 @@ export const getShareReportInfoUrl = '/api/report/share/get';
 export const getShareTimeUrl = '/api/report/share/get-share-time';
 // 下载文件地址
 export const DownloadFileUrl = '/api/test/download';
+
+// 用例任务报告
+export const caseTaskReportUrl = '/api/report/case/task-report';
+
+// 场景任务报告
+export const scenarioTaskReportUrl = '/api/report/scenario/task-step';
+
+// 场景任务报告-步骤
+export const scenarioTaskReportStepUrl = '/api/report/scenario/task-report';

@@ -151,6 +151,8 @@
   const props = defineProps<{
     mode: 'tiled' | 'tab'; // 平铺 | tab形式
     hideResponseTime?: boolean; // 是否隐藏响应时间栏
+    static?: boolean; // 是否静态展示
+    staticInfo?: ReportStepDetailItem; // 静态展示数据
     stepItem?: ScenarioItemType; // 步骤详情
     console?: string;
     isPriorityLocalExec?: boolean;
@@ -386,7 +388,10 @@
   const originStepId = ref<string | undefined>('');
 
   watchEffect(() => {
-    if (props.stepItem?.stepId && props.mode === 'tiled') {
+    if (props.static && props.staticInfo) {
+      activeStepDetail.value = props.staticInfo;
+      activeStepDetailCopy.value = cloneDeep(props.staticInfo);
+    } else if (props.stepItem?.stepId && props.mode === 'tiled') {
       const stepIds = props.stepItem?.stepChildren || [];
       getStepDetail(isShowLoopControl.value ? stepIds[controlCurrent.value - 1].stepId : props.stepItem.stepId);
     }
@@ -394,7 +399,10 @@
 
   onMounted(() => {
     originStepId.value = props.stepItem?.stepId;
-    if (props.stepItem?.stepId && !props.stepItem.fold) {
+    if (props.static && props.staticInfo) {
+      activeStepDetail.value = props.staticInfo;
+      activeStepDetailCopy.value = cloneDeep(props.staticInfo);
+    } else if (props.stepItem?.stepId && !props.stepItem.fold) {
       const stepIds = props.stepItem?.stepChildren || [];
       getStepDetail(isShowLoopControl.value ? stepIds[controlCurrent.value - 1].stepId : props.stepItem.stepId);
     }
