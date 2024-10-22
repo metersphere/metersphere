@@ -26,6 +26,9 @@ public class ApiTaskReportDTO {
     @Schema(description = "结果")
     private String result;
 
+    @Schema(description = "状态")
+    private String status;
+
     @Schema(description = "资源池ID")
     private String resourcePoolId;
     @Schema(description = "资源池名称")
