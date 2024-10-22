@@ -121,6 +121,6 @@
 
 
     <select id="selectTypeByItemId" resultType="io.metersphere.system.domain.ExecTask">
-        select integrated from exec_task inner join exec_task_item on exec_task.id = exec_task_item.task_id where exec_task_item.id = #{itemId}
+        select exec_task.* from exec_task inner join exec_task_item on exec_task.id = exec_task_item.task_id where exec_task_item.id = #{itemId}
     </select>
 </mapper>

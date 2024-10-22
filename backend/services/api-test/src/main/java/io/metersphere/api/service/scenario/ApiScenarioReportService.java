@@ -3,7 +3,6 @@ package io.metersphere.api.service.scenario;
 import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
-import io.metersphere.api.dto.definition.ApiReportDetailDTO;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.report.ApiScenarioReportListDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
@@ -20,8 +19,10 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.ExecTask;
+import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.mapper.ExecTaskItemMapper;
 import io.metersphere.system.mapper.ExtExecTaskMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.UserMapper;
@@ -78,6 +79,8 @@ public class ApiScenarioReportService {
     private static final int BATCH_SIZE = 1000;
     @Resource
     private ExtExecTaskMapper extExecTaskMapper;
+    @Resource
+    private ExecTaskItemMapper execTaskItemMapper;
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiScenarioReport(ApiScenarioReport report, ApiReportRelateTask taskRelation) {
@@ -451,14 +454,23 @@ public class ApiScenarioReportService {
 
         if (CollectionUtils.isNotEmpty(taskList)) {
             if (taskList.getFirst().getIntegrated()) {
-                //场景集合报告  TODO
-                return new ApiScenarioReportDTO();
+                //场景集合报告
+                return getScenarioReportDetail(id, taskList.getFirst().getId());
             } else {
                 //场景非集合报告
                 return scenarioReportDetail(id);
             }
         }
         return new ApiScenarioReportDTO();
+    }
+
+    private ApiScenarioReportDTO getScenarioReportDetail(String taskId, String taskItemId) {
+        ExecTaskItem taskItem = execTaskItemMapper.selectByPrimaryKey(taskItemId);
+        ApiScenarioReportDTO apiScenarioReportDTO = scenarioReportDetail(taskId);
+        List<ApiScenarioReportStepDTO> list = apiScenarioReportDTO.getChildren().stream()
+                .filter(step -> StringUtils.equals(step.getStepId(), taskItem.getResourceId())).toList();
+        apiScenarioReportDTO.setChildren(list);
+        return apiScenarioReportDTO;
     }
 
     private ApiScenarioReportDTO scenarioReportDetail(String id) {

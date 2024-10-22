@@ -46,6 +46,7 @@ import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.TaskRunnerClient;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -153,18 +154,15 @@ public class BaseTaskHubService {
         List<String> projectIds = list.stream().map(TaskHubDTO::getProjectId).distinct().toList();
         List<String> organizationIds = list.stream().map(TaskHubDTO::getOrganizationId).distinct().toList();
         List<String> userIds = list.stream().map(TaskHubDTO::getCreateUser).distinct().toList();
-        List<String> taskIds = list.stream().map(TaskHubDTO::getId).distinct().toList();
         Map<String, String> projectMaps = getProjectMaps(projectIds);
         Map<String, String> organizationMaps = getOrganizationMaps(organizationIds);
         Map<String, String> userMaps = getUserMaps(userIds);
-        Map<String, String> taskReportMap = getTaskReportMap(taskIds);
         list.forEach(item -> {
             item.setProjectName(projectMaps.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
             item.setOrganizationName(organizationMaps.getOrDefault(item.getOrganizationId(), StringUtils.EMPTY));
             item.setCreateUserName(userMaps.getOrDefault(item.getCreateUser(), StringUtils.EMPTY));
-            item.setReportId(taskReportMap.getOrDefault(item.getId(), StringUtils.EMPTY));
         });
-
+        setTaskReportId(list);
     }
 
     private Map<String, String> getUserMaps(List<String> userIds) {
@@ -189,16 +187,40 @@ public class BaseTaskHubService {
     }
 
     /**
-     * 获取任务的报告集合
-     *
-     * @param taskIds 任务ID集合
-     * @return 报告集合
+     * 设置任务的报告ID
+     * @param tasks 任务集合
      */
-    private Map<String, String> getTaskReportMap(List<String> taskIds) {
+    private void setTaskReportId(List<TaskHubDTO> tasks) {
+        List<TaskHubDTO> reportTasks = tasks.stream().filter(task -> !StringUtils.equals(task.getTaskType(), ExecTaskType.API_SCENARIO_BATCH.name()) &&
+                !StringUtils.equals(task.getTaskType(), ExecTaskType.API_CASE_BATCH.name())).toList();
+        List<String> integratedTaskIds = reportTasks.stream().filter(task ->
+                StringUtils.equalsAny(task.getTaskType(), ExecTaskType.TEST_PLAN.name(), ExecTaskType.TEST_PLAN_GROUP.name()) || task.getIntegrated()).map(ExecTask::getId).toList();
+        List<String> noIntegratedTasks = reportTasks.stream().map(ExecTask::getId).filter(id -> !integratedTaskIds.contains(id)).toList();
+        List<ExecTaskItem> taskItems = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(noIntegratedTasks)) {
+            ExecTaskItemExample itemExample = new ExecTaskItemExample();
+            itemExample.createCriteria().andTaskIdIn(noIntegratedTasks);
+            taskItems = execTaskItemMapper.selectByExample(itemExample);
+        }
+        Map<String, String> taskItemMap = taskItems.stream().collect(Collectors.toMap(ExecTaskItem::getTaskId, ExecTaskItem::getId));
+        List<String> noIntegratedTaskItemIds = taskItems.stream().map(ExecTaskItem::getId).toList();
+        List<String> resourceIds = ListUtils.union(integratedTaskIds, noIntegratedTaskItemIds);
+        if (CollectionUtils.isEmpty(resourceIds)) {
+            return;
+        }
         ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
-        example.createCriteria().andTaskResourceIdIn(taskIds);
+        example.createCriteria().andTaskResourceIdIn(resourceIds);
         List<ApiReportRelateTask> reportRelateTasks = apiReportRelateTaskMapper.selectByExample(example);
-        return reportRelateTasks.stream().collect(Collectors.toMap(ApiReportRelateTask::getTaskResourceId, ApiReportRelateTask::getReportId));
+        Map<String, String> reportMap = reportRelateTasks.stream().collect(Collectors.toMap(ApiReportRelateTask::getTaskResourceId, ApiReportRelateTask::getReportId));
+        reportTasks.forEach(task -> {
+            if (integratedTaskIds.contains(task.getId())) {
+                task.setReportId(reportMap.get(task.getId()));
+            } else {
+                if (taskItemMap.containsKey(task.getId())) {
+                    task.setReportId(reportMap.get(taskItemMap.get(task.getId())));
+                }
+            }
+        });
     }
 
 
