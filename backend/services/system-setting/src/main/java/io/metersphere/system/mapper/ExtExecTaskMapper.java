@@ -3,6 +3,7 @@ package io.metersphere.system.mapper;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
+import io.metersphere.system.dto.taskhub.ExecTaskItemDetailDTO;
 import io.metersphere.system.dto.taskhub.TaskHubDTO;
 import org.apache.ibatis.annotations.Param;
 
@@ -28,5 +29,5 @@ public interface ExtExecTaskMapper {
      */
     List<String> getTaskIdsByTime(@Param("timeMills") long timeMills, @Param("projectId") String projectId);
 
-    List<ExecTask> selectTypeByItemId(@Param("itemId") String itemId);
+    List<ExecTaskItemDetailDTO> selectTypeByItemId(@Param("itemId") String itemId);
 }

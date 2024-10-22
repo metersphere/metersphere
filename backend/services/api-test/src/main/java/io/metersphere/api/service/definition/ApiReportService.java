@@ -5,6 +5,8 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.report.ApiReportListDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentGroup;
@@ -19,6 +21,7 @@ import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.taskhub.ExecTaskItemDetailDTO;
 import io.metersphere.system.mapper.ExecTaskItemMapper;
 import io.metersphere.system.mapper.ExtExecTaskMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
@@ -77,6 +80,8 @@ public class ApiReportService {
     private ExtExecTaskMapper extExecTaskMapper;
     @Resource
     private ExecTaskItemMapper execTaskItemMapper;
+    @Resource
+    private TestPlanMapper testPlanMapper;
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiReport(ApiReport report) {
@@ -315,7 +320,7 @@ public class ApiReportService {
 
     public void batchExportLog(ApiReportBatchRequest request, String userId, String projectId) {
         List<String> ids = doSelectIds(request);
-        if(CollectionUtils.isNotEmpty(ids)){
+        if (CollectionUtils.isNotEmpty(ids)) {
             ApiReportExample example = new ApiReportExample();
             example.createCriteria().andIdIn(ids);
             List<ApiReport> reports = apiReportMapper.selectByExample(example);
@@ -323,23 +328,37 @@ public class ApiReportService {
         }
     }
 
-    public List<ApiReportDetailDTO> viewCaseTaskItemReport(String id) {
-        List<ExecTask> taskList = extExecTaskMapper.selectTypeByItemId(id);
+    public ApiTaskReportDTO viewCaseTaskItemReport(String id) {
+        List<ExecTaskItemDetailDTO> taskList = extExecTaskMapper.selectTypeByItemId(id);
+        ApiTaskReportDTO apiTaskReportDTO = new ApiTaskReportDTO();
 
         if (CollectionUtils.isNotEmpty(taskList)) {
-            ExecTask task = taskList.getFirst();
+            ExecTaskItemDetailDTO task = taskList.getFirst();
+            //设置 顶部数据
+            BeanUtils.copyBean(apiTaskReportDTO, task);
+            //计划组处理来源
+            if (StringUtils.isNotBlank(apiTaskReportDTO.getTaskOrigin())) {
+                TestPlan testPlan = testPlanMapper.selectByPrimaryKey(apiTaskReportDTO.getTaskOrigin());
+                Optional.ofNullable(testPlan).ifPresent(item -> apiTaskReportDTO.setTaskOriginName(testPlan.getName()));
+            }
+            //资源池名称
+            if (StringUtils.isNotBlank(apiTaskReportDTO.getResourcePoolId())) {
+                TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(apiTaskReportDTO.getResourcePoolId());
+                Optional.ofNullable(testResourcePool).ifPresent(item -> apiTaskReportDTO.setResourcePoolName(testResourcePool.getName()));
+            }
+
             if (task.getIntegrated()) {
                 //集合报告
-                return getIntegratedItemDetail(id, task.getId());
+                apiTaskReportDTO.setApiReportDetailDTOList(getIntegratedItemDetail(id, task.getId(), apiTaskReportDTO));
             } else {
                 //非集合报告
-                return reportDetail(id);
+                apiTaskReportDTO.setApiReportDetailDTOList(reportDetail(id, apiTaskReportDTO));
             }
         }
-        return new ArrayList<>();
+        return apiTaskReportDTO;
     }
 
-    private List<ApiReportDetailDTO> getIntegratedItemDetail(String taskItemId, String taskId) {
+    private List<ApiReportDetailDTO> getIntegratedItemDetail(String taskItemId, String taskId, ApiTaskReportDTO apiTaskReportDTO) {
         ExecTaskItem taskItem = execTaskItemMapper.selectByPrimaryKey(taskItemId);
         ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
         example.createCriteria().andTaskResourceIdEqualTo(taskId);
@@ -348,10 +367,11 @@ public class ApiReportService {
             return new ArrayList<>();
         }
         String reportId = apiReportRelateTasks.getFirst().getReportId();
+        setEnvironment(reportId, apiTaskReportDTO);
         return getDetail(reportId, taskItem.getResourceId());
     }
 
-    private List<ApiReportDetailDTO> reportDetail(String id) {
+    private List<ApiReportDetailDTO> reportDetail(String id, ApiTaskReportDTO apiTaskReportDTO) {
         List<ApiReportDetailDTO> list = new ArrayList<>();
         ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
         example.createCriteria().andTaskResourceIdEqualTo(id);
@@ -361,10 +381,18 @@ public class ApiReportService {
             String reportId = apiReportRelateTasks.getFirst().getReportId();
             //获取步骤id
             String stepId = getStepId(reportId);
+            setEnvironment(reportId, apiTaskReportDTO);
 
             list = getDetail(reportId, stepId);
         }
         return list;
+    }
+
+    private void setEnvironment(String reportId, ApiTaskReportDTO apiTaskReportDTO) {
+        ApiReport apiReport = apiReportMapper.selectByPrimaryKey(reportId);
+        Environment environment = environmentMapper.selectByPrimaryKey(apiReport.getEnvironmentId());
+        apiTaskReportDTO.setEnvironmentId(apiReport.getEnvironmentId());
+        apiTaskReportDTO.setEnvironmentName(environment.getName());
     }
 
     private String getStepId(String reportId) {

@@ -120,7 +120,16 @@
     </select>
 
 
-    <select id="selectTypeByItemId" resultType="io.metersphere.system.domain.ExecTask">
-        select exec_task.* from exec_task inner join exec_task_item on exec_task.id = exec_task_item.task_id where exec_task_item.id = #{itemId}
+    <select id="selectTypeByItemId" resultType="io.metersphere.system.dto.taskhub.ExecTaskItemDetailDTO">
+        select exec_task.id,
+               exec_task.integrated,
+               exec_task.create_time as createTime,
+               exec_task_item.result as result,
+               exec_task_item.resource_pool_id as resourcePoolId,
+               exec_task_item.resource_pool_node as resourcePoolNode,
+                exec_task_item.thread_id as threadId,
+               exec_task_item.start_time as startTime,
+               exec_task_item.end_time as endTime
+               from exec_task inner join exec_task_item on exec_task.id = exec_task_item.task_id where exec_task_item.id = #{itemId}
     </select>
 </mapper>
