@@ -171,28 +171,26 @@ public class BaseTaskHubService {
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(userIds);
         List<User> userList = userMapper.selectByExample(userExample);
-        Map<String, String> userMaps = userList.stream().collect(Collectors.toMap(User::getId, User::getName));
-        return userMaps;
+        return userList.stream().collect(Collectors.toMap(User::getId, User::getName));
     }
 
     private Map<String, String> getOrganizationMaps(List<String> organizationIds) {
         OrganizationExample organizationExample = new OrganizationExample();
         organizationExample.createCriteria().andIdIn(organizationIds);
         List<Organization> organizationList = organizationMapper.selectByExample(organizationExample);
-        Map<String, String> organizationMaps = organizationList.stream().collect(Collectors.toMap(Organization::getId, Organization::getName));
-        return organizationMaps;
+        return organizationList.stream().collect(Collectors.toMap(Organization::getId, Organization::getName));
     }
 
     private Map<String, String> getProjectMaps(List<String> projectIds) {
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andIdIn(projectIds);
         List<Project> projectList = projectMapper.selectByExample(projectExample);
-        Map<String, String> projectMaps = projectList.stream().collect(Collectors.toMap(Project::getId, Project::getName));
-        return projectMaps;
+        return projectList.stream().collect(Collectors.toMap(Project::getId, Project::getName));
     }
 
     /**
      * 获取任务的报告集合
+     *
      * @param taskIds 任务ID集合
      * @return 报告集合
      */
@@ -238,8 +236,8 @@ public class BaseTaskHubService {
             Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userSet));
 
             List<String> resourceIds = list.stream()
-                    .filter(item -> StringUtils.isNotBlank(item.getResourceId()))
                     .map(TaskHubScheduleDTO::getResourceId)
+                    .filter(StringUtils::isNotBlank)
                     .toList();
 
             Map<String, TaskHubScheduleDTO> trigerTimeMap = Map.of();
@@ -378,8 +376,7 @@ public class BaseTaskHubService {
         TestResourcePoolExample poolExample = new TestResourcePoolExample();
         poolExample.createCriteria().andIdIn(resourcePoolIds);
         List<TestResourcePool> poolList = testResourcePoolMapper.selectByExample(poolExample);
-        Map<String, String> poolMaps = poolList.stream().collect(Collectors.toMap(TestResourcePool::getId, TestResourcePool::getName));
-        return poolMaps;
+        return poolList.stream().collect(Collectors.toMap(TestResourcePool::getId, TestResourcePool::getName));
     }
 
     /**
@@ -439,8 +436,7 @@ public class BaseTaskHubService {
         TestResourcePoolBlobExample blobExample = new TestResourcePoolBlobExample();
         blobExample.createCriteria().andIdIn(ids);
         List<TestResourcePoolBlob> testResourcePoolBlobs = testResourcePoolBlobMapper.selectByExampleWithBLOBs(blobExample);
-        Map<String, List<TestResourcePoolBlob>> poolMap = testResourcePoolBlobs.stream().collect(Collectors.groupingBy(TestResourcePoolBlob::getId));
-        return poolMap;
+        return testResourcePoolBlobs.stream().collect(Collectors.groupingBy(TestResourcePoolBlob::getId));
     }
 
     private List<ResourcePoolOptionsDTO> handleOptions(List<TestResourcePool> allResourcePools, Map<String, List<TestResourcePoolBlob>> poolMap) {
@@ -525,7 +521,7 @@ public class BaseTaskHubService {
                 node.setPort(split[1]);
                 status = nodeResourcePoolService.validateNode(node);
             } catch (Exception e) {
-                status = false;
+                LogUtils.error(e);
             }
             boolean finalStatus = status;
             v.forEach(item -> {
@@ -888,6 +884,7 @@ public class BaseTaskHubService {
 
     /**
      * 查询批量执行任务报告列表
+     *
      * @param request 请求参数
      * @return 执行任务报告集合
      */
