@@ -57,7 +57,7 @@ public class MsFormDataBodyConverter extends MsBodyConverter<FormDataBody> {
                     HTTPFileArg fileArg = getHttpFileArg(file);
                     fileArg.setParamName(paramName);
                     String mimetype = formDataKV.getContentType();
-                    if (StringUtils.isBlank(mimetype)) {
+                    if (StringUtils.isNotBlank(mimetype)) {
                         fileArg.setMimeType(mimetype);
                     }
                     list.add(fileArg);
