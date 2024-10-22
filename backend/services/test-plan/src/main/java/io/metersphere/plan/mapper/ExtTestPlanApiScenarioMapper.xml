@@ -426,7 +426,8 @@
 
 
     <select id="countModuleIdByRequest" resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
-        SELECT concat(api_scenario.project_id, '_', api_scenario.module_id) as moduleId,
+        SELECT CASE WHEN api_scenario.module_id = 'root' THEN CONCAT(api_scenario.project_id, '_',
+        api_scenario.module_id) ELSE api_scenario.module_id END AS moduleId,
         count(api_scenario.id) AS dataCount, api_scenario.project_id AS projectId, project.name AS projectName
         FROM test_plan_api_scenario
         INNER JOIN api_scenario on api_scenario.id = test_plan_api_scenario.api_scenario_id
