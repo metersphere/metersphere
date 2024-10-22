@@ -758,4 +758,11 @@
             and ${condition}
         </if>
     </select>
+    <select id="countByProjectAndId" resultType="java.lang.Long">
+        SELECT count(id)
+        FROM api_definition
+        WHERE project_id = #{projectId}
+          AND id = #{id}
+          AND deleted = false
+    </select>
 </mapper>
