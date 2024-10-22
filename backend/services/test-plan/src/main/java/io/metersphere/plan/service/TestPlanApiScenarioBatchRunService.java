@@ -308,7 +308,7 @@ public class TestPlanApiScenarioBatchRunService {
     private ExecTask initExecTask(int caseSize, Project project, String userId) {
         ExecTask execTask = apiCommonService.newExecTask(project.getId(), userId);
         execTask.setCaseCount(Long.valueOf(caseSize));
-        execTask.setTaskName(Translator.get("api_scenario_batch_task_name"));
+        execTask.setTaskName(Translator.get("api_scenario_batch_task_name", ApiBatchRunBaseService.getLocale()));
         execTask.setOrganizationId(project.getOrganizationId());
         execTask.setTriggerMode(TaskTriggerMode.BATCH.name());
         execTask.setTaskType(ExecTaskType.TEST_PLAN_API_SCENARIO_BATCH.name());

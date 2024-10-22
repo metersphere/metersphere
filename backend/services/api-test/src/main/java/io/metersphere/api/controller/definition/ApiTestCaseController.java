@@ -9,6 +9,7 @@ import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
+import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.definition.*;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -36,6 +37,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -300,6 +302,7 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
     public void batchRun(@Validated @RequestBody ApiTestCaseBatchRunRequest request) {
+        ApiBatchRunBaseService.setLocale(LocaleContextHolder.getLocale());
         apiTestCaseBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
     }
 
