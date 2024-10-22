@@ -106,9 +106,11 @@
 
   watch(
     () => modelValue.value,
-    () => {
+    (val) => {
       if (!props.allowEmpty) {
         numberValue.value = 0;
+        initNumberAndType();
+      } else if (val && Number(val) !== 0) {
         initNumberAndType();
       }
     },

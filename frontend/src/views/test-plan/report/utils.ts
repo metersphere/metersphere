@@ -187,6 +187,7 @@ export function getApiDetailColumn(isGroup: boolean, isPreview: boolean): MsTabl
       filterConfig: {
         options: isPreview ? lastReportStatusListOptions.value : [],
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS,
+        emptyFilter: true,
       },
       width: 150,
       showInTable: true,
