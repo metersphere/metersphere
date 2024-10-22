@@ -533,29 +533,29 @@ public class BaseTaskHubService {
      * @return
      */
     public List<ResourcePoolStatusDTO> getResourcePoolStatus(List<String> ids) {
-        List<ResourcePoolStatusDTO> statusDTOS = new ArrayList<>();
         List<ExecTaskItem> itemList = extExecTaskItemMapper.selectPoolNodeByIds(ids);
-        Map<String, List<ExecTaskItem>> poolNodeMap = itemList.stream().collect(Collectors.groupingBy(ExecTaskItem::getResourcePoolNode));
-        poolNodeMap.forEach((k, v) -> {
-            String[] split = k.split(":");
-            TestResourceNodeDTO node = new TestResourceNodeDTO();
-            boolean status = false;
-            try {
-                node.setIp(split[0]);
-                node.setPort(split[1]);
-                status = nodeResourcePoolService.validateNode(node);
-            } catch (Exception e) {
-                LogUtils.error(e);
-            }
-            boolean finalStatus = status;
-            v.forEach(item -> {
-                ResourcePoolStatusDTO poolStatusDTO = new ResourcePoolStatusDTO();
-                poolStatusDTO.setId(item.getId());
-                poolStatusDTO.setStatus(finalStatus);
-                statusDTOS.add(poolStatusDTO);
-            });
-        });
-        return statusDTOS;
+        Map<String, List<ExecTaskItem>> poolNodeMap = itemList.stream()
+                .collect(Collectors.groupingBy(ExecTaskItem::getResourcePoolNode));
+
+        return poolNodeMap.entrySet().stream()
+                .flatMap(entry -> {
+                    String[] split = entry.getKey().split(":");
+                    if (split.length < 2) {
+                        return Stream.empty();
+                    }
+                    TestResourceNodeDTO node = new TestResourceNodeDTO();
+                    node.setIp(split[0]);
+                    node.setPort(split[1]);
+                    boolean status = nodeResourcePoolService.validateNode(node);
+
+                    return entry.getValue().stream().map(item -> {
+                        ResourcePoolStatusDTO poolStatusDTO = new ResourcePoolStatusDTO();
+                        poolStatusDTO.setId(item.getId());
+                        poolStatusDTO.setStatus(status);
+                        return poolStatusDTO;
+                    });
+                })
+                .collect(Collectors.toList());
     }
 
 
