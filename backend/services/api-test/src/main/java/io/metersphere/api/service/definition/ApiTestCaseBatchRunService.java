@@ -164,6 +164,7 @@ public class ApiTestCaseBatchRunService {
         execTask.setOrganizationId(project.getOrganizationId());
         execTask.setTriggerMode(TaskTriggerMode.BATCH.name());
         execTask.setTaskType(ExecTaskType.API_CASE_BATCH.name());
+        execTask.setIntegrated(runModeConfig.getIntegratedReport());
         baseTaskHubService.insertExecTask(execTask);
         return execTask;
     }
