@@ -156,6 +156,15 @@
         </a-tooltip>
       </div>
       <div v-if="record.type === 'API_SYNC_CASE'">{{ t('project.menu.row7') }} </div>
+      <div v-if="record.type === 'TASK_CLEAN_REPORT'">
+        <MsTimeSelectorVue
+          v-model="allValueMap['TASK_CLEAN_REPORT']"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_TASK:UPDATE'])"
+          :default-value="defaultValueMap.TASK_CLEAN_REPORT"
+          @change="(v: string) =>
+        handleMenuStatusChange('TASK_CLEAN_REPORT', v, MenuEnum.taskCenter)"
+        />
+      </div>
       <div v-if="record.type === 'UI_CLEAN_REPORT'">
         <!--UI 报告保留时间范围 -->
         <MsTimeSelectorVue
@@ -453,6 +462,7 @@
     TEST_PLAN_SHARE_REPORT: '1D',
     API_CLEAN_REPORT: '3M',
     API_SHARE_REPORT: '1D',
+    TASK_CLEAN_REPORT: '3M',
     UI_CLEAN_REPORT: '3M',
     UI_SHARE_REPORT: '1D',
     PERFORMANCE_TEST_CLEAN_REPORT: '3M',
@@ -586,6 +596,14 @@
         ];
         break;
       }
+      case MenuEnum.taskCenter: {
+        children = [
+          {
+            type: 'TASK_CLEAN_REPORT', // 任务执行结果保留时间范围
+          },
+        ];
+        break;
+      }
       case MenuEnum.uiTest: {
         children = [
           {
@@ -674,6 +692,11 @@
             hasAuth = true;
           }
           break;
+        case MenuEnum.taskCenter:
+          if (hasAnyPermission(['PROJECT_APPLICATION_TASK:READ'])) {
+            hasAuth = true;
+          }
+          break;
         default:
           break;
       }
@@ -746,6 +769,11 @@
             await expanded(record);
           }
           break;
+        case MenuEnum.taskCenter:
+          if (hasAnyPermission(['PROJECT_APPLICATION_TASK:READ'])) {
+            await expanded(record);
+          }
+          break;
         default:
           if (hasAnyPermission(['PROJECT_APPLICATION_PERFORMANCE_TEST:READ'])) {
             await expanded(record);
@@ -769,6 +797,8 @@
         return 'icon-icon_functional_testing1';
       case MenuEnum.apiTest:
         return 'icon-icon_api-test-filled2';
+      case MenuEnum.taskCenter:
+        return 'icon-calendar-clock';
       default:
         return '';
     }
@@ -810,6 +840,11 @@
           break;
         case MenuEnum.uiTest:
           if (hasAnyPermission(['PROJECT_APPLICATION_UI:UPDATE'])) {
+            hasAuth = true;
+          }
+          break;
+        case MenuEnum.taskCenter:
+          if (hasAnyPermission(['PROJECT_APPLICATION_TASK:READ'])) {
             hasAuth = true;
           }
           break;

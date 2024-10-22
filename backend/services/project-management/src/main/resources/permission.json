@@ -170,6 +170,14 @@
           {
             "id": "PROJECT_APPLICATION_BUG:UPDATE",
             "name": "permission.project_application_bug.update"
+          },
+          {
+            "id": "PROJECT_APPLICATION_TASK:READ",
+            "name": "permission.project_application_task.read"
+          },
+          {
+            "id": "PROJECT_APPLICATION_TASK:UPDATE",
+            "name": "permission.project_application_task.update"
           }
         ]
       },

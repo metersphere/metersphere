@@ -44,6 +44,7 @@ export default {
     'menu.apiTest.reportTestPlan': 'Test report',
     'menu.apiTest.reportTestGroupPlan': 'Test Group Report',
     'menu.apiTest.reportDetail': 'Report Detail',
+    'menu.taskCenter': 'Task Center',
     'menu.uiTest': 'UI Test',
     'menu.performanceTest': 'Performance Test',
     'menu.projectManagement': 'Project',
