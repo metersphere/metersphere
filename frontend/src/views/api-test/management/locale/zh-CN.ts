@@ -172,6 +172,7 @@ export default {
   'apiTestManagement.newCreatedList': '新建列表',
   'apiTestManagement.interfaceRange': '接口范围',
   'apiTestManagement.effectiveTime': '有效时间',
+  'apiTestManagement.invalidTime': '截止时间',
   'apiTestManagement.passwordAccess': '密码访问',
   'apiTestManagement.sharePasswordPlaceholder': '请输入分享密码',
   'apiTestManagement.apiShareNum': '接口数量',

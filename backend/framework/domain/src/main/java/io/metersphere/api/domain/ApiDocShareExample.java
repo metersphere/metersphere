@@ -654,123 +654,53 @@ public class ApiDocShareExample {
             return (Criteria) this;
         }
 
-        public Criteria andInvalidTimeEqualTo(Integer value) {
+        public Criteria andInvalidTimeEqualTo(Long value) {
             addCriterion("invalid_time =", value, "invalidTime");
             return (Criteria) this;
         }
 
-        public Criteria andInvalidTimeNotEqualTo(Integer value) {
+        public Criteria andInvalidTimeNotEqualTo(Long value) {
             addCriterion("invalid_time <>", value, "invalidTime");
             return (Criteria) this;
         }
 
-        public Criteria andInvalidTimeGreaterThan(Integer value) {
+        public Criteria andInvalidTimeGreaterThan(Long value) {
             addCriterion("invalid_time >", value, "invalidTime");
             return (Criteria) this;
         }
 
-        public Criteria andInvalidTimeGreaterThanOrEqualTo(Integer value) {
+        public Criteria andInvalidTimeGreaterThanOrEqualTo(Long value) {
             addCriterion("invalid_time >=", value, "invalidTime");
             return (Criteria) this;
         }
 
-        public Criteria andInvalidTimeLessThan(Integer value) {
+        public Criteria andInvalidTimeLessThan(Long value) {
             addCriterion("invalid_time <", value, "invalidTime");
             return (Criteria) this;
         }
 
-        public Criteria andInvalidTimeLessThanOrEqualTo(Integer value) {
+        public Criteria andInvalidTimeLessThanOrEqualTo(Long value) {
             addCriterion("invalid_time <=", value, "invalidTime");
             return (Criteria) this;
         }
 
-        public Criteria andInvalidTimeIn(List<Integer> values) {
+        public Criteria andInvalidTimeIn(List<Long> values) {
             addCriterion("invalid_time in", values, "invalidTime");
             return (Criteria) this;
         }
 
-        public Criteria andInvalidTimeNotIn(List<Integer> values) {
+        public Criteria andInvalidTimeNotIn(List<Long> values) {
             addCriterion("invalid_time not in", values, "invalidTime");
             return (Criteria) this;
         }
 
-        public Criteria andInvalidTimeBetween(Integer value1, Integer value2) {
+        public Criteria andInvalidTimeBetween(Long value1, Long value2) {
             addCriterion("invalid_time between", value1, value2, "invalidTime");
             return (Criteria) this;
         }
 
-        public Criteria andInvalidTimeNotBetween(Integer value1, Integer value2) {
+        public Criteria andInvalidTimeNotBetween(Long value1, Long value2) {
             addCriterion("invalid_time not between", value1, value2, "invalidTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvalidUnitIsNull() {
-            addCriterion("invalid_unit is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvalidUnitIsNotNull() {
-            addCriterion("invalid_unit is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvalidUnitEqualTo(String value) {
-            addCriterion("invalid_unit =", value, "invalidUnit");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvalidUnitNotEqualTo(String value) {
-            addCriterion("invalid_unit <>", value, "invalidUnit");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvalidUnitGreaterThan(String value) {
-            addCriterion("invalid_unit >", value, "invalidUnit");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvalidUnitGreaterThanOrEqualTo(String value) {
-            addCriterion("invalid_unit >=", value, "invalidUnit");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvalidUnitLessThan(String value) {
-            addCriterion("invalid_unit <", value, "invalidUnit");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvalidUnitLessThanOrEqualTo(String value) {
-            addCriterion("invalid_unit <=", value, "invalidUnit");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvalidUnitLike(String value) {
-            addCriterion("invalid_unit like", value, "invalidUnit");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvalidUnitNotLike(String value) {
-            addCriterion("invalid_unit not like", value, "invalidUnit");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvalidUnitIn(List<String> values) {
-            addCriterion("invalid_unit in", values, "invalidUnit");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvalidUnitNotIn(List<String> values) {
-            addCriterion("invalid_unit not in", values, "invalidUnit");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvalidUnitBetween(String value1, String value2) {
-            addCriterion("invalid_unit between", value1, value2, "invalidUnit");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvalidUnitNotBetween(String value1, String value2) {
-            addCriterion("invalid_unit not between", value1, value2, "invalidUnit");
             return (Criteria) this;
         }
 

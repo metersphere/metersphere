@@ -38,8 +38,8 @@ public class ApiDocShareEditRequest implements Serializable {
 	@Schema(title = "范围匹配值;eg: 选中路径范围时, 该值作为路径匹配")
 	private String rangeMatchVal;
 
-	@Schema(title = "失效时间值")
-	private Integer invalidTime;
+	@Schema(title = "截止时间值")
+	private Long invalidTime;
 
 	@Schema(title = "失效时间单位;小时(HOUR)、天(DAY)、月(MONTH)、年(YEAR)")
 	private String invalidUnit;

@@ -36,6 +36,9 @@
             <div class="one-line-text">{{ record.createUserName || '-' }}</div>
           </a-tooltip>
         </template>
+        <template #invalidTime="{ record }">
+          {{ record.invalidTime === 0 ? t('apiTestManagement.permanent') : record.invalidTime }}
+        </template>
         <template #operation="{ record }">
           <div v-permission="['PROJECT_API_DEFINITION:READ+SHARE']" class="flex items-center">
             <a-tooltip :disabled="!!record.apiShareNum" :content="t('apiTestManagement.apiShareNumberTip')">
@@ -135,8 +138,8 @@
     },
     {
       title: 'apiTestManagement.deadline',
-      dataIndex: 'deadline',
-      slotName: 'deadline',
+      dataIndex: 'invalidTime',
+      slotName: 'invalidTime',
       showInTable: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -184,7 +187,7 @@
     },
     (item) => ({
       ...item,
-      deadline: item.deadline ? dayjs(item.deadline).format('YYYY-MM-DD HH:mm:ss') : t('apiTestManagement.permanent'),
+      invalidTime: item.invalidTime ? dayjs(item.invalidTime).format('YYYY-MM-DD HH:mm:ss') : 0,
     })
   );
 

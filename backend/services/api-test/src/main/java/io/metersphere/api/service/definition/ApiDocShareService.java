@@ -125,11 +125,10 @@ public class ApiDocShareService {
 	public ApiDocShareDetail detail(String id) {
 		ApiDocShare docShare = checkExit(id);
 		ApiDocShareDetail detail = ApiDocShareDetail.builder().allowExport(docShare.getAllowExport()).isPrivate(docShare.getIsPrivate()).build();
-		if (docShare.getInvalidTime() == null || StringUtils.isBlank(docShare.getInvalidUnit())) {
+		if (docShare.getInvalidTime() == null || docShare.getInvalidTime() == 0) {
 			detail.setInvalid(false);
 		} else {
-			Long deadline = calculateDeadline(docShare.getInvalidTime(), docShare.getInvalidUnit(), docShare.getCreateTime());
-			detail.setInvalid(deadline < System.currentTimeMillis());
+			detail.setInvalid(docShare.getInvalidTime() < System.currentTimeMillis());
 		}
 		return detail;
 	}
@@ -180,8 +179,7 @@ public class ApiDocShareService {
 		List<String> distinctUserIds = docShares.stream().map(ApiDocShareDTO::getCreateUser).distinct().toList();
 		Map<String, String> userMap = userToolService.getUserMapByIds(distinctUserIds);
 		docShares.forEach(docShare -> {
-			docShare.setDeadline(calculateDeadline(docShare.getInvalidTime(), docShare.getInvalidUnit(), docShare.getCreateTime()));
-			docShare.setInvalid(docShare.getDeadline() != null && docShare.getDeadline() < System.currentTimeMillis());
+			docShare.setInvalid(docShare.getInvalidTime() != null && docShare.getInvalidTime() != 0 && docShare.getInvalidTime() < System.currentTimeMillis());
 			docShare.setApiShareNum(countApiShare(docShare));
 			docShare.setCreateUserName(userMap.get(docShare.getCreateUser()));
 		});
@@ -274,26 +272,6 @@ public class ApiDocShareService {
 			request.setCombineSearch(combineSearch);
 		}
 		return request;
-	}
-
-	/**
-	 * 计算截止时间
-	 * @param val 时间值
-	 * @param unit 时间单位
-	 * @param stareTime 起始时间
-	 * @return 截止时间
-	 */
-	private Long calculateDeadline(Integer val, String unit, Long stareTime) {
-		if (val == null) {
-			return null;
-		}
-		return switch (unit) {
-			case "HOUR" -> stareTime + val * 60 * 60 * 1000L;
-			case "DAY" -> stareTime + val * 24 * 60 * 60 * 1000L;
-			case "MONTH" -> stareTime + val * 30 * 24 * 60 * 60 * 1000L;
-			case "YEAR" -> stareTime + val * 365 * 24 * 60 * 60 * 1000L;
-			default -> null;
-		};
 	}
 
 	/**
