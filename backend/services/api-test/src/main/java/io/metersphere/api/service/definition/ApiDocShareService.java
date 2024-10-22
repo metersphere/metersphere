@@ -128,7 +128,7 @@ public class ApiDocShareService {
 		if (docShare.getInvalidTime() == null || StringUtils.isBlank(docShare.getInvalidUnit())) {
 			detail.setInvalid(false);
 		} else {
-			Long deadline = calculateDeadline(docShare.getInvalidTime(), docShare.getInvalidUnit(), docShare.getCreateTime());
+			Long deadline = calculateDeadline((long) docShare.getInvalidTime(), docShare.getInvalidUnit(), docShare.getCreateTime());
 			detail.setInvalid(deadline < System.currentTimeMillis());
 		}
 		return detail;
@@ -180,7 +180,7 @@ public class ApiDocShareService {
 		List<String> distinctUserIds = docShares.stream().map(ApiDocShareDTO::getCreateUser).distinct().toList();
 		Map<String, String> userMap = userToolService.getUserMapByIds(distinctUserIds);
 		docShares.forEach(docShare -> {
-			docShare.setDeadline(calculateDeadline(docShare.getInvalidTime(), docShare.getInvalidUnit(), docShare.getCreateTime()));
+			docShare.setDeadline(calculateDeadline((long) docShare.getInvalidTime(), docShare.getInvalidUnit(), docShare.getCreateTime()));
 			docShare.setInvalid(docShare.getDeadline() != null && docShare.getDeadline() < System.currentTimeMillis());
 			docShare.setApiShareNum(countApiShare(docShare));
 			docShare.setCreateUserName(userMap.get(docShare.getCreateUser()));
@@ -283,7 +283,7 @@ public class ApiDocShareService {
 	 * @param stareTime 起始时间
 	 * @return 截止时间
 	 */
-	private Long calculateDeadline(Integer val, String unit, Long stareTime) {
+	private Long calculateDeadline(Long val, String unit, Long stareTime) {
 		if (val == null) {
 			return null;
 		}
