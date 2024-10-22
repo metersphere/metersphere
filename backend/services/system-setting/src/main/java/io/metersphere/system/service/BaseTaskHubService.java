@@ -533,29 +533,51 @@ public class BaseTaskHubService {
      * @return
      */
     public List<ResourcePoolStatusDTO> getResourcePoolStatus(List<String> ids) {
-        List<ResourcePoolStatusDTO> statusDTOS = new ArrayList<>();
-        List<ExecTaskItem> itemList = extExecTaskItemMapper.selectPoolNodeByIds(ids);
-        Map<String, List<ExecTaskItem>> poolNodeMap = itemList.stream().collect(Collectors.groupingBy(ExecTaskItem::getResourcePoolNode));
-        poolNodeMap.forEach((k, v) -> {
-            String[] split = k.split(":");
-            TestResourceNodeDTO node = new TestResourceNodeDTO();
-            boolean status = false;
-            try {
+        List<ExecTaskItem> items = extExecTaskItemMapper.selectPoolNodeByIds(ids);
+
+        return items.stream()
+                .collect(Collectors.groupingBy(ExecTaskItem::getResourcePoolNode))
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    String key = entry.getKey();
+                    List<ExecTaskItem> itemGroup = entry.getValue();
+
+                    // Asynchronously determine the status
+                    CompletableFuture<Boolean> statusFuture = CompletableFuture.supplyAsync(() -> determineStatus(key, itemGroup));
+
+                    return statusFuture.thenApply(status -> itemGroup.stream()
+                            .map(item -> new ResourcePoolStatusDTO(item.getId(), status))
+                            .collect(Collectors.toList()));
+                })
+                .toList()
+                .stream()
+                .flatMap(future -> future.join().stream()) // Wait for all futures to complete
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Determine the status of a resource pool node
+     */
+    private boolean determineStatus(String key, List<ExecTaskItem> items) {
+        try {
+            String[] split = key.split(":");
+            if (split.length == 2) {
+                var node = new TestResourceNodeDTO();
                 node.setIp(split[0]);
                 node.setPort(split[1]);
-                status = nodeResourcePoolService.validateNode(node);
-            } catch (Exception e) {
-                LogUtils.error(e);
+                return nodeResourcePoolService.validateNode(node);
+            } else if (!items.isEmpty()) {
+                var testResourceDTO = new TestResourceDTO();
+                var returnDTO = testResourcePoolService.getTestResourcePoolDetail(items.getFirst().getResourcePoolId());
+                BeanUtils.copyBean(testResourceDTO, returnDTO.getTestResourceReturnDTO());
+                testResourceDTO.setDeployName(key);
+                return EngineFactory.validateNamespaceExists(testResourceDTO);
             }
-            boolean finalStatus = status;
-            v.forEach(item -> {
-                ResourcePoolStatusDTO poolStatusDTO = new ResourcePoolStatusDTO();
-                poolStatusDTO.setId(item.getId());
-                poolStatusDTO.setStatus(finalStatus);
-                statusDTOS.add(poolStatusDTO);
-            });
-        });
-        return statusDTOS;
+        } catch (Exception e) {
+            // Log the exception if needed
+        }
+        return false;
     }
 
 
