@@ -297,6 +297,7 @@
     <sql id="queryWhereCondition">
         <where>
             tpr.deleted = 0
+            and tpr.result_status in ('SUCCESS', 'ERROR', 'FAKE_ERROR')
             <if test="request.projectId != null and request.projectId != ''">
                 and tpr.project_id = #{request.projectId}
             </if>
