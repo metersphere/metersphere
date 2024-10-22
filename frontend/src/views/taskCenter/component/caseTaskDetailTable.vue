@@ -52,9 +52,11 @@
       {{ t(executeMethodMap[record.triggerMode]) }}
     </template>
     <template #resourcePoolNode="{ record }">
-      <div>{{ record.resourcePoolNode }}</div>
+      <a-tooltip :content="record.resourcePoolNode">
+        <div class="one-line-text">{{ record.resourcePoolNode }}</div>
+      </a-tooltip>
       <a-tooltip v-if="record.resourcePoolNodeStatus === false" :content="t('ms.taskCenter.nodeErrorTip')">
-        <icon-exclamation-circle-fill class="ml-[4px] !text-[rgb(var(--warning-6))]" :size="18" />
+        <icon-exclamation-circle-fill class="min-w-[18px] !text-[rgb(var(--warning-6))]" :size="18" />
       </a-tooltip>
     </template>
     <template #action="{ record }">
@@ -77,8 +79,16 @@
       </MsButton>
     </template>
   </ms-base-table>
-  <caseExecuteResultDrawer v-model:visible="caseExecuteResultDrawerVisible" :record="activeRecord" />
-  <scenarioExecuteResultDrawer v-model:visible="scenarioExecuteResultDrawerVisible" :record="activeRecord" />
+  <caseExecuteResultDrawer
+    v-if="caseExecuteResultDrawerVisible"
+    v-model:visible="caseExecuteResultDrawerVisible"
+    :record="activeRecord"
+  />
+  <scenarioExecuteResultDrawer
+    v-if="scenarioExecuteResultDrawerVisible"
+    v-model:visible="scenarioExecuteResultDrawerVisible"
+    :record="activeRecord"
+  />
 </template>
 
 <script setup lang="ts">
@@ -92,10 +102,8 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import MsCascader from '@/components/business/ms-cascader/index.vue';
-  import caseExecuteResultDrawer from './caseExecuteResultDrawer.vue';
   import execStatus from './execStatus.vue';
   import executionStatus from './executionStatus.vue';
-  import scenarioExecuteResultDrawer from './scenarioExecuteResultDrawer.vue';
 
   import {
     getOrganizationExecuteTaskDetailList,
@@ -131,6 +139,9 @@
   import { ExecuteStatusEnum } from '@/enums/taskCenter';
 
   import { executeMethodMap, executeResultMap, executeStatusMap } from './config';
+
+  const scenarioExecuteResultDrawer = defineAsyncComponent(() => import('./scenarioExecuteResultDrawer.vue'));
+  const caseExecuteResultDrawer = defineAsyncComponent(() => import('./caseExecuteResultDrawer.vue'));
 
   const props = defineProps<{
     type: 'system' | 'project' | 'org';
@@ -168,7 +179,7 @@
       title: 'ms.taskCenter.executeStatus',
       dataIndex: 'status',
       slotName: 'status',
-      width: 100,
+      width: 120,
       filterConfig: {
         options: Object.keys(executeStatusMap).map((key) => ({
           label: t(executeStatusMap[key as ExecuteStatusEnum].label),
@@ -176,12 +187,16 @@
         })),
         filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_STATUS,
       },
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: 'ms.taskCenter.executeMethod',
       dataIndex: 'triggerMode',
       slotName: 'triggerMode',
-      width: 100,
+      width: 120,
       filterConfig: {
         options: Object.keys(executeMethodMap).map((key) => ({
           label: t(executeMethodMap[key]),
@@ -189,12 +204,16 @@
         })),
         filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_METHOD,
       },
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: 'ms.taskCenter.executeResult',
       dataIndex: 'result',
       slotName: 'result',
-      width: 100,
+      width: 120,
       filterConfig: {
         options: Object.keys(executeResultMap).map((key) => ({
           label: t(executeResultMap[key].label),
@@ -202,6 +221,10 @@
           icon: executeResultMap[key].icon,
         })),
         filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_RESULT,
+      },
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
     },
     {
@@ -534,6 +557,8 @@
         const queue = res[item.id];
         if (queue) {
           item.lineNum = queue;
+        } else if ([ExecuteStatusEnum.COMPLETED, ExecuteStatusEnum.STOPPED].includes(item.status)) {
+          item.lineNum = '-';
         } else {
           item.lineNum = t('ms.taskCenter.waitQueue');
         }

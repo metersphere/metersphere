@@ -167,8 +167,8 @@
       </li>
     </ul>
   </div>
-  <TaskCenterDrawer v-model:visible="taskCenterVisible" />
-  <MessageCenterDrawer v-model:visible="messageCenterVisible" />
+  <TaskCenterDrawer v-if="taskCenterVisible" v-model:visible="taskCenterVisible" />
+  <MessageCenterDrawer v-if="messageCenterVisible" v-model:visible="messageCenterVisible" />
   <AddProjectModal :visible="projectVisible" @cancel="projectVisible = false" />
 </template>
 
@@ -179,8 +179,6 @@
   import { Message } from '@arco-design/web-vue';
 
   import MessageBox from '@/components/pure/message-box/index.vue';
-  import MessageCenterDrawer from '@/components/business/ms-message/MessageCenterDrawer.vue';
-  import TaskCenterDrawer from '@/components/business/ms-task-center-drawer/index.vue';
   import TopMenu from '@/components/business/ms-top-menu/index.vue';
   import AddProjectModal from '@/views/setting/organization/project/components/addProjectModal.vue';
 
@@ -201,6 +199,11 @@
 
   import { IconInfoCircle } from '@arco-design/web-vue/es/icon';
   import type { LocaleType } from '#/global';
+
+  const TaskCenterDrawer = defineAsyncComponent(() => import('@/components/business/ms-task-center-drawer/index.vue'));
+  const MessageCenterDrawer = defineAsyncComponent(
+    () => import('@/components/business/ms-message/MessageCenterDrawer.vue')
+  );
 
   const props = defineProps<{
     isPreview?: boolean;

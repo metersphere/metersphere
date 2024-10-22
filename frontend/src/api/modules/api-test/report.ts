@@ -1,7 +1,13 @@
 import MSR from '@/api/http';
 import * as reportUrl from '@/api/requrls/api-test/report';
 
-import type { GetShareId, ReportDetail, ReportStepDetail, ReportStepDetailItem } from '@/models/apiTest/report';
+import type {
+  GetShareId,
+  ReportDetail,
+  ReportStepDetail,
+  ReportStepDetailItem,
+  TaskReportDetail,
+} from '@/models/apiTest/report';
 import type { TableQueryParams } from '@/models/common';
 import { ReportEnum } from '@/enums/reportEnum';
 
@@ -113,7 +119,7 @@ export function downloadFile(data: string | undefined) {
 
 // 获取用例任务报告
 export function getCaseTaskReport(taskId: string) {
-  return MSR.get<ReportStepDetailItem[]>({ url: `${reportUrl.caseTaskReportUrl}/${taskId}` });
+  return MSR.get<TaskReportDetail>({ url: `${reportUrl.caseTaskReportUrl}/${taskId}` });
 }
 
 // 获取场景任务报告
