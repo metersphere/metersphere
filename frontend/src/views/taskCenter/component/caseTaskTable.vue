@@ -259,7 +259,7 @@
       title: 'ms.taskCenter.executeStatus',
       dataIndex: 'status',
       slotName: 'status',
-      width: 100,
+      width: 120,
       filterConfig: {
         options: Object.keys(executeStatusMap).map((key) => ({
           label: t(executeStatusMap[key as ExecuteStatusEnum].label),
@@ -267,12 +267,16 @@
         })),
         filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_STATUS,
       },
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: 'ms.taskCenter.executeMethod',
       dataIndex: 'triggerMode',
       slotName: 'triggerMode',
-      width: 100,
+      width: 120,
       filterConfig: {
         options: Object.keys(executeMethodMap).map((key) => ({
           label: t(executeMethodMap[key]),
@@ -280,12 +284,16 @@
         })),
         filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_METHOD,
       },
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: 'ms.taskCenter.executeResult',
       dataIndex: 'result',
       slotName: 'result',
-      width: 100,
+      width: 120,
       filterConfig: {
         options: Object.keys(executeResultMap).map((key) => ({
           label: t(executeResultMap[key].label),
@@ -293,6 +301,10 @@
           icon: executeResultMap[key]?.icon,
         })),
         filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_RESULT,
+      },
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
     },
     {

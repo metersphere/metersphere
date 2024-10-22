@@ -495,7 +495,6 @@
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
-  import ApiExportModal from '@/views/api-test/management/components/management/api/apiExportModal.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import BatchRunModal from '@/views/api-test/scenario/components/batchRunModal.vue';
   import ScenarioExportModal from '@/views/api-test/scenario/components/common/exportScenario/scenarioExportModal.vue';

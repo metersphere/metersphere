@@ -14,7 +14,7 @@
         </MsButton>
       </div>
     </template>
-    <a-spin :loading="loading" class="block">
+    <a-spin :loading="loading" class="block min-h-[200px]">
       <MsDescription :descriptions="detail.description" :column="3" :line-gap="8" one-line-value>
         <template #value="{ item }">
           <execStatus v-if="item.key === 'status'" :status="props.record.status" size="small" />
@@ -77,43 +77,44 @@
     try {
       loading.value = true;
       const res = await getCaseTaskReport(props.record.id);
-      const [caseDetail] = res;
+      const { apiReportDetailDTOList } = res;
+      const [caseDetail] = apiReportDetailDTOList;
       detail.value = {
         name: caseDetail.requestName,
         description: [
           {
             label: t('ms.taskCenter.executeStatus'),
             key: 'status',
-            value: t(executeStatusMap[props.record.status].label),
+            value: t(executeStatusMap[res.status].label),
           },
           {
             label: t('ms.taskCenter.operationUser'),
-            value: props.record.executor,
+            value: props.record.userName,
           },
           {
             label: t('ms.taskCenter.taskCreateTime'),
-            value: dayjs(props.record.startTime).format('YYYY-MM-DD HH:mm:ss'),
+            value: res.createTime ? dayjs(res.createTime).format('YYYY-MM-DD HH:mm:ss') : '-',
           },
           {
             label: t('ms.taskCenter.taskResource'),
-            value: props.record.resourceName,
+            value: res.taskOriginName || caseDetail.requestName,
           },
           {
             label: t('ms.taskCenter.threadID'),
-            value: props.record.threadId,
+            value: res.threadId,
           },
           {
             label: t('ms.taskCenter.taskStartTime'),
-            value: dayjs(props.record.startTime).format('YYYY-MM-DD HH:mm:ss'),
+            value: res.startTime ? dayjs(res.startTime).format('YYYY-MM-DD HH:mm:ss') : '-',
           },
           {
             label: t('ms.taskCenter.executeEnvInfo'),
-            value: 'DEV 资源池1 10.11.1.1',
+            value: `${res.environmentName} ${res.resourcePoolName} ${res.resourcePoolNode}`,
             class: '!w-[calc(100%/3*2)]',
           },
           {
             label: t('ms.taskCenter.taskEndTime'),
-            value: dayjs(props.record.endTime).format('YYYY-MM-DD HH:mm:ss'),
+            value: res.endTime ? dayjs(res.endTime).format('YYYY-MM-DD HH:mm:ss') : '-',
           },
         ] as Description[],
         ...caseDetail,

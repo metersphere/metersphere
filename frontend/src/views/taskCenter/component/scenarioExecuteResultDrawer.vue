@@ -1,5 +1,5 @@
 <template>
-  <MsDrawer v-model:visible="visible" :width="800" :footer="false">
+  <MsDrawer v-model:visible="visible" :width="960" :footer="false">
     <template #title>
       <div class="flex items-center gap-[8px]">
         <a-tag :color="executeResultMap[props.record.result]?.color">
@@ -14,10 +14,10 @@
         </MsButton>
       </div>
     </template>
-    <a-spin :loading="loading" class="block">
+    <a-spin :loading="loading" class="block min-h-[200px]">
       <MsDescription :descriptions="detail.description" :column="3" :line-gap="8" one-line-value>
         <template #value="{ item }">
-          <execStatus v-if="item.key === 'status'" :status="item.value as ReportExecStatus" size="small" />
+          <execStatus v-if="item.key === 'status'" :status="props.record.status" size="small" />
           <a-tooltip
             v-else
             :content="`${item.value}`"
@@ -69,7 +69,6 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { TaskCenterTaskDetailItem } from '@/models/taskCenter';
-  import { ReportExecStatus } from '@/enums/apiEnum';
 
   import { executeResultMap, executeStatusMap } from './config';
 
@@ -96,27 +95,27 @@
           },
           {
             label: t('ms.taskCenter.operationUser'),
-            value: res.creatUserName,
+            value: props.record.userName,
           },
           {
             label: t('ms.taskCenter.taskCreateTime'),
-            value: dayjs(res.startTime).format('YYYY-MM-DD HH:mm:ss'),
+            value: res.createTime ? dayjs(res.createTime).format('YYYY-MM-DD HH:mm:ss') : '-',
           },
           {
             label: t('ms.taskCenter.taskResource'),
-            value: props.record.resourceName,
+            value: res.taskOriginName || res.requestName,
           },
           {
             label: t('ms.taskCenter.threadID'),
-            value: props.record.threadId,
+            value: res.threadId,
           },
           {
             label: t('ms.taskCenter.taskStartTime'),
-            value: dayjs(res.startTime).format('YYYY-MM-DD HH:mm:ss'),
+            value: res.startTime ? dayjs(res.startTime).format('YYYY-MM-DD HH:mm:ss') : '-',
           },
           {
             label: t('ms.taskCenter.executeEnvInfo'),
-            value: 'DEV 资源池1 10.11.1.1',
+            value: `${res.environmentName} ${res.poolName} ${res.resourcePoolNode}`,
             class: '!w-[calc(100%/3*2)]',
           },
           {
