@@ -248,6 +248,7 @@ public class ApiScenarioBatchRunService {
         execTask.setOrganizationId(project.getOrganizationId());
         execTask.setTriggerMode(TaskTriggerMode.BATCH.name());
         execTask.setTaskType(ExecTaskType.API_SCENARIO_BATCH.name());
+        execTask.setIntegrated(runModeConfig.isIntegratedReport());
         baseTaskHubService.insertExecTask(execTask);
         return execTask;
     }
