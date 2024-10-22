@@ -33,6 +33,9 @@ export interface NumberProps {
   step: number;
   suffix: string;
 }
+export interface DataProps {
+  showTime: boolean;
+}
 
 export interface FilterFormItem {
   dataIndex?: string; // 第一列下拉的value
@@ -43,6 +46,7 @@ export interface FilterFormItem {
   customField?: boolean; // 是否是自定义字段
   customFieldType?: string; // 自定义字段的类型
   cascaderOptions?: CascaderOption[]; // 级联选择的选项
+  dataProps?: Partial<DataProps>;
   numberProps?: Partial<NumberProps>;
   selectProps?: Partial<MsSearchSelectProps>; // select的props, 参考 MsSelect
   cascaderProps?: Partial<MsCascaderProps>; // cascader的props, 参考 MsCascader

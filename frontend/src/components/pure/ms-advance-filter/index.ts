@@ -132,6 +132,10 @@ export const CustomTypeMaps: Record<string, any> = {
   },
   DATE: {
     type: 'DATE_PICKER',
+    propsKey: 'dataProps',
+    props: {
+      showTime: false,
+    },
   },
   DATETIME: {
     type: 'DATE_PICKER',
