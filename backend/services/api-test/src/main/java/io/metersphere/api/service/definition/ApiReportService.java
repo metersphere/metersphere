@@ -344,6 +344,9 @@ public class ApiReportService {
         ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
         example.createCriteria().andTaskResourceIdEqualTo(taskId);
         List<ApiReportRelateTask> apiReportRelateTasks = apiReportRelateTaskMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(apiReportRelateTasks)) {
+            return new ArrayList<>();
+        }
         String reportId = apiReportRelateTasks.getFirst().getReportId();
         return getDetail(reportId, taskItem.getResourceId());
     }

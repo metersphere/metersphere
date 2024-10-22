@@ -561,6 +561,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
     @Sql(scripts = {"/dml/init_scenario_task_item_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void getTaskStep() throws Exception {
         this.requestGet(TASK_STEP, "scenario_1");
+        this.requestGet(TASK_STEP, "scenario_3");
     }
 
     @Test

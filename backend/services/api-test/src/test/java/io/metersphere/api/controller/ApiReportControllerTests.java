@@ -27,7 +27,6 @@ import io.metersphere.sdk.mapper.ShareInfoMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.TestResourcePoolExample;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
@@ -516,5 +515,7 @@ public class ApiReportControllerTests extends BaseTest {
     @Sql(scripts = {"/dml/init_task_item_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void getTaskReport() throws Exception {
         this.requestGet(TASK_REPORT, "1");
+        this.requestGet(TASK_REPORT, "3");
+        this.requestGet(TASK_REPORT, "4");
     }
 }
