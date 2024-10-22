@@ -36,6 +36,7 @@
         <if test="request.projectId != null and request.projectId != ''">
             and asr.project_id = #{request.projectId}
         </if>
+        and status in ('SUCCESS', 'ERROR', 'FAKE_ERROR')
         <include refid="filters">
             <property name="filter" value="request.filter"/>
         </include>
