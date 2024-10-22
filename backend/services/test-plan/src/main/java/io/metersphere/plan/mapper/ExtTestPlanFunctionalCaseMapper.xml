@@ -316,20 +316,10 @@
                         </include>
                         <!-- 所属模块(项目ID_模块ID 组合查询) -->
                         <if test="condition.name == 'moduleId'">
-                            <choose>
-                                <when test="condition.operator == 'IN'">
-                                    concat(functional_case.project_id, '_', functional_case.module_id)  in
-                                    <foreach collection="condition.value" item="v" separator="," open="(" close=")">
-                                        #{v}
-                                    </foreach>
-                                </when>
-                                <when test="condition.operator == 'NOT_IN'">
-                                    concat(functional_case.project_id, '_', functional_case.module_id) not in
-                                    <foreach collection="condition.value" item="v" separator="," open="(" close=")">
-                                        #{v}
-                                    </foreach>
-                                </when>
-                            </choose>
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="functional_case.module_id"/>
+                            </include>
                         </if>
                         <!-- 测试点 -->
                         <if test="condition.name == 'testPlanCollectionId'">
@@ -569,7 +559,8 @@
     </select>
 
     <select id="countModuleIdByRequest" resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
-        SELECT concat(functional_case.project_id, '_', functional_case.module_id) AS moduleId,
+        SELECT CASE WHEN functional_case.module_id = 'root' THEN concat(functional_case.project_id, '_',
+        functional_case.module_id) ElSE functional_case.module_id END AS moduleId,
         count(functional_case.id) As dataCount, functional_case.project_id As projectId, project.name As projectName
         FROM test_plan_functional_case
         LEFT JOIN functional_case ON test_plan_functional_case.functional_case_id = functional_case.id
