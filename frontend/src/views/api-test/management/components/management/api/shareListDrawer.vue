@@ -78,7 +78,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { ShareDetail, shareItem } from '@/models/apiTest/management';
-  import { ApiTestRouteEnum } from '@/enums/routeEnum';
+  import { ShareEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum } from '@/enums/tableFilterEnum';
 
@@ -189,7 +189,7 @@
 
   // 查看链接
   function viewLink(record: shareItem) {
-    openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
+    openNewPage(ShareEnum.SHARE_DEFINITION_API, {
       docShareId: record.id,
     });
   }
