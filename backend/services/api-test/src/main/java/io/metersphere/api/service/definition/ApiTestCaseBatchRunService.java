@@ -159,7 +159,7 @@ public class ApiTestCaseBatchRunService {
         if (runModeConfig.isIntegratedReport()) {
             execTask.setTaskName(runModeConfig.getCollectionReport().getReportName());
         } else {
-            execTask.setTaskName(Translator.get("api_batch_task_name"));
+            execTask.setTaskName(Translator.get("api_batch_task_name", ApiBatchRunBaseService.getLocale()));
         }
         execTask.setOrganizationId(project.getOrganizationId());
         execTask.setTriggerMode(TaskTriggerMode.BATCH.name());

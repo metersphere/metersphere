@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
+import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.dto.request.BugEditRequest;
@@ -36,6 +37,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -98,6 +100,7 @@ public class TestPlanApiScenarioController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "test_plan", relationType = "test_plan_api_scenario")
     public void batchRun(@Validated @RequestBody TestPlanApiScenarioBatchRunRequest request) {
+        ApiBatchRunBaseService.setLocale(LocaleContextHolder.getLocale());
         testPlanApiScenarioBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
     }
 

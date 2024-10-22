@@ -6,6 +6,7 @@ import io.metersphere.api.dto.scenario.ApiScenarioBatchCopyMoveRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioBatchEditRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioBatchRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioBatchRunRequest;
+import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiValidateService;
 import io.metersphere.api.service.scenario.ApiScenarioBatchRunService;
 import io.metersphere.api.service.scenario.ApiScenarioNoticeService;
@@ -21,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -99,6 +101,7 @@ public class ApiScenarioBatchOperationController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
     public void batchRun(@Validated @RequestBody ApiScenarioBatchRunRequest request) {
         apiValidateService.validateApiMenuInProject(request.getProjectId(), ApiResource.PROJECT.name());
+        ApiBatchRunBaseService.setLocale(LocaleContextHolder.getLocale());
         apiScenarioBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
     }
 }

@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,14 +39,14 @@ public class ApiBatchRunBaseService {
     @Resource
     private ExecTaskMapper execTaskMapper;
 
-    /**
-     * 初始化执行队列
-     *
-     * @param resourceIds
-     * @return
-     */
-    public ExecutionQueue initExecutionqueue(List<String> resourceIds, String resourceType, String userId) {
-        return initExecutionqueue(resourceIds, null, resourceType, null, userId);
+    private final static ThreadLocal<Locale> localeThreadLocal = new ThreadLocal<>();
+
+    public static void setLocale(Locale locale) {
+        localeThreadLocal.set(locale);
+    }
+
+    public static Locale getLocale() {
+        return localeThreadLocal.get();
     }
 
     /**
