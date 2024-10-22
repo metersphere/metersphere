@@ -49,12 +49,15 @@ public class ApiScenarioSelectAssociateService {
                 case "SCENARIO":
                     List<ApiScenarioStepDTO> apiScenarioStepDTOs = handleApiScenarioData(request.get(key));
                     steps.addAll(apiScenarioStepDTOs);
+                    break;
                 case "CASE":
                     List<ApiScenarioStepDTO> apiCaseStepDTOs = handleApiCaseData(request.get(key));
                     steps.addAll(apiCaseStepDTOs);
+                    break;
                 default:
                     List<ApiScenarioStepDTO> apiStepDTOs = handleApiData(request.get(key));
                     steps.addAll(apiStepDTOs);
+                    break;
             }
         }
         return steps;
@@ -126,20 +129,20 @@ public class ApiScenarioSelectAssociateService {
         moduleMaps.remove(MODULE_ALL);
         if (selectAllModule) {
             // 选择了全部模块
-            List<ApiTestCaseAssociateDTO> apiTestCaseList = extApiTestCaseMapper.selectAllApiCaseWithAssociate(request.getProjectId(),  request.getProtocols());
+            List<ApiTestCaseAssociateDTO> apiTestCaseList = extApiTestCaseMapper.selectAllApiCaseWithAssociate(request.getProjectId(), request.getProtocols());
             getCaseSteps(request, apiTestCaseList, steps);
         } else {
             AssociateCaseDTO dto = getCaseIds(moduleMaps);
             List<ApiTestCaseAssociateDTO> apiTestCaseList = new ArrayList<>();
             //获取全选的模块数据
             if (CollectionUtils.isNotEmpty(dto.getModuleIds())) {
-                apiTestCaseList = extApiTestCaseMapper.getListBySelectModulesWithAssociate( request.getProjectId(), dto.getModuleIds(), request.getProtocols());
+                apiTestCaseList = extApiTestCaseMapper.getListBySelectModulesWithAssociate(request.getProjectId(), dto.getModuleIds(), request.getProtocols());
             }
 
             if (CollectionUtils.isNotEmpty(dto.getSelectIds())) {
                 CollectionUtils.removeAll(dto.getSelectIds(), apiTestCaseList.stream().map(ApiTestCase::getId).toList());
                 //获取选中的ids数据
-                List<ApiTestCaseAssociateDTO> selectIdList = extApiTestCaseMapper.getListBySelectIdsWithAssociate(request.getProjectId(), dto.getSelectIds(),  request.getProtocols());
+                List<ApiTestCaseAssociateDTO> selectIdList = extApiTestCaseMapper.getListBySelectIdsWithAssociate(request.getProjectId(), dto.getSelectIds(), request.getProtocols());
                 apiTestCaseList.addAll(selectIdList);
             }
 
