@@ -183,7 +183,7 @@
     },
     (item) => ({
       ...item,
-      deadline: item.deadline ? dayjs(item.deadline).format('YYYY-MM-DD HH:mm:ss') : '-',
+      deadline: item.deadline ? dayjs(item.deadline).format('YYYY-MM-DD HH:mm:ss') : t('apiTestManagement.permanent'),
     })
   );
 

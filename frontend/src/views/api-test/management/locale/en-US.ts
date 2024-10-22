@@ -185,6 +185,7 @@ export default {
   'apiTestManagement.apiShareNumberTip': 'The number of shared interfaces is 0, please check!',
   'apiTestManagement.apiSharePsdError': 'Password error',
   'apiTestManagement.allowExport': 'Allow export',
+  'apiTestManagement.permanent': 'Permanent',
   'apiTestManagement.pleaseEnterName': 'Please enter name',
   'apiTestManagement.module': 'Module',
   'apiTestManagement.enterTheInputTag': 'Enter the input tag',

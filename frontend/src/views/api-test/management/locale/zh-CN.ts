@@ -178,6 +178,7 @@ export default {
   'apiTestManagement.apiShareNumberTip': '分享的接口数量为0，请检查！',
   'apiTestManagement.apiSharePsdError': '密码错误',
   'apiTestManagement.allowExport': '允许导出',
+  'apiTestManagement.permanent': '永久有效',
   'apiTestManagement.pleaseEnterName': '请输入名称',
   'apiTestManagement.module': '模块',
   'apiTestManagement.enterTheInputTag': '回车输入标签',
