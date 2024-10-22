@@ -223,12 +223,6 @@
     }
   );
 
-  function resetModule() {
-    nextTick(() => {
-      moduleTreeRef.value?.init(activeKey.value);
-    });
-  }
-
   function handleModuleSelect(ids: (string | number)[], node: MsTreeNodeData) {
     activeModule.value = node;
     moduleIds.value = ids;
@@ -470,6 +464,7 @@
 
     handleCancel();
   }
+
   // 清空全部
   function clearSelected() {
     apiUseTreeSelection.clearSelector();
@@ -477,6 +472,12 @@
     scenarioUseTreeSelection.clearSelector();
   }
 
+  function resetModule() {
+    clearSelected();
+    nextTick(() => {
+      moduleTreeRef.value?.init(activeKey.value);
+    });
+  }
   onBeforeMount(async () => {
     await initProtocolList();
     const localProtocol = getLocalStorage<string>(ProtocolKeyEnum.API_SCENARIO_IMPORT_PROTOCOL);
