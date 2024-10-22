@@ -87,6 +87,9 @@ public class ProjectApplicationController {
         return configMap;
     }
 
+    /**
+     * ==========任务中心开始==========
+     */
     @PostMapping("/update/task")
     @Operation(summary = "任务中心-配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_TASK_UPDATE)
@@ -102,6 +105,9 @@ public class ProjectApplicationController {
         List<String> types = Arrays.stream(ProjectApplicationType.TASK.values()).map(ProjectApplicationType.TASK::name).collect(Collectors.toList());
         return projectApplicationService.get(request, types);
     }
+    /**
+     * ==========任务中心结束==========
+     */
 
     @GetMapping("/api/user/{projectId}")
     @Operation(summary = "接口测试-获取审核人")

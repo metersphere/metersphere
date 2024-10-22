@@ -467,9 +467,11 @@ public class ApiScenarioReportService {
     private ApiScenarioReportDTO getScenarioReportDetail(String taskId, String taskItemId) {
         ExecTaskItem taskItem = execTaskItemMapper.selectByPrimaryKey(taskItemId);
         ApiScenarioReportDTO apiScenarioReportDTO = scenarioReportDetail(taskId);
-        List<ApiScenarioReportStepDTO> list = apiScenarioReportDTO.getChildren().stream()
-                .filter(step -> StringUtils.equals(step.getStepId(), taskItem.getResourceId())).toList();
-        apiScenarioReportDTO.setChildren(list);
+        if (CollectionUtils.isNotEmpty(apiScenarioReportDTO.getChildren())) {
+            List<ApiScenarioReportStepDTO> list = apiScenarioReportDTO.getChildren().stream()
+                    .filter(step -> StringUtils.equals(step.getStepId(), taskItem.getResourceId())).toList();
+            apiScenarioReportDTO.setChildren(list);
+        }
         return apiScenarioReportDTO;
     }
 

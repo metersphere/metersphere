@@ -193,8 +193,8 @@ public class BaseTaskHubService {
      * @param tasks 任务集合
      */
     private void setTaskReportId(List<TaskHubDTO> tasks) {
-        List<TaskHubDTO> reportTasks = tasks.stream().filter(task -> !StringUtils.equals(task.getTaskType(), ExecTaskType.API_SCENARIO_BATCH.name()) &&
-                !StringUtils.equals(task.getTaskType(), ExecTaskType.API_CASE_BATCH.name())).toList();
+        List<TaskHubDTO> reportTasks = tasks.stream().filter(task -> !StringUtils.equals(task.getTaskType(), ExecTaskType.API_SCENARIO_BATCH.name()) && !StringUtils.equals(task.getTaskType(), ExecTaskType.API_CASE_BATCH.name())
+                && !StringUtils.equals(task.getTaskType(), ExecTaskType.TEST_PLAN_API_CASE_BATCH.name()) && !StringUtils.equals(task.getTaskType(), ExecTaskType.TEST_PLAN_API_SCENARIO_BATCH.name())).toList();
         List<String> integratedTaskIds = reportTasks.stream().filter(task ->
                 StringUtils.equalsAny(task.getTaskType(), ExecTaskType.TEST_PLAN.name(), ExecTaskType.TEST_PLAN_GROUP.name()) || task.getIntegrated()).map(ExecTask::getId).toList();
         List<String> noIntegratedTasks = reportTasks.stream().map(ExecTask::getId).filter(id -> !integratedTaskIds.contains(id)).toList();
