@@ -9,7 +9,7 @@
     multiple
     allow-clear
     check-strictly
-    :max-tag-count="maxTagCount"
+    :max-tag-count="props.shouldCalculateMaxTag ? maxTagCount : 1"
     :virtual-list-props="props.virtualListProps"
     :placeholder="props.placeholder"
     :loading="props.loading"
@@ -51,11 +51,11 @@
     v-model:model-value="innerValue"
     class="ms-cascader"
     :options="props.options"
-    :trigger-props="{ contentClass: `ms-cascader-popper ms-cascader-popper--${props.optionSize}` }"
+    :trigger-props="{ contentClass: `ms-cascader-popper-native ms-cascader-popper--${props.optionSize}` }"
     :multiple="props.multiple"
     allow-clear
     :check-strictly="props.strictly"
-    :max-tag-count="maxTagCount"
+    :max-tag-count="props.shouldCalculateMaxTag ? maxTagCount : 1"
     :placeholder="props.placeholder"
     :virtual-list-props="props.virtualListProps"
     :loading="props.loading"
@@ -121,6 +121,7 @@
     labelPathMode?: boolean; // 是否开启回显的 label 是路径模式
     valueKey?: string;
     labelKey?: string; // 传入自定义的 labelKey
+    shouldCalculateMaxTag?: boolean; // 是否需要计算最大标签数
   }
 
   const props = withDefaults(defineProps<MsCascaderProps>(), {
@@ -129,6 +130,7 @@
     pathMode: false,
     valueKey: 'value',
     labelKey: 'label',
+    shouldCalculateMaxTag: true,
   });
   const emit = defineEmits(['update:modelValue', 'update:level', 'change']);
 
@@ -161,6 +163,9 @@
         // 顶级选项，该级别为单选选项
         innerLevel.value = val[0] as string;
       }
+      if (props.shouldCalculateMaxTag !== false && props.multiple) {
+        calculateMaxTag();
+      }
     },
     {
       immediate: true,
@@ -175,11 +180,11 @@
         selectedLabelObj = {};
         for (let i = 0; i < val.length; i++) {
           const item = val[i];
-          const value = typeof item === 'object' ? item.value : item;
+          const value = typeof item === 'object' ? item[props.valueKey] : item;
           if (!props.labelPathMode) {
-            selectedLabelObj[value] = t((item.label || '').split('/').pop() || '');
+            selectedLabelObj[value] = t((item[props.labelKey] || '').split('/').pop() || '');
           } else {
-            selectedLabelObj[value] = t(item.label || '');
+            selectedLabelObj[value] = t(item[props.labelKey] || '');
           }
         }
       }
@@ -218,7 +223,9 @@
         innerLevel.value = '';
       }
     }
-    calculateMaxTag();
+    if (props.shouldCalculateMaxTag) {
+      calculateMaxTag();
+    }
   }
 
   // TODO: 临时解决 arco-design 的 cascader 组件已选项的label只能是带路径‘/’的 path-mode 的问题
@@ -258,7 +265,8 @@
       }
     }
   }
-  .ms-cascader-popper {
+  .ms-cascader-popper,
+  .ms-cascader-popper-native {
     .arco-cascader-panel {
       .arco-cascader-panel-column {
         .arco-cascader-column-content {
@@ -275,6 +283,10 @@
           background-color: rgb(var(--primary-1));
         }
       }
+    }
+  }
+  .ms-cascader-popper {
+    .arco-cascader-panel {
       .arco-cascader-panel-column:first-child {
         .arco-checkbox {
           @apply hidden;

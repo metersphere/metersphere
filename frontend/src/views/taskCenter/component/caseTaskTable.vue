@@ -131,9 +131,11 @@
   </ms-base-table>
   <batchTaskReportDrawer
     v-model:visible="taskReportDrawerVisible"
-    :range="reportModuleType"
-    :type="reportModuleType"
+    :range="props.type"
+    :type="reportType"
     :module-type="reportModuleType"
+    :task-id="reportBatchTaskId"
+    :batch-type="reportBatchType"
   />
   <CaseReportDrawer
     v-model:visible="showCaseDetailDrawer"
@@ -257,7 +259,7 @@
       title: 'ms.taskCenter.executeStatus',
       dataIndex: 'status',
       slotName: 'status',
-      width: 90,
+      width: 100,
       filterConfig: {
         options: Object.keys(executeStatusMap).map((key) => ({
           label: t(executeStatusMap[key as ExecuteStatusEnum].label),
@@ -270,7 +272,7 @@
       title: 'ms.taskCenter.executeMethod',
       dataIndex: 'triggerMode',
       slotName: 'triggerMode',
-      width: 90,
+      width: 100,
       filterConfig: {
         options: Object.keys(executeMethodMap).map((key) => ({
           label: t(executeMethodMap[key]),
@@ -283,7 +285,7 @@
       title: 'ms.taskCenter.executeResult',
       dataIndex: 'result',
       slotName: 'result',
-      width: 90,
+      width: 100,
       filterConfig: {
         options: Object.keys(executeResultMap).map((key) => ({
           label: t(executeResultMap[key].label),
@@ -686,13 +688,17 @@
 
   const taskReportDrawerVisible = ref(false);
   const reportModuleType = ref();
-  const reportBatchType = ref();
+  const reportType = ref<'CASE' | 'SCENARIO'>('CASE');
+  const reportBatchType = ref<ExecuteTaskType>(ExecuteTaskType.API_CASE);
+  const reportBatchTaskId = ref('');
   function checkReport(record: TaskCenterTaskItem) {
     if (record.taskType.includes('BATCH')) {
       reportModuleType.value = record.taskType.includes('CASE')
         ? ReportEnum.API_REPORT
         : ReportEnum.API_SCENARIO_REPORT;
-      reportBatchType.value = record.taskType.includes('CASE') ? 'CASE' : 'SCENARIO';
+      reportType.value = record.taskType.includes('CASE') ? 'CASE' : 'SCENARIO';
+      reportBatchType.value = record.taskType;
+      reportBatchTaskId.value = record.id;
       taskReportDrawerVisible.value = true;
     } else if (
       [
@@ -723,6 +729,13 @@
     },
     {
       immediate: true,
+    }
+  );
+
+  watch(
+    () => appStore.currentProjectId,
+    () => {
+      searchTask();
     }
   );
 

@@ -12,11 +12,12 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { ReportExecStatus } from '@/enums/apiEnum';
+  import { ExecuteStatusEnum } from '@/enums/taskCenter';
 
   import { executeStatusMap } from './config';
 
   const props = defineProps<{
-    status: ReportExecStatus;
+    status: ReportExecStatus | ExecuteStatusEnum;
     size?: 'small' | 'medium' | 'large';
   }>();
   const { t } = useI18n();

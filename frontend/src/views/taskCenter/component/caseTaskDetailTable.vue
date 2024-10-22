@@ -12,15 +12,18 @@
     <MsCascader
       v-model:model-value="resourcePool"
       mode="native"
+      multiple
       :options="resourcePoolOptions"
       :placeholder="t('common.pleaseSelect')"
       option-size="small"
-      label-key="name"
-      value-key="id"
       class="w-[240px]"
       :prefix="t('ms.taskCenter.resourcePool')"
+      :virtual-list-props="{ height: 200 }"
+      strictly
       label-path-mode
-      @change="searchTask"
+      @clear="searchTask"
+      @popup-visible-change="handleResourcePoolVisibleChange"
+      @change="handleResourcePoolChange"
     >
     </MsCascader>
     <MsTag no-margin size="large" :tooltip-disabled="true" class="cursor-pointer" theme="outline" @click="searchTask">
@@ -69,13 +72,13 @@
       >
         {{ t('ms.taskCenter.rerun') }}
       </MsButton> -->
-      <MsButton v-if="record.status === ExecuteStatusEnum.COMPLETED" @click="checkExecuteResult(record)">
+      <MsButton v-if="record.status !== ExecuteStatusEnum.PENDING" @click="checkExecuteResult(record)">
         {{ t('ms.taskCenter.executeResult') }}
       </MsButton>
     </template>
   </ms-base-table>
-  <caseExecuteResultDrawer :id="executeResultId" v-model:visible="caseExecuteResultDrawerVisible" />
-  <scenarioExecuteResultDrawer :id="executeResultId" v-model:visible="scenarioExecuteResultDrawerVisible" />
+  <caseExecuteResultDrawer v-model:visible="caseExecuteResultDrawerVisible" :record="activeRecord" />
+  <scenarioExecuteResultDrawer v-model:visible="scenarioExecuteResultDrawerVisible" :record="activeRecord" />
 </template>
 
 <script setup lang="ts">
@@ -119,7 +122,8 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
-  import { characterLimit } from '@/utils';
+  import { useAppStore } from '@/store';
+  import { characterLimit, mapTree } from '@/utils';
 
   import { TaskCenterTaskDetailItem } from '@/models/taskCenter';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -135,10 +139,11 @@
 
   const { t } = useI18n();
   const { openModal } = useModal();
+  const appStore = useAppStore();
   const tableStore = useTableStore();
 
   const keyword = ref('');
-  const resourcePool = ref([]);
+  const resourcePool = ref<string[]>([]);
   const resourcePoolOptions = ref<CascaderOption[]>([]);
   const tableSelected = ref<string[]>([]);
   const batchModalParams = ref();
@@ -334,9 +339,55 @@
     }
   );
 
+  const resourcePoolIds = ref<Set<string>>(new Set([]));
+  const resourcePoolNodes = ref<Set<string>>(new Set([]));
   function searchTask() {
-    setLoadListParams({ keyword: keyword.value, resourcePools: resourcePool.value });
+    setLoadListParams({
+      keyword: keyword.value,
+      resourcePoolIds: Array.from(resourcePoolIds.value),
+      resourcePoolNodes: Array.from(resourcePoolNodes.value),
+    });
     loadList();
+  }
+
+  function handleResourcePoolVisibleChange(val: boolean) {
+    if (!val) {
+      searchTask();
+    }
+  }
+
+  function handleResourcePoolChange(value: string[]) {
+    if (resourcePool.value.length < value.length) {
+      // 添加选中节点
+      const lastValue = value[value.length - 1];
+      const resourceClass = resourcePoolOptions.value.find((e) => e.value === lastValue);
+      if (resourceClass && resourceClass.children && resourceClass.children.length > 0) {
+        const childIds = resourceClass.children.map((e) => e.value as string);
+        resourcePool.value.push(...value, ...childIds);
+        resourcePool.value = Array.from(new Set(resourcePool.value));
+        childIds.forEach((e) => {
+          resourcePoolNodes.value.add(e);
+        });
+      }
+      if (resourceClass) {
+        // 是资源池分类
+        resourcePoolIds.value.add(resourceClass.value as string);
+      } else {
+        // 是资源池节点
+        resourcePoolNodes.value.add(lastValue);
+      }
+    } else {
+      // 移除选中节点
+      const lastValue = value[value.length - 1];
+      const resourceClass = resourcePoolOptions.value.find((e) => e.value === lastValue);
+      if (resourceClass) {
+        // 是资源池分类
+        resourcePoolIds.value.delete(resourceClass.value as string);
+      } else {
+        // 是资源池节点
+        resourcePoolNodes.value.delete(lastValue);
+      }
+    }
   }
 
   const currentStopTask = {
@@ -409,11 +460,11 @@
     }
   }
 
-  const executeResultId = ref('');
+  const activeRecord = ref<TaskCenterTaskDetailItem>({} as TaskCenterTaskDetailItem);
   const caseExecuteResultDrawerVisible = ref(false);
   const scenarioExecuteResultDrawerVisible = ref(false);
   function checkExecuteResult(record: TaskCenterTaskDetailItem) {
-    executeResultId.value = record.id;
+    activeRecord.value = record;
     if (record.resourceType === 'API_SCENARIO') {
       scenarioExecuteResultDrawerVisible.value = true;
     } else {
@@ -422,15 +473,19 @@
   }
 
   const currentResourcePoolRequest = {
-    system: getProjectTaskCenterResourcePools,
-    project: getOrgTaskCenterResourcePools,
-    org: getSystemTaskCenterResourcePools,
+    system: getSystemTaskCenterResourcePools,
+    project: getProjectTaskCenterResourcePools,
+    org: getOrgTaskCenterResourcePools,
   }[props.type];
 
   async function initResourcePools() {
     try {
       const res = await currentResourcePoolRequest();
-      resourcePoolOptions.value = res;
+      resourcePoolOptions.value = mapTree(res, (node) => ({
+        label: node.name,
+        value: node.id,
+        children: node.children,
+      }));
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -515,6 +570,13 @@
     },
     {
       immediate: true,
+    }
+  );
+
+  watch(
+    () => appStore.currentProjectId,
+    () => {
+      searchTask();
     }
   );
 

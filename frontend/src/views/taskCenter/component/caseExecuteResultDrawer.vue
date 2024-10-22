@@ -2,44 +2,47 @@
   <MsDrawer v-model:visible="visible" :width="800" :footer="false">
     <template #title>
       <div class="flex items-center gap-[8px]">
-        <a-tag :color="executeResultMap[detail.executeResult]?.color">
-          {{ t(executeResultMap[detail.executeResult]?.label) }}
+        <a-tag :color="executeResultMap[props.record.result]?.color">
+          {{ t(executeResultMap[props.record.result]?.label) }}
         </a-tag>
         <div>{{ detail.name }}</div>
       </div>
       <div class="flex flex-1 justify-end">
-        <MsButton type="icon" status="secondary" class="!rounded-[var(--border-radius-small)]" @click="refresh">
+        <MsButton type="icon" status="secondary" class="!rounded-[var(--border-radius-small)]" @click="init">
           <MsIcon type="icon-icon_reset_outlined" class="mr-[8px]" size="14" />
           {{ t('common.refresh') }}
         </MsButton>
       </div>
     </template>
-    <MsDescription :descriptions="detail.description" :column="3" :line-gap="8" one-line-value>
-      <template #value="{ item }">
-        <execStatus v-if="item.key === 'status'" :status="item.value as ReportExecStatus" size="small" />
-        <a-tooltip
-          v-else
-          :content="`${item.value}`"
-          :disabled="item.value === undefined || item.value === null || item.value?.toString() === ''"
-          :position="item.tooltipPosition ?? 'tl'"
-        >
-          <div class="w-[fit-content]">
-            {{ item.value === undefined || item.value === null || item.value?.toString() === '' ? '-' : item.value }}
-          </div>
-        </a-tooltip>
-      </template>
-    </MsDescription>
-    <div class="mt-[8px]">
-      <StepDetailContent
-        mode="tiled"
-        show-type="CASE"
-        :step-item="detail.scenarioDetail"
-        :console="detail.console"
-        :is-definition="true"
-        :get-report-step-detail="props.getReportStepDetail"
-        :report-id="detail.scenarioDetail?.reportId"
-      />
-    </div>
+    <a-spin :loading="loading" class="block">
+      <MsDescription :descriptions="detail.description" :column="3" :line-gap="8" one-line-value>
+        <template #value="{ item }">
+          <execStatus v-if="item.key === 'status'" :status="props.record.status" size="small" />
+          <a-tooltip
+            v-else
+            :content="`${item.value}`"
+            :disabled="item.value === undefined || item.value === null || item.value?.toString() === ''"
+            :position="item.tooltipPosition ?? 'tl'"
+          >
+            <div class="w-[fit-content]">
+              {{ item.value === undefined || item.value === null || item.value?.toString() === '' ? '-' : item.value }}
+            </div>
+          </a-tooltip>
+        </template>
+      </MsDescription>
+      <div class="mt-[8px]">
+        <StepDetailContent
+          v-if="visible && detail.content"
+          mode="tiled"
+          show-type="CASE"
+          static
+          :static-info="detail"
+          :is-definition="true"
+          :get-report-step-detail="getCaseTaskReport"
+          :report-id="detail.reportId"
+        />
+      </div>
+    </a-spin>
   </MsDrawer>
 </template>
 
@@ -53,75 +56,85 @@
   import execStatus from './execStatus.vue';
   import StepDetailContent from '@/views/api-test/components/requestComposition/response/result/index.vue';
 
+  import { getCaseTaskReport } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ReportExecStatus } from '@/enums/apiEnum';
+  import { TaskCenterTaskDetailItem } from '@/models/taskCenter';
 
-  import { executeResultMap } from './config';
+  import { executeResultMap, executeStatusMap } from './config';
 
   const props = defineProps<{
-    id: string;
-    getReportStepDetail?: (...args: any) => Promise<any>; // 获取步骤的详情内容接口
+    record: TaskCenterTaskDetailItem;
   }>();
 
   const { t } = useI18n();
 
   const visible = defineModel<boolean>('visible', { required: true });
+  const loading = ref(false);
   const detail = ref<any>({ description: [] });
 
+  async function init() {
+    try {
+      loading.value = true;
+      const res = await getCaseTaskReport(props.record.id);
+      const [caseDetail] = res;
+      detail.value = {
+        name: caseDetail.requestName,
+        description: [
+          {
+            label: t('ms.taskCenter.executeStatus'),
+            key: 'status',
+            value: t(executeStatusMap[props.record.status].label),
+          },
+          {
+            label: t('ms.taskCenter.operationUser'),
+            value: props.record.executor,
+          },
+          {
+            label: t('ms.taskCenter.taskCreateTime'),
+            value: dayjs(props.record.startTime).format('YYYY-MM-DD HH:mm:ss'),
+          },
+          {
+            label: t('ms.taskCenter.taskResource'),
+            value: props.record.resourceName,
+          },
+          {
+            label: t('ms.taskCenter.threadID'),
+            value: props.record.threadId,
+          },
+          {
+            label: t('ms.taskCenter.taskStartTime'),
+            value: dayjs(props.record.startTime).format('YYYY-MM-DD HH:mm:ss'),
+          },
+          {
+            label: t('ms.taskCenter.executeEnvInfo'),
+            value: 'DEV 资源池1 10.11.1.1',
+            class: '!w-[calc(100%/3*2)]',
+          },
+          {
+            label: t('ms.taskCenter.taskEndTime'),
+            value: dayjs(props.record.endTime).format('YYYY-MM-DD HH:mm:ss'),
+          },
+        ] as Description[],
+        ...caseDetail,
+      };
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
   watch(
-    () => props.id,
-    async () => {
-      if (props.id) {
-        detail.value = {
-          id: props.id,
-          name: '测试用例名称',
-          executeResult: 'SUCCESS',
-          description: [
-            {
-              label: t('ms.taskCenter.executeStatus'),
-              key: 'status',
-              value: 'COMPLETED',
-            },
-            {
-              label: t('ms.taskCenter.operationUser'),
-              value: 'admin',
-            },
-            {
-              label: t('ms.taskCenter.taskCreateTime'),
-              value: dayjs(1626844800000).format('YYYY-MM-DD HH:mm:ss'),
-            },
-            {
-              label: t('ms.taskCenter.taskResource'),
-              value: '测试计划',
-            },
-            {
-              label: t('ms.taskCenter.threadID'),
-              value: '1231231231',
-            },
-            {
-              label: t('ms.taskCenter.taskStartTime'),
-              value: dayjs(1626844800000).format('YYYY-MM-DD HH:mm:ss'),
-            },
-            {
-              label: t('ms.taskCenter.executeEnvInfo'),
-              value: 'DEV 资源池1 10.11.1.1',
-              class: '!w-[calc(100%/3*2)]',
-            },
-            {
-              label: t('ms.taskCenter.taskEndTime'),
-              value: dayjs(1626844800000).format('YYYY-MM-DD HH:mm:ss'),
-            },
-          ] as Description[],
-        };
+    () => visible.value,
+    (val) => {
+      if (props.record.id && val) {
+        init();
       }
     },
     { immediate: true }
   );
-
-  function refresh() {
-    console.log('refresh');
-  }
 </script>
 
 <style lang="less" scoped>

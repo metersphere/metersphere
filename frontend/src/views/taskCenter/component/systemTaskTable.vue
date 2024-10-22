@@ -104,6 +104,7 @@
   import useModal from '@/hooks/useModal';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useTableStore from '@/hooks/useTableStore';
+  import { useAppStore } from '@/store';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -123,6 +124,7 @@
   const { openModal } = useModal();
   const { openNewPage } = useOpenNewPage();
   const tableStore = useTableStore();
+  const appStore = useAppStore();
 
   const keyword = ref('');
   const batchModalParams = ref();
@@ -464,6 +466,13 @@
   onMounted(() => {
     loadList();
   });
+
+  watch(
+    () => appStore.currentProjectId,
+    () => {
+      searchTask();
+    }
+  );
 </script>
 
 <style lang="less" scoped></style>

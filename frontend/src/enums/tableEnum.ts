@@ -76,6 +76,7 @@ export enum TableKeyEnum {
   TASK_CENTER_CASE_TASK = 'taskCenterCaseTask',
   TASK_CENTER_CASE_TASK_DETAIL = 'taskCenterCaseTaskDetail',
   TASK_CENTER_SYSTEM_TASK = 'taskCenterSystemTask',
+  TASK_CENTER_BATCH_TASK = 'taskCenterBatchTask',
   TASK_SCHEDULE_TASK_API_IMPORT_SYSTEM = 'taskCenterScheduleApiImportSystem',
   TASK_SCHEDULE_TASK_API_SCENARIO_SYSTEM = 'taskCenterScheduleApiScenarioSystem',
   TASK_SCHEDULE_TASK_API_IMPORT_ORGANIZATION = 'taskCenterScheduleApiImportOrganization',

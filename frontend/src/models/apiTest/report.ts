@@ -1,5 +1,6 @@
 import { RequestResult } from '@/models/apiTest/common';
 import type { RequestMethods } from '@/enums/apiEnum';
+import type { ExecuteStatusEnum } from '@/enums/taskCenter';
 
 export interface LegendData {
   label: string;
@@ -73,7 +74,7 @@ export interface ReportStepDetailItem {
   id: string;
   reportId: string;
   stepId: string;
-  status: string;
+  status: ExecuteStatusEnum;
   fakeCode: string;
   requestName: string;
   requestTime: number;

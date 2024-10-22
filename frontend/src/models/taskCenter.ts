@@ -1,4 +1,4 @@
-import type { ExecuteTaskType, ExecuteTriggerMode } from '@/enums/taskCenter';
+import type { ExecuteStatusEnum, ExecuteTaskType, ExecuteTriggerMode } from '@/enums/taskCenter';
 
 import type { TableQueryParams } from './common';
 
@@ -59,7 +59,7 @@ export interface TaskCenterTaskDetailItem {
   resourceId: string;
   resourceName: string;
   taskOrigin: string; // 任务来源
-  status: string; // 执行状态
+  status: ExecuteStatusEnum; // 执行状态
   result: string; // 执行结果
   resourcePoolId: string; // 资源池ID
   resourcePoolNode: string; // 资源池节点
