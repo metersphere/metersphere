@@ -16,8 +16,10 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.ExecTask;
+import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.mapper.ExecTaskItemMapper;
 import io.metersphere.system.mapper.ExtExecTaskMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.UserMapper;
@@ -73,6 +75,8 @@ public class ApiReportService {
     private ApiReportStepMapper apiReportStepMapper;
     @Resource
     private ExtExecTaskMapper extExecTaskMapper;
+    @Resource
+    private ExecTaskItemMapper execTaskItemMapper;
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiReport(ApiReport report) {
@@ -323,15 +327,25 @@ public class ApiReportService {
         List<ExecTask> taskList = extExecTaskMapper.selectTypeByItemId(id);
 
         if (CollectionUtils.isNotEmpty(taskList)) {
-            if (taskList.getFirst().getIntegrated()) {
-                //集合报告  TODO
-                return new ArrayList<>();
+            ExecTask task = taskList.getFirst();
+            if (task.getIntegrated()) {
+                //集合报告
+                return getIntegratedItemDetail(id, task.getId());
             } else {
                 //非集合报告
                 return reportDetail(id);
             }
         }
         return new ArrayList<>();
+    }
+
+    private List<ApiReportDetailDTO> getIntegratedItemDetail(String taskItemId, String taskId) {
+        ExecTaskItem taskItem = execTaskItemMapper.selectByPrimaryKey(taskItemId);
+        ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
+        example.createCriteria().andTaskResourceIdEqualTo(taskId);
+        List<ApiReportRelateTask> apiReportRelateTasks = apiReportRelateTaskMapper.selectByExample(example);
+        String reportId = apiReportRelateTasks.getFirst().getReportId();
+        return getDetail(reportId, taskItem.getResourceId());
     }
 
     private List<ApiReportDetailDTO> reportDetail(String id) {
