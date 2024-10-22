@@ -260,7 +260,12 @@
     @close="cancelHandler"
     @load-list="loadShareList"
   />
-  <ShareListDrawer ref="shareListRef" v-model:visible="showShareListDrawer" @edit-or-create="editHandler" />
+  <ShareListDrawer
+    ref="shareListRef"
+    v-model:visible="showShareListDrawer"
+    @edit-or-create="editHandler"
+    @load-list="shareButtonRef?.initShareList()"
+  />
 </template>
 
 <script setup lang="ts">

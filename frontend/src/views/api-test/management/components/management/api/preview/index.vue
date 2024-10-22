@@ -26,7 +26,6 @@
               @click="toggleFollowReview"
             />
           </a-tooltip>
-          <!-- 分享导出 TODO 联调 -->
           <a-tooltip v-if="docShareId && shareDetailInfo?.allowExport" :content="t('common.export')">
             <MsIcon
               type="icon-icon_top-align_outlined"
