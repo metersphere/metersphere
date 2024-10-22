@@ -4,9 +4,11 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
+import io.metersphere.api.dto.definition.ApiTaskReportDTO;
 import io.metersphere.api.dto.report.ApiScenarioReportListDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
+import io.metersphere.api.dto.scenario.ExecTaskDetailDTO;
 import io.metersphere.api.service.ApiReportShareService;
 import io.metersphere.api.service.scenario.ApiScenarioReportLogService;
 import io.metersphere.api.service.scenario.ApiScenarioReportNoticeService;
@@ -139,7 +141,7 @@ public class ApiScenarioReportController {
     @Operation(summary = "系统-任务中心-场景用例执行任务详情-查看(任务步骤)")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ,
             PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_READ, PermissionConstants.PROJECT_CASE_TASK_CENTER_READ}, logical = Logical.OR)
-    public ApiScenarioReportDTO viewScenarioItemReport(@PathVariable String id) {
+    public ExecTaskDetailDTO viewScenarioItemReport(@PathVariable String id) {
         return apiScenarioReportService.viewScenarioItemReport(id);
     }
 

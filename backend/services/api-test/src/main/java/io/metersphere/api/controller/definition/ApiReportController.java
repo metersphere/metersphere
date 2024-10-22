@@ -2,10 +2,7 @@ package io.metersphere.api.controller.definition;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.dto.definition.ApiReportBatchRequest;
-import io.metersphere.api.dto.definition.ApiReportDTO;
-import io.metersphere.api.dto.definition.ApiReportDetailDTO;
-import io.metersphere.api.dto.definition.ApiReportPageRequest;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.report.ApiReportListDTO;
 import io.metersphere.api.service.ApiReportShareService;
 import io.metersphere.api.service.definition.ApiReportLogService;
@@ -139,7 +136,7 @@ public class ApiReportController {
     @Operation(summary = "系统-任务中心-接口用例执行任务详情-查看")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ,
             PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_READ, PermissionConstants.PROJECT_CASE_TASK_CENTER_READ}, logical = Logical.OR)
-    public List<ApiReportDetailDTO> viewCaseItemReport(@PathVariable String id) {
+    public ApiTaskReportDTO viewCaseItemReport(@PathVariable String id) {
         return apiReportService.viewCaseTaskItemReport(id);
     }
 }

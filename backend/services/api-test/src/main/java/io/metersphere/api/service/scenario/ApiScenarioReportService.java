@@ -8,7 +8,10 @@ import io.metersphere.api.dto.report.ApiScenarioReportListDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
+import io.metersphere.api.dto.scenario.ExecTaskDetailDTO;
 import io.metersphere.api.mapper.*;
+import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.domain.Environment;
@@ -22,6 +25,7 @@ import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.taskhub.ExecTaskItemDetailDTO;
 import io.metersphere.system.mapper.ExecTaskItemMapper;
 import io.metersphere.system.mapper.ExtExecTaskMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
@@ -81,6 +85,8 @@ public class ApiScenarioReportService {
     private ExtExecTaskMapper extExecTaskMapper;
     @Resource
     private ExecTaskItemMapper execTaskItemMapper;
+    @Resource
+    private TestPlanMapper testPlanMapper;
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiScenarioReport(ApiScenarioReport report, ApiReportRelateTask taskRelation) {
@@ -449,19 +455,30 @@ public class ApiScenarioReportService {
         }
     }
 
-    public ApiScenarioReportDTO viewScenarioItemReport(String id) {
-        List<ExecTask> taskList = extExecTaskMapper.selectTypeByItemId(id);
+    public ExecTaskDetailDTO viewScenarioItemReport(String id) {
+        List<ExecTaskItemDetailDTO> taskList = extExecTaskMapper.selectTypeByItemId(id);
+        ExecTaskDetailDTO apiTaskReportDTO = new ExecTaskDetailDTO();
 
         if (CollectionUtils.isNotEmpty(taskList)) {
-            if (taskList.getFirst().getIntegrated()) {
+            ExecTaskItemDetailDTO task = taskList.getFirst();
+            //设置 顶部数据
+            BeanUtils.copyBean(apiTaskReportDTO, task);
+            //计划组处理来源
+            if (StringUtils.isNotBlank(apiTaskReportDTO.getTaskOrigin())) {
+                TestPlan testPlan = testPlanMapper.selectByPrimaryKey(apiTaskReportDTO.getTaskOrigin());
+                Optional.ofNullable(testPlan).ifPresent(item -> apiTaskReportDTO.setTaskOriginName(testPlan.getName()));
+            }
+            if (task.getIntegrated()) {
                 //场景集合报告
-                return getScenarioReportDetail(taskList.getFirst().getId(), id);
+                ApiScenarioReportDTO scenarioReportDetail = getScenarioReportDetail(id, task.getId());
+                BeanUtils.copyBean(apiTaskReportDTO, scenarioReportDetail);
             } else {
                 //场景非集合报告
-                return scenarioReportDetail(id);
+                ApiScenarioReportDTO scenarioReportDetail = scenarioReportDetail(id);
+                BeanUtils.copyBean(apiTaskReportDTO, scenarioReportDetail);
             }
         }
-        return new ApiScenarioReportDTO();
+        return apiTaskReportDTO;
     }
 
     private ApiScenarioReportDTO getScenarioReportDetail(String taskId, String taskItemId) {
