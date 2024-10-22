@@ -61,6 +61,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -188,6 +189,7 @@ public class BaseTaskHubService {
 
     /**
      * 设置任务的报告ID
+     *
      * @param tasks 任务集合
      */
     private void setTaskReportId(List<TaskHubDTO> tasks) {
@@ -749,27 +751,19 @@ public class BaseTaskHubService {
     public Map<String, Integer> getTaskItemOrder(List<String> taskIdItemIds) {
         List<ExecTaskItem> taskItemIds = getTaskItemByIds(taskIdItemIds);
         Map<String, List<ExecTaskItem>> nodeResourceMap = taskItemIds.stream()
+                .filter(item -> StringUtils.equals(item.getResourceType(), ResourcePoolTypeEnum.NODE.getName())) // 根据条件过滤
                 .collect(Collectors.groupingBy(ExecTaskItem::getResourcePoolNode));
 
-        Map<String, Integer> taskItemOrderMap = new HashMap<>();
+        List<CompletableFuture<Map<String, Integer>>> futures = nodeResourceMap.keySet().stream()
+                .filter(StringUtils::isNotBlank)
+                .map(execTaskItems -> CompletableFuture.supplyAsync(() -> getTaskItemOrder(execTaskItems, taskIdItemIds)))
+                .toList();
 
-        List<Thread> threads = new ArrayList<>();
-        nodeResourceMap.forEach((node, items) -> {
-            if (StringUtils.isNotBlank(node)) {
-                Thread thread = Thread.startVirtualThread(() -> taskItemOrderMap.putAll(getTaskItemOrder(node, taskIdItemIds)));
-                threads.add(thread);
-            }
-        });
-
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                LogUtils.error(e);
-            }
-        }
-
-        return taskItemOrderMap;
+        // 等待所有异步任务完成并合并结果
+        return futures.stream()
+                .map(CompletableFuture::join)
+                .flatMap(map -> map.entrySet().stream())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public Map<String, Integer> getTaskItemOrder(String node, List<String> taskIdItemIds) {
