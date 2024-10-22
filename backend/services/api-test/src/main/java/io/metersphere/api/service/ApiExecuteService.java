@@ -233,6 +233,7 @@ public class ApiExecuteService {
             if (isK8SResourcePool) {
                 TestResourceDTO testResourceDTO = new TestResourceDTO();
                 BeanUtils.copyBean(testResourceDTO, testResourcePoolDTO.getTestResourceReturnDTO());
+                testResourceDTO.setId(testResourcePoolDTO.getId());
                 taskInfo.setPerTaskSize(testResourceDTO.getPodThreads());
                 taskInfo.setPoolSize(testResourceDTO.getConcurrentNumber());
                 LogUtils.info("开始发送请求【 {}_{} 】到 K8S 资源池执行", taskItem.getReportId(), taskItem.getResourceId());
@@ -315,6 +316,8 @@ public class ApiExecuteService {
         if (isK8SResourcePool) {
             TestResourceDTO testResourceDTO = new TestResourceDTO();
             BeanUtils.copyBean(testResourceDTO, testResourcePool.getTestResourceReturnDTO());
+            testResourceDTO.setId(testResourcePool.getId());
+
             taskInfo.setPoolSize(testResourceDTO.getConcurrentNumber());
             taskInfo.setPerTaskSize(testResourceDTO.getPodThreads());
             try {
