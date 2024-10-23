@@ -109,5 +109,9 @@ CREATE TABLE IF NOT EXISTS api_report_relate_task(
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '报告与任务关联表';
 
+
+
+CREATE INDEX idx_deleted ON api_test_case(`deleted`);
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

@@ -215,13 +215,13 @@
         api_test_case.deleted = #{deleted}
         <include refid="io.metersphere.api.mapper.ExtApiDefinitionMapper.queryWhereCondition"/>
         <if test="request.testPlanId != null and request.testPlanId != ''">
-            and exists (
+            and api_test_case.id in (
             select id
             from api_test_case c
             where c.api_definition_id = api_definition.id and c.deleted = false
             <if test="!isRepeat">
-                and not exists (
-                select id
+                and c.id not in (
+                select t.api_case_id
                 from test_plan_api_case t
                 where t.api_case_id = c.id
                 and t.test_plan_id = #{request.testPlanId}
