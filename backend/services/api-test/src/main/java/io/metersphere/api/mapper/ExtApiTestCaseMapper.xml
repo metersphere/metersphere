@@ -687,10 +687,20 @@
                         </if>
                         <!-- 执行结果 -->
                         <if test="condition.name == 'lastReportStatus'">
-                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                <property name="condition" value="condition"/>
-                                <property name="column" value="atc.last_report_status"/>
-                            </include>
+                            <choose>
+                                <when test="condition.operator == 'EMPTY'">
+                                    atc.last_report_status is null or atc.last_report_status = '' or atc.last_report_status = 'PENDING'
+                                </when>
+                                <when test="condition.operator == 'NOT_EMPTY'">
+                                    atc.last_report_status is not null and atc.last_report_status != '' and atc.last_report_status != 'PENDING'
+                                </when>
+                                <otherwise>
+                                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                        <property name="condition" value="condition"/>
+                                        <property name="column" value="atc.last_report_status"/>
+                                    </include>
+                                </otherwise>
+                            </choose>
                         </if>
                         <!-- 接口存在更新 -->
                         <if test="condition.name == 'apiChange'">
