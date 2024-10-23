@@ -209,24 +209,31 @@ public class ApiBatchRunBaseService {
         return runModeConfig.getEnvironmentId();
     }
 
-    public void updateTaskStatus(String taskId) {
-        // 更新任务状态
-        ExecTask execTask = new ExecTask();
-        execTask.setEndTime(System.currentTimeMillis());
-        execTask.setId(taskId);
-        execTask.setStatus(ExecStatus.COMPLETED.name());
-        if (extExecTaskItemMapper.hasErrorItem(taskId)) {
-            execTask.setResult(ResultStatus.ERROR.name());
-        } else if (extExecTaskItemMapper.hasFakeErrorItem(taskId)) {
-            execTask.setResult(ResultStatus.FAKE_ERROR.name());
-        } else {
-            execTask.setResult(ResultStatus.SUCCESS.name());
+    public void updateTaskCompletedStatus(String taskId) {
+        // 删除执行缓存
+        removeRunningTaskCache(taskId);
+        ExecTask originExecTask = execTaskMapper.selectByPrimaryKey(taskId);
+        // 出现异常，导致任务没有开始，则不更新任务状态
+        if (!StringUtils.equals(originExecTask.getStatus(), ExecStatus.PENDING.name())) {
+            // 更新任务状态
+            ExecTask execTask = new ExecTask();
+            execTask.setEndTime(System.currentTimeMillis());
+            execTask.setId(taskId);
+            execTask.setStatus(ExecStatus.COMPLETED.name());
+            if (extExecTaskItemMapper.hasErrorItem(taskId)) {
+                execTask.setResult(ResultStatus.ERROR.name());
+            } else if (extExecTaskItemMapper.hasFakeErrorItem(taskId)) {
+                execTask.setResult(ResultStatus.FAKE_ERROR.name());
+            } else {
+                execTask.setResult(ResultStatus.SUCCESS.name());
+            }
+            execTaskMapper.updateByPrimaryKeySelective(execTask);
         }
-        execTaskMapper.updateByPrimaryKeySelective(execTask);
     }
 
     /**
      * 清理正在运行的任务缓存
+     *
      * @param taskId
      */
     public void removeRunningTaskCache(String taskId) {
