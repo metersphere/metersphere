@@ -479,6 +479,11 @@
       },
     },
     {
+      title: 'mockManagement.apiPath',
+      dataIndex: 'apiPath',
+      type: FilterType.INPUT,
+    },
+    {
       title: 'apiTestManagement.apiType',
       dataIndex: 'apiMethod',
       type: FilterType.SELECT,
@@ -494,8 +499,8 @@
       type: FilterType.BOOLEAN,
       selectProps: {
         options: [
-          { label: t('system.config.email.close'), value: false },
-          { label: t('system.config.email.open'), value: true },
+          { label: t('system.config.email.close'), value: 'false' },
+          { label: t('system.config.email.open'), value: 'true' },
         ],
       },
     },
