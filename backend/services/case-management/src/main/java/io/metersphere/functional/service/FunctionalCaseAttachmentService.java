@@ -167,7 +167,7 @@ public class FunctionalCaseAttachmentService {
         }));
         attachmentDTOs.addAll(filesDTOs);
         attachmentDTOs.sort(Comparator.comparing(FunctionalCaseAttachmentDTO::getCreateTime).reversed());
-
+        List<FunctionalCaseAttachmentDTO> returnAttachmentDTO = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(attachmentDTOs)) {
             List<String> userList = attachmentDTOs.stream().map(FunctionalCaseAttachmentDTO::getCreateUser).toList();
             UserExample userExample = new UserExample();
@@ -175,11 +175,14 @@ public class FunctionalCaseAttachmentService {
             List<User> users = userMapper.selectByExample(userExample);
             Map<String, String> collect = users.stream().collect(Collectors.toMap(User::getId, User::getName));
             attachmentDTOs.forEach(item -> {
-                String userName = collect.get(item.getCreateUser());
-                item.setCreateUserName(userName);
+                if (!item.isDeleted()) {
+                    String userName = collect.get(item.getCreateUser());
+                    item.setCreateUserName(userName);
+                    returnAttachmentDTO.add(item);
+                }
             });
         }
-        functionalCaseDetailDTO.setAttachments(attachmentDTOs);
+        functionalCaseDetailDTO.setAttachments(returnAttachmentDTO);
     }
 
 
