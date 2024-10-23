@@ -164,12 +164,14 @@
   function searchStep() {
     const splitLevel = props.keyWords.split('-');
     const stepTypeStatus = splitLevel[1] || '';
-    const stepType = splitLevel[0] === 'CUSTOM_REQUEST' ? ['API', 'API_CASE', 'CUSTOM_REQUEST'] : splitLevel[0];
+    const stepType =
+      splitLevel[0] === 'CUSTOM_REQUEST'
+        ? ['API', 'API_CASE', 'CUSTOM_REQUEST']
+        : ['API', 'API_CASE', 'CUSTOM_REQUEST', 'SCRIPT', 'API_SCENARIO'];
     const nameSearch = innerKeyword.value?.toLowerCase(); // 传入的 name 检索关键字
 
     const search = (_data: ScenarioItemType[]) => {
       const result: ScenarioItemType[] = [];
-
       _data.forEach((item) => {
         const isStepChildren = item.children && item?.children.length && showApiType.value.includes(item.stepType);
 
