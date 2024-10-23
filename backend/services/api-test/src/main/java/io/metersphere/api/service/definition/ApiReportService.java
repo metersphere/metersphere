@@ -390,9 +390,11 @@ public class ApiReportService {
 
     private void setEnvironment(String reportId, ApiTaskReportDTO apiTaskReportDTO) {
         ApiReport apiReport = apiReportMapper.selectByPrimaryKey(reportId);
-        Environment environment = environmentMapper.selectByPrimaryKey(apiReport.getEnvironmentId());
-        apiTaskReportDTO.setEnvironmentId(apiReport.getEnvironmentId());
-        apiTaskReportDTO.setEnvironmentName(environment.getName());
+        if (StringUtils.isNotBlank(apiReport.getEnvironmentId())) {
+            Environment environment = environmentMapper.selectByPrimaryKey(apiReport.getEnvironmentId());
+            apiTaskReportDTO.setEnvironmentId(environment.getName());
+            apiTaskReportDTO.setEnvironmentName(environment.getName());
+        }
     }
 
     private String getStepId(String reportId) {
