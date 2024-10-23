@@ -14,4 +14,6 @@ public class TestPlanReportDetailCollectionResponse {
 	private Long count;
 	@Schema(description = "计划名称")
 	private String planName;
+	@Schema(description = "位置")
+	private Long pos;
 }
