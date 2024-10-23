@@ -101,7 +101,6 @@ public class ApiScenarioBatchOperationController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
     public void batchRun(@Validated @RequestBody ApiScenarioBatchRunRequest request) {
         apiValidateService.validateApiMenuInProject(request.getProjectId(), ApiResource.PROJECT.name());
-        ApiBatchRunBaseService.setLocale(LocaleContextHolder.getLocale());
         apiScenarioBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
     }
 }

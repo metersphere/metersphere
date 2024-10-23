@@ -150,7 +150,6 @@ public class TestPlanApiCaseController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "test_plan", relationType = "test_plan_api_case")
     public void batchRun(@Validated @RequestBody TestPlanApiCaseBatchRunRequest request) {
-        ApiBatchRunBaseService.setLocale(LocaleContextHolder.getLocale());
         testPlanApiCaseBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
     }
 

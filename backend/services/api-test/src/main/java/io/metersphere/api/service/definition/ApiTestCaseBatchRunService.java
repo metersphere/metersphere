@@ -21,10 +21,14 @@ import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -70,7 +74,11 @@ public class ApiTestCaseBatchRunService {
      * @param userId
      */
     public void asyncBatchRun(ApiTestCaseBatchRunRequest request, String userId) {
-        Thread.startVirtualThread(() -> batchRun(request, userId));
+        Locale locale = LocaleContextHolder.getLocale();
+        Thread.startVirtualThread(() -> {
+            ApiBatchRunBaseService.setLocale(locale);
+            batchRun(request, userId);
+        });
     }
 
     /**
@@ -226,6 +234,7 @@ public class ApiTestCaseBatchRunService {
 
     /**
      * 获取有序的用例
+     *
      * @param ids
      * @return
      */
