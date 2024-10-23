@@ -1290,6 +1290,7 @@ public class TestPlanReportService {
 			case CollectionQueryType.SCENARIO -> collections = extTestPlanReportApiScenarioMapper.listCollection(request);
 			default -> collections = new ArrayList<>();
 		}
+		collections.sort(Comparator.comparing(TestPlanReportDetailCollectionResponse::getPos));
 		return collections;
 	}
 

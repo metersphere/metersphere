@@ -49,7 +49,7 @@
     </select>
 
     <select id="listCollection" resultType="io.metersphere.plan.dto.response.TestPlanReportDetailCollectionResponse">
-        select tpc.id as id, tpc.name as name, tp.name as planName, count(tpras.id) as count
+        select tpc.id as id, tpc.name as name, tp.name as planName, tpc.pos as pos, count(tpras.id) as count
         from test_plan_report_api_scenario tpras
                  right join test_plan_collection tpc on tpras.test_plan_collection_id = tpc.id and tpc.type = 'SCENARIO'
                  join test_plan tp on tpc.test_plan_id = tp.id
