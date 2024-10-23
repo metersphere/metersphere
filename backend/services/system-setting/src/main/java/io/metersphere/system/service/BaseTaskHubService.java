@@ -138,7 +138,7 @@ public class BaseTaskHubService {
      */
     public Pager<List<TaskHubDTO>> getTaskList(BasePageRequest request, String orgId, String projectId) {
         Page<Object> page = PageMethod.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "start_time desc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         return PageUtils.setPageInfo(page, getPage(request, orgId, projectId));
     }
 
