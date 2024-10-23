@@ -36,7 +36,7 @@
       </template>
       <template #operation="{ record }">
         <div v-if="record.historyDeleted">
-          <a-tooltip :content="t('project.executionHistory.cleared')" position="top">
+          <a-tooltip :content="t('common.executionResultCleaned')" position="top">
             <MsButton
               :disabled="
                 record.historyDeleted ||

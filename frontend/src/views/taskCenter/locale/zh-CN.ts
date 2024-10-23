@@ -25,6 +25,7 @@ export default {
   'ms.taskCenter.executeProgress': '执行进度',
   'ms.taskCenter.taskID': '任务 ID',
   'ms.taskCenter.resourcePool': '资源池',
+  'ms.taskCenter.defaultResourcePool': '默认资源池',
   'ms.taskCenter.node': '节点',
   'ms.taskCenter.nodeErrorTip': '节点存在异常，请检查',
   'ms.taskCenter.queue': '排队',

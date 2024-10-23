@@ -201,6 +201,7 @@ export default {
   'common.completed': 'Completed',
   'common.config': 'Config',
   'common.executionResult': 'Execution result',
+  'common.executionResultCleaned': 'Execution results are cleaned',
   'common.expandAllSubModule': 'Expand all submodules',
   'common.collapseAllSubModule': 'Collapse all submodules',
   'common.selectedCount': '{count} data selected',

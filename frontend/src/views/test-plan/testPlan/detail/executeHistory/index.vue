@@ -18,7 +18,7 @@
         </a-tooltip>
       </template>
       <template #operation="{ record }">
-        <a-tooltip :content="t('project.executionHistory.cleared')" :disabled="!record.deleted">
+        <a-tooltip :content="t('common.executionResultCleaned')" :disabled="!record.deleted">
           <MsButton
             :disabled="record.deleted || !hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ'])"
             class="!mr-0"

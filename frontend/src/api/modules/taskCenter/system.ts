@@ -75,7 +75,7 @@ export function systemStopTask(id: string) {
 
 // 系统任务-批量停止任务
 export function systemBatchStopTask(data: TaskCenterBatchParams) {
-  return MSR.get({ url: systemBatchStopTaskUrl, data });
+  return MSR.post({ url: systemBatchStopTaskUrl, data });
 }
 
 // 系统任务-用例任务详情-停止任务

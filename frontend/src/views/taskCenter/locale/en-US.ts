@@ -25,6 +25,7 @@ export default {
   'ms.taskCenter.executeProgress': 'Execution Progress',
   'ms.taskCenter.taskID': 'Task ID',
   'ms.taskCenter.resourcePool': 'Resource Pool',
+  'ms.taskCenter.defaultResourcePool': 'Default Resource Pool',
   'ms.taskCenter.node': 'Node',
   'ms.taskCenter.nodeErrorTip': 'Node has an exception, please check',
   'ms.taskCenter.queue': 'Queue',
