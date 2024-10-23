@@ -26,11 +26,13 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
@@ -75,7 +77,11 @@ public class ApiScenarioBatchRunService {
      * @param userId
      */
     public void asyncBatchRun(ApiScenarioBatchRunRequest request, String userId) {
-        Thread.startVirtualThread(() -> batchRun(request, userId));
+        Locale locale = LocaleContextHolder.getLocale();
+        Thread.startVirtualThread(() -> {
+            ApiBatchRunBaseService.setLocale(locale);
+            batchRun(request, userId);
+        });
     }
 
     /**
@@ -208,6 +214,7 @@ public class ApiScenarioBatchRunService {
 
     /**
      * 获取有序的用例
+     *
      * @param ids
      * @return
      */

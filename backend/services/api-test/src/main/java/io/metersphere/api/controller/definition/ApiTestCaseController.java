@@ -302,7 +302,6 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
     public void batchRun(@Validated @RequestBody ApiTestCaseBatchRunRequest request) {
-        ApiBatchRunBaseService.setLocale(LocaleContextHolder.getLocale());
         apiTestCaseBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
     }
 

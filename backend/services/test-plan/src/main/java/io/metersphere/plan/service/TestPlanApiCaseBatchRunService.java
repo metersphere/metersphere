@@ -11,12 +11,18 @@ import io.metersphere.api.service.definition.ApiTestCaseBatchRunService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.api.service.queue.ApiExecutionSetService;
-import io.metersphere.plan.domain.*;
+import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanApiCase;
+import io.metersphere.plan.domain.TestPlanCollection;
+import io.metersphere.plan.domain.TestPlanCollectionExample;
 import io.metersphere.plan.dto.TestPlanApiCaseBatchRunDTO;
 import io.metersphere.plan.dto.request.ApiExecutionMapService;
 import io.metersphere.plan.dto.request.TestPlanApiCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseBatchRunRequest;
-import io.metersphere.plan.mapper.*;
+import io.metersphere.plan.mapper.ExtTestPlanApiCaseMapper;
+import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
+import io.metersphere.plan.mapper.TestPlanCollectionMapper;
+import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
@@ -32,6 +38,7 @@ import jakarta.annotation.Resource;
 import jodd.util.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -90,7 +97,11 @@ public class TestPlanApiCaseBatchRunService {
     public void asyncBatchRun(TestPlanApiCaseBatchRunRequest request, String userId) {
         TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
         testPlanService.setActualStartTime(request.getTestPlanId());
-        Thread.startVirtualThread(() -> batchRun(request, userId));
+        Locale locale = LocaleContextHolder.getLocale();
+        Thread.startVirtualThread(() -> {
+            ApiBatchRunBaseService.setLocale(locale);
+            batchRun(request, userId);
+        });
     }
 
     /**
@@ -148,7 +159,7 @@ public class TestPlanApiCaseBatchRunService {
                         parallelExecute(execTask.getId(), collectionCases, runModeConfig, null, execTask.getId(), project, userId);
                     } else {
                         // 串行执行测试集中的用例
-                        serialExecute(execTask.getId(),collectionCases, runModeConfig, null, execTask.getId(), userId);
+                        serialExecute(execTask.getId(), collectionCases, runModeConfig, null, execTask.getId(), userId);
                     }
                 }
             } else {
@@ -215,7 +226,6 @@ public class TestPlanApiCaseBatchRunService {
 
     /**
      * 串行批量执行
-     *
      */
     public void serialExecute(String taskId,
                               List<TestPlanApiCaseBatchRunDTO> testPlanApiCases,
@@ -229,7 +239,7 @@ public class TestPlanApiCaseBatchRunService {
 
         List<ExecTaskItem> execTaskItems = new ArrayList<>();
         SubListUtils.dealForSubList(testPlanApiCases, 100,
-                subTestPlanReportApiCases-> {
+                subTestPlanReportApiCases -> {
                     List<String> subIds = subTestPlanReportApiCases.stream().map(TestPlanApiCaseBatchRunDTO::getId).toList();
                     execTaskItems.addAll(extExecTaskItemMapper.selectExecInfoByTaskIdAndResourceIds(taskId, subIds));
                 });
@@ -245,7 +255,6 @@ public class TestPlanApiCaseBatchRunService {
 
     /**
      * 并行批量执行
-     *
      */
     public void parallelExecute(String taskId,
                                 List<TestPlanApiCaseBatchRunDTO> testPlanApiCases,
@@ -296,7 +305,7 @@ public class TestPlanApiCaseBatchRunService {
     private Map<String, String> getResourceTaskItemMap(String taskId, List<TestPlanApiCaseBatchRunDTO> testPlanApiCases) {
         Map<String, String> resourceTaskItemMap = new HashMap<>();
         SubListUtils.dealForSubList(testPlanApiCases, 100,
-                subTestPlanReportApiCases-> {
+                subTestPlanReportApiCases -> {
                     List<String> subIds = subTestPlanReportApiCases.stream().map(TestPlanApiCaseBatchRunDTO::getId).toList();
                     extExecTaskItemMapper.selectExecInfoByTaskIdAndResourceIds(taskId, subIds)
                             .forEach(execTaskItem -> resourceTaskItemMap.put(execTaskItem.getResourceId(), execTaskItem.getId()));
@@ -443,7 +452,7 @@ public class TestPlanApiCaseBatchRunService {
      * @return
      */
     public Map<String, String> initApiReport(Map<String, String> resourceExecTaskItemMap, ApiRunModeConfigDTO runModeConfig, List<TestPlanApiCaseBatchRunDTO> testPlanApiCases,
-                                                 String projectId, String userId) {
+                                             String projectId, String userId) {
         List<ApiReport> apiReports = new ArrayList<>();
         List<ApiTestCaseRecord> apiTestCaseRecords = new ArrayList<>();
         List<ApiReportRelateTask> apiReportRelateTasks = new ArrayList<>();

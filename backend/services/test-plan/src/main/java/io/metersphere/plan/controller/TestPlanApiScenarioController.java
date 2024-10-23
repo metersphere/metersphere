@@ -100,7 +100,6 @@ public class TestPlanApiScenarioController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "test_plan", relationType = "test_plan_api_scenario")
     public void batchRun(@Validated @RequestBody TestPlanApiScenarioBatchRunRequest request) {
-        ApiBatchRunBaseService.setLocale(LocaleContextHolder.getLocale());
         testPlanApiScenarioBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
     }
 

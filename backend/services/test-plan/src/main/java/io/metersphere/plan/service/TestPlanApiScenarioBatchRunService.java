@@ -21,7 +21,10 @@ import io.metersphere.plan.domain.TestPlanCollectionExample;
 import io.metersphere.plan.dto.TestPlanApiScenarioBatchRunDTO;
 import io.metersphere.plan.dto.request.ApiExecutionMapService;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioBatchRunRequest;
-import io.metersphere.plan.mapper.*;
+import io.metersphere.plan.mapper.ExtTestPlanApiScenarioMapper;
+import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
+import io.metersphere.plan.mapper.TestPlanCollectionMapper;
+import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
@@ -37,6 +40,7 @@ import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,7 +100,11 @@ public class TestPlanApiScenarioBatchRunService {
     public void asyncBatchRun(TestPlanApiScenarioBatchRunRequest request, String userId) {
         TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
         testPlanService.setActualStartTime(request.getTestPlanId());
-        Thread.startVirtualThread(() -> batchRun(request, userId));
+        Locale locale = LocaleContextHolder.getLocale();
+        Thread.startVirtualThread(() -> {
+            ApiBatchRunBaseService.setLocale(locale);
+            batchRun(request, userId);
+        });
     }
 
     /**
@@ -227,7 +235,6 @@ public class TestPlanApiScenarioBatchRunService {
 
     /**
      * 串行批量执行
-     *
      */
     public void serialExecute(String taskId,
                               List<TestPlanApiScenarioBatchRunDTO> testPlanApiScenarios,
@@ -241,7 +248,7 @@ public class TestPlanApiScenarioBatchRunService {
 
         List<ExecTaskItem> execTaskItems = new ArrayList<>();
         SubListUtils.dealForSubList(testPlanApiScenarios, 100,
-                subTestPlanReportApiCases-> {
+                subTestPlanReportApiCases -> {
                     List<String> subIds = subTestPlanReportApiCases.stream().map(TestPlanApiScenarioBatchRunDTO::getId).toList();
                     execTaskItems.addAll(extExecTaskItemMapper.selectExecInfoByTaskIdAndResourceIds(taskId, subIds));
                 });
@@ -255,7 +262,6 @@ public class TestPlanApiScenarioBatchRunService {
 
     /**
      * 并行批量执行
-     *
      */
     public void parallelExecute(String taskId,
                                 List<TestPlanApiScenarioBatchRunDTO> testPlanApiScenarios,
@@ -296,7 +302,7 @@ public class TestPlanApiScenarioBatchRunService {
     private Map<String, String> getResourceTaskItemMap(String taskId, List<TestPlanApiScenarioBatchRunDTO> testPlanApiCases) {
         Map<String, String> resourceTaskItemMap = new HashMap<>();
         SubListUtils.dealForSubList(testPlanApiCases, 100,
-                subTestPlanReportApiCases-> {
+                subTestPlanReportApiCases -> {
                     List<String> subIds = subTestPlanReportApiCases.stream().map(TestPlanApiScenarioBatchRunDTO::getId).toList();
                     extExecTaskItemMapper.selectExecInfoByTaskIdAndResourceIds(taskId, subIds)
                             .forEach(execTaskItem -> resourceTaskItemMap.put(execTaskItem.getResourceId(), execTaskItem.getId()));
