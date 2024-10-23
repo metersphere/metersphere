@@ -410,7 +410,7 @@ public class ApiScenarioRunService {
         msScenario.setProjectId(request.getProjectId());
         msScenario.setResourceId(request.getId());
 
-        if (!hasSave) {
+        if (hasSave) {
             List<ApiScenarioCsv> dbCsv = apiScenarioService.getApiScenarioCsv(apiScenario.getId());
             List<CsvVariable> csvVariables = apiScenarioService.getCsvVariables(msScenario.getScenarioConfig());
             apiScenarioService.handleRefUpgradeFile(csvVariables, dbCsv);
