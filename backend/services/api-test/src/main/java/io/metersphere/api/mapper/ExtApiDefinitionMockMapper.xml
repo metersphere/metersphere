@@ -220,6 +220,13 @@
                                 <property name="column" value="m.enable"/>
                             </include>
                         </if>
+                        <!-- 路径 -->
+                        <if test="condition.name == 'path'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="d.path"/>
+                            </include>
+                        </if>
                         <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
                             <property name="searchMode" value="${combineSearch}.searchMode"/>
                         </include>
