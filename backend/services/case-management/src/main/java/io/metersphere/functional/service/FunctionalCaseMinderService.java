@@ -289,17 +289,19 @@ public class FunctionalCaseMinderService {
     public void editFunctionalCaseBatch(FunctionalCaseMinderEditRequest request, String userId) {
         //处理删除的模块和用例和空白节点
         User user = userMapper.selectByPrimaryKey(userId);
-        deleteResource(request, user);
+        FunctionalMinderUpdateDTO functionalMinderUpdateDTO = new FunctionalMinderUpdateDTO(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        deleteResource(request, user, functionalMinderUpdateDTO);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         FunctionalCaseModuleMapper moduleMapper = sqlSession.getMapper(FunctionalCaseModuleMapper.class);
         MindAdditionalNodeMapper additionalNodeMapper = sqlSession.getMapper(MindAdditionalNodeMapper.class);
-        FunctionalMinderUpdateDTO functionalMinderUpdateDTO = new FunctionalMinderUpdateDTO(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
         //处理模块
         Map<String, String> sourceIdAndInsertModuleIdMap = dealModule(request, userId, moduleMapper, functionalMinderUpdateDTO);
         List<String> needToTurnModuleIds = sourceIdAndInsertModuleIdMap.keySet().stream().distinct().toList();
         //删除用例
         if (CollectionUtils.isNotEmpty(needToTurnModuleIds)) {
+            List<LogDTO> logDTOS = deleteLog(needToTurnModuleIds, userId);
+            functionalMinderUpdateDTO.getDeleteLogDTOS().addAll(logDTOS);
             functionalCaseTrashService.deleteByIds(request.getProjectId(), needToTurnModuleIds, userId);
             functionalCaseNoticeService.batchSendNotice(request.getProjectId(), needToTurnModuleIds, user, NoticeConstants.Event.DELETE);
         }
@@ -514,6 +516,29 @@ public class FunctionalCaseMinderService {
         dealLogAndNotice(request, userId, functionalMinderUpdateDTO);
     }
 
+    private List<LogDTO> deleteLog(List<String> needToTurnModuleIds, String userId) {
+        List<LogDTO> dtoList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(needToTurnModuleIds)) {
+            List<FunctionalCase> functionalCases = extFunctionalCaseMapper.getLogInfo(needToTurnModuleIds, false);
+            functionalCases.forEach(functionalCase -> {
+                LogDTO dto = new LogDTO(
+                        functionalCase.getProjectId(),
+                        null,
+                        functionalCase.getId(),
+                        userId,
+                        OperationLogType.DELETE.name(),
+                        OperationLogModule.FUNCTIONAL_CASE,
+                        functionalCase.getName());
+
+                dto.setPath("/functional/mind/case/edit");
+                dto.setMethod(HttpMethodConstants.POST.name());
+                dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
+                dtoList.add(dto);
+            });
+        }
+        return dtoList;
+    }
+
     /**
      * @param moveMode 移动方式 前后
      * @param targetId 要移动到的目标元素标识
@@ -599,8 +624,12 @@ public class FunctionalCaseMinderService {
         for (LogDTO updateLogDTO : functionalMinderUpdateDTO.getUpdateLogDTOS()) {
             updateLogDTO.setOrganizationId(project.getOrganizationId());
         }
+        for (LogDTO updateLogDTO : functionalMinderUpdateDTO.getDeleteLogDTOS()) {
+            updateLogDTO.setOrganizationId(project.getOrganizationId());
+        }
         operationLogService.batchAdd(functionalMinderUpdateDTO.getAddLogDTOS());
         operationLogService.batchAdd(functionalMinderUpdateDTO.getUpdateLogDTOS());
+        operationLogService.batchAdd(functionalMinderUpdateDTO.getDeleteLogDTOS());
         User user = userMapper.selectByPrimaryKey(userId);
         List<Map> resources = new ArrayList<>();
         resources.addAll(JSON.parseArray(JSON.toJSONString(functionalMinderUpdateDTO.getNoticeList()), Map.class));
@@ -1188,16 +1217,16 @@ public class FunctionalCaseMinderService {
         return functionalCase;
     }
 
-    private void deleteResource(FunctionalCaseMinderEditRequest request, User user) {
+    private void deleteResource(FunctionalCaseMinderEditRequest request, User user, FunctionalMinderUpdateDTO functionalMinderUpdateDTO) {
         if (CollectionUtils.isNotEmpty(request.getDeleteResourceList())) {
             Map<String, List<MinderOptionDTO>> resourceMap = request.getDeleteResourceList().stream().collect(Collectors.groupingBy(MinderOptionDTO::getType));
             List<MinderOptionDTO> caseOptionDTOS = resourceMap.get(Translator.get("minder_extra_node.case"));
             List<String> caseIds = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(caseOptionDTOS)) {
                 caseIds = caseOptionDTOS.stream().map(MinderOptionDTO::getId).toList();
+                List<LogDTO> logDTOS = deleteLog(caseIds, user.getId());
+                functionalMinderUpdateDTO.getDeleteLogDTOS().addAll(logDTOS);
                 functionalCaseService.handDeleteFunctionalCase(caseIds, false, user.getId(), request.getProjectId());
-                functionalCaseLogService.batchDeleteFunctionalCaseLogByIds(caseIds, "/functional/mind/case/edit");
-
             }
             List<MinderOptionDTO> caseModuleOptionDTOS = resourceMap.get(Translator.get("minder_extra_node.module"));
             if (CollectionUtils.isNotEmpty(caseModuleOptionDTOS)) {
