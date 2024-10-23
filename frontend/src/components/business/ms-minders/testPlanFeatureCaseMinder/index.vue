@@ -681,13 +681,14 @@
       // 处理根节点，重新渲染整个用例树
       initCaseTree();
     } else if (isModuleOrCollection(node.data)) {
+      // TODO 想一个更好的处理方案
       // 处理模块节点
+      // 删除模块下所有子节点
       clearNodeChildren(node);
+      // 重新渲染子模块，子模块都收起
       renderSubModules(node, importJson.value.root, modulesCount.value);
-      // 再重新渲染
-      if (node.data.id !== 'NONE') {
-        initNodeCases(node);
-      }
+      // 重新渲染用例
+      initNodeCases(node);
     }
     emit('refreshPlan');
   }
