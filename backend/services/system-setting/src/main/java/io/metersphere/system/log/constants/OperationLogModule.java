@@ -20,6 +20,7 @@ public class OperationLogModule {
     public static final String API_AUTOMATION_REPORT = "API_AUTOMATION_REPORT";
     // 接口管理
     public static final String API_TEST_MANAGEMENT_DEFINITION = "API_TEST_MANAGEMENT_DEFINITION";
+    public static final String API_TEST_MANAGEMENT_DEFINITION_SHARE = "API_TEST_MANAGEMENT_DEFINITION_SHARE";
     public static final String API_TEST_MANAGEMENT_MODULE = "API_TEST_MANAGEMENT_MODULE";
     public static final String API_TEST_MANAGEMENT_MOCK = "API_TEST_MANAGEMENT_MOCK";
     public static final String API_TEST_MANAGEMENT_CASE = "API_TEST_MANAGEMENT_CASE";

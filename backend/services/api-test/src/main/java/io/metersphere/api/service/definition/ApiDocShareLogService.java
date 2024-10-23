@@ -26,7 +26,7 @@ public class ApiDocShareLogService {
 	 * @return 日志
 	 */
 	public LogDTO addLog(ApiDocShareEditRequest request) {
-		LogDTO dto = new LogDTO(request.getProjectId(), null, null, null,OperationLogType.SHARE.name(), OperationLogModule.API_TEST_MANAGEMENT_DEFINITION, request.getName());
+		LogDTO dto = new LogDTO(request.getProjectId(), null, null, null,OperationLogType.SHARE.name(), OperationLogModule.API_TEST_MANAGEMENT_DEFINITION_SHARE, request.getName());
 		dto.setHistory(true);
 		dto.setMethod(HttpMethodConstants.POST.name());
 		dto.setOriginalValue(JSON.toJSONBytes(request));
@@ -40,7 +40,7 @@ public class ApiDocShareLogService {
 	 * @return 日志
 	 */
 	public LogDTO updateLog(ApiDocShareEditRequest request) {
-		LogDTO dto = new LogDTO(request.getProjectId(), null, null, null,OperationLogType.UPDATE.name(), OperationLogModule.API_TEST_MANAGEMENT_DEFINITION, "【分享接口功能】" + request.getName());
+		LogDTO dto = new LogDTO(request.getProjectId(), null, null, null,OperationLogType.UPDATE.name(), OperationLogModule.API_TEST_MANAGEMENT_DEFINITION_SHARE, request.getName());
 		dto.setHistory(true);
 		dto.setMethod(HttpMethodConstants.POST.name());
 		dto.setOriginalValue(JSON.toJSONBytes(request));
@@ -55,7 +55,7 @@ public class ApiDocShareLogService {
 	 */
 	public LogDTO deleteLog(String id) {
 		ApiDocShare docShare = apiDocShareMapper.selectByPrimaryKey(id);
-		LogDTO dto = new LogDTO(docShare.getProjectId(), null, null, null,OperationLogType.DELETE.name(), OperationLogModule.API_TEST_MANAGEMENT_DEFINITION, "【分享接口功能】" + docShare.getName());
+		LogDTO dto = new LogDTO(docShare.getProjectId(), null, null, null,OperationLogType.DELETE.name(), OperationLogModule.API_TEST_MANAGEMENT_DEFINITION_SHARE, docShare.getName());
 		dto.setHistory(true);
 		dto.setMethod(HttpMethodConstants.POST.name());
 		dto.setOriginalValue(JSON.toJSONBytes(docShare));
