@@ -1,4 +1,5 @@
 package io.metersphere.system.interceptor;
+
 import io.metersphere.sdk.dto.BaseCondition;
 import io.metersphere.sdk.dto.CombineCondition;
 import io.metersphere.sdk.dto.CombineSearch;
@@ -6,7 +7,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.constants.InternalUserView;
 import io.metersphere.system.dto.UserViewDTO;
-import io.metersphere.system.dto.sdk.*;
+import io.metersphere.system.dto.sdk.DBCombineSearch;
 import io.metersphere.system.utils.SessionUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -67,7 +68,8 @@ public class BaseConditionFilterAspect {
         List<CombineCondition> validConditions = getValidConditions(combineSearch.getConditions());
         validConditions.forEach(item -> {
             if (item.getValue() != null && item.getValue() instanceof String strValue
-                    && !StringUtils.equals(item.getOperator(), CombineCondition.CombineConditionOperator.EQUALS.name())) {
+                    && StringUtils.equalsAny(item.getOperator(), CombineCondition.CombineConditionOperator.CONTAINS.name(),
+                    CombineCondition.CombineConditionOperator.NOT_CONTAINS.name())) {
                 // 转义 mysql 的特殊字符
                 item.setValue(BaseCondition.transferKeyword(strValue));
             }
