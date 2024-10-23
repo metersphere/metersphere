@@ -642,7 +642,7 @@ public class FunctionalCaseMinderService {
                     caseCustomFieldMapper.insertSelective(customField);
                     //日志
                     FunctionalCaseHistoryLogDTO historyLogDTO = new FunctionalCaseHistoryLogDTO(functionalCase, functionalCaseBlob, functionalCaseCustomFields, new ArrayList<>(), new ArrayList<>());
-                    LogDTO logDTO = addLog(request, userId, caseId, historyLogDTO, null);
+                    LogDTO logDTO = addLog(request, userId, caseId, historyLogDTO, null, OperationLogType.ADD);
                     functionalMinderUpdateDTO.getAddLogDTOS().add(logDTO);
                     //消息通知
                     FunctionalCaseDTO functionalCaseDTO = getFunctionalCaseDTO(functionalCase, functionalCaseCustomFields, customFieldNameMap);
@@ -678,7 +678,7 @@ public class FunctionalCaseMinderService {
                     //日志
                     FunctionalCaseHistoryLogDTO historyLogDTO = new FunctionalCaseHistoryLogDTO(functionalCase, functionalCaseBlob, oldCaseCustomFieldMap.get(caseId), new ArrayList<>(), new ArrayList<>());
                     FunctionalCaseHistoryLogDTO old = new FunctionalCaseHistoryLogDTO(oldCaseMap.get(caseId), oldBlobMap.get(caseId), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-                    LogDTO logDTO = addLog(request, userId, caseId, historyLogDTO, old);
+                    LogDTO logDTO = addLog(request, userId, caseId, historyLogDTO, old, OperationLogType.UPDATE);
                     functionalMinderUpdateDTO.getUpdateLogDTOS().add(logDTO);
                     //通知
                     FunctionalCaseDTO functionalCaseDTO = getFunctionalCaseDTO(functionalCase, functionalCaseCustomFields, customFieldNameMap);
@@ -969,13 +969,13 @@ public class FunctionalCaseMinderService {
         return functionalCaseDTO;
     }
 
-    private LogDTO addLog(FunctionalCaseMinderEditRequest request, String userId, String caseId, FunctionalCaseHistoryLogDTO historyLogDTO, FunctionalCaseHistoryLogDTO old) {
+    private LogDTO addLog(FunctionalCaseMinderEditRequest request, String userId, String caseId, FunctionalCaseHistoryLogDTO historyLogDTO, FunctionalCaseHistoryLogDTO old, OperationLogType operationLogType) {
         LogDTO dto = new LogDTO(
                 request.getProjectId(),
                 null,
                 caseId,
                 userId,
-                OperationLogType.ADD.name(),
+                operationLogType.name(),
                 OperationLogModule.FUNCTIONAL_CASE,
                 historyLogDTO.getFunctionalCase().getName());
         dto.setHistory(true);
