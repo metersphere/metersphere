@@ -5,6 +5,7 @@ import lombok.Data;
 
 /**
  * 报告详情用例分页返回对象 (功能, 接口, 场景)
+ * @author song-cc-rock
  */
 
 @Data
@@ -32,4 +33,8 @@ public class ReportDetailCasePageDTO {
 	private String reportId;
 	@Schema(description = "项目ID")
 	private String projectId;
+	@Schema(description = "测试点ID")
+	private String collectionId;
+	@Schema(description = "测试点名称")
+	private String collectionName;
 }

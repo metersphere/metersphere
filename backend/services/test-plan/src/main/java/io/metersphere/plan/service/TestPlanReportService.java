@@ -126,6 +126,8 @@ public class TestPlanReportService {
 	private ProjectMapper projectMapper;
 	@Resource
 	private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
+	@Resource
+	private TestPlanCollectionMapper testPlanCollectionMapper;
 
 	private static final int MAX_REPORT_NAME_LENGTH = 300;
 
@@ -841,7 +843,14 @@ public class TestPlanReportService {
 		List<String> distinctUserIds = detailCases.stream().map(ReportDetailCasePageDTO::getExecuteUser).distinct().collect(Collectors.toList());
 		distinctUserIds.removeIf(StringUtils::isEmpty);
 		Map<String, String> userMap = getUserMap(distinctUserIds);
-		detailCases.forEach(detailCase -> detailCase.setExecuteUser(userMap.getOrDefault(detailCase.getExecuteUser(), detailCase.getExecuteUser())));
+		// 测试集
+		List<String> collectionIds = detailCases.stream().map(ReportDetailCasePageDTO::getCollectionId).distinct().collect(Collectors.toList());
+		collectionIds.removeIf(StringUtils::isEmpty);
+		Map<String, String> collectionMap = getCollectionMap(collectionIds);
+		detailCases.forEach(detailCase -> {
+			detailCase.setExecuteUser(userMap.getOrDefault(detailCase.getExecuteUser(), detailCase.getExecuteUser()));
+			detailCase.setCollectionName(collectionMap.get(detailCase.getCollectionId()));
+		});
 		return detailCases;
 	}
 
@@ -1240,6 +1249,21 @@ public class TestPlanReportService {
 		}
 		List<OptionDTO> userOptions = baseUserMapper.selectUserOptionByIds(userIds);
 		return userOptions.stream().collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
+	}
+
+	/**
+	 * 获取测试点集合
+	 * @param collectionIds 测试点ID集合
+	 * @return 测试点集合
+	 */
+	private Map<String, String> getCollectionMap(List<String> collectionIds) {
+		if (CollectionUtils.isEmpty(collectionIds)) {
+			return new HashMap<>(16);
+		}
+		TestPlanCollectionExample example = new TestPlanCollectionExample();
+		example.createCriteria().andIdIn(collectionIds);
+		List<TestPlanCollection> collections = testPlanCollectionMapper.selectByExample(example);
+		return collections.stream().collect(Collectors.toMap(TestPlanCollection::getId, TestPlanCollection::getName));
 	}
 
 	/**
