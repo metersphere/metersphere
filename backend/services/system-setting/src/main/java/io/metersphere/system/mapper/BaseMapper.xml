@@ -166,8 +166,13 @@
                     JSON_LENGTH(${column}) &gt; #{condition.value}
                 </when>
                 <when test="${condition}.operator == 'COUNT_LT'">
-                    ${column} is null or ${column} = '[]' or
-                    JSON_LENGTH(${column}) &lt; #{condition.value}
+                    <if test="${condition}.value == 0">
+                        1=2
+                    </if>
+                    <if test="${condition}.value != 0">
+                        ${column} is null or ${column} = '[]' or
+                        JSON_LENGTH(${column}) &lt; #{condition.value}
+                    </if>
                 </when>
                 <when test="${condition}.operator == 'EMPTY'">
                     ${column} is null or ${column} = '[]'
