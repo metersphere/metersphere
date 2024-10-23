@@ -76,6 +76,7 @@ export default {
   'system.orgTemplate.templatePreview': '模板预览',
   'system.orgTemplate.templateName': '模板名称',
   'system.orgTemplate.templateNamePlaceholder': '请输入模板名称',
+  'system.orgTemplate.description.too.long': '缺陷内容默认值长度超过1500!',
   'system.orgTemplate.optionalField': '可选字段',
   'system.orgTemplate.selectAll': '全选',
   'system.orgTemplate.systemField': '系统字段',

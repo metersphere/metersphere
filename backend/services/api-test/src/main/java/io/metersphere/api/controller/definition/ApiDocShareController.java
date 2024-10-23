@@ -144,7 +144,7 @@ public class ApiDocShareController {
 	@GetMapping(value = "/get-detail/{id}")
 	@Operation(summary = "接口测试-接口管理-获取接口详情")
 	public ApiDefinitionDTO get(@PathVariable String id) {
-		return apiDefinitionService.get(id, SessionUtils.getUserId());
+		return apiDefinitionService.get(id, "admin");
 	}
 
 }
