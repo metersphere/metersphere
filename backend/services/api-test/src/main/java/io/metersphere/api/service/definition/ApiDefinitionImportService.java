@@ -405,7 +405,7 @@ public class ApiDefinitionImportService {
         sqlSession.flushStatements();
     }
 
-    private String getMsTestElementStr(Object request) {
+    public String getMsTestElementStr(Object request) {
         String requestStr = JSON.toJSONString(request);
         AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(requestStr, AbstractMsTestElement.class);
         // 手动校验参数

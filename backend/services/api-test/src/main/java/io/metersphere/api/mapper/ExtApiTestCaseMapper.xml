@@ -978,6 +978,7 @@
                 and api_scenario.deleted = 0;
     </select>
     <resultMap id="ApiTestCaseDetailMap" type="io.metersphere.api.dto.definition.ApiTestCaseWithBlob">
+        <result column="module_id" jdbcType="VARCHAR" property="moduleId"/>
         <result column="request" jdbcType="LONGVARBINARY" property="request"/>
         <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler"/>
     </resultMap>
@@ -992,9 +993,11 @@
     </select>
 
     <select id="selectAllDetailByIds" resultMap="ApiTestCaseDetailMap">
-        SELECT apiTestCase.*,apiTestCaseBlob.request
+        SELECT apiTestCase.*,ad.protocol,ad.path,ad.method,ad.module_id,ad.name AS apiDefinitionName,
+        apiTestCaseBlob.request
         FROM api_test_case apiTestCase
         INNER JOIN api_test_case_blob apiTestCaseBlob ON apiTestCase.id = apiTestCaseBlob.id
+        INNER JOIN api_definition ad ON apiTestCase.api_definition_id = ad.id
         WHERE apiTestCase.id IN
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
@@ -1008,5 +1011,13 @@
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
+    </select>
+    <select id="selectBaseInfoByProjectIdAndApiId"
+            resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
+        SELECT id, num, name, project_id, api_definition_id
+        FROM api_test_case
+        WHERE project_id = #{projectId}
+          AND api_definition_id = #{apiId}
+          AND deleted = false
     </select>
 </mapper>

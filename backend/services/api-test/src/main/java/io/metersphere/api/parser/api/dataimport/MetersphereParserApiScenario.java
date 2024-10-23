@@ -12,6 +12,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.uid.IDGenerator;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
@@ -85,9 +86,21 @@ public class MetersphereParserApiScenario implements ApiScenarioImportParser {
         ApiScenarioStepParseResult apiScenarioStepParseResult = new ApiScenarioStepParseResult();
 
         List<ApiScenarioStepDTO> stepList = apiScenarioStepMap.getOrDefault(scenarioId, new ArrayList<>());
-        for (ApiScenarioStepDTO stepDTO : stepList) {
+        if (stepList.isEmpty()) {
+            return apiScenarioStepParseResult;
+        }
+        List<ApiScenarioStepDTO> firstStepList = stepList.stream().filter(step -> StringUtils.isEmpty(step.getParentId())).toList();
+        if (CollectionUtils.isEmpty(firstStepList)) {
+            // 需要补充的场景数据中，它的步骤很可能存在于要导入的场景数据里，所以他们的parentId不一定为null。这时候要去parentId
+            // 去parentId方案： 将sort为1的步骤作为基点，它的parentId不起效果，所有以此为parentId的数据是第一层数据
+            List<ApiScenarioStepDTO> sort1ScenarioList = stepList.stream().filter(step -> step.getSort() == 1).toList();
+            if (CollectionUtils.isNotEmpty(sort1ScenarioList)) {
+                ApiScenarioStepDTO firstScenario = sort1ScenarioList.getFirst();
+                firstStepList = stepList.stream().filter(step -> StringUtils.equals(step.getParentId(), firstScenario.getParentId())).toList();
+            }
+        }
+        for (ApiScenarioStepDTO stepDTO : firstStepList) {
             String oldStepId = stepDTO.getId();
-
             ApiScenarioStepRequest stepRequest = new ApiScenarioStepRequest();
             BeanUtils.copyBean(stepRequest, stepDTO);
             // 赋值新ID防止和库内已有数据重复

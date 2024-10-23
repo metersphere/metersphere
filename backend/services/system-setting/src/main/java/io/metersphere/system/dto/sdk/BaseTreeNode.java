@@ -25,6 +25,9 @@ public class BaseTreeNode {
     @Schema(description = "父节点ID")
     private String parentId;
 
+    @Schema(description = "项目ID")
+    private String projectId;
+
     @Schema(description = "子节点")
     private List<BaseTreeNode> children = new ArrayList<>();
 

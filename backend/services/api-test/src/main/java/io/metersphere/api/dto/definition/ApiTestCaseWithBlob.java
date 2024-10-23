@@ -30,9 +30,30 @@ public class ApiTestCaseWithBlob extends ApiTestCaseBlob {
     @Size(min = 1, max = 20, message = "{api_test_case.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
+    @Schema(description = "api的协议")
+    private String protocol;
+    @Schema(description = "api的路径")
+    private String path;
+    @Schema(description = "api的方法")
+    private String method;
+    @Schema(description = "模块ID")
+    private String moduleId;
+
     @Schema(description = "最新执行结果状态")
     private String lastReportStatus;
 
     @Schema(description = "接口定义ID")
     private String apiDefinitionId;
+
+    @Schema(description = "接口定义名称")
+    private String apiDefinitionName;
+
+    @Schema(description = "接口用例编号id")
+    private Long num;
+
+    @Schema(description = "项目fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_test_case.project_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_test_case.project_id.length_range}", groups = {Created.class, Updated.class})
+    private String projectId;
+
 }

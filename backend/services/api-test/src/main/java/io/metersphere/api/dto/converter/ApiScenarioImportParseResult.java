@@ -22,7 +22,6 @@ public class ApiScenarioImportParseResult {
     @Schema(description = "有关联关系的场景")
     List<ApiScenarioImportDetail> relatedScenarioList = new ArrayList<>();
 
-
     @Schema(description = "场景CSV相关的数据")
     private List<ApiScenarioCsv> apiScenarioCsvList = new ArrayList<>();
 

@@ -1823,7 +1823,7 @@ public class ApiScenarioService extends MoveNodeService {
         steps.forEach(dto -> {
             ApiScenarioStepDTO returnDTO = new ApiScenarioStepDTO();
             BeanUtils.copyBean(returnDTO, dto);
-            if (!StringUtils.equalsIgnoreCase(parentId, dto.getId())) {
+            if (StringUtils.isNotBlank(parentId) && !StringUtils.equalsIgnoreCase(parentId, dto.getId())) {
                 returnDTO.setParentId(parentId);
             }
             if (returnDTO.getConfig() != null && StringUtils.isNotBlank(returnDTO.getConfig().toString())) {
