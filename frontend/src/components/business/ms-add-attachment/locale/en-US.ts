@@ -12,4 +12,5 @@ export default {
   'ms.add.attachment.saveAsNamePlaceholder': 'Please enter file name',
   'ms.add.attachment.saveAsModulePlaceholder': 'Please select the transfer directory',
   'ms.add.attachment.saveAsSuccess': 'File transfer successful',
+  'ms.add.attachment.fileDeletedTip': 'The file has been deleted, please replace it',
 };

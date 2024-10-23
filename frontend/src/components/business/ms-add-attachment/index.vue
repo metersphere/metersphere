@@ -70,14 +70,17 @@
         :file-module-options-api="props.fileModuleOptionsApi"
         @finish="handleSaveFileFinish"
       />
-      <a-popover
-        v-model:popup-visible="inputFilesPopoverVisible"
-        trigger="click"
-        position="bl"
-        :disabled="inputFiles.length === 0"
-        content-class="ms-add-attachment-files-popover"
-        arrow-class="hidden"
-        :popup-offset="0"
+      <filesPopover
+        v-model:visible="inputFilesPopoverVisible"
+        v-model:file-list="fileList"
+        v-model:input-files="inputFiles"
+        :disabled="props.disabled"
+        :input-class="props.inputClass"
+        :input-size="props.inputSize"
+        :fields="props.fields"
+        :tag-size="props.tagSize"
+        @open-save-as="handleOpenSaveAs"
+        @delete-file="emit('deleteFile', $event)"
       >
         <div class="h-full flex-1">
           <MsTagsInput
@@ -106,90 +109,7 @@
             </template>
           </MsTagsInput>
         </div>
-        <template #content>
-          <div class="flex w-[200px] flex-col gap-[8px]">
-            <template v-if="alreadyDeleteFiles.length > 0">
-              <div class="flex items-center gap-[4px]">
-                <icon-exclamation-circle-fill class="!text-[rgb(var(--warning-6))]" :size="18" />
-                <div class="text-[var(--color-text-4)]">{{ t('ms.add.attachment.alreadyDelete') }}</div>
-                <MsButton type="text" :disabled="props.disabled" @click="clearDeletedFiles">
-                  {{ t('ms.add.attachment.quickClear') }}
-                </MsButton>
-              </div>
-              <div class="file-list">
-                <div v-for="file of alreadyDeleteFiles" :key="file.value" class="file-list-item">
-                  <a-tooltip :content="file.label" :mouse-enter-delay="300">
-                    <MsTag size="small" max-width="100%">
-                      {{ file.label }}
-                    </MsTag>
-                  </a-tooltip>
-                  <a-tooltip :content="t('ms.add.attachment.remove')">
-                    <MsButton type="text" status="secondary" :disabled="props.disabled" @click="handleClose(file)">
-                      <MsIcon
-                        type="icon-icon_unlink"
-                        :class="props.disabled ? '' : 'hover:text-[rgb(var(--primary-5))]'"
-                        size="16"
-                      />
-                    </MsButton>
-                  </a-tooltip>
-                </div>
-              </div>
-            </template>
-            <template v-if="otherFiles.length > 0">
-              <div v-if="alreadyDeleteFiles.length > 0" class="mt-[4px] text-[var(--color-text-4)]">
-                {{ t('ms.add.attachment.other') }}
-              </div>
-              <div class="file-list">
-                <div v-for="file of otherFiles" :key="file.value" class="file-list-item">
-                  <a-tooltip :content="file.label" :mouse-enter-delay="300">
-                    <MsTag size="small" max-width="100%">
-                      {{ file.label }}
-                    </MsTag>
-                  </a-tooltip>
-                  <div v-if="file.local === true" class="flex items-center">
-                    <template v-if="hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+ADD'])">
-                      <a-tooltip :content="t('ms.add.attachment.saveAs')">
-                        <MsButton
-                          type="text"
-                          status="secondary"
-                          class="!mr-0"
-                          :disabled="props.disabled"
-                          @click="handleOpenSaveAs(file)"
-                        >
-                          <MsIcon
-                            type="icon-icon_unloading"
-                            :class="props.disabled ? '' : 'hover:text-[rgb(var(--primary-5))]'"
-                            size="16"
-                          />
-                        </MsButton>
-                      </a-tooltip>
-                      <a-divider direction="vertical" :margin="4"></a-divider>
-                    </template>
-                    <a-tooltip :content="t('ms.add.attachment.remove')">
-                      <MsButton type="text" status="secondary" :disabled="props.disabled" @click="handleClose(file)">
-                        <MsIcon
-                          type="icon-icon_delete-trash_outlined1"
-                          :class="props.disabled ? '' : 'hover:text-[rgb(var(--primary-5))]'"
-                          size="16"
-                        />
-                      </MsButton>
-                    </a-tooltip>
-                  </div>
-                  <a-tooltip v-else :content="t('ms.add.attachment.cancelAssociate')">
-                    <MsButton type="text" status="secondary" :disabled="props.disabled" @click="handleClose(file)">
-                      <MsIcon
-                        type="icon-icon_unlink"
-                        :class="props.disabled ? '' : 'hover:text-[rgb(var(--primary-5))]'"
-                        size="16"
-                      />
-                    </MsButton>
-                  </a-tooltip>
-                </div>
-              </div>
-            </template>
-          </div>
-        </template>
-      </a-popover>
+      </filesPopover>
     </div>
     <div v-else class="flex w-full items-center gap-[4px]">
       <dropdownMenu
@@ -206,6 +126,11 @@
         allow-clear
         readonly
       >
+        <template v-if="fileList[0]?.delete" #prefix>
+          <a-tooltip :content="t('ms.add.attachment.fileDeletedTip')">
+            <icon-exclamation-circle-fill class="!text-[rgb(var(--warning-6))]" :size="18" />
+          </a-tooltip>
+        </template>
         <template v-if="inputFileName" #suffix>
           <div class="arco-icon-hover arco-input-icon-hover arco-input-clear-btn" @click.stop="handleFileClear">
             <icon-close />
@@ -229,7 +154,6 @@
 <script setup lang="ts">
   import { TagData } from '@arco-design/web-vue';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTag, { Size } from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
@@ -237,13 +161,13 @@
   import type { MsFileItem, UploadType } from '@/components/pure/ms-upload/types';
   import LinkFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
   import dropdownMenu from './dropdownMenu.vue';
+  import filesPopover from './filesPopover.vue';
   import saveAsFilePopover from './saveAsFilePopover.vue';
 
   import { getAssociatedFileListUrl } from '@/api/modules/case-management/featureCase';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { hasAnyPermission } from '@/utils/permission';
 
   import { AssociatedList } from '@/models/caseManagement/featureCase';
   import { TableQueryParams, TransferFileParams } from '@/models/common';
@@ -399,13 +323,6 @@
   const alreadyDeleteFiles = computed(() => {
     return inputFiles.value.filter((item) => item.delete);
   });
-  const otherFiles = computed(() => {
-    return inputFiles.value.filter((item) => !item.delete);
-  });
-
-  function clearDeletedFiles() {
-    inputFiles.value = inputFiles.value.filter((item) => !item.delete);
-  }
 
   function handleClose(data: TagData) {
     inputFiles.value = inputFiles.value.filter((item) => item.value !== data.value);
@@ -455,28 +372,7 @@
   }
 </script>
 
-<style lang="less">
-  .ms-add-attachment-files-popover {
-    padding: 16px;
-    .arco-popover-content {
-      margin-top: 0;
-    }
-  }
-</style>
-
 <style lang="less" scoped>
-  .file-list {
-    @apply flex flex-col overflow-y-auto overflow-x-hidden;
-    .ms-scroll-bar();
-
-    gap: 8px;
-    max-height: 200px;
-    .file-list-item {
-      @apply flex items-center justify-between;
-
-      gap: 8px;
-    }
-  }
   :deep(.arco-input-tag-has-prefix) {
     padding-left: 4px;
   }
