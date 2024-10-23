@@ -3,13 +3,17 @@ package io.metersphere.api.controller.definition;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.domain.ApiDocShare;
+import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ApiDocShareDTO;
 import io.metersphere.api.dto.definition.ApiDocShareDetail;
 import io.metersphere.api.dto.definition.request.*;
+import io.metersphere.api.service.ApiTestService;
 import io.metersphere.api.service.definition.ApiDefinitionExportService;
+import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiDocShareLogService;
 import io.metersphere.api.service.definition.ApiDocShareService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.ProtocolDTO;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -45,6 +49,10 @@ public class ApiDocShareController {
 	private ApiDocShareService apiDocShareService;
 	@Resource
 	private ApiDefinitionExportService apiDefinitionExportService;
+	@Resource
+	private ApiTestService apiTestService;
+	@Resource
+	private ApiDefinitionService apiDefinitionService;
 
 	@PostMapping(value = "/page")
 	@Operation(summary = "接口测试-定义-分页获取分享列表")
@@ -100,12 +108,18 @@ public class ApiDocShareController {
 	@PostMapping("/module/tree")
 	@Operation(summary = "接口测试-定义-分享-模块树")
 	public List<BaseTreeNode> getShareDocTree(@Validated @RequestBody ApiDocShareModuleRequest request) {
+		List<ProtocolDTO> protocols = apiTestService.getProtocols(request.getOrgId());
+		List<String> protocolList = protocols.stream().map(ProtocolDTO::getProtocol).toList();
+		request.setProtocols(protocolList);
 		return apiDocShareService.getShareTree(request);
 	}
 
 	@PostMapping("/module/count")
 	@Operation(summary = "接口测试-定义-分享-模块树数量")
 	public Map<String, Long> getShareDocTreeCount(@Validated @RequestBody ApiDocShareModuleRequest request) {
+		List<ProtocolDTO> protocols = apiTestService.getProtocols(request.getOrgId());
+		List<String> protocolList = protocols.stream().map(ProtocolDTO::getProtocol).toList();
+		request.setProtocols(protocolList);
 		return apiDocShareService.getShareTreeCount(request);
 	}
 
@@ -125,6 +139,12 @@ public class ApiDocShareController {
 	@Operation(summary = "接口测试-定义-分享-导出-下载文件")
 	public void downloadImgById(@PathVariable String projectId, @PathVariable String fileId, HttpServletResponse httpServletResponse) {
 		apiDefinitionExportService.downloadFile(projectId, fileId, SessionUtils.getUserId(), httpServletResponse);
+	}
+
+	@GetMapping(value = "/get-detail/{id}")
+	@Operation(summary = "接口测试-接口管理-获取接口详情")
+	public ApiDefinitionDTO get(@PathVariable String id) {
+		return apiDefinitionService.get(id, SessionUtils.getUserId());
 	}
 
 }

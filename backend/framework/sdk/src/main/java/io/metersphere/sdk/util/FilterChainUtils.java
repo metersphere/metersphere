@@ -104,6 +104,14 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/test-plan/report/share/get-layout/**", "anon");
         // 默认语言
         filterChainDefinitionMap.put("/user/local/config/default-locale", "anon");
+        // 定义-分享
+        filterChainDefinitionMap.put("/api/doc/share/detail/**", "anon");
+        filterChainDefinitionMap.put("/api/doc/share/get-detail/**", "anon");
+        filterChainDefinitionMap.put("/api/doc/share/check/**", "anon");
+        filterChainDefinitionMap.put("/api/doc/share/module/**", "anon");
+        filterChainDefinitionMap.put("/api/doc/share/export/**", "anon");
+        filterChainDefinitionMap.put("/api/doc/share/stop/**", "anon");
+        filterChainDefinitionMap.put("/api/doc/share/download/file/**", "anon");
 
         return filterChainDefinitionMap;
     }
