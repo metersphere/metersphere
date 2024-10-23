@@ -139,7 +139,7 @@ public class MsCommonElementConverter extends AbstractJmeterElementConverter<MsC
         if (BooleanUtils.isTrue(processorConfig.getEnableGlobal()) && envInfo != null) {
             EnvironmentConfig envConfig = envInfo.getConfig();
             EnvProcessorConfig envProcessorConfig = isPre ? envConfig.getPreProcessorConfig() : envConfig.getPostProcessorConfig();
-            addEnvProcessors(envProcessorConfig, beforeStepProcessors, afterStepProcessors, protocol, true);
+            addEnvProcessors(envProcessorConfig, beforeStepProcessors, afterStepProcessors, protocol, isPre);
         }
 
         Function<Class<?>, MsProcessorConverter<MsProcessor>> getConverterFunc =
