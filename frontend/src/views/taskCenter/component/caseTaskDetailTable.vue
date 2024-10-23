@@ -177,15 +177,24 @@
       showDrag: true,
     },
     {
+      title: 'ms.taskCenter.caseName',
+      dataIndex: 'resourceName',
+      showTooltip: true,
+      width: 150,
+      showDrag: true,
+    },
+    {
       title: 'ms.taskCenter.executeStatus',
       dataIndex: 'status',
       slotName: 'status',
       width: 120,
       filterConfig: {
-        options: Object.keys(executeStatusMap).map((key) => ({
-          label: t(executeStatusMap[key as ExecuteStatusEnum].label),
-          value: key,
-        })),
+        options: Object.keys(executeStatusMap)
+          .map((key) => ({
+            label: t(executeStatusMap[key as ExecuteStatusEnum].label),
+            value: key,
+          }))
+          .filter((e) => e.value !== ExecuteStatusEnum.RERUNNING),
         filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_STATUS,
       },
       sortable: {
@@ -500,7 +509,7 @@
   const scenarioExecuteResultDrawerVisible = ref(false);
   function checkExecuteResult(record: TaskCenterTaskDetailItem) {
     activeRecord.value = record;
-    if (record.resourceType === 'API_SCENARIO') {
+    if (record.resourceType.includes('API_SCENARIO')) {
       scenarioExecuteResultDrawerVisible.value = true;
     } else {
       caseExecuteResultDrawerVisible.value = true;

@@ -57,4 +57,5 @@ export default {
   'ms.taskCenter.openTaskSuccess': 'Task started successfully',
   'ms.taskCenter.closeTaskSuccess': 'Task closed successfully',
   'ms.taskCenter.waitQueue': 'Waiting in line',
+  'ms.taskCenter.caseName': 'Case name',
 };
