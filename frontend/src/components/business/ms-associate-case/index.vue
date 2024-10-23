@@ -113,176 +113,178 @@
         </a-input-group>
       </div>
     </template>
-    <div class="flex h-[calc(100vh-118px)]">
-      <div v-show="!isAdvancedSearchMode" class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
-        <CaseTree
-          ref="caseTreeRef"
-          v-model:checkedKeys="checkedKeys"
-          v-model:selected-keys="selectedKeys"
-          v-model:halfCheckedKeys="halfCheckedKeys"
-          :modules-count="modulesCount"
-          :get-modules-api-type="props.getModulesApiType"
-          :current-project="innerProject"
-          :active-tab="associationType"
-          :extra-modules-params="props.extraModulesParams"
-          :show-type="showType"
-          :folder-name="folderName"
-          @folder-node-select="handleFolderNodeSelect"
-          @init="initModuleTree"
-          @change-protocol="handleProtocolChange"
-          @select-parent="selectParent"
-          @check="checkNode"
-        >
-          <div class="flex items-center justify-between">
-            <a-checkbox v-model:model-value="isCheckedAll" :indeterminate="indeterminate" @change="checkAllModule">{{
-              t('ms.case.associate.allData')
-            }}</a-checkbox>
-            <span class="pr-[8px] text-[var(--color-text-brand)]">
-              {{ modulesCount.all }}
-            </span>
-          </div>
-        </CaseTree>
-      </div>
-      <div :class="[`relative flex ${!isAdvancedSearchMode ? 'w-[calc(100%-293px)]' : 'w-full'} flex-col p-[16px]`]">
-        <MsAdvanceFilter
-          ref="msAdvanceFilterRef"
-          v-model:keyword="keyword"
-          :view-type="viewType"
-          :filter-config-list="filterConfigList"
-          :custom-fields-config-list="searchCustomFields"
-          :search-placeholder="searchPlaceholder"
-          @keyword-search="loadCaseList()"
-          @adv-search="handleAdvSearch"
-          @refresh="loadCaseList()"
-        >
-          <template #left>
-            <div class="flex items-center">
-              <a-radio-group
-                v-if="associationType === 'API'"
-                v-model="showType"
-                type="button"
-                class="file-show-type mr-2"
-              >
-                <a-radio value="API" class="show-type-icon p-[2px]">API</a-radio>
-                <a-radio value="CASE" class="show-type-icon p-[2px]">CASE</a-radio>
-              </a-radio-group>
-              <a-popover v-else title="" position="bottom">
-                <div class="flex">
-                  <div class="one-line-text mr-1 max-h-[32px] max-w-[300px] text-[var(--color-text-1)]">
-                    {{ activeFolderName || folderName }}
-                  </div>
-                  <span class="text-[var(--color-text-4)]"> ({{ modulesCount[activeFolder] || 0 }})</span>
-                </div>
-                <template #content>
-                  <div class="max-w-[400px] text-[14px] font-medium text-[var(--color-text-1)]">
-                    {{ activeFolderName || folderName }}
-                    <span class="text-[var(--color-text-4)]">({{ modulesCount[activeFolder] || 0 }})</span>
-                  </div>
-                </template>
-              </a-popover>
+    <a-spin :loading="tableLoading" class="w-full">
+      <div class="flex h-[calc(100vh-118px)]">
+        <div v-show="!isAdvancedSearchMode" class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
+          <CaseTree
+            ref="caseTreeRef"
+            v-model:checkedKeys="checkedKeys"
+            v-model:selected-keys="selectedKeys"
+            v-model:halfCheckedKeys="halfCheckedKeys"
+            :modules-count="modulesCount"
+            :get-modules-api-type="props.getModulesApiType"
+            :current-project="innerProject"
+            :active-tab="associationType"
+            :extra-modules-params="props.extraModulesParams"
+            :show-type="showType"
+            :folder-name="folderName"
+            @folder-node-select="handleFolderNodeSelect"
+            @init="initModuleTree"
+            @change-protocol="handleProtocolChange"
+            @select-parent="selectParent"
+            @check="checkNode"
+          >
+            <div class="flex items-center justify-between">
+              <a-checkbox v-model:model-value="isCheckedAll" :indeterminate="indeterminate" @change="checkAllModule">{{
+                t('ms.case.associate.allData')
+              }}</a-checkbox>
+              <span class="pr-[8px] text-[var(--color-text-brand)]">
+                {{ modulesCount.all }}
+              </span>
             </div>
-          </template>
-        </MsAdvanceFilter>
-        <!-- 功能用例 -->
-        <CaseTable
-          v-if="associationType === CaseLinkEnum.FUNCTIONAL"
-          ref="functionalTableRef"
-          v-model:selectedIds="selectedIds"
-          v-model:selectedModulesMaps="selectedModulesMaps"
-          :is-advanced-search-mode="isAdvancedSearchMode"
-          :association-type="associateType"
-          :get-page-api-type="getPageApiType"
-          :active-module="activeFolder"
-          :offspring-ids="offspringIds"
-          :current-project="innerProject"
-          :associated-ids="props.associatedIds"
-          :active-source-type="associationType"
-          :extra-table-params="props.extraTableParams"
-          :keyword="keyword"
-          :module-tree="moduleTree"
-          :modules-count="modulesCount"
-          @get-module-count="initModulesCount"
-          @refresh="loadCaseList"
-        >
-          <TotalCount :total-count="totalCount" />
-        </CaseTable>
-        <!-- 接口用例 API -->
-        <ApiTable
-          v-else-if="associationType === CaseLinkEnum.API && showType === 'API'"
-          ref="apiTableRef"
-          v-model:selectedIds="selectedIds"
-          v-model:selectedModulesMaps="selectedModulesMaps"
-          :get-page-api-type="getPageApiType"
-          :extra-table-params="props.extraTableParams"
-          :association-type="associateType"
-          :active-module="activeFolder"
-          :offspring-ids="offspringIds"
-          :current-project="innerProject"
-          :associated-ids="props.associatedIds"
-          :active-source-type="associationType"
-          :keyword="keyword"
-          :show-type="showType"
-          :is-advanced-search-mode="isAdvancedSearchMode"
-          :all-protocol-list="allProtocolList"
-          :protocols="selectedProtocols"
-          :module-tree="moduleTree"
-          :modules-count="modulesCount"
-          @get-module-count="initModulesCount"
-        >
-          <TotalCount :total-count="totalCount" />
-        </ApiTable>
-        <!-- 接口用例 CASE -->
-        <ApiCaseTable
-          v-else-if="associationType === CaseLinkEnum.API && showType === 'CASE'"
-          ref="caseTableRef"
-          v-model:selectedIds="selectedIds"
-          v-model:selectedModulesMaps="selectedModulesMaps"
-          :get-page-api-type="getPageApiType"
-          :extra-table-params="props.extraTableParams"
-          :association-type="associateType"
-          :active-module="activeFolder"
-          :offspring-ids="offspringIds"
-          :current-project="innerProject"
-          :associated-ids="props.associatedIds"
-          :active-source-type="associationType"
-          :keyword="keyword"
-          :show-type="showType"
-          :is-advanced-search-mode="isAdvancedSearchMode"
-          :all-protocol-list="allProtocolList"
-          :protocols="selectedProtocols"
-          :module-tree="moduleTree"
-          :modules-count="modulesCount"
-          @get-module-count="initModulesCount"
-        >
-          <TotalCount :total-count="totalCount" />
-        </ApiCaseTable>
-        <!-- 接口场景用例 -->
-        <ScenarioCaseTable
-          v-else-if="associationType === CaseLinkEnum.SCENARIO"
-          ref="scenarioTableRef"
-          v-model:selectedModulesMaps="selectedModulesMaps"
-          v-model:selectedIds="selectedIds"
-          :association-type="associateType"
-          :modules-count="modulesCount"
-          :active-module="activeFolder"
-          :offspring-ids="offspringIds"
-          :current-project="innerProject"
-          :associated-ids="props.associatedIds"
-          :active-source-type="associationType"
-          :get-page-api-type="getPageApiType"
-          :extra-table-params="props.extraTableParams"
-          :keyword="keyword"
-          :module-tree="moduleTree"
-          :total-count="totalCount"
-          :is-advanced-search-mode="isAdvancedSearchMode"
-          :all-protocol-list="allProtocolList"
-          @get-module-count="initModulesCount"
-          @refresh="loadCaseList"
-        >
-          <TotalCount :total-count="totalCount" />
-        </ScenarioCaseTable>
+          </CaseTree>
+        </div>
+        <div :class="[`relative flex ${!isAdvancedSearchMode ? 'w-[calc(100%-293px)]' : 'w-full'} flex-col p-[16px]`]">
+          <MsAdvanceFilter
+            ref="msAdvanceFilterRef"
+            v-model:keyword="keyword"
+            :view-type="viewType"
+            :filter-config-list="filterConfigList"
+            :custom-fields-config-list="searchCustomFields"
+            :search-placeholder="searchPlaceholder"
+            @keyword-search="loadCaseList()"
+            @adv-search="handleAdvSearch"
+            @refresh="loadCaseList()"
+          >
+            <template #left>
+              <div class="flex items-center">
+                <a-radio-group
+                  v-if="associationType === 'API'"
+                  v-model="showType"
+                  type="button"
+                  class="file-show-type mr-2"
+                >
+                  <a-radio value="API" class="show-type-icon p-[2px]">API</a-radio>
+                  <a-radio value="CASE" class="show-type-icon p-[2px]">CASE</a-radio>
+                </a-radio-group>
+                <a-popover v-else title="" position="bottom">
+                  <div class="flex">
+                    <div class="one-line-text mr-1 max-h-[32px] max-w-[300px] text-[var(--color-text-1)]">
+                      {{ activeFolderName || folderName }}
+                    </div>
+                    <span class="text-[var(--color-text-4)]"> ({{ modulesCount[activeFolder] || 0 }})</span>
+                  </div>
+                  <template #content>
+                    <div class="max-w-[400px] text-[14px] font-medium text-[var(--color-text-1)]">
+                      {{ activeFolderName || folderName }}
+                      <span class="text-[var(--color-text-4)]">({{ modulesCount[activeFolder] || 0 }})</span>
+                    </div>
+                  </template>
+                </a-popover>
+              </div>
+            </template>
+          </MsAdvanceFilter>
+          <!-- 功能用例 -->
+          <CaseTable
+            v-if="associationType === CaseLinkEnum.FUNCTIONAL"
+            ref="functionalTableRef"
+            v-model:selectedIds="selectedIds"
+            v-model:selectedModulesMaps="selectedModulesMaps"
+            :is-advanced-search-mode="isAdvancedSearchMode"
+            :association-type="associateType"
+            :get-page-api-type="getPageApiType"
+            :active-module="activeFolder"
+            :offspring-ids="offspringIds"
+            :current-project="innerProject"
+            :associated-ids="props.associatedIds"
+            :active-source-type="associationType"
+            :extra-table-params="props.extraTableParams"
+            :keyword="keyword"
+            :module-tree="moduleTree"
+            :modules-count="modulesCount"
+            @get-module-count="initModulesCount"
+            @refresh="loadCaseList"
+          >
+            <TotalCount :total-count="totalCount" />
+          </CaseTable>
+          <!-- 接口用例 API -->
+          <ApiTable
+            v-else-if="associationType === CaseLinkEnum.API && showType === 'API'"
+            ref="apiTableRef"
+            v-model:selectedIds="selectedIds"
+            v-model:selectedModulesMaps="selectedModulesMaps"
+            :get-page-api-type="getPageApiType"
+            :extra-table-params="props.extraTableParams"
+            :association-type="associateType"
+            :active-module="activeFolder"
+            :offspring-ids="offspringIds"
+            :current-project="innerProject"
+            :associated-ids="props.associatedIds"
+            :active-source-type="associationType"
+            :keyword="keyword"
+            :show-type="showType"
+            :is-advanced-search-mode="isAdvancedSearchMode"
+            :all-protocol-list="allProtocolList"
+            :protocols="selectedProtocols"
+            :module-tree="moduleTree"
+            :modules-count="modulesCount"
+            @get-module-count="initModulesCount"
+          >
+            <TotalCount :total-count="totalCount" />
+          </ApiTable>
+          <!-- 接口用例 CASE -->
+          <ApiCaseTable
+            v-else-if="associationType === CaseLinkEnum.API && showType === 'CASE'"
+            ref="caseTableRef"
+            v-model:selectedIds="selectedIds"
+            v-model:selectedModulesMaps="selectedModulesMaps"
+            :get-page-api-type="getPageApiType"
+            :extra-table-params="props.extraTableParams"
+            :association-type="associateType"
+            :active-module="activeFolder"
+            :offspring-ids="offspringIds"
+            :current-project="innerProject"
+            :associated-ids="props.associatedIds"
+            :active-source-type="associationType"
+            :keyword="keyword"
+            :show-type="showType"
+            :is-advanced-search-mode="isAdvancedSearchMode"
+            :all-protocol-list="allProtocolList"
+            :protocols="selectedProtocols"
+            :module-tree="moduleTree"
+            :modules-count="modulesCount"
+            @get-module-count="initModulesCount"
+          >
+            <TotalCount :total-count="totalCount" />
+          </ApiCaseTable>
+          <!-- 接口场景用例 -->
+          <ScenarioCaseTable
+            v-else-if="associationType === CaseLinkEnum.SCENARIO"
+            ref="scenarioTableRef"
+            v-model:selectedModulesMaps="selectedModulesMaps"
+            v-model:selectedIds="selectedIds"
+            :association-type="associateType"
+            :modules-count="modulesCount"
+            :active-module="activeFolder"
+            :offspring-ids="offspringIds"
+            :current-project="innerProject"
+            :associated-ids="props.associatedIds"
+            :active-source-type="associationType"
+            :get-page-api-type="getPageApiType"
+            :extra-table-params="props.extraTableParams"
+            :keyword="keyword"
+            :module-tree="moduleTree"
+            :total-count="totalCount"
+            :is-advanced-search-mode="isAdvancedSearchMode"
+            :all-protocol-list="allProtocolList"
+            @get-module-count="initModulesCount"
+            @refresh="loadCaseList"
+          >
+            <TotalCount :total-count="totalCount" />
+          </ScenarioCaseTable>
+        </div>
       </div>
-    </div>
+    </a-spin>
     <div class="footer !ml-[10px] w-[calc(100%-10px)]">
       <div class="flex items-center">
         <slot name="footerLeft">
@@ -605,8 +607,10 @@
     }
   }
 
+  const tableLoading = ref(false);
   async function initModulesCount(params: TableQueryParams) {
     try {
+      tableLoading.value = true;
       modulesCount.value = await initGetModuleCountFunc(
         props.getModuleCountApiType,
         associationType.value,
@@ -623,6 +627,8 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      tableLoading.value = false;
     }
   }
 
@@ -763,6 +769,7 @@
       selectPopVisible.value = false;
       keyword.value = '';
       selectedIds.value = [];
+      showType.value = 'API';
     }
   );
 
