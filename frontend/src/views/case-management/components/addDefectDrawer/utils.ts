@@ -157,17 +157,29 @@ function getAssertTable(assertions: ResponseAssertionTableItem[]) {
 export async function getCaseQuickContent(id: string) {
   try {
     const result = await getCaseDetail(id);
-    const { prerequisite, steps, expectedResult } = result;
+    const { prerequisite, steps, expectedResult, caseEditType, textDescription } = result;
+    const getEmptyString = (value: string) => {
+      const emptyString = '<p style=""></p>';
+      return !value || emptyString.includes(value) ? '-' : value;
+    };
 
     const stepData = getStepsTable(steps);
+    const stepContent =
+      caseEditType === 'STEP'
+        ? `<p style=""><strong>${t('system.orgTemplate.stepDescription')}</strong></p>
+            ${stepData}`
+        : `
+          <p style=""><strong>${t('system.orgTemplate.textDescription')}</strong></p>
+          <p style="">${getEmptyString(textDescription)}</p>
+          <p style=""><strong>${t('system.orgTemplate.expectedResult')}</strong></p>
+          <p style="">${getEmptyString(expectedResult)}</p>
+        `;
+
     // 处理步骤
     const caseContent = `
     <p style=""><strong>${t('system.orgTemplate.precondition')}</strong></p>
-    <p style="">${prerequisite || '-'}</p>
-    <p style=""><strong>${t('system.orgTemplate.stepDescription')}</strong></p>
-    ${stepData}
-    <p style=""><strong>${t('system.orgTemplate.expectedResult')}</strong></p>
-    <p style="">${expectedResult || '-'}</p>
+    <p style="">${getEmptyString(prerequisite)}</p>
+    ${stepContent}
     <p style=""><strong>${t('system.orgTemplate.actualResult')}</strong></p>
     <p style="">-</p>`;
     detailContentMap[CaseLinkEnum.FUNCTIONAL] = caseContent;
