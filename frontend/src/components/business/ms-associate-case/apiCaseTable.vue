@@ -367,8 +367,8 @@
       type: FilterType.BOOLEAN,
       selectProps: {
         options: [
-          { label: t('case.withoutChanges'), value: false },
-          { label: t('case.withChanges'), value: true },
+          { label: t('case.withoutChanges'), value: 'false' },
+          { label: t('case.withChanges'), value: 'true' },
         ],
       },
     },
