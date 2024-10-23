@@ -23,6 +23,7 @@ import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.schedule.BaseScheduleJob;
+import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.uid.IDGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobExecutionContext;
@@ -36,6 +37,7 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
         ApiScenarioRunService apiScenarioRunService = CommonBeanFactory.getBean(ApiScenarioRunService.class);
         ApiCommonService apiCommonService = CommonBeanFactory.getBean(ApiCommonService.class);
         ProjectMapper projectMapper = CommonBeanFactory.getBean(ProjectMapper.class);
+        BaseTaskHubService baseTaskHubService = CommonBeanFactory.getBean(BaseTaskHubService.class);
         ApiRunModeConfigDTO apiRunModeConfigDTO = JSON.parseObject(context.getJobDetail().getJobDataMap().get("config").toString(), ApiRunModeConfigDTO.class);
 
         ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(resourceId);
@@ -76,6 +78,7 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
         execTaskItem.setResourceType(ApiExecuteResourceType.API_SCENARIO.name());
         execTaskItem.setResourceId(apiScenarioDetail.getId());
         execTaskItem.setResourceName(apiScenarioDetail.getName());
+        baseTaskHubService.insertExecTaskAndDetail(execTask,execTaskItem);
 
         TaskRequestDTO taskRequest = apiScenarioRunService.getTaskRequest(IDGenerator.nextStr(), apiScenarioDetail.getId(), apiScenarioDetail.getProjectId(), ApiExecuteRunMode.SCHEDULE.name());
         TaskInfo taskInfo = taskRequest.getTaskInfo();
