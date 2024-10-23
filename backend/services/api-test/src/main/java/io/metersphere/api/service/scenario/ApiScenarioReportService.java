@@ -481,7 +481,7 @@ public class ApiScenarioReportService {
         return apiTaskReportDTO;
     }
 
-    private ApiScenarioReportDTO getScenarioReportDetail(String taskId, String taskItemId) {
+    private ApiScenarioReportDTO getScenarioReportDetail(String taskItemId, String taskId) {
         ExecTaskItem taskItem = execTaskItemMapper.selectByPrimaryKey(taskItemId);
         ApiScenarioReportDTO apiScenarioReportDTO = scenarioReportDetail(taskId);
         if (CollectionUtils.isNotEmpty(apiScenarioReportDTO.getChildren())) {
