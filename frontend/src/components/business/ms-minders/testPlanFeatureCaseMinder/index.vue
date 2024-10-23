@@ -218,11 +218,13 @@
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
   import {
+    clearNodeChildren,
     clearSelectedNodes,
     createNode,
     expendNodeAndChildren,
     handleRenderNode,
     removeFakeNode,
+    renderSubModules,
     renderSubNodes,
     setPriorityView,
   } from '@/components/pure/ms-minder-editor/script/tool/utils';
@@ -675,13 +677,17 @@
         initExecuteHistory(node.data);
       }
       window.minder.refresh();
+    } else if (node.data.id === 'NONE') {
+      // 处理根节点，重新渲染整个用例树
+      initCaseTree();
     } else if (isModuleOrCollection(node.data)) {
-      // 先清空子节点，从后向前遍历时，删除节点不会影响到尚未遍历的节点
-      for (let i = node.children.length - 1; i >= 0; i--) {
-        window.minder.removeNode(node.children[i]);
-      }
+      // 处理模块节点
+      clearNodeChildren(node);
+      renderSubModules(node, importJson.value.root, modulesCount.value);
       // 再重新渲染
-      initNodeCases(node);
+      if (node.data.id !== 'NONE') {
+        initNodeCases(node);
+      }
     }
     emit('refreshPlan');
   }

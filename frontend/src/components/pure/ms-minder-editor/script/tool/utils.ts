@@ -1,7 +1,11 @@
 import type { MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
 
+import { useI18n } from '@/hooks/useI18n';
 import type { MinderNodePosition } from '@/store/modules/components/minder-editor/types';
-import { getGenerateId, mapTree } from '@/utils';
+import { findNodeByKey, getGenerateId, mapTree } from '@/utils';
+
+const { t } = useI18n();
+const moduleTag = t('common.module');
 
 export function isDisableNode(minder: any) {
   let node: MinderJsonNode;
@@ -242,4 +246,59 @@ export function clearSelectedNodes() {
   if (currentSelectedNodes && currentSelectedNodes.length > 0) {
     window.minder.toggleSelect(currentSelectedNodes);
   }
+}
+
+// 清空子节点，从后向前遍历时，删除节点不会影响到尚未遍历的节点
+export function clearNodeChildren(node: MinderJsonNode) {
+  if (!node.children?.length) return;
+  for (let i = node.children.length - 1; i >= 0; i--) {
+    window.minder.removeNode(node.children[i]);
+  }
+}
+
+// 重新递归渲染子模块
+export function renderSubModules(
+  node: MinderJsonNode,
+  importJsonRoot: MinderJsonNode,
+  modulesCount: Record<string, any>
+) {
+  const waitingRenderNodes: MinderJsonNode[] = [];
+  const createSubModules = (id: string) => {
+    const curNode: MinderJsonNode | null = findNodeByKey(importJsonRoot.children as MinderJsonNode[], id, 'id', 'data');
+    const minderNode = window.minder.getNodeById(id);
+    if (curNode?.children) {
+      const moduleNode = curNode.children.filter(
+        (child) => child.data?.resource?.includes(moduleTag) || child.data?.type === 'tmpModule'
+      );
+      if (!moduleNode.length) {
+        const newNode = createNode(
+          {
+            id: 'fakeNode',
+            text: t('ms.minders.moreCase'),
+            resource: [''],
+          },
+          minderNode
+        );
+        waitingRenderNodes.push(newNode);
+      } else {
+        moduleNode.forEach((childNode) => {
+          if (!childNode.data) return;
+          const newNode = createNode(
+            {
+              ...childNode.data,
+              id: childNode.id || childNode.data?.id || '',
+              text: childNode.name || childNode.data?.text.replace(/<\/?p\b[^>]*>/gi, '') || '',
+              count: modulesCount[childNode.data.id],
+              isLoaded: false,
+            },
+            minderNode
+          );
+          waitingRenderNodes.push(newNode);
+          createSubModules(childNode.data.id);
+        });
+      }
+    }
+  };
+  createSubModules(node.data?.id as string);
+  handleRenderNode(node, waitingRenderNodes);
 }

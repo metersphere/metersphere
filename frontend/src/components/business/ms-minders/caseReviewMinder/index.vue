@@ -116,11 +116,13 @@
   import MsMinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import type { MinderJson, MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-minder-editor/props';
   import {
+    clearNodeChildren,
     clearSelectedNodes,
     createNode,
     expendNodeAndChildren,
     handleRenderNode,
     removeFakeNode,
+    renderSubModules,
     renderSubNodes,
     setPriorityView,
   } from '@/components/pure/ms-minder-editor/script/tool/utils';
@@ -516,13 +518,17 @@
     // 如果是用例，则status是获取后端的值，可直接替换标签
     if (isCaseTag(node.data)) {
       window.minder.execCommand('resource', [statusTagMap[status]]);
+    } else if (node.data.id === 'NONE') {
+      // 处理根节点，重新渲染整个用例树
+      initCaseTree();
     } else if (status !== StartReviewStatus.UNDER_REVIEWED && node.data?.resource?.includes(moduleTag)) {
-      // 先清空子节点，从后向前遍历时，删除节点不会影响到尚未遍历的节点
-      for (let i = node.children.length - 1; i >= 0; i--) {
-        window.minder.removeNode(node.children[i]);
+      // 处理模块节点
+      clearNodeChildren(node);
+      renderSubModules(node, importJson.value.root, modulesCount.value);
+      // 重新渲染用例
+      if (node.data.id !== 'NONE') {
+        initNodeCases(node);
       }
-      // 再重新渲染
-      initNodeCases(node);
     }
     emit('handleReviewDone');
   }
