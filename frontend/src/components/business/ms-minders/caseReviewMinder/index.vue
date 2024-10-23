@@ -522,13 +522,14 @@
       // 处理根节点，重新渲染整个用例树
       initCaseTree();
     } else if (status !== StartReviewStatus.UNDER_REVIEWED && node.data?.resource?.includes(moduleTag)) {
+      // TODO 想一个更好的处理方案：只递归处理用例节点，可以保证不折叠原本展开的东西，但多人评审时不知道评审结果标签是啥，调后端又反而增加了负重
       // 处理模块节点
+      // 删除模块下所有子节点
       clearNodeChildren(node);
+      // 重新渲染子模块，子模块都收起
       renderSubModules(node, importJson.value.root, modulesCount.value);
       // 重新渲染用例
-      if (node.data.id !== 'NONE') {
-        initNodeCases(node);
-      }
+      initNodeCases(node);
     }
     emit('handleReviewDone');
   }
