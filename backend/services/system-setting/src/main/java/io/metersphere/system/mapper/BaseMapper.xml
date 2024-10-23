@@ -167,7 +167,7 @@
                 </when>
                 <when test="${condition}.operator == 'COUNT_LT'">
                     <if test="${condition}.value == 0">
-                        1=2
+                        false
                     </if>
                     <if test="${condition}.value != 0">
                         ${column} is null or ${column} = '[]' or
