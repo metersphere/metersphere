@@ -798,7 +798,7 @@
       case MenuEnum.apiTest:
         return 'icon-icon_api-test-filled2';
       case MenuEnum.taskCenter:
-        return 'icon-calendar-clock';
+        return 'icon-icon_task_center';
       default:
         return '';
     }
