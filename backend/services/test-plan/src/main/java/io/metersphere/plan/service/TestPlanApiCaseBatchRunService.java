@@ -175,8 +175,7 @@ public class TestPlanApiCaseBatchRunService {
         ExecutionQueue collectionQueue = apiExecutionQueueService.getQueue(collectionQueueId);
         if (collectionQueue == null) {
             // 失败停止，或者执行完成，更新任务状态
-            apiBatchRunBaseService.updateTaskStatus(collectionQueueId);
-            apiBatchRunBaseService.removeRunningTaskCache(collectionQueueId);
+            apiBatchRunBaseService.updateTaskCompletedStatus(collectionQueueId);
             return;
         }
         String userId = collectionQueue.getUserId();
