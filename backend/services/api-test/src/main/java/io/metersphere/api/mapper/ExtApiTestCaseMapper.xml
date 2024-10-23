@@ -1012,7 +1012,8 @@
             #{id}
         </foreach>
     </select>
-    <select id="selectBaseInfoByProjectIdAndApiId" resultType="io.metersphere.api.domain.ApiTestCase">
+    <select id="selectBaseInfoByProjectIdAndApiId"
+            resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
         SELECT id, num, name, project_id, api_definition_id
         FROM api_test_case
         WHERE project_id = #{projectId}

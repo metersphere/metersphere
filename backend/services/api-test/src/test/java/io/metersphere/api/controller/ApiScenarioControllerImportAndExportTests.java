@@ -76,11 +76,18 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
         ApiScenarioImportRequest request = new ApiScenarioImportRequest();
         request.setProjectId(project.getId());
         request.setType("jmeter");
-        String importType = "jmeter";
-        String fileSuffix = "jmx";
-        FileInputStream inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import-scenario/" + importType + "/simple." + fileSuffix)).getPath()));
-        MockMultipartFile file = new MockMultipartFile("file", "simple." + fileSuffix, MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        FileInputStream inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import-scenario/jmeter/simple.jmx")).getPath()));
+        MockMultipartFile file = new MockMultipartFile("file", "simple.jmx", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file);
+        this.requestMultipartWithOkAndReturn(URL_POST_IMPORT, paramMap);
+
+
+        request.setType("metersphere");
+        inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import-scenario/metersphere/simple.ms")).getPath()));
+        file = new MockMultipartFile("file", "simple.ms", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        paramMap = new LinkedMultiValueMap<>();
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("file", file);
         this.requestMultipartWithOkAndReturn(URL_POST_IMPORT, paramMap);
@@ -132,24 +139,9 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
 
         MetersphereApiScenarioExportResponse exportResponse = ApiDataUtils.parseObject(fileContent, MetersphereApiScenarioExportResponse.class);
 
-        Assertions.assertEquals(exportResponse.getExportScenarioList().size(), 3);
+        Assertions.assertEquals(exportResponse.getExportScenarioList().size(), 8);
 
         MsFileUtils.deleteDir("/tmp/api-scenario-export/");
-    }
-
-    @Test
-    @Order(3)
-    public void testImportMs() throws Exception {
-        ApiScenarioImportRequest request = new ApiScenarioImportRequest();
-        request.setProjectId(project.getId());
-        request.setType("metersphere");
-        String importType = "metersphere";
-        FileInputStream inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import-scenario/" + importType + "/all.ms")).getPath()));
-        MockMultipartFile file = new MockMultipartFile("file", "all.ms", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
-        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
-        paramMap.add("request", JSON.toJSONString(request));
-        paramMap.add("file", file);
-        this.requestMultipartWithOkAndReturn(URL_POST_IMPORT, paramMap);
     }
 
     private MvcResult download(String projectId, String fileId) throws Exception {

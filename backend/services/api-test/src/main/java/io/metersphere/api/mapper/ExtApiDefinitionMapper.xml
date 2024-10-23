@@ -159,7 +159,8 @@
     </select>
     <select id="importList" resultType="io.metersphere.api.dto.converter.ApiDefinitionDetail">
         select
-        api_definition.id, api_definition.`name`, api_definition.protocol, api_definition.`method`,
+        api_definition.id, api_definition.`name`, api_definition.protocol,
+        api_definition.`method`,api_definition.project_id,
         api_definition.`path`, api_definition.version_id,
         api_definition.ref_id, api_definition.module_id
         from api_definition

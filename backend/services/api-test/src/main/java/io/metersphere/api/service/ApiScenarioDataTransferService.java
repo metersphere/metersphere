@@ -705,11 +705,26 @@ public class ApiScenarioDataTransferService {
             // 处理步骤里的关联资源文件
             importScenario.getSteps().forEach(item -> {
                 if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API.name())) {
-                    item.setResourceId(replaceScenarioResource.getApiNewIdIfExtends(item.getResourceId()));
+                    ApiDefinitionDetail apiDetail = replaceScenarioResource.getApi(item.getResourceId());
+                    if (apiDetail != null) {
+                        item.setResourceId(apiDetail.getId());
+                        item.setProjectId(importScenario.getProjectId());
+                        item.setOriginProjectId(apiDetail.getProjectId());
+                    }
                 } else if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API_CASE.name())) {
-                    item.setResourceId(replaceScenarioResource.getApiCaseNewIdIfExtends(item.getResourceId()));
+                    ApiTestCaseDTO newData = replaceScenarioResource.getApiCase(item.getResourceId());
+                    if (newData != null) {
+                        item.setResourceId(newData.getId());
+                        item.setProjectId(importScenario.getProjectId());
+                        item.setOriginProjectId(newData.getProjectId());
+                    }
                 } else if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API_SCENARIO.name())) {
-                    item.setResourceId(replaceScenarioResource.getApiScenarioNewIdIfExtends(item.getResourceId()));
+                    ApiScenarioImportDetail newData = replaceScenarioResource.getApiScenario(item.getResourceId());
+                    if (newData != null) {
+                        item.setResourceId(newData.getId());
+                        item.setProjectId(importScenario.getProjectId());
+                        item.setOriginProjectId(newData.getProjectId());
+                    }
                 }
             });
         }
@@ -717,11 +732,26 @@ public class ApiScenarioDataTransferService {
             // 处理步骤里的关联资源文件
             updateScenario.getSteps().forEach(item -> {
                 if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API.name())) {
-                    item.setResourceId(replaceScenarioResource.getApiNewIdIfExtends(item.getResourceId()));
+                    ApiDefinitionDetail apiDetail = replaceScenarioResource.getApi(item.getResourceId());
+                    if (apiDetail != null) {
+                        item.setResourceId(apiDetail.getId());
+                        item.setProjectId(updateScenario.getProjectId());
+                        item.setOriginProjectId(apiDetail.getProjectId());
+                    }
                 } else if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API_CASE.name())) {
-                    item.setResourceId(replaceScenarioResource.getApiCaseNewIdIfExtends(item.getResourceId()));
+                    ApiTestCaseDTO newData = replaceScenarioResource.getApiCase(item.getResourceId());
+                    if (newData != null) {
+                        item.setResourceId(newData.getId());
+                        item.setProjectId(updateScenario.getProjectId());
+                        item.setOriginProjectId(newData.getProjectId());
+                    }
                 } else if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API_SCENARIO.name())) {
-                    item.setResourceId(replaceScenarioResource.getApiScenarioNewIdIfExtends(item.getResourceId()));
+                    ApiScenarioImportDetail newData = replaceScenarioResource.getApiScenario(item.getResourceId());
+                    if (newData != null) {
+                        item.setResourceId(newData.getId());
+                        item.setProjectId(updateScenario.getProjectId());
+                        item.setOriginProjectId(newData.getProjectId());
+                    }
                 }
             });
         }
@@ -835,7 +865,7 @@ public class ApiScenarioDataTransferService {
 
                     Map<String, List<ApiTestCaseDTO>> apiIdMap = protocolList.stream().collect(Collectors.groupingBy(ApiTestCaseDTO::getApiDefinitionId));
                     for (Map.Entry<String, List<ApiTestCaseDTO>> apiIdEntry : apiIdMap.entrySet()) {
-                        String replaceApiDefinitionId = returnResource.getApiNewIdOrEmpty(apiIdEntry.getKey());
+                        String replaceApiDefinitionId = returnResource.getApi(apiIdEntry.getKey()) == null ? StringUtils.EMPTY : returnResource.getApi(apiIdEntry.getKey()).getId();
 
                         List<ApiTestCaseDTO> testCaseList = apiIdEntry.getValue();
 
@@ -846,15 +876,15 @@ public class ApiScenarioDataTransferService {
                                     testCaseList.getFirst().getModulePath(), testCaseList.getFirst().getApiDefinitionName(), existenceApiDefinitionList);
 
                             if (apiExistence) {
-                                Map<Long, ApiTestCase> existenceApiCaseNumMap = extApiTestCaseMapper.selectBaseInfoByProjectIdAndApiId(targetProjectId, apiIdEntry.getKey())
-                                        .stream().collect(Collectors.toMap(ApiTestCase::getNum, Function.identity(), (k1, k2) -> k1));
+                                Map<Long, ApiTestCaseDTO> existenceApiCaseNumMap = extApiTestCaseMapper.selectBaseInfoByProjectIdAndApiId(targetProjectId, apiIdEntry.getKey())
+                                        .stream().collect(Collectors.toMap(ApiTestCaseDTO::getNum, Function.identity(), (k1, k2) -> k1));
                                 for (ApiTestCaseDTO apiTestCaseDTO : apiIdEntry.getValue()) {
                                     if (existenceApiCaseNumMap.containsKey(apiTestCaseDTO.getNum())) {
-                                        returnResource.putApiTestCaseId(apiTestCaseDTO.getId(), existenceApiCaseNumMap.get(apiTestCaseDTO.getNum()).getId());
+                                        returnResource.putApiTestCase(apiTestCaseDTO.getId(), existenceApiCaseNumMap.get(apiTestCaseDTO.getNum()));
                                     } else {
                                         apiTestCaseDTO.setId(IDGenerator.nextStr());
                                         apiTestCaseDTO.setProjectId(targetProjectId);
-                                        returnResource.putApiTestCaseId(apiTestCaseDTO.getId(), apiTestCaseDTO.getId());
+                                        returnResource.putApiTestCase(apiTestCaseDTO.getId(), apiTestCaseDTO);
                                         analysisResult.setApiTestCase(apiTestCaseDTO);
                                     }
                                 }
@@ -870,29 +900,29 @@ public class ApiScenarioDataTransferService {
                                 apiDefinitionDetail.setPath(testCaseList.getFirst().getPath());
                                 apiDefinitionDetail.setMethod(testCaseList.getFirst().getMethod());
                                 apiDefinitionDetail.setResponse(new ArrayList<>());
-                                returnResource.putApiDefinitionId(apiIdEntry.getKey(), apiDefinitionDetail.getId());
+                                returnResource.putApiDefinitionId(apiIdEntry.getKey(), apiDefinitionDetail);
                                 analysisResult.setApiDefinition(apiDefinitionDetail);
 
                                 for (ApiTestCaseDTO apiTestCaseDTO : testCaseList) {
                                     apiTestCaseDTO.setId(IDGenerator.nextStr());
                                     apiTestCaseDTO.setProjectId(targetProjectId);
                                     apiTestCaseDTO.setApiDefinitionId(apiDefinitionDetail.getId());
-                                    returnResource.putApiTestCaseId(apiTestCaseDTO.getId(), apiTestCaseDTO.getId());
+                                    returnResource.putApiTestCase(apiTestCaseDTO.getId(), apiTestCaseDTO);
                                     analysisResult.setApiTestCase(apiTestCaseDTO);
                                 }
                             }
 
                         } else {
-                            Map<Long, ApiTestCase> existenceApiCaseNumMap = extApiTestCaseMapper.selectBaseInfoByProjectIdAndApiId(targetProjectId, replaceApiDefinitionId)
-                                    .stream().collect(Collectors.toMap(ApiTestCase::getNum, Function.identity(), (k1, k2) -> k1));
+                            Map<Long, ApiTestCaseDTO> existenceApiCaseNumMap = extApiTestCaseMapper.selectBaseInfoByProjectIdAndApiId(targetProjectId, replaceApiDefinitionId)
+                                    .stream().collect(Collectors.toMap(ApiTestCaseDTO::getNum, Function.identity(), (k1, k2) -> k1));
                             for (ApiTestCaseDTO apiTestCaseDTO : testCaseList) {
                                 apiTestCaseDTO.setApiDefinitionId(replaceApiDefinitionId);
                                 if (existenceApiCaseNumMap.containsKey(apiTestCaseDTO.getNum())) {
-                                    returnResource.putApiTestCaseId(apiTestCaseDTO.getId(), existenceApiCaseNumMap.get(apiTestCaseDTO.getNum()).getId());
+                                    returnResource.putApiTestCase(apiTestCaseDTO.getId(), existenceApiCaseNumMap.get(apiTestCaseDTO.getNum()));
                                 } else {
-                                    apiTestCaseDTO.setId(IDGenerator.nextStr());
                                     apiTestCaseDTO.setProjectId(targetProjectId);
-                                    returnResource.putApiTestCaseId(apiTestCaseDTO.getId(), apiTestCaseDTO.getId());
+                                    returnResource.putApiTestCase(apiTestCaseDTO.getId(), apiTestCaseDTO);
+                                    apiTestCaseDTO.setId(IDGenerator.nextStr());
                                     analysisResult.setApiTestCase(apiTestCaseDTO);
                                 }
                             }
@@ -945,7 +975,7 @@ public class ApiScenarioDataTransferService {
                                 .stream().collect(Collectors.toMap(ApiScenario::getName, Function.identity(), (k1, k2) -> k1));
                     }
 
-                    Map<String, String> createdNameOldIds = new HashMap<>();
+                    Map<String, ApiScenarioImportDetail> createdNameOldIds = new HashMap<>();
 
                     for (ApiScenarioImportDetail scenario : modulePathEntry.getValue()) {
                         scenario.setModuleId(moduleId);
@@ -953,14 +983,16 @@ public class ApiScenarioDataTransferService {
                             returnResource.putApiScenarioId(scenario.getId(), createdNameOldIds.get(scenario.getName()));
                         } else {
                             if (apiScenarioNameMap.containsKey(scenario.getName())) {
-                                returnResource.putApiScenarioId(scenario.getId(), apiScenarioNameMap.get(scenario.getName()).getId());
-                                createdNameOldIds.put(scenario.getName(), apiScenarioNameMap.get(scenario.getName()).getId());
+                                ApiScenarioImportDetail oldData = new ApiScenarioImportDetail();
+                                BeanUtils.copyBean(oldData, apiScenarioNameMap.get(scenario.getName()));
+                                returnResource.putApiScenarioId(scenario.getId(), oldData);
+                                createdNameOldIds.put(scenario.getName(), oldData);
                             } else {
                                 String oldId = scenario.getId();
                                 scenario.setId(IDGenerator.nextStr());
                                 scenario.setProjectId(targetProjectId);
                                 returnResource.getInsertRelatedApiScenarioData().add(scenario);
-                                returnResource.putApiScenarioId(oldId, scenario.getId());
+                                returnResource.putApiScenarioId(oldId, scenario);
                             }
                         }
                     }
@@ -1149,47 +1181,35 @@ public class ApiScenarioDataTransferService {
 
 @Data
 class ReplaceScenarioResource {
-    private Map<String, String> apiDefinitionIdMap = new HashMap<>();
-    private Map<String, String> apiTestCaseIdMap = new HashMap<>();
-    private Map<String, String> apiScenarioIdMap = new HashMap<>();
+    private Map<String, ApiDefinitionDetail> apiDefinitionIdMap = new HashMap<>();
+    private Map<String, ApiTestCaseDTO> apiTestCaseIdMap = new HashMap<>();
+    private Map<String, ApiScenarioImportDetail> apiScenarioIdMap = new HashMap<>();
 
     @Schema(description = "要新增的关联场景")
     List<ApiScenarioImportDetail> insertRelatedApiScenarioData = new ArrayList<>();
 
-    public String getApiNewIdOrEmpty(String apiOldId) {
-        return apiDefinitionIdMap.getOrDefault(apiOldId, StringUtils.EMPTY);
+    public ApiDefinitionDetail getApi(String apiOldId) {
+        return apiDefinitionIdMap.get(apiOldId);
     }
 
-    public String getApiNewIdIfExtends(String apiOldId) {
-        return apiDefinitionIdMap.getOrDefault(apiOldId, apiOldId);
+    public ApiTestCaseDTO getApiCase(String oldId) {
+        return apiTestCaseIdMap.get(oldId);
     }
 
-    public String getApiCaseNewIdOrEmpty(String apiCaseOldId) {
-        return apiTestCaseIdMap.getOrDefault(apiCaseOldId, StringUtils.EMPTY);
-    }
-
-    public String getApiCaseNewIdIfExtends(String apiCaseOldId) {
-        return apiTestCaseIdMap.getOrDefault(apiCaseOldId, apiCaseOldId);
-    }
-
-    public String getApiScenarioNewIdOrEmpty(String apiScenarioOldId) {
-        return apiScenarioIdMap.getOrDefault(apiScenarioOldId, StringUtils.EMPTY);
-    }
-
-    public String getApiScenarioNewIdIfExtends(String apiScenarioOldId) {
-        return apiScenarioIdMap.getOrDefault(apiScenarioOldId, apiScenarioOldId);
+    public ApiScenarioImportDetail getApiScenario(String oldId) {
+        return apiScenarioIdMap.get(oldId);
     }
 
 
-    public void putApiDefinitionId(String oldId, String newId) {
-        apiDefinitionIdMap.put(oldId, newId);
+    public void putApiDefinitionId(String oldId, ApiDefinitionDetail newData) {
+        apiDefinitionIdMap.put(oldId, newData);
     }
 
-    public void putApiTestCaseId(String oldId, String newId) {
-        apiTestCaseIdMap.put(oldId, newId);
+    public void putApiTestCase(String oldId, ApiTestCaseDTO newData) {
+        apiTestCaseIdMap.put(oldId, newData);
     }
 
-    public void putApiScenarioId(String oldId, String newId) {
-        apiScenarioIdMap.put(oldId, newId);
+    public void putApiScenarioId(String oldId, ApiScenarioImportDetail newData) {
+        apiScenarioIdMap.put(oldId, newData);
     }
 }

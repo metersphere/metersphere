@@ -130,5 +130,5 @@ public interface ExtApiTestCaseMapper {
 
     List<ApiTestCaseWithBlob> selectAllDetailByIds(@Param("ids") List<String> apiIds);
 
-    List<ApiTestCase> selectBaseInfoByProjectIdAndApiId(@Param("projectId") String projectId, @Param("apiId") String apiId);
+    List<ApiTestCaseDTO> selectBaseInfoByProjectIdAndApiId(@Param("projectId") String projectId, @Param("apiId") String apiId);
 }

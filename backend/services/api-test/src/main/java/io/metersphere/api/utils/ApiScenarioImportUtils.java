@@ -35,7 +35,7 @@ public class ApiScenarioImportUtils {
         return dto;
     }
 
-    public static Map<String, String> getApiIdInTargetList(List<ApiDefinitionDetail> compareList, List<ApiDefinitionDetail> targetList, String protocol, String projectId, ApiScenarioPreImportAnalysisResult analysisResult) {
+    public static Map<String, ApiDefinitionDetail> getApiIdInTargetList(List<ApiDefinitionDetail> compareList, List<ApiDefinitionDetail> targetList, String protocol, String projectId, ApiScenarioPreImportAnalysisResult analysisResult) {
         if (CollectionUtils.isEmpty(compareList)) {
             return new HashMap<>();
         }
@@ -52,23 +52,23 @@ public class ApiScenarioImportUtils {
             targetApiIdMap = targetList.stream().collect(Collectors.toMap(t -> t.getModulePath() + t.getName(), t -> t, (oldValue, newValue) -> newValue));
         }
         Map<String, ApiDefinitionDetail> prepareInsertApi = new HashMap<>();
-        Map<String, String> apiIdDic = new HashMap<>();
+        Map<String, ApiDefinitionDetail> apiIdDic = new HashMap<>();
         for (ApiDefinitionDetail compareApi : compareList) {
             String compareKey = StringUtils.equalsIgnoreCase(protocol, ApiConstants.HTTP_PROTOCOL) ?
                     compareApi.getMethod() + compareApi.getPath() : compareApi.getModulePath() + compareApi.getName();
             // 去除文件中相同类型的接口
 
             if (targetApiIdMap.containsKey(compareKey)) {
-                apiIdDic.put(compareApi.getId(), targetApiIdMap.get(compareKey).getId());
+                apiIdDic.put(compareApi.getId(), targetApiIdMap.get(compareKey));
             } else {
                 if (prepareInsertApi.containsKey(compareKey)) {
-                    apiIdDic.put(compareApi.getId(), prepareInsertApi.get(compareKey).getId());
+                    apiIdDic.put(compareApi.getId(), prepareInsertApi.get(compareKey));
                 } else {
                     String oldId = compareApi.getId();
                     compareApi.setProjectId(projectId);
                     compareApi.setId(IDGenerator.nextStr());
                     analysisResult.setApiDefinition(compareApi);
-                    apiIdDic.put(oldId, compareApi.getId());
+                    apiIdDic.put(oldId, compareApi);
                     prepareInsertApi.put(compareKey, compareApi);
                 }
             }
