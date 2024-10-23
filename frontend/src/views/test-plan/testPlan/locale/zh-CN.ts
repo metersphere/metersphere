@@ -56,7 +56,7 @@ export default {
   'testPlan.testPlanIndex.inFreeTime': '空闲中',
   'testPlan.testPlanIndex.defaultEnv': '默认环境',
   'testPlan.testPlanIndex.newEnv': '新环境',
-  'testPlan.testPlanIndex.executionProgress': '执行进度',
+  'testPlan.testPlanIndex.executionProgress': '执行完成率',
   'testPlan.testPlanIndex.threshold': '通过阈值',
   'testPlan.testPlanIndex.TotalCases': '用例总数',
   'testPlan.testPlanIndex.functionalUseCase': '功能用例',

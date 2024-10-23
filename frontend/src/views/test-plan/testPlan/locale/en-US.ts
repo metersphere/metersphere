@@ -59,7 +59,7 @@ export default {
   'testPlan.testPlanIndex.inFreeTime': 'In free time',
   'testPlan.testPlanIndex.defaultEnv': 'Default Environment',
   'testPlan.testPlanIndex.newEnv': 'New Environment',
-  'testPlan.testPlanIndex.executionProgress': 'Execution progress',
+  'testPlan.testPlanIndex.executionProgress': 'Execution completion rate',
   'testPlan.testPlanIndex.threshold': 'threshold',
   'testPlan.testPlanIndex.TotalCases': 'Total use cases',
   'testPlan.testPlanIndex.functionalUseCase': 'case',
