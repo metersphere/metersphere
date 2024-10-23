@@ -100,8 +100,10 @@
                 <csvTag
                   :step="step"
                   :csv-variables="scenario.scenarioConfig.variable.csvVariables"
+                  :disabled="!!step.isQuoteScenarioStep"
                   @remove="(id) => removeCsv(step, id)"
                   @replace="(id) => replaceCsv(step, id)"
+                  @remove-deleted="(ids) => removeDeletedCsv(step, ids)"
                 />
                 <!-- 自定义请求、API、CASE、场景步骤名称 -->
                 <template v-if="checkStepIsApi(step)">
@@ -887,6 +889,14 @@
     csvDrawerVisible.value = true;
     activeStep.value = step;
     replaceCsvId.value = id || '';
+  }
+
+  function removeDeletedCsv(step: ScenarioStepItem, ids: string[]) {
+    const realStep = findNodeByKey<ScenarioStepItem>(steps.value, step.uniqueId, 'uniqueId');
+    if (realStep) {
+      realStep.csvIds = realStep.csvIds.filter((item: string) => !ids.includes(item));
+      scenario.value.unSaved = true;
+    }
   }
 
   function handleQuoteCsvConfirm(keys: string[]) {

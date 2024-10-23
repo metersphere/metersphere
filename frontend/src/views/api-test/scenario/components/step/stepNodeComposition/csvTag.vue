@@ -11,31 +11,85 @@
       {{ `CSV ${props.step.csvIds?.length}` }}
     </div>
     <template #content>
-      <div class="mb-[4px] font-medium text-[var(--color-text-4)]">
-        {{ `${t('apiScenario.csvQuote')}（${props.step.csvIds?.length}）` }}
-      </div>
-      <div v-for="csv of csvList" :key="csv.id" class="flex items-center justify-between px-[8px] py-[4px]">
-        <a-tooltip :content="csv.name">
-          <div class="one-line-text w-[142px] text-[var(--color-text-1)]">
-            {{ csv.name }}
-          </div>
-        </a-tooltip>
+      <template v-if="alreadyDeleteFiles.length > 0">
         <div class="flex items-center">
-          <MsButton type="text" size="mini" class="!mr-0" @click="() => emit('replace', csv.id)">
-            {{ t('common.replace') }}
-          </MsButton>
-          <a-divider direction="vertical" :margin="8"></a-divider>
-          <MsButton type="text" size="mini" class="!mr-0" @click="() => emit('remove', csv.id)">
-            {{ t('common.remove') }}
+          <div class="flex flex-1 items-center gap-[4px] leading-[18px]">
+            <icon-exclamation-circle-fill class="!text-[rgb(var(--warning-6))]" :size="14" />
+            <div class="text-[var(--color-text-4)]">{{ t('ms.add.attachment.alreadyDelete') }}</div>
+          </div>
+          <MsButton
+            type="text"
+            :disabled="props.disabled"
+            size="mini"
+            @click="
+              emit(
+                'removeDeleted',
+                alreadyDeleteFiles.map((e) => e.id)
+              )
+            "
+          >
+            {{ t('ms.add.attachment.quickClear') }}
           </MsButton>
         </div>
-      </div>
+        <div
+          v-for="csv of alreadyDeleteFiles"
+          :key="csv.id"
+          class="flex items-center justify-between py-[4px] leading-[18px]"
+        >
+          <a-tooltip :content="csv.name">
+            <div class="one-line-text w-[142px] text-[var(--color-text-1)]">
+              {{ csv.name }}
+            </div>
+          </a-tooltip>
+          <div class="flex items-center gap-[8px]">
+            <MsIcon
+              type="icon-icon_update_rotatiorn"
+              class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
+              :size="14"
+              @click="() => emit('replace', csv.id)"
+            />
+            <MsIcon
+              type="icon-icon_delete-trash_outlined1"
+              class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
+              :size="14"
+              @click="() => emit('remove', csv.id)"
+            />
+          </div>
+        </div>
+      </template>
+      <template v-if="otherFiles.length > 0">
+        <div v-if="alreadyDeleteFiles.length > 0" class="mt-[4px] text-[var(--color-text-4)]">
+          {{ t('ms.add.attachment.other') }}
+        </div>
+        <div v-for="csv of otherFiles" :key="csv.id" class="flex items-center justify-between py-[4px] leading-[18px]">
+          <a-tooltip :content="csv.name">
+            <div class="one-line-text w-[142px] text-[var(--color-text-1)]">
+              {{ csv.name }}
+            </div>
+          </a-tooltip>
+          <div class="flex items-center gap-[8px]">
+            <MsIcon
+              type="icon-icon_update_rotatiorn"
+              class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
+              :size="14"
+              @click="() => emit('replace', csv.id)"
+            />
+            <MsIcon
+              type="icon-icon_delete-trash_outlined1"
+              class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
+              :size="14"
+              @click="() => emit('remove', csv.id)"
+            />
+          </div>
+        </div>
+      </template>
     </template>
   </a-popover>
 </template>
 
 <script setup lang="ts">
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
@@ -45,10 +99,12 @@
   const props = defineProps<{
     step: ScenarioStepItem;
     csvVariables: CsvVariable[];
+    disabled: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'replace', id?: string): void;
     (e: 'remove', id?: string): void;
+    (e: 'removeDeleted', ids: string[]): void;
   }>();
 
   const { t } = useI18n();
@@ -63,11 +119,27 @@
     }
     return [];
   });
+
+  const alreadyDeleteFiles = computed(() => {
+    return csvList.value.filter((item) => item.file.delete);
+  });
+  const otherFiles = computed(() => {
+    return csvList.value.filter((item) => !item.file.delete);
+  });
+
+  watch(
+    () => props.step.csvIds,
+    (arr) => {
+      if (!arr || arr.length === 0) {
+        popoverVisible.value = false;
+      }
+    }
+  );
 </script>
 
 <style lang="less">
   .csv-popover {
-    padding: 6px;
+    padding: 6px 12px;
     .arco-popover-content {
       margin-top: 0;
     }
