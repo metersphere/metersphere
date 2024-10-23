@@ -140,7 +140,8 @@
               record.module === 'SYSTEM' ||
               record.type === 'DELETE' ||
               record.module.includes('MODULE') ||
-              record.module.includes('TASK_CENTER')
+              record.module.includes('TASK_CENTER') ||
+              record.module.includes('API_TEST_MANAGEMENT_DEFINITION_SHARE')
             "
             class="one-line-text"
           >

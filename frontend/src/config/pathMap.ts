@@ -81,6 +81,15 @@ export const pathMap: PathMapItem[] = [
             routeQuery: {
               tab: 'api',
             },
+            children: [
+              {
+                key: 'API_TEST_MANAGEMENT_DEFINITION_SHARE', // 接口测试-接口定义-模块
+                locale: 'common.share',
+                route: RouteEnum.API_TEST_MANAGEMENT,
+                permission: [],
+                level: MENU_LEVEL[2],
+              },
+            ],
           },
           {
             key: 'API_TEST_MANAGEMENT_MOCK', // 接口测试-接口定义-mock
