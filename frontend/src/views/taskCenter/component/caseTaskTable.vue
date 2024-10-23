@@ -580,15 +580,15 @@
   }
 
   const currentStopTask = {
-    system: projectStopTask,
-    project: organizationStopTask,
-    org: systemStopTask,
+    system: systemStopTask,
+    project: projectStopTask,
+    org: organizationStopTask,
   }[props.type];
 
   const currentBatchStopTask = {
-    system: projectBatchStopTask,
-    project: organizationBatchStopTask,
-    org: systemBatchStopTask,
+    system: systemBatchStopTask,
+    project: projectBatchStopTask,
+    org: organizationBatchStopTask,
   }[props.type];
 
   /**

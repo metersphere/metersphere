@@ -57,4 +57,5 @@ export default {
   'ms.taskCenter.openTaskSuccess': '任务开启成功',
   'ms.taskCenter.closeTaskSuccess': '任务关闭成功',
   'ms.taskCenter.waitQueue': '等待排队',
+  'ms.taskCenter.caseName': '用例名称',
 };
