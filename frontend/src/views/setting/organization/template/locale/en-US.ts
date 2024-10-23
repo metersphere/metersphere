@@ -77,6 +77,7 @@ export default {
   'system.orgTemplate.templatePreview': 'Template preview',
   'system.orgTemplate.templateName': 'Template name',
   'system.orgTemplate.templateNamePlaceholder': 'Please enter a template name',
+  'system.orgTemplate.description.too.long': 'The default length of defect content is more than 1500!',
   'system.orgTemplate.optionalField': 'Optional Field',
   'system.orgTemplate.selectAll': 'select All',
   'system.orgTemplate.systemField': 'System Field',

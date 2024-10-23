@@ -445,6 +445,19 @@
     try {
       loading.value = true;
       const params = getTemplateParams();
+      let isSysErr = false;
+      if (params.systemFields) {
+        params.systemFields.forEach((item) => {
+          if (item.fieldId === 'description' && item.defaultValue && item.defaultValue.length > 1500) {
+            Message.error(t('system.orgTemplate.description.too.long'));
+            isSysErr = true;
+          }
+        });
+      }
+      if (isSysErr) {
+        // 系统字段错误, 不保存
+        return;
+      }
       if (!templateForm.value.name) {
         isError.value = true;
         Message.error(t('system.orgTemplate.templateNamePlaceholder'));
