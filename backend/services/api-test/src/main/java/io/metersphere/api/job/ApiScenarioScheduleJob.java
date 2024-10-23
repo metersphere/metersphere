@@ -78,7 +78,7 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
         execTaskItem.setResourceType(ApiExecuteResourceType.API_SCENARIO.name());
         execTaskItem.setResourceId(apiScenarioDetail.getId());
         execTaskItem.setResourceName(apiScenarioDetail.getName());
-        baseTaskHubService.insertExecTaskAndDetail(execTask,execTaskItem);
+        baseTaskHubService.insertExecTaskAndDetail(execTask, execTaskItem);
 
         TaskRequestDTO taskRequest = apiScenarioRunService.getTaskRequest(IDGenerator.nextStr(), apiScenarioDetail.getId(), apiScenarioDetail.getProjectId(), ApiExecuteRunMode.SCHEDULE.name());
         TaskInfo taskInfo = taskRequest.getTaskInfo();
@@ -112,7 +112,6 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
 
         apiExecuteService.execute(runRequest, taskRequest, parseConfig);
     }
-
 
 
     public static JobKey getJobKey(String scenarioId) {

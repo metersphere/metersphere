@@ -261,7 +261,7 @@
     <select id="list" resultType="io.metersphere.system.dto.BatchExecTaskReportDTO">
         select r.id, r.name, if(#{tableName} = 'api_report', 'API', 'SCENARIO') as source, false as integrated, r.status,
                r.exec_status as execStatus, r.trigger_mode triggerMode, r.create_user as createUser, r.start_time as createTime
-        from exec_task_item eti join api_report_relate_task arrt on arrt.task_resource_id = eti.id
+        from exec_task_item eti join api_report_relate_task arrt on arrt.task_resource_id = eti.task_id
         join ${tableName} r on arrt.report_id = r.id and r.deleted = 0
         where eti.task_id = #{request.taskId}
         <include refid="queryBatchWhereCondition"/>
