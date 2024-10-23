@@ -1,12 +1,16 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.Data;
 
 @Data
 public class UserViewCondition implements Serializable {
@@ -28,7 +32,7 @@ public class UserViewCondition implements Serializable {
     @Schema(description = "查询的期望值")
     private String value;
 
-    @Schema(description = "期望值的数据类型：STRING,INT,FLOAT,ARRAY")
+    @Schema(description = "期望值的数据类型：STRING,INT,FLOAT,ARRAY, BOOLEAN")
     private String valueType;
 
     @Schema(description = "是否为自定义字段", requiredMode = Schema.RequiredMode.REQUIRED)
