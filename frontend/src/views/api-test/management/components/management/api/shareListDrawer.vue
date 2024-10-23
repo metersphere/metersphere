@@ -31,9 +31,9 @@
         <template #isPrivate="{ record }">
           {{ record.isPrivate ? t('apiTestManagement.passwordView') : t('apiTestManagement.publicityView') }}
         </template>
-        <template #createUserName="{ record }">
-          <a-tooltip :content="`${record.createUserName}`" position="tl">
-            <div class="one-line-text">{{ record.createUserName || '-' }}</div>
+        <template #updateUserName="{ record }">
+          <a-tooltip :content="`${record.updateUserName}`" position="tl">
+            <div class="one-line-text">{{ record.updateUserName || '-' }}</div>
           </a-tooltip>
         </template>
         <template #invalidTime="{ record }">
@@ -150,8 +150,8 @@
     },
     {
       title: 'common.operator',
-      dataIndex: 'createUser',
-      slotName: 'createUserName',
+      dataIndex: 'updateUser',
+      slotName: 'updateUserName',
       showInTable: true,
       width: 200,
       showDrag: true,

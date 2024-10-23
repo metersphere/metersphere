@@ -93,6 +93,8 @@ CREATE TABLE api_doc_share (
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
+    `update_user` VARCHAR(50) NOT NULL   COMMENT '更新人' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
 DEFAULT CHARSET = utf8mb4

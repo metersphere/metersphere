@@ -20,4 +20,7 @@ public class ApiDocShareDTO extends ApiDocShare {
 
 	@Schema(title = "创建人")
 	private String createUserName;
+
+	@Schema(title = "更新人")
+	private String updateUserName;
 }

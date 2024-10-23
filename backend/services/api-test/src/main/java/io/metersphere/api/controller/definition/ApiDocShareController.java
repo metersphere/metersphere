@@ -71,7 +71,7 @@ public class ApiDocShareController {
 	@CheckOwner(resourceId = "#request.getId()", resourceType = "api_doc_share")
 	@Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiDocShareLogService.class)
 	public ApiDocShare update(@Validated({Updated.class}) @RequestBody ApiDocShareEditRequest request) {
-		return apiDocShareService.update(request);
+		return apiDocShareService.update(request, SessionUtils.getUserId());
 	}
 
 	@GetMapping("/delete/{id}")
