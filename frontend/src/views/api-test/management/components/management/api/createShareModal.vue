@@ -59,7 +59,13 @@
         </div>
       </a-form-item>
       <a-form-item field="invalidTime" :label="t('apiTestManagement.invalidTime')" asterisk-position="end">
-        <a-date-picker v-model:model-value="form.invalidTime" show-time value-format="timestamp" class="w-[400px]" />
+        <a-date-picker
+          v-model:model-value="form.invalidTime"
+          show-time
+          value-format="timestamp"
+          class="w-[400px]"
+          @change="(v) => setRangeValue(v)"
+        />
       </a-form-item>
       <div class="mb-[16px] flex items-center">
         <a-switch v-model:model-value="form.isPrivate" class="mr-[8px]" size="small" @change="changePrivate" />
@@ -282,6 +288,12 @@
 
   function changePrivate() {
     form.value.password = '';
+  }
+
+  function setRangeValue(v: any) {
+    if (!v) {
+      form.value.invalidTime = 0;
+    }
   }
 
   watch(

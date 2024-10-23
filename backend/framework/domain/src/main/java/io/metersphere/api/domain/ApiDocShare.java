@@ -60,6 +60,12 @@ public class ApiDocShare implements Serializable {
     @Schema(title = "创建人")
     private String createUser;
 
+    @Schema(title = "更新时间")
+    private Long updateTime;
+
+    @Schema(title = "更新人")
+    private String updateUser;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -74,7 +80,9 @@ public class ApiDocShare implements Serializable {
         invalidTime("invalid_time", "invalidTime", "BIGINT", false),
         projectId("project_id", "projectId", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
-        createUser("create_user", "createUser", "VARCHAR", false);
+        createUser("create_user", "createUser", "VARCHAR", false),
+        updateTime("update_time", "updateTime", "BIGINT", false),
+        updateUser("update_user", "updateUser", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

@@ -19,6 +19,7 @@ import io.metersphere.system.service.UserToolService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,6 +78,8 @@ public class ApiDocShareService {
 		docShare.setId(IDGenerator.nextStr());
 		docShare.setCreateUser(currentUser);
 		docShare.setCreateTime(System.currentTimeMillis());
+		docShare.setUpdateUser(currentUser);
+		docShare.setUpdateTime(System.currentTimeMillis());
 		apiDocShareMapper.insert(docShare);
 		return docShare;
 	}
@@ -86,11 +89,13 @@ public class ApiDocShareService {
 	 * @param request 请求参数
 	 * @return 分享
 	 */
-	public ApiDocShare update(ApiDocShareEditRequest request) {
+	public ApiDocShare update(ApiDocShareEditRequest request, String currentUser) {
 		checkExit(request.getId());
 		checkDuplicateName(request);
 		ApiDocShare docShare = new ApiDocShare();
 		BeanUtils.copyBean(docShare, request);
+		docShare.setUpdateUser(currentUser);
+		docShare.setUpdateTime(System.currentTimeMillis());
 		apiDocShareMapper.updateByPrimaryKeySelective(docShare);
 		return docShare;
 	}
@@ -176,12 +181,15 @@ public class ApiDocShareService {
 	 * @return 分享列表
 	 */
 	public List<ApiDocShareDTO> buildApiShareExtra(List<ApiDocShareDTO> docShares) {
-		List<String> distinctUserIds = docShares.stream().map(ApiDocShareDTO::getCreateUser).distinct().toList();
-		Map<String, String> userMap = userToolService.getUserMapByIds(distinctUserIds);
+		List<String> distinctCreateUserIds = docShares.stream().map(ApiDocShareDTO::getCreateUser).distinct().toList();
+		List<String> distinctUpdateUserIds = docShares.stream().map(ApiDocShareDTO::getUpdateUser).distinct().toList();
+		Map<String, String> userMap = userToolService.getUserMapByIds(ListUtils.union(distinctCreateUserIds, distinctUpdateUserIds));
 		docShares.forEach(docShare -> {
 			docShare.setInvalid(docShare.getInvalidTime() != null && docShare.getInvalidTime() != 0 && docShare.getInvalidTime() < System.currentTimeMillis());
 			docShare.setApiShareNum(countApiShare(docShare));
 			docShare.setCreateUserName(userMap.get(docShare.getCreateUser()));
+			docShare.setUpdateUserName(userMap.get(docShare.getUpdateUser()));
+
 		});
 		return docShares;
 	}
