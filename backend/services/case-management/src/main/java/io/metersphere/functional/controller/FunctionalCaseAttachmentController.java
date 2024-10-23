@@ -66,7 +66,13 @@ public class FunctionalCaseAttachmentController {
 
     @PostMapping("/page")
     @Operation(summary = "用例管理-功能用例-附件-关联文件列表分页接口")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @RequiresPermissions(value = {
+            PermissionConstants.FUNCTIONAL_CASE_READ,
+            PermissionConstants.PROJECT_API_DEBUG_READ,
+            PermissionConstants.PROJECT_API_DEFINITION_READ,
+            PermissionConstants.PROJECT_API_DEFINITION_CASE_READ,
+            PermissionConstants.PROJECT_API_SCENARIO_READ,
+    }, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<FileInformationResponse>> page(@Validated @RequestBody FileMetadataTableRequest request) {
         return fileMetadataService.page(request);
