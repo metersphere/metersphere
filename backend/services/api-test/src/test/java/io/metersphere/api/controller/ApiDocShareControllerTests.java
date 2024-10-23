@@ -38,6 +38,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 	private final static String MODULE_COUNT = BASE_PATH + "module/count";
 	private final static String EXPORT = BASE_PATH + "export/Swagger";
 	private final static String DOWNLOAD = BASE_PATH + "download/file/";
+	private final static String GET_DETAIL = BASE_PATH + "/get-detail/";
 
 	@Order(1)
 	@Test
@@ -62,7 +63,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 		ApiDocShareModuleRequest moduleRequest = new ApiDocShareModuleRequest();
 		moduleRequest.setShareId(docShare.getId());
 		moduleRequest.setProjectId(DEFAULT_PROJECT_ID);
-		moduleRequest.setProtocols(List.of("HTTP", "SPX", "Redis", "MongoDB"));
+		moduleRequest.setOrgId(DEFAULT_ORGANIZATION_ID);
 		this.requestPostWithOk(MODULE_TREE, moduleRequest);
 		request.setId(docShare.getId());
 		request.setName("share-2");
@@ -86,6 +87,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 		this.requestGetWithOk(DELETE + docShare.getId());
 		// 不存在的ID
 		this.requestGet(DELETE + "not-exist-id").andExpect(status().is5xxServerError());
+		this.requestGet(GET_DETAIL + "not-exist-id").andExpect(status().is5xxServerError());
 	}
 
 	@Order(2)
@@ -115,7 +117,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 		ApiDocShareModuleRequest moduleRequest = new ApiDocShareModuleRequest();
 		moduleRequest.setShareId(docShare.getId());
 		moduleRequest.setProjectId(DEFAULT_PROJECT_ID);
-		moduleRequest.setProtocols(List.of("HTTP", "SPX", "Redis", "MongoDB"));
+		moduleRequest.setOrgId(DEFAULT_ORGANIZATION_ID);
 		this.requestPostWithOk(MODULE_COUNT, moduleRequest);
 		request.setName("share-5");
 		request.setRangeMatchSymbol("CONTAINS");

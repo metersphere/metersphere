@@ -16,4 +16,7 @@ public class ApiDocShareModuleRequest extends ApiModuleRequest {
 	@NotBlank(message = "{api_doc_share.id.not_blank}")
 	@Size(min = 1, max = 50, message = "{api_doc_share.id.length_range}")
 	private String shareId;
+
+	@Schema(description = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
+	private String orgId;
 }
