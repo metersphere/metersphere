@@ -645,7 +645,8 @@ public class BugAttachmentService {
             addFileMap.put(fileId, fileName);
             return localAttachment;
         }).toList();
-        bugLocalAttachmentMapper.batchInsert(localAttachments);
+        List<BugLocalAttachment> normalAttachments = localAttachments.stream().filter(attachment -> StringUtils.isNotEmpty(attachment.getFileName())).toList();
+        bugLocalAttachmentMapper.batchInsert(normalAttachments);
         // 上传文件到对象存储
         LogUtils.info("upload to minio start");
         String bugDir = DefaultRepositoryDir.getBugDir(projectId, bugId);
