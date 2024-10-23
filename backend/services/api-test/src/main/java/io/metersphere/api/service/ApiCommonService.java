@@ -22,6 +22,9 @@ import io.metersphere.project.domain.CustomFunctionBlob;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.dto.CommonScriptInfo;
+import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
+import io.metersphere.project.dto.environment.MsEnvAssertionConfig;
+import io.metersphere.project.dto.environment.processors.*;
 import io.metersphere.project.service.CustomFunctionService;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
@@ -29,6 +32,7 @@ import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.uid.IDGenerator;
@@ -252,6 +256,87 @@ public class ApiCommonService {
         commonScriptInfos.addAll(assertionsCommonScriptInfos);
 
         setEnableCommonScriptInfo(commonScriptInfos);
+    }
+
+    /**
+     * 设置环境前后置的公共脚本信息
+     *
+     * @param envConfig
+     */
+    public void setEnvCommonScriptInfo(EnvironmentInfoDTO envConfig) {
+        if (envConfig == null || envConfig.getConfig() == null) {
+            return;
+        }
+        try {
+            // 获取脚本
+            List<ScriptProcessor> scriptsProcessors = getEnableCommonScriptProcessors(envConfig.getConfig().getPreProcessorConfig());
+            scriptsProcessors.addAll(getEnableCommonScriptProcessors(envConfig.getConfig().getPostProcessorConfig()));
+
+            // 获取断言
+            List<MsScriptAssertion> scriptAssertions = getEnableCommonScriptAssertion(envConfig.getConfig().getAssertionConfig());
+
+            List<CommonScriptInfo> commonScriptInfos = scriptsProcessors.stream()
+                    .map(ScriptProcessor::getCommonScriptInfo)
+                    .collect(Collectors.toList());
+
+            List<CommonScriptInfo> assertionsCommonScriptInfos = scriptAssertions.stream()
+                    .map(MsScriptAssertion::getCommonScriptInfo)
+                    .toList();
+
+            commonScriptInfos.addAll(assertionsCommonScriptInfos);
+            // 设置最新的公共脚本信息
+            setEnableCommonScriptInfo(commonScriptInfos);
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
+    }
+
+    /**
+     * 获取环境使用公共脚本的前后置
+     *
+     * @param envProcessorConfig
+     * @return
+     */
+    private List<ScriptProcessor> getEnableCommonScriptProcessors(EnvProcessorConfig envProcessorConfig) {
+        if (envProcessorConfig == null) {
+            return new ArrayList<>(0);
+        }
+        ApiEnvProcessorConfig apiProcessorConfig = envProcessorConfig.getApiProcessorConfig();
+        ApiEnvPlanProcessorConfig planProcessorConfig = apiProcessorConfig.getPlanProcessorConfig();
+        ApiEnvScenarioProcessorConfig scenarioProcessorConfig = apiProcessorConfig.getScenarioProcessorConfig();
+        ApiEnvRequestProcessorConfig requestProcessorConfig = apiProcessorConfig.getRequestProcessorConfig();
+
+        List<MsProcessor> processors = new ArrayList<>();
+        processors.addAll(planProcessorConfig.getProcessors());
+        processors.addAll(scenarioProcessorConfig.getProcessors());
+        processors.addAll(requestProcessorConfig.getProcessors());
+
+        // 获取使用公共脚本的前后置
+        return processors.stream()
+                .filter(processor -> processor instanceof ScriptProcessor)
+                .map(processor -> (ScriptProcessor) processor)
+                .filter(ScriptProcessor::isEnableCommonScript)
+                .filter(ScriptProcessor::isValid)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 获取使用公共脚本的前后置
+     *
+     * @param envAssertionConfig
+     * @return
+     */
+    private List<MsScriptAssertion> getEnableCommonScriptAssertion(MsEnvAssertionConfig envAssertionConfig) {
+        if (envAssertionConfig == null || CollectionUtils.isEmpty(envAssertionConfig.getAssertions())) {
+            return List.of();
+        }
+        return envAssertionConfig.getAssertions()
+                .stream()
+                .filter(assertion -> assertion instanceof MsScriptAssertion)
+                .map(msAssertion -> (MsScriptAssertion) msAssertion)
+                .filter(MsScriptAssertion::isEnableCommonScript)
+                .filter(MsScriptAssertion::isValid)
+                .toList();
     }
 
     private void setEnableCommonScriptInfo(List<CommonScriptInfo> commonScriptInfos) {

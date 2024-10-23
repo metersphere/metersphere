@@ -4,6 +4,7 @@ import io.metersphere.api.config.JmeterProperties;
 import io.metersphere.api.config.KafkaConfig;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.dto.ApiParamConfig;
+import io.metersphere.api.dto.ApiScenarioParamConfig;
 import io.metersphere.api.dto.debug.ApiDebugRunRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.request.controller.MsScriptElement;
@@ -18,6 +19,7 @@ import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.dto.CommonScriptInfo;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
+import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.dto.environment.GlobalParams;
 import io.metersphere.project.dto.environment.GlobalParamsDTO;
 import io.metersphere.project.service.*;
@@ -648,6 +650,16 @@ public class ApiExecuteService {
     public String parseExecuteScript(AbstractMsTestElement msTestElement, ParameterConfig config) {
         // 解析生成脚本
         TestElementParser defaultParser = TestElementParserFactory.getDefaultParser();
+        // 环境获取最新的公共脚本信息
+        if (config instanceof ApiScenarioParamConfig apiScenarioParamConfig) {
+            Map<String, EnvironmentInfoDTO> projectEnvMap = apiScenarioParamConfig.getProjectEnvMap();
+            if (projectEnvMap != null) {
+                projectEnvMap.values().forEach(apiCommonService::setEnvCommonScriptInfo);
+            }
+            apiCommonService.setEnvCommonScriptInfo(apiScenarioParamConfig.getEnvConfig());
+        } else if (config instanceof ApiParamConfig apiParamConfig) {
+            apiCommonService.setEnvCommonScriptInfo(apiParamConfig.getEnvConfig());
+        }
         return defaultParser.parse(msTestElement, config);
     }
 
