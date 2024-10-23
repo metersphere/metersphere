@@ -78,7 +78,7 @@ export function organizationTaskOrder(data: string[]) {
 
 // 组织任务-批量停止任务
 export function organizationBatchStopTask(data: TaskCenterBatchParams) {
-  return MSR.get({ url: organizationBatchStopTaskUrl, data });
+  return MSR.post({ url: organizationBatchStopTaskUrl, data });
 }
 
 // 组织任务-用例任务详情-停止任务

@@ -93,7 +93,6 @@
   import useAppStore from '@/store/modules/app';
 
   import { TaskCenterTaskItem } from '@/models/taskCenter';
-  import { ReportExecStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
   import { ExecuteTaskType } from '@/enums/taskCenter';
@@ -136,14 +135,6 @@
     });
   });
 
-  const ExecStatusList = computed(() => {
-    return Object.values(ReportExecStatus).map((e) => {
-      return {
-        value: e,
-        key: e,
-      };
-    });
-  });
   const columns: MsTableColumn = [
     {
       title: 'report.name',
@@ -170,21 +161,6 @@
       filterConfig: {
         options: statusList.value,
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_STATUS,
-      },
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
-      showInTable: true,
-      width: 120,
-    },
-    {
-      title: 'report.status',
-      dataIndex: 'execStatus',
-      slotName: 'execStatus',
-      filterConfig: {
-        options: ExecStatusList.value,
-        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT,
       },
       sortable: {
         sortDirections: ['ascend', 'descend'],

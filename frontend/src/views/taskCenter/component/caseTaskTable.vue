@@ -241,7 +241,7 @@
   const batchModalParams = ref();
   const columns: MsTableColumn = [
     {
-      title: 'ID',
+      title: 'ms.taskCenter.taskID',
       dataIndex: 'num',
       slotName: 'num',
       width: 100,
@@ -254,6 +254,7 @@
       showTooltip: true,
       width: 200,
       fixed: 'left',
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.executeStatus',
@@ -271,6 +272,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.executeMethod',
@@ -288,6 +290,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.executeResult',
@@ -306,17 +309,20 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.caseCount',
       dataIndex: 'caseCount',
       width: 90,
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.executeFinishedRate',
       dataIndex: 'executeRate',
       slotName: 'executeRate',
       width: 100,
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.createTime',
@@ -326,6 +332,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.startTime',
@@ -335,6 +342,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.endTime',
@@ -344,12 +352,14 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.operationUser',
       dataIndex: 'createUserName',
       width: 100,
       showTooltip: true,
+      showDrag: true,
     },
     {
       title: 'common.operation',
@@ -420,6 +430,7 @@
       {
         label: 'common.stop',
         eventTag: 'stop',
+        anyPermission: [getCurrentPermission('STOP')],
       },
       // {
       //   label: 'ms.taskCenter.rerun',
@@ -428,6 +439,7 @@
       {
         label: 'common.delete',
         eventTag: 'delete',
+        anyPermission: [getCurrentPermission('DELETE')],
       },
     ],
   };
@@ -704,7 +716,8 @@
   const reportBatchType = ref<ExecuteTaskType>(ExecuteTaskType.API_CASE);
   const reportBatchTaskId = ref('');
   function checkReport(record: TaskCenterTaskItem) {
-    if (record.taskType.includes('BATCH')) {
+    if (record.taskType.includes('BATCH') && record.integrated !== true) {
+      // integrated 为 true 时，表示是集成报告，直接查看报告
       reportModuleType.value = record.taskType.includes('CASE')
         ? ReportEnum.API_REPORT
         : ReportEnum.API_SCENARIO_REPORT;
@@ -718,7 +731,8 @@
         ExecuteTaskType.API_SCENARIO,
         ExecuteTaskType.TEST_PLAN_API_CASE,
         ExecuteTaskType.TEST_PLAN_API_SCENARIO,
-      ].includes(record.taskType)
+      ].includes(record.taskType) ||
+      record.integrated === true
     ) {
       showReportDetail(record);
     } else if ([ExecuteTaskType.TEST_PLAN_GROUP, ExecuteTaskType.TEST_PLAN].includes(record.taskType)) {

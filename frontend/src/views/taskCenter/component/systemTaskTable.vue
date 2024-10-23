@@ -72,7 +72,12 @@
   import MsCronSelect from '@/components/pure/ms-cron-select/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
+  import type {
+    BatchActionConfig,
+    BatchActionParams,
+    BatchActionQueryParams,
+    MsTableColumn,
+  } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
@@ -130,7 +135,7 @@
   const batchModalParams = ref();
   const columns: MsTableColumn = [
     {
-      title: 'ID',
+      title: 'ms.taskCenter.taskID',
       dataIndex: 'num',
       slotName: 'num',
       width: 100,
@@ -142,30 +147,35 @@
       showTooltip: true,
       width: 200,
       fixed: 'left',
+      showDrag: true,
     },
     {
       title: 'common.status',
       dataIndex: 'status',
       slotName: 'status',
       width: 50,
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.type',
       dataIndex: 'resourceType',
       slotName: 'resourceType',
       width: 120,
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.runRule',
       slotName: 'runRule',
       dataIndex: 'value',
       width: 220,
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.operationUser',
       dataIndex: 'createUserName',
       width: 150,
       showTooltip: true,
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.operationTime',
@@ -175,6 +185,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.lastFinishTime',
@@ -184,6 +195,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.nextExecuteTime',
@@ -193,6 +205,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
     },
     {
       title: 'common.operation',
@@ -230,15 +243,34 @@
 
   await tableStore.initColumn(TableKeyEnum.TASK_CENTER_SYSTEM_TASK, columns, 'drawer');
 
-  const tableBatchActions = {
+  function getCurrentPermission(action: 'DELETE' | 'EDIT') {
+    return {
+      system: {
+        DELETE: 'SYSTEM_SCHEDULE_TASK_CENTER:READ+DELETE',
+        EDIT: 'SYSTEM_SCHEDULE_TASK_CENTER:READ+UPDATE',
+      },
+      org: {
+        DELETE: 'ORGANIZATION_SCHEDULE_TASK_CENTER:READ+DELETE',
+        EDIT: 'ORGANIZATION_SCHEDULE_TASK_CENTER:READ+UPDATE',
+      },
+      project: {
+        DELETE: 'PROJECT_SCHEDULE_TASK_CENTER:READ+DELETE',
+        EDIT: 'PROJECT_SCHEDULE_TASK_CENTER:READ+UPDATE',
+      },
+    }[props.type][action];
+  }
+
+  const tableBatchActions: BatchActionConfig = {
     baseAction: [
       {
         label: 'common.open',
         eventTag: 'open',
+        anyPermission: [getCurrentPermission('EDIT')],
       },
       {
         label: 'common.close',
         eventTag: 'close',
+        anyPermission: [getCurrentPermission('EDIT')],
       },
     ],
   };
@@ -269,23 +301,6 @@
       };
     }
   );
-
-  function getCurrentPermission(action: 'DELETE' | 'EDIT') {
-    return {
-      system: {
-        DELETE: 'SYSTEM_SCHEDULE_TASK_CENTER:READ+DELETE',
-        EDIT: 'SYSTEM_SCHEDULE_TASK_CENTER:READ+UPDATE',
-      },
-      org: {
-        DELETE: 'ORGANIZATION_SCHEDULE_TASK_CENTER:READ+DELETE',
-        EDIT: 'ORGANIZATION_SCHEDULE_TASK_CENTER:READ+UPDATE',
-      },
-      project: {
-        DELETE: 'PROJECT_SCHEDULE_TASK_CENTER:READ+DELETE',
-        EDIT: 'PROJECT_SCHEDULE_TASK_CENTER:READ+UPDATE',
-      },
-    }[props.type][action];
-  }
 
   function searchTask() {
     setLoadListParams({ keyword: keyword.value });

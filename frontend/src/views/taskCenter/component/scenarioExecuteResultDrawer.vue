@@ -115,7 +115,9 @@
           },
           {
             label: t('ms.taskCenter.executeEnvInfo'),
-            value: `${res.environmentName} ${res.poolName} ${res.resourcePoolNode}`,
+            value: `${res.environmentName || t('ms.taskCenter.defaultResourcePool')} ${res.poolName} ${
+              res.resourcePoolNode
+            }`,
             class: '!w-[calc(100%/3*2)]',
           },
           {

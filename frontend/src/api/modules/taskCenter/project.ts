@@ -85,7 +85,7 @@ export function projectTaskOrder(data: string[]) {
 
 // 项目任务-批量停止任务
 export function projectBatchStopTask(data: TaskCenterBatchParams) {
-  return MSR.get({ url: projectBatchStopTaskUrl, data });
+  return MSR.post({ url: projectBatchStopTaskUrl, data });
 }
 
 // 项目任务-用例任务详情-停止任务

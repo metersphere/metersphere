@@ -161,7 +161,7 @@
 
   const columns: MsTableColumn = [
     {
-      title: t('ms.taskCenter.taskID'),
+      title: 'ms.taskCenter.taskID',
       dataIndex: 'num',
       width: 100,
       columnSelectorDisabled: true,
@@ -174,6 +174,7 @@
       showTooltip: true,
       width: 200,
       fixed: 'left',
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.executeStatus',
@@ -191,6 +192,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.executeMethod',
@@ -208,6 +210,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.executeResult',
@@ -226,29 +229,34 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.resourcePool',
       dataIndex: 'resourcePoolName',
       isStringTag: true,
       isTag: true,
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.node',
       dataIndex: 'resourcePoolNode',
       slotName: 'resourcePoolNode',
       width: 180,
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.queue',
       dataIndex: 'lineNum',
       width: 100,
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.threadID',
       dataIndex: 'threadId',
       showTooltip: true,
       width: 190,
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.startExecuteTime',
@@ -258,6 +266,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.endExecuteTime',
@@ -267,12 +276,14 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      showDrag: true,
     },
     {
       title: 'ms.taskCenter.operationUser',
       dataIndex: 'userName',
       width: 100,
       showTooltip: true,
+      showDrag: true,
     },
     {
       title: 'common.operation',
@@ -328,6 +339,7 @@
       {
         label: 'common.stop',
         eventTag: 'stop',
+        anyPermission: [getCurrentPermission('STOP')],
       },
       // {
       //   label: 'ms.taskCenter.rerun',
