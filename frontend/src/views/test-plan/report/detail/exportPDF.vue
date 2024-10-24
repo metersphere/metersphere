@@ -142,9 +142,6 @@
 
   import {
     getApiPage,
-    getCollectApiPage,
-    getCollectFunctionalPage,
-    getCollectScenarioPage,
     getReportBugList,
     getReportDetail,
     getReportDetailPage,
@@ -408,6 +405,12 @@
   }
 
   const isDefaultLayout = ref<boolean>(false);
+  const testSetColumns = ref<MsTableColumn>([
+    {
+      title: 'ms.case.associate.testSet',
+      dataIndex: 'collectionName',
+    },
+  ]);
 
   /** 缺陷明细 */
   const bugDefaultColumns: MsTableColumn = [
@@ -528,43 +531,6 @@
       width: 100,
     },
   ];
-  const scenarioTestSetColumns = computed<MsTableColumn>(() => {
-    if (isGroup.value) {
-      return [
-        {
-          title: 'ms.case.associate.testSet',
-          dataIndex: 'name',
-        },
-        {
-          title: 'report.plan.name',
-          dataIndex: 'planName',
-        },
-        {
-          title: '',
-          dataIndex: 'other',
-        },
-        {
-          title: '',
-          dataIndex: 'other',
-        },
-      ];
-    }
-    return [
-      {
-        title: 'ms.case.associate.testSet',
-        dataIndex: 'name',
-      },
-      // 字段很少第一级别靠左展示，填充表头
-      {
-        title: '',
-        dataIndex: 'other',
-      },
-      {
-        title: '',
-        dataIndex: 'empty',
-      },
-    ];
-  });
 
   const apiDefaultColumns = computed(() => {
     if (isGroup.value) {
@@ -579,25 +545,15 @@
 
   const fullCaseList = ref<any>([]);
   async function initCaseList() {
-    fullCaseList.value = testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.FUNCTIONAL_DETAIL)
-      ? (
-          await getCollectFunctionalPage({
-            current: 1,
-            pageSize: 500,
-            reportId: reportId.value,
-            shareId: shareId.value ?? undefined,
-            startPager: false,
-          })
-        ).list
-      : (
-          await reportFeatureCaseList()({
-            current: 1,
-            pageSize: 500,
-            reportId: reportId.value,
-            shareId: shareId.value ?? undefined,
-            startPager: false,
-          })
-        ).list;
+    fullCaseList.value = (
+      await reportFeatureCaseList()({
+        current: 1,
+        pageSize: 500,
+        reportId: reportId.value,
+        shareId: shareId.value ?? undefined,
+        startPager: false,
+      })
+    ).list;
   }
 
   const fullBugList = ref<any>([]);
@@ -615,48 +571,28 @@
 
   const fullApiList = ref<any>([]);
   async function initApiList() {
-    fullApiList.value = testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.API_CASE_DETAIL)
-      ? (
-          await getCollectApiPage({
-            current: 1,
-            pageSize: 500,
-            reportId: reportId.value,
-            shareId: shareId.value ?? undefined,
-            startPager: false,
-          })
-        ).list
-      : (
-          await getApiPage({
-            current: 1,
-            pageSize: 500,
-            reportId: reportId.value,
-            shareId: shareId.value ?? undefined,
-            startPager: false,
-          })
-        ).list;
+    fullApiList.value = (
+      await getApiPage({
+        current: 1,
+        pageSize: 500,
+        reportId: reportId.value,
+        shareId: shareId.value ?? undefined,
+        startPager: false,
+      })
+    ).list;
   }
 
   const fullScenarioList = ref<any>([]);
   async function initScenarioList() {
-    fullScenarioList.value = testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.SCENARIO_CASE_DETAIL)
-      ? (
-          await getCollectScenarioPage({
-            current: 1,
-            pageSize: 500,
-            reportId: reportId.value,
-            shareId: shareId.value ?? undefined,
-            startPager: false,
-          })
-        ).list
-      : (
-          await getScenarioPage({
-            current: 1,
-            pageSize: 500,
-            reportId: reportId.value,
-            shareId: shareId.value ?? undefined,
-            startPager: false,
-          })
-        ).list;
+    fullScenarioList.value = (
+      await getScenarioPage({
+        current: 1,
+        pageSize: 500,
+        reportId: reportId.value,
+        shareId: shareId.value ?? undefined,
+        startPager: false,
+      })
+    ).list;
   }
 
   const groupColumns: MsTableColumn = [
@@ -748,26 +684,36 @@
     return keyMap.TEST_PLAN[type];
   }
 
+  async function getColumns(type: ReportCardTypeEnum, defaultColumns: MsTableColumn) {
+    let columns = (await tableStore.getShowInTableColumns(getTableKey(type))).filter(
+      (e) => e.dataIndex !== 'operation'
+    );
+    if (columns.length === 0) {
+      columns = defaultColumns;
+    }
+    if (
+      (isGroup.value && !testPlanReportStore.getTestStatus(isGroup.value, type)) ||
+      (!isGroup.value && testPlanReportStore.getTestStatus(isGroup.value, type))
+    ) {
+      columns.splice(3, 0, ...testPlanNameColumns);
+    }
+    if (testPlanReportStore.getTestStatus(isGroup.value, type)) {
+      columns = testSetColumns.value.concat(columns);
+    }
+    return columns;
+  }
+
   async function initTablesColumns() {
     const bugColumns = await tableStore.getShowInTableColumns(getTableKey(ReportCardTypeEnum.BUG_DETAIL));
-    const functionalCaseColumns = await tableStore.getShowInTableColumns(
-      getTableKey(ReportCardTypeEnum.FUNCTIONAL_DETAIL)
-    );
-    const apiColumns = await tableStore.getShowInTableColumns(getTableKey(ReportCardTypeEnum.API_CASE_DETAIL));
-    const scenarioColumns = await tableStore.getShowInTableColumns(
-      getTableKey(ReportCardTypeEnum.SCENARIO_CASE_DETAIL)
-    );
-    let _scenarioColumns = scenarioColumns;
-    if (testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.SCENARIO_CASE_DETAIL)) {
-      _scenarioColumns = scenarioTestSetColumns.value;
-    } else if (scenarioColumns.length === 0) {
-      _scenarioColumns = apiDefaultColumns.value;
-    }
+    const functionalCaseColumns = await getColumns(ReportCardTypeEnum.FUNCTIONAL_DETAIL, caseDefaultColumns.value);
+    const apiColumns = await getColumns(ReportCardTypeEnum.API_CASE_DETAIL, apiDefaultColumns.value);
+    const scenarioColumns = await getColumns(ReportCardTypeEnum.SCENARIO_CASE_DETAIL, apiDefaultColumns.value);
+
     return {
-      apiColumns: apiColumns.length > 0 ? apiColumns : apiDefaultColumns.value,
-      scenarioColumns: _scenarioColumns,
+      apiColumns,
+      scenarioColumns,
       bugColumns: bugColumns.length > 0 ? bugColumns : bugDefaultColumns,
-      functionalCaseColumns: functionalCaseColumns.length > 0 ? functionalCaseColumns : caseDefaultColumns.value,
+      functionalCaseColumns,
     };
   }
 
@@ -852,18 +798,27 @@
     }
     if (fullCaseList.value.length > 0) {
       const columnStyles: Record<string, any> = {
+        collectionName: { cellWidth: 140 / PAGE_PDF_WIDTH_RATIO },
         num: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
         name: { cellWidth: 240 / PAGE_PDF_WIDTH_RATIO },
         executeResult: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
-        testPlanName: { cellWidth: 240 / PAGE_PDF_WIDTH_RATIO },
+        planName: { cellWidth: 140 / PAGE_PDF_WIDTH_RATIO },
         priority: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
-        moduleName: { cellWidth: 180 / PAGE_PDF_WIDTH_RATIO },
+        moduleName: { cellWidth: 140 / PAGE_PDF_WIDTH_RATIO },
         executeUser: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
-        relationCaseCount: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
+        bugCount: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
       };
-      if (!isGroup.value) {
-        delete columnStyles.testPlanName;
-        columnStyles.name.cellWidth = 480 / PAGE_PDF_WIDTH_RATIO;
+      if (!isGroup.value && !testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.FUNCTIONAL_DETAIL)) {
+        delete columnStyles.collectionName;
+        delete columnStyles.planName;
+        columnStyles.name.cellWidth = 520 / PAGE_PDF_WIDTH_RATIO;
+      } else if (
+        isGroup.value &&
+        !testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.FUNCTIONAL_DETAIL)
+      ) {
+        delete columnStyles.collectionName;
+        columnStyles.name.cellWidth = 380 / PAGE_PDF_WIDTH_RATIO;
+        columnStyles.planName.cellWidth = 140 / PAGE_PDF_WIDTH_RATIO;
       }
       tableArr.push({
         tableId: 'case',
@@ -881,18 +836,24 @@
       });
     }
     const apiColumnStyles: Record<string, any> = {
+      collectionName: { cellWidth: 140 / PAGE_PDF_WIDTH_RATIO },
       num: { cellWidth: 150 / PAGE_PDF_WIDTH_RATIO },
-      name: { cellWidth: 240 / PAGE_PDF_WIDTH_RATIO },
+      name: { cellWidth: 220 / PAGE_PDF_WIDTH_RATIO },
       executeResult: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
-      testPlanName: { cellWidth: 230 / PAGE_PDF_WIDTH_RATIO },
+      planName: { cellWidth: 140 / PAGE_PDF_WIDTH_RATIO },
       priority: { cellWidth: 80 / PAGE_PDF_WIDTH_RATIO },
-      moduleName: { cellWidth: 160 / PAGE_PDF_WIDTH_RATIO },
+      moduleName: { cellWidth: 140 / PAGE_PDF_WIDTH_RATIO },
       executeUser: { cellWidth: 120 / PAGE_PDF_WIDTH_RATIO },
       bugCount: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
     };
-    if (!isGroup.value) {
-      delete apiColumnStyles.testPlanName;
-      apiColumnStyles.name.cellWidth = 480 / PAGE_PDF_WIDTH_RATIO;
+    if (!isGroup.value && !testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.API_CASE_DETAIL)) {
+      delete apiColumnStyles.collectionName;
+      delete apiColumnStyles.planName;
+      apiColumnStyles.name.cellWidth = 500 / PAGE_PDF_WIDTH_RATIO;
+    } else if (isGroup.value && !testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.API_CASE_DETAIL)) {
+      delete apiColumnStyles.collectionName;
+      apiColumnStyles.name.cellWidth = 360 / PAGE_PDF_WIDTH_RATIO;
+      apiColumnStyles.planName.cellWidth = 140 / PAGE_PDF_WIDTH_RATIO;
     }
     if (fullApiList.value.length > 0) {
       tableArr.push({
