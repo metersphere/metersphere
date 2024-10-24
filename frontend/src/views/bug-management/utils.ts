@@ -11,7 +11,7 @@ import { MsFileItem } from '@/components/pure/ms-upload/types';
 import useUserStore from '@/store/modules/user';
 import { findParents, Option } from '@/utils/recursion';
 
-import { BugEditCustomFieldItem } from '@/models/bug-management';
+import { BugEditCustomFieldItem, type CustomFieldItem } from '@/models/bug-management';
 import { AssociatedList } from '@/models/caseManagement/featureCase';
 import type { DetailCustomField, FieldOptions } from '@/models/setting/template';
 
@@ -77,7 +77,23 @@ export function convertToFileByDetail(fileInfo: AssociatedList): MsFileItem {
   };
 }
 
-export function makeCustomFieldsParams(formItem: FormRuleItem[]) {
+// 选项所选文本入参
+export function getCurrentText(item: FormRuleItem, currentCustomFields: CustomFieldItem[], idKey = 'field') {
+  const textType = ['SELECT', 'MULTIPLE_SELECT', 'RADIO', 'CHECKBOX', 'MEMBER', 'MULTIPLE_MEMBER'];
+
+  if ((item.sourceType && textType.includes(item.sourceType)) || (item.type && textType.includes(item.type))) {
+    const currentItemOptions = currentCustomFields.find((e: any) => e.fieldId === item[idKey])?.options || [];
+    const filteredOptions = Array.isArray(item.value)
+      ? currentItemOptions.filter((e: any) => (item.value as string[]).includes(e.value))
+      : currentItemOptions.filter((e: any) => e.value === item.value);
+    const optionText = filteredOptions.map((option) => option.text);
+
+    return optionText;
+  }
+  return null;
+}
+
+export function makeCustomFieldsParams(formItem: FormRuleItem[], currentCustomFields: CustomFieldItem[]) {
   const customFields: BugEditCustomFieldItem[] = [];
   if (formItem && formItem.length) {
     formItem.forEach((item: FormRuleItem) => {
@@ -90,6 +106,7 @@ export function makeCustomFieldsParams(formItem: FormRuleItem[]) {
         name: item.title as string,
         type: item.sourceType as string,
         value: Array.isArray(itemVal) ? JSON.stringify(itemVal) : (itemVal as string),
+        text: getCurrentText(item, currentCustomFields),
       });
     });
   }

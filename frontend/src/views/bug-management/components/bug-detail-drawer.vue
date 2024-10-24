@@ -135,6 +135,7 @@
                 v-model:tags="tags"
                 :form-rule="formRules"
                 :detail="detailInfo"
+                :current-custom-fields="currentCustomFields"
                 :current-platform="props.currentPlatform"
                 :is-platform-default-template="isPlatformDefaultTemplate"
                 :loading="rightLoading"
