@@ -288,5 +288,6 @@ export default {
   'apiScenario.csvFileNotNull': 'CSV file cannot be empty',
   'apiScenario.export.type.simple': 'Simple',
   'apiScenario.export.type.all': 'All data',
-  'apiScenario.export.simple.tooltip': 'Process referenced or copied request steps as custom requests',
+  'apiScenario.export.simple.tooltip1': 'Close: Export referenced and copied steps as custom requests',
+  'apiScenario.export.simple.tooltip2': 'Open: Export referenced and copied steps as native data',
 };

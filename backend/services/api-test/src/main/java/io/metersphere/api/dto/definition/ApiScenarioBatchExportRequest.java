@@ -31,6 +31,8 @@ public class ApiScenarioBatchExportRequest extends ApiScenarioBatchRequest imple
     @Schema(description = "排序字段（model中的字段 : asc/desc）")
     private Map<@Valid @Pattern(regexp = "^[A-Za-z]+$") String, @Valid @NotBlank String> sort;
 
+    private boolean exportAllRelatedData;
+    
     public String getSortString() {
         if (sort == null || sort.isEmpty()) {
             return null;

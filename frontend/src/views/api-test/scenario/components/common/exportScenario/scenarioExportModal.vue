@@ -6,18 +6,20 @@
     class="ms-modal-upload ms-modal-medium"
     :width="400"
   >
-    <a-radio-group v-model:model-value="exportTypeRadio">
-      <a-radio :value="ScenarioExportType.SIMPLE"
-        >{{ t('apiScenario.export.type.simple') }}
-        <a-tooltip :content="t('apiScenario.export.simple.tooltip')" position="tl">
-          <icon-question-circle
-            class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-            size="16"
-          />
-        </a-tooltip>
-      </a-radio>
-      <a-radio :value="ScenarioExportType.ALL">{{ t('apiScenario.export.type.all') }}</a-radio>
-    </a-radio-group>
+    <div class="mb-[16px] flex items-center gap-[8px]">
+      <a-switch v-model:model-value="exportTypeRadio" type="line" size="small"></a-switch>
+      {{ t('apiScenario.export.type.all') }}
+      <a-tooltip :content="t('apiScenario.export.simple.tooltip')" position="tl">
+        <icon-question-circle
+          class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+          size="16"
+        />
+        <template #content>
+          <div>{{ t('apiScenario.export.simple.tooltip1') }}</div>
+          <div>{{ t('apiScenario.export.simple.tooltip2') }}</div>
+        </template>
+      </a-tooltip>
+    </div>
 
     <template #footer>
       <div class="flex justify-end">
@@ -45,8 +47,6 @@
   import useAppStore from '@/store/modules/app';
   import { downloadByteFile, getGenerateId } from '@/utils';
 
-  import { ScenarioExportType } from '@/enums/apiEnum';
-
   const appStore = useAppStore();
   const { t } = useI18n();
 
@@ -60,7 +60,7 @@
   const visible = defineModel<boolean>('visible', { required: true });
 
   const exportLoading = ref(false);
-  const exportTypeRadio = ref(ScenarioExportType.SIMPLE);
+  const exportTypeRadio = ref(false);
 
   function cancelExport() {
     visible.value = false;
@@ -184,6 +184,7 @@
       const { selectedIds, selectAll, excludeIds } = props.batchParams;
       const res = await exportScenario(
         {
+          exportAllRelatedData: exportTypeRadio.value,
           selectIds: selectedIds || [],
           selectAll: !!selectAll,
           excludeIds: excludeIds || [],
@@ -191,7 +192,7 @@
           sort: props.sorter || {},
           fileId: reportId.value,
         },
-        exportTypeRadio.value
+        'METERSPHERE'
       );
       showExportingMessage(res);
       visible.value = false;

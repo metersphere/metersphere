@@ -71,6 +71,12 @@
           and aso.deleted = false
         order by tpas.pos desc
     </select>
+    <select id="selectExecResultByReportIdAndCollectionId" resultType="java.lang.String">
+        select distinct api_scenario_execute_result
+        from test_plan_report_api_scenario
+        where test_plan_collection_id = #{collectionId}
+          AND test_plan_report_id = #{reportId};
+    </select>
 
     <sql id="filter">
         <if test="request.filter != null and request.filter.size() > 0">

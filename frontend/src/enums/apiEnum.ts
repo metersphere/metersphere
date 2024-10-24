@@ -257,11 +257,6 @@ export enum ScenarioExecuteStatus {
   FAKE_ERROR = 'FAKE_ERROR',
 }
 
-// 场景导出配置
-export enum ScenarioExportType {
-  SIMPLE = 'METERSPHERE_SIMPLE',
-  ALL = 'METERSPHERE_ALL_DATA',
-}
 // 场景步骤类型
 export enum ScenarioStepType {
   API_CASE = 'API_CASE', // 接口用例
