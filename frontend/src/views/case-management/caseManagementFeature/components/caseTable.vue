@@ -434,6 +434,7 @@
   import useCacheStore from '@/store/modules/cache/cache';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useMinderStore from '@/store/modules/components/minder-editor';
+  import { ShowType } from '@/store/modules/components/minder-editor/types';
   import {
     characterLimit,
     downloadByteFile,
@@ -456,6 +457,7 @@
   import { ModuleTreeNode } from '@/models/common';
   import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
+  import { MinderKeyEnum } from '@/enums/minderEnum';
   import { CaseManagementRouteEnum, RouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -493,9 +495,10 @@
   const keyword = ref<string>('');
   const groupKeyword = ref<string>('');
 
-  const showType = ref<string>('list');
+  const showType = ref<ShowType>('list');
 
   function handleShowTypeChange(val: string | number | boolean) {
+    minderStore.setShowType(MinderKeyEnum.FEATURE_CASE_MINDER, val as ShowType);
     if (minderStore.minderUnsaved && val === 'list') {
       showType.value = 'minder';
       openModal({
@@ -1838,6 +1841,8 @@
   onMounted(() => {
     if (!isActivated.value) {
       mountedLoad();
+      // 切换菜单默认还是列表；已经在脑图的时候，刷新浏览器，保持脑图状态
+      showType.value = minderStore.getShowType(MinderKeyEnum.FEATURE_CASE_MINDER);
     }
   });
 

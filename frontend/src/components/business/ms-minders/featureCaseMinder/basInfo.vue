@@ -6,7 +6,14 @@
           <a-skeleton-line :rows="10" :line-height="30" :line-spacing="30" />
         </a-space>
       </a-skeleton>
-      <a-form v-else ref="baseInfoFormRef" :model="baseInfoForm" :disabled="!hasEditPermission" layout="vertical">
+      <a-form
+        v-else
+        ref="baseInfoFormRef"
+        scroll-to-first-error
+        :model="baseInfoForm"
+        :disabled="!hasEditPermission"
+        layout="vertical"
+      >
         <a-form-item
           field="name"
           :label="t('ms.minders.caseName')"
@@ -230,6 +237,11 @@
           fApi.value?.validate(async (valid) => {
             if (valid === true) {
               realSave();
+            } else {
+              // 滚动到报错的位置
+              const firstErrorId = Object.keys(valid)[0];
+              const fieldElement = document.getElementById(firstErrorId);
+              fieldElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
           });
         } else {
