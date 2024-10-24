@@ -23,45 +23,45 @@ import java.util.List;
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanScheduleService {
 
-	@Resource
-	private TestPlanMapper testPlanMapper;
-	@Resource
-	private ScheduleService scheduleService;
+    @Resource
+    private TestPlanMapper testPlanMapper;
+    @Resource
+    private ScheduleService scheduleService;
 
-	public String scheduleConfig(BaseScheduleConfigRequest request, String operator) {
-		TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getResourceId());
-		if (testPlan == null) {
-			throw new MSException(Translator.get("test_plan.not.exist"));
-		}
-		ScheduleConfig scheduleConfig = ScheduleConfig.builder()
-				.resourceId(testPlan.getId())
-				.key(testPlan.getId())
-				.projectId(testPlan.getProjectId())
-				.name(testPlan.getName())
-				.enable(request.isEnable())
-				.cron(request.getCron())
-				.resourceType(ScheduleResourceType.TEST_PLAN.name())
-				.config(JSON.toJSONString(request.getRunConfig()))
-				.build();
+    public String scheduleConfig(BaseScheduleConfigRequest request, String operator) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getResourceId());
+        if (testPlan == null) {
+            throw new MSException(Translator.get("test_plan.not.exist"));
+        }
+        ScheduleConfig scheduleConfig = ScheduleConfig.builder()
+                .resourceId(testPlan.getId())
+                .key(testPlan.getId())
+                .projectId(testPlan.getProjectId())
+                .name(testPlan.getName())
+                .enable(request.isEnable())
+                .cron(request.getCron())
+                .resourceType(testPlan.getType() == TestPlanConstants.TEST_PLAN_TYPE_PLAN ? ScheduleResourceType.TEST_PLAN.name() : ScheduleResourceType.TEST_PLAN_GROUP.name())
+                .config(JSON.toJSONString(request.getRunConfig()))
+                .build();
 
-		if (request.isEnable() && StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-			//配置开启的测试计划组定时任务，要将组下的所有测试计划定时任务都关闭掉
-			TestPlanExample example = new TestPlanExample();
-			example.createCriteria().andGroupIdEqualTo(testPlan.getId()).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
-			example.setOrderByClause("pos asc");
-			List<TestPlan> children = testPlanMapper.selectByExample(example);
-			for (TestPlan child : children) {
-				scheduleService.updateIfExist(child.getId(), false, TestPlanScheduleJob.getJobKey(testPlan.getId()),
-						TestPlanScheduleJob.getTriggerKey(testPlan.getId()),
-						TestPlanScheduleJob.class, operator);
-			}
-		}
+        if (request.isEnable() && StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+            //配置开启的测试计划组定时任务，要将组下的所有测试计划定时任务都关闭掉
+            TestPlanExample example = new TestPlanExample();
+            example.createCriteria().andGroupIdEqualTo(testPlan.getId()).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+            example.setOrderByClause("pos asc");
+            List<TestPlan> children = testPlanMapper.selectByExample(example);
+            for (TestPlan child : children) {
+                scheduleService.updateIfExist(child.getId(), false, TestPlanScheduleJob.getJobKey(testPlan.getId()),
+                        TestPlanScheduleJob.getTriggerKey(testPlan.getId()),
+                        TestPlanScheduleJob.class, operator);
+            }
+        }
 
-		return scheduleService.scheduleConfig(
-				scheduleConfig,
-				TestPlanScheduleJob.getJobKey(testPlan.getId()),
-				TestPlanScheduleJob.getTriggerKey(testPlan.getId()),
-				TestPlanScheduleJob.class,
-				operator);
-	}
+        return scheduleService.scheduleConfig(
+                scheduleConfig,
+                TestPlanScheduleJob.getJobKey(testPlan.getId()),
+                TestPlanScheduleJob.getTriggerKey(testPlan.getId()),
+                TestPlanScheduleJob.class,
+                operator);
+    }
 }
