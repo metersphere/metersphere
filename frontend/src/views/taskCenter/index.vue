@@ -99,7 +99,12 @@
   );
 
   onBeforeMount(async () => {
-    activeTab.value = (await getItem('taskCenterActiveTab')) || TaskCenterEnum.CASE;
+    const localTab = await getItem('taskCenterActiveTab');
+    if (tabList.value.some((e) => e.value === localTab)) {
+      activeTab.value = (localTab as TaskCenterEnum) || TaskCenterEnum.CASE;
+    } else {
+      activeTab.value = tabList.value[0].value;
+    }
   });
 </script>
 
