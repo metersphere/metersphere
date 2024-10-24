@@ -2,18 +2,21 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.ApiDocShare;
 import io.metersphere.api.domain.ApiDocShareExample;
+import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ApiDocShareDTO;
 import io.metersphere.api.dto.definition.ApiDocShareDetail;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.mapper.ApiDocShareMapper;
 import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.mapper.ExtApiDocShareMapper;
+import io.metersphere.api.service.ApiTestService;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import io.metersphere.sdk.dto.CombineCondition;
 import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.ProtocolDTO;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.service.UserToolService;
 import io.metersphere.system.uid.IDGenerator;
@@ -28,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author song-cc-rock
@@ -49,6 +53,10 @@ public class ApiDocShareService {
 	private ApiDefinitionModuleService apiDefinitionModuleService;
 	@Resource
 	private ApiDefinitionExportService apiDefinitionExportService;
+	@Resource
+	private ApiDefinitionService apiDefinitionService;
+	@Resource
+	private ApiTestService apiTestService;
 
 	public static final String RANGE_ALL = "ALL";
 
@@ -173,6 +181,23 @@ public class ApiDocShareService {
 			request.setSelectIds(shareIds);
 		}
 		return apiDefinitionExportService.exportApiDefinition(request, type, currentUser);
+	}
+
+	/**
+	 * 获取接口定义的协议脚本
+	 * @param id 接口定义ID
+	 * @param orgId 组织ID
+	 * @return 协议脚本
+	 */
+	public Object getApiProtocolScript(String id, String orgId) {
+		ApiDefinitionDTO apiDefinitionDTO = apiDefinitionService.get(id, "admin");
+		List<ProtocolDTO> protocols = apiTestService.getProtocols(orgId);
+		List<ProtocolDTO> noHttpProtocols = protocols.stream().filter(protocol -> !StringUtils.equals(protocol.getProtocol(), "HTTP")).toList();
+		Map<String, String> protocolMap = noHttpProtocols.stream().collect(Collectors.toMap(ProtocolDTO::getProtocol, ProtocolDTO::getPluginId));
+		if (!protocolMap.containsKey(apiDefinitionDTO.getProtocol())) {
+			return null;
+		}
+		return apiTestService.getApiProtocolScript(protocolMap.get(apiDefinitionDTO.getProtocol()));
 	}
 
 	/**

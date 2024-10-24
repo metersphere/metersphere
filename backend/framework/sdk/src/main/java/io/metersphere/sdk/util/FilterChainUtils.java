@@ -112,6 +112,7 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/api/doc/share/export/**", "anon");
         filterChainDefinitionMap.put("/api/doc/share/stop/**", "anon");
         filterChainDefinitionMap.put("/api/doc/share/download/file/**", "anon");
+        filterChainDefinitionMap.put("/api/doc/share/plugin/script/**", "anon");
 
         return filterChainDefinitionMap;
     }

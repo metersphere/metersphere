@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -38,10 +40,12 @@ public class ApiDocShareControllerTests extends BaseTest {
 	private final static String MODULE_COUNT = BASE_PATH + "module/count";
 	private final static String EXPORT = BASE_PATH + "export/Swagger";
 	private final static String DOWNLOAD = BASE_PATH + "download/file/";
-	private final static String GET_DETAIL = BASE_PATH + "/get-detail/";
+	private final static String GET_DETAIL = BASE_PATH + "get-detail/";
+	private final static String GET_PLUGIN_SCRIPT = BASE_PATH + "plugin/script/";
 
 	@Order(1)
 	@Test
+	@Sql(scripts = {"/dml/init_api_doc_share.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
 	public void addOrUpdate() throws Exception {
 		ApiDocShareEditRequest request = new ApiDocShareEditRequest();
 		request.setName("share-1");
@@ -87,7 +91,8 @@ public class ApiDocShareControllerTests extends BaseTest {
 		this.requestGetWithOk(DELETE + docShare.getId());
 		// 不存在的ID
 		this.requestGet(DELETE + "not-exist-id").andExpect(status().is5xxServerError());
-		this.requestGet(GET_DETAIL + "not-exist-id").andExpect(status().is5xxServerError());
+		this.requestGetWithOk(GET_DETAIL + "doc-share-id");
+		getPluginScript("doc-share-id", DEFAULT_ORGANIZATION_ID);
 	}
 
 	@Order(2)
@@ -146,6 +151,12 @@ public class ApiDocShareControllerTests extends BaseTest {
 
 	private MvcResult download(String projectId, String fileId) throws Exception {
 		return mockMvc.perform(MockMvcRequestBuilders.get(DOWNLOAD + projectId + "/" + fileId)
+				.header(SessionConstants.HEADER_TOKEN, sessionId)
+				.header(SessionConstants.CSRF_TOKEN, csrfToken)).andReturn();
+	}
+
+	private MvcResult getPluginScript(String id, String orgId) throws Exception {
+		return mockMvc.perform(MockMvcRequestBuilders.get(GET_PLUGIN_SCRIPT + id + "/" + orgId)
 				.header(SessionConstants.HEADER_TOKEN, sessionId)
 				.header(SessionConstants.CSRF_TOKEN, csrfToken)).andReturn();
 	}

@@ -25,6 +25,7 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -125,26 +126,43 @@ public class ApiDocShareController {
 
 	@PostMapping("/export/{type}")
 	@Operation(summary = "接口测试-定义-分享-导出")
+	@Parameter(name = "type", description = "导出类型", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
 	public String export(@RequestBody ApiDocShareExportRequest request, @PathVariable String type) {
 		return apiDocShareService.export(request, type, SessionUtils.getUserId());
 	}
 
 	@GetMapping("/stop/{taskId}")
 	@Operation(summary = "接口测试-定义-分享-导出-停止导出")
+	@Parameter(name = "taskId", description = "导出任务ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
 	public void caseStopExport(@PathVariable String taskId) {
 		apiDefinitionExportService.stopExport(taskId, SessionUtils.getUserId());
 	}
 
 	@GetMapping(value = "/download/file/{projectId}/{fileId}")
 	@Operation(summary = "接口测试-定义-分享-导出-下载文件")
+	@Parameters({
+			@Parameter(name = "projectId", description = "项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED)),
+			@Parameter(name = "fileId", description = "文件ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+	})
 	public void downloadImgById(@PathVariable String projectId, @PathVariable String fileId, HttpServletResponse httpServletResponse) {
 		apiDefinitionExportService.downloadFile(projectId, fileId, SessionUtils.getUserId(), httpServletResponse);
 	}
 
 	@GetMapping(value = "/get-detail/{id}")
 	@Operation(summary = "接口测试-接口管理-获取接口详情")
+	@Parameter(name = "id", description = "接口定义ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
 	public ApiDefinitionDTO get(@PathVariable String id) {
 		return apiDefinitionService.get(id, "admin");
+	}
+
+	@GetMapping("/plugin/script/{id}/{orgId}")
+	@Operation(summary = "获取定义的插件脚本")
+	@Parameters({
+			@Parameter(name = "id", description = "接口定义ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED)),
+			@Parameter(name = "orgId", description = "组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+	})
+	public Object getApiProtocolScript(@PathVariable String id, @PathVariable String orgId) {
+		return apiDocShareService.getApiProtocolScript(id, orgId);
 	}
 
 }
