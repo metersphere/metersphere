@@ -418,13 +418,13 @@ public class BaseTaskHubService {
         Map<String, List<ExecTaskItem>> taskItems = taskItemList.stream().collect(Collectors.groupingBy(ExecTaskItem::getTaskId));
         taskItems.forEach((taskId, items) -> {
             //成功数量
-            long successCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ResultStatus.SUCCESS.name(), item.getResult())).count();
+            long successCount = items.stream().filter(item -> StringUtils.equalsIgnoreCase(ResultStatus.SUCCESS.name(), item.getResult())).count();
             //失败数量
-            long errorCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ResultStatus.ERROR.name(), item.getResult())).count();
+            long errorCount = items.stream().filter(item -> StringUtils.equalsIgnoreCase(ResultStatus.ERROR.name(), item.getResult())).count();
             //误报数量
-            long fakeErrorCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ResultStatus.FAKE_ERROR.name(), item.getResult())).count();
+            long fakeErrorCount = items.stream().filter(item -> StringUtils.equalsIgnoreCase(ResultStatus.FAKE_ERROR.name(), item.getResult())).count();
             //未执行数量
-            long pendingCount = items.stream().filter(item -> StringUtils.endsWithIgnoreCase(ExecStatus.PENDING.name(), item.getResult())).count();
+            long pendingCount = items.stream().filter(item -> StringUtils.equalsIgnoreCase(ExecStatus.PENDING.name(), item.getResult())).count();
 
             TaskStatisticsResponse response = new TaskStatisticsResponse();
             response.setId(taskId);
