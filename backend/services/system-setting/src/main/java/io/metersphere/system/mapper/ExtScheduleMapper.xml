@@ -266,7 +266,8 @@
         schedule.create_time,
         QRTZ_TRIGGERS.NEXT_FIRE_TIME AS next_time,
         project.organization_id,
-        project.name as projectName
+        project.name as projectName,
+        ads.num as resourceNum
         FROM
         schedule
         inner join api_definition_swagger ads on schedule.resource_id = ads.id
@@ -287,7 +288,8 @@
         schedule.create_time,
         QRTZ_TRIGGERS.NEXT_FIRE_TIME AS next_time,
         project.organization_id,
-        project.name as projectName
+        project.name as projectName,
+        api_scenario.num as resourceNum
         FROM
         schedule
         inner join api_scenario on schedule.resource_id = api_scenario.id
@@ -308,7 +310,8 @@
         schedule.create_time,
         QRTZ_TRIGGERS.NEXT_FIRE_TIME AS next_time,
         project.organization_id,
-        project.name as projectName
+        project.name as projectName,
+        test_plan.num as resourceNum
         FROM
         schedule
         inner join test_plan on schedule.resource_id = test_plan.id
@@ -329,7 +332,8 @@
         schedule.create_time,
         QRTZ_TRIGGERS.NEXT_FIRE_TIME AS next_time,
         project.organization_id,
-        project.name as projectName
+        project.name as projectName,
+        project.num as resourceNum
         FROM
         schedule
         left join project on schedule.project_id = project.id
@@ -351,7 +355,8 @@
         schedule.create_time,
         QRTZ_TRIGGERS.NEXT_FIRE_TIME AS nextTime,
         project.organization_id,
-        project.name as projectName
+        project.name as projectName,
+        project.num as resourceNum
         FROM
         schedule
         left join project on schedule.project_id = project.id
