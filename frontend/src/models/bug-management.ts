@@ -50,6 +50,8 @@ export interface BugEditCustomField {
   options?: any[];
   defaultValue: string;
   platformSystemField: boolean;
+  sourceType?: string;
+  field?: string;
 }
 export interface BugEditFormObject {
   [key: string]: any;
@@ -59,6 +61,7 @@ export interface BugEditCustomFieldItem {
   name: string;
   type: string | undefined;
   value: string;
+  text?: string[] | null; // 消息通知文本提示
 }
 export type BugBatchUpdateFiledType = 'single_select' | 'multiple_select' | 'tags' | 'input' | 'user_selector' | 'date';
 export interface BugBatchUpdateFiledForm {

@@ -260,7 +260,7 @@
   import { CaseLinkEnum } from '@/enums/caseEnum';
 
   import { convertToFile } from '../case-management/caseManagementFeature/components/utils';
-  import { convertToFileByBug, getDefaultMemberValue } from './utils';
+  import { convertToFileByBug, getCurrentText, getDefaultMemberValue } from './utils';
   import { getCaseTemplateContent } from '@/views/case-management/components/addDefectDrawer/utils';
 
   const props = defineProps<{
@@ -413,7 +413,6 @@
   // 处理表单格式
   const getFormRules = (arr: BugEditCustomField[]) => {
     formRules.value = [];
-    console.log(arr);
     if (Array.isArray(arr) && arr.length) {
       formRules.value = arr.map((item: any) => {
         const initOptions = item.options || JSON.parse(item.platformOptionJson || '[]');
@@ -581,6 +580,7 @@
           name: item.title as string,
           type: item.sourceType as string,
           value: Array.isArray(item.value) ? JSON.stringify(item.value) : (item.value as string),
+          text: getCurrentText(item, currentCustomFields.value),
         });
       });
     }

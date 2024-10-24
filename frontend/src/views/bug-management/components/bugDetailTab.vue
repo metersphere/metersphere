@@ -276,7 +276,7 @@
   import { AssociatedList, AttachFileInfo } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
 
-  import { convertToFileByBug } from '@/views/bug-management/utils';
+  import { convertToFileByBug, getCurrentText } from '@/views/bug-management/utils';
 
   defineOptions({
     name: 'BugDetailTab',
@@ -499,7 +499,7 @@
         id: field.fieldId,
         name: field.fieldName,
         type: field.type,
-        value: field.fieldId === 'status' ? props.detailInfo.status : filterField.value,
+        value: field.fieldId === 'status' ? props.detailInfo.status : filterField?.value,
       };
     });
   }
@@ -508,8 +508,13 @@
   async function handleSave() {
     try {
       confirmLoading.value = true;
-      const customFields: BugEditCustomFieldItem[] = getDetailCustomFields();
-      console.log(customFields);
+      let customFields: BugEditCustomFieldItem[] = getDetailCustomFields();
+      customFields = customFields.map((e: any) => {
+        return {
+          ...e,
+          text: getCurrentText(e, props.currentCustomFields, 'id'),
+        };
+      });
       if (props.isPlatformDefaultTemplate) {
         // 平台系统默认字段插入自定义集合
         props.platformSystemFields.forEach((item) => {

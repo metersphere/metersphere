@@ -63,9 +63,9 @@
   import { useAppStore } from '@/store';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { BugEditCustomField, BugEditFormObject } from '@/models/bug-management';
+  import { BugEditCustomField, BugEditFormObject, type CustomFieldItem } from '@/models/bug-management';
 
-  import { makeCustomFieldsParams } from '../utils';
+  import { getCurrentText, makeCustomFieldsParams } from '../utils';
 
   const appStore = useAppStore();
 
@@ -77,6 +77,7 @@
     formRule: FormItem[];
     isPlatformDefaultTemplate: boolean;
     platformSystemFields: BugEditCustomField[]; // 平台系统字段
+    currentCustomFields: CustomFieldItem[];
   }>();
 
   const emit = defineEmits<{
@@ -118,7 +119,7 @@
   };
 
   async function makeParams() {
-    const customFields = await makeCustomFieldsParams(innerFormItem.value);
+    const customFields = await makeCustomFieldsParams(innerFormItem.value, props.currentCustomFields);
     if (props.isPlatformDefaultTemplate) {
       // 平台系统默认字段插入自定义集合
       props.platformSystemFields.forEach((item) => {
