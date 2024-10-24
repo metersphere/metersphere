@@ -1,6 +1,6 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.dto.definition.ApiDefinitionBatchExportRequest;
+import io.metersphere.api.dto.definition.ApiScenarioBatchExportRequest;
 import io.metersphere.api.dto.export.MetersphereApiScenarioExportResponse;
 import io.metersphere.api.dto.scenario.ApiScenarioImportRequest;
 import io.metersphere.api.utils.ApiDataUtils;
@@ -34,6 +34,7 @@ import org.springframework.util.MultiValueMap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,11 +63,6 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
             initProject.setEnable(true);
             initProject.setUserIds(List.of("admin"));
             project = commonProjectService.add(initProject, "admin", "/organization-project/add", OperationLogModule.SETTING_ORGANIZATION_PROJECT);
-            //            ArrayList<String> moduleList = new ArrayList<>(List.of("workstation", "testPlan", "bugManagement", "caseManagement", "apiTest", "uiTest", "loadTest"));
-            //            Project updateProject = new Project();
-            //            updateProject.setId(importProject.getId());
-            //            updateProject.setModuleSetting(JSON.toJSONString(moduleList));
-            //            projectMapper.updateByPrimaryKeySelective(updateProject);
         }
     }
 
@@ -101,47 +97,52 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
     public void testExport() throws Exception {
         MsFileUtils.deleteDir("/tmp/api-scenario-export/");
 
-        ApiDefinitionBatchExportRequest exportRequest = new ApiDefinitionBatchExportRequest();
-        String fileId = IDGenerator.nextStr();
-        exportRequest.setProjectId(project.getId());
-        exportRequest.setFileId(fileId);
-        exportRequest.setSelectAll(true);
-        exportRequest.setExportApiCase(true);
-        exportRequest.setExportApiMock(true);
-        MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_POST_EXPORT + "metersphere", exportRequest);
-        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        List<Boolean> exportAllRelatedData = new ArrayList<>() {{
+            this.add(true);
+            this.add(false);
+        }};
+        for (Boolean isAllRelatedData : exportAllRelatedData) {
+            ApiScenarioBatchExportRequest exportRequest = new ApiScenarioBatchExportRequest();
+            String fileId = IDGenerator.nextStr();
+            exportRequest.setProjectId(project.getId());
+            exportRequest.setFileId(fileId);
+            exportRequest.setSelectAll(true);
+            exportRequest.setExportAllRelatedData(isAllRelatedData);
+            MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_POST_EXPORT + "metersphere", exportRequest);
+            String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
 
-        JSON.parseObject(returnData, ResultHolder.class).getData().toString();
-        Assertions.assertTrue(StringUtils.isNotBlank(fileId));
-        List<ExportTask> taskList = exportTaskManager.getExportTasks(exportRequest.getProjectId(), null, null, "admin", fileId);
-        while (CollectionUtils.isEmpty(taskList)) {
-            Thread.sleep(1000);
-            taskList = exportTaskManager.getExportTasks(exportRequest.getProjectId(), null, null, "admin", fileId);
+            JSON.parseObject(returnData, ResultHolder.class).getData().toString();
+            Assertions.assertTrue(StringUtils.isNotBlank(fileId));
+            List<ExportTask> taskList = exportTaskManager.getExportTasks(exportRequest.getProjectId(), null, null, "admin", fileId);
+            while (CollectionUtils.isEmpty(taskList)) {
+                Thread.sleep(1000);
+                taskList = exportTaskManager.getExportTasks(exportRequest.getProjectId(), null, null, "admin", fileId);
+            }
+
+            ExportTask task = taskList.getFirst();
+            while (!StringUtils.equalsIgnoreCase(task.getState(), ExportConstants.ExportState.SUCCESS.name())) {
+                Thread.sleep(1000);
+                task = exportTaskManager.getExportTasks(exportRequest.getProjectId(), null, null, "admin", fileId).getFirst();
+            }
+
+            mvcResult = this.download(exportRequest.getProjectId(), fileId);
+
+            byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
+
+            File zipFile = new File("/tmp/api-scenario-export/downloadFiles.zip");
+            FileUtils.writeByteArrayToFile(zipFile, fileBytes);
+
+            File[] files = MsFileUtils.unZipFile(zipFile, "/tmp/api-scenario-export/unzip/");
+            assert files != null;
+            Assertions.assertEquals(files.length, 1);
+            String fileContent = FileUtils.readFileToString(files[0], StandardCharsets.UTF_8);
+
+            MetersphereApiScenarioExportResponse exportResponse = ApiDataUtils.parseObject(fileContent, MetersphereApiScenarioExportResponse.class);
+
+            Assertions.assertEquals(exportResponse.getExportScenarioList().size(), 8);
+
+            MsFileUtils.deleteDir("/tmp/api-scenario-export/");
         }
-
-        ExportTask task = taskList.getFirst();
-        while (!StringUtils.equalsIgnoreCase(task.getState(), ExportConstants.ExportState.SUCCESS.name())) {
-            Thread.sleep(1000);
-            task = exportTaskManager.getExportTasks(exportRequest.getProjectId(), null, null, "admin", fileId).getFirst();
-        }
-
-        mvcResult = this.download(exportRequest.getProjectId(), fileId);
-
-        byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
-
-        File zipFile = new File("/tmp/api-scenario-export/downloadFiles.zip");
-        FileUtils.writeByteArrayToFile(zipFile, fileBytes);
-
-        File[] files = MsFileUtils.unZipFile(zipFile, "/tmp/api-scenario-export/unzip/");
-        assert files != null;
-        Assertions.assertEquals(files.length, 1);
-        String fileContent = FileUtils.readFileToString(files[0], StandardCharsets.UTF_8);
-
-        MetersphereApiScenarioExportResponse exportResponse = ApiDataUtils.parseObject(fileContent, MetersphereApiScenarioExportResponse.class);
-
-        Assertions.assertEquals(exportResponse.getExportScenarioList().size(), 8);
-
-        MsFileUtils.deleteDir("/tmp/api-scenario-export/");
     }
 
     private MvcResult download(String projectId, String fileId) throws Exception {

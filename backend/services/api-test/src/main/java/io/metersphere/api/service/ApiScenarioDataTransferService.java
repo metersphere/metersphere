@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.constants.ApiDefinitionStatus;
+import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
@@ -179,7 +180,7 @@ public class ApiScenarioDataTransferService {
         }
         //解析
         ApiScenarioPreImportAnalysisResult preImportAnalysisResult = this.importAnalysis(
-                parseResult, request.getOperator(), request.getProjectId(), request.getModuleId(), apiScenarioModuleService.getTree(request.getProjectId()));
+                parseResult, request.getOperator(), request.getProjectId(), request.getModuleId(), apiScenarioModuleService.getImportTreeNodeList(request.getProjectId()));
         //存储
         this.save(preImportAnalysisResult, request.getProjectId(), request.getOperator(), request.isCoverData());
     }
@@ -938,7 +939,7 @@ public class ApiScenarioDataTransferService {
         {
             for (Map.Entry<String, List<ApiScenarioImportDetail>> entry : projectScenarioMap.entrySet()) {
                 String targetProjectId = entry.getKey();
-                List<BaseTreeNode> apiScenarioModules = apiScenarioModuleService.getTree(targetProjectId);
+                List<BaseTreeNode> apiScenarioModules = apiScenarioModuleService.getImportTreeNodeList(targetProjectId);
 
                 Map<String, String> moduleIdPathMap = apiScenarioModules.stream().collect(Collectors.toMap(BaseTreeNode::getId, BaseTreeNode::getPath));
                 Map<String, BaseTreeNode> modulePathMap = apiScenarioModules.stream().collect(Collectors.toMap(BaseTreeNode::getPath, k -> k, (k1, k2) -> k1));
@@ -1020,7 +1021,7 @@ public class ApiScenarioDataTransferService {
             if (CollectionUtils.isEmpty(ids)) {
                 return null;
             }
-            Map<String, String> moduleMap = this.apiScenarioModuleService.getTree(request.getProjectId()).stream().collect(Collectors.toMap(BaseTreeNode::getId, BaseTreeNode::getPath));
+            Map<String, String> moduleMap = this.apiScenarioModuleService.getImportTreeNodeList(request.getProjectId()).stream().collect(Collectors.toMap(BaseTreeNode::getId, BaseTreeNode::getPath));
 
             String fileFolder = tmpDir.getPath() + File.separatorChar + request.getFileId();
             AtomicInteger fileIndex = new AtomicInteger(1);
@@ -1150,9 +1151,47 @@ public class ApiScenarioDataTransferService {
             }
 
         } else {
+
             // 普通导出,所有的引用都改为复制，并且Api、ApiCase改为CUSTOM_REQUEST
-            response.setRefTypeToCopy();
-            response.setStepTypeToCustomRequest();
+            Map<String, String> stepApiDefinitionMap = new HashMap<>();
+            Map<String, String> stepApiCaseMap = new HashMap<>();
+            response.getScenarioStepList().forEach(step -> {
+                if (StringUtils.equalsAnyIgnoreCase(step.getStepType(), ApiScenarioStepType.API.name(), ApiScenarioStepType.API_SCENARIO.name(), ApiScenarioStepType.API_CASE.name())) {
+                    // 引用的api、case转换为自定义步骤时，要对应的api、case也一并导出
+                    if (!response.getScenarioStepBlobMap().containsKey(step.getId())) {
+                        if (StringUtils.equalsIgnoreCase(step.getStepType(), ApiScenarioStepType.API.name())) {
+                            stepApiDefinitionMap.put(step.getId(), step.getResourceId());
+                        } else if (StringUtils.equalsIgnoreCase(step.getStepType(), ApiScenarioStepType.API_CASE.name())) {
+                            stepApiCaseMap.put(step.getId(), step.getResourceId());
+                        }
+                    }
+                    step.setRefType(ApiScenarioStepRefType.COPY.name());
+                    step.setStepType(ApiScenarioStepType.CUSTOM_REQUEST.name());
+                }
+            });
+            Map<String, String> appendBlobMap = new HashMap<>();
+            if (MapUtils.isNotEmpty(stepApiDefinitionMap)) {
+                List<ApiDefinitionWithBlob> apiDefinitionWithBlobs = extApiDefinitionMapper.selectApiDefinitionWithBlob(new ArrayList<>(stepApiDefinitionMap.values()));
+                Map<String, ApiDefinitionWithBlob> idMap = apiDefinitionWithBlobs.stream().collect(Collectors.toMap(ApiDefinitionWithBlob::getId, Function.identity()));
+                stepApiDefinitionMap.forEach((stepId, apiId) -> {
+                    ApiDefinitionWithBlob api = idMap.get(apiId);
+                    if (api != null) {
+                        appendBlobMap.put(stepId, new String(api.getRequest(), StandardCharsets.UTF_8));
+                    }
+                });
+            }
+            if (MapUtils.isNotEmpty(stepApiCaseMap)) {
+                List<ApiTestCaseWithBlob> apiTestCaseList = extApiTestCaseMapper.selectAllDetailByIds(new ArrayList<>(stepApiCaseMap.values()));
+                Map<String, ApiTestCaseWithBlob> idMap = apiTestCaseList.stream().collect(Collectors.toMap(ApiTestCaseWithBlob::getId, Function.identity()));
+                stepApiCaseMap.forEach((stepId, apiCaseId) -> {
+                    ApiTestCaseWithBlob apiTestCase = idMap.get(apiCaseId);
+                    if (apiTestCase != null) {
+                        appendBlobMap.put(stepId, new String(apiTestCase.getRequest(), StandardCharsets.UTF_8));
+                    }
+                });
+            }
+
+            response.getScenarioStepBlobMap().putAll(appendBlobMap);
         }
         return response;
     }

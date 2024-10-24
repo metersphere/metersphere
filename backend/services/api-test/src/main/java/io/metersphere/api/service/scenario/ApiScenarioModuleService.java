@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,12 +66,36 @@ public class ApiScenarioModuleService extends ModuleTreeService {
         return super.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED_SCENARIO));
     }
 
-    public List<BaseTreeNode> getTree(String projectId) {
+    public List<BaseTreeNode> getImportTreeNodeList(String projectId) {
+
         //接口的树结构是  模块：子模块+接口 接口为非delete状态的
-        List<BaseTreeNode> fileModuleList = extApiScenarioModuleMapper.selectBaseByRequest(new ApiScenarioModuleRequest() {{
+        List<BaseTreeNode> traverseList = extApiScenarioModuleMapper.selectBaseByRequest(new ApiScenarioModuleRequest() {{
             this.setProjectId(projectId);
         }});
-        return super.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED_SCENARIO));
+
+        List<BaseTreeNode> baseTreeNodeList = new ArrayList<>();
+        BaseTreeNode defaultNode = new BaseTreeNode(ModuleConstants.DEFAULT_NODE_ID, Translator.get(UNPLANNED_SCENARIO), ModuleConstants.NODE_TYPE_DEFAULT, ModuleConstants.ROOT_NODE_PARENT_ID);
+        defaultNode.setPath(StringUtils.join("/", defaultNode.getName()));
+        baseTreeNodeList.add(defaultNode);
+        int lastSize = 0;
+        Map<String, BaseTreeNode> baseTreeNodeMap = new HashMap<>();
+        while (CollectionUtils.isNotEmpty(traverseList) && traverseList.size() != lastSize) {
+            lastSize = traverseList.size();
+            List<BaseTreeNode> notMatchedList = new ArrayList<>();
+            for (BaseTreeNode treeNode : traverseList) {
+                if (!baseTreeNodeMap.containsKey(treeNode.getParentId()) && !StringUtils.equalsIgnoreCase(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+                    notMatchedList.add(treeNode);
+                    continue;
+                }
+                BaseTreeNode node = new BaseTreeNode(treeNode.getId(), treeNode.getName(), treeNode.getType(), treeNode.getParentId());
+                node.genModulePath(baseTreeNodeMap.get(treeNode.getParentId()));
+                baseTreeNodeMap.put(treeNode.getId(), node);
+
+                baseTreeNodeList.add(node);
+            }
+            traverseList = notMatchedList;
+        }
+        return baseTreeNodeList;
     }
 
     public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(ApiScenarioModuleRequest request, List<ModuleCountDTO> moduleCountDTOList) {
