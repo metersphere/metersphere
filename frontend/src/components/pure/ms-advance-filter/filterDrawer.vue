@@ -119,7 +119,7 @@
             v-model:model-value="item.value"
             allow-clear
             allow-search
-            :search-keys="['label', 'text']"
+            :search-keys="item.selectProps?.labelKey?.length ? [item.selectProps?.labelKey] : ['label']"
             :placeholder="t('common.pleaseSelect')"
             :disabled="isValueDisabled(item)"
             :options="item.selectProps?.options || []"
@@ -591,6 +591,7 @@
     }
     .arco-form-item-message {
       margin-bottom: 0;
+      text-align: left;
     }
   }
 </style>
