@@ -9,6 +9,7 @@ export default {
   'system.resourcePool.editPool': '编辑',
   'system.resourcePool.tableColumnName': '名称',
   'system.resourcePool.tableColumnStatus': '状态',
+  'system.resourcePool.tableColumnExecuteStatus': '执行状态',
   'system.resourcePool.tableColumnType': '类型',
   'system.resourcePool.tableColumnCreateTime': '创建时间',
   'system.resourcePool.tableColumnUpdateTime': '更新时间',

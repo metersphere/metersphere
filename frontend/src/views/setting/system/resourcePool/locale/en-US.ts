@@ -9,6 +9,7 @@ export default {
   'system.resourcePool.editPool': 'Edit',
   'system.resourcePool.tableColumnName': 'Name',
   'system.resourcePool.tableColumnStatus': 'Status',
+  'system.resourcePool.tableColumnExecuteStatus': 'Execution state',
   'system.resourcePool.tableColumnType': 'Type',
   'system.resourcePool.tableColumnCreateTime': 'CreateTime',
   'system.resourcePool.tableColumnUpdateTime': 'UpdateTime',
