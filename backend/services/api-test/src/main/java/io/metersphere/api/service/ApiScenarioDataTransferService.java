@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.constants.ApiDefinitionStatus;
+import io.metersphere.api.constants.ApiScenarioStatus;
 import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.*;
@@ -357,7 +358,8 @@ public class ApiScenarioDataTransferService {
             //更新场景
             list.forEach(request -> {
                 // 更新基础信息
-                ApiScenario scenario = BeanUtils.copyBean(new ApiScenario(), request);
+                ApiScenario scenario = new ApiScenario();
+                scenario.setId(request.getId());
                 scenario.setUpdateUser(operator);
                 scenario.setUpdateTime(System.currentTimeMillis());
                 scenario.setStepTotal(CollectionUtils.isNotEmpty(request.getSteps()) ? request.getSteps().size() : 0);
@@ -503,6 +505,7 @@ public class ApiScenarioDataTransferService {
                     scenario.setNum(apiScenarioService.getNextNum(targetProjectId));
                     scenario.setPos(getImportNextOrder(apiScenarioService::getNextOrder, currentApiScenarioOrder, targetProjectId));
                     scenario.setLatest(true);
+                    scenario.setStatus(ApiScenarioStatus.UNDERWAY.name());
                     scenario.setCreateUser(operator);
                     scenario.setUpdateUser(operator);
                     scenario.setCreateTime(System.currentTimeMillis());
@@ -772,11 +775,15 @@ public class ApiScenarioDataTransferService {
         Map<String, List<ApiScenarioImportDetail>> projectScenarioMap = new HashMap<>();
         // 对导入文件中的数据进行分组
         {
+            Project project = projectMapper.selectByPrimaryKey(projectId);
             for (Map.Entry<String, List<ApiDefinitionDetail>> entry : parseResult.getRelatedApiDefinitions().stream().collect(Collectors.groupingBy(ApiDefinitionDetail::getProjectId)).entrySet()) {
                 String targetProjectId = entry.getKey();
                 List<ApiDefinitionDetail> apiDefinitionDetails = entry.getValue();
                 //  如果没有权限，需要在当前项目进行校验
-                if (projectMapper.selectByPrimaryKey(targetProjectId) == null) {
+                Project targetProject = projectMapper.selectByPrimaryKey(targetProjectId);
+
+                // 项目不存在或者项目和当前项目不在统一组织下，需要在当前项目进行校验。场景不能跨项目关联
+                if (targetProject == null || !StringUtils.equals(targetProject.getOrganizationId(), project.getOrganizationId())) {
                     targetProjectId = projectId;
                 } else if (!permissionCheckService.userHasProjectPermission(operator, targetProjectId, PermissionConstants.PROJECT_API_DEFINITION_ADD)) {
                     targetProjectId = projectId;
