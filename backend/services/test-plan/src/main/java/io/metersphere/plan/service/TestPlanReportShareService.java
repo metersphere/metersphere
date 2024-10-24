@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static io.metersphere.sdk.util.ShareUtil.getTimeMills;
 
@@ -79,15 +80,18 @@ public class TestPlanReportShareService {
      */
     public TestPlanShareInfo gen(TestPlanReportShareRequest shareRequest, String currentUser) {
         UserDTO userDTO = baseUserMapper.selectById(currentUser);
-        String lang = userDTO.getLanguage() == null ? LocaleContextHolder.getLocale().toString().split("_#")[0] : userDTO.getLanguage();
+        String lang = Optional.ofNullable(userDTO)
+                .map(UserDTO::getLanguage)
+                .orElse(LocaleContextHolder.getLocale().toString().split("_#")[0]);
+
         ShareInfo request = new ShareInfo();
         BeanUtils.copyBean(request, shareRequest);
         request.setLang(lang);
         request.setCreateUser(currentUser);
         request.setCustomData(shareRequest.getReportId().getBytes());
         request.setShareType(ShareInfoType.TEST_PLAN_SHARE_REPORT.name());
-        ShareInfo shareInfo = createShareInfo(request);
-        return conversionShareInfoToDTO(shareInfo);
+
+        return conversionShareInfoToDTO(createShareInfo(request));
     }
 
     /**
