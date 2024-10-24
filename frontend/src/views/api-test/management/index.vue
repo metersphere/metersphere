@@ -81,7 +81,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import { ApiDefinitionGetModuleParams } from '@/models/apiTest/management';
+  import { ApiDefinitionGetModuleParams, ShareDetailType } from '@/models/apiTest/management';
   import { ModuleTreeNode } from '@/models/common';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
@@ -209,11 +209,19 @@
     }
   });
 
+  const shareDetailInfo = ref<ShareDetailType>({
+    invalid: false,
+    allowExport: false,
+    isPrivate: false,
+  });
+
   /** 向子孙组件提供方法和值 */
   provide('setActiveApi', setActiveApi);
   provide('refreshModuleTree', refreshModuleTree);
   provide('refreshModuleTreeCount', refreshModuleTreeCount);
   provide('folderTreePathMap', folderTreePathMap.value);
+  provide('docShareId', docShareId.value);
+  provide('shareDetailInfo', shareDetailInfo);
 </script>
 
 <style lang="less" scoped>

@@ -106,6 +106,7 @@ export interface ApiDefinitionGetModuleParams {
   versionId?: string;
   refId?: string;
   shareId?: string;
+  orgId?: string; // 组织id
 }
 
 // 环境-选中的模块

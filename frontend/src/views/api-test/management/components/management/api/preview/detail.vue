@@ -441,7 +441,9 @@
   import ApiChangeTag from '@/views/api-test/management/components/management/case/apiChangeTag.vue';
 
   import { getPluginScript } from '@/api/modules/api-test/common';
+  import { getDocSharePluginScript } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
 
   import { PluginConfig, ProtocolItem } from '@/models/apiTest/common';
   import { RequestBodyFormat, RequestParamsType, ResponseBodyFormat } from '@/enums/apiEnum';
@@ -462,6 +464,7 @@
 
   const { t } = useI18n();
   const { copy, isSupported } = useClipboard({ legacy: true });
+  const appStore = useAppStore();
 
   const previewDetail = ref<RequestParam>(props.detail);
   const activeResponse = ref<TabItem & ResponseItem>();
@@ -505,12 +508,16 @@
     return '';
   });
   const pluginError = ref(false);
+  const docShareId = inject<string>('docShareId', '');
   async function initPluginScript(protocol: string) {
-    const pluginId = props.protocols.find((e) => e.protocol === protocol)?.pluginId;
-    if (!pluginId) {
-      Message.warning(t('apiTestDebug.noPluginTip'));
-      pluginError.value = true;
-      return;
+    let pluginId: string = '';
+    if (!docShareId) {
+      pluginId = props.protocols.find((e) => e.protocol === protocol)?.pluginId ?? '';
+      if (!pluginId) {
+        Message.warning(t('apiTestDebug.noPluginTip'));
+        pluginError.value = true;
+        return;
+      }
     }
     pluginError.value = false;
     if (pluginScriptMap.value[protocol] !== undefined) {
@@ -519,7 +526,12 @@
     }
     try {
       pluginLoading.value = true;
-      const res = await getPluginScript(pluginId);
+      let res;
+      if (docShareId) {
+        res = await getDocSharePluginScript(previewDetail.value.id, appStore.currentOrgId);
+      } else {
+        res = await getPluginScript(pluginId);
+      }
       pluginScriptMap.value[protocol] = res;
     } catch (error) {
       // eslint-disable-next-line no-console

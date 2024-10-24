@@ -35,6 +35,7 @@
         :all-count="allFileCount"
         :active-folder="selectedKeys[0] as string"
         :show-expand-api="!props.readOnly && !props.trash && !props.docShareId"
+        :not-show-operation="!!props.docShareId"
         @set-active-folder="setActiveFolder"
         @change-api-expand="changeApiExpand"
         @selected-protocols-change="selectedProtocolsChange"
@@ -442,13 +443,14 @@
   }
   // 分享模块树
   async function initShareModuleTree() {
-    await initShareModuleCount(lastModuleCountParam.value);
+    await initShareModuleCount({ ...lastModuleCountParam.value, orgId: appStore.currentOrgId, protocols: [] });
     let res;
     res = await getShareModuleTree({
       keyword: '',
-      protocols: selectedProtocols.value,
+      protocols: [],
       projectId: appStore.currentProjectId,
       moduleIds: [],
+      orgId: appStore.currentOrgId,
       shareId: props.docShareId,
     });
     res = mapTree<ModuleTreeNode>(res, (node) => ({
@@ -758,12 +760,26 @@
   }
 
   onBeforeMount(() => {
-    initProtocolList();
+    if (!props.docShareId) {
+      initProtocolList();
+    }
   });
 
   async function refresh() {
     await initModules();
   }
+
+  watch(
+    () => props.docShareId,
+    (val) => {
+      if (val) {
+        initModules();
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
 
   defineExpose({
     refresh,

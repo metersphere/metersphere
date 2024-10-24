@@ -64,6 +64,8 @@ import {
   GetPoolId,
   GetPoolOptionUrl,
   GetShareApiDownloadFileUrl,
+  GetShareDefinitionDetailUrl,
+  GetShareDefinitionPluginUrl,
   GetSharePageUrl,
   getSyncedCaseDetailUrl,
   GetTrashModuleCountUrl,
@@ -110,7 +112,7 @@ import {
   UploadTempMockFileUrl,
 } from '@/api/requrls/api-test/management';
 
-import { ApiCaseReportDetail, ExecuteRequestParams } from '@/models/apiTest/common';
+import { ApiCaseReportDetail, ExecuteRequestParams, PluginConfig } from '@/models/apiTest/common';
 import {
   AddApiCaseParams,
   ApiCaseBatchEditParams,
@@ -706,4 +708,14 @@ export function getShareApiDownloadFile(projectId: string, fileId: string) {
 // 停止分享导出
 export function stopShareApiExport(taskId: string) {
   return MSR.get({ url: `${StopShareApiExportUrl}/${taskId}` });
+}
+
+// 获取定义分享插件配置
+export function getDocSharePluginScript(id: string | number, orgId: string) {
+  return MSR.get<PluginConfig>({ url: `${GetShareDefinitionPluginUrl}/${id}/${orgId}` });
+}
+
+// 获取接口定义分享详情
+export function getShareDefinitionDetail(id: string | number) {
+  return MSR.get<ApiDefinitionDetail>({ url: GetShareDefinitionDetailUrl, params: id });
 }
