@@ -22,7 +22,7 @@
   >
     <template #num="{ record }">
       <a-button type="text" class="max-w-full justify-start px-0" @click="checkDetail(record)">
-        <a-tooltip :content="record.id">
+        <a-tooltip :content="record.num">
           <div class="one-line-text">
             {{ record.num }}
           </div>
