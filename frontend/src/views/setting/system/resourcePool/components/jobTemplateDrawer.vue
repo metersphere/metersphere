@@ -4,6 +4,7 @@
     :width="680"
     :title="t('system.resourcePool.customJobTemplate')"
     :footer="!props.readOnly"
+    show-full-screen
     @close="handleClose"
   >
     <MsCodeEditor
@@ -13,6 +14,7 @@
       height="calc(100vh - 205px)"
       theme="MS-text"
       :read-only="props.readOnly"
+      :show-full-screen="false"
     />
     <template v-if="!props.readOnly" #footer>
       <a-button type="secondary" @click="resetTemplate">{{ t('system.resourcePool.jobTemplateReset') }}</a-button>
@@ -21,8 +23,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch } from 'vue';
-
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
 

@@ -322,9 +322,14 @@
             </span>
           </a-tooltip>
         </a-form-item>
-        <a-form-item field="testResourceDTO.concurrentNumber" class="form-item">
+        <a-form-item
+          field="testResourceDTO.concurrentNumber"
+          :rules="[{ required: true, message: t('system.resourcePool.concurrentNumberRequired') }]"
+          class="form-item"
+          asterisk-position="end"
+        >
           <template #label>
-            <div class="flex items-center gap-[4px]">
+            <div class="inline-flex max-w-[calc(100%-12px)] items-center gap-[4px]">
               <div>{{ t('system.resourcePool.testResourceDTO.concurrentNumber') }}</div>
               <a-tooltip v-if="!isXpack" :content="t('system.resourcePool.concurrentNumberTip')" position="tl" mini>
                 <icon-question-circle class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]" />
@@ -342,9 +347,14 @@
             @change="() => setIsSave(false)"
           ></a-input-number>
         </a-form-item>
-        <a-form-item field="testResourceDTO.podThreads" class="form-item">
+        <a-form-item
+          field="testResourceDTO.podThreads"
+          :rules="[{ required: true, message: t('system.resourcePool.testResourceDTO.podThreadsRequired') }]"
+          class="form-item"
+          asterisk-position="end"
+        >
           <template #label>
-            <div class="flex items-center gap-[4px]">
+            <div class="inline-flex max-w-[calc(100%-12px)] items-center gap-[4px]">
               <div>{{ t('system.resourcePool.testResourceDTO.podThreads') }}</div>
               <a-tooltip
                 v-if="!isXpack"
