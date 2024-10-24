@@ -3,6 +3,7 @@ package io.metersphere.api.listener;
 import io.metersphere.api.invoker.ApiExecuteCallbackServiceInvoker;
 import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
+import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiReportSendNoticeService;
 import io.metersphere.api.service.definition.ApiTestCaseBatchRunService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
@@ -30,9 +31,10 @@ public class MessageListener {
     public static final String MESSAGE_CONSUME_ID = "MS-API-MESSAGE-CONSUME";
     @Resource
     private ApiReportSendNoticeService apiReportSendNoticeService;
-
     @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
+    @Resource
+    private ApiBatchRunBaseService apiBatchRunBaseService;
     @Resource
     private ApiTestCaseBatchRunService apiTestCaseBatchRunService;
     @Resource
@@ -118,6 +120,10 @@ public class MessageListener {
             }
             if (isStopOnFailure(dto)) {
                 ApiExecuteResourceType resourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, queue.getResourceType());
+                if (resourceType != ApiExecuteResourceType.PLAN_RUN_API_SCENARIO && resourceType != ApiExecuteResourceType.PLAN_RUN_API_CASE) {
+                    // 失败停止，更新任务状态
+                    apiBatchRunBaseService.updateTaskCompletedStatus(queue.getTaskId(), ResultStatus.ERROR.name());
+                }
                 // 补充集成报告
                 updateStopOnFailureIntegratedReport(dto, queue, resourceType);
                 // 如果是失败停止，清空队列，不继续执行

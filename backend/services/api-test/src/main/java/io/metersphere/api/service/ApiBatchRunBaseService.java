@@ -210,6 +210,10 @@ public class ApiBatchRunBaseService {
     }
 
     public void updateTaskCompletedStatus(String taskId) {
+        updateTaskCompletedStatus(taskId, null);
+    }
+
+    public void updateTaskCompletedStatus(String taskId, String result) {
         // 删除执行缓存
         removeRunningTaskCache(taskId);
         ExecTask originExecTask = execTaskMapper.selectByPrimaryKey(taskId);
@@ -220,12 +224,16 @@ public class ApiBatchRunBaseService {
             execTask.setEndTime(System.currentTimeMillis());
             execTask.setId(taskId);
             execTask.setStatus(ExecStatus.COMPLETED.name());
-            if (extExecTaskItemMapper.hasErrorItem(taskId)) {
-                execTask.setResult(ResultStatus.ERROR.name());
-            } else if (extExecTaskItemMapper.hasFakeErrorItem(taskId)) {
-                execTask.setResult(ResultStatus.FAKE_ERROR.name());
+            if (StringUtils.isNotBlank(result)) {
+                execTask.setResult(result);
             } else {
-                execTask.setResult(ResultStatus.SUCCESS.name());
+                if (extExecTaskItemMapper.hasErrorItem(taskId)) {
+                    execTask.setResult(ResultStatus.ERROR.name());
+                } else if (extExecTaskItemMapper.hasFakeErrorItem(taskId)) {
+                    execTask.setResult(ResultStatus.FAKE_ERROR.name());
+                } else {
+                    execTask.setResult(ResultStatus.SUCCESS.name());
+                }
             }
             execTaskMapper.updateByPrimaryKeySelective(execTask);
         }
