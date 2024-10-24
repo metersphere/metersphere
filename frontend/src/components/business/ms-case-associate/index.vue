@@ -541,6 +541,7 @@
       excludeIds: [...props.associatedIds], // 已经存在的关联的id列表
       condition: {
         keyword: keyword.value,
+        filter: propsRes.value.filter,
       },
       protocols: caseType.value === 'API' ? selectedProtocols.value : [],
     });
@@ -720,6 +721,7 @@
       totalCount: propsRes.value.msPagination?.total,
       condition: {
         keyword: keyword.value,
+        filter: propsRes.value.filter,
       },
     };
 
