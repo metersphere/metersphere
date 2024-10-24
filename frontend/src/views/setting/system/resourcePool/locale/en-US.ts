@@ -111,6 +111,8 @@ export default {
   'system.resourcePool.testResourceDTO.apiTestImagePlaceholder': 'Please fill in the API image',
   'system.resourcePool.testResourceDTO.concurrentNumber': 'Maximum concurrency',
   'system.resourcePool.testResourceDTO.podThreads': 'Maximum number of concurrent tasks per task',
+  'system.resourcePool.testResourceDTO.podThreadsRequired':
+    'Maximum number of concurrent tasks per task cannot be empty',
   'system.resourcePool.testResourceDTO.podThreadsTip':
     'The maximum number of concurrent tasks for the community version is 3. If you need a higher number of concurrent tasks, you can apply for a trial of the enterprise version.',
   'system.resourcePool.testResourceDTO.downloadRoleYaml': 'Download YAML files',

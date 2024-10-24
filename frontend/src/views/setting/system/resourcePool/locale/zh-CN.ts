@@ -105,6 +105,7 @@ export default {
   'system.resourcePool.testResourceDTO.apiTestImagePlaceholder': '请输入 API 镜像',
   'system.resourcePool.testResourceDTO.concurrentNumber': '最大并发数',
   'system.resourcePool.testResourceDTO.podThreads': '单个任务最大并发数',
+  'system.resourcePool.testResourceDTO.podThreadsRequired': '单个任务最大并发数不能为空',
   'system.resourcePool.testResourceDTO.podThreadsTip': '社区版单个任务最大并发数为 3，如需更大并发数 可申请企业版试用',
   'system.resourcePool.testResourceDTO.downloadRoleYaml': '下载 YAML 文件',
   'system.resourcePool.testResourceDTO.downloadRoleYamlTip': '请先填写命名空间再下载YAML文件',
