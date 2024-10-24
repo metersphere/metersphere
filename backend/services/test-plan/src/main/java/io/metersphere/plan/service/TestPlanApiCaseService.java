@@ -52,6 +52,7 @@ import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.ModuleSelectDTO;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.SessionUser;
+import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -127,6 +128,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
     private ApiCommonService apiCommonService;
+    @Resource
+    private BaseTaskHubService baseTaskHubService;
 
     private static final String EXECUTOR = "executeUserName";
 
@@ -767,6 +770,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         execTaskItem.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
         execTaskItem.setResourceId(apiTestCase.getId());
         execTaskItem.setResourceName(apiTestCase.getName());
+
+        baseTaskHubService.insertExecTaskAndDetail(execTask, execTaskItem);
 
         TaskInfo taskInfo = taskRequest.getTaskInfo();
         TaskItem taskItem = taskRequest.getTaskItem();
