@@ -90,7 +90,7 @@
   const { t } = useI18n();
 
   const previewDetail = ref<RequestParam>(cloneDeep(props.detail));
-  const docShareId: string | undefined = inject('docShareId');
+  const docShareId = inject<string>('docShareId', '');
   const shareDetailInfo = inject<Ref<ShareDetailType>>('shareDetailInfo');
 
   watch(

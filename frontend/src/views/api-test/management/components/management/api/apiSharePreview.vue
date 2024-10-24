@@ -61,7 +61,7 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import ApiPreview from '@/views/api-test/management/components/management/api/preview/index.vue';
 
-  import { getDefinitionDetail } from '@/api/modules/api-test/management';
+  import { getShareDefinitionDetail } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -176,7 +176,7 @@
       try {
         appStore.showLoading();
         loading.value = true;
-        const res = await getDefinitionDetail(props.apiInfo.id);
+        const res = await getShareDefinitionDetail(props.apiInfo.id);
         appStore.hideLoading();
         let parseRequestBodyResult;
         if (res.protocol === 'HTTP') {

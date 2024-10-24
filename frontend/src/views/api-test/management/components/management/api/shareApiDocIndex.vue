@@ -89,7 +89,6 @@
   import ApiSharePreview from '@/views/api-test/management/components/management/api/apiSharePreview.vue';
   import moduleTree from '@/views/api-test/management/components/moduleTree.vue';
 
-  import { getProtocolList } from '@/api/modules/api-test/common';
   import { checkSharePsd, shareDetail } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import { NOT_FOUND_RESOURCE } from '@/router/constants';
@@ -182,18 +181,6 @@
   }
 
   const protocols = ref<any[]>([]);
-  async function initProtocolList() {
-    try {
-      protocols.value = await getProtocolList(appStore.currentOrgId);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
-  onBeforeMount(() => {
-    initProtocolList();
-  });
   const currentNode = ref();
 
   const showExportModal = ref(false);
@@ -218,8 +205,9 @@
         viewId: '',
       },
       projectId: appStore.currentProjectId,
-      protocols: selectedProtocols.value,
+      protocols: [],
       moduleIds: [],
+      orgId: appStore.currentOrgId,
       shareId: docShareId.value,
     };
   }

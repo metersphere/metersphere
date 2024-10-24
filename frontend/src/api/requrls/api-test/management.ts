@@ -125,3 +125,5 @@ export const shareModuleCountUrl = '/api/doc/share/module/count'; // 接口测�
 export const ExportShareDefinitionUrl = '/api/doc/share/export'; // 导入分享接口定义
 export const GetShareApiDownloadFileUrl = '/api/doc/share/download/file'; // 下载导出的文档
 export const StopShareApiExportUrl = '/api/doc/share/stop'; // 停止分享导出
+export const GetShareDefinitionDetailUrl = '/api/doc/share/get-detail'; // 获取接口定义文档分享详情
+export const GetShareDefinitionPluginUrl = '/api/doc/share/plugin/script'; // 获取分享接口定义的插件脚本
