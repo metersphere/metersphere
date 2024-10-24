@@ -1,7 +1,5 @@
 package io.metersphere.api.dto.export;
 
-import io.metersphere.api.constants.ApiScenarioStepRefType;
-import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.ApiScenarioCsv;
 import io.metersphere.api.dto.converter.ApiDefinitionDetail;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
@@ -9,7 +7,6 @@ import io.metersphere.api.dto.scenario.ApiScenarioDetail;
 import io.metersphere.api.dto.scenario.ApiScenarioStepDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,21 +51,5 @@ public class MetersphereApiScenarioExportResponse extends ApiScenarioExportRespo
 
     public void addExportScenario(ApiScenarioDetail apiScenarioDetail) {
         exportScenarioList.add(apiScenarioDetail);
-    }
-
-    public void setStepTypeToCustomRequest() {
-        scenarioStepList.forEach(step -> {
-            if (StringUtils.equalsAnyIgnoreCase(step.getStepType(), ApiScenarioStepType.API.name(), ApiScenarioStepType.API_CASE.name())) {
-                step.setStepType(ApiScenarioStepType.CUSTOM_REQUEST.name());
-            }
-        });
-    }
-
-    public void setRefTypeToCopy() {
-        scenarioStepList.forEach(step -> {
-            if (StringUtils.equalsAnyIgnoreCase(step.getStepType(), ApiScenarioStepType.API.name(), ApiScenarioStepType.API_SCENARIO.name(), ApiScenarioStepType.API_CASE.name())) {
-                step.setRefType(ApiScenarioStepRefType.COPY.name());
-            }
-        });
     }
 }
