@@ -52,12 +52,15 @@
       {{ t(executeMethodMap[record.triggerMode]) }}
     </template>
     <template #resourcePoolNode="{ record }">
-      <a-tooltip :content="record.resourcePoolNode">
-        <div class="one-line-text">{{ record.resourcePoolNode }}</div>
-      </a-tooltip>
-      <a-tooltip v-if="record.resourcePoolNodeStatus === false" :content="t('ms.taskCenter.nodeErrorTip')">
-        <icon-exclamation-circle-fill class="min-w-[18px] !text-[rgb(var(--warning-6))]" :size="18" />
-      </a-tooltip>
+      <template v-if="record.resourcePoolNode">
+        <a-tooltip :content="record.resourcePoolNode">
+          <div class="one-line-text">{{ record.resourcePoolNode }}</div>
+        </a-tooltip>
+        <a-tooltip v-if="record.resourcePoolNodeStatus === false" :content="t('ms.taskCenter.nodeErrorTip')">
+          <icon-exclamation-circle-fill class="min-w-[18px] !text-[rgb(var(--warning-6))]" :size="18" />
+        </a-tooltip>
+      </template>
+      <span v-else>-</span>
     </template>
     <template #action="{ record }">
       <MsButton

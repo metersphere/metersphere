@@ -681,7 +681,10 @@
 
   function showReportDetail(record: TaskCenterTaskItem) {
     activeDetailId.value = record.reportId;
-    if ([ExecuteTaskType.API_SCENARIO, ExecuteTaskType.TEST_PLAN_API_SCENARIO].includes(record.taskType)) {
+    if (
+      [ExecuteTaskType.API_SCENARIO, ExecuteTaskType.TEST_PLAN_API_SCENARIO].includes(record.taskType) ||
+      (record.taskType.includes('SCENARIO') && record.integrated === true)
+    ) {
       showDetailDrawer.value = true;
     } else {
       showCaseDetailDrawer.value = true;
