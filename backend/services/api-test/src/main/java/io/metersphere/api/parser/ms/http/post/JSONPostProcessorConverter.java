@@ -16,7 +16,7 @@ public class JSONPostProcessorConverter extends AbstractMsElementConverter<JSONP
         jsonPathExtract.setVariableName(element.getRefNames());
         jsonPathExtract.setExpression(element.getJsonPathExpressions());
         jsonPathExtract.setEnable(element.isEnabled());
-
+        jsonPathExtract.setVariableType("TEMPORARY");
         if (StringUtils.equalsIgnoreCase(element.getMatchNumbers(), "-1")) {
             jsonPathExtract.setResultMatchingRule(ResultMatchingExtract.ResultMatchingRuleType.ALL.name());
             jsonPathExtract.setResultMatchingRuleNum(-1);
