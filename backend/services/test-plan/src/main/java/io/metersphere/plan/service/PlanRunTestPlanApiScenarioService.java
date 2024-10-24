@@ -201,7 +201,7 @@ public class PlanRunTestPlanApiScenarioService {
 
             // 创建报告和任务的关联关系
             ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
-            apiReportRelateTask.setReportId(apiScenario.getId());
+            apiReportRelateTask.setReportId(apiScenarioReport.getId());
             apiReportRelateTask.setTaskResourceId(resourceExecTaskItemMap.get(testPlanReportApiScenario.getId()));
             apiReportRelateTasks.add(apiReportRelateTask);
         }
