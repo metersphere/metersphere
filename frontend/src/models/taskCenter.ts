@@ -13,6 +13,7 @@ export interface TaskCenterSystemTaskItem {
   resourceId: string; // 资源ID
   num: number;
   resourceType: string; // 资源类型
+  resourceNum: number; // 资源num
   value: string;
   nextTime: number;
   enable: boolean;

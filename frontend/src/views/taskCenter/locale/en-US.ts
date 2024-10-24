@@ -1,6 +1,6 @@
 export default {
-  'ms.taskCenter.caseTaskList': 'Case Execution Task',
-  'ms.taskCenter.caseTaskDetailList': 'Case Execution Task Details',
+  'ms.taskCenter.caseTaskList': 'System immediate tasks',
+  'ms.taskCenter.caseTaskDetailList': 'Task execution details',
   'ms.taskCenter.backendTaskList': 'System Backend Task',
   'ms.taskCenter.search': 'Search by ID/Name',
   'ms.taskCenter.rerun': 'Rerun',

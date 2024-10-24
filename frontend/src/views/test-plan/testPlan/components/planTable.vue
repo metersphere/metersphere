@@ -361,7 +361,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
@@ -445,6 +445,7 @@
   const tableStore = useTableStore();
   const appStore = useAppStore();
   const globalStore = useGlobalStore();
+  const route = useRoute();
   const router = useRouter();
   const { t } = useI18n();
   const { openModal } = useModal();
@@ -1673,6 +1674,10 @@
 
   onBeforeMount(() => {
     if (!isActivated.value) {
+      if (route.query.groupId) {
+        showType.value = testPlanTypeEnum.GROUP;
+        keyword.value = route.query.groupId as string;
+      }
       fetchData();
     }
   });

@@ -135,6 +135,7 @@
   import useTableStore from '@/hooks/useTableStore';
   import { useAppStore } from '@/store';
   import { characterLimit, mapTree } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { TaskCenterTaskDetailItem } from '@/models/taskCenter';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -307,29 +308,32 @@
   ];
 
   if (props.type === 'system') {
-    columns.splice(2, 0, [
+    columns.splice(
+      2,
+      0,
       {
         title: 'common.belongProject',
-        dataIndex: 'belongProject',
+        dataIndex: 'projectName',
         showTooltip: true,
-        width: 100,
+        width: 200,
+        showDrag: true,
       },
       {
         title: 'common.belongOrg',
-        dataIndex: 'belongOrg',
+        dataIndex: 'organizationName',
         showTooltip: true,
-        width: 100,
-      },
-    ]);
+        width: 200,
+        showDrag: true,
+      }
+    );
   } else if (props.type === 'org') {
-    columns.splice(2, 0, [
-      {
-        title: 'common.belongProject',
-        dataIndex: 'belongProject',
-        showTooltip: true,
-        width: 100,
-      },
-    ]);
+    columns.splice(2, 0, {
+      title: 'common.belongProject',
+      dataIndex: 'projectName',
+      showTooltip: true,
+      width: 200,
+      showDrag: true,
+    });
   }
 
   function getCurrentPermission(action: 'STOP') {
@@ -371,7 +375,7 @@
     {
       tableKey: TableKeyEnum.TASK_CENTER_CASE_TASK_DETAIL,
       scroll: { x: '1000px' },
-      selectable: true,
+      selectable: hasAnyPermission([getCurrentPermission('STOP')]),
       heightUsed: 288,
       showSetting: true,
       size: 'default',
@@ -581,7 +585,10 @@
         const queue = res[item.id];
         if (queue) {
           item.lineNum = queue;
-        } else if ([ExecuteStatusEnum.COMPLETED, ExecuteStatusEnum.STOPPED].includes(item.status)) {
+        } else if (
+          [ExecuteStatusEnum.COMPLETED, ExecuteStatusEnum.STOPPED].includes(item.status) ||
+          !item.resourcePoolNode
+        ) {
           item.lineNum = '-';
         } else {
           item.lineNum = t('ms.taskCenter.waitQueue');
