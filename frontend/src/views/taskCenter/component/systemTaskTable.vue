@@ -52,6 +52,10 @@
       />
       <span v-else>{{ record.value }}</span>
     </template>
+    <template #nextTime="{ record }">
+      <span v-if="record.enable">{{ record.nextTime }}</span>
+      <span v-else>-</span>
+    </template>
     <template #action="{ record }">
       <MsButton
         v-if="['API_IMPORT', 'TEST_PLAN', 'API_SCENARIO'].includes(record.resourceType)"
@@ -216,6 +220,7 @@
     {
       title: 'ms.taskCenter.nextExecuteTime',
       dataIndex: 'nextTime',
+      slotName: 'nextTime',
       width: 170,
       sortable: {
         sortDirections: ['ascend', 'descend'],
