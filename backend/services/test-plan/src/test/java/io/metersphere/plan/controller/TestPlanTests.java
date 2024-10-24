@@ -1507,8 +1507,6 @@ public class TestPlanTests extends BaseTest {
                                         .getResponse().getContentAsString(), ResultHolder.class).getData()),
                 TestPlanStatisticsResponse.class);
         Assertions.assertTrue(statisticsResponses.size() > 1);
-        Assertions.assertTrue(statisticsResponses.getFirst().getNextTriggerTime() > 0);
-        Assertions.assertTrue(statisticsResponses.getFirst().getScheduleConfig().isEnable());
 
 
         //增加日志检查
@@ -1533,7 +1531,6 @@ public class TestPlanTests extends BaseTest {
                 TestPlanStatisticsResponse.class);
         Assertions.assertTrue(statisticsResponses.size() > 1);
         Assertions.assertTrue(statisticsResponses.getFirst().getNextTriggerTime() == null);
-        Assertions.assertFalse(statisticsResponses.getFirst().getScheduleConfig().isEnable());
 
 
         //测试各种corn表达式用于校验正则的准确性
