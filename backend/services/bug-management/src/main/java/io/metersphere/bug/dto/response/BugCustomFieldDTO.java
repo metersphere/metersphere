@@ -14,4 +14,7 @@ public class BugCustomFieldDTO extends CustomField {
 
     @Schema(description = "缺陷ID")
     private String bugId;
+
+    @Schema(description = "字段文本")
+    private String text;
 }

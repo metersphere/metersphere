@@ -66,7 +66,7 @@ public class BugNoticeService {
                         // 其他自定义字段
                         OptionDTO fieldDTO = new OptionDTO();
                         fieldDTO.setId(field.getName());
-                        fieldDTO.setName(field.getValue());
+                        fieldDTO.setName(StringUtils.isEmpty(field.getText()) ? field.getValue() : field.getText());
                         fields.add(fieldDTO);
                     }
                 });
