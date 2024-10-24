@@ -434,7 +434,7 @@
     testResourceDTO: {
       uiGrid: '',
       girdConcurrentNumber: 1,
-      podThreads: 1,
+      podThreads: 3,
       concurrentNumber: 10,
       singleTaskConcurrentNumber: 3,
       nodesList: [
@@ -511,7 +511,7 @@
         testResourceDTO: {
           ...testResourceReturnDTO,
           girdConcurrentNumber: girdConcurrentNumber || 1,
-          podThreads: podThreads || 1,
+          podThreads: podThreads || 3,
           concurrentNumber: concurrentNumber || 10,
           singleTaskConcurrentNumber: singleTaskConcurrentNumber || 3,
           orgIds: orgIdNameMap?.map((e) => e.id) || [],
