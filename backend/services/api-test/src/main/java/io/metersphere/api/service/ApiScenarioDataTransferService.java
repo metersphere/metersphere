@@ -1,7 +1,6 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.constants.ApiDefinitionStatus;
-import io.metersphere.api.constants.ApiScenarioExportType;
 import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
@@ -76,6 +75,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -1023,11 +1023,11 @@ public class ApiScenarioDataTransferService {
             Map<String, String> moduleMap = this.apiScenarioModuleService.getTree(request.getProjectId()).stream().collect(Collectors.toMap(BaseTreeNode::getId, BaseTreeNode::getPath));
 
             String fileFolder = tmpDir.getPath() + File.separatorChar + request.getFileId();
-            int fileIndex = 1;
+            AtomicInteger fileIndex = new AtomicInteger(1);
             SubListUtils.dealForSubList(ids, 500, subList -> {
                 request.setSelectIds(subList);
-                ApiScenarioExportResponse exportResponse = this.genMetersphereExportResponse(request, moduleMap, exportType, userId);
-                TempFileUtils.writeExportFile(fileFolder + File.separatorChar + "scenario_export_" + fileIndex + ".ms", exportResponse);
+                ApiScenarioExportResponse exportResponse = this.genMetersphereExportResponse(request, moduleMap);
+                TempFileUtils.writeExportFile(fileFolder + File.separatorChar + "scenario_" + fileIndex.getAndIncrement() + ".ms", exportResponse);
             });
             File zipFile = MsFileUtils.zipFile(tmpDir.getPath(), request.getFileId());
             if (zipFile == null) {
@@ -1058,13 +1058,13 @@ public class ApiScenarioDataTransferService {
         }
     }
 
-    private ApiScenarioExportResponse genMetersphereExportResponse(ApiScenarioBatchExportRequest request, Map<String, String> moduleMap, String exportType, String userId) {
+    private ApiScenarioExportResponse genMetersphereExportResponse(ApiScenarioBatchExportRequest request, Map<String, String> moduleMap) {
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         MetersphereApiScenarioExportResponse response = apiScenarioService.selectAndSortScenarioDetailWithIds(request.getSelectIds(), moduleMap);
         response.setProjectId(project.getId());
         response.setOrganizationId(project.getOrganizationId());
 
-        if (StringUtils.equalsIgnoreCase(ApiScenarioExportType.METERSPHERE_ALL_DATA.name(), exportType)) {
+        if (request.isExportAllRelatedData()) {
             // 全量导出，导出引用的api、apiCase
             List<String> apiDefinitionIdList = new ArrayList<>();
             List<String> apiCaseIdList = new ArrayList<>();

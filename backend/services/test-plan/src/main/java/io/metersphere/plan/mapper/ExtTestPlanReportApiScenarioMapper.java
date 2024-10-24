@@ -49,4 +49,6 @@ public interface ExtTestPlanReportApiScenarioMapper {
 	 * @return 关联的测试集集合
 	 */
 	List<TestPlanReportDetailCollectionResponse> listCollection(@Param("request") TestPlanReportDetailPageRequest request);
+
+	List<String> selectExecResultByReportIdAndCollectionId(@Param("collectionId") String collectionId, @Param("reportId") String prepareReportId);
 }

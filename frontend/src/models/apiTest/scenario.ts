@@ -548,5 +548,6 @@ export interface ImportScenarioParams {
 // 导出场景参数
 export interface ExportScenarioParams extends BatchActionQueryParams {
   apiScenarioId: string;
+  exportAllRelatedData: boolean;
   fileId: string;
 }

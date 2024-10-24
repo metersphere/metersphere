@@ -1,5 +1,6 @@
 package io.metersphere.plan.mapper;
 
+import io.metersphere.plan.domain.TestPlanCollection;
 import io.metersphere.plan.dto.TestPlanCollectionConfigDTO;
 import io.metersphere.plan.dto.TestPlanCollectionEnvDTO;
 import org.apache.ibatis.annotations.Param;
@@ -17,4 +18,6 @@ public interface ExtTestPlanCollectionMapper {
     String selectDefaultCollectionId(@Param("testPlanId")String newTestPlanId,@Param("type") String key);
 
     boolean getParentStopOnFailure(String collectionId);
+
+    List<TestPlanCollection> selectByItemParentId(String collectionId);
 }

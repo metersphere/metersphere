@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 
@@ -133,11 +134,12 @@ public class ApiDefinitionExportService {
             Map<String, String> moduleMap = this.buildModuleIdPathMap(request.getProjectId());
 
             String fileFolder = tmpDir.getPath() + File.separatorChar + request.getFileId();
-            int fileIndex = 1;
+
+            AtomicInteger fileIndex = new AtomicInteger(1);
             SubListUtils.dealForSubList(ids, 1000, subList -> {
                 request.setSelectIds(subList);
                 ApiDefinitionExportResponse exportResponse = this.genApiExportResponse(request, moduleMap, exportType, userId);
-                TempFileUtils.writeExportFile(fileFolder + File.separatorChar + fileIndex + ".json", exportResponse);
+                TempFileUtils.writeExportFile(fileFolder + File.separatorChar + "API_" + fileIndex.getAndIncrement() + ".json", exportResponse);
             });
             File zipFile = MsFileUtils.zipFile(tmpDir.getPath(), request.getFileId());
             if (zipFile == null) {

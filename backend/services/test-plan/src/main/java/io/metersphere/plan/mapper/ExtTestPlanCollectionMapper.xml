@@ -64,4 +64,10 @@
         from test_plan_collection
         where id IN (select parent_id from test_plan_collection where id = #{0})
     </select>
+    <select id="selectByItemParentId" resultType="io.metersphere.plan.domain.TestPlanCollection">
+        select *
+        from test_plan_collection
+        where parent_id = (select parent_id from test_plan_collection where id = #{0})
+        ORDER BY pos
+    </select>
 </mapper>

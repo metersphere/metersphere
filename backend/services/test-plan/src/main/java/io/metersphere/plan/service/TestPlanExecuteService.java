@@ -5,6 +5,7 @@ import io.metersphere.api.domain.ApiReportRelateTask;
 import io.metersphere.api.mapper.ApiReportRelateTaskMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiCommonService;
+import io.metersphere.functional.constants.AssociateCaseType;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.TestPlanBatchExecuteRequest;
 import io.metersphere.plan.dto.request.TestPlanExecuteRequest;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.metersphere.plan.service.TestPlanExecuteSupportService.*;
 
@@ -56,6 +58,10 @@ public class TestPlanExecuteService {
     @Resource
     private TestPlanApiBatchRunBaseService testPlanApiBatchRunBaseService;
 
+    @Resource
+    private ExtTestPlanReportApiCaseMapper extTestPlanReportApiCaseMapper;
+    @Resource
+    private ExtTestPlanReportApiScenarioMapper extTestPlanReportApiScenarioMapper;
     @Resource
     private TestPlanReportMapper testPlanReportMapper;
     @Resource
@@ -642,7 +648,7 @@ public class TestPlanExecuteService {
             this.executeByTestPlanCollection(queue);
         } else if (StringUtils.equalsIgnoreCase(queue.getQueueType(), QUEUE_PREFIX_TEST_PLAN_COLLECTION)) {
             // 判断是否是失败停止。 如果是失败停止，要检测父类是否也同样配置了失败停止。是的话，不再执行。
-            if (this.isCaseTypeExecuteStop(queue.getSourceID(), isStopOnFailure)) {
+            if (this.isCaseTypeExecuteStop(queue.getSourceID(), queue.getPrepareReportId(), isStopOnFailure)) {
                 this.collectionExecuteQueueFinish(queue.getQueueId(), isStopOnFailure);
             } else {
                 this.executeCase(queue);
@@ -650,10 +656,31 @@ public class TestPlanExecuteService {
         }
     }
 
-    private boolean isCaseTypeExecuteStop(String collectionId, boolean isStopOnFailure) {
+    private boolean isCaseTypeExecuteStop(String collectionId, String prepareReportId, boolean isStopOnFailure) {
         boolean caseTypeStopOnFailure = extTestPlanCollectionMapper.getParentStopOnFailure(collectionId);
+        // 如果测试集是失败停止触发的，通过父类的配置决定是否执行结束。
         if (isStopOnFailure) {
             return caseTypeStopOnFailure;
+        } else if (caseTypeStopOnFailure) {
+            // 如果是正常执行结束的，并且配置了失败停止，则根据该测试集的执行结果是否全部成功，来决定是否继续执行
+
+            //首先拿到执行结束的测试集
+            List<TestPlanCollection> testPlanCollectionList = extTestPlanCollectionMapper.selectByItemParentId(collectionId);
+            TestPlanCollection lastCollection = null;
+            for (TestPlanCollection item : testPlanCollectionList) {
+                if (StringUtils.equalsIgnoreCase(item.getId(), collectionId)) {
+                    break;
+                }
+                lastCollection = item;
+            }
+
+            List<String> execResult = null;
+            if (AssociateCaseType.API.equals(lastCollection.getType())) {
+                execResult = extTestPlanReportApiCaseMapper.selectExecResultByReportIdAndCollectionId(lastCollection.getId(), prepareReportId);
+            } else if (AssociateCaseType.SCENARIO.equals(lastCollection.getType())) {
+                execResult = extTestPlanReportApiScenarioMapper.selectExecResultByReportIdAndCollectionId(lastCollection.getId(), prepareReportId);
+            }
+            return CollectionUtils.size(execResult) != 1 || !StringUtils.equalsIgnoreCase(Objects.requireNonNull(execResult).getFirst(), ResultStatus.SUCCESS.name());
         } else {
             return false;
         }
