@@ -312,7 +312,7 @@ public class TestResourcePoolService {
                 int occupiedConcurrentNumber = 0;
                 for (TestResourceNodeDTO testResourceNodeDTO : testResourceDTO.getNodesList()) {
                     ResourcePoolNodeMetric nodeMetric = getNodeMetric(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
-                    concurrentNumber = concurrentNumber + nodeMetric.getConcurrentNumber();
+                    concurrentNumber = concurrentNumber + testResourceNodeDTO.getConcurrentNumber();
                     occupiedConcurrentNumber = occupiedConcurrentNumber + nodeMetric.getOccupiedConcurrentNumber();
                 }
                 resourcePoolNodeMetric.setConcurrentNumber(concurrentNumber);
