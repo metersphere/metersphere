@@ -87,4 +87,5 @@ export const scheduleTaskTypeMap: Record<string, any> = {
   BUG_SYNC: 'ms.taskCenter.thirdPartSync',
   DEMAND_SYNC: 'ms.taskCenter.thirdPartSync',
   TEST_PLAN: 'menu.testPlan',
+  TEST_PLAN_GROUP: 'menu.testPlanGroup',
 };

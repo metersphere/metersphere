@@ -34,10 +34,14 @@
         v-model:model-value="record.enable"
         size="small"
         :before-change="() => handleBeforeEnableChange(record)"
+        :disabled="!hasAnyPermission([getCurrentPermission('EDIT')])"
       ></a-switch>
     </template>
     <template #resourceType="{ record }">
       {{ t(scheduleTaskTypeMap[record.resourceType]) }}
+    </template>
+    <template #[FilterSlotNameEnum.GLOBAL_TASK_CENTER_SYSTEM_TASK_TYPE]="{ filterContent }">
+      {{ t(scheduleTaskTypeMap[filterContent.value]) }}
     </template>
     <template #runRule="{ record }">
       <MsCronSelect
@@ -117,6 +121,7 @@
   import { MenuEnum } from '@/enums/commonEnum';
   import { ApiTestRouteEnum, ProjectManagementRouteEnum, TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
   import { SystemTaskType } from '@/enums/taskCenter';
 
   import { scheduleTaskTypeMap } from './config';
@@ -132,7 +137,6 @@
   const appStore = useAppStore();
 
   const keyword = ref('');
-  const batchModalParams = ref();
   const columns: MsTableColumn = [
     {
       title: 'ms.taskCenter.taskID',
@@ -140,6 +144,7 @@
       slotName: 'num',
       width: 100,
       fixed: 'left',
+      columnSelectorDisabled: true,
     },
     {
       title: 'ms.taskCenter.taskName',
@@ -160,6 +165,17 @@
       title: 'ms.taskCenter.type',
       dataIndex: 'resourceType',
       slotName: 'resourceType',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      filterConfig: {
+        options: Object.keys(scheduleTaskTypeMap).map((key) => ({
+          label: t(scheduleTaskTypeMap[key]),
+          value: key,
+        })),
+        filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_SYSTEM_TASK_TYPE,
+      },
       width: 120,
       showDrag: true,
     },
@@ -216,29 +232,32 @@
     },
   ];
   if (props.type === 'system') {
-    columns.splice(1, 0, [
+    columns.splice(
+      2,
+      0,
       {
         title: 'common.belongProject',
-        dataIndex: 'belongProject',
+        dataIndex: 'projectName',
         showTooltip: true,
-        width: 100,
+        width: 200,
+        showDrag: true,
       },
       {
         title: 'common.belongOrg',
-        dataIndex: 'belongOrg',
+        dataIndex: 'organizationName',
         showTooltip: true,
-        width: 100,
-      },
-    ]);
+        width: 200,
+        showDrag: true,
+      }
+    );
   } else if (props.type === 'org') {
-    columns.splice(1, 0, [
-      {
-        title: 'common.belongProject',
-        dataIndex: 'belongProject',
-        showTooltip: true,
-        width: 100,
-      },
-    ]);
+    columns.splice(2, 0, {
+      title: 'common.belongProject',
+      dataIndex: 'projectName',
+      showTooltip: true,
+      width: 200,
+      showDrag: true,
+    });
   }
 
   await tableStore.initColumn(TableKeyEnum.TASK_CENTER_SYSTEM_TASK, columns, 'drawer');
@@ -286,7 +305,7 @@
     {
       tableKey: TableKeyEnum.TASK_CENTER_SYSTEM_TASK,
       scroll: { x: '100%' },
-      selectable: true,
+      selectable: hasAnyPermission([getCurrentPermission('EDIT'), getCurrentPermission('DELETE')]),
       heightUsed: 288,
       showSetting: true,
       size: 'default',
@@ -350,8 +369,9 @@
   }[props.type];
   async function openTask(params?: BatchActionQueryParams) {
     try {
+      propsRes.value.loading = true;
       await currentBatchOpenSchedule({
-        selectIds: params?.selectIds || [],
+        selectIds: params?.selectedIds || [],
         selectAll: !!params?.selectAll,
         excludeIds: params?.excludeIds || [],
         ...getTableQueryParams(),
@@ -362,6 +382,8 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      propsRes.value.loading = false;
     }
   }
 
@@ -372,8 +394,9 @@
   }[props.type];
   async function closeTask(params?: BatchActionQueryParams) {
     try {
+      propsRes.value.loading = true;
       await currentBatchCloseSchedule({
-        selectIds: params?.selectIds || [],
+        selectIds: params?.selectedIds || [],
         selectAll: !!params?.selectAll,
         excludeIds: params?.excludeIds || [],
         ...getTableQueryParams(),
@@ -384,6 +407,8 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      propsRes.value.loading = false;
     }
   }
 
@@ -397,6 +422,11 @@
       case SystemTaskType.TEST_PLAN:
         openNewPage(TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL, {
           id: record.resourceId,
+        });
+        break;
+      case SystemTaskType.TEST_PLAN_GROUP:
+        openNewPage(TestPlanRouteEnum.TEST_PLAN_INDEX, {
+          groupId: record.resourceNum,
         });
         break;
       case SystemTaskType.API_SCENARIO:
@@ -444,7 +474,6 @@
    * @param event 批量操作事件对象
    */
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
-    batchModalParams.value = params;
     switch (event.eventTag) {
       case 'open':
         openTask(params);

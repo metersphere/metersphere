@@ -1,6 +1,6 @@
 export default {
-  'ms.taskCenter.caseTaskList': '用例执行任务',
-  'ms.taskCenter.caseTaskDetailList': '用例执行任务详情',
+  'ms.taskCenter.caseTaskList': '系统即时任务',
+  'ms.taskCenter.caseTaskDetailList': '任务执行详情',
   'ms.taskCenter.backendTaskList': '系统后台任务',
   'ms.taskCenter.search': '通过 ID/名称搜索',
   'ms.taskCenter.rerun': '重跑',

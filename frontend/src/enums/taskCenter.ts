@@ -47,6 +47,7 @@ export enum SystemTaskType {
   BUG_SYNC = 'BUG_SYNC',
   DEMAND_SYNC = 'DEMAND_SYNC',
   TEST_PLAN = 'TEST_PLAN',
+  TEST_PLAN_GROUP = 'TEST_PLAN_GROUP',
 }
 
 export enum ExecuteTaskType {

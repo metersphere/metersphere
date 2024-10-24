@@ -212,6 +212,7 @@
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { TaskCenterTaskItem } from '@/models/taskCenter';
   import { ReportEnum } from '@/enums/reportEnum';
@@ -376,23 +377,26 @@
       0,
       {
         title: 'common.belongProject',
-        dataIndex: 'belongProject',
+        dataIndex: 'projectName',
         showTooltip: true,
-        width: 100,
+        showDrag: true,
+        width: 200,
       },
       {
         title: 'common.belongOrg',
-        dataIndex: 'belongOrg',
+        dataIndex: 'organizationName',
         showTooltip: true,
-        width: 100,
+        showDrag: true,
+        width: 200,
       }
     );
   } else if (props.type === 'org') {
     columns.splice(2, 0, {
       title: 'common.belongProject',
-      dataIndex: 'belongProject',
+      dataIndex: 'projectName',
       showTooltip: true,
-      width: 100,
+      showDrag: true,
+      width: 200,
     });
   }
 
@@ -448,7 +452,7 @@
     {
       tableKey: TableKeyEnum.TASK_CENTER_CASE_TASK,
       scroll: { x: '1000px' },
-      selectable: true,
+      selectable: hasAnyPermission([getCurrentPermission('STOP'), getCurrentPermission('DELETE')]),
       showSetting: true,
       showPagination: true,
     },
