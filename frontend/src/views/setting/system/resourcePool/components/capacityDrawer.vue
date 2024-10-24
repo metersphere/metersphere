@@ -119,14 +119,12 @@
   });
 
   const statusList = computed(() => {
-    return Object.keys(ReportStatus)
-      .map((key) => {
-        return {
-          value: key,
-          label: t(ReportStatus[key].label),
-        };
-      })
-      .filter((e) => e.value !== 'FAKE_ERROR');
+    return Object.keys(ReportStatus).map((key) => {
+      return {
+        value: key,
+        label: t(ReportStatus[key].label),
+      };
+    });
   });
 
   const columns: MsTableColumn = [
@@ -143,6 +141,8 @@
       slotName: 'taskName',
       dataIndex: 'taskName',
       showDrag: true,
+      width: 150,
+      showTooltip: true,
     },
     {
       title: 'system.resourcePool.useCaseName',
@@ -153,7 +153,7 @@
       showDrag: true,
     },
     {
-      title: 'system.resourcePool.tableColumnStatus',
+      title: 'system.resourcePool.tableColumnExecuteStatus',
       dataIndex: 'status',
       slotName: 'status',
       filterConfig: {
