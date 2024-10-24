@@ -73,6 +73,7 @@ export default {
   'ms.personal.validFail': 'Verification failed',
   'ms.personal.unValid': 'Not verified',
   'ms.personal.valid': 'Verify and save',
+  'ms.personal.save': 'Save',
   'ms.personal.authType': 'Authentication',
   'ms.personal.platformAccount': 'Account',
   'ms.personal.platformAccountPlaceholder': 'Please enter {type} account',

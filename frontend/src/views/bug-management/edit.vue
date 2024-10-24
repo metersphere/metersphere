@@ -413,6 +413,7 @@
   // 处理表单格式
   const getFormRules = (arr: BugEditCustomField[]) => {
     formRules.value = [];
+    console.log(arr);
     if (Array.isArray(arr) && arr.length) {
       formRules.value = arr.map((item: any) => {
         const initOptions = item.options || JSON.parse(item.platformOptionJson || '[]');

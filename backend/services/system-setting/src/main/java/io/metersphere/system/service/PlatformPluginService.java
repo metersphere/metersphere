@@ -4,6 +4,7 @@ import io.metersphere.plugin.platform.dto.request.PlatformRequest;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.domain.ServiceIntegrationExample;
@@ -45,7 +46,7 @@ public class PlatformPluginService {
     public Platform getPlatform(String pluginId, String orgId) {
         ServiceIntegration serviceIntegration = getServiceIntegrationByPluginId(pluginId, orgId);
         if (serviceIntegration == null) {
-            throw new MSException("service_integration.configuration.not_blank");
+            throw new MSException(Translator.get("service_integration.configuration.not_blank"));
         }
         return getPlatform(pluginId, orgId, new String(serviceIntegration.getConfiguration()));
     }

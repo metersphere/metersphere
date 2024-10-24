@@ -38,7 +38,15 @@
           :option="options"
         >
         </MsFormCreate>
-        <a-button type="outline" :loading="config.validateLoading" @click="validate(config)">
+        <a-button
+          v-if="config.pluginName === 'TAPD'"
+          type="outline"
+          :loading="config.validateLoading"
+          @click="saveNoValidate(config)"
+        >
+          {{ t('ms.personal.save') }}
+        </a-button>
+        <a-button v-else type="outline" :loading="config.validateLoading" @click="validate(config)">
           {{ t('ms.personal.valid') }}
         </a-button>
       </div>
@@ -215,6 +223,22 @@
         }
       }
     });
+  }
+
+  async function saveNoValidate(config: any) {
+    config.validateLoading = true;
+    const configForms: Record<string, any> = {};
+    Object.keys(dynamicForm.value).forEach((key) => {
+      configForms[key] = {
+        ...dynamicForm.value[key].formModel.form,
+      };
+    });
+    await savePlatform({
+      [currentOrg.value]: configForms,
+    });
+    Message.success(t('ms.personal.validPass'));
+    config.validateLoading = false;
+    config.status = 1;
   }
 
   async function handleOrgChange() {

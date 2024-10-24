@@ -98,22 +98,23 @@ export function makeCustomFieldsParams(formItem: FormRuleItem[]) {
 
 // 设置成员默认值
 export function getDefaultMemberValue(item: DetailCustomField, initOptions: FieldOptions[]) {
-  // 系统模板创建人
-  if ((item.defaultValue as string | string[]).includes('CREATE_USER')) {
-    const optionsIds = initOptions.map((e: any) => e.value);
-    const userId = userStore.id as string;
-    if (optionsIds.includes(userId)) {
-      item.defaultValue = item.type === 'MEMBER' ? userId : [userId];
+  if (item.defaultValue) {
+    // 系统模板创建人
+    if ((item.defaultValue as string | string[]).includes('CREATE_USER')) {
+      const optionsIds = initOptions.map((e: any) => e.value);
+      const userId = userStore.id as string;
+      if (optionsIds.includes(userId)) {
+        item.defaultValue = item.type === 'MEMBER' ? userId : [userId];
+      } else {
+        item.defaultValue = item.type === 'MEMBER' ? '' : [];
+      }
+      // 三方默认创建人
     } else {
-      item.defaultValue = item.type === 'MEMBER' ? '' : [];
+      item.defaultValue =
+        item.type === 'MULTIPLE_MEMBER' && item.defaultValue && typeof item.defaultValue === 'string'
+          ? JSON.parse(item.defaultValue)
+          : item.defaultValue;
     }
-    // 三方默认创建人
-  } else {
-    const value =
-      item.type === 'MULTIPLE_MEMBER' && item.defaultValue && typeof item.defaultValue === 'string'
-        ? JSON.parse(item.defaultValue)
-        : item.defaultValue;
-    item.defaultValue = value;
   }
   return item.defaultValue;
 }
