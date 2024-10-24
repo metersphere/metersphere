@@ -4,10 +4,11 @@ import type { MinderJsonNode } from '@/components/pure/ms-minder-editor/props';
 
 import useLocalForage from '@/hooks/useLocalForage';
 import { getGenerateId, mapTree } from '@/utils';
+import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
 
 import { MinderEventName, MinderKeyEnum } from '@/enums/minderEnum';
 
-import { MinderNodePosition, MinderState, MinderStoreLocalItem, ModeType } from './types';
+import { MinderNodePosition, MinderState, MinderStoreLocalItem, ModeType, ShowType } from './types';
 
 // 脑图组件的 store
 const useMinderStore = defineStore('minder', {
@@ -26,6 +27,7 @@ const useMinderStore = defineStore('minder', {
     activeMode: 'right',
     clipboard: [],
     minderUnsaved: false,
+    showType: 'list',
   }),
   getters: {
     getMinderUnsaved(): boolean {
@@ -62,6 +64,14 @@ const useMinderStore = defineStore('minder', {
       if ([MinderEventName.COPY_NODE, MinderEventName.CUT_NODE].includes(name)) {
         this.setClipboard(nodes);
       }
+    },
+    getShowType(MinderKey: MinderKeyEnum) {
+      const showType = getLocalStorage(`${MinderKey}_showType`) as ShowType;
+      return showType || 'list';
+    },
+    setShowType(MinderKey: MinderKeyEnum, showType: ShowType) {
+      this.showType = showType;
+      setLocalStorage(`${MinderKey}_showType`, showType);
     },
     async getMode(MinderKey: MinderKeyEnum) {
       const { getItem } = useLocalForage();

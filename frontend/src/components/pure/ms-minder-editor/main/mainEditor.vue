@@ -176,6 +176,7 @@
       handleDblclick() {
         const state = window.editor.fsm.state();
         if (state === 'input') {
+          minderStore.setMinderUnsaved(true);
           floatMenuVisible.value = false;
         }
       },
