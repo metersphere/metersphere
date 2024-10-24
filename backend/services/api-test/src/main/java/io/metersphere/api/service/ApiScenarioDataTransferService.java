@@ -520,6 +520,9 @@ public class ApiScenarioDataTransferService {
                     if (t.getScenarioConfig() == null) {
                         apiScenarioBlob.setConfig(JSON.toJSONString(new ScenarioConfig()).getBytes());
                     } else {
+                        if (t.getScenarioConfig().getVariable() != null && t.getScenarioConfig().getVariable().getCsvVariables() != null) {
+                            t.getScenarioConfig().getVariable().getCsvVariables().forEach(item -> item.setId(IDGenerator.nextStr()));
+                        }
                         apiScenarioBlob.setConfig(JSON.toJSONString(t.getScenarioConfig()).getBytes());
                     }
                     apiScenarioBlobBatchMapper.insert(apiScenarioBlob);
