@@ -291,6 +291,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         environmentExample.createCriteria().andIdIn(caseEnvIds);
         List<Environment> caseEnv = environmentMapper.selectByExample(environmentExample);
         Map<String, String> caseEnvMap = caseEnv.stream().collect(Collectors.toMap(Environment::getId, Environment::getName));
+
         apiCaseList.forEach(item -> {
             item.setProjectName(projectMap.get(item.getProjectId()));
             item.setCreateUserName(userMap.get(item.getCreateUser()));
