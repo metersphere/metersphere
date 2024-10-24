@@ -17,7 +17,11 @@
         <div class="w-[300px] border-r p-[16px]">
           <div class="flex flex-col">
             <div class="mb-[12px] flex items-center gap-[8px] overflow-hidden">
-              <MsProjectSelect v-model:project="currentProject" class="flex-1 overflow-hidden" @change="resetModule" />
+              <MsProjectSelect
+                v-model:project="currentProject"
+                class="flex-1 overflow-hidden"
+                @change="handleChangeProject"
+              />
               <a-select
                 v-if="activeKey !== 'scenario'"
                 v-model:model-value="protocol"
@@ -473,11 +477,16 @@
   }
 
   function resetModule() {
-    clearSelected();
     nextTick(() => {
       moduleTreeRef.value?.init(activeKey.value);
     });
   }
+
+  function handleChangeProject() {
+    clearSelected();
+    resetModule();
+  }
+
   onBeforeMount(async () => {
     await initProtocolList();
     const localProtocol = getLocalStorage<string>(ProtocolKeyEnum.API_SCENARIO_IMPORT_PROTOCOL);
