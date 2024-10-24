@@ -221,7 +221,7 @@
                             </include>
                         </if>
                         <!-- 路径 -->
-                        <if test="condition.name == 'path'">
+                        <if test="condition.name == 'apiPath'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
                                 <property name="column" value="d.path"/>
