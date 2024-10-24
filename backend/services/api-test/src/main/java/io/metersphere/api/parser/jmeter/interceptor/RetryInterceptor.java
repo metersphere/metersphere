@@ -2,6 +2,7 @@ package io.metersphere.api.parser.jmeter.interceptor;
 
 import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.request.controller.MsLoopController;
+import io.metersphere.api.dto.request.controller.MsScriptElement;
 import io.metersphere.api.parser.jmeter.constants.JmeterAlias;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsProtocolTestElement;
@@ -111,7 +112,7 @@ public class RetryInterceptor implements JmeterElementConvertInterceptor {
      * @return
      */
     private boolean isRetryElement(MsTestElement element) {
-        if (element instanceof AbstractMsProtocolTestElement) {
+        if (element instanceof AbstractMsProtocolTestElement || element instanceof MsScriptElement) {
             return true;
         }
         return false;
