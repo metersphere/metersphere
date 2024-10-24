@@ -107,7 +107,10 @@ public class ApiReportShareService {
 
     public ShareInfoDTO gen(ApiReportShareRequest shareRequest, String userId) {
         UserDTO userDTO = baseUserMapper.selectById(userId);
-        String lang = userDTO.getLanguage() == null ? LocaleContextHolder.getLocale().toString().split("_#")[0] : userDTO.getLanguage();
+        String lang = (userDTO != null && userDTO.getLanguage() != null)
+                ? userDTO.getLanguage()
+                : LocaleContextHolder.getLocale().toString().split("_#")[0];
+
         ShareInfo request = new ShareInfo();
         BeanUtils.copyBean(request, shareRequest);
         request.setLang(lang);
@@ -115,8 +118,8 @@ public class ApiReportShareService {
         request.setCustomData(shareRequest.getReportId().getBytes());
         request.setShareType(ShareInfoType.API_SHARE_REPORT.name());
         request.setProjectId(shareRequest.getProjectId());
-        ShareInfo shareInfo = createShareInfo(request);
-        return conversionShareInfoToDTO(shareInfo);
+
+        return conversionShareInfoToDTO(createShareInfo(request));
     }
 
     public ShareInfo checkResource(String id) {
