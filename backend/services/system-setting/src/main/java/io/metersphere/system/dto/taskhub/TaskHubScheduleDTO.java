@@ -63,4 +63,7 @@ public class TaskHubScheduleDTO implements Serializable {
     @Schema(description = "操作时间")
     private Long createTime;
 
+    @Schema(description = "资源num")
+    private String resourceNum;
+
 }
