@@ -76,6 +76,10 @@ function getStepsTable(steps: string) {
       },
     },
   ];
+
+  if (!steps.length) {
+    return '-';
+  }
   const stepsData = JSON.parse(steps).map((item: any, index: number) => {
     return {
       num: index + 1,
@@ -87,9 +91,6 @@ function getStepsTable(steps: string) {
       status: item.executeResult,
     };
   });
-  if (!stepsData.length) {
-    return '-';
-  }
 
   return generateTableHTML(templateFieldColumns, stepsData);
 }
