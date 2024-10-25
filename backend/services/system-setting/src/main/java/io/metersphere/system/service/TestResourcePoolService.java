@@ -323,7 +323,7 @@ public class TestResourcePoolService {
             resourcePoolNodeMetric = getNodeMetric(request.getIp(), request.getPort());
             for (TestResourceNodeDTO testResourceNodeDTO : testResourceDTO.getNodesList()) {
                 if (StringUtils.equals(testResourceNodeDTO.getIp(), request.getIp()) && StringUtils.equals(testResourceNodeDTO.getPort(), request.getPort())) {
-                    resourcePoolNodeMetric.setConcurrentNumber(testResourceDTO.getConcurrentNumber());
+                    resourcePoolNodeMetric.setConcurrentNumber(testResourceNodeDTO.getConcurrentNumber());
                     break;
                 }
             }
