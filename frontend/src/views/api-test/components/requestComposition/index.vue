@@ -949,7 +949,7 @@
     () =>
       isHttpProtocol.value ||
       !props.isDefinition ||
-      requestVModel.value.response?.requestResults[0]?.responseResult.responseCode ||
+      requestVModel.value.response?.requestResults[0]?.responseResult ||
       props.isCase
   );
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');

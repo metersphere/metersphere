@@ -70,6 +70,9 @@ export default function useStepExecute({
           websocketMap[reportId]?.close();
           if (step.reportId === data.reportId) {
             step.isExecuting = false;
+            if (_scenario.stepResponses[step.uniqueId] === undefined) {
+              _scenario.stepResponses[step.uniqueId] = [];
+            }
             updateStepStatus([step], _scenario.stepResponses, step.uniqueId);
           }
         }

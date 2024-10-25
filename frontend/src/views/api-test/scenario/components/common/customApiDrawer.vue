@@ -944,7 +944,7 @@
   }
 
   const showResponse = computed(
-    () => isHttpProtocol.value || requestVModel.value.response?.requestResults[0]?.responseResult.responseCode
+    () => isHttpProtocol.value || requestVModel.value.response?.requestResults[0]?.responseResult
   );
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
   const isVerticalExpanded = computed(() => activeLayout.value === 'vertical');
@@ -1064,6 +1064,7 @@
         if (valid === true) {
           emit('execute', makeRequestParams(executeType) as RequestParam, executeType);
         } else {
+          requestVModel.value.executeLoading = false;
           requestVModel.value.activeTab = RequestComposition.PLUGIN;
           nextTick(() => {
             scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
