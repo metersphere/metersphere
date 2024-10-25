@@ -19,7 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +44,8 @@ public class DemandSyncService {
 
     /**
      * 定时任务同步缺陷(存量-默认中文环境通知)
-     * @param projectId 项目ID
+     *
+     * @param projectId    项目ID
      * @param scheduleUser 任务触发用户
      */
     public void syncPlatformDemandBySchedule(String projectId, String scheduleUser) {
@@ -53,45 +53,63 @@ public class DemandSyncService {
         // 创建一个 List 来保存合并后的结果
         Platform platform = projectApplicationService.getPlatform(projectId, false);
         Map<String, List<FunctionalCaseDemand>> updateMap = new HashMap<>();
-        List<String>deleteIds = new ArrayList<>();
+        List<String> deleteIds = new ArrayList<>();
+        // 批量处理需求更新
+        processDemandUpdates(projectId, platformId, platform, updateMap, deleteIds);
+
+        if (CollectionUtils.isNotEmpty(deleteIds)) {
+            deleteDemands(deleteIds);
+        }
+        batchUpdateDemands(updateMap);
+        LogUtils.info("End synchronizing demands");
+    }
+
+    private void deleteDemands(List<String> deleteIds) {
+        FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        List<String> deleteIdDistinct = deleteIds.stream().distinct().toList();
+        functionalCaseDemandExample.createCriteria().andDemandIdIn(deleteIdDistinct);
+        demandMapper.deleteByExample(functionalCaseDemandExample);
+    }
+
+    private void processDemandUpdates(String projectId, String platformId, Platform platform, Map<String, List<FunctionalCaseDemand>> updateMap, List<String> deleteIds) {
         int pageNumber = 1;
         boolean count = true;
         Page<Object> page = PageHelper.startPage(pageNumber, DEFAULT_BATCH_SIZE, count);
-        Pager<List<FunctionalCaseDemand>> listPager = PageUtils.setPageInfo(page,  extFunctionalCaseDemandMapper.selectDemandByProjectId(projectId, platformId));
+        Pager<List<FunctionalCaseDemand>> listPager = PageUtils.setPageInfo(page, extFunctionalCaseDemandMapper.selectDemandByProjectId(projectId, platformId));
         long total = listPager.getTotal();
         List<FunctionalCaseDemand> list = listPager.getList();
         Map<String, List<FunctionalCaseDemand>> demandFirstMap = list.stream().collect(Collectors.groupingBy(FunctionalCaseDemand::getDemandId));
         Set<String> demandFirstIds = demandFirstMap.keySet();
         buildUpdateMap(projectId, demandFirstIds, platform, demandFirstMap, platformId, updateMap, deleteIds);
         count = false;
-        for (int i = 1; i < ((int)Math.ceil((double) total/DEFAULT_BATCH_SIZE)); i ++) {
-            Page<Object> pageCycle = PageHelper.startPage(i+1, DEFAULT_BATCH_SIZE, count);
-            Pager<List<FunctionalCaseDemand>> listPagerCycle = PageUtils.setPageInfo(pageCycle, extFunctionalCaseDemandMapper.selectDemandByProjectId(projectId,platformId));
+        for (int i = 1; i < ((int) Math.ceil((double) total / DEFAULT_BATCH_SIZE)); i++) {
+            Page<Object> pageCycle = PageHelper.startPage(i + 1, DEFAULT_BATCH_SIZE, count);
+            Pager<List<FunctionalCaseDemand>> listPagerCycle = PageUtils.setPageInfo(pageCycle, extFunctionalCaseDemandMapper.selectDemandByProjectId(projectId, platformId));
             List<FunctionalCaseDemand> pageResults = listPagerCycle.getList();
+            if (CollectionUtils.isEmpty(pageResults)) {
+                break; // 如果列表为空，退出循环
+            }
             Map<String, List<FunctionalCaseDemand>> demandsCycleMap = pageResults.stream().collect(Collectors.groupingBy(FunctionalCaseDemand::getDemandId));
             Set<String> demandCycleIds = demandsCycleMap.keySet();
             buildUpdateMap(projectId, demandCycleIds, platform, demandsCycleMap, platformId, updateMap, deleteIds);
         }
-        FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
-        if (CollectionUtils.isNotEmpty(deleteIds)) {
-            List<String> deleteIdDistinct = deleteIds.stream().distinct().toList();
-            functionalCaseDemandExample.createCriteria().andDemandIdIn(deleteIdDistinct);
-            demandMapper.deleteByExample(functionalCaseDemandExample);
-        }
-        updateMap.forEach((k,v)->{
-            for (FunctionalCaseDemand functionalCaseDemand : v) {
-                try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH)) {
-                    FunctionalCaseDemandMapper functionalCaseDemandMapper = sqlSession.getMapper(FunctionalCaseDemandMapper.class);
-                    functionalCaseDemandMapper.updateByPrimaryKeySelective(functionalCaseDemand);
-                    sqlSession.flushStatements();
-                    SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-                }
-            }
-        });
-        LogUtils.info("End synchronizing demands");
     }
 
-    private void buildUpdateMap(String projectId, Set<String> demandIds, Platform platform, Map<String, List<FunctionalCaseDemand>> demandMap, String platformId, Map<String, List<FunctionalCaseDemand>> updateMap, List<String>deleteIds) {
+    private void batchUpdateDemands(Map<String, List<FunctionalCaseDemand>> updateMap) {
+        try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH)) {
+            FunctionalCaseDemandMapper functionalCaseDemandMapper = sqlSession.getMapper(FunctionalCaseDemandMapper.class);
+            updateMap.forEach((k, v) -> {
+                for (FunctionalCaseDemand functionalCaseDemand : v) {
+                    functionalCaseDemandMapper.updateByPrimaryKeySelective(functionalCaseDemand);
+                }
+            });
+            sqlSession.flushStatements();
+        } catch (Exception e) {
+            LogUtils.info("Synchronizing demands error:" + e.getMessage());
+        }
+    }
+
+    private void buildUpdateMap(String projectId, Set<String> demandIds, Platform platform, Map<String, List<FunctionalCaseDemand>> demandMap, String platformId, Map<String, List<FunctionalCaseDemand>> updateMap, List<String> deleteIds) {
         DemandRelateQueryRequest demandRelateQueryRequest = new DemandRelateQueryRequest();
         demandRelateQueryRequest.setProjectConfig(projectApplicationService.getProjectDemandThirdPartConfig(projectId));
         demandRelateQueryRequest.setRelateDemandIds(new ArrayList<>(demandIds));
@@ -112,7 +130,7 @@ public class DemandSyncService {
         }
         for (PlatformDemandDTO.Demand demand : demandList) {
             List<FunctionalCaseDemand> functionalCaseDemands = demandMap.get(demand.getDemandId());
-            List<FunctionalCaseDemand>updateList = new ArrayList<>();
+            List<FunctionalCaseDemand> updateList = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(functionalCaseDemands)) {
                 for (FunctionalCaseDemand functionalCaseDemand : functionalCaseDemands) {
                     FunctionalCaseDemand update = buildFunctionalCaseDemand(functionalCaseDemand.getId(), platformId, demand);
