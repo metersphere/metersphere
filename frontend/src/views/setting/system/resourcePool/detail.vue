@@ -152,7 +152,7 @@
       <a-form-item v-if="isShowTypeItem" :label="t('system.resourcePool.type')" field="type" class="form-item">
         <a-radio-group v-model:model-value="form.type" type="button" @change="changeResourceType">
           <a-radio value="Node">Node</a-radio>
-          <a-radio v-xpack value="Kubernetes">Kubernetes</a-radio>
+          <a-radio value="Kubernetes">Kubernetes</a-radio>
         </a-radio-group>
       </a-form-item>
       <template v-if="isShowNodeResources">
