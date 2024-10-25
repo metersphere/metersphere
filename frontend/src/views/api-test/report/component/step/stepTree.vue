@@ -240,16 +240,16 @@
    * 处理步骤展开折叠
    */
   function handleStepExpand(data: MsTreeExpandedData) {
+    const realStep = findNodeByKey<ScenarioItemType>(steps.value, data.node?.stepId, 'stepId');
     const isNotAllowExpand =
       data.node?.children && data.node?.children.length && showApiType.value.includes(data.node?.stepType);
-    if (isNotAllowExpand && data.node && data.node.children) {
-      data.node.stepChildren = cloneDeep(data.node.children);
-      data.node.children = [];
-    } else {
-      const realStep = findNodeByKey<ScenarioItemType>(steps.value, data.node?.stepId, 'stepId');
+    if (isNotAllowExpand && data.node && data.node.children?.length) {
       if (realStep) {
-        realStep.expanded = !realStep.expanded;
+        realStep.stepChildren = cloneDeep(realStep.children);
+        realStep.children = [];
       }
+    } else if (realStep) {
+      realStep.expanded = !realStep.expanded;
     }
   }
 
