@@ -127,7 +127,7 @@ public class ApiScenarioBatchRunService {
 
         // 分批查询
         SubListUtils.dealForSubList(ids, TASK_BATCH_SIZE, subIds -> {
-            List<ApiScenario> apiScenarios = getOrderScenarios(subIds, runModeConfig);
+            List<ApiScenario> apiScenarios = getOrderScenarios(subIds);
 
             // 初始化任务项
             List<ExecTaskItem> execTaskItems = initExecTaskItem(subIds, apiScenarios, userId, project, execTask);
@@ -171,7 +171,7 @@ public class ApiScenarioBatchRunService {
 
         // 分批查询
         SubListUtils.dealForSubList(ids, TASK_BATCH_SIZE, subIds -> {
-            List<ApiScenario> apiScenarios = getOrderScenarios(subIds, runModeConfig);
+            List<ApiScenario> apiScenarios = getOrderScenarios(subIds);
             Map<String, String> caseReportMap = null;
 
             // 初始化任务项
@@ -218,7 +218,7 @@ public class ApiScenarioBatchRunService {
      * @param ids
      * @return
      */
-    private List<ApiScenario> getOrderScenarios(List<String> ids, ApiRunModeConfigDTO runModeConfig) {
+    private List<ApiScenario> getOrderScenarios(List<String> ids) {
         List<ApiScenario> apiScenarios = new ArrayList<>(TASK_BATCH_SIZE);
         // 分批查询
         List<ApiScenario> finalApiScenarios = apiScenarios;
@@ -232,10 +232,6 @@ public class ApiScenarioBatchRunService {
             // 按照ID顺序排序
             ApiScenario apiScenario = apiScenarioMap.get(id);
             if (apiScenario == null) {
-                if (runModeConfig.isIntegratedReport()) {
-                    // 用例不存在，则在执行集合中删除
-                    apiExecutionSetService.removeItem(runModeConfig.getCollectionReport().getReportId(), id);
-                }
                 LogUtils.info("当前执行任务的用例已删除 {}", id);
                 break;
             }

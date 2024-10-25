@@ -300,7 +300,6 @@ public class ApiScenarioRunService {
     }
 
     public GetRunScriptResult getRunScript(GetRunScriptRequest request, ApiScenarioDetail apiScenarioDetail) {
-        String id = apiScenarioDetail.getId();
         TaskItem taskItem = request.getTaskItem();
         ApiRunModeConfigDTO runModeConfig = request.getRunModeConfig();
         String reportId = taskItem.getReportId();
@@ -308,9 +307,9 @@ public class ApiScenarioRunService {
         if (apiScenarioDetail == null) {
             if (runModeConfig.isIntegratedReport()) {
                 // 用例不存在，则在执行集合中删除
-                apiExecutionSetService.removeItem(runModeConfig.getCollectionReport().getReportId(), id);
+                apiExecutionSetService.removeItem(request.getTaskId(), taskItem.getId());
             }
-            LogUtils.info("当前执行任务的用例已删除 {}", id);
+            LogUtils.info("当前执行任务的用例已删除 {}", taskItem.getId());
             return null;
         }
 
