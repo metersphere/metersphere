@@ -1218,9 +1218,7 @@ public class ApiScenarioDataTransferService {
                     response.addExportApiCase(dto);
                 }
             }
-
         } else {
-
             // 普通导出,所有的引用都改为复制，并且Api、ApiCase改为CUSTOM_REQUEST
             Map<String, String> stepApiDefinitionMap = new HashMap<>();
             Map<String, String> stepApiCaseMap = new HashMap<>();
@@ -1234,8 +1232,13 @@ public class ApiScenarioDataTransferService {
                             stepApiCaseMap.put(step.getId(), step.getResourceId());
                         }
                     }
+
+                    if (StringUtils.equalsIgnoreCase(step.getStepType(), ApiScenarioStepType.API.name())) {
+                        step.setStepType(ApiScenarioStepType.CUSTOM_REQUEST.name());
+                    } else if (StringUtils.equalsIgnoreCase(step.getStepType(), ApiScenarioStepType.API_CASE.name())) {
+                        step.setStepType(ApiScenarioStepType.CUSTOM_REQUEST.name());
+                    }
                     step.setRefType(ApiScenarioStepRefType.COPY.name());
-                    step.setStepType(ApiScenarioStepType.CUSTOM_REQUEST.name());
                 }
             });
             Map<String, String> appendBlobMap = new HashMap<>();
