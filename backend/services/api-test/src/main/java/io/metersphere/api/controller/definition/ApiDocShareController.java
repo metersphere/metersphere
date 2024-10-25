@@ -128,6 +128,9 @@ public class ApiDocShareController {
 	@Operation(summary = "接口测试-定义-分享-导出")
 	@Parameter(name = "type", description = "导出类型", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
 	public String export(@RequestBody ApiDocShareExportRequest request, @PathVariable String type) {
+		List<ProtocolDTO> protocols = apiTestService.getProtocols(request.getOrgId());
+		List<String> protocolList = protocols.stream().map(ProtocolDTO::getProtocol).toList();
+		request.setProtocols(protocolList);
 		return apiDocShareService.export(request, type, SessionUtils.getUserId());
 	}
 

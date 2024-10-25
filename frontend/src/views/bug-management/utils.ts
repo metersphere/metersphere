@@ -88,7 +88,7 @@ export function getCurrentText(item: FormRuleItem, currentCustomFields: CustomFi
       : currentItemOptions.filter((e: any) => e.value === item.value);
     const optionText = filteredOptions.map((option) => option.text);
 
-    return optionText;
+    return JSON.stringify(optionText);
   }
   return null;
 }

@@ -61,7 +61,7 @@ export interface BugEditCustomFieldItem {
   name: string;
   type: string | undefined;
   value: string;
-  text?: string[] | null; // 消息通知文本提示
+  text?: string | null; // 消息通知文本提示
 }
 export type BugBatchUpdateFiledType = 'single_select' | 'multiple_select' | 'tags' | 'input' | 'user_selector' | 'date';
 export interface BugBatchUpdateFiledForm {
