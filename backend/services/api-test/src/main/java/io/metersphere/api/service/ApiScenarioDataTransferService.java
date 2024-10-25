@@ -1234,8 +1234,13 @@ public class ApiScenarioDataTransferService {
                             stepApiCaseMap.put(step.getId(), step.getResourceId());
                         }
                     }
+
+                    if (StringUtils.equalsIgnoreCase(step.getStepType(), ApiScenarioStepType.API.name())) {
+                        step.setStepType(ApiScenarioStepType.CUSTOM_REQUEST.name());
+                    } else if (StringUtils.equalsIgnoreCase(step.getStepType(), ApiScenarioStepType.API_CASE.name())) {
+                        step.setStepType(ApiScenarioStepType.CUSTOM_REQUEST.name());
+                    }
                     step.setRefType(ApiScenarioStepRefType.COPY.name());
-                    step.setStepType(ApiScenarioStepType.CUSTOM_REQUEST.name());
                 }
             });
             Map<String, String> appendBlobMap = new HashMap<>();
