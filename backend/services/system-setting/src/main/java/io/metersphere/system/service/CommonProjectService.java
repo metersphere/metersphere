@@ -636,10 +636,26 @@ public class CommonProjectService {
     public List<OptionDTO> getTestResourcePoolOptions(ProjectPoolRequest request) {
         List<OptionDTO> optionDTOS = new ArrayList<>();
         //获取制定组织的资源池  和全部组织的资源池
+        List<TestResourcePool> testResourcePools = getOrgTestResourcePools(request.getOrganizationId());
+        //这里需要获取项目开启的模块   判断资源池开启的使用范围的模块是否在项目开启的模块中
+        List<String> moduleIds = request.getModulesIds();
+        testResourcePools.forEach(pool -> {
+            if (moduleIds.contains(API_TEST) || moduleIds.contains(TEST_PLAN)) {
+                OptionDTO optionDTO = new OptionDTO();
+                optionDTO.setId(pool.getId());
+                optionDTO.setName(pool.getName());
+                optionDTOS.add(optionDTO);
+            }
+        });
+        return optionDTOS;
+    }
+
+
+    public List<TestResourcePool> getOrgTestResourcePools(String organizationId) {
         List<TestResourcePool> testResourcePools = new ArrayList<>();
-        if (StringUtils.isNotBlank(request.getOrganizationId())) {
+        if (StringUtils.isNotBlank(organizationId)) {
             TestResourcePoolOrganizationExample example = new TestResourcePoolOrganizationExample();
-            example.createCriteria().andOrgIdEqualTo(request.getOrganizationId());
+            example.createCriteria().andOrgIdEqualTo(organizationId);
             List<TestResourcePoolOrganization> orgPools = testResourcePoolOrganizationMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(orgPools)) {
                 List<String> poolIds = orgPools.stream().map(TestResourcePoolOrganization::getTestResourcePoolId).toList();
@@ -654,17 +670,20 @@ public class CommonProjectService {
         testResourcePools.addAll(testResourcePoolMapper.selectByExample(poolExample));
 
         testResourcePools = testResourcePools.stream().filter(Objects::nonNull).distinct().collect(Collectors.toList());
-        //这里需要获取项目开启的模块   判断资源池开启的使用范围的模块是否在项目开启的模块中
-        List<String> moduleIds = request.getModulesIds();
-        testResourcePools.forEach(pool -> {
-            if (moduleIds.contains(API_TEST) || moduleIds.contains(TEST_PLAN)) {
-                OptionDTO optionDTO = new OptionDTO();
-                optionDTO.setId(pool.getId());
-                optionDTO.setName(pool.getName());
-                optionDTOS.add(optionDTO);
-            }
-        });
-        return optionDTOS;
+        return testResourcePools;
+    }
+
+    /**
+     * 获取当前项目所有可用资源池
+     */
+    public List<TestResourcePool> getProjectAllPoolsByEffect(Project project) {
+        List<TestResourcePool> testResourcePools = getOrgTestResourcePools(project.getOrganizationId());
+        List<String> modulesIds = JSON.parseArray(project.getModuleSetting(), String.class);
+        if (modulesIds.contains(API_TEST) || modulesIds.contains(TEST_PLAN)) {
+            return testResourcePools;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     public void rename(UpdateProjectNameRequest request, String userId) {

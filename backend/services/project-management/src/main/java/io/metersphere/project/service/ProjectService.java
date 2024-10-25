@@ -14,7 +14,6 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.TestResourcePool;
-import io.metersphere.system.domain.TestResourcePoolExample;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.ProjectDTO;
@@ -295,9 +294,7 @@ public class ProjectService {
     public List<TestResourcePool> getPoolOption(String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         if (project.getAllResourcePool()) {
-            TestResourcePoolExample example = new TestResourcePoolExample();
-            example.createCriteria().andEnableEqualTo(true).andDeletedEqualTo(false);
-            return testResourcePoolMapper.selectByExample(example);
+            return commonProjectService.getProjectAllPoolsByEffect(project);
         } else {
             return extProjectMapper.getResourcePoolOption(projectId, "api_test");
         }
