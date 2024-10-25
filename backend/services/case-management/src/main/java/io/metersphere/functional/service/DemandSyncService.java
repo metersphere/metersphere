@@ -52,15 +52,12 @@ public class DemandSyncService {
         String platformId = projectApplicationService.getDemandPlatformId(projectId);
         // 创建一个 List 来保存合并后的结果
         Platform platform = projectApplicationService.getPlatform(projectId, false);
-        Map<String, List<FunctionalCaseDemand>> updateMap = new HashMap<>();
         List<String> deleteIds = new ArrayList<>();
         // 批量处理需求更新
-        processDemandUpdates(projectId, platformId, platform, updateMap, deleteIds);
-
+        processDemandUpdates(projectId, platformId, platform,deleteIds);
         if (CollectionUtils.isNotEmpty(deleteIds)) {
             deleteDemands(deleteIds);
         }
-        batchUpdateDemands(updateMap);
         LogUtils.info("End synchronizing demands");
     }
 
@@ -71,7 +68,7 @@ public class DemandSyncService {
         demandMapper.deleteByExample(functionalCaseDemandExample);
     }
 
-    private void processDemandUpdates(String projectId, String platformId, Platform platform, Map<String, List<FunctionalCaseDemand>> updateMap, List<String> deleteIds) {
+    private void processDemandUpdates(String projectId, String platformId, Platform platform, List<String> deleteIds) {
         int pageNumber = 1;
         boolean count = true;
         Page<Object> page = PageHelper.startPage(pageNumber, DEFAULT_BATCH_SIZE, count);
@@ -80,7 +77,7 @@ public class DemandSyncService {
         List<FunctionalCaseDemand> list = listPager.getList();
         Map<String, List<FunctionalCaseDemand>> demandFirstMap = list.stream().collect(Collectors.groupingBy(FunctionalCaseDemand::getDemandId));
         Set<String> demandFirstIds = demandFirstMap.keySet();
-        buildUpdateMap(projectId, demandFirstIds, platform, demandFirstMap, platformId, updateMap, deleteIds);
+        buildUpdateMap(projectId, demandFirstIds, platform, demandFirstMap, platformId,deleteIds);
         count = false;
         for (int i = 1; i < ((int) Math.ceil((double) total / DEFAULT_BATCH_SIZE)); i++) {
             Page<Object> pageCycle = PageHelper.startPage(i + 1, DEFAULT_BATCH_SIZE, count);
@@ -91,25 +88,21 @@ public class DemandSyncService {
             }
             Map<String, List<FunctionalCaseDemand>> demandsCycleMap = pageResults.stream().collect(Collectors.groupingBy(FunctionalCaseDemand::getDemandId));
             Set<String> demandCycleIds = demandsCycleMap.keySet();
-            buildUpdateMap(projectId, demandCycleIds, platform, demandsCycleMap, platformId, updateMap, deleteIds);
+            buildUpdateMap(projectId, demandCycleIds, platform, demandsCycleMap, platformId, deleteIds);
         }
     }
 
-    private void batchUpdateDemands(Map<String, List<FunctionalCaseDemand>> updateMap) {
+    private void batchUpdateDemands(List<FunctionalCaseDemand>updateList) {
         try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH)) {
             FunctionalCaseDemandMapper functionalCaseDemandMapper = sqlSession.getMapper(FunctionalCaseDemandMapper.class);
-            updateMap.forEach((k, v) -> {
-                for (FunctionalCaseDemand functionalCaseDemand : v) {
-                    functionalCaseDemandMapper.updateByPrimaryKeySelective(functionalCaseDemand);
-                }
-            });
+            updateList.forEach(functionalCaseDemandMapper::updateByPrimaryKeySelective);
             sqlSession.flushStatements();
         } catch (Exception e) {
             LogUtils.info("Synchronizing demands error:" + e.getMessage());
         }
     }
 
-    private void buildUpdateMap(String projectId, Set<String> demandIds, Platform platform, Map<String, List<FunctionalCaseDemand>> demandMap, String platformId, Map<String, List<FunctionalCaseDemand>> updateMap, List<String> deleteIds) {
+    private void buildUpdateMap(String projectId, Set<String> demandIds, Platform platform, Map<String, List<FunctionalCaseDemand>> demandMap, String platformId, List<String> deleteIds) {
         DemandRelateQueryRequest demandRelateQueryRequest = new DemandRelateQueryRequest();
         demandRelateQueryRequest.setProjectConfig(projectApplicationService.getProjectDemandThirdPartConfig(projectId));
         demandRelateQueryRequest.setRelateDemandIds(new ArrayList<>(demandIds));
@@ -128,30 +121,25 @@ public class DemandSyncService {
             platformIds.forEach(demandIds::remove);
             deleteIds.addAll(demandIds);
         }
+        List<FunctionalCaseDemand> updateList = new ArrayList<>();
         for (PlatformDemandDTO.Demand demand : demandList) {
             List<FunctionalCaseDemand> functionalCaseDemands = demandMap.get(demand.getDemandId());
-            List<FunctionalCaseDemand> updateList = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(functionalCaseDemands)) {
                 for (FunctionalCaseDemand functionalCaseDemand : functionalCaseDemands) {
-                    FunctionalCaseDemand update = buildFunctionalCaseDemand(functionalCaseDemand.getId(), platformId, demand);
-                    updateList.add(update);
+                     buildFunctionalCaseDemand(functionalCaseDemand.getId(), platformId, demand, updateList);
                 }
             }
-            updateMap.put(demand.getDemandId(), updateList);
         }
+        batchUpdateDemands(updateList);
+        demandMap.clear();
     }
 
-    private FunctionalCaseDemand buildFunctionalCaseDemand(String id, String demandPlatform, PlatformDemandDTO.Demand demand) {
+    private void buildFunctionalCaseDemand(String id, String demandPlatform, PlatformDemandDTO.Demand demand, List<FunctionalCaseDemand> updateList) {
         FunctionalCaseDemand functionalCaseDemand = new FunctionalCaseDemand();
         functionalCaseDemand.setId(id);
         functionalCaseDemand.setDemandPlatform(demandPlatform);
         functionalCaseDemand.setCreateTime(System.currentTimeMillis());
         functionalCaseDemand.setUpdateTime(System.currentTimeMillis());
-        dealWithDemand(demand, functionalCaseDemand, demandPlatform);
-        return functionalCaseDemand;
-    }
-
-    private void dealWithDemand(PlatformDemandDTO.Demand demand, FunctionalCaseDemand functionalCaseDemand, String demandPlatform) {
         if (StringUtils.isBlank(demand.getParent())) {
             functionalCaseDemand.setParent("NONE");
         } else {
@@ -166,7 +154,7 @@ public class DemandSyncService {
         }
         functionalCaseDemand.setDemandName(demand.getDemandName());
         functionalCaseDemand.setDemandUrl(demand.getDemandUrl());
+        updateList.add(functionalCaseDemand);
     }
-
 
 }
