@@ -7,7 +7,7 @@
     :width="400"
   >
     <div class="mb-[16px] flex items-center gap-[8px]">
-      <a-switch v-model:model-value="exportTypeRadio" type="line" size="small"></a-switch>
+      <a-switch v-model:model-value="exportTypeRadio" size="small"></a-switch>
       {{ t('apiScenario.export.type.all') }}
       <a-tooltip :content="t('apiScenario.export.simple.tooltip')" position="tl">
         <icon-question-circle

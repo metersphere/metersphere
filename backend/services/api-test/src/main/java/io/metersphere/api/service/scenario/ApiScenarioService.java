@@ -1849,7 +1849,7 @@ public class ApiScenarioService extends MoveNodeService {
             returnList.addAll(this.parseConfig(steps, null));
         }
 
-        List<ApiScenarioStepDTO> refScenarioSteps = steps.stream().filter(this::isRefOrPartialScenario).toList();
+        List<ApiScenarioStepDTO> refScenarioSteps = steps.stream().filter(k -> isScenarioStep(k.getStepType())).toList();
         while (CollectionUtils.isNotEmpty(refScenarioSteps)) {
             List<ApiScenarioStepDTO> childStep = new ArrayList<>();
             for (ApiScenarioStepDTO step : refScenarioSteps) {
@@ -1858,7 +1858,7 @@ public class ApiScenarioService extends MoveNodeService {
                     returnList.addAll(this.parseConfig(childStep, step.getId()));
                 }
             }
-            refScenarioSteps = childStep.stream().filter(this::isRefOrPartialScenario).toList();
+            refScenarioSteps = childStep.stream().filter(k -> isScenarioStep(k.getStepType())).toList();
         }
         // 嵌套获取引用的场景步骤
         return returnList;

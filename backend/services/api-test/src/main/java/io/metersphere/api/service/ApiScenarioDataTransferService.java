@@ -710,57 +710,73 @@ public class ApiScenarioDataTransferService {
 
         for (ApiScenarioImportDetail importScenario : analysisResult.getInsertApiScenarioData()) {
             // 处理步骤里的关联资源文件
-            importScenario.getSteps().forEach(item -> {
-                if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API.name())) {
-                    ApiDefinitionDetail apiDetail = replaceScenarioResource.getApi(item.getResourceId());
-                    if (apiDetail != null) {
-                        item.setResourceId(apiDetail.getId());
-                        item.setProjectId(importScenario.getProjectId());
-                        item.setOriginProjectId(apiDetail.getProjectId());
+            List<ApiScenarioStepRequest> stepList = importScenario.getSteps();
+            while (CollectionUtils.isNotEmpty(stepList)) {
+                List<ApiScenarioStepRequest> children = new ArrayList<>();
+                for (ApiScenarioStepRequest item : stepList) {
+                    if (CollectionUtils.isNotEmpty(item.getChildren())) {
+                        children.addAll(item.getChildren());
                     }
-                } else if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API_CASE.name())) {
-                    ApiTestCaseDTO newData = replaceScenarioResource.getApiCase(item.getResourceId());
-                    if (newData != null) {
-                        item.setResourceId(newData.getId());
-                        item.setProjectId(importScenario.getProjectId());
-                        item.setOriginProjectId(newData.getProjectId());
-                    }
-                } else if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API_SCENARIO.name())) {
-                    ApiScenarioImportDetail newData = replaceScenarioResource.getApiScenario(item.getResourceId());
-                    if (newData != null) {
-                        item.setResourceId(newData.getId());
-                        item.setProjectId(importScenario.getProjectId());
-                        item.setOriginProjectId(newData.getProjectId());
+                    if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API.name())) {
+                        ApiDefinitionDetail apiDetail = replaceScenarioResource.getApi(item.getResourceId());
+                        if (apiDetail != null) {
+                            item.setResourceId(apiDetail.getId());
+                            item.setProjectId(importScenario.getProjectId());
+                            item.setOriginProjectId(apiDetail.getProjectId());
+                        }
+                    } else if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API_CASE.name())) {
+                        ApiTestCaseDTO newData = replaceScenarioResource.getApiCase(item.getResourceId());
+                        if (newData != null) {
+                            item.setResourceId(newData.getId());
+                            item.setProjectId(importScenario.getProjectId());
+                            item.setOriginProjectId(newData.getProjectId());
+                        }
+                    } else if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API_SCENARIO.name())) {
+                        ApiScenarioImportDetail newData = replaceScenarioResource.getApiScenario(item.getResourceId());
+                        if (newData != null) {
+                            item.setResourceId(newData.getId());
+                            item.setProjectId(importScenario.getProjectId());
+                            item.setOriginProjectId(newData.getProjectId());
+                        }
                     }
                 }
-            });
+                stepList = children;
+            }
         }
         for (ApiScenarioImportDetail updateScenario : analysisResult.getUpdateApiScenarioData()) {
             // 处理步骤里的关联资源文件
-            updateScenario.getSteps().forEach(item -> {
-                if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API.name())) {
-                    ApiDefinitionDetail apiDetail = replaceScenarioResource.getApi(item.getResourceId());
-                    if (apiDetail != null) {
-                        item.setResourceId(apiDetail.getId());
-                        item.setProjectId(updateScenario.getProjectId());
-                        item.setOriginProjectId(apiDetail.getProjectId());
+            List<ApiScenarioStepRequest> stepList = updateScenario.getSteps();
+            while (CollectionUtils.isNotEmpty(stepList)) {
+                List<ApiScenarioStepRequest> children = new ArrayList<>();
+                for (ApiScenarioStepRequest item : stepList) {
+                    if (CollectionUtils.isNotEmpty(item.getChildren())) {
+                        children.addAll(item.getChildren());
                     }
-                } else if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API_CASE.name())) {
-                    ApiTestCaseDTO newData = replaceScenarioResource.getApiCase(item.getResourceId());
-                    if (newData != null) {
-                        item.setResourceId(newData.getId());
-                        item.setProjectId(updateScenario.getProjectId());
-                        item.setOriginProjectId(newData.getProjectId());
-                    }
-                } else if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API_SCENARIO.name())) {
-                    ApiScenarioImportDetail newData = replaceScenarioResource.getApiScenario(item.getResourceId());
-                    if (newData != null) {
-                        item.setResourceId(newData.getId());
-                        item.setProjectId(updateScenario.getProjectId());
-                        item.setOriginProjectId(newData.getProjectId());
+                    if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API.name())) {
+                        ApiDefinitionDetail apiDetail = replaceScenarioResource.getApi(item.getResourceId());
+                        if (apiDetail != null) {
+                            item.setResourceId(apiDetail.getId());
+                            item.setProjectId(updateScenario.getProjectId());
+                            item.setOriginProjectId(apiDetail.getProjectId());
+                        }
+                    } else if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API_CASE.name())) {
+                        ApiTestCaseDTO newData = replaceScenarioResource.getApiCase(item.getResourceId());
+                        if (newData != null) {
+                            item.setResourceId(newData.getId());
+                            item.setProjectId(updateScenario.getProjectId());
+                            item.setOriginProjectId(newData.getProjectId());
+                        }
+                    } else if (StringUtils.equalsIgnoreCase(item.getStepType(), ApiScenarioStepType.API_SCENARIO.name())) {
+                        ApiScenarioImportDetail newData = replaceScenarioResource.getApiScenario(item.getResourceId());
+                        if (newData != null) {
+                            item.setResourceId(newData.getId());
+                            item.setProjectId(updateScenario.getProjectId());
+                            item.setOriginProjectId(newData.getProjectId());
+                        }
                     }
                 }
-            });
+                stepList = children;
+            }
         }
         return analysisResult;
     }
@@ -852,6 +868,7 @@ public class ApiScenarioDataTransferService {
                 Map<String, BaseTreeNode> modulePathMap = apiModules.stream().collect(Collectors.toMap(BaseTreeNode::getPath, k -> k, (k1, k2) -> k1));
                 for (ApiDefinitionDetail apiDefinitionDetail : analysisResult.getInsertApiDefinitions()) {
                     List<BaseTreeNode> insertModuleList = TreeNodeParseUtils.getInsertNodeByPath(modulePathMap, apiDefinitionDetail.getModulePath());
+                    apiDefinitionDetail.setModuleId(modulePathMap.get(apiDefinitionDetail.getModulePath()).getId());
                     insertModuleList.forEach(item -> item.setProjectId(targetProjectId));
                     analysisResult.getInsertApiModuleList().addAll(insertModuleList);
                 }
