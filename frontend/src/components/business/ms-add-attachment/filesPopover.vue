@@ -12,10 +12,12 @@
     <template #content>
       <div class="flex w-[200px] flex-col gap-[8px]">
         <template v-if="alreadyDeleteFiles.length > 0">
-          <div class="flex items-center gap-[4px]">
-            <icon-exclamation-circle-fill class="!text-[rgb(var(--warning-6))]" :size="18" />
-            <div class="text-[var(--color-text-4)]">{{ t('ms.add.attachment.alreadyDelete') }}</div>
-            <MsButton type="text" :disabled="props.disabled" @click="clearDeletedFiles">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-[4px]">
+              <icon-exclamation-circle-fill class="!text-[rgb(var(--warning-6))]" :size="18" />
+              <div class="text-[var(--color-text-4)]">{{ t('ms.add.attachment.alreadyDelete') }}</div>
+            </div>
+            <MsButton type="text" :disabled="props.disabled" size="mini" @click="clearDeletedFiles">
               {{ t('ms.add.attachment.quickClear') }}
             </MsButton>
           </div>
@@ -27,7 +29,7 @@
               <a-tooltip :content="t('ms.add.attachment.remove')">
                 <MsButton type="text" status="secondary" :disabled="props.disabled" @click="handleClose(file)">
                   <MsIcon
-                    type="icon-icon_unlink"
+                    type="icon-icon_delete-trash_outlined1"
                     :class="props.disabled ? '' : 'hover:text-[rgb(var(--primary-5))]'"
                     size="16"
                   />
@@ -148,6 +150,7 @@
 
   function clearDeletedFiles() {
     inputFiles.value = inputFiles.value.filter((item) => !item.delete);
+    fileList.value = fileList.value.filter((item) => !item.delete);
   }
 
   function handleClose(data: TagData) {

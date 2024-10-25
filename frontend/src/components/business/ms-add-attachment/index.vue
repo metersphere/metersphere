@@ -82,9 +82,9 @@
         @open-save-as="handleOpenSaveAs"
         @delete-file="emit('deleteFile', $event)"
       >
-        <div class="h-full flex-1">
+        <div class="h-full w-[calc(100%-24px)]">
           <MsTagsInput
-            v-model:model-value="inputFiles"
+            :model-value="inputFiles"
             :input-class="props.inputClass"
             placeholder=" "
             :disabled="props.disabled"

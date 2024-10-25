@@ -993,8 +993,8 @@
         record.files = files.map((e) => ({
           ...e,
           fileId: e.uid || e.fileId || '',
-          fileName: e.originalName || '',
-          fileAlias: e.name || '',
+          fileName: e.originalName || e.name || e.fileName || '',
+          fileAlias: e.name || e.fileName || '',
         }));
       }
       addTableLine(rowIndex);
@@ -1030,7 +1030,7 @@
         record.file = {
           ...files[0],
           fileId: files[0].uid || files[0].fileId || '',
-          fileName: files[0].originalName || '',
+          fileName: files[0].originalName || files[0].fileName || '',
           fileAlias: files[0].name || '',
         };
       } else {
