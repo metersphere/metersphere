@@ -625,6 +625,11 @@
     svg {
       color: var(--color-text-3) !important;
     }
+    & + div {
+      div:first-of-type {
+        .ms-scroll-bar();
+      }
+    }
   }
   :deep(.editor-content) {
     .ms-scroll-bar();
