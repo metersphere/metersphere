@@ -56,8 +56,6 @@ public class ProjectService {
     @Resource
     private CommonProjectService commonProjectService;
     @Resource
-    private TestResourcePoolMapper testResourcePoolMapper;
-    @Resource
     private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
     @Resource
     private ExtSystemProjectMapper extSystemProjectMapper;
@@ -291,15 +289,14 @@ public class ProjectService {
 
     /**
      * 获取项目下可用的资源池
+     *
      * @param projectId 项目ID
      * @return 资源池列表
      */
     public List<TestResourcePool> getPoolOption(String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         if (project.getAllResourcePool()) {
-            TestResourcePoolExample example = new TestResourcePoolExample();
-            example.createCriteria().andEnableEqualTo(true).andDeletedEqualTo(false);
-            return testResourcePoolMapper.selectByExample(example);
+            return commonProjectService.getProjectAllPoolsByEffect(project);
         } else {
             return extProjectMapper.getResourcePoolOption(projectId, "api_test");
         }
@@ -323,9 +320,7 @@ public class ProjectService {
     private List<TestResourcePool> getAllPoolOption(String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         if (project.getAllResourcePool()) {
-            TestResourcePoolExample example = new TestResourcePoolExample();
-            example.createCriteria().andDeletedEqualTo(false);
-            return testResourcePoolMapper.selectByExample(example);
+            return commonProjectService.getOrgTestResourcePools(project.getOrganizationId(), false);
         } else {
             return extProjectMapper.getResourcePoolOption(projectId, "api_test");
         }
