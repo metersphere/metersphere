@@ -317,7 +317,7 @@ public class ApiScenarioController {
     @PostMapping(value = "/export/{type}")
     @Operation(summary = "接口测试-接口场景管理-场景-导出场景")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXPORT)
-    @CheckOwner(resourceId = "#request.getResourceId()", resourceType = "api_scenario")
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public String export(@RequestBody ApiScenarioBatchExportRequest request, @PathVariable String type) {
         return apiScenarioDataTransferService.exportScenario(request, type, SessionUtils.getUserId());
     }

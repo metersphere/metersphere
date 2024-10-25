@@ -766,4 +766,9 @@
           AND id = #{id}
           AND deleted = false
     </select>
+    <select id="selectNumById" resultType="java.lang.Long">
+        select num
+        from api_definition
+        where id = #{0}
+    </select>
 </mapper>

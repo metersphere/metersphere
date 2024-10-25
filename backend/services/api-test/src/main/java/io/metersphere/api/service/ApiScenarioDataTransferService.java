@@ -218,6 +218,7 @@ public class ApiScenarioDataTransferService {
                     sqlSession.flushStatements();
                 });
             }
+            Map<String, Long> insertApiDefinitionNumMap = new HashMap<>();
             // 接口定义
             if (CollectionUtils.isNotEmpty(preImportAnalysisResult.getInsertApiDefinitions())) {
                 Map<String, List<ApiDefinitionDetail>> projectMap = preImportAnalysisResult.getInsertApiDefinitions().stream().collect(Collectors.groupingBy(ApiDefinitionDetail::getProjectId));
@@ -231,6 +232,7 @@ public class ApiScenarioDataTransferService {
                         BeanUtils.copyBean(apiDefinition, t);
                         apiDefinition.setPos(getImportNextOrder(apiDefinitionImportService::getNextOrder, currentApiOrder, targetProjectId));
                         apiDefinition.setLatest(true);
+                        apiDefinition.setNum(NumGenerator.nextNum(targetProjectId, ApplicationNumScope.API_DEFINITION));
                         apiDefinition.setStatus(ApiDefinitionStatus.PROCESSING.name());
                         apiDefinition.setRefId(apiDefinition.getId());
                         apiDefinition.setVersionId(versionId);
@@ -245,6 +247,8 @@ public class ApiScenarioDataTransferService {
                         apiDefinitionBlob.setRequest(ApiDataUtils.toJSONString(t.getRequest()).getBytes(StandardCharsets.UTF_8));
                         apiDefinitionBlob.setResponse(ApiDataUtils.toJSONString(t.getResponse()).getBytes(StandardCharsets.UTF_8));
                         batchApiBlobMapper.insertSelective(apiDefinitionBlob);
+
+                        insertApiDefinitionNumMap.put(apiDefinition.getId(), apiDefinition.getNum());
                     }
                     sqlSession.flushStatements();
                 });
@@ -266,7 +270,15 @@ public class ApiScenarioDataTransferService {
                         BeanUtils.copyBean(apiTestCase, t);
                         apiTestCase.setProjectId(targetProjectId);
                         apiTestCase.setPos(getImportNextOrder(apiTestCaseService::getNextOrder, currentApiTestCaseOrder, targetProjectId));
-                        apiTestCase.setNum(NumGenerator.nextNum(targetProjectId, ApplicationNumScope.API_DEFINITION));
+                        long apiDefinitionNum;
+                        if (insertApiDefinitionNumMap.containsKey(apiTestCase.getApiDefinitionId())) {
+                            apiDefinitionNum = insertApiDefinitionNumMap.get(apiTestCase.getApiDefinitionId());
+                        } else {
+                            apiDefinitionNum = extApiDefinitionMapper.selectNumById(apiTestCase.getApiDefinitionId());
+                            insertApiDefinitionNumMap.put(apiTestCase.getApiDefinitionId(), apiDefinitionNum);
+                        }
+
+                        apiTestCase.setNum(NumGenerator.nextNum(targetProjectId + "_" + apiDefinitionNum, ApplicationNumScope.API_TEST_CASE));
                         apiTestCase.setStatus(ApiDefinitionStatus.PROCESSING.name());
                         apiTestCase.setVersionId(versionId);
                         apiTestCase.setCreateUser(operator);
