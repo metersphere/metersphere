@@ -27,26 +27,36 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public class ApiFileUtil extends FileUtils {
     private static FileManagerService fileManagerService;
     private static FileMetadataService fileMetadataService;
     private static TemporaryFileUtil temporaryFileUtil;
 
+    private static void initializeFileManagerService() {
+        if (fileManagerService == null) {
+            fileManagerService = CommonBeanFactory.getBean(FileManagerService.class);
+        }
+        if (fileMetadataService == null) {
+            fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
+        }
+    }
+
+
     public static void createFiles(List<FileInfoDTO> infoDTOS, String key, List<ProjectJarConfig> value) {
-        infoDTOS.forEach(item -> {
-            value.forEach(config -> {
-                if (StringUtils.equals(item.getId(), config.getId())) {
-                    createFile(StringUtils.join(LocalPathUtil.JAR_PATH,
-                            File.separator,
-                            key,
-                            File.separator,
-                            config.getId(),
-                            File.separator,
-                            String.valueOf(config.getUpdateTime()), ".jar"), item.getFileByte());
-                }
-            });
-        });
+        infoDTOS.forEach(item -> value.forEach(config -> {
+            if (StringUtils.equals(item.getId(), config.getId())) {
+                createFile(StringUtils.join(LocalPathUtil.JAR_PATH,
+                        File.separator,
+                        key,
+                        File.separator,
+                        config.getId(),
+                        File.separator,
+                        String.valueOf(config.getUpdateTime()), ".jar"), item.getFileByte());
+            }
+        }));
     }
 
     public static void copyBodyFiles(String sourceId, String targetId) {
@@ -57,9 +67,8 @@ public class ApiFileUtil extends FileUtils {
     public static void createBodyFiles(String requestId, List<MultipartFile> bodyFiles) {
         FileUtils.createBodyFiles(requestId, bodyFiles);
         // MinIO存储
-        if (fileManagerService == null) {
-            fileManagerService = CommonBeanFactory.getBean(FileManagerService.class);
-        }
+        initializeFileManagerService();
+
         if (CollectionUtils.isNotEmpty(bodyFiles) && StringUtils.isNotBlank(requestId)) {
             for (MultipartFile bodyFile : bodyFiles) {
                 fileManagerService.upload(bodyFile, getRequest(requestId));
@@ -72,12 +81,11 @@ public class ApiFileUtil extends FileUtils {
                 && bodyUploadIds.size() == bodyFiles.size()) {
             FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
             // MinIO存储
-            if (fileManagerService == null) {
-                fileManagerService = CommonBeanFactory.getBean(FileManagerService.class);
-            }
+            initializeFileManagerService();
+
             for (int i = 0; i < bodyUploadIds.size(); i++) {
                 MultipartFile bodyFile = bodyFiles.get(i);
-                fileManagerService.upload(bodyFile, getRequest(bodyUploadIds.get(i)));
+                fileManagerService.upload(bodyFile, getRequest(bodyUploadIds.get(i), bodyFile.getOriginalFilename()));
             }
         }
     }
@@ -88,17 +96,24 @@ public class ApiFileUtil extends FileUtils {
         }
         FileUtils.deleteBodyFiles(requestId);
         // MinIO文件删除
-        if (fileManagerService == null) {
-            fileManagerService = CommonBeanFactory.getBean(FileManagerService.class);
-        }
+        initializeFileManagerService();
+
         fileManagerService.delete(getRequest(requestId));
     }
 
     private static FileRequest getRequest(String requestId) {
+        return createFileRequest(requestId, requestId);
+    }
+
+    private static FileRequest getRequest(String requestId, String fileName) {
+        return createFileRequest(requestId, fileName);
+    }
+
+    private static FileRequest createFileRequest(String requestId, String fileName) {
         FileRequest request = new FileRequest();
         String path = StringUtils.join(BODY_FILE_DIR, File.separator, requestId);
         request.setProjectId(path);
-        request.setFileName(requestId);
+        request.setFileName(fileName);
         request.setStorage(StorageConstants.MINIO.name());
         LoggerUtil.info("开始从MinIO处理文件：", path);
         return request;
@@ -106,9 +121,8 @@ public class ApiFileUtil extends FileUtils {
 
     public static void downloadFile(String requestId, String path) {
         // MinIO文件下载
-        if (fileManagerService == null) {
-            fileManagerService = CommonBeanFactory.getBean(FileManagerService.class);
-        }
+        initializeFileManagerService();
+
         byte[] content = fileManagerService.downloadFile(getRequest(requestId));
         if (ArrayUtils.isNotEmpty(content)) {
             FileUtils.createFile(path, content);
@@ -125,28 +139,23 @@ public class ApiFileUtil extends FileUtils {
     }
 
     private static void formatFilePath(HashTree tree, String reportId, boolean isLocal, List<AttachmentBodyFile> fileList) {
-        if (tree != null) {
-            if (fileMetadataService == null) {
-                fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
-            }
+        if (tree == null) return;
 
-            for (Object key : tree.keySet()) {
-                if (key == null) {
-                    continue;
-                }
-                HashTree node = tree.get(key);
-                if (key instanceof HTTPSamplerProxy) {
-                    getAttachmentBodyFileByHttp(key, reportId, isLocal, fileList);
-                } else if (key instanceof CSVDataSet) {
-                    getAttachmentBodyFileByCsv(key, reportId, isLocal, fileList);
-                } else if (key instanceof KeystoreConfig) {
-                    getAttachmentBodyFileByKeystoreConfig(key, fileList);
-                }
-                if (node != null) {
-                    formatFilePath(node, reportId, isLocal, fileList);
-                }
-            }
-        }
+        initializeFileManagerService();
+
+        tree.keySet().stream()
+                .filter(Objects::nonNull)
+                .forEach(key -> {
+                    HashTree node = tree.get(key);
+                    if (key instanceof HTTPSamplerProxy) {
+                        getAttachmentBodyFileByHttp(key, reportId, isLocal, fileList);
+                    } else if (key instanceof CSVDataSet) {
+                        getAttachmentBodyFileByCsv(key, reportId, isLocal, fileList);
+                    } else if (key instanceof KeystoreConfig) {
+                        getAttachmentBodyFileByKeystoreConfig(key, fileList);
+                    }
+                    Optional.ofNullable(node).ifPresent(n -> formatFilePath(n, reportId, isLocal, fileList));
+                });
     }
 
     public static void getAttachmentBodyFileByCsv(Object tree, String reportId, boolean isLocal, List<AttachmentBodyFile> bodyFileList) {
@@ -184,7 +193,7 @@ public class ApiFileUtil extends FileUtils {
         if (testElement == null) {
             return;
         }
-        String defaultFileName = null;
+        String defaultFileName;
         if (testElement instanceof HTTPFileArg) {
             defaultFileName = ((HTTPFileArg) testElement).getPath();
         } else {
