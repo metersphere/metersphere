@@ -413,6 +413,11 @@ public class BaseTaskHubControllerTests extends BaseTest {
         request.setPageSize(10);
         this.requestPostWithOk(SYSTEM_TASK_BATCH_PAGE, request);
         this.requestPostWithOk(ORG_TASK_BATCH_PAGE, request);
+        request.setSort(new HashMap<>() {{
+            put("createTime", "desc");
+        }});
+        this.requestPostWithOk(SYSTEM_TASK_BATCH_PAGE, request);
+        this.requestPostWithOk(ORG_TASK_BATCH_PAGE, request);
     }
 
 

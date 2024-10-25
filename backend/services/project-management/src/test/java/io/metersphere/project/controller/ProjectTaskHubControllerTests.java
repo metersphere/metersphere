@@ -289,7 +289,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
         request.setCurrent(1);
         request.setPageSize(10);
         this.requestPostWithOk(PROJECT_BATCH_TASK_PAGE, request);
-        request.setSort(Map.of("startTime", "asc"));
+        request.setSort(Map.of("createTime", "asc"));
         request.setBatchType(ExecTaskType.API_SCENARIO_BATCH.name());
         this.requestPostWithOk(PROJECT_BATCH_TASK_PAGE, request);
     }

@@ -144,8 +144,11 @@ public class SystemTaskHubController {
     @Operation(summary = "组织-任务中心-用例执行任务-批量任务列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ)
     public Pager<List<BatchExecTaskReportDTO>> batchTaskList(@Validated @RequestBody BatchExecTaskPageRequest request) {
-        Page<Object> page = PageMethod.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "r.start_time desc");
+        String sort = StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "r.start_time desc";
+        if (StringUtils.contains(request.getSortString(), "create_time")) {
+            sort = sort.replace("create_time", "r.start_time");
+        }
+        Page<Object> page = PageMethod.startPage(request.getCurrent(), request.getPageSize(), sort);
         return PageUtils.setPageInfo(page, baseTaskHubService.listBatchTaskReport(request));
     }
 
