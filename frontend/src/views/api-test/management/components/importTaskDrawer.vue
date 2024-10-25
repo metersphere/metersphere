@@ -42,11 +42,14 @@
   import { switchDefinitionSchedule } from '@/api/modules/api-test/management';
   import { getScheduleProApiCaseList, projectDeleteSchedule } from '@/api/modules/taskCenter/project';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
+  import { characterLimit } from '@/utils';
 
   import { TimingTaskCenterApiCaseItem } from '@/models/projectManagement/taskCenter';
   import { TaskCenterEnum } from '@/enums/taskCenter';
 
   const { t } = useI18n();
+  const { openModal } = useModal();
 
   const taskDrawerVisible = defineModel<boolean>('visible', { required: true });
   const keyword = ref('');
@@ -159,15 +162,29 @@
     }
   }
 
-  async function deleteTask(record: TimingTaskCenterApiCaseItem) {
-    try {
-      await projectDeleteSchedule(record.id);
-      Message.success(t('common.deleteSuccess'));
-      loadTaskList();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
+  function deleteTask(record: TimingTaskCenterApiCaseItem) {
+    openModal({
+      type: 'error',
+      title: t('ms.taskCenter.deleteTaskTitle', { name: characterLimit(record?.taskName) }),
+      content: t('ms.taskCenter.deleteTimeTaskTip'),
+      okText: t('common.confirmDelete'),
+      cancelText: t('common.cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      maskClosable: false,
+      onBeforeOk: async () => {
+        try {
+          await projectDeleteSchedule(record.id);
+          Message.success(t('common.deleteSuccess'));
+          loadTaskList();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
   }
 </script>
 

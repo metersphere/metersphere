@@ -1,9 +1,9 @@
 <template>
-  <MsDrawer v-model:visible="visible" :width="960" :footer="false">
+  <MsDrawer v-model:visible="visible" :width="1200" :footer="false">
     <template #title>
       <div class="flex items-center gap-[8px]">
         <a-tag :color="executeResultMap[props.record.result]?.color">
-          {{ t(executeResultMap[props.record.result]?.label) }}
+          {{ t(executeResultMap[props.record.result]?.label || 'common.unExecute') }}
         </a-tag>
         <div>{{ detail.name }}</div>
       </div>
@@ -102,8 +102,10 @@
             value: res.createTime ? dayjs(res.createTime).format('YYYY-MM-DD HH:mm:ss') : '-',
           },
           {
-            label: t('ms.taskCenter.taskResource'),
-            value: res.taskOriginName || res.requestName,
+            label: t('ms.taskCenter.executeEnvInfo'),
+            value: `${res.environmentName || t('ms.taskCenter.defaultResourcePool')} ${res.poolName} ${
+              res.resourcePoolNode
+            }`,
           },
           {
             label: t('ms.taskCenter.threadID'),
@@ -113,13 +115,17 @@
             label: t('ms.taskCenter.taskStartTime'),
             value: res.startTime ? dayjs(res.startTime).format('YYYY-MM-DD HH:mm:ss') : '-',
           },
-          {
-            label: t('ms.taskCenter.executeEnvInfo'),
-            value: `${res.environmentName || t('ms.taskCenter.defaultResourcePool')} ${res.poolName} ${
-              res.resourcePoolNode
-            }`,
-            class: '!w-[calc(100%/3*2)]',
-          },
+          res.taskOriginName
+            ? {
+                label: t('ms.taskCenter.taskBelongTestPlan'),
+                value: res.taskOriginName,
+                class: '!w-[calc(100%/3*2)]',
+              }
+            : {
+                label: '',
+                value: ' ',
+                class: '!w-[calc(100%/3*2)]',
+              },
           {
             label: t('ms.taskCenter.taskEndTime'),
             value: res.endTime ? dayjs(res.endTime).format('YYYY-MM-DD HH:mm:ss') : '-',

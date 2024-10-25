@@ -19,7 +19,7 @@ export default {
   'ms.taskCenter.taskCreateTime': 'Task Initiation Time',
   'ms.taskCenter.taskStartTime': 'Task Start Time',
   'ms.taskCenter.taskEndTime': 'Task End Time',
-  'ms.taskCenter.taskResource': 'Task Source',
+  'ms.taskCenter.taskBelongTestPlan': 'Belonging test plan',
   'ms.taskCenter.executeEnvInfo': 'Execution Environment Information',
   'ms.taskCenter.passThreshold': 'Pass Threshold',
   'ms.taskCenter.executeProgress': 'Execution Progress',

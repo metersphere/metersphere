@@ -141,6 +141,15 @@
   const appStore = useAppStore();
 
   const keyword = ref('');
+  const thirdPartyTypeOptions: Record<string, any>[] = [];
+  Object.keys(scheduleTaskTypeMap).forEach((key) => {
+    if (!thirdPartyTypeOptions.some((item) => item.label === t(scheduleTaskTypeMap[key]))) {
+      thirdPartyTypeOptions.push({
+        label: t(scheduleTaskTypeMap[key]),
+        value: key,
+      });
+    }
+  });
   const columns: MsTableColumn = [
     {
       title: 'ms.taskCenter.taskID',
@@ -187,10 +196,7 @@
         sorter: true,
       },
       filterConfig: {
-        options: Object.keys(scheduleTaskTypeMap).map((key) => ({
-          label: t(scheduleTaskTypeMap[key]),
-          value: key,
-        })),
+        options: thirdPartyTypeOptions,
         filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_SYSTEM_TASK_TYPE,
       },
       width: 120,

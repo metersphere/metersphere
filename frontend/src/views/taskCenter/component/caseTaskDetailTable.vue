@@ -77,7 +77,7 @@
       >
         {{ t('ms.taskCenter.rerun') }}
       </MsButton> -->
-      <MsButton v-if="record.status !== ExecuteStatusEnum.PENDING" @click="checkExecuteResult(record)">
+      <MsButton @click="checkExecuteResult(record)">
         {{ t('ms.taskCenter.executeResult') }}
       </MsButton>
     </template>

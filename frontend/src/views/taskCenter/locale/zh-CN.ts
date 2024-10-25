@@ -19,7 +19,7 @@ export default {
   'ms.taskCenter.taskCreateTime': '任务发起时间',
   'ms.taskCenter.taskStartTime': '任务开始时间',
   'ms.taskCenter.taskEndTime': '任务结束时间',
-  'ms.taskCenter.taskResource': '任务来源',
+  'ms.taskCenter.taskBelongTestPlan': '所属测试计划',
   'ms.taskCenter.executeEnvInfo': '执行环境信息',
   'ms.taskCenter.passThreshold': '通过阈值',
   'ms.taskCenter.executeProgress': '执行进度',
