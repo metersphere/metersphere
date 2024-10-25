@@ -184,9 +184,9 @@ export interface SetPaginationPrams {
 export interface BatchActionQueryParams {
   excludeIds?: string[]; // 排除的id
   selectedIds?: string[];
-  selectIds?: string[]; // 选中的id
   selectAll: boolean; // 是否跨页全选
   params?: TableQueryParams; // 查询参数
   currentSelectCount?: number; // 当前选中的数量
   condition?: any; // 查询条件
+  [key: string]: any;
 }

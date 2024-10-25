@@ -238,8 +238,6 @@
   const appStore = useAppStore();
 
   const keyword = ref('');
-  const tableSelected = ref<string[]>([]);
-  const batchModalParams = ref();
   const columns: MsTableColumn = [
     {
       title: 'ms.taskCenter.taskID',
@@ -381,6 +379,13 @@
         showTooltip: true,
         showDrag: true,
         width: 200,
+        filterConfig: {
+          options: appStore.projectList.map((item) => ({
+            label: item.name,
+            value: item.id,
+          })),
+          filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+        },
       },
       {
         title: 'common.belongOrg',
@@ -388,6 +393,13 @@
         showTooltip: true,
         showDrag: true,
         width: 200,
+        filterConfig: {
+          options: appStore.orgList.map((item) => ({
+            label: item.name,
+            value: item.id,
+          })),
+          filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+        },
       }
     );
   } else if (props.type === 'org') {
@@ -397,6 +409,13 @@
       showTooltip: true,
       showDrag: true,
       width: 200,
+      filterConfig: {
+        options: appStore.projectList.map((item) => ({
+          label: item.name,
+          value: item.id,
+        })),
+        filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+      },
     });
   }
 
@@ -542,12 +561,10 @@
    */
   function deleteTask(record?: TaskCenterTaskItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('ms.taskCenter.deleteTaskTitle', { name: characterLimit(record?.taskName) });
-    let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('ms.taskCenter.deleteCaseTaskTitle', {
-        count: params?.currentSelectCount || tableSelected.value.length,
+        count: params?.currentSelectCount || (params?.selectedIds || []).length,
       });
-      selectIds = tableSelected.value as string[];
     }
     openModal({
       type: 'error',
@@ -563,7 +580,7 @@
         try {
           if (isBatch) {
             await currentBatchDeleteTask({
-              selectIds,
+              selectIds: params?.selectedIds || [],
               selectAll: !!params?.selectAll,
               excludeIds: params?.excludeIds || [],
               ...getTableQueryParams(),
@@ -600,12 +617,10 @@
    */
   function stopTask(record?: TaskCenterTaskItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('ms.taskCenter.stopTaskTitle', { name: characterLimit(record?.taskName) });
-    let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('ms.taskCenter.batchStopTaskTitle', {
-        count: params?.currentSelectCount || tableSelected.value.length,
+        count: params?.currentSelectCount || (params?.selectedIds || []).length,
       });
-      selectIds = tableSelected.value as string[];
     }
     openModal({
       type: 'warning',
@@ -618,7 +633,7 @@
         try {
           if (isBatch) {
             await currentBatchStopTask({
-              selectIds,
+              selectIds: params?.selectedIds || [],
               selectAll: !!params?.selectAll,
               excludeIds: params?.excludeIds || [],
               ...getTableQueryParams(),
@@ -643,8 +658,6 @@
    * @param event 批量操作事件对象
    */
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
-    tableSelected.value = params.selectedIds || [];
-    batchModalParams.value = params;
     switch (event.eventTag) {
       case 'delete':
         deleteTask(undefined, true, params);
@@ -745,6 +758,7 @@
     } else if ([ExecuteTaskType.TEST_PLAN_GROUP, ExecuteTaskType.TEST_PLAN].includes(record.taskType)) {
       openNewPage(TestPlanRouteEnum.TEST_PLAN_REPORT, {
         id: record.reportId,
+        type: record.taskType === ExecuteTaskType.TEST_PLAN_GROUP ? 'GROUP' : '',
       });
     }
   }

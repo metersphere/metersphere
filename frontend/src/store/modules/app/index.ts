@@ -68,7 +68,7 @@ const useAppStore = defineStore('app', {
     },
     packageType: '',
     projectList: [] as ProjectListItem[],
-    ordList: [],
+    orgList: [],
     envList: [],
     currentEnvConfig: undefined,
     fileMaxSize: 50,
@@ -231,8 +231,8 @@ const useAppStore = defineStore('app', {
     /**
      * 设置当前组织列表
      */
-    setOrdList(ordList: { id: string; name: string }[]) {
-      this.ordList = ordList;
+    setOrdList(orgList: { id: string; name: string }[]) {
+      this.orgList = orgList;
     },
     /**
      * 设置当前系统包类型

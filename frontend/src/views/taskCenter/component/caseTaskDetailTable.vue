@@ -21,7 +21,7 @@
       :virtual-list-props="{ height: 200 }"
       strictly
       label-path-mode
-      @clear="searchTask"
+      @clear="clearResourcePools"
       @popup-visible-change="handleResourcePoolVisibleChange"
       @change="handleResourcePoolChange"
     >
@@ -317,6 +317,13 @@
         showTooltip: true,
         width: 200,
         showDrag: true,
+        filterConfig: {
+          options: appStore.projectList.map((item) => ({
+            label: item.name,
+            value: item.id,
+          })),
+          filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+        },
       },
       {
         title: 'common.belongOrg',
@@ -324,6 +331,13 @@
         showTooltip: true,
         width: 200,
         showDrag: true,
+        filterConfig: {
+          options: appStore.orgList.map((item) => ({
+            label: item.name,
+            value: item.id,
+          })),
+          filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+        },
       }
     );
   } else if (props.type === 'org') {
@@ -333,6 +347,13 @@
       showTooltip: true,
       width: 200,
       showDrag: true,
+      filterConfig: {
+        options: appStore.projectList.map((item) => ({
+          label: item.name,
+          value: item.id,
+        })),
+        filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+      },
     });
   }
 
@@ -407,6 +428,12 @@
     }
   }
 
+  function clearResourcePools() {
+    resourcePoolIds.value = new Set([]);
+    resourcePoolNodes.value = new Set([]);
+    searchTask();
+  }
+
   function handleResourcePoolChange(value: string[]) {
     if (resourcePool.value.length < value.length) {
       // 添加选中节点
@@ -455,12 +482,10 @@
 
   function stopTask(record?: TaskCenterTaskDetailItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('ms.taskCenter.stopTaskTitle', { name: characterLimit(record?.taskName) });
-    let selectIds = [record?.id || ''];
     if (isBatch) {
       title = t('ms.taskCenter.batchStopTaskTitle', {
         count: params?.currentSelectCount || tableSelected.value.length,
       });
-      selectIds = tableSelected.value as string[];
     }
     openModal({
       type: 'warning',
@@ -476,7 +501,7 @@
         try {
           if (isBatch) {
             await currentBatchStopTask({
-              selectIds,
+              selectIds: params?.selectedIds || [],
               selectAll: !!params?.selectAll,
               excludeIds: params?.excludeIds || [],
               ...getTableQueryParams(),
@@ -586,7 +611,7 @@
         if (queue) {
           item.lineNum = queue;
         } else if (
-          [ExecuteStatusEnum.COMPLETED, ExecuteStatusEnum.STOPPED].includes(item.status) ||
+          [ExecuteStatusEnum.COMPLETED, ExecuteStatusEnum.STOPPED, ExecuteStatusEnum.RUNNING].includes(item.status) ||
           !item.resourcePoolNode
         ) {
           item.lineNum = '-';

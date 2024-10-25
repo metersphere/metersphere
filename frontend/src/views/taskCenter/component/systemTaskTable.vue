@@ -164,6 +164,19 @@
       slotName: 'status',
       width: 50,
       showDrag: true,
+      filterConfig: {
+        options: [
+          {
+            label: t('common.open'),
+            value: 'enable',
+          },
+          {
+            label: t('common.close'),
+            value: 'disable',
+          },
+        ],
+        filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_SYSTEM_TASK_STATUS,
+      },
     },
     {
       title: 'ms.taskCenter.type',
@@ -246,6 +259,13 @@
         showTooltip: true,
         width: 200,
         showDrag: true,
+        filterConfig: {
+          options: appStore.projectList.map((item) => ({
+            label: item.name,
+            value: item.id,
+          })),
+          filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+        },
       },
       {
         title: 'common.belongOrg',
@@ -253,6 +273,13 @@
         showTooltip: true,
         width: 200,
         showDrag: true,
+        filterConfig: {
+          options: appStore.orgList.map((item) => ({
+            label: item.name,
+            value: item.id,
+          })),
+          filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+        },
       }
     );
   } else if (props.type === 'org') {
@@ -262,6 +289,13 @@
       showTooltip: true,
       width: 200,
       showDrag: true,
+      filterConfig: {
+        options: appStore.projectList.map((item) => ({
+          label: item.name,
+          value: item.id,
+        })),
+        filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+      },
     });
   }
 

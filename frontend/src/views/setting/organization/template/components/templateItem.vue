@@ -148,7 +148,7 @@
 
   const orgName = computed(() => {
     if (licenseStore.hasLicense()) {
-      return appStore.ordList.find((item: any) => item.id === appStore.currentOrgId)?.name;
+      return appStore.orgList.find((item: any) => item.id === appStore.currentOrgId)?.name;
     }
     return '默认组织';
   });

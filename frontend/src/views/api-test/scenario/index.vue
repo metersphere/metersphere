@@ -136,7 +136,7 @@
   import executeButton from '@/views/api-test/components/executeButton.vue';
   import ScenarioTable from '@/views/api-test/scenario/components/scenarioTable.vue';
 
-  import { localExecuteApiDebug, stopExecute, stopLocalExecute } from '@/api/modules/api-test/common';
+  import { localExecuteApiDebug, stopLocalExecute } from '@/api/modules/api-test/common';
   import {
     addScenario,
     debugScenario,
@@ -146,6 +146,7 @@
     updateScenario,
   } from '@/api/modules/api-test/scenario';
   import { getSocket } from '@/api/modules/project-management/commonScript';
+  import { projectStopTask } from '@/api/modules/taskCenter/project';
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveTabUnSaveCheck from '@/hooks/useLeaveTabUnSaveCheck';
   import useShortcutSave from '@/hooks/useShortcutSave';
@@ -258,6 +259,7 @@
     });
   }
 
+  const executeTaskId = ref('');
   /**
    * 实际执行函数
    * @param executeParams 执行参数
@@ -326,6 +328,7 @@
           }),
         });
       }
+      executeTaskId.value = res.taskInfo?.taskId;
       if (executeType === 'localExec' && localExecuteUrl.value) {
         // 本地执行需要调 debug 接口获取响应结果，然后再调本地执行接口
         await localExecuteApiDebug(localExecuteUrl.value, res);
@@ -385,7 +388,7 @@
             ScenarioStepType.API_SCENARIO
           );
         } else {
-          await stopExecute(activeScenarioTab.value.reportId, ScenarioStepType.API_SCENARIO);
+          await projectStopTask(executeTaskId.value);
         }
       } catch (error) {
         // eslint-disable-next-line no-console

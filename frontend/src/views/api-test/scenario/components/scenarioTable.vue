@@ -24,7 +24,7 @@
       @drag-change="changeHandler"
     >
       <template #num="{ record }">
-        <div>
+        <div class="flex items-center">
           <MsButton type="text" class="float-left" style="margin-right: 4px" @click="openScenarioTab(record)">
             {{ record.num }}
           </MsButton>
