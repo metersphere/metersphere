@@ -17,9 +17,8 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.TestResourcePool;
-import io.metersphere.system.domain.TestResourcePoolExample;
 import io.metersphere.system.dto.sdk.SessionUser;
-import io.metersphere.system.mapper.TestResourcePoolMapper;
+import io.metersphere.system.service.CommonProjectPoolService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -65,8 +64,8 @@ public class TestPlanCollectionMinderService {
     @Autowired
     private ApplicationContext applicationContext;
 
-	@Resource
-	private TestPlanConfigMapper testPlanConfigMapper;
+    @Resource
+    private TestPlanConfigMapper testPlanConfigMapper;
 
     @Resource
     private ExtProjectMapper extProjectMapper;
@@ -75,7 +74,7 @@ public class TestPlanCollectionMinderService {
     private ProjectMapper projectMapper;
 
     @Resource
-    private TestResourcePoolMapper testResourcePoolMapper;
+    private CommonProjectPoolService commonProjectPoolService;
 
     @Resource
     private TestPlanMapper testPlanMapper;
@@ -92,14 +91,12 @@ public class TestPlanCollectionMinderService {
         Project project = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
         List<TestResourcePool> apiTest;
         if (project.getAllResourcePool()) {
-            TestResourcePoolExample example = new TestResourcePoolExample();
-            example.createCriteria().andEnableEqualTo(true).andDeletedEqualTo(false);
-            apiTest= testResourcePoolMapper.selectByExample(example);
+            apiTest = commonProjectPoolService.getProjectAllPoolsByEffect(project);
         } else {
-           apiTest = extProjectMapper.getResourcePoolOption(testPlan.getProjectId(), "api_test");
+            apiTest = extProjectMapper.getResourcePoolOption(testPlan.getProjectId(), "api_test");
         }
         Map<String, String> resourcePoolMap = apiTest.stream().collect(Collectors.toMap(TestResourcePool::getId, TestResourcePool::getName));
-        testPlanCollections.forEach(t->{
+        testPlanCollections.forEach(t -> {
             if (StringUtils.isBlank(resourcePoolMap.get(t.getTestResourcePoolId()))) {
                 t.setPoolName(Translator.get("resource_pool_not_exist"));
                 t.setNoResourcePool(true);

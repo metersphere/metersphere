@@ -42,7 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,12 +71,14 @@ public class CommonProjectService {
     private OrganizationMapper organizationMapper;
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
-    @Resource
-    private TestResourcePoolOrganizationMapper testResourcePoolOrganizationMapper;
+
     @Resource
     private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
     @Resource
     private TestResourcePoolService testResourcePoolService;
+    @Resource
+    private CommonProjectPoolService commonProjectPoolService;
+
     public static final Integer DEFAULT_REMAIN_DAY_COUNT = 30;
     public static final String API_TEST = "apiTest";
     public static final String TEST_PLAN = "testPlan";
@@ -636,24 +637,7 @@ public class CommonProjectService {
     public List<OptionDTO> getTestResourcePoolOptions(ProjectPoolRequest request) {
         List<OptionDTO> optionDTOS = new ArrayList<>();
         //获取制定组织的资源池  和全部组织的资源池
-        List<TestResourcePool> testResourcePools = new ArrayList<>();
-        if (StringUtils.isNotBlank(request.getOrganizationId())) {
-            TestResourcePoolOrganizationExample example = new TestResourcePoolOrganizationExample();
-            example.createCriteria().andOrgIdEqualTo(request.getOrganizationId());
-            List<TestResourcePoolOrganization> orgPools = testResourcePoolOrganizationMapper.selectByExample(example);
-            if (CollectionUtils.isNotEmpty(orgPools)) {
-                List<String> poolIds = orgPools.stream().map(TestResourcePoolOrganization::getTestResourcePoolId).toList();
-                TestResourcePoolExample poolExample = new TestResourcePoolExample();
-                poolExample.createCriteria().andIdIn(poolIds).andEnableEqualTo(true).andDeletedEqualTo(false);
-                testResourcePools.addAll(testResourcePoolMapper.selectByExample(poolExample));
-            }
-        }
-        //获取应用全部组织的资源池
-        TestResourcePoolExample poolExample = new TestResourcePoolExample();
-        poolExample.createCriteria().andAllOrgEqualTo(true).andEnableEqualTo(true).andDeletedEqualTo(false);
-        testResourcePools.addAll(testResourcePoolMapper.selectByExample(poolExample));
-
-        testResourcePools = testResourcePools.stream().filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        List<TestResourcePool> testResourcePools = commonProjectPoolService.getOrgTestResourcePools(request.getOrganizationId(), true);
         //这里需要获取项目开启的模块   判断资源池开启的使用范围的模块是否在项目开启的模块中
         List<String> moduleIds = request.getModulesIds();
         testResourcePools.forEach(pool -> {

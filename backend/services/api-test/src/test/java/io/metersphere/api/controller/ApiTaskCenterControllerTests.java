@@ -294,7 +294,7 @@ public class ApiTaskCenterControllerTests extends BaseTest {
         testResourcePool.setCreateUser("admin");
         testResourcePool.setAllOrg(true);
         testResourcePool.setEnable(true);
-        testResourcePool.setType(ResourcePoolTypeEnum.NODE.name());
+        testResourcePool.setType(ResourcePoolTypeEnum.NODE.getName());
         TestResourcePoolBlob testResourcePoolBlob = new TestResourcePoolBlob();
         testResourcePoolBlob.setId("api-pool-id");
         TestResourceDTO testResourceDTO = new TestResourceDTO();

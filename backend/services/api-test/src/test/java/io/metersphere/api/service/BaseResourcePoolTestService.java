@@ -68,7 +68,7 @@ public class BaseResourcePoolTestService {
         testResourcePool.setCreateUser("admin");
         testResourcePool.setAllOrg(false);
         testResourcePool.setEnable(true);
-        testResourcePool.setType(ResourcePoolTypeEnum.NODE.name());
+        testResourcePool.setType(ResourcePoolTypeEnum.NODE.getName());
         TestResourcePoolBlob testResourcePoolBlob = new TestResourcePoolBlob();
         testResourcePoolBlob.setId(id);
         TestResourceDTO testResourceDTO = new TestResourceDTO();

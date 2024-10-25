@@ -13,15 +13,22 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.*;
+import io.metersphere.system.domain.TestResourcePool;
+import io.metersphere.system.domain.TestResourcePoolBlob;
+import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.taskhub.ResourcePoolOptionsDTO;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
-import io.metersphere.system.mapper.*;
+import io.metersphere.system.mapper.BaseUserMapper;
+import io.metersphere.system.mapper.ExtSystemProjectMapper;
+import io.metersphere.system.mapper.OrganizationMapper;
+import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.service.BaseTaskHubService;
+import io.metersphere.system.service.CommonProjectPoolService;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.utils.ServiceUtils;
@@ -56,7 +63,7 @@ public class ProjectService {
     @Resource
     private CommonProjectService commonProjectService;
     @Resource
-    private TestResourcePoolMapper testResourcePoolMapper;
+    private CommonProjectPoolService commonProjectPoolService;
     @Resource
     private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
     @Resource
@@ -291,15 +298,14 @@ public class ProjectService {
 
     /**
      * 获取项目下可用的资源池
+     *
      * @param projectId 项目ID
      * @return 资源池列表
      */
     public List<TestResourcePool> getPoolOption(String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         if (project.getAllResourcePool()) {
-            TestResourcePoolExample example = new TestResourcePoolExample();
-            example.createCriteria().andEnableEqualTo(true).andDeletedEqualTo(false);
-            return testResourcePoolMapper.selectByExample(example);
+            return commonProjectPoolService.getProjectAllPoolsByEffect(project);
         } else {
             return extProjectMapper.getResourcePoolOption(projectId, "api_test");
         }
@@ -323,9 +329,7 @@ public class ProjectService {
     private List<TestResourcePool> getAllPoolOption(String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         if (project.getAllResourcePool()) {
-            TestResourcePoolExample example = new TestResourcePoolExample();
-            example.createCriteria().andDeletedEqualTo(false);
-            return testResourcePoolMapper.selectByExample(example);
+            return commonProjectPoolService.getOrgTestResourcePools(project.getOrganizationId(), false);
         } else {
             return extProjectMapper.getResourcePoolOption(projectId, "api_test");
         }

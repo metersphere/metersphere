@@ -67,6 +67,8 @@ public class ProjectApplicationService {
     private ProjectMapper projectMapper;
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private CommonProjectPoolService commonProjectPoolService;
 
     /**
      * 更新配置信息
@@ -141,15 +143,18 @@ public class ProjectApplicationService {
             moduleType = "api_test";
         }
         Project project = projectMapper.selectByPrimaryKey(projectId);
+        List<TestResourcePool> testResourcePools = new ArrayList<>();
+        if (project.getAllResourcePool()) {
+            testResourcePools= commonProjectPoolService.getProjectAllPoolsByEffect(project);
+        }
         if (StringUtils.isNotBlank(poolType) && StringUtils.isNotBlank(moduleType)) {
             if (configMap.containsKey(poolType)) {
                 //如果是适用于所有的组织
                 int count = 0;
-                TestResourcePoolExample example = new TestResourcePoolExample();
                 if (project.getAllResourcePool()) {
-                    example.createCriteria().andIdEqualTo(configMap.get(poolType).toString()).andEnableEqualTo(true).andDeletedEqualTo(false);
-                    count = (int) testResourcePoolMapper.countByExample(example);
+                    count = testResourcePools.size();
                 }else {
+                    TestResourcePoolExample example = new TestResourcePoolExample();
                     example.createCriteria().andIdEqualTo(configMap.get(poolType).toString()).andAllOrgEqualTo(true);
                     if (testResourcePoolMapper.countByExample(example) > 0) {
                         count = extProjectMapper.resourcePoolIsExist(configMap.get(poolType).toString(), projectId);
@@ -164,9 +169,6 @@ public class ProjectApplicationService {
             }
             if (!configMap.containsKey(poolType)) {
                 if (project.getAllResourcePool()){
-                    TestResourcePoolExample example = new TestResourcePoolExample();
-                    example.createCriteria().andEnableEqualTo(true).andDeletedEqualTo(false);
-                    List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
                     if (CollectionUtils.isNotEmpty(testResourcePools)) {
                         testResourcePools.sort(Comparator.comparing(TestResourcePool::getId));
                         configMap.put(poolType, testResourcePools.getFirst().getId());
@@ -212,7 +214,7 @@ public class ProjectApplicationService {
                 .filter(serviceIntegration -> {
                     return serviceIntegration.getEnable()    // 服务集成开启
                             && orgPluginIds.contains(serviceIntegration.getPluginId());  // 该服务集成对应的插件有权限
-                }).collect(Collectors.toList());
+                }).toList();
         List<OptionDTO> options = new ArrayList<>();
         plusins.forEach(serviceIntegration -> {
             PluginWrapper pluginWrapper = pluginLoadService.getPluginWrapper(serviceIntegration.getPluginId());

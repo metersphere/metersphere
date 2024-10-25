@@ -74,7 +74,9 @@ public class ProjectApplicationControllerTests extends BaseTest {
     //测试计划 - 清理报告配置
     @Test
     @Order(1)
+    @Sql(scripts = {"/dml/init_project_application_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testTestPlanClean() throws Exception {
+
         this.testGetTestPlan();
         //新增
         ProjectApplication request = creatRequest(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name(), TIME_TYPE_VALUE);
@@ -279,7 +281,6 @@ public class ProjectApplicationControllerTests extends BaseTest {
     //用例管理 - 获取平台下拉列表
     @Test
     @Order(40)
-    @Sql(scripts = {"/dml/init_project_application_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testGetPlatform() throws Exception {
         this.requestGetWithOkAndReturn(GET_PLATFORM_URL + "/100002");
         MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_PLATFORM_URL + "/100001");
