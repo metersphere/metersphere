@@ -300,26 +300,33 @@ public class TestResourcePoolService {
         ResourcePoolNodeMetric resourcePoolNodeMetric = new ResourcePoolNodeMetric();
         TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(request.getPoolId());
         if (testResourcePool == null || !testResourcePool.getEnable() || testResourcePool.getDeleted()) {
-            return null;
+            return new ResourcePoolNodeMetric();
+        }
+        TestResourcePoolBlob testResourcePoolBlob = testResourcePoolBlobMapper.selectByPrimaryKey(request.getPoolId());
+        byte[] configuration = testResourcePoolBlob.getConfiguration();
+        String testResourceDTOStr = new String(configuration);
+        TestResourceDTO testResourceDTO = JSON.parseObject(testResourceDTOStr, TestResourceDTO.class);
+        if (CollectionUtils.isEmpty(testResourceDTO.getNodesList())) {
+            return new ResourcePoolNodeMetric();
         }
         if (StringUtils.isBlank(request.getIp())) {
-            TestResourcePoolBlob testResourcePoolBlob = testResourcePoolBlobMapper.selectByPrimaryKey(request.getPoolId());
-            byte[] configuration = testResourcePoolBlob.getConfiguration();
-            String testResourceDTOStr = new String(configuration);
-            TestResourceDTO testResourceDTO = JSON.parseObject(testResourceDTOStr, TestResourceDTO.class);
-            if (CollectionUtils.isNotEmpty(testResourceDTO.getNodesList())) {
-                int concurrentNumber = 0;
-                int occupiedConcurrentNumber = 0;
-                for (TestResourceNodeDTO testResourceNodeDTO : testResourceDTO.getNodesList()) {
-                    ResourcePoolNodeMetric nodeMetric = getNodeMetric(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
-                    concurrentNumber = concurrentNumber + testResourceNodeDTO.getConcurrentNumber();
-                    occupiedConcurrentNumber = occupiedConcurrentNumber + nodeMetric.getOccupiedConcurrentNumber();
-                }
-                resourcePoolNodeMetric.setConcurrentNumber(concurrentNumber);
-                resourcePoolNodeMetric.setOccupiedConcurrentNumber(occupiedConcurrentNumber);
+            int concurrentNumber = 0;
+            int occupiedConcurrentNumber = 0;
+            for (TestResourceNodeDTO testResourceNodeDTO : testResourceDTO.getNodesList()) {
+                ResourcePoolNodeMetric nodeMetric = getNodeMetric(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
+                concurrentNumber = concurrentNumber + testResourceNodeDTO.getConcurrentNumber();
+                occupiedConcurrentNumber = occupiedConcurrentNumber + nodeMetric.getOccupiedConcurrentNumber();
             }
+            resourcePoolNodeMetric.setConcurrentNumber(concurrentNumber);
+            resourcePoolNodeMetric.setOccupiedConcurrentNumber(occupiedConcurrentNumber);
         } else {
             resourcePoolNodeMetric = getNodeMetric(request.getIp(), request.getPort());
+            for (TestResourceNodeDTO testResourceNodeDTO : testResourceDTO.getNodesList()) {
+                if (StringUtils.equals(testResourceNodeDTO.getIp(), request.getIp()) && StringUtils.equals(testResourceNodeDTO.getPort(), request.getPort())) {
+                    resourcePoolNodeMetric.setConcurrentNumber(testResourceDTO.getConcurrentNumber());
+                    break;
+                }
+            }
         }
         return resourcePoolNodeMetric;
     }
