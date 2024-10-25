@@ -112,11 +112,11 @@
       </a-button>
     </template>
   </MsDrawer>
-  <JobTemplateDrawer
+  <!-- <JobTemplateDrawer
     v-model:visible="showJobDrawer"
     :default-val="activePool?.testResourceReturnDTO.jobDefinition || ''"
     read-only
-  />
+  /> -->
   <CapacityDrawer v-model:visible="showCapacityDrawer" :active-record="activeRecord" />
 </template>
 
@@ -139,8 +139,8 @@
   import MsTag, { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTrialAlert from '@/components/business/ms-trial-alert/index.vue';
   import CapacityDrawer from './components/capacityDrawer.vue';
-  import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
 
+  // import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
   import { delPoolInfo, getPoolInfo, getPoolList, togglePoolStatus } from '@/api/modules/setting/resourcePool';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -367,7 +367,7 @@
   const showDetailDrawer = ref(false);
   const activePoolDesc = ref<Description[]>([]);
   const activePool = ref<ResourcePoolDetail | null>(null);
-  const showJobDrawer = ref(false);
+  // const showJobDrawer = ref(false);
   const drawerLoading = ref(false);
   /**
    * 查看资源池详情
@@ -450,19 +450,19 @@
                 },
               ]
             : [];
-        const jobTemplate =
-          type === 'Kubernetes'
-            ? [
-                {
-                  label: t('system.resourcePool.jobTemplate'),
-                  value: t('system.resourcePool.customJobTemplate'),
-                  isButton: true,
-                  onClick: () => {
-                    showJobDrawer.value = true;
-                  },
-                },
-              ]
-            : [];
+        // const jobTemplate =
+        //   type === 'Kubernetes'
+        //     ? [
+        //         {
+        //           label: t('system.resourcePool.jobTemplate'),
+        //           value: t('system.resourcePool.customJobTemplate'),
+        //           isButton: true,
+        //           onClick: () => {
+        //             showJobDrawer.value = true;
+        //           },
+        //         },
+        //       ]
+        //     : [];
         // 接口测试
         const resourceDesc = apiTest ? [...nodeResourceDesc, ...k8sResourceDesc] : [];
         // ui 测试资源
@@ -515,7 +515,7 @@
           ...uiDesc,
           ...detailType,
           ...resourceDesc,
-          ...jobTemplate,
+          // ...jobTemplate,
         ];
       }
     } catch (error) {

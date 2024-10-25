@@ -379,16 +379,16 @@
         </a-form-item>
       </template>
     </a-form>
-    <template #footerLeft>
+    <!-- <template #footerLeft>
       <MsButton v-if="isShowK8SResources" @click="showJobDrawer = true">
         {{ t('system.resourcePool.customJobTemplate') }}
         <a-tooltip :content="t('system.resourcePool.jobTemplateTip')" position="tl" mini>
           <icon-question-circle class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]" />
         </a-tooltip>
       </MsButton>
-    </template>
+    </template> -->
   </MsCard>
-  <JobTemplateDrawer v-model:visible="showJobDrawer" v-model:value="form.testResourceDTO.jobDefinition" />
+  <!-- <JobTemplateDrawer v-model:visible="showJobDrawer" v-model:value="form.testResourceDTO.jobDefinition" /> -->
 </template>
 
 <script setup lang="ts">
@@ -399,13 +399,13 @@
   import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep, isEmpty } from 'lodash-es';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
+  // import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
   import type { FormItemModel } from '@/components/business/ms-batch-form/types';
-  import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
 
+  // import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
   import { getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
   import { addPool, getPoolInfo, updatePoolInfo } from '@/api/modules/setting/resourcePool';
   import { useI18n } from '@/hooks/useI18n';
@@ -419,7 +419,7 @@
   import type { NodesListItem, UpdateResourcePoolParams } from '@/models/setting/resourcePool';
   import { SettingRouteEnum } from '@/enums/routeEnum';
 
-  import { getYaml, job, YamlType } from './template';
+  import { getYaml, YamlType } from './template';
 
   const licenseStore = useLicenseStore();
   const isXpack = computed(() => licenseStore.hasLicense());
@@ -458,7 +458,7 @@
       ip: '',
       token: '',
       namespace: '',
-      jobDefinition: job,
+      // jobDefinition: job,
       deployName: '',
       orgIds: [] as string[],
     },
@@ -591,15 +591,15 @@
     () => isFillNameSpaces.value && form.value.testResourceDTO.deployName?.trim() !== ''
   );
 
-  watch(
-    () => isShowK8SResources.value,
-    (val) => {
-      if (val && !form.value.testResourceDTO.jobDefinition) {
-        // 在编辑场景下，如果资源池非 k8s 的话，jobDefinition 会是 null，选中 k8s 资源的时候需要赋默认值
-        form.value.testResourceDTO.jobDefinition = job;
-      }
-    }
-  );
+  // watch(
+  //   () => isShowK8SResources.value,
+  //   (val) => {
+  //     if (val && !form.value.testResourceDTO.jobDefinition) {
+  //       // 在编辑场景下，如果资源池非 k8s 的话，jobDefinition 会是 null，选中 k8s 资源的时候需要赋默认值
+  //       form.value.testResourceDTO.jobDefinition = job;
+  //     }
+  //   }
+  // );
 
   const batchFormRef = ref<InstanceType<typeof MsBatchForm>>();
   const batchFormModels: Ref<FormItemModel[]> = ref([
@@ -799,7 +799,7 @@
       namespace, // k8s 命名空间
       concurrentNumber, // k8s 最大并发数
       podThreads, // k8s 单pod最大线程数
-      jobDefinition, // k8s job自定义模板
+      // jobDefinition, // k8s job自定义模板
       deployName, // k8s api测试部署名称
       nodesList,
       uiGrid,
@@ -836,14 +836,14 @@
         }
       : {};
 
-    const jobDTO = isShowK8SResources.value ? { jobDefinition } : {};
+    // const jobDTO = isShowK8SResources.value ? { jobDefinition } : {};
     return {
       ...form.value,
       type: isShowTypeItem.value ? form.value.type : 'Node', // 默认给 Node，后台需要
       allOrg: form.value.orgType === 'allOrg',
       apiTest: form.value.use.includes('API'), // 是否支持api测试
       uiTest: form.value.use.includes('UI'), // 是否支持ui测试
-      testResourceDTO: { ...apiDTO, ...uiDTO, ...jobDTO, orgIds: form.value.testResourceDTO.orgIds },
+      testResourceDTO: { ...apiDTO, ...uiDTO, orgIds: form.value.testResourceDTO.orgIds },
     };
   }
 
