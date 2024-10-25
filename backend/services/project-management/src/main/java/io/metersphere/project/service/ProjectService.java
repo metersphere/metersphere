@@ -13,16 +13,15 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.TestResourcePool;
-import io.metersphere.system.domain.TestResourcePoolExample;
-import io.metersphere.system.domain.User;
-import io.metersphere.system.domain.UserRoleRelationExample;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.SessionUser;
+import io.metersphere.system.dto.taskhub.ResourcePoolOptionsDTO;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.mapper.*;
+import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.utils.ServiceUtils;
@@ -35,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -65,6 +65,8 @@ public class ProjectService {
     private BaseUserMapper baseUserMapper;
 
     public static final Long ORDER_STEP = 5000L;
+    @Resource
+    private BaseTaskHubService baseTaskHubService;
 
 
     public List<Project> getUserProject(String organizationId, String userId) {
@@ -297,6 +299,32 @@ public class ProjectService {
         if (project.getAllResourcePool()) {
             TestResourcePoolExample example = new TestResourcePoolExample();
             example.createCriteria().andEnableEqualTo(true).andDeletedEqualTo(false);
+            return testResourcePoolMapper.selectByExample(example);
+        } else {
+            return extProjectMapper.getResourcePoolOption(projectId, "api_test");
+        }
+    }
+
+    /**
+     * 获取项目下的资源池及节点下拉选项
+     *
+     * @param projectId
+     * @return
+     */
+    public List<ResourcePoolOptionsDTO> getProjectResourcePoolOptions(String projectId) {
+        List<TestResourcePool> pools = getAllPoolOption(projectId);
+        if (CollectionUtils.isNotEmpty(pools)) {
+            Map<String, List<TestResourcePoolBlob>> poolMap = baseTaskHubService.getPoolMap(pools);
+            return baseTaskHubService.handleOptions(pools, poolMap);
+        }
+        return null;
+    }
+
+    private List<TestResourcePool> getAllPoolOption(String projectId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (project.getAllResourcePool()) {
+            TestResourcePoolExample example = new TestResourcePoolExample();
+            example.createCriteria().andDeletedEqualTo(false);
             return testResourcePoolMapper.selectByExample(example);
         } else {
             return extProjectMapper.getResourcePoolOption(projectId, "api_test");

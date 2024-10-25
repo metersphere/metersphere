@@ -2,6 +2,7 @@ package io.metersphere.project.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
+import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.BatchExecTaskReportDTO;
 import io.metersphere.system.dto.request.BatchExecTaskPageRequest;
@@ -45,6 +46,8 @@ public class ProjectTaskHubController {
     private BaseTaskHubService baseTaskHubService;
     @Resource
     private BaseTaskHubLogService baseTaskHubLogService;
+    @Resource
+    private ProjectService projectService;
 
     @PostMapping("/exec-task/page")
     @Operation(summary = "项目-任务中心-执行任务列表")
@@ -82,7 +85,7 @@ public class ProjectTaskHubController {
     @Operation(summary = "项目-任务中心-获取资源池下拉选项")
     @RequiresPermissions(PermissionConstants.PROJECT_CASE_TASK_CENTER_READ)
     public List<ResourcePoolOptionsDTO> getUserProject() {
-        return baseTaskHubService.getProjectResourcePoolOptions(SessionUtils.getCurrentProjectId());
+        return projectService.getProjectResourcePoolOptions(SessionUtils.getCurrentProjectId());
     }
 
 

@@ -455,7 +455,7 @@ public class BaseTaskHubService {
 
     }
 
-    private Map<String, List<TestResourcePoolBlob>> getPoolMap(List<TestResourcePool> allResourcePools) {
+    public Map<String, List<TestResourcePoolBlob>> getPoolMap(List<TestResourcePool> allResourcePools) {
         List<String> ids = allResourcePools.stream().map(TestResourcePool::getId).toList();
         //获取全部资源池节点
         TestResourcePoolBlobExample blobExample = new TestResourcePoolBlobExample();
@@ -464,7 +464,7 @@ public class BaseTaskHubService {
         return testResourcePoolBlobs.stream().collect(Collectors.groupingBy(TestResourcePoolBlob::getId));
     }
 
-    private List<ResourcePoolOptionsDTO> handleOptions(List<TestResourcePool> allResourcePools, Map<String, List<TestResourcePoolBlob>> poolMap) {
+    public List<ResourcePoolOptionsDTO> handleOptions(List<TestResourcePool> allResourcePools, Map<String, List<TestResourcePoolBlob>> poolMap) {
         List<ResourcePoolOptionsDTO> options = new ArrayList<>();
         allResourcePools.forEach(item -> {
             ResourcePoolOptionsDTO optionsDTO = new ResourcePoolOptionsDTO();
@@ -505,26 +505,6 @@ public class BaseTaskHubService {
         }
         Map<String, List<TestResourcePoolBlob>> poolMap = getPoolMap(allResourcePools);
         return handleOptions(allResourcePools, poolMap);
-    }
-
-
-    /**
-     * 获取项目下的资源池及节点下拉选项
-     *
-     * @param projectId
-     * @return
-     */
-    public List<ResourcePoolOptionsDTO> getProjectResourcePoolOptions(String projectId) {
-        ProjectTestResourcePoolExample example = new ProjectTestResourcePoolExample();
-        example.createCriteria().andProjectIdEqualTo(projectId);
-        List<ProjectTestResourcePool> projectPools = projectTestResourcePoolMapper.selectByExample(example);
-        List<String> poolIds = projectPools.stream().map(ProjectTestResourcePool::getTestResourcePoolId).toList();
-        if (CollectionUtils.isNotEmpty(poolIds)) {
-            List<TestResourcePool> allResourcePools = extResourcePoolMapper.selectProjectAllResourcePool(poolIds);
-            Map<String, List<TestResourcePoolBlob>> poolMap = getPoolMap(allResourcePools);
-            return handleOptions(allResourcePools, poolMap);
-        }
-        return null;
     }
 
     /**
