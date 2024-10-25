@@ -888,13 +888,14 @@ public class BaseTaskHubService {
         return list;
     }
 
-    public void updateCron(ScheduleRequest request) {
+    public void updateCron(ScheduleRequest request, String userId, String path, String module) {
         Schedule schedule = checkScheduleExit(request.getId());
         schedule.setValue(request.getCron());
         scheduleService.editSchedule(schedule);
         try {
             scheduleService.addOrUpdateCronJob(schedule, new JobKey(schedule.getKey(), schedule.getJob()),
                     new TriggerKey(schedule.getKey(), schedule.getJob()), Class.forName(schedule.getJob()));
+            saveLog(List.of(schedule), userId, path, HttpMethodConstants.GET.name(), module, OperationLogType.UPDATE.name());
         } catch (ClassNotFoundException e) {
             LogUtils.error(e);
             throw new RuntimeException(e);

@@ -182,7 +182,7 @@ public class OrganizationTaskHubController {
     public void batchEnable(@Validated @RequestBody TableBatchProcessDTO request) {
         List<OptionDTO> projectList = baseProjectMapper.getProjectOptionsByOrgId(SessionUtils.getCurrentOrganizationId());
         List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
-        baseTaskHubService.scheduleBatchOperation(request, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId(), "/organization/task-center/schedule/batch-enable", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, true,projectIds);
+        baseTaskHubService.scheduleBatchOperation(request, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId(), "/organization/task-center/schedule/batch-enable", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER, true, projectIds);
     }
 
 
@@ -200,7 +200,7 @@ public class OrganizationTaskHubController {
     @Operation(summary = "组织-任务中心-后台任务更新cron表达式")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_SCHEDULE_TASK_CENTER_READ_UPDATE)
     public void updateValue(@Validated @RequestBody ScheduleRequest request) {
-        baseTaskHubService.updateCron(request);
+        baseTaskHubService.updateCron(request, SessionUtils.getUserId(), "/organization/task-center/schedule/update-cron", OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER);
     }
 
     @PostMapping("/exec-task/batch/page")

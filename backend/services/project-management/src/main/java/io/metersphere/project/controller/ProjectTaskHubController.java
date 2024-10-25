@@ -187,7 +187,7 @@ public class ProjectTaskHubController {
     @Operation(summary = "项目-任务中心-后台任务更新cron表达式")
     @RequiresPermissions(PermissionConstants.PROJECT_SCHEDULE_TASK_CENTER_READ_UPDATE)
     public void updateValue(@Validated @RequestBody ScheduleRequest request) {
-        baseTaskHubService.updateCron(request);
+        baseTaskHubService.updateCron(request, SessionUtils.getUserId(), "/project/task-center/schedule/update-cron", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
     }
 
     @PostMapping("/exec-task/batch/page")

@@ -206,7 +206,7 @@ public class SystemTaskHubController {
     @Operation(summary = "系统-任务中心-后台任务更新cron表达式")
     @RequiresPermissions(PermissionConstants.SYSTEM_SCHEDULE_TASK_CENTER_READ_UPDATE)
     public void updateValue(@Validated @RequestBody ScheduleRequest request) {
-        baseTaskHubService.updateCron(request);
+        baseTaskHubService.updateCron(request, SessionUtils.getUserId(), "/system/task-center/schedule/update-cron", OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
     }
 
 }
