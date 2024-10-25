@@ -419,6 +419,12 @@
                                 #{value}
                             </foreach>
                         </when>
+                        <when test="key=='status'">
+                            and task.enable in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                b#{value}
+                            </foreach>
+                        </when>
                     </choose>
                 </if>
             </foreach>

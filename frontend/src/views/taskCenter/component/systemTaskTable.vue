@@ -168,11 +168,11 @@
         options: [
           {
             label: t('common.open'),
-            value: 'enable',
+            value: 1,
           },
           {
             label: t('common.close'),
-            value: 'disable',
+            value: 0,
           },
         ],
         filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_SYSTEM_TASK_STATUS,
