@@ -26,5 +26,6 @@ export interface FormItemModel {
   defaultValue?: string | string[] | number | number[] | boolean; // 默认值
   hasRedStar?: boolean; // 是否有红星
   tooltip?: string;
+  disabled?: boolean;
   [key: string]: any;
 }

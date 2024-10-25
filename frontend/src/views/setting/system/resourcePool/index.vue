@@ -134,7 +134,7 @@
   import type { Description } from '@/components/pure/ms-description/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import type { MsTableColumn, MsTableColumnFilterConfig } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag, { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTrialAlert from '@/components/business/ms-trial-alert/index.vue';
@@ -151,6 +151,7 @@
 
   import type { ResourcePoolDetail, ResourcePoolItem } from '@/models/setting/resourcePool';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterRemoteMethodsEnum } from '@/enums/tableFilterEnum';
 
   const licenseStore = useLicenseStore();
   const { t } = useI18n();
@@ -160,6 +161,19 @@
   const hasOperationPoolPermission = computed(() =>
     hasAnyPermission(['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE', 'SYSTEM_TEST_RESOURCE_POOL:READ+DELETE'])
   );
+
+  const filterConfig = computed<MsTableColumnFilterConfig>(() => {
+    if (licenseStore.hasLicense()) {
+      return {
+        mode: 'remote',
+        remoteMethod: FilterRemoteMethodsEnum.SYSTEM_ORGANIZATION_LIST,
+        placeholderText: t('common.pleaseSelect'),
+      };
+    }
+    return {
+      options: [],
+    };
+  });
   const columns: MsTableColumn = [
     {
       title: 'system.resourcePool.tableColumnName',
@@ -186,6 +200,7 @@
       showInTable: true,
       showDrag: true,
       isTag: true,
+      filterConfig: filterConfig.value,
       isStringTag: true,
       tagPrimary: 'default',
     },
@@ -197,6 +212,18 @@
     {
       title: 'system.resourcePool.tableColumnType',
       dataIndex: 'type',
+      filterConfig: {
+        options: [
+          {
+            value: 'Node',
+            label: 'Node',
+          },
+          {
+            value: 'Kubernetes',
+            label: 'Kubernetes',
+          },
+        ],
+      },
     },
     {
       title: 'system.resourcePool.tableColumnCreateTime',

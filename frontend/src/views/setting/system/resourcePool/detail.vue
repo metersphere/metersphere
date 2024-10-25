@@ -636,6 +636,7 @@
       max: maxConcurrentNumber.value,
       tooltip: licenseStore.hasLicense() ? '' : t('system.resourcePool.concurrentNumberMinToolTip'),
       defaultValue: 10,
+      disabled: !licenseStore.hasLicense(),
     },
     {
       field: 'singleTaskConcurrentNumber',
@@ -656,6 +657,7 @@
       max: maxSingleTaskConcurrentNumber.value,
       tooltip: licenseStore.hasLicense() ? '' : t('system.resourcePool.singleConcurrentNumberMinToolTip'),
       defaultValue: 3,
+      disabled: !licenseStore.hasLicense(),
     },
   ]);
 

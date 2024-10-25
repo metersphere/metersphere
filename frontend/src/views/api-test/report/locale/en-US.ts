@@ -75,4 +75,5 @@ export default {
   'report.detail.api.scenarioSavedEnv': 'Scenario saved environment',
   'report.detail.api.noResponseContent': 'There is no response',
   'report.detail.api.placeHolderName': 'To search by name',
+  'report.detail.api.resourcePool': 'Resource pool',
 };

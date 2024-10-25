@@ -64,7 +64,9 @@
         <template #result="{ record }">
           <ExecutionStatus v-if="record.result !== '-'" :status="record.result" :module-type="ReportEnum.API_REPORT" />
         </template>
-
+        <template #triggerMode="{ record }">
+          {{ t(executeMethodMap[record.triggerMode]) }}
+        </template>
         <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_STATUS]="{ filterContent }">
           <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
         </template>
@@ -97,6 +99,8 @@
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+
+  import { executeMethodMap } from '@/views/taskCenter/component/config';
 
   const { t } = useI18n();
   const tableStore = useTableStore();
@@ -160,15 +164,37 @@
         options: ExecStatusList.value,
         filterSlotName: FilterSlotNameEnum.TEST_PLAN_REPORT_EXEC_STATUS,
       },
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       showInTable: true,
-      width: 200,
+      width: 120,
+      showDrag: true,
+    },
+    {
+      title: 'ms.taskCenter.executeMethod',
+      dataIndex: 'triggerMode',
+      slotName: 'triggerMode',
+      width: 120,
+      filterConfig: {
+        options: Object.keys(executeMethodMap).map((key) => ({
+          label: t(executeMethodMap[key]),
+          value: key,
+        })),
+        filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_METHOD,
+      },
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       showDrag: true,
     },
     {
       title: 'common.executionResult',
       slotName: 'result',
       dataIndex: 'result',
-      width: 200,
+      width: 120,
       filterConfig: {
         options: statusList.value,
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_STATUS,

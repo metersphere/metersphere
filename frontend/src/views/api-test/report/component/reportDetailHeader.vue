@@ -35,7 +35,7 @@
         <a-divider direction="vertical" :margin="4" class="!mx-2"></a-divider>
         <template #content>
           <div class="max-w-[400px] items-center gap-[8px] text-[14px]">
-            <div class="text-[var(--color-text-4)]">{{ t('project.taskCenter.resourcePool') }}</div>
+            <div class="mb-[4px] text-[var(--color-text-4)]">{{ t('report.detail.api.resourcePool') }}</div>
             <div> {{ props.detail.poolName || '-' }}</div>
           </div>
         </template>

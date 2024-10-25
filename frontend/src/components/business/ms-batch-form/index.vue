@@ -63,6 +63,7 @@
                 class="flex-1"
                 :placeholder="t(model.placeholder || '')"
                 :max-length="model.maxLength || 255"
+                :disabled="model.disabled"
                 allow-clear
                 @change="emit('change')"
               />
@@ -71,6 +72,7 @@
                 v-model:model-value="element[model.field]"
                 class="flex-1"
                 type="textarea"
+                :disabled="model.disabled"
                 @change="
                   () => {
                     formRef?.validateField(`list[${index}].${model.field}`);
@@ -89,6 +91,7 @@
                   :max="model.max || 9999999"
                   model-event="input"
                   allow-clear
+                  :disabled="model.disabled"
                   @change="emit('change')"
                 />
                 <template #content>
@@ -109,6 +112,7 @@
                 unique-value
                 retain-input-value
                 :max-tag-count="2"
+                :disabled="model.disabled"
                 @change="emit('change')"
               />
               <a-select
@@ -117,6 +121,7 @@
                 class="flex-1"
                 :placeholder="t(model.placeholder || '')"
                 :options="model.options"
+                :disabled="model.disabled"
                 :field-names="model.filedNames"
                 @change="emit('change')"
               />
@@ -139,6 +144,7 @@
                     :placeholder="t(child.placeholder || '')"
                     :max-length="child.maxLength || 255"
                     allow-clear
+                    :disabled="child.disabled"
                     @change="emit('change')"
                   />
                   <a-select
@@ -147,6 +153,7 @@
                     :class="child.className"
                     :placeholder="t(child.placeholder || '')"
                     :options="child.options"
+                    :disabled="child.disabled"
                     :field-names="child.filedNames"
                     @change="emit('change')"
                   />
@@ -155,6 +162,7 @@
                     v-model="element[child.field]"
                     type="textarea"
                     :class="child.className"
+                    :disabled="child.disabled"
                     :placeholder="t(child.placeholder || '')"
                     :max-length="child.maxLength || 255"
                     :title="child.title"

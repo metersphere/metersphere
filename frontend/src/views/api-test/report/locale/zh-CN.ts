@@ -73,4 +73,5 @@ export default {
   'report.detail.api.scenarioSavedEnv': '场景保存的环境',
   'report.detail.api.noResponseContent': '暂无响应内容',
   'report.detail.api.placeHolderName': '通过名称搜索',
+  'report.detail.api.resourcePool': '资源池',
 };
