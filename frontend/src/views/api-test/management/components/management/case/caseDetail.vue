@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full w-full overflow-hidden">
+  <div class="flex h-full w-full flex-col overflow-hidden">
     <div class="p-[16px]">
       <MsDetailCard :title="`[${caseDetail.num}] ${caseDetail.name}`" :description="description" class="mb-[8px]">
         <template #titlePrefix>
@@ -68,7 +68,7 @@
 
     <a-tabs
       v-model:active-key="activeKey"
-      class="no-left-tab h-full px-[16px]"
+      class="no-left-tab flex-1 px-[16px]"
       animation
       lazy-load
       @change="changeActiveKey"
