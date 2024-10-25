@@ -3,6 +3,7 @@ package io.metersphere.api.controller;
 import io.metersphere.api.dto.definition.ApiScenarioBatchExportRequest;
 import io.metersphere.api.dto.export.MetersphereApiScenarioExportResponse;
 import io.metersphere.api.dto.scenario.ApiScenarioImportRequest;
+import io.metersphere.api.service.ApiScenarioDataTransferService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.functional.domain.ExportTask;
 import io.metersphere.project.domain.Project;
@@ -51,6 +52,8 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
 
     @Resource
     private CommonProjectService commonProjectService;
+    @Resource
+    private ApiScenarioDataTransferService apiScenarioDataTransferService;
 
     @BeforeEach
     public void initTestData() {
@@ -63,6 +66,15 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
             initProject.setEnable(true);
             initProject.setUserIds(List.of("admin"));
             project = commonProjectService.add(initProject, "admin", "/organization-project/add", OperationLogModule.SETTING_ORGANIZATION_PROJECT);
+        }
+    }
+
+    @Test
+    @Order(0)
+    public void baseTest() throws Exception {
+        try {
+            apiScenarioDataTransferService.exportScenario(null, null, null);
+        } catch (Exception ignore) {
         }
     }
 
@@ -87,6 +99,20 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("file", file);
         this.requestMultipartWithOkAndReturn(URL_POST_IMPORT, paramMap);
+
+        request.setCoverData(true);
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file);
+        this.requestMultipartWithOkAndReturn(URL_POST_IMPORT, paramMap);
+
+
+        inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/file_update_upload.JPG")).getPath()));
+        file = new MockMultipartFile("file", "simple.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file);
+        this.requestMultipart(URL_POST_IMPORT, paramMap);
     }
 
     @Resource

@@ -10,6 +10,7 @@ import io.metersphere.api.dto.converter.ApiDefinitionDetail;
 import io.metersphere.api.dto.converter.ApiDefinitionExportDetail;
 import io.metersphere.api.dto.converter.ApiScenarioImportParseResult;
 import io.metersphere.api.dto.converter.ApiScenarioPreImportAnalysisResult;
+import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.export.ApiScenarioExportResponse;
 import io.metersphere.api.dto.export.MetersphereApiScenarioExportResponse;
@@ -30,7 +31,9 @@ import io.metersphere.api.utils.ApiScenarioImportUtils;
 import io.metersphere.functional.domain.ExportTask;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.Project;
+import io.metersphere.project.dto.filemanagement.FileAssociationSource;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.mapper.ExtFileAssociationMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.project.utils.FileDownloadUtils;
@@ -113,6 +116,8 @@ public class ApiScenarioDataTransferService {
     private ExtApiDefinitionMapper extApiDefinitionMapper;
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Resource
+    private ExtFileAssociationMapper extFileAssociationMapper;
 
     @Resource
     private FileService fileService;
@@ -309,12 +314,14 @@ public class ApiScenarioDataTransferService {
                 operationLogs.add(ApiScenarioImportUtils.genImportLog(project, t.getId(), t.getName(), scenarioImportDetail, OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO, operator, OperationLogType.IMPORT.name()));
             });
 
-            preImportAnalysisResult.getUpdateApiScenarioData().forEach(t -> {
-                ApiScenarioImportDetail scenarioImportDetail = new ApiScenarioImportDetail();
-                BeanUtils.copyBean(scenarioImportDetail, t);
-                noticeUpdateLists.add(scenarioImportDetail);
-                operationLogs.add(ApiScenarioImportUtils.genImportLog(project, t.getId(), t.getName(), scenarioImportDetail, OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO, operator, OperationLogType.UPDATE.name()));
-            });
+            if (isCoverData) {
+                preImportAnalysisResult.getUpdateApiScenarioData().forEach(t -> {
+                    ApiScenarioImportDetail scenarioImportDetail = new ApiScenarioImportDetail();
+                    BeanUtils.copyBean(scenarioImportDetail, t);
+                    noticeUpdateLists.add(scenarioImportDetail);
+                    operationLogs.add(ApiScenarioImportUtils.genImportLog(project, t.getId(), t.getName(), scenarioImportDetail, OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO, operator, OperationLogType.UPDATE.name()));
+                });
+            }
 
             //发送通知
             User user = userMapper.selectByPrimaryKey(operator);
@@ -361,6 +368,7 @@ public class ApiScenarioDataTransferService {
                 ApiScenario scenario = new ApiScenario();
                 scenario.setId(request.getId());
                 scenario.setUpdateUser(operator);
+                scenario.setProjectId(request.getProjectId());
                 scenario.setUpdateTime(System.currentTimeMillis());
                 scenario.setStepTotal(CollectionUtils.isNotEmpty(request.getSteps()) ? request.getSteps().size() : 0);
                 scenarioBatchMapper.updateByPrimaryKeySelective(scenario);
@@ -531,7 +539,7 @@ public class ApiScenarioDataTransferService {
                     }
                     apiScenarioBlobBatchMapper.insert(apiScenarioBlob);
                     // 处理csv文件
-                    this.handCsvFilesAdd(t, operator, scenario, csvBatchMapper, csvStepBatchMapper);
+                    this.importCsvFilesAdd(t, operator, scenario, csvBatchMapper, csvStepBatchMapper);
                     // 处理添加的步骤
                     this.handleStepAdd(t, scenario, csvStepBatchMapper, stepBatchMapper, stepBlobBatchMapper);
                 });
@@ -581,8 +589,8 @@ public class ApiScenarioDataTransferService {
         }
     }
 
-    private void handCsvFilesAdd(ApiScenarioImportDetail t, String operator, ApiScenario scenario,
-                                 ApiScenarioCsvMapper batchCsvMapper, ApiScenarioCsvStepMapper batchCsvStepMapper) {
+    private void importCsvFilesAdd(ApiScenarioImportDetail t, String operator, ApiScenario scenario,
+                                   ApiScenarioCsvMapper batchCsvMapper, ApiScenarioCsvStepMapper batchCsvStepMapper) {
         List<CsvVariable> csvVariables = apiScenarioService.getCsvVariables(t.getScenarioConfig());
 
         if (CollectionUtils.isEmpty(csvVariables)) {
@@ -590,8 +598,19 @@ public class ApiScenarioDataTransferService {
         }
         // 处理 csv 相关数据表
         this.handleCsvDataUpdate(csvVariables, scenario, List.of(), batchCsvMapper, batchCsvStepMapper);
-        // 处理文件的上传 （调用流程很长，目前没想到有好的批量处理方法。暂时直接调用Service）
-        apiScenarioService.handleCsvFileAdd(csvVariables, List.of(), scenario, operator);
+        // 处理文件的上传  因为是导入调用的，有些文件可能不存在，所以要进行判断
+        ApiFileResourceUpdateRequest resourceUpdateRequest = apiScenarioService.getApiFileResourceUpdateRequest(scenario.getId(), scenario.getProjectId(), operator);
+        // 设置本地文件相关参数
+        apiScenarioService.setCsvLocalFileParam(csvVariables, List.of(), resourceUpdateRequest);
+        // 设置关联文件相关参数
+        apiScenarioService.setCsvLinkFileParam(csvVariables, List.of(), resourceUpdateRequest);
+
+        FileAssociationSource source = extFileAssociationMapper.selectNameBySourceTableAndId(
+                FileAssociationSourceUtil.getQuerySql(ApiFileResourceType.API_SCENARIO.name()), resourceUpdateRequest.getResourceId());
+        if (source != null) {
+            apiFileResourceService.addFileResource(resourceUpdateRequest);
+        }
+
     }
 
     private void handleCsvDataUpdate(List<CsvVariable> csvVariables, ApiScenario scenario, List<String> dbCsvIds,
@@ -653,21 +672,26 @@ public class ApiScenarioDataTransferService {
         Map<String, String> moduleIdPathMap = apiScenarioModules.stream().collect(Collectors.toMap(BaseTreeNode::getId, BaseTreeNode::getPath));
         Map<String, BaseTreeNode> modulePathMap = apiScenarioModules.stream().collect(Collectors.toMap(BaseTreeNode::getPath, k -> k, (k1, k2) -> k1));
 
-        ReplaceScenarioResource replaceScenarioResource = this.parseRelatedDataToAnalysisResult(operator, projectId, parseResult, analysisResult);
+        ReplaceScenarioResource replaceScenarioResource = this.parseRelatedDataToAnalysisResult(operator, projectId, parseResult, analysisResult, moduleIdPathMap, modulePathMap);
 
         List<ApiScenarioImportDetail> importScenarios = parseResult.getImportScenarioList();
         for (ApiScenarioImportDetail importScenario : importScenarios) {
             //处理模块
-            if (StringUtils.isBlank(moduleId) || StringUtils.equalsIgnoreCase(moduleId, ModuleConstants.DEFAULT_NODE_ID) || !moduleIdPathMap.containsKey(moduleId)) {
+            if (StringUtils.equalsIgnoreCase(moduleId, ModuleConstants.DEFAULT_NODE_ID)) {
                 importScenario.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
                 importScenario.setModulePath(moduleIdPathMap.get(ModuleConstants.DEFAULT_NODE_ID));
             } else {
-                if (StringUtils.isBlank(importScenario.getModulePath())) {
-                    importScenario.setModulePath(moduleIdPathMap.get(moduleId));
-                } else if (StringUtils.startsWith(importScenario.getModulePath(), "/")) {
-                    importScenario.setModulePath(moduleIdPathMap.get(moduleId) + importScenario.getModulePath());
+                if (StringUtils.isBlank(moduleId)) {
+                    if (StringUtils.isBlank(importScenario.getModulePath())) {
+                        importScenario.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+                        importScenario.setModulePath(moduleIdPathMap.get(ModuleConstants.DEFAULT_NODE_ID));
+                    }
                 } else {
-                    importScenario.setModulePath(moduleIdPathMap.get(moduleId) + "/" + importScenario.getModulePath());
+                    if (StringUtils.isBlank(importScenario.getModulePath())) {
+                        importScenario.setModulePath(moduleIdPathMap.get(moduleId));
+                    } else {
+                        importScenario.setModulePath(moduleIdPathMap.get(moduleId) + importScenario.getModulePath());
+                    }
                 }
             }
         }
@@ -781,7 +805,8 @@ public class ApiScenarioDataTransferService {
         return analysisResult;
     }
 
-    private ReplaceScenarioResource parseRelatedDataToAnalysisResult(String operator, String projectId, ApiScenarioImportParseResult parseResult, ApiScenarioPreImportAnalysisResult analysisResult) {
+    private ReplaceScenarioResource parseRelatedDataToAnalysisResult(String operator, String projectId, ApiScenarioImportParseResult parseResult, ApiScenarioPreImportAnalysisResult analysisResult
+            , Map<String, String> projectModuleIdPathMap, Map<String, BaseTreeNode> projectModulePathMap) {
         /*
         1.判断接口定义中要创建的部分，然后进行新旧ID映射
         2.判断用例中的接口定义是否在上一步中创建，如果没有则进行筛选判断符合条件的接口定义（若没有则新建）并关联到其下面。
@@ -867,10 +892,22 @@ public class ApiScenarioDataTransferService {
                 List<BaseTreeNode> apiModules = apiDefinitionImportService.buildTreeData(targetProjectId, null);
                 Map<String, BaseTreeNode> modulePathMap = apiModules.stream().collect(Collectors.toMap(BaseTreeNode::getPath, k -> k, (k1, k2) -> k1));
                 for (ApiDefinitionDetail apiDefinitionDetail : analysisResult.getInsertApiDefinitions()) {
-                    List<BaseTreeNode> insertModuleList = TreeNodeParseUtils.getInsertNodeByPath(modulePathMap, apiDefinitionDetail.getModulePath());
-                    apiDefinitionDetail.setModuleId(modulePathMap.get(apiDefinitionDetail.getModulePath()).getId());
-                    insertModuleList.forEach(item -> item.setProjectId(targetProjectId));
-                    analysisResult.getInsertApiModuleList().addAll(insertModuleList);
+
+                    if (StringUtils.isBlank(apiDefinitionDetail.getModulePath()) || StringUtils.equals(apiDefinitionDetail.getModulePath().trim(), "/")) {
+                        apiDefinitionDetail.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+                        apiDefinitionDetail.setModulePath(Translator.get("api_unplanned_request"));
+                    } else {
+                        if (!StringUtils.startsWith(apiDefinitionDetail.getModulePath(), "/")) {
+                            apiDefinitionDetail.setModulePath("/" + apiDefinitionDetail.getModulePath());
+                        }
+                        if (StringUtils.endsWith(apiDefinitionDetail.getModulePath(), "/")) {
+                            apiDefinitionDetail.setModulePath(apiDefinitionDetail.getModulePath().substring(0, apiDefinitionDetail.getModulePath().length() - 1));
+                        }
+                        List<BaseTreeNode> insertModuleList = TreeNodeParseUtils.getInsertNodeByPath(modulePathMap, apiDefinitionDetail.getModulePath());
+                        apiDefinitionDetail.setModuleId(modulePathMap.get(apiDefinitionDetail.getModulePath()).getId());
+                        insertModuleList.forEach(item -> item.setProjectId(targetProjectId));
+                        analysisResult.getInsertApiModuleList().addAll(insertModuleList);
+                    }
                 }
             }
         }
@@ -963,10 +1000,18 @@ public class ApiScenarioDataTransferService {
         {
             for (Map.Entry<String, List<ApiScenarioImportDetail>> entry : projectScenarioMap.entrySet()) {
                 String targetProjectId = entry.getKey();
-                List<BaseTreeNode> apiScenarioModules = apiScenarioModuleService.getImportTreeNodeList(targetProjectId);
+                Map<String, BaseTreeNode> modulePathMap;
+                Map<String, String> moduleIdPathMap;
+                if (!StringUtils.equalsIgnoreCase(targetProjectId, projectId)) {
+                    List<BaseTreeNode> apiScenarioModules = apiScenarioModuleService.getImportTreeNodeList(targetProjectId);
+                    moduleIdPathMap = apiScenarioModules.stream().collect(Collectors.toMap(BaseTreeNode::getId, BaseTreeNode::getPath));
+                    modulePathMap = apiScenarioModules.stream().collect(Collectors.toMap(BaseTreeNode::getPath, k -> k, (k1, k2) -> k1));
+                } else {
+                    // 当前项目下的场景模块采用传参进来的数据，这样不影响后续在当前项目下的模块补充逻辑
+                    moduleIdPathMap = projectModuleIdPathMap;
+                    modulePathMap = projectModulePathMap;
+                }
 
-                Map<String, String> moduleIdPathMap = apiScenarioModules.stream().collect(Collectors.toMap(BaseTreeNode::getId, BaseTreeNode::getPath));
-                Map<String, BaseTreeNode> modulePathMap = apiScenarioModules.stream().collect(Collectors.toMap(BaseTreeNode::getPath, k -> k, (k1, k2) -> k1));
 
                 List<ApiScenarioImportDetail> importScenarios = parseResult.getRelatedScenarioList();
 
