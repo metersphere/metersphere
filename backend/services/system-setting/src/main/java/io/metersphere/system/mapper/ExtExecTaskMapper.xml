@@ -90,6 +90,16 @@
                             and exec_task.result in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <!-- 所属组织 -->
+                        <when test="key=='organizationName'">
+                            and exec_task.organization_id in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 所属项目 -->
+                        <when test="key=='projectName'">
+                            and exec_task.project_id in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
                     </choose>
                 </if>
             </foreach>

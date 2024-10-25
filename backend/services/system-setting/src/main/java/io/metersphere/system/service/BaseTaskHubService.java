@@ -389,11 +389,17 @@ public class BaseTaskHubService {
         }
         List<String> userIds = list.stream().map(TaskHubItemDTO::getExecutor).distinct().toList();
         List<String> resourcePoolIds = list.stream().map(TaskHubItemDTO::getResourcePoolId).distinct().toList();
+        List<String> projectIds = list.stream().map(TaskHubItemDTO::getProjectId).distinct().toList();
+        List<String> organizationIds = list.stream().map(TaskHubItemDTO::getOrganizationId).distinct().toList();
+        Map<String, String> projectMaps = getProjectMaps(projectIds);
+        Map<String, String> organizationMaps = getOrganizationMaps(organizationIds);
         Map<String, String> userMaps = getUserMaps(userIds);
         Map<String, String> resourcePoolMaps = getResourcePoolMaps(resourcePoolIds);
         list.forEach(item -> {
             item.setUserName(userMaps.getOrDefault(item.getExecutor(), StringUtils.EMPTY));
             item.setResourcePoolName(resourcePoolMaps.getOrDefault(item.getResourcePoolId(), StringUtils.EMPTY));
+            item.setProjectName(projectMaps.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
+            item.setOrganizationName(organizationMaps.getOrDefault(item.getOrganizationId(), StringUtils.EMPTY));
         });
     }
 
