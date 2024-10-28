@@ -1,13 +1,13 @@
 <template>
   <MsDrawer v-model:visible="visible" :width="1200" :footer="false">
     <template #title>
-      <div class="flex items-center gap-[8px]">
+      <div class="flex flex-1 items-center gap-[8px] overflow-hidden">
         <a-tag :color="executeResultMap[props.record.result]?.color">
           {{ t(executeResultMap[props.record.result]?.label || 'common.unExecute') }}
         </a-tag>
-        <div>{{ detail.name }}</div>
+        <div class="one-line-text">{{ detail.name }}</div>
       </div>
-      <div class="flex flex-1 justify-end">
+      <div class="flex justify-end">
         <MsButton type="icon" status="secondary" class="!rounded-[var(--border-radius-small)]" @click="init">
           <MsIcon type="icon-icon_reset_outlined" class="mr-[8px]" size="14" />
           {{ t('common.refresh') }}
