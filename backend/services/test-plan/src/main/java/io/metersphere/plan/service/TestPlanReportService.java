@@ -560,7 +560,7 @@ public class TestPlanReportService {
 
 					if (StringUtils.isNotBlank(genParam.getTaskId())) {
 						reportApiCases.sort(Comparator.comparing(TestPlanReportApiCase::getPos).reversed());
-						initApiCaseExecTaskItem(genParam.getTaskId(), genParam.getTaskId(), reportApiCases, report.getCreateUser(), project);
+						initApiCaseExecTaskItem(genParam.getTaskId(), genParam.getTestPlanId(), reportApiCases, report.getCreateUser(), project);
 					}
 				});
 			}
