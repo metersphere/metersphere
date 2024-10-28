@@ -477,6 +477,8 @@ public class ApiScenarioReportService {
                 ApiScenarioReportDTO scenarioReportDetail = scenarioReportDetail(id);
                 BeanUtils.copyBean(apiTaskReportDTO, scenarioReportDetail);
             }
+            apiTaskReportDTO.setStartTime(task.getStartTime());
+            apiTaskReportDTO.setEndTime(task.getEndTime());
         }
         return apiTaskReportDTO;
     }
