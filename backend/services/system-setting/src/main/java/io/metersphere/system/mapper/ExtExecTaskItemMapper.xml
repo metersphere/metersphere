@@ -60,6 +60,7 @@
             <if test="request.keyword != null and request.keyword != ''">
                 and (
                 exec_task.num like concat('%', #{request.keyword},'%')
+                or exec_task.task_name like concat('%', #{request.keyword},'%')
                 or exec_task_item.resource_name like concat('%', #{request.keyword},'%')
                 )
             </if>
