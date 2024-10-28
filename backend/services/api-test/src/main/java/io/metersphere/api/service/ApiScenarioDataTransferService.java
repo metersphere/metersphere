@@ -885,6 +885,12 @@ public class ApiScenarioDataTransferService {
         }
 
         ReplaceScenarioResource returnResource = new ReplaceScenarioResource();
+
+        ApiDefinitionPageRequest pageRequest = new ApiDefinitionPageRequest();
+        pageRequest.setProjectId(projectId);
+        pageRequest.setProtocols(null);
+        List<ApiDefinitionDetail> thisProjectExistenceApiDefinitionList = extApiDefinitionMapper.importList(pageRequest);
+
         // 1.处理接口定义
         {
             for (Map.Entry<String, List<ApiDefinitionDetail>> entry : projectApiMap.entrySet()) {
@@ -893,7 +899,7 @@ public class ApiScenarioDataTransferService {
 
                 Map<String, List<ApiDefinitionDetail>> protocolImportMap = apiDefinitionDetails.stream().collect(Collectors.groupingBy(ApiDefinitionDetail::getProtocol));
 
-                ApiDefinitionPageRequest pageRequest = new ApiDefinitionPageRequest();
+                pageRequest = new ApiDefinitionPageRequest();
                 pageRequest.setProjectId(targetProjectId);
                 pageRequest.setProtocols(new ArrayList<>(protocolImportMap.keySet()));
                 List<ApiDefinitionDetail> existenceApiDefinitionList = extApiDefinitionMapper.importList(pageRequest);
@@ -902,28 +908,33 @@ public class ApiScenarioDataTransferService {
 
                 for (Map.Entry<String, List<ApiDefinitionDetail>> protocolEntry : protocolImportMap.entrySet()) {
                     returnResource.getApiDefinitionIdMap().putAll(ApiScenarioImportUtils.getApiIdInTargetList(
-                            protocolEntry.getValue(), existenceProtocolMap.get(protocolEntry.getKey()), protocolEntry.getKey(), projectId, analysisResult));
+                            protocolEntry.getValue(), thisProjectExistenceApiDefinitionList, existenceProtocolMap.get(protocolEntry.getKey()), protocolEntry.getKey(), projectId, analysisResult));
                 }
 
-                // 解析接口定义的模块
-                List<BaseTreeNode> apiModules = apiDefinitionImportService.buildTreeData(targetProjectId, null);
-                Map<String, BaseTreeNode> modulePathMap = apiModules.stream().collect(Collectors.toMap(BaseTreeNode::getPath, k -> k, (k1, k2) -> k1));
-                for (ApiDefinitionDetail apiDefinitionDetail : analysisResult.getInsertApiDefinitions()) {
+                // 根据要创建的api所属目录进行项目筛选
+                Map<String, List<ApiDefinitionDetail>> projectInsertApi =
+                        analysisResult.getInsertApiDefinitions().stream().collect(Collectors.groupingBy(ApiDefinitionDetail::getProjectId));
 
-                    if (StringUtils.isBlank(apiDefinitionDetail.getModulePath()) || StringUtils.equals(apiDefinitionDetail.getModulePath().trim(), "/")) {
-                        apiDefinitionDetail.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
-                        apiDefinitionDetail.setModulePath(Translator.get("api_unplanned_request"));
-                    } else {
-                        if (!StringUtils.startsWith(apiDefinitionDetail.getModulePath(), "/")) {
-                            apiDefinitionDetail.setModulePath("/" + apiDefinitionDetail.getModulePath());
+                for (Map.Entry<String, List<ApiDefinitionDetail>> projectInsertApiEntry : projectInsertApi.entrySet()) {
+                    // 解析接口定义的模块
+                    List<BaseTreeNode> apiModules = apiDefinitionImportService.buildTreeData(projectInsertApiEntry.getKey(), null);
+                    Map<String, BaseTreeNode> modulePathMap = apiModules.stream().collect(Collectors.toMap(BaseTreeNode::getPath, k -> k, (k1, k2) -> k1));
+                    for (ApiDefinitionDetail apiDefinitionDetail : projectInsertApiEntry.getValue()) {
+                        if (StringUtils.isBlank(apiDefinitionDetail.getModulePath()) || StringUtils.equals(apiDefinitionDetail.getModulePath().trim(), "/")) {
+                            apiDefinitionDetail.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+                            apiDefinitionDetail.setModulePath(Translator.get("api_unplanned_request"));
+                        } else {
+                            if (!StringUtils.startsWith(apiDefinitionDetail.getModulePath(), "/")) {
+                                apiDefinitionDetail.setModulePath("/" + apiDefinitionDetail.getModulePath());
+                            }
+                            if (StringUtils.endsWith(apiDefinitionDetail.getModulePath(), "/")) {
+                                apiDefinitionDetail.setModulePath(apiDefinitionDetail.getModulePath().substring(0, apiDefinitionDetail.getModulePath().length() - 1));
+                            }
+                            List<BaseTreeNode> insertModuleList = TreeNodeParseUtils.getInsertNodeByPath(modulePathMap, apiDefinitionDetail.getModulePath());
+                            apiDefinitionDetail.setModuleId(modulePathMap.get(apiDefinitionDetail.getModulePath()).getId());
+                            insertModuleList.forEach(item -> item.setProjectId(targetProjectId));
+                            analysisResult.getInsertApiModuleList().addAll(insertModuleList);
                         }
-                        if (StringUtils.endsWith(apiDefinitionDetail.getModulePath(), "/")) {
-                            apiDefinitionDetail.setModulePath(apiDefinitionDetail.getModulePath().substring(0, apiDefinitionDetail.getModulePath().length() - 1));
-                        }
-                        List<BaseTreeNode> insertModuleList = TreeNodeParseUtils.getInsertNodeByPath(modulePathMap, apiDefinitionDetail.getModulePath());
-                        apiDefinitionDetail.setModuleId(modulePathMap.get(apiDefinitionDetail.getModulePath()).getId());
-                        insertModuleList.forEach(item -> item.setProjectId(targetProjectId));
-                        analysisResult.getInsertApiModuleList().addAll(insertModuleList);
                     }
                 }
             }
@@ -936,7 +947,7 @@ public class ApiScenarioDataTransferService {
                 Map<String, List<ApiTestCaseDTO>> protocolMap = apiTestCaseDTOS.stream().collect(Collectors.groupingBy(ApiTestCaseDTO::getProtocol));
                 //将项目下的用例，通过协议、关键词进行分组处理。
 
-                ApiDefinitionPageRequest pageRequest = new ApiDefinitionPageRequest();
+                pageRequest = new ApiDefinitionPageRequest();
                 pageRequest.setProjectId(targetProjectId);
                 pageRequest.setProtocols(new ArrayList<>(protocolMap.keySet()));
                 List<ApiDefinitionDetail> existenceApiDefinitionList = extApiDefinitionMapper.importList(pageRequest);
@@ -947,15 +958,20 @@ public class ApiScenarioDataTransferService {
 
                     Map<String, List<ApiTestCaseDTO>> apiIdMap = protocolList.stream().collect(Collectors.groupingBy(ApiTestCaseDTO::getApiDefinitionId));
                     for (Map.Entry<String, List<ApiTestCaseDTO>> apiIdEntry : apiIdMap.entrySet()) {
-                        String replaceApiDefinitionId = returnResource.getApi(apiIdEntry.getKey()) == null ? StringUtils.EMPTY : returnResource.getApi(apiIdEntry.getKey()).getId();
-
+                        ApiDefinitionDetail replaceApiDefinition = returnResource.getApi(apiIdEntry.getKey()) == null ? null : returnResource.getApi(apiIdEntry.getKey());
                         List<ApiTestCaseDTO> testCaseList = apiIdEntry.getValue();
-
-                        if (StringUtils.isBlank(replaceApiDefinitionId)) {
-                            // 用例对应的接口在上述步骤中未处理
+                        if (replaceApiDefinition != null) {
+                            // 用例对应的接口在上述步骤中有没有处理
                             boolean apiExistence = ApiScenarioImportUtils.isApiExistence(
                                     protocol, testCaseList.getFirst().getMethod(), testCaseList.getFirst().getPath(),
                                     testCaseList.getFirst().getModulePath(), testCaseList.getFirst().getApiDefinitionName(), existenceApiDefinitionList);
+
+                            if (!apiExistence && !StringUtils.equalsIgnoreCase(targetProjectId, projectId)) {
+                                //  如果用例所在项目与当前导入项目不同，且在原项目中不存在时，判断是否在当前项目中存在
+                                apiExistence = ApiScenarioImportUtils.isApiExistence(
+                                        protocol, testCaseList.getFirst().getMethod(), testCaseList.getFirst().getPath(),
+                                        testCaseList.getFirst().getModulePath(), testCaseList.getFirst().getApiDefinitionName(), thisProjectExistenceApiDefinitionList);
+                            }
 
                             if (apiExistence) {
                                 Map<Long, ApiTestCaseDTO> existenceApiCaseNumMap = extApiTestCaseMapper.selectBaseInfoByProjectIdAndApiId(targetProjectId, apiIdEntry.getKey())
@@ -965,7 +981,8 @@ public class ApiScenarioDataTransferService {
                                         returnResource.putApiTestCase(apiTestCaseDTO.getId(), existenceApiCaseNumMap.get(apiTestCaseDTO.getNum()));
                                     } else {
                                         apiTestCaseDTO.setId(IDGenerator.nextStr());
-                                        apiTestCaseDTO.setProjectId(targetProjectId);
+                                        apiTestCaseDTO.setProjectId(replaceApiDefinition.getProjectId());
+                                        apiTestCaseDTO.setApiDefinitionId(replaceApiDefinition.getId());
                                         returnResource.putApiTestCase(apiTestCaseDTO.getId(), apiTestCaseDTO);
                                         analysisResult.setApiTestCase(apiTestCaseDTO);
                                     }
@@ -973,7 +990,7 @@ public class ApiScenarioDataTransferService {
                             } else {
                                 // 同步创建API
                                 ApiDefinitionDetail apiDefinitionDetail = new ApiDefinitionDetail();
-                                apiDefinitionDetail.setProjectId(targetProjectId);
+                                apiDefinitionDetail.setProjectId(projectId);
                                 apiDefinitionDetail.setModulePath(testCaseList.getFirst().getModulePath());
                                 apiDefinitionDetail.setId(IDGenerator.nextStr());
                                 apiDefinitionDetail.setName(testCaseList.getFirst().getApiDefinitionName());
@@ -987,7 +1004,7 @@ public class ApiScenarioDataTransferService {
 
                                 for (ApiTestCaseDTO apiTestCaseDTO : testCaseList) {
                                     apiTestCaseDTO.setId(IDGenerator.nextStr());
-                                    apiTestCaseDTO.setProjectId(targetProjectId);
+                                    apiTestCaseDTO.setProjectId(apiDefinitionDetail.getProjectId());
                                     apiTestCaseDTO.setApiDefinitionId(apiDefinitionDetail.getId());
                                     returnResource.putApiTestCase(apiTestCaseDTO.getId(), apiTestCaseDTO);
                                     analysisResult.setApiTestCase(apiTestCaseDTO);
@@ -995,10 +1012,11 @@ public class ApiScenarioDataTransferService {
                             }
 
                         } else {
-                            Map<Long, ApiTestCaseDTO> existenceApiCaseNumMap = extApiTestCaseMapper.selectBaseInfoByProjectIdAndApiId(targetProjectId, replaceApiDefinitionId)
+                            Map<Long, ApiTestCaseDTO> existenceApiCaseNumMap = extApiTestCaseMapper.selectBaseInfoByProjectIdAndApiId(targetProjectId, replaceApiDefinition.getId())
                                     .stream().collect(Collectors.toMap(ApiTestCaseDTO::getNum, Function.identity(), (k1, k2) -> k1));
                             for (ApiTestCaseDTO apiTestCaseDTO : testCaseList) {
-                                apiTestCaseDTO.setApiDefinitionId(replaceApiDefinitionId);
+                                apiTestCaseDTO.setApiDefinitionId(replaceApiDefinition.getId());
+                                apiTestCaseDTO.setProjectId(replaceApiDefinition.getProjectId());
                                 if (existenceApiCaseNumMap.containsKey(apiTestCaseDTO.getNum())) {
                                     returnResource.putApiTestCase(apiTestCaseDTO.getId(), existenceApiCaseNumMap.get(apiTestCaseDTO.getNum()));
                                 } else {
