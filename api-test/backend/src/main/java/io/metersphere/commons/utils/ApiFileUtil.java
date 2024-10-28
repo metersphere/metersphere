@@ -71,7 +71,7 @@ public class ApiFileUtil extends FileUtils {
 
         if (CollectionUtils.isNotEmpty(bodyFiles) && StringUtils.isNotBlank(requestId)) {
             for (MultipartFile bodyFile : bodyFiles) {
-                fileManagerService.upload(bodyFile, getRequest(requestId));
+                fileManagerService.upload(bodyFile, getRequest(requestId, bodyFile.getOriginalFilename()));
             }
         }
     }
