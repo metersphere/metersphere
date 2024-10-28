@@ -127,6 +127,7 @@
   }
   function handlePopupVisibleChange(val: boolean) {
     if (!val) {
+      inputValue.value = '';
       tempInputValue.value = '';
     }
   }
