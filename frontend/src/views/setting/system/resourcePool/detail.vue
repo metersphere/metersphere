@@ -344,6 +344,7 @@
             mode="button"
             class="w-[160px]"
             model-event="input"
+            :disabled="!isXpack"
             @change="() => setIsSave(false)"
           ></a-input-number>
         </a-form-item>
@@ -374,6 +375,7 @@
             mode="button"
             class="w-[160px]"
             model-event="input"
+            :disabled="!isXpack"
             @change="() => setIsSave(false)"
           ></a-input-number>
         </a-form-item>
