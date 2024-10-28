@@ -2,13 +2,17 @@
   <a-popover
     v-model:popup-visible="popoverVisible"
     position="bl"
-    :disabled="!props.step.csvIds || props.step.csvIds.length === 0 || props.step.isRefScenarioStep"
+    :disabled="csvList.length === 0 || props.step.isRefScenarioStep"
     content-class="csv-popover"
     arrow-class="hidden"
     :popup-offset="0"
   >
-    <div v-if="props.step.stepType === ScenarioStepType.LOOP_CONTROLLER && props.step.csvIds?.length" class="csv-tag">
-      {{ `CSV ${props.step.csvIds?.length}` }}
+    <div
+      v-if="props.step.stepType === ScenarioStepType.LOOP_CONTROLLER && csvList.length"
+      class="csv-tag"
+      :disabled="props.disabled"
+    >
+      {{ `CSV ${csvList.length}` }}
     </div>
     <template #content>
       <template v-if="alreadyDeleteFiles.length > 0">
@@ -42,18 +46,22 @@
             </div>
           </a-tooltip>
           <div class="flex items-center gap-[8px]">
-            <MsIcon
-              type="icon-icon_update_rotatiorn"
-              class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
-              :size="14"
-              @click="() => emit('replace', csv.id)"
-            />
-            <MsIcon
-              type="icon-icon_delete-trash_outlined1"
-              class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
-              :size="14"
-              @click="() => emit('remove', csv.id)"
-            />
+            <a-tooltip :content="t('common.replace')">
+              <MsIcon
+                type="icon-icon_update_rotatiorn"
+                class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
+                :size="14"
+                @click="() => emit('replace', csv.id)"
+              />
+            </a-tooltip>
+            <a-tooltip :content="t('common.delete')">
+              <MsIcon
+                type="icon-icon_delete-trash_outlined1"
+                class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
+                :size="14"
+                @click="() => emit('remove', csv.id)"
+              />
+            </a-tooltip>
           </div>
         </div>
       </template>
@@ -68,18 +76,22 @@
             </div>
           </a-tooltip>
           <div class="flex items-center gap-[8px]">
-            <MsIcon
-              type="icon-icon_update_rotatiorn"
-              class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
-              :size="14"
-              @click="() => emit('replace', csv.id)"
-            />
-            <MsIcon
-              type="icon-icon_delete-trash_outlined1"
-              class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
-              :size="14"
-              @click="() => emit('remove', csv.id)"
-            />
+            <a-tooltip :content="t('common.replace')">
+              <MsIcon
+                type="icon-icon_update_rotatiorn"
+                class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
+                :size="14"
+                @click="() => emit('replace', csv.id)"
+              />
+            </a-tooltip>
+            <a-tooltip :content="t('common.delete')">
+              <MsIcon
+                type="icon-icon_delete-trash_outlined1"
+                class="cursor-pointer hover:text-[rgb(var(--primary-5))]"
+                :size="14"
+                @click="() => emit('remove', csv.id)"
+              />
+            </a-tooltip>
           </div>
         </div>
       </template>
@@ -156,7 +168,7 @@
     border-radius: var(--border-radius-small);
     color: var(--color-text-4);
     line-height: 18px;
-    &:hover {
+    &:not(:disabled):hover {
       border-color: rgb(var(--primary-5));
       color: rgb(var(--primary-5));
     }
