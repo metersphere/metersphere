@@ -3,7 +3,9 @@ package io.metersphere.api.controller.definition;
 import io.metersphere.api.dto.definition.ApiScheduleDTO;
 import io.metersphere.api.dto.definition.request.ApiScheduleRequest;
 import io.metersphere.api.service.definition.ApiDefinitionScheduleService;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
@@ -51,7 +53,7 @@ public class ApiDefinitionScheduleController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_IMPORT)
     @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void deleteSchedule(@PathVariable String id) {
-        apiDefinitionScheduleService.deleteSchedule(id);
+        apiDefinitionScheduleService.deleteSchedule(id, SessionUtils.getUserId(), "/api/definition/schedule/delete/", HttpMethodConstants.GET.name(), OperationLogModule.API_TEST_MANAGEMENT_DEFINITION);
     }
 
     @GetMapping(value = "/get/{id}")

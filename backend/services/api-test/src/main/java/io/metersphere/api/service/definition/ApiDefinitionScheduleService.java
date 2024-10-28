@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -110,7 +111,7 @@ public class ApiDefinitionScheduleService {
         example.createCriteria().andProjectIdEqualTo(projectId).andSwaggerUrlEqualTo(url);
         List<ApiDefinitionSwagger> apiDefinitionSwaggers = apiDefinitionSwaggerMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(apiDefinitionSwaggers)) {
-            throw  new MSException(Translator.get("api_import_url_is_exist"));
+            throw new MSException(Translator.get("api_import_url_is_exist"));
         }
     }
 
@@ -182,10 +183,27 @@ public class ApiDefinitionScheduleService {
                 SwaggerUrlImportJob.getTriggerKey(schedule.getResourceId()), SwaggerUrlImportJob.class);
     }
 
-    public void deleteSchedule(String id) {
+    public void deleteSchedule(String id, String userId, String path, String method, String module) {
         Schedule schedule = checkScheduleExit(id);
         apiDefinitionSwaggerMapper.deleteByPrimaryKey(schedule.getResourceId());
         scheduleService.deleteByResourceId(schedule.getResourceId(), SwaggerUrlImportJob.class.getName());
+        saveLog(schedule, userId, path, method, module, OperationLogType.DELETE.name());
+    }
+
+    private void saveLog(Schedule schedule, String userId, String path, String method, String module, String type) {
+        Optional.ofNullable(schedule).ifPresent(item -> {
+            LogDTO dto = new LogDTO(
+                    item.getProjectId(),
+                    projectMapper.selectByPrimaryKey(item.getProjectId()).getOrganizationId(),
+                    item.getResourceId(),
+                    userId,
+                    type,
+                    module,
+                    Translator.get("api_import_schedule") + ": " + item.getName());
+            dto.setPath(path);
+            dto.setMethod(method);
+            operationLogService.add(dto);
+        });
     }
 
     private Schedule checkScheduleExit(String id) {

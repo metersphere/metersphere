@@ -14,7 +14,7 @@
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
       <template #status="{ record }">
         <a-switch
-          v-model:modelValue="record.enable"
+          v-model:model-value="record.enable"
           type="line"
           size="small"
           :before-change="() => handleBeforeEnableChange(record)"
@@ -39,7 +39,7 @@
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
 
-  import { switchDefinitionSchedule } from '@/api/modules/api-test/management';
+  import { deleteDefinitionSchedule, switchDefinitionSchedule } from '@/api/modules/api-test/management';
   import { getScheduleProApiCaseList, projectDeleteSchedule } from '@/api/modules/taskCenter/project';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -175,7 +175,7 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          await projectDeleteSchedule(record.id);
+          await deleteDefinitionSchedule(record.id);
           Message.success(t('common.deleteSuccess'));
           loadTaskList();
         } catch (error) {
