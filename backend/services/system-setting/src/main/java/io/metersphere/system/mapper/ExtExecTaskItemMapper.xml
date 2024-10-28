@@ -243,9 +243,10 @@
 
 
     <select id="getIds" resultType="java.lang.String">
-        select id from exec_task_item
+        select exec_task_item.id from exec_task_item
         inner join exec_task on exec_task_item.task_id = exec_task.id
         <where>
+            exec_task_item.status = 'RUNNING'
             <if test="projectId != null and projectId != ''">
                 and exec_task_item.project_id = #{projectId}
             </if>

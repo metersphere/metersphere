@@ -436,7 +436,7 @@
         select id, enable from schedule
         <where>
             <if test="projectIds != null and projectIds.size() > 0">
-                and task.project_id IN
+                and project_id IN
                 <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
                     #{projectId}
                 </foreach>
