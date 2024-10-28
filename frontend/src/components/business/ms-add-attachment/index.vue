@@ -245,6 +245,9 @@
           .filter((item) => !item?.local)
           .map((item) => item?.[props.fields.id] || '')
           .filter((item) => item);
+      } else {
+        inputFileName.value = '';
+        inputFiles.value = [];
       }
     },
     {

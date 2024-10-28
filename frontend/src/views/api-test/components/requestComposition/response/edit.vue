@@ -489,8 +489,21 @@
   onBeforeMount(() => {
     if (activeResponse.value.body.binaryBody && activeResponse.value.body.binaryBody.file) {
       fileList.value = [activeResponse.value.body.binaryBody.file as unknown as MsFileItem];
+    } else {
+      fileList.value = [];
     }
   });
+
+  watch(
+    () => activeResponse.value.id,
+    () => {
+      if (activeResponse.value.body.binaryBody && activeResponse.value.body.binaryBody.file) {
+        fileList.value = [activeResponse.value.body.binaryBody.file as unknown as MsFileItem];
+      } else {
+        fileList.value = [];
+      }
+    }
+  );
 
   async function handleFileChange() {
     try {
@@ -509,7 +522,7 @@
         activeResponse.value.body.binaryBody.file = {
           ...fileList.value[0],
           fileId: fileList.value[0].uid,
-          fileName: fileList.value[0]?.originalName || '',
+          fileName: fileList.value[0]?.name || '',
           fileAlias: fileList.value[0]?.name || '',
           local: false,
         };
