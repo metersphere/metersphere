@@ -1,6 +1,10 @@
 package io.metersphere.api.parser.ms;
 
 import io.metersphere.api.parser.ms.http.HeaderManagerConverter;
+import io.metersphere.api.parser.ms.http.contro.ForEachControllerConverter;
+import io.metersphere.api.parser.ms.http.contro.IfControllerConverter;
+import io.metersphere.api.parser.ms.http.contro.LoopControllerConverter;
+import io.metersphere.api.parser.ms.http.contro.WhileControllerConverter;
 import io.metersphere.api.parser.ms.http.post.*;
 import io.metersphere.api.parser.ms.http.pre.BeanShellPreProcessConverter;
 import io.metersphere.api.parser.ms.http.pre.JDBCPreProcessConverter;
@@ -55,6 +59,11 @@ public class MsElementConverterRegister {
 
         register(ResultCollectorConverter.class);
         register(DebugSampleConverter.class);
+
+        register(LoopControllerConverter.class);
+        register(ForEachControllerConverter.class);
+        register(WhileControllerConverter.class);
+        register(IfControllerConverter.class);
     }
 
     /**

@@ -15,6 +15,7 @@ public class XPath2ExtractorConverter extends AbstractMsElementConverter<XPath2E
         xPathExtract.setEnable(element.isEnabled());
         xPathExtract.setResponseFormat(XPathExtract.ResponseFormat.XML.name());
         xPathExtract.setVariableName(element.getRefName());
+        xPathExtract.setVariableType("TEMPORARY");
         xPathExtract.setExpression(element.getXPathQuery());
         if (element.getMatchNumber() == -1) {
             xPathExtract.setResultMatchingRule(ResultMatchingExtract.ResultMatchingRuleType.ALL.name());

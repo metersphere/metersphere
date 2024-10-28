@@ -17,7 +17,7 @@ public class RegexExtractorConverter extends AbstractMsElementConverter<RegexExt
         regexExtract.setEnable(element.isEnabled());
         regexExtract.setExtractScope(this.getUseField(element));
         regexExtract.setResultMatchingRuleNum(element.getMatchNumber());
-
+        regexExtract.setVariableType("TEMPORARY");
         ConverterUtils.addPostExtract(parent, regexExtract);
     }
 

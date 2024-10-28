@@ -5,9 +5,13 @@ import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.dto.converter.ApiScenarioImportParseResult;
 import io.metersphere.api.dto.converter.ApiScenarioStepParseResult;
+import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.MsJMeterComponent;
 import io.metersphere.api.dto.request.MsThreadGroup;
 import io.metersphere.api.dto.request.controller.*;
+import io.metersphere.api.dto.request.controller.loop.MsCountController;
+import io.metersphere.api.dto.request.controller.loop.MsForEachController;
+import io.metersphere.api.dto.request.controller.loop.MsWhileController;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.scenario.ApiScenarioImportDetail;
 import io.metersphere.api.dto.scenario.ApiScenarioImportRequest;
@@ -119,6 +123,7 @@ public class JmeterParserApiScenario implements ApiScenarioImportParser {
             ApiScenarioStepRequest apiScenarioStep = new ApiScenarioStepRequest();
             apiScenarioStep.setId(IDGenerator.nextStr());
             apiScenarioStep.setProjectId(projectId);
+            apiScenarioStep.setOriginProjectId(projectId);
             apiScenarioStep.setName(msTestElement.getName());
             apiScenarioStep.setUniqueId(IDGenerator.nextStr());
             msTestElement.setStepId(apiScenarioStep.getId());
@@ -142,9 +147,14 @@ public class JmeterParserApiScenario implements ApiScenarioImportParser {
                 apiScenarioStep.setConfig(new HashMap<>());
                 apiScenarioStep.setRefType(ApiScenarioStepRefType.DIRECT.name());
                 stepBlobContent = JSON.toJSONString(msTestElement).getBytes();
-            } else {
+            } else if (msTestElement instanceof MsLoopController loopController) {
                 apiScenarioStep.setStepType(this.getStepType(msTestElement));
-                apiScenarioStep.setConfig(JSON.toJSONString(msTestElement));
+                apiScenarioStep.setConfig(new LoopConfig(loopController));
+                apiScenarioStep.setRefType(ApiScenarioStepRefType.DIRECT.name());
+            } else if (!(msTestElement instanceof MsCommonElement)) {
+                apiScenarioStep.setStepType(this.getStepType(msTestElement));
+                apiScenarioStep.setConfig(new HashMap<>());
+                apiScenarioStep.setRefType(ApiScenarioStepRefType.DIRECT.name());
             }
 
             parseResult.getStepList().add(apiScenarioStep);
@@ -200,3 +210,21 @@ class ProtocolConfig {
         this.method = method;
     }
 }
+
+class LoopConfig {
+    String id;
+    String name;
+    boolean enable = true;
+    String loopType;
+    MsCountController msCountController;
+    MsForEachController forEachController;
+    MsWhileController whileController;
+
+    public LoopConfig(MsLoopController loopController) {
+        this.loopType = loopController.getLoopType();
+        this.msCountController = loopController.getMsCountController();
+        this.forEachController = loopController.getForEachController();
+        this.whileController = loopController.getWhileController();
+    }
+}
+
