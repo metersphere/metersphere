@@ -25,15 +25,6 @@
       <template #status="{ record }">
         <ExecutionStatus :status="record.status" :module-type="ReportEnum.API_SCENARIO_REPORT" />
       </template>
-      <template #execStatus="{ record }">
-        <ExecStatus :status="record.execStatus" />
-      </template>
-      <template #[FilterSlotNameEnum.API_TEST_SCENARIO_EXECUTE_RESULT]="{ filterContent }">
-        <ExecutionStatus :status="filterContent.value" :module-type="ReportEnum.API_SCENARIO_REPORT" />
-      </template>
-      <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT]="{ filterContent }">
-        <ExecStatus :status="filterContent.value" />
-      </template>
       <template #operation="{ record }">
         <div v-if="record.historyDeleted">
           <a-tooltip :content="t('common.executionResultCleaned')" position="top">
@@ -76,7 +67,6 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
-  import ExecStatus from '@/views/api-test/report/component/execStatus.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import { getExecuteHistory } from '@/api/modules/api-test/scenario';
@@ -144,22 +134,6 @@
         filterSlotName: FilterSlotNameEnum.API_TEST_SCENARIO_EXECUTE_RESULT,
       },
       width: 100,
-    },
-    {
-      title: 'report.status',
-      dataIndex: 'execStatus',
-      slotName: 'execStatus',
-      filterConfig: {
-        options: ExecStatusList.value,
-        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_EXECUTE_RESULT,
-      },
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
-      showInTable: true,
-      width: 150,
-      showDrag: true,
     },
     {
       title: 'apiScenario.executeHistory.execution.operator',
