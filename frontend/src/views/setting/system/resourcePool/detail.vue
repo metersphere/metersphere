@@ -331,8 +331,16 @@
           <template #label>
             <div class="inline-flex max-w-[calc(100%-12px)] items-center gap-[4px]">
               <div>{{ t('system.resourcePool.testResourceDTO.concurrentNumber') }}</div>
-              <a-tooltip v-if="!isXpack" :content="t('system.resourcePool.concurrentNumberTip')" position="tl" mini>
+              <a-tooltip v-if="!isXpack" position="tl" mini>
                 <icon-question-circle class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]" />
+                <template #content>
+                  <div>
+                    {{ t('system.resourcePool.concurrentNumberTip') }}
+                    <span class="ml-2 inline-block cursor-pointer text-[rgb(var(--primary-4))]" @click="goTry">
+                      {{ t('system.authorized.applyTrial') }}
+                    </span>
+                  </div>
+                </template>
               </a-tooltip>
             </div>
           </template>
@@ -357,13 +365,17 @@
           <template #label>
             <div class="inline-flex max-w-[calc(100%-12px)] items-center gap-[4px]">
               <div>{{ t('system.resourcePool.testResourceDTO.podThreads') }}</div>
-              <a-tooltip
-                v-if="!isXpack"
-                :content="t('system.resourcePool.testResourceDTO.podThreadsTip')"
-                position="tl"
-                mini
-              >
+              <a-tooltip v-if="!isXpack" position="tl" mini>
                 <icon-question-circle class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]" />
+
+                <template #content>
+                  <div>
+                    {{ t('system.resourcePool.testResourceDTO.podThreadsTip') }}
+                    <span class="ml-2 inline-block cursor-pointer text-[rgb(var(--primary-4))]" @click="goTry">
+                      {{ t('system.authorized.applyTrial') }}
+                    </span>
+                  </div>
+                </template>
               </a-tooltip>
             </div>
           </template>
@@ -744,6 +756,17 @@
   function changeResourceType(val: string | number | boolean) {
     if (val === 'Kubernetes') {
       setBatchFormRes();
+    } else {
+      form.value.testResourceDTO.concurrentNumber = 10;
+      form.value.testResourceDTO.singleTaskConcurrentNumber = 3;
+      form.value.testResourceDTO.nodesList = [
+        {
+          ip: '',
+          port: '',
+          concurrentNumber: 10,
+          singleTaskConcurrentNumber: 3,
+        },
+      ];
     }
     setIsSave(false);
   }
@@ -922,6 +945,10 @@
 
   function handleBack() {
     router.replace({ name: SettingRouteEnum.SETTING_SYSTEM_RESOURCE_POOL });
+  }
+
+  function goTry() {
+    window.open('https://jinshuju.net/f/CzzAOe', '_blank');
   }
 </script>
 
