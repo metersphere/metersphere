@@ -483,7 +483,7 @@ public class ApiCommonService {
 
     public ExecTask newExecTask(String projectId, String userId) {
         ExecTask execTask = new ExecTask();
-        execTask.setNum(NumGenerator.nextNum(projectId, ApplicationNumScope.TASK));
+        execTask.setNum(NumGenerator.nextNum(ApplicationNumScope.TASK));
         execTask.setProjectId(projectId);
         execTask.setId(IDGenerator.nextStr());
         execTask.setCreateTime(System.currentTimeMillis());
