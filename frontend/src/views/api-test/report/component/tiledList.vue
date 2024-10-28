@@ -165,9 +165,7 @@
     const splitLevel = props.keyWords.split('-');
     const stepTypeStatus = splitLevel[1] || '';
     const stepType =
-      splitLevel[0] === 'CUSTOM_REQUEST'
-        ? ['API', 'API_CASE', 'CUSTOM_REQUEST']
-        : ['API', 'API_CASE', 'CUSTOM_REQUEST', 'SCRIPT', 'API_SCENARIO'];
+      splitLevel[0] === 'CUSTOM_REQUEST' ? ['API', 'API_CASE', 'CUSTOM_REQUEST'] : Object.values(ScenarioStepType);
     const nameSearch = innerKeyword.value?.toLowerCase(); // 传入的 name 检索关键字
 
     const search = (_data: ScenarioItemType[]) => {
