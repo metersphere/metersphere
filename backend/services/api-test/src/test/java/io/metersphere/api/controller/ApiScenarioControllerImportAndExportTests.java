@@ -165,7 +165,7 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
 
             MetersphereApiScenarioExportResponse exportResponse = ApiDataUtils.parseObject(fileContent, MetersphereApiScenarioExportResponse.class);
 
-            Assertions.assertEquals(exportResponse.getExportScenarioList().size(), 8);
+            Assertions.assertEquals(exportResponse.getExportScenarioList().size(), 6);
 
             MsFileUtils.deleteDir("/tmp/api-scenario-export/");
         }

@@ -1,6 +1,7 @@
 package io.metersphere.api.parser.api.dataimport;
 
 
+import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.ApiScenarioCsv;
 import io.metersphere.api.dto.converter.ApiScenarioImportParseResult;
 import io.metersphere.api.dto.converter.ApiScenarioStepParseResult;
@@ -55,26 +56,31 @@ public class MetersphereParserApiScenario implements ApiScenarioImportParser {
 
 
         for (ApiScenarioDetail apiScenarioDetail : exportScenarioList) {
+            apiScenarioDetail.resetConfigCsvId();
             returnResult.getImportScenarioList().add(
-                    this.parseApiScenario(projectId, apiScenarioDetail, scenarioStepMap, scenarioStepBlobMap, apiScenarioCsvMap));
+                    this.parseApiScenario(projectId, metersphereApiScenarioExportResponse.isHasRelatedResource(), apiScenarioDetail, scenarioStepMap, scenarioStepBlobMap, apiScenarioCsvMap));
         }
 
-        for (ApiScenarioDetail apiScenarioDetail : relatedScenarioList) {
-            returnResult.getRelatedScenarioList().add(
-                    this.parseApiScenario(projectId, apiScenarioDetail, scenarioStepMap, scenarioStepBlobMap, apiScenarioCsvMap));
+        if (metersphereApiScenarioExportResponse.isHasRelatedResource()) {
+            for (ApiScenarioDetail apiScenarioDetail : relatedScenarioList) {
+                apiScenarioDetail.resetConfigCsvId();
+                returnResult.getRelatedScenarioList().add(
+                        this.parseApiScenario(projectId, true, apiScenarioDetail, scenarioStepMap, scenarioStepBlobMap, apiScenarioCsvMap));
+            }
         }
 
         return returnResult;
     }
 
     private ApiScenarioImportDetail parseApiScenario(String projectId,
+                                                     boolean hasRelatedData,
                                                      ApiScenarioDetail apiScenarioDetail,
                                                      Map<String, List<ApiScenarioStepDTO>> apiScenarioStepMap,
                                                      Map<String, String> scenarioStepBlobMap,
                                                      Map<String, List<ApiScenarioCsv>> apiScenarioCsvMap) {
         ApiScenarioImportDetail apiScenarioImportDetail = new ApiScenarioImportDetail();
         BeanUtils.copyBean(apiScenarioImportDetail, apiScenarioDetail);
-        ApiScenarioStepParseResult parseResult = this.parseStepDetails(apiScenarioStepMap, apiScenarioDetail.getId(), scenarioStepBlobMap);
+        ApiScenarioStepParseResult parseResult = this.parseStepDetails(apiScenarioStepMap, apiScenarioDetail.getId(), hasRelatedData, scenarioStepBlobMap);
         apiScenarioImportDetail.setSteps(parseResult.getStepList());
         apiScenarioImportDetail.setStepDetails(parseResult.getStepDetails());
         apiScenarioImportDetail.setProjectId(projectId);
@@ -82,7 +88,7 @@ public class MetersphereParserApiScenario implements ApiScenarioImportParser {
         return apiScenarioImportDetail;
     }
 
-    private ApiScenarioStepParseResult parseStepDetails(Map<String, List<ApiScenarioStepDTO>> apiScenarioStepMap, String scenarioId, Map<String, String> scenarioStepBlobMap) {
+    private ApiScenarioStepParseResult parseStepDetails(Map<String, List<ApiScenarioStepDTO>> apiScenarioStepMap, String scenarioId, boolean hasRelatedData, Map<String, String> scenarioStepBlobMap) {
         ApiScenarioStepParseResult apiScenarioStepParseResult = new ApiScenarioStepParseResult();
 
         List<ApiScenarioStepDTO> stepList = apiScenarioStepMap.getOrDefault(scenarioId, new ArrayList<>());
@@ -109,8 +115,8 @@ public class MetersphereParserApiScenario implements ApiScenarioImportParser {
             if (scenarioStepBlobMap.containsKey(oldStepId)) {
                 apiScenarioStepParseResult.getStepDetails().put(stepRequest.getId(), scenarioStepBlobMap.get(oldStepId).getBytes());
             }
-            stepRequest.setChildren(this.buildTreeStep(this.getChildScenarioStep(oldStepId, apiScenarioStepMap),
-                    apiScenarioStepMap, scenarioStepBlobMap, apiScenarioStepParseResult));
+            stepRequest.setChildren(this.buildTreeStep(this.getChildScenarioStep(oldStepId, stepDTO.getStepType(), stepDTO.getScenarioId(), hasRelatedData, apiScenarioStepMap),
+                    hasRelatedData, apiScenarioStepMap, scenarioStepBlobMap, apiScenarioStepParseResult));
             apiScenarioStepParseResult.getStepList().add(stepRequest);
         }
 
@@ -119,6 +125,7 @@ public class MetersphereParserApiScenario implements ApiScenarioImportParser {
 
     private List<ApiScenarioStepRequest> buildTreeStep(
             List<ApiScenarioStepDTO> childScenarioStep,
+            boolean hasRelatedData,
             Map<String, List<ApiScenarioStepDTO>> allScenarioStepMap,
             Map<String, String> scenarioStepBlobMap,
             ApiScenarioStepParseResult apiScenarioStepParseResult) {
@@ -133,22 +140,36 @@ public class MetersphereParserApiScenario implements ApiScenarioImportParser {
             if (scenarioStepBlobMap.containsKey(oldChildId)) {
                 apiScenarioStepParseResult.getStepDetails().put(childRequest.getId(), scenarioStepBlobMap.get(oldChildId).getBytes());
             }
-            childRequest.setChildren(this.buildTreeStep(this.getChildScenarioStep(oldChildId, allScenarioStepMap),
-                    allScenarioStepMap, scenarioStepBlobMap, apiScenarioStepParseResult));
+            childRequest.setChildren(this.buildTreeStep(this.getChildScenarioStep(oldChildId, childDTO.getStepType(), childDTO.getScenarioId(), hasRelatedData, allScenarioStepMap),
+                    hasRelatedData, allScenarioStepMap, scenarioStepBlobMap, apiScenarioStepParseResult));
             returnList.add(childRequest);
         }
         return returnList;
     }
 
-    private List<ApiScenarioStepDTO> getChildScenarioStep(String parentId, Map<String, List<ApiScenarioStepDTO>> apiScenarioStepMap) {
+    private List<ApiScenarioStepDTO> getChildScenarioStep(String parentId, String parentStepType, String scenarioId, boolean hasRelatedData, Map<String, List<ApiScenarioStepDTO>> apiScenarioStepMap) {
         List<ApiScenarioStepDTO> childStepList = new ArrayList<>();
-        apiScenarioStepMap.values().forEach(stepList -> {
-            for (ApiScenarioStepDTO stepDTO : stepList) {
+        List<ApiScenarioStepDTO> allScenarioStepList = apiScenarioStepMap.get(scenarioId);
+        if (CollectionUtils.isNotEmpty(allScenarioStepList)) {
+            allScenarioStepList.forEach(stepDTO -> {
                 if (StringUtils.equals(stepDTO.getParentId(), parentId)) {
                     childStepList.add(stepDTO);
                 }
-            }
-        });
+            });
+        }
+        if (CollectionUtils.isEmpty(childStepList) && StringUtils.equalsIgnoreCase(parentStepType, ApiScenarioStepType.API_SCENARIO.name()) && !hasRelatedData) {
+            //如果没有找到场景步骤，并且文件是不导出关联关系的配置，则可能这是一个引用的场景，我们要去所有场景步骤中找
+            apiScenarioStepMap.forEach((otherScenarioId, v) -> {
+                if (StringUtils.equals(otherScenarioId, scenarioId)) {
+                    return;
+                }
+                v.forEach(stepDTO -> {
+                    if (StringUtils.equals(stepDTO.getParentId(), parentId)) {
+                        childStepList.add(stepDTO);
+                    }
+                });
+            });
+        }
         return childStepList;
     }
 }

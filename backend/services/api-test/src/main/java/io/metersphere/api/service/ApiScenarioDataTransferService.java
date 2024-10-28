@@ -1145,7 +1145,7 @@ public class ApiScenarioDataTransferService {
         MetersphereApiScenarioExportResponse response = apiScenarioService.selectAndSortScenarioDetailWithIds(request.getSelectIds(), moduleMap);
         response.setProjectId(project.getId());
         response.setOrganizationId(project.getOrganizationId());
-
+        response.setHasRelatedResource(request.isExportAllRelatedData());
         if (request.isExportAllRelatedData()) {
             // 全量导出，导出引用的api、apiCase
             List<String> apiDefinitionIdList = new ArrayList<>();

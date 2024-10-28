@@ -18,7 +18,8 @@ import java.util.Map;
  */
 @Data
 public class MetersphereApiScenarioExportResponse extends ApiScenarioExportResponse {
-
+    @Schema(description = "是否包含关联资源")
+    private boolean hasRelatedResource;
     @Schema(description = "导出的场景")
     private List<ApiScenarioDetail> exportScenarioList = new ArrayList<>();
 
