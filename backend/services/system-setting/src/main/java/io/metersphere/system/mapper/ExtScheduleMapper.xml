@@ -438,7 +438,7 @@
 
 
     <select id="getSchedules" resultType="io.metersphere.system.domain.Schedule">
-        select id, enable from schedule
+        select * from schedule
         <where>
             <if test="projectIds != null and projectIds.size() > 0">
                 and project_id IN
