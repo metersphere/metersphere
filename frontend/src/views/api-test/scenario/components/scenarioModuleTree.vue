@@ -14,7 +14,7 @@
         {{ t('apiScenario.createScenario') }}
       </a-button>
       <a-button
-        v-permission="['PROJECT_API_SCENARIO:READ+ADD']"
+        v-permission="['PROJECT_API_SCENARIO:READ+IMPORT']"
         type="outline"
         long
         @click="
