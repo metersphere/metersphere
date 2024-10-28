@@ -36,7 +36,7 @@
             <li>
               <span>{{ t('system.authorized.authorizedVersion') }}</span>
               <div>
-                <span>{{ licenseInfo?.license?.licenseVersion }}</span>
+                <span> v3 </span>
               </div>
             </li>
             <li>
