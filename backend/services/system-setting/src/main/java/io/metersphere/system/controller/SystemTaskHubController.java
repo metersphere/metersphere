@@ -134,10 +134,10 @@ public class SystemTaskHubController {
     @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_DELETE)
     public void batchDeleteTask(@Validated @RequestBody TableBatchProcessDTO request) {
         List<String> ids = baseTaskHubService.getTaskIds(request, null, null);
-        baseTaskHubService.batchDeleteTask(ids, SessionUtils.getCurrentOrganizationId(), null);
         //系統日志
         baseTaskHubLogService.taskBatchLog(ids, SessionUtils.getUserId(), OperationLogType.DELETE.name(), OperationLogConstants.SYSTEM, OperationLogConstants.SYSTEM,
                 "/system/task-center/exec-task/batch-delete", OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
+        baseTaskHubService.batchDeleteTask(ids, SessionUtils.getCurrentOrganizationId(), null);
     }
 
     @PostMapping("/exec-task/batch/page")

@@ -128,9 +128,9 @@ public class ProjectTaskHubController {
     @RequiresPermissions(PermissionConstants.PROJECT_CASE_TASK_CENTER_DELETE)
     public void batchDeleteTask(@Validated @RequestBody TableBatchProcessDTO request) {
         List<String> ids = baseTaskHubService.getTaskIds(request, null, SessionUtils.getCurrentProjectId());
-        baseTaskHubService.batchDeleteTask(ids, null, SessionUtils.getCurrentProjectId());
         baseTaskHubLogService.taskBatchLog(ids, SessionUtils.getUserId(), OperationLogType.DELETE.name(), SessionUtils.getCurrentProjectId(), SessionUtils.getCurrentOrganizationId(),
                 "/project/task-center/exec-task/batch-delete", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
+        baseTaskHubService.batchDeleteTask(ids, null, SessionUtils.getCurrentProjectId());
     }
 
 
