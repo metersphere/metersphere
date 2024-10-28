@@ -834,7 +834,6 @@ public class ApiScenarioDataTransferService {
                 List<ApiDefinitionDetail> apiDefinitionDetails = entry.getValue();
                 //  如果没有权限，需要在当前项目进行校验
                 Project targetProject = projectMapper.selectByPrimaryKey(targetProjectId);
-
                 // 项目不存在或者项目和当前项目不在统一组织下，需要在当前项目进行校验。场景不能跨项目关联
                 if (targetProject == null || !StringUtils.equals(targetProject.getOrganizationId(), project.getOrganizationId())) {
                     targetProjectId = projectId;
@@ -850,12 +849,16 @@ public class ApiScenarioDataTransferService {
             for (Map.Entry<String, List<ApiTestCaseDTO>> entry : parseResult.getRelatedApiTestCaseList().stream().collect(Collectors.groupingBy(ApiTestCaseDTO::getProjectId)).entrySet()) {
                 String targetProjectId = entry.getKey();
                 List<ApiTestCaseDTO> apiTestCaseList = entry.getValue();
+
                 //  如果没有权限，需要在当前项目进行校验
-                if (projectMapper.selectByPrimaryKey(targetProjectId) == null) {
+                Project targetProject = projectMapper.selectByPrimaryKey(targetProjectId);
+                // 项目不存在或者项目和当前项目不在统一组织下，需要在当前项目进行校验。场景不能跨项目关联
+                if (targetProject == null || !StringUtils.equals(targetProject.getOrganizationId(), project.getOrganizationId())) {
                     targetProjectId = projectId;
-                } else if (!permissionCheckService.userHasProjectPermission(operator, targetProjectId, PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD)) {
+                } else if (!permissionCheckService.userHasProjectPermission(operator, targetProjectId, PermissionConstants.PROJECT_API_DEFINITION_ADD)) {
                     targetProjectId = projectId;
                 }
+
                 if (projectApiCaseMap.containsKey(targetProjectId)) {
                     projectApiCaseMap.get(targetProjectId).addAll(apiTestCaseList);
                 } else {
@@ -866,9 +869,11 @@ public class ApiScenarioDataTransferService {
                 String targetProjectId = entry.getKey();
                 List<ApiScenarioImportDetail> scenarioList = entry.getValue();
                 //  如果没有权限，需要在当前项目进行校验
-                if (projectMapper.selectByPrimaryKey(targetProjectId) == null) {
+                Project targetProject = projectMapper.selectByPrimaryKey(targetProjectId);
+                // 项目不存在或者项目和当前项目不在统一组织下，需要在当前项目进行校验。场景不能跨项目关联
+                if (targetProject == null || !StringUtils.equals(targetProject.getOrganizationId(), project.getOrganizationId())) {
                     targetProjectId = projectId;
-                } else if (!permissionCheckService.userHasProjectPermission(operator, targetProjectId, PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD)) {
+                } else if (!permissionCheckService.userHasProjectPermission(operator, targetProjectId, PermissionConstants.PROJECT_API_DEFINITION_ADD)) {
                     targetProjectId = projectId;
                 }
                 if (projectScenarioMap.containsKey(targetProjectId)) {
