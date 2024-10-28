@@ -3,7 +3,7 @@
     <template #title>
       <div class="flex flex-1 items-center gap-[8px] overflow-hidden">
         <a-tag :color="executeResultMap[props.record.result]?.color">
-          {{ t(executeResultMap[props.record.result]?.label || 'common.unExecute') }}
+          {{ t(executeResultMap[props.record.result]?.label || '-') }}
         </a-tag>
         <div class="one-line-text">{{ detail.name }}</div>
       </div>
@@ -80,7 +80,7 @@
       const { apiReportDetailDTOList } = res;
       const [caseDetail] = apiReportDetailDTOList;
       detail.value = {
-        name: caseDetail.requestName,
+        name: caseDetail?.requestName || props.record.resourceName,
         description: [
           {
             label: t('ms.taskCenter.executeStatus'),

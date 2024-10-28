@@ -38,7 +38,7 @@ export default {
     'Step level: The CSV needs to be added to the scenario step. The CSV is loaded when executing this loop step, and the scope is the request within the loop step.',
   'apiScenario.params.searchPlaceholder': 'Search by name/tag',
   'apiScenario.params.priority':
-    'Variable Priority: Temporary Parameters > Scenario Parameters > Environment Parameters > Global Parameters; Note: Avoid using variables with the same name. In case of same name variables, scenario-level CSV has the highest priority.',
+    'Variable Priority: Temporary Parameters > Scenario Parameters > Environment Parameters; Note: Avoid using variables with the same name. In case of same name variables, scenario-level CSV has the highest priority.',
   'apiScenario.params.name': 'Variable Name',
   'apiScenario.params.type': 'Type',
   'apiScenario.params.paramValue': 'Parameter Value',
