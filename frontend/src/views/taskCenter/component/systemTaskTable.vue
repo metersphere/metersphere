@@ -41,7 +41,7 @@
       {{ t(scheduleTaskTypeMap[record.resourceType]) }}
     </template>
     <template #[FilterSlotNameEnum.GLOBAL_TASK_CENTER_SYSTEM_TASK_TYPE]="{ filterContent }">
-      {{ t(scheduleTaskTypeMap[filterContent.value]) }}
+      {{ t(scheduleTaskTypeMap[Array.isArray(filterContent.value) ? filterContent.value[0] : filterContent.value]) }}
     </template>
     <template #runRule="{ record }">
       <MsCronSelect
@@ -141,15 +141,22 @@
   const appStore = useAppStore();
 
   const keyword = ref('');
-  const thirdPartyTypeOptions: Record<string, any>[] = [];
+  const taskTypeOptions: Record<string, any>[] = [];
+  const thirdPartyTypeKeys: string[] = [];
   Object.keys(scheduleTaskTypeMap).forEach((key) => {
-    if (!thirdPartyTypeOptions.some((item) => item.label === t(scheduleTaskTypeMap[key]))) {
-      thirdPartyTypeOptions.push({
+    if (t(scheduleTaskTypeMap[key]) === t('ms.taskCenter.thirdPartSync')) {
+      thirdPartyTypeKeys.push(key);
+    }
+  });
+  Object.keys(scheduleTaskTypeMap).forEach((key) => {
+    if (!taskTypeOptions.some((item) => item.label === t(scheduleTaskTypeMap[key]))) {
+      taskTypeOptions.push({
         label: t(scheduleTaskTypeMap[key]),
-        value: key,
+        value: t(scheduleTaskTypeMap[key]) === t('ms.taskCenter.thirdPartSync') ? thirdPartyTypeKeys : key,
       });
     }
   });
+
   const columns: MsTableColumn = [
     {
       title: 'ms.taskCenter.taskID',
@@ -196,7 +203,7 @@
         sorter: true,
       },
       filterConfig: {
-        options: thirdPartyTypeOptions,
+        options: taskTypeOptions,
         filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_SYSTEM_TASK_TYPE,
       },
       width: 120,
