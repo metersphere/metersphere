@@ -279,13 +279,8 @@ public class BaseTaskHubService {
                     item.setNextTime(trigerTimeMap.get(item.getResourceId()).getNextTime());
                     item.setLastTime(trigerTimeMap.get(item.getResourceId()).getLastTime());
                 } else {
-                    try {
-                        CronExpression cron = new CronExpression(item.getValue());
-                        Date date = new Date(System.currentTimeMillis());
-                        item.setNextTime(cron.getNextValidTimeAfter(date).getTime());
-                    } catch (ParseException e) {
-                        LogUtils.error(e);
-                    }
+                    item.setNextTime(item.getNextTime());
+                    item.setLastTime(item.getLastTime());
                 }
             }
         }
