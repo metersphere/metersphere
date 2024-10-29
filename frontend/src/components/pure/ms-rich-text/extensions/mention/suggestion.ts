@@ -27,6 +27,8 @@ async function getMembersToolBar(query: string) {
 }
 
 export default {
+  allowedPrefixes: null, // 允许触发建议的前缀字符，设置为 null 以允许任何前缀字符
+  startOfLine: false, // 在行的任何地方都可以激活
   items: async ({ query }: any) => {
     await getMembersToolBar(query);
     return projectMember.value.filter((item: ReviewUserItem) =>
