@@ -9,7 +9,7 @@
       </a-col>
       <a-col :span="5" :offset="9">
         <a-select v-model="searchKeys.scene" @change="searchHandler">
-          <a-option value="">{{ t('system.plugin.all') }}</a-option>
+          <a-option value="">{{ t('common.all') }}</a-option>
           <a-option v-for="item of sceneList" :key="item.value" :value="item.value">{{ t(item.label) }}</a-option>
         </a-select>
       </a-col>

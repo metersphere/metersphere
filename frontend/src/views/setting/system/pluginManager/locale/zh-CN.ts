@@ -79,7 +79,6 @@ export default {
   'system.plugin.uploadCompSource': '企业版',
   'system.plugin.sizeExceedTip': '文件大小超出限制！',
   'system.plugin.showScriptTitle': '查看脚本({name})',
-  'system.plugin.all': '全部应用场景',
   'system.plugin.projectManagement': '项目管理',
   'system.plugin.pluginStatus': '插件状态',
   'system.plugin.databaseDriver': '数据库驱动',

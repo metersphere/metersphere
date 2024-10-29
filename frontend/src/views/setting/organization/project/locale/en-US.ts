@@ -41,7 +41,6 @@ export default {
   'system.organization.email': 'Email',
   'system.organization.phone': 'Phone',
   'system.organization.addSuccess': 'Add success',
-  'system.organization.deleteName': 'Are you sure to delete {name}',
   'system.organization.deleteTip':
     'Delete the organization and delete the project data under that organization together. Please be cautious!',
   'system.organization.revokeDeleteToolTip': 'The organization will be deleted automatically after 30 days',

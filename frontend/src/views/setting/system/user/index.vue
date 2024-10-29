@@ -374,6 +374,7 @@
       dataIndex: 'organizationList',
       isTag: true,
       showDrag: true,
+      tagPrimary: 'default',
       width: 300,
     },
     {

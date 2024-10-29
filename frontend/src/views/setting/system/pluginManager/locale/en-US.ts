@@ -98,7 +98,6 @@ export default {
   'system.resourcePool.usePerformance': 'Performance test',
   'system.resourcePool.useAPI': 'API test',
   'system.resourcePool.useUI': ' UI test',
-  'system.plugin.all': 'All',
   'system.plugin.projectManagement': 'Project Management',
   'system.plugin.pluginStatus': 'Status',
   'system.plugin.databaseDriver': 'Database Driver',
