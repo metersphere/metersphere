@@ -14,6 +14,7 @@
     </MsTag>
   </div>
   <ms-base-table
+    ref="tableRef"
     v-bind="propsRes"
     :action-config="tableBatchActions"
     no-disable
@@ -140,6 +141,7 @@
   const tableStore = useTableStore();
   const appStore = useAppStore();
 
+  const tableRef = ref<InstanceType<typeof MsBaseTable>>();
   const keyword = ref('');
   const taskTypeOptions: Record<string, any>[] = [];
   const thirdPartyTypeKeys: string[] = [];
@@ -312,6 +314,64 @@
     });
   }
 
+  watch(
+    () => [appStore.projectList, appStore.orgList],
+    () => {
+      if (appStore.projectList.length > 0 && appStore.orgList.length > 0) {
+        if (props.type === 'system') {
+          columns.splice(
+            2,
+            2,
+            {
+              title: 'common.belongProject',
+              dataIndex: 'projectName',
+              showTooltip: true,
+              width: 200,
+              showDrag: true,
+              filterConfig: {
+                options: appStore.projectList.map((item) => ({
+                  label: item.name,
+                  value: item.id,
+                })),
+                filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+              },
+            },
+            {
+              title: 'common.belongOrg',
+              dataIndex: 'organizationName',
+              showTooltip: true,
+              width: 200,
+              showDrag: true,
+              filterConfig: {
+                options: appStore.orgList.map((item) => ({
+                  label: item.name,
+                  value: item.id,
+                })),
+                filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+              },
+            }
+          );
+        } else if (props.type === 'org') {
+          columns.splice(2, 1, {
+            title: 'common.belongProject',
+            dataIndex: 'projectName',
+            showTooltip: true,
+            width: 200,
+            showDrag: true,
+            filterConfig: {
+              options: appStore.projectList.map((item) => ({
+                label: item.name,
+                value: item.id,
+              })),
+              filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+            },
+          });
+        }
+        tableRef.value?.initColumn(columns);
+      }
+    }
+  );
+
   await tableStore.initColumn(TableKeyEnum.TASK_CENTER_SYSTEM_TASK, columns, 'drawer');
 
   function getCurrentPermission(action: 'DELETE' | 'EDIT') {
@@ -468,31 +528,43 @@
     switch (record.resourceType) {
       case SystemTaskType.API_IMPORT:
         openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
+          orgId: record.organizationId,
+          pId: record.projectId,
           taskDrawer: true,
         });
         break;
       case SystemTaskType.TEST_PLAN:
         openNewPage(TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL, {
+          orgId: record.organizationId,
+          pId: record.projectId,
           id: record.resourceId,
         });
         break;
       case SystemTaskType.TEST_PLAN_GROUP:
         openNewPage(TestPlanRouteEnum.TEST_PLAN_INDEX, {
+          orgId: record.organizationId,
+          pId: record.projectId,
           groupId: record.resourceNum,
         });
         break;
       case SystemTaskType.API_SCENARIO:
         openNewPage(ApiTestRouteEnum.API_TEST_SCENARIO, {
+          orgId: record.organizationId,
+          pId: record.projectId,
           id: record.resourceId,
         });
         break;
       case SystemTaskType.BUG_SYNC:
         openNewPage(ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT, {
+          orgId: record.organizationId,
+          pId: record.projectId,
           module: MenuEnum.bugManagement,
         });
         break;
       case SystemTaskType.DEMAND_SYNC:
         openNewPage(ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT, {
+          orgId: record.organizationId,
+          pId: record.projectId,
           module: MenuEnum.caseManagement,
         });
         break;

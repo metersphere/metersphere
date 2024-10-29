@@ -31,6 +31,7 @@
     </MsTag>
   </div>
   <ms-base-table
+    ref="tableRef"
     v-bind="propsRes"
     :action-config="tableBatchActions"
     v-on="propsEvent"
@@ -157,6 +158,7 @@
   const appStore = useAppStore();
   const tableStore = useTableStore();
 
+  const tableRef = ref<InstanceType<typeof MsBaseTable>>();
   const keyword = ref('');
   const resourcePool = ref<string[]>([]);
   const resourcePoolOptions = ref<CascaderOption[]>([]);
@@ -356,6 +358,64 @@
       },
     });
   }
+
+  watch(
+    () => [appStore.projectList, appStore.orgList],
+    () => {
+      if (appStore.projectList.length > 0 && appStore.orgList.length > 0) {
+        if (props.type === 'system') {
+          columns.splice(
+            2,
+            2,
+            {
+              title: 'common.belongProject',
+              dataIndex: 'projectName',
+              showTooltip: true,
+              width: 200,
+              showDrag: true,
+              filterConfig: {
+                options: appStore.projectList.map((item) => ({
+                  label: item.name,
+                  value: item.id,
+                })),
+                filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+              },
+            },
+            {
+              title: 'common.belongOrg',
+              dataIndex: 'organizationName',
+              showTooltip: true,
+              width: 200,
+              showDrag: true,
+              filterConfig: {
+                options: appStore.orgList.map((item) => ({
+                  label: item.name,
+                  value: item.id,
+                })),
+                filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+              },
+            }
+          );
+        } else if (props.type === 'org') {
+          columns.splice(2, 1, {
+            title: 'common.belongProject',
+            dataIndex: 'projectName',
+            showTooltip: true,
+            width: 200,
+            showDrag: true,
+            filterConfig: {
+              options: appStore.projectList.map((item) => ({
+                label: item.name,
+                value: item.id,
+              })),
+              filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+            },
+          });
+        }
+        tableRef.value?.initColumn(columns);
+      }
+    }
+  );
 
   function getCurrentPermission(action: 'STOP') {
     return {

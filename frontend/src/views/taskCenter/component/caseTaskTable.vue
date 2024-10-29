@@ -14,6 +14,7 @@
     </MsTag>
   </div>
   <ms-base-table
+    ref="tableRef"
     v-bind="propsRes"
     :action-config="tableBatchActions"
     v-on="propsEvent"
@@ -237,6 +238,7 @@
   const tableStore = useTableStore();
   const appStore = useAppStore();
 
+  const tableRef = ref<InstanceType<typeof MsBaseTable>>();
   const keyword = ref('');
   const columns: MsTableColumn = [
     {
@@ -418,6 +420,64 @@
       },
     });
   }
+
+  watch(
+    () => [appStore.projectList, appStore.orgList],
+    () => {
+      if (appStore.projectList.length > 0 && appStore.orgList.length > 0) {
+        if (props.type === 'system') {
+          columns.splice(
+            2,
+            2,
+            {
+              title: 'common.belongProject',
+              dataIndex: 'projectName',
+              showTooltip: true,
+              width: 200,
+              showDrag: true,
+              filterConfig: {
+                options: appStore.projectList.map((item) => ({
+                  label: item.name,
+                  value: item.id,
+                })),
+                filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+              },
+            },
+            {
+              title: 'common.belongOrg',
+              dataIndex: 'organizationName',
+              showTooltip: true,
+              width: 200,
+              showDrag: true,
+              filterConfig: {
+                options: appStore.orgList.map((item) => ({
+                  label: item.name,
+                  value: item.id,
+                })),
+                filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+              },
+            }
+          );
+        } else if (props.type === 'org') {
+          columns.splice(2, 1, {
+            title: 'common.belongProject',
+            dataIndex: 'projectName',
+            showTooltip: true,
+            width: 200,
+            showDrag: true,
+            filterConfig: {
+              options: appStore.projectList.map((item) => ({
+                label: item.name,
+                value: item.id,
+              })),
+              filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+            },
+          });
+        }
+        tableRef.value?.initColumn(columns);
+      }
+    }
+  );
 
   function getCurrentPermission(action: 'STOP' | 'DELETE') {
     return {
@@ -757,6 +817,8 @@
       showReportDetail(record);
     } else if ([ExecuteTaskType.TEST_PLAN_GROUP, ExecuteTaskType.TEST_PLAN].includes(record.taskType)) {
       openNewPage(TestPlanRouteEnum.TEST_PLAN_REPORT, {
+        orgId: record.organizationId,
+        pId: record.projectId,
         id: record.reportId,
         type: record.taskType === ExecuteTaskType.TEST_PLAN_GROUP ? 'GROUP' : '',
       });
