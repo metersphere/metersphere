@@ -846,6 +846,7 @@
       executeUser: { cellWidth: 120 / PAGE_PDF_WIDTH_RATIO },
       bugCount: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
     };
+    const scenarioColumnStyles = cloneDeep(apiColumnStyles);
     if (!isGroup.value && !testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.API_CASE_DETAIL)) {
       delete apiColumnStyles.collectionName;
       delete apiColumnStyles.planName;
@@ -871,10 +872,22 @@
         })) as RowInput[],
       });
     }
+    if (!isGroup.value && !testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.SCENARIO_CASE_DETAIL)) {
+      delete scenarioColumnStyles.collectionName;
+      delete scenarioColumnStyles.planName;
+      scenarioColumnStyles.name.cellWidth = 500 / PAGE_PDF_WIDTH_RATIO;
+    } else if (
+      isGroup.value &&
+      !testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.SCENARIO_CASE_DETAIL)
+    ) {
+      delete scenarioColumnStyles.collectionName;
+      scenarioColumnStyles.name.cellWidth = 360 / PAGE_PDF_WIDTH_RATIO;
+      scenarioColumnStyles.planName.cellWidth = 140 / PAGE_PDF_WIDTH_RATIO;
+    }
     if (fullScenarioList.value.length > 0) {
       tableArr.push({
         tableId: 'scenario',
-        columnStyles: apiColumnStyles,
+        columnStyles: scenarioColumnStyles,
         columns: scenarioColumns.map((item) => ({
           ...item,
           title: t(item.title as string),
