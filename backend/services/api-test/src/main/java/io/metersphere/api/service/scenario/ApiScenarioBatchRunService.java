@@ -180,8 +180,11 @@ public class ApiScenarioBatchRunService {
                     .collect(Collectors.toMap(ExecTaskItem::getResourceId, ExecTaskItem::getId));
 
             if (runModeConfig.isIntegratedReport()) {
+                String reportId = runModeConfig.getCollectionReport().getReportId();
+                // 初始化集合报告和场景的关联关系
+                initIntegratedReportCaseRecord(reportId, subIds);
                 // 集合报告初始化一级步骤
-                initApiScenarioReportStep(apiScenarios, runModeConfig.getCollectionReport().getReportId());
+                initApiScenarioReportStep(apiScenarios, reportId);
             } else {
                 // 非集合报告，初始化独立报告，执行时初始化步骤
                 caseReportMap = initScenarioReport(resourceExecTaskItemMap, runModeConfig, apiScenarios, userId);
