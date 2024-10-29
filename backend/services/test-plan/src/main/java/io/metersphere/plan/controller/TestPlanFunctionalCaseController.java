@@ -55,6 +55,8 @@ public class TestPlanFunctionalCaseController {
     @Resource
     private TestPlanFunctionalCaseService testPlanFunctionalCaseService;
     @Resource
+    private TestPlanCaseLogService testPlanCaseLogService;
+    @Resource
     private BugService bugService;
     @Resource
     private BugLogService bugLogService;
@@ -74,7 +76,6 @@ public class TestPlanFunctionalCaseController {
     public Pager<List<TestPlanCasePageResponse>> page(@Validated @RequestBody TestPlanCaseRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString("id", "functional_case")) ? request.getSortString("id", "functional_case") : "test_plan_functional_case.pos desc");
-
         return PageUtils.setPageInfo(page, testPlanFunctionalCaseService.getFunctionalCasePage(request, false, SessionUtils.getCurrentProjectId()));
     }
 
@@ -173,9 +174,9 @@ public class TestPlanFunctionalCaseController {
     @Operation(summary = "测试计划-计划详情-功能用例-批量更新执行人")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateExecutor(#request)", msClass = TestPlanCaseLogService.class)
     public void batchUpdateExecutor(@Validated @RequestBody TestPlanCaseUpdateRequest request) {
         testPlanFunctionalCaseService.batchUpdateExecutor(request);
+        testPlanCaseLogService.batchUpdateExecutor(request);
     }
 
     @GetMapping("/detail/{id}")
@@ -207,9 +208,9 @@ public class TestPlanFunctionalCaseController {
     @Operation(summary = "测试计划-计划详情-功能用例-批量移动")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchMove(#request)", msClass = TestPlanCaseLogService.class)
     public void batchMove(@Validated @RequestBody BaseBatchMoveRequest request) {
         testPlanFunctionalCaseService.batchMove(request);
+        testPlanCaseLogService.batchMove(request, SessionUtils.getUserId());
     }
 
 

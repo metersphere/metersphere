@@ -63,6 +63,8 @@ public class TestPlanApiCaseController {
     private BugService bugService;
     @Resource
     private BugLogService bugLogService;
+    @Resource
+    private TestPlanApiCaseLogService testPlanApiCaseLogService;
 
     @PostMapping(value = "/sort")
     @Operation(summary = "测试计划功能用例-功能用例拖拽排序")
@@ -129,9 +131,9 @@ public class TestPlanApiCaseController {
     @Operation(summary = "测试计划-计划详情-接口用例列表-批量更新执行人")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateExecutor(#request)", msClass = TestPlanApiCaseLogService.class)
     public void batchUpdateExecutor(@Validated @RequestBody TestPlanApiCaseUpdateRequest request) {
         testPlanApiCaseService.batchUpdateExecutor(request);
+        testPlanApiCaseLogService.batchUpdateExecutor(request);
     }
 
     @GetMapping("/run/{id}")
@@ -179,9 +181,9 @@ public class TestPlanApiCaseController {
     @Operation(summary = "测试计划-计划详情-接口用例-批量移动")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchMove(#request)", msClass = TestPlanApiCaseLogService.class)
     public void batchMove(@Validated @RequestBody TestPlanApiCaseBatchMoveRequest request) {
         testPlanApiCaseService.batchMove(request);
+        testPlanApiCaseLogService.batchMove(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/associate/bug/page")

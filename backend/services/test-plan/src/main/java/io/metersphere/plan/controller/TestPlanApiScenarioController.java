@@ -60,6 +60,8 @@ public class TestPlanApiScenarioController {
     private BugService bugService;
     @Resource
     private BugLogService bugLogService;
+    @Resource
+    private TestPlanApiScenarioLogService testPlanApiScenarioLogService;
 
     @PostMapping("/page")
     @Operation(summary = "测试计划-已关联场景用例列表分页查询")
@@ -129,9 +131,9 @@ public class TestPlanApiScenarioController {
     @Operation(summary = "测试计划-计划详情-场景用例列表-批量更新执行人")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateExecutor(#request)", msClass = TestPlanApiScenarioLogService.class)
     public void batchUpdateExecutor(@Validated @RequestBody TestPlanApiScenarioUpdateRequest request) {
         testPlanApiScenarioService.batchUpdateExecutor(request);
+        testPlanApiScenarioLogService.batchUpdateExecutor(request);
     }
 
     @GetMapping("/report/get/{id}")
@@ -164,9 +166,9 @@ public class TestPlanApiScenarioController {
     @Operation(summary = "测试计划-计划详情-场景用例-批量移动")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchMove(#request)", msClass = TestPlanApiScenarioLogService.class)
     public void batchMove(@Validated @RequestBody BaseBatchMoveRequest request) {
         testPlanApiScenarioService.batchMove(request);
+        testPlanApiScenarioLogService.batchMove(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/associate/bug/page")
