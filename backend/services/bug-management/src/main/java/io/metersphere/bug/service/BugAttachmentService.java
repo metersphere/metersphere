@@ -622,9 +622,13 @@ public class BugAttachmentService {
         // 添加文件与功能用例的关联关系
         Map<String, String> addFileMap = Maps.newHashMapWithExpectedSize(8);
         LogUtils.info("开始上传富文本里的附件");
-        List<BugLocalAttachment> localAttachments = fileIds.stream().map(fileId -> {
-            BugLocalAttachment localAttachment = new BugLocalAttachment();
+        List<BugLocalAttachment> localAttachments = new ArrayList<>();
+        for (String fileId : fileIds) {
             String fileName = getTempFileNameByFileId(fileId);
+            if (StringUtils.isEmpty(fileName)) {
+                continue;
+            }
+            BugLocalAttachment localAttachment = new BugLocalAttachment();
             localAttachment.setId(IDGenerator.nextStr());
             localAttachment.setBugId(bugId);
             localAttachment.setFileId(fileId);
@@ -643,10 +647,11 @@ public class BugAttachmentService {
             localAttachment.setCreateUser(userId);
             localAttachment.setCreateTime(System.currentTimeMillis());
             addFileMap.put(fileId, fileName);
-            return localAttachment;
-        }).toList();
-        List<BugLocalAttachment> normalAttachments = localAttachments.stream().filter(attachment -> StringUtils.isNotEmpty(attachment.getFileName())).toList();
-        bugLocalAttachmentMapper.batchInsert(normalAttachments);
+            localAttachments.add(localAttachment);
+        }
+        if (!CollectionUtils.isEmpty(localAttachments)) {
+            bugLocalAttachmentMapper.batchInsert(localAttachments);
+        }
         // 上传文件到对象存储
         LogUtils.info("upload to minio start");
         String bugDir = DefaultRepositoryDir.getBugDir(projectId, bugId);
