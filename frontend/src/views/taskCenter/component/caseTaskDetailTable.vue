@@ -408,7 +408,7 @@
     org: getOrganizationExecuteTaskDetailList,
   }[props.type];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, getTableQueryParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     currentExecuteTaskDetailList,
     {
       tableKey: TableKeyEnum.TASK_CENTER_CASE_TASK_DETAIL,
@@ -499,6 +499,13 @@
     org: organizationBatchStopTaskDetail,
   }[props.type];
 
+  const conditionParams = computed(() => {
+    return {
+      keyword: keyword.value,
+      filter: propsRes.value.filter,
+    };
+  });
+
   function stopTask(record?: TaskCenterTaskDetailItem, isBatch?: boolean, params?: BatchActionQueryParams) {
     let title = t('ms.taskCenter.stopTaskTitle', { name: characterLimit(record?.taskName) });
     if (isBatch) {
@@ -512,9 +519,6 @@
       content: t('ms.taskCenter.stopTimeTaskTip'),
       okText: t('common.stopConfirm'),
       cancelText: t('common.cancel'),
-      okButtonProps: {
-        status: 'danger',
-      },
       maskClosable: false,
       onBeforeOk: async () => {
         try {
@@ -523,7 +527,7 @@
               selectIds: params?.selectedIds || [],
               selectAll: !!params?.selectAll,
               excludeIds: params?.excludeIds || [],
-              ...getTableQueryParams(),
+              ...conditionParams.value,
             });
           } else {
             await currentStopTask(record?.id || '');

@@ -483,7 +483,7 @@
       },
     ],
   };
-  const { propsRes, propsEvent, loadList, setLoadListParams, getTableQueryParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     currentExecuteTaskList,
     {
       tableKey: TableKeyEnum.TASK_CENTER_CASE_TASK,
@@ -573,6 +573,13 @@
     org: organizationBatchDeleteTask,
   }[props.type];
 
+  const conditionParams = computed(() => {
+    return {
+      keyword: keyword.value,
+      filter: propsRes.value.filter,
+    };
+  });
+
   /**
    * 删除任务
    */
@@ -600,7 +607,7 @@
               selectIds: params?.selectedIds || [],
               selectAll: !!params?.selectAll,
               excludeIds: params?.excludeIds || [],
-              ...getTableQueryParams(),
+              ...conditionParams.value,
             });
           } else {
             await currentDeleteTask(record?.id || '');
@@ -653,7 +660,7 @@
               selectIds: params?.selectedIds || [],
               selectAll: !!params?.selectAll,
               excludeIds: params?.excludeIds || [],
-              ...getTableQueryParams(),
+              ...conditionParams.value,
             });
           } else {
             await currentStopTask(record?.id || '');

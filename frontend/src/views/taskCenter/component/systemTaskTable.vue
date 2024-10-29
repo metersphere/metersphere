@@ -369,7 +369,7 @@
     project: getProjectScheduleList,
   }[props.type];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, getTableQueryParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     currentScheduleList,
     {
       tableKey: TableKeyEnum.TASK_CENTER_SYSTEM_TASK,
@@ -431,6 +431,13 @@
     });
   }
 
+  const conditionParams = computed(() => {
+    return {
+      keyword: keyword.value,
+      filter: propsRes.value.filter,
+    };
+  });
+
   const currentBatchOpenSchedule = {
     system: systemBatchOpenTask,
     org: organizationBatchOpenTask,
@@ -443,7 +450,7 @@
         selectIds: params?.selectedIds || [],
         selectAll: !!params?.selectAll,
         excludeIds: params?.excludeIds || [],
-        ...getTableQueryParams(),
+        ...conditionParams.value,
       });
       Message.success(t('ms.taskCenter.openTaskSuccess'));
       resetSelector();
@@ -468,7 +475,7 @@
         selectIds: params?.selectedIds || [],
         selectAll: !!params?.selectAll,
         excludeIds: params?.excludeIds || [],
-        ...getTableQueryParams(),
+        ...conditionParams.value,
       });
       Message.success(t('ms.taskCenter.closeTaskSuccess'));
       resetSelector();
