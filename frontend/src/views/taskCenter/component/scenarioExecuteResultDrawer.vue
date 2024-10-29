@@ -5,7 +5,7 @@
         <a-tag :color="executeResultMap[props.record.result]?.color">
           {{ t(executeResultMap[props.record.result]?.label || '-') }}
         </a-tag>
-        <div class="one-line-text">{{ detail.name }}</div>
+        <div class="one-line-text flex-1">{{ detail.name }}</div>
       </div>
       <div class="flex justify-end">
         <MsButton type="icon" status="secondary" class="!rounded-[var(--border-radius-small)]" @click="init">

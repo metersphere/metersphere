@@ -514,6 +514,8 @@
         // 是资源池节点
         resourcePoolNodes.value.add(lastValue);
       }
+    } else if (value.length === 0) {
+      clearResourcePools();
     } else {
       // 移除选中节点
       const lastValue = value[value.length - 1];
