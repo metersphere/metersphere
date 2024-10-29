@@ -69,6 +69,8 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_SCHEDULE_TASK_BATCH_DISABLE = "/system/task-center/schedule/batch-disable";
     public static final String SYSTEM_TASK_BATCH_PAGE = "/system/task-center/exec-task/batch/page";
     public static final String SYSTEM_SCHEDULE_TASK_UPDATE_CRON = "/system/task-center/schedule/update-cron";
+    public static final String SYSTEM_PROJECT_OPTIONS = "/system/task-center/project/options";
+    public static final String SYSTEM_ORGANIZATION_OPTIONS = "/system/task-center/organization/options";
 
     @Test
     @Order(1)
@@ -79,6 +81,29 @@ public class BaseTaskHubControllerTests extends BaseTest {
         request.setCurrent(1);
         request.setPageSize(10);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(SYSTEM_TASK_PAGE, request);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
+    @Test
+    @Order(3)
+    public void getProjectOptions() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(SYSTEM_PROJECT_OPTIONS);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+    @Test
+    @Order(3)
+    public void getOrganizationOptions() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(SYSTEM_ORGANIZATION_OPTIONS);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -336,6 +361,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String ORG_SCHEDULE_TASK_BATCH_DISABLE = "/organization/task-center/schedule/batch-disable";
     public static final String ORG_SCHEDULE_TASK_UPDATE_CRON = "/organization/task-center/schedule/update-cron";
     public static final String ORG_TASK_BATCH_PAGE = "/organization/task-center/exec-task/batch/page";
+    public static final String ORG_PROJECT_OPTIONS = "/organization/task-center/project/options";
 
     @Test
     @Order(20)
@@ -345,6 +371,17 @@ public class BaseTaskHubControllerTests extends BaseTest {
         request.setCurrent(1);
         request.setPageSize(10);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(ORG_TASK_PAGE, request);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+    @Test
+    @Order(20)
+    public void getOrgProjectOptions() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(ORG_PROJECT_OPTIONS);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);

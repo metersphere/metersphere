@@ -5,6 +5,7 @@ import com.github.pagehelper.page.PageMethod;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.BatchExecTaskReportDTO;
+import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
 import io.metersphere.system.dto.request.BatchExecTaskPageRequest;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
@@ -23,6 +24,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.BaseProjectMapper;
 import io.metersphere.system.service.BaseTaskHubLogService;
 import io.metersphere.system.service.BaseTaskHubService;
+import io.metersphere.system.service.SystemProjectService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -50,6 +52,8 @@ public class OrganizationTaskHubController {
     BaseProjectMapper baseProjectMapper;
     @Resource
     private BaseTaskHubLogService baseTaskHubLogService;
+    @Resource
+    private SystemProjectService systemProjectService;
 
     @PostMapping("/exec-task/page")
     @Operation(summary = "组织-任务中心-执行任务列表")
@@ -215,4 +219,12 @@ public class OrganizationTaskHubController {
         return PageUtils.setPageInfo(page, baseTaskHubService.listBatchTaskReport(request));
     }
 
+
+    @GetMapping("/project/options")
+    @Operation(summary = "系统-任务中心-获取组织下全部项目下拉选项")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_READ)
+    public List<OrganizationProjectOptionsDTO> getOrgProject() {
+        List<OrganizationProjectOptionsDTO> projectList = systemProjectService.getProjectOptions(SessionUtils.getCurrentOrganizationId());
+        return projectList;
+    }
 }

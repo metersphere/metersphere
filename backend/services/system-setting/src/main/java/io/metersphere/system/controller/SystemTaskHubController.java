@@ -5,6 +5,7 @@ import com.github.pagehelper.page.PageMethod;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.BatchExecTaskReportDTO;
+import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
 import io.metersphere.system.dto.request.BatchExecTaskPageRequest;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
@@ -18,6 +19,8 @@ import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.BaseTaskHubLogService;
 import io.metersphere.system.service.BaseTaskHubService;
+import io.metersphere.system.service.OrganizationService;
+import io.metersphere.system.service.SystemProjectService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -44,6 +47,10 @@ public class SystemTaskHubController {
     private BaseTaskHubService baseTaskHubService;
     @Resource
     private BaseTaskHubLogService baseTaskHubLogService;
+    @Resource
+    private SystemProjectService systemProjectService;
+    @Resource
+    private OrganizationService organizationService;
 
     @PostMapping("/exec-task/page")
     @Operation(summary = "系统-任务中心-执行任务列表")
@@ -210,6 +217,23 @@ public class SystemTaskHubController {
     @RequiresPermissions(PermissionConstants.SYSTEM_SCHEDULE_TASK_CENTER_READ_UPDATE)
     public void updateValue(@Validated @RequestBody ScheduleRequest request) {
         baseTaskHubService.updateCron(request, SessionUtils.getUserId(), "/system/task-center/schedule/update-cron", OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
+    }
+
+
+    @GetMapping("/project/options")
+    @Operation(summary = "系统-任务中心-获取全部项目下拉选项")
+    @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ)
+    public List<OrganizationProjectOptionsDTO> getAllProject() {
+        List<OrganizationProjectOptionsDTO> projectList = systemProjectService.getProjectOptions(null);
+        return projectList;
+    }
+
+    @GetMapping("/organization/options")
+    @Operation(summary = "系统-任务中心-获取全部组织下拉选项")
+    @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ)
+    public List<OrganizationProjectOptionsDTO> getAllOrganization() {
+        List<OrganizationProjectOptionsDTO> organizationList = organizationService.getOrganizationOptions();
+        return organizationList;
     }
 
 }
