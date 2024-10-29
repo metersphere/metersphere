@@ -155,27 +155,27 @@ public class TestPlanExecuteService {
      */
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.NOT_SUPPORTED)
     public String singleExecuteTestPlan(TestPlanExecuteRequest request, String reportId, String userId) {
-            String queueId = IDGenerator.nextStr();
-            TestPlanExecutionQueue singleExecuteRootQueue = new TestPlanExecutionQueue(
-                    0,
-                    userId,
-                    System.currentTimeMillis(),
-                    queueId,
-                    QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE,
-                    null,
-                    null,
-                    request.getExecuteId(),
-                    request.getRunMode(),
-                    request.getExecutionSource(),
-                    reportId,
-                    IDGenerator.nextStr()
-            );
+        String queueId = IDGenerator.nextStr();
+        TestPlanExecutionQueue singleExecuteRootQueue = new TestPlanExecutionQueue(
+                0,
+                userId,
+                System.currentTimeMillis(),
+                queueId,
+                QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE,
+                null,
+                null,
+                request.getExecuteId(),
+                request.getRunMode(),
+                request.getExecutionSource(),
+                reportId,
+                IDGenerator.nextStr()
+        );
 
-            testPlanExecuteSupportService.setRedisForList(
-                    testPlanExecuteSupportService.genQueueKey(queueId, QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE), List.of(JSON.toJSONString(singleExecuteRootQueue)));
-            TestPlanExecutionQueue nextQueue = testPlanExecuteSupportService.getNextQueue(queueId, QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE);
-            LogUtils.info("测试计划（组）的单独执行start！计划报告[{}] , 资源ID[{}]", singleExecuteRootQueue.getPrepareReportId(), singleExecuteRootQueue.getSourceID());
-            executeTestPlanOrGroup(nextQueue);
+        testPlanExecuteSupportService.setRedisForList(
+                testPlanExecuteSupportService.genQueueKey(queueId, QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE), List.of(JSON.toJSONString(singleExecuteRootQueue)));
+        TestPlanExecutionQueue nextQueue = testPlanExecuteSupportService.getNextQueue(queueId, QUEUE_PREFIX_TEST_PLAN_BATCH_EXECUTE);
+        LogUtils.info("测试计划（组）的单独执行start！计划报告[{}] , 资源ID[{}]", singleExecuteRootQueue.getPrepareReportId(), singleExecuteRootQueue.getSourceID());
+        executeTestPlanOrGroup(nextQueue);
         return reportId;
     }
 
@@ -253,7 +253,7 @@ public class TestPlanExecuteService {
                         extTestPlanApiScenarioMapper.countByPlanIds(childPlanIds);
             }
             // 初始化任务
-            ExecTask execTask = initExecTask(executionQueue.getTaskId(), caseTotal, testPlan.getName(), project, executionQueue.getCreateUser(), executionQueue.getExecutionSource(), executionQueue.getPrepareReportId());
+            ExecTask execTask = initExecTask(executionQueue.getTaskId(), caseTotal, testPlan, project, executionQueue.getCreateUser(), executionQueue.getExecutionSource(), executionQueue.getPrepareReportId());
 
             // 预生成计划组报告
             Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), execTask.getId(), genReportRequest, executionQueue.getCreateUser());
@@ -309,7 +309,7 @@ public class TestPlanExecuteService {
             Integer caseTotal = extTestPlanApiCaseMapper.countByPlanIds(List.of(testPlan.getId())) +
                     extTestPlanApiScenarioMapper.countByPlanIds(List.of(testPlan.getId()));
             // 初始化任务
-            ExecTask execTask = initExecTask(executionQueue.getTaskId(), caseTotal, testPlan.getName(), project, executionQueue.getCreateUser(), executionQueue.getExecutionSource(), executionQueue.getPrepareReportId());
+            ExecTask execTask = initExecTask(executionQueue.getTaskId(), caseTotal, testPlan, project, executionQueue.getCreateUser(), executionQueue.getExecutionSource(), executionQueue.getPrepareReportId());
 
             Map<String, String> reportMap = testPlanReportService.genReportByExecution(executionQueue.getPrepareReportId(), execTask.getId(), genReportRequest, executionQueue.getCreateUser());
             executionQueue.setPrepareReportId(reportMap.get(executionQueue.getSourceID()));
@@ -319,14 +319,14 @@ public class TestPlanExecuteService {
         }
     }
 
-    private ExecTask initExecTask(String taskId, int caseSize, String name, Project project, String userId, String triggerMode, String reportId) {
+    private ExecTask initExecTask(String taskId, int caseSize, TestPlan testPlan, Project project, String userId, String triggerMode, String reportId) {
         ExecTask execTask = apiCommonService.newExecTask(project.getId(), userId);
         execTask.setId(taskId);
         execTask.setCaseCount(Long.valueOf(caseSize));
-        execTask.setTaskName(name);
+        execTask.setTaskName(testPlan.getName());
         execTask.setOrganizationId(project.getOrganizationId());
         execTask.setTriggerMode(triggerMode);
-        execTask.setTaskType(ExecTaskType.TEST_PLAN.name());
+        execTask.setTaskType(StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN) ? ExecTaskType.TEST_PLAN.name() : ExecTaskType.TEST_PLAN_GROUP.name());
         baseTaskHubService.insertExecTask(execTask);
 
         // 创建报告和任务的关联关系
