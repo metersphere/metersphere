@@ -22,9 +22,7 @@ import io.metersphere.project.dto.environment.processors.ApiEnvProcessorConfig;
 import io.metersphere.project.dto.environment.processors.ApiEnvRequestProcessorConfig;
 import io.metersphere.project.dto.environment.processors.EnvProcessorConfig;
 import io.metersphere.project.dto.environment.processors.EnvRequestScriptProcessor;
-import io.metersphere.sdk.constants.MsAssertionCondition;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.ArrayList;
@@ -81,39 +79,24 @@ public class MsCommonElementConverter extends AbstractJmeterElementConverter<MsC
         // 将状态码断言放最前面，否则会影响脚本断言的效果，即使脚本断言失败，总状态还是显示成功
         List<MsAssertion> sortAssertions = new ArrayList<>(assertions.size());
         assertions.forEach(item -> {
-            if (item instanceof MsResponseCodeAssertion) {
+            if (BooleanUtils.isTrue(item.getEnable()) && item instanceof MsResponseCodeAssertion) {
                 sortAssertions.add(item);
             }
         });
         assertions.forEach(item -> {
-            if (!(item instanceof MsResponseCodeAssertion)) {
+            if (BooleanUtils.isTrue(item.getEnable()) && !(item instanceof MsResponseCodeAssertion)) {
                 sortAssertions.add(item);
             }
         });
-        sortAssertions
-            .forEach(assertion -> {
-                assertion.setProjectId(element.getProjectId());
-                AssertionConverterFactory.getConverter(assertion.getClass()).parse(tree, assertion, config, isIgnoreAssertStatus(assertions));
-            });
-    }
+        for (int i = 0; i < sortAssertions.size(); i++) {
+            MsAssertion assertion = sortAssertions.get(i);
+            assertion.setProjectId(element.getProjectId());
+            // 只给第一个响应码断言设置忽略状态
+            boolean isIgnoreStatus = i == 0 && assertion instanceof MsResponseCodeAssertion;
 
-    /**
-     * 是否忽略状态码
-     *
-     * @param assertions
-     * @return
-     */
-    public static boolean isIgnoreAssertStatus(List<MsAssertion> assertions) {
-        boolean isIgnoreStatus = false;
-        for (MsAssertion assertion : assertions) {
-            if (assertion instanceof MsResponseCodeAssertion responseCodeAssertion) {
-                // 如果状态码断言添加了不校验状态码，则所有断言忽略状态码
-                if (StringUtils.equals(responseCodeAssertion.getCondition(), MsAssertionCondition.UNCHECK.name())) {
-                    isIgnoreStatus = true;
-                }
-            }
+            AssertionConverterFactory.getConverter(assertion.getClass())
+                    .parse(tree, assertion, config, isIgnoreStatus);
         }
-        return isIgnoreStatus;
     }
 
     private void addProcessors(HashTree tree, MsCommonElement msCommonElement, ParameterConfig config,

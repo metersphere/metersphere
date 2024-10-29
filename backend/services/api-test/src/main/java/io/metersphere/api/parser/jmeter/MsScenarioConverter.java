@@ -18,6 +18,7 @@ import io.metersphere.api.parser.jmeter.processor.assertion.AssertionConverterFa
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
 import io.metersphere.project.api.assertion.MsAssertion;
+import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.project.api.processor.MsProcessor;
 import io.metersphere.project.api.processor.SQLProcessor;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
@@ -241,10 +242,14 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
                 .getAssertionConfig()
                 .getAssertions();
 
-        boolean ignoreAssertStatus = MsCommonElementConverter.isIgnoreAssertStatus(assertions);
+        for (int i = 0; i < assertions.size(); i++) {
+            MsAssertion assertion = assertions.get(i);
 
-        assertions.forEach(assertion ->
-                AssertionConverterFactory.getConverter(assertion.getClass()).parse(tree, assertion, config, ignoreAssertStatus));
+            // 只给第一个响应码断言设置忽略状态
+            boolean isIgnoreStatus = i == 0 && assertion instanceof MsResponseCodeAssertion;
+
+            AssertionConverterFactory.getConverter(assertion.getClass()).parse(tree, assertion, config, isIgnoreStatus);
+        }
     }
 
     /**

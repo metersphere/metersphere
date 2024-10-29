@@ -17,18 +17,18 @@ public class ResponseCodeAssertionConverter extends AssertionConverter<MsRespons
         if (!needParse(msAssertion, config) || !isValid(msAssertion)) {
             return;
         }
-        hashTree.add(parse2ResponseAssertion(msAssertion));
+        hashTree.add(parse2ResponseAssertion(msAssertion, isIgnoreStatus));
     }
 
     public boolean isValid(MsResponseCodeAssertion msAssertion) {
         return StringUtils.isNotBlank(msAssertion.getCondition());
     }
 
-    private ResponseAssertion parse2ResponseAssertion(MsResponseCodeAssertion msAssertion) {
+    private ResponseAssertion parse2ResponseAssertion(MsResponseCodeAssertion msAssertion, boolean isIgnoreStatus) {
         ResponseAssertion assertion = createResponseAssertion();
         String expectedValue = msAssertion.getExpectedValue();
         assertion.setEnabled(msAssertion.getEnable());
-        assertion.setAssumeSuccess(true);
+        assertion.setAssumeSuccess(isIgnoreStatus);
         assertion.setEnabled(msAssertion.getEnable());
 
         String condition = msAssertion.getCondition();
