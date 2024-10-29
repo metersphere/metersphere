@@ -9,56 +9,68 @@
       '_disabled_gray_bg': isEnableProjectState,
     }"
   >
-    <!-- 不允许状态流转 -->
-    <img v-if="isNotAllowCreate" src="@/assets/images/notAllow_bg.png" class="h-[100%] w-[100%]" alt="" />
-
-    <!-- 未创建 hover  禁用  选中 -->
-    <div v-else-if="isUnCreateWorkFlow" class="action" @click="createFlowStep">
-      <icon-plus
-        :style="{ 'font-size': '16px' }"
-        class="_unSelect_SvgIcon"
-        :class="{ ...styleClass.SvgIcon, _hover_SvgIcon: isEnableProjectState ? false : true }"
-      />
-      <span
-        class="_unSelect_CreateStep"
-        :class="{ ...styleClass.createStep, _hover_CreateStep: isEnableProjectState ? false : true }"
-        @click="createFlowStep"
-        >{{ t('system.orgTemplate.createFlowStep') }}</span
-      >
-    </div>
-    <!-- 已创建 -->
-    <div v-else-if="isCreated" class="created flex h-full w-full items-center justify-center" @click="createFlowStep">
-      <icon-check :style="{ 'font-size': '16px' }" class="text-[rgb(var(--success-6))]" />
-    </div>
-    <a-modal
-      v-model:visible="visible"
-      title-align="start"
-      :class="['ms-modal-form']"
-      :width="400"
-      @cancel="handleCancel"
-    >
-      <template #title> {{ title }} </template>
-      <div class="flex w-[60%] items-center justify-between text-[var(--color-text-1)]">
-        <div class="flex flex-col">
-          <span class="mb-2">{{ t('system.orgTemplate.startState') }} </span>
-          <MsTag>{{ startState }}</MsTag>
-        </div>
-        <icon-arrow-right class="mt-8 text-[16px] text-[var(--color-text-brand)]" />
-        <div class="flex flex-col">
-          <span class="mb-2"> {{ t('system.orgTemplate.endState') }}</span>
-          <MsTag>{{ endState }}</MsTag>
-        </div>
+    <a-trigger v-model:popup-visible="visible" trigger="click" align-point>
+      <!-- 不允许状态流转 -->
+      <img v-if="isNotAllowCreate" src="@/assets/images/notAllow_bg.png" class="h-[100%] w-[100%]" alt="" />
+      <!-- 未创建 hover  禁用  选中 -->
+      <div v-else-if="isUnCreateWorkFlow" class="action h-full" @click="createFlowStep">
+        <icon-plus
+          :style="{ 'font-size': '16px' }"
+          class="_unSelect_SvgIcon"
+          :class="{ ...styleClass.SvgIcon, _hover_SvgIcon: isEnableProjectState ? false : true }"
+        />
+        <span
+          class="_unSelect_CreateStep"
+          :class="{ ...styleClass.createStep, _hover_CreateStep: isEnableProjectState ? false : true }"
+          >{{ t('system.orgTemplate.createFlowStep') }}</span
+        >
       </div>
-      <template #footer>
-        <a-button @click="handleCancel">{{ t('common.cancel') }}</a-button>
-        <a-button v-if="isUnCreateWorkFlow" type="primary" :loading="loading" @click="changeWorkFlow('create')">{{
-          t('common.create')
-        }}</a-button>
-        <a-button v-else type="primary" status="danger" class="!bg-[rgb(var(--danger-7))]" @click="cancelFlowStep">{{
-          t('system.orgTemplate.deleteSteps')
-        }}</a-button>
+      <!-- 已创建 -->
+      <div v-else-if="isCreated" class="created flex h-full w-full items-center justify-center" @click="createFlowStep">
+        <icon-check :style="{ 'font-size': '16px' }" class="text-[rgb(var(--success-6))]" />
+      </div>
+      <template #content>
+        <div class="w-[400px] rounded bg-white p-[24px] shadow-[0_0_10px_rgba(100,100,102,0.15)]">
+          <div class="flex items-center justify-between">
+            <div class="font-medium text-[var(--color-text-1)]">{{ title }}</div>
+            <div class="cursor-pointer text-[18px] text-[var(--color-text-2)]" @click="handleCancel">×</div>
+          </div>
+          <div class="my-[16px] flex w-[60%] items-center justify-between text-[var(--color-text-1)]">
+            <div class="flex flex-col">
+              <span class="mb-2">{{ t('system.orgTemplate.startState') }} </span>
+              <MsTag>{{ startState }}</MsTag>
+            </div>
+            <icon-arrow-right class="mt-8 text-[16px] text-[var(--color-text-brand)]" />
+            <div class="flex flex-col">
+              <span class="mb-2"> {{ t('system.orgTemplate.endState') }}</span>
+              <MsTag>{{ endState }}</MsTag>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-[8px]">
+            <a-button size="small" @click="handleCancel">{{ t('common.cancel') }}</a-button>
+            <a-button
+              v-if="isUnCreateWorkFlow"
+              size="small"
+              type="primary"
+              :loading="loading"
+              @click="changeWorkFlow('create')"
+            >
+              {{ t('common.create') }}
+            </a-button>
+            <a-button
+              v-else
+              size="small"
+              type="primary"
+              status="danger"
+              class="!bg-[rgb(var(--danger-7))]"
+              @click="cancelFlowStep"
+            >
+              {{ t('system.orgTemplate.deleteSteps') }}
+            </a-button>
+          </div>
+        </div>
       </template>
-    </a-modal>
+    </a-trigger>
   </div>
 </template>
 
