@@ -633,6 +633,12 @@
   }
   :deep(.editor-content) {
     .ms-scroll-bar();
+    & + div[data-tippy-root] {
+      transform: translate(60%) !important;
+    }
+  }
+  [data-tippy-root] {
+    inset: auto !important;
   }
   :deep(.tableWrapper) {
     .ms-scroll-bar();

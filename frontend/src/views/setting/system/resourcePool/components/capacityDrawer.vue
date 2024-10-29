@@ -80,6 +80,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import dayjs from 'dayjs';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -199,6 +200,50 @@
         options: statusList.value,
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_REPORT_STATUS,
       },
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      showDrag: true,
+    },
+    {
+      title: 'ms.taskCenter.queue',
+      dataIndex: 'lineNum',
+      width: 100,
+      showDrag: true,
+    },
+    {
+      title: 'ms.taskCenter.threadID',
+      dataIndex: 'threadId',
+      showTooltip: true,
+      width: 190,
+      showDrag: true,
+    },
+    {
+      title: 'ms.taskCenter.startExecuteTime',
+      dataIndex: 'startTime',
+      width: 170,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      showDrag: true,
+    },
+    {
+      title: 'ms.taskCenter.endExecuteTime',
+      dataIndex: 'endTime',
+      width: 170,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      showDrag: true,
+    },
+    {
+      title: 'ms.taskCenter.operationUser',
+      dataIndex: 'userName',
+      width: 100,
+      showTooltip: true,
       showDrag: true,
     },
     {
@@ -212,14 +257,24 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getCapacityTaskList, {
-    tableKey: TableKeyEnum.SYSTEM_RESOURCE_POOL_CAPACITY,
-    scroll: { x: '100%' },
-    selectable: false,
-    showSetting: true,
-    heightUsed: 310,
-    showSelectAll: false,
-  });
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
+    getCapacityTaskList,
+    {
+      tableKey: TableKeyEnum.SYSTEM_RESOURCE_POOL_CAPACITY,
+      scroll: { x: '100%' },
+      selectable: false,
+      showSetting: true,
+      heightUsed: 310,
+      showSelectAll: false,
+    },
+    (item) => {
+      return {
+        ...item,
+        startTime: item.startTime ? dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss') : '-',
+        endTime: item.endTime ? dayjs(item.endTime).format('YYYY-MM-DD HH:mm:ss') : '-',
+      };
+    }
+  );
 
   const selectedNode = ref<string>('');
   const nodeList = computed<NodesListItem[]>(() => props.activeRecord?.testResourceDTO.nodesList ?? []);
