@@ -499,8 +499,8 @@
       type: FilterType.BOOLEAN,
       selectProps: {
         options: [
-          { label: t('system.config.email.close'), value: 'false' },
-          { label: t('system.config.email.open'), value: 'true' },
+          { label: t('system.config.email.close'), value: false },
+          { label: t('system.config.email.open'), value: true },
         ],
       },
     },
