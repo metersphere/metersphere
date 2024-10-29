@@ -11,12 +11,12 @@ import org.apache.jorphan.collections.HashTree;
 public class JSR223PreProcessConverter extends AbstractMsElementConverter<JSR223PreProcessor> {
     @Override
     public void toMsElement(AbstractMsTestElement parent, JSR223PreProcessor element, HashTree hashTree) {
-
         ScriptProcessor msScriptElement = new ScriptProcessor();
-        msScriptElement.setScriptLanguage(element.getScriptLanguage());
-        if (StringUtil.isBlank(msScriptElement.getScriptLanguage())) {
-            msScriptElement.setScriptLanguage(element.getPropertyAsString("scriptLanguage"));
+        String scriptLanguage = element.getScriptLanguage();
+        if (StringUtil.isBlank(scriptLanguage)) {
+            scriptLanguage = element.getPropertyAsString("scriptLanguage");
         }
+        msScriptElement.setScriptLanguage(ConverterUtils.parseScriptLanguage(scriptLanguage));
         msScriptElement.setEnable(element.isEnabled());
         msScriptElement.setName(element.getPropertyAsString("TestElement.name"));
         msScriptElement.setScript(element.getPropertyAsString("script"));

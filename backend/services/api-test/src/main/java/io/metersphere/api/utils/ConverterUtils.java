@@ -9,7 +9,9 @@ import io.metersphere.project.api.processor.ExtractPostProcessor;
 import io.metersphere.project.api.processor.MsProcessor;
 import io.metersphere.project.api.processor.SQLProcessor;
 import io.metersphere.project.api.processor.extract.MsExtract;
+import io.metersphere.project.constants.ScriptLanguageType;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.testelement.AbstractTestElement;
 
 import java.util.LinkedList;
@@ -147,5 +149,19 @@ public class ConverterUtils {
             }
         }
 
+    }
+
+    public static String parseScriptLanguage(String scriptLanguage) {
+        if (StringUtils.equalsIgnoreCase(scriptLanguage, "beanshell")) {
+            return ScriptLanguageType.BEANSHELL_JSR233.name();
+        } else if (StringUtils.equalsIgnoreCase(scriptLanguage, "groovy")) {
+            return ScriptLanguageType.GROOVY.name();
+        } else if (StringUtils.equalsIgnoreCase(scriptLanguage, "javascript")) {
+            return ScriptLanguageType.JAVASCRIPT.name();
+        } else if (StringUtils.equalsIgnoreCase(scriptLanguage, "python")) {
+            return ScriptLanguageType.PYTHON.name();
+        } else {
+            return scriptLanguage;
+        }
     }
 }

@@ -12,10 +12,11 @@ public class JSR223PostProcessConverter extends AbstractMsElementConverter<JSR22
     @Override
     public void toMsElement(AbstractMsTestElement parent, JSR223PostProcessor element, HashTree hashTree) {
         ScriptProcessor msScriptElement = new ScriptProcessor();
-        msScriptElement.setScriptLanguage(element.getScriptLanguage());
-        if (StringUtil.isBlank(msScriptElement.getScriptLanguage())) {
-            msScriptElement.setScriptLanguage(element.getPropertyAsString("scriptLanguage"));
+        String scriptLanguage = element.getScriptLanguage();
+        if (StringUtil.isBlank(scriptLanguage)) {
+            scriptLanguage = element.getPropertyAsString("scriptLanguage");
         }
+        msScriptElement.setScriptLanguage(ConverterUtils.parseScriptLanguage(scriptLanguage));
         msScriptElement.setEnable(element.isEnabled());
         msScriptElement.setName(element.getPropertyAsString("TestElement.name"));
         msScriptElement.setScript(element.getPropertyAsString("script"));
