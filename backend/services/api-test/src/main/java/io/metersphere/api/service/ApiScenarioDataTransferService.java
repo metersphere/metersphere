@@ -980,10 +980,11 @@ public class ApiScenarioDataTransferService {
                                     if (existenceApiCaseNumMap.containsKey(apiTestCaseDTO.getNum())) {
                                         returnResource.putApiTestCase(apiTestCaseDTO.getId(), existenceApiCaseNumMap.get(apiTestCaseDTO.getNum()));
                                     } else {
+                                        String oldId = apiTestCaseDTO.getId();
                                         apiTestCaseDTO.setId(IDGenerator.nextStr());
                                         apiTestCaseDTO.setProjectId(replaceApiDefinition.getProjectId());
                                         apiTestCaseDTO.setApiDefinitionId(replaceApiDefinition.getId());
-                                        returnResource.putApiTestCase(apiTestCaseDTO.getId(), apiTestCaseDTO);
+                                        returnResource.putApiTestCase(oldId, apiTestCaseDTO);
                                         analysisResult.setApiTestCase(apiTestCaseDTO);
                                     }
                                 }
@@ -1003,10 +1004,11 @@ public class ApiScenarioDataTransferService {
                                 analysisResult.setApiDefinition(apiDefinitionDetail);
 
                                 for (ApiTestCaseDTO apiTestCaseDTO : testCaseList) {
+                                    String oldId = apiTestCaseDTO.getId();
                                     apiTestCaseDTO.setId(IDGenerator.nextStr());
                                     apiTestCaseDTO.setProjectId(apiDefinitionDetail.getProjectId());
                                     apiTestCaseDTO.setApiDefinitionId(apiDefinitionDetail.getId());
-                                    returnResource.putApiTestCase(apiTestCaseDTO.getId(), apiTestCaseDTO);
+                                    returnResource.putApiTestCase(oldId, apiTestCaseDTO);
                                     analysisResult.setApiTestCase(apiTestCaseDTO);
                                 }
                             }
