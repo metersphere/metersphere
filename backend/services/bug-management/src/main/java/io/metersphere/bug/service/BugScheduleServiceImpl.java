@@ -41,7 +41,6 @@ public class BugScheduleServiceImpl implements BaseBugScheduleService {
 			Schedule schedule = scheduleService.getScheduleByResource(projectId, BugSyncJob.class.getName());
 			Optional<Schedule> optional = Optional.ofNullable(schedule);
 			optional.ifPresentOrElse(s -> {
-				s.setEnable(enable);
 				s.setValue(typeValue);
 				scheduleService.editSchedule(s);
 				scheduleService.addOrUpdateCronJob(s, BugSyncJob.getJobKey(projectId), BugSyncJob.getTriggerKey(projectId), BugSyncJob.class);

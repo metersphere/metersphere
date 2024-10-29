@@ -35,7 +35,6 @@ public class DemandScheduleServiceImpl implements BaseDemandScheduleService {
             Schedule schedule = scheduleService.getScheduleByResource(projectId, DemandSyncJob.class.getName());
             Optional<Schedule> optional = Optional.ofNullable(schedule);
             optional.ifPresentOrElse(s -> {
-                s.setEnable(enable);
                 s.setValue(typeValue);
                 scheduleService.editSchedule(s);
                 scheduleService.addOrUpdateCronJob(s, DemandSyncJob.getJobKey(projectId), DemandSyncJob.getTriggerKey(projectId), DemandSyncJob.class);

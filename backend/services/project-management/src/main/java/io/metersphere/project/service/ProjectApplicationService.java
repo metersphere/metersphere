@@ -77,7 +77,8 @@ public class ProjectApplicationService {
      * @return
      */
     public void update(ProjectApplication application, String currentUser) {
-        this.doBeforeUpdate(application, currentUser);
+        //更新应用配置状态 改变项目是否允许对接三方平台，不影响定时任务状态 只能任务中心开启/关闭 暂时注释下面一行
+        //this.doBeforeUpdate(application, currentUser);
         //配置信息入库
         this.createOrUpdateConfig(application);
     }
