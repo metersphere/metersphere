@@ -106,7 +106,7 @@ public class SystemTaskHubController {
     @Operation(summary = "系统-任务中心-用例执行任务-批量停止任务")
     @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_EXEC_STOP)
     public void batchStopTask(@Validated @RequestBody TableBatchProcessDTO request) {
-        List<String> ids = baseTaskHubService.getTaskIds(request, null, null);
+        List<String> ids = baseTaskHubService.getTaskIds(request, null, null, true);
         baseTaskHubService.batchStopTask(ids, SessionUtils.getUserId(), null, null);
         //系統日志
         baseTaskHubLogService.taskBatchLog(ids, SessionUtils.getUserId(), OperationLogType.STOP.name(), OperationLogConstants.SYSTEM, OperationLogConstants.SYSTEM,
@@ -133,7 +133,7 @@ public class SystemTaskHubController {
     @Operation(summary = "系统-任务中心-用例执行任务-批量删除任务")
     @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_DELETE)
     public void batchDeleteTask(@Validated @RequestBody TableBatchProcessDTO request) {
-        List<String> ids = baseTaskHubService.getTaskIds(request, null, null);
+        List<String> ids = baseTaskHubService.getTaskIds(request, null, null, false);
         //系統日志
         baseTaskHubLogService.taskBatchLog(ids, SessionUtils.getUserId(), OperationLogType.DELETE.name(), OperationLogConstants.SYSTEM, OperationLogConstants.SYSTEM,
                 "/system/task-center/exec-task/batch-delete", OperationLogModule.SETTING_SYSTEM_TASK_CENTER);

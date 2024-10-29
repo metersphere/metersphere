@@ -665,9 +665,9 @@ public class BaseTaskHubService {
 
     }
 
-    public List<String> getTaskIds(TableBatchProcessDTO request, String orgId, String projectId) {
+    public List<String> getTaskIds(TableBatchProcessDTO request, String orgId, String projectId, boolean flag) {
         if (request.isSelectAll()) {
-            List<String> ids = extExecTaskMapper.getIds(request, orgId, projectId);
+            List<String> ids = extExecTaskMapper.getIds(request, orgId, projectId, flag);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }

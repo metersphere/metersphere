@@ -102,7 +102,7 @@ public class ProjectTaskHubController {
     @Operation(summary = "项目-任务中心-用例执行任务-批量停止任务")
     @RequiresPermissions(PermissionConstants.PROJECT_CASE_TASK_CENTER_EXEC_STOP)
     public void batchStopTask(@Validated @RequestBody TableBatchProcessDTO request) {
-        List<String> ids = baseTaskHubService.getTaskIds(request, null, SessionUtils.getCurrentProjectId());
+        List<String> ids = baseTaskHubService.getTaskIds(request, null, SessionUtils.getCurrentProjectId(), true);
         baseTaskHubService.batchStopTask(ids, SessionUtils.getUserId(), null, SessionUtils.getCurrentProjectId());
         baseTaskHubLogService.taskBatchLog(ids, SessionUtils.getUserId(), OperationLogType.STOP.name(), SessionUtils.getCurrentProjectId(), SessionUtils.getCurrentOrganizationId(),
                 "/project/task-center/exec-task/batch-stop", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
@@ -127,7 +127,7 @@ public class ProjectTaskHubController {
     @Operation(summary = "项目-任务中心-用例执行任务-批量删除任务")
     @RequiresPermissions(PermissionConstants.PROJECT_CASE_TASK_CENTER_DELETE)
     public void batchDeleteTask(@Validated @RequestBody TableBatchProcessDTO request) {
-        List<String> ids = baseTaskHubService.getTaskIds(request, null, SessionUtils.getCurrentProjectId());
+        List<String> ids = baseTaskHubService.getTaskIds(request, null, SessionUtils.getCurrentProjectId(), false);
         baseTaskHubLogService.taskBatchLog(ids, SessionUtils.getUserId(), OperationLogType.DELETE.name(), SessionUtils.getCurrentProjectId(), SessionUtils.getCurrentOrganizationId(),
                 "/project/task-center/exec-task/batch-delete", OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER);
         baseTaskHubService.batchDeleteTask(ids, null, SessionUtils.getCurrentProjectId());

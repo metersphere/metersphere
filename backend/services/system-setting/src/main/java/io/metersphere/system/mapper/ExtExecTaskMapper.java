@@ -17,7 +17,7 @@ public interface ExtExecTaskMapper {
 
     void deleteTaskByIds(@Param("ids") List<String> ids, @Param("orgId") String orgId, @Param("projectId") String projectId);
 
-    List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("organizationId") String organizationId, @Param("projectId") String projectId);
+    List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("organizationId") String organizationId, @Param("projectId") String projectId, @Param("flag") boolean flag);
 
     void batchUpdateTaskStatus(@Param("ids") List<String> ids, @Param("userId") String userId, @Param("organizationId") String organizationId, @Param("projectId") String projectId, @Param("status") String status);
 

@@ -47,7 +47,9 @@
     <select id="getIds" resultType="java.lang.String">
         select id from exec_task
         <where>
-            status = 'RUNNING'
+            <if test="flag">
+                and status = 'RUNNING'
+            </if>
             <if test="projectId != null and projectId != ''">
                 and exec_task.project_id = #{projectId}
             </if>
