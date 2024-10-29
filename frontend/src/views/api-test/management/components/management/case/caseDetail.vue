@@ -138,8 +138,9 @@
   import TabCaseDependency from '@/views/api-test/management/components/management/case/tabContent/tabCaseDependency.vue';
   import TabCaseExecuteHistory from '@/views/api-test/management/components/management/case/tabContent/tabCaseExecuteHistory.vue';
 
-  import { localExecuteApiDebug, stopExecute, stopLocalExecute } from '@/api/modules/api-test/common';
+  import { localExecuteApiDebug, stopLocalExecute } from '@/api/modules/api-test/common';
   import { debugCase, deleteCase, runCase, toggleFollowCase } from '@/api/modules/api-test/management';
+  import { projectStopTask } from '@/api/modules/taskCenter/project';
   import useModal from '@/hooks/useModal';
   import useWebsocket from '@/hooks/useWebsocket';
   import useAppStore from '@/store/modules/app';
@@ -304,6 +305,7 @@
     await createSocket();
     websocket.value = _websocket.value;
   }
+  const executeTaskId = ref('');
   async function handleExecute(executeType?: 'localExec' | 'serverExec') {
     try {
       caseDetail.value.executeLoading = true;
@@ -332,6 +334,7 @@
       if (executeType === 'localExec') {
         await localExecuteApiDebug(executeRef.value?.localExecuteUrl as string, res);
       }
+      executeTaskId.value = res.taskInfo?.taskId;
       // 执行完更新执行历史
       executeHistoryRef.value?.loadExecuteList();
     } catch (error) {
@@ -346,7 +349,7 @@
       if (caseDetail.value.frontendDebug) {
         await stopLocalExecute(executeRef.value?.localExecuteUrl || '', reportId.value, ScenarioStepType.API_CASE);
       } else {
-        await stopExecute(reportId.value, ScenarioStepType.API_CASE);
+        await projectStopTask(executeTaskId.value);
       }
     } catch (error) {
       // eslint-disable-next-line no-console
