@@ -40,7 +40,6 @@
         <if test="orgId != null and orgId != ''">
             and organization_id = #{orgId}
         </if>
-        and `status` in ('PENDING', 'STOPPED', 'COMPLETED')
     </delete>
 
 
