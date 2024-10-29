@@ -89,6 +89,7 @@
     getModuleCount as getScenarioModuleCount,
     getModuleTree as getScenarioModuleTree,
   } from '@/api/modules/api-test/scenario';
+  import { testPlanAssociateModuleCount } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { mapTree } from '@/utils';
 
@@ -186,9 +187,10 @@
         projectId: props.projectId,
         moduleIds: [],
       };
-      if (type === 'api' || type === 'case') {
-        // case 的模块与 api 的一致
+      if (type === 'api') {
         moduleCountMap.value = await getModuleCount(params);
+      } else if (type === 'case') {
+        moduleCountMap.value = await testPlanAssociateModuleCount(params);
       } else if (type === 'scenario') {
         moduleCountMap.value = await getScenarioModuleCount(params);
       }
