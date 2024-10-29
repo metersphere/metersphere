@@ -17,7 +17,6 @@ import io.metersphere.api.dto.scenario.ApiScenarioImportDetail;
 import io.metersphere.api.dto.scenario.ApiScenarioImportRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioStepRequest;
 import io.metersphere.api.parser.ApiScenarioImportParser;
-import io.metersphere.api.parser.jmeter.xstream.MsSaveService;
 import io.metersphere.api.parser.ms.MsTestElementParser;
 import io.metersphere.plugin.api.spi.AbstractMsProtocolTestElement;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -28,7 +27,8 @@ import io.metersphere.system.uid.IDGenerator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jorphan.collections.HashTree;
+import org.apache.jmeter.save.SaveService;
+import org.apache.jorphan.collections.ListedHashTree;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -43,8 +43,9 @@ public class JmeterParserApiScenario implements ApiScenarioImportParser {
     @Override
     public ApiScenarioImportParseResult parse(InputStream inputSource, ApiScenarioImportRequest request) throws Exception {
         try {
-            Object scriptWrapper = MsSaveService.loadElement(inputSource);
-            HashTree hashTree = this.getHashTree(scriptWrapper);
+            Object scriptWrapper = SaveService.loadElement(inputSource);
+
+            ListedHashTree hashTree = this.getHashTree(scriptWrapper);
             MsTestElementParser parser = new MsTestElementParser();
             AbstractMsTestElement msTestElement = parser.parse(hashTree);
             Map<String, String> polymorphicNameMap = parser.getPolymorphicNameMap(request.getProjectId());
@@ -190,10 +191,10 @@ public class JmeterParserApiScenario implements ApiScenarioImportParser {
         }
     }
 
-    private HashTree getHashTree(Object scriptWrapper) throws Exception {
+    private ListedHashTree getHashTree(Object scriptWrapper) throws Exception {
         Field field = scriptWrapper.getClass().getDeclaredField("testPlan");
         field.setAccessible(true);
-        return (HashTree) field.get(scriptWrapper);
+        return (ListedHashTree) field.get(scriptWrapper);
     }
 }
 

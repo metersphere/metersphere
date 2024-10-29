@@ -40,7 +40,7 @@ public abstract class AbstractMsElementConverter<T extends TestElement> implemen
         if (currentHashtree == null) {
             return;
         }
-        for (Object key : currentHashtree.keySet()) {
+        for (Object key : currentHashtree.list()) {
             if (key instanceof TestElement testElement) {
                 getConverterFunc.apply(testElement.getClass()).toMsElement(parentMsElement, testElement, currentHashtree);
             }

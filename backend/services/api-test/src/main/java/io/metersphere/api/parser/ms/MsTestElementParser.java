@@ -25,7 +25,7 @@ public class MsTestElementParser {
 
     public AbstractMsTestElement parse(HashTree hashTree) {
         MsScenario msScenario = new MsScenario();
-        for (Object key : hashTree.keySet()) {
+        for (Object key : hashTree.list()) {
             if (key instanceof TestElement testElement) {
                 MsElementConverterRegister.getConverter(testElement.getClass()).toMsElement(msScenario, testElement, hashTree);
             }
