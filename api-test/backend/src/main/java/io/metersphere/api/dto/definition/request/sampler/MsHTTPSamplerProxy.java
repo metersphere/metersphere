@@ -403,20 +403,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
             } else {
                 String envPath = this.path;
-                try {
-                    if (StringUtils.isNotBlank(url)) {
-                        URL urlObject = new URL(url);
-                        if (url.contains("${")) {
-                            envPath = url;
-                        } else {
-                            sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8));
-                            envPath = urlObject.getPath();
-                            sampler.setPort(urlObject.getPort());
-                        }
-                        sampler.setProtocol(urlObject.getProtocol());
-                    }
-                } catch (Exception e) {
-                    envPath = url == null ? "" : url;
+                // 有url则不拼接path 来源于调试请求
+                if (StringUtils.isNotBlank(url) && StringUtils.isBlank(this.path)) {
+                    envPath = this.url;
+                    sampler.setProperty(HTTPSamplerBase.PATH, envPath);
                 }
                 sampler.setProperty(HTTPSamplerBase.PATH, envPath, StandardCharsets.UTF_8.name());
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
@@ -477,17 +467,15 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private void fullPath(HTTPSamplerProxy sampler, String url) {
         try {
             if (this.isCustomizeReq() && StringUtils.isNotEmpty(this.getUrl())) {
-                url = this.getUrl();
-                sampler.setProperty(HTTPSamplerBase.PATH, url);
+                sampler.setProperty(HTTPSamplerBase.PATH, this.getUrl());
+                return;
             }
-            if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
-                url = url.replace(this.getPort(), "10990");
-            }
-            URL urlObject = new URL(url);
+
             String envPath;
             if (url.contains("${")) {
                 envPath = url;
             } else {
+                URL urlObject = new URL(url);
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8));
                 if (urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
                     sampler.setProperty(HTTPSamplerBase.PORT, this.getPort());
@@ -495,9 +483,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setPort(urlObject.getPort());
                 }
                 envPath = urlObject.getPath();
+                sampler.setProtocol(urlObject.getProtocol());
             }
 
-            sampler.setProtocol(urlObject.getProtocol());
             sampler.setProperty(HTTPSamplerBase.PATH, URLDecoder.decode(envPath, StandardCharsets.UTF_8), StandardCharsets.UTF_8.name());
         } catch (Exception e) {
             sampler.setProperty(HTTPSamplerBase.PATH, url);
