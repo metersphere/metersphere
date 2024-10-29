@@ -195,8 +195,7 @@
     },
     {
       title: 'system.resourcePool.orgRange',
-      slotName: 'orgNames',
-      dataIndex: 'orgNames',
+      dataIndex: 'orgId',
       showInTable: true,
       showDrag: true,
       isTag: true,
@@ -260,6 +259,7 @@
     (item) => {
       return {
         ...item,
+        orgId: item.orgNames,
         lastConcurrentNumber: item.type === 'Kubernetes' ? '-' : item.lastConcurrentNumber || 0,
       };
     }
