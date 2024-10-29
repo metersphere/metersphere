@@ -108,14 +108,19 @@ public class ApiScenarioImportUtils {
         return apiIdDic;
     }
 
-    public static boolean isApiExistence(String protocol, String method, String path, String modulePath, String apiDefinitionName, List<ApiDefinitionDetail> existenceApiDefinitionList) {
+    public static ApiDefinitionDetail isApiExistence(String protocol, String method, String path, String modulePath, String apiDefinitionName, List<ApiDefinitionDetail> existenceApiDefinitionList) {
         Map<String, ApiDefinitionDetail> existenceMap = null;
         if (StringUtils.equalsIgnoreCase(protocol, ApiConstants.HTTP_PROTOCOL)) {
             existenceMap = existenceApiDefinitionList.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), t -> t, (oldValue, newValue) -> newValue));
-            return existenceMap.containsKey(method + path);
+            if (existenceMap.containsKey(method + path)) {
+                return existenceMap.get(method + path);
+            }
         } else {
             existenceMap = existenceApiDefinitionList.stream().collect(Collectors.toMap(t -> t.getModulePath() + t.getName(), t -> t, (oldValue, newValue) -> newValue));
-            return existenceMap.containsKey(modulePath + apiDefinitionName);
+            if (existenceMap.containsKey(modulePath + apiDefinitionName)) {
+                return existenceMap.get(modulePath + apiDefinitionName);
+            }
         }
+        return null;
     }
 }
