@@ -958,23 +958,23 @@ public class ApiScenarioDataTransferService {
 
                     Map<String, List<ApiTestCaseDTO>> apiIdMap = protocolList.stream().collect(Collectors.groupingBy(ApiTestCaseDTO::getApiDefinitionId));
                     for (Map.Entry<String, List<ApiTestCaseDTO>> apiIdEntry : apiIdMap.entrySet()) {
-                        ApiDefinitionDetail replaceApiDefinition = returnResource.getApi(apiIdEntry.getKey()) == null ? null : returnResource.getApi(apiIdEntry.getKey());
+                        ApiDefinitionDetail replacedApiDefinition = returnResource.getApi(apiIdEntry.getKey()) == null ? null : returnResource.getApi(apiIdEntry.getKey());
                         List<ApiTestCaseDTO> testCaseList = apiIdEntry.getValue();
-                        if (replaceApiDefinition != null) {
+                        if (replacedApiDefinition == null) {
                             // 用例对应的接口在上述步骤中有没有处理
-                            boolean apiExistence = ApiScenarioImportUtils.isApiExistence(
+                            ApiDefinitionDetail existenceApi = ApiScenarioImportUtils.isApiExistence(
                                     protocol, testCaseList.getFirst().getMethod(), testCaseList.getFirst().getPath(),
                                     testCaseList.getFirst().getModulePath(), testCaseList.getFirst().getApiDefinitionName(), existenceApiDefinitionList);
 
-                            if (!apiExistence && !StringUtils.equalsIgnoreCase(targetProjectId, projectId)) {
+                            if (existenceApi == null && !StringUtils.equalsIgnoreCase(targetProjectId, projectId)) {
                                 //  如果用例所在项目与当前导入项目不同，且在原项目中不存在时，判断是否在当前项目中存在
-                                apiExistence = ApiScenarioImportUtils.isApiExistence(
+                                existenceApi = ApiScenarioImportUtils.isApiExistence(
                                         protocol, testCaseList.getFirst().getMethod(), testCaseList.getFirst().getPath(),
                                         testCaseList.getFirst().getModulePath(), testCaseList.getFirst().getApiDefinitionName(), thisProjectExistenceApiDefinitionList);
                             }
 
-                            if (apiExistence) {
-                                Map<Long, ApiTestCaseDTO> existenceApiCaseNumMap = extApiTestCaseMapper.selectBaseInfoByProjectIdAndApiId(targetProjectId, apiIdEntry.getKey())
+                            if (existenceApi != null) {
+                                Map<Long, ApiTestCaseDTO> existenceApiCaseNumMap = extApiTestCaseMapper.selectBaseInfoByProjectIdAndApiId(targetProjectId, existenceApi.getId())
                                         .stream().collect(Collectors.toMap(ApiTestCaseDTO::getNum, Function.identity(), (k1, k2) -> k1));
                                 for (ApiTestCaseDTO apiTestCaseDTO : apiIdEntry.getValue()) {
                                     if (existenceApiCaseNumMap.containsKey(apiTestCaseDTO.getNum())) {
@@ -982,9 +982,10 @@ public class ApiScenarioDataTransferService {
                                     } else {
                                         String oldId = apiTestCaseDTO.getId();
                                         apiTestCaseDTO.setId(IDGenerator.nextStr());
-                                        apiTestCaseDTO.setProjectId(replaceApiDefinition.getProjectId());
-                                        apiTestCaseDTO.setApiDefinitionId(replaceApiDefinition.getId());
-                                        returnResource.putApiTestCase(oldId, apiTestCaseDTO);
+                                        apiTestCaseDTO.setName(apiTestCaseDTO.getName() + "_" + System.currentTimeMillis());
+                                        apiTestCaseDTO.setProjectId(existenceApi.getProjectId());
+                                        apiTestCaseDTO.setApiDefinitionId(existenceApi.getId());
+                                        returnResource.putApiTestCase(apiTestCaseDTO.getId(), apiTestCaseDTO);
                                         analysisResult.setApiTestCase(apiTestCaseDTO);
                                     }
                                 }
@@ -1006,6 +1007,7 @@ public class ApiScenarioDataTransferService {
                                 for (ApiTestCaseDTO apiTestCaseDTO : testCaseList) {
                                     String oldId = apiTestCaseDTO.getId();
                                     apiTestCaseDTO.setId(IDGenerator.nextStr());
+                                    apiTestCaseDTO.setName(apiTestCaseDTO.getName() + "_" + System.currentTimeMillis());
                                     apiTestCaseDTO.setProjectId(apiDefinitionDetail.getProjectId());
                                     apiTestCaseDTO.setApiDefinitionId(apiDefinitionDetail.getId());
                                     returnResource.putApiTestCase(oldId, apiTestCaseDTO);
@@ -1014,17 +1016,18 @@ public class ApiScenarioDataTransferService {
                             }
 
                         } else {
-                            Map<Long, ApiTestCaseDTO> existenceApiCaseNumMap = extApiTestCaseMapper.selectBaseInfoByProjectIdAndApiId(targetProjectId, replaceApiDefinition.getId())
+                            Map<Long, ApiTestCaseDTO> existenceApiCaseNumMap = extApiTestCaseMapper.selectBaseInfoByProjectIdAndApiId(targetProjectId, replacedApiDefinition.getId())
                                     .stream().collect(Collectors.toMap(ApiTestCaseDTO::getNum, Function.identity(), (k1, k2) -> k1));
                             for (ApiTestCaseDTO apiTestCaseDTO : testCaseList) {
-                                apiTestCaseDTO.setApiDefinitionId(replaceApiDefinition.getId());
-                                apiTestCaseDTO.setProjectId(replaceApiDefinition.getProjectId());
+                                apiTestCaseDTO.setApiDefinitionId(replacedApiDefinition.getId());
+                                apiTestCaseDTO.setProjectId(replacedApiDefinition.getProjectId());
                                 if (existenceApiCaseNumMap.containsKey(apiTestCaseDTO.getNum())) {
                                     returnResource.putApiTestCase(apiTestCaseDTO.getId(), existenceApiCaseNumMap.get(apiTestCaseDTO.getNum()));
                                 } else {
                                     apiTestCaseDTO.setProjectId(targetProjectId);
                                     returnResource.putApiTestCase(apiTestCaseDTO.getId(), apiTestCaseDTO);
                                     apiTestCaseDTO.setId(IDGenerator.nextStr());
+                                    apiTestCaseDTO.setName(apiTestCaseDTO.getName() + "_" + System.currentTimeMillis());
                                     analysisResult.setApiTestCase(apiTestCaseDTO);
                                 }
                             }
