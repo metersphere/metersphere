@@ -19,7 +19,25 @@
   >
     <template #titleName>
       <div :class="`case-title flex items-center gap-[8px] ${isEditTitle ? 'w-full' : ''}`">
-        <div v-if="!isEditTitle" class="flex items-center"><caseLevel :case-level="caseLevels" /></div>
+        <a-select
+          v-if="!isEditTitle"
+          v-model:model-value="caseLevels"
+          :placeholder="t('common.pleaseSelect')"
+          class="param-input w-[65px] py-[2px]"
+          size="mini"
+          :disabled="!hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])"
+          @click.stop
+          @change="(val)=>handleStatusChange(val as string)"
+        >
+          <template #label>
+            <span class="text-[var(--color-text-2)]">
+              <caseLevel :case-level="caseLevels" />
+            </span>
+          </template>
+          <a-option v-for="item of caseLevelList" :key="item.value" :value="item.value">
+            <caseLevel :case-level="item.text as CaseLevel" />
+          </a-option>
+        </a-select>
         <a-input
           v-if="isEditTitle"
           v-model="titleName"
@@ -237,6 +255,7 @@
 
   import type { CustomAttributes, DetailCase, TabItemType } from '@/models/caseManagement/featureCase';
   import { ModuleTreeNode } from '@/models/common';
+  import type { FieldOptions } from '@/models/setting/template';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import { getCaseLevels, initFormCreate } from './utils';
@@ -350,6 +369,13 @@
     customFields.value = detailInfo.value?.customFields as CustomAttributes[];
     caseLevels.value = getCaseLevels(customFields.value) as CaseLevel;
   }
+
+  const caseLevelList = computed<FieldOptions[]>(() => {
+    return (
+      customFields.value.find((item: any) => item.internal && item.internalFieldKey === 'functional_priority')
+        ?.options || []
+    );
+  });
 
   const editLoading = ref<boolean>(false);
 
@@ -674,6 +700,36 @@
       fileList: [file],
     });
     return data;
+  }
+  // 更新用例等级
+  async function handleStatusChange(value: string) {
+    try {
+      const customFieldsList = customFields.value.map((item: any) => {
+        if (item.internal && item.internalFieldKey === 'functional_priority') {
+          return {
+            fieldId: item.fieldId,
+            value,
+          };
+        }
+        return {
+          fieldId: item.fieldId,
+          value: Array.isArray(item.defaultValue) ? JSON.stringify(item.defaultValue) : item.defaultValue,
+        };
+      });
+      const params = {
+        request: {
+          ...detailInfo.value,
+          customFields: customFieldsList,
+        },
+        fileList: [],
+      };
+      await updateCaseRequest(params);
+      Message.success(t('common.updateSuccess'));
+      updateSuccess();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 </script>
 
