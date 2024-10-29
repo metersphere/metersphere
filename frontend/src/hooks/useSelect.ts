@@ -1,3 +1,5 @@
+import type { MsCascaderProps } from '@/components/business/ms-cascader/index.vue';
+
 import { calculateMaxDepth } from '@/utils';
 
 import type { CascaderOption, SelectOptionData } from '@arco-design/web-vue';
@@ -17,7 +19,7 @@ export interface UseSelectOption {
  * @param selectRef 选择器 ref 对象
  * @param selectVal 选择器的 v-model
  */
-export default function useSelect(config: UseSelectOption) {
+export default function useSelect(config: UseSelectOption, props?: MsCascaderProps) {
   const maxTagCount = ref(0);
   const selectWidth = ref(0);
   const selectViewInner = ref<HTMLElement | null>(null); // 输入框内容容器 DOM
@@ -55,7 +57,7 @@ export default function useSelect(config: UseSelectOption) {
   }
 
   const getOptionComputedStyle = computed(() => {
-    if (config.isCascade) {
+    if (config.isCascade && selectWidth.value > 0) {
       // 减去 80px 是为了防止溢出，因为会出现单选框、右侧箭头
       return {
         width:
@@ -71,7 +73,7 @@ export default function useSelect(config: UseSelectOption) {
   });
 
   watch(
-    () => config.options,
+    () => props?.options,
     (arr) => {
       if (config.isCascade && arr && arr.length > 0) {
         // 级联选择器的选项发生变化时，重新计算最大深度

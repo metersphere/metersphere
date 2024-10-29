@@ -16,7 +16,7 @@
       :options="resourcePoolOptions"
       :placeholder="t('common.pleaseSelect')"
       option-size="small"
-      class="w-[240px]"
+      class="w-[300px]"
       :prefix="t('ms.taskCenter.resourcePool')"
       :virtual-list-props="{ height: 200 }"
       strictly

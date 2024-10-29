@@ -141,13 +141,16 @@
   const cascader: Ref = ref(null);
   let selectedLabelObj: Record<string, any> = {}; // 存储已选的选项的label，用于多选时展示全部选项的 tooltip
 
-  const { maxTagCount, getOptionComputedStyle, calculateMaxTag } = useSelect({
-    selectRef: cascader,
-    selectVal: innerValue,
-    isCascade: true,
-    options: props.options,
-    panelWidth: props.panelWidth,
-  });
+  const { maxTagCount, getOptionComputedStyle, calculateMaxTag } = useSelect(
+    {
+      selectRef: cascader,
+      selectVal: innerValue,
+      isCascade: true,
+      options: props.options,
+      panelWidth: props.panelWidth,
+    },
+    props
+  );
 
   watch(
     () => props.modelValue,
