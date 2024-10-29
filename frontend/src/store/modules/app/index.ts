@@ -231,7 +231,7 @@ const useAppStore = defineStore('app', {
     /**
      * 设置当前组织列表
      */
-    setOrdList(orgList: { id: string; name: string }[]) {
+    setOrgList(orgList: { id: string; name: string }[]) {
       this.orgList = orgList;
     },
     /**

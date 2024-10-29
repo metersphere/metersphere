@@ -96,6 +96,7 @@
     organizationBatchOpenTask,
     organizationDeleteSchedule,
     organizationEditCron,
+    organizationProjectOptions,
     organizationScheduleSwitch,
   } from '@/api/modules/taskCenter/organization';
   import {
@@ -112,6 +113,8 @@
     systemBatchOpenTask,
     systemDeleteSchedule,
     systemEditCron,
+    systemOrgOptions,
+    systemProjectOptions,
     systemScheduleSwitch,
   } from '@/api/modules/taskCenter/system';
   import { useI18n } from '@/hooks/useI18n';
@@ -264,113 +267,67 @@
       width: 110,
     },
   ];
-  if (props.type === 'system') {
-    columns.splice(
-      2,
-      0,
-      {
-        title: 'common.belongProject',
-        dataIndex: 'projectName',
-        showTooltip: true,
-        width: 200,
-        showDrag: true,
-        filterConfig: {
-          options: appStore.projectList.map((item) => ({
-            label: item.name,
-            value: item.id,
-          })),
-          filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
-        },
-      },
-      {
-        title: 'common.belongOrg',
-        dataIndex: 'organizationName',
-        showTooltip: true,
-        width: 200,
-        showDrag: true,
-        filterConfig: {
-          options: appStore.orgList.map((item) => ({
-            label: item.name,
-            value: item.id,
-          })),
-          filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
-        },
-      }
-    );
-  } else if (props.type === 'org') {
-    columns.splice(2, 0, {
-      title: 'common.belongProject',
-      dataIndex: 'projectName',
-      showTooltip: true,
-      width: 200,
-      showDrag: true,
-      filterConfig: {
-        options: appStore.projectList.map((item) => ({
-          label: item.name,
-          value: item.id,
-        })),
-        filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
-      },
-    });
-  }
-
-  watch(
-    () => [appStore.projectList, appStore.orgList],
-    () => {
-      if (appStore.projectList.length > 0 && appStore.orgList.length > 0) {
-        if (props.type === 'system') {
-          columns.splice(
-            2,
-            2,
-            {
-              title: 'common.belongProject',
-              dataIndex: 'projectName',
-              showTooltip: true,
-              width: 200,
-              showDrag: true,
-              filterConfig: {
-                options: appStore.projectList.map((item) => ({
-                  label: item.name,
-                  value: item.id,
-                })),
-                filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
-              },
-            },
-            {
-              title: 'common.belongOrg',
-              dataIndex: 'organizationName',
-              showTooltip: true,
-              width: 200,
-              showDrag: true,
-              filterConfig: {
-                options: appStore.orgList.map((item) => ({
-                  label: item.name,
-                  value: item.id,
-                })),
-                filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
-              },
-            }
-          );
-        } else if (props.type === 'org') {
-          columns.splice(2, 1, {
+  async function initProjectAndOrgs() {
+    try {
+      if (props.type === 'system') {
+        const projects = await systemProjectOptions();
+        const orgs = await systemOrgOptions();
+        columns.splice(
+          2,
+          0,
+          {
             title: 'common.belongProject',
             dataIndex: 'projectName',
             showTooltip: true,
-            width: 200,
             showDrag: true,
+            width: 200,
             filterConfig: {
-              options: appStore.projectList.map((item) => ({
+              options: projects.map((item) => ({
                 label: item.name,
                 value: item.id,
               })),
               filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
             },
-          });
-        }
-        tableRef.value?.initColumn(columns);
+          },
+          {
+            title: 'common.belongOrg',
+            dataIndex: 'organizationName',
+            showTooltip: true,
+            showDrag: true,
+            width: 200,
+            filterConfig: {
+              options: orgs.map((item) => ({
+                label: item.name,
+                value: item.id,
+              })),
+              filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+            },
+          }
+        );
+      } else if (props.type === 'org') {
+        const projects = await organizationProjectOptions();
+        columns.splice(2, 0, {
+          title: 'common.belongProject',
+          dataIndex: 'projectName',
+          showTooltip: true,
+          showDrag: true,
+          width: 200,
+          filterConfig: {
+            options: projects.map((item) => ({
+              label: item.name,
+              value: item.id,
+            })),
+            filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+          },
+        });
       }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
     }
-  );
+  }
+
+  await initProjectAndOrgs();
 
   await tableStore.initColumn(TableKeyEnum.TASK_CENTER_SYSTEM_TASK, columns, 'drawer');
 

@@ -12,6 +12,7 @@ import {
   organizationExecuteTaskDetailListUrl,
   organizationExecuteTaskListUrl,
   organizationExecuteTaskStatisticsUrl,
+  organizationProjectOptionsUrl,
   organizationScheduleListUrl,
   organizationScheduleSwitchUrl,
   organizationStopTaskDetailUrl,
@@ -21,6 +22,7 @@ import {
 } from '@/api/requrls/taskCenter';
 
 import type { CommonList, TableQueryParams } from '@/models/common';
+import type { ProjectListItem } from '@/models/setting/project';
 import type {
   TaskCenterBatchParams,
   TaskCenterBatchTaskReportItem,
@@ -119,4 +121,9 @@ export function organizationEditCron(cron: string, id: string) {
 // 组织任务-批量任务报告列表
 export function organizationBatchTaskReportList(data: TaskCenterBatchParams) {
   return MSR.post<CommonList<TaskCenterBatchTaskReportItem>>({ url: organizationBatchTaskReportUrl, data });
+}
+
+// 组织任务-项目列表
+export function organizationProjectOptions() {
+  return MSR.get<ProjectListItem[]>({ url: organizationProjectOptionsUrl });
 }

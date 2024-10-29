@@ -37,6 +37,8 @@ export const systemBatchOpenTaskUrl = '/system/task-center/schedule/batch-enable
 export const systemBatchCloseTaskUrl = '/system/task-center/schedule/batch-disable'; // 系统任务-系统后台任务-批量关闭任务
 export const systemEditCronUrl = '/system/task-center/schedule/update-cron'; // 系统任务-系统后台任务-编辑 cron 表达式
 export const systemBatchTaskReportUrl = '/system/task-center/exec-task/batch/page'; // 系统任务-批量任务报告列表
+export const systemProjectOptionsUrl = '/system/task-center/project/options'; // 系统任务-项目列表
+export const systemOrgOptionsUrl = '/system/task-center/organization/options'; // 系统任务-组织列表
 
 export const organizationScheduleListUrl = '/organization/task-center/schedule/page'; // 组织任务-系统后台任务列表
 export const organizationExecuteTaskListUrl = '/organization/task-center/exec-task/page'; // 组织任务-执行任务列表
@@ -56,3 +58,4 @@ export const organizationBatchOpenTaskUrl = '/organization/task-center/schedule/
 export const organizationBatchCloseTaskUrl = '/organization/task-center/schedule/batch-disable'; // 组织任务-系统后台任务-批量关闭任务
 export const organizationEditCronUrl = '/organization/task-center/schedule/update-cron'; // 组织任务-系统后台任务-编辑 cron 表达式
 export const organizationBatchTaskReportUrl = '/organization/task-center/exec-task/batch/page'; // 组织任务-批量任务报告列表
+export const organizationProjectOptionsUrl = '/organization/task-center/project/options'; // 组织任务-项目列表

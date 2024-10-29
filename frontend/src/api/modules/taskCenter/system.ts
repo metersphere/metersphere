@@ -12,6 +12,8 @@ import {
   systemExecuteTaskDetailListUrl,
   systemExecuteTaskListUrl,
   systemExecuteTaskStatisticsUrl,
+  systemOrgOptionsUrl,
+  systemProjectOptionsUrl,
   systemResourcePoolStatusUrl,
   systemScheduleListUrl,
   systemScheduleSwitchUrl,
@@ -22,6 +24,8 @@ import {
 } from '@/api/requrls/taskCenter';
 
 import type { CommonList, TableQueryParams } from '@/models/common';
+import type { ProjectListItem } from '@/models/setting/project';
+import type { OrganizationListItem } from '@/models/setting/user';
 import type {
   TaskCenterBatchParams,
   TaskCenterBatchTaskReportItem,
@@ -126,4 +130,14 @@ export function systemEditCron(cron: string, id: string) {
 // 系统任务-批量任务报告列表
 export function systemBatchTaskReportList(data: TaskCenterBatchParams) {
   return MSR.post<CommonList<TaskCenterBatchTaskReportItem>>({ url: systemBatchTaskReportUrl, data });
+}
+
+// 系统任务-组织列表
+export function systemOrgOptions() {
+  return MSR.get<OrganizationListItem[]>({ url: systemOrgOptionsUrl });
+}
+
+// 系统任务-项目列表
+export function systemProjectOptions() {
+  return MSR.get<ProjectListItem[]>({ url: systemProjectOptionsUrl });
 }
