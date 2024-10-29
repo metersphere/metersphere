@@ -7,19 +7,19 @@ export default {
   'project.menu.count': 'Count',
 
   'project.menu.WORKSTATION_SYNC_RULE': 'Interface Test Update Synchronization Rule',
-  'project.menu.TEST_PLAN_CLEAN_REPORT': 'Report Retention Time Range',
+  'project.menu.TEST_PLAN_CLEAN_REPORT': 'Report Retention Time',
   'project.menu.TEST_PLAN_SHARE_REPORT': 'Report Link Validity Period',
-  'project.menu.UI_CLEAN_REPORT': 'Report Retention Time Range',
+  'project.menu.UI_CLEAN_REPORT': 'Report Retention Time',
   'project.menu.UI_SHARE_REPORT': 'Report Link Validity Period',
   'project.menu.UI_RESOURCE_POOL': 'Execution Resource Pool',
   'project.menu.UI_RESOURCE_POOL_TIP': 'The current resource pool in use is: {name}; you can switch resource pools',
-  'project.menu.PERFORMANCE_TEST_CLEAN_REPORT': 'Report Retention Time Range',
+  'project.menu.PERFORMANCE_TEST_CLEAN_REPORT': 'Report Retention Time',
   'project.menu.PERFORMANCE_TEST_SHARE_REPORT': 'Report Link Validity Period',
   'project.menu.PERFORMANCE_TEST_SCRIPT_REVIEWER': 'Script Reviewer',
   'project.menu.PERFORMANCE_TEST_SCRIPT_REVIEWER_TIP':
     'Specify a user to review script steps in interface test cases; you can change the reviewer',
   'project.menu.API_URL_REPEATABLE': 'API Definition URL Repeatability',
-  'project.menu.API_CLEAN_REPORT': 'Report Retention Time Range',
+  'project.menu.API_CLEAN_REPORT': 'Report Retention Time',
   'project.menu.API_SHARE_REPORT': 'Report Link Validity Period',
   'project.menu.API_RESOURCE_POOL': 'Execution Resource Pool',
   'project.menu.API_RESOURCE_POOL_TIP': 'Execution machine for interface testing',
@@ -30,7 +30,7 @@ export default {
   'project.menu.API_ERROR_REPORT_RULE_TIP':
     'When the interface returns a result that matches the false alert rule, the interface result will be treated as a false alert',
   'project.menu.API_SYNC_CASE': 'Change Synchronized CASE',
-  'project.menu.TASK_CLEAN_REPORT': 'Result Retention Time Range',
+  'project.menu.TASK_CLEAN_REPORT': 'Result Retention Time',
 
   'project.menu.CASE_PUBLIC': 'Public Test Case Library',
   'project.menu.CASE_RE_REVIEW': 'Re-review',

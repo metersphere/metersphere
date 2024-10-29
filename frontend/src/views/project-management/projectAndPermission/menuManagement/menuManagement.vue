@@ -98,7 +98,7 @@
       </div>
       <div v-if="record.type === 'API_RESOURCE_POOL'" class="flex flex-row items-center">
         <!--接口测试 执行资源池 -->
-        <div class="w-[120px]">
+        <div class="w-[200px]">
           <MsSelect
             v-model="allValueMap['API_RESOURCE_POOL_ID']"
             label-key="name"
