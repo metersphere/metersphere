@@ -98,14 +98,17 @@
       </div>
       <div v-if="record.type === 'API_RESOURCE_POOL'" class="flex flex-row items-center">
         <!--接口测试 执行资源池 -->
-        <a-select
-          v-model="allValueMap['API_RESOURCE_POOL_ID']"
-          :field-names="{ label: 'name', value: 'id' }"
-          :options="apiPoolOption"
-          class="w-[120px]"
-          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_API:UPDATE'])"
-          @change="(v: SelectValue) => handleMenuStatusChange('API_RESOURCE_POOL_ID',v as string,MenuEnum.apiTest)"
-        />
+        <div class="w-[120px]">
+          <MsSelect
+            v-model="allValueMap['API_RESOURCE_POOL_ID']"
+            label-key="name"
+            value-key="id"
+            :options="apiPoolOption"
+            :disabled="!hasAnyPermission(['PROJECT_APPLICATION_API:UPDATE'])"
+            :option-not-exits-text="t('system.resourcePool.notExit')"
+            @change="(v: SelectValue) => handleMenuStatusChange('API_RESOURCE_POOL_ID',v as string,MenuEnum.apiTest)"
+          />
+        </div>
         <a-tooltip :content="t('project.menu.API_RESOURCE_POOL_TIP')" position="right">
           <div>
             <MsIcon
@@ -423,6 +426,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTimeSelectorVue from '@/components/pure/ms-time-selector/MsTimeSelector.vue';
+  import MsSelect from '@/components/business/ms-select';
   import DefectSync from './components/defectSync.vue';
   import RelatedCase from './components/relatedCase.vue';
 
