@@ -15,6 +15,7 @@
       :more-menu-other-operation-list="canShowFloatMenu ? moreMenuOtherOperationList : []"
       :shortcut-list="['expand', 'enter']"
       disabled
+      @content-change="handleMinderNodeContentChange"
       @node-select="handleNodeSelect"
       @node-unselect="handleNodeUnselect"
     >
@@ -623,6 +624,14 @@
     }
   }
 
+  const isContentChanging = ref(false);
+  function handleMinderNodeContentChange() {
+    isContentChanging.value = true;
+    setTimeout(() => {
+      isContentChanging.value = false;
+    }, 300); // 300ms 是脑图编辑器的 debounce 时间，300ms 后触发选中事件
+  }
+
   /**
    * 处理节点选中
    * @param node 节点
@@ -684,9 +693,12 @@
       if (extraVisible.value) {
         toggleDetail(true);
       }
-      // 用例下面所有节点都展开
-      expendNodeAndChildren(node);
-      node.layout();
+      // 点击展开折叠，会先触发contentChange，再触发select，isContentChanging用来判断是点击展开折叠触发的选中还是点击节点触发的选中
+      if (!isContentChanging.value) {
+        // 用例下面所有节点都展开
+        expendNodeAndChildren(node);
+        node.layout();
+      }
     } else if (data?.resource?.includes(moduleTag) && data.count > 0 && data.isLoaded !== true) {
       // 模块节点且有用例且未加载过用例数据
       await initNodeCases(node);
