@@ -569,6 +569,7 @@
   .robot-list-container {
     @apply relative;
 
+    border-radius: var(--border-radius-small);
     background-color: var(--color-text-n9);
     .ms-container--shadow-y();
     .robot-list {

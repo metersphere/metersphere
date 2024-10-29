@@ -59,8 +59,8 @@
           <div class="font-medium text-[var(--color-text-1)]">
             {{ t('project.messageManagement.messageTemplate') }}
           </div>
-          <div class="flex whitespace-nowrap text-[rgb(var(--warning-6))]">
-            <icon-exclamation-circle class="mr-[4px] mt-[2px] text-[rgb(var(--warning-6))]" />
+          <div class="ml-[8px] flex items-center whitespace-nowrap text-[rgb(var(--warning-6))]">
+            <icon-exclamation-circle class="mr-[4px] text-[rgb(var(--warning-6))]" />
             {{
               currentLocale === 'zh-CN'
                 ? '引用消息变量格式为：${变量名称}'

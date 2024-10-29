@@ -445,6 +445,11 @@
 </script>
 
 <style lang="less" scoped>
+  :deep(.arco-table-cell-expand-icon) {
+    .arco-table-cell-inline-icon {
+      margin-right: 8px;
+    }
+  }
   :deep(.gray-td-bg) {
     td {
       background-color: var(--color-text-n9);

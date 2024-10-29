@@ -21,7 +21,7 @@
         <a-avatar>MS</a-avatar>
         <div class="flex flex-1 flex-col overflow-hidden">
           <div class="font-medium text-[var(--color-text-1)]" v-html="subject || '-'"></div>
-          <div class="mt-[4px] flex-1 text-[var(--color-text-2)]" v-html="template || '-'"></div>
+          <div class="my-[4px] flex-1 text-[var(--color-text-2)]" v-html="template || '-'"></div>
           <div class="text-[var(--color-text-4)]">{{ dayjs().format('YYYY-MM-DD HH:mm:ss') }}</div>
         </div>
       </div>
