@@ -11,8 +11,8 @@
     <template #content>
       <div class="arco-table-filters-content">
         <div class="arco-table-filters-content-list">
-          <div class="arco-table-filters-content-wrap max-h-[300px] px-[12px] py-[4px]">
-            <a-checkbox-group v-if="props.mode === 'static'" v-model="checkedList" size="mini" direction="vertical">
+          <div v-if="props.mode === 'static'" class="arco-table-filters-content-wrap max-h-[300px] px-[12px] py-[4px]">
+            <a-checkbox-group v-model:model-value="checkedList" size="mini" direction="vertical">
               <!-- 用于执行结果排队空统一让后台传递PENDING，展示内容为 -  -->
               <a-checkbox v-if="props.emptyFilter" value="PENDING">-</a-checkbox>
               <a-checkbox
@@ -34,7 +34,7 @@
               </a-checkbox>
             </a-checkbox-group>
           </div>
-          <div v-if="props.mode === 'remote'" class="w-[200px] p-[12px] pb-[8px]">
+          <div v-else class="w-[200px] p-[12px] pb-[8px]">
             <MsSelect
               v-model:model-value="checkedList"
               mode="remote"
@@ -111,7 +111,9 @@
 
   const visible = ref(false);
 
-  const checkedList = ref<(string | number)[]>([]);
+  const checkedList = defineModel<string[]>('checkedList', {
+    default: [],
+  });
 
   const handleFilterReset = () => {
     checkedList.value = [];

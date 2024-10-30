@@ -24,6 +24,7 @@ export interface MsPaginationI {
 }
 
 export interface MsTableColumnFilterConfig {
+  filterCheckedList?: string[]; // 筛选选中的值
   filterSlotName?: FilterSlotNameEnum; // 筛选组件的slotName @desc 定义枚举是为了table组件内的插槽的filterSlotName 可以精确的让外部组件使用的时候可以拿到插槽作用域的值
   options?: Record<string, any>[]; // 筛选数据
   valueKey?: string;

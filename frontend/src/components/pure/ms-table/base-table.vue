@@ -119,6 +119,7 @@
                   !props.notShowTableFilter &&
                   ((item.filterConfig && item.filterConfig.options?.length) || item?.filterConfig?.remoteMethod)
                 "
+                v-model:checked-list="item.filterCheckedList"
                 class="ml-[4px]"
                 :options="item.filterConfig.options"
                 :data-index="item.dataIndex"
