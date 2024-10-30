@@ -1,6 +1,6 @@
 on:
   push:
-    branches:    
+    branches:
       - 'pr@**'
       - 'repr@**'
 
@@ -15,3 +15,8 @@ jobs:
         uses: jumpserver/action-generic-handler@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
+      - uses: actions/checkout@v3
+      - uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUBTOKEN }}
+          labels: ${{ github.base_ref }}
