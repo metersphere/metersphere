@@ -180,11 +180,10 @@ public class PlanRunTestPlanApiScenarioService {
         List<ApiReportRelateTask> apiReportRelateTasks = new ArrayList<>();
 
         Map<String, String> resourceReportMap = new HashMap<>();
-        String projectId = "";
         for (TestPlanReportApiScenario testPlanReportApiScenario : testPlanReportApiScenarios) {
             ApiScenario apiScenario = apiScenarioMap.get(testPlanReportApiScenario.getApiScenarioId());
             // 初始化报告
-            ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, testPlanReportApiScenario, projectId, userId);
+            ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, testPlanReportApiScenario, apiScenario.getProjectId(), userId);
             apiScenarioReport.setTestPlanScenarioId(testPlanReportApiScenario.getTestPlanApiScenarioId());
             // 报告预生成，方便停止测试计划时直接更新报告状态
             apiScenarioReport.setId(testPlanReportApiScenario.getApiScenarioExecuteReportId());
