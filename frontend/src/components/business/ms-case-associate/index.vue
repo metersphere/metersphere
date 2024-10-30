@@ -628,7 +628,7 @@
     ];
     // 处理系统自定义字段
     searchCustomFields.value = result.map((item: any) => {
-      const FilterTypeKey: keyof typeof FilterType = CustomTypeMaps[item.type].type;
+      const FilterTypeKey: keyof typeof FilterType = CustomTypeMaps[item.type]?.type;
       const formType = FilterType[FilterTypeKey];
       const formObject = CustomTypeMaps[item.type];
       const { props: formProps } = formObject;
@@ -744,6 +744,7 @@
       moduleIds: [],
       version: '',
     };
+    innerProject.value = '';
     activeFolder.value = 'all';
     activeFolderName.value = t('ms.case.associate.allCase');
     resetSelector();
@@ -754,6 +755,7 @@
     () => props.visible,
     (val) => {
       if (val) {
+        caseType.value = props.currentSelectCase;
         resetFilterParams();
         resetSelector();
         if (!props.hideProjectSelect) {
@@ -786,9 +788,11 @@
   }
 
   function selectedProtocolsChange() {
-    initModules();
-    setAllSelectModule();
-    initFilter();
+    if (innerProject.value) {
+      initModules();
+      setAllSelectModule();
+      initFilter();
+    }
   }
   // 改变项目
   function changeProject(
