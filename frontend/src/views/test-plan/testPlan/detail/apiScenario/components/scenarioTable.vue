@@ -150,6 +150,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBugOperation from '@/components/business/ms-bug-operation/index.vue';
   import CaseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import { lastExecuteResultMap } from '@/components/business/ms-case-associate/utils';
   import MsRichMessage from '@/components/business/ms-rich-message/index.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
   import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
@@ -187,9 +188,9 @@
   import type { PlanDetailApiScenarioItem, PlanDetailApiScenarioQueryParams } from '@/models/testPlan/testPlan';
   import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { AssociatedBugApiTypeEnum } from '@/enums/associateBugEnum';
-  import { CaseLinkEnum } from '@/enums/caseEnum';
+  import { CaseLinkEnum, LastExecuteResults } from '@/enums/caseEnum';
   import { GlobalEventNameEnum } from '@/enums/commonEnum';
-  import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
+  import { ReportEnum } from '@/enums/reportEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -946,8 +947,16 @@
       associatedCaseId.value = apiScenarioId;
       testPlanCaseId.value = id;
       lastExecuteReportId.value = lastExecReportId;
-      const lastStatusName = `_${t(ReportStatus[lastExecResult]?.label ?? '')}`;
-      caseTitle.value = `${name}${lastStatusName}`;
+      let firstName = name;
+      const lastStatusName =
+        lastExecResult === LastExecuteResults.PENDING
+          ? ''
+          : `_${t(lastExecuteResultMap[lastExecResult]?.statusText ?? '')}`;
+      caseTitle.value = `${firstName}${lastStatusName}`;
+      if (caseTitle.value.length > 255) {
+        firstName = firstName.slice(0, 251);
+        caseTitle.value = `${firstName}${lastStatusName}`;
+      }
     }
     if (isAssociate) {
       showLinkBugDrawer.value = true;

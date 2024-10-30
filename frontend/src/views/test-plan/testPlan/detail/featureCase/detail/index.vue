@@ -394,8 +394,17 @@
 
   const caseTitle = computed(() => {
     const { lastExecuteResult, name } = caseDetail.value;
-    const lastStatusName = `_${t(executionResultMap[lastExecuteResult]?.statusText ?? '')}`;
-    return `${name}${lastStatusName}`;
+    let firstName = name;
+    const lastStatusName =
+      LastExecuteResults.PENDING === lastExecuteResult
+        ? ''
+        : `_${t(executionResultMap[lastExecuteResult]?.statusText ?? '')}`;
+    let caseName = `${firstName}${lastStatusName}`;
+    if (caseName.length > 255) {
+      firstName = firstName.slice(0, 251);
+      caseName = `${firstName}${lastStatusName}`;
+    }
+    return caseName;
   });
 
   // 获取用例详情

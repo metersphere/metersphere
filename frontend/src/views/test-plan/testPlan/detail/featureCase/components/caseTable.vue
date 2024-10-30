@@ -1073,8 +1073,16 @@
       const { id, caseId, name, lastExecResult } = record;
       associatedCaseId.value = caseId;
       testPlanCaseId.value = id;
-      const lastStatusName = `_${t(executionResultMap[lastExecResult]?.statusText ?? '')}`;
-      caseTitle.value = `${name}${lastStatusName}`;
+      let firstName = name;
+      const lastStatusName =
+        LastExecuteResults.PENDING === lastExecResult
+          ? ''
+          : `_${t(executionResultMap[lastExecResult]?.statusText ?? '')}`;
+      caseTitle.value = `${firstName}${lastStatusName}`;
+      if (caseTitle.value.length > 255) {
+        firstName = firstName.slice(0, 251);
+        caseTitle.value = `${firstName}${lastStatusName}`;
+      }
     }
     if (isAssociate) {
       showLinkBugDrawer.value = true;
