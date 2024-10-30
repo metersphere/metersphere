@@ -65,6 +65,7 @@ public interface ExtTestPlanApiScenarioMapper {
 
     void batchUpdateExecutor(@Param("ids") List<String> ids, @Param("userId") String userId);
 
+    @BaseConditionFilter
     List<TestPlanApiScenarioBatchRunDTO> getSelectIdAndCollectionId(@Param("request")  TestPlanApiScenarioBatchRunRequest request);
 
     List<String> getIdsByReportIdAndCollectionId(@Param("testPlanReportId") String testPlanReportId, @Param("collectionId") String collectionId);

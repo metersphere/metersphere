@@ -70,7 +70,7 @@ public interface ExtTestPlanApiCaseMapper {
     List<TestPlanApiCase> getPlanApiCaseByIds(@Param("planIds") List<String> planIds);
 
     List<TestPlanApiCase> getApiCaseExecuteInfoByIds(@Param("ids") List<String> ids);
-
+    @BaseConditionFilter
     List<TestPlanApiCaseBatchRunDTO> getSelectIdAndCollectionId(@Param("request") TestPlanApiCaseBatchRequest request);
 
     List<TestPlanApiCaseBatchRunDTO> getBatchRunInfoByIds(@Param("ids") List<String> ids);
