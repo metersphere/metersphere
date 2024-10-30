@@ -261,8 +261,8 @@
     <sql id="queryWhereConditionByBaseQueryRequest">
         <if test="request.condition.keyword != null and request.condition.keyword != ''">
             and (
-            exec_task.num like concat('%', #{request.keyword},'%')
-            or exec_task_item.resource_name like concat('%', #{request.keyword},'%')
+            exec_task.num like concat('%', #{request.condition.keyword},'%')
+            or exec_task_item.resource_name like concat('%', #{request.condition.keyword},'%')
             )
         </if>
         <include refid="filters">

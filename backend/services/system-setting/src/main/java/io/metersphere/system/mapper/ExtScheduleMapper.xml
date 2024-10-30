@@ -448,8 +448,8 @@
             </if>
             <if test="request.condition.keyword != null and request.condition.keyword != ''">
                 and (
-                schedule.num like concat('%', #{request.keyword},'%')
-                or schedule.name like concat('%', #{request.keyword},'%')
+                schedule.num like concat('%', #{request.condition.keyword},'%')
+                or schedule.name like concat('%', #{request.condition.keyword},'%')
                 )
             </if>
         </where>
