@@ -186,7 +186,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
-  import { characterLimit, filterTree, mapTree, TreeNode } from '@/utils';
+  import { characterLimit, mapTree, TreeNode } from '@/utils';
   import { getLocalStorage } from '@/utils/local-storage';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -453,16 +453,16 @@
       orgId: appStore.currentOrgId,
       shareId: props.docShareId,
     });
-    res = mapTree<ModuleTreeNode>(res, (node) => ({
-      ...node,
-      count: modulesCount.value[node.id] || 0,
-      draggable: node.id !== 'root' && !(props.readOnly || props.isModal),
-      disabled: props.readOnly || props.isModal ? node.id === selectedKeys.value[0] : false,
-      hideMoreAction: node.id === 'root' || !!props.docShareId,
-    }));
-
-    // 过滤count为0 且类型为 MODULE 的节点
-    res = filterTree(res, (node) => !(node.count === 0 && node.type === 'MODULE'));
+    res = mapTree<ModuleTreeNode>(res, (node) => {
+      const mappedNode = {
+        ...node,
+        count: modulesCount.value[node.id] || 0,
+        draggable: false,
+        disabled: false,
+        hideMoreAction: true,
+      };
+      return modulesCount.value[node.id] === 0 && node.type === 'MODULE' ? null : mappedNode;
+    });
     return res;
   }
 
