@@ -480,10 +480,10 @@
           // 功能用例测试点没有环境和资源池
           execInert('AppendSiblingNode', envNodeData);
           execInert('AppendSiblingNode', resourcePoolNodeData);
-          setTimeout(() => {
-            inInsertingNode.value = false;
-          }, 0);
         }
+        setTimeout(() => {
+          inInsertingNode.value = false;
+        }, 300); // 等待节点插入完成，动画时间 300ms
       });
     }
   }
