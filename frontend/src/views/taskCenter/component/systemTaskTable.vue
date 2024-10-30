@@ -374,7 +374,7 @@
     {
       tableKey: TableKeyEnum.TASK_CENTER_SYSTEM_TASK,
       scroll: { x: '100%' },
-      selectable: hasAnyPermission([getCurrentPermission('EDIT'), getCurrentPermission('DELETE')]),
+      selectable: hasAnyPermission([getCurrentPermission('EDIT')]),
       heightUsed: 288,
       showSetting: true,
       size: 'default',
