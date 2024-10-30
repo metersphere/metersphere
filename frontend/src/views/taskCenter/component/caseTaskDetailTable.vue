@@ -412,7 +412,7 @@
     currentExecuteTaskDetailList,
     {
       tableKey: TableKeyEnum.TASK_CENTER_CASE_TASK_DETAIL,
-      scroll: { x: '1000px' },
+      scroll: { x: '1000px', y: '100%' },
       selectable: hasAnyPermission([getCurrentPermission('STOP')]),
       heightUsed: 288,
       showSetting: true,

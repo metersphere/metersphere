@@ -373,7 +373,7 @@
     currentScheduleList,
     {
       tableKey: TableKeyEnum.TASK_CENTER_SYSTEM_TASK,
-      scroll: { x: '100%' },
+      scroll: { x: '100%', y: '100%' },
       selectable: hasAnyPermission([getCurrentPermission('EDIT')]),
       heightUsed: 288,
       showSetting: true,

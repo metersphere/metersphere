@@ -487,8 +487,9 @@
     currentExecuteTaskList,
     {
       tableKey: TableKeyEnum.TASK_CENTER_CASE_TASK,
-      scroll: { x: '1000px' },
+      scroll: { x: '1000px', y: '100%' },
       selectable: hasAnyPermission([getCurrentPermission('STOP'), getCurrentPermission('DELETE')]),
+      heightUsed: 288,
       showSetting: true,
       showPagination: true,
     },
