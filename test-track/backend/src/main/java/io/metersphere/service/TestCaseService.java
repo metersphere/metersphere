@@ -698,10 +698,10 @@ public class TestCaseService {
                     if (StringUtils.equals(steps, caseSteps) && StringUtils.equals(remark, caseRemark) && StringUtils.equals(prerequisite, casePrerequisite)) {
                        if (checkRepeatFunction != null) {
                            if (checkRepeatFunction.apply(tc)) {
-                               MSException.throwException(Translator.get("test_case_already_exists_in_module"));
+                               MSException.throwException(Translator.get("test_case_already_exists_in_module") + ": " + testCase.getName());
                            }
                        } else {
-                           MSException.throwException(Translator.get("test_case_already_exists_in_module"));
+                           MSException.throwException(Translator.get("test_case_already_exists_in_module") + ": " + testCase.getName());
                        }
                     }
                 }
