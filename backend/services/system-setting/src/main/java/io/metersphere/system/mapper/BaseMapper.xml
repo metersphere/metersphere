@@ -122,6 +122,13 @@
                                 <property name="column" value="value"/>
                             </include>
                         </when>
+                        <when test="condition.customFieldType != null and
+                        (condition.customFieldType == 'DATE' or condition.customFieldType == 'DATETIME')">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="UNIX_TIMESTAMP(`value`) * 1000"/>
+                            </include>
+                        </when>
                         <otherwise>
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
@@ -263,10 +270,10 @@
                     ${column} between #{condition.value[0]} and #{condition.value[1]}
                 </when>
                 <when test="${condition}.operator == 'GT'">
-                    ${column} &gt; #{condition.value}
+                    ${column} is not null and ${column} != '' and ${column} &gt; #{condition.value}
                 </when>
                 <when test="${condition}.operator == 'LT'">
-                    ${column} &lt; #{condition.value}
+                    ${column} is not null and ${column} != '' and ${column} &lt; #{condition.value}
                 </when>
                 <when test="${condition}.operator == 'COUNT_GT'">
                     JSON_LENGTH(${column}) &gt; #{condition.value}
