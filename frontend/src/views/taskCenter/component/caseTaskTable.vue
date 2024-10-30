@@ -607,7 +607,7 @@
               selectIds: params?.selectedIds || [],
               selectAll: !!params?.selectAll,
               excludeIds: params?.excludeIds || [],
-              ...conditionParams.value,
+              condition: conditionParams.value,
             });
           } else {
             await currentDeleteTask(record?.id || '');
@@ -660,7 +660,7 @@
               selectIds: params?.selectedIds || [],
               selectAll: !!params?.selectAll,
               excludeIds: params?.excludeIds || [],
-              ...conditionParams.value,
+              condition: conditionParams.value,
             });
           } else {
             await currentStopTask(record?.id || '');

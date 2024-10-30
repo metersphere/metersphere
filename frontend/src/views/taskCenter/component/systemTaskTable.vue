@@ -450,7 +450,7 @@
         selectIds: params?.selectedIds || [],
         selectAll: !!params?.selectAll,
         excludeIds: params?.excludeIds || [],
-        ...conditionParams.value,
+        condition: conditionParams.value,
       });
       Message.success(t('ms.taskCenter.openTaskSuccess'));
       resetSelector();
@@ -475,7 +475,7 @@
         selectIds: params?.selectedIds || [],
         selectAll: !!params?.selectAll,
         excludeIds: params?.excludeIds || [],
-        ...conditionParams.value,
+        condition: conditionParams.value,
       });
       Message.success(t('ms.taskCenter.closeTaskSuccess'));
       resetSelector();
