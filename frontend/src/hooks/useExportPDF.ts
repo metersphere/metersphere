@@ -49,6 +49,7 @@ export default async function exportPDF(
       height: element.clientHeight,
       backgroundColor: '#f9f9fe',
       scale: SCALE_RATIO, // 缩放增加清晰度
+      useCORS: true,
     });
     pdf.setFont('AlibabaPuHuiTi-3-55-Regular');
     pdf.setFontSize(10);

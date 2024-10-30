@@ -97,7 +97,7 @@
         <div v-for="item of innerCardList" :id="`${item.value}`" :key="item.id" class="card-item mt-[16px]">
           <div class="wrapper-preview-card">
             <div class="flex items-center justify-between">
-              <div v-if="item.value !== ReportCardTypeEnum.CUSTOM_CARD" class="mb-[8px] font-medium">
+              <div class="mb-[8px] font-medium">
                 {{ t(item.label) }}
               </div>
             </div>
