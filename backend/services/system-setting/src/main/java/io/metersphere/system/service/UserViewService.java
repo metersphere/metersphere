@@ -1,5 +1,6 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.dto.CombineCondition;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.EnumValidator;
@@ -16,7 +17,6 @@ import io.metersphere.system.dto.UserViewDTO;
 import io.metersphere.system.dto.UserViewListGroupedDTO;
 import io.metersphere.system.dto.request.UserViewAddRequest;
 import io.metersphere.system.dto.request.UserViewUpdateRequest;
-import io.metersphere.sdk.dto.CombineCondition;
 import io.metersphere.system.mapper.ExtUserViewMapper;
 import io.metersphere.system.mapper.UserViewConditionMapper;
 import io.metersphere.system.mapper.UserViewMapper;
@@ -197,6 +197,8 @@ public class UserViewService {
             return UserViewConditionValueType.INT.name();
         } else if (value instanceof Float || value instanceof Double) {
             return UserViewConditionValueType.FLOAT.name();
+        } else if (value instanceof Boolean) {
+            return UserViewConditionValueType.BOOLEAN.name();
         } else {
             return UserViewConditionValueType.STRING.name();
         }
@@ -214,6 +216,8 @@ public class UserViewService {
                 return Long.valueOf(valueStr);
             case FLOAT:
                 return Double.valueOf(valueStr);
+            case BOOLEAN:
+                return Boolean.valueOf(valueStr);
             default:
                 return valueStr;
         }
