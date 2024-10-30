@@ -92,6 +92,7 @@
   import ExecStatus from '@/views/test-plan/report/component/execStatus.vue';
 
   import { getCapacityDetail, getCapacityTaskList } from '@/api/modules/setting/resourcePool';
+  import { systemOrgOptions, systemProjectOptions } from '@/api/modules/taskCenter/system';
   import { useI18n } from '@/hooks/useI18n';
   import { useTableStore } from '@/store';
 
@@ -256,6 +257,50 @@
       showDrag: false,
     },
   ];
+
+  async function initProjectAndOrgs() {
+    try {
+      const projects = await systemProjectOptions();
+      const orgs = await systemOrgOptions();
+      columns.splice(
+        2,
+        0,
+        {
+          title: 'common.belongProject',
+          dataIndex: 'projectName',
+          showTooltip: true,
+          showDrag: true,
+          width: 200,
+          filterConfig: {
+            options: projects.map((item) => ({
+              label: item.name,
+              value: item.id,
+            })),
+            filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+          },
+        },
+        {
+          title: 'common.belongOrg',
+          dataIndex: 'organizationName',
+          showTooltip: true,
+          showDrag: true,
+          width: 200,
+          filterConfig: {
+            options: orgs.map((item) => ({
+              label: item.name,
+              value: item.id,
+            })),
+            filterSlotName: FilterSlotNameEnum.GLOBAL_TASK_CENTER_BELONG_PROJECT,
+          },
+        }
+      );
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  await initProjectAndOrgs();
 
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
     getCapacityTaskList,
