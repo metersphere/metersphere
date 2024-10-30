@@ -1,3 +1,4 @@
+import { ExecuteStatusEnum } from '@/enums/taskCenter';
 // Node 类型资源信息
 export interface NodesListItem {
   ip: string;
@@ -70,7 +71,7 @@ export interface CapacityTaskItem {
   resourceId: string;
   resourceName: string;
   taskOrigin: string; // 任务来源（任务组下的任务id
-  status: string; // 执行状态
+  status: ExecuteStatusEnum; // 执行状态
   result: string; // 执行结果
   resourcePoolId: string;
   resourcePoolNode: string;
@@ -86,7 +87,7 @@ export interface CapacityTaskItem {
   userName: string;
   resourcePoolName: string;
   triggerMode: string;
-  lineNum: number;
+  lineNum: string;
 }
 
 export interface CapacityDetailType {

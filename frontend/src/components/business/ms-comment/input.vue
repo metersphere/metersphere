@@ -24,6 +24,7 @@
           :preview-url="props.previewUrl"
           class="w-full"
           :limit-length="1000"
+          :auto-height="false"
           placeholder="ms.comment.enterPlaceHolderTip"
         />
         <a-textarea

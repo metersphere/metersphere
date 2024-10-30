@@ -67,6 +67,9 @@
         <template #triggerMode="{ record }">
           {{ t(executeMethodMap[record.triggerMode]) }}
         </template>
+        <template #lineNum="{ record }">
+          {{ getLineNum(record) }}
+        </template>
         <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_STATUS]="{ filterContent }">
           <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
         </template>
@@ -96,11 +99,17 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useTableStore } from '@/store';
 
-  import type { CapacityDetailType, NodesListItem, ResourcePoolItem } from '@/models/setting/resourcePool';
+  import type {
+    CapacityDetailType,
+    CapacityTaskItem,
+    NodesListItem,
+    ResourcePoolItem,
+  } from '@/models/setting/resourcePool';
   import { ReportExecStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { ExecuteStatusEnum } from '@/enums/taskCenter';
 
   import { executeMethodMap } from '@/views/taskCenter/component/config';
 
@@ -209,6 +218,7 @@
     },
     {
       title: 'ms.taskCenter.queue',
+      slotName: 'lineNum',
       dataIndex: 'lineNum',
       width: 100,
       showDrag: true,
@@ -364,6 +374,19 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
+  }
+
+  function getLineNum(record: CapacityTaskItem) {
+    if (record.lineNum) {
+      return record.lineNum;
+    }
+    if (
+      [ExecuteStatusEnum.COMPLETED, ExecuteStatusEnum.STOPPED, ExecuteStatusEnum.RUNNING].includes(record.status) ||
+      !record.resourcePoolNode
+    ) {
+      return '-';
+    }
+    return t('ms.taskCenter.waitQueue');
   }
 
   function changeNode() {
