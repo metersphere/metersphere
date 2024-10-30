@@ -88,6 +88,7 @@ public class ApiDocShareService {
 		docShare.setCreateTime(System.currentTimeMillis());
 		docShare.setUpdateUser(currentUser);
 		docShare.setUpdateTime(System.currentTimeMillis());
+		docShare.setInvalidTime(request.getInvalidTime() == 0 ? Long.MAX_VALUE : request.getInvalidTime());
 		apiDocShareMapper.insert(docShare);
 		return docShare;
 	}
@@ -104,6 +105,7 @@ public class ApiDocShareService {
 		BeanUtils.copyBean(docShare, request);
 		docShare.setUpdateUser(currentUser);
 		docShare.setUpdateTime(System.currentTimeMillis());
+		docShare.setInvalidTime(request.getInvalidTime() == 0 ? Long.MAX_VALUE : request.getInvalidTime());
 		apiDocShareMapper.updateByPrimaryKeySelective(docShare);
 		return docShare;
 	}
@@ -138,7 +140,7 @@ public class ApiDocShareService {
 	public ApiDocShareDetail detail(String id) {
 		ApiDocShare docShare = checkExit(id);
 		ApiDocShareDetail detail = ApiDocShareDetail.builder().allowExport(docShare.getAllowExport()).isPrivate(docShare.getIsPrivate()).build();
-		if (docShare.getInvalidTime() == null || docShare.getInvalidTime() == 0) {
+		if (docShare.getInvalidTime() == null || docShare.getInvalidTime() == Long.MAX_VALUE) {
 			detail.setInvalid(false);
 		} else {
 			detail.setInvalid(docShare.getInvalidTime() < System.currentTimeMillis());
@@ -210,6 +212,9 @@ public class ApiDocShareService {
 		List<String> distinctUpdateUserIds = docShares.stream().map(ApiDocShareDTO::getUpdateUser).distinct().toList();
 		Map<String, String> userMap = userToolService.getUserMapByIds(ListUtils.union(distinctCreateUserIds, distinctUpdateUserIds));
 		docShares.forEach(docShare -> {
+			if (docShare.getInvalidTime() == Long.MAX_VALUE) {
+				docShare.setInvalidTime(0L);
+			}
 			docShare.setInvalid(docShare.getInvalidTime() != null && docShare.getInvalidTime() != 0 && docShare.getInvalidTime() < System.currentTimeMillis());
 			docShare.setApiShareNum(countApiShare(docShare));
 			docShare.setCreateUserName(userMap.get(docShare.getCreateUser()));

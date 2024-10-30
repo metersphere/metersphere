@@ -54,6 +54,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 		request.setIsPrivate(false);
 		request.setPassword("123456");
 		request.setAllowExport(false);
+		request.setInvalidTime(0L);
 		MvcResult mvcResult = this.requestPostWithOk(ADD, request).andReturn();
 		String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
 		ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
