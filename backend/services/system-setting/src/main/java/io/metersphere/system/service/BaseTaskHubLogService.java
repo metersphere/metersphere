@@ -172,29 +172,6 @@ public class BaseTaskHubLogService {
 
 
     /**
-     * 系统停止任务项日志
-     *
-     * @param id
-     * @return
-     */
-    public LogDTO systemStopItemLog(String id) {
-        ExecTaskItem execTaskItem = execTaskItemMapper.selectByPrimaryKey(id);
-        LogDTO dto = null;
-        if (execTaskItem != null) {
-            dto = new LogDTO(
-                    OperationLogConstants.SYSTEM,
-                    OperationLogConstants.SYSTEM,
-                    execTaskItem.getId(),
-                    null,
-                    OperationLogType.STOP.name(),
-                    OperationLogModule.SETTING_SYSTEM_TASK_CENTER,
-                    execTaskItem.getResourceName());
-        }
-        return dto;
-    }
-
-
-    /**
      * 任务项 批量操作日志统一记录
      *
      * @param ids
@@ -230,52 +207,6 @@ public class BaseTaskHubLogService {
             });
         }
         operationLogService.batchAdd(logDTOList);
-    }
-
-
-    /**
-     * 组织停止任务项日志
-     *
-     * @param id
-     * @return
-     */
-    public LogDTO orgStopItemLog(String id) {
-        ExecTaskItem execTaskItem = execTaskItemMapper.selectByPrimaryKey(id);
-        LogDTO dto = null;
-        if (execTaskItem != null) {
-            dto = new LogDTO(
-                    OperationLogConstants.ORGANIZATION,
-                    null,
-                    execTaskItem.getId(),
-                    null,
-                    OperationLogType.STOP.name(),
-                    OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER,
-                    execTaskItem.getResourceName());
-        }
-        return dto;
-    }
-
-
-    /**
-     * 项目停止任务项日志
-     *
-     * @param id
-     * @return
-     */
-    public LogDTO projectStopItemLog(String id) {
-        ExecTaskItem execTaskItem = execTaskItemMapper.selectByPrimaryKey(id);
-        LogDTO dto = null;
-        if (execTaskItem != null) {
-            dto = new LogDTO(
-                    OperationLogConstants.ORGANIZATION,
-                    null,
-                    execTaskItem.getId(),
-                    null,
-                    OperationLogType.STOP.name(),
-                    OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER,
-                    execTaskItem.getResourceName());
-        }
-        return dto;
     }
 
 

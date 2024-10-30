@@ -164,10 +164,11 @@ public class SystemTaskHubController {
 
     @GetMapping("/exec-task/item/stop/{id}")
     @Operation(summary = "系统-任务中心-用例任务详情-停止任务")
-    @Log(type = OperationLogType.STOP, expression = "#msClass.systemStopItemLog(#id)", msClass = BaseTaskHubLogService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_EXEC_STOP)
     public void stopTaskItem(@PathVariable String id) {
         baseTaskHubService.stopTaskItem(id, SessionUtils.getUserId(), null, null);
+        baseTaskHubLogService.taskItemBatchLog(List.of(id), SessionUtils.getUserId(), OperationLogType.STOP.name(), OperationLogConstants.SYSTEM, OperationLogConstants.SYSTEM,
+                "/system/task-center/exec-task/item/stop/", OperationLogModule.SETTING_SYSTEM_TASK_CENTER);
     }
 
     @PostMapping("/exec-task/item/batch-stop")
