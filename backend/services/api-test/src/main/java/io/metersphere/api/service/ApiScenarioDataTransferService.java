@@ -1024,7 +1024,6 @@ public class ApiScenarioDataTransferService {
                                 if (existenceApiCaseNumMap.containsKey(apiTestCaseDTO.getNum())) {
                                     returnResource.putApiTestCase(apiTestCaseDTO.getId(), existenceApiCaseNumMap.get(apiTestCaseDTO.getNum()));
                                 } else {
-                                    apiTestCaseDTO.setProjectId(targetProjectId);
                                     returnResource.putApiTestCase(apiTestCaseDTO.getId(), apiTestCaseDTO);
                                     apiTestCaseDTO.setId(IDGenerator.nextStr());
                                     apiTestCaseDTO.setName(apiTestCaseDTO.getName() + "_" + System.currentTimeMillis());
