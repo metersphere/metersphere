@@ -273,7 +273,11 @@ export default {
         /// todo: 显示错误信息
         return false;
       }
-
+      if (file.size / 1024 / 1024 > 50) {
+        this.$error(this.$t("commons.upload_limit_size"));
+        this.close();
+        return false;
+      }
       if (this.tableData.filter(f => f.name === file.name).length > 0) {
         this.$error(this.$t('load_test.delete_file') + ', name: ' + file.name);
         return false;
