@@ -83,7 +83,7 @@ public class TestPlanStatisticsService {
 
 	private Map<String, Schedule> selectSchedule(List<String> testPlanIds) {
 		ScheduleExample scheduleExample = new ScheduleExample();
-		scheduleExample.createCriteria().andResourceIdIn(testPlanIds).andResourceTypeEqualTo(ScheduleResourceType.TEST_PLAN.name());
+		scheduleExample.createCriteria().andResourceIdIn(testPlanIds).andResourceTypeIn(List.of(ScheduleResourceType.TEST_PLAN.name(), ScheduleResourceType.TEST_PLAN_GROUP.name()));
 		List<Schedule> schedules = scheduleMapper.selectByExample(scheduleExample);
 		return schedules.stream().collect(Collectors.toMap(Schedule::getResourceId, t -> t));
 	}
