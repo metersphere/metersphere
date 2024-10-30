@@ -40,7 +40,7 @@ public class BaseScheduleService {
     }
 
     private void doHandleSchedule(List<Schedule> schedules) {
-        List<String> resourceTypes = List.of(ScheduleResourceType.API_IMPORT.name(), ScheduleResourceType.API_SCENARIO.name(), ScheduleResourceType.TEST_PLAN.name(), ScheduleResourceType.BUG_SYNC.name());
+        List<String> resourceTypes = List.of(ScheduleResourceType.API_IMPORT.name(), ScheduleResourceType.API_SCENARIO.name(), ScheduleResourceType.TEST_PLAN.name(), ScheduleResourceType.BUG_SYNC.name(), ScheduleResourceType.DEMAND_SYNC.name());
         schedules.forEach(schedule -> {
             try {
                 if (schedule.getEnable()) {
