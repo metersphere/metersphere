@@ -11,6 +11,7 @@ import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.IssueRefType;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.ProjectApplicationType;
+import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
@@ -309,9 +310,8 @@ public class TestPlanTestCaseService {
         request.setExecutor(user.getId());
     }
 
-    public TestPlanCaseDTO get(String id, String userId) {
+    public TestPlanCaseDTO get(String id) {
         TestPlanCaseDTO testPlanCaseDTO = extTestPlanTestCaseMapper.get(id);
-        checkPlanCaseOwner(testPlanCaseDTO.getCaseId(), userId);
         ServiceUtils.buildCustomNumInfo(testPlanCaseDTO);
         List<TestCaseTestDTO> testCaseTestDTOS = extTestPlanTestCaseMapper.listTestCaseTest(testPlanCaseDTO.getCaseId());
         testCaseTestDTOS.forEach(this::setTestName);
@@ -668,7 +668,14 @@ public class TestPlanTestCaseService {
         return updateIsDel(caseIds, false);
     }
 
-    private void checkPlanCaseOwner(String caseId, String userId) {
+    public void checkPlanCaseOwner(String caseId, SessionUser sessionUser, String userId) {
+        long count = sessionUser.getGroups()
+                .stream()
+                .filter(g -> StringUtils.equals(g.getId(), UserGroupConstants.SUPER_GROUP))
+                .count();
+        if (count > 0) {
+            return;
+        }
         boolean hasPermission = extCheckOwnerMapper.checkoutOwner("test_case", userId, List.of(caseId));
         if (!hasPermission) {
             MSException.throwException(Translator.get("check_owner_case"));

@@ -102,7 +102,9 @@ public class TestPlanTestCaseController {
     @GetMapping("/get/{caseId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
     public TestPlanCaseDTO getTestPlanCases(@PathVariable String caseId) {
-        return testPlanTestCaseService.get(caseId, SessionUtils.getUserId());
+        TestPlanCaseDTO testPlanCaseDTO = testPlanTestCaseService.get(caseId);
+        testPlanTestCaseService.checkPlanCaseOwner(testPlanCaseDTO.getCaseId(), SessionUtils.getUser(), SessionUtils.getUserId());
+        return testPlanCaseDTO;
     }
 
     @PostMapping("recent/{count}")
