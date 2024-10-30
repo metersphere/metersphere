@@ -238,7 +238,9 @@
                         <div class="story-label" v-if="data.value === 'other'">
                           {{ $t("test_track.case.other") }}
                         </div>
-                        <div class="story-label text-ellipsis" v-else>{{ handleDemandOptionLabel(data) }}</div>
+                        <el-tooltip v-else class="item" effect="dark" :content="handleDemandOptionLabel(data)" placement="top-start">
+                          <div class="story-label text-ellipsis">{{ handleDemandOptionLabel(data) }}</div>
+                        </el-tooltip>
                       </div>
                     </template>
                   </el-cascader>
