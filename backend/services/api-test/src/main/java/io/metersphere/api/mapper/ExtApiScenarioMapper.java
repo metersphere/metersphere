@@ -28,8 +28,10 @@ public interface ExtApiScenarioMapper {
 
     List<ApiScenario> getTagsByIds(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
 
+    @BaseConditionFilter
     List<TestCaseProviderDTO> listByProviderRequest(@Param("table") String resourceType, @Param("sourceName") String sourceName, @Param("apiCaseColumnName") String apiCaseColumnName, @Param("request") TestCasePageProviderRequest request, @Param("deleted") boolean deleted);
 
+    @BaseConditionFilter
     List<ModuleCountDTO> countModuleIdByProviderRequest(@Param("table") String resourceType, @Param("sourceName") String sourceName, @Param("apiCaseColumnName") String apiCaseColumnName, @Param("request") TestCasePageProviderRequest request, @Param("deleted") boolean deleted);
 
     List<BaseTreeNode> selectIdAndParentIdByProjectId(@Param("projectId") String projectId);

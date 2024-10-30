@@ -218,11 +218,11 @@
             <property name="filter" value="request.filter"/>
         </include>
 
-        <if test="request.combine != null and request.combine != ''">
+        <if test="request.combineSearch != null and request.combineSearch != ''">
             <include refid="combine">
-                <property name="condition" value="request.combine"/>
+                <property name="combineSearch" value="request.combineSearch"/>
                 <property name="name" value="request.name"/>
-                <property name="ObjectTags" value="request.combine.tags"/>
+                <property name="ObjectTags" value="request.combineSearch.tags"/>
             </include>
         </if>
 
