@@ -40,7 +40,7 @@ public class TestPlanScheduleService {
                 .name(testPlan.getName())
                 .enable(request.isEnable())
                 .cron(request.getCron())
-                .resourceType(testPlan.getType() == TestPlanConstants.TEST_PLAN_TYPE_PLAN ? ScheduleResourceType.TEST_PLAN.name() : ScheduleResourceType.TEST_PLAN_GROUP.name())
+                .resourceType(StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN) ? ScheduleResourceType.TEST_PLAN.name() : ScheduleResourceType.TEST_PLAN_GROUP.name())
                 .config(JSON.toJSONString(request.getRunConfig()))
                 .build();
 
