@@ -53,10 +53,6 @@
       />
       <span v-else>{{ record.value }}</span>
     </template>
-    <template #nextTime="{ record }">
-      <span v-if="record.enable">{{ record.nextTime }}</span>
-      <span v-else>-</span>
-    </template>
     <template #action="{ record }">
       <MsButton
         v-if="['API_IMPORT', 'TEST_PLAN', 'API_SCENARIO'].includes(record.resourceType)"
@@ -549,6 +545,7 @@
     try {
       await currentSwitchSchedule(record.id);
       Message.success(t(record.enable ? 'ms.taskCenter.closeTaskSuccess' : 'ms.taskCenter.openTaskSuccess'));
+      loadList();
       return true;
     } catch (error) {
       // eslint-disable-next-line no-console

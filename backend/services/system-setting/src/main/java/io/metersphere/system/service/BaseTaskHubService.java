@@ -259,29 +259,9 @@ public class BaseTaskHubService {
                     .flatMap(item -> Stream.of(item.getCreateUserName()))
                     .collect(Collectors.toSet());
             Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userSet));
-
-            List<String> resourceIds = list.stream()
-                    .map(TaskHubScheduleDTO::getResourceId)
-                    .filter(StringUtils::isNotBlank)
-                    .toList();
-
-            Map<String, TaskHubScheduleDTO> trigerTimeMap = Map.of();
-            if (CollectionUtils.isNotEmpty(resourceIds)) {
-                trigerTimeMap = extScheduleMapper.getLastAndNextTime(resourceIds)
-                        .stream()
-                        .collect(Collectors.toMap(TaskHubScheduleDTO::getResourceId, Function.identity()));
-            }
-
             for (TaskHubScheduleDTO item : list) {
                 item.setCreateUserName(userMap.getOrDefault(item.getCreateUserName(), StringUtils.EMPTY));
                 item.setOrganizationName(orgMap.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
-                if (trigerTimeMap.get(item.getResourceId()) != null) {
-                    item.setNextTime(trigerTimeMap.get(item.getResourceId()).getNextTime());
-                    item.setLastTime(trigerTimeMap.get(item.getResourceId()).getLastTime());
-                } else {
-                    item.setNextTime(item.getNextTime());
-                    item.setLastTime(item.getLastTime());
-                }
             }
         }
 
