@@ -341,7 +341,7 @@
         FROM
         schedule
         left join project on schedule.project_id = project.id
-        left join QRTZ_TRIGGERS on schedule.job = QRTZ_TRIGGERS.JOB_GROUP and schedule.resource_id =
+        left join QRTZ_TRIGGERS on schedule.job = QRTZ_TRIGGERS.JOB_GROUP and schedule.key =
         QRTZ_TRIGGERS.TRIGGER_NAME
         where resource_type = 'BUG_SYNC'
         union all
@@ -365,7 +365,7 @@
         FROM
         schedule
         left join project on schedule.project_id = project.id
-        left join QRTZ_TRIGGERS on schedule.job = QRTZ_TRIGGERS.JOB_GROUP and schedule.resource_id =
+        left join QRTZ_TRIGGERS on schedule.job = QRTZ_TRIGGERS.JOB_GROUP and schedule.key =
         QRTZ_TRIGGERS.TRIGGER_NAME
         where resource_type ='DEMAND_SYNC'
         ) task
