@@ -539,6 +539,7 @@
     casePriorityOptions,
     caseStatusOptions,
     defaultBodyParamsItem,
+    defaultExtractParamItem,
     defaultHeaderParamsItem,
     defaultKeyValueParamItem,
     defaultRequestParamsItem,
@@ -1009,6 +1010,8 @@
           processor.extractParams || [],
           defaultKeyValueParamItem
         ).validParams;
+      } else if (processor.processorType === RequestConditionProcessor.EXTRACT) {
+        processor.extractors = filterKeyValParams(processor.extractors || [], defaultExtractParamItem).validParams;
       }
       return processor;
     });

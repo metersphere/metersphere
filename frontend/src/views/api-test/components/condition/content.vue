@@ -512,17 +512,14 @@
   } from '@/models/apiTest/common';
   import { ParamsRequestType } from '@/models/projectManagement/commonScript';
   import { DataSourceItem } from '@/models/projectManagement/environmental';
-  import {
-    RequestConditionProcessor,
-    RequestExtractEnvType,
-    RequestExtractExpressionEnum,
-    RequestExtractExpressionRuleType,
-    RequestExtractResultMatchingRule,
-    RequestExtractScope,
-    ResponseBodyXPathAssertionFormat,
-  } from '@/enums/apiEnum';
+  import { RequestConditionProcessor, RequestExtractExpressionEnum, RequestExtractScope } from '@/enums/apiEnum';
 
-  import { defaultKeyValueParamItem, extractTypeOptions, scriptExampleMap } from '@/views/api-test/components/config';
+  import {
+    defaultExtractParamItem,
+    defaultKeyValueParamItem,
+    extractTypeOptions,
+    scriptExampleMap,
+  } from '@/views/api-test/components/config';
 
   const { openModal } = useModal();
 
@@ -902,19 +899,6 @@
   }
 
   const extractParamsTableRef = ref<InstanceType<typeof paramTable>>();
-  const defaultExtractParamItem: ExpressionConfig = {
-    enable: true,
-    variableName: '',
-    variableType: RequestExtractEnvType.TEMPORARY,
-    extractScope: RequestExtractScope.BODY,
-    expression: '',
-    extractType: RequestExtractExpressionEnum.JSON_PATH,
-    expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
-    resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
-    resultMatchingRuleNum: 1,
-    responseFormat: ResponseBodyXPathAssertionFormat.XML,
-    moreSettingPopoverVisible: false,
-  };
   const fastExtractionVisible = ref(false);
   const activeRecord = ref({ ...defaultExtractParamItem }); // 用于暂存当前操作的提取参数表格项
 
