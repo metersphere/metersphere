@@ -318,16 +318,16 @@
   const formRef = ref<FormInstance>();
   const caseFormRef = ref<FormInstance>();
 
+  const initStepData: StepList = {
+    id: getGenerateId(),
+    step: '',
+    expected: '',
+    showStep: false,
+    showExpected: false,
+  };
+
   // 步骤描述
-  const stepData = ref<StepList[]>([
-    {
-      id: getGenerateId(),
-      step: '',
-      expected: '',
-      showStep: false,
-      showExpected: false,
-    },
-  ]);
+  const stepData = ref<StepList[]>([{ ...initStepData }]);
 
   const featureCaseStore = useFeatureCaseStore();
   const modelId = computed(() => featureCaseStore.moduleId[0] || 'root');
@@ -778,6 +778,7 @@
   async function resetForm() {
     caseFormRef.value?.resetFields();
     form.value = { ...initForm, templateId: form.value.templateId };
+    stepData.value = [{ ...initStepData }];
     await initDefaultFields();
     form.value.customFields = formItem.value.map((item: any) => {
       return {
