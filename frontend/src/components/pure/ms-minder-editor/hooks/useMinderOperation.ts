@@ -149,6 +149,11 @@ export default function useMinderOperation(options: MinderOperationProps) {
       return;
     }
     const state = fsm.state();
+    if (!navigator.clipboard && !e?.clipboardData) {
+      // 不支持剪贴板操作
+      Message.warning(t('minder.notSupportClipboard'));
+      return;
+    }
     const textData = e?.clipboardData ? e.clipboardData.getData('text/plain') : await navigator.clipboard.readText();
     switch (state) {
       case 'input': {
