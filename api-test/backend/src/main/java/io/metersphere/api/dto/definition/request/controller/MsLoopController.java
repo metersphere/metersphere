@@ -26,6 +26,8 @@ import org.apache.jorphan.collections.HashTree;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -45,7 +47,7 @@ public class MsLoopController extends MsTestElement {
         if (!config.isOperating() && !this.isEnable()) {
             return;
         }
-        
+
         final HashTree groupTree = controller(tree);
         // 自身场景
         if (CollectionUtils.isNotEmpty(config.getVariables()) || CollectionUtils.isNotEmpty(config.getTransferVariables())) {
@@ -104,33 +106,58 @@ public class MsLoopController extends MsTestElement {
         return loopController;
     }
 
-    private String getCondition() {
-        String variable = "\"" + this.whileController.getVariable() + "\"";
+    public String getContentValue() {
+        try {
+            String content = this.whileController.getVariable();
+            Pattern regex = Pattern.compile("\\$\\{([^}]*)\\}");
+            Matcher matcher = regex.matcher(content);
+            StringBuilder stringBuilder = new StringBuilder();
+            while (matcher.find()) {
+                stringBuilder.append(matcher.group(1)).append(",");
+            }
+            if (!stringBuilder.isEmpty()) {
+                stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+            }
+            if (StringUtils.isEmpty(stringBuilder.toString())) {
+                return this.whileController.getVariable();
+            }
+            return stringBuilder.toString();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String getCondition() {
+        String key = getContentValue();
+
+        String variable = (StringUtils.isEmpty(key) || key.equals(this.whileController.getVariable())) || key.startsWith("__")
+                ? StringUtils.join("\"", this.whileController.getVariable(), "\"")
+                : StringUtils.join("vars.get('", key, "')");
+
         String operator = this.whileController.getOperator();
         String value;
-        if (StringUtils.equals(operator, "<") || StringUtils.equals(operator, ">") && StringUtils.isNumeric(this.whileController.getValue())) {
+        if (StringUtils.equals(operator, "<") || StringUtils.equals(operator, ">")) {
             value = this.whileController.getValue();
         } else {
             value = "\"" + this.whileController.getValue() + "\"";
         }
-
         if (StringUtils.contains(operator, "~")) {
             value = "\"(\\n|.)*" + this.whileController.getValue() + "(\\n|.)*\"";
         }
 
         if (StringUtils.equals(operator, "is empty")) {
-            variable = "(" + variable + "==" + "\"\\" + this.whileController.getVariable() + "\"" + "|| empty(" + variable + "))";
+            variable = variable + "==" + "\"\\" + this.whileController.getVariable() + "\"" + "|| empty(" + variable + ")";
             operator = "";
             value = "";
         }
 
         if (StringUtils.equals(operator, "is not empty")) {
-            variable = "(" + variable + "!=" + "\"\\" + this.whileController.getVariable() + "\"" + "&& !empty(" + variable + "))";
+            variable = variable + "!=" + "\"\\" + this.whileController.getVariable() + "\"" + "&& !empty(" + variable + ")";
             operator = "";
             value = "";
         }
         ms_current_timer = UUID.randomUUID().toString();
-        return variable + operator + value;
+        return "${__jexl3(" + variable + operator + value + ")}";
     }
 
     private IfController ifController(String condition) {
