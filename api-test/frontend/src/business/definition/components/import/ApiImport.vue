@@ -10,19 +10,24 @@
     :destroy-on-close="true">
     <div class="header-bar">
       <div>{{ $t('api_test.api_import.data_format') }}</div>
-      <el-radio-group v-model="selectedPlatformValue" @input="clearUrParameter">
-        <span v-for="(item, index) in platforms" :key="index">
-          <el-radio v-if="!isScenarioModel || item.name !== 'Swagger'" :label="item.value">{{ item.name }}</el-radio>
-        </span>
-      </el-radio-group>
-
-      <div class="operate-button">
-        <el-button class="save-button" type="primary" plain @click="save">
-          {{ $t('commons.save') }}
-        </el-button>
-        <el-button class="cancel-button" type="warning" plain @click="visible = false">
-          {{ $t('commons.cancel') }}
-        </el-button>
+      <div class="header-bar-btn">
+        <el-radio-group v-model="selectedPlatformValue" @input="clearUrParameter">
+          <el-radio-button
+            v-for="(item, index) in platforms"
+            :key="index"
+            v-if="!isScenarioModel || item.name !== 'Swagger'"
+            :label="item.value"
+            >{{ item.name }}</el-radio-button
+          >
+        </el-radio-group>
+        <div class="operate-button">
+          <el-button class="save-button" type="primary" plain @click="save">
+            {{ $t('commons.save') }}
+          </el-button>
+          <el-button class="cancel-button" type="warning" plain @click="visible = false">
+            {{ $t('commons.cancel') }}
+          </el-button>
+        </div>
       </div>
     </div>
 
@@ -106,7 +111,7 @@
             :show-desc="true"
             :isShowEnable="isShowEnable"
             :suggestions="headerSuggestions"
-            :items="headers"/>
+            :items="headers" />
           <!--query 参数-->
           <div style="margin-top: 10px">
             <span>{{ $t('api_test.definition.request.query_param') }}{{ $t('api_test.api_import.optional') }}：</span>
@@ -469,9 +474,9 @@ export default {
     clearAuthInfo() {
       this.headers = [];
       this.queryArguments = [];
-      this.headers.push(new KeyValue({enable: true}));
-      this.queryArguments.push(new KeyValue({enable: true}));
-      this.authConfig = {hashTree: [], authManager: {}};
+      this.headers.push(new KeyValue({ enable: true }));
+      this.queryArguments.push(new KeyValue({ enable: true }));
+      this.authConfig = { hashTree: [], authManager: {} };
       this.$refs.importAuth.initData();
     },
     changeAuthEnable() {
@@ -599,6 +604,11 @@ export default {
 
 .header-bar {
   padding: 10px 15px;
+  .header-bar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 }
 
 .api-import :deep(.el-dialog__body) {

@@ -9,17 +9,20 @@
     @close="close">
     <div class="header-bar">
       <div>{{ $t('api_test.api_import.data_format') }}</div>
-      <el-radio-group v-model="selectedPlatformValue">
-        <el-radio v-for="(item, index) in platforms" :key="index" :label="item.value">{{ item.name }}</el-radio>
-      </el-radio-group>
-
-      <div class="operate-button">
-        <el-button class="save-button" type="primary" plain @click="save">
-          {{ $t('commons.save') }}
-        </el-button>
-        <el-button class="cancel-button" type="warning" plain @click="visible = false">
-          {{ $t('commons.cancel') }}
-        </el-button>
+      <div class="header-bar-btn">
+        <el-radio-group v-model="selectedPlatformValue">
+          <el-radio-button v-for="(item, index) in platforms" :key="index" :label="item.value">{{
+            item.name
+          }}</el-radio-button>
+        </el-radio-group>
+        <div class="operate-button">
+          <el-button class="save-button" type="primary" plain @click="save">
+            {{ $t('commons.save') }}
+          </el-button>
+          <el-button class="cancel-button" type="warning" plain @click="visible = false">
+            {{ $t('commons.cancel') }}
+          </el-button>
+        </div>
       </div>
     </div>
 
@@ -38,7 +41,7 @@
           </el-form-item>
           <el-form-item :label="$t('commons.import_mode')" prop="modeId">
             <el-select size="small" v-model="formData.modeId" class="project-select" clearable style="width: 100%">
-              <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
+              <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
             <el-checkbox size="mini" v-if="formData.modeId === 'fullCoverage'" v-model="formData.coverModule">
               {{ this.$t('commons.cover_scenario') }}
@@ -418,6 +421,11 @@ export default {
 
 .header-bar {
   padding: 10px 30px;
+  .header-bar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 }
 
 .api-import :deep(.el-dialog__body) {
@@ -431,7 +439,6 @@ export default {
 .save-button {
   margin-left: 10px;
 }
-
 
 .dialog-footer {
   float: right;
