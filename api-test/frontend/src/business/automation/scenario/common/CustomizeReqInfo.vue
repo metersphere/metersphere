@@ -151,16 +151,20 @@ export default {
               let keyValues = param.split('=');
               if (keyValues) {
                 this.isUrl = true;
-                this.request.arguments.splice(
-                  0,
-                  0,
-                  new KeyValue({
-                    name: keyValues[0],
-                    required: false,
-                    value: keyValues[1],
-                    isEdit: false,
-                  })
-                );
+                // 检查参数是否已经存在
+                const existingParam = this.request.arguments.find((arg) => arg.name === keyValues[0]);
+                if (!existingParam) {
+                  this.request.arguments.splice(
+                    0,
+                    0,
+                    new KeyValue({
+                      name: keyValues[0],
+                      required: false,
+                      value: decodeURIComponent(keyValues[1] || ''), // 解码值
+                      isEdit: false,
+                    })
+                  );
+                }
               }
             }
           });
