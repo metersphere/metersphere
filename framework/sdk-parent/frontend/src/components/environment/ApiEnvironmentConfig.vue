@@ -10,8 +10,7 @@
       append-to-body
       destroy-on-close
       ref="environmentConfig"
-      top="2vh"
-    >
+      top="2vh">
       <el-container v-loading="result">
         <ms-aside-item
           :enable-aside-hidden="false"
@@ -22,8 +21,7 @@
           :env-add-permission="ENV_CREATE"
           :delete-fuc="openDelEnv"
           @itemSelected="environmentSelected"
-          ref="environmentItems"
-        />
+          ref="environmentItems" />
         <environment-edit
           :if-create="ifCreate"
           :environment="currentEnvironment"
@@ -34,8 +32,7 @@
           :is-project="true"
           :key="currentEnvironment.id"
           @close="close"
-          @refreshAfterSave="refresh"
-        >
+          @refreshAfterSave="refresh">
         </environment-edit>
       </el-container>
     </el-dialog>
@@ -43,22 +40,19 @@
 </template>
 
 <script>
-import draggable from "vuedraggable";
-import MsAsideItem from "../../components/MsAsideItem";
-import EnvironmentEdit from "../../components/environment/EnvironmentEdit";
-import { listenGoBack, removeGoBackListener, getUUID } from "../../utils";
-import { hasPermission } from "../../utils/permission";
-import { Environment, parseEnvironment } from "../../model/EnvironmentModel";
-import MsDialogHeader from "../../components/MsDialogHeader";
-import {
-  delApiEnvironment,
-  getEnvironmentByProjectId,
-} from "../../api/environment";
-import EnvironmentGlobalScript from "./EnvironmentGlobalScript";
-import GlobalAssertions from "./assertion/GlobalAssertions";
+import draggable from 'vuedraggable';
+import MsAsideItem from '../../components/MsAsideItem';
+import EnvironmentEdit from '../../components/environment/EnvironmentEdit';
+import { listenGoBack, removeGoBackListener, getUUID } from '../../utils';
+import { hasPermission } from '../../utils/permission';
+import { Environment, parseEnvironment } from '../../model/EnvironmentModel';
+import MsDialogHeader from '../../components/MsDialogHeader';
+import { delApiEnvironment, getEnvironmentByProjectId } from '../../api/environment';
+import EnvironmentGlobalScript from './EnvironmentGlobalScript';
+import GlobalAssertions from './assertion/GlobalAssertions';
 
 export default {
-  name: "ApiEnvironmentConfig",
+  name: 'ApiEnvironmentConfig',
   components: {
     EnvironmentEdit,
     MsAsideItem,
@@ -71,28 +65,26 @@ export default {
     return {
       result: false,
       visible: false,
-      projectId: "",
+      projectId: '',
       environments: [],
       currentEnvironment: new Environment(),
       environmentOperators: [
         {
-          icon: "el-icon-document-copy",
+          icon: 'el-icon-document-copy',
           func: this.copyEnvironment,
           permissions:
-            this.type === "project"
-              ? ["PROJECT_ENVIRONMENT:READ+COPY"]
-              : ["WORKSPACE_PROJECT_ENVIRONMENT:READ+COPY"],
+            this.type === 'project' ? ['PROJECT_ENVIRONMENT:READ+COPY'] : ['WORKSPACE_PROJECT_ENVIRONMENT:READ+COPY'],
         },
         {
-          icon: "el-icon-delete",
+          icon: 'el-icon-delete',
           func: this.deleteEnvironment,
           permissions:
-            this.type === "project"
-              ? ["PROJECT_ENVIRONMENT:READ+DELETE"]
-              : ["WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE"],
+            this.type === 'project'
+              ? ['PROJECT_ENVIRONMENT:READ+DELETE']
+              : ['WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE'],
         },
       ],
-      selectEnvironmentId: "",
+      selectEnvironmentId: '',
       ifCreate: false, //是否是创建环境
       currentIndex: -1,
       isCopy: false,
@@ -102,51 +94,43 @@ export default {
     type: {
       type: String,
       default() {
-        return "project";
+        return 'project';
       },
     },
   },
   computed: {
     ENV_CREATE() {
-      return this.type === "project"
-        ? ["PROJECT_ENVIRONMENT:READ+CREATE"]
-        : ["WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE"];
+      return this.type === 'project'
+        ? ['PROJECT_ENVIRONMENT:READ+CREATE']
+        : ['WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE'];
     },
     ENV_EDIT() {
-      return this.type === "project"
-        ? ["PROJECT_ENVIRONMENT:READ+EDIT"]
-        : ["WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT"];
+      return this.type === 'project' ? ['PROJECT_ENVIRONMENT:READ+EDIT'] : ['WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT'];
     },
     isReadOnly() {
       // 区分 工作空间下的环境相关菜单/项目下的环境相关菜单
-      return this.type === "project"
-        ? !hasPermission("PROJECT_ENVIRONMENT:READ+EDIT")
-        : !hasPermission("WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT");
+      return this.type === 'project'
+        ? !hasPermission('PROJECT_ENVIRONMENT:READ+EDIT')
+        : !hasPermission('WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT');
     },
   },
   methods: {
     updateGlobalScript(currentEnvironment, isPreScript, filedName, value) {
       if (isPreScript) {
-        if (filedName === "connScenario") {
-          currentEnvironment.config.globalScriptConfig.connScenarioPreScript =
-            value;
-        } else if (filedName === "execAfterPrivateScript") {
-          currentEnvironment.config.globalScriptConfig.isPreScriptExecAfterPrivateScript =
-            value;
-        } else if (filedName === "filterRequest") {
-          currentEnvironment.config.globalScriptConfig.filterRequestPreScript =
-            value;
+        if (filedName === 'connScenario') {
+          currentEnvironment.config.globalScriptConfig.connScenarioPreScript = value;
+        } else if (filedName === 'execAfterPrivateScript') {
+          currentEnvironment.config.globalScriptConfig.isPreScriptExecAfterPrivateScript = value;
+        } else if (filedName === 'filterRequest') {
+          currentEnvironment.config.globalScriptConfig.filterRequestPreScript = value;
         }
       } else {
-        if (filedName === "connScenario") {
-          currentEnvironment.config.globalScriptConfig.connScenarioPostScript =
-            value;
-        } else if (filedName === "execAfterPrivateScript") {
-          currentEnvironment.config.globalScriptConfig.isPostScriptExecAfterPrivateScript =
-            value;
-        } else if (filedName === "filterRequest") {
-          currentEnvironment.config.globalScriptConfig.filterRequestPostScript =
-            value;
+        if (filedName === 'connScenario') {
+          currentEnvironment.config.globalScriptConfig.connScenarioPostScript = value;
+        } else if (filedName === 'execAfterPrivateScript') {
+          currentEnvironment.config.globalScriptConfig.isPostScriptExecAfterPrivateScript = value;
+        } else if (filedName === 'filterRequest') {
+          currentEnvironment.config.globalScriptConfig.filterRequestPostScript = value;
         }
       }
     },
@@ -158,39 +142,32 @@ export default {
       listenGoBack(this.close);
     },
     deleteEnvironment(environment, index) {
-      this.$alert(
-        this.$t("commons.delete") +
-          "(" +
-          environment.name +
-          ")" +
-          this.$t("project.del_env_tip"),
-        "",
-        {
-          confirmButtonText: this.$t("commons.confirm"),
-          cancelButtonText: this.$t("commons.cancel"),
-          callback: (action) => {
-            if (action === "confirm") {
-              if (environment.id) {
-                this.result = delApiEnvironment(environment.id).then(() => {
-                  this.$success(this.$t("commons.delete_success"));
-                  this.getEnvironments();
-                });
-              } else {
-                this.environments.splice(index, 1);
-              }
+      this.$alert(this.$t('commons.delete') + '(' + environment.name + ')' + this.$t('project.del_env_tip'), '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        cancelButtonText: this.$t('commons.cancel'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            if (environment.id) {
+              this.result = delApiEnvironment(environment.id).then(() => {
+                this.$success(this.$t('commons.delete_success'));
+                this.getEnvironments();
+              });
+            } else {
+              this.environments.splice(index, 1);
             }
-          },
-        }
-      );
+          }
+        },
+      });
     },
     copyEnvironment(environment) {
+      this.result = true;
       this.ifCreate = false;
       this.isCopy = true;
       //点击复制的时候先选择改行，否则会出现解析错误
       this.environmentSelected(environment);
       this.currentEnvironment = environment;
       if (!environment.id) {
-        this.$warning(this.$t("commons.please_save"));
+        this.$warning(this.$t('commons.please_save'));
         return;
       }
       let newEnvironment = {};
@@ -211,11 +188,14 @@ export default {
         }
       });
       this.$refs.environmentEdit._save(newEnvironment);
-      this.getEnvironments();
+      // 等待几秒调用getEnvironments方法，解决复制环境后，环境列表未刷新的问题
+      setTimeout(() => {
+        this.getEnvironments();
+      }, 2000);
     },
     validateEnvironment(environment) {
       if (!this.$refs.environmentEdit.validate()) {
-        this.$error(this.$t("commons.formatErr"));
+        this.$error(this.$t('commons.formatErr'));
         return false;
       }
       return true;
@@ -223,7 +203,7 @@ export default {
     getNoRepeatName(name) {
       for (let i in this.environments) {
         if (this.environments[i].name === name) {
-          return this.getNoRepeatName(name + " copy");
+          return this.getNoRepeatName(name + ' copy');
         }
       }
       return name;
@@ -234,10 +214,7 @@ export default {
         projectId: this.projectId,
       });
       this.environments.push(newEnvironment);
-      this.$refs.environmentItems.itemSelected(
-        this.environments.length - 1,
-        newEnvironment
-      );
+      this.$refs.environmentItems.itemSelected(this.environments.length - 1, newEnvironment);
     },
     environmentSelected(environment) {
       if (this.$refs.environmentEdit) {
@@ -247,40 +224,27 @@ export default {
     },
     getEnvironments() {
       if (this.projectId) {
-        this.result = getEnvironmentByProjectId(this.projectId).then(
-          (response) => {
-            this.environments = response.data;
-            if (this.environments.length > 0) {
-              if (this.selectEnvironmentId) {
-                const index = this.environments.findIndex(
-                  (e) => e.id === this.selectEnvironmentId
-                );
-                if (index !== -1) {
-                  this.$refs.environmentItems.itemSelected(
-                    index,
-                    this.environments[index]
-                  );
-                } else {
-                  this.$refs.environmentItems.itemSelected(
-                    0,
-                    this.environments[0]
-                  );
-                }
+        this.result = getEnvironmentByProjectId(this.projectId).then((response) => {
+          this.environments = response.data;
+          if (this.environments.length > 0) {
+            if (this.selectEnvironmentId) {
+              const index = this.environments.findIndex((e) => e.id === this.selectEnvironmentId);
+              if (index !== -1) {
+                this.$refs.environmentItems.itemSelected(index, this.environments[index]);
               } else {
-                this.$refs.environmentItems.itemSelected(
-                  0,
-                  this.environments[0]
-                );
+                this.$refs.environmentItems.itemSelected(0, this.environments[0]);
               }
             } else {
-              let item = new Environment({
-                projectId: this.projectId,
-              });
-              this.environments.push(item);
-              this.$refs.environmentItems.itemSelected(0, item);
+              this.$refs.environmentItems.itemSelected(0, this.environments[0]);
             }
+          } else {
+            let item = new Environment({
+              projectId: this.projectId,
+            });
+            this.environments.push(item);
+            this.$refs.environmentItems.itemSelected(0, item);
           }
-        );
+        });
       }
     },
     getEnvironment(environment) {
@@ -294,7 +258,7 @@ export default {
       this.$refs.environmentEdit.save();
     },
     close() {
-      this.$emit("close");
+      this.$emit('close');
       if (!this.isCopy) {
         this.visible = false;
       }
@@ -311,7 +275,7 @@ export default {
     },
     refresh() {
       this.getEnvironments();
-      this.$emit("saveRefresh");
+      this.$emit('saveRefresh');
     },
   },
 };
