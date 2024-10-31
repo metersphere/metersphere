@@ -176,7 +176,7 @@
 
   import { ViewTypeEnum } from '@/enums/advancedFilterEnum';
 
-  import { FilterFormItem, FilterResult, ViewItem } from './type';
+  import { ConditionsItem, FilterFormItem, FilterResult, ViewItem } from './type';
 
   const props = defineProps<{
     filterConfigList: FilterFormItem[]; // 系统字段
@@ -326,13 +326,17 @@
   }
 
   const isAdvancedSearchMode = ref(false);
+  const getIsValidValue = (item: ConditionsItem) => {
+    if (typeof item.value === 'boolean') return String(item.value).length;
+    if (typeof item.value === 'number') return item.value;
+    return item.value?.length;
+  };
   const handleFilter = (filter: FilterResult) => {
     keyword.value = '';
     const haveConditions: boolean =
       filter.conditions?.some((item) => {
         const valueCanEmpty = ['EMPTY', 'NOT_EMPTY'].includes(item.operator as string);
-        const isValidValue = typeof item.value !== 'number' ? item.value?.length : item.value;
-        return valueCanEmpty || isValidValue;
+        return valueCanEmpty || getIsValidValue(item);
       }) ?? false;
     // 开启高级筛选：非默认视图或有筛选条件
     isAdvancedSearchMode.value = currentView.value !== internalViews.value[0].id || haveConditions;
