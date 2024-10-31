@@ -239,18 +239,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
     private boolean assertMatch(Object subj) {
         if (isUseRegex()) {
             String expectedValue = getExpectedValue();
-            String resultValue;
-            if (subj instanceof BigDecimal) {
-                resultValue = String.valueOf(((BigDecimal) subj).doubleValue());
-                try {
-                    Double.parseDouble(getExpectedValue());
-                    expectedValue = String.valueOf(Double.parseDouble(getExpectedValue()));
-                } catch (Exception e) {
-                    expectedValue = getExpectedValue();
-                }
-            } else {
-                resultValue = DocumentUtils.objectToString(subj, decimalFormatter);
-            }
+            String resultValue = DocumentUtils.objectToString(subj, decimalFormatter);
             if (USE_JAVA_REGEX) {
                 return JMeterUtils.compilePattern(expectedValue).matcher(resultValue).matches();
             } else {
