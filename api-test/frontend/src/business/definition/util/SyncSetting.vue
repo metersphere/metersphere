@@ -41,7 +41,7 @@ export default {
           query: true,
           rest: true,
           body: true,
-          delNotSame: true,
+          delNotSame: false,
         };
       },
     },
