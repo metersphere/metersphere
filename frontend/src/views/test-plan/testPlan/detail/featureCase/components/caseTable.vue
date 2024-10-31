@@ -450,7 +450,7 @@
     scroll: { x: '100%' },
     tableKey: TableKeyEnum.TEST_PLAN_DETAIL_FEATURE_CASE_TABLE,
     showSetting: true,
-    heightUsed: 445,
+    heightUsed: 275,
     draggable: { type: 'handle' },
     draggableCondition: true,
   });

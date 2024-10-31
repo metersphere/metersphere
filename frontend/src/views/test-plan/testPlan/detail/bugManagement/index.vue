@@ -161,7 +161,6 @@
       tableKey: TableKeyEnum.TEST_PLAN_DETAIL_BUG_TABLE,
       scroll: { x: '100%' },
       showSelectorAll: false,
-      heightUsed: 340,
     }
   );
 

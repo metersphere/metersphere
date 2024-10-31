@@ -30,7 +30,7 @@
           :preview-url="`${PreviewEditorImageUrl}/${appStore.currentProjectId}`"
           :auto-height="false"
           class="w-full"
-          :auto-focus="true"
+          :auto-focus="!props.notRichAutoFocus"
           :max-height="props.richTextMaxHeight"
           :placeholder="
             props.isDblclickPlaceholder
@@ -61,6 +61,7 @@
   const props = defineProps<{
     isDblclickPlaceholder?: boolean;
     richTextMaxHeight?: string;
+    notRichAutoFocus?: boolean;
   }>();
 
   const emit = defineEmits<{
