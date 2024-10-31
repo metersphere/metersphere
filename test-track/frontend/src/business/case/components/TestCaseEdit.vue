@@ -452,6 +452,7 @@ export default {
         nodeId: '',
         steps: [
           {
+            id: this.newStepId(),
             num: 1,
             desc: "",
             result: "",
@@ -1138,6 +1139,11 @@ export default {
           },
         ];
       }
+      tmp.steps.forEach(step => {
+        if (!step.id) {
+          step.id = this.newStepId();
+        }
+      });
       tmp.tags = JSON.parse(tmp.tags);
       Object.assign(this.form, tmp);
       if (!this.form.stepModel) {
@@ -1166,6 +1172,9 @@ export default {
       this.resetSystemField();
       // 重新渲染，显示自定义字段的必填校验
       this.reloadForm();
+    },
+    newStepId() {
+      return getUUID().substring(0, 8);
     },
     resetSystemField() {
       if (!this.caseId) {
@@ -1458,6 +1467,7 @@ export default {
       this.form.testName = "";
       this.form.steps = [
         {
+          id: this.newStepId(),
           num: 1,
           desc: "",
           result: "",

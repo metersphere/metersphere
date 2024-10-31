@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { resizeTextarea } from "@/business/utils/sdk-utils";
+import {getUUID, resizeTextarea} from "@/business/utils/sdk-utils";
 
 export default {
   name: "CaseStepItem",
@@ -119,6 +119,7 @@ export default {
     },
     handleAddStep(index, data) {
       let step = {};
+      step.id = this.newStepId();
       step.num = data.num + 1;
       step.desc = "";
       step.result = "";
@@ -129,11 +130,15 @@ export default {
       });
       this.form.steps.splice(index + 1, 0, step);
     },
+    newStepId() {
+      return getUUID().substring(0, 8);
+    },
     handleCopyStep(index, data) {
       if (this.readOnly) {
         return
       }
       let step = {};
+      step.id = this.newStepId();
       step.num = data.num + 1;
       step.desc = data.desc;
       step.result = data.result;

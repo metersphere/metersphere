@@ -317,6 +317,7 @@ export default {
       param.comment = this.testCase.comment;
       for (let i = 0; i < this.testCase.steptResults.length; i++) {
         let result = {};
+        result.id = this.testCase.steptResults[i].id;
         result.actualResult = this.testCase.steptResults[i].actualResult;
         result.executeResult = this.testCase.steptResults[i].executeResult;
         if (result.actualResult && result.actualResult.length > 500) {
@@ -433,11 +434,6 @@ export default {
         this.loading = false;
         let item = {};
         Object.assign(item, response.data);
-        if (item.results) {
-          item.results = JSON.parse(item.results);
-        } else if (item.steps) {
-          item.results = [item.steps.length];
-        }
         if (item.issues) {
           item.issues = JSON.parse(item.issues);
         } else {
@@ -448,20 +444,32 @@ export default {
           item.stepModel = "STEP";
         }
         item.steptResults = [];
+
+        if (item.results) {
+          item.results = JSON.parse(item.results);
+        } else if (item.steps) {
+          item.results = [item.steps.length];
+        }
+
         if (item.steps) {
+          let resultHasId = item.results.find((r) => r.id);
           for (let i = 0; i < item.steps.length; i++) {
-            if (item.results) {
-              if (item.results[i]) {
-                item.steps[i].actualResult = item.results[i].actualResult;
-                item.steps[i].executeResult = item.results[i].executeResult;
+            let step = item.steps[i];
+            if (resultHasId) {
+              // 根据ID匹配
+              let result = item.results.find((r) => r.id === step.id);
+              if (result) {
+                step.actualResult = result.actualResult;
+                step.executeResult = result.executeResult;
               }
-              item.steptResults.push(item.steps[i]);
             } else {
-              item.steptResults.push({
-                actualResult: "",
-                executeResult: "",
-              });
+              // 兼容历史数据
+              if (item.results[i]) {
+                step.actualResult = item.results[i].actualResult;
+                step.executeResult = item.results[i].executeResult;
+              }
             }
+            item.steptResults.push(step);
           }
         }
         this.testCase = item;
