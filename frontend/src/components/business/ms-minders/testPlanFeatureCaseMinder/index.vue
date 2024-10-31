@@ -205,7 +205,7 @@
         :is-disabled-test-plan="false"
         is-disabled
       />
-      <ExecuteForm v-model:form="executeForm" class="mt-[24px]" rich-text-max-height="150px" />
+      <ExecuteForm v-model:form="executeForm" class="mt-[24px]" rich-text-max-height="150px" not-rich-auto-focus />
     </a-modal>
   </div>
 </template>
