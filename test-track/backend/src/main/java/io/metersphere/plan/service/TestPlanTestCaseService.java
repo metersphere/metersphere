@@ -121,10 +121,6 @@ public class TestPlanTestCaseService {
             ServiceUtils.buildProjectInfo(list);
             ServiceUtils.buildCustomNumInfo(list);
 
-            QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
-            queryMemberRequest.setProjectId(request.getProjectId());
-            Map<String, String> userMap = baseUserService.getProjectMemberList(queryMemberRequest)
-                    .stream().collect(Collectors.toMap(User::getId, User::getName));
             List<String> versionIds = list.stream().map(TestPlanCaseDTO::getVersionId).collect(Collectors.toList());
             ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
             if (projectVersionService != null) {
@@ -134,10 +130,20 @@ public class TestPlanTestCaseService {
                     item.setVersionName(projectVersionMap.get(item.getVersionId()));
                 });
             }
-            list.forEach(item -> {
-                item.setExecutorName(userMap.get(item.getExecutor()));
-                item.setMaintainerName(userMap.get(item.getMaintainer()));
+
+            Set<String> userIds = new HashSet<>();
+            list.forEach(i -> {
+                userIds.add(i.getExecutor());
+                userIds.add(i.getMaintainer());
             });
+            if (!CollectionUtils.isEmpty(userIds)) {
+                Map<String, String> userMap = ServiceUtils.getUserNameMap(new ArrayList<>(userIds));
+                list.forEach(item -> {
+                    item.setExecutorName(userMap.get(item.getExecutor()));
+                    item.setMaintainerName(userMap.get(item.getMaintainer()));
+                });
+            }
+
         }
         return list;
     }

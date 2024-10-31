@@ -220,7 +220,7 @@ import {getTestTemplate} from "@/api/custom-field-template";
 import {checkProjectPermission} from "@/api/testCase";
 import {openCaseEdit, resetPlanCaseSystemField} from "@/business/case/test-case";
 import CustomFieldFormItems from "@/business/common/CustomFieldFormItems";
-import {getCurrentProjectID, parseMdImage, saveMarkDownImg} from "@/business/utils/sdk-utils";
+import {getCurrentProjectID, getCurrentUser, parseMdImage, saveMarkDownImg} from "@/business/utils/sdk-utils";
 
 export default {
   name: "FunctionalTestCaseEdit",
@@ -386,6 +386,9 @@ export default {
           testCase.results = param.results;
           testCase.issues = param.issues;
           testCase.status = param.status;
+          let user = getCurrentUser();
+          testCase.executor = user.id;
+          testCase.executorName = user.name;
           return;
         }
       }
