@@ -5,6 +5,7 @@
     :default-param-item="defaultCsvParamItem"
     :draggable="false"
     :selectable="false"
+    :height-used="410"
     :delete-intercept="deleteIntercept"
     :type-change-intercept="typeChangeIntercept"
     :enable-change-intercept="enableChangeIntercept"
