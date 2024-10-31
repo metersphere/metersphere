@@ -113,5 +113,7 @@ export default {
     shortcut: 'Shortcut',
     shortcutTitle: 'Shortcut information',
     expand: 'Expand/Collapse',
+    notSupportClipboard:
+      'Due to browser security policy restrictions, websites that are not HTTPS cannot access the clipboard. Please use keyboard shortcuts to copy/paste.',
   },
 };
