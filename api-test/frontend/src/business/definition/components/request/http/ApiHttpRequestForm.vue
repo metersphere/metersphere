@@ -480,6 +480,16 @@ export default {
         this.historicalDataProcessing(this.request.hashTree);
       }
       this.changeActiveName();
+      if(this.headers && this.headers.length === 1) {
+        if (this.headers[0].name !== '' && this.headers[0].name !== null && this.headers[0].name !== undefined) {
+          this.headers.push(new KeyValue({ enable: true, name: '', value: '' }));
+        }
+      }
+       if(this.request.rest && this.request.rest.length === 1) {
+        if (this.request.rest[0].name !== '' && this.request.rest[0].name !== null && this.request.rest[0].name !== undefined) {
+          this.request.rest.push(new KeyValue({ enable: true, name: '', value: '' }));
+        }
+      }
     },
     historicalDataProcessing(array) {
       hisDataProcessing(array, this.request);
