@@ -158,7 +158,7 @@
                             </include>
                         </when>
                         <otherwise>
-                            and trim(both '"' from value)
+                            and trim(both '"' from value) and value != 'null'
                             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.includeCondition">
                                 <property name="object" value="custom"/>
                             </include>
