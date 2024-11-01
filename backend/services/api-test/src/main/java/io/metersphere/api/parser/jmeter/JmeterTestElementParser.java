@@ -53,6 +53,14 @@ public class JmeterTestElementParser implements TestElementParser {
         this.config = config;
         HashTree hashTree = new ListedHashTree();
         TestPlan testPlan = getPlan();
+
+        // 添加场景ID到 JMeter 测试计划变量中
+        if (msTestElement instanceof MsScenario msScenario) {
+            Arguments arguments = new Arguments();
+            arguments.addArgument("ms_scenario_id", msScenario.getResourceId());
+            testPlan.setUserDefinedVariables(arguments);
+        }
+
         name = msTestElement.getName();
         final HashTree testPlanTree = hashTree.add(testPlan);
         final HashTree groupTree = testPlanTree.add(getThreadGroup(msTestElement));
