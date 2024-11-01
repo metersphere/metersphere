@@ -276,7 +276,7 @@
       };
     }
     return {
-      height: props.docShareId ? 'calc(100vh - 153px)' : 'calc(100vh - 273px)',
+      height: props.docShareId ? 'calc(100vh - 193px)' : 'calc(100vh - 273px)',
       threshold: 200,
       fixedSize: true,
       buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题

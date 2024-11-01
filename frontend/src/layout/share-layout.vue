@@ -6,7 +6,30 @@
         <div v-show="true" class="page-content">
           <!-- TODO 实验性组件，以后优化 -->
           <keep-alive>
-            <Suspense> <component :is="Component" :key="route.fullPath" /> </Suspense>
+            <Suspense>
+              <component :is="Component" :key="route.fullPath">
+                <template #header="{ projectName }">
+                  <div class="mb-[12px] flex w-full items-center px-[16px]">
+                    <a-space>
+                      <div class="one-line-text flex max-w-[145px] items-center">
+                        <img
+                          :src="pageConfig.logoPlatform[0]?.url || defaultPlatformLogo"
+                          class="mr-[4px] h-[34px] w-[32px]"
+                        />
+                        <a-tooltip :content="pageConfig.platformName">
+                          <div
+                            class="one-line-text font-['Helvetica_Neue'] text-[16px] font-bold text-[rgb(var(--primary-5))]"
+                          >
+                            {{ pageConfig.platformName }}
+                          </div>
+                        </a-tooltip>
+                      </div>
+                      <div> {{ projectName }}</div>
+                    </a-space>
+                  </div>
+                </template>
+              </component>
+            </Suspense>
           </keep-alive>
         </div>
       </transition>
@@ -14,7 +37,15 @@
   </a-layout>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+  import useAppStore from '@/store/modules/app';
+
+  const defaultPlatformLogo = `${import.meta.env.BASE_URL}images/MeterSphere-logo.svg`;
+
+  const appStore = useAppStore();
+
+  const pageConfig = ref({ ...appStore.pageConfig });
+</script>
 
 <style lang="less" scoped>
   .layout-content {

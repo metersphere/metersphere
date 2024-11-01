@@ -473,4 +473,5 @@ export interface ShareDetailType {
   invalid: boolean;
   allowExport: boolean;
   isPrivate: boolean;
+  projectName?: string;
 }

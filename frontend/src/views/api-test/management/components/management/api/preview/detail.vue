@@ -55,7 +55,7 @@
               v-show="headerShowType === 'raw'"
               :model-value="headerRawCode"
               theme="MS-text"
-              height="200px"
+              is-adaptive
               :show-full-screen="false"
               :show-theme-change="false"
               read-only
@@ -97,7 +97,7 @@
               v-show="queryShowType === 'raw'"
               :model-value="queryRawCode"
               theme="MS-text"
-              height="200px"
+              is-adaptive
               :show-full-screen="false"
               :show-theme-change="false"
               read-only
@@ -139,7 +139,7 @@
               v-show="restShowType === 'raw'"
               :model-value="restRawCode"
               theme="MS-text"
-              height="200px"
+              is-adaptive
               :show-full-screen="false"
               :show-theme-change="false"
               read-only
@@ -213,7 +213,7 @@
                 v-else
                 :model-value="bodyCode"
                 theme="vs"
-                height="200px"
+                is-adaptive
                 :language="bodyCodeLanguage"
                 :show-full-screen="false"
                 :show-theme-change="false"
@@ -377,7 +377,7 @@
             v-else
             :model-value="responseCode"
             theme="vs"
-            height="200px"
+            is-adaptive
             :language="responseCodeLanguage"
             :show-full-screen="false"
             :show-theme-change="false"

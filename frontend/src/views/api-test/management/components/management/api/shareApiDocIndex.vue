@@ -1,6 +1,7 @@
 <template>
+  <slot name="header" :project-name="shareDetailInfo?.projectName"></slot>
   <MsCard simple no-content-padding auto-height>
-    <div class="h-[calc(100vh-32px)]">
+    <div class="h-[calc(100vh-80px)]">
       <MsSplitBox :size="300" :max="0.5">
         <template #first>
           <div class="flex flex-col">
@@ -216,6 +217,7 @@
     invalid: false,
     allowExport: false,
     isPrivate: false,
+    projectName: '',
   });
 
   // 获取分享详情
