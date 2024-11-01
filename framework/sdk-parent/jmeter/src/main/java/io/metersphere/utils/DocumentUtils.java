@@ -110,7 +110,7 @@ public class DocumentUtils {
         } else if (!(subj instanceof Double) && !(subj instanceof Float)) {
             str = subj.toString();
         } else {
-            str = ((DecimalFormat) decimalFormatter.get()).format(subj);
+            str = decimalFormatter.get().format(subj);
         }
         return str;
     }

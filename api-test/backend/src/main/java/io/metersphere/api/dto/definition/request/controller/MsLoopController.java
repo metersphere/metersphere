@@ -157,7 +157,7 @@ public class MsLoopController extends MsTestElement {
             value = "";
         }
         ms_current_timer = UUID.randomUUID().toString();
-        return "${__jexl3(" + variable + operator + value + ")}";
+        return variable + operator + value;
     }
 
     private IfController ifController(String condition) {
