@@ -104,7 +104,7 @@
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
-  import ExecStatus from '@/views/test-plan/report/component/execStatus.vue';
+  // import ExecStatus from '@/views/test-plan/report/component/execStatus.vue';
   import ExecutionStatus from '@/views/test-plan/report/component/reportStatus.vue';
 
   import { reportBathDelete, reportDelete, reportList, reportRename } from '@/api/modules/test-plan/report';
@@ -118,7 +118,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
-  import { ReportExecStatus } from '@/enums/apiEnum';
+  // import { ReportExecStatus } from '@/enums/apiEnum';
   import { PlanReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
   import { FullPageEnum, TestPlanRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
@@ -137,16 +137,17 @@
   const { openNewPage, openNewPageWithParams } = useOpenNewPage();
 
   type ReportShowType = 'All' | 'INDEPENDENT' | 'INTEGRATED';
-  const showType = ref<ReportShowType>('All');
+  const localSHowTypeKey = 'testPlanReportShowType';
+  const showType = ref<ReportShowType>((localStorage.getItem(localSHowTypeKey) as ReportShowType) || 'All');
 
-  const executeResultOptions = computed(() => {
-    return Object.values(ReportExecStatus).map((e) => {
-      return {
-        value: e,
-        key: e,
-      };
-    });
-  });
+  // const executeResultOptions = computed(() => {
+  //   return Object.values(ReportExecStatus).map((e) => {
+  //     return {
+  //       value: e,
+  //       key: e,
+  //     };
+  //   });
+  // });
 
   const statusResultOptions = computed(() => {
     return Object.keys(PlanReportStatus).map((key) => {
@@ -420,6 +421,7 @@
 
   function changeShowType(val: string | number | boolean) {
     showType.value = val as ReportShowType;
+    localStorage.setItem(localSHowTypeKey, val as string);
     resetFilterParams();
     // 重置分页
     setPagination({
