@@ -1,14 +1,23 @@
 <template>
-  <span class="operator-btn-group">
-    <ms-table-operator-button v-for="(btn, index) in buttons" :key="index"
-                              v-permission="btn.permissions"
-                              :disabled="isDisable(btn)"
-                              :class="btn.class" :row-data="row"
-                              :tip="tip(btn)" :icon="btn.icon" :type="btn.type"
-                              :isDivButton="btn.isDivButton" :is-text-button="btn.isTextButton"
-                              :is-more-operate="btn.isMoreOperate" :child-operate="btn.childOperate"
-                              @exec="click(btn)" @click.stop="clickStop(btn)"/>
-  </span>
+  <div class="operator-btn-group">
+    <ms-table-operator-button
+      v-for="(btn, index) in buttons"
+      :key="index"
+      v-permission="btn.permissions"
+      :disabled="isDisable(btn)"
+      :class="btn.class"
+      :row-data="row"
+      :tip="tip(btn)"
+      :icon="btn.icon"
+      :type="btn.type"
+      :isDivButton="btn.isDivButton"
+      :is-text-button="btn.isTextButton"
+      :is-more-operate="btn.isMoreOperate"
+      :child-operate="btn.childOperate"
+      @exec="click(btn)"
+      @click.stop="clickStop(btn)"
+    />
+  </div>
 </template>
 
 <script>
@@ -16,11 +25,11 @@ import MsTableOperatorButton from "./MsTableOperatorButton";
 
 export default {
   name: "MsTableOperators",
-  components: {MsTableOperatorButton},
+  components: { MsTableOperatorButton },
   props: {
     row: Object,
     buttons: Array,
-    index: Number
+    index: Number,
   },
   methods: {
     click(btn) {
@@ -49,11 +58,18 @@ export default {
       } else {
         return btn.tip;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+.operator-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  .el-button {
+    margin-right: 0;
+  }
+}
 </style>

@@ -8,11 +8,14 @@
       v-loading="tableIsLoading"
       :data="data"
       :default-sort="defaultSort"
-      :class="{'ms-select-all-fixed': (showSelectAll && !hidePopover), 'row-click': rowClickStyle}"
+      :class="{
+        'ms-select-all-fixed': showSelectAll && !hidePopover,
+        'row-click': rowClickStyle,
+      }"
       :height="screenHeight"
       :row-key="rowKey"
       :row-class-name="tableRowClassName"
-      :row-style='rowStyle'
+      :row-style="rowStyle"
       :cell-class-name="addPaddingColClass"
       :highlight-current-row="highlightCurrentRow"
       :border="enableHeaderDrag"
@@ -25,21 +28,20 @@
       @cell-mouse-enter="showPopover"
       @row-click="handleRowClick"
       :max-height="enableMaxHeight ? maxHeight : 'auto'"
-      ref="table">
+      ref="table"
+    >
+      <el-table-column v-if="enableSelection" width="50" type="selection" />
 
-      <el-table-column
-        v-if="enableSelection"
-        width="50"
-        type="selection"/>
-
-      <ms-table-header-select-popover v-if="enableSelection && showSelectAll && !hidePopover"
-                                      :page-size="pageSize > total ? total : pageSize"
-                                      :table-data-count-in-page="data.length"
-                                      :total="total"
-                                      :select-type="condition.selectAll"
-                                      @selectPageAll="isSelectDataAll(false)"
-                                      @selectAll="isSelectDataAll(true)"
-                                      ref="selectPopover"/>
+      <ms-table-header-select-popover
+        v-if="enableSelection && showSelectAll && !hidePopover"
+        :page-size="pageSize > total ? total : pageSize"
+        :table-data-count-in-page="data.length"
+        :total="total"
+        :select-type="condition.selectAll"
+        @selectPageAll="isSelectDataAll(false)"
+        @selectAll="isSelectDataAll(true)"
+        ref="selectPopover"
+      />
 
       <el-table-column width="1">
         <template v-slot:header>
@@ -51,11 +53,12 @@
       <el-table-column
         v-if="enableOrderDrag"
         width="20"
-        column-key="tableRowDropCol">
+        column-key="tableRowDropCol"
+      >
         <template v-slot:default="scope">
           <div class="table-row-drop-bar">
-            <i class="el-icon-more ms-icon-more"/>
-            <i class="el-icon-more ms-icon-more"/>
+            <i class="el-icon-more ms-icon-more" />
+            <i class="el-icon-more ms-icon-more" />
           </div>
         </template>
       </el-table-column>
@@ -66,36 +69,57 @@
         v-if="operators && operators.length > 0"
         :fixed="operatorFixed"
         :min-width="operatorWidth"
-        :label="$t('commons.operating')">
+        :label="$t('commons.operating')"
+      >
         <template slot="header">
           <header-label-operate
             v-if="fieldKey"
             :disable-header-config="disableHeaderConfig"
-            @exec="openCustomHeader"/>
+            @exec="openCustomHeader"
+          />
         </template>
-        <template
-          v-slot:default="scope">
+        <template v-slot:default="scope">
           <div>
-            <slot
-              name="opt-before"
-              :row="scope.row">
-            </slot>
+            <slot name="opt-before" :row="scope.row"> </slot>
             <ms-table-operators
               :buttons="operators"
               :row="scope.row"
-              :index="scope.$index"/>
-            <slot
-              name="opt-behind"
-              :row="scope.row">
-            </slot>
+              :index="scope.$index"
+            />
+            <slot name="opt-behind" :row="scope.row"> </slot>
           </div>
         </template>
       </el-table-column>
 
       <template #empty>
-        <div style="width: 100%;height: 300px;display: flex;flex-direction: column;justify-content: start;align-items: center">
-          <img :src="refreshBySearch ? '/assets/module/figma/icon_search_none.svg' : '/assets/module/figma/icon_none.svg'" style="height: 100px;width: 100px;margin-bottom: 0.6rem; margin-top: 3rem"/>
-          <span class="addition-info-title">{{ refreshBySearch ? $t("home.dashboard.public.no_search_data") : $t("home.dashboard.public.no_data") }}</span>
+        <div
+          style="
+            width: 100%;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: start;
+            align-items: center;
+          "
+        >
+          <img
+            :src="
+              refreshBySearch
+                ? '/assets/module/figma/icon_search_none.svg'
+                : '/assets/module/figma/icon_none.svg'
+            "
+            style="
+              height: 100px;
+              width: 100px;
+              margin-bottom: 0.6rem;
+              margin-top: 3rem;
+            "
+          />
+          <span class="addition-info-title">{{
+            refreshBySearch
+              ? $t("home.dashboard.public.no_search_data")
+              : $t("home.dashboard.public.no_data")
+          }}</span>
         </div>
       </template>
     </el-table>
@@ -105,8 +129,8 @@
       :type="fieldKey"
       :custom-fields="customFields"
       @reload="resetHeader"
-      ref="customTableHeader"/>
-
+      ref="customTableHeader"
+    />
   </div>
 </template>
 
@@ -134,7 +158,7 @@ import MsTableOperators from "../MsTableOperators";
 import HeaderLabelOperate from "../head/HeaderLabelOperate";
 import HeaderCustom from "../head/HeaderCustom";
 import MsCustomTableHeader from "../table/MsCustomTableHeader";
-import {getUUID, lineToHump} from "../../utils";
+import { getUUID, lineToHump } from "../../utils";
 
 /**
  * 参考 ApiList
@@ -153,7 +177,12 @@ export default {
   components: {
     MsCustomTableHeader,
     HeaderLabelOperate,
-    MsTableOperators, MsTableColumn, ShowMoreBtn, MsTablePagination, MsTableHeaderSelectPopover, HeaderCustom
+    MsTableOperators,
+    MsTableColumn,
+    ShowMoreBtn,
+    MsTablePagination,
+    MsTableHeaderSelectPopover,
+    HeaderCustom,
   },
   data() {
     return {
@@ -172,13 +201,13 @@ export default {
       type: Boolean,
       default() {
         return true;
-      }
+      },
     },
     maxHeight: {
       type: String,
       default() {
-        return 'calc(100vh)';
-      }
+        return "calc(100vh)";
+      },
     },
     screenHeight: {
       type: [String, Number],
@@ -188,91 +217,91 @@ export default {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     selectNodeIds: {
       type: Array,
       default() {
         return [];
-      }
+      },
     },
     data: {
       type: Array,
       default() {
         return [];
-      }
+      },
     },
     condition: {
       type: Object,
       default() {
         return {};
-      }
+      },
     },
     pageSize: {
       type: Number,
       default() {
         return 10;
-      }
+      },
     },
     total: {
       type: Number,
       default() {
         return 10;
-      }
+      },
     },
     // 操作按钮
     operators: {
       type: Array,
       default() {
         return [];
-      }
+      },
     },
     //批量操作按钮
     batchOperators: {
       type: Array,
       default() {
         return [];
-      }
+      },
     },
     // 操作列的宽度
     operatorWidth: {
       type: String,
       default() {
         return "150px";
-      }
+      },
     },
     // 操作列的宽度
     operatorFixed: {
       type: [String, Boolean],
       default() {
         return "right";
-      }
+      },
     },
     //开启全选
     enableSelection: {
       type: Boolean,
       default() {
         return true;
-      }
+      },
     }, //开启全选
     showSelectAll: {
       type: Boolean,
       default() {
         return true;
-      }
+      },
     },
     // 添加鼠标移入小手样式
     rowClickStyle: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     tableIsLoading: {
       type: [Boolean, Promise],
       default() {
         return false;
-      }
+      },
     },
     disableHeaderConfig: Boolean,
     fields: Array,
@@ -291,11 +320,10 @@ export default {
       type: Boolean,
       default() {
         return true;
-      }
-    }
+      },
+    },
   },
-  created() {
-  },
+  created() {},
   mounted() {
     this.setDefaultOrders();
     this.preventSortableEventPropagation();
@@ -324,21 +352,22 @@ export default {
     },
     selectDataCounts(value) {
       this.$emit("selectCountChange", value);
-    }
+    },
   },
   methods: {
     preventSortableEventPropagation() {
       document.body.ondrop = function (event) {
         event.preventDefault();
         event.stopPropagation();
-      }
+      };
     },
     // 批量操作提示, 第一次勾选提示, 之后不提示
     // 先添加 batch-popper 样式, 全选后再移除样式, 只保留可见框内第一条数据的提示
     removeBatchPopper() {
-      let elements = window.document.getElementsByClassName('batch-popper');
-      let tableHeader = window.document.getElementsByClassName('table-column-mark');
-      let columns = window.document.getElementsByClassName('table-more-icon');
+      let elements = window.document.getElementsByClassName("batch-popper");
+      let tableHeader =
+        window.document.getElementsByClassName("table-column-mark");
+      let columns = window.document.getElementsByClassName("table-more-icon");
       let tableTop = tableHeader[0].getBoundingClientRect().top;
       let index = 0;
       for (let i = 0; i < columns.length; i++) {
@@ -351,7 +380,7 @@ export default {
       if (elements) {
         for (let i = 0; i < elements.length; i++) {
           if (i == index) {
-            elements[i].classList.remove('batch-popper');
+            elements[i].classList.remove("batch-popper");
             setTimeout(() => {
               this.hasBatchTipShow = true;
             }, 1500);
@@ -362,15 +391,20 @@ export default {
     // 拖拽排序
     listenRowDrop() {
       if (this.rowOrderGroupId) {
-        handleRowDrop(this.data, (param) => {
-          param.groupId = this.rowOrderGroupId;
-          if (this.rowOrderFunc) {
-            this.rowOrderFunc(param);
-          }
-        }, this.msTableKey);
+        handleRowDrop(
+          this.data,
+          (param) => {
+            param.groupId = this.rowOrderGroupId;
+            if (this.rowOrderFunc) {
+              this.rowOrderFunc(param);
+            }
+          },
+          this.msTableKey
+        );
       }
     },
-    isScrollShow(column, tableTop) {  //判断元素是否因为超过表头
+    isScrollShow(column, tableTop) {
+      //判断元素是否因为超过表头
       let columnTop = column.getBoundingClientRect().top;
       return columnTop - tableTop > 30;
     },
@@ -378,13 +412,13 @@ export default {
     setDefaultOrders() {
       let orders = this.condition.orders;
       if (orders) {
-        orders.forEach(item => {
+        orders.forEach((item) => {
           this.defaultSort = {
             prop: lineToHump(item.name),
-            order: 'descending'
+            order: "descending",
           };
-          if (item.type === 'asc') {
-            this.defaultSort.order = 'ascending';
+          if (item.type === "asc") {
+            this.defaultSort.order = "ascending";
           }
           return;
         });
@@ -392,22 +426,36 @@ export default {
     },
     handleSelectAll(selection) {
       if (this.condition.selectAll && selection && selection.length > 0) {
-        this.isSelectDataAll(true)
+        this.isSelectDataAll(true);
         return;
-      } else if (this.condition.selectAll && selection && selection.length === 0){
+      } else if (
+        this.condition.selectAll &&
+        selection &&
+        selection.length === 0
+      ) {
         this.$emit("clearTableSelect");
         return;
       }
-      _handleSelectAll(this, selection, this.data, this.selectRows, this.condition);
+      _handleSelectAll(
+        this,
+        selection,
+        this.data,
+        this.selectRows,
+        this.condition
+      );
       if (this.condition.selectAll) {
         this.condition.unSelectIds = [];
       } else {
         setUnSelectIds(this.data, this.condition, this.selectRows);
       }
-      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
-      this.selectIds = Array.from(this.selectRows).map(o => o.id);
+      this.selectDataCounts = getSelectDataCounts(
+        this.condition,
+        this.total,
+        this.selectRows
+      );
+      this.selectIds = Array.from(this.selectRows).map((o) => o.id);
       //有的组件需要回调父组件的函数，做下一步处理
-      this.$emit('callBackSelectAll', selection);
+      this.$emit("callBackSelectAll", selection);
       this.$nextTick(function () {
         setTimeout(this.removeBatchPopper, 1);
       });
@@ -421,10 +469,14 @@ export default {
       let selectRow = Array.from(selectRowMap.values());
       this.selectRows = new Set(selectRow);
       setUnSelectIds(this.data, this.condition, this.selectRows);
-      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
-      this.selectIds = Array.from(this.selectRows).map(o => o.id);
+      this.selectDataCounts = getSelectDataCounts(
+        this.condition,
+        this.total,
+        this.selectRows
+      );
+      this.selectIds = Array.from(this.selectRows).map((o) => o.id);
       //有的组件需要回调父组件的函数，做下一步处理
-      this.$emit('callBackSelect', selection);
+      this.$emit("callBackSelect", selection);
       this.$nextTick(function () {
         setTimeout(this.removeBatchPopper, 1);
       });
@@ -433,11 +485,11 @@ export default {
       let selectArr = [];
       rows.forEach((row, index) => {
         this.data.forEach((item, i) => {
-          if(item.id == row.id){
-            selectArr.push(i)
+          if (item.id == row.id) {
+            selectArr.push(i);
           }
-        })
-      })
+        });
+      });
       this.highlightRowIndexArr = selectArr;
     },
     isSelectDataAll(data) {
@@ -449,9 +501,13 @@ export default {
       //设置未选择ID(更新)
       this.condition.unSelectIds = [];
       //更新统计信息
-      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
-      this.selectIds = Array.from(this.selectRows).map(o => o.id);
-      this.$emit(data ? 'callBackSelectAll' : 'callBackSelect');
+      this.selectDataCounts = getSelectDataCounts(
+        this.condition,
+        this.total,
+        this.selectRows
+      );
+      this.selectIds = Array.from(this.selectRows).map((o) => o.id);
+      this.$emit(data ? "callBackSelectAll" : "callBackSelect");
     },
     headerDragend(newWidth, oldWidth, column, event) {
       if (column) {
@@ -467,7 +523,7 @@ export default {
       saveCustomTableWidth(this.fieldKey, column.columnKey, newWidth);
     },
     showPopover(row, column, cell) {
-      if (column.property === 'name') {
+      if (column.property === "name") {
         this.currentCaseId = row.id;
       }
     },
@@ -481,7 +537,7 @@ export default {
     },
     filter(filters) {
       _filter(filters, this.condition);
-      this.$emit('filter');
+      this.$emit("filter");
       this.handleRefresh();
     },
     sort(column) {
@@ -491,9 +547,12 @@ export default {
       }
       _sort(column, this.condition);
       if (this.rememberOrder) {
-        saveLastTableSortField(this.fieldKey, JSON.stringify(this.condition.orders));
+        saveLastTableSortField(
+          this.fieldKey,
+          JSON.stringify(this.condition.orders)
+        );
       }
-      this.$emit('order', column);
+      this.$emit("order", column);
       this.handleRefresh();
     },
     handleBatchEdit() {
@@ -501,17 +560,21 @@ export default {
       this.$refs.batchEdit.open();
     },
     handleBatchMove() {
-      this.$refs.testBatchMove.open(this.treeNodes, Array.from(this.selectRows).map(row => row.id), this.moduleOptions);
+      this.$refs.testBatchMove.open(
+        this.treeNodes,
+        Array.from(this.selectRows).map((row) => row.id),
+        this.moduleOptions
+      );
     },
     handleRowClick(row, column) {
       this.$emit("handleRowClick", row, column);
     },
     handleRefresh() {
       this.clear();
-      this.$emit('refresh');
+      this.$emit("refresh");
     },
     handlePageChange() {
-      this.$emit('pageChange');
+      this.$emit("pageChange");
     },
     cancelCurrentRow() {
       this.$refs.table.setCurrentRow(-1);
@@ -523,7 +586,13 @@ export default {
       this.clearSelectRows();
     },
     checkTableRowIsSelect() {
-      checkTableRowIsSelect(this, this.condition, this.data, this.$refs.table, this.selectRows);
+      checkTableRowIsSelect(
+        this,
+        this.condition,
+        this.data,
+        this.$refs.table,
+        this.selectRows
+      );
     },
     clearSelection() {
       this.clearSelectRows();
@@ -543,7 +612,10 @@ export default {
       this.$refs.customTableHeader.open(this.fields);
     },
     resetHeader(callback) {
-      this.$emit('update:fields', getCustomTableHeader(this.fieldKey, this.customFields));
+      this.$emit(
+        "update:fields",
+        getCustomTableHeader(this.fieldKey, this.customFields)
+      );
       this.tableActive = false;
       this.$nextTick(() => {
         this.doLayout();
@@ -562,32 +634,34 @@ export default {
         this.doLayout();
       });
     },
-    addPaddingColClass({column}) {
-      if (column.columnKey === 'tableRowDropCol'
-        || column.columnKey === 'selectionCol'
-        || column.columnKey === 'batchBtnCol') {
-        return 'padding-col';
+    addPaddingColClass({ column }) {
+      if (
+        column.columnKey === "tableRowDropCol" ||
+        column.columnKey === "selectionCol" ||
+        column.columnKey === "batchBtnCol"
+      ) {
+        return "padding-col";
       }
     },
-    rowStyle({row}) {
-      return row.hidden ? {"display": "none"} : {};
+    rowStyle({ row }) {
+      return row.hidden ? { display: "none" } : {};
     },
-    tableRowClassName({row, rowIndex}) {
+    tableRowClassName({ row, rowIndex }) {
       let selectIndex = this.highlightRowIndexArr;
-      for(let i = 0; i < selectIndex.length; i++){
-        if(rowIndex === selectIndex[i]){
-          return 'hignlight-row'
+      for (let i = 0; i < selectIndex.length; i++) {
+        if (rowIndex === selectIndex[i]) {
+          return "hignlight-row";
         }
       }
     },
-  }
+  },
 };
 </script>
 
 <style scoped>
 .batch-popper {
   top: 300px;
-  color: #1FDD02;
+  color: #1fdd02;
 }
 
 .el-table :deep(.padding-col) .cell {
@@ -623,30 +697,33 @@ export default {
 }
 
 .ms-table :deep(.el-table__body) tr.hover-row.current-row > td,
-.ms-table :deep(.el-table__body) tr.hover-row.el-table__row--striped.current-row > td,
+.ms-table
+  :deep(.el-table__body)
+  tr.hover-row.el-table__row--striped.current-row
+  > td,
 .ms-table :deep(.el-table__body) tr.hover-row.el-table__row--striped > td,
 .ms-table :deep(.el-table__body) tr.hover-row > td {
-  background-color: rgba(31, 35, 41, 0.1)!important;
-  cursor: pointer!important;
+  background-color: rgba(31, 35, 41, 0.1) !important;
+  cursor: pointer !important;
 }
 
 /* focus行背景色 */
 .ms-table :deep(.el-table__body) tr.current-row > td {
-  background-color: #FFFFFF!important;
+  background-color: #ffffff !important;
 }
 
 /* 选中某行时的背景色*/
 .ms-table :deep(.el-table__body tr.hignlight-row > td) {
-  background-color: rgba(120, 56, 135, 0.1)!important;
+  background-color: rgba(120, 56, 135, 0.1) !important;
 }
 
 /* 解决拖拽排序后hover阴影错乱问题 */
 .ms-table :deep(.el-table__body) tr:hover > td {
-  background-color: #F5F7FA;
+  background-color: #f5f7fa;
 }
 
-.disable-hover :deep(tr:hover>td) {
-  background-color: #FFFFFF!important;
+.disable-hover :deep(tr:hover > td) {
+  background-color: #ffffff !important;
 }
 
 .row-click {
@@ -655,14 +732,14 @@ export default {
 
 :deep(.ms-table-header-cell) {
   height: 46px;
-  background-color: #F5F6F7;
-  font-family: 'PingFang SC';
+  background-color: #f5f6f7;
+  font-family: "PingFang SC";
   font-size: 14px;
   font-weight: 500;
   border: 1px solid rgba(31, 35, 41, 0.15);
   border-right-width: 0;
   border-left-width: 0;
-  color: #646A73;
+  color: #646a73;
   line-height: 22px;
   padding: 0px;
   align-items: center;
@@ -672,21 +749,25 @@ export default {
 }
 
 :deep(.el-table__body-wrapper) {
-  font-family: 'PingFang SC';
+  font-family: "PingFang SC";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: #1F2329;
+  color: #1f2329;
   flex: none;
   flex-grow: 0;
   flex-shrink: 0;
   flex-basis: auto;
   order: 1;
   flex-grow: 0;
+  margin-bottom: -1px; /* 解决表格竖向滚动条问题 */
 }
 
-:deep(.ms-select-all-fixed th.el-table-column--selection.is-leaf.ms-table-header-cell.el-table__cell) {
+:deep(
+    .ms-select-all-fixed
+      th.el-table-column--selection.is-leaf.ms-table-header-cell.el-table__cell
+  ) {
   border-radius: 0;
   border: 0;
   display: inline-block;
@@ -695,7 +776,11 @@ export default {
   border-bottom: 1px solid rgba(31, 35, 41, 0.15);
 }
 
-:deep(.ms-select-all-fixed th.el-table-column--selection.is-leaf.ms-table-header-cell.el-table__cell .el-checkbox) {
+:deep(
+    .ms-select-all-fixed
+      th.el-table-column--selection.is-leaf.ms-table-header-cell.el-table__cell
+      .el-checkbox
+  ) {
   margin-left: 8px;
   margin-top: 5px;
 }
