@@ -674,7 +674,7 @@ public class TestPlanTestCaseService {
         return updateIsDel(caseIds, false);
     }
 
-    public void checkPlanCaseOwner(String caseId, SessionUser sessionUser, String userId) {
+    public void checkPlanCaseOwner(String planId, SessionUser sessionUser) {
         long count = sessionUser.getGroups()
                 .stream()
                 .filter(g -> StringUtils.equals(g.getId(), UserGroupConstants.SUPER_GROUP))
@@ -682,7 +682,7 @@ public class TestPlanTestCaseService {
         if (count > 0) {
             return;
         }
-        boolean hasPermission = extCheckOwnerMapper.checkoutOwner("test_case", userId, List.of(caseId));
+        boolean hasPermission = extCheckOwnerMapper.checkoutOwner("test_plan", sessionUser.getId(), List.of(planId));
         if (!hasPermission) {
             MSException.throwException(Translator.get("check_owner_case"));
         }

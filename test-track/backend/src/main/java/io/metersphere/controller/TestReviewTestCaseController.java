@@ -101,10 +101,12 @@ public class TestReviewTestCaseController {
         return testReviewTestCaseService.editTestCase(testCaseReviewTestCase);
     }
 
-    @GetMapping("/get/{reviewId}")
+    @GetMapping("/get/{id}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
-    public TestReviewCaseDTO get(@PathVariable String reviewId) {
-        return testReviewTestCaseService.get(reviewId, SessionUtils.getUserId());
+    public TestReviewCaseDTO get(@PathVariable String id) {
+        TestReviewCaseDTO testReviewCaseDTO = testReviewTestCaseService.get(id);
+        testReviewTestCaseService.checkReviewCaseOwner(testReviewCaseDTO.getReviewId(), SessionUtils.getUser());
+        return testReviewCaseDTO;
     }
 
     @GetMapping("/reviewer/status/{id}")

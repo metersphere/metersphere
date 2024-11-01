@@ -99,11 +99,11 @@ public class TestPlanTestCaseController {
         return testPlanTestCaseService.listByNodes(request);
     }
 
-    @GetMapping("/get/{caseId}")
+    @GetMapping("/get/{id}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
-    public TestPlanCaseDTO getTestPlanCases(@PathVariable String caseId) {
-        TestPlanCaseDTO testPlanCaseDTO = testPlanTestCaseService.get(caseId);
-        testPlanTestCaseService.checkPlanCaseOwner(testPlanCaseDTO.getCaseId(), SessionUtils.getUser(), SessionUtils.getUserId());
+    public TestPlanCaseDTO getTestPlanCases(@PathVariable String id) {
+        TestPlanCaseDTO testPlanCaseDTO = testPlanTestCaseService.get(id);
+        testPlanTestCaseService.checkPlanCaseOwner(testPlanCaseDTO.getPlanId(), SessionUtils.getUser());
         return testPlanCaseDTO;
     }
 

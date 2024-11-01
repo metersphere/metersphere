@@ -118,11 +118,6 @@ export default {
     }
   },
   props: ['caseId', 'readOnly', 'versionEnable'],
-  watch: {
-    caseId() {
-      this.initTable();
-    }
-  },
   methods: {
     handleCommand(key) {
       if (!this.caseId) {

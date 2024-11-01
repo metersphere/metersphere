@@ -7,7 +7,9 @@ import io.metersphere.base.mapper.ext.ExtTestCaseReviewTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
 import io.metersphere.commons.constants.TestPlanStatus;
+import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.TestCaseCommentType;
 import io.metersphere.constants.TestCaseReviewCommentStatus;
@@ -469,9 +471,8 @@ public class TestReviewTestCaseService {
         return comments;
     }
 
-    public TestReviewCaseDTO get(String testReviewTestCaseId, String currentUserId) {
+    public TestReviewCaseDTO get(String testReviewTestCaseId) {
         TestReviewCaseDTO testReviewCaseDTO = extTestReviewCaseMapper.get(testReviewTestCaseId);
-        checkReviewCaseOwner(testReviewCaseDTO.getCaseId(), currentUserId);
         testReviewCaseDTO.setFields(testCaseService.getCustomFieldByCaseId(testReviewCaseDTO.getCaseId()));
         return testReviewCaseDTO;
     }
@@ -891,8 +892,15 @@ public class TestReviewTestCaseService {
         }
     }
 
-    private void checkReviewCaseOwner(String caseId, String currentUserId) {
-        boolean hasPermission = extCheckOwnerMapper.checkoutOwner("test_case", currentUserId, List.of(caseId));
+    public void checkReviewCaseOwner(String reviewId, SessionUser sessionUser) {
+        long count = sessionUser.getGroups()
+                .stream()
+                .filter(g -> StringUtils.equals(g.getId(), UserGroupConstants.SUPER_GROUP))
+                .count();
+        if (count > 0) {
+            return;
+        }
+        boolean hasPermission = extCheckOwnerMapper.checkoutOwner("test_case_review", sessionUser.getId(), List.of(reviewId));
         if (!hasPermission) {
             MSException.throwException(Translator.get("check_owner_case"));
         }
