@@ -15,7 +15,7 @@
           :filter-config-list="filterConfigList"
           :custom-fields-config-list="searchCustomFields"
           :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
-          :count="props.modulesCount[props.activeFolder] || 0"
+          :count="modulesCount[props.activeFolder] || 0"
           :name="moduleNamePath"
           @keyword-search="fetchData"
           @adv-search="handleAdvSearch"
@@ -206,12 +206,12 @@
               <div class="one-line-text max-h-[32px] max-w-[300px] text-[var(--color-text-1)]">
                 {{ moduleNamePath }}
               </div>
-              <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span>
+              <span class="text-[var(--color-text-4)]"> ({{ modulesCount[props.activeFolder] || 0 }})</span>
             </div>
             <template #content>
               <div class="max-w-[400px] text-[14px] font-medium text-[var(--color-text-1)]">
                 {{ moduleNamePath }}
-                <span class="text-[var(--color-text-4)]">({{ props.modulesCount[props.activeFolder] || 0 }})</span>
+                <span class="text-[var(--color-text-4)]">({{ modulesCount[props.activeFolder] || 0 }})</span>
               </div>
             </template>
           </a-popover>
@@ -235,8 +235,9 @@
         <div class="mt-[16px] h-[calc(100%-32px)] border-t border-[var(--color-text-n8)]">
           <!-- 脑图开始 -->
           <MsFeatureCaseMinder
+            v-if="props.moduleCountIsInit"
             :module-id="props.activeFolder"
-            :modules-count="props.modulesCount"
+            :modules-count="modulesCount"
             :module-name="props.moduleName"
             @save="handleMinderSave"
           />
@@ -481,7 +482,7 @@
     activeFolder: string;
     moduleName: string;
     offspringIds: string[]; // 当前选中文件夹的所有子孙节点id
-    modulesCount: Record<string, number>; // 模块数量
+    moduleCountIsInit: boolean;
   }>();
 
   const emit = defineEmits<{
@@ -496,6 +497,10 @@
   const groupKeyword = ref<string>('');
 
   const showType = ref<ShowType>('list');
+
+  const modulesCount = computed(() => {
+    return featureCaseStore.modulesCount;
+  });
 
   function handleShowTypeChange(val: string | number | boolean) {
     minderStore.setShowType(MinderKeyEnum.FEATURE_CASE_MINDER, val as ShowType);

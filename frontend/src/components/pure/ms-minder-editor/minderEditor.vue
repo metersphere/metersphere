@@ -131,6 +131,9 @@
   const { appendChildNode, appendSiblingNode, minderDelete, minderExpand } = useMinderOperation(props);
   const { unbindShortcuts } = useShortCut(
     {
+      input: () => {
+        window.minderEditor.editText();
+      },
       undo: () => {
         window.minderHistory?.undo();
       },

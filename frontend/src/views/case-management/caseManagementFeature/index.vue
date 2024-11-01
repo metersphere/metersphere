@@ -82,8 +82,8 @@
             ref="caseTableRef"
             :active-folder="activeFolder"
             :offspring-ids="offspringIds"
-            :modules-count="modulesCount"
             :module-name="activeFolderName"
+            :module-count-is-init="moduleCountIsInit"
             @init="initModulesCount"
             @init-modules="initModules"
             @set-active-folder="setActiveFolder('all')"
@@ -232,14 +232,16 @@
     return featureCaseStore.recycleModulesCount;
   });
 
+  const moduleCountIsInit = ref(false);
   /**
    * 右侧表格数据刷新后，若当前展示的是模块，则刷新模块树的统计数量
    */
-  function initModulesCount(params: TableQueryParams, refreshModule = false) {
+  async function initModulesCount(params: TableQueryParams, refreshModule = false) {
     if (refreshModule) {
       caseTreeRef.value.initModules();
     }
-    featureCaseStore.getCaseModulesCount(params);
+    await featureCaseStore.getCaseModulesCount(params);
+    moduleCountIsInit.value = true;
     featureCaseStore.getRecycleModulesCount(params);
     tableFilterParams.value = { ...params };
   }

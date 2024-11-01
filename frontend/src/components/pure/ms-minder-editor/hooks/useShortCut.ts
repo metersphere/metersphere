@@ -18,7 +18,8 @@ type ShortcutKey =
   | 'addSiblingModule'
   | 'addSiblingCase'
   | 'reviewPass'
-  | 'reviewReject';
+  | 'reviewReject'
+  | 'input';
 // 快捷键事件映射，combinationShortcuts中定义了组合键事件，key为组合键，value为事件名称；
 type Shortcuts = {
   [key in ShortcutKey]?: (event: KeyboardEvent) => void;
@@ -58,6 +59,7 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
       'enter': 'appendSiblingNode',
       'tab': 'appendChildNode',
       'backspace': 'delete',
+      'f2': 'input', // 进入编辑状态
     };
     // 业务快捷键
     const businessShortcuts: { [key: string]: ShortcutKey } = {
