@@ -106,18 +106,23 @@
     // 通过率
     const allSuccessCount = (allSuccessCase / allCaseTotal) * 100;
     const allSuccessRate = `${Number.isNaN(allSuccessCount) ? 0 : allSuccessCount.toFixed(2)}`;
-
+    // TODO 待联调
     if (props.isPlanGroup) {
-      return `<p style=""><span color="" fontsize=""> <strong>${props.detail.testPlanName}</strong>包含 ${props.detail.planCount}个子计划。
-             其中 ${props.detail.passCountOfPlan} 个子计划通过， ${props.detail.failCountOfPlan} 个子计划不通过。</span></p>`;
+      let summaryDesc = `<p style=""><strong>${props.detail.testPlanName} </strong><span style="color: rgb(24, 43, 80); font-size: 14px">包含 ${props.detail.planCount} 个子计划。 其中 ${props.detail.passCountOfPlan} 个子计划通过， ${props.detail.failCountOfPlan} 个子计划不通过；
+      包含功能测试、接口用例、场景用例, 共 ${allCaseTotal} 条用例，已执行 ${allHasExecutedCase} 条，通过用例 ${allSuccessCase} 条，通过率为 ${allSuccessRate} %；共关联缺陷 ${props.detail.bugCount} 个</span></p>`;
+      (props.detail?.children || []).forEach((item) => {
+        const content = `<p style=""><span style="color: rgb(24, 43, 80); font-size: 14px"> ▪ ${item.testPlanName}子计划，包含功能测试、接口用例、场景用例, 共 ${item.caseTotal} 条用例，已执行 ${item.executeCount} 条，通过用例 ${item.passCountOfPlan} 条，通过率为 ${item.passThreshold} %，</span><strong><span style="color: rgb(255, 59, 48)" color="rgb(255, 59, 48)" fontsize="">未达到</span></strong><span style="color: rgb(24, 43, 80); font-size: 14px">通过阈值（通过阈值为${item.passThreshold}%）</span></p>`;
+        summaryDesc += content;
+      });
+      return summaryDesc;
     }
-    const functionalCasText = `▪ 本次测试包含${functionalCaseDetail.caseTotal}条功能测试用例，执行了${functionalCaseDetail.hasExecutedCase}条，未执行${functionalCaseDetail.pending}条，执行率为${functionalCaseDetail.apiExecutedRate}，通过用例${functionalCaseDetail.success}条，通过率为${functionalCaseDetail.successRate}。共发现缺陷${props.detail.functionalBugCount}个。<br>`;
+    const functionalCasText = `▪ 本次测试包含${functionalCaseDetail.caseTotal}条功能测试用例，执行了${functionalCaseDetail.hasExecutedCase}条，未执行${functionalCaseDetail.pending}条，执行率为${functionalCaseDetail.apiExecutedRate}，通过用例${functionalCaseDetail.success}条，通过率为${functionalCaseDetail.successRate}。共关联缺陷${props.detail.functionalBugCount}个。<br>`;
     const functionCaseDesc = functionalCaseDetail.caseTotal ? `${functionalCasText}` : ``;
 
-    const apiCaseText = `▪ 本次测试包含${apiCaseDetail.caseTotal}条接口测试用例，执行了${apiCaseDetail.hasExecutedCase}条，未执行${apiCaseDetail.pending}条，执行率为${apiCaseDetail.apiExecutedRate}，通过用例${apiCaseDetail.success}条，通过率为${apiCaseDetail.successRate}。共发现缺陷 ${props.detail.apiBugCount} 个。<br>`;
+    const apiCaseText = `▪ 本次测试包含${apiCaseDetail.caseTotal}条接口测试用例，执行了${apiCaseDetail.hasExecutedCase}条，未执行${apiCaseDetail.pending}条，执行率为${apiCaseDetail.apiExecutedRate}，通过用例${apiCaseDetail.success}条，通过率为${apiCaseDetail.successRate}。共关联缺陷 ${props.detail.apiBugCount} 个。<br>`;
     const apiCaseDesc = apiCaseDetail.caseTotal ? `${apiCaseText}` : ``;
 
-    const scenarioCaseText = `▪ 本次测试包含${apiScenarioDetail.caseTotal}条场景测试用例，执行了${apiScenarioDetail.hasExecutedCase}条，未执行${apiScenarioDetail.pending}条，执行率为${apiScenarioDetail.apiExecutedRate}，通过用例${apiScenarioDetail.success}条，通过率为${apiScenarioDetail.successRate}。共发现缺陷${props.detail.scenarioBugCount}个`;
+    const scenarioCaseText = `▪ 本次测试包含${apiScenarioDetail.caseTotal}条场景测试用例，执行了${apiScenarioDetail.hasExecutedCase}条，未执行${apiScenarioDetail.pending}条，执行率为${apiScenarioDetail.apiExecutedRate}，通过用例${apiScenarioDetail.success}条，通过率为${apiScenarioDetail.successRate}。共关联缺陷 ${props.detail.scenarioBugCount}个`;
     const scenarioCaseDesc = apiScenarioDetail.caseTotal ? `${scenarioCaseText}` : ``;
 
     const isPass = Number(allSuccessRate) >= Number(props.detail.passThreshold);

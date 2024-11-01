@@ -36,6 +36,7 @@ export interface PlanReportDetail {
   testPlanName: string;
   resultStatus?: string; // 报告结果
   defaultLayout: boolean; // 报告布局
+  children?: PlanReportDetail[]; // 计划组子计划数据
 }
 
 export type detailCountKey = 'functionalCount' | 'apiCaseCount' | 'apiScenarioCount';
