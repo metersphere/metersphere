@@ -12,10 +12,10 @@
       <template v-slot:menu>
         <el-menu v-if="isMenuShow" :active-text-color="color" :default-active="activeIndex"
                  class="el-menu-demo header-menu" mode="horizontal" @select="handleSelect">
-          <el-menu-item index="functional">{{ $t('test_track.functional_test_case') }}</el-menu-item>
-          <el-menu-item index="api" v-modules="['api']">{{ $t('test_track.api_test_case') }}</el-menu-item>
-          <el-menu-item index="ui" v-modules="['ui']" v-if="hasLicense()">{{ $t('test_track.ui_test_case') }}</el-menu-item>
-          <el-menu-item index="load" v-modules="['performance']">{{
+          <el-menu-item v-if="microServiceActivated('track')" index="functional">{{ $t('test_track.functional_test_case') }}</el-menu-item>
+          <el-menu-item v-if="microServiceActivated('api')" index="api" v-modules="['api']">{{ $t('test_track.api_test_case') }}</el-menu-item>
+          <el-menu-item v-if="microServiceActivated('ui') && hasLicense()" index="ui" v-modules="['ui']">{{ $t('test_track.ui_test_case') }}</el-menu-item>
+          <el-menu-item v-if="microServiceActivated('performance')" index="load" v-modules="['performance']">{{
               $t('test_track.performance_test_case')
             }}
           </el-menu-item>
@@ -113,7 +113,8 @@ export default {
       clickType: '',
       tmpActiveIndex: '',
       versionEnable: false,
-      projectId: null
+      projectId: null,
+      microApp: null
     };
   },
   computed: {
@@ -168,6 +169,7 @@ export default {
     }
     this.$EventBus.$on('projectChange', this.handleProjectChange);
     this.checkVersionEnable();
+    this.microApp = JSON.parse(sessionStorage.getItem("micro_apps"));
   },
   destroyed() {
     this.$EventBus.$off('projectChange', this.handleProjectChange);
@@ -179,6 +181,9 @@ export default {
     this.genRedirectParam();
   },
   methods: {
+    microServiceActivated(serviceName) {
+      return this.microApp && this.microApp[serviceName];
+    },
     handleProjectChange() {
       if (this.$route.path.indexOf("plan/view") > -1) {
         this.$nextTick(() => {
