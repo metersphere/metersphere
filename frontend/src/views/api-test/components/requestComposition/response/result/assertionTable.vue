@@ -1,10 +1,12 @@
 <template>
   <a-scrollbar class="h-full overflow-y-auto">
     <MsFormTable
-      :data="props.requestResult?.responseResult.assertions"
+      :data="tableData"
       :columns="columns"
       :selectable="false"
       :scroll="props.scroll"
+      @filter-change="handleFilterChange"
+      @sorter-change="handleSortChange"
     >
       <template #assertionItem="{ record }">
         <a-tooltip :content="record.name">
@@ -33,6 +35,11 @@
           {{ record.pass === true ? t('common.success') : t('common.fail') }}
         </MsTag>
       </template>
+      <template #[FilterSlotNameEnum.API_TEST_API_RESPONSE_ASSERTION_STATUS]="{ filterContent }">
+        <MsTag :type="filterContent.value === true ? 'success' : 'danger'" theme="light">
+          {{ filterContent.value === true ? t('common.success') : t('common.fail') }}
+        </MsTag>
+      </template>
     </MsFormTable>
   </a-scrollbar>
 </template>
@@ -47,6 +54,7 @@
 
   import { RequestResult, ResponseAssertionTableItem } from '@/models/apiTest/common';
   import { FullResponseAssertionType } from '@/enums/apiEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { responseAssertionTypeMap } from '@/views/api-test/components/config';
 
@@ -94,6 +102,23 @@
       title: 'apiTestDebug.status',
       dataIndex: 'pass',
       slotName: 'status',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      filterConfig: {
+        options: [
+          {
+            value: true,
+            label: t('common.success'),
+          },
+          {
+            value: false,
+            label: t('common.fail'),
+          },
+        ],
+        filterSlotName: FilterSlotNameEnum.API_TEST_API_RESPONSE_ASSERTION_STATUS,
+      },
       width: 120,
     },
     {
@@ -105,6 +130,25 @@
       width: 300,
     },
   ];
+  const tableData = ref(props.requestResult?.responseResult.assertions);
+
+  function handleFilterChange(dataIndex: string, value: string[] | (string | number | boolean)[] | undefined) {
+    if (value && value.length > 0) {
+      tableData.value = props.requestResult?.responseResult.assertions.filter((item) => {
+        return (value as boolean[]).includes(item.pass);
+      });
+    } else {
+      tableData.value = props.requestResult?.responseResult.assertions;
+    }
+  }
+
+  function handleSortChange(sorter: { [key: string]: string }) {
+    const dataIndex = Object.keys(sorter)[0] as keyof ResponseAssertionTableItem;
+    tableData.value = tableData.value?.sort((a, b) => {
+      const sortResult = a[dataIndex] > b[dataIndex] ? -1 : 1;
+      return sorter[dataIndex] === 'asc' ? sortResult : -sortResult;
+    });
+  }
 </script>
 
 <style lang="less" scoped>

@@ -114,24 +114,29 @@
                 @init-data="handleInitColumn"
                 @page-size-change="pageSizeChange"
               />
-              <DefaultFilter
+              <slot
                 v-else-if="
                   !props.notShowTableFilter &&
                   ((item.filterConfig && item.filterConfig.options?.length) || item?.filterConfig?.remoteMethod)
                 "
-                v-model:checked-list="item.filterCheckedList"
-                class="ml-[4px]"
-                :options="item.filterConfig.options"
-                :data-index="item.dataIndex"
-                v-bind="item.filterConfig"
-                :filter="filterData"
-                @handle-confirm="(v) => handleFilterConfirm(v, item.dataIndex as string, item.isCustomParam || false)"
-                @click.stop="null"
+                name="columnFilter"
+                :column="item"
               >
-                <template #item="{ filterItem }">
-                  <slot :name="item.filterConfig.filterSlotName" :filter-content="filterItem"> </slot>
-                </template>
-              </DefaultFilter>
+                <DefaultFilter
+                  v-model:checked-list="item.filterCheckedList"
+                  class="ml-[4px]"
+                  :options="item.filterConfig.options"
+                  :data-index="item.dataIndex"
+                  v-bind="item.filterConfig"
+                  :filter="filterData"
+                  @handle-confirm="(v) => handleFilterConfirm(v, item.dataIndex as string, item.isCustomParam || false)"
+                  @click.stop="null"
+                >
+                  <template #item="{ filterItem }">
+                    <slot :name="item.filterConfig.filterSlotName" :filter-content="filterItem"> </slot>
+                  </template>
+                </DefaultFilter>
+              </slot>
             </div>
           </template>
           <template #cell="{ column, record, rowIndex }">

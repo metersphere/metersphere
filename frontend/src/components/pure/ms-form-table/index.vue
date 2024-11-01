@@ -44,6 +44,23 @@
           </div>
         </a-tooltip>
       </template>
+      <template #columnFilter="{ column }">
+        <DefaultFilter
+          v-if="(column.filterConfig && column.filterConfig.options?.length) || column?.filterConfig?.remoteMethod"
+          v-model:checked-list="column.filterCheckedList"
+          class="ml-[4px]"
+          :options="column.filterConfig.options"
+          :data-index="column.dataIndex"
+          v-bind="column.filterConfig"
+          :filter="filterData"
+          @handle-confirm="(v) => handleFilterConfirm(v, column.dataIndex as string, column.isCustomParam || false)"
+          @click.stop="null"
+        >
+          <template #item="{ filterItem }">
+            <slot :name="column.filterConfig.filterSlotName" :filter-content="filterItem"> </slot>
+          </template>
+        </DefaultFilter>
+      </template>
       <template
         v-for="item of props.columns.filter((e) => e.slotName !== undefined)"
         :key="item.toString()"
@@ -232,6 +249,7 @@
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import DefaultFilter from '@/components/pure/ms-table/comp/defaultFilter.vue';
   import type { MsTableColumnData, MsTableProps } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
@@ -322,6 +340,13 @@
     ): void;
     (e: 'rowSelect', rowKeys: (string | number)[], _rowKey: string | number, record: TableData): void;
     (e: 'selectAll', checked: boolean): void;
+    (
+      e: 'filterChange',
+      dataIndex: string,
+      value: string[] | (string | number | boolean)[] | undefined,
+      isCustomParam: boolean
+    ): void;
+    (e: 'sorterChange', value: { [key: string]: string }): void;
   }>();
 
   const { t } = useI18n();
@@ -329,6 +354,8 @@
 
   const expandedKeys = defineModel<string[]>('expandedKeys', { default: [] });
   const originalSelectedKeys = defineModel<(string | number)[]>('originalSelectedKeys', { default: [] });
+
+  const filterData = ref({});
 
   async function initColumns() {
     if (props.showSetting && props.tableKey) {
@@ -369,8 +396,19 @@
     });
     emit('change', propsRes.value.data);
   };
+  propsEvent.value.sorterChange = (value: { [key: string]: string }) => {
+    emit('sorterChange', value);
+  };
 
   const dataLength = computed(() => propsRes.value.data.length);
+
+  const handleFilterConfirm = (
+    value: string[] | (string | number | boolean)[] | undefined,
+    dataIndex: string,
+    isCustomParam: boolean
+  ) => {
+    emit('filterChange', dataIndex, value, isCustomParam);
+  };
 
   // 校验重复
   const formRef = ref<FormInstance>();
@@ -564,6 +602,9 @@
       .arco-table-cell {
         padding: 5px 8px !important;
         line-height: 1.5715;
+      }
+      .arco-table-cell-with-sorter {
+        margin-left: 0;
       }
     }
     .arco-table-td {
