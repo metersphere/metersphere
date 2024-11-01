@@ -74,6 +74,10 @@ export enum UITestRouteEnum {
 
 export enum WorkbenchRouteEnum {
   WORKBENCH = 'workstation',
+  WORKBENCH_INDEX = 'workstationIndex',
+  WORKBENCH_INDEX_WAIT = 'workstationIndexWait',
+  WORKBENCH_INDEX_FOLLOW = 'workstationIndexFollowed',
+  WORKBENCH_INDEX_CREATED = 'workstationIndexCreated',
 }
 
 export enum SettingRouteEnum {

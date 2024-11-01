@@ -20,6 +20,10 @@ Object.keys(_Vmodules).forEach((key) => {
 export default {
   message: {
     'menu.workbench': 'Workbench',
+    'menu.workbenchHomeSort': 'Home page',
+    'menu.workbenchWaitSort': 'To be done',
+    'menu.workbenchFollowSort': 'My follow',
+    'menu.workbenchCreatedSort': 'My created',
     'menu.testPlan': 'Test Plan',
     'menu.testPlanGroup': 'Planning groups',
     'menu.testPlanShort': 'Plan',
