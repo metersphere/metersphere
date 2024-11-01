@@ -137,7 +137,7 @@
         tpr.result_status,
         tpr.pass_rate,
         tpr.pass_threshold,
-        (tprs.functional_case_count + tprs.api_case_count + tprs.api_scenario_count + tprs.bug_count) as caseTotal,
+        (tprs.functional_case_count + tprs.api_case_count + tprs.api_scenario_count) as caseTotal,
         tpr.create_time,
         tpr.deleted
 
@@ -471,4 +471,9 @@
             </when>
         </choose>
     </sql>
+
+
+    <select id="getChildrenReport" resultType="io.metersphere.plan.domain.TestPlanReport">
+        select id from test_plan_report where parent_id = #{reportId} and id != #{reportId}
+    </select>
 </mapper>

@@ -1,10 +1,13 @@
 package io.metersphere.plan.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.metersphere.plan.dto.CaseCount;
 import io.metersphere.system.serializer.CustomRateSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class TestPlanReportDetailResponse {
@@ -91,4 +94,8 @@ public class TestPlanReportDetailResponse {
      */
     @Schema(description = "报告是否默认布局")
     private Boolean defaultLayout;
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @Schema(description = "计划组子计划数据信息")
+    private List<TestPlanReportDetailResponse> children;
 }

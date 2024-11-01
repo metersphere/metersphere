@@ -33,14 +33,30 @@
     </select>
 
     <select id="countBug" resultType="io.metersphere.plan.dto.ReportBugSumDTO">
-        select 'FUNCTIONAL' as caseType, ifnull(sum(tprfc.function_case_bug_count), 0) as bugCount from test_plan_report_function_case tprfc
-        where tprfc.test_plan_report_id = #{id}
-        union
-        select 'API' as caseType, ifnull(sum(tprac.api_case_bug_count), 0) as bugCount from test_plan_report_api_case tprac
-        where tprac.test_plan_report_id = #{id}
-        union
-        select 'SCENARIO' as caseType, ifnull(sum(tpras.api_scenario_bug_count), 0) as bugCount from test_plan_report_api_scenario tpras
-        where tpras.test_plan_report_id = #{id}
+        SELECT
+            'FUNCTIONAL' AS caseType,
+            count( DISTINCT brc.bug_id ) AS bugCount
+        FROM
+            bug_relation_case brc
+                INNER JOIN test_plan_report_function_case tprfc ON brc.test_plan_case_id = tprfc.test_plan_function_case_id
+        WHERE
+            tprfc.test_plan_report_id = #{id} UNION
+        SELECT
+            'API' AS caseType,
+            count( DISTINCT brc.bug_id ) AS bugCount
+        FROM
+            bug_relation_case brc
+                INNER JOIN test_plan_report_api_case tprac ON brc.test_plan_case_id = tprac.test_plan_api_case_id
+        WHERE
+            tprac.test_plan_report_id = #{id} UNION
+        SELECT
+            'SCENARIO' AS caseType,
+            count( DISTINCT brc.bug_id ) AS bugCount
+        FROM
+            bug_relation_case brc
+                INNER JOIN test_plan_report_api_scenario tpras ON brc.test_plan_case_id = tpras.test_plan_api_scenario_id
+        WHERE
+            tpras.test_plan_report_id = #{id}
     </select>
 
     <select id="countPlanBug" resultType="io.metersphere.plan.dto.ReportBugCountDTO">

@@ -296,6 +296,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     @Order(14)
     void testGetReportSuccess() throws Exception {
         this.requestGet(GET_PLAN_REPORT + "/" + GEN_REPORT_ID);
+        this.requestGet(GET_PLAN_REPORT + "/" + "test-plan-report-id-5");
     }
 
     @Test

@@ -67,4 +67,6 @@ public interface ExtTestPlanReportMapper {
     List<ReportDTO> getReportsByIds(@Param("ids") List<String> ids);
 
     void deleteGroupReport(@Param("id") String id);
+
+    List<TestPlanReport> getChildrenReport(@Param("reportId") String reportId);
 }
