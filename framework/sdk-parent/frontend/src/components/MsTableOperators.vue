@@ -65,9 +65,10 @@ export default {
 
 <style lang="scss" scoped>
 .operator-btn-group {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  margin-right: 8px;
   .el-button {
     margin-right: 0;
   }
