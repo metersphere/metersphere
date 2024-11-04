@@ -2,12 +2,14 @@
   <div class="p-[16px]">
     <div class="mb-[16px]">
       <MsAdvanceFilter
+        ref="msAdvanceFilterRef"
         v-model:keyword="keyword"
+        :view-type="ViewTypeEnum.CASE_REVIEW"
         :filter-config-list="filterConfigList"
         :search-placeholder="t('caseManagement.caseReview.list.searchPlaceholder')"
         @keyword-search="searchReview()"
-        @adv-search="searchReview"
-        @refresh="searchReview"
+        @adv-search="handleAdvSearch"
+        @refresh="searchReview()"
       >
         <template #left>
           <!-- <div class="flex items-center">
@@ -27,9 +29,9 @@
       :action-config="batchActions"
       no-disable
       filter-icon-align-left
+      :not-show-table-filter="isAdvancedSearchMode"
       v-on="propsEvent"
       @batch-action="handleTableBatch"
-      @module-change="searchReview"
     >
       <template #[FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_STATUS]="{ filterContent }">
         <a-tag
@@ -39,19 +41,6 @@
         >
           {{ t(reviewStatusMap[filterContent.value as ReviewStatus].label) }}
         </a-tag>
-      </template>
-      <template #reviewersFilter="{ columnConfig }">
-        <TableFilter
-          v-model:visible="reviewersFilterVisible"
-          v-model:status-filters="reviewersFilters"
-          :title="(columnConfig.title as string)"
-          :list="memberOptions"
-          @search="searchReview()"
-        >
-          <template #item="{ item }">
-            {{ item.label }}
-          </template>
-        </TableFilter>
       </template>
       <template #passRateColumn>
         <div class="flex items-center text-[var(--color-text-3)]">
@@ -176,8 +165,8 @@
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
-  import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
+  import MsAdvanceFilter from '@/components/pure/ms-advance-filter/index.vue';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
@@ -188,7 +177,6 @@
   import passRateLine from '../passRateLine.vue';
   import deleteReviewModal from './deleteReviewModal.vue';
   import ModuleTree from './moduleTree.vue';
-  import TableFilter from '@/views/case-management/caseManagementFeature/components/tableFilter.vue';
 
   import { getReviewList, getReviewUsers, moveReview } from '@/api/modules/case-management/caseReview';
   import { getProjectMemberCommentOptions } from '@/api/modules/project-management/projectMember';
@@ -208,7 +196,7 @@
     ReviewStatus,
   } from '@/models/caseManagement/caseReview';
   import { ModuleTreeNode } from '@/models/common';
-  import { FilterType } from '@/enums/advancedFilterEnum';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -230,6 +218,7 @@
   const emit = defineEmits<{
     (e: 'goCreate'): void;
     (e: 'init', params: ReviewListQueryParams): void;
+    (e: 'handleAdvSearch', isStartAdvance: boolean): void;
   }>();
   const userStore = useUserStore();
   const appStore = useAppStore();
@@ -243,8 +232,6 @@
 
   const filterConfigList = ref<FilterFormItem[]>([]);
   const memberOptions = ref<{ label: string; value: string }[]>([]);
-  const reviewersFilters = ref<string[]>([]);
-  const reviewersFilterVisible = ref(false);
 
   const innerShowType = useVModel(props, 'showType', emit);
 
@@ -264,12 +251,12 @@
         getReviewUsers(appStore.currentProjectId, keyword.value),
         getProjectMemberCommentOptions(appStore.currentProjectId, keyword.value),
       ]);
-      const userOptions = userRes.map((e) => ({ label: e.name, value: e.id }));
+      const reviewUsers = userRes.map((e) => ({ label: e.name, value: e.id }));
       memberOptions.value = memberRes.map((e) => ({ label: e.name, value: e.id }));
       filterConfigList.value = [
         {
-          title: 'ID',
-          dataIndex: 'id',
+          title: 'caseManagement.featureCase.tableColumnID',
+          dataIndex: 'num',
           type: FilterType.INPUT,
         },
         {
@@ -281,44 +268,35 @@
           title: 'caseManagement.caseReview.caseCount',
           dataIndex: 'caseCount',
           type: FilterType.NUMBER,
+          numberProps: {
+            min: 0,
+            precision: 0,
+          },
         },
         {
           title: 'caseManagement.caseReview.status',
           dataIndex: 'status',
           type: FilterType.SELECT,
           selectProps: {
-            mode: 'static',
-            options: [
-              {
-                label: t(reviewStatusMap.PREPARED.label),
-                value: 'PREPARED',
-              },
-              {
-                label: t(reviewStatusMap.UNDERWAY.label),
-                value: 'UNDERWAY',
-              },
-              {
-                label: t(reviewStatusMap.COMPLETED.label),
-                value: 'COMPLETED',
-              },
-              // {
-              //   label: t(reviewStatusMap.ARCHIVED.label),
-              //   value: 'ARCHIVED',
-              // },
-            ],
+            multiple: true,
+            options: reviewStatusOptions.value,
           },
         },
         {
           title: 'caseManagement.caseReview.passRate',
           dataIndex: 'passRate',
           type: FilterType.NUMBER,
+          numberProps: {
+            min: 0,
+            suffix: '%',
+          },
         },
         {
           title: 'caseManagement.caseReview.type',
           dataIndex: 'reviewPassRule',
           type: FilterType.SELECT,
           selectProps: {
-            mode: 'static',
+            multiple: true,
             options: [
               {
                 label: t('caseManagement.caseReview.single'),
@@ -336,8 +314,8 @@
           dataIndex: 'reviewers',
           type: FilterType.SELECT,
           selectProps: {
-            mode: 'static',
-            options: userOptions,
+            multiple: true,
+            options: reviewUsers,
           },
         },
         {
@@ -345,13 +323,13 @@
           dataIndex: 'createUser',
           type: FilterType.SELECT,
           selectProps: {
-            mode: 'static',
+            multiple: true,
             options: memberOptions.value,
           },
         },
         {
           title: 'caseManagement.caseReview.module',
-          dataIndex: 'module',
+          dataIndex: 'moduleId',
           type: FilterType.TREE_SELECT,
           treeSelectData: props.moduleTree,
           treeSelectProps: {
@@ -360,12 +338,19 @@
               key: 'id',
               children: 'children',
             },
+            multiple: true,
+            treeCheckable: true,
+            treeCheckStrictly: true,
           },
         },
         {
           title: 'caseManagement.caseReview.tag',
           dataIndex: 'tags',
           type: FilterType.TAGS_INPUT,
+          numberProps: {
+            min: 0,
+            precision: 0,
+          },
         },
         {
           title: 'common.desc',
@@ -505,7 +490,17 @@
   ];
   const selectedModuleKeys = ref<string[]>([]);
   const tableStore = useTableStore();
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetFilterParams } = useTable(
+  const {
+    propsRes,
+    propsEvent,
+    viewId,
+    advanceFilter,
+    setAdvanceFilter,
+    loadList,
+    setLoadListParams,
+    resetSelector,
+    resetFilterParams,
+  } = useTable(
     getReviewList,
     {
       tableKey: TableKeyEnum.CASE_MANAGEMENT_REVIEW,
@@ -513,7 +508,6 @@
       selectable: true,
       showSelectAll: true,
       heightUsed: 232,
-      showSubdirectory: true,
       paginationSize: 'mini',
     },
     (item) => {
@@ -542,10 +536,13 @@
     ],
   };
 
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
+
   const tableQueryParams = ref<any>();
   async function searchReview() {
     let moduleIds: string[] = [];
-    if (props.activeFolder && props.activeFolder !== 'all') {
+    if (props.activeFolder && props.activeFolder !== 'all' && !isAdvancedSearchMode.value) {
       moduleIds = [props.activeFolder];
       const getAllChildren = await tableStore.getSubShow(TableKeyEnum.CASE_MANAGEMENT_REVIEW);
       if (getAllChildren) {
@@ -559,17 +556,28 @@
       createByMe: innerShowType.value === 'createByMe' ? userStore.id : undefined,
       reviewByMe: innerShowType.value === 'reviewByMe' ? userStore.id : undefined,
     };
-    setLoadListParams(params);
+    setLoadListParams({ ...params, viewId: viewId.value, combineSearch: advanceFilter });
     loadList();
     tableQueryParams.value = {
       ...params,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
     };
-    emit('init', {
-      ...tableQueryParams.value,
-    });
+    if (!isAdvancedSearchMode.value) {
+      emit('init', {
+        ...tableQueryParams.value,
+      });
+    }
   }
+
+  // 高级检索
+  const handleAdvSearch = async (filter: FilterResult, id: string, isStartAdvance: boolean) => {
+    resetSelector();
+    emit('handleAdvSearch', isStartAdvance);
+    keyword.value = '';
+    setAdvanceFilter(filter, id);
+    await searchReview(); // 基础筛选都清空
+  };
 
   watch(
     () => innerShowType.value,
@@ -677,7 +685,8 @@
         condition: {
           keyword: keyword.value,
           filter: propsRes.value.filter,
-          combine: batchParams.value.condition,
+          viewId: viewId.value,
+          combineSearch: advanceFilter,
         },
       };
       await moveReview({
@@ -750,6 +759,7 @@
   watch(
     () => props.activeFolder,
     () => {
+      if (isAdvancedSearchMode.value) return;
       searchReview();
     }
   );

@@ -378,6 +378,7 @@
   );
 
   defineExpose({
+    setActiveFolder,
     initModules,
   });
 </script>

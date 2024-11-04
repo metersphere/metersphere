@@ -1,6 +1,6 @@
 <template>
   <MsCard simple no-content-padding>
-    <MsSplitBox>
+    <MsSplitBox :not-show-first="isAdvancedSearchMode">
       <template #first>
         <div class="p-[16px]">
           <ModuleTree
@@ -26,6 +26,7 @@
           :offspring-ids="offspringIds"
           @go-create="goCreateReview"
           @init="initModuleCount"
+          @handle-adv-search="handleAdvSearch"
         />
       </template>
     </MsSplitBox>
@@ -100,6 +101,12 @@
               moduleId: activeFolderId.value,
             },
     });
+  }
+
+  const isAdvancedSearchMode = ref(false);
+  function handleAdvSearch(isStartAdvance: boolean) {
+    isAdvancedSearchMode.value = isStartAdvance;
+    folderTreeRef.value?.setActiveFolder('all');
   }
 </script>
 

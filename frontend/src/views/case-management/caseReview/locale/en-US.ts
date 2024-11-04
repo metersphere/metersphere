@@ -142,4 +142,6 @@ export default {
   'caseManagement.caseReview.reviewerTip':
     "If you need to review use cases, you need to add the user as a reviewer; only the reviewer's review results take effect.",
   'caseManagement.caseReview.reviewDisabledTip': 'Non-reviewers cannot review, but can review after modification',
+  'caseManagement.caseReview.startTime': 'Review start time',
+  'caseManagement.caseReview.endTime': 'End time of review',
 };

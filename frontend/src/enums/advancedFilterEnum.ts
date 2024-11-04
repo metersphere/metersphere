@@ -28,9 +28,10 @@ export enum FilterType {
 
 export enum ViewTypeEnum {
   FUNCTIONAL_CASE = 'functional-case',
+  CASE_REVIEW = 'case-review', // 评审
+  REVIEW_FUNCTIONAL_CASE = 'review-functional-case', // 评审详情
   API_DEFINITION = 'api-definition',
   API_SCENARIO = 'api-scenario',
-  REVIEW_FUNCTIONAL_CASE = 'review-functional-case',
   API_CASE = 'api-case',
   API_MOCK = 'api-mock',
   PLAN_API_SCENARIO = 'plan-api-scenario',
