@@ -14,7 +14,6 @@
         @keyword-search="searchCase()"
         @adv-search="handleAdvSearch"
         @refresh="handleRefreshAll"
-        @sorter-change="handleSorterChange"
       >
         <template v-if="showType !== 'list'" #nameRight>
           <div v-if="reviewPassRule === 'MULTIPLE'" class="ml-[16px]">
@@ -54,6 +53,7 @@
         v-on="propsEvent"
         @filter-change="getModuleCount"
         @batch-action="handleTableBatch"
+        @sorter-change="handleSorterChange"
       >
         <template #[FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_RESULT]="{ filterContent }">
           <a-tag :color="reviewResultMap[filterContent.value as ReviewResult].color" class="px-[4px]" size="small">
