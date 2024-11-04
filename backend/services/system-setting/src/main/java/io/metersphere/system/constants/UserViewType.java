@@ -19,6 +19,8 @@ public enum UserViewType implements ValueEnum {
             List.of(InternalUserView.ALL_DATA, InternalUserView.MY_FOLLOW, InternalUserView.MY_CREATE)),
     REVIEW_FUNCTIONAL_CASE("review-functional-case",
             List.of(InternalUserView.ALL_DATA, InternalUserView.MY_REVIEW, InternalUserView.MY_CREATE)),
+    CASE_REVIEW("case-review",
+                List.of(InternalUserView.ALL_DATA, InternalUserView.MY_FOLLOW, InternalUserView.MY_CREATE)),
     API_DEFINITION("api-definition",
             List.of(InternalUserView.ALL_DATA, InternalUserView.MY_FOLLOW, InternalUserView.MY_CREATE)),
     API_CASE("api-case",
