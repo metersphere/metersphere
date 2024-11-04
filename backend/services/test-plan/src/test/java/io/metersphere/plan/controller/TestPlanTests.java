@@ -123,6 +123,7 @@ public class TestPlanTests extends BaseTest {
     private static final String URL_POST_TEST_PLAN_UPDATE = "/test-plan/update";
     private static final String URL_POST_TEST_PLAN_BATCH_DELETE = "/test-plan/batch-delete";
     private static final String URL_POST_TEST_PLAN_SCHEDULE = "/test-plan/schedule-config";
+    private static final String URL_POST_TEST_PLAN_BATCH_SCHEDULE = "/test-plan/batch-schedule-config";
     private static final String URL_POST_TEST_PLAN_SCHEDULE_DELETE = "/test-plan/schedule-config-delete/%s";
 
     //测试计划资源-功能用例
@@ -1487,9 +1488,16 @@ public class TestPlanTests extends BaseTest {
         request.setEnable(true);
         request.setCron("0 0 0 * * ?");
 
+        TestPlanScheduleBatchConfigRequest batchRequest = new TestPlanScheduleBatchConfigRequest();
+        batchRequest.setProjectId(project.getId());
+        batchRequest.setEnable(false);
+        batchRequest.setCron("0 0 0 * * ?");
+        batchRequest.setSelectIds(new ArrayList<>(List.of(groupTestPlanId7, groupTestPlanId15)));
+
         //先测试一下没有开启模块时接口能否使用
         testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
         this.requestPost(URL_POST_TEST_PLAN_SCHEDULE, request).andExpect(status().is5xxServerError());
+        this.requestPost(URL_POST_TEST_PLAN_BATCH_SCHEDULE, batchRequest).andExpect(status().is5xxServerError());
         this.requestGet(String.format(URL_POST_TEST_PLAN_SCHEDULE_DELETE, groupTestPlanId7)).andExpect(status().is5xxServerError());
         //恢复
         testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
@@ -1508,12 +1516,21 @@ public class TestPlanTests extends BaseTest {
                 TestPlanStatisticsResponse.class);
         Assertions.assertTrue(statisticsResponses.size() > 1);
 
-
         //增加日志检查
         LOG_CHECK_LIST.add(
                 new CheckLogModel(groupTestPlanId7, OperationLogType.UPDATE, null)
         );
-
+        this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_SCHEDULE, batchRequest);
+        testPlanTestService.checkSchedule(groupTestPlanId7, batchRequest.isEnable());
+        testPlanTestService.checkSchedule(groupTestPlanId15, batchRequest.isEnable());
+        batchRequest.setEnable(true);
+        this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_SCHEDULE, batchRequest);
+        testPlanTestService.checkSchedule(groupTestPlanId7, batchRequest.isEnable());
+        testPlanTestService.checkSchedule(groupTestPlanId15, batchRequest.isEnable());
+        //增加日志检查
+        LOG_CHECK_LIST.add(
+                new CheckLogModel(groupTestPlanId15, OperationLogType.UPDATE, null)
+        );
         //关闭
         request.setEnable(false);
         result = this.requestPostAndReturn(URL_POST_TEST_PLAN_SCHEDULE, request);

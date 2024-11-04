@@ -232,6 +232,15 @@ public class TestPlanController {
         return testPlanScheduleService.scheduleConfig(request, SessionUtils.getUserId());
     }
 
+    @PostMapping(value = "/batch-schedule-config")
+    @Operation(summary = "接口测试-接口场景管理-定时任务配置")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void batchScheduleConfig(@Validated @RequestBody TestPlanScheduleBatchConfigRequest request) {
+        testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
+        testPlanScheduleService.batchScheduleConfig(request, SessionUtils.getUserId());
+    }
+
     @GetMapping(value = "/schedule-config-delete/{testPlanId}")
     @Operation(summary = "接口测试-接口场景管理-删除定时任务配置")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)

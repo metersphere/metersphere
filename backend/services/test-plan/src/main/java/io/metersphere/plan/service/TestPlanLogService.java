@@ -265,4 +265,25 @@ public class TestPlanLogService {
             return OperationLogModule.TEST_PLAN_TEST_PLAN_GROUP;
         }
     }
+
+    public void batchScheduleLog(String projectId, List<TestPlan> testPlanList, String operator) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        List<LogDTO> list = new ArrayList<>();
+        for (TestPlan testPlan : testPlanList) {
+            LogDTO dto = LogDTOBuilder.builder()
+                    .projectId(project.getId())
+                    .organizationId(project.getOrganizationId())
+                    .type(OperationLogType.UPDATE.name())
+                    .module(getLogModule(testPlan))
+                    .sourceId(testPlan.getId())
+                    .method("POST")
+                    .path("/test-plan/batch-schedule-config")
+                    .sourceId(testPlan.getId())
+                    .content(Translator.get("test_plan_schedule") + ":" + testPlan.getName())
+                    .createUser(operator)
+                    .build().getLogDTO();
+            list.add(dto);
+        }
+        operationLogService.batchAdd(list);
+    }
 }
