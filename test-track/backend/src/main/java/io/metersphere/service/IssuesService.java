@@ -45,6 +45,7 @@ import io.metersphere.request.IntegrationRequest;
 import io.metersphere.request.issues.IssueExportRequest;
 import io.metersphere.request.issues.IssueImportRequest;
 import io.metersphere.request.issues.PlatformIssueTypeRequest;
+import io.metersphere.request.member.QueryMemberRequest;
 import io.metersphere.request.testcase.AuthUserIssueRequest;
 import io.metersphere.request.testcase.IssuesCountRequest;
 import io.metersphere.service.issue.platform.AbstractIssuePlatform;
@@ -856,6 +857,11 @@ public class IssuesService {
 
         Map<String, List<CustomFieldDao>> fieldMap =
                 customFieldIssuesService.getMapByResourceIds(data.stream().map(IssuesDao::getId).collect(Collectors.toList()));
+        QueryMemberRequest memberRequest = new QueryMemberRequest();
+        memberRequest.setProjectId(data.get(0).getProjectId());
+        List<User> projectMemberList = baseUserService.getProjectMemberList(memberRequest);
+        Map<String, String> memberMap = projectMemberList.stream().collect(Collectors.toMap(User::getId, User::getName));
+
         try {
             Map<String, CustomField> fieldMaps = customFields.stream().collect(Collectors.toMap(CustomFieldDao::getId, field -> (CustomField) field));
             for (Map.Entry<String, List<CustomFieldDao>> entry : fieldMap.entrySet()) {
@@ -887,6 +893,10 @@ public class IssuesService {
                         }
                         if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.CASCADING_SELECT.getValue())) {
                             fieldDao.setValue(parseCascadingOptionValue(customField.getOptions(), fieldDao.getValue()));
+                        }
+                        if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.MEMBER.getValue(),
+                                    CustomFieldType.MULTIPLE_MEMBER.getValue(), CustomFieldType.MULTIPLE_MEMBER.getValue())) {
+                            fieldDao.setValue(parseMemberOptionValue(memberMap, fieldDao.getValue()));
                         }
                     }
                 }
@@ -1913,6 +1923,7 @@ public class IssuesService {
             IssuesDao issuesDao = exportIssues.get(i);
             IssueExcelData excelData = new IssueExcelData();
             BeanUtils.copyBean(excelData, issuesDao);
+            excelData.setCreator(issuesDao.getCreatorName());
             buildCustomData(issuesDao, excelData);
             excelDataList.add(excelData);
         }
@@ -2069,6 +2080,18 @@ public class IssuesService {
                 }
             });
         }
+        return tarVals.toString();
+    }
+
+    private String parseMemberOptionValue(Map<String, String> memberMap, String tarVal) {
+        if (StringUtils.isEmpty(tarVal) || StringUtils.equalsAny(tarVal, "null", "[]")) {
+            return StringUtils.EMPTY;
+        }
+        List<String> tarVals = new ArrayList<>();
+        List<String> vals = JSON.parseArray(tarVal, String.class);
+        vals.forEach(val -> {
+            tarVals.add(memberMap.get(val));
+        });
         return tarVals.toString();
     }
 
