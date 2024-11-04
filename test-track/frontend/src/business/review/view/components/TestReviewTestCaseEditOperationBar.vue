@@ -209,7 +209,7 @@ export default {
     commentOpen() {
       this.isCommentRequire = true;
       this.commentTitle = this.$t('case.comment');
-      this.commentTip = this.$t('commons.input_content') + this.$t('review.comment_not_require');
+      this.commentTip = this.$t('commons.input_content') + this.$t('review.comment_require');
       this.addCommentOpen();
     },
   }
