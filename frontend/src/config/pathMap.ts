@@ -217,6 +217,29 @@ export const pathMap: PathMapItem[] = [
         route: RouteEnum.CASE_MANAGEMENT_CASE,
         permission: [],
         level: MENU_LEVEL[2],
+        children: [
+          {
+            key: 'CASE_MANAGEMENT_CASE_MODULE', // 功能测试-功能用例-模块
+            locale: 'common.module',
+            route: RouteEnum.CASE_MANAGEMENT_CASE,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'CASE_MANAGEMENT_CASE_CASE', // 功能测试-功能用例-用例列表
+            locale: 'common.case',
+            route: RouteEnum.CASE_MANAGEMENT_CASE,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'CASE_MANAGEMENT_CASE_RECYCLE', // 功能测试-功能用例-回收站
+            locale: 'menu.caseManagement.featureCaseRecycle',
+            route: RouteEnum.CASE_MANAGEMENT_CASE_RECYCLE,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+        ],
       },
       {
         key: 'CASE_MANAGEMENT_CASE_DETAIL', // 功能测试-功能用例-用例详情
@@ -231,13 +254,22 @@ export const pathMap: PathMapItem[] = [
         route: RouteEnum.CASE_MANAGEMENT_REVIEW,
         permission: [],
         level: MENU_LEVEL[2],
-      },
-      {
-        key: 'CASE_MANAGEMENT_REVIEW_DETAIL', // 功能测试-功能用例-用例评审
-        locale: 'menu.caseManagement.caseManagementReviewDetail',
-        route: RouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL,
-        permission: [],
-        level: MENU_LEVEL[2],
+        children: [
+          {
+            key: 'CASE_MANAGEMENT_REVIEW_REVIEW', // 功能测试-功能用例-用例评审
+            locale: 'menu.caseManagement.caseManagementReview',
+            route: RouteEnum.CASE_MANAGEMENT_REVIEW,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'CASE_MANAGEMENT_REVIEW_DETAIL', // 功能测试-功能用例-评审详情
+            locale: 'menu.caseManagement.caseManagementReviewDetail',
+            route: RouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+        ],
       },
     ],
   },
