@@ -760,6 +760,13 @@
         fc.project_Id = #{request.projectId}
         AND
         fc.module_id = #{request.moduleId}
+        order by
+        <if test="sort != null and sort != ''">
+            fc.${sort}
+        </if>
+        <if test="sort == null or sort == ''">
+            fc.pos desc
+        </if>
     </select>
 
     <select id="getMinderTestPlanList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">
@@ -788,6 +795,13 @@
         fc.project_Id = #{request.projectId}
         AND
         fc.module_id = #{request.moduleId}
+        order by
+        <if test="sort != null and sort != ''">
+            fc.${sort}
+        </if>
+        <if test="sort == null or sort == ''">
+            fc.pos desc
+        </if>
     </select>
 
     <select id="getMinderCollectionList" resultType="io.metersphere.functional.dto.FunctionalCaseMindDTO">

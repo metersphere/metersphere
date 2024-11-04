@@ -1,7 +1,10 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.domain.*;
-import io.metersphere.functional.dto.*;
+import io.metersphere.functional.dto.CaseCustomFieldDTO;
+import io.metersphere.functional.dto.FunctionalCaseStepDTO;
+import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
+import io.metersphere.functional.dto.MinderOptionDTO;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.plan.domain.TestPlanCaseExecuteHistory;
@@ -28,9 +31,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -82,7 +83,12 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         FunctionalCaseMindRequest request = new FunctionalCaseMindRequest();
         request.setProjectId("project-case-minder-test");
         request.setCurrent(1);
+        Map<String,String>sort = new HashMap<>();
+        sort.put("name","desc");
+        request.setSort(sort);
         MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
+        request.getSortString("name", "desc");
+        request.getSortString("name");
         Pager<List<FunctionalMinderTreeDTO>> tableData = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 Pager.class);
@@ -397,6 +403,9 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         request.setModuleId("TEST_MINDER_MODULE_ID_GYQ4");
         request.setReviewId("TEST_MINDER_REVIEW_ID_GYQ");
         request.setCurrent(1);
+        Map<String,String> map = new HashMap<>();
+        map.put("name", "desc");
+        request.setSort(map);
         MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_REVIEW_LIST_URL, request);
         Pager<List<FunctionalMinderTreeDTO>> tableData = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
@@ -428,6 +437,9 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         request.setModuleId("TEST_MINDER_MODULE_ID_GYQ4");
         request.setPlanId("TEST_MINDER_PLAN_ID_1");
         request.setCurrent(1);
+        Map<String,String> map = new HashMap<>();
+        map.put("name", "desc");
+        request.setSort(map);
         TestPlanCaseExecuteHistory executeHistory = new TestPlanCaseExecuteHistory();
         String nextStr = IDGenerator.nextStr();
         executeHistory.setId(nextStr);

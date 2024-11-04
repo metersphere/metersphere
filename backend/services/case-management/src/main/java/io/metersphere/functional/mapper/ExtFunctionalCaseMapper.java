@@ -100,9 +100,9 @@ public interface ExtFunctionalCaseMapper {
     /**
      * 根据模块ID获取用例评审脑图展示数据
      */
-    List<FunctionalCaseMindDTO> getMinderCaseReviewList(@Param("request") FunctionalCaseReviewMindRequest request, @Param("deleted") boolean delete, @Param("userId") String userId, @Param("viewStatusUserId") String viewStatusUserId);
+    List<FunctionalCaseMindDTO> getMinderCaseReviewList(@Param("request") FunctionalCaseReviewMindRequest request, @Param("deleted") boolean delete, @Param("userId") String userId, @Param("viewStatusUserId") String viewStatusUserId, @Param("sort") String sort);
 
-    List<FunctionalCaseMindDTO> getMinderTestPlanList(@Param("request") FunctionalCasePlanMindRequest request, @Param("deleted") boolean delete);
+    List<FunctionalCaseMindDTO> getMinderTestPlanList(@Param("request") FunctionalCasePlanMindRequest request, @Param("deleted") boolean delete, @Param("sort") String sort);
 
     List<FunctionalCaseMindDTO> getMinderCollectionList(@Param("request") FunctionalCaseCollectionMindRequest request, @Param("deleted") boolean delete);
 
