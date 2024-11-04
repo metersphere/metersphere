@@ -44,6 +44,15 @@ public enum InternalUserView {
         condition.setOperator(CombineCondition.CombineConditionOperator.IN.name());
         userViewDTO.setConditions(List.of(condition));
         return userViewDTO;
+    }),
+    ARCHIVED(() -> {
+        UserViewDTO userViewDTO = getUserViewDTO("archived");
+        CombineCondition condition = new CombineCondition();
+        condition.setName("archived");
+        condition.setValue("ARCHIVED");
+        condition.setOperator(CombineCondition.CombineConditionOperator.EQUALS.name());
+        userViewDTO.setConditions(List.of(condition));
+        return userViewDTO;
     });
 
     private static UserViewDTO getUserViewDTO(String name) {

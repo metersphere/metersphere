@@ -113,7 +113,7 @@
             </foreach>
         </if>
 
-        <choose>
+        <!--<choose>
             <when test='request.searchMode == "AND"'>
                 AND <include refid="queryCombine"/>
             </when>
@@ -122,11 +122,13 @@
                 <include refid="queryCombine"/>
                 )
             </when>
-        </choose>
+        </choose>-->
         <include refid="filters">
             <property name="filter" value="request.filter"/>
         </include>
-
+        <include refid="combine">
+            <property name="combineSearch" value="request.combineSearch"/>
+        </include>
     </sql>
 
 
@@ -147,7 +149,61 @@
     </sql>
 
 
-    <sql id="queryCombine">
+
+    <sql id="combine">
+        <trim prefix="AND">
+            <trim prefix="(" suffix=")" suffixOverrides="AND|OR">
+                <if test="${combineSearch} != null">
+                    <foreach collection="${combineSearch}.userViewConditions" item="condition">
+                        <if test="condition.name == 'createUser'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.create_user"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'follower'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
+                                <property name="mainIdColumn" value="t.id"/>
+                                <property name="associationTable" value="test_plan_follower"/>
+                                <property name="associationIdColumn" value="test_plan_id"/>
+                                <property name="searchColumn" value="user_id"/>
+                                <property name="condition" value="condition"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'archived'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.status"/>
+                            </include>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                    <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
+                            <property name="condition" value="condition"/>
+                            <property name="tablePrefix" value="t"/>
+                        </include>
+                        <!-- 状态 -->
+                        <if test="condition.name == 'status'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.status"/>
+                            </include>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                </if>
+            </trim>
+        </trim>
+    </sql>
+
+
+
+   <!-- <sql id="queryCombine">
         <if test="request.combine != null">
             <include refid="combine">
                 <property name="condition" value="request.combine"/>
@@ -158,7 +214,7 @@
     </sql>
 
     <sql id="combine">
-        <!-- 名称 -->
+        &lt;!&ndash; 名称 &ndash;&gt;
         <if test='${condition}.name != null'>
             t.name
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
@@ -168,7 +224,7 @@
                 <property name="searchMode" value="${searchMode}"/>
             </include>
         </if>
-        <!-- id -->
+        &lt;!&ndash; id &ndash;&gt;
         <if test='${condition}.id != null'>
             t.num
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
@@ -178,7 +234,7 @@
                 <property name="searchMode" value="${searchMode}"/>
             </include>
         </if>
-        <!-- 所属模块 -->
+        &lt;!&ndash; 所属模块 &ndash;&gt;
         <if test='${condition}.moduleId != null'>
             t.moduleId
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
@@ -188,7 +244,7 @@
                 <property name="searchMode" value="${searchMode}"/>
             </include>
         </if>
-        <!-- 创建人 -->
+        &lt;!&ndash; 创建人 &ndash;&gt;
         <if test='${condition}.createUser != null'>
             t.create_user
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
@@ -198,7 +254,7 @@
                 <property name="searchMode" value="${searchMode}"/>
             </include>
         </if>
-        <!-- 创建时间 -->
+        &lt;!&ndash; 创建时间 &ndash;&gt;
         <if test='${condition}.createTime != null'>
             t.create_time
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
@@ -208,16 +264,16 @@
                 <property name="searchMode" value="${searchMode}"/>
             </include>
         </if>
-        <!-- 标签 -->
+        &lt;!&ndash; 标签 &ndash;&gt;
         <if test='${condition}.tags != null'>
             <include refid="queryTag">
                 <property name="searchMode" value="${searchMode}"/>
                 <property name="combineTag" value="${condition}.tags"/>
             </include>
         </if>
-    </sql>
+    </sql>-->
 
-    <sql id="queryType">
+    <!--<sql id="queryType">
         <choose>
             <when test='${searchMode} == "AND"'>
                 AND
@@ -226,11 +282,11 @@
                 OR
             </when>
         </choose>
-    </sql>
+    </sql>-->
 
 
-    <sql id="queryTag">
-        <!-- 不包含 -->
+    <!--<sql id="queryTag">
+        &lt;!&ndash; 不包含 &ndash;&gt;
         <if test='${combineTag}.value.size() > 0 and ${combineTag}.operator == "not like"'>
             (
             t.tags is null or t.tags = '[]' or
@@ -242,7 +298,7 @@
                 <property name="searchMode" value="${searchMode}"/>
             </include>
         </if>
-        <!-- 包含 -->
+        &lt;!&ndash; 包含 &ndash;&gt;
         <if test='${combineTag}.value.size() > 0 and ${combineTag}.operator == "like"'>
             <foreach collection="${combineTag}.value" item="tag" separator="or" open="(" close=")">
                 JSON_CONTAINS(t.tags, JSON_ARRAY(#{tag}))
@@ -251,14 +307,14 @@
                 <property name="searchMode" value="${searchMode}"/>
             </include>
         </if>
-        <!-- 空 -->
+        &lt;!&ndash; 空 &ndash;&gt;
         <if test='${combineTag}.operator == "is null"'>
             (t.tags is null or t.tags = '[]')
             <include refid="queryType">
                 <property name="searchMode" value="${searchMode}"/>
             </include>
         </if>
-    </sql>
+    </sql>-->
 
 
     <select id="countModuleIdByConditions"

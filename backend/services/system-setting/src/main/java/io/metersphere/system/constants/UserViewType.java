@@ -8,10 +8,9 @@ import java.util.List;
 /**
  * @Author: jianxing
  * @CreateTime: 2024-09-02  10:47
- *
+ * <p>
  * 视图的类型
  * 例如：功能用例视图
- *
  */
 public enum UserViewType implements ValueEnum {
 
@@ -54,8 +53,23 @@ public enum UserViewType implements ValueEnum {
     PLAN_API_SCENARIO_DRAWER("plan-api-scenario-drawer",
             List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE)),
     PLAN_BUG_DRAWER("plan-bug-drawer",
-            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE));
+            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE)),
 
+    /**
+     * 测试计划列表
+     */
+    TEST_PLAN_ALL("test-plan-all",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.ARCHIVED, InternalUserView.MY_CREATE)),
+    TEST_PLAN("test-plan",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.ARCHIVED, InternalUserView.MY_FOLLOW, InternalUserView.MY_CREATE)),
+    TEST_PLAN_GROUP("test-plan-group",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.ARCHIVED, InternalUserView.MY_CREATE)),
+
+    /**
+     * 测试计划报告
+     */
+    TEST_PLAN_REPORT("test-plan-report",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE));
 
     private String value;
     private List<InternalUserView> internalViews;

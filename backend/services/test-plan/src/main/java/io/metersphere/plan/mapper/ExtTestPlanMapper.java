@@ -11,6 +11,7 @@ import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.project.dto.DropNode;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
+import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public interface ExtTestPlanMapper {
 
     List<String> selectByGroupIdList(@Param("list") List<String> parentTestPlanId);
 
+    @BaseConditionFilter
     List<TestPlanResponse> selectByConditions(@Param("request") TestPlanTableRequest request);
 
     List<String> selectIdByConditions(@Param("request") TestPlanBatchProcessRequest request);
