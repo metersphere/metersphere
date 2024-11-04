@@ -64,6 +64,7 @@
           @change="changeHandler"
           @cell-click="handleCellClick"
           @filter-change="filterChange"
+          @sorter-change="handleSorterChange"
         >
           <template #num="{ record }">
             <span type="text" class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">
@@ -239,6 +240,7 @@
             :module-id="props.activeFolder"
             :modules-count="modulesCount"
             :module-name="props.moduleName"
+            :table-sorter="tableSorter"
             @save="handleMinderSave"
           />
           <MsDrawer v-model:visible="visible" :width="480" :mask="false">
@@ -1807,6 +1809,11 @@
 
   function filterChange() {
     emitTableParams();
+  }
+
+  const tableSorter = ref<Record<string, string>>({});
+  function handleSorterChange(sorter: { [key: string]: string }) {
+    tableSorter.value = sorter;
   }
 
   async function mountedLoad() {

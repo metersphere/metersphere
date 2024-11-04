@@ -141,6 +141,7 @@
     moduleId: string;
     moduleName: string;
     modulesCount: Record<string, number>; // 模块数量
+    tableSorter: Record<string, any>;
   }>();
   const emit = defineEmits<{
     (e: 'save'): void;
@@ -445,6 +446,7 @@
         projectId: appStore.currentProjectId,
         moduleId: data.id,
         current: 1,
+        sort: props.tableSorter,
       });
       const fakeNode = node.children?.find((e) => e.data?.id === 'fakeNode'); // 移除占位的虚拟节点
       if (fakeNode) {
