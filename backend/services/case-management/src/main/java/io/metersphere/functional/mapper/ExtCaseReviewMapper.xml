@@ -79,7 +79,7 @@
         <include refid="filters">
             <property name="filter" value="request.condition.filter"/>
         </include>
-        <if test="request.condition.combine != null">
+        <if test="request.condition.combineSearch != null">
             <include refid="combine">
                 <property name="combineSearch" value="request.condition.combineSearch"/>
             </include>
@@ -195,24 +195,30 @@
                                 <property name="column" value="case_review.create_user"/>
                             </include>
                         </if>
-                        <if test="condition.name == 'reviewers'">
+                        <if test="condition.name == 'follower'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
                                 <property name="mainIdColumn" value="case_review.id"/>
-                                <property name="associationTable" value="case_review_functional_case_user"/>
+                                <property name="associationTable" value="case_review_follower"/>
                                 <property name="associationIdColumn" value="review_id"/>
                                 <property name="searchColumn" value="user_id"/>
                                 <property name="condition" value="condition"/>
                             </include>
                         </if>
-                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
-                            <property name="searchMode" value="${combineSearch}.searchMode"/>
-                        </include>
                     </foreach>
                     <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
                         <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
                             <property name="condition" value="condition"/>
                             <property name="tablePrefix" value="case_review"/>
                         </include>
+                        <if test="condition.name == 'reviewers'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
+                                <property name="mainIdColumn" value="case_review.id"/>
+                                <property name="associationTable" value="case_review_user"/>
+                                <property name="associationIdColumn" value="review_id"/>
+                                <property name="searchColumn" value="user_id"/>
+                                <property name="condition" value="condition"/>
+                            </include>
+                        </if>
                         <if test="condition.name == 'status'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
@@ -249,9 +255,12 @@
                                 <property name="column" value="case_review.pass_rate"/>
                             </include>
                         </if>
-                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
-                            <property name="searchMode" value="${combineSearch}.searchMode"/>
-                        </include>
+                        <if test="condition.name == 'description'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="case_review.description"/>
+                            </include>
+                        </if>
                     </foreach>
                 </if>
             </trim>
