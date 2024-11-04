@@ -19,7 +19,7 @@ public class ApiScenarioBatchEditRequest extends ApiScenarioBatchRequest impleme
 
     @Schema(description = "标签")
     private LinkedHashSet<String> tags;
-    @Schema(description = "批量编辑的类型  用例等级: Priority,状态 :Status,标签: Tags,用例环境: Environment")
+    @Schema(description = "批量编辑的类型  用例等级: Priority,状态 :Status,标签: Tags,用例环境: Environment, 定时任务：Schedule")
     @NotBlank
     private String type;
     @Schema(description = "默认覆盖原标签")
@@ -40,7 +40,8 @@ public class ApiScenarioBatchEditRequest extends ApiScenarioBatchRequest impleme
     @Schema(description = "用例等级")
     @Size(max = 50, message = "{api_test_case.priority.length_range}")
     private String priority;
-
+    @Schema(description = "定时任务是否开启")
+    private boolean scheduleOpen;
     public List<String> getTags() {
         if (tags == null) {
             return new ArrayList<>(0);

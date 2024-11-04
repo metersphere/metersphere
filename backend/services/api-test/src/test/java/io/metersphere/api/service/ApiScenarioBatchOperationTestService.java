@@ -209,6 +209,11 @@ public class ApiScenarioBatchOperationTestService {
         Assertions.assertEquals(scheduler.checkExists(ApiScenarioScheduleJob.getJobKey(resourceId)), isEnable);
     }
 
+    public void checkSchedule(String resourceId, boolean isEnable) throws Exception {
+        Assertions.assertEquals(extScheduleMapper.countByResourceId(resourceId), 1L);
+        Assertions.assertEquals(scheduler.checkExists(ApiScenarioScheduleJob.getJobKey(resourceId)), isEnable);
+    }
+
     public void checkScheduleIsRemove(String resourceId) throws Exception {
         Assertions.assertEquals(extScheduleMapper.countByResourceId(resourceId), 0L);
         Assertions.assertEquals(scheduler.checkExists(ApiScenarioScheduleJob.getJobKey(resourceId)), false);

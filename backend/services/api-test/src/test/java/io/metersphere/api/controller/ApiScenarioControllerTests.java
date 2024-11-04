@@ -2102,6 +2102,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     @Order(23)
     void scheduleTest() throws Exception {
         String testUrl = "/schedule-config";
+        String batchUrl = "/batch-operation/schedule-config";
         String deleteUrl = "/schedule-config-delete/";
 
         if (CollectionUtils.isEmpty(BATCH_OPERATION_SCENARIO_ID)) {
@@ -2112,14 +2113,18 @@ public class ApiScenarioControllerTests extends BaseTest {
         String scenarioId = BATCH_OPERATION_SCENARIO_ID.getLast();
         deleteUrl += scenarioId;
         ApiScenarioScheduleConfigRequest request = new ApiScenarioScheduleConfigRequest();
-
         request.setScenarioId(scenarioId);
         request.setEnable(true);
         request.setCron("0 0 0 * * ?");
-
+        ApiScenarioBatchScheduleConfigRequest batchRequest = new ApiScenarioBatchScheduleConfigRequest();
+        batchRequest.setEnable(false);
+        batchRequest.setCron("0 0 0 * * ?");
+        batchRequest.setProjectId(DEFAULT_PROJECT_ID);
+        batchRequest.setSelectIds(List.of(BATCH_OPERATION_SCENARIO_ID.getFirst()));
         //先测试一下没有开启模块时接口能否使用
         apiScenarioBatchOperationTestService.removeApiModule(DEFAULT_PROJECT_ID);
         this.requestPost(testUrl, request).andExpect(status().is5xxServerError());
+        this.requestPost(batchUrl, batchRequest).andExpect(status().is5xxServerError());
         this.requestGet(deleteUrl, request).andExpect(status().is5xxServerError());
         //恢复
         apiScenarioBatchOperationTestService.resetProjectModule(DEFAULT_PROJECT_ID);
@@ -2128,11 +2133,29 @@ public class ApiScenarioControllerTests extends BaseTest {
         String scheduleId = resultHolder.getData().toString();
         apiScenarioBatchOperationTestService.checkSchedule(scheduleId, scenarioId, request.isEnable());
 
+        this.requestPostWithOk(batchUrl, batchRequest);
+        apiScenarioBatchOperationTestService.checkSchedule(BATCH_OPERATION_SCENARIO_ID.getFirst(), batchRequest.isEnable());
+        batchRequest.setEnable(false);
+        this.requestPostWithOk(batchUrl, batchRequest);
+        apiScenarioBatchOperationTestService.checkSchedule(BATCH_OPERATION_SCENARIO_ID.getFirst(), batchRequest.isEnable());
         //增加日志检查
         LOG_CHECK_LIST.add(
                 new CheckLogModel(scenarioId, OperationLogType.UPDATE, "/api/scenario/schedule-config")
         );
-
+        LOG_CHECK_LIST.add(
+                new CheckLogModel(BATCH_OPERATION_SCENARIO_ID.getFirst(), OperationLogType.UPDATE, "/api/scenario/batch-operation/schedule-config")
+        );
+        // 批量定时任务的开关
+        ApiScenarioBatchEditRequest batchEditRequest = new ApiScenarioBatchEditRequest();
+        batchEditRequest.setProjectId(DEFAULT_PROJECT_ID);
+        batchEditRequest.setType("Schedule");
+        batchEditRequest.setScheduleOpen(true);
+        batchEditRequest.setSelectIds(List.of(BATCH_OPERATION_SCENARIO_ID.getFirst()));
+        requestPostAndReturn(BATCH_EDIT, batchEditRequest);
+        apiScenarioBatchOperationTestService.checkSchedule(BATCH_OPERATION_SCENARIO_ID.getFirst(), batchEditRequest.isScheduleOpen());
+        batchEditRequest.setScheduleOpen(false);
+        requestPostAndReturn(BATCH_EDIT, batchEditRequest);
+        apiScenarioBatchOperationTestService.checkSchedule(BATCH_OPERATION_SCENARIO_ID.getFirst(), batchEditRequest.isScheduleOpen());
         //关闭
         request.setEnable(false);
         result = this.requestPostAndReturn(testUrl, request);
@@ -2202,6 +2225,7 @@ public class ApiScenarioControllerTests extends BaseTest {
 
         //校验权限
         this.requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE, testUrl, request);
+
 
         //反例：scenarioId不存在
         request = new ApiScenarioScheduleConfigRequest();

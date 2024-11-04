@@ -233,7 +233,7 @@ public class TestPlanController {
     }
 
     @PostMapping(value = "/batch-schedule-config")
-    @Operation(summary = "接口测试-接口场景管理-定时任务配置")
+    @Operation(summary = "接口测试-接口场景管理-定时任务批量配置")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_EXECUTE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchScheduleConfig(@Validated @RequestBody TestPlanScheduleBatchConfigRequest request) {

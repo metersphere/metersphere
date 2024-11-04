@@ -173,6 +173,7 @@ public class ApiScenarioService extends MoveNodeService {
     public static final String STATUS = "Status";
     public static final String TAGS = "Tags";
     public static final String ENVIRONMENT = "Environment";
+    public static final String SCHEDULE = "Schedule";
     private static final String SCENARIO_TABLE = "api_scenario";
     private static final String SCENARIO = "SCENARIO";
 
@@ -273,6 +274,7 @@ public class ApiScenarioService extends MoveNodeService {
             case STATUS -> batchUpdateStatus(example, updateScenario, request.getStatus(), mapper);
             case TAGS -> batchUpdateTags(example, updateScenario, request, ids, mapper);
             case ENVIRONMENT -> batchUpdateEnvironment(example, updateScenario, request, mapper);
+            case SCHEDULE -> batchUpdateSchedule(example, request, mapper, userId);
             default -> throw new MSException(Translator.get("batch_edit_type_error"));
         }
         sqlSession.flushStatements();
@@ -280,6 +282,15 @@ public class ApiScenarioService extends MoveNodeService {
         List<ApiScenario> scenarioInfoByIds = extApiScenarioMapper.getInfoByIds(ids, false);
         apiScenarioLogService.batchEditLog(scenarioInfoByIds, userId, projectId);
         apiScenarioNoticeService.batchSendNotice(ids, userId, projectId, NoticeConstants.Event.UPDATE);
+    }
+
+    private void batchUpdateSchedule(ApiScenarioExample example, ApiScenarioBatchEditRequest request, ApiScenarioMapper mapper, String userId) {
+        List<ApiScenario> apiScenarioList = mapper.selectByExample(example);
+        //批量编辑定时任务
+        for (ApiScenario apiScenario : apiScenarioList) {
+            scheduleService.updateIfExist(apiScenario.getId(), request.isScheduleOpen(), ApiScenarioScheduleJob.getJobKey(apiScenario.getId()),
+                    ApiScenarioScheduleJob.getTriggerKey(apiScenario.getId()), ApiScenarioScheduleJob.class, userId);
+        }
     }
 
     private void batchUpdateEnvironment(ApiScenarioExample example, ApiScenario updateScenario,
@@ -2575,5 +2586,37 @@ public class ApiScenarioService extends MoveNodeService {
         }
 
         return response;
+    }
+
+    public void batchScheduleConfig(ApiScenarioBatchScheduleConfigRequest request, String operator) {
+        List<String> scenarioIds = doSelectIds(request, false);
+        if (CollectionUtils.isNotEmpty(scenarioIds)) {
+            ApiScenarioExample example = new ApiScenarioExample();
+            example.createCriteria().andIdIn(scenarioIds).andDeletedEqualTo(false);
+            List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
+
+            if (CollectionUtils.isNotEmpty(apiScenarios)) {
+                apiScenarios.forEach(apiScenario -> {
+                    ScheduleConfig scheduleConfig = ScheduleConfig.builder()
+                            .resourceId(apiScenario.getId())
+                            .key(apiScenario.getId())
+                            .projectId(apiScenario.getProjectId())
+                            .name(apiScenario.getName())
+                            .enable(request.isEnable())
+                            .cron(request.getCron())
+                            .resourceType(ScheduleResourceType.API_SCENARIO.name())
+                            .config(JSON.toJSONString(request.getConfig()))
+                            .build();
+
+                    scheduleService.scheduleConfig(
+                            scheduleConfig,
+                            ApiScenarioScheduleJob.getJobKey(apiScenario.getId()),
+                            ApiScenarioScheduleJob.getTriggerKey(apiScenario.getId()),
+                            ApiScenarioScheduleJob.class,
+                            operator);
+                });
+                apiScenarioLogService.batchScheduleConfigLog(request.getProjectId(), apiScenarios, operator);
+            }
+        }
     }
 }
