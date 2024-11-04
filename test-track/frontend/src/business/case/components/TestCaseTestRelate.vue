@@ -1,7 +1,7 @@
 <template>
   <div>
 
-    <el-dropdown  @command="handleCommand">
+    <el-dropdown  @command="handleCommand" :disabled="readOnly">
       <el-button type="primary" size="mini" :disabled="readOnly">
         {{$t('test_track.case.relate_test')}}<i class="el-icon-arrow-down el-icon--right"></i>
       </el-button>
