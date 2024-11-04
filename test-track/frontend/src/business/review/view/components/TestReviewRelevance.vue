@@ -283,7 +283,7 @@ export default {
       ],
       selectCounts: null,
       isFullScreen: false,
-      screenHeight: "calc(100vh - 420px)",
+      screenHeight: "calc(100vh - 370px)",
     };
   },
   props: {
@@ -561,7 +561,7 @@ export default {
 }
 
 .case-content {
-  padding: 0px 20px;
+  padding: 12px 20px;
   height: 100%;
   /*border: 1px solid #EBEEF5;*/
 }
