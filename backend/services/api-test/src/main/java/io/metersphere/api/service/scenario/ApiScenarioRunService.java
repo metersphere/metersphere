@@ -646,6 +646,59 @@ public class ApiScenarioRunService {
         return tmpParam;
     }
 
+    public ApiScenarioParseTmpParam parse(MsScenario msScenario,
+                                          Map<String, ApiDefinitionBlob> apiBlobMap,
+                                          Map<String, ApiTestCaseBlob> apiTestCaseBlobMap,
+                                          Map<String, ApiScenarioBlob> scenarioBlobMap,
+                                          List<? extends ApiScenarioStepCommonDTO> steps,
+                                          ApiScenarioParseParam parseParam) {
+        ApiScenarioParseTmpParam tmpParam = new ApiScenarioParseTmpParam();
+
+        Map<String, List<String>> refResourceMap = new HashMap<>();
+        buildRefResourceIdMap(steps, refResourceMap);
+        Map<String, String> resourceBlobMap = new HashMap<>();
+        List<String> apiIds = refResourceMap.get(ApiScenarioStepType.API.name());
+        if (CollectionUtils.isNotEmpty(apiIds)) {
+            apiIds.forEach(apiId -> {
+                ApiDefinitionBlob blob = apiBlobMap.get(apiId);
+                if (blob != null) {
+                    resourceBlobMap.put(blob.getId(), new String(blob.getRequest()));
+                }
+            });
+        }
+        List<String> apiCaseIds = refResourceMap.get(ApiScenarioStepType.API_CASE.name());
+        if (CollectionUtils.isNotEmpty(apiCaseIds)) {
+            apiCaseIds.forEach(apiCaseId -> {
+                ApiTestCaseBlob blob = apiTestCaseBlobMap.get(apiCaseId);
+                if (blob != null) {
+                    resourceBlobMap.put(blob.getId(), new String(blob.getRequest()));
+                }
+            });
+        }
+        List<String> apiScenarioIds = refResourceMap.get(ApiScenarioStepType.API_SCENARIO.name());
+        if (CollectionUtils.isNotEmpty(apiScenarioIds)) {
+            apiScenarioIds.forEach(apiScenarioId -> {
+                ApiScenarioBlob blob = scenarioBlobMap.get(apiScenarioId);
+                if (blob != null) {
+                    resourceBlobMap.put(blob.getId(), new String(blob.getConfig()));
+                }
+            });
+        }
+        tmpParam.setResourceDetailMap(resourceBlobMap);
+        // 查询复制的步骤详情
+        tmpParam.setStepDetailMap(getStepDetailMap(steps, parseParam.getStepDetails()));
+        // 获取场景环境相关配置
+        tmpParam.setScenarioParseEnvInfo(getScenarioParseEnvInfo(refResourceMap, parseParam.getEnvironmentId(), parseParam.getGrouped()));
+        parseStep2MsElement(msScenario, steps, tmpParam, msScenario.getResourceId());
+        // 设置 HttpElement 的模块信息
+        setApiDefinitionExecuteInfo(tmpParam.getUniqueIdStepMap(), tmpParam.getStepTypeHttpElementMap());
+        // 设置使用脚本前后置的公共脚本信息
+        apiCommonService.setCommonElementEnableCommonScriptInfo(tmpParam.getCommonElements());
+        apiCommonService.setScriptElementEnableCommonScriptInfo(tmpParam.getScriptElements());
+
+        return tmpParam;
+    }
+
     private void buildRefResourceIdMap(List<? extends ApiScenarioStepCommonDTO> steps, Map<String, List<String>> refResourceIdMap) {
         for (ApiScenarioStepCommonDTO step : steps) {
             if (apiScenarioService.isRefOrPartialRef(step.getRefType()) && BooleanUtils.isTrue(step.getEnable())) {

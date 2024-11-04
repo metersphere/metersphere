@@ -151,7 +151,11 @@ public class TempFileUtils {
             }
         }
         try {
-            FileUtils.writeByteArrayToFile(createFile, JSON.toJSONString(exportResponse).getBytes());
+            if (exportResponse instanceof String exportResponseStr) {
+                FileUtils.writeByteArrayToFile(createFile, exportResponseStr.getBytes());
+            } else {
+                FileUtils.writeByteArrayToFile(createFile, JSON.toJSONString(exportResponse).getBytes());
+            }
         } catch (Exception e) {
             LogUtils.error(e);
         }

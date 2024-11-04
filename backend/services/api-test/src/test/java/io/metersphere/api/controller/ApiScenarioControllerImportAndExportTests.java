@@ -169,6 +169,40 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
 
             MsFileUtils.deleteDir("/tmp/api-scenario-export/");
         }
+
+        // jmx export
+        ApiScenarioBatchExportRequest exportRequest = new ApiScenarioBatchExportRequest();
+        String fileId = IDGenerator.nextStr();
+        exportRequest.setProjectId(project.getId());
+        exportRequest.setFileId(fileId);
+        exportRequest.setSelectAll(true);
+        exportRequest.setExportAllRelatedData(false);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_POST_EXPORT + "jmeter", exportRequest);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        JSON.parseObject(returnData, ResultHolder.class).getData().toString();
+        Assertions.assertTrue(StringUtils.isNotBlank(fileId));
+        List<ExportTask> taskList = exportTaskManager.getExportTasks(exportRequest.getProjectId(), null, null, "admin", fileId);
+        while (CollectionUtils.isEmpty(taskList)) {
+            Thread.sleep(1000);
+            taskList = exportTaskManager.getExportTasks(exportRequest.getProjectId(), null, null, "admin", fileId);
+        }
+        ExportTask task = taskList.getFirst();
+        while (!StringUtils.equalsIgnoreCase(task.getState(), ExportConstants.ExportState.SUCCESS.name())) {
+            Thread.sleep(1000);
+            task = exportTaskManager.getExportTasks(exportRequest.getProjectId(), null, null, "admin", fileId).getFirst();
+        }
+
+        mvcResult = this.download(exportRequest.getProjectId(), fileId);
+
+        byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
+
+        File zipFile = new File("/tmp/api-scenario-export/downloadFiles.zip");
+        FileUtils.writeByteArrayToFile(zipFile, fileBytes);
+
+        File[] files = MsFileUtils.unZipFile(zipFile, "/tmp/api-scenario-export/unzip/");
+        assert files != null;
+        Assertions.assertEquals(files.length, 6);
+        MsFileUtils.deleteDir("/tmp/api-scenario-export/");
     }
 
     private MvcResult download(String projectId, String fileId) throws Exception {

@@ -6,14 +6,19 @@ import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
+import io.metersphere.api.dto.ApiScenarioParamConfig;
+import io.metersphere.api.dto.ApiScenarioParseTmpParam;
 import io.metersphere.api.dto.converter.ApiDefinitionDetail;
 import io.metersphere.api.dto.converter.ApiDefinitionExportDetail;
 import io.metersphere.api.dto.converter.ApiScenarioImportParseResult;
 import io.metersphere.api.dto.converter.ApiScenarioPreImportAnalysisResult;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
+import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.export.ApiScenarioExportResponse;
+import io.metersphere.api.dto.export.JMeterApiScenarioExportResponse;
 import io.metersphere.api.dto.export.MetersphereApiScenarioExportResponse;
+import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.scenario.*;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.parser.ApiScenarioImportParser;
@@ -24,6 +29,7 @@ import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.service.scenario.ApiScenarioLogService;
 import io.metersphere.api.service.scenario.ApiScenarioModuleService;
+import io.metersphere.api.service.scenario.ApiScenarioRunService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.api.utils.ApiDefinitionImportUtils;
@@ -39,6 +45,7 @@ import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.project.utils.FileDownloadUtils;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.ExportMsgDTO;
+import io.metersphere.sdk.dto.api.task.ApiRunRetryConfig;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.*;
@@ -118,6 +125,12 @@ public class ApiScenarioDataTransferService {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
     private ExtFileAssociationMapper extFileAssociationMapper;
+    @Resource
+    private ApiDefinitionBlobMapper apiDefinitionBlobMapper;
+    @Resource
+    private ApiTestCaseBlobMapper apiTestCaseBlobMapper;
+    @Resource
+    private ApiScenarioBlobMapper apiScenarioBlobMapper;
 
     @Resource
     private FileService fileService;
@@ -1129,14 +1142,25 @@ public class ApiScenarioDataTransferService {
             if (CollectionUtils.isEmpty(ids)) {
                 return null;
             }
-            Map<String, String> moduleMap = this.apiScenarioModuleService.getImportTreeNodeList(request.getProjectId()).stream().collect(Collectors.toMap(BaseTreeNode::getId, BaseTreeNode::getPath));
-
+            Map<String, String> moduleMap;
+            if (StringUtils.equalsIgnoreCase(exportType, "metersphere")) {
+                moduleMap = this.apiScenarioModuleService.getImportTreeNodeList(request.getProjectId()).stream().collect(Collectors.toMap(BaseTreeNode::getId, BaseTreeNode::getPath));
+            } else {
+                moduleMap = null;
+            }
             String fileFolder = tmpDir.getPath() + File.separatorChar + request.getFileId();
             AtomicInteger fileIndex = new AtomicInteger(1);
             SubListUtils.dealForSubList(ids, 500, subList -> {
                 request.setSelectIds(subList);
-                ApiScenarioExportResponse exportResponse = this.genMetersphereExportResponse(request, moduleMap);
-                TempFileUtils.writeExportFile(fileFolder + File.separatorChar + "scenario_" + fileIndex.getAndIncrement() + ".ms", exportResponse);
+                if (StringUtils.equalsIgnoreCase(exportType, "metersphere")) {
+                    ApiScenarioExportResponse exportResponse = this.genMetersphereExportResponseByMetersphere(request, moduleMap);
+                    TempFileUtils.writeExportFile(fileFolder + File.separatorChar + "scenario_" + fileIndex.getAndIncrement() + ".ms", exportResponse);
+                } else {
+                    JMeterApiScenarioExportResponse exportResponse = this.genMetersphereExportResponseByJmx(request);
+                    exportResponse.getScenarioJmxMap().forEach((k, v) -> {
+                        TempFileUtils.writeExportFile(fileFolder + File.separatorChar + k + ".jmx", v);
+                    });
+                }
             });
             File zipFile = MsFileUtils.zipFile(tmpDir.getPath(), request.getFileId());
             if (zipFile == null) {
@@ -1167,7 +1191,93 @@ public class ApiScenarioDataTransferService {
         }
     }
 
-    private ApiScenarioExportResponse genMetersphereExportResponse(ApiScenarioBatchExportRequest request, Map<String, String> moduleMap) {
+    @Resource
+    private ApiScenarioRunService apiScenarioRunService;
+    @Resource
+    private ApiExecuteService apiExecuteService;
+
+    private JMeterApiScenarioExportResponse genMetersphereExportResponseByJmx(ApiScenarioBatchExportRequest request) {
+        JMeterApiScenarioExportResponse response = new JMeterApiScenarioExportResponse();
+        List<String> apiIdList = new ArrayList<>();
+        List<String> apiCaseList = new ArrayList<>();
+        List<String> scenarioList = new ArrayList<>();
+
+        List<ApiScenarioDetail> apiScenarioDetailList = new ArrayList<>();
+
+        request.getSelectIds().forEach(id -> {
+            ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(id);
+            apiScenarioDetailList.add(apiScenarioDetail);
+            if (CollectionUtils.isNotEmpty(apiScenarioDetail.getSteps())) {
+                apiScenarioDetail.getSteps().forEach(step -> {
+                    if (StringUtils.equalsIgnoreCase(step.getStepType(), ApiScenarioStepType.API.name())) {
+                        apiIdList.add(step.getResourceId());
+                    } else if (StringUtils.equalsIgnoreCase(step.getStepType(), ApiScenarioStepType.API_CASE.name())) {
+                        apiCaseList.add(step.getResourceId());
+                    } else if (StringUtils.equalsIgnoreCase(step.getStepType(), ApiScenarioStepType.API_SCENARIO.name())) {
+                        scenarioList.add(step.getResourceId());
+                    }
+                });
+            }
+        });
+        Map<String, ApiDefinitionBlob> apiBlobMap = new HashMap<>();
+        Map<String, ApiTestCaseBlob> apiTestCaseBlobMap = new HashMap<>();
+        Map<String, ApiScenarioBlob> scenarioBlobMap = new HashMap<>();
+
+        if (CollectionUtils.isNotEmpty(apiIdList)) {
+            ApiDefinitionBlobExample apiDefinitionBlobExample = new ApiDefinitionBlobExample();
+            apiDefinitionBlobExample.createCriteria().andIdIn(apiIdList);
+            apiBlobMap = apiDefinitionBlobMapper.selectByExampleWithBLOBs(apiDefinitionBlobExample)
+                    .stream().collect(Collectors.toMap(ApiDefinitionBlob::getId, Function.identity()));
+        }
+
+        if (CollectionUtils.isNotEmpty(apiCaseList)) {
+            ApiTestCaseBlobExample example = new ApiTestCaseBlobExample();
+            example.createCriteria().andIdIn(apiCaseList);
+            apiTestCaseBlobMap = apiTestCaseBlobMapper.selectByExampleWithBLOBs(example)
+                    .stream().collect(Collectors.toMap(ApiTestCaseBlob::getId, Function.identity()));
+        }
+
+        if (CollectionUtils.isNotEmpty(scenarioList)) {
+            ApiScenarioBlobExample example = new ApiScenarioBlobExample();
+            example.createCriteria().andIdIn(scenarioList);
+            scenarioBlobMap = apiScenarioBlobMapper.selectByExampleWithBLOBs(example)
+                    .stream().collect(Collectors.toMap(ApiScenarioBlob::getId, Function.identity()));
+        }
+
+        for (ApiScenarioDetail apiScenarioDetail : apiScenarioDetailList) {
+            String jmx = getJmx(apiScenarioDetail, apiBlobMap, apiTestCaseBlobMap, scenarioBlobMap);
+            response.addJmx(apiScenarioDetail.getNum() + "_" + apiScenarioDetail.getName(), jmx);
+        }
+        return response;
+    }
+
+    private String getJmx(ApiScenarioDetail apiScenarioDetail, Map<String, ApiDefinitionBlob> apiBlobMap,
+                          Map<String, ApiTestCaseBlob> apiTestCaseBlobMap, Map<String, ApiScenarioBlob> scenarioBlobMap) {
+
+        String envId = apiScenarioDetail.getEnvironmentId();
+        boolean envGroup = apiScenarioDetail.getGrouped();
+
+        // 解析生成待执行的场景树
+        MsScenario msScenario = apiScenarioRunService.getMsScenario(apiScenarioDetail);
+
+        ApiScenarioParseParam parseParam = apiScenarioRunService.getApiScenarioParseParam(apiScenarioDetail);
+        parseParam.setEnvironmentId(envId);
+        parseParam.setGrouped(envGroup);
+        msScenario.setResourceId(apiScenarioDetail.getId());
+
+        ApiScenarioParseTmpParam tmpParam = apiScenarioRunService.parse(msScenario, apiBlobMap, apiTestCaseBlobMap, scenarioBlobMap, apiScenarioDetail.getSteps(), parseParam);
+
+        ApiResourceRunRequest runRequest = apiScenarioRunService.getApiResourceRunRequest(msScenario, tmpParam);
+
+        ApiScenarioParamConfig parseConfig = apiScenarioRunService.getApiScenarioParamConfig(apiScenarioDetail.getProjectId(), parseParam, tmpParam.getScenarioParseEnvInfo());
+        parseConfig.setReportId(StringUtils.EMPTY);
+        parseConfig.setTaskItemId(StringUtils.EMPTY);
+        parseConfig.setRetryConfig(new ApiRunRetryConfig());
+
+        return apiExecuteService.parseExecuteScript(runRequest.getTestElement(), parseConfig);
+    }
+
+    private ApiScenarioExportResponse genMetersphereExportResponseByMetersphere(ApiScenarioBatchExportRequest request, Map<String, String> moduleMap) {
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         MetersphereApiScenarioExportResponse response = apiScenarioService.selectAndSortScenarioDetailWithIds(request.getSelectIds(), moduleMap);
         response.setProjectId(project.getId());
