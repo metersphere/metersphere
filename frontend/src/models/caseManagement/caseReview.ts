@@ -272,6 +272,7 @@ export interface CaseReviewMinderParams {
   current?: number;
   reviewId: string;
   viewStatusFlag: boolean; // 我的评审结果
+  sort?: Record<string, any>;
 }
 
 // 测试计划用例脑图
@@ -281,4 +282,5 @@ export interface CasePlanMinderParams {
   collectionId?: string;
   current?: number;
   planId: string;
+  sort?: Record<string, any>;
 }

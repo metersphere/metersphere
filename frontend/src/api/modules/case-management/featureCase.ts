@@ -199,12 +199,7 @@ export function saveCaseMinder(data: FeatureCaseMinderUpdateParams) {
 }
 
 // 获取脑图
-export function getCaseMinder(data: {
-  projectId: string;
-  moduleId: string;
-  current: number;
-  sort?: Record<string, any>;
-}) {
+export function getCaseMinder(data: { projectId: string; moduleId: string; current: number }) {
   return MSR.post<CommonList<MinderJsonNode>>({ url: `${GetCaseMinderUrl}`, data });
 }
 

@@ -42,6 +42,7 @@
         @drag-change="handleDragChange"
         @selected-change="handleTableSelect"
         @filter-change="getModuleCount"
+        @sorter-change="handleSorterChange"
       >
         <template #num="{ record }">
           <MsButton type="text" @click="toCaseDetail(record)">{{ record.num }}</MsButton>
@@ -128,6 +129,7 @@
         :tree-type="props.treeType"
         :plan-id="props.planId"
         :can-edit="props.canEdit"
+        :table-sorter="tableSorter"
         @operation="handleMinderOperation"
         @refresh-plan="emit('refresh')"
       />
@@ -822,6 +824,11 @@
       params = { treeType: props.treeType, moduleIds: [], testPlanId: props.planId, pageSize: 10, current: 1 };
     }
     await testPlanFeatureCaseStore.getModuleCount(params);
+  }
+
+  const tableSorter = ref<Record<string, string>>({});
+  function handleSorterChange(sorter: { [key: string]: string }) {
+    tableSorter.value = sorter;
   }
 
   /**

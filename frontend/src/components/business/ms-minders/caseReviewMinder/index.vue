@@ -165,6 +165,7 @@
     reviewProgress: string;
     reviewPassRule: ReviewPassRule; // 评审规则
     moduleTree: ModuleTreeNode[];
+    tableSorter: Record<string, any>;
   }>();
 
   const emit = defineEmits<{
@@ -302,6 +303,7 @@
         moduleId: node.data?.id,
         reviewId: route.query.id as string,
         viewStatusFlag: props.viewStatusFlag,
+        sort: props.tableSorter,
       });
       // 移除占位的虚拟节点
       removeFakeNode(node, loadMoreCurrent ? `tmp-${node.data?.id}` : 'fakeNode');

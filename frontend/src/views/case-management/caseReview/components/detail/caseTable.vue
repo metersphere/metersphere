@@ -14,6 +14,7 @@
         @keyword-search="searchCase()"
         @adv-search="handleAdvSearch"
         @refresh="handleRefreshAll"
+        @sorter-change="handleSorterChange"
       >
         <template v-if="showType !== 'list'" #nameRight>
           <div v-if="reviewPassRule === 'MULTIPLE'" class="ml-[16px]">
@@ -179,6 +180,7 @@
         :module-tree="moduleTree"
         :review-progress="props.reviewProgress"
         :review-pass-rule="props.reviewPassRule"
+        :table-sorter="tableSorter"
         @operation="handleMinderOperation"
         @handle-review-done="emit('refresh')"
       />
@@ -590,6 +592,11 @@
       },
     ],
   };
+
+  const tableSorter = ref<Record<string, string>>({});
+  function handleSorterChange(sorter: { [key: string]: string }) {
+    tableSorter.value = sorter;
+  }
 
   function userIsReviewer(record: ReviewCaseItem) {
     return record.reviewers.some((e) => e === userStore.id);

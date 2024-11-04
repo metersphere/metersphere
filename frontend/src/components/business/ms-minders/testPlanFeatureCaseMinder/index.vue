@@ -285,6 +285,7 @@
     planId: string;
     canEdit: boolean; // 已归档的测试计划不能操作
     treeType: 'MODULE' | 'COLLECTION';
+    tableSorter: Record<string, any>;
   }>();
 
   const emit = defineEmits<{
@@ -399,6 +400,7 @@
         ...(props.treeType === 'COLLECTION' ? { collectionId: node.data?.id } : { moduleId: node.data?.id }),
         projectId: node.data?.projectId,
         planId: props.planId,
+        sort: props.tableSorter,
       });
       // 移除占位的虚拟节点
       removeFakeNode(node, loadMoreCurrent ? `tmp-${node.data?.id}` : 'fakeNode');
