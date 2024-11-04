@@ -5,7 +5,8 @@ import mf from "metersphere-frontend/src/i18n/lang/zh-TW"
 const message = {
   user: {
     search_get_more_tip: '搜索獲取其他選項',
-    remove_group_tip: '至少擁有一個用戶組權限'
+    remove_group_tip: '至少擁有一個用戶組權限',
+    upload_limit_size_warn: '上傳文件大小不能超過 {0} MB!',
   },
   system: {
     environment_import_repeat_tip: "(已過濾同名稱的環境配置 {0})",

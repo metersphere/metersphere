@@ -86,7 +86,7 @@ export default {
         return false;
       }
       if (file.size / 1024 / 1024 > this.uploadSize) {
-        this.$warning(this.$t('commons.upload_limit_size'));
+        this.$warning(this.$t('system_user.upload_limit_size_warn'));
         return false;
       }
       this.isLoading = true;

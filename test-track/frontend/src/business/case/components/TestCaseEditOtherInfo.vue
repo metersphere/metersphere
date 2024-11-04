@@ -85,7 +85,7 @@
             </el-popover>
           </div>
           <div :class="readOnly ? 'testplan-local-upload-tip' : 'not-testplan-local-upload-tip'">
-            <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
+            <span slot="tip" class="el-upload__tip"> {{ $t("test_track.case.upload_tip", [0, uploadSize]) }} </span>
           </div>
         </el-col>
       </el-row>
@@ -168,6 +168,7 @@ import {byteToSize, getCurrentUser, getTypeByFileName, hasPermission} from "@/bu
 import axios from "axios";
 import MsFileMetadataList from "metersphere-frontend/src/components/environment/commons/variable/QuoteFileList";
 import MsFileBatchMove from "metersphere-frontend/src/components/environment/commons/variable/FileBatchMove";
+import {getUploadSizeLimit} from "metersphere-frontend/src/utils/index";
 
 export default {
   name: "TestCaseEditOtherInfo",
@@ -216,6 +217,9 @@ export default {
     },
     hasProjectFilePermission() {
       return hasPermission("PROJECT_FILE:READ");
+    },
+    uploadSize() {
+      return getUploadSizeLimit();
     }
   },
   watch: {
