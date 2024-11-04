@@ -20,6 +20,7 @@ package org.apache.jmeter.assertions;
 import com.jayway.jsonpath.JsonPath;
 import io.metersphere.utils.DocumentUtils;
 import io.metersphere.utils.JsonUtils;
+import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.Condition;
 import io.metersphere.vo.ElementCondition;
 import net.minidev.json.JSONArray;
@@ -240,6 +241,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
         if (isUseRegex()) {
             String expectedValue = getExpectedValue();
             String resultValue = DocumentUtils.objectToString(subj, decimalFormatter);
+            LoggerUtil.info("Expected value: " + expectedValue + " Result value: " + resultValue);
             if (USE_JAVA_REGEX) {
                 return JMeterUtils.compilePattern(expectedValue).matcher(resultValue).matches();
             } else {
