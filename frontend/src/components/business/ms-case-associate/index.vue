@@ -23,7 +23,7 @@
       </div>
     </template>
     <div class="flex h-full">
-      <div class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
+      <div v-show="!isAdvancedSearchMode" class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
         <div class="flex items-center justify-between">
           <div v-if="!props.hideProjectSelect" class="w-full max-w-[259px]">
             <a-select
@@ -101,35 +101,27 @@
           </MsTree>
         </a-spin>
       </div>
-      <div class="flex w-[calc(100%-293px)] flex-col p-[16px]">
+      <div :class="[`flex ${!isAdvancedSearchMode ? 'w-[calc(100%-293px)]' : 'w-full'} flex-col p-[16px]`]">
         <MsAdvanceFilter
+          ref="msAdvanceFilterRef"
           v-model:keyword="keyword"
+          :view-type="ViewTypeEnum.FUNCTIONAL_CASE"
           :filter-config-list="filterConfigList"
           :custom-fields-config-list="searchCustomFields"
-          :search-placeholder="t('caseManagement.featureCase.searchByNameAndId')"
+          :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
+          :count="propsRes.msPagination?.total || 0"
+          :name="activeFolderName"
           @keyword-search="searchCase"
-          @adv-search="searchCase"
+          @adv-search="handleAdvSearch"
           @refresh="searchCase()"
-        >
-          <template #left>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <a-tooltip :content="activeFolderName">
-                  <div class="one-line-text mr-[4px] max-w-[300px] text-[var(--color-text-1)]">{{
-                    activeFolderName
-                  }}</div>
-                </a-tooltip>
-                <div class="text-[var(--color-text-4)]">({{ propsRes.msPagination?.total }})</div>
-              </div>
-            </div>
-          </template>
-        </MsAdvanceFilter>
+        />
         <ms-base-table
           v-bind="propsRes"
           :action-config="{
             baseAction: [],
             moreAction: [],
           }"
+          :not-show-table-filter="isAdvancedSearchMode"
           no-disable
           class="mt-[16px]"
           v-on="propsEvent"
@@ -193,8 +185,8 @@
   import { useRouter } from 'vue-router';
   import { useVModel } from '@vueuse/core';
 
-  import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
+  import { getFilterCustomFields, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -214,7 +206,7 @@
   import type { CaseManagementTable } from '@/models/caseManagement/featureCase';
   import type { CommonList, ModuleTreeNode, TableQueryParams } from '@/models/common';
   import type { ProjectListItem } from '@/models/setting/project';
-  import { FilterType } from '@/enums/advancedFilterEnum';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { ProtocolKeyEnum } from '@/enums/apiEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
@@ -489,31 +481,41 @@
     getCaseLevelColumn();
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setTableSelected, resetFilterParams } =
-    useTable(
-      props.getTableFunc,
-      {
-        columns,
-        tableKey: TableKeyEnum.CASE_MANAGEMENT_ASSOCIATED_TABLE,
-        scroll: { x: '100%' },
-        showSetting: false,
-        selectable: true,
-        showSelectAll: true,
-        heightUsed: 310,
-        showSelectorAll: !props.selectorAll,
-      },
-      (record) => {
-        return {
-          ...record,
-          tags: (record.tags || []).map((item: string, i: number) => {
-            return {
-              id: `${record.id}-${i}`,
-              name: item,
-            };
-          }),
-        };
-      }
-    );
+  const {
+    propsRes,
+    propsEvent,
+    viewId,
+    advanceFilter,
+    setAdvanceFilter,
+    loadList,
+    setLoadListParams,
+    resetSelector,
+    setTableSelected,
+    resetFilterParams,
+  } = useTable(
+    props.getTableFunc,
+    {
+      columns,
+      tableKey: TableKeyEnum.CASE_MANAGEMENT_ASSOCIATED_TABLE,
+      scroll: { x: '100%' },
+      showSetting: false,
+      selectable: true,
+      showSelectAll: true,
+      heightUsed: 310,
+      showSelectorAll: !props.selectorAll,
+    },
+    (record) => {
+      return {
+        ...record,
+        tags: (record.tags || []).map((item: string, i: number) => {
+          return {
+            id: `${record.id}-${i}`,
+            name: item,
+          };
+        }),
+      };
+    }
+  );
 
   const searchParams = ref<TableQueryParams>({
     moduleIds: [],
@@ -523,8 +525,10 @@
   const treeFolderAllRef = ref<InstanceType<typeof TreeFolderAll>>();
   const selectedProtocols = computed<string[]>(() => treeFolderAllRef.value?.selectedProtocols ?? []);
 
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
   function getLoadListParams() {
-    if (activeFolder.value === 'all' || !activeFolder.value) {
+    if (activeFolder.value === 'all' || !activeFolder.value || isAdvancedSearchMode.value) {
       searchParams.value.moduleIds = [];
     } else {
       searchParams.value.moduleIds = [activeFolder.value, ...offspringIds.value];
@@ -537,6 +541,8 @@
       ...searchParams.value,
       ...props.tableParams,
       keyword: keyword.value,
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
       projectId: innerProject.value,
       excludeIds: [...props.associatedIds], // 已经存在的关联的id列表
       condition: {
@@ -552,100 +558,102 @@
     }
   }
 
-  const combine = ref<Record<string, any>>({});
   const searchCustomFields = ref<FilterFormItem[]>([]);
   const filterConfigList = ref<FilterFormItem[]>([]);
 
   async function initFilter() {
-    const result = await getCustomFieldsTable(appStore.currentProjectId);
-    filterConfigList.value = [
-      {
-        title: 'caseManagement.featureCase.tableColumnID',
-        dataIndex: 'id',
-        type: FilterType.INPUT,
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnName',
-        dataIndex: 'name',
-        type: FilterType.INPUT,
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnModule',
-        dataIndex: 'moduleId',
-        type: FilterType.TREE_SELECT,
-        treeSelectData: folderTree.value,
-        treeSelectProps: {
-          fieldNames: {
-            title: 'name',
-            key: 'id',
-            children: 'children',
+    try {
+      const result = await getCustomFieldsTable(appStore.currentProjectId);
+      searchCustomFields.value = getFilterCustomFields(result); // 处理自定义字段
+      filterConfigList.value = [
+        {
+          title: 'caseManagement.featureCase.tableColumnID',
+          dataIndex: 'num',
+          type: FilterType.INPUT,
+        },
+        {
+          title: 'caseManagement.featureCase.tableColumnName',
+          dataIndex: 'name',
+          type: FilterType.INPUT,
+        },
+        {
+          title: 'common.belongModule',
+          dataIndex: 'moduleId',
+          type: FilterType.TREE_SELECT,
+          treeSelectData: folderTree.value,
+          treeSelectProps: {
+            fieldNames: {
+              title: 'name',
+              key: 'id',
+              children: 'children',
+            },
+            multiple: true,
+            treeCheckable: true,
+            treeCheckStrictly: true,
           },
         },
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnVersion',
-        dataIndex: 'versionId',
-        type: FilterType.INPUT,
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnCreateUser',
-        dataIndex: 'createUser',
-        type: FilterType.SELECT,
-        selectProps: {
-          mode: 'static',
-          options: [],
+        {
+          title: 'caseManagement.featureCase.tableColumnReviewResult',
+          dataIndex: 'reviewStatus',
+          type: FilterType.SELECT,
+          selectProps: {
+            multiple: true,
+            options: reviewResultOptions.value,
+          },
         },
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnCreateTime',
-        dataIndex: 'createTime',
-        type: FilterType.DATE_PICKER,
-      },
-      {
-        title: 'bugManagement.createTime',
-        dataIndex: 'createTime',
-        type: FilterType.DATE_PICKER,
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnUpdateUser',
-        dataIndex: 'updateUser',
-        type: FilterType.SELECT,
-        selectProps: {
-          mode: 'static',
-          options: [],
+        {
+          title: 'caseManagement.featureCase.tableColumnExecutionResult',
+          dataIndex: 'lastExecuteResult',
+          type: FilterType.SELECT,
+          selectProps: {
+            multiple: true,
+            options: executeResultOptions.value,
+          },
         },
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnUpdateTime',
-        dataIndex: 'updateTime',
-        type: FilterType.DATE_PICKER,
-      },
-      {
-        title: 'caseManagement.featureCase.tableColumnTag',
-        dataIndex: 'tags',
-        type: FilterType.TAGS_INPUT,
-      },
-    ];
-    // 处理系统自定义字段
-    searchCustomFields.value = result.map((item: any) => {
-      const FilterTypeKey: keyof typeof FilterType = CustomTypeMaps[item.type]?.type;
-      const formType = FilterType[FilterTypeKey];
-      const formObject = CustomTypeMaps[item.type];
-      const { props: formProps } = formObject;
-      const currentItem: any = {
-        title: item.name,
-        dataIndex: item.id,
-        type: formType,
-      };
-
-      if (formObject.propsKey && formProps.options) {
-        formProps.options = item.options;
-        currentItem[formObject.propsKey] = {
-          ...formProps,
-        };
-      }
-      return currentItem;
-    });
+        {
+          title: 'caseManagement.featureCase.associatedDemand',
+          dataIndex: 'demand',
+          type: FilterType.INPUT,
+        },
+        {
+          title: 'caseManagement.featureCase.relatedAttachments',
+          dataIndex: 'attachment',
+          type: FilterType.INPUT,
+        },
+        {
+          title: 'common.creator',
+          dataIndex: 'createUser',
+          type: FilterType.MEMBER,
+        },
+        {
+          title: 'common.createTime',
+          dataIndex: 'createTime',
+          type: FilterType.DATE_PICKER,
+        },
+        {
+          title: 'common.updateUserName',
+          dataIndex: 'updateUser',
+          type: FilterType.MEMBER,
+        },
+        {
+          title: 'common.updateTime',
+          dataIndex: 'updateTime',
+          type: FilterType.DATE_PICKER,
+        },
+        {
+          title: 'common.tag',
+          dataIndex: 'tags',
+          type: FilterType.TAGS_INPUT,
+          numberProps: {
+            min: 0,
+            precision: 0,
+          },
+        },
+      ];
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
   // 初始化模块数量
@@ -657,7 +665,6 @@
         projectId: innerProject.value,
         current: propsRes.value.msPagination?.current,
         pageSize: propsRes.value.msPagination?.pageSize,
-        combine: combine.value,
         sourceId: props.caseId,
         sourceType: caseType.value,
         ...props.tableParams,
@@ -675,7 +682,9 @@
   function searchCase() {
     getLoadListParams();
     loadList();
-    initModuleCount();
+    if (!isAdvancedSearchMode.value) {
+      initModuleCount();
+    }
   }
 
   function setAllSelectModule() {
@@ -687,6 +696,15 @@
       }
     });
   }
+
+  // 高级检索
+  const handleAdvSearch = (filter: FilterResult, id: string) => {
+    resetSelector();
+    setActiveFolder('all');
+    keyword.value = '';
+    setAdvanceFilter(filter, id);
+    searchCase(); // 基础筛选都清空
+  };
 
   async function initProjectList(setDefault: boolean) {
     try {
@@ -722,6 +740,8 @@
       condition: {
         keyword: keyword.value,
         filter: propsRes.value.filter,
+        viewId: viewId.value,
+        combineSearch: advanceFilter,
       },
     };
 
@@ -744,7 +764,7 @@
       moduleIds: [],
       version: '',
     };
-    innerProject.value = '';
+    innerProject.value = props.projectId ?? '';
     activeFolder.value = 'all';
     activeFolderName.value = t('ms.case.associate.allCase');
     resetSelector();
@@ -778,28 +798,28 @@
   );
 
   // 改变关联类型
-  function changeCaseType(
+  async function changeCaseType(
     value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
     caseType.value = value as CaseLinkEnum;
-    initModules();
+    await initModules();
     setAllSelectModule();
     initFilter();
   }
 
-  function selectedProtocolsChange() {
+  async function selectedProtocolsChange() {
     if (innerProject.value) {
-      initModules();
+      await initModules();
       setAllSelectModule();
       initFilter();
     }
   }
   // 改变项目
-  function changeProject(
+  async function changeProject(
     value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
     innerProject.value = value as string;
-    initModules();
+    await initModules();
     setAllSelectModule();
     initFilter();
   }
@@ -807,7 +827,9 @@
   watch(
     () => activeFolder.value,
     () => {
-      searchCase();
+      if (!isAdvancedSearchMode.value) {
+        searchCase();
+      }
     }
   );
 
