@@ -795,6 +795,12 @@
       width: 150,
     },
     {
+      title: 'common.desc',
+      dataIndex: 'description',
+      slotName: 'description',
+      width: 150,
+    },
+    {
       title: 'apiTestDebug.paramType',
       dataIndex: 'variableType',
       slotName: 'variableType',

@@ -273,6 +273,7 @@ export const defaultExtractParamItem: ExpressionConfig = {
   resultMatchingRuleNum: 1,
   responseFormat: ResponseBodyXPathAssertionFormat.XML,
   moreSettingPopoverVisible: false,
+  description: '',
 };
 // 提取类型选项
 export const extractTypeOptions = [
