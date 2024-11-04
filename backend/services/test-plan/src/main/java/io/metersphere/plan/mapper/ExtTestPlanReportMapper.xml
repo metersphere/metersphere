@@ -21,6 +21,11 @@
             and tpr.name like concat('%', #{request.condition.keyword},'%')
         </if>
         <include refid="filterByCondition"/>
+        <if test="request.condition.combine != null">
+            <include refid="combine">
+                <property name="combineSearch" value="request.condition.combineSearch"/>
+            </include>
+        </if>
     </select>
 
     <select id="selectReportByIds" resultType="io.metersphere.plan.domain.TestPlanReport">
@@ -286,10 +291,13 @@
                 and tpr.test_plan_name like concat('%', #{request.keyword},'%')
             </if>
             <include refid="filter"/>
-            <include refid="combine">
+            <!--<include refid="combine">
                 <property name="condition" value="request.combine"/>
                 <property name="searchMode" value="request.searchMode"/>
                 <property name="combineTag" value="request.combine.tag"/>
+            </include>-->
+            <include refid="combine">
+                <property name="combineSearch" value="request.combineSearch"/>
             </include>
         </where>
     </sql>
@@ -305,10 +313,13 @@
                 and tpr.name like concat('%', #{request.keyword},'%')
             </if>
             <include refid="filter"/>
-            <include refid="combine">
+            <!--<include refid="combine">
                 <property name="condition" value="request.combine"/>
                 <property name="searchMode" value="request.searchMode"/>
                 <property name="combineTag" value="request.combine.tag"/>
+            </include>-->
+            <include refid="combine">
+                <property name="combineSearch" value="request.combineSearch"/>
             </include>
         </where>
     </sql>
@@ -399,14 +410,14 @@
         </if>
     </sql>
 
-    <sql id="combine">
+    <!--<sql id="combine">
         <if test="request.combine != null">
             and (
-            <!-- 任意/所有拼接 -->
+            &lt;!&ndash; 任意/所有拼接 &ndash;&gt;
             <include refid="prefixMode">
                 <property name="searchMode" value="${searchMode}"/>
             </include>
-            <!-- 名称 -->
+            &lt;!&ndash; 名称 &ndash;&gt;
             <if test='${condition}.name != null'>
                 <include refid="queryType">
                     <property name="searchMode" value="${searchMode}"/>
@@ -416,7 +427,7 @@
                     <property name="object" value="${condition}.name"/>
                 </include>
             </if>
-            <!-- 触发方式 -->
+            &lt;!&ndash; 触发方式 &ndash;&gt;
             <if test='${condition}.triggerMode != null'>
                 <include refid="queryType">
                     <property name="searchMode" value="${searchMode}"/>
@@ -426,7 +437,7 @@
                     <property name="object" value="${condition}.triggerMode"/>
                 </include>
             </if>
-            <!-- 执行状态 -->
+            &lt;!&ndash; 执行状态 &ndash;&gt;
             <if test='${condition}.executeStatus != null'>
                 <include refid="queryType">
                     <property name="searchMode" value="${searchMode}"/>
@@ -436,7 +447,7 @@
                     <property name="object" value="${condition}.executeStatus"/>
                 </include>
             </if>
-            <!-- 执行结果 -->
+            &lt;!&ndash; 执行结果 &ndash;&gt;
             <if test='${condition}.resultStatus != null'>
                 <include refid="queryType">
                     <property name="searchMode" value="${searchMode}"/>
@@ -448,9 +459,74 @@
             </if>
             )
         </if>
+    </sql>-->
+
+    <sql id="combine">
+        <trim prefix="AND">
+            <trim prefix="(" suffix=")" suffixOverrides="AND|OR">
+                <if test="${combineSearch} != null">
+                    <foreach collection="${combineSearch}.userViewConditions" item="condition">
+                        <if test="condition.name == 'createUser'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.create_user"/>
+                            </include>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                    <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
+                        <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
+                            <property name="condition" value="condition"/>
+                            <property name="tablePrefix" value="tpr"/>
+                        </include>
+                        <!-- 报告类型 -->
+                        <if test="condition.name == 'integrated'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="trp.integrated"/>
+                            </include>
+                        </if>
+                        <!-- 测试计划名称 -->
+                        <if test="condition.name == 'testPlanName'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="trp.test_plan_name"/>
+                            </include>
+                        </if>
+                        <!-- 执行结果 -->
+                        <if test="condition.name == 'resultStatus'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="trp.result_status"/>
+                            </include>
+                        </if>
+                        <!-- 通过率 -->
+                        <if test="condition.name == 'passRate'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="trp.pass_rate"/>
+                            </include>
+                        </if>
+                        <!-- 触发方式 -->
+                        <if test="condition.name == 'triggerMode'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="trp.trigger_mode"/>
+                            </include>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                </if>
+            </trim>
+        </trim>
     </sql>
 
-    <sql id="prefixMode">
+
+   <!-- <sql id="prefixMode">
         <choose>
             <when test='${searchMode} == "AND"'>
                 1 = 1
@@ -459,9 +535,9 @@
                 1 = 2
             </when>
         </choose>
-    </sql>
+    </sql>-->
 
-    <sql id="queryType">
+   <!-- <sql id="queryType">
         <choose>
             <when test='${searchMode} == "AND"'>
                 and
@@ -470,7 +546,7 @@
                 or
             </when>
         </choose>
-    </sql>
+    </sql>-->
 
 
     <select id="getChildrenReport" resultType="io.metersphere.plan.domain.TestPlanReport">

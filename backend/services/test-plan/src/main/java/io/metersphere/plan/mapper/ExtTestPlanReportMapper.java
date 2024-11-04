@@ -12,6 +12,7 @@ import io.metersphere.system.dto.sdk.ApiReportMessageDTO;
 import io.metersphere.system.dto.taskcenter.TaskCenterDTO;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterBatchRequest;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterPageRequest;
+import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public interface ExtTestPlanReportMapper {
      * @param request 分页请求参数
      * @return 计划列表
      */
+    @BaseConditionFilter
     List<TestPlanReportPageResponse> list(@Param("request") TestPlanReportPageRequest request);
 
     /**
@@ -32,6 +34,7 @@ public interface ExtTestPlanReportMapper {
      * @param request 请求参数
      * @return 报告ID集合
      */
+    @BaseConditionFilter
     List<String> getReportBatchIdsByParam(@Param("request") TestPlanReportBatchRequest request);
 
     List<TestPlanReport> selectReportByIds(@Param("ids") List<String> ids);
