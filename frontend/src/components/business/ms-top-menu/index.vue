@@ -6,7 +6,7 @@
     mode="horizontal"
     @menu-item-click="menuClickHandler"
   >
-    <a-menu-item v-for="menu of appStore.getTopMenus" :key="(menu.name as string)" @click="jumpPath(menu.name)">
+    <a-menu-item v-for="menu of appStore.getTopMenus" :key="(menu.name as string)">
       {{ t(menu.meta?.locale || '') }}
     </a-menu-item>
   </a-menu>
@@ -15,7 +15,7 @@
 <script setup lang="ts">
   import { Ref, ref, watch } from 'vue';
   import { RouteRecordName, RouteRecordRaw, useRouter } from 'vue-router';
-  import { cloneDeep } from 'lodash-es';
+  import { cloneDeep, debounce } from 'lodash-es';
 
   import { useI18n } from '@/hooks/useI18n';
   import usePermission from '@/hooks/usePermission';
@@ -108,12 +108,10 @@
     setCurrentTopMenu('');
   }, true);
 
-  function jumpPath(route: RouteRecordName | undefined) {
-    router.push({ name: route });
-  }
-  function menuClickHandler() {
+  const menuClickHandler = debounce((route: RouteRecordName | undefined) => {
     activeMenus.value = [appStore.getCurrentTopMenu?.name || ''];
-  }
+    router.push({ name: route });
+  }, 150);
 
   watch(
     () => appStore.currentOrgId,
