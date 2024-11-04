@@ -14,7 +14,7 @@
       :fields.sync="fields"
       :field-key="tableHeaderKey"
       :remember-order="true"
-      operator-width="200"
+      operator-width="210"
       :enable-order-drag="enableOrderDrag"
       row-key="id"
       :row-order-group-id="condition.projectId"
@@ -84,11 +84,11 @@
           sortable />
 
         <ms-table-column
-            prop="nodePath"
-            :field="item"
-            :fields-width="fieldsWidth"
-            :label="$t('api_test.automation.module')"
-            min-width="150px">
+          prop="nodePath"
+          :field="item"
+          :fields-width="fieldsWidth"
+          :label="$t('api_test.automation.module')"
+          min-width="150px">
           <template v-slot:default="scope">
             <span>{{ scope.row.modulePath }}</span>
           </template>
