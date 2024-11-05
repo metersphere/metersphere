@@ -94,9 +94,13 @@
             );
           }
 
-          const filterMenuTopRouter =
+          let filterMenuTopRouter =
             currentParent?.children?.filter((item: any) => permission.accessRouter(item) && item.meta?.isTopMenu) || [];
-
+          if (appStore.getPackageType === 'community') {
+            filterMenuTopRouter = filterMenuTopRouter.filter(
+              (item) => item.name !== RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT
+            );
+          }
           appStore.setTopMenus(filterMenuTopRouter);
           setCurrentTopMenu(name as string);
           return;
