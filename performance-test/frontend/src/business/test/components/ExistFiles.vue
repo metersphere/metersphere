@@ -2,6 +2,7 @@
   <el-dialog :close-on-click-modal="false"
              :destroy-on-close="true"
              :title="$t('load_test.exist_jmx')" width="70%"
+             z-index="1000"
              :visible.sync="loadFileVisible">
     <ms-table-header title="" :condition.sync="condition" @search="getProjectFiles"
                      :show-create="false">
