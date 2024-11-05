@@ -55,21 +55,6 @@ public class ApiExecutionQueueService {
         String queueKey = QUEUE_DETAIL_PREFIX + queueId;
         ListOperations<String, String> listOps = stringRedisTemplate.opsForList();
         String queueDetail = listOps.leftPop(queueKey);
-        if (StringUtils.isBlank(queueDetail)) {
-            // 重试3次获取
-            for (int i = 0; i < 3; i++) {
-                queueDetail = stringRedisTemplate.opsForList().leftPop(queueKey);
-                if (StringUtils.isNotBlank(queueDetail)) {
-                    break;
-                }
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
         if (StringUtils.isNotBlank(queueDetail)) {
             Long size = size(queueId);
             if (size == null || size == 0) {
