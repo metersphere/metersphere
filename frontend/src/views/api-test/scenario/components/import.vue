@@ -125,7 +125,10 @@
 
   const visible = useVModel(props, 'visible', emit);
   const innerModuleTree = ref<TreeNode<ModuleTreeNode>[]>([]);
-  const platformList: { name: string; value: RequestImportFormat.MeterSphere | RequestImportFormat.Jmeter }[] = [
+  const platformList: {
+    name: string;
+    value: RequestImportFormat.MeterSphere | RequestImportFormat.Jmeter | RequestImportFormat.Har;
+  }[] = [
     {
       name: 'MeterSphere',
       value: RequestImportFormat.MeterSphere,
@@ -133,6 +136,10 @@
     {
       name: 'Jmeter',
       value: RequestImportFormat.Jmeter,
+    },
+    {
+      name: 'Har',
+      value: RequestImportFormat.Har,
     },
   ];
   const fileList = ref<MsFileItem[]>([]);
@@ -145,7 +152,16 @@
   const importForm = ref({ ...defaultForm });
   const importFormRef = ref<FormInstance>();
   const fileAccept = computed(() => {
-    return importForm.value.type === RequestImportFormat.MeterSphere ? 'ms' : 'jmx';
+    if (importForm.value.type === RequestImportFormat.MeterSphere) {
+      return 'ms';
+    }
+    if (importForm.value.type === RequestImportFormat.Jmeter) {
+      return 'jmx';
+    }
+    if (importForm.value.type === RequestImportFormat.Har) {
+      return 'har';
+    }
+    return 'ms';
   });
 
   watch(
@@ -163,7 +179,9 @@
 
   const importLoading = ref(false);
 
-  function setActiveImportFormat(format: RequestImportFormat.MeterSphere | RequestImportFormat.Jmeter) {
+  function setActiveImportFormat(
+    format: RequestImportFormat.MeterSphere | RequestImportFormat.Jmeter | RequestImportFormat.Har
+  ) {
     importForm.value.type = format;
   }
 

@@ -1,9 +1,6 @@
 package io.metersphere.api.service;
 
-import io.metersphere.api.constants.ApiDefinitionStatus;
-import io.metersphere.api.constants.ApiScenarioStatus;
-import io.metersphere.api.constants.ApiScenarioStepRefType;
-import io.metersphere.api.constants.ApiScenarioStepType;
+import io.metersphere.api.constants.*;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.ApiScenarioParamConfig;
@@ -189,6 +186,12 @@ public class ApiScenarioDataTransferService {
         try {
             assert parser != null;
             parseResult = parser.parse(file.getInputStream(), request);
+            if (StringUtils.equalsIgnoreCase(request.getType(), ApiImportPlatform.Har.name())) {
+                // har文件里的所有请求都会导入场景中。场景的名称为文件名
+                if (CollectionUtils.isNotEmpty(parseResult.getImportScenarioList())) {
+                    parseResult.getImportScenarioList().forEach(t -> t.setName(file.getOriginalFilename()));
+                }
+            }
         } catch (Exception e) {
             LogUtils.error(e.getMessage(), e);
             throw new MSException(Translator.get("parse_data_error"));

@@ -535,7 +535,7 @@ export interface ImportSystemData {
 export interface ImportScenarioRequest {
   moduleId: string;
   projectId: string;
-  type: RequestImportFormat.MeterSphere | RequestImportFormat.Jmeter;
+  type: RequestImportFormat.MeterSphere | RequestImportFormat.Jmeter | RequestImportFormat.Har;
   coverData: boolean;
 }
 

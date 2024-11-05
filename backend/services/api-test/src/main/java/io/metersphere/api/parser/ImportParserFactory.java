@@ -25,6 +25,8 @@ public class ImportParserFactory {
             return new MetersphereParserApiScenario();
         } else if (StringUtils.equalsIgnoreCase(ApiImportPlatform.Jmeter.name(), platform)) {
             return new JmeterParserApiScenario();
+        } else if (StringUtils.equalsIgnoreCase(ApiImportPlatform.Har.name(), platform)) {
+            return new HarParserApiScenario();
         }
         return null;
     }

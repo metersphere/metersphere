@@ -1,9 +1,14 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.domain.ApiScenario;
+import io.metersphere.api.domain.ApiScenarioExample;
 import io.metersphere.api.dto.definition.ApiScenarioBatchExportRequest;
 import io.metersphere.api.dto.export.MetersphereApiScenarioExportResponse;
+import io.metersphere.api.dto.scenario.ApiScenarioDetail;
 import io.metersphere.api.dto.scenario.ApiScenarioImportRequest;
+import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.service.ApiScenarioDataTransferService;
+import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.functional.domain.ExportTask;
 import io.metersphere.project.domain.Project;
@@ -54,7 +59,10 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
     private CommonProjectService commonProjectService;
     @Resource
     private ApiScenarioDataTransferService apiScenarioDataTransferService;
-
+    @Resource
+    private ApiScenarioService apiScenarioService;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
     @BeforeEach
     public void initTestData() {
         //文件管理专用项目
@@ -93,7 +101,7 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
 
 
         request.setType("metersphere");
-        inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import-scenario/metersphere/simple.ms")).getPath()));
+        inputStream = new FileInputStream(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import-scenario/metersphere/simple.ms")).getPath());
         file = new MockMultipartFile("file", "simple.ms", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
         paramMap = new LinkedMultiValueMap<>();
         paramMap.add("request", JSON.toJSONString(request));
@@ -107,12 +115,26 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
         this.requestMultipartWithOkAndReturn(URL_POST_IMPORT, paramMap);
 
 
-        inputStream = new FileInputStream(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/file_update_upload.JPG")).getPath()));
+        inputStream = new FileInputStream(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/file_update_upload.JPG")).getPath());
         file = new MockMultipartFile("file", "simple.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
         paramMap = new LinkedMultiValueMap<>();
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("file", file);
         this.requestMultipart(URL_POST_IMPORT, paramMap);
+
+        request.setType("har");
+        inputStream = new FileInputStream(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/import-scenario/har/simple.har")).getPath());
+        file = new MockMultipartFile("simple.har", "simple.har", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file);
+        this.requestMultipartWithOkAndReturn(URL_POST_IMPORT, paramMap);
+
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andProjectIdEqualTo(project.getId()).andNameEqualTo("simple.har").andDeletedEqualTo(false);
+        ApiScenario scenario = apiScenarioMapper.selectByExample(example).getFirst();
+        ApiScenarioDetail detail = apiScenarioService.get(scenario.getId());
+        Assertions.assertEquals(detail.getSteps().size(), 4);
     }
 
     @Resource
@@ -165,7 +187,7 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
 
             MetersphereApiScenarioExportResponse exportResponse = ApiDataUtils.parseObject(fileContent, MetersphereApiScenarioExportResponse.class);
 
-            Assertions.assertEquals(exportResponse.getExportScenarioList().size(), 6);
+            Assertions.assertEquals(exportResponse.getExportScenarioList().size(), 7);
 
             MsFileUtils.deleteDir("/tmp/api-scenario-export/");
         }
@@ -201,7 +223,7 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
 
         File[] files = MsFileUtils.unZipFile(zipFile, "/tmp/api-scenario-export/unzip/");
         assert files != null;
-        Assertions.assertEquals(files.length, 6);
+        Assertions.assertEquals(files.length, 7);
         MsFileUtils.deleteDir("/tmp/api-scenario-export/");
     }
 
