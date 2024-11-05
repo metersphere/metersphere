@@ -1007,6 +1007,11 @@ const message = {
     timing_clean_load_report: 'Regularly clean up report',
     keep_recent: 'Keep',
     please_select_cleaning_time: 'please select cleaning time！',
+    platform: {
+      jira_key_require: "The JIRA project key cannot be null",
+      jira_issuetype_require: "The issue type cannot be empty",
+      jira_storytype_require: 'The story type cannot be empty',
+    }
   },
   member: {
     create: 'Create',

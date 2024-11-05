@@ -993,6 +993,11 @@ const message = {
     timing_clean_load_report: '定時清理性能測試報告',
     keep_recent: '保留最近',
     please_select_cleaning_time: '請選擇清理時間！',
+    platform: {
+      jira_key_require: "JIRA項目key不能爲空",
+      jira_issuetype_require: "問題類型不能爲空",
+      jira_storytype_require: '需求類型不能爲空',
+    }
   },
   member: {
     create: '添加成員',
