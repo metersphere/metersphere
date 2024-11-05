@@ -103,5 +103,7 @@
 <style scoped>
   .wecom-qr {
     margin-top: -20px;
+    width: 480px;
+    height: 341px;
   }
 </style>

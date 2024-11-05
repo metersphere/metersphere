@@ -116,6 +116,7 @@ export default {
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: space-around;
+  margin-top: -30px;
 }
 :deep(.el-tabs__nav){
   width: 100%;
