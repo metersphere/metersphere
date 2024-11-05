@@ -7,7 +7,10 @@
 package io.metersphere.functional.service;
 
 
-import io.metersphere.functional.domain.*;
+import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.domain.FunctionalCaseExample;
+import io.metersphere.functional.domain.FunctionalCaseModule;
+import io.metersphere.functional.domain.FunctionalCaseModuleExample;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
@@ -17,18 +20,12 @@ import io.metersphere.functional.request.FunctionalCaseModuleUpdateRequest;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortDTO;
 import io.metersphere.project.service.ModuleTreeService;
-import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.uid.IDGenerator;
@@ -60,11 +57,11 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
     @Resource
     private FunctionalCaseMapper functionalCaseMapper;
     @Resource
-    private OperationLogService operationLogService;
-    @Resource
     private UserMapper userMapper;
     @Resource
     private FunctionalCaseNoticeService functionalCaseNoticeService;
+    @Resource
+    private FunctionalCaseModuleLogService functionalCaseModuleLogService;
 
 
     public List<BaseTreeNode> getTree(String projectId) {
@@ -85,6 +82,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         functionalCaseModule.setCreateUser(userId);
         functionalCaseModule.setUpdateUser(userId);
         functionalCaseModuleMapper.insert(functionalCaseModule);
+        functionalCaseModuleLogService.addModuleLog(functionalCaseModule, userId);
         return functionalCaseModule.getId();
     }
 
@@ -100,6 +98,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         updateModule.setCreateUser(null);
         updateModule.setCreateTime(null);
         functionalCaseModuleMapper.updateByPrimaryKeySelective(updateModule);
+        functionalCaseModuleLogService.updateModuleLog(updateModule, userId);
     }
 
     public void moveNode(NodeMoveRequest request, String userId) {
@@ -129,31 +128,11 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         FunctionalCaseModule deleteModule = functionalCaseModuleMapper.selectByPrimaryKey(moduleId);
         if (deleteModule != null) {
             List<FunctionalCase> functionalCases = this.deleteModuleByIds(Collections.singletonList(moduleId), new ArrayList<>(), userId);
-            batchDelLog(functionalCases, deleteModule.getProjectId());
+            functionalCaseModuleLogService.batchDelLog(functionalCases, deleteModule.getProjectId(), userId, "/functional/case/module/delete/" + moduleId);
             List<String> ids = functionalCases.stream().map(FunctionalCase::getId).toList();
             User user = userMapper.selectByPrimaryKey(userId);
             functionalCaseNoticeService.batchSendNotice(deleteModule.getProjectId(), ids, user, NoticeConstants.Event.DELETE);
         }
-    }
-
-    public void batchDelLog(List<FunctionalCase> functionalCases, String projectId) {
-        List<LogDTO> dtoList = new ArrayList<>();
-        functionalCases.forEach(item -> {
-            LogDTO dto = new LogDTO(
-                    projectId,
-                    "",
-                    item.getId(),
-                    item.getCreateUser(),
-                    OperationLogType.DELETE.name(),
-                    OperationLogModule.FUNCTIONAL_CASE,
-                    item.getName());
-
-            dto.setPath("/functional/case/module/delete/");
-            dto.setMethod(HttpMethodConstants.GET.name());
-            dto.setOriginalValue(JSON.toJSONBytes(item));
-            dtoList.add(dto);
-        });
-        operationLogService.batchAdd(dtoList);
     }
 
     public List<FunctionalCase> deleteModuleByIds(List<String> deleteIds, List<FunctionalCase> functionalCases, String userId) {

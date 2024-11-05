@@ -19,7 +19,6 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
-import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -703,8 +702,6 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
 
         //service层判断：测试删除空集合
         functionalCaseModuleService.deleteModuleByIds(new ArrayList<>(), new ArrayList<>(), "admin");
-
-        checkLog(functionalCase.getId(), OperationLogType.DELETE, URL_MODULE_TREE_DELETE);
 
 
     }

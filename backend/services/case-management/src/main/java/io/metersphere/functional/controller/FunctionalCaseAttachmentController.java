@@ -122,7 +122,7 @@ public class FunctionalCaseAttachmentController {
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public String update(@PathVariable String projectId, @PathVariable String id) {
         FileLogRecord fileLogRecord = FileLogRecord.builder()
-                .logModule(OperationLogModule.FUNCTIONAL_CASE)
+                .logModule(OperationLogModule.CASE_MANAGEMENT_CASE_CASE)
                 .operator(SessionUtils.getUserId())
                 .projectId(projectId)
                 .build();
@@ -138,7 +138,7 @@ public class FunctionalCaseAttachmentController {
         byte[] fileByte = functionalCaseAttachmentService.getFileByte(request);
         FunctionalCaseAttachment attachment = functionalCaseAttachmentService.getAttachment(request);
         FileLogRecord fileLogRecord = FileLogRecord.builder()
-                .logModule(OperationLogModule.FUNCTIONAL_CASE)
+                .logModule(OperationLogModule.CASE_MANAGEMENT_CASE_CASE)
                 .operator(SessionUtils.getUserId())
                 .projectId(request.getProjectId())
                 .build();

@@ -205,7 +205,7 @@ public class FunctionalCaseService {
 
         //记录日志
         FunctionalCaseHistoryLogDTO historyLogDTO = getAddLogModule(functionalCase);
-        saveAddDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.ADD.name(), OperationLogModule.FUNCTIONAL_CASE);
+        saveAddDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.ADD.name(), OperationLogModule.CASE_MANAGEMENT_CASE_CASE);
 
         return functionalCase;
     }
@@ -459,7 +459,7 @@ public class FunctionalCaseService {
         //获取变更历史数量数量
         OperationHistoryExample operationHistoryExample = new OperationHistoryExample();
         List<String> types = List.of(OperationLogType.ADD.name(), OperationLogType.IMPORT.name(), OperationLogType.UPDATE.name());
-        operationHistoryExample.createCriteria().andSourceIdEqualTo(functionalCaseDetailDTO.getId()).andModuleEqualTo(OperationLogModule.FUNCTIONAL_CASE).andTypeIn(types);
+        operationHistoryExample.createCriteria().andSourceIdEqualTo(functionalCaseDetailDTO.getId()).andModuleEqualTo(OperationLogModule.CASE_MANAGEMENT_CASE_CASE).andTypeIn(types);
         functionalCaseDetailDTO.setHistoryCount((int) operationHistoryMapper.countByExample(operationHistoryExample));
 
     }
@@ -927,7 +927,7 @@ public class FunctionalCaseService {
                 functionalCaseAttachmentService.association(entry.getValue(), entry.getKey(), userId, FUNCTIONAL_CASE_BATCH_COPY_FILE_LOG_URL, request.getProjectId());
             });
             addLogMap.entrySet().forEach(entry -> {
-                saveAddDataLog(entry.getKey(), new FunctionalCaseHistoryLogDTO(), entry.getValue(), userId, organizationId, OperationLogType.ADD.name(), OperationLogModule.FUNCTIONAL_CASE);
+                saveAddDataLog(entry.getKey(), new FunctionalCaseHistoryLogDTO(), entry.getValue(), userId, organizationId, OperationLogType.ADD.name(), OperationLogModule.CASE_MANAGEMENT_CASE_CASE);
             });
 
             User user = userMapper.selectByPrimaryKey(userId);
@@ -1128,7 +1128,7 @@ public class FunctionalCaseService {
 
         //新增用例记录日志
         historyLogDTOS.forEach(historyLogDTO -> {
-            batchSaveImportData(historyLogDTO, new FunctionalCaseHistoryLogDTO(), user, OperationLogType.IMPORT.name(), OperationLogModule.FUNCTIONAL_CASE, logDTOS);
+            batchSaveImportData(historyLogDTO, new FunctionalCaseHistoryLogDTO(), user, OperationLogType.IMPORT.name(), OperationLogModule.CASE_MANAGEMENT_CASE_CASE, logDTOS);
         });
         operationLogService.batchAdd(logDTOS);
 
@@ -1372,7 +1372,7 @@ public class FunctionalCaseService {
         FunctionalCase oldCase = collect.get(newData.getFunctionalCase().getId()).getFirst();
         FunctionalCaseBlob oldBlod = blobsCollect.get(newData.getFunctionalCase().getId()).getFirst();
         List<FunctionalCaseCustomField> oldCustomFields = customFieldMap.get(newData.getFunctionalCase().getId());
-        batchSaveImportData(newData, new FunctionalCaseHistoryLogDTO(oldCase, oldBlod, oldCustomFields, new ArrayList<>(), new ArrayList<>()), user, OperationLogType.IMPORT.name(), OperationLogModule.FUNCTIONAL_CASE, logDTOS);
+        batchSaveImportData(newData, new FunctionalCaseHistoryLogDTO(oldCase, oldBlod, oldCustomFields, new ArrayList<>(), new ArrayList<>()), user, OperationLogType.IMPORT.name(), OperationLogModule.CASE_MANAGEMENT_CASE_CASE, logDTOS);
     }
 
     /**

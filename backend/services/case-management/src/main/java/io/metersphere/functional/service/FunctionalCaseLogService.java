@@ -141,7 +141,7 @@ public class FunctionalCaseLogService {
                     functionalCase.getId(),
                     null,
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.FUNCTIONAL_CASE,
+                    OperationLogModule.CASE_MANAGEMENT_CASE_CASE,
                     functionalCase.getName());
 
             dto.setPath("/functional/case/delete");
@@ -168,7 +168,7 @@ public class FunctionalCaseLogService {
                         functionalCase.getId(),
                         null,
                         OperationLogType.DELETE.name(),
-                        OperationLogModule.FUNCTIONAL_CASE,
+                        OperationLogModule.CASE_MANAGEMENT_CASE_CASE,
                         functionalCase.getName());
 
                 dto.setPath(path);
@@ -195,7 +195,7 @@ public class FunctionalCaseLogService {
                     id,
                     null,
                     OperationLogType.RECOVER.name(),
-                    OperationLogModule.FUNCTIONAL_CASE,
+                    OperationLogModule.CASE_MANAGEMENT_CASE_RECYCLE,
                     functionalCase.getName());
             dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
             return dto;
@@ -221,7 +221,7 @@ public class FunctionalCaseLogService {
                         functionalCase.getId(),
                         null,
                         OperationLogType.RECOVER.name(),
-                        OperationLogModule.FUNCTIONAL_CASE,
+                        OperationLogModule.CASE_MANAGEMENT_CASE_RECYCLE,
                         functionalCase.getName());
 
                 dto.setPath("/functional/case/batch/recover");
@@ -248,7 +248,7 @@ public class FunctionalCaseLogService {
                     functionalCase.getId(),
                     null,
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.FUNCTIONAL_CASE,
+                    OperationLogModule.CASE_MANAGEMENT_CASE_RECYCLE,
                     functionalCase.getName());
 
             dto.setPath("/functional/case/trash/delete");
@@ -279,7 +279,7 @@ public class FunctionalCaseLogService {
                     functionalCase.getId(),
                     null,
                     OperationLogType.DISASSOCIATE.name(),
-                    OperationLogModule.FUNCTIONAL_CASE,
+                    OperationLogModule.CASE_MANAGEMENT_CASE_CASE,
                     functionalCase.getName());
 
             dto.setPath("/functional/case/demand/cancel/");
@@ -305,7 +305,7 @@ public class FunctionalCaseLogService {
                     functionalCase.getId(),
                     null,
                     OperationLogType.DISASSOCIATE.name(),
-                    OperationLogModule.FUNCTIONAL_CASE,
+                    OperationLogModule.CASE_MANAGEMENT_CASE_CASE,
                     functionalCase.getName());
 
             dto.setPath("/functional/case/test/disassociate/case");
@@ -344,7 +344,7 @@ public class FunctionalCaseLogService {
                         functionalCase.getId(),
                         null,
                         OperationLogType.DELETE.name(),
-                        OperationLogModule.FUNCTIONAL_CASE,
+                        OperationLogModule.CASE_MANAGEMENT_CASE_RECYCLE,
                         functionalCase.getName());
 
                 dto.setPath("/functional/case/batch/delete");
@@ -379,7 +379,7 @@ public class FunctionalCaseLogService {
                     bugRelationCase.getBugId(),
                     null,
                     OperationLogType.DISASSOCIATE.name(),
-                    OperationLogModule.FUNCTIONAL_CASE,
+                    OperationLogModule.CASE_MANAGEMENT_CASE_CASE,
                     bug.getTitle() + "缺陷");
 
             dto.setPath("/functional/case/test/disassociate/bug/" + id);
@@ -400,7 +400,7 @@ public class FunctionalCaseLogService {
                     functionalCase.getId(),
                     null,
                     OperationLogType.DISASSOCIATE.name(),
-                    OperationLogModule.FUNCTIONAL_CASE,
+                    OperationLogModule.CASE_MANAGEMENT_CASE_CASE,
                     functionalCase.getName());
 
             dto.setPath("/functional/case/relationship/delete");
@@ -419,7 +419,7 @@ public class FunctionalCaseLogService {
                 sourceId,
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.FUNCTIONAL_CASE,
+                OperationLogModule.CASE_MANAGEMENT_CASE_CASE,
                 content);
         dto.setHistory(true);
         dto.setPath(path);
@@ -435,7 +435,7 @@ public class FunctionalCaseLogService {
                 request.getFileId(),
                 userId,
                 OperationLogType.EXPORT.name(),
-                OperationLogModule.FUNCTIONAL_CASE,
+                OperationLogModule.CASE_MANAGEMENT_CASE_CASE,
                 "");
         dto.setHistory(true);
         dto.setPath("/functional/case/export/" + url);

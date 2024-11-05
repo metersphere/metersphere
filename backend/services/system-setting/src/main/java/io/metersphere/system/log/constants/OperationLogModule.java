@@ -136,7 +136,12 @@ public class OperationLogModule {
     public static final String FUNCTIONAL_CASE = "CASE_MANAGEMENT_CASE";
     public static final String CASE_MANAGEMENT_CASE_CREATE = "CASE_MANAGEMENT_CASE_CREATE";
     public static final String CASE_MANAGEMENT_CASE_UPDATE = "CASE_MANAGEMENT_CASE_UPDATE";
+    //功能用例-回收站
     public static final String CASE_MANAGEMENT_CASE_RECYCLE = "CASE_MANAGEMENT_CASE_RECYCLE";
+    //功能用例-模块
+    public static final String CASE_MANAGEMENT_CASE_MODULE = "CASE_MANAGEMENT_CASE_MODULE";
+    //功能用例-用例
+    public static final String CASE_MANAGEMENT_CASE_CASE = "CASE_MANAGEMENT_CASE_CASE";
 
     public static final String CASE_REVIEW = "CASE_MANAGEMENT_REVIEW";
 

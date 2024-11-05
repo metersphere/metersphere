@@ -110,9 +110,6 @@ public class FunctionalCaseMinderService {
     private ExtFunctionalCaseModuleMapper extFunctionalCaseModuleMapper;
 
     @Resource
-    private FunctionalCaseLogService functionalCaseLogService;
-
-    @Resource
     private FunctionalCaseNoticeService functionalCaseNoticeService;
 
     @Resource
@@ -120,6 +117,8 @@ public class FunctionalCaseMinderService {
 
     @Resource
     private ProjectTemplateService projectTemplateService;
+    @Resource
+    private FunctionalCaseModuleLogService functionalCaseModuleLogService;
 
 
     /**
@@ -527,7 +526,7 @@ public class FunctionalCaseMinderService {
                         functionalCase.getId(),
                         userId,
                         OperationLogType.DELETE.name(),
-                        OperationLogModule.FUNCTIONAL_CASE,
+                        OperationLogModule.CASE_MANAGEMENT_CASE_CASE,
                         functionalCase.getName());
 
                 dto.setPath("/functional/mind/case/edit");
@@ -1005,7 +1004,7 @@ public class FunctionalCaseMinderService {
                 caseId,
                 userId,
                 operationLogType.name(),
-                OperationLogModule.FUNCTIONAL_CASE,
+                OperationLogModule.CASE_MANAGEMENT_CASE_CASE,
                 historyLogDTO.getFunctionalCase().getName());
         dto.setHistory(true);
         dto.setPath("/functional/mind/case/edit");
@@ -1238,7 +1237,7 @@ public class FunctionalCaseMinderService {
                     throw new MSException(Translator.get("functional_case.module.default.name.cut_error"));
                 }
                 List<FunctionalCase> functionalCases = functionalCaseModuleService.deleteModuleByIds(moduleIds, new ArrayList<>(), user.getId());
-                functionalCaseModuleService.batchDelLog(functionalCases, request.getProjectId());
+                functionalCaseModuleLogService.batchDelLog(functionalCases, request.getProjectId(), user.getId(), "/functional/mind/case/edit");
                 List<String> finalCaseIds = caseIds;
                 List<String> caseIdList = functionalCases.stream().map(FunctionalCase::getId).filter(id -> !finalCaseIds.contains(id)).toList();
                 if (CollectionUtils.isNotEmpty(caseIdList)) {

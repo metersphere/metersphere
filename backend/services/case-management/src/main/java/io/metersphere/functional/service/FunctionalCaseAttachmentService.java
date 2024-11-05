@@ -101,7 +101,7 @@ public class FunctionalCaseAttachmentService {
      */
     public List<String> uploadFile(String projectId, String caseId, List<MultipartFile> files, Boolean isLocal, String userId) {
         LogUtils.info("开始上传附件");
-        List<String>fileIds = new ArrayList<>();
+        List<String> fileIds = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(files)) {
             files.forEach(file -> {
                 String fileId = IDGenerator.nextStr();
@@ -263,7 +263,7 @@ public class FunctionalCaseAttachmentService {
 
     private FileLogRecord createFileLogRecord(String logUrl, String operator, String projectId) {
         return FileLogRecord.builder()
-                .logModule(OperationLogModule.FUNCTIONAL_CASE)
+                .logModule(OperationLogModule.CASE_MANAGEMENT_CASE_CASE)
                 .operator(operator)
                 .projectId(projectId)
                 .build();
@@ -429,7 +429,7 @@ public class FunctionalCaseAttachmentService {
     /**
      * 上传用例管理相关的资源文件
      *
-     * @param folder     用例管理文件路径
+     * @param folder  用例管理文件路径
      * @param fileMap key:fileId value:fileName
      */
     public void uploadFileResource(String folder, Map<String, String> fileMap, String projectId, String caseId) {
