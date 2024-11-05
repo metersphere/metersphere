@@ -4,6 +4,7 @@ import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugContent;
 import io.metersphere.bug.domain.BugContentExample;
 import io.metersphere.bug.domain.BugExample;
+import io.metersphere.bug.dto.request.BugBatchRequest;
 import io.metersphere.bug.dto.request.BugEditRequest;
 import io.metersphere.bug.dto.response.BugCustomFieldDTO;
 import io.metersphere.bug.dto.response.BugDTO;
@@ -20,6 +21,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -114,6 +116,76 @@ public class BugLogService {
             return dto;
         }
         return null;
+    }
+
+    /**
+     * 批量删除缺陷日志
+     * @param request 请求参数
+     * @return 日志
+     */
+    public List<LogDTO> batchDeleteLog(BugBatchRequest request) {
+        List<String> batchIds = bugService.getBatchIdsByRequest(request);
+        BugExample example = new BugExample();
+        example.createCriteria().andIdIn(batchIds);
+        List<Bug> bugs = bugMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(bugs)) {
+            return null;
+        }
+        List<LogDTO> logs = new ArrayList<>();
+        bugs.forEach(bug -> {
+            LogDTO dto = new LogDTO(bug.getProjectId(), null, bug.getId(), null, OperationLogType.DELETE.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, bug.getTitle());
+            dto.setHistory(true);
+            dto.setPath("/bug/delete");
+            dto.setMethod(HttpMethodConstants.POST.name());
+            dto.setOriginalValue(JSON.toJSONBytes(bug));
+            logs.add(dto);
+        });
+        return logs;
+    }
+
+    /**
+     * 删除回收站缺陷日志
+     *
+     * @param id 缺陷ID
+     * @return 日志
+     */
+    @SuppressWarnings("unused")
+    public LogDTO deleteTrashLog(String id) {
+        Bug bug = bugMapper.selectByPrimaryKey(id);
+        if (bug != null) {
+            LogDTO dto = new LogDTO(bug.getProjectId(), null, bug.getId(), null, OperationLogType.DELETE.name(), OperationLogModule.BUG_MANAGEMENT_RECYCLE, bug.getTitle());
+            dto.setHistory(true);
+            dto.setPath("/bug/delete");
+            dto.setMethod(HttpMethodConstants.GET.name());
+            dto.setOriginalValue(JSON.toJSONBytes(bug));
+            return dto;
+        }
+        return null;
+    }
+
+    /**
+     * 批量删除回收站缺陷日志
+     * @param request 请求参数
+     * @return 日志
+     */
+    public List<LogDTO> batchDeleteTrashLog(BugBatchRequest request) {
+        List<String> batchIds = bugService.getBatchIdsByRequest(request);
+        BugExample example = new BugExample();
+        example.createCriteria().andIdIn(batchIds);
+        List<Bug> bugs = bugMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(bugs)) {
+            return null;
+        }
+        List<LogDTO> logs = new ArrayList<>();
+        bugs.forEach(bug -> {
+            LogDTO dto = new LogDTO(bug.getProjectId(), null, bug.getId(), null, OperationLogType.DELETE.name(), OperationLogModule.BUG_MANAGEMENT_RECYCLE, bug.getTitle());
+            dto.setHistory(true);
+            dto.setPath("/bug/delete");
+            dto.setMethod(HttpMethodConstants.POST.name());
+            dto.setOriginalValue(JSON.toJSONBytes(bug));
+            logs.add(dto);
+        });
+        return logs;
     }
 
     /**

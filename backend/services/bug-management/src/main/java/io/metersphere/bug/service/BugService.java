@@ -411,6 +411,7 @@ public class BugService {
         List<Bug> bugs = bugMapper.selectByExample(example);
         String currentPlatform = projectApplicationService.getPlatformName(bugs.getFirst().getProjectId());
         List<String> platformBugIds = new ArrayList<>();
+        List<String> platformBugKeys = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(bugs)) {
             Map<String, List<Bug>> groupBugs = bugs.stream().collect(Collectors.groupingBy(Bug::getPlatform));
             // 根据不同平台, 删除缺陷
@@ -430,33 +431,33 @@ public class BugService {
                      * 第三方平台缺陷
                      * 和当前项目所属平台不一致, 只删除MS缺陷, 不同步删除平台缺陷, 一致时需同步删除平台缺陷
                      */
-                    bugCommonService.clearAssociateResource(bugList.getFirst().getProjectId(), bugIds);
                     bugMapper.deleteByExample(example);
+                    platformBugIds.addAll(bugIds);
                     if (StringUtils.equals(platform, currentPlatform)) {
-                        platformBugIds.addAll(bugList.stream().map(Bug::getPlatformBugId).toList());
+                        platformBugKeys.addAll(bugList.stream().map(Bug::getPlatformBugId).toList());
                     }
                 }
             });
         }
 
-        // 批量日志
-        List<LogDTO> logs = getBatchLogByRequest(batchIds, OperationLogType.DELETE.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, "/bug/batch-delete", request.getProjectId(), false, false, null, currentUser);
-        operationLogService.batchAdd(logs);
+        if (CollectionUtils.isNotEmpty(platformBugIds)) {
+            Thread.startVirtualThread(() -> bugCommonService.clearAssociateResource(request.getProjectId(), platformBugIds));
+        }
 
-        // 异步处理第三方平台缺陷, 防止超时
-        Thread.startVirtualThread(() -> {
-            if (CollectionUtils.isNotEmpty(platformBugIds)) {
+        if (CollectionUtils.isNotEmpty(platformBugKeys)) {
+            // 异步处理第三方平台缺陷, 防止超时
+            Thread.startVirtualThread(() -> {
                 Platform platform = projectApplicationService.getPlatform(bugs.getFirst().getProjectId(), true);
                 String projectBugThirdPartConfig = projectApplicationService.getProjectBugThirdPartConfig(bugs.getFirst().getProjectId());
-                platformBugIds.forEach(platformBugKey -> {
+                platformBugKeys.forEach(platformBugKey -> {
                     // 需同步删除平台缺陷
                     PlatformBugDeleteRequest deleteRequest = new PlatformBugDeleteRequest();
                     deleteRequest.setPlatformBugKey(platformBugKey);
                     deleteRequest.setProjectConfig(projectBugThirdPartConfig);
                     platform.deleteBug(deleteRequest);
                 });
-            }
-        });
+            });
+        }
     }
 
     /**

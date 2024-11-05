@@ -5,10 +5,8 @@ import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.ServiceIntegration;
-import io.metersphere.system.dto.sdk.LicenseDTO;
 import io.metersphere.system.schedule.BaseScheduleJob;
 import io.metersphere.system.service.LicenseService;
-import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
@@ -45,24 +43,18 @@ public class BugSyncJob extends BaseScheduleJob {
         if (!checkBeforeSync(resourceId)) {
             return;
         }
-        LogUtils.info("Start verify license and synchronizing bugs");
+        LogUtils.info("Start synchronization defect");
         try{
-            if (licenseService == null) {
-                // 没有License, 同步存量缺陷
-                LogUtils.info("No license, synchronization stock bug");
+            // 根据项目默认配置同步缺陷
+            boolean increment = projectApplicationService.isPlatformSyncMethodByIncrement(resourceId);
+            if (increment) {
+                // 增量同步
+                LogUtils.info("Incremental synchronization");
                 bugSyncService.syncPlatformBugBySchedule(resourceId, userId);
             } else {
-                LicenseDTO licenseDTO = licenseService.validate();
-                if (licenseDTO != null && licenseDTO.getLicense() != null
-                        && StringUtils.equals(licenseDTO.getStatus(), "valid")) {
-                    // License校验成功, 同步全量缺陷
-                    LogUtils.info("License verification successful, synchronization full bug");
-                    bugSyncService.syncPlatformAllBugBySchedule(resourceId, userId);
-                } else {
-                    // License校验失败, 同步存量缺陷
-                    LogUtils.info("License verification failed, synchronization stock bug");
-                    bugSyncService.syncPlatformBugBySchedule(resourceId, userId);
-                }
+                // 全量同步
+                LogUtils.info("Full synchronization");
+                bugSyncService.syncPlatformAllBugBySchedule(resourceId, userId);
             }
         } catch (Exception e) {
             LogUtils.error(e.getMessage());

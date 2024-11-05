@@ -191,6 +191,7 @@ public class BugController {
     @Operation(summary = "缺陷管理-列表-批量删除缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_DELETE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.batchDeleteLog(#request)", msClass = BugLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.BUG_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getBatchNoticeByRequest(#request)", targetClass = BugNoticeService.class)
     public void batchDelete(@Validated @RequestBody BugBatchRequest request) {
         request.setUseTrash(false);
