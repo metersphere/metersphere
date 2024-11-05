@@ -27,11 +27,18 @@ public class BaseScheduleService {
     @Resource
     private ExtScheduleMapper extScheduleMapper;
 
+    private static final List<String> RESOURCE_TYPES = List.of(
+            ScheduleResourceType.API_IMPORT.name(),
+            ScheduleResourceType.API_SCENARIO.name(),
+            ScheduleResourceType.TEST_PLAN.name(),
+            ScheduleResourceType.BUG_SYNC.name(),
+            ScheduleResourceType.DEMAND_SYNC.name()
+    );
+
     public void startEnableSchedules() {
-        ScheduleExample example = new ScheduleExample();
-        example.createCriteria();
-        long count = scheduleMapper.countByExample(example);
-        long pages = Double.valueOf(Math.ceil(count / 100.0)).longValue();
+        long count = scheduleMapper.countByExample(new ScheduleExample());
+        long pages = (long) Math.ceil(count / 100.0);
+
         for (int i = 0; i < pages; i++) {
             int start = i * 100;
             List<Schedule> schedules = extScheduleMapper.getScheduleByLimit(start, 100);
@@ -40,22 +47,25 @@ public class BaseScheduleService {
     }
 
     private void doHandleSchedule(List<Schedule> schedules) {
-        List<String> resourceTypes = List.of(ScheduleResourceType.API_IMPORT.name(), ScheduleResourceType.API_SCENARIO.name(), ScheduleResourceType.TEST_PLAN.name(), ScheduleResourceType.BUG_SYNC.name(), ScheduleResourceType.DEMAND_SYNC.name());
         schedules.forEach(schedule -> {
             try {
                 if (schedule.getEnable()) {
-                    if (resourceTypes.contains(schedule.getResourceType())) {
-                        // 删除关闭的job
-                        removeJob(schedule);
+                    if (RESOURCE_TYPES.contains(schedule.getResourceType())) {
+                        removeJob(schedule); // 删除关闭的job
                     }
                     LogUtils.info("初始化任务：" + JSON.toJSONString(schedule));
-                    scheduleManager.addOrUpdateCronJob(new JobKey(schedule.getKey(), schedule.getJob()),
-                            new TriggerKey(schedule.getKey(), schedule.getJob()), Class.forName(schedule.getJob()), schedule.getValue(),
-                            scheduleManager.getDefaultJobDataMap(schedule, schedule.getValue(), schedule.getCreateUser()));
+                    scheduleManager.addOrUpdateCronJob(
+                            new JobKey(schedule.getKey(), schedule.getJob()),
+                            new TriggerKey(schedule.getKey(), schedule.getJob()),
+                            Class.forName(schedule.getJob()),
+                            schedule.getValue(),
+                            scheduleManager.getDefaultJobDataMap(schedule, schedule.getValue(), schedule.getCreateUser())
+                    );
                 } else {
-                    // 删除关闭的job
-                    removeJob(schedule);
+                    removeJob(schedule); // 删除关闭的job
                 }
+            } catch (ClassNotFoundException e) {
+                LogUtils.error("任务类未找到：" + schedule.getJob(), e);
             } catch (Exception e) {
                 LogUtils.error("初始化任务失败", e);
             }
@@ -63,6 +73,9 @@ public class BaseScheduleService {
     }
 
     private void removeJob(Schedule schedule) {
-        scheduleManager.removeJob(new JobKey(schedule.getKey(), schedule.getJob()), new TriggerKey(schedule.getKey(), schedule.getJob()));
+        scheduleManager.removeJob(
+                new JobKey(schedule.getKey(), schedule.getJob()),
+                new TriggerKey(schedule.getKey(), schedule.getJob())
+        );
     }
 }
