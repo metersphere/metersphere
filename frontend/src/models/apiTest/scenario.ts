@@ -61,6 +61,11 @@ export interface ApiScenarioScheduleConfig {
   };
 }
 
+// 场景-批量编辑定时任务参数
+export interface ApiScenarioBatchScheduleConfig extends BatchActionQueryParams, Partial<ApiScenarioScheduleConfig> {
+  projectId: string;
+}
+
 // 场景详情
 export interface ApiScenarioTableItem {
   id: string;
@@ -160,6 +165,8 @@ export interface ApiScenarioBatchEditParams extends ApiScenarioBatchParams {
 
   // 修改优先级
   priority?: string;
+  // 修改定时任务
+  scheduleOpen?: boolean;
 }
 
 // 批量编辑场景参数

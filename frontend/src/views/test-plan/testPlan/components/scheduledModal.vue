@@ -8,8 +8,12 @@
   >
     <template #title>
       {{
-        props.taskConfig
-          ? t('testPlan.testPlanIndex.updateScheduledTask')
+        props.taskConfig || props.isBatch
+          ? t(
+              props.isBatch
+                ? 'testPlan.testPlanIndex.batchUpdateScheduledTask'
+                : 'testPlan.testPlanIndex.updateScheduledTask'
+            )
           : t('testPlan.testPlanIndex.createScheduledTask')
       }}
     </template>
@@ -82,7 +86,7 @@
         <div>
           <a-button type="secondary" class="mr-3" @click="handleCancel">{{ t('system.plugin.pluginCancel') }}</a-button>
           <a-button type="primary" :loading="confirmLoading" @click="handleCreate">
-            {{ props.taskConfig ? t('common.update') : t('common.create') }}
+            {{ props.taskConfig || props.isBatch ? t('common.update') : t('common.create') }}
           </a-button>
         </div>
       </div>
@@ -97,9 +101,11 @@
   import { cloneDeep } from 'lodash-es';
 
   import MsCronSelect from '@/components/pure/ms-cron-select/index.vue';
+  import { BatchActionQueryParams } from '@/components/pure/ms-table/type';
 
-  import { configSchedule } from '@/api/modules/test-plan/testPlan';
+  import { batchConfigSchedule, configSchedule } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
   import type { CreateTask } from '@/models/testPlan/testPlan';
   import { testPlanTypeEnum } from '@/enums/testPlanEnum';
@@ -110,6 +116,8 @@
     taskConfig?: CreateTask;
     type: keyof typeof testPlanTypeEnum;
     sourceId?: string;
+    isBatch?: boolean;
+    batchParams?: BatchActionQueryParams;
   }>();
 
   const emit = defineEmits<{
@@ -117,6 +125,8 @@
     (e: 'close'): void;
     (e: 'handleSuccess'): void;
   }>();
+
+  const appStore = useAppStore();
 
   const showModalVisible = useVModel(props, 'visible', emit);
 
@@ -143,16 +153,22 @@
       if (!errors) {
         confirmLoading.value = true;
         try {
-          if (props.sourceId) {
+          if (props.isBatch && props.batchParams) {
+            await batchConfigSchedule({
+              ...props.batchParams,
+              ...form.value,
+              projectId: appStore.currentProjectId,
+            });
+          } else if (props.sourceId) {
             const params = {
               ...form.value,
               resourceId: props.sourceId,
             };
             await configSchedule(params);
-            handleCancel();
-            emit('handleSuccess');
-            Message.success(props.taskConfig ? t('common.updateSuccess') : t('common.createSuccess'));
           }
+          handleCancel();
+          emit('handleSuccess');
+          Message.success(props.taskConfig || props.isBatch ? t('common.updateSuccess') : t('common.createSuccess'));
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);

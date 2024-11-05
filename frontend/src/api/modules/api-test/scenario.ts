@@ -1,7 +1,6 @@
 import type { CaseLevel } from '@/components/business/ms-case-associate/types';
 
 import MSR from '@/api/http/index';
-import { ExportDefinitionUrl, StopApiExportUrl } from '@/api/requrls/api-test/management';
 import {
   AddModuleUrl,
   AddScenarioUrl,
@@ -35,6 +34,7 @@ import {
   RecoverScenarioUrl,
   RecycleScenarioUrl,
   ScenarioAssociateExportUrl,
+  ScenarioBatchEditScheduleUrl,
   ScenarioBatchExportLogUrl,
   ScenarioExportLogUrl,
   ScenarioHistoryUrl,
@@ -54,12 +54,12 @@ import {
 } from '@/api/requrls/api-test/scenario';
 
 import { ExecuteConditionProcessor } from '@/models/apiTest/common';
-import type { ApiDefinitionBatchExportParams } from '@/models/apiTest/management';
 import {
   ApiScenarioBatchDeleteParams,
   ApiScenarioBatchEditParams,
   ApiScenarioBatchOptionResult,
   ApiScenarioBatchRunParams,
+  type ApiScenarioBatchScheduleConfig,
   ApiScenarioDebugRequest,
   ApiScenarioGetModuleParams,
   ApiScenarioModuleUpdateParams,
@@ -363,4 +363,9 @@ export function getScenarioDownloadFile(projectId: string, fileId: string) {
     },
     { isTransformResponse: false }
   );
+}
+
+// 批量编辑场景定时任务
+export function scenarioBatchEditSchedule(data: ApiScenarioBatchScheduleConfig) {
+  return MSR.post({ url: ScenarioBatchEditScheduleUrl, data });
 }

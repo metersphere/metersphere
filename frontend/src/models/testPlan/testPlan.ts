@@ -396,6 +396,9 @@ export interface CreateTask {
   cron: string;
   runConfig: { runMode: 'SERIAL' | 'PARALLEL' };
 }
+export interface BatchConfigSchedule extends Partial<CreateTask>, BatchActionQueryParams {
+  projectId: string;
+}
 export interface BatchExecutePlan {
   projectId?: string;
   executeIds?: string[];

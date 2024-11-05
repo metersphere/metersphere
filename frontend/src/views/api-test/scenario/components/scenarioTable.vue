@@ -185,7 +185,12 @@
     <template #title>
       <div class="float-left">
         {{ scheduleModalTitle }}
-        <a-tooltip v-if="translateTextToPX(tableRecord?.name) > 300">
+        <div v-if="isBatch" class="float-right flex text-[var(--color-text-4)]">
+          {{ '（' }}
+          <div>{{ batchParams.currentSelectCount || batchParams.selectedIds?.length }}</div>
+          {{ '）' }}
+        </div>
+        <a-tooltip v-else-if="translateTextToPX(tableRecord?.name) > 300">
           <template #content>
             <span>
               {{ tableRecord?.name }}
@@ -511,6 +516,7 @@
     dragSort,
     getScenarioPage,
     recycleScenario,
+    scenarioBatchEditSchedule,
     scenarioScheduleConfig,
     updateScenarioPro,
     updateScenarioStatus,
@@ -860,6 +866,21 @@
     ],
     moreAction: [
       {
+        label: 'testPlan.testPlanIndex.openTimingTask',
+        eventTag: 'openTimingTask',
+        permission: ['PROJECT_API_SCENARIO:READ+EXECUTE'],
+      },
+      {
+        label: 'testPlan.testPlanIndex.closeTimingTask',
+        eventTag: 'closeTimingTask',
+        permission: ['PROJECT_API_SCENARIO:READ+EXECUTE'],
+      },
+      {
+        label: 'testPlan.testPlanIndex.editTimingTask',
+        eventTag: 'editTimingTask',
+        permission: ['PROJECT_API_SCENARIO:READ+EXECUTE'],
+      },
+      {
         label: 'common.delete',
         eventTag: 'delete',
         permission: ['PROJECT_API_SCENARIO:READ+DELETE'],
@@ -1132,6 +1153,7 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
+          appStore.showLoading();
           if (isBatch) {
             const batchConditionParams = await getBatchConditionParams();
             await batchRecycleScenario({
@@ -1150,12 +1172,15 @@
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
+        } finally {
+          appStore.hideLoading();
         }
       },
       hideCancel: false,
     });
   }
 
+  const isBatch = ref(false);
   const showScheduleModal = ref(false);
 
   async function resetScheduleConfig(record: ApiScenarioTableItem) {
@@ -1191,6 +1216,7 @@
   }
 
   async function openScheduleModal(record: ApiScenarioTableItem) {
+    isBatch.value = false;
     await resetScheduleConfig(record);
     showScheduleModal.value = true;
   }
@@ -1245,7 +1271,15 @@
           if (!scheduleUseNewEnv.value) {
             updateParam.config.environmentId = undefined;
           }
-          await scenarioScheduleConfig(updateParam);
+          if (isBatch.value) {
+            await scenarioBatchEditSchedule({
+              ...batchParams.value,
+              projectId: appStore.currentProjectId,
+              ...updateParam,
+            });
+          } else {
+            await scenarioScheduleConfig(updateParam);
+          }
           // 初始化弹窗标题
           if (tableRecord.value?.scheduleConfig) {
             Message.success(t('common.updateSuccess'));
@@ -1452,6 +1486,42 @@
   }
 
   /**
+   * 打开关闭定时任务
+   */
+  async function handleBatchToggleSchedule(enable: boolean) {
+    try {
+      appStore.showLoading();
+      const filterParams = {
+        ...propsRes.value.filter,
+      };
+      const { selectedIds, selectAll, excludeIds } = batchParams.value;
+      await batchEditScenario({
+        selectIds: selectedIds || [],
+        selectAll: !!selectAll,
+        excludeIds: excludeIds || [],
+        projectId: appStore.currentProjectId,
+        moduleIds: props.activeModule === 'all' ? [] : [props.activeModule, ...props.offspringIds],
+        condition: {
+          filter: filterParams,
+          keyword: keyword.value,
+        },
+        type: 'Schedule',
+        scheduleOpen: enable,
+      });
+      Message.success(
+        enable
+          ? t('testPlan.testPlanGroup.enableScheduleTaskSuccess')
+          : t('testPlan.testPlanGroup.closeScheduleTaskSuccess')
+      );
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      appStore.hideLoading();
+    }
+  }
+
+  /**
    * 处理表格选中后批量操作
    * @param event 批量操作事件对象
    */
@@ -1488,8 +1558,19 @@
         break;
       case 'execute':
         batchOptionParams.value = await getBatchConditionParams();
-
         showBatchExecute.value = true;
+        break;
+      case 'openTimingTask':
+        handleBatchToggleSchedule(true);
+        break;
+      case 'closeTimingTask':
+        handleBatchToggleSchedule(false);
+        break;
+      case 'editTimingTask':
+        isBatch.value = true;
+        scheduleModalTitle.value = t('testPlan.testPlanIndex.batchUpdateScheduledTask');
+        showScheduleModal.value = true;
+        await initResourcePool();
         break;
       default:
         break;

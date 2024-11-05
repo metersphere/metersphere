@@ -329,6 +329,8 @@
     :type="planType"
     :source-id="planSourceId"
     :task-config="taskForm"
+    :is-batch="isBatch"
+    :batch-params="batchParams"
     @handle-success="fetchData()"
   />
   <ActionModal
@@ -655,6 +657,11 @@
     {
       label: 'testPlan.testPlanIndex.closeTimingTask',
       eventTag: 'closeTimingTask',
+      permission: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
+    },
+    {
+      label: 'testPlan.testPlanIndex.editTimingTask',
+      eventTag: 'editTimingTask',
       permission: ['PROJECT_TEST_PLAN:READ+EXECUTE'],
     },
     {
@@ -1329,6 +1336,9 @@
     fetchData();
   }
 
+  const showScheduledTaskModal = ref<boolean>(false);
+  const isBatch = ref(false);
+
   /**
    * 批量操作
    */
@@ -1350,6 +1360,10 @@
       case 'closeTimingTask':
         handleStatusTimingTask(false);
         break;
+      case 'editTimingTask':
+        isBatch.value = true;
+        showScheduledTaskModal.value = true;
+        break;
       case 'archive':
         handleArchive();
         break;
@@ -1365,16 +1379,16 @@
     }
   }
 
-  const showScheduledTaskModal = ref<boolean>(false);
   const activeRecord = ref<TestPlanItem>();
-
   const taskForm = ref<CreateTask>();
   const planSourceId = ref<string>();
   const planType = ref<keyof typeof testPlanTypeEnum>(testPlanTypeEnum.TEST_PLAN);
+
   function handleScheduledTask(record: TestPlanItem) {
     if (!hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])) {
       return;
     }
+    isBatch.value = false;
     planType.value = record.type;
     planSourceId.value = record.id;
     taskForm.value = cloneDeep(defaultCountDetailMap.value[record.id]?.scheduleConfig);

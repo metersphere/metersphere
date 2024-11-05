@@ -16,6 +16,7 @@ import {
   batchArchivedPlanUrl,
   BatchAssociatedBugToCaseUrl,
   BatchAssociatedBugToMinderCaseUrl,
+  BatchConfigScheduleUrl,
   batchCopyPlanUrl,
   batchDeletePlanUrl,
   BatchDisassociateApiCaseUrl,
@@ -104,6 +105,7 @@ import { DragSortParams, ModuleTreeNode } from '@/models/common';
 import type {
   AddTestPlanParams,
   BatchApiCaseParams,
+  BatchConfigSchedule,
   BatchExecuteFeatureCaseParams,
   BatchExecutePlan,
   BatchFeatureCaseParams,
@@ -426,6 +428,12 @@ export function dragPlanOnGroup(data: DragSortParams) {
 export function configSchedule(data: CreateTask) {
   return MSR.post({ url: ConfigScheduleUrl, data });
 }
+
+// 测试计划-批量配置定时任务
+export function batchConfigSchedule(data: BatchConfigSchedule) {
+  return MSR.post({ url: BatchConfigScheduleUrl, data });
+}
+
 // 测试计划-计划&计划组-执行
 export function executeSinglePlan(data: ExecutePlan) {
   return MSR.post({ url: ExecuteSinglePlanUrl, data });
