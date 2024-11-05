@@ -828,6 +828,13 @@
           AND fc.deleted = #{deleted}
           AND
             tpfc.test_plan_collection_id = #{request.collectionId}
+        order by
+        <if test="sort != null and sort != ''">
+            fc.${sort}
+        </if>
+        <if test="sort == null or sort == ''">
+            fc.pos desc
+        </if>
     </select>
 
     <select id="selectBaseMindNodeByProjectId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">

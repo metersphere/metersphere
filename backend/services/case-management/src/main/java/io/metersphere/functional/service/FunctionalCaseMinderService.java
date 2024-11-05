@@ -1376,7 +1376,7 @@ public class FunctionalCaseMinderService {
 
     public List<FunctionalMinderTreeDTO> getCollectionMindFunctionalCase(FunctionalCaseCollectionMindRequest request, boolean deleted) {
         List<FunctionalMinderTreeDTO> list = new ArrayList<>();
-        List<FunctionalCaseMindDTO> functionalCaseMindDTOList = extFunctionalCaseMapper.getMinderCollectionList(request, deleted);
+        List<FunctionalCaseMindDTO> functionalCaseMindDTOList = extFunctionalCaseMapper.getMinderCollectionList(request, deleted, request.getSortString());
         List<String> projectIds = functionalCaseMindDTOList.stream().map(FunctionalCaseMindDTO::getProjectId).distinct().toList();
         List<FunctionalCaseCustomField> caseCustomFieldList = new ArrayList<>();
         for (String projectId : projectIds) {

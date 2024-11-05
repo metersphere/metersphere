@@ -530,6 +530,9 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         request.setCollectionId(collectionId);
         request.setPlanId("TEST_MINDER_PLAN_ID_1");
         request.setCurrent(1);
+        Map<String,String> map = new HashMap<>();
+        map.put("name", "desc");
+        request.setSort(map);
         MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_COLLECTION_LIST_URL, request);
         Pager<List<FunctionalMinderTreeDTO>> tableData = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),

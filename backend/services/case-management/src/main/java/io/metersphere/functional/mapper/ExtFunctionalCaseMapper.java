@@ -104,7 +104,7 @@ public interface ExtFunctionalCaseMapper {
 
     List<FunctionalCaseMindDTO> getMinderTestPlanList(@Param("request") FunctionalCasePlanMindRequest request, @Param("deleted") boolean delete, @Param("sort") String sort);
 
-    List<FunctionalCaseMindDTO> getMinderCollectionList(@Param("request") FunctionalCaseCollectionMindRequest request, @Param("deleted") boolean delete);
+    List<FunctionalCaseMindDTO> getMinderCollectionList(@Param("request") FunctionalCaseCollectionMindRequest request, @Param("deleted") boolean delete, @Param("sort") String sort);
 
 
     List<BaseTreeNode> selectBaseMindNodeByProjectId(@Param("projectId") String projectId);
