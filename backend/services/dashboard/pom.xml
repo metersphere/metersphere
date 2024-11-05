@@ -41,6 +41,31 @@
 			<artifactId>metersphere-project-management</artifactId>
 			<version>${revision}</version>
 		</dependency>
+		<dependency>
+			<groupId>io.metersphere</groupId>
+			<artifactId>metersphere-project-management</artifactId>
+			<version>${revision}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.metersphere</groupId>
+			<artifactId>metersphere-api-test</artifactId>
+			<version>${revision}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.metersphere</groupId>
+			<artifactId>metersphere-bug-management</artifactId>
+			<version>${revision}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.metersphere</groupId>
+			<artifactId>metersphere-case-management</artifactId>
+			<version>${revision}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.metersphere</groupId>
+			<artifactId>metersphere-test-plan</artifactId>
+			<version>${revision}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
