@@ -469,7 +469,7 @@
                         <if test="condition.name == 'createUser'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
-                                <property name="column" value="t.create_user"/>
+                                <property name="column" value="tpr.create_user"/>
                             </include>
                         </if>
                         <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
@@ -485,35 +485,35 @@
                         <if test="condition.name == 'integrated'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
-                                <property name="column" value="trp.integrated"/>
+                                <property name="column" value="tpr.integrated"/>
                             </include>
                         </if>
                         <!-- 测试计划名称 -->
                         <if test="condition.name == 'testPlanName'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
-                                <property name="column" value="trp.test_plan_name"/>
+                                <property name="column" value="tpr.test_plan_name"/>
                             </include>
                         </if>
                         <!-- 执行结果 -->
                         <if test="condition.name == 'resultStatus'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
-                                <property name="column" value="trp.result_status"/>
+                                <property name="column" value="tpr.result_status"/>
                             </include>
                         </if>
                         <!-- 通过率 -->
                         <if test="condition.name == 'passRate'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
-                                <property name="column" value="trp.pass_rate"/>
+                                <property name="column" value="tpr.pass_rate"/>
                             </include>
                         </if>
                         <!-- 触发方式 -->
                         <if test="condition.name == 'triggerMode'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
-                                <property name="column" value="trp.trigger_mode"/>
+                                <property name="column" value="tpr.trigger_mode"/>
                             </include>
                         </if>
                         <include refid="io.metersphere.system.mapper.BaseMapper.queryType">

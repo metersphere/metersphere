@@ -10,13 +10,16 @@ import io.metersphere.system.dto.sdk.ApiReportMessageDTO;
 import io.metersphere.system.dto.taskcenter.TaskCenterDTO;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterBatchRequest;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterPageRequest;
+import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface ExtApiReportMapper {
+    @BaseConditionFilter
     List<ApiReport> list(@Param("request") ApiReportPageRequest request);
 
+    @BaseConditionFilter
     List<String> getIds(@Param("request") ApiReportBatchRequest request);
 
     List<ApiReport> selectApiReportByIds(@Param("ids") List<String> ids);

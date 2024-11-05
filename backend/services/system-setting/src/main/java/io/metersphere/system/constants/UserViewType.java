@@ -69,6 +69,12 @@ public enum UserViewType implements ValueEnum {
      * 测试计划报告
      */
     TEST_PLAN_REPORT("test-plan-report",
+            List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE)),
+
+    /**
+     * 接口报告
+     */
+    API_REPORT("api-report",
             List.of(InternalUserView.ALL_DATA, InternalUserView.MY_CREATE));
 
     private String value;
