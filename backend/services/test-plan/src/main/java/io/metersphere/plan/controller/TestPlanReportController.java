@@ -39,6 +39,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * @author song-cc-rock
+ */
 @RestController
 @RequestMapping("/test-plan/report")
 @Tag(name = "测试计划-报告")
@@ -254,10 +257,8 @@ public class TestPlanReportController {
     @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
     @Parameter(name = "type", description = "用例类型", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED), example = "functional, api, scenario")
     public Pager<List<TestPlanReportDetailCollectionResponse>> collectionPage(@PathVariable String type, @Validated @RequestBody TestPlanReportDetailPageRequest request) {
-        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
-        if (!request.getStartPager()) {
-            page.close();
-        }
+        // 默认按照测试集的位序升序
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), "tpc.pos asc");
         return PageUtils.setPageInfo(page, testPlanReportService.listReportCollection(request, type));
     }
 }

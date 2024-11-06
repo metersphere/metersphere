@@ -1298,11 +1298,9 @@ public class TestPlanReportService {
     public List<TestPlanReportDetailCollectionResponse> listReportCollection(TestPlanReportDetailPageRequest request, String caseType) {
         List<TestPlanReportDetailCollectionResponse> collections;
         switch (caseType) {
-            case CollectionQueryType.FUNCTIONAL ->
-                    collections = extTestPlanReportFunctionalCaseMapper.listCollection(request);
+            case CollectionQueryType.FUNCTIONAL -> collections = extTestPlanReportFunctionalCaseMapper.listCollection(request);
             case CollectionQueryType.API -> collections = extTestPlanReportApiCaseMapper.listCollection(request);
-            case CollectionQueryType.SCENARIO ->
-                    collections = extTestPlanReportApiScenarioMapper.listCollection(request);
+            case CollectionQueryType.SCENARIO -> collections = extTestPlanReportApiScenarioMapper.listCollection(request);
             default -> collections = new ArrayList<>();
         }
         collections.sort(Comparator.comparing(TestPlanReportDetailCollectionResponse::getPos));
