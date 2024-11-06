@@ -26,12 +26,16 @@ public class BugCustomField implements Serializable {
     @Schema(description = "字段值")
     private String value;
 
+    @Schema(description = "字段文本")
+    private String content;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         bugId("bug_id", "bugId", "VARCHAR", false),
         fieldId("field_id", "fieldId", "VARCHAR", false),
-        value("value", "value", "VARCHAR", true);
+        value("value", "value", "LONGVARCHAR", true),
+        content("content", "content", "LONGVARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

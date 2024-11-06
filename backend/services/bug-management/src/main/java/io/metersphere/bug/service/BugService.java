@@ -997,7 +997,6 @@ public class BugService {
             } else {
                 bug.setStatus(statusField.get().getValue());
             }
-            request.getCustomFields().removeIf(field -> StringUtils.equals(field.getId(), BugTemplateCustomField.STATUS.getId()));
         } else {
             throw new MSException(Translator.get("bug_status_can_not_be_empty"));
         }
@@ -1009,7 +1008,6 @@ public class BugService {
             Optional<BugCustomFieldDTO> handleUserField = request.getCustomFields().stream().filter(field -> StringUtils.equals(field.getId(), BugTemplateCustomField.HANDLE_USER.getId())).findFirst();
             if (handleUserField.isPresent()) {
                 bug.setHandleUser(handleUserField.get().getValue());
-                request.getCustomFields().removeIf(field -> StringUtils.equals(field.getId(), BugTemplateCustomField.HANDLE_USER.getId()));
             } else {
                 throw new MSException(Translator.get("handle_user_can_not_be_empty"));
             }
@@ -1032,10 +1030,6 @@ public class BugService {
             } else {
                 // 平台状态为空
                 bug.setStatus(StringUtils.EMPTY);
-            }
-            // 第三方平台内置的处理人字段需要从自定义字段中移除 (当使用MS系统模板时)
-            if (!isPluginDefaultTemplate(request.getTemplateId(), request.getProjectId())) {
-                request.getCustomFields().removeIf(field -> StringUtils.startsWith(field.getName(), BugTemplateCustomField.HANDLE_USER.getName()));
             }
         }
 
@@ -1065,6 +1059,8 @@ public class BugService {
                 bug.setHandleUsers(originalBug.getHandleUsers() + "," + bug.getHandleUser());
                 noticeHandler = true;
             }
+            bug.setCreateUser(originalBug.getCreateUser());
+            bug.setCreateTime(originalBug.getCreateTime());
             bug.setUpdateUser(currentUser);
             bug.setUpdateTime(System.currentTimeMillis());
             bugMapper.updateByPrimaryKeySelective(bug);
@@ -1116,16 +1112,21 @@ public class BugService {
      */
     public void handleAndSaveCustomFields(BugEditRequest request, boolean merge, PlatformBugUpdateDTO platformBug) {
         // 处理ID, 值的映射关系
-        Map<String, String> customFieldMap = request.getCustomFields().stream()
+        Map<String, BugCustomFieldDTO> customFieldMap = request.getCustomFields().stream()
                 .filter(f -> StringUtils.isNotBlank(f.getId()))
-                .collect(HashMap::new, (m, field) -> m.put(field.getId(), field.getValue()), HashMap::putAll);
+                .collect(Collectors.toMap(BugCustomFieldDTO::getId, f -> f));
         if (MapUtils.isEmpty(customFieldMap)) {
             return;
         }
         // 拦截, 如果平台返回结果存在自定义字段值, 替换
         if (platformBug != null && MapUtils.isNotEmpty(platformBug.getPlatformCustomFieldMap())) {
             Map<String, String> platformCustomFieldMap = platformBug.getPlatformCustomFieldMap();
-            platformCustomFieldMap.keySet().forEach(key -> customFieldMap.put(key, platformCustomFieldMap.get(key)));
+            platformCustomFieldMap.keySet().forEach(key -> {
+                BugCustomFieldDTO field = new BugCustomFieldDTO();
+                field.setValue(platformCustomFieldMap.get(key));
+                field.setText(platformCustomFieldMap.get(key));
+                customFieldMap.put(key, field);
+            });
         }
         List<BugCustomField> addFields = new ArrayList<>();
         List<BugCustomField> updateFields = new ArrayList<>();
@@ -1133,31 +1134,42 @@ public class BugService {
             // 编辑缺陷需合并原有自定义字段
             List<BugCustomFieldDTO> originalFields = extBugCustomFieldMapper.getBugAllCustomFields(List.of(request.getId()), request.getProjectId());
             Map<String, String> originalFieldMap = originalFields.stream().collect(Collectors.toMap(BugCustomFieldDTO::getId, field -> Optional.ofNullable(field.getValue()).orElse(StringUtils.EMPTY)));
-            customFieldMap.keySet().forEach(fieldId -> {
+            for (String fieldId : customFieldMap.keySet()) {
+                // 处理人 / 状态 作为内置的自定义字段, 不需要处理
+                if (StringUtils.equalsAnyIgnoreCase(fieldId, BugTemplateCustomField.HANDLE_USER.getId(), BugTemplateCustomField.STATUS.getId())) {
+                    continue;
+                }
                 BugCustomField bugCustomField = new BugCustomField();
                 if (!originalFieldMap.containsKey(fieldId)) {
                     // 新的缺陷字段关系
                     bugCustomField.setBugId(request.getId());
                     bugCustomField.setFieldId(fieldId);
-                    bugCustomField.setValue(customFieldMap.get(fieldId));
+                    bugCustomField.setValue(customFieldMap.get(fieldId).getValue());
+                    bugCustomField.setContent(customFieldMap.get(fieldId).getText());
                     addFields.add(bugCustomField);
                 } else {
                     // 已存在的缺陷字段关系
                     bugCustomField.setBugId(request.getId());
                     bugCustomField.setFieldId(fieldId);
-                    bugCustomField.setValue(customFieldMap.get(fieldId));
+                    bugCustomField.setValue(customFieldMap.get(fieldId).getValue());
+                    bugCustomField.setContent(customFieldMap.get(fieldId).getText());
                     updateFields.add(bugCustomField);
                 }
-            });
+            }
         } else {
             // 新增缺陷不需要合并自定义字段
-            customFieldMap.keySet().forEach(fieldId -> {
+            for (String fieldId : customFieldMap.keySet()) {
+                // 处理人 / 状态 作为内置的自定义字段, 不需要处理
+                if (StringUtils.equalsAnyIgnoreCase(fieldId, BugTemplateCustomField.HANDLE_USER.getId(), BugTemplateCustomField.STATUS.getId())) {
+                    continue;
+                }
                 BugCustomField bugCustomField = new BugCustomField();
                 bugCustomField.setBugId(request.getId());
                 bugCustomField.setFieldId(fieldId);
-                bugCustomField.setValue(customFieldMap.get(fieldId));
+                bugCustomField.setValue(customFieldMap.get(fieldId).getValue());
+                bugCustomField.setContent(customFieldMap.get(fieldId).getText());
                 addFields.add(bugCustomField);
-            });
+            }
         }
         if (CollectionUtils.isNotEmpty(addFields)) {
             bugCustomFieldMapper.batchInsert(addFields);

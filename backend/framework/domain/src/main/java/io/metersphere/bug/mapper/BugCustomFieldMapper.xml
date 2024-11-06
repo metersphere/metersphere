@@ -3,8 +3,11 @@
 <mapper namespace="io.metersphere.bug.mapper.BugCustomFieldMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.bug.domain.BugCustomField">
     <id column="bug_id" jdbcType="VARCHAR" property="bugId" />
-    <result column="field_id" jdbcType="VARCHAR" property="fieldId" />
-    <result column="value" jdbcType="VARCHAR" property="value" />
+    <id column="field_id" jdbcType="VARCHAR" property="fieldId" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.bug.domain.BugCustomField">
+    <result column="value" jdbcType="LONGVARCHAR" property="value" />
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -65,8 +68,27 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    bug_id, field_id, `value`
+    bug_id, field_id
   </sql>
+  <sql id="Blob_Column_List">
+    `value`, content
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.bug.domain.BugCustomFieldExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from bug_custom_field
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
   <select id="selectByExample" parameterType="io.metersphere.bug.domain.BugCustomFieldExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -81,15 +103,19 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
     from bug_custom_field
     where bug_id = #{bugId,jdbcType=VARCHAR}
+      and field_id = #{fieldId,jdbcType=VARCHAR}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+  <delete id="deleteByPrimaryKey" parameterType="map">
     delete from bug_custom_field
     where bug_id = #{bugId,jdbcType=VARCHAR}
+      and field_id = #{fieldId,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.bug.domain.BugCustomFieldExample">
     delete from bug_custom_field
@@ -98,10 +124,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.bug.domain.BugCustomField">
-    insert into bug_custom_field (bug_id, field_id, `value`
-      )
-    values (#{bugId,jdbcType=VARCHAR}, #{fieldId,jdbcType=VARCHAR}, #{value,jdbcType=VARCHAR}
-      )
+    insert into bug_custom_field (bug_id, field_id, `value`, 
+      content)
+    values (#{bugId,jdbcType=VARCHAR}, #{fieldId,jdbcType=VARCHAR}, #{value,jdbcType=LONGVARCHAR}, 
+      #{content,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.bug.domain.BugCustomField">
     insert into bug_custom_field
@@ -115,6 +141,9 @@
       <if test="value != null">
         `value`,
       </if>
+      <if test="content != null">
+        content,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="bugId != null">
@@ -124,7 +153,10 @@
         #{fieldId,jdbcType=VARCHAR},
       </if>
       <if test="value != null">
-        #{value,jdbcType=VARCHAR},
+        #{value,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -144,9 +176,22 @@
         field_id = #{record.fieldId,jdbcType=VARCHAR},
       </if>
       <if test="record.value != null">
-        `value` = #{record.value,jdbcType=VARCHAR},
+        `value` = #{record.value,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=LONGVARCHAR},
       </if>
     </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update bug_custom_field
+    set bug_id = #{record.bugId,jdbcType=VARCHAR},
+      field_id = #{record.fieldId,jdbcType=VARCHAR},
+      `value` = #{record.value,jdbcType=LONGVARCHAR},
+      content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -154,8 +199,7 @@
   <update id="updateByExample" parameterType="map">
     update bug_custom_field
     set bug_id = #{record.bugId,jdbcType=VARCHAR},
-      field_id = #{record.fieldId,jdbcType=VARCHAR},
-      `value` = #{record.value,jdbcType=VARCHAR}
+      field_id = #{record.fieldId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -163,28 +207,30 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.bug.domain.BugCustomField">
     update bug_custom_field
     <set>
-      <if test="fieldId != null">
-        field_id = #{fieldId,jdbcType=VARCHAR},
-      </if>
       <if test="value != null">
-        `value` = #{value,jdbcType=VARCHAR},
+        `value` = #{value,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where bug_id = #{bugId,jdbcType=VARCHAR}
+      and field_id = #{fieldId,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.bug.domain.BugCustomField">
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.bug.domain.BugCustomField">
     update bug_custom_field
-    set field_id = #{fieldId,jdbcType=VARCHAR},
-      `value` = #{value,jdbcType=VARCHAR}
+    set `value` = #{value,jdbcType=LONGVARCHAR},
+      content = #{content,jdbcType=LONGVARCHAR}
     where bug_id = #{bugId,jdbcType=VARCHAR}
+      and field_id = #{fieldId,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into bug_custom_field
-    (bug_id, field_id, `value`)
+    (bug_id, field_id, `value`, content)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.bugId,jdbcType=VARCHAR}, #{item.fieldId,jdbcType=VARCHAR}, #{item.value,jdbcType=VARCHAR}
-        )
+      (#{item.bugId,jdbcType=VARCHAR}, #{item.fieldId,jdbcType=VARCHAR}, #{item.value,jdbcType=LONGVARCHAR}, 
+        #{item.content,jdbcType=LONGVARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -204,7 +250,10 @@
           #{item.fieldId,jdbcType=VARCHAR}
         </if>
         <if test="'value'.toString() == column.value">
-          #{item.value,jdbcType=VARCHAR}
+          #{item.value,jdbcType=LONGVARCHAR}
+        </if>
+        <if test="'content'.toString() == column.value">
+          #{item.content,jdbcType=LONGVARCHAR}
         </if>
       </foreach>
       )

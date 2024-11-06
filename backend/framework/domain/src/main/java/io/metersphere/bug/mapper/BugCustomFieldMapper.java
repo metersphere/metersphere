@@ -11,23 +11,27 @@ public interface BugCustomFieldMapper {
 
     int deleteByExample(BugCustomFieldExample example);
 
-    int deleteByPrimaryKey(String bugId);
+    int deleteByPrimaryKey(@Param("bugId") String bugId, @Param("fieldId") String fieldId);
 
     int insert(BugCustomField record);
 
     int insertSelective(BugCustomField record);
 
+    List<BugCustomField> selectByExampleWithBLOBs(BugCustomFieldExample example);
+
     List<BugCustomField> selectByExample(BugCustomFieldExample example);
 
-    BugCustomField selectByPrimaryKey(String bugId);
+    BugCustomField selectByPrimaryKey(@Param("bugId") String bugId, @Param("fieldId") String fieldId);
 
     int updateByExampleSelective(@Param("record") BugCustomField record, @Param("example") BugCustomFieldExample example);
+
+    int updateByExampleWithBLOBs(@Param("record") BugCustomField record, @Param("example") BugCustomFieldExample example);
 
     int updateByExample(@Param("record") BugCustomField record, @Param("example") BugCustomFieldExample example);
 
     int updateByPrimaryKeySelective(BugCustomField record);
 
-    int updateByPrimaryKey(BugCustomField record);
+    int updateByPrimaryKeyWithBLOBs(BugCustomField record);
 
     int batchInsert(@Param("list") List<BugCustomField> list);
 
