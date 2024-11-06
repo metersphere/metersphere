@@ -1,37 +1,29 @@
 <template>
   <div class="px-[16px]">
-    <div class="mb-[8px] flex items-center justify-between">
-      <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
-        <a-radio value="All">{{ t('report.all') }}</a-radio>
-        <a-radio value="INDEPENDENT">{{ t('report.independent') }}</a-radio>
-        <a-radio value="INTEGRATED">{{ t('report.collection') }}</a-radio>
-      </a-radio-group>
-      <div class="items-right flex gap-[8px]">
-        <a-input-search
-          v-model:model-value="keyword"
-          :placeholder="t('project.menu.nameSearch')"
-          allow-clear
-          class="w-[240px]"
-          @search="searchList"
-          @press-enter="searchList"
-          @clear="searchList"
-        />
-        <MsTag
-          no-margin
-          size="large"
-          :tooltip-disabled="true"
-          class="cursor-pointer"
-          theme="outline"
-          @click="initData()"
-        >
-          <MsIcon class="text-[16px] text-[var(color-text-4)]" :size="32" type="icon-icon_reset_outlined" />
-        </MsTag>
-      </div>
-    </div>
+    <MsAdvanceFilter
+      ref="msAdvanceFilterRef"
+      v-model:keyword="keyword"
+      :view-type="ViewTypeEnum.API_REPORT"
+      :filter-config-list="filterConfigList"
+      :search-placeholder="t('project.menu.nameSearch')"
+      @keyword-search="searchList()"
+      @adv-search="handleAdvSearch"
+      @refresh="initData()"
+    >
+      <template #left>
+        <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
+          <a-radio value="All">{{ t('report.all') }}</a-radio>
+          <a-radio value="INDEPENDENT">{{ t('report.independent') }}</a-radio>
+          <a-radio value="INTEGRATED">{{ t('report.collection') }}</a-radio>
+        </a-radio-group>
+      </template>
+    </MsAdvanceFilter>
     <!-- 报告列表 -->
     <ms-base-table
       v-bind="propsRes"
       ref="tableRef"
+      class="mt-[8px]"
+      :not-show-table-filter="isAdvancedSearchMode"
       :action-config="tableBatchActions"
       v-on="propsEvent"
       @batch-action="handleTableBatch"
@@ -109,6 +101,8 @@
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
+  import MsAdvanceFilter from '@/components/pure/ms-advance-filter/index.vue';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
@@ -135,6 +129,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { ReportExecStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
   import { FullPageEnum } from '@/enums/routeEnum';
@@ -272,26 +267,36 @@
       return false;
     }
   };
-  const { propsRes, propsEvent, loadList, setLoadListParams, setPagination, resetSelector, resetFilterParams } =
-    useTable(
-      reportList,
-      {
-        tableKey: TableKeyEnum.API_TEST_REPORT,
-        scroll: {
-          x: '100%',
-        },
-        showSetting: true,
-        selectable: hasAnyPermission(['PROJECT_API_REPORT:READ+DELETE']),
-        heightUsed: 256,
-        paginationSize: 'mini',
-        showSelectorAll: true,
+  const {
+    propsRes,
+    propsEvent,
+    viewId,
+    advanceFilter,
+    setAdvanceFilter,
+    loadList,
+    setLoadListParams,
+    setPagination,
+    resetSelector,
+    resetFilterParams,
+  } = useTable(
+    reportList,
+    {
+      tableKey: TableKeyEnum.API_TEST_REPORT,
+      scroll: {
+        x: '100%',
       },
-      (item) => ({
-        ...item,
-        startTime: dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss'),
-      }),
-      rename
-    );
+      showSetting: true,
+      selectable: hasAnyPermission(['PROJECT_API_REPORT:READ+DELETE']),
+      heightUsed: 256,
+      paginationSize: 'mini',
+      showSelectorAll: true,
+    },
+    (item) => ({
+      ...item,
+      startTime: dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss'),
+    }),
+    rename
+  );
 
   const typeFilter = computed(() => {
     if (showType.value === 'All') {
@@ -299,6 +304,9 @@
     }
     return showType.value === 'INDEPENDENT' ? [false] : [true];
   });
+
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
 
   function initData(dataIndex?: string, value?: string[] | (string | number | boolean)[] | undefined) {
     const filterParams = {
@@ -315,9 +323,58 @@
         integrated: typeFilter.value,
         ...filterParams,
       },
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
     });
     loadList();
   }
+
+  function searchList() {
+    resetSelector();
+    initData();
+  }
+
+  const filterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'report.name',
+      dataIndex: 'name',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'report.result',
+      dataIndex: 'status',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: statusList.value,
+      },
+    },
+    {
+      title: 'report.trigger.mode',
+      dataIndex: 'triggerMode',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: triggerModeOptions,
+      },
+    },
+    {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+  ]);
+  // 高级检索
+  const handleAdvSearch = async (filter: FilterResult, id: string) => {
+    keyword.value = '';
+    setAdvanceFilter(filter, id);
+    searchList(); // 基础筛选都清空
+  };
 
   const tableBatchActions = {
     baseAction: [
@@ -352,6 +409,8 @@
           integrated: typeFilter.value,
         },
         keyword: keyword.value,
+        viewId: viewId.value,
+        combineSearch: advanceFilter,
       },
       projectId: appStore.currentProjectId,
     };
@@ -393,10 +452,6 @@
     }
   };
 
-  function searchList() {
-    resetSelector();
-    initData();
-  }
   const handleDelete = async (id: string, currentName: string) => {
     openModal({
       type: 'error',

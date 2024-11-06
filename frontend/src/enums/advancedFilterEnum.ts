@@ -34,6 +34,7 @@ export enum ViewTypeEnum {
   API_SCENARIO = 'api-scenario',
   API_CASE = 'api-case',
   API_MOCK = 'api-mock',
+  API_REPORT = 'api-report',
   TEST_PLAN = 'test-plan',
   TEST_PLAN_REPORT = 'test-plan-report',
   PLAN_API_SCENARIO = 'plan-api-scenario',
