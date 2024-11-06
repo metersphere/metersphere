@@ -19,16 +19,16 @@ public class MockMatchRule implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "请求头匹配规则")
-    private keyValueMatchRule header = new keyValueMatchRule();
+    private KeyValueMatchRule header = new KeyValueMatchRule();
     @Schema(description = "query参数匹配规则")
-    private keyValueMatchRule query = new keyValueMatchRule();
+    private KeyValueMatchRule query = new KeyValueMatchRule();
     @Schema(description = "REST参数匹配规则")
-    private keyValueMatchRule rest = new keyValueMatchRule();
+    private KeyValueMatchRule rest = new KeyValueMatchRule();
     @Schema(description = "body参数匹配规则")
     private BodyParamMatchRule body = new BodyParamMatchRule();
 
     public boolean keyValueMatch(String matchType, Map<String, String> matchParam) {
-        keyValueMatchRule matchRule = switch (matchType) {
+        KeyValueMatchRule matchRule = switch (matchType) {
             case "header" -> header;
             case "query" -> query;
             case "rest" -> rest;
@@ -55,7 +55,7 @@ public class MockMatchRule implements Serializable {
                     return body.matchJson(httpRequestParam.getJsonString());
                 case FORM_DATA:
                     MockFormDataBody formDataBody = body.getFormDataBody();
-                    keyValueMatchRule formDataBodyRule = new keyValueMatchRule();
+                    KeyValueMatchRule formDataBodyRule = new KeyValueMatchRule();
                     if (formDataBody != null) {
                         formDataBodyRule.setMatchAll(formDataBody.isMatchAll());
                         List<KeyValueInfo> matchRules = new ArrayList<>();

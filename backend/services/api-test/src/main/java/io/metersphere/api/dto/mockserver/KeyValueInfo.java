@@ -34,7 +34,6 @@ public class KeyValueInfo {
                 case REGULAR_MATCH -> value.matches(this.value);
                 case IS_EMPTY -> StringUtils.isBlank(value);
                 case IS_NOT_EMPTY -> StringUtils.isNotBlank(value);
-                default -> false;
             };
         } catch (Exception e) {
             return false;

@@ -138,7 +138,7 @@ public class MockServerTestService {
     public MockMatchRule genMockMatchRule(String valuePrefix, boolean hasQuery, boolean hasHeader, String bodyParamType, boolean matchAll) {
         MockMatchRule mockMatchRule = new MockMatchRule();
 
-        keyValueMatchRule restMatchRule = new keyValueMatchRule();
+        KeyValueMatchRule restMatchRule = new KeyValueMatchRule();
         restMatchRule.setMatchAll(matchAll);
         restMatchRule.setMatchRules(new ArrayList<>() {{
             this.add(new KeyValueInfo() {{
@@ -153,7 +153,7 @@ public class MockServerTestService {
         mockMatchRule.setRest(restMatchRule);
 
         if (hasQuery) {
-            keyValueMatchRule queryMatchRule = new keyValueMatchRule();
+            KeyValueMatchRule queryMatchRule = new KeyValueMatchRule();
             queryMatchRule.setMatchAll(matchAll);
             queryMatchRule.setMatchRules(new ArrayList<>() {{
                 this.add(new KeyValueInfo() {{
@@ -173,7 +173,7 @@ public class MockServerTestService {
         }
 
         if (hasHeader) {
-            keyValueMatchRule headerMatchRule = new keyValueMatchRule();
+            KeyValueMatchRule headerMatchRule = new KeyValueMatchRule();
             headerMatchRule.setMatchAll(matchAll);
             headerMatchRule.setMatchRules(new ArrayList<>() {{
                 this.add(new KeyValueInfo() {{
@@ -195,7 +195,7 @@ public class MockServerTestService {
         if (StringUtils.equalsIgnoreCase(bodyParamType, "www")) {
             mockMatchRule.setBody(new BodyParamMatchRule() {{
                 this.setBodyType(Body.BodyType.WWW_FORM.name());
-                this.setWwwFormBody(new keyValueMatchRule() {{
+                this.setWwwFormBody(new KeyValueMatchRule() {{
                     this.setMatchAll(matchAll);
                     this.setMatchRules(new ArrayList<>() {{
                         this.add(new KeyValueInfo() {{
