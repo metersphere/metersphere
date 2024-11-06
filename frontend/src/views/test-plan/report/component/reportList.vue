@@ -1,38 +1,30 @@
 <template>
   <div class="p-[16px]">
-    <div class="mb-4 flex items-center justify-between">
-      <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
-        <a-radio value="All">{{ t('report.all') }}</a-radio>
-        <a-radio value="INDEPENDENT">{{ t('report.detail.testReport') }}</a-radio>
-        <a-radio value="INTEGRATED">{{ t('report.detail.testPlanGroupReport') }}</a-radio>
-      </a-radio-group>
-      <div class="items-right flex gap-[8px]">
-        <a-input-search
-          v-model:model-value="keyword"
-          :placeholder="t('project.menu.nameSearch')"
-          allow-clear
-          class="w-[240px]"
-          @search="searchList"
-          @press-enter="searchList"
-          @clear="searchList"
-        />
-        <MsTag
-          no-margin
-          size="large"
-          :tooltip-disabled="true"
-          class="cursor-pointer"
-          theme="outline"
-          @click="initData()"
-        >
-          <MsIcon class="text-[16px] text-[var(color-text-4)]" :size="32" type="icon-icon_reset_outlined" />
-        </MsTag>
-      </div>
-    </div>
+    <MsAdvanceFilter
+      ref="msAdvanceFilterRef"
+      v-model:keyword="keyword"
+      :view-type="ViewTypeEnum.TEST_PLAN_REPORT"
+      :filter-config-list="filterConfigList"
+      :search-placeholder="t('project.menu.nameSearch')"
+      @keyword-search="searchList()"
+      @adv-search="handleAdvSearch"
+      @refresh="initData()"
+    >
+      <template #left>
+        <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
+          <a-radio value="All">{{ t('report.all') }}</a-radio>
+          <a-radio value="INDEPENDENT">{{ t('report.detail.testReport') }}</a-radio>
+          <a-radio value="INTEGRATED">{{ t('report.detail.testPlanGroupReport') }}</a-radio>
+        </a-radio-group>
+      </template>
+    </MsAdvanceFilter>
     <!-- 报告列表 -->
     <ms-base-table
       v-bind="propsRes"
       ref="tableRef"
+      class="mt-4"
       :action-config="tableBatchActions"
+      :not-show-table-filter="isAdvancedSearchMode"
       v-on="propsEvent"
       @batch-action="handleTableBatch"
       @filter-change="filterChange"
@@ -99,6 +91,8 @@
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
+  import MsAdvanceFilter from '@/components/pure/ms-advance-filter/index.vue';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
@@ -118,6 +112,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchApiParams } from '@/models/common';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   // import { ReportExecStatus } from '@/enums/apiEnum';
   import { PlanReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
   import { FullPageEnum, TestPlanRouteEnum } from '@/enums/routeEnum';
@@ -153,7 +148,7 @@
     return Object.keys(PlanReportStatus).map((key) => {
       return {
         value: key,
-        label: PlanReportStatus[key].statusText,
+        label: t(PlanReportStatus[key].label),
       };
     });
   });
@@ -284,26 +279,39 @@
       return false;
     }
   };
-  const { propsRes, propsEvent, loadList, setLoadListParams, setPagination, resetSelector, resetFilterParams } =
-    useTable(
-      reportList,
-      {
-        tableKey: TableKeyEnum.TEST_PLAN_REPORT_TABLE,
-        scroll: {
-          x: '100%',
-        },
-        showSetting: true,
-        selectable: hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+DELETE']),
-        heightUsed: 242,
-        paginationSize: 'mini',
-        showSelectorAll: true,
+  const {
+    propsRes,
+    propsEvent,
+    viewId,
+    advanceFilter,
+    setAdvanceFilter,
+    loadList,
+    setLoadListParams,
+    setPagination,
+    resetSelector,
+    resetFilterParams,
+  } = useTable(
+    reportList,
+    {
+      tableKey: TableKeyEnum.TEST_PLAN_REPORT_TABLE,
+      scroll: {
+        x: '100%',
       },
-      (item) => ({
-        ...item,
-        createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
-      }),
-      rename
-    );
+      showSetting: true,
+      selectable: hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ+DELETE']),
+      heightUsed: 242,
+      paginationSize: 'mini',
+      showSelectorAll: true,
+    },
+    (item) => ({
+      ...item,
+      createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
+    }),
+    rename
+  );
+
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
 
   function initData(dataIndex?: string, value?: string[] | (string | number | boolean)[] | undefined) {
     const filterParams = {
@@ -316,9 +324,72 @@
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       filter: { ...filterParams, integrated: integratedFilters.value },
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
     });
     loadList();
   }
+
+  function searchList() {
+    resetSelector();
+    initData();
+  }
+
+  const filterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'report.name',
+      dataIndex: 'name',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'report.plan.name',
+      dataIndex: 'testPlanName',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'report.result',
+      dataIndex: 'resultStatus',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: statusResultOptions.value,
+      },
+    },
+    {
+      title: 'report.passRate',
+      dataIndex: 'passRate',
+      type: FilterType.NUMBER,
+      numberProps: {
+        min: 0,
+        suffix: '%',
+      },
+    },
+    {
+      title: 'report.trigger.mode',
+      dataIndex: 'triggerMode',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: triggerModeOptions.value,
+      },
+    },
+    {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+  ]);
+  // 高级检索
+  const handleAdvSearch = async (filter: FilterResult, id: string) => {
+    keyword.value = '';
+    setAdvanceFilter(filter, id);
+    searchList(); // 基础筛选都清空
+  };
 
   const tableBatchActions = {
     baseAction: [
@@ -350,6 +421,8 @@
       condition: {
         filter: { ...propsRes.value.filter, integrated: integratedFilters.value },
         keyword: keyword.value,
+        viewId: viewId.value,
+        combineSearch: advanceFilter,
       },
       projectId: appStore.currentProjectId,
     };
@@ -389,11 +462,6 @@
       });
     }
   };
-
-  function searchList() {
-    resetSelector();
-    initData();
-  }
 
   const handleDelete = async (id: string, currentName: string) => {
     openModal({
