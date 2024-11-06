@@ -131,7 +131,14 @@ public class Swagger3ExportParser implements ExportParser<ApiDefinitionExportRes
                     JSONObject schema = new JSONObject();
                     schema.put(PropertyConstant.TYPE, PropertyConstant.STRING);
                     swaggerParam.setSchema(JSONUtil.parseObjectNode(schema.toString()));
-                    paramsList.add(JSONUtil.parseObject(JSON.toJSONString(swaggerParam)));
+                    JSONObject schemaObject = JSONUtil.parseObject(JSON.toJSONString(swaggerParam));
+                    if (StringUtils.isNotBlank(param.optString("maxLength"))) {
+                        schemaObject.put("maxLength", param.optInt("maxLength"));
+                    }
+                    if (StringUtils.isNotBlank(param.optString("minLength"))) {
+                        schemaObject.put("minLength", param.optInt("minLength"));
+                    }
+                    paramsList.add(schemaObject);
                 }
             }
         }
@@ -345,6 +352,7 @@ public class Swagger3ExportParser implements ExportParser<ApiDefinitionExportRes
     }
 
     private JSONObject getFormDataProperties(JSONArray requestBody) {
+        // todo  maxLength  minLength
         JSONObject result = new JSONObject();
         for (Object item : requestBody) {
             if (item instanceof JSONObject) {
@@ -574,6 +582,13 @@ public class Swagger3ExportParser implements ExportParser<ApiDefinitionExportRes
                         property.put(PropertyConstant.PROPERTIES, childProperties.optJSONObject(PropertyConstant.PROPERTIES));
                     }
                 }
+            }
+
+            if (StringUtils.isNotBlank(obj.optString("maxLength"))) {
+                property.put("maxLength", obj.optInt("maxLength"));
+            }
+            if (StringUtils.isNotBlank(obj.optString("minLength"))) {
+                property.put("minLength", obj.optInt("minLength"));
             }
             properties.put(key, property);
         }
