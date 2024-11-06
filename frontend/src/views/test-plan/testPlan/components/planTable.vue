@@ -1,39 +1,33 @@
 <template>
   <MsAdvanceFilter
+    ref="msAdvanceFilterRef"
     v-model:keyword="keyword"
+    :view-type="ViewTypeEnum.TEST_PLAN"
     :filter-config-list="filterConfigList"
-    :custom-fields-config-list="searchCustomFields"
     :search-placeholder="t('common.searchByIDNameTag')"
-    @keyword-search="fetchData"
-    @adv-search="fetchData"
-    @refresh="fetchData"
+    @keyword-search="fetchData()"
+    @adv-search="handleAdvSearch"
+    @refresh="fetchData()"
   >
     <template #left>
-      <div class="flex w-full items-center justify-between">
-        <div>
-          <a-radio-group v-model="showType" type="button" class="file-show-type mr-2">
-            <a-radio :value="testPlanTypeEnum.ALL" class="show-type-icon p-[2px]">
-              {{ t('testPlan.testPlanIndex.all') }}
-            </a-radio>
-            <a-radio :value="testPlanTypeEnum.TEST_PLAN" class="show-type-icon p-[2px]">
-              {{ t('testPlan.testPlanIndex.plan') }}
-            </a-radio>
-            <a-radio :value="testPlanTypeEnum.GROUP" class="show-type-icon p-[2px]">
-              {{ t('testPlan.testPlanIndex.testPlanGroup') }}
-            </a-radio>
-          </a-radio-group>
-        </div>
-        <div class="mr-[24px]">
-          <a-switch v-model="isArchived" size="small" type="line" @change="archivedChangeHandler" />
-          <span class="ml-1 text-[var(--color-text-3)]">{{ t('testPlan.testPlanGroup.seeArchived') }}</span>
-        </div>
-      </div>
+      <a-radio-group v-model="showType" type="button" class="file-show-type mr-2">
+        <a-radio :value="testPlanTypeEnum.ALL" class="show-type-icon p-[2px]">
+          {{ t('testPlan.testPlanIndex.all') }}
+        </a-radio>
+        <a-radio :value="testPlanTypeEnum.TEST_PLAN" class="show-type-icon p-[2px]">
+          {{ t('testPlan.testPlanIndex.plan') }}
+        </a-radio>
+        <a-radio :value="testPlanTypeEnum.GROUP" class="show-type-icon p-[2px]">
+          {{ t('testPlan.testPlanIndex.testPlanGroup') }}
+        </a-radio>
+      </a-radio-group>
     </template>
   </MsAdvanceFilter>
   <MsBaseTable
     v-bind="propsRes"
     ref="tableRef"
     class="mt-4"
+    :not-show-table-filter="isAdvancedSearchMode"
     :action-config="testPlanBatchActions"
     :selectable="hasOperationPermission && showType !== testPlanTypeEnum.ALL && !isArchived"
     filter-icon-align-left
@@ -369,7 +363,7 @@
   import dayjs from 'dayjs';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -432,6 +426,7 @@
     PassRateCountDetail,
     TestPlanItem,
   } from '@/models/testPlan/testPlan';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { LastExecuteResults } from '@/enums/caseEnum';
   import { GlobalEventNameEnum } from '@/enums/commonEnum';
   import { RouteEnum, TestPlanRouteEnum } from '@/enums/routeEnum';
@@ -465,9 +460,9 @@
     (e: 'init', params: any): void;
     (e: 'edit', record: TestPlanItem): void;
     (e: 'new', type: string): void;
+    (e: 'handleAdvSearch', isStartAdvance: boolean): void;
   }>();
 
-  const isArchived = ref<boolean>(false);
   const keyword = ref<string>('');
 
   const hasOperationPermission = computed(() =>
@@ -863,6 +858,9 @@
   const {
     propsRes,
     propsEvent,
+    viewId,
+    advanceFilter,
+    setAdvanceFilter,
     loadList,
     setLoadListParams,
     resetSelector,
@@ -878,6 +876,8 @@
     updatePlanName
   );
 
+  const isArchived = computed(() => viewId.value === 'archived');
+
   const batchParams = ref<BatchActionQueryParams>({
     selectedIds: [],
     selectAll: false,
@@ -889,22 +889,21 @@
     return {
       keyword: keyword.value,
       filter: propsRes.value.filter,
-      combine: batchParams.value.condition,
+      viewId: viewId.value,
+      combineSearch: advanceFilter,
     };
   });
 
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
+
   async function initTableParams(isSetDefaultKey = false) {
     let moduleIds =
-      props.activeFolder && props.activeFolder !== 'all' ? [props.activeFolder, ...props.offspringIds] : [];
+      props.activeFolder && props.activeFolder !== 'all' && !isAdvancedSearchMode.value
+        ? [props.activeFolder, ...props.offspringIds]
+        : [];
     if (isSetDefaultKey) {
       moduleIds = [];
-    }
-
-    const filterParams = {
-      ...propsRes.value.filter,
-    };
-    if (isArchived.value) {
-      filterParams.status = ['ARCHIVED'];
     }
     return {
       type: showType.value,
@@ -914,27 +913,20 @@
       selectAll: !!batchParams.value?.selectAll,
       selectIds: batchParams.value.selectedIds || [],
       keyword: keyword.value,
-      filter: filterParams,
-      combine: {
-        ...batchParams.value.condition,
-      },
+      filter: propsRes.value.filter,
     };
   }
 
   async function loadPlanList() {
-    setLoadListParams(await initTableParams());
+    const params = await initTableParams();
+    setLoadListParams({ ...params, viewId: viewId.value, combineSearch: advanceFilter });
     loadList();
   }
 
   // 获取父组件模块数量
   async function emitTableParams(isInit = false) {
+    if (isAdvancedSearchMode.value) return;
     const tableParams = await initTableParams(isInit);
-    const filterParams = {
-      ...propsRes.value.filter,
-    };
-    if (isArchived.value) {
-      filterParams.status = ['ARCHIVED'];
-    }
     emit('init', {
       keyword: keyword.value,
       type: showType.value,
@@ -942,10 +934,7 @@
       moduleIds: tableParams.moduleIds,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
-      filter: filterParams,
-      combine: {
-        ...batchParams.value.condition,
-      },
+      filter: propsRes.value.filter,
     });
   }
 
@@ -975,6 +964,70 @@
     await loadPlanList();
     emitTableParams();
   }
+
+  const filterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'testPlan.testPlanIndex.ID',
+      dataIndex: 'num',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'testPlan.testPlanIndex.testPlanName',
+      dataIndex: 'name',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'common.belongModule',
+      dataIndex: 'moduleId',
+      type: FilterType.TREE_SELECT,
+      treeSelectData: props.moduleTree,
+      treeSelectProps: {
+        fieldNames: {
+          title: 'name',
+          key: 'id',
+          children: 'children',
+        },
+        multiple: true,
+        treeCheckable: true,
+        treeCheckStrictly: true,
+      },
+    },
+    {
+      title: 'common.status',
+      dataIndex: 'status',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: planStatusOptions,
+      },
+    },
+    {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      type: FilterType.TAGS_INPUT,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+  ]);
+  // 高级检索
+  const handleAdvSearch = async (filter: FilterResult, id: string, isStartAdvance: boolean) => {
+    emit('handleAdvSearch', isStartAdvance);
+    keyword.value = '';
+    setAdvanceFilter(filter, id);
+    await fetchData(); // 基础筛选都清空
+  };
 
   /**
    * 批量执行
@@ -1162,11 +1215,7 @@
         excludeIds: batchParams.value?.excludeIds || [],
         selectIds: batchParams.value.selectedIds || [],
         selectAll: !!batchParams.value?.selectAll,
-        condition: {
-          keyword: keyword.value,
-          filter: {},
-          combine: batchParams.value.condition,
-        },
+        condition: conditionParams.value,
         projectId: appStore.currentProjectId,
         moduleIds: [...selectNodeKeys.value],
         type: showType.value,
@@ -1195,12 +1244,6 @@
    * 打开关闭定时任务
    */
   async function handleStatusTimingTask(enable: boolean) {
-    const filterParams = {
-      ...propsRes.value.filter,
-    };
-    if (isArchived.value) {
-      filterParams.status = ['ARCHIVED'];
-    }
     try {
       const { selectedIds, selectAll, excludeIds } = batchParams.value;
       const params: TableQueryParams = {
@@ -1209,10 +1252,7 @@
         excludeIds: excludeIds || [],
         projectId: appStore.currentProjectId,
         moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
-        condition: {
-          filter: filterParams,
-          keyword: keyword.value,
-        },
+        condition: conditionParams.value,
         type: showType.value,
         scheduleOpen: enable,
         editColumn: 'SCHEDULE',
@@ -1256,11 +1296,7 @@
             excludeIds: batchParams.value?.excludeIds || [],
             selectIds: batchParams.value.selectedIds || [],
             selectAll: !!batchParams.value?.selectAll,
-            condition: {
-              keyword: keyword.value,
-              filter: propsRes.value.filter,
-              combine: batchParams.value.condition,
-            },
+            condition: conditionParams.value,
             projectId: appStore.currentProjectId,
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
             type: showType.value,
@@ -1304,11 +1340,7 @@
             selectIds: selectedIds || [],
             excludeIds: excludeIds || [],
             moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
-            condition: {
-              keyword: keyword.value,
-              filter: {},
-              combine: batchParams.value.condition,
-            },
+            condition: conditionParams.value,
             selectAll: !!selectAll,
             type: showType.value,
           });
@@ -1557,12 +1589,6 @@
     }
   }
 
-  /** *
-   * 高级检索
-   */
-  const filterConfigList = ref<FilterFormItem[]>([]);
-  const searchCustomFields = ref<FilterFormItem[]>([]);
-
   watch(
     () => showType.value,
     (val) => {
@@ -1581,7 +1607,7 @@
   watch(
     () => props.activeFolder,
     (val) => {
-      if (val) {
+      if (val && !isAdvancedSearchMode.value) {
         fetchData();
       }
     }
@@ -1677,12 +1703,6 @@
   //   showQuickCreateForm.value = true;
   //   createType.value = value as keyof typeof testPlanTypeEnum;
   // }
-
-  // 查看已归档测试计划以及计划组
-  function archivedChangeHandler() {
-    resetFilterParams();
-    fetchData();
-  }
 
   const isActivated = computed(() => cacheStore.cacheViews.includes(RouteEnum.TEST_PLAN_INDEX));
 

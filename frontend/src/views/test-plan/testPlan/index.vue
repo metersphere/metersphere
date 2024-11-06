@@ -1,6 +1,6 @@
 <template>
   <MsCard simple no-content-padding>
-    <MsSplitBox>
+    <MsSplitBox :not-show-first="isAdvancedSearchMode">
       <template #first>
         <div class="min-w-[300px] p-[16px]">
           <div class="mb-[16px] flex justify-between">
@@ -92,6 +92,7 @@
             @init="initModulesCount"
             @edit="handleEdit"
             @new="createTestPlan"
+            @handle-adv-search="handleAdvSearch"
           />
         </div>
       </template>
@@ -289,6 +290,12 @@
     } else {
       showPlanDrawer.value = true;
     }
+  }
+
+  const isAdvancedSearchMode = ref(false);
+  function handleAdvSearch(isStartAdvance: boolean) {
+    isAdvancedSearchMode.value = isStartAdvance;
+    setActiveFolder('all');
   }
 </script>
 
