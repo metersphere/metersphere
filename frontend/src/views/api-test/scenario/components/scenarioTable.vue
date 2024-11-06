@@ -107,6 +107,17 @@
         </a-select>
         <apiStatus v-else :status="record.status" />
       </template>
+      <template #requestPassRateColumn>
+        <div class="flex items-center text-[var(--color-text-3)]">
+          {{ t('apiScenario.table.columns.passRate') }}
+          <a-tooltip :content="t('case.passRateTip')" position="right">
+            <icon-question-circle
+              class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+              size="16"
+            />
+          </a-tooltip>
+        </div>
+      </template>
       <template #createUserName="{ record }">
         <a-tooltip :content="`${record.createName}`" position="tl">
           <div class="one-line-text">{{ characterLimit(record.createUserName) }}</div>
@@ -738,6 +749,8 @@
     {
       title: 'apiScenario.table.columns.passRate',
       dataIndex: 'requestPassRate',
+      slotName: 'requestPassRate',
+      titleSlotName: 'requestPassRateColumn',
       showDrag: true,
       showInTable: false,
       width: 100,
