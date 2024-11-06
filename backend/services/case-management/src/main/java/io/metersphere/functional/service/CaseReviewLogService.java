@@ -60,7 +60,7 @@ public class CaseReviewLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.CASE_REVIEW,
+                OperationLogModule.CASE_MANAGEMENT_REVIEW_REVIEW,
                 requests.getName());
 
         dto.setPath("/case/review/add");
@@ -82,7 +82,7 @@ public class CaseReviewLogService {
                 null,
                 null,
                 OperationLogType.COPY.name(),
-                OperationLogModule.CASE_REVIEW,
+                OperationLogModule.CASE_MANAGEMENT_REVIEW_REVIEW,
                 requests.getName());
 
         dto.setPath("/case/review/copy");
@@ -108,7 +108,7 @@ public class CaseReviewLogService {
                 caseReview.getId(),
                 caseReview.getCreateUser(),
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.CASE_REVIEW,
+                OperationLogModule.CASE_MANAGEMENT_REVIEW_REVIEW,
                 caseReview.getName());
 
         dto.setPath("/case/review/edit");
@@ -132,7 +132,7 @@ public class CaseReviewLogService {
                     caseReview.getId(),
                     null,
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.CASE_REVIEW,
+                    OperationLogModule.CASE_MANAGEMENT_REVIEW_REVIEW,
                     caseReview.getName());
 
             dto.setPath("/case/review/delete");

@@ -147,6 +147,9 @@ public class OperationLogModule {
 
     public static final String CASE_REVIEW_CREATE = "CASE_MANAGEMENT_REVIEW_CREATE";
     public static final String CASE_REVIEW_UPDATE = "CASE_MANAGEMENT_REVIEW_UPDATE";
+    //用例评审
+    public static final String CASE_MANAGEMENT_REVIEW_REVIEW = "CASE_MANAGEMENT_REVIEW_REVIEW";
+    //评审详情
     public static final String CASE_REVIEW_DETAIL = "CASE_MANAGEMENT_REVIEW_DETAIL";
 
     //接口调试

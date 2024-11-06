@@ -7,7 +7,9 @@
 package io.metersphere.functional.service;
 
 
-import io.metersphere.functional.domain.*;
+import io.metersphere.functional.domain.CaseReview;
+import io.metersphere.functional.domain.CaseReviewModule;
+import io.metersphere.functional.domain.CaseReviewModuleExample;
 import io.metersphere.functional.mapper.CaseReviewModuleMapper;
 import io.metersphere.functional.mapper.ExtCaseReviewMapper;
 import io.metersphere.functional.mapper.ExtCaseReviewModuleMapper;
@@ -137,7 +139,7 @@ public class CaseReviewModuleService extends ModuleTreeService {
                     item.getId(),
                     item.getCreateUser(),
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.CASE_REVIEW,
+                    OperationLogModule.CASE_MANAGEMENT_REVIEW_REVIEW,
                     item.getName());
 
             dto.setPath("/case/review/module/delete/");
