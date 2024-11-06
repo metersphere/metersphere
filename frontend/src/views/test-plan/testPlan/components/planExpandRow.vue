@@ -24,8 +24,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-
   import MsButton from '@/components/pure/ms-button/index.vue';
 
   import { hasAnyPermission } from '@/utils/permission';

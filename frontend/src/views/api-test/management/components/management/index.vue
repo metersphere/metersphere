@@ -379,6 +379,10 @@
     'PROJECT_API_DEFINITION_CASE:READ+UPDATE',
   ]);
 
+  const isAdvancedSearchMode = computed(() =>
+    currentTab.value === 'api' ? apiRef.value?.isAdvancedSearchMode : caseRef.value?.isAdvancedSearchMode
+  );
+
   /** 向孙组件提供属性 */
   provide('defaultCaseParams', readonly(defaultCaseParams));
   provide('protocols', readonly(protocols));
@@ -390,6 +394,7 @@
     handleApiUpdateFromModuleTree,
     handleDeleteApiFromModuleTree,
     changeActiveApiTabToFirst,
+    isAdvancedSearchMode,
   });
 </script>
 

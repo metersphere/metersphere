@@ -7,6 +7,7 @@
         :view-type="ViewTypeEnum.CASE_REVIEW"
         :filter-config-list="filterConfigList"
         :search-placeholder="t('caseManagement.caseReview.list.searchPlaceholder')"
+        :view-name="viewName"
         @keyword-search="searchReview()"
         @adv-search="handleAdvSearch"
         @refresh="searchReview()"
@@ -160,7 +161,7 @@
 
 <script setup lang="ts">
   import { onBeforeMount } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import { useVModel } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
@@ -224,6 +225,7 @@
   const appStore = useAppStore();
   const cacheStore = useCacheStore();
 
+  const route = useRoute();
   const router = useRouter();
   const { t } = useI18n();
   const { openModal } = useModal();
@@ -570,6 +572,8 @@
     }
   }
 
+  const viewName = ref<string>('');
+
   // 高级检索
   const handleAdvSearch = async (filter: FilterResult, id: string, isStartAdvance: boolean) => {
     resetSelector();
@@ -774,6 +778,10 @@
   }
 
   onBeforeMount(() => {
+    if (route.query.view) {
+      setAdvanceFilter({}, route.query.view as string);
+      viewName.value = route.query.view as string;
+    }
     if (!isActivated.value) {
       mountedLoad();
       searchReview();
@@ -789,6 +797,7 @@
 
   defineExpose({
     searchReview,
+    isAdvancedSearchMode,
   });
 
   await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW, columns, 'drawer', true);

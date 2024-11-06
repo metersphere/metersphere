@@ -540,8 +540,7 @@
     });
   }
 
-  await initFilterColumn();
-  await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer', true);
+  initFilterColumn();
   if (props.readOnly) {
     columns = columns.filter(
       (item) => !['version', 'createTime', 'updateTime', 'operation'].includes(item.dataIndex as string)
@@ -1137,6 +1136,12 @@
       initFilterColumn();
     }
   );
+
+  defineExpose({
+    isAdvancedSearchMode,
+  });
+
+  await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer', true);
 </script>
 
 <style lang="less" scoped>

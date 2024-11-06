@@ -6,6 +6,7 @@
       :view-type="ViewTypeEnum.API_SCENARIO"
       :filter-config-list="filterConfigList"
       :search-placeholder="t('api_scenario.table.searchPlaceholder')"
+      :view-name="viewName"
       @keyword-search="loadScenarioList(true)"
       @adv-search="handleAdvSearch"
       @refresh="loadScenarioList(true)"
@@ -481,6 +482,7 @@
 
 <script setup lang="ts">
   import { computed, ref } from 'vue';
+  import { useRoute } from 'vue-router';
   import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import dayjs from 'dayjs';
@@ -559,6 +561,7 @@
     (e: 'handleAdvSearch', isStartAdvance: boolean): void;
   }>();
 
+  const route = useRoute();
   const appStore = useAppStore();
   const cacheStore = useCacheStore();
   const showExportModal = ref(false);
@@ -1071,6 +1074,9 @@
       type: FilterType.DATE_PICKER,
     },
   ]);
+
+  const viewName = ref('');
+
   // 高级检索
   const handleAdvSearch = async (filter: FilterResult, id: string, isStartAdvance: boolean) => {
     resetSelector();
@@ -1583,6 +1589,7 @@
 
   defineExpose({
     loadScenarioList,
+    isAdvancedSearchMode,
   });
 
   if (!props.readOnly) {
@@ -1617,6 +1624,10 @@
 
   onBeforeMount(() => {
     cacheStore.clearCache();
+    if (route.query.view) {
+      setAdvanceFilter({}, route.query.view as string);
+      viewName.value = route.query.view as string;
+    }
     if (!isActivated.value) {
       loadScenarioList();
       cacheStore.setCache(CacheTabTypeEnum.API_SCENARIO_TABLE);

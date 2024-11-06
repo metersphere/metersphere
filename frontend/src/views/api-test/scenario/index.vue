@@ -520,9 +520,9 @@
   }
 
   const scenarioModuleTreeRef = ref<InstanceType<typeof scenarioModuleTree>>();
-  const isAdvancedSearchMode = ref(false);
-  function handleAdvSearch(isStartAdvance: boolean) {
-    isAdvancedSearchMode.value = isStartAdvance;
+  const apiTableRef = ref<InstanceType<typeof ScenarioTable>>();
+  const isAdvancedSearchMode = computed(() => apiTableRef.value?.isAdvancedSearchMode);
+  function handleAdvSearch() {
     scenarioModuleTreeRef.value?.setActiveFolder('all');
   }
 
@@ -564,7 +564,6 @@
 
   const createRef = ref<InstanceType<typeof create>>();
   const detailRef = ref<InstanceType<typeof detail>>();
-  const apiTableRef = ref<InstanceType<typeof ScenarioTable>>();
   const saveLoading = ref(false);
 
   function handleModuleChange() {

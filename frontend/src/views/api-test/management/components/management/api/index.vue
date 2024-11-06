@@ -3,6 +3,7 @@
     <keep-alive :include="cacheStore.cacheViews">
       <apiTable
         v-if="activeApiTab.id === 'all' && currentTab === 'api'"
+        ref="apiTableRef"
         class="flex-1 pt-[8px]"
         :active-module="props.activeModule"
         :offspring-ids="props.offspringIds"
@@ -577,10 +578,13 @@
     }
   });
 
+  const apiTableRef = ref<InstanceType<typeof apiTable>>();
+  const isAdvancedSearchMode = computed(() => apiTableRef.value?.isAdvancedSearchMode);
   defineExpose({
     openApiTab,
     addApiTab,
     openApiTabAndDebugMock,
     refreshTable,
+    isAdvancedSearchMode,
   });
 </script>

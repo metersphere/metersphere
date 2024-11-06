@@ -107,13 +107,6 @@
   const isExpandAnimating = ref(false); // 控制动画类
 
   watch(
-    () => props.notShowFirst,
-    (val) => {
-      innerSize.value = val ? 0 : initialSize;
-    }
-  );
-
-  watch(
     () => props.size,
     (val) => {
       if (val !== undefined) {
@@ -158,6 +151,18 @@
       expand();
     }
   }
+
+  watch(
+    () => props.notShowFirst,
+    (val) => {
+      if (val) {
+        collapse();
+      } else {
+        expand();
+      }
+    },
+    { immediate: true }
+  );
 
   defineExpose({
     expand,

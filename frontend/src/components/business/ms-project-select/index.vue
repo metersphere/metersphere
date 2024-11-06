@@ -1,10 +1,13 @@
 <template>
-  <a-select class="w-[260px]" :default-value="innerProject" allow-search @change="selectProject">
-    <template #arrow-icon>
+  <a-select :class="props.class || 'w-[260px]'" :default-value="project" allow-search @change="selectProject">
+    <template v-if="!props.useDefaultArrowIcon" #arrow-icon>
       <icon-caret-down />
     </template>
+    <template v-if="$slots.prefix" #prefix>
+      <slot name="prefix"></slot>
+    </template>
     <a-tooltip v-for="item of projectList" :key="item.id" :mouse-enter-delay="500" :content="item.name">
-      <a-option :value="item.id" :class="item.id === innerProject ? 'arco-select-option-selected' : ''">
+      <a-option :value="item.id" :class="item.id === project ? 'arco-select-option-selected' : ''">
         {{ item.name }}
       </a-option>
     </a-tooltip>
@@ -18,32 +21,23 @@
   import type { ProjectListItem } from '@/models/setting/project';
 
   const props = defineProps<{
-    project: string;
+    class?: string;
+    useDefaultArrowIcon?: boolean;
   }>();
   const emit = defineEmits<{
-    (e: 'update:project', val: string): void;
     (e: 'change', val: string): void;
   }>();
 
   const appStore = useAppStore();
   const projectList = ref<ProjectListItem[]>([]);
-  const innerProject = ref(props.project || appStore.currentProjectId);
-
-  watch(
-    () => props.project,
-    (val) => {
-      innerProject.value = val;
-    }
-  );
-
-  watch(
-    () => innerProject.value,
-    (val) => {
-      emit('update:project', val);
-    }
-  );
+  const project = defineModel<string>('project', {
+    default: () => '',
+  });
 
   onBeforeMount(async () => {
+    if (!project.value) {
+      project.value = appStore.currentProjectId;
+    }
     try {
       if (appStore.currentOrgId) {
         const res = await getProjectList(appStore.getCurrentOrgId);
@@ -60,7 +54,6 @@
   function selectProject(
     value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
-    emit('update:project', value as string);
     emit('change', value as string);
   }
 </script>

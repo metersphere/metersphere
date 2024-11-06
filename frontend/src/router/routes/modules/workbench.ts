@@ -44,7 +44,7 @@ const TestPlan: AppRouteRecordRaw = {
     {
       path: 'followed',
       name: WorkbenchRouteEnum.WORKBENCH_INDEX_FOLLOW,
-      component: () => import('@/views/workbench/homePage/index.vue'),
+      component: () => import('@/views/workbench/myFollowed/index.vue'),
       meta: {
         locale: 'menu.workbenchFollowSort',
         roles: ['*'],

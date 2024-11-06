@@ -17,6 +17,7 @@
           :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
           :count="modulesCount[props.activeFolder] || 0"
           :name="moduleNamePath"
+          :view-name="viewName"
           @keyword-search="fetchData"
           @adv-search="handleAdvSearch"
           @refresh="fetchData()"
@@ -1838,6 +1839,7 @@
   );
 
   const isActivated = computed(() => cacheStore.cacheViews.includes(RouteEnum.CASE_MANAGEMENT_CASE));
+  const viewName = ref<string>('');
 
   onBeforeUnmount(() => {
     showDetailDrawer.value = false;
@@ -1845,9 +1847,16 @@
 
   onMounted(() => {
     if (!isActivated.value) {
-      mountedLoad();
       // 切换菜单默认还是列表；已经在脑图的时候，刷新浏览器，保持脑图状态
       showType.value = minderStore.getShowType(MinderKeyEnum.FEATURE_CASE_MINDER);
+      if (route.query.showType) {
+        showType.value = route.query.showType as ShowType;
+      }
+      if (route.query.view) {
+        setAdvanceFilter({}, route.query.view as string);
+        viewName.value = route.query.view as string;
+      }
+      mountedLoad();
     }
   });
 

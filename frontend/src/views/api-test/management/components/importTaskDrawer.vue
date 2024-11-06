@@ -40,7 +40,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
 
   import { deleteDefinitionSchedule, switchDefinitionSchedule } from '@/api/modules/api-test/management';
-  import { getScheduleProApiCaseList, projectDeleteSchedule } from '@/api/modules/taskCenter/project';
+  import { getScheduleProApiCaseList } from '@/api/modules/taskCenter/project';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { characterLimit } from '@/utils';

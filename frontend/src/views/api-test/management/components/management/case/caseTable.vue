@@ -15,6 +15,7 @@
         :view-type="ViewTypeEnum.API_CASE"
         :filter-config-list="filterConfigList"
         :search-placeholder="t('apiTestManagement.searchPlaceholder')"
+        :view-name="viewName"
         @keyword-search="loadCaseList()"
         @adv-search="handleAdvSearch"
         @refresh="loadCaseList()"
@@ -309,6 +310,7 @@
 </template>
 
 <script setup lang="ts">
+  import { useRoute } from 'vue-router';
   import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
@@ -391,6 +393,7 @@
     (e: 'handleAdvSearch', isStartAdvance: boolean): void;
   }>();
 
+  const route = useRoute();
   const appStore = useAppStore();
   const { t } = useI18n();
   const tableStore = useTableStore();
@@ -803,6 +806,9 @@
       type: FilterType.DATE_PICKER,
     },
   ]);
+
+  const viewName = ref('');
+
   // 高级检索
   const handleAdvSearch = async (filter: FilterResult, id: string, isStartAdvance: boolean) => {
     resetSelector();
@@ -1171,8 +1177,16 @@
     createAndEditCaseDrawerRef.value?.open(caseDetail.value.apiDefinitionId, caseDetail.value as RequestParam, false);
   }
 
+  onBeforeMount(() => {
+    if (route.query.view) {
+      setAdvanceFilter({}, route.query.view as string);
+      viewName.value = route.query.view as string;
+    }
+  });
+
   defineExpose({
     loadCaseList,
+    isAdvancedSearchMode,
   });
 
   await tableStore.initColumn(TableKeyEnum.API_TEST_MANAGEMENT_CASE, columns, 'drawer', true);

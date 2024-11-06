@@ -186,6 +186,7 @@
     count?: number;
     notShowInputSearch?: boolean;
     viewType?: ViewTypeEnum;
+    viewName?: string;
   }>();
 
   const emit = defineEmits<{
@@ -201,7 +202,7 @@
   const visible = ref(false);
   const filterResult = ref<FilterResult>({ searchMode: 'AND', conditions: [] });
 
-  const currentView = ref(''); // 当前视图
+  const currentView = ref(props.viewName || ''); // 当前视图
   const internalViews = ref<ViewItem[]>([]);
   const customViews = ref<ViewItem[]>([]);
   const viewListLoading = ref(false);
@@ -228,11 +229,19 @@
       value: e.id,
     }));
   }
+
+  const isAdvancedSearchMode = ref(false);
+
   onMounted(async () => {
     if (props.viewType) {
       getMemberOptions();
       await getUserViewList();
-      currentView.value = internalViews.value[0]?.id;
+      if (props.viewName) {
+        currentView.value = props.viewName;
+        isAdvancedSearchMode.value = currentView.value !== internalViews.value[0].id;
+      } else {
+        currentView.value = internalViews.value[0]?.id;
+      }
     }
   });
 
@@ -325,7 +334,6 @@
     }
   }
 
-  const isAdvancedSearchMode = ref(false);
   const getIsValidValue = (item: ConditionsItem) => {
     if (typeof item.value === 'boolean') return String(item.value).length;
     if (typeof item.value === 'number') return item.value;

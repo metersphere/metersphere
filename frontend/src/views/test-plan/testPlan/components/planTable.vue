@@ -5,6 +5,7 @@
     :view-type="ViewTypeEnum.TEST_PLAN"
     :filter-config-list="filterConfigList"
     :search-placeholder="t('common.searchByIDNameTag')"
+    :view-name="viewName"
     @keyword-search="fetchData()"
     @adv-search="handleAdvSearch"
     @refresh="fetchData()"
@@ -1705,12 +1706,18 @@
   // }
 
   const isActivated = computed(() => cacheStore.cacheViews.includes(RouteEnum.TEST_PLAN_INDEX));
+  const viewName = ref('');
 
   onBeforeMount(() => {
     if (!isActivated.value) {
       if (route.query.groupId) {
         showType.value = testPlanTypeEnum.GROUP;
         keyword.value = route.query.groupId as string;
+      } else if (route.query.showType) {
+        showType.value = route.query.showType as testPlanTypeEnum;
+      }
+      if (route.query.view) {
+        viewName.value = route.query.view as string;
       }
       fetchData();
     }

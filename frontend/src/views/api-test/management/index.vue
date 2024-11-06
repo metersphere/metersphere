@@ -196,9 +196,8 @@
     }
   };
 
-  const isAdvancedSearchMode = ref(false);
-  function handleAdvSearch(isStartAdvance: boolean) {
-    isAdvancedSearchMode.value = isStartAdvance;
+  const isAdvancedSearchMode = computed(() => managementRef.value?.isAdvancedSearchMode);
+  function handleAdvSearch() {
     moduleTreeRef.value?.setActiveFolder('all');
   }
 

@@ -8,6 +8,7 @@
         :filter-config-list="filterConfigList"
         :custom-fields-config-list="searchCustomFields"
         :search-placeholder="t('caseManagement.featureCase.searchByNameAndId')"
+        :view-name="viewName"
         @keyword-search="fetchData()"
         @adv-search="handleAdvSearch"
         @refresh="searchData()"
@@ -593,6 +594,8 @@
       type: FilterType.DATE_PICKER,
     },
   ]);
+
+  const viewName = ref('');
   // 高级检索
   const handleAdvSearch = (filter: FilterResult, id: string) => {
     resetSelector();
@@ -864,6 +867,10 @@
   onBeforeMount(() => {
     // 进入页面时检查当前项目轮训状态
     checkSyncStatus();
+    if (route.query.view) {
+      setAdvanceFilter({}, route.query.view as string);
+      viewName.value = route.query.view as string;
+    }
   });
 
   let customColumns: MsTableColumn = [];

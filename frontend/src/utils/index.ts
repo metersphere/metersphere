@@ -913,6 +913,7 @@ export function customFieldToColumns(customFields: CustomFieldItem[]) {
       width: 200,
       options: options || JSON.parse(platformOptionJson),
       type,
+      internal: field.internal,
     };
     return column;
   });

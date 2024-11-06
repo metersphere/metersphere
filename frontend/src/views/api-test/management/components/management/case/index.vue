@@ -156,8 +156,10 @@
     }
   });
 
+  const isAdvancedSearchMode = computed(() => caseTableRef.value?.isAdvancedSearchMode);
   defineExpose({
     openCaseTab,
     openCaseTabAndExecute,
+    isAdvancedSearchMode,
   });
 </script>

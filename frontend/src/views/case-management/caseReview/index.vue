@@ -53,6 +53,7 @@
   defineOptions({
     name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW,
   });
+
   const router = useRouter();
 
   type ShowType = 'all' | 'reviewByMe' | 'createByMe';
@@ -103,9 +104,8 @@
     });
   }
 
-  const isAdvancedSearchMode = ref(false);
-  function handleAdvSearch(isStartAdvance: boolean) {
-    isAdvancedSearchMode.value = isStartAdvance;
+  const isAdvancedSearchMode = computed(() => reviewTableRef.value?.isAdvancedSearchMode);
+  function handleAdvSearch() {
     folderTreeRef.value?.setActiveFolder('all');
   }
 </script>

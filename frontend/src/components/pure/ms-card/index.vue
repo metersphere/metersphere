@@ -183,7 +183,7 @@
     }
     const width = props.otherWidth
       ? `calc(100vw - ${menuWidth.value}px - ${props.otherWidth}px)`
-      : `calc(100vw - ${menuWidth.value}px - 58px)`;
+      : `calc(100vw - ${menuWidth.value}px - 48px)`; // 48px 为卡片左右内边距 32+ 页面右侧内边距16
     return {
       overflow: 'auto',
       width: props.autoWidth ? 'auto' : width,

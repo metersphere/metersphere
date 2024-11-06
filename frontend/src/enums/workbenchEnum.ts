@@ -57,4 +57,11 @@ export enum WorkCardEnum {
   BUG_HANDLE_USER = 'BUG_HANDLE_USER', // 缺陷处理人统计
 }
 
-export default {};
+export enum FeatureEnum {
+  TEST_PLAN = 'TEST_PLAN',
+  TEST_CASE = 'TEST_CASE',
+  CASE_REVIEW = 'CASE_REVIEW',
+  API_CASE = 'API_CASE',
+  API_SCENARIO = 'API_SCENARIO',
+  BUG = 'BUG',
+}
