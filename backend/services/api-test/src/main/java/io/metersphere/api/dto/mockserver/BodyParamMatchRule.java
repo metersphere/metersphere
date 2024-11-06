@@ -33,7 +33,7 @@ public class BodyParamMatchRule {
      * x-www-form-urlencoded 请求体
      * 当 bodyType 为 WWW_FORM 时，使用该字段
      */
-    private keyValueMatchRule wwwFormBody = new keyValueMatchRule();
+    private KeyValueMatchRule wwwFormBody = new KeyValueMatchRule();
     /**
      * json 请求体
      * 当 bodyType 为 JSON 时，使用该字段

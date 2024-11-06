@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class keyValueMatchRule {
+public class KeyValueMatchRule {
     @Schema(description = "是否是全部匹配 （false为任意匹配）")
     private boolean isMatchAll;
     @Schema(description = "匹配规则")
