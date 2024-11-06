@@ -8,14 +8,12 @@ import io.metersphere.system.domain.UserRolePermission;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,34 +23,88 @@ public class PermissionCheckService {
     private UserLoginService userLoginService;
 
     public boolean userHasProjectPermission(String userId, String projectId, String permission) {
+        UserDTO user = getUserDTO(userId);
+        if (user == null) return false;
+        // 判断是否是超级管理员
+        if (checkAdmin(user)) return true;
+        return checkHasPermission(projectId, permission, user);
+    }
+
+    private static boolean checkHasPermission(String projectId, String permission, UserDTO user) {
         Map<String, List<UserRolePermission>> userRolePermissions = new HashMap<>();
         Map<String, UserRole> role = new HashMap<>();
-        UserDTO user = userLoginService.getUserDTO(userId);
-        if (user != null) {
-            user.getUserRoleRelations().forEach(ug -> user.getUserRolePermissions().forEach(gp -> {
-                if (StringUtils.equalsIgnoreCase(gp.getUserRole().getId(), ug.getRoleId())) {
-                    userRolePermissions.put(ug.getId(), gp.getUserRolePermissions());
-                    role.put(ug.getId(), gp.getUserRole());
-                }
-            }));
-            // 判断是否是超级管理员
-            long count = user.getUserRoles()
-                    .stream()
-                    .filter(g -> StringUtils.equalsIgnoreCase(g.getId(), InternalUserRole.ADMIN.getValue()))
-                    .count();
-            if (count > 0) {
-                return true;
-            }
-            Set<String> currentProjectPermissions = user.getUserRoleRelations().stream()
-                    .filter(ug -> role.get(ug.getId()) != null && StringUtils.equalsIgnoreCase(role.get(ug.getId()).getType(), UserRoleType.PROJECT.name()))
-                    .filter(ug -> StringUtils.equalsIgnoreCase(ug.getSourceId(), projectId))
-                    .flatMap(ug -> userRolePermissions.get(ug.getId()).stream())
-                    .map(UserRolePermission::getPermissionId)
-                    .collect(Collectors.toSet());
-            return currentProjectPermissions.contains(permission);
-        }
-        return false;
+        getUserAllPermissions(user, userRolePermissions, role);
+        Set<String> currentProjectPermissions = user.getUserRoleRelations().stream()
+                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equalsIgnoreCase(role.get(ug.getId()).getType(), UserRoleType.PROJECT.name()))
+                .filter(ug -> StringUtils.equalsIgnoreCase(ug.getSourceId(), projectId))
+                .flatMap(ug -> userRolePermissions.get(ug.getId()).stream())
+                .map(UserRolePermission::getPermissionId)
+                .collect(Collectors.toSet());
+        return currentProjectPermissions.contains(permission);
     }
+
+    public UserDTO getUserDTO(String userId) {
+        return userLoginService.getUserDTO(userId);
+    }
+
+    public boolean checkAdmin(UserDTO user) {
+        long count = user.getUserRoles()
+                .stream()
+                .filter(g -> StringUtils.equalsIgnoreCase(g.getId(), InternalUserRole.ADMIN.getValue()))
+                .count();
+        return count > 0;
+    }
+
+    private static void getUserAllPermissions(UserDTO user, Map<String, List<UserRolePermission>> userRolePermissions, Map<String, UserRole> role) {
+        user.getUserRoleRelations().forEach(ug -> user.getUserRolePermissions().forEach(gp -> {
+            if (StringUtils.equalsIgnoreCase(gp.getUserRole().getId(), ug.getRoleId())) {
+                userRolePermissions.put(ug.getId(), gp.getUserRolePermissions());
+                role.put(ug.getId(), gp.getUserRole());
+            }
+        }));
+    }
+
+    /**
+     * 获取用户某些权限所占据的项目集合
+     *
+     * @param userId 用户ID
+     * @param projectIds 项目ids
+     * @param permissions 需要判断的权限集合
+     * @return 有该类型权限的项目ids的map
+     */
+    public Map<String, Set<String>> getHasUserPermissionProjectIds(String userId, Set<String>projectIds, Set<String> permissions) {
+        UserDTO user = getUserDTO(userId);
+        if (user == null) return new HashMap<>();
+        // 注意超级管理员包含所有权限，这里不予返回，请在方法外自行判断
+        Map<String, Set<String>> permissionProjectIdMap = new HashMap<>();
+        Map<String, List<UserRolePermission>> projectPermissionMap = new HashMap<>();
+        Map<String, List<UserRolePermission>>rolePermissionMap = new HashMap<>();
+
+        user.getUserRolePermissions().forEach(t->{
+            if (StringUtils.equalsIgnoreCase(t.getUserRole().getType(), UserRoleType.PROJECT.name())) {
+                rolePermissionMap.put(t.getUserRole().getId(),t.getUserRolePermissions());
+            }
+        });
+        user.getUserRoleRelations().forEach(ug -> {
+            List<UserRolePermission> userRolePermissions = rolePermissionMap.get(ug.getRoleId());
+            if (CollectionUtils.isNotEmpty(userRolePermissions) && projectIds.contains(ug.getSourceId())) {
+                projectPermissionMap.put(ug.getSourceId(),userRolePermissions);
+            }
+        });
+        projectPermissionMap.forEach((projectId, userRolePermissions)->{
+            for (UserRolePermission userRolePermission : userRolePermissions) {
+                if (permissions.contains(userRolePermission.getPermissionId())) {
+                    permissionProjectIdMap.computeIfAbsent(userRolePermission.getPermissionId(), key -> new HashSet<>()).add(projectId);
+                }
+            }
+        });
+        return permissionProjectIdMap;
+
+    }
+
+
+
+
 
 
 }
