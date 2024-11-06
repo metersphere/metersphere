@@ -11,6 +11,7 @@
     GraphicComponent,
     GridComponent,
     LegendComponent,
+    TitleComponent,
     TooltipComponent,
   } from 'echarts/components';
   import { use } from 'echarts/core';
@@ -28,6 +29,7 @@
     LegendComponent,
     DataZoomComponent,
     GraphicComponent,
+    TitleComponent,
   ]);
 
   defineProps({

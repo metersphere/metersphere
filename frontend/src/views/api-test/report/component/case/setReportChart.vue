@@ -34,15 +34,15 @@
       <!-- </a-popover> -->
     </div>
 
-    <div class="chart-legend grid flex-1 gap-y-[12px]">
+    <div :class="`chart-legend flex flex-col gap-[${props.gap || 8}px]`">
       <!-- 图例开始 -->
-      <div v-for="item of legendData" :key="item.value" class="grid grid-cols-3">
-        <div class="flex flex-nowrap items-center">
+      <div v-for="item of legendData" :key="item.value" class="chart-legend-item">
+        <div class="flex flex-1 flex-nowrap items-center">
           <div class="mb-[2px] mr-[4px] h-[6px] w-[6px] rounded-full" :class="item.class"></div>
           <div class="text-[var(--color-text-4)]">{{ item.label }}</div>
         </div>
-        <div class="text-end font-medium text-[var(--color-text-1)]">{{ item.count || 0 }}</div>
-        <div class="text-right font-medium text-[var(--color-text-1)]">
+        <div class="flex-1 text-center font-medium text-[var(--color-text-1)]">{{ item.count || 0 }}</div>
+        <div class="flex-1 text-end font-medium text-[var(--color-text-1)]">
           {{ item.rote || 0 }}
           <span v-if="String(item.rote) !== 'Calculating'"> </span>
         </div>
@@ -70,17 +70,19 @@
     legendData: LegendData[];
     requestTotal: number;
     size?: string;
+    gap?: string;
   }>();
 </script>
 
 <style scoped lang="less">
   .chart-legend {
+    width: 100%;
+    height: 100%;
     .chart-legend-item {
+      width: 100%;
       @apply flex items-center justify-between;
     }
     .chart-flag {
-      width: 80px;
-      @apply flex flex-nowrap items-center;
       .count {
         color: var(--color-text-1);
         @apply flex-1;
