@@ -49,7 +49,6 @@ export default {
     'menu.apiTest.reportDetail': '报告详情',
     'menu.uiTest': 'UI测试',
     'menu.taskCenter': '任务中心',
-    'menu.workstation': '工作台',
     'menu.loadTest': '性能测试',
     'menu.performanceTest': '性能测试',
     'menu.projectManagement': '项目管理',

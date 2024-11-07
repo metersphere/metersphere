@@ -71,7 +71,6 @@ export default {
     'menu.caseManagement.caseManagementReviewDetailCaseDetail': 'Review Case Detail',
     'menu.caseManagement.caseManagementCaseReviewEdit': 'Update Review',
     'menu.caseManagement.caseManagementCaseDetail': 'Case Detail',
-    'menu.workstation': 'Workstation',
     'menu.loadTest': 'Performance Test',
     'menu.projectManagement.projectPermission': 'Project Permission',
     'menu.projectManagement.log': 'Log',

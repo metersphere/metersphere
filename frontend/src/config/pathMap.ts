@@ -269,6 +269,13 @@ export const pathMap: PathMapItem[] = [
             permission: [],
             level: MENU_LEVEL[2],
           },
+          {
+            key: 'CASE_MANAGEMENT_REVIEW_REVIEW_MODULE', // 功能测试-功能用例-用例评审-模块
+            locale: 'common.module',
+            route: RouteEnum.CASE_MANAGEMENT_REVIEW,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
         ],
       },
     ],
@@ -901,5 +908,42 @@ export const pathMap: PathMapItem[] = [
     route: '',
     permission: [],
     level: MENU_LEVEL[0],
+  },
+  {
+    key: 'WORKBENCH', // 工作台
+    locale: 'menu.workbench',
+    route: RouteEnum.WORKBENCH,
+    permission: [],
+    level: MENU_LEVEL[1],
+    children: [
+      {
+        key: 'WORKBENCH_INDEX', // 工作台-首页
+        locale: 'menu.workbenchHomeSort',
+        route: RouteEnum.WORKBENCH_INDEX,
+        permission: [],
+        level: MENU_LEVEL[1],
+      },
+      {
+        key: 'WORKBENCH_INDEX_WAIT', // 工作台-待办
+        locale: 'menu.workbenchWaitSort',
+        route: RouteEnum.WORKBENCH_INDEX_WAIT,
+        permission: [],
+        level: MENU_LEVEL[1],
+      },
+      {
+        key: 'WORKBENCH_INDEX_FOLLOW', // 工作台-我关注的
+        locale: 'menu.workbenchFollowSort',
+        route: RouteEnum.WORKBENCH_INDEX_FOLLOW,
+        permission: [],
+        level: MENU_LEVEL[1],
+      },
+      {
+        key: 'WORKBENCH_INDEX_CREATED', // 工作台-我创建的
+        locale: 'menu.workbenchCreatedSort',
+        route: RouteEnum.WORKBENCH_INDEX_CREATED,
+        permission: [],
+        level: MENU_LEVEL[1],
+      },
+    ],
   },
 ];
