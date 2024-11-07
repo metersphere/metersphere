@@ -588,6 +588,7 @@
   // 是否显示环境域名前缀
   const showEnvPrefix = computed(
     () =>
+      requestVModel.value.customizeRequest &&
       requestVModel.value.customizeRequestEnvEnable &&
       appStore.currentEnvConfig?.httpConfig.find((e) => e.type === 'NONE')?.url
   );

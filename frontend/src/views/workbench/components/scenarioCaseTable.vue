@@ -73,6 +73,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import { getScenarioPage } from '@/api/modules/api-test/scenario';
