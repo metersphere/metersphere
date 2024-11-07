@@ -175,8 +175,11 @@ public class TestPlanReportController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprfc.pos desc");
         if (!request.getStartPager()) {
-            page.close();
-            page.setOrderBy("tprfc.pos desc");
+            // 不分页仅排序 {测试集升序, 用例位次倒序}
+            page.setPageSize(0);
+            page.setPageSizeZero(true);
+            page.setOrderBy("tpc.pos, tprfc.pos desc");
+            page.setOrderByOnly(true);
         }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.FUNCTIONAL));
     }
@@ -196,8 +199,11 @@ public class TestPlanReportController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprac.pos desc");
         if (!request.getStartPager()) {
-            page.close();
-            page.setOrderBy("tprac.pos desc");
+            // 不分页仅排序 {测试集升序, 用例位次倒序}
+            page.setPageSize(0);
+            page.setPageSizeZero(true);
+            page.setOrderBy("tpc.pos, tprac.pos desc");
+            page.setOrderByOnly(true);
         }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_CASE));
     }
@@ -210,8 +216,11 @@ public class TestPlanReportController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpras.pos desc");
         if (!request.getStartPager()) {
-            page.close();
-            page.setOrderBy("tpras.pos desc");
+            // 不分页仅排序 {测试集升序, 用例位次倒序}
+            page.setPageSize(0);
+            page.setPageSizeZero(true);
+            page.setOrderBy("tpc.pos, tpras.pos desc");
+            page.setOrderByOnly(true);
         }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_SCENARIO));
     }

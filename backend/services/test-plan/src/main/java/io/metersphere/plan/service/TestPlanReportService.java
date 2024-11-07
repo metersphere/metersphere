@@ -854,13 +854,8 @@ public class TestPlanReportService {
         List<String> distinctUserIds = detailCases.stream().map(ReportDetailCasePageDTO::getExecuteUser).distinct().collect(Collectors.toList());
         distinctUserIds.removeIf(StringUtils::isEmpty);
         Map<String, String> userMap = getUserMap(distinctUserIds);
-        // 测试集
-        List<String> collectionIds = detailCases.stream().map(ReportDetailCasePageDTO::getCollectionId).distinct().collect(Collectors.toList());
-        collectionIds.removeIf(StringUtils::isEmpty);
-        Map<String, String> collectionMap = getCollectionMap(collectionIds);
         detailCases.forEach(detailCase -> {
             detailCase.setExecuteUser(userMap.getOrDefault(detailCase.getExecuteUser(), detailCase.getExecuteUser()));
-            detailCase.setCollectionName(collectionMap.get(detailCase.getCollectionId()));
         });
         return detailCases;
     }
