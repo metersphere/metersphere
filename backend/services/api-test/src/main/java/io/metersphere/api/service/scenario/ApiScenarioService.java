@@ -69,6 +69,7 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.val;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -528,24 +529,120 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
     private void handleStepFilesAdd(ApiScenarioAddRequest request, String creator, ApiScenario scenario) {
-        Map<String, ResourceAddFileParam> stepFileParam = request.getStepFileParam();
+        var stepFileParam = request.getStepFileParam();
         if (MapUtils.isNotEmpty(stepFileParam)) {
             stepFileParam.forEach((stepId, fileParam) -> {
                 // 处理步骤文件
-                ApiFileResourceUpdateRequest resourceUpdateRequest = getStepApiFileResourceUpdateRequest(creator, scenario, stepId, fileParam);
+                var resourceUpdateRequest = getStepApiFileResourceUpdateRequest(creator, scenario, stepId, fileParam);
                 apiFileResourceService.addFileResource(resourceUpdateRequest);
             });
+        }
+
+        // 获取需处理的步骤ID，过滤掉已存在的文件参数ID
+        var stepIds = request.getSteps().stream()
+                .filter(step -> StringUtils.equalsAny(step.getStepType(), ApiScenarioStepType.API.name(), ApiScenarioStepType.API_CASE.name())
+                        && StringUtils.equalsAny(step.getRefType(), ApiScenarioStepRefType.COPY.name()))
+                .map(ApiScenarioStepCommonDTO::getResourceId)
+                .filter(stepId -> !stepFileParam.containsKey(stepId))
+                .toList();
+
+        // 步骤ID和资源ID的映射
+        var stepMap = request.getSteps().stream()
+                .collect(Collectors.toMap(ApiScenarioStepCommonDTO::getId, ApiScenarioStepCommonDTO::getResourceId));
+
+        if (CollectionUtils.isNotEmpty(stepIds)) {
+            // 查询步骤关联的文件
+            var resources = apiFileResourceService.selectByApiScenarioId(stepIds);
+            if (CollectionUtils.isNotEmpty(resources)) {
+                // 按资源ID分组，每个资源可能有多个文件
+                var resourceMap = resources.stream()
+                        .collect(Collectors.groupingBy(ApiFileResource::getResourceId));
+
+                // 遍历步骤ID和资源ID的映射，处理文件
+                stepMap.forEach((stepId, resourceId) -> {
+                    var resourceList = resourceMap.get(resourceId);
+                    if (CollectionUtils.isNotEmpty(resourceList)) {
+                        var firstFile = resourceList.getFirst();
+
+                        var fileParam = new ResourceAddFileParam();
+                        fileParam.setUploadFileIds(resourceList.stream()
+                                .map(ApiFileResource::getFileId)
+                                .toList());
+
+                        var resourceUpdateRequest = getStepApiFileResourceUpdateRequest(creator, scenario, stepId, fileParam);
+
+                        var copyFolder = StringUtils.equals(firstFile.getResourceType(), ApiScenarioStepType.API.name())
+                                ? DefaultRepositoryDir.getApiDefinitionDir(firstFile.getProjectId(), resourceId)
+                                : DefaultRepositoryDir.getApiCaseDir(firstFile.getProjectId(), resourceId);
+
+                        apiFileResourceService.addFileResource(resourceUpdateRequest, copyFolder);
+                    }
+                });
+            }
         }
     }
 
     private void handleStepFilesUpdate(ApiScenarioUpdateRequest request, String updater, ApiScenario scenario) {
-        Map<String, ResourceUpdateFileParam> stepFileParam = request.getStepFileParam();
+        var stepFileParam = request.getStepFileParam();
+
+        // 处理步骤文件参数更新
         if (MapUtils.isNotEmpty(stepFileParam)) {
             stepFileParam.forEach((stepId, fileParam) -> {
-                // 处理步骤文件
-                ApiFileResourceUpdateRequest resourceUpdateRequest = getStepApiFileResourceUpdateRequest(updater, scenario, stepId, fileParam);
+                var resourceUpdateRequest = getStepApiFileResourceUpdateRequest(updater, scenario, stepId, fileParam);
                 apiFileResourceService.updateFileResource(resourceUpdateRequest);
             });
+        }
+
+        // 获取需处理的步骤ID，过滤掉已存在的文件参数ID
+        var stepIds = request.getSteps().stream()
+                .filter(step -> StringUtils.equalsAny(step.getStepType(), ApiScenarioStepType.API.name(), ApiScenarioStepType.API_CASE.name())
+                        && StringUtils.equalsAny(step.getRefType(), ApiScenarioStepRefType.COPY.name()))
+                .map(ApiScenarioStepCommonDTO::getResourceId)
+                .filter(stepId -> !stepFileParam.containsKey(stepId))
+                .toList();
+
+        // 步骤ID和资源ID的映射
+        var stepMap = request.getSteps().stream()
+                .collect(Collectors.toMap(ApiScenarioStepCommonDTO::getId, ApiScenarioStepCommonDTO::getResourceId));
+
+        if (CollectionUtils.isNotEmpty(stepIds)) {
+            // 查询步骤关联的文件
+            var resources = apiFileResourceService.selectByApiScenarioId(stepIds);
+            if (CollectionUtils.isNotEmpty(resources)) {
+                // 按资源ID分组，每个资源多个文件
+                var resourceMap = resources.stream()
+                        .collect(Collectors.groupingBy(ApiFileResource::getResourceId));
+
+                // 遍历步骤ID和资源ID的映射，处理文件
+                stepMap.forEach((stepId, resourceId) -> {
+                    var resourcesFiles = Optional.ofNullable(resourceMap.get(resourceId));
+                    resourcesFiles.ifPresent(files -> {
+                        var fileIds = new ArrayList<>(files.stream()
+                                .map(ApiFileResource::getFileId)
+                                .toList());
+
+                        // 找到已存在的文件并移除
+                        var extFiles = apiFileResourceService.selectByResourceIdAndFileIds(stepId, fileIds);
+                        fileIds.removeAll(extFiles.stream()
+                                .map(ApiFileResource::getFileId)
+                                .toList());
+
+                        // 处理剩余的文件ID
+                        if (CollectionUtils.isNotEmpty(fileIds)) {
+                            var fileParam = new ResourceAddFileParam();
+                            fileParam.setUploadFileIds(fileIds);
+
+                            var firstFile = files.getFirst();
+                            var copyFolder = StringUtils.equals(firstFile.getResourceType(), ApiScenarioStepType.API.name())
+                                    ? DefaultRepositoryDir.getApiDefinitionDir(firstFile.getProjectId(), resourceId)
+                                    : DefaultRepositoryDir.getApiCaseDir(firstFile.getProjectId(), resourceId);
+
+                            var resourceUpdateRequest = getStepApiFileResourceUpdateRequest(updater, scenario, stepId, fileParam);
+                            apiFileResourceService.updateFileResource(resourceUpdateRequest, copyFolder);
+                        }
+                    });
+                });
+            }
         }
     }
 
@@ -1001,7 +1098,7 @@ public class ApiScenarioService extends MoveNodeService {
      * 获取待更新的 ApiScenarioStep 列表
      */
     public List<ApiScenarioStep> getApiScenarioSteps(ApiScenarioStepCommonDTO parent,
-                                                      List<ApiScenarioStepRequest> steps, List<ApiScenarioCsvStep> csvSteps) {
+                                                     List<ApiScenarioStepRequest> steps, List<ApiScenarioCsvStep> csvSteps) {
         if (CollectionUtils.isEmpty(steps)) {
             return Collections.emptyList();
         }
@@ -1461,6 +1558,7 @@ public class ApiScenarioService extends MoveNodeService {
         return getStepBlobByIds(stepIdList).stream()
                 .collect(Collectors.toMap(ApiScenarioStepBlob::getId, blob -> new String(blob.getContent())));
     }
+
     public List<ApiScenarioStepBlob> getStepBlobByIds(List<String> stepIds) {
         if (CollectionUtils.isEmpty(stepIds)) {
             return Collections.emptyList();
@@ -1735,9 +1833,9 @@ public class ApiScenarioService extends MoveNodeService {
      * @param scenarioStepMap 所有场景步骤，key 为场景ID，value 为子步骤列表
      */
     public List<ApiScenarioStepDTO> buildStepTree(List<ApiScenarioStepDTO> steps,
-                                                   Map<String, List<ApiScenarioStepDTO>> parentStepMap,
-                                                   Map<String, List<ApiScenarioStepDTO>> scenarioStepMap,
-                                                   Set<String> stepIdSet) {
+                                                  Map<String, List<ApiScenarioStepDTO>> parentStepMap,
+                                                  Map<String, List<ApiScenarioStepDTO>> scenarioStepMap,
+                                                  Set<String> stepIdSet) {
         if (CollectionUtils.isEmpty(steps)) {
             return Collections.emptyList();
         }

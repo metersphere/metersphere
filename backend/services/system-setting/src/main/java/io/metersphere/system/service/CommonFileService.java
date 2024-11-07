@@ -39,6 +39,7 @@ public class CommonFileService {
 
     /**
      * 将图片文件上传到临时目录
+     *
      * @param file 文件
      * @return 文件ID
      */
@@ -67,6 +68,7 @@ public class CommonFileService {
 
     /**
      * 上传预览的图片
+     *
      * @param file
      * @param fileId
      * @param folder
@@ -91,7 +93,7 @@ public class CommonFileService {
      * 从临时文件夹中保存文件到指定文件夹
      * 并删除临时文件
      *
-     * @param folder     文件夹
+     * @param folder  文件夹
      * @param fileIds 临时文件ID列表
      */
     public void saveReviewImgFromTempFile(String folder, String reviewFolder, List<String> fileIds) {
@@ -110,7 +112,7 @@ public class CommonFileService {
      * 从临时文件夹中保存文件到指定文件夹
      * 并删除临时文件
      *
-     * @param folder     文件夹
+     * @param folder  文件夹
      * @param fileMap key:fileId value:fileName
      */
     public void saveReviewImgFromTempFile(String folder, String reviewFolder, Map<String, String> fileMap) {
@@ -140,7 +142,7 @@ public class CommonFileService {
      * 从临时文件夹中保存文件到指定文件夹
      * 并删除临时文件
      *
-     * @param folder     文件夹
+     * @param folder  文件夹
      * @param fileMap key:fileId value:fileName
      */
     public void saveFileFromTempFile(String folder, Map<String, String> fileMap) {
@@ -165,7 +167,31 @@ public class CommonFileService {
     }
 
     /**
+     * 复制文件到指定文件夹
+     */
+    public void saveFileFromTempFile(String folder, String copyFolder, Map<String, String> fileMap) {
+        if (MapUtils.isEmpty(fileMap)) {
+            return;
+        }
+        for (String fileId : fileMap.keySet()) {
+            try {
+                String fileName = fileMap.get(fileId);
+                if (StringUtils.isEmpty(fileName)) {
+                    continue;
+                }
+                // 复制文件到指定文件夹
+                copyFileToFolder(fileId, copyFolder, fileName, folder);
+            } catch (Exception e) {
+                LogUtils.error(e);
+                throw new MSException(Translator.get("file_upload_fail"), e);
+            }
+        }
+    }
+
+
+    /**
      * 将文件从临时目录移动到指定的图片预览目录
+     *
      * @param reviewFolder
      * @param fileId
      * @param fileName
@@ -191,6 +217,7 @@ public class CommonFileService {
 
     /**
      * 将文件从临时目录移动到指定目录
+     *
      * @param fileId
      * @param fileName
      * @param folder
@@ -210,7 +237,23 @@ public class CommonFileService {
     }
 
     /**
+     * 复制 API ｜ CASE 的文件到指定目录
+     */
+    public void copyFileToFolder(String fileId, String copyFolder, String fileName, String folder) throws Exception {
+        FileRepository defaultRepository = FileCenter.getDefaultRepository();
+        // 按ID建文件夹，避免文件名重复
+        FileCopyRequest fileCopyRequest = new FileCopyRequest();
+        fileCopyRequest.setCopyFolder(copyFolder + "/" + fileId);
+        fileCopyRequest.setCopyfileName(fileName);
+        fileCopyRequest.setFileName(fileName);
+        fileCopyRequest.setFolder(folder + "/" + fileId);
+        // 将文件从临时目录复制到资源目录
+        defaultRepository.copyFile(fileCopyRequest);
+    }
+
+    /**
      * 删除临时文件
+     *
      * @param fileId
      * @param fileName
      * @throws Exception
@@ -253,6 +296,7 @@ public class CommonFileService {
 
     /**
      * 从临时文件夹中下载图片
+     *
      * @param fileId
      * @param isCompressed
      * @return

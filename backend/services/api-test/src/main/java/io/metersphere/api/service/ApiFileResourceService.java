@@ -61,6 +61,10 @@ public class ApiFileResourceService {
         commonFileService.saveFileFromTempFile(folder, addFileMap);
     }
 
+    public void uploadFileResource(String folder, String copyFolder, Map<String, String> addFileMap) {
+        commonFileService.saveFileFromTempFile(folder, copyFolder, addFileMap);
+    }
+
     /**
      * 根据文件ID，查询minio中对应目录下的文件名称
      */
@@ -114,6 +118,52 @@ public class ApiFileResourceService {
         }
     }
 
+    /**
+     * 添加接口与文件的关联关系
+     */
+    public void addFileResource(ApiFileResourceUpdateRequest resourceUpdateRequest, String copyFolder) {
+        List<String> uploadFileIds = resourceUpdateRequest.getUploadFileIds();
+        String resourceId = resourceUpdateRequest.getResourceId();
+        String projectId = resourceUpdateRequest.getProjectId();
+        ApiFileResourceType apiResourceType = resourceUpdateRequest.getApiResourceType();
+
+        // 处理本地上传文件
+        if (CollectionUtils.isNotEmpty(uploadFileIds)) {
+            // 添加文件与接口的关联关系
+            Map<String, String> addFileMap = new HashMap<>();
+            List<ApiFileResource> apiFileResources = new ArrayList<>(uploadFileIds.size());
+            for (String fileId : uploadFileIds) {
+                String fileName = getTempFileNameByFileId(fileId);
+                if (StringUtils.isBlank(fileName)) {
+                    // 如果 fileName 查不到，说明该文件已经从临时目录移到正式目录，已经关联过了，无需关联
+                    continue;
+                }
+                ApiFileResource apiFileResource = new ApiFileResource();
+                apiFileResource.setFileId(fileId);
+                apiFileResource.setResourceId(resourceId);
+                apiFileResource.setResourceType(apiResourceType.name());
+                apiFileResource.setProjectId(projectId);
+                apiFileResource.setCreateTime(System.currentTimeMillis());
+                apiFileResource.setFileName(fileName);
+                apiFileResources.add(apiFileResource);
+                addFileMap.put(fileId, fileName);
+            }
+
+            if (CollectionUtils.isNotEmpty(apiFileResources)) {
+                apiFileResourceMapper.batchInsert(apiFileResources);
+            }
+
+            // 上传文件到对象存储
+            uploadFileResource(resourceUpdateRequest.getFolder(), copyFolder, addFileMap);
+        }
+
+        // 处理关联文件
+        if (CollectionUtils.isNotEmpty(resourceUpdateRequest.getLinkFileIds())) {
+            fileAssociationService.association(resourceId, resourceUpdateRequest.getFileAssociationSourceType(), resourceUpdateRequest.getLinkFileIds(),
+                    createFileLogRecord(resourceUpdateRequest.getOperator(), projectId, resourceUpdateRequest.getLogModule()));
+        }
+    }
+
     public FileLogRecord createFileLogRecord(String operator, String projectId, String logModule) {
         return FileLogRecord.builder()
                 .logModule(logModule)
@@ -130,6 +180,13 @@ public class ApiFileResourceService {
         deleteFileResource(resourceUpdateRequest);
         // 上传新的文件
         addFileResource(resourceUpdateRequest);
+    }
+
+    public void updateFileResource(ApiFileResourceUpdateRequest resourceUpdateRequest, String copyFolder) {
+        // 删除没用的文件
+        deleteFileResource(resourceUpdateRequest);
+        // 上传新的文件
+        addFileResource(resourceUpdateRequest, copyFolder);
     }
 
     private void deleteFileResource(ApiFileResourceUpdateRequest resourceUpdateRequest) {
@@ -328,6 +385,15 @@ public class ApiFileResourceService {
     public List<ApiFileResource> selectByApiScenarioId(List<String> scenarioIds) {
         ApiFileResourceExample example = new ApiFileResourceExample();
         example.createCriteria().andResourceIdIn(scenarioIds);
+        return apiFileResourceMapper.selectByExample(example);
+    }
+
+    public List<ApiFileResource> selectByResourceIdAndFileIds(String resourceId, List<String> fileIds) {
+        if (StringUtils.isBlank(resourceId) || CollectionUtils.isEmpty(fileIds)) {
+            return new ArrayList<>();
+        }
+        ApiFileResourceExample example = new ApiFileResourceExample();
+        example.createCriteria().andResourceIdEqualTo(resourceId).andFileIdIn(fileIds);
         return apiFileResourceMapper.selectByExample(example);
     }
 
