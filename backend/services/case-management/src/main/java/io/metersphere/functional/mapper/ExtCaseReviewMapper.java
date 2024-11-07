@@ -5,10 +5,12 @@ import io.metersphere.functional.dto.CaseReviewDTO;
 import io.metersphere.functional.request.CaseReviewBatchRequest;
 import io.metersphere.functional.request.CaseReviewPageRequest;
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.project.dto.ProjectCountDTO;
 import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author guoyuqi
@@ -39,4 +41,7 @@ public interface ExtCaseReviewMapper {
 
 
     String getReviewPassRule(@Param("id") String id);
+
+    List<ProjectCountDTO> projectReviewCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+
 }

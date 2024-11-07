@@ -11,10 +11,12 @@ import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.project.dto.DropNode;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
+import io.metersphere.project.dto.ProjectCountDTO;
 import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ExtTestPlanMapper {
     List<String> selectIdByGroupId(String parentId);
@@ -73,4 +75,7 @@ public interface ExtTestPlanMapper {
     List<TestPlanGroupCountDTO> countByGroupPlan(String projectId);
 
     List<String> selectIdByProjectIdAndWithoutList(@Param("projectId") String projectId, @Param("withoutList") List<String> withoutList);
+
+    List<ProjectCountDTO> projectPlanCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+
 }

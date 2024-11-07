@@ -11,13 +11,19 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LayoutDTO {
-    @Schema(description =  "布局卡片key")
+    @Schema(description =  "布局卡片id")
     private String id;
+    @Schema(description =  "布局卡片key")
+    private String key;
+    @Schema(description =  "布局卡片label")
+    private String label;
     @Schema(description =  "排序")
     private Integer pos;
     @Schema(description =  "全屏/半屏")
     private Boolean fullScreen;
     @Schema(description =  "选中的项目ID")
     private List<String> projectIds;
+    @Schema(description =  "人员集合")
+    private List<String> handleUsers;
 
 }

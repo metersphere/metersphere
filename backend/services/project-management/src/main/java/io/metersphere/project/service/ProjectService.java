@@ -253,12 +253,6 @@ public class ProjectService {
         if (StringUtils.equalsIgnoreCase(module, "BUG")) {
             moduleName = ProjectMenuConstants.MODULE_MENU_BUG;
         }
-        if (StringUtils.equalsIgnoreCase(module, "PERFORMANCE")) {
-            moduleName = ProjectMenuConstants.MODULE_MENU_LOAD_TEST;
-        }
-        if (StringUtils.equalsIgnoreCase(module, "UI")) {
-            moduleName = ProjectMenuConstants.MODULE_MENU_UI;
-        }
         if (StringUtils.equalsIgnoreCase(module, "TEST_PLAN")) {
             moduleName = ProjectMenuConstants.MODULE_MENU_TEST_PLAN;
         }

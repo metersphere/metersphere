@@ -116,4 +116,21 @@
             CONVERT( p.name  USING GBK) ASC
     </select>
 
+    <select id="getProjectNameModule" resultType="io.metersphere.project.domain.Project">
+        select id, name, module_setting
+        from project
+        where enable = 1
+          and deleted = 0
+        <if test="organizationId != null and organizationId != ''">
+            and
+            organization_id = #{organizationId}
+        </if>
+        <if test="ids != null and ids.size() > 0">
+            and id in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
 </mapper>

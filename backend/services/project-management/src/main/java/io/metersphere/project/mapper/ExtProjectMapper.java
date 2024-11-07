@@ -32,4 +32,6 @@ public interface ExtProjectMapper {
 
     List<Project> getUserProjectWidthModule(@Param("organizationId") String organizationId, @Param("userId") String userId, @Param("module") String module);
 
+    List<Project> getProjectNameModule(@Param("organizationId") String organizationId, @Param("ids") List<String>projectIds);
+
 }

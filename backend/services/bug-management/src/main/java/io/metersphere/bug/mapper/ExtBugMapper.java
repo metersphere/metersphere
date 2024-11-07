@@ -5,12 +5,14 @@ import io.metersphere.bug.dto.request.BugPageRequest;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.dto.response.BugTagEditDTO;
 import io.metersphere.dto.BugProviderDTO;
+import io.metersphere.project.dto.ProjectCountDTO;
 import io.metersphere.request.AssociateBugRequest;
 import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ExtBugMapper {
 
@@ -109,4 +111,7 @@ public interface ExtBugMapper {
      */
     @BaseConditionFilter
     List<String> getIdsByProvider(@Param("request") AssociateBugRequest request, @Param("deleted") boolean deleted);
+
+    List<ProjectCountDTO> projectBugCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+
 }

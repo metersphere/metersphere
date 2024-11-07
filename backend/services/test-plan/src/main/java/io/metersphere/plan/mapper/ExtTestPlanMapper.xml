@@ -624,4 +624,21 @@
             </foreach>
         </if>
     </sql>
+
+    <select id="projectPlanCount"
+            resultType="io.metersphere.project.dto.ProjectCountDTO">
+        SELECT test_plan.project_id as projectId, count(test_plan.id) as count
+        FROM test_plan
+        WHERE
+        test_plan.project_id IN
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        AND test_plan.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="userId != null and userId != ''">
+            AND test_plan.create_user = #{userId}
+        </if>
+        group by test_plan.project_id;
+    </select>
+
 </mapper>

@@ -9,6 +9,7 @@ import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
 import io.metersphere.functional.request.*;
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.project.dto.ProjectCountDTO;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -16,6 +17,7 @@ import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author wx
@@ -116,4 +118,7 @@ public interface ExtFunctionalCaseMapper {
     List<FunctionalCase> getListBySelectIds(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("testPlanId") String testPlanId);
 
     List<FunctionalCase> getProjectIdByIds(@Param("ids") List<String> ids);
+
+    List<ProjectCountDTO> projectCaseCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+
 }

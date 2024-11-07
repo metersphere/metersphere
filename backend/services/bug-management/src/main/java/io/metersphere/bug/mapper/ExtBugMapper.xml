@@ -353,5 +353,21 @@
             <property name="deleted" value="${request.useTrash}"/>
         </include>
     </sql>
+
+    <select id="projectBugCount"
+            resultType="io.metersphere.project.dto.ProjectCountDTO">
+        SELECT bug.project_id as projectId, count(bug.id) as count
+        FROM bug
+        WHERE bug.deleted = false AND project_id IN
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        AND bug.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="userId != null and userId != ''">
+            AND bug.create_user = #{userId}
+        </if>
+        group by bug.project_id;
+    </select>
+
 </mapper>
 

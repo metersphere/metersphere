@@ -771,4 +771,20 @@
         from api_definition
         where id = #{0}
     </select>
+
+    <select id="projectApiCount"
+            resultType="io.metersphere.project.dto.ProjectCountDTO">
+        SELECT api_definition.project_id as projectId, count(api_definition.id) as count
+        FROM api_definition
+        WHERE api_definition.project_id IN
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        AND api_definition.deleted = false
+        AND api_definition.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="userId != null and userId != ''">
+            AND api_definition.create_user = #{userId}
+        </if>
+        group by api_definition.project_id;
+    </select>
 </mapper>

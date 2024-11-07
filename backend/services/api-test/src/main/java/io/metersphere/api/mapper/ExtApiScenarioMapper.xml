@@ -765,4 +765,21 @@
           AND project_id = #{projectId}
           AND deleted = false
     </select>
+
+    <select id="projectApiScenarioCount"
+            resultType="io.metersphere.project.dto.ProjectCountDTO">
+        SELECT api_scenario.project_id as projectId, count(api_scenario.id) as count
+        FROM api_scenario
+        WHERE api_scenario.deleted = false
+        AND api_scenario.project_id IN
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        AND api_scenario.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="userId != null and userId != ''">
+            AND api_scenario.create_user = #{userId}
+        </if>
+        group by api_scenario.project_id;
+    </select>
+
 </mapper>

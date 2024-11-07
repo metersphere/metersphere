@@ -899,4 +899,22 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="projectCaseCount"
+            resultType="io.metersphere.project.dto.ProjectCountDTO">
+        SELECT functional_case.project_id as projectId, count(functional_case.id) as count
+        FROM functional_case
+        WHERE functional_case.deleted = false
+        AND functional_case.project_id IN
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        AND functional_case.create_time BETWEEN #{startTime} AND #{endTime}
+
+        <if test="userId != null and userId != ''">
+            AND functional_case.create_user = #{userId}
+        </if>
+        group by functional_case.project_id;
+    </select>
+
 </mapper>

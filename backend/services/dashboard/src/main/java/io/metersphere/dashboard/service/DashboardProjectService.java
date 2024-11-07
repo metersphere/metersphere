@@ -1,8 +1,6 @@
 package io.metersphere.dashboard.service;
 
 import io.metersphere.project.domain.Project;
-import io.metersphere.project.domain.ProjectExample;
-import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.user.UserDTO;
@@ -20,32 +18,26 @@ public class DashboardProjectService {
 
     @Resource
     private PermissionCheckService permissionCheckService;
-    @Resource
-    private ProjectMapper projectMapper;
+
+
 
     public static final String API_TEST = "apiTest";
     public static final String TEST_PLAN = "testPlan";
     public static final String FUNCTIONAL_CASE = "caseManagement";
     public static final String BUG = "bugManagement";
 
-    public Map<String, Set<String>> getPermissionModuleProjectIds(String organizationId, List<String> projectIds, String userId) {
+    /**
+     * 获取用户组织内有只读权限且开启相关模块的项目
+     *
+     * @param userId 当前用户
+     * @return 只读权限对应的开启模块的项目ids
+     */
+    public Map<String, Set<String>> getPermissionModuleProjectIds(List<Project> projects, String userId) {
         boolean isAdmin = isAdmin(userId);
         Set<String> projectSet;
         Map<String, String> moduleMap;
-        if (CollectionUtils.isNotEmpty(projectIds)) {
-            projectSet = new HashSet<>(projectIds);
-            ProjectExample projectExample = new ProjectExample();
-            projectExample.createCriteria().andIdIn(projectIds);
-            List<Project> projects = projectMapper.selectByExample(projectExample);
-            moduleMap = projects.stream().collect(Collectors.toMap(Project::getId, Project::getModuleSetting));
-        } else {
-            ProjectExample projectExample = new ProjectExample();
-            projectExample.createCriteria().andOrganizationIdEqualTo(organizationId);
-            List<Project> projects = projectMapper.selectByExample(projectExample);
-            projectSet = projects.stream().map(Project::getId).collect(Collectors.toSet());
-            moduleMap = projects.stream().collect(Collectors.toMap(Project::getId, Project::getModuleSetting));
-        }
-
+        projectSet = projects.stream().map(Project::getId).collect(Collectors.toSet());
+        moduleMap = projects.stream().collect(Collectors.toMap(Project::getId, Project::getModuleSetting));
         Map<String, Set<String>> hasModuleProjectIds = new HashMap<>();
         Map<String, String> finalModuleMap = moduleMap;
         Set<String> searchCaseProjectIds = new HashSet<>();
@@ -63,6 +55,7 @@ public class DashboardProjectService {
             Set<String> functionalProjectIds = hasUserPermissionProjectIds.get(PermissionConstants.FUNCTIONAL_CASE_READ);
             //检查是否开启功能用例模块
             if (CollectionUtils.isNotEmpty(functionalProjectIds)) {
+                //有权限
                 searchCaseProjectIds = functionalProjectIds.stream().filter(t -> finalModuleMap.get(t).contains(FUNCTIONAL_CASE)).collect(Collectors.toSet());
             }
             Set<String> reviewProjectIds = hasUserPermissionProjectIds.get(PermissionConstants.CASE_REVIEW_READ);
@@ -102,6 +95,7 @@ public class DashboardProjectService {
             searchPlanProjectIds = projectSet.stream().filter(t -> finalModuleMap.get(t).contains(TEST_PLAN)).collect(Collectors.toSet());
             searchBugProjectIds = projectSet.stream().filter(t -> finalModuleMap.get(t).contains(BUG)).collect(Collectors.toSet());
         }
+        //如果value 为空，则没有权限或者没开启模块
         hasModuleProjectIds.put(PermissionConstants.FUNCTIONAL_CASE_READ, searchCaseProjectIds);
         hasModuleProjectIds.put(PermissionConstants.CASE_REVIEW_READ, searchReviewProjectIds);
         hasModuleProjectIds.put(PermissionConstants.PROJECT_API_DEFINITION_READ, searchApiProjectIds);
@@ -112,6 +106,31 @@ public class DashboardProjectService {
 
         return hasModuleProjectIds;
     }
+
+    /**
+     * 当前用户在组织内有任意权限的且开启模块的项目
+     *
+     * @param userProject 在组织内有任意权限项目
+     * @return 模块开启对应的项目ids
+     */
+    public Map<String, Set<String>> getModuleProjectIds(List<Project> userProject) {
+        Map<String, String> moduleMap = userProject.stream().collect(Collectors.toMap(Project::getId, Project::getModuleSetting));
+        Set<String> projectIds = userProject.stream().map(Project::getId).collect(Collectors.toSet());
+        Set<String> searchCaseProjectIds = projectIds.stream().filter(t -> moduleMap.get(t).contains(FUNCTIONAL_CASE)).collect(Collectors.toSet());
+        Set<String> searchApiProjectIds = projectIds.stream().filter(t -> moduleMap.get(t).contains(API_TEST)).collect(Collectors.toSet());
+        Set<String> searchPlanProjectIds = projectIds.stream().filter(t -> moduleMap.get(t).contains(TEST_PLAN)).collect(Collectors.toSet());
+        Set<String> searchBugProjectIds = projectIds.stream().filter(t -> moduleMap.get(t).contains(BUG)).collect(Collectors.toSet());
+        Map<String, Set<String>> hasModuleProjectIds = new HashMap<>();
+        hasModuleProjectIds.put(PermissionConstants.FUNCTIONAL_CASE_READ, searchCaseProjectIds);
+        hasModuleProjectIds.put(PermissionConstants.CASE_REVIEW_READ, searchCaseProjectIds);
+        hasModuleProjectIds.put(PermissionConstants.PROJECT_API_DEFINITION_READ, searchApiProjectIds);
+        hasModuleProjectIds.put(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ, searchApiProjectIds);
+        hasModuleProjectIds.put(PermissionConstants.PROJECT_API_SCENARIO_READ, searchApiProjectIds);
+        hasModuleProjectIds.put(PermissionConstants.TEST_PLAN_READ, searchPlanProjectIds);
+        hasModuleProjectIds.put(PermissionConstants.PROJECT_BUG_READ, searchBugProjectIds);
+        return hasModuleProjectIds;
+    }
+
 
     private static Set<String> getPermissionSet() {
         Set<String> permissionSet = new HashSet<>();
@@ -127,6 +146,9 @@ public class DashboardProjectService {
 
     private boolean isAdmin(String userId) {
         UserDTO userDTO = permissionCheckService.getUserDTO(userId);
+        if (userDTO == null) {
+            return false;
+        }
         return permissionCheckService.checkAdmin(userDTO);
     }
 }

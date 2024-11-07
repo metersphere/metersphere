@@ -8,6 +8,7 @@ import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.project.dto.DropNode;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
+import io.metersphere.project.dto.ProjectCountDTO;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -17,6 +18,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author jianxing
@@ -132,4 +134,7 @@ public interface ExtApiTestCaseMapper {
     List<ApiTestCaseWithBlob> selectAllDetailByIds(@Param("ids") List<String> apiIds);
 
     List<ApiTestCaseDTO> selectBaseInfoByProjectIdAndApiId(@Param("projectId") String projectId, @Param("apiId") String apiId);
+
+    List<ProjectCountDTO>  projectApiCaseCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+
 }
