@@ -59,7 +59,7 @@
     tagProps,
     viewMenuProps,
   } from './props';
-  import { isNodeInMinderView } from './script/tool/utils';
+  import { isDisableNode, isNodeInMinderView } from './script/tool/utils';
 
   const emit = defineEmits<{
     (e: 'moldChange', data: number): void;
@@ -132,7 +132,9 @@
   const { unbindShortcuts } = useShortCut(
     {
       input: () => {
-        window.minderEditor.editText();
+        if (window.minder._status !== 'readonly' && !isDisableNode(window.minder)) {
+          window.minderEditor.editText();
+        }
       },
       undo: () => {
         window.minderHistory?.undo();
