@@ -4,7 +4,7 @@ export enum WorkOverviewIconEnum {
   API = 'icon-icon_api',
   API_CASE = 'icon-icon_case',
   API_SCENARIO = 'icon-icon_environment',
-  API_PLAN = 'icon-icon_calendar_dot',
+  TEST_PLAN = 'icon-icon_calendar_dot',
   BUG_COUNT = 'icon-icon_bug',
 }
 
@@ -14,7 +14,7 @@ export enum WorkOverviewEnum {
   API = 'API',
   API_CASE = 'API_CASE',
   API_SCENARIO = 'API_SCENARIO',
-  API_PLAN = 'API_PLAN', // 接口计划
+  TEST_PLAN = 'TEST_PLAN', // 测试计划
   BUG_COUNT = 'BUG_COUNT', // 缺陷数量
 }
 

@@ -50,4 +50,33 @@ export default {
   'workbench.homePage.unFinish': 'uncompleted',
   'workbench.homePage.numberOfTestPlan': 'Number of test plan',
   'workbench.homePage.numberOfCaseReviews': 'Number of cases to review',
+  'workbench.homePage.projectOverview': 'Project overview',
+  'workbench.homePage.projectOverviewDesc': 'Statistics Statistics of the resources and distribution of the project',
+  'workbench.homePage.staffOverviewDesc':
+    'Statistics data statistics of resources and distributions created by members in selected projects',
+  'workbench.homePage.createdByMeDesc': 'Statistics of resource distribution data created in the projects involved',
+  'workbench.homePage.useCasesNumberDesc': 'Statistics of the total number of use cases and the review of use cases',
+  'workbench.homePage.useCasesCountDesc': 'Use case Indicates the data statistics of an associated interface test case',
+  'workbench.homePage.numberOfCaseReviewsDesc':
+    'Statistics on the total number of use case reviews and status distribution',
+  'workbench.homePage.waitForReviewDesc':
+    'The review status is [incomplete], and the actual reviewer is reviewing my use case',
+  'workbench.homePage.apiCountDesc':
+    'Total number of interfaces and interface coverage and completion rate data statistics',
+  'workbench.homePage.apiUseCasesNumberDesc': 'Interfaces in the total amount of cases and completion data statistics',
+  'workbench.homePage.scenarioUseCasesNumberDesc':
+    'Total number of scenario use cases and statistics of use case execution and completion',
+  'workbench.homePage.interfaceChangeDesc': 'Interface change data statistics',
+  'workbench.homePage.remainingBugOfPlanDesc': 'Test plan associated defect and non-end state defect data statistics',
+  'workbench.homePage.bugCountDesc': 'Statistics of total number of defects and distribution data of defect status',
+  'workbench.homePage.createdBugByMeDesc': 'The creator calculates my defect data',
+  'workbench.homePage.pendingDefectDesc': 'The defect is in a non-ending state, and the handler is my defect',
+  'workbench.homePage.searchCard': 'Search by card',
+  'workbench.homePage.noCard': 'No card',
+  'workbench.homePage.noCardDesc': 'Click on the data card you want to display from the left and adjust the position',
+  'workbench.homePage.exitEdit': 'Exit edit',
+  'workbench.homePage.halfScreen': 'Half screen',
+  'workbench.homePage.fullScreen': 'Full screen',
+  'workbench.homePage.sort': 'Sort',
+  'workbench.homePage.workNoProjectTip': 'Workbench no content, please join the project',
 };

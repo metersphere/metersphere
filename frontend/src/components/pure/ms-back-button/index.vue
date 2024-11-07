@@ -75,7 +75,7 @@
     border-radius: 6px;
     color: rgb(var(--primary-6));
     box-shadow: 0 3px 14px 2px rgba(0 0 0/ 5%);
-    @apply flex items-center justify-center bg-white font-medium;
+    @apply flex cursor-pointer items-center justify-center bg-white font-medium;
   }
   .back-button-top {
     transform: rotate(180deg);

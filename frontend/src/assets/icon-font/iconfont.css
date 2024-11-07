@@ -1,7 +1,7 @@
 @font-face {
   font-family: iconfont; /* Project id 4625307 */
-  src: url('iconfont.woff2?t=1729481575027') format('woff2'), url('iconfont.woff?t=1729481575027') format('woff'),
-    url('iconfont.ttf?t=1729481575027') format('truetype'), url('iconfont.svg?t=1729481575027#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1730973496042') format('woff2'), url('iconfont.woff?t=1730973496042') format('woff'),
+    url('iconfont.ttf?t=1730973496042') format('truetype'), url('iconfont.svg?t=1730973496042#iconfont') format('svg');
 }
 .iconfont {
   font-size: 16px;
@@ -9,6 +9,9 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-icon_environment::before {
+  content: '\e6dc';
 }
 .icon-icon_task_center::before {
   content: '\e6db';

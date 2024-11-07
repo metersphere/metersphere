@@ -5,9 +5,12 @@
       <div>
         <MsSelect
           v-model:model-value="projectIds"
-          :options="projectOptions"
-          :allow-search="false"
+          :options="appStore.projectList"
           allow-clear
+          allow-search
+          value-key="id"
+          label-key="name"
+          :search-keys="['name']"
           class="!w-[240px]"
           :prefix="t('workbench.homePage.project')"
           :multiple="true"
@@ -38,21 +41,20 @@
   import TabCard from './tabCard.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
   import { WorkOverviewEnum, WorkOverviewIconEnum } from '@/enums/workbenchEnum';
 
   import { commonColorConfig, getCommonBarOptions } from '../utils';
-  import type { SelectOptionData } from '@arco-design/web-vue';
 
   const { t } = useI18n();
 
   const props = defineProps<{
     title: string;
   }>();
+  const appStore = useAppStore();
 
   const projectIds = ref('');
-
-  const projectOptions = ref<SelectOptionData[]>([]);
 
   const contentTabList = ref([
     {
@@ -92,8 +94,8 @@
     },
     {
       label: t('workbench.homePage.apiPlan'),
-      value: WorkOverviewEnum.API_PLAN,
-      icon: WorkOverviewIconEnum.API_PLAN,
+      value: WorkOverviewEnum.TEST_PLAN,
+      icon: WorkOverviewIconEnum.TEST_PLAN,
       color: 'rgb(var(--link-6))',
       count: 1000000,
     },
@@ -121,7 +123,7 @@
       itemStyle: {
         borderRadius: [2, 2, 0, 0], // 上边圆角
       },
-      data: [400, 200, 150, 80, 70, 110, 130],
+      data: [null, 230, 150, 80, 70, 110, 130],
     },
     {
       name: '项目B',
@@ -186,4 +188,14 @@
   });
 </script>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+  :deep(.arco-select-view-multiple.arco-select-view-size-medium .arco-select-view-tag) {
+    margin-top: 1px;
+    margin-bottom: 1px;
+    max-width: 80px;
+    height: auto;
+    min-height: 24px;
+    line-height: 22px;
+    vertical-align: middle;
+  }
+</style>

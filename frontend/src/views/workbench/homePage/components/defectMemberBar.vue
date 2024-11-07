@@ -5,13 +5,14 @@
       <div class="flex items-center gap-[8px]">
         <MsSelect
           v-model:model-value="projectIds"
-          :options="projectOptions"
-          :allow-search="false"
+          :options="appStore.projectList"
           allow-clear
+          allow-search
+          value-key="id"
+          label-key="name"
+          :search-keys="['name']"
           class="!w-[240px]"
           :prefix="t('workbench.homePage.project')"
-          :has-all-select="true"
-          :default-all-select="true"
         >
         </MsSelect>
         <MsSelect
@@ -44,6 +45,7 @@
   import MsSelect from '@/components/business/ms-select';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
   import { defectStatusColor, getCommonBarOptions } from '../utils';
   import type { SelectOptionData } from '@arco-design/web-vue';
@@ -52,9 +54,9 @@
 
   const memberIds = ref('');
   const projectIds = ref('');
+  const appStore = useAppStore();
 
   const memberOptions = ref<SelectOptionData[]>([]);
-  const projectOptions = ref<SelectOptionData[]>([]);
 
   const options = ref<Record<string, any>>({});
   const members = computed(() => ['张三', '李四', '王五', '小王']);

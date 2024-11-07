@@ -7,13 +7,14 @@
       <div>
         <MsSelect
           v-model:model-value="projectIds"
-          :options="projectOptions"
-          :allow-search="false"
+          :options="appStore.projectList"
           allow-clear
+          allow-search
+          value-key="id"
+          label-key="name"
+          :search-keys="['name']"
           class="!w-[240px]"
           :prefix="t('workbench.homePage.project')"
-          :has-all-select="true"
-          :default-all-select="true"
         >
         </MsSelect>
       </div>
@@ -46,16 +47,15 @@
 
   import { commonConfig, seriesConfig, toolTipConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
   import type { LegendData } from '@/models/apiTest/report';
   import { WorkCardEnum } from '@/enums/workbenchEnum';
 
-  import type { SelectOptionData } from '@arco-design/web-vue';
-
   const { t } = useI18n();
+  const appStore = useAppStore();
 
   const projectIds = ref('');
-  const projectOptions = ref<SelectOptionData[]>([]);
 
   const options = ref({
     ...commonConfig,

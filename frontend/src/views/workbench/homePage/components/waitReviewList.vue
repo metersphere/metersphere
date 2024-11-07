@@ -5,13 +5,14 @@
       <div>
         <MsSelect
           v-model:model-value="projectIds"
-          :options="projectOptions"
-          :allow-search="false"
+          :options="appStore.projectList"
           allow-clear
+          allow-search
+          value-key="id"
+          label-key="name"
+          :search-keys="['name']"
           class="!w-[240px]"
           :prefix="t('workbench.homePage.project')"
-          :has-all-select="true"
-          :default-all-select="true"
         >
         </MsSelect>
       </div>

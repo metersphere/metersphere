@@ -23,6 +23,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { debounce } from 'lodash-es';
 
   import NoData from './notData.vue';
 
@@ -44,7 +45,7 @@
 
   const width = ref<string | number>();
 
-  const calculateWidth = () => {
+  const calculateWidth = debounce(() => {
     const wrapperContent = document.querySelector('.card-wrapper') as HTMLElement;
     if (wrapperContent) {
       const wrapperTotalWidth = wrapperContent.offsetWidth;
@@ -56,7 +57,7 @@
       const itemWidth = Math.floor((wrapperTotalWidth - paddingWidth - gapWidth) / props.contentTabList.length);
       width.value = `${itemWidth - borderWidth}px`;
     }
-  };
+  }, 300);
 
   onMounted(() => {
     calculateWidth();

@@ -95,71 +95,7 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
       },
     ],
     colorBy: 'series',
-    series: [
-      // {
-      //   name: '项目A',
-      //   type: 'bar',
-      //   barWidth: 12,
-      //   itemStyle: {
-      //     borderRadius: [2, 2, 0, 0], // 上边圆角
-      //   },
-      //   data: [400, 200, 150, 80, 70, 110, 130],
-      // },
-      // {
-      //   name: '项目B',
-      //   type: 'bar',
-      //   barWidth: 12,
-      //   itemStyle: {
-      //     borderRadius: [2, 2, 0, 0], // 上边圆角
-      //   },
-      //   data: [90, 160, 130, 100, 90, 120, 140],
-      // },
-      // {
-      //   name: '项目C',
-      //   type: 'bar',
-      //   barWidth: 12,
-      //   itemStyle: {
-      //     borderRadius: [2, 2, 0, 0], // 上边圆角
-      //   },
-      //   data: [100, 140, 120, 90, 100, 130, 120],
-      // },
-      // {
-      //   name: '项目D',
-      //   type: 'bar',
-      //   barWidth: 12,
-      //   itemStyle: {
-      //     borderRadius: [2, 2, 0, 0], // 上边圆角
-      //   },
-      //   data: [90, 160, 130, 100, 90, 120, 140],
-      // },
-      // {
-      //   name: '项目E',
-      //   type: 'bar',
-      //   barWidth: 12,
-      //   itemStyle: {
-      //     borderRadius: [2, 2, 0, 0], // 上边圆角
-      //   },
-      //   data: [100, 140, 120, 90, 100, 130, 120],
-      // },
-      // {
-      //   name: '项目F',
-      //   type: 'bar',
-      //   barWidth: 12,
-      //   itemStyle: {
-      //     borderRadius: [2, 2, 0, 0], // 上边圆角
-      //   },
-      //   data: [100, 140, 120, 90, 40, 130, 120],
-      // },
-      // {
-      //   name: '项目G',
-      //   type: 'bar',
-      //   barWidth: 12,
-      //   itemStyle: {
-      //     borderRadius: [2, 2, 0, 0], // 上边圆角
-      //   },
-      //   data: [100, 140, 120, 90, 40, 130, 120],
-      // },
-    ],
+    series: [],
     legend: {
       show: true,
       type: 'scroll',

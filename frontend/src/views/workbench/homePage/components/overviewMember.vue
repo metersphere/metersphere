@@ -5,14 +5,14 @@
       <div class="flex items-center gap-[8px]">
         <MsSelect
           v-model:model-value="projectIds"
-          :options="projectOptions"
-          :allow-search="false"
+          :options="appStore.projectList"
           allow-clear
+          allow-search
+          value-key="id"
+          label-key="name"
+          :search-keys="['name']"
           class="!w-[240px]"
           :prefix="t('workbench.homePage.project')"
-          :multiple="true"
-          :has-all-select="true"
-          :default-all-select="true"
         >
         </MsSelect>
         <MsSelect
@@ -50,6 +50,7 @@
   import TabCard from './tabCard.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
   import { addCommasToNumber } from '@/utils';
 
   import { WorkOverviewEnum, WorkOverviewIconEnum } from '@/enums/workbenchEnum';
@@ -58,12 +59,12 @@
   import type { SelectOptionData } from '@arco-design/web-vue';
 
   const { t } = useI18n();
+  const appStore = useAppStore();
 
   const memberIds = ref('');
   const projectIds = ref('');
 
   const memberOptions = ref<SelectOptionData[]>([]);
-  const projectOptions = ref<SelectOptionData[]>([]);
 
   const contentTabList = ref([
     {
@@ -103,8 +104,8 @@
     },
     {
       label: t('workbench.homePage.apiPlan'),
-      value: WorkOverviewEnum.API_PLAN,
-      icon: WorkOverviewIconEnum.API_PLAN,
+      value: WorkOverviewEnum.TEST_PLAN,
+      icon: WorkOverviewIconEnum.TEST_PLAN,
       color: 'rgb(var(--link-6))',
       count: 1000000,
     },
