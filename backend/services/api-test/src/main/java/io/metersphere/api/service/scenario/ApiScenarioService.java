@@ -2619,4 +2619,32 @@ public class ApiScenarioService extends MoveNodeService {
             }
         }
     }
+
+    // 场景统计相关
+    public List<ApiScenarioDTO> calculateRate(List<String> ids) {
+        List<ApiScenarioDTO> result = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            List<ApiExecResultDTO> scenarioExecResult = extApiScenarioReportMapper.selectExecResultByScenarioIds(ids);
+            Map<String, List<ApiExecResultDTO>> scenarioReportMap = scenarioExecResult.stream().collect(Collectors.groupingBy(ApiExecResultDTO::getResourceId));
+
+            for (String scenarioId : ids) {
+                ApiScenarioDTO dto = new ApiScenarioDTO();
+                dto.setId(scenarioId);
+
+                List<ApiExecResultDTO> execResultDTOs = scenarioReportMap.get(scenarioId);
+                if (CollectionUtils.isNotEmpty(execResultDTOs)) {
+                    int all = execResultDTOs.size();
+                    int passCount = 0;
+                    for (ApiExecResultDTO execResultDTO : execResultDTOs) {
+                        if (StringUtils.equals(execResultDTO.getExecResult(), ResultStatus.SUCCESS.name())) {
+                            passCount++;
+                        }
+                    }
+                    dto.setExecPassRate(CalculateUtils.reportPercentage(passCount, all));
+                }
+                result.add(dto);
+            }
+        }
+        return result;
+    }
 }

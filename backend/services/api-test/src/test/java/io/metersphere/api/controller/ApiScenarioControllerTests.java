@@ -100,6 +100,8 @@ public class ApiScenarioControllerTests extends BaseTest {
     private static final String BASE_PATH = "/api/scenario/";
     private static final String TRASH_PAGE = "trash/page";
     private static final String BATCH_EDIT = "batch-operation/edit";
+    private static final String STATISTICS = "/statistics";
+
     private static final String FOLLOW = "follow/";
     protected static final String UPLOAD_TEMP_FILE = "upload/temp/file";
     protected static final String DELETE_TO_GC = "delete-to-gc/{0}";
@@ -1457,6 +1459,10 @@ public class ApiScenarioControllerTests extends BaseTest {
         Assertions.assertEquals(returnPager.getCurrent(), pageRequest.getCurrent());
         //返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(((List<ApiScenarioDTO>) returnPager.getList()).size() <= pageRequest.getPageSize());
+
+        // 查统计数据
+        List<String> apiScenarioIds = Collections.singletonList("api-scenario-id1");
+        requestPostWithOk(STATISTICS, apiScenarioIds);
 
         //查询api-scenario-id1的数据
         pageRequest.setScenarioId("api-scenario-id1");

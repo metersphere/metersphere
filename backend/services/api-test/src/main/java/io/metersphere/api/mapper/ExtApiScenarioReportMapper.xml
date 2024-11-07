@@ -273,6 +273,15 @@
             </foreach>
         </if>
     </select>
+    <select id="selectExecResultByScenarioIds" resultType="io.metersphere.api.dto.ApiExecResultDTO">
+        select record.api_scenario_id AS resourceId,report.status AS execResult
+        from api_scenario_record record
+        inner join api_scenario_report report on record.api_scenario_report_id = report.id
+        where record.api_scenario_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 
     <sql id="filters">
         <if test="${filter} != null and ${filter}.size() > 0">

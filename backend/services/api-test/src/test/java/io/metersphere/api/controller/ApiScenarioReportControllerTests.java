@@ -29,6 +29,7 @@ import io.metersphere.sdk.domain.ShareInfo;
 import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.mapper.ShareInfoMapper;
+import io.metersphere.sdk.util.CalculateUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -50,6 +51,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -97,7 +99,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
 
     @Test
     @Order(1)
-    public void testInsert() {
+    public void testInsert() throws Exception {
         List<ApiScenarioReport> reports = new ArrayList<>();
         List<ApiScenarioRecord> records = new ArrayList<>();
         for (int i = 0; i < 2515; i++) {
@@ -192,6 +194,14 @@ public class ApiScenarioReportControllerTests extends BaseTest {
 
         //校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_REPORT_READ, PAGE, request);
+
+        // 顺便查找一下通过率
+        // 查统计数据
+        List<String> apiScenarioIds = Collections.singletonList("scenario-record-id0");
+        requestPostWithOk("/api/scenario/statistics", apiScenarioIds);
+        Assertions.assertEquals(CalculateUtils.reportPercentage(1, 999999999), "0.01%");
+        Assertions.assertEquals(CalculateUtils.reportPercentage(999999998, 999999999), "99.99%");
+        Assertions.assertNotEquals(CalculateUtils.reportPercentage(499999998, 999999999), "100%");
     }
 
     @Override

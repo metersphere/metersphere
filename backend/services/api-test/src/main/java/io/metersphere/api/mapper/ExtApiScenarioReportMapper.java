@@ -2,6 +2,7 @@ package io.metersphere.api.mapper;
 
 import io.metersphere.api.domain.ApiScenarioBlob;
 import io.metersphere.api.domain.ApiScenarioReport;
+import io.metersphere.api.dto.ApiExecResultDTO;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.definition.ExecuteReportDTO;
@@ -62,4 +63,6 @@ public interface ExtApiScenarioReportMapper {
     List<ExecuteReportDTO> getHistoryDeleted(@Param("ids") List<String> ids);
 
     List<ExecuteReportDTO> getTestPlanNum(@Param("ids") List<String> ids);
+
+    List<ApiExecResultDTO> selectExecResultByScenarioIds(@Param("ids") List<String> scenarioIds);
 }
