@@ -44,7 +44,12 @@
                 <div>{{ item.label }}</div>
               </div>
               <div class="card-item-text">
-                <a-radio-group v-model="item.fullScreen" size="small" type="button">
+                <a-radio-group
+                  v-if="!isFullScreenType.includes(item.key)"
+                  v-model="item.fullScreen"
+                  size="small"
+                  type="button"
+                >
                   <a-radio :disabled="item.isDisabledHalfScreen" :value="false">
                     {{ t('workbench.homePage.halfScreen') }}
                   </a-radio>

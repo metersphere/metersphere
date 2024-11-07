@@ -106,12 +106,21 @@
     // 通过率
     const allSuccessCount = (allSuccessCase / allCaseTotal) * 100;
     const allSuccessRate = `${Number.isNaN(allSuccessCount) ? 0 : allSuccessCount.toFixed(2)}`;
-    // TODO 待联调
     if (props.isPlanGroup) {
       let summaryDesc = `<p style=""><strong>${props.detail.testPlanName} </strong><span style="color: rgb(24, 43, 80); font-size: 14px">包含 ${props.detail.planCount} 个子计划。 其中 ${props.detail.passCountOfPlan} 个子计划通过， ${props.detail.failCountOfPlan} 个子计划不通过；
-      包含功能测试、接口用例、场景用例, 共 ${allCaseTotal} 条用例，已执行 ${allHasExecutedCase} 条，通过用例 ${allSuccessCase} 条，通过率为 ${allSuccessRate} %；共关联缺陷 ${props.detail.bugCount} 个</span></p>`;
+      包含功能测试、接口用例、场景用例, 共 ${props.detail.caseTotal} 条用例，已执行 ${allHasExecutedCase} 条，通过用例 ${allSuccessCase} 条，通过率为 ${allSuccessRate} %；共关联缺陷 ${props.detail.bugCount} 个</span></p>`;
+      // 计算子级别
       (props.detail?.children || []).forEach((item) => {
-        const content = `<p style=""><span style="color: rgb(24, 43, 80); font-size: 14px"> ▪ ${item.testPlanName}子计划，包含功能测试、接口用例、场景用例, 共 ${item.caseTotal} 条用例，已执行 ${item.executeCount} 条，通过用例 ${item.passCountOfPlan} 条，通过率为 ${item.passThreshold} %，</span><strong><span style="color: rgb(255, 59, 48)" color="rgb(255, 59, 48)" fontsize="">未达到</span></strong><span style="color: rgb(24, 43, 80); font-size: 14px">通过阈值（通过阈值为${item.passThreshold}%）</span></p>`;
+        const funChildrenCaseDetail = getSummaryDetail(item.functionalCount);
+        const apiChildrenCaseDetail = getSummaryDetail(item.apiCaseCount);
+        const apiChildrenScenarioDetail = getSummaryDetail(item.apiScenarioCount);
+        const executedCase =
+          funChildrenCaseDetail.hasExecutedCase +
+          apiChildrenCaseDetail.hasExecutedCase +
+          apiChildrenScenarioDetail.hasExecutedCase;
+        const allPassCount =
+          funChildrenCaseDetail.success + apiChildrenCaseDetail.success + apiChildrenScenarioDetail.success;
+        const content = `<p style=""><span style="color: rgb(24, 43, 80); font-size: 14px"> ▪ ${item.testPlanName}子计划，包含功能测试、接口用例、场景用例, 共 ${item.caseTotal} 条用例，已执行 ${executedCase} 条，通过用例 ${allPassCount} 条，通过率为 ${item.passRate} %，</span><strong><span style="color: rgb(255, 59, 48)" color="rgb(255, 59, 48)" fontsize="">未达到</span></strong><span style="color: rgb(24, 43, 80); font-size: 14px">通过阈值（通过阈值为${item.passThreshold}%）</span></p>`;
         summaryDesc += content;
       });
       return summaryDesc;
