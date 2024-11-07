@@ -123,11 +123,11 @@
 
   import { ApiCaseBatchParams, ApiCaseDetail } from '@/models/apiTest/management';
   import { RequestCaseStatus } from '@/enums/apiEnum';
-  import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
+  import { ReportEnum } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
-  import { casePriorityOptions } from '@/views/api-test/components/config';
+  import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
 
   const props = defineProps<{
     activeModule: string;
@@ -148,14 +148,6 @@
       return {
         value: key,
         label: key,
-      };
-    });
-  });
-  const lastReportStatusListOptions = computed(() => {
-    return Object.keys(ReportStatus).map((key) => {
-      return {
-        value: key,
-        ...Object.keys(ReportStatus[key]),
       };
     });
   });

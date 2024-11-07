@@ -667,15 +667,6 @@
       type: FilterType.INPUT,
     },
     {
-      title: 'case.passRate',
-      dataIndex: 'passRate',
-      type: FilterType.NUMBER,
-      numberProps: {
-        min: 0,
-        suffix: '%',
-      },
-    },
-    {
       title: 'report.detail.api.executeEnv',
       dataIndex: 'environmentName',
       type: FilterType.SELECT,

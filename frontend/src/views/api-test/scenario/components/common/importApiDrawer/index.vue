@@ -14,7 +14,7 @@
       </a-tabs>
       <a-divider :margin="0"></a-divider>
       <div class="flex h-[calc(100%-49px)]">
-        <div class="w-[300px] border-r p-[16px]">
+        <div v-show="!isAdvancedSearchMode" class="w-[300px] border-r p-[16px]">
           <div class="flex flex-col">
             <div class="mb-[12px] flex items-center gap-[8px] overflow-hidden">
               <MsProjectSelect
@@ -46,7 +46,6 @@
               v-model:halfCheckedKeys="currentUseTreeSelection.halfCheckedKeys"
               :type="activeKey"
               :project-id="currentProject"
-              :protocol="protocol"
               :single-select="props.singleSelect"
               @select-parent="currentUseTreeSelection.selectParent"
               @check="currentUseTreeSelection.checkNode"
@@ -64,7 +63,7 @@
             </moduleTree>
           </div>
         </div>
-        <div class="table-container">
+        <div :class="[`table-container ${!isAdvancedSearchMode ? 'w-[calc(100%-300px)]' : 'w-full'}`]">
           <apiTable
             ref="apiTableRef"
             v-model:apiSelectedModulesMaps="apiUseTreeSelection.selectedModulesMaps.value"
@@ -73,6 +72,8 @@
             :module="activeModule"
             :type="activeKey"
             :protocol="protocol"
+            :protocol-options="protocolOptions"
+            :protocols-param="protocolsParam"
             :project-id="currentProject"
             :module-ids="moduleIds"
             :scenario-id="props.scenarioId"
@@ -84,6 +85,7 @@
             "
             :module-tree="folderTree"
             :modules-count="modulesCount"
+            @handle-adv-search="handleAdvSearch"
           />
         </div>
       </div>
@@ -213,6 +215,12 @@
     }
   }
 
+  const isAdvancedSearchMode = ref(false);
+  const protocolsParam = computed(() => {
+    const allProtocolList = protocolOptions.value.map((item) => item.value as string);
+    return !isAdvancedSearchMode.value ? [protocol.value] : allProtocolList;
+  });
+
   const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
   const apiTableRef = ref<InstanceType<typeof apiTable>>();
   const moduleIds = ref<(string | number)[]>([]);
@@ -222,15 +230,22 @@
     (val) => {
       setLocalStorage(ProtocolKeyEnum.API_SCENARIO_IMPORT_PROTOCOL, val);
       nextTick(() => {
-        moduleTreeRef.value?.init(activeKey.value);
+        moduleTreeRef.value?.init(protocolsParam.value, activeKey.value);
       });
     }
   );
 
+  function handleAdvSearch(isStartAdvance: boolean) {
+    isAdvancedSearchMode.value = isStartAdvance;
+    moduleTreeRef.value?.init(protocolsParam.value, activeKey.value);
+  }
+
   function handleModuleSelect(ids: (string | number)[], node: MsTreeNodeData) {
     activeModule.value = node;
     moduleIds.value = ids;
-    apiTableRef.value?.loadPage(ids);
+    if (!isAdvancedSearchMode.value) {
+      apiTableRef.value?.loadPage(ids);
+    }
   }
   function handleCancel() {
     visible.value = false;
@@ -392,7 +407,7 @@
         selectAllModule: apiUseTreeSelection.isCheckedAll.value,
         refType: type,
         projectId: currentProject.value,
-        protocols: [protocol.value],
+        protocols: protocolsParam.value,
       },
       CASE: {
         scenarioId: props.scenarioId,
@@ -400,7 +415,7 @@
         selectAllModule: caseUseTreeSelection.isCheckedAll.value,
         refType: type,
         projectId: currentProject.value,
-        protocols: [protocol.value],
+        protocols: protocolsParam.value,
       },
       SCENARIO: {
         scenarioId: props.scenarioId,
@@ -408,7 +423,7 @@
         selectAllModule: scenarioUseTreeSelection.isCheckedAll.value,
         refType: type,
         projectId: currentProject.value,
-        protocols: [protocol.value],
+        protocols: protocolsParam.value,
       },
     };
     return params;
@@ -478,7 +493,7 @@
 
   function resetModule() {
     nextTick(() => {
-      moduleTreeRef.value?.init(activeKey.value);
+      moduleTreeRef.value?.init(protocolsParam.value, activeKey.value);
     });
   }
 
@@ -513,6 +528,5 @@
     .ms-scroll-bar();
 
     padding: 16px;
-    width: calc(100% - 300px);
   }
 </style>

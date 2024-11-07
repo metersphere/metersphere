@@ -364,11 +364,15 @@
   import { RequestCaseStatus } from '@/enums/apiEnum';
   import { CacheTabTypeEnum } from '@/enums/cacheTabEnum';
   import { TagUpdateTypeEnum } from '@/enums/commonEnum';
-  import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
+  import { ReportEnum } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
-  import { casePriorityOptions, caseStatusOptions } from '@/views/api-test/components/config';
+  import {
+    casePriorityOptions,
+    caseStatusOptions,
+    lastReportStatusListOptions,
+  } from '@/views/api-test/components/config';
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
 
@@ -408,14 +412,6 @@
       'PROJECT_API_DEFINITION_CASE:READ+EXECUTE',
     ])
   );
-  const lastReportStatusListOptions = computed(() => {
-    return Object.keys(ReportStatus).map((key) => {
-      return {
-        value: key,
-        label: t(ReportStatus[key].label),
-      };
-    });
-  });
   const protocolList = inject<Ref<ProtocolItem[]>>('protocols', ref([]));
   const columns: MsTableColumn = [
     {
@@ -754,15 +750,6 @@
       selectProps: {
         multiple: true,
         options: lastReportStatusListOptions.value,
-      },
-    },
-    {
-      title: 'case.passRate',
-      dataIndex: 'passRate',
-      type: FilterType.NUMBER,
-      numberProps: {
-        min: 0,
-        suffix: '%',
       },
     },
     {

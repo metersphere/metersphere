@@ -77,7 +77,7 @@
   import { FilterType } from '@/enums/advancedFilterEnum';
   import { CasePageApiTypeEnum } from '@/enums/associateCaseEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
-  import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
+  import { ReportEnum } from '@/enums/reportEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { SpecialColumnEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
@@ -85,7 +85,11 @@
   import type { moduleKeysType } from './types';
   import useModuleSelection from './useModuleSelection';
   import { getPublicLinkCaseListMap } from './utils/page';
-  import { casePriorityOptions, caseStatusOptions } from '@/views/api-test/components/config';
+  import {
+    casePriorityOptions,
+    caseStatusOptions,
+    lastReportStatusListOptions,
+  } from '@/views/api-test/components/config';
 
   const { openNewPage } = useOpenNewPage();
   const { t } = useI18n();
@@ -122,15 +126,6 @@
   });
 
   const tableStore = useTableStore();
-
-  const lastReportStatusListOptions = computed(() => {
-    return Object.keys(ReportStatus).map((key) => {
-      return {
-        value: key,
-        label: t(ReportStatus[key].label),
-      };
-    });
-  });
 
   const columns: MsTableColumn = [
     {
@@ -393,15 +388,6 @@
       selectProps: {
         multiple: true,
         options: lastReportStatusListOptions.value,
-      },
-    },
-    {
-      title: 'case.passRate',
-      dataIndex: 'passRate',
-      type: FilterType.NUMBER,
-      numberProps: {
-        min: 0,
-        suffix: '%',
       },
     },
     {

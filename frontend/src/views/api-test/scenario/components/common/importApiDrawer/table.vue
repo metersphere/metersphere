@@ -1,25 +1,22 @@
 <template>
   <div class="min-w-[380px]">
-    <div class="mb-[16px] flex items-center justify-between">
-      <div class="flex items-center">
-        <a-tooltip :content="props.module.name">
-          <div class="one-line-text max-w-[200px]">{{ props.module.name }}</div>
-        </a-tooltip>
-        <div>（{{ currentTable.propsRes.value.msPagination?.total }}）</div>
-      </div>
-      <a-input-search
-        v-model:model-value="keyword"
-        :placeholder="props.searchPlaceholder"
-        allow-clear
-        class="mr-[8px] w-[240px]"
-        @search="() => loadPage()"
-        @press-enter="() => loadPage()"
-        @clear="() => loadPage()"
-      />
-    </div>
+    <MsAdvanceFilter
+      ref="msAdvanceFilterRef"
+      v-model:keyword="keyword"
+      :view-type="viewType"
+      :count="currentTable.propsRes.value.msPagination?.total || 0"
+      :name="props.module.name"
+      :filter-config-list="filterConfigList"
+      :search-placeholder="props.searchPlaceholder"
+      @keyword-search="loadPage()"
+      @adv-search="handleAdvSearch"
+      @refresh="loadPage()"
+    />
     <ms-base-table
       v-bind="currentTable.propsRes.value"
       v-model:selected-key="selectedKey"
+      class="mt-[16px]"
+      :not-show-table-filter="isAdvancedSearchMode"
       no-disable
       filter-icon-align-left
       v-on="currentTable.propsEvent.value"
@@ -27,7 +24,7 @@
       @select-all-change="currentUseModuleSelection.selectAllChange"
       @clear-selector="currentUseModuleSelection.clearSelector"
     >
-      <template v-if="props.protocol === 'HTTP'" #methodFilter="{ columnConfig }">
+      <template v-if="props.protocol === 'HTTP' && !isAdvancedSearchMode" #methodFilter="{ columnConfig }">
         <a-trigger
           v-model:popup-visible="methodFilterVisible"
           trigger="click"
@@ -58,7 +55,7 @@
           </template>
         </a-trigger>
       </template>
-      <template #statusFilter="{ columnConfig }">
+      <template v-if="!isAdvancedSearchMode" #statusFilter="{ columnConfig }">
         <a-trigger
           v-model:popup-visible="statusFilterVisible"
           trigger="click"
@@ -108,7 +105,7 @@
       <template #priority="{ record }">
         <caseLevel :case-level="record.priority" />
       </template>
-      <template #priorityFilter="{ columnConfig }">
+      <template v-if="!isAdvancedSearchMode" #priorityFilter="{ columnConfig }">
         <a-trigger
           v-model:popup-visible="priorityFilterVisible"
           trigger="click"
@@ -149,10 +146,12 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { RouteRecordName } from 'vue-router';
+  import { SelectOptionData } from '@arco-design/web-vue';
 
+  import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { MsTableDataItem } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import type { moduleKeysType } from '@/components/business/ms-associate-case/types';
   import useModuleSelection from '@/components/business/ms-associate-case/useModuleSelection';
@@ -166,17 +165,27 @@
   import { getScenarioPage } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
+  import useAppStore from '@/store/modules/app';
 
   import { ModuleTreeNode } from '@/models/common';
+  import { FilterType, ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { ApiScenarioStatus, RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
 
-  import { casePriorityOptions } from '@/views/api-test/components/config';
+  import {
+    apiStatusOptions,
+    casePriorityOptions,
+    caseStatusOptions,
+    lastReportStatusListOptions,
+  } from '@/views/api-test/components/config';
+  import { scenarioStatusOptions } from '@/views/api-test/scenario/components/config';
 
   const props = defineProps<{
     type: 'api' | 'case' | 'scenario';
     module: MsTreeNodeData;
     protocol: string;
+    protocolsParam: string[];
+    protocolOptions: SelectOptionData[];
     projectId: string | number;
     moduleIds: (string | number)[]; // 模块 id 以及它的子孙模块 id集合
     scenarioId?: string | number;
@@ -188,8 +197,13 @@
     modulesCount: Record<string, any>;
   }>();
 
+  const emit = defineEmits<{
+    (e: 'handleAdvSearch', isStartAdvance: boolean): void;
+  }>();
+
   const { t } = useI18n();
   const { openNewPage } = useOpenNewPage();
+  const appStore = useAppStore();
   const priorityFilterVisible = ref(false);
   const priorityFilters = ref<string[]>([]);
   const keyword = ref('');
@@ -426,19 +440,24 @@
     }
   });
 
+  const msAdvanceFilterRef = ref<InstanceType<typeof MsAdvanceFilter>>();
+  const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
+
   function loadPage(ids?: (string | number)[]) {
     nextTick(() => {
       // 等待currentTable计算完毕再调用对应的请求
       currentTable.value.setLoadListParams({
         keyword: keyword.value,
         projectId: props.projectId,
-        moduleIds: ids || props.moduleIds,
-        protocols: [props.protocol],
+        moduleIds: isAdvancedSearchMode.value ? [] : ids || props.moduleIds,
+        protocols: props.protocolsParam,
         filter: {
           status: statusFilters.value,
           method: methodFilters.value,
           priority: priorityFilters.value,
         },
+        viewId: currentTable.value.viewId.value,
+        combineSearch: currentTable.value.advanceFilter,
         excludeIds: [props.scenarioId || '', props.caseId || '', props.apiId || ''],
       });
       currentTable.value.loadList();
@@ -484,8 +503,372 @@
     methodFilters.value = [];
     statusFilters.value = [];
     priorityFilters.value = [];
-    loadPage();
   }
+
+  const requestMethodsOptions = computed(() => {
+    const otherMethods = props.protocolOptions.filter((e) => e.value !== 'HTTP');
+    const httpMethods = Object.values(RequestMethods).map((e) => {
+      return {
+        value: e,
+        label: e,
+      };
+    });
+    return [...httpMethods, ...otherMethods];
+  });
+  const caseFilterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'caseManagement.featureCase.tableColumnID',
+      dataIndex: 'num',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'case.caseName',
+      dataIndex: 'name',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'common.belongModule',
+      dataIndex: 'moduleId',
+      type: FilterType.TREE_SELECT,
+      treeSelectData: props.moduleTree,
+      treeSelectProps: {
+        fieldNames: {
+          title: 'name',
+          key: 'id',
+          children: 'children',
+        },
+        multiple: true,
+        treeCheckable: true,
+        treeCheckStrictly: true,
+      },
+    },
+    {
+      title: 'apiTestManagement.protocol',
+      dataIndex: 'protocol',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: props.protocolOptions,
+      },
+    },
+    {
+      title: 'case.caseLevel',
+      dataIndex: 'priority',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: casePriorityOptions,
+      },
+    },
+    {
+      title: 'case.apiParamsChange',
+      dataIndex: 'apiChange',
+      type: FilterType.BOOLEAN,
+      selectProps: {
+        options: [
+          { label: t('case.withoutChanges'), value: false },
+          { label: t('case.withChanges'), value: true },
+        ],
+      },
+    },
+    {
+      title: 'apiTestManagement.path',
+      dataIndex: 'path',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'apiTestManagement.apiStatus',
+      dataIndex: 'status',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: caseStatusOptions.map((item) => ({ label: t(item.label), value: item.value })),
+      },
+    },
+    {
+      title: 'case.lastReportStatus',
+      dataIndex: 'lastReportStatus',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: lastReportStatusListOptions.value,
+      },
+    },
+    {
+      title: 'case.caseEnvironment',
+      dataIndex: 'environmentName',
+      type: FilterType.SELECT,
+      selectProps: {
+        labelKey: 'name',
+        valueKey: 'id',
+        multiple: true,
+        options: appStore.envList,
+      },
+    },
+    {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      type: FilterType.TAGS_INPUT,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'common.updateUserName',
+      dataIndex: 'updateUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.updateTime',
+      dataIndex: 'updateTime',
+      type: FilterType.DATE_PICKER,
+    },
+  ]);
+  const apiFilterConfigList = computed<FilterFormItem[]>(() => [
+    {
+      title: 'caseManagement.featureCase.tableColumnID',
+      dataIndex: 'num',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'apiTestManagement.apiName',
+      dataIndex: 'name',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'common.belongModule',
+      dataIndex: 'moduleId',
+      type: FilterType.TREE_SELECT,
+      treeSelectData: props.moduleTree,
+      treeSelectProps: {
+        fieldNames: {
+          title: 'name',
+          key: 'id',
+          children: 'children',
+        },
+        multiple: true,
+        treeCheckable: true,
+        treeCheckStrictly: true,
+      },
+    },
+    {
+      title: 'apiTestManagement.protocol',
+      dataIndex: 'protocol',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: props.protocolOptions,
+      },
+    },
+    {
+      title: 'apiTestManagement.apiType',
+      dataIndex: 'method',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        options: requestMethodsOptions.value,
+      },
+    },
+    {
+      title: 'apiTestManagement.path',
+      dataIndex: 'path',
+      type: FilterType.INPUT,
+    },
+    {
+      title: 'apiTestManagement.apiStatus',
+      dataIndex: 'status',
+      type: FilterType.SELECT,
+      selectProps: {
+        multiple: true,
+        labelKey: 'name',
+        options: apiStatusOptions,
+      },
+    },
+    {
+      title: 'apiTestManagement.caseTotal',
+      dataIndex: 'caseTotal',
+      type: FilterType.NUMBER,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'common.tag',
+      dataIndex: 'tags',
+      type: FilterType.TAGS_INPUT,
+      numberProps: {
+        min: 0,
+        precision: 0,
+      },
+    },
+    {
+      title: 'common.creator',
+      dataIndex: 'createUser',
+      type: FilterType.MEMBER,
+    },
+    {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      type: FilterType.DATE_PICKER,
+    },
+    {
+      title: 'common.updateTime',
+      dataIndex: 'updateTime',
+      type: FilterType.DATE_PICKER,
+    },
+  ]);
+  const scenarioFilterConfigList = computed<FilterFormItem[]>(() => {
+    return [
+      {
+        title: 'caseManagement.featureCase.tableColumnID',
+        dataIndex: 'num',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'apiScenario.table.columns.name',
+        dataIndex: 'name',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'common.belongModule',
+        dataIndex: 'moduleId',
+        type: FilterType.TREE_SELECT,
+        treeSelectData: props.moduleTree,
+        treeSelectProps: {
+          fieldNames: {
+            title: 'name',
+            key: 'id',
+            children: 'children',
+          },
+          multiple: true,
+          treeCheckable: true,
+          treeCheckStrictly: true,
+        },
+      },
+      {
+        title: 'apiScenario.table.columns.level',
+        dataIndex: 'priority',
+        type: FilterType.SELECT,
+        selectProps: {
+          multiple: true,
+          options: casePriorityOptions,
+        },
+      },
+      {
+        title: 'apiScenario.table.columns.status',
+        dataIndex: 'status',
+        type: FilterType.SELECT,
+        selectProps: {
+          multiple: true,
+          options: scenarioStatusOptions,
+        },
+      },
+      {
+        title: 'apiScenario.table.columns.runResult',
+        dataIndex: 'lastReportStatus',
+        type: FilterType.SELECT,
+        selectProps: {
+          multiple: true,
+          options: lastReportStatusListOptions.value,
+        },
+      },
+      {
+        title: 'common.tag',
+        dataIndex: 'tags',
+        type: FilterType.TAGS_INPUT,
+        numberProps: {
+          min: 0,
+          precision: 0,
+        },
+      },
+      {
+        title: 'apiScenario.table.columns.scenarioEnv',
+        dataIndex: 'environmentName',
+        type: FilterType.SELECT,
+        selectProps: {
+          labelKey: 'name',
+          valueKey: 'id',
+          multiple: true,
+          options: appStore.envList,
+        },
+      },
+      {
+        title: 'apiScenario.table.columns.steps',
+        dataIndex: 'stepTotal',
+        type: FilterType.NUMBER,
+        numberProps: {
+          min: 0,
+          precision: 0,
+        },
+      },
+      {
+        title: 'common.creator',
+        dataIndex: 'createUser',
+        type: FilterType.MEMBER,
+      },
+      {
+        title: 'common.createTime',
+        dataIndex: 'createTime',
+        type: FilterType.DATE_PICKER,
+      },
+      {
+        title: 'apiScenario.table.columns.updateUser',
+        dataIndex: 'updateUser',
+        type: FilterType.MEMBER,
+      },
+      {
+        title: 'common.updateTime',
+        dataIndex: 'updateTime',
+        type: FilterType.DATE_PICKER,
+      },
+    ];
+  });
+
+  const filterConfigList = computed<FilterFormItem[]>(() => {
+    switch (props.type) {
+      case 'api':
+        return apiFilterConfigList.value;
+      case 'case':
+        return caseFilterConfigList.value;
+      case 'scenario':
+      default:
+        return scenarioFilterConfigList.value;
+    }
+  });
+
+  const viewType = computed(() => {
+    switch (props.type) {
+      case 'api':
+        return ViewTypeEnum.API_DEFINITION;
+      case 'case':
+        return ViewTypeEnum.API_CASE;
+      case 'scenario':
+      default:
+        return ViewTypeEnum.API_SCENARIO;
+    }
+  });
+
+  // 高级检索
+  const handleAdvSearch = async (filter: FilterResult, id: string, isStartAdvance: boolean) => {
+    emit('handleAdvSearch', isStartAdvance);
+    currentTable.value.setAdvanceFilter(filter, id);
+    resetTable(); // 基础筛选都清空
+    if (isStartAdvance) {
+      loadPage();
+    }
+  };
 
   const tableSelectedProps = ref({
     modulesTree: props.moduleTree,
@@ -595,7 +978,6 @@
   }
 
   defineExpose({
-    resetTable,
     loadPage,
   });
 </script>

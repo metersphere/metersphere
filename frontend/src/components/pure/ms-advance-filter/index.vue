@@ -245,11 +245,17 @@
     }
   });
 
+  const filterDrawerRef = ref<InstanceType<typeof FilterDrawer>>();
+
   watch(
     () => props.viewType,
     async () => {
       await getUserViewList();
-      currentView.value = internalViews.value[0]?.id;
+      if (currentView.value === internalViews.value[0]?.id) {
+        filterDrawerRef.value?.getUserViewDetail(currentView.value);
+      } else {
+        currentView.value = internalViews.value[0]?.id;
+      }
     }
   );
 
@@ -275,7 +281,6 @@
     currentView.value = customViews.value[0].id;
   }
 
-  const filterDrawerRef = ref<InstanceType<typeof FilterDrawer>>();
   function toNewView() {
     if (canNotAddView.value) {
       Message.warning(t('advanceFilter.maxViewTip'));

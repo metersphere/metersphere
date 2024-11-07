@@ -659,15 +659,6 @@
       },
     },
     {
-      title: 'apiScenario.table.columns.passRate',
-      dataIndex: 'requestPassRate',
-      type: FilterType.NUMBER,
-      numberProps: {
-        min: 0,
-        suffix: '%',
-      },
-    },
-    {
       title: 'testPlan.featureCase.executor',
       dataIndex: 'executeUser',
       type: FilterType.MEMBER,

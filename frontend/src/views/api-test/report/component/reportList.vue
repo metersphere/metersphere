@@ -365,7 +365,7 @@
     },
     {
       title: 'common.createTime',
-      dataIndex: 'createTime',
+      dataIndex: 'startTime',
       type: FilterType.DATE_PICKER,
     },
   ]);

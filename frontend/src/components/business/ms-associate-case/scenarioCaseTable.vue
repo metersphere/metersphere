@@ -363,15 +363,6 @@
         },
       },
       {
-        title: 'apiScenario.table.columns.passRate',
-        dataIndex: 'requestPassRate',
-        type: FilterType.NUMBER,
-        numberProps: {
-          min: 0,
-          suffix: '%',
-        },
-      },
-      {
         title: 'common.creator',
         dataIndex: 'createUser',
         type: FilterType.MEMBER,

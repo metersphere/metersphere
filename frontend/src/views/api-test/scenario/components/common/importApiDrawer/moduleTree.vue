@@ -98,7 +98,6 @@
   const props = withDefaults(
     defineProps<{
       type: 'api' | 'case' | 'scenario';
-      protocol: string;
       projectId: string;
       singleSelect?: boolean;
     }>(),
@@ -152,12 +151,12 @@
   /**
    * 初始化模块树
    */
-  async function initModules(type = props.type) {
+  async function initModules(protocolsParam: string[], type = props.type) {
     try {
       loading.value = true;
       const params = {
         keyword: moduleKeyword.value,
-        protocols: [props.protocol],
+        protocols: protocolsParam,
         projectId: props.projectId,
         moduleIds: [],
       };
@@ -179,11 +178,11 @@
     }
   }
 
-  async function initModuleCount(type = props.type) {
+  async function initModuleCount(protocolsParam: string[], type = props.type) {
     try {
       const params = {
         keyword: moduleKeyword.value,
-        protocols: [props.protocol],
+        protocols: protocolsParam,
         projectId: props.projectId,
         moduleIds: [],
       };
@@ -209,9 +208,9 @@
     emit('select', [keys[0], ...offspringIds], node);
   }
 
-  async function init(type = props.type) {
-    await initModuleCount(type);
-    initModules(type);
+  async function init(protocolsParam: string[], type = props.type) {
+    await initModuleCount(protocolsParam, type);
+    initModules(protocolsParam, type);
   }
 
   function checkNode(_checkedKeys: Array<string | number>, checkedNodes: MsTreeNodeData) {
