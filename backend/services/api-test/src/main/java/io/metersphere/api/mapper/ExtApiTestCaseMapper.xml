@@ -643,41 +643,6 @@
                                 <property name="column" value="atc.status"/>
                             </include>
                         </if>
-                        <!-- 用例通过率 -->
-                        <if test="condition.name == 'passRate'">
-                            <choose>
-                                <when test="condition.operator == 'NOT_EMPTY'">
-                                    atc.id in (
-                                        select atcr.api_test_case_id as id
-                                        from api_report ar left join api_test_case_record atcr on atcr.api_report_id = ar.id
-                                        group by atcr.api_test_case_id
-                                    )
-                                </when>
-                                <when test="condition.operator == 'EMPTY'">
-                                    atc.id not in (
-                                        select atcr.api_test_case_id as id
-                                        from api_report ar left join api_test_case_record atcr on atcr.api_report_id = ar.id
-                                        group by atcr.api_test_case_id
-                                    )
-                                </when>
-                                <when test="(condition.operator == 'LT' and condition.value == 0) or (condition.operator == 'GT' and condition.value &gt; 100 )">
-                                    1=2
-                                </when>
-                                <otherwise>
-                                    atc.id in (
-                                        select rate_tmp.id from (
-                                            select atcr.api_test_case_id as id, format(sum(if(ar.`status` = 'success', 1, 0)) / count(ar.id) * 100, 2) as passRate
-                                            from api_report ar left join api_test_case_record atcr on atcr.api_report_id = ar.id
-                                            group by atcr.api_test_case_id having
-                                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                                <property name="condition" value="condition"/>
-                                                <property name="column" value="passRate"/>
-                                            </include>
-                                        ) rate_tmp
-                                    )
-                                </otherwise>
-                            </choose>
-                        </if>
                         <!-- 用例环境 -->
                         <if test="condition.name == 'environmentName'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
