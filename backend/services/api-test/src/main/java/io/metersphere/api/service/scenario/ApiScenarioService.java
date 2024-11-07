@@ -2641,6 +2641,8 @@ public class ApiScenarioService extends MoveNodeService {
                         }
                     }
                     dto.setExecPassRate(CalculateUtils.reportPercentage(passCount, all));
+                } else {
+                    dto.setExecPassRate("0%");
                 }
                 result.add(dto);
             }

@@ -341,6 +341,20 @@ public class ApiTestCaseService extends MoveNodeService {
         return apiCaseLists;
     }
 
+    public List<ApiTestCaseDTO> calculate(List<String> ids) {
+        List<ApiTestCaseDTO> returnList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            List<CasePassDTO> passRateList = extApiTestCaseMapper.findPassRateByIds(ids);
+            Map<String, String> passRates = passRateList.stream().collect(Collectors.toMap(CasePassDTO::getId, CasePassDTO::getValue));
+            for (String id : ids) {
+                ApiTestCaseDTO dto = new ApiTestCaseDTO();
+                dto.setId(id);
+                dto.setPassRate(passRates.getOrDefault(id, "0%"));
+                returnList.add(dto);
+            }
+        }
+        return returnList;
+    }
     private void buildApiTestCaseDTO(List<ApiTestCaseDTO> apiCaseLists) {
         if (CollectionUtils.isNotEmpty(apiCaseLists)) {
             List<String> userIds = new ArrayList<>();

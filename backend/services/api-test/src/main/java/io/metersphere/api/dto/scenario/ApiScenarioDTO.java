@@ -29,5 +29,5 @@ public class ApiScenarioDTO extends ApiScenario {
     @Schema(description = "脚本错误标识")
     private String scriptIdentifier;
     @Schema(description = "执行通过率", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String execPassRate = "0%";
+    private String execPassRate = "NONE";
 }

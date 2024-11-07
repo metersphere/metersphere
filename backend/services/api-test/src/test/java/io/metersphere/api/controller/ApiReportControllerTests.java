@@ -45,6 +45,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -90,7 +91,7 @@ public class ApiReportControllerTests extends BaseTest {
 
     @Test
     @Order(1)
-    public void testInsert() {
+    public void testInsert() throws Exception {
         List<ApiReport> reports = new ArrayList<>();
         List<ApiTestCaseRecord> records = new ArrayList<>();
         for (int i = 0; i < 2515; i++) {
@@ -130,6 +131,11 @@ public class ApiReportControllerTests extends BaseTest {
             steps.add(apiReportStep);
         }
         apiReportService.insertApiReportStep(steps);
+
+        // 顺便查找一下通过率
+        // 查统计数据
+        List<String> caseIds = Collections.singletonList("api-resource-id0");
+        requestPostWithOk("/api/case/statistics", caseIds);
     }
 
     private MvcResult responsePost(String url, Object param) throws Exception {

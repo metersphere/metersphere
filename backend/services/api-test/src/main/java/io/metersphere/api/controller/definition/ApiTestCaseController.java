@@ -9,7 +9,6 @@ import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
-import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.definition.*;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -37,7 +36,6 @@ import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -168,6 +166,13 @@ public class ApiTestCaseController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "pos desc, id desc");
         return PageUtils.setPageInfo(page, apiTestCaseService.page(request, false, true,null));
+    }
+
+    @PostMapping(value = "/statistics")
+    @Operation(summary = "接口测试-接口管理-接口用例-统计")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
+    public List<ApiTestCaseDTO> calculate(@Validated @RequestBody List<String> ids) {
+        return apiTestCaseService.calculate(ids);
     }
 
     @PostMapping("/batch/delete")
