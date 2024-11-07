@@ -23,6 +23,7 @@ import {
   CaseBatchExportLogUrl,
   CaseExportLogUrl,
   CasePageUrl,
+  CaseStatisticsUrl,
   caseTableBatchSyncUrl,
   CheckDefinitionScheduleUrl,
   checkSharePsdUrl,
@@ -124,6 +125,7 @@ import {
   ApiCaseExecuteHistoryItem,
   ApiCaseExecuteHistoryParams,
   ApiCasePageParams,
+  type ApiCaseStatisticsItem,
   ApiDefinitionBatchDeleteParams,
   type ApiDefinitionBatchExportParams,
   ApiDefinitionBatchMoveParams,
@@ -718,4 +720,9 @@ export function getDocSharePluginScript(id: string | number, orgId: string) {
 // 获取接口定义分享详情
 export function getShareDefinitionDetail(id: string | number) {
   return MSR.get<ApiDefinitionDetail>({ url: GetShareDefinitionDetailUrl, params: id });
+}
+
+// 用例执行率统计
+export function getCaseStatistics(data: string[]) {
+  return MSR.post<ApiCaseStatisticsItem[]>({ url: CaseStatisticsUrl, data });
 }

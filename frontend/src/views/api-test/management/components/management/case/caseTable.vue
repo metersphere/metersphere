@@ -345,6 +345,7 @@
     dragSort,
     getCaseDetail,
     getCasePage,
+    getCaseStatistics,
     updateCasePriority,
     updateCaseStatus,
   } from '@/api/modules/api-test/management';
@@ -635,6 +636,22 @@
     }
     return moduleIds;
   }
+
+  async function initStatistics() {
+    try {
+      const res = await getCaseStatistics(propsRes.value.data.map((item) => item.id));
+      propsRes.value.data.forEach((e) => {
+        const item = res.find((i: any) => i.scenarioId === e.id);
+        if (item) {
+          e.passRate = item.passRate;
+        }
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   async function loadCaseList() {
     const selectModules = await getModuleIds();
     const params = {
@@ -648,7 +665,8 @@
       combineSearch: advanceFilter,
     };
     setLoadListParams(params);
-    loadList();
+    await loadList();
+    initStatistics();
   }
   function loadCaseListAndResetSelector() {
     resetSelector();

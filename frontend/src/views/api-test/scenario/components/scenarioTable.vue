@@ -528,6 +528,7 @@
     deleteScheduleConfig,
     dragSort,
     getScenarioPage,
+    getScenarioStatistics,
     recycleScenario,
     scenarioBatchEditSchedule,
     scenarioScheduleConfig,
@@ -748,8 +749,8 @@
     },
     {
       title: 'apiScenario.table.columns.passRate',
-      dataIndex: 'requestPassRate',
-      slotName: 'requestPassRate',
+      dataIndex: 'execPassRate',
+      slotName: 'execPassRate',
       titleSlotName: 'requestPassRateColumn',
       showDrag: true,
       showInTable: false,
@@ -847,7 +848,7 @@
       },
       (item) => ({
         ...item,
-        requestPassRate: item.requestPassRate ? `${item.requestPassRate}%` : '-',
+        execPassRate: item.execPassRate ? `${item.execPassRate}%` : '-',
         createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
         updateTime: dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss'),
       })
@@ -960,6 +961,22 @@
     }
     return moduleIds;
   }
+
+  async function initStatistics() {
+    try {
+      const res = await getScenarioStatistics(propsRes.value.data.map((item) => item.id));
+      propsRes.value.data.forEach((e) => {
+        const item = res.find((i: any) => i.scenarioId === e.id);
+        if (item) {
+          e.execPassRate = item.execPassRate;
+        }
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   async function loadScenarioList(refreshTreeCount?: boolean) {
     const moduleIds = await getModuleIds();
     const params = {
@@ -969,6 +986,7 @@
     };
     setLoadListParams({ ...params, viewId: viewId.value, combineSearch: advanceFilter });
     await loadList();
+    initStatistics();
     if (refreshTreeCount && !isAdvancedSearchMode.value) {
       emit('refreshModuleTree', params);
     }

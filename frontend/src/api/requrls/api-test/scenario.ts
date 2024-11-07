@@ -28,6 +28,8 @@ export const BatchEditScenarioUrl = '/api/scenario/batch-operation/edit'; // 批
 export const BatchRunScenarioUrl = '/api/scenario/batch-operation/run'; // 批量执行接口场景
 export const UpdateScenarioPriorityUrl = '/api/scenario/update-priority'; // 场景更新等级
 export const UpdateScenarioStatusUrl = '/api/scenario/update-status'; // 场景更新状态
+export const ScenarioStatisticsUrl = '/api/scenario/statistics'; // 场景执行率统计
+
 // 场景导入导出相关
 export const ImportScenarioUrl = '/api/scenario/import'; // 导入场景
 export const ExportScenarioUrl = '/api/scenario/export'; // 导出场景

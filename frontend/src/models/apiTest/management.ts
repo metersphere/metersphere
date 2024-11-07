@@ -475,3 +475,8 @@ export interface ShareDetailType {
   isPrivate: boolean;
   projectName?: string;
 }
+// 接口用例统计项
+export interface ApiCaseStatisticsItem {
+  id: string;
+  passRate: string;
+}

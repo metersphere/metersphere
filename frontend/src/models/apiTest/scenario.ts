@@ -558,3 +558,9 @@ export interface ExportScenarioParams extends BatchActionQueryParams {
   exportAllRelatedData: boolean;
   fileId: string;
 }
+
+// 场景统计项
+export interface ScenarioStatisticsItem {
+  id: string;
+  execPassRate: string;
+}

@@ -99,6 +99,7 @@ export const GetCaseReportDetailUrl = '/api/report/case/get/detail/'; // 接口�
 export const CaseExportLogUrl = '/api/report/case/export'; // 接口用例导出报告日志记录
 export const CaseBatchExportLogUrl = '/api/report/case/batch-export'; // 接口用例批量导出报告日志记录
 export const GetCaseBatchExportParamsUrl = '/api/report/case/batch-param'; // 接口用例批量导出报告id集合
+export const CaseStatisticsUrl = '/api/case/statistics'; // 用例执行率统计
 
 /**
  * 接口用例回收站

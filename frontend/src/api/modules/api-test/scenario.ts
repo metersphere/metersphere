@@ -41,6 +41,7 @@ import {
   ScenarioPageUrl,
   ScenarioScheduleConfigDeleteUrl,
   ScenarioScheduleConfigUrl,
+  ScenarioStatisticsUrl,
   ScenarioStepTransferFileUrl,
   ScenarioTransferFileUrl,
   ScenarioTransferModuleOptionsUrl,
@@ -77,6 +78,7 @@ import {
   ScenarioDetail,
   ScenarioHistoryItem,
   ScenarioHistoryPageParams,
+  type ScenarioStatisticsItem,
   ScenarioStepResourceInfo,
 } from '@/models/apiTest/scenario';
 import {
@@ -368,4 +370,9 @@ export function getScenarioDownloadFile(projectId: string, fileId: string) {
 // 批量编辑场景定时任务
 export function scenarioBatchEditSchedule(data: ApiScenarioBatchScheduleConfig) {
   return MSR.post({ url: ScenarioBatchEditScheduleUrl, data });
+}
+
+// 场景执行率统计
+export function getScenarioStatistics(data: string[]) {
+  return MSR.post<ScenarioStatisticsItem[]>({ url: ScenarioStatisticsUrl, data });
 }
