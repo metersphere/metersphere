@@ -90,6 +90,7 @@
 
   const props = defineProps<{
     project: string;
+    type: 'my_follow' | 'my_create';
   }>();
 
   const { t } = useI18n();
@@ -244,14 +245,14 @@
 
   function goScenario() {
     openNewPage(ApiTestRouteEnum.API_TEST_SCENARIO, {
-      view: 'my_follow',
+      view: props.type,
     });
   }
 
   function init() {
     setLoadListParams({
       projectId: props.project,
-      viewId: 'my_follow',
+      viewId: props.type,
     });
     loadList();
   }

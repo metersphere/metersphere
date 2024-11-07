@@ -1732,6 +1732,7 @@
   defineExpose({
     fetchData,
     emitTableParams,
+    isAdvancedSearchMode,
   });
 
   await tableStore.initColumn(TableKeyEnum.TEST_PLAN_ALL_TABLE, columns, 'drawer');

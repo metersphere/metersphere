@@ -292,9 +292,8 @@
     }
   }
 
-  const isAdvancedSearchMode = ref(false);
-  function handleAdvSearch(isStartAdvance: boolean) {
-    isAdvancedSearchMode.value = isStartAdvance;
+  const isAdvancedSearchMode = computed(() => planTableRef.value?.isAdvancedSearchMode);
+  function handleAdvSearch() {
     setActiveFolder('all');
   }
 </script>

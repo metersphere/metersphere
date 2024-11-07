@@ -55,7 +55,7 @@ const TestPlan: AppRouteRecordRaw = {
     {
       path: 'created',
       name: WorkbenchRouteEnum.WORKBENCH_INDEX_CREATED,
-      component: () => import('@/views/workbench/homePage/index.vue'),
+      component: () => import('@/views/workbench/myCreated/index.vue'),
       meta: {
         locale: 'menu.workbenchCreatedSort',
         roles: ['*'],

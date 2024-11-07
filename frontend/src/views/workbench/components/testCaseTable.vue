@@ -70,6 +70,7 @@
 
   const props = defineProps<{
     project: string;
+    type: 'my_follow' | 'my_create';
   }>();
 
   const { t } = useI18n();
@@ -196,7 +197,7 @@
   function init() {
     setLoadListParams({
       projectId: props.project,
-      viewId: 'my_follow',
+      viewId: props.type,
     });
     loadList();
   }
@@ -208,7 +209,7 @@
   function goTestCase() {
     openNewPage(CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, {
       showType: 'list',
-      view: 'my_follow',
+      view: props.type,
     });
   }
 </script>

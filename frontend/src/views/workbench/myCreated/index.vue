@@ -27,12 +27,12 @@
         <MsIcon type="icon-icon_reset_outlined" size="14" />
       </a-button>
     </div>
-    <testPlanTable v-if="features.includes(FeatureEnum.TEST_PLAN)" :project="currentProject" type="my_follow" />
-    <testCaseTable v-if="features.includes(FeatureEnum.TEST_CASE)" :project="currentProject" type="my_follow" />
-    <caseReviewTable v-if="features.includes(FeatureEnum.CASE_REVIEW)" :project="currentProject" type="my_follow" />
-    <apiCaseTable v-if="features.includes(FeatureEnum.API_CASE)" :project="currentProject" type="my_follow" />
-    <scenarioCaseTable v-if="features.includes(FeatureEnum.API_SCENARIO)" :project="currentProject" type="my_follow" />
-    <bugTable v-if="features.includes(FeatureEnum.BUG)" :project="currentProject" type="my_follow" />
+    <testPlanTable v-if="features.includes(FeatureEnum.TEST_PLAN)" :project="currentProject" type="my_create" />
+    <testCaseTable v-if="features.includes(FeatureEnum.TEST_CASE)" :project="currentProject" type="my_create" />
+    <caseReviewTable v-if="features.includes(FeatureEnum.CASE_REVIEW)" :project="currentProject" type="my_create" />
+    <apiCaseTable v-if="features.includes(FeatureEnum.API_CASE)" :project="currentProject" type="my_create" />
+    <scenarioCaseTable v-if="features.includes(FeatureEnum.API_SCENARIO)" :project="currentProject" type="my_create" />
+    <bugTable v-if="features.includes(FeatureEnum.BUG)" :project="currentProject" type="my_create" />
   </div>
 </template>
 

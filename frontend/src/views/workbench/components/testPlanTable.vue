@@ -4,7 +4,7 @@
       <div class="cursor-pointer font-medium text-[var(--color-text-1)]" @click="goTestPlan">
         {{ t('ms.workbench.myFollowed.feature.TEST_PLAN') }}
       </div>
-      <a-radio-group v-model="showType" type="button" class="file-show-type mr-2" @change="fetchData">
+      <a-radio-group v-model="showType" type="button" class="file-show-type mr-2" size="small" @change="fetchData">
         <a-radio :value="testPlanTypeEnum.ALL" class="show-type-icon p-[2px]">
           {{ t('testPlan.testPlanIndex.all') }}
         </a-radio>
@@ -135,6 +135,7 @@
 
   const props = defineProps<{
     project: string;
+    type: 'my_follow' | 'my_create';
   }>();
 
   const { t } = useI18n();
@@ -280,7 +281,7 @@
     setLoadListParams({
       type: showType.value,
       projectId: props.project,
-      viewId: 'my_follow',
+      viewId: props.type,
     });
     loadList();
   }
@@ -288,7 +289,7 @@
   function goTestPlan() {
     openNewPage(TestPlanRouteEnum.TEST_PLAN_INDEX, {
       showType: showType.value,
-      view: 'my_follow',
+      view: props.type,
     });
   }
 
