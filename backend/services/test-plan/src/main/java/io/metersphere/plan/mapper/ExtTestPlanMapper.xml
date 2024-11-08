@@ -123,6 +123,12 @@
                 )
             </when>
         </choose>-->
+        <if test="request.combineInnerIds != null and request.combineInnerIds.size() > 0">
+            and t.id in
+            <foreach collection="request.combineInnerIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
         <include refid="filters">
             <property name="filter" value="request.filter"/>
         </include>
@@ -180,11 +186,104 @@
                             <property name="searchMode" value="${combineSearch}.searchMode"/>
                         </include>
                     </foreach>
+                </if>
+            </trim>
+        </trim>
+
+        <trim prefix="AND">
+            <trim prefix="(" suffix=")" suffixOverrides="AND|OR">
+                <if test="${combineSearch} != null">
                     <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
-                            <property name="condition" value="condition"/>
-                            <property name="tablePrefix" value="t"/>
-                        </include>
+                        <if test="condition.name == 'moduleId'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.module_id"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'name'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.name"/>
+                            </include>
+                            <if test="condition.operator == 'CONTAINS' or condition.operator == 'EQUALS'">
+                                or t.id in
+                            (
+                            SELECT group_id
+                            FROM test_plan
+                            WHERE project_id = #{request.projectId}
+                            AND
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="test_plan.name"/>
+                            </include>
+                            )
+                            </if>
+                        </if>
+                        <if test="condition.name == 'num'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.num"/>
+                            </include>
+                            <if test="request.type != 'TEST_PLAN'" >
+                                <if test="condition.operator == 'CONTAINS' or condition.operator == 'EQUALS'">
+                                    or t.id in
+                                (
+                                SELECT group_id
+                                FROM test_plan
+                                WHERE project_id = #{request.projectId}
+                                AND
+                                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                    <property name="condition" value="condition"/>
+                                    <property name="column" value="test_plan.num"/>
+                                </include>
+                                )
+                                </if>
+                            </if>
+                        </if>
+                        <if test="condition.name == 'createUser'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.create_user"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'updateUser'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.update_user"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'updateTime'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.update_time"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'createTime'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.create_time"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'tags'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.arrayValueCondition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.tags"/>
+                            </include>
+                            <if test="condition.operator == 'CONTAINS'">
+                                or t.id in
+                                (
+                                SELECT group_id
+                                FROM test_plan
+                                WHERE project_id = #{request.projectId}
+                                AND
+                                <include refid="io.metersphere.system.mapper.BaseMapper.arrayValueCondition">
+                                    <property name="condition" value="condition"/>
+                                    <property name="column" value="test_plan.tags"/>
+                                </include>
+                                )
+                            </if>
+                        </if>
+
                         <!-- 状态 -->
                         <if test="condition.name == 'status'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
@@ -640,5 +739,250 @@
         </if>
         group by test_plan.project_id;
     </select>
+
+
+
+    <select id="selectMyFollowByConditions"
+            resultMap="BaseResultMapDTO">
+        select t.* from (
+                SELECT
+                t.id,t.num,t.name,t.status,t.group_id,
+                t.create_user AS createUser,
+                createUser.name AS createUserName,
+                t.create_time as createTime,
+                t.module_id as moduleId,
+                t.type,
+                t.description,
+                t.pos,
+                t.planned_start_time AS plannedStartTime,
+                t.planned_end_time AS plannedEndTime,
+                t.actual_start_time AS actualStartTime,
+                t.actual_end_time AS actualEndTime,
+                t.tags
+                FROM test_plan t
+                INNER JOIN user createUser ON t.create_user = createUser.id
+                WHERE t.project_id = #{request.projectId}
+                <include refid="queryMyFollowGroupByTableRequest">
+                    <property name="group" value="true"/>
+                    <property name="request" value="request"/>
+                </include>
+                union
+                SELECT
+                t.id,t.num,t.name,t.status,t.group_id,
+                t.create_user AS createUser,
+                createUser.name AS createUserName,
+                t.create_time as createTime,
+                t.module_id as moduleId,
+                t.type,
+                t.description,
+                t.pos,
+                t.planned_start_time AS plannedStartTime,
+                t.planned_end_time AS plannedEndTime,
+                t.actual_start_time AS actualStartTime,
+                t.actual_end_time AS actualEndTime,
+                t.tags
+                FROM test_plan t
+                INNER JOIN user createUser ON t.create_user = createUser.id
+                WHERE t.project_id = #{request.projectId}
+                <include refid="queryMyFollowGroupByTableRequest">
+                    <property name="group" value="false"/>
+                    <property name="request" value="request"/>
+                </include>
+        ) t
+    </select>
+
+
+    <sql id="queryMyFollowGroupByTableRequest">
+        <include refid="baseConditionQuery"/>
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            t.name like concat('%', #{request.keyword},'%')
+            or t.num like concat('%', #{request.keyword},'%')
+            or t.tags like concat('%', #{request.keyword}, '%')
+            <if test="request.keywordFilterIds != null and request.keywordFilterIds.size() > 0">
+                or t.id in
+                <foreach collection="request.keywordFilterIds" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            )
+        </if>
+        <if test="request.innerIds != null and request.innerIds.size() > 0">
+            and t.id in
+            <foreach collection="request.innerIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="request.combineInnerIds != null and request.combineInnerIds.size() > 0">
+            and t.id in
+            <foreach collection="request.combineInnerIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+
+        <include refid="filter">
+            <property name="filter" value="request.filter"/>
+        </include>
+        <include refid="myFollowCombine">
+            <property name="combineSearch" value="request.combineSearch"/>
+            <property name="group" value="${group}"/>
+        </include>
+    </sql>
+
+
+
+    <sql id="myFollowCombine">
+        <trim prefix="AND">
+            <trim prefix="(" suffix=")" suffixOverrides="AND|OR">
+                <if test="${combineSearch} != null">
+                    <foreach collection="${combineSearch}.userViewConditions" item="condition">
+                        <if test="condition.name == 'createUser'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.create_user"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'follower' and ${group}">
+                            t.id IN (
+                            SELECT
+                            test_plan.group_id
+                            FROM
+                            test_plan_follower
+                            INNER JOIN test_plan on test_plan_follower.test_plan_id = test_plan.id
+                            WHERE
+                            test_plan.project_id = #{request.projectId}
+                            and test_plan_follower.user_id IN
+                            <foreach collection="condition.value" item="v" separator="," open="(" close=")">
+                                #{v}
+                            </foreach>
+                            )
+                        </if>
+
+                        <if test="condition.name == 'follower' and !${group}">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
+                                <property name="mainIdColumn" value="t.id"/>
+                                <property name="associationTable" value="test_plan_follower"/>
+                                <property name="associationIdColumn" value="test_plan_id"/>
+                                <property name="searchColumn" value="user_id"/>
+                                <property name="condition" value="condition"/>
+                            </include>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                </if>
+            </trim>
+        </trim>
+
+
+        <trim prefix="AND">
+            <trim prefix="(" suffix=")" suffixOverrides="AND|OR">
+                <if test="${combineSearch} != null">
+                    <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
+                        <if test="condition.name == 'moduleId'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.module_id"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'name'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.name"/>
+                            </include>
+                            <if test="condition.operator == 'CONTAINS' or condition.operator == 'EQUALS'">
+                                or t.id in
+                                (
+                                SELECT group_id
+                                FROM test_plan
+                                WHERE project_id = #{request.projectId}
+                                AND
+                                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                    <property name="condition" value="condition"/>
+                                    <property name="column" value="test_plan.name"/>
+                                </include>
+                                )
+                            </if>
+                        </if>
+                        <if test="condition.name == 'num'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.num"/>
+                            </include>
+                            <if test="request.type != 'TEST_PLAN'" >
+                                <if test="condition.operator == 'CONTAINS' or condition.operator == 'EQUALS'">
+                                    or t.id in
+                                    (
+                                    SELECT group_id
+                                    FROM test_plan
+                                    WHERE project_id = #{request.projectId}
+                                    AND
+                                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                        <property name="condition" value="condition"/>
+                                        <property name="column" value="test_plan.num"/>
+                                    </include>
+                                    )
+                                </if>
+                            </if>
+                        </if>
+                        <if test="condition.name == 'createUser'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.create_user"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'updateUser'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.update_user"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'updateTime'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.update_time"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'createTime'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.create_time"/>
+                            </include>
+                        </if>
+                        <if test="condition.name == 'tags'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.arrayValueCondition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.tags"/>
+                            </include>
+                            <if test="condition.operator == 'CONTAINS'">
+                                or t.id in
+                                (
+                                SELECT group_id
+                                FROM test_plan
+                                WHERE project_id = #{request.projectId}
+                                AND
+                                <include refid="io.metersphere.system.mapper.BaseMapper.arrayValueCondition">
+                                    <property name="condition" value="condition"/>
+                                    <property name="column" value="test_plan.tags"/>
+                                </include>
+                                )
+                            </if>
+                        </if>
+                        <!-- 状态 -->
+                        <if test="condition.name == 'status'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="t.status"/>
+                            </include>
+                        </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
+                    </foreach>
+                </if>
+            </trim>
+        </trim>
+    </sql>
 
 </mapper>

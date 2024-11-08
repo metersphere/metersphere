@@ -21,6 +21,8 @@ import io.metersphere.project.dto.filemanagement.request.FileModuleCreateRequest
 import io.metersphere.project.dto.filemanagement.request.FileModuleUpdateRequest;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.dto.CombineCondition;
+import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
@@ -237,7 +239,26 @@ public class TestPlanTests extends BaseTest {
         this.requestGetPermissionTest(PermissionConstants.TEST_PLAN_READ, String.format(URL_GET_MODULE_TREE, DEFAULT_PROJECT_ID));
         testPlanTableRequest.setProjectId(DEFAULT_PROJECT_ID);
         this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ, URL_POST_TEST_PLAN_PAGE, testPlanTableRequest);
+
+        testPlanTableRequest.setViewId("my-follow");
+        testPlanTableRequest.setCombineSearch(buildCombineSearch());
+        this.requestPost(URL_POST_TEST_PLAN_PAGE, testPlanTableRequest);
     }
+
+    private CombineSearch buildCombineSearch() {
+        CombineSearch combineSearch = new CombineSearch();
+        List<CombineCondition> conditions = new ArrayList<>();
+        CombineCondition combineCondition = new CombineCondition();
+        combineCondition.setName("status");
+        combineCondition.setValue(List.of("PREPARED"));
+        combineCondition.setOperator("IN");
+        combineCondition.setCustomField(false);
+        combineCondition.setCustomFieldType("");
+        conditions.add(combineCondition);
+        combineSearch.setConditions(conditions);
+        return combineSearch;
+    }
+
     @Test
     @Order(2)
     public void addModuleTest() throws Exception {

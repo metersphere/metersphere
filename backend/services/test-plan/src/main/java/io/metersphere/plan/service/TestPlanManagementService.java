@@ -185,24 +185,39 @@ public class TestPlanManagementService {
 
     @Autowired
     private ApplicationContext applicationContext;
+
     private void initDefaultFilter(TestPlanTableRequest request) {
 
         List<String> defaultStatusList = new ArrayList<>();
         defaultStatusList.add(TestPlanConstants.TEST_PLAN_STATUS_NOT_ARCHIVED);
-        if (request.getFilter() == null || !request.getFilter().containsKey("status")) {
-            if (request.getFilter() == null) {
-                request.setFilter(new HashMap<>() {{
-                    this.put("status", defaultStatusList);
-                }});
-            } else {
+        Optional.ofNullable(request.getCombineSearch()).ifPresent(combineSearch -> {
+            combineSearch.getConditions().forEach(item -> {
+                if (StringUtils.equalsIgnoreCase(item.getName(), "status")) {
+                    List<String> statusList = (List<String>) item.getValue();
+                    item.setValue(defaultStatusList);
+                    //目前未归档的测试计划只有3中类型。所以这里判断如果是3个的话等于直接查询未归档
+                    if (statusList.size() < 3) {
+                        request.setCombineInnerIds(this.selectTestPlanIdByProjectIdAndStatus(request.getProjectId(), statusList));
+                    }
+                }
+            });
+        });
+        if (!StringUtils.equalsIgnoreCase(request.getViewId(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+            if (request.getFilter() == null || !request.getFilter().containsKey("status")) {
+                if (request.getFilter() == null) {
+                    request.setFilter(new HashMap<>() {{
+                        this.put("status", defaultStatusList);
+                    }});
+                } else {
+                    request.getFilter().put("status", defaultStatusList);
+                }
+            } else if (!request.getFilter().get("status").contains(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+                List<String> statusList = request.getFilter().get("status");
                 request.getFilter().put("status", defaultStatusList);
-            }
-        } else if (!request.getFilter().get("status").contains(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
-            List<String> statusList = request.getFilter().get("status");
-            request.getFilter().put("status", defaultStatusList);
-            //目前未归档的测试计划只有3中类型。所以这里判断如果是3个的话等于直接查询未归档
-            if (statusList.size() < 3) {
-                request.setInnerIds(this.selectTestPlanIdByProjectIdAndStatus(request.getProjectId(), statusList));
+                //目前未归档的测试计划只有3中类型。所以这里判断如果是3个的话等于直接查询未归档
+                if (statusList.size() < 3) {
+                    request.setInnerIds(this.selectTestPlanIdByProjectIdAndStatus(request.getProjectId(), statusList));
+                }
             }
         }
 
@@ -216,8 +231,13 @@ public class TestPlanManagementService {
     }
 
     public List<TestPlanResponse> list(TestPlanTableRequest request) {
-        List<TestPlanResponse> testPlanResponses = extTestPlanMapper.selectByConditions(request);
-        handChildren(testPlanResponses,request.getProjectId());
+        List<TestPlanResponse> testPlanResponses = new ArrayList<>();
+        if (StringUtils.equalsIgnoreCase(request.getViewId(), "my_follow")) {
+            testPlanResponses = extTestPlanMapper.selectMyFollowByConditions(request);
+        } else {
+            testPlanResponses = extTestPlanMapper.selectByConditions(request);
+        }
+        handChildren(testPlanResponses, request.getProjectId());
         return testPlanResponses;
     }
 

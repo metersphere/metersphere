@@ -78,4 +78,7 @@ public interface ExtTestPlanMapper {
 
     List<ProjectCountDTO> projectPlanCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
 
+    @BaseConditionFilter
+    List<TestPlanResponse> selectMyFollowByConditions(@Param("request") TestPlanTableRequest request);
+
 }

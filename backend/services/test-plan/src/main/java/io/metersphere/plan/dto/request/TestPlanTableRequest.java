@@ -28,6 +28,7 @@ public class TestPlanTableRequest extends BasePageRequest {
 
     @Schema(description = "通过其他条件查询出来的，必须要包含的测试计划ID")
     private List<String> innerIds;
+    private List<String> combineInnerIds;
 
     public String getSortString() {
         if (StringUtils.isEmpty(super.getSortString())) {
