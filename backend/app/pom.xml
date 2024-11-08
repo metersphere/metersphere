@@ -50,6 +50,12 @@
             <version>${revision}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-dashboard</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
