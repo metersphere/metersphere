@@ -71,6 +71,7 @@
       dataIndex: 'num',
       slotName: 'num',
       width: 100,
+      fixed: 'left',
       showInTable: true,
       columnSelectorDisabled: true,
     },

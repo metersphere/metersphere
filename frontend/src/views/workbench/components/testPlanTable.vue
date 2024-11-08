@@ -4,7 +4,14 @@
       <div class="cursor-pointer font-medium text-[var(--color-text-1)]" @click="goTestPlan">
         {{ t('ms.workbench.myFollowed.feature.TEST_PLAN') }}
       </div>
-      <a-radio-group v-model="showType" type="button" class="file-show-type mr-2" size="small" @change="init">
+      <a-radio-group
+        v-if="!props.hideShowType"
+        v-model="showType"
+        type="button"
+        class="file-show-type mr-2"
+        size="small"
+        @change="init"
+      >
         <a-radio :value="testPlanTypeEnum.ALL" class="show-type-icon p-[2px]">
           {{ t('testPlan.testPlanIndex.all') }}
         </a-radio>
@@ -137,6 +144,7 @@
     project: string;
     type: 'my_follow' | 'my_create' | 'my_todo';
     refreshId: string;
+    hideShowType?: boolean;
   }>();
 
   const { t } = useI18n();

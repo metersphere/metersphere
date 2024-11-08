@@ -26,6 +26,7 @@
       :project="currentProject"
       :refresh-id="refreshId"
       type="my_follow"
+      hide-show-type
     />
     <caseReviewTable
       v-if="features.includes(FeatureEnum.CASE_REVIEW)"
