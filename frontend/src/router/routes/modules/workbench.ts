@@ -28,12 +28,11 @@ const TestPlan: AppRouteRecordRaw = {
         isTopMenu: true,
       },
     },
-    // TODO 更换component 页面即可
     // 待办
     {
       path: 'wait',
       name: WorkbenchRouteEnum.WORKBENCH_INDEX_WAIT,
-      component: () => import('@/views/workbench/homePage/index.vue'),
+      component: () => import('@/views/workbench/myToDo/index.vue'),
       meta: {
         locale: 'menu.workbenchWaitSort',
         roles: ['*'],

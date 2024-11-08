@@ -56,7 +56,7 @@
 
   const props = defineProps<{
     project: string;
-    type: 'my_follow' | 'my_create';
+    type: 'my_follow' | 'my_create' | 'my_todo';
   }>();
 
   const appStore = useAppStore();
