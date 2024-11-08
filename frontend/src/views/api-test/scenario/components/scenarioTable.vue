@@ -966,7 +966,7 @@
     try {
       const res = await getScenarioStatistics(propsRes.value.data.map((item) => item.id));
       propsRes.value.data.forEach((e) => {
-        const item = res.find((i: any) => i.scenarioId === e.id);
+        const item = res.find((i: any) => i.id === e.id);
         if (item) {
           e.execPassRate = item.execPassRate;
         }
@@ -977,6 +977,13 @@
     }
   }
 
+  watch(
+    () => propsRes.value.data,
+    () => {
+      initStatistics();
+    }
+  );
+
   async function loadScenarioList(refreshTreeCount?: boolean) {
     const moduleIds = await getModuleIds();
     const params = {
@@ -986,7 +993,6 @@
     };
     setLoadListParams({ ...params, viewId: viewId.value, combineSearch: advanceFilter });
     await loadList();
-    initStatistics();
     if (refreshTreeCount && !isAdvancedSearchMode.value) {
       emit('refreshModuleTree', params);
     }

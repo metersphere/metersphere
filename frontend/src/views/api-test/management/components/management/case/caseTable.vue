@@ -652,6 +652,13 @@
     }
   }
 
+  watch(
+    () => propsRes.value.data,
+    () => {
+      initStatistics();
+    }
+  );
+
   async function loadCaseList() {
     const selectModules = await getModuleIds();
     const params = {
@@ -666,7 +673,6 @@
     };
     setLoadListParams(params);
     await loadList();
-    initStatistics();
   }
   function loadCaseListAndResetSelector() {
     resetSelector();
