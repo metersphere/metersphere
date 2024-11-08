@@ -4,7 +4,7 @@
       <div class="cursor-pointer font-medium text-[var(--color-text-1)]" @click="goTestPlan">
         {{ t('ms.workbench.myFollowed.feature.TEST_PLAN') }}
       </div>
-      <a-radio-group v-model="showType" type="button" class="file-show-type mr-2" size="small" @change="fetchData">
+      <a-radio-group v-model="showType" type="button" class="file-show-type mr-2" size="small" @change="init">
         <a-radio :value="testPlanTypeEnum.ALL" class="show-type-icon p-[2px]">
           {{ t('testPlan.testPlanIndex.all') }}
         </a-radio>
@@ -122,7 +122,7 @@
   import PlanExpandRow from '@/views/test-plan/testPlan/components/planExpandRow.vue';
   import StatusProgress from '@/views/test-plan/testPlan/components/statusProgress.vue';
 
-  import { getPlanPassRate, getTestPlanList } from '@/api/modules/test-plan/testPlan';
+  import { workbenchTestPlanList, workbenchTestPlanStatistic } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
 
@@ -136,6 +136,7 @@
   const props = defineProps<{
     project: string;
     type: 'my_follow' | 'my_create' | 'my_todo';
+    refreshId: string;
   }>();
 
   const { t } = useI18n();
@@ -153,9 +154,9 @@
     return defaultCountDetailMap.value[id]?.status;
   }
 
-  async function getStatistics(selectedPlanIds: (string | undefined)[]) {
+  async function getStatistics(selectedPlanIds: string[]) {
     try {
-      const result = await getPlanPassRate(selectedPlanIds);
+      const result = await workbenchTestPlanStatistic(selectedPlanIds);
       result.forEach((item: PassRateCountDetail) => {
         defaultCountDetailMap.value[item.id] = item;
       });
@@ -170,7 +171,7 @@
       title: 'testPlan.testPlanIndex.ID',
       slotName: 'num',
       dataIndex: 'num',
-      width: 180,
+      width: 100,
       showInTable: true,
       showDrag: false,
     },
@@ -180,6 +181,7 @@
       dataIndex: 'name',
       showInTable: true,
       showTooltip: true,
+      fixed: 'left',
       width: 180,
       showDrag: false,
     },
@@ -193,7 +195,7 @@
       },
       showInTable: true,
       showDrag: true,
-      width: 150,
+      width: 100,
     },
     {
       title: 'testPlan.testPlanIndex.passRate',
@@ -229,13 +231,14 @@
 
   const tableProps = ref<Partial<MsTableProps<TestPlanItem>>>({
     columns,
+    scroll: { x: '100%' },
     selectable: false,
     showSetting: false,
     paginationSize: 'mini',
     showSelectorAll: false,
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getTestPlanList, tableProps.value);
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(workbenchTestPlanList, tableProps.value);
 
   const planData = computed(() => {
     return propsRes.value.data;
@@ -266,7 +269,7 @@
     () => planData.value,
     (val) => {
       if (val) {
-        const selectedPlanIds: (string | undefined)[] = propsRes.value.data.map((e) => e.id) || [];
+        const selectedPlanIds: string[] = propsRes.value.data.map((e) => e.id) || [];
         if (selectedPlanIds.length) {
           getStatistics(selectedPlanIds);
         }
@@ -277,7 +280,7 @@
     }
   );
 
-  function fetchData() {
+  function init() {
     setLoadListParams({
       type: showType.value,
       projectId: props.project,
@@ -293,8 +296,15 @@
     });
   }
 
+  watch(
+    () => props.refreshId,
+    () => {
+      init();
+    }
+  );
+
   onBeforeMount(() => {
-    fetchData();
+    init();
   });
 </script>
 

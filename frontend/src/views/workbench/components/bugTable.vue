@@ -43,7 +43,8 @@
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
 
-  import { getBugList, getCustomFieldHeader, getCustomOptionHeader } from '@/api/modules/bug-management';
+  import { getCustomFieldHeader, getCustomOptionHeader } from '@/api/modules/bug-management';
+  import { workbenchBugList } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
@@ -57,6 +58,7 @@
   const props = defineProps<{
     project: string;
     type: 'my_follow' | 'my_create' | 'my_todo';
+    refreshId: string;
   }>();
 
   const appStore = useAppStore();
@@ -75,7 +77,8 @@
     {
       title: 'bugManagement.bugName',
       dataIndex: 'title',
-      width: 250,
+      width: 180,
+      fixed: 'left',
       showTooltip: true,
       showInTable: true,
     },
@@ -189,9 +192,10 @@
   await initFilterOptions();
 
   const { propsRes, propsEvent, setLoadListParams, loadList } = useTable(
-    getBugList,
+    workbenchBugList,
     {
       columns,
+      scroll: { x: '100%' },
       selectable: false,
       noDisable: false,
       showSetting: false,
@@ -219,7 +223,7 @@
   };
 
   function handleShowDetail(id: number) {
-    openNewPage(BugManagementRouteEnum.BUG_MANAGEMENT_DETAIL, { id, pId: props.project });
+    openNewPage(BugManagementRouteEnum.BUG_MANAGEMENT_INDEX, { id, pId: props.project });
   }
 
   function goBugList() {
@@ -235,6 +239,13 @@
     });
     loadList();
   }
+
+  watch(
+    () => props.refreshId,
+    () => {
+      init();
+    }
+  );
 
   onBeforeMount(() => {
     init();

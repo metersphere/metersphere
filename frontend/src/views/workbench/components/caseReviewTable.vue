@@ -68,7 +68,7 @@
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
   import passRateLine from '@/views/case-management/caseReview/components/passRateLine.vue';
 
-  import { getReviewList } from '@/api/modules/case-management/caseReview';
+  import { workbenchReviewList } from '@/api/modules/workbench';
   import { reviewStatusMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
@@ -80,6 +80,7 @@
   const props = defineProps<{
     project: string;
     type: 'my_follow' | 'my_create' | 'my_todo';
+    refreshId: string;
   }>();
 
   const { t } = useI18n();
@@ -104,7 +105,6 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      showTooltip: true,
       width: 100,
     },
     {
@@ -114,8 +114,9 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      fixed: 'left',
       showTooltip: true,
-      width: 200,
+      width: 180,
     },
     {
       title: 'caseManagement.caseReview.status',
@@ -126,7 +127,7 @@
         filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_REVIEW_STATUS,
       },
       showDrag: true,
-      width: 150,
+      width: 100,
     },
     {
       title: 'caseManagement.caseReview.passRate',
@@ -139,7 +140,7 @@
       title: 'caseManagement.caseReview.caseCount',
       dataIndex: 'caseCount',
       showDrag: true,
-      width: 100,
+      width: 80,
     },
     {
       title: 'caseManagement.caseReview.type',
@@ -155,8 +156,9 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getReviewList, {
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(workbenchReviewList, {
     columns,
+    scroll: { x: '100%' },
     showSetting: false,
     selectable: false,
     showSelectAll: false,
@@ -180,6 +182,13 @@
     });
     loadList();
   }
+
+  watch(
+    () => props.refreshId,
+    () => {
+      init();
+    }
+  );
 
   onBeforeMount(() => {
     init();

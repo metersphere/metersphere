@@ -208,7 +208,7 @@
       followLoading.value = true;
       await followScenario(scenario.value.id || '');
       scenario.value.follow = !scenario.value.follow;
-      Message.success(scenario.value.follow ? t('common.unFollowSuccess') : t('common.followSuccess'));
+      Message.success(scenario.value.follow ? t('common.followSuccess') : t('common.unFollowSuccess'));
       emit('updateFollow');
     } catch (error) {
       // eslint-disable-next-line no-console

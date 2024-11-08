@@ -27,9 +27,24 @@
         <MsIcon type="icon-icon_reset_outlined" size="14" />
       </a-button>
     </div>
-    <testPlanTable v-if="features.includes(FeatureEnum.TEST_PLAN)" :project="currentProject" type="my_follow" />
-    <caseReviewTable v-if="features.includes(FeatureEnum.CASE_REVIEW)" :project="currentProject" type="my_follow" />
-    <bugTable v-if="features.includes(FeatureEnum.BUG)" :project="currentProject" type="my_follow" />
+    <testPlanTable
+      v-if="features.includes(FeatureEnum.TEST_PLAN)"
+      :project="currentProject"
+      :refresh-id="refreshId"
+      type="my_follow"
+    />
+    <caseReviewTable
+      v-if="features.includes(FeatureEnum.CASE_REVIEW)"
+      :project="currentProject"
+      :refresh-id="refreshId"
+      type="my_follow"
+    />
+    <bugTable
+      v-if="features.includes(FeatureEnum.BUG)"
+      :project="currentProject"
+      :refresh-id="refreshId"
+      type="my_follow"
+    />
   </div>
 </template>
 
@@ -42,6 +57,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { getGenerateId } from '@/utils';
 
   import { FeatureEnum } from '@/enums/workbenchEnum';
 
@@ -55,6 +71,7 @@
     value: key as FeatureEnum,
   }));
   const featureAll = ref(true);
+  const refreshId = ref('');
 
   function handleFeatureAllChange(val: boolean | (string | number | boolean)[]) {
     features.value = val ? featureOptions.map((item) => item.value) : [];
@@ -67,7 +84,7 @@
   }
 
   function handleRefresh() {
-    console.log('refresh');
+    refreshId.value = getGenerateId();
   }
 </script>
 

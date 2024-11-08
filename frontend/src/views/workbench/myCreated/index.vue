@@ -1,7 +1,12 @@
 <template>
   <div class="flex flex-col gap-[16px]">
     <div class="flex items-center justify-end gap-[12px]">
-      <MsProjectSelect v-model:project="currentProject" class="w-[240px]" use-default-arrow-icon>
+      <MsProjectSelect
+        v-model:project="currentProject"
+        class="w-[240px]"
+        use-default-arrow-icon
+        @change="handleRefresh"
+      >
         <template #prefix>
           {{ t('menu.projectManagementShort') }}
         </template>
@@ -27,12 +32,43 @@
         <MsIcon type="icon-icon_reset_outlined" size="14" />
       </a-button>
     </div>
-    <testPlanTable v-if="features.includes(FeatureEnum.TEST_PLAN)" :project="currentProject" type="my_create" />
-    <testCaseTable v-if="features.includes(FeatureEnum.TEST_CASE)" :project="currentProject" type="my_create" />
-    <caseReviewTable v-if="features.includes(FeatureEnum.CASE_REVIEW)" :project="currentProject" type="my_create" />
-    <apiCaseTable v-if="features.includes(FeatureEnum.API_CASE)" :project="currentProject" type="my_create" />
-    <scenarioCaseTable v-if="features.includes(FeatureEnum.API_SCENARIO)" :project="currentProject" type="my_create" />
-    <bugTable v-if="features.includes(FeatureEnum.BUG)" :project="currentProject" type="my_create" />
+
+    <testPlanTable
+      v-if="features.includes(FeatureEnum.TEST_PLAN)"
+      :project="currentProject"
+      :refresh-id="refreshId"
+      type="my_create"
+    />
+    <testCaseTable
+      v-if="features.includes(FeatureEnum.TEST_CASE)"
+      :project="currentProject"
+      :refresh-id="refreshId"
+      type="my_create"
+    />
+    <caseReviewTable
+      v-if="features.includes(FeatureEnum.CASE_REVIEW)"
+      :project="currentProject"
+      :refresh-id="refreshId"
+      type="my_create"
+    />
+    <apiCaseTable
+      v-if="features.includes(FeatureEnum.API_CASE)"
+      :project="currentProject"
+      :refresh-id="refreshId"
+      type="my_create"
+    />
+    <scenarioCaseTable
+      v-if="features.includes(FeatureEnum.API_SCENARIO)"
+      :project="currentProject"
+      :refresh-id="refreshId"
+      type="my_create"
+    />
+    <bugTable
+      v-if="features.includes(FeatureEnum.BUG)"
+      :project="currentProject"
+      :refresh-id="refreshId"
+      type="my_create"
+    />
   </div>
 </template>
 
@@ -48,6 +84,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { getGenerateId } from '@/utils';
 
   import { FeatureEnum } from '@/enums/workbenchEnum';
 
@@ -61,6 +98,7 @@
     value: key as FeatureEnum,
   }));
   const featureAll = ref(true);
+  const refreshId = ref('');
 
   function handleFeatureAllChange(val: boolean | (string | number | boolean)[]) {
     features.value = val ? featureOptions.map((item) => item.value) : [];
@@ -73,7 +111,7 @@
   }
 
   function handleRefresh() {
-    console.log('refresh');
+    refreshId.value = getGenerateId();
   }
 </script>
 

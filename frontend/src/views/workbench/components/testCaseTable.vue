@@ -7,9 +7,11 @@
     </div>
     <ms-base-table v-bind="propsRes" ref="tableRef" filter-icon-align-left class="mt-[16px]" v-on="propsEvent">
       <template #num="{ record }">
-        <span type="text" class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">
-          {{ record.num }}
-        </span>
+        <div class="flex items-center">
+          <MsButton type="text" class="float-left" style="margin-right: 4px" @click="openCase(record.id)">
+            {{ record.num }}
+          </MsButton>
+        </div>
       </template>
       <template #name="{ record }">
         <div class="one-line-text">{{ record.name }}</div>
@@ -45,6 +47,7 @@
 </template>
 
 <script setup lang="ts">
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -54,7 +57,7 @@
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import ExecuteStatusTag from '@/components/business/ms-case-associate/executeResult.vue';
 
-  import { getCaseList } from '@/api/modules/case-management/featureCase';
+  import { workbenchCaseList } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
 
@@ -71,6 +74,7 @@
   const props = defineProps<{
     project: string;
     type: 'my_follow' | 'my_create';
+    refreshId: string;
   }>();
 
   const { t } = useI18n();
@@ -100,8 +104,7 @@
       'slotName': 'num',
       'sortIndex': 1,
       'fixed': 'left',
-      'width': 150,
-      'showTooltip': true,
+      'width': 100,
       'columnSelectorDisabled': true,
       'filter-icon-align-left': true,
     },
@@ -111,6 +114,7 @@
       dataIndex: 'name',
       showInTable: true,
       showTooltip: true,
+      fixed: 'left',
       width: 180,
       ellipsis: true,
     },
@@ -123,7 +127,7 @@
         filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
       },
       showInTable: true,
-      width: 150,
+      width: 100,
       showDrag: true,
     },
     {
@@ -174,25 +178,30 @@
 
   const tableProps = ref<Partial<MsTableProps<CaseManagementTable>>>({
     columns,
+    scroll: { x: '100%' },
     selectable: false,
     showSetting: false,
     paginationSize: 'mini',
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getCaseList, tableProps.value, (record) => {
-    return {
-      ...record,
-      tags: (record.tags || []).map((item: string, i: number) => {
-        return {
-          id: `${record.id}-${i}`,
-          name: item,
-        };
-      }),
-      visible: false,
-      showModuleTree: false,
-      caseLevel: getCaseLevels(record.customFields),
-    };
-  });
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
+    workbenchCaseList,
+    tableProps.value,
+    (record) => {
+      return {
+        ...record,
+        tags: (record.tags || []).map((item: string, i: number) => {
+          return {
+            id: `${record.id}-${i}`,
+            name: item,
+          };
+        }),
+        visible: false,
+        showModuleTree: false,
+        caseLevel: getCaseLevels(record.customFields),
+      };
+    }
+  );
 
   function init() {
     setLoadListParams({
@@ -205,6 +214,17 @@
   onBeforeMount(() => {
     init();
   });
+
+  watch(
+    () => props.refreshId,
+    () => {
+      init();
+    }
+  );
+
+  function openCase(id: number) {
+    openNewPage(CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, { id, pId: props.project, showType: 'list' });
+  }
 
   function goTestCase() {
     openNewPage(CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, {

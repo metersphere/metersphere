@@ -76,7 +76,7 @@
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
-  import { getScenarioPage } from '@/api/modules/api-test/scenario';
+  import { workbenchScenarioList } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { characterLimit } from '@/utils';
@@ -92,6 +92,7 @@
   const props = defineProps<{
     project: string;
     type: 'my_follow' | 'my_create';
+    refreshId: string;
   }>();
 
   const { t } = useI18n();
@@ -127,8 +128,7 @@
         sorter: true,
       },
       fixed: 'left',
-      width: 140,
-      showTooltip: false,
+      width: 100,
       columnSelectorDisabled: true,
     },
     {
@@ -139,6 +139,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      fixed: 'left',
       width: 134,
       showTooltip: true,
       columnSelectorDisabled: true,
@@ -214,7 +215,7 @@
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
-    getScenarioPage,
+    workbenchScenarioList,
     {
       columns,
       scroll: { x: '100%' },
@@ -257,6 +258,13 @@
     });
     loadList();
   }
+
+  watch(
+    () => props.refreshId,
+    () => {
+      init();
+    }
+  );
 
   onBeforeMount(() => {
     init();

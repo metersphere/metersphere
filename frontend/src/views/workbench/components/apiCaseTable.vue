@@ -70,7 +70,7 @@
   import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
-  import { getCasePage } from '@/api/modules/api-test/management';
+  import { workbenchApiCaseList } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
 
@@ -84,6 +84,7 @@
   const props = defineProps<{
     project: string;
     type: 'my_follow' | 'my_create';
+    refreshId: string;
   }>();
 
   const { t } = useI18n();
@@ -109,7 +110,7 @@
         sorter: true,
       },
       fixed: 'left',
-      width: 150,
+      width: 100,
       columnSelectorDisabled: true,
     },
     {
@@ -120,6 +121,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      fixed: 'left',
       width: 180,
       columnSelectorDisabled: true,
     },
@@ -146,7 +148,7 @@
         options: caseStatusOptions,
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_STATUS,
       },
-      width: 150,
+      width: 100,
       showDrag: true,
     },
     {
@@ -158,7 +160,7 @@
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS,
       },
       showInTable: false,
-      width: 150,
+      width: 100,
       showDrag: true,
     },
     {
@@ -174,7 +176,8 @@
       slotName: 'createName',
       dataIndex: 'createUser',
       showInTable: true,
-      width: 180,
+      showTooltip: true,
+      width: 150,
     },
     {
       title: 'case.tableColumnCreateTime',
@@ -183,7 +186,7 @@
       width: 180,
     },
   ];
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getCasePage, {
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(workbenchApiCaseList, {
     columns,
     scroll: { x: '100%' },
     showSetting: false,
@@ -218,6 +221,13 @@
     });
     loadList();
   }
+
+  watch(
+    () => props.refreshId,
+    () => {
+      init();
+    }
+  );
 
   onBeforeMount(() => {
     init();
