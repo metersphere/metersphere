@@ -9,6 +9,7 @@ import io.metersphere.plan.dto.TestPlanGroupCountDTO;
 import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
 import io.metersphere.plan.dto.request.TestPlanTableRequest;
 import io.metersphere.plan.dto.response.TestPlanResponse;
+import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.mapper.ExtTestPlanModuleMapper;
@@ -73,6 +74,9 @@ public class TestPlanManagementService {
      * 测试计划列表查询
      */
     public Pager<List<TestPlanResponse>> page(TestPlanTableRequest request) {
+        if (request.isMyTodo()) {
+            request.setDoneExcludeIds(this.getDoneIds(request.getProjectId()));
+        }
         this.initDefaultFilter(request);
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 MapUtils.isEmpty(request.getSort()) ? "t.pos desc, t.id desc" : request.getSortString("id", "t"));
@@ -310,5 +314,23 @@ public class TestPlanManagementService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 获取已完成且阈值达标的计划ID集合 (作为排除条件)
+     *
+     * @param projectId 项目ID
+     * @return 已办计划ID集合
+     */
+    private List<String> getDoneIds(String projectId) {
+        List<String> completePlanOrGroupIds = selectTestPlanIdByProjectIdAndStatus(projectId, List.of((TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)));
+        if (CollectionUtils.isEmpty(completePlanOrGroupIds)) {
+            return null;
+        }
+
+        List<TestPlanStatisticsResponse> completePlanOrGroupWithStatistics = testPlanStatisticsService.calculateRate(completePlanOrGroupIds);
+        return completePlanOrGroupWithStatistics.stream()
+                .filter(plan -> plan.getPassRate() >= plan.getPassThreshold())
+                .map(TestPlanStatisticsResponse::getId).collect(Collectors.toList());
     }
 }

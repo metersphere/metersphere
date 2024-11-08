@@ -30,6 +30,15 @@ public class TestPlanTableRequest extends BasePageRequest {
     private List<String> innerIds;
     private List<String> combineInnerIds;
 
+    @Schema(description = "是否我的待办, 默认查询全部")
+    private boolean myTodo = false;
+
+    @Schema(description = "我的待办用户ID, 组合使用: myTodo=true, myTodoUserId=xxx")
+    private String myTodoUserId;
+
+    @Schema(description = "已办的测试计划ID集合 (用作待办排除)")
+    private List<String> doneExcludeIds;
+
     public String getSortString() {
         if (StringUtils.isEmpty(super.getSortString())) {
             return "t.update_time desc";

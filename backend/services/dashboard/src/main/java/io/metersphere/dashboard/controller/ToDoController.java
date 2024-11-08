@@ -8,6 +8,9 @@ import io.metersphere.bug.service.BugService;
 import io.metersphere.functional.dto.CaseReviewDTO;
 import io.metersphere.functional.request.CaseReviewPageRequest;
 import io.metersphere.functional.service.CaseReviewService;
+import io.metersphere.plan.dto.request.TestPlanTableRequest;
+import io.metersphere.plan.dto.response.TestPlanResponse;
+import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -37,6 +40,17 @@ public class ToDoController {
 	private CaseReviewService caseReviewService;
 	@Resource
 	private BugService bugService;
+	@Resource
+	private TestPlanManagementService testPlanManagementService;
+
+	@PostMapping("/plan/page")
+	@Operation(summary = "我的待办-测试计划-列表分页查询")
+	@CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+	public Pager<List<TestPlanResponse>> planPage(@Validated @RequestBody TestPlanTableRequest request) {
+		request.setMyTodo(true);
+		request.setMyTodoUserId(SessionUtils.getUserId());
+		return testPlanManagementService.page(request);
+	}
 
 	@PostMapping("/review/page")
 	@Operation(summary = "我的待办-用例评审-列表分页查询")

@@ -91,7 +91,20 @@
     </select>
 
     <sql id="queryByTableRequest">
-        <include refid="baseConditionQuery"/>
+        <if test="request.myTodo">
+            <!-- 待办: 查询创建人为我的所有的计划 -->
+            and t.type = 'TEST_PLAN'
+            and t.create_user = #{request.myTodoUserId}
+            <if test="request.doneExcludeIds != null and request.doneExcludeIds.size() > 0">
+                and t.id not in
+                <foreach collection="request.doneExcludeIds" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </if>
+        <if test="!request.myTodo">
+            <include refid="baseConditionQuery"/>
+        </if>
 
         <if test="request.keyword != null and request.keyword != ''">
             and (

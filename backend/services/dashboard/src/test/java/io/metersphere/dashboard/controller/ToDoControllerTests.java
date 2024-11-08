@@ -2,6 +2,7 @@ package io.metersphere.dashboard.controller;
 
 import io.metersphere.bug.dto.request.BugPageRequest;
 import io.metersphere.functional.request.CaseReviewPageRequest;
+import io.metersphere.plan.dto.request.TestPlanTableRequest;
 import io.metersphere.system.base.BaseTest;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -17,12 +18,26 @@ import java.util.Map;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ToDoControllerTests extends BaseTest {
 
+	private static final String PLAN_PAGE = "/plan/page";
 	private static final String REVIEW_PAGE = "/review/page";
 	private static final String BUG_PAGE = "/bug/page";
 
 	@Override
 	public String getBasePath() {
 		return "/dashboard/todo";
+	}
+
+	@Test
+	@Order(0)
+	void plan() throws Exception{
+		TestPlanTableRequest request = new TestPlanTableRequest();
+		request.setProjectId(DEFAULT_PROJECT_ID);
+		request.setCurrent(1);
+		request.setPageSize(10);
+		request.setType("ALL");
+		this.requestPostWithOk(PLAN_PAGE, request);
+		request.setSort(Map.of("id", "desc"));
+		this.requestPostWithOk(PLAN_PAGE, request);
 	}
 
 	@Test
