@@ -2,6 +2,7 @@ package io.metersphere.project.mapper;
 
 import io.metersphere.project.request.ProjectMemberRequest;
 import io.metersphere.system.dto.CommentUserInfo;
+import io.metersphere.system.dto.user.ProjectUserMemberDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import org.apache.ibatis.annotations.Param;
 
@@ -35,4 +36,13 @@ public interface ExtProjectMemberMapper {
      * @return 用户集合信息
      */
     List<CommentUserInfo> getCommentAtUserInfoByParam(@Param("projectId") String projectId, @Param("keyword") String keyword);
+
+    /**
+     * 获取组织下所有有项目权限的成员
+     * @param organizationId 组织ID
+     * @param userIds 用户过滤
+     * @return  List<ProjectUserMemberDTO>
+     */
+    List<ProjectUserMemberDTO> getOrgProjectMemberList(@Param("organizationId") String organizationId, @Param("userIds") List<String>userIds );
+
 }

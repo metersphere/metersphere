@@ -34,4 +34,14 @@ public interface ExtProjectMapper {
 
     List<Project> getProjectNameModule(@Param("organizationId") String organizationId, @Param("ids") List<String>projectIds);
 
+    /**
+     * 获取用户在所选项目中仍然有任意权限的项目
+     * @param organizationId 组织id
+     * @param projectIds 所选项目ids
+     * @param userId 用户
+     * @return List<Project>
+     */
+    List<Project> getUserProjectIdName(@Param("organizationId") String organizationId, @Param("ids") List<String>projectIds, @Param("userId") String userId);
+
+
 }

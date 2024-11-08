@@ -4,6 +4,7 @@ import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.api.mapper.ExtApiTestCaseMapper;
 import io.metersphere.bug.mapper.ExtBugMapper;
+import io.metersphere.dashboard.constants.DashboardUserLayoutKeys;
 import io.metersphere.dashboard.dto.LayoutDTO;
 import io.metersphere.dashboard.dto.NameArrayDTO;
 import io.metersphere.dashboard.request.DashboardFrontPageRequest;
@@ -14,15 +15,18 @@ import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ProjectCountDTO;
 import io.metersphere.project.mapper.ExtProjectMapper;
+import io.metersphere.project.mapper.ExtProjectMemberMapper;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.UserLayout;
 import io.metersphere.system.domain.UserLayoutExample;
+import io.metersphere.system.dto.user.ProjectUserMemberDTO;
 import io.metersphere.system.mapper.UserLayoutMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +60,8 @@ public class DashboardService {
     @Resource
     private ExtProjectMapper extProjectMapper;
     @Resource
+    private ExtProjectMemberMapper extProjectMemberMapper;
+    @Resource
     private ProjectService projectService;
     @Resource
     private UserLayoutMapper userLayoutMapper;
@@ -87,9 +93,7 @@ public class DashboardService {
     private OverViewCountDTO getModuleCountMap(Map<String, Set<String>> permissionModuleProjectIdMap, List<Project> projects, Long toStartTime, Long toEndTime, String userId) {
         Map<String, Integer> map = new HashMap<>();
         List<String> xaxis = new ArrayList<>();
-        //TODO： 返回数量顺序，
         List<NameArrayDTO> nameArrayDTOList = new ArrayList<>();
-
         //功能用例
         Map<String, ProjectCountDTO> caseProjectCount = new HashMap<>();
         Set<String> caseProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.FUNCTIONAL_CASE_READ);
@@ -162,7 +166,7 @@ public class DashboardService {
             List<ProjectCountDTO> projectBugCount = extBugMapper.projectBugCount(bugProjectIds, toStartTime, toEndTime, userId);
             int bugCount = projectBugCount.stream().mapToInt(ProjectCountDTO::getCount).sum();
             map.put(BUG_COUNT, bugCount);
-            xaxis.add(TEST_PLAN);
+            xaxis.add(BUG_COUNT);
             bugProjectCount = projectBugCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, t -> t));
         }
 
@@ -226,12 +230,22 @@ public class DashboardService {
     }
 
     public OverViewCountDTO projectViewCount(DashboardFrontPageRequest request, String userId) {
-        List<Project> userProject = projectService.getUserProject(request.getOrganizationId(), userId);
-        List<Project> collect = userProject.stream().filter(t -> request.getProjectIds().contains(t.getId())).toList();
+        List<Project> collect = getHasPermissionProjects(request, userId);
         Map<String, Set<String>> permissionModuleProjectIdMap = dashboardProjectService.getModuleProjectIds(collect);
         Long toStartTime = request.getToStartTime();
         Long toEndTime = request.getToEndTime();
         return getModuleCountMap(permissionModuleProjectIdMap, collect, toStartTime, toEndTime, null);
+    }
+
+    private List<Project> getHasPermissionProjects(DashboardFrontPageRequest request, String userId) {
+        List<Project> userProject = projectService.getUserProject(request.getOrganizationId(), userId);
+        List<Project> collect;
+        if (CollectionUtils.isNotEmpty(request.getProjectIds())) {
+            collect = userProject.stream().filter(t -> request.getProjectIds().contains(t.getId())).toList();
+        } else {
+            collect = userProject;
+        }
+        return collect;
     }
 
 
@@ -258,9 +272,93 @@ public class DashboardService {
         UserLayoutExample userLayoutExample = new UserLayoutExample();
         userLayoutExample.createCriteria().andUserIdEqualTo(userId).andOrgIdEqualTo(organizationId);
         List<UserLayout> userLayouts = userLayoutMapper.selectByExampleWithBLOBs(userLayoutExample);
+        if (CollectionUtils.isEmpty(userLayouts)) {
+            return getDefaultLayoutDTOS(organizationId);
+        }
+
         UserLayout userLayout = userLayouts.getFirst();
         byte[] configuration = userLayout.getConfiguration();
         String layoutDTOStr = new String(configuration);
-        return JSON.parseArray(layoutDTOStr, LayoutDTO.class);
+        List<LayoutDTO> layoutDTOS = JSON.parseArray(layoutDTOStr, LayoutDTO.class);
+
+        //重新查询排除项目禁用的或者用户已经移除某个项目的项目或者成员
+        List<String> allProjectIds = new ArrayList<>();
+        List<String> allHandleUsers = new ArrayList<>();
+        for (LayoutDTO layoutDTO : layoutDTOS) {
+            allProjectIds.addAll(layoutDTO.getProjectIds());
+            allHandleUsers.addAll(layoutDTO.getHandleUsers());
+        }
+        List<String> projectIds = allProjectIds.stream().distinct().toList();
+        List<Project> getUserProjectIdName = extProjectMapper.getUserProjectIdName(null, projectIds, userId);
+
+        Map<String, Project> projectMap = getUserProjectIdName.stream().collect(Collectors.toMap(Project::getId, t -> t));
+        List<String> handleUsers = allHandleUsers.stream().distinct().toList();
+        List<ProjectUserMemberDTO> orgProjectMemberList = extProjectMemberMapper.getOrgProjectMemberList(organizationId, handleUsers);
+
+        //重新填充填充返回的项目id 和 用户id
+        rebuildProjectOrUser(layoutDTOS, getUserProjectIdName, projectMap, orgProjectMemberList);
+        return layoutDTOS;
+    }
+
+    /**
+     * 获取默认布局
+     *
+     * @param organizationId 组织ID
+     * @return List<LayoutDTO>
+     */
+    private static List<LayoutDTO> getDefaultLayoutDTOS(String organizationId) {
+        List<LayoutDTO> layoutDTOS = new ArrayList<>();
+        LayoutDTO projectLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_VIEW, "workbench.homePage.projectOverview", 0, new ArrayList<>());
+        layoutDTOS.add(projectLayoutDTO);
+        LayoutDTO createByMeLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.CREATE_BY_ME, "workbench,homePage.createdByMe", 1, new ArrayList<>());
+        layoutDTOS.add(createByMeLayoutDTO);
+        LayoutDTO projectMemberLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW, "workbench,homePage.staffOverview", 2, List.of(organizationId));
+        layoutDTOS.add(projectMemberLayoutDTO);
+        return layoutDTOS;
+    }
+
+    /**
+     * 构建默认布局内容
+     *
+     * @param layoutKey  布局卡片的key
+     * @param label      布局卡片页面显示的label
+     * @param pos        布局卡片 排序
+     * @param projectIds 布局卡片所选的项目ids
+     * @return LayoutDTO
+     */
+    private static LayoutDTO buildDefaultLayoutDTO(DashboardUserLayoutKeys layoutKey, String label, int pos, List<String> projectIds) {
+        LayoutDTO layoutDTO = new LayoutDTO();
+        layoutDTO.setId(UUID.randomUUID().toString());
+        layoutDTO.setKey(layoutKey.toString());
+        layoutDTO.setLabel(label);
+        layoutDTO.setPos(pos);
+        layoutDTO.setFullScreen(true);
+        layoutDTO.setProjectIds(projectIds);
+        layoutDTO.setHandleUsers(new ArrayList<>());
+        return layoutDTO;
+    }
+
+    /**
+     * 过滤用户在当前项目是否有移除或者项目是否被禁用以及用户是否被删除禁用
+     *
+     * @param layoutDTOS           获取的所有布局卡片
+     * @param getUserProjectIdName 用户有任意权限的项目
+     * @param projectMap           用户有任意权限的项目Map
+     * @param orgProjectMemberList 组织下所有的项目人员
+     */
+    private static void rebuildProjectOrUser(List<LayoutDTO> layoutDTOS, List<Project> getUserProjectIdName, Map<String, Project> projectMap, List<ProjectUserMemberDTO> orgProjectMemberList) {
+        for (LayoutDTO layoutDTO : layoutDTOS) {
+            if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PROJECT_VIEW.toString()) || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.CREATE_BY_ME.toString())) {
+                List<Project> list = getUserProjectIdName.stream().filter(t -> layoutDTO.getProjectIds().contains(t.getId())).toList();
+                layoutDTO.setProjectIds(list.stream().map(Project::getId).toList());
+            } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW.toString())) {
+                List<ProjectUserMemberDTO> list = orgProjectMemberList.stream().filter(t -> layoutDTO.getHandleUsers().contains(t.getId())).toList();
+                layoutDTO.setHandleUsers(list.stream().map(ProjectUserMemberDTO::getId).toList());
+            } else {
+                if (CollectionUtils.isNotEmpty(layoutDTO.getProjectIds()) && projectMap.get(layoutDTO.getProjectIds().getFirst()) == null) {
+                    layoutDTO.setProjectIds(List.of(getUserProjectIdName.get(0).getId()));
+                }
+            }
+        }
     }
 }

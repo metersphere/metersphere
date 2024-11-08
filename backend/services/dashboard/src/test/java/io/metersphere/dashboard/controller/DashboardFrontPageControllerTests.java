@@ -6,6 +6,12 @@ import io.metersphere.dashboard.dto.LayoutDTO;
 import io.metersphere.dashboard.request.DashboardFrontPageRequest;
 import io.metersphere.dashboard.response.OverViewCountDTO;
 import io.metersphere.dashboard.service.DashboardService;
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.domain.ProjectExample;
+import io.metersphere.project.dto.ProjectUserDTO;
+import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.project.request.ProjectMemberRequest;
+import io.metersphere.project.service.ProjectMemberService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -30,13 +36,18 @@ public class DashboardFrontPageControllerTests extends BaseTest {
 
     @Resource
     private DashboardService dashboardService;
+    @Resource
+    private ProjectMapper projectMapper;
+
+    @Resource
+    private ProjectMemberService projectMemberService;
 
     private static final String EDIT_LAYOUT = "/dashboard/layout/edit/";
     private static final String GET_LAYOUT = "/dashboard/layout/get/";
 
 
-    private static final String CREATE_BY_ME = "/dashboard/CREATE_BY_ME";
-    private static final String PROJECT_VIEW = "/dashboard/PROJECT_VIEW";
+    private static final String CREATE_BY_ME = "/dashboard/create_by_me";
+    private static final String PROJECT_VIEW = "/dashboard/project_view";
 
 
     @Test
@@ -88,7 +99,55 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     @Test
     @Order(2)
     public void testLayout() throws Exception {
+        MvcResult mvcResultGrt = this.requestGetWithOkAndReturn(GET_LAYOUT+DEFAULT_ORGANIZATION_ID);
+        String contentAsString = mvcResultGrt.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        List<LayoutDTO> layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
+        Assertions.assertEquals(3, layoutDTOS.size());
+
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andOrganizationIdEqualTo(DEFAULT_ORGANIZATION_ID);
+        List<Project> projects = projectMapper.selectByExample(projectExample);
+
+        ProjectMemberRequest  projectMemberRequest = new ProjectMemberRequest();
+        projectMemberRequest.setProjectId(DEFAULT_PROJECT_ID);
+        projectMemberRequest.setCurrent(1);
+        projectMemberRequest.setPageSize(5);
+        List<ProjectUserDTO> projectUserDTOS = projectMemberService.listMember(projectMemberRequest);
+
         List<LayoutDTO> layoutDTO = new ArrayList<>();
+        LayoutDTO layoutDTOa = new LayoutDTO();
+        layoutDTOa.setId(UUID.randomUUID().toString());
+        layoutDTOa.setPos(3);
+        layoutDTOa.setKey(DashboardUserLayoutKeys.PROJECT_VIEW.toString());
+        layoutDTOa.setLabel("项目概览");
+        layoutDTOa.setProjectIds(new ArrayList<>());
+        layoutDTOa.setHandleUsers(new ArrayList<>());
+        layoutDTOa.setFullScreen(false);
+        layoutDTO.add(layoutDTOa);
+
+        LayoutDTO layoutDTOb = new LayoutDTO();
+        layoutDTOb.setId(UUID.randomUUID().toString());
+        layoutDTOb.setPos(4);
+        layoutDTOb.setKey(DashboardUserLayoutKeys.CREATE_BY_ME.toString());
+        layoutDTOb.setLabel("我的创建");
+        layoutDTOb.setProjectIds(projects.stream().map(Project::getId).toList());
+        layoutDTOb.setHandleUsers(new ArrayList<>());
+        layoutDTOb.setFullScreen(false);
+        layoutDTO.add(layoutDTOb);
+
+        List<String> userIds = projectUserDTOS.stream().map(ProjectUserDTO::getId).toList();
+
+        LayoutDTO layoutDTOc = new LayoutDTO();
+        layoutDTOc.setId(UUID.randomUUID().toString());
+        layoutDTOc.setPos(4);
+        layoutDTOc.setKey(DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW.toString());
+        layoutDTOc.setLabel("人员概览");
+        layoutDTOc.setProjectIds(List.of(DEFAULT_PROJECT_ID));
+        layoutDTOc.setHandleUsers(userIds);
+        layoutDTOc.setFullScreen(false);
+        layoutDTO.add(layoutDTOc);
+
         LayoutDTO layoutDTO1 = new LayoutDTO();
         layoutDTO1.setId(UUID.randomUUID().toString());
         layoutDTO1.setPos(1);
@@ -99,12 +158,12 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         layoutDTO1.setFullScreen(false);
         layoutDTO.add(layoutDTO1);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(EDIT_LAYOUT+DEFAULT_ORGANIZATION_ID, layoutDTO);
-        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        List<LayoutDTO> layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
+        contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
         Assertions.assertNotNull(layoutDTOS);
 
-        MvcResult mvcResultGrt = this.requestGetWithOkAndReturn(GET_LAYOUT+DEFAULT_ORGANIZATION_ID);
+        mvcResultGrt = this.requestGetWithOkAndReturn(GET_LAYOUT+DEFAULT_ORGANIZATION_ID);
         contentAsString = mvcResultGrt.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
@@ -115,16 +174,17 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         layoutDTO2.setPos(2);
         layoutDTO2.setKey(DashboardUserLayoutKeys.ASSOCIATE_CASE_COUNT.toString());
         layoutDTO2.setLabel("关联用例数量");
-        layoutDTO2.setProjectIds(new ArrayList<>());
+        layoutDTO2.setProjectIds(List.of(DEFAULT_PROJECT_ID));
         layoutDTO2.setHandleUsers(new ArrayList<>());
         layoutDTO2.setFullScreen(false);
         layoutDTO.add(layoutDTO1);
-
         mvcResult = this.requestPostWithOkAndReturn(EDIT_LAYOUT+DEFAULT_ORGANIZATION_ID, layoutDTO);
         contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
         Assertions.assertNotNull(layoutDTOS);
+
+
     }
 
 }

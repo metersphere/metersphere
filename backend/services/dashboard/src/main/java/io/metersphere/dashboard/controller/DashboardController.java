@@ -36,14 +36,14 @@ public class DashboardController {
         return dashboardService.getLayout(organizationId, SessionUtils.getUserId());
     }
 
-    @PostMapping("/CREATE_BY_ME")
+    @PostMapping("/create_by_me")
     @Operation(summary = "我创建的")
     @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public OverViewCountDTO createByMeCount(@Validated @RequestBody DashboardFrontPageRequest request) {
         return dashboardService.createByMeCount(request, SessionUtils.getUserId());
     }
 
-    @PostMapping("/PROJECT_VIEW")
+    @PostMapping("/project_view")
     @Operation(summary = "概览")
     @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public OverViewCountDTO projectViewCount(@Validated @RequestBody DashboardFrontPageRequest request) {
