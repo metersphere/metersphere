@@ -28,6 +28,10 @@ public class CaseReviewPageRequest extends BasePageRequest implements Serializab
     @Schema(description = "我创建的")
     private String createByMe;
 
+    @Schema(description = "是否我的待办, 默认查询全部")
+    private boolean myTodo = false;
 
+    @Schema(description = "我的待办用户ID, 组合使用: myTodo=true, myTodoUserId=xxx")
+    private String myTodoUserId;
 
 }

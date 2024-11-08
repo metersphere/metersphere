@@ -157,6 +157,14 @@
                 or b.tags like concat('%', #{request.keyword},'%')
                 )
             </if>
+            <!-- 我的待办: Local平台&&非结束状态&&处理人为我; -->
+            <if test="request.myTodo">
+                and b.platform = 'Local' and b.status in (
+                    select id from status_item si left join status_definition sd on si.id = sd.status_id
+                    where scope_type = 'PROJECT' and scope_id = #{request.projectId}
+                    and (sd.definition_id != 'END' || sd.definition_id is null)
+                ) and b.handle_user = #{request.myTodoUserId}
+            </if>
             <include refid="filter"/>
             <include refid="combine">
                 <property name="combineSearch" value="request.combineSearch"/>

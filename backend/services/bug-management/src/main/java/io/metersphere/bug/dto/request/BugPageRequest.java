@@ -19,4 +19,10 @@ public class BugPageRequest extends BasePageRequest {
 
     @Schema(description = "是否回收站")
     private boolean useTrash;
+
+    @Schema(description = "是否我的待办, 默认查询全部")
+    private boolean myTodo = false;
+
+    @Schema(description = "我的待办用户ID, 组合使用: myTodo=true, myTodoUserId=xxx")
+    private String myTodoUserId;
 }

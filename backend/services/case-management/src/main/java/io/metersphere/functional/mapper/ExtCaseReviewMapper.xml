@@ -123,6 +123,13 @@
             select case_review_user.review_id from case_review_user where case_review_user.user_id = #{request.reviewByMe}
             )
         </if>
+        <!-- 我的待办: "进行中"和"未开始"，评审人为我的所有评审; -->
+        <if test="request.myTodo">
+            and case_review.status in ('PREPARED', 'UNDERWAY')
+            and case_review.id in (
+                select review_id from case_review_user where user_id = #{request.myTodoUserId}
+            )
+        </if>
         <include refid="filters">
             <property name="filter" value="request.filter"/>
         </include>

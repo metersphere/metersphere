@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCasePageRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioPageRequest;
+import io.metersphere.api.service.ApiTestService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.bug.dto.request.BugPageRequest;
@@ -27,9 +28,11 @@ import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.plan.service.TestPlanStatisticsService;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.dto.ProtocolDTO;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
+import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -64,6 +67,8 @@ public class MyViewController {
 	private ApiTestCaseService apiTestCaseService;
 	@Resource
 	private ApiScenarioService apiScenarioService;
+	@Resource
+	private ApiTestService apiTestService;
 	@Resource
 	private BugService bugService;
 
@@ -103,6 +108,10 @@ public class MyViewController {
 	@Operation(summary = "我的-接口用例-列表分页查询")
 	@CheckOwner(resourceId = "#viewRequest.getProjectId()", resourceType = "project")
 	public Pager<List<ApiTestCaseDTO>> page(@Validated @RequestBody DashboardViewApiCaseTableRequest viewRequest) {
+		// 默认查询当前用户组织下的所有协议
+		List<ProtocolDTO> protocols = apiTestService.getProtocols(SessionUtils.getCurrentOrganizationId());
+		List<String> protocolList = protocols.stream().map(ProtocolDTO::getProtocol).toList();
+		viewRequest.setProtocols(protocolList);
 		Page<Object> page = PageHelper.startPage(viewRequest.getCurrent(), viewRequest.getPageSize(),
 				StringUtils.isNotBlank(viewRequest.getSortString("id")) ? viewRequest.getSortString("id") : "pos desc, id desc");
 		return PageUtils.setPageInfo(page, apiTestCaseService.page(buildTargetRequest(new ApiTestCasePageRequest(), viewRequest), false, true, null));
