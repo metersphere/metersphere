@@ -9,7 +9,6 @@ import io.metersphere.dashboard.service.DashboardService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.mapper.UserLayoutMapper;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -31,9 +30,6 @@ public class DashboardFrontPageControllerTests extends BaseTest {
 
     @Resource
     private DashboardService dashboardService;
-
-    @Resource
-    private UserLayoutMapper userLayoutMapper;
 
     private static final String EDIT_LAYOUT = "/dashboard/layout/edit/";
     private static final String GET_LAYOUT = "/dashboard/layout/get/";
@@ -110,6 +106,22 @@ public class DashboardFrontPageControllerTests extends BaseTest {
 
         MvcResult mvcResultGrt = this.requestGetWithOkAndReturn(GET_LAYOUT+DEFAULT_ORGANIZATION_ID);
         contentAsString = mvcResultGrt.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
+        Assertions.assertNotNull(layoutDTOS);
+
+        LayoutDTO layoutDTO2 = new LayoutDTO();
+        layoutDTO2.setId(UUID.randomUUID().toString());
+        layoutDTO2.setPos(2);
+        layoutDTO2.setKey(DashboardUserLayoutKeys.ASSOCIATE_CASE_COUNT.toString());
+        layoutDTO2.setLabel("关联用例数量");
+        layoutDTO2.setProjectIds(new ArrayList<>());
+        layoutDTO2.setHandleUsers(new ArrayList<>());
+        layoutDTO2.setFullScreen(false);
+        layoutDTO.add(layoutDTO1);
+
+        mvcResult = this.requestPostWithOkAndReturn(EDIT_LAYOUT+DEFAULT_ORGANIZATION_ID, layoutDTO);
+        contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
         Assertions.assertNotNull(layoutDTOS);

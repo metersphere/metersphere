@@ -236,13 +236,21 @@ public class DashboardService {
 
 
     public List<LayoutDTO> editLayout(String organizationId, String userId, List<LayoutDTO> layoutDTO) {
+        UserLayoutExample userLayoutExample = new UserLayoutExample();
+        userLayoutExample.createCriteria().andUserIdEqualTo(userId).andOrgIdEqualTo(organizationId);
+        List<UserLayout> userLayouts = userLayoutMapper.selectByExample(userLayoutExample);
         UserLayout userLayout = new UserLayout();
-        userLayout.setId(IDGenerator.nextStr());
         userLayout.setUserId(userId);
         userLayout.setOrgId(organizationId);
         String configuration = JSON.toJSONString(layoutDTO);
         userLayout.setConfiguration(configuration.getBytes());
-        userLayoutMapper.insert(userLayout);
+        if (CollectionUtils.isEmpty(userLayouts)) {
+            userLayout.setId(IDGenerator.nextStr());
+            userLayoutMapper.insert(userLayout);
+        } else {
+            userLayout.setId(userLayouts.getFirst().getId());
+            userLayoutMapper.updateByPrimaryKeyWithBLOBs(userLayout);
+        }
         return layoutDTO;
     }
 
