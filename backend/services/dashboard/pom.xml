@@ -15,6 +15,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>io.metersphere</groupId>
+			<artifactId>metersphere-system-setting</artifactId>
+			<version>${revision}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.metersphere</groupId>
 			<artifactId>metersphere-test-plan</artifactId>
 			<version>${revision}</version>
 		</dependency>
