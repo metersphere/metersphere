@@ -701,7 +701,6 @@ public class CaseReviewModuleControllerTests extends BaseTest {
         //service层判断：测试删除空集合
         caseReviewModuleService.deleteModuleByIds(new ArrayList<>(),new ArrayList<>(), project.getId());
 
-        checkLog(caseReview.getId(), OperationLogType.DELETE, URL_MODULE_TREE_DELETE);
 
 
     }

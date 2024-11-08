@@ -38,7 +38,7 @@ public class CaseReviewModuleController {
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public String add(@RequestBody @Validated CaseReviewModuleCreateRequest request) {
-       return caseReviewModuleService.add(request, SessionUtils.getUserId());
+        return caseReviewModuleService.add(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/update")
@@ -62,7 +62,7 @@ public class CaseReviewModuleController {
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_DELETE)
     @CheckOwner(resourceId = "#moduleId", resourceType = "case_review_module")
     public void deleteNode(@PathVariable String moduleId) {
-        caseReviewModuleService.deleteModule(moduleId);
+        caseReviewModuleService.deleteModule(moduleId, SessionUtils.getUserId());
     }
 
 }

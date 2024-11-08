@@ -151,6 +151,8 @@ public class OperationLogModule {
     public static final String CASE_MANAGEMENT_REVIEW_REVIEW = "CASE_MANAGEMENT_REVIEW_REVIEW";
     //评审详情
     public static final String CASE_REVIEW_DETAIL = "CASE_MANAGEMENT_REVIEW_DETAIL";
+    //模块
+    public static final String CASE_MANAGEMENT_REVIEW_REVIEW_MODULE = "CASE_MANAGEMENT_REVIEW_REVIEW_MODULE";
 
     //接口调试
     public static final String API_TEST_DEBUG_MANAGEMENT_DEBUG = "API_TEST_DEBUG_MANAGEMENT_DEBUG";
