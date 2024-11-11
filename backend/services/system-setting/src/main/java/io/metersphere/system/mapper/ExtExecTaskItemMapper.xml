@@ -18,7 +18,7 @@
     </select>
 
     <select id="getTaskItemIdsByTime" resultType="java.lang.String">
-        select id from exec_task_item where project_id = #{projectId} and start_time &lt;= #{timeMills}
+        select id from exec_task_item where project_id = #{projectId} and start_time &lt;= #{timeMills} and deleted = false
     </select>
 
     <select id="selectExecInfoByTaskIdAndResourceIds" resultType="io.metersphere.system.domain.ExecTaskItem">
@@ -54,6 +54,7 @@
 
     <sql id="queryWhereCondition">
         <where>
+            exec_task_item.deleted = false
             <if test="orgId != null and orgId != ''">
                 and exec_task_item.organization_id = #{orgId}
             </if>
@@ -161,8 +162,9 @@
         resource_pool_id
         FROM
         exec_task_item
+        WHERE deleted = false
         <if test="taskIds != null and taskIds.size() > 0">
-            WHERE task_id IN
+            and task_id IN
             <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
                 #{taskId}
             </foreach>
@@ -185,6 +187,7 @@
             and organization_id = #{organizationId}
         </if>
         and `status` = 'RUNNING'
+        and deleted = false
     </update>
 
     <select id="hasErrorItem" resultType="java.lang.Boolean">
@@ -213,7 +216,9 @@
         UPDATE exec_task_item
         SET `status` = #{status},
         executor = #{userId}
-        WHERE  id in
+        WHERE
+            deleted = false
+            and id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
@@ -234,8 +239,9 @@
         resource_pool_id
         FROM
         exec_task_item
+        where deleted = false
         <if test="ids != null and ids.size() > 0">
-            WHERE id IN
+            and id IN
             <foreach collection="ids" item="id" open="(" separator="," close=")">
                 #{id}
             </foreach>
@@ -248,6 +254,7 @@
         inner join exec_task on exec_task_item.task_id = exec_task.id
         <where>
             exec_task_item.status = 'RUNNING'
+            and exec_task_item.deleted = false
             <if test="projectId != null and projectId != ''">
                 and exec_task_item.project_id = #{projectId}
             </if>

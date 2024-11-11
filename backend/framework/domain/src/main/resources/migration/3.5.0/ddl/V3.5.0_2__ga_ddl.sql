@@ -72,5 +72,8 @@ CREATE INDEX idx_project_id_delete_create_time
 CREATE INDEX idx_project_id_delete_create_time_create_user
     ON bug (project_id, deleted, create_time, create_user);
 
+ALTER TABLE exec_task ADD COLUMN deleted bit(1) NOT NULL DEFAULT b'0' COMMENT '删除标识';
+ALTER TABLE exec_task_item ADD COLUMN deleted bit(1) NOT NULL DEFAULT b'0' COMMENT '删除标识';
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

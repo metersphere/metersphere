@@ -41,7 +41,7 @@ public class CleanupTaskResultTests {
 		task.setResult("PENDING");
 		task.setCreateUser("admin");
 		task.setCreateTime(System.currentTimeMillis());
-		execTaskMapper.insert(task);
+		execTaskMapper.insertSelective(task);
 	}
 
 	@Test

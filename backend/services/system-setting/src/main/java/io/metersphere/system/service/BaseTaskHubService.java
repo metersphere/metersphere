@@ -9,8 +9,6 @@ import io.metersphere.engine.EngineFactory;
 import io.metersphere.engine.MsHttpClient;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
-import io.metersphere.project.domain.ProjectTestResourcePool;
-import io.metersphere.project.domain.ProjectTestResourcePoolExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.sdk.constants.*;
@@ -52,17 +50,17 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
-import org.quartz.CronExpression;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -620,18 +618,10 @@ public class BaseTaskHubService {
         //2.删除任务明细
         ExecTaskItemExample itemExample = new ExecTaskItemExample();
         itemExample.createCriteria().andTaskIdEqualTo(id);
-        execTaskItemMapper.deleteByExample(itemExample);
-        //3.删除任务与报告关联关系
-        deleteReportRelateTask(List.of(id));
+        ExecTaskItem taskItem = new ExecTaskItem();
+        taskItem.setDeleted(true);
+        execTaskItemMapper.updateByExampleSelective(taskItem, itemExample);
         handleStopTaskAsync(List.of(id));
-    }
-
-    private void deleteReportRelateTask(List<String> ids) {
-        List<String> itemIds = extExecTaskItemMapper.getItemIdByTaskIds(ids);
-        itemIds.addAll(ids);
-        ApiReportRelateTaskExample reportExample = new ApiReportRelateTaskExample();
-        reportExample.createCriteria().andTaskResourceIdIn(itemIds);
-        apiReportRelateTaskMapper.deleteByExample(reportExample);
     }
 
     public void batchStopTask(List<String> ids, String userId, String orgId, String projectId) {
@@ -664,9 +654,9 @@ public class BaseTaskHubService {
             //2.删除任务明细
             ExecTaskItemExample itemExample = new ExecTaskItemExample();
             itemExample.createCriteria().andTaskIdIn(ids);
-            execTaskItemMapper.deleteByExample(itemExample);
-            //3.删除任务与报告关联关系
-            deleteReportRelateTask(ids);
+            ExecTaskItem taskItem = new ExecTaskItem();
+            taskItem.setDeleted(true);
+            execTaskItemMapper.updateByExampleSelective(taskItem, itemExample);
             handleStopTaskAsync(ids);
         }
     }

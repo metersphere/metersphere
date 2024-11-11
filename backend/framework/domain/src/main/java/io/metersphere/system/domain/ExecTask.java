@@ -76,6 +76,10 @@ public class ExecTask implements Serializable {
     @NotNull(message = "{exec_task.integrated.not_blank}", groups = {Created.class})
     private Boolean integrated;
 
+    @Schema(description = "删除标识", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{exec_task.deleted.not_blank}", groups = {Created.class})
+    private Boolean deleted;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -94,7 +98,8 @@ public class ExecTask implements Serializable {
         createUser("create_user", "createUser", "VARCHAR", false),
         startTime("start_time", "startTime", "BIGINT", false),
         endTime("end_time", "endTime", "BIGINT", false),
-        integrated("integrated", "integrated", "BIT", false);
+        integrated("integrated", "integrated", "BIT", false),
+        deleted("deleted", "deleted", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

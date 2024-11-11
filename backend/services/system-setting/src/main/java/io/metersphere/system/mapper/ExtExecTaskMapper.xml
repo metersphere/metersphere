@@ -5,6 +5,7 @@
         SELECT *
         FROM exec_task
         <where>
+            exec_task.deleted = false
             <if test="request.keyword != null and request.keyword != ''">
                 and (
                 exec_task.num like concat('%', #{request.keyword},'%')
@@ -27,9 +28,9 @@
     </sql>
 
 
-    <delete id="deleteTaskByIds">
-        DELETE
-        FROM exec_task
+    <update id="deleteTaskByIds">
+        UPDATE exec_task
+        SET deleted = true
         WHERE id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
@@ -40,12 +41,13 @@
         <if test="orgId != null and orgId != ''">
             and organization_id = #{orgId}
         </if>
-    </delete>
+    </update>
 
 
     <select id="getIds" resultType="java.lang.String">
         select id from exec_task
         <where>
+            deleted = false
             <if test="flag">
                 and status = 'RUNNING'
             </if>
@@ -125,10 +127,11 @@
             and organization_id = #{organizationId}
         </if>
         and `status` = 'RUNNING'
+        and deleted = false
     </update>
 
     <select id="getTaskIdsByTime" resultType="java.lang.String">
-        select id from exec_task where project_id = #{projectId} and start_time &lt;= #{timeMills}
+        select id from exec_task where project_id = #{projectId} and start_time &lt;= #{timeMills} and deleted = false
     </select>
 
 

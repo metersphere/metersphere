@@ -9,7 +9,6 @@
     <result column="case_count" jdbcType="BIGINT" property="caseCount" />
     <result column="result" jdbcType="VARCHAR" property="result" />
     <result column="task_type" jdbcType="VARCHAR" property="taskType" />
-    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
     <result column="trigger_mode" jdbcType="VARCHAR" property="triggerMode" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
@@ -18,6 +17,8 @@
     <result column="start_time" jdbcType="BIGINT" property="startTime" />
     <result column="end_time" jdbcType="BIGINT" property="endTime" />
     <result column="integrated" jdbcType="BIT" property="integrated" />
+    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="deleted" jdbcType="BIT" property="deleted" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -78,8 +79,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, num, task_name, `status`, case_count, `result`, task_type, resource_id, trigger_mode, 
-    project_id, organization_id, create_time, create_user, start_time, end_time, integrated
+    id, num, task_name, `status`, case_count, `result`, task_type, trigger_mode, project_id, 
+    organization_id, create_time, create_user, start_time, end_time, integrated, resource_id, 
+    deleted
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.ExecTaskExample" resultMap="BaseResultMap">
     select
@@ -114,16 +116,16 @@
   <insert id="insert" parameterType="io.metersphere.system.domain.ExecTask">
     insert into exec_task (id, num, task_name, 
       `status`, case_count, `result`, 
-      task_type, resource_id, trigger_mode, 
-      project_id, organization_id, create_time, 
-      create_user, start_time, end_time, 
-      integrated)
+      task_type, trigger_mode, project_id, 
+      organization_id, create_time, create_user, 
+      start_time, end_time, integrated, 
+      resource_id, deleted)
     values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{taskName,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{caseCount,jdbcType=BIGINT}, #{result,jdbcType=VARCHAR}, 
-      #{taskType,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, 
-      #{projectId,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{createUser,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, 
-      #{integrated,jdbcType=BIT})
+      #{taskType,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
+      #{organizationId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
+      #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, #{integrated,jdbcType=BIT}, 
+      #{resourceId,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.ExecTask">
     insert into exec_task
@@ -149,9 +151,6 @@
       <if test="taskType != null">
         task_type,
       </if>
-      <if test="resourceId != null">
-        resource_id,
-      </if>
       <if test="triggerMode != null">
         trigger_mode,
       </if>
@@ -176,6 +175,12 @@
       <if test="integrated != null">
         integrated,
       </if>
+      <if test="resourceId != null">
+        resource_id,
+      </if>
+      <if test="deleted != null">
+        deleted,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -198,9 +203,6 @@
       </if>
       <if test="taskType != null">
         #{taskType,jdbcType=VARCHAR},
-      </if>
-      <if test="resourceId != null">
-        #{resourceId,jdbcType=VARCHAR},
       </if>
       <if test="triggerMode != null">
         #{triggerMode,jdbcType=VARCHAR},
@@ -225,6 +227,12 @@
       </if>
       <if test="integrated != null">
         #{integrated,jdbcType=BIT},
+      </if>
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="deleted != null">
+        #{deleted,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -258,9 +266,6 @@
       <if test="record.taskType != null">
         task_type = #{record.taskType,jdbcType=VARCHAR},
       </if>
-      <if test="record.resourceId != null">
-        resource_id = #{record.resourceId,jdbcType=VARCHAR},
-      </if>
       <if test="record.triggerMode != null">
         trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
       </if>
@@ -285,6 +290,12 @@
       <if test="record.integrated != null">
         integrated = #{record.integrated,jdbcType=BIT},
       </if>
+      <if test="record.resourceId != null">
+        resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deleted != null">
+        deleted = #{record.deleted,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -299,7 +310,6 @@
       case_count = #{record.caseCount,jdbcType=BIGINT},
       `result` = #{record.result,jdbcType=VARCHAR},
       task_type = #{record.taskType,jdbcType=VARCHAR},
-      resource_id = #{record.resourceId,jdbcType=VARCHAR},
       trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       organization_id = #{record.organizationId,jdbcType=VARCHAR},
@@ -307,7 +317,9 @@
       create_user = #{record.createUser,jdbcType=VARCHAR},
       start_time = #{record.startTime,jdbcType=BIGINT},
       end_time = #{record.endTime,jdbcType=BIGINT},
-      integrated = #{record.integrated,jdbcType=BIT}
+      integrated = #{record.integrated,jdbcType=BIT},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      deleted = #{record.deleted,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -333,9 +345,6 @@
       <if test="taskType != null">
         task_type = #{taskType,jdbcType=VARCHAR},
       </if>
-      <if test="resourceId != null">
-        resource_id = #{resourceId,jdbcType=VARCHAR},
-      </if>
       <if test="triggerMode != null">
         trigger_mode = #{triggerMode,jdbcType=VARCHAR},
       </if>
@@ -360,6 +369,12 @@
       <if test="integrated != null">
         integrated = #{integrated,jdbcType=BIT},
       </if>
+      <if test="resourceId != null">
+        resource_id = #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="deleted != null">
+        deleted = #{deleted,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -371,7 +386,6 @@
       case_count = #{caseCount,jdbcType=BIGINT},
       `result` = #{result,jdbcType=VARCHAR},
       task_type = #{taskType,jdbcType=VARCHAR},
-      resource_id = #{resourceId,jdbcType=VARCHAR},
       trigger_mode = #{triggerMode,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       organization_id = #{organizationId,jdbcType=VARCHAR},
@@ -379,22 +393,24 @@
       create_user = #{createUser,jdbcType=VARCHAR},
       start_time = #{startTime,jdbcType=BIGINT},
       end_time = #{endTime,jdbcType=BIGINT},
-      integrated = #{integrated,jdbcType=BIT}
+      integrated = #{integrated,jdbcType=BIT},
+      resource_id = #{resourceId,jdbcType=VARCHAR},
+      deleted = #{deleted,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into exec_task
-    (id, num, task_name, `status`, case_count, `result`, task_type, resource_id, trigger_mode, 
-      project_id, organization_id, create_time, create_user, start_time, end_time, integrated
-      )
+    (id, num, task_name, `status`, case_count, `result`, task_type, trigger_mode, project_id, 
+      organization_id, create_time, create_user, start_time, end_time, integrated, resource_id, 
+      deleted)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.taskName,jdbcType=VARCHAR}, 
         #{item.status,jdbcType=VARCHAR}, #{item.caseCount,jdbcType=BIGINT}, #{item.result,jdbcType=VARCHAR}, 
-        #{item.taskType,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, #{item.triggerMode,jdbcType=VARCHAR}, 
-        #{item.projectId,jdbcType=VARCHAR}, #{item.organizationId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.createUser,jdbcType=VARCHAR}, #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}, 
-        #{item.integrated,jdbcType=BIT})
+        #{item.taskType,jdbcType=VARCHAR}, #{item.triggerMode,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
+        #{item.organizationId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}, #{item.integrated,jdbcType=BIT}, 
+        #{item.resourceId,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -428,9 +444,6 @@
         <if test="'task_type'.toString() == column.value">
           #{item.taskType,jdbcType=VARCHAR}
         </if>
-        <if test="'resource_id'.toString() == column.value">
-          #{item.resourceId,jdbcType=VARCHAR}
-        </if>
         <if test="'trigger_mode'.toString() == column.value">
           #{item.triggerMode,jdbcType=VARCHAR}
         </if>
@@ -454,6 +467,12 @@
         </if>
         <if test="'integrated'.toString() == column.value">
           #{item.integrated,jdbcType=BIT}
+        </if>
+        <if test="'resource_id'.toString() == column.value">
+          #{item.resourceId,jdbcType=VARCHAR}
+        </if>
+        <if test="'deleted'.toString() == column.value">
+          #{item.deleted,jdbcType=BIT}
         </if>
       </foreach>
       )

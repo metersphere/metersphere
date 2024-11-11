@@ -18,6 +18,7 @@
     <result column="start_time" jdbcType="BIGINT" property="startTime" />
     <result column="end_time" jdbcType="BIGINT" property="endTime" />
     <result column="executor" jdbcType="VARCHAR" property="executor" />
+    <result column="deleted" jdbcType="BIT" property="deleted" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -80,7 +81,7 @@
   <sql id="Base_Column_List">
     id, task_id, resource_id, resource_name, task_origin, `status`, `result`, resource_pool_id, 
     resource_pool_node, resource_type, project_id, organization_id, thread_id, start_time, 
-    end_time, executor
+    end_time, executor, deleted
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.ExecTaskItemExample" resultMap="BaseResultMap">
     select
@@ -118,13 +119,13 @@
       `result`, resource_pool_id, resource_pool_node, 
       resource_type, project_id, organization_id, 
       thread_id, start_time, end_time, 
-      executor)
+      executor, deleted)
     values (#{id,jdbcType=VARCHAR}, #{taskId,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
       #{resourceName,jdbcType=VARCHAR}, #{taskOrigin,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{result,jdbcType=VARCHAR}, #{resourcePoolId,jdbcType=VARCHAR}, #{resourcePoolNode,jdbcType=VARCHAR}, 
       #{resourceType,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, 
       #{threadId,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, 
-      #{executor,jdbcType=VARCHAR})
+      #{executor,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.ExecTaskItem">
     insert into exec_task_item
@@ -177,6 +178,9 @@
       <if test="executor != null">
         executor,
       </if>
+      <if test="deleted != null">
+        deleted,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -226,6 +230,9 @@
       </if>
       <if test="executor != null">
         #{executor,jdbcType=VARCHAR},
+      </if>
+      <if test="deleted != null">
+        #{deleted,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -286,6 +293,9 @@
       <if test="record.executor != null">
         executor = #{record.executor,jdbcType=VARCHAR},
       </if>
+      <if test="record.deleted != null">
+        deleted = #{record.deleted,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -308,7 +318,8 @@
       thread_id = #{record.threadId,jdbcType=VARCHAR},
       start_time = #{record.startTime,jdbcType=BIGINT},
       end_time = #{record.endTime,jdbcType=BIGINT},
-      executor = #{record.executor,jdbcType=VARCHAR}
+      executor = #{record.executor,jdbcType=VARCHAR},
+      deleted = #{record.deleted,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -361,6 +372,9 @@
       <if test="executor != null">
         executor = #{executor,jdbcType=VARCHAR},
       </if>
+      <if test="deleted != null">
+        deleted = #{deleted,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -380,14 +394,15 @@
       thread_id = #{threadId,jdbcType=VARCHAR},
       start_time = #{startTime,jdbcType=BIGINT},
       end_time = #{endTime,jdbcType=BIGINT},
-      executor = #{executor,jdbcType=VARCHAR}
+      executor = #{executor,jdbcType=VARCHAR},
+      deleted = #{deleted,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into exec_task_item
     (id, task_id, resource_id, resource_name, task_origin, `status`, `result`, resource_pool_id, 
       resource_pool_node, resource_type, project_id, organization_id, thread_id, start_time, 
-      end_time, executor)
+      end_time, executor, deleted)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.taskId,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, 
@@ -395,7 +410,7 @@
         #{item.result,jdbcType=VARCHAR}, #{item.resourcePoolId,jdbcType=VARCHAR}, #{item.resourcePoolNode,jdbcType=VARCHAR}, 
         #{item.resourceType,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.organizationId,jdbcType=VARCHAR}, 
         #{item.threadId,jdbcType=VARCHAR}, #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}, 
-        #{item.executor,jdbcType=VARCHAR})
+        #{item.executor,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -455,6 +470,9 @@
         </if>
         <if test="'executor'.toString() == column.value">
           #{item.executor,jdbcType=VARCHAR}
+        </if>
+        <if test="'deleted'.toString() == column.value">
+          #{item.deleted,jdbcType=BIT}
         </if>
       </foreach>
       )

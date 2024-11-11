@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.api.mapper.ExtApiReportRelateTaskMapper">
+
+    <select id="selectDeleteTaskOrItem" resultType="java.lang.String">
+        SELECT
+            id
+        FROM
+            exec_task
+        WHERE
+            id IN
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+          AND deleted = TRUE UNION
+        SELECT
+            id
+        FROM
+            exec_task_item
+        WHERE
+            id IN
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+          AND deleted = TRUE
+    </select>
+
+</mapper>
