@@ -5,6 +5,7 @@ import io.metersphere.dashboard.constants.DashboardUserLayoutKeys;
 import io.metersphere.dashboard.dto.LayoutDTO;
 import io.metersphere.dashboard.request.DashboardFrontPageRequest;
 import io.metersphere.dashboard.response.OverViewCountDTO;
+import io.metersphere.dashboard.response.StatisticsDTO;
 import io.metersphere.dashboard.service.DashboardService;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
@@ -49,6 +50,8 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     private static final String CREATE_BY_ME = "/dashboard/create_by_me";
     private static final String PROJECT_VIEW = "/dashboard/project_view";
     private static final String PROJECT_MEMBER_VIEW = "/dashboard/project_member_view";
+    private static final String CASE_COUNT = "/dashboard/case_count";
+    private static final String ASSOCIATE_CASE_COUNT = "/dashboard/associate_case_count";
 
 
     @Test
@@ -108,12 +111,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         projectMapper.updateByPrimaryKeySelective(project);
         OverViewCountDTO gyq4 = dashboardService.projectViewCount(dashboardFrontPageRequest, "default-dashboard-member-user-gyq");
         Assertions.assertTrue(gyq4.getXAxis().isEmpty());
-        List<String> moduleIds = new ArrayList<>();
-        moduleIds.add("apiTest");
-        moduleIds.add("testPlan");
-        moduleIds.add("caseManagement");
-        moduleIds.add("bugManagement");
-        project.setModuleSetting(moduleIds.toString());
+        project.setModuleSetting("[\"apiTest\",\"testPlan\",\"caseManagement\",\"bugManagement\"]");
         project.setId(DEFAULT_PROJECT_ID);
         projectMapper.updateByPrimaryKeySelective(project);
     }
@@ -121,7 +119,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     @Test
     @Order(2)
     public void testLayout() throws Exception {
-        MvcResult mvcResultGrt = this.requestGetWithOkAndReturn(GET_LAYOUT+"DEFAULT_ORGANIZATION_ID");
+        MvcResult mvcResultGrt = this.requestGetWithOkAndReturn(GET_LAYOUT + "DEFAULT_ORGANIZATION_ID");
         String contentAsString = mvcResultGrt.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<LayoutDTO> layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
@@ -131,7 +129,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         projectExample.createCriteria().andOrganizationIdEqualTo(DEFAULT_ORGANIZATION_ID);
         List<Project> projects = projectMapper.selectByExample(projectExample);
 
-        ProjectMemberRequest  projectMemberRequest = new ProjectMemberRequest();
+        ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest();
         projectMemberRequest.setProjectId(DEFAULT_PROJECT_ID);
         projectMemberRequest.setCurrent(1);
         projectMemberRequest.setPageSize(5);
@@ -179,13 +177,13 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         layoutDTO1.setHandleUsers(new ArrayList<>());
         layoutDTO1.setFullScreen(false);
         layoutDTO.add(layoutDTO1);
-        MvcResult mvcResult = this.requestPostWithOkAndReturn(EDIT_LAYOUT+DEFAULT_ORGANIZATION_ID, layoutDTO);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(EDIT_LAYOUT + DEFAULT_ORGANIZATION_ID, layoutDTO);
         contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
         Assertions.assertNotNull(layoutDTOS);
 
-        mvcResultGrt = this.requestGetWithOkAndReturn(GET_LAYOUT+DEFAULT_ORGANIZATION_ID);
+        mvcResultGrt = this.requestGetWithOkAndReturn(GET_LAYOUT + DEFAULT_ORGANIZATION_ID);
         contentAsString = mvcResultGrt.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
@@ -200,15 +198,66 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         layoutDTO2.setHandleUsers(new ArrayList<>());
         layoutDTO2.setFullScreen(false);
         layoutDTO.add(layoutDTO1);
-        mvcResult = this.requestPostWithOkAndReturn(EDIT_LAYOUT+DEFAULT_ORGANIZATION_ID, layoutDTO);
+        mvcResult = this.requestPostWithOkAndReturn(EDIT_LAYOUT + DEFAULT_ORGANIZATION_ID, layoutDTO);
         contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
         Assertions.assertNotNull(layoutDTOS);
-
-
     }
 
+    @Test
+    @Order(3)
+    public void testOther() throws Exception {
+        DashboardFrontPageRequest dashboardFrontPageRequest = new DashboardFrontPageRequest();
+        dashboardFrontPageRequest.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        dashboardFrontPageRequest.setDayNumber(null);
+        dashboardFrontPageRequest.setStartTime(1697971947000L);
+        dashboardFrontPageRequest.setEndTime(1700650347000L);
+        dashboardFrontPageRequest.setCurrent(1);
+        dashboardFrontPageRequest.setPageSize(5);
+        dashboardFrontPageRequest.setProjectIds(List.of(DEFAULT_PROJECT_ID));
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(CASE_COUNT, dashboardFrontPageRequest);
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        StatisticsDTO moduleCount = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(moduleCount);
+        MvcResult associateMvcResult = this.requestPostWithOkAndReturn(ASSOCIATE_CASE_COUNT, dashboardFrontPageRequest);
+        String associateContent = associateMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder associateResultHolder = JSON.parseObject(associateContent, ResultHolder.class);
+        StatisticsDTO associateCount = JSON.parseObject(JSON.toJSONString(associateResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(associateCount);
+        Project project = new Project();
+        project.setModuleSetting("[]");
+        project.setId(DEFAULT_PROJECT_ID);
+        projectMapper.updateByPrimaryKeySelective(project);
+        mvcResult = this.requestPostWithOkAndReturn(CASE_COUNT, dashboardFrontPageRequest);
+        contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        moduleCount = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(moduleCount);
+        associateMvcResult = this.requestPostWithOkAndReturn(ASSOCIATE_CASE_COUNT, dashboardFrontPageRequest);
+        associateContent = associateMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        associateResultHolder = JSON.parseObject(associateContent, ResultHolder.class);
+        associateCount = JSON.parseObject(JSON.toJSONString(associateResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(associateCount);
+        project.setModuleSetting("[\"apiTest\",\"testPlan\",\"caseManagement\",\"bugManagement\"]");
+        project.setId(DEFAULT_PROJECT_ID);
+        projectMapper.updateByPrimaryKeySelective(project);
+        dashboardFrontPageRequest.setDayNumber(3);
+        dashboardFrontPageRequest.setStartTime(null);
+        dashboardFrontPageRequest.setEndTime(null);
+        mvcResult = this.requestPostWithOkAndReturn(CASE_COUNT, dashboardFrontPageRequest);
+        contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        moduleCount = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(moduleCount);
+        associateMvcResult = this.requestPostWithOkAndReturn(ASSOCIATE_CASE_COUNT, dashboardFrontPageRequest);
+        associateContent = associateMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        associateResultHolder = JSON.parseObject(associateContent, ResultHolder.class);
+        associateCount = JSON.parseObject(JSON.toJSONString(associateResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(associateCount);
+
+    }
 
 
 }

@@ -893,6 +893,45 @@
         </foreach>
     </select>
 
+    <select id="getStatisticListByProjectId" resultType="io.metersphere.functional.dto.FunctionalCaseStatisticDTO">
+        SELECT
+        fc.id as caseId,
+        fc.review_status as reviewStatus,
+        fccf.field_id as fieldId,
+        fccf.value as priority
+        FROM functional_case fc
+        LEFT JOIN functional_case_custom_field fccf ON fccf.case_id = fc.id
+        LEFT JOIN custom_field cf ON cf.id = fccf.field_id
+        WHERE fc.deleted = false
+          AND fc.create_time BETWEEN #{startTime} AND #{endTime}
+          AND fc.project_id = #{projectId}
+          AND cf.name = 'functional_priority'
+          AND cf.scene = 'FUNCTIONAL'
+          AND cf.internal= true
+    </select>
+
+    <select id="caseTestCount"
+            resultType="java.lang.Long">
+        select
+            count(distinct fct.case_id)
+        from functional_case_test fct
+                 LEFT JOIN functional_case fc ON fc.id = fct.case_id
+        where fct.project_id = #{projectId}
+          and fc.project_id = #{projectId}
+          and fc.deleted = false
+          and fc.create_time between #{startTime} and #{endTime}
+    </select>
+
+    <select id="simpleCaseCount"
+            resultType="java.lang.Long">
+        select
+            count(functional_case.id)
+        from functional_case
+        where functional_case.deleted = false
+          and functional_case.project_id = #{projectId}
+          and functional_case.create_time between #{startTime} and #{endTime}
+    </select>
+
     <select id="getProjectIdByIds" resultType="io.metersphere.functional.domain.FunctionalCase">
         select id, project_id from functional_case where id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">

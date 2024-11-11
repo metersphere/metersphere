@@ -3,6 +3,7 @@ package io.metersphere.dashboard.controller;
 import io.metersphere.dashboard.dto.LayoutDTO;
 import io.metersphere.dashboard.request.DashboardFrontPageRequest;
 import io.metersphere.dashboard.response.OverViewCountDTO;
+import io.metersphere.dashboard.response.StatisticsDTO;
 import io.metersphere.dashboard.service.DashboardService;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
@@ -59,5 +60,19 @@ public class DashboardController {
 
 
 
+
+    @PostMapping("/case_count")
+    @Operation(summary = "用例数")
+    @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
+    public StatisticsDTO projectCaseCount(@Validated @RequestBody DashboardFrontPageRequest request) {
+        return dashboardService.projectCaseCount(request);
+    }
+
+    @PostMapping("/associate_case_count")
+    @Operation(summary = "关联用例统计")
+    @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
+    public StatisticsDTO projectAssociateCaseCount(@Validated @RequestBody DashboardFrontPageRequest request) {
+        return dashboardService.projectAssociateCaseCount(request);
+    }
 
 }

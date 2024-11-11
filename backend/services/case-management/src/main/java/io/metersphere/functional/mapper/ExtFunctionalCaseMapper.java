@@ -3,10 +3,7 @@ package io.metersphere.functional.mapper;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseCustomField;
-import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
-import io.metersphere.functional.dto.FunctionalCaseMindDTO;
-import io.metersphere.functional.dto.FunctionalCasePageDTO;
-import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
+import io.metersphere.functional.dto.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.ProjectCountDTO;
@@ -123,5 +120,11 @@ public interface ExtFunctionalCaseMapper {
     List<ProjectCountDTO> projectCaseCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
 
     List<ProjectUserCreateCount> userCreateCaseCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
+
+    List<FunctionalCaseStatisticDTO> getStatisticListByProjectId(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime);
+
+    long caseTestCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime);
+
+    long simpleCaseCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime);
 
 }

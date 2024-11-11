@@ -393,5 +393,26 @@
         group by bug.create_user;
     </select>
 
+    <select id="projectUserBugStatusCount"
+            resultType="io.metersphere.project.dto.ProjectUserStatusCountDTO">
+        SELECT bug.create_user as userId,  bug.status, count(bug.id) as count
+        FROM bug
+        WHERE bug.deleted = false
+        AND bug.project_id =  #{projectId}
+        AND bug.create_time BETWEEN #{startTime} AND #{endTime}
+        AND bug.handle_user != ''
+        <if test="userIds != null and userIds.size() > 0">
+            AND bug.handle_user IN
+            <foreach collection="userIds" item="userId" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+        </if>
+        AND bug.platform IN
+        <foreach collection="platforms" item="platform" separator="," open="(" close=")">
+            #{platform}
+        </foreach>
+        group by bug.handle_user, bug.status;
+    </select>
+
 </mapper>
 
