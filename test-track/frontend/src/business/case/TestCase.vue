@@ -1,24 +1,49 @@
 <template>
   <ms-container v-if="renderComponent" v-loading="loading">
     <!-- operate-button  -->
-    <div class="top-btn-group-layout" v-if="!showPublicNode && !showTrashNode" style="margin-bottom: 16px">
-      <el-button size="small" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']" @click="handleCreateCase" type="primary">
-        <svg-icon icon-class="icon_add_outlined_white"/>
-        {{$t('test_track.case.create_case')}}
+    <div
+      class="top-btn-group-layout"
+      v-if="!showPublicNode && !showTrashNode"
+      style="margin-bottom: 16px"
+    >
+      <el-button
+        size="small"
+        v-permission="['PROJECT_TRACK_CASE:READ+CREATE']"
+        @click="handleCreateCase"
+        type="primary"
+      >
+        <svg-icon icon-class="icon_add_outlined_white" />
+        {{ $t("test_track.case.create_case") }}
       </el-button>
-      <el-dropdown @command="handleImportCommand" placement="bottom-start" style="margin-left: 12px" class="btn-dropdown">
-        <el-button size="small" v-permission="['PROJECT_TRACK_CASE:READ+IMPORT']">
-          <svg-icon icon-class="icon_upload_outlined"/>
-          {{$t('commons.import')}}
+      <el-dropdown
+        @command="handleImportCommand"
+        placement="bottom-start"
+        style="margin-left: 12px"
+        class="btn-dropdown"
+      >
+        <el-button
+          size="small"
+          v-permission="['PROJECT_TRACK_CASE:READ+IMPORT']"
+        >
+          <svg-icon icon-class="icon_upload_outlined" />
+          {{ $t("commons.import") }}
         </el-button>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="excel">
-            <span class="export-model">{{$t('test_track.case.import.import_by_excel')}}</span>
-            <span class="export-tips">{{$t('test_track.case.export.export_to_excel_tips1')}}</span>
+            <span class="export-model">{{
+              $t("test_track.case.import.import_by_excel")
+            }}</span>
+            <span class="export-tips">{{
+              $t("test_track.case.export.export_to_excel_tips1")
+            }}</span>
           </el-dropdown-item>
           <el-dropdown-item style="margin-top: 10px" command="xmind" divided>
-            <span class="export-model">{{$t('test_track.case.import.import_by_xmind')}}</span>
-            <span class="export-tips">{{$t('test_track.case.export.export_to_xmind_tips')}}</span>
+            <span class="export-model">{{
+              $t("test_track.case.import.import_by_xmind")
+            }}</span>
+            <span class="export-tips">{{
+              $t("test_track.case.export.export_to_xmind_tips")
+            }}</span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -26,20 +51,31 @@
 
     <!-- public, trash back header  -->
     <div v-show="showPublicNode || showTrashNode" class="back-layout">
-      <i class="el-icon-back" style="float: left;position: relative;top: 15px;left: 21px;" @click="backDefault"/>
-      <span class="back-content">{{showPublicNode? $t('project.case_public') : $t('commons.trash')}}</span>
+      <i
+        class="el-icon-back"
+        style="float: left; position: relative; top: 15px; left: 21px"
+        @click="backDefault"
+      />
+      <span class="back-content">{{
+        showPublicNode ? $t("project.case_public") : $t("commons.trash")
+      }}</span>
     </div>
 
-    <div style="display: flex; height: calc(100vh - 130px)" class = "test-case-aside-layout">
+    <div
+      style="display: flex; height: calc(100vh - 130px)"
+      class="test-case-aside-layout"
+    >
       <!-- case-aside-container  -->
-      <ms-aside-container v-show="isAsideHidden"
-                          page-key="TEST_CASE_LIST"
-                          :enable-remember-width="true"
-                          :min-width="'0'"
-                          :enable-aside-hidden.sync="enableAsideHidden">
+      <ms-aside-container
+        v-show="isAsideHidden"
+        page-key="TEST_CASE_LIST"
+        :enable-remember-width="true"
+        :min-width="'0'"
+        :enable-aside-hidden.sync="enableAsideHidden"
+      >
         <test-case-node-tree
           :type="'edit'"
-          :total='total'
+          :total="total"
           :show-operator="false"
           :public-total="publicTotal"
           :case-condition="condition"
@@ -54,7 +90,8 @@
           @importChangeConfirm="importChangeConfirm"
           @createCase="handleCaseSimpleCreate($event, 'add')"
           @nodeSelectEvent="handleCaseNodeSelect"
-          ref="nodeTree"/>
+          ref="nodeTree"
+        />
       </ms-aside-container>
 
       <!-- public-case-aside-container  -->
@@ -63,7 +100,8 @@
           :show-operator="false"
           :case-condition="publicCondition"
           @nodeSelectEvent="publicNodeChange"
-          ref="publicNodeTree"/>
+          ref="publicNodeTree"
+        />
       </ms-aside-container>
 
       <!-- trash-case-aside-container  -->
@@ -72,7 +110,8 @@
           :show-operator="false"
           :case-condition="trashCondition"
           @nodeSelectEvent="trashNodeChange"
-          ref="trashNodeTree"/>
+          ref="trashNodeTree"
+        />
       </ms-aside-container>
 
       <!-- case-main-container  -->
@@ -86,7 +125,8 @@
           :right-tip="$t('test_track.case.minder')"
           :right-icon-class="'icon_mindnote_outlined'"
           :right-icon-active-class="'icon_mindnote_outlined_active'"
-          :middle-button-enable="false">
+          :middle-button-enable="false"
+        >
           <test-case-list
             v-if="activeDom === 'left'"
             :isRedirectEdit="isRedirectEdit"
@@ -103,24 +143,25 @@
             @setCondition="setCondition"
             @decrease="decrease"
             @refreshTree="refreshTreeByCaseFilter"
-            ref="testCaseList">
+            ref="testCaseList"
+          >
           </test-case-list>
-          <test-case-minder
-            v-if="isMinderMode"
-            :default-version="currentVersion"
-            :tree-nodes="treeNodes"
-            :project-id="projectId"
-            :condition="condition"
-            :active-name="activeName"
-            @versionChange="changeVersion"
-            @refresh="minderSaveRefresh"
-            @toggleMinderFullScreen="toggleMinderFullScreen"
-            ref="minder"/>
+          <div v-if="isMinderMode" style="height: 100%">
+            <test-case-minder
+              :default-version="currentVersion"
+              :tree-nodes="treeNodes"
+              :project-id="projectId"
+              :condition="condition"
+              :active-name="activeName"
+              @versionChange="changeVersion"
+              @refresh="minderSaveRefresh"
+              @toggleMinderFullScreen="toggleMinderFullScreen"
+              ref="minder"
+            />
+          </div>
         </ms-tab-button>
 
-        <is-change-confirm
-          @confirm="changeConfirm"
-          ref="isChangeConfirm"/>
+        <is-change-confirm @confirm="changeConfirm" ref="isChangeConfirm" />
       </ms-main-container>
 
       <!-- public-main-container  -->
@@ -135,7 +176,8 @@
             @refreshPublic="refreshPublic"
             @setCondition="setPublicCondition"
             @refreshTree="refreshTreeByCaseFilter"
-            ref="testCasePublicList"/>
+            ref="testCasePublicList"
+          />
         </el-card>
       </ms-main-container>
 
@@ -152,14 +194,15 @@
             @refreshAll="refreshAll"
             @setCondition="setTrashCondition"
             @refreshTree="refreshTreeByCaseFilter"
-            ref="testCaseTrashList">
+            ref="testCaseTrashList"
+          >
           </test-case-list>
         </el-card>
       </ms-main-container>
     </div>
 
     <!-- import case -->
-    <test-case-common-import-new ref="caseImport" @refreshAll="refreshAll"/>
+    <test-case-common-import-new ref="caseImport" @refreshAll="refreshAll" />
   </ms-container>
 </template>
 
@@ -171,32 +214,53 @@ import MsContainer from "metersphere-frontend/src/components/new-ui/MsContainer"
 import MsAsideContainer from "metersphere-frontend/src/components/new-ui/MsAsideContainer";
 import MsMainContainer from "metersphere-frontend/src/components/new-ui/MsMainContainer";
 import MsMainButtonGroup from "metersphere-frontend/src/components/new-ui/MsMainButtonGroup";
-import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
-import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
+import {
+  getCurrentProjectID,
+  getCurrentWorkspaceId,
+} from "metersphere-frontend/src/utils/token";
+import {
+  hasLicense,
+  hasPermission,
+} from "metersphere-frontend/src/utils/permission";
 import TestCaseNodeTree from "@/business/module/TestCaseNodeTree";
 import MsTabButton from "metersphere-frontend/src/components/new-ui/MsTabButton";
 import TestCaseMinder from "../common/minder/TestCaseMinder";
 import IsChangeConfirm from "metersphere-frontend/src/components/IsChangeConfirm";
-import {openMinderConfirm} from "../common/minder/minderUtils";
-import {PROJECT_ID} from "metersphere-frontend/src/utils/constants";
+import { openMinderConfirm } from "../common/minder/minderUtils";
+import { PROJECT_ID } from "metersphere-frontend/src/utils/constants";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
-import {useStore} from "@/store";
-import {testCaseNodePublicCount, testCaseNodeTrashCount} from "@/api/test-case-node";
-import {getProjectApplicationConfig} from "@/api/project-application";
-import {versionEnableByProjectId} from "@/api/project";
+import { useStore } from "@/store";
+import {
+  testCaseNodePublicCount,
+  testCaseNodeTrashCount,
+} from "@/api/test-case-node";
+import { getProjectApplicationConfig } from "@/api/project-application";
+import { versionEnableByProjectId } from "@/api/project";
 import TestCasePublicNodeTree from "@/business/module/TestCasePublicNodeTree";
 import TestCaseTrashNodeTree from "@/business/module/TestCaseTrashNodeTree";
 import PublicTestCaseList from "@/business/case/components/public/PublicTestCaseList";
-import {openCaseCreate} from "@/business/case/test-case";
-import merge from 'webpack-merge';
+import { openCaseCreate } from "@/business/case/test-case";
+import merge from "webpack-merge";
 
 const store = useStore();
 export default {
   name: "TestCase",
   components: {
-    PublicTestCaseList, TestCaseTrashNodeTree, TestCasePublicNodeTree, IsChangeConfirm, TestCaseMinder, MsTabButton, TestCaseNodeTree,
-    MsMainContainer, MsAsideContainer, MsContainer, TestCaseList, SelectMenu, 'VersionSelect': MxVersionSelect,
-    MsMainButtonGroup, TestCaseCommonImportNew
+    PublicTestCaseList,
+    TestCaseTrashNodeTree,
+    TestCasePublicNodeTree,
+    IsChangeConfirm,
+    TestCaseMinder,
+    MsTabButton,
+    TestCaseNodeTree,
+    MsMainContainer,
+    MsAsideContainer,
+    MsContainer,
+    TestCaseList,
+    SelectMenu,
+    VersionSelect: MxVersionSelect,
+    MsMainButtonGroup,
+    TestCaseCommonImportNew,
   },
   comments: {},
   data() {
@@ -211,12 +275,12 @@ export default {
       condition: {},
       trashCondition: {},
       publicCondition: {},
-      activeName: 'default',
-      currentActiveName: '',
+      activeName: "default",
+      currentActiveName: "",
       renderComponent: true,
       loading: false,
-      type: '',
-      activeDom: 'left',
+      type: "",
+      activeDom: "left",
       tmpActiveDom: null,
       total: 0,
       publicTotal: 0,
@@ -227,14 +291,14 @@ export default {
       isAsideHidden: true,
       ignoreTreeNodes: false,
       hasRefreshDefault: true,
-      enableAsideHidden: false
+      enableAsideHidden: false,
     };
   },
   created() {
     let projectId = this.$route.params.projectId;
     if (projectId) {
       this.ignoreTreeNodes = true;
-      if (projectId !== getCurrentProjectID() && projectId !== 'all') {
+      if (projectId !== getCurrentProjectID() && projectId !== "all") {
         sessionStorage.setItem(PROJECT_ID, projectId);
       }
     }
@@ -254,11 +318,11 @@ export default {
   },
   watch: {
     activeName(newVal, oldVal) {
-      this.isAsideHidden = this.activeName === 'default';
-      if (oldVal !== 'default' && newVal === 'default' && this.$refs.minder) {
+      this.isAsideHidden = this.activeName === "default";
+      if (oldVal !== "default" && newVal === "default" && this.$refs.minder) {
         this.$refs.minder.refresh();
       }
-      if (oldVal === 'trash' && newVal === 'default') {
+      if (oldVal === "trash" && newVal === "default") {
         this.condition.filters.status = [];
         // 在回收站恢复后，切到列表页面刷新
         if (!this.hasRefreshDefault) {
@@ -267,13 +331,13 @@ export default {
         } else {
           this.refresh();
         }
-      } else if (newVal === 'default') {
+      } else if (newVal === "default") {
         this.refresh();
       }
     },
     trashEnable() {
       if (this.trashEnable) {
-        this.activeName = 'trash';
+        this.activeName = "trash";
         this.publicEnable = false;
         this.$nextTick(() => {
           this.$refs.trashNodeTree.list();
@@ -282,31 +346,31 @@ export default {
     },
     publicEnable() {
       if (this.publicEnable) {
-        this.activeName = 'public';
+        this.activeName = "public";
         this.$nextTick(() => {
           this.$refs.publicNodeTree.list();
         });
         this.trashEnable = false;
       }
     },
-    '$store.state.temWorkspaceId'() {
+    "$store.state.temWorkspaceId"() {
       if (this.$store.state.temWorkspaceId) {
         this.$refs.isChangeConfirm.open(null, this.$store.state.temWorkspaceId);
       }
     },
     routeModuleId() {
       return this.$route.query.moduleId;
-    }
+    },
   },
   computed: {
     isRedirectEdit: function () {
       return this.$route.params.dataSelectRange;
     },
     showPublicNode() {
-      return this.activeName === 'public';
+      return this.activeName === "public";
     },
     showTrashNode() {
-      return this.activeName === 'trash';
+      return this.activeName === "trash";
     },
     projectId() {
       return getCurrentProjectID();
@@ -321,16 +385,22 @@ export default {
       return store.testCaseModuleOptions;
     },
     isMinderMode() {
-      return this.activeDom === 'right';
-    }
+      return this.activeDom === "right";
+    },
   },
   methods: {
     hasPermission,
-    handleCreateCase(){
-      openCaseCreate({
-        projectId: this.projectId,
-        createNodeId: this.selectNode.data && this.selectNode.data.id !== 'root' ? this.selectNode.data.id : ""
-      }, this);
+    handleCreateCase() {
+      openCaseCreate(
+        {
+          projectId: this.projectId,
+          createNodeId:
+            this.selectNode.data && this.selectNode.data.id !== "root"
+              ? this.selectNode.data.id
+              : "",
+        },
+        this
+      );
     },
     handleImportCommand(e) {
       switch (e) {
@@ -343,19 +413,17 @@ export default {
       }
     },
     getTrashList() {
-      testCaseNodeTrashCount(this.projectId)
-        .then(response => {
-          this.total = response.data;
-        });
+      testCaseNodeTrashCount(this.projectId).then((response) => {
+        this.total = response.data;
+      });
     },
     getPublicList() {
-      testCaseNodePublicCount(getCurrentWorkspaceId())
-        .then(response => {
-          this.publicTotal = response.data;
-        });
+      testCaseNodePublicCount(getCurrentWorkspaceId()).then((response) => {
+        this.publicTotal = response.data;
+      });
     },
     updateActiveDom(activeDom) {
-      openMinderConfirm(this, activeDom, 'PROJECT_TRACK_CASE:READ');
+      openMinderConfirm(this, activeDom, "PROJECT_TRACK_CASE:READ");
     },
     importChangeConfirm(isSave) {
       store.isTestCaseMinderChanged = false;
@@ -382,7 +450,7 @@ export default {
       this.$nextTick(() => {
         if (this.tmpPath) {
           this.$router.push({
-            path: this.tmpPath
+            path: this.tmpPath,
           });
           this.tmpPath = null;
         }
@@ -390,12 +458,12 @@ export default {
 
       if (temWorkspaceId) {
         // 如果是切换工作空间提示的保存，则保存完后跳转到对应的工作空间
-        this.$EventBus.$emit('changeWs', temWorkspaceId);
+        this.$EventBus.$emit("changeWs", temWorkspaceId);
       }
     },
     validateProjectId() {
       if (!this.projectId) {
-        this.$warning(this.$t('commons.check_project_tip'));
+        this.$warning(this.$t("commons.check_project_tip"));
         return false;
       }
       return true;
@@ -413,7 +481,7 @@ export default {
     handleCaseNodeSelect(node, nodeIds, pNodes) {
       if (node.data.id !== this.routeModuleId) {
         this.$router.push({
-          query: merge(this.$route.query, {'moduleId': node.data.id})
+          query: merge(this.$route.query, { moduleId: node.data.id }),
         });
       }
     },
@@ -429,10 +497,10 @@ export default {
       }
     },
     handleCaseSimpleCreate(data, type) {
-      if ('default-module' === data.nodeId) {
+      if ("default-module" === data.nodeId) {
         for (let i = 0; i < this.moduleOptions.length; i++) {
           let item = this.moduleOptions[i];
-          if (item.path.indexOf('未规划用例') > -1) {
+          if (item.path.indexOf("未规划用例") > -1) {
             data.nodeId = item.id;
             break;
           }
@@ -469,7 +537,7 @@ export default {
       if (this.$refs.testCaseList) {
         this.$refs.testCaseList.initTableData();
       }
-      if(this.$refs.nodeTree){
+      if (this.$refs.nodeTree) {
         this.$refs.nodeTree.list();
       }
     },
@@ -477,8 +545,8 @@ export default {
       this.refreshAll();
       if (this.$refs.testCaseEdit && this.$refs.testCaseEdit.length > 0) {
         setTimeout(() => {
-          this.$info(this.$t('test_track.case.import.import_refresh_tips'));
-        }, 3000)
+          this.$info(this.$t("test_track.case.import.import_refresh_tips"));
+        }, 3000);
       }
     },
     minderSaveRefresh() {
@@ -489,7 +557,6 @@ export default {
     },
     toggleMinderFullScreen(isFullScreen) {
       this.enableAsideHidden = isFullScreen;
-
     },
     refreshPublic() {
       if (this.$refs.testCasePublicList) {
@@ -510,24 +577,23 @@ export default {
       this.condition = data;
     },
     getProject() {
-      getProjectApplicationConfig('CASE_CUSTOM_NUM')
-        .then(result => {
-          let data = result.data;
-          if (data && data.typeValue === 'true') {
-            store.currentProjectIsCustomNum = true;
-          } else {
-            store.currentProjectIsCustomNum = false;
-          }
-        });
+      getProjectApplicationConfig("CASE_CUSTOM_NUM").then((result) => {
+        let data = result.data;
+        if (data && data.typeValue === "true") {
+          store.currentProjectIsCustomNum = true;
+        } else {
+          store.currentProjectIsCustomNum = false;
+        }
+      });
     },
     backDefault() {
       // 回到默认列表页
-      this.activeName = 'default';
+      this.activeName = "default";
       this.trashEnable = false;
       this.publicEnable = false;
       // 清除选中的模块
       this.$router.push({
-        query: merge(this.$route.query, {'moduleId': 'root'})
+        query: merge(this.$route.query, { moduleId: "root" }),
       });
     },
     enableTrash(data) {
@@ -535,20 +601,20 @@ export default {
       this.trashEnable = !data;
       this.$nextTick(() => {
         this.trashEnable = data;
-      })
+      });
     },
     enablePublic(data) {
       //进入公共用例列表
       this.publicEnable = !data;
       this.$nextTick(() => {
         this.publicEnable = data;
-      })
+      });
     },
     toPublic(data) {
-      if (data === 'public') {
-        this.activeName = "public"
+      if (data === "public") {
+        this.activeName = "public";
       } else {
-        this.activeName = "trash"
+        this.activeName = "trash";
       }
     },
     changeVersion(currentVersion) {
@@ -559,18 +625,18 @@ export default {
         return;
       }
       if (hasLicense()) {
-        versionEnableByProjectId(this.projectId)
-          .then(response => {
-            this.versionEnable = response.data;
-          });
+        versionEnableByProjectId(this.projectId).then((response) => {
+          this.versionEnable = response.data;
+        });
       }
     },
-  }
+  },
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 :deep(.el-card__body) {
+  height: -webkit-fill-available;
   padding: 24px;
 }
 
@@ -604,14 +670,14 @@ export default {
 }
 
 .export-model {
-  font-family: 'PingFang SC';
+  font-family: "PingFang SC";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
   display: flex;
   align-items: center;
-  color: #1F2329;
+  color: #1f2329;
   flex: none;
   order: 0;
   align-self: stretch;
@@ -619,14 +685,14 @@ export default {
 }
 
 .export-tips {
-  font-family: 'PingFang SC';
+  font-family: "PingFang SC";
   font-style: normal;
   font-weight: 400;
   font-size: 12px;
   line-height: 20px;
   display: block;
   align-items: center;
-  color: #8F959E;
+  color: #8f959e;
   flex: none;
   order: 1;
   align-self: stretch;
@@ -635,13 +701,13 @@ export default {
 
 /* 创建用例按钮样式 */
 .el-button--small {
-    height: 32px;
-    border-radius: 4px;
+  height: 32px;
+  border-radius: 4px;
 }
 
 .back-layout {
   height: 48px;
-  background-color: #FFFFFF;;
+  background-color: #ffffff;
   border-bottom: 1px solid rgba(31, 35, 41, 0.15);
   border-radius: 4px 4px 0 0;
 }
@@ -652,12 +718,12 @@ export default {
   left: 35px;
   width: 80px;
   height: 24px;
-  font-family: 'PingFang SC';
+  font-family: "PingFang SC";
   font-style: normal;
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  color: #1F2329;
+  color: #1f2329;
   flex: none;
   order: 1;
   flex-grow: 0;
@@ -677,7 +743,7 @@ export default {
 .back-layout :deep(.el-button--small span),
 .top-btn-group-layout :deep(.el-button--small span),
 .export-case-layout :deep(.el-button--small span) {
-  font-family: 'PingFang SC';
+  font-family: "PingFang SC";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -685,8 +751,8 @@ export default {
   position: relative;
   top: -5px;
 }
-.edit-layout :deep(.el-button--small span){
-  font-family: 'PingFang SC';
+.edit-layout :deep(.el-button--small span) {
+  font-family: "PingFang SC";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -702,6 +768,9 @@ export default {
 }
 
 .el-dropdown-menu__item:hover {
-  background-color: rgba(31, 35, 41, 0.1)!important;
+  background-color: rgba(31, 35, 41, 0.1) !important;
+}
+.card-content {
+  height: 100% !important;
 }
 </style>
