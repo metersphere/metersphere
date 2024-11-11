@@ -5,10 +5,7 @@ import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.scenario.ScenarioSystemRequest;
 import io.metersphere.dto.TestCaseProviderDTO;
-import io.metersphere.project.dto.DropNode;
-import io.metersphere.project.dto.ModuleCountDTO;
-import io.metersphere.project.dto.NodeSortQueryParam;
-import io.metersphere.project.dto.ProjectCountDTO;
+import io.metersphere.project.dto.*;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -115,7 +112,7 @@ public interface ExtApiTestCaseMapper {
 
     List<ApiTestCase> getListBySelectIds(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("testPlanId") String testPlanId, @Param("protocols") List<String> protocols);
 
-    List<ApiTestCaseAssociateDTO>selectAllApiCaseWithAssociate(@Param("projectId") String projectId, @Param("protocols") List<String> protocols);
+    List<ApiTestCaseAssociateDTO> selectAllApiCaseWithAssociate(@Param("projectId") String projectId, @Param("protocols") List<String> protocols);
 
     List<ApiTestCaseAssociateDTO> getListBySelectModulesWithAssociate(@Param("projectId") String projectId, @Param("moduleIds") List<String> moduleIds, @Param("protocols") List<String> protocols);
 
@@ -127,7 +124,7 @@ public interface ExtApiTestCaseMapper {
 
     List<ApiTestCase> getRefApiScenarioCreator(@Param("ids") List<String> caseIds);
 
-    void clearApiChange(@Param("ids")  List<String> ids);
+    void clearApiChange(@Param("ids") List<String> ids);
 
     List<ApiTestCaseWithBlob> selectAllDetailByApiIds(@Param("apiIds") List<String> apiIds);
 
@@ -135,6 +132,8 @@ public interface ExtApiTestCaseMapper {
 
     List<ApiTestCaseDTO> selectBaseInfoByProjectIdAndApiId(@Param("projectId") String projectId, @Param("apiId") String apiId);
 
-    List<ProjectCountDTO>  projectApiCaseCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+    List<ProjectCountDTO> projectApiCaseCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+
+    List<ProjectUserCreateCount> userCreateApiCaseCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
 
 }

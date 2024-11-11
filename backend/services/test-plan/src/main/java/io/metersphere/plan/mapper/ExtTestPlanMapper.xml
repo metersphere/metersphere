@@ -753,6 +753,21 @@
         group by test_plan.project_id;
     </select>
 
+    <select id="userCreatePlanCount"
+            resultType="io.metersphere.project.dto.ProjectUserCreateCount">
+        SELECT test_plan.create_user as userId, count(test_plan.id) as count
+        FROM test_plan
+        WHERE test_plan.project_id =  #{projectId}
+        AND test_plan.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="userIds != null and userIds.size() > 0">
+            and test_plan.create_user in
+            <foreach collection="userIds" item="userId" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+        </if>
+        group by test_plan.create_user;
+    </select>
+
 
 
     <select id="selectMyFollowByConditions"

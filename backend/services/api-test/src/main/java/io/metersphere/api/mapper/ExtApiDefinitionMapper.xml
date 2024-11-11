@@ -787,4 +787,20 @@
         </if>
         group by api_definition.project_id;
     </select>
+
+    <select id="userCreateApiCount"
+            resultType="io.metersphere.project.dto.ProjectUserCreateCount">
+        SELECT api_definition.create_user as userId, count(api_definition.id) as count
+        FROM api_definition
+        WHERE api_definition.deleted = false
+        AND api_definition.project_id =  #{projectId}
+        AND api_definition.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="userIds != null and userIds.size() > 0">
+            and api_definition.create_user in
+            <foreach collection="userIds" item="userId" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+        </if>
+        group by api_definition.create_user;
+    </select>
 </mapper>

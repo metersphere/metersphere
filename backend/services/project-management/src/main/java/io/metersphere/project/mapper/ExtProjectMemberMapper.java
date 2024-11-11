@@ -45,4 +45,11 @@ public interface ExtProjectMemberMapper {
      */
     List<ProjectUserMemberDTO> getOrgProjectMemberList(@Param("organizationId") String organizationId, @Param("userIds") List<String>userIds );
 
+    /**
+     * 获取项目下所有有项目权限的成员
+     * @param projectId 项目ID
+     * @param userIds 用户过滤
+     * @return  List<ProjectUserMemberDTO>
+     */
+    List<ProjectUserMemberDTO> getProjectMemberList(@Param("projectId") String projectId, @Param("userIds") List<String>userIds );
 }

@@ -10,6 +10,7 @@ import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
 import io.metersphere.functional.request.*;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.ProjectCountDTO;
+import io.metersphere.project.dto.ProjectUserCreateCount;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -120,5 +121,7 @@ public interface ExtFunctionalCaseMapper {
     List<FunctionalCase> getProjectIdByIds(@Param("ids") List<String> ids);
 
     List<ProjectCountDTO> projectCaseCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+
+    List<ProjectUserCreateCount> userCreateCaseCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
 
 }

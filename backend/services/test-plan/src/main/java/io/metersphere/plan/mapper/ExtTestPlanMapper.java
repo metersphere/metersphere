@@ -8,10 +8,7 @@ import io.metersphere.plan.dto.request.TestPlanBatchProcessRequest;
 import io.metersphere.plan.dto.request.TestPlanExecuteHisPageRequest;
 import io.metersphere.plan.dto.request.TestPlanTableRequest;
 import io.metersphere.plan.dto.response.TestPlanResponse;
-import io.metersphere.project.dto.DropNode;
-import io.metersphere.project.dto.ModuleCountDTO;
-import io.metersphere.project.dto.NodeSortQueryParam;
-import io.metersphere.project.dto.ProjectCountDTO;
+import io.metersphere.project.dto.*;
 import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
@@ -77,6 +74,9 @@ public interface ExtTestPlanMapper {
     List<String> selectIdByProjectIdAndWithoutList(@Param("projectId") String projectId, @Param("withoutList") List<String> withoutList);
 
     List<ProjectCountDTO> projectPlanCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+
+    List<ProjectUserCreateCount> userCreatePlanCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
+
 
     @BaseConditionFilter
     List<TestPlanResponse> selectMyFollowByConditions(@Param("request") TestPlanTableRequest request);

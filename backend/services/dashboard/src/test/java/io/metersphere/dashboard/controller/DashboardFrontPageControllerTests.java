@@ -48,6 +48,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
 
     private static final String CREATE_BY_ME = "/dashboard/create_by_me";
     private static final String PROJECT_VIEW = "/dashboard/project_view";
+    private static final String PROJECT_MEMBER_VIEW = "/dashboard/project_member_view";
 
 
     @Test
@@ -94,12 +95,33 @@ public class DashboardFrontPageControllerTests extends BaseTest {
 
         OverViewCountDTO gyq3 = dashboardService.projectViewCount(dashboardFrontPageRequest, "default-dashboard-member-user-gyq");
         Assertions.assertNotNull(gyq3);
+
+        dashboardFrontPageRequest.setProjectIds(List.of(DEFAULT_PROJECT_ID));
+        mvcResultAll = this.requestPostWithOkAndReturn(PROJECT_MEMBER_VIEW, dashboardFrontPageRequest);
+        moduleCountAll = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultAll.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                OverViewCountDTO.class);
+        Assertions.assertNotNull(moduleCountAll);
+        Project project = new Project();
+        project.setModuleSetting("[]");
+        project.setId(DEFAULT_PROJECT_ID);
+        projectMapper.updateByPrimaryKeySelective(project);
+        OverViewCountDTO gyq4 = dashboardService.projectViewCount(dashboardFrontPageRequest, "default-dashboard-member-user-gyq");
+        Assertions.assertTrue(gyq4.getXAxis().isEmpty());
+        List<String> moduleIds = new ArrayList<>();
+        moduleIds.add("apiTest");
+        moduleIds.add("testPlan");
+        moduleIds.add("caseManagement");
+        moduleIds.add("bugManagement");
+        project.setModuleSetting(moduleIds.toString());
+        project.setId(DEFAULT_PROJECT_ID);
+        projectMapper.updateByPrimaryKeySelective(project);
     }
 
     @Test
     @Order(2)
     public void testLayout() throws Exception {
-        MvcResult mvcResultGrt = this.requestGetWithOkAndReturn(GET_LAYOUT+DEFAULT_ORGANIZATION_ID);
+        MvcResult mvcResultGrt = this.requestGetWithOkAndReturn(GET_LAYOUT+"DEFAULT_ORGANIZATION_ID");
         String contentAsString = mvcResultGrt.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<LayoutDTO> layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
@@ -186,5 +208,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
 
 
     }
+
+
 
 }

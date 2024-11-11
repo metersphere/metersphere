@@ -359,4 +359,19 @@
         group by case_review.project_id;
     </select>
 
+    <select id="userCreateReviewCount"
+            resultType="io.metersphere.project.dto.ProjectUserCreateCount">
+        SELECT case_review.create_user as userId, count(case_review.id) as count
+        FROM case_review
+        WHERE case_review.project_id =  #{projectId}
+        AND case_review.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="userIds != null and userIds.size() > 0">
+            and case_review.create_user in
+            <foreach collection="userIds" item="userId" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+        </if>
+        group by case_review.create_user;
+    </select>
+
 </mapper>

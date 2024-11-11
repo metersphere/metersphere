@@ -74,4 +74,17 @@
         order by urr.create_time desc
     </select>
 
+    <select id="getProjectMemberList" resultType="io.metersphere.system.dto.user.ProjectUserMemberDTO">
+        SELECT distinct u.id, urr.source_id AS projectId, u.name from user_role_relation urr
+        join `user` u on urr.user_id = u.id where
+        urr.source_id = #{projectId} and u.deleted = 0 and u.enable = 1
+        <if test="userIds != null and userIds.size() > 0">
+            and u.id in
+            <foreach collection="userIds" item="userId" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+        </if>
+        order by urr.create_time desc
+    </select>
+
 </mapper>

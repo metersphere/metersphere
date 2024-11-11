@@ -5,10 +5,7 @@ import io.metersphere.api.dto.definition.ExecutePageRequest;
 import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.scenario.*;
 import io.metersphere.dto.TestCaseProviderDTO;
-import io.metersphere.project.dto.DropNode;
-import io.metersphere.project.dto.ModuleCountDTO;
-import io.metersphere.project.dto.NodeSortQueryParam;
-import io.metersphere.project.dto.ProjectCountDTO;
+import io.metersphere.project.dto.*;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -103,6 +100,8 @@ public interface ExtApiScenarioMapper {
 
     List<ApiScenario> getNameInfo(@Param("ids") List<String> ids);
 
-    List<ProjectCountDTO>   projectApiScenarioCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+    List<ProjectCountDTO> projectApiScenarioCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+
+    List<ProjectUserCreateCount> userCreateApiScenarioCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
 
 }

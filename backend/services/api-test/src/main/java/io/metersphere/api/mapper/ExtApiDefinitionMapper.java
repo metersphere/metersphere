@@ -12,6 +12,7 @@ import io.metersphere.api.dto.scenario.ScenarioSystemRequest;
 import io.metersphere.project.dto.DropNode;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.project.dto.ProjectCountDTO;
+import io.metersphere.project.dto.ProjectUserCreateCount;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.interceptor.BaseConditionFilter;
@@ -111,4 +112,7 @@ public interface ExtApiDefinitionMapper {
     Long selectNumById(String id);
 
     List<ProjectCountDTO>  projectApiCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+
+    List<ProjectUserCreateCount> userCreateApiCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
+
 }

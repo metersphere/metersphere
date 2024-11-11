@@ -917,4 +917,20 @@
         group by functional_case.project_id;
     </select>
 
+    <select id="userCreateCaseCount"
+            resultType="io.metersphere.project.dto.ProjectUserCreateCount">
+        SELECT functional_case.create_user as userId, count(functional_case.id) as count
+        FROM functional_case
+        WHERE functional_case.deleted = false
+        AND functional_case.project_id =  #{projectId}
+        AND functional_case.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="userIds != null and userIds.size() > 0">
+            and functional_case.create_user in
+            <foreach collection="userIds" item="userId" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+        </if>
+        group by functional_case.create_user;
+    </select>
+
 </mapper>

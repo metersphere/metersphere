@@ -782,4 +782,20 @@
         group by api_scenario.project_id;
     </select>
 
+    <select id="userCreateApiScenarioCount"
+            resultType="io.metersphere.project.dto.ProjectUserCreateCount">
+        SELECT api_scenario.create_user as userId, count(api_scenario.id) as count
+        FROM api_scenario
+        WHERE api_scenario.deleted = false
+        AND api_scenario.project_id =  #{projectId}
+        AND api_scenario.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="userIds != null and userIds.size() > 0">
+            and api_scenario.create_user in
+            <foreach collection="userIds" item="userId" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+        </if>
+        group by api_scenario.create_user;
+    </select>
+
 </mapper>

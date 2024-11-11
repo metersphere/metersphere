@@ -14,8 +14,10 @@ import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ProjectCountDTO;
+import io.metersphere.project.dto.ProjectUserCreateCount;
 import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.project.mapper.ExtProjectMemberMapper;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.util.JSON;
@@ -64,6 +66,8 @@ public class DashboardService {
     @Resource
     private ProjectService projectService;
     @Resource
+    private ProjectMapper projectMapper;
+    @Resource
     private UserLayoutMapper userLayoutMapper;
 
 
@@ -74,6 +78,11 @@ public class DashboardService {
     public static final String API_SCENARIO = "API_SCENARIO";
     public static final String TEST_PLAN = "TEST_PLAN"; // 测试计划
     public static final String BUG_COUNT = "BUG_COUNT"; // 缺陷数量
+
+    public static final String API_TEST_MODULE = "apiTest";
+    public static final String TEST_PLAN_MODULE = "testPlan";
+    public static final String FUNCTIONAL_CASE_MODULE = "caseManagement";
+    public static final String BUG_MODULE = "bugManagement";
 
 
     public OverViewCountDTO createByMeCount(DashboardFrontPageRequest request, String userId) {
@@ -288,13 +297,16 @@ public class DashboardService {
             allProjectIds.addAll(layoutDTO.getProjectIds());
             allHandleUsers.addAll(layoutDTO.getHandleUsers());
         }
-        List<String> projectIds = allProjectIds.stream().distinct().toList();
-        List<Project> getUserProjectIdName = extProjectMapper.getUserProjectIdName(null, projectIds, userId);
-
+        List<Project> getUserProjectIdName;
+        if(CollectionUtils.isEmpty(allProjectIds)) {
+            getUserProjectIdName =extProjectMapper.getUserProjectIdName(organizationId, null, userId);
+        } else {
+            List<String> projectIds = allProjectIds.stream().distinct().toList();
+            getUserProjectIdName =extProjectMapper.getUserProjectIdName(null, projectIds, userId);
+        }
         Map<String, Project> projectMap = getUserProjectIdName.stream().collect(Collectors.toMap(Project::getId, t -> t));
         List<String> handleUsers = allHandleUsers.stream().distinct().toList();
         List<ProjectUserMemberDTO> orgProjectMemberList = extProjectMemberMapper.getOrgProjectMemberList(organizationId, handleUsers);
-
         //重新填充填充返回的项目id 和 用户id
         rebuildProjectOrUser(layoutDTOS, getUserProjectIdName, projectMap, orgProjectMemberList);
         return layoutDTOS;
@@ -360,5 +372,143 @@ public class DashboardService {
                 }
             }
         }
+    }
+
+    public OverViewCountDTO projectMemberViewCount(DashboardFrontPageRequest request) {
+        String projectId = request.getProjectIds().getFirst();
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        List<String> moduleIds = JSON.parseArray(project.getModuleSetting(), String.class);
+        Long toStartTime = request.getToStartTime();
+        Long toEndTime = request.getToEndTime();
+        List<ProjectUserMemberDTO> projectMemberList = extProjectMemberMapper.getProjectMemberList(projectId, request.getHandleUsers());
+        Map<String, String> userNameMap = projectMemberList.stream().collect(Collectors.toMap(ProjectUserMemberDTO::getId, ProjectUserMemberDTO::getName));
+        return getUserCountDTO(userNameMap, moduleIds, projectId, toStartTime, toEndTime);
+
+    }
+
+    @NotNull
+    private OverViewCountDTO getUserCountDTO(Map<String, String> userNameMap, List<String> moduleIds, String projectId, Long toStartTime, Long toEndTime) {
+        List<String> xaxis = new ArrayList<>(userNameMap.values());
+        Set<String> userIds = userNameMap.keySet();
+        Map<String, Integer> userCaseCountMap;
+        Map<String, Integer> userReviewCountMap;
+        Map<String, Integer> userApiCountMap;
+        Map<String, Integer> userApiScenarioCountMap;
+        Map<String, Integer> userApiCaseCountMap;
+        Map<String, Integer> userPlanCountMap;
+        Map<String, Integer> userBugCountMap ;
+
+        if (moduleIds.contains(FUNCTIONAL_CASE_MODULE)) {
+            List<ProjectUserCreateCount> userCreateCaseCount = extFunctionalCaseMapper.userCreateCaseCount(projectId, toStartTime, toEndTime, userIds);
+            userCaseCountMap = userCreateCaseCount.stream().collect(Collectors.toMap(ProjectUserCreateCount::getUserId, ProjectUserCreateCount::getCount));
+            List<ProjectUserCreateCount> userCreateReviewCount = extCaseReviewMapper.userCreateReviewCount(projectId, toStartTime, toEndTime, userIds);
+            userReviewCountMap = userCreateReviewCount.stream().collect(Collectors.toMap(ProjectUserCreateCount::getUserId, ProjectUserCreateCount::getCount));
+        } else {
+            userReviewCountMap = new HashMap<>();
+            userCaseCountMap = new HashMap<>();
+        }
+        if (moduleIds.contains(API_TEST_MODULE)) {
+            List<ProjectUserCreateCount> userCreateApiCount =  extApiDefinitionMapper.userCreateApiCount(projectId, toStartTime, toEndTime, userIds);
+            userApiCountMap = userCreateApiCount.stream().collect(Collectors.toMap(ProjectUserCreateCount::getUserId, ProjectUserCreateCount::getCount));
+            List<ProjectUserCreateCount> userCreateApiScenarioCount = extApiScenarioMapper.userCreateApiScenarioCount(projectId, toStartTime, toEndTime, userIds);
+            userApiScenarioCountMap = userCreateApiScenarioCount.stream().collect(Collectors.toMap(ProjectUserCreateCount::getUserId, ProjectUserCreateCount::getCount));
+            List<ProjectUserCreateCount> userCreateApiCaseCount = extApiTestCaseMapper.userCreateApiCaseCount(projectId, toStartTime, toEndTime, userIds);
+            userApiCaseCountMap = userCreateApiCaseCount.stream().collect(Collectors.toMap(ProjectUserCreateCount::getUserId, ProjectUserCreateCount::getCount));
+        } else {
+            userApiCountMap = new HashMap<>();
+            userApiScenarioCountMap = new HashMap<>();
+            userApiCaseCountMap = new HashMap<>();
+        }
+        if (moduleIds.contains(TEST_PLAN_MODULE)) {
+            List<ProjectUserCreateCount> userCreatePlanCount = extTestPlanMapper.userCreatePlanCount(projectId, toStartTime, toEndTime, userIds);
+            userPlanCountMap = userCreatePlanCount.stream().collect(Collectors.toMap(ProjectUserCreateCount::getUserId, ProjectUserCreateCount::getCount));
+        } else {
+            userPlanCountMap = new HashMap<>();
+        }
+        if (moduleIds.contains(BUG_MODULE)) {
+            List<ProjectUserCreateCount> userCreateBugCount = extBugMapper.userCreateBugCount(projectId, toStartTime, toEndTime, userIds);
+            userBugCountMap = userCreateBugCount.stream().collect(Collectors.toMap(ProjectUserCreateCount::getUserId, ProjectUserCreateCount::getCount));
+        } else {
+            userBugCountMap = new HashMap<>();
+        }
+
+        List<Integer> userCaseCount = new ArrayList<>();
+        List<Integer> userReviewCount = new ArrayList<>();
+        List<Integer> userApiCount = new ArrayList<>();
+        List<Integer> userApiCaseCount = new ArrayList<>();
+        List<Integer> userApiScenarioCount = new ArrayList<>();
+        List<Integer> userPlanCount = new ArrayList<>();
+        List<Integer> userBugCount = new ArrayList<>();
+
+        userNameMap.forEach((id, userName)->{
+            if (userCaseCountMap.get(id)!=null) {
+                userCaseCount.add(userCaseCountMap.get(id));
+            } else {
+                userCaseCount.add(0);
+            }
+            if (userReviewCountMap.get(id)!=null) {
+                userReviewCount.add(userCaseCountMap.get(id));
+            } else {
+                userReviewCount.add(0);
+            }
+            if (userApiCountMap.get(id)!=null) {
+                userApiCount.add(userApiCountMap.get(id));
+            } else {
+                userApiCount.add(0);
+            }
+            if (userApiCaseCountMap.get(id)!=null) {
+                userApiCaseCount.add(userApiCaseCountMap.get(id));
+            } else {
+                userApiCaseCount.add(0);
+            }
+            if (userApiScenarioCountMap.get(id)!=null) {
+                userApiScenarioCount.add(userApiScenarioCountMap.get(id));
+            } else {
+                userApiScenarioCount.add(0);
+            }
+            if (userPlanCountMap.get(id)!=null) {
+                userPlanCount.add(userPlanCountMap.get(id));
+            } else {
+                userPlanCount.add(0);
+            }
+            if (userBugCountMap.get(id)!=null) {
+                userBugCount.add(userBugCountMap.get(id));
+            } else {
+                userBugCount.add(0);
+            }
+        });
+        List<NameArrayDTO> nameArrayDTOList = new ArrayList<>();
+        NameArrayDTO userCaseArray = new NameArrayDTO();
+        userCaseArray.setCount(userCaseCount);
+        nameArrayDTOList.add(userCaseArray);
+
+        NameArrayDTO userReviewArray = new NameArrayDTO();
+        userReviewArray.setCount(userReviewCount);
+        nameArrayDTOList.add(userReviewArray);
+
+        NameArrayDTO userApiArray = new NameArrayDTO();
+        userApiArray.setCount(userApiCount);
+        nameArrayDTOList.add(userApiArray);
+
+        NameArrayDTO userApiCaseArray = new NameArrayDTO();
+        userApiCaseArray.setCount(userApiCaseCount);
+        nameArrayDTOList.add(userApiCaseArray);
+
+        NameArrayDTO userApiScenarioArray = new NameArrayDTO();
+        userApiScenarioArray.setCount(userApiScenarioCount);
+        nameArrayDTOList.add(userApiScenarioArray);
+
+        NameArrayDTO userPlanArray = new NameArrayDTO();
+        userPlanArray.setCount(userPlanCount);
+        nameArrayDTOList.add(userPlanArray);
+
+        NameArrayDTO userBugArray = new NameArrayDTO();
+        userBugArray.setCount(userBugCount);
+        nameArrayDTOList.add(userBugArray);
+
+        OverViewCountDTO overViewCountDTO = new OverViewCountDTO();
+        overViewCountDTO.setXAxis(xaxis);
+        overViewCountDTO.setProjectCountList(nameArrayDTOList);
+        return overViewCountDTO;
     }
 }

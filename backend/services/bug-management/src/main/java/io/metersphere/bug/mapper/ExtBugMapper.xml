@@ -377,5 +377,21 @@
         group by bug.project_id;
     </select>
 
+    <select id="userCreateBugCount"
+            resultType="io.metersphere.project.dto.ProjectUserCreateCount">
+        SELECT bug.create_user as userId, count(bug.id) as count
+        FROM bug
+        WHERE bug.deleted = false
+        AND bug.project_id =  #{projectId}
+        AND bug.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="userIds != null and userIds.size() > 0">
+            and bug.create_user in
+            <foreach collection="userIds" item="userId" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+        </if>
+        group by bug.create_user;
+    </select>
+
 </mapper>
 

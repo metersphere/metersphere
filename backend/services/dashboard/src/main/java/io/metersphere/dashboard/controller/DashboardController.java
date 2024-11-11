@@ -50,6 +50,13 @@ public class DashboardController {
         return dashboardService.projectViewCount(request, SessionUtils.getUserId());
     }
 
+    @PostMapping("/project_member_view")
+    @Operation(summary = "人员概览")
+    @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
+    public OverViewCountDTO projectMemberViewCount(@Validated @RequestBody DashboardFrontPageRequest request) {
+        return dashboardService.projectMemberViewCount(request);
+    }
+
 
 
 

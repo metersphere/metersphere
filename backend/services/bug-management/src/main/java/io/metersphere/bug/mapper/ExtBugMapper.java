@@ -6,6 +6,7 @@ import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.dto.response.BugTagEditDTO;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.project.dto.ProjectCountDTO;
+import io.metersphere.project.dto.ProjectUserCreateCount;
 import io.metersphere.request.AssociateBugRequest;
 import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.system.interceptor.BaseConditionFilter;
@@ -113,5 +114,6 @@ public interface ExtBugMapper {
     List<String> getIdsByProvider(@Param("request") AssociateBugRequest request, @Param("deleted") boolean deleted);
 
     List<ProjectCountDTO> projectBugCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+    List<ProjectUserCreateCount> userCreateBugCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
 
 }
