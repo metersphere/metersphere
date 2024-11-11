@@ -132,7 +132,7 @@ public class XMindCaseParser {
                 this.formatTestCase(item.getTitle(), parent.getPath(), item.getChildren() != null ? item.getChildren().getAttached() : null);
             } else {
                 if (StringUtils.equalsIgnoreCase(parent.getPath().trim(), Translator.get("functional_case.module.default.name"))) {
-                     process.add(Translator.get("incorrect_format"), Translator.get("functional_case.module.default.name.add_error"));
+                    process.add(Translator.get("incorrect_format"), Translator.get("functional_case.module.default.name.add_error"));
                     return;
                 }
                 String nodePath = parent.getPath().trim() + "/" + item.getTitle().trim();
@@ -308,14 +308,14 @@ public class XMindCaseParser {
     private void formatTestCase(String title, String nodePath, List<Attached> attacheds) {
         FunctionalCaseExcelData testCase = new FunctionalCaseExcelData();
         String tc = title.replace("：", ":");
-        String[] tcArrs = tc.split(":");
+        String[] tcArrs = tc.split(":", 2);
         if (tcArrs.length <= 1) {
             process.add(Translator.get("test_case_name") + Translator.get("incorrect_format"), title);
             return;
         }
         // 用例名称
         String name = title.replace(tcArrs[0] + "：", StringUtils.EMPTY).replace(tcArrs[0] + ":", StringUtils.EMPTY);
-        if (name.length()>=255) {
+        if (name.length() >= 255) {
             process.add(Translator.get("test_case_name") + Translator.get("length.too.large"), title);
             return;
         }
@@ -365,7 +365,7 @@ public class XMindCaseParser {
                     }
                 } else {
                     //自定义字段
-                    String[] customFiled = item.getTitle().split("(?:\\s*:|：)",2);
+                    String[] customFiled = item.getTitle().split("(?:\\s*:|：)", 2);
                     Map<String, Object> stringObjectMap = testCase.getCustomData();
                     if (customFiled.length > 1) {
                         TemplateCustomFieldDTO templateCustomFieldDTO = customFieldsMap.get(customFiled[0]);
@@ -407,7 +407,7 @@ public class XMindCaseParser {
      */
     private String getSteps(List<Attached> attacheds, String caseName) {
         List<FunctionalCaseStepDTO> functionalCaseStepDTOS = new ArrayList<>();
-        if (attacheds!=null && !attacheds.isEmpty()) {
+        if (attacheds != null && !attacheds.isEmpty()) {
             for (int i = 0; i < attacheds.size(); i++) {
                 // 保持插入顺序，判断用例是否有相同的steps
                 FunctionalCaseStepDTO functionalCaseStepDTO = new FunctionalCaseStepDTO();
@@ -415,8 +415,8 @@ public class XMindCaseParser {
                 functionalCaseStepDTO.setNum(i + 1);
                 if (isAvailable(attacheds.get(i).getTitle(), STEP)) {
                     String stepDesc = attacheds.get(i).getTitle().replace("：", ":");
-                    String[] stepDescArrs = stepDesc.split(":");
-                    functionalCaseStepDTO.setDesc(StringUtils.isNotBlank(stepDescArrs[1]) ? stepDescArrs[1] : StringUtils.EMPTY);
+                    String[] stepDescArrs = stepDesc.split(":", 2);
+                    functionalCaseStepDTO.setDesc(stepDescArrs.length < 2 ? StringUtils.EMPTY : stepDescArrs[1]);
                 } else {
                     functionalCaseStepDTO.setDesc(StringUtils.EMPTY);
                 }
@@ -429,8 +429,8 @@ public class XMindCaseParser {
                     String title = attacheds.get(i).getChildren().getAttached().get(0).getTitle();
                     if (isAvailable(title, EXPECTED_RESULT)) {
                         String stepDesc = title.replace("：", ":");
-                        String[] stepDescArrs = stepDesc.split(":");
-                        functionalCaseStepDTO.setResult(StringUtils.isNotBlank(stepDescArrs[1]) ? stepDescArrs[1] : StringUtils.EMPTY);
+                        String[] stepDescArrs = stepDesc.split(":", 2);
+                        functionalCaseStepDTO.setResult(stepDescArrs.length < 2 ? StringUtils.EMPTY : stepDescArrs[1]);
                     } else {
                         functionalCaseStepDTO.setResult(StringUtils.EMPTY);
                     }
@@ -452,6 +452,7 @@ public class XMindCaseParser {
         }
         return JSON.toJSONString(functionalCaseStepDTOS);
     }
+
     /**
      * 获取步骤数据
      */
@@ -460,7 +461,7 @@ public class XMindCaseParser {
             String title = attacheds.get(0).getTitle();
             if (isAvailable(title, EXPECTED_RESULT)) {
                 String stepDesc = title.replace("：", ":");
-                String[] stepDescArrs = stepDesc.split(":");
+                String[] stepDescArrs = stepDesc.split(":", 2);
                 return StringUtils.isNotBlank(stepDescArrs[1]) ? stepDescArrs[1] : StringUtils.EMPTY;
             } else {
                 return StringUtils.EMPTY;
