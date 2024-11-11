@@ -6,7 +6,5 @@ import lombok.Data;
 public class TestPlanApiScenarioBatchRunDTO {
     private String id;
     private String name;
-    private String apiScenarioId;
-    private String environmentId;
     private String testPlanCollectionId;
 }

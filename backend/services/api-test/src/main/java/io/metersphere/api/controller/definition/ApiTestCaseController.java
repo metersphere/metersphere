@@ -51,6 +51,8 @@ public class ApiTestCaseController {
     @Resource
     private ApiTestCaseService apiTestCaseService;
     @Resource
+    private ApiTestCaseRunService apiTestCaseRunService;
+    @Resource
     private ApiTestCaseRecoverService apiTestCaseRecoverService;
     @Resource
     private FileModuleService fileModuleService;
@@ -282,7 +284,7 @@ public class ApiTestCaseController {
     @Operation(summary = "用例调试")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
     public TaskRequestDTO debug(@Validated @RequestBody ApiCaseRunRequest request) {
-        return apiTestCaseService.debug(request, SessionUtils.getUserId());
+        return apiTestCaseRunService.debug(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/run/{id}")
@@ -292,14 +294,14 @@ public class ApiTestCaseController {
     public TaskRequestDTO run(@PathVariable String id,
                               @Schema(description = "报告ID，传了可以实时获取结果，不传则不支持实时获取")
                               @RequestParam(required = false) String reportId) {
-        return apiTestCaseService.run(id, reportId, SessionUtils.getUserId());
+        return apiTestCaseRunService.run(id, reportId, SessionUtils.getUserId());
     }
 
     @PostMapping("/run")
     @Operation(summary = "用例执行，传请求详情执行")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
     public TaskRequestDTO run(@Validated @RequestBody ApiCaseRunRequest request) {
-        return apiTestCaseService.run(request, SessionUtils.getUserId());
+        return apiTestCaseRunService.run(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/batch/run")
@@ -307,7 +309,7 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_EXECUTE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
     public void batchRun(@Validated @RequestBody ApiTestCaseBatchRunRequest request) {
-        apiTestCaseBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
+        apiTestCaseBatchRunService.batchRun(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/get-reference")

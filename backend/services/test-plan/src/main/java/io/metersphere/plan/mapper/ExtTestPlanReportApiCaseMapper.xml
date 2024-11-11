@@ -85,6 +85,11 @@
         where test_plan_collection_id = #{collectionId}
           AND test_plan_report_id = #{reportId};
     </select>
+    <select id="getSortIds" resultType="java.lang.String">
+        select id from test_plan_report_api_case
+        where test_plan_report_id = #{testPlanReportId} and test_plan_collection_id = #{collectionId}
+        order by pos asc
+    </select>
 
     <sql id="filter">
         <if test="request.filter != null and request.filter.size() > 0">

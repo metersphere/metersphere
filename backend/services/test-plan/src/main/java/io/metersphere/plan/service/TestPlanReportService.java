@@ -662,6 +662,7 @@ public class TestPlanReportService {
             execTaskItem.setResourceId(apiTestCase.getId());
             execTaskItem.setResourceName(apiTestCase.getApiCaseName());
             execTaskItem.setTaskOrigin(testPlanId);
+            execTaskItem.setCollectionId(apiTestCase.getTestPlanCollectionId());
             execTaskItems.add(execTaskItem);
         }
         baseTaskHubService.insertExecTaskDetail(execTaskItems);
@@ -675,6 +676,7 @@ public class TestPlanReportService {
             execTaskItem.setResourceType(ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name());
             execTaskItem.setResourceId(testPlanReportApiScenario.getId());
             execTaskItem.setResourceName(testPlanReportApiScenario.getApiScenarioName());
+            execTaskItem.setCollectionId(testPlanReportApiScenario.getTestPlanCollectionId());
             execTaskItem.setTaskOrigin(testPlanId);
             execTaskItems.add(execTaskItem);
         }

@@ -2,6 +2,7 @@ package io.metersphere.api.mapper;
 
 
 import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.dto.ApiResourceBatchRunInfo;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.scenario.ScenarioSystemRequest;
 import io.metersphere.dto.TestCaseProviderDTO;
@@ -79,7 +80,7 @@ public interface ExtApiTestCaseMapper {
 
     DropNode selectNodeByPosOperator(NodeSortQueryParam nodeSortQueryParam);
 
-    List<ApiTestCase> getApiCaseExecuteInfoByIds(@Param("ids") List<String> ids);
+    List<ApiResourceBatchRunInfo> getApiCaseExecuteInfoByIds(@Param("ids") List<String> ids);
 
     /**
      * 获取缺陷未关联的接口用例列表

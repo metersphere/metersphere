@@ -1,5 +1,6 @@
 package io.metersphere.api.service;
 
+import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
@@ -16,6 +17,11 @@ public interface ApiExecuteCallbackService {
     GetRunScriptResult getRunScript(GetRunScriptRequest request);
 
     /**
+     * 解析并返回执行脚本
+     */
+    String initReport(GetRunScriptRequest request);
+
+    /**
      * 串行时，执行下一个任务
      * @param queue
      * @param queueDetail
@@ -25,9 +31,9 @@ public interface ApiExecuteCallbackService {
     /**
      * 批量串行的测试集执行时
      * 测试集下用例执行完成时回调
-     * @param collectionQueueId
+     * @param apiNoticeDTO
      */
-    default void executeNextCollection(String collectionQueueId, boolean isStopOnFailure) {
+    default void executeNextCollection(ApiNoticeDTO apiNoticeDTO, boolean isStopOnFailure) {
     }
 
     /**

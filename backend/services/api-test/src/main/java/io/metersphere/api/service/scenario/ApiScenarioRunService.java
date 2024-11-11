@@ -221,37 +221,33 @@ public class ApiScenarioRunService {
         taskInfo.setTaskId(execTask.getId());
         taskInfo.getRunModeConfig().setPoolId(poolId);
         taskInfo.setSaveResult(true);
+        taskInfo.setTriggerMode(TaskTriggerMode.MANUAL.name());
         taskInfo.getRunModeConfig().setEnvironmentId(parseParam.getEnvironmentId());
         taskRequest.getTaskItem().setRequestCount(tmpParam.getRequestCount().get());
         taskInfo.setUserId(userId);
 
         if (StringUtils.isEmpty(taskItem.getReportId())) {
             taskInfo.setRealTime(false);
-            reportId = IDGenerator.nextStr();
-            taskItem.setReportId(reportId);
         } else {
             // 如果传了报告ID，则实时获取结果
             taskInfo.setRealTime(true);
+
+            // 传了报告ID，则预生成报告
+            ApiScenarioReport scenarioReport = getScenarioReport(apiScenario, userId);
+            scenarioReport.setId(reportId);
+            scenarioReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
+            scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
+            scenarioReport.setPoolId(poolId);
+            scenarioReport.setEnvironmentId(parseParam.getEnvironmentId());
+            scenarioReport.setWaitingTime(getGlobalWaitTime(parseParam.getScenarioConfig()));
+            initApiScenarioReport(taskItem.getId(), apiScenario, scenarioReport);
+
+            // 初始化报告步骤
+            initScenarioReportSteps(steps, taskItem.getReportId());
         }
 
         ApiScenarioParamConfig parseConfig = getApiScenarioParamConfig(apiScenario.getProjectId(), parseParam, tmpParam.getScenarioParseEnvInfo());
-        parseConfig.setReportId(reportId);
         parseConfig.setTaskItemId(taskItem.getId());
-
-        // 初始化报告
-        ApiScenarioReport scenarioReport = getScenarioReport(userId);
-        scenarioReport.setId(reportId);
-        scenarioReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
-        scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
-        scenarioReport.setPoolId(poolId);
-        scenarioReport.setEnvironmentId(parseParam.getEnvironmentId());
-        scenarioReport.setWaitingTime(getGlobalWaitTime(parseParam.getScenarioConfig()));
-
-        initApiReport(taskItem.getId(), apiScenario, scenarioReport);
-
-        // 初始化报告步骤
-        initScenarioReportSteps(steps, taskItem.getReportId());
-
         return apiExecuteService.execute(runRequest, taskRequest, parseConfig);
     }
 
@@ -287,13 +283,6 @@ public class ApiScenarioRunService {
                 .toList();
     }
 
-    /**
-     * 解析并返回执行脚本等信息
-     */
-    public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
-        return getRunScript(request, request.getTaskItem().getResourceId());
-    }
-
     public GetRunScriptResult getRunScript(GetRunScriptRequest request, String id) {
         ApiScenarioDetail apiScenarioDetail = getForRun(id);
         return getRunScript(request, apiScenarioDetail);
@@ -302,7 +291,6 @@ public class ApiScenarioRunService {
     public GetRunScriptResult getRunScript(GetRunScriptRequest request, ApiScenarioDetail apiScenarioDetail) {
         TaskItem taskItem = request.getTaskItem();
         ApiRunModeConfigDTO runModeConfig = request.getRunModeConfig();
-        String reportId = taskItem.getReportId();
 
         if (apiScenarioDetail == null) {
             if (runModeConfig.isIntegratedReport()) {
@@ -323,14 +311,6 @@ public class ApiScenarioRunService {
         parseParam.setEnvironmentId(envId);
         parseParam.setGrouped(envGroup);
 
-        // 初始化报告步骤
-        if (runModeConfig.isIntegratedReport()) {
-            initScenarioReportSteps(apiScenarioDetail.getId(), apiScenarioDetail.getSteps(), runModeConfig.getCollectionReport().getReportId());
-        } else {
-            updateReportWaitTime(reportId, parseParam);
-            initScenarioReportSteps(apiScenarioDetail.getSteps(), reportId);
-        }
-
         GetRunScriptResult runScriptResult = new GetRunScriptResult();
         // 记录请求数量
         runScriptResult.setRequestCount(getRequestCount(apiScenarioDetail.getSteps()));
@@ -341,7 +321,6 @@ public class ApiScenarioRunService {
         ApiResourceRunRequest runRequest = getApiResourceRunRequest(msScenario, tmpParam);
 
         ApiScenarioParamConfig parseConfig = getApiScenarioParamConfig(apiScenarioDetail.getProjectId(), parseParam, tmpParam.getScenarioParseEnvInfo());
-        parseConfig.setReportId(reportId);
         parseConfig.setTaskItemId(taskItem.getId());
         parseConfig.setRetryOnFail(request.getRunModeConfig().getRetryOnFail());
         parseConfig.setRetryConfig(request.getRunModeConfig().getRetryConfig());
@@ -435,7 +414,6 @@ public class ApiScenarioRunService {
         taskItem.setRequestCount(tmpParam.getRequestCount().get());
 
         ApiScenarioParamConfig parseConfig = getApiScenarioParamConfig(request.getProjectId(), request, tmpParam.getScenarioParseEnvInfo());
-        parseConfig.setReportId(request.getReportId());
         parseConfig.setTaskItemId(taskItem.getId());
 
         return apiExecuteService.execute(runRequest, taskRequest, parseConfig);
@@ -468,6 +446,12 @@ public class ApiScenarioRunService {
         return waitTime;
     }
 
+    public String initApiScenarioReport(String taskItemId, ApiScenario apiScenario, GetRunScriptRequest request) {
+        // 初始化报告
+        ApiScenarioReport scenarioReport = getScenarioReport(apiScenario, request);
+        apiScenarioReportService.insertApiScenarioReport(scenarioReport);
+        return initApiScenarioReportDetail(taskItemId, apiScenario.getId(), request.getTaskItem().getReportId());
+    }
 
     /**
      * 预生成用例的执行报告
@@ -475,21 +459,21 @@ public class ApiScenarioRunService {
      * @param apiScenario
      * @return
      */
-    public ApiScenarioRecord initApiReport(String taskItemId, ApiScenario apiScenario, ApiScenarioReport scenarioReport) {
+    public String initApiScenarioReport(String taskItemId, ApiScenario apiScenario, ApiScenarioReport scenarioReport) {
         // 初始化报告
-        scenarioReport.setName(apiScenario.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
         scenarioReport.setProjectId(apiScenario.getProjectId());
+        apiScenarioReportService.insertApiScenarioReport(scenarioReport);
+        return initApiScenarioReportDetail(taskItemId, apiScenario.getId(), scenarioReport.getId());
+    }
 
+    public String initApiScenarioReportDetail(String taskItemId, String apiScenarioId, String reportId) {
         // 创建报告和用例的关联关系
-        ApiScenarioRecord scenarioRecord = getApiScenarioRecord(apiScenario, scenarioReport);
+        ApiScenarioRecord scenarioRecord = getApiScenarioRecord(apiScenarioId, reportId);
+        // 初始化报告和任务的关联关系
+        ApiReportRelateTask apiReportRelateTask = apiCommonService.getApiReportRelateTask(taskItemId, reportId);
 
-        // 创建报告和任务的关联关系
-        ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
-        apiReportRelateTask.setReportId(scenarioReport.getId());
-        apiReportRelateTask.setTaskResourceId(taskItemId);
-
-        apiScenarioReportService.insertApiScenarioReport(List.of(scenarioReport), List.of(scenarioRecord), List.of(apiReportRelateTask));
-        return scenarioRecord;
+        apiScenarioReportService.insertApiScenarioReportDetail(scenarioRecord, apiReportRelateTask);
+        return scenarioRecord.getApiScenarioReportId();
     }
 
     public Long getRequestCount(List<ApiScenarioStepDTO> steps) {
@@ -553,15 +537,19 @@ public class ApiScenarioRunService {
         return scenarioReportStep;
     }
 
-    public ApiScenarioRecord getApiScenarioRecord(ApiScenario apiScenario, ApiScenarioReport scenarioReport) {
-        return getApiScenarioRecord(apiScenario.getId(), scenarioReport);
-    }
-
-    public ApiScenarioRecord getApiScenarioRecord(String apiScenarioId, ApiScenarioReport scenarioReport) {
+    public ApiScenarioRecord getApiScenarioRecord(String apiScenarioId, String reportId) {
         ApiScenarioRecord scenarioRecord = new ApiScenarioRecord();
         scenarioRecord.setApiScenarioId(apiScenarioId);
-        scenarioRecord.setApiScenarioReportId(scenarioReport.getId());
+        scenarioRecord.setApiScenarioReportId(reportId);
         return scenarioRecord;
+    }
+
+    public ApiScenarioReport getScenarioReport(ApiScenario apiScenario, String userId) {
+        ApiScenarioReport scenarioReport = getScenarioReport(userId);
+        scenarioReport.setName(apiScenario.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
+        scenarioReport.setEnvironmentId(apiScenario.getEnvironmentId());
+        scenarioReport.setProjectId(apiScenario.getProjectId());
+        return scenarioReport;
     }
 
     public ApiScenarioReport getScenarioReport(String userId) {
@@ -574,6 +562,15 @@ public class ApiScenarioRunService {
         scenarioReport.setUpdateTime(System.currentTimeMillis());
         scenarioReport.setUpdateUser(userId);
         scenarioReport.setCreateUser(userId);
+        return scenarioReport;
+    }
+
+    public ApiScenarioReport getScenarioReport(ApiScenario apiScenario, GetRunScriptRequest request) {
+        ApiScenarioReport scenarioReport = getScenarioReport(apiScenario, request.getUserId());
+        scenarioReport.setExecStatus(ExecStatus.RUNNING.name());
+        scenarioReport.setRunMode(request.getRunMode());
+        scenarioReport.setTriggerMode(request.getTriggerMode());
+        scenarioReport.setPoolId(request.getPoolId());
         return scenarioReport;
     }
 

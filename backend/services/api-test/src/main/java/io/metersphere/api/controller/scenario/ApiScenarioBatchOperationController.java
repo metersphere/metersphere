@@ -3,6 +3,10 @@ package io.metersphere.api.controller.scenario;
 import io.metersphere.api.constants.ApiResource;
 import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
 import io.metersphere.api.dto.scenario.*;
+import io.metersphere.api.dto.scenario.ApiScenarioBatchCopyMoveRequest;
+import io.metersphere.api.dto.scenario.ApiScenarioBatchEditRequest;
+import io.metersphere.api.dto.scenario.ApiScenarioBatchRequest;
+import io.metersphere.api.dto.scenario.ApiScenarioBatchRunRequest;
 import io.metersphere.api.service.ApiValidateService;
 import io.metersphere.api.service.scenario.ApiScenarioBatchRunService;
 import io.metersphere.api.service.scenario.ApiScenarioNoticeService;
@@ -96,7 +100,7 @@ public class ApiScenarioBatchOperationController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
     public void batchRun(@Validated @RequestBody ApiScenarioBatchRunRequest request) {
         apiValidateService.validateApiMenuInProject(request.getProjectId(), ApiResource.PROJECT.name());
-        apiScenarioBatchRunService.asyncBatchRun(request, SessionUtils.getUserId());
+        apiScenarioBatchRunService.batchRun(request, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/batch-operation/schedule-config")

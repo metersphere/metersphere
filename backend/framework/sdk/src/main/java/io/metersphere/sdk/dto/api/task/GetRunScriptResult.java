@@ -14,6 +14,10 @@ public class GetRunScriptResult implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 报告ID
+     */
+    private String reportId;
+    /**
      * 执行脚本
      */
     private String script;

@@ -19,8 +19,13 @@ import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.bug.dto.response.BugCustomFieldDTO;
 import io.metersphere.plan.constants.AssociateCaseType;
+import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.domain.TestPlanApiScenarioExample;
+import io.metersphere.plan.enums.TestPlanStatus;
+import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.plan.service.TestPlanService;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.system.dto.ModuleSelectDTO;
 import io.metersphere.plan.dto.TestPlanCollectionAssociateDTO;
 import io.metersphere.plan.dto.request.*;
@@ -31,10 +36,6 @@ import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.request.BugPageProviderRequest;
-import io.metersphere.sdk.constants.ApiBatchRunMode;
-import io.metersphere.sdk.constants.MsAssertionCondition;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.util.JSON;
@@ -106,6 +107,8 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     private static TestPlanApiScenario testPlanApiScenario;
     @Resource
     private ExtBaseProjectVersionMapper extBaseProjectVersionMapper;
+    @Resource
+    private TestPlanMapper testPlanMapper;
 
     @Override
     public String getBasePath() {
@@ -116,9 +119,29 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
     @Order(1)
     public void associate() {
         apiScenario = initApiData();
+
+        TestPlan testPlan = new TestPlan();
+        testPlan.setId(IDGenerator.nextStr());
+        testPlan.setPos(0L);
+        testPlan.setName(UUID.randomUUID().toString());
+        testPlan.setProjectId(DEFAULT_PROJECT_ID);
+        testPlan.setActualEndTime(System.currentTimeMillis());
+        testPlan.setPlannedStartTime(System.currentTimeMillis());
+        testPlan.setActualEndTime(System.currentTimeMillis());
+        testPlan.setUpdateTime(System.currentTimeMillis());
+        testPlan.setCreateTime(System.currentTimeMillis());
+        testPlan.setCreateUser(InternalUser.ADMIN.getValue());
+        testPlan.setUpdateUser(InternalUser.ADMIN.getValue());
+        testPlan.setModuleId(UUID.randomUUID().toString());
+        testPlan.setStatus(TestPlanStatus.COMPLETED.name());
+        testPlan.setNum(IDGenerator.nextNum());
+        testPlan.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+        testPlan.setGroupId(testPlan.getId());
+        testPlanMapper.insert(testPlan);
+
         TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
         testPlanApiScenario.setApiScenarioId(apiScenario.getId());
-        testPlanApiScenario.setTestPlanId("wxxx_1");
+        testPlanApiScenario.setTestPlanId(testPlan.getId());
         testPlanApiScenario.setTestPlanCollectionId("wxxx_1");
         testPlanApiScenario.setId(UUID.randomUUID().toString());
         testPlanApiScenario.setCreateTime(System.currentTimeMillis());
@@ -140,7 +163,12 @@ public class TestPlanApiScenarioControllerTests extends BaseTest {
         TaskItem taskItem = new TaskItem();
         taskItem.setResourceId(testPlanApiScenario.getId());
         taskItem.setReportId("reportId");
+        taskItem.setId(UUID.randomUUID().toString());
         request.setTaskItem(taskItem);
+        request.setPoolId("poolId");
+        request.setUserId(InternalUser.ADMIN.getValue());
+        request.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        request.setRunMode(ApiExecuteRunMode.RUN.name());
         testPlanApiScenarioService.getRunScript(request);
 
         // @@校验权限

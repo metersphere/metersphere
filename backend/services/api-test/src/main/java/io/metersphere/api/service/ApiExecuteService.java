@@ -227,6 +227,7 @@ public class ApiExecuteService {
                 // 如果资源池配置了当前站点，则使用资源池的
                 taskInfo.setMsUrl(testResourcePoolDTO.getServerUrl());
             }
+            taskInfo.setPoolId(testResourcePoolDTO.getId());
 
             // 判断是否为 K8S 资源池
             boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.getName());
@@ -313,6 +314,8 @@ public class ApiExecuteService {
             // 如果资源池配置了当前站点，则使用资源池的
             taskInfo.setMsUrl(testResourcePool.getServerUrl());
         }
+        taskInfo.setPoolId(testResourcePool.getId());
+
         // 判断是否为 K8S 资源池
         boolean isK8SResourcePool = StringUtils.equals(testResourcePool.getType(), ResourcePoolTypeEnum.K8S.getName());
         if (isK8SResourcePool) {
@@ -760,7 +763,6 @@ public class ApiExecuteService {
         ApiParamConfig paramConfig = new ApiParamConfig();
         paramConfig.setTestElementClassPluginIdMap(apiPluginService.getTestElementPluginMap());
         paramConfig.setTestElementClassProtocolMap(apiPluginService.getTestElementProtocolMap());
-        paramConfig.setReportId(reportId);
         return paramConfig;
     }
 
@@ -768,7 +770,6 @@ public class ApiExecuteService {
         ApiParamConfig paramConfig = new ApiParamConfig();
         paramConfig.setTestElementClassPluginIdMap(apiPluginService.getTestElementPluginMap());
         paramConfig.setTestElementClassProtocolMap(apiPluginService.getTestElementProtocolMap());
-        paramConfig.setReportId(reportId);
         paramConfig.setGlobalParams(getGlobalParam(projectId));
         return paramConfig;
     }
@@ -786,6 +787,10 @@ public class ApiExecuteService {
         TaskInfo taskInfo = new TaskInfo();
         taskInfo.setProjectId(projectId);
         return taskInfo;
+    }
+
+    public TaskItem getTaskItem(String resourceId) {
+        return getTaskItem(null, resourceId);
     }
 
     public TaskItem getTaskItem(String reportId, String resourceId) {

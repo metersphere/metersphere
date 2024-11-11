@@ -52,4 +52,6 @@ public interface ExtTestPlanReportApiCaseMapper {
     List<String> getIdsByReportIdAndCollectionId(@Param("testPlanReportId") String testPlanReportId, @Param("collectionId") String collectionId);
 
 	List<String> selectExecResultByReportIdAndCollectionId(@Param("collectionId") String collectionId, @Param("reportId") String prepareReportId);
+
+    List<String> getSortIds(@Param("testPlanReportId") String testPlanReportId, @Param("collectionId") String collectionId);
 }

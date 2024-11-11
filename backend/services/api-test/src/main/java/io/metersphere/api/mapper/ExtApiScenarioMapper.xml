@@ -553,8 +553,8 @@
         ORDER BY pos DESC
             LIMIT 1;
     </select>
-    <select id="getScenarioExecuteInfoByIds" resultType="io.metersphere.api.domain.ApiScenario">
-        select id, name, environment_id, project_id
+    <select id="getScenarioExecuteInfoByIds" resultType="io.metersphere.api.dto.ApiResourceBatchRunInfo">
+        select id, name
         from api_scenario
         where id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">

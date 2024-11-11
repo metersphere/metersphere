@@ -7,10 +7,13 @@ import io.metersphere.sdk.constants.CommonConstants;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
+import io.metersphere.sdk.dto.api.task.TaskBatchRequestDTO;
 import io.metersphere.sdk.dto.api.task.TaskInfo;
+import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.mapper.ExecTaskMapper;
@@ -21,10 +24,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -37,28 +37,13 @@ public class ApiBatchRunBaseService {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
     @Resource
+    private ApiExecuteService apiExecuteService;
+    @Resource
     private ExecTaskMapper execTaskMapper;
 
-    private final static ThreadLocal<Locale> localeThreadLocal = new ThreadLocal<>();
+    public static final int BATCH_TASK_ITEM_SIZE = 500;
 
-    public static void setLocale(Locale locale) {
-        localeThreadLocal.set(locale);
-    }
-
-    public static Locale getLocale() {
-        return localeThreadLocal.get();
-    }
-
-    /**
-     * 初始化执行队列
-     *
-     * @param resourceIds
-     * @param runModeConfig
-     * @return
-     */
-    public ExecutionQueue initExecutionqueue(List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, String parentQueueId, String userId) {
-        return initExecutionqueue(null, resourceIds, runModeConfig, resourceType, parentQueueId, userId);
-    }
+    public static final int SELECT_BATCH_SIZE = 200;
 
     /**
      * 初始化执行队列
@@ -94,8 +79,7 @@ public class ApiBatchRunBaseService {
                                              String parentQueueId,
                                              String parentSetId,
                                              String userId) {
-        ExecutionQueue queue = getExecutionQueue(runModeConfig, resourceType, userId);
-        queue.setTaskId(taskId);
+        ExecutionQueue queue = getExecutionQueue(runModeConfig, resourceType, taskId, userId);
         if (StringUtils.isNotBlank(queueId)) {
             queue.setQueueId(queueId);
         }
@@ -141,13 +125,18 @@ public class ApiBatchRunBaseService {
         return queueDetails;
     }
 
-    private ExecutionQueue getExecutionQueue(ApiRunModeConfigDTO runModeConfig, String resourceType, String userId) {
+    public ExecutionQueue getExecutionQueue(ApiRunModeConfigDTO runModeConfig, String resourceType, String userId) {
+        return getExecutionQueue(runModeConfig, resourceType, null, userId);
+    }
+
+    public ExecutionQueue getExecutionQueue(ApiRunModeConfigDTO runModeConfig, String resourceType, String taskId, String userId) {
         ExecutionQueue queue = new ExecutionQueue();
         queue.setQueueId(UUID.randomUUID().toString());
         queue.setRunModeConfig(runModeConfig);
         queue.setResourceType(resourceType);
         queue.setCreateTime(System.currentTimeMillis());
         queue.setUserId(userId);
+        queue.setTaskId(taskId);
         return queue;
     }
 
@@ -246,5 +235,51 @@ public class ApiBatchRunBaseService {
      */
     public void removeRunningTaskCache(String taskId) {
         stringRedisTemplate.delete(CommonConstants.RUNNING_TASK_PREFIX + taskId);
+    }
+
+    public void parallelBatchExecute(TaskBatchRequestDTO taskRequest,
+                         ApiRunModeConfigDTO runModeConfig,
+                         Map<String, String> resourceExecTaskItemMap) {
+
+        int count = 0;
+        List<TaskItem> taskItems = new ArrayList<>(BATCH_TASK_ITEM_SIZE);
+        for (String resourceId : resourceExecTaskItemMap.keySet()) {
+
+            // 如果是集成报告则生成唯一的虚拟ID，非集成报告使用单用例的报告ID
+            String reportId = runModeConfig.isIntegratedReport() ? runModeConfig.getCollectionReport().getReportId() : null;
+            TaskItem taskItem = apiExecuteService.getTaskItem(reportId, resourceId);
+            taskItem.setId(resourceExecTaskItemMap.get(resourceId));
+            taskItem.setRequestCount(1L);
+            taskItems.add(taskItem);
+
+            count++;
+            if (count >= BATCH_TASK_ITEM_SIZE) {
+                taskRequest.setTaskItems(taskItems);
+                apiExecuteService.batchExecute(taskRequest);
+                taskRequest.setTaskItems(null);
+                count = 0;
+            }
+        }
+
+        if (count > 0) {
+            taskRequest.setTaskItems(taskItems);
+            apiExecuteService.batchExecute(taskRequest);
+        }
+    }
+
+    public List<ExecTaskItem> getExecTaskItemByTaskIdAndCollectionId(String taskId, String collectionId) {
+        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectExecInfoByTaskIdAndCollectionId(taskId, collectionId)
+                .stream().sorted(Comparator.comparing(ExecTaskItem::getId)).toList();
+        return execTaskItems;
+    }
+
+    /**
+     * 初始化队列项
+     * @param queue
+     * @param execTaskItems
+     */
+    public void initQueueDetail(ExecutionQueue queue, List<ExecTaskItem> execTaskItems) {
+        SubListUtils.dealForSubList(execTaskItems, ApiBatchRunBaseService.BATCH_TASK_ITEM_SIZE,
+                subExecTaskItems -> initExecutionQueueDetails(queue.getQueueId(), subExecTaskItems));
     }
 }

@@ -1,6 +1,7 @@
 package io.metersphere.api.mapper;
 
 import io.metersphere.api.domain.ApiScenario;
+import io.metersphere.api.dto.ApiResourceBatchRunInfo;
 import io.metersphere.api.dto.definition.ExecutePageRequest;
 import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.scenario.*;
@@ -61,7 +62,7 @@ public interface ExtApiScenarioMapper {
 
     Long getPos(String projectId);
 
-    List<ApiScenario> getScenarioExecuteInfoByIds(@Param("ids") List<String> ids);
+    List<ApiResourceBatchRunInfo> getScenarioExecuteInfoByIds(@Param("ids") List<String> ids);
 
     List<ModuleCountDTO> countModuleIdByRequest(@Param("request") ApiScenarioModuleRequest request, @Param("deleted") boolean deleted);
 

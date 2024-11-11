@@ -12,10 +12,7 @@ import io.metersphere.api.mapper.ExtApiTestCaseMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
-import io.metersphere.api.service.definition.ApiDefinitionModuleService;
-import io.metersphere.api.service.definition.ApiDefinitionService;
-import io.metersphere.api.service.definition.ApiReportService;
-import io.metersphere.api.service.definition.ApiTestCaseService;
+import io.metersphere.api.service.definition.*;
 import io.metersphere.bug.domain.BugRelationCase;
 import io.metersphere.bug.domain.BugRelationCaseExample;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
@@ -88,6 +85,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private ApiTestCaseRunService apiTestCaseRunService;
     @Resource
     private ApiBatchRunBaseService apiBatchRunBaseService;
     @Resource
@@ -784,15 +783,11 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
 
         if (StringUtils.isEmpty(taskItem.getReportId())) {
             taskInfo.setRealTime(false);
-            reportId = IDGenerator.nextStr();
-            taskItem.setReportId(reportId);
+            taskItem.setReportId(IDGenerator.nextStr());
         } else {
             // 如果传了报告ID，则实时获取结果
             taskInfo.setRealTime(true);
         }
-
-        // 初始化报告
-        initApiReport(taskItem.getId(), apiTestCase, testPlanApiCase, reportId, runModeConfig, userId);
 
         return apiExecuteService.execute(taskRequest);
     }
@@ -802,50 +797,37 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     }
 
     /**
-     * 获取执行脚本
-     */
-    public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
-        TaskItem taskItem = request.getTaskItem();
-        TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(taskItem.getResourceId());
-        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
-        apiTestCase.setEnvironmentId(testPlanApiCase.getEnvironmentId());
-        return apiTestCaseService.getRunScript(request, apiTestCase);
-    }
-
-    /**
      * 预生成用例的执行报告
      *
      * @return
      */
-    public ApiTestCaseRecord initApiReport(String taskItemId, ApiTestCase apiTestCase, TestPlanApiCase testPlanApiCase, String reportId, ApiRunModeConfigDTO runModeConfig, String userId) {
+    public ApiTestCaseRecord initApiReport(ApiTestCase apiTestCase, TestPlanApiCase testPlanApiCase, GetRunScriptRequest request) {
         // 初始化报告
-        ApiReport apiReport = apiTestCaseService.getApiReport(apiTestCase, reportId, runModeConfig.getPoolId(), userId);
-        apiReport.setEnvironmentId(runModeConfig.getEnvironmentId());
+        ApiRunModeConfigDTO runModeConfig = request.getRunModeConfig();
+        ApiReport apiReport = apiTestCaseRunService.getApiReport(apiTestCase, request);
+        apiReport.setEnvironmentId(apiTestCaseRunService.getEnvId(runModeConfig, testPlanApiCase.getEnvironmentId()));
         apiReport.setTestPlanCaseId(testPlanApiCase.getId());
+        apiReportService.insertApiReport(apiReport);
 
         // 创建报告和用例的关联关系
-        ApiTestCaseRecord apiTestCaseRecord = apiTestCaseService.getApiTestCaseRecord(apiTestCase, apiReport);
-
+        ApiTestCaseRecord apiTestCaseRecord = apiTestCaseRunService.getApiTestCaseRecord(apiTestCase, apiReport.getId());
         // 创建报告和任务的关联关系
-        ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
-        apiReportRelateTask.setReportId(apiReport.getId());
-        apiReportRelateTask.setTaskResourceId(taskItemId);
-
-        apiReportService.insertApiReport(List.of(apiReport), List.of(apiTestCaseRecord), List.of(apiReportRelateTask));
-
+        ApiReportRelateTask apiReportRelateTask = apiCommonService.getApiReportRelateTask(request.getTaskItem().getId(), apiReport.getId());
         //初始化步骤
-        apiReportService.insertApiReportStep(List.of(getApiReportStep(testPlanApiCase, apiTestCase, reportId)));
+        ApiReportStep apiReportStep = getApiReportStep(testPlanApiCase, apiTestCase, apiReport.getId());
+        apiReportService.insertApiReportDetail(apiReportStep, apiTestCaseRecord, apiReportRelateTask);
+
         return apiTestCaseRecord;
     }
 
     public ApiReportStep getApiReportStep(TestPlanApiCase testPlanApiCase, ApiTestCase apiTestCase, String reportId) {
-        ApiReportStep apiReportStep = apiTestCaseService.getApiReportStep(testPlanApiCase.getId(), apiTestCase.getName(), reportId, 1L);
+        ApiReportStep apiReportStep = apiTestCaseRunService.getApiReportStep(testPlanApiCase.getId(), apiTestCase.getName(), reportId, 1L);
         apiReportStep.setStepType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
         return apiReportStep;
     }
 
     public TaskRequestDTO getTaskRequest(String reportId, String resourceId, String projectId, String runModule) {
-        TaskRequestDTO taskRequest = apiTestCaseService.getTaskRequest(reportId, resourceId, projectId, runModule);
+        TaskRequestDTO taskRequest = apiTestCaseRunService.getTaskRequest(reportId, resourceId, projectId, runModule);
         taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
         taskRequest.getTaskInfo().setNeedParseScript(true);
         return taskRequest;

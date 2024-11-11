@@ -37,6 +37,8 @@ public interface ExtExecTaskItemMapper {
 
     List<ExecTaskItem> selectExecInfoByTaskIdAndResourceIds(@Param("taskId") String taskId, @Param("resourceIds") List<String> resourceIds);
 
+    List<ExecTaskItem> selectExecInfoByTaskIdAndCollectionId(@Param("taskId") String taskId, @Param("collectionId") String collectionId);
+
     Boolean hasErrorItem(@Param("taskId") String taskId);
 
     Boolean hasFakeErrorItem(@Param("taskId") String taskId);

@@ -34,12 +34,13 @@ public class ApiExecutionSetService {
     /**
      * 从执行集合中去除选项
      */
-    public void removeItem(String setId, String resourceId) {
+    public Long removeItem(String setId, String resourceId) {
         stringRedisTemplate.opsForSet().remove(SET_PREFIX + setId, resourceId);
         Long size = stringRedisTemplate.opsForSet().size(SET_PREFIX + setId);
         if (size == null || size == 0) {
             // 集合没有元素，则删除集合
             stringRedisTemplate.delete(SET_PREFIX + setId);
         }
+        return size;
     }
 }

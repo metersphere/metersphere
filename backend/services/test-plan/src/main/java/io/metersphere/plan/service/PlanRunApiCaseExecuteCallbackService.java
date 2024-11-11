@@ -1,8 +1,14 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.invoker.ApiExecuteCallbackServiceInvoker;
+import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.service.ApiExecuteCallbackService;
+import io.metersphere.api.service.definition.ApiTestCaseRunService;
+import io.metersphere.plan.domain.TestPlanReportApiCase;
+import io.metersphere.plan.mapper.TestPlanReportApiCaseMapper;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
@@ -24,6 +30,15 @@ public class PlanRunApiCaseExecuteCallbackService implements ApiExecuteCallbackS
     @Resource
     private PlanRunTestPlanApiCaseService planRunTestPlanApiCaseService;
 
+    @Resource
+    private TestPlanReportApiCaseMapper testPlanReportApiCaseMapper;
+
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
+
+    @Resource
+    private ApiTestCaseRunService apiTestCaseRunService;
+
     public PlanRunApiCaseExecuteCallbackService() {
         ApiExecuteCallbackServiceInvoker.register(ApiExecuteResourceType.PLAN_RUN_API_CASE, this);
     }
@@ -33,7 +48,23 @@ public class PlanRunApiCaseExecuteCallbackService implements ApiExecuteCallbackS
      */
     @Override
     public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
-        return planRunTestPlanApiCaseService.getRunScript(request);
+        TestPlanReportApiCase testPlanReportApiCase = testPlanReportApiCaseMapper.selectByPrimaryKey(request.getTaskItem().getResourceId());
+        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testPlanReportApiCase.getApiCaseId());
+        String reportId = initReport(request, testPlanReportApiCase, apiTestCase);
+        GetRunScriptResult result = apiTestCaseRunService.getRunScript(request, apiTestCase);
+        result.setReportId(reportId);
+        return result;
+    }
+
+    @Override
+    public String initReport(GetRunScriptRequest request) {
+        TestPlanReportApiCase testPlanReportApiCase = testPlanReportApiCaseMapper.selectByPrimaryKey(request.getTaskItem().getResourceId());
+        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testPlanReportApiCase.getApiCaseId());
+        return planRunTestPlanApiCaseService.initApiReport(request, testPlanReportApiCase, apiTestCase);
+    }
+
+    public String initReport(GetRunScriptRequest request, TestPlanReportApiCase testPlanReportApiCase, ApiTestCase apiTestCase) {
+        return planRunTestPlanApiCaseService.initApiReport(request, testPlanReportApiCase, apiTestCase);
     }
 
     /**
@@ -49,10 +80,10 @@ public class PlanRunApiCaseExecuteCallbackService implements ApiExecuteCallbackS
     /**
      * 批量串行的测试集执行时
      * 测试集下用例执行完成时回调
-     * @param parentQueueId
+     * @param apiNoticeDTO
      */
     @Override
-    public void executeNextCollection(String parentQueueId, boolean isStopOnFailure) {
-        testPlanExecuteService.collectionExecuteQueueFinish(parentQueueId, isStopOnFailure);
+    public void executeNextCollection(ApiNoticeDTO apiNoticeDTO, boolean isStopOnFailure) {
+        testPlanExecuteService.collectionExecuteQueueFinish(apiNoticeDTO.getParentQueueId(), isStopOnFailure);
     }
 }

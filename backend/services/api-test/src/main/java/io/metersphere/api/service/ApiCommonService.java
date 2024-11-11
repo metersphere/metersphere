@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.domain.ApiDefinition;
+import io.metersphere.api.domain.ApiReportRelateTask;
 import io.metersphere.api.dto.ApiDefinitionExecuteInfo;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.definition.ResponseBinaryBody;
@@ -502,5 +503,12 @@ public class ApiCommonService {
         execTaskItem.setResourcePoolId(StringUtils.EMPTY);
         execTaskItem.setResourcePoolNode(StringUtils.EMPTY);
         return execTaskItem;
+    }
+
+    public ApiReportRelateTask getApiReportRelateTask(String taskItemId, String reportId) {
+        ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
+        apiReportRelateTask.setReportId(reportId);
+        apiReportRelateTask.setTaskResourceId(taskItemId);
+        return apiReportRelateTask;
     }
 }

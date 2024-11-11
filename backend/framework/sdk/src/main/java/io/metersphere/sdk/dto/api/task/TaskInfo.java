@@ -1,5 +1,6 @@
 package io.metersphere.sdk.dto.api.task;
 
+import io.metersphere.sdk.constants.TaskTriggerMode;
 import io.metersphere.sdk.dto.api.result.MsRegexDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -33,9 +34,13 @@ public class TaskInfo implements Serializable {
      */
     private int poolSize;
     /**
-     * 批量执行时的队列ID
+     * 批量，串行时的队列ID
      */
     private String queueId;
+    /**
+     * 批量，并行时的集合ID
+     */
+    private String setId;
     /**
      * 父队列 ID，即测试集队列 ID
      */
@@ -68,7 +73,7 @@ public class TaskInfo implements Serializable {
      * 手动执行，批量执行，API执行，定时任务
      * {@link io.metersphere.sdk.constants.TaskTriggerMode}
      */
-    private String triggerMode;
+    private String triggerMode = TaskTriggerMode.MANUAL.name();
     /**
      * 资源类型
      *
@@ -114,4 +119,9 @@ public class TaskInfo implements Serializable {
      * 测试计划的执行
      */
     private Boolean batch = false;
+    /**
+     * 资源池ID
+     * 执行时初始化报告需要记录资源池ID
+     */
+    private String poolId;
 }

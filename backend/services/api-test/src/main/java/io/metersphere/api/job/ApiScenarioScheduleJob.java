@@ -93,7 +93,6 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
         taskItem.setId(execTaskItem.getId());
 
         ApiScenarioParamConfig parseConfig = apiScenarioRunService.getApiScenarioParamConfig(msScenario.getProjectId(), parseParam, tmpParam.getScenarioParseEnvInfo());
-        parseConfig.setReportId(taskItem.getReportId());
         parseConfig.setTaskItemId(taskItem.getId());
 
         // 初始化报告
@@ -105,7 +104,7 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
         scenarioReport.setEnvironmentId(parseParam.getEnvironmentId());
         scenarioReport.setWaitingTime(apiScenarioRunService.getGlobalWaitTime(parseParam.getScenarioConfig()));
 
-        apiScenarioRunService.initApiReport(taskItem.getId(), apiScenarioDetail, scenarioReport);
+        apiScenarioRunService.initApiScenarioReport(taskItem.getId(), apiScenarioDetail, scenarioReport);
 
         // 初始化报告步骤
         apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getSteps(), taskItem.getReportId());

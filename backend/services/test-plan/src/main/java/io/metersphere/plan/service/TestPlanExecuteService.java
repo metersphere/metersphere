@@ -501,10 +501,6 @@ public class TestPlanExecuteService {
     public void collectionExecuteQueueFinish(String paramQueueId, boolean isStopOnFailure) {
         LogUtils.info("收到测试集执行完成的信息： [{}]", paramQueueId);
         String queueID = paramQueueId;
-        String[] queueIdArr = queueID.split("_");
-        if (queueIdArr.length > 2) {
-            queueID = queueIdArr[0] + "_" + queueIdArr[1];
-        }
         String queueType = QUEUE_PREFIX_TEST_PLAN_COLLECTION;
         TestPlanExecutionQueue nextQueue = testPlanExecuteSupportService.getNextQueue(queueID, queueType);
         if (nextQueue == null) {

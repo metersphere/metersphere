@@ -75,5 +75,8 @@ CREATE INDEX idx_project_id_delete_create_time_create_user
 ALTER TABLE exec_task ADD COLUMN deleted bit(1) NOT NULL DEFAULT b'0' COMMENT '删除标识';
 ALTER TABLE exec_task_item ADD COLUMN deleted bit(1) NOT NULL DEFAULT b'0' COMMENT '删除标识';
 
+-- 任务项添加测试集字段
+ALTER TABLE exec_task_item ADD collection_id varchar(50) NULL COMMENT '测试集ID';
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

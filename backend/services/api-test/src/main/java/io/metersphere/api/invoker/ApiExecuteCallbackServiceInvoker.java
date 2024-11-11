@@ -2,6 +2,7 @@ package io.metersphere.api.invoker;
 
 import io.metersphere.api.service.ApiExecuteCallbackService;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
@@ -27,6 +28,10 @@ public class ApiExecuteCallbackServiceInvoker {
         return apiResourceExecuteCallbackMap.get(apiExecuteResourceType);
     }
 
+    public static String initReport(String resourceType, GetRunScriptRequest request) {
+        return getCallbackService(getApiExecuteResourceType(resourceType)).initReport(request);
+    }
+
     public static GetRunScriptResult getRunScript(String resourceType, GetRunScriptRequest request) {
         return getCallbackService(getApiExecuteResourceType(resourceType)).getRunScript(request);
     }
@@ -35,8 +40,8 @@ public class ApiExecuteCallbackServiceInvoker {
         getCallbackService(getApiExecuteResourceType(resourceType)).executeNextTask(queue, queueDetail);
     }
 
-    public static void executeNextCollection(String resourceType, String collectionQueueId, boolean isStopOnFailure) {
-        getCallbackService(getApiExecuteResourceType(resourceType)).executeNextCollection(collectionQueueId, isStopOnFailure);
+    public static void executeNextCollection(ApiNoticeDTO apiNoticeDTO, boolean isStopOnFailure) {
+        getCallbackService(getApiExecuteResourceType(apiNoticeDTO.getResourceType())).executeNextCollection(apiNoticeDTO, isStopOnFailure);
     }
 
     public static void stopCollectionOnFailure(String resourceType, String collectionQueueId) {

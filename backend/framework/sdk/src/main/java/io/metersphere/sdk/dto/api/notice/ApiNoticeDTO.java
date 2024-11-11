@@ -42,9 +42,17 @@ public class ApiNoticeDTO implements java.io.Serializable {
      */
     private String queueId;
     /**
+     * 集合ID
+     */
+    private String setId;
+    /**
      * 父队列 ID，即测试集队列 ID
      */
     private String parentQueueId;
+    /**
+     * 父集合ID，测试集集合ID
+     */
+    private String parentSetId;
     /**
      * 是否批量执行结束
      * 这里主要给测试计划使用

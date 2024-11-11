@@ -93,12 +93,9 @@ public class MessageListener {
      *
      */
     private void executeNextCollection(ApiNoticeDTO dto) {
-        if (StringUtils.isBlank(dto.getParentQueueId())) {
-            return;
-        }
         if (BooleanUtils.isTrue(dto.getChildCollectionExecuteOver()) || isStopOnFailure(dto)) {
             // 如果当前测试集执行完了，或者当前测试集失败停止了，执行下一个测试集
-            ApiExecuteCallbackServiceInvoker.executeNextCollection(dto.getResourceType(), dto.getParentQueueId(),isStopOnFailure(dto));
+            ApiExecuteCallbackServiceInvoker.executeNextCollection(dto, isStopOnFailure(dto));
         }
     }
 

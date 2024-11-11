@@ -17,7 +17,6 @@ import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.User;
@@ -82,10 +81,17 @@ public class ApiReportService {
     private ExecTaskItemMapper execTaskItemMapper;
     @Resource
     private TestPlanMapper testPlanMapper;
+    @Resource
+    private ApiTestCaseRecordMapper apiTestCaseRecordMapper;
 
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiReport(ApiReport report) {
         apiReportMapper.insertSelective(report);
+    }
+
+    public void insertApiReportDetail(ApiReportStep apiReportStep, ApiTestCaseRecord apiTestCaseRecord, ApiReportRelateTask apiReportRelateTask) {
+        apiReportStepMapper.insertSelective(apiReportStep);
+        apiTestCaseRecordMapper.insertSelective(apiTestCaseRecord);
+        apiReportRelateTaskMapper.insertSelective(apiReportRelateTask);
     }
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)

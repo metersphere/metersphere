@@ -58,4 +58,14 @@ public class GetRunScriptRequest implements Serializable {
      * 任务ID
      */
     private String taskId;
+    /**
+     * 资源池ID
+     */
+    private String poolId;
+    /**
+     * 触发方式
+     * 手动执行，批量执行，API执行，定时任务
+     * {@link io.metersphere.sdk.constants.TaskTriggerMode}
+     */
+    private String triggerMode;
 }

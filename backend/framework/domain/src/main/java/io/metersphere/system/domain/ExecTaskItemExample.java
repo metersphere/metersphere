@@ -1204,6 +1204,76 @@ public class ExecTaskItemExample {
             return (Criteria) this;
         }
 
+        public Criteria andCollectionIdIsNull() {
+            addCriterion("collection_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCollectionIdIsNotNull() {
+            addCriterion("collection_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCollectionIdEqualTo(String value) {
+            addCriterion("collection_id =", value, "collectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCollectionIdNotEqualTo(String value) {
+            addCriterion("collection_id <>", value, "collectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCollectionIdGreaterThan(String value) {
+            addCriterion("collection_id >", value, "collectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCollectionIdGreaterThanOrEqualTo(String value) {
+            addCriterion("collection_id >=", value, "collectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCollectionIdLessThan(String value) {
+            addCriterion("collection_id <", value, "collectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCollectionIdLessThanOrEqualTo(String value) {
+            addCriterion("collection_id <=", value, "collectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCollectionIdLike(String value) {
+            addCriterion("collection_id like", value, "collectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCollectionIdNotLike(String value) {
+            addCriterion("collection_id not like", value, "collectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCollectionIdIn(List<String> values) {
+            addCriterion("collection_id in", values, "collectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCollectionIdNotIn(List<String> values) {
+            addCriterion("collection_id not in", values, "collectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCollectionIdBetween(String value1, String value2) {
+            addCriterion("collection_id between", value1, value2, "collectionId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCollectionIdNotBetween(String value1, String value2) {
+            addCriterion("collection_id not between", value1, value2, "collectionId");
+            return (Criteria) this;
+        }
+
         public Criteria andDeletedIsNull() {
             addCriterion("deleted is null");
             return (Criteria) this;

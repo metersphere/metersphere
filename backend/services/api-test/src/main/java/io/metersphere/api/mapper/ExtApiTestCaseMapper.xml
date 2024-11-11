@@ -355,8 +355,8 @@
         </if>
         LIMIT 1
     </select>
-    <select id="getApiCaseExecuteInfoByIds" resultType="io.metersphere.api.domain.ApiTestCase">
-        select id, name, environment_id, project_id
+    <select id="getApiCaseExecuteInfoByIds" resultType="io.metersphere.api.dto.ApiResourceBatchRunInfo">
+        select id, name
         from api_test_case
         where id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">

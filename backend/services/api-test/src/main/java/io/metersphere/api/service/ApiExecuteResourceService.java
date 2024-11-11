@@ -57,6 +57,11 @@ public class ApiExecuteResourceService {
             stringRedisTemplate.delete(taskItemId);
             GetRunScriptResult result = new GetRunScriptResult();
             result.setScript(Optional.ofNullable(script).orElse(StringUtils.EMPTY));
+            if (!ApiExecuteRunMode.isDebug(request.getRunMode())) {
+                // 初始化报告
+                String reportId = ApiExecuteCallbackServiceInvoker.initReport(request.getResourceType(), request);
+                result.setReportId(reportId);
+            }
             return result;
         }
 

@@ -21,7 +21,6 @@ import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.User;
@@ -87,6 +86,12 @@ public class ApiScenarioReportService {
     private ExecTaskItemMapper execTaskItemMapper;
     @Resource
     private TestPlanMapper testPlanMapper;
+    @Resource
+    private ApiScenarioRecordMapper apiScenarioRecordMapper;
+
+    public void insertApiScenarioReport(ApiScenarioReport report) {
+        apiScenarioReportMapper.insertSelective(report);
+    }
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiScenarioReport(ApiScenarioReport report, ApiReportRelateTask taskRelation) {
@@ -97,6 +102,11 @@ public class ApiScenarioReportService {
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void insertApiScenarioReport(List<ApiScenarioReport> reports, List<ApiScenarioRecord> records) {
         this.insertApiScenarioReport(reports, records, null);
+    }
+
+    public void insertApiScenarioReportDetail(ApiScenarioRecord record, ApiReportRelateTask taskRelation) {
+        apiScenarioRecordMapper.insertSelective(record);
+        apiReportRelateTaskMapper.insertSelective(taskRelation);
     }
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)

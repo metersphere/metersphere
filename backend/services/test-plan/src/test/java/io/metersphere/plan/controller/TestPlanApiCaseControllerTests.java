@@ -22,6 +22,9 @@ import io.metersphere.bug.dto.response.BugCustomFieldDTO;
 import io.metersphere.plan.constants.AssociateCaseType;
 import io.metersphere.plan.domain.TestPlanApiCase;
 import io.metersphere.plan.domain.TestPlanApiCaseExample;
+
+import io.metersphere.plan.service.TestPlanApiCaseExecuteCallbackService;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.system.dto.ModuleSelectDTO;
 import io.metersphere.plan.dto.TestPlanCollectionAssociateDTO;
 import io.metersphere.plan.dto.request.*;
@@ -30,10 +33,6 @@ import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
 import io.metersphere.plan.service.TestPlanApiCaseService;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.request.BugPageProviderRequest;
-import io.metersphere.sdk.constants.ApiBatchRunMode;
-import io.metersphere.sdk.constants.ApiExecuteResourceType;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -88,6 +87,8 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
 
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
+    @Resource
+    private TestPlanApiCaseExecuteCallbackService testPlanApiCaseExecuteCallbackService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
     @Resource
@@ -349,10 +350,15 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
         assertErrorCode(this.requestGet(RUN, "11"), NOT_FOUND);
         GetRunScriptRequest request = new GetRunScriptRequest();
         TaskItem taskItem = new TaskItem();
+        taskItem.setId(UUID.randomUUID().toString());
         taskItem.setResourceId(testPlanApiCase.getId());
         taskItem.setReportId("reportId");
         request.setTaskItem(taskItem);
-        testPlanApiCaseService.getRunScript(request);
+        request.setPoolId("poolId");
+        request.setUserId(InternalUser.ADMIN.getValue());
+        request.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        request.setRunMode(ApiExecuteRunMode.RUN.name());
+        testPlanApiCaseExecuteCallbackService.getRunScript(request);
 
         requestGetPermissionTest(PermissionConstants.TEST_PLAN_READ_EXECUTE, RUN, testPlanApiCase.getId());
     }

@@ -40,10 +40,7 @@ import io.metersphere.sdk.dto.AssociateCaseDTO;
 import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.SubListUtils;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.dto.LogInsertModule;
@@ -369,23 +366,37 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
 
         if (StringUtils.isEmpty(taskItem.getReportId())) {
             taskInfo.setRealTime(false);
-            reportId = IDGenerator.nextStr();
-            taskItem.setReportId(reportId);
         } else {
             // 如果传了报告ID，则实时获取结果
             taskInfo.setRealTime(true);
+            String poolId = apiExecuteService.getProjectApiResourcePoolId(apiScenario.getProjectId());
+            taskInfo.getRunModeConfig().setPoolId(poolId);
+            ApiScenarioReport scenarioReport = apiScenarioRunService.getScenarioReport(apiScenario, userId);
+            scenarioReport.setName(apiScenario.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
+            scenarioReport.setId(reportId);
+            scenarioReport.setPoolId(poolId);
+            scenarioReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
+            scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
+            scenarioReport.setEnvironmentId(runModeConfig.getEnvironmentId());
+            scenarioReport.setTestPlanScenarioId(testPlanApiScenario.getId());
+            apiScenarioRunService.initApiScenarioReport(taskItem.getId(), apiScenario, scenarioReport);
         }
 
-        ApiScenarioReport scenarioReport = apiScenarioRunService.getScenarioReport(userId);
-        scenarioReport.setId(reportId);
-        scenarioReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
-        scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
-        scenarioReport.setPoolId(runModeConfig.getPoolId());
+        return apiExecuteService.execute(taskRequest);
+    }
+
+    /**
+     * 预生成用例的执行报告
+     *
+     * @return
+     */
+    public String initApiScenarioReport(TestPlanApiScenario testPlanApiScenario, ApiScenario apiScenario, GetRunScriptRequest request) {
+        // 初始化报告
+        ApiRunModeConfigDTO runModeConfig = request.getRunModeConfig();
+        ApiScenarioReport scenarioReport = apiScenarioRunService.getScenarioReport(apiScenario, request);
         scenarioReport.setEnvironmentId(runModeConfig.getEnvironmentId());
         scenarioReport.setTestPlanScenarioId(testPlanApiScenario.getId());
-        apiScenarioRunService.initApiReport(taskItem.getId(), apiScenario, scenarioReport);
-
-        return apiExecuteService.execute(taskRequest);
+        return apiScenarioRunService.initApiScenarioReport(request.getTaskItem().getId(), apiScenario, scenarioReport);
     }
 
     public TestPlanApiScenario checkResourceExist(String id) {

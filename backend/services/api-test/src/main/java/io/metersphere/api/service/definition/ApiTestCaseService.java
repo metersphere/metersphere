@@ -5,13 +5,11 @@ import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
-import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiCommonService;
-import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.api.utils.HttpRequestParamDiffUtils;
@@ -23,17 +21,15 @@ import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.MoveNodeSortDTO;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.project.service.MoveNodeService;
-import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.constants.ApiFileResourceType;
+import io.metersphere.sdk.constants.ApplicationNumScope;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
-import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.*;
-import io.metersphere.system.domain.ExecTask;
-import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
@@ -42,7 +38,6 @@ import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
-import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
@@ -106,12 +101,6 @@ public class ApiTestCaseService extends MoveNodeService {
     @Resource
     private ApiCommonService apiCommonService;
     @Resource
-    private ApiExecuteService apiExecuteService;
-    @Resource
-    private ApiReportService apiReportService;
-    @Resource
-    private EnvironmentService environmentService;
-    @Resource
     private ApiTestCaseNoticeService apiTestCaseNoticeService;
     @Resource
     private ExtApiReportMapper extApiReportMapper;
@@ -119,8 +108,6 @@ public class ApiTestCaseService extends MoveNodeService {
     private FunctionalCaseTestMapper functionalCaseTestMapper;
     @Resource
     private UserMapper userMapper;
-    @Resource
-    private BaseTaskHubService baseTaskHubService;
 
     private static final String CASE_TABLE = "api_test_case";
 
@@ -690,270 +677,6 @@ public class ApiTestCaseService extends MoveNodeService {
         return apiFileResourceService.transfer(request, userId, ApiResourceType.API_CASE.name());
     }
 
-    /**
-     * 接口执行
-     * 传请求详情执行
-     *
-     * @param request
-     * @return
-     */
-    public TaskRequestDTO run(ApiCaseRunRequest request, String userId) {
-        ApiTestCase apiTestCase = checkResourceExist(request.getId());
-        ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
-        apiTestCase.setEnvironmentId(request.getEnvironmentId());
-        return executeRun(runRequest, apiTestCase, request.getReportId(), userId);
-    }
-
-    /**
-     * 接口执行
-     * 传ID执行
-     *
-     * @param id
-     * @param reportId
-     * @param userId
-     * @return
-     */
-    public TaskRequestDTO run(String id, String reportId, String userId) {
-        ApiTestCase apiTestCase = checkResourceExist(id);
-        ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(id);
-
-        ApiResourceRunRequest runRequest = new ApiResourceRunRequest();
-        runRequest.setTestElement(getTestElement(apiTestCaseBlob));
-
-        return executeRun(runRequest, apiTestCase, reportId, userId);
-    }
-
-    /**
-     * 接口执行
-     * 保存报告
-     *
-     * @param runRequest
-     * @param apiTestCase
-     * @param reportId
-     * @param userId
-     * @return
-     */
-    public TaskRequestDTO executeRun(ApiResourceRunRequest runRequest, ApiTestCase apiTestCase, String reportId, String userId) {
-        String poolId = apiExecuteService.getProjectApiResourcePoolId(apiTestCase.getProjectId());
-        Project project = projectMapper.selectByPrimaryKey(apiTestCase.getProjectId());
-
-        ExecTask execTask = apiCommonService.newExecTask(project.getId(), userId);
-        execTask.setCaseCount(1L);
-        execTask.setTaskName(apiTestCase.getName());
-        execTask.setOrganizationId(project.getOrganizationId());
-        execTask.setTriggerMode(TaskTriggerMode.MANUAL.name());
-        execTask.setTaskType(ExecTaskType.API_CASE.name());
-
-        ExecTaskItem execTaskItem = apiCommonService.newExecTaskItem(execTask.getId(), project.getId(), userId);
-        execTaskItem.setOrganizationId(project.getOrganizationId());
-        execTaskItem.setResourceType(ApiExecuteResourceType.API_CASE.name());
-        execTaskItem.setResourceId(apiTestCase.getId());
-        execTaskItem.setResourceName(apiTestCase.getName());
-
-        baseTaskHubService.insertExecTaskAndDetail(execTask, execTaskItem);
-
-        TaskRequestDTO taskRequest = getTaskRequest(reportId, apiTestCase.getId(), apiTestCase.getProjectId(), ApiExecuteRunMode.RUN.name());
-        TaskItem taskItem = taskRequest.getTaskItem();
-        TaskInfo taskInfo = taskRequest.getTaskInfo();
-        taskInfo.getRunModeConfig().setPoolId(poolId);
-        taskInfo.setSaveResult(true);
-        taskInfo.setUserId(userId);
-        taskInfo.setTaskId(execTask.getId());
-        taskItem.setId(execTaskItem.getId());
-
-        if (StringUtils.isEmpty(taskItem.getReportId())) {
-            taskInfo.setRealTime(false);
-            reportId = IDGenerator.nextStr();
-            taskItem.setReportId(reportId);
-        } else {
-            // 如果传了报告ID，则实时获取结果
-            taskInfo.setRealTime(true);
-        }
-
-        // 初始化报告
-        initApiReport(taskItem.getId(), apiTestCase, reportId, poolId, userId);
-
-        return doExecute(taskRequest, runRequest, apiTestCase.getApiDefinitionId(), apiTestCase.getEnvironmentId());
-    }
-
-    /**
-     * 接口调试
-     * 不存报告，实时获取结果
-     *
-     * @param request
-     * @return
-     */
-    public TaskRequestDTO debug(ApiCaseRunRequest request, String userId) {
-        TaskRequestDTO taskRequest = getTaskRequest(request.getReportId(), request.getId(),
-                request.getProjectId(), apiExecuteService.getDebugRunModule(request.getFrontendDebug()));
-        taskRequest.getTaskInfo().setTaskId(UUID.randomUUID().toString());
-        taskRequest.getTaskInfo().setSaveResult(false);
-        taskRequest.getTaskInfo().setRealTime(true);
-        taskRequest.getTaskInfo().setUserId(userId);
-        taskRequest.getTaskItem().setId(UUID.randomUUID().toString());
-
-        ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
-
-        return doExecute(taskRequest, runRequest, request.getApiDefinitionId(), request.getEnvironmentId());
-    }
-
-    public TaskRequestDTO doExecute(TaskRequestDTO taskRequest, ApiResourceRunRequest runRequest, String apiDefinitionId, String envId) {
-
-        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(taskRequest.getTaskItem().getReportId(), taskRequest.getTaskInfo().getProjectId());
-
-        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionId);
-
-        // 设置环境
-        apiParamConfig.setEnvConfig(environmentService.get(envId));
-
-        taskRequest.getTaskInfo().getRunModeConfig().setEnvironmentId(envId);
-        apiParamConfig.setTaskItemId(taskRequest.getTaskItem().getId());
-        // 设置 method 等信息
-        apiCommonService.setApiDefinitionExecuteInfo(runRequest.getTestElement(), apiDefinition);
-
-        return apiExecuteService.apiExecute(runRequest, taskRequest, apiParamConfig);
-    }
-
-    /**
-     * 获取执行脚本
-     */
-    public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
-        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(request.getTaskItem().getResourceId());
-        return getRunScript(request, apiTestCase);
-    }
-
-    public GetRunScriptResult getRunScript(GetRunScriptRequest request, ApiTestCase apiTestCase) {
-        TaskItem taskItem = request.getTaskItem();
-        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiTestCase.getApiDefinitionId());
-        ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(apiTestCase.getId());
-        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(taskItem.getReportId(), apiTestCase.getProjectId());
-        apiParamConfig.setRetryOnFail(request.getRunModeConfig().getRetryOnFail());
-        apiParamConfig.setRetryConfig(request.getRunModeConfig().getRetryConfig());
-
-        AbstractMsTestElement msTestElement = getTestElement(apiTestCaseBlob);
-        // 设置 method 等信息
-        apiCommonService.setApiDefinitionExecuteInfo(msTestElement, BeanUtils.copyBean(new ApiDefinitionExecuteInfo(), apiDefinition));
-
-        apiExecuteService.setTestElementParam(msTestElement, apiTestCase.getProjectId(), request.getTaskItem());
-
-        // 设置环境信息
-        apiParamConfig.setEnvConfig(environmentService.get(getEnvId(request.getRunModeConfig(), apiTestCase.getEnvironmentId())));
-        GetRunScriptResult runScriptResult = new GetRunScriptResult();
-        // 记录请求数量
-        runScriptResult.setRequestCount(1L);
-        runScriptResult.setScript(apiExecuteService.parseExecuteScript(msTestElement, apiParamConfig));
-
-        // 设置资源关联的文件信息
-        apiExecuteService.setTaskItemFileParam(taskItem);
-        runScriptResult.setTaskResourceFile(taskItem.getTaskResourceFile());
-        runScriptResult.setRefProjectResource(taskItem.getRefProjectResource());
-        return runScriptResult;
-    }
-
-    /**
-     * 获取执行的环境ID
-     * 优先使用运行配置的环境
-     * 没有则使用用例自身的环境
-     *
-     * @return
-     */
-    public String getEnvId(ApiRunModeConfigDTO runModeConfig, String caseEnvId) {
-        if (StringUtils.isBlank(runModeConfig.getEnvironmentId()) || StringUtils.equals(runModeConfig.getEnvironmentId(), CommonConstants.DEFAULT_NULL_VALUE)) {
-            return caseEnvId;
-        }
-        return runModeConfig.getEnvironmentId();
-    }
-
-    /**
-     * 预生成用例的执行报告
-     *
-     * @param apiTestCase
-     * @param poolId
-     * @param userId
-     * @return
-     */
-    public ApiTestCaseRecord initApiReport(String taskItemId, ApiTestCase apiTestCase, String reportId, String poolId, String userId) {
-
-        // 初始化报告
-        ApiReport apiReport = getApiReport(apiTestCase, reportId, poolId, userId);
-
-        // 创建报告和用例的关联关系
-        ApiTestCaseRecord apiTestCaseRecord = getApiTestCaseRecord(apiTestCase, apiReport);
-
-        // 创建报告和任务的关联关系
-        ApiReportRelateTask apiReportRelateTask = new ApiReportRelateTask();
-        apiReportRelateTask.setReportId(reportId);
-        apiReportRelateTask.setTaskResourceId(taskItemId);
-
-        apiReportService.insertApiReport(List.of(apiReport), List.of(apiTestCaseRecord), List.of(apiReportRelateTask));
-        //初始化步骤
-        apiReportService.insertApiReportStep(List.of(getApiReportStep(apiTestCase.getId(), apiTestCase.getName(), reportId, 1L)));
-
-        return apiTestCaseRecord;
-    }
-
-    public ApiReport getApiReport(ApiTestCase apiTestCase, String reportId, String poolId, String userId) {
-        ApiReport apiReport = getApiReport(userId);
-        apiReport.setId(reportId);
-        apiReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
-        apiReport.setName(apiTestCase.getName() + "_" + DateUtils.getTimeString(System.currentTimeMillis()));
-        apiReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
-        apiReport.setPoolId(poolId);
-        apiReport.setEnvironmentId(apiTestCase.getEnvironmentId());
-        apiReport.setProjectId(apiTestCase.getProjectId());
-        return apiReport;
-    }
-
-    public ApiReportStep getApiReportStep(String stepId, String stepName, String reportId, long sort) {
-        ApiReportStep apiReportStep = new ApiReportStep();
-        apiReportStep.setReportId(reportId);
-        apiReportStep.setStepId(stepId);
-        apiReportStep.setSort(sort);
-        apiReportStep.setName(stepName);
-        apiReportStep.setStepType(ApiExecuteResourceType.API_CASE.name());
-        return apiReportStep;
-    }
-
-    public ApiTestCaseRecord getApiTestCaseRecord(ApiTestCase apiTestCase, ApiReport apiReport) {
-        return getApiTestCaseRecord(apiTestCase.getId(), apiReport);
-    }
-
-    public ApiTestCaseRecord getApiTestCaseRecord(String caseId, ApiReport apiReport) {
-        ApiTestCaseRecord apiTestCaseRecord = new ApiTestCaseRecord();
-        apiTestCaseRecord.setApiTestCaseId(caseId);
-        apiTestCaseRecord.setApiReportId(apiReport.getId());
-        return apiTestCaseRecord;
-    }
-
-    public ApiReport getApiReport(String userId) {
-        ApiReport apiReport = new ApiReport();
-        apiReport.setId(IDGenerator.nextStr());
-        apiReport.setDeleted(false);
-        apiReport.setIntegrated(false);
-        apiReport.setStartTime(System.currentTimeMillis());
-        apiReport.setUpdateTime(System.currentTimeMillis());
-        apiReport.setUpdateUser(userId);
-        apiReport.setCreateUser(userId);
-        return apiReport;
-    }
-
-    public TaskRequestDTO getTaskRequest(String reportId, String resourceId, String projectId, String runModule) {
-        TaskRequestDTO taskRequest = new TaskRequestDTO();
-        TaskItem taskItem = apiExecuteService.getTaskItem(reportId, resourceId);
-        TaskInfo taskInfo = getTaskInfo(projectId, runModule);
-        taskRequest.setTaskInfo(taskInfo);
-        taskRequest.setTaskItem(taskItem);
-        return taskRequest;
-    }
-
-    public TaskInfo getTaskInfo(String projectId, String runModule) {
-        TaskInfo taskInfo = apiExecuteService.getTaskInfo(projectId);
-        taskInfo.setResourceType(ApiExecuteResourceType.API_CASE.name());
-        taskInfo.setRunMode(runModule);
-        taskInfo.setNeedParseScript(false);
-        return taskInfo;
-    }
-
     @Override
     public void updatePos(String id, long pos) {
         extApiTestCaseMapper.updatePos(id, pos);
@@ -1031,7 +754,7 @@ public class ApiTestCaseService extends MoveNodeService {
         return ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class);
     }
 
-    private AbstractMsTestElement getTestElement(ApiTestCaseBlob apiTestCaseBlob) {
+    public AbstractMsTestElement getTestElement(ApiTestCaseBlob apiTestCaseBlob) {
         return ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class);
     }
 

@@ -1,13 +1,20 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.api.dto.scenario.ApiScenarioDetail;
 import io.metersphere.api.invoker.ApiExecuteCallbackServiceInvoker;
 import io.metersphere.api.service.ApiExecuteCallbackService;
+import io.metersphere.api.service.scenario.ApiScenarioRunService;
+import io.metersphere.plan.domain.TestPlanApiScenario;
+import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
+import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +29,10 @@ public class TestPlanApiScenarioExecuteCallbackService implements ApiExecuteCall
     private TestPlanApiScenarioService testPlanApiScenarioService;
     @Resource
     private TestPlanApiScenarioBatchRunService testPlanApiScenarioBatchRunService;
+    @Resource
+    private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+    @Resource
+    private ApiScenarioRunService apiScenarioRunService;
 
     public TestPlanApiScenarioExecuteCallbackService() {
         ApiExecuteCallbackServiceInvoker.register(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO, this);
@@ -32,7 +43,31 @@ public class TestPlanApiScenarioExecuteCallbackService implements ApiExecuteCall
      */
     @Override
     public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
-        return testPlanApiScenarioService.getRunScript(request);
+        TaskItem taskItem = request.getTaskItem();
+        TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(taskItem.getResourceId());
+        ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(testPlanApiScenario.getApiScenarioId());
+        apiScenarioDetail.setEnvironmentId(testPlanApiScenario.getEnvironmentId());
+        apiScenarioDetail.setGrouped(testPlanApiScenario.getGrouped());
+        String reportId = initReport(request, testPlanApiScenario, apiScenarioDetail);
+        GetRunScriptResult result = apiScenarioRunService.getRunScript(request, apiScenarioDetail);
+        result.setReportId(reportId);
+        return result;
+    }
+
+    @Override
+    public String initReport(GetRunScriptRequest request) {
+        TaskItem taskItem = request.getTaskItem();
+        TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(taskItem.getResourceId());
+        ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(testPlanApiScenario.getApiScenarioId());
+        return initReport(request, testPlanApiScenario, apiScenarioDetail);
+    }
+
+    public String initReport(GetRunScriptRequest request, TestPlanApiScenario testPlanApiScenario, ApiScenarioDetail apiScenarioDetail) {
+        // 批量执行，生成独立报告
+        String reportId  = testPlanApiScenarioService.initApiScenarioReport(testPlanApiScenario, apiScenarioDetail, request);
+        // 初始化报告步骤
+        apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getSteps(), reportId);
+        return reportId;
     }
 
     /**
@@ -48,11 +83,17 @@ public class TestPlanApiScenarioExecuteCallbackService implements ApiExecuteCall
     /**
      * 批量串行的测试集执行时
      * 测试集下用例执行完成时回调
-     * @param collectionQueueId
      */
     @Override
-    public void executeNextCollection(String collectionQueueId, boolean isStopOnFailure) {
-        testPlanApiScenarioBatchRunService.executeNextCollection(collectionQueueId);
+    public void executeNextCollection(ApiNoticeDTO apiNoticeDTO, boolean isStopOnFailure) {
+        if (StringUtils.isNotBlank(apiNoticeDTO.getParentQueueId())) {
+            testPlanApiScenarioBatchRunService.executeNextCollection(apiNoticeDTO.getParentQueueId());
+        } else if (StringUtils.isNotBlank(apiNoticeDTO.getParentSetId())) {
+            String queueIdOrSetId = StringUtils.isBlank(apiNoticeDTO.getQueueId()) ?  apiNoticeDTO.getSetId() : apiNoticeDTO.getQueueId();
+            String[] setIdSplit = queueIdOrSetId.split("_");
+            String collectionId = setIdSplit[setIdSplit.length - 1];
+            testPlanApiScenarioBatchRunService.finishParallelCollection(apiNoticeDTO.getParentSetId(), collectionId);
+        }
     }
 
     /**

@@ -20,7 +20,6 @@ public class TaskItem implements Serializable {
     @NotBlank
     private String id;
 
-    @NotBlank
     private String reportId;
     /**
      * 执行的资源ID

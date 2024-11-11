@@ -1,11 +1,8 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,6 +78,9 @@ public class ExecTaskItem implements Serializable {
     @Size(min = 1, max = 50, message = "{exec_task_item.executor.length_range}", groups = {Created.class, Updated.class})
     private String executor;
 
+    @Schema(description = "测试集ID")
+    private String collectionId;
+
     @Schema(description = "删除标识", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{exec_task_item.deleted.not_blank}", groups = {Created.class})
     private Boolean deleted;
@@ -104,6 +104,7 @@ public class ExecTaskItem implements Serializable {
         startTime("start_time", "startTime", "BIGINT", false),
         endTime("end_time", "endTime", "BIGINT", false),
         executor("executor", "executor", "VARCHAR", false),
+        collectionId("collection_id", "collectionId", "VARCHAR", false),
         deleted("deleted", "deleted", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
