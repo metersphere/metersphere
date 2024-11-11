@@ -25,7 +25,7 @@
   import { ref } from 'vue';
   import { debounce } from 'lodash-es';
 
-  import NoData from './notData.vue';
+  import NoData from '../../components/notData.vue';
 
   import { addCommasToNumber } from '@/utils';
 

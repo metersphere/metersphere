@@ -72,6 +72,7 @@
   import { ref } from 'vue';
 
   import MsBackButton from '@/components/pure/ms-back-button/index.vue';
+  import NoData from '../components/notData.vue';
   import ApiAndScenarioCase from './components/apiAndScenarioCase.vue';
   import ApiChangeList from './components/apiChangeList.vue';
   import ApiCount from './components/apiCount.vue';
@@ -79,7 +80,6 @@
   import CaseCount from './components/caseCount.vue';
   import CaseReviewedCount from './components/caseReviewedCount.vue';
   import DefectCount from './components/defectCount.vue';
-  import NoData from './components/notData.vue';
   import Overview from './components/overview.vue';
   import RelatedCaseCount from './components/relatedCaseCount.vue';
   import TestPlanCount from './components/testPlanCount.vue';

@@ -86,7 +86,7 @@
   import { VueDraggable } from 'vue-draggable-plus';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import NotData from './notData.vue';
+  import NotData from '../../components/notData.vue';
   import CardSettingList from '@/views/workbench/homePage/components/cardSettingList.vue';
 
   import { useI18n } from '@/hooks/useI18n';
