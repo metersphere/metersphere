@@ -132,7 +132,7 @@ public class FunctionalCaseXmindService {
             noticeSendService.setLanguage(user.getLanguage());
             FunctionalCaseXmindData xmindData = buildXmindData(ids, request);
             dir = new File(LocalRepositoryDir.getSystemTempDir());
-            if (!dir.exists() && !dir.mkdir()) {
+            if (!dir.exists() && !dir.mkdirs()) {
                 throw new MSException(Translator.get("upload_fail"));
             }
             tmpFile = new File(LocalRepositoryDir.getSystemTempDir() +
