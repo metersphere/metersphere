@@ -465,7 +465,8 @@
         // 左侧消息总数
         loadTotalCount('');
       }
-    }
+    },
+    { immediate: true }
   );
 </script>
 
