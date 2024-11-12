@@ -1,10 +1,10 @@
 <template>
   <div class="card-wrapper">
     <div class="flex items-center justify-between">
-      <div class="title"> {{ t('workbench.homePage.defectProcessingNumber') }} </div>
+      <div class="title"> {{ t(props.item.label) }} </div>
       <div class="flex items-center gap-[8px]">
         <MsSelect
-          v-model:model-value="projectIds"
+          v-model:model-value="projectId"
           :options="appStore.projectList"
           allow-clear
           allow-search
@@ -30,7 +30,7 @@
       </div>
     </div>
     <div class="mt-[16px]">
-      <MsChart height="300px" :options="options" />
+      <MsChart height="260px" :options="options" />
     </div>
   </div>
 </template>
@@ -47,14 +47,38 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import { defectStatusColor, getCommonBarOptions } from '../utils';
+  import type { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
+
+  import { commonColorConfig, getCommonBarOptions } from '../utils';
   import type { SelectOptionData } from '@arco-design/web-vue';
 
   const { t } = useI18n();
+  const appStore = useAppStore();
+  const props = defineProps<{
+    item: SelectedCardItem;
+  }>();
 
   const memberIds = ref('');
-  const projectIds = ref('');
-  const appStore = useAppStore();
+  const innerProjectIds = defineModel<string[]>('projectIds', {
+    required: true,
+  });
+
+  const projectId = computed<string>({
+    get: () => {
+      const [newProject] = innerProjectIds.value;
+      return newProject;
+    },
+    set: (val) => val,
+  });
+
+  const timeForm = inject<Ref<TimeFormParams>>(
+    'timeForm',
+    ref({
+      dayNumber: 3,
+      startTime: 0,
+      endTime: 0,
+    })
+  );
 
   const memberOptions = ref<SelectOptionData[]>([]);
 
@@ -63,30 +87,139 @@
   const hasRoom = computed(() => members.value.length >= 7);
   const seriesData = ref<Record<string, any>[]>([
     {
-      name: '已结束',
+      name: '新创建',
       type: 'bar',
       barWidth: 12,
+      stack: 'bug',
       itemStyle: {
-        borderRadius: [2, 2, 0, 0],
+        // borderRadius: [2, 2, 0, 0],
       },
       data: [400, 200, 400, 200, 400, 200],
     },
     {
-      name: '未结束',
+      name: '激活',
       type: 'bar',
       barWidth: 12,
+      stack: 'bug',
+      itemStyle: {
+        // borderRadius: [2, 2, 0, 0],
+      },
+      data: [90, 160, 90, 160, 90, 160],
+    },
+    {
+      name: '处理中',
+      type: 'bar',
+      barWidth: 12,
+      stack: 'bug',
+      itemStyle: {
+        // borderRadius: [2, 2, 0, 0],
+      },
+      data: [90, 160, 90, 160, 90, 160],
+    },
+    {
+      name: '已关闭',
+      type: 'bar',
+      barWidth: 12,
+      stack: 'bug',
+      itemStyle: {
+        // borderRadius: [2, 2, 0, 0],
+      },
+      data: [90, 160, 90, 160, 90, 160],
+    },
+    {
+      name: '新创建1',
+      type: 'bar',
+      barWidth: 12,
+      stack: 'bug',
+      itemStyle: {
+        // borderRadius: [2, 2, 0, 0],
+      },
+      data: [400, 200, 400, 200, 400, 200],
+    },
+    {
+      name: '激活1',
+      type: 'bar',
+      barWidth: 12,
+      stack: 'bug',
+      itemStyle: {
+        // borderRadius: [2, 2, 0, 0],
+      },
+      data: [90, 160, 90, 160, 90, 160],
+    },
+    {
+      name: '处理中1',
+      type: 'bar',
+      barWidth: 12,
+      stack: 'bug',
+      itemStyle: {
+        // borderRadius: [2, 2, 0, 0],
+      },
+      data: [90, 160, 90, 160, 90, 160],
+    },
+    {
+      name: '已关闭1',
+      type: 'bar',
+      barWidth: 12,
+      stack: 'bug',
+      itemStyle: {
+        // borderRadius: [2, 2, 0, 0],
+      },
+      data: [90, 160, 90, 160, 90, 160],
+    },
+    {
+      name: '已关闭2',
+      type: 'bar',
+      barWidth: 12,
+      stack: 'bug',
+      itemStyle: {
+        // borderRadius: [2, 2, 0, 0],
+      },
+      data: [90, 160, 90, 160, 90, 160],
+    },
+    {
+      name: '已关闭3',
+      type: 'bar',
+      barWidth: 12,
+      stack: 'bug',
       itemStyle: {
         borderRadius: [2, 2, 0, 0],
       },
       data: [90, 160, 90, 160, 90, 160],
     },
   ]);
+  const defectStatusColor = ['#811FA3', '#FFA200', '#3370FF', '#F24F4F'];
 
-  onMounted(() => {
-    options.value = getCommonBarOptions(hasRoom.value, defectStatusColor);
+  function getDefectMemberDetail() {
+    options.value = getCommonBarOptions(hasRoom.value, [...defectStatusColor, ...commonColorConfig]);
     options.value.xAxis.data = members.value;
     options.value.series = seriesData.value;
+  }
+
+  onMounted(() => {
+    getDefectMemberDetail();
   });
+
+  watch(
+    () => projectId.value,
+    (val) => {
+      if (val) {
+        innerProjectIds.value = [val];
+        getDefectMemberDetail();
+      }
+    }
+  );
+
+  watch(
+    () => timeForm.value,
+    (val) => {
+      if (val) {
+        getDefectMemberDetail();
+      }
+    },
+    {
+      deep: true,
+    }
+  );
 </script>
 
 <style scoped></style>

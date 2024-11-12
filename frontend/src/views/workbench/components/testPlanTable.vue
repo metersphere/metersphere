@@ -129,7 +129,11 @@
   import PlanExpandRow from '@/views/test-plan/testPlan/components/planExpandRow.vue';
   import StatusProgress from '@/views/test-plan/testPlan/components/statusProgress.vue';
 
-  import { workbenchTestPlanList, workbenchTestPlanStatistic } from '@/api/modules/workbench';
+  import {
+    workbenchTestPlanList,
+    workbenchTestPlanStatistic,
+    workbenchTodoTestPlanList,
+  } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
 
@@ -246,7 +250,11 @@
     showSelectorAll: false,
   });
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(workbenchTestPlanList, tableProps.value);
+  const getTestPlanList = computed(() => {
+    return props.type === 'my_todo' ? workbenchTodoTestPlanList : workbenchTestPlanList;
+  });
+
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getTestPlanList.value, tableProps.value);
 
   const planData = computed(() => {
     return propsRes.value.data;
@@ -293,6 +301,7 @@
       type: showType.value,
       projectId: props.project,
       viewId: props.type,
+      myTodo: props.type === 'my_todo',
     });
     loadList();
   }

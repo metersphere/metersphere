@@ -79,4 +79,31 @@ export default {
   'workbench.homePage.fullScreen': 'Full screen',
   'workbench.homePage.sort': 'Sort',
   'workbench.homePage.workNoProjectTip': 'Workbench no content, please join the project',
+  'workbench.homePage.notHasData': 'No data',
+  'workbench.homePage.notHasResPermission': 'No resource permission',
+  'workbench.homePage.reviewRateTooltip':
+    'Review Rate: Reviewed functional test cases / All functional test cases * 100%',
+  'workbench.homePage.reviewPassRateTooltip':
+    'Review Pass Rate: Passed reviewed test cases / All reviewed test cases * 100%',
+  'workbench.homePage.associateCaseCoverRateTooltip':
+    'Association Coverage Rate: Associated functional test cases / All functional test cases * 100%',
+  'workbench.homePage.caseReviewCoverRateTooltip':
+    'Reviewed Test Case Coverage Rate: Reviewed test cases / All test cases * 100%',
+  'workbench.homePage.apiCountCoverRateTooltip':
+    'API Coverage Rate: APIs (URLs) with (test cases or scenario steps) / Total APIs * 100%',
+  'workbench.homePage.apiCountCompleteRateTooltip': 'API Completion Rate: Completed APIs / Total APIs * 100%',
+  'workbench.homePage.apiCaseCountCoverRateTooltip':
+    'API Test Case Coverage Rate: APIs with test cases / Total APIs * 100%',
+  'workbench.homePage.apiCaseCountExecuteRateTooltip':
+    'Test Case Execution Rate: Executed API test cases / All API test cases * 100%',
+  'workbench.homePage.apiCaseCountPassRateTooltip':
+    'Test Case Pass Rate: Last successful execution test cases / Total test cases * 100%',
+  'workbench.homePage.scenarioCaseCountCoverRateTooltip':
+    'Scenario Coverage Rate: APIs (URLs) included in scenario steps / Total APIs * 100%',
+  'workbench.homePage.scenarioCaseCountExecuteRateTooltip':
+    'Scenario Execution Rate: Executed scenarios / All scenarios * 100%',
+  'workbench.homePage.scenarioCaseCountPassRateTooltip':
+    'Scenario Pass Rate: Last successful execution scenarios / Total scenarios * 100%',
+  'workbench.homePage.planCaseCountLegacyRateTooltip':
+    'Legacy Rate: Unresolved defects / All associated defects * 100%',
 };

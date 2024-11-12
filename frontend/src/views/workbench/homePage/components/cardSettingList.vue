@@ -11,11 +11,11 @@
   </div>
 
   <div class="card-config-menu-wrapper">
-    <a-menu class="w-full" :default-open-keys="defaultOpenKeys">
+    <a-menu v-if="filteredConfigList.length" class="w-full" :default-open-keys="defaultOpenKeys">
       <a-sub-menu v-for="item of filteredConfigList" :key="item.value">
         <template #title>
           <div class="font-medium text-[var(--color-text-1)]">
-            {{ item.label }}
+            {{ t(item.label) }}
           </div>
         </template>
 
@@ -25,15 +25,22 @@
               <svg-icon width="98px" height="69px" :name="ele.img" />
             </div>
             <div class="card-config-text">
-              <div>{{ ele.label }}</div>
+              <div>{{ t(ele.label) }}</div>
               <div class="card-config-desc flex">
-                <div>{{ ele.description }}</div>
+                <div>{{ t(ele.description || '') }}</div>
               </div>
             </div>
           </div>
         </a-menu-item>
       </a-sub-menu>
     </a-menu>
+    <div v-else class="p-[16px]">
+      <div
+        class="rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[8px] text-[12px] leading-[16px] text-[var(--color-text-4)]"
+      >
+        {{ t('common.noData') }}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -53,144 +60,149 @@
   }>();
 
   const configList = ref<WorkConfigCard[]>([
+    // 概览
     {
-      label: t('workbench.homePage.overview'),
+      label: 'workbench.homePage.overview',
       value: 'overview',
       description: '',
       img: '',
       children: [
         {
-          label: t('workbench.homePage.projectOverview'),
+          label: 'workbench.homePage.projectOverview',
           value: WorkCardEnum.PROJECT_VIEW,
-          description: t('workbench.homePage.projectOverviewDesc'),
+          description: 'workbench.homePage.projectOverviewDesc',
           img: 'project-overview-img',
         },
         {
-          label: t('workbench.homePage.staffOverview'),
+          label: 'workbench.homePage.staffOverview',
           value: WorkCardEnum.PROJECT_MEMBER_VIEW,
-          description: t('workbench.homePage.staffOverviewDesc'),
+          description: 'workbench.homePage.staffOverviewDesc',
           img: 'staff-overview-img',
         },
         {
-          label: t('workbench.homePage.createdByMe'),
+          label: 'workbench.homePage.createdByMe',
           value: WorkCardEnum.CREATE_BY_ME,
-          description: t('workbench.homePage.createdByMeDesc'),
+          description: 'workbench.homePage.createdByMeDesc',
           img: 'my-created-project-img',
         },
       ],
     },
+    // 测试用例
     {
-      label: t('menu.caseManagement'),
+      label: 'menu.caseManagement',
       value: 'caseManagement',
       description: '',
       img: '',
       children: [
         {
-          label: t('workbench.homePage.useCasesNumber'),
+          label: 'workbench.homePage.useCasesNumber',
           value: WorkCardEnum.CASE_COUNT,
-          description: t('workbench.homePage.useCasesNumberDesc'),
+          description: 'workbench.homePage.useCasesNumberDesc',
           img: 'link-case-img',
         },
         {
-          label: t('workbench.homePage.useCasesCount'),
+          label: 'workbench.homePage.useCasesCount',
           value: WorkCardEnum.ASSOCIATE_CASE_COUNT,
-          description: t('workbench.homePage.useCasesCountDesc'),
+          description: 'workbench.homePage.useCasesCountDesc',
           img: 'case-count-img',
         },
         {
-          label: t('workbench.homePage.numberOfCaseReviews'),
+          label: 'workbench.homePage.numberOfCaseReviews',
           value: WorkCardEnum.REVIEW_CASE_COUNT,
-          description: t('workbench.homePage.numberOfCaseReviewsDesc'),
+          description: 'workbench.homePage.numberOfCaseReviewsDesc',
           img: 'case-review-img',
         },
         {
-          label: t('workbench.homePage.waitForReview'),
+          label: 'workbench.homePage.waitForReview',
           value: WorkCardEnum.REVIEWING_BY_ME,
-          description: t('workbench.homePage.waitForReviewDesc'),
+          description: 'workbench.homePage.waitForReviewDesc',
           img: 'wait-review-img',
         },
       ],
     },
+    // 接口测试
     {
-      label: t('menu.apiTest'),
+      label: 'menu.apiTest',
       value: 'apiTest',
       description: '',
       img: '',
       children: [
         {
-          label: t('workbench.homePage.apiCount'),
+          label: 'workbench.homePage.apiCount',
           value: WorkCardEnum.API_COUNT,
-          description: t('workbench.homePage.apiCountDesc'),
+          description: 'workbench.homePage.apiCountDesc',
           img: 'api-count-img',
         },
         {
-          label: t('workbench.homePage.apiUseCasesNumber'),
+          label: 'workbench.homePage.apiUseCasesNumber',
           value: WorkCardEnum.API_CASE_COUNT,
-          description: t('workbench.homePage.apiUseCasesNumberDesc'),
+          description: 'workbench.homePage.apiUseCasesNumberDesc',
           img: 'api-use-case-img',
         },
         {
-          label: t('workbench.homePage.scenarioUseCasesNumber'),
+          label: 'workbench.homePage.scenarioUseCasesNumber',
           value: WorkCardEnum.SCENARIO_COUNT,
-          description: t('workbench.homePage.scenarioUseCasesNumberDesc'),
+          description: 'workbench.homePage.scenarioUseCasesNumberDesc',
           img: 'scenario-case-img',
         },
         {
-          label: t('workbench.homePage.interfaceChange'),
+          label: 'workbench.homePage.interfaceChange',
           value: WorkCardEnum.API_CHANGE,
-          description: t('workbench.homePage.interfaceChangeDesc'),
+          description: 'workbench.homePage.interfaceChangeDesc',
           img: 'api-change-img',
         },
       ],
     },
+    // 测试计划
     {
-      label: t('menu.testPlan'),
+      label: 'menu.testPlan',
       value: 'testPlan',
       description: '',
       img: '',
       children: [
         {
-          label: t('workbench.homePage.numberOfTestPlan'),
+          label: 'workbench.homePage.numberOfTestPlan',
           value: WorkCardEnum.TEST_PLAN_COUNT,
-          description: t('workbench.homePage.numberOfTestPlanDesc'),
+          description: 'workbench.homePage.numberOfTestPlanDesc',
           img: 'test-plan-img',
         },
         {
-          label: t('workbench.homePage.remainingBugOfPlan'),
+          label: 'workbench.homePage.remainingBugOfPlan',
           value: WorkCardEnum.PLAN_LEGACY_BUG,
-          description: t('workbench.homePage.remainingBugOfPlanDesc'),
+          description: 'workbench.homePage.remainingBugOfPlanDesc',
           img: 'test-plan-bug-img',
         },
       ],
     },
+    // 缺陷管理
     {
-      label: t('menu.bugManagement'),
+      label: 'menu.bugManagement',
       value: 'bugManagement',
       description: '',
       img: '',
       children: [
         {
-          label: t('workbench.homePage.bugCount'),
+          label: 'workbench.homePage.bugCount',
           value: WorkCardEnum.BUG_COUNT,
-          description: t('workbench.homePage.bugCountDesc'),
+          description: 'workbench.homePage.bugCountDesc',
           img: 'bug-count-img',
         },
         {
-          label: t('workbench.homePage.createdBugByMe'),
+          label: 'workbench.homePage.createdBugByMe',
           value: WorkCardEnum.CREATE_BUG_BY_ME,
-          description: t('workbench.homePage.createdBugByMeDesc'),
+          description: 'workbench.homePage.createdBugByMeDesc',
           img: 'my-created-bug-img',
         },
         {
-          label: t('workbench.homePage.pendingDefect'),
+          label: 'workbench.homePage.pendingDefect',
           value: WorkCardEnum.HANDLE_BUG_BY_ME,
-          description: t('workbench.homePage.pendingDefectDesc'),
+          description: 'workbench.homePage.pendingDefectDesc',
           img: 'wait-handle-bug-img',
         },
         {
-          label: t('workbench.homePage.defectProcessingNumber'),
+          label: 'workbench.homePage.defectProcessingNumber',
           value: WorkCardEnum.BUG_HANDLE_USER,
-          description: t('workbench.homePage.defectProcessingNumberDesc'),
+          description: 'workbench.homePage.defectProcessingNumberDesc',
           img: 'bug-handler-img',
         },
       ],

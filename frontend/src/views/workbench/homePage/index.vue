@@ -9,18 +9,18 @@
             size="medium"
             @change="handleChangeTime"
           >
-            <a-radio value="3" class="show-type-icon p-[2px]">
+            <a-radio :value="3" class="show-type-icon p-[2px]">
               {{ t('workbench.homePage.nearlyThreeDays') }}
             </a-radio>
-            <a-radio value="7" class="show-type-icon p-[2px]">
+            <a-radio :value="7" class="show-type-icon p-[2px]">
               {{ t('workbench.homePage.nearlySevenDays') }}
             </a-radio>
-            <a-radio value="customize" class="show-type-icon p-[2px]">
+            <a-radio value="" class="show-type-icon p-[2px]">
               {{ t('workbench.homePage.customize') }}
             </a-radio>
           </a-radio-group>
           <a-range-picker
-            v-if="timeForm.dayNumber === 'customize'"
+            v-if="!timeForm.dayNumber"
             v-model:model-value="rangeTime"
             show-time
             value-format="timestamp"
@@ -28,43 +28,96 @@
               defaultValue: tempRange,
             }"
             class="w-[360px]"
-            @select="handleTimeSelect"
+            @ok="handleTimeSelect"
           />
         </div>
-        <a-button type="outline" class="arco-btn-outline--secondary !px-[8px]" @click="cardSetting">
-          <template #icon>
-            <icon-settings class="setting-icon" @click="handleShowSetting" />
-          </template>
-          {{ t('workbench.homePage.cardSetting') }}
-        </a-button>
+        <div class="flex items-center gap-[8px]">
+          <MsTag
+            no-margin
+            :tooltip-disabled="true"
+            class="h-[30px] cursor-pointer"
+            theme="outline"
+            @click="handleRefresh"
+          >
+            <MsIcon class="text-[16px] text-[var(color-text-4)]" :size="32" type="icon-icon_reset_outlined" />
+          </MsTag>
+          <a-button type="outline" class="arco-btn-outline--secondary !px-[8px]" @click="cardSetting">
+            <template #icon>
+              <icon-settings class="setting-icon" />
+            </template>
+            {{ t('workbench.homePage.cardSetting') }}
+          </a-button>
+        </div>
       </div>
     </div>
-    <!-- TODO 等待卡片设置列表排版出来调整 -->
-    <div v-if="defaultWorkList.length" class="card-content grid grid-cols-2 gap-4">
+    <div v-if="defaultWorkList.length" class="card-content mt-[12px] grid grid-cols-2 gap-4">
       <div v-for="item of defaultWorkList" :key="item.id" :class="`card-item ${item.fullScreen ? 'col-span-2' : ''}`">
         <Overview
           v-if="[WorkCardEnum.CREATE_BY_ME, WorkCardEnum.PROJECT_VIEW].includes(item.key)"
-          :title="item.label"
+          v-model:projectIds="item.projectIds"
+          :item="item"
         />
-        <OverviewMember v-else-if="item.key === WorkCardEnum.PROJECT_MEMBER_VIEW" />
-        <CaseCount v-else-if="item.key === WorkCardEnum.CASE_COUNT" />
-        <RelatedCaseCount v-else-if="item.key === WorkCardEnum.ASSOCIATE_CASE_COUNT" />
-        <CaseReviewedCount v-else-if="item.key === WorkCardEnum.REVIEW_CASE_COUNT" />
-        <WaitReviewList v-else-if="item.key === WorkCardEnum.REVIEWING_BY_ME" />
+        <OverviewMember
+          v-else-if="item.key === WorkCardEnum.PROJECT_MEMBER_VIEW"
+          v-model:projectIds="item.projectIds"
+          v-model:handleUsers="item.handleUsers"
+          :item="item"
+        />
+        <CaseCount v-else-if="item.key === WorkCardEnum.CASE_COUNT" v-model:projectIds="item.projectIds" :item="item" />
+        <RelatedCaseCount
+          v-else-if="item.key === WorkCardEnum.ASSOCIATE_CASE_COUNT"
+          v-model:projectIds="item.projectIds"
+          :item="item"
+        />
+        <CaseReviewedCount
+          v-else-if="item.key === WorkCardEnum.REVIEW_CASE_COUNT"
+          v-model:projectIds="item.projectIds"
+          :item="item"
+        />
+        <WaitReviewList
+          v-else-if="item.key === WorkCardEnum.REVIEWING_BY_ME"
+          v-model:projectIds="item.projectIds"
+          :item="item"
+        />
         <ApiAndScenarioCase
           v-else-if="[WorkCardEnum.API_CASE_COUNT, WorkCardEnum.SCENARIO_COUNT].includes(item.key)"
+          v-model:projectIds="item.projectIds"
+          :type="item.key"
+          :item="item"
+        />
+        <ApiChangeList
+          v-else-if="item.key === WorkCardEnum.API_CHANGE"
+          v-model:projectIds="item.projectIds"
+          :item="item"
+        />
+        <DefectMemberBar
+          v-else-if="item.key === WorkCardEnum.BUG_HANDLE_USER"
+          v-model:projectIds="item.projectIds"
+          :item="item"
+        />
+        <DefectCount
+          v-else-if="countOfBug.includes(item.key)"
+          v-model:projectIds="item.projectIds"
+          :item="item"
           :type="item.key"
         />
-        <ApiChangeList v-else-if="item.key === WorkCardEnum.API_CHANGE" />
-        <DefectMemberBar v-else-if="item.key === WorkCardEnum.BUG_HANDLE_USER" />
-        <DefectCount v-else-if="countOfBug.includes(item.key)" :type="item.key" />
-        <ApiCount v-else-if="item.key === WorkCardEnum.API_COUNT" />
-        <TestPlanCount v-else-if="item.key === WorkCardEnum.TEST_PLAN_COUNT" />
+        <ApiCount v-else-if="item.key === WorkCardEnum.API_COUNT" v-model:projectIds="item.projectIds" :item="item" />
+        <TestPlanCount
+          v-else-if="item.key === WorkCardEnum.TEST_PLAN_COUNT"
+          v-model:projectIds="item.projectIds"
+          :item="item"
+        />
       </div>
     </div>
-    <NoData v-else all-screen />
+    <NoData
+      v-if="showNoData || !appStore.projectList.length"
+      :no-res-permission="!appStore.projectList.length"
+      :all-screen="!!appStore.projectList.length"
+      height="h-[calc(100vh-110px)]"
+      @config="cardSetting"
+    />
   </div>
-  <CardSettingDrawer v-model:visible="showSettingDrawer" />
+  <CardSettingDrawer v-model:visible="showSettingDrawer" :list="defaultWorkList" @success="initDefaultList" />
   <MsBackButton target=".page-content" />
 </template>
 
@@ -72,6 +125,7 @@
   import { ref } from 'vue';
 
   import MsBackButton from '@/components/pure/ms-back-button/index.vue';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import NoData from '../components/notData.vue';
   import ApiAndScenarioCase from './components/apiAndScenarioCase.vue';
   import ApiChangeList from './components/apiChangeList.vue';
@@ -87,9 +141,10 @@
   import DefectMemberBar from '@/views/workbench/homePage/components/defectMemberBar.vue';
   import OverviewMember from '@/views/workbench/homePage/components/overviewMember.vue';
 
+  import { getDashboardLayout } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import { useUserStore } from '@/store';
-  import { getGenerateId } from '@/utils';
+  import useAppStore from '@/store/modules/app';
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
 
   import { SelectedCardItem } from '@/models/workbench/homePage';
@@ -97,15 +152,14 @@
 
   const userStore = useUserStore();
 
-  const { t } = useI18n();
+  const appStore = useAppStore();
 
-  // 显示设置
-  function handleShowSetting() {}
+  const { t } = useI18n();
 
   const rangeTime = ref<number[]>([]);
   const tempRange = ref<(Date | string | number)[]>(['00:00:00', '00:00:00']);
   const initTime = {
-    dayNumber: '3',
+    dayNumber: 3,
     startTime: 0,
     endTime: 0,
   };
@@ -119,7 +173,7 @@
   // 改变时间类型
   function handleChangeTime(value: string | number | boolean, ev: Event) {
     resetTime();
-    timeForm.value.dayNumber = value as string;
+    timeForm.value.dayNumber = value as number;
     setLocalStorage(`WORK_TIME_${userStore.id}`, JSON.stringify(timeForm.value));
   }
   // 改变时间
@@ -151,29 +205,26 @@
 
   const defaultWorkList = ref<SelectedCardItem[]>([]);
 
-  function initDefaultList() {
-    if (userStore.isAdmin) {
-      defaultWorkList.value = [
-        {
-          id: getGenerateId(),
-          label: t('workbench.homePage.projectOverview'),
-          key: WorkCardEnum.PROJECT_VIEW,
-          fullScreen: true,
-          isDisabledHalfScreen: true,
-          projectIds: [],
-          handleUsers: [],
-        },
-        {
-          id: getGenerateId(),
-          label: t('workbench.homePage.staffOverview'),
-          key: WorkCardEnum.PROJECT_MEMBER_VIEW,
-          fullScreen: true,
-          isDisabledHalfScreen: true,
-          projectIds: [],
-          handleUsers: [],
-        },
-      ];
+  const showNoData = ref(false);
+  async function initDefaultList() {
+    try {
+      appStore.showLoading();
+      const result = await getDashboardLayout(appStore.currentOrgId);
+      defaultWorkList.value = result;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      if (!defaultWorkList.value.length) {
+        showNoData.value = true;
+      }
+      appStore.hideLoading();
     }
+  }
+
+  // 刷新
+  function handleRefresh() {
+    initDefaultList();
   }
 
   onMounted(() => {
@@ -187,6 +238,8 @@
       rangeTime.value = [startTime, endTime];
     }
   });
+
+  provide('timeForm', timeForm);
 </script>
 
 <style scoped lang="less">
@@ -194,12 +247,11 @@
     .header-setting {
       position: sticky;
       top: 0;
-      z-index: 999;
+      z-index: 9;
       background: var(--color-text-n9);
       .setting {
         .setting-icon {
-          color: var(--color-text-4);
-          background-color: var(--color-text-10);
+          color: var(--color-text-1);
           cursor: pointer;
           &:hover {
             color: rgba(var(--primary-5));
@@ -212,10 +264,12 @@
 
 <style lang="less">
   .card-wrapper {
-    margin: 16px 0;
     padding: 24px;
     box-shadow: 0 0 10px rgba(120 56 135/ 5%);
     @apply rounded-xl bg-white;
+    &.card-min-height {
+      min-height: 356px;
+    }
     .title {
       font-size: 16px;
       @apply font-medium;

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="cardWrapperRef">
     <a-tabs v-if="props.contentTabList.length" default-active-key="1" class="ms-tab-card">
       <a-tab-pane v-for="item of props.contentTabList" :key="item.value" :title="`${item.label}`">
         <template #title>
@@ -45,23 +45,28 @@
 
   const width = ref<string | number>();
 
+  const cardWrapperRef = ref<HTMLElement | null>(null);
   const calculateWidth = debounce(() => {
-    const wrapperContent = document.querySelector('.card-wrapper') as HTMLElement;
+    const wrapperContent = cardWrapperRef.value as HTMLElement;
     if (wrapperContent) {
       const wrapperTotalWidth = wrapperContent.offsetWidth;
       const gap = 16;
-      const paddingNumber = 16;
-      const paddingWidth = props.notHasPadding ? 0 : paddingNumber * 2; // 两边的内边距总和 (16px * 2)
       const gapWidth = (props.contentTabList.length - 1) * gap; // 总间隙宽度
-      const borderWidth = props.hiddenBorder ? 0 : 2;
-      const itemWidth = Math.floor((wrapperTotalWidth - paddingWidth - gapWidth) / props.contentTabList.length);
-      width.value = `${itemWidth - borderWidth}px`;
+      const itemWidth = Math.floor((wrapperTotalWidth - gapWidth) / props.contentTabList.length);
+      width.value = `${itemWidth}px`;
     }
-  }, 300);
+  }, 50);
+
+  let resizeObserver: ResizeObserver;
 
   onMounted(() => {
-    calculateWidth();
-    window.addEventListener('resize', calculateWidth);
+    const wrapperContent = cardWrapperRef.value;
+    if (wrapperContent) {
+      resizeObserver = new ResizeObserver(() => {
+        calculateWidth();
+      });
+      resizeObserver.observe(wrapperContent);
+    }
   });
 
   const minwidth = ref();
@@ -74,9 +79,19 @@
       minwidth.value = `${newMinWidth || '136px'}`;
       padding.value = `${noPadding ? '0px' : '16px'}`;
       color.value = `${isHiddenBorder ? 'transparent' : 'var(--color-text-n8)'}`;
+      calculateWidth();
     },
     {
       immediate: true,
+    }
+  );
+
+  watch(
+    () => props.contentTabList,
+    (val) => {
+      if (val.length) {
+        calculateWidth();
+      }
     }
   );
 

@@ -244,18 +244,19 @@ const useUserStore = defineStore('user', {
       const { isLoginPage } = useUser();
       const appStore = useAppStore();
       const isLogin = await this.isLogin(forceSet);
+      const routeName = router.currentRoute.value.name as string;
       if (isLogin && appStore.currentProjectId !== 'no_such_project') {
         // 当前为登陆状态，且已经选择了项目，初始化当前项目配置
         try {
           const HasProjectPermission = await getUserHasProjectPermission(appStore.currentProjectId);
-          if (!HasProjectPermission) {
+          // 无权限&&工作台不会跳转无资源
+          if (!HasProjectPermission && !routeName?.includes('workstation')) {
             // 没有项目权限（用户所在的当前项目被禁用&用户被移除出去该项目）
             router.push({
               name: NO_PROJECT_ROUTE_NAME,
             });
             return;
           }
-          const routeName = router.currentRoute.value.name as string;
           if (routeName?.includes('setting')) {
             // 访问系统设置下的页面，不需要获取项目信息，会在切换到非系统设置页面时获取(ms-menu组件内初始化会获取)
             appStore.setCurrentMenuConfig([]);

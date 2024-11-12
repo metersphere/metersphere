@@ -277,8 +277,13 @@ const useAppStore = defineStore('app', {
       try {
         const { isWhiteListPage } = useUser();
         const routeName = router.currentRoute.value.name as string;
-        if (!this.currentProjectId || routeName?.includes('setting') || isWhiteListPage()) {
-          // 如果没有项目id，或访问的是系统设置下的页面/白名单页面，则不读取项目基础信息
+        if (
+          !this.currentProjectId ||
+          routeName?.includes('setting') ||
+          routeName?.includes('workstation') ||
+          isWhiteListPage()
+        ) {
+          // 如果没有项目id，或访问的是系统设置下的页面/白名单/工作台页面，则不读取项目基础信息
           return;
         }
         const res = await getProjectInfo(this.currentProjectId);

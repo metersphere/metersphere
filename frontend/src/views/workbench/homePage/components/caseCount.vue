@@ -1,12 +1,11 @@
 <template>
-  <div class="card-wrapper">
+  <div class="card-wrapper card-min-height">
     <div class="flex items-center justify-between">
       <div class="title"> {{ t('workbench.homePage.useCasesNumber') }} </div>
       <div>
         <MsSelect
-          v-model:model-value="projectIds"
+          v-model:model-value="projectId"
           :options="appStore.projectList"
-          allow-clear
           allow-search
           value-key="id"
           label-key="name"
@@ -17,17 +16,21 @@
         </MsSelect>
       </div>
     </div>
-    <div class="my-[16px]">
-      <div class="case-count-wrapper">
-        <div class="case-count-item">
-          <PassRatePie :options="options" :size="60" :value-list="reviewValueList" />
-        </div>
-        <div class="case-count-item">
-          <PassRatePie :options="options" :size="60" :value-list="passValueList" />
-        </div>
-      </div>
-      <div class="mt-[16px]">
-        <SetReportChart size="120px" :legend-data="legendData" :options="executeCharOptions" :request-total="100000" />
+    <div class="mt-[16px]">
+      <TabCard :content-tab-list="caseCountTabList" not-has-padding hidden-border min-width="270px">
+        <template #item="{ item: tabItem }">
+          <div class="w-full">
+            <PassRatePie
+              :options="tabItem.options"
+              :tooltip-text="tabItem.tooltip"
+              :size="60"
+              :value-list="tabItem.valueList"
+            />
+          </div>
+        </template>
+      </TabCard>
+      <div class="h-[148px]">
+        <MsChart :options="caseCountOptions" />
       </div>
     </div>
   </div>
@@ -38,52 +41,55 @@
    * @desc 用例数量
    */
   import { ref } from 'vue';
+  import { cloneDeep } from 'lodash-es';
 
+  import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
   import PassRatePie from './passRatePie.vue';
-  import SetReportChart from '@/views/api-test/report/component/case/setReportChart.vue';
+  import TabCard from './tabCard.vue';
 
-  import { commonConfig, seriesConfig, toolTipConfig } from '@/config/testPlan';
+  import { workCaseCountDetail } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import type { LegendData } from '@/models/apiTest/report';
+  import type { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
+  import { StatusStatisticsMapType } from '@/models/workbench/homePage';
 
-  const projectIds = ref('');
+  import { commonRatePieOptions, handlePieData } from '../utils';
+
   const appStore = useAppStore();
-
   const { t } = useI18n();
 
-  const options = ref({
-    ...commonConfig,
-    tooltip: {
-      ...toolTipConfig,
-    },
-    legend: {
-      show: false,
-    },
-    series: {
-      name: '',
-      type: 'pie',
-      radius: ['80%', '100%'],
-      avoidLabelOverlap: false,
-      label: {
-        show: false,
-        position: 'center',
-      },
-      emphasis: {
-        label: {
-          show: false,
-          fontSize: 40,
-          fontWeight: 'bold',
-        },
-      },
-      labelLine: {
-        show: false,
-      },
-      data: [],
-    },
+  const props = defineProps<{
+    item: SelectedCardItem;
+  }>();
+
+  const innerProjectIds = defineModel<string[]>('projectIds', {
+    required: true,
   });
+
+  const projectId = ref<string>(innerProjectIds.value[0]);
+
+  const timeForm = inject<Ref<TimeFormParams>>(
+    'timeForm',
+    ref({
+      dayNumber: 3,
+      startTime: 0,
+      endTime: 0,
+    })
+  );
+
+  const options = ref(cloneDeep(commonRatePieOptions));
+
+  function handlePassRatePercent(data: { name: string; count: number }[]) {
+    return data.slice(1).map((item) => {
+      return {
+        value: item.count,
+        label: item.name,
+        name: item.name,
+      };
+    });
+  }
 
   const reviewValueList = ref([
     {
@@ -95,6 +101,7 @@
       value: 2000,
     },
   ]);
+
   const passValueList = ref([
     {
       label: t('workbench.homePage.havePassed'),
@@ -106,101 +113,104 @@
     },
   ]);
 
-  const legendData = ref<LegendData[]>([
-    {
-      label: 'P0',
-      value: 'P0',
-      rote: 30,
-      count: 3,
-      class: 'bg-[rgb(var(--danger-6))] ml-[24px]',
-    },
-    {
-      label: 'P1',
-      value: 'P1',
-      rote: 30,
-      count: 3,
-      class: 'bg-[rgb(var(--warning-6))] ml-[24px]',
-    },
-    {
-      label: 'P2',
-      value: 'P2',
-      rote: 30,
-      count: 3,
-      class: 'bg-[rgb(var(--link-6))] ml-[24px]',
-    },
-    {
-      label: 'P3',
-      value: 'P3',
-      rote: 30,
-      count: 3,
-      class: 'bg-[var(--color-text-input-border)] ml-[24px]',
-    },
-  ]);
-
-  // 执行分析
-  const executeCharOptions = ref({
-    ...commonConfig,
-    tooltip: {
-      ...toolTipConfig,
-    },
-    series: {
-      ...seriesConfig,
-      data: [
-        {
-          value: 0,
-          name: t('common.success'),
-          itemStyle: {
-            color: '#00C261',
-          },
-        },
-        {
-          value: 0,
-          name: t('common.fakeError'),
-          itemStyle: {
-            color: '#FFC14E',
-          },
-        },
-        {
-          value: 0,
-          name: t('common.fail'),
-          itemStyle: {
-            color: '#ED0303',
-          },
-        },
-        {
-          value: 0,
-          name: t('common.unExecute'),
-          itemStyle: {
-            color: '#D4D4D8',
-          },
-        },
-        {
-          value: 0,
-          name: t('common.block'),
-          itemStyle: {
-            color: '#B379C8',
-          },
-        },
-      ],
-    },
+  const reviewOptions = ref<Record<string, any>>(cloneDeep(options.value));
+  const passOptions = ref<Record<string, any>>(cloneDeep(options.value));
+  const caseCountTabList = computed(() => {
+    return [
+      {
+        label: '',
+        value: 'execution',
+        valueList: reviewValueList.value,
+        options: { ...reviewOptions.value },
+        tooltip: 'workbench.homePage.reviewRateTooltip',
+      },
+      {
+        label: '',
+        value: 'pass',
+        valueList: passValueList.value,
+        options: { ...passOptions.value },
+        tooltip: 'workbench.homePage.reviewPassRateTooltip',
+      },
+    ];
   });
-</script>
 
-<style scoped lang="less">
-  .card-wrapper {
-    margin: 16px 0;
-    padding: 24px;
-    box-shadow: 0 0 10px rgba(120 56 135/ 5%);
-    @apply rounded-xl bg-white;
-    .title {
-      font-size: 16px;
-      @apply font-medium;
-    }
-    .case-count-wrapper {
-      @apply flex items-center gap-4;
-      .case-count-item {
-        @apply flex-1;
-      }
+  // 处理X率饼图数据
+  function handleRatePieData(statusStatisticsMap: StatusStatisticsMapType) {
+    const { review, pass } = statusStatisticsMap;
+    reviewValueList.value = handlePassRatePercent(review);
+    passValueList.value = handlePassRatePercent(pass);
+
+    reviewOptions.value.series.data = handlePassRatePercent(review);
+    passOptions.value.series.data = handlePassRatePercent(pass);
+
+    reviewOptions.value.title.text = review[0].name ?? '';
+    reviewOptions.value.title.subtext = `${review[0].count ?? 0}%`;
+    passOptions.value.title.text = pass[0].name ?? '';
+    passOptions.value.title.subtext = `${pass[0].count ?? 0}%`;
+    reviewOptions.value.series.color = ['#00C261', '#D4D4D8'];
+    passOptions.value.series.color = ['#00C261', '#ED0303'];
+  }
+
+  const caseCountOptions = ref<Record<string, any>>({});
+  async function initCaseCount() {
+    try {
+      const { startTime, endTime, dayNumber } = timeForm.value;
+      const params = {
+        current: 1,
+        pageSize: 5,
+        startTime: dayNumber ? null : startTime,
+        endTime: dayNumber ? null : endTime,
+        dayNumber: dayNumber ?? null,
+        projectIds: innerProjectIds.value,
+        organizationId: appStore.currentOrgId,
+        handleUsers: [],
+      };
+      const detail = await workCaseCountDetail(params);
+      const { statusStatisticsMap, statusPercentList } = detail;
+      caseCountOptions.value = handlePieData(props.item.key, statusPercentList);
+      handleRatePieData(statusStatisticsMap);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
     }
   }
-</style>
+
+  onMounted(() => {
+    initCaseCount();
+  });
+
+  watch(
+    () => innerProjectIds.value,
+    (val) => {
+      if (val) {
+        const [newProjectId] = val;
+        projectId.value = newProjectId;
+        initCaseCount();
+      }
+    }
+  );
+
+  watch(
+    () => projectId.value,
+    (val) => {
+      if (val) {
+        innerProjectIds.value = [val];
+        initCaseCount();
+      }
+    }
+  );
+
+  watch(
+    () => timeForm.value,
+    (val) => {
+      if (val) {
+        initCaseCount();
+      }
+    },
+    {
+      deep: true,
+    }
+  );
+</script>
+
+<style scoped lang="less"></style>

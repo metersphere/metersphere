@@ -44,7 +44,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
 
   import { getCustomFieldHeader, getCustomOptionHeader } from '@/api/modules/bug-management';
-  import { workbenchBugList } from '@/api/modules/workbench';
+  import { workbenchBugList, workbenchTodoBugList } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
@@ -192,8 +192,12 @@
   columns.splice(2, 0, ...customColumns);
   await initFilterOptions();
 
+  const workbenchBugPage = computed(() => {
+    return props.type === 'my_todo' ? workbenchTodoBugList : workbenchBugList;
+  });
+
   const { propsRes, propsEvent, setLoadListParams, loadList } = useTable(
-    workbenchBugList,
+    workbenchBugPage.value,
     {
       columns,
       scroll: { x: '100%' },
@@ -237,6 +241,7 @@
     setLoadListParams({
       projectId: props.project,
       viewId: props.type,
+      myTodo: props.type === 'my_todo',
     });
     loadList();
   }

@@ -14,7 +14,7 @@
         <a-button type="secondary" @click="exitHandler">
           {{ t('workbench.homePage.exitEdit') }}
         </a-button>
-        <a-button type="primary" :loading="confirmLoading" @click="saveHandler">
+        <a-button type="primary" :disabled="!selectedCardList.length" :loading="confirmLoading" @click="saveHandler">
           {{ t('common.save') }}
         </a-button>
       </div>
@@ -39,9 +39,15 @@
             >
               <div class="card-item-text">
                 <a-tooltip :content="t('workbench.homePage.sort')" :mouse-enter-delay="300">
-                  <MsIcon type="icon-icon_drag" size="16" class="cursor-move text-[var(--color-text-4)]" />
+                  <div class="flex hover:bg-[rgb(var(--primary-1))]">
+                    <MsIcon
+                      type="icon-icon_drag"
+                      size="16"
+                      class="cursor-move text-[var(--color-text-4)] hover:text-[rgb(var(--primary-7))]"
+                    />
+                  </div>
                 </a-tooltip>
-                <div>{{ item.label }}</div>
+                <div>{{ t(item.label) }}</div>
               </div>
               <div class="card-item-text">
                 <a-radio-group
@@ -83,12 +89,14 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
   import { VueDraggable } from 'vue-draggable-plus';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import NotData from '../../components/notData.vue';
   import CardSettingList from '@/views/workbench/homePage/components/cardSettingList.vue';
 
+  import { editDashboardLayout } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { getGenerateId } from '@/utils';
@@ -99,6 +107,14 @@
   const appStore = useAppStore();
 
   const { t } = useI18n();
+
+  const props = defineProps<{
+    list: SelectedCardItem[];
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'success'): void;
+  }>();
 
   const innerVisible = defineModel<boolean>('visible', {
     required: true,
@@ -143,17 +159,36 @@
   // 保存
   async function saveHandler() {
     try {
+      confirmLoading.value = true;
       selectedCardList.value = selectedCardList.value.map((e, pos) => {
         return {
           ...e,
           pos,
         };
       });
+      await editDashboardLayout(selectedCardList.value, appStore.currentOrgId);
+      emit('success');
+      innerVisible.value = false;
       Message.success(t('common.saveSuccess'));
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      confirmLoading.value = false;
     }
   }
+
+  watch(
+    () => innerVisible.value,
+    (val) => {
+      if (val) {
+        selectedCardList.value = cloneDeep(props.list);
+      }
+    },
+    {
+      deep: true,
+    }
+  );
 </script>
 
 <style scoped lang="less">

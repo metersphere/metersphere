@@ -68,7 +68,7 @@
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
   import passRateLine from '@/views/case-management/caseReview/components/passRateLine.vue';
 
-  import { workbenchReviewList } from '@/api/modules/workbench';
+  import { workbenchReviewList, workbenchTodoReviewList } from '@/api/modules/workbench';
   import { reviewStatusMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
@@ -156,7 +156,11 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(workbenchReviewList, {
+  const workbenchReviewPage = computed(() => {
+    return props.type === 'my_todo' ? workbenchTodoReviewList : workbenchReviewList;
+  });
+
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(workbenchReviewPage.value, {
     columns,
     scroll: { x: '100%' },
     showSetting: false,
@@ -179,6 +183,7 @@
     setLoadListParams({
       projectId: props.project,
       viewId: props.type,
+      myTodo: props.type === 'my_todo',
     });
     loadList();
   }

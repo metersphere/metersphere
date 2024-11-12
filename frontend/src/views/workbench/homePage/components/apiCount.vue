@@ -1,12 +1,11 @@
 <template>
-  <div class="card-wrapper api-count-wrapper">
+  <div class="card-wrapper api-count-wrapper card-min-height">
     <div class="flex items-center justify-between">
       <div class="title"> {{ t('workbench.homePage.apiCount') }} </div>
       <div>
         <MsSelect
-          v-model:model-value="projectIds"
+          v-model:model-value="projectId"
           :options="appStore.projectList"
-          allow-clear
           allow-search
           value-key="id"
           label-key="name"
@@ -18,15 +17,19 @@
       </div>
     </div>
     <div class="my-[16px]">
-      <div class="case-count-wrapper">
-        <div class="case-count-item">
-          <PassRatePie :options="options" :size="60" :value-list="coverValueList" />
-        </div>
-        <div class="case-count-item">
-          <PassRatePie :options="options" :size="60" :value-list="passValueList" />
-        </div>
-      </div>
-      <div class="mt-[16px] h-[148px]">
+      <TabCard :content-tab-list="apiCountTabList" not-has-padding hidden-border min-width="270px">
+        <template #item="{ item: tabItem }">
+          <div class="w-full">
+            <PassRatePie
+              :tooltip-text="tabItem.tooltip"
+              :options="tabItem.options"
+              :size="60"
+              :value-list="tabItem.valueList"
+            />
+          </div>
+        </template>
+      </TabCard>
+      <div class="h-[148px]">
         <MsChart :options="apiCountOptions" />
       </div>
     </div>
@@ -38,53 +41,68 @@
    * @desc 接口数量
    */
   import { ref } from 'vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
   import PassRatePie from './passRatePie.vue';
+  import TabCard from './tabCard.vue';
 
-  import { commonConfig, toolTipConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { addCommasToNumber } from '@/utils';
 
-  import type { SelectOptionData } from '@arco-design/web-vue';
+  import type {
+    PassRateDataType,
+    SelectedCardItem,
+    StatusStatisticsMapType,
+    TimeFormParams,
+  } from '@/models/workbench/homePage';
 
+  import { commonRatePieOptions, handlePieData } from '../utils';
+
+  const props = defineProps<{
+    item: SelectedCardItem;
+    projectIds: string[];
+  }>();
   const { t } = useI18n();
   const appStore = useAppStore();
 
-  const projectIds = ref('');
-  const projectOptions = ref<SelectOptionData[]>([]);
+  const innerProjectIds = defineModel<string[]>('projectIds', {
+    required: true,
+  });
 
-  const options = ref({
-    ...commonConfig,
-    tooltip: {
-      ...toolTipConfig,
+  const projectId = ref<string>(innerProjectIds.value[0]);
+
+  const timeForm = inject<Ref<TimeFormParams>>(
+    'timeForm',
+    ref({
+      dayNumber: 3,
+      startTime: 0,
+      endTime: 0,
+    })
+  );
+
+  const options = ref(cloneDeep(commonRatePieOptions));
+
+  // TODO 假数据
+  const detail = ref<PassRateDataType>({
+    statusStatisticsMap: {
+      cover: [
+        { name: '覆盖率', count: 10 },
+        { name: '已覆盖', count: 2 },
+        { name: '未覆盖', count: 1 },
+      ],
+      success: [
+        { name: '覆盖率', count: 10 },
+        { name: '已覆盖', count: 2 },
+        { name: '未覆盖', count: 1 },
+      ],
     },
-    legend: {
-      show: false,
-    },
-    series: {
-      name: '',
-      type: 'pie',
-      radius: ['80%', '100%'],
-      avoidLabelOverlap: false,
-      label: {
-        show: false,
-        position: 'center',
-      },
-      emphasis: {
-        label: {
-          show: false,
-          fontSize: 40,
-          fontWeight: 'bold',
-        },
-      },
-      labelLine: {
-        show: false,
-      },
-      data: [],
-    },
+    statusPercentList: [
+      { status: 'HTTP', count: 1, percentValue: '10%' },
+      { status: 'TCP', count: 3, percentValue: '0%' },
+      { status: 'BBB', count: 6, percentValue: '0%' },
+    ],
   });
 
   const coverValueList = ref([
@@ -111,148 +129,114 @@
       value: 2000,
     },
   ]);
-
-  const apiCountOptions = ref({
-    title: {
-      show: true,
-      text: '总数(个)',
-      left: 60,
-      top: '38px',
-      textStyle: {
-        fontSize: 12,
-        fontWeight: 'normal',
-        color: '#959598',
-      },
-      subtext: '100111',
-      subtextStyle: {
-        fontSize: 20,
-        color: '#323233',
-        fontWeight: 'bold',
-        align: 'center',
-      },
-    },
-    color: ['#811FA3', '#00C261', '#3370FF', '#FFA1FF', '#EE50A3', '#FF9964', '#F9F871', '#C3DD40'],
-    tooltip: {
-      ...toolTipConfig,
-      position: 'right',
-    },
-    legend: {
-      width: '100%',
-      height: 128,
-      type: 'scroll',
-      orient: 'vertical',
-      pageButtonItemGap: 5,
-      pageButtonGap: 5,
-      pageIconColor: '#00000099',
-      pageIconInactiveColor: '#00000042',
-      pageIconSize: [7, 5],
-      pageTextStyle: {
-        color: '#00000099',
-        fontSize: 12,
-      },
-      pageButtonPosition: 'end',
-      itemGap: 16,
-      itemWidth: 8,
-      itemHeight: 8,
-      icon: 'circle',
-      bottom: 'center',
-      left: 180,
-      formatter: (name: any) => {
-        return `{a|${name}}  {b|${addCommasToNumber(1022220)}} {c|${10}}`;
-      },
-      textStyle: {
-        color: '#333',
-        fontSize: 14, // 字体大小
-        textBorderType: 'solid',
-        rich: {
-          a: {
-            width: 50,
-            color: '#959598',
-            fontSize: 12,
-            align: 'left',
-          },
-          b: {
-            width: 50,
-            color: '#323233',
-            fontSize: 12,
-            fontWeight: 'bold',
-            align: 'right',
-          },
-          c: {
-            width: 50,
-            color: '#323233',
-            fontSize: 12,
-            fontWeight: 'bold',
-            align: 'right',
-          },
-        },
-      },
-    },
-    media: [
+  const coverOptions = ref<Record<string, any>>(cloneDeep(options.value));
+  const completeOptions = ref<Record<string, any>>(cloneDeep(options.value));
+  const apiCountTabList = computed(() => {
+    return [
       {
-        query: { maxWidth: 600 },
-        option: {
-          legend: {
-            textStyle: {
-              width: 200,
-            },
-          },
-        },
+        label: '',
+        value: 'execution',
+        valueList: coverValueList.value,
+        options: { ...coverOptions.value },
+        tooltip: 'workbench.homePage.apiCountCoverRateTooltip',
       },
       {
-        query: { minWidth: 601, maxWidth: 800 },
-        option: {
-          legend: {
-            textStyle: {
-              width: 450,
-            },
-          },
-        },
+        label: '',
+        value: 'pass',
+        valueList: passValueList.value,
+        options: { ...completeOptions.value },
+        tooltip: 'workbench.homePage.apiCountCompleteRateTooltip',
       },
-      {
-        query: { minWidth: 801, maxWidth: 1200 },
-        option: {
-          legend: {
-            textStyle: {
-              width: 600,
-            },
-          },
-        },
-      },
-      {
-        query: { minWidth: 1201 },
-        option: {
-          legend: {
-            textStyle: {
-              width: 1000,
-            },
-          },
-        },
-      },
-    ],
-    series: {
-      name: '',
-      type: 'pie',
-      radius: ['75%', '90%'],
-      center: [90, '48%'],
-      avoidLabelOverlap: false,
-      label: {
-        show: false,
-        position: 'center',
-      },
-      emphasis: {
-        label: {
-          show: false,
-          fontSize: 40,
-          fontWeight: 'bold',
-        },
-      },
-      labelLine: {
-        show: false,
-      },
-      data: [],
-    },
+    ];
   });
+
+  const apiCountOptions = ref({});
+
+  function handlePassRatePercent(data: { name: string; count: number }[]) {
+    return data.slice(1).map((item) => {
+      return {
+        value: item.count,
+        label: item.name,
+        name: item.name,
+      };
+    });
+  }
+
+  function handleRatePieData(statusStatisticsMap: StatusStatisticsMapType) {
+    const { cover, success } = statusStatisticsMap;
+    coverValueList.value = handlePassRatePercent(cover);
+    passValueList.value = handlePassRatePercent(success);
+
+    coverOptions.value.series.data = handlePassRatePercent(cover);
+    completeOptions.value.series.data = handlePassRatePercent(success);
+
+    coverOptions.value.title.text = cover[0].name ?? '';
+    coverOptions.value.title.subtext = `${cover[0].count ?? 0}%`;
+
+    completeOptions.value.title.text = success[0].name ?? '';
+    completeOptions.value.title.subtext = `${success[0].count ?? 0}%`;
+
+    coverOptions.value.series.color = ['#00C261', '#D4D4D8'];
+    completeOptions.value.series.color = ['#00C261', '#ED0303'];
+  }
+
+  function initApiCount() {
+    try {
+      const { startTime, endTime, dayNumber } = timeForm.value;
+      const params = {
+        current: 1,
+        pageSize: 5,
+        startTime: dayNumber ? null : startTime,
+        endTime: dayNumber ? null : endTime,
+        dayNumber: dayNumber ?? null,
+        projectIds: innerProjectIds.value,
+        organizationId: appStore.currentOrgId,
+        handleUsers: [],
+      };
+      const { statusStatisticsMap, statusPercentList } = detail.value;
+      apiCountOptions.value = handlePieData(props.item.key, statusPercentList);
+      handleRatePieData(statusStatisticsMap);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  onMounted(() => {
+    initApiCount();
+  });
+
+  watch(
+    () => innerProjectIds.value,
+    (val) => {
+      if (val) {
+        const [newProjectId] = val;
+        projectId.value = newProjectId;
+        initApiCount();
+      }
+    }
+  );
+
+  watch(
+    () => projectId.value,
+    (val) => {
+      if (val) {
+        innerProjectIds.value = [val];
+        initApiCount();
+      }
+    }
+  );
+
+  watch(
+    () => timeForm.value,
+    (val) => {
+      if (val) {
+        initApiCount();
+      }
+    },
+    {
+      deep: true,
+    }
+  );
 </script>
 
 <style scoped lang="less">

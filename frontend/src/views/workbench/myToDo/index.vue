@@ -26,20 +26,20 @@
         v-if="features.includes(FeatureEnum.TEST_PLAN)"
         :project="currentProject"
         :refresh-id="refreshId"
-        type="my_follow"
+        type="my_todo"
         hide-show-type
       />
       <caseReviewTable
         v-if="features.includes(FeatureEnum.CASE_REVIEW)"
         :project="currentProject"
         :refresh-id="refreshId"
-        type="my_follow"
+        type="my_todo"
       />
       <bugTable
         v-if="features.includes(FeatureEnum.BUG)"
         :project="currentProject"
         :refresh-id="refreshId"
-        type="my_follow"
+        type="my_todo"
       />
     </template>
     <NoData v-else all-screen />

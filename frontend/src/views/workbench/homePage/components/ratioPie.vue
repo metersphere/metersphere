@@ -13,10 +13,11 @@
   import { addCommasToNumber } from '@/utils';
 
   const props = defineProps<{
-    data: Record<string, any>[];
+    data: { name: string; value: number }[];
     rateConfig: {
       name: string;
       count: string;
+      color: string[];
     };
   }>();
 
@@ -25,7 +26,7 @@
       show: true,
       text: '',
       left: 'center',
-      top: '24px',
+      top: 32,
       textStyle: {
         fontSize: 12,
         fontWeight: 'normal',
@@ -36,6 +37,7 @@
         fontSize: 14,
         color: '#323233',
         fontWeight: 'bold',
+        lineHeight: 3,
       },
     },
     grid: {
@@ -80,8 +82,10 @@
     series: {
       name: '',
       type: 'pie',
+      padAngle: 1,
       radius: ['46%', '56%'],
       center: ['50%', '32%'],
+      color: [],
       avoidLabelOverlap: false,
       label: {
         show: false,
@@ -103,16 +107,18 @@
   const options = ref({});
 
   function initOptions() {
+    const { name, count, color } = props.rateConfig;
     options.value = {
       ...commonOptionConfig.value,
       title: {
         ...commonOptionConfig.value.title,
-        text: props.rateConfig.name,
-        subtext: props.rateConfig.count,
+        text: name,
+        subtext: count,
       },
       series: {
         ...commonOptionConfig.value.series,
         data: [...props.data],
+        color,
       },
     };
   }

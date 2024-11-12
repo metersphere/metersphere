@@ -7,8 +7,17 @@ import type { ReviewItem } from '@/models/caseManagement/caseReview';
 import type { CaseManagementTable } from '@/models/caseManagement/featureCase';
 import type { CommonList, TableQueryParams } from '@/models/common';
 import type { PassRateCountDetail, TestPlanItem } from '@/models/testPlan/testPlan';
+import type {
+  OverViewOfProject,
+  PassRateDataType,
+  SelectedCardItem,
+  WorkHomePageDetail,
+} from '@/models/workbench/homePage';
 
 import {
+  EditDashboardLayoutUrl,
+  GetDashboardLayoutUrl,
+  WorkAssociateCaseDetailUrl,
   WorkbenchApiCaseListUrl,
   WorkbenchBugListUrl,
   WorkbenchCaseListUrl,
@@ -16,6 +25,13 @@ import {
   WorkbenchScenarioListUrl,
   WorkbenchTestPlanListUrl,
   WorkbenchTestPlanStatisticUrl,
+  WorkCaseCountDetailUrl,
+  WorkMemberViewDetailUrl,
+  WorkMyCreatedDetailUrl,
+  WorkProOverviewDetailUrl,
+  WorkTodoBugListUrl,
+  WorkTodoPlanListUrl,
+  WorkTodoReviewListUrl,
 } from '../requrls/workbench';
 
 // 我的-场景列表
@@ -51,4 +67,50 @@ export function workbenchBugList(data: TableQueryParams) {
 // 我的-接口用例列表
 export function workbenchApiCaseList(data: TableQueryParams) {
   return MSR.post<CommonList<ApiCaseDetail>>({ url: WorkbenchApiCaseListUrl, data });
+}
+
+// 工作台首页概览
+export function workProOverviewDetail(data: WorkHomePageDetail) {
+  return MSR.post<OverViewOfProject>({ url: WorkProOverviewDetailUrl, data });
+}
+// 我创建的
+export function workMyCreatedDetail(data: WorkHomePageDetail) {
+  return MSR.post<OverViewOfProject>({ url: WorkMyCreatedDetailUrl, data });
+}
+// 人员概览
+export function workMemberViewDetail(data: WorkHomePageDetail) {
+  return MSR.post<OverViewOfProject>({ url: WorkMemberViewDetailUrl, data });
+}
+// 获取用户布局
+export function getDashboardLayout(orgId: string) {
+  return MSR.get<SelectedCardItem[]>({ url: `${GetDashboardLayoutUrl}/${orgId}` });
+}
+
+// 获取用户布局
+export function editDashboardLayout(data: SelectedCardItem[], orgId: string) {
+  return MSR.post({ url: `${EditDashboardLayoutUrl}/${orgId}`, data });
+}
+
+// 工作台-首页-用例数
+export function workCaseCountDetail(data: WorkHomePageDetail) {
+  return MSR.post<PassRateDataType>({ url: WorkCaseCountDetailUrl, data });
+}
+// 工作台-首页-关联用例数
+export function workAssociateCaseDetail(data: WorkHomePageDetail) {
+  return MSR.post<PassRateDataType>({ url: WorkAssociateCaseDetailUrl, data });
+}
+
+// 待办-用例评审列表
+export function workbenchTodoReviewList(data: TableQueryParams) {
+  return MSR.post<CommonList<ReviewItem>>({ url: WorkTodoReviewListUrl, data });
+}
+
+// 待办-缺陷列表
+export function workbenchTodoBugList(data: TableQueryParams) {
+  return MSR.post<CommonList<BugListItem>>({ url: WorkTodoBugListUrl, data });
+}
+
+// 待办-测试计划列表
+export function workbenchTodoTestPlanList(data: TableQueryParams) {
+  return MSR.post<CommonList<TestPlanItem>>({ url: WorkTodoPlanListUrl, data });
 }

@@ -1,18 +1,13 @@
 <template>
-  <div class="card-wrapper">
+  <div class="card-wrapper card-min-height">
     <div class="flex items-center justify-between">
       <div class="title">
-        {{
-          props.type === WorkCardEnum.API_CASE_COUNT
-            ? t('workbench.homePage.apiUseCasesNumber')
-            : t('workbench.homePage.scenarioUseCasesNumber')
-        }}
+        {{ t(props.item.label) }}
       </div>
       <div>
         <MsSelect
-          v-model:model-value="projectIds"
+          v-model:model-value="projectId"
           :options="appStore.projectList"
-          allow-clear
           allow-search
           value-key="id"
           label-key="name"
@@ -26,23 +21,15 @@
     <div class="mt-[16px]">
       <div class="case-count-wrapper">
         <div class="case-count-item">
-          <div class="case-count-item-title">{{ t('workbench.homePage.executionTimes') }}</div>
-          <div class="case-count-item-number">{{ addCommasToNumber(executionTimes) }}</div>
-        </div>
-        <div class="case-count-item flex">
-          <div class="case-count-item-count">
-            <div class="case-count-item-title">
-              {{
-                props.type === WorkCardEnum.API_CASE_COUNT
-                  ? t('workbench.homePage.apiUseCasesNumber')
-                  : t('workbench.homePage.scenarioUseCasesNumber')
-              }}
-            </div>
-            <div class="case-count-item-number">{{ addCommasToNumber(executionTimes) }}</div>
+          <div v-for="(ele, index) of executionTimeValue" :key="index" class="case-count-item-content">
+            <div class="case-count-item-title">{{ ele.name }}</div>
+            <div class="case-count-item-number">{{ addCommasToNumber(ele.count) }}</div>
           </div>
-          <div class="case-count-item-count">
-            <div class="case-count-item-title">{{ t('workbench.homePage.misstatementCount') }}</div>
-            <div class="case-count-item-number">{{ addCommasToNumber(executionTimes) }}</div>
+        </div>
+        <div class="case-count-item">
+          <div v-for="(ele, index) of apiCountValue" :key="index" class="case-count-item-content">
+            <div class="case-count-item-title">{{ ele.name }}</div>
+            <div class="case-count-item-number">{{ addCommasToNumber(ele.count) }}</div>
           </div>
         </div>
       </div>
@@ -74,66 +61,82 @@
   import useAppStore from '@/store/modules/app';
   import { addCommasToNumber } from '@/utils';
 
+  import type { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
   import { WorkCardEnum } from '@/enums/workbenchEnum';
 
   const appStore = useAppStore();
 
-  const projectIds = ref('');
   const { t } = useI18n();
 
   const props = defineProps<{
-    type: WorkCardEnum;
+    item: SelectedCardItem;
   }>();
 
-  const executionTimes = ref(100000);
+  const innerProjectIds = defineModel<string[]>('projectIds', {
+    required: true,
+  });
+
+  const projectId = ref<string>(innerProjectIds.value[0]);
+
+  const executionTimeValue = ref<{ name: string; count: number }[]>([
+    {
+      name: '执行次数',
+      count: 100,
+    },
+  ]);
+
+  const apiCountValue = ref<{ name: string; count: number }[]>([
+    {
+      name:
+        props.item.key === WorkCardEnum.API_CASE_COUNT
+          ? t('workbench.homePage.apiUseCasesNumber')
+          : t('workbench.homePage.scenarioUseCasesNumber'),
+      count: 100,
+    },
+    {
+      name: t('workbench.homePage.misstatementCount'),
+      count: 100,
+    },
+  ]);
+
+  const timeForm = inject<Ref<TimeFormParams>>(
+    'timeForm',
+    ref({
+      dayNumber: 3,
+      startTime: 0,
+      endTime: 0,
+    })
+  );
 
   // 接口覆盖
-  const coverData = ref([
+  const coverData = ref<{ name: string; value: number }[]>([
     {
       value: 0,
       name: t('workbench.homePage.notCover'),
-      itemStyle: {
-        color: '#D4D4D8',
-      },
     },
     {
       value: 0,
       name: t('workbench.homePage.covered'),
-      itemStyle: {
-        color: '#00C261',
-      },
     },
   ]);
-  const caseExecuteData = ref([
+  const caseExecuteData = ref<{ name: string; value: number }[]>([
     {
       value: 0,
       name: t('common.unExecute'),
-      itemStyle: {
-        color: '#D4D4D8',
-      },
     },
     {
       value: 0,
       name: t('common.executed'),
-      itemStyle: {
-        color: '#00C261',
-      },
     },
   ]);
-  const casePassData = ref([
+  const casePassData = ref<{ name: string; value: number }[]>([
     {
       value: 0,
       name: t('workbench.homePage.notPass'),
-      itemStyle: {
-        color: '#ED0303',
-      },
     },
     {
       value: 0,
       name: t('workbench.homePage.havePassed'),
-      itemStyle: {
-        color: '#00C261',
-      },
     },
   ]);
 
@@ -141,30 +144,71 @@
     return {
       name: t('workbench.homePage.apiCoverage'),
       count: '80%',
+      color: ['#EDEDF1', '#00C261'],
     };
   });
+
   const executeTitleConfig = computed(() => {
-    return props.type === WorkCardEnum.API_CASE_COUNT
+    return props.item.key === WorkCardEnum.API_CASE_COUNT
       ? {
           name: t('workbench.homePage.caseExecutionRate'),
           count: '80%',
+          color: ['#EDEDF1', '#00C261'],
         }
       : {
           name: t('workbench.homePage.sceneExecutionRate'),
           count: '80%',
+          color: ['#EDEDF1', '#00C261'],
         };
   });
+
   const casePassTitleConfig = computed(() => {
-    return props.type === WorkCardEnum.API_CASE_COUNT
+    return props.item.key === WorkCardEnum.API_CASE_COUNT
       ? {
           name: t('workbench.homePage.casePassedRate'),
           count: '80%',
+          color: ['#00C261', '#ED0303'],
         }
       : {
           name: t('workbench.homePage.executionRate'),
           count: '80%',
+          color: ['#00C261', '#ED0303'],
         };
   });
+
+  function initApiOrScenarioCount() {}
+
+  watch(
+    () => innerProjectIds.value,
+    (val) => {
+      if (val) {
+        const [newProjectId] = val;
+        projectId.value = newProjectId;
+        initApiOrScenarioCount();
+      }
+    }
+  );
+
+  watch(
+    () => projectId.value,
+    (val) => {
+      if (val) {
+        innerProjectIds.value = [val];
+      }
+    }
+  );
+
+  watch(
+    () => timeForm.value,
+    (val) => {
+      if (val) {
+        initApiOrScenarioCount();
+      }
+    },
+    {
+      deep: true,
+    }
+  );
 </script>
 
 <style scoped lang="less">
@@ -174,18 +218,21 @@
       padding: 16px;
       border-radius: 6px;
       background: var(--color-text-n9);
-      @apply flex-1;
-      .case-count-item-count {
+      @apply flex items-center;
+      .case-count-item-content {
         @apply flex-1;
-      }
-      .case-count-item-title {
-        margin-bottom: 8px;
-        color: var(--color-text-4);
-      }
-      .case-count-item-number {
-        font-size: 20px;
-        color: var(--color-text-1);
-        @apply font-medium;
+        .case-count-item-count {
+          @apply flex-1;
+        }
+        .case-count-item-title {
+          margin-bottom: 8px;
+          color: var(--color-text-4);
+        }
+        .case-count-item-number {
+          font-size: 20px;
+          color: var(--color-text-1);
+          @apply font-medium;
+        }
       }
     }
   }

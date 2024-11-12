@@ -1,14 +1,13 @@
 <template>
-  <div class="card-wrapper">
+  <div class="card-wrapper card-min-height">
     <div class="flex items-center justify-between">
       <div class="title">
-        {{ t('workbench.homePage.interfaceChange') }}
+        {{ t(props.item.label) }}
       </div>
       <div>
         <MsSelect
-          v-model:model-value="projectIds"
+          v-model:model-value="projectId"
           :options="appStore.projectList"
-          allow-clear
           allow-search
           value-key="id"
           label-key="name"
@@ -53,12 +52,29 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
+  import type { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
+
   const { t } = useI18n();
-
-  const projectIds = ref('');
-
   const appStore = useAppStore();
 
+  const props = defineProps<{
+    item: SelectedCardItem;
+  }>();
+
+  const innerProjectIds = defineModel<string[]>('projectIds', {
+    required: true,
+  });
+
+  const projectId = ref<string>(innerProjectIds.value[0]);
+
+  const timeForm = inject<Ref<TimeFormParams>>(
+    'timeForm',
+    ref({
+      dayNumber: 3,
+      startTime: 0,
+      endTime: 0,
+    })
+  );
   const columns: MsTableColumn = [
     {
       title: 'ID',
@@ -119,11 +135,57 @@
       updateTime: dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss'),
     })
   );
+  function initData() {
+    const { startTime, endTime, dayNumber } = timeForm.value;
+    setLoadListParams({
+      current: 1,
+      pageSize: 5,
+      startTime: dayNumber ? null : startTime,
+      endTime: dayNumber ? null : endTime,
+      dayNumber: dayNumber ?? null,
+      projectIds: innerProjectIds.value,
+      organizationId: appStore.currentOrgId,
+      handleUsers: [],
+    });
+    loadList();
+  }
 
   onMounted(() => {
-    setLoadListParams({});
-    loadList();
+    initData();
   });
+
+  watch(
+    () => innerProjectIds.value,
+    (val) => {
+      if (val) {
+        const [newProjectId] = val;
+        projectId.value = newProjectId;
+        initData();
+      }
+    }
+  );
+
+  watch(
+    () => projectId.value,
+    (val) => {
+      if (val) {
+        innerProjectIds.value = [val];
+        initData();
+      }
+    }
+  );
+
+  watch(
+    () => timeForm.value,
+    (val) => {
+      if (val) {
+        initData();
+      }
+    },
+    {
+      deep: true,
+    }
+  );
 </script>
 
 <style scoped></style>

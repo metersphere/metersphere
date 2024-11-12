@@ -259,6 +259,7 @@ export default function useTableProps<T>(
           return data;
         }
       } catch (err) {
+        // TODO 在这里处理拦截设置表格无资源权限
         setTableErrorStatus('error');
         propsRes.value.data = [];
         // eslint-disable-next-line no-console

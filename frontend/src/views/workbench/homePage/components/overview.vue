@@ -1,10 +1,10 @@
 <template>
   <div class="card-wrapper">
     <div class="flex items-center justify-between">
-      <div class="title"> {{ props.title }} </div>
+      <div class="title"> {{ t(props.item.label) }} </div>
       <div>
         <MsSelect
-          v-model:model-value="projectIds"
+          v-model:model-value="innerProjectIds"
           :options="appStore.projectList"
           allow-clear
           allow-search
@@ -15,13 +15,14 @@
           :prefix="t('workbench.homePage.project')"
           :multiple="true"
           :has-all-select="true"
-          :default-all-select="true"
+          :default-all-select="!(props.item.projectIds || []).length"
+          :at-least-one="true"
         >
         </MsSelect>
       </div>
     </div>
     <div class="my-[16px]">
-      <TabCard :content-tab-list="contentTabList" />
+      <TabCard :content-tab-list="cardModuleList" />
     </div>
     <!-- 概览图 -->
     <div>
@@ -40,152 +41,136 @@
   import MsSelect from '@/components/business/ms-select';
   import TabCard from './tabCard.vue';
 
+  import { workMyCreatedDetail, workProOverviewDetail } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import { WorkOverviewEnum, WorkOverviewIconEnum } from '@/enums/workbenchEnum';
+  import type {
+    ModuleCardItem,
+    OverViewOfProject,
+    SelectedCardItem,
+    TimeFormParams,
+  } from '@/models/workbench/homePage';
+  import { WorkCardEnum, WorkOverviewEnum } from '@/enums/workbenchEnum';
 
-  import { commonColorConfig, getCommonBarOptions } from '../utils';
+  import { commonColorConfig, contentTabList, getCommonBarOptions, handleNoDataDisplay } from '../utils';
 
   const { t } = useI18n();
 
   const props = defineProps<{
-    title: string;
+    item: SelectedCardItem;
   }>();
+
   const appStore = useAppStore();
 
-  const projectIds = ref('');
-
-  const contentTabList = ref([
-    {
-      label: t('workbench.homePage.functionalUseCase'),
-      value: WorkOverviewEnum.FUNCTIONAL,
-      icon: WorkOverviewIconEnum.FUNCTIONAL,
-      color: 'rgb(var(--primary-5))',
-      count: 1000000,
-    },
-    {
-      label: t('workbench.homePage.useCaseReview'),
-      value: WorkOverviewEnum.CASE_REVIEW,
-      icon: WorkOverviewIconEnum.CASE_REVIEW,
-      color: 'rgb(var(--success-6))',
-      count: 1000000,
-    },
-    {
-      label: t('workbench.homePage.interfaceAPI'),
-      value: WorkOverviewEnum.API,
-      icon: WorkOverviewIconEnum.API,
-      color: 'rgb(var(--link-6))',
-      count: 1000000,
-    },
-    {
-      label: t('workbench.homePage.interfaceCASE'),
-      value: WorkOverviewEnum.API_CASE,
-      icon: WorkOverviewIconEnum.API_CASE,
-      color: 'rgb(var(--link-6))',
-      count: 1000000,
-    },
-    {
-      label: t('workbench.homePage.interfaceScenario'),
-      value: WorkOverviewEnum.API_SCENARIO,
-      icon: WorkOverviewIconEnum.API_SCENARIO,
-      color: 'rgb(var(--link-6))',
-      count: 1000000,
-    },
-    {
-      label: t('workbench.homePage.apiPlan'),
-      value: WorkOverviewEnum.TEST_PLAN,
-      icon: WorkOverviewIconEnum.TEST_PLAN,
-      color: 'rgb(var(--link-6))',
-      count: 1000000,
-    },
-    {
-      label: t('workbench.homePage.bugCount'),
-      value: WorkOverviewEnum.BUG_COUNT,
-      icon: WorkOverviewIconEnum.BUG_COUNT,
-      color: 'rgb(var(--danger-6))',
-      count: 1000000,
-    },
-  ]);
-
-  const xAxisType = computed(() => {
-    return contentTabList.value.map((e) => e.label);
+  const innerProjectIds = defineModel<string[]>('projectIds', {
+    required: true,
   });
 
-  const hasRoom = computed(() => projectIds.value.length >= 7);
+  const timeForm = inject<Ref<TimeFormParams>>(
+    'timeForm',
+    ref({
+      dayNumber: 3,
+      startTime: 0,
+      endTime: 0,
+    })
+  );
+
+  watch(
+    () => props.item.projectIds,
+    (val) => {
+      innerProjectIds.value = val;
+    }
+  );
+
+  const hasRoom = computed(() => innerProjectIds.value.length >= 7);
 
   const options = ref<Record<string, any>>({});
-  const seriesData = ref<Record<string, any>[]>([
-    {
-      name: '项目A',
-      type: 'bar',
-      barWidth: 12,
-      itemStyle: {
-        borderRadius: [2, 2, 0, 0], // 上边圆角
-      },
-      data: [null, 230, 150, 80, 70, 110, 130],
-    },
-    {
-      name: '项目B',
-      type: 'bar',
-      barWidth: 12,
-      itemStyle: {
-        borderRadius: [2, 2, 0, 0], // 上边圆角
-      },
-      data: [90, 160, 130, 100, 90, 120, 140],
-    },
-    {
-      name: '项目C',
-      type: 'bar',
-      barWidth: 12,
-      itemStyle: {
-        borderRadius: [2, 2, 0, 0], // 上边圆角
-      },
-      data: [100, 140, 120, 90, 100, 130, 120],
-    },
-    {
-      name: '项目D',
-      type: 'bar',
-      barWidth: 12,
-      itemStyle: {
-        borderRadius: [2, 2, 0, 0], // 上边圆角
-      },
-      data: [90, 160, 130, 100, 90, 120, 140],
-    },
-    {
-      name: '项目E',
-      type: 'bar',
-      barWidth: 12,
-      itemStyle: {
-        borderRadius: [2, 2, 0, 0], // 上边圆角
-      },
-      data: [100, 140, 120, 90, 100, 130, 120],
-    },
-    {
-      name: '项目F',
-      type: 'bar',
-      barWidth: 12,
-      itemStyle: {
-        borderRadius: [2, 2, 0, 0], // 上边圆角
-      },
-      data: [100, 140, 120, 90, 40, 130, 120],
-    },
-    {
-      name: '项目G',
-      type: 'bar',
-      barWidth: 12,
-      itemStyle: {
-        borderRadius: [2, 2, 0, 0], // 上边圆角
-      },
-      data: [100, 140, 120, 90, 40, 130, 120],
-    },
-  ]);
+
+  const cardModuleList = ref<ModuleCardItem[]>([]);
+
+  function handleData(detail: OverViewOfProject) {
+    // 处理模块顺序
+    const tempAxisData = detail.xaxis.map((xAxisKey) => {
+      const data = contentTabList.value.find((e) => e.value === xAxisKey);
+      return {
+        ...data,
+        count: detail.caseCountMap[xAxisKey as WorkOverviewEnum],
+      };
+    });
+
+    cardModuleList.value = tempAxisData as ModuleCardItem[];
+    options.value = getCommonBarOptions(hasRoom.value, commonColorConfig);
+    const { invisible, text } = handleNoDataDisplay(detail.xaxis, detail.projectCountList);
+    options.value.graphic.invisible = invisible;
+    options.value.graphic.style.text = text;
+    // x轴
+    options.value.xAxis.data = cardModuleList.value.map((e) => e.label);
+
+    // 处理data数据
+    options.value.series = detail.projectCountList.map((item) => {
+      return {
+        name: item.name,
+        type: 'bar',
+        barWidth: 12,
+        itemStyle: {
+          borderRadius: [2, 2, 0, 0], // 上边圆角
+        },
+        data: item.count,
+      };
+    });
+  }
+
+  async function initOverViewDetail() {
+    try {
+      const { startTime, endTime, dayNumber } = timeForm.value;
+      const params = {
+        current: 1,
+        pageSize: 5,
+        startTime: dayNumber ? null : startTime,
+        endTime: dayNumber ? null : endTime,
+        dayNumber: dayNumber ?? null,
+        projectIds: innerProjectIds.value,
+        organizationId: appStore.currentOrgId,
+        handleUsers: [],
+      };
+      let detail;
+      if (props.item.key === WorkCardEnum.PROJECT_VIEW) {
+        detail = await workProOverviewDetail(params);
+      } else {
+        detail = await workMyCreatedDetail(params);
+      }
+
+      handleData(detail);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   onMounted(() => {
-    options.value = getCommonBarOptions(hasRoom.value, commonColorConfig);
-    options.value.xAxis.data = xAxisType.value;
-    options.value.series = seriesData.value;
+    initOverViewDetail();
   });
+
+  watch(
+    () => innerProjectIds.value,
+    (val) => {
+      if (val) {
+        initOverViewDetail();
+      }
+    }
+  );
+
+  watch(
+    () => timeForm.value,
+    (val) => {
+      if (val) {
+        initOverViewDetail();
+      }
+    },
+    {
+      deep: true,
+    }
+  );
 </script>
 
 <style scoped lang="less">

@@ -1,5 +1,5 @@
 <template>
-  <MsCard v-if="props.allScreen" class="mb-[16px]" simple>
+  <MsCard v-if="props.allScreen" simple :special-height="36">
     <div class="flex h-full w-full flex-col items-center justify-center">
       <div class="no-config-svg"></div>
       <div class="flex items-center">
@@ -14,15 +14,21 @@
           class="ml-[8px] font-medium"
           @click="() => emit('config')"
         >
-          {{ t('workbench.homePage.configureWorkbench') }}
+          {{ t('workbench.homePage.cardSetting') }}
         </MsButton>
       </div>
     </div>
   </MsCard>
-  <div v-else-if="props.isDashboard" class="no-card">
-    <div class="no-card-svg"></div>
-    <div class="font-medium text-[var(--color-text-1)]">{{ t('workbench.homePage.noCard') }}</div>
-    <div class="text-[var(--color-text-4)]">{{ t('workbench.homePage.noCardDesc') }}</div>
+  <div v-else-if="props.noResPermission || props.isDashboard" :class="`${props.height || 'h-full'} w-full`">
+    <div class="no-card">
+      <div :class="`${props.noResPermission ? 'no-permission-svg' : 'no-card-svg'}`"></div>
+      <div class="font-medium text-[var(--color-text-1)]">
+        {{ props.noResPermission ? t('workbench.homePage.workNoProjectTip') : t('workbench.homePage.noCard') }}
+      </div>
+      <div v-if="!props.noResPermission" class="text-[var(--color-text-4)]">
+        {{ t('workbench.homePage.noCardDesc') }}
+      </div>
+    </div>
   </div>
   <div v-else class="not-setting-data">
     {{ t('workbench.homePage.noDataTemporarily') }}
@@ -39,6 +45,8 @@
   const props = defineProps<{
     allScreen?: boolean;
     isDashboard?: boolean; // 是否仪表盘
+    noResPermission?: boolean; // 无资源权限
+    height?: string;
   }>();
 
   const { t } = useI18n();
@@ -65,13 +73,19 @@
     background-size: cover;
   }
   .no-card {
-    margin-top: -10%;
     @apply flex h-full w-full flex-col items-center justify-center gap-4;
     .no-card-svg {
       margin: 0 auto;
       width: 160px;
       height: 90px;
       background: url('@/assets/svg/work-no-card.svg');
+      background-size: cover;
+    }
+    .no-permission-svg {
+      margin: 0 auto;
+      width: 160px;
+      height: 90px;
+      background: url('@/assets/svg/no_resource.svg');
       background-size: cover;
     }
   }
