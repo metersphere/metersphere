@@ -15,6 +15,7 @@ import io.metersphere.dashboard.dto.StatusPercentDTO;
 import io.metersphere.dashboard.request.DashboardFrontPageRequest;
 import io.metersphere.dashboard.response.OverViewCountDTO;
 import io.metersphere.dashboard.response.StatisticsDTO;
+import io.metersphere.functional.constants.CaseReviewStatus;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.dto.FunctionalCaseStatisticDTO;
 import io.metersphere.functional.mapper.ExtCaseReviewMapper;
@@ -641,22 +642,7 @@ public class DashboardService {
         Long toEndTime = request.getToEndTime();
         long caseTestCount = extFunctionalCaseMapper.caseTestCount(projectId, toStartTime, toEndTime);
         long simpleCaseCount = extFunctionalCaseMapper.simpleCaseCount(projectId, toStartTime, toEndTime);
-        List<NameCountDTO> coverList = new ArrayList<>();
-        NameCountDTO coverRate = new NameCountDTO();
-        if (simpleCaseCount > 0L) {
-            BigDecimal divide = BigDecimal.valueOf(caseTestCount).divide(BigDecimal.valueOf(simpleCaseCount), 0, RoundingMode.HALF_UP);
-            coverRate.setCount(Integer.valueOf(String.valueOf(divide.multiply(BigDecimal.valueOf(100)))));
-        }
-        coverRate.setName(Translator.get("functional_case.coverRate"));
-        coverList.add(coverRate);
-        NameCountDTO hasCover = new NameCountDTO();
-        hasCover.setCount((int) caseTestCount);
-        hasCover.setName(Translator.get("functional_case.hasCover"));
-        coverList.add(hasCover);
-        NameCountDTO unCover = new NameCountDTO();
-        unCover.setCount((int) (simpleCaseCount - caseTestCount));
-        unCover.setName(Translator.get("functional_case.unCover"));
-        coverList.add(unCover);
+        List<NameCountDTO> coverList = getCoverList((int) simpleCaseCount, (int) caseTestCount, (int) (simpleCaseCount - caseTestCount));
         Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
         statusStatisticsMap.put("cover", coverList);
         statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
@@ -665,7 +651,8 @@ public class DashboardService {
 
     public OverViewCountDTO projectBugHandleUser(DashboardFrontPageRequest request) {
         String projectId = request.getProjectIds().getFirst();
-        if (Boolean.FALSE.equals(checkModule(projectId, BUG_MODULE))) return new OverViewCountDTO(null, new ArrayList<>(), new ArrayList<>());
+        if (Boolean.FALSE.equals(checkModule(projectId, BUG_MODULE)))
+            return new OverViewCountDTO(null, new ArrayList<>(), new ArrayList<>());
         Long toStartTime = request.getToStartTime();
         Long toEndTime = request.getToEndTime();
         List<SelectOption> headerHandlerOption = getHandlerOption(request.getHandleUsers(), projectId);
@@ -746,10 +733,10 @@ public class DashboardService {
                 statusCountArrayMap.put(k, countArray);
             } else {
                 for (int i = 0; i < handleUserIds.size(); i++) {
-                    if (userIds.size()>i) {
-                        if (!StringUtils.equalsIgnoreCase(userIds.get(i),handleUserIds.get(i))) {
-                            userIds.add(i,handleUserIds.get(i));
-                            handleUserCounts.add(i,0);
+                    if (userIds.size() > i) {
+                        if (!StringUtils.equalsIgnoreCase(userIds.get(i), handleUserIds.get(i))) {
+                            userIds.add(i, handleUserIds.get(i));
+                            handleUserCounts.add(i, 0);
                         }
                     } else {
                         handleUserCounts.add(0);
@@ -792,6 +779,80 @@ public class DashboardService {
             platforms.add(platformName);
         }
         return platforms;
+    }
+
+    public StatisticsDTO projectReviewCaseCount(DashboardFrontPageRequest request) {
+        String projectId = request.getProjectIds().getFirst();
+        StatisticsDTO statisticsDTO = new StatisticsDTO();
+        if (Boolean.FALSE.equals(checkModule(projectId, FUNCTIONAL_CASE_MODULE))) return statisticsDTO;
+        Long toStartTime = request.getToStartTime();
+        Long toEndTime = request.getToEndTime();
+        List<FunctionalCaseStatisticDTO> statisticListByProjectId = extFunctionalCaseMapper.getStatisticListByProjectId(projectId, toStartTime, toEndTime);
+        List<FunctionalCaseStatisticDTO> unReviewCaseList = statisticListByProjectId.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getReviewStatus(), FunctionalCaseReviewStatus.UN_REVIEWED.toString())).toList();
+        int reviewCount = statisticListByProjectId.size() - unReviewCaseList.size();
+        List<NameCountDTO> coverList = getCoverList(statisticListByProjectId.size(), reviewCount, unReviewCaseList.size());
+        Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
+        statusStatisticsMap.put("cover", coverList);
+        statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
+        List<StatusPercentDTO> statusPercentList = getStatusPercentList(projectId, toStartTime, toEndTime);
+        statisticsDTO.setStatusPercentList(statusPercentList);
+        return statisticsDTO;
+    }
+
+    @NotNull
+    private List<StatusPercentDTO> getStatusPercentList(String projectId, Long toStartTime, Long toEndTime) {
+        List<StatusPercentDTO> statusPercentList = new ArrayList<>();
+        Map<String, String> statusNameMap = buildStatusNameMap();
+        List<ProjectUserStatusCountDTO> projectUserStatusCountDTOS = extCaseReviewMapper.statusReviewCount(projectId, toStartTime, toEndTime);
+        Map<String, Integer> statusCountMap = projectUserStatusCountDTOS.stream().collect(Collectors.toMap(ProjectUserStatusCountDTO::getStatus, ProjectUserStatusCountDTO::getCount));
+        statusNameMap.forEach((k, v) -> {
+            StatusPercentDTO statusPercentDTO = new StatusPercentDTO();
+            Integer count = statusCountMap.get(k);
+            statusPercentDTO.setStatus(v);
+            if (count != null) {
+                statusPercentDTO.setCount(count);
+            } else {
+                count = 0;
+                statusPercentDTO.setCount(0);
+            }
+            if (CollectionUtils.isNotEmpty(projectUserStatusCountDTOS)) {
+                BigDecimal divide = BigDecimal.valueOf(count).divide(BigDecimal.valueOf(projectUserStatusCountDTOS.size()), 2, RoundingMode.HALF_UP);
+                statusPercentDTO.setPercentValue(divide.multiply(BigDecimal.valueOf(100)) + "%");
+            } else {
+                statusPercentDTO.setPercentValue("0%");
+            }
+            statusPercentList.add(statusPercentDTO);
+        });
+        return statusPercentList;
+    }
+
+    @NotNull
+    private static List<NameCountDTO> getCoverList(int totalCount, int coverCount, int unCoverCount) {
+        List<NameCountDTO> coverList = new ArrayList<>();
+        NameCountDTO coverRate = new NameCountDTO();
+        if (totalCount>0) {
+            BigDecimal divide = BigDecimal.valueOf(coverCount).divide(BigDecimal.valueOf(totalCount), 0, RoundingMode.HALF_UP);
+            coverRate.setCount(Integer.valueOf(String.valueOf(divide.multiply(BigDecimal.valueOf(100)))));
+        }
+        coverRate.setName(Translator.get("functional_case.coverRate"));
+        coverList.add(coverRate);
+        NameCountDTO hasCover = new NameCountDTO();
+        hasCover.setCount(coverCount);
+        hasCover.setName(Translator.get("functional_case.hasCover"));
+        coverList.add(hasCover);
+        NameCountDTO unCover = new NameCountDTO();
+        unCover.setCount(unCoverCount);
+        unCover.setName(Translator.get("functional_case.unCover"));
+        coverList.add(unCover);
+        return coverList;
+    }
+
+    private static Map<String, String> buildStatusNameMap() {
+        Map<String, String> statusNameMap = new HashMap<>();
+        statusNameMap.put(CaseReviewStatus.PREPARED.toString(), Translator.get("case_review.prepared"));
+        statusNameMap.put(CaseReviewStatus.UNDERWAY.toString(), Translator.get("case_review.underway"));
+        statusNameMap.put(CaseReviewStatus.COMPLETED.toString(), Translator.get("case_review.completed"));
+        return statusNameMap;
     }
 }
 

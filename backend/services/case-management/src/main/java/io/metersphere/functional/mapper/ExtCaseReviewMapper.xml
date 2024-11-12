@@ -211,6 +211,9 @@
                                 <property name="condition" value="condition"/>
                             </include>
                         </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
                     </foreach>
                     <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
                         <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
@@ -268,6 +271,9 @@
                                 <property name="column" value="case_review.description"/>
                             </include>
                         </if>
+                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                            <property name="searchMode" value="${combineSearch}.searchMode"/>
+                        </include>
                     </foreach>
                 </if>
             </trim>
@@ -372,6 +378,14 @@
             </foreach>
         </if>
         group by case_review.create_user;
+    </select>
+    <select id="statusReviewCount" resultType="io.metersphere.project.dto.ProjectUserStatusCountDTO">
+        SELECT case_review.status as status, count(case_review.id) as count
+        FROM case_review
+        WHERE case_review.project_id =  #{projectId}
+        AND case_review.create_time BETWEEN #{startTime} AND #{endTime}
+        group by case_review.status;
+
     </select>
 
 </mapper>

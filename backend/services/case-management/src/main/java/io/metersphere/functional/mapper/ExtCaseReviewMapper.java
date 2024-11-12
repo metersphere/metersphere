@@ -7,6 +7,7 @@ import io.metersphere.functional.request.CaseReviewPageRequest;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.ProjectCountDTO;
 import io.metersphere.project.dto.ProjectUserCreateCount;
+import io.metersphere.project.dto.ProjectUserStatusCountDTO;
 import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
 
@@ -47,5 +48,13 @@ public interface ExtCaseReviewMapper {
 
     List<ProjectUserCreateCount> userCreateReviewCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
 
+    /**
+     * 获取各种状态总数量的评审
+     * @param projectId 项目ID
+     * @param startTime 时间过滤条件
+     * @param endTime 时间过滤条件
+     * @return ProjectUserStatusCountDTO userId 在这里不返回
+     */
+    List<ProjectUserStatusCountDTO> statusReviewCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime);
 
 }
