@@ -36,7 +36,7 @@
         </MsTag>
       </template>
       <template #[FilterSlotNameEnum.API_TEST_API_RESPONSE_ASSERTION_STATUS]="{ filterContent }">
-        <MsTag :type="filterContent.value === true ? 'success' : 'danger'" theme="light">
+        <MsTag :type="filterContent.value === true ? 'success' : 'danger'" theme="light" tooltip-disabled>
           {{ filterContent.value === true ? t('common.success') : t('common.fail') }}
         </MsTag>
       </template>
