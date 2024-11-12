@@ -173,7 +173,7 @@ public class ApiReportControllerTests extends BaseTest {
         Assertions.assertNotNull(returnPager);
         //返回值的页码和当前页码相同
         Assertions.assertEquals(returnPager.getCurrent(), request.getCurrent());
-        ;
+        
         //返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(((List<ApiScenarioDTO>) returnPager.getList()).size() <= request.getPageSize());
         //过滤

@@ -28,4 +28,21 @@
           and step_type in ('API', 'API_CASE', 'CUSTOM_REQUEST')
           and ref_type in ('COPY', 'DIRECT')
     </select>
+    <select id="selectResourceId" resultType="java.lang.String">
+        select DISTINCT step.resource_id
+        from api_scenario_step step
+                 INNER JOIN api_scenario scenario
+                            ON step.scenario_id = scenario.id
+        where step.step_type = #{stepType}
+          AND scenario.project_id = #{projectId}
+          AND scenario.deleted IS FALSE
+    </select>
+    <select id="selectCustomRequestConfigByProjectId" resultType="io.metersphere.api.domain.ApiScenarioStep">
+        select step.id, step.config
+        from api_scenario_step step
+                 INNER JOIN api_scenario scenario
+                            ON step.scenario_id = scenario.id
+        where scenario.project_id = #{0}
+          AND scenario.deleted IS FALSE
+    </select>
 </mapper>

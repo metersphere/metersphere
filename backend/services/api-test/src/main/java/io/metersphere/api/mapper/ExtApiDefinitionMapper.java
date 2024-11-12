@@ -129,4 +129,5 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDefinition> getCreateApiList(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 
+    List<ApiDefinition> selectBaseInfoByProjectId(String projectId);
 }

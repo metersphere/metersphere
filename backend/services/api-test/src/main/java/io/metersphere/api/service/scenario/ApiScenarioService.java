@@ -25,10 +25,12 @@ import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.api.utils.ApiDefinitionUtils;
 import io.metersphere.api.utils.ApiScenarioBatchOperationUtils;
 import io.metersphere.api.utils.ApiScenarioUtils;
 import io.metersphere.functional.domain.FunctionalCaseTestExample;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
+import io.metersphere.plugin.api.spi.AbstractMsProtocolTestElement;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.MoveNodeSortDTO;
@@ -278,7 +280,6 @@ public class ApiScenarioService extends MoveNodeService {
             case STATUS -> batchUpdateStatus(example, updateScenario, request.getStatus(), mapper);
             case TAGS -> batchUpdateTags(example, updateScenario, request, ids, mapper);
             case ENVIRONMENT -> batchUpdateEnvironment(example, updateScenario, request, mapper);
-            case SCHEDULE -> batchUpdateSchedule(example, request, mapper, userId);
             default -> throw new MSException(Translator.get("batch_edit_type_error"));
         }
         sqlSession.flushStatements();
@@ -286,15 +287,6 @@ public class ApiScenarioService extends MoveNodeService {
         List<ApiScenario> scenarioInfoByIds = extApiScenarioMapper.getInfoByIds(ids, false);
         apiScenarioLogService.batchEditLog(scenarioInfoByIds, userId, projectId);
         apiScenarioNoticeService.batchSendNotice(ids, userId, projectId, NoticeConstants.Event.UPDATE);
-    }
-
-    private void batchUpdateSchedule(ApiScenarioExample example, ApiScenarioBatchEditRequest request, ApiScenarioMapper mapper, String userId) {
-        List<ApiScenario> apiScenarioList = mapper.selectByExample(example);
-        //批量编辑定时任务
-        for (ApiScenario apiScenario : apiScenarioList) {
-            scheduleService.updateIfExist(apiScenario.getId(), request.isScheduleOpen(), ApiScenarioScheduleJob.getJobKey(apiScenario.getId()),
-                    ApiScenarioScheduleJob.getTriggerKey(apiScenario.getId()), ApiScenarioScheduleJob.class, userId);
-        }
     }
 
     private void batchUpdateEnvironment(ApiScenarioExample example, ApiScenario updateScenario,
@@ -2566,27 +2558,39 @@ public class ApiScenarioService extends MoveNodeService {
             List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
 
             if (CollectionUtils.isNotEmpty(apiScenarios)) {
-                apiScenarios.forEach(apiScenario -> {
-                    ScheduleConfig scheduleConfig = ScheduleConfig.builder()
-                            .resourceId(apiScenario.getId())
-                            .key(apiScenario.getId())
-                            .projectId(apiScenario.getProjectId())
-                            .name(apiScenario.getName())
-                            .enable(request.isEnable())
-                            .cron(request.getCron())
-                            .resourceType(ScheduleResourceType.API_SCENARIO.name())
-                            .config(JSON.toJSONString(request.getConfig()))
-                            .build();
+                if (StringUtils.isBlank(request.getCron()) && request.getConfig() == null) {
+                    this.batchUpdateSchedule(apiScenarios, request.isEnable(), operator);
+                } else {
+                    apiScenarios.forEach(apiScenario -> {
+                        ScheduleConfig scheduleConfig = ScheduleConfig.builder()
+                                .resourceId(apiScenario.getId())
+                                .key(apiScenario.getId())
+                                .projectId(apiScenario.getProjectId())
+                                .name(apiScenario.getName())
+                                .enable(request.isEnable())
+                                .cron(request.getCron())
+                                .resourceType(ScheduleResourceType.API_SCENARIO.name())
+                                .config(JSON.toJSONString(request.getConfig()))
+                                .build();
 
-                    scheduleService.scheduleConfig(
-                            scheduleConfig,
-                            ApiScenarioScheduleJob.getJobKey(apiScenario.getId()),
-                            ApiScenarioScheduleJob.getTriggerKey(apiScenario.getId()),
-                            ApiScenarioScheduleJob.class,
-                            operator);
-                });
-                apiScenarioLogService.batchScheduleConfigLog(request.getProjectId(), apiScenarios, operator);
+                        scheduleService.scheduleConfig(
+                                scheduleConfig,
+                                ApiScenarioScheduleJob.getJobKey(apiScenario.getId()),
+                                ApiScenarioScheduleJob.getTriggerKey(apiScenario.getId()),
+                                ApiScenarioScheduleJob.class,
+                                operator);
+                    });
+                    apiScenarioLogService.batchScheduleConfigLog(request.getProjectId(), apiScenarios, operator);
+                }
             }
+        }
+    }
+
+    private void batchUpdateSchedule(List<ApiScenario> apiScenarioList, boolean isScheudleOpen, String userId) {
+        //批量编辑定时任务
+        for (ApiScenario apiScenario : apiScenarioList) {
+            scheduleService.updateIfExist(apiScenario.getId(), isScheudleOpen, ApiScenarioScheduleJob.getJobKey(apiScenario.getId()),
+                    ApiScenarioScheduleJob.getTriggerKey(apiScenario.getId()), ApiScenarioScheduleJob.class, userId);
         }
     }
 
@@ -2618,5 +2622,48 @@ public class ApiScenarioService extends MoveNodeService {
             }
         }
         return result;
+    }
+
+    public List<String> selectApiIdInCustomRequest(String projectId, List<ApiDefinition> apiDefinitions) {
+        List<String> returnList = new ArrayList<>();
+        List<ApiScenarioStep> stepConfigList = extApiScenarioStepMapper.selectCustomRequestConfigByProjectId(projectId);
+        List<String> requestIdList = new ArrayList<>();
+        stepConfigList.forEach(step -> requestIdList.add(step.getId()));
+        if (requestIdList.isEmpty()) {
+            return returnList;
+        }
+        ApiScenarioStepBlobExample scenarioStepBlobExample = new ApiScenarioStepBlobExample();
+        scenarioStepBlobExample.createCriteria().andIdIn(requestIdList);
+        List<ApiScenarioStepBlob> httpRequestStopBlobList = apiScenarioStepBlobMapper.selectByExampleWithBLOBs(scenarioStepBlobExample);
+        Map<String, List<String>> methodPathMap = new HashMap<>();
+        httpRequestStopBlobList.forEach(blob -> {
+            if (blob.getContent() != null) {
+                try {
+                    AbstractMsProtocolTestElement protocolTestElement = ApiDataUtils.parseObject(new String(blob.getContent()), AbstractMsProtocolTestElement.class);
+                    if (protocolTestElement instanceof MsHTTPElement msHTTPElement) {
+                        String method = msHTTPElement.getMethod();
+                        if (methodPathMap.containsKey(method)) {
+                            methodPathMap.get(method).add(msHTTPElement.getPath());
+                        } else {
+                            List<String> pathList = new ArrayList<>();
+                            pathList.add(msHTTPElement.getPath());
+                            methodPathMap.put(method, pathList);
+                        }
+                    }
+                } catch (Exception e) {
+                    LogUtils.error(e);
+                }
+            }
+        });
+        for (ApiDefinition apiDefinition : apiDefinitions) {
+            if (methodPathMap.containsKey(apiDefinition.getMethod())) {
+                String apiPath = apiDefinition.getPath();
+                List<String> customUrlList = methodPathMap.get(apiDefinition.getMethod());
+                if (ApiDefinitionUtils.isUrlInList(apiPath, customUrlList)) {
+                    returnList.add(apiDefinition.getId());
+                }
+            }
+        }
+        return returnList;
     }
 }

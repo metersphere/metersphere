@@ -1031,4 +1031,18 @@
         </if>
     </select>
 
+    <select id="selectApiId" resultType="java.lang.String">
+        SELECT distinct api.id
+        FROM api_test_case apiCase
+                 INNER JOIN api_definition api ON apiCase.api_definition_id = api.id
+        WHERE apiCase.deleted is FALSE
+          AND api.deleted is FALSE
+          AND api.project_id = #{0}
+    </select>
+    <select id="selectApiIdByCaseId" resultType="java.lang.String">
+        SELECT api_definition_id FROM api_test_case WHERE deleted is false AND id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

@@ -6,18 +6,7 @@
     class="ms-modal-upload ms-modal-medium"
     :width="400"
   >
-    <div class="mb-[16px] flex items-center gap-[16px]">
-      <div
-        v-for="item of platformList"
-        :key="item.value"
-        :class="`import-item ${exportPlatform === item.value ? 'import-item--active' : ''}`"
-        @click="() => setActiveImportFormat(item.value)"
-      >
-        <div class="text-[var(--color-text-1)]">{{ item.name }}</div>
-      </div>
-    </div>
-
-    <div v-show="exportPlatform === 'MeterSphere'" class="mb-[16px] flex items-center gap-[8px]">
+    <div class="mb-[16px] flex items-center gap-[8px]">
       <a-switch v-model:model-value="exportTypeRadio" size="small"></a-switch>
       {{ t('apiScenario.export.type.all') }}
       <a-tooltip :content="t('apiScenario.export.simple.tooltip')" position="tl">
@@ -58,18 +47,6 @@
   import useAppStore from '@/store/modules/app';
   import { downloadByteFile, getGenerateId } from '@/utils';
 
-  import { RequestImportFormat } from '@/enums/apiEnum';
-
-  const platformList: { name: string; value: RequestImportFormat.MeterSphere | RequestImportFormat.Jmeter }[] = [
-    {
-      name: 'MeterSphere',
-      value: RequestImportFormat.MeterSphere,
-    },
-    {
-      name: 'Jmeter',
-      value: RequestImportFormat.Jmeter,
-    },
-  ];
   const appStore = useAppStore();
   const { t } = useI18n();
 
@@ -84,12 +61,8 @@
 
   const exportLoading = ref(false);
   const exportTypeRadio = ref(false);
-  const exportPlatform = ref(RequestImportFormat.MeterSphere);
   function cancelExport() {
     visible.value = false;
-  }
-  function setActiveImportFormat(format: RequestImportFormat.MeterSphere | RequestImportFormat.Jmeter) {
-    exportPlatform.value = format;
   }
   const websocket = ref<WebSocket>();
   const reportId = ref('');
@@ -217,7 +190,7 @@
           sort: props.sorter || {},
           fileId: reportId.value,
         },
-        exportPlatform.value
+        'METERSPHERE'
       );
       showExportingMessage(res);
       visible.value = false;

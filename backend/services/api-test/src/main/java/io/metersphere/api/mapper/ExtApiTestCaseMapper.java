@@ -139,4 +139,8 @@ public interface ExtApiTestCaseMapper {
 
     List<ApiTestCase> getSimpleApiCaseList(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 
+
+    List<String> selectApiId(String projectId);
+
+    List<String> selectApiIdByCaseId(@Param("ids") List<String> apiCaseIdInStep);
 }

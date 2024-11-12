@@ -838,4 +838,10 @@
             AND api_definition.create_time BETWEEN #{startTime} AND #{endTime}
         </if>
     </select>
+    <select id="selectBaseInfoByProjectId" resultType="io.metersphere.api.domain.ApiDefinition">
+        SELECT id, path, method, protocol
+        FROM api_definition
+        WHERE project_id = #{0}
+          AND deleted IS FALSE
+    </select>
 </mapper>

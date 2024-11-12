@@ -2,6 +2,7 @@ package io.metersphere.api.controller.definition;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
@@ -10,8 +11,12 @@ import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
+import io.metersphere.api.mapper.ExtApiDefinitionMapper;
+import io.metersphere.api.mapper.ExtApiScenarioStepMapper;
+import io.metersphere.api.mapper.ExtApiTestCaseMapper;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.definition.*;
+import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -34,6 +39,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotBlank;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -41,6 +47,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -51,6 +58,14 @@ import java.util.List;
 @RequestMapping(value = "/api/definition")
 @Tag(name = "接口测试-接口管理-接口定义")
 public class ApiDefinitionController {
+
+    @Resource
+    private ExtApiDefinitionMapper extApiDefinitionMapper;
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Resource
+    private ExtApiScenarioStepMapper extApiScenarioStepMapper;
+
     @Resource
     private ApiDefinitionService apiDefinitionService;
     @Resource
@@ -61,12 +76,55 @@ public class ApiDefinitionController {
     private ApiDefinitionImportService apiDefinitionImportService;
     @Resource
     private ApiDefinitionExportService apiDefinitionExportService;
+    @Resource
+    private ApiScenarioService apiScenarioService;
+
+    /*
+     接口覆盖率
+        业务注释，误删
+        * 一个接口如果被跨项目的场景给关联了，算不算覆盖？  不算
+        * 自定义请求， 不管它有多少个“/"有多少子域 ， 跟接口定义匹配的时候就用末端匹配法。
+            · 例如：https://www.tapd.cn/tapd_fe/my/work?dialog_preview_id=abcdefg
+                ·/work能匹配的上
+                ·/my/work能匹配的上
+                ·/my 不可以
+                ·/my/{something}可以匹配的上
+                ·/my/{something}/{other-thing}不可以
+        * 剩下的基本上就跟V2一样了. 有用例 or  被场景引用/复制 or 被自定义给命中了  就算覆盖。 且自定义请求可以命中多个接口定义，比如上一点
+     */
+    @GetMapping("/rage/{projectId}")
+    @Operation(summary = "接口测试-接口管理-接口列表(deleted 状态为 1 时为回收站数据)")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public ApiCoverageDTO rage(@PathVariable String projectId) {
+        List<String> apiAllIds = new ArrayList<>();
+        List<ApiDefinition> httpApiList = new ArrayList<>();
+        extApiDefinitionMapper.selectBaseInfoByProjectId(projectId).forEach(apiDefinition -> {
+            if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), "http")) {
+                httpApiList.add(apiDefinition);
+            }
+            apiAllIds.add(apiDefinition.getId());
+        });
+
+        List<String> apiDefinitionIdFromCase = extApiTestCaseMapper.selectApiId(projectId);
+        List<String> apiInScenarioStep = extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API.name());
+        List<String> apiCaseIdInStep = extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API_CASE.name());
+        if (CollectionUtils.isNotEmpty(apiCaseIdInStep)) {
+            List<String> apiCaseIdInScenarioStep = extApiTestCaseMapper.selectApiIdByCaseId(apiCaseIdInStep);
+            apiInScenarioStep.addAll(apiCaseIdInScenarioStep);
+        }
+
+        List<String> apiInStepList = apiScenarioService.selectApiIdInCustomRequest(projectId, httpApiList);
+        apiInStepList.addAll(apiInScenarioStep);
+
+        return new ApiCoverageDTO(apiAllIds, apiDefinitionIdFromCase, apiInStepList);
+    }
 
     @PostMapping(value = "/add")
     @Operation(summary = "接口测试-接口管理-添加接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiDefinitionLogService.class)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getProjectId()s", resourceType = "project")
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getApiDTO(#request)", targetClass = ApiDefinitionNoticeService.class)
     public ApiDefinition add(@Validated @RequestBody ApiDefinitionAddRequest request) {
         return apiDefinitionService.create(request, SessionUtils.getUserId());
