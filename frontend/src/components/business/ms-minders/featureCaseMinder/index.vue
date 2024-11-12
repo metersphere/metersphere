@@ -229,6 +229,7 @@
             count: props.modulesCount[e.id],
             isNew: false,
             changed: false,
+            disabled: ['NONE', 'root'].includes(e.id || e.data?.id), // 全部模块节点和根节点不可编辑文本
           },
           children:
             props.modulesCount[e.id] > 0 && !e.children?.length

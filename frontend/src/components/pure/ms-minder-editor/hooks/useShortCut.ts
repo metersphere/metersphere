@@ -59,7 +59,6 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
       'enter': 'appendSiblingNode',
       'tab': 'appendChildNode',
       'backspace': 'delete',
-      'f2': 'input', // 进入编辑状态
     };
     // 业务快捷键
     const businessShortcuts: { [key: string]: ShortcutKey } = {
@@ -98,6 +97,27 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
     }
   };
 
+  const handleShortcutInput = (event: KeyboardEvent) => {
+    const { editor } = window;
+    const { fsm } = editor;
+    const state = fsm.state();
+    switch (state) {
+      case 'input': {
+        // 输入状态下不响应快捷键
+        return;
+      }
+      default:
+    }
+    const key = event.key.toLowerCase();
+
+    if (key === 'f2') {
+      // 执行快捷键编辑事件
+      if (shortcuts.input) {
+        shortcuts.input(event);
+      }
+    }
+  };
+
   const handleShortcutSave = (event: KeyboardEvent) => {
     const { editor } = window;
     const { fsm } = editor;
@@ -124,6 +144,7 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
     const minderContainer = document.querySelector('.ms-minder-container');
     if (minderContainer) {
       window.addEventListener('keydown', handleShortcutSave);
+      window.addEventListener('keydown', handleShortcutInput);
       minderContainer.addEventListener('keydown', (e) => handleKeyDown(e as KeyboardEvent));
       minderContainer.addEventListener('copy', (e) => minderCopy(e as ClipboardEvent));
       minderContainer.addEventListener('cut', (e) => minderCut(e as ClipboardEvent));
@@ -135,6 +156,7 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
     const minderContainer = document.querySelector('.ms-minder-container');
     if (minderContainer) {
       window.removeEventListener('keydown', handleShortcutSave);
+      window.removeEventListener('keydown', handleShortcutInput);
       minderContainer.removeEventListener('keydown', (e) => handleKeyDown(e as KeyboardEvent));
       minderContainer.removeEventListener('copy', (e) => minderCopy(e as ClipboardEvent));
       minderContainer.removeEventListener('cut', (e) => minderCut(e as ClipboardEvent));
