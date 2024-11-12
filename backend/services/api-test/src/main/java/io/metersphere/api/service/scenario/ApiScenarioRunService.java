@@ -201,6 +201,7 @@ public class ApiScenarioRunService {
         execTaskItem.setOrganizationId(project.getOrganizationId());
         execTaskItem.setResourceType(ApiExecuteResourceType.API_SCENARIO.name());
         execTaskItem.setResourceId(apiScenario.getId());
+        execTaskItem.setCaseId(apiScenario.getId());
         execTaskItem.setResourceName(apiScenario.getName());
 
         baseTaskHubService.insertExecTaskAndDetail(execTask, execTaskItem);

@@ -240,6 +240,7 @@ public class ApiScenarioBatchRunService {
             execTaskItem.setOrganizationId(project.getOrganizationId());
             execTaskItem.setResourceType(ApiExecuteResourceType.API_SCENARIO.name());
             execTaskItem.setResourceId(apiScenario.getId());
+            execTaskItem.setCaseId(apiScenario.getId());
             execTaskItem.setResourceName(apiScenario.getName());
             execTaskItems.add(execTaskItem);
         }

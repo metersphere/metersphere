@@ -660,6 +660,7 @@ public class TestPlanReportService {
             execTaskItem.setOrganizationId(project.getOrganizationId());
             execTaskItem.setResourceType(ApiExecuteResourceType.PLAN_RUN_API_CASE.name());
             execTaskItem.setResourceId(apiTestCase.getId());
+            execTaskItem.setCaseId(apiTestCase.getApiCaseId());
             execTaskItem.setResourceName(apiTestCase.getApiCaseName());
             execTaskItem.setTaskOrigin(testPlanId);
             execTaskItem.setCollectionId(apiTestCase.getTestPlanCollectionId());
@@ -675,6 +676,7 @@ public class TestPlanReportService {
             execTaskItem.setOrganizationId(project.getOrganizationId());
             execTaskItem.setResourceType(ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name());
             execTaskItem.setResourceId(testPlanReportApiScenario.getId());
+            execTaskItem.setCaseId(testPlanReportApiScenario.getApiScenarioId());
             execTaskItem.setResourceName(testPlanReportApiScenario.getApiScenarioName());
             execTaskItem.setCollectionId(testPlanReportApiScenario.getTestPlanCollectionId());
             execTaskItem.setTaskOrigin(testPlanId);

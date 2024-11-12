@@ -108,6 +108,7 @@ public class ApiTestCaseRunService {
         execTaskItem.setOrganizationId(project.getOrganizationId());
         execTaskItem.setResourceType(ApiExecuteResourceType.API_CASE.name());
         execTaskItem.setResourceId(apiTestCase.getId());
+        execTaskItem.setCaseId(apiTestCase.getId());
         execTaskItem.setResourceName(apiTestCase.getName());
 
         baseTaskHubService.insertExecTaskAndDetail(execTask, execTaskItem);

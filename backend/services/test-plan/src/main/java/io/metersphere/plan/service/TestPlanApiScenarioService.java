@@ -350,6 +350,8 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         execTaskItem.setOrganizationId(project.getOrganizationId());
         execTaskItem.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name());
         execTaskItem.setResourceId(testPlanApiScenario.getId());
+        execTaskItem.setCaseId(testPlanApiScenario.getApiScenarioId());
+        execTaskItem.setTaskOrigin(testPlanApiScenario.getTestPlanId());
         execTaskItem.setResourceName(apiScenario.getName());
 
         baseTaskHubService.insertExecTaskAndDetail(execTask, execTaskItem);

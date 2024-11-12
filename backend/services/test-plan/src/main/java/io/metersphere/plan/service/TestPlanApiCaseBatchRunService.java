@@ -303,6 +303,7 @@ public class TestPlanApiCaseBatchRunService {
             execTaskItem.setOrganizationId(project.getOrganizationId());
             execTaskItem.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
             execTaskItem.setResourceId(apiTestCase.getId());
+            execTaskItem.setCaseId(apiTestCase.getCaseId());
             execTaskItem.setResourceName(apiTestCase.getName());
             execTaskItem.setCollectionId(apiTestCase.getTestPlanCollectionId());
             execTaskItems.add(execTaskItem);

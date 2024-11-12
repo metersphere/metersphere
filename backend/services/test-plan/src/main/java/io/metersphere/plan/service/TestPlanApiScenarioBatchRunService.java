@@ -281,6 +281,7 @@ public class TestPlanApiScenarioBatchRunService {
             execTaskItem.setOrganizationId(project.getOrganizationId());
             execTaskItem.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name());
             execTaskItem.setResourceId(testPlanApiScenario.getId());
+            execTaskItem.setCaseId(testPlanApiScenario.getCaseId());
             execTaskItem.setResourceName(testPlanApiScenario.getName());
             execTaskItem.setCollectionId(testPlanApiScenario.getTestPlanCollectionId());
             execTaskItems.add(execTaskItem);

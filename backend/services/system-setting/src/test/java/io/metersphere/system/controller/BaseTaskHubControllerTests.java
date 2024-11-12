@@ -620,6 +620,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
         execTaskItem.setId("1111");
         execTaskItem.setTaskId("1");
         execTaskItem.setResourceId("1");
+        execTaskItem.setCaseId("1");
         execTaskItem.setStatus("SUCCESS");
         execTaskItem.setResourcePoolId("1");
         execTaskItem.setResourceType("FUNCTIONAL");

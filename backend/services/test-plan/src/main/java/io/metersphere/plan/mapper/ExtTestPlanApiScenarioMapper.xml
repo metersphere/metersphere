@@ -535,7 +535,7 @@
     <select id="getSelectIdAndCollectionId" resultType="io.metersphere.plan.dto.TestPlanApiScenarioBatchRunDTO">
         SELECT
         test_plan_api_scenario.id as id, test_plan_api_scenario.test_plan_collection_id as testPlanCollectionId,
-        api_scenario.name as name
+        api_scenario.name as name, api_scenario.id as caseId
         FROM
         test_plan_api_scenario
         INNER JOIN api_scenario on api_scenario.id = test_plan_api_scenario.api_scenario_id
@@ -634,7 +634,7 @@
     </select>
 
     <select id="getBatchRunInfoByIds" resultType="io.metersphere.plan.dto.TestPlanApiScenarioBatchRunDTO">
-        SELECT tpas.id, tpas.test_plan_collection_id, t.name as name
+        SELECT tpas.id, tpas.test_plan_collection_id, t.name as name, t.id as caseId
         FROM test_plan_api_scenario tpas
         INNER JOIN api_scenario t ON tpas.api_scenario_id = t.id
         WHERE

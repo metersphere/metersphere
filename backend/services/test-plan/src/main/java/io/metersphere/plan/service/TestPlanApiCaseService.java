@@ -767,7 +767,9 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         ExecTaskItem execTaskItem = apiCommonService.newExecTaskItem(execTask.getId(), project.getId(), userId);
         execTaskItem.setOrganizationId(project.getOrganizationId());
         execTaskItem.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
-        execTaskItem.setResourceId(apiTestCase.getId());
+        execTaskItem.setResourceId(testPlanApiCase.getId());
+        execTaskItem.setCaseId(apiTestCase.getId());
+        execTaskItem.setTaskOrigin(testPlanApiCase.getTestPlanId());
         execTaskItem.setResourceName(apiTestCase.getName());
 
         baseTaskHubService.insertExecTaskAndDetail(execTask, execTaskItem);

@@ -841,7 +841,7 @@
     </select>
 
     <select id="getSelectIdAndCollectionId" resultType="io.metersphere.plan.dto.TestPlanApiCaseBatchRunDTO">
-        SELECT t.id as id, t.test_plan_collection_id as test_plan_collection_id, atc.name as name
+        SELECT t.id as id, t.test_plan_collection_id as test_plan_collection_id, atc.name as name, atc.id as caseId
         FROM test_plan_api_case t
         INNER JOIN api_test_case atc ON t.api_case_id = atc.id
         INNER JOIN api_definition a ON atc.api_definition_id = a.id
@@ -893,7 +893,7 @@
         AND test_plan.status != 'ARCHIVED'
     </select>
     <select id="getBatchRunInfoByIds" resultType="io.metersphere.plan.dto.TestPlanApiCaseBatchRunDTO">
-        SELECT t.id as id, t.test_plan_collection_id as test_plan_collection_id, atc.name as name
+        SELECT t.id as id, t.test_plan_collection_id as test_plan_collection_id, atc.name as name, atc.id as caseId
         FROM test_plan_api_case t
         INNER JOIN api_test_case atc ON t.api_case_id = atc.id
         where

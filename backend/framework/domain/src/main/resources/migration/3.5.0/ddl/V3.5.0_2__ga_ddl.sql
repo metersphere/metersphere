@@ -74,7 +74,8 @@ CREATE INDEX idx_project_id_delete_create_time_create_user
 
 ALTER TABLE exec_task ADD COLUMN deleted bit(1) NOT NULL DEFAULT b'0' COMMENT '删除标识';
 ALTER TABLE exec_task_item ADD COLUMN deleted bit(1) NOT NULL DEFAULT b'0' COMMENT '删除标识';
-
+ALTER TABLE exec_task_item ADD COLUMN case_id VARCHAR(50) COMMENT '用例表id';
+CREATE INDEX idx_case_id ON exec_task_item(case_id);
 -- 任务项添加测试集字段
 ALTER TABLE exec_task_item ADD collection_id varchar(50) NULL COMMENT '测试集ID';
 

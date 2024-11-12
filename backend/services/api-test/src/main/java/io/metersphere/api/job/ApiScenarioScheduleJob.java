@@ -77,6 +77,7 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
         execTaskItem.setOrganizationId(project.getOrganizationId());
         execTaskItem.setResourceType(ApiExecuteResourceType.API_SCENARIO.name());
         execTaskItem.setResourceId(apiScenarioDetail.getId());
+        execTaskItem.setCaseId(apiScenarioDetail.getId());
         execTaskItem.setResourceName(apiScenarioDetail.getName());
         baseTaskHubService.insertExecTaskAndDetail(execTask, execTaskItem);
 
