@@ -1,12 +1,17 @@
 package io.metersphere.dashboard.controller;
 
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.bug.domain.Bug;
+import io.metersphere.bug.domain.BugExample;
+import io.metersphere.bug.mapper.BugMapper;
+import io.metersphere.bug.service.BugStatusService;
 import io.metersphere.dashboard.constants.DashboardUserLayoutKeys;
 import io.metersphere.dashboard.dto.LayoutDTO;
 import io.metersphere.dashboard.request.DashboardFrontPageRequest;
 import io.metersphere.dashboard.response.OverViewCountDTO;
 import io.metersphere.dashboard.response.StatisticsDTO;
 import io.metersphere.dashboard.service.DashboardService;
+import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.ProjectUserDTO;
@@ -42,6 +47,10 @@ public class DashboardFrontPageControllerTests extends BaseTest {
 
     @Resource
     private ProjectMemberService projectMemberService;
+    @Resource
+    private BugStatusService bugStatusService;
+    @Resource
+    private BugMapper bugMapper;
 
     private static final String EDIT_LAYOUT = "/dashboard/layout/edit/";
     private static final String GET_LAYOUT = "/dashboard/layout/get/";
@@ -52,6 +61,8 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     private static final String PROJECT_MEMBER_VIEW = "/dashboard/project_member_view";
     private static final String CASE_COUNT = "/dashboard/case_count";
     private static final String ASSOCIATE_CASE_COUNT = "/dashboard/associate_case_count";
+    private static final String BUG_HANDLE_USER = "/dashboard/bug_handle_user";
+
 
 
     @Test
@@ -64,6 +75,11 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         dashboardFrontPageRequest.setCurrent(1);
         dashboardFrontPageRequest.setPageSize(5);
         dashboardFrontPageRequest.setProjectIds(List.of(DEFAULT_PROJECT_ID));
+        MvcResult bugMvcResult = this.requestPostWithOkAndReturn(BUG_HANDLE_USER, dashboardFrontPageRequest);
+        String bugContentAsString = bugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder bugResultHolder = JSON.parseObject(bugContentAsString, ResultHolder.class);
+        OverViewCountDTO bugCount = JSON.parseObject(JSON.toJSONString(bugResultHolder.getData()), OverViewCountDTO.class);
+        Assertions.assertNotNull(bugCount);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(CREATE_BY_ME, dashboardFrontPageRequest);
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
@@ -86,7 +102,6 @@ public class DashboardFrontPageControllerTests extends BaseTest {
                         JSON.parseObject(mvcResultAll.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 OverViewCountDTO.class);
         Assertions.assertNotNull(moduleCountAll);
-
         OverViewCountDTO gyq = dashboardService.createByMeCount(dashboardFrontPageRequest, "gyq");
         Assertions.assertNotNull(gyq);
 
@@ -105,15 +120,37 @@ public class DashboardFrontPageControllerTests extends BaseTest {
                         JSON.parseObject(mvcResultAll.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 OverViewCountDTO.class);
         Assertions.assertNotNull(moduleCountAll);
+        List<SelectOption> headerStatusOption = bugStatusService.getHeaderStatusOption(DEFAULT_PROJECT_ID);
+        buildBug(headerStatusOption);
+        bugMvcResult = this.requestPostWithOkAndReturn(BUG_HANDLE_USER, dashboardFrontPageRequest);
+        bugContentAsString = bugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        bugResultHolder = JSON.parseObject(bugContentAsString, ResultHolder.class);
+        bugCount = JSON.parseObject(JSON.toJSONString(bugResultHolder.getData()), OverViewCountDTO.class);
+        Assertions.assertNotNull(bugCount);
+
         Project project = new Project();
         project.setModuleSetting("[]");
         project.setId(DEFAULT_PROJECT_ID);
         projectMapper.updateByPrimaryKeySelective(project);
         OverViewCountDTO gyq4 = dashboardService.projectViewCount(dashboardFrontPageRequest, "default-dashboard-member-user-gyq");
         Assertions.assertTrue(gyq4.getXAxis().isEmpty());
+        OverViewCountDTO gyq5 = dashboardService.projectBugHandleUser(dashboardFrontPageRequest);
+        Assertions.assertTrue(gyq5.getXAxis().isEmpty());
         project.setModuleSetting("[\"apiTest\",\"testPlan\",\"caseManagement\",\"bugManagement\"]");
         project.setId(DEFAULT_PROJECT_ID);
         projectMapper.updateByPrimaryKeySelective(project);
+    }
+
+    private void buildBug(List<SelectOption> headerStatusOption) {
+        BugExample bugExample = new BugExample();
+        bugExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID);
+        List<Bug> bugs = bugMapper.selectByExample(bugExample);
+        for (int i = 0; i < bugs.size(); i++) {
+            Bug bug = new Bug();
+            bug.setId(bugs.get(i).getId());
+            bug.setStatus(headerStatusOption.get(i).getValue());
+            bugMapper.updateByPrimaryKeySelective(bug);
+        }
     }
 
     @Test

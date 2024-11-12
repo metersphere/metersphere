@@ -58,7 +58,12 @@ public class DashboardController {
         return dashboardService.projectMemberViewCount(request);
     }
 
-
+    @PostMapping("/bug_handle_user")
+    @Operation(summary = "缺陷处理人统计")
+    @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
+    public OverViewCountDTO projectBugHandleUser(@Validated @RequestBody DashboardFrontPageRequest request) {
+        return dashboardService.projectBugHandleUser(request);
+    }
 
 
     @PostMapping("/case_count")

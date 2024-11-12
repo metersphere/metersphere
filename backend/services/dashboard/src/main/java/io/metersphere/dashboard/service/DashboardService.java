@@ -3,6 +3,7 @@ package io.metersphere.dashboard.service;
 import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.api.mapper.ExtApiTestCaseMapper;
+import io.metersphere.bug.enums.BugPlatform;
 import io.metersphere.bug.mapper.ExtBugMapper;
 import io.metersphere.bug.service.BugCommonService;
 import io.metersphere.bug.service.BugStatusService;
@@ -19,9 +20,11 @@ import io.metersphere.functional.dto.FunctionalCaseStatisticDTO;
 import io.metersphere.functional.mapper.ExtCaseReviewMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
+import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ProjectCountDTO;
 import io.metersphere.project.dto.ProjectUserCreateCount;
+import io.metersphere.project.dto.ProjectUserStatusCountDTO;
 import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.project.mapper.ExtProjectMemberMapper;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -534,7 +537,7 @@ public class DashboardService {
         String projectId = request.getProjectIds().getFirst();
         StatisticsDTO statisticsDTO = new StatisticsDTO();
         if (Boolean.FALSE.equals(checkModule(projectId, FUNCTIONAL_CASE_MODULE))) return statisticsDTO;
-        List<StatusPercentDTO>statusPercentList = new ArrayList<>();
+        List<StatusPercentDTO> statusPercentList = new ArrayList<>();
         Long toStartTime = request.getToStartTime();
         Long toEndTime = request.getToEndTime();
         List<FunctionalCaseStatisticDTO> statisticListByProjectId = extFunctionalCaseMapper.getStatisticListByProjectId(projectId, toStartTime, toEndTime);
@@ -578,14 +581,14 @@ public class DashboardService {
         passList.add(hasPass);
         NameCountDTO unPass = new NameCountDTO();
         unPass.setName(Translator.get("functional_case.unPass"));
-        unPass.setCount(statisticListByProjectId.size()-hasPassList.size());
+        unPass.setCount(statisticListByProjectId.size() - hasPassList.size());
         passList.add(unPass);
         return passList;
     }
 
     @NotNull
     private static List<NameCountDTO> getReviewList(Map<String, List<FunctionalCaseStatisticDTO>> reviewStatusMap, List<FunctionalCaseStatisticDTO> statisticListByProjectId) {
-        List<NameCountDTO>reviewList = new ArrayList<>();
+        List<NameCountDTO> reviewList = new ArrayList<>();
         List<FunctionalCaseStatisticDTO> unReviewList = reviewStatusMap.get(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
         if (CollectionUtils.isEmpty(unReviewList)) {
             unReviewList = new ArrayList<>();
@@ -595,13 +598,13 @@ public class DashboardService {
         if (CollectionUtils.isEmpty(statisticListByProjectId)) {
             reviewRate.setCount(0);
         } else {
-            BigDecimal divide = BigDecimal.valueOf(statisticListByProjectId.size()-unReviewList.size()).divide(BigDecimal.valueOf(statisticListByProjectId.size()), 0, RoundingMode.HALF_UP);
+            BigDecimal divide = BigDecimal.valueOf(statisticListByProjectId.size() - unReviewList.size()).divide(BigDecimal.valueOf(statisticListByProjectId.size()), 0, RoundingMode.HALF_UP);
             reviewRate.setCount(Integer.valueOf(String.valueOf(divide.multiply(BigDecimal.valueOf(100)))));
         }
         reviewList.add(reviewRate);
         NameCountDTO hasReview = new NameCountDTO();
         hasReview.setName(Translator.get("functional_case.hasReview"));
-        hasReview.setCount(statisticListByProjectId.size()-unReviewList.size());
+        hasReview.setCount(statisticListByProjectId.size() - unReviewList.size());
         reviewList.add(hasReview);
         NameCountDTO unReview = new NameCountDTO();
         unReview.setName(Translator.get("functional_case.unReview"));
@@ -621,7 +624,7 @@ public class DashboardService {
                 int size = functionalCaseStatisticDTOS.size();
                 statusPercentDTO.setCount(size);
                 BigDecimal divide = BigDecimal.valueOf(size).divide(BigDecimal.valueOf(statisticListByProjectId.size()), 2, RoundingMode.HALF_UP);
-                statusPercentDTO.setPercentValue(divide.multiply(BigDecimal.valueOf(100))+"%");
+                statusPercentDTO.setPercentValue(divide.multiply(BigDecimal.valueOf(100)) + "%");
             } else {
                 statusPercentDTO.setCount(0);
                 statusPercentDTO.setPercentValue("0%");
@@ -638,7 +641,7 @@ public class DashboardService {
         Long toEndTime = request.getToEndTime();
         long caseTestCount = extFunctionalCaseMapper.caseTestCount(projectId, toStartTime, toEndTime);
         long simpleCaseCount = extFunctionalCaseMapper.simpleCaseCount(projectId, toStartTime, toEndTime);
-        List<NameCountDTO>coverList = new ArrayList<>();
+        List<NameCountDTO> coverList = new ArrayList<>();
         NameCountDTO coverRate = new NameCountDTO();
         if (simpleCaseCount > 0L) {
             BigDecimal divide = BigDecimal.valueOf(caseTestCount).divide(BigDecimal.valueOf(simpleCaseCount), 0, RoundingMode.HALF_UP);
@@ -651,7 +654,7 @@ public class DashboardService {
         hasCover.setName(Translator.get("functional_case.hasCover"));
         coverList.add(hasCover);
         NameCountDTO unCover = new NameCountDTO();
-        unCover.setCount((int) (simpleCaseCount-caseTestCount));
+        unCover.setCount((int) (simpleCaseCount - caseTestCount));
         unCover.setName(Translator.get("functional_case.unCover"));
         coverList.add(unCover);
         Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
@@ -660,7 +663,136 @@ public class DashboardService {
         return statisticsDTO;
     }
 
+    public OverViewCountDTO projectBugHandleUser(DashboardFrontPageRequest request) {
+        String projectId = request.getProjectIds().getFirst();
+        if (Boolean.FALSE.equals(checkModule(projectId, BUG_MODULE))) return new OverViewCountDTO(null, new ArrayList<>(), new ArrayList<>());
+        Long toStartTime = request.getToStartTime();
+        Long toEndTime = request.getToEndTime();
+        List<SelectOption> headerHandlerOption = getHandlerOption(request.getHandleUsers(), projectId);
+        //获取每个人每个状态有多少数据(已按照用户id排序)
+        List<SelectOption> headerStatusOption = bugStatusService.getHeaderStatusOption(projectId);
+        Set<String> platforms = getPlatforms(projectId);
+        List<String> handleUserIds = headerHandlerOption.stream().sorted(Comparator.comparing(SelectOption::getValue)).map(SelectOption::getValue).collect(Collectors.toList());
+        List<ProjectUserStatusCountDTO> projectUserStatusCountDTOS = extBugMapper.projectUserBugStatusCount(projectId, toStartTime, toEndTime, handleUserIds, platforms);
+        Map<String, SelectOption> statusMap = headerStatusOption.stream().collect(Collectors.toMap(SelectOption::getValue, t -> t));
+        List<String> xaxis = headerHandlerOption.stream().sorted(Comparator.comparing(SelectOption::getValue)).map(SelectOption::getText).toList();
+        Map<String, List<Integer>> statusCountArrayMap = getStatusCountArrayMap(projectUserStatusCountDTOS, statusMap, handleUserIds);
+        return getHandleUserCount(xaxis, statusMap, statusCountArrayMap);
+    }
 
+    @NotNull
+    private static OverViewCountDTO getHandleUserCount(List<String> xaxis, Map<String, SelectOption> statusMap, Map<String, List<Integer>> statusCountArrayMap) {
+        OverViewCountDTO overViewCountDTO = new OverViewCountDTO();
+        //组装X轴数据
+        overViewCountDTO.setXAxis(xaxis);
+        List<NameArrayDTO> projectCountList = getProjectCountList(statusMap, statusCountArrayMap);
+        overViewCountDTO.setProjectCountList(projectCountList);
+        return overViewCountDTO;
+    }
+
+    /**
+     * 同一状态不同人的数量统计Map转换数据结构增加状态名称
+     *
+     * @param statusMap           状态名称集合
+     * @param statusCountArrayMap 同一状态不同人的数量统计Map
+     * @return List<NameArrayDTO>
+     */
+    private static List<NameArrayDTO> getProjectCountList(Map<String, SelectOption> statusMap, Map<String, List<Integer>> statusCountArrayMap) {
+        List<NameArrayDTO> projectCountList = new ArrayList<>();
+        statusCountArrayMap.forEach((status, countArray) -> {
+            NameArrayDTO nameArrayDTO = new NameArrayDTO();
+            nameArrayDTO.setName(statusMap.get(status).getText());
+            nameArrayDTO.setCount(countArray);
+            projectCountList.add(nameArrayDTO);
+        });
+        return projectCountList;
+    }
+
+    /**
+     * 根据处理人排序的处理人状态统计 将同一状态不同人的数量统计到一起
+     *
+     * @param projectUserStatusCountDTOS 根据处理人排序的处理人状态统计集合
+     * @return 同一状态不同人的数量统计Map
+     */
+    private static Map<String, List<Integer>> getStatusCountArrayMap(List<ProjectUserStatusCountDTO> projectUserStatusCountDTOS, Map<String, SelectOption> statusMap, List<String> handleUserIds) {
+        Map<String, List<Integer>> statusCountArrayMap = new HashMap<>();
+        Map<String, List<String>> statusUserArrayMap = new HashMap<>();
+        for (ProjectUserStatusCountDTO projectUserStatusCountDTO : projectUserStatusCountDTOS) {
+            String status = projectUserStatusCountDTO.getStatus();
+            List<Integer> countList = statusCountArrayMap.get(status);
+            List<String> userIds = statusUserArrayMap.get(status);
+            if (CollectionUtils.isEmpty(countList)) {
+                List<Integer> countArray = new ArrayList<>();
+                List<String> userArray = new ArrayList<>();
+                countArray.add(projectUserStatusCountDTO.getCount());
+                userArray.add(projectUserStatusCountDTO.getUserId());
+                statusCountArrayMap.put(status, countArray);
+                statusUserArrayMap.put(status, userArray);
+            } else {
+                userIds.add(projectUserStatusCountDTO.getUserId());
+                countList.add(projectUserStatusCountDTO.getCount());
+                statusCountArrayMap.put(status, countList);
+                statusUserArrayMap.put(status, userIds);
+            }
+        }
+        List<Integer> countArray = new ArrayList<>();
+        for (int i = 0; i < handleUserIds.size(); i++) {
+            countArray.add(0);
+        }
+        statusMap.forEach((k, v) -> {
+            List<Integer> handleUserCounts = statusCountArrayMap.get(k);
+            List<String> userIds = statusUserArrayMap.get(k);
+            if (CollectionUtils.isEmpty(handleUserCounts)) {
+                statusCountArrayMap.put(k, countArray);
+            } else {
+                for (int i = 0; i < handleUserIds.size(); i++) {
+                    if (userIds.size()>i) {
+                        if (!StringUtils.equalsIgnoreCase(userIds.get(i),handleUserIds.get(i))) {
+                            userIds.add(i,handleUserIds.get(i));
+                            handleUserCounts.add(i,0);
+                        }
+                    } else {
+                        handleUserCounts.add(0);
+                    }
+                }
+            }
+        });
+        return statusCountArrayMap;
+    }
+
+    /**
+     * 获取当前项目根据筛选有多少处理人
+     *
+     * @param handleUsers 页面选择的处理人
+     * @param projectId   项目id
+     * @return 处理人id 与 名称的集合
+     */
+    private List<SelectOption> getHandlerOption(List<String> handleUsers, String projectId) {
+        List<SelectOption> headerHandlerOption;
+        if (CollectionUtils.isEmpty(handleUsers)) {
+            headerHandlerOption = bugCommonService.getHeaderHandlerOption(projectId);
+        } else {
+            List<SelectOption> headerHandlerOptionList = bugCommonService.getHeaderHandlerOption(projectId);
+            headerHandlerOption = headerHandlerOptionList.stream().filter(t -> handleUsers.contains(t.getValue())).toList();
+        }
+        return headerHandlerOption;
+    }
+
+    /**
+     * 根据项目id获取当前对接平台，与本地进行组装
+     *
+     * @param projectId 项目ID
+     * @return 本地与对接平台集合
+     */
+    private Set<String> getPlatforms(String projectId) {
+        String platformName = projectApplicationService.getPlatformName(projectId);
+        Set<String> platforms = new HashSet<>();
+        platforms.add(BugPlatform.LOCAL.getName());
+        if (!StringUtils.equalsIgnoreCase(platformName, BugPlatform.LOCAL.getName())) {
+            platforms.add(platformName);
+        }
+        return platforms;
+    }
 }
 
 

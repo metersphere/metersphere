@@ -12,7 +12,7 @@ public class ProjectUserStatusCountDTO {
 
     @Schema(description =  "用户ID")
     private String userId;
-    @Schema(description =  "用户ID")
+    @Schema(description =  "状态")
     private String status;
     @Schema(description =  "数量")
     private int count;

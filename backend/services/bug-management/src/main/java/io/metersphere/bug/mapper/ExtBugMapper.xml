@@ -395,7 +395,7 @@
 
     <select id="projectUserBugStatusCount"
             resultType="io.metersphere.project.dto.ProjectUserStatusCountDTO">
-        SELECT bug.create_user as userId,  bug.status, count(bug.id) as count
+        SELECT bug.handle_user as userId,  bug.status, count(bug.id) as count
         FROM bug
         WHERE bug.deleted = false
         AND bug.project_id =  #{projectId}
@@ -411,7 +411,7 @@
         <foreach collection="platforms" item="platform" separator="," open="(" close=")">
             #{platform}
         </foreach>
-        group by bug.handle_user, bug.status;
+        group by bug.handle_user, bug.status order by bug.handle_user;
     </select>
 
 </mapper>

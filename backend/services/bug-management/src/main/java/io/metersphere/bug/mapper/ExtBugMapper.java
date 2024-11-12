@@ -117,6 +117,15 @@ public interface ExtBugMapper {
     List<ProjectCountDTO> projectBugCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
     List<ProjectUserCreateCount> userCreateBugCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
 
-    List<ProjectUserStatusCountDTO> projectUserBugStatusCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds, @Param("platforms") Set<String> platforms);
+    /**
+     * 根据处理人排序的处理人状态统计
+     * @param projectId 项目ID
+     * @param startTime 时间筛选条件
+     * @param endTime 时间筛选条件
+     * @param userIds 处理人筛选
+     * @param platforms 平台筛选
+     * @return 项目用户状态数量DTO
+     */
+    List<ProjectUserStatusCountDTO> projectUserBugStatusCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") List<String> userIds, @Param("platforms") Set<String> platforms);
 
 }
