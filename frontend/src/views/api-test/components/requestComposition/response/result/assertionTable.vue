@@ -143,11 +143,16 @@
   }
 
   function handleSortChange(sorter: { [key: string]: string }) {
-    const dataIndex = Object.keys(sorter)[0] as keyof ResponseAssertionTableItem;
-    tableData.value = tableData.value?.sort((a, b) => {
-      const sortResult = a[dataIndex] > b[dataIndex] ? -1 : 1;
-      return sorter[dataIndex] === 'asc' ? sortResult : -sortResult;
-    });
+    if (Object.keys(sorter).length > 0) {
+      const dataIndex = Object.keys(sorter)[0] as keyof ResponseAssertionTableItem;
+      const copyArray = [...(props.requestResult?.responseResult.assertions || [])];
+      tableData.value = copyArray.sort((a, b) => {
+        const sortResult = a[dataIndex] > b[dataIndex] ? -1 : 1;
+        return sorter[dataIndex] === 'asc' ? sortResult : -sortResult;
+      });
+    } else {
+      tableData.value = props.requestResult?.responseResult.assertions;
+    }
   }
 </script>
 
