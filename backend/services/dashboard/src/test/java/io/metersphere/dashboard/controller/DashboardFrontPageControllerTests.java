@@ -1,5 +1,6 @@
 package io.metersphere.dashboard.controller;
 
+import io.metersphere.api.dto.definition.ApiDefinitionUpdateDTO;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugExample;
@@ -36,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -67,6 +70,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     private static final String BUG_HANDLE_USER = "/dashboard/bug_handle_user";
 
     private static final String REVIEWING_BY_ME = "/dashboard/reviewing_by_me";
+    private static final String API_CHANGE = "/dashboard/api_change";
 
 
     @Test
@@ -330,6 +334,13 @@ public class DashboardFrontPageControllerTests extends BaseTest {
                 Pager.class);
         List<CaseReviewDTO> list = tableData.getList();
         Assertions.assertNotNull(list);
+        MvcResult apiMvcResult = this.requestPostWithOkAndReturn(API_CHANGE, dashboardFrontPageRequest);
+        Pager<List<ApiDefinitionUpdateDTO>> apiTableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(apiMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        List<ApiDefinitionUpdateDTO> apiList = apiTableData.getList();
+        Assertions.assertNotNull(apiList);
+        System.out.println(JSON.toJSONString(apiList));
         dashboardFrontPageRequest.setStartTime(1697971947000L);
         dashboardFrontPageRequest.setEndTime(1700650347000L);
         mvcResult = this.requestPostWithOkAndReturn(REVIEWING_BY_ME, dashboardFrontPageRequest);
@@ -338,6 +349,22 @@ public class DashboardFrontPageControllerTests extends BaseTest {
                 Pager.class);
         list = tableData.getList();
         Assertions.assertNotNull(list);
+        apiMvcResult = this.requestPostWithOkAndReturn(API_CHANGE, dashboardFrontPageRequest);
+        apiTableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(apiMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        apiList = apiTableData.getList();
+        System.out.println(JSON.toJSONString(apiList));
+        Assertions.assertNotNull(apiList);
+        Project project = new Project();
+        project.setModuleSetting("[]");
+        project.setId(DEFAULT_PROJECT_ID);
+        projectMapper.updateByPrimaryKeySelective(project);
+        this.requestPost(REVIEWING_BY_ME, dashboardFrontPageRequest).andExpect(status().is5xxServerError());
+        this.requestPost(API_CHANGE, dashboardFrontPageRequest).andExpect(status().is5xxServerError());
+        project.setModuleSetting("[\"apiTest\",\"testPlan\",\"caseManagement\",\"bugManagement\"]");
+        project.setId(DEFAULT_PROJECT_ID);
+        projectMapper.updateByPrimaryKeySelective(project);
     }
 
 

@@ -803,4 +803,26 @@
         </if>
         group by api_definition.create_user;
     </select>
+
+    <select id="getUpdateApiList" resultType="io.metersphere.api.dto.definition.ApiDefinitionUpdateDTO">
+        SELECT api_definition.id, api_definition.name, api_definition.update_time
+        FROM api_definition
+        WHERE api_definition.deleted = false
+        AND api_definition.project_id =  #{projectId}
+        AND api_definition.update_time BETWEEN #{startTime} AND #{endTime} order by api_definition.update_time desc;
+    </select>
+
+    <select id="scenarioRefApiCount" resultType="io.metersphere.api.dto.definition.ApiRefSourceCountDTO">
+        select
+        ass.resource_id as sourceId, COUNT(DISTINCT ass.scenario_id) as count
+        from api_scenario_step ass
+        where ass.step_type = 'API'
+          and ass.project_id = #{projectId}
+          and ass.ref_type='REF'
+          and ass.resource_id in
+              <foreach collection="resourceIds" item="resourceId" separator="," open="(" close=")">
+                #{resourceId}
+            </foreach>
+        group by ass.resource_id;
+    </select>
 </mapper>

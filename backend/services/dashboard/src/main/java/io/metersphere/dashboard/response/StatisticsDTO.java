@@ -20,4 +20,7 @@ public class StatisticsDTO {
 
     @Schema(description = "百分比集合")
     private List<StatusPercentDTO>statusPercentList;
+
+    @Schema(description = "错误码")
+    private int errorCode;
 }

@@ -1,5 +1,10 @@
 package io.metersphere.dashboard.service;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.dto.definition.ApiDefinitionUpdateDTO;
+import io.metersphere.api.dto.definition.ApiRefSourceCountDTO;
 import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.api.mapper.ExtApiTestCaseMapper;
@@ -17,9 +22,12 @@ import io.metersphere.dashboard.response.OverViewCountDTO;
 import io.metersphere.dashboard.response.StatisticsDTO;
 import io.metersphere.functional.constants.CaseReviewStatus;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
+import io.metersphere.functional.dto.CaseReviewDTO;
 import io.metersphere.functional.dto.FunctionalCaseStatisticDTO;
 import io.metersphere.functional.mapper.ExtCaseReviewMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
+import io.metersphere.functional.request.CaseReviewPageRequest;
+import io.metersphere.functional.service.CaseReviewService;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.domain.Project;
@@ -32,6 +40,9 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.CombineCondition;
+import io.metersphere.sdk.dto.CombineSearch;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserLayout;
@@ -39,6 +50,9 @@ import io.metersphere.system.domain.UserLayoutExample;
 import io.metersphere.system.dto.user.ProjectUserMemberDTO;
 import io.metersphere.system.mapper.UserLayoutMapper;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.PageUtils;
+import io.metersphere.system.utils.Pager;
+import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,6 +64,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static io.metersphere.dashboard.result.DashboardResultCode.NO_PROJECT_PERMISSION;
 
 /**
  * @author guoyuqi
@@ -90,6 +106,8 @@ public class DashboardService {
     private BugStatusService bugStatusService;
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Resource
+    private CaseReviewService caseReviewService;
 
 
     public static final String FUNCTIONAL = "FUNCTIONAL"; // 功能用例
@@ -324,6 +342,9 @@ public class DashboardService {
         } else {
             List<String> projectIds = allProjectIds.stream().distinct().toList();
             getUserProjectIdName = extProjectMapper.getUserProjectIdName(null, projectIds, userId);
+            if (CollectionUtils.isEmpty(getUserProjectIdName)) {
+                getUserProjectIdName = extProjectMapper.getUserProjectIdName(organizationId, null, userId);
+            }
         }
         Map<String, Project> projectMap = getUserProjectIdName.stream().collect(Collectors.toMap(Project::getId, t -> t));
         List<String> handleUsers = allHandleUsers.stream().distinct().toList();
@@ -537,7 +558,10 @@ public class DashboardService {
     public StatisticsDTO projectCaseCount(DashboardFrontPageRequest request) {
         String projectId = request.getProjectIds().getFirst();
         StatisticsDTO statisticsDTO = new StatisticsDTO();
-        if (Boolean.FALSE.equals(checkModule(projectId, FUNCTIONAL_CASE_MODULE))) return statisticsDTO;
+        if (Boolean.FALSE.equals(checkModule(projectId, FUNCTIONAL_CASE_MODULE))) {
+            statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
+            return statisticsDTO;
+        }
         List<StatusPercentDTO> statusPercentList = new ArrayList<>();
         Long toStartTime = request.getToStartTime();
         Long toEndTime = request.getToEndTime();
@@ -637,7 +661,10 @@ public class DashboardService {
     public StatisticsDTO projectAssociateCaseCount(DashboardFrontPageRequest request) {
         String projectId = request.getProjectIds().getFirst();
         StatisticsDTO statisticsDTO = new StatisticsDTO();
-        if (Boolean.FALSE.equals(checkModule(projectId, FUNCTIONAL_CASE_MODULE))) return statisticsDTO;
+        if (Boolean.FALSE.equals(checkModule(projectId, FUNCTIONAL_CASE_MODULE))) {
+            statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
+            return statisticsDTO;
+        }
         Long toStartTime = request.getToStartTime();
         Long toEndTime = request.getToEndTime();
         long caseTestCount = extFunctionalCaseMapper.caseTestCount(projectId, toStartTime, toEndTime);
@@ -784,7 +811,10 @@ public class DashboardService {
     public StatisticsDTO projectReviewCaseCount(DashboardFrontPageRequest request) {
         String projectId = request.getProjectIds().getFirst();
         StatisticsDTO statisticsDTO = new StatisticsDTO();
-        if (Boolean.FALSE.equals(checkModule(projectId, FUNCTIONAL_CASE_MODULE))) return statisticsDTO;
+        if (Boolean.FALSE.equals(checkModule(projectId, FUNCTIONAL_CASE_MODULE))) {
+            statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
+            return statisticsDTO;
+        }
         Long toStartTime = request.getToStartTime();
         Long toEndTime = request.getToEndTime();
         List<FunctionalCaseStatisticDTO> statisticListByProjectId = extFunctionalCaseMapper.getStatisticListByProjectId(projectId, toStartTime, toEndTime);
@@ -830,7 +860,7 @@ public class DashboardService {
     private static List<NameCountDTO> getCoverList(int totalCount, int coverCount, int unCoverCount) {
         List<NameCountDTO> coverList = new ArrayList<>();
         NameCountDTO coverRate = new NameCountDTO();
-        if (totalCount>0) {
+        if (totalCount > 0) {
             BigDecimal divide = BigDecimal.valueOf(coverCount).divide(BigDecimal.valueOf(totalCount), 0, RoundingMode.HALF_UP);
             coverRate.setCount(Integer.valueOf(String.valueOf(divide.multiply(BigDecimal.valueOf(100)))));
         }
@@ -853,6 +883,94 @@ public class DashboardService {
         statusNameMap.put(CaseReviewStatus.UNDERWAY.toString(), Translator.get("case_review.underway"));
         statusNameMap.put(CaseReviewStatus.COMPLETED.toString(), Translator.get("case_review.completed"));
         return statusNameMap;
+    }
+
+    public Pager<List<CaseReviewDTO>> getFunctionalCasePage(DashboardFrontPageRequest request) {
+        String projectId = request.getProjectIds().getFirst();
+        if (Boolean.FALSE.equals(checkModule(projectId, FUNCTIONAL_CASE_MODULE))) {
+            throw new MSException(NO_PROJECT_PERMISSION);
+        }
+        CaseReviewPageRequest reviewRequest = getCaseReviewPageRequest(request);
+        Page<Object> page = PageHelper.startPage(reviewRequest.getCurrent(), reviewRequest.getPageSize(),
+                com.alibaba.excel.util.StringUtils.isNotBlank(reviewRequest.getSortString()) ? reviewRequest.getSortString() : "pos desc");
+        return PageUtils.setPageInfo(page, caseReviewService.getCaseReviewPage(reviewRequest));
+    }
+
+
+
+    @NotNull
+    private static CaseReviewPageRequest getCaseReviewPageRequest(DashboardFrontPageRequest request) {
+        String projectId = request.getProjectIds().getFirst();
+        CaseReviewPageRequest reviewRequest = new CaseReviewPageRequest();
+        reviewRequest.setProjectId(projectId);
+        reviewRequest.setPageSize(request.getPageSize());
+        reviewRequest.setCurrent(request.getCurrent());
+        reviewRequest.setSort(request.getSort());
+        CombineSearch combineSearch = getCombineSearch(request);
+        reviewRequest.setCombineSearch(combineSearch);
+        return reviewRequest;
+    }
+
+    @NotNull
+    private static CombineSearch getCombineSearch(DashboardFrontPageRequest request) {
+        CombineSearch combineSearch = new CombineSearch();
+        combineSearch.setSearchMode(CombineSearch.SearchMode.AND.name());
+        List<CombineCondition> conditions = new ArrayList<>();
+        CombineCondition userCombineCondition = getCombineCondition(List.of(Objects.requireNonNull(SessionUtils.getUserId())), "reviewers", CombineCondition.CombineConditionOperator.IN.toString());
+        conditions.add(userCombineCondition);
+        CombineCondition statusCombineCondition = getCombineCondition(List.of(CaseReviewStatus.PREPARED.toString(), CaseReviewStatus.UNDERWAY.toString()), "status", CombineCondition.CombineConditionOperator.IN.toString());
+        conditions.add(statusCombineCondition);
+        CombineCondition createTimeCombineCondition = getCombineCondition(List.of(request.getToStartTime(), request.getToEndTime()), "createTime", CombineCondition.CombineConditionOperator.BETWEEN.toString());
+        conditions.add(createTimeCombineCondition);
+        combineSearch.setConditions(conditions);
+        return combineSearch;
+    }
+
+    @NotNull
+    private static CombineCondition getCombineCondition(List<Object> value, String reviewers, String operator) {
+        CombineCondition userCombineCondition = new CombineCondition();
+        userCombineCondition.setValue(value);
+        userCombineCondition.setName(reviewers);
+        userCombineCondition.setOperator(operator);
+        userCombineCondition.setCustomField(false);
+        userCombineCondition.setCustomFieldType("");
+        return userCombineCondition;
+    }
+
+    public List<ApiDefinitionUpdateDTO> getApiUpdatePage(DashboardFrontPageRequest request) {
+        String projectId = request.getProjectIds().getFirst();
+        if (Boolean.FALSE.equals(checkModule(projectId, API_TEST_MODULE))) {
+            throw new MSException(NO_PROJECT_PERMISSION);
+        }
+        Long toStartTime = request.getToStartTime();
+        Long toEndTime = request.getToEndTime();
+        List<ApiDefinitionUpdateDTO> list = extApiDefinitionMapper.getUpdateApiList(projectId, toStartTime, toEndTime);
+        processApiDefinitions(projectId, list);
+        return list;
+    }
+
+    private void processApiDefinitions(String projectId, List<ApiDefinitionUpdateDTO> list) {
+        List<String> apiDefinitionIds = list.stream().map(ApiDefinitionUpdateDTO::getId).toList();
+        if (CollectionUtils.isEmpty(apiDefinitionIds)) {
+            return;
+        }
+        List<ApiTestCase> apiCaseList = extApiDefinitionMapper.selectNotInTrashCaseIdsByApiIds(apiDefinitionIds);
+        Map<String, List<ApiTestCase>> apiCaseMap = apiCaseList.stream().
+                collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
+
+        List<ApiRefSourceCountDTO> apiRefSourceCountDTOS = extApiDefinitionMapper.scenarioRefApiCount(projectId, apiDefinitionIds);
+        Map<String, Integer> countMap = apiRefSourceCountDTOS.stream().collect(Collectors.toMap(ApiRefSourceCountDTO::getSourceId, ApiRefSourceCountDTO::getCount));
+        list.forEach(item -> {
+            // Calculate API Case Metrics
+            List<ApiTestCase> apiTestCases = apiCaseMap.get(item.getId());
+            if (apiTestCases != null) {
+                item.setCaseTotal(apiTestCases.size());
+            } else {
+                item.setCaseTotal(0);
+            }
+            Integer count = countMap.get(item.getId());
+            item.setScenarioTotal(Objects.requireNonNullElse(count, 0));
+        });
     }
 }
 
