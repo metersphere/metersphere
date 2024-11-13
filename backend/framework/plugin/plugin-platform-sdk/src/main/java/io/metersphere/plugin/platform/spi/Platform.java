@@ -69,7 +69,7 @@ public interface Platform extends ExtensionPoint {
     List<SelectOption> getFormOptions(GetOptionRequest optionsRequest);
 
     /**
-     * 获取第三方平台缺陷状态选项
+     * 获取第三方平台缺陷状态流选项
      * @param projectConfig 项目配置信息
      * @param issueKey 缺陷ID
      * @param previousStatus 当前状态
@@ -77,6 +77,14 @@ public interface Platform extends ExtensionPoint {
      * @throws Exception 获取平台状态异常
      */
     List<SelectOption> getStatusTransitions(String projectConfig, String issueKey, String previousStatus) throws Exception;
+
+    /**
+     * 获取第三方平台缺陷状态流结束状态选项 (用于工作台过滤展示, 不实现则默认都展示第三方平台所有状态)
+     * @param projectConfig 项目配置信息(暂定, 可能其他平台后续需提供服务集成配置信息)
+     * @return 平台结束状态流选项
+     * @throws Exception 获取平台结束状态异常
+     */
+    List<SelectOption> getStatusTransitionsLastSteps(String projectConfig) throws Exception;
 
     /**
      * 获取第三方平台关联需求列表

@@ -17,12 +17,9 @@ public class BugPageRequest extends BasePageRequest {
     @NotBlank(message = "{bug.project_id.not_blank}")
     private String projectId;
 
-    @Schema(description = "是否回收站")
+    @Schema(description = "是否回收站, 后台默认设置")
     private boolean useTrash;
 
-    @Schema(description = "是否我的待办, 默认查询全部")
-    private boolean myTodo = false;
-
-    @Schema(description = "我的待办用户ID, 组合使用: myTodo=true, myTodoUserId=xxx")
-    private String myTodoUserId;
+    @Schema(description = "待办参数, 后台默认设置")
+    private BugTodoRequest todoParam;
 }

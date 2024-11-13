@@ -132,4 +132,12 @@ public class UserPlatformAccountService {
         // noinspection unchecked
         return (Map<String, Object>) userPlatformInfo.get(pluginId);
     }
+
+    public String getPlatformUserName(String uerId, String orgId, String pluginId) {
+        Map<String, Object> pluginUserPlatformConfig = getPluginUserPlatformConfig(pluginId, orgId, uerId);
+        if (pluginUserPlatformConfig == null) {
+            return null;
+        }
+        return (String) pluginUserPlatformConfig.get("nickName");
+    }
 }

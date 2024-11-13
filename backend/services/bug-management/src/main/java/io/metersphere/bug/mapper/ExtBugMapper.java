@@ -29,6 +29,13 @@ public interface ExtBugMapper {
     List<BugDTO> list(@Param("request") BugPageRequest request, @Param("sort") String sort);
 
     /**
+     * 获取项目状态流结束标识
+     * @param projectId 项目ID
+     * @return 结束标识集合
+     */
+    List<String> getLocalLastStepStatusIds(@Param("projectId") String projectId);
+
+    /**
      * 缺陷列表查询
      *
      * @param request 请求查询参数

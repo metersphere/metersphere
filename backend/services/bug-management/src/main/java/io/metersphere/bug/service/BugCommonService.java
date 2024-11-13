@@ -43,6 +43,8 @@ public class BugCommonService {
 	@Resource
 	private FileService fileService;
 	@Resource
+	private ExtBugMapper extBugMapper;
+	@Resource
 	private BugStatusService bugStatusService;
 	@Resource
 	private BugCommentMapper bugCommentMapper;
@@ -188,5 +190,25 @@ public class BugCommonService {
 		List<SelectOption> localOptions = bugStatusService.getAllLocalStatusOptions(projectId);
 		List<SelectOption> allStatusOption = ListUtils.union(headerOptions, localOptions).stream().distinct().toList();
 		return allStatusOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+	}
+
+	/**
+	 * 获取Local状态流结束标识
+	 * @param projectId 项目ID
+	 * @return 状态流结束标识集合
+	 */
+	public List<String> getLocalLastStepStatus(String projectId) {
+		return extBugMapper.getLocalLastStepStatusIds(projectId);
+	}
+
+	/**
+	 * 获取平台状态流结束标识
+	 * @param projectId 项目ID
+	 * @return 状态流结束标识集合
+	 */
+	public List<String> getPlatformLastStepStatus(String projectId) throws Exception {
+		Platform platform = projectApplicationService.getPlatform(projectId, true);
+		List<SelectOption> platformLastSteps = platform.getStatusTransitionsLastSteps(projectApplicationService.getProjectBugThirdPartConfig(projectId));
+		return platformLastSteps.stream().map(SelectOption::getValue).toList();
 	}
 }

@@ -23,6 +23,11 @@
         </if>
     </select>
 
+    <select id="getLocalLastStepStatusIds" resultType="java.lang.String">
+        select id from status_item si left join status_definition sd on si.id = sd.status_id
+        where scope_type = 'PROJECT' and scope_id = #{projectId} and sd.definition_id = 'END'
+    </select>
+
     <select id="getIdsByPageRequest" resultType="java.lang.String">
         select b.id from bug b left join bug_content bc on b.id = bc.bug_id
         <include refid="queryWhereCondition"/>
@@ -157,13 +162,37 @@
                 or b.tags like concat('%', #{request.keyword},'%')
                 )
             </if>
-            <!-- 我的待办: Local平台&&非结束状态&&处理人为我; -->
-            <if test="request.myTodo">
-                and b.platform = 'Local' and b.status in (
-                    select id from status_item si left join status_definition sd on si.id = sd.status_id
-                    where scope_type = 'PROJECT' and scope_id = #{request.projectId}
-                    and (sd.definition_id != 'END' || sd.definition_id is null)
-                ) and b.handle_user = #{request.myTodoUserId}
+            <!-- 我的待办 -->
+            <if test="request.todoParam != null">
+                and (
+                <!-- Local平台: 非结束状态&&处理人为当前登录用户 -->
+                (
+                b.platform = 'Local'
+                <if test="request.todoParam.msLastStepStatus != null and request.todoParam.msLastStepStatus.size() > 0">
+                    and b.status not in
+                    <foreach collection="request.todoParam.msLastStepStatus" item="lastStatus" separator="," open="(" close=")">
+                        #{lastStatus}
+                    </foreach>
+                </if>
+                and b.handle_user = #{request.todoParam.msUserId}
+                )
+                <if test="request.todoParam.currentPlatform != null and request.todoParam.currentPlatform != 'Local'">
+                    <!-- 插件平台: 非平台结束状态&&处理人为个人中心账号配置 -->
+                    or
+                    (
+                    b.platform = #{request.todoParam.currentPlatform}
+                    <if test="request.todoParam.platformLastStatus != null and request.todoParam.platformLastStatus.size() > 0">
+                        and b.status not in
+                        <foreach collection="request.todoParam.platformLastStatus" item="lastStatus" separator="," open="(" close=")">
+                            #{lastStatus}
+                        </foreach>
+                    </if>
+                    <if test="request.todoParam.platformUser != null">
+                        and b.handle_user = #{request.todoParam.platformUser}
+                    </if>
+                    )
+                </if>
+                )
             </if>
             <include refid="filter"/>
             <include refid="combine">
