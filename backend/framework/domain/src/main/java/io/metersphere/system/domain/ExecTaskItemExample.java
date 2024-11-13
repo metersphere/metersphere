@@ -1204,66 +1204,6 @@ public class ExecTaskItemExample {
             return (Criteria) this;
         }
 
-        public Criteria andDeletedIsNull() {
-            addCriterion("deleted is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andDeletedIsNotNull() {
-            addCriterion("deleted is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andDeletedEqualTo(Boolean value) {
-            addCriterion("deleted =", value, "deleted");
-            return (Criteria) this;
-        }
-
-        public Criteria andDeletedNotEqualTo(Boolean value) {
-            addCriterion("deleted <>", value, "deleted");
-            return (Criteria) this;
-        }
-
-        public Criteria andDeletedGreaterThan(Boolean value) {
-            addCriterion("deleted >", value, "deleted");
-            return (Criteria) this;
-        }
-
-        public Criteria andDeletedGreaterThanOrEqualTo(Boolean value) {
-            addCriterion("deleted >=", value, "deleted");
-            return (Criteria) this;
-        }
-
-        public Criteria andDeletedLessThan(Boolean value) {
-            addCriterion("deleted <", value, "deleted");
-            return (Criteria) this;
-        }
-
-        public Criteria andDeletedLessThanOrEqualTo(Boolean value) {
-            addCriterion("deleted <=", value, "deleted");
-            return (Criteria) this;
-        }
-
-        public Criteria andDeletedIn(List<Boolean> values) {
-            addCriterion("deleted in", values, "deleted");
-            return (Criteria) this;
-        }
-
-        public Criteria andDeletedNotIn(List<Boolean> values) {
-            addCriterion("deleted not in", values, "deleted");
-            return (Criteria) this;
-        }
-
-        public Criteria andDeletedBetween(Boolean value1, Boolean value2) {
-            addCriterion("deleted between", value1, value2, "deleted");
-            return (Criteria) this;
-        }
-
-        public Criteria andDeletedNotBetween(Boolean value1, Boolean value2) {
-            addCriterion("deleted not between", value1, value2, "deleted");
-            return (Criteria) this;
-        }
-
         public Criteria andCollectionIdIsNull() {
             addCriterion("collection_id is null");
             return (Criteria) this;
@@ -1334,6 +1274,66 @@ public class ExecTaskItemExample {
             return (Criteria) this;
         }
 
+        public Criteria andDeletedIsNull() {
+            addCriterion("deleted is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedIsNotNull() {
+            addCriterion("deleted is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedEqualTo(Boolean value) {
+            addCriterion("deleted =", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedNotEqualTo(Boolean value) {
+            addCriterion("deleted <>", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedGreaterThan(Boolean value) {
+            addCriterion("deleted >", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("deleted >=", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedLessThan(Boolean value) {
+            addCriterion("deleted <", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedLessThanOrEqualTo(Boolean value) {
+            addCriterion("deleted <=", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedIn(List<Boolean> values) {
+            addCriterion("deleted in", values, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedNotIn(List<Boolean> values) {
+            addCriterion("deleted not in", values, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedBetween(Boolean value1, Boolean value2) {
+            addCriterion("deleted between", value1, value2, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("deleted not between", value1, value2, "deleted");
+            return (Criteria) this;
+        }
+
         public Criteria andCaseIdIsNull() {
             addCriterion("case_id is null");
             return (Criteria) this;
@@ -1401,6 +1401,76 @@ public class ExecTaskItemExample {
 
         public Criteria andCaseIdNotBetween(String value1, String value2) {
             addCriterion("case_id not between", value1, value2, "caseId");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorMessageIsNull() {
+            addCriterion("error_message is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorMessageIsNotNull() {
+            addCriterion("error_message is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorMessageEqualTo(String value) {
+            addCriterion("error_message =", value, "errorMessage");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorMessageNotEqualTo(String value) {
+            addCriterion("error_message <>", value, "errorMessage");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorMessageGreaterThan(String value) {
+            addCriterion("error_message >", value, "errorMessage");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorMessageGreaterThanOrEqualTo(String value) {
+            addCriterion("error_message >=", value, "errorMessage");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorMessageLessThan(String value) {
+            addCriterion("error_message <", value, "errorMessage");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorMessageLessThanOrEqualTo(String value) {
+            addCriterion("error_message <=", value, "errorMessage");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorMessageLike(String value) {
+            addCriterion("error_message like", value, "errorMessage");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorMessageNotLike(String value) {
+            addCriterion("error_message not like", value, "errorMessage");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorMessageIn(List<String> values) {
+            addCriterion("error_message in", values, "errorMessage");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorMessageNotIn(List<String> values) {
+            addCriterion("error_message not in", values, "errorMessage");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorMessageBetween(String value1, String value2) {
+            addCriterion("error_message between", value1, value2, "errorMessage");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorMessageNotBetween(String value1, String value2) {
+            addCriterion("error_message not between", value1, value2, "errorMessage");
             return (Criteria) this;
         }
     }

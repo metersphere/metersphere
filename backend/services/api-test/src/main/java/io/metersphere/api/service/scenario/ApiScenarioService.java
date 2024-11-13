@@ -3,6 +3,7 @@ package io.metersphere.api.service.scenario;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
+import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
@@ -1520,7 +1521,7 @@ public class ApiScenarioService extends MoveNodeService {
         example.createCriteria().andIdEqualTo(id).andDeletedEqualTo(false);
         List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(apiScenarios)) {
-            throw new MSException(Translator.get("api_scenario_is_not_exist"));
+            throw new MSException(ApiResultCode.CASE_NOT_EXIST);
         }
         return apiScenarios.getFirst();
     }

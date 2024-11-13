@@ -1191,7 +1191,7 @@ public class ApiDefinitionService extends MoveNodeService {
     public TaskRequestDTO debug(ApiDefinitionRunRequest request) {
         ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
         EnvironmentInfoDTO environmentInfoDTO = environmentService.get(request.getEnvironmentId());
-        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(request.getReportId(), request.getProjectId());
+        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(request.getProjectId());
 
         TaskRequestDTO taskRequest = apiExecuteService.getTaskRequest(request.getReportId(), request.getId(), request.getProjectId());
         TaskInfo taskInfo = taskRequest.getTaskInfo();

@@ -8,11 +8,14 @@ import io.metersphere.api.service.definition.ApiTestCaseBatchRunService;
 import io.metersphere.api.service.definition.ApiTestCaseRunService;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ApiExecuteRunMode;
+import io.metersphere.sdk.constants.TaskItemErrorMessage;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
@@ -33,7 +36,8 @@ public class ApiCaseExecuteCallbackService implements ApiExecuteCallbackService 
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     private ApiTestCaseBatchRunService apiTestCaseBatchRunService;
-
+    @Resource
+    private ApiCommonService apiCommonService;
 
     public ApiCaseExecuteCallbackService() {
         ApiExecuteCallbackServiceInvoker.register(ApiExecuteResourceType.API_CASE, this);
@@ -45,6 +49,10 @@ public class ApiCaseExecuteCallbackService implements ApiExecuteCallbackService 
     @Override
     public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
         ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(request.getTaskItem().getResourceId());
+        if (apiTestCase == null || apiTestCase.getDeleted()) {
+            apiCommonService.updateTaskItemErrorMassage(request.getTaskItem().getId(), TaskItemErrorMessage.CASE_NOT_EXIST);
+            throw new MSException(Translator.get("task_error_message.case_not_exist"));
+        }
         String reportId = initReport(request, apiTestCase);
         GetRunScriptResult result = apiTestCaseRunService.getRunScript(request, apiTestCase);
         result.setReportId(reportId);

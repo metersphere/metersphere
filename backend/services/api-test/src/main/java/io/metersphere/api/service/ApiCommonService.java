@@ -31,18 +31,30 @@ import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.ExecStatus;
+import io.metersphere.sdk.constants.TaskItemErrorMessage;
+import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
+import io.metersphere.sdk.dto.api.task.TaskBatchRequestDTO;
+import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
+import io.metersphere.system.mapper.ExecTaskItemMapper;
+import io.metersphere.system.mapper.ExecTaskMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -65,6 +77,10 @@ public class ApiCommonService {
     private FileMetadataService fileMetadataService;
     @Resource
     private CustomFunctionService customFunctionService;
+    @Resource
+    private ExecTaskItemMapper execTaskItemMapper;
+    @Resource
+    private ExecTaskMapper execTaskMapper;
 
     /**
      * 根据 fileId 查找 MsHTTPElement 中的 ApiFile
@@ -510,5 +526,56 @@ public class ApiCommonService {
         apiReportRelateTask.setReportId(reportId);
         apiReportRelateTask.setTaskResourceId(taskItemId);
         return apiReportRelateTask;
+    }
+
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void batchUpdateTaskItemErrorMassage(TaskItemErrorMessage errorMessage, TaskBatchRequestDTO batchRequest) {
+        SqlSessionFactory sqlSessionFactory = CommonBeanFactory.getBean(SqlSessionFactory.class);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        try {
+            if (CollectionUtils.isNotEmpty(batchRequest.getTaskItems())) {
+                ExecTaskItemMapper batchExecTaskItemMapper = sqlSession.getMapper(ExecTaskItemMapper.class);
+                batchRequest.getTaskItems().forEach(taskItem -> {
+                    // 更新任务项的异常信息
+                    ExecTaskItem execTaskItem = new ExecTaskItem();
+                    execTaskItem.setId(taskItem.getId());
+                    execTaskItem.setErrorMessage(errorMessage.name());
+                    batchExecTaskItemMapper.updateByPrimaryKeySelective(execTaskItem);
+                });
+            }
+        } finally {
+            sqlSession.flushStatements();
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void updateTaskItemErrorMassage(String taskItemId, TaskItemErrorMessage errorMessage) {
+        // 更新任务项的异常信息
+        ExecTaskItem execTaskItem = new ExecTaskItem();
+        execTaskItem.setId(taskItemId);
+        execTaskItem.setErrorMessage(errorMessage.name());
+        execTaskItemMapper.updateByPrimaryKeySelective(execTaskItem);
+    }
+
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void updateTaskRunningStatus(String taskId) {
+        ExecTask execTask = new ExecTask();
+        execTask.setId(taskId);
+        execTask.setStartTime(System.currentTimeMillis());
+        execTask.setStatus(ExecStatus.RUNNING.name());
+        execTaskMapper.updateByPrimaryKeySelective(execTask);
+    }
+
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void updateTaskItemRunningStatus(GetRunScriptRequest request) {
+        TaskItem taskItem = request.getTaskItem();
+        // 更新任务项状态
+        ExecTaskItem execTaskItem = new ExecTaskItem();
+        execTaskItem.setId(taskItem.getId());
+        execTaskItem.setStartTime(System.currentTimeMillis());
+        execTaskItem.setStatus(ExecStatus.RUNNING.name());
+        execTaskItem.setThreadId(request.getThreadId());
+        execTaskItemMapper.updateByPrimaryKeySelective(execTaskItem);
     }
 }

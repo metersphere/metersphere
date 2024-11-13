@@ -373,6 +373,9 @@ public class BaseTaskHubService {
             item.setResourcePoolName(resourcePoolMaps.getOrDefault(item.getResourcePoolId(), StringUtils.EMPTY));
             item.setProjectName(projectMaps.getOrDefault(item.getProjectId(), StringUtils.EMPTY));
             item.setOrganizationName(organizationMaps.getOrDefault(item.getOrganizationId(), StringUtils.EMPTY));
+            if (StringUtils.isNotBlank(item.getErrorMessage())) {
+                item.setErrorMessage(Translator.get("task_error_message." + item.getErrorMessage().toLowerCase()));
+            }
         });
     }
 
@@ -740,7 +743,7 @@ public class BaseTaskHubService {
     public Map<String, Integer> getTaskItemOrder(List<String> taskIdItemIds) {
         List<ExecTaskItem> taskItemIds = getTaskItemByIds(taskIdItemIds);
         Map<String, List<ExecTaskItem>> nodeResourceMap = taskItemIds.stream()
-                .filter(item -> StringUtils.equals(item.getResourceType(), ResourcePoolTypeEnum.NODE.getName())) // 根据条件过滤
+                .filter(item -> StringUtils.contains(item.getResourcePoolNode(), ":")) // 根据条件过滤
                 .collect(Collectors.groupingBy(ExecTaskItem::getResourcePoolNode));
 
         List<CompletableFuture<Map<String, Integer>>> futures = nodeResourceMap.keySet().stream()

@@ -1,19 +1,23 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.domain.ApiTestCaseRecord;
 import io.metersphere.api.invoker.ApiExecuteCallbackServiceInvoker;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteCallbackService;
 import io.metersphere.api.service.definition.ApiTestCaseRunService;
 import io.metersphere.plan.domain.TestPlanApiCase;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.constants.TaskItemErrorMessage;
 import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
+import io.metersphere.sdk.exception.MSException;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -36,6 +40,8 @@ public class TestPlanApiCaseExecuteCallbackService implements ApiExecuteCallback
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     private ApiTestCaseRunService apiTestCaseRunService;
+    @Resource
+    private ApiCommonService apiCommonService;
 
     public TestPlanApiCaseExecuteCallbackService() {
         ApiExecuteCallbackServiceInvoker.register(ApiExecuteResourceType.TEST_PLAN_API_CASE, this);
@@ -47,7 +53,11 @@ public class TestPlanApiCaseExecuteCallbackService implements ApiExecuteCallback
     @Override
     public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
         TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(request.getTaskItem().getResourceId());
-        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
+        ApiTestCase apiTestCase = testPlanApiCase == null ? null : apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
+        if (testPlanApiCase == null || apiTestCase == null || apiTestCase.getDeleted()) {
+            apiCommonService.updateTaskItemErrorMassage(request.getTaskItem().getId(), TaskItemErrorMessage.CASE_NOT_EXIST);
+            throw new MSException(ApiResultCode.CASE_NOT_EXIST);
+        }
         String reportId = initReport(request, testPlanApiCase, apiTestCase);
         GetRunScriptResult result = apiTestCaseRunService.getRunScript(request, apiTestCase);
         result.setReportId(reportId);

@@ -3,6 +3,7 @@ package io.metersphere.api.service.scenario;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
+import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
@@ -34,6 +35,7 @@ import io.metersphere.project.service.EnvironmentGroupService;
 import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.api.task.*;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.DateUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -264,6 +266,21 @@ public class ApiScenarioRunService {
         ApiScenarioDetail apiScenarioDetail = apiScenarioService.get(scenarioId);
         apiScenarioDetail.setSteps(filerDisableSteps(apiScenarioDetail.getSteps()));
         return apiScenarioDetail;
+    }
+
+    public ApiScenarioDetail getForRunWithTaskItemErrorMassage(String taskItemId, String scenarioId) {
+        try {
+            ApiScenarioDetail apiScenarioDetail = apiScenarioService.get(scenarioId);
+            apiScenarioDetail.setSteps(filerDisableSteps(apiScenarioDetail.getSteps()));
+            return apiScenarioDetail;
+        } catch (MSException msException) {
+            if (msException.getErrorCode().equals(ApiResultCode.CASE_NOT_EXIST)) {
+                // 用例不存在记录任务项，错误信息
+                apiCommonService.updateTaskItemErrorMassage(taskItemId, TaskItemErrorMessage.CASE_NOT_EXIST);
+                throw new MSException(ApiResultCode.CASE_NOT_EXIST);
+            }
+            throw msException;
+        }
     }
 
     /**

@@ -1,18 +1,22 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.dto.scenario.ApiScenarioDetail;
 import io.metersphere.api.invoker.ApiExecuteCallbackServiceInvoker;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteCallbackService;
 import io.metersphere.api.service.scenario.ApiScenarioRunService;
 import io.metersphere.plan.domain.TestPlanApiScenario;
 import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.constants.TaskItemErrorMessage;
 import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
+import io.metersphere.sdk.exception.MSException;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -33,6 +37,8 @@ public class TestPlanApiScenarioExecuteCallbackService implements ApiExecuteCall
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
     private ApiScenarioRunService apiScenarioRunService;
+    @Resource
+    private ApiCommonService apiCommonService;
 
     public TestPlanApiScenarioExecuteCallbackService() {
         ApiExecuteCallbackServiceInvoker.register(ApiExecuteResourceType.TEST_PLAN_API_SCENARIO, this);
@@ -45,7 +51,11 @@ public class TestPlanApiScenarioExecuteCallbackService implements ApiExecuteCall
     public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
         TaskItem taskItem = request.getTaskItem();
         TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(taskItem.getResourceId());
-        ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(testPlanApiScenario.getApiScenarioId());
+        if (testPlanApiScenario == null) {
+            apiCommonService.updateTaskItemErrorMassage(request.getTaskItem().getId(), TaskItemErrorMessage.CASE_NOT_EXIST);
+            throw new MSException(ApiResultCode.CASE_NOT_EXIST);
+        }
+        ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRunWithTaskItemErrorMassage(taskItem.getId(), testPlanApiScenario.getApiScenarioId());
         apiScenarioDetail.setEnvironmentId(testPlanApiScenario.getEnvironmentId());
         apiScenarioDetail.setGrouped(testPlanApiScenario.getGrouped());
         String reportId = initReport(request, testPlanApiScenario, apiScenarioDetail);

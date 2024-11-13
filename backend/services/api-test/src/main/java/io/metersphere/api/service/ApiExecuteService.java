@@ -214,10 +214,7 @@ public class ApiExecuteService {
      */
     public TaskRequestDTO execute(TaskRequestDTO taskRequest) {
         TaskInfo taskInfo = taskRequest.getTaskInfo();
-        TaskItem taskItem = taskRequest.getTaskItem();
-
         try {
-
             taskInfo = setTaskRequestParams(taskInfo);
 
             // 获取资源池
@@ -231,39 +228,10 @@ public class ApiExecuteService {
 
             // 判断是否为 K8S 资源池
             boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.getName());
-            boolean isDebugMode = ApiExecuteRunMode.isDebug(taskInfo.getRunMode());
-
             if (isK8SResourcePool) {
-                TestResourceDTO testResourceDTO = new TestResourceDTO();
-                BeanUtils.copyBean(testResourceDTO, testResourcePoolDTO.getTestResourceReturnDTO());
-                testResourceDTO.setId(testResourcePoolDTO.getId());
-                taskInfo.setPerTaskSize(testResourceDTO.getPodThreads());
-                taskInfo.setPoolSize(testResourceDTO.getConcurrentNumber());
-                LogUtils.info("开始发送请求【 {}_{} 】到 K8S 资源池执行", taskItem.getReportId(), taskItem.getResourceId());
-                if (isDebugMode) {
-                    EngineFactory.debugApi(taskRequest, testResourceDTO);
-                } else {
-                    EngineFactory.runApi(taskRequest, testResourceDTO);
-                }
+                k8sExecute(taskRequest, testResourcePoolDTO);
             } else {
-                if (CollectionUtils.isEmpty(testResourcePoolDTO.getTestResourceReturnDTO().getNodesList())) {
-                    throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
-                }
-                TestResourceNodeDTO testResourceNodeDTO = getNextExecuteNode(testResourcePoolDTO);
-                if (!ApiExecuteRunMode.isDebug(taskInfo.getRunMode())) {
-                    updateTaskItemNodeInfo(taskItem, testResourcePoolDTO, testResourceNodeDTO, execTaskItemMapper);
-                }
-                taskInfo.setPerTaskSize(Optional.ofNullable(testResourceNodeDTO.getSingleTaskConcurrentNumber()).orElse(3));
-                taskInfo.setPoolSize(testResourceNodeDTO.getConcurrentNumber());
-
-                String endpoint = MsHttpClient.getEndpoint(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
-                LogUtils.info("开始发送请求【 {}_{} 】到 {} 节点执行", taskItem.getReportId(), taskItem.getResourceId(), endpoint);
-
-                if (isDebugMode) {
-                    MsHttpClient.debugApi(endpoint, taskRequest);
-                } else {
-                    MsHttpClient.runApi(endpoint, taskRequest);
-                }
+                nodeExecute(taskRequest, testResourcePoolDTO);
             }
 
         } catch (HttpServerErrorException e) {
@@ -291,10 +259,87 @@ public class ApiExecuteService {
         return taskRequest;
     }
 
-    private void updateTaskItemNodeInfo(TaskItem taskItem, TestResourcePoolReturnDTO testResourcePoolDTO, TestResourceNodeDTO testResourceNodeDTO, ExecTaskItemMapper execTaskItemMapper) {
+    private void nodeExecute(TaskRequestDTO taskRequest, TestResourcePoolReturnDTO testResourcePoolDTO) throws Exception {
+        TaskItem taskItem = taskRequest.getTaskItem();
+        TaskInfo taskInfo = taskRequest.getTaskInfo();
+        if (CollectionUtils.isEmpty(testResourcePoolDTO.getTestResourceReturnDTO().getNodesList())) {
+            throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
+        }
+        Set<String> invalidNodeSet = new HashSet<>();
+        Exception lastException = null;
+        while (true) {
+            TestResourceNodeDTO testResourceNodeDTO = getNextExecuteNode(testResourcePoolDTO);
+            taskInfo.setPerTaskSize(Optional.ofNullable(testResourceNodeDTO.getSingleTaskConcurrentNumber()).orElse(3));
+            taskInfo.setPoolSize(testResourceNodeDTO.getConcurrentNumber());
+
+            String endpoint = MsHttpClient.getEndpoint(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
+            LogUtils.info("开始发送请求【 {}_{} 】到 {} 节点执行", taskItem.getReportId(), taskItem.getResourceId(), endpoint);
+            if (invalidNodeSet.contains(endpoint)) {
+                // 全部节点都异常，更新任务项状态
+                if (!ApiExecuteRunMode.isDebug(taskInfo.getRunMode())) {
+                    apiCommonService.updateTaskItemErrorMassage(taskItem.getId(), TaskItemErrorMessage.INVALID_RESOURCE_POOL);
+                }
+                throw lastException;
+            }
+            try {
+                if (ApiExecuteRunMode.isDebug(taskInfo.getRunMode())) {
+                    MsHttpClient.debugApi(endpoint, taskRequest);
+                } else {
+                    MsHttpClient.runApi(endpoint, taskRequest);
+                    // 更新状态项资源池信息
+                    updateTaskItemNodeInfo(taskItem.getId(), testResourcePoolDTO, testResourceNodeDTO, execTaskItemMapper);
+                }
+                break;
+            } catch (Exception e) {
+                lastException = e;
+                LogUtils.error(e);
+                // 记录异常节点，重试
+                invalidNodeSet.add(endpoint);
+            }
+        }
+    }
+
+    private void k8sExecute(TaskRequestDTO taskRequest, TestResourcePoolReturnDTO testResourcePoolDTO) throws Exception {
+        TaskItem taskItem = taskRequest.getTaskItem();
+        TaskInfo taskInfo = taskRequest.getTaskInfo();
+        TestResourceDTO testResourceDTO = new TestResourceDTO();
+        BeanUtils.copyBean(testResourceDTO, testResourcePoolDTO.getTestResourceReturnDTO());
+        testResourceDTO.setId(testResourcePoolDTO.getId());
+        taskInfo.setPerTaskSize(testResourceDTO.getPodThreads());
+        taskInfo.setPoolSize(testResourceDTO.getConcurrentNumber());
+        LogUtils.info("开始发送请求【 {}_{} 】到 K8S 资源池执行", taskItem.getReportId(), taskItem.getResourceId());
+        if (ApiExecuteRunMode.isDebug(taskInfo.getRunMode())) {
+            EngineFactory.debugApi(taskRequest, testResourceDTO);
+        } else {
+            try {
+                EngineFactory.runApi(taskRequest, testResourceDTO);
+            } catch (Exception e) {
+                apiCommonService.updateTaskItemErrorMassage(taskItem.getId(), TaskItemErrorMessage.INVALID_RESOURCE_POOL);
+                throw e;
+            }
+        }
+    }
+
+    private void batchUpdateTaskItemNodeInfo(TestResourcePoolReturnDTO testResourcePool, TestResourceNodeDTO testResourceNode, TaskBatchRequestDTO batchRequest) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        try {
+            if (CollectionUtils.isNotEmpty(batchRequest.getTaskItems())) {
+                ExecTaskItemMapper batchExecTaskItemMapper = sqlSession.getMapper(ExecTaskItemMapper.class);
+                batchRequest.getTaskItems().forEach(taskItem -> {
+                    // 非调试模式，更新任务项的资源池信息
+                    updateTaskItemNodeInfo(taskItem.getId(), testResourcePool, testResourceNode, batchExecTaskItemMapper);
+                });
+            }
+        } finally {
+            sqlSession.flushStatements();
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
+
+    private void updateTaskItemNodeInfo(String taskItemId, TestResourcePoolReturnDTO testResourcePoolDTO, TestResourceNodeDTO testResourceNodeDTO, ExecTaskItemMapper execTaskItemMapper) {
         // 非调试模式，更新任务项的资源池信息
         ExecTaskItem execTaskItem = new ExecTaskItem();
-        execTaskItem.setId(taskItem.getId());
+        execTaskItem.setId(taskItemId);
         execTaskItem.setResourcePoolId(testResourcePoolDTO.getId());
         execTaskItem.setResourcePoolNode(StringUtils.join(testResourceNodeDTO.getIp(), ":", testResourceNodeDTO.getPort()));
         execTaskItemMapper.updateByPrimaryKeySelective(execTaskItem);
@@ -319,76 +364,100 @@ public class ApiExecuteService {
         // 判断是否为 K8S 资源池
         boolean isK8SResourcePool = StringUtils.equals(testResourcePool.getType(), ResourcePoolTypeEnum.K8S.getName());
         if (isK8SResourcePool) {
-            TestResourceDTO testResourceDTO = new TestResourceDTO();
-            BeanUtils.copyBean(testResourceDTO, testResourcePool.getTestResourceReturnDTO());
-            testResourceDTO.setId(testResourcePool.getId());
-
-            taskInfo.setPoolSize(testResourceDTO.getConcurrentNumber());
-            taskInfo.setPerTaskSize(testResourceDTO.getPodThreads());
-            try {
-                EngineFactory.batchRunApi(taskRequest, testResourceDTO);
-            } catch (Exception e) {
-                LogUtils.error(e);
-            }
+            k8sBatchExecute(taskRequest, taskInfo, testResourcePool);
         } else {
-            // 将任务按资源池的数量拆分
-            List<TestResourceNodeDTO> nodesList = testResourcePool.getTestResourceReturnDTO().getNodesList();
-            if (CollectionUtils.isEmpty(nodesList)) {
-                throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
-            }
-            List<TaskBatchRequestDTO> distributeTasks = new ArrayList<>(nodesList.size());
-            for (int i = 0; i < taskRequest.getTaskItems().size(); i++) {
-                TaskBatchRequestDTO distributeTask;
-                int nodeIndex = i % nodesList.size();
-                if (distributeTasks.size() < nodesList.size()) {
-                    distributeTask = BeanUtils.copyBean(new TaskBatchRequestDTO(), taskRequest);
-                    distributeTask.setTaskItems(new ArrayList<>());
-                    distributeTasks.add(distributeTask);
-                } else {
-                    distributeTask = distributeTasks.get(nodeIndex);
-                }
-                taskInfo.setPerTaskSize(Optional.ofNullable(nodesList.get(nodeIndex).getSingleTaskConcurrentNumber()).orElse(3));
-                distributeTask.getTaskInfo().setPoolSize(nodesList.get(nodeIndex).getConcurrentNumber());
-                distributeTask.getTaskItems().add(taskRequest.getTaskItems().get(i));
-            }
-            for (int i = 0; i < nodesList.size(); i++) {
-                // todo 优化某个资源池不可用的情况，以及清理 executionSet
-                TestResourceNodeDTO testResourceNode = nodesList.get(i);
-                TaskBatchRequestDTO subTaskRequest = distributeTasks.get(i);
+            nodeBatchExecute(taskRequest, taskInfo, testResourcePool);
+        }
+    }
+
+    private void nodeBatchExecute(TaskBatchRequestDTO taskRequest, TaskInfo taskInfo, TestResourcePoolReturnDTO testResourcePool) {
+        // 将任务按资源池的数量拆分
+        List<TestResourceNodeDTO> nodesList = testResourcePool.getTestResourceReturnDTO().getNodesList();
+        if (CollectionUtils.isEmpty(nodesList)) {
+            throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
+        }
+        // 按资源池节点数量，预分组
+        List<TaskBatchRequestDTO> distributeTasks = getDistributeTaskBatchRequest(taskRequest, nodesList.size());
+
+        Iterator<TestResourceNodeDTO> nodeIterator = nodesList.iterator();
+        Iterator<TaskBatchRequestDTO> distributeTaskIterator = distributeTasks.iterator();
+        Set<TestResourceNodeDTO> invalidNodeSet = new HashSet<>();
+        while (distributeTaskIterator.hasNext()) {
+            TaskBatchRequestDTO subTaskRequest = distributeTaskIterator.next();
+            boolean success = false;
+            while (nodeIterator.hasNext()) {
+                TestResourceNodeDTO testResourceNode = nodeIterator.next();
                 String endpoint = MsHttpClient.getEndpoint(testResourceNode.getIp(), testResourceNode.getPort());
-
-                if (!ApiExecuteRunMode.isDebug(taskInfo.getRunMode())) {
-                    batchUpdateTaskItemNodeInfo(testResourcePool, testResourceNode, subTaskRequest);
-                }
-
+                subTaskRequest.getTaskInfo().setPerTaskSize(Optional.ofNullable(testResourceNode.getSingleTaskConcurrentNumber()).orElse(3));
+                subTaskRequest.getTaskInfo().setPoolSize(testResourceNode.getConcurrentNumber());
                 try {
                     List<String> taskKeys = subTaskRequest.getTaskItems().stream()
                             .map(TaskItem::getId)
                             .toList();
                     LogUtils.info("开始发送批量任务到 {} 节点执行:\n" + taskKeys, endpoint);
                     MsHttpClient.batchRunApi(endpoint, subTaskRequest);
+
+                    success = true;
+                    // 更新任务项的资源池信息
+                    if (!ApiExecuteRunMode.isDebug(taskInfo.getRunMode())) {
+                        batchUpdateTaskItemNodeInfo(testResourcePool, testResourceNode, subTaskRequest);
+                    }
+                    break;
                 } catch (Exception e) {
+                    invalidNodeSet.add(testResourceNode);
                     LogUtils.error("发送批量任务到 {} 节点执行失败", endpoint);
                     LogUtils.error(e);
+                }
+
+                if (!nodeIterator.hasNext()) {
+                    // 去除异常节点
+                    invalidNodeSet.forEach(nodesList::remove);
+                    // 资源池不够用，重新遍历资源池
+                    nodeIterator = nodesList.iterator();
+                }
+            }
+
+            if (!success) {
+                // 更新任务项错误信息
+                if (!ApiExecuteRunMode.isDebug(taskInfo.getRunMode())) {
+                    apiCommonService.batchUpdateTaskItemErrorMassage(TaskItemErrorMessage.INVALID_RESOURCE_POOL, subTaskRequest);
+                } else {
+                    throw new MSException(ApiResultCode.TASK_ERROR_MESSAGE_INVALID_RESOURCE_POOL);
                 }
             }
         }
     }
 
-    private void batchUpdateTaskItemNodeInfo(TestResourcePoolReturnDTO testResourcePool, TestResourceNodeDTO testResourceNode, TaskBatchRequestDTO batchRequest) {
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+    private void k8sBatchExecute(TaskBatchRequestDTO taskRequest, TaskInfo taskInfo, TestResourcePoolReturnDTO testResourcePool) {
+        TestResourceDTO testResourceDTO = new TestResourceDTO();
+        BeanUtils.copyBean(testResourceDTO, testResourcePool.getTestResourceReturnDTO());
+        testResourceDTO.setId(testResourcePool.getId());
+
+        taskInfo.setPoolSize(testResourceDTO.getConcurrentNumber());
+        taskInfo.setPerTaskSize(testResourceDTO.getPodThreads());
         try {
-            if (CollectionUtils.isNotEmpty(batchRequest.getTaskItems())) {
-                ExecTaskItemMapper batchExecTaskItemMapper = sqlSession.getMapper(ExecTaskItemMapper.class);
-                batchRequest.getTaskItems().forEach(taskItem -> {
-                    // 非调试模式，更新任务项的资源池信息
-                    updateTaskItemNodeInfo(taskItem, testResourcePool, testResourceNode, batchExecTaskItemMapper);
-                });
-            }
-        } finally {
-            sqlSession.flushStatements();
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            EngineFactory.batchRunApi(taskRequest, testResourceDTO);
+        } catch (Exception e) {
+            LogUtils.error(e);
+            apiCommonService.batchUpdateTaskItemErrorMassage(TaskItemErrorMessage.INVALID_RESOURCE_POOL, taskRequest);
         }
+    }
+
+    private List<TaskBatchRequestDTO> getDistributeTaskBatchRequest(TaskBatchRequestDTO taskRequest, int distributeSize) {
+        List<TaskBatchRequestDTO> distributeTasks = new ArrayList<>(distributeSize);
+        for (int i = 0; i < taskRequest.getTaskItems().size(); i++) {
+            TaskBatchRequestDTO distributeTask;
+            int nodeIndex = i % distributeSize;
+            if (distributeTasks.size() < distributeSize) {
+                distributeTask = BeanUtils.copyBean(new TaskBatchRequestDTO(), taskRequest);
+                distributeTask.setTaskItems(new ArrayList<>());
+                distributeTasks.add(distributeTask);
+            } else {
+                distributeTask = distributeTasks.get(nodeIndex);
+            }
+            distributeTask.getTaskItems().add(taskRequest.getTaskItems().get(i));
+        }
+        return distributeTasks;
     }
 
     protected static boolean validate() {
@@ -759,14 +828,14 @@ public class ApiExecuteService {
         testElement.setProjectId(projectId);
     }
 
-    public ApiParamConfig getApiParamConfig(String reportId) {
+    public ApiParamConfig getApiParamConfig() {
         ApiParamConfig paramConfig = new ApiParamConfig();
         paramConfig.setTestElementClassPluginIdMap(apiPluginService.getTestElementPluginMap());
         paramConfig.setTestElementClassProtocolMap(apiPluginService.getTestElementProtocolMap());
         return paramConfig;
     }
 
-    public ApiParamConfig getApiParamConfig(String reportId, String projectId) {
+    public ApiParamConfig getApiParamConfig(String projectId) {
         ApiParamConfig paramConfig = new ApiParamConfig();
         paramConfig.setTestElementClassPluginIdMap(apiPluginService.getTestElementPluginMap());
         paramConfig.setTestElementClassProtocolMap(apiPluginService.getTestElementProtocolMap());

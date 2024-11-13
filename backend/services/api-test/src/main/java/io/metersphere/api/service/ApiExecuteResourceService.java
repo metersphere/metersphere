@@ -4,17 +4,15 @@ import io.metersphere.api.invoker.ApiExecuteCallbackServiceInvoker;
 import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.utils.TaskRunningCache;
-import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.EnumValidator;
 import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.system.domain.ExecTask;
-import io.metersphere.system.domain.ExecTaskItem;
-import io.metersphere.system.mapper.ExecTaskItemMapper;
-import io.metersphere.system.mapper.ExecTaskMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,10 +27,6 @@ import java.util.Optional;
 public class ApiExecuteResourceService {
 
     @Resource
-    private ExecTaskMapper execTaskMapper;
-    @Resource
-    private ExecTaskItemMapper execTaskItemMapper;
-    @Resource
     private ApiReportService apiReportService;
     @Resource
     private ApiScenarioReportService apiScenarioReportService;
@@ -40,6 +34,8 @@ public class ApiExecuteResourceService {
     private StringRedisTemplate stringRedisTemplate;
     @Resource
     private TaskRunningCache taskRunningCache;
+    @Resource
+    private ApiCommonService apiCommonService;
 
 
     public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
@@ -79,15 +75,15 @@ public class ApiExecuteResourceService {
             // 设置缓存成功说明是第一个任务，则设置任务的开始时间和运行状态
             if (taskRunningCache.setIfAbsent(taskId)) {
                 // 将任务状态更新为运行中
-                updateTaskRunningStatus(taskId);
+                apiCommonService.updateTaskRunningStatus(taskId);
             }
         } else {
             // 非批量时，直接更新任务状态
-            updateTaskRunningStatus(taskId);
+            apiCommonService.updateTaskRunningStatus(taskId);
         }
 
         // 更新任务项状态
-        updateTaskItemRunningStatus(request);
+        apiCommonService.updateTaskItemRunningStatus(request);
 
         // 非调试执行，更新报告状态
         switch (apiExecuteResourceType) {
@@ -97,24 +93,5 @@ public class ApiExecuteResourceService {
                     apiReportService.updateReportRunningStatus(reportId);
             default -> throw new MSException("不支持的资源类型: " + request.getResourceType());
         }
-    }
-
-    private void updateTaskRunningStatus(String taskId) {
-        ExecTask execTask = new ExecTask();
-        execTask.setId(taskId);
-        execTask.setStartTime(System.currentTimeMillis());
-        execTask.setStatus(ExecStatus.RUNNING.name());
-        execTaskMapper.updateByPrimaryKeySelective(execTask);
-    }
-
-    private void updateTaskItemRunningStatus(GetRunScriptRequest request) {
-        TaskItem taskItem = request.getTaskItem();
-        // 更新任务项状态
-        ExecTaskItem execTaskItem = new ExecTaskItem();
-        execTaskItem.setId(taskItem.getId());
-        execTaskItem.setStartTime(System.currentTimeMillis());
-        execTaskItem.setStatus(ExecStatus.RUNNING.name());
-        execTaskItem.setThreadId(request.getThreadId());
-        execTaskItemMapper.updateByPrimaryKeySelective(execTaskItem);
     }
 }

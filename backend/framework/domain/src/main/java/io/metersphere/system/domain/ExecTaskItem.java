@@ -78,15 +78,18 @@ public class ExecTaskItem implements Serializable {
     @Size(min = 1, max = 50, message = "{exec_task_item.executor.length_range}", groups = {Created.class, Updated.class})
     private String executor;
 
+    @Schema(description = "测试集ID")
+    private String collectionId;
+
     @Schema(description = "删除标识", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{exec_task_item.deleted.not_blank}", groups = {Created.class})
     private Boolean deleted;
 
-    @Schema(description = "测试集ID")
-    private String collectionId;
-
     @Schema(description = "用例表id")
     private String caseId;
+
+    @Schema(description = "异常信息")
+    private String errorMessage;
 
     private static final long serialVersionUID = 1L;
 
@@ -107,9 +110,10 @@ public class ExecTaskItem implements Serializable {
         startTime("start_time", "startTime", "BIGINT", false),
         endTime("end_time", "endTime", "BIGINT", false),
         executor("executor", "executor", "VARCHAR", false),
-        deleted("deleted", "deleted", "BIT", false),
         collectionId("collection_id", "collectionId", "VARCHAR", false),
-        caseId("case_id", "caseId", "VARCHAR", false);
+        deleted("deleted", "deleted", "BIT", false),
+        caseId("case_id", "caseId", "VARCHAR", false),
+        errorMessage("error_message", "errorMessage", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

@@ -156,7 +156,7 @@ public class ApiTestCaseRunService {
 
     public TaskRequestDTO doExecute(TaskRequestDTO taskRequest, ApiResourceRunRequest runRequest, String apiDefinitionId, String envId) {
 
-        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(taskRequest.getTaskItem().getReportId(), taskRequest.getTaskInfo().getProjectId());
+        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(taskRequest.getTaskInfo().getProjectId());
 
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionId);
 
@@ -175,7 +175,7 @@ public class ApiTestCaseRunService {
         TaskItem taskItem = request.getTaskItem();
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiTestCase.getApiDefinitionId());
         ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(apiTestCase.getId());
-        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(taskItem.getReportId(), apiTestCase.getProjectId());
+        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(apiTestCase.getProjectId());
         apiParamConfig.setRetryOnFail(request.getRunModeConfig().getRetryOnFail());
         apiParamConfig.setRetryConfig(request.getRunModeConfig().getRetryConfig());
 

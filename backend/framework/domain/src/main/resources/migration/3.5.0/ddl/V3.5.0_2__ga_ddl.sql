@@ -78,6 +78,8 @@ ALTER TABLE exec_task_item ADD COLUMN case_id VARCHAR(50) COMMENT '用例表id';
 CREATE INDEX idx_case_id ON exec_task_item(case_id);
 -- 任务项添加测试集字段
 ALTER TABLE exec_task_item ADD collection_id varchar(50) NULL COMMENT '测试集ID';
+-- 任务项添加异常信息字段
+ALTER TABLE exec_task_item ADD error_message varchar(50) NULL COMMENT '异常信息';
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

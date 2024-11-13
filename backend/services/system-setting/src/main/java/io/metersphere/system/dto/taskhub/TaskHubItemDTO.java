@@ -1,11 +1,7 @@
 package io.metersphere.system.dto.taskhub;
 
 import io.metersphere.system.domain.ExecTaskItem;
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -40,4 +36,7 @@ public class TaskHubItemDTO extends ExecTaskItem {
 
     @Schema(description = "组织名称")
     private String organizationName;
+
+    @Schema(description = "错误信息")
+    private String errorMessage;
 }

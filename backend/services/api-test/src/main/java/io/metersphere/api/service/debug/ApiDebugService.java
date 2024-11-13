@@ -211,7 +211,7 @@ public class ApiDebugService extends MoveNodeService {
 
     public TaskRequestDTO debug(ApiDebugRunRequest request) {
         ApiResourceRunRequest runRequest = apiExecuteService.getApiResourceRunRequest(request);
-        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig(request.getReportId());
+        ApiParamConfig apiParamConfig = apiExecuteService.getApiParamConfig();
 
         TaskRequestDTO taskRequest = apiExecuteService.getTaskRequest(request.getReportId(), request.getId(), request.getProjectId());
         TaskInfo taskInfo = taskRequest.getTaskInfo();

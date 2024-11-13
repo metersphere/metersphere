@@ -39,7 +39,7 @@ public class ApiScenarioExecuteCallbackService implements ApiExecuteCallbackServ
      */
     @Override
     public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
-        ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(request.getTaskItem().getResourceId());
+        ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRunWithTaskItemErrorMassage(request.getTaskItem().getId(), request.getTaskItem().getResourceId());
         String reportId = initReport(request, apiScenarioDetail);
         GetRunScriptResult result = apiScenarioRunService.getRunScript(request, apiScenarioDetail);
         result.setReportId(reportId);
