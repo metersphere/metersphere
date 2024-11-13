@@ -12,6 +12,7 @@
           :search-keys="['name']"
           class="!w-[240px]"
           :prefix="t('workbench.homePage.project')"
+          @change="changeProject"
         >
         </MsSelect>
         <MsSelect
@@ -48,13 +49,14 @@
 
   import { getProjectOptions } from '@/api/modules/project-management/projectMember';
   import { workMemberViewDetail } from '@/api/modules/workbench';
+  import { contentTabList } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { characterLimit } from '@/utils';
 
   import type { OverViewOfProject, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
-  import { commonColorConfig, contentTabList, getCommonBarOptions, handleNoDataDisplay } from '../utils';
+  import { commonColorConfig, getCommonBarOptions, handleNoDataDisplay } from '../utils';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -82,19 +84,18 @@
       endTime: 0,
     })
   );
-  const hasRoom = computed(() => memberIds.value.length >= 7);
-  const memberOptions = ref<{ label: string; value: string }[]>([]);
 
+  const memberOptions = ref<{ label: string; value: string }[]>([]);
   const options = ref<Record<string, any>>({});
   function handleData(detail: OverViewOfProject) {
-    options.value = getCommonBarOptions(hasRoom.value, commonColorConfig);
+    options.value = getCommonBarOptions(detail.xaxis.length >= 7, commonColorConfig);
     const { invisible, text } = handleNoDataDisplay(detail.xaxis, detail.projectCountList);
     options.value.graphic.invisible = invisible;
     options.value.graphic.style.text = text;
     options.value.xAxis.data = detail.xaxis.map((e) => characterLimit(e, 10));
     options.value.series = detail.projectCountList.map((item, index) => {
       return {
-        name: contentTabList.value[index].label,
+        name: t(contentTabList[index].label),
         type: 'bar',
         stack: 'member',
         barWidth: 12,
@@ -122,6 +123,7 @@
       const detail = await workMemberViewDetail(params);
       handleData(detail);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -135,6 +137,11 @@
     }));
   }
 
+  function changeProject() {
+    getMemberOptions();
+    initOverViewMemberDetail();
+  }
+
   watch(
     () => innerProjectIds.value,
     (val) => {
@@ -142,8 +149,6 @@
         const [newProjectId] = val;
         projectId.value = newProjectId;
         memberIds.value = [];
-        getMemberOptions();
-        initOverViewMemberDetail();
       }
     }
   );
@@ -181,6 +186,7 @@
 
   onMounted(() => {
     getMemberOptions();
+    initOverViewMemberDetail();
   });
 </script>
 

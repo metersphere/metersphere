@@ -12,6 +12,7 @@
           :search-keys="['name']"
           class="!w-[240px]"
           :prefix="t('workbench.homePage.project')"
+          @change="changeProject"
         >
         </MsSelect>
       </div>
@@ -25,6 +26,7 @@
               :tooltip-text="tabItem.tooltip"
               :size="60"
               :value-list="tabItem.valueList"
+              :has-permission="hasPermission"
             />
           </div>
         </template>
@@ -41,7 +43,6 @@
    * @desc 用例数量
    */
   import { ref } from 'vue';
-  import { cloneDeep } from 'lodash-es';
 
   import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
@@ -53,9 +54,8 @@
   import useAppStore from '@/store/modules/app';
 
   import type { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
-  import { StatusStatisticsMapType } from '@/models/workbench/homePage';
 
-  import { commonRatePieOptions, handlePieData } from '../utils';
+  import { handlePieData, handleUpdateTabPie } from '../utils';
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -79,42 +79,12 @@
     })
   );
 
-  const options = ref(cloneDeep(commonRatePieOptions));
+  const reviewValueList = ref<{ value: number | string; label: string; name: string }[]>([]);
 
-  function handlePassRatePercent(data: { name: string; count: number }[]) {
-    return data.slice(1).map((item) => {
-      return {
-        value: item.count,
-        label: item.name,
-        name: item.name,
-      };
-    });
-  }
+  const passValueList = ref<{ value: number | string; label: string; name: string }[]>([]);
 
-  const reviewValueList = ref([
-    {
-      label: t('workbench.homePage.reviewed'),
-      value: 10000,
-    },
-    {
-      label: t('workbench.homePage.unReviewed'),
-      value: 2000,
-    },
-  ]);
-
-  const passValueList = ref([
-    {
-      label: t('workbench.homePage.havePassed'),
-      value: 10000,
-    },
-    {
-      label: t('workbench.homePage.notPass'),
-      value: 2000,
-    },
-  ]);
-
-  const reviewOptions = ref<Record<string, any>>(cloneDeep(options.value));
-  const passOptions = ref<Record<string, any>>(cloneDeep(options.value));
+  const reviewOptions = ref<Record<string, any>>({});
+  const passOptions = ref<Record<string, any>>({});
   const caseCountTabList = computed(() => {
     return [
       {
@@ -134,24 +104,10 @@
     ];
   });
 
-  // 处理X率饼图数据
-  function handleRatePieData(statusStatisticsMap: StatusStatisticsMapType) {
-    const { review, pass } = statusStatisticsMap;
-    reviewValueList.value = handlePassRatePercent(review);
-    passValueList.value = handlePassRatePercent(pass);
-
-    reviewOptions.value.series.data = handlePassRatePercent(review);
-    passOptions.value.series.data = handlePassRatePercent(pass);
-
-    reviewOptions.value.title.text = review[0].name ?? '';
-    reviewOptions.value.title.subtext = `${review[0].count ?? 0}%`;
-    passOptions.value.title.text = pass[0].name ?? '';
-    passOptions.value.title.subtext = `${pass[0].count ?? 0}%`;
-    reviewOptions.value.series.color = ['#00C261', '#D4D4D8'];
-    passOptions.value.series.color = ['#00C261', '#ED0303'];
-  }
+  const hasPermission = ref<boolean>(false);
 
   const caseCountOptions = ref<Record<string, any>>({});
+
   async function initCaseCount() {
     try {
       const { startTime, endTime, dayNumber } = timeForm.value;
@@ -167,12 +123,33 @@
       };
       const detail = await workCaseCountDetail(params);
       const { statusStatisticsMap, statusPercentList } = detail;
-      caseCountOptions.value = handlePieData(props.item.key, statusPercentList);
-      handleRatePieData(statusStatisticsMap);
+      hasPermission.value = detail.errorCode !== 109001;
+      caseCountOptions.value = handlePieData(props.item.key, hasPermission.value, statusPercentList);
+
+      const { valueList: reviewValue, options: reviewedOptions } = handleUpdateTabPie(
+        statusStatisticsMap?.review || [],
+        hasPermission.value,
+        `${props.item.key}-review`
+      );
+
+      reviewOptions.value = reviewedOptions;
+      reviewValueList.value = reviewValue;
+
+      const { valueList: passList, options: passOpt } = handleUpdateTabPie(
+        statusStatisticsMap?.pass || [],
+        hasPermission.value,
+        `${props.item.key}-pass`
+      );
+      passOptions.value = passOpt;
+      passValueList.value = passList;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
     }
+  }
+
+  function changeProject() {
+    initCaseCount();
   }
 
   onMounted(() => {
@@ -185,7 +162,6 @@
       if (val) {
         const [newProjectId] = val;
         projectId.value = newProjectId;
-        initCaseCount();
       }
     }
   );
@@ -195,7 +171,6 @@
     (val) => {
       if (val) {
         innerProjectIds.value = [val];
-        initCaseCount();
       }
     }
   );

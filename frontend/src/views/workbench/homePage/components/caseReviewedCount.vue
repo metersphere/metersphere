@@ -12,6 +12,7 @@
           :search-keys="['name']"
           class="!w-[240px]"
           :prefix="t('workbench.homePage.project')"
+          @change="changeProject"
         >
         </MsSelect>
       </div>
@@ -24,6 +25,7 @@
             tooltip-text="workbench.homePage.caseReviewCoverRateTooltip"
             :size="60"
             :value-list="coverValueList"
+            :has-permission="hasPermission"
           />
         </div>
       </div>
@@ -39,18 +41,18 @@
    * @desc 用例评审数量
    */
   import { ref } from 'vue';
-  import { cloneDeep } from 'lodash-es';
 
   import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
   import PassRatePie from './passRatePie.vue';
 
+  import { workCaseReviewDetail } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
   import type { PassRateDataType, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
-  import { commonRatePieOptions, handlePieData } from '../utils';
+  import { handlePieData, handleUpdateTabPie } from '../utils';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -74,54 +76,58 @@
     })
   );
 
-  const options = ref<Record<string, any>>(cloneDeep(commonRatePieOptions));
+  const options = ref<Record<string, any>>({});
 
-  const coverValueList = ref([
+  const coverValueList = ref<{ value: number | string; label: string; name: string }[]>([
     {
       label: t('workbench.homePage.covered'),
-      value: 10000,
+      value: '-',
+      name: '',
     },
     {
       label: t('workbench.homePage.notCover'),
-      value: 2000,
+      value: '-',
+      name: '',
     },
   ]);
 
-  // TODO 假数据
-  const detail = ref<PassRateDataType>({
-    statusStatisticsMap: {
-      cover: [
-        { name: '覆盖率', count: 10 },
-        { name: '已覆盖', count: 2 },
-        { name: '未覆盖', count: 1 },
-      ],
-    },
-    statusPercentList: [
-      { status: '未开始', count: 1, percentValue: '10%' },
-      { status: '进行中', count: 3, percentValue: '0%' },
-      { status: '已完成', count: 6, percentValue: '0%' },
-      { status: '已归档', count: 7, percentValue: '0%' },
-    ],
-  });
-
   const caseReviewCountOptions = ref<Record<string, any>>({});
-  function initApiCount() {
-    const { statusStatisticsMap, statusPercentList } = detail.value;
-    caseReviewCountOptions.value = handlePieData(props.item.key, statusPercentList);
-    const { cover } = statusStatisticsMap;
 
-    coverValueList.value = cover.slice(1).map((item) => {
-      return {
-        value: item.count,
-        label: item.name,
-        name: item.name,
-      };
-    });
+  const hasPermission = ref<boolean>(false);
+  async function initApiCount() {
+    const { startTime, endTime, dayNumber } = timeForm.value;
+    const params = {
+      current: 1,
+      pageSize: 5,
+      startTime: dayNumber ? null : startTime,
+      endTime: dayNumber ? null : endTime,
+      dayNumber: dayNumber ?? null,
+      projectIds: innerProjectIds.value,
+      organizationId: appStore.currentOrgId,
+      handleUsers: [],
+    };
+    try {
+      const detail: PassRateDataType = await workCaseReviewDetail(params);
 
-    options.value.series.data = coverValueList.value;
-    options.value.title.text = cover[0].name ?? '';
-    options.value.title.subtext = `${cover[0].count ?? 0}%`;
-    options.value.series.color = ['#00C261', '#D4D4D8'];
+      hasPermission.value = detail.errorCode !== 109001;
+
+      const { statusStatisticsMap, statusPercentList } = detail;
+      caseReviewCountOptions.value = handlePieData(props.item.key, hasPermission.value, statusPercentList);
+      const { options: coverOptions, valueList } = handleUpdateTabPie(
+        statusStatisticsMap?.cover || [],
+        hasPermission.value,
+        `${props.item.key}-cover`
+      );
+      coverValueList.value = valueList;
+      options.value = coverOptions;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  function changeProject() {
+    initApiCount();
   }
 
   onMounted(() => {
@@ -134,7 +140,6 @@
       if (val) {
         const [newProjectId] = val;
         projectId.value = newProjectId;
-        initApiCount();
       }
     }
   );
@@ -144,7 +149,6 @@
     (val) => {
       if (val) {
         innerProjectIds.value = [val];
-        initApiCount();
       }
     }
   );

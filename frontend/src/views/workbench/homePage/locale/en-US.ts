@@ -106,4 +106,10 @@ export default {
     'Scenario Pass Rate: Last successful execution scenarios / Total scenarios * 100%',
   'workbench.homePage.planCaseCountLegacyRateTooltip':
     'Legacy Rate: Unresolved defects / All associated defects * 100%',
+  'workbench.homePage.reviewRate': 'Review Rate',
+  'workbench.homePage.passRate': 'Pass Rate',
+  'workbench.homePage.coverRate': 'Coverage Rate',
+  'workbench.homePage.executeRate': 'Execution Rate',
+  'workbench.homePage.completeRate': 'Completion Rate',
+  'workbench.homePage.legacyRate': 'Legacy Rate',
 };

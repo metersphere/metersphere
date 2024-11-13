@@ -14,6 +14,7 @@
           :search-keys="['name']"
           class="!w-[240px]"
           :prefix="t('workbench.homePage.project')"
+          @change="changeProject"
         >
         </MsSelect>
       </div>
@@ -29,7 +30,16 @@
         v-on="propsEvent"
       >
         <template #num="{ record }">
-          <MsButton type="text">{{ record.num }}</MsButton>
+          <MsButton type="text">{{ record.num || '-' }}</MsButton>
+        </template>
+        <template v-if="isNoPermission" #empty>
+          <div class="w-full">
+            <slot name="empty">
+              <div class="flex h-[40px] flex-col items-center justify-center">
+                <span class="text-[14px] text-[var(--color-text-4)]">{{ t('common.noResource') }}</span>
+              </div>
+            </slot>
+          </div>
         </template>
       </MsBaseTable>
     </div>
@@ -49,6 +59,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsSelect from '@/components/business/ms-select';
 
+  import { workApiChangeList } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -85,8 +96,8 @@
     },
     {
       title: 'project.commonScript.apiName',
-      slotName: 'apiName',
-      dataIndex: 'apiName',
+      slotName: 'name',
+      dataIndex: 'name',
       width: 200,
     },
     {
@@ -98,14 +109,14 @@
     },
     {
       title: 'workbench.homePage.associationCASE',
-      slotName: 'case',
-      dataIndex: 'case',
+      slotName: 'caseTotal',
+      dataIndex: 'caseTotal',
       width: 200,
     },
     {
       title: 'workbench.homePage.associatedScene',
-      slotName: 'associatedScene',
-      dataIndex: 'associatedScene',
+      slotName: 'scenarioTotal',
+      dataIndex: 'scenarioTotal',
       showDrag: true,
       width: 100,
     },
@@ -122,32 +133,43 @@
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
-    undefined,
+    workApiChangeList,
     {
       columns,
       scroll: { x: '100%' },
       selectable: false,
       heightUsed: 272,
       showSelectAll: false,
+      validatePermission: true,
     },
     (item) => ({
       ...item,
       updateTime: dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss'),
     })
   );
-  function initData() {
-    const { startTime, endTime, dayNumber } = timeForm.value;
-    setLoadListParams({
-      current: 1,
-      pageSize: 5,
-      startTime: dayNumber ? null : startTime,
-      endTime: dayNumber ? null : endTime,
-      dayNumber: dayNumber ?? null,
-      projectIds: innerProjectIds.value,
-      organizationId: appStore.currentOrgId,
-      handleUsers: [],
-    });
-    loadList();
+  const isNoPermission = ref<boolean>(false);
+  async function initData() {
+    try {
+      const { startTime, endTime, dayNumber } = timeForm.value;
+      setLoadListParams({
+        startTime: dayNumber ? null : startTime,
+        endTime: dayNumber ? null : endTime,
+        dayNumber: dayNumber ?? null,
+        projectIds: innerProjectIds.value,
+        organizationId: appStore.currentOrgId,
+        handleUsers: [],
+      });
+      await loadList();
+      isNoPermission.value = false;
+    } catch (error) {
+      isNoPermission.value = error === 'no_project_permission';
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  function changeProject() {
+    initData();
   }
 
   onMounted(() => {
@@ -160,7 +182,6 @@
       if (val) {
         const [newProjectId] = val;
         projectId.value = newProjectId;
-        initData();
       }
     }
   );
@@ -170,7 +191,6 @@
     (val) => {
       if (val) {
         innerProjectIds.value = [val];
-        initData();
       }
     }
   );

@@ -12,6 +12,7 @@
           :search-keys="['name']"
           class="!w-[240px]"
           :prefix="t('workbench.homePage.project')"
+          @change="changeProject"
         >
         </MsSelect>
       </div>
@@ -19,7 +20,13 @@
     <div class="mt-[16px]">
       <div class="case-count-wrapper">
         <div class="case-count-item mb-[16px]">
-          <PassRatePie :tooltip-text="tooltip" :options="legacyOptions" :size="60" :value-list="valueList" />
+          <PassRatePie
+            :has-permission="hasPermission"
+            :tooltip-text="tooltip"
+            :options="legacyOptions"
+            :size="60"
+            :value-list="legacyValueList"
+          />
         </div>
       </div>
       <div class="h-[148px]">
@@ -34,7 +41,6 @@
    * @desc 用于缺陷数量，待我处理的缺陷数量组件
    */
   import { ref } from 'vue';
-  import { cloneDeep } from 'lodash-es';
 
   import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
@@ -43,15 +49,10 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import type {
-    PassRateDataType,
-    SelectedCardItem,
-    StatusStatisticsMapType,
-    TimeFormParams,
-  } from '@/models/workbench/homePage';
+  import type { PassRateDataType, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
   import { WorkCardEnum } from '@/enums/workbenchEnum';
 
-  import { commonRatePieOptions, handlePieData } from '../utils';
+  import { handlePieData, handleUpdateTabPie } from '../utils';
 
   const appStore = useAppStore();
 
@@ -67,21 +68,7 @@
 
   const projectId = ref<string>(innerProjectIds.value[0]);
 
-  const valueList = ref<
-    {
-      label: string;
-      value: number;
-    }[]
-  >([
-    {
-      label: t('workbench.homePage.defectTotal'),
-      value: 10000,
-    },
-    {
-      label: t('workbench.homePage.legacyDefectsNumber'),
-      value: 2000,
-    },
-  ]);
+  const legacyValueList = ref<{ value: number | string; label: string; name: string }[]>([]);
 
   const timeForm = inject<Ref<TimeFormParams>>(
     'timeForm',
@@ -92,7 +79,7 @@
     })
   );
 
-  const legacyOptions = ref<Record<string, any>>(cloneDeep(commonRatePieOptions));
+  const legacyOptions = ref<Record<string, any>>({});
 
   // TODO 假数据
   const detail = ref<PassRateDataType>({
@@ -108,26 +95,12 @@
       { status: 'BBB', count: 3, percentValue: '0%' },
       { status: 'CCC', count: 6, percentValue: '0%' },
     ],
+    errorCode: 0,
   });
 
-  const countOptions = ref({});
+  const countOptions = ref<Record<string, any>>({});
 
-  function handleRatePieData(statusStatisticsMap: StatusStatisticsMapType) {
-    const { legacy } = statusStatisticsMap;
-    valueList.value = legacy.slice(1).map((item) => {
-      return {
-        value: item.count,
-        label: item.name,
-        name: item.name,
-      };
-    });
-    legacyOptions.value.series.data = valueList.value;
-
-    legacyOptions.value.title.text = legacy[0].name ?? '';
-    legacyOptions.value.title.subtext = `${legacy[0].count ?? 0}%`;
-    legacyOptions.value.series.color = ['#D4D4D8', '#00C261'];
-  }
-
+  const hasPermission = ref<boolean>(false);
   async function initCount() {
     try {
       const { startTime, endTime, dayNumber } = timeForm.value;
@@ -141,9 +114,18 @@
         organizationId: appStore.currentOrgId,
         handleUsers: [],
       };
-      const { statusStatisticsMap, statusPercentList } = detail.value;
-      countOptions.value = handlePieData(props.item.key, statusPercentList);
-      handleRatePieData(statusStatisticsMap);
+      const { statusStatisticsMap, statusPercentList, errorCode } = detail.value;
+      hasPermission.value = errorCode !== 109001;
+
+      countOptions.value = handlePieData(props.item.key, hasPermission.value, statusPercentList);
+
+      const { options, valueList } = handleUpdateTabPie(
+        statusStatisticsMap?.legacy || [],
+        hasPermission.value,
+        `${props.item.key}-legacy`
+      );
+      legacyValueList.value = valueList;
+      legacyOptions.value = options;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -153,6 +135,10 @@
   const tooltip = computed(() => {
     return props.item.key === WorkCardEnum.PLAN_LEGACY_BUG ? 'workbench.homePage.planCaseCountLegacyRateTooltip' : '';
   });
+
+  function changeProject() {
+    initCount();
+  }
 
   onMounted(() => {
     initCount();
@@ -164,7 +150,6 @@
       if (val) {
         const [newProjectId] = val;
         projectId.value = newProjectId;
-        initCount();
       }
     }
   );
@@ -174,7 +159,6 @@
     (val) => {
       if (val) {
         innerProjectIds.value = [val];
-        initCount();
       }
     }
   );

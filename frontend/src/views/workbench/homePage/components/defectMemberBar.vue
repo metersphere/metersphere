@@ -6,13 +6,13 @@
         <MsSelect
           v-model:model-value="projectId"
           :options="appStore.projectList"
-          allow-clear
           allow-search
           value-key="id"
           label-key="name"
           :search-keys="['name']"
           class="!w-[240px]"
           :prefix="t('workbench.homePage.project')"
+          @change="changeProject"
         >
         </MsSelect>
         <MsSelect
@@ -25,6 +25,7 @@
           :multiple="true"
           :has-all-select="true"
           :default-all-select="true"
+          @change="changeMember"
         >
         </MsSelect>
       </div>
@@ -44,12 +45,15 @@
   import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
 
+  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
+  import { workBugHandlerDetail } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { characterLimit } from '@/utils';
 
-  import type { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
+  import type { OverViewOfProject, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
-  import { commonColorConfig, getCommonBarOptions } from '../utils';
+  import { commonColorConfig, getCommonBarOptions, handleNoDataDisplay } from '../utils';
   import type { SelectOptionData } from '@arco-design/web-vue';
 
   const { t } = useI18n();
@@ -58,18 +62,17 @@
     item: SelectedCardItem;
   }>();
 
-  const memberIds = ref('');
   const innerProjectIds = defineModel<string[]>('projectIds', {
     required: true,
   });
 
-  const projectId = computed<string>({
-    get: () => {
-      const [newProject] = innerProjectIds.value;
-      return newProject;
-    },
-    set: (val) => val,
+  const projectId = ref<string>(innerProjectIds.value[0]);
+
+  const innerHandleUsers = defineModel<string[]>('handleUsers', {
+    required: true,
   });
+
+  const memberIds = ref<string[]>(innerHandleUsers.value);
 
   const timeForm = inject<Ref<TimeFormParams>>(
     'timeForm',
@@ -83,128 +86,91 @@
   const memberOptions = ref<SelectOptionData[]>([]);
 
   const options = ref<Record<string, any>>({});
-  const members = computed(() => ['张三', '李四', '王五', '小王']);
-  const hasRoom = computed(() => members.value.length >= 7);
-  const seriesData = ref<Record<string, any>[]>([
-    {
-      name: '新创建',
-      type: 'bar',
-      barWidth: 12,
-      stack: 'bug',
-      itemStyle: {
-        // borderRadius: [2, 2, 0, 0],
-      },
-      data: [400, 200, 400, 200, 400, 200],
-    },
-    {
-      name: '激活',
-      type: 'bar',
-      barWidth: 12,
-      stack: 'bug',
-      itemStyle: {
-        // borderRadius: [2, 2, 0, 0],
-      },
-      data: [90, 160, 90, 160, 90, 160],
-    },
-    {
-      name: '处理中',
-      type: 'bar',
-      barWidth: 12,
-      stack: 'bug',
-      itemStyle: {
-        // borderRadius: [2, 2, 0, 0],
-      },
-      data: [90, 160, 90, 160, 90, 160],
-    },
-    {
-      name: '已关闭',
-      type: 'bar',
-      barWidth: 12,
-      stack: 'bug',
-      itemStyle: {
-        // borderRadius: [2, 2, 0, 0],
-      },
-      data: [90, 160, 90, 160, 90, 160],
-    },
-    {
-      name: '新创建1',
-      type: 'bar',
-      barWidth: 12,
-      stack: 'bug',
-      itemStyle: {
-        // borderRadius: [2, 2, 0, 0],
-      },
-      data: [400, 200, 400, 200, 400, 200],
-    },
-    {
-      name: '激活1',
-      type: 'bar',
-      barWidth: 12,
-      stack: 'bug',
-      itemStyle: {
-        // borderRadius: [2, 2, 0, 0],
-      },
-      data: [90, 160, 90, 160, 90, 160],
-    },
-    {
-      name: '处理中1',
-      type: 'bar',
-      barWidth: 12,
-      stack: 'bug',
-      itemStyle: {
-        // borderRadius: [2, 2, 0, 0],
-      },
-      data: [90, 160, 90, 160, 90, 160],
-    },
-    {
-      name: '已关闭1',
-      type: 'bar',
-      barWidth: 12,
-      stack: 'bug',
-      itemStyle: {
-        // borderRadius: [2, 2, 0, 0],
-      },
-      data: [90, 160, 90, 160, 90, 160],
-    },
-    {
-      name: '已关闭2',
-      type: 'bar',
-      barWidth: 12,
-      stack: 'bug',
-      itemStyle: {
-        // borderRadius: [2, 2, 0, 0],
-      },
-      data: [90, 160, 90, 160, 90, 160],
-    },
-    {
-      name: '已关闭3',
-      type: 'bar',
-      barWidth: 12,
-      stack: 'bug',
-      itemStyle: {
-        borderRadius: [2, 2, 0, 0],
-      },
-      data: [90, 160, 90, 160, 90, 160],
-    },
-  ]);
+
   const defectStatusColor = ['#811FA3', '#FFA200', '#3370FF', '#F24F4F'];
 
-  function getDefectMemberDetail() {
-    options.value = getCommonBarOptions(hasRoom.value, [...defectStatusColor, ...commonColorConfig]);
-    options.value.xAxis.data = members.value;
-    options.value.series = seriesData.value;
+  function handleData(detail: OverViewOfProject) {
+    options.value = getCommonBarOptions(detail.xaxis.length >= 7, [...defectStatusColor, ...commonColorConfig]);
+    const { invisible, text } = handleNoDataDisplay(detail.xaxis, detail.projectCountList);
+    options.value.graphic.invisible = invisible;
+    options.value.graphic.style.text = text;
+    options.value.xAxis.data = detail.xaxis.map((e) => characterLimit(e, 10));
+    options.value.series = detail.projectCountList.map((item) => {
+      return {
+        name: item.name,
+        type: 'bar',
+        stack: 'bugMember',
+        barWidth: 12,
+        data: item.count,
+        itemStyle: {
+          borderRadius: [2, 2, 0, 0],
+        },
+      };
+    });
   }
 
-  onMounted(() => {
+  async function getDefectMemberDetail() {
+    try {
+      const { startTime, endTime, dayNumber } = timeForm.value;
+      const detail = await workBugHandlerDetail({
+        current: 1,
+        pageSize: 5,
+        startTime: dayNumber ? null : startTime,
+        endTime: dayNumber ? null : endTime,
+        dayNumber: dayNumber ?? null,
+        projectIds: innerProjectIds.value,
+        organizationId: appStore.currentOrgId,
+        handleUsers: innerHandleUsers.value,
+      });
+      handleData(detail);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function getMemberOptions() {
+    const [newProjectId] = innerProjectIds.value;
+    const res = await getProjectOptions(newProjectId);
+    memberOptions.value = res.map((e: any) => ({
+      label: e.name,
+      value: e.id,
+    }));
+  }
+
+  function changeProject() {
+    memberIds.value = [];
+    getMemberOptions();
     getDefectMemberDetail();
-  });
+  }
+
+  function changeMember() {
+    getDefectMemberDetail();
+  }
+
+  watch(
+    () => innerProjectIds.value,
+    (val) => {
+      if (val) {
+        const [newProjectId] = val;
+        projectId.value = newProjectId;
+      }
+    }
+  );
 
   watch(
     () => projectId.value,
     (val) => {
       if (val) {
         innerProjectIds.value = [val];
-        getDefectMemberDetail();
+      }
+    }
+  );
+
+  watch(
+    () => memberIds.value,
+    (val) => {
+      if (val) {
+        innerHandleUsers.value = val;
       }
     }
   );
@@ -220,6 +186,11 @@
       deep: true,
     }
   );
+
+  onMounted(() => {
+    getMemberOptions();
+    getDefectMemberDetail();
+  });
 </script>
 
 <style scoped></style>

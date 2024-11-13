@@ -1,9 +1,11 @@
-import { commonConfig, toolTipConfig } from '@/config/testPlan';
+import { cloneDeep } from 'lodash-es';
+
+import { toolTipConfig } from '@/config/testPlan';
+import { commonRatePieOptions, defaultValueMap } from '@/config/workbench';
 import { useI18n } from '@/hooks/useI18n';
 import { addCommasToNumber } from '@/utils';
 
-import type { ModuleCardItem } from '@/models/workbench/homePage';
-import { WorkCardEnum, WorkOverviewEnum, WorkOverviewIconEnum } from '@/enums/workbenchEnum';
+import { WorkCardEnum } from '@/enums/workbenchEnum';
 
 const { t } = useI18n();
 // 通用颜色配置
@@ -37,7 +39,7 @@ export const commonColorConfig = [
 export const colorMapConfig: Record<string, string[]> = {
   [WorkCardEnum.CASE_COUNT]: ['#ED0303', '#FFA200', '#3370FF', '#D4D4D8'],
   [WorkCardEnum.ASSOCIATE_CASE_COUNT]: ['#00C261', '#3370FF'],
-  [WorkCardEnum.REVIEW_CASE_COUNT]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
+  [WorkCardEnum.REVIEW_CASE_COUNT]: ['#9441B1', '#00C261', '#D4D4D8', '#3370FF'],
   [WorkCardEnum.TEST_PLAN_COUNT]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
   [WorkCardEnum.PLAN_LEGACY_BUG]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
   [WorkCardEnum.BUG_COUNT]: ['#FFA200', '#00C261', '#D4D4D8'],
@@ -100,13 +102,14 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
     ],
     color,
     grid: {
-      top: '36px',
-      left: '10px',
-      right: '10px',
-      bottom: hasRoom ? '54px' : '5px',
+      top: 36,
+      left: 0,
+      right: 0,
+      bottom: hasRoom ? 54 : 5,
       containLabel: true,
     },
     xAxis: {
+      show: true,
       splitLine: false,
       boundaryGap: true,
       type: 'category',
@@ -128,7 +131,7 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
       {
         type: 'value',
         name: '单位：个', // 设置单位
-        nameLocation: 'end',
+        position: 'left',
         nameTextStyle: {
           fontSize: 12,
           color: '#AEAEB2', // 自定义字体大小和颜色
@@ -143,6 +146,8 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
             type: 'dashed', // 水平线线型，可选 'solid'、'dashed'、'dotted'
           },
         },
+        min: 0,
+        max: 1,
       },
     ],
     graphic: {
@@ -159,7 +164,6 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
       },
       invisible: true,
     },
-
     colorBy: 'series',
     series: [],
     barCategoryGap: '50%', // 控制 X 轴分布居中效果
@@ -194,60 +198,8 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
   };
 }
 
-export const contentTabList = ref<ModuleCardItem[]>([
-  {
-    label: t('workbench.homePage.functionalUseCase'),
-    value: WorkOverviewEnum.FUNCTIONAL,
-    icon: WorkOverviewIconEnum.FUNCTIONAL,
-    color: 'rgb(var(--primary-5))',
-    count: 0,
-  },
-  {
-    label: t('workbench.homePage.useCaseReview'),
-    value: WorkOverviewEnum.CASE_REVIEW,
-    icon: WorkOverviewIconEnum.CASE_REVIEW,
-    color: 'rgb(var(--success-6))',
-    count: 0,
-  },
-  {
-    label: t('workbench.homePage.interfaceAPI'),
-    value: WorkOverviewEnum.API,
-    icon: WorkOverviewIconEnum.API,
-    color: 'rgb(var(--link-6))',
-    count: 0,
-  },
-  {
-    label: t('workbench.homePage.interfaceCASE'),
-    value: WorkOverviewEnum.API_CASE,
-    icon: WorkOverviewIconEnum.API_CASE,
-    color: 'rgb(var(--link-6))',
-    count: 0,
-  },
-  {
-    label: t('workbench.homePage.interfaceScenario'),
-    value: WorkOverviewEnum.API_SCENARIO,
-    icon: WorkOverviewIconEnum.API_SCENARIO,
-    color: 'rgb(var(--link-6))',
-    count: 0,
-  },
-  {
-    label: t('workbench.homePage.apiPlan'),
-    value: WorkOverviewEnum.TEST_PLAN,
-    icon: WorkOverviewIconEnum.TEST_PLAN,
-    color: 'rgb(var(--link-6))',
-    count: 0,
-  },
-  {
-    label: t('workbench.homePage.bugCount'),
-    value: WorkOverviewEnum.BUG_COUNT,
-    icon: WorkOverviewIconEnum.BUG_COUNT,
-    color: 'rgb(var(--danger-6))',
-    count: 0,
-  },
-]);
-
 // 下方饼图配置
-export function getPieCharOptions(key: WorkCardEnum) {
+export function getPieCharOptions(key: WorkCardEnum, hasPermission: boolean) {
   return {
     title: {
       show: true,
@@ -272,6 +224,7 @@ export function getPieCharOptions(key: WorkCardEnum) {
     tooltip: {
       ...toolTipConfig,
       position: 'right',
+      show: !!hasPermission,
     },
     legend: {
       width: '100%',
@@ -387,6 +340,20 @@ export function getPieCharOptions(key: WorkCardEnum) {
       },
       data: [],
     },
+    graphic: {
+      type: 'text',
+      left: 'center',
+      top: 'middle',
+      style: {
+        text: t('workbench.homePage.notHasResPermission'),
+        fontSize: 14,
+        fill: '#959598',
+        backgroundColor: '#F9F9FE',
+        padding: [6, 16, 6, 16],
+        borderRadius: 4,
+      },
+      invisible: !!hasPermission,
+    },
   };
 }
 
@@ -418,108 +385,21 @@ export function handleNoDataDisplay(
   };
 }
 
-// XX率饼图配置
-export const commonRatePieOptions = {
-  ...commonConfig,
-  title: {
-    show: true,
-    text: '',
-    left: 26,
-    top: '20%',
-    textStyle: {
-      fontSize: 12,
-      fontWeight: 'normal',
-      color: '#959598',
-    },
-    triggerEvent: true, // 开启鼠标事件
-    subtext: '0',
-    subtextStyle: {
-      fontSize: 12,
-      color: '#323233',
-      fontWeight: 'bold',
-      align: 'center',
-      lineHeight: 3,
-    },
-    textAlign: 'center',
-    tooltip: {
-      ...toolTipConfig,
-      position: 'right',
-    },
-  },
-  tooltip: {
-    ...toolTipConfig,
-    position: 'right',
-  },
-  legend: {
-    show: false,
-  },
-  series: {
-    name: '',
-    type: 'pie',
-    color: [],
-    padAngle: 2,
-    radius: ['85%', '100%'],
-    center: [30, '50%'],
-    avoidLabelOverlap: false,
-    label: {
-      show: false,
-      position: 'center',
-    },
-    emphasis: {
-      scale: false, // 禁用放大效果
-      label: {
-        show: false,
-        fontSize: 40,
-        fontWeight: 'bold',
-      },
-    },
-    labelLine: {
-      show: false,
-    },
-    data: [],
-  },
-  // graphic: [
-  //   {
-  //     type: 'text',
-  //     left: 'center',
-  //     top: '5%',
-  //     style: {
-  //       text: '饼图标题',
-  //       fontSize: 18,
-  //       fontWeight: 'bold',
-  //       fill: '#333',
-  //       cursor: 'pointer'
-  //     },
-  //     onmouseover (params) {
-  //       // 悬浮到标题上时显示提示信息
-  //       // chart.dispatchAction({
-  //       //   type: 'showTip',
-  //       //   position: [params.event.offsetX, params.event.offsetY],
-  //       //   // 配置提示内容
-  //       //   formatter: '这是饼图标题的提示内容'
-  //       // });
-  //     },
-  //     onmouseout () {
-  //       // 离开标题时隐藏提示信息
-  //       // chart.dispatchAction({
-  //       //   type: 'hideTip'
-  //       // });
-  //     }
-  //   }
-  // ]
-};
-
 // 统一处理下方饼图数据结构
 export function handlePieData(
   key: WorkCardEnum,
-  statusPercentList: {
-    status: string; // 状态
-    count: number;
-    percentValue: string; // 百分比
-  }[]
+  hasPermission: boolean,
+  statusPercentList:
+    | {
+        status: string; // 状态
+        count: number;
+        percentValue: string; // 百分比
+      }[]
+    | null = []
 ) {
-  const options: Record<string, any> = getPieCharOptions(key);
-  options.series.data = statusPercentList.map((item) => ({
+  const options: Record<string, any> = getPieCharOptions(key, hasPermission);
+  const lastStatusPercentList = statusPercentList ?? [];
+  options.series.data = lastStatusPercentList.map((item) => ({
     name: item.status,
     value: item.count,
   }));
@@ -527,10 +407,16 @@ export function handlePieData(
   // 计算总数和图例格式
   const tempObject: Record<string, any> = {};
   let totalCount = 0;
-  statusPercentList.forEach((item) => {
+  lastStatusPercentList.forEach((item) => {
     tempObject[item.status] = item;
     totalCount += item.count;
   });
+
+  // 设置副标题为总数
+  options.title.subtext = addCommasToNumber(totalCount);
+  if (!hasPermission) {
+    options.title.subtext = '-';
+  }
 
   // 设置图例的格式化函数，显示百分比
   options.legend.formatter = (name: string) => {
@@ -539,8 +425,51 @@ export function handlePieData(
     }}`;
   };
 
-  // 设置副标题为总数
-  options.title.subtext = addCommasToNumber(totalCount);
-
   return options;
+}
+
+// 更新options
+export function handleUpdateTabPie(
+  list: {
+    name: string;
+    count: number;
+  }[],
+  hasPermission: boolean, // 是否有权限
+  key: string
+) {
+  const options: Record<string, any> = cloneDeep(commonRatePieOptions);
+  const typeKey = key.split('-')[0];
+  const valueKey = key.split('-')[1];
+  const countList = list || [];
+  let lastCountList: { value: number | string; label: string; name: string }[] = [];
+  if (hasPermission) {
+    lastCountList = countList.slice(1).map((item) => {
+      return {
+        value: item.count,
+        label: item.name,
+        name: item.name,
+      };
+    });
+    options.series.data = lastCountList;
+
+    options.title.text = countList[0].name ?? '';
+    options.title.subtext = `${countList[0].count ?? 0}%`;
+  } else {
+    options.series.data = [];
+    lastCountList = defaultValueMap[typeKey][valueKey].defaultList.map((e: any) => {
+      return {
+        ...e,
+        label: t(e.label),
+      };
+    });
+    options.title.text = t(defaultValueMap[typeKey][valueKey].defaultName);
+    options.title.subtext = '-%';
+  }
+
+  options.series.color = defaultValueMap[typeKey][valueKey].color;
+
+  return {
+    valueList: lastCountList,
+    options,
+  };
 }

@@ -14,7 +14,7 @@
     <div class="pass-rate-title flex-1">
       <div v-for="item of props.valueList" :key="item.label" class="flex-1">
         <div class="mb-[8px] text-[var(--color-text-4)]">{{ item.label }}</div>
-        <div class="pass-rate-count">{{ addCommasToNumber(item.value) }}</div>
+        <div class="pass-rate-count">{{ hasPermission ? addCommasToNumber(item.value as number) : '-' }}</div>
       </div>
     </div>
   </div>
@@ -34,9 +34,10 @@
     options: Record<string, any>;
     size: number;
     tooltipText?: string;
+    hasPermission: boolean;
     valueList: {
       label: string;
-      value: number;
+      value: number | string;
     }[];
   }>();
 </script>

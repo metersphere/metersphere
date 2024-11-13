@@ -42,6 +42,7 @@
   import TabCard from './tabCard.vue';
 
   import { workMyCreatedDetail, workProOverviewDetail } from '@/api/modules/workbench';
+  import { contentTabList } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -53,7 +54,7 @@
   } from '@/models/workbench/homePage';
   import { WorkCardEnum, WorkOverviewEnum } from '@/enums/workbenchEnum';
 
-  import { commonColorConfig, contentTabList, getCommonBarOptions, handleNoDataDisplay } from '../utils';
+  import { commonColorConfig, getCommonBarOptions, handleNoDataDisplay } from '../utils';
 
   const { t } = useI18n();
 
@@ -92,9 +93,10 @@
   function handleData(detail: OverViewOfProject) {
     // 处理模块顺序
     const tempAxisData = detail.xaxis.map((xAxisKey) => {
-      const data = contentTabList.value.find((e) => e.value === xAxisKey);
+      const data = contentTabList.find((e) => e.value === xAxisKey);
       return {
         ...data,
+        label: t(data?.label || ''),
         count: detail.caseCountMap[xAxisKey as WorkOverviewEnum],
       };
     });

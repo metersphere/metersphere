@@ -12,6 +12,7 @@
           :search-keys="['name']"
           class="!w-[240px]"
           :prefix="t('workbench.homePage.project')"
+          @change="changeProject"
         >
         </MsSelect>
       </div>
@@ -24,6 +25,7 @@
               :tooltip-text="tabItem.tooltip"
               :options="tabItem.options"
               :size="60"
+              :has-permission="hasPermission"
               :value-list="tabItem.valueList"
             />
           </div>
@@ -51,14 +53,9 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import type {
-    PassRateDataType,
-    SelectedCardItem,
-    StatusStatisticsMapType,
-    TimeFormParams,
-  } from '@/models/workbench/homePage';
+  import type { PassRateDataType, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
-  import { commonRatePieOptions, handlePieData } from '../utils';
+  import { handlePieData, handleUpdateTabPie } from '../utils';
 
   const props = defineProps<{
     item: SelectedCardItem;
@@ -82,55 +79,20 @@
     })
   );
 
-  const options = ref(cloneDeep(commonRatePieOptions));
+  const options = ref({});
 
   // TODO 假数据
   const detail = ref<PassRateDataType>({
-    statusStatisticsMap: {
-      cover: [
-        { name: '覆盖率', count: 10 },
-        { name: '已覆盖', count: 2 },
-        { name: '未覆盖', count: 1 },
-      ],
-      success: [
-        { name: '覆盖率', count: 10 },
-        { name: '已覆盖', count: 2 },
-        { name: '未覆盖', count: 1 },
-      ],
-    },
-    statusPercentList: [
-      { status: 'HTTP', count: 1, percentValue: '10%' },
-      { status: 'TCP', count: 3, percentValue: '0%' },
-      { status: 'BBB', count: 6, percentValue: '0%' },
-    ],
+    statusStatisticsMap: null,
+    statusPercentList: null,
+    errorCode: 109001,
   });
 
-  const coverValueList = ref([
-    {
-      label: t('workbench.homePage.covered'),
-      value: 10000,
-    },
-    {
-      label: t('workbench.homePage.notCover'),
-      value: 2000,
-    },
-  ]);
-  const passValueList = ref([
-    {
-      label: t('common.completed'),
-      value: 10000,
-    },
-    {
-      label: t('common.inProgress'),
-      value: 2000,
-    },
-    {
-      label: t('workbench.homePage.unFinish'),
-      value: 2000,
-    },
-  ]);
-  const coverOptions = ref<Record<string, any>>(cloneDeep(options.value));
-  const completeOptions = ref<Record<string, any>>(cloneDeep(options.value));
+  const coverValueList = ref<{ value: string | number; label: string; name: string }[]>([]);
+
+  const passValueList = ref<{ value: string | number; label: string; name: string }[]>([]);
+  const coverOptions = ref<Record<string, any>>({});
+  const completeOptions = ref<Record<string, any>>({});
   const apiCountTabList = computed(() => {
     return [
       {
@@ -152,34 +114,7 @@
 
   const apiCountOptions = ref({});
 
-  function handlePassRatePercent(data: { name: string; count: number }[]) {
-    return data.slice(1).map((item) => {
-      return {
-        value: item.count,
-        label: item.name,
-        name: item.name,
-      };
-    });
-  }
-
-  function handleRatePieData(statusStatisticsMap: StatusStatisticsMapType) {
-    const { cover, success } = statusStatisticsMap;
-    coverValueList.value = handlePassRatePercent(cover);
-    passValueList.value = handlePassRatePercent(success);
-
-    coverOptions.value.series.data = handlePassRatePercent(cover);
-    completeOptions.value.series.data = handlePassRatePercent(success);
-
-    coverOptions.value.title.text = cover[0].name ?? '';
-    coverOptions.value.title.subtext = `${cover[0].count ?? 0}%`;
-
-    completeOptions.value.title.text = success[0].name ?? '';
-    completeOptions.value.title.subtext = `${success[0].count ?? 0}%`;
-
-    coverOptions.value.series.color = ['#00C261', '#D4D4D8'];
-    completeOptions.value.series.color = ['#00C261', '#ED0303'];
-  }
-
+  const hasPermission = ref<boolean>(false);
   function initApiCount() {
     try {
       const { startTime, endTime, dayNumber } = timeForm.value;
@@ -193,12 +128,36 @@
         organizationId: appStore.currentOrgId,
         handleUsers: [],
       };
-      const { statusStatisticsMap, statusPercentList } = detail.value;
-      apiCountOptions.value = handlePieData(props.item.key, statusPercentList);
-      handleRatePieData(statusStatisticsMap);
+      const { statusStatisticsMap, statusPercentList, errorCode } = detail.value;
+
+      hasPermission.value = errorCode !== 109001;
+
+      apiCountOptions.value = handlePieData(props.item.key, hasPermission.value, statusPercentList);
+
+      // 覆盖率
+      const { options: covOptions, valueList: coverList } = handleUpdateTabPie(
+        statusStatisticsMap?.cover || [],
+        hasPermission.value,
+        `${props.item.key}-cover`
+      );
+      coverValueList.value = coverList;
+      coverOptions.value = covOptions;
+
+      const { options: comOptions, valueList: completedList } = handleUpdateTabPie(
+        statusStatisticsMap?.cover || [],
+        hasPermission.value,
+        `${props.item.key}-complete`
+      );
+      passValueList.value = completedList;
+      completeOptions.value = comOptions;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
+  }
+
+  function changeProject() {
+    initApiCount();
   }
 
   onMounted(() => {
@@ -211,7 +170,6 @@
       if (val) {
         const [newProjectId] = val;
         projectId.value = newProjectId;
-        initApiCount();
       }
     }
   );
@@ -221,7 +179,6 @@
     (val) => {
       if (val) {
         innerProjectIds.value = [val];
-        initApiCount();
       }
     }
   );

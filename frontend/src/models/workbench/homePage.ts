@@ -56,7 +56,7 @@ export interface OverViewOfProject {
 }
 
 export interface ModuleCardItem {
-  label: string | number;
+  label: string;
   value: string | number;
   count?: number;
   icon?: string;
@@ -73,10 +73,13 @@ export type StatusStatisticsMapType = Record<
 >;
 
 export interface PassRateDataType {
-  statusStatisticsMap: StatusStatisticsMapType;
-  statusPercentList: {
-    status: string; // 状态
-    count: number;
-    percentValue: string; // 百分比
-  }[];
+  statusStatisticsMap: StatusStatisticsMapType | null;
+  statusPercentList:
+    | {
+        status: string; // 状态
+        count: number;
+        percentValue: string; // 百分比
+      }[]
+    | null;
+  errorCode: number;
 }

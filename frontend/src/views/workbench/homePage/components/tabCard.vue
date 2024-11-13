@@ -31,7 +31,7 @@
 
   const props = defineProps<{
     contentTabList: {
-      label: string | number;
+      label: string;
       value: string | number;
       count?: number;
       icon?: string;

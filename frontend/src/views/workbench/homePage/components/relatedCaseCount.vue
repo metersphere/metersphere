@@ -11,6 +11,7 @@
           :search-keys="['name']"
           class="!w-[240px]"
           :prefix="t('workbench.homePage.project')"
+          @change="changeProject"
         >
         </MsSelect>
       </div>
@@ -19,7 +20,8 @@
       <div class="case-count-wrapper">
         <div class="case-count-item">
           <PassRatePie
-            :options="options"
+            :options="relatedOptions"
+            :has-permission="hasPermission"
             tooltip-text="workbench.homePage.associateCaseCoverRateTooltip"
             :size="60"
             :value-list="coverRateValueList"
@@ -35,7 +37,6 @@
    * @desc 关联用例数量
    */
   import { ref } from 'vue';
-  import { cloneDeep } from 'lodash-es';
 
   import MsSelect from '@/components/business/ms-select';
   import PassRatePie from './passRatePie.vue';
@@ -44,9 +45,9 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import type { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
+  import type { PassRateDataType, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
-  import { commonRatePieOptions } from '../utils';
+  import { handleUpdateTabPie } from '../utils';
 
   const appStore = useAppStore();
 
@@ -71,14 +72,26 @@
     })
   );
 
-  const options = ref<Record<string, any>>(cloneDeep(commonRatePieOptions));
+  const relatedOptions = ref<Record<string, any>>({});
+  const hasPermission = ref<boolean>(false);
 
-  const coverRateValueList = ref<{ value: number; label: string; name: string }[]>([]);
+  const coverRateValueList = ref<{ value: number | string; label: string; name: string }[]>([
+    {
+      label: t('workbench.homePage.covered'),
+      value: '-',
+      name: '',
+    },
+    {
+      label: t('workbench.homePage.notCover'),
+      value: '-',
+      name: '',
+    },
+  ]);
 
   async function getRelatedCaseCount() {
     try {
       const { startTime, endTime, dayNumber } = timeForm.value;
-      const detail = await workAssociateCaseDetail({
+      const detail: PassRateDataType = await workAssociateCaseDetail({
         current: 1,
         pageSize: 5,
         startTime: dayNumber ? null : startTime,
@@ -88,22 +101,26 @@
         organizationId: appStore.currentOrgId,
         handleUsers: [],
       });
-      const { cover } = detail.statusStatisticsMap;
-      coverRateValueList.value = cover.slice(1).map((item) => {
-        return {
-          value: item.count,
-          label: item.name,
-          name: item.name,
-        };
-      });
-      options.value.series.data = coverRateValueList.value;
-      options.value.title.text = cover[0].name ?? '';
-      options.value.title.subtext = `${cover[0].count ?? 0}%`;
-      options.value.series.color = ['#00C261', '#D4D4D8'];
+
+      hasPermission.value = detail.errorCode !== 109001;
+
+      const { statusStatisticsMap } = detail;
+
+      const { options, valueList } = handleUpdateTabPie(
+        statusStatisticsMap?.cover || [],
+        hasPermission.value,
+        `${props.item.key}-cover`
+      );
+      relatedOptions.value = options;
+      coverRateValueList.value = valueList;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
     }
+  }
+
+  function changeProject() {
+    getRelatedCaseCount();
   }
 
   onMounted(() => {
@@ -125,7 +142,6 @@
     (val) => {
       if (val) {
         innerProjectIds.value = [val];
-        getRelatedCaseCount();
       }
     }
   );

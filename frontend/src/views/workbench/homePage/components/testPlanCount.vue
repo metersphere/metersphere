@@ -14,6 +14,7 @@
           :search-keys="['name']"
           class="!w-[240px]"
           :prefix="t('workbench.homePage.project')"
+          @change="changeProject"
         >
         </MsSelect>
       </div>
@@ -22,7 +23,12 @@
       <TabCard :content-tab-list="testPlanTabList" not-has-padding hidden-border min-width="270px">
         <template #item="{ item: tabItem }">
           <div class="w-full">
-            <PassRatePie :options="tabItem.options" :size="60" :value-list="tabItem.valueList" />
+            <PassRatePie
+              :has-permission="hasPermission"
+              :options="tabItem.options"
+              :size="60"
+              :value-list="tabItem.valueList"
+            />
           </div>
         </template>
       </TabCard>
@@ -38,7 +44,6 @@
    * @desc 测试计划数量
    */
   import { ref } from 'vue';
-  import { cloneDeep } from 'lodash-es';
 
   import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
@@ -48,14 +53,9 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import type {
-    PassRateDataType,
-    SelectedCardItem,
-    StatusStatisticsMapType,
-    TimeFormParams,
-  } from '@/models/workbench/homePage';
+  import type { PassRateDataType, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
-  import { commonRatePieOptions, handlePieData } from '../utils';
+  import { handlePieData, handleUpdateTabPie } from '../utils';
 
   const props = defineProps<{
     item: SelectedCardItem;
@@ -103,51 +103,20 @@
       { status: 'TCP', count: 3, percentValue: '0%' },
       { status: 'BBB', count: 6, percentValue: '0%' },
     ],
+    errorCode: 109001,
   });
 
-  const options = ref(cloneDeep(commonRatePieOptions));
-  const executionOptions = ref<Record<string, any>>(cloneDeep(options.value));
-  const passOptions = ref<Record<string, any>>(cloneDeep(options.value));
-  const completeOptions = ref<Record<string, any>>(cloneDeep(options.value));
+  const executionOptions = ref<Record<string, any>>({});
+  const passOptions = ref<Record<string, any>>({});
+  const completeOptions = ref<Record<string, any>>({});
 
   // 执行率
-  const executionValueList = ref([
-    {
-      label: t('common.unExecute'),
-      value: 10000,
-    },
-    {
-      label: t('common.executed'),
-      value: 2000,
-    },
-  ]);
+  const executionValueList = ref<{ value: number | string; label: string; name: string }[]>([]);
   // 通过率
-  const passValueList = ref([
-    {
-      label: t('workbench.homePage.havePassed'),
-      value: 10000,
-    },
-    {
-      label: t('workbench.homePage.notPass'),
-      value: 2000,
-    },
-  ]);
+  const passValueList = ref<{ value: number | string; label: string; name: string }[]>([]);
 
   // 完成率
-  const completeValueList = ref([
-    {
-      label: t('common.completed'),
-      value: 10000,
-    },
-    {
-      label: t('common.inProgress'),
-      value: 2000,
-    },
-    {
-      label: t('workbench.homePage.unFinish'),
-      value: 2000,
-    },
-  ]);
+  const completeValueList = ref<{ value: number | string; label: string; name: string }[]>([]);
 
   const testPlanTabList = computed(() => {
     return [
@@ -172,41 +141,8 @@
     ];
   });
 
-  function handlePassRatePercent(data: { name: string; count: number }[]) {
-    return data.slice(1).map((item) => {
-      return {
-        value: item.count,
-        label: item.name,
-        name: item.name,
-      };
-    });
-  }
-
-  function handleRatePieData(statusStatisticsMap: StatusStatisticsMapType) {
-    const { execute, pass, complete } = statusStatisticsMap;
-    executionValueList.value = handlePassRatePercent(execute);
-    passValueList.value = handlePassRatePercent(pass);
-    completeValueList.value = handlePassRatePercent(complete);
-
-    executionOptions.value.series.data = handlePassRatePercent(execute);
-    passOptions.value.series.data = handlePassRatePercent(pass);
-    completeOptions.value.series.data = handlePassRatePercent(complete);
-
-    executionOptions.value.title.text = execute[0].name ?? '';
-    executionOptions.value.title.subtext = `${execute[0].count ?? 0}%`;
-
-    passOptions.value.title.text = pass[0].name ?? '';
-    passOptions.value.title.subtext = `${pass[0].count ?? 0}%`;
-
-    completeOptions.value.title.text = complete[0].name ?? '';
-    completeOptions.value.title.subtext = `${complete[0].count ?? 0}%`;
-
-    executionOptions.value.series.color = ['#D4D4D8', '#00C261'];
-    passOptions.value.series.color = ['#D4D4D8', '#00C261'];
-    completeOptions.value.series.color = ['#00C261', '#3370FF', '#D4D4D8'];
-  }
-
   const testPlanCountOptions = ref({});
+  const hasPermission = ref<boolean>(false);
   async function initTestPlanCount() {
     try {
       const { startTime, endTime, dayNumber } = timeForm.value;
@@ -220,18 +156,47 @@
         organizationId: appStore.currentOrgId,
         handleUsers: [],
       };
-      const { statusStatisticsMap, statusPercentList } = detail.value;
+      const { statusStatisticsMap, statusPercentList, errorCode } = detail.value;
 
-      testPlanCountOptions.value = handlePieData(props.item.key, statusPercentList);
-      handleRatePieData(statusStatisticsMap);
+      hasPermission.value = errorCode !== 109001;
+      testPlanCountOptions.value = handlePieData(props.item.key, hasPermission.value, statusPercentList);
+
+      // 执行率
+      const { options: executedOptions, valueList: executedList } = handleUpdateTabPie(
+        statusStatisticsMap?.execute || [],
+        hasPermission.value,
+        `${props.item.key}-execute`
+      );
+
+      // 通过率
+      const { options: passedOptions, valueList: passList } = handleUpdateTabPie(
+        statusStatisticsMap?.pass || [],
+        hasPermission.value,
+        `${props.item.key}-pass`
+      );
+
+      // 完成率
+      const { options: comOptions, valueList: completeList } = handleUpdateTabPie(
+        statusStatisticsMap?.complete || [],
+        hasPermission.value,
+        `${props.item.key}-complete`
+      );
+
+      executionValueList.value = executedList;
+      passValueList.value = passList;
+      completeValueList.value = completeList;
+
+      executionOptions.value = executedOptions;
+      passOptions.value = passedOptions;
+      completeOptions.value = comOptions;
     } catch (error) {
       console.log(error);
     }
   }
 
-  onMounted(() => {
+  function changeProject() {
     initTestPlanCount();
-  });
+  }
 
   onMounted(() => {
     initTestPlanCount();
@@ -242,7 +207,6 @@
     (val) => {
       if (val) {
         innerProjectIds.value = [val];
-        initTestPlanCount();
       }
     }
   );
@@ -253,7 +217,6 @@
       if (val) {
         const [newProjectId] = val;
         projectId.value = newProjectId;
-        initTestPlanCount();
       }
     }
   );

@@ -1,6 +1,6 @@
 import MSR from '@/api/http/index';
 
-import type { ApiCaseDetail } from '@/models/apiTest/management';
+import type { ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
 import type { ApiScenarioTableItem } from '@/models/apiTest/scenario';
 import type { BugListItem } from '@/models/bug-management';
 import type { ReviewItem } from '@/models/caseManagement/caseReview';
@@ -17,6 +17,7 @@ import type {
 import {
   EditDashboardLayoutUrl,
   GetDashboardLayoutUrl,
+  WorkApiChangeListUrl,
   WorkAssociateCaseDetailUrl,
   WorkbenchApiCaseListUrl,
   WorkbenchBugListUrl,
@@ -25,10 +26,13 @@ import {
   WorkbenchScenarioListUrl,
   WorkbenchTestPlanListUrl,
   WorkbenchTestPlanStatisticUrl,
+  WorkBugHandlerDetailUrl,
   WorkCaseCountDetailUrl,
+  WorkCaseReviewDetailUrl,
   WorkMemberViewDetailUrl,
   WorkMyCreatedDetailUrl,
   WorkProOverviewDetailUrl,
+  WorkReviewListUrl,
   WorkTodoBugListUrl,
   WorkTodoPlanListUrl,
   WorkTodoReviewListUrl,
@@ -98,6 +102,32 @@ export function workCaseCountDetail(data: WorkHomePageDetail) {
 // 工作台-首页-关联用例数
 export function workAssociateCaseDetail(data: WorkHomePageDetail) {
   return MSR.post<PassRateDataType>({ url: WorkAssociateCaseDetailUrl, data });
+}
+
+// 工作台-首页-用例评审数
+export function workCaseReviewDetail(data: WorkHomePageDetail) {
+  return MSR.post<PassRateDataType>({ url: WorkCaseReviewDetailUrl, data });
+}
+
+// 工作台-首页-缺陷处理人
+export function workBugHandlerDetail(data: WorkHomePageDetail) {
+  return MSR.post<OverViewOfProject>({ url: WorkBugHandlerDetailUrl, data });
+}
+
+// 工作台-首页-接口变更
+export function workApiChangeList(data: WorkHomePageDetail) {
+  return MSR.post<CommonList<ApiDefinitionDetail>>(
+    { url: WorkApiChangeListUrl, data },
+    { ignoreCancelToken: true, errorMessageMode: 'none' }
+  );
+}
+
+// 工作台-首页-接口变更
+export function workReviewList(data: WorkHomePageDetail) {
+  return MSR.post<CommonList<ReviewItem>>(
+    { url: WorkReviewListUrl, data },
+    { ignoreCancelToken: true, errorMessageMode: 'none' }
+  );
 }
 
 // 待办-用例评审列表

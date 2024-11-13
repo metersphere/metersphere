@@ -83,7 +83,7 @@
       name: '',
       type: 'pie',
       padAngle: 1,
-      radius: ['46%', '56%'],
+      radius: ['50%', '58%'],
       center: ['50%', '32%'],
       color: [],
       avoidLabelOverlap: false,

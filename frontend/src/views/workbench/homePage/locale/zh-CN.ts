@@ -92,4 +92,10 @@ export default {
   'workbench.homePage.scenarioCaseCountExecuteRateTooltip': '场景执行率：执行过的场景/所有场景 * 100%',
   'workbench.homePage.scenarioCaseCountPassRateTooltip': '场景通过率：最后一次执行成功的场景/场景总数*100%',
   'workbench.homePage.planCaseCountLegacyRateTooltip': '遗留率：未关闭缺陷/所有关联的缺陷*100%',
+  'workbench.homePage.reviewRate': '评审率',
+  'workbench.homePage.passRate': '通过率',
+  'workbench.homePage.coverRate': '覆盖率',
+  'workbench.homePage.executeRate': '执行率',
+  'workbench.homePage.completeRate': '完成率',
+  'workbench.homePage.legacyRate': '遗留率',
 };

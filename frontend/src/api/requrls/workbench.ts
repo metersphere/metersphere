@@ -15,3 +15,7 @@ export const WorkTodoBugListUrl = '/dashboard/todo/bug/page'; // 工作台-待�
 export const WorkMemberViewDetailUrl = '/dashboard/project_member_view'; // 工作台-首页-人员概览
 export const WorkCaseCountDetailUrl = '/dashboard/case_count'; // 工作台-首页-用例数量
 export const WorkAssociateCaseDetailUrl = '/dashboard/associate_case_count'; // 工作台-首页-关联用例数量
+export const WorkBugHandlerDetailUrl = '/dashboard/bug_handle_user'; // 工作台-首页-缺陷处理人
+export const WorkApiChangeListUrl = '/dashboard/api_change'; // 工作台-首页-接口变更
+export const WorkCaseReviewDetailUrl = '/dashboard/review_case_count'; // 工作台-首页-用例评审数
+export const WorkReviewListUrl = '/dashboard/reviewing_by_me'; // 工作台-首页-待我评审

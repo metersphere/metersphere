@@ -93,6 +93,7 @@
         <DefectMemberBar
           v-else-if="item.key === WorkCardEnum.BUG_HANDLE_USER"
           v-model:projectIds="item.projectIds"
+          v-model:handleUsers="item.handleUsers"
           :item="item"
         />
         <DefectCount

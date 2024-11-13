@@ -12,6 +12,7 @@
           :search-keys="['name']"
           class="!w-[240px]"
           :prefix="t('workbench.homePage.project')"
+          @change="changeProject"
         >
         </MsSelect>
       </div>
@@ -57,6 +58,15 @@
             }}
           </a-tag>
         </template>
+        <template v-if="isNoPermission" #empty>
+          <div class="w-full">
+            <slot name="empty">
+              <div class="flex h-[40px] flex-col items-center justify-center">
+                <span class="text-[14px] text-[var(--color-text-4)]">{{ t('common.noResource') }}</span>
+              </div>
+            </slot>
+          </div>
+        </template>
       </MsBaseTable>
     </div>
   </div>
@@ -74,6 +84,7 @@
   import MsSelect from '@/components/business/ms-select';
   import passRateLine from '@/views/case-management/caseReview/components/passRateLine.vue';
 
+  import { workReviewList } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -130,7 +141,7 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(undefined, {
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(workReviewList, {
     columns,
     scroll: { x: '100%' },
     selectable: false,
@@ -138,19 +149,28 @@
     showSelectAll: false,
   });
 
-  function initData() {
-    const { startTime, endTime, dayNumber } = timeForm.value;
-    setLoadListParams({
-      current: 1,
-      pageSize: 5,
-      startTime: dayNumber ? null : startTime,
-      endTime: dayNumber ? null : endTime,
-      dayNumber: dayNumber ?? null,
-      projectIds: innerProjectIds.value,
-      organizationId: appStore.currentOrgId,
-      handleUsers: [],
-    });
-    loadList();
+  const isNoPermission = ref<boolean>(false);
+
+  async function initData() {
+    try {
+      const { startTime, endTime, dayNumber } = timeForm.value;
+      setLoadListParams({
+        startTime: dayNumber ? null : startTime,
+        endTime: dayNumber ? null : endTime,
+        dayNumber: dayNumber ?? null,
+        projectIds: innerProjectIds.value,
+        organizationId: appStore.currentOrgId,
+        handleUsers: [],
+      });
+      await loadList();
+    } catch (error) {
+      isNoPermission.value = error === 'no_project_permission';
+      // eslint-disable-next-line no-console
+    }
+  }
+
+  function changeProject() {
+    initData();
   }
 
   onMounted(() => {
@@ -162,7 +182,6 @@
     (val) => {
       if (val) {
         innerProjectIds.value = [val];
-        initData();
       }
     }
   );
