@@ -14,4 +14,5 @@ export interface ProjectListItem {
   deleteUser: string;
   enable: boolean;
   moduleIds: string[];
+  moduleSetting: string;
 }

@@ -3,10 +3,10 @@
     <template #popoverContent>
       <table class="min-w-[144px]">
         <tr v-if="props.type === testPlanTypeEnum.TEST_PLAN">
-          <td class="popover-label-td">
+          <td class="popover-label-td !pt-0">
             <div>{{ t('testPlan.testPlanIndex.threshold') }}</div>
           </td>
-          <td class="popover-value-td"> {{ detailCount.passThreshold }}% </td>
+          <td class="popover-value-td !pt-0"> {{ detailCount.passThreshold }}% </td>
         </tr>
         <tr>
           <td class="popover-label-td">

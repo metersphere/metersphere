@@ -58,4 +58,5 @@ export default {
   'ms.taskCenter.closeTaskSuccess': 'Task closed successfully',
   'ms.taskCenter.waitQueue': 'Waiting in line',
   'ms.taskCenter.caseName': 'Case name',
+  'ms.taskCenter.taskDetailErrorMsg': 'The resource pool is unavailable/restarted, please restart the task execution',
 };

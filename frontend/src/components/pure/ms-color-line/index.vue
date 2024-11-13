@@ -1,5 +1,5 @@
 <template>
-  <a-popover position="bottom" content-class="p-[16px]">
+  <a-popover position="bottom" content-class="ms-color-line-popper">
     <div class="color-bar" :style="{ borderRadius: props.radius }">
       <template v-for="(item, index) in colorData">
         <div v-if="item.percentage > 0" :key="index" :style="getStyle(item, index)"></div>
@@ -34,9 +34,21 @@
   };
 </script>
 
-<style scoped>
+<style lang="less">
+  .ms-color-line-popper {
+    padding: 16px;
+    .arco-popover-title {
+      @apply hidden;
+    }
+    .arco-popover-content {
+      @apply mt-0;
+    }
+  }
+</style>
+
+<style lang="less" scoped>
   .color-bar {
-    @apply flex w-full overflow-hidden;
+    @apply flex w-full  overflow-hidden;
 
     background-color: var(--color-text-n8);
   }

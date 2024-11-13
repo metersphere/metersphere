@@ -45,63 +45,11 @@
       {{ t(executeMethodMap[record.triggerMode]) }}
     </template>
     <template #executeRate="{ record }">
-      <a-popover
-        v-model:popup-visible="record.executeRatePopVisible"
-        trigger="hover"
-        position="bottom"
-        :disabled="record.caseTotal === 0 || record.status === ExecuteStatusEnum.PENDING"
-        @popup-visible-change="($event) => handleExecuteRatePopVisibleChange($event, record)"
-      >
-        <div>{{ record.executeRate || '0.00' }}%</div>
-        <template #content>
-          <a-spin :loading="record.loading" class="flex w-[130px] flex-col gap-[8px]">
-            <div class="ms-taskCenter-execute-rate-item">
-              <div class="ms-taskCenter-execute-rate-item-label">
-                {{ t('ms.taskCenter.executeFinishedRate') }}
-              </div>
-              <div class="ms-taskCenter-execute-rate-item-value">
-                {{ `${record.executeRate}%` }}
-              </div>
-            </div>
-            <div class="ms-taskCenter-execute-rate-item">
-              <div class="ms-taskCenter-execute-rate-item-label">
-                <div
-                  :class="`ms-taskCenter-execute-rate-item-label-point bg-[${executeFinishedRateMap.UN_EXECUTE.color}]`"
-                ></div>
-                {{ t(executeFinishedRateMap.UN_EXECUTE.label) }}
-              </div>
-              <div class="ms-taskCenter-execute-rate-item-value">{{ record.pendingCount }}</div>
-            </div>
-            <div class="ms-taskCenter-execute-rate-item">
-              <div class="ms-taskCenter-execute-rate-item-label">
-                <div
-                  :class="`ms-taskCenter-execute-rate-item-label-point bg-[${executeFinishedRateMap.SUCCESS.color}]`"
-                ></div>
-                {{ t(executeFinishedRateMap.SUCCESS.label) }}
-              </div>
-              <div class="ms-taskCenter-execute-rate-item-value">{{ record.successCount }}</div>
-            </div>
-            <div class="ms-taskCenter-execute-rate-item">
-              <div class="ms-taskCenter-execute-rate-item-label">
-                <div
-                  :class="`ms-taskCenter-execute-rate-item-label-point bg-[${executeFinishedRateMap.FAKE_ERROR.color}]`"
-                ></div>
-                {{ t(executeFinishedRateMap.FAKE_ERROR.label) }}
-              </div>
-              <div class="ms-taskCenter-execute-rate-item-value">{{ record.fakeErrorCount }}</div>
-            </div>
-            <div class="ms-taskCenter-execute-rate-item">
-              <div class="ms-taskCenter-execute-rate-item-label">
-                <div
-                  :class="`ms-taskCenter-execute-rate-item-label-point bg-[${executeFinishedRateMap.ERROR.color}]`"
-                ></div>
-                {{ t(executeFinishedRateMap.ERROR.label) }}
-              </div>
-              <div class="ms-taskCenter-execute-rate-item-value">{{ record.errorCount }}</div>
-            </div>
-          </a-spin>
-        </template>
-      </a-popover>
+      <executeRatePopper
+        v-model:visible="record.executeRatePopVisible"
+        :record="record"
+        :execute-task-statistics-request="currentExecuteTaskStatistics"
+      />
     </template>
     <template #action="{ record }">
       <MsButton
@@ -178,6 +126,7 @@
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import batchTaskReportDrawer from './batchTaskReportDrawer.vue';
   import execStatus from './execStatus.vue';
+  import executeRatePopper from './executeRatePopper.vue';
   import executionStatus from './executionStatus.vue';
   import CaseReportDrawer from '@/views/api-test/report/component/caseReportDrawer.vue';
   import ReportDetailDrawer from '@/views/api-test/report/component/reportDetailDrawer.vue';
@@ -225,7 +174,7 @@
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
   import { ExecuteStatusEnum, ExecuteTaskType } from '@/enums/taskCenter';
 
-  import { executeFinishedRateMap, executeMethodMap, executeResultMap, executeStatusMap } from './config';
+  import { executeMethodMap, executeResultMap, executeStatusMap } from './config';
 
   const props = defineProps<{
     type: 'system' | 'project' | 'org';
@@ -538,26 +487,6 @@
     initTaskStatistics();
   }
 
-  async function handleExecuteRatePopVisibleChange(visible: boolean, record: TaskCenterTaskItem) {
-    if (visible) {
-      try {
-        record.loading = true;
-        const res = await currentExecuteTaskStatistics([record.id]);
-        record.executeRate = res[0].executeRate;
-        record.pendingCount = res[0].pendingCount;
-        record.successCount = res[0].successCount;
-        record.fakeErrorCount = res[0].fakeErrorCount;
-        record.errorCount = res[0].errorCount;
-        record.caseTotal = res[0].caseTotal;
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      } finally {
-        record.loading = false;
-      }
-    }
-  }
-
   function showTaskDetail(id: string) {
     emit('goDetail', id);
   }
@@ -816,23 +745,4 @@
   await tableStore.initColumn(TableKeyEnum.TASK_CENTER_CASE_TASK, columns, 'drawer');
 </script>
 
-<style lang="less">
-  .ms-taskCenter-execute-rate-item {
-    @apply flex items-center justify-between;
-    .ms-taskCenter-execute-rate-item-label {
-      @apply flex items-center;
-
-      gap: 4px;
-      color: var(--color-text-4);
-      .ms-taskCenter-execute-rate-item-label-point {
-        width: 6px;
-        height: 6px;
-        border-radius: 100%;
-      }
-    }
-    .ms-taskCenter-execute-rate-item-value {
-      font-weight: 500;
-      color: var(--color-text-1);
-    }
-  }
-</style>
+<style lang="less"></style>

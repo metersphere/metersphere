@@ -25,7 +25,7 @@
     useDefaultArrowIcon?: boolean;
   }>();
   const emit = defineEmits<{
-    (e: 'change', val: string): void;
+    (e: 'change', val: string, project?: ProjectListItem): void;
   }>();
 
   const appStore = useAppStore();
@@ -33,6 +33,14 @@
   const project = defineModel<string>('project', {
     default: () => '',
   });
+
+  function selectProject(
+    value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
+  ) {
+    project.value = value as string;
+    const _project = projectList.value.find((item) => item.id === value);
+    emit('change', value as string, _project);
+  }
 
   onBeforeMount(async () => {
     if (!project.value) {
@@ -42,6 +50,7 @@
       if (appStore.currentOrgId) {
         const res = await getProjectList(appStore.getCurrentOrgId);
         projectList.value = res;
+        selectProject(project.value);
       } else {
         projectList.value = [];
       }
@@ -50,12 +59,6 @@
       console.log(error);
     }
   });
-
-  function selectProject(
-    value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
-  ) {
-    emit('change', value as string);
-  }
 </script>
 
 <style lang="less" scoped></style>

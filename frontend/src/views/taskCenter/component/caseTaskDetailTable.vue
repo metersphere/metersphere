@@ -63,6 +63,15 @@
       </template>
       <span v-else>-</span>
     </template>
+    <template #lineNum="{ record }">
+      <a-tooltip
+        v-if="record.errorMessage || !record.lineNum"
+        :content="!record.lineNum ? t('ms.taskCenter.taskDetailErrorMsg') : record.errorMessage"
+      >
+        <icon-exclamation-circle-fill class="min-w-[18px] !text-[rgb(var(--warning-6))]" />
+      </a-tooltip>
+      <div v-else>{{ record.lineNum }}</div>
+    </template>
     <template #action="{ record }">
       <MsButton
         v-if="[ExecuteStatusEnum.RUNNING, ExecuteStatusEnum.RERUNNING].includes(record.status)"
@@ -266,6 +275,7 @@
     {
       title: 'ms.taskCenter.queue',
       dataIndex: 'lineNum',
+      slotName: 'lineNum',
       width: 100,
       showDrag: true,
     },
@@ -631,7 +641,11 @@
       const res = await currentQueueRequest(ids);
       propsRes.value.data.forEach((item) => {
         const queue = res[item.id];
-        if (queue) {
+        if (item.errorMessage) {
+          item.lineNum = '';
+        } else if (queue === -1) {
+          item.lineNum = t('ms.taskCenter.waitQueue');
+        } else if (queue) {
           item.lineNum = queue;
         } else if (
           [ExecuteStatusEnum.COMPLETED, ExecuteStatusEnum.STOPPED, ExecuteStatusEnum.RUNNING].includes(item.status) ||
@@ -639,7 +653,7 @@
         ) {
           item.lineNum = '-';
         } else {
-          item.lineNum = t('ms.taskCenter.waitQueue');
+          item.lineNum = '';
         }
       });
     } catch (error) {

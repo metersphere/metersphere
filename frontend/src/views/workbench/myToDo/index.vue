@@ -2,7 +2,12 @@
   <div class="flex flex-col gap-[16px]">
     <template v-if="appStore.projectList.length > 0">
       <div class="flex items-center justify-end gap-[12px]">
-        <MsProjectSelect v-model:project="currentProject" class="w-[240px]" use-default-arrow-icon>
+        <MsProjectSelect
+          v-model:project="currentProject"
+          class="w-[240px]"
+          use-default-arrow-icon
+          @change="handleRefresh"
+        >
           <template #prefix>
             {{ t('menu.projectManagementShort') }}
           </template>
@@ -18,7 +23,7 @@
           :has-all-select="true"
           :default-all-select="true"
         />
-        <a-button type="outline" class="arco-btn-outline--secondary p-[10px]" @click="handleRefresh">
+        <a-button type="outline" class="arco-btn-outline--secondary p-[10px]" @click="() => handleRefresh()">
           <MsIcon type="icon-icon_reset_outlined" size="14" />
         </a-button>
       </div>
@@ -47,6 +52,8 @@
 </template>
 
 <script setup lang="ts">
+  import { SelectOptionData } from '@arco-design/web-vue';
+
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsProjectSelect from '@/components/business/ms-project-select/index.vue';
   import MsSelect from '@/components/business/ms-select';
@@ -59,22 +66,33 @@
   import useAppStore from '@/store/modules/app';
   import { getGenerateId } from '@/utils';
 
+  import { ProjectListItem } from '@/models/setting/project';
   import { FeatureEnum } from '@/enums/workbenchEnum';
+
+  import { featuresMap } from '../components/config';
 
   const { t } = useI18n();
   const appStore = useAppStore();
 
   const currentProject = ref(appStore.currentProjectId);
-  const features = ref<FeatureEnum[]>(Object.values(FeatureEnum));
-  const featureOptions = Object.keys(FeatureEnum)
+  const features = ref<FeatureEnum[]>([]);
+  const fullFeaturesOptions = Object.keys(FeatureEnum)
     .filter((e) => [FeatureEnum.TEST_PLAN, FeatureEnum.CASE_REVIEW, FeatureEnum.BUG].includes(e as FeatureEnum))
     .map((key) => ({
       label: t(`ms.workbench.myFollowed.feature.${key}`),
       value: key as FeatureEnum,
     }));
+  const featureOptions = ref<SelectOptionData[]>([]);
   const refreshId = ref('');
 
-  function handleRefresh() {
+  function handleRefresh(val?: string, _project?: ProjectListItem) {
+    if (_project) {
+      const _currentProjectFeatures = JSON.parse(_project.moduleSetting);
+      featureOptions.value = fullFeaturesOptions.filter((item) =>
+        _currentProjectFeatures.includes(featuresMap[item.value])
+      );
+      features.value = featureOptions.value.map((item) => item.value as FeatureEnum);
+    }
     refreshId.value = getGenerateId();
   }
 </script>

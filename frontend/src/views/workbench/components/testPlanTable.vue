@@ -74,45 +74,7 @@
         </div>
       </template>
       <template #functionalCaseCount="{ record }">
-        <a-popover position="bottom" content-class="p-[16px]" :disabled="getFunctionalCount(record.id) < 1">
-          <div>{{ getFunctionalCount(record.id) }}</div>
-          <template #content>
-            <table class="min-w-[140px] max-w-[176px]">
-              <tr>
-                <td class="popover-label-td">
-                  <div>{{ t('testPlan.testPlanIndex.TotalCases') }}</div>
-                </td>
-                <td class="popover-value-td">
-                  {{ defaultCountDetailMap[record.id]?.caseTotal ?? '0' }}
-                </td>
-              </tr>
-              <tr>
-                <td class="popover-label-td">
-                  <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.functionalUseCase') }}</div>
-                </td>
-                <td class="popover-value-td">
-                  {{ defaultCountDetailMap[record.id]?.functionalCaseCount ?? '0' }}
-                </td>
-              </tr>
-              <tr>
-                <td class="popover-label-td">
-                  <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.apiCase') }}</div>
-                </td>
-                <td class="popover-value-td">
-                  {{ defaultCountDetailMap[record.id]?.apiCaseCount ?? '0' }}
-                </td>
-              </tr>
-              <tr>
-                <td class="popover-label-td">
-                  <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.apiScenarioCase') }}</div>
-                </td>
-                <td class="popover-value-td">
-                  {{ defaultCountDetailMap[record.id]?.apiScenarioCount ?? '0' }}
-                </td>
-              </tr>
-            </table>
-          </template>
-        </a-popover>
+        <caseCountPopper :id="record.id" :default-count-detail-map="defaultCountDetailMap" />
       </template>
     </MsBaseTable>
   </MsCard>
@@ -126,6 +88,7 @@
   import { MsTableColumn, MsTableProps } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
+  import caseCountPopper from '@/views/test-plan/testPlan/components/caseCountPopper.vue';
   import PlanExpandRow from '@/views/test-plan/testPlan/components/planExpandRow.vue';
   import StatusProgress from '@/views/test-plan/testPlan/components/statusProgress.vue';
 
@@ -157,10 +120,6 @@
   const showType = ref(testPlanTypeEnum.ALL);
 
   const defaultCountDetailMap = ref<Record<string, PassRateCountDetail>>({});
-
-  function getFunctionalCount(id: string) {
-    return defaultCountDetailMap.value[id]?.caseTotal ?? 0;
-  }
 
   function getStatus(id: string) {
     return defaultCountDetailMap.value[id]?.status;
@@ -325,4 +284,8 @@
   });
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  :deep(.arco-table-cell-expand-icon .arco-table-cell-inline-icon) {
+    display: none;
+  }
+</style>

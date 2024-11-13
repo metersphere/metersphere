@@ -58,4 +58,5 @@ export default {
   'ms.taskCenter.closeTaskSuccess': '任务关闭成功',
   'ms.taskCenter.waitQueue': '等待排队',
   'ms.taskCenter.caseName': '用例名称',
+  'ms.taskCenter.taskDetailErrorMsg': '资源池不可用/重启，请重新发起任务执行',
 };

@@ -179,45 +179,7 @@
       </div>
     </template>
     <template #functionalCaseCount="{ record }">
-      <a-popover position="bottom" content-class="p-[16px]" :disabled="getFunctionalCount(record.id) < 1">
-        <div>{{ getFunctionalCount(record.id) }}</div>
-        <template #content>
-          <table class="min-w-[140px] max-w-[176px]">
-            <tr>
-              <td class="popover-label-td">
-                <div>{{ t('testPlan.testPlanIndex.TotalCases') }}</div>
-              </td>
-              <td class="popover-value-td">
-                {{ defaultCountDetailMap[record.id]?.caseTotal ?? '0' }}
-              </td>
-            </tr>
-            <tr>
-              <td class="popover-label-td">
-                <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.functionalUseCase') }}</div>
-              </td>
-              <td class="popover-value-td">
-                {{ defaultCountDetailMap[record.id]?.functionalCaseCount ?? '0' }}
-              </td>
-            </tr>
-            <tr>
-              <td class="popover-label-td">
-                <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.apiCase') }}</div>
-              </td>
-              <td class="popover-value-td">
-                {{ defaultCountDetailMap[record.id]?.apiCaseCount ?? '0' }}
-              </td>
-            </tr>
-            <tr>
-              <td class="popover-label-td">
-                <div class="text-[var(--color-text-1)]">{{ t('testPlan.testPlanIndex.apiScenarioCase') }}</div>
-              </td>
-              <td class="popover-value-td">
-                {{ defaultCountDetailMap[record.id]?.apiScenarioCount ?? '0' }}
-              </td>
-            </tr>
-          </table>
-        </template>
-      </a-popover>
+      <caseCountPopper :id="record.id" :default-count-detail-map="defaultCountDetailMap" />
     </template>
 
     <template #operation="{ record }">
@@ -384,6 +346,7 @@
   import ActionModal from './actionModal.vue';
   import BatchEditModal from './batchEditModal.vue';
   import BatchMoveOrCopy from './batchMoveOrCopy.vue';
+  import caseCountPopper from './caseCountPopper.vue';
   import ScheduledModal from './scheduledModal.vue';
   import StatusProgress from './statusProgress.vue';
   import PlanExpandRow from '@/views/test-plan/testPlan/components/planExpandRow.vue';
@@ -1744,17 +1707,5 @@
   }
   :deep(.arco-table-cell-align-left) > span:first-child {
     padding-left: 0 !important;
-  }
-  .popover-label-td {
-    @apply flex items-center;
-
-    padding: 8px 8px 0 0;
-    color: var(--color-text-4);
-  }
-  .popover-value-td {
-    @apply text-right font-medium;
-
-    padding-top: 8px;
-    color: var(--color-text-1);
   }
 </style>
