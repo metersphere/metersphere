@@ -558,7 +558,7 @@ public class DashboardService {
     public StatisticsDTO projectCaseCount(DashboardFrontPageRequest request) {
         String projectId = request.getProjectIds().getFirst();
         StatisticsDTO statisticsDTO = new StatisticsDTO();
-        if (Boolean.FALSE.equals(checkModule(projectId, FUNCTIONAL_CASE_MODULE))) {
+        if (Boolean.FALSE.equals(projectService.checkModule(projectId, FUNCTIONAL_CASE_MODULE))) {
             statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
             return statisticsDTO;
         }
@@ -576,12 +576,6 @@ public class DashboardService {
         statusStatisticsMap.put("pass", passList);
         statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
         return statisticsDTO;
-    }
-
-    private Boolean checkModule(String projectId, String module) {
-        Project project = projectMapper.selectByPrimaryKey(projectId);
-        List<String> moduleIds = JSON.parseArray(project.getModuleSetting(), String.class);
-        return moduleIds.contains(module);
     }
 
     @NotNull
@@ -661,7 +655,7 @@ public class DashboardService {
     public StatisticsDTO projectAssociateCaseCount(DashboardFrontPageRequest request) {
         String projectId = request.getProjectIds().getFirst();
         StatisticsDTO statisticsDTO = new StatisticsDTO();
-        if (Boolean.FALSE.equals(checkModule(projectId, FUNCTIONAL_CASE_MODULE))) {
+        if (Boolean.FALSE.equals(projectService.checkModule(projectId, FUNCTIONAL_CASE_MODULE))) {
             statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
             return statisticsDTO;
         }
@@ -678,7 +672,7 @@ public class DashboardService {
 
     public OverViewCountDTO projectBugHandleUser(DashboardFrontPageRequest request) {
         String projectId = request.getProjectIds().getFirst();
-        if (Boolean.FALSE.equals(checkModule(projectId, BUG_MODULE)))
+        if (Boolean.FALSE.equals(projectService.checkModule(projectId, BUG_MODULE)))
             return new OverViewCountDTO(null, new ArrayList<>(), new ArrayList<>());
         Long toStartTime = request.getToStartTime();
         Long toEndTime = request.getToEndTime();
@@ -811,7 +805,7 @@ public class DashboardService {
     public StatisticsDTO projectReviewCaseCount(DashboardFrontPageRequest request) {
         String projectId = request.getProjectIds().getFirst();
         StatisticsDTO statisticsDTO = new StatisticsDTO();
-        if (Boolean.FALSE.equals(checkModule(projectId, FUNCTIONAL_CASE_MODULE))) {
+        if (Boolean.FALSE.equals(projectService.checkModule(projectId, FUNCTIONAL_CASE_MODULE))) {
             statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
             return statisticsDTO;
         }
@@ -887,7 +881,7 @@ public class DashboardService {
 
     public Pager<List<CaseReviewDTO>> getFunctionalCasePage(DashboardFrontPageRequest request) {
         String projectId = request.getProjectIds().getFirst();
-        if (Boolean.FALSE.equals(checkModule(projectId, FUNCTIONAL_CASE_MODULE))) {
+        if (Boolean.FALSE.equals(projectService.checkModule(projectId, FUNCTIONAL_CASE_MODULE))) {
             throw new MSException(NO_PROJECT_PERMISSION);
         }
         CaseReviewPageRequest reviewRequest = getCaseReviewPageRequest(request);
@@ -939,7 +933,7 @@ public class DashboardService {
 
     public List<ApiDefinitionUpdateDTO> getApiUpdatePage(DashboardFrontPageRequest request) {
         String projectId = request.getProjectIds().getFirst();
-        if (Boolean.FALSE.equals(checkModule(projectId, API_TEST_MODULE))) {
+        if (Boolean.FALSE.equals(projectService.checkModule(projectId, API_TEST_MODULE))) {
             throw new MSException(NO_PROJECT_PERMISSION);
         }
         Long toStartTime = request.getToStartTime();
