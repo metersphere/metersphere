@@ -13,6 +13,7 @@
       ]"
       bordered
       :row-class="rowClass"
+      :filter="filterData"
       v-on="propsEvent"
       @drag-change="tableChange"
       @init-end="validateAndUpdateErrorMessageList"
@@ -355,7 +356,7 @@
   const expandedKeys = defineModel<string[]>('expandedKeys', { default: [] });
   const originalSelectedKeys = defineModel<(string | number)[]>('originalSelectedKeys', { default: [] });
 
-  const filterData = ref({});
+  const filterData = ref<Record<string, any>>({});
 
   async function initColumns() {
     if (props.showSetting && props.tableKey) {
@@ -407,6 +408,7 @@
     dataIndex: string,
     isCustomParam: boolean
   ) => {
+    filterData.value[dataIndex] = value;
     emit('filterChange', dataIndex, value, isCustomParam);
   };
 
