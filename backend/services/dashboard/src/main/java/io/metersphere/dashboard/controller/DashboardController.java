@@ -121,12 +121,33 @@ public class DashboardController {
         return dashboardService.projectApiCaseCount(request, SessionUtils.getUserId());
     }
 
-
     @PostMapping("/scenario_count")
     @Operation(summary = "场景数量统计")
     @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public StatisticsDTO projectApiScenarioCount(@Validated @RequestBody DashboardFrontPageRequest request) {
         return dashboardService.projectApiScenarioCount(request, SessionUtils.getUserId());
+    }
+
+
+    @PostMapping("/bug_count")
+    @Operation(summary = "缺陷数量统计")
+    @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
+    public StatisticsDTO projectBugCount(@Validated @RequestBody DashboardFrontPageRequest request) {
+        return dashboardService.projectBugCount(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/create_bug_by_me")
+    @Operation(summary = "我创建的缺陷")
+    @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
+    public StatisticsDTO projectBugCountCreateByMe(@Validated @RequestBody DashboardFrontPageRequest request) {
+        return dashboardService.projectBugCountCreateByMe(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/handle_bug_by_me")
+    @Operation(summary = "我创建的缺陷")
+    @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
+    public StatisticsDTO projectBugCountHandleByMe(@Validated @RequestBody DashboardFrontPageRequest request) {
+        return dashboardService.projectBugCountHandleByMe(request, SessionUtils.getUserId());
     }
 
 

@@ -12,6 +12,7 @@ import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.api.mapper.ExtApiTestCaseMapper;
 import io.metersphere.api.service.ApiTestService;
+import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.enums.BugPlatform;
 import io.metersphere.bug.mapper.ExtBugMapper;
 import io.metersphere.bug.service.BugCommonService;
@@ -1135,7 +1136,6 @@ public class DashboardService {
     @NotNull
     private static List<NameCountDTO> getExecRateDTOS(int unExecSize, int simpleAllApiCaseSize, String name) {
         List<NameCountDTO> execRateDTOS = new ArrayList<>();
-
         NameCountDTO execRateDTO = new NameCountDTO();
         execRateDTO.setName(name);
         if (simpleAllApiCaseSize == 0) {
@@ -1202,6 +1202,97 @@ public class DashboardService {
         statusStatisticsMap.put("apiScenarioCount", apiCaseDTOS);
         statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
         return statisticsDTO;
+    }
+
+    public StatisticsDTO baseProjectBugCount(DashboardFrontPageRequest request, String userId, Boolean hasHandleUser, Boolean hasCreateUser){
+        String projectId = request.getProjectIds().getFirst();
+        StatisticsDTO statisticsDTO = new StatisticsDTO();
+        if (Boolean.FALSE.equals(permissionCheckService.checkModule(projectId, BUG_MODULE, userId, PermissionConstants.PROJECT_BUG_READ))) {
+            statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
+            return statisticsDTO;
+        }
+        Long toStartTime = request.getToStartTime();
+        Long toEndTime = request.getToEndTime();
+        String handleUser = hasHandleUser ? userId : null;
+        String createUser = hasCreateUser ? userId :null;
+        Set<String> platforms = getPlatforms(projectId);
+        List<Bug> allSimpleList = extBugMapper.getSimpleList(projectId, null, null, handleUser, createUser, platforms);
+        List<String> localLastStepStatus = bugCommonService.getLocalLastStepStatus(projectId);
+        List<String> platformLastStepStatus = new ArrayList<>();
+        //TODO: 第三方的单元测试没成功
+        /*try {
+            platformLastStepStatus = bugCommonService.getPlatformLastStepStatus(projectId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }*/
+        localLastStepStatus.addAll(platformLastStepStatus);
+        List<Bug> statusList = allSimpleList.stream().filter(t -> !localLastStepStatus.contains(t.getStatus())).toList();
+        int statusSize = CollectionUtils.isEmpty(statusList) ? 0 : statusList.size();
+        int totalSize = CollectionUtils.isEmpty(allSimpleList) ? 0 : allSimpleList.size();
+        List<NameCountDTO> nameCountDTOS = buildBugRetentionRateList(totalSize, statusSize);
+        Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
+        statusStatisticsMap.put("retentionRate",nameCountDTOS);
+        List<SelectOption> headerStatusOption = bugStatusService.getHeaderStatusOption(projectId);
+        List<Bug> simpleList = extBugMapper.getSimpleList(projectId, toStartTime, toEndTime,handleUser, createUser, platforms);
+        Map<String, List<Bug>> bugMap = simpleList.stream().collect(Collectors.groupingBy(Bug::getStatus));
+        List<StatusPercentDTO> bugPercentList = bulidBugPercentList(headerStatusOption, bugMap, simpleList);
+        statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
+        statisticsDTO.setStatusPercentList(bugPercentList);
+        return statisticsDTO;
+    }
+
+
+
+
+    private static List<NameCountDTO> buildBugRetentionRateList(int totalSize, int statusSize) {
+        List<NameCountDTO> retentionRates = new ArrayList<>();
+        NameCountDTO retentionRate = new NameCountDTO();
+        retentionRate.setName(Translator.get("bug_management.retentionRate"));
+        if (totalSize ==0) {
+            retentionRate.setCount(0);
+        } else {
+            BigDecimal divide = BigDecimal.valueOf(statusSize).divide(BigDecimal.valueOf(totalSize), 2, RoundingMode.HALF_UP);
+            retentionRate.setCount(getTurnCount(divide));
+        }
+        retentionRates.add(retentionRate);
+        NameCountDTO total = getNameCountDTO(totalSize, Translator.get("bug_management.totalCount"));
+        retentionRates.add(total);
+        NameCountDTO retentionDTO = getNameCountDTO(statusSize, Translator.get("bug_management.retentionCount"));
+        retentionRates.add(retentionDTO);
+        return retentionRates;
+    }
+
+    private static List<StatusPercentDTO> bulidBugPercentList(List<SelectOption> headerStatusOption, Map<String, List<Bug>> bugMap, List<Bug> simpleList) {
+        List<StatusPercentDTO>statusPercentList = new ArrayList<>();
+        int simpleSize = CollectionUtils.isEmpty(simpleList) ? 0 : simpleList.size();
+        for (SelectOption selectOption : headerStatusOption) {
+            StatusPercentDTO statusPercentDTO = new StatusPercentDTO();
+            statusPercentDTO.setStatus(selectOption.getText());
+            List<Bug> bugs = bugMap.get(selectOption.getValue());
+            int bugSize = CollectionUtils.isEmpty(bugs) ? 0 : bugs.size();
+            if (simpleSize == 0) {
+                statusPercentDTO.setPercentValue("0%");
+                statusPercentDTO.setCount(0);
+            } else {
+                BigDecimal divide = BigDecimal.valueOf(bugSize).divide(BigDecimal.valueOf(simpleSize), 2, RoundingMode.HALF_UP);
+                statusPercentDTO.setPercentValue(divide.multiply(BigDecimal.valueOf(100)) + "%");
+                statusPercentDTO.setCount(bugSize);
+            }
+            statusPercentList.add(statusPercentDTO);
+        }
+        return statusPercentList;
+    }
+
+    public StatisticsDTO projectBugCount(DashboardFrontPageRequest request, String userId) {
+        return baseProjectBugCount(request,userId,false,false);
+    }
+
+    public StatisticsDTO projectBugCountCreateByMe(DashboardFrontPageRequest request, String userId) {
+        return baseProjectBugCount(request,userId,false,true);
+    }
+
+    public StatisticsDTO projectBugCountHandleByMe(DashboardFrontPageRequest request, String userId) {
+        return baseProjectBugCount(request,userId,true,false);
     }
 }
 

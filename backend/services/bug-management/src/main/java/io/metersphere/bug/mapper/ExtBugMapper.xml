@@ -449,5 +449,27 @@
         group by bug.handle_user, bug.status order by bug.handle_user;
     </select>
 
+    <select id="getSimpleList" resultType="io.metersphere.bug.domain.Bug">
+        SELECT bug.id, bug.status, bug.platform, bug.platform_bug_id
+        FROM bug
+        WHERE bug.deleted = false
+        AND bug.project_id = #{projectId}
+        <if test="startTime != null and endTime != null">
+            AND bug.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
+        <if test="handleUser != null and handleUser != ''">
+            AND bug.handle_user = #{handleUser}
+        </if>
+        <if test="createUser != null and createUser != ''">
+            AND bug.create_user = #{createUser}
+        </if>
+        <if test="platforms != null and platforms.size() > 0">
+            AND bug.platform IN
+            <foreach collection="platforms" item="platform" separator="," open="(" close=")">
+                #{platform}
+            </foreach>
+        </if>
+    </select>
+
 </mapper>
 

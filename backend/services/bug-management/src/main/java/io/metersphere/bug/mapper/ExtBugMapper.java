@@ -1,5 +1,6 @@
 package io.metersphere.bug.mapper;
 
+import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.dto.request.BugBatchUpdateRequest;
 import io.metersphere.bug.dto.request.BugPageRequest;
 import io.metersphere.bug.dto.response.BugDTO;
@@ -135,4 +136,5 @@ public interface ExtBugMapper {
      */
     List<ProjectUserStatusCountDTO> projectUserBugStatusCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userIds") List<String> userIds, @Param("platforms") Set<String> platforms);
 
+    List<Bug>getSimpleList(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime,@Param("handleUser") String handleUser,@Param("createUser") String createUser, @Param("platforms") Set<String> platforms);
 }

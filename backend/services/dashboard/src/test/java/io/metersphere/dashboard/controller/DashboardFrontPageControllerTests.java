@@ -21,11 +21,15 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.request.ProjectMemberRequest;
 import io.metersphere.project.service.ProjectMemberService;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.base.BasePluginTestService;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
+import org.mockserver.client.MockServerClient;
+import org.mockserver.model.Header;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
@@ -37,6 +41,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -56,6 +62,14 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     private BugStatusService bugStatusService;
     @Resource
     private BugMapper bugMapper;
+    @Resource
+    private BasePluginTestService basePluginTestService;
+    @Resource
+    private MockServerClient mockServerClient;
+    @Value("${embedded.mockserver.host}")
+    private String mockServerHost;
+    @Value("${embedded.mockserver.port}")
+    private int mockServerHostPort;
 
     private static final String EDIT_LAYOUT = "/dashboard/layout/edit/";
     private static final String GET_LAYOUT = "/dashboard/layout/get/";
@@ -71,6 +85,11 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     private static final String API_COUNT = "/dashboard/api_count";
     private static final String API_CASE_COUNT = "/dashboard/api_case_count";
     private static final String SCENARIO_COUNT = "/dashboard/scenario_count";
+    private static final String BUG_COUNT = "/dashboard/bug_count";
+    private static final String CREATE_BUG_BY_ME = "/dashboard/create_bug_by_me";
+    private static final String HANDLE_BUG_BY_ME = "/dashboard/handle_bug_by_me";
+
+
 
     private static final String REVIEWING_BY_ME = "/dashboard/reviewing_by_me";
     private static final String API_CHANGE = "/dashboard/api_change";
@@ -256,6 +275,22 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void testOther() throws Exception {
+        basePluginTestService.addJiraPlugin();
+        basePluginTestService.addServiceIntegration(DEFAULT_ORGANIZATION_ID);
+        mockServerClient
+                .when(
+                        request()
+                                .withMethod("GET")
+                                .withPath("/rest/api/2/search"))
+                .respond(
+                        response()
+                                .withStatusCode(200)
+                                .withHeaders(
+                                        new Header("Content-Type", "application/json; charset=utf-8"),
+                                        new Header("Cache-Control", "public, max-age=86400"))
+                                .withBody("{\"id\":\"123456\",\"name\":\"test\", \"issues\": [{\"key\": \"TES-1\",\"fields\": {\"summary\": \"Test\"}}], \"total\": 1}")
+
+                );
         DashboardFrontPageRequest dashboardFrontPageRequest = new DashboardFrontPageRequest();
         dashboardFrontPageRequest.setOrganizationId(DEFAULT_ORGANIZATION_ID);
         dashboardFrontPageRequest.setDayNumber(null);
@@ -264,6 +299,8 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         dashboardFrontPageRequest.setCurrent(1);
         dashboardFrontPageRequest.setPageSize(5);
         dashboardFrontPageRequest.setProjectIds(List.of(DEFAULT_PROJECT_ID));
+        List<SelectOption> headerStatusOption = bugStatusService.getHeaderStatusOption(DEFAULT_PROJECT_ID);
+        buildBug(headerStatusOption);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(CASE_COUNT, dashboardFrontPageRequest);
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
@@ -294,6 +331,22 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         ResultHolder reviewResultHolder = JSON.parseObject(reviewContent, ResultHolder.class);
         StatisticsDTO reviewCount = JSON.parseObject(JSON.toJSONString(reviewResultHolder.getData()), StatisticsDTO.class);
         Assertions.assertNotNull(reviewCount);
+        MvcResult bugMvcResult = this.requestPostWithOkAndReturn(BUG_COUNT, dashboardFrontPageRequest);
+        String bugContentAsString = bugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder bugResultHolder = JSON.parseObject(bugContentAsString, ResultHolder.class);
+        StatisticsDTO bugCount = JSON.parseObject(JSON.toJSONString(bugResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(bugCount);
+        MvcResult createBugMvcResult = this.requestPostWithOkAndReturn(CREATE_BUG_BY_ME, dashboardFrontPageRequest);
+        String createBugContentAsString = createBugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder createBugResultHolder = JSON.parseObject(createBugContentAsString, ResultHolder.class);
+        StatisticsDTO createBugCount = JSON.parseObject(JSON.toJSONString(createBugResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(createBugCount);
+        MvcResult handleBugMvcResult = this.requestPostWithOkAndReturn(HANDLE_BUG_BY_ME, dashboardFrontPageRequest);
+        String handleBugContentAsString = handleBugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder handleBugResultHolder = JSON.parseObject(handleBugContentAsString, ResultHolder.class);
+        StatisticsDTO handleBugCount = JSON.parseObject(JSON.toJSONString(handleBugResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(handleBugCount);
+
         Project project = new Project();
         project.setModuleSetting("[]");
         project.setId(DEFAULT_PROJECT_ID);
@@ -329,6 +382,25 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         reviewResultHolder = JSON.parseObject(reviewContent, ResultHolder.class);
         reviewCount = JSON.parseObject(JSON.toJSONString(reviewResultHolder.getData()), StatisticsDTO.class);
         Assertions.assertNotNull(reviewCount);
+        bugMvcResult = this.requestPostWithOkAndReturn(BUG_COUNT, dashboardFrontPageRequest);
+        bugContentAsString = bugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        bugResultHolder = JSON.parseObject(bugContentAsString, ResultHolder.class);
+        bugCount = JSON.parseObject(JSON.toJSONString(bugResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(bugCount);
+
+        createBugMvcResult = this.requestPostWithOkAndReturn(CREATE_BUG_BY_ME, dashboardFrontPageRequest);
+        createBugContentAsString = createBugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        createBugResultHolder = JSON.parseObject(createBugContentAsString, ResultHolder.class);
+        createBugCount = JSON.parseObject(JSON.toJSONString(createBugResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(createBugCount);
+
+        handleBugMvcResult = this.requestPostWithOkAndReturn(HANDLE_BUG_BY_ME, dashboardFrontPageRequest);
+        handleBugContentAsString = handleBugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        handleBugResultHolder = JSON.parseObject(handleBugContentAsString, ResultHolder.class);
+        handleBugCount = JSON.parseObject(JSON.toJSONString(handleBugResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(handleBugCount);
+
+
         project.setModuleSetting("[\"apiTest\",\"testPlan\",\"caseManagement\",\"bugManagement\"]");
         project.setId(DEFAULT_PROJECT_ID);
         projectMapper.updateByPrimaryKeySelective(project);
@@ -366,6 +438,23 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         reviewResultHolder = JSON.parseObject(reviewContent, ResultHolder.class);
         reviewCount = JSON.parseObject(JSON.toJSONString(reviewResultHolder.getData()), StatisticsDTO.class);
         Assertions.assertNotNull(reviewCount);
+        bugMvcResult = this.requestPostWithOkAndReturn(BUG_COUNT, dashboardFrontPageRequest);
+        bugContentAsString = bugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        bugResultHolder = JSON.parseObject(bugContentAsString, ResultHolder.class);
+        bugCount = JSON.parseObject(JSON.toJSONString(bugResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(bugCount);
+
+        createBugMvcResult = this.requestPostWithOkAndReturn(CREATE_BUG_BY_ME, dashboardFrontPageRequest);
+        createBugContentAsString = createBugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        createBugResultHolder = JSON.parseObject(createBugContentAsString, ResultHolder.class);
+        createBugCount = JSON.parseObject(JSON.toJSONString(createBugResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(createBugCount);
+
+        handleBugMvcResult = this.requestPostWithOkAndReturn(HANDLE_BUG_BY_ME, dashboardFrontPageRequest);
+        handleBugContentAsString = handleBugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        handleBugResultHolder = JSON.parseObject(handleBugContentAsString, ResultHolder.class);
+        handleBugCount = JSON.parseObject(JSON.toJSONString(handleBugResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(handleBugCount);
 
     }
 

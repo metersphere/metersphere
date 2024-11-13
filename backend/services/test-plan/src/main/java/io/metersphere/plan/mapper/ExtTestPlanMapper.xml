@@ -823,6 +823,17 @@
         ) t
     </select>
 
+    <select id="getSimpleTestPlanList" resultType="io.metersphere.plan.domain.TestPlan">
+        SELECT test_plan.id, test_plan.status
+        FROM test_plan
+        WHERE test_plan.project_id =  #{projectId}
+        <if test="startTime != null and endTime != null">
+            AND test_plan.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
+    </select>
+
+
+
 
     <sql id="queryMyFollowGroupByTableRequest">
         <include refid="baseConditionQuery"/>

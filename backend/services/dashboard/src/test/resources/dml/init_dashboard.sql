@@ -62,13 +62,13 @@ INSERT INTO custom_field(id, name, scene, `type`, remark, internal, scope_type, 
 VALUES('gyq_custom_id1', 'functional_priority', 'FUNCTIONAL', 'SELECT', '', 1, 'ORGANIZATION', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'test_template_case_trash_id');
 
 INSERT INTO bug (id, num, title, handle_users, handle_user, create_user, create_time,update_user, update_time, delete_user, delete_time, project_id, template_id, platform, status, tags, platform_bug_id, deleted, pos)
-VALUES ('dashboard_bug1', 100001, 'oasis', 'admin', 'admin', 'admin', 1716185577387, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, '100001100001', 'bug-template-id', 'Local', 'open', '["default-tag"]', null, 0, 5000);
+VALUES ('dashboard_bug1', 100001, 'oasis', 'admin', 'admin', 'admin', 1697971947000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, '100001100001', 'bug-template-id', 'Local', 'open', '["default-tag"]', null, 0, 5000);
 
 INSERT INTO bug (id, num, title, handle_users, handle_user, create_user, create_time,update_user, update_time, delete_user, delete_time, project_id, template_id, platform, status, tags, platform_bug_id, deleted, pos)
-VALUES ('dashboard_bug2', 100002, 'oasis2', 'PROJECT', 'PROJECT', 'admin', 1716185577387, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, '100001100001', 'bug-template-id', 'Local', 'open', '["default-tag"]', null, 0, 5000);
+VALUES ('dashboard_bug2', 100002, 'oasis2', 'PROJECT', 'PROJECT', 'admin', 1697971947000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, '100001100001', 'bug-template-id', 'Local', 'open', '["default-tag"]', null, 0, 5000);
 
 INSERT INTO bug (id, num, title, handle_users, handle_user, create_user, create_time,update_user, update_time, delete_user, delete_time, project_id, template_id, platform, status, tags, platform_bug_id, deleted, pos)
-VALUES ('dashboard_bug3', 100003, 'oasis3', 'admin', 'admin', 'admin', 1716185577387, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, '100001100001', 'bug-template-id', 'Local', 'open', '["default-tag"]', null, 0, 5000);
+VALUES ('dashboard_bug3', 100003, 'oasis3', 'admin', 'admin', 'admin', 1697971947000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, '100001100001', 'bug-template-id', 'Local', 'open', '["default-tag"]', null, 0, 5000);
 
 INSERT INTO api_definition(id, name, protocol, method, path, status, num, tags, pos, project_id, module_id, latest, version_id, ref_id, description, create_time, create_user, update_time, update_user, delete_user, delete_time, deleted)
 VALUES ('dashboard_api_definition_id_1', 'gyq_associate_api_definition_id_1', 'HTTP', 'POST','api/test','DONE', 1000001, null, 1, '100001100001' , 'gyq_associate_test_module', true, 'v1.10','gyq_associate_api_definition_id_1', null, 1697971947000,'admin', 1697971947000,'admin', null,null,false);
