@@ -15,7 +15,6 @@
       :content-style="{ width: `${triggerWidth}px` }"
     >
       <a-tree-select
-        :id="treeSelectId"
         ref="treeSelectRef"
         v-model:model-value="checkedKeys"
         v-model:input-value="inputValue"
@@ -96,7 +95,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useSelect from '@/hooks/useSelect';
-  import { findNodeByKey, getGenerateId } from '@/utils';
+  import { findNodeByKey } from '@/utils';
 
   import type { TreeFieldNames, TreeNodeData } from '@arco-design/web-vue';
 
@@ -116,7 +115,6 @@
 
   const { t } = useI18n();
 
-  const treeSelectId = ref(getGenerateId()); // 区分同时有两个组件的情况
   const viewSelectOptionVisible = ref(false);
 
   const selectValue = defineModel<Array<string | number>>('modelValue', { required: true, default: [] });
@@ -248,7 +246,7 @@
 
   const triggerWidth = ref<number>(280); // 下拉框的宽度
   function updateTriggerWidth() {
-    const treeSelectInput = document.getElementById(treeSelectId.value) as HTMLElement;
+    const treeSelectInput = treeSelectRef.value?.$el.nextElementSibling as HTMLElement;
     if (treeSelectInput) {
       triggerWidth.value = treeSelectInput.offsetWidth; // 设置成输入框的宽度
     }
