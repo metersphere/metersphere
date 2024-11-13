@@ -52,6 +52,7 @@ public interface ExtTestPlanReportMapper {
 
     List<TaskCenterDTO> getChildTaskCenter(@Param("ids") List<String> groupReportIds);
 
+    @BaseConditionFilter
     List<TestPlanReportDetailResponse> getPlanReportListById(@Param("request") TestPlanReportDetailPageRequest request);
 
     List<ReportDTO> getReports(@Param("request") TaskCenterBatchRequest request, @Param("projectIds") List<String> projectIds,
