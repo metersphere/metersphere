@@ -903,7 +903,9 @@
         LEFT JOIN functional_case_custom_field fccf ON fccf.case_id = fc.id
         LEFT JOIN custom_field cf ON cf.id = fccf.field_id
         WHERE fc.deleted = false
-          AND fc.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND fc.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
           AND fc.project_id = #{projectId}
           AND cf.name = 'functional_priority'
           AND cf.scene = 'FUNCTIONAL'
@@ -919,7 +921,9 @@
         where fct.project_id = #{projectId}
           and fc.project_id = #{projectId}
           and fc.deleted = false
-          and fc.create_time between #{startTime} and #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND fc.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
     </select>
 
     <select id="simpleCaseCount"
@@ -929,7 +933,9 @@
         from functional_case
         where functional_case.deleted = false
           and functional_case.project_id = #{projectId}
-          and functional_case.create_time between #{startTime} and #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND functional_case.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
     </select>
 
     <select id="getProjectIdByIds" resultType="io.metersphere.functional.domain.FunctionalCase">
@@ -948,8 +954,9 @@
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
-        AND functional_case.create_time BETWEEN #{startTime} AND #{endTime}
-
+        <if test="startTime != null and endTime != null">
+            AND functional_case.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         <if test="userId != null and userId != ''">
             AND functional_case.create_user = #{userId}
         </if>
@@ -962,7 +969,9 @@
         FROM functional_case
         WHERE functional_case.deleted = false
         AND functional_case.project_id =  #{projectId}
-        AND functional_case.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND functional_case.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         <if test="userIds != null and userIds.size() > 0">
             and functional_case.create_user in
             <foreach collection="userIds" item="userId" separator="," open="(" close=")">

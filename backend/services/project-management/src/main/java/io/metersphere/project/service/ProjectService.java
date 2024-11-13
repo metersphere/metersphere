@@ -12,7 +12,6 @@ import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.TestResourcePoolBlob;
@@ -330,10 +329,5 @@ public class ProjectService {
         }
     }
 
-    public Boolean checkModule(String projectId, String module) {
-        Project project = projectMapper.selectByPrimaryKey(projectId);
-        List<String> moduleIds = JSON.parseArray(project.getModuleSetting(), String.class);
-        return moduleIds.contains(module);
-    }
 }
 

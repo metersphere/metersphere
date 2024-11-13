@@ -68,10 +68,13 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     private static final String ASSOCIATE_CASE_COUNT = "/dashboard/associate_case_count";
     private static final String REVIEW_CASE_COUNT = "/dashboard/review_case_count";
     private static final String BUG_HANDLE_USER = "/dashboard/bug_handle_user";
+    private static final String API_COUNT = "/dashboard/api_count";
+    private static final String API_CASE_COUNT = "/dashboard/api_case_count";
+    private static final String SCENARIO_COUNT = "/dashboard/scenario_count";
 
     private static final String REVIEWING_BY_ME = "/dashboard/reviewing_by_me";
     private static final String API_CHANGE = "/dashboard/api_change";
-
+    private static final String BUG_HANDLE_USER_LIST = "/dashboard/bug_handle_user/list/";
 
     @Test
     @Order(1)
@@ -142,7 +145,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         projectMapper.updateByPrimaryKeySelective(project);
         OverViewCountDTO gyq4 = dashboardService.projectViewCount(dashboardFrontPageRequest, "default-dashboard-member-user-gyq");
         Assertions.assertTrue(gyq4.getXAxis().isEmpty());
-        OverViewCountDTO gyq5 = dashboardService.projectBugHandleUser(dashboardFrontPageRequest);
+        OverViewCountDTO gyq5 = dashboardService.projectBugHandleUser(dashboardFrontPageRequest, "admin");
         Assertions.assertTrue(gyq5.getXAxis().isEmpty());
         project.setModuleSetting("[\"apiTest\",\"testPlan\",\"caseManagement\",\"bugManagement\"]");
         project.setId(DEFAULT_PROJECT_ID);
@@ -266,6 +269,21 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         StatisticsDTO moduleCount = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), StatisticsDTO.class);
         Assertions.assertNotNull(moduleCount);
+        MvcResult apiMvcResult = this.requestPostWithOkAndReturn(API_COUNT, dashboardFrontPageRequest);
+        String apiContentAsString = apiMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder apiResultHolder = JSON.parseObject(apiContentAsString, ResultHolder.class);
+        StatisticsDTO apiCount = JSON.parseObject(JSON.toJSONString(apiResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(apiCount);
+        MvcResult apiCaseMvcResult = this.requestPostWithOkAndReturn(API_CASE_COUNT, dashboardFrontPageRequest);
+        String apiCaseContentAsString = apiCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder apiCaseResultHolder = JSON.parseObject(apiCaseContentAsString, ResultHolder.class);
+        StatisticsDTO apiCaseCount = JSON.parseObject(JSON.toJSONString(apiCaseResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(apiCaseCount);
+        MvcResult scenarioMvcResult = this.requestPostWithOkAndReturn(SCENARIO_COUNT, dashboardFrontPageRequest);
+        String scenarioContentAsString = scenarioMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder scenarioResultHolder = JSON.parseObject(scenarioContentAsString, ResultHolder.class);
+        StatisticsDTO scenarioCount = JSON.parseObject(JSON.toJSONString(scenarioResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(scenarioCount);
         MvcResult associateMvcResult = this.requestPostWithOkAndReturn(ASSOCIATE_CASE_COUNT, dashboardFrontPageRequest);
         String associateContent = associateMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder associateResultHolder = JSON.parseObject(associateContent, ResultHolder.class);
@@ -285,6 +303,22 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         moduleCount = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), StatisticsDTO.class);
         Assertions.assertNotNull(moduleCount);
+        apiMvcResult = this.requestPostWithOkAndReturn(API_COUNT, dashboardFrontPageRequest);
+        apiContentAsString = apiMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        apiResultHolder = JSON.parseObject(apiContentAsString, ResultHolder.class);
+        apiCount = JSON.parseObject(JSON.toJSONString(apiResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(apiCount);
+        apiCaseMvcResult = this.requestPostWithOkAndReturn(API_CASE_COUNT, dashboardFrontPageRequest);
+        apiCaseContentAsString = apiCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        apiCaseResultHolder = JSON.parseObject(apiCaseContentAsString, ResultHolder.class);
+        apiCaseCount = JSON.parseObject(JSON.toJSONString(apiCaseResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(apiCaseCount);
+        scenarioMvcResult = this.requestPostWithOkAndReturn(SCENARIO_COUNT, dashboardFrontPageRequest);
+        scenarioContentAsString = scenarioMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        scenarioResultHolder = JSON.parseObject(scenarioContentAsString, ResultHolder.class);
+        scenarioCount = JSON.parseObject(JSON.toJSONString(scenarioResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(scenarioCount);
+
         associateMvcResult = this.requestPostWithOkAndReturn(ASSOCIATE_CASE_COUNT, dashboardFrontPageRequest);
         associateContent = associateMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         associateResultHolder = JSON.parseObject(associateContent, ResultHolder.class);
@@ -306,6 +340,22 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         moduleCount = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), StatisticsDTO.class);
         Assertions.assertNotNull(moduleCount);
+        apiMvcResult = this.requestPostWithOkAndReturn(API_COUNT, dashboardFrontPageRequest);
+        apiContentAsString = apiMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        apiResultHolder = JSON.parseObject(apiContentAsString, ResultHolder.class);
+        apiCount = JSON.parseObject(JSON.toJSONString(apiResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(apiCount);
+        apiCaseMvcResult = this.requestPostWithOkAndReturn(API_CASE_COUNT, dashboardFrontPageRequest);
+        apiCaseContentAsString = apiCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        apiCaseResultHolder = JSON.parseObject(apiCaseContentAsString, ResultHolder.class);
+        apiCaseCount = JSON.parseObject(JSON.toJSONString(apiCaseResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(apiCaseCount);
+        scenarioMvcResult = this.requestPostWithOkAndReturn(SCENARIO_COUNT, dashboardFrontPageRequest);
+        scenarioContentAsString = scenarioMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        scenarioResultHolder = JSON.parseObject(scenarioContentAsString, ResultHolder.class);
+        scenarioCount = JSON.parseObject(JSON.toJSONString(scenarioResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(scenarioCount);
+
         associateMvcResult = this.requestPostWithOkAndReturn(ASSOCIATE_CASE_COUNT, dashboardFrontPageRequest);
         associateContent = associateMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         associateResultHolder = JSON.parseObject(associateContent, ResultHolder.class);
@@ -340,7 +390,6 @@ public class DashboardFrontPageControllerTests extends BaseTest {
                 Pager.class);
         List<ApiDefinitionUpdateDTO> apiList = apiTableData.getList();
         Assertions.assertNotNull(apiList);
-        System.out.println(JSON.toJSONString(apiList));
         dashboardFrontPageRequest.setStartTime(1697971947000L);
         dashboardFrontPageRequest.setEndTime(1700650347000L);
         mvcResult = this.requestPostWithOkAndReturn(REVIEWING_BY_ME, dashboardFrontPageRequest);
@@ -354,7 +403,6 @@ public class DashboardFrontPageControllerTests extends BaseTest {
                         JSON.parseObject(apiMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 Pager.class);
         apiList = apiTableData.getList();
-        System.out.println(JSON.toJSONString(apiList));
         Assertions.assertNotNull(apiList);
         Project project = new Project();
         project.setModuleSetting("[]");
@@ -367,5 +415,13 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         projectMapper.updateByPrimaryKeySelective(project);
     }
 
-
+    @Test
+    @Order(5)
+    public void testUserList() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(BUG_HANDLE_USER_LIST + DEFAULT_PROJECT_ID);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        List<SelectOption> list = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), SelectOption.class);
+        Assertions.assertNotNull(list);
+    }
 }

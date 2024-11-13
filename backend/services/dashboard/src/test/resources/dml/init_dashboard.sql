@@ -71,13 +71,41 @@ INSERT INTO bug (id, num, title, handle_users, handle_user, create_user, create_
 VALUES ('dashboard_bug3', 100003, 'oasis3', 'admin', 'admin', 'admin', 1716185577387, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, '100001100001', 'bug-template-id', 'Local', 'open', '["default-tag"]', null, 0, 5000);
 
 INSERT INTO api_definition(id, name, protocol, method, path, status, num, tags, pos, project_id, module_id, latest, version_id, ref_id, description, create_time, create_user, update_time, update_user, delete_user, delete_time, deleted)
-VALUES ('dashboard_api_definition_id_1', 'gyq_associate_api_definition_id_1', 'HTTP', 'POST','api/test','test-api-status', 1000001, null, 1, '100001100001' , 'gyq_associate_test_module', true, 'v1.10','gyq_associate_api_definition_id_1', null, 1697971947000,'admin', 1697971947000,'admin', null,null,false);
+VALUES ('dashboard_api_definition_id_1', 'gyq_associate_api_definition_id_1', 'HTTP', 'POST','api/test','DONE', 1000001, null, 1, '100001100001' , 'gyq_associate_test_module', true, 'v1.10','gyq_associate_api_definition_id_1', null, 1697971947000,'admin', 1697971947000,'admin', null,null,false);
 
 INSERT INTO api_definition(id, name, protocol, method, path, status, num, tags, pos, project_id, module_id, latest, version_id, ref_id, description, create_time, create_user, update_time, update_user, delete_user, delete_time, deleted)
-VALUES ('dashboard_api_definition_id_2', 'gyq_associate_api_definition_id_2', 'HTTP', 'POST','api/test','test-api-status', 1000001, null, 1, '100001100001' , 'gyq_associate_test_module', true, 'v1.10','gyq_associate_api_definition_id_1', null, 1697971947000,'admin', 1697971947000,'admin', null,null,false);
+VALUES ('dashboard_api_definition_id_2', 'gyq_associate_api_definition_id_2', 'TCP', 'POST','api/test','PROCESSING', 1000001, null, 1, '100001100001' , 'gyq_associate_test_module', true, 'v1.10','gyq_associate_api_definition_id_1', null, 1697971947000,'admin', 1697971947000,'admin', null,null,false);
+
+INSERT INTO api_definition(id, name, protocol, method, path, status, num, tags, pos, project_id, module_id, latest, version_id, ref_id, description, create_time, create_user, update_time, update_user, delete_user, delete_time, deleted)
+VALUES ('dashboard_api_definition_id_3', 'gyq_associate_api_definition_id_2', 'DUBBO', 'POST','api/test','DEPRECATED', 1000001, null, 1, '100001100001' , 'gyq_associate_test_module', true, 'v1.10','gyq_associate_api_definition_id_1', null, 1697971947000,'admin', 1697971947000,'admin', null,null,false);
+
+INSERT INTO api_definition(id, name, protocol, method, path, status, num, tags, pos, project_id, module_id, latest, version_id, ref_id, description, create_time, create_user, update_time, update_user, delete_user, delete_time, deleted)
+VALUES ('dashboard_api_definition_id_4', 'gyq_associate_api_definition_id_2', 'HTTP', 'POST','api/test','DEBUGGING', 1000001, null, 1, '100001100001' , 'gyq_associate_test_module', true, 'v1.10','gyq_associate_api_definition_id_1', null, 1697971947000,'admin', 1697971947000,'admin', null,null,false);
 
 INSERT INTO api_test_case(id, name, priority, num, tags, status, last_report_status, last_report_id, pos, project_id, api_definition_id, version_id, environment_id, create_time, create_user, update_time, update_user, delete_time, delete_user, deleted) VALUES
-    ('dashboard_ac_1', 'oasis_ac', 'P0', 1001, null, 'Underway', 'PENDING', null, 100, '100001100001', 'dashboard_api_definition_id_1', 'oasis_ac_version_id', 'oasis_ac_env_id', 1698058347559, 'admin', 1698058347559, 'admin', null, null, false);
+    ('dashboard_ac_1', 'oasis_ac', 'P0', 1001, null, 'Underway', 'PENDING', null, 100, '100001100001', 'dashboard_api_definition_id_1', 'oasis_ac_version_id', 'oasis_ac_env_id', 1697971947000, 'admin', 1698058347559, 'admin', null, null, false);
+
+INSERT INTO api_test_case(id, name, priority, num, tags, status, last_report_status, last_report_id, pos, project_id, api_definition_id, version_id, environment_id, create_time, create_user, update_time, update_user, delete_time, delete_user, deleted) VALUES
+    ('dashboard_ac_2', 'oasis_ac', 'P0', 1001, null, 'Underway', 'SUCCESS', null, 100, '100001100001', 'dashboard_api_definition_id_1', 'oasis_ac_version_id', 'oasis_ac_env_id', 1697971947000, 'admin', 1698058347559, 'admin', null, null, false);
+
+INSERT INTO api_test_case(id, name, priority, num, tags, status, last_report_status, last_report_id, pos, project_id, api_definition_id, version_id, environment_id, create_time, create_user, update_time, update_user, delete_time, delete_user, deleted) VALUES
+    ('dashboard_ac_3', 'oasis_ac', 'P0', 1001, null, 'Underway', 'FAKE_ERROR', null, 100, '100001100001', 'dashboard_api_definition_id_1', 'oasis_ac_version_id', 'oasis_ac_env_id', 1697971947000, 'admin', 1698058347559, 'admin', null, null, false);
+
+INSERT INTO api_test_case(id, name, priority, num, tags, status, last_report_status, last_report_id, pos, project_id, api_definition_id, version_id, environment_id, create_time, create_user, update_time, update_user, delete_time, delete_user, deleted) VALUES
+    ('dashboard_ac_4', 'oasis_ac', 'P0', 1001, null, 'Underway', 'ERROR', null, 100, '100001100001', 'dashboard_api_definition_id_1', 'oasis_ac_version_id', 'oasis_ac_env_id', 1697971947000, 'admin', 1698058347559, 'admin', null, null, false);
+
+INSERT INTO api_scenario(id, name, priority, status, last_report_status, last_report_id, num, pos, version_id, ref_id, project_id, module_id, description, tags, create_user, create_time, delete_time, delete_user, update_user, update_time)
+VALUES ('dashboard_scenario_one', 'api_scenario', 'p1', 'test-api-status',  'PENDING', null,1000001, 1,'v1.10', 'aspect_gyq_api_scenario_one','100001100001', 'test_module', null,null,'admin',  1697971947000,null,null,'admin', 1697971947000);
+
+INSERT INTO api_scenario(id, name, priority, status, last_report_status, last_report_id, num, pos, version_id, ref_id, project_id, module_id, description, tags, create_user, create_time, delete_time, delete_user, update_user, update_time)
+VALUES ('dashboard_scenario_two', 'api_scenario', 'p1', 'test-api-status',  'SUCCESS', null,1000001, 1,'v1.10', 'aspect_gyq_api_scenario_one','100001100001', 'test_module', null,null,'admin',  1697971947000,null,null,'admin', 1697971947000);
+
+INSERT INTO api_scenario(id, name, priority, status, last_report_status, last_report_id, num, pos, version_id, ref_id, project_id, module_id, description, tags, create_user, create_time, delete_time, delete_user, update_user, update_time)
+VALUES ('dashboard_scenario_three', 'api_scenario', 'p1', 'test-api-status',  'FAKE_ERROR', null,1000001, 1,'v1.10', 'aspect_gyq_api_scenario_one','100001100001', 'test_module', null,null,'admin',  1697971947000,null,null,'admin', 1697971947000);
+
+INSERT INTO api_scenario(id, name, priority, status, last_report_status, last_report_id, num, pos, version_id, ref_id, project_id, module_id, description, tags, create_user, create_time, delete_time, delete_user, update_user, update_time)
+VALUES ('dashboard_scenario_four', 'api_scenario', 'p1', 'test-api-status',  'ERROR', null,1000001, 1,'v1.10', 'aspect_gyq_api_scenario_one','100001100001', 'test_module', null,null,'admin',  1697971947000,null,null,'admin', 1697971947000);
+
 
 INSERT INTO api_scenario_step(id, scenario_id, name, sort, enable, resource_id, resource_num, step_type, project_id, parent_id, version_id, ref_type, origin_project_id, config)
     VALUE ('dashboard_act_1', 'dashboard_sc_1', 'dd', 1, true, 'dashboard_api_definition_id_1', '1000', 'API', '100001100001', null, 'oasis_ac_version_id', 'REF', '100001100001', null)

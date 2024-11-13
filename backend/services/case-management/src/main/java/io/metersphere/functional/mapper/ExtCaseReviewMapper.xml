@@ -358,7 +358,9 @@
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
-        AND case_review.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND case_review.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         <if test="userId != null and userId != ''">
             AND case_review.create_user = #{userId}
         </if>
@@ -370,7 +372,9 @@
         SELECT case_review.create_user as userId, count(case_review.id) as count
         FROM case_review
         WHERE case_review.project_id =  #{projectId}
-        AND case_review.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND case_review.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         <if test="userIds != null and userIds.size() > 0">
             and case_review.create_user in
             <foreach collection="userIds" item="userId" separator="," open="(" close=")">
@@ -383,7 +387,9 @@
         SELECT case_review.status as status, count(case_review.id) as count
         FROM case_review
         WHERE case_review.project_id =  #{projectId}
-        AND case_review.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND case_review.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         group by case_review.status;
 
     </select>

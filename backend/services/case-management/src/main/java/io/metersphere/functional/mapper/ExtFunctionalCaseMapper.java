@@ -117,14 +117,14 @@ public interface ExtFunctionalCaseMapper {
 
     List<FunctionalCase> getProjectIdByIds(@Param("ids") List<String> ids);
 
-    List<ProjectCountDTO> projectCaseCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+    List<ProjectCountDTO> projectCaseCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userId") String userId);
 
-    List<ProjectUserCreateCount> userCreateCaseCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
+    List<ProjectUserCreateCount> userCreateCaseCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userIds") Set<String> userIds);
 
-    List<FunctionalCaseStatisticDTO> getStatisticListByProjectId(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime);
+    List<FunctionalCaseStatisticDTO> getStatisticListByProjectId(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 
-    long caseTestCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime);
+    long caseTestCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 
-    long simpleCaseCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime);
+    long simpleCaseCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 
 }

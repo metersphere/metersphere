@@ -111,9 +111,9 @@ public interface ExtApiDefinitionMapper {
 
     Long selectNumById(String id);
 
-    List<ProjectCountDTO> projectApiCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+    List<ProjectCountDTO> projectApiCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userId") String userId);
 
-    List<ProjectUserCreateCount> userCreateApiCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
+    List<ProjectUserCreateCount> userCreateApiCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userIds") Set<String> userIds);
 
     /**
      * 获取根据时间过滤有更新的api
@@ -123,7 +123,10 @@ public interface ExtApiDefinitionMapper {
      * @param endTime   时间过滤条件
      * @return List<ApiDefinitionUpdateDTO>
      */
-    List<ApiDefinitionUpdateDTO> getUpdateApiList(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime);
+    List<ApiDefinitionUpdateDTO> getUpdateApiList(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 
     List<ApiRefSourceCountDTO> scenarioRefApiCount(@Param("projectId") String projectId, @Param("resourceIds") List<String> resourceIds);
+
+    List<ApiDefinition> getCreateApiList(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
+
 }

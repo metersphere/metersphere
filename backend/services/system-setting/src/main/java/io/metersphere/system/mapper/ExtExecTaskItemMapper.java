@@ -53,9 +53,15 @@ public interface ExtExecTaskItemMapper {
 
     /**
      * 查询批量执行任务报告
-     * @param request 请求参数
+     *
+     * @param request   请求参数
      * @param tableName 表名
      * @return 执行任务报告集合
      */
     List<BatchExecTaskReportDTO> list(@Param("request") BatchExecTaskPageRequest request, @Param("tableName") String tableName);
+
+    long getUnDeleteCaseExecCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("resourceTypes") List<String> resourceTypes);
+
+    long getUnDeleteScenarioExecCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("resourceTypes") List<String> resourceTypes);
+
 }

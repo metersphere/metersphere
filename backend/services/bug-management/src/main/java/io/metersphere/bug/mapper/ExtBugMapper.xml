@@ -399,7 +399,9 @@
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
-        AND bug.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND bug.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         <if test="userId != null and userId != ''">
             AND bug.create_user = #{userId}
         </if>
@@ -412,7 +414,9 @@
         FROM bug
         WHERE bug.deleted = false
         AND bug.project_id =  #{projectId}
-        AND bug.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND bug.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         <if test="userIds != null and userIds.size() > 0">
             and bug.create_user in
             <foreach collection="userIds" item="userId" separator="," open="(" close=")">
@@ -428,7 +432,9 @@
         FROM bug
         WHERE bug.deleted = false
         AND bug.project_id =  #{projectId}
-        AND bug.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND bug.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         AND bug.handle_user != ''
         <if test="userIds != null and userIds.size() > 0">
             AND bug.handle_user IN

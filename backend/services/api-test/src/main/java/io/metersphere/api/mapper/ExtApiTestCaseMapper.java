@@ -133,8 +133,10 @@ public interface ExtApiTestCaseMapper {
 
     List<ApiTestCaseDTO> selectBaseInfoByProjectIdAndApiId(@Param("projectId") String projectId, @Param("apiId") String apiId);
 
-    List<ProjectCountDTO> projectApiCaseCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+    List<ProjectCountDTO> projectApiCaseCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userId") String userId);
 
-    List<ProjectUserCreateCount> userCreateApiCaseCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
+    List<ProjectUserCreateCount> userCreateApiCaseCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userIds") Set<String> userIds);
+
+    List<ApiTestCase> getSimpleApiCaseList(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 
 }

@@ -995,7 +995,9 @@
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
-        AND api_test_case.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND api_test_case.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         <if test="userId != null and userId != ''">
             AND api_test_case.create_user = #{userId}
         </if>
@@ -1007,8 +1009,10 @@
         SELECT api_test_case.create_user as userId, count(api_test_case.id) as count
         FROM api_test_case
         WHERE api_test_case.deleted = false
-        AND api_test_case.project_id =  #{projectId}
-        AND api_test_case.create_time BETWEEN #{startTime} AND #{endTime}
+        AND api_test_case.project_id = #{projectId}
+        <if test="startTime != null and endTime != null">
+            AND api_test_case.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         <if test="userIds != null and userIds.size() > 0">
             and api_test_case.create_user in
             <foreach collection="userIds" item="userId" separator="," open="(" close=")">
@@ -1016,6 +1020,15 @@
             </foreach>
         </if>
         group by api_test_case.create_user;
+    </select>
+    <select id="getSimpleApiCaseList" resultType="io.metersphere.api.domain.ApiTestCase">
+        SELECT api_test_case.id, api_test_case.last_report_status
+        FROM api_test_case
+        WHERE api_test_case.deleted = false
+        AND api_test_case.project_id = #{projectId}
+        <if test="startTime != null and endTime != null">
+            AND api_test_case.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
     </select>
 
 </mapper>

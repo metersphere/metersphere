@@ -775,7 +775,9 @@
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
-        AND api_scenario.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND api_scenario.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         <if test="userId != null and userId != ''">
             AND api_scenario.create_user = #{userId}
         </if>
@@ -788,7 +790,9 @@
         FROM api_scenario
         WHERE api_scenario.deleted = false
         AND api_scenario.project_id =  #{projectId}
-        AND api_scenario.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND api_scenario.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         <if test="userIds != null and userIds.size() > 0">
             and api_scenario.create_user in
             <foreach collection="userIds" item="userId" separator="," open="(" close=")">
@@ -796,6 +800,16 @@
             </foreach>
         </if>
         group by api_scenario.create_user;
+    </select>
+    <select id="getSimpleApiScenarioList" resultType="io.metersphere.api.domain.ApiScenario">
+        SELECT api_scenario.id, api_scenario.last_report_status
+        FROM api_scenario
+        WHERE api_scenario.deleted = false
+        AND api_scenario.project_id = #{projectId}
+        <if test="startTime != null and endTime != null">
+            AND api_scenario.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
+
     </select>
 
 

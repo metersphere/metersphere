@@ -44,9 +44,9 @@ public interface ExtCaseReviewMapper {
 
     String getReviewPassRule(@Param("id") String id);
 
-    List<ProjectCountDTO> projectReviewCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+    List<ProjectCountDTO> projectReviewCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userId") String userId);
 
-    List<ProjectUserCreateCount> userCreateReviewCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
+    List<ProjectUserCreateCount> userCreateReviewCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userIds") Set<String> userIds);
 
     /**
      * 获取各种状态总数量的评审
@@ -55,6 +55,6 @@ public interface ExtCaseReviewMapper {
      * @param endTime 时间过滤条件
      * @return ProjectUserStatusCountDTO userId 在这里不返回
      */
-    List<ProjectUserStatusCountDTO> statusReviewCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime);
+    List<ProjectUserStatusCountDTO> statusReviewCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 
 }

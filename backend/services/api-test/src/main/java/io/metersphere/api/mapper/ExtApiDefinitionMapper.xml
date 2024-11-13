@@ -781,7 +781,9 @@
             #{projectId}
         </foreach>
         AND api_definition.deleted = false
-        AND api_definition.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND api_definition.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         <if test="userId != null and userId != ''">
             AND api_definition.create_user = #{userId}
         </if>
@@ -794,7 +796,9 @@
         FROM api_definition
         WHERE api_definition.deleted = false
         AND api_definition.project_id =  #{projectId}
-        AND api_definition.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND api_definition.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         <if test="userIds != null and userIds.size() > 0">
             and api_definition.create_user in
             <foreach collection="userIds" item="userId" separator="," open="(" close=")">
@@ -805,11 +809,11 @@
     </select>
 
     <select id="getUpdateApiList" resultType="io.metersphere.api.dto.definition.ApiDefinitionUpdateDTO">
-        SELECT api_definition.id, api_definition.name, api_definition.update_time
+        SELECT api_definition.id, api_definition.name, api_definition.num, api_definition.path, api_definition.update_time
         FROM api_definition
         WHERE api_definition.deleted = false
         AND api_definition.project_id =  #{projectId}
-        AND api_definition.update_time BETWEEN #{startTime} AND #{endTime} order by api_definition.update_time desc;
+        AND api_definition.update_time BETWEEN #{startTime} AND #{endTime} order by api_definition.update_time desc
     </select>
 
     <select id="scenarioRefApiCount" resultType="io.metersphere.api.dto.definition.ApiRefSourceCountDTO">
@@ -824,5 +828,14 @@
                 #{resourceId}
             </foreach>
         group by ass.resource_id;
+    </select>
+    <select id="getCreateApiList" resultType="io.metersphere.api.domain.ApiDefinition">
+        SELECT api_definition.id, api_definition.protocol, api_definition.status
+        FROM api_definition
+        WHERE api_definition.deleted = false
+          AND api_definition.project_id = #{projectId}
+        <if test="startTime != null and endTime != null">
+            AND api_definition.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
     </select>
 </mapper>

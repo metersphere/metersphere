@@ -1,8 +1,11 @@
 package io.metersphere.project.service;
 
 
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.UserRoleType;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRolePermission;
 import io.metersphere.system.dto.user.UserDTO;
@@ -22,12 +25,31 @@ public class PermissionCheckService {
     @Resource
     private UserLoginService userLoginService;
 
+    @Resource
+    private ProjectMapper projectMapper;
+
+    public static final String API_TEST_MODULE = "apiTest";
+    public static final String TEST_PLAN_MODULE = "testPlan";
+    public static final String FUNCTIONAL_CASE_MODULE = "caseManagement";
+    public static final String BUG_MODULE = "bugManagement";
+
     public boolean userHasProjectPermission(String userId, String projectId, String permission) {
         UserDTO user = getUserDTO(userId);
         if (user == null) return false;
         // 判断是否是超级管理员
         if (checkAdmin(user)) return true;
         return checkHasPermission(projectId, permission, user);
+    }
+
+    public Boolean checkModule(String projectId, String module, String userId, String permission) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        boolean hasPermission = userHasProjectPermission(userId, projectId, permission);
+        if (! hasPermission) {
+            return false;
+        } else {
+            List<String> moduleIds = JSON.parseArray(project.getModuleSetting(), String.class);
+            return moduleIds.contains(module);
+        }
     }
 
     private static boolean checkHasPermission(String projectId, String permission, UserDTO user) {

@@ -73,9 +73,9 @@ public interface ExtTestPlanMapper {
 
     List<String> selectIdByProjectIdAndWithoutList(@Param("projectId") String projectId, @Param("withoutList") List<String> withoutList);
 
-    List<ProjectCountDTO> projectPlanCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
+    List<ProjectCountDTO> projectPlanCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userId") String userId);
 
-    List<ProjectUserCreateCount> userCreatePlanCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
+    List<ProjectUserCreateCount> userCreatePlanCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userIds") Set<String> userIds);
 
 
     @BaseConditionFilter

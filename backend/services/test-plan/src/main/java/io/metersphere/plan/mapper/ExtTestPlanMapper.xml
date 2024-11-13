@@ -746,7 +746,9 @@
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
-        AND test_plan.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND test_plan.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         <if test="userId != null and userId != ''">
             AND test_plan.create_user = #{userId}
         </if>
@@ -758,7 +760,9 @@
         SELECT test_plan.create_user as userId, count(test_plan.id) as count
         FROM test_plan
         WHERE test_plan.project_id =  #{projectId}
-        AND test_plan.create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND test_plan.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
         <if test="userIds != null and userIds.size() > 0">
             and test_plan.create_user in
             <foreach collection="userIds" item="userId" separator="," open="(" close=")">

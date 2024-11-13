@@ -291,4 +291,34 @@
         where eti.task_id = #{request.taskId}
         <include refid="queryBatchWhereCondition"/>
     </select>
+    <select id="getUnDeleteCaseExecCount" resultType="java.lang.Long">
+        select Count(exec_task_item.id) from exec_task_item
+            left join api_test_case on  api_test_case.id = exec_task_item.resource_id
+              where api_test_case.deleted = false
+                and exec_task_item.project_id = #{projectId}
+                <if test="startTime != null and endTime != null">
+                    and api_test_case.create_time between #{startTime} and #{endTime}
+                </if>
+                <if test="resourceTypes != null and resourceTypes.size() > 0">
+                    and exec_task_item.resource_type in
+                    <foreach collection="resourceTypes" item="resourceType" open="(" separator="," close=")">
+                        #{resourceType}
+                    </foreach>
+                </if>
+    </select>
+    <select id="getUnDeleteScenarioExecCount" resultType="java.lang.Long">
+        select Count(exec_task_item.id) from exec_task_item
+        left join api_scenario on  api_scenario.id = exec_task_item.resource_id
+        where api_scenario.deleted = false
+        and exec_task_item.project_id = #{projectId}
+        <if test="startTime != null and endTime != null">
+            and api_scenario.create_time between #{startTime} and #{endTime}
+        </if>
+        <if test="resourceTypes != null and resourceTypes.size() > 0">
+            and exec_task_item.resource_type in
+            <foreach collection="resourceTypes" item="resourceType" open="(" separator="," close=")">
+                #{resourceType}
+            </foreach>
+        </if>
+    </select>
 </mapper>

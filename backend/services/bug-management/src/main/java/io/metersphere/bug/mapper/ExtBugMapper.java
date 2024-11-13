@@ -121,8 +121,8 @@ public interface ExtBugMapper {
     @BaseConditionFilter
     List<String> getIdsByProvider(@Param("request") AssociateBugRequest request, @Param("deleted") boolean deleted);
 
-    List<ProjectCountDTO> projectBugCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userId") String userId);
-    List<ProjectUserCreateCount> userCreateBugCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
+    List<ProjectCountDTO> projectBugCount(@Param("projectIds") Set<String> projectIds, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userId") String userId);
+    List<ProjectUserCreateCount> userCreateBugCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userIds") Set<String> userIds);
 
     /**
      * 根据处理人排序的处理人状态统计
@@ -133,6 +133,6 @@ public interface ExtBugMapper {
      * @param platforms 平台筛选
      * @return 项目用户状态数量DTO
      */
-    List<ProjectUserStatusCountDTO> projectUserBugStatusCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") List<String> userIds, @Param("platforms") Set<String> platforms);
+    List<ProjectUserStatusCountDTO> projectUserBugStatusCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userIds") List<String> userIds, @Param("platforms") Set<String> platforms);
 
 }

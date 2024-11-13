@@ -9,6 +9,10 @@ import io.metersphere.dashboard.response.OverViewCountDTO;
 import io.metersphere.dashboard.response.StatisticsDTO;
 import io.metersphere.dashboard.service.DashboardService;
 import io.metersphere.functional.dto.CaseReviewDTO;
+import io.metersphere.plugin.platform.dto.SelectOption;
+import io.metersphere.project.service.PermissionCheckService;
+import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -21,6 +25,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static io.metersphere.dashboard.result.DashboardResultCode.NO_PROJECT_PERMISSION;
+
 @Tag(name = "工作台-首页")
 @RestController
 @RequestMapping("/dashboard")
@@ -28,6 +34,8 @@ public class DashboardController {
 
     @Resource
     private DashboardService dashboardService;
+    @Resource
+    private PermissionCheckService permissionCheckService;
 
     @PostMapping("/layout/edit/{organizationId}")
     @Operation(summary = "编辑用户布局")
@@ -68,34 +76,68 @@ public class DashboardController {
     @Operation(summary = "缺陷处理人统计")
     @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public OverViewCountDTO projectBugHandleUser(@Validated @RequestBody DashboardFrontPageRequest request) {
-        return dashboardService.projectBugHandleUser(request);
+        return dashboardService.projectBugHandleUser(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/bug_handle_user/list/{projectId}")
+    @Operation(summary = "获取缺陷处理人列表")
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public List<SelectOption> getBugHandleUserList(@PathVariable String projectId) {
+        return dashboardService.getBugHandleUserList(projectId);
     }
 
     @PostMapping("/case_count")
     @Operation(summary = "用例数")
     @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public StatisticsDTO projectCaseCount(@Validated @RequestBody DashboardFrontPageRequest request) {
-        return dashboardService.projectCaseCount(request);
+        return dashboardService.projectCaseCount(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/associate_case_count")
     @Operation(summary = "关联用例统计")
     @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public StatisticsDTO projectAssociateCaseCount(@Validated @RequestBody DashboardFrontPageRequest request) {
-        return dashboardService.projectAssociateCaseCount(request);
+        return dashboardService.projectAssociateCaseCount(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/review_case_count")
     @Operation(summary = "用例评审数")
     @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public StatisticsDTO projectReviewCaseCount(@Validated @RequestBody DashboardFrontPageRequest request) {
-        return dashboardService.projectReviewCaseCount(request);
+        return dashboardService.projectReviewCaseCount(request, SessionUtils.getUserId());
     }
+
+    @PostMapping("/api_count")
+    @Operation(summary = "接口数量统计")
+    @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
+    public StatisticsDTO projectApiCount(@Validated @RequestBody DashboardFrontPageRequest request) {
+        return dashboardService.projectApiCount(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/api_case_count")
+    @Operation(summary = "接口用例数量统计")
+    @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
+    public StatisticsDTO projectApiCaseCount(@Validated @RequestBody DashboardFrontPageRequest request) {
+        return dashboardService.projectApiCaseCount(request, SessionUtils.getUserId());
+    }
+
+
+    @PostMapping("/scenario_count")
+    @Operation(summary = "场景数量统计")
+    @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
+    public StatisticsDTO projectApiScenarioCount(@Validated @RequestBody DashboardFrontPageRequest request) {
+        return dashboardService.projectApiScenarioCount(request, SessionUtils.getUserId());
+    }
+
 
     @PostMapping("/reviewing_by_me")
     @Operation(summary = "待我评审")
     @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public Pager<List<CaseReviewDTO>> getFunctionalCasePage(@Validated @RequestBody DashboardFrontPageRequest request) {
+        String projectId = request.getProjectIds().getFirst();
+        if (Boolean.FALSE.equals(permissionCheckService.checkModule(projectId, "caseManagement", SessionUtils.getUserId(), PermissionConstants.FUNCTIONAL_CASE_READ))) {
+            throw new MSException(NO_PROJECT_PERMISSION);
+        }
         return dashboardService.getFunctionalCasePage(request);
     }
 
@@ -103,6 +145,10 @@ public class DashboardController {
     @Operation(summary = "接口变更")
     @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public Pager<List<ApiDefinitionUpdateDTO>> getApiUpdatePage(@Validated @RequestBody DashboardFrontPageRequest request) {
+        String projectId = request.getProjectIds().getFirst();
+        if (Boolean.FALSE.equals(permissionCheckService.checkModule(projectId, "apiTest", SessionUtils.getUserId(), PermissionConstants.PROJECT_API_DEFINITION_READ))) {
+            throw new MSException(NO_PROJECT_PERMISSION);
+        }
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, dashboardService.getApiUpdatePage(request));
     }
