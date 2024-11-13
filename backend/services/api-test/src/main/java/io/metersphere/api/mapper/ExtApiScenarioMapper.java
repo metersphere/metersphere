@@ -2,6 +2,7 @@ package io.metersphere.api.mapper;
 
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.dto.ApiResourceBatchRunInfo;
+import io.metersphere.api.dto.definition.ExecHistoryDTO;
 import io.metersphere.api.dto.definition.ExecutePageRequest;
 import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.scenario.*;
@@ -105,4 +106,5 @@ public interface ExtApiScenarioMapper {
 
     List<ProjectUserCreateCount> userCreateApiScenarioCount(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("userIds") Set<String> userIds);
 
+    List<ExecHistoryDTO> selectExecHistory(@Param("request") ExecutePageRequest request);
 }

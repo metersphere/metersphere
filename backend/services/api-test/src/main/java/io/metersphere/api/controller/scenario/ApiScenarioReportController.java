@@ -140,7 +140,8 @@ public class ApiScenarioReportController {
     @GetMapping("/task-step/{id}")
     @Operation(summary = "系统-任务中心-场景用例执行任务详情-查看(任务步骤)")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ,
-            PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_READ, PermissionConstants.PROJECT_CASE_TASK_CENTER_READ}, logical = Logical.OR)
+            PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_READ, PermissionConstants.PROJECT_CASE_TASK_CENTER_READ,
+            PermissionConstants.PROJECT_API_REPORT_READ, PermissionConstants.PROJECT_API_SCENARIO_EXECUTE}, logical = Logical.OR)
     public ExecTaskDetailDTO viewScenarioItemReport(@PathVariable String id) {
         return apiScenarioReportService.viewScenarioItemReport(id);
     }
@@ -148,9 +149,10 @@ public class ApiScenarioReportController {
     @GetMapping("/task-report/{reportId}/{stepId}")
     @Operation(summary = "系统-任务中心-场景用例执行任务详情-查看(步骤结果)")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_CASE_TASK_CENTER_READ,
-            PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_READ, PermissionConstants.PROJECT_CASE_TASK_CENTER_READ}, logical = Logical.OR)
+            PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_READ, PermissionConstants.PROJECT_CASE_TASK_CENTER_READ,
+            PermissionConstants.PROJECT_API_REPORT_READ, PermissionConstants.PROJECT_API_SCENARIO_EXECUTE}, logical = Logical.OR)
     public List<ApiScenarioReportDetailDTO> getScenarioReportDetail(@PathVariable String reportId,
-                                                      @PathVariable String stepId) {
+                                                                    @PathVariable String stepId) {
         return apiScenarioReportService.getDetail(reportId, stepId);
     }
 }

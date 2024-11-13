@@ -7,6 +7,7 @@ import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
+import io.metersphere.api.dto.definition.ExecHistoryDTO;
 import io.metersphere.api.dto.definition.ExecutePageRequest;
 import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.export.MetersphereApiScenarioExportResponse;
@@ -177,6 +178,8 @@ public class ApiScenarioService extends MoveNodeService {
     public static final String SCHEDULE = "Schedule";
     private static final String SCENARIO_TABLE = "api_scenario";
     private static final String SCENARIO = "SCENARIO";
+    @Resource
+    private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
 
 
     public List<ApiScenarioDTO> getScenarioPage(ApiScenarioPageRequest request, boolean isRepeat, String testPlanId) {
@@ -1002,7 +1005,7 @@ public class ApiScenarioService extends MoveNodeService {
      * 获取待更新的 ApiScenarioStep 列表
      */
     public List<ApiScenarioStep> getApiScenarioSteps(ApiScenarioStepCommonDTO parent,
-                                                      List<ApiScenarioStepRequest> steps, List<ApiScenarioCsvStep> csvSteps) {
+                                                     List<ApiScenarioStepRequest> steps, List<ApiScenarioCsvStep> csvSteps) {
         if (CollectionUtils.isEmpty(steps)) {
             return Collections.emptyList();
         }
@@ -1462,6 +1465,7 @@ public class ApiScenarioService extends MoveNodeService {
         return getStepBlobByIds(stepIdList).stream()
                 .collect(Collectors.toMap(ApiScenarioStepBlob::getId, blob -> new String(blob.getContent())));
     }
+
     public List<ApiScenarioStepBlob> getStepBlobByIds(List<String> stepIds) {
         if (CollectionUtils.isEmpty(stepIds)) {
             return Collections.emptyList();
@@ -1736,9 +1740,9 @@ public class ApiScenarioService extends MoveNodeService {
      * @param scenarioStepMap 所有场景步骤，key 为场景ID，value 为子步骤列表
      */
     public List<ApiScenarioStepDTO> buildStepTree(List<ApiScenarioStepDTO> steps,
-                                                   Map<String, List<ApiScenarioStepDTO>> parentStepMap,
-                                                   Map<String, List<ApiScenarioStepDTO>> scenarioStepMap,
-                                                   Set<String> stepIdSet) {
+                                                  Map<String, List<ApiScenarioStepDTO>> parentStepMap,
+                                                  Map<String, List<ApiScenarioStepDTO>> scenarioStepMap,
+                                                  Set<String> stepIdSet) {
         if (CollectionUtils.isEmpty(steps)) {
             return Collections.emptyList();
         }
@@ -2377,45 +2381,10 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
     public List<ExecuteReportDTO> getExecuteList(ExecutePageRequest request) {
-        List<ExecuteReportDTO> executeList = extApiScenarioMapper.getExecuteList(request);
-        if (CollectionUtils.isEmpty(executeList)) {
-            return new ArrayList<>();
-        }
-        Set<String> userSet = executeList.stream()
-                .flatMap(apiReport -> Stream.of(apiReport.getCreateUser()))
-                .collect(Collectors.toSet());
-        //执行历史列表
-        List<String> reportIds = executeList.stream().map(ExecuteReportDTO::getId).toList();
-        Map<String, ExecuteReportDTO> historyDeletedMap = new HashMap<>();
-        if (CollectionUtils.isNotEmpty(reportIds)) {
-            List<ExecuteReportDTO> historyDeletedList = extApiScenarioReportMapper.getHistoryDeleted(reportIds);
-            historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
-        }
-        Map<String, String> testPlanIdMap = executeList.stream()
-                .filter(apiReport -> !StringUtils.equals(apiReport.getTestPlanId(), "NONE"))
-                .collect(Collectors.toMap(ExecuteReportDTO::getId, ExecuteReportDTO::getTestPlanId));
-        List<String> testPlanIds = new ArrayList<>(testPlanIdMap.keySet());
-        Map<String, String> testPlanNumMap = new HashMap<>();
-        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(testPlanIds)) {
-            List<ExecuteReportDTO> testPlanNameLists = extApiScenarioReportMapper.getTestPlanNum(testPlanIds);
-            testPlanNumMap = testPlanNameLists.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, ExecuteReportDTO::getTestPlanNum));
-        }
-
-        Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userSet));
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        Map<String, ExecuteReportDTO> finalHistoryDeletedMap = historyDeletedMap;
-        Map<String, String> finalTestPlanNumMap = testPlanNumMap;
-        executeList.forEach(apiReport -> {
-            apiReport.setOperationUser(userMap.get(apiReport.getCreateUser()));
-            Date date = new Date(apiReport.getStartTime());
-            apiReport.setNum(sdf.format(date));
-            apiReport.setHistoryDeleted(MapUtils.isNotEmpty(finalHistoryDeletedMap) && !finalHistoryDeletedMap.containsKey(apiReport.getId()));
-            if (MapUtils.isNotEmpty(testPlanIdMap) && testPlanIdMap.containsKey(apiReport.getId())) {
-                apiReport.setTestPlanNum(StringUtils.join(Translator.get("test_plan"), ": ", finalTestPlanNumMap.get(apiReport.getId())));
-            }
-        });
-        return executeList;
+        return apiTestCaseService.getExecuteList(request);
     }
+
+
 
     public List<OperationHistoryDTO> operationHistoryList(OperationHistoryRequest request) {
         return operationHistoryService.listWidthTable(request, SCENARIO_TABLE);

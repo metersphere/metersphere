@@ -58,7 +58,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -108,6 +107,8 @@ public class ApiTestCaseService extends MoveNodeService {
     private FunctionalCaseTestMapper functionalCaseTestMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private ExtApiScenarioMapper extApiScenarioMapper;
 
     private static final String CASE_TABLE = "api_test_case";
 
@@ -342,6 +343,7 @@ public class ApiTestCaseService extends MoveNodeService {
         }
         return returnList;
     }
+
     private void buildApiTestCaseDTO(List<ApiTestCaseDTO> apiCaseLists) {
         if (CollectionUtils.isNotEmpty(apiCaseLists)) {
             List<String> userIds = new ArrayList<>();
@@ -569,44 +571,30 @@ public class ApiTestCaseService extends MoveNodeService {
     }
 
     public List<ExecuteReportDTO> getExecuteList(ExecutePageRequest request) {
-        List<ExecuteReportDTO> executeList = extApiTestCaseMapper.getExecuteList(request);
-        if (CollectionUtils.isEmpty(executeList)) {
-            return new ArrayList<>();
-        }
-        Set<String> userSet = executeList.stream()
-                .flatMap(apiReport -> Stream.of(apiReport.getCreateUser()))
-                .collect(Collectors.toSet());
-        Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userSet));
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        //执行历史列表
-        List<String> reportIds = executeList.stream().map(ExecuteReportDTO::getId).toList();
-        Map<String, ExecuteReportDTO> historyDeletedMap = new HashMap<>();
-        if (CollectionUtils.isNotEmpty(reportIds)) {
-            List<ExecuteReportDTO> historyDeletedList = extApiReportMapper.getHistoryDeleted(reportIds);
-            historyDeletedMap = historyDeletedList.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, Function.identity()));
-        }
-
-        Map<String, String> testPlanIdMap = executeList.stream()
-                .filter(apiReport -> !StringUtils.equals(apiReport.getTestPlanId(), "NONE"))
-                .collect(Collectors.toMap(ExecuteReportDTO::getId, ExecuteReportDTO::getTestPlanId));
-        List<String> testPlanIds = new ArrayList<>(testPlanIdMap.keySet());
-        Map<String, String> testPlanNumMap = new HashMap<>();
-        if (CollectionUtils.isNotEmpty(testPlanIds)) {
-            List<ExecuteReportDTO> testPlanNameLists = extApiTestCaseMapper.getTestPlanNum(testPlanIds);
-            testPlanNumMap = testPlanNameLists.stream().collect(Collectors.toMap(ExecuteReportDTO::getId, ExecuteReportDTO::getTestPlanNum));
-        }
-        Map<String, ExecuteReportDTO> finalHistoryDeletedMap = historyDeletedMap;
-        Map<String, String> finalTestPlanNumMap = testPlanNumMap;
-        executeList.forEach(apiReport -> {
-            apiReport.setOperationUser(userMap.get(apiReport.getCreateUser()));
-            Date date = new Date(apiReport.getStartTime());
-            apiReport.setNum(sdf.format(date));
-            apiReport.setHistoryDeleted(MapUtils.isNotEmpty(finalHistoryDeletedMap) && !finalHistoryDeletedMap.containsKey(apiReport.getId()));
-            if (MapUtils.isNotEmpty(testPlanIdMap) && testPlanIdMap.containsKey(apiReport.getId())) {
-                apiReport.setTestPlanNum(StringUtils.join(Translator.get("test_plan"), ": ", finalTestPlanNumMap.get(apiReport.getId())));
-            }
-        });
+        List<ExecHistoryDTO> historyList = extApiScenarioMapper.selectExecHistory(request);
+        List<ExecuteReportDTO> executeList = handleList(historyList);
         return executeList;
+    }
+
+    private List<ExecuteReportDTO> handleList(List<ExecHistoryDTO> historyList) {
+        List<ExecuteReportDTO> executeReportDTOList = new ArrayList<>();
+        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(historyList)) {
+            List<String> userIds = historyList.stream().map(ExecHistoryDTO::getCreateUser).toList();
+            Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+            historyList.forEach(item -> {
+                ExecuteReportDTO reportDTO = new ExecuteReportDTO();
+                BeanUtils.copyBean(reportDTO, item);
+                reportDTO.setOperationUser(userNameMap.get(item.getCreateUser()));
+                reportDTO.setId(item.getItemId());
+                reportDTO.setNum(sdf.format(item.getStartTime()));
+                if (StringUtils.isNotBlank(item.getTestPlanNum())) {
+                    reportDTO.setTestPlanNum(StringUtils.join(Translator.get("test_plan"), ": ", item.getTestPlanNum()));
+                }
+                executeReportDTOList.add(reportDTO);
+            });
+        }
+        return executeReportDTOList;
     }
 
     public List<OperationHistoryDTO> operationHistoryList(OperationHistoryRequest request) {

@@ -167,7 +167,7 @@ public class ApiTestCaseController {
     public Pager<List<ApiTestCaseDTO>> page(@Validated @RequestBody ApiTestCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : "pos desc, id desc");
-        return PageUtils.setPageInfo(page, apiTestCaseService.page(request, false, true,null));
+        return PageUtils.setPageInfo(page, apiTestCaseService.page(request, false, true, null));
     }
 
     @PostMapping(value = "/statistics")
@@ -248,8 +248,11 @@ public class ApiTestCaseController {
     @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEFINITION_CASE_READ, PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE})
     @CheckOwner(resourceId = "#request.getId()", resourceType = "api_test_case")
     public Pager<List<ExecuteReportDTO>> getExecuteList(@Validated @RequestBody ExecutePageRequest request) {
-        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "start_time desc");
+        String sort = StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "eti.id desc";
+        if (StringUtils.isNotBlank(sort)) {
+            sort = sort.replace("start_time", "et.create_time");
+        }
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), sort);
         return PageUtils.setPageInfo(page, apiTestCaseService.getExecuteList(request));
     }
 

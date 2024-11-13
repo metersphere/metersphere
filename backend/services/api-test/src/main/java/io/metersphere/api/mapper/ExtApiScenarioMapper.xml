@@ -798,4 +798,52 @@
         group by api_scenario.create_user;
     </select>
 
+
+    <select id="selectExecHistory" resultType="io.metersphere.api.dto.definition.ExecHistoryDTO">
+        SELECT
+            et.trigger_mode,
+            et.task_name,
+            eti.result as status,
+            eti.`status` as execStatus,
+            eti.executor as createUser,
+            eti.deleted,
+            et.create_time as startTime,
+            et.integrated,
+            tp.id as testPlanId,
+            tp.num as testPlanNum,
+            eti.task_id as taskId,
+            eti.id as itemId
+        FROM
+            exec_task_item eti
+                left JOIN exec_task et ON eti.task_id = et.id
+                left JOIN test_plan tp on eti.task_origin = tp.id
+        where eti.case_id = #{request.id}
+        <include refid="history_filters">
+            <property name="filter" value="request.filter"/>
+        </include>
+    </select>
+
+
+    <sql id="history_filters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='integrated'">
+                            and et.integrated in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='status'">
+                            and eti.result in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='triggerMode'">
+                            and et.trigger_mode in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
 </mapper>

@@ -117,7 +117,7 @@ public class TestPlanApiCaseBatchRunService {
         // 初始化任务
         ExecTask execTask = initExecTask(testPlanApiCases.size(), project, userId);
         // 初始化任务项
-        initExecTaskItem(testPlanApiCases, userId, project, execTask);
+        initExecTaskItem(testPlanApiCases, userId, project, execTask, testPlan.getId());
 
         TestPlanCollection finalRootCollection = rootCollection;
         List<TestPlanCollection> finalTestPlanCollections = testPlanCollections;
@@ -296,7 +296,7 @@ public class TestPlanApiCaseBatchRunService {
         return testPlanApiCases;
     }
 
-    private List<ExecTaskItem> initExecTaskItem(List<TestPlanApiCaseBatchRunDTO> apiTestCases, String userId, Project project, ExecTask execTask) {
+    private List<ExecTaskItem> initExecTaskItem(List<TestPlanApiCaseBatchRunDTO> apiTestCases, String userId, Project project, ExecTask execTask, String testPlanId) {
         List<ExecTaskItem> execTaskItems = new ArrayList<>(apiTestCases.size());
         for (TestPlanApiCaseBatchRunDTO apiTestCase : apiTestCases) {
             ExecTaskItem execTaskItem = apiCommonService.newExecTaskItem(execTask.getId(), project.getId(), userId);
@@ -304,6 +304,7 @@ public class TestPlanApiCaseBatchRunService {
             execTaskItem.setResourceType(ApiExecuteResourceType.TEST_PLAN_API_CASE.name());
             execTaskItem.setResourceId(apiTestCase.getId());
             execTaskItem.setCaseId(apiTestCase.getCaseId());
+            execTaskItem.setTaskOrigin(testPlanId);
             execTaskItem.setResourceName(apiTestCase.getName());
             execTaskItem.setCollectionId(apiTestCase.getTestPlanCollectionId());
             execTaskItems.add(execTaskItem);

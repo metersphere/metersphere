@@ -274,8 +274,11 @@ public class ApiScenarioController {
     @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_SCENARIO_READ, PermissionConstants.PROJECT_API_SCENARIO_UPDATE})
     @CheckOwner(resourceId = "#request.getId()", resourceType = "api_scenario")
     public Pager<List<ExecuteReportDTO>> getExecuteList(@Validated @RequestBody ExecutePageRequest request) {
-        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "start_time desc");
+        String sort = StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "eti.id desc";
+        if (StringUtils.isNotBlank(sort)) {
+            sort = sort.replace("start_time", "et.create_time");
+        }
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), sort);
         return PageUtils.setPageInfo(page, apiScenarioService.getExecuteList(request));
     }
 
