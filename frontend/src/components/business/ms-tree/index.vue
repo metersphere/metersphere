@@ -322,7 +322,7 @@
           filterTreeData.value = data.value;
         }
         nextTick(() => {
-          treeRef.value?.expandAll(false);
+          treeRef.value?.expandAll(props.defaultExpandAll ?? false);
         });
       } else {
         updateDebouncedSearch();

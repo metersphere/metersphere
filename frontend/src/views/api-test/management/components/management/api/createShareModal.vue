@@ -31,6 +31,7 @@
             :data="moduleTree"
             allow-clear
             :multiple="true"
+            tree-check-strictly
             :tree-checkable="true"
             :placeholder="t('common.pleaseSelect')"
             :field-names="{ title: 'name', key: 'id', children: 'children' }"

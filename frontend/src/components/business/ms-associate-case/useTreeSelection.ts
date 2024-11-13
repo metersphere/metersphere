@@ -171,6 +171,7 @@ export default function useTreeSelection(selectedModuleProps: SelectedModuleProp
     Object.keys(selectedModulesMaps.value).forEach((key) => {
       delete selectedModulesMaps.value[key];
     });
+    checkedKeys.value = [];
     isCheckedAll.value = false;
   }
 
