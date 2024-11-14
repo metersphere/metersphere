@@ -62,13 +62,13 @@
       <MsButton v-else v-permission="[getCurrentPermission('DELETE')]" @click="deleteTask(record)">
         {{ t('common.delete') }}
       </MsButton>
-      <!-- <MsButton
-        v-if="record.status === ExecuteStatusEnum.COMPLETED && record.result === ExecuteResultEnum.ERROR"
+      <MsButton
+        v-if="record.result === ExecuteResultEnum.ERROR"
         v-permission="['SYSTEM_USER:READ+DELETE']"
         @click="rerunTask(record)"
       >
         {{ t('ms.taskCenter.rerun') }}
-      </MsButton> -->
+      </MsButton>
       <MsButton
         v-if="record.status === ExecuteStatusEnum.COMPLETED"
         v-permission="['SYSTEM_USER:READ+DELETE']"
@@ -140,6 +140,7 @@
     organizationDeleteTask,
     organizationProjectOptions,
     organizationStopTask,
+    organizationTaskRerun,
   } from '@/api/modules/taskCenter/organization';
   import {
     getProjectExecuteTaskList,
@@ -148,6 +149,7 @@
     projectBatchStopTask,
     projectDeleteTask,
     projectStopTask,
+    projectTaskRerun,
   } from '@/api/modules/taskCenter/project';
   import {
     getSystemExecuteTaskList,
@@ -158,6 +160,7 @@
     systemOrgOptions,
     systemProjectOptions,
     systemStopTask,
+    systemTaskRerun,
   } from '@/api/modules/taskCenter/system';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -172,7 +175,7 @@
   import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
-  import { ExecuteStatusEnum, ExecuteTaskType } from '@/enums/taskCenter';
+  import { ExecuteResultEnum, ExecuteStatusEnum, ExecuteTaskType } from '@/enums/taskCenter';
 
   import { executeMethodMap, executeResultMap, executeStatusMap } from './config';
 
@@ -432,7 +435,7 @@
       },
     ],
   };
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, setLoading, resetSelector } = useTable(
     currentExecuteTaskList,
     {
       tableKey: TableKeyEnum.TASK_CENTER_CASE_TASK,
@@ -532,6 +535,7 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
+          setLoading(true);
           if (isBatch) {
             await currentBatchDeleteTask({
               selectIds: params?.selectedIds || [],
@@ -548,6 +552,8 @@
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
+        } finally {
+          setLoading(false);
         }
       },
       hideCancel: false,
@@ -585,6 +591,7 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
+          setLoading(true);
           if (isBatch) {
             await currentBatchStopTask({
               selectIds: params?.selectedIds || [],
@@ -601,6 +608,8 @@
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
+        } finally {
+          setLoading(false);
         }
       },
       hideCancel: false,
@@ -624,23 +633,26 @@
     }
   }
 
-  // async function rerunTask(record: TaskCenterTaskItem) {
-  //   try {
-  //     // await deleteUserInfo({
-  //     //   selectIds,
-  //     //   selectAll: !!params?.selectAll,
-  //     //   excludeIds: params?.excludeIds || [],
-  //     //   condition: { keyword: keyword.value },
-  //     // });
-  //     Message.success(t('common.executionSuccess'));
-  //     resetSelector();
-  //     await loadList();
-  //     initTaskStatistics();
-  //   } catch (error) {
-  //     // eslint-disable-next-line no-console
-  //     console.log(error);
-  //   }
-  // }
+  const currentRerunTask = {
+    system: systemTaskRerun,
+    project: projectTaskRerun,
+    org: organizationTaskRerun,
+  }[props.type];
+  async function rerunTask(record: TaskCenterTaskItem) {
+    try {
+      setLoading(true);
+      await currentRerunTask(record.id);
+      Message.success(t('common.executionSuccess'));
+      resetSelector();
+      await loadList();
+      initTaskStatistics();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   /**
    * 报告详情 showReportDetail

@@ -483,6 +483,12 @@
       width: 350,
     },
     {
+      title: 'common.createTime',
+      dataIndex: 'createTime',
+      showDrag: true,
+      width: 180,
+    },
+    {
       title: hasOperationPermission.value ? 'common.operation' : '',
       slotName: 'action',
       dataIndex: 'operation',
@@ -519,6 +525,7 @@
         reviewers: item.reviewers.map((e: ReviewDetailReviewersItem) => e.userName),
         moduleName: props.treePathMap[item.moduleId].path,
         fullModuleName: props.treePathMap[item.moduleId].fullPath,
+        createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
         cycle:
           item.startTime && item.endTime
             ? `${dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss')} - ${dayjs(item.endTime).format(

@@ -29,6 +29,7 @@
       </template>
     </ms-base-table>
   </div>
+  <executeResultDrawer v-model:visible="resultVisible" :plan-detail="resultRecord" />
 </template>
 
 <script setup lang="ts">
@@ -39,16 +40,15 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import executeResultDrawer from '../executeResultDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import { getPlanDetailExecuteHistory } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
-  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { PlanDetailExecuteHistoryItem } from '@/models/testPlan/testPlan';
   import { PlanReportStatus, ReportEnum, TriggerModeLabel } from '@/enums/reportEnum';
-  import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { triggerModeOptions } from '@/views/api-test/report/utils';
@@ -60,7 +60,7 @@
 
   const { t } = useI18n();
   const route = useRoute();
-  const { openNewPage } = useOpenNewPage();
+  // const { openNewPage } = useOpenNewPage();
 
   const statusResultOptions = computed(() => {
     return Object.keys(PlanReportStatus).map((key) => {
@@ -140,12 +140,12 @@
     loadList();
   }
 
+  const resultVisible = ref(false);
+  const resultRecord = ref<PlanDetailExecuteHistoryItem>({} as PlanDetailExecuteHistoryItem);
   // 查看报告详情
   function toReport(record: PlanDetailExecuteHistoryItem) {
-    openNewPage(TestPlanRouteEnum.TEST_PLAN_REPORT_DETAIL, {
-      id: record.id,
-      type: props.isGroup ? 'GROUP' : undefined,
-    });
+    resultVisible.value = true;
+    resultRecord.value = record;
   }
 
   function getStartAndEndTime(record: PlanDetailExecuteHistoryItem) {

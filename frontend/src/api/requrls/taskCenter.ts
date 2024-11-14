@@ -17,6 +17,7 @@ export const projectBatchOpenTaskUrl = '/project/task-center/schedule/batch-enab
 export const projectBatchCloseTaskUrl = '/project/task-center/schedule/batch-disable'; // 项目-任务中心-系统后台任务-批量关闭任务
 export const projectEditCronUrl = '/project/task-center/schedule/update-cron'; // 项目-任务中心-系统后台任务-编辑 cron 表达式
 export const projectBatchTaskReportUrl = '/project/task-center/exec-task/batch/page'; // 项目-任务中心-批量任务报告列表
+export const projectTaskRerunUrl = '/project/task-center/exec-task/rerun'; // 项目-任务中心-重跑
 
 export const systemScheduleListUrl = '/system/task-center/schedule/page'; // 系统任务-系统后台任务列表
 export const systemExecuteTaskListUrl = '/system/task-center/exec-task/page'; // 系统任务-执行任务列表
@@ -39,6 +40,7 @@ export const systemEditCronUrl = '/system/task-center/schedule/update-cron'; // 
 export const systemBatchTaskReportUrl = '/system/task-center/exec-task/batch/page'; // 系统任务-批量任务报告列表
 export const systemProjectOptionsUrl = '/system/task-center/project/options'; // 系统任务-项目列表
 export const systemOrgOptionsUrl = '/system/task-center/organization/options'; // 系统任务-组织列表
+export const systemTaskRerunUrl = '/system/task-center/exec-task/rerun'; // 系统任务-任务中心-重跑
 
 export const organizationScheduleListUrl = '/organization/task-center/schedule/page'; // 组织任务-系统后台任务列表
 export const organizationExecuteTaskListUrl = '/organization/task-center/exec-task/page'; // 组织任务-执行任务列表
@@ -59,3 +61,4 @@ export const organizationBatchCloseTaskUrl = '/organization/task-center/schedule
 export const organizationEditCronUrl = '/organization/task-center/schedule/update-cron'; // 组织任务-系统后台任务-编辑 cron 表达式
 export const organizationBatchTaskReportUrl = '/organization/task-center/exec-task/batch/page'; // 组织任务-批量任务报告列表
 export const organizationProjectOptionsUrl = '/organization/task-center/project/options'; // 组织任务-项目列表
+export const organizationTaskRerunUrl = '/organization/task-center/exec-task/rerun'; // 组织任务-任务中心-重跑

@@ -80,13 +80,6 @@
       >
         {{ t('common.stop') }}
       </MsButton>
-      <!-- <MsButton
-        v-if="record.status === ExecuteStatusEnum.COMPLETED && record.result === ExecuteResultEnum.ERROR"
-        v-permission="['SYSTEM_USER:READ+DELETE']"
-        @click="rerunTask(record)"
-      >
-        {{ t('ms.taskCenter.rerun') }}
-      </MsButton> -->
       <MsButton v-if="record.status !== ExecuteStatusEnum.PENDING" @click="checkExecuteResult(record)">
         {{ t('ms.taskCenter.executeResult') }}
       </MsButton>
@@ -94,13 +87,20 @@
   </ms-base-table>
   <caseExecuteResultDrawer
     v-if="caseExecuteResultDrawerVisible"
+    :id="activeRecord.id"
     v-model:visible="caseExecuteResultDrawerVisible"
-    :record="activeRecord"
+    :user-name="activeRecord.userName"
+    :status="activeRecord.status"
+    :result="activeRecord.result"
+    :resource-name="activeRecord.resourceName"
   />
   <scenarioExecuteResultDrawer
     v-if="scenarioExecuteResultDrawerVisible"
+    :id="activeRecord.id"
     v-model:visible="scenarioExecuteResultDrawerVisible"
-    :record="activeRecord"
+    :user-name="activeRecord.userName"
+    :status="activeRecord.status"
+    :result="activeRecord.result"
   />
 </template>
 
@@ -661,24 +661,6 @@
       console.log(error);
     }
   }
-
-  // async function rerunTask(record: TaskCenterTaskDetailItem) {
-  //   try {
-  //     // await deleteUserInfo({
-  //     //   selectIds,
-  //     //   selectAll: !!params?.selectAll,
-  //     //   excludeIds: params?.excludeIds || [],
-  //     //   condition: { keyword: keyword.value },
-  //     // });
-  //     Message.success(t('common.executionSuccess'));
-  //     resetSelector();
-  //     await loadList();
-  //     initCurrentPageResourcePoolsStatus();
-  //   } catch (error) {
-  //     // eslint-disable-next-line no-console
-  //     console.log(error);
-  //   }
-  // }
 
   watch(
     () => propsRes.value.data,

@@ -77,8 +77,8 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import ReportDrawer from '@/views/test-plan/report/component/reportDrawer.vue';
   import ExecutionStatus from '@/views/test-plan/report/component/reportStatus.vue';
-  import ReportDrawer from '@/views/test-plan/testPlan/detail/reportDrawer.vue';
 
   import { getReportDetailPage, getReportDetailSharePage } from '@/api/modules/test-plan/report';
   import { useI18n } from '@/hooks/useI18n';

@@ -18,6 +18,7 @@ import {
   projectStopTaskUrl,
   projectTaskCenterResourcePoolsUrl,
   projectTaskOrderUrl,
+  projectTaskRerunUrl,
   scheduleProCenterListUrl,
 } from '@/api/requrls/taskCenter';
 
@@ -126,4 +127,9 @@ export function projectEditCron(cron: string, id: string) {
 // 项目任务-批量任务报告列表
 export function projectBatchTaskReportList(data: TaskCenterBatchParams) {
   return MSR.post<CommonList<TaskCenterBatchTaskReportItem>>({ url: projectBatchTaskReportUrl, data });
+}
+
+// 项目任务-重跑
+export function projectTaskRerun(id: string) {
+  return MSR.get({ url: `${projectTaskRerunUrl}/${id}` });
 }

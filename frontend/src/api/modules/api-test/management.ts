@@ -122,7 +122,6 @@ import {
   ApiCaseChangeHistoryParams,
   ApiCaseDependencyParams,
   ApiCaseDetail,
-  ApiCaseExecuteHistoryItem,
   ApiCaseExecuteHistoryParams,
   ApiCasePageParams,
   type ApiCaseStatisticsItem,
@@ -158,6 +157,7 @@ import {
   UpdateScheduleParams,
 } from '@/models/apiTest/management';
 import type { BatchEditMockParams, MockDetail, MockParams, UpdateMockParams } from '@/models/apiTest/mock';
+import type { ExecuteHistoryItem } from '@/models/apiTest/scenario';
 import type {
   AddModuleParams,
   BatchApiParams,
@@ -605,7 +605,7 @@ export function batchExecuteCase(data: ApiCaseBatchExecuteParams) {
 
 // 获取接口用例-执行历史
 export function getApiCaseExecuteHistory(data: ApiCaseExecuteHistoryParams) {
-  return MSR.post<CommonList<ApiCaseExecuteHistoryItem>>({ url: GetExecuteHistoryUrl, data });
+  return MSR.post<CommonList<ExecuteHistoryItem>>({ url: GetExecuteHistoryUrl, data });
 }
 
 // 获取接口用例-变更历史

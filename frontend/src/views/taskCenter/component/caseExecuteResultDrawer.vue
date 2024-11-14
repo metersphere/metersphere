@@ -2,8 +2,8 @@
   <MsDrawer v-model:visible="visible" :width="1200" :footer="false">
     <template #title>
       <div class="flex flex-1 items-center gap-[8px] overflow-hidden">
-        <a-tag :color="executeResultMap[props.record.result]?.color">
-          {{ t(executeResultMap[props.record.result]?.label || '-') }}
+        <a-tag :color="executeResultMap[props.result]?.color">
+          {{ t(executeResultMap[props.result]?.label || '-') }}
         </a-tag>
         <div class="one-line-text flex-1">{{ detail.name }}</div>
       </div>
@@ -17,7 +17,7 @@
     <a-spin :loading="loading" class="block min-h-[200px]">
       <MsDescription :descriptions="detail.description" :column="3" :line-gap="8" one-line-value>
         <template #value="{ item }">
-          <execStatus v-if="item.key === 'status'" :status="props.record.status" size="small" />
+          <execStatus v-if="item.key === 'status'" :status="props.status" size="small" />
           <a-tooltip
             v-else
             :content="`${item.value}`"
@@ -59,12 +59,16 @@
   import { getCaseTaskReport } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
 
-  import { TaskCenterTaskDetailItem } from '@/models/taskCenter';
+  import { ExecuteResultEnum, ExecuteStatusEnum } from '@/enums/taskCenter';
 
   import { executeResultMap, executeStatusMap } from './config';
 
   const props = defineProps<{
-    record: TaskCenterTaskDetailItem;
+    id: string;
+    status: ExecuteStatusEnum;
+    userName: string;
+    result: ExecuteResultEnum;
+    resourceName: string;
   }>();
 
   const { t } = useI18n();
@@ -76,11 +80,11 @@
   async function init() {
     try {
       loading.value = true;
-      const res = await getCaseTaskReport(props.record.id);
+      const res = await getCaseTaskReport(props.id);
       const { apiReportDetailDTOList } = res;
       const [caseDetail] = apiReportDetailDTOList;
       detail.value = {
-        name: caseDetail?.requestName || props.record.resourceName,
+        name: caseDetail?.requestName || props.resourceName,
         description: [
           {
             label: t('ms.taskCenter.executeStatus'),
@@ -89,7 +93,7 @@
           },
           {
             label: t('ms.taskCenter.operationUser'),
-            value: props.record.userName,
+            value: props.userName,
           },
           {
             label: t('ms.taskCenter.taskCreateTime'),
@@ -138,7 +142,7 @@
   watch(
     () => visible.value,
     (val) => {
-      if (props.record.id && val) {
+      if (props.id && val) {
         init();
       }
     },

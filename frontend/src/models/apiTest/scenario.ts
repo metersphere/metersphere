@@ -18,6 +18,7 @@ import {
   ScenarioStepType,
   WhileConditionType,
 } from '@/enums/apiEnum';
+import type { ExecuteResultEnum, ExecuteStatusEnum } from '@/enums/taskCenter';
 
 import { BatchApiParams, TableQueryParams } from '../common';
 import {
@@ -193,8 +194,14 @@ export interface ExecuteHistoryItem {
   operationUser: string;
   createUser: string;
   startTime: number;
-  status: string;
+  status: ExecuteResultEnum;
   triggerMode: string;
+  execStatus: ExecuteStatusEnum;
+  deleted: boolean;
+  historyDeleted: boolean;
+  integrated: boolean;
+  testPlanId?: string;
+  testPlanNum?: string;
 }
 
 // 场景-变更历史列表查询参数

@@ -19,6 +19,7 @@ import {
   organizationStopTaskUrl,
   organizationTaskCenterResourcePoolsUrl,
   organizationTaskOrderUrl,
+  organizationTaskRerunUrl,
 } from '@/api/requrls/taskCenter';
 
 import type { CommonList, TableQueryParams } from '@/models/common';
@@ -126,4 +127,9 @@ export function organizationBatchTaskReportList(data: TaskCenterBatchParams) {
 // 组织任务-项目列表
 export function organizationProjectOptions() {
   return MSR.get<ProjectListItem[]>({ url: organizationProjectOptionsUrl });
+}
+
+// 组织任务-重跑
+export function organizationTaskRerun(id: string) {
+  return MSR.get({ url: `${organizationTaskRerunUrl}/${id}` });
 }

@@ -63,7 +63,15 @@
       </template>
     </ms-base-table>
   </div>
-  <caseAndScenarioReportDrawer v-model:visible="showResponse" :report-id="activeReportId" />
+  <caseExecuteResultDrawer
+    v-if="showResponse"
+    :id="activeReport.id"
+    v-model:visible="showResponse"
+    :user-name="activeReport.createUser"
+    :status="activeReport.execStatus"
+    :result="activeReport.status"
+    :resource-name="activeReport.name"
+  />
 </template>
 
 <script setup lang="ts">
@@ -74,7 +82,6 @@
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
-  import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import { getApiCaseExecuteHistory } from '@/api/modules/api-test/management';
@@ -82,12 +89,16 @@
   import useAppStore from '@/store/modules/app';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { ApiCaseExecuteHistoryItem } from '@/models/apiTest/management';
-  import { ReportExecStatus } from '@/enums/apiEnum';
+  import { ExecuteHistoryItem } from '@/models/apiTest/scenario';
+  // import { ReportExecStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { triggerModeOptions } from '@/views/api-test/report/utils';
+
+  const caseExecuteResultDrawer = defineAsyncComponent(
+    () => import('@/views/taskCenter/component/caseExecuteResultDrawer.vue')
+  );
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -100,14 +111,14 @@
     });
   });
 
-  const ExecStatusList = computed(() => {
-    return Object.values(ReportExecStatus).map((e) => {
-      return {
-        value: e,
-        key: e,
-      };
-    });
-  });
+  // const ExecStatusList = computed(() => {
+  //   return Object.values(ReportExecStatus).map((e) => {
+  //     return {
+  //       value: e,
+  //       key: e,
+  //     };
+  //   });
+  // });
 
   const showResponse = ref(false);
 
@@ -206,10 +217,10 @@
   }
 
   const activeReportIndex = ref<number>(0);
-  const activeReportId = ref('');
+  const activeReport = ref<ExecuteHistoryItem>({} as ExecuteHistoryItem);
 
-  async function showResult(record: ApiCaseExecuteHistoryItem, rowIndex: number) {
-    activeReportId.value = record.id;
+  async function showResult(record: ExecuteHistoryItem, rowIndex: number) {
+    activeReport.value = record;
     activeReportIndex.value = rowIndex;
     showResponse.value = true;
   }

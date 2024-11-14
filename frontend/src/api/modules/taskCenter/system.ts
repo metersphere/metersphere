@@ -21,6 +21,7 @@ import {
   systemStopTaskUrl,
   systemTaskCenterResourcePoolsUrl,
   systemTaskOrderUrl,
+  systemTaskRerunUrl,
 } from '@/api/requrls/taskCenter';
 
 import type { CommonList, TableQueryParams } from '@/models/common';
@@ -140,4 +141,9 @@ export function systemOrgOptions() {
 // 系统任务-项目列表
 export function systemProjectOptions() {
   return MSR.get<ProjectListItem[]>({ url: systemProjectOptionsUrl });
+}
+
+// 系统任务-重跑
+export function systemTaskRerun(id: string) {
+  return MSR.get({ url: `${systemTaskRerunUrl}/${id}` });
 }

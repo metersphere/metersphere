@@ -53,7 +53,14 @@
       </template>
     </ms-base-table>
     <!-- 场景报告抽屉 -->
-    <caseAndScenarioReportDrawer v-model:visible="showScenarioReportVisible" is-scenario :report-id="reportId" />
+    <scenarioExecuteResultDrawer
+      v-if="showScenarioReportVisible"
+      :id="activeRecord.id"
+      v-model:visible="showScenarioReportVisible"
+      :user-name="activeRecord.createUser"
+      :status="activeRecord.execStatus"
+      :result="activeRecord.status"
+    />
   </div>
 </template>
 
@@ -66,7 +73,6 @@
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
-  import caseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
 
   import { getExecuteHistory } from '@/api/modules/api-test/scenario';
@@ -79,6 +85,10 @@
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { triggerModeOptions } from '@/views/api-test/report/utils';
+
+  const scenarioExecuteResultDrawer = defineAsyncComponent(
+    () => import('@/views/taskCenter/component/scenarioExecuteResultDrawer.vue')
+  );
 
   const tableQueryParams = ref<any>();
 
@@ -193,12 +203,12 @@
   }
 
   const showScenarioReportVisible = ref(false);
-  const reportId = ref('');
+  const activeRecord = ref<ExecuteHistoryItem>({} as ExecuteHistoryItem);
 
   const color = 'rgb(var(--primary-7))';
 
   function showResult(record: ExecuteHistoryItem) {
-    reportId.value = record.id;
+    activeRecord.value = record;
     showScenarioReportVisible.value = true;
   }
 
