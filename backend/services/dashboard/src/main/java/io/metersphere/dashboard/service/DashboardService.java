@@ -901,11 +901,11 @@ public class DashboardService {
         NameCountDTO processDTO = getNameCountDTO(CollectionUtils.isEmpty(processList) ? 0 : processList.size(), Translator.get("api_definition.status.ongoing"));
         NameCountDTO deprecateDTO = getNameCountDTO(CollectionUtils.isEmpty(deprecatedList) ? 0 : deprecatedList.size(), Translator.get("api_definition.status.abandoned"));
         NameCountDTO debugDTO = getNameCountDTO(CollectionUtils.isEmpty(debugList) ? 0 : debugList.size(), Translator.get("api_definition.status.continuous"));
+        nameCountDTOS.add(completionRate);
+        nameCountDTOS.add(doneDTO);
+        nameCountDTOS.add(processDTO);
         nameCountDTOS.add(debugDTO);
         nameCountDTOS.add(deprecateDTO);
-        nameCountDTOS.add(processDTO);
-        nameCountDTOS.add(doneDTO);
-        nameCountDTOS.add(completionRate);
         Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
         statusStatisticsMap.put("completionRate", nameCountDTOS);
         statisticsDTO.setStatusPercentList(statusPercentList);
