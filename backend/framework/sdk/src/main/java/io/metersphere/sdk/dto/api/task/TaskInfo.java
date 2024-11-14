@@ -124,4 +124,8 @@ public class TaskInfo implements Serializable {
      * 执行时初始化报告需要记录资源池ID
      */
     private String poolId;
+    /**
+     * 是否是任务失败重跑
+     */
+    private Boolean rerun;
 }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.ExtExecTaskItemMapper">
-
     <select id="selectList" resultType="io.metersphere.system.dto.taskhub.TaskHubItemDTO">
         SELECT exec_task_item.*, exec_task.num, exec_task.task_name, exec_task.trigger_mode
         FROM exec_task_item
@@ -237,7 +236,6 @@
         and `status` = 'RUNNING'
     </update>
 
-
     <select id="getResourcePoolsByItemIds" resultType="io.metersphere.system.domain.ExecTaskItem">
         SELECT
         id,
@@ -321,4 +319,32 @@
             </foreach>
         </if>
     </select>
+
+    <select id="selectRerunIds" resultType="java.lang.String">
+        select id from exec_task_item where task_id = #{taskId} and `result` = 'ERROR' and deleted = false
+    </select>
+
+    <update id="resetRerunTaskItem">
+        UPDATE exec_task_item
+        SET `status` = 'PENDING',
+            `result` = 'PENDING',
+            resource_pool_id = '',
+            resource_pool_node = null,
+            thread_id = null,
+            start_time = null,
+            end_time = null,
+            collection_id = null,
+            error_message = null,
+            executor = #{userId}
+        WHERE
+        deleted = false
+        and task_id = #{taskId}
+        and `result` = 'ERROR'
+    </update>
+
+    <delete id="deleteRerunTaskItemReportRelation">
+        delete arrt
+        from api_report_relate_task arrt join exec_task_item eti on eti.id = arrt.task_resource_id
+        where eti.task_id = #{taskId} and eti.`result` = 'ERROR' and eti.deleted = false
+    </delete>
 </mapper>

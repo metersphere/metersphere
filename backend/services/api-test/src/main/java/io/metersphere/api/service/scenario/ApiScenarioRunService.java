@@ -467,8 +467,9 @@ public class ApiScenarioRunService {
     public String initApiScenarioReport(String taskItemId, ApiScenario apiScenario, GetRunScriptRequest request) {
         // 初始化报告
         ApiScenarioReport scenarioReport = getScenarioReport(apiScenario, request);
+        scenarioReport.setStartTime(System.currentTimeMillis());
         apiScenarioReportService.insertApiScenarioReport(scenarioReport);
-        return initApiScenarioReportDetail(taskItemId, apiScenario.getId(), request.getTaskItem().getReportId());
+        return initApiScenarioReportDetail(taskItemId, apiScenario.getId(), scenarioReport.getId());
     }
 
     /**
@@ -1095,5 +1096,24 @@ public class ApiScenarioRunService {
             projectEnvMap.put(environmentInfoDTO.getProjectId(), environmentInfoDTO);
         }
         return projectEnvMap;
+    }
+
+    public void runRun(ExecTask execTask, ExecTaskItem execTaskItem, String userId) {
+        ApiScenario apiScenario = apiScenarioService.checkResourceIsNoDeleted(execTaskItem.getResourceId());
+
+        String poolId = apiExecuteService.getProjectApiResourcePoolId(apiScenario.getProjectId());
+
+        TaskRequestDTO taskRequest = getTaskRequest(null, apiScenario.getId(), apiScenario.getProjectId(), ApiExecuteRunMode.RUN.name());
+        TaskInfo taskInfo = taskRequest.getTaskInfo();
+        TaskItem taskItem = taskRequest.getTaskItem();
+        taskItem.setId(execTaskItem.getId());
+        taskInfo.setTaskId(execTask.getId());
+        taskInfo.getRunModeConfig().setPoolId(poolId);
+        taskInfo.setSaveResult(true);
+        taskInfo.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        taskInfo.setUserId(userId);
+        taskInfo.setRealTime(false);
+
+        apiExecuteService.execute(taskRequest);
     }
 }

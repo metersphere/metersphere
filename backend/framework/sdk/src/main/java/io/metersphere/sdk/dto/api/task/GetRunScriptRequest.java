@@ -68,4 +68,8 @@ public class GetRunScriptRequest implements Serializable {
      * {@link io.metersphere.sdk.constants.TaskTriggerMode}
      */
     private String triggerMode;
+    /**
+     * 是否是任务失败重跑
+     */
+    private Boolean rerun;
 }

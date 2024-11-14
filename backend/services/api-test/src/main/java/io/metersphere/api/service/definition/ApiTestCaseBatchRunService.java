@@ -404,7 +404,7 @@ public class ApiTestCaseBatchRunService {
      * @param apiTestCase
      * @return
      */
-    public ApiTestCaseRecord initApiReport(String taskItemId, ApiRunModeConfigDTO runModeConfig,
+    public String initApiReport(String taskItemId, ApiRunModeConfigDTO runModeConfig,
                                            ApiTestCase apiTestCase, String userId) {
         // 初始化报告
         ApiReport apiReport = getApiReport(runModeConfig, apiTestCase, userId);

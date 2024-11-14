@@ -1512,7 +1512,7 @@ public class ApiScenarioService extends MoveNodeService {
         return apiScenarioDetailDTO;
     }
 
-    private ApiScenario checkResourceIsNoDeleted(String id) {
+    public ApiScenario checkResourceIsNoDeleted(String id) {
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdEqualTo(id).andDeletedEqualTo(false);
         List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);

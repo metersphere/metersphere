@@ -6,6 +6,7 @@ import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.service.TaskRerunService;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,10 +29,7 @@ public class TaskRerunServiceInvoker {
         return EnumValidator.validateEnum(ExecTaskType.class, execTaskType);
     }
 
-    public static void rerun(ExecTask execTask) {
-        TaskRerunService taskRerunService = getTaskRerunService(getExecTaskType(execTask.getTaskType()));
-        if (taskRerunService != null) {
-            taskRerunService.rerun(execTask);
-        }
+    public static void rerun(ExecTask execTask, List<String> taskItemIds, String userId) {
+        getTaskRerunService(getExecTaskType(execTask.getTaskType())).rerun(execTask, taskItemIds, userId);
     }
 }

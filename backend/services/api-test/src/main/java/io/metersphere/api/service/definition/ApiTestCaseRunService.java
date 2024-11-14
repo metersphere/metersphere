@@ -84,6 +84,31 @@ public class ApiTestCaseRunService {
     }
 
     /**
+     * 任务重跑
+     *
+     * @param userId
+     * @return
+     */
+    public TaskRequestDTO runRun(ExecTask execTask, ExecTaskItem execTaskItem, String userId) {
+        String id = execTaskItem.getResourceId();
+        ApiTestCase apiTestCase = apiTestCaseService.checkResourceExist(id);
+        String poolId = apiExecuteService.getProjectApiResourcePoolId(apiTestCase.getProjectId());
+
+        TaskRequestDTO taskRequest = getTaskRequest(null, id, apiTestCase.getProjectId(), ApiExecuteRunMode.RUN.name());
+        TaskItem taskItem = taskRequest.getTaskItem();
+        TaskInfo taskInfo = taskRequest.getTaskInfo();
+        taskInfo.getRunModeConfig().setPoolId(poolId);
+        taskInfo.setSaveResult(true);
+        taskInfo.setUserId(userId);
+        taskInfo.setTaskId(execTask.getId());
+        taskInfo.setNeedParseScript(true);
+        taskInfo.setRerun(true);
+        taskItem.setId(execTaskItem.getId());
+
+        return apiExecuteService.execute(taskRequest);
+    }
+
+    /**
      * 接口执行
      * 保存报告
      *
@@ -97,20 +122,8 @@ public class ApiTestCaseRunService {
         String poolId = apiExecuteService.getProjectApiResourcePoolId(apiTestCase.getProjectId());
         Project project = projectMapper.selectByPrimaryKey(apiTestCase.getProjectId());
 
-        ExecTask execTask = apiCommonService.newExecTask(project.getId(), userId);
-        execTask.setCaseCount(1L);
-        execTask.setTaskName(apiTestCase.getName());
-        execTask.setOrganizationId(project.getOrganizationId());
-        execTask.setTriggerMode(TaskTriggerMode.MANUAL.name());
-        execTask.setTaskType(ExecTaskType.API_CASE.name());
-
-        ExecTaskItem execTaskItem = apiCommonService.newExecTaskItem(execTask.getId(), project.getId(), userId);
-        execTaskItem.setOrganizationId(project.getOrganizationId());
-        execTaskItem.setResourceType(ApiExecuteResourceType.API_CASE.name());
-        execTaskItem.setResourceId(apiTestCase.getId());
-        execTaskItem.setCaseId(apiTestCase.getId());
-        execTaskItem.setResourceName(apiTestCase.getName());
-
+        ExecTask execTask = newExecTask(apiTestCase, userId, project);
+        ExecTaskItem execTaskItem = newExecTaskItem(apiTestCase, userId, project, execTask.getId());
         baseTaskHubService.insertExecTaskAndDetail(execTask, execTaskItem);
 
         TaskRequestDTO taskRequest = getTaskRequest(reportId, apiTestCase.getId(), apiTestCase.getProjectId(), ApiExecuteRunMode.RUN.name());
@@ -131,6 +144,26 @@ public class ApiTestCaseRunService {
         }
 
         return doExecute(taskRequest, runRequest, apiTestCase.getApiDefinitionId(), apiTestCase.getEnvironmentId());
+    }
+
+    private ExecTaskItem newExecTaskItem(ApiTestCase apiTestCase, String userId, Project project, String taskId) {
+        ExecTaskItem execTaskItem = apiCommonService.newExecTaskItem(taskId, project.getId(), userId);
+        execTaskItem.setOrganizationId(project.getOrganizationId());
+        execTaskItem.setResourceType(ApiExecuteResourceType.API_CASE.name());
+        execTaskItem.setResourceId(apiTestCase.getId());
+        execTaskItem.setCaseId(apiTestCase.getId());
+        execTaskItem.setResourceName(apiTestCase.getName());
+        return execTaskItem;
+    }
+
+    private ExecTask newExecTask(ApiTestCase apiTestCase, String userId, Project project) {
+        ExecTask execTask = apiCommonService.newExecTask(project.getId(), userId);
+        execTask.setCaseCount(1L);
+        execTask.setTaskName(apiTestCase.getName());
+        execTask.setOrganizationId(project.getOrganizationId());
+        execTask.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        execTask.setTaskType(ExecTaskType.API_CASE.name());
+        return execTask;
     }
 
     /**
@@ -219,11 +252,14 @@ public class ApiTestCaseRunService {
      * @param apiTestCase
      * @return
      */
-    public ApiTestCaseRecord initApiReport(String taskItemId, ApiTestCase apiTestCase, GetRunScriptRequest request) {
+    public String initApiReport(String taskItemId, ApiTestCase apiTestCase, GetRunScriptRequest request) {
         // 初始化报告
         ApiReport apiReport = getApiReport(apiTestCase, request);
+        if (StringUtils.isBlank(apiReport.getId())) {
+            apiReport.setId(IDGenerator.nextStr());
+        }
         apiReportService.insertApiReport(apiReport);
-        return initApiReportDetail(taskItemId, apiTestCase, request.getTaskItem().getReportId());
+        return initApiReportDetail(taskItemId, apiTestCase, apiReport.getId());
     }
 
     /**
@@ -232,7 +268,7 @@ public class ApiTestCaseRunService {
      * @param apiTestCase
      * @return
      */
-    public ApiTestCaseRecord initApiReportDetail(String taskItemId, ApiTestCase apiTestCase, String reportId) {
+    public String initApiReportDetail(String taskItemId, ApiTestCase apiTestCase, String reportId) {
         // 初始化步骤
         ApiReportStep apiReportStep = getApiReportStep(apiTestCase, reportId, 1);
         // 初始化报告和用例的关联关系
@@ -241,7 +277,7 @@ public class ApiTestCaseRunService {
         ApiReportRelateTask apiReportRelateTask = apiCommonService.getApiReportRelateTask(taskItemId, reportId);
 
         apiReportService.insertApiReportDetail(apiReportStep, apiTestCaseRecord, apiReportRelateTask);
-        return apiTestCaseRecord;
+        return apiTestCaseRecord.getApiReportId();
     }
 
     public ApiReport getApiReport(ApiTestCase apiTestCase, GetRunScriptRequest request) {

@@ -866,6 +866,7 @@ public class ApiExecuteService {
         TaskItem taskItem = new TaskItem();
         taskItem.setReportId(reportId);
         taskItem.setResourceId(resourceId);
+        taskItem.setRequestCount(1L);
         return taskItem;
     }
 

@@ -70,14 +70,10 @@ public class ApiCaseExecuteCallbackService implements ApiExecuteCallbackService 
         String reportId = taskItem.getReportId();
         if (BooleanUtils.isTrue(request.getBatch()) && !request.getRunModeConfig().isIntegratedReport()) {
             // 批量执行，生成独立报告
-            ApiTestCaseRecord apiTestCaseRecord = apiTestCaseBatchRunService.initApiReport(taskItem.getId(), request.getRunModeConfig(), apiTestCase, request.getUserId());
-            reportId = apiTestCaseRecord.getApiReportId();
+            reportId = apiTestCaseBatchRunService.initApiReport(taskItem.getId(), request.getRunModeConfig(), apiTestCase, request.getUserId());
         } else if (BooleanUtils.isFalse(request.getBatch()) && !ApiExecuteRunMode.isDebug(request.getRunMode())) {
             // 单用例执行，非调试，生成报告
-            if (StringUtils.isBlank(taskItem.getReportId())) {
-                reportId = IDGenerator.nextStr();
-            }
-            apiTestCaseRunService.initApiReport(taskItem.getId(), apiTestCase, request);
+            return apiTestCaseRunService.initApiReport(taskItem.getId(), apiTestCase, request);
         }
         return reportId;
     }

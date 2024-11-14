@@ -10,7 +10,6 @@ import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.EnumValidator;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
@@ -71,15 +70,18 @@ public class ApiExecuteResourceService {
         String reportId = taskItem.getReportId();
         ApiExecuteResourceType apiExecuteResourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, request.getResourceType());
 
-        if (request.getBatch()) {
-            // 设置缓存成功说明是第一个任务，则设置任务的开始时间和运行状态
-            if (taskRunningCache.setIfAbsent(taskId)) {
-                // 将任务状态更新为运行中
+        // 重跑不更新任务状态
+        if (BooleanUtils.isFalse(request.getRerun())) {
+            if (request.getBatch()) {
+                // 设置缓存成功说明是第一个任务，则设置任务的开始时间和运行状态
+                if (taskRunningCache.setIfAbsent(taskId)) {
+                    // 将任务状态更新为运行中
+                    apiCommonService.updateTaskRunningStatus(taskId);
+                }
+            } else {
+                // 非批量时，直接更新任务状态
                 apiCommonService.updateTaskRunningStatus(taskId);
             }
-        } else {
-            // 非批量时，直接更新任务状态
-            apiCommonService.updateTaskRunningStatus(taskId);
         }
 
         // 更新任务项状态
