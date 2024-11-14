@@ -109,7 +109,7 @@ public class CaseReviewLogService {
                 caseReview.getCreateUser(),
                 OperationLogType.UPDATE.name(),
                 OperationLogModule.CASE_MANAGEMENT_REVIEW_REVIEW,
-                caseReview.getName());
+                requests.getName());
 
         dto.setPath("/case/review/edit");
         dto.setMethod(HttpMethodConstants.POST.name());
