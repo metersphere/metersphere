@@ -178,6 +178,8 @@ public class FunctionalCaseService {
     private ProjectService projectService;
     @Resource
     private FunctionalCaseNoticeService functionalCaseNoticeService;
+    @Resource
+    private CaseReviewLogService caseReviewLogService;;
 
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId, String organizationId) {
         String caseId = IDGenerator.nextStr();
@@ -201,7 +203,7 @@ public class FunctionalCaseService {
             copyAttachment(request, userId, uploadFileIds, caseId);
         }
         LogUtils.info("保存用例的文件操作完成");
-        addCaseReviewCase(request.getReviewId(), caseId, userId);
+        addCaseReviewCase(request.getReviewId(), functionalCase, userId);
 
         //记录日志
         FunctionalCaseHistoryLogDTO historyLogDTO = getAddLogModule(functionalCase);
@@ -276,10 +278,11 @@ public class FunctionalCaseService {
      *
      * @param reviewId reviewId
      */
-    private void addCaseReviewCase(String reviewId, String caseId, String userId) {
+    private void addCaseReviewCase(String reviewId, FunctionalCase functionalCase, String userId) {
         if (StringUtils.isNotBlank(reviewId)) {
-            caseReviewService.checkCaseReview(reviewId);
-            caseReviewFunctionalCaseService.addCaseReviewFunctionalCase(caseId, userId, reviewId);
+            CaseReview caseReview = caseReviewService.checkCaseReview(reviewId);
+            caseReviewFunctionalCaseService.addCaseReviewFunctionalCase(functionalCase.getId(), userId, reviewId);
+            caseReviewLogService.createCaseAndAssociateLog(caseReview, functionalCase, userId);
         }
     }
 

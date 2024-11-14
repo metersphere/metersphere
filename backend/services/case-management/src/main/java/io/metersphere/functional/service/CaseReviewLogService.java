@@ -13,11 +13,15 @@ import io.metersphere.functional.request.BaseAssociateCaseRequest;
 import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
 import io.metersphere.functional.request.CaseReviewAssociateRequest;
 import io.metersphere.functional.request.CaseReviewRequest;
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -46,6 +50,10 @@ public class CaseReviewLogService {
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
     @Resource
     private ExtFunctionalCaseMapper extFunctionalCaseMapper;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private OperationLogService operationLogService;
 
     /**
      * 新增用例评审 日志
@@ -243,4 +251,19 @@ public class CaseReviewLogService {
         }
     }
 
+    public void createCaseAndAssociateLog(CaseReview caseReview, FunctionalCase functionalCase, String userId) {
+        Project project = projectMapper.selectByPrimaryKey(caseReview.getProjectId());
+        LogDTO dto = LogDTOBuilder.builder()
+                .projectId(caseReview.getProjectId())
+                .organizationId(project.getOrganizationId())
+                .type(OperationLogType.ASSOCIATE.name())
+                .module(OperationLogModule.CASE_REVIEW_DETAIL)
+                .method(HttpMethodConstants.POST.name())
+                .path("/functional/case/add")
+                .sourceId(caseReview.getId())
+                .content(functionalCase.getName())
+                .createUser(userId)
+                .build().getLogDTO();
+        operationLogService.add(dto);
+    }
 }

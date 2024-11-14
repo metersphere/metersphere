@@ -120,6 +120,8 @@ INSERT INTO project (id, num, organization_id, name, description, create_user, u
 VALUES ('wx_test_project_review_one', null, 'organization-associate-case-test', '评审跨项目关联用例', '系统默认创建的项目',
         'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
     ('wx_test_project_review_two', null, 'organization-associate-case-test', '评审跨项目关联用例2', '系统默认创建的项目',
+        'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
+       ('wx_test_project', null, 'organization-associate-case-test', '评审跨项目关联用例3', '系统默认创建的项目',
         'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
 
 
