@@ -335,10 +335,13 @@ public class DashboardService {
         UserLayoutExample userLayoutExample = new UserLayoutExample();
         userLayoutExample.createCriteria().andUserIdEqualTo(userId).andOrgIdEqualTo(organizationId);
         List<UserLayout> userLayouts = userLayoutMapper.selectByExampleWithBLOBs(userLayoutExample);
-        if (CollectionUtils.isEmpty(userLayouts)) {
-            return getDefaultLayoutDTOS(organizationId);
+        List<Project> allPermissionProjects = extProjectMapper.getUserProjectIdName(organizationId, null, userId);
+        if (CollectionUtils.isEmpty(allPermissionProjects)) {
+            return new ArrayList<>();
         }
-
+        if (CollectionUtils.isEmpty(userLayouts)) {
+            return getDefaultLayoutDTOS(allPermissionProjects.getFirst().getId());
+        }
         UserLayout userLayout = userLayouts.getFirst();
         byte[] configuration = userLayout.getConfiguration();
         String layoutDTOStr = new String(configuration);
@@ -353,12 +356,12 @@ public class DashboardService {
         }
         List<Project> hasPermissionProjectList;
         if (CollectionUtils.isEmpty(oldAllProjectIds)) {
-            hasPermissionProjectList = extProjectMapper.getUserProjectIdName(organizationId, null, userId);
+            hasPermissionProjectList = allPermissionProjects;
         } else {
             List<String> projectIds = oldAllProjectIds.stream().distinct().toList();
             hasPermissionProjectList = extProjectMapper.getUserProjectIdName(null, projectIds, userId);
             if (CollectionUtils.isEmpty(hasPermissionProjectList)) {
-                hasPermissionProjectList = extProjectMapper.getUserProjectIdName(organizationId, null, userId);
+                hasPermissionProjectList = allPermissionProjects;
             }
         }
         Map<String, Project> projectMap = hasPermissionProjectList.stream().collect(Collectors.toMap(Project::getId, t -> t));
@@ -379,9 +382,9 @@ public class DashboardService {
         List<LayoutDTO> layoutDTOS = new ArrayList<>();
         LayoutDTO projectLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_VIEW, "workbench.homePage.projectOverview", 0, new ArrayList<>());
         layoutDTOS.add(projectLayoutDTO);
-        LayoutDTO createByMeLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.CREATE_BY_ME, "workbench,homePage.createdByMe", 1, new ArrayList<>());
+        LayoutDTO createByMeLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.CREATE_BY_ME, "workbench.homePage.createdByMe", 1, new ArrayList<>());
         layoutDTOS.add(createByMeLayoutDTO);
-        LayoutDTO projectMemberLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW, "workbench,homePage.staffOverview", 2, List.of(organizationId));
+        LayoutDTO projectMemberLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW, "workbench.homePage.staffOverview", 2, List.of(organizationId));
         layoutDTOS.add(projectMemberLayoutDTO);
         return layoutDTOS;
     }
