@@ -57,6 +57,10 @@
     item: SelectedCardItem;
   }>();
 
+  const emit = defineEmits<{
+    (e: 'change'): void;
+  }>();
+
   const innerProjectIds = defineModel<string[]>('projectIds', {
     required: true,
   });
@@ -120,7 +124,10 @@
   }
 
   function changeProject() {
-    getRelatedCaseCount();
+    nextTick(() => {
+      getRelatedCaseCount();
+      emit('change');
+    });
   }
 
   onMounted(() => {

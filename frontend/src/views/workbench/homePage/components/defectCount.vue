@@ -46,10 +46,16 @@
   import MsSelect from '@/components/business/ms-select';
   import PassRatePie from './passRatePie.vue';
 
+  import { workBugByMeCreated, workBugCountDetail, workBugHandleByMe } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import type { PassRateDataType, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
+  import type {
+    PassRateDataType,
+    SelectedCardItem,
+    TimeFormParams,
+    WorkHomePageDetail,
+  } from '@/models/workbench/homePage';
   import { WorkCardEnum } from '@/enums/workbenchEnum';
 
   import { handlePieData, handleUpdateTabPie } from '../utils';
@@ -60,6 +66,10 @@
 
   const props = defineProps<{
     item: SelectedCardItem;
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'change'): void;
   }>();
 
   const innerProjectIds = defineModel<string[]>('projectIds', {
@@ -81,24 +91,15 @@
 
   const legacyOptions = ref<Record<string, any>>({});
 
-  // TODO 假数据
-  const detail = ref<PassRateDataType>({
-    statusStatisticsMap: {
-      legacy: [
-        { name: '遗留率', count: 10 },
-        { name: '缺陷总数', count: 2 },
-        { name: '遗留缺陷数', count: 1 },
-      ],
-    },
-    statusPercentList: [
-      { status: 'AAA', count: 1, percentValue: '10%' },
-      { status: 'BBB', count: 3, percentValue: '0%' },
-      { status: 'CCC', count: 6, percentValue: '0%' },
-    ],
-    errorCode: 0,
-  });
-
   const countOptions = ref<Record<string, any>>({});
+
+  type SelectedBugCountKeys = WorkCardEnum.BUG_COUNT | WorkCardEnum.HANDLE_BUG_BY_ME | WorkCardEnum.CREATE_BUG_BY_ME;
+
+  const currentBugCount: (data: WorkHomePageDetail) => Promise<PassRateDataType> = {
+    [WorkCardEnum.BUG_COUNT]: workBugCountDetail,
+    [WorkCardEnum.HANDLE_BUG_BY_ME]: workBugHandleByMe,
+    [WorkCardEnum.CREATE_BUG_BY_ME]: workBugByMeCreated,
+  }[props.item.key as SelectedBugCountKeys];
 
   const hasPermission = ref<boolean>(false);
   async function initCount() {
@@ -114,13 +115,16 @@
         organizationId: appStore.currentOrgId,
         handleUsers: [],
       };
-      const { statusStatisticsMap, statusPercentList, errorCode } = detail.value;
+
+      const detail = await currentBugCount(params);
+
+      const { statusStatisticsMap, statusPercentList, errorCode } = detail;
       hasPermission.value = errorCode !== 109001;
 
       countOptions.value = handlePieData(props.item.key, hasPermission.value, statusPercentList);
 
       const { options, valueList } = handleUpdateTabPie(
-        statusStatisticsMap?.legacy || [],
+        statusStatisticsMap?.retentionRate || [],
         hasPermission.value,
         `${props.item.key}-legacy`
       );
@@ -137,7 +141,10 @@
   });
 
   function changeProject() {
-    initCount();
+    nextTick(() => {
+      initCount();
+      emit('change');
+    });
   }
 
   onMounted(() => {
@@ -147,19 +154,21 @@
   watch(
     () => innerProjectIds.value,
     (val) => {
-      if (val) {
-        const [newProjectId] = val;
-        projectId.value = newProjectId;
-      }
+      const [newProjectId] = val;
+      projectId.value = newProjectId;
+    },
+    {
+      immediate: true,
     }
   );
 
   watch(
     () => projectId.value,
     (val) => {
-      if (val) {
-        innerProjectIds.value = [val];
-      }
+      innerProjectIds.value = [val];
+    },
+    {
+      immediate: true,
     }
   );
 

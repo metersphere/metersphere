@@ -17,6 +17,7 @@
           :has-all-select="true"
           :default-all-select="!(props.item.projectIds || []).length"
           :at-least-one="true"
+          @change="changeProject"
         >
         </MsSelect>
       </div>
@@ -45,6 +46,7 @@
   import { contentTabList } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { addCommasToNumber } from '@/utils';
 
   import type {
     ModuleCardItem,
@@ -60,6 +62,10 @@
 
   const props = defineProps<{
     item: SelectedCardItem;
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'change'): void;
   }>();
 
   const appStore = useAppStore();
@@ -111,14 +117,41 @@
 
     // 处理data数据
     options.value.series = detail.projectCountList.map((item) => {
+      const countData = item.count.map((e) => {
+        return {
+          name: item.name,
+          value: e !== 0 ? e : undefined,
+          tooltip: {
+            show: true,
+            trigger: 'item',
+            enterable: true,
+            formatter(params: any) {
+              const html = `
+        <div class="w-[186px] h-[50px] p-[16px] flex items-center justify-between">
+        <div class=" flex items-center">
+        <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm bg-[${params.color}]" style="background:${
+                params.color
+              }"></div>
+        <div class="one-line-text max-w-[100px]"" style="color:#959598">${params.name}</div>
+        </div>
+        <div class="text-[#323233] font-medium">${addCommasToNumber(params.value)}</div>
+        </div>
+        `;
+              return html;
+            },
+          },
+        };
+      });
       return {
         name: item.name,
         type: 'bar',
         barWidth: 12,
+        legendHoverLink: true,
+        large: true,
         itemStyle: {
           borderRadius: [2, 2, 0, 0], // 上边圆角
         },
-        data: item.count,
+        data: countData,
       };
     });
   }
@@ -147,6 +180,10 @@
     } catch (error) {
       console.log(error);
     }
+  }
+
+  function changeProject() {
+    emit('change');
   }
 
   onMounted(() => {

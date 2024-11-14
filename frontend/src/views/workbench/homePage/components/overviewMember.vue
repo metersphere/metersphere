@@ -27,6 +27,7 @@
           :multiple="true"
           :has-all-select="true"
           :default-all-select="true"
+          @change="changeMember"
         >
         </MsSelect>
       </div>
@@ -62,6 +63,10 @@
   const appStore = useAppStore();
   const props = defineProps<{
     item: SelectedCardItem;
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'change'): void;
   }>();
 
   const innerProjectIds = defineModel<string[]>('projectIds', {
@@ -138,8 +143,19 @@
   }
 
   function changeProject() {
+    memberIds.value = [];
     getMemberOptions();
-    initOverViewMemberDetail();
+    nextTick(() => {
+      initOverViewMemberDetail();
+      emit('change');
+    });
+  }
+
+  function changeMember() {
+    nextTick(() => {
+      initOverViewMemberDetail();
+      emit('change');
+    });
   }
 
   watch(

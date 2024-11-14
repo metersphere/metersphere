@@ -30,7 +30,7 @@
         v-on="propsEvent"
       >
         <template #num="{ record }">
-          <MsButton type="text">{{ record.num || '-' }}</MsButton>
+          <MsButton type="text" @click="openDetail(record)">{{ record.num || '-' }}</MsButton>
         </template>
         <template v-if="isNoPermission" #empty>
           <div class="w-full">
@@ -61,15 +61,24 @@
 
   import { workApiChangeList } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
 
+  import type { ApiDefinitionDetail } from '@/models/apiTest/management';
   import type { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
+  import { ApiTestRouteEnum } from '@/enums/routeEnum';
+
+  const { openNewPage } = useOpenNewPage();
 
   const { t } = useI18n();
   const appStore = useAppStore();
 
   const props = defineProps<{
     item: SelectedCardItem;
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'change'): void;
   }>();
 
   const innerProjectIds = defineModel<string[]>('projectIds', {
@@ -99,6 +108,7 @@
       slotName: 'name',
       dataIndex: 'name',
       width: 200,
+      showTooltip: true,
     },
     {
       title: 'apiTestManagement.path',
@@ -147,6 +157,15 @@
       updateTime: dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss'),
     })
   );
+
+  // 跳转详情
+  function openDetail(record: ApiDefinitionDetail) {
+    openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
+      dId: record.id,
+      pId: projectId.value,
+    });
+  }
+
   const isNoPermission = ref<boolean>(false);
   async function initData() {
     try {
@@ -169,7 +188,10 @@
   }
 
   function changeProject() {
-    initData();
+    nextTick(() => {
+      initData();
+      emit('change');
+    });
   }
 
   onMounted(() => {

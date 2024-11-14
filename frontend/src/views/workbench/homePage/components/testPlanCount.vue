@@ -57,12 +57,16 @@
 
   import { handlePieData, handleUpdateTabPie } from '../utils';
 
+  const { t } = useI18n();
+  const appStore = useAppStore();
+
   const props = defineProps<{
     item: SelectedCardItem;
   }>();
 
-  const { t } = useI18n();
-  const appStore = useAppStore();
+  const emit = defineEmits<{
+    (e: 'change'): void;
+  }>();
 
   const innerProjectIds = defineModel<string[]>('projectIds', {
     required: true,
@@ -190,12 +194,16 @@
       passOptions.value = passedOptions;
       completeOptions.value = comOptions;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
 
   function changeProject() {
-    initTestPlanCount();
+    nextTick(() => {
+      initTestPlanCount();
+      emit('change');
+    });
   }
 
   onMounted(() => {

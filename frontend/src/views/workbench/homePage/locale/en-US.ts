@@ -112,4 +112,5 @@ export default {
   'workbench.homePage.executeRate': 'Execution Rate',
   'workbench.homePage.completeRate': 'Completion Rate',
   'workbench.homePage.legacyRate': 'Legacy Rate',
+  'workbench.homePage.unit': 'Unit: Number',
 };

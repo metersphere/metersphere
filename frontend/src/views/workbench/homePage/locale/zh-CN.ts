@@ -98,4 +98,5 @@ export default {
   'workbench.homePage.executeRate': '执行率',
   'workbench.homePage.completeRate': '完成率',
   'workbench.homePage.legacyRate': '遗留率',
+  'workbench.homePage.unit': '单位：个',
 };

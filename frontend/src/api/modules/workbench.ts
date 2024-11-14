@@ -17,7 +17,9 @@ import type {
 import {
   EditDashboardLayoutUrl,
   GetDashboardLayoutUrl,
+  WorkApiCaseCountDetailUrl,
   WorkApiChangeListUrl,
+  WorkApiCountDetailUrl,
   WorkAssociateCaseDetailUrl,
   WorkbenchApiCaseListUrl,
   WorkbenchBugListUrl,
@@ -26,13 +28,18 @@ import {
   WorkbenchScenarioListUrl,
   WorkbenchTestPlanListUrl,
   WorkbenchTestPlanStatisticUrl,
+  WorkBugByMeCreatedUrl,
+  WorkBugCountDetailUrl,
+  WorkBugHandleByMeUrl,
   WorkBugHandlerDetailUrl,
   WorkCaseCountDetailUrl,
   WorkCaseReviewDetailUrl,
+  WorkHandleUserOptionsUrl,
   WorkMemberViewDetailUrl,
   WorkMyCreatedDetailUrl,
   WorkProOverviewDetailUrl,
   WorkReviewListUrl,
+  WorkScenarioCaseCountDetailUrl,
   WorkTodoBugListUrl,
   WorkTodoPlanListUrl,
   WorkTodoReviewListUrl,
@@ -75,15 +82,15 @@ export function workbenchApiCaseList(data: TableQueryParams) {
 
 // 工作台首页概览
 export function workProOverviewDetail(data: WorkHomePageDetail) {
-  return MSR.post<OverViewOfProject>({ url: WorkProOverviewDetailUrl, data });
+  return MSR.post<OverViewOfProject>({ url: WorkProOverviewDetailUrl, data }, { ignoreCancelToken: true });
 }
 // 我创建的
 export function workMyCreatedDetail(data: WorkHomePageDetail) {
-  return MSR.post<OverViewOfProject>({ url: WorkMyCreatedDetailUrl, data });
+  return MSR.post<OverViewOfProject>({ url: WorkMyCreatedDetailUrl, data }, { ignoreCancelToken: true });
 }
 // 人员概览
 export function workMemberViewDetail(data: WorkHomePageDetail) {
-  return MSR.post<OverViewOfProject>({ url: WorkMemberViewDetailUrl, data });
+  return MSR.post<OverViewOfProject>({ url: WorkMemberViewDetailUrl, data }, { ignoreCancelToken: true });
 }
 // 获取用户布局
 export function getDashboardLayout(orgId: string) {
@@ -97,21 +104,21 @@ export function editDashboardLayout(data: SelectedCardItem[], orgId: string) {
 
 // 工作台-首页-用例数
 export function workCaseCountDetail(data: WorkHomePageDetail) {
-  return MSR.post<PassRateDataType>({ url: WorkCaseCountDetailUrl, data });
+  return MSR.post<PassRateDataType>({ url: WorkCaseCountDetailUrl, data }, { ignoreCancelToken: true });
 }
 // 工作台-首页-关联用例数
 export function workAssociateCaseDetail(data: WorkHomePageDetail) {
-  return MSR.post<PassRateDataType>({ url: WorkAssociateCaseDetailUrl, data });
+  return MSR.post<PassRateDataType>({ url: WorkAssociateCaseDetailUrl, data }, { ignoreCancelToken: true });
 }
 
 // 工作台-首页-用例评审数
 export function workCaseReviewDetail(data: WorkHomePageDetail) {
-  return MSR.post<PassRateDataType>({ url: WorkCaseReviewDetailUrl, data });
+  return MSR.post<PassRateDataType>({ url: WorkCaseReviewDetailUrl, data }, { ignoreCancelToken: true });
 }
 
 // 工作台-首页-缺陷处理人
 export function workBugHandlerDetail(data: WorkHomePageDetail) {
-  return MSR.post<OverViewOfProject>({ url: WorkBugHandlerDetailUrl, data });
+  return MSR.post<OverViewOfProject>({ url: WorkBugHandlerDetailUrl, data }, { ignoreCancelToken: true });
 }
 
 // 工作台-首页-接口变更
@@ -128,6 +135,41 @@ export function workReviewList(data: WorkHomePageDetail) {
     { url: WorkReviewListUrl, data },
     { ignoreCancelToken: true, errorMessageMode: 'none' }
   );
+}
+
+// 工作台-首页-缺陷数量
+export function workBugCountDetail(data: WorkHomePageDetail) {
+  return MSR.post<PassRateDataType>({ url: WorkBugCountDetailUrl, data }, { ignoreCancelToken: true });
+}
+
+// 工作台-首页-我创建的缺陷
+export function workBugByMeCreated(data: WorkHomePageDetail) {
+  return MSR.post<PassRateDataType>({ url: WorkBugByMeCreatedUrl, data }, { ignoreCancelToken: true });
+}
+
+// 工作台-首页-待我处理的缺陷
+export function workBugHandleByMe(data: WorkHomePageDetail) {
+  return MSR.post<PassRateDataType>({ url: WorkBugHandleByMeUrl, data }, { ignoreCancelToken: true });
+}
+
+// 工作台-首页-接口数量
+export function workApiCountDetail(data: WorkHomePageDetail) {
+  return MSR.post<PassRateDataType>({ url: WorkApiCountDetailUrl, data }, { ignoreCancelToken: true });
+}
+
+// 工作台-首页-接口用例数量
+export function workApiCaseCountDetail(data: WorkHomePageDetail) {
+  return MSR.post<PassRateDataType>({ url: WorkApiCaseCountDetailUrl, data }, { ignoreCancelToken: true });
+}
+
+// 工作台-首页-场景用例数量
+export function workScenarioCaseCountDetail(data: WorkHomePageDetail) {
+  return MSR.post<PassRateDataType>({ url: WorkScenarioCaseCountDetailUrl, data }, { ignoreCancelToken: true });
+}
+
+// 工作台-首页-缺陷处理人列表
+export function workHandleUserOptions(projectId: string) {
+  return MSR.get({ url: WorkHandleUserOptionsUrl, params: projectId }, { ignoreCancelToken: true });
 }
 
 // 待办-用例评审列表

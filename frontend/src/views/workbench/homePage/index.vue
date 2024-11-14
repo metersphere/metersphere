@@ -56,57 +56,77 @@
           v-if="[WorkCardEnum.CREATE_BY_ME, WorkCardEnum.PROJECT_VIEW].includes(item.key)"
           v-model:projectIds="item.projectIds"
           :item="item"
+          @change="changeHandler"
         />
         <OverviewMember
           v-else-if="item.key === WorkCardEnum.PROJECT_MEMBER_VIEW"
           v-model:projectIds="item.projectIds"
           v-model:handleUsers="item.handleUsers"
           :item="item"
+          @change="changeHandler"
         />
-        <CaseCount v-else-if="item.key === WorkCardEnum.CASE_COUNT" v-model:projectIds="item.projectIds" :item="item" />
+        <CaseCount
+          v-else-if="item.key === WorkCardEnum.CASE_COUNT"
+          v-model:projectIds="item.projectIds"
+          :item="item"
+          @change="changeHandler"
+        />
         <RelatedCaseCount
           v-else-if="item.key === WorkCardEnum.ASSOCIATE_CASE_COUNT"
           v-model:projectIds="item.projectIds"
           :item="item"
+          @change="changeHandler"
         />
         <CaseReviewedCount
           v-else-if="item.key === WorkCardEnum.REVIEW_CASE_COUNT"
           v-model:projectIds="item.projectIds"
           :item="item"
+          @change="changeHandler"
         />
         <WaitReviewList
           v-else-if="item.key === WorkCardEnum.REVIEWING_BY_ME"
           v-model:projectIds="item.projectIds"
           :item="item"
+          @change="changeHandler"
         />
         <ApiAndScenarioCase
           v-else-if="[WorkCardEnum.API_CASE_COUNT, WorkCardEnum.SCENARIO_COUNT].includes(item.key)"
           v-model:projectIds="item.projectIds"
           :type="item.key"
           :item="item"
+          @change="changeHandler"
         />
         <ApiChangeList
           v-else-if="item.key === WorkCardEnum.API_CHANGE"
           v-model:projectIds="item.projectIds"
           :item="item"
+          @change="changeHandler"
         />
         <DefectMemberBar
           v-else-if="item.key === WorkCardEnum.BUG_HANDLE_USER"
           v-model:projectIds="item.projectIds"
           v-model:handleUsers="item.handleUsers"
           :item="item"
+          @change="changeHandler"
         />
         <DefectCount
           v-else-if="countOfBug.includes(item.key)"
           v-model:projectIds="item.projectIds"
           :item="item"
           :type="item.key"
+          @change="changeHandler"
         />
-        <ApiCount v-else-if="item.key === WorkCardEnum.API_COUNT" v-model:projectIds="item.projectIds" :item="item" />
+        <ApiCount
+          v-else-if="item.key === WorkCardEnum.API_COUNT"
+          v-model:projectIds="item.projectIds"
+          :item="item"
+          @change="changeHandler"
+        />
         <TestPlanCount
           v-else-if="item.key === WorkCardEnum.TEST_PLAN_COUNT"
           v-model:projectIds="item.projectIds"
           :item="item"
+          @change="changeHandler"
         />
       </div>
     </div>
@@ -142,13 +162,13 @@
   import DefectMemberBar from '@/views/workbench/homePage/components/defectMemberBar.vue';
   import OverviewMember from '@/views/workbench/homePage/components/overviewMember.vue';
 
-  import { getDashboardLayout } from '@/api/modules/workbench';
+  import { editDashboardLayout, getDashboardLayout } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
 
-  import { SelectedCardItem } from '@/models/workbench/homePage';
+  import { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
   import { WorkCardEnum } from '@/enums/workbenchEnum';
 
   const userStore = useUserStore();
@@ -159,12 +179,12 @@
 
   const rangeTime = ref<number[]>([]);
   const tempRange = ref<(Date | string | number)[]>(['00:00:00', '00:00:00']);
-  const initTime = {
+  const initTime: TimeFormParams = {
     dayNumber: 3,
     startTime: 0,
     endTime: 0,
   };
-  const timeForm = ref({ ...initTime });
+  const timeForm = ref<TimeFormParams>({ ...initTime });
 
   function resetTime() {
     timeForm.value = { ...initTime };
@@ -173,13 +193,16 @@
 
   // 改变时间类型
   function handleChangeTime(value: string | number | boolean, ev: Event) {
-    resetTime();
-    timeForm.value.dayNumber = value as number;
-    setLocalStorage(`WORK_TIME_${userStore.id}`, JSON.stringify(timeForm.value));
+    if (value) {
+      resetTime();
+      timeForm.value.dayNumber = value as number;
+      setLocalStorage(`WORK_TIME_${userStore.id}`, JSON.stringify(timeForm.value));
+    }
   }
   // 改变时间
   function handleTimeSelect(value: (Date | string | number | undefined)[]) {
     if (value) {
+      timeForm.value.dayNumber = '';
       timeForm.value.startTime = 0;
       timeForm.value.endTime = 0;
       const start = (value as number[])[0];
@@ -228,6 +251,15 @@
     initDefaultList();
   }
 
+  async function changeHandler() {
+    try {
+      await editDashboardLayout(defaultWorkList.value, appStore.currentOrgId);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   onMounted(() => {
     initDefaultList();
     const defaultTime = getLocalStorage(`WORK_TIME_${userStore.id}`);
@@ -236,11 +268,25 @@
     } else {
       timeForm.value = JSON.parse(defaultTime);
       const { startTime, endTime } = timeForm.value;
-      rangeTime.value = [startTime, endTime];
+      if (startTime && endTime) {
+        rangeTime.value = [startTime, endTime];
+      }
     }
   });
 
-  provide('timeForm', timeForm);
+  const time = ref({ ...timeForm.value });
+
+  watch(
+    () => timeForm.value,
+    (val) => {
+      if (val.dayNumber || (val.endTime && val.startTime)) {
+        time.value = { ...val };
+      }
+    },
+    { deep: true }
+  );
+
+  provide('timeForm', time);
 </script>
 
 <style scoped lang="less">

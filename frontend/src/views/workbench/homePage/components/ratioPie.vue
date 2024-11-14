@@ -1,6 +1,16 @@
 <template>
-  <div class="rate-content">
-    <MsChart :options="options" width="200px" />
+  <div class="rate-content relative">
+    <div class="relative flex h-full w-full items-center justify-center">
+      <a-tooltip
+        v-if="props.rateConfig.tooltipText"
+        :mouse-enter-delay="500"
+        :content="t(props.rateConfig.tooltipText || '')"
+        position="bottom"
+      >
+        <div class="tooltip-rate-tooltip"></div>
+      </a-tooltip>
+      <MsChart :options="options" width="146px" />
+    </div>
   </div>
 </template>
 
@@ -10,18 +20,22 @@
   import MsChart from '@/components/pure/chart/index.vue';
 
   import { toolTipConfig } from '@/config/testPlan';
+  import { useI18n } from '@/hooks/useI18n';
   import { addCommasToNumber } from '@/utils';
+
+  const { t } = useI18n();
 
   const props = defineProps<{
     data: { name: string; value: number }[];
+    hasPermission: boolean;
     rateConfig: {
       name: string;
-      count: string;
       color: string[];
+      tooltipText: string;
     };
   }>();
 
-  const commonOptionConfig = ref({
+  const options = ref<Record<string, any>>({
     title: {
       show: true,
       text: '',
@@ -47,6 +61,7 @@
     },
     tooltip: {
       ...toolTipConfig,
+      show: !!props.hasPermission,
     },
     legend: {
       orient: 'vertical',
@@ -103,25 +118,53 @@
       },
       data: [],
     },
+    graphic: {
+      type: 'text',
+      left: 'center',
+      bottom: 10,
+      style: {
+        text: t('workbench.homePage.notHasResPermission'),
+        fontSize: 14,
+        fill: '#959598',
+        backgroundColor: '#F9F9FE',
+        padding: [6, 16, 6, 16],
+        borderRadius: 4,
+      },
+      invisible: false,
+    },
   });
-  const options = ref({});
 
   function initOptions() {
-    const { name, count, color } = props.rateConfig;
-    options.value = {
-      ...commonOptionConfig.value,
-      title: {
-        ...commonOptionConfig.value.title,
-        text: name,
-        subtext: count,
-      },
-      series: {
-        ...commonOptionConfig.value.series,
-        data: [...props.data],
-        color,
-      },
-    };
+    const { name, color } = props.rateConfig;
+
+    if (props.hasPermission) {
+      options.value.series.data = props.data.slice(1);
+
+      options.value.legend.formatter = (seriousName: string) => {
+        const item = props.data.find((e) => e.name === seriousName);
+        return `{a|${seriousName}}  {b|${addCommasToNumber(item?.value || 0)}}`;
+      };
+
+      options.value.title.subtext = `${props.data[0].value ?? 0}%`;
+    } else {
+      options.value.series.data = [];
+      options.value.title.subtext = `-%`;
+    }
+    options.value.graphic.invisible = !!props.hasPermission;
+    options.value.tooltip.show = !!props.hasPermission;
+    options.value.title.text = name;
+
+    options.value.series.color = color;
   }
+
+  watch(
+    () => props.data,
+    (val) => {
+      if (val) {
+        initOptions();
+      }
+    }
+  );
 
   onMounted(() => {
     initOptions();
@@ -130,6 +173,14 @@
 
 <style scoped lang="less">
   .rate-content {
-    height: 152px;
+    height: 158px;
+  }
+  .tooltip-rate-tooltip {
+    position: absolute;
+    top: 10px;
+    z-index: 9;
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
   }
 </style>

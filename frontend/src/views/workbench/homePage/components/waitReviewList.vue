@@ -27,6 +27,13 @@
         class="mt-[16px]"
         v-on="propsEvent"
       >
+        <template #num="{ record }">
+          <a-tooltip :content="`${record.num}`">
+            <a-button type="text" class="px-0 !text-[14px] !leading-[22px]" @click="openDetail(record.id)">
+              <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
+            </a-button>
+          </a-tooltip>
+        </template>
         <template #passRateColumn>
           <div class="flex items-center text-[var(--color-text-3)]">
             {{ t('caseManagement.caseReview.passRate') }}
@@ -58,6 +65,11 @@
             }}
           </a-tag>
         </template>
+        <template #createUserName="{ record }">
+          <a-tooltip :content="`${record.createUserName}`" position="tl">
+            <div class="one-line-text">{{ record.createUserName }}</div>
+          </a-tooltip>
+        </template>
         <template v-if="isNoPermission" #empty>
           <div class="w-full">
             <slot name="empty">
@@ -86,9 +98,13 @@
 
   import { workReviewList } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
 
   import type { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+
+  const { openNewPage } = useOpenNewPage();
 
   const appStore = useAppStore();
 
@@ -96,6 +112,10 @@
 
   const props = defineProps<{
     item: SelectedCardItem;
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'change'): void;
   }>();
 
   const innerProjectIds = defineModel<string[]>('projectIds', {
@@ -122,9 +142,10 @@
     },
     {
       title: 'caseManagement.caseReview.reviewName',
-      slotName: 'reviewName',
-      dataIndex: 'reviewName',
+      slotName: 'name',
+      dataIndex: 'name',
       width: 200,
+      showTooltip: true,
     },
     {
       title: 'caseManagement.caseReview.passRate',
@@ -138,6 +159,12 @@
       dataIndex: 'reviewPassRule',
       showDrag: true,
       width: 100,
+    },
+    {
+      title: 'common.creator',
+      slotName: 'createUserName',
+      dataIndex: 'createUser',
+      width: 200,
     },
   ];
 
@@ -169,8 +196,15 @@
     }
   }
 
+  function openDetail(id: number) {
+    openNewPage(CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL, { id });
+  }
+
   function changeProject() {
-    initData();
+    nextTick(() => {
+      initData();
+      emit('change');
+    });
   }
 
   onMounted(() => {

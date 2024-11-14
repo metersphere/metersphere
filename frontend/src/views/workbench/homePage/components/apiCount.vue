@@ -43,26 +43,31 @@
    * @desc 接口数量
    */
   import { ref } from 'vue';
-  import { cloneDeep } from 'lodash-es';
 
   import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
   import PassRatePie from './passRatePie.vue';
   import TabCard from './tabCard.vue';
 
+  import { workApiCountDetail } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import type { PassRateDataType, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
+  import type { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
   import { handlePieData, handleUpdateTabPie } from '../utils';
+
+  const { t } = useI18n();
+  const appStore = useAppStore();
 
   const props = defineProps<{
     item: SelectedCardItem;
     projectIds: string[];
   }>();
-  const { t } = useI18n();
-  const appStore = useAppStore();
+
+  const emit = defineEmits<{
+    (e: 'change'): void;
+  }>();
 
   const innerProjectIds = defineModel<string[]>('projectIds', {
     required: true,
@@ -79,18 +84,9 @@
     })
   );
 
-  const options = ref({});
-
-  // TODO 假数据
-  const detail = ref<PassRateDataType>({
-    statusStatisticsMap: null,
-    statusPercentList: null,
-    errorCode: 109001,
-  });
-
   const coverValueList = ref<{ value: string | number; label: string; name: string }[]>([]);
 
-  const passValueList = ref<{ value: string | number; label: string; name: string }[]>([]);
+  const completeValueList = ref<{ value: string | number; label: string; name: string }[]>([]);
   const coverOptions = ref<Record<string, any>>({});
   const completeOptions = ref<Record<string, any>>({});
   const apiCountTabList = computed(() => {
@@ -105,7 +101,7 @@
       {
         label: '',
         value: 'pass',
-        valueList: passValueList.value,
+        valueList: completeValueList.value,
         options: { ...completeOptions.value },
         tooltip: 'workbench.homePage.apiCountCompleteRateTooltip',
       },
@@ -115,10 +111,10 @@
   const apiCountOptions = ref({});
 
   const hasPermission = ref<boolean>(false);
-  function initApiCount() {
+  async function initApiCount() {
     try {
       const { startTime, endTime, dayNumber } = timeForm.value;
-      const params = {
+      const detail = await workApiCountDetail({
         current: 1,
         pageSize: 5,
         startTime: dayNumber ? null : startTime,
@@ -127,28 +123,29 @@
         projectIds: innerProjectIds.value,
         organizationId: appStore.currentOrgId,
         handleUsers: [],
-      };
-      const { statusStatisticsMap, statusPercentList, errorCode } = detail.value;
+      });
+      const { statusStatisticsMap, statusPercentList, errorCode } = detail;
 
       hasPermission.value = errorCode !== 109001;
 
       apiCountOptions.value = handlePieData(props.item.key, hasPermission.value, statusPercentList);
 
-      // 覆盖率
-      const { options: covOptions, valueList: coverList } = handleUpdateTabPie(
-        statusStatisticsMap?.cover || [],
-        hasPermission.value,
-        `${props.item.key}-cover`
-      );
-      coverValueList.value = coverList;
-      coverOptions.value = covOptions;
+      // 覆盖率 TODO 等接口
+      // const { options: covOptions, valueList: coverList } = handleUpdateTabPie(
+      //   statusStatisticsMap?.cover || [],
+      //   hasPermission.value,
+      //   `${props.item.key}-cover`
+      // );
+      // coverValueList.value = coverList;
+      // coverOptions.value = covOptions;
 
+      // 完成率
       const { options: comOptions, valueList: completedList } = handleUpdateTabPie(
-        statusStatisticsMap?.cover || [],
+        statusStatisticsMap?.completionRate || [],
         hasPermission.value,
         `${props.item.key}-complete`
       );
-      passValueList.value = completedList;
+      completeValueList.value = completedList;
       completeOptions.value = comOptions;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -157,11 +154,15 @@
   }
 
   function changeProject() {
-    initApiCount();
+    nextTick(() => {
+      initApiCount();
+      emit('change');
+    });
   }
 
   onMounted(() => {
     initApiCount();
+    emit('change');
   });
 
   watch(

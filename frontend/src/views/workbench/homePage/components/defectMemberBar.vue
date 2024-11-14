@@ -45,8 +45,7 @@
   import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
 
-  import { getProjectOptions } from '@/api/modules/project-management/projectMember';
-  import { workBugHandlerDetail } from '@/api/modules/workbench';
+  import { workBugHandlerDetail, workHandleUserOptions } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { characterLimit } from '@/utils';
@@ -60,6 +59,10 @@
   const appStore = useAppStore();
   const props = defineProps<{
     item: SelectedCardItem;
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'change'): void;
   }>();
 
   const innerProjectIds = defineModel<string[]>('projectIds', {
@@ -130,21 +133,27 @@
 
   async function getMemberOptions() {
     const [newProjectId] = innerProjectIds.value;
-    const res = await getProjectOptions(newProjectId);
+    const res = await workHandleUserOptions(newProjectId);
     memberOptions.value = res.map((e: any) => ({
-      label: e.name,
-      value: e.id,
+      label: e.text,
+      value: e.value,
     }));
   }
 
   function changeProject() {
     memberIds.value = [];
     getMemberOptions();
-    getDefectMemberDetail();
+    nextTick(() => {
+      getDefectMemberDetail();
+      emit('change');
+    });
   }
 
   function changeMember() {
-    getDefectMemberDetail();
+    nextTick(() => {
+      getDefectMemberDetail();
+      emit('change');
+    });
   }
 
   watch(
@@ -193,4 +202,14 @@
   });
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  :deep(.arco-select-view-multiple.arco-select-view-size-medium .arco-select-view-tag) {
+    margin-top: 1px;
+    margin-bottom: 1px;
+    max-width: 80px;
+    height: auto;
+    min-height: 24px;
+    line-height: 22px;
+    vertical-align: middle;
+  }
+</style>

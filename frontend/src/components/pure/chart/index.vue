@@ -5,7 +5,7 @@
 <script lang="ts" setup>
   import { nextTick, ref } from 'vue';
 
-  import { BarChart, LineChart, PieChart, RadarChart } from 'echarts/charts';
+  import { BarChart, CustomChart, LineChart, PieChart, RadarChart } from 'echarts/charts';
   import {
     DataZoomComponent,
     GraphicComponent,
@@ -21,6 +21,7 @@
   use([
     CanvasRenderer,
     BarChart,
+    CustomChart,
     LineChart,
     PieChart,
     RadarChart,

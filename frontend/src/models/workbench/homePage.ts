@@ -31,7 +31,7 @@ export interface SelectedCardItem {
 
 // 查询入参
 export interface WorkHomePageDetail extends TableQueryParams {
-  dayNumber: number | null;
+  dayNumber: number | string;
   startTime: number | null;
   endTime: number | null;
   projectIds: string[];
@@ -40,9 +40,9 @@ export interface WorkHomePageDetail extends TableQueryParams {
 }
 
 export interface TimeFormParams {
-  dayNumber: number | null;
-  startTime: number | null;
-  endTime: number | null;
+  dayNumber: number | string;
+  startTime: number;
+  endTime: number;
 }
 
 export interface OverViewOfProject {

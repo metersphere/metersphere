@@ -10,9 +10,13 @@ import { WorkCardEnum } from '@/enums/workbenchEnum';
 const { t } = useI18n();
 // 通用颜色配置
 export const commonColorConfig = [
+  '#783887',
+  '#FFC14E',
+  '#2DFCEF',
   '#811FA3',
+  '#00D1FF',
+  '#FFA53D',
   '#00C261',
-  '#3370FF',
   '#AA4FBF',
   '#FFA1FF',
   '#EE50A3',
@@ -23,15 +27,17 @@ export const commonColorConfig = [
   '#62D256',
   '#14E1C6',
   '#50CEFB',
+  '#3370FF',
   '#2B5FD9',
+  '#76F0FF',
   '#935AF6',
   '#DC9BFF',
+  '#FFC75E',
   '#D34400',
   '#F4D0BF',
-  '#F4D0BF',
+  '#FBD3E8',
+  '#D9F457',
   '#0089D1',
-  '#0089D1',
-  '#62D256',
   '#87F578',
 ];
 
@@ -63,21 +69,9 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
         },
         displayMode: 'single',
         enterable: true,
-        // TODO 单例模式
-        // formatter(params: any) {
-        //   const html = `
-        // <div class="w-[186px] h-[50px] p-[16px] flex items-center justify-between">
-        // <div class=" flex items-center">
-        // <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm bg-[${params.color}]" style="background:${
-        //     params.color
-        //   }"></div>
-        // <div style="color:#959598">${params.name}</div>
-        // </div>
-        // <div class="text-[#323233] font-medium">${addCommasToNumber(params.value)}</div>
-        // </div>
-        // `;
-        //   return html;
-        // },
+        axisPointer: {
+          type: 'shadow',
+        },
         formatter(params: any) {
           const html = `
         <div class="w-[186px] ms-scroll-bar max-h-[206px] overflow-y-auto p-[16px] gap-[8px] flex flex-col">
@@ -129,8 +123,8 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
     },
     yAxis: [
       {
-        type: 'value',
-        name: '单位：个', // 设置单位
+        type: 'log',
+        name: t('workbench.homePage.unit'), // 设置单位
         position: 'left',
         nameTextStyle: {
           fontSize: 12,
@@ -146,8 +140,7 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
             type: 'dashed', // 水平线线型，可选 'solid'、'dashed'、'dotted'
           },
         },
-        min: 0,
-        max: 1,
+        min: 1,
       },
     ],
     graphic: {
@@ -166,7 +159,6 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
     },
     colorBy: 'series',
     series: [],
-    barCategoryGap: '50%', // 控制 X 轴分布居中效果
     legend: {
       width: '60%',
       show: true,
