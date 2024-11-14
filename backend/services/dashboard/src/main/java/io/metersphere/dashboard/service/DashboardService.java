@@ -48,6 +48,7 @@ import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.ResultStatus;
+import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.dto.CombineCondition;
 import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.sdk.util.JSON;
@@ -335,38 +336,89 @@ public class DashboardService {
         UserLayoutExample userLayoutExample = new UserLayoutExample();
         userLayoutExample.createCriteria().andUserIdEqualTo(userId).andOrgIdEqualTo(organizationId);
         List<UserLayout> userLayouts = userLayoutMapper.selectByExampleWithBLOBs(userLayoutExample);
-        if (CollectionUtils.isEmpty(userLayouts)) {
-            return getDefaultLayoutDTOS(organizationId);
+        List<Project> allPermissionProjects = extProjectMapper.getUserProjectIdName(organizationId, null, userId);
+        if (CollectionUtils.isEmpty(allPermissionProjects)) {
+            return new ArrayList<>();
         }
-
+        if (CollectionUtils.isEmpty(userLayouts)) {
+            return getDefaultLayoutDTOS(allPermissionProjects.getFirst().getId());
+        }
         UserLayout userLayout = userLayouts.getFirst();
         byte[] configuration = userLayout.getConfiguration();
         String layoutDTOStr = new String(configuration);
         List<LayoutDTO> layoutDTOS = JSON.parseArray(layoutDTOStr, LayoutDTO.class);
+        Map<String, Set<String>> permissionModuleProjectIdMap = dashboardProjectService.getPermissionModuleProjectIds(allPermissionProjects, userId);
+        List<ProjectUserMemberDTO> orgProjectMemberList = extProjectMemberMapper.getOrgProjectMemberList(organizationId, null);
+        rebuildLayouts(layoutDTOS, allPermissionProjects, orgProjectMemberList, permissionModuleProjectIdMap);
+        return layoutDTOS;
+    }
 
-        //重新查询排除项目禁用的或者用户已经移除某个项目的项目或者成员
-        List<String> oldAllProjectIds = new ArrayList<>();
-        List<String> oldHallHandleUsers = new ArrayList<>();
+    /**
+     * 过滤用户在当前项目是否有移除或者项目是否被禁用以及用户是否被删除禁用
+     * @param layoutDTOS 用户保存的布局
+     * @param allPermissionProjects 用户有任意权限的所有在役项目
+     * @param orgProjectMemberList 当前组织下所有有项目权限的成员
+     * @param permissionModuleProjectIdMap  只读权限对应的开启模块的项目ids
+     */
+    private void rebuildLayouts(List<LayoutDTO> layoutDTOS, List<Project> allPermissionProjects, List<ProjectUserMemberDTO> orgProjectMemberList, Map<String, Set<String>> permissionModuleProjectIdMap) {
         for (LayoutDTO layoutDTO : layoutDTOS) {
-            oldAllProjectIds.addAll(layoutDTO.getProjectIds());
-            oldHallHandleUsers.addAll(layoutDTO.getHandleUsers());
-        }
-        List<Project> hasPermissionProjectList;
-        if (CollectionUtils.isEmpty(oldAllProjectIds)) {
-            hasPermissionProjectList = extProjectMapper.getUserProjectIdName(organizationId, null, userId);
-        } else {
-            List<String> projectIds = oldAllProjectIds.stream().distinct().toList();
-            hasPermissionProjectList = extProjectMapper.getUserProjectIdName(null, projectIds, userId);
-            if (CollectionUtils.isEmpty(hasPermissionProjectList)) {
-                hasPermissionProjectList = extProjectMapper.getUserProjectIdName(organizationId, null, userId);
+            if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PROJECT_VIEW.toString()) || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.CREATE_BY_ME.toString())) {
+                List<Project> list = allPermissionProjects.stream().filter(t -> layoutDTO.getProjectIds().contains(t.getId())).toList();
+                if (CollectionUtils.isNotEmpty(list)) {
+                    layoutDTO.setProjectIds(list.stream().map(Project::getId).toList());
+                } else {
+                    layoutDTO.setProjectIds(allPermissionProjects.stream().map(Project::getId).toList());
+                }
+            } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW.toString())) {
+                List<ProjectUserMemberDTO> list = orgProjectMemberList.stream().filter(t -> layoutDTO.getHandleUsers().contains(t.getId())).toList();
+                layoutDTO.setHandleUsers(list.stream().map(ProjectUserMemberDTO::getId).toList());
+                List<Project> projectList = allPermissionProjects.stream().filter(t -> layoutDTO.getProjectIds().contains(t.getId())).toList();
+                if (CollectionUtils.isEmpty(projectList)) {
+                    layoutDTO.setProjectIds(List.of(allPermissionProjects.getFirst().getId()));
+                } else {
+                    layoutDTO.setProjectIds(List.of(projectList.getFirst().getId()));
+                }
+            } else if(StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.CASE_COUNT.toString())
+                    || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.ASSOCIATE_CASE_COUNT.toString())
+                    ||StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.REVIEW_CASE_COUNT.toString())
+                    || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.REVIEWING_BY_ME.toString())) {
+                Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.FUNCTIONAL_CASE_READ);
+                checkHasPermissionProject(layoutDTO, hasReadProjectIds);
+            } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.API_COUNT.toString())
+                    || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.API_CHANGE.toString())) {
+                Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_API_DEFINITION_READ);
+                checkHasPermissionProject(layoutDTO, hasReadProjectIds);
+            } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.API_CASE_COUNT.toString())){
+                Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ);
+                checkHasPermissionProject(layoutDTO, hasReadProjectIds);
+            }else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.SCENARIO_COUNT.toString())){
+                Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_API_SCENARIO_READ);
+                checkHasPermissionProject(layoutDTO, hasReadProjectIds);
+            }
+            else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.TEST_PLAN_COUNT.toString())
+                    || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PLAN_LEGACY_BUG.toString())) {
+                Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.TEST_PLAN_READ);
+                checkHasPermissionProject(layoutDTO, hasReadProjectIds);
+            }else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.BUG_COUNT.toString())
+                    || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.CREATE_BUG_BY_ME.toString())
+                    ||StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.HANDLE_BUG_BY_ME.toString())
+                    || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.BUG_HANDLE_USER.toString())) {
+                Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_BUG_READ);
+                checkHasPermissionProject(layoutDTO, hasReadProjectIds);
             }
         }
-        Map<String, Project> projectMap = hasPermissionProjectList.stream().collect(Collectors.toMap(Project::getId, t -> t));
-        List<String> handleUsers = oldHallHandleUsers.stream().distinct().toList();
-        List<ProjectUserMemberDTO> orgProjectMemberList = extProjectMemberMapper.getOrgProjectMemberList(organizationId, handleUsers);
-        //重新填充填充返回的项目id 和 用户id
-        rebuildProjectOrUser(layoutDTOS, hasPermissionProjectList, projectMap, orgProjectMemberList);
-        return layoutDTOS;
+    }
+
+    private void checkHasPermissionProject(LayoutDTO layoutDTO, Set<String> hasReadProjectIds) {
+        if (CollectionUtils.isEmpty(hasReadProjectIds)) {
+            return;
+        }
+        List<String> projectIds = hasReadProjectIds.stream().filter(t -> layoutDTO.getProjectIds().contains(t)).toList();
+        if (CollectionUtils.isEmpty(projectIds)) {
+            layoutDTO.setProjectIds(List.of(new ArrayList<>(hasReadProjectIds).getFirst()));
+        } else {
+            layoutDTO.setProjectIds(List.of(projectIds.getFirst()));
+        }
     }
 
     /**
@@ -379,9 +431,9 @@ public class DashboardService {
         List<LayoutDTO> layoutDTOS = new ArrayList<>();
         LayoutDTO projectLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_VIEW, "workbench.homePage.projectOverview", 0, new ArrayList<>());
         layoutDTOS.add(projectLayoutDTO);
-        LayoutDTO createByMeLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.CREATE_BY_ME, "workbench,homePage.createdByMe", 1, new ArrayList<>());
+        LayoutDTO createByMeLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.CREATE_BY_ME, "workbench.homePage.createdByMe", 1, new ArrayList<>());
         layoutDTOS.add(createByMeLayoutDTO);
-        LayoutDTO projectMemberLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW, "workbench,homePage.staffOverview", 2, List.of(organizationId));
+        LayoutDTO projectMemberLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW, "workbench.homePage.staffOverview", 2, List.of(organizationId));
         layoutDTOS.add(projectMemberLayoutDTO);
         return layoutDTOS;
     }
@@ -405,30 +457,6 @@ public class DashboardService {
         layoutDTO.setProjectIds(projectIds);
         layoutDTO.setHandleUsers(new ArrayList<>());
         return layoutDTO;
-    }
-
-    /**
-     * 过滤用户在当前项目是否有移除或者项目是否被禁用以及用户是否被删除禁用
-     *
-     * @param layoutDTOS               获取的所有布局卡片
-     * @param hasPermissionProjectList 用户有任意权限的项目
-     * @param projectMap               用户有任意权限的项目Map
-     * @param orgProjectMemberList     组织下所有的项目人员
-     */
-    private static void rebuildProjectOrUser(List<LayoutDTO> layoutDTOS, List<Project> hasPermissionProjectList, Map<String, Project> projectMap, List<ProjectUserMemberDTO> orgProjectMemberList) {
-        for (LayoutDTO layoutDTO : layoutDTOS) {
-            if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PROJECT_VIEW.toString()) || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.CREATE_BY_ME.toString())) {
-                List<Project> list = hasPermissionProjectList.stream().filter(t -> layoutDTO.getProjectIds().contains(t.getId())).toList();
-                layoutDTO.setProjectIds(list.stream().map(Project::getId).toList());
-            } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW.toString())) {
-                List<ProjectUserMemberDTO> list = orgProjectMemberList.stream().filter(t -> layoutDTO.getHandleUsers().contains(t.getId())).toList();
-                layoutDTO.setHandleUsers(list.stream().map(ProjectUserMemberDTO::getId).toList());
-            } else {
-                if (CollectionUtils.isNotEmpty(layoutDTO.getProjectIds()) && projectMap.get(layoutDTO.getProjectIds().getFirst()) == null) {
-                    layoutDTO.setProjectIds(List.of(hasPermissionProjectList.get(0).getId()));
-                }
-            }
-        }
     }
 
     public OverViewCountDTO projectMemberViewCount(DashboardFrontPageRequest request) {
@@ -577,13 +605,10 @@ public class DashboardService {
             statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
             return statisticsDTO;
         }
-        Long toStartTime = request.getToStartTime();
-        Long toEndTime = request.getToEndTime();
-        List<FunctionalCaseStatisticDTO> statisticListByProjectId = extFunctionalCaseMapper.getStatisticListByProjectId(projectId, toStartTime, toEndTime);
         List<StatusPercentDTO> statusPercentList = new ArrayList<>();
-        buildStatusPercentList(statisticListByProjectId, statusPercentList);
-        statisticsDTO.setStatusPercentList(statusPercentList);
         List<FunctionalCaseStatisticDTO> allStatisticListByProjectId = extFunctionalCaseMapper.getStatisticListByProjectId(projectId, null, null);
+        buildStatusPercentList(allStatisticListByProjectId, statusPercentList);
+        statisticsDTO.setStatusPercentList(statusPercentList);
         Map<String, List<FunctionalCaseStatisticDTO>> reviewStatusMap = allStatisticListByProjectId.stream().collect(Collectors.groupingBy(FunctionalCaseStatisticDTO::getReviewStatus));
         Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
         List<NameCountDTO> reviewList = getReviewList(reviewStatusMap, allStatisticListByProjectId);
@@ -836,8 +861,6 @@ public class DashboardService {
             statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
             return statisticsDTO;
         }
-        Long toStartTime = request.getToStartTime();
-        Long toEndTime = request.getToEndTime();
         List<FunctionalCaseStatisticDTO> statisticListByProjectId = extFunctionalCaseMapper.getStatisticListByProjectId(projectId, null, null);
         List<FunctionalCaseStatisticDTO> unReviewCaseList = statisticListByProjectId.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getReviewStatus(), FunctionalCaseReviewStatus.UN_REVIEWED.toString())).toList();
         int reviewCount = statisticListByProjectId.size() - unReviewCaseList.size();
@@ -845,7 +868,7 @@ public class DashboardService {
         Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
         statusStatisticsMap.put("cover", coverList);
         statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
-        List<StatusPercentDTO> statusPercentList = getStatusPercentList(projectId, toStartTime, toEndTime);
+        List<StatusPercentDTO> statusPercentList = getStatusPercentList(statisticListByProjectId);
         statisticsDTO.setStatusPercentList(statusPercentList);
         return statisticsDTO;
     }
@@ -857,29 +880,28 @@ public class DashboardService {
             statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
             return statisticsDTO;
         }
-        Long toStartTime = request.getToStartTime();
-        Long toEndTime = request.getToEndTime();
-        List<ApiDefinition> createApiList = extApiDefinitionMapper.getCreateApiList(projectId, toStartTime, toEndTime);
-        Map<String, List<ApiDefinition>> protocolMap = createApiList.stream().collect(Collectors.groupingBy(ApiDefinition::getProtocol));
+        List<ApiDefinition> createAllApiList = extApiDefinitionMapper.getCreateApiList(projectId, null, null);
+        Map<String, List<ApiDefinition>> protocolMap = createAllApiList.stream().collect(Collectors.groupingBy(ApiDefinition::getProtocol));
         List<StatusPercentDTO> statusPercentList = new ArrayList<>();
         List<ProtocolDTO> protocols = apiTestService.getProtocols(request.getOrganizationId());
+        int totalCount = CollectionUtils.isEmpty(createAllApiList) ? 0 : createAllApiList.size();
         for (ProtocolDTO protocol : protocols) {
             String protocolName = protocol.getProtocol();
             StatusPercentDTO statusPercentDTO = new StatusPercentDTO();
             statusPercentDTO.setStatus(protocolName);
             List<ApiDefinition> apiDefinitionList = protocolMap.get(protocolName);
-            if (CollectionUtils.isEmpty(apiDefinitionList)) {
+            int size = CollectionUtils.isEmpty(apiDefinitionList) ? 0 : apiDefinitionList.size();
+            if (totalCount == 0) {
                 statusPercentDTO.setCount(0);
                 statusPercentDTO.setPercentValue("0%");
             } else {
-                int size = apiDefinitionList.size();
                 statusPercentDTO.setCount(size);
-                BigDecimal divide = BigDecimal.valueOf(size).divide(BigDecimal.valueOf(createApiList.size()), 2, RoundingMode.HALF_UP);
+                BigDecimal divide = BigDecimal.valueOf(size).divide(BigDecimal.valueOf(totalCount), 2, RoundingMode.HALF_UP);
                 statusPercentDTO.setPercentValue(divide.multiply(BigDecimal.valueOf(100)) + "%");
             }
             statusPercentList.add(statusPercentDTO);
         }
-        List<ApiDefinition> createAllApiList = extApiDefinitionMapper.getCreateApiList(projectId, null, null);
+
         Map<String, List<ApiDefinition>> statusMap = createAllApiList.stream().collect(Collectors.groupingBy(ApiDefinition::getStatus));
         List<ApiDefinition> doneList = statusMap.get(ApiDefinitionStatus.DONE.toString());
         List<ApiDefinition> processList = statusMap.get(ApiDefinitionStatus.PROCESSING.toString());
@@ -890,12 +912,14 @@ public class DashboardService {
         doneDTO.setName(Translator.get("api_definition.status.completed"));
         NameCountDTO completionRate = new NameCountDTO();
         completionRate.setName(Translator.get("api_definition.completionRate"));
-        if (CollectionUtils.isEmpty(doneList)) {
+
+        int doneSize = CollectionUtils.isEmpty(doneList) ? 0 : doneList.size();
+        if (totalCount == 0) {
             completionRate.setCount(0);
             doneDTO.setCount(0);
         } else {
-            doneDTO.setCount(doneList.size());
-            BigDecimal divide = BigDecimal.valueOf(doneList.size()).divide(BigDecimal.valueOf(createAllApiList.size()), 2, RoundingMode.HALF_UP);
+            doneDTO.setCount(doneSize);
+            BigDecimal divide = BigDecimal.valueOf(doneSize).divide(BigDecimal.valueOf(totalCount), 2, RoundingMode.HALF_UP);
             completionRate.setCount(getTurnCount(divide));
         }
         NameCountDTO processDTO = getNameCountDTO(CollectionUtils.isEmpty(processList) ? 0 : processList.size(), Translator.get("api_definition.status.ongoing"));
@@ -922,23 +946,19 @@ public class DashboardService {
     }
 
     @NotNull
-    private List<StatusPercentDTO> getStatusPercentList(String projectId, Long toStartTime, Long toEndTime) {
+    private List<StatusPercentDTO> getStatusPercentList(List<FunctionalCaseStatisticDTO> statisticListByProjectId) {
         List<StatusPercentDTO> statusPercentList = new ArrayList<>();
         Map<String, String> statusNameMap = buildStatusNameMap();
-        List<ProjectUserStatusCountDTO> projectUserStatusCountDTOS = extCaseReviewMapper.statusReviewCount(projectId, toStartTime, toEndTime);
-        Map<String, Integer> statusCountMap = projectUserStatusCountDTOS.stream().collect(Collectors.toMap(ProjectUserStatusCountDTO::getStatus, ProjectUserStatusCountDTO::getCount));
+        int totalCount = CollectionUtils.isEmpty(statisticListByProjectId) ? 0 : statisticListByProjectId.size();
+        Map<String, List<FunctionalCaseStatisticDTO>> reviewStatusMap = statisticListByProjectId.stream().collect(Collectors.groupingBy(FunctionalCaseStatisticDTO::getReviewStatus));
         statusNameMap.forEach((k, v) -> {
             StatusPercentDTO statusPercentDTO = new StatusPercentDTO();
-            Integer count = statusCountMap.get(k);
+            List<FunctionalCaseStatisticDTO> functionalCaseStatisticDTOS = reviewStatusMap.get(k);
+            int count = CollectionUtils.isEmpty(functionalCaseStatisticDTOS) ? 0 : functionalCaseStatisticDTOS.size();
             statusPercentDTO.setStatus(v);
-            if (count != null) {
-                statusPercentDTO.setCount(count);
-            } else {
-                count = 0;
-                statusPercentDTO.setCount(0);
-            }
-            if (CollectionUtils.isNotEmpty(projectUserStatusCountDTOS)) {
-                BigDecimal divide = BigDecimal.valueOf(count).divide(BigDecimal.valueOf(projectUserStatusCountDTOS.size()), 2, RoundingMode.HALF_UP);
+            statusPercentDTO.setCount(count);
+            if (totalCount > 0) {
+                BigDecimal divide = BigDecimal.valueOf(count).divide(BigDecimal.valueOf(totalCount), 2, RoundingMode.HALF_UP);
                 statusPercentDTO.setPercentValue(divide.multiply(BigDecimal.valueOf(100)) + "%");
             } else {
                 statusPercentDTO.setPercentValue("0%");
@@ -971,9 +991,11 @@ public class DashboardService {
 
     private static Map<String, String> buildStatusNameMap() {
         Map<String, String> statusNameMap = new HashMap<>();
-        statusNameMap.put(CaseReviewStatus.PREPARED.toString(), Translator.get("case_review.prepared"));
-        statusNameMap.put(CaseReviewStatus.UNDERWAY.toString(), Translator.get("case_review.underway"));
-        statusNameMap.put(CaseReviewStatus.COMPLETED.toString(), Translator.get("case_review.completed"));
+        statusNameMap.put(FunctionalCaseReviewStatus.UN_REVIEWED.toString(), Translator.get("case.review.status.un_reviewed"));
+        statusNameMap.put(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString(), Translator.get("case.review.status.under_reviewed"));
+        statusNameMap.put(FunctionalCaseReviewStatus.PASS.toString(), Translator.get("case.review.status.pass"));
+        statusNameMap.put(FunctionalCaseReviewStatus.UN_PASS.toString(), Translator.get("case.review.status.un_pass"));
+        statusNameMap.put(FunctionalCaseReviewStatus.RE_REVIEWED.toString(), Translator.get("case.review.status.re_reviewed"));
         return statusNameMap;
     }
 
@@ -1068,10 +1090,8 @@ public class DashboardService {
             statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
             return statisticsDTO;
         }
-        Long toStartTime = request.getToStartTime();
-        Long toEndTime = request.getToEndTime();
         Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
-        long unDeleteCaseExecCount = extExecTaskItemMapper.getUnDeleteCaseExecCount(projectId, toStartTime, toEndTime, List.of("PLAN_RUN_API_CASE", "API_CASE"));
+        long unDeleteCaseExecCount = extExecTaskItemMapper.getUnDeleteCaseExecCount(projectId, null, null, List.of("PLAN_RUN_API_CASE", "API_CASE"));
         List<ApiTestCase> simpleAllApiCaseList = extApiTestCaseMapper.getSimpleApiCaseList(projectId, null, null);
 
         int simpleAllApiCaseSize = 0;
@@ -1086,9 +1106,7 @@ public class DashboardService {
         List<ApiTestCase> errorList = simpleAllApiCaseList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getLastReportStatus(), ResultStatus.ERROR.name())).toList();
         int errorSize = CollectionUtils.isNotEmpty(errorList) ? errorList.size() : 0;
 
-        List<ApiTestCase> simpleApiCaseList = extApiTestCaseMapper.getSimpleApiCaseList(projectId, toStartTime, toEndTime);
-        List<ApiTestCase> fakeList = simpleApiCaseList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getLastReportStatus(), ResultStatus.FAKE_ERROR.name())).toList();
-        int simpleApiCaseSize = CollectionUtils.isNotEmpty(simpleApiCaseList) ? simpleApiCaseList.size() : 0;
+        List<ApiTestCase> fakeList = simpleAllApiCaseList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getLastReportStatus(), ResultStatus.FAKE_ERROR.name())).toList();
         int fakeSize = CollectionUtils.isNotEmpty(fakeList) ? fakeList.size() : 0;
 
         List<NameCountDTO> execDTOS = getExecDTOS((int) unDeleteCaseExecCount);
@@ -1097,7 +1115,7 @@ public class DashboardService {
         statusStatisticsMap.put("execRate", execRateDTOS);
         List<NameCountDTO> passRateDTOS = getPassRateDTOS(successSize, errorSize, simpleAllApiCaseSize, Translator.get("api_management.apiCasePassRate"));
         statusStatisticsMap.put("passRate", passRateDTOS);
-        List<NameCountDTO> apiCaseDTOS = getApiCaseDTOS(fakeSize, simpleApiCaseSize, Translator.get("api_management.apiCaseCount"));
+        List<NameCountDTO> apiCaseDTOS = getApiCaseDTOS(fakeSize, simpleAllApiCaseSize, Translator.get("api_management.apiCaseCount"));
         statusStatisticsMap.put("apiCaseCount", apiCaseDTOS);
         statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
         return statisticsDTO;
@@ -1169,10 +1187,9 @@ public class DashboardService {
             statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
             return statisticsDTO;
         }
-        Long toStartTime = request.getToStartTime();
-        Long toEndTime = request.getToEndTime();
+
         Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
-        long unDeleteCaseExecCount = extExecTaskItemMapper.getUnDeleteScenarioExecCount(projectId, toStartTime, toEndTime, List.of("PLAN_RUN_API_SCENARIO", "API_SCENARIO"));
+        long unDeleteCaseExecCount = extExecTaskItemMapper.getUnDeleteScenarioExecCount(projectId, null, null, List.of("PLAN_RUN_API_SCENARIO", "API_SCENARIO"));
         List<ApiScenario> simpleAllApiScenarioList = extApiScenarioMapper.getSimpleApiScenarioList(projectId, null, null);
 
         int simpleAllApiScenarioSize = 0;
@@ -1187,9 +1204,7 @@ public class DashboardService {
         List<ApiScenario> errorList = simpleAllApiScenarioList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getLastReportStatus(), ResultStatus.ERROR.name())).toList();
         int errorSize = CollectionUtils.isNotEmpty(errorList) ? errorList.size() : 0;
 
-        List<ApiScenario> simpleApiScenarioList = extApiScenarioMapper.getSimpleApiScenarioList(projectId, toStartTime, toEndTime);
-        List<ApiScenario> fakeList = simpleApiScenarioList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getLastReportStatus(), ResultStatus.FAKE_ERROR.name())).toList();
-        int simpleApiCaseSize = CollectionUtils.isNotEmpty(simpleApiScenarioList) ? simpleApiScenarioList.size() : 0;
+        List<ApiScenario> fakeList = simpleAllApiScenarioList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getLastReportStatus(), ResultStatus.FAKE_ERROR.name())).toList();
         int fakeSize = CollectionUtils.isNotEmpty(fakeList) ? fakeList.size() : 0;
 
         List<NameCountDTO> execDTOS = getExecDTOS((int) unDeleteCaseExecCount);
@@ -1198,25 +1213,40 @@ public class DashboardService {
         statusStatisticsMap.put("execRate", execRateDTOS);
         List<NameCountDTO> passRateDTOS = getPassRateDTOS(successSize, errorSize, simpleAllApiScenarioSize, Translator.get("api_management.scenarioPassRate"));
         statusStatisticsMap.put("passRate", passRateDTOS);
-        List<NameCountDTO> apiCaseDTOS = getApiCaseDTOS(fakeSize, simpleApiCaseSize, Translator.get("api_management.apiScenarioCount")) ;
+        List<NameCountDTO> apiCaseDTOS = getApiCaseDTOS(fakeSize, simpleAllApiScenarioSize, Translator.get("api_management.apiScenarioCount"));
         statusStatisticsMap.put("apiScenarioCount", apiCaseDTOS);
         statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
         return statisticsDTO;
     }
 
-    public StatisticsDTO baseProjectBugCount(DashboardFrontPageRequest request, String userId, Boolean hasHandleUser, Boolean hasCreateUser){
+    public StatisticsDTO baseProjectBugCount(DashboardFrontPageRequest request, String userId, Boolean hasHandleUser, Boolean hasCreateUser) {
         String projectId = request.getProjectIds().getFirst();
         StatisticsDTO statisticsDTO = new StatisticsDTO();
         if (Boolean.FALSE.equals(permissionCheckService.checkModule(projectId, BUG_MODULE, userId, PermissionConstants.PROJECT_BUG_READ))) {
             statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
             return statisticsDTO;
         }
-        Long toStartTime = request.getToStartTime();
-        Long toEndTime = request.getToEndTime();
         String handleUser = hasHandleUser ? userId : null;
-        String createUser = hasCreateUser ? userId :null;
+        String createUser = hasCreateUser ? userId : null;
         Set<String> platforms = getPlatforms(projectId);
         List<Bug> allSimpleList = extBugMapper.getSimpleList(projectId, null, null, handleUser, createUser, platforms);
+        List<String> localLastStepStatus = getBugEndStatus(projectId);
+        List<Bug> statusList = allSimpleList.stream().filter(t -> !localLastStepStatus.contains(t.getStatus())).toList();
+        int statusSize = CollectionUtils.isEmpty(statusList) ? 0 : statusList.size();
+        int totalSize = CollectionUtils.isEmpty(allSimpleList) ? 0 : allSimpleList.size();
+        List<NameCountDTO> nameCountDTOS = buildBugRetentionRateList(totalSize, statusSize);
+        Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
+        statusStatisticsMap.put("retentionRate", nameCountDTOS);
+        List<SelectOption> headerStatusOption = bugStatusService.getHeaderStatusOption(projectId);
+        Map<String, List<Bug>> bugMap = allSimpleList.stream().collect(Collectors.groupingBy(Bug::getStatus));
+        List<StatusPercentDTO> bugPercentList = bulidBugPercentList(headerStatusOption, bugMap, totalSize);
+        statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
+        statisticsDTO.setStatusPercentList(bugPercentList);
+        return statisticsDTO;
+    }
+
+    @NotNull
+    private List<String> getBugEndStatus(String projectId) {
         List<String> localLastStepStatus = bugCommonService.getLocalLastStepStatus(projectId);
         List<String> platformLastStepStatus = new ArrayList<>();
         try {
@@ -1225,29 +1255,15 @@ public class DashboardService {
             throw new RuntimeException(e);
         }
         localLastStepStatus.addAll(platformLastStepStatus);
-        List<Bug> statusList = allSimpleList.stream().filter(t -> !localLastStepStatus.contains(t.getStatus())).toList();
-        int statusSize = CollectionUtils.isEmpty(statusList) ? 0 : statusList.size();
-        int totalSize = CollectionUtils.isEmpty(allSimpleList) ? 0 : allSimpleList.size();
-        List<NameCountDTO> nameCountDTOS = buildBugRetentionRateList(totalSize, statusSize);
-        Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
-        statusStatisticsMap.put("retentionRate",nameCountDTOS);
-        List<SelectOption> headerStatusOption = bugStatusService.getHeaderStatusOption(projectId);
-        List<Bug> simpleList = extBugMapper.getSimpleList(projectId, toStartTime, toEndTime,handleUser, createUser, platforms);
-        Map<String, List<Bug>> bugMap = simpleList.stream().collect(Collectors.groupingBy(Bug::getStatus));
-        List<StatusPercentDTO> bugPercentList = bulidBugPercentList(headerStatusOption, bugMap, simpleList);
-        statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
-        statisticsDTO.setStatusPercentList(bugPercentList);
-        return statisticsDTO;
+        return localLastStepStatus;
     }
-
-
 
 
     private static List<NameCountDTO> buildBugRetentionRateList(int totalSize, int statusSize) {
         List<NameCountDTO> retentionRates = new ArrayList<>();
         NameCountDTO retentionRate = new NameCountDTO();
         retentionRate.setName(Translator.get("bug_management.retentionRate"));
-        if (totalSize ==0) {
+        if (totalSize == 0) {
             retentionRate.setCount(0);
         } else {
             BigDecimal divide = BigDecimal.valueOf(statusSize).divide(BigDecimal.valueOf(totalSize), 2, RoundingMode.HALF_UP);
@@ -1261,9 +1277,8 @@ public class DashboardService {
         return retentionRates;
     }
 
-    private static List<StatusPercentDTO> bulidBugPercentList(List<SelectOption> headerStatusOption, Map<String, List<Bug>> bugMap, List<Bug> simpleList) {
-        List<StatusPercentDTO>statusPercentList = new ArrayList<>();
-        int simpleSize = CollectionUtils.isEmpty(simpleList) ? 0 : simpleList.size();
+    private static List<StatusPercentDTO> bulidBugPercentList(List<SelectOption> headerStatusOption, Map<String, List<Bug>> bugMap, int simpleSize) {
+        List<StatusPercentDTO> statusPercentList = new ArrayList<>();
         for (SelectOption selectOption : headerStatusOption) {
             StatusPercentDTO statusPercentDTO = new StatusPercentDTO();
             statusPercentDTO.setStatus(selectOption.getText());
@@ -1283,15 +1298,54 @@ public class DashboardService {
     }
 
     public StatisticsDTO projectBugCount(DashboardFrontPageRequest request, String userId) {
-        return baseProjectBugCount(request,userId,false,false);
+        return baseProjectBugCount(request, userId, false, false);
     }
 
     public StatisticsDTO projectBugCountCreateByMe(DashboardFrontPageRequest request, String userId) {
-        return baseProjectBugCount(request,userId,false,true);
+        return baseProjectBugCount(request, userId, false, true);
     }
 
     public StatisticsDTO projectBugCountHandleByMe(DashboardFrontPageRequest request, String userId) {
-        return baseProjectBugCount(request,userId,true,false);
+        return baseProjectBugCount(request, userId, true, false);
+    }
+
+    public StatisticsDTO projectPlanLegacyBug(DashboardFrontPageRequest request, String userId) {
+        String projectId = request.getProjectIds().getFirst();
+        StatisticsDTO statisticsDTO = new StatisticsDTO();
+        if (Boolean.FALSE.equals(permissionCheckService.checkModule(projectId, TEST_PLAN_MODULE, userId, PermissionConstants.TEST_PLAN_READ))) {
+            statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
+            return statisticsDTO;
+        }
+        Set<String> platforms = getPlatforms(projectId);
+        List<SelectOption> planBugList = extTestPlanMapper.getPlanBugList(projectId, TestPlanConstants.TEST_PLAN_TYPE_PLAN, new ArrayList<>(platforms), null);
+        List<String> localLastStepStatus = getBugEndStatus(projectId);
+        List<SelectOption> legacyBugList = planBugList.stream().filter(t -> !localLastStepStatus.contains(t.getText())).toList();
+        List<SelectOption> headerStatusOption = bugStatusService.getHeaderStatusOption(projectId);
+        int statusSize = CollectionUtils.isEmpty(legacyBugList) ? 0 : legacyBugList.size();
+        int totalSize = CollectionUtils.isEmpty(planBugList) ? 0 : planBugList.size();
+        List<NameCountDTO> nameCountDTOS = buildBugRetentionRateList(totalSize, statusSize);
+        Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
+        statusStatisticsMap.put("retentionRate", nameCountDTOS);
+        Map<String, List<SelectOption>> bugMap = legacyBugList.stream().collect(Collectors.groupingBy(SelectOption::getValue));
+        List<StatusPercentDTO> statusPercentList = new ArrayList<>();
+        for (SelectOption selectOption : headerStatusOption) {
+            StatusPercentDTO statusPercentDTO = new StatusPercentDTO();
+            statusPercentDTO.setStatus(selectOption.getText());
+            List<SelectOption> bugs = bugMap.get(selectOption.getValue());
+            int bugSize = CollectionUtils.isEmpty(bugs) ? 0 : bugs.size();
+            if (statusSize == 0) {
+                statusPercentDTO.setPercentValue("0%");
+                statusPercentDTO.setCount(0);
+            } else {
+                BigDecimal divide = BigDecimal.valueOf(bugSize).divide(BigDecimal.valueOf(statusSize), 2, RoundingMode.HALF_UP);
+                statusPercentDTO.setPercentValue(divide.multiply(BigDecimal.valueOf(100)) + "%");
+                statusPercentDTO.setCount(bugSize);
+            }
+            statusPercentList.add(statusPercentDTO);
+        }
+        statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
+        statisticsDTO.setStatusPercentList(statusPercentList);
+        return statisticsDTO;
     }
 }
 

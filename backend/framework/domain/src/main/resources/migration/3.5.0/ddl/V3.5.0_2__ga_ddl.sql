@@ -72,6 +72,9 @@ CREATE INDEX idx_project_id_delete_create_time
 CREATE INDEX idx_project_id_delete_create_time_create_user
     ON bug (project_id, deleted, create_time, create_user);
 
+create index idx_test_plan_id_bug_id
+    on bug_relation_case (test_plan_id, bug_id);
+
 ALTER TABLE exec_task ADD COLUMN deleted bit(1) NOT NULL DEFAULT b'0' COMMENT '删除标识';
 ALTER TABLE exec_task_item ADD COLUMN deleted bit(1) NOT NULL DEFAULT b'0' COMMENT '删除标识';
 ALTER TABLE exec_task_item ADD COLUMN case_id VARCHAR(50) COMMENT '用例表id';

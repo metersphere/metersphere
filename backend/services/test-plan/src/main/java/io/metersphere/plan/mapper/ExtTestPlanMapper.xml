@@ -831,8 +831,29 @@
             AND test_plan.create_time BETWEEN #{startTime} AND #{endTime}
         </if>
     </select>
-
-
+    <select id="getPlanBugList" resultType="io.metersphere.plugin.platform.dto.SelectOption">
+        select distinct bug.id as `value`, bug.status as `text`
+        from test_plan
+                 left join bug_relation_case on test_plan.id = bug_relation_case.test_plan_id
+                 left join bug on bug_relation_case.bug_id = bug.id
+        where test_plan.status = 'NOT_ARCHIVED'
+        <if test="type != null and type != ''">
+            and test_plan.type= #{type}
+        </if>
+          and test_plan.project_id = #{projectId}
+        <if test="statusList != null and statusList.size() > 0">
+            and bug.status in
+            <foreach collection="statusList" item="status" separator="," open="(" close=")">
+                #{status}
+            </foreach>
+        </if>
+        <if test="platforms != null and platforms.size() > 0">
+            and bug.platform in
+            <foreach collection="platforms" item="platform" separator="," open="(" close=")">
+                #{platform}
+            </foreach>
+        </if>
+    </select>
 
 
     <sql id="queryMyFollowGroupByTableRequest">

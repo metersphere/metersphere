@@ -144,10 +144,17 @@ public class DashboardController {
     }
 
     @PostMapping("/handle_bug_by_me")
-    @Operation(summary = "我创建的缺陷")
+    @Operation(summary = "待我处理的缺陷")
     @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public StatisticsDTO projectBugCountHandleByMe(@Validated @RequestBody DashboardFrontPageRequest request) {
         return dashboardService.projectBugCountHandleByMe(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/plan_legacy_bug")
+    @Operation(summary = "计划遗留bug统计")
+    @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
+    public StatisticsDTO projectPlanLegacyBug(@Validated @RequestBody DashboardFrontPageRequest request) {
+        return dashboardService.projectPlanLegacyBug(request, SessionUtils.getUserId());
     }
 
 

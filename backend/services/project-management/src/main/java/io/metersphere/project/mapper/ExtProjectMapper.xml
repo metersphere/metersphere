@@ -134,7 +134,7 @@
     </select>
 
     <select id="getUserProjectIdName" resultType="io.metersphere.project.domain.Project">
-        SELECT DISTINCT p.id, p.name
+        SELECT DISTINCT p.id, p.name, p.module_setting
         FROM user_role u
                  JOIN user_role_relation urr ON u.id = urr.role_id
                  JOIN project p ON p.id = urr.source_id

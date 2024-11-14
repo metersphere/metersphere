@@ -110,6 +110,17 @@ VALUES ('dashboard_scenario_four', 'api_scenario', 'p1', 'test-api-status',  'ER
 INSERT INTO api_scenario_step(id, scenario_id, name, sort, enable, resource_id, resource_num, step_type, project_id, parent_id, version_id, ref_type, origin_project_id, config)
     VALUE ('dashboard_act_1', 'dashboard_sc_1', 'dd', 1, true, 'dashboard_api_definition_id_1', '1000', 'API', '100001100001', null, 'oasis_ac_version_id', 'REF', '100001100001', null);
 
+
+INSERT INTO bug_relation_case(id, case_id, bug_id, case_type, test_plan_id, test_plan_case_id, create_user, create_time, update_time)
+VALUES ('dashboard_bug-relate-case-default-id', 'bug_relate_case', 'dashboard_bug1', 'FUNCTIONAL', 'dashboard_test-plan-id', null, 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
+       ('dashboard_bug-relate-case-default-id-1', 'bug_relate_case', 'dashboard_bug2', 'FUNCTIONAL', 'dashboard_test-plan-id', 'bug_relate_case', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
+       ('dashboard_bug-relate-case-default-id-2', 'bug_relate_case-1', 'dashboard_bug3', 'FUNCTIONAL', 'dashboard_test-plan-id', 'bug_relate_case-1', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
+       ('dashboard_bug-relate-case-default-id-3', null, 'dashboard_bug1', 'FUNCTIONAL', 'dashboard_test-plan-id', 'bug_relate_case-3', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
+
+INSERT INTO test_plan(id, num, project_id, group_id, module_id, name, status, type, tags, create_time, create_user, update_time, update_user, planned_start_time, planned_end_time, actual_start_time, actual_end_time, description)
+    VALUE ('dashboard_test-plan-id', 500, '100001100001', 'NONE', 'case_plan_module', 'test_plan_associate_case_name_three', 'NOT_ARCHIVED', 'TEST_PLAN', null, UNIX_TIMESTAMP() * 1000,'admin',
+           UNIX_TIMESTAMP() * 1000,'admin',UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, null);
+
 INSERT INTO project_application (project_id, type, type_value) VALUES
                                                                    ('100001100001', 'BUG_SYNC_BUG_PLATFORM_CONFIG', '{"jiraKey":"TES","jiraBugTypeId":"10009"}'),
                                                                    ('100001100001', 'BUG_SYNC_PLATFORM_KEY', 'jira'),

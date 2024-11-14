@@ -93,6 +93,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     private static final String BUG_COUNT = "/dashboard/bug_count";
     private static final String CREATE_BUG_BY_ME = "/dashboard/create_bug_by_me";
     private static final String HANDLE_BUG_BY_ME = "/dashboard/handle_bug_by_me";
+    private static final String PLAN_LEGACY_BUG = "/dashboard/plan_legacy_bug";
 
 
 
@@ -195,7 +196,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         String contentAsString = mvcResultGrt.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<LayoutDTO> layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
-        Assertions.assertEquals(3, layoutDTOS.size());
+        Assertions.assertEquals(0, layoutDTOS.size());
 
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(DEFAULT_ORGANIZATION_ID);
@@ -304,8 +305,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         dashboardFrontPageRequest.setCurrent(1);
         dashboardFrontPageRequest.setPageSize(5);
         dashboardFrontPageRequest.setProjectIds(List.of(DEFAULT_PROJECT_ID));
-        List<SelectOption> headerStatusOption = bugStatusService.getHeaderStatusOption(DEFAULT_PROJECT_ID);
-        buildBug(headerStatusOption);
+
         MvcResult mvcResult = this.requestPostWithOkAndReturn(CASE_COUNT, dashboardFrontPageRequest);
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
@@ -352,6 +352,11 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         ResultHolder handleBugResultHolder = JSON.parseObject(handleBugContentAsString, ResultHolder.class);
         StatisticsDTO handleBugCount = JSON.parseObject(JSON.toJSONString(handleBugResultHolder.getData()), StatisticsDTO.class);
         Assertions.assertNotNull(handleBugCount);
+        MvcResult planBugMvcResult = this.requestPostWithOkAndReturn(PLAN_LEGACY_BUG, dashboardFrontPageRequest);
+        String planBugContentAsString = planBugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder planBugResultHolder = JSON.parseObject(planBugContentAsString, ResultHolder.class);
+        StatisticsDTO planBugCount = JSON.parseObject(JSON.toJSONString(planBugResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(planBugCount);
 
         Project project = new Project();
         project.setModuleSetting("[]");
@@ -406,6 +411,11 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         handleBugCount = JSON.parseObject(JSON.toJSONString(handleBugResultHolder.getData()), StatisticsDTO.class);
         Assertions.assertNotNull(handleBugCount);
 
+        planBugMvcResult = this.requestPostWithOkAndReturn(PLAN_LEGACY_BUG, dashboardFrontPageRequest);
+        planBugContentAsString = planBugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        planBugResultHolder = JSON.parseObject(planBugContentAsString, ResultHolder.class);
+        planBugCount = JSON.parseObject(JSON.toJSONString(planBugResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(planBugCount);
 
         project.setModuleSetting("[\"apiTest\",\"testPlan\",\"caseManagement\",\"bugManagement\"]");
         project.setId(DEFAULT_PROJECT_ID);
@@ -461,6 +471,12 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         handleBugResultHolder = JSON.parseObject(handleBugContentAsString, ResultHolder.class);
         handleBugCount = JSON.parseObject(JSON.toJSONString(handleBugResultHolder.getData()), StatisticsDTO.class);
         Assertions.assertNotNull(handleBugCount);
+
+        planBugMvcResult = this.requestPostWithOkAndReturn(PLAN_LEGACY_BUG, dashboardFrontPageRequest);
+        planBugContentAsString = planBugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        planBugResultHolder = JSON.parseObject(planBugContentAsString, ResultHolder.class);
+        planBugCount = JSON.parseObject(JSON.toJSONString(planBugResultHolder.getData()), StatisticsDTO.class);
+        Assertions.assertNotNull(planBugCount);
 
     }
 

@@ -8,6 +8,7 @@ import io.metersphere.plan.dto.request.TestPlanBatchProcessRequest;
 import io.metersphere.plan.dto.request.TestPlanExecuteHisPageRequest;
 import io.metersphere.plan.dto.request.TestPlanTableRequest;
 import io.metersphere.plan.dto.response.TestPlanResponse;
+import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.dto.*;
 import io.metersphere.system.interceptor.BaseConditionFilter;
 import org.apache.ibatis.annotations.Param;
@@ -83,5 +84,13 @@ public interface ExtTestPlanMapper {
 
     List<TestPlan> getSimpleTestPlanList(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 
-
+    /**
+     * 获取项目下的计划关联缺陷
+     * @param projectId 项目
+     * @param type 计划类型
+     * @param platform 缺陷平台集合
+     * @param statusList 缺陷状态
+     * @return List<SelectOption>
+     */
+    List<SelectOption> getPlanBugList(@Param("projectId") String projectId, @Param("type") String type, @Param("platforms") List<String> platform, @Param("statusList") List<String> statusList);
 }
