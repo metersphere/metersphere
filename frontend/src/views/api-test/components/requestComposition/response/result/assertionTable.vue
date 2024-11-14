@@ -130,28 +130,37 @@
       width: 300,
     },
   ];
-  const tableData = ref(props.requestResult?.responseResult.assertions);
+
+  const tableData = ref(props.requestResult?.responseResult.assertions || []);
+  const isTableFiltered = ref<boolean>(false);
 
   function handleFilterChange(dataIndex: string, value: string[] | (string | number | boolean)[] | undefined) {
     if (value && value.length > 0) {
-      tableData.value = props.requestResult?.responseResult.assertions.filter((item) => {
-        return (value as boolean[]).includes(item.pass);
-      });
+      isTableFiltered.value = true;
+      tableData.value =
+        props.requestResult?.responseResult.assertions.filter((item) => {
+          return (value as boolean[]).includes(item.pass);
+        }) || [];
     } else {
-      tableData.value = props.requestResult?.responseResult.assertions;
+      isTableFiltered.value = false;
+      tableData.value = props.requestResult?.responseResult.assertions || [];
     }
   }
 
   function handleSortChange(sorter: { [key: string]: string }) {
     if (Object.keys(sorter).length > 0) {
       const dataIndex = Object.keys(sorter)[0] as keyof ResponseAssertionTableItem;
-      const copyArray = [...(props.requestResult?.responseResult.assertions || [])];
+      const copyArray = isTableFiltered.value
+        ? [...tableData.value]
+        : [...(props.requestResult?.responseResult.assertions || [])];
       tableData.value = copyArray.sort((a, b) => {
         const sortResult = a[dataIndex] > b[dataIndex] ? -1 : 1;
         return sorter[dataIndex] === 'asc' ? sortResult : -sortResult;
       });
     } else {
-      tableData.value = props.requestResult?.responseResult.assertions;
+      tableData.value = isTableFiltered.value
+        ? [...tableData.value]
+        : props.requestResult?.responseResult.assertions || [];
     }
   }
 </script>
