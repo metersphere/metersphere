@@ -642,10 +642,11 @@
     </select>
 
     <select id="listHis" resultType="io.metersphere.plan.dto.TestPlanExecuteHisDTO">
-        select tpr.id, from_unixtime(tpr.create_time / 1000, '%Y%m%d%H%i%s') as num, tpr.trigger_mode triggerMode, tpr.exec_status execStatus, tpr.result_status execResult,
-               tpr.create_user operationUser, tpr.start_time startTime, tpr.end_time endTime, tpr.deleted as deleted from test_plan_report tpr
-        where tpr.test_plan_id = #{request.testPlanId}
-        <include refid="filter"/>
+        select et.id, from_unixtime(et.create_time / 1000, '%Y%m%d%H%i%s') as num, et.trigger_mode triggerMode, et.status execStatus, et.result execResult,
+        et.create_user operationUser, et.start_time startTime, et.end_time endTime
+        from exec_task et where et.resource_id = #{request.testPlanId}
+        <include refid="filterTask"/>
+        order by et.create_time desc
     </select>
 
     <select id="selectGroupIdByKeyword" resultType="java.lang.String">
@@ -729,6 +730,26 @@
                         <!-- 执行结果 -->
                         <when test="key == 'execResult'">
                             and tpr.result_status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="filterTask">
+        <if test="request.filter != null and request.filter.size() > 0">
+            <foreach collection="request.filter.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key == 'triggerMode'">
+                            and et.trigger_mode in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <!-- 执行结果 -->
+                        <when test="key == 'execResult'">
+                            and et.result in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                     </choose>

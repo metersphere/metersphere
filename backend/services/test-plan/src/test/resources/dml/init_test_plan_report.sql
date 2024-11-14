@@ -47,3 +47,11 @@ INSERT INTO `share_info`(`id`, `create_time`, `create_user`, `update_time`, `sha
 INSERT INTO test_plan_case_execute_history (`id`, `test_plan_case_id`, `test_plan_id`, `case_id`, `status`, `content`, `steps`, `deleted`, `notifier`, `create_user`, `create_time`) VALUES
     ('execute-his-1', 'test-plan-case-id-for-oasis', 'test-plan-id-for-oasis', 'case-id-for-oasis', 'PENDING', null, null, 0, null, 'admin', UNIX_TIMESTAMP()),
     ('execute-his-2', 'test-plan-case-id-for-oasis', 'test-plan-id-for-oasis', 'case-id-for-oasis', 'PENDING', '1', '1', 0, null, 'admin', UNIX_TIMESTAMP());
+
+-- 任务-报告关联表
+INSERT INTO exec_task (id, num, task_name, status, case_count, result, task_type, trigger_mode, project_id, organization_id, create_time, create_user, start_time, end_time, integrated) VALUE
+    ('task-id-1', 100001, '任务-1', 'PENDING', 1, 'SUCCESS', 'TEST_PLAN', 'MANUAL', '100001100001', '100001', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
+INSERT INTO api_report_relate_task (task_resource_id, report_id) VALUE
+    ('task-id-1', 'test-plan-report-id-6');
+INSERT INTO exec_task (id, num, task_name, status, case_count, result, task_type, trigger_mode, project_id, organization_id, create_time, create_user, start_time, end_time, integrated) VALUE
+    ('task-id-2', 100001, '任务-1', 'PENDING', 1, 'SUCCESS', 'TEST_PLAN', 'MANUAL', '100001100001', '100001', CURRENT_TIMESTAMP, 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);

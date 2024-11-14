@@ -327,6 +327,7 @@ public class TestPlanExecuteService {
         execTask.setOrganizationId(project.getOrganizationId());
         execTask.setTriggerMode(triggerMode);
         execTask.setTaskType(StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN) ? ExecTaskType.TEST_PLAN.name() : ExecTaskType.TEST_PLAN_GROUP.name());
+        execTask.setResourceId(testPlan.getId());
         baseTaskHubService.insertExecTask(execTask);
 
         // 创建报告和任务的关联关系

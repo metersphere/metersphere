@@ -1,5 +1,7 @@
 package io.metersphere.plan.controller;
 
+import io.metersphere.api.domain.ApiReportRelateTaskExample;
+import io.metersphere.api.mapper.ApiReportRelateTaskMapper;
 import io.metersphere.plan.constants.CollectionQueryType;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.TestPlanShareInfo;
@@ -50,6 +52,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String GET_MANUAL_PLAN_REPORT_LAYOUT = "/test-plan/report/get-layout";
     private static final String AUTO_GEN_PLAN_REPORT = "/test-plan/report/auto-gen";
     private static final String GET_PLAN_REPORT = "/test-plan/report/get";
+    private static final String GET_PLAN_TASK_RESULT = "/test-plan/report/get-task";
     private static final String EDIT_PLAN_REPORT_AND_UPLOAD_PIC = "/test-plan/report/upload/md/file";
     private static final String EDIT_PLAN_REPORT = "/test-plan/report/detail/edit";
     private static final String GET_PLAN_REPORT_DETAIL_BUG_PAGE = "/test-plan/report/detail/bug/page";
@@ -86,6 +89,8 @@ public class TestPlanReportControllerTests extends BaseTest {
 
     private static String GEN_REPORT_ID;
     private static String GEN_SHARE_ID;
+	@Autowired
+	private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
 
     @Test
     @Order(1)
@@ -297,6 +302,10 @@ public class TestPlanReportControllerTests extends BaseTest {
     void testGetReportSuccess() throws Exception {
         this.requestGet(GET_PLAN_REPORT + "/" + GEN_REPORT_ID);
         this.requestGet(GET_PLAN_REPORT + "/" + "test-plan-report-id-5");
+        this.requestGet(GET_PLAN_TASK_RESULT + "/" + "task-id-1");
+        this.requestGet(GET_PLAN_TASK_RESULT + "/" + "task-id-2");
+        // 为了不影响后续报告的清理
+        cleanDefaultTaskReportRelate();
     }
 
     @Test
@@ -500,5 +509,11 @@ public class TestPlanReportControllerTests extends BaseTest {
         request.setProjectId("100001100001");
         request.setSelectAll(true);
         this.requestPost(BATCH_EXPORT_REPORT, request);
+    }
+
+    private void cleanDefaultTaskReportRelate() {
+        ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
+        example.createCriteria().andTaskResourceIdEqualTo("task-id-1");
+        apiReportRelateTaskMapper.deleteByExample(example);
     }
 }

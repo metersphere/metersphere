@@ -8,10 +8,7 @@ import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.TestPlanReportComponent;
 import io.metersphere.plan.dto.ReportDetailCasePageDTO;
 import io.metersphere.plan.dto.request.*;
-import io.metersphere.plan.dto.response.TestPlanCaseExecHistoryResponse;
-import io.metersphere.plan.dto.response.TestPlanReportDetailCollectionResponse;
-import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
-import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
+import io.metersphere.plan.dto.response.*;
 import io.metersphere.plan.service.*;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
@@ -127,6 +124,14 @@ public class TestPlanReportController {
     @CheckOwner(resourceId = "#reportId", resourceType = "test_plan_report")
     public TestPlanReportDetailResponse get(@PathVariable String reportId) {
         return testPlanReportService.getReport(reportId);
+    }
+
+    @GetMapping("/get-task/{taskId}")
+    @Operation(summary = "测试计划|组-任务-执行结果")
+    @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_REPORT_READ, PermissionConstants.TEST_PLAN_READ_EXECUTE}, logical = Logical.OR)
+    @CheckOwner(resourceId = "#taskId", resourceType = "exec_task")
+    public TestPlanTaskReportResponse getTaskDetail(@PathVariable String taskId) {
+        return testPlanReportService.getTaskDetail(taskId);
     }
 
     @GetMapping("/get-layout/{reportId}")

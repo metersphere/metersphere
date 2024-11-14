@@ -12,10 +12,7 @@ import io.metersphere.plan.constants.CollectionQueryType;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.*;
-import io.metersphere.plan.dto.response.TestPlanCaseExecHistoryResponse;
-import io.metersphere.plan.dto.response.TestPlanReportDetailCollectionResponse;
-import io.metersphere.plan.dto.response.TestPlanReportDetailResponse;
-import io.metersphere.plan.dto.response.TestPlanReportPageResponse;
+import io.metersphere.plan.dto.response.*;
 import io.metersphere.plan.enums.TestPlanReportAttachmentSourceType;
 import io.metersphere.plan.mapper.*;
 import io.metersphere.plan.utils.CountUtils;
@@ -29,10 +26,12 @@ import io.metersphere.sdk.file.FileCopyRequest;
 import io.metersphere.sdk.file.FileRepository;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.*;
+import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.mapper.BaseUserMapper;
+import io.metersphere.system.mapper.ExecTaskMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.BaseTaskHubService;
@@ -128,6 +127,8 @@ public class TestPlanReportService {
     private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
     @Resource
     private TestPlanCollectionMapper testPlanCollectionMapper;
+    @Resource
+    private ExecTaskMapper execTaskMapper;
 
     private static final int MAX_REPORT_NAME_LENGTH = 300;
 
@@ -798,6 +799,21 @@ public class TestPlanReportService {
         return planReportDetail;
     }
 
+    public TestPlanTaskReportResponse getTaskDetail(String taskId) {
+        TestPlanTaskReportResponse testPlanTaskReportResponse = new TestPlanTaskReportResponse();
+        ExecTask task = execTaskMapper.selectByPrimaryKey(taskId);
+        BeanUtils.copyBean(testPlanTaskReportResponse, task);
+        ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
+        example.createCriteria().andTaskResourceIdEqualTo(taskId);
+        List<ApiReportRelateTask> taskReports = apiReportRelateTaskMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(taskReports)) {
+            // 暂未生成报告
+            return testPlanTaskReportResponse;
+        }
+        String reportId = taskReports.getFirst().getReportId();
+        return calcTaskExecActual(reportId, testPlanTaskReportResponse);
+    }
+
     public List<TestPlanReportComponent> getLayout(String reportId) {
         TestPlanReportComponentExample example = new TestPlanReportComponentExample();
         example.createCriteria().andTestPlanReportIdEqualTo(reportId);
@@ -1402,5 +1418,25 @@ public class TestPlanReportService {
             List<TestPlanReport> reports = testPlanReportMapper.selectByExample(example);
             testPlanReportLogService.exportLog(reports, userId, projectId, "/test-plan/report/batch-export");
         }
+    }
+
+    /**
+     * 计算计划任务的用例执行情况(实时, 并不取计划报告的最终汇总)
+     * @return 用例执行情况
+     */
+    private TestPlanTaskReportResponse calcTaskExecActual(String reportId, TestPlanTaskReportResponse testPlanTaskReportResponse) {
+        // 计算接口用例
+        List<CaseStatusCountMap> apiCountMapList = extTestPlanReportApiCaseMapper.countExecuteResult(reportId);
+        CaseCount apiCaseCount = countMap(apiCountMapList);
+        // 计算场景用例
+        List<CaseStatusCountMap> scenarioCountMapList = extTestPlanReportApiScenarioMapper.countExecuteResult(reportId);
+        CaseCount scenarioCaseCount = countMap(scenarioCountMapList);
+        // 汇总接口&&场景用例的执行情况
+        CaseCount caseCount = CountUtils.summarizeProperties(List.of(apiCaseCount, scenarioCaseCount));
+        testPlanTaskReportResponse.setExecuteCaseCount(caseCount);
+        // 完成率 = (总数 - 未执行数) / 总数
+        testPlanTaskReportResponse.setExecuteRate((caseCount.sum() == 0) ?
+                0 : RateCalculateUtils.divWithPrecision(caseCount.sum() - caseCount.getPending(), caseCount.sum(), 2));
+        return testPlanTaskReportResponse;
     }
 }

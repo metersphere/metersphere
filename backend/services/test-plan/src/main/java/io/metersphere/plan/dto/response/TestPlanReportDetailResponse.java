@@ -9,6 +9,9 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * @author song-cc-rock
+ */
 @Data
 public class TestPlanReportDetailResponse {
 

@@ -187,7 +187,7 @@
                             #{lastStatus}
                         </foreach>
                     </if>
-                    <if test="request.todoParam.platformUser != null">
+                    <if test="request.todoParam.platformUser != null and request.todoParam.platformUser != ''">
                         and b.handle_user = #{request.todoParam.platformUser}
                     </if>
                     )

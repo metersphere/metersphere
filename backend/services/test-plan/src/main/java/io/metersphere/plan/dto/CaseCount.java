@@ -30,4 +30,8 @@ public class CaseCount {
 	@Schema(description = "未执行用例数量")
 	@Builder.Default
 	private Integer pending = 0;
+
+	public Integer sum() {
+		return success + error + fakeError + block + pending;
+	}
 }
