@@ -108,11 +108,11 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
       }
       default:
     }
-    const key = event.key.toLowerCase();
-
-    if (key === 'f2') {
+    const code = event.code.toLowerCase();
+    if (code === 'space') {
       // 执行快捷键编辑事件
       if (shortcuts.input) {
+        event.preventDefault();
         shortcuts.input(event);
       }
     }

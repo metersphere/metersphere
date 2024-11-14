@@ -134,6 +134,12 @@
                 <div class="ms-minder-shortcut-trigger-listitem-icon">Y</div>
               </div>
             </div> -->
+            <div class="ms-minder-shortcut-trigger-listitem">
+              <div>{{ t('minder.editNodeText') }}</div>
+              <div class="ms-minder-shortcut-trigger-listitem-icon ms-minder-shortcut-trigger-listitem-icon-auto">
+                Space
+              </div>
+            </div>
             <slot name="shortCutList"></slot>
           </div>
         </template>

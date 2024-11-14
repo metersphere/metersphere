@@ -108,5 +108,6 @@ export default {
     shortcutTitle: '快捷键说明',
     expand: '展开/收起',
     notSupportClipboard: '因浏览器安全策略限制，非 HTTPS 协议的网站无法访问剪贴板，请使用快捷键复制/粘贴',
+    editNodeText: '编辑节点文本',
   },
 };

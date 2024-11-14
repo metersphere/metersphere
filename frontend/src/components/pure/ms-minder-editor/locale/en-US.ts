@@ -115,5 +115,6 @@ export default {
     expand: 'Expand/Collapse',
     notSupportClipboard:
       'Due to browser security policy restrictions, websites that are not HTTPS cannot access the clipboard. Please use keyboard shortcuts to copy/paste.',
+    editNodeText: '编辑节点文本',
   },
 };
