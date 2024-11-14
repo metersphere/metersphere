@@ -1219,12 +1219,11 @@ public class DashboardService {
         List<Bug> allSimpleList = extBugMapper.getSimpleList(projectId, null, null, handleUser, createUser, platforms);
         List<String> localLastStepStatus = bugCommonService.getLocalLastStepStatus(projectId);
         List<String> platformLastStepStatus = new ArrayList<>();
-        //TODO: 第三方的单元测试没成功
-        /*try {
+        try {
             platformLastStepStatus = bugCommonService.getPlatformLastStepStatus(projectId);
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }*/
+        }
         localLastStepStatus.addAll(platformLastStepStatus);
         List<Bug> statusList = allSimpleList.stream().filter(t -> !localLastStepStatus.contains(t.getStatus())).toList();
         int statusSize = CollectionUtils.isEmpty(statusList) ? 0 : statusList.size();

@@ -15,8 +15,11 @@ import io.metersphere.dashboard.service.DashboardService;
 import io.metersphere.functional.dto.CaseReviewDTO;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.domain.Project;
+import io.metersphere.project.domain.ProjectApplication;
+import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.ProjectUserDTO;
+import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.request.ProjectMemberRequest;
 import io.metersphere.project.service.ProjectMemberService;
@@ -55,6 +58,8 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     private DashboardService dashboardService;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private ProjectApplicationMapper projectApplicationMapper;
 
     @Resource
     private ProjectMemberService projectMemberService;
@@ -288,7 +293,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
                                 .withHeaders(
                                         new Header("Content-Type", "application/json; charset=utf-8"),
                                         new Header("Cache-Control", "public, max-age=86400"))
-                                .withBody("{\"id\":\"123456\",\"name\":\"test\", \"issues\": [{\"key\": \"TES-1\",\"fields\": {\"summary\": \"Test\"}}], \"total\": 1}")
+                                .withBody("{\"id\":\"123456\",\"name\":\"test\", \"issues\": [], \"total\": 1}")
 
                 );
         DashboardFrontPageRequest dashboardFrontPageRequest = new DashboardFrontPageRequest();
@@ -331,6 +336,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         ResultHolder reviewResultHolder = JSON.parseObject(reviewContent, ResultHolder.class);
         StatisticsDTO reviewCount = JSON.parseObject(JSON.toJSONString(reviewResultHolder.getData()), StatisticsDTO.class);
         Assertions.assertNotNull(reviewCount);
+        enableDefaultPlatformConfig();
         MvcResult bugMvcResult = this.requestPostWithOkAndReturn(BUG_COUNT, dashboardFrontPageRequest);
         String bugContentAsString = bugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder bugResultHolder = JSON.parseObject(bugContentAsString, ResultHolder.class);
@@ -512,5 +518,13 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         List<SelectOption> list = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), SelectOption.class);
         Assertions.assertNotNull(list);
+    }
+
+    private void enableDefaultPlatformConfig() {
+        ProjectApplication record = new ProjectApplication();
+        record.setTypeValue("true");
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andTypeEqualTo("BUG_SYNC_SYNC_ENABLE");
+        projectApplicationMapper.updateByExampleSelective(record, example);
     }
 }

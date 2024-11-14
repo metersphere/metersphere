@@ -108,4 +108,9 @@ VALUES ('dashboard_scenario_four', 'api_scenario', 'p1', 'test-api-status',  'ER
 
 
 INSERT INTO api_scenario_step(id, scenario_id, name, sort, enable, resource_id, resource_num, step_type, project_id, parent_id, version_id, ref_type, origin_project_id, config)
-    VALUE ('dashboard_act_1', 'dashboard_sc_1', 'dd', 1, true, 'dashboard_api_definition_id_1', '1000', 'API', '100001100001', null, 'oasis_ac_version_id', 'REF', '100001100001', null)
+    VALUE ('dashboard_act_1', 'dashboard_sc_1', 'dd', 1, true, 'dashboard_api_definition_id_1', '1000', 'API', '100001100001', null, 'oasis_ac_version_id', 'REF', '100001100001', null);
+
+INSERT INTO project_application (project_id, type, type_value) VALUES
+                                                                   ('100001100001', 'BUG_SYNC_BUG_PLATFORM_CONFIG', '{"jiraKey":"TES","jiraBugTypeId":"10009"}'),
+                                                                   ('100001100001', 'BUG_SYNC_PLATFORM_KEY', 'jira'),
+                                                                   ('100001100001', 'BUG_SYNC_SYNC_ENABLE', 'false');
