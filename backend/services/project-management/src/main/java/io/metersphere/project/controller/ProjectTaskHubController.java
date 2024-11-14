@@ -97,6 +97,13 @@ public class ProjectTaskHubController {
         baseTaskHubService.stopTask(id, SessionUtils.getUserId(), null, SessionUtils.getCurrentProjectId());
     }
 
+    @GetMapping("/exec-task/rerun/{id}")
+    @Operation(summary = "项目-任务中心-用例执行任务-重跑任务")
+    @Log(type = OperationLogType.RERUN, expression = "#msClass.projectRerunLog(#id)", msClass = BaseTaskHubLogService.class)
+    @RequiresPermissions(PermissionConstants.PROJECT_CASE_TASK_CENTER_EXEC_STOP)
+    public void rerunTask(@PathVariable String id) {
+        baseTaskHubService.rerunTask(id, SessionUtils.getUserId(), null, SessionUtils.getCurrentProjectId());
+    }
 
     @PostMapping("/exec-task/batch-stop")
     @Operation(summary = "项目-任务中心-用例执行任务-批量停止任务")

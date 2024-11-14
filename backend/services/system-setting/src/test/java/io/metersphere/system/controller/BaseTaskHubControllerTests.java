@@ -1,6 +1,7 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.ExecTaskType;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -13,6 +14,7 @@ import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.request.ScheduleRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ExecTaskItemMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.service.BaseTaskHubService;
@@ -56,6 +58,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String SYSTEM_RESOURCE_POOL_OPTIONS = "/system/task-center/resource-pool/options";
     public static final String SYSTEM_RESOURCE_POOL_STATUS = "/system/task-center/resource-pool/status";
     public static final String SYSTEM_TASK_STOP = "/system/task-center/exec-task/stop/";
+    public static final String SYSTEM_TASK_RERUN = "/system/task-center/exec-task/rerun/{0}";
     public static final String SYSTEM_TASK_DELETE = "/system/task-center/exec-task/delete/";
     public static final String SYSTEM_TASK_BATCH_STOP = "/system/task-center/exec-task/batch-stop";
     public static final String SYSTEM_TASK_BATCH_DELETE = "/system/task-center/exec-task/batch-delete";
@@ -212,6 +215,18 @@ public class BaseTaskHubControllerTests extends BaseTest {
         this.requestGet(SYSTEM_TASK_STOP + "2");
     }
 
+    @Test
+    @Order(4)
+    public void systemTaskRerun() throws Exception {
+        String taskId = "1";
+        this.requestGet(SYSTEM_TASK_RERUN, taskId);
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.SYSTEM_CASE_TASK_CENTER_EXEC_STOP, SYSTEM_TASK_RERUN, taskId);
+        // @@校验日志
+        checkLog(taskId, OperationLogType.RERUN);
+    }
+
+
     /**
      * 系统任务项停止
      */
@@ -349,6 +364,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
     public static final String ORG_STATISTICS = "/organization/task-center/exec-task/statistics";
     public static final String ORG_RESOURCE_POOL_OPTIONS = "/organization/task-center/resource-pool/options";
     public static final String ORG_TASK_STOP = "/organization/task-center/exec-task/stop/";
+    public static final String ORG_TASK_RERUN = "/organization/task-center/exec-task/rerun/{0}";
     public static final String ORG_TASK_DELETE = "/organization/task-center/exec-task/delete/";
     public static final String ORG_TASK_BATCH_STOP = "/organization/task-center/exec-task/batch-stop";
     public static final String ORG_TASK_BATCH_DELETE = "/organization/task-center/exec-task/batch-delete";
@@ -487,6 +503,17 @@ public class BaseTaskHubControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
         testResourcePoolMapper.deleteByPrimaryKey("1");
         testResourcePoolMapper.deleteByPrimaryKey("2");
+    }
+
+    @Test
+    @Order(24)
+    public void orgTaskRerun() throws Exception {
+        String taskId = "1";
+        this.requestGet(ORG_TASK_RERUN, taskId);
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_EXEC_STOP, ORG_TASK_RERUN, taskId);
+        // @@校验日志
+        checkLog(taskId, OperationLogType.RERUN);
     }
 
     /**

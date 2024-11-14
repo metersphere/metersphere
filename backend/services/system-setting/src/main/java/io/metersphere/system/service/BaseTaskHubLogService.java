@@ -79,7 +79,6 @@ public class BaseTaskHubLogService {
         return dto;
     }
 
-
     /**
      * 项目停止任务日志
      *
@@ -102,6 +101,71 @@ public class BaseTaskHubLogService {
         return dto;
     }
 
+    /**
+     * 系统重跑任务日志
+     *
+     * @param id
+     * @return
+     */
+    public LogDTO systemRerunLog(String id) {
+        ExecTask execTask = execTaskMapper.selectByPrimaryKey(id);
+        LogDTO dto = null;
+        if (execTask != null) {
+            dto = new LogDTO(
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
+                    execTask.getId(),
+                    null,
+                    OperationLogType.RERUN.name(),
+                    OperationLogModule.SETTING_SYSTEM_TASK_CENTER,
+                    execTask.getTaskName());
+        }
+        return dto;
+    }
+
+    /**
+     * 组织重跑任务日志
+     *
+     * @param id
+     * @return
+     */
+    public LogDTO orgRerunLog(String id) {
+        ExecTask execTask = execTaskMapper.selectByPrimaryKey(id);
+        LogDTO dto = null;
+        if (execTask != null) {
+            dto = new LogDTO(
+                    OperationLogConstants.ORGANIZATION,
+                    null,
+                    execTask.getId(),
+                    null,
+                    OperationLogType.RERUN.name(),
+                    OperationLogModule.SETTING_ORGANIZATION_TASK_CENTER,
+                    execTask.getTaskName());
+        }
+        return dto;
+    }
+
+    /**
+     * 项目重跑任务日志
+     *
+     * @param id
+     * @return
+     */
+    public LogDTO projectRerunLog(String id) {
+        ExecTask execTask = execTaskMapper.selectByPrimaryKey(id);
+        LogDTO dto = null;
+        if (execTask != null) {
+            dto = new LogDTO(
+                    null,
+                    null,
+                    execTask.getId(),
+                    null,
+                    OperationLogType.RERUN.name(),
+                    OperationLogModule.PROJECT_MANAGEMENT_TASK_CENTER,
+                    execTask.getTaskName());
+        }
+        return dto;
+    }
 
     /**
      * 系统删除任务日志

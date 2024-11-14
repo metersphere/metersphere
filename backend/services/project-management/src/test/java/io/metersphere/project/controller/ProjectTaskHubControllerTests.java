@@ -1,6 +1,7 @@
 package io.metersphere.project.controller;
 
 import io.metersphere.sdk.constants.ExecTaskType;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -12,6 +13,7 @@ import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.taskhub.request.ScheduleRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ExecTaskItemMapper;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
@@ -44,6 +46,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     public static final String PROJECT_STATISTICS = "/project/task-center/exec-task/statistics";
     public static final String PROJECT_RESOURCE_POOL_OPTIONS = "/project/task-center/resource-pool/options";
     public static final String PROJECT_TASK_STOP = "/project/task-center/exec-task/stop/";
+    public static final String PROJECT_TASK_RERUN = "/project/task-center/exec-task/rerun/{0}";
     public static final String PROJECT_TASK_DELETE = "/project/task-center/exec-task/delete/";
     public static final String PROJECT_TASK_BATCH_STOP = "/project/task-center/exec-task/batch-stop";
     public static final String PROJECT_TASK_ITEM_ORDER = "/project/task-center/exec-task/item/order";
@@ -149,6 +152,20 @@ public class ProjectTaskHubControllerTests extends BaseTest {
         this.requestGet(PROJECT_TASK_STOP + "pro_1");
         mockPost("/api/task/stop", "");
         this.requestGet(PROJECT_TASK_STOP + "pro_2");
+    }
+
+    /**
+     * 项目执行任务停止
+     */
+    @Test
+    @Order(6)
+    public void projectTaskRerun() throws Exception {
+        String taskId = "pro_1";
+        this.requestGet(PROJECT_TASK_RERUN, taskId);
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_CASE_TASK_CENTER_EXEC_STOP, PROJECT_TASK_RERUN, taskId);
+        // @@校验日志
+        checkLog(taskId, OperationLogType.RERUN);
     }
 
     /**

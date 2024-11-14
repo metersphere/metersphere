@@ -108,6 +108,13 @@ public class SystemTaskHubController {
         baseTaskHubService.stopTask(id, SessionUtils.getUserId(), null, null);
     }
 
+    @GetMapping("/exec-task/rerun/{id}")
+    @Operation(summary = "系统-任务中心-用例执行任务-重跑任务")
+    @Log(type = OperationLogType.RERUN, expression = "#msClass.systemRerunLog(#id)", msClass = BaseTaskHubLogService.class)
+    @RequiresPermissions(PermissionConstants.SYSTEM_CASE_TASK_CENTER_EXEC_STOP)
+    public void rerunTask(@PathVariable String id) {
+        baseTaskHubService.rerunTask(id, SessionUtils.getUserId(), null, null);
+    }
 
     @PostMapping("/exec-task/batch-stop")
     @Operation(summary = "系统-任务中心-用例执行任务-批量停止任务")

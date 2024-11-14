@@ -468,6 +468,10 @@
       label: 'system.log.operateType.stop',
       value: 'STOP',
     },
+    {
+      label: 'system.log.operateType.rerun',
+      value: 'RERUN',
+    },
   ];
 
   function resetFilter() {

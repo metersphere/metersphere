@@ -107,6 +107,15 @@ public class OrganizationTaskHubController {
     }
 
 
+    @GetMapping("/exec-task/rerun/{id}")
+    @Operation(summary = "组织-任务中心-用例执行任务-重跑任务")
+    @Log(type = OperationLogType.RERUN, expression = "#msClass.orgRerunLog(#id)", msClass = BaseTaskHubLogService.class)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_EXEC_STOP)
+    public void rerunTask(@PathVariable String id) {
+        baseTaskHubService.rerunTask(id, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), null);
+    }
+
+
     @PostMapping("/exec-task/batch-stop")
     @Operation(summary = "组织-任务中心-用例执行任务-批量停止任务")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_CASE_TASK_CENTER_EXEC_STOP)

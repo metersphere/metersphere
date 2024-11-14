@@ -10,7 +10,6 @@ import io.metersphere.engine.MsHttpClient;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.*;
@@ -32,6 +31,7 @@ import io.metersphere.system.dto.taskhub.request.ScheduleRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemBatchRequest;
 import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import io.metersphere.system.dto.taskhub.response.TaskStatisticsResponse;
+import io.metersphere.system.invoker.TaskRerunServiceInvoker;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
@@ -91,8 +91,6 @@ public class BaseTaskHubService {
     private TestResourcePoolOrganizationMapper testResourcePoolOrganizationMapper;
     @Resource
     private ExtResourcePoolMapper extResourcePoolMapper;
-    @Resource
-    private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
     @Resource
     private NodeResourcePoolService nodeResourcePoolService;
     @Resource
@@ -559,6 +557,21 @@ public class BaseTaskHubService {
         //2.更新任务明细状态
         extExecTaskItemMapper.batchUpdateTaskItemStatus(List.of(id), userId, orgId, projectId, ExecStatus.STOPPED.name());
         handleStopTaskAsync(List.of(id));
+    }
+
+    public void rerunTask(String id, String userId, String orgId, String projectId) {
+        ExecTask execTask = execTaskMapper.selectByPrimaryKey(id);
+        if (projectId != null && !StringUtils.equals(projectId, execTask.getProjectId())) {
+            throw new MSException(Translator.get("no_permission_to_resource"));
+        }
+        if (orgId != null && !StringUtils.equals(orgId, execTask.getOrganizationId())) {
+            throw new MSException(Translator.get("no_permission_to_resource"));
+        }
+
+        // 更新任务状态
+        extExecTaskMapper.batchUpdateTaskStatus(List.of(id), userId, orgId, projectId, ExecStatus.RERUNNING.name());
+
+        TaskRerunServiceInvoker.rerun(execTask);
     }
 
     private void handleStopTaskAsync(List<String> ids) {

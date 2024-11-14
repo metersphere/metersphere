@@ -67,7 +67,7 @@ public class OperationLogAspect {
     private final OperationLogType[] beforeMethodNames = new OperationLogType[]{OperationLogType.UPDATE, OperationLogType.DELETE, OperationLogType.COPY
             , OperationLogType.RECOVER, OperationLogType.DISASSOCIATE,OperationLogType.ASSOCIATE, OperationLogType.ARCHIVED};
     // 需要后置执行合并内容的
-    private final OperationLogType[] postMethodNames = new OperationLogType[]{OperationLogType.ADD, OperationLogType.UPDATE};
+    private final OperationLogType[] postMethodNames = new OperationLogType[]{OperationLogType.ADD, OperationLogType.UPDATE, OperationLogType.RERUN};
 
     /**
      * 定义切点 @Pointcut 在注解的位置切入代码
