@@ -78,7 +78,7 @@ public class FunctionalCaseModuleLogService {
 
 
     /**
-     * 功能用例模块删除日志
+     * 功能用例用例删除日志
      *
      * @param functionalCases
      * @param projectId
@@ -93,7 +93,7 @@ public class FunctionalCaseModuleLogService {
                     item.getId(),
                     userId,
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.CASE_MANAGEMENT_CASE_MODULE,
+                    OperationLogModule.CASE_MANAGEMENT_CASE_CASE,
                     item.getName());
             dto.setPath(path);
             dto.setMethod(HttpMethodConstants.GET.name());
@@ -104,4 +104,30 @@ public class FunctionalCaseModuleLogService {
     }
 
 
+    /**
+     * 功能用例模块删除日志
+     * @param deleteModule
+     * @param projectId
+     * @param userId
+     * @param path
+     */
+    public void handleModuleLog(List<FunctionalCaseModule> deleteModule, String projectId, String userId, String path, String type) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        List<LogDTO> dtoList = new ArrayList<>();
+        deleteModule.forEach(item -> {
+            LogDTO dto = new LogDTO(
+                    projectId,
+                    project.getOrganizationId(),
+                    item.getId(),
+                    userId,
+                    type,
+                    OperationLogModule.CASE_MANAGEMENT_CASE_MODULE,
+                    item.getName());
+            dto.setPath(path);
+            dto.setMethod(HttpMethodConstants.GET.name());
+            dto.setOriginalValue(JSON.toJSONBytes(item));
+            dtoList.add(dto);
+        });
+        operationLogService.batchAdd(dtoList);
+    }
 }

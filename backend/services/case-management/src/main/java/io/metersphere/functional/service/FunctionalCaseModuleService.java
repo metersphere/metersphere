@@ -26,6 +26,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.uid.IDGenerator;
@@ -128,7 +129,10 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         FunctionalCaseModule deleteModule = functionalCaseModuleMapper.selectByPrimaryKey(moduleId);
         if (deleteModule != null) {
             List<FunctionalCase> functionalCases = this.deleteModuleByIds(Collections.singletonList(moduleId), new ArrayList<>(), userId);
+            //用例日志
             functionalCaseModuleLogService.batchDelLog(functionalCases, deleteModule.getProjectId(), userId, "/functional/case/module/delete/" + moduleId);
+            //模块日志
+            functionalCaseModuleLogService.handleModuleLog(List.of(deleteModule), deleteModule.getProjectId(), userId, "/functional/case/module/delete/" + moduleId, OperationLogType.DELETE.name());
             List<String> ids = functionalCases.stream().map(FunctionalCase::getId).toList();
             User user = userMapper.selectByPrimaryKey(userId);
             functionalCaseNoticeService.batchSendNotice(deleteModule.getProjectId(), ids, user, NoticeConstants.Event.DELETE);
