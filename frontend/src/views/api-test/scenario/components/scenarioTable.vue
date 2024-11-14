@@ -198,9 +198,7 @@
       <div class="float-left">
         {{ scheduleModalTitle }}
         <div v-if="isBatch" class="float-right flex text-[var(--color-text-4)]">
-          {{ '（' }}
-          <div>{{ batchParams.currentSelectCount || batchParams.selectedIds?.length }}</div>
-          {{ '）' }}
+          {{ t('common.selectedCount', { count: batchParams.currentSelectCount || batchParams.selectedIds?.length }) }}
         </div>
         <a-tooltip v-else-if="translateTextToPX(tableRecord?.name) > 300">
           <template #content>
@@ -1547,6 +1545,8 @@
           ? t('testPlan.testPlanGroup.enableScheduleTaskSuccess')
           : t('testPlan.testPlanGroup.closeScheduleTaskSuccess')
       );
+      resetSelector();
+      loadScenarioList(false);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

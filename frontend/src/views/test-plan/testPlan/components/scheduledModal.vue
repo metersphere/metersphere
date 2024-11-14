@@ -16,6 +16,13 @@
             )
           : t('testPlan.testPlanIndex.createScheduledTask')
       }}
+      <div v-if="isBatch" class="float-right flex text-[var(--color-text-4)]">
+        {{
+          t('common.selectedCount', {
+            count: props.batchParams?.currentSelectCount || props.batchParams?.selectedIds?.length,
+          })
+        }}
+      </div>
     </template>
     <a-form ref="formRef" :model="form" layout="vertical">
       <a-form-item :label="t('testPlan.testPlanIndex.triggerTime')" asterisk-position="end">
