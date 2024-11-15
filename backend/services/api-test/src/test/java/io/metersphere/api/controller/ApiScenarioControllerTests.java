@@ -77,6 +77,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -2704,6 +2706,7 @@ public class ApiScenarioControllerTests extends BaseTest {
 
     @Test
     @Order(10)
+    @Sql(scripts = {"/dml/init_exec_history_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testExecuteList() throws Exception {
         ApiScenario first = apiScenarioMapper.selectByExample(new ApiScenarioExample()).getFirst();
         List<ApiScenarioReport> reports = new ArrayList<>();
@@ -2749,7 +2752,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         }
         apiScenarioReportService.insertApiScenarioReport(reports, records);
         ExecutePageRequest request = new ExecutePageRequest();
-        request.setId(first.getId());
+        request.setId("1");
         request.setPageSize(10);
         request.setCurrent(1);
         MvcResult mvcResult = responsePost(BASE_PATH + "execute/page", request);

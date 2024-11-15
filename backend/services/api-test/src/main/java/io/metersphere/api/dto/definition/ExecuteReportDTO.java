@@ -48,6 +48,9 @@ public class ExecuteReportDTO implements Serializable {
     @Schema(description = "测试计划Num")
     private String testPlanNum;
 
+    @Schema(description = "结果是否被删除")
+    private Boolean resultDeleted = true;
+
     private static final long serialVersionUID = 1L;
 
 }

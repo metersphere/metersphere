@@ -46,6 +46,8 @@ import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -111,6 +113,8 @@ public class ApiTestCaseService extends MoveNodeService {
     private ExtApiScenarioMapper extApiScenarioMapper;
 
     private static final String CASE_TABLE = "api_test_case";
+    @Resource
+    private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
 
     private void checkProjectExist(String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
@@ -578,10 +582,11 @@ public class ApiTestCaseService extends MoveNodeService {
 
     private List<ExecuteReportDTO> handleList(List<ExecHistoryDTO> historyList) {
         List<ExecuteReportDTO> executeReportDTOList = new ArrayList<>();
-        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(historyList)) {
+        if (CollectionUtils.isNotEmpty(historyList)) {
             List<String> userIds = historyList.stream().map(ExecHistoryDTO::getCreateUser).toList();
             Map<String, String> userNameMap = userLoginService.getUserNameMap(userIds);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+            Map<String, String> reportMap = getReportMap(historyList);
             historyList.forEach(item -> {
                 ExecuteReportDTO reportDTO = new ExecuteReportDTO();
                 BeanUtils.copyBean(reportDTO, item);
@@ -591,10 +596,30 @@ public class ApiTestCaseService extends MoveNodeService {
                 if (StringUtils.isNotBlank(item.getTestPlanNum())) {
                     reportDTO.setTestPlanNum(StringUtils.join(Translator.get("test_plan"), ": ", item.getTestPlanNum()));
                 }
+                if (BooleanUtils.isTrue(item.getIntegrated()) && reportMap.containsKey(item.getTaskId())) {
+                    reportDTO.setResultDeleted(false);
+                }
+                if (BooleanUtils.isFalse(item.getIntegrated()) && reportMap.containsKey(item.getItemId())) {
+                    reportDTO.setResultDeleted(false);
+                }
                 executeReportDTOList.add(reportDTO);
             });
         }
         return executeReportDTOList;
+    }
+
+    private Map<String, String> getReportMap(List<ExecHistoryDTO> list) {
+        Map<String, String> reportMap = new HashMap<>();
+        List<String> integratedTaskIds = list.stream().filter(item -> BooleanUtils.isTrue(item.getIntegrated())).map(ExecHistoryDTO::getTaskId).toList();
+        List<String> noIntegratedTaskItemIds = list.stream().filter(item -> BooleanUtils.isFalse(item.getIntegrated())).map(ExecHistoryDTO::getItemId).toList();
+        List<String> resourceIds = ListUtils.union(integratedTaskIds, noIntegratedTaskItemIds);
+        if (CollectionUtils.isNotEmpty(resourceIds)) {
+            ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
+            example.createCriteria().andTaskResourceIdIn(resourceIds);
+            List<ApiReportRelateTask> reportRelateTasks = apiReportRelateTaskMapper.selectByExample(example);
+            reportMap = reportRelateTasks.stream().collect(Collectors.toMap(ApiReportRelateTask::getTaskResourceId, ApiReportRelateTask::getReportId));
+        }
+        return reportMap;
     }
 
     public List<OperationHistoryDTO> operationHistoryList(OperationHistoryRequest request) {
