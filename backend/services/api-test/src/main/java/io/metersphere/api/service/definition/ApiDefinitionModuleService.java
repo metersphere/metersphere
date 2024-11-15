@@ -328,43 +328,50 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         //根据选择的模块id 来补充选中的id
         List<ApiModuleDTO> selectedModules = request.getSelectedModules();
         List<ApiModuleDTO> currentModules = new ArrayList<>();
+        // 选中的模块id
+        List<String> moduleIds = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(selectedModules)) {
             //将选中的模块id转换为Map 方便后面的查询 key为id
             Map<String, ApiModuleDTO> selectedModuleMap = selectedModules.stream().collect(Collectors.toMap(ApiModuleDTO::getModuleId, apiModuleDTO -> apiModuleDTO));
-            getAllModuleIds(baseTreeNodes, currentModules, selectedModuleMap);
+            getAllModuleIds(baseTreeNodes, currentModules, selectedModuleMap, moduleIds);
         }
         envApiTreeDTO.setSelectedModules(currentModules);
         return envApiTreeDTO;
     }
 
-    public void getAllModuleIds(List<BaseTreeNode> baseTreeNodes, List<ApiModuleDTO> currentModules, Map<String, ApiModuleDTO> selectedModuleMap) {
+    public void getAllModuleIds(List<BaseTreeNode> baseTreeNodes, List<ApiModuleDTO> currentModules, Map<String, ApiModuleDTO> selectedModuleMap, List<String> moduleIds) {
         baseTreeNodes.forEach(baseTreeNode -> {
             if (selectedModuleMap.containsKey(baseTreeNode.getId())) {
                 ApiModuleDTO apiModuleDTO = selectedModuleMap.get(baseTreeNode.getId());
-                if (BooleanUtils.isTrue(apiModuleDTO.getContainChildModule())) {
-                    currentModules.add(apiModuleDTO);
-                    if (CollectionUtils.isNotEmpty(baseTreeNode.getChildren())) {
-                        setChildren(baseTreeNode.getChildren(), currentModules);
+                if (!moduleIds.contains(baseTreeNode.getId())) {
+                    moduleIds.add(baseTreeNode.getId());
+                    if (BooleanUtils.isTrue(apiModuleDTO.getContainChildModule())) {
+                        moduleIds.add(baseTreeNode.getId());
+                        currentModules.add(apiModuleDTO);
+                        if (CollectionUtils.isNotEmpty(baseTreeNode.getChildren())) {
+                            setChildren(baseTreeNode.getChildren(), currentModules, moduleIds);
+                        }
+                    } else {
+                        currentModules.add(apiModuleDTO);
                     }
-                } else {
-                    currentModules.add(apiModuleDTO);
                 }
             }
             if (CollectionUtils.isNotEmpty(baseTreeNode.getChildren())) {
-                getAllModuleIds(baseTreeNode.getChildren(), currentModules, selectedModuleMap);
+                getAllModuleIds(baseTreeNode.getChildren(), currentModules, selectedModuleMap, moduleIds);
             }
         });
     }
 
-    public void setChildren(List<BaseTreeNode> baseTreeNodes, List<ApiModuleDTO> currentModules) {
+    public void setChildren(List<BaseTreeNode> baseTreeNodes, List<ApiModuleDTO> currentModules, List<String> moduleIds) {
         baseTreeNodes.forEach(baseTreeNode -> {
             ApiModuleDTO children = new ApiModuleDTO();
             children.setModuleId(baseTreeNode.getId());
             children.setContainChildModule(true);
             children.setDisabled(true);
+            moduleIds.add(baseTreeNode.getId());
             currentModules.add(children);
             if (CollectionUtils.isNotEmpty(baseTreeNode.getChildren())) {
-                setChildren(baseTreeNode.getChildren(), currentModules);
+                setChildren(baseTreeNode.getChildren(), currentModules, moduleIds);
             }
         });
     }
