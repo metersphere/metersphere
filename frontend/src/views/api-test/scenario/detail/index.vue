@@ -19,7 +19,7 @@
           </a-tooltip>
           <a-tooltip :content="t('report.detail.api.copyLink')">
             <MsIcon
-              type="icon-icon_share1"
+              type="icon-icon_link-copy_outlined"
               class="cursor-pointer text-[var(--color-text-4)]"
               :size="16"
               @click="share"

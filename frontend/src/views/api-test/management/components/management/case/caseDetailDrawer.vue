@@ -19,7 +19,7 @@
           {{ t('common.edit') }}
         </MsButton>
         <MsButton type="icon" status="secondary" @click="caseDerailRef?.share()">
-          <MsIcon type="icon-icon_share1" />
+          <MsIcon type="icon-icon_link-copy_outlined" />
           {{ t('common.share') }}
         </MsButton>
         <MsButton

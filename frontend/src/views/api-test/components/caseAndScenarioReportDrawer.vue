@@ -18,7 +18,7 @@
             class="mr-4 !rounded-[var(--border-radius-small)] text-[var(--color-text-1)]"
             @click="shareHandler"
           >
-            <MsIcon type="icon-icon_share1" class="mr-2 font-[16px] text-[var(--color-text-1)]" />
+            <MsIcon type="icon-icon_link-copy_outlined" class="mr-2 font-[16px] text-[var(--color-text-1)]" />
             {{ t('common.share') }}
           </MsButton>
           <template #content>

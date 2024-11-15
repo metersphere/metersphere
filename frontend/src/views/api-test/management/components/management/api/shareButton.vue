@@ -3,7 +3,7 @@
     <a-button type="outline" :class="`${isSelectedShare ? '' : 'arco-btn-outline--secondary'} p-[0_8px]`">
       <template #icon>
         <MsIcon
-          type="icon-icon_share1"
+          type="icon-icon_link-copy_outlined"
           :class="`${isSelectedShare ? 'text-[rgb(var(--primary-5))]' : 'text-[var(--color-text-4)]'}`"
           :size="16"
         />

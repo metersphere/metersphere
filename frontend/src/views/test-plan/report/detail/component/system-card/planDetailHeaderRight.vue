@@ -24,7 +24,7 @@
       :loading="shareLoading"
       @click="shareHandler"
     >
-      <MsIcon type="icon-icon_share1" class="mr-2 font-[16px]" />
+      <MsIcon type="icon-icon_link-copy_outlined" class="mr-2 font-[16px]" />
       {{ t('common.share') }}
     </MsButton>
     <MsButton

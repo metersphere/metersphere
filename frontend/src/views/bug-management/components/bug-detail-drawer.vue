@@ -53,7 +53,7 @@
           :disabled="loading"
           @click="shareHandler"
         >
-          <MsIcon type="icon-icon_share1" class="mr-1 font-[16px]" />
+          <MsIcon type="icon-icon_link-copy_outlined" class="mr-1 font-[16px]" />
           {{ t('caseManagement.featureCase.share') }}
         </MsButton>
         <MsButton
