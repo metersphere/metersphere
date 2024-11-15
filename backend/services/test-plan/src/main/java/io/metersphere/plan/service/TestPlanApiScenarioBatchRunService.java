@@ -205,7 +205,7 @@ public class TestPlanApiScenarioBatchRunService {
         // 初始化执行队列
         ExecutionQueue queue = apiBatchRunBaseService.initExecutionQueue(taskId, taskId + '_' + collectionId, runModeConfig, ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), parentQueueId, parentSetId, userId);
 
-        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(taskId, collectionId);
+        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(taskId, collectionId, false);
 
         apiBatchRunBaseService.initQueueDetail(queue, execTaskItems);
 
@@ -239,7 +239,7 @@ public class TestPlanApiScenarioBatchRunService {
             taskRequest.getTaskInfo().setParentSetId(parentSetId);
         }
 
-        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(taskId, collectionId);
+        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(taskId, collectionId, false);
         SubListUtils.dealForSubList(execTaskItems, ApiBatchRunBaseService.BATCH_TASK_ITEM_SIZE, subExecTaskItems -> {
             List<TaskItem> taskItems = subExecTaskItems
                     .stream()

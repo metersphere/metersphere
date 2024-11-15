@@ -550,7 +550,6 @@ public class TestPlanReportService {
                             // 接口执行时才更新结果
                             reportApiCase.setApiCaseExecuteResult(null);
                             reportApiCase.setApiCaseExecuteUser(null);
-                            reportApiCase.setApiCaseExecuteReportId(IDGenerator.nextStr());
                         }
                         reportApiCase.setApiCaseBugCount(bugCountMap.containsKey(reportApiCase.getTestPlanApiCaseId()) ? bugCountMap.get(reportApiCase.getTestPlanApiCaseId()) : 0);
                     }
@@ -593,7 +592,6 @@ public class TestPlanReportService {
                             // 接口执行时才更新结果
                             reportApiScenario.setApiScenarioExecuteResult(null);
                             reportApiScenario.setApiScenarioExecuteUser(null);
-                            reportApiScenario.setApiScenarioExecuteReportId(IDGenerator.nextStr());
                         }
                         reportApiScenario.setApiScenarioBugCount(bugCountMap.containsKey(reportApiScenario.getTestPlanApiScenarioId()) ? bugCountMap.get(reportApiScenario.getTestPlanApiScenarioId()) : 0);
                     }

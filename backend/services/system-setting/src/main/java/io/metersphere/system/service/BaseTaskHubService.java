@@ -528,6 +528,7 @@ public class BaseTaskHubService {
         List<ExecTaskItem> items = extExecTaskItemMapper.selectPoolNodeByIds(ids);
 
         return items.stream()
+                .filter(item -> StringUtils.isNotBlank(item.getResourcePoolNode()))
                 .collect(Collectors.groupingBy(ExecTaskItem::getResourcePoolNode))
                 .entrySet()
                 .stream()
@@ -599,13 +600,6 @@ public class BaseTaskHubService {
             throw new MSException(Translator.get("no_permission_to_resource"));
         }
 
-        // 查询待执行的任务项
-        List<String> taskItemIds = extExecTaskItemMapper.selectRerunIds(execTask.getId());
-
-        if (CollectionUtils.isEmpty(taskItemIds)) {
-            return;
-        }
-
         // 更新任务状态
         execTask.setStatus(ExecStatus.RERUNNING.name());
         execTask.setCreateUser(userId);
@@ -626,7 +620,7 @@ public class BaseTaskHubService {
         // 更新任务项状态等
         extExecTaskItemMapper.resetRerunTaskItem(execTask.getId(), userId);
 
-        TaskRerunServiceInvoker.rerun(execTask, taskItemIds, userId);
+        TaskRerunServiceInvoker.rerun(execTask, userId);
     }
 
     private void handleStopTaskAsync(List<String> ids) {

@@ -1473,6 +1473,66 @@ public class ExecTaskItemExample {
             addCriterion("error_message not between", value1, value2, "errorMessage");
             return (Criteria) this;
         }
+
+        public Criteria andRerunIsNull() {
+            addCriterion("rerun is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRerunIsNotNull() {
+            addCriterion("rerun is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRerunEqualTo(Boolean value) {
+            addCriterion("rerun =", value, "rerun");
+            return (Criteria) this;
+        }
+
+        public Criteria andRerunNotEqualTo(Boolean value) {
+            addCriterion("rerun <>", value, "rerun");
+            return (Criteria) this;
+        }
+
+        public Criteria andRerunGreaterThan(Boolean value) {
+            addCriterion("rerun >", value, "rerun");
+            return (Criteria) this;
+        }
+
+        public Criteria andRerunGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("rerun >=", value, "rerun");
+            return (Criteria) this;
+        }
+
+        public Criteria andRerunLessThan(Boolean value) {
+            addCriterion("rerun <", value, "rerun");
+            return (Criteria) this;
+        }
+
+        public Criteria andRerunLessThanOrEqualTo(Boolean value) {
+            addCriterion("rerun <=", value, "rerun");
+            return (Criteria) this;
+        }
+
+        public Criteria andRerunIn(List<Boolean> values) {
+            addCriterion("rerun in", values, "rerun");
+            return (Criteria) this;
+        }
+
+        public Criteria andRerunNotIn(List<Boolean> values) {
+            addCriterion("rerun not in", values, "rerun");
+            return (Criteria) this;
+        }
+
+        public Criteria andRerunBetween(Boolean value1, Boolean value2) {
+            addCriterion("rerun between", value1, value2, "rerun");
+            return (Criteria) this;
+        }
+
+        public Criteria andRerunNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("rerun not between", value1, value2, "rerun");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

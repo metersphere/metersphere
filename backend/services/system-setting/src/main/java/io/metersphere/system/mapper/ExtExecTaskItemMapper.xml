@@ -33,6 +33,9 @@
         SELECT id, resource_id
         FROM exec_task_item
         WHERE task_id = #{taskId} and collection_id = #{collectionId}
+        <if test="rerun != null and rerun == true">
+            and rerun = true
+        </if>
     </select>
 
     <select id="selectItemByTaskIds" resultType="io.metersphere.system.domain.ExecTaskItem">
@@ -320,10 +323,6 @@
         </if>
     </select>
 
-    <select id="selectRerunIds" resultType="java.lang.String">
-        select id from exec_task_item where task_id = #{taskId} and `result` = 'ERROR' and deleted = false
-    </select>
-
     <update id="resetRerunTaskItem">
         UPDATE exec_task_item
         SET `status` = 'PENDING',
@@ -333,9 +332,9 @@
             thread_id = null,
             start_time = null,
             end_time = null,
-            collection_id = null,
             error_message = null,
-            executor = #{userId}
+            executor = #{userId},
+            rerun = true
         WHERE
         deleted = false
         and task_id = #{taskId}

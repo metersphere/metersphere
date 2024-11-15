@@ -44,6 +44,10 @@ public class ExecutionQueue implements Serializable {
      * {@link io.metersphere.sdk.constants.ApiExecuteResourceType}
      */
     private String resourceType;
+    /**
+     * 是否是重跑
+     */
+    private Boolean rerun = false;
 
     /**
      * 运行模式配置

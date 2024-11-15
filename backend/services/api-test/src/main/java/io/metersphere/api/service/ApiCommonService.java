@@ -35,12 +35,14 @@ import io.metersphere.sdk.constants.TaskItemErrorMessage;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.TaskBatchRequestDTO;
 import io.metersphere.sdk.dto.api.task.TaskItem;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
+import io.metersphere.system.domain.ExecTaskItemExample;
 import io.metersphere.system.mapper.ExecTaskItemMapper;
 import io.metersphere.system.mapper.ExecTaskMapper;
 import io.metersphere.system.uid.IDGenerator;
@@ -577,5 +579,16 @@ public class ApiCommonService {
         execTaskItem.setStatus(ExecStatus.RUNNING.name());
         execTaskItem.setThreadId(request.getThreadId());
         execTaskItemMapper.updateByPrimaryKeySelective(execTaskItem);
+    }
+
+    public ExecTaskItem getRerunTaskItem(String id) {
+        ExecTaskItemExample example = new ExecTaskItemExample();
+        example.createCriteria().andTaskIdEqualTo(id).andRerunEqualTo(true);
+        List<ExecTaskItem> execTaskItems = execTaskItemMapper.selectByExample(example);
+        if (org.apache.commons.collections4.CollectionUtils.isEmpty(execTaskItems)) {
+            throw new MSException("No test cases to rerun");
+        }
+        ExecTaskItem execTaskItem = execTaskItems.getFirst();
+        return execTaskItem;
     }
 }

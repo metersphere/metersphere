@@ -73,4 +73,6 @@ public interface ExtTestPlanReportMapper {
     void deleteGroupReport(@Param("id") String id);
 
     List<TestPlanReport> getChildrenReport(@Param("reportId") String reportId);
+
+    void resetRerunReport(@Param("reportId") String reportId);
 }

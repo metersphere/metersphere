@@ -574,6 +574,76 @@ public class ExecTaskExample {
             return (Criteria) this;
         }
 
+        public Criteria andResourceIdIsNull() {
+            addCriterion("resource_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceIdIsNotNull() {
+            addCriterion("resource_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceIdEqualTo(String value) {
+            addCriterion("resource_id =", value, "resourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceIdNotEqualTo(String value) {
+            addCriterion("resource_id <>", value, "resourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceIdGreaterThan(String value) {
+            addCriterion("resource_id >", value, "resourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceIdGreaterThanOrEqualTo(String value) {
+            addCriterion("resource_id >=", value, "resourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceIdLessThan(String value) {
+            addCriterion("resource_id <", value, "resourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceIdLessThanOrEqualTo(String value) {
+            addCriterion("resource_id <=", value, "resourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceIdLike(String value) {
+            addCriterion("resource_id like", value, "resourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceIdNotLike(String value) {
+            addCriterion("resource_id not like", value, "resourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceIdIn(List<String> values) {
+            addCriterion("resource_id in", values, "resourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceIdNotIn(List<String> values) {
+            addCriterion("resource_id not in", values, "resourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceIdBetween(String value1, String value2) {
+            addCriterion("resource_id between", value1, value2, "resourceId");
+            return (Criteria) this;
+        }
+
+        public Criteria andResourceIdNotBetween(String value1, String value2) {
+            addCriterion("resource_id not between", value1, value2, "resourceId");
+            return (Criteria) this;
+        }
+
         public Criteria andTriggerModeIsNull() {
             addCriterion("trigger_mode is null");
             return (Criteria) this;
@@ -781,6 +851,66 @@ public class ExecTaskExample {
 
         public Criteria andOrganizationIdNotBetween(String value1, String value2) {
             addCriterion("organization_id not between", value1, value2, "organizationId");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedIsNull() {
+            addCriterion("integrated is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedIsNotNull() {
+            addCriterion("integrated is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedEqualTo(Boolean value) {
+            addCriterion("integrated =", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedNotEqualTo(Boolean value) {
+            addCriterion("integrated <>", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedGreaterThan(Boolean value) {
+            addCriterion("integrated >", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("integrated >=", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedLessThan(Boolean value) {
+            addCriterion("integrated <", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedLessThanOrEqualTo(Boolean value) {
+            addCriterion("integrated <=", value, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedIn(List<Boolean> values) {
+            addCriterion("integrated in", values, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedNotIn(List<Boolean> values) {
+            addCriterion("integrated not in", values, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedBetween(Boolean value1, Boolean value2) {
+            addCriterion("integrated between", value1, value2, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andIntegratedNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("integrated not between", value1, value2, "integrated");
             return (Criteria) this;
         }
 
@@ -1034,136 +1164,6 @@ public class ExecTaskExample {
             return (Criteria) this;
         }
 
-        public Criteria andIntegratedIsNull() {
-            addCriterion("integrated is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedIsNotNull() {
-            addCriterion("integrated is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedEqualTo(Boolean value) {
-            addCriterion("integrated =", value, "integrated");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedNotEqualTo(Boolean value) {
-            addCriterion("integrated <>", value, "integrated");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedGreaterThan(Boolean value) {
-            addCriterion("integrated >", value, "integrated");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedGreaterThanOrEqualTo(Boolean value) {
-            addCriterion("integrated >=", value, "integrated");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedLessThan(Boolean value) {
-            addCriterion("integrated <", value, "integrated");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedLessThanOrEqualTo(Boolean value) {
-            addCriterion("integrated <=", value, "integrated");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedIn(List<Boolean> values) {
-            addCriterion("integrated in", values, "integrated");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedNotIn(List<Boolean> values) {
-            addCriterion("integrated not in", values, "integrated");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedBetween(Boolean value1, Boolean value2) {
-            addCriterion("integrated between", value1, value2, "integrated");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedNotBetween(Boolean value1, Boolean value2) {
-            addCriterion("integrated not between", value1, value2, "integrated");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceIdIsNull() {
-            addCriterion("resource_id is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceIdIsNotNull() {
-            addCriterion("resource_id is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceIdEqualTo(String value) {
-            addCriterion("resource_id =", value, "resourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceIdNotEqualTo(String value) {
-            addCriterion("resource_id <>", value, "resourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceIdGreaterThan(String value) {
-            addCriterion("resource_id >", value, "resourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceIdGreaterThanOrEqualTo(String value) {
-            addCriterion("resource_id >=", value, "resourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceIdLessThan(String value) {
-            addCriterion("resource_id <", value, "resourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceIdLessThanOrEqualTo(String value) {
-            addCriterion("resource_id <=", value, "resourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceIdLike(String value) {
-            addCriterion("resource_id like", value, "resourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceIdNotLike(String value) {
-            addCriterion("resource_id not like", value, "resourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceIdIn(List<String> values) {
-            addCriterion("resource_id in", values, "resourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceIdNotIn(List<String> values) {
-            addCriterion("resource_id not in", values, "resourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceIdBetween(String value1, String value2) {
-            addCriterion("resource_id between", value1, value2, "resourceId");
-            return (Criteria) this;
-        }
-
-        public Criteria andResourceIdNotBetween(String value1, String value2) {
-            addCriterion("resource_id not between", value1, value2, "resourceId");
-            return (Criteria) this;
-        }
-
         public Criteria andDeletedIsNull() {
             addCriterion("deleted is null");
             return (Criteria) this;
@@ -1221,6 +1221,66 @@ public class ExecTaskExample {
 
         public Criteria andDeletedNotBetween(Boolean value1, Boolean value2) {
             addCriterion("deleted not between", value1, value2, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andParallelIsNull() {
+            addCriterion("parallel is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andParallelIsNotNull() {
+            addCriterion("parallel is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andParallelEqualTo(Boolean value) {
+            addCriterion("parallel =", value, "parallel");
+            return (Criteria) this;
+        }
+
+        public Criteria andParallelNotEqualTo(Boolean value) {
+            addCriterion("parallel <>", value, "parallel");
+            return (Criteria) this;
+        }
+
+        public Criteria andParallelGreaterThan(Boolean value) {
+            addCriterion("parallel >", value, "parallel");
+            return (Criteria) this;
+        }
+
+        public Criteria andParallelGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("parallel >=", value, "parallel");
+            return (Criteria) this;
+        }
+
+        public Criteria andParallelLessThan(Boolean value) {
+            addCriterion("parallel <", value, "parallel");
+            return (Criteria) this;
+        }
+
+        public Criteria andParallelLessThanOrEqualTo(Boolean value) {
+            addCriterion("parallel <=", value, "parallel");
+            return (Criteria) this;
+        }
+
+        public Criteria andParallelIn(List<Boolean> values) {
+            addCriterion("parallel in", values, "parallel");
+            return (Criteria) this;
+        }
+
+        public Criteria andParallelNotIn(List<Boolean> values) {
+            addCriterion("parallel not in", values, "parallel");
+            return (Criteria) this;
+        }
+
+        public Criteria andParallelBetween(Boolean value1, Boolean value2) {
+            addCriterion("parallel between", value1, value2, "parallel");
+            return (Criteria) this;
+        }
+
+        public Criteria andParallelNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("parallel not between", value1, value2, "parallel");
             return (Criteria) this;
         }
     }

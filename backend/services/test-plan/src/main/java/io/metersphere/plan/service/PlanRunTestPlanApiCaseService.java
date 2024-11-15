@@ -76,7 +76,7 @@ public class PlanRunTestPlanApiCaseService {
         String collectionId = collection.getId();
         String execQueueId = taskId + "_" + collectionId;
 
-        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(taskId, collectionId);
+        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(taskId, collectionId, testPlanExecutionQueue.isRerun());
         if (CollectionUtils.isEmpty(execTaskItems)) {
             return true;
         }
@@ -85,6 +85,7 @@ public class PlanRunTestPlanApiCaseService {
         ExecutionQueue queue = apiBatchRunBaseService.getExecutionQueue(runModeConfig, ApiExecuteResourceType.PLAN_RUN_API_CASE.name(),
                 testPlanExecutionQueue.getTaskId(), userId);
         queue.setQueueId(execQueueId);
+        queue.setRerun(testPlanExecutionQueue.isRerun());
         queue.setParentQueueId(testPlanExecutionQueue.getQueueId());
         apiExecutionQueueService.insertQueue(queue);
 
@@ -114,13 +115,15 @@ public class PlanRunTestPlanApiCaseService {
 
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
         TaskBatchRequestDTO taskRequest = apiTestCaseBatchRunService.getTaskBatchRequestDTO(testPlan.getProjectId(), runModeConfig);
-        taskRequest.getTaskInfo().setTaskId(testPlanExecutionQueue.getTaskId());
+        taskRequest.getTaskInfo().setTaskId(taskId);
         taskRequest.getTaskInfo().setParentQueueId(testPlanExecutionQueue.getQueueId());
         taskRequest.getTaskInfo().setSetId(execSetId);
+        taskRequest.getTaskInfo().setRerun(testPlanExecutionQueue.isRerun());
         taskRequest.getTaskInfo().setUserId(userId);
         taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.PLAN_RUN_API_CASE.name());
 
-        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(testPlanExecutionQueue.getTaskId(), collection.getId());
+        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(testPlanExecutionQueue.getTaskId(),
+                collection.getId(), testPlanExecutionQueue.isRerun());
         SubListUtils.dealForSubList(execTaskItems, ApiBatchRunBaseService.BATCH_TASK_ITEM_SIZE, subExecTaskItems -> {
             List<TaskItem> taskItems = subExecTaskItems
                     .stream()
@@ -166,6 +169,7 @@ public class PlanRunTestPlanApiCaseService {
         taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.PLAN_RUN_API_CASE.name());
         taskRequest.getTaskInfo().setQueueId(queue.getQueueId());
         taskRequest.getTaskInfo().setUserId(queue.getUserId());
+        taskRequest.getTaskInfo().setRerun(queue.getRerun());
         taskRequest.getTaskInfo().setParentQueueId(queue.getParentQueueId());
         taskRequest.getTaskItem().setRequestCount(1L);
         taskRequest.getTaskItem().setId(queueDetail.getTaskItemId());
@@ -183,8 +187,6 @@ public class PlanRunTestPlanApiCaseService {
         ApiReport apiReport = apiTestCaseRunService.getApiReport(apiTestCase, request);
         apiReport.setEnvironmentId(apiBatchRunBaseService.getEnvId(request.getRunModeConfig(), testPlanReportApiCase.getEnvironmentId()));
         apiReport.setTestPlanCaseId(testPlanReportApiCase.getTestPlanApiCaseId());
-        // 报告ID预生成
-        apiReport.setId(testPlanReportApiCase.getApiCaseExecuteReportId());
         // 标记是测试计划整体执行
         apiReport.setPlan(true);
         apiReportService.insertApiReport(apiReport);

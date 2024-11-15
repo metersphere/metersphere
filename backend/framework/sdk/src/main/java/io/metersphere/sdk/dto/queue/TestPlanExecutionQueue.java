@@ -39,9 +39,11 @@ public class TestPlanExecutionQueue {
     private boolean isLastOne = false;
     // 是否执行完毕
     private boolean executeFinish = false;
+    // 是否是重新执行
+    private boolean rerun = false;
 
     public TestPlanExecutionQueue(long pos, String createUser, long createTime, String queueId, String queueType, String parentQueueId, String parentQueueType, String sourceID, String runMode,
-                                  String executionSource, String prepareReportId, String taskId) {
+                                  String executionSource, String prepareReportId, String taskId, boolean rerun) {
         this.pos = pos;
         this.createUser = createUser;
         this.createTime = createTime;
@@ -54,5 +56,6 @@ public class TestPlanExecutionQueue {
         this.executionSource = executionSource;
         this.prepareReportId = prepareReportId;
         this.taskId = taskId;
+        this.rerun = rerun;
     }
 }

@@ -37,7 +37,7 @@ public interface ExtExecTaskItemMapper {
 
     List<ExecTaskItem> selectExecInfoByTaskIdAndResourceIds(@Param("taskId") String taskId, @Param("resourceIds") List<String> resourceIds);
 
-    List<ExecTaskItem> selectExecInfoByTaskIdAndCollectionId(@Param("taskId") String taskId, @Param("collectionId") String collectionId);
+    List<ExecTaskItem> selectExecInfoByTaskIdAndCollectionId(@Param("taskId") String taskId, @Param("collectionId") String collectionId, @Param("rerun") boolean rerun);
 
     Boolean hasErrorItem(@Param("taskId") String taskId);
 
@@ -63,8 +63,6 @@ public interface ExtExecTaskItemMapper {
     long getUnDeleteCaseExecCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("resourceTypes") List<String> resourceTypes);
 
     long getUnDeleteScenarioExecCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("resourceTypes") List<String> resourceTypes);
-
-    List<String> selectRerunIds(@Param("taskId") String taskId);
 
     void resetRerunTaskItem(@Param("taskId") String taskId, @Param("userId") String userId);
 

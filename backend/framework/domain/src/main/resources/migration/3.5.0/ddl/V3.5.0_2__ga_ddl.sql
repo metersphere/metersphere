@@ -83,6 +83,10 @@ CREATE INDEX idx_case_id ON exec_task_item(case_id);
 ALTER TABLE exec_task_item ADD collection_id varchar(50) NULL COMMENT '测试集ID';
 -- 任务项添加异常信息字段
 ALTER TABLE exec_task_item ADD error_message varchar(50) NULL COMMENT '异常信息';
+-- 任务项添加重跑字段
+ALTER TABLE exec_task_item ADD rerun bit(1) DEFAULT 0 NULL COMMENT '是否是重跑任务项';
+-- 任务添加串并行字段
+ALTER TABLE exec_task ADD parallel bit(1) DEFAULT 1 NOT NULL COMMENT '是否是并行执行';
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

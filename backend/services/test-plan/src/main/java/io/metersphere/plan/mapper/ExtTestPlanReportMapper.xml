@@ -552,4 +552,8 @@
     <select id="getChildrenReport" resultType="io.metersphere.plan.domain.TestPlanReport">
         select id from test_plan_report where parent_id = #{reportId} and id != #{reportId}
     </select>
+
+    <update id="resetRerunReport">
+        update test_plan_report set exec_status = 'RUNNING', end_time = null where id = #{reportId} or parent_id = #{reportId}
+    </update>
 </mapper>

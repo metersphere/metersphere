@@ -91,6 +91,9 @@ public class ExecTaskItem implements Serializable {
     @Schema(description = "异常信息")
     private String errorMessage;
 
+    @Schema(description = "是否是重跑任务项")
+    private Boolean rerun;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -113,7 +116,8 @@ public class ExecTaskItem implements Serializable {
         collectionId("collection_id", "collectionId", "VARCHAR", false),
         deleted("deleted", "deleted", "BIT", false),
         caseId("case_id", "caseId", "VARCHAR", false),
-        errorMessage("error_message", "errorMessage", "VARCHAR", false);
+        errorMessage("error_message", "errorMessage", "VARCHAR", false),
+        rerun("rerun", "rerun", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

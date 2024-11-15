@@ -30,7 +30,6 @@ import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
-import io.metersphere.system.mapper.ExtExecTaskItemMapper;
 import io.metersphere.system.service.BaseTaskHubService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -73,8 +72,6 @@ public class TestPlanApiCaseBatchRunService {
     private ApiCommonService apiCommonService;
     @Resource
     private BaseTaskHubService baseTaskHubService;
-    @Resource
-    private ExtExecTaskItemMapper extExecTaskItemMapper;
     @Resource
     private TestPlanService testPlanService;
 
@@ -197,7 +194,7 @@ public class TestPlanApiCaseBatchRunService {
         // 初始化执行队列
         ExecutionQueue queue = apiBatchRunBaseService.initExecutionQueue(taskId, taskId + '_' + collectionId, runModeConfig, ApiExecuteResourceType.TEST_PLAN_API_CASE.name(), parentQueueId, parentSetId, userId);
 
-        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(taskId, collectionId);
+        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(taskId, collectionId, false);
 
         apiBatchRunBaseService.initQueueDetail(queue, execTaskItems);
 
@@ -232,7 +229,7 @@ public class TestPlanApiCaseBatchRunService {
             taskRequest.getTaskInfo().setParentSetId(parentSetId);
         }
 
-        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(taskId, collectionId);
+        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(taskId, collectionId, false);
 
         SubListUtils.dealForSubList(execTaskItems, ApiBatchRunBaseService.BATCH_TASK_ITEM_SIZE, subExecTaskItems -> {
             List<TaskItem> taskItems = subExecTaskItems

@@ -267,8 +267,8 @@ public class ApiBatchRunBaseService {
         }
     }
 
-    public List<ExecTaskItem> getExecTaskItemByTaskIdAndCollectionId(String taskId, String collectionId) {
-        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectExecInfoByTaskIdAndCollectionId(taskId, collectionId)
+    public List<ExecTaskItem> getExecTaskItemByTaskIdAndCollectionId(String taskId, String collectionId, boolean rerun) {
+        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectExecInfoByTaskIdAndCollectionId(taskId, collectionId, rerun)
                 .stream().sorted(Comparator.comparing(ExecTaskItem::getId)).toList();
         return execTaskItems;
     }

@@ -71,5 +71,5 @@ public class GetRunScriptRequest implements Serializable {
     /**
      * 是否是任务失败重跑
      */
-    private Boolean rerun;
+    private Boolean rerun = false;
 }

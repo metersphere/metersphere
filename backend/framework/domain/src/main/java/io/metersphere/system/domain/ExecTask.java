@@ -1,11 +1,8 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,6 +77,10 @@ public class ExecTask implements Serializable {
     @NotNull(message = "{exec_task.deleted.not_blank}", groups = {Created.class})
     private Boolean deleted;
 
+    @Schema(description = "是否是并行执行", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{exec_task.parallel.not_blank}", groups = {Created.class})
+    private Boolean parallel;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -94,12 +95,13 @@ public class ExecTask implements Serializable {
         triggerMode("trigger_mode", "triggerMode", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
         organizationId("organization_id", "organizationId", "VARCHAR", false),
+        integrated("integrated", "integrated", "BIT", false),
         createTime("create_time", "createTime", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         startTime("start_time", "startTime", "BIGINT", false),
         endTime("end_time", "endTime", "BIGINT", false),
-        integrated("integrated", "integrated", "BIT", false),
-        deleted("deleted", "deleted", "BIT", false);
+        deleted("deleted", "deleted", "BIT", false),
+        parallel("parallel", "parallel", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
