@@ -168,6 +168,15 @@
         handleMenuStatusChange('TASK_CLEAN_REPORT', v, MenuEnum.taskCenter)"
         />
       </div>
+      <div v-if="record.type === 'TASK_RECORD'">
+        <MsTimeSelectorVue
+          v-model="allValueMap['TASK_RECORD']"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_TASK:UPDATE'])"
+          :default-value="defaultValueMap.TASK_RECORD"
+          @change="(v: string) =>
+        handleMenuStatusChange('TASK_RECORD', v, MenuEnum.taskCenter)"
+        />
+      </div>
       <div v-if="record.type === 'UI_CLEAN_REPORT'">
         <!--UI 报告保留时间范围 -->
         <MsTimeSelectorVue
@@ -467,6 +476,7 @@
     API_CLEAN_REPORT: '3M',
     API_SHARE_REPORT: '1D',
     TASK_CLEAN_REPORT: '3M',
+    TASK_RECORD: '3M',
     UI_CLEAN_REPORT: '3M',
     UI_SHARE_REPORT: '1D',
     PERFORMANCE_TEST_CLEAN_REPORT: '3M',
@@ -602,6 +612,9 @@
       }
       case MenuEnum.taskCenter: {
         children = [
+          {
+            type: 'TASK_RECORD', // 即时任务保留时间
+          },
           {
             type: 'TASK_CLEAN_REPORT', // 任务执行结果保留时间范围
           },

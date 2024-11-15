@@ -6,11 +6,9 @@ import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.service.BaseCleanUpReport;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -92,12 +90,6 @@ public class CleanupApiReportServiceImpl implements BaseCleanUpReport {
         ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
         example.createCriteria().andReportIdIn(reportIds);
         List<ApiReportRelateTask> relateTasks = apiReportRelateTaskMapper.selectByExample(example);
-        List<String> ids = relateTasks.stream().map(ApiReportRelateTask::getTaskResourceId).toList();
-        if (CollectionUtils.isEmpty(ids)) {
-            return new ArrayList<>();
-        }
-        List<String> deletedIds = extApiReportRelateTaskMapper.selectDeleteTaskOrItem(ids);
-        relateTasks.removeIf(relateTask -> deletedIds.contains(relateTask.getTaskResourceId()));
         return relateTasks.stream().map(ApiReportRelateTask::getReportId).toList();
     }
 

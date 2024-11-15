@@ -27,7 +27,8 @@ export default {
   'project.menu.API_ERROR_REPORT_RULE': '误报规则',
   'project.menu.API_ERROR_REPORT_RULE_TIP': '当接口返回结果匹配上误报规则后，会将接口结果处理为误报',
   'project.menu.API_SYNC_CASE': '变更同步CASE',
-  'project.menu.TASK_CLEAN_REPORT': '执行结果保留时间',
+  'project.menu.TASK_CLEAN_REPORT': '任务执行结果保留时间',
+  'project.menu.TASK_RECORD': '系统执行任务保留时间',
 
   'project.menu.CASE_PUBLIC': '公共用例库',
   'project.menu.CASE_RE_REVIEW': '重新提审',

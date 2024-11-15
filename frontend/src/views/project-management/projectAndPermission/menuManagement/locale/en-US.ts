@@ -30,7 +30,8 @@ export default {
   'project.menu.API_ERROR_REPORT_RULE_TIP':
     'When the interface returns a result that matches the false alert rule, the interface result will be treated as a false alert',
   'project.menu.API_SYNC_CASE': 'Change Synchronized CASE',
-  'project.menu.TASK_CLEAN_REPORT': 'Result Retention Time',
+  'project.menu.TASK_CLEAN_REPORT': 'Task Result Keep time',
+  'project.menu.TASK_RECORD': 'Task Keep time',
 
   'project.menu.CASE_PUBLIC': 'Public Test Case Library',
   'project.menu.CASE_RE_REVIEW': 'Re-review',

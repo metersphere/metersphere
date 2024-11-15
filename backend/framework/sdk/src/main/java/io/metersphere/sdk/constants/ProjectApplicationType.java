@@ -19,7 +19,11 @@ public class ProjectApplicationType {
      */
     public enum TASK {
         /**
-         * 清理报告
+         * 系统即时任务
+         */
+        TASK_RECORD,
+        /**
+         * 任务执行结果
          */
         TASK_CLEAN_REPORT,
     }

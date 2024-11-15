@@ -1,24 +1,18 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.domain.ApiReportRelateTaskExample;
+import io.metersphere.api.mapper.ApiReportRelateTaskMapper;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
-import io.metersphere.system.domain.ExecTask;
-import io.metersphere.system.domain.ExecTaskExample;
-import io.metersphere.system.domain.ExecTaskItem;
-import io.metersphere.system.domain.ExecTaskItemExample;
-import io.metersphere.system.mapper.ExecTaskItemMapper;
-import io.metersphere.system.mapper.ExecTaskMapper;
 import io.metersphere.system.mapper.ExtExecTaskItemMapper;
 import io.metersphere.system.mapper.ExtExecTaskMapper;
 import io.metersphere.system.service.BaseCleanUpReport;
-import org.apache.commons.collections4.ListUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import io.metersphere.api.mapper.ApiReportRelateTaskMapper;
 
 import java.util.List;
 import java.util.Map;
@@ -37,11 +31,7 @@ public class CleanupTaskResultServiceImpl implements BaseCleanUpReport {
     @Resource
     private ExtExecTaskItemMapper extExecTaskItemMapper;
     @Resource
-    private ExecTaskMapper execTaskMapper;
-    @Resource
     private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
-    @Resource
-    private ExecTaskItemMapper execTaskItemMapper;
 
 
     @Override
@@ -51,20 +41,6 @@ public class CleanupTaskResultServiceImpl implements BaseCleanUpReport {
         long timeMills = getCleanDate(expr);
         List<String> cleanTaskIds = extExecTaskMapper.getTaskIdsByTime(timeMills, projectId);
         List<String> cleanTaskItemIds = extExecTaskItemMapper.getTaskItemIdsByTime(timeMills, projectId);
-        if (CollectionUtils.isNotEmpty(cleanTaskIds)) {
-            ExecTaskExample example = new ExecTaskExample();
-            example.createCriteria().andIdIn(cleanTaskIds);
-            ExecTask execTask = new ExecTask();
-            execTask.setDeleted(true);
-            execTaskMapper.updateByExampleSelective(execTask, example);
-        }
-        if (CollectionUtils.isNotEmpty(cleanTaskItemIds)) {
-            ExecTaskItemExample example = new ExecTaskItemExample();
-            example.createCriteria().andIdIn(cleanTaskItemIds);
-            ExecTaskItem execTaskItem = new ExecTaskItem();
-            execTaskItem.setDeleted(true);
-            execTaskItemMapper.updateByExampleSelective(execTaskItem, example);
-        }
         List<String> cleanIds = ListUtils.union(cleanTaskIds, cleanTaskItemIds);
         LogUtils.info("清理当前项目[" + projectId + "]任务中心执行结果, 共[" + cleanIds.size() + "]条");
         if (CollectionUtils.isNotEmpty(cleanIds)) {
