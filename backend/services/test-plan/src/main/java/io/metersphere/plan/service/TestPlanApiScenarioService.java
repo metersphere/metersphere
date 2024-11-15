@@ -387,6 +387,29 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
         return apiExecuteService.execute(taskRequest);
     }
 
+    public void runRun(ExecTask execTask, ExecTaskItem execTaskItem, String userId) {
+        TestPlanApiScenario testPlanApiScenario = checkResourceExist(execTaskItem.getResourceId());
+        TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
+        testPlanService.setActualStartTime(testPlanApiScenario.getTestPlanId());
+        ApiScenario apiScenario = apiScenarioService.checkResourceExist(testPlanApiScenario.getApiScenarioId());
+        ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(testPlanApiScenario.getTestPlanCollectionId());
+        runModeConfig.setEnvironmentId(apiBatchRunBaseService.getEnvId(runModeConfig, testPlanApiScenario.getEnvironmentId()));
+        TaskRequestDTO taskRequest = getTaskRequest(null, execTaskItem.getResourceId(), apiScenario.getProjectId(), ApiExecuteRunMode.RUN.name());
+
+        TaskInfo taskInfo = taskRequest.getTaskInfo();
+        taskInfo.setTaskId(execTask.getId());
+        taskInfo.setRunModeConfig(runModeConfig);
+        taskInfo.setSaveResult(true);
+        taskInfo.setRealTime(true);
+        taskInfo.setUserId(userId);
+        taskInfo.setRealTime(false);
+
+        TaskItem taskItem = taskRequest.getTaskItem();
+        taskItem.setId(execTaskItem.getId());
+
+        apiExecuteService.execute(taskRequest);
+    }
+
     /**
      * 预生成用例的执行报告
      *

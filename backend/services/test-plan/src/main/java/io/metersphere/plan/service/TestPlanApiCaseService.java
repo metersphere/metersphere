@@ -785,13 +785,36 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
 
         if (StringUtils.isEmpty(taskItem.getReportId())) {
             taskInfo.setRealTime(false);
-            taskItem.setReportId(IDGenerator.nextStr());
         } else {
             // 如果传了报告ID，则实时获取结果
             taskInfo.setRealTime(true);
         }
 
         return apiExecuteService.execute(taskRequest);
+    }
+
+    public void runRun(ExecTask execTask, ExecTaskItem execTaskItem, String userId) {
+        String id = execTaskItem.getResourceId();
+        TestPlanApiCase testPlanApiCase = checkResourceExist(id);
+        TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
+        testPlanService.setActualStartTime(testPlanApiCase.getTestPlanId());
+        ApiTestCase apiTestCase = apiTestCaseService.checkResourceExist(testPlanApiCase.getApiCaseId());
+        ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(testPlanApiCase.getTestPlanCollectionId());
+        runModeConfig.setEnvironmentId(apiBatchRunBaseService.getEnvId(runModeConfig, testPlanApiCase.getEnvironmentId()));
+        runModeConfig.setRunMode(ApiBatchRunMode.PARALLEL.name());
+        TaskRequestDTO taskRequest = getTaskRequest(null, id, apiTestCase.getProjectId(), ApiExecuteRunMode.RUN.name());
+
+        TaskInfo taskInfo = taskRequest.getTaskInfo();
+        TaskItem taskItem = taskRequest.getTaskItem();
+        taskInfo.setTaskId(execTask.getId());
+        taskInfo.setRunModeConfig(runModeConfig);
+        taskInfo.setSaveResult(true);
+        taskInfo.setRealTime(true);
+        taskInfo.setUserId(userId);
+        taskItem.setId(execTaskItem.getId());
+        taskInfo.setRealTime(false);
+
+        apiExecuteService.execute(taskRequest);
     }
 
     public TestPlanApiCase checkResourceExist(String id) {
@@ -1008,4 +1031,5 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             list.add(bugRelationCase);
         });
     }
+
 }
