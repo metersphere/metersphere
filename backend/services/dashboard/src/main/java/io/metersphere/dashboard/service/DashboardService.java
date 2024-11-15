@@ -56,6 +56,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserLayout;
 import io.metersphere.system.domain.UserLayoutExample;
 import io.metersphere.system.dto.ProtocolDTO;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.ProjectUserMemberDTO;
 import io.metersphere.system.mapper.ExtExecTaskItemMapper;
 import io.metersphere.system.mapper.UserLayoutMapper;
@@ -956,14 +957,14 @@ public class DashboardService {
     @NotNull
     private List<StatusPercentDTO> getStatusPercentList(List<FunctionalCaseStatisticDTO> statisticListByProjectId) {
         List<StatusPercentDTO> statusPercentList = new ArrayList<>();
-        Map<String, String> statusNameMap = buildStatusNameMap();
+        List<OptionDTO>statusNameList = buildStatusNameMap();
         int totalCount = CollectionUtils.isEmpty(statisticListByProjectId) ? 0 : statisticListByProjectId.size();
         Map<String, List<FunctionalCaseStatisticDTO>> reviewStatusMap = statisticListByProjectId.stream().collect(Collectors.groupingBy(FunctionalCaseStatisticDTO::getReviewStatus));
-        statusNameMap.forEach((k, v) -> {
+        statusNameList.forEach(t->{
             StatusPercentDTO statusPercentDTO = new StatusPercentDTO();
-            List<FunctionalCaseStatisticDTO> functionalCaseStatisticDTOS = reviewStatusMap.get(k);
+            List<FunctionalCaseStatisticDTO> functionalCaseStatisticDTOS = reviewStatusMap.get(t.getId());
             int count = CollectionUtils.isEmpty(functionalCaseStatisticDTOS) ? 0 : functionalCaseStatisticDTOS.size();
-            statusPercentDTO.setStatus(v);
+            statusPercentDTO.setStatus(t.getName());
             statusPercentDTO.setCount(count);
             if (totalCount > 0) {
                 BigDecimal divide = BigDecimal.valueOf(count).divide(BigDecimal.valueOf(totalCount), 2, RoundingMode.HALF_UP);
@@ -997,14 +998,14 @@ public class DashboardService {
         return coverList;
     }
 
-    private static Map<String, String> buildStatusNameMap() {
-        Map<String, String> statusNameMap = new HashMap<>();
-        statusNameMap.put(FunctionalCaseReviewStatus.UN_REVIEWED.toString(), Translator.get("case.review.status.un_reviewed"));
-        statusNameMap.put(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString(), Translator.get("case.review.status.under_reviewed"));
-        statusNameMap.put(FunctionalCaseReviewStatus.PASS.toString(), Translator.get("case.review.status.pass"));
-        statusNameMap.put(FunctionalCaseReviewStatus.UN_PASS.toString(), Translator.get("case.review.status.un_pass"));
-        statusNameMap.put(FunctionalCaseReviewStatus.RE_REVIEWED.toString(), Translator.get("case.review.status.re_reviewed"));
-        return statusNameMap;
+    private static List<OptionDTO> buildStatusNameMap() {
+        List<OptionDTO>optionDTOList = new ArrayList<>();
+        optionDTOList.add(new OptionDTO(FunctionalCaseReviewStatus.UN_REVIEWED.toString(), Translator.get("case.review.status.un_reviewed")));
+        optionDTOList.add(new OptionDTO(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString(), Translator.get("case.review.status.under_reviewed")));
+        optionDTOList.add(new OptionDTO(FunctionalCaseReviewStatus.PASS.toString(), Translator.get("case.review.status.pass")));
+        optionDTOList.add(new OptionDTO(FunctionalCaseReviewStatus.UN_PASS.toString(), Translator.get("case.review.status.un_pass")));
+        optionDTOList.add(new OptionDTO(FunctionalCaseReviewStatus.RE_REVIEWED.toString(), Translator.get("case.review.status.re_reviewed")));
+        return optionDTOList;
     }
 
     public Pager<List<CaseReviewDTO>> getFunctionalCasePage(DashboardFrontPageRequest request) {
