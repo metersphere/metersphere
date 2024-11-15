@@ -317,10 +317,13 @@ public class DashboardService {
         UserLayoutExample userLayoutExample = new UserLayoutExample();
         userLayoutExample.createCriteria().andUserIdEqualTo(userId).andOrgIdEqualTo(organizationId);
         List<UserLayout> userLayouts = userLayoutMapper.selectByExample(userLayoutExample);
+        Map<String, List<LayoutDTO>> getKeyMap = layoutDTO.stream().collect(Collectors.groupingBy(LayoutDTO::getKey));
+        List<LayoutDTO> saveList = new ArrayList<>();
+        getKeyMap.forEach((k, v) -> saveList.add(v.get(0)));
         UserLayout userLayout = new UserLayout();
         userLayout.setUserId(userId);
         userLayout.setOrgId(organizationId);
-        String configuration = JSON.toJSONString(layoutDTO);
+        String configuration = JSON.toJSONString(saveList);
         userLayout.setConfiguration(configuration.getBytes());
         if (CollectionUtils.isEmpty(userLayouts)) {
             userLayout.setId(IDGenerator.nextStr());
@@ -355,10 +358,11 @@ public class DashboardService {
 
     /**
      * 过滤用户在当前项目是否有移除或者项目是否被禁用以及用户是否被删除禁用
-     * @param layoutDTOS 用户保存的布局
-     * @param allPermissionProjects 用户有任意权限的所有在役项目
-     * @param orgProjectMemberList 当前组织下所有有项目权限的成员
-     * @param permissionModuleProjectIdMap  只读权限对应的开启模块的项目ids
+     *
+     * @param layoutDTOS                   用户保存的布局
+     * @param allPermissionProjects        用户有任意权限的所有在役项目
+     * @param orgProjectMemberList         当前组织下所有有项目权限的成员
+     * @param permissionModuleProjectIdMap 只读权限对应的开启模块的项目ids
      */
     private void rebuildLayouts(List<LayoutDTO> layoutDTOS, List<Project> allPermissionProjects, List<ProjectUserMemberDTO> orgProjectMemberList, Map<String, Set<String>> permissionModuleProjectIdMap) {
         for (LayoutDTO layoutDTO : layoutDTOS) {
@@ -378,9 +382,9 @@ public class DashboardService {
                 } else {
                     layoutDTO.setProjectIds(List.of(projectList.getFirst().getId()));
                 }
-            } else if(StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.CASE_COUNT.toString())
+            } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.CASE_COUNT.toString())
                     || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.ASSOCIATE_CASE_COUNT.toString())
-                    ||StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.REVIEW_CASE_COUNT.toString())
+                    || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.REVIEW_CASE_COUNT.toString())
                     || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.REVIEWING_BY_ME.toString())) {
                 Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.FUNCTIONAL_CASE_READ);
                 checkHasPermissionProject(layoutDTO, hasReadProjectIds);
@@ -388,20 +392,19 @@ public class DashboardService {
                     || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.API_CHANGE.toString())) {
                 Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_API_DEFINITION_READ);
                 checkHasPermissionProject(layoutDTO, hasReadProjectIds);
-            } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.API_CASE_COUNT.toString())){
+            } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.API_CASE_COUNT.toString())) {
                 Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ);
                 checkHasPermissionProject(layoutDTO, hasReadProjectIds);
-            }else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.SCENARIO_COUNT.toString())){
+            } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.SCENARIO_COUNT.toString())) {
                 Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_API_SCENARIO_READ);
                 checkHasPermissionProject(layoutDTO, hasReadProjectIds);
-            }
-            else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.TEST_PLAN_COUNT.toString())
+            } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.TEST_PLAN_COUNT.toString())
                     || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PLAN_LEGACY_BUG.toString())) {
                 Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.TEST_PLAN_READ);
                 checkHasPermissionProject(layoutDTO, hasReadProjectIds);
-            }else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.BUG_COUNT.toString())
+            } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.BUG_COUNT.toString())
                     || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.CREATE_BUG_BY_ME.toString())
-                    ||StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.HANDLE_BUG_BY_ME.toString())
+                    || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.HANDLE_BUG_BY_ME.toString())
                     || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.BUG_HANDLE_USER.toString())) {
                 Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_BUG_READ);
                 checkHasPermissionProject(layoutDTO, hasReadProjectIds);
@@ -761,7 +764,12 @@ public class DashboardService {
         List<NameArrayDTO> projectCountList = new ArrayList<>();
         statusCountArrayMap.forEach((status, countArray) -> {
             NameArrayDTO nameArrayDTO = new NameArrayDTO();
-            nameArrayDTO.setName(statusMap.get(status).getText());
+            SelectOption selectOption = statusMap.get(status);
+            if (selectOption != null) {
+                nameArrayDTO.setName(selectOption.getText());
+            } else {
+                nameArrayDTO.setName(status);
+            }
             nameArrayDTO.setCount(countArray);
             projectCountList.add(nameArrayDTO);
         });
