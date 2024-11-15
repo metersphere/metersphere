@@ -48,7 +48,7 @@ export const colorMapConfig: Record<string, string[]> = {
   [WorkCardEnum.REVIEW_CASE_COUNT]: ['#9441B1', '#00C261', '#D4D4D8', '#3370FF'],
   [WorkCardEnum.TEST_PLAN_COUNT]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
   [WorkCardEnum.PLAN_LEGACY_BUG]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
-  [WorkCardEnum.BUG_COUNT]: ['#FFA200', '#00C261', '#D4D4D8'],
+  [WorkCardEnum.BUG_COUNT]: ['#FFA200', '#D4D4D8', '#00C261'],
   [WorkCardEnum.HANDLE_BUG_BY_ME]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
   [WorkCardEnum.CREATE_BY_ME]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
   [WorkCardEnum.API_COUNT]: ['#811FA3', '#00C261', '#3370FF', '#FFA1FF', '#EE50A3', '#FF9964', '#F9F871', '#C3DD40'],
@@ -71,6 +71,7 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
         enterable: true,
         axisPointer: {
           type: 'shadow',
+          axis: 'auto',
         },
         formatter(params: any) {
           const html = `
@@ -81,7 +82,7 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
           <div class="flex h-[18px] items-center justify-between">
             <div class="flex items-center">
               <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm" style="background:${item.color}"></div>
-              <div class="one-line-text max-w-[120px]" style="color:#959598">${item.seriesName}</div>
+              <div class="one-line-text max-w-[100px]" style="color:#959598">${item.seriesName}</div>
             </div>
             <div class="text-[#323233] font-medium">${addCommasToNumber(item.value)}</div>
           </div>
@@ -123,9 +124,14 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
     },
     yAxis: [
       {
-        type: 'log',
+        type: 'value',
         name: t('workbench.homePage.unit'), // 设置单位
         position: 'left',
+        axisLine: {
+          show: false,
+          onZero: false, // 禁止 Y 轴强制显示在 0 位置
+        },
+        offset: 0, // 第一个 Y 轴默认位置
         nameTextStyle: {
           fontSize: 12,
           color: '#AEAEB2', // 自定义字体大小和颜色
@@ -141,6 +147,7 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
           },
         },
         min: 1,
+        max: 0,
       },
     ],
     graphic: {

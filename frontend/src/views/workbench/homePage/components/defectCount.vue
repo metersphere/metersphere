@@ -46,7 +46,12 @@
   import MsSelect from '@/components/business/ms-select';
   import PassRatePie from './passRatePie.vue';
 
-  import { workBugByMeCreated, workBugCountDetail, workBugHandleByMe } from '@/api/modules/workbench';
+  import {
+    workBugByMeCreated,
+    workBugCountDetail,
+    workBugHandleByMe,
+    workPlanLegacyBug,
+  } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -93,12 +98,17 @@
 
   const countOptions = ref<Record<string, any>>({});
 
-  type SelectedBugCountKeys = WorkCardEnum.BUG_COUNT | WorkCardEnum.HANDLE_BUG_BY_ME | WorkCardEnum.CREATE_BUG_BY_ME;
+  type SelectedBugCountKeys =
+    | WorkCardEnum.BUG_COUNT
+    | WorkCardEnum.HANDLE_BUG_BY_ME
+    | WorkCardEnum.CREATE_BUG_BY_ME
+    | WorkCardEnum.PLAN_LEGACY_BUG;
 
   const currentBugCount: (data: WorkHomePageDetail) => Promise<PassRateDataType> = {
     [WorkCardEnum.BUG_COUNT]: workBugCountDetail,
     [WorkCardEnum.HANDLE_BUG_BY_ME]: workBugHandleByMe,
     [WorkCardEnum.CREATE_BUG_BY_ME]: workBugByMeCreated,
+    [WorkCardEnum.PLAN_LEGACY_BUG]: workPlanLegacyBug,
   }[props.item.key as SelectedBugCountKeys];
 
   const hasPermission = ref<boolean>(false);

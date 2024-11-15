@@ -1,17 +1,19 @@
 <template>
-  <div class="rate-content relative">
-    <div class="relative flex h-full w-full items-center justify-center">
-      <a-tooltip
-        v-if="props.rateConfig.tooltipText"
-        :mouse-enter-delay="500"
-        :content="t(props.rateConfig.tooltipText || '')"
-        position="bottom"
-      >
-        <div class="tooltip-rate-tooltip"></div>
-      </a-tooltip>
-      <MsChart :options="options" width="146px" />
+  <a-spin class="w-full" :loading="props.loading">
+    <div class="rate-content relative">
+      <div class="relative flex h-full w-full items-center justify-center">
+        <a-tooltip
+          v-if="props.rateConfig.tooltipText"
+          :mouse-enter-delay="500"
+          :content="t(props.rateConfig.tooltipText || '')"
+          position="bottom"
+        >
+          <div class="tooltip-rate-tooltip"></div>
+        </a-tooltip>
+        <MsChart :options="options" width="146px" />
+      </div>
     </div>
-  </div>
+  </a-spin>
 </template>
 
 <script setup lang="ts">
@@ -28,6 +30,7 @@
   const props = defineProps<{
     data: { name: string; value: number }[];
     hasPermission: boolean;
+    loading?: boolean;
     rateConfig: {
       name: string;
       color: string[];

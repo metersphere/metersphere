@@ -36,7 +36,12 @@
       </div>
       <div class="case-ratio-wrapper mt-[16px]">
         <div class="case-ratio-item">
-          <RatioPie :has-permission="hasPermission" :data="coverData" :rate-config="coverTitleConfig" />
+          <RatioPie
+            :has-permission="hasPermission"
+            :loading="loading"
+            :data="coverData"
+            :rate-config="coverTitleConfig"
+          />
         </div>
         <div class="case-ratio-item">
           <RatioPie :has-permission="hasPermission" :data="caseExecuteData" :rate-config="executeTitleConfig" />
@@ -54,16 +59,17 @@
    * @desc 接口用例数量/场景用例数量
    */
   import { ref } from 'vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsSelect from '@/components/business/ms-select';
   import RatioPie from './ratioPie.vue';
 
-  import { workApiCaseCountDetail, workScenarioCaseCountDetail } from '@/api/modules/workbench';
+  import { workApiCaseCountDetail, workApiCountCoverRage, workScenarioCaseCountDetail } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { addCommasToNumber } from '@/utils';
 
-  import type { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
+  import type { ApiCoverageData, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
   import { WorkCardEnum } from '@/enums/workbenchEnum';
 
   const appStore = useAppStore();
@@ -72,6 +78,8 @@
 
   const props = defineProps<{
     item: SelectedCardItem;
+    status?: boolean;
+    cover?: ApiCoverageData;
   }>();
 
   const emit = defineEmits<{
@@ -86,7 +94,7 @@
 
   const executionTimeValue = ref<{ name: string; count: number | string }[]>([
     {
-      name: '执行次数',
+      name: t('workbench.homePage.executionTimes'),
       count: '-',
     },
   ]);
@@ -114,8 +122,11 @@
     })
   );
 
-  // 接口覆盖
-  const coverData = ref<{ name: string; value: number }[]>([
+  const initCoverRate = [
+    {
+      value: 0,
+      name: t('workbench.homePage.coverRate'),
+    },
     {
       value: 0,
       name: t('workbench.homePage.notCover'),
@@ -124,7 +135,10 @@
       value: 0,
       name: t('workbench.homePage.covered'),
     },
-  ]);
+  ];
+
+  // 接口覆盖
+  const coverData = ref<{ name: string; value: number }[]>(cloneDeep(initCoverRate));
   const caseExecuteData = ref<{ name: string; value: number }[]>([
     {
       value: 0,
@@ -187,8 +201,49 @@
   });
 
   const hasPermission = ref<boolean>(false);
+  const loading = ref<boolean>(false);
+
+  function handleCoverData(detail: ApiCoverageData) {
+    const { unCoverWithApiCase, coverWithApiCase, apiCaseCoverage } = detail;
+    const { unCoverWithApiScenario, coverWithApiScenario, scenarioCoverage } = detail;
+
+    const coverage = props.item.key === WorkCardEnum.API_CASE_COUNT ? apiCaseCoverage : scenarioCoverage;
+    const unCoverWithCase =
+      props.item.key === WorkCardEnum.API_CASE_COUNT ? unCoverWithApiCase : unCoverWithApiScenario;
+
+    const coverWithCase = WorkCardEnum.API_CASE_COUNT ? coverWithApiCase : coverWithApiScenario;
+    coverData.value = [
+      {
+        value: Number(coverage.split('%')[0]),
+        name: t('workbench.homePage.coverRate'),
+      },
+      {
+        value: unCoverWithCase,
+        name: t('workbench.homePage.notCover'),
+      },
+      {
+        value: coverWithCase,
+        name: t('workbench.homePage.covered'),
+      },
+    ];
+  }
+
+  async function initApiCountRate() {
+    try {
+      loading.value = true;
+      const detail = await workApiCountCoverRage(projectId.value);
+      handleCoverData(detail);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
   async function initApiOrScenarioCount() {
     try {
+      coverData.value = cloneDeep(initCoverRate);
       const { startTime, endTime, dayNumber } = timeForm.value;
 
       const params = {
@@ -241,12 +296,33 @@
     nextTick(() => {
       initApiOrScenarioCount();
       emit('change');
+      initApiCountRate();
     });
   }
 
   onMounted(() => {
     initApiOrScenarioCount();
   });
+
+  watch(
+    () => props.cover,
+    (val) => {
+      if (val) {
+        handleCoverData(val);
+      }
+    },
+    {
+      deep: true,
+      immediate: true,
+    }
+  );
+
+  watch(
+    () => props.status,
+    (val) => {
+      loading.value = val;
+    }
+  );
 
   watch(
     () => innerProjectIds.value,

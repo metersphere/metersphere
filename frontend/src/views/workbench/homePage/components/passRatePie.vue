@@ -1,5 +1,5 @@
 <template>
-  <div class="pass-rate-content">
+  <a-spin class="pass-rate-content" :loading="props.loading">
     <div class="relative flex items-center justify-center">
       <a-tooltip
         v-if="props.tooltipText"
@@ -17,7 +17,7 @@
         <div class="pass-rate-count">{{ hasPermission ? addCommasToNumber(item.value as number) : '-' }}</div>
       </div>
     </div>
-  </div>
+  </a-spin>
 </template>
 
 <script setup lang="ts">
@@ -35,6 +35,7 @@
     size: number;
     tooltipText?: string;
     hasPermission: boolean;
+    loading?: boolean;
     valueList: {
       label: string;
       value: number | string;

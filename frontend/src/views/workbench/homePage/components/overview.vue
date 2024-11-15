@@ -27,7 +27,7 @@
     </div>
     <!-- 概览图 -->
     <div>
-      <MsChart height="300px" :options="options" />
+      <MsChart height="260px" :options="options" />
     </div>
   </div>
 </template>
@@ -115,9 +115,11 @@
     // x轴
     options.value.xAxis.data = cardModuleList.value.map((e) => e.label);
 
+    let maxAxis = 5;
+
     // 处理data数据
     options.value.series = detail.projectCountList.map((item) => {
-      const countData = item.count.map((e) => {
+      const countData: Record<string, any> = item.count.map((e) => {
         return {
           name: item.name,
           value: e !== 0 ? e : undefined,
@@ -142,6 +144,11 @@
           },
         };
       });
+
+      const itemMax = Math.max(...item.count);
+
+      maxAxis = Math.max(itemMax, maxAxis);
+
       return {
         name: item.name,
         type: 'bar',
@@ -154,6 +161,10 @@
         data: countData,
       };
     });
+    options.value.yAxis[0].max = maxAxis < 100 ? 50 : maxAxis + 50;
+
+    options.value.series[0].barGap = 4;
+    options.value.series[0].barCategoryGap = 24;
   }
 
   async function initOverViewDetail() {
@@ -178,6 +189,7 @@
 
       handleData(detail);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }

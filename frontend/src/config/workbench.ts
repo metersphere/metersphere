@@ -62,12 +62,12 @@ export const defaultCover = [
   {
     label: 'workbench.homePage.covered',
     value: '-',
-    name: '',
+    name: 'workbench.homePage.covered',
   },
   {
     label: 'workbench.homePage.notCover',
     value: '-',
-    name: '',
+    name: 'workbench.homePage.notCover',
   },
 ];
 // 评审率

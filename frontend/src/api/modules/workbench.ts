@@ -8,6 +8,7 @@ import type { CaseManagementTable } from '@/models/caseManagement/featureCase';
 import type { CommonList, TableQueryParams } from '@/models/common';
 import type { PassRateCountDetail, TestPlanItem } from '@/models/testPlan/testPlan';
 import type {
+  ApiCoverageData,
   OverViewOfProject,
   PassRateDataType,
   SelectedCardItem,
@@ -19,6 +20,7 @@ import {
   GetDashboardLayoutUrl,
   WorkApiCaseCountDetailUrl,
   WorkApiChangeListUrl,
+  WorkApiCountCoverRateUrl,
   WorkApiCountDetailUrl,
   WorkAssociateCaseDetailUrl,
   WorkbenchApiCaseListUrl,
@@ -37,6 +39,7 @@ import {
   WorkHandleUserOptionsUrl,
   WorkMemberViewDetailUrl,
   WorkMyCreatedDetailUrl,
+  WorkPlanLegacyBugUrl,
   WorkProOverviewDetailUrl,
   WorkReviewListUrl,
   WorkScenarioCaseCountDetailUrl,
@@ -170,6 +173,16 @@ export function workScenarioCaseCountDetail(data: WorkHomePageDetail) {
 // 工作台-首页-缺陷处理人列表
 export function workHandleUserOptions(projectId: string) {
   return MSR.get({ url: WorkHandleUserOptionsUrl, params: projectId }, { ignoreCancelToken: true });
+}
+
+// 工作台-首页-测试计划遗留缺陷
+export function workPlanLegacyBug(data: WorkHomePageDetail) {
+  return MSR.post<PassRateDataType>({ url: WorkPlanLegacyBugUrl, data }, { ignoreCancelToken: true });
+}
+
+// 工作台-首页-接口测试覆盖率
+export function workApiCountCoverRage(projectId: string) {
+  return MSR.get<ApiCoverageData>({ url: WorkApiCountCoverRateUrl, params: projectId }, { ignoreCancelToken: true });
 }
 
 // 待办-用例评审列表

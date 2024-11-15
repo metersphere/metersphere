@@ -98,7 +98,11 @@
     options.value.graphic.invisible = invisible;
     options.value.graphic.style.text = text;
     options.value.xAxis.data = detail.xaxis.map((e) => characterLimit(e, 10));
+    let maxAxis = 5;
     options.value.series = detail.projectCountList.map((item, index) => {
+      const itemMax = Math.max(...item.count);
+
+      maxAxis = Math.max(itemMax, maxAxis);
       return {
         name: t(contentTabList[index].label),
         type: 'bar',
@@ -110,6 +114,7 @@
         },
       };
     });
+    options.value.yAxis[0].max = maxAxis < 100 ? 50 : maxAxis + 50;
   }
 
   async function initOverViewMemberDetail() {

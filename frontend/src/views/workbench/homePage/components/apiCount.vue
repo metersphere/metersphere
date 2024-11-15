@@ -25,6 +25,7 @@
               :tooltip-text="tabItem.tooltip"
               :options="tabItem.options"
               :size="60"
+              :loading="tabItem.value === 'cover' ? loading : undefined"
               :has-permission="hasPermission"
               :value-list="tabItem.valueList"
             />
@@ -49,11 +50,11 @@
   import PassRatePie from './passRatePie.vue';
   import TabCard from './tabCard.vue';
 
-  import { workApiCountDetail } from '@/api/modules/workbench';
+  import { workApiCountCoverRage, workApiCountDetail } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import type { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
+  import type { ApiCoverageData, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
   import { handlePieData, handleUpdateTabPie } from '../utils';
 
@@ -63,6 +64,8 @@
   const props = defineProps<{
     item: SelectedCardItem;
     projectIds: string[];
+    status?: boolean;
+    cover?: ApiCoverageData;
   }>();
 
   const emit = defineEmits<{
@@ -72,6 +75,8 @@
   const innerProjectIds = defineModel<string[]>('projectIds', {
     required: true,
   });
+
+  const loading = ref<boolean>(false);
 
   const projectId = ref<string>(innerProjectIds.value[0]);
 
@@ -93,14 +98,14 @@
     return [
       {
         label: '',
-        value: 'execution',
+        value: 'cover',
         valueList: coverValueList.value,
         options: { ...coverOptions.value },
         tooltip: 'workbench.homePage.apiCountCoverRateTooltip',
       },
       {
         label: '',
-        value: 'pass',
+        value: 'complete',
         valueList: completeValueList.value,
         options: { ...completeOptions.value },
         tooltip: 'workbench.homePage.apiCountCompleteRateTooltip',
@@ -109,8 +114,47 @@
   });
 
   const apiCountOptions = ref({});
-
   const hasPermission = ref<boolean>(false);
+  function handleCoverData(detail: ApiCoverageData) {
+    const { unCoverWithApiDefinition, coverWithApiDefinition, apiCoverage } = detail;
+    const coverData: {
+      name: string;
+      count: number;
+    }[] = [
+      {
+        count: Number(apiCoverage.split('%')[0]),
+        name: t('workbench.homePage.coverRate'),
+      },
+      {
+        count: coverWithApiDefinition,
+        name: t('workbench.homePage.covered'),
+      },
+      {
+        count: unCoverWithApiDefinition,
+        name: t('workbench.homePage.notCover'),
+      },
+    ];
+    const { options: covOptions, valueList: coverList } = handleUpdateTabPie(
+      coverData,
+      hasPermission.value,
+      `${props.item.key}-cover`
+    );
+    coverValueList.value = coverList;
+    coverOptions.value = covOptions;
+  }
+  async function initApiCountRate() {
+    try {
+      loading.value = true;
+      const detail = await workApiCountCoverRage(projectId.value);
+      handleCoverData(detail);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
   async function initApiCount() {
     try {
       const { startTime, endTime, dayNumber } = timeForm.value;
@@ -127,17 +171,7 @@
       const { statusStatisticsMap, statusPercentList, errorCode } = detail;
 
       hasPermission.value = errorCode !== 109001;
-
       apiCountOptions.value = handlePieData(props.item.key, hasPermission.value, statusPercentList);
-
-      // 覆盖率 TODO 等接口
-      // const { options: covOptions, valueList: coverList } = handleUpdateTabPie(
-      //   statusStatisticsMap?.cover || [],
-      //   hasPermission.value,
-      //   `${props.item.key}-cover`
-      // );
-      // coverValueList.value = coverList;
-      // coverOptions.value = covOptions;
 
       // 完成率
       const { options: comOptions, valueList: completedList } = handleUpdateTabPie(
@@ -157,6 +191,7 @@
     nextTick(() => {
       initApiCount();
       emit('change');
+      initApiCountRate();
     });
   }
 
@@ -164,6 +199,26 @@
     initApiCount();
     emit('change');
   });
+
+  watch(
+    () => props.cover,
+    (val) => {
+      if (val) {
+        handleCoverData(val);
+      }
+    },
+    {
+      deep: true,
+      immediate: true,
+    }
+  );
+
+  watch(
+    () => props.status,
+    (val) => {
+      loading.value = val;
+    }
+  );
 
   watch(
     () => innerProjectIds.value,

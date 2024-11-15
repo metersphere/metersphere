@@ -59,6 +59,10 @@
     (e: 'add', item: childrenWorkConfigItem): void;
   }>();
 
+  const innerSelectedIds = defineModel<WorkCardEnum[]>('selectedIds', {
+    required: true,
+  });
+
   const configList = ref<WorkConfigCard[]>([
     // 概览
     {
@@ -212,17 +216,14 @@
   const searchKeyword = ref(''); // 存储搜索关键字
 
   const filteredConfigList = computed(() => {
-    if (!searchKeyword.value) {
-      return configList.value;
-    }
-    return configList.value
-      .map((item) => ({
-        ...item,
-        children: item.children.filter((child) =>
-          child.label.toLowerCase().includes(searchKeyword.value.toLowerCase())
-        ),
-      }))
-      .filter((item) => item.children.length > 0);
+    return configList.value.map((item) => ({
+      ...item,
+      children: item.children.filter(
+        (child) =>
+          child.label.toLowerCase().includes(searchKeyword.value.toLowerCase()) &&
+          !innerSelectedIds.value.includes(child.value)
+      ),
+    }));
   });
 
   // 搜索

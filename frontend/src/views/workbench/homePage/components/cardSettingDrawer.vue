@@ -21,7 +21,7 @@
     </template>
     <div class="setting-wrapper">
       <div class="setting-wrapper-config">
-        <CardSettingList @add="addCard" />
+        <CardSettingList v-model:selectedIds="selectedIds" @add="addCard" />
       </div>
       <div class="setting-wrapper-content">
         <!-- 布局开始 -->
@@ -131,8 +131,11 @@
 
   const defaultAllProjectType = [WorkCardEnum.PROJECT_VIEW, WorkCardEnum.CREATE_BY_ME];
 
+  const selectedIds = ref<WorkCardEnum[]>([]);
+
   // 添加卡片
   function addCard(item: childrenWorkConfigItem) {
+    selectedIds.value.push(item.value);
     const newCard: SelectedCardItem = {
       id: getGenerateId(),
       fullScreen: !!isFullScreenType.includes(item.value),
@@ -153,6 +156,7 @@
   function deleteHandler(item: SelectedCardItem) {
     const index = selectedCardList.value.findIndex((e) => e.id === item.id);
     selectedCardList.value.splice(index, 1);
+    selectedIds.value.splice(index, 1);
   }
 
   const confirmLoading = ref<boolean>(false);
@@ -183,6 +187,7 @@
     (val) => {
       if (val) {
         selectedCardList.value = cloneDeep(props.list);
+        selectedIds.value = props.list.map((e) => e.key);
       }
     },
     {

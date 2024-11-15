@@ -83,3 +83,18 @@ export interface PassRateDataType {
     | null;
   errorCode: number;
 }
+
+export interface ApiCoverageData {
+  allApiCount: number; // 总的 API 数量
+  unCoverWithApiDefinition: number; // 未覆盖 API 定义的数量
+  coverWithApiDefinition: number; // 覆盖了 API 定义的数量
+  apiCoverage: string; // API 覆盖率
+
+  unCoverWithApiCase: number; // 未覆盖 API 测试用例的数量
+  coverWithApiCase: number; // 覆盖了 API 测试用例的数量
+  apiCaseCoverage: string; // API 测试用例覆盖率（
+
+  unCoverWithApiScenario: number; // 未覆盖 API 场景的数量
+  coverWithApiScenario: number; // 覆盖了 API 场景的数量
+  scenarioCoverage: string; // API 场景覆盖率
+}

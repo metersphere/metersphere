@@ -26,3 +26,5 @@ export const WorkHandleUserOptionsUrl = '/dashboard/bug_handle_user/list'; // �
 export const WorkBugCountDetailUrl = '/dashboard/bug_count'; // 工作台-首页-缺陷数量
 export const WorkBugByMeCreatedUrl = '/dashboard/create_bug_by_me'; // 工作台-首页-我创建的缺陷
 export const WorkBugHandleByMeUrl = '/dashboard/handle_bug_by_me'; // 工作台-首页-待我处理的缺陷
+export const WorkPlanLegacyBugUrl = '/dashboard/plan_legacy_bug'; // 工作台-首页-测试计划遗留缺陷
+export const WorkApiCountCoverRateUrl = '/api/definition/rage'; // 工作台-首页-覆盖率

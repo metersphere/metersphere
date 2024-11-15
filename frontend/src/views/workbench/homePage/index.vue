@@ -94,6 +94,8 @@
           v-model:projectIds="item.projectIds"
           :type="item.key"
           :item="item"
+          :status="projectLoadingStatus[item.projectIds[0]]"
+          :cover="requestResults.get(item.projectIds[0])"
           @change="changeHandler"
         />
         <ApiChangeList
@@ -119,7 +121,9 @@
         <ApiCount
           v-else-if="item.key === WorkCardEnum.API_COUNT"
           v-model:projectIds="item.projectIds"
+          :status="projectLoadingStatus[item.projectIds[0]]"
           :item="item"
+          :cover="requestResults.get(item.projectIds[0])"
           @change="changeHandler"
         />
         <TestPlanCount
@@ -132,8 +136,8 @@
     </div>
     <NoData
       v-if="showNoData || !appStore.projectList.length"
-      :no-res-permission="!appStore.projectList.length"
-      :all-screen="!!appStore.projectList.length"
+      :no-res-permission="!defaultWorkList.length"
+      :all-screen="!!defaultWorkList.length"
       height="h-[calc(100vh-110px)]"
       @config="cardSetting"
     />
@@ -162,10 +166,11 @@
   import DefectMemberBar from '@/views/workbench/homePage/components/defectMemberBar.vue';
   import OverviewMember from '@/views/workbench/homePage/components/overviewMember.vue';
 
-  import { editDashboardLayout, getDashboardLayout } from '@/api/modules/workbench';
+  import { editDashboardLayout, getDashboardLayout, workApiCountCoverRage } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
+  import { sleep } from '@/utils';
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
 
   import { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
@@ -260,8 +265,43 @@
     }
   }
 
-  onMounted(() => {
-    initDefaultList();
+  // 用来存储每个请求的结果，key 是项目ID
+  const requestResults = ref(new Map());
+  // 用来存储已请求过的项目
+  const requestedIds = ref(new Set());
+
+  const projectLoadingStatus = ref<Record<string, boolean>>({});
+
+  const fetchProjectDetails = async (projectId: string) => {
+    try {
+      projectLoadingStatus.value[projectId] = true;
+      const result = await workApiCountCoverRage(projectId);
+      requestResults.value.set(projectId, result);
+      projectLoadingStatus.value[projectId] = false;
+      await sleep(300);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      projectLoadingStatus.value[projectId] = false;
+    }
+  };
+
+  // 针对项目id不重复的依次请求
+  async function requestQueue() {
+    const awaitType = [WorkCardEnum.API_COUNT, WorkCardEnum.API_CASE_COUNT, WorkCardEnum.SCENARIO_COUNT];
+    const queueList = defaultWorkList.value.filter((item) => awaitType.includes(item.key));
+    for (let i = 0; i < queueList.length; i++) {
+      const item = queueList[i];
+      const [projectId] = item.projectIds;
+      if (!requestedIds.value.has(projectId)) {
+        requestedIds.value.add(projectId);
+        fetchProjectDetails(projectId);
+      }
+    }
+  }
+
+  onMounted(async () => {
     const defaultTime = getLocalStorage(`WORK_TIME_${userStore.id}`);
     if (!defaultTime) {
       setLocalStorage(`WORK_TIME_${userStore.id}`, JSON.stringify(timeForm.value));
@@ -272,6 +312,8 @@
         rangeTime.value = [startTime, endTime];
       }
     }
+    await initDefaultList();
+    requestQueue();
   });
 
   const time = ref({ ...timeForm.value });
