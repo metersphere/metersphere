@@ -71,6 +71,8 @@ export default {
   'project.environmental.http.uiModuleSelect': '选择UI测试模块',
   'project.environmental.http.pathRequired': '路径必填',
   'project.environmental.http.pathPlaceholder': '请输入路径',
+  'project.environmental.http.containChildModule': '包含新增子模块',
+  'project.environmental.http.containChildModuleTip': '自动包含所选模块后续添加的子模块',
   'project.environmental.database.title': '数据库',
   'project.environmental.database.addDatabase': '添加数据源',
   'project.environmental.database.updateDatabase': '更新数据源{name}',

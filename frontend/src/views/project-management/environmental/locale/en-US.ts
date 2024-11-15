@@ -68,6 +68,9 @@ export default {
   'project.environmental.http.uiModuleSelect': 'Select UI Test Module',
   'project.environmental.http.pathRequired': 'Path is required',
   'project.environmental.http.pathPlaceholder': 'Please enter the path',
+  'project.environmental.http.containChildModule': 'Include newly added submodules',
+  'project.environmental.http.containChildModuleTip':
+    'Automatically include sub modules added after the selected module',
   'project.environmental.database.addDatabase': 'Add Database',
   'project.environmental.database.updateDatabase': 'Update Database {name}',
   'project.environmental.database.name': 'Database Name',

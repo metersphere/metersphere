@@ -107,31 +107,17 @@
             <span><MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect($event, nodeData)" /></span>
           </template>
         </ApiTree> -->
-        <a-tree-select
-          v-model="form.moduleId"
-          :data="envTree"
-          class="w-full"
+        <MsTreeSelect
+          v-model:model-value="form.moduleId"
+          v-model:data="envTree"
+          allow-clear
+          :multiple="true"
+          tree-check-strictly
           :tree-checkable="true"
-          allow-search
-          :field-names="{
-            title: 'name',
-            key: 'id',
-            children: 'children',
-          }"
-          :filter-tree-node="filterTreeNode"
-          tree-checked-strategy="child"
-          :tree-props="{
-            virtualListProps: {
-              height: 200,
-            },
-          }"
-        >
-          <template #tree-slot-title="node">
-            <a-tooltip :content="`${node.name}`" position="tl">
-              <div class="one-line-text w-[300px]">{{ node.name }}</div>
-            </a-tooltip>
-          </template>
-        </a-tree-select>
+          show-contain-child-module
+          :placeholder="t('common.pleaseSelect')"
+          :field-names="{ title: 'name', key: 'id', children: 'children' }"
+        />
       </a-form-item>
       <!-- 路径 -->
       <a-form-item
@@ -228,13 +214,16 @@
   import { Message, ValidatedError } from '@arco-design/web-vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsTreeSelect from '@/components/pure/ms-tree-select/index.vue';
+  import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
   import { getEnvModules } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
-  import { filterTreeNode, getGenerateId } from '@/utils';
+  import { findNodeByKey, getGenerateId, mapTree } from '@/utils';
 
+  import type { SelectedModule } from '@/models/apiTest/management';
   import type { ModuleTreeNode } from '@/models/common';
   import { HttpForm } from '@/models/projectManagement/environmental';
   import { RequestAuthType } from '@/enums/apiEnum';
@@ -244,7 +233,6 @@
   const props = defineProps<{
     currentId: string;
     isCopy: boolean;
-    moduleTree: ModuleTreeNode[];
   }>();
   const appStore = useAppStore();
   const store = useProjectEnvStore();
@@ -307,6 +295,9 @@
 
   const visible = defineModel('visible', { required: true, type: Boolean, default: false });
 
+  const envTree = ref<MsTreeNodeData[]>([]);
+  const moduleTree = ref<MsTreeNodeData[]>([]);
+
   const { t } = useI18n();
 
   function resetForm() {
@@ -323,7 +314,7 @@
           modules = form.value.moduleId.map((item) => {
             return {
               moduleId: item,
-              containChildModule: false,
+              containChildModule: findNodeByKey<MsTreeNodeData>(envTree.value, item, 'id')?.containChildModule ?? false,
             };
           });
         }
@@ -378,11 +369,26 @@
     });
   };
 
-  const envTree = ref<ModuleTreeNode[]>([]);
-
   const title = ref<string>('');
 
-  function initHttpDetail() {
+  async function initModuleTree(selectedModules?: SelectedModule[]) {
+    try {
+      const res = await getEnvModules({
+        projectId: appStore.currentProjectId,
+        selectedModules,
+      });
+      moduleTree.value = res.moduleTree;
+      store.currentEnvDetailInfo.config.httpConfig.forEach((item) => {
+        if (item.id === props.currentId) {
+          item.moduleMatchRule.modules = res.selectedModules;
+        }
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+  async function initHttpDetail() {
     title.value = props.currentId ? t('project.environmental.http.edit') : t('project.environmental.http.add');
     if (props.isCopy) {
       title.value = t('project.environmental.http.copy');
@@ -391,6 +397,15 @@
       const currentItem = store.currentEnvDetailInfo.config.httpConfig.find(
         (item) => item.id === props.currentId
       ) as HttpForm;
+      await initModuleTree(currentItem.moduleMatchRule.modules);
+      envTree.value = mapTree<ModuleTreeNode>(moduleTree.value, (node) => {
+        return {
+          ...node,
+          containChildModule:
+            currentItem.moduleMatchRule.modules.find((item) => item.moduleId === node.id)?.containChildModule ?? false,
+          disabled: !!node.parent?.containChildModule,
+        };
+      });
       if (currentItem) {
         const { path, condition } = currentItem.pathMatchRule;
         const urlPath = currentItem.url.match(/\/\/(.*)/);
@@ -403,18 +418,9 @@
         };
       }
     } else {
+      await initModuleTree();
+      envTree.value = moduleTree.value;
       resetForm();
-    }
-  }
-
-  async function initModuleTree() {
-    try {
-      const res = await getEnvModules({
-        projectId: appStore.currentProjectId,
-      });
-      envTree.value = res.moduleTree;
-    } catch (error) {
-      console.log(error);
     }
   }
 
@@ -431,10 +437,6 @@
     visible.value = false;
     resetForm();
   };
-
-  onBeforeMount(() => {
-    initModuleTree();
-  });
 </script>
 
 <style lang="less" scoped>

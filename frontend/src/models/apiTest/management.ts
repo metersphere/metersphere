@@ -114,7 +114,7 @@ export interface SelectedModule {
   // 选中的模块
   moduleId: string;
   containChildModule: boolean; // 是否包含新增子模块
-  disabled: boolean;
+  disabled?: boolean;
 }
 
 // 定义-获取环境的模块树参数

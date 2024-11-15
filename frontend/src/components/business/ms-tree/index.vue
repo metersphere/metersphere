@@ -629,6 +629,9 @@
         &:hover {
           background-color: transparent;
         }
+        .ms-tree-node-extra {
+          background-color: transparent;
+        }
         * {
           color: var(--color-text-4) !important;
         }

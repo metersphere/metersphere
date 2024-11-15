@@ -1,4 +1,5 @@
 import { EnableKeyValueParam, ExecuteConditionProcessor } from '@/models/apiTest/common';
+import type { SelectedModule } from '@/models/apiTest/management';
 import { RequestAuthType } from '@/enums/apiEnum';
 
 export interface EnvListItem {
@@ -154,10 +155,7 @@ export interface HttpForm {
   condition: string;
   moduleId: string[];
   moduleMatchRule: {
-    modules: {
-      moduleId: string;
-      containChildModule: boolean;
-    }[];
+    modules: SelectedModule[];
   };
   url: string;
   pathMatchRule: {

@@ -44,8 +44,9 @@
         <MsTree
           v-model:checked-keys="checkedKeys"
           v-model:halfCheckedKeys="halfCheckedKeys"
-          :selectable="false"
+          v-model:focus-node-key="focusNodeKey"
           :data="treeData"
+          :selectable="false"
           :keyword="inputValue"
           :empty-text="t('common.noData')"
           :virtual-list-props="virtualListProps"
@@ -57,20 +58,21 @@
           :checkable="props.treeCheckable"
           :check-strictly="props.treeCheckStrictly"
           v-bind="$attrs"
-          @check="checkNode"
+          @check="handleCheck"
         >
           <template #title="nodeData">
             <div
               class="one-line-text w-full cursor-pointer text-[var(--color-text-1)]"
-              @click="checkNode(checkedKeys, { checked: !checkedKeys.includes(nodeData.id), node: nodeData })"
+              @click="handleCheck(checkedKeys, { checked: !checkedKeys.includes(nodeData.id), node: nodeData })"
             >
               {{ nodeData.name }}
             </div>
           </template>
           <template #extra="nodeData">
             <MsButton
-              v-if="nodeData.children && nodeData.children.length"
-              @click="selectParent(nodeData, !!checkedKeys.includes(nodeData.id))"
+              v-if="nodeData.children && nodeData.children.length && !nodeData.disabled"
+              class="!mr-[8px]"
+              @click="handleSelectCurrent(nodeData)"
             >
               {{
                 checkedKeys.includes(nodeData.id)
@@ -78,6 +80,15 @@
                   : t('ms.case.associate.selectCurrent')
               }}
             </MsButton>
+            <MoreMenuDropdown
+              v-if="props.showContainChildModule && !nodeData.disabled && nodeData.children && nodeData.children.length"
+              v-model:contain-child-module="nodeData.containChildModule"
+              @handle-contain-child-module="
+                (containChildModule) => handleContainChildModule(nodeData, containChildModule)
+              "
+              @close="resetFocusNodeKey"
+              @open="setFocusKey(nodeData)"
+            />
           </template>
         </MsTree>
       </template>
@@ -92,6 +103,7 @@
   import useTreeSelection from '@/components/business/ms-associate-case/useTreeSelection';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeFieldNames, MsTreeNodeData } from '@/components/business/ms-tree/types';
+  import MoreMenuDropdown from './moreMenuDropdown.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import useSelect from '@/hooks/useSelect';
@@ -101,12 +113,12 @@
 
   const props = withDefaults(
     defineProps<{
-      data: TreeNodeData[];
       fieldNames?: TreeFieldNames | MsTreeFieldNames;
       multiple?: boolean;
       shouldCalculateMaxTag?: boolean;
       treeCheckStrictly?: boolean;
       treeCheckable?: boolean;
+      showContainChildModule?: boolean;
     }>(),
     {
       shouldCalculateMaxTag: true,
@@ -125,6 +137,66 @@
   });
   const { selectedModulesMaps, checkedKeys, halfCheckedKeys, selectParent, checkNode, clearSelector } =
     useTreeSelection(selectedModuleProps.value);
+
+  /**
+   * 设置子节点的属性值
+   * @param trees 属性数组
+   * @param targetKey 需要匹配的属性值
+   */
+  function updateChildNodesState(node: MsTreeNodeData, targetKey: keyof MsTreeNodeData, state: boolean) {
+    if (node.children) {
+      node.children.forEach((child: MsTreeNodeData) => {
+        child[targetKey] = state;
+        updateChildNodesState(child, targetKey, state);
+      });
+    }
+  }
+
+  function handleCheck(_checkedKeys: Array<string | number>, checkedNodes: MsTreeNodeData) {
+    if (props.showContainChildModule) {
+      const realNode = findNodeByKey<MsTreeNodeData>(treeData.value, checkedNodes.node.id, 'id');
+      if (!realNode) return;
+      if (checkedNodes.checked) {
+        // 父级勾选，且父级“包含新增子模块”勾选，那么下面所有子级：禁用和勾选“包含新增子模块”
+        if (realNode.containChildModule) {
+          updateChildNodesState(realNode, 'containChildModule', true);
+          updateChildNodesState(realNode, 'disabled', true);
+        }
+      } else {
+        // 父级取消勾选，父级和所有子级“包含新增子模块”取消勾选，所有子级取消禁用
+        realNode.containChildModule = false;
+        updateChildNodesState(realNode, 'containChildModule', false);
+        updateChildNodesState(realNode, 'disabled', false);
+      }
+    }
+    checkNode(_checkedKeys, checkedNodes);
+  }
+
+  function handleSelectCurrent(nodeData: MsTreeNodeData) {
+    if (props.showContainChildModule && checkedKeys.value.includes(nodeData.id)) {
+      // 取消当前，“包含新增子模块”取消勾选，下面一层的子级取消禁用
+      const realNode = findNodeByKey<MsTreeNodeData>(treeData.value, nodeData.id, 'id');
+      if (!realNode) return;
+      realNode.containChildModule = false;
+      realNode.children?.forEach((child) => {
+        child.disabled = false;
+      });
+    }
+    selectParent(nodeData, !!checkedKeys.value.includes(nodeData.id));
+  }
+
+  function handleContainChildModule(nodeData: MsTreeNodeData, containChildModule: boolean) {
+    const realNode = findNodeByKey<MsTreeNodeData>(treeData.value, nodeData.id, 'id');
+    if (!realNode) return;
+    realNode.containChildModule = containChildModule;
+    if (containChildModule) {
+      handleCheck(checkedKeys.value, { checked: true, node: realNode });
+    } else {
+      realNode.children?.forEach((child) => {
+        child.disabled = false;
+      });
+    }
+  }
 
   const skipSelectValueWatch = ref(false);
   watch(
@@ -170,7 +242,7 @@
     }
   );
   watch(
-    () => props.data,
+    () => treeData.value,
     () => {
       if (props.shouldCalculateMaxTag !== false && props.multiple) {
         calculateMaxTag();
@@ -182,11 +254,11 @@
     return () => {
       let treeSelectTooltip = '';
       const values = Array.isArray(checkedKeys.value) ? checkedKeys.value : [checkedKeys.value];
-      if (props.data) {
+      if (treeData.value) {
         treeSelectTooltip = values
           ?.map((valueItem: string | number) => {
             const optItem = findNodeByKey<MsTreeNodeData>(
-              props.data as MsTreeNodeData[],
+              treeData.value as MsTreeNodeData[],
               valueItem,
               props?.fieldNames?.key
             );
@@ -272,6 +344,14 @@
       buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
     };
   });
+
+  const focusNodeKey = ref<string | number>('');
+  function setFocusKey(node: MsTreeNodeData) {
+    focusNodeKey.value = node.id || '';
+  }
+  function resetFocusNodeKey() {
+    focusNodeKey.value = '';
+  }
 </script>
 
 <style lang="less">

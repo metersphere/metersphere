@@ -11,6 +11,7 @@ export type MsTreeNodeData = {
   hideMoreAction?: boolean; // 隐藏更多操作
   parentId?: string;
   expanded?: boolean; // 是否展开
+  containChildModule?: boolean; // 包含子模块
   [key: string]: any;
 } & TreeNodeData;
 

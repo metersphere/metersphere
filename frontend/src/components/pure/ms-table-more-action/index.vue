@@ -129,27 +129,4 @@
       color: rgb(var(--danger-6));
     }
   }
-  .ms-more-action-trigger-content {
-    @apply flex items-center;
-    .more-icon-btn {
-      padding: 2px;
-      border-radius: var(--border-radius-mini);
-      &:hover {
-        background-color: rgb(var(--primary-9)) !important;
-        .arco-icon {
-          color: rgb(var(--primary-5)) !important;
-        }
-      }
-    }
-  }
-  .ms-more-action-trigger-content--focus {
-    .more-icon-btn {
-      @apply !visible;
-
-      background-color: rgb(var(--primary-9));
-      .arco-icon {
-        color: rgb(var(--primary-5));
-      }
-    }
-  }
 </style>
