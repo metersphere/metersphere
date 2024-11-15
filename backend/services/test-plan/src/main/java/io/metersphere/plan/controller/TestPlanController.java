@@ -59,6 +59,14 @@ public class TestPlanController {
         return testPlanManagementService.page(request);
     }
 
+    @PostMapping("/rage")
+    @Operation(summary = "测试计划-测试计划统计")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public TestPlanCoverageDTO rage(@Validated @RequestBody TestPlanCoverageRequest request) {
+        return testPlanService.rageByProjectIdAndTimestamp(request.getProjectId(), request.getStartTime(), request.getEndTime());
+    }
+
     @GetMapping("/group-list/{projectId}")
     @Operation(summary = "测试计划-测试计划组查询")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)

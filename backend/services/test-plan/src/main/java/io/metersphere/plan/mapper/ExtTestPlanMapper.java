@@ -93,4 +93,6 @@ public interface ExtTestPlanMapper {
      * @return List<SelectOption>
      */
     List<SelectOption> getPlanBugList(@Param("projectId") String projectId, @Param("type") String type, @Param("platforms") List<String> platform, @Param("statusList") List<String> statusList);
+
+    List<TestPlan> selectIdAndStatusByProjectIdAndCreateTimeRangeAndType(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime, @Param("type") String testPlanTypePlan);
 }

@@ -852,6 +852,13 @@
             AND test_plan.create_time BETWEEN #{startTime} AND #{endTime}
         </if>
     </select>
+    <select id="selectIdAndStatusByProjectIdAndCreateTimeRangeAndType" resultType="io.metersphere.plan.domain.TestPlan">
+        SELECT id, status
+        FROM test_plan
+        WHERE project_id = #{projectId}
+          AND create_time BETWEEN #{startTime} AND #{endTime}
+          AND type = #{type}
+    </select>
     <select id="getPlanBugList" resultType="io.metersphere.plugin.platform.dto.SelectOption">
         select distinct bug.id as `value`, bug.status as `text`
         from test_plan

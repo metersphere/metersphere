@@ -642,11 +642,7 @@ public class TestPlanReportService {
 
         long beforeFlush = System.currentTimeMillis();
         sqlSession.flushStatements();
-        long beforeClose = System.currentTimeMillis();
-        System.out.println("flush time: " + (beforeClose - beforeFlush));
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        long afterFlush = System.currentTimeMillis();
-        System.out.println("close time: " + (afterFlush - beforeClose));
 
         return TestPlanReportDetailCaseDTO.builder()
                 .functionCaseCount(funcCaseCount.get()).apiCaseCount(apiCaseCount.get()).apiScenarioCount(apiScenarioCount.get()).bugCount(bugCount.get()).build();

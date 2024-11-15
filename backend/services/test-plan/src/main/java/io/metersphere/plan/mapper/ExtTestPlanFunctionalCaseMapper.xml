@@ -780,5 +780,21 @@
         </foreach>
         and functional_case.module_id = 'root'
     </select>
+    <select id="selectDistinctLastExecResultByTestPlanIds"
+            resultType="io.metersphere.plan.dto.TestPlanResourceExecResultDTO">
+        select distinct resource.test_plan_id AS testPlanId,
+        CASE
+        WHEN resource.last_exec_result is null
+        THEN 'PENDING'
+        WHEN resource.last_exec_result = '-'
+        THEN 'PENDING'
+        ELSE resource.last_exec_result
+        END AS execResult
+        from test_plan_functional_case resource
+        where resource.test_plan_id IN
+        <foreach collection="testPlanIds" item="testPlanId" separator="," open="(" close=")">
+            #{testPlanId}
+        </foreach>
+    </select>
 
 </mapper>

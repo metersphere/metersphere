@@ -9,7 +9,10 @@ import io.metersphere.bug.service.BugStatusService;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.domain.TestPlanCollectionExample;
-import io.metersphere.plan.dto.*;
+import io.metersphere.plan.dto.TestPlanCaseBugDTO;
+import io.metersphere.plan.dto.TestPlanCollectionDTO;
+import io.metersphere.plan.dto.TestPlanResourceAssociationParam;
+import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
 import io.metersphere.plan.dto.request.BaseCollectionAssociateRequest;
 import io.metersphere.plan.dto.request.BasePlanCaseBatchRequest;
 import io.metersphere.plan.dto.request.TestPlanCaseAssociateBugRequest;
@@ -103,6 +106,8 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
     public abstract List<TestPlanResourceExecResultDTO> selectDistinctExecResultByProjectId(String projectId);
 
     public abstract List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(List<String> testPlanIds);
+
+    public abstract List<TestPlanResourceExecResultDTO> selectDistinctLastExecResultByTestPlanIds(List<String> testPlanIds);
 
     /**
      * 关联用例

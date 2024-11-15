@@ -3,7 +3,9 @@ package io.metersphere.plan.service;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.TestPlanCollectionDTO;
 import io.metersphere.plan.dto.TestPlanExecuteHisDTO;
+import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
 import io.metersphere.plan.dto.request.*;
+import io.metersphere.plan.dto.response.TestPlanCoverageDTO;
 import io.metersphere.plan.dto.response.TestPlanDetailResponse;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
@@ -37,6 +39,7 @@ import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.BatchProcessUtils;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotBlank;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -1011,5 +1014,66 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         if (StringUtils.isNotBlank(testPlanReportId)) {
             testPlanReportService.updateExecuteTimeAndStatus(testPlanReportId);
         }
+    }
+
+    public TestPlanCoverageDTO rageByProjectIdAndTimestamp(@NotBlank String projectId, long startTime, long endTime) {
+        TestPlanCoverageDTO returnDTO = new TestPlanCoverageDTO();
+        TestPlanExample testPlanExample = new TestPlanExample();
+        testPlanExample.createCriteria().andProjectIdEqualTo(projectId).andCreateTimeBetween(startTime, endTime).andTypeEqualTo(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+        List<TestPlan> testPlanList = extTestPlanMapper.selectIdAndStatusByProjectIdAndCreateTimeRangeAndType(projectId, startTime, endTime, TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+
+        List<String> notArchivedList = new ArrayList<>();
+        testPlanList.forEach(item -> {
+            if (StringUtils.equalsIgnoreCase(item.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+                returnDTO.archivedAutoIncrement();
+            } else {
+                notArchivedList.add(item.getId());
+            }
+        });
+
+        // 将当前项目下未归档的测试计划结果查询出来，进行下列符合条件的筛选
+        Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
+
+        // 批量处理
+        SubListUtils.dealForSubList(notArchivedList, SubListUtils.DEFAULT_BATCH_SIZE, dealList -> {
+            TestPlanConfigExample testPlanConfigExample = new TestPlanConfigExample();
+            testPlanConfigExample.createCriteria().andTestPlanIdIn(dealList);
+            List<TestPlanConfig> testPlanConfigList = testPlanConfigMapper.selectByExample(testPlanConfigExample);
+            Map<String, TestPlanConfig> testPlanConfigMap = testPlanConfigList.stream().collect(Collectors.toMap(TestPlanConfig::getTestPlanId, v -> v));
+
+
+            List<TestPlanResourceExecResultDTO> execResults = new ArrayList<>();
+            beansOfType.forEach((k, v) -> execResults.addAll(v.selectDistinctLastExecResultByTestPlanIds(dealList)));
+            Map<String, List<String>> testPlanExecResultMap = execResults.stream().collect(Collectors.groupingBy(TestPlanResourceExecResultDTO::getTestPlanId, Collectors.mapping(TestPlanResourceExecResultDTO::getExecResult, Collectors.toList())));
+
+            for (String testPlanId : dealList) {
+                List<String> executeResultList = testPlanExecResultMap.get(testPlanId);
+                if (CollectionUtils.isEmpty(executeResultList)) {
+                    // 未运行
+                    returnDTO.notStartedAutoIncrement();
+                } else {
+                    List<String> calculateList = executeResultList.stream().distinct().toList();
+                    //目前只有三个状态。如果同时包含多种状态(进行中/未开始、进行中/已完成、已完成/未开始、进行中/未开始/已完成),根据算法可得测试计划都会是进行中
+                    if (calculateList.size() == 1) {
+                        if (calculateList.contains(ResultStatus.SUCCESS.name())) {
+                            returnDTO.successAutoIncrement();
+                        } else if (calculateList.contains(ExecStatus.PENDING.name())) {
+                            returnDTO.notStartedAutoIncrement();
+                        } else {
+                            returnDTO.unSuccessAutoIncrement();
+                        }
+                    } else {
+                        if (calculateList.contains(ExecStatus.PENDING.name())) {
+                            // 存在还未完成的用例，测试计划为进行中
+                            returnDTO.testPlanRunningAutoIncrement();
+                        } else {
+                            returnDTO.unSuccessAutoIncrement();
+                        }
+                    }
+                }
+
+            }
+        });
+        return returnDTO;
     }
 }

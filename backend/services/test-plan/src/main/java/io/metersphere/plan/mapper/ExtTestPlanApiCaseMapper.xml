@@ -892,6 +892,23 @@
         </foreach>
         AND test_plan.status != 'ARCHIVED'
     </select>
+
+    <select id="selectDistinctLastExecResultByTestPlanIds"
+            resultType="io.metersphere.plan.dto.TestPlanResourceExecResultDTO">
+        select distinct resource.test_plan_id AS testPlanId,
+        CASE
+        WHEN resource.last_exec_result is null
+        THEN 'PENDING'
+        WHEN resource.last_exec_result = '-'
+        THEN 'PENDING'
+        ELSE resource.last_exec_result
+        END AS execResult
+        from test_plan_api_case resource
+        where resource.test_plan_id IN
+        <foreach collection="testPlanIds" item="testPlanId" separator="," open="(" close=")">
+            #{testPlanId}
+        </foreach>
+    </select>
     <select id="getBatchRunInfoByIds" resultType="io.metersphere.plan.dto.TestPlanApiCaseBatchRunDTO">
         SELECT t.id as id, t.test_plan_collection_id as test_plan_collection_id, atc.name as name, atc.id as caseId
         FROM test_plan_api_case t

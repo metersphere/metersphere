@@ -7,6 +7,7 @@ import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.*;
+import io.metersphere.plan.dto.response.TestPlanCoverageDTO;
 import io.metersphere.plan.dto.response.TestPlanOperationResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
@@ -1649,6 +1650,25 @@ public class TestPlanTests extends BaseTest {
         Assertions.assertTrue(statisticsResponses.getFirst().getNextTriggerTime() == null);
         Assertions.assertTrue(statisticsResponses.getFirst().getScheduleConfig() == null);
     }
+
+
+    @Test
+    @Order(62)
+    public void testPlanRage() throws Exception {
+        if (StringUtils.isAnyBlank(groupTestPlanId7, groupTestPlanId15)) {
+            this.testPlanAddTest();
+        }
+
+        TestPlanCoverageRequest request = new TestPlanCoverageRequest();
+        request.setProjectId(project.getId());
+        request.setDayNumber(7);
+
+        MvcResult mvcResult = this.requestPostWithOkAndReturn("/test-plan/rage", request);
+        TestPlanCoverageDTO coverageDTO = this.getResultData(mvcResult, TestPlanCoverageDTO.class);
+        Assertions.assertEquals(coverageDTO.getUnExecute() + coverageDTO.getExecuted(), coverageDTO.getPassed() + coverageDTO.getNotPassed());
+        Assertions.assertEquals(coverageDTO.getFinished() + coverageDTO.getRunning() + coverageDTO.getPrepared(), coverageDTO.getPassed() + coverageDTO.getNotPassed());
+    }
+
 
     @Test
     @Order(81)
