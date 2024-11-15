@@ -45,7 +45,7 @@ export const commonColorConfig = [
 export const colorMapConfig: Record<string, string[]> = {
   [WorkCardEnum.CASE_COUNT]: ['#ED0303', '#FFA200', '#3370FF', '#D4D4D8'],
   [WorkCardEnum.ASSOCIATE_CASE_COUNT]: ['#00C261', '#3370FF'],
-  [WorkCardEnum.REVIEW_CASE_COUNT]: ['#9441B1', '#00C261', '#D4D4D8', '#3370FF'],
+  [WorkCardEnum.REVIEW_CASE_COUNT]: ['#D4D4D8', '#3370FF', '#00C261', '#ED0303', '#9441B1', '#3370FF'],
   [WorkCardEnum.TEST_PLAN_COUNT]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
   [WorkCardEnum.PLAN_LEGACY_BUG]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
   [WorkCardEnum.BUG_COUNT]: ['#FFA200', '#D4D4D8', '#00C261'],

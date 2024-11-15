@@ -251,11 +251,6 @@
     }
   }
 
-  // 刷新
-  function handleRefresh() {
-    initDefaultList();
-  }
-
   async function changeHandler() {
     try {
       await editDashboardLayout(defaultWorkList.value, appStore.currentOrgId);
@@ -289,6 +284,7 @@
 
   // 针对项目id不重复的依次请求
   async function requestQueue() {
+    requestedIds.value = new Set([]);
     const awaitType = [WorkCardEnum.API_COUNT, WorkCardEnum.API_CASE_COUNT, WorkCardEnum.SCENARIO_COUNT];
     const queueList = defaultWorkList.value.filter((item) => awaitType.includes(item.key));
     for (let i = 0; i < queueList.length; i++) {
@@ -299,6 +295,12 @@
         fetchProjectDetails(projectId);
       }
     }
+  }
+
+  // 刷新
+  async function handleRefresh() {
+    await initDefaultList();
+    requestQueue();
   }
 
   onMounted(async () => {
@@ -323,6 +325,7 @@
     (val) => {
       if (val.dayNumber || (val.endTime && val.startTime)) {
         time.value = { ...val };
+        requestQueue();
       }
     },
     { deep: true }
