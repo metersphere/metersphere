@@ -803,6 +803,16 @@ public class TestPlanReportService {
         TestPlanTaskReportResponse testPlanTaskReportResponse = new TestPlanTaskReportResponse();
         ExecTask task = execTaskMapper.selectByPrimaryKey(taskId);
         BeanUtils.copyBean(testPlanTaskReportResponse, task);
+        TestPlanExample planExample = new TestPlanExample();
+        planExample.createCriteria().andGroupIdEqualTo(task.getResourceId());
+        List<TestPlan> testPlans = testPlanMapper.selectByExample(planExample);
+        List<TestPlanTaskReportResponse.ChildPlan> childPlans = testPlans.stream().map(plan -> {
+            TestPlanTaskReportResponse.ChildPlan childPlan = new TestPlanTaskReportResponse.ChildPlan();
+            childPlan.setId(plan.getId());
+            childPlan.setName(plan.getName());
+            return childPlan;
+        }).toList();
+        testPlanTaskReportResponse.setChildPlans(childPlans);
         ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
         example.createCriteria().andTaskResourceIdEqualTo(taskId);
         List<ApiReportRelateTask> taskReports = apiReportRelateTaskMapper.selectByExample(example);
@@ -1425,6 +1435,7 @@ public class TestPlanReportService {
      * @return 用例执行情况
      */
     private TestPlanTaskReportResponse calcTaskExecActual(String reportId, TestPlanTaskReportResponse testPlanTaskReportResponse) {
+        testPlanTaskReportResponse.setReportId(reportId);
         // 计算接口用例
         List<CaseStatusCountMap> apiCountMapList = extTestPlanReportApiCaseMapper.countExecuteResult(reportId);
         CaseCount apiCaseCount = countMap(apiCountMapList);

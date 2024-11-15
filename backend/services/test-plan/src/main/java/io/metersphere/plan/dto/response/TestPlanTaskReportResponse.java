@@ -6,12 +6,21 @@ import io.metersphere.system.serializer.CustomRateSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
  * @author song-cc-rock
  */
 @Data
-public class TestPlanTaskReportResponse {
+public class TestPlanTaskReportResponse implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
+	@Schema(description = "报告ID")
+	private String reportId;
+	@Schema(description = "任务名称")
+	private String taskName;
 	@Schema(description = "执行结果")
 	private String result;
 	@Schema(description = "执行状态")
@@ -24,10 +33,17 @@ public class TestPlanTaskReportResponse {
 	private Long startTime;
 	@Schema(description = "任务结束时间")
 	private Long endTime;
+	@Schema(description = "子计划列表")
+	private List<ChildPlan> childPlans;
 	@Schema(description = "执行用例统计(实时)")
 	private CaseCount executeCaseCount;
 	@Schema(description = "执行完成率(实时)")
 	@JsonSerialize(using = CustomRateSerializer.class)
 	private Double executeRate;
 
+	@Data
+	public static class ChildPlan {
+		private String id;
+		private String name;
+	}
 }
