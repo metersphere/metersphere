@@ -575,12 +575,12 @@ public class FunctionalCaseMinderService {
             afterNode = sources;
         } else {
             if (StringUtils.equals(moveMode, MoveTypeEnum.AFTER.name())) {
-                if (targetIndex + 1 > sources.size()) {
+                if (targetIndex > sources.size()) {
                     beforeNode = sources;
                     afterNode = new ArrayList<>();
                 } else {
-                    beforeNode = sources.subList(0, targetIndex + 1);
-                    afterNode = sources.subList(targetIndex + 1, sources.size());
+                    beforeNode = sources.subList(0, targetIndex-1);
+                    afterNode = sources.subList(targetIndex-1, sources.size());
                 }
             } else {
                 beforeNode = sources.subList(0, targetIndex);

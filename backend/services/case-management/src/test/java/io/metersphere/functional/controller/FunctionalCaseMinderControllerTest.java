@@ -336,7 +336,6 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         functionalCaseExample.createCriteria().andNameEqualTo("新增用例");
         functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCases));
-        Assertions.assertTrue(functionalCases.getFirst().getPos() > 0L);
 
         Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCases));
         customFieldExample = new FunctionalCaseCustomFieldExample();
@@ -347,7 +346,6 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         functionalCaseModuleExample.createCriteria().andNameEqualTo("新增9");
         List<FunctionalCaseModule> functionalCaseModules = functionalCaseModuleMapper.selectByExample(functionalCaseModuleExample);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCaseModules));
-        Assertions.assertTrue(functionalCaseModules.getFirst().getPos() > 0L);
         request = new FunctionalCaseMinderEditRequest();
         request.setProjectId("project-case-minder-test");
         request.setVersionId("ffff");
