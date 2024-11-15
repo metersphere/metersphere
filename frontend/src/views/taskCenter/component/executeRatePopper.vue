@@ -6,7 +6,7 @@
     :disabled="record.caseTotal === 0 || record.status === ExecuteStatusEnum.PENDING"
     @popup-visible-change="($event) => handleExecuteRatePopVisibleChange($event)"
   >
-    <div>{{ record.executeRate || '0.00' }}%</div>
+    <div :class="props.class">{{ record.executeRate || '0.00' }}%</div>
     <template #content>
       <a-spin :loading="record.loading" class="flex w-[130px] flex-col gap-[8px]">
         <div class="ms-taskCenter-execute-rate-item">
@@ -62,12 +62,15 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { TaskCenterStatisticsItem, TaskCenterTaskItem } from '@/models/taskCenter';
+  import { PlanExecuteResultExecuteCaseCount } from '@/models/testPlan/testPlan';
   import { ExecuteStatusEnum } from '@/enums/taskCenter';
 
   import { executeFinishedRateMap } from './config';
 
   const props = defineProps<{
-    executeTaskStatisticsRequest: (ids: string[]) => Promise<TaskCenterStatisticsItem[]>;
+    class?: string;
+    executeCaseCount?: PlanExecuteResultExecuteCaseCount;
+    executeTaskStatisticsRequest?: (ids: string[]) => Promise<TaskCenterStatisticsItem[]>;
   }>();
 
   const { t } = useI18n();
@@ -80,7 +83,7 @@
   });
 
   async function handleExecuteRatePopVisibleChange(_visible: boolean) {
-    if (_visible) {
+    if (_visible && props.executeTaskStatisticsRequest) {
       try {
         record.value.loading = true;
         const res = await props.executeTaskStatisticsRequest([record.value.id]);
@@ -96,6 +99,11 @@
       } finally {
         record.value.loading = false;
       }
+    } else if (props.executeCaseCount) {
+      record.value.pendingCount = props.executeCaseCount.pending;
+      record.value.successCount = props.executeCaseCount.success;
+      record.value.fakeErrorCount = props.executeCaseCount.fakeError;
+      record.value.errorCount = props.executeCaseCount.error;
     }
   }
 </script>

@@ -1527,7 +1527,7 @@
         ...propsRes.value.filter,
       };
       const { selectedIds, selectAll, excludeIds } = batchParams.value;
-      await batchEditScenario({
+      await scenarioBatchEditSchedule({
         selectIds: selectedIds || [],
         selectAll: !!selectAll,
         excludeIds: excludeIds || [],
@@ -1538,7 +1538,7 @@
           keyword: keyword.value,
         },
         type: 'Schedule',
-        scheduleOpen: enable,
+        enable,
       });
       Message.success(
         enable

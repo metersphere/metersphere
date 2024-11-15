@@ -35,9 +35,16 @@
       <template #status="{ record }">
         <ExecutionStatus :status="record.status" :module-type="ReportEnum.API_REPORT" />
       </template>
+      <template #executeStatus="{ record }">
+        <ExecStatus :status="record.execStatus" />
+      </template>
       <template #operation="{ record, rowIndex }">
         <div v-if="record.historyDeleted">
-          <a-tooltip :content="t('common.executionResultCleaned')" position="top">
+          <a-tooltip
+            v-if="record.execStatus !== ExecuteStatusEnum.PENDING"
+            :content="t('common.executionResultCleaned')"
+            position="top"
+          >
             <MsButton
               :disabled="
                 record.historyDeleted ||
@@ -51,6 +58,7 @@
         </div>
         <div v-else>
           <MsButton
+            v-if="record.execStatus !== ExecuteStatusEnum.PENDING"
             :disabled="
               record.historyDeleted ||
               !hasAnyPermission(['PROJECT_API_DEFINITION_CASE:READ+EXECUTE', 'PROJECT_API_REPORT:READ'])
@@ -83,6 +91,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
+  import ExecStatus from '@/views/taskCenter/component/execStatus.vue';
 
   import { getApiCaseExecuteHistory } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
@@ -90,9 +99,9 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ExecuteHistoryItem } from '@/models/apiTest/scenario';
-  // import { ReportExecStatus } from '@/enums/apiEnum';
   import { ReportEnum, ReportStatus, TriggerModeLabel } from '@/enums/reportEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { ExecuteStatusEnum } from '@/enums/taskCenter';
 
   import { triggerModeOptions } from '@/views/api-test/report/utils';
 
@@ -110,15 +119,6 @@
       };
     });
   });
-
-  // const ExecStatusList = computed(() => {
-  //   return Object.values(ReportExecStatus).map((e) => {
-  //     return {
-  //       value: e,
-  //       key: e,
-  //     };
-  //   });
-  // });
 
   const showResponse = ref(false);
 
@@ -150,6 +150,12 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
+      width: 150,
+    },
+    {
+      title: 'ms.taskCenter.executeStatus',
+      dataIndex: 'executeStatus',
+      slotName: 'executeStatus',
       width: 150,
     },
     {

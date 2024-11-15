@@ -6,12 +6,15 @@ import type { customFieldsItem } from '@/models/caseManagement/featureCase';
 import type { TableQueryParams } from '@/models/common';
 import { BatchApiParams, DragSortParams } from '@/models/common';
 import { CaseLinkEnum, LastExecuteResults } from '@/enums/caseEnum';
+import type { ExecuteStatusEnum } from '@/enums/taskCenter';
 import {
   type PlanMinderAssociateType,
   type PlanMinderCollectionType,
   type RunMode,
   testPlanTypeEnum,
 } from '@/enums/testPlanEnum';
+
+import type { TaskReportDetail } from '../apiTest/report';
 
 export type planStatusType = 'PREPARED' | 'UNDERWAY' | 'COMPLETED' | 'ARCHIVED';
 
@@ -383,7 +386,7 @@ export interface PlanDetailExecuteHistoryItem {
   id: string;
   num: string;
   triggerMode: string; // 执行方式
-  execResult: string; // 执行结果
+  execResult: ExecuteStatusEnum; // 执行结果
   operationUser: string;
   startTime: number;
   endTime: number;
@@ -446,4 +449,18 @@ export interface PlanMinderEditParams {
   planId: string;
   editList: PlanMinderEditListItem[];
   deletedIds: string[];
+}
+export interface PlanExecuteResultExecuteCaseCount {
+  success: number;
+  error: number;
+  fakeError: number;
+  block: number;
+  pending: number;
+}
+export interface PlanExecuteResult extends TaskReportDetail {
+  taskName: string;
+  reportId: string;
+  childPlans: { id: string; name: string }[]; // 子计划
+  createUser: string;
+  executeCaseCount: PlanExecuteResultExecuteCaseCount;
 }

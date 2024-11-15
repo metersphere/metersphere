@@ -7,6 +7,9 @@
       <template #triggerMode="{ record }">
         <span>{{ t(TriggerModeLabel[record.triggerMode as keyof typeof TriggerModeLabel]) }}</span>
       </template>
+      <template #executeStatus="{ record }">
+        <ExecStatus :status="record.execStatus" />
+      </template>
       <template #lastExecResult="{ record }">
         <ExecutionStatus v-if="record.execResult" :status="record.execResult" :module-type="ReportEnum.API_REPORT" />
       </template>
@@ -18,7 +21,11 @@
         </a-tooltip>
       </template>
       <template #operation="{ record }">
-        <a-tooltip :content="t('common.executionResultCleaned')" :disabled="!record.deleted">
+        <a-tooltip
+          v-if="record.execStatus !== ExecuteStatusEnum.PENDING"
+          :content="t('common.executionResultCleaned')"
+          :disabled="!record.deleted"
+        >
           <MsButton
             :disabled="record.deleted || !hasAnyPermission(['PROJECT_TEST_PLAN_REPORT:READ'])"
             class="!mr-0"
@@ -42,6 +49,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import executeResultDrawer from '../executeResultDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
+  import ExecStatus from '@/views/taskCenter/component/execStatus.vue';
 
   import { getPlanDetailExecuteHistory } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
@@ -50,6 +58,7 @@
   import type { PlanDetailExecuteHistoryItem } from '@/models/testPlan/testPlan';
   import { PlanReportStatus, ReportEnum, TriggerModeLabel } from '@/enums/reportEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { ExecuteStatusEnum } from '@/enums/taskCenter';
 
   import { triggerModeOptions } from '@/views/api-test/report/utils';
 
@@ -89,6 +98,12 @@
       width: 150,
     },
     {
+      title: 'ms.taskCenter.executeStatus',
+      dataIndex: 'executeStatus',
+      slotName: 'executeStatus',
+      width: 150,
+    },
+    {
       title: 'common.executionResult',
       dataIndex: 'execResult',
       slotName: 'lastExecResult',
@@ -118,20 +133,11 @@
       width: 100,
     },
   ];
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
-    getPlanDetailExecuteHistory,
-    {
-      columns,
-      scroll: { x: '100%' },
-      selectable: false,
-    },
-    (record) => {
-      return {
-        ...record,
-        startTime: dayjs(record.startTime).format('YYYY-MM-DD HH:mm:ss'),
-      };
-    }
-  );
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getPlanDetailExecuteHistory, {
+    columns,
+    scroll: { x: '100%' },
+    selectable: false,
+  });
 
   function loadExecuteList() {
     setLoadListParams({
@@ -149,7 +155,7 @@
   }
 
   function getStartAndEndTime(record: PlanDetailExecuteHistoryItem) {
-    return `${dayjs(record.startTime).format('YYYY-MM-DD HH:mm:ss')}${t('common.to')}${
+    return `${record.startTime ? dayjs(record.startTime).format('YYYY-MM-DD HH:mm:ss') : '-'}${t('common.to')}${
       record.endTime ? dayjs(record.endTime).format('YYYY-MM-DD HH:mm:ss') : '-'
     }`;
   }

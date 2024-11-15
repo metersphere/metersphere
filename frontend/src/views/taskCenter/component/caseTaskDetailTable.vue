@@ -44,10 +44,10 @@
       <execStatus :status="filterContent.value" />
     </template>
     <template #result="{ record }">
-      <executionStatus :status="record.result" />
+      <executeResultStatus :status="record.result" />
     </template>
     <template #[FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_RESULT]="{ filterContent }">
-      <executionStatus :status="filterContent.value" />
+      <executeResultStatus :status="filterContent.value" />
     </template>
     <template #triggerMode="{ record }">
       {{ t(executeMethodMap[record.triggerMode]) }}
@@ -80,9 +80,15 @@
       >
         {{ t('common.stop') }}
       </MsButton>
-      <MsButton v-if="record.status !== ExecuteStatusEnum.PENDING" @click="checkExecuteResult(record)">
-        {{ t('ms.taskCenter.executeResult') }}
-      </MsButton>
+      <a-tooltip
+        v-if="record.status !== ExecuteStatusEnum.PENDING"
+        :content="t('common.executionResultCleaned')"
+        :disabled="!record.deleted"
+      >
+        <MsButton :disabled="record.resultDeleted" @click="checkExecuteResult(record)">
+          {{ t('ms.taskCenter.executeResult') }}
+        </MsButton>
+      </a-tooltip>
     </template>
   </ms-base-table>
   <caseExecuteResultDrawer
@@ -116,7 +122,7 @@
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import MsCascader from '@/components/business/ms-cascader/index.vue';
   import execStatus from './execStatus.vue';
-  import executionStatus from './executionStatus.vue';
+  import executeResultStatus from './executeResultStatus.vue';
 
   import {
     getOrganizationExecuteTaskDetailList,

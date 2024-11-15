@@ -94,7 +94,7 @@
       :content-tab-list="tabList"
       :change-interceptor="changeTabInterceptor"
       no-content
-      class="relative mx-[16px] border-b"
+      class="relative mx-[16px]"
     />
   </MsCard>
   <MsCard class="mt-[16px]" simple has-breadcrumb no-content-padding>

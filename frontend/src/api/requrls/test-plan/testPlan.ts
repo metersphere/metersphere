@@ -188,3 +188,5 @@ export const BatchAddBugToCaseUrl = '/test-plan/functional/case/batch/add-bug';
 export const BatchAssociatedBugToMinderCaseUrl = '/test-plan/functional/case/minder/batch/associate-bug';
 // 测试计划-详情-用例列表-脑图批量新建缺陷
 export const BatchAddBugToMinderCaseUrl = '/test-plan/functional/case/minder/batch/add-bug';
+// 测试计划/组-执行结果
+export const TaskResultUrl = '/test-plan/report/get-task';

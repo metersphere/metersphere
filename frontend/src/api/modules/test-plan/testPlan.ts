@@ -82,6 +82,7 @@ import {
   SortApiCaseUrl,
   SortApiScenarioUrl,
   SortFeatureCaseUrl,
+  TaskResultUrl,
   TestPlanAndGroupCopyUrl,
   TestPlanApiAssociatedPageUrl,
   TestPlanAssociateBugUrl,
@@ -127,6 +128,7 @@ import type {
   PlanDetailExecuteHistoryItem,
   PlanDetailFeatureCaseItem,
   PlanDetailFeatureCaseListQueryParams,
+  PlanExecuteResult,
   PlanMinderEditParams,
   PlanMinderNode,
   RunFeatureCaseParams,
@@ -521,4 +523,9 @@ export function batchAssociatedBugToMinderCase(data: TableQueryParams) {
 // 测试计划-详情-脑图批量新建缺陷
 export function batchAddBugToMinderCase(data: { request: BugEditFormObject; fileList: File[] }) {
   return MSR.uploadFile({ url: BatchAddBugToMinderCaseUrl }, data, '', true);
+}
+
+// 测试计划/组-执行结果
+export function getTaskResult(id: string) {
+  return MSR.get<PlanExecuteResult>({ url: `${TaskResultUrl}/${id}` });
 }

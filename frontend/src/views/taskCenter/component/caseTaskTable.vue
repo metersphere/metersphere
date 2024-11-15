@@ -36,10 +36,10 @@
       <execStatus :status="filterContent.value" />
     </template>
     <template #result="{ record }">
-      <executionStatus :status="record.result" />
+      <executeResultStatus :status="record.result" />
     </template>
     <template #[FilterSlotNameEnum.GLOBAL_TASK_CENTER_EXEC_RESULT]="{ filterContent }">
-      <executionStatus :status="filterContent.value" />
+      <executeResultStatus :status="filterContent.value" />
     </template>
     <template #triggerMode="{ record }">
       {{ t(executeMethodMap[record.triggerMode]) }}
@@ -127,7 +127,7 @@
   import batchTaskReportDrawer from './batchTaskReportDrawer.vue';
   import execStatus from './execStatus.vue';
   import executeRatePopper from './executeRatePopper.vue';
-  import executionStatus from './executionStatus.vue';
+  import executeResultStatus from './executeResultStatus.vue';
   import CaseReportDrawer from '@/views/api-test/report/component/caseReportDrawer.vue';
   import ReportDetailDrawer from '@/views/api-test/report/component/reportDetailDrawer.vue';
 

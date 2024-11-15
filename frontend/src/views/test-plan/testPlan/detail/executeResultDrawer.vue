@@ -5,7 +5,7 @@
         <a-tag :color="executeResultMap[props.planDetail.execResult]?.color">
           {{ t(executeResultMap[props.planDetail.execResult]?.label || '-') }}
         </a-tag>
-        <div class="one-line-text flex-1">{{ detail.name }}</div>
+        <div class="one-line-text flex-1">{{ detail.taskName }}</div>
       </div>
       <div class="flex justify-end">
         <MsButton type="icon" status="secondary" class="!rounded-[var(--border-radius-small)]" @click="init">
@@ -15,23 +15,22 @@
       </div>
     </template>
     <a-spin :loading="loading" class="block min-h-[200px]">
-      <MsDescription :descriptions="detail.description" :column="3" :line-gap="8" one-line-value>
+      <MsDescription :descriptions="detail.description" :column="2" :line-gap="8" one-line-value>
         <template #value="{ item }">
-          <execStatus
-            v-if="item.key === 'status'"
-            :status="props.planDetail.execResult as unknown as ExecuteStatusEnum"
-            size="small"
-          />
+          <execStatus v-if="item.key === 'status'" :status="props.planDetail.execResult" size="small" />
           <a-select
             v-else-if="item.key === 'testPlan'"
             v-model:model-value="activePlan"
             :options="testPlanGroups"
+            size="small"
+            @change="searchList"
           ></a-select>
           <executeRatePopper
             v-else-if="item.key === 'rate'"
             v-model:visible="executeRateVisible"
             v-model:record="detail"
-            :execute-task-statistics-request="fakeStatisticsRequest"
+            :execute-case-count="detail.executeCaseCount"
+            class="inline-block"
           />
           <a-tooltip
             v-else
@@ -46,7 +45,13 @@
         </template>
       </MsDescription>
       <div class="flex items-center justify-between">
-        <MsTab v-model:active-key="activeTable" :content-tab-list="contentTabList" :show-badge="false" />
+        <MsTab
+          v-model:active-key="activeTable"
+          :content-tab-list="contentTabList"
+          :show-badge="false"
+          class="no-content"
+          @change="searchList"
+        />
         <a-input-search
           v-model:model-value="keyword"
           :placeholder="t('report.detail.caseDetailSearchPlaceholder')"
@@ -89,6 +94,7 @@
     </a-spin>
   </MsDrawer>
   <CaseAndScenarioReportDrawer
+    v-if="reportVisible"
     v-model:visible="reportVisible"
     :report-id="apiReportId"
     do-not-show-share
@@ -99,6 +105,7 @@
 </template>
 
 <script setup lang="ts">
+  import { SelectOptionData } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -110,12 +117,10 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
-  import CaseAndScenarioReportDrawer from '@/views/api-test/components/caseAndScenarioReportDrawer.vue';
   import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import execStatus from '@/views/taskCenter/component/execStatus.vue';
   import executeRatePopper from '@/views/taskCenter/component/executeRatePopper.vue';
 
-  import { getCaseTaskReport } from '@/api/modules/api-test/report';
   import {
     getApiPage,
     getScenarioPage,
@@ -124,6 +129,7 @@
     reportScenarioDetail,
     reportStepDetail,
   } from '@/api/modules/test-plan/report';
+  import { getTaskResult } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
 
@@ -132,10 +138,13 @@
   import { ReportEnum } from '@/enums/reportEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
-  import { ExecuteStatusEnum } from '@/enums/taskCenter';
 
   import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
   import { executeResultMap, executeStatusMap } from '@/views/taskCenter/component/config';
+
+  const CaseAndScenarioReportDrawer = defineAsyncComponent(
+    () => import('@/views/api-test/components/caseAndScenarioReportDrawer.vue')
+  );
 
   const props = defineProps<{
     planDetail: PlanDetailExecuteHistoryItem;
@@ -147,72 +156,9 @@
   const visible = defineModel<boolean>('visible', { required: true });
   const loading = ref(false);
   const detail = ref<any>({ description: [] });
-  const testPlanGroups = ref<any[]>([]);
+  const testPlanGroups = ref<SelectOptionData[]>([]);
   const executeRateVisible = ref(false);
-
-  async function fakeStatisticsRequest() {
-    return Promise.resolve([]);
-  }
-
-  async function init() {
-    try {
-      loading.value = true;
-      const res = await getCaseTaskReport(props.planDetail.id);
-      const { apiReportDetailDTOList } = res;
-      const [caseDetail] = apiReportDetailDTOList;
-      detail.value = {
-        name: caseDetail?.requestName,
-        description: [
-          {
-            label: t('ms.taskCenter.executeStatus'),
-            key: 'status',
-            value: t(executeStatusMap[res.status].label),
-          },
-          {
-            label: t('ms.taskCenter.taskCreateTime'),
-            value: res.createTime ? dayjs(res.createTime).format('YYYY-MM-DD HH:mm:ss') : '-',
-          },
-          {
-            label: t('ms.taskCenter.operationUser'),
-            value: props.planDetail.operationUser,
-          },
-          {
-            label: t('ms.taskCenter.taskStartTime'),
-            value: res.startTime ? dayjs(res.startTime).format('YYYY-MM-DD HH:mm:ss') : '-',
-          },
-          {
-            label: t('ms.taskCenter.executeFinishedRate'),
-            key: 'rate',
-            value: res.result,
-          },
-          {
-            label: t('ms.taskCenter.taskEndTime'),
-            value: res.endTime ? dayjs(res.endTime).format('YYYY-MM-DD HH:mm:ss') : '-',
-          },
-          {
-            label: t('menu.testPlan'),
-            key: 'testPlan',
-            value: '',
-          },
-        ] as Description[],
-      };
-      testPlanGroups.value = [
-        {
-          id: '1',
-          name: 'A',
-        },
-        {
-          id: '2',
-          name: 'B',
-        },
-      ];
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      loading.value = false;
-    }
-  }
+  const activePlan = ref('');
 
   const columns: MsTableColumn = [
     {
@@ -263,7 +209,6 @@
     },
   ];
 
-  const activePlan = ref('1');
   const activeTable = ref<'case' | 'scenario'>('case');
   const contentTabList = [
     { value: 'case', label: t('report.detail.apiCaseDetails') },
@@ -311,22 +256,82 @@
   }
 
   function searchList() {
-    currentCaseTable.value.setLoadListParams({ keyword: keyword.value });
+    currentCaseTable.value.setLoadListParams({
+      keyword: keyword.value,
+      reportId: detail.value.reportId,
+      planId: activePlan.value || detail.value.id,
+    });
     currentCaseTable.value.loadList();
   }
 
   // 去用例详情页面
-  function toDetail(record: PlanDetailExecuteHistoryItem) {
+  function toDetail(record: ApiOrScenarioCaseItem) {
     if (activeTable.value === 'scenario') {
       openNewPage(ApiTestRouteEnum.API_TEST_SCENARIO, {
         id: record.id,
-        pId: record.id,
+        pId: record.projectId,
       });
     } else {
       openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
         cId: record.id,
-        pId: record.id,
+        pId: record.projectId,
       });
+    }
+  }
+
+  async function init() {
+    try {
+      loading.value = true;
+      const res = await getTaskResult(props.planDetail.id);
+      detail.value = {
+        description: [
+          {
+            label: t('ms.taskCenter.executeStatus'),
+            key: 'status',
+            value: t(executeStatusMap[res.status].label),
+          },
+          {
+            label: t('ms.taskCenter.taskCreateTime'),
+            value: res.createTime ? dayjs(res.createTime).format('YYYY-MM-DD HH:mm:ss') : '-',
+          },
+          {
+            label: t('ms.taskCenter.operationUser'),
+            value: res.createUser,
+          },
+          {
+            label: t('ms.taskCenter.taskStartTime'),
+            value: res.startTime ? dayjs(res.startTime).format('YYYY-MM-DD HH:mm:ss') : '-',
+          },
+          {
+            label: t('ms.taskCenter.executeFinishedRate'),
+            key: 'rate',
+            value: res.result,
+          },
+          {
+            label: t('ms.taskCenter.taskEndTime'),
+            value: res.endTime ? dayjs(res.endTime).format('YYYY-MM-DD HH:mm:ss') : '-',
+          },
+        ] as Description[],
+        ...res,
+      };
+      if (res.childPlans.length) {
+        detail.value.description.push({
+          label: t('testPlan.testPlanIndex.testPlan'),
+          key: 'testPlan',
+          value: '',
+        });
+        testPlanGroups.value = res.childPlans.map((item) => ({
+          value: item.id,
+          label: item.name,
+        }));
+        activePlan.value = res.childPlans[0]?.id;
+      }
+      searchList();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
     }
   }
 
