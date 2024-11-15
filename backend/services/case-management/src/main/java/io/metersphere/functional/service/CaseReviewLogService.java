@@ -1,29 +1,22 @@
 package io.metersphere.functional.service;
 
-import io.metersphere.functional.domain.CaseReview;
-import io.metersphere.functional.domain.CaseReviewFunctionalCase;
-import io.metersphere.functional.domain.FunctionalCase;
-import io.metersphere.functional.domain.FunctionalCaseExample;
+import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
-import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
-import io.metersphere.functional.mapper.CaseReviewMapper;
-import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
-import io.metersphere.functional.mapper.FunctionalCaseMapper;
-import io.metersphere.functional.request.BaseAssociateCaseRequest;
-import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
-import io.metersphere.functional.request.CaseReviewAssociateRequest;
-import io.metersphere.functional.request.CaseReviewRequest;
+import io.metersphere.functional.mapper.*;
+import io.metersphere.functional.request.*;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.builder.LogDTOBuilder;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +32,9 @@ public class CaseReviewLogService {
 
     @Resource
     private CaseReviewMapper caseReviewMapper;
+
+    @Resource
+    private ExtCaseReviewMapper extCaseReviewMapper;
 
     @Resource
     private FunctionalCaseMapper functionalCaseMapper;
@@ -124,6 +120,32 @@ public class CaseReviewLogService {
         dto.setOriginalValue(JSON.toJSONBytes(caseReview));
         return dto;
     }
+    /**
+     * 排序更新用例评审 日志
+     *
+     * @param request 页面参数
+     * @return LogDTO
+     */
+    public LogDTO updateCaseReviewLogByPos(PosRequest request) {
+        CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(request.getTargetId());
+        if (caseReview == null) {
+            return null;
+        }
+        LogDTO dto = new LogDTO(
+                caseReview.getProjectId(),
+                null,
+                caseReview.getId(),
+                caseReview.getCreateUser(),
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.CASE_MANAGEMENT_REVIEW_REVIEW,
+                caseReview.getName());
+
+        dto.setPath("/case/edit/pos");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setOriginalValue(JSON.toJSONBytes(caseReview));
+        return dto;
+    }
+
 
     /**
      * 删除用例 日志
@@ -238,6 +260,39 @@ public class CaseReviewLogService {
         return dtoList;
     }
 
+    /**
+     * 移动更新用例评审
+     * @param request
+     * @return
+     */
+    public List<LogDTO> updateBatchCaseReviewLog(CaseReviewBatchRequest request) {
+        if (StringUtils.isBlank(request.getMoveModuleId())) {
+           return new ArrayList<>();
+        }
+        List<String> ids = doSelectReviewIds(request);
+        List<LogDTO> dtoList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            CaseReviewExample caseReviewExample = new CaseReviewExample();
+            caseReviewExample.createCriteria().andIdIn(ids);
+            List<CaseReview> caseReviews = caseReviewMapper.selectByExample(caseReviewExample);
+            caseReviews.forEach(caseReview -> {
+                LogDTO dto = new LogDTO(
+                        caseReview.getProjectId(),
+                        null,
+                        caseReview.getId(),
+                        caseReview.getCreateUser(),
+                        OperationLogType.UPDATE.name(),
+                        OperationLogModule.CASE_MANAGEMENT_REVIEW_REVIEW,
+                        caseReview.getName());
+
+                dto.setPath("/case/batch/move");
+                dto.setMethod(HttpMethodConstants.POST.name());
+                dtoList.add(dto);
+            });
+        }
+        return dtoList;
+    }
+
     public <T> List<String> doSelectIds(T dto, String projectId) {
         BaseFunctionalCaseBatchDTO request = (BaseFunctionalCaseBatchDTO) dto;
         if (request.isSelectAll()) {
@@ -250,6 +305,20 @@ public class CaseReviewLogService {
             return request.getSelectIds();
         }
     }
+
+    public List<String>doSelectReviewIds(CaseReviewBatchRequest request) {
+        List<String> ids;
+        if (request.isSelectAll()) {
+            ids = extCaseReviewMapper.getIds(request, request.getProjectId());
+            if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+        } else {
+            ids = request.getSelectIds();
+        }
+        return ids;
+    }
+
 
     public void createCaseAndAssociateLog(CaseReview caseReview, FunctionalCase functionalCase, String userId) {
         Project project = projectMapper.selectByPrimaryKey(caseReview.getProjectId());

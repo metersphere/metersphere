@@ -128,6 +128,7 @@ public class CaseReviewController {
     @Operation(summary = "用例管理-用例评审-拖拽排序")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateCaseReviewLogByPos(#request)", msClass = CaseReviewLogService.class)
     public void editPos(@Validated @RequestBody PosRequest request) {
         caseReviewService.editPos(request);
     }
@@ -144,6 +145,7 @@ public class CaseReviewController {
     @Operation(summary = "用例管理-用例评审-批量移动用例评审")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "case_review")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateBatchCaseReviewLog(#request)", msClass = CaseReviewLogService.class)
     public void batchMoveCaseReview(@Validated @RequestBody CaseReviewBatchRequest request) {
         caseReviewService.batchMoveCaseReview(request, SessionUtils.getUserId());
     }
