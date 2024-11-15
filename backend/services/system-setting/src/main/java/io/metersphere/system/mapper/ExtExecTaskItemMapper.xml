@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.ExtExecTaskItemMapper">
     <select id="selectList" resultType="io.metersphere.system.dto.taskhub.TaskHubItemDTO">
-        SELECT exec_task_item.*, exec_task.num, exec_task.task_name, exec_task.trigger_mode
+        SELECT exec_task_item.*, exec_task.num, exec_task.task_name, exec_task.trigger_mode, exec_task.integrated
         FROM exec_task_item
         inner join exec_task on exec_task_item.task_id = exec_task.id
         <include refid="queryWhereCondition"/>

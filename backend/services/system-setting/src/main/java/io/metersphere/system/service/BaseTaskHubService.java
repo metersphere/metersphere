@@ -215,9 +215,11 @@ public class BaseTaskHubService {
         reportTasks.forEach(task -> {
             if (integratedTaskIds.contains(task.getId())) {
                 task.setReportId(reportMap.get(task.getId()));
+                task.setResultDeleted(false);
             } else {
                 if (taskItemMap.containsKey(task.getId())) {
                     task.setReportId(reportMap.get(taskItemMap.get(task.getId())));
+                    task.setResultDeleted(false);
                 }
             }
         });
@@ -376,6 +378,34 @@ public class BaseTaskHubService {
                 item.setErrorMessage(Translator.get("task_error_message." + item.getErrorMessage().toLowerCase()));
             }
         });
+        handleResultFlag(list);
+    }
+
+    /**
+     * 处理执行结果是否被删除标识
+     *
+     * @param list
+     */
+    private void handleResultFlag(List<TaskHubItemDTO> list) {
+        List<String> integratedTaskIds = list.stream().filter(item -> BooleanUtils.isTrue(item.getIntegrated())).map(TaskHubItemDTO::getTaskId).toList();
+        List<String> noIntegratedTaskItemIds = list.stream().filter(item -> BooleanUtils.isFalse(item.getIntegrated())).map(TaskHubItemDTO::getId).toList();
+        List<String> resourceIds = ListUtils.union(integratedTaskIds, noIntegratedTaskItemIds);
+        if (CollectionUtils.isEmpty(resourceIds)) {
+            return;
+        }
+        ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
+        example.createCriteria().andTaskResourceIdIn(resourceIds);
+        List<ApiReportRelateTask> reportRelateTasks = apiReportRelateTaskMapper.selectByExample(example);
+        Map<String, String> reportMap = reportRelateTasks.stream().collect(Collectors.toMap(ApiReportRelateTask::getTaskResourceId, ApiReportRelateTask::getReportId));
+        list.forEach(task -> {
+            if (BooleanUtils.isTrue(task.getIntegrated()) && reportMap.containsKey(task.getTaskId())) {
+                task.setResultDeleted(false);
+            }
+            if (BooleanUtils.isFalse(task.getIntegrated()) && reportMap.containsKey(task.getId())) {
+                task.setResultDeleted(false);
+            }
+        });
+
     }
 
     private Map<String, String> getResourcePoolMaps(List<String> resourcePoolIds) {

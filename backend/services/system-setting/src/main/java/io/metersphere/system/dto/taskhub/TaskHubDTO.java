@@ -24,4 +24,7 @@ public class TaskHubDTO extends ExecTask {
     @Schema(description = "报告ID")
     private String reportId;
 
+    @Schema(description = "结果是否被删除")
+    private Boolean resultDeleted = true;
+
 }

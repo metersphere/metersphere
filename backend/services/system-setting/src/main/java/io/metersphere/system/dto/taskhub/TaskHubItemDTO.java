@@ -39,4 +39,10 @@ public class TaskHubItemDTO extends ExecTaskItem {
 
     @Schema(description = "错误信息")
     private String errorMessage;
+
+    @Schema(description = "是否集合报告")
+    private Boolean integrated;
+
+    @Schema(description = "结果是否被删除")
+    private Boolean resultDeleted = true;
 }
