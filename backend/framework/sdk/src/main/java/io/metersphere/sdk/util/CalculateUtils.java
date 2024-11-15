@@ -6,6 +6,9 @@ public class CalculateUtils {
 
     // 报告所需的百分比计算
     public static String reportPercentage(int numerator, int denominator) {
+        if (denominator == 0) {
+            return "0.00%";
+        }
         DecimalFormat rateFormat = new DecimalFormat("#0.00");
         rateFormat.setMinimumFractionDigits(2);
         rateFormat.setMaximumFractionDigits(2);
