@@ -328,11 +328,19 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
         List<String> reviewIds = deletedCaseReviewFunctionalCases.stream().map(CaseReviewFunctionalCase::getReviewId).distinct().toList();
         //获取与选中case无关的关联关系
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getListExcludes(reviewIds, caseIdList, false);
-        Map<String, List<CaseReviewFunctionalCase>> reviewIdMap = caseReviewFunctionalCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getReviewId));
-        reviewIdMap.forEach((reviewId, caseReviewFunctionalCaseList) -> {
-            Map<String, Integer> caseCountMap = getCaseCountMap(caseReviewFunctionalCaseList);
-            updateCaseReview(reviewId, caseReviewFunctionalCaseList.size(), caseCountMap, paramMap.get(CaseEvent.Param.USER_ID).toString());
-        });
+        if (CollectionUtils.isEmpty(caseReviewFunctionalCases)) {
+            for (String reviewId : reviewIds) {
+                Map<String, Integer> caseCountMap = getCaseCountMap(caseReviewFunctionalCases);
+                updateCaseReview(reviewId, caseReviewFunctionalCases.size(), caseCountMap, paramMap.get(CaseEvent.Param.USER_ID).toString());
+            }
+        } else {
+            Map<String, List<CaseReviewFunctionalCase>> reviewIdMap = caseReviewFunctionalCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getReviewId));
+            reviewIdMap.forEach((reviewId, caseReviewFunctionalCaseList) -> {
+                Map<String, Integer> caseCountMap = getCaseCountMap(caseReviewFunctionalCaseList);
+                updateCaseReview(reviewId, caseReviewFunctionalCaseList.size(), caseCountMap, paramMap.get(CaseEvent.Param.USER_ID).toString());
+            });
+        }
+
         return false;
     }
 
