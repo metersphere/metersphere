@@ -131,7 +131,7 @@ public class ApiScenarioControllerImportAndExportTests extends BaseTest {
         this.requestMultipartWithOkAndReturn(URL_POST_IMPORT, paramMap);
 
         ApiScenarioExample example = new ApiScenarioExample();
-        example.createCriteria().andProjectIdEqualTo(project.getId()).andNameEqualTo("simple.har").andDeletedEqualTo(false);
+        example.createCriteria().andProjectIdEqualTo(project.getId()).andNameEqualTo("simple").andDeletedEqualTo(false);
         ApiScenario scenario = apiScenarioMapper.selectByExample(example).getFirst();
         ApiScenarioDetail detail = apiScenarioService.get(scenario.getId());
         Assertions.assertEquals(detail.getSteps().size(), 4);

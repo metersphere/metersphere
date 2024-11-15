@@ -116,7 +116,7 @@ public class HarParserApiScenario implements ApiScenarioImportParser {
             apiScenarioStep.setId(IDGenerator.nextStr());
             apiScenarioStep.setProjectId(projectId);
             apiScenarioStep.setOriginProjectId(projectId);
-            apiScenarioStep.setName(msTestElement.getName());
+            apiScenarioStep.setName(this.parseName(msTestElement.getName()));
             apiScenarioStep.setUniqueId(IDGenerator.nextStr());
             msTestElement.setStepId(apiScenarioStep.getId());
             msTestElement.setProjectId(apiScenarioStep.getProjectId());
@@ -131,6 +131,17 @@ public class HarParserApiScenario implements ApiScenarioImportParser {
             }
         }
         return parseResult;
+    }
+
+    private String parseName(String name) {
+        if (StringUtils.isBlank(name)) {
+            return StringUtils.EMPTY;
+        }
+        if (name.length() > 253) {
+            return name.substring(0, 200) + "...";
+        } else {
+            return name;
+        }
     }
 }
 

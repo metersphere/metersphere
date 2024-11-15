@@ -189,7 +189,7 @@ public class ApiScenarioDataTransferService {
             if (StringUtils.equalsIgnoreCase(request.getType(), ApiImportPlatform.Har.name())) {
                 // har文件里的所有请求都会导入场景中。场景的名称为文件名
                 if (CollectionUtils.isNotEmpty(parseResult.getImportScenarioList())) {
-                    parseResult.getImportScenarioList().forEach(t -> t.setName(file.getOriginalFilename()));
+                    parseResult.getImportScenarioList().forEach(t -> t.setName(Objects.requireNonNull(file.getOriginalFilename()).substring(0, file.getOriginalFilename().lastIndexOf("."))));
                 }
             }
         } catch (Exception e) {
