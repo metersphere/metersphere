@@ -107,7 +107,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useSelect from '@/hooks/useSelect';
-  import { findNodeByKey } from '@/utils';
+  import { findNodeByKey, mapTree } from '@/utils';
 
   import type { TreeFieldNames, TreeNodeData } from '@arco-design/web-vue';
 
@@ -138,16 +138,13 @@
   const { selectedModulesMaps, checkedKeys, halfCheckedKeys, selectParent, checkNode, clearSelector } =
     useTreeSelection(selectedModuleProps.value);
 
-  /**
-   * 设置子节点的属性值
-   * @param trees 属性数组
-   * @param targetKey 需要匹配的属性值
-   */
-  function updateChildNodesState(node: MsTreeNodeData, targetKey: keyof MsTreeNodeData, state: boolean) {
+  // 设置子节点的 containChildModule 和 disabled 属性值
+  function updateChildNodesState(node: MsTreeNodeData, state: boolean) {
     if (node.children) {
       node.children.forEach((child: MsTreeNodeData) => {
-        child[targetKey] = state;
-        updateChildNodesState(child, targetKey, state);
+        child.containChildModule = state;
+        child.disabled = state;
+        updateChildNodesState(child, state);
       });
     }
   }
@@ -159,14 +156,12 @@
       if (checkedNodes.checked) {
         // 父级勾选，且父级“包含新增子模块”勾选，那么下面所有子级：禁用和勾选“包含新增子模块”
         if (realNode.containChildModule) {
-          updateChildNodesState(realNode, 'containChildModule', true);
-          updateChildNodesState(realNode, 'disabled', true);
+          updateChildNodesState(realNode, true);
         }
       } else {
         // 父级取消勾选，父级和所有子级“包含新增子模块”取消勾选，所有子级取消禁用
         realNode.containChildModule = false;
-        updateChildNodesState(realNode, 'containChildModule', false);
-        updateChildNodesState(realNode, 'disabled', false);
+        updateChildNodesState(realNode, false);
       }
     }
     checkNode(_checkedKeys, checkedNodes);
@@ -312,6 +307,15 @@
     }
   }
   function handleClear() {
+    if (props.showContainChildModule) {
+      treeData.value = mapTree<TreeNodeData>(treeData.value, (node) => {
+        return {
+          ...node,
+          containChildModule: false,
+          disabled: false,
+        };
+      });
+    }
     tempInputValue.value = '';
     clearSelector();
   }

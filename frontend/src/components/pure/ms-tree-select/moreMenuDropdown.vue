@@ -3,7 +3,7 @@
     v-model:popup-visible="visible"
     class="contain-child-dropdown"
     position="br"
-    trigger="click"
+    :trigger="['click', 'hover']"
     :hide-on-select="false"
   >
     <div :class="['ms-more-action-trigger-content', visible ? 'ms-more-action-trigger-content--focus' : '']">
@@ -13,13 +13,7 @@
     </div>
     <template #content>
       <a-doption>
-        <a-checkbox
-          v-model="containChildModule"
-          @change="
-            (containChildModule: boolean | (string | number | boolean)[]) =>
-              emit('handleContainChildModule', containChildModule as boolean)
-          "
-        >
+        <a-checkbox v-model="containChildModule" @change="handleContainChildModule">
           {{ t('project.environmental.http.containChildModule') }}
         </a-checkbox>
         <a-tooltip :content="t('project.environmental.http.containChildModuleTip')" position="br">
@@ -48,6 +42,10 @@
 
   const visible = ref(false);
   const containChildModule = defineModel<boolean>('containChildModule', { required: false, default: false });
+
+  function handleContainChildModule(val: boolean | (string | number | boolean)[]) {
+    emit('handleContainChildModule', val as boolean);
+  }
 
   watch(
     () => visible.value,

@@ -554,6 +554,7 @@
           }
         }
         .arco-tree-node-title-block {
+          overflow: hidden; // 防止 ms-tree-node-extra 里换行
           width: 60%;
         }
         .ms-tree-node-extra {
