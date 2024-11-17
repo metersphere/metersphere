@@ -24,6 +24,7 @@ export enum FilterType {
   TREE_SELECT = 'TreeSelect',
   TEXTAREA = 'textArea',
   BOOLEAN = 'boolean',
+  CASCADER = 'Cascader',
 }
 
 export enum ViewTypeEnum {

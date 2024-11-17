@@ -36,6 +36,7 @@ export const operatorOptionsMap: Record<string, { value: string; label: string }
   [FilterType.TEXTAREA]: COMMON_TEXT_OPERATORS,
   [FilterType.NUMBER]: [GT, LT, EQUAL, EMPTY, NOT_EMPTY],
   [FilterType.SELECT]: COMMON_SELECTION_OPERATORS,
+  [FilterType.CASCADER]: COMMON_SELECTION_OPERATORS,
   [FilterType.BOOLEAN]: [EQUAL],
   [FilterType.MEMBER]: COMMON_SELECTION_OPERATORS,
   [FilterType.TAGS_INPUT]: [EMPTY, CONTAINS, NO_CONTAINS, COUNT_LT, COUNT_GT],
@@ -78,6 +79,11 @@ const baseSelectProps = {
 export const CustomTypeMaps: Record<string, any> = {
   INPUT: {
     type: 'INPUT',
+  },
+  CASCADER: {
+    type: 'CASCADER',
+    propsKey: 'cascaderProps',
+    props: { multiple: true, valueKey: 'value', labelKey: 'text', options: [] },
   },
   SELECT: {
     type: 'SELECT',

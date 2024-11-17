@@ -136,6 +136,19 @@
             :placeholder="t('common.pleaseSelect')"
             :field-names="item.treeSelectProps?.fieldNames"
           />
+          <MsCascader
+            v-else-if="item.type === FilterType.CASCADER"
+            v-model:model-value="item.value"
+            :options="item.cascaderProps?.options || []"
+            mode="native"
+            option-size="small"
+            strictly
+            label-path-mode
+            v-bind="item.cascaderProps"
+            :placeholder="t('common.pleaseSelect')"
+            :disabled="isValueDisabled(item)"
+            :virtual-list-props="{ height: 200 }"
+          />
           <a-date-picker
             v-else-if="item.type === FilterType.DATE_PICKER && item.operator !== OperatorEnum.BETWEEN"
             v-model:model-value="item.value"
@@ -225,6 +238,7 @@
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import MsTreeSelect from '@/components/pure/ms-tree-select/index.vue';
+  import MsCascader from '@/components/business/ms-cascader/index.vue';
   import MsSelect from '@/components/business/ms-select';
   import ViewNameInput from './components/viewNameInput.vue';
 
@@ -350,6 +364,7 @@
   function valueIsArray(listItem: FilterFormItem) {
     return (
       listItem.selectProps?.multiple ||
+      listItem.cascaderProps?.multiple ||
       (listItem.type === FilterType.TAGS_INPUT &&
         ![OperatorEnum.COUNT_LT, OperatorEnum.COUNT_GT].includes(listItem.operator as OperatorEnum)) ||
       (listItem.type === FilterType.DATE_PICKER && listItem.operator === OperatorEnum.BETWEEN)
