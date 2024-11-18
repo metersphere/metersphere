@@ -1307,6 +1307,7 @@
             await scenarioBatchEditSchedule({
               ...batchParams.value,
               projectId: appStore.currentProjectId,
+              selectIds: batchParams.value?.selectedIds || [],
               ...updateParam,
             });
           } else {

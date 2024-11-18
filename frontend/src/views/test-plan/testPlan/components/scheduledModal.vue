@@ -164,6 +164,7 @@
             await batchConfigSchedule({
               ...props.batchParams,
               ...form.value,
+              selectIds: props.batchParams.selectedIds,
               projectId: appStore.currentProjectId,
             });
           } else if (props.sourceId) {
