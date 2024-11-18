@@ -16,12 +16,12 @@
           v-model:model-value="features"
           :options="featureOptions"
           :allow-search="false"
-          allow-clear
           class="!w-[240px]"
           :prefix="t('project.messageManagement.function')"
           :multiple="true"
           :has-all-select="true"
           :default-all-select="true"
+          :at-least-one="true"
         />
         <a-button type="outline" class="arco-btn-outline--secondary p-[10px]" @click="() => handleRefresh()">
           <MsIcon type="icon-icon_reset_outlined" size="14" />

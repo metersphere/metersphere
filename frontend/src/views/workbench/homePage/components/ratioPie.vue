@@ -138,20 +138,20 @@
 
   function initOptions() {
     const { name, color } = props.rateConfig;
+    options.value.series.data = [...props.data.slice(1)];
+
+    options.value.legend.formatter = (seriousName: string) => {
+      const item = props.data.find((e) => e.name === seriousName);
+      return `{a|${seriousName}}  {b|${addCommasToNumber(item?.value || 0)}}`;
+    };
 
     if (props.hasPermission) {
-      options.value.series.data = props.data.slice(1);
-
-      options.value.legend.formatter = (seriousName: string) => {
-        const item = props.data.find((e) => e.name === seriousName);
-        return `{a|${seriousName}}  {b|${addCommasToNumber(item?.value || 0)}}`;
-      };
-
       options.value.title.subtext = `${props.data[0].value ?? 0}%`;
     } else {
       options.value.series.data = [];
       options.value.title.subtext = `-%`;
     }
+
     options.value.graphic.invisible = !!props.hasPermission;
     options.value.tooltip.show = !!props.hasPermission;
     options.value.title.text = name;
@@ -165,6 +165,13 @@
       if (val) {
         initOptions();
       }
+    }
+  );
+
+  watch(
+    () => props.hasPermission,
+    () => {
+      initOptions();
     }
   );
 

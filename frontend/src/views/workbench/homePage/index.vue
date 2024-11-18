@@ -95,7 +95,7 @@
           :type="item.key"
           :item="item"
           :status="projectLoadingStatus[item.projectIds[0]]"
-          :cover="requestResults.get(item.projectIds[0])"
+          :cover="requestResults[item.projectIds[0]]"
           @change="changeHandler"
         />
         <ApiChangeList
@@ -123,7 +123,7 @@
           v-model:projectIds="item.projectIds"
           :status="projectLoadingStatus[item.projectIds[0]]"
           :item="item"
-          :cover="requestResults.get(item.projectIds[0])"
+          :cover="requestResults[item.projectIds[0]]"
           @change="changeHandler"
         />
         <TestPlanCount
@@ -173,7 +173,7 @@
   import { sleep } from '@/utils';
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
 
-  import { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
+  import { ApiCoverageData, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
   import { WorkCardEnum } from '@/enums/workbenchEnum';
 
   const userStore = useUserStore();
@@ -235,33 +235,9 @@
   const defaultWorkList = ref<SelectedCardItem[]>([]);
 
   const showNoData = ref(false);
-  async function initDefaultList() {
-    try {
-      appStore.showLoading();
-      const result = await getDashboardLayout(appStore.currentOrgId);
-      defaultWorkList.value = result;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      if (!defaultWorkList.value.length) {
-        showNoData.value = true;
-      }
-      appStore.hideLoading();
-    }
-  }
-
-  async function changeHandler() {
-    try {
-      await editDashboardLayout(defaultWorkList.value, appStore.currentOrgId);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
 
   // 用来存储每个请求的结果，key 是项目ID
-  const requestResults = ref(new Map());
+  const requestResults = ref<Record<string, ApiCoverageData>>({});
   // 用来存储已请求过的项目
   const requestedIds = ref(new Set());
 
@@ -271,7 +247,7 @@
     try {
       projectLoadingStatus.value[projectId] = true;
       const result = await workApiCountCoverRage(projectId);
-      requestResults.value.set(projectId, result);
+      requestResults.value[projectId] = result;
       projectLoadingStatus.value[projectId] = false;
       await sleep(300);
     } catch (error) {
@@ -285,6 +261,8 @@
   // 针对项目id不重复的依次请求
   async function requestQueue() {
     requestedIds.value = new Set([]);
+    requestResults.value = {};
+
     const awaitType = [WorkCardEnum.API_COUNT, WorkCardEnum.API_CASE_COUNT, WorkCardEnum.SCENARIO_COUNT];
     const queueList = defaultWorkList.value.filter((item) => awaitType.includes(item.key));
     for (let i = 0; i < queueList.length; i++) {
@@ -297,13 +275,40 @@
     }
   }
 
-  // 刷新
-  async function handleRefresh() {
-    await initDefaultList();
-    requestQueue();
+  async function initDefaultList() {
+    if (appStore.currentOrgId) {
+      try {
+        appStore.showLoading();
+        const result = await getDashboardLayout(appStore.currentOrgId);
+        defaultWorkList.value = result;
+        requestQueue();
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      } finally {
+        if (!defaultWorkList.value.length) {
+          showNoData.value = true;
+        }
+        appStore.hideLoading();
+      }
+    }
   }
 
-  onMounted(async () => {
+  async function changeHandler() {
+    try {
+      await editDashboardLayout(defaultWorkList.value, appStore.currentOrgId);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  // 刷新
+  async function handleRefresh() {
+    initDefaultList();
+  }
+
+  onMounted(() => {
     const defaultTime = getLocalStorage(`WORK_TIME_${userStore.id}`);
     if (!defaultTime) {
       setLocalStorage(`WORK_TIME_${userStore.id}`, JSON.stringify(timeForm.value));
@@ -314,8 +319,7 @@
         rangeTime.value = [startTime, endTime];
       }
     }
-    await initDefaultList();
-    requestQueue();
+    initDefaultList();
   });
 
   const time = ref({ ...timeForm.value });

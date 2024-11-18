@@ -13,6 +13,8 @@ import type {
   PassRateDataType,
   SelectedCardItem,
   WorkHomePageDetail,
+  WorkTestPlanDetail,
+  WorkTestPlanRageDetail,
 } from '@/models/workbench/homePage';
 
 import {
@@ -45,6 +47,7 @@ import {
   WorkProOverviewDetailUrl,
   WorkReviewListUrl,
   WorkScenarioCaseCountDetailUrl,
+  WorkTestPlanRageUrl,
   WorkTodoBugListUrl,
   WorkTodoPlanListUrl,
   WorkTodoReviewListUrl,
@@ -195,6 +198,10 @@ export function workPlanLegacyBug(data: WorkHomePageDetail) {
 // 工作台-首页-接口测试覆盖率
 export function workApiCountCoverRage(projectId: string) {
   return MSR.get<ApiCoverageData>({ url: WorkApiCountCoverRateUrl, params: projectId }, { ignoreCancelToken: true });
+}
+// 工作台-首页-测试计划数量
+export function workTestPlanRage(data: WorkTestPlanDetail) {
+  return MSR.post<WorkTestPlanRageDetail>({ url: WorkTestPlanRageUrl, data }, { ignoreCancelToken: true });
 }
 
 // 待办-用例评审列表

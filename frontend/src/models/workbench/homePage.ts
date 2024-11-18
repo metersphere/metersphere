@@ -39,6 +39,24 @@ export interface WorkHomePageDetail extends TableQueryParams {
   organizationId: string;
 }
 
+export interface WorkTestPlanDetail {
+  dayNumber: number | string;
+  startTime: number | null;
+  endTime: number | null;
+  projectId: string;
+}
+export interface WorkTestPlanRageDetail {
+  unExecute: number;
+  executed: number;
+  passed: number;
+  notPassed: number;
+  finished: number;
+  running: number;
+  prepared: number;
+  archived: number;
+  errorCode: number;
+}
+
 export interface TimeFormParams {
   dayNumber: number | string;
   startTime: number;

@@ -115,7 +115,7 @@
 
   const apiCountOptions = ref({});
   const hasPermission = ref<boolean>(false);
-  function handleCoverData(detail: ApiCoverageData) {
+  async function handleCoverData(detail: ApiCoverageData) {
     const { unCoverWithApiDefinition, coverWithApiDefinition, apiCoverage } = detail;
     const coverData: {
       name: string;
@@ -139,8 +139,8 @@
       hasPermission.value,
       `${props.item.key}-cover`
     );
-    coverValueList.value = coverList;
-    coverOptions.value = covOptions;
+    coverValueList.value = [...coverList];
+    coverOptions.value = { ...covOptions };
   }
   async function initApiCountRate() {
     try {
@@ -210,6 +210,15 @@
     {
       deep: true,
       immediate: true,
+    }
+  );
+
+  watch(
+    () => hasPermission.value,
+    () => {
+      if (props.cover) {
+        handleCoverData(props.cover);
+      }
     }
   );
 

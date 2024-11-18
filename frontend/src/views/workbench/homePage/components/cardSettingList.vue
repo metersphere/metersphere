@@ -220,7 +220,7 @@
       ...item,
       children: item.children.filter(
         (child) =>
-          child.label.toLowerCase().includes(searchKeyword.value.toLowerCase()) &&
+          t(child.label).toLowerCase().includes(searchKeyword.value.toLowerCase()) &&
           !innerSelectedIds.value.includes(child.value)
       ),
     }));

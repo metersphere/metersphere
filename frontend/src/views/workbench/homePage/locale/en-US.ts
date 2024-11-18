@@ -42,6 +42,7 @@ export default {
   'workbench.homePage.associationCASE': 'Association CASE',
   'workbench.homePage.associatedScene': 'Associated scenarios',
   'workbench.homePage.pendingDefect': 'Defects for me to deal with',
+  'workbench.homePage.defectProcessingNumber': 'Statistics of defect handlers',
   'workbench.homePage.defectTotal': 'Total defect',
   'workbench.homePage.legacyDefectsNumber': 'Legacy defects number',
   'workbench.homePage.createdBugByMe': 'My created defects',

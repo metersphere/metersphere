@@ -50,10 +50,16 @@
   import PassRatePie from './passRatePie.vue';
   import TabCard from './tabCard.vue';
 
+  import { workTestPlanRage } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import type { PassRateDataType, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
+  import type {
+    SelectedCardItem,
+    TimeFormParams,
+    WorkTestPlanDetail,
+    WorkTestPlanRageDetail,
+  } from '@/models/workbench/homePage';
 
   import { handlePieData, handleUpdateTabPie } from '../utils';
 
@@ -82,33 +88,6 @@
       endTime: 0,
     })
   );
-
-  // TODO 假数据后边几个要用
-  const detail = ref<PassRateDataType>({
-    statusStatisticsMap: {
-      execute: [
-        { name: '覆盖率', count: 10 },
-        { name: '已覆盖', count: 2 },
-        { name: '未覆盖', count: 1 },
-      ],
-      pass: [
-        { name: '覆盖率', count: 10 },
-        { name: '已覆盖', count: 2 },
-        { name: '未覆盖', count: 1 },
-      ],
-      complete: [
-        { name: '覆盖率', count: 10 },
-        { name: '已覆盖', count: 2 },
-        { name: '未覆盖', count: 1 },
-      ],
-    },
-    statusPercentList: [
-      { status: 'HTTP', count: 1, percentValue: '10%' },
-      { status: 'TCP', count: 3, percentValue: '0%' },
-      { status: 'BBB', count: 6, percentValue: '0%' },
-    ],
-    errorCode: 109001,
-  });
 
   const executionOptions = ref<Record<string, any>>({});
   const passOptions = ref<Record<string, any>>({});
@@ -146,42 +125,112 @@
   });
 
   const testPlanCountOptions = ref({});
+  // 测试计划权限
   const hasPermission = ref<boolean>(false);
   async function initTestPlanCount() {
     try {
       const { startTime, endTime, dayNumber } = timeForm.value;
-      const params = {
-        current: 1,
-        pageSize: 5,
+      const params: WorkTestPlanDetail = {
         startTime: dayNumber ? null : startTime,
         endTime: dayNumber ? null : endTime,
         dayNumber: dayNumber ?? null,
-        projectIds: innerProjectIds.value,
-        organizationId: appStore.currentOrgId,
-        handleUsers: [],
+        projectId: innerProjectIds.value[0],
       };
-      const { statusStatisticsMap, statusPercentList, errorCode } = detail.value;
-
+      const detail: WorkTestPlanRageDetail = await workTestPlanRage(params);
+      const { unExecute, executed, passed, notPassed, finished, running, prepared, archived, errorCode } = detail;
       hasPermission.value = errorCode !== 109001;
-      testPlanCountOptions.value = handlePieData(props.item.key, hasPermission.value, statusPercentList);
+
+      const executeRate =
+        executed + unExecute > 0 ? parseFloat(((executed / (executed + unExecute)) * 100).toFixed(2)) : 0;
+      const executeData: {
+        name: string;
+        count: number;
+      }[] = [
+        {
+          name: t('workbench.homePage.executeRate'),
+          count: executeRate,
+        },
+        {
+          name: t('common.unExecute'),
+          count: unExecute,
+        },
+        {
+          name: t('common.executed'),
+          count: executed,
+        },
+      ];
+
+      const passRate = passed + notPassed > 0 ? parseFloat(((passed / (passed + notPassed)) * 100).toFixed(2)) : 0;
+
+      const passData = [
+        {
+          name: t('workbench.homePage.passRate'),
+          count: passRate,
+        },
+        {
+          name: t('workbench.homePage.havePassed'),
+          count: passed,
+        },
+        {
+          name: t('workbench.homePage.notPass'),
+          count: notPassed,
+        },
+      ];
+
+      const statusPercentList = [
+        { status: t('common.notStarted'), count: prepared, percentValue: '0%' },
+        { status: t('common.inProgress'), count: running, percentValue: '0%' },
+        { status: t('common.completed'), count: finished, percentValue: '0%' },
+        { status: t('common.archived'), count: archived, percentValue: '0%' },
+      ];
+
+      const total = statusPercentList.reduce((sum, item) => sum + item.count, 0);
+
+      const listStatusPercentList = statusPercentList.map((item) => ({
+        ...item,
+        percentValue: total > 0 ? `${((item.count / total) * 100).toFixed(2)}%` : '0%',
+      }));
+
+      const completeRate = total > 0 ? parseFloat(((finished / total) * 100).toFixed(2)) : 0;
+
+      const completeData = [
+        {
+          name: t('workbench.homePage.completeRate'),
+          count: completeRate,
+        },
+        {
+          name: t('common.completed'),
+          count: finished,
+        },
+        {
+          name: t('common.inProgress'),
+          count: running,
+        },
+        {
+          name: t('common.notStarted'),
+          count: prepared,
+        },
+      ];
+
+      testPlanCountOptions.value = handlePieData(props.item.key, hasPermission.value, listStatusPercentList);
 
       // 执行率
       const { options: executedOptions, valueList: executedList } = handleUpdateTabPie(
-        statusStatisticsMap?.execute || [],
+        executeData,
         hasPermission.value,
         `${props.item.key}-execute`
       );
 
       // 通过率
       const { options: passedOptions, valueList: passList } = handleUpdateTabPie(
-        statusStatisticsMap?.pass || [],
+        passData,
         hasPermission.value,
         `${props.item.key}-pass`
       );
 
       // 完成率
       const { options: comOptions, valueList: completeList } = handleUpdateTabPie(
-        statusStatisticsMap?.complete || [],
+        completeData,
         hasPermission.value,
         `${props.item.key}-complete`
       );

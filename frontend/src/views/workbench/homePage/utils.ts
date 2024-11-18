@@ -446,6 +446,7 @@ export function handlePieData(
   options.title.subtext = addCommasToNumber(totalCount);
   if (!hasPermission) {
     options.title.subtext = '-';
+    options.series.data = [];
   }
 
   // 设置图例的格式化函数，显示百分比

@@ -30,3 +30,4 @@ export const WorkBugByMeCreatedUrl = '/dashboard/create_bug_by_me'; // 工作台
 export const WorkBugHandleByMeUrl = '/dashboard/handle_bug_by_me'; // 工作台-首页-待我处理的缺陷
 export const WorkPlanLegacyBugUrl = '/dashboard/plan_legacy_bug'; // 工作台-首页-测试计划遗留缺陷
 export const WorkApiCountCoverRateUrl = '/api/definition/rage'; // 工作台-首页-覆盖率
+export const WorkTestPlanRageUrl = '/test-plan/rage'; // 工作台-首页-测试计划数

@@ -42,7 +42,7 @@ export default {
   'workbench.homePage.associationCASE': '关联CASE',
   'workbench.homePage.associatedScene': '关联场景',
   'workbench.homePage.pendingDefect': '待我处理的缺陷',
-  'workbench.homePage.defectProcessingNumber': '缺陷处理人数',
+  'workbench.homePage.defectProcessingNumber': '缺陷处理人统计',
   'workbench.homePage.defectTotal': '缺陷总数',
   'workbench.homePage.legacyDefectsNumber': '遗留缺陷数',
   'workbench.homePage.createdBugByMe': '我创建的缺陷',

@@ -180,7 +180,7 @@ export const defaultValueMap: Record<string, any> = {
     },
     pass: {
       defaultList: cloneDeep(defaultPass),
-      color: ['#D4D4D8', '#00C261'],
+      color: ['#00C261', '#D4D4D8'],
       defaultName: 'workbench.homePage.passRate',
     },
     complete: {

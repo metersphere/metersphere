@@ -176,7 +176,7 @@
     return props.item.key === WorkCardEnum.API_CASE_COUNT
       ? {
           name: t('workbench.homePage.caseExecutionRate'),
-          color: ['#00C261', '#EDEDF1'],
+          color: ['#EDEDF1', '#00C261'],
           tooltipText: t('workbench.homePage.apiCaseCountExecuteRateTooltip'),
         }
       : {
@@ -190,12 +190,12 @@
     return props.item.key === WorkCardEnum.API_CASE_COUNT
       ? {
           name: t('workbench.homePage.casePassedRate'),
-          color: ['#00C261', '#ED0303'],
+          color: ['#ED0303', '#00C261'],
           tooltipText: t('workbench.homePage.apiCaseCountPassRateTooltip'),
         }
       : {
           name: t('workbench.homePage.executionRate'),
-          color: ['#00C261', '#ED0303'],
+          color: ['#ED0303', '#00C261'],
           tooltipText: t('workbench.homePage.scenarioCaseCountPassRateTooltip'),
         };
   });
@@ -212,6 +212,7 @@
       props.item.key === WorkCardEnum.API_CASE_COUNT ? unCoverWithApiCase : unCoverWithApiScenario;
 
     const coverWithCase = WorkCardEnum.API_CASE_COUNT ? coverWithApiCase : coverWithApiScenario;
+    coverData.value = cloneDeep(initCoverRate);
     coverData.value = [
       {
         value: Number(coverage.split('%')[0]),
