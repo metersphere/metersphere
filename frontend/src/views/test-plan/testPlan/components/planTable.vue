@@ -355,9 +355,9 @@
     // addTestPlan,
     archivedPlan,
     batchArchivedPlan,
+    batchConfigSchedule,
     batchCopyPlan,
     batchDeletePlan,
-    batchEditTestPlan,
     batchMovePlan,
     deletePlan,
     deleteScheduleTask,
@@ -379,8 +379,9 @@
   import { characterLimit, getGenerateId } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
-  import { DragSortParams, ModuleTreeNode, TableQueryParams } from '@/models/common';
+  import { DragSortParams, ModuleTreeNode } from '@/models/common';
   import type {
+    BatchConfigSchedule,
     // AddTestPlanParams,
     BatchExecutePlan,
     BatchMoveParams,
@@ -1210,7 +1211,7 @@
   async function handleStatusTimingTask(enable: boolean) {
     try {
       const { selectedIds, selectAll, excludeIds } = batchParams.value;
-      const params: TableQueryParams = {
+      const params: BatchConfigSchedule = {
         selectIds: selectedIds || [],
         selectAll: !!selectAll,
         excludeIds: excludeIds || [],
@@ -1218,10 +1219,9 @@
         moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
         condition: conditionParams.value,
         type: showType.value,
-        scheduleOpen: enable,
-        editColumn: 'SCHEDULE',
+        enable,
       };
-      await batchEditTestPlan(params);
+      await batchConfigSchedule(params);
       Message.success(
         enable
           ? t('testPlan.testPlanGroup.enableScheduleTaskSuccess')
