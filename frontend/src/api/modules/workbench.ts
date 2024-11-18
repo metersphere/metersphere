@@ -2,7 +2,7 @@ import MSR from '@/api/http/index';
 
 import type { ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
 import type { ApiScenarioTableItem } from '@/models/apiTest/scenario';
-import type { BugListItem } from '@/models/bug-management';
+import type { BugListItem, BugOptionListItem } from '@/models/bug-management';
 import type { ReviewItem } from '@/models/caseManagement/caseReview';
 import type { CaseManagementTable } from '@/models/caseManagement/featureCase';
 import type { CommonList, TableQueryParams } from '@/models/common';
@@ -24,6 +24,8 @@ import {
   WorkApiCountDetailUrl,
   WorkAssociateCaseDetailUrl,
   WorkbenchApiCaseListUrl,
+  WorkbenchBugColumnOptionsUrl,
+  WorkbenchBugCustomFieldUrl,
   WorkbenchBugListUrl,
   WorkbenchCaseListUrl,
   WorkbenchReviewListUrl,
@@ -76,6 +78,16 @@ export function workbenchCaseList(data: TableQueryParams) {
 // 我的-缺陷列表
 export function workbenchBugList(data: TableQueryParams) {
   return MSR.post<CommonList<BugListItem>>({ url: WorkbenchBugListUrl, data });
+}
+
+// 我的-缺陷列表-自定义字段
+export function getCustomFieldHeader(projectId: string) {
+  return MSR.get({ url: `${WorkbenchBugCustomFieldUrl}${projectId}` });
+}
+
+// 我的-缺陷列表-表格筛选字段的数据查询
+export function getCustomOptionHeader(projectId: string) {
+  return MSR.get<BugOptionListItem>({ url: `${WorkbenchBugColumnOptionsUrl}${projectId}` });
 }
 
 // 我的-接口用例列表

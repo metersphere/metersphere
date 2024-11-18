@@ -43,8 +43,12 @@
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
 
-  import { getCustomFieldHeader, getCustomOptionHeader } from '@/api/modules/bug-management';
-  import { workbenchBugList, workbenchTodoBugList } from '@/api/modules/workbench';
+  import {
+    getCustomFieldHeader,
+    getCustomOptionHeader,
+    workbenchBugList,
+    workbenchTodoBugList,
+  } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
