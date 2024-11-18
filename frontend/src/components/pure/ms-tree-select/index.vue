@@ -51,6 +51,7 @@
           :empty-text="t('common.noData')"
           :virtual-list-props="virtualListProps"
           :field-names="props.fieldNames as MsTreeFieldNames"
+          :node-disabled-tip="t('project.environmental.http.nodeDisabledTip')"
           default-expand-all
           block-node
           title-tooltip-position="tr"
@@ -110,6 +111,7 @@
   import { findNodeByKey, mapTree } from '@/utils';
 
   import type { TreeFieldNames, TreeNodeData } from '@arco-design/web-vue';
+  import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
 
   const props = withDefaults(
     defineProps<{
@@ -151,6 +153,7 @@
 
   function handleCheck(_checkedKeys: Array<string | number>, checkedNodes: MsTreeNodeData) {
     if (props.showContainChildModule) {
+      if (checkedNodes.node.disabled) return;
       const realNode = findNodeByKey<MsTreeNodeData>(treeData.value, checkedNodes.node.id, 'id');
       if (!realNode) return;
       if (checkedNodes.checked) {
@@ -167,15 +170,20 @@
     checkNode(_checkedKeys, checkedNodes);
   }
 
+  // 当前节点“包含新增子模块”取消勾选，下面一层的子级取消禁用
+  function updateNodeState(nodeId: string | number) {
+    const realNode = findNodeByKey<MsTreeNodeData>(treeData.value, nodeId, 'id');
+    if (!realNode) return;
+    realNode.containChildModule = false;
+    realNode.children?.forEach((child) => {
+      child.disabled = false;
+    });
+  }
+
   function handleSelectCurrent(nodeData: MsTreeNodeData) {
     if (props.showContainChildModule && checkedKeys.value.includes(nodeData.id)) {
-      // 取消当前，“包含新增子模块”取消勾选，下面一层的子级取消禁用
-      const realNode = findNodeByKey<MsTreeNodeData>(treeData.value, nodeData.id, 'id');
-      if (!realNode) return;
-      realNode.containChildModule = false;
-      realNode.children?.forEach((child) => {
-        child.disabled = false;
-      });
+      // 取消当前
+      updateNodeState(nodeData.id);
     }
     selectParent(nodeData, !!checkedKeys.value.includes(nodeData.id));
   }
@@ -294,11 +302,20 @@
       }
     }
   }
-  function handleChange() {
+  function handleChange(val: string | number | LabelValue | Array<string | number> | LabelValue[] | undefined) {
     if (props.multiple) {
       nextTick(() => {
         inputValue.value = tempInputValue.value;
       });
+      if (props.showContainChildModule) {
+        const deletedIds = selectValue.value.filter(
+          (item: string | number) => !(val as (string | number)[]).includes(item)
+        );
+        // 如果是输入框删除一个
+        if (deletedIds.length === 1) {
+          updateNodeState(deletedIds[0]);
+        }
+      }
     }
   }
   function handleKeyup(e: KeyboardEvent) {

@@ -91,13 +91,7 @@
       </div>
     </template>
   </MsBaseTable>
-  <AddHttpDrawer
-    v-model:visible="addVisible"
-    :module-tree="moduleTree"
-    :is-copy="isCopy"
-    :current-id="httpId"
-    @close="addVisible = false"
-  />
+  <AddHttpDrawer v-model:visible="addVisible" :is-copy="isCopy" :current-id="httpId" @close="addVisible = false" />
 </template>
 
 <script lang="ts" async setup>
@@ -116,7 +110,7 @@
   import useVisit from '@/hooks/useVisit';
   import { useAppStore, useTableStore } from '@/store';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
-  import { findNodeNames } from '@/utils';
+  import { findNodeByKey, findNodeNames } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { BugListItem } from '@/models/bug-management';
@@ -317,7 +311,17 @@
 
   function getModuleName(record: HttpForm) {
     if (record.type === 'MODULE') {
-      const moduleIds: string[] = record.moduleMatchRule.modules.map((item) => item.moduleId);
+      const moduleIds: string[] = [];
+      // 勾了包含子模块的只显示父模块
+      record.moduleMatchRule.modules.forEach((item) => {
+        const realNode = findNodeByKey<ModuleTreeNode>(moduleTree.value, item.moduleId, 'id');
+        const notShow = record.moduleMatchRule.modules.find(
+          (i) => i.moduleId === realNode?.parentId && i.containChildModule
+        );
+        if (!notShow) {
+          moduleIds.push(item.moduleId);
+        }
+      });
       const result = findNodeNames(moduleTree.value, moduleIds);
       return result.join(',');
     }

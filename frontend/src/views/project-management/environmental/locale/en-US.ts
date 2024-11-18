@@ -71,6 +71,8 @@ export default {
   'project.environmental.http.containChildModule': 'Include newly added submodules',
   'project.environmental.http.containChildModuleTip':
     'Automatically include sub modules added after the selected module',
+  'project.environmental.http.nodeDisabledTip':
+    'The parent level has selected `Add Sub Module`, and the sub level cannot be unchecked; If unchecked, please uncheck `Add Sub Module` for the parent level',
   'project.environmental.database.addDatabase': 'Add Database',
   'project.environmental.database.updateDatabase': 'Update Database {name}',
   'project.environmental.database.name': 'Database Name',

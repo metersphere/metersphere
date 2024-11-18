@@ -35,7 +35,9 @@
           </template>
           <a-tooltip
             v-if="$slots['title']"
-            :content="_props[props.fieldNames.title]"
+            :content="
+              _props.disabled && props.nodeDisabledTip?.length ? props.nodeDisabledTip : _props[props.fieldNames.title]
+            "
             :mouse-enter-delay="300"
             :position="props.titleTooltipPosition"
             :disabled="props.disabledTitleTooltip"
@@ -123,6 +125,7 @@
       checkStrictly?: boolean; // 是否取消父子节点关联
       virtualListProps?: VirtualListProps; // 虚拟滚动列表的属性
       disabledTitleTooltip?: boolean; // 是否禁用标题 tooltip
+      nodeDisabledTip?: string; // 节点disabled的时候显示的内容
       actionOnNodeClick?: 'expand'; // 点击节点时的操作
       nodeHighlightClass?: string; // 节点高亮背景色
       hideSwitcher?: boolean; // 隐藏展开折叠图标

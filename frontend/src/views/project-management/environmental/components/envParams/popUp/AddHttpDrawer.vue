@@ -60,21 +60,7 @@
           <a-option value="PATH">{{ t('project.environmental.http.path') }}</a-option>
         </a-select>
       </a-form-item>
-      <!-- 接口模块选择 -->
-      <!-- <a-form-item
-        v-if="showApiModule"
-        class="mb-[16px]"
-        field="apiModule"
-        asterisk-position="end"
-        :label="t('project.environmental.http.apiModuleSelect')"
-        :rules="[{ required: true, message: t('project.environmental.http.hostNameRequired') }]"
-      >
-        <a-select v-model:model-value="form.apiModule" multiple :placeholder="t('common.pleaseSelect')">
-          <a-option value="none">{{ t('project.environmental.http.none') }}</a-option>
-        </a-select>
-      </a-form-item> -->
       <!-- 展示模块 -->
-      <!-- TODO 模块还没有加 -->
       <a-form-item
         v-if="form.type === 'MODULE'"
         class="mb-[16px]"
@@ -83,30 +69,6 @@
         :rules="[{ required: true, message: t('project.environmental.http.selectModule') }]"
         asterisk-position="end"
       >
-        <!-- TODO 先做普通树 放在下一个版本 -->
-        <!-- <ApiTree
-          v-model:focus-node-key="focusNodeKey"
-          :placeholder="t('project.environmental.http.selectApiModule')"
-          :selected-keys="selectedKeys"
-          :data="moduleTree"
-          :field-names="{
-            title: 'name',
-            key: 'id',
-            children: 'children',
-            count: 'count',
-          }"
-          :tree-checkable="true"
-          :hide-more-action="true"
-        >
-          <template #tree-slot-title="nodeData">
-            <div class="inline-flex w-full">
-              <div class="one-line-text w-full text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-            </div>
-          </template>
-          <template #tree-slot-extra="nodeData">
-            <span><MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect($event, nodeData)" /></span>
-          </template>
-        </ApiTree> -->
         <MsTreeSelect
           v-model:model-value="form.moduleId"
           v-model:data="envTree"
