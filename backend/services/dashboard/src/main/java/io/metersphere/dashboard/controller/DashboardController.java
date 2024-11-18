@@ -3,6 +3,7 @@ package io.metersphere.dashboard.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.definition.ApiDefinitionUpdateDTO;
+import io.metersphere.bug.service.BugCommonService;
 import io.metersphere.dashboard.dto.LayoutDTO;
 import io.metersphere.dashboard.request.DashboardFrontPageRequest;
 import io.metersphere.dashboard.response.OverViewCountDTO;
@@ -34,6 +35,8 @@ public class DashboardController {
 
     @Resource
     private DashboardService dashboardService;
+    @Resource
+    private BugCommonService bugCommonService;
     @Resource
     private PermissionCheckService permissionCheckService;
 
@@ -133,21 +136,22 @@ public class DashboardController {
     @Operation(summary = "缺陷数量统计")
     @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public StatisticsDTO projectBugCount(@Validated @RequestBody DashboardFrontPageRequest request) {
-        return dashboardService.projectBugCount(request, SessionUtils.getUserId());
+        return dashboardService.projectBugCount(request, SessionUtils.getUserId(), null);
     }
 
     @PostMapping("/create_bug_by_me")
     @Operation(summary = "我创建的缺陷")
     @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public StatisticsDTO projectBugCountCreateByMe(@Validated @RequestBody DashboardFrontPageRequest request) {
-        return dashboardService.projectBugCountCreateByMe(request, SessionUtils.getUserId());
+        return dashboardService.projectBugCountCreateByMe(request, SessionUtils.getUserId(), null);
     }
 
     @PostMapping("/handle_bug_by_me")
     @Operation(summary = "待我处理的缺陷")
     @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public StatisticsDTO projectBugCountHandleByMe(@Validated @RequestBody DashboardFrontPageRequest request) {
-        return dashboardService.projectBugCountHandleByMe(request, SessionUtils.getUserId());
+        String platformHandlerUser = bugCommonService.getPlatformHandlerUser(request.getProjectIds().getFirst(), SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId());
+        return dashboardService.projectBugCountHandleByMe(request, SessionUtils.getUserId(), platformHandlerUser);
     }
 
     @PostMapping("/plan_legacy_bug")

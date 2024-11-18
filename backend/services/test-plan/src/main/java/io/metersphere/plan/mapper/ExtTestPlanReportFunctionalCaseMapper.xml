@@ -45,7 +45,10 @@
 
     <select id="countExecuteResult" resultType="io.metersphere.plan.dto.CaseStatusCountMap">
         select ifnull(tprfc.function_case_execute_result, 'PENDING') as status, count(id) as count from test_plan_report_function_case tprfc
-        where tprfc.test_plan_report_id = #{id}
+        where tprfc.test_plan_report_id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
         group by tprfc.function_case_execute_result
     </select>
 
@@ -58,7 +61,10 @@
         from test_plan_report_function_case tprfc
             left join functional_case fc on fc.id = tprfc.function_case_id
             left join test_plan_collection tpc on tpc.id = tprfc.test_plan_collection_id
-        where tprfc.test_plan_report_id = #{request.reportId}
+        where tprfc.test_plan_report_id in
+        <foreach collection="request.detailReportIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
         <if test="request.keyword != null and request.keyword != ''">
             and (tprfc.function_case_num like concat('%', #{request.keyword}, '%')
             or tprfc.function_case_name like concat('%', #{request.keyword}, '%')
@@ -75,7 +81,10 @@
         from test_plan_report_function_case tprfc
             right join test_plan_collection tpc on tprfc.test_plan_collection_id = tpc.id and tpc.type = 'FUNCTIONAL'
             join test_plan tp on tpc.test_plan_id = tp.id
-        where tprfc.test_plan_report_id = #{request.reportId}
+        where tprfc.test_plan_report_id in
+        <foreach collection="request.detailReportIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
         <if test="request.keyword != null and request.keyword != ''">
             and (tprfc.function_case_num like concat('%', #{request.keyword}, '%')
             or tprfc.function_case_name like concat('%', #{request.keyword}, '%')

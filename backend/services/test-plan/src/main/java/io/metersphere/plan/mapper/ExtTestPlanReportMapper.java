@@ -75,4 +75,6 @@ public interface ExtTestPlanReportMapper {
     List<TestPlanReport> getChildrenReport(@Param("reportId") String reportId);
 
     void resetRerunReport(@Param("reportId") String reportId);
+
+    List<TestPlanReport> getPlanChildrenTask(@Param("reportId") String reportId);
 }

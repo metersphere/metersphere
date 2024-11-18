@@ -94,6 +94,7 @@ public class TestPlanReportShareController {
     @PostMapping("/detail/bug/page")
     @Operation(summary = "测试计划-报告-详情-缺陷分页查询")
     public Pager<List<BugDTO>> pageBug(@Validated @RequestBody TestPlanShareReportDetailRequest request) {
+        request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
         ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
         testPlanReportShareService.validateExpired(shareInfo);
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -104,6 +105,7 @@ public class TestPlanReportShareController {
     @PostMapping("/detail/functional/case/page")
     @Operation(summary = "测试计划-报告-详情-功能用例分页查询")
     public Pager<List<ReportDetailCasePageDTO>> pageFunctionalCase(@Validated @RequestBody TestPlanShareReportDetailRequest request) {
+        request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
         ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
         testPlanReportShareService.validateExpired(shareInfo);
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -114,6 +116,7 @@ public class TestPlanReportShareController {
     @PostMapping("/detail/api/case/page")
     @Operation(summary = "测试计划-报告-详情-接口用例分页查询")
     public Pager<List<ReportDetailCasePageDTO>> pageApiCase(@Validated @RequestBody TestPlanShareReportDetailRequest request) {
+        request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
         ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
         testPlanReportShareService.validateExpired(shareInfo);
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -124,6 +127,7 @@ public class TestPlanReportShareController {
     @PostMapping("/detail/scenario/case/page")
     @Operation(summary = "测试计划-报告-详情-场景用例分页查询")
     public Pager<List<ReportDetailCasePageDTO>> pageScenarioCase(@Validated @RequestBody TestPlanShareReportDetailRequest request) {
+        request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
         ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
         testPlanReportShareService.validateExpired(shareInfo);
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -189,6 +193,7 @@ public class TestPlanReportShareController {
     @Operation(summary = "测试计划-报告-详情-测试集分页查询(不同用例类型)")
     @Parameter(name = "type", description = "用例类型", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED), example = "functional, api, scenario")
     public Pager<List<TestPlanReportDetailCollectionResponse>> collectionPage(@PathVariable String type, @Validated @RequestBody TestPlanShareReportDetailRequest request) {
+        request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
         ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
         testPlanReportShareService.validateExpired(shareInfo);
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),

@@ -60,6 +60,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+/**
+ * @author song-cc-rock
+ */
 @Service
 public class TestPlanReportService {
 
@@ -125,8 +128,6 @@ public class TestPlanReportService {
     private ProjectMapper projectMapper;
     @Resource
     private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
-    @Resource
-    private TestPlanCollectionMapper testPlanCollectionMapper;
     @Resource
     private ExecTaskMapper execTaskMapper;
 
@@ -337,7 +338,6 @@ public class TestPlanReportService {
         return genReport(prepareReportId, taskId, request, false, currentUser, null);
     }
 
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public Map<String, String> genReport(String prepareReportId, TestPlanReportGenRequest request, boolean manual, String currentUser, String manualReportName) {
         return genReport(prepareReportId, null, request, manual, currentUser, manualReportName);
     }
@@ -464,188 +464,216 @@ public class TestPlanReportService {
      */
     private TestPlanReportDetailCaseDTO genReportDetail(TestPlanReportGenPreParam genParam, TestPlanReport report) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        // 缺陷数
         List<ReportBugCountDTO> bugCountList = extTestPlanReportBugMapper.countPlanBug(genParam.getTestPlanId());
         Map<String, Long> bugCountMap = bugCountList.stream().collect(Collectors.toMap(ReportBugCountDTO::getRefCaseId, ReportBugCountDTO::getBugCount));
-
         Project project = projectMapper.selectByPrimaryKey(genParam.getProjectId());
-
-        AtomicLong funcCaseCount = new AtomicLong();
-        AtomicLong apiCaseCount = new AtomicLong();
-        AtomicLong apiScenarioCount = new AtomicLong();
-        AtomicLong bugCount = new AtomicLong();
-        // 功能用例
-        {
-            List<String> funcCaseIdList = extTestPlanReportFunctionalCaseMapper.getPlanExecuteCasesId(genParam.getTestPlanId());
-            if (CollectionUtils.isNotEmpty(funcCaseIdList)) {
-                SubListUtils.dealForSubList(funcCaseIdList, 200, (subList) -> {
-                    if (CollectionUtils.isEmpty(subList)) {
-                        return;
-                    }
-                    List<TestPlanReportFunctionCase> reportFunctionCases = extTestPlanReportFunctionalCaseMapper.getPlanExecuteCases(genParam.getTestPlanId(), subList);
-                    funcCaseCount.addAndGet(reportFunctionCases.size());
-                    // 用例等级
-                    List<String> ids = reportFunctionCases.stream().map(TestPlanReportFunctionCase::getFunctionCaseId).distinct().toList();
-                    List<SelectOption> options = extTestPlanReportFunctionalCaseMapper.getCasePriorityByIds(ids);
-                    Map<String, String> casePriorityMap = options.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
-                    // 用例模块
-                    List<String> moduleIds = reportFunctionCases.stream().map(TestPlanReportFunctionCase::getFunctionCaseModule).filter(Objects::nonNull).toList();
-                    Map<String, String> moduleMap = getModuleMapByIds(moduleIds, CaseType.FUNCTIONAL_CASE.getKey());
-                    // 关联的功能用例最新一次执行历史
-                    List<String> relateIds = reportFunctionCases.stream().map(TestPlanReportFunctionCase::getTestPlanFunctionCaseId).toList();
-                    TestPlanCaseExecuteHistoryExample example = new TestPlanCaseExecuteHistoryExample();
-                    example.createCriteria().andTestPlanCaseIdIn(relateIds);
-                    List<TestPlanCaseExecuteHistory> functionalExecHisList = testPlanCaseExecuteHistoryMapper.selectByExample(example);
-                    Map<String, List<TestPlanCaseExecuteHistory>> functionalExecMap = functionalExecHisList.stream().collect(Collectors.groupingBy(TestPlanCaseExecuteHistory::getTestPlanCaseId));
-
-                    for (TestPlanReportFunctionCase reportFunctionalCase : reportFunctionCases) {
-                        reportFunctionalCase.setId(IDGenerator.nextStr());
-                        reportFunctionalCase.setTestPlanReportId(report.getId());
-                        reportFunctionalCase.setTestPlanName(genParam.getTestPlanName());
-                        if (reportFunctionalCase.getFunctionCaseModule() != null) {
-                            reportFunctionalCase.setFunctionCaseModule(moduleMap.getOrDefault(reportFunctionalCase.getFunctionCaseModule(), reportFunctionalCase.getFunctionCaseModule()));
-                        }
-                        reportFunctionalCase.setFunctionCasePriority(casePriorityMap.get(reportFunctionalCase.getFunctionCaseId()));
-                        List<TestPlanCaseExecuteHistory> hisList = functionalExecMap.get(reportFunctionalCase.getTestPlanFunctionCaseId());
-                        if (CollectionUtils.isNotEmpty(hisList)) {
-                            Optional<String> lastExecuteHisOpt = hisList.stream().sorted(Comparator.comparing(TestPlanCaseExecuteHistory::getCreateTime).reversed()).map(TestPlanCaseExecuteHistory::getId).findFirst();
-                            reportFunctionalCase.setFunctionCaseExecuteReportId(lastExecuteHisOpt.orElse(null));
-                        } else {
-                            reportFunctionalCase.setFunctionCaseExecuteReportId(null);
-                        }
-                        reportFunctionalCase.setFunctionCaseBugCount(bugCountMap.containsKey(reportFunctionalCase.getTestPlanFunctionCaseId()) ? bugCountMap.get(reportFunctionalCase.getTestPlanFunctionCaseId()) : 0);
-                    }
-
-                    // 插入计划功能用例关联数据 -> 报告内容
-                    TestPlanReportFunctionCaseMapper batchMapper = sqlSession.getMapper(TestPlanReportFunctionCaseMapper.class);
-                    batchMapper.batchInsert(reportFunctionCases);
-                });
-            }
-            funcCaseIdList = null;
-        }
-
-        // 接口用例
-        {
-            List<String> testPlanReportApiCaseIdList = extTestPlanReportApiCaseMapper.getPlanExecuteCasesId(genParam.getTestPlanId());
-            if (CollectionUtils.isNotEmpty(testPlanReportApiCaseIdList)) {
-                SubListUtils.dealForSubList(testPlanReportApiCaseIdList, 200, (subList) -> {
-                    if (CollectionUtils.isEmpty(subList)) {
-                        return;
-                    }
-                    List<TestPlanReportApiCase> reportApiCases = extTestPlanReportApiCaseMapper.getPlanExecuteCases(genParam.getTestPlanId(), subList);
-                    apiCaseCount.addAndGet(reportApiCases.size());
-                    List<String> moduleIds = reportApiCases.stream().map(TestPlanReportApiCase::getApiCaseModule).filter(Objects::nonNull).distinct().toList();
-                    Map<String, String> moduleMap = getModuleMapByIds(moduleIds, CaseType.API_CASE.getKey());
-
-                    for (TestPlanReportApiCase reportApiCase : reportApiCases) {
-                        reportApiCase.setId(IDGenerator.nextStr());
-                        reportApiCase.setTestPlanReportId(report.getId());
-                        reportApiCase.setTestPlanName(genParam.getTestPlanName());
-                        if (reportApiCase.getApiCaseModule() != null) {
-                            reportApiCase.setApiCaseModule(moduleMap.getOrDefault(reportApiCase.getApiCaseModule(), reportApiCase.getApiCaseModule()));
-                        }
-                        // 根据不超过数据库字段最大长度压缩模块名
-                        reportApiCase.setApiCaseModule(ServiceUtils.compressName(reportApiCase.getApiCaseModule(), 450));
-                        if (!genParam.getUseManual()) {
-                            // 接口执行时才更新结果
-                            reportApiCase.setApiCaseExecuteResult(null);
-                            reportApiCase.setApiCaseExecuteUser(null);
-                        }
-                        reportApiCase.setApiCaseBugCount(bugCountMap.containsKey(reportApiCase.getTestPlanApiCaseId()) ? bugCountMap.get(reportApiCase.getTestPlanApiCaseId()) : 0);
-                    }
-                    // 插入计划接口用例关联数据 -> 报告内容
-                    TestPlanReportApiCaseMapper batchMapper = sqlSession.getMapper(TestPlanReportApiCaseMapper.class);
-                    batchMapper.batchInsert(reportApiCases);
-                    sqlSession.flushStatements();
-
-                    if (StringUtils.isNotBlank(genParam.getTaskId())) {
-                        reportApiCases.sort(Comparator.comparing(TestPlanReportApiCase::getPos).reversed());
-                        initApiCaseExecTaskItem(genParam.getTaskId(), genParam.getTestPlanId(), reportApiCases, report.getCreateUser(), project);
-                    }
-                });
-            }
-            testPlanReportApiCaseIdList = null;
-        }
-
-        // 场景用例
-        {
-            List<String> reportApiScenarioIdList = extTestPlanReportApiScenarioMapper.getPlanExecuteCasesId(genParam.getTestPlanId());
-            if (CollectionUtils.isNotEmpty(reportApiScenarioIdList)) {
-                SubListUtils.dealForSubList(reportApiScenarioIdList, 200, (subList) -> {
-                    if (CollectionUtils.isEmpty(subList)) {
-                        return;
-                    }
-                    List<TestPlanReportApiScenario> reportApiScenarios = extTestPlanReportApiScenarioMapper.getPlanExecuteCases(genParam.getTestPlanId(), subList);
-                    apiScenarioCount.addAndGet(reportApiScenarios.size());
-                    List<String> moduleIds = reportApiScenarios.stream().map(TestPlanReportApiScenario::getApiScenarioModule).filter(Objects::nonNull).distinct().toList();
-                    Map<String, String> moduleMap = getModuleMapByIds(moduleIds, CaseType.SCENARIO_CASE.getKey());
-                    for (TestPlanReportApiScenario reportApiScenario : reportApiScenarios) {
-                        reportApiScenario.setId(IDGenerator.nextStr());
-                        reportApiScenario.setTestPlanReportId(report.getId());
-                        reportApiScenario.setTestPlanName(genParam.getTestPlanName());
-                        if (reportApiScenario.getApiScenarioModule() != null) {
-                            reportApiScenario.setApiScenarioModule(moduleMap.getOrDefault(reportApiScenario.getApiScenarioModule(), reportApiScenario.getApiScenarioModule()));
-                        }
-                        // 根据不超过数据库字段最大长度压缩模块名
-                        reportApiScenario.setApiScenarioModule(ServiceUtils.compressName(reportApiScenario.getApiScenarioModule(), 450));
-                        if (!genParam.getUseManual()) {
-                            // 接口执行时才更新结果
-                            reportApiScenario.setApiScenarioExecuteResult(null);
-                            reportApiScenario.setApiScenarioExecuteUser(null);
-                        }
-                        reportApiScenario.setApiScenarioBugCount(bugCountMap.containsKey(reportApiScenario.getTestPlanApiScenarioId()) ? bugCountMap.get(reportApiScenario.getTestPlanApiScenarioId()) : 0);
-                    }
-                    // 插入计划场景用例关联数据 -> 报告内容
-                    TestPlanReportApiScenarioMapper batchMapper = sqlSession.getMapper(TestPlanReportApiScenarioMapper.class);
-                    batchMapper.batchInsert(reportApiScenarios);
-                    sqlSession.flushStatements();
-
-                    if (StringUtils.isNotBlank(genParam.getTaskId())) {
-                        reportApiScenarios.sort(Comparator.comparing(TestPlanReportApiScenario::getPos).reversed());
-                        initScenarioExecTaskItem(genParam.getTaskId(), genParam.getTestPlanId(), reportApiScenarios, report.getCreateUser(), project);
-                    }
-                });
-            }
-            reportApiScenarioIdList = null;
-        }
-
-        // 计划报告缺陷内容
-        {
-            List<String> reportBugIdList = extTestPlanReportBugMapper.getPlanBugsId(genParam.getTestPlanId());
-            if (CollectionUtils.isNotEmpty(reportBugIdList)) {
-                SubListUtils.dealForSubList(reportBugIdList, 200, (subList) -> {
-                    if (CollectionUtils.isEmpty(subList)) {
-                        return;
-                    }
-                    List<TestPlanReportBug> reportBugs = extTestPlanReportBugMapper.getPlanBugs(genParam.getTestPlanId(), subList);
-                    bugCount.addAndGet(reportBugs.size());
-                    // MS处理人会与第三方的值冲突, 分开查询
-                    List<SelectOption> headerOptions = bugCommonService.getHeaderHandlerOption(genParam.getProjectId());
-                    Map<String, String> headerHandleUserMap = headerOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
-                    List<SelectOption> localOptions = bugCommonService.getLocalHandlerOption(genParam.getProjectId());
-                    Map<String, String> localHandleUserMap = localOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
-                    Map<String, String> allStatusMap = bugCommonService.getAllStatusMap(genParam.getProjectId());
-                    reportBugs.forEach(reportBug -> {
-                        reportBug.setId(IDGenerator.nextStr());
-                        reportBug.setTestPlanReportId(report.getId());
-                        reportBug.setBugHandleUser(headerHandleUserMap.containsKey(reportBug.getBugHandleUser()) ?
-                                headerHandleUserMap.get(reportBug.getBugHandleUser()) : localHandleUserMap.get(reportBug.getBugHandleUser()));
-                        reportBug.setBugStatus(allStatusMap.get(reportBug.getBugStatus()));
-                    });
-                    // 插入计划关联用例缺陷数据(去重) -> 报告内容
-                    TestPlanReportBugMapper batchMapper = sqlSession.getMapper(TestPlanReportBugMapper.class);
-                    batchMapper.batchInsert(reportBugs);
-                    sqlSession.flushStatements();
-                });
-            }
-        }
-
-        long beforeFlush = System.currentTimeMillis();
-        sqlSession.flushStatements();
+        long funcCount = initReportFunctionCase(sqlSession, genParam, report, bugCountMap);
+        long apiCount = initReportApiCase(sqlSession, genParam, report, project, bugCountMap);
+        long scenarioCount = initReportApiScenario(sqlSession, genParam, report, project, bugCountMap);
+        long bugCount = initReportBug(sqlSession, genParam, report);
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-
         return TestPlanReportDetailCaseDTO.builder()
-                .functionCaseCount(funcCaseCount.get()).apiCaseCount(apiCaseCount.get()).apiScenarioCount(apiScenarioCount.get()).bugCount(bugCount.get()).build();
+                .functionCaseCount(funcCount).apiCaseCount(apiCount).apiScenarioCount(scenarioCount).bugCount(bugCount).build();
+    }
+
+    /**
+     * 批量初始化报告关联功能用例数据
+     * @param sqlSession sql操作对象
+     * @param genParam 报告生成参数
+     * @param report 报告
+     * @param bugCountMap 缺陷-用例 统计Map
+     * @return 执行条数
+     */
+    private long initReportFunctionCase(SqlSession sqlSession, TestPlanReportGenPreParam genParam, TestPlanReport report, Map<String, Long> bugCountMap) {
+        AtomicLong funcCaseCount = new AtomicLong();
+        List<String> funcCaseIdList = extTestPlanReportFunctionalCaseMapper.getPlanExecuteCasesId(genParam.getTestPlanId());
+        if (CollectionUtils.isNotEmpty(funcCaseIdList)) {
+            SubListUtils.dealForSubList(funcCaseIdList, 200, (subList) -> {
+                if (CollectionUtils.isEmpty(subList)) {
+                    return;
+                }
+                List<TestPlanReportFunctionCase> reportFunctionCases = extTestPlanReportFunctionalCaseMapper.getPlanExecuteCases(genParam.getTestPlanId(), subList);
+                funcCaseCount.addAndGet(reportFunctionCases.size());
+                // 用例等级
+                List<String> ids = reportFunctionCases.stream().map(TestPlanReportFunctionCase::getFunctionCaseId).distinct().toList();
+                List<SelectOption> options = extTestPlanReportFunctionalCaseMapper.getCasePriorityByIds(ids);
+                Map<String, String> casePriorityMap = options.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+                // 用例模块
+                List<String> moduleIds = reportFunctionCases.stream().map(TestPlanReportFunctionCase::getFunctionCaseModule).filter(Objects::nonNull).toList();
+                Map<String, String> moduleMap = getModuleMapByIds(moduleIds, CaseType.FUNCTIONAL_CASE.getKey());
+                // 关联的功能用例最新一次执行历史
+                List<String> relateIds = reportFunctionCases.stream().map(TestPlanReportFunctionCase::getTestPlanFunctionCaseId).toList();
+                TestPlanCaseExecuteHistoryExample example = new TestPlanCaseExecuteHistoryExample();
+                example.createCriteria().andTestPlanCaseIdIn(relateIds);
+                List<TestPlanCaseExecuteHistory> functionalExecHisList = testPlanCaseExecuteHistoryMapper.selectByExample(example);
+                Map<String, List<TestPlanCaseExecuteHistory>> functionalExecMap = functionalExecHisList.stream().collect(Collectors.groupingBy(TestPlanCaseExecuteHistory::getTestPlanCaseId));
+
+                for (TestPlanReportFunctionCase reportFunctionalCase : reportFunctionCases) {
+                    reportFunctionalCase.setId(IDGenerator.nextStr());
+                    reportFunctionalCase.setTestPlanReportId(report.getId());
+                    reportFunctionalCase.setTestPlanName(genParam.getTestPlanName());
+                    if (reportFunctionalCase.getFunctionCaseModule() != null) {
+                        reportFunctionalCase.setFunctionCaseModule(moduleMap.getOrDefault(reportFunctionalCase.getFunctionCaseModule(), reportFunctionalCase.getFunctionCaseModule()));
+                    }
+                    reportFunctionalCase.setFunctionCasePriority(casePriorityMap.get(reportFunctionalCase.getFunctionCaseId()));
+                    List<TestPlanCaseExecuteHistory> hisList = functionalExecMap.get(reportFunctionalCase.getTestPlanFunctionCaseId());
+                    if (CollectionUtils.isNotEmpty(hisList)) {
+                        Optional<String> lastExecuteHisOpt = hisList.stream().sorted(Comparator.comparing(TestPlanCaseExecuteHistory::getCreateTime).reversed()).map(TestPlanCaseExecuteHistory::getId).findFirst();
+                        reportFunctionalCase.setFunctionCaseExecuteReportId(lastExecuteHisOpt.orElse(null));
+                    } else {
+                        reportFunctionalCase.setFunctionCaseExecuteReportId(null);
+                    }
+                    reportFunctionalCase.setFunctionCaseBugCount(bugCountMap.containsKey(reportFunctionalCase.getTestPlanFunctionCaseId()) ? bugCountMap.get(reportFunctionalCase.getTestPlanFunctionCaseId()) : 0);
+                }
+
+                // 插入计划功能用例关联数据 -> 报告内容
+                TestPlanReportFunctionCaseMapper batchMapper = sqlSession.getMapper(TestPlanReportFunctionCaseMapper.class);
+                batchMapper.batchInsert(reportFunctionCases);
+                sqlSession.flushStatements();
+            });
+        }
+        return funcCaseCount.get();
+    }
+
+    /**
+     * 批量初始化报告关联接口用例数据
+     * @param sqlSession sql操作对象
+     * @param genParam 报告生成参数
+     * @param report 报告
+     * @param project 项目
+     * @param bugCountMap 缺陷-用例 统计Map
+     * @return 执行条数
+     */
+    private long initReportApiCase(SqlSession sqlSession, TestPlanReportGenPreParam genParam, TestPlanReport report, Project project, Map<String, Long> bugCountMap) {
+        AtomicLong apiCaseCount = new AtomicLong();
+        List<String> testPlanReportApiCaseIdList = extTestPlanReportApiCaseMapper.getPlanExecuteCasesId(genParam.getTestPlanId());
+        if (CollectionUtils.isNotEmpty(testPlanReportApiCaseIdList)) {
+            SubListUtils.dealForSubList(testPlanReportApiCaseIdList, 200, (subList) -> {
+                if (CollectionUtils.isEmpty(subList)) {
+                    return;
+                }
+                List<TestPlanReportApiCase> reportApiCases = extTestPlanReportApiCaseMapper.getPlanExecuteCases(genParam.getTestPlanId(), subList);
+                apiCaseCount.addAndGet(reportApiCases.size());
+                List<String> moduleIds = reportApiCases.stream().map(TestPlanReportApiCase::getApiCaseModule).filter(Objects::nonNull).distinct().toList();
+                Map<String, String> moduleMap = getModuleMapByIds(moduleIds, CaseType.API_CASE.getKey());
+                for (TestPlanReportApiCase reportApiCase : reportApiCases) {
+                    reportApiCase.setId(IDGenerator.nextStr());
+                    reportApiCase.setTestPlanReportId(report.getId());
+                    reportApiCase.setTestPlanName(genParam.getTestPlanName());
+                    if (reportApiCase.getApiCaseModule() != null) {
+                        reportApiCase.setApiCaseModule(moduleMap.getOrDefault(reportApiCase.getApiCaseModule(), reportApiCase.getApiCaseModule()));
+                    }
+                    // 根据不超过数据库字段最大长度压缩模块名
+                    reportApiCase.setApiCaseModule(ServiceUtils.compressName(reportApiCase.getApiCaseModule(), 450));
+                    if (!genParam.getUseManual()) {
+                        // 接口执行时才更新结果
+                        reportApiCase.setApiCaseExecuteResult(null);
+                        reportApiCase.setApiCaseExecuteUser(null);
+                    }
+                    reportApiCase.setApiCaseBugCount(bugCountMap.containsKey(reportApiCase.getTestPlanApiCaseId()) ? bugCountMap.get(reportApiCase.getTestPlanApiCaseId()) : 0);
+                }
+                // 插入计划接口用例关联数据 -> 报告内容
+                TestPlanReportApiCaseMapper batchMapper = sqlSession.getMapper(TestPlanReportApiCaseMapper.class);
+                batchMapper.batchInsert(reportApiCases);
+                sqlSession.flushStatements();
+
+                if (StringUtils.isNotBlank(genParam.getTaskId())) {
+                    reportApiCases.sort(Comparator.comparing(TestPlanReportApiCase::getPos).reversed());
+                    initApiCaseExecTaskItem(genParam.getTaskId(), genParam.getTestPlanId(), reportApiCases, report.getCreateUser(), project);
+                }
+            });
+        }
+        return apiCaseCount.get();
+    }
+
+    /**
+     * 批量初始化报告关联场景用例数据
+     * @param sqlSession sql操作对象
+     * @param genParam 报告生成参数
+     * @param report 报告
+     * @param project 项目
+     * @param bugCountMap 缺陷-用例 统计Map
+     * @return 执行条数
+     */
+    private long initReportApiScenario(SqlSession sqlSession, TestPlanReportGenPreParam genParam, TestPlanReport report, Project project, Map<String, Long> bugCountMap) {
+        AtomicLong apiScenarioCount = new AtomicLong();
+        List<String> reportApiScenarioIdList = extTestPlanReportApiScenarioMapper.getPlanExecuteCasesId(genParam.getTestPlanId());
+        if (CollectionUtils.isNotEmpty(reportApiScenarioIdList)) {
+            SubListUtils.dealForSubList(reportApiScenarioIdList, 200, (subList) -> {
+                if (CollectionUtils.isEmpty(subList)) {
+                    return;
+                }
+                List<TestPlanReportApiScenario> reportApiScenarios = extTestPlanReportApiScenarioMapper.getPlanExecuteCases(genParam.getTestPlanId(), subList);
+                apiScenarioCount.addAndGet(reportApiScenarios.size());
+                List<String> moduleIds = reportApiScenarios.stream().map(TestPlanReportApiScenario::getApiScenarioModule).filter(Objects::nonNull).distinct().toList();
+                Map<String, String> moduleMap = getModuleMapByIds(moduleIds, CaseType.SCENARIO_CASE.getKey());
+                for (TestPlanReportApiScenario reportApiScenario : reportApiScenarios) {
+                    reportApiScenario.setId(IDGenerator.nextStr());
+                    reportApiScenario.setTestPlanReportId(report.getId());
+                    reportApiScenario.setTestPlanName(genParam.getTestPlanName());
+                    if (reportApiScenario.getApiScenarioModule() != null) {
+                        reportApiScenario.setApiScenarioModule(moduleMap.getOrDefault(reportApiScenario.getApiScenarioModule(), reportApiScenario.getApiScenarioModule()));
+                    }
+                    // 根据不超过数据库字段最大长度压缩模块名
+                    reportApiScenario.setApiScenarioModule(ServiceUtils.compressName(reportApiScenario.getApiScenarioModule(), 450));
+                    if (!genParam.getUseManual()) {
+                        // 接口执行时才更新结果
+                        reportApiScenario.setApiScenarioExecuteResult(null);
+                        reportApiScenario.setApiScenarioExecuteUser(null);
+                    }
+                    reportApiScenario.setApiScenarioBugCount(bugCountMap.containsKey(reportApiScenario.getTestPlanApiScenarioId()) ? bugCountMap.get(reportApiScenario.getTestPlanApiScenarioId()) : 0);
+                }
+                // 插入计划场景用例关联数据 -> 报告内容
+                TestPlanReportApiScenarioMapper batchMapper = sqlSession.getMapper(TestPlanReportApiScenarioMapper.class);
+                batchMapper.batchInsert(reportApiScenarios);
+                sqlSession.flushStatements();
+
+                if (StringUtils.isNotBlank(genParam.getTaskId())) {
+                    reportApiScenarios.sort(Comparator.comparing(TestPlanReportApiScenario::getPos).reversed());
+                    initScenarioExecTaskItem(genParam.getTaskId(), genParam.getTestPlanId(), reportApiScenarios, report.getCreateUser(), project);
+                }
+            });
+        }
+        return apiScenarioCount.get();
+    }
+
+    /**
+     * 批量初始化报告关联缺陷数据
+     * @param sqlSession sql操作对象
+     * @param genParam 报告生成参数
+     * @param report 报告
+     * @return 执行条数
+     */
+    private long initReportBug(SqlSession sqlSession, TestPlanReportGenPreParam genParam, TestPlanReport report) {
+        AtomicLong bugCount = new AtomicLong();
+        List<String> reportBugIdList = extTestPlanReportBugMapper.getPlanBugsId(genParam.getTestPlanId());
+        if (CollectionUtils.isNotEmpty(reportBugIdList)) {
+            SubListUtils.dealForSubList(reportBugIdList, 200, (subList) -> {
+                if (CollectionUtils.isEmpty(subList)) {
+                    return;
+                }
+                List<TestPlanReportBug> reportBugs = extTestPlanReportBugMapper.getPlanBugs(genParam.getTestPlanId(), subList);
+                bugCount.addAndGet(reportBugs.size());
+                // MS处理人会与第三方的值冲突, 分开查询
+                List<SelectOption> headerOptions = bugCommonService.getHeaderHandlerOption(genParam.getProjectId());
+                Map<String, String> headerHandleUserMap = headerOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+                List<SelectOption> localOptions = bugCommonService.getLocalHandlerOption(genParam.getProjectId());
+                Map<String, String> localHandleUserMap = localOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+                Map<String, String> allStatusMap = bugCommonService.getAllStatusMap(genParam.getProjectId());
+                reportBugs.forEach(reportBug -> {
+                    reportBug.setId(IDGenerator.nextStr());
+                    reportBug.setTestPlanReportId(report.getId());
+                    reportBug.setBugHandleUser(headerHandleUserMap.containsKey(reportBug.getBugHandleUser()) ?
+                            headerHandleUserMap.get(reportBug.getBugHandleUser()) : localHandleUserMap.get(reportBug.getBugHandleUser()));
+                    reportBug.setBugStatus(allStatusMap.get(reportBug.getBugStatus()));
+                });
+                // 插入计划关联用例缺陷数据(去重) -> 报告内容
+                TestPlanReportBugMapper batchMapper = sqlSession.getMapper(TestPlanReportBugMapper.class);
+                batchMapper.batchInsert(reportBugs);
+                sqlSession.flushStatements();
+            });
+        }
+        return bugCount.get();
     }
 
     private void initApiCaseExecTaskItem(String taskId, String testPlanId, List<TestPlanReportApiCase> apiTestCases, String userId, Project project) {
@@ -793,20 +821,15 @@ public class TestPlanReportService {
         return planReportDetail;
     }
 
+    /**
+     * 获取计划任务执行结果
+     * @param taskId 任务ID
+     * @return 计划执行结果
+     */
     public TestPlanTaskReportResponse getTaskDetail(String taskId) {
         TestPlanTaskReportResponse testPlanTaskReportResponse = new TestPlanTaskReportResponse();
         ExecTask task = execTaskMapper.selectByPrimaryKey(taskId);
         BeanUtils.copyBean(testPlanTaskReportResponse, task);
-        TestPlanExample planExample = new TestPlanExample();
-        planExample.createCriteria().andGroupIdEqualTo(task.getResourceId());
-        List<TestPlan> testPlans = testPlanMapper.selectByExample(planExample);
-        List<TestPlanTaskReportResponse.ChildPlan> childPlans = testPlans.stream().map(plan -> {
-            TestPlanTaskReportResponse.ChildPlan childPlan = new TestPlanTaskReportResponse.ChildPlan();
-            childPlan.setId(plan.getId());
-            childPlan.setName(plan.getName());
-            return childPlan;
-        }).toList();
-        testPlanTaskReportResponse.setChildPlans(childPlans);
         ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
         example.createCriteria().andTaskResourceIdEqualTo(taskId);
         List<ApiReportRelateTask> taskReports = apiReportRelateTaskMapper.selectByExample(example);
@@ -815,6 +838,14 @@ public class TestPlanReportService {
             return testPlanTaskReportResponse;
         }
         String reportId = taskReports.getFirst().getReportId();
+        List<TestPlanReport> planChildrenTask = extTestPlanReportMapper.getPlanChildrenTask(reportId);
+        List<TestPlanTaskReportResponse.ChildPlan> childPlans = planChildrenTask.stream().map(childTask -> {
+            TestPlanTaskReportResponse.ChildPlan childPlan = new TestPlanTaskReportResponse.ChildPlan();
+            childPlan.setId(childTask.getId());
+            childPlan.setName(childTask.getName());
+            return childPlan;
+        }).toList();
+        testPlanTaskReportResponse.setChildPlans(childPlans);
         return calcTaskExecActual(reportId, testPlanTaskReportResponse);
     }
 
@@ -878,9 +909,7 @@ public class TestPlanReportService {
         List<String> distinctUserIds = detailCases.stream().map(ReportDetailCasePageDTO::getExecuteUser).distinct().collect(Collectors.toList());
         distinctUserIds.removeIf(StringUtils::isEmpty);
         Map<String, String> userMap = getUserMap(distinctUserIds);
-        detailCases.forEach(detailCase -> {
-            detailCase.setExecuteUser(userMap.getOrDefault(detailCase.getExecuteUser(), detailCase.getExecuteUser()));
-        });
+        detailCases.forEach(detailCase -> detailCase.setExecuteUser(userMap.getOrDefault(detailCase.getExecuteUser(), detailCase.getExecuteUser())));
         return detailCases;
     }
 
@@ -915,13 +944,13 @@ public class TestPlanReportService {
             return;
         }
         // 功能用例
-        List<CaseStatusCountMap> functionalCountMapList = extTestPlanReportFunctionalCaseMapper.countExecuteResult(reportId);
+        List<CaseStatusCountMap> functionalCountMapList = extTestPlanReportFunctionalCaseMapper.countExecuteResult(List.of(reportId));
         CaseCount functionalCaseCount = countMap(functionalCountMapList);
         // 接口用例
-        List<CaseStatusCountMap> apiCountMapList = extTestPlanReportApiCaseMapper.countExecuteResult(reportId);
+        List<CaseStatusCountMap> apiCountMapList = extTestPlanReportApiCaseMapper.countExecuteResult(List.of(reportId));
         CaseCount apiCaseCount = countMap(apiCountMapList);
         // 场景用例
-        List<CaseStatusCountMap> scenarioCountMapList = extTestPlanReportApiScenarioMapper.countExecuteResult(reportId);
+        List<CaseStatusCountMap> scenarioCountMapList = extTestPlanReportApiScenarioMapper.countExecuteResult(List.of(reportId));
         CaseCount scenarioCaseCount = countMap(scenarioCountMapList);
 
         // 规划整体的汇总数据
@@ -950,7 +979,7 @@ public class TestPlanReportService {
         summaryExample.createCriteria().andTestPlanReportIdEqualTo(reportId);
         List<TestPlanReportSummary> testPlanReportSummaries = testPlanReportSummaryMapper.selectByExample(summaryExample);
         if (CollectionUtils.isEmpty(testPlanReportSummaries)) {
-            // 报告详情不存在
+            // 计划组报告详情不存在
             return;
         }
         TestPlanReportSummary groupSummary = testPlanReportSummaries.getFirst();
@@ -963,69 +992,27 @@ public class TestPlanReportService {
             return;
         }
 
-        // 汇总子报告关联的数据并入库
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        // 汇总子报告关联的数据 (计划组的用例明细不入库)
         List<String> ids = testPlanReports.stream().map(TestPlanReport::getId).toList();
-        // 功能用例
+        // 汇总功能用例
         TestPlanReportFunctionCaseExample functionCaseExample = new TestPlanReportFunctionCaseExample();
         functionCaseExample.createCriteria().andTestPlanReportIdIn(ids);
-        List<TestPlanReportFunctionCase> reportFunctionCases = testPlanReportFunctionCaseMapper.selectByExample(functionCaseExample);
-        if (CollectionUtils.isNotEmpty(reportFunctionCases)) {
-            groupSummary.setFunctionalCaseCount((long) reportFunctionCases.size());
-            reportFunctionCases.forEach(reportFunctionCase -> {
-                reportFunctionCase.setId(IDGenerator.nextStr());
-                reportFunctionCase.setTestPlanReportId(reportId);
-            });
-            // 插入计划组报告, 功能用例关联数据
-            TestPlanReportFunctionCaseMapper batchMapper = sqlSession.getMapper(TestPlanReportFunctionCaseMapper.class);
-            batchMapper.batchInsert(reportFunctionCases);
-        }
-        // 接口用例
+        groupSummary.setFunctionalCaseCount(testPlanReportFunctionCaseMapper.countByExample(functionCaseExample));
+        // 汇总接口用例
         TestPlanReportApiCaseExample apiCaseExample = new TestPlanReportApiCaseExample();
         apiCaseExample.createCriteria().andTestPlanReportIdIn(ids);
-        List<TestPlanReportApiCase> reportApiCases = testPlanReportApiCaseMapper.selectByExample(apiCaseExample);
-        if (CollectionUtils.isNotEmpty(reportApiCases)) {
-            groupSummary.setApiCaseCount((long) reportApiCases.size());
-            reportApiCases.forEach(reportApiCase -> {
-                reportApiCase.setId(IDGenerator.nextStr());
-                reportApiCase.setTestPlanReportId(reportId);
-            });
-            // 插入计划组报告, 接口用例关联数据
-            TestPlanReportApiCaseMapper batchMapper = sqlSession.getMapper(TestPlanReportApiCaseMapper.class);
-            batchMapper.batchInsert(reportApiCases);
-        }
-        // 场景用例
+        groupSummary.setApiCaseCount(testPlanReportApiCaseMapper.countByExample(apiCaseExample));
+        // 汇总场景用例
         TestPlanReportApiScenarioExample scenarioExample = new TestPlanReportApiScenarioExample();
         scenarioExample.createCriteria().andTestPlanReportIdIn(ids);
-        List<TestPlanReportApiScenario> reportApiScenarios = testPlanReportApiScenarioMapper.selectByExample(scenarioExample);
-        if (CollectionUtils.isNotEmpty(reportApiScenarios)) {
-            groupSummary.setApiScenarioCount((long) reportApiScenarios.size());
-            reportApiScenarios.forEach(reportApiScenario -> {
-                reportApiScenario.setId(IDGenerator.nextStr());
-                reportApiScenario.setTestPlanReportId(reportId);
-            });
-            // 插入计划组报告, 场景用例关联数据
-            TestPlanReportApiScenarioMapper batchMapper = sqlSession.getMapper(TestPlanReportApiScenarioMapper.class);
-            batchMapper.batchInsert(reportApiScenarios);
-        }
-        // 缺陷明细
+        groupSummary.setApiScenarioCount(testPlanReportApiScenarioMapper.countByExample(scenarioExample));
+        // 汇总缺陷明细 (子计划同一缺陷去重)
         TestPlanReportBugExample bugExample = new TestPlanReportBugExample();
         bugExample.createCriteria().andTestPlanReportIdIn(ids);
         List<TestPlanReportBug> reportBugs = testPlanReportBugMapper.selectByExample(bugExample);
-        if (CollectionUtils.isNotEmpty(reportBugs)) {
-            groupSummary.setBugCount((long) reportBugs.size());
-            reportBugs.forEach(reportBug -> {
-                reportBug.setId(IDGenerator.nextStr());
-                reportBug.setTestPlanReportId(reportId);
-            });
-            // 插入计划组关联用例缺陷数据
-            TestPlanReportBugMapper batchMapper = sqlSession.getMapper(TestPlanReportBugMapper.class);
-            batchMapper.batchInsert(reportBugs);
-        }
-        sqlSession.flushStatements();
-        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        groupSummary.setBugCount(reportBugs.stream().map(TestPlanReportBug::getBugId).distinct().count());
 
-        // 汇总并计算子报告执行的数据
+        // 汇总并计算子报告执行的用例数据
         summaryExample.clear();
         summaryExample.createCriteria().andTestPlanReportIdIn(ids);
         List<TestPlanReportSummary> summaryList = testPlanReportSummaryMapper.selectByExampleWithBLOBs(summaryExample);
@@ -1282,22 +1269,6 @@ public class TestPlanReportService {
     }
 
     /**
-     * 获取测试点集合
-     *
-     * @param collectionIds 测试点ID集合
-     * @return 测试点集合
-     */
-    private Map<String, String> getCollectionMap(List<String> collectionIds) {
-        if (CollectionUtils.isEmpty(collectionIds)) {
-            return new HashMap<>(16);
-        }
-        TestPlanCollectionExample example = new TestPlanCollectionExample();
-        example.createCriteria().andIdIn(collectionIds);
-        List<TestPlanCollection> collections = testPlanCollectionMapper.selectByExample(example);
-        return collections.stream().collect(Collectors.toMap(TestPlanCollection::getId, TestPlanCollection::getName));
-    }
-
-    /**
      * 计划报告列表
      *
      * @param request 请求参数
@@ -1430,11 +1401,12 @@ public class TestPlanReportService {
      */
     private TestPlanTaskReportResponse calcTaskExecActual(String reportId, TestPlanTaskReportResponse testPlanTaskReportResponse) {
         testPlanTaskReportResponse.setReportId(reportId);
+        List<String> calcReportIds = getActualReportIds(reportId);
         // 计算接口用例
-        List<CaseStatusCountMap> apiCountMapList = extTestPlanReportApiCaseMapper.countExecuteResult(reportId);
+        List<CaseStatusCountMap> apiCountMapList = extTestPlanReportApiCaseMapper.countExecuteResult(calcReportIds);
         CaseCount apiCaseCount = countMap(apiCountMapList);
         // 计算场景用例
-        List<CaseStatusCountMap> scenarioCountMapList = extTestPlanReportApiScenarioMapper.countExecuteResult(reportId);
+        List<CaseStatusCountMap> scenarioCountMapList = extTestPlanReportApiScenarioMapper.countExecuteResult(calcReportIds);
         CaseCount scenarioCaseCount = countMap(scenarioCountMapList);
         // 汇总接口&&场景用例的执行情况
         CaseCount caseCount = CountUtils.summarizeProperties(List.of(apiCaseCount, scenarioCaseCount));
@@ -1443,5 +1415,23 @@ public class TestPlanReportService {
         testPlanTaskReportResponse.setExecuteRate((caseCount.sum() == 0) ?
                 0 : RateCalculateUtils.divWithPrecision(caseCount.sum() - caseCount.getPending(), caseCount.sum(), 2));
         return testPlanTaskReportResponse;
+    }
+
+    /**
+     * 获取实际的报告ID集合 (计划组报告则会返回多个)
+     * @param reportId 报告ID
+     * @return 报告ID集合
+     */
+    public List<String> getActualReportIds(String reportId) {
+        // 计划组任务结果, 取多个子计划的结果计算完成率
+        TestPlanReport report = testPlanReportMapper.selectByPrimaryKey(reportId);
+        if (report.getIntegrated()) {
+            TestPlanReportExample example = new TestPlanReportExample();
+            example.createCriteria().andParentIdEqualTo(reportId).andIntegratedEqualTo(false);
+            List<TestPlanReport> testPlanReports = testPlanReportMapper.selectByExample(example);
+            return testPlanReports.stream().map(TestPlanReport::getId).toList();
+        } else {
+            return List.of(reportId);
+        }
     }
 }

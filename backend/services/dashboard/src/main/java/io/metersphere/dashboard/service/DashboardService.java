@@ -52,6 +52,7 @@ import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.dto.CombineCondition;
 import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserLayout;
 import io.metersphere.system.domain.UserLayoutExample;
@@ -1235,17 +1236,18 @@ public class DashboardService {
         return statisticsDTO;
     }
 
-    public StatisticsDTO baseProjectBugCount(DashboardFrontPageRequest request, String userId, Boolean hasHandleUser, Boolean hasCreateUser) {
+    public StatisticsDTO baseProjectBugCount(DashboardFrontPageRequest request, String userId, String handleUserId, Boolean hasHandleUser, Boolean hasCreateUser) {
         String projectId = request.getProjectIds().getFirst();
         StatisticsDTO statisticsDTO = new StatisticsDTO();
         if (Boolean.FALSE.equals(permissionCheckService.checkModule(projectId, BUG_MODULE, userId, PermissionConstants.PROJECT_BUG_READ))) {
             statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
             return statisticsDTO;
         }
-        String handleUser = hasHandleUser ? userId : null;
+        String localHandleUser = hasHandleUser ? userId : null;
+        String handleUser = hasHandleUser ? handleUserId : null;
         String createUser = hasCreateUser ? userId : null;
         Set<String> platforms = getPlatforms(projectId);
-        List<Bug> allSimpleList = extBugMapper.getSimpleList(projectId, null, null, handleUser, createUser, platforms);
+        List<Bug> allSimpleList = extBugMapper.getSimpleList(projectId, null, null, handleUser, createUser, platforms, localHandleUser);
         List<String> localLastStepStatus = getBugEndStatus(projectId);
         List<Bug> statusList = allSimpleList.stream().filter(t -> !localLastStepStatus.contains(t.getStatus())).toList();
         int statusSize = CollectionUtils.isEmpty(statusList) ? 0 : statusList.size();
@@ -1264,11 +1266,17 @@ public class DashboardService {
     @NotNull
     private List<String> getBugEndStatus(String projectId) {
         List<String> localLastStepStatus = bugCommonService.getLocalLastStepStatus(projectId);
+        String platformName = projectApplicationService.getPlatformName(projectId);
+        if (StringUtils.equalsIgnoreCase(platformName, BugPlatform.LOCAL.getName())) {
+            return localLastStepStatus;
+        }
+        // 项目对接三方平台
         List<String> platformLastStepStatus = new ArrayList<>();
         try {
             platformLastStepStatus = bugCommonService.getPlatformLastStepStatus(projectId);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            // 获取三方平台结束状态失败, 只过滤本地结束状态
+            LogUtils.error(Translator.get("get_platform_end_status_error"));
         }
         localLastStepStatus.addAll(platformLastStepStatus);
         return localLastStepStatus;
@@ -1313,16 +1321,16 @@ public class DashboardService {
         return statusPercentList;
     }
 
-    public StatisticsDTO projectBugCount(DashboardFrontPageRequest request, String userId) {
-        return baseProjectBugCount(request, userId, false, false);
+    public StatisticsDTO projectBugCount(DashboardFrontPageRequest request, String userId, String handlerUser) {
+        return baseProjectBugCount(request, userId, handlerUser, false, false);
     }
 
-    public StatisticsDTO projectBugCountCreateByMe(DashboardFrontPageRequest request, String userId) {
-        return baseProjectBugCount(request, userId, false, true);
+    public StatisticsDTO projectBugCountCreateByMe(DashboardFrontPageRequest request, String userId, String handlerUser) {
+        return baseProjectBugCount(request, userId, handlerUser, false, true);
     }
 
-    public StatisticsDTO projectBugCountHandleByMe(DashboardFrontPageRequest request, String userId) {
-        return baseProjectBugCount(request, userId, true, false);
+    public StatisticsDTO projectBugCountHandleByMe(DashboardFrontPageRequest request, String userId, String handlerUser) {
+        return baseProjectBugCount(request, userId, handlerUser, true, false);
     }
 
     public StatisticsDTO projectPlanLegacyBug(DashboardFrontPageRequest request, String userId) {

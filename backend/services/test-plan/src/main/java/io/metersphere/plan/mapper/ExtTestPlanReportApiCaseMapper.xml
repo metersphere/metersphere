@@ -3,7 +3,10 @@
 <mapper namespace="io.metersphere.plan.mapper.ExtTestPlanReportApiCaseMapper">
     <select id="countExecuteResult" resultType="io.metersphere.plan.dto.CaseStatusCountMap">
         select ifnull(tprac.api_case_execute_result, 'PENDING') as status, count(id) as count from test_plan_report_api_case tprac
-        where tprac.test_plan_report_id = #{id}
+        where tprac.test_plan_report_id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
         group by tprac.api_case_execute_result
     </select>
 
@@ -38,7 +41,10 @@
         ifnull(tprac.api_case_execute_result, 'PENDING') as executeResult, tprac.api_case_execute_user as executeUser, atc.project_id projectId
         from test_plan_report_api_case tprac left join api_test_case atc on tprac.api_case_id = atc.id
         left join test_plan_collection tpc on tprac.test_plan_collection_id = tpc.id
-        where tprac.test_plan_report_id = #{request.reportId}
+        where tprac.test_plan_report_id in
+        <foreach collection="request.detailReportIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
         <if test="request.keyword != null and request.keyword != ''">
             and (tprac.api_case_num like concat('%', #{request.keyword}, '%')
             or tprac.api_case_name like concat('%', #{request.keyword}, '%')
@@ -55,7 +61,10 @@
         from test_plan_report_api_case tprac
                  right join test_plan_collection tpc on tprac.test_plan_collection_id = tpc.id and tpc.type = 'API'
                  join test_plan tp on tpc.test_plan_id = tp.id
-        where tprac.test_plan_report_id = #{request.reportId}
+        where tprac.test_plan_report_id in
+        <foreach collection="request.detailReportIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
         <if test="request.keyword != null and request.keyword != ''">
             and (tprac.api_case_name like concat('%', #{request.keyword}, '%')
             or tprac.api_case_num like concat('%', #{request.keyword}, '%')

@@ -163,6 +163,7 @@ public class TestPlanReportController {
     @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_REPORT_READ, PermissionConstants.TEST_PLAN_READ_EXECUTE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
     public Pager<List<BugDTO>> pageBug(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
+        request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprb.bug_num, tprb.id desc");
         if (!request.getStartPager()) {
@@ -177,6 +178,7 @@ public class TestPlanReportController {
     @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_REPORT_READ, PermissionConstants.TEST_PLAN_READ_EXECUTE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
     public Pager<List<ReportDetailCasePageDTO>> pageFunctionalCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
+        request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprfc.pos desc");
         if (!request.getStartPager()) {
@@ -201,6 +203,7 @@ public class TestPlanReportController {
     @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_REPORT_READ, PermissionConstants.TEST_PLAN_READ_EXECUTE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
     public Pager<List<ReportDetailCasePageDTO>> pageApiCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
+        request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprac.pos desc");
         if (!request.getStartPager()) {
@@ -218,6 +221,7 @@ public class TestPlanReportController {
     @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_REPORT_READ, PermissionConstants.TEST_PLAN_READ_EXECUTE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
     public Pager<List<ReportDetailCasePageDTO>> pageScenarioCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
+        request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpras.pos desc");
         if (!request.getStartPager()) {
@@ -249,7 +253,6 @@ public class TestPlanReportController {
         return testPlanReportService.previewMd(projectId, fileId, compressed);
     }
 
-
     @PostMapping("/export/{reportId}")
     @Operation(summary = "测试计划-报告-导出日志")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_REPORT_READ_EXPORT)
@@ -264,13 +267,13 @@ public class TestPlanReportController {
         testPlanReportService.batchExportLog(request, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
     }
 
-
     @PostMapping("/detail/{type}/collection/page")
     @Operation(summary = "测试计划-报告-详情-测试集分页查询(不同用例类型)")
     @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_REPORT_READ, PermissionConstants.TEST_PLAN_READ_EXECUTE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
     @Parameter(name = "type", description = "用例类型", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED), example = "functional, api, scenario")
     public Pager<List<TestPlanReportDetailCollectionResponse>> collectionPage(@PathVariable String type, @Validated @RequestBody TestPlanReportDetailPageRequest request) {
+        request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
         // 默认按照测试集的位序升序
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), "tpc.pos asc");
         return PageUtils.setPageInfo(page, testPlanReportService.listReportCollection(request, type));

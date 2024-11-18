@@ -43,10 +43,10 @@ public interface ExtTestPlanReportFunctionalCaseMapper {
 
 	/**
 	 * 统计报告中功能用例执行情况
-	 * @param reportId 报告ID
+	 * @param reportIds 报告ID集合
 	 * @return 用例数量
 	 */
-	List<CaseStatusCountMap> countExecuteResult(@Param("id") String reportId);
+	List<CaseStatusCountMap> countExecuteResult(@Param("ids") List<String> reportIds);
 
 	/**
 	 * 分页查询报告关联的用例

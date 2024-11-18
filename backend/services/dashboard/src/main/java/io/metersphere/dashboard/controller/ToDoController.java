@@ -16,10 +16,8 @@ import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.plan.service.TestPlanStatisticsService;
-import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.service.UserPlatformAccountService;
 import io.metersphere.system.utils.PageUtils;
@@ -118,15 +116,8 @@ public class ToDoController {
 				return todoParam;
 			}
 			todoParam.setCurrentPlatform(platformName);
-			List<String> platformLastStepStatus = bugCommonService.getPlatformLastStepStatus(request.getProjectId());
-			todoParam.setPlatformLastStatus(platformLastStepStatus);
-			ServiceIntegration serviceIntegration = projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand(request.getProjectId(), true);
-			String platformUserName = userPlatformAccountService.getPlatformUserName(currentUserId, currentOrgId, serviceIntegration.getPluginId());
-			List<SelectOption> headerHandlerOption = bugCommonService.getHeaderHandlerOption(request.getProjectId());
-			if (StringUtils.isNotBlank(platformUserName)) {
-				headerHandlerOption.stream().filter(option -> StringUtils.containsAnyIgnoreCase(option.getText(), platformUserName))
-						.findFirst().ifPresent(option -> todoParam.setPlatformUser(option.getValue()));
-			}
+			todoParam.setPlatformLastStatus(bugCommonService.getPlatformLastStepStatus(request.getProjectId()));
+			todoParam.setPlatformUser(bugCommonService.getPlatformHandlerUser(request.getProjectId(), currentUserId, currentOrgId));
 		} catch (Exception e) {
 			// 设置平台参数异常时, 无法正常过滤平台非结束的缺陷
 			LogUtils.error(e.getMessage());

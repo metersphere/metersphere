@@ -3,7 +3,10 @@
 <mapper namespace="io.metersphere.plan.mapper.ExtTestPlanReportApiScenarioMapper">
     <select id="countExecuteResult" resultType="io.metersphere.plan.dto.CaseStatusCountMap">
         select ifnull(tpras.api_scenario_execute_result, 'PENDING') as status, count(id) as count from test_plan_report_api_scenario tpras
-        where tpras.test_plan_report_id = #{id}
+        where tpras.test_plan_report_id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
         group by tpras.api_scenario_execute_result
     </select>
 
@@ -37,7 +40,10 @@
         ifnull(tpras.api_scenario_execute_result, 'PENDING') as executeResult, tpras.api_scenario_execute_user as executeUser, aso.project_id projectId
         from test_plan_report_api_scenario tpras left join api_scenario aso on tpras.api_scenario_id = aso.id
         left join test_plan_collection tpc on tpras.test_plan_collection_id = tpc.id
-        where tpras.test_plan_report_id = #{request.reportId}
+        where tpras.test_plan_report_id in
+        <foreach collection="request.detailReportIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
         <if test="request.keyword != null and request.keyword != ''">
             and (tpras.api_scenario_num like concat('%', #{request.keyword}, '%')
             or tpras.api_scenario_name like concat('%', #{request.keyword}, '%')
@@ -54,7 +60,10 @@
         from test_plan_report_api_scenario tpras
                  right join test_plan_collection tpc on tpras.test_plan_collection_id = tpc.id and tpc.type = 'SCENARIO'
                  join test_plan tp on tpc.test_plan_id = tp.id
-        where tpras.test_plan_report_id = #{request.reportId}
+        where tpras.test_plan_report_id in
+        <foreach collection="request.detailReportIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
         <if test="request.keyword != null and request.keyword != ''">
             and (tpras.api_scenario_name like concat('%', #{request.keyword}, '%')
             or tpras.api_scenario_num like concat('%', #{request.keyword}, '%')

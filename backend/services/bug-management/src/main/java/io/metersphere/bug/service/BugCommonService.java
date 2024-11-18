@@ -25,6 +25,7 @@ import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.service.FileService;
 import io.metersphere.system.service.PlatformPluginService;
 import io.metersphere.system.service.PluginLoadService;
+import io.metersphere.system.service.UserPlatformAccountService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,6 +70,8 @@ public class BugCommonService {
 	private BugLocalAttachmentMapper bugLocalAttachmentMapper;
 	@Resource
 	private ProjectApplicationService projectApplicationService;
+	@Resource
+	private UserPlatformAccountService userPlatformAccountService;
 
 	/**
 	 * 获取表头处理人选项
@@ -210,5 +214,27 @@ public class BugCommonService {
 		Platform platform = projectApplicationService.getPlatform(projectId, true);
 		List<SelectOption> platformLastSteps = platform.getStatusTransitionsLastSteps(projectApplicationService.getProjectBugThirdPartConfig(projectId));
 		return platformLastSteps.stream().map(SelectOption::getValue).toList();
+	}
+
+	/**
+	 * 获取登录用户平台处理人
+	 * @param projectId 项目ID
+	 * @param currentUserId 当前用户ID
+	 * @param currentOrgId 当前组织ID
+	 * @return 平台处理人
+	 */
+	public String getPlatformHandlerUser(String projectId, String currentUserId, String currentOrgId) {
+		ServiceIntegration serviceIntegration = projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand(projectId, true);
+		String platformUserName = userPlatformAccountService.getPlatformUserName(currentUserId, currentOrgId, serviceIntegration.getPluginId());
+		List<SelectOption> headerHandlerOption = getHeaderHandlerOption(projectId);
+		if (StringUtils.isNotBlank(platformUserName)) {
+			Optional<SelectOption> handleOption = headerHandlerOption.stream().filter(option -> StringUtils.containsAnyIgnoreCase(option.getText(), platformUserName))
+					.findFirst();
+			if (handleOption.isPresent()) {
+				return handleOption.get().getValue();
+			}
+			return platformUserName;
+		}
+		return null;
 	}
 }

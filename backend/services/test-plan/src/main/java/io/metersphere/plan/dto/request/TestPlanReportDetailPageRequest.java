@@ -6,6 +6,11 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
+/**
+ * @author song-cc-rock
+ */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class TestPlanReportDetailPageRequest extends BasePageRequest {
@@ -19,4 +24,7 @@ public class TestPlanReportDetailPageRequest extends BasePageRequest {
 
 	@Schema(description = "测试集ID")
 	private String collectionId;
+
+	@Schema(description = "报告ID集合")
+	private List<String> detailReportIds;
 }
