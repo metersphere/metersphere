@@ -81,6 +81,15 @@ public class ExecTask implements Serializable {
     @NotNull(message = "{exec_task.parallel.not_blank}", groups = {Created.class})
     private Boolean parallel;
 
+    @Schema(description = "用例批量执行环境ID")
+    private String environmentId;
+
+    @Schema(description = "资源池ID")
+    private String poolId;
+
+    @Schema(description = "是否是环境组")
+    private Boolean envGrouped;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -101,7 +110,10 @@ public class ExecTask implements Serializable {
         startTime("start_time", "startTime", "BIGINT", false),
         endTime("end_time", "endTime", "BIGINT", false),
         deleted("deleted", "deleted", "BIT", false),
-        parallel("parallel", "parallel", "BIT", false);
+        parallel("parallel", "parallel", "BIT", false),
+        environmentId("environment_id", "environmentId", "VARCHAR", false),
+        poolId("pool_id", "poolId", "VARCHAR", false),
+        envGrouped("env_grouped", "envGrouped", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

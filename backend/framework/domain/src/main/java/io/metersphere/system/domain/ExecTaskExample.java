@@ -1283,6 +1283,206 @@ public class ExecTaskExample {
             addCriterion("parallel not between", value1, value2, "parallel");
             return (Criteria) this;
         }
+
+        public Criteria andEnvironmentIdIsNull() {
+            addCriterion("environment_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIsNotNull() {
+            addCriterion("environment_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdEqualTo(String value) {
+            addCriterion("environment_id =", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotEqualTo(String value) {
+            addCriterion("environment_id <>", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdGreaterThan(String value) {
+            addCriterion("environment_id >", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdGreaterThanOrEqualTo(String value) {
+            addCriterion("environment_id >=", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLessThan(String value) {
+            addCriterion("environment_id <", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLessThanOrEqualTo(String value) {
+            addCriterion("environment_id <=", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLike(String value) {
+            addCriterion("environment_id like", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotLike(String value) {
+            addCriterion("environment_id not like", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIn(List<String> values) {
+            addCriterion("environment_id in", values, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotIn(List<String> values) {
+            addCriterion("environment_id not in", values, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdBetween(String value1, String value2) {
+            addCriterion("environment_id between", value1, value2, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotBetween(String value1, String value2) {
+            addCriterion("environment_id not between", value1, value2, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPoolIdIsNull() {
+            addCriterion("pool_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPoolIdIsNotNull() {
+            addCriterion("pool_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPoolIdEqualTo(String value) {
+            addCriterion("pool_id =", value, "poolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPoolIdNotEqualTo(String value) {
+            addCriterion("pool_id <>", value, "poolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPoolIdGreaterThan(String value) {
+            addCriterion("pool_id >", value, "poolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPoolIdGreaterThanOrEqualTo(String value) {
+            addCriterion("pool_id >=", value, "poolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPoolIdLessThan(String value) {
+            addCriterion("pool_id <", value, "poolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPoolIdLessThanOrEqualTo(String value) {
+            addCriterion("pool_id <=", value, "poolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPoolIdLike(String value) {
+            addCriterion("pool_id like", value, "poolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPoolIdNotLike(String value) {
+            addCriterion("pool_id not like", value, "poolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPoolIdIn(List<String> values) {
+            addCriterion("pool_id in", values, "poolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPoolIdNotIn(List<String> values) {
+            addCriterion("pool_id not in", values, "poolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPoolIdBetween(String value1, String value2) {
+            addCriterion("pool_id between", value1, value2, "poolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPoolIdNotBetween(String value1, String value2) {
+            addCriterion("pool_id not between", value1, value2, "poolId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvGroupedIsNull() {
+            addCriterion("env_grouped is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvGroupedIsNotNull() {
+            addCriterion("env_grouped is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvGroupedEqualTo(Boolean value) {
+            addCriterion("env_grouped =", value, "envGrouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvGroupedNotEqualTo(Boolean value) {
+            addCriterion("env_grouped <>", value, "envGrouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvGroupedGreaterThan(Boolean value) {
+            addCriterion("env_grouped >", value, "envGrouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvGroupedGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("env_grouped >=", value, "envGrouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvGroupedLessThan(Boolean value) {
+            addCriterion("env_grouped <", value, "envGrouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvGroupedLessThanOrEqualTo(Boolean value) {
+            addCriterion("env_grouped <=", value, "envGrouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvGroupedIn(List<Boolean> values) {
+            addCriterion("env_grouped in", values, "envGrouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvGroupedNotIn(List<Boolean> values) {
+            addCriterion("env_grouped not in", values, "envGrouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvGroupedBetween(Boolean value1, Boolean value2) {
+            addCriterion("env_grouped between", value1, value2, "envGrouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvGroupedNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("env_grouped not between", value1, value2, "envGrouped");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

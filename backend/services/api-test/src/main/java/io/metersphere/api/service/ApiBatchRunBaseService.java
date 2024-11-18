@@ -1,6 +1,9 @@
 package io.metersphere.api.service;
 
+import io.metersphere.api.domain.ApiReportRelateTask;
+import io.metersphere.api.domain.ApiReportRelateTaskExample;
 import io.metersphere.api.domain.ApiScenarioReport;
+import io.metersphere.api.mapper.ApiReportRelateTaskMapper;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.CommonConstants;
@@ -18,7 +21,9 @@ import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.mapper.ExecTaskMapper;
 import io.metersphere.system.mapper.ExtExecTaskItemMapper;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -40,6 +45,8 @@ public class ApiBatchRunBaseService {
     private ApiExecuteService apiExecuteService;
     @Resource
     private ExecTaskMapper execTaskMapper;
+    @Resource
+    private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
 
     public static final int BATCH_TASK_ITEM_SIZE = 500;
 
@@ -282,5 +289,16 @@ public class ApiBatchRunBaseService {
     public void initQueueDetail(ExecutionQueue queue, List<ExecTaskItem> execTaskItems) {
         SubListUtils.dealForSubList(execTaskItems, ApiBatchRunBaseService.BATCH_TASK_ITEM_SIZE,
                 subExecTaskItems -> initExecutionQueueDetails(queue.getQueueId(), subExecTaskItems));
+    }
+
+    public String getIntegratedReportId(ExecTask execTask) {
+        ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
+        example.createCriteria().andTaskResourceIdEqualTo(execTask.getId());
+        List<ApiReportRelateTask> apiReportRelateTasks = apiReportRelateTaskMapper.selectByExample(example);
+        String reportId = IDGenerator.nextStr();
+        if (CollectionUtils.isNotEmpty(apiReportRelateTasks)) {
+            reportId = apiReportRelateTasks.getFirst().getReportId();
+        }
+        return reportId;
     }
 }

@@ -1,5 +1,6 @@
 package io.metersphere.system.mapper;
 
+import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.BatchExecTaskReportDTO;
@@ -70,4 +71,6 @@ public interface ExtExecTaskItemMapper {
     void deleteRerunTaskItemReportRelation(@Param("taskId") String taskId);
 
     Set<String> selectRerunCollectionIds(@Param("taskId") String taskId);
+
+    List<ExecTaskItem> selectIdAndResourceIdByTaskId(@Param("taskId") String taskId);
 }

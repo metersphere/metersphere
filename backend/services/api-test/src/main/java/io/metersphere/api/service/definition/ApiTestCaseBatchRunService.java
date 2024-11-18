@@ -18,9 +18,10 @@ import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
+import io.metersphere.system.mapper.ExtExecTaskItemMapper;
 import io.metersphere.system.service.BaseTaskHubService;
-import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,6 +67,8 @@ public class ApiTestCaseBatchRunService {
     private ProjectMapper projectMapper;
     @Resource
     private BaseTaskHubService baseTaskHubService;
+    @Resource
+    private ExtExecTaskItemMapper extExecTaskItemMapper;
 
     public static final int TASK_BATCH_SIZE = 600;
 
@@ -159,6 +162,10 @@ public class ApiTestCaseBatchRunService {
         execTask.setTriggerMode(TaskTriggerMode.BATCH.name());
         execTask.setTaskType(ExecTaskType.API_CASE_BATCH.name());
         execTask.setIntegrated(runModeConfig.getIntegratedReport());
+        execTask.setPoolId(runModeConfig.getPoolId());
+        execTask.setParallel(StringUtils.equals(runModeConfig.getRunMode(), ApiBatchRunMode.PARALLEL.name()));
+        execTask.setEnvGrouped(runModeConfig.getGrouped());
+        execTask.setEnvironmentId(runModeConfig.getEnvironmentId());
         baseTaskHubService.insertExecTask(execTask);
         return execTask;
     }
@@ -267,6 +274,21 @@ public class ApiTestCaseBatchRunService {
         return runModeConfig;
     }
 
+    public ApiRunModeConfigDTO getRunModeConfig(ExecTask execTask) {
+        ApiRunModeConfigDTO runModeConfig = BeanUtils.copyBean(new ApiRunModeConfigDTO(), execTask);
+        runModeConfig.setRunMode(BooleanUtils.isTrue(execTask.getParallel()) ? ApiBatchRunMode.PARALLEL.name() : ApiBatchRunMode.SERIAL.name());
+        runModeConfig.setPoolId(execTask.getPoolId());
+        runModeConfig.setEnvironmentId(execTask.getEnvironmentId());
+        runModeConfig.setGrouped(execTask.getEnvGrouped());
+        runModeConfig.setIntegratedReport(execTask.getIntegrated());
+        if (BooleanUtils.isTrue(execTask.getIntegrated())) {
+            runModeConfig.setCollectionReport(new CollectionReportDTO());
+            runModeConfig.getCollectionReport().setReportId(apiBatchRunBaseService.getIntegratedReportId(execTask));
+            runModeConfig.getCollectionReport().setReportName(execTask.getTaskName());
+        }
+        return runModeConfig;
+    }
+
     /**
      * 预生成用例的执行报告
      *
@@ -356,7 +378,7 @@ public class ApiTestCaseBatchRunService {
 
         String integratedReportId = null;
         if (runModeConfig.isIntegratedReport()) {
-            integratedReportId = runModeConfig.getCollectionReport().getReportId() + IDGenerator.nextStr();
+            integratedReportId = runModeConfig.getCollectionReport().getReportId();
         }
 
         if (apiTestCase == null) {
@@ -368,6 +390,7 @@ public class ApiTestCaseBatchRunService {
         taskRequest.getTaskInfo().setTaskId(queue.getTaskId());
         taskRequest.getTaskInfo().setQueueId(queue.getQueueId());
         taskRequest.getTaskInfo().setUserId(queue.getUserId());
+        taskRequest.getTaskInfo().setRerun(queue.getRerun());
         taskRequest.getTaskItem().setRequestCount(1L);
         taskRequest.getTaskItem().setId(taskItemId);
 
@@ -450,5 +473,56 @@ public class ApiTestCaseBatchRunService {
             report.setExecStatus(ExecStatus.COMPLETED.name());
             apiReportMapper.updateByPrimaryKeySelective(report);
         }
+    }
+
+    public void rerun(ExecTask execTask, String userId) {
+        if (BooleanUtils.isTrue(execTask.getParallel())) {
+            parallelRerunExecute(execTask, userId);
+        } else {
+            serialRerunExecute(execTask, userId);
+        }
+    }
+
+    private void serialRerunExecute(ExecTask execTask, String userId) {
+        ApiRunModeConfigDTO runModeConfig = getRunModeConfig(execTask);
+
+        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectIdAndResourceIdByTaskId(execTask.getId());
+
+        // 初始化执行队列
+        ExecutionQueue queue = apiBatchRunBaseService.getExecutionQueue(runModeConfig, ApiExecuteResourceType.API_CASE.name(), execTask.getId(), userId);
+        queue.setQueueId(execTask.getId());
+        queue.setRerun(true);
+        apiExecutionQueueService.insertQueue(queue);
+
+        // 初始化队列项
+        apiBatchRunBaseService.initExecutionQueueDetails(queue.getQueueId(), execTaskItems);
+
+        // 执行第一个任务
+        ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
+        executeNextTask(queue, nextDetail);
+    }
+
+    /**
+     * 并行重跑
+     *
+     */
+    public void parallelRerunExecute(ExecTask execTask, String userId) {
+        String projectId = execTask.getProjectId();
+        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectIdAndResourceIdByTaskId(execTask.getId());
+        ApiRunModeConfigDTO runModeConfig = getRunModeConfig(execTask);
+
+        // 记录用例和任务的映射
+        Map<String, String> resourceExecTaskItemMap = new TreeMap<>();
+        execTaskItems.forEach(item -> resourceExecTaskItemMap.put(item.getResourceId(), item.getId()));
+
+        TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(projectId, runModeConfig);
+        taskRequest.getTaskInfo().setTaskId(execTask.getId());
+        taskRequest.getTaskInfo().setSetId(execTask.getId());
+        taskRequest.getTaskInfo().setUserId(userId);
+        taskRequest.getTaskInfo().setRerun(true);
+
+        // 记录任务项，用于统计整体执行情况
+        apiExecutionSetService.initSet(execTask.getId(), new ArrayList<>(resourceExecTaskItemMap.values()));
+        apiBatchRunBaseService.parallelBatchExecute(taskRequest, runModeConfig, resourceExecTaskItemMap);
     }
 }

@@ -6,10 +6,12 @@ import io.metersphere.api.dto.scenario.ApiScenarioBatchRunRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioDetail;
 import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
+import io.metersphere.api.mapper.ApiScenarioReportStepMapper;
 import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
+import io.metersphere.api.service.definition.ApiTestCaseBatchRunService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
 import io.metersphere.api.service.queue.ApiExecutionSetService;
 import io.metersphere.project.domain.Project;
@@ -21,6 +23,7 @@ import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
+import io.metersphere.system.mapper.ExtExecTaskItemMapper;
 import io.metersphere.system.service.BaseTaskHubService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
@@ -67,6 +70,12 @@ public class ApiScenarioBatchRunService {
     private ApiCommonService apiCommonService;
     @Resource
     private BaseTaskHubService baseTaskHubService;
+    @Resource
+    private ApiTestCaseBatchRunService apiTestCaseBatchRunService;
+    @Resource
+    private ExtExecTaskItemMapper extExecTaskItemMapper;
+    @Resource
+    private ApiScenarioReportStepMapper apiScenarioReportStepMapper;
 
     public static final int TASK_BATCH_SIZE = 600;
 
@@ -225,6 +234,10 @@ public class ApiScenarioBatchRunService {
         } else {
             execTask.setTaskName(Translator.get("api_scenario_batch_task_name"));
         }
+        execTask.setPoolId(runModeConfig.getPoolId());
+        execTask.setParallel(StringUtils.equals(runModeConfig.getRunMode(), ApiBatchRunMode.PARALLEL.name()));
+        execTask.setEnvGrouped(runModeConfig.getGrouped());
+        execTask.setEnvironmentId(runModeConfig.getEnvironmentId());
         execTask.setOrganizationId(project.getOrganizationId());
         execTask.setTriggerMode(TaskTriggerMode.BATCH.name());
         execTask.setTaskType(ExecTaskType.API_SCENARIO_BATCH.name());
@@ -336,6 +349,7 @@ public class ApiScenarioBatchRunService {
         taskRequest.getTaskInfo().setQueueId(queue.getQueueId());
         taskRequest.getTaskInfo().setUserId(queue.getUserId());
         taskRequest.getTaskInfo().setTaskId(queue.getTaskId());
+        taskRequest.getTaskInfo().setRerun(queue.getRerun());
 
         apiExecuteService.execute(taskRequest);
     }
@@ -430,6 +444,76 @@ public class ApiScenarioBatchRunService {
             apiScenarioReportMapper.updateByPrimaryKeySelective(report);
         } catch (Exception e) {
             LogUtils.error("失败停止，补充报告步骤失败：", e);
+        }
+    }
+
+    public void rerun(ExecTask execTask, String userId) {
+        if (BooleanUtils.isTrue(execTask.getParallel())) {
+            parallelRerunExecute(execTask, userId);
+        } else {
+            serialRerunExecute(execTask, userId);
+        }
+    }
+
+    private void serialRerunExecute(ExecTask execTask, String userId) {
+        ApiRunModeConfigDTO runModeConfig = apiTestCaseBatchRunService.getRunModeConfig(execTask);
+
+        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectIdAndResourceIdByTaskId(execTask.getId());
+
+        // 删除重跑的步骤
+        deleteRerunIntegratedStepResult(execTask, execTaskItems, runModeConfig);
+
+        // 初始化执行队列
+        ExecutionQueue queue = apiBatchRunBaseService.getExecutionQueue(runModeConfig, ApiExecuteResourceType.API_SCENARIO.name(), execTask.getId(), userId);
+        queue.setQueueId(execTask.getId());
+        queue.setRerun(true);
+        apiExecutionQueueService.insertQueue(queue);
+
+        // 初始化队列项
+        apiBatchRunBaseService.initExecutionQueueDetails(queue.getQueueId(), execTaskItems);
+
+        // 执行第一个任务
+        ExecutionQueueDetail nextDetail = apiExecutionQueueService.getNextDetail(queue.getQueueId());
+        executeNextTask(queue, nextDetail);
+    }
+
+    /**
+     * 并行重跑
+     *
+     */
+    public void parallelRerunExecute(ExecTask execTask, String userId) {
+        String projectId = execTask.getProjectId();
+        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectIdAndResourceIdByTaskId(execTask.getId());
+        ApiRunModeConfigDTO runModeConfig = apiTestCaseBatchRunService.getRunModeConfig(execTask);
+
+        // 删除重跑的步骤
+        deleteRerunIntegratedStepResult(execTask, execTaskItems, runModeConfig);
+
+        // 记录用例和任务的映射
+        Map<String, String> resourceExecTaskItemMap = new TreeMap<>();
+        execTaskItems.forEach(item -> resourceExecTaskItemMap.put(item.getResourceId(), item.getId()));
+
+        TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(projectId, runModeConfig);
+        taskRequest.getTaskInfo().setTaskId(execTask.getId());
+        taskRequest.getTaskInfo().setSetId(execTask.getId());
+        taskRequest.getTaskInfo().setUserId(userId);
+        taskRequest.getTaskInfo().setRerun(true);
+
+        // 记录任务项，用于统计整体执行情况
+        apiExecutionSetService.initSet(execTask.getId(), new ArrayList<>(resourceExecTaskItemMap.values()));
+        apiBatchRunBaseService.parallelBatchExecute(taskRequest, runModeConfig, resourceExecTaskItemMap);
+    }
+
+    private void deleteRerunIntegratedStepResult(ExecTask execTask, List<ExecTaskItem> execTaskItems, ApiRunModeConfigDTO runModeConfig) {
+        if (BooleanUtils.isTrue(execTask.getIntegrated())) {
+            SubListUtils.dealForSubList(execTaskItems, TASK_BATCH_SIZE, subItems -> {
+                // 删除子步骤,重新执行
+                ApiScenarioReportStepExample stepExample = new ApiScenarioReportStepExample();
+                stepExample.createCriteria()
+                        .andReportIdEqualTo(runModeConfig.getCollectionReport().getReportId())
+                        .andParentIdIn(subItems.stream().map(ExecTaskItem::getResourceId).toList());
+                apiScenarioReportStepMapper.deleteByExample(stepExample);
+            });
         }
     }
 }

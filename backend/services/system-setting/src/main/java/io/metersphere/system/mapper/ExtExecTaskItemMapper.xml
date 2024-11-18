@@ -327,6 +327,11 @@
         from exec_task_item
         where task_id = #{taskId} and rerun = true and deleted = false;
     </select>
+    <select id="selectIdAndResourceIdByTaskId" resultType="io.metersphere.system.domain.ExecTaskItem">
+        select id, resource_id
+        from exec_task_item
+        where task_id = #{taskId} and deleted = false
+    </select>
 
     <update id="resetRerunTaskItem">
         UPDATE exec_task_item

@@ -88,5 +88,10 @@ ALTER TABLE exec_task_item ADD rerun bit(1) DEFAULT 0 NULL COMMENT '是否是重
 -- 任务添加串并行字段
 ALTER TABLE exec_task ADD parallel bit(1) DEFAULT 1 NOT NULL COMMENT '是否是并行执行';
 
+-- 任务记录批量执行的环境等信息
+ALTER TABLE exec_task ADD environment_id varchar(50) NULL COMMENT '用例批量执行环境ID';
+ALTER TABLE exec_task ADD env_grouped bit(1) DEFAULT 0 NULL COMMENT '是否是环境组';
+ALTER TABLE exec_task ADD pool_id varchar(50) NULL COMMENT '资源池ID';
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
