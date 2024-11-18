@@ -3,7 +3,9 @@ package io.metersphere.dashboard.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.definition.ApiDefinitionUpdateDTO;
+import io.metersphere.bug.dto.response.BugColumnsOptionDTO;
 import io.metersphere.bug.service.BugCommonService;
+import io.metersphere.bug.service.BugService;
 import io.metersphere.dashboard.dto.LayoutDTO;
 import io.metersphere.dashboard.request.DashboardFrontPageRequest;
 import io.metersphere.dashboard.response.OverViewCountDTO;
@@ -14,6 +16,7 @@ import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -35,6 +38,8 @@ public class DashboardController {
 
     @Resource
     private DashboardService dashboardService;
+    @Resource
+    private BugService bugService;
     @Resource
     private BugCommonService bugCommonService;
     @Resource
@@ -185,5 +190,18 @@ public class DashboardController {
         return PageUtils.setPageInfo(page, dashboardService.getApiUpdatePage(request));
     }
 
+    @GetMapping("/header/custom-field/{projectId}")
+    @Operation(summary = "缺陷列表-获取表头自定义字段集合")
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public List<TemplateCustomFieldDTO> getHeaderFields(@PathVariable String projectId) {
+        return bugService.getHeaderCustomFields(projectId);
+    }
+
+    @GetMapping("/header/columns-option/{projectId}")
+    @Operation(summary = "缺陷列表-获取表头状态选项")
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public BugColumnsOptionDTO getHeaderOption(@PathVariable String projectId) {
+        return bugService.getHeaderOption(projectId);
+    }
 
 }

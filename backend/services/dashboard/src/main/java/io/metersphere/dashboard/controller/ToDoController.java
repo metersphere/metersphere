@@ -19,7 +19,6 @@ import io.metersphere.plan.service.TestPlanStatisticsService;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.security.CheckOwner;
-import io.metersphere.system.service.UserPlatformAccountService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -56,8 +55,6 @@ public class ToDoController {
 	private TestPlanManagementService testPlanManagementService;
 	@Resource
 	private ProjectApplicationService projectApplicationService;
-	@Resource
-	private UserPlatformAccountService userPlatformAccountService;
 	@Resource
 	private TestPlanStatisticsService testPlanStatisticsService;
 
