@@ -354,7 +354,7 @@ public class DashboardService {
         Map<String, Set<String>> permissionModuleProjectIdMap = dashboardProjectService.getPermissionModuleProjectIds(allPermissionProjects, userId);
         List<ProjectUserMemberDTO> orgProjectMemberList = extProjectMemberMapper.getOrgProjectMemberList(organizationId, null);
         rebuildLayouts(layoutDTOS, allPermissionProjects, orgProjectMemberList, permissionModuleProjectIdMap);
-        return layoutDTOS;
+        return layoutDTOS.stream().sorted(Comparator.comparing(LayoutDTO::getPos)).collect(Collectors.toList());
     }
 
     /**
