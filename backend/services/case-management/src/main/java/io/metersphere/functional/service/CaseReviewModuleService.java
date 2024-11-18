@@ -119,8 +119,8 @@ public class CaseReviewModuleService extends ModuleTreeService {
     public void deleteModule(String moduleId, String userId) {
         CaseReviewModule deleteModule = caseReviewModuleMapper.selectByPrimaryKey(moduleId);
         if (deleteModule != null) {
-            List<CaseReview> caseReviews = this.deleteModuleByIds(Collections.singletonList(moduleId), new ArrayList<>(), deleteModule.getProjectId());
-            caseReviewModuleLogService.batchDelLog(caseReviews, deleteModule.getProjectId(), userId, "/case/review/module/delete/" + moduleId);
+            this.deleteModuleByIds(Collections.singletonList(moduleId), new ArrayList<>(), deleteModule.getProjectId());
+            caseReviewModuleLogService.batchDelLog(List.of(deleteModule), deleteModule.getProjectId(), userId, "/case/review/module/delete/" + moduleId);
         }
     }
 

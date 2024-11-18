@@ -6,6 +6,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -79,15 +80,15 @@ public class CaseReviewModuleLogService {
     /**
      * 评审删除模块日志
      *
-     * @param caseReviews
+     * @param deleteModule
      * @param projectId
      * @param userId
      * @param path
      */
-    public void batchDelLog(List<CaseReview> caseReviews, String projectId, String userId, String path) {
+    public void batchDelLog(List<CaseReviewModule> deleteModule, String projectId, String userId, String path) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         List<LogDTO> dtoList = new ArrayList<>();
-        caseReviews.forEach(item -> {
+        deleteModule.forEach(item -> {
             LogDTO dto = new LogDTO(
                     projectId,
                     project.getOrganizationId(),
@@ -95,7 +96,7 @@ public class CaseReviewModuleLogService {
                     userId,
                     OperationLogType.DELETE.name(),
                     OperationLogModule.CASE_MANAGEMENT_REVIEW_REVIEW_MODULE,
-                    item.getName());
+                    item.getName() + " " + Translator.get("log.delete_module"));
             dto.setPath(path);
             dto.setMethod(HttpMethodConstants.GET.name());
             dto.setOriginalValue(JSON.toJSONBytes(item));

@@ -6,6 +6,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -106,6 +107,7 @@ public class FunctionalCaseModuleLogService {
 
     /**
      * 功能用例模块删除日志
+     *
      * @param deleteModule
      * @param projectId
      * @param userId
@@ -122,7 +124,7 @@ public class FunctionalCaseModuleLogService {
                     userId,
                     type,
                     OperationLogModule.CASE_MANAGEMENT_CASE_MODULE,
-                    item.getName());
+                    item.getName() + " " + Translator.get("log.delete_module"));
             dto.setPath(path);
             dto.setMethod(HttpMethodConstants.GET.name());
             dto.setOriginalValue(JSON.toJSONBytes(item));
