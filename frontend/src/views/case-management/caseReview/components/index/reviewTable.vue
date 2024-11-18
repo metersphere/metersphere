@@ -486,6 +486,10 @@
       title: 'common.createTime',
       dataIndex: 'createTime',
       showDrag: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       width: 180,
     },
     {
