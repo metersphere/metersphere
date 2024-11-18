@@ -80,7 +80,7 @@ public class HarParserApiScenario implements ApiScenarioImportParser {
             HarRequest harRequest = entry.request;
             if (harRequest != null) {
                 // css 、 js 略过
-                if (StringUtils.equalsIgnoreCase(harRequest.method, HttpMethodConstants.GET.name()) && StringUtils.endsWithAny(harRequest.url.toLowerCase(), ".css", ".js", ".png", ".jpg", ".jpeg")) {
+                if (StringUtils.equalsIgnoreCase(harRequest.method, HttpMethodConstants.GET.name()) && StringUtils.endsWithAny(harRequest.url.toLowerCase(), ".svg", ".css", ".js", ".png", ".jpg", ".jpeg")) {
                     continue;
                 }
                 String url = harRequest.url;
