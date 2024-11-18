@@ -1159,11 +1159,10 @@ public class DashboardService {
             passRateDTO.setCount(getTurnCount(divide));
         }
         passRateDTOS.add(passRateDTO);
-        NameCountDTO passDTO = getNameCountDTO(successSize, Translator.get("api_management.passCount"));
-        passRateDTOS.add(passDTO);
-
         NameCountDTO unPassDTO = getNameCountDTO(errorSize, Translator.get("api_management.unPassCount"));
         passRateDTOS.add(unPassDTO);
+        NameCountDTO passDTO = getNameCountDTO(successSize, Translator.get("api_management.passCount"));
+        passRateDTOS.add(passDTO);
         return passRateDTOS;
     }
 
@@ -1179,10 +1178,10 @@ public class DashboardService {
             execRateDTO.setCount(getTurnCount(divide));
         }
         execRateDTOS.add(execRateDTO);
-        NameCountDTO execDTO = getNameCountDTO(simpleAllApiCaseSize - unExecSize, Translator.get("api_management.execCount"));
-        execRateDTOS.add(execDTO);
         NameCountDTO unExecDTO = getNameCountDTO(unExecSize, Translator.get("api_management.unExecCount"));
         execRateDTOS.add(unExecDTO);
+        NameCountDTO execDTO = getNameCountDTO(simpleAllApiCaseSize - unExecSize, Translator.get("api_management.execCount"));
+        execRateDTOS.add(execDTO);
         return execRateDTOS;
     }
 
