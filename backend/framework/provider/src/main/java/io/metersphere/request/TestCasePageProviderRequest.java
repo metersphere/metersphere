@@ -41,8 +41,6 @@ public class TestCasePageProviderRequest extends BaseCondition implements Serial
     private String apiDefinitionId;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.project_id.not_blank}")
-    @Size(min = 1, max = 50, message = "{api_definition.project_id.length_range}")
     private String projectId;
 
     @Schema(description = "接口协议", requiredMode = Schema.RequiredMode.REQUIRED)

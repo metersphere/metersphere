@@ -124,10 +124,20 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         MvcResult mvcResultAll = this.requestPostWithOkAndReturn(PROJECT_VIEW, dashboardFrontPageRequest);
         OverViewCountDTO moduleCountAll = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResultAll).get("data")), OverViewCountDTO.class);
         Assertions.assertNotNull(moduleCountAll);
+        dashboardFrontPageRequest.setProjectIds(new ArrayList<>());
+        dashboardFrontPageRequest.setSelectAll(false);
+        mvcResult = this.requestPostWithOkAndReturn(CREATE_BY_ME, dashboardFrontPageRequest);
+        contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        moduleCount = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), OverViewCountDTO.class);
+        Assertions.assertNotNull(moduleCount);
+        mvcResultAll = this.requestPostWithOkAndReturn(PROJECT_VIEW, dashboardFrontPageRequest);
+        moduleCountAll = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResultAll).get("data")), OverViewCountDTO.class);
+        Assertions.assertNotNull(moduleCountAll);
+
         dashboardFrontPageRequest.setDayNumber(null);
         dashboardFrontPageRequest.setStartTime(1716185577387L);
         dashboardFrontPageRequest.setEndTime(1730181702699L);
-        dashboardFrontPageRequest.setProjectIds(new ArrayList<>());
         mvcResult = this.requestPostWithOkAndReturn(CREATE_BY_ME, dashboardFrontPageRequest);
         moduleCount = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),

@@ -12,6 +12,9 @@ import java.util.List;
 @Data
 public class DashboardFrontPageRequest extends DashboardBaseRequest{
 
+    @Schema(description = "是否全选")
+    private boolean selectAll;
+
     @Schema(description = "固定时间天数")
     private Integer dayNumber;
 

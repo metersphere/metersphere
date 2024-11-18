@@ -23,6 +23,8 @@ public class LayoutDTO {
     private Boolean fullScreen;
     @Schema(description =  "选中的项目ID")
     private List<String> projectIds;
+    @Schema(description = "是否全选")
+    private boolean selectAll;
     @Schema(description =  "人员集合")
     private List<String> handleUsers;
 

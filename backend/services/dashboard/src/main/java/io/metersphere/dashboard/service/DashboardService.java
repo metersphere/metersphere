@@ -142,6 +142,9 @@ public class DashboardService {
 
 
     public OverViewCountDTO createByMeCount(DashboardFrontPageRequest request, String userId) {
+        if (!request.isSelectAll() && CollectionUtils.isEmpty(request.getProjectIds())) {
+            return new OverViewCountDTO(new HashMap<>(), new ArrayList<>(), new ArrayList<>());
+        }
         List<Project> projects;
         if (CollectionUtils.isNotEmpty(request.getProjectIds())) {
             projects = extProjectMapper.getProjectNameModule(null, request.getProjectIds());
@@ -295,6 +298,9 @@ public class DashboardService {
     }
 
     public OverViewCountDTO projectViewCount(DashboardFrontPageRequest request, String userId) {
+        if (!request.isSelectAll() && CollectionUtils.isEmpty(request.getProjectIds())) {
+            return new OverViewCountDTO(new HashMap<>(), new ArrayList<>(), new ArrayList<>());
+        }
         List<Project> collect = getHasPermissionProjects(request, userId);
         Map<String, Set<String>> permissionModuleProjectIdMap = dashboardProjectService.getModuleProjectIds(collect);
         Long toStartTime = request.getToStartTime();
@@ -457,6 +463,7 @@ public class DashboardService {
         layoutDTO.setKey(layoutKey.toString());
         layoutDTO.setLabel(label);
         layoutDTO.setPos(pos);
+        layoutDTO.setSelectAll(true);
         layoutDTO.setFullScreen(true);
         layoutDTO.setProjectIds(projectIds);
         layoutDTO.setHandleUsers(new ArrayList<>());
@@ -1011,7 +1018,7 @@ public class DashboardService {
     public Pager<List<CaseReviewDTO>> getFunctionalCasePage(DashboardFrontPageRequest request) {
         CaseReviewPageRequest reviewRequest = getCaseReviewPageRequest(request);
         Page<Object> page = PageHelper.startPage(reviewRequest.getCurrent(), reviewRequest.getPageSize(),
-                com.alibaba.excel.util.StringUtils.isNotBlank(reviewRequest.getSortString()) ? reviewRequest.getSortString() : "pos desc");
+                StringUtils.isNotBlank(reviewRequest.getSortString()) ? reviewRequest.getSortString() : "pos desc");
         return PageUtils.setPageInfo(page, caseReviewService.getCaseReviewPage(reviewRequest));
     }
 
