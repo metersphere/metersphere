@@ -53,7 +53,7 @@ export default {
   'testPlan.testPlanIndex.triggerTime': 'Trigger time',
   'testPlan.testPlanIndex.envTip': 'Use case save environment',
   'testPlan.testPlanIndex.resourcePool': 'Resource pool',
-  'testPlan.testPlanIndex.timingState': 'Timing state',
+  'testPlan.testPlanIndex.timingState': 'Task status',
   'testPlan.testPlanIndex.timingStateEnable': 'Enable: Executes scheduled tasks',
   'testPlan.testPlanIndex.timingStateClose': 'Close: Stops a scheduled task',
   'testPlan.testPlanIndex.customFrequency': 'Custom frequency',

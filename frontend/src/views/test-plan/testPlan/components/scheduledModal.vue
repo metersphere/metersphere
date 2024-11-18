@@ -25,7 +25,7 @@
       </div>
     </template>
     <a-form ref="formRef" :model="form" layout="vertical">
-      <a-form-item :label="t('testPlan.testPlanIndex.triggerTime')" asterisk-position="end">
+      <a-form-item :label="t('testPlan.testPlanIndex.triggerTime')" asterisk-position="end" class="mb-0">
         <MsCronSelect v-model:model-value="form.cron" />
       </a-form-item>
       <!-- TOTO 环境暂时不上 -->
@@ -139,7 +139,7 @@
 
   const initForm: CreateTask = {
     resourceId: '',
-    cron: '0 0 0/1 * * ?',
+    cron: '',
     enable: false,
     runConfig: { runMode: 'SERIAL' },
   };

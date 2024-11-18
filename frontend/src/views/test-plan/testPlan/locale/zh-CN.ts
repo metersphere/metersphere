@@ -50,7 +50,7 @@ export default {
   'testPlan.testPlanIndex.triggerTime': '触发时间',
   'testPlan.testPlanIndex.envTip': '用例保存的环境',
   'testPlan.testPlanIndex.resourcePool': '资源池',
-  'testPlan.testPlanIndex.timingState': '定时状态',
+  'testPlan.testPlanIndex.timingState': '任务状态',
   'testPlan.testPlanIndex.timingStateEnable': '开启：执行定时任务',
   'testPlan.testPlanIndex.timingStateClose': '关闭：停止定时任务',
   'testPlan.testPlanIndex.customFrequency': '自定义频率',

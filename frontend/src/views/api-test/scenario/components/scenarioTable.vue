@@ -1228,7 +1228,7 @@
       scheduleConfig.value = {
         scenarioId: record.id,
         enable: true,
-        cron: '0 0 0/1 * * ?',
+        cron: '',
         config: {
           poolId: defaultPoolId?.value,
           grouped: false,
