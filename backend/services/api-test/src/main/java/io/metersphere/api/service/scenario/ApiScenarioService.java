@@ -7,7 +7,6 @@ import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
-import io.metersphere.api.dto.definition.ExecHistoryDTO;
 import io.metersphere.api.dto.definition.ExecutePageRequest;
 import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.export.MetersphereApiScenarioExportResponse;
@@ -86,7 +85,6 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
@@ -1871,7 +1869,7 @@ public class ApiScenarioService extends MoveNodeService {
             refScenarioSteps = childStep.stream().filter(k -> isScenarioStep(k.getStepType())).toList();
         }
         // 嵌套获取引用的场景步骤
-        return returnList;
+        return returnList.stream().sorted(Comparator.comparing(ApiScenarioStepDTO::getSort)).collect(Collectors.toList());
     }
 
     private List<ApiScenarioStepDTO> getStepDTOByScenarioIds(List<String> scenarioIds) {
