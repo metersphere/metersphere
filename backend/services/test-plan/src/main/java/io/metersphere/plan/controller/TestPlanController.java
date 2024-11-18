@@ -8,6 +8,7 @@ import io.metersphere.plan.dto.TestPlanExecuteHisDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.*;
 import io.metersphere.plan.service.*;
+import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.LogInsertModule;
@@ -48,6 +49,10 @@ public class TestPlanController {
     private TestPlanManagementService testPlanManagementService;
     @Resource
     private TestPlanStatisticsService testPlanStatisticsService;
+    @Resource
+    private PermissionCheckService permissionCheckService;
+
+    public static final String TEST_PLAN_MODULE = "testPlan";
 
 
     @PostMapping("/page")
@@ -64,6 +69,11 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public TestPlanCoverageDTO rage(@Validated @RequestBody TestPlanCoverageRequest request) {
+        if (Boolean.FALSE.equals(permissionCheckService.checkModule(request.getProjectId(), TEST_PLAN_MODULE, SessionUtils.getUserId(), PermissionConstants.TEST_PLAN_READ))) {
+            TestPlanCoverageDTO testPlanCoverageDTO = new TestPlanCoverageDTO();
+            testPlanCoverageDTO.setErrorCode(109001);
+            return testPlanCoverageDTO;
+        }
         return testPlanService.rageByProjectIdAndTimestamp(request.getProjectId(), request.getStartTime(), request.getEndTime());
     }
 

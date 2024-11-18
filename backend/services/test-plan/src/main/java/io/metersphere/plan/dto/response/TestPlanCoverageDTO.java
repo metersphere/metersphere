@@ -1,5 +1,6 @@
 package io.metersphere.plan.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
@@ -28,6 +29,9 @@ public class TestPlanCoverageDTO {
     private int running = 0;
     private int prepared = 0;
     private int archived = 0;
+
+    @Schema(description = "错误码")
+    private int errorCode;
 
     public void archivedAutoIncrement() {
         archived++;
