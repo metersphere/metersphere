@@ -868,7 +868,7 @@
     // 进入页面时检查当前项目轮训状态
     checkSyncStatus();
     if (route.query.view) {
-      setAdvanceFilter({}, route.query.view as string);
+      setAdvanceFilter({ conditions: [], searchMode: 'AND' }, route.query.view as string);
       viewName.value = route.query.view as string;
     }
   });

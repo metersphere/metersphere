@@ -1680,6 +1680,7 @@
         showType.value = route.query.showType as testPlanTypeEnum;
       }
       if (route.query.view) {
+        setAdvanceFilter({ conditions: [], searchMode: 'AND' }, route.query.view as string);
         viewName.value = route.query.view as string;
       }
       fetchData();

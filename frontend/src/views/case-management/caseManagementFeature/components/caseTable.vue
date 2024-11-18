@@ -1853,7 +1853,7 @@
         showType.value = route.query.showType as ShowType;
       }
       if (route.query.view) {
-        setAdvanceFilter({}, route.query.view as string);
+        setAdvanceFilter({ conditions: [], searchMode: 'AND' }, route.query.view as string);
         viewName.value = route.query.view as string;
       }
       mountedLoad();
