@@ -140,7 +140,7 @@
                 :is-platform-default-template="isPlatformDefaultTemplate"
                 :loading="rightLoading"
                 :platform-system-fields="platformSystemFields"
-                @update-success="detailDrawerRef?.initDetail()"
+                @update-success="loadList"
               />
 
               <BugCaseTab
@@ -461,6 +461,11 @@
         mode: 'edit',
       },
     });
+  }
+
+  function loadList() {
+    detailDrawerRef.value?.initDetail();
+    emit('submit');
   }
 
   const shareLoading = ref<boolean>(false);
