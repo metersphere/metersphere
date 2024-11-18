@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author song-cc-rock
@@ -65,6 +66,8 @@ public class ToDoController {
 	@Operation(summary = "我的待办-测试计划-列表分页查询")
 	@CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
 	public Pager<List<TestPlanResponse>> planPage(@Validated @RequestBody TestPlanTableRequest request) {
+		// 默认按照创建时间倒序
+		request.setSort(Map.of("createTime", "desc"));
 		request.setMyTodo(true);
 		request.setMyTodoUserId(SessionUtils.getUserId());
 		return testPlanManagementService.page(request);
