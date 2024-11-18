@@ -183,7 +183,7 @@ public class TestPlanReportController {
             // 不分页仅排序 {测试集升序, 用例位次倒序}
             page.setPageSize(0);
             page.setPageSizeZero(true);
-            page.setOrderBy("tpc.pos, tprfc.pos desc");
+            page.setOrderBy("tpc.pos, tpc.name, tprfc.pos desc");
             page.setOrderByOnly(true);
         }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.FUNCTIONAL));
@@ -207,7 +207,7 @@ public class TestPlanReportController {
             // 不分页仅排序 {测试集升序, 用例位次倒序}
             page.setPageSize(0);
             page.setPageSizeZero(true);
-            page.setOrderBy("tpc.pos, tprac.pos desc");
+            page.setOrderBy("tpc.pos, tpc.name, tprac.pos desc");
             page.setOrderByOnly(true);
         }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_CASE));
@@ -224,7 +224,7 @@ public class TestPlanReportController {
             // 不分页仅排序 {测试集升序, 用例位次倒序}
             page.setPageSize(0);
             page.setPageSizeZero(true);
-            page.setOrderBy("tpc.pos, tpras.pos desc");
+            page.setOrderBy("tpc.pos, tpc.name, tpras.pos desc");
             page.setOrderByOnly(true);
         }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_SCENARIO));

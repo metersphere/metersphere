@@ -42,8 +42,6 @@ public class CleanupApiReportServiceImpl implements BaseCleanUpReport {
     private ApiScenarioReportDetailBlobMapper apiScenarioReportDetailBlobMapper;
     @Resource
     private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
-    @Resource
-    private ExtApiReportRelateTaskMapper extApiReportRelateTaskMapper;
 
     @Override
     public void cleanReport(Map<String, String> map, String projectId) {
