@@ -166,6 +166,18 @@
       dataIndex: 'createUser',
       width: 200,
     },
+    {
+      title: 'common.createTime',
+      slotName: 'createTime',
+      dataIndex: 'createTime',
+      showTooltip: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      width: 200,
+      showDrag: true,
+    },
   ];
 
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(workReviewList, {

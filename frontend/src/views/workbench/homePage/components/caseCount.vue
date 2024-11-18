@@ -153,7 +153,6 @@
   }
 
   function changeProject() {
-    emit('change');
     nextTick(() => {
       initCaseCount();
       emit('change');
