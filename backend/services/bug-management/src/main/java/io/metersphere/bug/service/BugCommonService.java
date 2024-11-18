@@ -38,6 +38,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * @author song-cc-rock
+ */
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class BugCommonService {
@@ -225,6 +228,9 @@ public class BugCommonService {
 	 */
 	public String getPlatformHandlerUser(String projectId, String currentUserId, String currentOrgId) {
 		ServiceIntegration serviceIntegration = projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand(projectId, true);
+		if (serviceIntegration == null) {
+			return null;
+		}
 		String platformUserName = userPlatformAccountService.getPlatformUserName(currentUserId, currentOrgId, serviceIntegration.getPluginId());
 		List<SelectOption> headerHandlerOption = getHeaderHandlerOption(projectId);
 		if (StringUtils.isNotBlank(platformUserName)) {
