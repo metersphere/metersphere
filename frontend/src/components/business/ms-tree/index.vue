@@ -41,6 +41,7 @@
             :mouse-enter-delay="300"
             :position="props.titleTooltipPosition"
             :disabled="props.disabledTitleTooltip"
+            :arrow-class="props.titleTooltipPosition === 'tr' ? 'absolute right-[4px] !left-auto' : ''"
           >
             <span :class="props.titleClass || 'ms-tree-node-title'">
               <slot name="title" v-bind="_props"></slot>
