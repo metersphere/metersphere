@@ -59,9 +59,12 @@ public class ApiNoticeDTO implements java.io.Serializable {
      * 当测试集执行完成时标记，触发下个测试集执行
      */
     private Boolean childCollectionExecuteOver;
-
     /**
      * 运行配置
      */
     private ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
+    /**
+     * 是否是重新执行
+     */
+    private Boolean rerun = false;
 }

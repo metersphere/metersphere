@@ -9,6 +9,7 @@ import io.metersphere.system.dto.taskhub.request.TaskHubItemRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author wx
@@ -67,4 +68,6 @@ public interface ExtExecTaskItemMapper {
     void resetRerunTaskItem(@Param("taskId") String taskId, @Param("userId") String userId);
 
     void deleteRerunTaskItemReportRelation(@Param("taskId") String taskId);
+
+    Set<String> selectRerunCollectionIds(@Param("taskId") String taskId);
 }

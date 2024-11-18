@@ -29,6 +29,7 @@ import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
+import io.metersphere.system.mapper.ExtExecTaskItemMapper;
 import io.metersphere.system.service.BaseTaskHubService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -72,6 +73,8 @@ public class TestPlanApiScenarioBatchRunService {
     private ApiCommonService apiCommonService;
     @Resource
     private BaseTaskHubService baseTaskHubService;
+    @Resource
+    private ExtExecTaskItemMapper extExecTaskItemMapper;
 
     /**
      * 批量执行
@@ -87,7 +90,21 @@ public class TestPlanApiScenarioBatchRunService {
                 .map(TestPlanApiScenarioBatchRunDTO::getTestPlanCollectionId)
                 .collect(Collectors.toSet());
 
-        List<TestPlanCollection> testPlanCollections = getTestPlanCollections(request.getTestPlanId());
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
+        Project project = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
+
+        // 初始化任务
+        ExecTask execTask = initExecTask(testPlanApiScenarios.size(), project, userId, request.getTestPlanId());
+
+        // 初始化任务项
+        initExecTaskItem(testPlanApiScenarios, userId, project, execTask, testPlan.getId());
+
+        Thread.startVirtualThread(() ->
+                doRun(execTask, request.getTestPlanId(), project, userId, hasCaseCollections, false));
+    }
+
+    private void doRun(ExecTask execTask, String testPlanId, Project project, String userId, Set<String> hasCaseCollections, boolean isRerun) {
+        List<TestPlanCollection> testPlanCollections = getTestPlanCollections(testPlanId);
         Iterator<TestPlanCollection> iterator = testPlanCollections.iterator();
         TestPlanCollection rootCollection = new TestPlanCollection();
         while (iterator.hasNext()) {
@@ -107,43 +124,32 @@ public class TestPlanApiScenarioBatchRunService {
                 .sorted(Comparator.comparingLong(TestPlanCollection::getPos))
                 .collect(Collectors.toList());
 
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
-        Project project = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
-
-        // 初始化任务
-        ExecTask execTask = initExecTask(testPlanApiScenarios.size(), project, userId);
-
-        // 初始化任务项
-        initExecTaskItem(testPlanApiScenarios, userId, project, execTask, testPlan.getId());
-
         TestPlanCollection finalRootCollection = rootCollection;
         List<TestPlanCollection> finalTestPlanCollections = testPlanCollections;
 
-        Thread.startVirtualThread(() -> {
-            List<String> execCollectionIds = finalTestPlanCollections.stream().map(TestPlanCollection::getId).toList();
-            if (apiBatchRunBaseService.isParallel(finalRootCollection.getExecuteMethod())) {
-                //  记录并行执行测试集，用于统计整体执行情况
-                apiExecutionSetService.initSet(execTask.getId(), execCollectionIds);
+        List<String> execCollectionIds = finalTestPlanCollections.stream().map(TestPlanCollection::getId).toList();
+        if (apiBatchRunBaseService.isParallel(finalRootCollection.getExecuteMethod())) {
+            //  记录并行执行测试集，用于统计整体执行情况
+            apiExecutionSetService.initSet(execTask.getId(), execCollectionIds);
 
-                // 并行执行测试集
-                for (TestPlanCollection collection : finalTestPlanCollections) {
-                    ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(finalRootCollection, collection);
-                    if (apiBatchRunBaseService.isParallel(runModeConfig.getRunMode())) {
-                        //  并行执行测试集中的用例
-                        parallelExecute(execTask.getId(), collection.getId(), runModeConfig, null, execTask.getId(), project, userId);
-                    } else {
-                        // 串行执行测试集中的用例
-                        serialExecute(execTask.getId(), collection.getId(), runModeConfig, null, execTask.getId(), userId);
-                    }
+            // 并行执行测试集
+            for (TestPlanCollection collection : finalTestPlanCollections) {
+                ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(finalRootCollection, collection);
+                if (apiBatchRunBaseService.isParallel(runModeConfig.getRunMode())) {
+                    //  并行执行测试集中的用例
+                    parallelExecute(execTask.getId(), collection.getId(), runModeConfig, null, execTask.getId(), project, userId, isRerun);
+                } else {
+                    // 串行执行测试集中的用例
+                    serialExecute(execTask.getId(), collection.getId(), runModeConfig, null, execTask.getId(), userId, isRerun);
                 }
-            } else {
-                // 生成测试集队列
-                ExecutionQueue collectionQueue = apiBatchRunBaseService.initExecutionqueue(execTask.getId(), execCollectionIds, null,
-                        ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), null, userId);
-
-                executeNextCollection(collectionQueue.getQueueId());
             }
-        });
+        } else {
+            // 生成测试集队列
+            ExecutionQueue collectionQueue = apiBatchRunBaseService.initExecutionqueue(execTask.getId(), execCollectionIds, null,
+                    ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), null, userId, isRerun);
+
+            executeNextCollection(collectionQueue.getQueueId(), isRerun);
+        }
     }
 
     private List<TestPlanCollection> getTestPlanCollections(String testPlanId) {
@@ -165,7 +171,7 @@ public class TestPlanApiScenarioBatchRunService {
         return collectionMap;
     }
 
-    public void executeNextCollection(String collectionQueueId) {
+    public void executeNextCollection(String collectionQueueId, boolean isRerun) {
         ExecutionQueue collectionQueue = apiExecutionQueueService.getQueue(collectionQueueId);
         if (collectionQueue == null) {
             // 失败停止，或者执行完成，更新任务状态
@@ -182,9 +188,9 @@ public class TestPlanApiScenarioBatchRunService {
 
         ApiRunModeConfigDTO runModeConfig = testPlanApiBatchRunBaseService.getApiRunModeConfig(collection);
         if (apiBatchRunBaseService.isParallel(runModeConfig.getRunMode())) {
-            parallelExecute(collectionQueueId, collectionId, runModeConfig, collectionQueueId, null, project, userId);
+            parallelExecute(collectionQueueId, collectionId, runModeConfig, collectionQueueId, null, project, userId, isRerun);
         } else {
-            serialExecute(collectionQueueId, collectionId, runModeConfig, collectionQueueId, null, userId);
+            serialExecute(collectionQueueId, collectionId, runModeConfig, collectionQueueId, null, userId, isRerun);
         }
     }
 
@@ -200,12 +206,13 @@ public class TestPlanApiScenarioBatchRunService {
                               ApiRunModeConfigDTO runModeConfig,
                               String parentQueueId,
                               String parentSetId,
-                              String userId) {
+                              String userId,
+                              boolean isRerun) {
 
         // 初始化执行队列
         ExecutionQueue queue = apiBatchRunBaseService.initExecutionQueue(taskId, taskId + '_' + collectionId, runModeConfig, ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), parentQueueId, parentSetId, userId);
 
-        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(taskId, collectionId, false);
+        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(taskId, collectionId, isRerun);
 
         apiBatchRunBaseService.initQueueDetail(queue, execTaskItems);
 
@@ -223,7 +230,7 @@ public class TestPlanApiScenarioBatchRunService {
                                 String parentQueueId,
                                 String parentSetId,
                                 Project project,
-                                String userId) {
+                                String userId, boolean isRerun) {
 
         TaskBatchRequestDTO taskRequest = getTaskBatchRequestDTO(project.getId(), runModeConfig);
         TaskInfo taskInfo = taskRequest.getTaskInfo();
@@ -239,7 +246,7 @@ public class TestPlanApiScenarioBatchRunService {
             taskRequest.getTaskInfo().setParentSetId(parentSetId);
         }
 
-        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(taskId, collectionId, false);
+        List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(taskId, collectionId, isRerun);
         SubListUtils.dealForSubList(execTaskItems, ApiBatchRunBaseService.BATCH_TASK_ITEM_SIZE, subExecTaskItems -> {
             List<TaskItem> taskItems = subExecTaskItems
                     .stream()
@@ -263,13 +270,14 @@ public class TestPlanApiScenarioBatchRunService {
         });
     }
 
-    private ExecTask initExecTask(int caseSize, Project project, String userId) {
+    private ExecTask initExecTask(int caseSize, Project project, String userId, String testPlanId) {
         ExecTask execTask = apiCommonService.newExecTask(project.getId(), userId);
         execTask.setCaseCount(Long.valueOf(caseSize));
         execTask.setTaskName(Translator.get("api_scenario_batch_task_name"));
         execTask.setOrganizationId(project.getOrganizationId());
         execTask.setTriggerMode(TaskTriggerMode.BATCH.name());
         execTask.setTaskType(ExecTaskType.TEST_PLAN_API_SCENARIO_BATCH.name());
+        execTask.setResourceId(testPlanId);
         baseTaskHubService.insertExecTask(execTask);
         return execTask;
     }
@@ -371,5 +379,13 @@ public class TestPlanApiScenarioBatchRunService {
             // 执行完成，更新任务状态
             apiBatchRunBaseService.updateTaskCompletedStatus(parentSetId);
         }
+    }
+
+    public void rerun(ExecTask execTask, String userId) {
+        String planId = execTask.getResourceId();
+        Set<String> rerunCollectionIds = extExecTaskItemMapper.selectRerunCollectionIds(execTask.getId());
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
+        Project project = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
+        doRun(execTask, planId, project, userId, rerunCollectionIds, true);
     }
 }

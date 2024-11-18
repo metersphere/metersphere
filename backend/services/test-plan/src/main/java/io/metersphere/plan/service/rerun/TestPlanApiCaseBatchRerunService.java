@@ -1,6 +1,6 @@
 package io.metersphere.plan.service.rerun;
 
-import io.metersphere.plan.service.TestPlanExecuteService;
+import io.metersphere.plan.service.TestPlanApiCaseBatchRunService;
 import io.metersphere.sdk.constants.ExecTaskType;
 import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.invoker.TaskRerunServiceInvoker;
@@ -15,16 +15,17 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class TestPlanRerunService implements TaskRerunService {
+public class TestPlanApiCaseBatchRerunService implements TaskRerunService {
     @Resource
-    private TestPlanExecuteService testPlanExecuteService;
+    private TestPlanApiCaseBatchRunService testPlanApiCaseBatchRunService;
 
-    public TestPlanRerunService() {
-        TaskRerunServiceInvoker.register(ExecTaskType.TEST_PLAN, this);
+
+    public TestPlanApiCaseBatchRerunService() {
+        TaskRerunServiceInvoker.register(ExecTaskType.TEST_PLAN_API_CASE_BATCH, this);
     }
 
     @Override
-    public void rerun(ExecTask execTask,  String userId) {
-        testPlanExecuteService.testPlanOrGroupRerun(execTask, userId);
+    public void rerun(ExecTask execTask, String userId) {
+        testPlanApiCaseBatchRunService.rerun(execTask, userId);
     }
 }

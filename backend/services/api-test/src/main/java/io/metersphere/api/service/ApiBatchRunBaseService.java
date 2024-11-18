@@ -52,12 +52,13 @@ public class ApiBatchRunBaseService {
      * @param runModeConfig
      * @return
      */
-    public ExecutionQueue initExecutionqueue(String queueId, List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, String parentQueueId, String userId) {
+    public ExecutionQueue initExecutionqueue(String queueId, List<String> resourceIds, ApiRunModeConfigDTO runModeConfig, String resourceType, String parentQueueId, String userId, boolean isRerun) {
         ExecutionQueue queue = getExecutionQueue(runModeConfig, resourceType, userId);
         if (StringUtils.isNotBlank(queueId)) {
             queue.setQueueId(queueId);
         }
         queue.setParentQueueId(parentQueueId);
+        queue.setRerun(isRerun);
         List<ExecutionQueueDetail> queueDetails = getExecutionQueueDetailsByIds(resourceIds);
         apiExecutionQueueService.insertQueue(queue, queueDetails);
         return queue;

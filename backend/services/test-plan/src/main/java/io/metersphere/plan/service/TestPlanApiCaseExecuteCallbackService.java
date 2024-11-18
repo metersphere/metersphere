@@ -93,7 +93,7 @@ public class TestPlanApiCaseExecuteCallbackService implements ApiExecuteCallback
     @Override
     public void executeNextCollection(ApiNoticeDTO apiNoticeDTO, boolean isStopOnFailure) {
         if (StringUtils.isNotBlank(apiNoticeDTO.getParentQueueId())) {
-            testPlanApiCaseBatchRunService.executeNextCollection(apiNoticeDTO.getParentQueueId());
+            testPlanApiCaseBatchRunService.executeNextCollection(apiNoticeDTO.getParentQueueId(), apiNoticeDTO.getRerun());
         } else if (StringUtils.isNotBlank(apiNoticeDTO.getParentSetId())) {
             String queueIdOrSetId = StringUtils.isBlank(apiNoticeDTO.getQueueId()) ?  apiNoticeDTO.getSetId() : apiNoticeDTO.getQueueId();
             String[] setIdSplit = queueIdOrSetId.split("_");

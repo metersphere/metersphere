@@ -322,6 +322,11 @@
             </foreach>
         </if>
     </select>
+    <select id="selectRerunCollectionIds" resultType="java.lang.String">
+        select distinct collection_id
+        from exec_task_item
+        where task_id = #{taskId} and rerun = true and deleted = false;
+    </select>
 
     <update id="resetRerunTaskItem">
         UPDATE exec_task_item

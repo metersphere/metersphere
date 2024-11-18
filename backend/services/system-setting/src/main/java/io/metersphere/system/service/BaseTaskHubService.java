@@ -108,6 +108,8 @@ public class BaseTaskHubService {
     private TestResourcePoolService testResourcePoolService;
     @Resource
     private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
+    @Resource
+    private ExecTaskService execTaskService;
 
     private final static String GET_TASK_ITEM_ORDER_URL = "http://%s/api/task/item/order";
 
@@ -600,27 +602,9 @@ public class BaseTaskHubService {
             throw new MSException(Translator.get("no_permission_to_resource"));
         }
 
-        // 更新任务状态
-        execTask.setStatus(ExecStatus.RERUNNING.name());
-        execTask.setCreateUser(userId);
-        execTask.setEndTime(null);
-        execTask.setResult(ExecStatus.PENDING.name());
-        execTaskMapper.updateByPrimaryKey(execTask);
+        execTaskService.updateTaskRerunStatus(execTask, userId);
 
-        if (BooleanUtils.isFalse(execTask.getIntegrated()) && !StringUtils.equalsAny(execTask.getTaskType(), ExecTaskType.TEST_PLAN.name(), ExecTaskType.TEST_PLAN_GROUP.name())) {
-            // 非集合报告和测试计划执行，则删除任务和报告的关联关系
-            ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
-            example.createCriteria().andTaskResourceIdEqualTo(execTask.getId());
-            apiReportRelateTaskMapper.deleteByExample(example);
-        }
-
-        // 删除任务项和报告的关联关系
-        extExecTaskItemMapper.deleteRerunTaskItemReportRelation(execTask.getId());
-
-        // 更新任务项状态等
-        extExecTaskItemMapper.resetRerunTaskItem(execTask.getId(), userId);
-
-        TaskRerunServiceInvoker.rerun(execTask, userId);
+        Thread.startVirtualThread(() -> TaskRerunServiceInvoker.rerun(execTask, userId));
     }
 
     private void handleStopTaskAsync(List<String> ids) {

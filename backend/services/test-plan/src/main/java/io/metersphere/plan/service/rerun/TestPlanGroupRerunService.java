@@ -25,6 +25,6 @@ public class TestPlanGroupRerunService implements TaskRerunService {
 
     @Override
     public void rerun(ExecTask execTask,  String userId) {
-        Thread.startVirtualThread(() -> testPlanExecuteService.testPlanOrGroupRerun(execTask, userId));
+        testPlanExecuteService.testPlanOrGroupRerun(execTask, userId);
     }
 }
