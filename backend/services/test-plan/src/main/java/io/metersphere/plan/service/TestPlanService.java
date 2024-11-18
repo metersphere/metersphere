@@ -1005,11 +1005,11 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         }
     }
 
-    public TestPlanCoverageDTO rageByProjectIdAndTimestamp(@NotBlank String projectId, long startTime, long endTime) {
+    public TestPlanCoverageDTO rageByProjectIdAndTimestamp(@NotBlank String projectId) {
         TestPlanCoverageDTO returnDTO = new TestPlanCoverageDTO();
         TestPlanExample testPlanExample = new TestPlanExample();
-        testPlanExample.createCriteria().andProjectIdEqualTo(projectId).andCreateTimeBetween(startTime, endTime).andTypeEqualTo(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
-        List<TestPlan> testPlanList = extTestPlanMapper.selectIdAndStatusByProjectIdAndCreateTimeRangeAndType(projectId, startTime, endTime, TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+        testPlanExample.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+        List<TestPlan> testPlanList = extTestPlanMapper.selectIdAndStatusByProjectIdAndCreateTimeRangeAndType(projectId, null, null, TestPlanConstants.TEST_PLAN_TYPE_PLAN);
 
         List<String> notArchivedList = new ArrayList<>();
         testPlanList.forEach(item -> {
@@ -1025,11 +1025,6 @@ public class TestPlanService extends TestPlanBaseUtilsService {
 
         // 批量处理
         SubListUtils.dealForSubList(notArchivedList, SubListUtils.DEFAULT_BATCH_SIZE, dealList -> {
-            TestPlanConfigExample testPlanConfigExample = new TestPlanConfigExample();
-            testPlanConfigExample.createCriteria().andTestPlanIdIn(dealList);
-            List<TestPlanConfig> testPlanConfigList = testPlanConfigMapper.selectByExample(testPlanConfigExample);
-            Map<String, TestPlanConfig> testPlanConfigMap = testPlanConfigList.stream().collect(Collectors.toMap(TestPlanConfig::getTestPlanId, v -> v));
-
 
             List<TestPlanResourceExecResultDTO> execResults = new ArrayList<>();
             beansOfType.forEach((k, v) -> execResults.addAll(v.selectDistinctLastExecResultByTestPlanIds(dealList)));

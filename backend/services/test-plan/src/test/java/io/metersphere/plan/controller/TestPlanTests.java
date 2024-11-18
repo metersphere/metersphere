@@ -1,7 +1,5 @@
 package io.metersphere.plan.controller;
 
-import io.metersphere.api.domain.ApiScenario;
-import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
@@ -101,12 +99,6 @@ public class TestPlanTests extends BaseTest {
     private ProjectMapper projectMapper;
 
     private static final List<CheckLogModel> LOG_CHECK_LIST = new ArrayList<>();
-
-    private static final List<FunctionalCase> FUNCTIONAL_CASES = new ArrayList<>();
-
-    private static final List<ApiTestCase> API_TEST_CASES = new ArrayList<>();
-
-    private static final List<ApiScenario> API_SCENARIOS = new ArrayList<>();
 
     //测试计划模块的url
     private static final String URL_GET_MODULE_TREE = "/test-plan/module/tree/%s";

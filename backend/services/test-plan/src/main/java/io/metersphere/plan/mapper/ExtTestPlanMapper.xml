@@ -872,7 +872,9 @@
         SELECT id, status
         FROM test_plan
         WHERE project_id = #{projectId}
-          AND create_time BETWEEN #{startTime} AND #{endTime}
+        <if test="startTime != null and endTime != null">
+            AND create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
           AND type = #{type}
     </select>
     <select id="getPlanBugList" resultType="io.metersphere.plugin.platform.dto.SelectOption">

@@ -74,7 +74,7 @@ public class TestPlanController {
             testPlanCoverageDTO.setErrorCode(109001);
             return testPlanCoverageDTO;
         }
-        return testPlanService.rageByProjectIdAndTimestamp(request.getProjectId(), request.getStartTime(), request.getEndTime());
+        return testPlanService.rageByProjectIdAndTimestamp(request.getProjectId());
     }
 
     @GetMapping("/group-list/{projectId}")
