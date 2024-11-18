@@ -1,7 +1,6 @@
 package io.metersphere.plan.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -15,7 +14,6 @@ public class TestPlanScheduleBatchConfigRequest extends TestPlanBatchProcessRequ
     private boolean enable;
 
     @Schema(description = "Cron表达式")
-    @NotBlank
     @Size(max = 255, message = "{length.too.large}")
     private String cron;
 

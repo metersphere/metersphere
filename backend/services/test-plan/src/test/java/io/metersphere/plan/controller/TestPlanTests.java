@@ -1547,6 +1547,17 @@ public class TestPlanTests extends BaseTest {
         testPlanTestService.checkSchedule(groupTestPlanId15, batchRequest.isEnable());
         batchRequest.setEnable(true);
         this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_SCHEDULE, batchRequest);
+
+        //测试只是关闭
+        batchRequest = new TestPlanScheduleBatchConfigRequest();
+        batchRequest.setProjectId(project.getId());
+        batchRequest.setEnable(false);
+        batchRequest.setSelectIds(new ArrayList<>(List.of(groupTestPlanId7, groupTestPlanId15)));
+        this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_SCHEDULE, batchRequest);
+        //测试只是开启
+        batchRequest.setEnable(true);
+        this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_SCHEDULE, batchRequest);
+        
         testPlanTestService.checkSchedule(groupTestPlanId7, batchRequest.isEnable());
         testPlanTestService.checkSchedule(groupTestPlanId15, batchRequest.isEnable());
         //增加日志检查

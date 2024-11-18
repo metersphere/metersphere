@@ -745,21 +745,10 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         // 目前计划的批量操作不支持全选所有页
         List<String> ids = request.getSelectIds();
         if (CollectionUtils.isNotEmpty(ids)) {
-            if (StringUtils.equalsIgnoreCase(request.getEditColumn(), "SCHEDULE")) {
-                TestPlanExample example = new TestPlanExample();
-                example.createCriteria().andIdIn(ids).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
-                List<TestPlan> testPlanList = testPlanMapper.selectByExample(example);
-                //批量编辑定时任务
-                for (TestPlan testPlan : testPlanList) {
-                    scheduleService.updateIfExist(testPlan.getId(), request.isScheduleOpen(), TestPlanScheduleJob.getJobKey(testPlan.getId()),
-                            TestPlanScheduleJob.getTriggerKey(testPlan.getId()), TestPlanScheduleJob.class, userId);
-                }
-            } else {
                 //默认编辑tags
                 User user = userMapper.selectByPrimaryKey(userId);
                 handleTags(request, userId, ids);
                 testPlanSendNoticeService.batchSendNotice(request.getProjectId(), ids, user, NoticeConstants.Event.UPDATE);
-            }
         }
     }
 
