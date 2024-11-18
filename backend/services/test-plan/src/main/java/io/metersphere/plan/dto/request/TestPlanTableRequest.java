@@ -29,6 +29,7 @@ public class TestPlanTableRequest extends BasePageRequest {
     @Schema(description = "通过其他条件查询出来的，必须要包含的测试计划ID")
     private List<String> innerIds;
     private List<String> combineInnerIds;
+    private String combineOperator;
 
     @Schema(description = "是否我的待办, 默认查询全部")
     private boolean myTodo = false;

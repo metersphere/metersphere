@@ -202,6 +202,7 @@ public class TestPlanManagementService {
                     //目前未归档的测试计划只有3中类型。所以这里判断如果是3个的话等于直接查询未归档
                     if (statusList.size() < 3) {
                         request.setCombineInnerIds(this.selectTestPlanIdByProjectIdAndStatus(request.getProjectId(), statusList));
+                        request.setCombineOperator(item.getOperator());
                     }
                 }
             });
