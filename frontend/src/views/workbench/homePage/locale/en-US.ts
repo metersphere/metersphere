@@ -8,7 +8,7 @@ export default {
   'workbench.homePage.interfaceAPI': 'Interface API',
   'workbench.homePage.interfaceCASE': 'Interface CASE',
   'workbench.homePage.interfaceScenario': 'Interface Scene',
-  'workbench.homePage.apiPlan': 'Interface plan',
+  'workbench.homePage.apiPlan': 'Test plan',
   'workbench.homePage.bugCount': 'Defect quantity',
   'workbench.homePage.nearlyThreeDays': 'Nearly 3 days',
   'workbench.homePage.nearlySevenDays': 'Nearly 3 days',

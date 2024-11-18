@@ -27,7 +27,7 @@
     </div>
     <!-- 概览图 -->
     <div>
-      <MsChart height="260px" :options="options" />
+      <MsChart height="280px" :options="options" />
     </div>
   </div>
 </template>
@@ -90,7 +90,7 @@
     }
   );
 
-  const hasRoom = computed(() => innerProjectIds.value.length >= 7);
+  const hasRoom = computed(() => innerProjectIds.value.length >= 7 || props.item.projectIds.length === 0);
 
   const options = ref<Record<string, any>>({});
 
@@ -119,10 +119,10 @@
 
     // 处理data数据
     options.value.series = detail.projectCountList.map((item) => {
-      const countData: Record<string, any> = item.count.map((e) => {
+      const countData: Record<string, any>[] = item.count.map((e) => {
         return {
           name: item.name,
-          value: e !== 0 ? e : undefined,
+          value: e,
           tooltip: {
             show: true,
             trigger: 'item',
@@ -159,12 +159,22 @@
           borderRadius: [2, 2, 0, 0], // 上边圆角
         },
         data: countData,
+        barMinHeight: ((optionData: Record<string, any>[]) => {
+          optionData.forEach((itemValue: any, index: number) => {
+            if (itemValue.value === 0) optionData[index].value = null;
+          });
+          let hasZero = false;
+          for (let i = 0; i < optionData.length; i++) {
+            if (optionData[i].value === 0) {
+              hasZero = true;
+              break;
+            }
+          }
+          return hasZero ? 0 : 5;
+        })(countData),
       };
     });
     options.value.yAxis[0].max = maxAxis < 100 ? 50 : maxAxis + 50;
-
-    options.value.series[0].barGap = 4;
-    options.value.series[0].barCategoryGap = 24;
   }
 
   async function initOverViewDetail() {

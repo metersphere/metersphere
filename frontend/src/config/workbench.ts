@@ -42,7 +42,7 @@ export const contentTabList: ModuleCardItem[] = [
     count: 0,
   },
   {
-    label: 'workbench.homePage.apiPlan',
+    label: 'workbench.homePage.testPlan',
     value: WorkOverviewEnum.TEST_PLAN,
     icon: WorkOverviewIconEnum.TEST_PLAN,
     color: 'rgb(var(--link-6))',

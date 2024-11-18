@@ -8,7 +8,7 @@ export default {
   'workbench.homePage.interfaceAPI': '接口 API',
   'workbench.homePage.interfaceCASE': '接口 CASE',
   'workbench.homePage.interfaceScenario': '接口场景',
-  'workbench.homePage.apiPlan': '接口计划',
+  'workbench.homePage.testPlan': '测试计划',
   'workbench.homePage.bugCount': '缺陷数',
   'workbench.homePage.nearlyThreeDays': '近3天',
   'workbench.homePage.nearlySevenDays': '近7天',

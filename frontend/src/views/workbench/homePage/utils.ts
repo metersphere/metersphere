@@ -45,7 +45,7 @@ export const commonColorConfig = [
 export const colorMapConfig: Record<string, string[]> = {
   [WorkCardEnum.CASE_COUNT]: ['#ED0303', '#FFA200', '#3370FF', '#D4D4D8'],
   [WorkCardEnum.ASSOCIATE_CASE_COUNT]: ['#00C261', '#3370FF'],
-  [WorkCardEnum.REVIEW_CASE_COUNT]: ['#D4D4D8', '#3370FF', '#00C261', '#ED0303', '#9441B1', '#3370FF'],
+  [WorkCardEnum.REVIEW_CASE_COUNT]: ['#D4D4D8', '#3370FF', '#00C261', '#ED0303', '#FFA200'],
   [WorkCardEnum.TEST_PLAN_COUNT]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
   [WorkCardEnum.PLAN_LEGACY_BUG]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
   [WorkCardEnum.BUG_COUNT]: ['#FFA200', '#D4D4D8', '#00C261'],
@@ -84,7 +84,7 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
               <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm" style="background:${item.color}"></div>
               <div class="one-line-text max-w-[100px]" style="color:#959598">${item.seriesName}</div>
             </div>
-            <div class="text-[#323233] font-medium">${addCommasToNumber(item.value)}</div>
+            <div class="text-[#323233] font-medium">${addCommasToNumber(item.value || 0)}</div>
           </div>
         `
           )
@@ -100,7 +100,7 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
       top: 36,
       left: 0,
       right: 0,
-      bottom: hasRoom ? 54 : 5,
+      bottom: hasRoom ? 44 : 5,
       containLabel: true,
     },
     xAxis: {
@@ -124,7 +124,9 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
     },
     yAxis: [
       {
-        type: 'value',
+        type: 'log',
+        alignTicks: true,
+        logBase: 250,
         name: t('workbench.homePage.unit'), // 设置单位
         position: 'left',
         axisLine: {
@@ -187,10 +189,40 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
     dataZoom: hasRoom
       ? [
           {
-            type: 'inside',
-          },
-          {
             type: 'slider',
+            height: 24,
+            bottom: 10,
+            start: 0,
+            end: 30,
+            minSpan: 30, // 最小滑动距离
+            maxSpan: 70,
+            showDetail: false,
+            filterMode: 'filter',
+            moveOnMouseMove: true,
+            handleSize: 30, // 手柄的大小
+            moveHandleSize: 0,
+            handleStyle: {
+              color: '#fff',
+              borderColor: 'rgba(24, 24, 24, 0.15)',
+              borderWidth: 1,
+            },
+            backgroundColor: 'rgba(241, 241, 241, 0.6)',
+            borderColor: 'transparent',
+            dataBackground: {
+              lineStyle: {
+                width: 0,
+              },
+            },
+            selectedDataBackground: {
+              lineStyle: {
+                width: 0,
+              },
+            },
+
+            moveHandleStyle: {
+              color: '#fff',
+              opacity: 0,
+            },
           },
         ]
       : [],
@@ -319,7 +351,6 @@ export function getPieCharOptions(key: WorkCardEnum, hasPermission: boolean) {
     series: {
       name: '',
       type: 'pie',
-      padAngle: 2,
       radius: ['75%', '90%'],
       center: [90, '48%'],
       avoidLabelOverlap: false,
