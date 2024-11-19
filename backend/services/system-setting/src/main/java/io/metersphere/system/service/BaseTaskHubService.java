@@ -349,7 +349,7 @@ public class BaseTaskHubService {
      */
     public Pager<List<TaskHubItemDTO>> getCaseTaskItemList(TaskHubItemRequest request, String orgId, String projectId) {
         Page<Object> page = PageMethod.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "id asc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "id desc");
         return PageUtils.setPageInfo(page, getCaseTaskItemPage(request, orgId, projectId));
     }
 
