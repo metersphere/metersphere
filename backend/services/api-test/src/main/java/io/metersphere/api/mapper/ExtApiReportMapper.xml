@@ -330,6 +330,13 @@
                                 <property name="column" value="ar.trigger_mode"/>
                             </include>
                         </if>
+                        <!-- 创建时间 -->
+                        <if test="condition.name == 'startTime'">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="condition" value="condition"/>
+                                <property name="column" value="ar.start_time"/>
+                            </include>
+                        </if>
                         <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
                             <property name="searchMode" value="${combineSearch}.searchMode"/>
                         </include>
