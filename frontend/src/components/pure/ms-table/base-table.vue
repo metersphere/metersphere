@@ -1007,6 +1007,18 @@
     }
   );
 
+  watch(
+    () => props.notShowTableFilter,
+    (val: boolean) => {
+      if (val) {
+        // 表格基础筛选条件清空选中
+        currentColumns.value.forEach((column) => {
+          column.filterCheckedList = [];
+        });
+      }
+    }
+  );
+
   defineExpose({
     initColumn,
   });
