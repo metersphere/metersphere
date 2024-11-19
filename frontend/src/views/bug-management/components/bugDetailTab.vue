@@ -1,9 +1,16 @@
 <template>
   <!-- 所属平台一致, 详情展示 -->
-  <div v-if="props.currentPlatform === props.detailInfo.platform" class="relative">
+  <div
+    v-if="props.detailInfo.platform === 'Local' || props.currentPlatform === props.detailInfo.platform"
+    class="relative"
+  >
     <div class="header">
       <div v-permission="['PROJECT_BUG:READ+UPDATE']" class="header-action">
-        <a-button type="text" @click="contentEditAble = !contentEditAble">
+        <a-button
+          type="text"
+          :disabled="props.currentPlatform !== props.detailInfo.platform"
+          @click="contentEditAble = !contentEditAble"
+        >
           <template #icon> <MsIconfont type="icon-icon_edit_outlined" /> </template>
           {{ t('bugManagement.edit.contentEdit') }}
         </a-button>

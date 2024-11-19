@@ -229,7 +229,7 @@ public class BugController {
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public TemplateDTO getTemplateDetail(@RequestBody BugTemplateRequest request) {
-        return bugService.getTemplate(request.getId(), request.getProjectId(), request.getFromStatusId(), request.getPlatformBugKey());
+        return bugService.getTemplate(request.getId(), request.getProjectId(), request.getFromStatusId(), request.getPlatformBugKey(), request.getShowLocal());
     }
 
     @GetMapping("/follow/{id}")

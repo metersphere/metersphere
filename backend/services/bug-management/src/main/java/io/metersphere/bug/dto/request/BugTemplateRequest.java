@@ -5,6 +5,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * @author song-cc-rock
+ */
 @Data
 public class BugTemplateRequest implements Serializable {
 
@@ -16,4 +19,6 @@ public class BugTemplateRequest implements Serializable {
     private String fromStatusId;
     @Schema(description = "缺陷第三方平台Key")
     private String platformBugKey;
+    @Schema(description = "是否展示本地的模板详情")
+    private Boolean showLocal;
 }

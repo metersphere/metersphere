@@ -212,7 +212,6 @@
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
   import useUserStore from '@/store/modules/user';
-  import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { CustomFieldItem } from '@/models/bug-management';
@@ -323,6 +322,7 @@
       id: detail.templateId,
       fromStatusId: detail.status,
       platformBugKey: detail.platformBugId,
+      showLocal: detail.platform === 'Local',
     });
     // 详情信息, TAG赋值
     detailInfo.value = { ...detail };

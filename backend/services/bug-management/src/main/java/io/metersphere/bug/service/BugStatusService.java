@@ -12,6 +12,7 @@ import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.service.BaseStatusFlowSettingService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,9 +69,9 @@ public class BugStatusService {
      * @param platformBugKey 平台缺陷Key
      * @return 选项集合
      */
-   public List<SelectOption> getToStatusItemOption(String projectId, String fromStatusId, String platformBugKey) {
+   public List<SelectOption> getToStatusItemOption(String projectId, String fromStatusId, String platformBugKey, Boolean showLocal) {
        String platformName = projectApplicationService.getPlatformName(projectId);
-       if (StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
+       if (StringUtils.equals(platformName, BugPlatform.LOCAL.getName()) || BooleanUtils.isTrue(showLocal)) {
            // Local状态流
            return getToStatusItemOptionOnLocal(projectId, fromStatusId);
        } else {

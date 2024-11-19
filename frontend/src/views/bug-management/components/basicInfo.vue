@@ -2,7 +2,10 @@
   <a-spin :loading="loading" class="w-full">
     <div class="form-item-container">
       <!-- 所属平台一致, 详情展示 -->
-      <div v-if="props.currentPlatform === detailInfo.platform" class="h-full w-full">
+      <div
+        v-if="detailInfo.platform === 'Local' || props.currentPlatform === detailInfo.platform"
+        class="h-full w-full"
+      >
         <!-- 自定义字段开始 -->
         <div class="inline-block w-full break-words">
           <MsFormCreate
@@ -13,7 +16,7 @@
             v-model:form-rule="innerFormRules"
             class="w-full"
             :option="options"
-            :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
+            :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE']) || props.currentPlatform !== detailInfo.platform"
             @change="handelFormCreateChange"
           />
           <!-- 自定义字段结束 -->
@@ -32,7 +35,9 @@
               <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
                 <MsTagsInput
                   v-model:model-value="innerTags"
-                  :disabled="!hasAnyPermission(['PROJECT_BUG:READ+UPDATE'])"
+                  :disabled="
+                    !hasAnyPermission(['PROJECT_BUG:READ+UPDATE']) || props.currentPlatform !== detailInfo.platform
+                  "
                   @blur="changeTag"
                 />
               </a-form-item>
@@ -65,7 +70,7 @@
 
   import { BugEditCustomField, BugEditFormObject, type CustomFieldItem } from '@/models/bug-management';
 
-  import { getCurrentText, makeCustomFieldsParams } from '../utils';
+  import { makeCustomFieldsParams } from '../utils';
 
   const appStore = useAppStore();
 
