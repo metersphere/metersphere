@@ -102,7 +102,7 @@ public class ApiScenarioBatchOperationController {
     @PostMapping(value = "/batch-operation/schedule-config")
     @Operation(summary = "接口测试-接口场景管理-定时任务批量配置")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
-    @CheckOwner(resourceId = "#request.getProject()", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void scheduleConfig(@Validated @RequestBody ApiScenarioBatchScheduleConfigRequest request) {
         apiValidateService.validateApiMenuInProject(request.getProjectId(), ApiResource.PROJECT.name());
         apiScenarioService.batchScheduleConfig(request, SessionUtils.getUserId());

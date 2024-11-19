@@ -35,8 +35,6 @@ import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
@@ -79,7 +77,6 @@ public class ApiScenarioController {
     @PostMapping("/statistics")
     @Operation(summary = "接口测试-接口场景管理-获取通过率")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
-    @Parameter(name = "ids", description = "场景id集合", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     public List<ApiScenarioDTO> selectTestPlanMetricById(@RequestBody List<String> ids) {
         return apiScenarioService.calculateRate(ids);
     }
