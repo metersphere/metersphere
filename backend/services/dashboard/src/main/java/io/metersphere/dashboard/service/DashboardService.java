@@ -69,6 +69,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -143,9 +144,8 @@ public class DashboardService {
 
 
     public OverViewCountDTO createByMeCount(DashboardFrontPageRequest request, String userId) {
-        if (!request.isSelectAll() && CollectionUtils.isEmpty(request.getProjectIds())) {
-            return new OverViewCountDTO(new HashMap<>(), new ArrayList<>(), new ArrayList<>());
-        }
+        OverViewCountDTO map = getNoProjectData(request);
+        if (map != null) return map;
         List<Project> projects;
         if (CollectionUtils.isNotEmpty(request.getProjectIds())) {
             projects = extProjectMapper.getProjectNameModule(null, request.getProjectIds());
@@ -156,6 +156,22 @@ public class DashboardService {
         Long toStartTime = request.getToStartTime();
         Long toEndTime = request.getToEndTime();
         return getModuleCountMap(permissionModuleProjectIdMap, projects, toStartTime, toEndTime, userId);
+    }
+
+    @Nullable
+    private static OverViewCountDTO getNoProjectData(DashboardFrontPageRequest request) {
+        if (!request.isSelectAll() && CollectionUtils.isEmpty(request.getProjectIds())) {
+            Map<String, Integer> map = new HashMap<>();
+            map.put(FUNCTIONAL, 0);
+            map.put(CASE_REVIEW, 0);
+            map.put(API, 0);
+            map.put(API_CASE, 0);
+            map.put(API_SCENARIO, 0);
+            map.put(TEST_PLAN, 0);
+            map.put(BUG_COUNT, 0);
+            return new OverViewCountDTO(map, new ArrayList<>(), new ArrayList<>(), 0);
+        }
+        return null;
     }
 
     @NotNull
@@ -295,13 +311,15 @@ public class DashboardService {
         overViewCountDTO.setCaseCountMap(map);
         overViewCountDTO.setXAxis(xaxis);
         overViewCountDTO.setProjectCountList(nameArrayDTOList);
+        if (CollectionUtils.isEmpty(xaxis)) {
+            overViewCountDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
+        }
         return overViewCountDTO;
     }
 
     public OverViewCountDTO projectViewCount(DashboardFrontPageRequest request, String userId) {
-        if (!request.isSelectAll() && CollectionUtils.isEmpty(request.getProjectIds())) {
-            return new OverViewCountDTO(new HashMap<>(), new ArrayList<>(), new ArrayList<>());
-        }
+        OverViewCountDTO map = getNoProjectData(request);
+        if (map != null) return map;
         List<Project> collect = getHasPermissionProjects(request, userId);
         Map<String, Set<String>> permissionModuleProjectIdMap = dashboardProjectService.getModuleProjectIds(collect);
         Long toStartTime = request.getToStartTime();
@@ -379,11 +397,15 @@ public class DashboardService {
     private void rebuildLayouts(List<LayoutDTO> layoutDTOS, List<Project> allPermissionProjects, List<ProjectUserMemberDTO> orgProjectMemberList, Map<String, Set<String>> permissionModuleProjectIdMap) {
         for (LayoutDTO layoutDTO : layoutDTOS) {
             if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PROJECT_VIEW.toString()) || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.CREATE_BY_ME.toString())) {
-                List<Project> list = allPermissionProjects.stream().filter(t -> layoutDTO.getProjectIds().contains(t.getId())).toList();
-                if (CollectionUtils.isNotEmpty(list)) {
-                    layoutDTO.setProjectIds(list.stream().map(Project::getId).toList());
+                if (CollectionUtils.isEmpty(layoutDTO.getProjectIds())) {
+                    layoutDTO.setProjectIds(new ArrayList<>());
                 } else {
-                    layoutDTO.setProjectIds(allPermissionProjects.stream().map(Project::getId).toList());
+                    List<Project> list = allPermissionProjects.stream().filter(t -> layoutDTO.getProjectIds().contains(t.getId())).toList();
+                    if (CollectionUtils.isNotEmpty(list)) {
+                        layoutDTO.setProjectIds(list.stream().map(Project::getId).toList());
+                    } else {
+                        layoutDTO.setProjectIds(allPermissionProjects.stream().map(Project::getId).toList());
+                    }
                 }
             } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW.toString())) {
                 List<ProjectUserMemberDTO> list = orgProjectMemberList.stream().filter(t -> layoutDTO.getHandleUsers().contains(t.getId())).toList();
@@ -610,6 +632,9 @@ public class DashboardService {
         OverViewCountDTO overViewCountDTO = new OverViewCountDTO();
         overViewCountDTO.setXAxis(xaxis);
         overViewCountDTO.setProjectCountList(nameArrayDTOList);
+        if (CollectionUtils.isEmpty(xaxis)) {
+            overViewCountDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
+        }
         return overViewCountDTO;
     }
 
@@ -738,7 +763,7 @@ public class DashboardService {
     public OverViewCountDTO projectBugHandleUser(DashboardFrontPageRequest request, String userId) {
         String projectId = request.getProjectIds().getFirst();
         if (Boolean.FALSE.equals(permissionCheckService.checkModule(projectId, BUG_MODULE, userId, PermissionConstants.PROJECT_BUG_READ)))
-            return new OverViewCountDTO(null, new ArrayList<>(), new ArrayList<>());
+            return new OverViewCountDTO(null, new ArrayList<>(), new ArrayList<>(), NO_PROJECT_PERMISSION.getCode());
         Long toStartTime = request.getToStartTime();
         Long toEndTime = request.getToEndTime();
         List<SelectOption> headerHandlerOption = getHandlerOption(request.getHandleUsers(), projectId);

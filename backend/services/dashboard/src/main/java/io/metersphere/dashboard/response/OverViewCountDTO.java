@@ -23,4 +23,7 @@ public class OverViewCountDTO {
     @Schema(description = "项目模块数量DTO")
     private List<NameArrayDTO> projectCountList;
 
+    @Schema(description = "错误码")
+    private int errorCode;
+
 }
