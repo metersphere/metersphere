@@ -331,8 +331,12 @@ public class DashboardService {
         UserLayout userLayout = new UserLayout();
         userLayout.setUserId(userId);
         userLayout.setOrgId(organizationId);
-        String configuration = JSON.toJSONString(saveList);
-        userLayout.setConfiguration(configuration.getBytes());
+        if (CollectionUtils.isEmpty(saveList)) {
+            userLayout.setConfiguration(new byte[0]);
+        } else {
+            String configuration = JSON.toJSONString(saveList);
+            userLayout.setConfiguration(configuration.getBytes());
+        }
         if (CollectionUtils.isEmpty(userLayouts)) {
             userLayout.setId(IDGenerator.nextStr());
             userLayoutMapper.insert(userLayout);
@@ -347,7 +351,7 @@ public class DashboardService {
         UserLayoutExample userLayoutExample = new UserLayoutExample();
         userLayoutExample.createCriteria().andUserIdEqualTo(userId).andOrgIdEqualTo(organizationId);
         List<UserLayout> userLayouts = userLayoutMapper.selectByExampleWithBLOBs(userLayoutExample);
-        List<Project> allPermissionProjects = extProjectMapper.getUserProjectIdName(organizationId, null, userId);
+        List<Project>allPermissionProjects = extProjectMapper.getProjectNameModule(organizationId, null);
         if (CollectionUtils.isEmpty(allPermissionProjects)) {
             return new ArrayList<>();
         }

@@ -132,27 +132,4 @@
             </foreach>
         </if>
     </select>
-
-    <select id="getUserProjectIdName" resultType="io.metersphere.project.domain.Project">
-        SELECT DISTINCT p.id, p.name, p.module_setting
-        FROM user_role u
-                 JOIN user_role_relation urr ON u.id = urr.role_id
-                 JOIN project p ON p.id = urr.source_id
-                 JOIN user on urr.user_id = user.id
-        where urr.user_id = #{userId} and  u.type = 'PROJECT'
-        <if test="organizationId != null and organizationId != ''">
-            and
-            p.organization_id = #{organizationId}
-        </if>
-        <if test="ids != null and ids.size() > 0">
-            and p.id in
-            <foreach collection="ids" item="id" separator="," open="(" close=")">
-                #{id}
-            </foreach>
-        </if>
-          and p.enable = 1 and user.deleted = 0
-        order by
-            CONVERT( p.name  USING GBK) ASC
-    </select>
-
 </mapper>
