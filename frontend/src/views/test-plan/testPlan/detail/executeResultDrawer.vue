@@ -2,8 +2,8 @@
   <MsDrawer v-model:visible="visible" :width="1200" :footer="false">
     <template #title>
       <div class="flex flex-1 items-center gap-[8px] overflow-hidden">
-        <a-tag :color="executeResultMap[props.planDetail.execResult]?.color">
-          {{ t(executeResultMap[props.planDetail.execResult]?.label || '-') }}
+        <a-tag :color="executeResultMap[detail.result]?.color">
+          {{ t(executeResultMap[detail.result]?.label || '-') }}
         </a-tag>
         <div class="one-line-text flex-1">{{ detail.taskName }}</div>
       </div>
@@ -17,7 +17,7 @@
     <a-spin :loading="loading" class="block min-h-[200px]">
       <MsDescription :descriptions="detail.description" :column="2" :line-gap="8" one-line-value>
         <template #value="{ item }">
-          <execStatus v-if="item.key === 'status'" :status="props.planDetail.execResult" size="small" />
+          <execStatus v-if="item.key === 'status'" :status="detail.status" size="small" />
           <a-select
             v-else-if="item.key === 'testPlan'"
             v-model:model-value="activePlan"
@@ -258,8 +258,7 @@
   function searchList() {
     currentCaseTable.value.setLoadListParams({
       keyword: keyword.value,
-      reportId: detail.value.reportId,
-      planId: activePlan.value || detail.value.id,
+      reportId: activePlan.value || detail.value.reportId,
     });
     currentCaseTable.value.loadList();
   }
@@ -345,6 +344,14 @@
     { immediate: true }
   );
 </script>
+
+<style lang="less">
+  .no-content {
+    .arco-tabs-tab:first-child {
+      margin-left: 0;
+    }
+  }
+</style>
 
 <style lang="less" scoped>
   :deep(.ms-description-item) {

@@ -8,6 +8,9 @@ const FullPage: AppRouteRecordRaw = {
   name: FullPageEnum.FULL_PAGE,
   redirect: '/fullPage/testPlanExportPDF',
   component: FULL_PAGE_LAYOUT,
+  meta: {
+    hideInMenu: true,
+  },
   children: [
     {
       path: 'testPlanExportPDF',
