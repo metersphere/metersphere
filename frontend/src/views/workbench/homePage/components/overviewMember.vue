@@ -57,7 +57,7 @@
 
   import type { OverViewOfProject, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
-  import { getColorScheme, getCommonBarOptions, handleNoDataDisplay } from '../utils';
+  import { getCommonBarOptions, handleNoDataDisplay } from '../utils';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -171,8 +171,8 @@
 
   function changeProject() {
     memberIds.value = [];
-    getMemberOptions();
     nextTick(() => {
+      getMemberOptions();
       initOverViewMemberDetail();
       emit('change');
     });
@@ -227,7 +227,9 @@
   );
 
   onMounted(() => {
-    getMemberOptions();
+    if (appStore.projectList.length) {
+      getMemberOptions();
+    }
     initOverViewMemberDetail();
   });
 </script>

@@ -27,6 +27,7 @@ export interface SelectedCardItem {
   pos?: number; // 排序
   projectIds: string[];
   handleUsers: string[];
+  selectAll: boolean; // 是否全选项目
 }
 
 // 查询入参

@@ -128,7 +128,7 @@
       .arco-tabs-tab-title {
         @apply w-full;
         .card-number {
-          margin-left: 24px;
+          margin-left: 28px;
           font-size: 20px !important;
         }
       }

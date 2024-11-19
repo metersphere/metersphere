@@ -15,7 +15,7 @@
           :prefix="t('workbench.homePage.project')"
           :multiple="true"
           :has-all-select="true"
-          :default-all-select="!(props.item.projectIds || []).length"
+          :default-all-select="innerSelectAll"
           :at-least-one="true"
           @change="changeProject"
         >
@@ -71,6 +71,10 @@
   const appStore = useAppStore();
 
   const innerProjectIds = defineModel<string[]>('projectIds', {
+    required: true,
+  });
+
+  const innerSelectAll = defineModel<boolean>('selectAll', {
     required: true,
   });
 
@@ -190,6 +194,7 @@
         projectIds: innerProjectIds.value,
         organizationId: appStore.currentOrgId,
         handleUsers: [],
+        selectAll: innerSelectAll.value,
       };
       let detail;
       if (props.item.key === WorkCardEnum.PROJECT_VIEW) {
@@ -206,7 +211,12 @@
   }
 
   function changeProject() {
-    emit('change');
+    nextTick(() => {
+      if (innerProjectIds.value.length && innerProjectIds.value.length !== appStore.projectList.length) {
+        initOverViewDetail();
+        emit('change');
+      }
+    });
   }
 
   onMounted(() => {
@@ -216,9 +226,13 @@
   watch(
     () => innerProjectIds.value,
     (val) => {
-      if (val) {
-        initOverViewDetail();
+      if (val.length === appStore.projectList.length || val.length === 0) {
+        nextTick(() => {
+          initOverViewDetail();
+          emit('change');
+        });
       }
+      innerSelectAll.value = val.length === appStore.projectList.length;
     }
   );
 

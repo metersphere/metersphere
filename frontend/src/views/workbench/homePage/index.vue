@@ -57,6 +57,7 @@
         <Overview
           v-if="[WorkCardEnum.CREATE_BY_ME, WorkCardEnum.PROJECT_VIEW].includes(item.key)"
           v-model:projectIds="item.projectIds"
+          v-model:selectAll="item.selectAll"
           :item="item"
           @change="changeHandler"
         />
@@ -137,7 +138,7 @@
       </div>
     </div>
     <NoData
-      v-if="showNoData || !appStore.projectList.length"
+      v-if="showNoData || !defaultWorkList.length"
       :no-res-permission="!defaultWorkList.length"
       :all-screen="!!defaultWorkList.length"
       height="h-[calc(100vh-110px)]"
@@ -321,6 +322,7 @@
         rangeTime.value = [startTime, endTime];
       }
     }
+
     initDefaultList();
   });
 

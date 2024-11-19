@@ -144,6 +144,7 @@
       key: item.value,
       projectIds: defaultAllProjectType.includes(item.value) ? [] : [appStore.currentProjectId],
       handleUsers: [],
+      selectAll: !![WorkCardEnum.PROJECT_VIEW, WorkCardEnum.CREATE_BY_ME].includes(item.value),
     };
     selectedCardList.value.push(newCard);
   }
