@@ -612,7 +612,6 @@
       sort: {},
       filter: {},
       keyword: '',
-      combine: {},
       searchMode: 'AND',
       projectId: appStore.currentProjectId,
     });
@@ -627,6 +626,7 @@
         pageSize,
         current,
         filter,
+        combineSearch,
         keyword: _keyword,
         sort,
         moduleIds,
@@ -648,6 +648,7 @@
         collectionId,
         treeType,
         projectId,
+        combineSearch,
       };
     }
     getPlanDetail();
