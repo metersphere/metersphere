@@ -171,6 +171,7 @@
       filterConfig: {
         options: requestApiScenarioStatusOptions.value,
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_STATUS,
+        disabledTooltip: true,
       },
       showDrag: true,
       width: 140,

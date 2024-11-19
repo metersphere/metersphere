@@ -23,7 +23,7 @@
       </template>
       <!-- 用例等级 -->
       <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
-        <caseLevel :case-level="filterContent.text" />
+        <caseLevel :case-level="filterContent.value" />
       </template>
       <!-- 执行结果 -->
       <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
@@ -65,6 +65,7 @@
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
+  import { casePriorityOptions } from '@/views/api-test/components/config';
   import {
     executionResultMap,
     getCaseLevels,
@@ -123,7 +124,7 @@
       slotName: 'caseLevel',
       dataIndex: 'caseLevel',
       filterConfig: {
-        options: [],
+        options: casePriorityOptions,
         filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
       },
       showInTable: true,

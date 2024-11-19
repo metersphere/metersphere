@@ -36,6 +36,7 @@ export interface MsTableColumnFilterConfig {
   placeholderText?: string;
   firstLabelKey?: string;
   secondLabelKey?: string;
+  disabledTooltip?: boolean;
 }
 
 export interface MsTableRowSelectionDisabledConfig {

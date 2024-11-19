@@ -23,7 +23,7 @@
                 <a-tooltip
                   :content="item[props.labelKey || 'label']"
                   :mouse-enter-delay="300"
-                  :disabled="!item[props.labelKey || 'label']"
+                  :disabled="props.disabledTooltip || !item[props.labelKey || 'label']"
                 >
                   <div class="one-line-text max-w-[120px]">
                     <slot name="item" :filter-item="item" :index="index">
@@ -100,6 +100,7 @@
       dataIndex?: string | undefined;
       filter: Record<string, any>;
       emptyFilter?: boolean; // 增加-空选项查询
+      disabledTooltip?: boolean; // 是否禁用tooltip
     }>(),
     {
       mode: 'static',
