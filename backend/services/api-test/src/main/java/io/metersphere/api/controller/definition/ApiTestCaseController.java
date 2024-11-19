@@ -173,7 +173,7 @@ public class ApiTestCaseController {
     @PostMapping(value = "/statistics")
     @Operation(summary = "接口测试-接口管理-接口用例-统计")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
-    public List<ApiTestCaseDTO> calculate(@Validated @RequestBody List<String> ids) {
+    public List<ApiTestCaseDTO> calculate(@RequestBody List<String> ids) {
         return apiTestCaseService.calculate(ids);
     }
 
