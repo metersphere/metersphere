@@ -26,6 +26,7 @@ import io.metersphere.api.service.BaseFileManagementTestService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.api.utils.ApiDefinitionImportUtils;
 import io.metersphere.functional.domain.ExportTask;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.Project;
@@ -1629,6 +1630,18 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Test
     @Order(102)
     public void testImport() throws Exception {
+        // 测试 getUniqueName 方法
+        List<String> uniqueNameTestList = new ArrayList<>() {{
+            this.add("用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例-1");
+            this.add("用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录666");
+        }};
+        Assertions.assertEquals("用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例-2",
+                ApiDefinitionImportUtils.getUniqueName(
+                        "用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录66成功用例登录666",
+                        uniqueNameTestList
+                ));
+
+
         LogUtils.info("import api test");
         ApiDefinitionModule apiDefinitionModule = new ApiDefinitionModule();
         apiDefinitionModule.setId("test-import");

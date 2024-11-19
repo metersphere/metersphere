@@ -15,6 +15,7 @@ import io.metersphere.api.parser.api.har.model.Har;
 import io.metersphere.api.parser.api.har.model.HarEntry;
 import io.metersphere.api.parser.api.har.model.HarRequest;
 import io.metersphere.api.utils.ApiDefinitionImportUtils;
+import io.metersphere.project.utils.DataBaseStringUtils;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
@@ -116,7 +117,7 @@ public class HarParserApiScenario implements ApiScenarioImportParser {
             apiScenarioStep.setId(IDGenerator.nextStr());
             apiScenarioStep.setProjectId(projectId);
             apiScenarioStep.setOriginProjectId(projectId);
-            apiScenarioStep.setName(this.parseName(msTestElement.getName()));
+            apiScenarioStep.setName(DataBaseStringUtils.parseMaxString(msTestElement.getName(), 255));
             apiScenarioStep.setUniqueId(IDGenerator.nextStr());
             msTestElement.setStepId(apiScenarioStep.getId());
             msTestElement.setProjectId(apiScenarioStep.getProjectId());
@@ -131,17 +132,6 @@ public class HarParserApiScenario implements ApiScenarioImportParser {
             }
         }
         return parseResult;
-    }
-
-    private String parseName(String name) {
-        if (StringUtils.isBlank(name)) {
-            return StringUtils.EMPTY;
-        }
-        if (name.length() > 253) {
-            return name.substring(0, 200) + "...";
-        } else {
-            return name;
-        }
     }
 }
 

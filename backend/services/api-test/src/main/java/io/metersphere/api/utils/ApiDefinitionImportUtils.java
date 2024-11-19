@@ -153,12 +153,17 @@ public class ApiDefinitionImportUtils {
         return returnList;
     }
 
-    private static String getUniqueName(String originalName, List<String> existenceNameList) {
+    public static String getUniqueName(String originalName, List<String> existenceNameList) {
         String returnName = originalName;
-        int index = 1;
-        while (existenceNameList.contains(returnName)) {
-            returnName = originalName + " - " + index;
-            index++;
+        if (existenceNameList.contains(returnName)) {
+            if (originalName.length() > 250) {
+                originalName = originalName.trim().substring(0, 250);
+            }
+            int index = 1;
+            do {
+                returnName = originalName + "-" + index;
+                index++;
+            } while (existenceNameList.contains(returnName));
         }
         return returnName;
     }
