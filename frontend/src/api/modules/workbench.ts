@@ -85,12 +85,12 @@ export function workbenchBugList(data: TableQueryParams) {
 
 // 我的-缺陷列表-自定义字段
 export function getCustomFieldHeader(projectId: string) {
-  return MSR.get({ url: `${WorkbenchBugCustomFieldUrl}${projectId}` });
+  return MSR.get({ url: `${WorkbenchBugCustomFieldUrl}/${projectId}` });
 }
 
 // 我的-缺陷列表-表格筛选字段的数据查询
 export function getCustomOptionHeader(projectId: string) {
-  return MSR.get<BugOptionListItem>({ url: `${WorkbenchBugColumnOptionsUrl}${projectId}` });
+  return MSR.get<BugOptionListItem>({ url: `${WorkbenchBugColumnOptionsUrl}/${projectId}` });
 }
 
 // 我的-接口用例列表
