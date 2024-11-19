@@ -127,11 +127,19 @@ public class TestPlanReportController {
     }
 
     @GetMapping("/get-task/{taskId}")
-    @Operation(summary = "测试计划|组-任务-执行结果")
+    @Operation(summary = "测试计划|组-执行历史-执行结果")
     @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_REPORT_READ, PermissionConstants.TEST_PLAN_READ_EXECUTE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#taskId", resourceType = "exec_task")
     public TestPlanTaskReportResponse getTaskDetail(@PathVariable String taskId) {
         return testPlanReportService.getTaskDetail(taskId);
+    }
+
+    @GetMapping("/get-result/{taskId}")
+    @Operation(summary = "测试计划|组-任务-执行结果")
+    @RequiresPermissions(value = {PermissionConstants.TEST_PLAN_REPORT_READ, PermissionConstants.TEST_PLAN_READ_EXECUTE}, logical = Logical.OR)
+    @CheckOwner(resourceId = "#reportId", resourceType = "test_plan_report")
+    public TestPlanReportDetailResponse getTaskResult(@PathVariable String taskId) {
+        return testPlanReportService.getTaskResult(taskId);
     }
 
     @GetMapping("/get-layout/{reportId}")

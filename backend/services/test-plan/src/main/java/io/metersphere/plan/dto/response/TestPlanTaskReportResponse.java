@@ -6,6 +6,7 @@ import io.metersphere.system.serializer.CustomRateSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import java.util.List;
 @Data
 public class TestPlanTaskReportResponse implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	@Schema(description = "报告ID")
@@ -40,10 +42,16 @@ public class TestPlanTaskReportResponse implements Serializable {
 	@Schema(description = "执行完成率(实时)")
 	@JsonSerialize(using = CustomRateSerializer.class)
 	private Double executeRate;
+	@Schema(description = "接口明细总数")
+	private Integer apiCaseTotal;
+	@Schema(description = "场景明细总数")
+	private Integer apiScenarioTotal;
 
 	@Data
 	public static class ChildPlan {
 		private String id;
 		private String name;
+		private Integer apiCaseTotal;
+		private Integer apiScenarioTotal;
 	}
 }

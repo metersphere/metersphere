@@ -24,4 +24,8 @@ public class TestPlanExecuteHisDTO {
 	private Long endTime;
 	@Schema(description = "报告是否删除")
 	private Boolean deleted;
+	@Schema(description = "报告ID")
+	private String reportId;
+	@Schema(description = "执行结果是否删除")
+	private Boolean resultDeleted;
 }

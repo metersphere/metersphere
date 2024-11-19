@@ -34,10 +34,7 @@ import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.mapper.ExecTaskMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
-import io.metersphere.system.service.BaseTaskHubService;
-import io.metersphere.system.service.CommonFileService;
-import io.metersphere.system.service.FileService;
-import io.metersphere.system.service.SimpleUserService;
+import io.metersphere.system.service.*;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.RateCalculateUtils;
 import io.metersphere.system.utils.ServiceUtils;
@@ -130,6 +127,8 @@ public class TestPlanReportService {
     private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
     @Resource
     private ExecTaskMapper execTaskMapper;
+    @Resource
+    private UserLoginService userLoginService;
 
     private static final int MAX_REPORT_NAME_LENGTH = 300;
 
@@ -766,16 +765,10 @@ public class TestPlanReportService {
      */
     public TestPlanReportDetailResponse getReport(String reportId) {
         TestPlanReport planReport = checkReport(reportId);
-        TestPlanReportSummaryExample example = new TestPlanReportSummaryExample();
-        example.createCriteria().andTestPlanReportIdEqualTo(reportId);
-        List<TestPlanReportSummary> testPlanReportSummaries = testPlanReportSummaryMapper.selectByExampleWithBLOBs(example);
-        if (CollectionUtils.isEmpty(testPlanReportSummaries)) {
-            throw new MSException(Translator.get("test_plan_report_detail_not_exist"));
-        }
-        TestPlanReportSummary reportSummary = testPlanReportSummaries.getFirst();
         TestPlanReportDetailResponse planReportDetail = new TestPlanReportDetailResponse();
         BeanUtils.copyBean(planReportDetail, planReport);
         // 用例总数需单独返回, 不然前端表格不展示, 影响执行中的数据
+        TestPlanReportSummary reportSummary = getReportSummary(reportId);
         int caseTotal = (int) (reportSummary.getFunctionalCaseCount() + reportSummary.getApiCaseCount() + reportSummary.getApiScenarioCount());
         planReportDetail.setCaseTotal(caseTotal);
         planReportDetail.setFunctionalTotal(reportSummary.getFunctionalCaseCount().intValue());
@@ -822,31 +815,56 @@ public class TestPlanReportService {
     }
 
     /**
-     * 获取计划任务执行结果
+     * 获取计划任务执行结果 (执行历史)
      * @param taskId 任务ID
-     * @return 计划执行结果
+     * @return 计划|组 执行结果
      */
     public TestPlanTaskReportResponse getTaskDetail(String taskId) {
-        TestPlanTaskReportResponse testPlanTaskReportResponse = new TestPlanTaskReportResponse();
+        TestPlanTaskReportResponse taskDetail = new TestPlanTaskReportResponse();
         ExecTask task = execTaskMapper.selectByPrimaryKey(taskId);
-        BeanUtils.copyBean(testPlanTaskReportResponse, task);
+        BeanUtils.copyBean(taskDetail, task);
+        Map<String, String> userNameMap = userLoginService.getUserNameMap(List.of(taskDetail.getCreateUser()));
+        taskDetail.setCreateUser(userNameMap.getOrDefault(taskDetail.getCreateUser(), taskDetail.getCreateUser()));
         ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
         example.createCriteria().andTaskResourceIdEqualTo(taskId);
         List<ApiReportRelateTask> taskReports = apiReportRelateTaskMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(taskReports)) {
             // 暂未生成报告
-            return testPlanTaskReportResponse;
+            return taskDetail;
         }
         String reportId = taskReports.getFirst().getReportId();
         List<TestPlanReport> planChildrenTask = extTestPlanReportMapper.getPlanChildrenTask(reportId);
         List<TestPlanTaskReportResponse.ChildPlan> childPlans = planChildrenTask.stream().map(childTask -> {
+            TestPlanTaskReportResponse childTaskDetail = calcTaskExecActual(childTask.getId(), new TestPlanTaskReportResponse());
             TestPlanTaskReportResponse.ChildPlan childPlan = new TestPlanTaskReportResponse.ChildPlan();
-            childPlan.setId(childTask.getId());
-            childPlan.setName(childTask.getName());
+            BeanUtils.copyBean(childPlan, childTaskDetail);
             return childPlan;
         }).toList();
-        testPlanTaskReportResponse.setChildPlans(childPlans);
-        return calcTaskExecActual(reportId, testPlanTaskReportResponse);
+        taskDetail.setChildPlans(childPlans);
+        return calcTaskExecActual(reportId, taskDetail);
+    }
+
+    /**
+     * 获取计划任务执行结果 (任务中心)
+     * @param taskId 任务ID
+     * @return 计划|组 执行结果
+     */
+    public TestPlanReportDetailResponse getTaskResult(String taskId) {
+        TestPlanReportDetailResponse taskResult = new TestPlanReportDetailResponse();
+        ExecTask task = execTaskMapper.selectByPrimaryKey(taskId);
+        ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
+        example.createCriteria().andTaskResourceIdEqualTo(taskId);
+        List<ApiReportRelateTask> taskReports = apiReportRelateTaskMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(taskReports)) {
+            // 暂未生成报告
+            return null;
+        }
+        String reportId = taskReports.getFirst().getReportId();
+        // 子计划报告存在
+        List<TestPlanReport> planChildrenTask = extTestPlanReportMapper.getPlanChildrenTask(reportId);
+        List<TestPlanReportDetailResponse> childPlans = planChildrenTask.stream().map(childTask -> calcTaskExecFinish(childTask.getId(), childTask.getName(), new TestPlanReportDetailResponse())).toList();
+        taskResult.setChildren(childPlans);
+        return calcTaskExecFinish(reportId, task.getTaskName(), taskResult);
     }
 
     public List<TestPlanReportComponent> getLayout(String reportId) {
@@ -1402,19 +1420,42 @@ public class TestPlanReportService {
     private TestPlanTaskReportResponse calcTaskExecActual(String reportId, TestPlanTaskReportResponse testPlanTaskReportResponse) {
         testPlanTaskReportResponse.setReportId(reportId);
         List<String> calcReportIds = getActualReportIds(reportId);
-        // 计算接口用例
+        // 历史执行结果只需统计 接口 + 场景 (数据来源: 关联表实时状态数据)
         List<CaseStatusCountMap> apiCountMapList = extTestPlanReportApiCaseMapper.countExecuteResult(calcReportIds);
         CaseCount apiCaseCount = countMap(apiCountMapList);
-        // 计算场景用例
         List<CaseStatusCountMap> scenarioCountMapList = extTestPlanReportApiScenarioMapper.countExecuteResult(calcReportIds);
         CaseCount scenarioCaseCount = countMap(scenarioCountMapList);
         // 汇总接口&&场景用例的执行情况
+        testPlanTaskReportResponse.setApiCaseTotal(apiCaseCount.sum());
+        testPlanTaskReportResponse.setApiScenarioTotal(scenarioCaseCount.sum());
         CaseCount caseCount = CountUtils.summarizeProperties(List.of(apiCaseCount, scenarioCaseCount));
         testPlanTaskReportResponse.setExecuteCaseCount(caseCount);
         // 完成率 = (总数 - 未执行数) / 总数
         testPlanTaskReportResponse.setExecuteRate((caseCount.sum() == 0) ?
                 0 : RateCalculateUtils.divWithPrecision(caseCount.sum() - caseCount.getPending(), caseCount.sum(), 2));
         return testPlanTaskReportResponse;
+    }
+
+    /**
+     * 计算计划任务的用例执行情况(取计划报告的最终汇总)
+     * @return 用例执行情况
+     */
+    private TestPlanReportDetailResponse calcTaskExecFinish(String reportId, String detailName, TestPlanReportDetailResponse detail) {
+        detail.setId(reportId);
+        detail.setName(detailName);
+        TestPlanReport report = checkReport(reportId);
+        BeanUtils.copyBean(detail, report);
+        TestPlanReportSummary summary = getReportSummary(reportId);
+        // 任务执行结果只需统计 接口 + 场景 (数据来源: 报告汇总)
+        detail.setApiCaseCount(summary.getApiExecuteResult() == null ? CaseCount.builder().build() : JSON.parseObject(new String(summary.getApiExecuteResult()), CaseCount.class));
+        detail.setApiScenarioCount(summary.getScenarioExecuteResult() == null ? CaseCount.builder().build() : JSON.parseObject(new String(summary.getScenarioExecuteResult()), CaseCount.class));
+        detail.setApiCaseTotal(detail.getApiCaseCount().sum());
+        detail.setApiScenarioTotal(detail.getApiScenarioCount().sum());
+        detail.setExecuteCount(CountUtils.summarizeProperties(List.of(detail.getApiCaseCount(), detail.getApiScenarioCount())));
+        CaseCount executeCount = detail.getExecuteCount();
+        detail.setExecuteRate(RateCalculateUtils.divWithPrecision((executeCount.sum()  - executeCount.getPending()), executeCount.sum(), 2));
+        detail.setPassRate(RateCalculateUtils.divWithPrecision(executeCount.getSuccess(), executeCount.sum(), 2));
+        return detail;
     }
 
     /**
@@ -1433,5 +1474,20 @@ public class TestPlanReportService {
         } else {
             return List.of(reportId);
         }
+    }
+
+    /**
+     * 获取报告汇总详情
+     * @param reportId 报告ID
+     * @return 汇总详情
+     */
+    private TestPlanReportSummary getReportSummary(String reportId) {
+        TestPlanReportSummaryExample example = new TestPlanReportSummaryExample();
+        example.createCriteria().andTestPlanReportIdEqualTo(reportId);
+        List<TestPlanReportSummary> testPlanReportSummaries = testPlanReportSummaryMapper.selectByExampleWithBLOBs(example);
+        if (CollectionUtils.isEmpty(testPlanReportSummaries)) {
+            throw new MSException(Translator.get("test_plan_report_detail_not_exist"));
+        }
+        return testPlanReportSummaries.getFirst();
     }
 }
