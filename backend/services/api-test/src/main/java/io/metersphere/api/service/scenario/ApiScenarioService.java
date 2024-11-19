@@ -2559,6 +2559,9 @@ public class ApiScenarioService extends MoveNodeService {
                 if (StringUtils.isBlank(request.getCron()) && request.getConfig() == null) {
                     this.batchUpdateSchedule(apiScenarios, request.isEnable(), operator);
                 } else {
+                    if (StringUtils.isBlank(request.getCron())) {
+                        throw new MSException("Cron can not be null");
+                    }
                     apiScenarios.forEach(apiScenario -> {
                         ScheduleConfig scheduleConfig = ScheduleConfig.builder()
                                 .resourceId(apiScenario.getId())

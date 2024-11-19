@@ -46,6 +46,9 @@ public class TestPlanScheduleService {
                     scheduleService.updateIfExist(testPlan.getId(), request.isEnable(), TestPlanScheduleJob.getJobKey(testPlan.getId()),
                             TestPlanScheduleJob.getTriggerKey(testPlan.getId()), TestPlanScheduleJob.class, operator);
                 } else {
+                    if (StringUtils.isBlank(request.getCron())) {
+                        throw new MSException("Cron can not be null");
+                    }
                     ScheduleConfig scheduleConfig = ScheduleConfig.builder()
                             .resourceId(testPlan.getId())
                             .key(testPlan.getId())
