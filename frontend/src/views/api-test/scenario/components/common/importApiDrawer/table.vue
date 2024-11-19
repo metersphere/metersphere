@@ -468,6 +468,7 @@
     () => props.type,
     () => {
       keyword.value = '';
+      msAdvanceFilterRef.value?.clearFilter();
     }
   );
 

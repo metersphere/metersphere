@@ -7,7 +7,7 @@
     disabled-width-drag
   >
     <div class="h-full w-full overflow-hidden">
-      <a-tabs v-model:active-key="activeKey" @change="resetModule">
+      <a-tabs v-model:active-key="activeKey">
         <a-tab-pane key="api" :title="t('apiScenario.api')" />
         <a-tab-pane key="case" :title="t('apiScenario.case')" />
         <a-tab-pane key="scenario" :title="t('apiScenario.scenario')" />
@@ -225,19 +225,23 @@
   const apiTableRef = ref<InstanceType<typeof apiTable>>();
   const moduleIds = ref<(string | number)[]>([]);
 
+  function initModuleTree() {
+    nextTick(() => {
+      moduleTreeRef.value?.init(protocolsParam.value, activeKey.value);
+    });
+  }
+
   watch(
     () => protocol.value,
     (val) => {
       setLocalStorage(ProtocolKeyEnum.API_SCENARIO_IMPORT_PROTOCOL, val);
-      nextTick(() => {
-        moduleTreeRef.value?.init(protocolsParam.value, activeKey.value);
-      });
+      initModuleTree();
     }
   );
 
   function handleAdvSearch(isStartAdvance: boolean) {
     isAdvancedSearchMode.value = isStartAdvance;
-    moduleTreeRef.value?.init(protocolsParam.value, activeKey.value);
+    initModuleTree();
   }
 
   function handleModuleSelect(ids: (string | number)[], node: MsTreeNodeData) {
@@ -491,15 +495,9 @@
     scenarioUseTreeSelection.clearSelector();
   }
 
-  function resetModule() {
-    nextTick(() => {
-      moduleTreeRef.value?.init(protocolsParam.value, activeKey.value);
-    });
-  }
-
   function handleChangeProject() {
     clearSelected();
-    resetModule();
+    initModuleTree();
   }
 
   onBeforeMount(async () => {

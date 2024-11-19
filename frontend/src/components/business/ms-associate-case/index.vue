@@ -798,14 +798,11 @@
       clearSelector();
     }
   });
-  watch(
-    () => innerProject.value,
-    (val) => {
-      if (val) {
-        msAdvanceFilterRef.value?.clearFilter();
-      }
+  watch([() => innerProject.value, () => showType.value], (val) => {
+    if (val) {
+      msAdvanceFilterRef.value?.clearFilter();
     }
-  );
+  });
 </script>
 
 <style scoped lang="less">
