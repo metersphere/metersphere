@@ -1,5 +1,11 @@
 <template>
-  <a-select :class="props.class || 'w-[260px]'" :default-value="project" allow-search @change="selectProject">
+  <a-select
+    v-model="project"
+    :class="props.class || 'w-[260px]'"
+    allow-search
+    :allow-create="false"
+    @change="selectProject"
+  >
     <template v-if="!props.useDefaultArrowIcon" #arrow-icon>
       <icon-caret-down />
     </template>
@@ -37,9 +43,19 @@
   function selectProject(
     value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
-    project.value = value as string;
-    const _project = projectList.value.find((item) => item.id === value);
-    emit('change', value as string, _project);
+    let _project = projectList.value.find((item) => item.id === value);
+    // 项目移除成员后，再次进去待办无获取内容
+    if (!_project) {
+      const [_pro] = projectList.value;
+      _project = _pro;
+      project.value = projectList.value[0].id;
+    } else {
+      project.value = value as string;
+    }
+    // 确保值更新后再触发
+    nextTick(() => {
+      emit('change', project.value, _project);
+    });
   }
 
   onBeforeMount(async () => {

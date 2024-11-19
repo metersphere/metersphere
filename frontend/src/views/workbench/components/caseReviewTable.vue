@@ -159,6 +159,10 @@
     {
       title: 'common.createTime',
       dataIndex: 'createTime',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       width: 180,
     },
   ];
