@@ -131,7 +131,7 @@
     </update>
 
     <select id="getTaskIdsByTime" resultType="java.lang.String">
-        select id from exec_task where project_id = #{projectId} and start_time &lt;= #{timeMills} and deleted = false
+        select id from exec_task where project_id = #{projectId} and exec_task.create_time &lt;= #{timeMills} and deleted = false
     </select>
 
 

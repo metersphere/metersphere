@@ -8,7 +8,6 @@ import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.domain.ExecTaskItemExample;
 import io.metersphere.system.mapper.ExecTaskItemMapper;
 import io.metersphere.system.mapper.ExecTaskMapper;
-import io.metersphere.system.mapper.ExtExecTaskItemMapper;
 import io.metersphere.system.mapper.ExtExecTaskMapper;
 import io.metersphere.system.service.BaseCleanUpReport;
 import jakarta.annotation.Resource;
@@ -31,8 +30,6 @@ public class CleanupTaskServiceImpl implements BaseCleanUpReport {
     @Resource
     private ExtExecTaskMapper extExecTaskMapper;
     @Resource
-    private ExtExecTaskItemMapper extExecTaskItemMapper;
-    @Resource
     private ExecTaskMapper execTaskMapper;
     @Resource
     private ExecTaskItemMapper execTaskItemMapper;
@@ -44,7 +41,10 @@ public class CleanupTaskServiceImpl implements BaseCleanUpReport {
         String expr = map.get(ProjectApplicationType.TASK.TASK_RECORD.name());
         long timeMills = getCleanDate(expr);
         List<String> cleanTaskIds = extExecTaskMapper.getTaskIdsByTime(timeMills, projectId);
-        List<String> cleanTaskItemIds = extExecTaskItemMapper.getTaskItemIdsByTime(timeMills, projectId);
+        ExecTaskItemExample itemExample = new ExecTaskItemExample();
+        itemExample.createCriteria().andTaskIdIn(cleanTaskIds);
+        List<ExecTaskItem> execTaskItems = execTaskItemMapper.selectByExample(itemExample);
+        List<String> cleanTaskItemIds = execTaskItems.stream().map(ExecTaskItem::getId).toList();
         if (CollectionUtils.isNotEmpty(cleanTaskIds)) {
             ExecTaskExample example = new ExecTaskExample();
             example.createCriteria().andIdIn(cleanTaskIds);
