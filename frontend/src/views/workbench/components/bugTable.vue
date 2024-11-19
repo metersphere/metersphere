@@ -160,7 +160,7 @@
 
   const statusOption = ref<BugOptionItem[]>([]);
   async function initFilterOptions() {
-    const res = await getCustomOptionHeader(appStore.currentProjectId);
+    const res = await getCustomOptionHeader(props.project);
     statusOption.value = res.statusOption;
     const filterOptionsMaps: Record<string, any> = {
       status: res.statusOption,

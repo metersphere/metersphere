@@ -1,7 +1,9 @@
 <template>
   <div class="card-wrapper">
     <div class="flex items-center justify-between">
-      <div class="title"> {{ t(props.item.label) }} </div>
+      <a-tooltip :content="t(props.item.label)" position="tl">
+        <div class="title one-line-text"> {{ t(props.item.label) }} </div>
+      </a-tooltip>
       <div>
         <MsSelect
           v-model:model-value="innerProjectIds"
@@ -11,7 +13,7 @@
           value-key="id"
           label-key="name"
           :search-keys="['name']"
-          class="!w-[240px]"
+          class="!w-[200px]"
           :prefix="t('workbench.homePage.project')"
           :multiple="true"
           :has-all-select="true"

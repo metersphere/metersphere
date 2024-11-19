@@ -344,6 +344,9 @@
 
 <style scoped lang="less">
   .work-bench-content {
+    min-width: 1200px;
+    @apply overflow-x-auto;
+    .ms-scroll-bar();
     .header-setting {
       position: sticky;
       top: 0;
