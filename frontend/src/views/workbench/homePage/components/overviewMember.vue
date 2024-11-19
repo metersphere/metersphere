@@ -98,23 +98,44 @@
     options.value.graphic.invisible = invisible;
     options.value.graphic.style.text = text;
     options.value.xAxis.data = detail.xaxis.map((e) => characterLimit(e, 10));
-    let maxAxis = 5;
-    options.value.series = detail.projectCountList.map((item, index) => {
-      const itemMax = Math.max(...item.count);
 
-      maxAxis = Math.max(itemMax, maxAxis);
+    const rawData: number[][] = [];
+
+    detail.projectCountList.forEach((item: any) => {
+      rawData.push(item.count);
+    });
+
+    const totalData: number[] = [];
+
+    for (let i = 0; i < rawData[0].length; ++i) {
+      let sum = 0;
+      for (let j = 0; j < rawData.length; ++j) {
+        sum += rawData[j][i];
+      }
+      totalData.push(sum);
+    }
+
+    options.value.series = detail.projectCountList.map((item, sid) => {
+      const dataList = rawData[sid].map((d, did) => (totalData[did] <= 0 ? 0 : d / totalData[did]));
+
+      const data = dataList.map((e, i) => {
+        return {
+          name: t(contentTabList[sid].label),
+          value: e,
+          originValue: item.count[i],
+        };
+      });
       return {
-        name: t(contentTabList[index].label),
+        name: t(contentTabList[sid].label),
         type: 'bar',
-        stack: 'member',
+        stack: 'total',
         barWidth: 12,
-        data: item.count,
         itemStyle: {
           borderRadius: [2, 2, 0, 0],
         },
+        data,
       };
     });
-    options.value.yAxis[0].max = maxAxis < 100 ? 50 : maxAxis + 50;
   }
 
   async function initOverViewMemberDetail() {

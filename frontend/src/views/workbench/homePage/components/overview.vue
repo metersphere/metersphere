@@ -123,6 +123,7 @@
         return {
           name: item.name,
           value: e,
+          originValue: e,
           tooltip: {
             show: true,
             trigger: 'item',

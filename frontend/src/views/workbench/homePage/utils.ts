@@ -84,7 +84,7 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
               <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm" style="background:${item.color}"></div>
               <div class="one-line-text max-w-[100px]" style="color:#959598">${item.seriesName}</div>
             </div>
-            <div class="text-[#323233] font-medium">${addCommasToNumber(item.value || 0)}</div>
+            <div class="text-[#323233] font-medium">${addCommasToNumber(item.data.originValue || 0)}</div>
           </div>
         `
           )
@@ -124,9 +124,8 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
     },
     yAxis: [
       {
-        type: 'log',
+        type: 'value',
         alignTicks: true,
-        logBase: 250,
         name: t('workbench.homePage.unit'), // 设置单位
         position: 'left',
         axisLine: {
@@ -148,7 +147,7 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
             type: 'dashed', // 水平线线型，可选 'solid'、'dashed'、'dotted'
           },
         },
-        min: 1,
+        min: 0,
         max: 0,
       },
     ],
