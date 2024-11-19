@@ -192,6 +192,11 @@
       showDrag: true,
     },
     {
+      title: 'caseManagement.caseReview.creator',
+      dataIndex: 'createUserName',
+      width: 150,
+    },
+    {
       title: 'testPlan.testPlanIndex.createTime',
       slotName: 'createTime',
       dataIndex: 'createTime',

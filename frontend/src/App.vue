@@ -1,7 +1,6 @@
 <template>
   <a-config-provider :locale="locale">
     <router-view />
-    <!-- <global-setting /> -->
   </a-config-provider>
 </template>
 
@@ -13,7 +12,6 @@
 
   import { saveBaseUrl } from '@/api/modules/setting/config';
   import { GetPlatformIconUrl } from '@/api/requrls/setting/config';
-  // import GlobalSetting from '@/components/pure/global-setting/index.vue';
   import useLocale from '@/locale/useLocale';
   import { WHITE_LIST } from '@/router/constants';
   import { useUserStore } from '@/store';
@@ -32,7 +30,6 @@
   const appStore = useAppStore();
   const userStore = useUserStore();
   const licenseStore = useLicenseStore();
-
   const { currentLocale } = useLocale();
   const locale = computed(() => {
     switch (currentLocale.value) {

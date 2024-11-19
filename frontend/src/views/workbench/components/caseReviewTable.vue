@@ -150,6 +150,11 @@
       width: 100,
     },
     {
+      title: 'caseManagement.caseReview.creator',
+      dataIndex: 'createUserName',
+      width: 150,
+    },
+    {
       title: 'common.createTime',
       dataIndex: 'createTime',
       width: 180,

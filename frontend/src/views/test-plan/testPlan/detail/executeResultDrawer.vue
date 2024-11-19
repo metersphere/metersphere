@@ -49,7 +49,7 @@
           v-model:active-key="activeTable"
           :content-tab-list="contentTabList"
           :show-badge="false"
-          class="no-content"
+          class="testPlan-execute-tab no-content"
           @change="searchList"
         />
         <a-input-search
@@ -346,7 +346,7 @@
 </script>
 
 <style lang="less">
-  .no-content {
+  .testPlan-execute-tab {
     .arco-tabs-tab:first-child {
       margin-left: 0;
     }
