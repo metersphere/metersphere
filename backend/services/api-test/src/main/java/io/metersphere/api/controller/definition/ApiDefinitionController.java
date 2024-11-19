@@ -124,7 +124,7 @@ public class ApiDefinitionController {
     @Operation(summary = "接口测试-接口管理-添加接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiDefinitionLogService.class)
-    @CheckOwner(resourceId = "#request.getProjectId()s", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getApiDTO(#request)", targetClass = ApiDefinitionNoticeService.class)
     public ApiDefinition add(@Validated @RequestBody ApiDefinitionAddRequest request) {
         return apiDefinitionService.create(request, SessionUtils.getUserId());
