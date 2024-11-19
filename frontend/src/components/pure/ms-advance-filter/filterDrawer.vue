@@ -292,7 +292,10 @@
   function getListItemByDataIndex(dataIndex: string) {
     return [...currentConfigList.value, ...(props.customList || [])].find((item) => item.dataIndex === dataIndex);
   }
-  async function getUserViewDetail(id: string) {
+  async function getUserViewDetail(id?: string) {
+    if (!id) {
+      return;
+    }
     try {
       const res = await getViewDetail(props.viewType, id);
       // 全部数据默认显示搜索条件
