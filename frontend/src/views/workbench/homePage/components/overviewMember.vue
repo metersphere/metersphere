@@ -89,13 +89,15 @@
       endTime: 0,
     })
   );
+  const hasPermission = ref<boolean>(false);
 
   const memberOptions = ref<{ label: string; value: string }[]>([]);
   const options = ref<Record<string, any>>({});
   const color = ['#811FA3', '#FFCA59', '#00C261', '#FFA1FF', '#F9F871', '#3370FF', '#F24F4F'];
+
   function handleData(detail: OverViewOfProject) {
     options.value = getCommonBarOptions(detail.xaxis.length >= 7, color);
-    const { invisible, text } = handleNoDataDisplay(detail.xaxis, detail.projectCountList);
+    const { invisible, text } = handleNoDataDisplay(detail.xaxis, hasPermission.value);
     options.value.graphic.invisible = invisible;
     options.value.graphic.style.text = text;
     options.value.xAxis.data = detail.xaxis.map((e) => characterLimit(e, 10));
@@ -158,6 +160,7 @@
         handleUsers: innerHandleUsers.value,
       };
       const detail = await workMemberViewDetail(params);
+      hasPermission.value = detail.errorCode !== 109001;
       handleData(detail);
     } catch (error) {
       // eslint-disable-next-line no-console

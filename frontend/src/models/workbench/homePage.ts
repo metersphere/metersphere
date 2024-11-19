@@ -72,6 +72,7 @@ export interface OverViewOfProject {
     count: number[];
   }[]; // 项目列表
   xaxis: string[]; // 横坐标
+  errorCode: number;
 }
 
 export interface ModuleCardItem {

@@ -91,28 +91,56 @@
   const options = ref<Record<string, any>>({});
 
   const defectStatusColor = ['#811FA3', '#FFA200', '#3370FF', '#F24F4F'];
+  const hasPermission = ref<boolean>(false);
 
   function handleData(detail: OverViewOfProject) {
     options.value = getCommonBarOptions(detail.xaxis.length >= 7, [
       ...defectStatusColor,
       ...getColorScheme(detail.xaxis.length),
     ]);
-    const { invisible, text } = handleNoDataDisplay(detail.xaxis, detail.projectCountList);
+    const { invisible, text } = handleNoDataDisplay(detail.xaxis, hasPermission.value);
     options.value.graphic.invisible = invisible;
     options.value.graphic.style.text = text;
     options.value.xAxis.data = detail.xaxis.map((e) => characterLimit(e, 10));
+
+    let maxAxis = 5;
     options.value.series = detail.projectCountList.map((item) => {
+      const countData: Record<string, any>[] = item.count.map((e) => {
+        return {
+          name: item.name,
+          value: e,
+          originValue: e,
+        };
+      });
+
+      const itemMax = Math.max(...item.count);
+
+      maxAxis = Math.max(itemMax, maxAxis);
       return {
         name: item.name,
         type: 'bar',
         stack: 'bugMember',
         barWidth: 12,
-        data: item.count,
+        data: countData,
         itemStyle: {
           borderRadius: [2, 2, 0, 0],
         },
+        barMinHeight: ((optionData: Record<string, any>[]) => {
+          optionData.forEach((itemValue: any, index: number) => {
+            if (itemValue.value === 0) optionData[index].value = null;
+          });
+          let hasZero = false;
+          for (let i = 0; i < optionData.length; i++) {
+            if (optionData[i].value === 0) {
+              hasZero = true;
+              break;
+            }
+          }
+          return hasZero ? 0 : 5;
+        })(countData),
       };
     });
+    options.value.yAxis[0].max = maxAxis < 100 ? 50 : maxAxis + 50;
   }
 
   async function getDefectMemberDetail() {
@@ -128,6 +156,8 @@
         organizationId: appStore.currentOrgId,
         handleUsers: innerHandleUsers.value,
       });
+      hasPermission.value = detail.errorCode !== 109001;
+
       handleData(detail);
     } catch (error) {
       console.log(error);
@@ -145,8 +175,8 @@
 
   function changeProject() {
     memberIds.value = [];
-    getMemberOptions();
     nextTick(() => {
+      getMemberOptions();
       getDefectMemberDetail();
       emit('change');
     });

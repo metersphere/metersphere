@@ -170,7 +170,7 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
           },
         },
         min: 0,
-        max: 0,
+        max: 100,
       },
     ],
     graphic: {
@@ -434,22 +434,15 @@ export function getPieCharOptions(key: WorkCardEnum, hasPermission: boolean) {
 }
 
 // 空数据和无权限处理
-export function handleNoDataDisplay(
-  xAxis: string[],
-  projectCountList: { id: string; name: string; count: number[] }[]
-) {
-  if (!xAxis.length) {
+export function handleNoDataDisplay(xAxis: string[], hasPermission: boolean) {
+  if (!hasPermission) {
     return {
       invisible: false,
       text: t('workbench.homePage.notHasResPermission'),
     };
   }
 
-  const isEmptyData = projectCountList.every((item) =>
-    item.count.every((e) => e === 0 || e === null || e === undefined)
-  );
-
-  if (isEmptyData) {
+  if (!xAxis.length) {
     return {
       invisible: false,
       text: t('workbench.homePage.notHasData'),

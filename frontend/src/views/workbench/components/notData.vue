@@ -31,7 +31,7 @@
     </div>
   </div>
   <div v-else class="not-setting-data">
-    {{ t('workbench.homePage.noDataTemporarily') }}
+    {{ props.noPermissionText || t('workbench.homePage.noDataTemporarily') }}
   </div>
 </template>
 
@@ -47,6 +47,7 @@
     isDashboard?: boolean; // 是否仪表盘
     noResPermission?: boolean; // 无资源权限
     height?: string;
+    noPermissionText?: string;
   }>();
 
   const { t } = useI18n();

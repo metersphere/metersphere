@@ -23,7 +23,10 @@
       </div>
     </div>
     <div class="my-[16px]">
-      <TabCard :content-tab-list="cardModuleList" />
+      <TabCard
+        :content-tab-list="cardModuleList"
+        :no-permission-text="hasPermission ? '' : 'workbench.homePage.notHasResPermission'"
+      />
     </div>
     <!-- 概览图 -->
     <div>
@@ -98,6 +101,8 @@
 
   const options = ref<Record<string, any>>({});
 
+  const hasPermission = ref<boolean>(false);
+
   const cardModuleList = ref<ModuleCardItem[]>([]);
 
   function handleData(detail: OverViewOfProject) {
@@ -113,7 +118,7 @@
 
     cardModuleList.value = tempAxisData as ModuleCardItem[];
     options.value = getCommonBarOptions(hasRoom.value, getColorScheme(detail.projectCountList.length));
-    const { invisible, text } = handleNoDataDisplay(detail.xaxis, detail.projectCountList);
+    const { invisible, text } = handleNoDataDisplay(detail.xaxis, hasPermission.value);
     options.value.graphic.invisible = invisible;
     options.value.graphic.style.text = text;
     // x轴
@@ -202,6 +207,7 @@
       } else {
         detail = await workMyCreatedDetail(params);
       }
+      hasPermission.value = detail.errorCode !== 109001;
 
       handleData(detail);
     } catch (error) {

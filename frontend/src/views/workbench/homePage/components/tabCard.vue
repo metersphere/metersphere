@@ -17,7 +17,7 @@
         </template>
       </a-tab-pane>
     </a-tabs>
-    <NoData v-else />
+    <NoData v-else :no-permission-text="props.noPermissionText" />
   </div>
 </template>
 
@@ -41,6 +41,7 @@
     minWidth?: string;
     notHasPadding?: boolean;
     hiddenBorder?: boolean;
+    noPermissionText?: string;
   }>();
 
   const width = ref<string | number>();
