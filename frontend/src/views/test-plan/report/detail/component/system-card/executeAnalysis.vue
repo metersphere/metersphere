@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-[16px] font-medium">{{ t('report.detail.executionAnalysis') }}</div>
+  <div v-if="!props.hideTitle" class="mb-[16px] font-medium">{{ t('report.detail.executionAnalysis') }}</div>
   <SetReportChart
     size="130px"
     :legend-data="legendData"
@@ -25,6 +25,7 @@
 
   const props = defineProps<{
     detail: PlanReportDetail;
+    hideTitle?: boolean;
     animation?: boolean; // 是否开启动画
   }>();
 
@@ -108,12 +109,15 @@
 
   const getTotal = computed(() => {
     const { executeCount } = props.detail;
-    const { success, error, fakeError, pending, block } = executeCount;
-    return success + error + fakeError + pending + block;
+    if (executeCount) {
+      const { success, error, fakeError, pending, block } = executeCount;
+      return success + error + fakeError + pending + block;
+    }
+    return 0;
   });
 
   watchEffect(() => {
-    if (props.detail) {
+    if (Object.keys(props.detail).length > 0) {
       initExecuteOptions();
     }
   });

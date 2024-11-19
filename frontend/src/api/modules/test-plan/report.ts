@@ -209,4 +209,7 @@ export function getCollectScenarioPage(data: TableQueryParams) {
   return MSR.post<CommonList<testPlanSetItem>>({ url: `${reportUrl.getCollectScenarioUrl}`, data });
 }
 
-export default {};
+// 测试计划-获取执行结果
+export function getTestPlanResult(id: string) {
+  return MSR.get({ url: `${reportUrl.GetTestPlanResultUrl}/${id}` });
+}

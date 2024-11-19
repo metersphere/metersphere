@@ -70,7 +70,7 @@
         {{ t('ms.taskCenter.rerun') }}
       </MsButton>
       <MsButton v-if="record.status === ExecuteStatusEnum.COMPLETED" @click="checkReport(record)">
-        {{ t('ms.taskCenter.checkReport') }}
+        {{ t('ms.taskCenter.executeResult') }}
       </MsButton>
     </template>
   </ms-base-table>
@@ -108,6 +108,11 @@
     }"
     :share-time="shareTime"
   />
+  <TestPlanExecuteResultDrawer
+    :id="activeDetailId"
+    v-model:visible="showTestPlanDetailDrawer"
+    :is-group="isTestPlanGroup"
+  />
 </template>
 
 <script setup lang="ts">
@@ -124,6 +129,7 @@
   import execStatus from './execStatus.vue';
   import executeRatePopper from './executeRatePopper.vue';
   import executeResultStatus from './executeResultStatus.vue';
+  import TestPlanExecuteResultDrawer from './testPlanExecuteResultDrawer.vue';
   import CaseReportDrawer from '@/views/api-test/report/component/caseReportDrawer.vue';
   import ReportDetailDrawer from '@/views/api-test/report/component/reportDetailDrawer.vue';
 
@@ -160,7 +166,6 @@
   } from '@/api/modules/taskCenter/system';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
   import { characterLimit } from '@/utils';
@@ -168,7 +173,6 @@
 
   import { TaskCenterTaskItem } from '@/models/taskCenter';
   import { ReportEnum } from '@/enums/reportEnum';
-  import { TestPlanRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
   import { ExecuteResultEnum, ExecuteStatusEnum, ExecuteTaskType } from '@/enums/taskCenter';
@@ -185,7 +189,6 @@
 
   const { t } = useI18n();
   const { openModal } = useModal();
-  const { openNewPage } = useOpenNewPage();
   const tableStore = useTableStore();
   const appStore = useAppStore();
 
@@ -657,6 +660,8 @@
   const activeReportIndex = ref<number>(0);
   const showDetailDrawer = ref<boolean>(false);
   const showCaseDetailDrawer = ref<boolean>(false);
+  const showTestPlanDetailDrawer = ref<boolean>(false);
+  const isTestPlanGroup = ref(false);
 
   function showReportDetail(record: TaskCenterTaskItem) {
     activeDetailId.value = record.reportId;
@@ -718,12 +723,9 @@
     ) {
       showReportDetail(record);
     } else if ([ExecuteTaskType.TEST_PLAN_GROUP, ExecuteTaskType.TEST_PLAN].includes(record.taskType)) {
-      openNewPage(TestPlanRouteEnum.TEST_PLAN_REPORT, {
-        orgId: record.organizationId,
-        pId: record.projectId,
-        id: record.reportId,
-        type: record.taskType === ExecuteTaskType.TEST_PLAN_GROUP ? 'GROUP' : '',
-      });
+      showTestPlanDetailDrawer.value = true;
+      activeDetailId.value = record.reportId;
+      isTestPlanGroup.value = record.taskType === ExecuteTaskType.TEST_PLAN_GROUP;
     }
   }
 

@@ -40,12 +40,14 @@
         </MsButton>
       </div>
     </template>
-    <CaseReportCom
-      v-if="!props.isScenario"
-      :detail-info="reportStepDetail"
-      :get-report-step-detail="props.getReportStepDetail"
-    />
-    <ScenarioCom v-else :detail-info="reportStepDetail" :get-report-step-detail="props.getReportStepDetail" />
+    <a-spin :loading="loading" class="block">
+      <CaseReportCom
+        v-if="!props.isScenario"
+        :detail-info="reportStepDetail"
+        :get-report-step-detail="props.getReportStepDetail"
+      />
+      <ScenarioCom v-else :detail-info="reportStepDetail" :get-report-step-detail="props.getReportStepDetail" />
+    </a-spin>
   </MsDrawer>
 </template>
 
@@ -128,8 +130,11 @@
   const reportStepDetail = ref<ReportDetail>({
     ...initReportStepDetail,
   });
+  const loading = ref(false);
+
   async function getReportDetail() {
     try {
+      loading.value = true;
       if (props.reportDetail) {
         reportStepDetail.value = await props.reportDetail(props.reportId, route.query.shareId as string | undefined);
         return;
@@ -142,6 +147,8 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      loading.value = false;
     }
   }
 
@@ -152,6 +159,9 @@
         reportStepDetail.value = { ...initReportStepDetail };
         await getReportDetail();
       }
+    },
+    {
+      immediate: true,
     }
   );
 

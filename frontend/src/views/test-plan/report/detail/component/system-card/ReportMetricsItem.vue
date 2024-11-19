@@ -46,7 +46,10 @@
     padding: 4px 8px;
     border-radius: 4px;
     background-color: var(--color-text-n9);
-    @apply mb-3 flex items-center justify-between;
+    @apply flex items-center justify-between;
+    &:not(:last-child) {
+      margin-bottom: 12px;
+    }
     .report-analysis-item-icon {
       @apply flex items-center;
     }

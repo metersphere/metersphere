@@ -86,3 +86,5 @@ export const getShareCollectFunctionalUrl = '/test-plan/report/share/detail/func
 export const getShareCollectionApiUrl = '/test-plan/report/share/detail/api/collection/page';
 // 测试计划-报告-详情-分享-报告-场景明细-测试点
 export const getShareCollectScenarioUrl = '/test-plan/report/share/detail/scenario/collection/page';
+// 任务中心-测试计划执行结果
+export const GetTestPlanResultUrl = '/test-plan/report/get-result';
