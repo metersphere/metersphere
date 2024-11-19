@@ -579,8 +579,8 @@ public class FunctionalCaseMinderService {
                     beforeNode = sources;
                     afterNode = new ArrayList<>();
                 } else {
-                    beforeNode = sources.subList(0, targetIndex-1);
-                    afterNode = sources.subList(targetIndex-1, sources.size());
+                    beforeNode = sources.subList(0, targetIndex - 1);
+                    afterNode = sources.subList(targetIndex - 1, sources.size());
                 }
             } else {
                 beforeNode = sources.subList(0, targetIndex);
@@ -878,7 +878,7 @@ public class FunctionalCaseMinderService {
                     checkModules(module, parentIdInDBMap, OperationLogType.ADD.toString());
                     moduleMapper.insert(module);
                 }
-                functionalCaseModuleLogService.handleModuleLog(modules, request.getProjectId(), userId, "/functional/mind/case/edit", OperationLogType.ADD.name());
+                functionalCaseModuleLogService.handleModuleLog(modules, request.getProjectId(), userId, "/functional/mind/case/edit", OperationLogType.ADD.name(), "");
             }
             //处理更新（更新的情况是可能换数据本身，可能换父节点，可能换顺序）
             List<FunctionalCaseModuleEditRequest> updateList = resourceMap.get(OperationLogType.UPDATE.toString());
@@ -901,7 +901,7 @@ public class FunctionalCaseMinderService {
                     checkModules(module, parentIdInDBMap, OperationLogType.UPDATE.toString());
                     moduleMapper.updateByPrimaryKeySelective(module);
                 }
-                functionalCaseModuleLogService.handleModuleLog(modules, request.getProjectId(), userId, "/functional/mind/case/edit", OperationLogType.UPDATE.name());
+                functionalCaseModuleLogService.handleModuleLog(modules, request.getProjectId(), userId, "/functional/mind/case/edit", OperationLogType.UPDATE.name(), "");
             }
         }
         setDTOTargetMap(functionalMinderUpdateDTO, sourceIdAndTargetIdsMap);
@@ -1242,7 +1242,7 @@ public class FunctionalCaseMinderService {
                 FunctionalCaseModuleExample moduleExample = new FunctionalCaseModuleExample();
                 moduleExample.createCriteria().andIdIn(moduleIds);
                 List<FunctionalCaseModule> modules = functionalCaseModuleMapper.selectByExample(moduleExample);
-                functionalCaseModuleLogService.handleModuleLog(modules, request.getProjectId(), user.getId(), "/functional/mind/case/edit", OperationLogType.DELETE.name());
+                functionalCaseModuleLogService.handleModuleLog(modules, request.getProjectId(), user.getId(), "/functional/mind/case/edit", OperationLogType.DELETE.name(), " " + Translator.get("log.delete_module"));
 
                 List<FunctionalCase> functionalCases = functionalCaseModuleService.deleteModuleByIds(moduleIds, new ArrayList<>(), user.getId());
                 functionalCaseModuleLogService.batchDelLog(functionalCases, request.getProjectId(), user.getId(), "/functional/mind/case/edit");

@@ -132,7 +132,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
             //用例日志
             functionalCaseModuleLogService.batchDelLog(functionalCases, deleteModule.getProjectId(), userId, "/functional/case/module/delete/" + moduleId);
             //模块日志
-            functionalCaseModuleLogService.handleModuleLog(List.of(deleteModule), deleteModule.getProjectId(), userId, "/functional/case/module/delete/" + moduleId, OperationLogType.DELETE.name());
+            functionalCaseModuleLogService.handleModuleLog(List.of(deleteModule), deleteModule.getProjectId(), userId, "/functional/case/module/delete/" + moduleId, OperationLogType.DELETE.name(), " " + Translator.get("log.delete_module"));
             List<String> ids = functionalCases.stream().map(FunctionalCase::getId).toList();
             User user = userMapper.selectByPrimaryKey(userId);
             functionalCaseNoticeService.batchSendNotice(deleteModule.getProjectId(), ids, user, NoticeConstants.Event.DELETE);
