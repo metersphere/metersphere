@@ -1,6 +1,7 @@
 import { cloneDeep } from 'lodash-es';
 
 import { commonConfig, toolTipConfig } from '@/config/testPlan';
+import { addCommasToNumber } from '@/utils';
 
 import type { ModuleCardItem } from '@/models/workbench/homePage';
 import { WorkCardEnum, WorkOverviewEnum, WorkOverviewIconEnum } from '@/enums/workbenchEnum';
@@ -193,7 +194,7 @@ export const defaultValueMap: Record<string, any> = {
   [WorkCardEnum.PLAN_LEGACY_BUG]: {
     legacy: {
       defaultList: cloneDeep(defaultLegacy),
-      color: ['#D4D4D8', '#00C261'],
+      color: ['#00C261', '#D4D4D8'],
       defaultName: 'workbench.homePage.legacyRate',
     },
   },
@@ -201,7 +202,7 @@ export const defaultValueMap: Record<string, any> = {
   [WorkCardEnum.BUG_COUNT]: {
     legacy: {
       defaultList: cloneDeep(defaultLegacy),
-      color: ['#D4D4D8', '#00C261'],
+      color: ['#00C261', '#D4D4D8'],
       defaultName: 'workbench.homePage.legacyRate',
     },
   },
@@ -209,7 +210,7 @@ export const defaultValueMap: Record<string, any> = {
   [WorkCardEnum.HANDLE_BUG_BY_ME]: {
     legacy: {
       defaultList: cloneDeep(defaultLegacy),
-      color: ['#D4D4D8', '#00C261'],
+      color: ['#00C261', '#D4D4D8'],
       defaultName: 'workbench.homePage.legacyRate',
     },
   },
@@ -230,7 +231,7 @@ export const defaultValueMap: Record<string, any> = {
   [WorkCardEnum.CREATE_BUG_BY_ME]: {
     legacy: {
       defaultList: cloneDeep(defaultLegacy),
-      color: ['#D4D4D8', '#00C261'],
+      color: ['#00C261', '#D4D4D8'],
       defaultName: 'workbench.homePage.legacyRate',
     },
   },

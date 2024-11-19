@@ -45,6 +45,7 @@ export default {
   'workbench.homePage.defectProcessingNumber': 'Statistics of defect handlers',
   'workbench.homePage.defectTotal': 'Total defect',
   'workbench.homePage.legacyDefectsNumber': 'Legacy defects number',
+  'workbench.homePage.notLegacyDefectsNumber': 'Completed defect count',
   'workbench.homePage.createdBugByMe': 'My created defects',
   'workbench.homePage.remainingBugOfPlan': 'Number of remaining program defects',
   'workbench.homePage.apiCount': 'Number of interfaces',

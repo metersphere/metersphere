@@ -45,6 +45,7 @@ export default {
   'workbench.homePage.defectProcessingNumber': '缺陷处理人统计',
   'workbench.homePage.defectTotal': '缺陷总数',
   'workbench.homePage.legacyDefectsNumber': '遗留缺陷数',
+  'workbench.homePage.notLegacyDefectsNumber': '已完成缺陷数',
   'workbench.homePage.createdBugByMe': '我创建的缺陷',
   'workbench.homePage.remainingBugOfPlan': '计划遗留缺陷数',
   'workbench.homePage.apiCount': '接口数',

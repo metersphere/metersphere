@@ -67,7 +67,7 @@ export const colorMapConfig: Record<string, string[]> = {
   [WorkCardEnum.REVIEW_CASE_COUNT]: ['#D4D4D8', '#3370FF', '#00C261', '#ED0303', '#FFA200'],
   [WorkCardEnum.TEST_PLAN_COUNT]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
   [WorkCardEnum.PLAN_LEGACY_BUG]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
-  [WorkCardEnum.BUG_COUNT]: ['#FFA200', '#D4D4D8', '#00C261'],
+  [WorkCardEnum.BUG_COUNT]: ['#FFA200', '#3370FF', '#D4D4D8', '#00C261', ...getColorScheme(13)],
   [WorkCardEnum.HANDLE_BUG_BY_ME]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
   [WorkCardEnum.CREATE_BY_ME]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
   [WorkCardEnum.API_COUNT]: ['#811FA3', '#00C261', '#3370FF', '#FFA1FF', '#EE50A3', '#FF9964', '#F9F871', '#C3DD40'],
@@ -86,6 +86,9 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
           width: 50,
           overflow: 'truncate',
         },
+        showDelay: 0,
+        hideDelay: 100,
+        triggerOn: 'mousemove',
         displayMode: 'single',
         enterable: true,
         axisPointer: {
@@ -293,6 +296,7 @@ export function getPieCharOptions(key: WorkCardEnum, hasPermission: boolean) {
     color: colorMapConfig[key],
     tooltip: {
       ...toolTipConfig,
+      trigger: 'item',
       position: 'right',
       show: !!hasPermission,
     },
@@ -317,6 +321,9 @@ export function getPieCharOptions(key: WorkCardEnum, hasPermission: boolean) {
       icon: 'circle',
       bottom: 'center',
       left: 180,
+      tooltip: {
+        show: false, // 禁用图例的 tooltip
+      },
       textStyle: {
         color: '#333',
         fontSize: 14, // 字体大小
@@ -520,7 +527,7 @@ export function handleUpdateTabPie(
         name: item.name,
       };
     });
-    options.series.data = lastCountList;
+    options.series.data = lastCountList.every((e) => e.value === 0) ? [] : lastCountList;
 
     options.title.text = countList[0].name ?? '';
     options.title.subtext = `${countList[0].count ?? 0}%`;

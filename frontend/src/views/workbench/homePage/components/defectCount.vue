@@ -133,12 +133,25 @@
 
       countOptions.value = handlePieData(props.item.key, hasPermission.value, statusPercentList);
 
-      const { options, valueList } = handleUpdateTabPie(
-        statusStatisticsMap?.retentionRate || [],
-        hasPermission.value,
-        `${props.item.key}-legacy`
-      );
-      legacyValueList.value = valueList;
+      const [rate, totalBug, legacy] = statusStatisticsMap?.retentionRate || [];
+
+      const unLegacy = totalBug && legacy ? totalBug.count - legacy.count : 0;
+
+      const unLegacyItem = { name: t('workbench.homePage.notLegacyDefectsNumber'), count: unLegacy };
+
+      const legacyData = [rate, legacy, unLegacyItem];
+
+      const { options, valueList } = handleUpdateTabPie(legacyData, hasPermission.value, `${props.item.key}-legacy`);
+
+      legacyValueList.value = hasPermission.value
+        ? (statusStatisticsMap?.retentionRate || []).slice(1).map((item) => {
+            return {
+              value: item.count,
+              label: item.name,
+              name: item.name,
+            };
+          })
+        : valueList;
       legacyOptions.value = options;
     } catch (error) {
       // eslint-disable-next-line no-console
