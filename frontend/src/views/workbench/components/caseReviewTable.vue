@@ -87,12 +87,14 @@
   const { openNewPage } = useOpenNewPage();
 
   const reviewStatusOptions = computed(() => {
-    return Object.keys(reviewStatusMap).map((key) => {
-      return {
-        value: key,
-        label: t(reviewStatusMap[key as ReviewStatus].label),
-      };
+    const keys = Object.keys(reviewStatusMap).filter((key) => {
+      return props.type !== 'my_todo' || key !== 'COMPLETED';
     });
+
+    return keys.map((key) => ({
+      value: key,
+      label: t(reviewStatusMap[key as ReviewStatus].label),
+    }));
   });
 
   const columns: MsTableColumn = [

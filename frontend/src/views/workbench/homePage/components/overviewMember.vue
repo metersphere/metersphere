@@ -57,7 +57,7 @@
 
   import type { OverViewOfProject, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
-  import { commonColorConfig, getCommonBarOptions, handleNoDataDisplay } from '../utils';
+  import { getColorScheme, getCommonBarOptions, handleNoDataDisplay } from '../utils';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -92,8 +92,9 @@
 
   const memberOptions = ref<{ label: string; value: string }[]>([]);
   const options = ref<Record<string, any>>({});
+  const color = ['#811FA3', '#FFCA59', '#00C261', '#FFA1FF', '#F9F871', '#3370FF', '#F24F4F'];
   function handleData(detail: OverViewOfProject) {
-    options.value = getCommonBarOptions(detail.xaxis.length >= 7, commonColorConfig);
+    options.value = getCommonBarOptions(detail.xaxis.length >= 7, color);
     const { invisible, text } = handleNoDataDisplay(detail.xaxis, detail.projectCountList);
     options.value.graphic.invisible = invisible;
     options.value.graphic.style.text = text;
@@ -209,7 +210,6 @@
     (val) => {
       if (val) {
         innerHandleUsers.value = val;
-        initOverViewMemberDetail();
       }
     }
   );

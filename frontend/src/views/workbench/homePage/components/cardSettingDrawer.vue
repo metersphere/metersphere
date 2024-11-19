@@ -14,7 +14,7 @@
         <a-button type="secondary" @click="exitHandler">
           {{ t('workbench.homePage.exitEdit') }}
         </a-button>
-        <a-button type="primary" :disabled="!selectedCardList.length" :loading="confirmLoading" @click="saveHandler">
+        <a-button type="primary" :loading="confirmLoading" @click="saveHandler">
           {{ t('common.save') }}
         </a-button>
       </div>

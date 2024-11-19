@@ -9,37 +9,56 @@ import { WorkCardEnum } from '@/enums/workbenchEnum';
 
 const { t } = useI18n();
 // 通用颜色配置
-export const commonColorConfig = [
-  '#783887',
-  '#FFC14E',
-  '#2DFCEF',
-  '#811FA3',
-  '#00D1FF',
-  '#FFA53D',
-  '#00C261',
-  '#AA4FBF',
-  '#FFA1FF',
-  '#EE50A3',
-  '#FF9964',
-  '#FFCA59',
-  '#F9F871',
-  '#C3DD40',
-  '#62D256',
-  '#14E1C6',
-  '#50CEFB',
-  '#3370FF',
-  '#2B5FD9',
-  '#76F0FF',
-  '#935AF6',
-  '#DC9BFF',
-  '#FFC75E',
-  '#D34400',
-  '#F4D0BF',
-  '#FBD3E8',
-  '#D9F457',
-  '#0089D1',
-  '#87F578',
-];
+const commonColorConfig: Record<number, string[]> = {
+  2: ['#783887', '#FFC14E'],
+  4: ['#783887', '#FFC14E', '#2DFCEF', '#3370FF'],
+  8: ['#783887', '#FFC14E', '#2DFCEF', '#3370FF', '#811FA3', '#00D1FF', '#FFA53D', '#00C261'],
+  12: [
+    '#AA4FBF',
+    '#FFA1FF',
+    '#EE50A3',
+    '#FF9964',
+    '#FFCA59',
+    '#F9F871',
+    '#C3DD40',
+    '#62D256',
+    '#14E1C6',
+    '#50CEFB',
+    '#3370FF',
+    '#2B5FD9',
+  ],
+  13: [
+    '#AA4FBF',
+    '#FFA1FF',
+    '#FFCA59',
+    '#F9F871',
+    '#14E1C6',
+    '#2DFCEF',
+    '#2B5FD9',
+    '#00D1FF',
+    '#935AF6',
+    '#DC9BFF',
+    '#FF9964',
+    '#FFC75E',
+    '#D34400',
+    '#F4D0BF',
+    '#EE50A3',
+    '#FBD3E8',
+    '#C3DD40',
+    '#D9F457',
+    '#0089D1',
+    '#62D256',
+    '#87F578',
+  ],
+};
+
+export function getColorScheme(dataLength: number): string[] {
+  if (dataLength <= 2) return commonColorConfig[2];
+  if (dataLength <= 4) return commonColorConfig[4];
+  if (dataLength <= 8) return commonColorConfig[8];
+  if (dataLength <= 12) return commonColorConfig[12];
+  return commonColorConfig[13];
+}
 
 // 饼图颜色配置
 export const colorMapConfig: Record<string, string[]> = {
@@ -183,6 +202,27 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
       pageTextStyle: {
         color: '#00000099',
         fontSize: 12,
+      },
+      textStyle: {
+        width: 150,
+        overflow: 'truncate',
+        ellipsis: '...',
+      },
+      formatter(name: string) {
+        return name;
+      },
+      tooltip: {
+        show: true,
+        padding: 16,
+        position(point: any) {
+          return [point[0], '10%'];
+        },
+        extraCssText: 'max-width: 300px; white-space: normal; word-wrap: break-word; word-break: break-all;',
+        textStyle: {
+          width: 300,
+          fontSize: 12,
+          overflow: 'breakAll',
+        },
       },
     },
     dataZoom: hasRoom

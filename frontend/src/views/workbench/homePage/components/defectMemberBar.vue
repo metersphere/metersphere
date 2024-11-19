@@ -52,7 +52,7 @@
 
   import type { OverViewOfProject, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
-  import { commonColorConfig, getCommonBarOptions, handleNoDataDisplay } from '../utils';
+  import { getColorScheme, getCommonBarOptions, handleNoDataDisplay } from '../utils';
   import type { SelectOptionData } from '@arco-design/web-vue';
 
   const { t } = useI18n();
@@ -93,7 +93,10 @@
   const defectStatusColor = ['#811FA3', '#FFA200', '#3370FF', '#F24F4F'];
 
   function handleData(detail: OverViewOfProject) {
-    options.value = getCommonBarOptions(detail.xaxis.length >= 7, [...defectStatusColor, ...commonColorConfig]);
+    options.value = getCommonBarOptions(detail.xaxis.length >= 7, [
+      ...defectStatusColor,
+      ...getColorScheme(detail.xaxis.length),
+    ]);
     const { invisible, text } = handleNoDataDisplay(detail.xaxis, detail.projectCountList);
     options.value.graphic.invisible = invisible;
     options.value.graphic.style.text = text;

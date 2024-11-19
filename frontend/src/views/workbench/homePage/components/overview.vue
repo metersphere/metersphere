@@ -56,7 +56,7 @@
   } from '@/models/workbench/homePage';
   import { WorkCardEnum, WorkOverviewEnum } from '@/enums/workbenchEnum';
 
-  import { commonColorConfig, getCommonBarOptions, handleNoDataDisplay } from '../utils';
+  import { getColorScheme, getCommonBarOptions, handleNoDataDisplay } from '../utils';
 
   const { t } = useI18n();
 
@@ -108,7 +108,7 @@
     });
 
     cardModuleList.value = tempAxisData as ModuleCardItem[];
-    options.value = getCommonBarOptions(hasRoom.value, commonColorConfig);
+    options.value = getCommonBarOptions(hasRoom.value, getColorScheme(detail.projectCountList.length));
     const { invisible, text } = handleNoDataDisplay(detail.xaxis, detail.projectCountList);
     options.value.graphic.invisible = invisible;
     options.value.graphic.style.text = text;
