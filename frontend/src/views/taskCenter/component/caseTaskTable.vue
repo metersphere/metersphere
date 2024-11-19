@@ -64,7 +64,7 @@
       </MsButton>
       <MsButton
         v-if="record.result === ExecuteResultEnum.ERROR"
-        v-permission="getCurrentPermission('STOP')"
+        v-permission="[getCurrentPermission('STOP')]"
         @click="rerunTask(record)"
       >
         {{ t('ms.taskCenter.rerun') }}

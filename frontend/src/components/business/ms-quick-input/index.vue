@@ -55,7 +55,7 @@
       v-model:model-value="quickInputValue"
       :placeholder="props.placeholder"
       :auto-size="{ minRows: 2 }"
-      :max-length="1000"
+      :max-length="props.maxLength"
     />
   </a-modal>
 </template>
@@ -82,7 +82,6 @@
       title: '',
       disabled: false,
       size: 'medium',
-      maxLength: 1000,
     }
   );
   const emit = defineEmits<{

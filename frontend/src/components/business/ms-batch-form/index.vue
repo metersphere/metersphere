@@ -72,6 +72,7 @@
                 v-model:model-value="element[model.field]"
                 class="flex-1"
                 type="textarea"
+                :max-length="model.maxLength"
                 :disabled="model.disabled"
                 @change="
                   () => {
