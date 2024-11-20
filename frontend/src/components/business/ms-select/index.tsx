@@ -451,7 +451,9 @@ export default defineComponent(
         return value;
       }
       const option = remoteOriginOptions.value.find(
-        (e) => e[props.valueKey || 'value'].toLowerCase() === value?.toLowerCase()
+        (e) =>
+          e[props.valueKey || 'value'].toLowerCase() === value?.toLowerCase() ||
+          e[props.labelKey || 'label'].toLowerCase() === value?.toLowerCase()
       );
       return option ? option[props.labelKey || 'label'] : props.optionNotExitsText || t('ms.select.optionsNotExits');
     }
@@ -519,6 +521,10 @@ export default defineComponent(
               }
             }}
             onInputValueChange={handleInputValueChange}
+            onClear={() => {
+              innerValue.value = props.multiple ? [] : '';
+              emit('update:modelValue', innerValue.value);
+            }}
           >
             {{
               prefix: props.prefix ? () => t(props.prefix || '') : null,
