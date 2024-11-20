@@ -570,7 +570,7 @@ public class DashboardService {
                 userCaseCount.add(0);
             }
             if (userReviewCountMap.get(id) != null) {
-                userReviewCount.add(userCaseCountMap.get(id));
+                userReviewCount.add(userReviewCountMap.get(id));
             } else {
                 userReviewCount.add(0);
             }
