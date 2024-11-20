@@ -789,6 +789,7 @@
         <if test="userId != null and userId != ''">
             AND test_plan.create_user = #{userId}
         </if>
+        AND test_plan.type = 'TEST_PLAN'
         group by test_plan.project_id;
     </select>
 
@@ -806,6 +807,7 @@
                 #{userId}
             </foreach>
         </if>
+        AND test_plan.type = 'TEST_PLAN'
         group by test_plan.create_user;
     </select>
 
@@ -860,14 +862,7 @@
         ) t
     </select>
 
-    <select id="getSimpleTestPlanList" resultType="io.metersphere.plan.domain.TestPlan">
-        SELECT test_plan.id, test_plan.status
-        FROM test_plan
-        WHERE test_plan.project_id =  #{projectId}
-        <if test="startTime != null and endTime != null">
-            AND test_plan.create_time BETWEEN #{startTime} AND #{endTime}
-        </if>
-    </select>
+
     <select id="selectIdAndStatusByProjectIdAndCreateTimeRangeAndType" resultType="io.metersphere.plan.domain.TestPlan">
         SELECT id, status
         FROM test_plan

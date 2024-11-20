@@ -17,11 +17,13 @@ import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -48,7 +50,7 @@ public class DashboardController {
     @PostMapping("/layout/edit/{organizationId}")
     @Operation(summary = "编辑用户布局")
     @CheckOwner(resourceId = "#organizationId", resourceType = "organization")
-    public List<LayoutDTO> editLayout(@PathVariable String organizationId, @Validated @RequestBody List<LayoutDTO> layoutDTO) {
+    public List<LayoutDTO> editLayout(@PathVariable String organizationId, @RequestBody List<LayoutDTO> layoutDTO ) {
        return dashboardService.editLayout(organizationId, SessionUtils.getUserId(), layoutDTO);
     }
 
@@ -92,6 +94,15 @@ public class DashboardController {
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<SelectOption> getBugHandleUserList(@PathVariable String projectId) {
         return dashboardService.getBugHandleUserList(projectId);
+    }
+
+    @GetMapping("/member/get-project-member/option/{projectId}")
+    @Operation(summary = "获取项目成员列表")
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public List<UserExtendDTO> getMemberOption(@PathVariable String projectId,
+                                               @Schema(description = "查询关键字，根据邮箱和用户名查询")
+                                               @RequestParam(value = "keyword", required = false) String keyword) {
+        return dashboardService.getMemberOption(projectId, keyword);
     }
 
     @PostMapping("/case_count")

@@ -27,6 +27,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BasePluginTestService;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
@@ -100,6 +101,8 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     private static final String REVIEWING_BY_ME = "/dashboard/reviewing_by_me";
     private static final String API_CHANGE = "/dashboard/api_change";
     private static final String BUG_HANDLE_USER_LIST = "/dashboard/bug_handle_user/list/";
+
+    private static final String PROJECT_MEMBER_USER_LIST = "/dashboard/member/get-project-member/option/";
 
     @Test
     @Order(1)
@@ -202,11 +205,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     @Test
     @Order(2)
     public void testLayout() throws Exception {
-        MvcResult mvcResultGrt = this.requestGetWithOkAndReturn(GET_LAYOUT + "DEFAULT_ORGANIZATION_ID");
-        String contentAsString = mvcResultGrt.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        List<LayoutDTO> layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
-        Assertions.assertEquals(0, layoutDTOS.size());
+        this.requestGet(GET_LAYOUT + "DEFAULT_ORGANIZATION_ID").andExpect(status().is5xxServerError());
 
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(DEFAULT_ORGANIZATION_ID);
@@ -261,12 +260,12 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         layoutDTO1.setFullScreen(false);
         layoutDTO.add(layoutDTO1);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(EDIT_LAYOUT + DEFAULT_ORGANIZATION_ID, layoutDTO);
-        contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        List<LayoutDTO>layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
         Assertions.assertNotNull(layoutDTOS);
 
-        mvcResultGrt = this.requestGetWithOkAndReturn(GET_LAYOUT + DEFAULT_ORGANIZATION_ID);
+         MvcResult mvcResultGrt = this.requestGetWithOkAndReturn(GET_LAYOUT + DEFAULT_ORGANIZATION_ID);
         contentAsString = mvcResultGrt.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
@@ -543,6 +542,22 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         List<SelectOption> list = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), SelectOption.class);
+        Assertions.assertNotNull(list);
+    }
+
+    @Test
+    @Order(6)
+    public void testProjectUserList() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(PROJECT_MEMBER_USER_LIST + DEFAULT_PROJECT_ID);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        List<UserExtendDTO> list = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), UserExtendDTO.class);
+        Assertions.assertNotNull(list);
+
+        mvcResult = this.requestGetWithOkAndReturn(PROJECT_MEMBER_USER_LIST + "id");
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        list = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), UserExtendDTO.class);
         Assertions.assertNotNull(list);
     }
 

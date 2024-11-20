@@ -82,7 +82,6 @@ public interface ExtTestPlanMapper {
     @BaseConditionFilter
     List<TestPlanResponse> selectMyFollowByConditions(@Param("request") TestPlanTableRequest request);
 
-    List<TestPlan> getSimpleTestPlanList(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 
     /**
      * 获取项目下的计划关联缺陷

@@ -59,7 +59,9 @@ import io.metersphere.system.domain.UserLayoutExample;
 import io.metersphere.system.dto.ProtocolDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.ProjectUserMemberDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.mapper.ExtExecTaskItemMapper;
+import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.mapper.UserLayoutMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.PageUtils;
@@ -127,6 +129,8 @@ public class DashboardService {
     private CaseReviewService caseReviewService;
     @Resource
     private ApiTestService apiTestService;
+    @Resource
+    private ExtSystemProjectMapper extSystemProjectMapper;
 
 
     public static final String FUNCTIONAL = "FUNCTIONAL"; // 功能用例
@@ -366,10 +370,10 @@ public class DashboardService {
     }
 
     public List<LayoutDTO> getLayout(String organizationId, String userId) {
+        List<Project> allPermissionProjects = projectService.getUserProject(organizationId, userId);
         UserLayoutExample userLayoutExample = new UserLayoutExample();
         userLayoutExample.createCriteria().andUserIdEqualTo(userId).andOrgIdEqualTo(organizationId);
         List<UserLayout> userLayouts = userLayoutMapper.selectByExampleWithBLOBs(userLayoutExample);
-        List<Project>allPermissionProjects = extProjectMapper.getProjectNameModule(organizationId, null);
         if (CollectionUtils.isEmpty(allPermissionProjects)) {
             return new ArrayList<>();
         }
@@ -379,6 +383,9 @@ public class DashboardService {
         UserLayout userLayout = userLayouts.getFirst();
         byte[] configuration = userLayout.getConfiguration();
         String layoutDTOStr = new String(configuration);
+        if (StringUtils.isBlank(layoutDTOStr)) {
+            return new ArrayList<>();
+        }
         List<LayoutDTO> layoutDTOS = JSON.parseArray(layoutDTOStr, LayoutDTO.class);
         Map<String, Set<String>> permissionModuleProjectIdMap = dashboardProjectService.getPermissionModuleProjectIds(allPermissionProjects, userId);
         List<ProjectUserMemberDTO> orgProjectMemberList = extProjectMemberMapper.getOrgProjectMemberList(organizationId, null);
@@ -1398,6 +1405,14 @@ public class DashboardService {
         statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
         statisticsDTO.setStatusPercentList(statusPercentList);
         return statisticsDTO;
+    }
+
+    public List<UserExtendDTO> getMemberOption(String projectId, String keyword) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (project == null) {
+            return new ArrayList<>();
+        }
+        return extSystemProjectMapper.getMemberByProjectId(projectId, keyword);
     }
 }
 

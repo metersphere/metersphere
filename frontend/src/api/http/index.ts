@@ -44,7 +44,11 @@ const transform: AxiosTransform = {
       config.url += params;
       config.params = undefined;
     } else {
-      if (Reflect.has(config, 'data') && config.data && Object.keys(config.data).length > 0) {
+      if (
+        Reflect.has(config, 'data') &&
+        config.data &&
+        (Object.keys(config.data).length > 0 || Array.isArray(config.data))
+      ) {
         config.data = data;
         config.params = params;
       } else {
