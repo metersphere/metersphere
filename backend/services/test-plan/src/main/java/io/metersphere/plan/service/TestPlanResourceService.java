@@ -107,7 +107,7 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
 
     public abstract List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(List<String> testPlanIds);
 
-    public abstract List<TestPlanResourceExecResultDTO> selectDistinctLastExecResultByTestPlanIds(List<String> testPlanIds);
+    public abstract List<TestPlanResourceExecResultDTO> selectLastExecResultByTestPlanIds(List<String> testPlanIds);
 
     /**
      * 关联用例
@@ -268,4 +268,5 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
         associateBugs.forEach(bug -> bug.setStatus(statusMap.get(bug.getStatus())));
         return associateBugs.stream().collect(Collectors.groupingBy(TestPlanCaseBugDTO::getPlanCaseRefId));
     }
+
 }

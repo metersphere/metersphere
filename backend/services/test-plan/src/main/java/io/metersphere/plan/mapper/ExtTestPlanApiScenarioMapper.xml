@@ -663,9 +663,9 @@
             </foreach>
         </where>
     </select>
-    <select id="selectDistinctLastExecResultByTestPlanIds"
+    <select id="selectLastExecResultByTestPlanIds"
             resultType="io.metersphere.plan.dto.TestPlanResourceExecResultDTO">
-        select distinct resource.test_plan_id AS testPlanId,
+        select resource.test_plan_id AS testPlanId,
         CASE
         WHEN resource.last_exec_result is null
         THEN 'PENDING'

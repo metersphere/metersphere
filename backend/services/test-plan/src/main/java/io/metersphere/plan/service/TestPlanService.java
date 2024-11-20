@@ -16,10 +16,7 @@ import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.SubListUtils;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.domain.TestPlanModule;
 import io.metersphere.system.domain.TestPlanModuleExample;
@@ -1026,16 +1023,31 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         // 批量处理
         SubListUtils.dealForSubList(notArchivedList, SubListUtils.DEFAULT_BATCH_SIZE, dealList -> {
 
+            TestPlanConfigExample configExample = new TestPlanConfigExample();
+            configExample.createCriteria().andTestPlanIdIn(dealList);
+            List<TestPlanConfig> testPlanConfigList = testPlanConfigMapper.selectByExample(configExample);
+            Map<String, TestPlanConfig> testPlanConfigMap = testPlanConfigList.stream().collect(Collectors.toMap(TestPlanConfig::getTestPlanId, item -> item));
+
             List<TestPlanResourceExecResultDTO> execResults = new ArrayList<>();
-            beansOfType.forEach((k, v) -> execResults.addAll(v.selectDistinctLastExecResultByTestPlanIds(dealList)));
-            Map<String, List<String>> testPlanExecResultMap = execResults.stream().collect(Collectors.groupingBy(TestPlanResourceExecResultDTO::getTestPlanId, Collectors.mapping(TestPlanResourceExecResultDTO::getExecResult, Collectors.toList())));
+            beansOfType.forEach((k, v) -> execResults.addAll(v.selectLastExecResultByTestPlanIds(dealList)));
+            Map<String, List<String>> testPlanExecResultMap = execResults.stream().collect(
+                    Collectors.groupingBy(TestPlanResourceExecResultDTO::getTestPlanId, Collectors.mapping(TestPlanResourceExecResultDTO::getExecResult, Collectors.toList())));
 
             for (String testPlanId : dealList) {
                 List<String> executeResultList = testPlanExecResultMap.get(testPlanId);
+                TestPlanConfig testPlanConfig = testPlanConfigMap.get(testPlanId);
+                double executeRage = testPlanConfig == null ? 100
+                        : testPlanConfig.getPassThreshold() == null ? 100 : testPlanConfig.getPassThreshold();
+
                 if (CollectionUtils.isEmpty(executeResultList)) {
                     // 未运行
                     returnDTO.notStartedAutoIncrement();
                 } else {
+                    double passphrase = CalculateUtils.percentage(
+                            executeResultList.stream().filter(result -> StringUtils.equalsIgnoreCase(result, ResultStatus.SUCCESS.name())).toList().size(),
+                            executeResultList.size()
+                    );
+
                     List<String> calculateList = executeResultList.stream().distinct().toList();
                     //目前只有三个状态。如果同时包含多种状态(进行中/未开始、进行中/已完成、已完成/未开始、进行中/未开始/已完成),根据算法可得测试计划都会是进行中
                     if (calculateList.size() == 1) {
@@ -1047,7 +1059,9 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                             returnDTO.unSuccessAutoIncrement();
                         }
                     } else {
-                        if (calculateList.contains(ExecStatus.PENDING.name())) {
+                        if (passphrase > executeRage) {
+                            returnDTO.successAutoIncrement();
+                        } else if (calculateList.contains(ExecStatus.PENDING.name())) {
                             // 存在还未完成的用例，测试计划为进行中
                             returnDTO.testPlanRunningAutoIncrement();
                         } else {

@@ -22,4 +22,16 @@ public class CalculateUtils {
             return passRate + "%";
         }
     }
+
+
+    public static double percentage(int numerator, int denominator) {
+        if (denominator == 0) {
+            return 0;
+        }
+        DecimalFormat rateFormat = new DecimalFormat("#0.00");
+        rateFormat.setMinimumFractionDigits(2);
+        rateFormat.setMaximumFractionDigits(2);
+
+        return Double.parseDouble(rateFormat.format((double) numerator * 100 / (double) denominator));
+    }
 }

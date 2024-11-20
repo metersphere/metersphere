@@ -80,5 +80,5 @@ public interface ExtTestPlanApiScenarioMapper {
 
     Integer countByPlanIds(@Param("planIds") List<String> planIds);
 
-    List<TestPlanResourceExecResultDTO> selectDistinctLastExecResultByTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
+    List<TestPlanResourceExecResultDTO> selectLastExecResultByTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
 }
