@@ -411,12 +411,13 @@ public class DashboardService {
                     if (CollectionUtils.isNotEmpty(list)) {
                         layoutDTO.setProjectIds(list.stream().map(Project::getId).toList());
                     } else {
-                        layoutDTO.setProjectIds(allPermissionProjects.stream().map(Project::getId).toList());
+                        layoutDTO.setProjectIds(new ArrayList<>());
+                        layoutDTO.setSelectAll(true);
                     }
                 }
             } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW.toString())) {
                 List<ProjectUserMemberDTO> list = orgProjectMemberList.stream().filter(t -> layoutDTO.getHandleUsers().contains(t.getId())).toList();
-                layoutDTO.setHandleUsers(list.stream().map(ProjectUserMemberDTO::getId).toList());
+                layoutDTO.setHandleUsers(list.stream().map(ProjectUserMemberDTO::getId).distinct().toList());
                 List<Project> projectList = allPermissionProjects.stream().filter(t -> layoutDTO.getProjectIds().contains(t.getId())).toList();
                 if (CollectionUtils.isEmpty(projectList)) {
                     layoutDTO.setProjectIds(List.of(allPermissionProjects.getFirst().getId()));
@@ -1248,7 +1249,10 @@ public class DashboardService {
         if (CollectionUtils.isNotEmpty(simpleAllApiScenarioList)) {
             simpleAllApiScenarioSize = simpleAllApiScenarioList.size();
         }
-        List<ApiScenario> unExecList = simpleAllApiScenarioList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getLastReportStatus(), ExecStatus.PENDING.toString())).toList();
+        List<String> lastReportStatuList  = new ArrayList<>();
+        lastReportStatuList.add(StringUtils.EMPTY);
+        lastReportStatuList.add(ExecStatus.PENDING.toString());
+        List<ApiScenario> unExecList = simpleAllApiScenarioList.stream().filter(t -> lastReportStatuList.contains(t.getLastReportStatus())).toList();
         int unExecSize = CollectionUtils.isNotEmpty(unExecList) ? unExecList.size() : 0;
 
         List<ApiScenario> successList = simpleAllApiScenarioList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getLastReportStatus(), ResultStatus.SUCCESS.name())).toList();

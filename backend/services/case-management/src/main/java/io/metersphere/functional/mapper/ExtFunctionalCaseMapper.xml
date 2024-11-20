@@ -918,8 +918,7 @@
             count(distinct fct.case_id)
         from functional_case_test fct
                  LEFT JOIN functional_case fc ON fc.id = fct.case_id
-        where fct.project_id = #{projectId}
-          and fc.project_id = #{projectId}
+        where fc.project_id = #{projectId}
           and fc.deleted = false
         <if test="startTime != null and endTime != null">
             AND fc.create_time BETWEEN #{startTime} AND #{endTime}
