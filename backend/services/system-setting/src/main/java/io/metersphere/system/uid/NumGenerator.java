@@ -61,25 +61,37 @@ public class NumGenerator {
         }
     }
 
-    private void cleanDeletedProjectResource(ApplicationNumScope value) {
-        String suffix = "}:allocation";
+    private void cleanDeletedProjectResource(ApplicationNumScope scope) {
+        final String SUFFIX = "}:allocation";
+        final int SCAN_COUNT = 1000;
 
-        ScanOptions options = ScanOptions.scanOptions().match("*_" + value.name()).count(1000).build();
-        try (
-                Cursor<String> scan = stringRedisTemplate.scan(options)
-        ) {
-            while (scan.hasNext()) {
-                String key = scan.next();
-                if (StringUtils.contains(key, suffix)) {
-                    continue;
+        ScanOptions options = ScanOptions.scanOptions()
+                .match("*_" + scope.name())
+                .count(SCAN_COUNT)
+                .build();
+
+        try (Cursor<String> cursor = stringRedisTemplate.scan(options)) {
+            cursor.forEachRemaining(key -> {
+                // 如果 key 包含特定后缀，跳过处理
+                if (StringUtils.contains(key, SUFFIX)) {
+                    return;
                 }
-                Project project = projectMapper.selectByPrimaryKey(key.split("_")[0]);
-                if (project == null) {
-                    LogUtils.info("清理已经删除项目的num数据: " + key);
+
+                // 提取 projectId 并跳过任务作用域的键
+                String projectId = key.split("_")[0];
+                if (StringUtils.equals(ApplicationNumScope.TASK.name(), projectId)) {
+                    return;
+                }
+
+                // 检查项目是否存在，删除已删除项目的相关数据
+                if (projectMapper.selectByPrimaryKey(projectId) == null) {
+                    LogUtils.info("清理已经删除项目的 num 数据: {}", key);
                     stringRedisTemplate.delete(key);
-                    stringRedisTemplate.delete("{" + key + suffix);
+                    stringRedisTemplate.delete("{" + key + SUFFIX);
                 }
-            }
+            });
+        } catch (Exception e) {
+            LogUtils.error("清理已删除项目资源时发生错误", e);
         }
     }
 
