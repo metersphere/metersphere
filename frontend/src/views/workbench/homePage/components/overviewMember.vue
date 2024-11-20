@@ -24,6 +24,7 @@
           allow-clear
           value-key="value"
           label-key="label"
+          :search-keys="['label']"
           class="!w-[200px]"
           :prefix="t('workbench.homePage.staff')"
           :multiple="true"

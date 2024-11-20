@@ -20,8 +20,9 @@
         <MsSelect
           v-model:model-value="memberIds"
           :options="memberOptions"
-          :allow-search="false"
           allow-clear
+          allow-search
+          :search-keys="['label']"
           class="!w-[200px]"
           :prefix="t('workbench.homePage.staff')"
           :multiple="true"
