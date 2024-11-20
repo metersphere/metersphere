@@ -28,7 +28,7 @@
           :prefix="t('workbench.homePage.staff')"
           :multiple="true"
           :has-all-select="true"
-          :default-all-select="true"
+          :default-all-select="!innerHandleUsers.length"
           @change="changeMember"
         >
         </MsSelect>
