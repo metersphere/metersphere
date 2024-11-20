@@ -239,9 +239,11 @@ export default defineComponent(
           ? [...filterOptions.value]
           : filterOptions.value.map((e) => e[props.valueKey || 'value']);
         emit('update:modelValue', innerValue.value);
+        emit('change', innerValue.value);
       } else {
         innerValue.value = [];
         emit('update:modelValue', []);
+        emit('change', []);
       }
     }
 

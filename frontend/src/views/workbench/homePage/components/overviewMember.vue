@@ -29,7 +29,7 @@
           :prefix="t('workbench.homePage.staff')"
           :multiple="true"
           :has-all-select="true"
-          :default-all-select="!innerHandleUsers.length"
+          :default-all-select="innerSelectAll"
           @change="changeMember"
         >
         </MsSelect>
@@ -65,6 +65,7 @@
   const appStore = useAppStore();
   const props = defineProps<{
     item: SelectedCardItem;
+    refreshKey: number;
   }>();
 
   const emit = defineEmits<{
@@ -170,6 +171,7 @@
     }
   }
 
+  const innerSelectAll = ref<boolean>(false);
   async function getMemberOptions() {
     const [newProjectId] = innerProjectIds.value;
     const res = await workProjectMemberOptions(newProjectId);
@@ -177,6 +179,7 @@
       label: e.name,
       value: e.id,
     }));
+    innerSelectAll.value = memberIds.value.length === memberOptions.value.length;
   }
 
   function changeProject() {
@@ -242,6 +245,18 @@
       getMemberOptions();
     }
   });
+
+  watch(
+    () => props.refreshKey,
+    (val) => {
+      if (val) {
+        initOverViewMemberDetail();
+        if (props.item.projectIds.length) {
+          getMemberOptions();
+        }
+      }
+    }
+  );
 </script>
 
 <style scoped lang="less"></style>

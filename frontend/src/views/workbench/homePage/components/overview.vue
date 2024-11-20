@@ -67,6 +67,7 @@
 
   const props = defineProps<{
     item: SelectedCardItem;
+    refreshKey: number;
   }>();
 
   const emit = defineEmits<{
@@ -141,16 +142,16 @@
             enterable: true,
             formatter(params: any) {
               const html = `
-        <div class="w-[186px] h-[50px] p-[16px] flex items-center justify-between">
-        <div class=" flex items-center">
-        <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm bg-[${params.color}]" style="background:${
+                  <div class="w-[186px] h-[50px] p-[16px] flex items-center justify-between">
+                  <div class=" flex items-center">
+                  <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm bg-[${params.color}]" style="background:${
                 params.color
               }"></div>
-        <div class="one-line-text max-w-[100px]"" style="color:#959598">${params.name}</div>
-        </div>
-        <div class="text-[#323233] font-medium">${addCommasToNumber(params.value)}</div>
-        </div>
-        `;
+                  <div class="one-line-text max-w-[100px]"" style="color:#959598">${params.name}</div>
+                  </div>
+                  <div class="text-[#323233] font-medium">${addCommasToNumber(params.value)}</div>
+                  </div>
+                  `;
               return html;
             },
           },
@@ -170,6 +171,7 @@
         itemStyle: {
           borderRadius: [2, 2, 0, 0], // 上边圆角
         },
+        z: 10,
         data: countData,
         barMinHeight: ((optionData: Record<string, any>[]) => {
           optionData.forEach((itemValue: any, index: number) => {
@@ -217,13 +219,15 @@
       console.log(error);
     }
   }
-
+  const isInit = ref(true);
   function changeProject() {
+    if (isInit.value) {
+      isInit.value = false;
+      return;
+    }
     nextTick(() => {
-      if (innerProjectIds.value.length && innerProjectIds.value.length !== appStore.projectList.length) {
-        initOverViewDetail();
-        emit('change');
-      }
+      initOverViewDetail();
+      emit('change');
     });
   }
 
@@ -234,12 +238,6 @@
   watch(
     () => innerProjectIds.value,
     (val) => {
-      if (val.length === appStore.projectList.length || val.length === 0) {
-        nextTick(() => {
-          initOverViewDetail();
-          emit('change');
-        });
-      }
       innerSelectAll.value = val.length === appStore.projectList.length;
     }
   );
@@ -253,6 +251,15 @@
     },
     {
       deep: true,
+    }
+  );
+
+  watch(
+    () => props.refreshKey,
+    (val) => {
+      if (val) {
+        initOverViewDetail();
+      }
     }
   );
 </script>

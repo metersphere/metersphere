@@ -61,6 +61,7 @@
 
   const props = defineProps<{
     item: SelectedCardItem;
+    refreshKey: number;
   }>();
 
   const emit = defineEmits<{
@@ -100,7 +101,7 @@
   const caseReviewCountOptions = ref<Record<string, any>>({});
 
   const hasPermission = ref<boolean>(false);
-  async function initApiCount() {
+  async function initReviewCount() {
     const { startTime, endTime, dayNumber } = timeForm.value;
     const params = {
       current: 1,
@@ -134,13 +135,13 @@
 
   function changeProject() {
     nextTick(() => {
-      initApiCount();
+      initReviewCount();
       emit('change');
     });
   }
 
   onMounted(() => {
-    initApiCount();
+    initReviewCount();
   });
 
   watch(
@@ -166,11 +167,20 @@
     () => timeForm.value,
     (val) => {
       if (val) {
-        initApiCount();
+        initReviewCount();
       }
     },
     {
       deep: true,
+    }
+  );
+
+  watch(
+    () => props.refreshKey,
+    (val) => {
+      if (val) {
+        initReviewCount();
+      }
     }
   );
 </script>

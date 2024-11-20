@@ -114,6 +114,7 @@
 
   const props = defineProps<{
     item: SelectedCardItem;
+    refreshKey: number;
   }>();
 
   const emit = defineEmits<{
@@ -252,6 +253,15 @@
     },
     {
       deep: true,
+    }
+  );
+
+  watch(
+    () => props.refreshKey,
+    (val) => {
+      if (val) {
+        initData();
+      }
     }
   );
 </script>

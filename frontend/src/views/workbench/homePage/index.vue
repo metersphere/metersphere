@@ -59,6 +59,7 @@
           v-model:projectIds="item.projectIds"
           v-model:selectAll="item.selectAll"
           :item="item"
+          :refresh-key="refreshKey"
           @change="changeHandler"
         />
         <OverviewMember
@@ -66,30 +67,35 @@
           v-model:projectIds="item.projectIds"
           v-model:handleUsers="item.handleUsers"
           :item="item"
+          :refresh-key="refreshKey"
           @change="changeHandler"
         />
         <CaseCount
           v-else-if="item.key === WorkCardEnum.CASE_COUNT"
           v-model:projectIds="item.projectIds"
           :item="item"
+          :refresh-key="refreshKey"
           @change="changeHandler"
         />
         <RelatedCaseCount
           v-else-if="item.key === WorkCardEnum.ASSOCIATE_CASE_COUNT"
           v-model:projectIds="item.projectIds"
           :item="item"
+          :refresh-key="refreshKey"
           @change="changeHandler"
         />
         <CaseReviewedCount
           v-else-if="item.key === WorkCardEnum.REVIEW_CASE_COUNT"
           v-model:projectIds="item.projectIds"
           :item="item"
+          :refresh-key="refreshKey"
           @change="changeHandler"
         />
         <WaitReviewList
           v-else-if="item.key === WorkCardEnum.REVIEWING_BY_ME"
           v-model:projectIds="item.projectIds"
           :item="item"
+          :refresh-key="refreshKey"
           @change="changeHandler"
         />
         <ApiAndScenarioCase
@@ -97,6 +103,7 @@
           v-model:projectIds="item.projectIds"
           :type="item.key"
           :item="item"
+          :refresh-key="refreshKey"
           :status="projectLoadingStatus[item.projectIds[0]]"
           :cover="requestResults[item.projectIds[0]]"
           @change="changeHandler"
@@ -105,6 +112,7 @@
           v-else-if="item.key === WorkCardEnum.API_CHANGE"
           v-model:projectIds="item.projectIds"
           :item="item"
+          :refresh-key="refreshKey"
           @change="changeHandler"
         />
         <DefectMemberBar
@@ -112,6 +120,7 @@
           v-model:projectIds="item.projectIds"
           v-model:handleUsers="item.handleUsers"
           :item="item"
+          :refresh-key="refreshKey"
           @change="changeHandler"
         />
         <DefectCount
@@ -119,6 +128,7 @@
           v-model:projectIds="item.projectIds"
           :item="item"
           :type="item.key"
+          :refresh-key="refreshKey"
           @change="changeHandler"
         />
         <ApiCount
@@ -126,6 +136,7 @@
           v-model:projectIds="item.projectIds"
           :status="projectLoadingStatus[item.projectIds[0]]"
           :item="item"
+          :refresh-key="refreshKey"
           :cover="requestResults[item.projectIds[0]]"
           @change="changeHandler"
         />
@@ -133,6 +144,7 @@
           v-else-if="item.key === WorkCardEnum.TEST_PLAN_COUNT"
           v-model:projectIds="item.projectIds"
           :item="item"
+          :refresh-key="refreshKey"
           @change="changeHandler"
         />
       </div>
@@ -306,9 +318,12 @@
     }
   }
 
+  const refreshKey = ref<number>(0);
+
   // 刷新
   async function handleRefresh() {
     initDefaultList();
+    refreshKey.value = Date.now();
   }
 
   onMounted(() => {

@@ -78,6 +78,7 @@
 
   const props = defineProps<{
     item: SelectedCardItem;
+    refreshKey: number;
     status?: boolean;
     cover?: ApiCoverageData;
   }>();
@@ -211,7 +212,8 @@
     const unCoverWithCase =
       props.item.key === WorkCardEnum.API_CASE_COUNT ? unCoverWithApiCase : unCoverWithApiScenario;
 
-    const coverWithCase = WorkCardEnum.API_CASE_COUNT ? coverWithApiCase : coverWithApiScenario;
+    const coverWithCase = props.item.key === WorkCardEnum.API_CASE_COUNT ? coverWithApiCase : coverWithApiScenario;
+
     coverData.value = cloneDeep(initCoverRate);
     coverData.value = [
       {
@@ -353,6 +355,15 @@
     },
     {
       deep: true,
+    }
+  );
+
+  watch(
+    () => props.refreshKey,
+    (val) => {
+      if (val) {
+        initApiOrScenarioCount();
+      }
     }
   );
 </script>

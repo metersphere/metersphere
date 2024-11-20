@@ -65,6 +65,7 @@
 
   const props = defineProps<{
     item: SelectedCardItem;
+    refreshKey: number;
     projectIds: string[];
     status?: boolean;
     cover?: ApiCoverageData;
@@ -259,6 +260,15 @@
     },
     {
       deep: true,
+    }
+  );
+
+  watch(
+    () => props.refreshKey,
+    (val) => {
+      if (val) {
+        initApiCount();
+      }
     }
   );
 </script>
