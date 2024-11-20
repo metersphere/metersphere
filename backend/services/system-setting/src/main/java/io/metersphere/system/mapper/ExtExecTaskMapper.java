@@ -23,6 +23,7 @@ public interface ExtExecTaskMapper {
 
     /**
      * 查询时间范围内的任务ID集合
+     *
      * @param timeMills 时间戳
      * @param projectId 项目ID
      * @return 任务ID列表
@@ -30,4 +31,6 @@ public interface ExtExecTaskMapper {
     List<String> getTaskIdsByTime(@Param("timeMills") long timeMills, @Param("projectId") String projectId);
 
     List<ExecTaskItemDetailDTO> selectTypeByItemId(@Param("itemId") String itemId);
+
+    List<String> getSelectIds(@Param("ids") List<String> ids, @Param("flag") boolean flag);
 }

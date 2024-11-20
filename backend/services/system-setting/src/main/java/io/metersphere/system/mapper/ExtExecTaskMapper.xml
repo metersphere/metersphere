@@ -149,4 +149,18 @@
                 exec_task_item.task_origin as taskOrigin
                from exec_task inner join exec_task_item on exec_task.id = exec_task_item.task_id where exec_task_item.id = #{itemId}
     </select>
+
+    <select id="getSelectIds" resultType="java.lang.String">
+        select id from exec_task
+        where deleted = false
+        <if test="flag">
+            and status = 'RUNNING'
+        </if>
+        <if test="ids != null and ids.size() > 0">
+            and id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
 </mapper>

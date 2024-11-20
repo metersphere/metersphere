@@ -692,7 +692,7 @@ public class BaseTaskHubService {
             }
             return ids;
         } else {
-            return request.getSelectIds();
+            return extExecTaskMapper.getSelectIds(request.getSelectIds(), flag);
         }
     }
 
