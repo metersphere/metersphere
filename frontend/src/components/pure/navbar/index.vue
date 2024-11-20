@@ -221,7 +221,7 @@
   const unReadCount = ref<number>(0);
 
   async function checkMessageRead() {
-    if (appStore.currentProjectId) {
+    if (appStore.currentProjectId && appStore.currentProjectId !== 'no_such_project') {
       unReadCount.value = await getMessageUnReadCount(appStore.currentProjectId);
     }
   }
