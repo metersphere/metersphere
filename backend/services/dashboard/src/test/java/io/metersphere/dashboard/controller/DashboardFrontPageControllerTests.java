@@ -30,6 +30,7 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.model.Header;
@@ -141,6 +142,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         dashboardFrontPageRequest.setDayNumber(null);
         dashboardFrontPageRequest.setStartTime(1716185577387L);
         dashboardFrontPageRequest.setEndTime(1730181702699L);
+        dashboardFrontPageRequest.setSelectAll(true);
         mvcResult = this.requestPostWithOkAndReturn(CREATE_BY_ME, dashboardFrontPageRequest);
         moduleCount = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
@@ -218,47 +220,45 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         List<ProjectUserDTO> projectUserDTOS = projectMemberService.listMember(projectMemberRequest);
 
         List<LayoutDTO> layoutDTO = new ArrayList<>();
-        LayoutDTO layoutDTOa = new LayoutDTO();
-        layoutDTOa.setId(UUID.randomUUID().toString());
-        layoutDTOa.setPos(3);
-        layoutDTOa.setKey(DashboardUserLayoutKeys.PROJECT_VIEW.toString());
-        layoutDTOa.setLabel("项目概览");
-        layoutDTOa.setProjectIds(new ArrayList<>());
-        layoutDTOa.setHandleUsers(new ArrayList<>());
-        layoutDTOa.setFullScreen(false);
+        LayoutDTO layoutDTOa = getLayoutDTO(0, DashboardUserLayoutKeys.PROJECT_VIEW, "项目概览");
         layoutDTO.add(layoutDTOa);
 
-        LayoutDTO layoutDTOb = new LayoutDTO();
-        layoutDTOb.setId(UUID.randomUUID().toString());
-        layoutDTOb.setPos(4);
-        layoutDTOb.setKey(DashboardUserLayoutKeys.CREATE_BY_ME.toString());
-        layoutDTOb.setLabel("我的创建");
-        layoutDTOb.setProjectIds(projects.stream().map(Project::getId).toList());
-        layoutDTOb.setHandleUsers(new ArrayList<>());
-        layoutDTOb.setFullScreen(false);
+        LayoutDTO layoutDTOb = getLayoutDTOWidthProject(1, DashboardUserLayoutKeys.CREATE_BY_ME, "我的创建", projects.stream().map(Project::getId).toList());
         layoutDTO.add(layoutDTOb);
 
         List<String> userIds = projectUserDTOS.stream().map(ProjectUserDTO::getId).toList();
 
-        LayoutDTO layoutDTOc = new LayoutDTO();
-        layoutDTOc.setId(UUID.randomUUID().toString());
-        layoutDTOc.setPos(4);
-        layoutDTOc.setKey(DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW.toString());
-        layoutDTOc.setLabel("人员概览");
-        layoutDTOc.setProjectIds(List.of(DEFAULT_PROJECT_ID));
-        layoutDTOc.setHandleUsers(userIds);
-        layoutDTOc.setFullScreen(false);
+        LayoutDTO layoutDTOc = getUserLayoutDTO(2,DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW, "人员概览", userIds);
         layoutDTO.add(layoutDTOc);
 
-        LayoutDTO layoutDTO1 = new LayoutDTO();
-        layoutDTO1.setId(UUID.randomUUID().toString());
-        layoutDTO1.setPos(1);
-        layoutDTO1.setKey(DashboardUserLayoutKeys.CASE_COUNT.toString());
-        layoutDTO1.setLabel("用例数量");
-        layoutDTO1.setProjectIds(new ArrayList<>());
-        layoutDTO1.setHandleUsers(new ArrayList<>());
-        layoutDTO1.setFullScreen(false);
+        LayoutDTO layoutDTO1 = getLayoutDTO(3, DashboardUserLayoutKeys.CASE_COUNT, "用例数量");
         layoutDTO.add(layoutDTO1);
+        LayoutDTO layoutDTO2 = getLayoutDTO(4, DashboardUserLayoutKeys.ASSOCIATE_CASE_COUNT, "关联用例统计");
+        layoutDTO.add(layoutDTO2);
+        LayoutDTO layoutDTO3 = getLayoutDTO(5, DashboardUserLayoutKeys.REVIEW_CASE_COUNT, "用例评审数量统计");
+        layoutDTO.add(layoutDTO3);
+        LayoutDTO layoutDTO4 = getLayoutDTO(6, DashboardUserLayoutKeys.REVIEWING_BY_ME, "待我评审");
+        layoutDTO.add(layoutDTO4);
+        LayoutDTO layoutDTO5 = getLayoutDTO(7, DashboardUserLayoutKeys.API_COUNT, "接口数量统计");
+        layoutDTO.add(layoutDTO5);
+        LayoutDTO layoutDTO6 = getLayoutDTO(8, DashboardUserLayoutKeys.API_CASE_COUNT, "接口用例数量统计");
+        layoutDTO.add(layoutDTO6);
+        LayoutDTO layoutDTO7 = getLayoutDTO(9, DashboardUserLayoutKeys.SCENARIO_COUNT, "场景用例数量统计");
+        layoutDTO.add(layoutDTO7);
+        LayoutDTO layoutDTO8 = getLayoutDTO(10, DashboardUserLayoutKeys.API_CHANGE, "接口变更统计");
+        layoutDTO.add(layoutDTO8);
+        LayoutDTO layoutDTO9 = getLayoutDTO(11, DashboardUserLayoutKeys.TEST_PLAN_COUNT, "测试计划数量统计");
+        layoutDTO.add(layoutDTO9);
+        LayoutDTO layoutDTOz = getLayoutDTO(12, DashboardUserLayoutKeys.PLAN_LEGACY_BUG, "计划遗留bug统计");
+        layoutDTO.add(layoutDTOz);
+        LayoutDTO layoutDTOx = getLayoutDTO(13, DashboardUserLayoutKeys.BUG_COUNT, "缺陷数量统计");
+        layoutDTO.add(layoutDTOx);
+        LayoutDTO layoutDTOv = getLayoutDTO(14, DashboardUserLayoutKeys.CREATE_BUG_BY_ME, "我创建的缺陷");
+        layoutDTO.add(layoutDTOv);
+        LayoutDTO layoutDTOn = getLayoutDTO(15, DashboardUserLayoutKeys.HANDLE_BUG_BY_ME, "待我处理的缺陷");
+        layoutDTO.add(layoutDTOn);
+        LayoutDTO layoutDTOm = getLayoutDTO(16, DashboardUserLayoutKeys.BUG_HANDLE_USER, "缺陷处理人统计");
+        layoutDTO.add(layoutDTOm);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(EDIT_LAYOUT + DEFAULT_ORGANIZATION_ID, layoutDTO);
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
@@ -271,20 +271,45 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
         Assertions.assertNotNull(layoutDTOS);
 
-        LayoutDTO layoutDTO2 = new LayoutDTO();
-        layoutDTO2.setId(UUID.randomUUID().toString());
-        layoutDTO2.setPos(2);
-        layoutDTO2.setKey(DashboardUserLayoutKeys.ASSOCIATE_CASE_COUNT.toString());
-        layoutDTO2.setLabel("关联用例数量");
-        layoutDTO2.setProjectIds(List.of(DEFAULT_PROJECT_ID));
-        layoutDTO2.setHandleUsers(new ArrayList<>());
-        layoutDTO2.setFullScreen(false);
+        getLayoutDTOWidthProject(2, DashboardUserLayoutKeys.ASSOCIATE_CASE_COUNT, "关联用例数量", List.of(DEFAULT_PROJECT_ID));
         layoutDTO.add(layoutDTO1);
         mvcResult = this.requestPostWithOkAndReturn(EDIT_LAYOUT + DEFAULT_ORGANIZATION_ID, layoutDTO);
         contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         layoutDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), LayoutDTO.class);
         Assertions.assertNotNull(layoutDTOS);
+    }
+
+    @NotNull
+    private static LayoutDTO getUserLayoutDTO(int pos, DashboardUserLayoutKeys createByMe, String name, List<String> userIds) {
+        LayoutDTO layoutDTOc = new LayoutDTO();
+        layoutDTOc.setId(UUID.randomUUID().toString());
+        layoutDTOc.setPos(pos);
+        layoutDTOc.setKey(createByMe.toString());
+        layoutDTOc.setLabel(name);
+        layoutDTOc.setProjectIds(List.of(DEFAULT_PROJECT_ID));
+        layoutDTOc.setHandleUsers(userIds);
+        layoutDTOc.setFullScreen(false);
+        return layoutDTOc;
+    }
+
+    @NotNull
+    private static LayoutDTO getLayoutDTOWidthProject(int pos, DashboardUserLayoutKeys createByMe, String name, List<String> projects) {
+        LayoutDTO layoutDTOb = new LayoutDTO();
+        layoutDTOb.setId(UUID.randomUUID().toString());
+        layoutDTOb.setPos(pos);
+        layoutDTOb.setKey(createByMe.toString());
+        layoutDTOb.setLabel(name);
+        layoutDTOb.setProjectIds(projects);
+        layoutDTOb.setHandleUsers(new ArrayList<>());
+        layoutDTOb.setFullScreen(false);
+        return layoutDTOb;
+    }
+
+    @NotNull
+    private static LayoutDTO getLayoutDTO(int pos, DashboardUserLayoutKeys associateCaseCount, String name) {
+        LayoutDTO layoutDTO2 = getLayoutDTOWidthProject(pos, associateCaseCount, name, new ArrayList<>());
+        return layoutDTO2;
     }
 
     @Test
