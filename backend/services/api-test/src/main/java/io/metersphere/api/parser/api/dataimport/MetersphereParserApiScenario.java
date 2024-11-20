@@ -84,6 +84,7 @@ public class MetersphereParserApiScenario implements ApiScenarioImportParser {
         apiScenarioImportDetail.setSteps(parseResult.getStepList());
         apiScenarioImportDetail.setStepDetails(parseResult.getStepDetails());
         apiScenarioImportDetail.setProjectId(projectId);
+        apiScenarioImportDetail.setEnvironmentId(null);
         apiScenarioImportDetail.setApiScenarioCsvList(apiScenarioCsvMap.getOrDefault(apiScenarioDetail.getId(), new ArrayList<>()));
         return apiScenarioImportDetail;
     }
