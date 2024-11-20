@@ -139,7 +139,13 @@
   import TabCaseExecuteHistory from '@/views/api-test/management/components/management/case/tabContent/tabCaseExecuteHistory.vue';
 
   import { localExecuteApiDebug, stopLocalExecute } from '@/api/modules/api-test/common';
-  import { debugCase, deleteCase, runCase, toggleFollowCase } from '@/api/modules/api-test/management';
+  import {
+    debugCase,
+    deleteCase,
+    runCase,
+    toggleFollowCase,
+    toggleUnFollowCase,
+  } from '@/api/modules/api-test/management';
   import { projectStopTask } from '@/api/modules/taskCenter/project';
   import useModal from '@/hooks/useModal';
   import useWebsocket from '@/hooks/useWebsocket';
@@ -200,7 +206,11 @@
   async function follow() {
     try {
       followLoading.value = true;
-      await toggleFollowCase(caseDetail.value.id);
+      if (caseDetail.value.follow) {
+        await toggleUnFollowCase(caseDetail.value.id);
+      } else {
+        await toggleFollowCase(caseDetail.value.id);
+      }
       Message.success(caseDetail.value.follow ? t('common.unFollowSuccess') : t('common.followSuccess'));
       caseDetail.value.follow = !caseDetail.value.follow;
       emit('updateFollow');

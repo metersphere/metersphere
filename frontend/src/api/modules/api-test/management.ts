@@ -93,6 +93,7 @@ import {
   SwitchDefinitionScheduleUrl,
   ToggleFollowCaseUrl,
   ToggleFollowDefinitionUrl,
+  ToggleUnFollowCaseUrl,
   TransferFileCaseUrl,
   TransferFileModuleOptionCaseUrl,
   TransferFileModuleOptionUrl,
@@ -550,9 +551,14 @@ export function getCaseDetail(id: string) {
   return MSR.get<ApiCaseDetail>({ url: GetCaseDetailUrl, params: id });
 }
 
-// 关注/取消关注接口用例
+// 关注接口用例
 export function toggleFollowCase(id: string | number) {
   return MSR.get({ url: ToggleFollowCaseUrl, params: id });
+}
+
+// 取消关注接口用例
+export function toggleUnFollowCase(id: string | number) {
+  return MSR.get({ url: ToggleUnFollowCaseUrl, params: id });
 }
 
 // 用例执行，传请求详情执行
