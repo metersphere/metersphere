@@ -31,8 +31,8 @@ public class ApiDefinitionUtils {
                 if (StringUtils.isNotEmpty(customRequestUrl)) {
                     String[] customUrlArr = customRequestUrl.split("/");
 
-                    if (customUrlArr.length >= urlParams.length) {
-
+                    if (StringUtils.startsWithAny(customRequestUrl.toLowerCase(), "https://", "http://")
+                            && customUrlArr.length >= urlParams.length) {
                         boolean isFetch = true;
                         for (int urlIndex = 0; urlIndex < urlParams.length; urlIndex++) {
                             String urlItem = urlParams[urlIndex];
@@ -48,6 +48,23 @@ public class ApiDefinitionUtils {
                         if (isFetch) {
                             return true;
                         }
+                    } else if (customUrlArr.length == urlParams.length) {
+                        boolean isFetch = true;
+                        for (int urlIndex = 0; urlIndex < urlParams.length; urlIndex++) {
+                            String urlItem = urlParams[urlIndex];
+                            String customUrlItem = customUrlArr[urlIndex];
+                            // 不为rest参数的要进行全匹配。 而且忽略大小写
+                            if (isRestUrlParam(customUrlItem) && isRestUrlParam(urlItem)) {
+                                if (!StringUtils.equalsIgnoreCase(customUrlItem, urlItem)) {
+                                    isFetch = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (isFetch) {
+                            return true;
+                        }
+
                     }
                 }
             }

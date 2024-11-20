@@ -15,6 +15,7 @@ import io.metersphere.api.dto.scenario.ApiScenarioStepRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioUpdateRequest;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.api.utils.ApiDefinitionUtils;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -220,20 +221,32 @@ public class ApiCalculateTest extends BaseTest {
 
         MvcResult mvcResult = this.requestGetWithOkAndReturn("/api/definition/rage/" + project.getId());
         ApiCoverageDTO apiCoverageDTO = getResultData(mvcResult, ApiCoverageDTO.class);
-        Assertions.assertEquals(apiCoverageDTO.getAllApiCount(), 20);
-        Assertions.assertEquals(apiCoverageDTO.getCoverWithApiCase(), 4);
-        Assertions.assertEquals(apiCoverageDTO.getUnCoverWithApiCase(), 16);
+        Assertions.assertEquals(20, apiCoverageDTO.getAllApiCount());
+        Assertions.assertEquals(4, apiCoverageDTO.getCoverWithApiCase());
+        Assertions.assertEquals(16, apiCoverageDTO.getUnCoverWithApiCase());
         Assertions.assertEquals(apiCoverageDTO.getApiCaseCoverage(), CalculateUtils.reportPercentage(apiCoverageDTO.getCoverWithApiCase(), apiCoverageDTO.getAllApiCount()));
 
-        Assertions.assertEquals(apiCoverageDTO.getCoverWithApiScenario(), 8);
-        Assertions.assertEquals(apiCoverageDTO.getUnCoverWithApiScenario(), 12);
+        Assertions.assertEquals(8, apiCoverageDTO.getCoverWithApiScenario());
+        Assertions.assertEquals(12, apiCoverageDTO.getUnCoverWithApiScenario());
         Assertions.assertEquals(apiCoverageDTO.getScenarioCoverage(), CalculateUtils.reportPercentage(apiCoverageDTO.getCoverWithApiScenario(), apiCoverageDTO.getAllApiCount()));
 
-        Assertions.assertEquals(apiCoverageDTO.getCoverWithApiDefinition(), 10);
-        Assertions.assertEquals(apiCoverageDTO.getUnCoverWithApiDefinition(), 10);
+        Assertions.assertEquals(10, apiCoverageDTO.getCoverWithApiDefinition());
+        Assertions.assertEquals(10, apiCoverageDTO.getUnCoverWithApiDefinition());
         Assertions.assertEquals(apiCoverageDTO.getApiCoverage(), CalculateUtils.reportPercentage(apiCoverageDTO.getCoverWithApiDefinition(), apiCoverageDTO.getAllApiCount()));
 
         Assertions.assertEquals("0.00%", CalculateUtils.reportPercentage(0, 0));
     }
 
+    @Test
+    public void urlFetchTest() {
+        List<String> fetchList = new ArrayList<>();
+        fetchList.add("/etag/{etag}");
+        fetchList.add("/html");
+        Assertions.assertFalse(ApiDefinitionUtils.isUrlInList("/brave", fetchList));
+        fetchList.add("https://www.abcde.com/etag/{etag}");
+        Assertions.assertTrue(ApiDefinitionUtils.isUrlInList("/brave", fetchList));
+        fetchList.remove("https://www.abcde.com/etag/{etag}");
+        fetchList.add("http://www.abcde.com/etag/{etag}");
+        Assertions.assertTrue(ApiDefinitionUtils.isUrlInList("/brave", fetchList));
+    }
 }
