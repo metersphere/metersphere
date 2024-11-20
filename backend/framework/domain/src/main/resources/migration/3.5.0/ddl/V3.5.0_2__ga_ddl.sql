@@ -93,5 +93,12 @@ ALTER TABLE exec_task ADD environment_id varchar(50) NULL COMMENT '用例批量�
 ALTER TABLE exec_task ADD env_grouped bit(1) DEFAULT 0 NULL COMMENT '是否是环境组';
 ALTER TABLE exec_task ADD pool_id varchar(50) NULL COMMENT '资源池ID';
 
+-- 执行状态字段添加默认值
+ALTER TABLE test_plan_functional_case ALTER COLUMN last_exec_result SET DEFAULT '';
+ALTER TABLE test_plan_api_case ALTER COLUMN last_exec_result SET DEFAULT '';
+ALTER TABLE test_plan_api_scenario ALTER COLUMN last_exec_result SET DEFAULT '';
+ALTER TABLE api_test_case ALTER COLUMN last_report_status SET DEFAULT '';
+ALTER TABLE api_scenario ALTER COLUMN last_report_status SET DEFAULT '';
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
