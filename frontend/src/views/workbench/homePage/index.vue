@@ -1,5 +1,5 @@
 <template>
-  <div class="work-bench-content">
+  <div :class="`work-bench-content ${defaultWorkList.length ? 'min-w-[1000px]' : ''}`">
     <div class="header-setting pb-[4px]">
       <div
         class="setting sticky top-0 z-[999] mb-[-16px] flex items-center justify-between bg-[var(--color-bg-3)] pb-[16px]"
@@ -139,8 +139,8 @@
     </div>
     <NoData
       v-if="showNoData || !defaultWorkList.length"
-      :no-res-permission="!defaultWorkList.length"
-      :all-screen="!!defaultWorkList.length"
+      :no-res-permission="!appStore.projectList.length"
+      :all-screen="!defaultWorkList.length"
       height="h-[calc(100vh-110px)]"
       @config="cardSetting"
     />
@@ -339,12 +339,20 @@
     { deep: true }
   );
 
+  watch(
+    () => appStore.currentOrgId,
+    (val) => {
+      if (val) {
+        initDefaultList();
+      }
+    }
+  );
+
   provide('timeForm', time);
 </script>
 
 <style scoped lang="less">
   .work-bench-content {
-    min-width: 1200px;
     @apply overflow-x-auto;
     .ms-scroll-bar();
     .header-setting {

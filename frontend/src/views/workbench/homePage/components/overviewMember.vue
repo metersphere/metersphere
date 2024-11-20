@@ -51,8 +51,7 @@
   import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
 
-  import { getProjectMemberOptions } from '@/api/modules/project-management/projectMember';
-  import { workMemberViewDetail } from '@/api/modules/workbench';
+  import { workMemberViewDetail, workProjectMemberOptions } from '@/api/modules/workbench';
   import { contentTabList } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
@@ -173,7 +172,7 @@
 
   async function getMemberOptions() {
     const [newProjectId] = innerProjectIds.value;
-    const res = await getProjectMemberOptions(newProjectId);
+    const res = await workProjectMemberOptions(newProjectId);
     memberOptions.value = res.map((e: any) => ({
       label: e.name,
       value: e.id,
@@ -238,8 +237,10 @@
   );
 
   onMounted(() => {
-    getMemberOptions();
     initOverViewMemberDetail();
+    if (props.item.projectIds.length) {
+      getMemberOptions();
+    }
   });
 </script>
 

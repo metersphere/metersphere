@@ -140,26 +140,6 @@
       const { unExecute, executed, passed, notPassed, finished, running, prepared, archived, errorCode } = detail;
       hasPermission.value = errorCode !== 109001;
 
-      const executeRate =
-        executed + unExecute > 0 ? parseFloat(((executed / (executed + unExecute)) * 100).toFixed(2)) : 0;
-      const executeData: {
-        name: string;
-        count: number;
-      }[] = [
-        {
-          name: t('workbench.homePage.executeRate'),
-          count: executeRate,
-        },
-        {
-          name: t('common.unExecute'),
-          count: unExecute,
-        },
-        {
-          name: t('common.executed'),
-          count: executed,
-        },
-      ];
-
       const passRate = passed + notPassed > 0 ? parseFloat(((passed / (passed + notPassed)) * 100).toFixed(2)) : 0;
 
       const passData = [
@@ -209,6 +189,25 @@
         {
           name: t('common.notStarted'),
           count: prepared,
+        },
+      ];
+
+      const executeRate = finished + running > 0 ? parseFloat((((finished + running) / total) * 100).toFixed(2)) : 0;
+      const executeData: {
+        name: string;
+        count: number;
+      }[] = [
+        {
+          name: t('workbench.homePage.executeRate'),
+          count: executeRate,
+        },
+        {
+          name: t('common.unExecute'),
+          count: unExecute,
+        },
+        {
+          name: t('common.executed'),
+          count: executed,
         },
       ];
 

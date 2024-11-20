@@ -44,6 +44,7 @@ import {
   WorkMemberViewDetailUrl,
   WorkMyCreatedDetailUrl,
   WorkPlanLegacyBugUrl,
+  WorkProjectMemberListUrl,
   WorkProOverviewDetailUrl,
   WorkReviewListUrl,
   WorkScenarioCaseCountDetailUrl,
@@ -137,6 +138,11 @@ export function workCaseReviewDetail(data: WorkHomePageDetail) {
 // 工作台-首页-缺陷处理人
 export function workBugHandlerDetail(data: WorkHomePageDetail) {
   return MSR.post<OverViewOfProject>({ url: WorkBugHandlerDetailUrl, data }, { ignoreCancelToken: true });
+}
+
+// 工作台-首页-项目成员下拉
+export function workProjectMemberOptions(projectId: string, keyword?: string) {
+  return MSR.get({ url: `${WorkProjectMemberListUrl}/${projectId}`, params: { keyword } });
 }
 
 // 工作台-首页-接口变更
