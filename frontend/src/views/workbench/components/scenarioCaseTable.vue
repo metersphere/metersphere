@@ -33,7 +33,7 @@
         <apiStatus :status="record.status" />
       </template>
       <template #createUserName="{ record }">
-        <a-tooltip :content="`${record.createName}`" position="tl">
+        <a-tooltip :content="`${record.createUserName}`" position="tl">
           <div class="one-line-text">{{ characterLimit(record.createUserName) }}</div>
         </a-tooltip>
       </template>
@@ -200,7 +200,6 @@
       dataIndex: 'createUser',
       slotName: 'createUserName',
       showInTable: false,
-      showTooltip: true,
       width: 150,
     },
     {

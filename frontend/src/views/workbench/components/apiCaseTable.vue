@@ -111,7 +111,6 @@
       },
       fixed: 'left',
       width: 100,
-      columnSelectorDisabled: true,
     },
     {
       title: 'case.caseName',
@@ -123,7 +122,6 @@
       },
       fixed: 'left',
       width: 180,
-      columnSelectorDisabled: true,
     },
     {
       title: 'case.caseLevel',
@@ -134,7 +132,6 @@
         filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
       },
       width: 100,
-      showDrag: true,
     },
     {
       title: 'apiTestManagement.apiStatus',
@@ -147,9 +144,9 @@
       filterConfig: {
         options: caseStatusOptions,
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_STATUS,
+        disabledTooltip: true,
       },
       width: 100,
-      showDrag: true,
     },
     {
       title: 'case.lastReportStatus',
@@ -159,7 +156,6 @@
         options: lastReportStatusListOptions.value,
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS,
       },
-      showInTable: false,
       width: 100,
       showDrag: true,
     },
@@ -167,22 +163,22 @@
       title: 'case.caseEnvironment',
       dataIndex: 'environmentName',
       showTooltip: true,
-      showInTable: false,
       width: 150,
-      showDrag: true,
     },
     {
       title: 'case.tableColumnCreateUser',
       slotName: 'createName',
       dataIndex: 'createUser',
-      showInTable: true,
       showTooltip: true,
       width: 150,
     },
     {
       title: 'case.tableColumnCreateTime',
       dataIndex: 'createTime',
-      showInTable: false,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       width: 180,
     },
   ];

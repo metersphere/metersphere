@@ -5,6 +5,8 @@ import { addCommasToNumber } from '@/utils';
 import type { PassRateCountDetail, planStatusType, TestPlanDetail } from '@/models/testPlan/testPlan';
 import type { countDetail, PlanReportDetail, StatusListType } from '@/models/testPlan/testPlanReport';
 import { LastExecuteResults } from '@/enums/caseEnum';
+
+import type { TooltipOption } from 'echarts/types/dist/shared';
 // TODO: 对照后端字段
 // 测试计划详情
 export const testPlanDefaultDetail: TestPlanDetail = {
@@ -142,16 +144,17 @@ export const statusConfig: StatusListType[] = [
   },
 ];
 
-export const toolTipConfig = {
+export const toolTipConfig: TooltipOption = {
   show: true,
   trigger: 'item',
-  label: {
+  textStyle: {
     color: '#959598',
   },
   position: 'top',
   backgroundColor: '#fff',
   padding: 16,
   borderWidth: 0,
+  appendTo: 'body',
   formatter(params: any) {
     const html = `
       <div class="w-[144px] flex items-center justify-between">

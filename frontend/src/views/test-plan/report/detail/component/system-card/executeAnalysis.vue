@@ -27,6 +27,7 @@
     detail: PlanReportDetail;
     hideTitle?: boolean;
     animation?: boolean; // 是否开启动画
+    noBlock?: boolean;
   }>();
 
   const legendData = ref<LegendData[]>([]);
@@ -79,6 +80,10 @@
       ],
     },
   });
+
+  if (props.noBlock) {
+    executeCharOptions.value.series.data.pop();
+  }
 
   function initExecuteOptions() {
     const pieBorderWidth =

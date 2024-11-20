@@ -977,8 +977,10 @@
 
   watch(
     () => propsRes.value.data,
-    () => {
-      initStatistics();
+    (arr) => {
+      if (arr.length > 0) {
+        initStatistics();
+      }
     }
   );
 
