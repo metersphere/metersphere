@@ -31,7 +31,7 @@
     </div>
   </div>
   <div v-else class="not-setting-data">
-    {{ props.noPermissionText || t('workbench.homePage.noDataTemporarily') }}
+    {{ t(props.noPermissionText || 'workbench.homePage.noDataTemporarily') }}
   </div>
 </template>
 

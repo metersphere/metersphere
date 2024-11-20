@@ -245,7 +245,7 @@ const useUserStore = defineStore('user', {
       const appStore = useAppStore();
       const isLogin = await this.isLogin(forceSet);
       const routeName = router.currentRoute.value.name as string;
-      if (isLogin && appStore.currentProjectId !== 'no_such_project') {
+      if (isLogin && appStore.currentProjectId && appStore.currentProjectId !== 'no_such_project') {
         // 当前为登陆状态，且已经选择了项目，初始化当前项目配置
         try {
           const HasProjectPermission = await getUserHasProjectPermission(appStore.currentProjectId);

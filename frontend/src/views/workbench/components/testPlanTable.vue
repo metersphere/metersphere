@@ -148,7 +148,7 @@
       title: 'testPlan.testPlanIndex.ID',
       slotName: 'num',
       dataIndex: 'num',
-      width: 100,
+      width: 150,
       showInTable: true,
       showDrag: false,
     },
