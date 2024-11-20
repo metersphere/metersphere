@@ -111,7 +111,7 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
         `
           )
           .join('')}
-        </div>
+      </div>
       `;
           return html;
         },
@@ -133,7 +133,6 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
       data: [],
       axisLabel: {
         color: '#646466',
-        interval: 0,
       },
       axisTick: {
         show: false, // 隐藏刻度线
