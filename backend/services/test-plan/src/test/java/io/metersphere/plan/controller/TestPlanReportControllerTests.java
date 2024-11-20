@@ -53,6 +53,7 @@ public class TestPlanReportControllerTests extends BaseTest {
     private static final String AUTO_GEN_PLAN_REPORT = "/test-plan/report/auto-gen";
     private static final String GET_PLAN_REPORT = "/test-plan/report/get";
     private static final String GET_PLAN_TASK_RESULT = "/test-plan/report/get-task";
+    private static final String GET_PLAN_RESULT = "/test-plan/report/get-result";
     private static final String EDIT_PLAN_REPORT_AND_UPLOAD_PIC = "/test-plan/report/upload/md/file";
     private static final String EDIT_PLAN_REPORT = "/test-plan/report/detail/edit";
     private static final String GET_PLAN_REPORT_DETAIL_BUG_PAGE = "/test-plan/report/detail/bug/page";
@@ -100,7 +101,7 @@ public class TestPlanReportControllerTests extends BaseTest {
         request.setProjectId("100001100001");
         request.setCurrent(1);
         request.setPageSize(10);
-        request.setKeyword("1");
+        request.initKeyword("1");
         MvcResult mvcResult = this.requestPostWithOkAndReturn(LIST_PLAN_REPORT, request);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -119,7 +120,7 @@ public class TestPlanReportControllerTests extends BaseTest {
         Assertions.assertTrue(StringUtils.contains(report.getName(), request.getKeyword()));
         // 覆盖排序, 及数据为空
         request.setSort(Map.of("tpr.create_time", "asc"));
-        request.setKeyword("oasis");
+        request.initKeyword("oasis");
         this.requestPost(LIST_PLAN_REPORT, request);
     }
 
@@ -304,6 +305,8 @@ public class TestPlanReportControllerTests extends BaseTest {
         this.requestGet(GET_PLAN_REPORT + "/" + "test-plan-report-id-5");
         this.requestGet(GET_PLAN_TASK_RESULT + "/" + "task-id-1");
         this.requestGet(GET_PLAN_TASK_RESULT + "/" + "task-id-2");
+        this.requestGet(GET_PLAN_RESULT + "/" + "task-id-1");
+        this.requestGet(GET_PLAN_RESULT + "/" + "task-id-2");
         // 为了不影响后续报告的清理
         cleanDefaultTaskReportRelate();
     }

@@ -64,6 +64,27 @@
         <include refid="queryByTableRequest"/>
     </select>
 
+    <select id="selectTodoByConditions" resultMap="BaseResultMapDTO">
+        select
+        t.id,t.num,t.name,t.status,t.group_id,
+        t.create_user as createuser,
+        createuser.name as createusername,
+        t.create_time as createtime,
+        t.module_id as moduleid,
+        t.type,
+        t.description,
+        t.pos,
+        t.planned_start_time as plannedstarttime,
+        t.planned_end_time as plannedendtime,
+        t.actual_start_time as actualstarttime,
+        t.actual_end_time as actualendtime,
+        t.tags
+        from test_plan t
+        inner join user createuser on t.create_user = createuser.id
+        where t.project_id = #{request.projectid}
+        <include refid="queryByTableRequest"/>
+    </select>
+
     <select id="selectByGroupIds"
             resultMap="BaseResultMapDTO">
         SELECT
@@ -101,6 +122,19 @@
                     #{id}
                 </foreach>
             </if>
+            <if test="request.innerIds != null and request.innerIds.size() > 0">
+                and (
+                    t.id in
+                    <foreach collection="request.innerIds" item="id" open="(" separator="," close=")">
+                        #{id}
+                    </foreach>
+                    or
+                    t.group_id in
+                    <foreach collection="request.innerIds" item="id" open="(" separator="," close=")">
+                        #{id}
+                    </foreach>
+                )
+            </if>
         </if>
         <if test="!request.myTodo">
             <include refid="baseConditionQuery"/>
@@ -119,7 +153,7 @@
             </if>
             )
         </if>
-        <if test="request.innerIds != null and request.innerIds.size() > 0">
+        <if test="request.innerIds != null and request.innerIds.size() > 0 and !request.myTodo">
             and t.id in
             <foreach collection="request.innerIds" item="id" open="(" separator="," close=")">
                 #{id}

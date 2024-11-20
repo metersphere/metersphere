@@ -24,6 +24,9 @@ public interface ExtTestPlanMapper {
     @BaseConditionFilter
     List<TestPlanResponse> selectByConditions(@Param("request") TestPlanTableRequest request);
 
+    @BaseConditionFilter
+    List<TestPlanResponse> selectTodoByConditions(@Param("request") TestPlanTableRequest request);
+
     List<String> selectIdByConditions(@Param("request") TestPlanBatchProcessRequest request);
 
     List<String> selectGroupIdByConditions(TestPlanQueryConditions testPlanQueryConditions);
