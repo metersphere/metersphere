@@ -197,7 +197,7 @@
   const expressionFormRef = ref<FormInstance | null>(null);
   const parseJson = ref<string | Record<string, any>>({});
   const isHtml = ref(false);
-  const matchResult = ref<any[]>([]); // 当前匹配结果
+  const matchResult = ref<any[] | string>([]); // 当前匹配结果
   const isMatched = ref(false); // 是否执行过匹配
 
   watch(
@@ -298,6 +298,8 @@
           } else if (typeof results === 'object' && results !== null) {
             traverseJSONObject(results);
             matchResult.value = results;
+          } else if (typeof results === 'string' && results.includes('Number(')) {
+            matchResult.value = results.replace(/Number\(([^)]+)\)/g, '$1');
           } else {
             matchResult.value = results === null || results === false ? `${results}` : results || [];
           }
