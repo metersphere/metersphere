@@ -107,5 +107,6 @@ public interface ExtApiScenarioMapper {
     List<ProjectUserCreateCount> userCreateApiScenarioCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userIds") Set<String> userIds);
 
     List<ApiScenario> getSimpleApiScenarioList(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
+
     List<ExecHistoryDTO> selectExecHistory(@Param("request") ExecutePageRequest request);
 }

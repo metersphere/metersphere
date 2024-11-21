@@ -659,6 +659,7 @@ public class BaseTaskHubControllerTests extends BaseTest {
         baseTaskHubService.insertExecTaskAndDetail(new ArrayList<>(), new ArrayList<>());
 
         execTaskItem.setId("2333");
+        execTaskItem.setCreateTime(System.currentTimeMillis());
         ExecTask execTask = new ExecTask();
         execTask.setId("121321");
         execTask.setNum(123L);

@@ -617,7 +617,7 @@ public class ApiTestCaseService extends MoveNodeService {
             ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
             example.createCriteria().andTaskResourceIdIn(resourceIds);
             List<ApiReportRelateTask> reportRelateTasks = apiReportRelateTaskMapper.selectByExample(example);
-            reportMap = reportRelateTasks.stream().collect(Collectors.toMap(ApiReportRelateTask::getTaskResourceId, ApiReportRelateTask::getReportId));
+            reportRelateTasks.stream().forEach(item -> reportMap.put(item.getTaskResourceId(), item.getReportId()));
         }
         return reportMap;
     }

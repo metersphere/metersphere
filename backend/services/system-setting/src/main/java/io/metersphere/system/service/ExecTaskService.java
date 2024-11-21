@@ -45,10 +45,9 @@ public class ExecTaskService {
             apiReportRelateTaskMapper.deleteByExample(example);
         }
 
-        // 删除任务项和报告的关联关系
-        extExecTaskItemMapper.deleteRerunTaskItemReportRelation(execTask.getId());
-
-        // 更新任务项状态等
-        extExecTaskItemMapper.resetRerunTaskItem(execTask.getId(), userId);
+        // 新建需要重跑的任务项
+        extExecTaskItemMapper.insertRerunTaskItem(execTask.getId(), userId);
+        // 假删除原有任务项，执行历史需要能查询到
+        extExecTaskItemMapper.deleteRerunTaskItem(execTask.getId(), userId);
     }
 }

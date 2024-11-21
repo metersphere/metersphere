@@ -23,6 +23,7 @@
     <result column="case_id" jdbcType="VARCHAR" property="caseId" />
     <result column="error_message" jdbcType="VARCHAR" property="errorMessage" />
     <result column="rerun" jdbcType="BIT" property="rerun" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -85,7 +86,7 @@
   <sql id="Base_Column_List">
     id, task_id, resource_id, resource_name, task_origin, `status`, `result`, resource_pool_id, 
     resource_pool_node, resource_type, project_id, organization_id, thread_id, start_time, 
-    end_time, executor, collection_id, deleted, case_id, error_message, rerun
+    end_time, executor, collection_id, deleted, case_id, error_message, rerun, create_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.ExecTaskItemExample" resultMap="BaseResultMap">
     select
@@ -124,16 +125,16 @@
       resource_type, project_id, organization_id, 
       thread_id, start_time, end_time, 
       executor, collection_id, deleted, 
-      case_id, error_message, rerun
-      )
+      case_id, error_message, rerun, 
+      create_time)
     values (#{id,jdbcType=VARCHAR}, #{taskId,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
       #{resourceName,jdbcType=VARCHAR}, #{taskOrigin,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{result,jdbcType=VARCHAR}, #{resourcePoolId,jdbcType=VARCHAR}, #{resourcePoolNode,jdbcType=VARCHAR}, 
       #{resourceType,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, 
       #{threadId,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, 
       #{executor,jdbcType=VARCHAR}, #{collectionId,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, 
-      #{caseId,jdbcType=VARCHAR}, #{errorMessage,jdbcType=VARCHAR}, #{rerun,jdbcType=BIT}
-      )
+      #{caseId,jdbcType=VARCHAR}, #{errorMessage,jdbcType=VARCHAR}, #{rerun,jdbcType=BIT}, 
+      #{createTime,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.ExecTaskItem">
     insert into exec_task_item
@@ -201,6 +202,9 @@
       <if test="rerun != null">
         rerun,
       </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -265,6 +269,9 @@
       </if>
       <if test="rerun != null">
         #{rerun,jdbcType=BIT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -340,6 +347,9 @@
       <if test="record.rerun != null">
         rerun = #{record.rerun,jdbcType=BIT},
       </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -367,7 +377,8 @@
       deleted = #{record.deleted,jdbcType=BIT},
       case_id = #{record.caseId,jdbcType=VARCHAR},
       error_message = #{record.errorMessage,jdbcType=VARCHAR},
-      rerun = #{record.rerun,jdbcType=BIT}
+      rerun = #{record.rerun,jdbcType=BIT},
+      create_time = #{record.createTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -435,6 +446,9 @@
       <if test="rerun != null">
         rerun = #{rerun,jdbcType=BIT},
       </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -459,14 +473,16 @@
       deleted = #{deleted,jdbcType=BIT},
       case_id = #{caseId,jdbcType=VARCHAR},
       error_message = #{errorMessage,jdbcType=VARCHAR},
-      rerun = #{rerun,jdbcType=BIT}
+      rerun = #{rerun,jdbcType=BIT},
+      create_time = #{createTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into exec_task_item
     (id, task_id, resource_id, resource_name, task_origin, `status`, `result`, resource_pool_id, 
       resource_pool_node, resource_type, project_id, organization_id, thread_id, start_time, 
-      end_time, executor, collection_id, deleted, case_id, error_message, rerun)
+      end_time, executor, collection_id, deleted, case_id, error_message, rerun, create_time
+      )
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.taskId,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, 
@@ -475,8 +491,8 @@
         #{item.resourceType,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.organizationId,jdbcType=VARCHAR}, 
         #{item.threadId,jdbcType=VARCHAR}, #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}, 
         #{item.executor,jdbcType=VARCHAR}, #{item.collectionId,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, 
-        #{item.caseId,jdbcType=VARCHAR}, #{item.errorMessage,jdbcType=VARCHAR}, #{item.rerun,jdbcType=BIT}
-        )
+        #{item.caseId,jdbcType=VARCHAR}, #{item.errorMessage,jdbcType=VARCHAR}, #{item.rerun,jdbcType=BIT}, 
+        #{item.createTime,jdbcType=BIGINT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -551,6 +567,9 @@
         </if>
         <if test="'rerun'.toString() == column.value">
           #{item.rerun,jdbcType=BIT}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
         </if>
       </foreach>
       )

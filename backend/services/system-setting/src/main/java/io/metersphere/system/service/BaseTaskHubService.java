@@ -198,7 +198,9 @@ public class BaseTaskHubService {
         List<ExecTaskItem> taskItems = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(noIntegratedTasks)) {
             ExecTaskItemExample itemExample = new ExecTaskItemExample();
-            itemExample.createCriteria().andTaskIdIn(noIntegratedTasks);
+            itemExample.createCriteria()
+                    .andTaskIdIn(noIntegratedTasks)
+                    .andDeletedEqualTo(false);
             taskItems = execTaskItemMapper.selectByExample(itemExample);
         }
         Map<String, String> taskItemMap = taskItems.stream().collect(Collectors.toMap(ExecTaskItem::getTaskId, ExecTaskItem::getId));
