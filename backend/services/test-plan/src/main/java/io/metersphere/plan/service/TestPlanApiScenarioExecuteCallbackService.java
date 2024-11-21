@@ -17,8 +17,10 @@ import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,20 +66,21 @@ public class TestPlanApiScenarioExecuteCallbackService implements ApiExecuteCall
         return result;
     }
 
-    @Override
-    public String initReport(GetRunScriptRequest request) {
-        TaskItem taskItem = request.getTaskItem();
-        TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(taskItem.getResourceId());
-        ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(testPlanApiScenario.getApiScenarioId());
-        return initReport(request, testPlanApiScenario, apiScenarioDetail);
-    }
-
     public String initReport(GetRunScriptRequest request, TestPlanApiScenario testPlanApiScenario, ApiScenarioDetail apiScenarioDetail) {
-        // 批量执行，生成独立报告
-        String reportId  = testPlanApiScenarioService.initApiScenarioReport(testPlanApiScenario, apiScenarioDetail, request);
-        // 初始化报告步骤
-        apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getSteps(), reportId);
-        return reportId;
+        String reportId = request.getTaskItem().getReportId();
+        try {
+            // 批量执行，生成独立报告
+            testPlanApiScenarioService.initApiScenarioReport(testPlanApiScenario, apiScenarioDetail, request);
+            // 初始化报告步骤
+            apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getSteps(), reportId);
+        } catch (DuplicateKeyException e) {
+            // 避免重试，报告ID重复，导致执行失败
+            // 步骤中的 stepId 是执行时时随机生成的，如果重试，需要删除原有的步骤，重新生成，跟执行脚本匹配
+            apiScenarioRunService.deleteStepsByReportId(reportId);
+            apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getSteps(), reportId);
+            LogUtils.error(e);
+        }
+        return request.getTaskItem().getReportId();
     }
 
     /**

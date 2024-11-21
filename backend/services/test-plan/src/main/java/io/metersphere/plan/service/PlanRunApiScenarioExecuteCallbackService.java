@@ -16,7 +16,9 @@ import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,23 +64,25 @@ public class PlanRunApiScenarioExecuteCallbackService implements ApiExecuteCallb
         return result;
     }
 
-    @Override
-    public String initReport(GetRunScriptRequest request) {
-        String resourceId = request.getTaskItem().getResourceId();
-        TestPlanReportApiScenario testPlanReportApiScenario = testPlanReportApiScenarioMapper.selectByPrimaryKey(resourceId);
-        ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(testPlanReportApiScenario.getApiScenarioId());
-        return initReport(request, testPlanReportApiScenario, apiScenarioDetail);
-    }
-
     public String initReport(GetRunScriptRequest request, TestPlanReportApiScenario testPlanReportApiScenario, ApiScenarioDetail apiScenarioDetail) {
-        String reportId = planRunTestPlanApiScenarioService.initReport(request, testPlanReportApiScenario, apiScenarioDetail);
-        // 初始化报告步骤
-        apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getSteps(), reportId);
-        return reportId;
+        String reportId = request.getTaskItem().getReportId();
+        try {
+            planRunTestPlanApiScenarioService.initReport(request, testPlanReportApiScenario, apiScenarioDetail);
+            // 初始化报告步骤
+            apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getSteps(), reportId);
+        } catch (DuplicateKeyException e) {
+            // 避免重试，报告ID重复，导致执行失败
+            // 步骤中的 stepId 是执行时时随机生成的，如果重试，需要删除原有的步骤，重新生成，跟执行脚本匹配
+            apiScenarioRunService.deleteStepsByReportId(reportId);
+            apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getSteps(), reportId);
+            LogUtils.error(e);
+        }
+        return request.getTaskItem().getReportId();
     }
 
     /**
      * 串行时，执行下一个任务
+     *
      * @param queue
      * @param queueDetail
      */
@@ -90,6 +94,7 @@ public class PlanRunApiScenarioExecuteCallbackService implements ApiExecuteCallb
     /**
      * 批量串行的测试集执行时
      * 测试集下用例执行完成时回调
+     *
      * @param apiNoticeDTO
      */
     @Override

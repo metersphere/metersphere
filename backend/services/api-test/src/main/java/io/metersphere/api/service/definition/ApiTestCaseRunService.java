@@ -24,6 +24,7 @@ import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
@@ -252,6 +253,7 @@ public class ApiTestCaseRunService {
      * @param apiTestCase
      * @return
      */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public String initApiReport(String taskItemId, ApiTestCase apiTestCase, GetRunScriptRequest request) {
         // 初始化报告
         ApiReport apiReport = getApiReport(apiTestCase, request);

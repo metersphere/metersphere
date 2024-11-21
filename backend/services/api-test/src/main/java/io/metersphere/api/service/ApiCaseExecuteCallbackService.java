@@ -1,7 +1,6 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.domain.ApiTestCase;
-import io.metersphere.api.domain.ApiTestCaseRecord;
 import io.metersphere.api.invoker.ApiExecuteCallbackServiceInvoker;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.service.definition.ApiTestCaseBatchRunService;
@@ -15,11 +14,11 @@ import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,12 +67,17 @@ public class ApiCaseExecuteCallbackService implements ApiExecuteCallbackService 
     private String initReport(GetRunScriptRequest request, ApiTestCase apiTestCase) {
         TaskItem taskItem = request.getTaskItem();
         String reportId = taskItem.getReportId();
-        if (BooleanUtils.isTrue(request.getBatch()) && !request.getRunModeConfig().isIntegratedReport()) {
-            // 批量执行，生成独立报告
-            reportId = apiTestCaseBatchRunService.initApiReport(taskItem.getId(), request.getRunModeConfig(), apiTestCase, request.getUserId());
-        } else if (BooleanUtils.isFalse(request.getBatch()) && !ApiExecuteRunMode.isDebug(request.getRunMode())) {
-            // 单用例执行，非调试，生成报告
-            return apiTestCaseRunService.initApiReport(taskItem.getId(), apiTestCase, request);
+        try {
+            if (BooleanUtils.isTrue(request.getBatch()) && !request.getRunModeConfig().isIntegratedReport()) {
+                // 批量执行，生成独立报告
+                reportId = apiTestCaseBatchRunService.initApiReport(taskItem.getId(), taskItem.getReportId(), request.getRunModeConfig(), apiTestCase, request.getUserId());
+            } else if (BooleanUtils.isFalse(request.getBatch()) && !ApiExecuteRunMode.isDebug(request.getRunMode())) {
+                // 单用例执行，非调试，生成报告
+                return apiTestCaseRunService.initApiReport(taskItem.getId(), apiTestCase, request);
+            }
+        } catch (DuplicateKeyException e) {
+            // 避免重试，报告ID重复，导致执行失败
+            LogUtils.error(e);
         }
         return reportId;
     }

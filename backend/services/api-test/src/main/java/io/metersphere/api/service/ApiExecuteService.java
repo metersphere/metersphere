@@ -40,6 +40,7 @@ import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
 import io.metersphere.system.mapper.ExecTaskItemMapper;
 import io.metersphere.system.service.*;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
@@ -214,6 +215,7 @@ public class ApiExecuteService {
      */
     public TaskRequestDTO execute(TaskRequestDTO taskRequest) {
         TaskInfo taskInfo = taskRequest.getTaskInfo();
+        TaskItem taskItem = taskRequest.getTaskItem();
         try {
             taskInfo = setTaskRequestParams(taskInfo);
 
@@ -225,6 +227,11 @@ public class ApiExecuteService {
                 taskInfo.setMsUrl(testResourcePoolDTO.getServerUrl());
             }
             taskInfo.setPoolId(testResourcePoolDTO.getId());
+
+            if (StringUtils.isBlank(taskItem.getReportId())) {
+                // 预先生成报告ID，避免资源池获取执行脚本时，超时重试，导致数据重复创建
+                taskItem.setReportId(IDGenerator.nextStr());
+            }
 
             // 判断是否为 K8S 资源池
             boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.getName());
@@ -360,6 +367,12 @@ public class ApiExecuteService {
             taskInfo.setMsUrl(testResourcePool.getServerUrl());
         }
         taskInfo.setPoolId(testResourcePool.getId());
+        taskRequest.getTaskItems().forEach(taskItem -> {
+            if (StringUtils.isBlank(taskItem.getReportId())) {
+                // 预先生成报告ID，避免资源池获取执行脚本时，超时重试，导致数据重复创建
+                taskItem.setReportId(IDGenerator.nextStr());
+            }
+        });
 
         // 判断是否为 K8S 资源池
         boolean isK8SResourcePool = StringUtils.equals(testResourcePool.getType(), ResourcePoolTypeEnum.K8S.getName());

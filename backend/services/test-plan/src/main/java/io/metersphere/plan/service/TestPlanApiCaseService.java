@@ -63,6 +63,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
@@ -831,7 +832,8 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
      *
      * @return
      */
-    public ApiTestCaseRecord initApiReport(ApiTestCase apiTestCase, TestPlanApiCase testPlanApiCase, GetRunScriptRequest request) {
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public String initApiReport(ApiTestCase apiTestCase, TestPlanApiCase testPlanApiCase, GetRunScriptRequest request) {
         // 初始化报告
         ApiRunModeConfigDTO runModeConfig = request.getRunModeConfig();
         ApiReport apiReport = apiTestCaseRunService.getApiReport(apiTestCase, request);
@@ -847,7 +849,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         ApiReportStep apiReportStep = getApiReportStep(testPlanApiCase, apiTestCase, apiReport.getId());
         apiReportService.insertApiReportDetail(apiReportStep, apiTestCaseRecord, apiReportRelateTask);
 
-        return apiTestCaseRecord;
+        return apiTestCaseRecord.getApiReportId();
     }
 
     public ApiReportStep getApiReportStep(TestPlanApiCase testPlanApiCase, ApiTestCase apiTestCase, String reportId) {

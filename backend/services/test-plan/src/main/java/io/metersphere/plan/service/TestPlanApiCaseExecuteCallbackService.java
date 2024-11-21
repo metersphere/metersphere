@@ -18,8 +18,10 @@ import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,20 +66,19 @@ public class TestPlanApiCaseExecuteCallbackService implements ApiExecuteCallback
         return result;
     }
 
-    @Override
-    public String initReport(GetRunScriptRequest request) {
-        TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(request.getTaskItem().getResourceId());
-        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
-        return initReport(request, testPlanApiCase, apiTestCase);
-    }
-
     public String initReport(GetRunScriptRequest request, TestPlanApiCase testPlanApiCase, ApiTestCase apiTestCase) {
-        ApiTestCaseRecord apiTestCaseRecord = testPlanApiCaseService.initApiReport(apiTestCase, testPlanApiCase, request);
-        return apiTestCaseRecord.getApiReportId();
+        try {
+            return testPlanApiCaseService.initApiReport(apiTestCase, testPlanApiCase, request);
+        } catch (DuplicateKeyException e) {
+            // 避免重试，报告ID重复，导致执行失败
+            LogUtils.error(e);
+        }
+        return request.getTaskItem().getReportId();
     }
 
     /**
      * 串行时，执行下一个任务
+     *
      * @param queue
      * @param queueDetail
      */
@@ -95,7 +96,7 @@ public class TestPlanApiCaseExecuteCallbackService implements ApiExecuteCallback
         if (StringUtils.isNotBlank(apiNoticeDTO.getParentQueueId())) {
             testPlanApiCaseBatchRunService.executeNextCollection(apiNoticeDTO.getParentQueueId(), apiNoticeDTO.getRerun());
         } else if (StringUtils.isNotBlank(apiNoticeDTO.getParentSetId())) {
-            String queueIdOrSetId = StringUtils.isBlank(apiNoticeDTO.getQueueId()) ?  apiNoticeDTO.getSetId() : apiNoticeDTO.getQueueId();
+            String queueIdOrSetId = StringUtils.isBlank(apiNoticeDTO.getQueueId()) ? apiNoticeDTO.getSetId() : apiNoticeDTO.getQueueId();
             String[] setIdSplit = queueIdOrSetId.split("_");
             String collectionId = setIdSplit[setIdSplit.length - 1];
             testPlanApiCaseBatchRunService.finishParallelCollection(apiNoticeDTO.getParentSetId(), collectionId);
@@ -104,6 +105,7 @@ public class TestPlanApiCaseExecuteCallbackService implements ApiExecuteCallback
 
     /**
      * 失败停止时，删除测试集合队列
+     *
      * @param parentQueueId
      */
     @Override

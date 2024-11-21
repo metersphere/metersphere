@@ -24,6 +24,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -427,10 +428,12 @@ public class ApiTestCaseBatchRunService {
      * @param apiTestCase
      * @return
      */
-    public String initApiReport(String taskItemId, ApiRunModeConfigDTO runModeConfig,
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public String initApiReport(String taskItemId, String reportId, ApiRunModeConfigDTO runModeConfig,
                                            ApiTestCase apiTestCase, String userId) {
         // 初始化报告
         ApiReport apiReport = getApiReport(runModeConfig, apiTestCase, userId);
+        apiReport.setId(reportId);
         apiReportService.insertApiReport(apiReport);
         return apiTestCaseRunService.initApiReportDetail(taskItemId, apiTestCase, apiReport.getId());
     }

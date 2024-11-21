@@ -1,16 +1,11 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.invoker.ApiExecuteCallbackServiceInvoker;
-import io.metersphere.api.service.definition.ApiReportService;
-import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.utils.TaskRunningCache;
-import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.api.task.TaskItem;
-import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.EnumValidator;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
@@ -24,11 +19,6 @@ import java.util.Optional;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiExecuteResourceService {
-
-    @Resource
-    private ApiReportService apiReportService;
-    @Resource
-    private ApiScenarioReportService apiScenarioReportService;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
     @Resource
@@ -64,11 +54,7 @@ public class ApiExecuteResourceService {
     }
 
     private void updateRunningReportStatus(GetRunScriptRequest request) {
-        TaskItem taskItem = request.getTaskItem();
         String taskId = request.getTaskId();
-
-        String reportId = taskItem.getReportId();
-        ApiExecuteResourceType apiExecuteResourceType = EnumValidator.validateEnum(ApiExecuteResourceType.class, request.getResourceType());
 
         // 重跑不更新任务状态
         if (BooleanUtils.isFalse(request.getRerun())) {
@@ -86,14 +72,5 @@ public class ApiExecuteResourceService {
 
         // 更新任务项状态
         apiCommonService.updateTaskItemRunningStatus(request);
-
-        // 非调试执行，更新报告状态
-        switch (apiExecuteResourceType) {
-            case API_SCENARIO, TEST_PLAN_API_SCENARIO, PLAN_RUN_API_SCENARIO ->
-                    apiScenarioReportService.updateReportRunningStatus(reportId);
-            case API_CASE, TEST_PLAN_API_CASE, PLAN_RUN_API_CASE ->
-                    apiReportService.updateReportRunningStatus(reportId);
-            default -> throw new MSException("不支持的资源类型: " + request.getResourceType());
-        }
     }
 }

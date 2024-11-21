@@ -12,9 +12,10 @@ import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.api.task.TaskItem;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
+import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,34 +47,33 @@ public class ApiScenarioExecuteCallbackService implements ApiExecuteCallbackServ
         return result;
     }
 
-    @Override
-    public String initReport(GetRunScriptRequest request) {
-        String reportId = request.getTaskItem().getReportId();
-        // reportId 不为空，则已经预生成了报告
-        if (StringUtils.isBlank(reportId)) {
-            ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(request.getTaskItem().getResourceId());
-            return initReport(request, apiScenarioDetail);
-        }
-        return reportId;
-    }
-
     private String initReport(GetRunScriptRequest request, ApiScenarioDetail apiScenarioDetail) {
         TaskItem taskItem = request.getTaskItem();
         String reportId = taskItem.getReportId();
-        if (BooleanUtils.isTrue(request.getBatch())) {
-            if (request.getRunModeConfig().isIntegratedReport()) {
-                // 集合报告，生成一级步骤的子步骤
-                apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getId(), apiScenarioDetail.getSteps(), reportId);
-            } else {
-                // 批量执行，生成独立报告
-                reportId = apiScenarioBatchRunService.initScenarioReport(taskItem.getId(), request.getRunModeConfig(), apiScenarioDetail, request.getUserId());
+        try {
+            if (BooleanUtils.isTrue(request.getBatch())) {
+                if (request.getRunModeConfig().isIntegratedReport()) {
+                    // 集合报告，生成一级步骤的子步骤
+                    apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getId(), apiScenarioDetail.getSteps(), reportId);
+                } else {
+                    // 批量执行，生成独立报告
+                    reportId = apiScenarioBatchRunService.initScenarioReport(taskItem.getId(), reportId, request.getRunModeConfig(), apiScenarioDetail, request.getUserId());
+                    // 初始化报告步骤
+                    apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getSteps(), reportId);
+                }
+            } else if (!ApiExecuteRunMode.isDebug(request.getRunMode())) {
+                reportId = apiScenarioRunService.initApiScenarioReport(taskItem.getId(), apiScenarioDetail, request);
                 // 初始化报告步骤
                 apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getSteps(), reportId);
             }
-        } else if (!ApiExecuteRunMode.isDebug(request.getRunMode())) {
-            reportId = apiScenarioRunService.initApiScenarioReport(taskItem.getId(), apiScenarioDetail, request);
-            // 初始化报告步骤
-            apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getSteps(), reportId);
+        } catch (DuplicateKeyException e) {
+            if (!request.getRunModeConfig().isIntegratedReport()) {
+                // 步骤中的 stepId 是执行时时随机生成的，如果重试，需要删除原有的步骤，重新生成，跟执行脚本匹配
+                apiScenarioRunService.deleteStepsByReportId(reportId);
+                apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getSteps(), reportId);
+            }
+            // 避免重试，报告ID重复，导致执行失败
+            LogUtils.error(e);
         }
         return reportId;
     }

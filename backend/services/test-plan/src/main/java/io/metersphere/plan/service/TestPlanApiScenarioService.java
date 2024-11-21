@@ -60,6 +60,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
@@ -420,6 +421,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
      *
      * @return
      */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public String initApiScenarioReport(TestPlanApiScenario testPlanApiScenario, ApiScenario apiScenario, GetRunScriptRequest request) {
         // 初始化报告
         ApiRunModeConfigDTO runModeConfig = request.getRunModeConfig();

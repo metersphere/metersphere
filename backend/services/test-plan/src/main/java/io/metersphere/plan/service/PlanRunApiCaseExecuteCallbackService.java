@@ -17,7 +17,9 @@ import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,15 +69,14 @@ public class PlanRunApiCaseExecuteCallbackService implements ApiExecuteCallbackS
         return result;
     }
 
-    @Override
-    public String initReport(GetRunScriptRequest request) {
-        TestPlanReportApiCase testPlanReportApiCase = testPlanReportApiCaseMapper.selectByPrimaryKey(request.getTaskItem().getResourceId());
-        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testPlanReportApiCase.getApiCaseId());
-        return planRunTestPlanApiCaseService.initApiReport(request, testPlanReportApiCase, apiTestCase);
-    }
-
     public String initReport(GetRunScriptRequest request, TestPlanReportApiCase testPlanReportApiCase, ApiTestCase apiTestCase) {
-        return planRunTestPlanApiCaseService.initApiReport(request, testPlanReportApiCase, apiTestCase);
+        try {
+            return planRunTestPlanApiCaseService.initApiReport(request, testPlanReportApiCase, apiTestCase);
+        } catch (DuplicateKeyException e) {
+            // 避免重试，报告ID重复，导致执行失败
+            LogUtils.error(e);
+        }
+        return request.getTaskItem().getReportId();
     }
 
     /**

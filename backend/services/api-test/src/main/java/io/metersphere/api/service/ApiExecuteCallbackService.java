@@ -19,7 +19,9 @@ public interface ApiExecuteCallbackService {
     /**
      * 解析并返回执行脚本
      */
-    String initReport(GetRunScriptRequest request);
+    default String initReport(GetRunScriptRequest request) {
+        return request.getTaskItem().getReportId();
+    }
 
     /**
      * 串行时，执行下一个任务

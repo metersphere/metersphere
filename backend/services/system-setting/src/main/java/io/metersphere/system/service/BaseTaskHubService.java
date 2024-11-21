@@ -57,10 +57,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -213,7 +210,8 @@ public class BaseTaskHubService {
         ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
         example.createCriteria().andTaskResourceIdIn(resourceIds);
         List<ApiReportRelateTask> reportRelateTasks = apiReportRelateTaskMapper.selectByExample(example);
-        Map<String, String> reportMap = reportRelateTasks.stream().collect(Collectors.toMap(ApiReportRelateTask::getTaskResourceId, ApiReportRelateTask::getReportId));
+        Map<String, String> reportMap = new HashMap<>();
+        reportRelateTasks.forEach(item -> reportMap.put(item.getTaskResourceId(), item.getReportId()));
         reportTasks.forEach(task -> {
             if (integratedTaskIds.contains(task.getId())) {
                 task.setReportId(reportMap.get(task.getId()));

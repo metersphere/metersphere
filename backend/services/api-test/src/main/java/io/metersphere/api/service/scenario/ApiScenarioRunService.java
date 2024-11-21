@@ -14,6 +14,7 @@ import io.metersphere.api.dto.scenario.*;
 import io.metersphere.api.mapper.ApiScenarioBlobMapper;
 import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
+import io.metersphere.api.mapper.ApiScenarioReportStepMapper;
 import io.metersphere.api.parser.step.StepParser;
 import io.metersphere.api.parser.step.StepParserFactory;
 import io.metersphere.api.service.ApiCommonService;
@@ -50,6 +51,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -92,6 +94,8 @@ public class ApiScenarioRunService {
     private ProjectMapper projectMapper;
     @Resource
     private BaseTaskHubService baseTaskHubService;
+    @Resource
+    private ApiScenarioReportStepMapper apiScenarioReportStepMapper;
 
     public TaskRequestDTO run(String id, String reportId, String userId) {
         ApiScenarioDetail apiScenarioDetail = getForRun(id);
@@ -234,20 +238,20 @@ public class ApiScenarioRunService {
         } else {
             // 如果传了报告ID，则实时获取结果
             taskInfo.setRealTime(true);
-
-            // 传了报告ID，则预生成报告
-            ApiScenarioReport scenarioReport = getScenarioReport(apiScenario, userId);
-            scenarioReport.setId(reportId);
-            scenarioReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
-            scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
-            scenarioReport.setPoolId(poolId);
-            scenarioReport.setEnvironmentId(parseParam.getEnvironmentId());
-            scenarioReport.setWaitingTime(getGlobalWaitTime(parseParam.getScenarioConfig()));
-            initApiScenarioReport(taskItem.getId(), apiScenario, scenarioReport);
-
-            // 初始化报告步骤
-            initScenarioReportSteps(steps, taskItem.getReportId());
         }
+
+        // 传了报告ID，则预生成报告
+        ApiScenarioReport scenarioReport = getScenarioReport(apiScenario, userId);
+        scenarioReport.setId(reportId);
+        scenarioReport.setTriggerMode(TaskTriggerMode.MANUAL.name());
+        scenarioReport.setRunMode(ApiBatchRunMode.PARALLEL.name());
+        scenarioReport.setPoolId(poolId);
+        scenarioReport.setEnvironmentId(parseParam.getEnvironmentId());
+        scenarioReport.setWaitingTime(getGlobalWaitTime(parseParam.getScenarioConfig()));
+        initApiScenarioReport(taskItem.getId(), apiScenario, scenarioReport);
+
+        // 初始化报告步骤
+        initScenarioReportSteps(steps, taskItem.getReportId());
 
         ApiScenarioParamConfig parseConfig = getApiScenarioParamConfig(apiScenario.getProjectId(), parseParam, tmpParam.getScenarioParseEnvInfo());
         parseConfig.setTaskItemId(taskItem.getId());
@@ -464,6 +468,7 @@ public class ApiScenarioRunService {
         return waitTime;
     }
 
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public String initApiScenarioReport(String taskItemId, ApiScenario apiScenario, GetRunScriptRequest request) {
         // 初始化报告
         ApiScenarioReport scenarioReport = getScenarioReport(apiScenario, request);
@@ -590,6 +595,9 @@ public class ApiScenarioRunService {
         scenarioReport.setRunMode(request.getRunMode());
         scenarioReport.setTriggerMode(request.getTriggerMode());
         scenarioReport.setPoolId(request.getPoolId());
+        if (StringUtils.isNotBlank(request.getTaskItem().getReportId())) {
+            scenarioReport.setId(request.getTaskItem().getReportId());
+        }
         return scenarioReport;
     }
 
@@ -1115,5 +1123,11 @@ public class ApiScenarioRunService {
         taskInfo.setRealTime(false);
 
         apiExecuteService.execute(taskRequest);
+    }
+
+    public void deleteStepsByReportId(String reportId) {
+        ApiScenarioReportStepExample example = new ApiScenarioReportStepExample();
+        example.createCriteria().andReportIdEqualTo(reportId);
+        apiScenarioReportStepMapper.deleteByExample(example);
     }
 }

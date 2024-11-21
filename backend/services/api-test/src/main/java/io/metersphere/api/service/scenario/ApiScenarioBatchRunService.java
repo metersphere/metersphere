@@ -25,12 +25,12 @@ import io.metersphere.system.domain.ExecTask;
 import io.metersphere.system.domain.ExecTaskItem;
 import io.metersphere.system.mapper.ExtExecTaskItemMapper;
 import io.metersphere.system.service.BaseTaskHubService;
-import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -374,11 +374,12 @@ public class ApiScenarioBatchRunService {
         return apiBatchRunBaseService.setBatchRunTaskInfoParam(runModeConfig, taskInfo);
     }
 
-    public String initScenarioReport(String taskItemId, ApiRunModeConfigDTO runModeConfig,
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public String initScenarioReport(String taskItemId, String reportId, ApiRunModeConfigDTO runModeConfig,
                                                  ApiScenario apiScenario, String userId) {
         // 初始化报告
         ApiScenarioReport apiScenarioReport = getScenarioReport(runModeConfig, apiScenario, userId);
-        apiScenarioReport.setId(IDGenerator.nextStr());
+        apiScenarioReport.setId(reportId);
         apiScenarioReportService.insertApiScenarioReport(apiScenarioReport);
         return apiScenarioRunService.initApiScenarioReportDetail(taskItemId, apiScenario.getId(), apiScenarioReport.getId());
     }
