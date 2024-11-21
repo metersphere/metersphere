@@ -125,6 +125,11 @@ public class PlanRunTestPlanApiCaseService {
 
         List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(testPlanExecutionQueue.getTaskId(),
                 collection.getId(), testPlanExecutionQueue.isRerun());
+
+        if (CollectionUtils.isEmpty(execTaskItems)) {
+            return true;
+        }
+
         SubListUtils.dealForSubList(execTaskItems, ApiBatchRunBaseService.BATCH_TASK_ITEM_SIZE, subExecTaskItems -> {
             List<TaskItem> taskItems = subExecTaskItems
                     .stream()
