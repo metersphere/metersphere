@@ -1441,10 +1441,10 @@ public class TestPlanReportService {
      * @return 用例执行情况
      */
     private TestPlanReportDetailResponse calcTaskExecFinish(String reportId, String detailName, TestPlanReportDetailResponse detail) {
-        detail.setId(reportId);
-        detail.setName(detailName);
         TestPlanReport report = checkReport(reportId);
         BeanUtils.copyBean(detail, report);
+        detail.setId(reportId);
+        detail.setName(detailName);
         TestPlanReportSummary summary = getReportSummary(reportId);
         // 任务执行结果只需统计 接口 + 场景 (数据来源: 报告汇总)
         detail.setApiCaseCount(summary.getApiExecuteResult() == null ? CaseCount.builder().build() : JSON.parseObject(new String(summary.getApiExecuteResult()), CaseCount.class));
@@ -1452,6 +1452,7 @@ public class TestPlanReportService {
         detail.setApiCaseTotal(detail.getApiCaseCount().sum());
         detail.setApiScenarioTotal(detail.getApiScenarioCount().sum());
         detail.setExecuteCount(CountUtils.summarizeProperties(List.of(detail.getApiCaseCount(), detail.getApiScenarioCount())));
+        detail.setCaseTotal(detail.getExecuteCount().sum());
         CaseCount executeCount = detail.getExecuteCount();
         detail.setExecuteRate(RateCalculateUtils.divWithPrecision((executeCount.sum()  - executeCount.getPending()), executeCount.sum(), 2));
         detail.setPassRate(RateCalculateUtils.divWithPrecision(executeCount.getSuccess(), executeCount.sum(), 2));

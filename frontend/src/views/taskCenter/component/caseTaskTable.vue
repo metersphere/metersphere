@@ -724,7 +724,7 @@
       showReportDetail(record);
     } else if ([ExecuteTaskType.TEST_PLAN_GROUP, ExecuteTaskType.TEST_PLAN].includes(record.taskType)) {
       showTestPlanDetailDrawer.value = true;
-      activeDetailId.value = record.reportId;
+      activeDetailId.value = record.id;
       isTestPlanGroup.value = record.taskType === ExecuteTaskType.TEST_PLAN_GROUP;
     }
   }

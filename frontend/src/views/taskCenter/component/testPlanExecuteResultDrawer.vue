@@ -132,7 +132,6 @@
   } from '@/api/modules/test-plan/report';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
-  import { addCommasToNumber } from '@/utils';
 
   import { ApiOrScenarioCaseItem } from '@/models/testPlan/report';
   import { ReportMetricsItemModel } from '@/models/testPlan/testPlanReport';
@@ -162,41 +161,7 @@
   const activePlan = ref('');
 
   const reportAnalysisList = computed<ReportMetricsItemModel[]>(() => {
-    if (props.isGroup) {
-      return [
-        {
-          name: t('report.detail.testPlanTotal'),
-          value: detail.value.planCount,
-          unit: t('report.detail.number'),
-          icon: 'plan_total',
-        },
-        {
-          name: t('report.detail.testPlanCaseTotal'),
-          value: detail.value.caseTotal,
-          unit: t('report.detail.number'),
-          icon: 'case_total',
-        },
-        {
-          name: t('report.passRate'),
-          value: detail.value.passRate,
-          unit: '%',
-          icon: 'passRate',
-        },
-        {
-          name: t('report.detail.totalDefects'),
-          value: addCommasToNumber(detail.value.bugCount),
-          unit: t('report.detail.number'),
-          icon: 'bugTotal',
-        },
-      ];
-    }
     return [
-      {
-        name: t('report.detail.threshold'),
-        value: detail.value.passThreshold,
-        unit: '%',
-        icon: 'threshold',
-      },
       {
         name: t('report.passRate'),
         value: detail.value.passRate,
@@ -204,16 +169,10 @@
         icon: 'passRate',
       },
       {
-        name: t('report.detail.performCompletion'),
+        name: t('report.detail.rate_completion'),
         value: detail.value.executeRate,
         unit: '%',
         icon: 'passRate',
-      },
-      {
-        name: t('report.detail.totalDefects'),
-        value: addCommasToNumber(detail.value.bugCount),
-        unit: t('report.detail.number'),
-        icon: 'bugTotal',
       },
     ];
   });
@@ -347,6 +306,8 @@
           label: item.name,
         }));
         activePlan.value = res.children[0]?.id;
+      } else {
+        testPlanGroups.value = [];
       }
       searchList();
     } catch (error) {

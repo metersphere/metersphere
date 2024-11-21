@@ -31,6 +31,7 @@ export default {
   'report.detail.executionAnalysis': '执行分析',
   'report.detail.threshold': '通过阈值',
   'report.detail.performCompletion': '执行完成率',
+  'report.detail.rate_completion': '完成率',
   'report.detail.totalDefects': '缺陷总数',
   'report.detail.useCaseAnalysis': '功能用例分析',
   'report.detail.apiUseCaseAnalysis': '接口用例分析',

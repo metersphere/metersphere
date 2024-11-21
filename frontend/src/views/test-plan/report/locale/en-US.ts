@@ -31,6 +31,7 @@ export default {
   'report.detail.executionAnalysis': 'Execution Analysis',
   'report.detail.threshold': 'Pass threshold',
   'report.detail.performCompletion': 'Perform completion',
+  'report.detail.rate_completion': 'Rate of completion',
   'report.detail.totalDefects': 'Total defects',
   'report.detail.useCaseAnalysis': 'Function of use case analysis',
   'report.detail.apiUseCaseAnalysis': 'Api use case analysis',
