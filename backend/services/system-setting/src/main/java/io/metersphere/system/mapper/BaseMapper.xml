@@ -129,6 +129,22 @@
                                 <property name="column" value="UNIX_TIMESTAMP(`value`) * 1000"/>
                             </include>
                         </when>
+                        <!-- 级联只命中保存的的最后一级数据即可 -->
+                        <when test="condition.customFieldType != null and condition.customFieldType == 'CASCADER'">
+                            <if test="condition.operator == 'IN'">
+                                JSON_EXTRACT(`value`, '$[1]') in
+                                <foreach collection="condition.value" item="v" separator="," open="(" close=")">
+                                    #{v}
+                                </foreach>
+                            </if>
+                            <if test="condition.operator == 'NOT_IN'">
+                                JSON_EXTRACT(`value`, '$[1]') not in
+                                <foreach collection="condition.value" item="v" separator="," open="(" close=")">
+                                    #{v}
+                                </foreach>
+                                or `value` is null
+                            </if>
+                        </when>
                         <otherwise>
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>

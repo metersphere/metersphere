@@ -952,6 +952,32 @@ export function parseQueryParams(url: string): QueryParam[] {
   return queryParams;
 }
 
+export interface CascaderOption {
+  children?: CascaderOption[];
+  value: string;
+  text: string;
+}
+
+/**
+ * 解析级联选择器的值
+ * @param value
+ * @param options 级联选项 (默认层级2)
+ */
+export function cascaderValueToLabel(value: string, options: CascaderOption[]) {
+  if (!value || !options) return '';
+  let targetLabel = '';
+  options.forEach((option) => {
+    if (option.children) {
+      option.children.forEach((child) => {
+        if (child.value === value) {
+          targetLabel = child.text;
+        }
+      });
+    }
+  });
+  return targetLabel;
+}
+
 /**
  * 将表格数据里的自定义字段转换为表格数据二维变一维
  */
@@ -985,6 +1011,9 @@ export function customFieldDataToTableData(customFieldData: Record<string, any>[
       } catch (e) {
         console.log('自定义字段值不是数组');
       }
+    } else if (field.type === 'CASCADER') {
+      // 特殊的三方字段-级联选择器
+      tableData[field.id] = cascaderValueToLabel(JSON.parse(field.value)[1], field.options);
     } else {
       tableData[field.id] = field.value;
     }

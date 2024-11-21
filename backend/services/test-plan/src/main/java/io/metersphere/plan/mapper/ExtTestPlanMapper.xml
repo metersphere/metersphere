@@ -694,7 +694,8 @@
     <select id="listHis" resultType="io.metersphere.plan.dto.TestPlanExecuteHisDTO">
         select et.id, from_unixtime(et.create_time / 1000, '%Y%m%d%H%i%s') as num, et.trigger_mode triggerMode, et.status execStatus, et.result execResult,
         et.create_user operationUser, et.start_time startTime, et.end_time endTime, arrt.report_id reportId
-        from exec_task et where et.resource_id = #{request.testPlanId}
+        from exec_task et left join api_report_relate_task arrt on et.id = arrt.task_resource_id
+        where et.resource_id = #{request.testPlanId}
         <include refid="filterTask"/>
         order by et.create_time desc
     </select>
