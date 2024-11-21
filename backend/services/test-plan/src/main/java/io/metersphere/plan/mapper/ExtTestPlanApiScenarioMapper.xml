@@ -275,13 +275,27 @@
                                 <when test="condition.operator == 'IN'">
                                     concat(api_scenario.project_id, '_', api_scenario.module_id)  in
                                     <foreach collection="condition.value" item="v" separator="," open="(" close=")">
-                                        #{v}
+                                        <choose>
+                                            <when test="v.contains('_root')">
+                                                #{v}
+                                            </when>
+                                            <otherwise>
+                                                concat(api_scenario.project_id, '_', #{v})
+                                            </otherwise>
+                                        </choose>
                                     </foreach>
                                 </when>
                                 <when test="condition.operator == 'NOT_IN'">
                                     concat(api_scenario.project_id, '_', api_scenario.module_id) not in
                                     <foreach collection="condition.value" item="v" separator="," open="(" close=")">
-                                        #{v}
+                                        <choose>
+                                            <when test="v.contains('_root')">
+                                                #{v}
+                                            </when>
+                                            <otherwise>
+                                                concat(api_scenario.project_id, '_', #{v})
+                                            </otherwise>
+                                        </choose>
                                     </foreach>
                                 </when>
                             </choose>
