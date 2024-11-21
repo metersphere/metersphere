@@ -395,6 +395,15 @@
     }
   );
 
+  watch(
+    () => form.value.moduleId,
+    (newValue) => {
+      if (newValue) {
+        httpRef.value?.validateField('moduleId');
+      }
+    }
+  );
+
   const handleCancel = () => {
     visible.value = false;
     resetForm();

@@ -82,7 +82,7 @@
               }}
             </MsButton>
             <MoreMenuDropdown
-              v-if="props.showContainChildModule && !nodeData.disabled && nodeData.children && nodeData.children.length"
+              v-if="props.showContainChildModule && !nodeData.disabled && nodeData.id !== 'root'"
               v-model:contain-child-module="nodeData.containChildModule"
               @handle-contain-child-module="
                 (containChildModule) => handleContainChildModule(nodeData, containChildModule)
