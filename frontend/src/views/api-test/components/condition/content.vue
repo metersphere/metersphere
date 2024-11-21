@@ -373,7 +373,7 @@
         :params="condition.extractors"
         :disabled-except-param="props.disabled"
         :disabled-param-value="props.disabled"
-        :default-param-item="defaultExtractParamItem"
+        :default-param-item="defaultItem"
         :columns="extractParamsColumns"
         :selectable="false"
         :scroll="{ x: '700px' }"
@@ -896,6 +896,13 @@
       width: 80,
     },
   ];
+  const defaultItem = ref(
+    cloneDeep(
+      condition.value.extractors?.length
+        ? condition.value.extractors[condition.value.extractors.length - 1]
+        : defaultExtractParamItem
+    )
+  );
 
   function handleExtractParamTableChange(resultArr: any[], isInit?: boolean) {
     condition.value.extractors = [...resultArr];
