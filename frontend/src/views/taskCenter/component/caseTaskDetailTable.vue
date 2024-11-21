@@ -649,6 +649,8 @@
         const queue = res[item.id];
         if (item.errorMessage) {
           item.lineNum = '';
+        } else if (!item.resourcePoolNode.includes(':')) {
+          item.lineNum = '-';
         } else if (queue === -1) {
           item.lineNum = t('ms.taskCenter.waitQueue');
         } else if (queue) {
