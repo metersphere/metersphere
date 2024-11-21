@@ -150,7 +150,7 @@
       </div>
     </div>
     <NoData
-      v-if="showNoData || !defaultWorkList.length"
+      v-if="!defaultWorkList.length"
       :no-res-permission="!appStore.projectList.length"
       :all-screen="!defaultWorkList.length"
       height="h-[calc(100vh-110px)]"
@@ -249,8 +249,6 @@
 
   const defaultWorkList = ref<SelectedCardItem[]>([]);
 
-  const showNoData = ref(false);
-
   // 用来存储每个请求的结果，key 是项目ID
   const requestResults = ref<Record<string, ApiCoverageData>>({});
   // 用来存储已请求过的项目
@@ -301,9 +299,6 @@
         // eslint-disable-next-line no-console
         console.log(error);
       } finally {
-        if (!defaultWorkList.value.length) {
-          showNoData.value = true;
-        }
         appStore.hideLoading();
       }
     }

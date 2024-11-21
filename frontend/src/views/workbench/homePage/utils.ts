@@ -66,7 +66,7 @@ export const colorMapConfig: Record<string, string[]> = {
   [WorkCardEnum.ASSOCIATE_CASE_COUNT]: ['#00C261', '#3370FF'],
   [WorkCardEnum.REVIEW_CASE_COUNT]: ['#D4D4D8', '#3370FF', '#00C261', '#ED0303', '#FFA200'],
   [WorkCardEnum.TEST_PLAN_COUNT]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
-  [WorkCardEnum.PLAN_LEGACY_BUG]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
+  [WorkCardEnum.PLAN_LEGACY_BUG]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8', ...getColorScheme(12)],
   [WorkCardEnum.BUG_COUNT]: ['#FFA200', '#3370FF', '#D4D4D8', '#00C261', ...getColorScheme(13)],
   [WorkCardEnum.HANDLE_BUG_BY_ME]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
   [WorkCardEnum.CREATE_BY_ME]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],

@@ -146,6 +146,8 @@
     coverOptions.value = { ...covOptions };
   }
   async function initApiCountRate() {
+    console.log(hasPermission.value);
+
     try {
       loading.value = true;
       const detail = await workApiCountCoverRage(projectId.value);
@@ -191,10 +193,12 @@
   }
 
   function changeProject() {
-    nextTick(() => {
-      initApiCount();
+    nextTick(async () => {
+      await initApiCount();
       emit('change');
-      initApiCountRate();
+      if (hasPermission.value) {
+        initApiCountRate();
+      }
     });
   }
 

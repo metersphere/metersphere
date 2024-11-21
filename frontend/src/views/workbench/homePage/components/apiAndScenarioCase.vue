@@ -296,10 +296,12 @@
   }
 
   function changeProject() {
-    nextTick(() => {
-      initApiOrScenarioCount();
+    nextTick(async () => {
+      await initApiOrScenarioCount();
       emit('change');
-      initApiCountRate();
+      if (hasPermission.value) {
+        initApiCountRate();
+      }
     });
   }
 
