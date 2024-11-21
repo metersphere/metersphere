@@ -19,4 +19,6 @@ public class ApiDocShareDetail implements Serializable {
 	private Boolean isPrivate;
 	@Schema(title = "是否允许导出")
 	private Boolean allowExport;
+	@Schema(title = "项目名称")
+	private String projectName;
 }

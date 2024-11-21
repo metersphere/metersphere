@@ -10,6 +10,8 @@ import io.metersphere.api.mapper.ApiDocShareMapper;
 import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.mapper.ExtApiDocShareMapper;
 import io.metersphere.api.service.ApiTestService;
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import io.metersphere.sdk.dto.CombineCondition;
 import io.metersphere.sdk.dto.CombineSearch;
@@ -24,6 +26,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +62,8 @@ public class ApiDocShareService {
 	private ApiTestService apiTestService;
 
 	public static final String RANGE_ALL = "ALL";
+	@Autowired
+	private ProjectMapper projectMapper;
 
 	/**
 	 * 分页获取分享列表
@@ -139,7 +144,8 @@ public class ApiDocShareService {
 	 */
 	public ApiDocShareDetail detail(String id) {
 		ApiDocShare docShare = checkExit(id);
-		ApiDocShareDetail detail = ApiDocShareDetail.builder().allowExport(docShare.getAllowExport()).isPrivate(docShare.getIsPrivate()).build();
+		Project project = projectMapper.selectByPrimaryKey(docShare.getProjectId());
+		ApiDocShareDetail detail = ApiDocShareDetail.builder().allowExport(docShare.getAllowExport()).isPrivate(docShare.getIsPrivate()).projectName(project.getName()).build();
 		if (docShare.getInvalidTime() == null || docShare.getInvalidTime() == Long.MAX_VALUE) {
 			detail.setInvalid(false);
 		} else {
