@@ -293,12 +293,7 @@ export function getPieCharOptions(key: WorkCardEnum, hasPermission: boolean) {
       textAlign: 'center', // 确保副标题居中
     },
     color: colorMapConfig[key],
-    tooltip: {
-      ...toolTipConfig,
-      trigger: 'item',
-      position: 'right',
-      show: !!hasPermission,
-    },
+    tooltip: { show: true },
     legend: {
       width: '100%',
       height: 128,
@@ -470,6 +465,11 @@ export function handlePieData(
   options.series.data = lastStatusPercentList.map((item) => ({
     name: item.status,
     value: item.count,
+    tooltip: {
+      ...toolTipConfig,
+      position: 'right',
+      show: !!hasPermission,
+    },
   }));
 
   // 计算总数和图例格式

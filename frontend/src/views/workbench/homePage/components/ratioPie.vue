@@ -63,8 +63,7 @@
       bottom: 40,
     },
     tooltip: {
-      ...toolTipConfig,
-      show: !!props.hasPermission,
+      show: true,
     },
     legend: {
       orient: 'vertical',
@@ -79,6 +78,9 @@
       bottom: 'center',
       formatter: (name: any) => {
         return `{a|${name}}  {b|${addCommasToNumber(1022220)}}`;
+      },
+      tooltip: {
+        show: false,
       },
     },
     textStyle: {
@@ -138,7 +140,15 @@
 
   function initOptions() {
     const { name, color } = props.rateConfig;
-    options.value.series.data = [...props.data.slice(1)];
+    options.value.series.data = [...props.data.slice(1)].map((e) => {
+      return {
+        ...e,
+        tooltip: {
+          ...toolTipConfig,
+          show: !!props.hasPermission,
+        },
+      };
+    });
 
     options.value.legend.formatter = (seriousName: string) => {
       const item = props.data.find((e) => e.name === seriousName);
