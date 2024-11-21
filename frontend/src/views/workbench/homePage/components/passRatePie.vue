@@ -51,7 +51,7 @@
     background: var(--color-text-n9);
     @apply flex items-center;
     .pass-rate-title {
-      @apply ml-4 flex items-center gap-4;
+      @apply ml-4 flex items-center gap-2;
       .pass-rate-count {
         font-size: 20px;
         color: rgb(var(--primary-4));

@@ -20,18 +20,16 @@
       </div>
     </div>
     <div class="my-[16px]">
-      <TabCard :content-tab-list="apiCountTabList" not-has-padding hidden-border min-width="270px">
+      <TabCard :content-tab-list="apiCountTabList" not-has-padding hidden-border min-width="296px">
         <template #item="{ item: tabItem }">
-          <div class="w-full">
-            <PassRatePie
-              :tooltip-text="tabItem.tooltip"
-              :options="tabItem.options"
-              :size="60"
-              :loading="tabItem.value === 'cover' ? loading : undefined"
-              :has-permission="hasPermission"
-              :value-list="tabItem.valueList"
-            />
-          </div>
+          <PassRatePie
+            :tooltip-text="tabItem.tooltip"
+            :options="tabItem.options"
+            :size="60"
+            :loading="tabItem.value === 'cover' ? loading : undefined"
+            :has-permission="hasPermission"
+            :value-list="tabItem.valueList"
+          />
         </template>
       </TabCard>
       <div class="h-[148px]">
