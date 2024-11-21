@@ -6,7 +6,7 @@
       </a-tabs>
       <slot name="tabRight"></slot>
     </div>
-    <div class="response-container">
+    <div v-if="!props.loading" class="response-container">
       <ResBody
         v-if="activeTab === ResponseComposition.BODY"
         ref="resBodyRef"
@@ -79,6 +79,7 @@
       isHttpProtocol?: boolean;
       isDefinition?: boolean;
       showEmpty?: boolean;
+      loading?: boolean;
     }>(),
     {
       showEmpty: true,

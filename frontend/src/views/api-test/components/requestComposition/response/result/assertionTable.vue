@@ -163,6 +163,13 @@
         : props.requestResult?.responseResult.assertions || [];
     }
   }
+
+  watch(
+    () => props.requestResult?.responseResult.assertions,
+    () => {
+      tableData.value = props.requestResult?.responseResult.assertions || [];
+    }
+  );
 </script>
 
 <style lang="less" scoped>

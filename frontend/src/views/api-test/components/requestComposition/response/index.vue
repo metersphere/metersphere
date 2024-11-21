@@ -71,6 +71,7 @@
       <result
         v-else-if="!props.isEdit || (props.isEdit && activeResponseType === 'result')"
         v-model:active-tab="activeTab"
+        :loading="props.loading"
         :request-result="props.requestResult"
         :console="props.console"
         :is-http-protocol="props.isHttpProtocol"
