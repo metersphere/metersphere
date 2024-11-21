@@ -813,7 +813,9 @@
         FROM api_definition
         WHERE api_definition.deleted = false
         AND api_definition.project_id =  #{projectId}
-        AND api_definition.update_time BETWEEN #{startTime} AND #{endTime} order by api_definition.update_time desc
+        AND api_definition.update_time BETWEEN #{startTime} AND #{endTime}
+        AND api_definition.update_time > api_definition.create_time
+        order by api_definition.update_time desc
     </select>
 
     <select id="scenarioRefApiCount" resultType="io.metersphere.api.dto.definition.ApiRefSourceCountDTO">

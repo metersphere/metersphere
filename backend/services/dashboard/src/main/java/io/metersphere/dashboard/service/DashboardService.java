@@ -1389,7 +1389,7 @@ public class DashboardService {
         List<NameCountDTO> nameCountDTOS = buildBugRetentionRateList(totalSize, statusSize);
         Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
         statusStatisticsMap.put("retentionRate", nameCountDTOS);
-        Map<String, List<SelectOption>> bugMap = legacyBugList.stream().collect(Collectors.groupingBy(SelectOption::getValue));
+        Map<String, List<SelectOption>> bugMap = legacyBugList.stream().collect(Collectors.groupingBy(SelectOption::getText));
         List<StatusPercentDTO> statusPercentList = new ArrayList<>();
         for (SelectOption selectOption : headerStatusOption) {
             StatusPercentDTO statusPercentDTO = new StatusPercentDTO();
