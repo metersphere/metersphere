@@ -457,16 +457,11 @@
         <if test="startTime != null and endTime != null">
             AND bug.create_time BETWEEN #{startTime} AND #{endTime}
         </if>
-        <if test="handleUser != null or currentUser != null">
-            AND (
-                FALSE
-                <if test="handleUser != null and handleUser != ''">
-                    OR bug.handle_user = #{handleUser}
-                </if>
-                <if test="currentUser != null and currentUser != ''">
-                    OR bug.handle_user = #{currentUser}
-                </if>
-            )
+        <if test="handleUsers != null and handleUsers.size() > 0">
+            AND bug.handle_user IN
+            <foreach collection="handleUsers" item="handleUser" separator="," open="(" close=")">
+                #{handleUser}
+            </foreach>
         </if>
         <if test="createUser != null and createUser != ''">
             AND bug.create_user = #{createUser}

@@ -913,6 +913,7 @@
                  left join bug_relation_case on test_plan.id = bug_relation_case.test_plan_id
                  left join bug on bug_relation_case.bug_id = bug.id
         where test_plan.status = 'NOT_ARCHIVED'
+          and bug.deleted = false
         <if test="type != null and type != ''">
             and test_plan.type= #{type}
         </if>
