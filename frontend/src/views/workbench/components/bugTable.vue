@@ -5,7 +5,7 @@
         {{ t('ms.workbench.myFollowed.feature.BUG') }}
       </div>
     </div>
-    <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
+    <MsBaseTable ref="tableRef" class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
       <!-- ID -->
       <template #num="{ record }">
         <a-button type="text" class="px-0 text-[14px] leading-[22px]" @click="handleShowDetail(record.id)">
@@ -37,6 +37,7 @@
 
 <script setup lang="ts">
   import { TableData } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -69,7 +70,8 @@
   const { t } = useI18n();
   const { openNewPage } = useOpenNewPage();
 
-  let columns: MsTableColumn = [
+  const tableRef = ref<InstanceType<typeof MsBaseTable>>();
+  const originColumns: MsTableColumn = [
     {
       title: 'bugManagement.ID',
       dataIndex: 'num',
@@ -157,6 +159,7 @@
       showInTable: true,
     },
   ];
+  let columns = cloneDeep(originColumns);
 
   const statusOption = ref<BugOptionItem[]>([]);
   async function initFilterOptions() {
@@ -202,15 +205,23 @@
     }
   }
 
-  await getColumnHeaders();
-  columns.splice(2, 0, ...customColumns);
-  await initFilterOptions();
+  try {
+    appStore.showLoading();
+    await getColumnHeaders();
+    columns.splice(2, 0, ...customColumns);
+    await initFilterOptions();
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+  } finally {
+    appStore.hideLoading();
+  }
 
   const workbenchBugPage = computed(() => {
     return props.type === 'my_todo' ? workbenchTodoBugList : workbenchBugList;
   });
 
-  const { propsRes, propsEvent, setLoadListParams, loadList } = useTable(
+  const { propsRes, propsEvent, setLoadListParams, setLoading, loadList } = useTable(
     workbenchBugPage.value,
     {
       columns,
@@ -251,7 +262,7 @@
     });
   }
 
-  function init() {
+  async function init() {
     setLoadListParams({
       projectId: props.project,
       viewId: props.type,
@@ -260,14 +271,29 @@
     loadList();
   }
 
+  async function refresh() {
+    try {
+      setLoading(true);
+      columns = cloneDeep(originColumns);
+      await getColumnHeaders();
+      columns.splice(2, 0, ...customColumns);
+      await initFilterOptions();
+      tableRef.value?.initColumn(columns);
+      init();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   watch(
     () => props.refreshId,
     () => {
-      init();
+      refresh();
     }
   );
 
-  onBeforeMount(() => {
+  onMounted(() => {
     init();
   });
 </script>
