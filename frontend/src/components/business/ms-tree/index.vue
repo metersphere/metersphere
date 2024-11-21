@@ -540,8 +540,11 @@
           //   color: var(--color-text-4);
           // }
         }
+        .arco-tree-node-title-draggable::before {
+          height: 4px;
+        }
         .arco-tree-node-title-highlight {
-          background-color: transparent;
+          background-color: var(--color-primary-light-1);
         }
         .arco-tree-node-title {
           &:hover {
