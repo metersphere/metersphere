@@ -892,7 +892,17 @@ public class BugService {
         attachTemplateStatusField(templateDTO, projectId, fromStatusId, platformBugKey, showLocal);
 
         // 内置字段(处理人字段)
-        if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName()) && BooleanUtils.isFalse(showLocal)) {
+        if (StringUtils.equals(platformName, BugPlatform.LOCAL.getName()) || BooleanUtils.isTrue(showLocal)) {
+            // Local(处理人)
+            TemplateCustomFieldDTO handleUserField = new TemplateCustomFieldDTO();
+            handleUserField.setFieldId(BugTemplateCustomField.HANDLE_USER.getId());
+            handleUserField.setFieldName(BugTemplateCustomField.HANDLE_USER.getName());
+            handleUserField.setFieldKey(BugTemplateCustomField.HANDLE_USER.getId());
+            handleUserField.setType(CustomFieldType.SELECT.name());
+            handleUserField.setOptions(getMemberOption(projectId));
+            handleUserField.setRequired(true);
+            templateDTO.getCustomFields().addFirst(handleUserField);
+        } else {
             // 获取插件中自定义的注入字段(处理人)
             ServiceIntegration serviceIntegration = projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand(projectId, true);
             // 状态选项获取时, 获取平台校验了服务集成配置, 所以此处不需要再次校验
@@ -921,16 +931,6 @@ public class BugService {
                 }
                 templateDTO.getCustomFields().addFirst(templateCustomFieldDTO);
             }
-        } else {
-            // Local(处理人)
-            TemplateCustomFieldDTO handleUserField = new TemplateCustomFieldDTO();
-            handleUserField.setFieldId(BugTemplateCustomField.HANDLE_USER.getId());
-            handleUserField.setFieldName(BugTemplateCustomField.HANDLE_USER.getName());
-            handleUserField.setFieldKey(BugTemplateCustomField.HANDLE_USER.getId());
-            handleUserField.setType(CustomFieldType.SELECT.name());
-            handleUserField.setOptions(getMemberOption(projectId));
-            handleUserField.setRequired(true);
-            templateDTO.getCustomFields().addFirst(handleUserField);
         }
 
         // 成员类型的自定义字段, 选项值为项目下成员用户
