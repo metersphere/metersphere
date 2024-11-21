@@ -29,7 +29,7 @@
           :prefix="t('workbench.homePage.staff')"
           :multiple="true"
           :has-all-select="true"
-          :default-all-select="innerSelectAll"
+          :default-all-select="innerHandleUsers.length === 0"
           @change="changeMember"
         >
         </MsSelect>
@@ -146,7 +146,7 @@
         })(countData),
       };
     });
-    options.value.yAxis[0].max = maxAxis < 100 ? 50 : maxAxis + 50;
+    options.value.yAxis[0].max = maxAxis < 100 ? 100 : maxAxis + 50;
   }
 
   async function initOverViewMemberDetail() {
@@ -171,7 +171,6 @@
     }
   }
 
-  const innerSelectAll = ref<boolean>(false);
   async function getMemberOptions() {
     const [newProjectId] = innerProjectIds.value;
     const res = await workProjectMemberOptions(newProjectId);
@@ -179,7 +178,6 @@
       label: e.name,
       value: e.id,
     }));
-    innerSelectAll.value = memberIds.value.length === memberOptions.value.length;
   }
 
   function changeProject() {
