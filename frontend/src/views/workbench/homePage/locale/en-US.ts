@@ -85,8 +85,7 @@ export default {
   'workbench.homePage.notHasResPermission': 'No resource permission',
   'workbench.homePage.reviewRateTooltip':
     'Review Rate: Reviewed functional test cases / All functional test cases * 100%',
-  'workbench.homePage.reviewPassRateTooltip':
-    'Review Pass Rate: Passed reviewed test cases / All reviewed test cases * 100%',
+  'workbench.homePage.reviewPassRateTooltip': 'Review pass rate: Reviewed use cases/all use cases *100%',
   'workbench.homePage.associateCaseCoverRateTooltip':
     'Association Coverage Rate: Associated functional test cases / All functional test cases * 100%',
   'workbench.homePage.caseReviewCoverRateTooltip':

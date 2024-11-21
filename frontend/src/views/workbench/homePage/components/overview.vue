@@ -221,10 +221,7 @@
   }
   const isInit = ref(true);
   function changeProject() {
-    if (isInit.value) {
-      isInit.value = false;
-      return;
-    }
+    if (isInit.value) return;
     nextTick(() => {
       initOverViewDetail();
       emit('change');
@@ -232,6 +229,7 @@
   }
 
   onMounted(() => {
+    isInit.value = false;
     initOverViewDetail();
   });
 

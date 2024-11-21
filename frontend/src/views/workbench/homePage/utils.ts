@@ -233,10 +233,11 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
             type: 'slider',
             height: 24,
             bottom: 10,
+            // TODO 待优化，xinxinwu 调研优化中
             start: 0,
             end: 30,
-            minSpan: 30, // 最小滑动距离
-            maxSpan: 70,
+            minSpan: 0, // 最小滑动距离
+            maxSpan: 100,
             showDetail: false,
             filterMode: 'filter',
             moveOnMouseMove: true,

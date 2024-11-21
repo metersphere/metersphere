@@ -81,7 +81,7 @@ export default {
   'workbench.homePage.notHasData': '无数据',
   'workbench.homePage.notHasResPermission': '无资源权限',
   'workbench.homePage.reviewRateTooltip': '评审率： 已评审功能用例/所有功能用例 * 100%',
-  'workbench.homePage.reviewPassRateTooltip': '评审通过率：已评审通过的用例/所有完成评审的用例*100%',
+  'workbench.homePage.reviewPassRateTooltip': '评审通过率：已评审通过的用例/所有用例*100%',
   'workbench.homePage.associateCaseCoverRateTooltip': '覆盖率：关联的功能用例/所有功能用例 * 100%',
   'workbench.homePage.caseReviewCoverRateTooltip': '覆盖率：已评审的用例/所有的用例*100%',
   'workbench.homePage.apiCountCoverRateTooltip': '接口覆盖率：接口（URL）有（用例或场景步骤）数/接口总数*100%',

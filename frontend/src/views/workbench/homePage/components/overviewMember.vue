@@ -17,8 +17,10 @@
           @change="changeProject"
         >
         </MsSelect>
+
         <MsSelect
-          v-model:model-value="memberIds"
+          :key="props.refreshKey"
+          v-model:model-value="innerHandleUsers"
           :options="memberOptions"
           allow-search
           allow-clear
@@ -81,8 +83,6 @@
   });
 
   const projectId = ref<string>(innerProjectIds.value[0]);
-
-  const memberIds = ref<string[]>(innerHandleUsers.value);
 
   const timeForm = inject<Ref<TimeFormParams>>(
     'timeForm',
@@ -181,7 +181,7 @@
   }
 
   function changeProject() {
-    memberIds.value = [];
+    innerHandleUsers.value = [];
     nextTick(() => {
       getMemberOptions();
       initOverViewMemberDetail();
@@ -202,7 +202,7 @@
       if (val) {
         const [newProjectId] = val;
         projectId.value = newProjectId;
-        memberIds.value = [];
+        innerHandleUsers.value = [];
       }
     }
   );
@@ -212,15 +212,6 @@
     (val) => {
       if (val) {
         innerProjectIds.value = [val];
-      }
-    }
-  );
-
-  watch(
-    () => memberIds.value,
-    (val) => {
-      if (val) {
-        innerHandleUsers.value = val;
       }
     }
   );
