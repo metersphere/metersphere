@@ -436,6 +436,7 @@
   :deep(.ms-detail-card-desc) {
     gap: 16px;
     justify-content: end;
+    flex: 1;
     & > div {
       width: auto;
       max-width: 50%;
