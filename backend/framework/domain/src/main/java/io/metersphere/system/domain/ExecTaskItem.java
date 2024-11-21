@@ -94,6 +94,9 @@ public class ExecTaskItem implements Serializable {
     @Schema(description = "是否是重跑任务项")
     private Boolean rerun;
 
+    @Schema(description = "创建时间")
+    private Long createTime;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -117,7 +120,8 @@ public class ExecTaskItem implements Serializable {
         deleted("deleted", "deleted", "BIT", false),
         caseId("case_id", "caseId", "VARCHAR", false),
         errorMessage("error_message", "errorMessage", "VARCHAR", false),
-        rerun("rerun", "rerun", "BIT", false);
+        rerun("rerun", "rerun", "BIT", false),
+        createTime("create_time", "createTime", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

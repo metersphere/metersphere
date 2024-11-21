@@ -10,7 +10,7 @@
     <select id="selectExecInfoByResourceIds" resultType="io.metersphere.system.domain.ExecTaskItem">
         SELECT id, resource_id
         FROM exec_task_item
-        WHERE resource_id IN
+        WHERE deleted = false and resource_id IN
         <foreach collection="resourceIds" item="resourceId" open="(" separator="," close=")">
             #{resourceId}
         </foreach>
@@ -23,7 +23,7 @@
     <select id="selectExecInfoByTaskIdAndResourceIds" resultType="io.metersphere.system.domain.ExecTaskItem">
         SELECT id, resource_id
         FROM exec_task_item
-        WHERE task_id = #{taskId} and resource_id IN
+        WHERE deleted = false and task_id = #{taskId} and resource_id IN
         <foreach collection="resourceIds" item="resourceId" open="(" separator="," close=")">
             #{resourceId}
         </foreach>
@@ -32,7 +32,7 @@
     <select id="selectExecInfoByTaskIdAndCollectionId" resultType="io.metersphere.system.domain.ExecTaskItem">
         SELECT id, resource_id
         FROM exec_task_item
-        WHERE task_id = #{taskId} and collection_id = #{collectionId}
+        WHERE task_id = #{taskId} and collection_id = #{collectionId} and deleted = false
         <if test="rerun != null and rerun == true">
             and rerun = true
         </if>
@@ -41,7 +41,7 @@
     <select id="selectItemByTaskIds" resultType="io.metersphere.system.domain.ExecTaskItem">
         select  id, task_id, `status`, result
         from exec_task_item
-        where task_id in
+        where deleted = false and task_id in
         <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
             #{taskId}
         </foreach>
@@ -333,27 +333,21 @@
         where task_id = #{taskId} and deleted = false
     </select>
 
-    <update id="resetRerunTaskItem">
-        UPDATE exec_task_item
-        SET `status` = 'PENDING',
-            `result` = 'PENDING',
-            resource_pool_id = '',
-            resource_pool_node = null,
-            thread_id = null,
-            start_time = null,
-            end_time = null,
-            error_message = null,
-            executor = #{userId},
-            rerun = true
-        WHERE
-        deleted = false
-        and task_id = #{taskId}
-        and `result` = 'ERROR'
-    </update>
+    <insert id="insertRerunTaskItem">
+        insert into exec_task_item(id, task_id, resource_id, resource_name, task_origin, status, `result`, resource_pool_id,
+                                   resource_pool_node, resource_type, project_id, organization_id, thread_id, start_time, end_time, executor, collection_id,
+                                   deleted, case_id, error_message, rerun, create_time)
+        select
+            UUID_SHORT(), task_id, resource_id, resource_name, task_origin, 'PENDING', 'PENDING', '',
+            null, resource_type, project_id, organization_id, null, null, null, #{userId}, collection_id,
+            deleted, case_id, null, true, unix_timestamp() * 1000
+        from exec_task_item
+        where deleted = false and task_id = #{taskId} and `result` = 'ERROR'
+    </insert>
 
-    <delete id="deleteRerunTaskItemReportRelation">
-        delete arrt
-        from api_report_relate_task arrt join exec_task_item eti on eti.id = arrt.task_resource_id
-        where eti.task_id = #{taskId} and eti.`result` = 'ERROR' and eti.deleted = false
-    </delete>
+    <update id="deleteRerunTaskItem">
+        update exec_task_item
+        set deleted = true
+        where task_id = #{taskId} and `result` = 'ERROR' and rerun = false
+    </update>
 </mapper>

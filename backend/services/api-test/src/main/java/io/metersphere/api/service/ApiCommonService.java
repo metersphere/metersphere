@@ -513,6 +513,7 @@ public class ApiCommonService {
 
     public ExecTaskItem newExecTaskItem(String taskId, String projectId, String userId) {
         ExecTaskItem execTaskItem = new ExecTaskItem();
+        execTaskItem.setCreateTime(System.currentTimeMillis());
         execTaskItem.setId(IDGenerator.nextStr());
         execTaskItem.setTaskId(taskId);
         execTaskItem.setProjectId(projectId);

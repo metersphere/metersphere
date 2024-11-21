@@ -85,6 +85,8 @@ ALTER TABLE exec_task_item ADD collection_id varchar(50) NULL COMMENT '测试集
 ALTER TABLE exec_task_item ADD error_message varchar(50) NULL COMMENT '异常信息';
 -- 任务项添加重跑字段
 ALTER TABLE exec_task_item ADD rerun bit(1) DEFAULT 0 NULL COMMENT '是否是重跑任务项';
+-- 任务项添加创建时间字段
+ALTER TABLE exec_task_item ADD create_time bigint NOT NULL COMMENT '创建时间';
 -- 任务添加串并行字段
 ALTER TABLE exec_task ADD parallel bit(1) DEFAULT 1 NOT NULL COMMENT '是否是并行执行';
 

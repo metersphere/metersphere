@@ -821,7 +821,7 @@
             eti.`status` as execStatus,
             eti.executor as createUser,
             eti.deleted,
-            et.create_time as startTime,
+            eti.create_time as startTime,
             et.integrated,
             tp.id as testPlanId,
             tp.num as testPlanNum,

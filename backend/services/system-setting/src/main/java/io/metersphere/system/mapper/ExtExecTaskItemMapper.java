@@ -66,11 +66,11 @@ public interface ExtExecTaskItemMapper {
 
     long getUnDeleteScenarioExecCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("resourceTypes") List<String> resourceTypes);
 
-    void resetRerunTaskItem(@Param("taskId") String taskId, @Param("userId") String userId);
-
-    void deleteRerunTaskItemReportRelation(@Param("taskId") String taskId);
+    void insertRerunTaskItem(@Param("taskId") String taskId, @Param("userId") String userId);
 
     Set<String> selectRerunCollectionIds(@Param("taskId") String taskId);
 
     List<ExecTaskItem> selectIdAndResourceIdByTaskId(@Param("taskId") String taskId);
+
+    void deleteRerunTaskItem(@Param("taskId") String taskId, String userId);
 }
