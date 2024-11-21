@@ -56,7 +56,7 @@ public class TestPlanCoverageDTO {
     }
 
     public void testPlanRunningAutoIncrement() {
-        unExecute++;
+        executed++;
         notPassed++;
         running++;
     }
