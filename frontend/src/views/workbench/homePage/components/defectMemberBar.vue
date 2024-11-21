@@ -18,7 +18,8 @@
         >
         </MsSelect>
         <MsSelect
-          v-model:model-value="memberIds"
+          :key="props.refreshKey"
+          v-model:model-value="innerHandleUsers"
           :options="memberOptions"
           allow-clear
           allow-search
@@ -27,7 +28,7 @@
           :prefix="t('workbench.homePage.staff')"
           :multiple="true"
           :has-all-select="true"
-          :default-all-select="true"
+          :default-all-select="innerHandleUsers.length === 0"
           @change="changeMember"
         >
         </MsSelect>
@@ -208,15 +209,6 @@
     (val) => {
       if (val) {
         innerProjectIds.value = [val];
-      }
-    }
-  );
-
-  watch(
-    () => memberIds.value,
-    (val) => {
-      if (val) {
-        innerHandleUsers.value = val;
       }
     }
   );

@@ -66,12 +66,12 @@ export const colorMapConfig: Record<string, string[]> = {
   [WorkCardEnum.ASSOCIATE_CASE_COUNT]: ['#00C261', '#3370FF'],
   [WorkCardEnum.REVIEW_CASE_COUNT]: ['#D4D4D8', '#3370FF', '#00C261', '#ED0303', '#FFA200'],
   [WorkCardEnum.TEST_PLAN_COUNT]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
-  [WorkCardEnum.PLAN_LEGACY_BUG]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8', ...getColorScheme(12)],
+  [WorkCardEnum.PLAN_LEGACY_BUG]: ['#FFA200', '#3370FF', '#D4D4D8', '#00C261', ...getColorScheme(13)],
   [WorkCardEnum.BUG_COUNT]: ['#FFA200', '#3370FF', '#D4D4D8', '#00C261', ...getColorScheme(13)],
-  [WorkCardEnum.HANDLE_BUG_BY_ME]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
+  [WorkCardEnum.HANDLE_BUG_BY_ME]: ['#FFA200', '#3370FF', '#D4D4D8', '#00C261', ...getColorScheme(13)],
   [WorkCardEnum.CREATE_BY_ME]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
   [WorkCardEnum.API_COUNT]: ['#811FA3', '#00C261', '#3370FF', '#FFA1FF', '#EE50A3', '#FF9964', '#F9F871', '#C3DD40'],
-  [WorkCardEnum.CREATE_BUG_BY_ME]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
+  [WorkCardEnum.CREATE_BUG_BY_ME]: ['#FFA200', '#3370FF', '#D4D4D8', '#00C261', ...getColorScheme(13)],
 };
 
 // 柱状图
