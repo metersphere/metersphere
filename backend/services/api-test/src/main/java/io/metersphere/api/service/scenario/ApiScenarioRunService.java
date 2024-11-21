@@ -7,6 +7,9 @@ import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
+import io.metersphere.api.dto.definition.ApiModuleDTO;
+import io.metersphere.api.dto.definition.EnvApiModuleRequest;
+import io.metersphere.api.dto.definition.EnvApiTreeDTO;
 import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.request.controller.MsScriptElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
@@ -937,16 +940,20 @@ public class ApiScenarioRunService {
             // 获取勾选了包含子模块的模块ID
             HttpConfigModuleMatchRule moduleMatchRule = httpConfig.getModuleMatchRule();
             List<SelectModule> selectModules = moduleMatchRule.getModules();
-            List<String> containChildModuleIds = selectModules.stream()
-                    .filter(SelectModule::getContainChildModule)
-                    .map(SelectModule::getModuleId)
-                    .toList();
 
-            // 查询子模块ID, 并去重
-            Set<String> moduleIds = apiDefinitionModuleService.getModuleIdsByParentIds(containChildModuleIds)
-                    .stream()
-                    .collect(Collectors.toSet());
-            selectModules.forEach(selectModule -> moduleIds.add(selectModule.getModuleId()));
+            EnvApiModuleRequest envApiModuleRequest = new EnvApiModuleRequest();
+            envApiModuleRequest.setProjectId(envInfoDTO.getProjectId());
+            List<ApiModuleDTO> apiModuleDTOS = selectModules.stream().map(selectModule -> {
+                ApiModuleDTO apiModuleDTO = new ApiModuleDTO();
+                apiModuleDTO.setModuleId(selectModule.getModuleId());
+                apiModuleDTO.setContainChildModule(selectModule.getContainChildModule());
+                return apiModuleDTO;
+            }).toList();
+            envApiModuleRequest.setSelectedModules(apiModuleDTOS);
+            EnvApiTreeDTO envApiTreeDTO = apiDefinitionModuleService.envTree(envApiModuleRequest);
+            List<ApiModuleDTO> selectedModules = envApiTreeDTO.getSelectedModules();
+            List<String> moduleIds = selectedModules.stream().map(ApiModuleDTO::getModuleId).toList();
+
 
             // 重新设置选中的模块ID
             moduleMatchRule.setModules(null);
