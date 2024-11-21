@@ -157,7 +157,7 @@
       @config="cardSetting"
     />
   </div>
-  <CardSettingDrawer v-model:visible="showSettingDrawer" :list="defaultWorkList" @success="initDefaultList" />
+  <CardSettingDrawer v-model:visible="showSettingDrawer" :list="defaultWorkList" @success="handleRefresh" />
   <MsBackButton target=".page-content" />
 </template>
 
