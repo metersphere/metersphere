@@ -59,11 +59,13 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.SocketTimeoutException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -298,6 +300,11 @@ public class ApiExecuteService {
                 }
                 break;
             } catch (Exception e) {
+                if (e instanceof ResourceAccessException resourceAccessException
+                        && resourceAccessException.getCause() instanceof SocketTimeoutException) {
+                    // 响应超时，则视为成功，避免任务重复发送
+                    break;
+                }
                 lastException = e;
                 LogUtils.error(e);
                 // 记录异常节点，重试
@@ -417,6 +424,12 @@ public class ApiExecuteService {
                     }
                     break;
                 } catch (Exception e) {
+                    if (e instanceof ResourceAccessException resourceAccessException
+                            && resourceAccessException.getCause() instanceof SocketTimeoutException) {
+                        // 响应超时，则视为成功，避免任务重复发送
+                        success = true;
+                        break;
+                    }
                     invalidNodeSet.add(testResourceNode);
                     LogUtils.error("发送批量任务到 {} 节点执行失败", endpoint);
                     LogUtils.error(e);
