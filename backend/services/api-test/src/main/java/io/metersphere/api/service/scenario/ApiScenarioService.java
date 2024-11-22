@@ -2581,8 +2581,8 @@ public class ApiScenarioService extends MoveNodeService {
                                 ApiScenarioScheduleJob.class,
                                 operator);
                     });
-                    apiScenarioLogService.batchScheduleConfigLog(request.getProjectId(), apiScenarios, operator);
                 }
+                apiScenarioLogService.batchScheduleConfigLog(request.getProjectId(), apiScenarios, operator);
             }
         }
     }
