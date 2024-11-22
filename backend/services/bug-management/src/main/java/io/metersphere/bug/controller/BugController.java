@@ -133,7 +133,7 @@ public class BugController {
     @Operation(summary = "缺陷管理-列表-查看缺陷(详情&&编辑&&复制)")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public BugDetailDTO get(@PathVariable String id) {
-        return bugService.get(id, SessionUtils.getUserId());
+        return bugService.get(id, SessionUtils.getUserId(), Objects.requireNonNull(SessionUtils.getUser()).getLanguage());
     }
 
     @GetMapping("/delete/{id}")
@@ -229,7 +229,7 @@ public class BugController {
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public TemplateDTO getTemplateDetail(@RequestBody BugTemplateRequest request) {
-        return bugService.getTemplate(request.getId(), request.getProjectId(), request.getFromStatusId(), request.getPlatformBugKey(), request.getShowLocal());
+        return bugService.getTemplate(request.getId(), request.getProjectId(), request.getFromStatusId(), request.getPlatformBugKey(), request.getShowLocal(), Objects.requireNonNull(SessionUtils.getUser()).getLanguage());
     }
 
     @GetMapping("/follow/{id}")

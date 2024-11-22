@@ -960,17 +960,19 @@ export interface CascaderOption {
 
 /**
  * 解析级联选择器的值
- * @param value
+ * @param arr 值
  * @param options 级联选项 (默认层级2)
  */
-export function cascaderValueToLabel(value: string, options: CascaderOption[]) {
-  if (!value || !options) return '';
+export function cascaderValueToLabel(arr: string[], options: CascaderOption[]) {
+  if (!arr || !options || arr.length === 0) return '';
   let targetLabel = '';
   options.forEach((option) => {
-    if (option.children) {
-      option.children.forEach((child) => {
-        if (child.value === value) {
-          targetLabel = child.text;
+    if (option.value === arr[0]) {
+      targetLabel += option.text;
+      if (arr.length === 1) return;
+      option.children?.forEach((child) => {
+        if (child.value === arr[1]) {
+          targetLabel += `/${child.text}`;
         }
       });
     }
@@ -1009,11 +1011,20 @@ export function customFieldDataToTableData(customFieldData: Record<string, any>[
           .map((val: string) => field.options.find((option: { value: string }) => option.value === val)?.text)
           .join(',');
       } catch (e) {
-        console.log('自定义字段值不是数组');
+        // eslint-disable-next-line no-console
+        console.error('multiple field value is not array!');
       }
-    } else if (field.type === 'CASCADER') {
-      // 特殊的三方字段-级联选择器
-      tableData[field.id] = cascaderValueToLabel(JSON.parse(field.value)[1], field.options);
+    } else if (field.type === 'CASCADER' && field.value) {
+      try {
+        const arr = JSON.parse(field.value);
+        if (arr.length > 1) {
+          // 特殊的三方字段-级联选择器
+          tableData[field.id] = cascaderValueToLabel(arr, field.options);
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('cascader field value is nor array!');
+      }
     } else {
       tableData[field.id] = field.value;
     }

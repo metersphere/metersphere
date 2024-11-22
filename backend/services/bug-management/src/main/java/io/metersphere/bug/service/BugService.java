@@ -252,9 +252,9 @@ public class BugService {
      * @param id 缺陷ID
      * @return 缺陷详情
      */
-    public BugDetailDTO get(String id, String currentUser) {
+    public BugDetailDTO get(String id, String currentUser, String language) {
         Bug bug = checkBugExist(id);
-        TemplateDTO template = getTemplate(bug.getTemplateId(), bug.getProjectId(), null, null, StringUtils.equals(bug.getPlatform(), BugPlatform.LOCAL.getName()));
+        TemplateDTO template = getTemplate(bug.getTemplateId(), bug.getProjectId(), null, null, StringUtils.equals(bug.getPlatform(), BugPlatform.LOCAL.getName()), language);
         List<BugCustomFieldDTO> allCustomFields = extBugCustomFieldMapper.getBugAllCustomFields(List.of(id), bug.getProjectId());
         BugDetailDTO detail = new BugDetailDTO();
         detail.setId(id);
@@ -381,21 +381,21 @@ public class BugService {
      * @param platformBugKey 平台缺陷key
      * @return 模板详情
      */
-    public TemplateDTO getTemplate(String templateId, String projectId, String fromStatusId, String platformBugKey, Boolean showLocal) {
+    public TemplateDTO getTemplate(String templateId, String projectId, String fromStatusId, String platformBugKey, Boolean showLocal, String language) {
         Template template = templateMapper.selectByPrimaryKey(templateId);
         if (template != null) {
             // 属于系统模板
-            return injectPlatformTemplateBugField(baseTemplateService.getTemplateDTO(template), projectId, fromStatusId, platformBugKey, showLocal);
+            return injectPlatformTemplateBugField(baseTemplateService.getTemplateDTO(template), projectId, fromStatusId, platformBugKey, showLocal, language);
         } else {
             // 不属于系统模板
             List<ProjectTemplateOptionDTO> option = projectTemplateService.getOption(projectId, TemplateScene.BUG.name());
             Optional<ProjectTemplateOptionDTO> isThirdPartyDefaultTemplate = option.stream().filter(projectTemplateOptionDTO -> StringUtils.equals(projectTemplateOptionDTO.getId(), templateId)).findFirst();
             if (isThirdPartyDefaultTemplate.isPresent()) {
                 // 属于第三方平台默认模板(平台生成的默认模板无需注入配置中的字段)
-                return attachTemplateStatusField(getPluginBugDefaultTemplate(projectId, true), projectId, fromStatusId, platformBugKey, false);
+                return attachTemplateStatusField(getPluginBugDefaultTemplate(projectId, true), projectId, fromStatusId, platformBugKey, false, language);
             } else {
                 // 不属于系统模板&&不属于第三方平台默认模板, 则该模板已被删除
-                return injectPlatformTemplateBugField(projectTemplateService.getDefaultTemplateDTO(projectId, TemplateScene.BUG.name()), projectId, fromStatusId, platformBugKey, showLocal);
+                return injectPlatformTemplateBugField(projectTemplateService.getDefaultTemplateDTO(projectId, TemplateScene.BUG.name()), projectId, fromStatusId, platformBugKey, showLocal, language);
             }
         }
     }
@@ -883,20 +883,21 @@ public class BugService {
      * @param platformBugKey 平台缺陷key
      * @return 模板
      */
-    private TemplateDTO injectPlatformTemplateBugField(TemplateDTO templateDTO, String projectId, String fromStatusId, String platformBugKey, Boolean showLocal) {
+    private TemplateDTO injectPlatformTemplateBugField(TemplateDTO templateDTO, String projectId, String fromStatusId, String platformBugKey,
+                                                       Boolean showLocal, String language) {
         // 来自平台模板
         templateDTO.setPlatformDefault(false);
         String platformName = projectApplicationService.getPlatformName(projectId);
 
         // 状态字段
-        attachTemplateStatusField(templateDTO, projectId, fromStatusId, platformBugKey, showLocal);
+        attachTemplateStatusField(templateDTO, projectId, fromStatusId, platformBugKey, showLocal, language);
 
         // 内置字段(处理人字段)
         if (StringUtils.equals(platformName, BugPlatform.LOCAL.getName()) || BooleanUtils.isTrue(showLocal)) {
             // Local(处理人)
             TemplateCustomFieldDTO handleUserField = new TemplateCustomFieldDTO();
             handleUserField.setFieldId(BugTemplateCustomField.HANDLE_USER.getId());
-            handleUserField.setFieldName(BugTemplateCustomField.HANDLE_USER.getName());
+            handleUserField.setFieldName(BugTemplateCustomField.HANDLE_USER.getName(language));
             handleUserField.setFieldKey(BugTemplateCustomField.HANDLE_USER.getId());
             handleUserField.setType(CustomFieldType.SELECT.name());
             handleUserField.setOptions(getMemberOption(projectId));
@@ -952,13 +953,14 @@ public class BugService {
      * @param platformBugKey 平台缺陷key
      * @return 模板
      */
-    public TemplateDTO attachTemplateStatusField(TemplateDTO templateDTO, String projectId, String fromStatusId, String platformBugKey, Boolean showLocal) {
+    public TemplateDTO attachTemplateStatusField(TemplateDTO templateDTO, String projectId, String fromStatusId, String platformBugKey,
+                                                 Boolean showLocal, String language) {
         if (templateDTO == null) {
             return null;
         }
         TemplateCustomFieldDTO statusField = new TemplateCustomFieldDTO();
         statusField.setFieldId(BugTemplateCustomField.STATUS.getId());
-        statusField.setFieldName(BugTemplateCustomField.STATUS.getName());
+        statusField.setFieldName(BugTemplateCustomField.STATUS.getName(language));
         statusField.setFieldKey(BugTemplateCustomField.STATUS.getId());
         statusField.setType(CustomFieldType.SELECT.name());
         List<SelectOption> statusOption = bugStatusService.getToStatusItemOption(projectId, fromStatusId, platformBugKey, showLocal);
