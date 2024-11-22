@@ -454,8 +454,8 @@ export default defineComponent(
       }
       const option = remoteOriginOptions.value.find(
         (e) =>
-          e[props.valueKey || 'value'].toLowerCase() === value?.toLowerCase() ||
-          e[props.labelKey || 'label'].toLowerCase() === value?.toLowerCase()
+          String(e[props.valueKey || 'value']).toLowerCase() === String(value).toLowerCase() ||
+          String(e[props.labelKey || 'label']).toLowerCase() === String(value)?.toLowerCase()
       );
       return option ? option[props.labelKey || 'label'] : props.optionNotExitsText || t('ms.select.optionsNotExits');
     }
