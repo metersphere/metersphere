@@ -174,6 +174,9 @@
       label: e.text,
       value: e.value,
     }));
+    innerHandleUsers.value = innerHandleUsers.value.filter((id: string) =>
+      memberOptions.value.some((member) => member.value === id)
+    );
   }
 
   function changeProject() {
