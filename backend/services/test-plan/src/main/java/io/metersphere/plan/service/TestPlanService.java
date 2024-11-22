@@ -1055,7 +1055,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                     //目前只有三个状态。如果同时包含多种状态(进行中/未开始、进行中/已完成、已完成/未开始、进行中/未开始/已完成),根据算法可得测试计划都会是进行中
                     if (calculateList.size() == 1) {
                         if (calculateList.contains(ResultStatus.SUCCESS.name())) {
-                            returnDTO.successAutoIncrement();
+                            returnDTO.passAndFinishedAutoIncrement();
                         } else if (calculateList.contains(ExecStatus.PENDING.name())) {
                             returnDTO.notStartedAutoIncrement();
                         } else {
@@ -1063,7 +1063,13 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                         }
                     } else {
                         if (passphrase > executeRage) {
-                            returnDTO.successAutoIncrement();
+                            if (calculateList.contains(ExecStatus.PENDING.name())) {
+                                // 通过却未完成
+                                returnDTO.passAndNotFinishedAutoIncrement();
+                            } else {
+                                // 通过且完成
+                                returnDTO.passAndFinishedAutoIncrement();
+                            }
                         } else if (calculateList.contains(ExecStatus.PENDING.name())) {
                             // 存在还未完成的用例，测试计划为进行中
                             returnDTO.testPlanRunningAutoIncrement();

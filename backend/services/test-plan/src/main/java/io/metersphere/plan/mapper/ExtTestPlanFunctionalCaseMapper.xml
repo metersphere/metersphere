@@ -812,6 +812,8 @@
         THEN 'PENDING'
         WHEN resource.last_exec_result = '-'
         THEN 'PENDING'
+        WHEN resource.last_exec_result = ''
+        THEN 'PENDING'
         ELSE resource.last_exec_result
         END AS execResult
         from test_plan_functional_case resource

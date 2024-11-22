@@ -913,6 +913,8 @@
         CASE
         WHEN resource.last_exec_result is null
         THEN 'PENDING'
+        WHEN resource.last_exec_result = ''
+        THEN 'PENDING'
         WHEN resource.last_exec_result = '-'
         THEN 'PENDING'
         ELSE resource.last_exec_result

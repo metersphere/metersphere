@@ -34,30 +34,36 @@ public class TestPlanCoverageDTO {
     private int errorCode;
 
     public void archivedAutoIncrement() {
-        archived++;
+        this.archived++;
     }
 
     public void notStartedAutoIncrement() {
-        prepared++;
-        unExecute++;
-        notPassed++;
+        this.prepared++;
+        this.unExecute++;
+        this.notPassed++;
     }
 
-    public void successAutoIncrement() {
-        executed++;
-        passed++;
-        finished++;
+    public void passAndFinishedAutoIncrement() {
+        this.executed++;
+        this.passed++;
+        this.finished++;
+    }
+
+    public void passAndNotFinishedAutoIncrement() {
+        this.executed++;
+        this.passed++;
+        this.running++;
     }
 
     public void unSuccessAutoIncrement() {
-        executed++;
-        notPassed++;
-        finished++;
+        this.executed++;
+        this.notPassed++;
+        this.finished++;
     }
 
     public void testPlanRunningAutoIncrement() {
-        executed++;
-        notPassed++;
-        running++;
+        this.executed++;
+        this.notPassed++;
+        this.running++;
     }
 }
