@@ -1181,7 +1181,7 @@ public class BugService {
             for (BugCustomField bugCustomField : updateFields) {
                 BugCustomFieldExample bugCustomFieldExample = new BugCustomFieldExample();
                 bugCustomFieldExample.createCriteria().andBugIdEqualTo(bugCustomField.getBugId()).andFieldIdEqualTo(bugCustomField.getFieldId());
-                bugCustomFieldMapper.updateByExample(bugCustomField, bugCustomFieldExample);
+                bugCustomFieldMapper.updateByExampleSelective(bugCustomField, bugCustomFieldExample);
             }
             sqlSession.flushStatements();
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
