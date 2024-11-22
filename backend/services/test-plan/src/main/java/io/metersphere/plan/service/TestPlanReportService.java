@@ -837,7 +837,9 @@ public class TestPlanReportService {
         List<TestPlanTaskReportResponse.ChildPlan> childPlans = planChildrenTask.stream().map(childTask -> {
             TestPlanTaskReportResponse childTaskDetail = calcTaskExecActual(childTask.getId(), new TestPlanTaskReportResponse());
             TestPlanTaskReportResponse.ChildPlan childPlan = new TestPlanTaskReportResponse.ChildPlan();
-            BeanUtils.copyBean(childPlan, childTaskDetail);
+            BeanUtils.copyBean(childPlan, childTask);
+            childPlan.setApiCaseTotal(childTaskDetail.getApiCaseTotal());
+            childPlan.setApiScenarioTotal(childTaskDetail.getApiScenarioTotal());
             return childPlan;
         }).toList();
         taskDetail.setChildPlans(childPlans);
