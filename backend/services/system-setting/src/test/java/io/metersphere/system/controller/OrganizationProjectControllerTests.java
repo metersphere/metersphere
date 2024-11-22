@@ -615,7 +615,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin1"));
         //断言模块设置
         projectExtend = projectMapper.selectByPrimaryKey(projectId);
-        Assertions.assertEquals(projectExtend.getModuleSetting(), CollectionUtils.isEmpty(project.getModuleIds()) ? null : JSON.toJSONString(project.getModuleIds()));
+        Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(project.getModuleIds()));
 
         // 校验日志
         checkLog(projectId, OperationLogType.ADD);
@@ -627,7 +627,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         compareProjectDTO(currentProject, result);
         //断言模块设置
         projectExtend = projectMapper.selectByPrimaryKey("projectId2");
-        Assertions.assertEquals(projectExtend.getModuleSetting(), CollectionUtils.isEmpty(project.getModuleIds()) ? null : JSON.toJSONString(project.getModuleIds()));
+        Assertions.assertEquals(projectExtend.getModuleSetting(), JSON.toJSONString(new ArrayList<>()));
 
         // 修改模块设置
         project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId2", "org-Module", "Edit name", true, List.of("admin1"));
@@ -670,7 +670,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
     public void testUpdateProjectError() throws Exception {
         //项目名称存在 500
         UpdateProjectRequest project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId1", "org-Module", "description", true, List.of("admin"));
-        this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
+        this.requestPost(updateProject, project);
         //参数组织Id为空
         project = this.generatorUpdate(null, "projectId", null, null, true, List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);

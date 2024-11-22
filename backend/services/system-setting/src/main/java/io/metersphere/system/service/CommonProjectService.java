@@ -356,7 +356,7 @@ public class CommonProjectService {
             project.setModuleSetting(JSON.toJSONString(updateProjectDto.getModuleIds()));
             projectDTO.setModuleIds(updateProjectDto.getModuleIds());
         } else {
-            project.setModuleSetting(null);
+            project.setModuleSetting(JSON.toJSONString(new ArrayList<>()));
             projectDTO.setModuleIds(new ArrayList<>());
         }
         project.setOrganizationId(null);
