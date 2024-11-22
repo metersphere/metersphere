@@ -56,6 +56,13 @@ export default function useSelect(config: UseSelectOption, props?: MsCascaderPro
     });
   }
 
+  function updateTriggerWidth() {
+    const selectInput = config.selectRef.value?.$el.nextElementSibling as HTMLElement;
+    if (selectInput) {
+      selectWidth.value = selectInput.offsetWidth; // 设置成输入框的宽度
+    }
+  }
+
   const getOptionComputedStyle = computed(() => {
     if (config.isCascade && selectWidth.value > 0) {
       // 减去 80px 是为了防止溢出，因为会出现单选框、右侧箭头
@@ -88,7 +95,6 @@ export default function useSelect(config: UseSelectOption, props?: MsCascaderPro
 
   onMounted(() => {
     if (config.selectRef.value) {
-      selectWidth.value = config.selectRef.value.$el.nextElementSibling.clientWidth;
       selectViewInner.value = config.selectRef.value.$el.nextElementSibling.querySelector('.arco-select-view-inner');
     }
   });
@@ -101,6 +107,7 @@ export default function useSelect(config: UseSelectOption, props?: MsCascaderPro
     maxTagCount,
     singleTagMaxWidth,
     getOptionComputedStyle, // 获取选择器选项的样式
+    updateTriggerWidth,
     calculateMaxTag, // 在需要的时机调用此函数以计算最大标签数量，一般在 select 的 change 事件中调用
   };
 }

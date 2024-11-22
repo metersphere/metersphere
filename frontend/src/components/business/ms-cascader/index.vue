@@ -21,6 +21,7 @@
     :path-mode="false"
     @change="handleMsCascaderChange"
     @clear="clearValues"
+    @popup-visible-change="updateTriggerWidth"
   >
     <template v-if="props.prefix" #prefix>
       {{ props.prefix }}
@@ -66,6 +67,7 @@
     }"
     :path-mode="props.pathMode"
     @change="(val) => emit('change', val)"
+    @popup-visible-change="updateTriggerWidth"
   >
     <template v-if="props.prefix" #prefix>
       {{ props.prefix }}
@@ -113,7 +115,7 @@
     multiple?: boolean; // 是否多选
     strictly?: boolean; // 是否严格模式
     virtualListProps?: VirtualListProps; // 传入开启虚拟滚动
-    panelWidth?: number; // 下拉框宽度，默认为 150px
+    panelWidth?: number; // 下拉框宽度，默认为 150px （超过两级时）
     placeholder?: string;
     loading?: boolean;
     optionSize?: 'small' | 'default';
@@ -141,7 +143,7 @@
   const cascader: Ref = ref(null);
   let selectedLabelObj: Record<string, any> = {}; // 存储已选的选项的label，用于多选时展示全部选项的 tooltip
 
-  const { maxTagCount, getOptionComputedStyle, calculateMaxTag } = useSelect(
+  const { maxTagCount, getOptionComputedStyle, calculateMaxTag, updateTriggerWidth } = useSelect(
     {
       selectRef: cascader,
       selectVal: innerValue,
