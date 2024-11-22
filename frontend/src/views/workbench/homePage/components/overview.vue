@@ -223,7 +223,6 @@
   function changeProject() {
     if (isInit.value) return;
     nextTick(() => {
-      initOverViewDetail();
       emit('change');
     });
   }
@@ -260,6 +259,11 @@
       }
     }
   );
+
+  watch([() => props.refreshKey, () => innerProjectIds.value], async () => {
+    await nextTick();
+    initOverViewDetail();
+  });
 </script>
 
 <style scoped lang="less">

@@ -250,7 +250,6 @@
 
   function changeProject() {
     nextTick(() => {
-      initTestPlanCount();
       emit('change');
     });
   }
@@ -265,17 +264,19 @@
       if (val) {
         innerProjectIds.value = [val];
       }
-    }
+    },
+    { immediate: true }
   );
 
   watch(
-    () => innerProjectIds.value,
+    () => props.item.projectIds,
     (val) => {
       if (val) {
         const [newProjectId] = val;
         projectId.value = newProjectId;
       }
-    }
+    },
+    { immediate: true }
   );
 
   watch(
@@ -290,14 +291,10 @@
     }
   );
 
-  watch(
-    () => props.refreshKey,
-    (val) => {
-      if (val) {
-        initTestPlanCount();
-      }
-    }
-  );
+  watch([() => props.refreshKey, () => projectId.value], async () => {
+    await nextTick();
+    initTestPlanCount();
+  });
 </script>
 
 <style scoped lang="less">

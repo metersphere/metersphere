@@ -80,8 +80,6 @@
     required: true,
   });
 
-  const memberIds = ref<string[]>(innerHandleUsers.value);
-
   const timeForm = inject<Ref<TimeFormParams>>(
     'timeForm',
     ref({
@@ -179,10 +177,8 @@
   }
 
   function changeProject() {
-    memberIds.value = [];
+    innerHandleUsers.value = [];
     nextTick(() => {
-      getMemberOptions();
-      getDefectMemberDetail();
       emit('change');
     });
   }
@@ -195,13 +191,14 @@
   }
 
   watch(
-    () => innerProjectIds.value,
+    () => props.item.projectIds,
     (val) => {
       if (val) {
         const [newProjectId] = val;
         projectId.value = newProjectId;
       }
-    }
+    },
+    { immediate: true }
   );
 
   watch(
@@ -225,15 +222,11 @@
     }
   );
 
-  watch(
-    () => props.refreshKey,
-    (val) => {
-      if (val) {
-        getMemberOptions();
-        getDefectMemberDetail();
-      }
-    }
-  );
+  watch([() => props.refreshKey, () => projectId.value], async () => {
+    await nextTick();
+    getMemberOptions();
+    getDefectMemberDetail();
+  });
 
   onMounted(() => {
     getMemberOptions();

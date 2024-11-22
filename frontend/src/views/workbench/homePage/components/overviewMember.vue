@@ -179,6 +179,7 @@
       value: e.id,
     }));
   }
+  const isInit = ref(true);
 
   function changeProject() {
     innerHandleUsers.value = [];
@@ -197,14 +198,14 @@
   }
 
   watch(
-    () => innerProjectIds.value,
+    () => props.item.projectIds,
     (val) => {
       if (val) {
         const [newProjectId] = val;
         projectId.value = newProjectId;
-        innerHandleUsers.value = [];
       }
-    }
+    },
+    { immediate: true }
   );
 
   watch(
@@ -213,7 +214,8 @@
       if (val) {
         innerProjectIds.value = [val];
       }
-    }
+    },
+    { immediate: true }
   );
 
   watch(
@@ -229,23 +231,20 @@
   );
 
   onMounted(() => {
+    isInit.value = false;
     initOverViewMemberDetail();
     if (props.item.projectIds.length) {
       getMemberOptions();
     }
   });
 
-  watch(
-    () => props.refreshKey,
-    (val) => {
-      if (val) {
-        initOverViewMemberDetail();
-        if (props.item.projectIds.length) {
-          getMemberOptions();
-        }
-      }
+  watch([() => props.refreshKey, () => projectId.value], async () => {
+    await nextTick();
+    initOverViewMemberDetail();
+    if (props.item.projectIds.length) {
+      getMemberOptions();
     }
-  );
+  });
 </script>
 
 <style scoped lang="less"></style>

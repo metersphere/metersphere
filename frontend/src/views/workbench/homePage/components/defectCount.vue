@@ -168,7 +168,6 @@
 
   function changeProject() {
     nextTick(() => {
-      initCount();
       emit('change');
     });
   }
@@ -178,14 +177,14 @@
   });
 
   watch(
-    () => innerProjectIds.value,
+    () => props.item.projectIds,
     (val) => {
-      const [newProjectId] = val;
-      projectId.value = newProjectId;
+      if (val) {
+        const [newProjectId] = val;
+        projectId.value = newProjectId;
+      }
     },
-    {
-      immediate: true,
-    }
+    { immediate: true }
   );
 
   watch(
@@ -210,14 +209,10 @@
     }
   );
 
-  watch(
-    () => props.refreshKey,
-    (val) => {
-      if (val) {
-        initCount();
-      }
-    }
-  );
+  watch([() => props.refreshKey, () => projectId.value], async () => {
+    await nextTick();
+    initCount();
+  });
 </script>
 
 <style scoped lang="less"></style>

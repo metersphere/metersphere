@@ -205,6 +205,7 @@
         handleUsers: [],
       });
       await loadList();
+      isNoPermission.value = false;
     } catch (error) {
       isNoPermission.value = error === 'no_project_permission';
       // eslint-disable-next-line no-console
@@ -217,7 +218,6 @@
 
   function changeProject() {
     nextTick(() => {
-      initData();
       emit('change');
     });
   }
@@ -227,12 +227,14 @@
   });
 
   watch(
-    () => projectId.value,
+    () => props.item.projectIds,
     (val) => {
       if (val) {
-        innerProjectIds.value = [val];
+        const [newProjectId] = val;
+        projectId.value = newProjectId;
       }
-    }
+    },
+    { immediate: true }
   );
 
   watch(
@@ -241,7 +243,8 @@
       if (val) {
         innerProjectIds.value = [val];
       }
-    }
+    },
+    { immediate: true }
   );
 
   watch(
@@ -256,14 +259,10 @@
     }
   );
 
-  watch(
-    () => props.refreshKey,
-    (val) => {
-      if (val) {
-        initData();
-      }
-    }
-  );
+  watch([() => props.refreshKey, () => projectId.value], async () => {
+    await nextTick();
+    initData();
+  });
 </script>
 
 <style scoped></style>

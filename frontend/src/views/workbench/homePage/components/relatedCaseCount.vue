@@ -128,7 +128,6 @@
 
   function changeProject() {
     nextTick(() => {
-      getRelatedCaseCount();
       emit('change');
     });
   }
@@ -168,14 +167,12 @@
     }
   );
 
-  watch(
-    () => props.refreshKey,
-    (val) => {
-      if (val) {
-        getRelatedCaseCount();
-      }
+  watch([() => props.refreshKey, () => projectId.value], async ([refreshKey]) => {
+    if (refreshKey) {
+      await nextTick();
+      getRelatedCaseCount();
     }
-  );
+  });
 </script>
 
 <style scoped lang="less"></style>

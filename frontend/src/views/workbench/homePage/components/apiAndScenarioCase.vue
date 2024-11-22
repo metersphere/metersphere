@@ -296,16 +296,15 @@
   }
 
   function changeProject() {
-    nextTick(async () => {
-      await initApiOrScenarioCount();
+    nextTick(() => {
       emit('change');
-      if (hasPermission.value) {
-        initApiCountRate();
-      }
     });
   }
 
+  const isInit = ref<boolean>(true);
+
   onMounted(() => {
+    isInit.value = false;
     initApiOrScenarioCount();
   });
 
@@ -330,13 +329,14 @@
   );
 
   watch(
-    () => innerProjectIds.value,
+    () => props.item.projectIds,
     (val) => {
       if (val) {
         const [newProjectId] = val;
         projectId.value = newProjectId;
       }
-    }
+    },
+    { immediate: true }
   );
 
   watch(
@@ -360,14 +360,13 @@
     }
   );
 
-  watch(
-    () => props.refreshKey,
-    (val) => {
-      if (val) {
-        initApiOrScenarioCount();
-      }
+  watch([() => props.refreshKey, () => projectId.value], async () => {
+    await nextTick();
+    await initApiOrScenarioCount();
+    if (hasPermission.value && !isInit.value) {
+      initApiCountRate();
     }
-  );
+  });
 </script>
 
 <style scoped lang="less">

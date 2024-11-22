@@ -157,7 +157,6 @@
 
   function changeProject() {
     nextTick(() => {
-      initCaseCount();
       emit('change');
     });
   }
@@ -167,21 +166,23 @@
   });
 
   watch(
-    () => innerProjectIds.value,
+    () => props.item.projectIds,
     (val) => {
       if (val) {
         const [newProjectId] = val;
         projectId.value = newProjectId;
       }
-    }
+    },
+    { immediate: true }
   );
 
   watch(
     () => projectId.value,
     (val) => {
-      if (val) {
-        innerProjectIds.value = [val];
-      }
+      innerProjectIds.value = [val];
+    },
+    {
+      immediate: true,
     }
   );
 
@@ -197,14 +198,10 @@
     }
   );
 
-  watch(
-    () => props.refreshKey,
-    (val) => {
-      if (val) {
-        initCaseCount();
-      }
-    }
-  );
+  watch([() => props.refreshKey, () => projectId.value], async () => {
+    await nextTick();
+    initCaseCount();
+  });
 </script>
 
 <style scoped lang="less"></style>
