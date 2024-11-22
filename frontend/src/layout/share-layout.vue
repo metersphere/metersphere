@@ -24,7 +24,9 @@
                           </div>
                         </a-tooltip>
                       </div>
-                      <div> {{ projectName }}</div>
+                      <a-tooltip :mouse-enter-delay="300" :content="projectName">
+                        <div class="one-line-text max-w-[300px]"> {{ projectName }}</div>
+                      </a-tooltip>
                     </a-space>
                   </div>
                 </template>
