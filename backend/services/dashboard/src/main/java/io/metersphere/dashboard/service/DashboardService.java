@@ -777,12 +777,7 @@ public class DashboardService {
         List<SelectOption> headerHandlerOption = getHandlerOption(request.getHandleUsers(), projectId);
         //获取每个人每个状态有多少数据(已按照用户id排序)
         String platformName = projectApplicationService.getPlatformName(projectId);
-        List<SelectOption> headerStatusOption = bugStatusService.getAllLocalStatusOptions(projectId);
-        if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
-            List<SelectOption> thirdStatusOptions = bugStatusService.getHeaderStatusOption(projectId);
-            headerStatusOption.addAll(thirdStatusOptions);
-        }
-        headerStatusOption = headerStatusOption.stream().distinct().toList();
+        List<SelectOption> headerStatusOption = getStatusOption(projectId, platformName);
         Set<String> platforms = getPlatforms(platformName);
         List<String> handleUserIds = headerHandlerOption.stream().sorted(Comparator.comparing(SelectOption::getValue)).map(SelectOption::getValue).collect(Collectors.toList());
         List<ProjectUserStatusCountDTO> projectUserStatusCountDTOS = extBugMapper.projectUserBugStatusCount(projectId, toStartTime, toEndTime, handleUserIds, platforms);
@@ -793,6 +788,18 @@ public class DashboardService {
         }
         Map<String, List<Integer>> statusCountArrayMap = getStatusCountArrayMap(projectUserStatusCountDTOS, statusMap, handleUserIds);
         return getHandleUserCount(xaxis, statusMap, statusCountArrayMap);
+    }
+
+    @NotNull
+    private List<SelectOption> getStatusOption(String projectId, String platformName) {
+        List<SelectOption> allLocalStatusOptions = bugStatusService.getAllLocalStatusOptions(projectId);
+        List<SelectOption> headerStatusOption = new ArrayList<>(allLocalStatusOptions);
+        if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
+            List<SelectOption> thirdStatusOptions = bugStatusService.getHeaderStatusOption(projectId);
+            headerStatusOption.addAll(new ArrayList<>(thirdStatusOptions));
+        }
+        headerStatusOption = headerStatusOption.stream().distinct().toList();
+        return headerStatusOption;
     }
 
     @NotNull
@@ -889,19 +896,19 @@ public class DashboardService {
      */
     private List<SelectOption> getHandlerOption(List<String> handleUsers, String projectId) {
         String platformName = projectApplicationService.getPlatformName(projectId);
-        List<SelectOption> headerHandlerOption = bugCommonService.getLocalHandlerOption(projectId);
-        List<SelectOption> thirdHandlerOption;
+        List<SelectOption> localHandlerOption = bugCommonService.getLocalHandlerOption(projectId);
+        List<SelectOption> headerHandlerOption = new ArrayList<>(localHandlerOption);
         if (CollectionUtils.isEmpty(handleUsers)) {
             if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
-                thirdHandlerOption = bugCommonService.getHeaderHandlerOption(projectId);
+                List<SelectOption> thirdHandlerOption = bugCommonService.getHeaderHandlerOption(projectId);
                 if (CollectionUtils.isNotEmpty(thirdHandlerOption)) {
-                    headerHandlerOption.addAll(thirdHandlerOption);
+                    headerHandlerOption.addAll(new ArrayList<>(thirdHandlerOption));
                 }
             }
         } else {
             if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
                 List<SelectOption> headerHandlerOptionList = bugCommonService.getHeaderHandlerOption(projectId);
-                headerHandlerOption.addAll(headerHandlerOptionList);
+                headerHandlerOption.addAll(new ArrayList<>(headerHandlerOptionList));
             }
             headerHandlerOption = headerHandlerOption.stream().filter(t -> handleUsers.contains(t.getValue())).toList();
         }
@@ -1312,14 +1319,7 @@ public class DashboardService {
         List<NameCountDTO> nameCountDTOS = buildBugRetentionRateList(totalSize, statusSize);
         Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
         statusStatisticsMap.put("retentionRate", nameCountDTOS);
-        List<SelectOption> headerStatusOption = bugStatusService.getAllLocalStatusOptions(projectId);
-        if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
-            List<SelectOption> thirdStatusOptions = bugStatusService.getHeaderStatusOption(projectId);
-            if (CollectionUtils.isNotEmpty(thirdStatusOptions)) {
-                headerStatusOption.addAll(thirdStatusOptions);
-            }
-        }
-        headerStatusOption = headerStatusOption.stream().distinct().toList();
+        List<SelectOption> headerStatusOption = getHeaderStatusOption(projectId, platformName);
         Map<String, List<Bug>> bugMap = allSimpleList.stream().collect(Collectors.groupingBy(Bug::getStatus));
         List<StatusPercentDTO> bugPercentList = bulidBugPercentList(headerStatusOption, bugMap, totalSize);
         statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
@@ -1408,14 +1408,7 @@ public class DashboardService {
         List<SelectOption> planBugList = extTestPlanMapper.getPlanBugList(projectId, TestPlanConstants.TEST_PLAN_TYPE_PLAN, new ArrayList<>(platforms), null);
         List<String> localLastStepStatus = getBugEndStatus(projectId, platformName);
         List<SelectOption> legacyBugList = planBugList.stream().filter(t -> !localLastStepStatus.contains(t.getText())).toList();
-        List<SelectOption> headerStatusOption = bugStatusService.getAllLocalStatusOptions(projectId);
-        if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
-            List<SelectOption> thirdStatusOptions = bugStatusService.getHeaderStatusOption(projectId);
-            if (CollectionUtils.isNotEmpty(thirdStatusOptions)) {
-                headerStatusOption.addAll(thirdStatusOptions);
-            }
-        }
-        headerStatusOption = headerStatusOption.stream().distinct().toList();
+        List<SelectOption> headerStatusOption = getHeaderStatusOption(projectId, platformName);
         int statusSize = CollectionUtils.isEmpty(legacyBugList) ? 0 : legacyBugList.size();
         int totalSize = CollectionUtils.isEmpty(planBugList) ? 0 : planBugList.size();
         List<NameCountDTO> nameCountDTOS = buildBugRetentionRateList(totalSize, statusSize);
@@ -1441,6 +1434,20 @@ public class DashboardService {
         statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
         statisticsDTO.setStatusPercentList(statusPercentList);
         return statisticsDTO;
+    }
+
+    @NotNull
+    private List<SelectOption> getHeaderStatusOption(String projectId, String platformName) {
+        List<SelectOption> allLocalStatusOptions = bugStatusService.getAllLocalStatusOptions(projectId);
+        List<SelectOption> headerStatusOption = new ArrayList<>(allLocalStatusOptions);
+        if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
+            List<SelectOption> thirdStatusOptions = bugStatusService.getHeaderStatusOption(projectId);
+            if (CollectionUtils.isNotEmpty(thirdStatusOptions)) {
+                headerStatusOption.addAll(thirdStatusOptions);
+            }
+        }
+        headerStatusOption = headerStatusOption.stream().distinct().toList();
+        return headerStatusOption;
     }
 
     public List<UserExtendDTO> getMemberOption(String projectId, String keyword) {
