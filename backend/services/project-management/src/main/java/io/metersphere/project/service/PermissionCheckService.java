@@ -43,6 +43,9 @@ public class PermissionCheckService {
 
     public Boolean checkModule(String projectId, String module, String userId, String permission) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (project == null) {
+            return false;
+        }
         boolean hasPermission = userHasProjectPermission(userId, projectId, permission);
         if (! hasPermission) {
             return false;

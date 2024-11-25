@@ -339,6 +339,14 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
                 Map<String, Integer> caseCountMap = getCaseCountMap(caseReviewFunctionalCaseList);
                 updateCaseReview(reviewId, caseReviewFunctionalCaseList.size(), caseCountMap, paramMap.get(CaseEvent.Param.USER_ID).toString());
             });
+            Set<String> otherReviewIds = reviewIdMap.keySet();
+            List<String> leastReviewIds = reviewIds.stream().filter(t -> !otherReviewIds.contains(t)).toList();
+            if (CollectionUtils.isNotEmpty(leastReviewIds)) {
+                for (String reviewId : leastReviewIds) {
+                    Map<String, Integer> caseCountMap = getCaseCountMap(new ArrayList<>());
+                    updateCaseReview(reviewId, 0, caseCountMap, paramMap.get(CaseEvent.Param.USER_ID).toString());
+                }
+            }
         }
 
         return false;
