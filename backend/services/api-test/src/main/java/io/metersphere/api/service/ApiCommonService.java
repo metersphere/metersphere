@@ -35,6 +35,7 @@ import io.metersphere.sdk.constants.TaskItemErrorMessage;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.TaskBatchRequestDTO;
 import io.metersphere.sdk.dto.api.task.TaskItem;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -551,6 +552,16 @@ public class ApiCommonService {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
+
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void batchUpdateTaskItemErrorMassage(TaskItemErrorMessage errorMessage, TaskRequestDTO taskRequestDTO) {
+        // 更新任务项的异常信息
+        ExecTaskItem execTaskItem = new ExecTaskItem();
+        execTaskItem.setId(taskRequestDTO.getTaskItem().getId());
+        execTaskItem.setErrorMessage(errorMessage.name());
+        execTaskItemMapper.updateByPrimaryKeySelective(execTaskItem);
+    }
+
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void updateTaskItemErrorMassage(String taskItemId, TaskItemErrorMessage errorMessage) {

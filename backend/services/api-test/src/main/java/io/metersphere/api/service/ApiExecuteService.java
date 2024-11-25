@@ -32,6 +32,7 @@ import io.metersphere.project.dto.environment.http.SelectModule;
 import io.metersphere.project.service.*;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.api.task.*;
+import io.metersphere.sdk.exception.IResultCode;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.exception.TaskRunnerResultCode;
 import io.metersphere.sdk.file.FileCenter;
@@ -264,6 +265,10 @@ public class ApiExecuteService {
             throw new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage());
         } catch (MSException e) {
             LogUtils.error(e);
+            IResultCode errorCode = e.getErrorCode();
+            if (errorCode == ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG) {
+                apiCommonService.batchUpdateTaskItemErrorMassage(TaskItemErrorMessage.INVALID_RESOURCE_POOL, taskRequest);
+            }
             throw e;
         } catch (Exception e) {
             LogUtils.error(e);
@@ -373,29 +378,41 @@ public class ApiExecuteService {
      */
     public void batchExecute(TaskBatchRequestDTO taskRequest) {
         setTaskRequestParams(taskRequest.getTaskInfo());
-
         TaskInfo taskInfo = taskRequest.getTaskInfo();
-        // 获取资源池
-        TestResourcePoolReturnDTO testResourcePool = getGetResourcePoolNodeDTO(taskInfo.getRunModeConfig(), taskInfo.getProjectId());
 
-        if (StringUtils.isNotBlank(testResourcePool.getServerUrl())) {
-            // 如果资源池配置了当前站点，则使用资源池的
-            taskInfo.setMsUrl(testResourcePool.getServerUrl());
-        }
-        taskInfo.setPoolId(testResourcePool.getId());
-        taskRequest.getTaskItems().forEach(taskItem -> {
-            if (StringUtils.isBlank(taskItem.getReportId())) {
-                // 预先生成报告ID，避免资源池获取执行脚本时，超时重试，导致数据重复创建
-                taskItem.setReportId(IDGenerator.nextStr());
+        try {
+            // 获取资源池
+            TestResourcePoolReturnDTO testResourcePool = getGetResourcePoolNodeDTO(taskInfo.getRunModeConfig(), taskInfo.getProjectId());
+
+            if (StringUtils.isNotBlank(testResourcePool.getServerUrl())) {
+                // 如果资源池配置了当前站点，则使用资源池的
+                taskInfo.setMsUrl(testResourcePool.getServerUrl());
             }
-        });
+            taskInfo.setPoolId(testResourcePool.getId());
+            taskRequest.getTaskItems().forEach(taskItem -> {
+                if (StringUtils.isBlank(taskItem.getReportId())) {
+                    // 预先生成报告ID，避免资源池获取执行脚本时，超时重试，导致数据重复创建
+                    taskItem.setReportId(IDGenerator.nextStr());
+                }
+            });
 
-        // 判断是否为 K8S 资源池
-        boolean isK8SResourcePool = StringUtils.equals(testResourcePool.getType(), ResourcePoolTypeEnum.K8S.getName());
-        if (isK8SResourcePool) {
-            k8sBatchExecute(taskRequest, taskInfo, testResourcePool);
-        } else {
-            nodeBatchExecute(taskRequest, taskInfo, testResourcePool);
+            // 判断是否为 K8S 资源池
+            boolean isK8SResourcePool = StringUtils.equals(testResourcePool.getType(), ResourcePoolTypeEnum.K8S.getName());
+            if (isK8SResourcePool) {
+                k8sBatchExecute(taskRequest, taskInfo, testResourcePool);
+            } else {
+                nodeBatchExecute(taskRequest, taskInfo, testResourcePool);
+            }
+        } catch (MSException e) {
+            LogUtils.error(e);
+            IResultCode errorCode = e.getErrorCode();
+            if (errorCode == ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG) {
+                apiCommonService.batchUpdateTaskItemErrorMassage(TaskItemErrorMessage.INVALID_RESOURCE_POOL, taskRequest);
+            }
+            throw e;
+        } catch (Exception e) {
+            LogUtils.error(e);
+            throw new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage());
         }
     }
 
@@ -463,19 +480,14 @@ public class ApiExecuteService {
         }
     }
 
-    private void k8sBatchExecute(TaskBatchRequestDTO taskRequest, TaskInfo taskInfo, TestResourcePoolReturnDTO testResourcePool) {
+    private void k8sBatchExecute(TaskBatchRequestDTO taskRequest, TaskInfo taskInfo, TestResourcePoolReturnDTO testResourcePool) throws Exception {
         TestResourceDTO testResourceDTO = new TestResourceDTO();
         BeanUtils.copyBean(testResourceDTO, testResourcePool.getTestResourceReturnDTO());
         testResourceDTO.setId(testResourcePool.getId());
 
         taskInfo.setPoolSize(testResourceDTO.getConcurrentNumber());
         taskInfo.setPerTaskSize(testResourceDTO.getPodThreads());
-        try {
-            EngineFactory.batchRunApi(taskRequest, testResourceDTO);
-        } catch (Exception e) {
-            LogUtils.error(e);
-            apiCommonService.batchUpdateTaskItemErrorMassage(TaskItemErrorMessage.INVALID_RESOURCE_POOL, taskRequest);
-        }
+        EngineFactory.batchRunApi(taskRequest, testResourceDTO);
     }
 
     private List<TaskBatchRequestDTO> getDistributeTaskBatchRequest(TaskBatchRequestDTO taskRequest, int distributeSize) {
