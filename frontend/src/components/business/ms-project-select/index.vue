@@ -58,7 +58,7 @@
     });
   }
 
-  onBeforeMount(async () => {
+  async function init() {
     if (!project.value) {
       project.value = appStore.currentProjectId;
     }
@@ -74,6 +74,14 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
+  }
+
+  onBeforeMount(() => {
+    init();
+  });
+
+  defineExpose({
+    init,
   });
 </script>
 

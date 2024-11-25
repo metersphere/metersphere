@@ -5,10 +5,11 @@
         class="sticky top-0 z-[999] mb-[-16px] flex items-center justify-end gap-[12px] bg-[var(--color-bg-3)] pb-[16px]"
       >
         <MsProjectSelect
+          ref="projectSelectRef"
           v-model:project="currentProject"
           class="w-[240px]"
           use-default-arrow-icon
-          @change="handleRefresh"
+          @change="handleProjectSelect"
         >
           <template #prefix>
             {{ t('menu.projectManagementShort') }}
@@ -86,8 +87,9 @@
     }));
   const featureOptions = ref<SelectOptionData[]>([]);
   const refreshId = ref('');
+  const projectSelectRef = ref<InstanceType<typeof MsProjectSelect>>();
 
-  function handleRefresh(val?: string, _project?: ProjectListItem) {
+  async function handleProjectSelect(val?: string, _project?: ProjectListItem) {
     if (_project) {
       const _currentProjectFeatures = JSON.parse(_project.moduleSetting);
       featureOptions.value = fullFeaturesOptions.filter((item) =>
@@ -96,6 +98,10 @@
       features.value = featureOptions.value.map((item) => item.value as FeatureEnum);
     }
     refreshId.value = getGenerateId();
+  }
+
+  function handleRefresh() {
+    projectSelectRef.value?.init();
   }
 </script>
 

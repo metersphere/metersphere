@@ -132,35 +132,36 @@
   ];
 
   const tableData = ref(props.requestResult?.responseResult.assertions || []);
-  const isTableFiltered = ref<boolean>(false);
+  const tableFilters = ref<string[] | (string | number | boolean)[]>([]);
 
   function handleFilterChange(dataIndex: string, value: string[] | (string | number | boolean)[] | undefined) {
     if (value && value.length > 0) {
-      isTableFiltered.value = true;
+      tableFilters.value = value;
       tableData.value =
         props.requestResult?.responseResult.assertions.filter((item) => {
           return (value as boolean[]).includes(item.pass);
         }) || [];
     } else {
-      isTableFiltered.value = false;
       tableData.value = props.requestResult?.responseResult.assertions || [];
+      tableFilters.value = [];
     }
   }
 
   function handleSortChange(sorter: { [key: string]: string }) {
     if (Object.keys(sorter).length > 0) {
       const dataIndex = Object.keys(sorter)[0] as keyof ResponseAssertionTableItem;
-      const copyArray = isTableFiltered.value
-        ? [...tableData.value]
-        : [...(props.requestResult?.responseResult.assertions || [])];
+      const copyArray =
+        tableFilters.value.length > 0
+          ? [...tableData.value]
+          : [...(props.requestResult?.responseResult.assertions || [])];
       tableData.value = copyArray.sort((a, b) => {
         const sortResult = a[dataIndex] > b[dataIndex] ? -1 : 1;
         return sorter[dataIndex] === 'asc' ? sortResult : -sortResult;
       });
+    } else if (tableFilters.value.length > 0) {
+      handleFilterChange('pass', tableFilters.value);
     } else {
-      tableData.value = isTableFiltered.value
-        ? [...tableData.value]
-        : props.requestResult?.responseResult.assertions || [];
+      tableData.value = props.requestResult?.responseResult.assertions || [];
     }
   }
 
