@@ -51,12 +51,11 @@ public class CleanupTaskResultServiceImpl implements BaseCleanUpReport {
         }
         List<String> cleanTaskItemIds = execTaskItems.stream().map(ExecTaskItem::getId).toList();
         List<String> cleanIds = ListUtils.union(cleanTaskIds, cleanTaskItemIds);
-        LogUtils.info("清理当前项目[" + projectId + "]任务中心执行结果, 共[" + cleanIds.size() + "]条");
         if (CollectionUtils.isNotEmpty(cleanIds)) {
             // 清理任务-报告关系表
             SubListUtils.dealForSubList(cleanIds, 100, ids -> {
                 ApiReportRelateTaskExample example = new ApiReportRelateTaskExample();
-                example.createCriteria().andTaskResourceIdIn(cleanIds);
+                example.createCriteria().andTaskResourceIdIn(ids);
                 apiReportRelateTaskMapper.deleteByExample(example);
             });
         }

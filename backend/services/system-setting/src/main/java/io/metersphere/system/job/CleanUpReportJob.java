@@ -40,7 +40,7 @@ public class CleanUpReportJob {
     /**
      * 清理报告定时任务（所有项目共用一个）
      */
-    @QuartzScheduled(cron = "0 0 1 * * ?")
+    @QuartzScheduled(cron = "0 26 11 * * ?")
     public void cleanReport() {
 
         long count = getProjectCount();
@@ -80,6 +80,16 @@ public class CleanUpReportJob {
                     map.put(ProjectApplicationType.TASK.TASK_CLEAN_REPORT.name(), task.getFirst().getTypeValue());
                 } else {
                     map.put(ProjectApplicationType.TASK.TASK_CLEAN_REPORT.name(), "3M");
+                }
+
+                // task record
+                applicationExample.clear();
+                applicationExample.createCriteria().andProjectIdEqualTo(project.getId()).andTypeEqualTo(ProjectApplicationType.TASK.TASK_RECORD.name());
+                List<ProjectApplication> taskRecord = projectApplicationMapper.selectByExample(applicationExample);
+                if (CollectionUtils.isNotEmpty(taskRecord)) {
+                    map.put(ProjectApplicationType.TASK.TASK_RECORD.name(), taskRecord.getFirst().getTypeValue());
+                } else {
+                    map.put(ProjectApplicationType.TASK.TASK_RECORD.name(), "3M");
                 }
 
                 Map<String, BaseCleanUpReport> beansOfType = applicationContext.getBeansOfType(BaseCleanUpReport.class);

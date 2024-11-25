@@ -15,6 +15,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,9 +42,12 @@ public class CleanupTaskServiceImpl implements BaseCleanUpReport {
         String expr = map.get(ProjectApplicationType.TASK.TASK_RECORD.name());
         long timeMills = getCleanDate(expr);
         List<String> cleanTaskIds = extExecTaskMapper.getTaskIdsByTime(timeMills, projectId);
-        ExecTaskItemExample itemExample = new ExecTaskItemExample();
-        itemExample.createCriteria().andTaskIdIn(cleanTaskIds);
-        List<ExecTaskItem> execTaskItems = execTaskItemMapper.selectByExample(itemExample);
+        List<ExecTaskItem> execTaskItems = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(cleanTaskIds)) {
+            ExecTaskItemExample itemExample = new ExecTaskItemExample();
+            itemExample.createCriteria().andTaskIdIn(cleanTaskIds);
+            execTaskItems = execTaskItemMapper.selectByExample(itemExample);
+        }
         List<String> cleanTaskItemIds = execTaskItems.stream().map(ExecTaskItem::getId).toList();
         if (CollectionUtils.isNotEmpty(cleanTaskIds)) {
             ExecTaskExample example = new ExecTaskExample();
