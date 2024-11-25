@@ -140,7 +140,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         Assertions.assertNotNull(moduleCountAll);
 
         dashboardFrontPageRequest.setDayNumber(null);
-        dashboardFrontPageRequest.setStartTime(1716185577387L);
+        dashboardFrontPageRequest.setStartTime(1697971947000L);
         dashboardFrontPageRequest.setEndTime(1730181702699L);
         dashboardFrontPageRequest.setSelectAll(true);
         mvcResult = this.requestPostWithOkAndReturn(CREATE_BY_ME, dashboardFrontPageRequest);
@@ -208,7 +208,11 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     @Order(2)
     public void testLayout() throws Exception {
         this.requestGet(GET_LAYOUT + "DEFAULT_ORGANIZATION_ID").andExpect(status().is5xxServerError());
-
+        MvcResult defaultResult =  this.requestGetWithOkAndReturn(GET_LAYOUT + DEFAULT_ORGANIZATION_ID);
+        String defaultString = defaultResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder defaultHolder = JSON.parseObject(defaultString, ResultHolder.class);
+        List<LayoutDTO>defaultDTOS = JSON.parseArray(JSON.toJSONString(defaultHolder.getData()), LayoutDTO.class);
+        Assertions.assertEquals(3, defaultDTOS.size());
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(DEFAULT_ORGANIZATION_ID);
         List<Project> projects = projectMapper.selectByExample(projectExample);
