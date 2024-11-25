@@ -29,6 +29,9 @@ public class ApiDefinitionUtils {
                     customRequestUrl = customRequestUrl.substring(1);
                 }
                 if (StringUtils.isNotEmpty(customRequestUrl)) {
+                    if (customRequestUrl.contains("?")) {
+                        customRequestUrl = customRequestUrl.substring(0, customRequestUrl.indexOf("?"));
+                    }
                     String[] customUrlArr = customRequestUrl.split("/");
 
                     if (StringUtils.startsWithAny(customRequestUrl.toLowerCase(), "https://", "http://")

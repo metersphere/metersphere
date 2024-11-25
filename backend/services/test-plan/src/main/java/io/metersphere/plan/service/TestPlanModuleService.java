@@ -167,6 +167,7 @@ public class TestPlanModuleService extends ModuleTreeService {
         TestPlanModuleExample example = new TestPlanModuleExample();
         // 拖拽后, 父级模块下存在同名模块
         example.createCriteria().andParentIdEqualTo(nodeSortDTO.getParent().getId()).andNameEqualTo(nodeSortDTO.getNode().getName())
+                .andProjectIdEqualTo(nodeSortDTO.getNode().getProjectId())
                 .andIdNotEqualTo(nodeSortDTO.getNode().getId());
         if (testPlanModuleMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("test_plan_module_already_exists"));
