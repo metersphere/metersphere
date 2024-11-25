@@ -14,7 +14,7 @@ import defaultSettings from '@/config/settings.json';
 import { useI18n } from '@/hooks/useI18n';
 import useUser from '@/hooks/useUser';
 import router from '@/router';
-import { NO_PROJECT_ROUTE_NAME } from '@/router/constants';
+import { featureRouteMap, NO_PROJECT_ROUTE_NAME } from '@/router/constants';
 import { watchStyle, watchTheme } from '@/utils/theme';
 
 import type { EnvironmentItem } from '@/models/projectManagement/environmental';
@@ -60,7 +60,7 @@ const useAppStore = defineStore('app', {
     defaultLoginConfig,
     defaultPlatformConfig,
     innerHeight: 0,
-    currentMenuConfig: [],
+    currentMenuConfig: Object.keys(featureRouteMap),
     pageConfig: {
       ...defaultThemeConfig,
       ...defaultLoginConfig,
