@@ -19,7 +19,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -167,17 +170,17 @@ public class TestPlanStatisticsService {
 
 	private Map<String, Long> countApiScenarioExecResultMap(List<TestPlanApiScenario> apiScenarios) {
 		return CollectionUtils.isEmpty(apiScenarios) ? new HashMap<>(16) : apiScenarios.stream().collect(
-				Collectors.groupingBy(apiScenario -> Optional.ofNullable(apiScenario.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
+				Collectors.groupingBy(apiScenario -> StringUtils.isEmpty(apiScenario.getLastExecResult()) ? ExecStatus.PENDING.name() : apiScenario.getLastExecResult(), Collectors.counting()));
 	}
 
 	private Map<String, Long> countApiTestCaseExecResultMap(List<TestPlanApiCase> apiCases) {
 		return CollectionUtils.isEmpty(apiCases) ? new HashMap<>(16) : apiCases.stream().collect(
-				Collectors.groupingBy(apiCase -> Optional.ofNullable(apiCase.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
+				Collectors.groupingBy(apiCase -> StringUtils.isEmpty(apiCase.getLastExecResult()) ? ExecStatus.PENDING.name() : apiCase.getLastExecResult(), Collectors.counting()));
 	}
 
 	private Map<String, Long> countFunctionalCaseExecResultMap(List<TestPlanFunctionalCase> functionalCases) {
 		return CollectionUtils.isEmpty(functionalCases) ? new HashMap<>(16) : functionalCases.stream().collect(
-				Collectors.groupingBy(functionalCase -> Optional.ofNullable(functionalCase.getLastExecResult()).orElse(ExecStatus.PENDING.name()), Collectors.counting()));
+				Collectors.groupingBy(functionalCase -> StringUtils.isEmpty(functionalCase.getLastExecResult()) ? ExecStatus.PENDING.name() : functionalCase.getLastExecResult(), Collectors.counting()));
 	}
 
 	private TestPlanStatisticsResponse genTestPlanStatisticsResponse(TestPlan child,

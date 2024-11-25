@@ -111,7 +111,7 @@
         functional_case.tags,
         test_plan_functional_case.execute_user as executeUser,
         test_plan_functional_case.last_exec_time as lastExecTime,
-        test_plan_functional_case.last_exec_result as lastExecResult,
+        if(test_plan_functional_case.last_exec_result = '', 'PENDING', test_plan_functional_case.last_exec_result) as lastExecResult,
         test_plan_functional_case.test_plan_id as testPlanId,
         test_plan_functional_case.id,
         project.name as projectName,

@@ -26,6 +26,7 @@ import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -324,14 +325,52 @@ public class TestPlanManagementService {
      * @return 已办计划ID集合
      */
     private List<String> getDoneIds(String projectId) {
-        List<String> completePlanOrGroupIds = selectTestPlanIdByProjectIdAndStatus(projectId, List.of((TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)));
-        if (CollectionUtils.isEmpty(completePlanOrGroupIds)) {
+        List<String> doneIds = new ArrayList<>();
+        // 筛选出已完成/进行中的计划或计划组
+        List<String> completePlanOrGroupIds = selectTestPlanIdByProjectIdAndStatus(projectId, List.of(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED));
+        List<String> underwayPlanOrGroupIds = selectTestPlanIdByProjectIdAndStatus(projectId, List.of(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY));
+        if (CollectionUtils.isEmpty(completePlanOrGroupIds) && CollectionUtils.isEmpty(underwayPlanOrGroupIds)) {
             return null;
         }
 
-        List<TestPlanStatisticsResponse> completePlanOrGroupWithStatistics = testPlanStatisticsService.calculateRate(completePlanOrGroupIds);
-        return completePlanOrGroupWithStatistics.stream()
-                .filter(plan -> plan.getPassRate() >= plan.getPassThreshold())
-                .map(TestPlanStatisticsResponse::getId).collect(Collectors.toList());
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andIdIn(ListUtils.union(completePlanOrGroupIds, underwayPlanOrGroupIds));
+        List<TestPlan> allPlans = testPlanMapper.selectByExample(example);
+        // 筛选出已完成且阈值达标的计划ID集合, 计划组除外
+        List<String> calculateIds = new ArrayList<>();
+        List<String> groupPlanIds = new ArrayList<>();
+        allPlans.forEach(plan -> {
+            if (completePlanOrGroupIds.contains(plan.getId())) {
+                if (StringUtils.equals(plan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN)) {
+                    // 已完成的计划, 待计算通过率比对
+                    calculateIds.add(plan.getId());
+                } else {
+                    // 已完成的计划组, 待获取下级子计划
+                    groupPlanIds.add(plan.getId());
+                }
+            } else {
+                // 进行中的状态, 直接获取计划组下的子计划
+                if (StringUtils.equals(plan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+                    groupPlanIds.add(plan.getId());
+                }
+            }
+        });
+
+        // 处理计划组下级子计划
+        List<TestPlan> childPlans = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(groupPlanIds)) {
+            example.clear();
+            example.createCriteria().andGroupIdIn(groupPlanIds);
+            childPlans = testPlanMapper.selectByExample(example);
+        }
+        calculateIds.addAll(childPlans.stream().map(TestPlan::getId).toList());
+        List<TestPlanStatisticsResponse> calcPlans = testPlanStatisticsService.calculateRate(calculateIds);
+        calcPlans.forEach(plan -> {
+            // 筛选出已完成的计划 && 子计划且通过率达到阈值
+            if (plan.getPassRate() >= plan.getPassThreshold() && StringUtils.equals(plan.getStatus(), TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
+                doneIds.add(plan.getId());
+            }
+        });
+        return doneIds;
     }
 }
