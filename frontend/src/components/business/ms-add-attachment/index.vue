@@ -113,6 +113,7 @@
     </div>
     <div v-else class="flex w-full items-center gap-[4px]">
       <dropdownMenu
+        :file-list="fileList"
         :accept="props.accept"
         :disabled="props.disabled"
         @link-file="associatedFile"
