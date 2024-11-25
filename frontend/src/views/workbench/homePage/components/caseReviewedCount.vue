@@ -1,38 +1,41 @@
 <template>
   <div class="card-wrapper card-min-height">
-    <div class="flex items-center justify-between">
-      <a-tooltip :content="t(props.item.label)" position="tl">
-        <div class="title one-line-text"> {{ t(props.item.label) }} </div>
-      </a-tooltip>
-      <div>
-        <MsSelect
-          v-model:model-value="projectId"
-          :options="appStore.projectList"
-          allow-search
-          value-key="id"
-          label-key="name"
-          :search-keys="['name']"
-          class="!w-[200px]"
-          :prefix="t('workbench.homePage.project')"
-          @change="changeProject"
-        >
-        </MsSelect>
-      </div>
-    </div>
-    <div class="mt-[16px]">
-      <div class="case-count-wrapper mb-[16px]">
-        <div class="case-count-item">
-          <PassRatePie
-            :options="options"
-            tooltip-text="workbench.homePage.caseReviewCoverRateTooltip"
-            :size="60"
-            :value-list="coverValueList"
-            :has-permission="hasPermission"
-          />
+    <CardSkeleton v-if="showSkeleton" :show-skeleton="showSkeleton" />
+    <div v-else>
+      <div class="flex items-center justify-between">
+        <a-tooltip :content="t(props.item.label)" position="tl">
+          <div class="title one-line-text"> {{ t(props.item.label) }} </div>
+        </a-tooltip>
+        <div>
+          <MsSelect
+            v-model:model-value="projectId"
+            :options="appStore.projectList"
+            allow-search
+            value-key="id"
+            label-key="name"
+            :search-keys="['name']"
+            class="!w-[200px]"
+            :prefix="t('workbench.homePage.project')"
+            @change="changeProject"
+          >
+          </MsSelect>
         </div>
       </div>
-      <div class="h-[148px]">
-        <MsChart :options="caseReviewCountOptions" />
+      <div class="mt-[16px]">
+        <div class="case-count-wrapper mb-[16px]">
+          <div class="case-count-item">
+            <PassRatePie
+              :options="options"
+              tooltip-text="workbench.homePage.caseReviewCoverRateTooltip"
+              :size="60"
+              :value-list="coverValueList"
+              :has-permission="hasPermission"
+            />
+          </div>
+        </div>
+        <div class="h-[148px]">
+          <MsChart :options="caseReviewCountOptions" />
+        </div>
       </div>
     </div>
   </div>
@@ -46,6 +49,7 @@
 
   import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
+  import CardSkeleton from './cardSkeleton.vue';
   import PassRatePie from './passRatePie.vue';
 
   import { workCaseReviewDetail } from '@/api/modules/workbench';
@@ -101,19 +105,22 @@
   const caseReviewCountOptions = ref<Record<string, any>>({});
 
   const hasPermission = ref<boolean>(false);
+  const showSkeleton = ref(false);
+
   async function initReviewCount() {
-    const { startTime, endTime, dayNumber } = timeForm.value;
-    const params = {
-      current: 1,
-      pageSize: 5,
-      startTime: dayNumber ? null : startTime,
-      endTime: dayNumber ? null : endTime,
-      dayNumber: dayNumber ?? null,
-      projectIds: innerProjectIds.value,
-      organizationId: appStore.currentOrgId,
-      handleUsers: [],
-    };
     try {
+      showSkeleton.value = true;
+      const { startTime, endTime, dayNumber } = timeForm.value;
+      const params = {
+        current: 1,
+        pageSize: 5,
+        startTime: dayNumber ? null : startTime,
+        endTime: dayNumber ? null : endTime,
+        dayNumber: dayNumber ?? null,
+        projectIds: innerProjectIds.value,
+        organizationId: appStore.currentOrgId,
+        handleUsers: [],
+      };
       const detail: PassRateDataType = await workCaseReviewDetail(params);
 
       hasPermission.value = detail.errorCode !== 109001;
@@ -130,6 +137,8 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      showSkeleton.value = false;
     }
   }
 

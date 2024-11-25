@@ -1,47 +1,50 @@
 <template>
   <div class="card-wrapper card-min-height">
-    <div class="flex items-center justify-between">
-      <a-tooltip :content="t(props.item.label)" position="tl">
-        <div class="title one-line-text"> {{ t(props.item.label) }} </div>
-      </a-tooltip>
-      <div>
-        <MsSelect
-          v-model:model-value="projectId"
-          :options="appStore.projectList"
-          allow-search
-          value-key="id"
-          label-key="name"
-          :search-keys="['name']"
-          class="!w-[200px]"
-          :prefix="t('workbench.homePage.project')"
-          @change="changeProject"
-        >
-        </MsSelect>
+    <CardSkeleton v-if="showSkeleton" :show-skeleton="showSkeleton" />
+    <div v-else>
+      <div class="flex items-center justify-between">
+        <a-tooltip :content="t(props.item.label)" position="tl">
+          <div class="title one-line-text"> {{ t(props.item.label) }} </div>
+        </a-tooltip>
+        <div>
+          <MsSelect
+            v-model:model-value="projectId"
+            :options="appStore.projectList"
+            allow-search
+            value-key="id"
+            label-key="name"
+            :search-keys="['name']"
+            class="!w-[200px]"
+            :prefix="t('workbench.homePage.project')"
+            @change="changeProject"
+          >
+          </MsSelect>
+        </div>
       </div>
-    </div>
-    <div class="mt-[16px]">
-      <MsBaseTable
-        v-bind="propsRes"
-        :action-config="{
-          baseAction: [],
-          moreAction: [],
-        }"
-        class="mt-[16px]"
-        v-on="propsEvent"
-      >
-        <template #num="{ record }">
-          <MsButton type="text" @click="openDetail(record)">{{ record.num || '-' }}</MsButton>
-        </template>
-        <template v-if="isNoPermission" #empty>
-          <div class="w-full">
-            <slot name="empty">
-              <div class="flex h-[40px] flex-col items-center justify-center">
-                <span class="text-[14px] text-[var(--color-text-4)]">{{ t('common.noResource') }}</span>
-              </div>
-            </slot>
-          </div>
-        </template>
-      </MsBaseTable>
+      <div class="mt-[16px]">
+        <MsBaseTable
+          v-bind="propsRes"
+          :action-config="{
+            baseAction: [],
+            moreAction: [],
+          }"
+          class="mt-[16px]"
+          v-on="propsEvent"
+        >
+          <template #num="{ record }">
+            <MsButton type="text" @click="openDetail(record)">{{ record.num || '-' }}</MsButton>
+          </template>
+          <template v-if="isNoPermission" #empty>
+            <div class="w-full">
+              <slot name="empty">
+                <div class="flex h-[40px] flex-col items-center justify-center">
+                  <span class="text-[14px] text-[var(--color-text-4)]">{{ t('common.noResource') }}</span>
+                </div>
+              </slot>
+            </div>
+          </template>
+        </MsBaseTable>
+      </div>
     </div>
   </div>
 </template>
@@ -58,6 +61,7 @@
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsSelect from '@/components/business/ms-select';
+  import CardSkeleton from './cardSkeleton.vue';
 
   import { workApiChangeList } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
@@ -168,7 +172,9 @@
   }
 
   const isNoPermission = ref<boolean>(false);
+  const showSkeleton = ref(false);
   async function initData() {
+    showSkeleton.value = true;
     try {
       const { startTime, endTime, dayNumber } = timeForm.value;
       setLoadListParams({
@@ -185,6 +191,8 @@
       isNoPermission.value = error === 'no_project_permission';
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      showSkeleton.value = false;
     }
   }
 

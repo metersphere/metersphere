@@ -1,87 +1,92 @@
 <template>
   <div class="card-wrapper">
-    <div class="flex items-center justify-between">
-      <a-tooltip :content="t(props.item.label)" position="tl">
-        <div class="title one-line-text"> {{ t(props.item.label) }} </div>
-      </a-tooltip>
-      <div>
-        <MsSelect
-          v-model:model-value="projectId"
-          :options="appStore.projectList"
-          allow-search
-          value-key="id"
-          label-key="name"
-          :search-keys="['name']"
-          class="!w-[200px]"
-          :prefix="t('workbench.homePage.project')"
-          @change="changeProject"
-        >
-        </MsSelect>
-      </div>
-    </div>
-    <div>
-      <MsBaseTable
-        v-bind="propsRes"
-        :action-config="{
-          baseAction: [],
-          moreAction: [],
-        }"
-        class="mt-[16px]"
-        v-on="propsEvent"
-      >
-        <template #num="{ record }">
-          <a-tooltip :content="`${record.num}`">
-            <a-button type="text" class="px-0 !text-[14px] !leading-[22px]" @click="openDetail(record.id)">
-              <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
-            </a-button>
-          </a-tooltip>
-        </template>
-        <template #passRateColumn>
-          <div class="flex items-center text-[var(--color-text-3)]">
-            {{ t('caseManagement.caseReview.passRate') }}
-            <a-tooltip :content="t('caseManagement.caseReview.passRateTip')" position="right">
-              <icon-question-circle
-                class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-                size="16"
-              />
-            </a-tooltip>
-          </div>
-        </template>
-        <template #passRate="{ record }">
-          <div class="mr-[8px] w-[100px]">
-            <passRateLine :review-detail="record" height="5px" />
-          </div>
-          <div class="text-[var(--color-text-1)]">
-            {{ `${record.passRate}%` }}
-          </div>
-        </template>
-        <template #reviewPassRule="{ record }">
-          <a-tag
-            :color="record.reviewPassRule === 'SINGLE' ? 'rgb(var(--success-2))' : 'rgb(var(--link-2))'"
-            :class="record.reviewPassRule === 'SINGLE' ? '!text-[rgb(var(--success-6))]' : '!text-[rgb(var(--link-6))]'"
+    <CardSkeleton v-if="showSkeleton" :show-skeleton="showSkeleton" />
+    <div v-else>
+      <div class="flex items-center justify-between">
+        <a-tooltip :content="t(props.item.label)" position="tl">
+          <div class="title one-line-text"> {{ t(props.item.label) }} </div>
+        </a-tooltip>
+        <div>
+          <MsSelect
+            v-model:model-value="projectId"
+            :options="appStore.projectList"
+            allow-search
+            value-key="id"
+            label-key="name"
+            :search-keys="['name']"
+            class="!w-[200px]"
+            :prefix="t('workbench.homePage.project')"
+            @change="changeProject"
           >
-            {{
-              record.reviewPassRule === 'SINGLE'
-                ? t('caseManagement.caseReview.single')
-                : t('caseManagement.caseReview.multi')
-            }}
-          </a-tag>
-        </template>
-        <template #createUserName="{ record }">
-          <a-tooltip :content="`${record.createUserName}`" position="tl">
-            <div class="one-line-text">{{ record.createUserName }}</div>
-          </a-tooltip>
-        </template>
-        <template v-if="isNoPermission" #empty>
-          <div class="w-full">
-            <slot name="empty">
-              <div class="flex h-[40px] flex-col items-center justify-center">
-                <span class="text-[14px] text-[var(--color-text-4)]">{{ t('common.noResource') }}</span>
-              </div>
-            </slot>
-          </div>
-        </template>
-      </MsBaseTable>
+          </MsSelect>
+        </div>
+      </div>
+      <div>
+        <MsBaseTable
+          v-bind="propsRes"
+          :action-config="{
+            baseAction: [],
+            moreAction: [],
+          }"
+          class="mt-[16px]"
+          v-on="propsEvent"
+        >
+          <template #num="{ record }">
+            <a-tooltip :content="`${record.num}`">
+              <a-button type="text" class="px-0 !text-[14px] !leading-[22px]" @click="openDetail(record.id)">
+                <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
+              </a-button>
+            </a-tooltip>
+          </template>
+          <template #passRateColumn>
+            <div class="flex items-center text-[var(--color-text-3)]">
+              {{ t('caseManagement.caseReview.passRate') }}
+              <a-tooltip :content="t('caseManagement.caseReview.passRateTip')" position="right">
+                <icon-question-circle
+                  class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+                  size="16"
+                />
+              </a-tooltip>
+            </div>
+          </template>
+          <template #passRate="{ record }">
+            <div class="mr-[8px] w-[100px]">
+              <passRateLine :review-detail="record" height="5px" />
+            </div>
+            <div class="text-[var(--color-text-1)]">
+              {{ `${record.passRate}%` }}
+            </div>
+          </template>
+          <template #reviewPassRule="{ record }">
+            <a-tag
+              :color="record.reviewPassRule === 'SINGLE' ? 'rgb(var(--success-2))' : 'rgb(var(--link-2))'"
+              :class="
+                record.reviewPassRule === 'SINGLE' ? '!text-[rgb(var(--success-6))]' : '!text-[rgb(var(--link-6))]'
+              "
+            >
+              {{
+                record.reviewPassRule === 'SINGLE'
+                  ? t('caseManagement.caseReview.single')
+                  : t('caseManagement.caseReview.multi')
+              }}
+            </a-tag>
+          </template>
+          <template #createUserName="{ record }">
+            <a-tooltip :content="`${record.createUserName}`" position="tl">
+              <div class="one-line-text">{{ record.createUserName }}</div>
+            </a-tooltip>
+          </template>
+          <template v-if="isNoPermission" #empty>
+            <div class="w-full">
+              <slot name="empty">
+                <div class="flex h-[40px] flex-col items-center justify-center">
+                  <span class="text-[14px] text-[var(--color-text-4)]">{{ t('common.noResource') }}</span>
+                </div>
+              </slot>
+            </div>
+          </template>
+        </MsBaseTable>
+      </div>
     </div>
   </div>
 </template>
@@ -96,6 +101,7 @@
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsSelect from '@/components/business/ms-select';
+  import CardSkeleton from './cardSkeleton.vue';
   import passRateLine from '@/views/case-management/caseReview/components/passRateLine.vue';
 
   import { workReviewList } from '@/api/modules/workbench';
@@ -192,9 +198,11 @@
   });
 
   const isNoPermission = ref<boolean>(false);
+  const showSkeleton = ref(false);
 
   async function initData() {
     try {
+      showSkeleton.value = true;
       const { startTime, endTime, dayNumber } = timeForm.value;
       setLoadListParams({
         startTime: dayNumber ? null : startTime,
@@ -209,6 +217,8 @@
     } catch (error) {
       isNoPermission.value = error === 'no_project_permission';
       // eslint-disable-next-line no-console
+    } finally {
+      showSkeleton.value = false;
     }
   }
 

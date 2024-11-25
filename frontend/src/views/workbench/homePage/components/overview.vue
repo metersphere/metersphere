@@ -1,38 +1,41 @@
 <template>
   <div class="card-wrapper">
-    <div class="flex items-center justify-between">
-      <a-tooltip :content="t(props.item.label)" position="tl">
-        <div class="title one-line-text"> {{ t(props.item.label) }} </div>
-      </a-tooltip>
-      <div>
-        <MsSelect
-          v-model:model-value="innerProjectIds"
-          :options="appStore.projectList"
-          allow-clear
-          allow-search
-          value-key="id"
-          label-key="name"
-          :search-keys="['name']"
-          class="!w-[200px]"
-          :prefix="t('workbench.homePage.project')"
-          :multiple="true"
-          :has-all-select="true"
-          :default-all-select="innerSelectAll"
-          :at-least-one="true"
-          @change="changeProject"
-        >
-        </MsSelect>
-      </div>
-    </div>
-    <div class="my-[16px]">
-      <TabCard
-        :content-tab-list="cardModuleList"
-        :no-permission-text="hasPermission ? '' : 'workbench.homePage.notHasResPermission'"
-      />
-    </div>
-    <!-- 概览图 -->
+    <CardSkeleton v-if="showSkeleton" :show-skeleton="showSkeleton" />
     <div>
-      <MsChart height="280px" :options="options" />
+      <div class="flex items-center justify-between">
+        <a-tooltip :content="t(props.item.label)" position="tl">
+          <div class="title one-line-text"> {{ t(props.item.label) }} </div>
+        </a-tooltip>
+        <div>
+          <MsSelect
+            v-model:model-value="innerProjectIds"
+            :options="appStore.projectList"
+            allow-clear
+            allow-search
+            value-key="id"
+            label-key="name"
+            :search-keys="['name']"
+            class="!w-[200px]"
+            :prefix="t('workbench.homePage.project')"
+            :multiple="true"
+            :has-all-select="true"
+            :default-all-select="innerSelectAll"
+            :at-least-one="true"
+            @change="changeProject"
+          >
+          </MsSelect>
+        </div>
+      </div>
+      <div class="my-[16px]">
+        <TabCard
+          :content-tab-list="cardModuleList"
+          :no-permission-text="hasPermission ? '' : 'workbench.homePage.notHasResPermission'"
+        />
+      </div>
+      <!-- 概览图 -->
+      <div>
+        <MsChart height="280px" :options="options" />
+      </div>
     </div>
   </div>
 </template>
@@ -45,6 +48,7 @@
 
   import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
+  import CardSkeleton from './cardSkeleton.vue';
   import TabCard from './tabCard.vue';
 
   import { workMyCreatedDetail, workProOverviewDetail } from '@/api/modules/workbench';
@@ -190,9 +194,12 @@
     });
     options.value.yAxis[0].max = maxAxis < 100 ? 100 : maxAxis + 50;
   }
+  const showSkeleton = ref(false);
 
   async function initOverViewDetail() {
     try {
+      showSkeleton.value = true;
+
       const { startTime, endTime, dayNumber } = timeForm.value;
       const params = {
         current: 1,
@@ -217,6 +224,8 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      showSkeleton.value = false;
     }
   }
   const isInit = ref(true);

@@ -1,53 +1,60 @@
 <template>
   <div class="card-wrapper card-min-height">
-    <div class="flex items-center justify-between">
-      <a-tooltip :content="t(props.item.label)" position="tl">
-        <div class="title one-line-text"> {{ t(props.item.label) }} </div>
-      </a-tooltip>
-      <div>
-        <MsSelect
-          v-model:model-value="projectId"
-          :options="appStore.projectList"
-          allow-search
-          value-key="id"
-          label-key="name"
-          :search-keys="['name']"
-          class="!w-[200px]"
-          :prefix="t('workbench.homePage.project')"
-          @change="changeProject"
-        >
-        </MsSelect>
-      </div>
-    </div>
-    <div class="mt-[16px]">
-      <div class="case-count-wrapper">
-        <div class="case-count-item">
-          <div v-for="(ele, index) of executionTimeValue" :key="index" class="case-count-item-content">
-            <div class="case-count-item-title">{{ ele.name }}</div>
-            <div class="case-count-item-number">{{ hasPermission ? addCommasToNumber(ele.count as number) : '-' }}</div>
-          </div>
-        </div>
-        <div class="case-count-item">
-          <div v-for="(ele, index) of apiCountValue" :key="index" class="case-count-item-content">
-            <div class="case-count-item-title">{{ ele.name }}</div>
-            <div class="case-count-item-number">{{ hasPermission ? addCommasToNumber(ele.count as number) : '-' }}</div>
-          </div>
+    <CardSkeleton v-if="showSkeleton" :show-skeleton="showSkeleton" />
+    <div v-else>
+      <div class="flex items-center justify-between">
+        <a-tooltip :content="t(props.item.label)" position="tl">
+          <div class="title one-line-text"> {{ t(props.item.label) }} </div>
+        </a-tooltip>
+        <div>
+          <MsSelect
+            v-model:model-value="projectId"
+            :options="appStore.projectList"
+            allow-search
+            value-key="id"
+            label-key="name"
+            :search-keys="['name']"
+            class="!w-[200px]"
+            :prefix="t('workbench.homePage.project')"
+            @change="changeProject"
+          >
+          </MsSelect>
         </div>
       </div>
-      <div class="case-ratio-wrapper mt-[16px]">
-        <div class="case-ratio-item">
-          <RatioPie
-            :has-permission="hasPermission"
-            :loading="loading"
-            :data="coverData"
-            :rate-config="coverTitleConfig"
-          />
+      <div class="mt-[16px]">
+        <div class="case-count-wrapper">
+          <div class="case-count-item">
+            <div v-for="(ele, index) of executionTimeValue" :key="index" class="case-count-item-content">
+              <div class="case-count-item-title">{{ ele.name }}</div>
+              <div class="case-count-item-number">
+                {{ hasPermission ? addCommasToNumber(ele.count as number) : '-' }}
+              </div>
+            </div>
+          </div>
+          <div class="case-count-item">
+            <div v-for="(ele, index) of apiCountValue" :key="index" class="case-count-item-content">
+              <div class="case-count-item-title">{{ ele.name }}</div>
+              <div class="case-count-item-number">
+                {{ hasPermission ? addCommasToNumber(ele.count as number) : '-' }}
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="case-ratio-item">
-          <RatioPie :has-permission="hasPermission" :data="caseExecuteData" :rate-config="executeTitleConfig" />
-        </div>
-        <div class="case-ratio-item">
-          <RatioPie :has-permission="hasPermission" :data="casePassData" :rate-config="casePassTitleConfig" />
+        <div class="case-ratio-wrapper mt-[16px]">
+          <div class="case-ratio-item">
+            <RatioPie
+              :has-permission="hasPermission"
+              :loading="loading"
+              :data="coverData"
+              :rate-config="coverTitleConfig"
+            />
+          </div>
+          <div class="case-ratio-item">
+            <RatioPie :has-permission="hasPermission" :data="caseExecuteData" :rate-config="executeTitleConfig" />
+          </div>
+          <div class="case-ratio-item">
+            <RatioPie :has-permission="hasPermission" :data="casePassData" :rate-config="casePassTitleConfig" />
+          </div>
         </div>
       </div>
     </div>
@@ -62,6 +69,7 @@
   import { cloneDeep } from 'lodash-es';
 
   import MsSelect from '@/components/business/ms-select';
+  import CardSkeleton from './cardSkeleton.vue';
   import RatioPie from './ratioPie.vue';
 
   import { workApiCaseCountDetail, workApiCountCoverRage, workScenarioCaseCountDetail } from '@/api/modules/workbench';
@@ -244,8 +252,11 @@
     }
   }
 
+  const showSkeleton = ref(false);
+
   async function initApiOrScenarioCount() {
     try {
+      showSkeleton.value = true;
       coverData.value = cloneDeep(initCoverRate);
       const { startTime, endTime, dayNumber } = timeForm.value;
 
@@ -292,6 +303,8 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      showSkeleton.value = false;
     }
   }
 

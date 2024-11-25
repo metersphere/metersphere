@@ -1,40 +1,43 @@
 <template>
   <div class="card-wrapper card-min-height">
-    <div class="flex items-center justify-between">
-      <a-tooltip :content="t(props.item.label)" position="tl">
-        <div class="title one-line-text"> {{ t(props.item.label) }} </div>
-      </a-tooltip>
-      <div>
-        <MsSelect
-          v-model:model-value="projectId"
-          :options="appStore.projectList"
-          allow-search
-          value-key="id"
-          label-key="name"
-          :search-keys="['name']"
-          class="!w-[200px]"
-          :prefix="t('workbench.homePage.project')"
-          @change="changeProject"
-        >
-        </MsSelect>
+    <CardSkeleton v-if="showSkeleton" :show-skeleton="showSkeleton" />
+    <div v-else>
+      <div class="flex items-center justify-between">
+        <a-tooltip :content="t(props.item.label)" position="tl">
+          <div class="title one-line-text"> {{ t(props.item.label) }} </div>
+        </a-tooltip>
+        <div>
+          <MsSelect
+            v-model:model-value="projectId"
+            :options="appStore.projectList"
+            allow-search
+            value-key="id"
+            label-key="name"
+            :search-keys="['name']"
+            class="!w-[200px]"
+            :prefix="t('workbench.homePage.project')"
+            @change="changeProject"
+          >
+          </MsSelect>
+        </div>
       </div>
-    </div>
-    <div class="mt-[16px]">
-      <TabCard :content-tab-list="caseCountTabList" not-has-padding hidden-border min-width="270px">
-        <template #item="{ item: tabItem }">
-          <div class="w-full">
-            <PassRatePie
-              :options="tabItem.options"
-              :tooltip-text="tabItem.tooltip"
-              :size="60"
-              :value-list="tabItem.valueList"
-              :has-permission="hasPermission"
-            />
-          </div>
-        </template>
-      </TabCard>
-      <div class="h-[148px]">
-        <MsChart :options="caseCountOptions" />
+      <div class="mt-[16px]">
+        <TabCard :content-tab-list="caseCountTabList" not-has-padding hidden-border min-width="270px">
+          <template #item="{ item: tabItem }">
+            <div class="w-full">
+              <PassRatePie
+                :options="tabItem.options"
+                :tooltip-text="tabItem.tooltip"
+                :size="60"
+                :value-list="tabItem.valueList"
+                :has-permission="hasPermission"
+              />
+            </div>
+          </template>
+        </TabCard>
+        <div class="h-[148px]">
+          <MsChart :options="caseCountOptions" />
+        </div>
       </div>
     </div>
   </div>
@@ -48,6 +51,7 @@
 
   import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
+  import CardSkeleton from './cardSkeleton.vue';
   import PassRatePie from './passRatePie.vue';
   import TabCard from './tabCard.vue';
 
@@ -114,9 +118,11 @@
   const hasPermission = ref<boolean>(false);
 
   const caseCountOptions = ref<Record<string, any>>({});
+  const showSkeleton = ref(false);
 
   async function initCaseCount() {
     try {
+      showSkeleton.value = true;
       const { startTime, endTime, dayNumber } = timeForm.value;
       const params = {
         current: 1,
@@ -152,6 +158,8 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      showSkeleton.value = false;
     }
   }
 

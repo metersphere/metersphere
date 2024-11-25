@@ -1,45 +1,48 @@
 <template>
   <div class="card-wrapper">
-    <div class="flex items-center justify-between">
-      <a-tooltip :content="t(props.item.label)" position="tl">
-        <div class="title one-line-text"> {{ t(props.item.label) }} </div>
-      </a-tooltip>
-      <div class="flex items-center gap-[8px]">
-        <MsSelect
-          v-model:model-value="projectId"
-          :options="appStore.projectList"
-          allow-search
-          value-key="id"
-          label-key="name"
-          :search-keys="['name']"
-          class="!w-[200px]"
-          :prefix="t('workbench.homePage.project')"
-          @change="changeProject"
-        >
-        </MsSelect>
+    <CardSkeleton v-if="showSkeleton" :show-skeleton="showSkeleton" />
+    <div v-else>
+      <div class="flex items-center justify-between">
+        <a-tooltip :content="t(props.item.label)" position="tl">
+          <div class="title one-line-text"> {{ t(props.item.label) }} </div>
+        </a-tooltip>
+        <div class="flex items-center gap-[8px]">
+          <MsSelect
+            v-model:model-value="projectId"
+            :options="appStore.projectList"
+            allow-search
+            value-key="id"
+            label-key="name"
+            :search-keys="['name']"
+            class="!w-[200px]"
+            :prefix="t('workbench.homePage.project')"
+            @change="changeProject"
+          >
+          </MsSelect>
 
-        <MsSelect
-          :key="props.refreshKey"
-          v-model:model-value="innerHandleUsers"
-          :options="memberOptions"
-          allow-search
-          allow-clear
-          value-key="value"
-          label-key="label"
-          :search-keys="['label']"
-          class="!w-[200px]"
-          :prefix="t('workbench.homePage.staff')"
-          :multiple="true"
-          :has-all-select="true"
-          :default-all-select="innerHandleUsers.length === 0"
-          @change="changeMember"
-        >
-        </MsSelect>
+          <MsSelect
+            :key="props.refreshKey"
+            v-model:model-value="innerHandleUsers"
+            :options="memberOptions"
+            allow-search
+            allow-clear
+            value-key="value"
+            label-key="label"
+            :search-keys="['label']"
+            class="!w-[200px]"
+            :prefix="t('workbench.homePage.staff')"
+            :multiple="true"
+            :has-all-select="true"
+            :default-all-select="innerHandleUsers.length === 0"
+            @change="changeMember"
+          >
+          </MsSelect>
+        </div>
       </div>
-    </div>
-    <!-- 概览图 -->
-    <div class="mt-[16px]">
-      <MsChart height="300px" :options="options" />
+      <!-- 概览图 -->
+      <div class="mt-[16px]">
+        <MsChart height="300px" :options="options" />
+      </div>
     </div>
   </div>
 </template>
@@ -52,6 +55,7 @@
 
   import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
+  import CardSkeleton from './cardSkeleton.vue';
 
   import { workMemberViewDetail, workProjectMemberOptions } from '@/api/modules/workbench';
   import { contentTabList } from '@/config/workbench';
@@ -148,9 +152,12 @@
     });
     options.value.yAxis[0].max = maxAxis < 100 ? 100 : maxAxis + 50;
   }
+  const showSkeleton = ref(false);
 
   async function initOverViewMemberDetail() {
     try {
+      showSkeleton.value = true;
+
       const { startTime, endTime, dayNumber } = timeForm.value;
       const params = {
         current: 1,
@@ -168,6 +175,8 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      showSkeleton.value = false;
     }
   }
 

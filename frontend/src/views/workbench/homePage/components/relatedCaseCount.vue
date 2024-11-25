@@ -1,33 +1,36 @@
 <template>
   <div :class="`card-wrapper ${props.item.fullScreen ? '' : 'card-min-height'}`">
-    <div class="flex items-center justify-between">
-      <a-tooltip :content="t(props.item.label)" position="tl">
-        <div class="title one-line-text"> {{ t(props.item.label) }} </div>
-      </a-tooltip>
-      <div>
-        <MsSelect
-          v-model:model-value="projectId"
-          :options="appStore.projectList"
-          value-key="id"
-          label-key="name"
-          :search-keys="['name']"
-          class="!w-[200px]"
-          :prefix="t('workbench.homePage.project')"
-          @change="changeProject"
-        >
-        </MsSelect>
+    <CardSkeleton v-if="showSkeleton" :show-skeleton="showSkeleton" />
+    <div v-else>
+      <div class="flex items-center justify-between">
+        <a-tooltip :content="t(props.item.label)" position="tl">
+          <div class="title one-line-text"> {{ t(props.item.label) }} </div>
+        </a-tooltip>
+        <div>
+          <MsSelect
+            v-model:model-value="projectId"
+            :options="appStore.projectList"
+            value-key="id"
+            label-key="name"
+            :search-keys="['name']"
+            class="!w-[200px]"
+            :prefix="t('workbench.homePage.project')"
+            @change="changeProject"
+          >
+          </MsSelect>
+        </div>
       </div>
-    </div>
-    <div class="mt-[16px]">
-      <div class="case-count-wrapper">
-        <div class="case-count-item">
-          <PassRatePie
-            :options="relatedOptions"
-            :has-permission="hasPermission"
-            tooltip-text="workbench.homePage.associateCaseCoverRateTooltip"
-            :size="60"
-            :value-list="coverRateValueList"
-          />
+      <div class="mt-[16px]">
+        <div class="case-count-wrapper">
+          <div class="case-count-item">
+            <PassRatePie
+              :options="relatedOptions"
+              :has-permission="hasPermission"
+              tooltip-text="workbench.homePage.associateCaseCoverRateTooltip"
+              :size="60"
+              :value-list="coverRateValueList"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -41,6 +44,7 @@
   import { ref } from 'vue';
 
   import MsSelect from '@/components/business/ms-select';
+  import CardSkeleton from './cardSkeleton.vue';
   import PassRatePie from './passRatePie.vue';
 
   import { workAssociateCaseDetail } from '@/api/modules/workbench';
@@ -95,8 +99,11 @@
     },
   ]);
 
+  const showSkeleton = ref(false);
+
   async function getRelatedCaseCount() {
     try {
+      showSkeleton.value = true;
       const { startTime, endTime, dayNumber } = timeForm.value;
       const detail: PassRateDataType = await workAssociateCaseDetail({
         current: 1,
@@ -123,6 +130,8 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      showSkeleton.value = false;
     }
   }
 

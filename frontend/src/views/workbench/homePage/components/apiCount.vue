@@ -1,39 +1,42 @@
 <template>
   <div class="card-wrapper api-count-wrapper card-min-height">
-    <div class="flex items-center justify-between">
-      <a-tooltip :content="t(props.item.label)" position="tl">
-        <div class="title one-line-text"> {{ t(props.item.label) }} </div>
-      </a-tooltip>
-      <div>
-        <MsSelect
-          v-model:model-value="projectId"
-          :options="appStore.projectList"
-          allow-search
-          value-key="id"
-          label-key="name"
-          :search-keys="['name']"
-          class="!w-[200px]"
-          :prefix="t('workbench.homePage.project')"
-          @change="changeProject"
-        >
-        </MsSelect>
+    <CardSkeleton v-if="showSkeleton" :show-skeleton="showSkeleton" />
+    <div v-else>
+      <div class="flex items-center justify-between">
+        <a-tooltip :content="t(props.item.label)" position="tl">
+          <div class="title one-line-text"> {{ t(props.item.label) }} </div>
+        </a-tooltip>
+        <div>
+          <MsSelect
+            v-model:model-value="projectId"
+            :options="appStore.projectList"
+            allow-search
+            value-key="id"
+            label-key="name"
+            :search-keys="['name']"
+            class="!w-[200px]"
+            :prefix="t('workbench.homePage.project')"
+            @change="changeProject"
+          >
+          </MsSelect>
+        </div>
       </div>
-    </div>
-    <div class="my-[16px]">
-      <TabCard :content-tab-list="apiCountTabList" not-has-padding hidden-border min-width="296px">
-        <template #item="{ item: tabItem }">
-          <PassRatePie
-            :tooltip-text="tabItem.tooltip"
-            :options="tabItem.options"
-            :size="60"
-            :loading="tabItem.value === 'cover' ? loading : undefined"
-            :has-permission="hasPermission"
-            :value-list="tabItem.valueList"
-          />
-        </template>
-      </TabCard>
-      <div class="h-[148px]">
-        <MsChart :options="apiCountOptions" />
+      <div class="my-[16px]">
+        <TabCard :content-tab-list="apiCountTabList" not-has-padding hidden-border min-width="296px">
+          <template #item="{ item: tabItem }">
+            <PassRatePie
+              :tooltip-text="tabItem.tooltip"
+              :options="tabItem.options"
+              :size="60"
+              :loading="tabItem.value === 'cover' ? loading : undefined"
+              :has-permission="hasPermission"
+              :value-list="tabItem.valueList"
+            />
+          </template>
+        </TabCard>
+        <div class="h-[148px]">
+          <MsChart :options="apiCountOptions" />
+        </div>
       </div>
     </div>
   </div>
@@ -47,6 +50,7 @@
 
   import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
+  import CardSkeleton from './cardSkeleton.vue';
   import PassRatePie from './passRatePie.vue';
   import TabCard from './tabCard.vue';
 
@@ -144,8 +148,6 @@
     coverOptions.value = { ...covOptions };
   }
   async function initApiCountRate() {
-    console.log(hasPermission.value);
-
     try {
       loading.value = true;
       const detail = await workApiCountCoverRage(projectId.value);
@@ -158,8 +160,12 @@
     }
   }
 
+  const showSkeleton = ref(false);
+
   async function initApiCount() {
     try {
+      showSkeleton.value = true;
+
       const { startTime, endTime, dayNumber } = timeForm.value;
       const detail = await workApiCountDetail({
         current: 1,
@@ -187,6 +193,8 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      showSkeleton.value = false;
     }
   }
 
