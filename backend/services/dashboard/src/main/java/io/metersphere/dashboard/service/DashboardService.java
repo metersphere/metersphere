@@ -1305,9 +1305,13 @@ public class DashboardService {
         }
         Set<String>handleUsers = new HashSet<>();
         String localHandleUser = hasHandleUser ? userId : null;
-        handleUsers.add(localHandleUser);
+        if (StringUtils.isNotBlank(localHandleUser)) {
+            handleUsers.add(localHandleUser);
+        }
         String handleUser = hasHandleUser ? handleUserId : null;
-        handleUsers.add(handleUser);
+        if (StringUtils.isNotBlank(handleUser)) {
+            handleUsers.add(handleUser);
+        }
         String createUser = hasCreateUser ? userId : null;
         String platformName = projectApplicationService.getPlatformName(projectId);
         Set<String> platforms = getPlatforms(platformName);
