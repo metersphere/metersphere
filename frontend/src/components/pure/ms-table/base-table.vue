@@ -905,10 +905,6 @@
     const disableKey = (attrs?.rowSelectionDisabledConfig as MsTableRowSelectionDisabledConfig)?.disabledKey;
     return disableKey ? record[disableKey] : false;
   }
-  onMounted(async () => {
-    await initColumn();
-    batchLeft.value = getBatchLeft();
-  });
 
   function hasSelectedFilter(item: MsTableColumnData) {
     if (item.filterConfig && item.dataIndex) {
@@ -961,6 +957,12 @@
       updateTagVisibility(cell);
     });
   };
+
+  onMounted(async () => {
+    await initColumn();
+    updateAllTagVisibility();
+    batchLeft.value = getBatchLeft();
+  });
 
   function columnResize(dataIndex: string) {
     if (dataIndex) {
