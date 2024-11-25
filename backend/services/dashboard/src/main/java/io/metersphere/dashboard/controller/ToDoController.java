@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,7 +65,9 @@ public class ToDoController {
 	@CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
 	public Pager<List<TestPlanResponse>> planPage(@Validated @RequestBody TestPlanTableRequest request) {
 		// 默认按照创建时间倒序
-		request.setSort(Map.of("createTime", "desc"));
+		if (MapUtils.isEmpty(request.getSort())) {
+			request.setSort(Map.of("createTime", "desc"));
+		}
 		request.setMyTodo(true);
 		request.setMyTodoUserId(SessionUtils.getUserId());
 		return testPlanManagementService.page(request);
