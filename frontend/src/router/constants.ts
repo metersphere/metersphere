@@ -1,3 +1,10 @@
+import {
+  ApiTestRouteEnum,
+  BugManagementRouteEnum,
+  CaseManagementRouteEnum,
+  TestPlanRouteEnum,
+} from '@/enums/routeEnum';
+
 // 路由白名单，无需校验权限与登录状态
 export const WHITE_LIST = [
   { name: 'notFound', path: '/notFound', children: [] },
@@ -77,3 +84,11 @@ export const WHITE_LIST_NAME = WHITE_LIST.map((el) => el.name);
 
 // 全屏无资源页面用于分享全屏的页面
 export const NOT_FOUND_RESOURCE = 'notResourceScreen';
+
+// 功能路由映射
+export const featureRouteMap: Record<string, any> = {
+  [ApiTestRouteEnum.API_TEST]: 'apiTest',
+  [CaseManagementRouteEnum.CASE_MANAGEMENT]: 'caseManagement',
+  [TestPlanRouteEnum.TEST_PLAN]: 'testPlan',
+  [BugManagementRouteEnum.BUG_MANAGEMENT]: 'bugManagement',
+};

@@ -4,12 +4,15 @@ import { cloneDeep } from 'lodash-es';
 
 import usePermission from '@/hooks/usePermission';
 import appClientMenus from '@/router/app-menus';
+import { featureRouteMap } from '@/router/constants';
+import useAppStore from '@/store/modules/app';
 
 /**
  * 获取菜单树
  * @returns
  */
 export default function useMenuTree() {
+  const appStore = useAppStore();
   const permission = usePermission();
   const menuTree = computed(() => {
     const copyRouter = cloneDeep(appClientMenus) as RouteRecordNormalized[];
@@ -21,6 +24,14 @@ export default function useMenuTree() {
 
       const collector = _routes.map((element) => {
         if (element.meta?.hideInMenu === true) {
+          return null;
+        }
+
+        // 如果是隐藏的模块，则不显示菜单
+        if (
+          featureRouteMap[element.name as string] &&
+          !appStore.currentMenuConfig.includes(featureRouteMap[element.name as string])
+        ) {
           return null;
         }
 
