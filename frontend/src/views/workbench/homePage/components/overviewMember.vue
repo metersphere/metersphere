@@ -57,7 +57,7 @@
   import { contentTabList } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { characterLimit } from '@/utils';
+  import { characterLimit, sleep } from '@/utils';
 
   import type { OverViewOfProject, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
@@ -241,6 +241,7 @@
   watch([() => props.refreshKey, () => projectId.value], async () => {
     await nextTick();
     initOverViewMemberDetail();
+    await sleep(50);
     if (props.item.projectIds.length) {
       getMemberOptions();
     }

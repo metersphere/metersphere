@@ -132,6 +132,7 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
       type: 'category',
       data: [],
       axisLabel: {
+        show: true,
         color: '#646466',
       },
       axisTick: {
