@@ -626,7 +626,7 @@ public class BaseTaskHubService {
                     handleK8STask(taskIds, testResourcePoolDTO);
                 } else {
                     Map<String, List<ExecTaskItem>> nodeItem = list.stream().collect(Collectors.groupingBy(ExecTaskItem::getResourcePoolNode));
-                    handleNodeTask(nodeItem);
+                    handleNodeTask(nodeItem, false);
                 }
             } catch (Exception e) {
                 LogUtils.error(e);
@@ -634,15 +634,24 @@ public class BaseTaskHubService {
         });
     }
 
-    private void handleNodeTask(Map<String, List<ExecTaskItem>> nodeItem) {
+    private void handleNodeTask(Map<String, List<ExecTaskItem>> nodeItem, boolean isItem) {
         //通过任务向节点发起停止
         nodeItem.forEach((node, items) -> {
             String endpoint = "http://".concat(node);
-            List<String> itemIds = items.stream().map(ExecTaskItem::getId).toList();
+            List<String> itemIds = new ArrayList<>();
+            if (isItem) {
+                itemIds = items.stream().map(ExecTaskItem::getId).toList();
+            } else {
+                itemIds = items.stream().map(ExecTaskItem::getTaskId).toList();
+            }
             SubListUtils.dealForSubList(itemIds, 100, subList -> {
                 try {
                     LogUtils.info(String.format("开始发送停止请求到 %s 节点执行", endpoint), subList.toString());
-                    MsHttpClient.stopApiTaskItem(endpoint, subList);
+                    if (isItem) {
+                        MsHttpClient.stopApiTaskItem(endpoint, subList);
+                    } else {
+                        MsHttpClient.stopApiTask(endpoint, subList);
+                    }
                 } catch (Exception e) {
                 }
             });
@@ -743,7 +752,7 @@ public class BaseTaskHubService {
                     handleK8STaskItem(itemIds, testResourcePoolDTO);
                 } else {
                     Map<String, List<ExecTaskItem>> nodeItem = execTaskItems.stream().collect(Collectors.groupingBy(ExecTaskItem::getResourcePoolNode));
-                    handleNodeTask(nodeItem);
+                    handleNodeTask(nodeItem, true);
                 }
             } catch (Exception e) {
                 LogUtils.error(e);
