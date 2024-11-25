@@ -7,9 +7,13 @@ import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.ApiScenarioParamConfig;
 import io.metersphere.api.dto.debug.ApiDebugRunRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
+import io.metersphere.api.dto.definition.ApiModuleDTO;
+import io.metersphere.api.dto.definition.EnvApiModuleRequest;
+import io.metersphere.api.dto.definition.EnvApiTreeDTO;
 import io.metersphere.api.dto.request.controller.MsScriptElement;
 import io.metersphere.api.parser.TestElementParser;
 import io.metersphere.api.parser.TestElementParserFactory;
+import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.engine.EngineFactory;
 import io.metersphere.engine.MsHttpClient;
@@ -22,6 +26,9 @@ import io.metersphere.project.dto.customfunction.request.CustomFunctionRunReques
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.dto.environment.GlobalParams;
 import io.metersphere.project.dto.environment.GlobalParamsDTO;
+import io.metersphere.project.dto.environment.http.HttpConfig;
+import io.metersphere.project.dto.environment.http.HttpConfigModuleMatchRule;
+import io.metersphere.project.dto.environment.http.SelectModule;
 import io.metersphere.project.service.*;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.api.task.*;
@@ -114,6 +121,8 @@ public class ApiExecuteService {
     private ExecTaskItemMapper execTaskItemMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private ApiDefinitionModuleService apiDefinitionModuleService;
 
     @PostConstruct
     private void init() {
@@ -844,7 +853,53 @@ public class ApiExecuteService {
     public TaskRequestDTO apiExecute(ApiResourceRunRequest runRequest, TaskRequestDTO taskRequest, ApiParamConfig apiParamConfig) {
         // 设置使用脚本前后置的公共脚本信息
         setTestElementParam(runRequest.getTestElement(), taskRequest.getTaskInfo().getProjectId(), taskRequest.getTaskItem());
+        // 处理模块匹配
+        handleHttpModuleMatchRule(apiParamConfig.getEnvConfig());
         return execute(runRequest, taskRequest, apiParamConfig);
+    }
+
+    /**
+     * 处理环境的 HTTP 配置模块匹配规则
+     * 查询新增子模块
+     *
+     * @param envInfoDTO
+     */
+    public void handleHttpModuleMatchRule(EnvironmentInfoDTO envInfoDTO) {
+        if (envInfoDTO == null || envInfoDTO.getConfig() == null) {
+            return;
+        }
+        List<HttpConfig> httpConfigs = envInfoDTO.getConfig().getHttpConfig();
+        for (HttpConfig httpConfig : httpConfigs) {
+            if (!httpConfig.isModuleMatchRule()) {
+                continue;
+            }
+            // 获取勾选了包含子模块的模块ID
+            HttpConfigModuleMatchRule moduleMatchRule = httpConfig.getModuleMatchRule();
+            List<SelectModule> selectModules = moduleMatchRule.getModules();
+
+            EnvApiModuleRequest envApiModuleRequest = new EnvApiModuleRequest();
+            envApiModuleRequest.setProjectId(envInfoDTO.getProjectId());
+            List<ApiModuleDTO> apiModuleDTOS = selectModules.stream().map(selectModule -> {
+                ApiModuleDTO apiModuleDTO = new ApiModuleDTO();
+                apiModuleDTO.setModuleId(selectModule.getModuleId());
+                apiModuleDTO.setContainChildModule(selectModule.getContainChildModule());
+                return apiModuleDTO;
+            }).toList();
+            envApiModuleRequest.setSelectedModules(apiModuleDTOS);
+            EnvApiTreeDTO envApiTreeDTO = apiDefinitionModuleService.envTree(envApiModuleRequest);
+            List<ApiModuleDTO> selectedModules = envApiTreeDTO.getSelectedModules();
+            List<String> moduleIds = selectedModules.stream().map(ApiModuleDTO::getModuleId).toList();
+
+
+            // 重新设置选中的模块ID
+            moduleMatchRule.setModules(null);
+            List<SelectModule> allSelectModules = moduleIds.stream().map(moduleId -> {
+                SelectModule module = new SelectModule();
+                module.setModuleId(moduleId);
+                return module;
+            }).collect(Collectors.toList());
+            moduleMatchRule.setModules(allSelectModules);
+        }
     }
 
     public void setTestElementParam(AbstractMsTestElement testElement, String projectId, TaskItem taskItem) {

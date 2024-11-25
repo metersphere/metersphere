@@ -218,6 +218,8 @@ public class ApiTestCaseRunService {
         apiCommonService.setApiDefinitionExecuteInfo(msTestElement, BeanUtils.copyBean(new ApiDefinitionExecuteInfo(), apiDefinition));
 
         apiExecuteService.setTestElementParam(msTestElement, apiTestCase.getProjectId(), request.getTaskItem());
+        // 处理模块匹配
+        apiExecuteService.handleHttpModuleMatchRule(apiParamConfig.getEnvConfig());
 
         // 设置环境信息
         apiParamConfig.setEnvConfig(environmentService.get(getEnvId(request.getRunModeConfig(), apiTestCase.getEnvironmentId())));

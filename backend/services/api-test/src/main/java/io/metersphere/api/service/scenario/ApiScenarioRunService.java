@@ -919,51 +919,9 @@ public class ApiScenarioRunService {
         envInfo.setEnvGroupMap(envGroupMap);
         envInfo.setEnvMap(envMap);
 
-        envMap.forEach((envId, envInfoDTO) -> handleHttpModuleMatchRule(envInfoDTO));
+        envMap.forEach((envId, envInfoDTO) -> apiExecuteService.handleHttpModuleMatchRule(envInfoDTO));
 
         return envInfo;
-    }
-
-
-    /**
-     * 处理环境的 HTTP 配置模块匹配规则
-     * 查询新增子模块
-     *
-     * @param envInfoDTO
-     */
-    private void handleHttpModuleMatchRule(EnvironmentInfoDTO envInfoDTO) {
-        List<HttpConfig> httpConfigs = envInfoDTO.getConfig().getHttpConfig();
-        for (HttpConfig httpConfig : httpConfigs) {
-            if (!httpConfig.isModuleMatchRule()) {
-                continue;
-            }
-            // 获取勾选了包含子模块的模块ID
-            HttpConfigModuleMatchRule moduleMatchRule = httpConfig.getModuleMatchRule();
-            List<SelectModule> selectModules = moduleMatchRule.getModules();
-
-            EnvApiModuleRequest envApiModuleRequest = new EnvApiModuleRequest();
-            envApiModuleRequest.setProjectId(envInfoDTO.getProjectId());
-            List<ApiModuleDTO> apiModuleDTOS = selectModules.stream().map(selectModule -> {
-                ApiModuleDTO apiModuleDTO = new ApiModuleDTO();
-                apiModuleDTO.setModuleId(selectModule.getModuleId());
-                apiModuleDTO.setContainChildModule(selectModule.getContainChildModule());
-                return apiModuleDTO;
-            }).toList();
-            envApiModuleRequest.setSelectedModules(apiModuleDTOS);
-            EnvApiTreeDTO envApiTreeDTO = apiDefinitionModuleService.envTree(envApiModuleRequest);
-            List<ApiModuleDTO> selectedModules = envApiTreeDTO.getSelectedModules();
-            List<String> moduleIds = selectedModules.stream().map(ApiModuleDTO::getModuleId).toList();
-
-
-            // 重新设置选中的模块ID
-            moduleMatchRule.setModules(null);
-            List<SelectModule> allSelectModules = moduleIds.stream().map(moduleId -> {
-                SelectModule module = new SelectModule();
-                module.setModuleId(moduleId);
-                return module;
-            }).collect(Collectors.toList());
-            moduleMatchRule.setModules(allSelectModules);
-        }
     }
 
     private List<ApiScenario> getApiScenarioByIds(List<String> apiScenarioIds) {
