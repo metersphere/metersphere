@@ -29,7 +29,7 @@
             value-key="value"
             label-key="label"
             :search-keys="['label']"
-            class="!w-[200px]"
+            class="!w-[220px]"
             :prefix="t('workbench.homePage.staff')"
             :multiple="true"
             :has-all-select="true"

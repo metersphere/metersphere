@@ -22,18 +22,16 @@
         </div>
       </div>
       <div class="mt-[16px]">
-        <TabCard :content-tab-list="testPlanTabList" not-has-padding hidden-border min-width="290px">
-          <template #item="{ item: tabItem }">
-            <div class="w-full">
-              <PassRatePie
-                :has-permission="hasPermission"
-                :options="tabItem.options"
-                :size="60"
-                :value-list="tabItem.valueList"
-              />
-            </div>
-          </template>
-        </TabCard>
+        <div class="flex gap-[16px]">
+          <div v-for="tabItem of testPlanTabList" :key="tabItem.label" class="flex-1">
+            <PassRatePie
+              :has-permission="hasPermission"
+              :options="tabItem.options"
+              :size="60"
+              :value-list="tabItem.valueList"
+            />
+          </div>
+        </div>
         <div class="h-[148px]">
           <MsChart :options="testPlanCountOptions" />
         </div>

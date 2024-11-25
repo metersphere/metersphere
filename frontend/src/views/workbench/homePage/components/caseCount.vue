@@ -22,19 +22,18 @@
         </div>
       </div>
       <div class="mt-[16px]">
-        <TabCard :content-tab-list="caseCountTabList" not-has-padding hidden-border min-width="270px">
-          <template #item="{ item: tabItem }">
-            <div class="w-full">
-              <PassRatePie
-                :options="tabItem.options"
-                :tooltip-text="tabItem.tooltip"
-                :size="60"
-                :value-list="tabItem.valueList"
-                :has-permission="hasPermission"
-              />
-            </div>
-          </template>
-        </TabCard>
+        <div class="flex gap-[16px]">
+          <div v-for="tabItem of caseCountTabList" :key="tabItem.label" class="flex-1">
+            <PassRatePie
+              :options="tabItem.options"
+              :tooltip-text="tabItem.tooltip"
+              :size="60"
+              :value-list="tabItem.valueList"
+              :has-permission="hasPermission"
+            />
+          </div>
+        </div>
+
         <div class="h-[148px]">
           <MsChart :options="caseCountOptions" />
         </div>
@@ -53,7 +52,6 @@
   import MsSelect from '@/components/business/ms-select';
   import CardSkeleton from './cardSkeleton.vue';
   import PassRatePie from './passRatePie.vue';
-  import TabCard from './tabCard.vue';
 
   import { workCaseCountDetail } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';

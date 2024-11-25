@@ -13,7 +13,7 @@
     </div>
     <div class="pass-rate-title flex-1">
       <div v-for="item of props.valueList" :key="item.label" class="flex-1">
-        <div class="mb-[8px] text-[var(--color-text-4)]">{{ item.label }}</div>
+        <div class="one-line-text mb-[8px] text-[var(--color-text-4)]">{{ item.label }}</div>
         <div class="pass-rate-count">{{ hasPermission ? addCommasToNumber(item.value as number) : '-' }}</div>
       </div>
     </div>
@@ -21,8 +21,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-
   import MsChart from '@/components/pure/chart/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';

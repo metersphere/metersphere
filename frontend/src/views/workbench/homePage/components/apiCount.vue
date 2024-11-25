@@ -22,8 +22,12 @@
         </div>
       </div>
       <div class="my-[16px]">
-        <TabCard :content-tab-list="apiCountTabList" not-has-padding hidden-border min-width="296px">
-          <template #item="{ item: tabItem }">
+        <div class="flex gap-[16px]">
+          <div
+            v-for="tabItem of apiCountTabList"
+            :key="tabItem.label"
+            :class="`flex-1  ${tabItem.value === 'complete' ? 'min-w-[300px]' : 'min-w-[197px]'}`"
+          >
             <PassRatePie
               :tooltip-text="tabItem.tooltip"
               :options="tabItem.options"
@@ -32,8 +36,8 @@
               :has-permission="hasPermission"
               :value-list="tabItem.valueList"
             />
-          </template>
-        </TabCard>
+          </div>
+        </div>
         <div class="h-[148px]">
           <MsChart :options="apiCountOptions" />
         </div>
@@ -52,7 +56,6 @@
   import MsSelect from '@/components/business/ms-select';
   import CardSkeleton from './cardSkeleton.vue';
   import PassRatePie from './passRatePie.vue';
-  import TabCard from './tabCard.vue';
 
   import { workApiCountCoverRage, workApiCountDetail } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';

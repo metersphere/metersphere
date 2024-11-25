@@ -15,7 +15,7 @@
             value-key="id"
             label-key="name"
             :search-keys="['name']"
-            class="!w-[200px]"
+            class="!w-[230px]"
             :prefix="t('workbench.homePage.project')"
             :multiple="true"
             :has-all-select="true"

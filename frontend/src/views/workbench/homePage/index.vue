@@ -1,5 +1,5 @@
 <template>
-  <div :class="`work-bench-content ${defaultWorkList.length ? 'min-w-[1000px]' : ''}`">
+  <div :class="`work-bench-content ${defaultWorkList.length ? 'min-w-[1200px]' : ''}`">
     <div class="header-setting pb-[4px]">
       <div
         class="setting sticky top-0 z-[999] mb-[-16px] flex items-center justify-between bg-[var(--color-bg-3)] pb-[16px]"
