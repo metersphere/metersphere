@@ -395,7 +395,12 @@ public class ApiTestCaseBatchRunService {
         taskRequest.getTaskItem().setRequestCount(1L);
         taskRequest.getTaskItem().setId(taskItemId);
 
-        apiExecuteService.execute(taskRequest);
+        try {
+            apiExecuteService.execute(taskRequest);
+        } catch (Exception e) {
+            // 执行失败，删除队列
+            apiExecutionQueueService.deleteQueue(queue.getQueueId());
+        }
     }
 
     private TaskRequestDTO getTaskRequestDTO(String reportId, ApiTestCase apiTestCase, ApiRunModeConfigDTO runModeConfig) {

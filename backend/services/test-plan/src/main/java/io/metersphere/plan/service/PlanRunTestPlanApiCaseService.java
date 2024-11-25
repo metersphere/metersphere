@@ -116,12 +116,13 @@ public class PlanRunTestPlanApiCaseService {
 
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
         TaskBatchRequestDTO taskRequest = apiTestCaseBatchRunService.getTaskBatchRequestDTO(testPlan.getProjectId(), runModeConfig);
-        taskRequest.getTaskInfo().setTaskId(taskId);
-        taskRequest.getTaskInfo().setParentQueueId(testPlanExecutionQueue.getQueueId());
-        taskRequest.getTaskInfo().setSetId(execSetId);
-        taskRequest.getTaskInfo().setRerun(testPlanExecutionQueue.isRerun());
-        taskRequest.getTaskInfo().setUserId(userId);
-        taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.PLAN_RUN_API_CASE.name());
+        TaskInfo taskInfo = taskRequest.getTaskInfo();
+        taskInfo.setTaskId(taskId);
+        taskInfo.setParentQueueId(testPlanExecutionQueue.getQueueId());
+        taskInfo.setSetId(execSetId);
+        taskInfo.setRerun(testPlanExecutionQueue.isRerun());
+        taskInfo.setUserId(userId);
+        taskInfo.setResourceType(ApiExecuteResourceType.PLAN_RUN_API_CASE.name());
 
         List<ExecTaskItem> execTaskItems = apiBatchRunBaseService.getExecTaskItemByTaskIdAndCollectionId(testPlanExecutionQueue.getTaskId(),
                 collection.getId(), testPlanExecutionQueue.isRerun());
@@ -141,10 +142,17 @@ public class PlanRunTestPlanApiCaseService {
                     })
                     .collect(Collectors.toList());
 
+            List<String> taskItemIds = taskItems.stream().map(TaskItem::getId).toList();
             // 初始化执行集合，以便判断是否执行完毕
-            apiExecutionSetService.initSet(execSetId, taskItems.stream().map(TaskItem::getId).toList());
+            apiExecutionSetService.initSet(execSetId, taskItemIds);
             taskRequest.setTaskItems(taskItems);
-            apiExecuteService.batchExecute(taskRequest);
+            try {
+                apiExecuteService.batchExecute(taskRequest);
+            } catch (Exception e) {
+                // 执行失败，删除执行集合中的任务项
+                apiExecutionSetService.removeItems(execSetId, taskItemIds);
+                LogUtils.error(e);
+            }
             taskRequest.setTaskItems(null);
         });
         return false;
@@ -180,7 +188,12 @@ public class PlanRunTestPlanApiCaseService {
         taskRequest.getTaskItem().setRequestCount(1L);
         taskRequest.getTaskItem().setId(queueDetail.getTaskItemId());
 
-        apiExecuteService.execute(taskRequest);
+        try {
+            apiExecuteService.execute(taskRequest);
+        } catch (Exception e) {
+            // 执行失败，删除队列
+            apiExecutionQueueService.deleteQueue(queue.getQueueId());
+        }
     }
 
     /**

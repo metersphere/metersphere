@@ -25,6 +25,7 @@ import io.metersphere.sdk.dto.api.task.*;
 import io.metersphere.sdk.dto.queue.ExecutionQueue;
 import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.ExecTask;
@@ -258,14 +259,22 @@ public class TestPlanApiScenarioBatchRunService {
                     })
                     .collect(Collectors.toList());
 
-            List<String> taskIds = taskItems.stream().map(TaskItem::getId).toList();
+            List<String> taskItemIds = taskItems.stream().map(TaskItem::getId).toList();
 
             if (StringUtils.isBlank(parentSetId)) {
                 // 如果有没有父集合，则初始化执行集合，以便判断是否执行完毕
-                apiExecutionSetService.initSet(taskInfo.getSetId(), taskIds);
+                apiExecutionSetService.initSet(taskInfo.getSetId(), taskItemIds);
             }
             taskRequest.setTaskItems(taskItems);
-            apiExecuteService.batchExecute(taskRequest);
+            try {
+                apiExecuteService.batchExecute(taskRequest);
+            } catch (Exception e) {
+                // 执行失败，删除执行集合中的任务项
+                if (StringUtils.isBlank(parentSetId)) {
+                    apiExecutionSetService.removeItems(taskInfo.getSetId(), taskItemIds);
+                }
+                LogUtils.error(e);
+            }
             taskRequest.setTaskItems(null);
         });
     }
@@ -319,7 +328,13 @@ public class TestPlanApiScenarioBatchRunService {
         taskRequest.getTaskInfo().setParentQueueId(queue.getParentQueueId());
         taskRequest.getTaskInfo().setParentSetId(queue.getParentSetId());
 
-        apiExecuteService.execute(taskRequest);
+        try {
+            apiExecuteService.execute(taskRequest);
+        } catch (Exception e) {
+            // 执行失败，删除队列
+            apiExecutionQueueService.deleteQueue(queue.getQueueId());
+            apiExecutionQueueService.deleteQueue(queue.getParentQueueId());
+        }
     }
 
     public TaskRequestDTO getTaskRequestDTO(String projectId, ApiRunModeConfigDTO runModeConfig) {

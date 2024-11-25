@@ -250,14 +250,24 @@ public class TestPlanApiCaseBatchRunService {
                     })
                     .collect(Collectors.toList());
 
-            List<String> taskIds = taskItems.stream().map(TaskItem::getId).toList();
+            List<String> taskItemIds = taskItems.stream().map(TaskItem::getId).toList();
 
             if (StringUtils.isBlank(parentSetId)) {
                 // 如果有没有父集合，则初始化执行集合，以便判断是否执行完毕
-                apiExecutionSetService.initSet(taskInfo.getSetId(), taskIds);
+                apiExecutionSetService.initSet(taskInfo.getSetId(), taskItemIds);
             }
             taskRequest.setTaskItems(taskItems);
-            apiExecuteService.batchExecute(taskRequest);
+
+            try {
+                apiExecuteService.batchExecute(taskRequest);
+            } catch (Exception e) {
+                // 执行失败，删除执行集合中的任务项
+                if (StringUtils.isBlank(parentSetId)) {
+                    apiExecutionSetService.removeItems(taskInfo.getSetId(), taskItemIds);
+                }
+                LogUtils.error(e);
+            }
+
             taskRequest.setTaskItems(null);
         });
     }
@@ -347,7 +357,13 @@ public class TestPlanApiCaseBatchRunService {
         taskRequest.getTaskItem().setId(queueDetail.getTaskItemId());
         taskRequest.getTaskItem().setRequestCount(1L);
 
-        apiExecuteService.execute(taskRequest);
+        try {
+            apiExecuteService.execute(taskRequest);
+        } catch (Exception e) {
+            // 执行失败，删除队列
+            apiExecutionQueueService.deleteQueue(queue.getQueueId());
+            apiExecutionQueueService.deleteQueue(queue.getParentQueueId());
+        }
     }
 
     public TaskRequestDTO getTaskRequestDTO(String resourceId, ApiTestCase apiTestCase, ApiRunModeConfigDTO runModeConfig) {

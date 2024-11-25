@@ -5,6 +5,7 @@ import io.metersphere.api.domain.ApiReportRelateTaskExample;
 import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.mapper.ApiReportRelateTaskMapper;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
+import io.metersphere.api.service.queue.ApiExecutionSetService;
 import io.metersphere.sdk.constants.ApiBatchRunMode;
 import io.metersphere.sdk.constants.CommonConstants;
 import io.metersphere.sdk.constants.ExecStatus;
@@ -47,6 +48,8 @@ public class ApiBatchRunBaseService {
     private ExecTaskMapper execTaskMapper;
     @Resource
     private ApiReportRelateTaskMapper apiReportRelateTaskMapper;
+    @Resource
+    private ApiExecutionSetService apiExecutionSetService;
 
     public static final int BATCH_TASK_ITEM_SIZE = 500;
 
@@ -271,7 +274,14 @@ public class ApiBatchRunBaseService {
 
         if (count > 0) {
             taskRequest.setTaskItems(taskItems);
-            apiExecuteService.batchExecute(taskRequest);
+            try {
+                apiExecuteService.batchExecute(taskRequest);
+            } catch (Exception e) {
+                // 执行失败，删除执行集合中的任务项
+                List<String> taskItemIds = taskRequest.getTaskItems().stream().map(TaskItem::getId).toList();
+                apiExecutionSetService.removeItems(taskRequest.getTaskInfo().getSetId(), taskItemIds);
+                LogUtils.error(e);
+            }
         }
     }
 

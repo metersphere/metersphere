@@ -351,7 +351,12 @@ public class ApiScenarioBatchRunService {
         taskRequest.getTaskInfo().setTaskId(queue.getTaskId());
         taskRequest.getTaskInfo().setRerun(queue.getRerun());
 
-        apiExecuteService.execute(taskRequest);
+        try {
+            apiExecuteService.execute(taskRequest);
+        } catch (Exception e) {
+            // 执行失败，删除队列
+            apiExecutionQueueService.deleteQueue(queue.getQueueId());
+        }
     }
 
     private TaskRequestDTO getTaskRequestDTO(String projectId, ApiRunModeConfigDTO runModeConfig) {

@@ -135,10 +135,18 @@ public class PlanRunTestPlanApiScenarioService {
                     })
                     .collect(Collectors.toList());
 
+            List<String> taskItemIds = taskItems.stream().map(TaskItem::getId).toList();
+
             // 初始化执行集合，以便判断是否执行完毕
-            apiExecutionSetService.initSet(execSetId, taskItems.stream().map(TaskItem::getId).toList());
+            apiExecutionSetService.initSet(execSetId, taskItemIds);
             taskRequest.setTaskItems(taskItems);
-            apiExecuteService.batchExecute(taskRequest);
+            try {
+                apiExecuteService.batchExecute(taskRequest);
+            } catch (Exception e) {
+                // 执行失败，删除执行集合中的任务项
+                apiExecutionSetService.removeItems(execSetId, taskItemIds);
+                LogUtils.error(e);
+            }
             taskRequest.setTaskItems(null);
         });
         return false;
@@ -186,8 +194,12 @@ public class PlanRunTestPlanApiScenarioService {
         taskRequest.getTaskInfo().setRerun(queue.getRerun());
         taskRequest.getTaskInfo().setParentQueueId(queue.getParentQueueId());
         taskRequest.getTaskInfo().setResourceType(ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name());
-
-        apiExecuteService.execute(taskRequest);
+        try {
+            apiExecuteService.execute(taskRequest);
+        } catch (Exception e) {
+            // 执行失败，删除队列
+            apiExecutionQueueService.deleteQueue(queue.getQueueId());
+        }
     }
 
     public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
