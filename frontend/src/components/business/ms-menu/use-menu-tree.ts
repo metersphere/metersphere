@@ -28,10 +28,8 @@ export default function useMenuTree() {
         }
 
         // 如果是隐藏的模块，则不显示菜单
-        if (
-          featureRouteMap[element.name as string] &&
-          !appStore.currentMenuConfig.includes(featureRouteMap[element.name as string])
-        ) {
+        const moduleId = Object.keys(featureRouteMap).find((key) => (element.name as string)?.includes(key));
+        if (moduleId && featureRouteMap[moduleId] && !appStore.currentMenuConfig.includes(featureRouteMap[moduleId])) {
           return null;
         }
 
