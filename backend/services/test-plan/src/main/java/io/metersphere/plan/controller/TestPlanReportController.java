@@ -173,10 +173,10 @@ public class TestPlanReportController {
     public Pager<List<BugDTO>> pageBug(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprb.bug_num, tprb.id desc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprb.bug_num desc");
         if (!request.getStartPager()) {
             page.close();
-            page.setOrderBy("tprb.bug_num, tprb.id desc");
+            page.setOrderBy("tprb.bug_num desc");
         }
         return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailBugs(request));
     }
