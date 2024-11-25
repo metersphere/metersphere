@@ -349,6 +349,15 @@ export default defineComponent(
       }
     });
 
+    watch(
+      () => props.defaultAllSelect,
+      (val) => {
+        if (val) {
+          handleSelectAllChange(true);
+        }
+      }
+    );
+
     // 检测全选状态变化，全选时需要覆盖选择器的输入框内容，展示文本 ‘全部’；非全选时则移除文本 ‘全部’
     watchEffect(() => {
       const innerDom = selectRef.value?.$el.nextElementSibling.querySelector('.arco-select-view-inner') as HTMLElement;

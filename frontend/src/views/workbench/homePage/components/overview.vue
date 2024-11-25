@@ -19,7 +19,7 @@
             :prefix="t('workbench.homePage.project')"
             :multiple="true"
             :has-all-select="true"
-            :default-all-select="innerSelectAll"
+            :default-all-select="props.item.selectAll"
             :at-least-one="true"
             @change="changeProject"
           >
@@ -195,6 +195,7 @@
     options.value.yAxis[0].max = maxAxis < 100 ? 100 : maxAxis + 50;
   }
   const showSkeleton = ref(false);
+  const selectAll = computed(() => appStore.projectList.length === innerProjectIds.value.length);
 
   async function initOverViewDetail() {
     try {
@@ -210,7 +211,7 @@
         projectIds: innerProjectIds.value,
         organizationId: appStore.currentOrgId,
         handleUsers: [],
-        selectAll: innerSelectAll.value,
+        selectAll: selectAll.value,
       };
       let detail;
       if (props.item.key === WorkCardEnum.PROJECT_VIEW) {
@@ -232,6 +233,7 @@
   function changeProject() {
     if (isInit.value) return;
     nextTick(() => {
+      innerSelectAll.value = selectAll.value;
       emit('change');
     });
   }
@@ -242,13 +244,6 @@
   });
 
   watch(
-    () => innerProjectIds.value,
-    (val) => {
-      innerSelectAll.value = val.length === appStore.projectList.length;
-    }
-  );
-
-  watch(
     () => timeForm.value,
     (val) => {
       if (val) {
@@ -257,15 +252,6 @@
     },
     {
       deep: true,
-    }
-  );
-
-  watch(
-    () => props.refreshKey,
-    (val) => {
-      if (val) {
-        initOverViewDetail();
-      }
     }
   );
 
