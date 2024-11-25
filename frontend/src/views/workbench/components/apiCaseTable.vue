@@ -26,11 +26,6 @@
       <template #[FilterSlotNameEnum.API_TEST_CASE_API_STATUS]="{ filterContent }">
         <apiStatus :status="filterContent.value" />
       </template>
-      <template #createName="{ record }">
-        <a-tooltip :content="`${record.createName}`" position="tr">
-          <div class="one-line-text">{{ record.createName }}</div>
-        </a-tooltip>
-      </template>
       <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
         <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
       </template>
@@ -168,7 +163,7 @@
     {
       title: 'case.tableColumnCreateUser',
       slotName: 'createName',
-      dataIndex: 'createUser',
+      dataIndex: 'createName',
       showTooltip: true,
       width: 150,
     },
