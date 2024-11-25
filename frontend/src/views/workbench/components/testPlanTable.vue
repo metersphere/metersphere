@@ -280,6 +280,7 @@
     openNewPage(TestPlanRouteEnum.TEST_PLAN_INDEX, {
       showType: showType.value,
       view: props.type,
+      pId: props.project,
     });
   }
 

@@ -187,6 +187,7 @@
   function goCaseReview() {
     openNewPage(CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW, {
       view: props.type,
+      pId: props.project,
     });
   }
 

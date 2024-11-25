@@ -259,6 +259,7 @@
   function goBugList() {
     openNewPage(BugManagementRouteEnum.BUG_MANAGEMENT_INDEX, {
       view: props.type,
+      pId: props.project,
     });
   }
 

@@ -202,6 +202,7 @@
     openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
       tab: 'case',
       view: props.type,
+      pId: props.project,
     });
   }
 

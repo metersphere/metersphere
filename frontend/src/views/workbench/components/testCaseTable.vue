@@ -231,6 +231,7 @@
     openNewPage(CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, {
       showType: 'list',
       view: props.type,
+      pId: props.project,
     });
   }
 </script>

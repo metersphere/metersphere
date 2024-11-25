@@ -248,6 +248,7 @@
   function goScenario() {
     openNewPage(ApiTestRouteEnum.API_TEST_SCENARIO, {
       view: props.type,
+      pId: props.project,
     });
   }
 
