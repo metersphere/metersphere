@@ -727,10 +727,32 @@ public class MockApiUtils {
         for (String path : urlList) {
             if (StringUtils.equalsAny(path, url, "/" + url)) {
                 return true;
-            } else {
-                if (StringUtils.isEmpty(path)) {
-                    continue;
+            } else if (StringUtils.isEmpty(path)) {
+                return false;
+            } else if (StringUtils.startsWithAny(path.toLowerCase(), "https://", "http://")) {
+                if (path.contains("?")) {
+                    path = path.substring(0, path.indexOf("?"));
                 }
+                String[] pathArr = path.split("/");
+                if (pathArr.length >= urlParams.length) {
+                    boolean isFetch = true;
+                    for (int urlIndex = 0; urlIndex < urlParams.length; urlIndex++) {
+                        String urlItem = urlParams[urlIndex];
+                        String customUrlItem = pathArr[pathArr.length - urlParams.length + urlIndex];
+                        // 不为rest参数的要进行全匹配。 而且忽略大小写
+                        if (isRestUrlParam(customUrlItem) && isRestUrlParam(urlItem)) {
+                            if (!StringUtils.equalsIgnoreCase(customUrlItem, urlItem)) {
+                                isFetch = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (isFetch) {
+                        return true;
+                    }
+                }
+            } else {
+
                 if (path.startsWith("/")) {
                     path = path.substring(1);
                 }
@@ -741,7 +763,7 @@ public class MockApiUtils {
                         for (int i = 0; i < urlParams.length; i++) {
                             String pathItem = pathArr[i];
                             String urlItem = urlParams[i];
-                            if (!(pathItem.startsWith("{") && pathItem.endsWith("}")) && !(urlItem.startsWith("{") && urlItem.endsWith("}"))) {
+                            if (!(isRestUrlParam(pathItem)) && !(isRestUrlParam(urlItem))) {
                                 if (!StringUtils.equals(pathArr[i], urlParams[i])) {
                                     isFetch = false;
                                     break;
@@ -761,6 +783,10 @@ public class MockApiUtils {
             }
         }
         return false;
+    }
+
+    private static boolean isRestUrlParam(String urlParam) {
+        return !StringUtils.startsWith(urlParam, "{") || !StringUtils.endsWith(urlParam, "}") || StringUtils.equals(urlParam, "{}");
     }
 
     /**

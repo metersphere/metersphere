@@ -68,6 +68,8 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         parseBody(request.getBody(), requestDesc);
         request.setArguments(parseKeyValue(url == null ? new ArrayList<>() : url.getQuery()));
         request.setHeaders(parseKeyValue(requestDesc.getHeader()));
+        request.setCustomizeReq(true);
+        request.setReferenced("Created");
         return request;
     }
 
