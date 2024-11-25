@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="mt-[16px]">
-      <TabCard :content-tab-list="testPlanTabList" not-has-padding hidden-border min-width="270px">
+      <TabCard :content-tab-list="testPlanTabList" not-has-padding hidden-border min-width="290px">
         <template #item="{ item: tabItem }">
           <div class="w-full">
             <PassRatePie
@@ -90,12 +90,9 @@
     })
   );
 
-  const executionOptions = ref<Record<string, any>>({});
   const passOptions = ref<Record<string, any>>({});
   const completeOptions = ref<Record<string, any>>({});
 
-  // 执行率
-  const executionValueList = ref<{ value: number | string; label: string; name: string }[]>([]);
   // 通过率
   const passValueList = ref<{ value: number | string; label: string; name: string }[]>([]);
 
@@ -104,12 +101,6 @@
 
   const testPlanTabList = computed(() => {
     return [
-      {
-        label: '',
-        value: 'execution',
-        valueList: executionValueList.value,
-        options: { ...executionOptions.value },
-      },
       {
         label: '',
         value: 'pass',
@@ -138,7 +129,7 @@
         projectId: innerProjectIds.value[0],
       };
       const detail: WorkTestPlanRageDetail = await workTestPlanRage(params);
-      const { unExecute, executed, passed, notPassed, finished, running, prepared, archived, errorCode } = detail;
+      const { passed, notPassed, finished, running, prepared, archived, errorCode } = detail;
       hasPermission.value = errorCode !== 109001;
 
       const passRate = passed + notPassed > 0 ? parseFloat(((passed / (passed + notPassed)) * 100).toFixed(2)) : 0;
@@ -172,7 +163,7 @@
         percentValue: total > 0 ? `${((item.count / total) * 100).toFixed(2)}%` : '0%',
       }));
 
-      const completeRate = total > 0 ? parseFloat(((finished / total) * 100).toFixed(2)) : 0;
+      const completeRate = total > 0 ? parseFloat((((finished + archived) / total) * 100).toFixed(2)) : 0;
 
       const completeData = [
         {
@@ -191,35 +182,13 @@
           name: t('common.notStarted'),
           count: prepared,
         },
-      ];
-
-      const executeRate = finished + running > 0 ? parseFloat((((finished + running) / total) * 100).toFixed(2)) : 0;
-      const executeData: {
-        name: string;
-        count: number;
-      }[] = [
         {
-          name: t('workbench.homePage.executeRate'),
-          count: executeRate,
-        },
-        {
-          name: t('common.unExecute'),
-          count: unExecute,
-        },
-        {
-          name: t('common.executed'),
-          count: executed,
+          name: t('common.archived'),
+          count: archived,
         },
       ];
 
       testPlanCountOptions.value = handlePieData(props.item.key, hasPermission.value, listStatusPercentList);
-
-      // 执行率
-      const { options: executedOptions, valueList: executedList } = handleUpdateTabPie(
-        executeData,
-        hasPermission.value,
-        `${props.item.key}-execute`
-      );
 
       // 通过率
       const { options: passedOptions, valueList: passList } = handleUpdateTabPie(
@@ -235,11 +204,9 @@
         `${props.item.key}-complete`
       );
 
-      executionValueList.value = executedList;
       passValueList.value = passList;
       completeValueList.value = completeList;
 
-      executionOptions.value = executedOptions;
       passOptions.value = passedOptions;
       completeOptions.value = comOptions;
     } catch (error) {

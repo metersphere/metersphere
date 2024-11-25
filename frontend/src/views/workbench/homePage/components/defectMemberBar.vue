@@ -97,10 +97,7 @@
   const hasPermission = ref<boolean>(false);
 
   function handleData(detail: OverViewOfProject) {
-    options.value = getCommonBarOptions(detail.xaxis.length >= 7, [
-      ...defectStatusColor,
-      ...getColorScheme(detail.xaxis.length),
-    ]);
+    options.value = getCommonBarOptions(detail.xaxis.length >= 7, [...defectStatusColor, ...getColorScheme(13)]);
     const { invisible, text } = handleNoDataDisplay(detail.xaxis, hasPermission.value);
     options.value.graphic.invisible = invisible;
     options.value.graphic.style.text = text;
