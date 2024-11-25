@@ -135,7 +135,9 @@
       hasPermission.value = errorCode !== 109001;
 
       countOptions.value = handlePieData(props.item.key, hasPermission.value, statusPercentList);
-
+      if (props.item.key === WorkCardEnum.PLAN_LEGACY_BUG) {
+        countOptions.value.title.text = t('workbench.homePage.legacyDefectsNumber');
+      }
       const [rate, totalBug, legacy] = statusStatisticsMap?.retentionRate || [];
 
       const unLegacy = totalBug && legacy ? totalBug.count - legacy.count : 0;

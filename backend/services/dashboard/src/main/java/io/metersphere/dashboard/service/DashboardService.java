@@ -1323,7 +1323,7 @@ public class DashboardService {
         List<NameCountDTO> nameCountDTOS = buildBugRetentionRateList(totalSize, statusSize);
         Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
         statusStatisticsMap.put("retentionRate", nameCountDTOS);
-        List<SelectOption> headerStatusOption = getHeaderStatusOption(projectId, platformName);
+        List<SelectOption> headerStatusOption = getHeaderStatusOption(projectId, platformName, new ArrayList<>());
         Map<String, List<Bug>> bugMap = allSimpleList.stream().collect(Collectors.groupingBy(Bug::getStatus));
         List<StatusPercentDTO> bugPercentList = bulidBugPercentList(headerStatusOption, bugMap, totalSize);
         statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
@@ -1361,10 +1361,10 @@ public class DashboardService {
             retentionRate.setCount(getTurnCount(divide));
         }
         retentionRates.add(retentionRate);
-        NameCountDTO total = getNameCountDTO(totalSize, Translator.get("bug_management.totalCount"));
-        retentionRates.add(total);
         NameCountDTO retentionDTO = getNameCountDTO(statusSize, Translator.get("bug_management.retentionCount"));
         retentionRates.add(retentionDTO);
+        NameCountDTO total = getNameCountDTO(totalSize, Translator.get("bug_management.totalCount"));
+        retentionRates.add(total);
         return retentionRates;
     }
 
@@ -1412,7 +1412,7 @@ public class DashboardService {
         List<SelectOption> planBugList = extTestPlanMapper.getPlanBugList(projectId, TestPlanConstants.TEST_PLAN_TYPE_PLAN, new ArrayList<>(platforms), null);
         List<String> localLastStepStatus = getBugEndStatus(projectId, platformName);
         List<SelectOption> legacyBugList = planBugList.stream().filter(t -> !localLastStepStatus.contains(t.getText())).toList();
-        List<SelectOption> headerStatusOption = getHeaderStatusOption(projectId, platformName);
+        List<SelectOption> headerStatusOption = getHeaderStatusOption(projectId, platformName, localLastStepStatus);
         int statusSize = CollectionUtils.isEmpty(legacyBugList) ? 0 : legacyBugList.size();
         int totalSize = CollectionUtils.isEmpty(planBugList) ? 0 : planBugList.size();
         List<NameCountDTO> nameCountDTOS = buildBugRetentionRateList(totalSize, statusSize);
@@ -1441,7 +1441,7 @@ public class DashboardService {
     }
 
     @NotNull
-    private List<SelectOption> getHeaderStatusOption(String projectId, String platformName) {
+    private List<SelectOption> getHeaderStatusOption(String projectId, String platformName, List<String> endStatus) {
         List<SelectOption> allLocalStatusOptions = bugStatusService.getAllLocalStatusOptions(projectId);
         List<SelectOption> headerStatusOption = new ArrayList<>(allLocalStatusOptions);
         if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
@@ -1450,7 +1450,7 @@ public class DashboardService {
                 headerStatusOption.addAll(thirdStatusOptions);
             }
         }
-        headerStatusOption = headerStatusOption.stream().distinct().toList();
+        headerStatusOption = headerStatusOption.stream().filter(t->!endStatus.contains(t.getValue())).distinct().toList();
         return headerStatusOption;
     }
 
