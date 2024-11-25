@@ -1306,11 +1306,13 @@
             updateParam.config.environmentId = undefined;
           }
           if (isBatch.value) {
+            const batchConditionParams = await getBatchConditionParams();
             await scenarioBatchEditSchedule({
               ...batchParams.value,
               projectId: appStore.currentProjectId,
               selectIds: batchParams.value?.selectedIds || [],
               ...updateParam,
+              moduleIds: batchConditionParams.moduleIds,
             });
           } else {
             await scenarioScheduleConfig(updateParam);
