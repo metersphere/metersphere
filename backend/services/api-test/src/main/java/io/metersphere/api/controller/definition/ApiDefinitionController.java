@@ -97,26 +97,29 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public ApiCoverageDTO rage(@PathVariable String projectId) {
-        List<String> apiAllIds = new ArrayList<>();
-        List<ApiDefinition> httpApiList = new ArrayList<>();
-        extApiDefinitionMapper.selectBaseInfoByProjectId(projectId).forEach(apiDefinition -> {
-            if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), "http")) {
-                httpApiList.add(apiDefinition);
-            }
-            apiAllIds.add(apiDefinition.getId());
-        });
+        // 筛选出所有 API 的 ID 和 HTTP 类型的 API
+        List<ApiDefinition> apiDefinitions = extApiDefinitionMapper.selectBaseInfoByProjectId(projectId);
+        List<String> apiAllIds = apiDefinitions.stream().map(ApiDefinition::getId).toList();
+        List<ApiDefinition> httpApiList = apiDefinitions.stream()
+                .filter(api -> StringUtils.equalsIgnoreCase(api.getProtocol(), "http"))
+                .toList();
 
+        // 获取 API 定义、测试用例 ID 和场景步骤中的 API ID
         List<String> apiDefinitionIdFromCase = extApiTestCaseMapper.selectApiId(projectId);
-        List<String> apiInScenarioStep = extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API.name());
+        List<String> apiInScenarioStep = new ArrayList<>(extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API.name()));
         List<String> apiCaseIdInStep = extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API_CASE.name());
+
+        // 如果有场景步骤中的 API 用例 ID，追加相关 API ID
         if (CollectionUtils.isNotEmpty(apiCaseIdInStep)) {
             List<String> apiCaseIdInScenarioStep = extApiTestCaseMapper.selectApiIdByCaseId(apiCaseIdInStep);
             apiInScenarioStep.addAll(apiCaseIdInScenarioStep);
         }
 
-        List<String> apiInStepList = apiScenarioService.selectApiIdInCustomRequest(projectId, httpApiList);
+        // 获取自定义步骤中的 API ID 并合并
+        List<String> apiInStepList = new ArrayList<>(apiScenarioService.selectApiIdInCustomRequest(projectId, httpApiList));
         apiInStepList.addAll(apiInScenarioStep);
 
+        // 构建结果 DTO
         return new ApiCoverageDTO(apiAllIds, apiDefinitionIdFromCase, apiInStepList);
     }
 

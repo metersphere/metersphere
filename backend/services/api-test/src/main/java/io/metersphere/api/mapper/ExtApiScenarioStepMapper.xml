@@ -43,6 +43,7 @@
                  INNER JOIN api_scenario scenario
                             ON step.scenario_id = scenario.id
         where scenario.project_id = #{0}
+          AND step.step_type IN ('API', 'API_CASE', 'CUSTOM_REQUEST')
           AND scenario.deleted IS FALSE
     </select>
 </mapper>
