@@ -102,6 +102,16 @@
       showInTable: true,
     },
     {
+      title: 'bugManagement.handleMan',
+      dataIndex: 'handleUser',
+      slotName: 'handleUser',
+      titleSlotName: 'handleUserTitle',
+      showTooltip: true,
+      width: 125,
+      showDrag: true,
+      showInTable: true,
+    },
+    {
       title: 'bugManagement.creator',
       dataIndex: 'createUser',
       slotName: 'createUser',
@@ -123,16 +133,6 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      showInTable: true,
-    },
-    {
-      title: 'bugManagement.handleMan',
-      dataIndex: 'handleUser',
-      slotName: 'handleUser',
-      titleSlotName: 'handleUserTitle',
-      showTooltip: true,
-      width: 125,
-      showDrag: true,
       showInTable: true,
     },
     {
