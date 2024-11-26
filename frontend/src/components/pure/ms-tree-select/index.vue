@@ -1,100 +1,102 @@
 <template>
-  <a-tooltip
-    :content="getTreeSelectTooltip()"
-    :disabled="!(checkedKeys ?? []).length"
-    position="top"
-    content-class="tree-select-content"
-    :mouse-enter-delay="300"
-  >
-    <a-trigger
-      v-model:popup-visible="viewSelectOptionVisible"
-      :trigger="['click']"
-      :click-to-close="false"
-      :popup-translate="[0, 4]"
-      content-class="arco-trigger-menu tree-select-trigger-content"
-      :content-style="{ width: `${triggerWidth}px` }"
+  <div class="w-full">
+    <a-tooltip
+      :content="getTreeSelectTooltip()"
+      :disabled="!(checkedKeys ?? []).length"
+      position="top"
+      content-class="tree-select-content"
+      :mouse-enter-delay="300"
     >
-      <a-tree-select
-        ref="treeSelectRef"
-        v-model:model-value="checkedKeys"
-        v-model:input-value="inputValue"
-        :data="treeData"
-        :max-tag-count="maxTagCount"
-        :multiple="props.multiple"
-        allow-search
-        disable-filter
-        allow-clear
-        :tree-props="{
-          virtualListProps: virtualListProps,
-        }"
-        :field-names="props.fieldNames"
-        :placeholder="t('common.pleaseSelect')"
-        :trigger-props="{ contentClass: 'view-select-trigger' }"
-        @popup-visible-change="handlePopupVisibleChange"
-        @input-value-change="handleInputValueChange"
-        @change="handleChange"
-        @keyup="handleKeyup"
-        @clear="handleClear"
+      <a-trigger
+        v-model:popup-visible="viewSelectOptionVisible"
+        :trigger="['click']"
+        :click-to-close="false"
+        :popup-translate="[0, 4]"
+        content-class="arco-trigger-menu tree-select-trigger-content"
+        :content-style="{ width: `${triggerWidth}px` }"
       >
-        <template #label="{ data: slotData }">
-          <div class="one-line-text">{{ slotData.label }}</div>
-        </template>
-      </a-tree-select>
-      <template #content>
-        <MsTree
-          v-model:checked-keys="checkedKeys"
-          v-model:halfCheckedKeys="halfCheckedKeys"
-          v-model:focus-node-key="focusNodeKey"
+        <a-tree-select
+          ref="treeSelectRef"
+          v-model:model-value="checkedKeys"
+          v-model:input-value="inputValue"
           :data="treeData"
-          :selectable="false"
-          :keyword="inputValue"
-          :empty-text="t('common.noData')"
-          :virtual-list-props="virtualListProps"
-          :field-names="props.fieldNames as MsTreeFieldNames"
-          :node-disabled-tip="t('project.environmental.http.nodeDisabledTip')"
-          default-expand-all
-          block-node
-          title-tooltip-position="tr"
+          :max-tag-count="maxTagCount"
           :multiple="props.multiple"
-          :checkable="props.treeCheckable"
-          :check-strictly="props.treeCheckStrictly"
-          v-bind="$attrs"
-          @check="handleCheck"
+          allow-search
+          disable-filter
+          allow-clear
+          :tree-props="{
+            virtualListProps: virtualListProps,
+          }"
+          :field-names="props.fieldNames"
+          :placeholder="t('common.pleaseSelect')"
+          :trigger-props="{ contentClass: 'view-select-trigger' }"
+          @popup-visible-change="handlePopupVisibleChange"
+          @input-value-change="handleInputValueChange"
+          @change="handleChange"
+          @keyup="handleKeyup"
+          @clear="handleClear"
         >
-          <template #title="nodeData">
-            <div
-              class="one-line-text w-full cursor-pointer text-[var(--color-text-1)]"
-              @click="handleCheck(checkedKeys, { checked: !checkedKeys.includes(nodeData.id), node: nodeData })"
-            >
-              {{ nodeData.name }}
-            </div>
+          <template #label="{ data: slotData }">
+            <div class="one-line-text">{{ slotData.label }}</div>
           </template>
-          <template #extra="nodeData">
-            <MsButton
-              v-if="nodeData.children && nodeData.children.length && !nodeData.disabled"
-              class="!mr-[8px]"
-              @click="handleSelectCurrent(nodeData)"
-            >
-              {{
-                checkedKeys.includes(nodeData.id)
-                  ? t('ms.case.associate.cancelCurrent')
-                  : t('ms.case.associate.selectCurrent')
-              }}
-            </MsButton>
-            <MoreMenuDropdown
-              v-if="props.showContainChildModule && !nodeData.disabled && nodeData.id !== 'root'"
-              v-model:contain-child-module="nodeData.containChildModule"
-              @handle-contain-child-module="
-                (containChildModule) => handleContainChildModule(nodeData, containChildModule)
-              "
-              @close="resetFocusNodeKey"
-              @open="setFocusKey(nodeData)"
-            />
-          </template>
-        </MsTree>
-      </template>
-    </a-trigger>
-  </a-tooltip>
+        </a-tree-select>
+        <template #content>
+          <MsTree
+            v-model:checked-keys="checkedKeys"
+            v-model:halfCheckedKeys="halfCheckedKeys"
+            v-model:focus-node-key="focusNodeKey"
+            :data="treeData"
+            :selectable="false"
+            :keyword="inputValue"
+            :empty-text="t('common.noData')"
+            :virtual-list-props="virtualListProps"
+            :field-names="props.fieldNames as MsTreeFieldNames"
+            :node-disabled-tip="t('project.environmental.http.nodeDisabledTip')"
+            default-expand-all
+            block-node
+            title-tooltip-position="tr"
+            :multiple="props.multiple"
+            :checkable="props.treeCheckable"
+            :check-strictly="props.treeCheckStrictly"
+            v-bind="$attrs"
+            @check="handleCheck"
+          >
+            <template #title="nodeData">
+              <div
+                class="one-line-text w-full cursor-pointer text-[var(--color-text-1)]"
+                @click="handleCheck(checkedKeys, { checked: !checkedKeys.includes(nodeData.id), node: nodeData })"
+              >
+                {{ nodeData.name }}
+              </div>
+            </template>
+            <template #extra="nodeData">
+              <MsButton
+                v-if="nodeData.children && nodeData.children.length && !nodeData.disabled"
+                class="!mr-[8px]"
+                @click="handleSelectCurrent(nodeData)"
+              >
+                {{
+                  checkedKeys.includes(nodeData.id)
+                    ? t('ms.case.associate.cancelCurrent')
+                    : t('ms.case.associate.selectCurrent')
+                }}
+              </MsButton>
+              <MoreMenuDropdown
+                v-if="props.showContainChildModule && !nodeData.disabled && nodeData.id !== 'root'"
+                v-model:contain-child-module="nodeData.containChildModule"
+                @handle-contain-child-module="
+                  (containChildModule) => handleContainChildModule(nodeData, containChildModule)
+                "
+                @close="resetFocusNodeKey"
+                @open="setFocusKey(nodeData)"
+              />
+            </template>
+          </MsTree>
+        </template>
+      </a-trigger>
+    </a-tooltip>
+  </div>
 </template>
 
 <script lang="ts" setup>
