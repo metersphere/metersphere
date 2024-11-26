@@ -247,6 +247,7 @@
   // 测试计划详情
   function openDetail(id: string) {
     openNewPage(TestPlanRouteEnum.TEST_PLAN_INDEX_DETAIL, {
+      pId: props.project,
       id,
     });
   }
