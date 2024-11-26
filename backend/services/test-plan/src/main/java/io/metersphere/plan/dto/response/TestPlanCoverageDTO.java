@@ -37,33 +37,54 @@ public class TestPlanCoverageDTO {
         this.archived++;
     }
 
-    public void notStartedAutoIncrement() {
-        this.prepared++;
+    public void notStartedAutoIncrement(boolean isArchived) {
         this.unExecute++;
         this.notPassed++;
+        if (isArchived) {
+            this.archived++;
+        } else {
+            this.prepared++;
+        }
     }
 
-    public void passAndFinishedAutoIncrement() {
+    public void passAndFinishedAutoIncrement(boolean isArchived) {
         this.executed++;
         this.passed++;
-        this.finished++;
+
+        if (isArchived) {
+            this.archived++;
+        } else {
+            this.finished++;
+        }
     }
 
-    public void passAndNotFinishedAutoIncrement() {
+    public void unSuccessAutoIncrement(boolean isArchived) {
+        this.executed++;
+        this.notPassed++;
+        if (isArchived) {
+            this.archived++;
+        } else {
+            this.finished++;
+        }
+    }
+
+    public void passAndNotFinishedAutoIncrement(boolean isArchived) {
         this.executed++;
         this.passed++;
-        this.running++;
+        if (isArchived) {
+            this.archived++;
+        } else {
+            this.running++;
+        }
     }
 
-    public void unSuccessAutoIncrement() {
+    public void testPlanRunningAutoIncrement(boolean isArchived) {
         this.executed++;
         this.notPassed++;
-        this.finished++;
-    }
-
-    public void testPlanRunningAutoIncrement() {
-        this.executed++;
-        this.notPassed++;
-        this.running++;
+        if (isArchived) {
+            this.archived++;
+        } else {
+            this.running++;
+        }
     }
 }

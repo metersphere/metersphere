@@ -1011,20 +1011,16 @@ public class TestPlanService extends TestPlanBaseUtilsService {
         testPlanExample.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
         List<TestPlan> testPlanList = extTestPlanMapper.selectIdAndStatusByProjectIdAndCreateTimeRangeAndType(projectId, null, null, TestPlanConstants.TEST_PLAN_TYPE_PLAN);
 
-        List<String> notArchivedList = new ArrayList<>();
-        testPlanList.forEach(item -> {
-            if (StringUtils.equalsIgnoreCase(item.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
-                returnDTO.archivedAutoIncrement();
-            } else {
-                notArchivedList.add(item.getId());
-            }
-        });
+        Map<String, String> testPlanStatusMap = new HashMap<>();
+
+        testPlanList.forEach(item -> testPlanStatusMap.put(item.getId(), item.getStatus()));
+        List<String> testPlanIds = new ArrayList<>(testPlanStatusMap.keySet());
 
         // 将当前项目下未归档的测试计划结果查询出来，进行下列符合条件的筛选
         Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
 
         // 批量处理
-        SubListUtils.dealForSubList(notArchivedList, SubListUtils.DEFAULT_BATCH_SIZE, dealList -> {
+        SubListUtils.dealForSubList(testPlanIds, SubListUtils.DEFAULT_BATCH_SIZE, dealList -> {
 
             TestPlanConfigExample configExample = new TestPlanConfigExample();
             configExample.createCriteria().andTestPlanIdIn(dealList);
@@ -1037,14 +1033,14 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                     Collectors.groupingBy(TestPlanResourceExecResultDTO::getTestPlanId, Collectors.mapping(TestPlanResourceExecResultDTO::getExecResult, Collectors.toList())));
 
             for (String testPlanId : dealList) {
+                boolean isArchived = StringUtils.equalsIgnoreCase(testPlanStatusMap.get(testPlanId), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
                 List<String> executeResultList = testPlanExecResultMap.get(testPlanId);
                 TestPlanConfig testPlanConfig = testPlanConfigMap.get(testPlanId);
                 double executeRage = testPlanConfig == null ? 100
                         : testPlanConfig.getPassThreshold() == null ? 100 : testPlanConfig.getPassThreshold();
-
                 if (CollectionUtils.isEmpty(executeResultList)) {
                     // 未运行
-                    returnDTO.notStartedAutoIncrement();
+                    returnDTO.notStartedAutoIncrement(isArchived);
                 } else {
                     double passphrase = CalculateUtils.percentage(
                             executeResultList.stream().filter(result -> StringUtils.equalsIgnoreCase(result, ResultStatus.SUCCESS.name())).toList().size(),
@@ -1055,26 +1051,26 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                     //目前只有三个状态。如果同时包含多种状态(进行中/未开始、进行中/已完成、已完成/未开始、进行中/未开始/已完成),根据算法可得测试计划都会是进行中
                     if (calculateList.size() == 1) {
                         if (calculateList.contains(ResultStatus.SUCCESS.name())) {
-                            returnDTO.passAndFinishedAutoIncrement();
+                            returnDTO.passAndFinishedAutoIncrement(isArchived);
                         } else if (calculateList.contains(ExecStatus.PENDING.name())) {
-                            returnDTO.notStartedAutoIncrement();
+                            returnDTO.notStartedAutoIncrement(isArchived);
                         } else {
-                            returnDTO.unSuccessAutoIncrement();
+                            returnDTO.unSuccessAutoIncrement(isArchived);
                         }
                     } else {
                         if (passphrase > executeRage) {
                             if (calculateList.contains(ExecStatus.PENDING.name())) {
                                 // 通过却未完成
-                                returnDTO.passAndNotFinishedAutoIncrement();
+                                returnDTO.passAndNotFinishedAutoIncrement(isArchived);
                             } else {
                                 // 通过且完成
-                                returnDTO.passAndFinishedAutoIncrement();
+                                returnDTO.passAndFinishedAutoIncrement(isArchived);
                             }
                         } else if (calculateList.contains(ExecStatus.PENDING.name())) {
                             // 存在还未完成的用例，测试计划为进行中
-                            returnDTO.testPlanRunningAutoIncrement();
+                            returnDTO.testPlanRunningAutoIncrement(isArchived);
                         } else {
-                            returnDTO.unSuccessAutoIncrement();
+                            returnDTO.unSuccessAutoIncrement(isArchived);
                         }
                     }
                 }
