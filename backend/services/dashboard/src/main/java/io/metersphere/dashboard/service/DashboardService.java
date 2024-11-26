@@ -180,139 +180,151 @@ public class DashboardService {
 
     @NotNull
     private OverViewCountDTO getModuleCountMap(Map<String, Set<String>> permissionModuleProjectIdMap, List<Project> projects, Long toStartTime, Long toEndTime, String userId) {
-        Map<String, Integer> map = new HashMap<>();
-        List<String> xaxis = new ArrayList<>();
-        List<NameArrayDTO> nameArrayDTOList = new ArrayList<>();
+        Map<String, String> projectNameMap = projects.stream().collect(Collectors.toMap(Project::getId, Project::getName));
+
+        Map<String, Integer> projectCaseCountMap;
+        Map<String, Integer> projectReviewCountMap;
+        Map<String, Integer> projectApiCountMap;
+        Map<String, Integer> projectApiScenarioCountMap;
+        Map<String, Integer> projectApiCaseCountMap;
+        Map<String, Integer> projectPlanCountMap;
+        Map<String, Integer> projectBugCountMap;
         //功能用例
-        Map<String, ProjectCountDTO> caseProjectCount = new HashMap<>();
         Set<String> caseProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.FUNCTIONAL_CASE_READ);
         if (CollectionUtils.isNotEmpty(caseProjectIds)) {
             //有权限
             List<ProjectCountDTO> projectCaseCount = extFunctionalCaseMapper.projectCaseCount(caseProjectIds, toStartTime, toEndTime, userId);
-            int caseCount = projectCaseCount.stream().mapToInt(ProjectCountDTO::getCount).sum();
-            map.put(FUNCTIONAL, caseCount);
-            xaxis.add(FUNCTIONAL);
-            caseProjectCount = projectCaseCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, t -> t));
+            projectCaseCountMap = projectCaseCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, ProjectCountDTO::getCount));
+        } else {
+            projectCaseCountMap = new HashMap<>();
         }
-
         //用例评审
-        Map<String, ProjectCountDTO> reviewProjectCount = new HashMap<>();
         Set<String> reviewProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.CASE_REVIEW_READ);
         if (CollectionUtils.isNotEmpty(reviewProjectIds)) {
             List<ProjectCountDTO> projectReviewCount = extCaseReviewMapper.projectReviewCount(reviewProjectIds, toStartTime, toEndTime, userId);
-            int reviewCount = projectReviewCount.stream().mapToInt(ProjectCountDTO::getCount).sum();
-            map.put(CASE_REVIEW, reviewCount);
-            xaxis.add(CASE_REVIEW);
-            reviewProjectCount = projectReviewCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, t -> t));
+            projectReviewCountMap = projectReviewCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, ProjectCountDTO::getCount));
+        } else {
+            projectReviewCountMap = new HashMap<>();
         }
         //接口
-        Map<String, ProjectCountDTO> apiProjectCount = new HashMap<>();
         Set<String> apiProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_API_DEFINITION_READ);
         if (CollectionUtils.isNotEmpty(apiProjectIds)) {
             List<ProjectCountDTO> projectApiCount = extApiDefinitionMapper.projectApiCount(apiProjectIds, toStartTime, toEndTime, userId);
-            int apiCount = projectApiCount.stream().mapToInt(ProjectCountDTO::getCount).sum();
-            map.put(API, apiCount);
-            xaxis.add(API);
-            apiProjectCount = projectApiCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, t -> t));
-
+            projectApiCountMap = projectApiCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, ProjectCountDTO::getCount));
+        } else {
+            projectApiCountMap = new HashMap<>();
         }
         //接口用例
-        Map<String, ProjectCountDTO> apiCaseProjectCount = new HashMap<>();
         Set<String> apiCaseProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ);
         if (CollectionUtils.isNotEmpty(apiCaseProjectIds)) {
             List<ProjectCountDTO> projectApiCaseCount = extApiTestCaseMapper.projectApiCaseCount(apiCaseProjectIds, toStartTime, toEndTime, userId);
-            int apiCaseCount = projectApiCaseCount.stream().mapToInt(ProjectCountDTO::getCount).sum();
-            map.put(API_CASE, apiCaseCount);
-            xaxis.add(API_CASE);
-            apiCaseProjectCount = projectApiCaseCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, t -> t));
-
+            projectApiCaseCountMap = projectApiCaseCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, ProjectCountDTO::getCount));
+        } else {
+            projectApiCaseCountMap = new HashMap<>();
         }
         //接口场景
-        Map<String, ProjectCountDTO> apiScenarioProjectCount = new HashMap<>();
         Set<String> scenarioProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_API_SCENARIO_READ);
         if (CollectionUtils.isNotEmpty(scenarioProjectIds)) {
             List<ProjectCountDTO> projectApiScenarioCount = extApiScenarioMapper.projectApiScenarioCount(scenarioProjectIds, toStartTime, toEndTime, userId);
-            int apiScenarioCount = projectApiScenarioCount.stream().mapToInt(ProjectCountDTO::getCount).sum();
-            map.put(API_SCENARIO, apiScenarioCount);
-            xaxis.add(API_SCENARIO);
-            apiScenarioProjectCount = projectApiScenarioCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, t -> t));
+            projectApiScenarioCountMap = projectApiScenarioCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, ProjectCountDTO::getCount));
+        } else {
+            projectApiScenarioCountMap = new HashMap<>();
         }
         //测试计划
-        Map<String, ProjectCountDTO> testPlanProjectCount = new HashMap<>();
         Set<String> planProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.TEST_PLAN_READ);
         if (CollectionUtils.isNotEmpty(planProjectIds)) {
             List<ProjectCountDTO> projectPlanCount = extTestPlanMapper.projectPlanCount(planProjectIds, toStartTime, toEndTime, userId);
-            int testPlanCount = projectPlanCount.stream().mapToInt(ProjectCountDTO::getCount).sum();
-            map.put(TEST_PLAN, testPlanCount);
-            xaxis.add(TEST_PLAN);
-            testPlanProjectCount = projectPlanCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, t -> t));
-
+            projectPlanCountMap = projectPlanCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, ProjectCountDTO::getCount));
+        } else {
+            projectPlanCountMap = new HashMap<>();
         }
         //缺陷管理
-        Map<String, ProjectCountDTO> bugProjectCount = new HashMap<>();
         Set<String> bugProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_BUG_READ);
         if (CollectionUtils.isNotEmpty(bugProjectIds)) {
             List<ProjectCountDTO> projectBugCount = extBugMapper.projectBugCount(bugProjectIds, toStartTime, toEndTime, userId);
-            int bugCount = projectBugCount.stream().mapToInt(ProjectCountDTO::getCount).sum();
-            map.put(BUG_COUNT, bugCount);
-            xaxis.add(BUG_COUNT);
-            bugProjectCount = projectBugCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, t -> t));
+            projectBugCountMap = projectBugCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, ProjectCountDTO::getCount));
+
+        }else {
+            projectBugCountMap = new HashMap<>();
         }
 
-        for (Project project : projects) {
-            String projectId = project.getId();
-            String projectName = project.getName();
-            NameArrayDTO nameArrayDTO = new NameArrayDTO();
-            nameArrayDTO.setId(projectId);
-            nameArrayDTO.setName(projectName);
-            List<Integer> count = new ArrayList<>();
-            ProjectCountDTO projectCountDTO = caseProjectCount.get(projectId);
-            if (projectCountDTO != null) {
-                count.add(projectCountDTO.getCount());
+        List<Integer> projectCaseCount = new ArrayList<>();
+        List<Integer> projectReviewCount = new ArrayList<>();
+        List<Integer> projectApiCount = new ArrayList<>();
+        List<Integer> projectApiCaseCount = new ArrayList<>();
+        List<Integer> projectApiScenarioCount = new ArrayList<>();
+        List<Integer> projectPlanCount = new ArrayList<>();
+        List<Integer> projectBugCount = new ArrayList<>();
+
+        projectNameMap.forEach((id, userName) -> {
+            if (projectCaseCountMap.get(id) != null) {
+                projectCaseCount.add(projectCaseCountMap.get(id));
             } else {
-                count.add(0);
+                projectCaseCount.add(0);
             }
-            ProjectCountDTO reviewDTO = reviewProjectCount.get(projectId);
-            if (reviewDTO != null) {
-                count.add(reviewDTO.getCount());
+            if (projectReviewCountMap.get(id) != null) {
+                projectReviewCount.add(projectReviewCountMap.get(id));
             } else {
-                count.add(0);
+                projectReviewCount.add(0);
             }
-            ProjectCountDTO apiDTO = apiProjectCount.get(projectId);
-            if (apiDTO != null) {
-                count.add(apiDTO.getCount());
+            if (projectApiCountMap.get(id) != null) {
+                projectApiCount.add(projectApiCountMap.get(id));
             } else {
-                count.add(0);
+                projectApiCount.add(0);
             }
-            ProjectCountDTO apiCaseDTO = apiCaseProjectCount.get(projectId);
-            if (apiCaseDTO != null) {
-                count.add(apiCaseDTO.getCount());
+            if (projectApiCaseCountMap.get(id) != null) {
+                projectApiCaseCount.add(projectApiCaseCountMap.get(id));
             } else {
-                count.add(0);
+                projectApiCaseCount.add(0);
             }
-            ProjectCountDTO apiScenarioDTO = apiScenarioProjectCount.get(projectId);
-            if (apiScenarioDTO != null) {
-                count.add(apiScenarioDTO.getCount());
+            if (projectApiScenarioCountMap.get(id) != null) {
+                projectApiScenarioCount.add(projectApiScenarioCountMap.get(id));
             } else {
-                count.add(0);
+                projectApiScenarioCount.add(0);
             }
-            ProjectCountDTO testPlanDTO = testPlanProjectCount.get(projectId);
-            if (testPlanDTO != null) {
-                count.add(testPlanDTO.getCount());
+            if (projectPlanCountMap.get(id) != null) {
+                projectPlanCount.add(projectPlanCountMap.get(id));
             } else {
-                count.add(0);
+                projectPlanCount.add(0);
             }
-            ProjectCountDTO bugDTO = bugProjectCount.get(projectId);
-            if (bugDTO != null) {
-                count.add(bugDTO.getCount());
+            if (projectBugCountMap.get(id) != null) {
+                projectBugCount.add(projectBugCountMap.get(id));
             } else {
-                count.add(0);
+                projectBugCount.add(0);
             }
-            nameArrayDTO.setCount(count);
-            nameArrayDTOList.add(nameArrayDTO);
-        }
+        });
+        List<String> xaxis = new ArrayList<>(projectNameMap.values());
+
+        List<NameArrayDTO> nameArrayDTOList = new ArrayList<>();
+        NameArrayDTO userCaseArray = new NameArrayDTO();
+        userCaseArray.setCount(projectCaseCount);
+        nameArrayDTOList.add(userCaseArray);
+
+        NameArrayDTO userReviewArray = new NameArrayDTO();
+        userReviewArray.setCount(projectReviewCount);
+        nameArrayDTOList.add(userReviewArray);
+
+        NameArrayDTO userApiArray = new NameArrayDTO();
+        userApiArray.setCount(projectApiCount);
+        nameArrayDTOList.add(userApiArray);
+
+        NameArrayDTO userApiCaseArray = new NameArrayDTO();
+        userApiCaseArray.setCount(projectApiCaseCount);
+        nameArrayDTOList.add(userApiCaseArray);
+
+        NameArrayDTO userApiScenarioArray = new NameArrayDTO();
+        userApiScenarioArray.setCount(projectApiScenarioCount);
+        nameArrayDTOList.add(userApiScenarioArray);
+
+        NameArrayDTO userPlanArray = new NameArrayDTO();
+        userPlanArray.setCount(projectPlanCount);
+        nameArrayDTOList.add(userPlanArray);
+
+        NameArrayDTO userBugArray = new NameArrayDTO();
+        userBugArray.setCount(projectBugCount);
+        nameArrayDTOList.add(userBugArray);
+
         OverViewCountDTO overViewCountDTO = new OverViewCountDTO();
-        overViewCountDTO.setCaseCountMap(map);
         overViewCountDTO.setXAxis(xaxis);
         overViewCountDTO.setProjectCountList(nameArrayDTOList);
         if (CollectionUtils.isEmpty(xaxis)) {
