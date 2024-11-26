@@ -1315,7 +1315,12 @@ public class DashboardService {
         String createUser = hasCreateUser ? userId : null;
         String platformName = projectApplicationService.getPlatformName(projectId);
         Set<String> platforms = getPlatforms(platformName);
-        List<Bug> allSimpleList = extBugMapper.getSimpleList(projectId, null, null, handleUsers, createUser, platforms);
+        List<Bug> allSimpleList;
+        if (hasHandleUser) {
+            allSimpleList = extBugMapper.getByHandleUser(projectId, null, null, localHandleUser, createUser, handleUser, platformName);
+        } else {
+            allSimpleList= extBugMapper.getSimpleList(projectId, null, null, handleUsers, createUser, platforms);
+        }
         List<String> localLastStepStatus = getBugEndStatus(projectId, platformName);
         List<Bug> statusList = allSimpleList.stream().filter(t -> !localLastStepStatus.contains(t.getStatus())).toList();
         int statusSize = CollectionUtils.isEmpty(statusList) ? 0 : statusList.size();

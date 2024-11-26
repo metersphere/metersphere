@@ -474,5 +474,33 @@
         </if>
     </select>
 
+    <select id="getByHandleUser" resultType="io.metersphere.bug.domain.Bug">
+        SELECT bug.id, bug.status, bug.platform, bug.platform_bug_id
+        FROM bug
+        WHERE bug.deleted = false
+        AND bug.project_id = #{projectId}
+        <if test="startTime != null and endTime != null">
+            AND bug.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
+        <if test="createUser != null and createUser != ''">
+            AND bug.create_user = #{createUser}
+        </if>
+        and (
+        ( bug.platform = 'Local'
+            <if test="localHandleUser != null and localHandleUser != ''">
+              AND bug.handle_user = #{localHandleUser}
+            </if>
+            )
+        <if test="thirdPlatform != null and thirdPlatform != ''">
+            or (
+            ( bug.platform = #{thirdPlatform}
+            <if test="thirdHandleUser != null and thirdHandleUser != ''">
+                AND bug.handle_user = #{thirdHandleUser}
+            </if>)
+            )
+        </if>
+        )
+    </select>
+
 </mapper>
 

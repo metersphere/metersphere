@@ -137,4 +137,6 @@ public interface ExtBugMapper {
     List<ProjectUserStatusCountDTO> projectUserBugStatusCount(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime, @Param("userIds") List<String> userIds, @Param("platforms") Set<String> platforms);
 
     List<Bug>getSimpleList(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime,@Param("handleUsers") Set<String> handleUsers,@Param("createUser") String createUser, @Param("platforms") Set<String> platforms);
+
+    List<Bug>getByHandleUser(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime,@Param("localHandleUser") String localHandleUser,@Param("createUser") String createUser,@Param("thirdHandleUser") String thirdHandleUser, @Param("thirdPlatform") String thirdPlatform);
 }
