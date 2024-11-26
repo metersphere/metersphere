@@ -76,7 +76,7 @@ public class TestPlanManagementService {
      */
     public Pager<List<TestPlanResponse>> page(TestPlanTableRequest request) {
         if (request.isMyTodo()) {
-            request.setDoneExcludeIds(this.getDoneIds(request.getProjectId()));
+            setTodoParam(request);
         }
         this.initDefaultFilter(request);
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -319,61 +319,93 @@ public class TestPlanManagementService {
     }
 
     /**
-     * 获取已完成且阈值达标的计划ID集合 (作为排除条件)
+     * 1. 获取已完成且阈值达标的计划ID集合 (作为排除条件)
+     * 2. 子计划ID满足条件的作为额外ID查询
      *
-     * @param projectId 项目ID
-     * @return 已办计划ID集合
+     * @param request 请求参数
      */
-    private List<String> getDoneIds(String projectId) {
+    private void setTodoParam(TestPlanTableRequest request) {
         List<String> doneIds = new ArrayList<>();
+        List<String> extraChildIds = new ArrayList<>();
         // 筛选出已完成/进行中的计划或计划组
-        List<String> completePlanOrGroupIds = selectTestPlanIdByProjectIdAndStatus(projectId, List.of(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED));
-        List<String> underwayPlanOrGroupIds = selectTestPlanIdByProjectIdAndStatus(projectId, List.of(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY));
-        if (CollectionUtils.isEmpty(completePlanOrGroupIds) && CollectionUtils.isEmpty(underwayPlanOrGroupIds)) {
-            return null;
-        }
-
-        TestPlanExample example = new TestPlanExample();
-        example.createCriteria().andIdIn(ListUtils.union(completePlanOrGroupIds, underwayPlanOrGroupIds));
-        List<TestPlan> allPlans = testPlanMapper.selectByExample(example);
-        // 筛选出已完成且阈值达标的计划ID集合, 计划组除外
-        List<String> calculateIds = new ArrayList<>();
-        List<String> groupPlanIds = new ArrayList<>();
-        allPlans.forEach(plan -> {
-            if (completePlanOrGroupIds.contains(plan.getId())) {
-                if (StringUtils.equals(plan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN)) {
-                    // 已完成的计划, 待计算通过率比对
-                    calculateIds.add(plan.getId());
+        List<String> completePlanOrGroupIds = selectTestPlanIdByProjectIdAndStatus(request.getProjectId(), List.of(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED));
+        List<String> underwayPlanOrGroupIds = selectTestPlanIdByProjectIdAndStatus(request.getProjectId(), List.of(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY));
+        if (CollectionUtils.isNotEmpty(completePlanOrGroupIds) || CollectionUtils.isNotEmpty(underwayPlanOrGroupIds)) {
+            TestPlanExample example = new TestPlanExample();
+            example.createCriteria().andIdIn(ListUtils.union(completePlanOrGroupIds, underwayPlanOrGroupIds));
+            List<TestPlan> allPlans = testPlanMapper.selectByExample(example);
+            // 筛选出已完成且阈值达标的计划ID集合, 计划组除外
+            List<String> calculateIds = new ArrayList<>();
+            List<String> groupPlanIds = new ArrayList<>();
+            allPlans.forEach(plan -> {
+                if (completePlanOrGroupIds.contains(plan.getId())) {
+                    if (StringUtils.equals(plan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN)) {
+                        // 已完成的计划, 待计算通过率比对
+                        calculateIds.add(plan.getId());
+                    } else {
+                        // 已完成的计划组, 待获取下级子计划
+                        groupPlanIds.add(plan.getId());
+                    }
                 } else {
-                    // 已完成的计划组, 待获取下级子计划
-                    groupPlanIds.add(plan.getId());
+                    // 进行中的状态, 直接获取计划组下的子计划
+                    if (StringUtils.equals(plan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+                        groupPlanIds.add(plan.getId());
+                    }
                 }
-            } else {
-                // 进行中的状态, 直接获取计划组下的子计划
-                if (StringUtils.equals(plan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
-                    groupPlanIds.add(plan.getId());
-                }
-            }
-        });
+            });
 
-        // 处理计划组下级子计划
-        List<TestPlan> childPlans = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(groupPlanIds)) {
-            example.clear();
-            example.createCriteria().andGroupIdIn(groupPlanIds);
-            childPlans = testPlanMapper.selectByExample(example);
-        }
-        calculateIds.addAll(childPlans.stream().map(TestPlan::getId).toList());
-        if (CollectionUtils.isEmpty(calculateIds)) {
-            return null;
-        }
-        List<TestPlanStatisticsResponse> calcPlans = testPlanStatisticsService.calculateRate(calculateIds);
-        calcPlans.forEach(plan -> {
-            // 筛选出已完成的计划 && 子计划且通过率达到阈值
-            if (plan.getPassRate() >= plan.getPassThreshold() && StringUtils.equals(plan.getStatus(), TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
-                doneIds.add(plan.getId());
+            // 处理计划组下级子计划
+            List<TestPlan> childPlans = new ArrayList<>();
+            if (CollectionUtils.isNotEmpty(groupPlanIds)) {
+                example.clear();
+                example.createCriteria().andGroupIdIn(groupPlanIds);
+                childPlans = testPlanMapper.selectByExample(example);
             }
-        });
-        return doneIds;
+            calculateIds.addAll(childPlans.stream().map(TestPlan::getId).toList());
+            if (CollectionUtils.isNotEmpty(calculateIds)) {
+                boolean onlyPrepared = isOnlyFilterPreparedWithTodoParam(request.getFilter());
+                boolean onlyUnderway = isOnlyFilterUnderwayWithTodoParam(request.getFilter());
+                List<TestPlanStatisticsResponse> calcPlans = testPlanStatisticsService.calculateRate(calculateIds);
+                calcPlans.forEach(plan -> {
+                    // 筛选出已完成 && 且通过率达到阈值的子计划
+                    if (plan.getPassRate() >= plan.getPassThreshold() && StringUtils.equals(plan.getStatus(), TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
+                        doneIds.add(plan.getId());
+                    }
+                    // 筛选出未执行的子计划
+                    if (StringUtils.equals(plan.getStatus(), TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
+                        if (onlyPrepared) {
+                            extraChildIds.add(plan.getId());
+                        }
+                        if (onlyUnderway) {
+                            doneIds.add(plan.getId());
+                        }
+                    }
+                });
+            }
+            request.setDoneExcludeIds(doneIds);
+            request.setExtraIncludeChildIds(extraChildIds);
+        }
+    }
+
+    /**
+     * 是否仅筛选待办列表中的未开始计划
+     * @param filterStatusMap 筛选条件
+     * @return boolean
+     */
+    private boolean isOnlyFilterPreparedWithTodoParam(Map<String, List<String>> filterStatusMap) {
+        return filterStatusMap != null && filterStatusMap.containsKey("status")
+                && filterStatusMap.get("status").contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)
+                && !filterStatusMap.get("status").contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
+    }
+
+    /**
+     * 是否仅筛选待办列表中的执行中计划
+     * @param filterStatusMap 筛选条件
+     * @return boolean
+     */
+    private boolean isOnlyFilterUnderwayWithTodoParam(Map<String, List<String>> filterStatusMap) {
+        return filterStatusMap != null && filterStatusMap.containsKey("status")
+                && filterStatusMap.get("status").contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)
+                && !filterStatusMap.get("status").contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
     }
 }

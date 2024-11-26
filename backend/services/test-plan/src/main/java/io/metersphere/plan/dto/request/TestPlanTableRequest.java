@@ -40,6 +40,9 @@ public class TestPlanTableRequest extends BasePageRequest {
     @Schema(description = "已办的测试计划ID集合 (用作待办排除)")
     private List<String> doneExcludeIds;
 
+    @Schema(description = "额外的子计划ID集合")
+    private List<String> extraIncludeChildIds;
+
     public String getSortString() {
         if (StringUtils.isEmpty(super.getSortString())) {
             return "t.update_time desc";
