@@ -20,7 +20,6 @@
           >
           </MsSelect>
           <MsSelect
-            :key="props.refreshKey"
             v-model:model-value="innerHandleUsers"
             :options="memberOptions"
             allow-clear
@@ -215,7 +214,8 @@
       if (val) {
         innerProjectIds.value = [val];
       }
-    }
+    },
+    { immediate: true }
   );
 
   watch(

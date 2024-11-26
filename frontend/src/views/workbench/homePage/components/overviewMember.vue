@@ -16,12 +16,10 @@
             :search-keys="['name']"
             class="!w-[200px]"
             :prefix="t('workbench.homePage.project')"
-            @change="changeProject"
           >
           </MsSelect>
 
           <MsSelect
-            :key="props.refreshKey"
             v-model:model-value="innerHandleUsers"
             :options="memberOptions"
             allow-search
@@ -58,14 +56,13 @@
   import CardSkeleton from './cardSkeleton.vue';
 
   import { workMemberViewDetail, workProjectMemberOptions } from '@/api/modules/workbench';
-  import { contentTabList } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { characterLimit, sleep } from '@/utils';
 
   import type { OverViewOfProject, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
-  import { getCommonBarOptions, handleNoDataDisplay } from '../utils';
+  import { getColorScheme, getCommonBarOptions, getSeriesData, handleNoDataDisplay } from '../utils';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -100,57 +97,18 @@
 
   const memberOptions = ref<{ label: string; value: string }[]>([]);
   const options = ref<Record<string, any>>({});
-  const color = ['#811FA3', '#FFCA59', '#00C261', '#FFA1FF', '#F9F871', '#3370FF', '#F24F4F'];
 
   function handleData(detail: OverViewOfProject) {
-    options.value = getCommonBarOptions(detail.xaxis.length >= 7, color);
+    options.value = getCommonBarOptions(detail.xaxis.length >= 7, getColorScheme(7));
     const { invisible, text } = handleNoDataDisplay(detail.xaxis, hasPermission.value);
     options.value.graphic.invisible = invisible;
     options.value.graphic.style.text = text;
     options.value.xAxis.data = detail.xaxis.map((e) => characterLimit(e, 10));
 
-    let maxAxis = 5;
+    const { maxAxis, data } = getSeriesData(detail.projectCountList);
 
-    // 处理data数据
-    options.value.series = detail.projectCountList.map((item, sid) => {
-      const countData: Record<string, any>[] = item.count.map((e) => {
-        return {
-          name: item.name,
-          value: e,
-          originValue: e,
-        };
-      });
-
-      const itemMax = Math.max(...item.count);
-
-      maxAxis = Math.max(itemMax, maxAxis);
-
-      return {
-        name: t(contentTabList[sid].label),
-        type: 'bar',
-        barWidth: 12,
-        legendHoverLink: true,
-        large: true,
-        itemStyle: {
-          borderRadius: [2, 2, 0, 0],
-        },
-        data: countData,
-        barMinHeight: ((optionData: Record<string, any>[]) => {
-          optionData.forEach((itemValue: any, index: number) => {
-            if (itemValue.value === 0) optionData[index].value = null;
-          });
-          let hasZero = false;
-          for (let i = 0; i < optionData.length; i++) {
-            if (optionData[i].value === 0) {
-              hasZero = true;
-              break;
-            }
-          }
-          return hasZero ? 0 : 5;
-        })(countData),
-      };
-    });
-    options.value.yAxis[0].max = maxAxis < 100 ? 100 : maxAxis + 50;
+    options.value.series = data;
+    options.value.yAxis[0].max = maxAxis;
   }
   const showSkeleton = ref(false);
 
@@ -187,21 +145,16 @@
       label: e.name,
       value: e.id,
     }));
+    innerHandleUsers.value = innerHandleUsers.value.filter((id: string) =>
+      memberOptions.value.some((member) => member.value === id)
+    );
   }
   const isInit = ref(true);
 
-  function changeProject() {
-    innerHandleUsers.value = [];
-    nextTick(() => {
-      getMemberOptions();
-      initOverViewMemberDetail();
-      emit('change');
-    });
-  }
-
-  function changeMember() {
+  function changeMember(value: string[]) {
     nextTick(() => {
       initOverViewMemberDetail();
+      innerHandleUsers.value = value;
       emit('change');
     });
   }
@@ -241,19 +194,26 @@
 
   onMounted(() => {
     isInit.value = false;
-    initOverViewMemberDetail();
     if (props.item.projectIds.length) {
       getMemberOptions();
     }
+    initOverViewMemberDetail();
   });
 
-  watch([() => props.refreshKey, () => projectId.value], async () => {
+  watch([() => props.refreshKey, () => projectId.value], async ([_key, newProjectId]) => {
     await nextTick();
-    initOverViewMemberDetail();
-    await sleep(50);
+
+    if (newProjectId) {
+      innerHandleUsers.value = [];
+      emit('change');
+    }
+
     if (props.item.projectIds.length) {
       getMemberOptions();
     }
+    await sleep(50);
+
+    initOverViewMemberDetail();
   });
 </script>
 

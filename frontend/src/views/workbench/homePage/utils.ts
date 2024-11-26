@@ -1,17 +1,18 @@
 import { cloneDeep } from 'lodash-es';
 
 import { toolTipConfig } from '@/config/testPlan';
-import { commonRatePieOptions, defaultValueMap } from '@/config/workbench';
+import { commonRatePieOptions, contentTabList, defaultValueMap } from '@/config/workbench';
 import { useI18n } from '@/hooks/useI18n';
 import { addCommasToNumber } from '@/utils';
 
 import { WorkCardEnum } from '@/enums/workbenchEnum';
 
 const { t } = useI18n();
-// 通用颜色配置
+// TODO 通用颜色配置注: 目前柱状图只用到了7种色阶，其他色阶暂时保留
 const commonColorConfig: Record<number, string[]> = {
   2: ['#783887', '#FFC14E'],
   4: ['#783887', '#FFC14E', '#2DFCEF', '#3370FF'],
+  7: ['#811FA3', '#00C261', '#FF9964', '#50CEFB', '#EE50A3', '#3370FF', '#D34400'],
   8: ['#783887', '#FFC14E', '#2DFCEF', '#3370FF', '#811FA3', '#00D1FF', '#FFA53D', '#00C261'],
   12: [
     '#AA4FBF',
@@ -55,6 +56,7 @@ const commonColorConfig: Record<number, string[]> = {
 export function getColorScheme(dataLength: number): string[] {
   if (dataLength <= 2) return commonColorConfig[2];
   if (dataLength <= 4) return commonColorConfig[4];
+  if (dataLength <= 7) return commonColorConfig[7];
   if (dataLength <= 8) return commonColorConfig[8];
   if (dataLength <= 12) return commonColorConfig[12];
   return commonColorConfig[13];
@@ -541,5 +543,77 @@ export function handleUpdateTabPie(
   return {
     valueList: lastCountList,
     options,
+  };
+}
+
+export function getSeriesData(
+  projectCountList: {
+    id: string;
+    name: string;
+    count: number[];
+  }[]
+) {
+  let maxAxis = 5;
+  const seriesData = projectCountList.map((item, sid) => {
+    const countData: Record<string, any>[] = item.count.map((e) => {
+      return {
+        name: t(contentTabList[sid].label),
+        value: e,
+        originValue: e,
+        tooltip: {
+          show: true,
+          trigger: 'item',
+          enterable: true,
+          formatter(params: any) {
+            const html = `
+                <div class="w-[186px] h-[50px] p-[16px] flex items-center justify-between">
+                <div class=" flex items-center">
+                <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm bg-[${params.color}]" style="background:${
+              params.color
+            }"></div>
+                <div class="one-line-text max-w-[100px]"" style="color:#959598">${params.name}</div>
+                </div>
+                <div class="text-[#323233] font-medium">${addCommasToNumber(params.value)}</div>
+                </div>
+                `;
+            return html;
+          },
+        },
+      };
+    });
+
+    const itemMax = Math.max(...item.count);
+
+    maxAxis = Math.max(itemMax, maxAxis);
+
+    return {
+      name: t(contentTabList[sid].label),
+      type: 'bar',
+      barWidth: 12,
+      legendHoverLink: true,
+      large: true,
+      itemStyle: {
+        borderRadius: [2, 2, 0, 0],
+      },
+      data: countData,
+      barMinHeight: ((optionData: Record<string, any>[]) => {
+        optionData.forEach((itemValue: any, index: number) => {
+          if (itemValue.value === 0) optionData[index].value = null;
+        });
+        let hasZero = false;
+        for (let i = 0; i < optionData.length; i++) {
+          if (optionData[i].value === 0) {
+            hasZero = true;
+            break;
+          }
+        }
+        return hasZero ? 0 : 5;
+      })(countData),
+    };
+  });
+
+  return {
+    data: seriesData,
+    maxAxis: maxAxis < 100 ? 100 : maxAxis + 50,
   };
 }

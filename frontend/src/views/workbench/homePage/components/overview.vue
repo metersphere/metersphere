@@ -55,7 +55,7 @@
   import { contentTabList } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { addCommasToNumber } from '@/utils';
+  import { characterLimit } from '@/utils';
 
   import type {
     ModuleCardItem,
@@ -63,9 +63,9 @@
     SelectedCardItem,
     TimeFormParams,
   } from '@/models/workbench/homePage';
-  import { WorkCardEnum, WorkOverviewEnum } from '@/enums/workbenchEnum';
+  import { WorkCardEnum } from '@/enums/workbenchEnum';
 
-  import { getColorScheme, getCommonBarOptions, handleNoDataDisplay } from '../utils';
+  import { getColorScheme, getCommonBarOptions, getSeriesData, handleNoDataDisplay } from '../utils';
 
   const { t } = useI18n();
 
@@ -114,85 +114,26 @@
 
   function handleData(detail: OverViewOfProject) {
     // 处理模块顺序
-    const tempAxisData = detail.xaxis.map((xAxisKey) => {
-      const data = contentTabList.find((e) => e.value === xAxisKey);
-      return {
-        ...data,
-        label: t(data?.label || ''),
-        count: detail.caseCountMap[xAxisKey as WorkOverviewEnum],
-      };
-    });
+    cardModuleList.value = contentTabList
+      .map((item) => {
+        return {
+          ...item,
+          label: t(item.label),
+          count: detail.caseCountMap[item.value],
+        };
+      })
+      .filter((e) => Object.keys(detail.caseCountMap).includes(e.value as string));
 
-    cardModuleList.value = tempAxisData as ModuleCardItem[];
     options.value = getCommonBarOptions(hasRoom.value, getColorScheme(detail.projectCountList.length));
     const { invisible, text } = handleNoDataDisplay(detail.xaxis, hasPermission.value);
     options.value.graphic.invisible = invisible;
     options.value.graphic.style.text = text;
     // x轴
-    options.value.xAxis.data = cardModuleList.value.map((e) => e.label);
+    options.value.xAxis.data = detail.xaxis.map((e) => characterLimit(e, 10));
 
-    let maxAxis = 5;
-
-    // 处理data数据
-    options.value.series = detail.projectCountList.map((item) => {
-      const countData: Record<string, any>[] = item.count.map((e) => {
-        return {
-          name: item.name,
-          value: e,
-          originValue: e,
-          tooltip: {
-            show: true,
-            trigger: 'item',
-            enterable: true,
-            formatter(params: any) {
-              const html = `
-                  <div class="w-[186px] h-[50px] p-[16px] flex items-center justify-between">
-                  <div class=" flex items-center">
-                  <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm bg-[${params.color}]" style="background:${
-                params.color
-              }"></div>
-                  <div class="one-line-text max-w-[100px]"" style="color:#959598">${params.name}</div>
-                  </div>
-                  <div class="text-[#323233] font-medium">${addCommasToNumber(params.value)}</div>
-                  </div>
-                  `;
-              return html;
-            },
-          },
-        };
-      });
-
-      const itemMax = Math.max(...item.count);
-
-      maxAxis = Math.max(itemMax, maxAxis);
-
-      return {
-        name: item.name,
-        type: 'bar',
-        barWidth: 12,
-        legendHoverLink: true,
-        large: true,
-        itemStyle: {
-          borderRadius: [2, 2, 0, 0], // 上边圆角
-        },
-        z: 10,
-        data: countData,
-        barMinHeight: ((optionData: Record<string, any>[]) => {
-          optionData.forEach((itemValue: any, index: number) => {
-            if (itemValue.value === 0) optionData[index].value = null;
-          });
-          let hasZero = false;
-          for (let i = 0; i < optionData.length; i++) {
-            if (optionData[i].value === 0) {
-              hasZero = true;
-              break;
-            }
-          }
-          return hasZero ? 0 : 5;
-        })(countData),
-      };
-    });
-    options.value.yAxis[0].max = maxAxis < 100 ? 100 : maxAxis + 50;
+    const { maxAxis, data } = getSeriesData(detail.projectCountList);
+    options.value.series = data;
+    options.value.yAxis[0].max = maxAxis;
   }
   const showSkeleton = ref(false);
   const selectAll = computed(() => appStore.projectList.length === innerProjectIds.value.length);
