@@ -1,7 +1,7 @@
 <template>
   <div class="card-wrapper">
     <CardSkeleton v-if="showSkeleton" :show-skeleton="showSkeleton" />
-    <div>
+    <div v-show="!showSkeleton">
       <div class="flex items-center justify-between">
         <a-tooltip :content="t(props.item.label)" position="tl">
           <div class="title one-line-text"> {{ t(props.item.label) }} </div>
