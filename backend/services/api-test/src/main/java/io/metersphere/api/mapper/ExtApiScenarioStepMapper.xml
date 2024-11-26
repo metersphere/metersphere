@@ -45,6 +45,6 @@
         where scenario.project_id = #{0}
           AND scenario.deleted IS FALSE
           AND step.step_type IN ('API', 'API_CASE', 'CUSTOM_REQUEST')
-          AND JSON_EXTRACT(step.config, '$.protocol') = 'http'
+          AND JSON_UNQUOTE(JSON_EXTRACT(LOWER(step.config), '$.protocol')) = 'http'
     </select>
 </mapper>
