@@ -40,7 +40,7 @@ public class CleanUpReportJob {
     /**
      * 清理报告定时任务（所有项目共用一个）
      */
-    @QuartzScheduled(cron = "0 26 11 * * ?")
+    @QuartzScheduled(cron = "0 0 1 * * ?")
     public void cleanReport() {
 
         long count = getProjectCount();
