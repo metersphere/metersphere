@@ -181,7 +181,7 @@ public class DashboardService {
     @NotNull
     private OverViewCountDTO getModuleCountMap(Map<String, Set<String>> permissionModuleProjectIdMap, List<Project> projects, Long toStartTime, Long toEndTime, String userId) {
         Map<String, String> projectNameMap = projects.stream().collect(Collectors.toMap(Project::getId, Project::getName));
-
+        Map<String, Integer> map = new HashMap<>();
         Map<String, Integer> projectCaseCountMap;
         Map<String, Integer> projectReviewCountMap;
         Map<String, Integer> projectApiCountMap;
@@ -194,6 +194,8 @@ public class DashboardService {
         if (CollectionUtils.isNotEmpty(caseProjectIds)) {
             //有权限
             List<ProjectCountDTO> projectCaseCount = extFunctionalCaseMapper.projectCaseCount(caseProjectIds, toStartTime, toEndTime, userId);
+            int caseCount = projectCaseCount.stream().mapToInt(ProjectCountDTO::getCount).sum();
+            map.put(FUNCTIONAL, caseCount);
             projectCaseCountMap = projectCaseCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, ProjectCountDTO::getCount));
         } else {
             projectCaseCountMap = new HashMap<>();
@@ -202,6 +204,8 @@ public class DashboardService {
         Set<String> reviewProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.CASE_REVIEW_READ);
         if (CollectionUtils.isNotEmpty(reviewProjectIds)) {
             List<ProjectCountDTO> projectReviewCount = extCaseReviewMapper.projectReviewCount(reviewProjectIds, toStartTime, toEndTime, userId);
+            int reviewCount = projectReviewCount.stream().mapToInt(ProjectCountDTO::getCount).sum();
+            map.put(CASE_REVIEW, reviewCount);
             projectReviewCountMap = projectReviewCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, ProjectCountDTO::getCount));
         } else {
             projectReviewCountMap = new HashMap<>();
@@ -210,6 +214,8 @@ public class DashboardService {
         Set<String> apiProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_API_DEFINITION_READ);
         if (CollectionUtils.isNotEmpty(apiProjectIds)) {
             List<ProjectCountDTO> projectApiCount = extApiDefinitionMapper.projectApiCount(apiProjectIds, toStartTime, toEndTime, userId);
+            int apiCount = projectApiCount.stream().mapToInt(ProjectCountDTO::getCount).sum();
+            map.put(API, apiCount);
             projectApiCountMap = projectApiCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, ProjectCountDTO::getCount));
         } else {
             projectApiCountMap = new HashMap<>();
@@ -218,6 +224,8 @@ public class DashboardService {
         Set<String> apiCaseProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ);
         if (CollectionUtils.isNotEmpty(apiCaseProjectIds)) {
             List<ProjectCountDTO> projectApiCaseCount = extApiTestCaseMapper.projectApiCaseCount(apiCaseProjectIds, toStartTime, toEndTime, userId);
+            int apiCaseCount = projectApiCaseCount.stream().mapToInt(ProjectCountDTO::getCount).sum();
+            map.put(API_CASE, apiCaseCount);
             projectApiCaseCountMap = projectApiCaseCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, ProjectCountDTO::getCount));
         } else {
             projectApiCaseCountMap = new HashMap<>();
@@ -226,6 +234,8 @@ public class DashboardService {
         Set<String> scenarioProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_API_SCENARIO_READ);
         if (CollectionUtils.isNotEmpty(scenarioProjectIds)) {
             List<ProjectCountDTO> projectApiScenarioCount = extApiScenarioMapper.projectApiScenarioCount(scenarioProjectIds, toStartTime, toEndTime, userId);
+            int apiScenarioCount = projectApiScenarioCount.stream().mapToInt(ProjectCountDTO::getCount).sum();
+            map.put(API_SCENARIO, apiScenarioCount);
             projectApiScenarioCountMap = projectApiScenarioCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, ProjectCountDTO::getCount));
         } else {
             projectApiScenarioCountMap = new HashMap<>();
@@ -234,6 +244,8 @@ public class DashboardService {
         Set<String> planProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.TEST_PLAN_READ);
         if (CollectionUtils.isNotEmpty(planProjectIds)) {
             List<ProjectCountDTO> projectPlanCount = extTestPlanMapper.projectPlanCount(planProjectIds, toStartTime, toEndTime, userId);
+            int testPlanCount = projectPlanCount.stream().mapToInt(ProjectCountDTO::getCount).sum();
+            map.put(TEST_PLAN, testPlanCount);
             projectPlanCountMap = projectPlanCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, ProjectCountDTO::getCount));
         } else {
             projectPlanCountMap = new HashMap<>();
@@ -242,6 +254,8 @@ public class DashboardService {
         Set<String> bugProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_BUG_READ);
         if (CollectionUtils.isNotEmpty(bugProjectIds)) {
             List<ProjectCountDTO> projectBugCount = extBugMapper.projectBugCount(bugProjectIds, toStartTime, toEndTime, userId);
+            int bugCount = projectBugCount.stream().mapToInt(ProjectCountDTO::getCount).sum();
+            map.put(BUG_COUNT, bugCount);
             projectBugCountMap = projectBugCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, ProjectCountDTO::getCount));
 
         }else {
@@ -326,6 +340,7 @@ public class DashboardService {
 
         OverViewCountDTO overViewCountDTO = new OverViewCountDTO();
         overViewCountDTO.setXAxis(xaxis);
+        overViewCountDTO.setCaseCountMap(map);
         overViewCountDTO.setProjectCountList(nameArrayDTOList);
         if (CollectionUtils.isEmpty(xaxis)) {
             overViewCountDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
