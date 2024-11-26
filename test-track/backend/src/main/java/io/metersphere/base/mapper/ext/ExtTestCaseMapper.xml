@@ -158,12 +158,13 @@
                             </include>
                         </when>
                         <otherwise>
-                            and trim(both '"' from value) and value != 'null'
+                            and trim(both '"' from value)
                             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.includeCondition">
                                 <property name="object" value="custom"/>
                             </include>
                         </otherwise>
                     </choose>
+                    and value != 'null'
                 )
             </foreach>
         </if>
