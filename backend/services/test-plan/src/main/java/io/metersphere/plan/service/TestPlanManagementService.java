@@ -364,6 +364,9 @@ public class TestPlanManagementService {
             childPlans = testPlanMapper.selectByExample(example);
         }
         calculateIds.addAll(childPlans.stream().map(TestPlan::getId).toList());
+        if (CollectionUtils.isEmpty(calculateIds)) {
+            return null;
+        }
         List<TestPlanStatisticsResponse> calcPlans = testPlanStatisticsService.calculateRate(calculateIds);
         calcPlans.forEach(plan -> {
             // 筛选出已完成的计划 && 子计划且通过率达到阈值
