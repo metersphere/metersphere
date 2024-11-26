@@ -98,6 +98,10 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
   };
 
   const handleShortcutInput = (event: KeyboardEvent) => {
+    if ((event.target as HTMLElement)?.tagName?.toLowerCase() === 'input') {
+      // 输入框中不响应快捷键
+      return;
+    }
     const { editor } = window;
     const { fsm } = editor;
     const state = fsm.state();
