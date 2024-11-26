@@ -180,15 +180,17 @@ export default {
       }
     },
     handleMdImages(param) {
-      // 解析富文本框中的图片
-      let mdImages = [];
-      mdImages.push(...parseMdImage(param.description));
-      // 将图片从临时目录移入正式目录
-      saveMarkDownImg({
-        projectId: getCurrentProjectID(),
-        resourceId: param.id,
-        fileNames: mdImages
-      });
+      if (param.id) {
+        // 解析富文本框中的图片
+        let mdImages = [];
+        mdImages.push(...parseMdImage(param.description));
+        // 将图片从临时目录移入正式目录
+        saveMarkDownImg({
+          projectId: getCurrentProjectID(),
+          resourceId: param.id,
+          fileNames: mdImages
+        });
+      }
     },
     addCommentOpen(status) {
       this.status = status;
