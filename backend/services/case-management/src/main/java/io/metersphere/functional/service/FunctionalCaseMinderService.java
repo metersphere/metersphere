@@ -578,7 +578,11 @@ public class FunctionalCaseMinderService {
                 if (targetIndex > sources.size()) {
                     beforeNode = sources;
                     afterNode = new ArrayList<>();
-                } else {
+                }  else if (targetIndex == 0){
+                    beforeNode = new ArrayList<>();
+                    afterNode = sources;
+                }
+                else {
                     beforeNode = sources.subList(0, targetIndex - 1);
                     afterNode = sources.subList(targetIndex - 1, sources.size());
                 }
