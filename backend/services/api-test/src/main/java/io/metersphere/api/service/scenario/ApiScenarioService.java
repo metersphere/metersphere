@@ -2375,7 +2375,6 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
 
-
     public List<OperationHistoryDTO> operationHistoryList(OperationHistoryRequest request) {
         return operationHistoryService.listWidthTable(request, SCENARIO_TABLE);
     }
@@ -2626,45 +2625,51 @@ public class ApiScenarioService extends MoveNodeService {
     }
 
     public List<String> selectApiIdInCustomRequest(String projectId, List<ApiDefinition> apiDefinitions) {
-        List<String> returnList = new ArrayList<>();
-        List<ApiScenarioStep> stepConfigList = extApiScenarioStepMapper.selectCustomRequestConfigByProjectId(projectId);
-        List<String> requestIdList = new ArrayList<>();
-        stepConfigList.forEach(step -> requestIdList.add(step.getId()));
+        if (apiDefinitions == null || apiDefinitions.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 获取项目中所有的自定义请求 ID
+        List<String> requestIdList = extApiScenarioStepMapper.selectCustomRequestConfigByProjectId(projectId);
         if (requestIdList.isEmpty()) {
-            return returnList;
+            return Collections.emptyList();
         }
-        ApiScenarioStepBlobExample scenarioStepBlobExample = new ApiScenarioStepBlobExample();
-        scenarioStepBlobExample.createCriteria().andIdIn(requestIdList);
-        List<ApiScenarioStepBlob> httpRequestStopBlobList = apiScenarioStepBlobMapper.selectByExampleWithBLOBs(scenarioStepBlobExample);
-        Map<String, List<String>> methodPathMap = new HashMap<>();
-        httpRequestStopBlobList.forEach(blob -> {
-            if (blob.getContent() != null) {
-                try {
-                    AbstractMsProtocolTestElement protocolTestElement = ApiDataUtils.parseObject(new String(blob.getContent()), AbstractMsProtocolTestElement.class);
-                    if (protocolTestElement instanceof MsHTTPElement msHTTPElement) {
-                        String method = msHTTPElement.getMethod();
-                        if (methodPathMap.containsKey(method)) {
-                            methodPathMap.get(method).add(msHTTPElement.getPath());
-                        } else {
-                            List<String> pathList = new ArrayList<>();
-                            pathList.add(msHTTPElement.getPath());
-                            methodPathMap.put(method, pathList);
+
+
+        // 分批处理配置请求 ID 列表
+        Map<String, Set<String>> methodPathMap = new HashMap<>();
+        SubListUtils.dealForSubList(requestIdList, 200, batchIds -> {
+            // 查询当前批次的 Blob 数据
+            ApiScenarioStepBlobExample scenarioStepBlobExample = new ApiScenarioStepBlobExample();
+            scenarioStepBlobExample.createCriteria().andIdIn(batchIds);
+            List<ApiScenarioStepBlob> blobList = apiScenarioStepBlobMapper.selectByExampleWithBLOBs(scenarioStepBlobExample);
+
+            // 解析并构建方法与路径映射，处理完一个批次后释放内存
+            blobList.stream()
+                    .map(ApiScenarioStepBlob::getContent)
+                    .filter(Objects::nonNull)
+                    .forEach(content -> {
+                        try {
+                            AbstractMsProtocolTestElement protocolTestElement = ApiDataUtils.parseObject(new String(content), AbstractMsProtocolTestElement.class);
+                            if (protocolTestElement instanceof MsHTTPElement msHTTPElement) {
+                                methodPathMap.computeIfAbsent(msHTTPElement.getMethod(), k -> new HashSet<>())
+                                        .add(msHTTPElement.getPath());
+                            }
+                        } catch (Exception e) {
+                            LogUtils.error(e);
                         }
-                    }
-                } catch (Exception e) {
-                    LogUtils.error(e);
-                }
-            }
+                    });
+            blobList.clear(); // 清空当前批次，释放内存
         });
-        for (ApiDefinition apiDefinition : apiDefinitions) {
-            if (methodPathMap.containsKey(apiDefinition.getMethod())) {
-                String apiPath = apiDefinition.getPath();
-                List<String> customUrlList = methodPathMap.get(apiDefinition.getMethod());
-                if (ApiDefinitionUtils.isUrlInList(apiPath, customUrlList)) {
-                    returnList.add(apiDefinition.getId());
-                }
-            }
-        }
-        return returnList;
+
+        // 遍历 API 定义，匹配路径
+        return apiDefinitions.stream()
+                .filter(apiDefinition -> {
+                    Set<String> customUrls = methodPathMap.get(apiDefinition.getMethod());
+                    return customUrls != null && ApiDefinitionUtils.isUrlInList(apiDefinition.getPath(), customUrls);
+                })
+                .map(ApiDefinition::getId)
+                .toList();
     }
+
 }

@@ -37,12 +37,14 @@
           AND scenario.project_id = #{projectId}
           AND scenario.deleted IS FALSE
     </select>
-    <select id="selectCustomRequestConfigByProjectId" resultType="io.metersphere.api.domain.ApiScenarioStep">
-        select step.id, step.config
+    <select id="selectCustomRequestConfigByProjectId" resultType="java.lang.String">
+        select step.id
         from api_scenario_step step
                  INNER JOIN api_scenario scenario
                             ON step.scenario_id = scenario.id
         where scenario.project_id = #{0}
           AND scenario.deleted IS FALSE
+          AND step.step_type IN ('API', 'API_CASE', 'CUSTOM_REQUEST')
+          AND JSON_EXTRACT(step.config, '$.protocol') = 'http'
     </select>
 </mapper>

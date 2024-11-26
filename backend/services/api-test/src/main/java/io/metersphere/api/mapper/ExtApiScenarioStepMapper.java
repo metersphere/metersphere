@@ -1,7 +1,6 @@
 package io.metersphere.api.mapper;
 
 import io.metersphere.api.domain.ApiScenarioCsvStep;
-import io.metersphere.api.domain.ApiScenarioStep;
 import io.metersphere.api.dto.scenario.ApiScenarioStepDTO;
 import org.apache.ibatis.annotations.Param;
 
@@ -29,5 +28,5 @@ public interface ExtApiScenarioStepMapper {
 
     List<String> selectResourceId(@Param("projectId") String projectId, @Param("stepType") String stepType);
 
-    List<ApiScenarioStep> selectCustomRequestConfigByProjectId(String projectId);
+    List<String> selectCustomRequestConfigByProjectId(String projectId);
 }

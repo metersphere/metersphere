@@ -226,7 +226,7 @@ public class ApiCalculateTest extends BaseTest {
         Assertions.assertEquals(16, apiCoverageDTO.getUnCoverWithApiCase());
         Assertions.assertEquals(apiCoverageDTO.getApiCaseCoverage(), CalculateUtils.reportPercentage(apiCoverageDTO.getCoverWithApiCase(), apiCoverageDTO.getAllApiCount()));
 
-        Assertions.assertEquals(8, apiCoverageDTO.getCoverWithApiScenario());
+        Assertions.assertEquals(4, apiCoverageDTO.getCoverWithApiScenario());
         Assertions.assertEquals(12, apiCoverageDTO.getUnCoverWithApiScenario());
         Assertions.assertEquals(apiCoverageDTO.getScenarioCoverage(), CalculateUtils.reportPercentage(apiCoverageDTO.getCoverWithApiScenario(), apiCoverageDTO.getAllApiCount()));
 
