@@ -195,7 +195,7 @@
   }
 
   function openCase(id: number) {
-    openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, { cId: id, pId: props.project });
+    openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, { tab: 'case', cId: id, pId: props.project });
   }
 
   function goApiCase() {
