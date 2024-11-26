@@ -15,7 +15,7 @@
       />
     </div>
 
-    <div style="height: 100%" v-loading="true">
+    <div style="height: 100%" v-loading="result.loading">
       <ms-module-minder
         minder-key="TEST_CASE"
         :tree-nodes="treeNodes"
