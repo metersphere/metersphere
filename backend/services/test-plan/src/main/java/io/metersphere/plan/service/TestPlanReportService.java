@@ -211,7 +211,10 @@ public class TestPlanReportService {
                 testPlanReportMapper.updateByExampleSelective(testPlanReport, example);
                 // 任务执行结果存在报告，明细做保留
                 subList.removeAll(taskReportIds);
-                this.deleteTestPlanReportBlobs(subList);
+                if (CollectionUtils.isNotEmpty(subList)) {
+                    this.deleteTestPlanReportBlobs(subList);
+                }
+                subList.clear();
             });
         }
     }

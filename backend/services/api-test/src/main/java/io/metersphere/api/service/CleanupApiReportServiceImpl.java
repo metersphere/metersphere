@@ -6,6 +6,7 @@ import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.service.BaseCleanUpReport;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +60,9 @@ public class CleanupApiReportServiceImpl implements BaseCleanUpReport {
             // 任务执行结果存在报告，明细做保留
             List<String> taskReportIds = getTaskReportIds(ids);
             ids.removeAll(taskReportIds);
-            deleteApiReport(ids);
+            if (CollectionUtils.isNotEmpty(ids)) {
+                deleteApiReport(ids);
+            }
             apiReportCount = extApiReportMapper.countApiReportByTime(timeMills, projectId);
         }
         int scenarioReportCount = extApiScenarioReportMapper.countScenarioReportByTime(timeMills, projectId);
@@ -73,7 +76,9 @@ public class CleanupApiReportServiceImpl implements BaseCleanUpReport {
             // 任务执行结果存在报告，明细做保留
             List<String> taskReportIds = getTaskReportIds(ids);
             ids.removeAll(taskReportIds);
-            deleteScenarioReport(ids);
+            if (CollectionUtils.isNotEmpty(ids)) {
+                deleteScenarioReport(ids);
+            }
             scenarioReportCount = extApiScenarioReportMapper.countScenarioReportByTime(timeMills, projectId);
         }
     }
