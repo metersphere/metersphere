@@ -20,7 +20,7 @@ export default {
   message: {
     'menu.workbench': '工作台',
     'menu.workbenchHomeSort': '首页',
-    'menu.workbenchWaitSort': '待办',
+    'menu.workbenchWaitSort': '我的待办',
     'menu.workbenchFollowSort': '我关注的',
     'menu.workbenchCreatedSort': '我创建的',
     'menu.testPlan': '测试计划',

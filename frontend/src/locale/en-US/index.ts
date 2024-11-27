@@ -21,7 +21,7 @@ export default {
   message: {
     'menu.workbench': 'Workbench',
     'menu.workbenchHomeSort': 'Home page',
-    'menu.workbenchWaitSort': 'To be done',
+    'menu.workbenchWaitSort': 'My to do',
     'menu.workbenchFollowSort': 'My follow',
     'menu.workbenchCreatedSort': 'My created',
     'menu.testPlan': 'Test Plan',
