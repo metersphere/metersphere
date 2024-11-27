@@ -1312,7 +1312,7 @@
               projectId: appStore.currentProjectId,
               selectIds: batchParams.value?.selectedIds || [],
               ...updateParam,
-              moduleIds: batchConditionParams.moduleIds,
+              ...batchConditionParams.moduleIds,
             });
           } else {
             await scenarioScheduleConfig(updateParam);
