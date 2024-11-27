@@ -27,6 +27,7 @@ export default {
   'apiScenario.changeHistory': 'Change History',
   'apiScenario.dependency': 'Dependency',
   'apiScenario.quote': 'Quote',
+  'apiScenario.executeRateTip': 'Number of successful scenario executions/total number of scenario executions*%',
   'apiScenario.params.convention': 'Conventional Parameters',
   'apiScenario.params.csv': 'CSV Parameters',
   'apiScenario.params.csvName': 'CSV name',

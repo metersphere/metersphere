@@ -110,7 +110,7 @@
       <template #requestPassRateColumn>
         <div class="flex items-center text-[var(--color-text-3)]">
           {{ t('apiScenario.table.columns.passRate') }}
-          <a-tooltip :content="t('case.passRateTip')" position="right">
+          <a-tooltip :content="t('apiScenario.executeRateTip')" position="right">
             <icon-question-circle
               class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
               size="16"

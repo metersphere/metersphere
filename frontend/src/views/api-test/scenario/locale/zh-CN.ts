@@ -25,6 +25,7 @@ export default {
   'apiScenario.changeHistory': '变更历史',
   'apiScenario.dependency': '依赖关系',
   'apiScenario.quote': '引用关系',
+  'apiScenario.executeRateTip': '场景执行success数/场景执行总数*%',
   'apiScenario.params.convention': '常规参数',
   'apiScenario.params.csv': 'CSV 参数',
   'apiScenario.params.csvName': 'CSV 名称',
