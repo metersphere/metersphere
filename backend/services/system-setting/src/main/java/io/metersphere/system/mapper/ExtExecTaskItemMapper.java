@@ -72,5 +72,7 @@ public interface ExtExecTaskItemMapper {
 
     List<ExecTaskItem> selectIdAndResourceIdByTaskId(@Param("taskId") String taskId);
 
+    List<ExecTaskItem> selectRerunIdAndResourceIdByTaskId(@Param("taskId") String taskId);
+
     void deleteRerunTaskItem(@Param("taskId") String taskId, String userId);
 }

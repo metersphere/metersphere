@@ -464,7 +464,7 @@ public class ApiScenarioBatchRunService {
     private void serialRerunExecute(ExecTask execTask, String userId) {
         ApiRunModeConfigDTO runModeConfig = apiTestCaseBatchRunService.getRunModeConfig(execTask);
 
-        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectIdAndResourceIdByTaskId(execTask.getId());
+        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectRerunIdAndResourceIdByTaskId(execTask.getId());
 
         // 删除重跑的步骤
         deleteRerunIntegratedStepResult(execTask, execTaskItems, runModeConfig);
@@ -489,7 +489,7 @@ public class ApiScenarioBatchRunService {
      */
     public void parallelRerunExecute(ExecTask execTask, String userId) {
         String projectId = execTask.getProjectId();
-        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectIdAndResourceIdByTaskId(execTask.getId());
+        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectRerunIdAndResourceIdByTaskId(execTask.getId());
         ApiRunModeConfigDTO runModeConfig = apiTestCaseBatchRunService.getRunModeConfig(execTask);
 
         // 删除重跑的步骤

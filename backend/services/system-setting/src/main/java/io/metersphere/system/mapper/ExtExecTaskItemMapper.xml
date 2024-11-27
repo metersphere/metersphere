@@ -333,6 +333,12 @@
         where task_id = #{taskId} and deleted = false
     </select>
 
+    <select id="selectRerunIdAndResourceIdByTaskId" resultType="io.metersphere.system.domain.ExecTaskItem">
+        select id, resource_id
+        from exec_task_item
+        where task_id = #{taskId} and rerun = true and deleted = false
+    </select>
+
     <insert id="insertRerunTaskItem">
         insert into exec_task_item(id, task_id, resource_id, resource_name, task_origin, status, `result`, resource_pool_id,
                                    resource_pool_node, resource_type, project_id, organization_id, thread_id, start_time, end_time, executor, collection_id,

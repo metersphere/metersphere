@@ -494,7 +494,7 @@ public class ApiTestCaseBatchRunService {
     private void serialRerunExecute(ExecTask execTask, String userId) {
         ApiRunModeConfigDTO runModeConfig = getRunModeConfig(execTask);
 
-        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectIdAndResourceIdByTaskId(execTask.getId());
+        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectRerunIdAndResourceIdByTaskId(execTask.getId());
 
         // 初始化执行队列
         ExecutionQueue queue = apiBatchRunBaseService.getExecutionQueue(runModeConfig, ApiExecuteResourceType.API_CASE.name(), execTask.getId(), userId);
@@ -516,7 +516,7 @@ public class ApiTestCaseBatchRunService {
      */
     public void parallelRerunExecute(ExecTask execTask, String userId) {
         String projectId = execTask.getProjectId();
-        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectIdAndResourceIdByTaskId(execTask.getId());
+        List<ExecTaskItem> execTaskItems = extExecTaskItemMapper.selectRerunIdAndResourceIdByTaskId(execTask.getId());
         ApiRunModeConfigDTO runModeConfig = getRunModeConfig(execTask);
 
         // 记录用例和任务的映射
