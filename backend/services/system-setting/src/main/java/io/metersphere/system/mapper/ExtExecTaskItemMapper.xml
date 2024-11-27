@@ -201,15 +201,15 @@
     <select id="hasErrorItem" resultType="java.lang.Boolean">
         SELECT COUNT(1)
         FROM exec_task_item
-        WHERE task_id = #{taskId} AND `result` = 'ERROR'
-            limit 1
+        WHERE task_id = #{taskId} AND `result` = 'ERROR' and deleted = 0
+        limit 1
     </select>
 
     <select id="hasFakeErrorItem" resultType="java.lang.Boolean">
         SELECT COUNT(1)
         FROM exec_task_item
-        WHERE task_id = #{taskId} AND `result` = 'FAKE_ERROR'
-            limit 1
+        WHERE task_id = #{taskId} AND `result` = 'FAKE_ERROR' and deleted = 0
+        limit 1
     </select>
 
     <select id="getItemIdByTaskIds" resultType="java.lang.String">
