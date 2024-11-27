@@ -1309,10 +1309,9 @@
             const batchConditionParams = await getBatchConditionParams();
             await scenarioBatchEditSchedule({
               ...batchParams.value,
-              projectId: appStore.currentProjectId,
               selectIds: batchParams.value?.selectedIds || [],
               ...updateParam,
-              ...batchConditionParams.moduleIds,
+              ...batchConditionParams,
             });
           } else {
             await scenarioScheduleConfig(updateParam);
@@ -1528,22 +1527,15 @@
   async function handleBatchToggleSchedule(enable: boolean) {
     try {
       appStore.showLoading();
-      const filterParams = {
-        ...propsRes.value.filter,
-      };
       const { selectedIds, selectAll, excludeIds } = batchParams.value;
+      const batchConditionParams = await getBatchConditionParams();
       await scenarioBatchEditSchedule({
         selectIds: selectedIds || [],
         selectAll: !!selectAll,
         excludeIds: excludeIds || [],
-        projectId: appStore.currentProjectId,
-        moduleIds: props.activeModule === 'all' ? [] : [props.activeModule, ...props.offspringIds],
-        condition: {
-          filter: filterParams,
-          keyword: keyword.value,
-        },
         type: 'Schedule',
         enable,
+        ...batchConditionParams,
       });
       Message.success(
         enable
