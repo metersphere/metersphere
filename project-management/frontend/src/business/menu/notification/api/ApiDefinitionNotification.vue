@@ -403,25 +403,51 @@ export default {
       let receiverOptions = JSON.parse(JSON.stringify(this.receiverOptions));
       let i = row.userIds.indexOf('FOLLOW_PEOPLE');
       let i2 = row.userIds.indexOf('CREATOR');
+      let i3 = row.userIds.indexOf('MAINTAINER');
 
       switch (row.event) {
         case "CREATE":
+          receiverOptions.unshift({id: 'MAINTAINER', name: this.$t('test_track.case.maintainer')});
           if (i2 > -1) {
             row.userIds.splice(i2, 1);
           }
           if (i > -1) {
             row.userIds.splice(i, 1);
+          }
+          if (row.isSet) {
+            if (i3 < 0) {
+              row.userIds.unshift('MAINTAINER');
+            }
           }
           break;
         case "MOCK_CREATE":
+        case "CASE_CREATE":
           if (i2 > -1) {
             row.userIds.splice(i2, 1);
           }
           if (i > -1) {
             row.userIds.splice(i, 1);
           }
+          if (i3 > -1) {
+            row.userIds = row.userIds.splice(i3, 1);
+          }
           break;
         case "UPDATE":
+          receiverOptions.unshift({id: 'MAINTAINER', name: this.$t('test_track.case.maintainer')});
+          receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
+          receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
+          if (row.isSet) {
+            if (i2 < 0) {
+              row.userIds.unshift('CREATOR');
+            }
+            if (i < 0) {
+              row.userIds.unshift('FOLLOW_PEOPLE');
+            }
+            if (i3 < 0) {
+              row.userIds.unshift('MAINTAINER');
+            }
+          }
+          break;
         case "CASE_UPDATE":
           receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
           receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
@@ -433,6 +459,9 @@ export default {
               row.userIds.unshift('FOLLOW_PEOPLE');
             }
           }
+          if (i3> -1) {
+            row.userIds.splice(i3, 1);
+          }
           break;
         case "MOCK_UPDATE":
         case "MOCK_DELETE":
@@ -443,8 +472,26 @@ export default {
               row.userIds.unshift('CREATOR');
             }
           }
+          if (i3> -1) {
+            row.userIds.splice(i3, 1);
+          }
           break;
         case "DELETE":
+          receiverOptions.unshift({id: 'MAINTAINER', name: this.$t('test_track.case.maintainer')});
+          receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
+          receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
+          if (row.isSet) {
+            if (i2 < 0) {
+              row.userIds.unshift('CREATOR');
+            }
+            if (i3 < 0) {
+              row.userIds.unshift('MAINTAINER');
+            }
+          }
+          if (i > -1) {
+            row.userIds.splice(i, 1);
+          }
+          break;
         case "CASE_DELETE":
         case "EXECUTE_SUCCESSFUL":
         case "EXECUTE_FAILED":
@@ -454,6 +501,9 @@ export default {
             if (i2 < 0) {
               row.userIds.unshift('CREATOR');
             }
+          }
+          if (i3> -1) {
+            row.userIds.splice(i3, 1);
           }
           break;
         default:

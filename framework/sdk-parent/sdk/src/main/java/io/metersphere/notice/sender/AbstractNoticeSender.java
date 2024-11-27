@@ -175,8 +175,10 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     String creator = (String) paramMap.get("creator");
                     String createUser = (String) paramMap.get("createUser");
                     String createUserId = (String) paramMap.get("createUserId");
-                    String userId1 = (String) paramMap.get("userId");
-
+                    String userId1= null;
+                    if (!StringUtils.equalsIgnoreCase(messageDetail.getTaskType(),NoticeConstants.TaskType.API_DEFINITION_TASK)) {
+                        userId1 = (String) paramMap.get("userId");
+                    }
                     if (StringUtils.isNotBlank(userId1)) {
                         toUsers.add(new Receiver(userId1, NotificationConstants.Type.SYSTEM_NOTICE.name()));
                     } else if (StringUtils.isNotBlank(creator)) {
@@ -193,10 +195,20 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                         if (CollectionUtils.isNotEmpty(relatedUsers)) {
                             List<Receiver> receivers = relatedUsers.stream()
                                     .map(u -> new Receiver(u, NotificationConstants.Type.SYSTEM_NOTICE.name()))
-                                    .collect(Collectors.toList());
+                                    .toList();
                             toUsers.addAll(receivers);
                         }
 
+                        if (paramMap.containsKey("maintainer")) {
+                            toUsers.add(new Receiver((String) paramMap.get("maintainer"), NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                        }
+                    }
+                    if (StringUtils.equalsIgnoreCase(messageDetail.getTaskType(),NoticeConstants.TaskType.API_DEFINITION_TASK)&&(
+                            StringUtils.equals(NoticeConstants.Event.CREATE, event) ||  StringUtils.equals(NoticeConstants.Event.UPDATE, event) || StringUtils.equals(NoticeConstants.Event.DELETE, event))) {
+                        String maintainerId = (String) paramMap.get("userId");
+                        if (StringUtils.isNotBlank(maintainerId)) {
+                            toUsers.add(new Receiver(maintainerId, NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                        }
                         if (paramMap.containsKey("maintainer")) {
                             toUsers.add(new Receiver((String) paramMap.get("maintainer"), NotificationConstants.Type.SYSTEM_NOTICE.name()));
                         }
