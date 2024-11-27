@@ -2556,7 +2556,12 @@ public class ApiScenarioService extends MoveNodeService {
 
             if (CollectionUtils.isNotEmpty(apiScenarios)) {
                 if (StringUtils.isBlank(request.getCron()) && request.getConfig() == null) {
-                    this.batchUpdateSchedule(apiScenarios, request.isEnable(), operator);
+                    List<String> operationIds = this.batchUpdateSchedule(apiScenarios, request.isEnable(), operator);
+
+                    example.clear();
+                    example.createCriteria().andIdIn(operationIds).andDeletedEqualTo(false);
+                    apiScenarios = apiScenarioMapper.selectByExample(example);
+                    
                 } else {
                     if (StringUtils.isBlank(request.getCron())) {
                         throw new MSException("Cron can not be null");
@@ -2586,12 +2591,16 @@ public class ApiScenarioService extends MoveNodeService {
         }
     }
 
-    private void batchUpdateSchedule(List<ApiScenario> apiScenarioList, boolean isScheudleOpen, String userId) {
+    private List<String> batchUpdateSchedule(List<ApiScenario> apiScenarioList, boolean isScheudleOpen, String userId) {
         //批量编辑定时任务
+        List<String> scenarioIds = new ArrayList<>();
         for (ApiScenario apiScenario : apiScenarioList) {
-            scheduleService.updateIfExist(apiScenario.getId(), isScheudleOpen, ApiScenarioScheduleJob.getJobKey(apiScenario.getId()),
-                    ApiScenarioScheduleJob.getTriggerKey(apiScenario.getId()), ApiScenarioScheduleJob.class, userId);
+            scenarioIds.addAll(
+                    scheduleService.updateIfExist(apiScenario.getId(), isScheudleOpen, ApiScenarioScheduleJob.getJobKey(apiScenario.getId()),
+                            ApiScenarioScheduleJob.getTriggerKey(apiScenario.getId()), ApiScenarioScheduleJob.class, userId)
+            );
         }
+        return scenarioIds;
     }
 
     // 场景统计相关

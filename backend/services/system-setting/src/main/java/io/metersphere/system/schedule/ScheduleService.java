@@ -19,7 +19,6 @@ import org.quartz.TriggerKey;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Transactional(rollbackFor = Exception.class)
 public class ScheduleService {
@@ -121,7 +120,7 @@ public class ScheduleService {
         }
     }
 
-    public void updateIfExist(String resourceId, boolean enable, JobKey jobKey, TriggerKey triggerKey, Class clazz, String operator) {
+    public List<String> updateIfExist(String resourceId, boolean enable, JobKey jobKey, TriggerKey triggerKey, Class clazz, String operator) {
         ScheduleExample example = new ScheduleExample();
         example.createCriteria().andResourceIdEqualTo(resourceId).andJobEqualTo(clazz.getName());
         List<Schedule> scheduleList = scheduleMapper.selectByExample(example);
@@ -140,6 +139,7 @@ public class ScheduleService {
                 }
             }
         }
+        return scheduleList.stream().map(Schedule::getResourceId).toList();
     }
 
     public String scheduleConfig(ScheduleConfig scheduleConfig, JobKey jobKey, TriggerKey triggerKey, Class clazz, String operator) {
