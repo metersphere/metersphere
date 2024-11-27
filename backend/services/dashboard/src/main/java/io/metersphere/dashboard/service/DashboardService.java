@@ -404,8 +404,10 @@ public class DashboardService {
         if (CollectionUtils.isEmpty(allPermissionProjects)) {
             return new ArrayList<>();
         }
+        List<ProjectUserMemberDTO> orgProjectMemberList = extProjectMemberMapper.getOrgProjectMemberList(organizationId, null);
         if (CollectionUtils.isEmpty(userLayouts)) {
-            return getDefaultLayoutDTOS(allPermissionProjects.getFirst().getId());
+            List<String> userIds = orgProjectMemberList.stream().map(ProjectUserMemberDTO::getId).distinct().toList();
+            return getDefaultLayoutDTOS(allPermissionProjects.getFirst().getId(),userIds);
         }
         UserLayout userLayout = userLayouts.getFirst();
         byte[] configuration = userLayout.getConfiguration();
@@ -415,7 +417,6 @@ public class DashboardService {
         }
         List<LayoutDTO> layoutDTOS = JSON.parseArray(layoutDTOStr, LayoutDTO.class);
         Map<String, Set<String>> permissionModuleProjectIdMap = dashboardProjectService.getPermissionModuleProjectIds(allPermissionProjects, userId);
-        List<ProjectUserMemberDTO> orgProjectMemberList = extProjectMemberMapper.getOrgProjectMemberList(organizationId, null);
         rebuildLayouts(layoutDTOS, allPermissionProjects, orgProjectMemberList, permissionModuleProjectIdMap);
         return layoutDTOS.stream().sorted(Comparator.comparing(LayoutDTO::getPos)).collect(Collectors.toList());
     }
@@ -477,6 +478,10 @@ public class DashboardService {
                     || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.BUG_HANDLE_USER.toString())) {
                 Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_BUG_READ);
                 checkHasPermissionProject(layoutDTO, hasReadProjectIds);
+                if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.BUG_HANDLE_USER.toString())) {
+                    List<ProjectUserMemberDTO> list = orgProjectMemberList.stream().filter(t -> layoutDTO.getHandleUsers().contains(t.getId())).toList();
+                    layoutDTO.setHandleUsers(list.stream().map(ProjectUserMemberDTO::getId).distinct().toList());
+                }
             }
         }
     }
@@ -496,16 +501,16 @@ public class DashboardService {
     /**
      * 获取默认布局
      *
-     * @param organizationId 组织ID
+     * @param  projectId 项目ID
      * @return List<LayoutDTO>
      */
-    private static List<LayoutDTO> getDefaultLayoutDTOS(String organizationId) {
+    private static List<LayoutDTO> getDefaultLayoutDTOS(String projectId,  List<String> userIds) {
         List<LayoutDTO> layoutDTOS = new ArrayList<>();
-        LayoutDTO projectLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_VIEW, "workbench.homePage.projectOverview", 0, new ArrayList<>());
+        LayoutDTO projectLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_VIEW, "workbench.homePage.projectOverview", 0, new ArrayList<>(), new ArrayList<>());
         layoutDTOS.add(projectLayoutDTO);
-        LayoutDTO createByMeLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.CREATE_BY_ME, "workbench.homePage.createdByMe", 1, new ArrayList<>());
+        LayoutDTO createByMeLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.CREATE_BY_ME, "workbench.homePage.createdByMe", 1, new ArrayList<>(), new ArrayList<>());
         layoutDTOS.add(createByMeLayoutDTO);
-        LayoutDTO projectMemberLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW, "workbench.homePage.staffOverview", 2, List.of(organizationId));
+        LayoutDTO projectMemberLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW, "workbench.homePage.staffOverview", 2, List.of(projectId), userIds);
         layoutDTOS.add(projectMemberLayoutDTO);
         return layoutDTOS;
     }
@@ -519,7 +524,7 @@ public class DashboardService {
      * @param projectIds 布局卡片所选的项目ids
      * @return LayoutDTO
      */
-    private static LayoutDTO buildDefaultLayoutDTO(DashboardUserLayoutKeys layoutKey, String label, int pos, List<String> projectIds) {
+    private static LayoutDTO buildDefaultLayoutDTO(DashboardUserLayoutKeys layoutKey, String label, int pos, List<String> projectIds, List<String> users) {
         LayoutDTO layoutDTO = new LayoutDTO();
         layoutDTO.setId(UUID.randomUUID().toString());
         layoutDTO.setKey(layoutKey.toString());
@@ -528,7 +533,7 @@ public class DashboardService {
         layoutDTO.setSelectAll(true);
         layoutDTO.setFullScreen(true);
         layoutDTO.setProjectIds(projectIds);
-        layoutDTO.setHandleUsers(new ArrayList<>());
+        layoutDTO.setHandleUsers(users);
         return layoutDTO;
     }
 

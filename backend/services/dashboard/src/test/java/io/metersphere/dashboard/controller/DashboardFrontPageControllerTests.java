@@ -115,6 +115,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         dashboardFrontPageRequest.setCurrent(1);
         dashboardFrontPageRequest.setPageSize(5);
         dashboardFrontPageRequest.setProjectIds(List.of(DEFAULT_PROJECT_ID));
+        dashboardFrontPageRequest.setHandleUsers(List.of("admin"));
         MvcResult bugMvcResult = this.requestPostWithOkAndReturn(BUG_HANDLE_USER, dashboardFrontPageRequest);
         String bugContentAsString = bugMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder bugResultHolder = JSON.parseObject(bugContentAsString, ResultHolder.class);
