@@ -19,13 +19,10 @@
             @change="changeProject"
           >
           </MsSelect>
-
           <MsSelect
             v-model:model-value="innerHandleUsers"
             :options="memberOptions"
             allow-search
-            allow-clear
-            :placeholder="t('ms.case.associate.allData')"
             value-key="value"
             label-key="label"
             :search-keys="['label']"
@@ -146,19 +143,26 @@
       label: e.name,
       value: e.id,
     }));
-    innerHandleUsers.value = memberOptions.value.map((e) => e.value);
   }
 
-  async function handleProjectChange(isRefreshKey: boolean = false) {
+  async function handleProjectChange(isRefreshKey: boolean = false, setAll = false) {
     await nextTick();
     if (!isRefreshKey) {
       await getMemberOptions();
+      if (setAll) {
+        innerHandleUsers.value = [...memberOptions.value.map((e) => e.value)];
+      } else {
+        innerHandleUsers.value = innerHandleUsers.value.filter((id: string) =>
+          memberOptions.value.some((member) => member.value === id)
+        );
+      }
     }
-    await initOverViewMemberDetail();
+    await nextTick();
+    initOverViewMemberDetail();
   }
 
   async function changeProject() {
-    await handleProjectChange(false);
+    await handleProjectChange(false, true);
     emit('change');
   }
 
@@ -204,9 +208,12 @@
     }
   );
 
-  watch([() => props.refreshKey, () => projectId.value], ([refreshKey]) => {
-    handleProjectChange(!!refreshKey);
-  });
+  watch(
+    () => props.refreshKey,
+    (refreshKey) => {
+      handleProjectChange(!!refreshKey);
+    }
+  );
 
   onMounted(() => {
     handleProjectChange(false);

@@ -10,7 +10,6 @@
           <MsSelect
             v-model:model-value="innerProjectIds"
             :options="appStore.projectList"
-            allow-clear
             allow-search
             value-key="id"
             label-key="name"
@@ -172,7 +171,6 @@
   }
 
   function handleProjectChange(shouldEmit = false) {
-    // 项目切换逻辑
     nextTick(() => {
       innerSelectAll.value = selectAll.value;
       initOverViewDetail();
