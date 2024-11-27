@@ -118,16 +118,6 @@
           </a-tooltip>
         </div>
       </template>
-      <template #createUserName="{ record }">
-        <a-tooltip :content="`${record.createName}`" position="tl">
-          <div class="one-line-text">{{ characterLimit(record.createUserName) }}</div>
-        </a-tooltip>
-      </template>
-      <template #updateUserName="{ record }">
-        <a-tooltip :content="`${record.createName}`" position="tl">
-          <div class="one-line-text">{{ characterLimit(record.updateUserName) }}</div>
-        </a-tooltip>
-      </template>
       <!-- 报告结果筛选 -->
       <template #[FilterSlotNameEnum.API_TEST_CASE_API_REPORT_STATUS]="{ filterContent }">
         <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
@@ -786,9 +776,7 @@
     },
     {
       title: 'apiScenario.table.columns.createUser',
-      dataIndex: 'createUser',
-      slotName: 'createUserName',
-      showInTable: false,
+      dataIndex: 'createUserName',
       showTooltip: true,
       showDrag: true,
       width: 109,
@@ -803,9 +791,7 @@
     },
     {
       title: 'apiScenario.table.columns.updateUser',
-      dataIndex: 'updateUser',
-      slotName: 'updateUserName',
-      showInTable: false,
+      dataIndex: 'updateUserName',
       showTooltip: true,
       showDrag: true,
       width: 109,
