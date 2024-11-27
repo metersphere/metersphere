@@ -540,6 +540,9 @@ public class DashboardService {
         Long toEndTime = request.getToEndTime();
         List<ProjectUserMemberDTO> projectMemberList = extProjectMemberMapper.getProjectMemberList(projectId, request.getHandleUsers());
         Map<String, String> userNameMap = projectMemberList.stream().collect(Collectors.toMap(ProjectUserMemberDTO::getId, ProjectUserMemberDTO::getName));
+        if (CollectionUtils.isEmpty(request.getHandleUsers())) {
+            return new OverViewCountDTO(new HashMap<>(), new ArrayList<>(), new ArrayList<>(), 0);
+        }
         return getUserCountDTO(userNameMap, moduleIds, projectId, toStartTime, toEndTime);
 
     }
@@ -803,6 +806,9 @@ public class DashboardService {
         Long toEndTime = request.getToEndTime();
         List<SelectOption> headerHandlerOption = getHandlerOption(request.getHandleUsers(), projectId);
         //获取每个人每个状态有多少数据(已按照用户id排序)
+        if (CollectionUtils.isEmpty(request.getHandleUsers())) {
+            return new OverViewCountDTO(new HashMap<>(), new ArrayList<>(), new ArrayList<>(), 0);
+        }
         String platformName = projectApplicationService.getPlatformName(projectId);
         List<SelectOption> headerStatusOption = getStatusOption(projectId, platformName);
         Set<String> platforms = getPlatforms(platformName);
