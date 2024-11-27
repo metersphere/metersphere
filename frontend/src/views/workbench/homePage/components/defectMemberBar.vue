@@ -29,8 +29,7 @@
             :prefix="t('workbench.homePage.staff')"
             :multiple="true"
             :has-all-select="true"
-            :default-all-select="innerHandleUsers.length === 0"
-            @change="changeMember"
+            @popup-visible-change="popupVisibleChange"
           >
           </MsSelect>
         </div>
@@ -60,7 +59,6 @@
   import type { OverViewOfProject, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
   import { getColorScheme, getCommonBarOptions, handleNoDataDisplay } from '../utils';
-  import type { SelectOptionData } from '@arco-design/web-vue';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -92,7 +90,7 @@
     })
   );
 
-  const memberOptions = ref<SelectOptionData[]>([]);
+  const memberOptions = ref<{ label: string; value: string }[]>([]);
 
   const options = ref<Record<string, any>>({});
 
@@ -178,23 +176,29 @@
       label: e.text,
       value: e.value,
     }));
-    innerHandleUsers.value = innerHandleUsers.value.filter((id: string) =>
-      memberOptions.value.some((member) => member.value === id)
-    );
+    innerHandleUsers.value = memberOptions.value.map((e) => e.value);
   }
 
-  function changeProject() {
-    innerHandleUsers.value = [];
-    nextTick(() => {
-      emit('change');
-    });
+  async function handleProjectChange(isRefreshKey: boolean = false) {
+    await nextTick();
+    if (!isRefreshKey) {
+      await getMemberOptions();
+    }
+    await getDefectMemberDetail();
   }
 
-  function changeMember() {
-    nextTick(() => {
-      getDefectMemberDetail();
-      emit('change');
-    });
+  async function changeProject() {
+    await handleProjectChange(false);
+    emit('change');
+  }
+
+  function popupVisibleChange(val: boolean) {
+    if (!val) {
+      nextTick(() => {
+        getDefectMemberDetail();
+        emit('change');
+      });
+    }
   }
 
   watch(
@@ -230,15 +234,12 @@
     }
   );
 
-  watch([() => props.refreshKey, () => projectId.value], async () => {
-    await nextTick();
-    getMemberOptions();
-    getDefectMemberDetail();
+  watch([() => props.refreshKey, () => projectId.value], ([refreshKey]) => {
+    handleProjectChange(!!refreshKey);
   });
 
   onMounted(() => {
-    getMemberOptions();
-    getDefectMemberDetail();
+    handleProjectChange(false);
   });
 </script>
 

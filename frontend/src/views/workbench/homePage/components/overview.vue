@@ -1,7 +1,7 @@
 <template>
   <div class="card-wrapper">
     <CardSkeleton v-if="showSkeleton" :show-skeleton="showSkeleton" />
-    <div v-show="!showSkeleton">
+    <div v-else>
       <div class="flex items-center justify-between">
         <a-tooltip :content="t(props.item.label)" position="tl">
           <div class="title one-line-text"> {{ t(props.item.label) }} </div>
@@ -21,7 +21,7 @@
             :has-all-select="true"
             :default-all-select="props.item.selectAll"
             :at-least-one="true"
-            @change="changeProject"
+            @popup-visible-change="popupVisibleChange"
           >
           </MsSelect>
         </div>
@@ -152,7 +152,7 @@
         projectIds: innerProjectIds.value,
         organizationId: appStore.currentOrgId,
         handleUsers: [],
-        selectAll: selectAll.value,
+        selectAll: innerSelectAll.value,
       };
       let detail;
       if (props.item.key === WorkCardEnum.PROJECT_VIEW) {
@@ -170,17 +170,33 @@
       showSkeleton.value = false;
     }
   }
-  const isInit = ref(true);
-  function changeProject() {
-    if (isInit.value) return;
+
+  function handleProjectChange(shouldEmit = false) {
+    // 项目切换逻辑
     nextTick(() => {
       innerSelectAll.value = selectAll.value;
-      emit('change');
+      initOverViewDetail();
+      if (shouldEmit) emit('change');
     });
   }
 
+  function popupVisibleChange(val: boolean) {
+    if (!val) {
+      handleProjectChange(true);
+    }
+  }
+
+  async function handleRefreshKeyChange() {
+    await nextTick(() => {
+      innerProjectIds.value = [...props.item.projectIds];
+      innerSelectAll.value = props.item.selectAll;
+    });
+    setTimeout(() => {
+      initOverViewDetail();
+    }, 0);
+  }
+
   onMounted(() => {
-    isInit.value = false;
     initOverViewDetail();
   });
 
@@ -191,15 +207,10 @@
         initOverViewDetail();
       }
     },
-    {
-      deep: true,
-    }
+    { deep: true }
   );
 
-  watch([() => props.refreshKey, () => innerProjectIds.value], async () => {
-    await nextTick();
-    initOverViewDetail();
-  });
+  watch(() => props.refreshKey, handleRefreshKeyChange);
 </script>
 
 <style scoped lang="less">

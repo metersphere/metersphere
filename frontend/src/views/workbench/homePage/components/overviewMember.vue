@@ -16,6 +16,7 @@
             :search-keys="['name']"
             class="!w-[200px]"
             :prefix="t('workbench.homePage.project')"
+            @change="changeProject"
           >
           </MsSelect>
 
@@ -24,6 +25,7 @@
             :options="memberOptions"
             allow-search
             allow-clear
+            :placeholder="t('ms.case.associate.allData')"
             value-key="value"
             label-key="label"
             :search-keys="['label']"
@@ -31,8 +33,7 @@
             :prefix="t('workbench.homePage.staff')"
             :multiple="true"
             :has-all-select="true"
-            :default-all-select="innerHandleUsers.length === 0"
-            @change="changeMember"
+            @popup-visible-change="popupVisibleChange"
           >
           </MsSelect>
         </div>
@@ -58,7 +59,7 @@
   import { workMemberViewDetail, workProjectMemberOptions } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { characterLimit, sleep } from '@/utils';
+  import { characterLimit } from '@/utils';
 
   import type { OverViewOfProject, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
@@ -145,18 +146,29 @@
       label: e.name,
       value: e.id,
     }));
-    innerHandleUsers.value = innerHandleUsers.value.filter((id: string) =>
-      memberOptions.value.some((member) => member.value === id)
-    );
+    innerHandleUsers.value = memberOptions.value.map((e) => e.value);
   }
-  const isInit = ref(true);
 
-  function changeMember(value: string[]) {
-    nextTick(() => {
-      initOverViewMemberDetail();
-      innerHandleUsers.value = value;
-      emit('change');
-    });
+  async function handleProjectChange(isRefreshKey: boolean = false) {
+    await nextTick();
+    if (!isRefreshKey) {
+      await getMemberOptions();
+    }
+    await initOverViewMemberDetail();
+  }
+
+  async function changeProject() {
+    await handleProjectChange(false);
+    emit('change');
+  }
+
+  function popupVisibleChange(val: boolean) {
+    if (!val) {
+      nextTick(() => {
+        initOverViewMemberDetail();
+        emit('change');
+      });
+    }
   }
 
   watch(
@@ -192,28 +204,12 @@
     }
   );
 
-  onMounted(() => {
-    isInit.value = false;
-    if (props.item.projectIds.length) {
-      getMemberOptions();
-    }
-    initOverViewMemberDetail();
+  watch([() => props.refreshKey, () => projectId.value], ([refreshKey]) => {
+    handleProjectChange(!!refreshKey);
   });
 
-  watch([() => props.refreshKey, () => projectId.value], async ([_key, newProjectId]) => {
-    await nextTick();
-
-    if (newProjectId) {
-      innerHandleUsers.value = [];
-      emit('change');
-    }
-
-    if (props.item.projectIds.length) {
-      getMemberOptions();
-    }
-    await sleep(50);
-
-    initOverViewMemberDetail();
+  onMounted(() => {
+    handleProjectChange(false);
   });
 </script>
 

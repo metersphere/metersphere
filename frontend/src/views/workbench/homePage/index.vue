@@ -317,7 +317,7 @@
 
   // 刷新
   async function handleRefresh() {
-    initDefaultList();
+    await initDefaultList();
     refreshKey.value = Date.now();
   }
 
