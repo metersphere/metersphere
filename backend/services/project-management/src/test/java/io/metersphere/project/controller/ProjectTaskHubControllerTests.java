@@ -57,7 +57,7 @@ public class ProjectTaskHubControllerTests extends BaseTest {
     public static final String PROJECT_SCHEDULE_TASK_SWITCH = "/project/task-center/schedule/switch/";
     public static final String PROJECT_SCHEDULE_TASK_BATCH_ENABLE = "/project/task-center/schedule/batch-enable";
     public static final String PROJECT_SCHEDULE_TASK_BATCH_DISABLE = "/project/task-center/schedule/batch-disable";
-    public static final String PROJECT_SCHEDULE_TASK_UPDATE_CRON = "/organization/task-center/schedule/update-cron";
+    public static final String PROJECT_SCHEDULE_TASK_UPDATE_CRON = "/project/task-center/schedule/update-cron";
 	public static final String PROJECT_BATCH_TASK_PAGE = "/project/task-center/exec-task/batch/page";
 
 	@Test
@@ -294,6 +294,8 @@ public class ProjectTaskHubControllerTests extends BaseTest {
         ScheduleRequest request = new ScheduleRequest();
         request.setCron("0 0 0 1 * ?");
         request.setId("pro_wx_1");
+        this.requestPost(PROJECT_SCHEDULE_TASK_UPDATE_CRON, request);
+        request.setId("pro_wx_2");
         this.requestPost(PROJECT_SCHEDULE_TASK_UPDATE_CRON, request);
     }
 
