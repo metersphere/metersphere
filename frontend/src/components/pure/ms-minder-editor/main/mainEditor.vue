@@ -132,8 +132,12 @@
       window.minder.setDefaultOptions({
         defaultTheme: 'wire',
       });
-      window.minder.refresh();
+    } else {
+      window.minder.setDefaultOptions({
+        defaultTheme: 'fresh-purple',
+      });
     }
+    window.minder.refresh();
     window.minder.forceRemoveNode = () => {
       markDeleteNode(window.minder);
       window.minder.execCommand('RemoveNode');
