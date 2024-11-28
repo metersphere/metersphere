@@ -6,7 +6,6 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.schedule.BaseScheduleJob;
-import io.metersphere.system.service.LicenseService;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
@@ -14,15 +13,14 @@ import org.quartz.TriggerKey;
 
 /**
  * 缺陷同步定时任务
+ * @author song-cc-rock
  */
 public class BugSyncJob extends BaseScheduleJob {
 
-    private final LicenseService licenseService;
     private final BugSyncService bugSyncService;
     private final ProjectApplicationService projectApplicationService;
 
     public BugSyncJob() {
-        licenseService = CommonBeanFactory.getBean(LicenseService.class);
         bugSyncService = CommonBeanFactory.getBean(BugSyncService.class);
         projectApplicationService = CommonBeanFactory.getBean(ProjectApplicationService.class);
     }
@@ -49,11 +47,11 @@ public class BugSyncJob extends BaseScheduleJob {
             boolean increment = projectApplicationService.isPlatformSyncMethodByIncrement(resourceId);
             if (increment) {
                 // 增量同步
-                LogUtils.info("Incremental synchronization");
+                LogUtils.info("Incremental Synchronization");
                 bugSyncService.syncPlatformBugBySchedule(resourceId, userId);
             } else {
                 // 全量同步
-                LogUtils.info("Full synchronization");
+                LogUtils.info("Full Synchronization");
                 bugSyncService.syncPlatformAllBugBySchedule(resourceId, userId);
             }
         } catch (Exception e) {

@@ -2,6 +2,7 @@ package io.metersphere.bug.service;
 
 import io.metersphere.bug.dto.request.BugBatchRequest;
 import io.metersphere.bug.dto.request.BugEditRequest;
+import io.metersphere.bug.dto.response.BugCustomFieldDTO;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.plugin.sdk.util.PluginUtils;
 import io.metersphere.sdk.util.BeanUtils;
@@ -27,6 +28,7 @@ public class BugNoticeService {
     public static final String CUSTOM_TITLE = "summary";
     public static final String CUSTOM_STATUS = "status";
     public static final String CUSTOM_HANDLE_USER = "handleUser";
+    public static final String EMPTY_MULTIPLE = "[]";
 
     @Resource
     private BugService bugService;
@@ -57,13 +59,7 @@ public class BugNoticeService {
                     // 处理人 {从自定义字段中获取状态}
                     notice.setHandleUser(PluginUtils.parseArray(field.getText()).getFirst().toString());
                 } else {
-                    // 其他自定义字段
-                    OptionDTO fieldDTO = new OptionDTO();
-                    fieldDTO.setId(field.getName());
-                    if (StringUtils.isNotEmpty(field.getText()) && !StringUtils.equals(field.getText(), "[]")) {
-                        fieldDTO.setName(field.getText());
-                    }
-                    fields.add(fieldDTO);
+                    fields.add(buildNoticeOptionDTO(field));
                 }
             });
             notice.setFields(fields);
@@ -75,6 +71,7 @@ public class BugNoticeService {
      * 获取缺陷通知
      * @param id 缺陷ID
      */
+    @SuppressWarnings("unused")
     public BugNoticeDTO getNoticeById(String id) {
         // 缺陷基础信息
         BugDTO bugDTO = bugLogService.getOriginalValue(id);
@@ -123,17 +120,26 @@ public class BugNoticeService {
         // 自定义字段解析{name: value}
         if (CollectionUtils.isNotEmpty(bugDTO.getCustomFields())) {
             List<OptionDTO> fields = new ArrayList<>();
-            bugDTO.getCustomFields().forEach(field -> {
-                // 其他自定义字段
-                OptionDTO fieldDTO = new OptionDTO();
-                fieldDTO.setId(field.getName());
-                if (StringUtils.isNotEmpty(field.getText()) && !StringUtils.equals(field.getText(), "[]")) {
-                    fieldDTO.setName(field.getText());
-                }
-                fields.add(fieldDTO);
-            });
+            bugDTO.getCustomFields().forEach(field -> fields.add(buildNoticeOptionDTO(field)));
             notice.setFields(fields);
         }
         return notice;
+    }
+
+    /**
+     * 构建通知自定义字段
+     * @param field 缺陷自定义字段
+     * @return 通知自定义字段
+     */
+    private OptionDTO buildNoticeOptionDTO(BugCustomFieldDTO field) {
+        // 封装通知自定义字段
+        OptionDTO option = new OptionDTO();
+        option.setId(field.getName());
+        if (StringUtils.isNotEmpty(field.getText()) && !StringUtils.equals(field.getText(), EMPTY_MULTIPLE)) {
+            option.setName(field.getText());
+        } else {
+            option.setName(field.getValue());
+        }
+        return option;
     }
 }

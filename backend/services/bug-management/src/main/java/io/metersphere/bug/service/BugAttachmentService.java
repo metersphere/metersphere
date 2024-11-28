@@ -64,6 +64,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * @author song-cc-rock
+ */
 @Service
 public class BugAttachmentService {
 
@@ -270,7 +273,7 @@ public class BugAttachmentService {
                 }
             }
 
-            // 删除Jira中不存在的附件
+            // 删除三方平台中不存在的附件
             deleteSyncAttachmentFromMs(platformAttachmentSet, allBugFiles, bugId, projectId);
         }
     }
