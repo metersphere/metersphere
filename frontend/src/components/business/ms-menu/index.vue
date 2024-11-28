@@ -513,9 +513,12 @@
 </script>
 
 <style lang="less">
+  .arco-menu-light {
+    background-color: transparent;
+  }
   .arco-menu-vertical {
     .menu-wrapper {
-      background-color: var(--color-bg-3);
+      background-color: var(--color-text-fff);
     }
     .arco-menu-inner {
       @apply flex flex-col justify-between;

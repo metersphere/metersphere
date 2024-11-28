@@ -2,7 +2,7 @@
   <div v-if="projectDetail?.deleted" class="mb-6">
     <a-alert type="error">{{ t('project.basicInfo.alertDescription') }}</a-alert>
   </div>
-  <div class="wrapper mb-6 flex justify-between">
+  <div class="wrapper mb-[16px] flex justify-between border-b border-[var(--color-text-n8)] pb-[16px]">
     <span class="font-medium text-[var(--color-text-1)]">{{ t('project.basicInfo.basicInfo') }}</span>
     <a-button
       v-show="!projectDetail?.deleted"
@@ -12,39 +12,44 @@
       >{{ t('project.basicInfo.edit') }}</a-button
     >
   </div>
-  <div class="project-info mb-6 h-[112px] bg-[var(--color-text-fff)] p-1">
-    <div class="inner-wrapper rounded-md p-4">
-      <div class="detail-info flex flex-col justify-between rounded-md p-4">
-        <div class="flex items-center">
-          <span class="one-line-text mr-1 max-w-[300px] font-medium text-[var(--color-text-1)]">{{
-            projectDetail?.name
-          }}</span>
-          <span class="button mr-1" :class="[projectDetail?.deleted ? 'delete-button' : 'enable-button']">
-            {{ projectDetail?.deleted ? t('project.basicInfo.deleted') : t('project.basicInfo.enable') }}
-          </span>
+  <div class="detail-info mb-[16px] flex items-center gap-[12px]">
+    <div class="flex items-center rounded-[var(--border-radius-small)] bg-[rgb(var(--primary-1))] p-[9px]">
+      <MsIcon type="icon-icon_project" class="text-[rgb(var(--primary-4))]" :size="22" />
+    </div>
+    <div class="flex flex-col">
+      <div class="flex items-center">
+        <a-tooltip :content="projectDetail?.name">
+          <div class="one-line-text mr-1 max-w-[300px] font-medium text-[var(--color-text-1)]">
+            {{ projectDetail?.name }}
+          </div>
+        </a-tooltip>
+        <div class="button mr-1" :class="[projectDetail?.deleted ? 'delete-button' : 'enable-button']">
+          {{ projectDetail?.deleted ? t('project.basicInfo.deleted') : t('project.basicInfo.enable') }}
         </div>
-        <div class="one-line-text text-[12px] text-[--color-text-4]">{{ projectDetail?.description }}</div>
       </div>
+      <a-tooltip v-if="projectDetail?.description" :content="projectDetail?.description">
+        <div class="one-line-text text-[12px] text-[--color-text-4]">{{ 'projectDetail?.description' }}</div>
+      </a-tooltip>
     </div>
   </div>
-  <div class="ml-1 flex flex-col">
+  <div class="ml-1 grid grid-cols-2 gap-[16px] rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[16px]">
     <div class="label-item">
-      <span class="label">{{ t('project.basicInfo.createBy') }}</span>
+      <span class="label">{{ t('project.basicInfo.createBy') }}：</span>
       <a-tooltip v-if="translateTextToPX(projectDetail?.createUser) > 300" :content="projectDetail?.createUser">
         <span class="one-line-text" style="max-width: 300px">{{ projectDetail?.createUser }}</span>
       </a-tooltip>
       <span v-else>{{ projectDetail?.createUser }}</span>
     </div>
     <div class="label-item">
-      <span class="label">{{ t('project.basicInfo.organization') }}</span>
+      <span class="label">{{ t('project.basicInfo.organization') }}：</span>
       <MsTag>{{ projectDetail?.organizationName }}</MsTag>
     </div>
     <div class="label-item">
-      <span class="label">{{ t('project.basicInfo.resourcePool') }}</span>
+      <span class="label">{{ t('project.basicInfo.resourcePool') }}：</span>
       <MsTag v-for="pool of projectDetail?.resourcePoolList" :key="pool.id">{{ pool.name }}</MsTag>
     </div>
     <div class="label-item">
-      <span class="label">{{ t('project.basicInfo.createTime') }}</span>
+      <span class="label">{{ t('project.basicInfo.createTime') }}：</span>
       <span>{{ dayjs(projectDetail?.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
     </div>
   </div>
@@ -58,6 +63,7 @@
   import { inject, onBeforeMount, ref } from 'vue';
   import dayjs from 'dayjs';
 
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import UpdateProjectModal from './components/updateProjectModal.vue';
 
@@ -106,46 +112,31 @@
 </script>
 
 <style scoped lang="less">
-  .project-info {
-    border-radius: 4px;
-    box-shadow: 0 0 10px rgb(120 56 135/5%);
-    .inner-wrapper {
-      height: 100%;
-      background: rgb(var(--primary-1));
-      .detail-info {
-        height: 100%;
-        background: url('@/assets/images/basic_bg.png');
-        background-size: cover;
-        .button {
-          font-size: 12px;
-          border-radius: 2px;
-          line-height: 20px;
-          @apply inline-block px-2 py-1;
-        }
-        .enable-button {
-          color: rgb(var(--success-5));
-          background: rgb(var(--success-1));
-        }
-        .disabled-button {
-          color: var(--color-text-4);
-          background: var(--color-text-n8);
-        }
-        .delete-button {
-          color: rgb(var(--danger-5));
-          background: rgb(var(--danger-1));
-        }
-      }
+  .detail-info {
+    .button {
+      padding: 0 4px;
+      font-size: 12px;
+      border-radius: 2px;
+      line-height: 20px;
+      @apply inline-block;
+    }
+    .enable-button {
+      color: rgb(var(--success-5));
+      background: rgb(var(--success-1));
+    }
+    .disabled-button {
+      color: var(--color-text-4);
+      background: var(--color-text-n8);
+    }
+    .delete-button {
+      color: rgb(var(--danger-5));
+      background: rgb(var(--danger-1));
     }
   }
   .label-item {
-    margin-bottom: 16px;
     height: 22px;
     line-height: 22px;
-    span {
-      float: left;
-    }
     .label {
-      margin-right: 16px;
       width: 120px;
       color: var(--color-text-3);
     }

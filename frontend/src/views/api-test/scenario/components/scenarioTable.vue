@@ -45,7 +45,7 @@
                 </span>
               </template>
               <a-tag
-                style="border-color: #00c261; color: #00c261; background-color: transparent"
+                style="border-color: rgb(var(--success-6)); color: rgb(var(--success-6)); background-color: transparent"
                 bordered
                 @click="openScheduleModal(record)"
                 >{{ t('apiScenario.schedule.abbreviation') }}
@@ -55,7 +55,7 @@
           <div v-if="record.scheduleConfig && !record.scheduleConfig.enable" class="float-right">
             <a-tooltip :content="t('apiScenario.schedule.table.tooltip.disable')" position="top">
               <a-tag
-                style="border-color: #d4d4d8; color: #323233; background-color: transparent"
+                style="border-color: var(--color-text-n8); color: var(--color-text-1); background-color: transparent"
                 bordered
                 @click="openScheduleModal(record)"
                 >{{ t('apiScenario.schedule.abbreviation') }}
