@@ -1,7 +1,11 @@
 <template>
   <MsCard auto-height simple>
     <div class="flex items-center justify-between">
-      <div class="cursor-pointer font-medium text-[var(--color-text-1)]" @click="goBugList">
+      <div
+        class="font-medium text-[var(--color-text-1)]"
+        :class="props.type !== 'my_todo' ? 'cursor-pointer' : ''"
+        @click="goBugList"
+      >
         {{ t('ms.workbench.myFollowed.feature.BUG') }}
       </div>
     </div>
@@ -257,6 +261,9 @@
   }
 
   function goBugList() {
+    if (props.type === 'my_todo') {
+      return;
+    }
     openNewPage(BugManagementRouteEnum.BUG_MANAGEMENT_INDEX, {
       view: props.type,
       pId: props.project,
