@@ -135,7 +135,6 @@
     options.value.yAxis[0].max = maxAxis;
   }
   const showSkeleton = ref(false);
-  const selectAll = computed(() => appStore.projectList.length === innerProjectIds.value.length);
 
   async function initOverViewDetail() {
     try {
@@ -170,17 +169,19 @@
     }
   }
 
-  function handleProjectChange(shouldEmit = false) {
-    nextTick(() => {
-      innerSelectAll.value = selectAll.value;
-      initOverViewDetail();
-      if (shouldEmit) emit('change');
-    });
+  async function handleProjectChange(shouldEmit = false) {
+    await nextTick();
+    innerSelectAll.value = appStore.projectList.length === innerProjectIds.value.length;
+    await nextTick();
+    initOverViewDetail();
+    if (shouldEmit) emit('change');
   }
 
   function popupVisibleChange(val: boolean) {
     if (!val) {
-      handleProjectChange(true);
+      nextTick(() => {
+        handleProjectChange(true);
+      });
     }
   }
 
