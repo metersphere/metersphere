@@ -7,7 +7,13 @@
         </a-tag>
         <div class="one-line-text flex-1">{{ detail.name }}</div>
       </div>
-      <div class="flex justify-end">
+      <div class="flex items-center justify-end gap-[16px]">
+        <div class="text-[14px]">
+          <span class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionTime') }}</span>
+          {{ detail.startTime ? dayjs(detail.startTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
+          <span class="text-[var(--color-text-4)]">{{ t('report.detail.api.executionTimeTo') }}</span>
+          {{ detail.endTime ? dayjs(detail.endTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}
+        </div>
         <MsButton type="icon" status="secondary" class="!rounded-[var(--border-radius-small)]" @click="init">
           <MsIcon type="icon-icon_reset_outlined" class="mr-[8px]" size="14" />
           {{ t('common.refresh') }}
@@ -27,7 +33,7 @@
         </SystemTrigger>
         <SystemTrigger :is-preview="true">
           <div class="analysis min-w-[330px]">
-            <ExecuteAnalysis :detail="detail" hide-title />
+            <ExecuteAnalysis :detail="detail" hide-title no-block />
           </div>
           <template #content>
             <div class="arco-table-filters-content px-[8px] py-[4px]">
@@ -42,12 +48,12 @@
           v-model:model-value="activePlan"
           :options="testPlanGroups"
           class="w-[240px]"
-          @change="searchList"
+          @change="handlePlanChange"
         ></a-select>
         <div class="flex items-center justify-between">
           <MsTab
             v-model:active-key="activeTable"
-            :content-tab-list="contentTabList"
+            :content-tab-list="showContentTabList"
             :show-badge="false"
             class="testPlan-execute-tab no-content"
             @change="searchList"
@@ -107,6 +113,7 @@
 
 <script setup lang="ts">
   import { SelectOptionData } from '@arco-design/web-vue';
+  import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -159,8 +166,32 @@
   const detail = ref<any>({});
   const testPlanGroups = ref<SelectOptionData[]>([]);
   const activePlan = ref('');
+  const activePlanCaseTotal = ref(0);
+  const activePlanScenarioTotal = ref(0);
 
   const reportAnalysisList = computed<ReportMetricsItemModel[]>(() => {
+    if (props.isGroup) {
+      return [
+        {
+          name: t('report.detail.testPlanTotal'),
+          value: detail.value.planCount,
+          unit: t('report.detail.number'),
+          icon: 'plan_total',
+        },
+        {
+          name: t('report.detail.testPlanCaseTotal'),
+          value: detail.value.caseTotal,
+          unit: t('report.detail.number'),
+          icon: 'case_total',
+        },
+        {
+          name: t('report.passRate'),
+          value: detail.value.passRate,
+          unit: '%',
+          icon: 'passRate',
+        },
+      ];
+    }
     return [
       {
         name: t('report.passRate'),
@@ -231,6 +262,14 @@
     { value: 'case', label: t('report.detail.apiCaseDetails') },
     { value: 'scenario', label: t('report.detail.scenarioCaseDetails') },
   ];
+  const showContentTabList = computed(() =>
+    contentTabList.filter((item) => {
+      if (item.value === 'case') {
+        return activePlanCaseTotal.value > 0;
+      }
+      return activePlanScenarioTotal.value > 0;
+    })
+  );
   const keyword = ref('');
 
   const useApiTable = useTable(getApiPage, {
@@ -280,6 +319,20 @@
     currentCaseTable.value.loadList();
   }
 
+  function handlePlanChange(
+    value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
+  ) {
+    const plan = testPlanGroups.value.find((item) => item.value === value);
+    if (plan) {
+      activePlanCaseTotal.value = plan.caseTotal;
+      activePlanScenarioTotal.value = plan.scenarioTotal;
+      activeTable.value = activePlanCaseTotal.value > 0 ? 'case' : 'scenario';
+      nextTick(() => {
+        searchList();
+      });
+    }
+  }
+
   // 去用例详情页面
   function toDetail(record: ApiOrScenarioCaseItem) {
     if (activeTable.value === 'scenario') {
@@ -300,6 +353,8 @@
       loading.value = true;
       const res = await getTestPlanResult(props.id);
       detail.value = res;
+      activePlanCaseTotal.value = res.caseTotal;
+      activePlanScenarioTotal.value = res.scenarioTotal;
       if (res.children?.length) {
         testPlanGroups.value = res.children.map((item: any) => ({
           value: item.id,
@@ -308,8 +363,14 @@
         activePlan.value = res.children[0]?.id;
       } else {
         testPlanGroups.value = [];
+        activePlanCaseTotal.value = res.children[0]?.caseTotal;
+        activePlanScenarioTotal.value = res.children[0]?.scenarioTotal;
+        activeTable.value = activePlanCaseTotal.value > 0 ? 'case' : 'scenario';
       }
-      searchList();
+      activeTable.value = activePlanCaseTotal.value > 0 ? 'case' : 'scenario';
+      nextTick(() => {
+        searchList();
+      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
