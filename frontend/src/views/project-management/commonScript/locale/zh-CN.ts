@@ -53,7 +53,7 @@ export default {
   'project.commonScript.saveAsDraft': '保存为草稿',
   'project.commonScript.saveDraftSuccessfully': '保存草稿成功',
   'project.commonScript.appliedSuccessfully': '应用成功',
-  'project.code_segment.importApiTest': '从API定义导入',
+  'project.code_segment.importApiTest': '从 API 定义导入',
   'project.code_segment.newApiTest': '新API测试(JSON)',
   'project.processor.codeTemplateGetVariable': '获取变量',
   'project.processor.codeTemplateSetVariable': '设置变量',

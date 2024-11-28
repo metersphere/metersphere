@@ -12,7 +12,7 @@ export default {
   'ms.case.associate.functionalCase': '功能用例',
   'ms.case.associate.apiCase': '接口用例',
   'ms.case.associate.apiScenarioCase': '接口场景用例',
-  'ms.case.associate.UIScenario': 'UI场景用例',
+  'ms.case.associate.UIScenario': 'UI 场景用例',
   'ms.case.associate.performanceCase': '性能用例',
   'ms.case.associate.testSet': '测试点',
   'ms.case.associate.addAssociatedCase': '添加已关联用例',

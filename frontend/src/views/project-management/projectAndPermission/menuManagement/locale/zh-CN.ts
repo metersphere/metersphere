@@ -26,7 +26,7 @@ export default {
   'project.menu.API_SCRIPT_REVIEWER_TIP': '接口用例中包含脚本步骤需要指定用户审核；可更改审核人',
   'project.menu.API_ERROR_REPORT_RULE': '误报规则',
   'project.menu.API_ERROR_REPORT_RULE_TIP': '当接口返回结果匹配上误报规则后，会将接口结果处理为误报',
-  'project.menu.API_SYNC_CASE': '变更同步CASE',
+  'project.menu.API_SYNC_CASE': '变更同步 CASE',
   'project.menu.TASK_CLEAN_REPORT': '任务执行结果保留时间',
   'project.menu.TASK_RECORD': '系统执行任务保留时间',
 
@@ -44,7 +44,7 @@ export default {
   'project.menu.row5': '评审活动中用例发生变更，用例状态自动切换为重新提审',
   'project.menu.reArraignment': '“用例名称”、“用例步骤信息”的变更会触发，其他变更不触发',
   'project.menu.row6': '开启后，接口定义模块重复性校验将不校验 URL',
-  'project.menu.row7': '当接口定义发生变更后，自动同步接口CASE',
+  'project.menu.row7': '当接口定义发生变更后，自动同步接口 CASE',
   'project.menu.notConfig': '未配置第三方信息，点击',
   'project.menu.configure': '进行配置',
   'project.menu.status': '状态',

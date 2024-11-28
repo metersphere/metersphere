@@ -15,7 +15,7 @@ export default {
   'login.form.oauth2Test': 'OAuth2 测试',
   'login.form.modeLoginMethods': '更多登录方式',
   'login.form.accountLogin': '账号登录',
-  'login.form.LDAPLogin': 'LDAP登录',
+  'login.form.LDAPLogin': 'LDAP 登录',
   'login.form.username': '用户名',
   'login.form.password': '密码',
   'login.form.loading': '登录中',

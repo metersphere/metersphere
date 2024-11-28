@@ -12,7 +12,7 @@ export default {
   'invite.repasswordNotSame': '两次输入的密码不一致',
   'invite.confirm': '确认',
   'invite.passwordTipTitle': '密码须同时符合，仅支持以下规则',
-  'invite.passwordLengthRule': '长度为8-32位',
+  'invite.passwordLengthRule': '长度为 8-32 位',
   'invite.passwordWordRule': '必须包含数字和字母，不允许输入中文或空格',
   'invite.success': '注册成功',
   'invite.overTime': '邀请链接已过期',

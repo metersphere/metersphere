@@ -17,7 +17,7 @@ export default {
   'testPlan.testPlanIndex.executionResult': '执行结果',
   'testPlan.testPlanIndex.passRate': '通过率',
   'testPlan.testPlanIndex.useCount': '用例数',
-  'testPlan.testPlanIndex.bugCount': 'bug数',
+  'testPlan.testPlanIndex.bugCount': 'bug 数',
   'testPlan.testPlanIndex.belongModule': '所属模块',
   'testPlan.testPlanIndex.createTime': '创建时间',
   'testPlan.testPlanIndex.operation': '操作',
