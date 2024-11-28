@@ -83,7 +83,6 @@ export default {
   'system.orgTemplate.systemField': 'System Field',
   'system.orgTemplate.customField': 'Custom Field',
   'system.orgTemplate.selectedField': 'Selected Field',
-  'system.orgTemplate.clear': 'Clear',
   'system.orgTemplate.addSuccess': 'create successfully',
   'system.orgTemplate.updateSuccess': 'update successfully',
   'system.orgTemplate.exitPreview': 'Exit Preview',

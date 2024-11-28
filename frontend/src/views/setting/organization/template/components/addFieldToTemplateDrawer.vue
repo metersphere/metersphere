@@ -68,7 +68,7 @@
         <div class="selected-field w-[272px]">
           <div class="optional-header">
             <div class="font-medium">{{ t('system.orgTemplate.selectedField') }}</div>
-            <MsButton @click="clearHandler">{{ t('system.orgTemplate.clear') }}</MsButton>
+            <MsButton @click="clearHandler">{{ t('common.clear') }}</MsButton>
           </div>
           <div class="selected-list p-4">
             <VueDraggable v-model="selectedList" ghost-class="ghost">

@@ -82,7 +82,6 @@ export default {
   'system.orgTemplate.systemField': '系统字段',
   'system.orgTemplate.customField': '自定义字段',
   'system.orgTemplate.selectedField': '已选字段',
-  'system.orgTemplate.clear': '清空',
   'system.orgTemplate.addSuccess': '新增成功',
   'system.orgTemplate.updateSuccess': '更新成功',
   'system.orgTemplate.exitPreview': '退出预览',

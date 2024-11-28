@@ -22,7 +22,7 @@
           <a-checkbox :model-value="checked" :indeterminate="indeterminate" @change="onSelectAllChange" />
           {{ t('ms.transfer.selected', { count: countTotal }) }}
         </div>
-        <MsButton type="text" :disabled="countTotal === 0" @click="onClear">{{ t('ms.transfer.clear') }}</MsButton>
+        <MsButton type="text" :disabled="countTotal === 0" @click="onClear">{{ t('common.clear') }}</MsButton>
       </div>
     </template>
     <template #source="{ selectedKeys, onSelect }">
@@ -187,6 +187,7 @@
       height: v-bind(height);
       .arco-transfer-view-header {
         background-color: var(--color-text-fff);
+        font-weight: 400;
       }
       .arco-transfer-view-body {
         .ms-tree-container {

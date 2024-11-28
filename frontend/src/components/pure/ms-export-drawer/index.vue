@@ -141,7 +141,7 @@
               {{ props.titleProps?.selectedTitle || t('system.orgTemplate.selectedField') }}
               ({{ selectedList.length }})
             </div>
-            <MsButton @click="handleReset">{{ t('system.orgTemplate.clear') }}</MsButton>
+            <MsButton @click="handleReset">{{ t('common.clear') }}</MsButton>
           </div>
           <div class="selected-panel p-[16px]">
             <VueDraggable v-model="selectedList" ghost-class="ghost">

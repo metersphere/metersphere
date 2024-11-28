@@ -37,7 +37,7 @@
               size="mini"
               @click="clearApi"
             >
-              {{ t('ms.transfer.clear') }}
+              {{ t('common.clear') }}
             </a-button>
           </div>
           <div class="flex items-center">
