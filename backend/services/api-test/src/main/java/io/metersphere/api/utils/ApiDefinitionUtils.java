@@ -37,7 +37,7 @@ public class ApiDefinitionUtils {
                         String urlItem = urlParams[urlIndex];
                         String customUrlItem = customUrlArr[customUrlArr.length - urlParams.length + urlIndex];
                         // 不为rest参数的要进行全匹配。 而且忽略大小写
-                        if (isRestUrlParam(customUrlItem) && isRestUrlParam(urlItem)) {
+                        if (isNotRestUrlParam(customUrlItem) && isNotRestUrlParam(urlItem)) {
                             if (!StringUtils.equalsIgnoreCase(customUrlItem, urlItem)) {
                                 isFetch = false;
                                 break;
@@ -53,7 +53,7 @@ public class ApiDefinitionUtils {
                         String urlItem = urlParams[urlIndex];
                         String customUrlItem = customUrlArr[urlIndex];
                         // 不为rest参数的要进行全匹配。 而且忽略大小写
-                        if (isRestUrlParam(customUrlItem) && isRestUrlParam(urlItem)) {
+                        if (isNotRestUrlParam(customUrlItem) && isNotRestUrlParam(urlItem)) {
                             if (!StringUtils.equalsIgnoreCase(customUrlItem, urlItem)) {
                                 isFetch = false;
                                 break;
@@ -80,7 +80,7 @@ public class ApiDefinitionUtils {
         return customRequestUrl;
     }
 
-    private static boolean isRestUrlParam(String urlParam) {
+    private static boolean isNotRestUrlParam(String urlParam) {
         return !StringUtils.startsWith(urlParam, "{") || !StringUtils.endsWith(urlParam, "}") || StringUtils.equals(urlParam, "{}");
     }
 }

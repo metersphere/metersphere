@@ -690,9 +690,11 @@
         ELSE resource.last_exec_result
         END AS execResult
         from test_plan_api_scenario resource
+        INNER JOIN api_scenario scenario ON resource.api_scenario_id = scenario.id
         where resource.test_plan_id IN
         <foreach collection="testPlanIds" item="testPlanId" separator="," open="(" close=")">
             #{testPlanId}
         </foreach>
+        AND scenario.deleted IS FALSE
     </select>
 </mapper>

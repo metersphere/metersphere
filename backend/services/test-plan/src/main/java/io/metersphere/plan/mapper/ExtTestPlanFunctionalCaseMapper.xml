@@ -816,11 +816,13 @@
         THEN 'PENDING'
         ELSE resource.last_exec_result
         END AS execResult
-        from test_plan_functional_case resource
-        where resource.test_plan_id IN
+        FROM test_plan_functional_case resource
+        INNER JOIN functional_case funcCase ON resource.functional_case_id = funcCase.id
+        WHERE resource.test_plan_id IN
         <foreach collection="testPlanIds" item="testPlanId" separator="," open="(" close=")">
             #{testPlanId}
         </foreach>
+        AND funcCase.deleted IS FALSE
     </select>
 
 </mapper>
