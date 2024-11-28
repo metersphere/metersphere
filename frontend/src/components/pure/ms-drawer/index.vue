@@ -276,9 +276,8 @@
 
 <style lang="less">
   .arco-drawer {
-    @apply bg-white;
-
     max-width: 100vw;
+    background-color: var(--color-text-fff);
     .arco-drawer-header {
       display: flex;
       height: 56px;
@@ -314,6 +313,7 @@
       }
     }
     .arco-drawer-footer {
+      border-color: var(--color-text-n8);
       border-bottom: 1px solid var(--color-text-n8);
     }
   }
@@ -353,7 +353,7 @@
 
     z-index: 200;
     width: 8px;
-    background-color: var(--color-neutral-3);
+    background-color: var(--color-text-n8);
     cursor: col-resize;
   }
 </style>

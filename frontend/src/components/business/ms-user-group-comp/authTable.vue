@@ -417,6 +417,10 @@
     @apply flex-1 overflow-hidden;
 
     padding: 0 16px 16px;
+    div,
+    span {
+      color: var(--color-text-1);
+    }
     :deep(.arco-table-container) {
       border-top: 1px solid var(--color-text-n8) !important;
       border-left: 1px solid var(--color-text-n8) !important;
@@ -436,7 +440,7 @@
     display: flex;
     justify-content: flex-end;
     padding: 24px;
-    background-color: #ffffff;
+    background-color: var(--color-text-fff);
     box-shadow: 0 -1px 4px rgb(2 2 2 / 10%);
     gap: 16px;
   }

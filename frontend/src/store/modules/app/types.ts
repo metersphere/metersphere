@@ -46,6 +46,7 @@ export interface AppState {
   envList: EnvironmentItem[];
   currentEnvConfig?: EnvConfig; // 当前环境配置信息
   fileMaxSize: number; // 文件上传最大限制
+  isDarkTheme: boolean; // 是否暗黑模式
 }
 
 export interface UploadFileTaskState {

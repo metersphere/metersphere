@@ -160,7 +160,9 @@
     border: 1px solid var(--color-text-n8);
     border-top: none;
     border-radius: 0 0 6px 6px;
-    @apply mb-4 bg-white p-4;
+    @apply mb-4  p-4;
+
+    background-color: var(--color-text-fff);
     .resContent {
       height: 38px;
       border-radius: 6px;
@@ -174,7 +176,7 @@
         z-index: 999999;
         height: 40px;
         line-height: 40px;
-        background: white;
+        background: var(--color-text-fff);
         @apply flex items-start justify-between px-4;
         .menu-title {
           @apply font-medium;

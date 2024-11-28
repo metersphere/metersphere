@@ -179,8 +179,9 @@
     width: 154px;
     max-height: 300px;
     border-radius: var(--border-radius-medium);
+    background-color: var(--color-text-fff);
     box-shadow: 0 4px 10px -1px rgb(100 100 102 / 15%);
-    @apply overflow-y-auto bg-white;
+    @apply overflow-y-auto;
     .ms-scroll-bar();
   }
   .share-option-title {

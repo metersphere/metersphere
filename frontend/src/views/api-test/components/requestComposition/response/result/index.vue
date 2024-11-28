@@ -3,7 +3,7 @@
     <div class="response-header">
       <div
         v-if="isShowLoopControl"
-        class="flex w-full items-center justify-start bg-white pb-[8px] pt-[16px]"
+        class="flex w-full items-center justify-start bg-[var(--color-text-fff)] pb-[8px] pt-[16px]"
         @click.stop="() => {}"
       >
         <MsTab
@@ -90,7 +90,7 @@
           </a-popover>
         </div>
       </div>
-      <div v-if="activeType === 'SubRequest'" class="flex justify-start bg-white py-4">
+      <div v-if="activeType === 'SubRequest'" class="flex justify-start bg-[var(--color-text-fff)] py-4">
         <MsPagination
           v-model:page-size="pageSize"
           v-model:current="current"

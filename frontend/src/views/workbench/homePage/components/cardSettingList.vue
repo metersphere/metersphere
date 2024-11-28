@@ -248,7 +248,7 @@
     .ms-scroll-bar();
     :deep(.card-config-item) {
       padding: 0;
-      background: white;
+      background: var(--color-text-fff);
     }
     .card-config-menu-item {
       padding: 8px 16px 8px 10px;
@@ -283,14 +283,14 @@
       padding: 0 !important;
       .arco-menu-inline-header {
         &:hover {
-          background: white !important;
+          background: var(--color-text-fff) !important;
         }
       }
       .arco-menu-selected {
         font-weight: normal !important;
         color: var(--color-text-1) !important;
         &:not(.arco-menu-inline-header) {
-          background-color: white !important;
+          background-color: var(--color-text-fff) !important;
         }
       }
     }

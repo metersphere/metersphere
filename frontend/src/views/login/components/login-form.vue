@@ -1,5 +1,9 @@
 <template>
-  <div v-if="preheat" class="login-form" :style="props.isPreview ? 'height: inherit' : 'height: 100vh'">
+  <div
+    v-if="preheat && !props.isPreview"
+    class="login-form"
+    :style="props.isPreview ? 'height: inherit' : 'height: 100vh'"
+  >
     <a-spin :loading="preheat" :tip="t('login.form.loading')"> </a-spin>
   </div>
   <div v-else class="login-form" :style="props.isPreview ? 'height: inherit' : 'height: 100vh'">
@@ -365,14 +369,16 @@
   }
 
   onMounted(() => {
-    userStore.getAuthentication();
-    initPlatformInfo();
-    try {
-      isLogin().then((res) => {
-        preheat.value = res;
-      });
-    } catch (e) {
-      preheat.value = false;
+    if (!props.isPreview) {
+      userStore.getAuthentication();
+      initPlatformInfo();
+      try {
+        isLogin().then((res) => {
+          preheat.value = res;
+        });
+      } catch (e) {
+        preheat.value = false;
+      }
     }
   });
 </script>
@@ -385,10 +391,11 @@
       color: rgb(var(--primary-5));
     }
     .form {
-      @apply relative bg-white;
+      @apply relative;
 
       padding: 40px;
       border-radius: var(--border-radius-large);
+      background-color: var(--color-text-fff);
       box-shadow: 0 8px 10px 0 #3232330d, 0 16px 24px 0 #3232330d, 0 6px 30px 0 #3232330d;
       .login-form-item {
         margin-bottom: 28px;

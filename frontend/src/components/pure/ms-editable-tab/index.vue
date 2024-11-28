@@ -317,7 +317,7 @@
         &.active,
         &:hover {
           color: rgb(var(--primary-5));
-          background-color: rgb(var(--primary-1));
+          background-color: rgb(var(--primary-2));
           .ms-editable-tab-close-button {
             @apply visible;
           }

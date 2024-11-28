@@ -4,7 +4,7 @@
       :title="t('project.permission.projectAndPermission')"
       :default-key="currentKey"
       :menu-list="menuList"
-      class="mr-[16px] w-[208px] min-w-[208px] bg-white p-[16px]"
+      class="mr-[16px] w-[208px] min-w-[208px] bg-[var(--color-text-fff)] p-[16px]"
       @toggle-menu="toggleMenu"
     />
     <!-- 272:左边MsMenuPanel的宽度224+边距16*3 -->
@@ -161,8 +161,8 @@
   }
   .right-menu-wrapper {
     border-radius: 12px;
+    background-color: var(--color-text-fff);
     box-shadow: 0 0 10px rgb(120 56 135/ 5%);
-    @apply bg-white;
   }
   .is-active {
     border-radius: 4px;

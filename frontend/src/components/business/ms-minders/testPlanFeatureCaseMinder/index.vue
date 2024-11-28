@@ -62,7 +62,7 @@
             <MsIcon type="icon-icon_play-round_filled" class="text-[var(--color-text-4)]" />
           </MsButton>
           <template #content>
-            <div class="w-[440px] rounded bg-white p-[16px] shadow-[0_0_10px_rgba(0,0,0,0.05)]">
+            <div class="w-[440px] rounded bg-[var(--color-text-fff)] p-[16px] shadow-[0_0_10px_rgba(0,0,0,0.05)]">
               <ExecuteSubmit
                 :select-node="selectNode"
                 :tree-type="props.treeType"

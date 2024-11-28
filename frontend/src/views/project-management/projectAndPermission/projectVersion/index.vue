@@ -597,7 +597,7 @@
     padding: 6px;
     border: 0.5px solid rgb(212 212 216 / 100%);
     border-radius: var(--border-radius-medium);
-    background: white;
+    background: var(--color-text-fff);
     box-shadow: 0 5px 5px -3px rgb(0 0 0 / 10%), 0 8px 10px 1px rgb(0 0 0 / 6%), 0 3px 14px 2px rgb(0 0 0 / 5%);
     gap: 2px;
   }

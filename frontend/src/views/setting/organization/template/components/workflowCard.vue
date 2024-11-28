@@ -30,7 +30,7 @@
         <icon-check :style="{ 'font-size': '16px' }" class="text-[rgb(var(--success-6))]" />
       </div>
       <template #content>
-        <div class="w-[400px] rounded bg-white p-[24px] shadow-[0_0_10px_rgba(100,100,102,0.15)]">
+        <div class="w-[400px] rounded bg-[var(--color-text-fff)] p-[24px] shadow-[0_0_10px_rgba(100,100,102,0.15)]">
           <div class="flex items-center justify-between">
             <div class="font-medium text-[var(--color-text-1)]">{{ title }}</div>
             <div class="cursor-pointer text-[18px] text-[var(--color-text-2)]" @click="handleCancel">×</div>

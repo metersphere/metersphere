@@ -673,7 +673,10 @@
   .report-name {
     padding: 0 16px;
     height: 56px;
-    @apply flex items-center justify-between border-b bg-white;
+    @apply flex items-center justify-between border-b;
+
+    border-color: var(--color-text-n8);
+    background-color: var(--color-text-fff);
   }
   .block-title {
     @apply mb-4 font-medium;
@@ -684,8 +687,9 @@
       padding: 24px;
       height: 250px;
       border: 1px solid transparent;
+      background-color: var(--color-text-fff);
       box-shadow: 0 0 10px rgba(120 56 135/ 5%);
-      @apply rounded-xl bg-white;
+      @apply rounded-xl;
       .charts {
         @apply absolute text-center;
 
@@ -735,7 +739,7 @@
         left: 50%;
         transform: translateX(-50%);
         z-index: 9 !important;
-        background: white;
+        background: var(--color-text-fff);
         opacity: 0;
         @apply flex items-center justify-end;
         .actionList {
@@ -763,7 +767,8 @@
     display: flex;
     padding: 16px;
     border-radius: 12px;
+    background-color: var(--color-text-fff);
     box-shadow: 0 0 10px rgb(120 56 135 / 5%);
-    @apply flex-col bg-white;
+    @apply flex-col;
   }
 </style>

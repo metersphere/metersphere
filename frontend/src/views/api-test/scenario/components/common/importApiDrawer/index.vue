@@ -14,7 +14,7 @@
       </a-tabs>
       <a-divider :margin="0"></a-divider>
       <div class="flex h-[calc(100%-49px)]">
-        <div v-show="!isAdvancedSearchMode" class="w-[300px] border-r p-[16px]">
+        <div v-show="!isAdvancedSearchMode" class="w-[300px] border-r border-[var(--color-text-n8)] p-[16px]">
           <div class="flex flex-col">
             <div class="mb-[12px] flex items-center gap-[8px] overflow-hidden">
               <MsProjectSelect

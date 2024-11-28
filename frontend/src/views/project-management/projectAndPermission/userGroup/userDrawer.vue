@@ -179,3 +179,12 @@
     }
   });
 </script>
+
+<style lang="less" scoped>
+  .arco-table {
+    div,
+    span {
+      color: var(--color-text-1);
+    }
+  }
+</style>

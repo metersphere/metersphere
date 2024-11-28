@@ -38,10 +38,11 @@
 
 <style lang="less" scoped>
   .response-header-pre {
-    @apply h-full overflow-auto bg-white;
+    @apply h-full overflow-auto;
     .ms-scroll-bar();
 
     padding: 8px 12px;
     border-radius: var(--border-radius-small);
+    background-color: var(--color-text-fff);
   }
 </style>

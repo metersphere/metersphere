@@ -5,18 +5,16 @@
       t('project.environmental.httpNoWarning')
     }}</span>
   </div>
-  <div class="grid grid-cols-6">
-    <div class="col-start-1">
-      <a-button
-        v-if="!store.currentEnvDetailInfo.mock"
-        v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
-        type="outline"
-        @click="handleAddHttp"
-        >{{ t('project.environmental.addHttp') }}</a-button
-      >
-    </div>
+  <div class="flex items-center justify-between">
+    <a-button
+      v-if="!store.currentEnvDetailInfo.mock"
+      v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
+      type="outline"
+      @click="handleAddHttp"
+      >{{ t('project.environmental.addHttp') }}</a-button
+    >
 
-    <div class="col-span-2 col-end-7 flex flex-row gap-[8px]">
+    <div class="flex items-center justify-end gap-[8px]">
       <a-input-number
         v-model:model-value="form.requestTimeout"
         :min="0"
@@ -24,6 +22,7 @@
         :precision="0"
         :max="600000"
         :disabled="isDisabled"
+        class="w-[180px]"
       >
         <template #prefix>
           <span class="text-[var(--color-text-3)]">{{ t('project.environmental.http.linkTimeOut') }}</span>
@@ -36,6 +35,7 @@
         :max="600000"
         :precision="0"
         :disabled="isDisabled"
+        class="w-[180px]"
       >
         <template #prefix>
           <span class="text-[var(--color-text-3)]">{{ t('project.environmental.http.resTimeOut') }}</span>

@@ -1384,11 +1384,10 @@
 
 <style lang="less" scoped>
   .add-step-btn {
-    @apply bg-white;
-
     padding: 4px;
     border: 1px dashed rgb(var(--primary-3));
     color: rgb(var(--primary-5));
+    background-color: var(--color-text-fff);
     &:hover,
     &:focus {
       border: 1px dashed rgb(var(--primary-5));
@@ -1422,9 +1421,10 @@
       }
     }
     .arco-tree-node-title {
-      @apply !cursor-pointer bg-white;
+      @apply !cursor-pointer;
 
       padding: 8px 4px;
+      background-color: var(--color-text-fff);
       &:hover {
         background-color: var(--color-text-n9) !important;
       }

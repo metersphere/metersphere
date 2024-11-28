@@ -325,7 +325,7 @@
 
 <style lang="less">
   .scenario-csv-trigger {
-    @apply bg-white;
+    background-color: var(--color-text-fff);
     .scenario-csv-trigger-content {
       padding: 16px;
       width: 400px;

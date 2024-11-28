@@ -3,7 +3,9 @@
     <template #title>
       <div class="flex flex-1 items-center gap-[8px] overflow-hidden">
         <a-tag :color="executeResultMap[detail.result]?.color">
-          {{ t(executeResultMap[detail.result]?.label || '-') }}
+          <div class="text-[var(--color-text-1)]">
+            {{ t(executeResultMap[detail.result]?.label || '-') }}
+          </div>
         </a-tag>
         <div class="one-line-text flex-1">{{ detail.taskName }}</div>
       </div>

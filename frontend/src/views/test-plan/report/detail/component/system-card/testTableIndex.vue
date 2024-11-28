@@ -179,7 +179,8 @@
   .test-set-wrapper {
     padding-bottom: 16px;
     border-radius: 12px;
-    @apply overflow-y-auto bg-white;
+    background-color: var(--color-text-fff);
+    @apply overflow-y-auto;
     .ms-scroll-bar();
   }
   :deep(.selected-row-class.arco-table-tr) {

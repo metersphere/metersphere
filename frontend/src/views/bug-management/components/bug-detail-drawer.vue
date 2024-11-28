@@ -105,7 +105,7 @@
       </div>
     </template>
     <template #default>
-      <div ref="wrapperRef" class="bg-white">
+      <div ref="wrapperRef" class="bg-[var(--color-text-fff)]">
         <div class="header relative h-[48px] pl-2">
           <MsTab
             v-model:active-key="activeTab"

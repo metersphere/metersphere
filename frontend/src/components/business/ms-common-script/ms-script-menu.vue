@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!innerExpand" class="w-[32%] min-w-[260px] max-w-[42%] flex-1 bg-white p-3 pl-0">
+  <div v-if="!innerExpand" class="w-[32%] min-w-[260px] max-w-[42%] flex-1 bg-[var(--color-text-fff)] p-3 pl-0">
     <div class="mb-2 flex w-full items-center justify-between">
       <div class="flex items-center">
         <span v-if="innerExpand" class="collapsebtn mr-1 flex items-center justify-center" @click="expandedHandler">
@@ -178,8 +178,9 @@ StandardJMeterEngine.stopThreadNow(ctx.getThread().getThreadName());
     width: 16px;
     height: 16px;
     border-radius: 50%;
+    @apply cursor-pointer;
+
     background: var(--color-text-n8) !important;
-    @apply cursor-pointer bg-white;
   }
   .expand {
     width: 16px;

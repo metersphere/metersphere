@@ -158,13 +158,16 @@
 
 <style scoped lang="less">
   .outerWrapper {
+    background-color: var(--color-text-fff);
     box-shadow: 0 6px 15px rgba(120 56 135/ 5%);
-    @apply rounded bg-white;
+    @apply rounded;
     .innerWrapper {
       background: var(--color-bg-3);
       @apply rounded p-6;
       .logo-img {
-        @apply mr-3 flex items-center bg-white;
+        @apply mr-3 flex items-center;
+
+        background-color: var(--color-text-fff);
       }
     }
   }

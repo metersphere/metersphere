@@ -8,7 +8,7 @@
     @toggle-full-screen="handleToggleFullScreen"
   >
     <template #headerLeft>
-      <div class="font-medium text-[var(--color-text-000)]">{{ t('project.messageManagement.config') }}</div>
+      <div class="font-medium text-[var(--color-text-1)]">{{ t('project.messageManagement.config') }}</div>
     </template>
     <template #headerRight>
       <MsSelect

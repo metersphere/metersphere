@@ -581,11 +581,12 @@
       border-radius: var(--border-radius-small);
       gap: 16px;
       .robot-card {
-        @apply flex flex-col bg-white;
+        @apply flex flex-col;
 
         padding: 24px;
         max-height: 128px;
         border-radius: var(--border-radius-small);
+        background-color: var(--color-text-fff);
         gap: 16px;
       }
     }

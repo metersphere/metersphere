@@ -16,7 +16,7 @@
   <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
     <template #name="{ record }">
       <div class="flex flex-row items-center gap-[4px]">
-        <div class="one-line-text">{{ record.name }}</div>
+        <div class="one-line-text text-[var(--color-text-1)]">{{ record.name }}</div>
         <div class="ml-1 text-[var(--color-text-4)]">{{
           `(${
             record.internal
@@ -333,5 +333,3 @@
     fetchData();
   });
 </script>
-
-<style scoped></style>

@@ -64,7 +64,8 @@
     border: 1px solid var(--color-border-2);
     border-radius: 4px;
     color: var(--color-text-4);
-    @apply flex items-center justify-center bg-white;
+    background-color: var(--color-text-fff);
+    @apply flex items-center justify-center;
   }
   .no-config-svg {
     margin: 0 auto 24px;

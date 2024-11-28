@@ -136,8 +136,8 @@
       </div>
     </template>
     <template #default="{ detail, loading }">
-      <div ref="wrapperRef" class="bg-white">
-        <div class="header relative h-[48px] border-b pl-2">
+      <div ref="wrapperRef" class="bg-[var(--color-text-fff)]">
+        <div class="header relative h-[48px] border-b border-[var(--color-text-n8)] pl-2">
           <div class="max-w-[calc(100%-100px)]">
             <MsTab
               v-model:active-key="activeTab"

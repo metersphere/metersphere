@@ -95,7 +95,7 @@
           </div>
           <div
             v-else
-            class="flex h-[calc(100%-156px)] flex-col items-center gap-[16px] bg-white"
+            class="flex h-[calc(100%-156px)] flex-col items-center gap-[16px] bg-[var(--color-text-fff)]"
             @click="focusTemplate"
           >
             <div class="content-empty-img"></div>
@@ -325,13 +325,14 @@
     padding: 16px 10px 16px 16px;
   }
   .field-item {
-    @apply flex cursor-pointer bg-white;
+    @apply flex cursor-pointer;
 
     margin-bottom: 4px;
     padding: 8px 12px;
     height: 38px;
     border: 1px solid var(--color-text-n8);
     border-radius: var(--border-radius-small);
+    background-color: var(--color-text-fff);
     gap: 8px;
     .field-plus {
       @apply invisible ml-auto;

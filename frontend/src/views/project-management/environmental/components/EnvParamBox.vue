@@ -35,7 +35,7 @@
         @change="handleTabChange"
       />
     </div>
-    <div class="content h-full">
+    <div class="content w-full">
       <EnvParamsTab v-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_PARAM" />
       <HttpTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_HTTP" />
       <DataBaseTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_DATABASE" />
@@ -336,11 +336,13 @@
       padding: 16px 16px 0;
     }
     .content {
+      .ms-scroll-bar();
+
       overflow-y: auto;
       padding: 0 16px;
       height: 100%;
       max-height: calc(100% - 320px);
-      background-color: #ffffff;
+      background-color: var(--color-text-fff);
     }
     .no-content {
       :deep(.arco-tabs-content) {
@@ -355,7 +357,7 @@
       display: flex;
       justify-content: flex-end;
       padding: 24px;
-      background-color: #ffffff;
+      background-color: var(--color-text-fff);
       box-shadow: 0 -1px 4px rgb(2 2 2 / 10%);
       gap: 16px;
     }

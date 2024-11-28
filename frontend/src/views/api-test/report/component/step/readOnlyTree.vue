@@ -216,17 +216,18 @@
       margin-top: 4px;
     }
     &:hover {
-      background-color: white !important;
+      background-color: var(--color-text-fff) !important;
       .arco-tree-node-title {
-        background-color: white !important;
+        background-color: var(--color-text-fff) !important;
       }
     }
     .arco-tree-node-title {
-      @apply !cursor-pointer bg-white;
+      @apply !cursor-pointer;
 
       padding: 8px 4px;
+      background-color: var(--color-text-fff);
       &:hover {
-        background-color: white !important;
+        background-color: var(--color-text-fff) !important;
       }
       .step-node-content {
         @apply flex w-full flex-1 items-center;
@@ -281,7 +282,7 @@
     }
     .ms-tree-node-extra {
       gap: 4px;
-      background-color: white !important;
+      background-color: var(--color-text-fff) !important;
     }
   }
   :deep(.arco-tree-node-selected) {
@@ -293,9 +294,9 @@
     }
   }
   :deep(.step-tree-node-focus) {
-    background-color: white !important;
+    background-color: var(--color-text-fff) !important;
     .arco-tree-node-title {
-      background-color: white;
+      background-color: var(--color-text-fff);
     }
   }
   :deep(.expand) {
@@ -309,7 +310,7 @@
     height: 16px;
     border-radius: 50%;
     background: var(--color-text-n8) !important;
-    @apply bg-white;
+    background-color: var(--color-text-fff);
   }
   :deep(.arco-table-expand-btn) {
     width: 16px;
@@ -320,17 +321,19 @@
   }
   .resContentWrapper {
     border-radius: 0 0 6px 6px;
-    @apply mb-4 bg-white p-4;
+    @apply mb-4 p-4;
+
+    background-color: var(--color-text-fff);
     .resContent {
       height: 38px;
       border-radius: 6px;
     }
   }
   :deep(.ms-tree-container .ms-tree .arco-tree-node .arco-tree-node-title) {
-    background: white;
+    background: var(--color-text-fff);
   }
   :deep(.ms-tree-container .ms-tree .arco-tree-node-selected) {
-    background: white;
+    background: var(--color-text-fff);
   }
   .line {
     position: absolute;

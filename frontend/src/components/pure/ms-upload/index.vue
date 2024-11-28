@@ -253,12 +253,13 @@
 
     @apply flex flex-col items-center justify-center;
     .ms-upload-icon-box {
-      @apply rounded-full bg-white;
+      @apply rounded-full;
 
       margin-bottom: 16px;
       padding: 8px;
       width: 48px;
       height: 48px;
+      background-color: var(--color-text-fff);
       .ms-upload-icon {
         @apply h-full w-full bg-cover bg-no-repeat;
         &--default {

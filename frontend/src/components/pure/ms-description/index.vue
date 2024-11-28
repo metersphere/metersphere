@@ -116,7 +116,7 @@
             <template v-if="item.showCopy">
               <MsButton
                 v-if="item.copyTimer !== null && item.copyTimer !== undefined"
-                class="absolute bottom-0 right-0 bg-white pl-[16px] !text-[rgb(var(--success-6))]"
+                class="absolute bottom-0 right-0 bg-[var(--color-text-fff)] pl-[16px] !text-[rgb(var(--success-6))]"
                 type="text"
               >
                 <MsIcon type="icon-icon_succeed_filled" class="mr-[4px]"></MsIcon>
@@ -124,7 +124,7 @@
               </MsButton>
               <MsButton
                 v-else
-                class="absolute bottom-0 right-0 bg-white pl-[16px]"
+                class="absolute bottom-0 right-0 bg-[var(--color-text-fff)] pl-[16px]"
                 type="text"
                 @click="copyValue(item)"
               >

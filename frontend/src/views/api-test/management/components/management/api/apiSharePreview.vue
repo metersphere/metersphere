@@ -239,7 +239,9 @@
     z-index: 99;
     padding: 16px;
 
-    @apply flex w-full items-center justify-between bg-white;
+    @apply flex w-full items-center justify-between;
+
+    background-color: var(--color-text-fff);
     .doc-toggle {
       max-width: 50%;
       @apply flex flex-1 items-center gap-2;

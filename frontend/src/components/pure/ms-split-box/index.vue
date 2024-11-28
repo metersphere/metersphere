@@ -248,7 +248,9 @@
   }
   .ms-split-box--vertical {
     .ms-split-box--bottom {
-      @apply h-full bg-white;
+      @apply h-full;
+
+      background-color: var(--color-text-fff);
     }
     .vertical-expand-line {
       @apply relative flex items-center justify-center bg-transparent;

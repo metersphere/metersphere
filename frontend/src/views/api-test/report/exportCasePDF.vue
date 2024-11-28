@@ -5,7 +5,7 @@
     class="report-detail-container"
   >
     <div id="report-detail" class="report-detail">
-      <div class="mb-[16px] break-all rounded-[var(--border-radius-small)] bg-white p-[16px]">
+      <div class="mb-[16px] break-all rounded-[var(--border-radius-small)] bg-[var(--color-text-fff)] p-[16px]">
         {{ reportStepDetail?.name }}
       </div>
       <CaseReportCom :detail-info="reportStepDetail" is-export />

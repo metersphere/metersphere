@@ -51,7 +51,7 @@
         @module-change="searchList"
       >
         <template #name="{ record, rowIndex }">
-          <div class="flex w-full justify-start overflow-hidden">
+          <div class="flex w-full items-center justify-start overflow-hidden">
             <MsTag
               v-if="record.fileType.toLowerCase() === 'jar'"
               theme="light"
@@ -70,7 +70,7 @@
             <a-tooltip :content="record.name">
               <a-button
                 type="text"
-                class="max-w-full flex-1 justify-start px-0"
+                class="max-w-[calc(100%-60px)] flex-1 justify-start px-0"
                 @click="openFileDetail(record.id, rowIndex)"
               >
                 <div class="one-line-text">{{ record.name }}</div>

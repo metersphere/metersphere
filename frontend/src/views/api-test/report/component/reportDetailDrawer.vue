@@ -205,8 +205,10 @@
       padding: 0 16px;
       height: 54px;
       border-radius: 4px;
-      background: white;
-      @apply mb-4 bg-white;
+      background: var(--color-text-fff);
+      @apply mb-4;
+
+      background-color: var(--color-text-fff);
     }
     .analyze {
       height: 196px;
@@ -217,7 +219,9 @@
         width: 60%;
         height: 196px;
         border-radius: 4px;
-        @apply h-full bg-white;
+        @apply h-full;
+
+        background-color: var(--color-text-fff);
         .countItem {
           @apply mr-6 flex items-center;
         }
@@ -235,7 +239,9 @@
         width: 40%;
         height: 100%;
         border-radius: 4px;
-        @apply ml-4 h-full flex-grow bg-white;
+        @apply ml-4 h-full flex-grow;
+
+        background-color: var(--color-text-fff);
         .chart-legend {
           .chart-legend-item {
             @apply grid grid-cols-3;
@@ -252,7 +258,7 @@
     .report-info {
       padding: 16px;
       border-radius: 4px;
-      @apply bg-white;
+      background-color: var(--color-text-fff);
     }
   }
   .block-title {

@@ -7,7 +7,7 @@
     v-if="props.robot.platform === 'IN_SITE'"
     class="preview-rounded h-full w-[400px] bg-[var(--color-text-n9)] p-[12px] text-[14px]"
   >
-    <div class="preview-rounded h-full overflow-scroll bg-white">
+    <div class="preview-rounded h-full overflow-scroll bg-[var(--color-text-fff)]">
       <div
         v-if="!props.isUpdatePreview"
         class="flex items-center justify-between border-b border-[var(--color-text-n8)] p-[16px]"
@@ -44,13 +44,17 @@
         {{ t('project.messageManagement.emailReceiver') }}
       </div>
     </div>
-    <div class="preview-rounded bg-white p-[16px] text-[var(--color-text-2)]" v-html="template || '-'"> </div>
+    <div
+      class="preview-rounded bg-[var(--color-text-fff)] p-[16px] text-[var(--color-text-2)]"
+      v-html="template || '-'"
+    >
+    </div>
   </div>
   <div
     v-else-if="props.robot.platform === 'WE_COM'"
     class="preview-rounded h-full w-[400px] overflow-scroll bg-[var(--color-text-n9)] p-[12px] text-[14px]"
   >
-    <div class="preview-rounded bg-white">
+    <div class="preview-rounded bg-[var(--color-text-fff)]">
       <div class="flex items-center justify-between border-b border-[var(--color-text-n8)] p-[16px_16px_8px_16px]">
         <div class="flex items-center gap-[4px] text-[14px] font-medium text-[var(--color-text-1)]">
           <MsIcon type="icon-logo_wechat-work" size="20"></MsIcon>
@@ -99,14 +103,14 @@
         </template>
         <MsTag
           size="small"
-          class="ml-[4px] flex items-center gap-[4px] border-none !bg-white px-[4px] !text-[var(--color-text-4)]"
+          class="ml-[4px] flex items-center gap-[4px] border-none !bg-[var(--color-text-fff)] px-[4px] !text-[var(--color-text-4)]"
         >
           <MsIcon type="icon-icon_bot1" size="22" />
           {{ t('project.messageManagement.robot') }}
         </MsTag>
       </div>
       <div
-        class="rounded-[var(--border-radius-small)] bg-white p-[12px] text-[var(--color-text-2)]"
+        class="rounded-[var(--border-radius-small)] bg-[var(--color-text-fff)] p-[12px] text-[var(--color-text-2)]"
         v-html="`【${subject}】${template || '-'}`"
       >
       </div>
@@ -141,7 +145,7 @@
         </div>
       </div>
       <div
-        class="rounded-[var(--border-radius-small)] bg-white p-[12px] text-[var(--color-text-2)]"
+        class="rounded-[var(--border-radius-small)] bg-[var(--color-text-fff)] p-[12px] text-[var(--color-text-2)]"
         v-html="`【${subject}】${template || '-'}`"
       >
       </div>
@@ -151,7 +155,7 @@
     v-else-if="props.robot.platform === 'CUSTOM'"
     class="preview-rounded h-full w-[400px] overflow-scroll bg-[var(--color-text-n9)] p-[12px] text-[14px]"
   >
-    <div class="preview-rounded bg-white">
+    <div class="preview-rounded bg-[var(--color-text-fff)]">
       <div class="flex items-center justify-between border-b border-[var(--color-text-n8)] p-[16px_16px_8px_16px]">
         <div class="flex items-center gap-[4px] text-[14px] font-medium text-[var(--color-text-1)]">
           <MsIcon type="icon-logo_wechat-work" size="20"></MsIcon>

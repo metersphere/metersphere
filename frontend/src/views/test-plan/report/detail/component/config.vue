@@ -403,7 +403,9 @@
   .report-name {
     padding: 0 16px;
     height: 56px;
-    @apply flex items-center justify-between border-b bg-white;
+    border-color: var(--color-text-n8);
+    background-color: var(--color-text-fff);
+    @apply flex items-center justify-between border-b;
   }
   .block-title {
     @apply mb-4 font-medium;
@@ -416,7 +418,7 @@
       width: 300px;
       border-radius: 0 0 10px 10px;
       box-sizing: border-box;
-      @apply bg-white;
+      background-color: var(--color-text-fff);
       .custom-card-list {
         @apply grid grid-cols-2 gap-2;
         .custom-card-item {

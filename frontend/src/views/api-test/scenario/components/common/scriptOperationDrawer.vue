@@ -227,15 +227,17 @@
     margin-left: 0;
   }
   .response-header-pre {
-    @apply h-full overflow-auto bg-white;
-    .ms-scroll-bar();
+    @apply h-full overflow-auto;
 
     padding: 8px 12px;
     border-radius: var(--border-radius-small);
+    background-color: var(--color-text-fff);
+    .ms-scroll-bar();
   }
   .sticky-content {
-    @apply sticky overflow-visible bg-white;
+    @apply sticky overflow-visible;
 
     z-index: 101;
+    background-color: var(--color-text-fff);
   }
 </style>

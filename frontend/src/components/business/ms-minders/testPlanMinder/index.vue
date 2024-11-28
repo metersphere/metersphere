@@ -217,7 +217,7 @@
             </template>
           </template>
         </a-form>
-        <div v-if="hasEditPermission" class="flex items-center gap-[12px] bg-white pb-[16px]">
+        <div v-if="hasEditPermission" class="flex items-center gap-[12px] bg-[var(--color-text-fff)] pb-[16px]">
           <a-button type="primary" :loading="loading" @click="handleConfigSave">
             {{ t('common.save') }}
           </a-button>

@@ -1,11 +1,9 @@
 <template>
-  <div class="grid grid-cols-4">
-    <div class="col-start-1">
-      <a-button v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']" type="outline" @click="handleAdd">{{
-        t('project.environmental.database.addDatabase')
-      }}</a-button>
-    </div>
-    <div class="col-end-5 text-right">
+  <div>
+    <div class="flex items-center justify-between">
+      <a-button v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']" type="outline" @click="handleAdd">
+        {{ t('project.environmental.database.addDatabase') }}
+      </a-button>
       <a-input-search
         v-model="keyword"
         class="w-[240px]"
@@ -16,37 +14,37 @@
         @clear="fetchData"
       ></a-input-search>
     </div>
+    <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
+      <template #driverId="{ record }">
+        {{ getDriver(record.driverId) }}
+      </template>
+      <template #operation="{ record }">
+        <div class="flex flex-row flex-nowrap items-center">
+          <MsButton class="!mr-0" :disabled="isDisabled" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
+          <a-divider class="h-[16px]" direction="vertical" />
+          <MsButton class="!mr-0" :disabled="isDisabled" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
+          <a-divider class="h-[16px]" direction="vertical" />
+          <MsTableMoreAction
+            v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
+            :list="moreActionList"
+            trigger="click"
+            @select="handleMoreActionSelect($event, record)"
+          />
+        </div>
+      </template>
+      <template v-if="(keyword || '').trim() === ''" #empty>
+        <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
+          <span v-if="hasAnyPermission(['PROJECT_ENVIRONMENT:READ+UPDATE'])">{{
+            t('caseManagement.caseReview.tableNoData')
+          }}</span>
+          <span v-else>{{ t('caseManagement.featureCase.tableNoData') }}</span>
+          <MsButton v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']" class="ml-[8px]" @click="handleAdd">
+            {{ t('project.environmental.database.addDatabase') }}
+          </MsButton>
+        </div>
+      </template>
+    </MsBaseTable>
   </div>
-  <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
-    <template #driverId="{ record }">
-      {{ getDriver(record.driverId) }}
-    </template>
-    <template #operation="{ record }">
-      <div class="flex flex-row flex-nowrap items-center">
-        <MsButton class="!mr-0" :disabled="isDisabled" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
-        <a-divider class="h-[16px]" direction="vertical" />
-        <MsButton class="!mr-0" :disabled="isDisabled" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
-        <a-divider class="h-[16px]" direction="vertical" />
-        <MsTableMoreAction
-          v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']"
-          :list="moreActionList"
-          trigger="click"
-          @select="handleMoreActionSelect($event, record)"
-        />
-      </div>
-    </template>
-    <template v-if="(keyword || '').trim() === ''" #empty>
-      <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
-        <span v-if="hasAnyPermission(['PROJECT_ENVIRONMENT:READ+UPDATE'])">{{
-          t('caseManagement.caseReview.tableNoData')
-        }}</span>
-        <span v-else>{{ t('caseManagement.featureCase.tableNoData') }}</span>
-        <MsButton v-permission="['PROJECT_ENVIRONMENT:READ+UPDATE']" class="ml-[8px]" @click="handleAdd">
-          {{ t('project.environmental.database.addDatabase') }}
-        </MsButton>
-      </div>
-    </template>
-  </MsBaseTable>
   <AddDatabaseModal
     v-model:visible="addVisible"
     :current-id="currentId"
@@ -127,6 +125,7 @@
       dataIndex: 'timeout',
       showDrag: true,
       showInTable: true,
+      width: 130,
     },
     {
       title: 'common.operation',

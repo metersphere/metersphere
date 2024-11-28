@@ -415,8 +415,9 @@
     .analysis {
       padding: 16px;
       border: 1px solid transparent;
+      background-color: var(--color-text-fff);
       box-shadow: 0 0 10px rgba(120 56 135/ 5%);
-      @apply h-full rounded-xl bg-white;
+      @apply h-full rounded-xl;
       .charts {
         @apply absolute text-center;
 

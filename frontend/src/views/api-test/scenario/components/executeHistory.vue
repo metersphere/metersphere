@@ -10,7 +10,7 @@
               :self-style="{
                 border: `1px solid ${color}`,
                 color: color,
-                backgroundColor: 'white',
+                backgroundColor: 'var(--color-text-fff)',
               }"
             >
               {{ record.testPlanNum }}

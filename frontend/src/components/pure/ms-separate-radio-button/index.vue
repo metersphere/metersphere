@@ -26,7 +26,7 @@
     padding-left: 0;
   }
   .radio-item {
-    @apply flex cursor-pointer items-center bg-white;
+    @apply flex cursor-pointer items-center;
 
     padding-left: 8px;
     width: 186px;
@@ -34,6 +34,7 @@
     border: 1px solid;
     border-color: var(--color-text-n8);
     border-radius: var(--border-radius-small);
+    background-color: var(--color-text-fff);
     &:hover {
       border-color: rgb(var(--primary-5));
     }

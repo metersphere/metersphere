@@ -316,9 +316,10 @@
     margin-bottom: 16px;
   }
   .check-icon {
-    @apply absolute right-0 rounded-full bg-white;
+    @apply absolute right-0 rounded-full;
 
     bottom: 22px;
+    background-color: var(--color-text-fff);
   }
   :deep(.ms-description-item-value) {
     -webkit-line-clamp: unset !important;

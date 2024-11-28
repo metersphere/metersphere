@@ -385,8 +385,9 @@
   .card-wrapper {
     padding: 24px;
     min-width: 356px;
+    background-color: var(--color-text-fff);
     box-shadow: 0 0 10px rgba(120 56 135/ 5%);
-    @apply rounded-xl bg-white;
+    @apply rounded-xl;
     &.card-min-height {
       min-height: 356px;
     }

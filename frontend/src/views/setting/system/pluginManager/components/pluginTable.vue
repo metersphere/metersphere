@@ -439,7 +439,7 @@
     height: 16px;
     border-radius: 50%;
     background: var(--color-text-n8) !important;
-    @apply bg-white;
+    background-color: var(--color-text-fff);
   }
   :deep(.expand) {
     width: 16px;
@@ -459,7 +459,9 @@
   }
   .ms-footerNum {
     width: 100%;
-    @apply sticky bottom-0 left-0 z-20  bg-white  pt-4 text-sm text-slate-500;
+    @apply sticky bottom-0 left-0 z-20  pt-4 text-sm text-slate-500;
+
+    background-color: var(--color-text-fff);
   }
   :deep(.arco-table-tr .arco-table-td) {
     height: 54px !important;

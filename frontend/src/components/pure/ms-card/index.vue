@@ -15,7 +15,7 @@
       <a-scrollbar v-if="!props.simple" :style="{ overflow: 'auto' }">
         <div class="ms-card-header" :style="props.headerMinWidth ? { minWidth: `${props.headerMinWidth}px` } : {}">
           <slot name="headerLeft">
-            <div class="font-medium text-[var(--color-text-000)]">{{ props.title }}</div>
+            <div class="font-medium text-[var(--color-text-1)]">{{ props.title }}</div>
             <div class="text-[var(--color-text-4)]">{{ props.subTitle }}</div>
           </slot>
           <div class="ml-auto flex items-center">
@@ -202,9 +202,10 @@
 
 <style lang="less" scoped>
   .ms-card {
-    @apply relative overflow-hidden bg-white;
+    @apply relative overflow-hidden;
 
     border-radius: var(--border-radius-large);
+    background-color: var(--color-text-fff);
     box-shadow: 0 0 10px rgb(120 56 135 / 5%);
     &--noContentPadding {
       border-radius: var(--border-radius-large);
@@ -240,18 +241,18 @@
       @apply relative;
     }
     .ms-card-footer {
-      @apply fixed flex justify-between bg-white;
+      @apply fixed flex justify-between;
 
       right: 16px;
       bottom: 0;
       z-index: 100;
       padding: 24px;
       border-bottom: 0;
+      background-color: var(--color-text-fff);
+      box-shadow: var(--tw-ring-offset-shadow, 0 0 #00000000), var(--tw-ring-shadow, 0 0 #00000000), var(--tw-shadow);
 
       --tw-shadow: 0 -1px 4px rgb(2 2 2 / 10%);
       --tw-shadow-colored: 0 -1px 4px var(--tw-shadow-color);
-
-      box-shadow: var(--tw-ring-offset-shadow, 0 0 #00000000), var(--tw-ring-shadow, 0 0 #00000000), var(--tw-shadow);
     }
   }
   .ms-card--fullScreen {

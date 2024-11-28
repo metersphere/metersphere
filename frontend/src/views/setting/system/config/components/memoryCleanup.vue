@@ -2,7 +2,7 @@
   <div>
     <MsCard class="mb-[16px]" :loading="loading" simple auto-height>
       <div class="mb-[16px] flex justify-between">
-        <div class="font-medium text-[var(--color-text-000)]">{{ t('system.config.memoryCleanup') }}</div>
+        <div class="font-medium text-[var(--color-text-1)]">{{ t('system.config.memoryCleanup') }}</div>
       </div>
       <a-radio-group v-model:model-value="activeType" type="button">
         <a-radio value="log">{{ t('system.config.memoryCleanup.log') }}</a-radio>
@@ -10,7 +10,7 @@
       </a-radio-group>
       <template v-if="activeType === 'log'">
         <div class="mb-[8px] mt-[16px] flex items-center">
-          <div class="text-[var(--color-text-000)]">{{ t('system.config.memoryCleanup.keepTime') }}</div>
+          <div class="text-[var(--color-text-1)]">{{ t('system.config.memoryCleanup.keepTime') }}</div>
           <a-tooltip :content="t('system.config.memoryCleanup.keepTimeTip')" position="right">
             <icon-question-circle
               class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
@@ -39,7 +39,7 @@
       </template>
       <template v-else>
         <div class="mb-[8px] mt-[16px] flex items-center">
-          <div class="text-[var(--color-text-000)]">{{ t('system.config.memoryCleanup.saveCount') }}</div>
+          <div class="text-[var(--color-text-1)]">{{ t('system.config.memoryCleanup.saveCount') }}</div>
           <a-tooltip position="right">
             <template #content>
               <div>{{ t('system.config.memoryCleanup.saveCountTip') }}</div>

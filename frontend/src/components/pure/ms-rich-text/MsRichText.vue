@@ -609,6 +609,8 @@
         .ms-scroll-bar();
 
         justify-content: start !important;
+        border-color: var(--color-text-n8);
+        background-color: var(--color-text-fff);
       }
       > p:first-child {
         margin-top: 0;
@@ -633,6 +635,8 @@
   }
   :deep(.editor-content) {
     .ms-scroll-bar();
+
+    background: var(--color-text-fff);
     & + div[data-tippy-root] {
       transform: translate(60%) !important;
     }
@@ -645,7 +649,7 @@
     table {
       tr,
       th {
-        background: white !important;
+        background: var(--color-text-fff) !important;
       }
       tr {
         th,

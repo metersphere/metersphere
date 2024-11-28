@@ -210,13 +210,17 @@
       padding: 0 16px;
       height: 54px;
       border-radius: 4px;
-      background: white;
-      @apply mb-4 bg-white;
+      background: var(--color-text-fff);
+      @apply mb-4;
+
+      background-color: var(--color-text-fff);
     }
     .analyze {
       height: 196px;
       border-radius: 4px;
-      @apply mb-4 flex justify-between  bg-white;
+      @apply mb-4 flex justify-between;
+
+      background-color: var(--color-text-fff);
       .request-analyze {
         @apply flex h-full flex-1 flex-col p-4;
         .chart-legend {
@@ -266,7 +270,7 @@
     .report-info {
       padding: 16px;
       border-radius: 4px;
-      @apply bg-white;
+      background-color: var(--color-text-fff);
     }
   }
   .block-title {

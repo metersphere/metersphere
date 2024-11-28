@@ -388,11 +388,10 @@
     background-color: var(--color-text-n9);
   }
   .api-item {
-    @apply bg-white;
-
     padding: 16px 0;
     height: 335px;
     border-radius: var(--border-radius-small);
+    background-color: var(--color-text-fff);
     .api-item-label {
       font-size: 12px;
       line-height: 16px;

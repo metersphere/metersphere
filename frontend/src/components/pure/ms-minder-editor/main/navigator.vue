@@ -386,10 +386,11 @@
 <style lang="less">
   .ms-minder-shortcut-trigger {
     .arco-trigger-content {
-      @apply w-auto  bg-white;
+      @apply w-auto;
 
       padding: 16px;
       border-radius: var(--border-radius-small);
+      background-color: var(--color-text-fff);
       box-shadow: 0 4px 10px -1px rgb(100 100 102 / 15%);
       .ms-minder-shortcut-trigger-list {
         @apply grid grid-cols-2;
@@ -433,11 +434,12 @@
     left: 6px;
     box-shadow: 0 4px 10px -1px rgb(100 100 102 / 15%);
     .ms-minder-navigator-bar {
-      @apply flex w-auto items-center bg-white;
+      @apply flex w-auto items-center;
 
       padding: 4px 8px;
-      gap: 8px;
       border-radius: var(--border-radius-small);
+      background-color: var(--color-text-fff);
+      gap: 8px;
       .ms-minder-navigator-bar-icon-button {
         @apply !mr-0;
         &:hover {
@@ -458,7 +460,7 @@
       }
     }
     .ms-minder-navigator-previewer {
-      @apply absolute cursor-crosshair bg-white;
+      @apply absolute cursor-crosshair;
 
       bottom: 36px;
       left: 45px;
@@ -467,6 +469,7 @@
       width: 240px;
       height: 160px;
       border-radius: var(--border-radius-small);
+      background-color: var(--color-text-fff);
       box-shadow: 0 5px 5px -3px rgb(0 0 0 / 10%), 0 8px 10px 1px rgb(0 0 0 / 6%), 0 3px 14px 2px rgb(0 0 0 / 5%);
       transition: -webkit-transform 0.7s 0.1s ease;
       transition: transform 0.7s 0.1s ease;
@@ -474,7 +477,7 @@
         @apply cursor-grabbing;
       }
       :deep(svg) {
-        background-color: white !important;
+        background-color: var(--color-text-fff) !important;
       }
     }
   }

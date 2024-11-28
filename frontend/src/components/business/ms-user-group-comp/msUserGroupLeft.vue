@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col px-[16px] pb-[16px]">
-    <div class="sticky top-0 z-[999] bg-white pb-[8px] pt-[16px]">
+    <div class="sticky top-0 z-[999] bg-[var(--color-text-fff)] pb-[8px] pt-[16px]">
       <a-input-search
         :placeholder="t('system.userGroup.searchHolder')"
         allow-clear

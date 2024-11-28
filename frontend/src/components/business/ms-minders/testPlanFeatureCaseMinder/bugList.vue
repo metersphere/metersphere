@@ -134,7 +134,7 @@
     padding: 8px;
     border: 1px solid var(--color-text-n8);
     border-radius: var(--border-radius-small);
-    background-color: white;
+    background-color: var(--color-text-fff);
     &:hover {
       @apply relative;
 

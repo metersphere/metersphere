@@ -72,6 +72,7 @@ const useAppStore = defineStore('app', {
     envList: [],
     currentEnvConfig: undefined,
     fileMaxSize: 50,
+    isDarkTheme: false,
   }),
 
   getters: {
@@ -422,9 +423,12 @@ const useAppStore = defineStore('app', {
     setFileMaxSize(size: number) {
       this.fileMaxSize = size;
     },
+    setDarkTheme(isDarkTheme: boolean) {
+      this.isDarkTheme = isDarkTheme;
+    },
   },
   persist: {
-    paths: ['currentOrgId', 'currentProjectId', 'pageConfig', 'menuCollapse'],
+    paths: ['currentOrgId', 'currentProjectId', 'pageConfig', 'menuCollapse', 'isDarkTheme'],
   },
 });
 

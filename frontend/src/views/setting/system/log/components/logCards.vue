@@ -104,7 +104,7 @@
     </MsCard>
     <MsCard class="log-card" simple auto-height>
       <div class="log-card-header">
-        <div class="font-medium text-[var(--color-text-000)]">{{ t('system.log.log') }}</div>
+        <div class="font-medium text-[var(--color-text-1)]">{{ t('system.log.log') }}</div>
       </div>
       <ms-base-table v-bind="propsRes" no-disable sticky-header v-on="propsEvent">
         <template #range="{ record }">

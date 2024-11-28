@@ -44,7 +44,7 @@
     padding: 16px;
     width: 700px;
     border-radius: var(--border-radius-medium);
+    background-color: var(--color-text-fff);
     box-shadow: 0 4px 10px -1px rgb(100 100 102 / 15%);
-    @apply bg-white;
   }
 </style>

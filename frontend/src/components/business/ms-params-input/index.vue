@@ -667,7 +667,7 @@
 
 <style lang="less">
   .ms-params-input-setting-trigger {
-    @apply bg-white;
+    background-color: var(--color-text-fff);
     .ms-params-input-setting-trigger-content {
       padding: 16px;
       width: 480px;

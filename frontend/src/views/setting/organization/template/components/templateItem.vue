@@ -232,8 +232,9 @@
     margin: 0 8px;
   }
   .outerWrapper {
+    background-color: var(--color-text-fff);
     box-shadow: 0 6px 15px rgba(120 56 135/ 5%);
-    @apply rounded bg-white;
+    @apply rounded;
     .innerWrapper {
       background: var(--color-bg-3);
       @apply rounded p-6;
@@ -241,7 +242,9 @@
         @apply flex;
         .logo-img {
           border-radius: var(--border-radius-small);
-          @apply mr-3 flex items-center justify-center bg-white;
+          @apply mr-3 flex items-center justify-center;
+
+          background-color: var(--color-text-fff);
         }
         .template-operation {
           .operation {

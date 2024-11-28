@@ -353,8 +353,10 @@
       padding: 0 16px;
       height: 54px;
       border-radius: 4px;
-      background: white;
-      @apply mb-4 bg-white;
+      background: var(--color-text-fff);
+      @apply mb-4;
+
+      background-color: var(--color-text-fff);
     }
     .analyze {
       height: 196px;
@@ -364,7 +366,9 @@
         padding: 16px;
         width: 33%;
         border-radius: 4px;
-        @apply h-full bg-white;
+        @apply h-full;
+
+        background-color: var(--color-text-fff);
       }
       .request-analyze {
         @apply ml-4 flex-grow;
@@ -384,7 +388,7 @@
     .report-info {
       padding: 16px;
       border-radius: 4px;
-      @apply bg-white;
+      background-color: var(--color-text-fff);
     }
   }
   .block-title {

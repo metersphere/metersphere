@@ -12,7 +12,7 @@
   >
     <template #headerLeft>
       <a-tooltip :content="reviewDetail.name">
-        <div class="one-line-text mr-[8px] max-w-[300px] font-medium text-[var(--color-text-000)]">
+        <div class="one-line-text mr-[8px] max-w-[300px] font-medium text-[var(--color-text-1)]">
           {{ reviewDetail.name }}
         </div>
       </a-tooltip>

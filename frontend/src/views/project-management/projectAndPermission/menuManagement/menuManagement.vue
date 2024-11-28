@@ -979,6 +979,9 @@
 </script>
 
 <style scoped lang="less">
+  div {
+    color: var(--color-text-1);
+  }
   .icon-class {
     margin: 0 8px 0 16px;
     width: 20px;

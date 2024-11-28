@@ -72,6 +72,7 @@
   import { codeCharset } from '@/config/apiTest';
   import useFullScreen from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
   import { decodeStringToCharset } from '@/utils';
 
   import './userWorker';
@@ -85,6 +86,7 @@
     props: editorProps,
     emits: ['update:modelValue', 'change'],
     setup(props, { emit, slots }) {
+      const appStore = useAppStore();
       const { t } = useI18n();
       // 编辑器实例，每次调用组件都会创建独立的实例
       let editor: monaco.editor.IStandaloneCodeEditor;
@@ -167,6 +169,17 @@
         () => props.theme,
         (val) => {
           currentTheme.value = val;
+        }
+      );
+
+      watch(
+        () => appStore.isDarkTheme,
+        (val) => {
+          if (val) {
+            editor.updateOptions({ theme: 'vs-dark' });
+          } else {
+            editor.updateOptions({ theme: currentTheme.value });
+          }
         }
       );
 
@@ -300,7 +313,7 @@
           contextmenu: !props.readOnly, // 只读模式下禁用右键菜单
           ...props,
           language: props.language.toLowerCase(),
-          theme: currentTheme.value,
+          theme: appStore.isDarkTheme ? 'vs-dark' : currentTheme.value,
           lineNumbersMinChars: 3,
           lineDecorationsWidth: 0,
           tabSize: 2,

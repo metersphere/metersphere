@@ -2,7 +2,7 @@
   <div>
     <div
       v-if="props.mode === 'remote' && props.showTab"
-      class="sticky top-[0] z-[9999] mb-[8px] flex justify-between bg-white"
+      class="sticky top-[0] z-[9999] mb-[8px] flex justify-between bg-[var(--color-text-fff)]"
     >
       <a-radio-group v-model:model-value="fileListTab" type="button" size="small">
         <a-radio value="all">{{ `${t('ms.upload.all')} (${innerFileList.length})` }}</a-radio>

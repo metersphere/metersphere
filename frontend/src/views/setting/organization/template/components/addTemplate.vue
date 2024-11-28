@@ -816,7 +816,7 @@
           top: -12px;
           right: 16px;
           z-index: 9 !important;
-          background: white;
+          background: var(--color-text-fff);
           opacity: 0;
           @apply flex items-center justify-end;
           .actionList {

@@ -191,4 +191,7 @@
     @apply overflow-y-auto;
     .ms-scroll-bar();
   }
+  .arco-table-filters-bottom {
+    border-color: var(--color-text-n8);
+  }
 </style>

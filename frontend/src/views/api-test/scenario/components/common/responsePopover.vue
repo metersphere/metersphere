@@ -110,14 +110,17 @@
     .arco-popover-content {
       @apply mt-0 h-full;
       .response-header-pre {
-        @apply h-full overflow-auto bg-white;
-        .ms-scroll-bar();
+        @apply h-full overflow-auto;
 
         padding: 8px 12px;
         border-radius: var(--border-radius-small);
+        background-color: var(--color-text-fff);
+        .ms-scroll-bar();
       }
       .response-result {
-        @apply h-full overflow-auto bg-white;
+        @apply h-full overflow-auto;
+
+        background-color: var(--color-text-fff);
         .ms-scroll-bar();
         .arco-tabs-tab:first-child {
           margin-left: 0;

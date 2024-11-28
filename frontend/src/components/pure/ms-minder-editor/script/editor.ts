@@ -16,6 +16,7 @@ type EditMenuProps = {
   tagEnable: boolean;
   progressEnable: boolean;
   moveEnable: boolean;
+  [key: string]: any;
 };
 
 type Runtime = {

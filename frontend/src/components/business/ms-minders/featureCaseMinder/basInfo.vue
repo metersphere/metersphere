@@ -34,7 +34,7 @@
         </a-form-item>
       </a-form>
     </div>
-    <div v-if="hasEditPermission" class="flex items-center gap-[12px] bg-white py-[16px]">
+    <div v-if="hasEditPermission" class="flex items-center gap-[12px] bg-[var(--color-text-fff)] py-[16px]">
       <a-button
         v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
         type="primary"

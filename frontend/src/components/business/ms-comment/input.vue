@@ -115,8 +115,9 @@
 <style scoped lang="less">
   .commentWrapper {
     z-index: 101;
+    background-color: var(--color-text-fff);
     box-shadow: 1px -1px 4px rgba(2 2 2 / 10%);
-    @apply absolute bottom-0 w-full bg-white px-4 py-4;
+    @apply absolute bottom-0 w-full px-4 py-4;
   }
   :deep(.rich-wrapper) {
     .halo-rich-text-editor {

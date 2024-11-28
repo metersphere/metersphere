@@ -1241,10 +1241,9 @@
 
 <style lang="less" scoped>
   .content-type-trigger-content {
-    @apply bg-white;
-
     padding: 8px;
     border-radius: var(--border-radius-small);
+    background-color: var(--color-text-fff);
     box-shadow: 0 4px 10px -1px rgb(100 100 102 / 15%);
   }
   :deep(.ms-form-table-input-number) {

@@ -139,13 +139,14 @@
       }
     }
     .ms-thumbnail-card-more {
-      @apply invisible absolute bg-white;
+      @apply invisible absolute;
 
       top: 4px;
       right: 4px;
       z-index: 1;
       padding: 4px;
       border-radius: var(--border-radius-small);
+      background-color: var(--color-text-fff);
       &:hover {
         color: rgb(var(--primary-5));
         background-color: rgb(var(--primary-1));

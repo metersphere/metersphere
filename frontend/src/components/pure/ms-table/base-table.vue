@@ -1064,6 +1064,35 @@
         }
       }
     }
+    :deep(.arco-table-header) {
+      background-color: var(--color-text-fff);
+      .arco-table-th {
+        background-color: var(--color-text-fff);
+      }
+    }
+    :deep(.arco-table-body) {
+      background-color: var(--color-text-fff);
+      .arco-table-td {
+        border-bottom: 1px solid var(--color-text-n8);
+        color: var(--color-text-1);
+        background-color: var(--color-text-fff);
+      }
+    }
+    :deep(.arco-table-border .arco-table-scroll-y) {
+      border-right: 1px solid var(--color-text-n8) !important;
+      border-bottom: 1px solid var(--color-text-n8) !important;
+    }
+    :deep(.arco-table-border .arco-table-tr .arco-table-th) {
+      border-bottom: 1px solid var(--color-text-n8) !important;
+    }
+    :deep(.arco-table-tr):hover {
+      background-color: rgb(var(--primary-1)) !important;
+      .arco-table-td,
+      .arco-table-td.arco-table-col-fixed-left::before,
+      .arco-table-td.arco-table-col-fixed-right::before {
+        background-color: rgb(var(--primary-1)) !important;
+      }
+    }
     :deep(.arco-table-th):hover {
       .arco-table-column-handle {
         @apply inline-block;
@@ -1073,7 +1102,7 @@
         padding: 4px 0;
         width: 2px;
         height: 24px;
-        background-color: var(--color-text-n8);
+        background-color: var(--color-text-n9);
         transform: translateY(-50%);
       }
     }
@@ -1107,7 +1136,7 @@
       top: 39px;
       z-index: 11;
       padding: 14px 16px;
-      background-color: var(--color-text-n9);
+      background-color: var(--color-text-fff);
     }
   }
   :deep(.arco-table-operation) {
@@ -1165,7 +1194,6 @@
     height: 16px;
     border-radius: 50%;
     background: var(--color-text-n8) !important;
-    @apply bg-white;
   }
   :deep(.expand) {
     width: 16px;
@@ -1184,7 +1212,7 @@
       height: 16px;
       border: none;
       border-radius: 50%;
-      background: white;
+      background: var(--color-text-fff);
     }
   }
   .not-expanded-border {
@@ -1203,14 +1231,14 @@
     }
   }
   :deep(.arco-table-col-sorted) {
-    @apply bg-white;
+    background: var(--color-text-fff);
   }
   :deep(.arco-table-cell-with-sorter) {
     @apply !p-0;
 
     margin: 8px 16px;
     &:hover {
-      @apply bg-white;
+      background: var(--color-text-fff);
     }
     .arco-table-sorter {
       .arco-table-sorter-icon {
@@ -1293,6 +1321,7 @@
     @apply overflow-hidden;
 
     max-width: 300px;
+    border-color: var(--color-text-n8);
     .arco-table-filters-content-list {
       @apply overflow-y-auto;
       .ms-scroll-bar();

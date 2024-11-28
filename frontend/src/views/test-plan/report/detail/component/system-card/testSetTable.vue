@@ -345,7 +345,7 @@
   :deep(.arco-table-tr.test-set-expand-tr) {
     &:hover {
       > .arco-table-td {
-        background: white !important;
+        background: var(--color-text-fff) !important;
       }
     }
   }

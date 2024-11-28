@@ -834,9 +834,10 @@
 
 <style lang="less" scoped>
   .page {
-    @apply h-full bg-white;
+    @apply h-full;
 
     border-radius: var(--border-radius-large);
+    background-color: var(--color-text-fff);
   }
   .env-item {
     display: flex;

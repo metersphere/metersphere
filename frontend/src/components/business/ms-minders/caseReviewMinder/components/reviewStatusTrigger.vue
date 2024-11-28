@@ -69,8 +69,9 @@
     width: 150px;
     max-height: 192px;
     border-radius: var(--border-radius-medium);
+    background-color: var(--color-text-fff);
     box-shadow: 0 -1px 4px rgb(2 2 2 / 10%);
-    @apply overflow-y-auto overflow-x-hidden bg-white;
+    @apply overflow-y-auto overflow-x-hidden;
     .ms-scroll-bar();
   }
 </style>

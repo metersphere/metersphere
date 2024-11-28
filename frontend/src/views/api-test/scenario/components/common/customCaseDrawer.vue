@@ -1093,7 +1093,7 @@
 <style lang="less" scoped>
   .exec-btn {
     :deep(.arco-btn) {
-      color: white !important;
+      color: var(--color-text-fff) !important;
       background-color: rgb(var(--primary-5)) !important;
       .btn-base-primary-hover();
       .btn-base-primary-active();
@@ -1112,19 +1112,21 @@
     .ms-scroll-bar();
   }
   .sticky-content {
-    @apply sticky bg-white;
+    @apply sticky;
 
     z-index: 101;
+    background-color: var(--color-text-fff);
   }
   .request-content-and-response {
     display: flex;
     &.vertical {
       flex-direction: column;
       .response :deep(.response-head) {
-        @apply sticky bg-white;
+        @apply sticky;
 
         top: 46px; // 请求参数tab高度(不算border-bottom)
         z-index: 11;
+        background-color: var(--color-text-fff);
       }
       .request-tab-pane {
         min-height: 400px;

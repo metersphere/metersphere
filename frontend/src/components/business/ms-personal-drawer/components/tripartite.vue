@@ -266,10 +266,11 @@
     gap: 16px;
   }
   .platform-card {
-    @apply w-full bg-white;
+    @apply w-full;
 
     padding: 16px;
     border-radius: var(--border-radius-small);
+    background-color: var(--color-text-fff);
     :deep(.arco-form-item-label) {
       color: var(--color-text-4) !important;
     }

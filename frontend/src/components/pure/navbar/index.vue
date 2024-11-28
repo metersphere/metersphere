@@ -147,6 +147,18 @@
         </a-dropdown>
       </li>
       <li>
+        <a-tooltip :content="t('settings.themeColor')" position="br">
+          <a-switch v-model:model-value="isSun" size="small" @change="handleSunChange">
+            <template #checked-icon>
+              <icon-sun-fill />
+            </template>
+            <template #unchecked-icon>
+              <icon-moon-fill />
+            </template>
+          </a-switch>
+        </a-tooltip>
+      </li>
+      <li>
         <a-dropdown trigger="click" position="br" @select="changeLanguage as any">
           <a-tooltip :content="t('settings.language')" position="br">
             <a-button type="secondary">
@@ -194,6 +206,7 @@
   import useGlobalStore from '@/store/modules/global';
   import useUserStore from '@/store/modules/user';
   import { getFirstRouteNameByPermission, hasAnyPermission } from '@/utils/permission';
+  import { setDarkTheme, watchStyle, watchTheme } from '@/utils/theme';
 
   import { GlobalEventNameEnum } from '@/enums/commonEnum';
 
@@ -309,6 +322,29 @@
 
   function goMessageCenter() {
     messageCenterVisible.value = true;
+  }
+
+  const isSun = ref(!appStore.isDarkTheme);
+
+  watch(
+    () => appStore.isDarkTheme,
+    (val) => {
+      if (val) {
+        // 暗黑模式
+        setDarkTheme();
+      } else {
+        // 初始化平台风格和主题色
+        watchStyle(appStore.pageConfig.style, appStore.pageConfig);
+        watchTheme(appStore.pageConfig.theme, appStore.pageConfig);
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  function handleSunChange(val: string | number | boolean) {
+    appStore.setDarkTheme(!val);
   }
 
   function changeLanguage(locale: LocaleType) {

@@ -352,12 +352,13 @@
 <style lang="less">
   .ms-minder-node-float-menu {
     .arco-trigger-content {
-      @apply flex w-auto flex-1 items-center bg-white;
+      @apply flex w-auto flex-1 items-center;
 
       padding: 4px 8px;
-      gap: 8px;
       border-radius: var(--border-radius-small);
+      background-color: var(--color-text-fff);
       box-shadow: 0 4px 10px -1px rgb(100 100 102 / 15%);
+      gap: 8px;
     }
     .ms-minder-node-float-menu-icon-button {
       @apply !mr-0;

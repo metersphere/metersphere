@@ -1,6 +1,6 @@
 export default {
   'settings.title': 'Settings',
-  'settings.themeColor': 'Theme Color',
+  'settings.themeColor': 'Switch between light/dark mode',
   'settings.content': 'Content Setting',
   'settings.search': 'Search',
   'settings.language': 'Language',

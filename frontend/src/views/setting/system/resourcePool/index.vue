@@ -59,7 +59,7 @@
             >
             </a-switch>
             <template #content>
-              <span class="text-[var(--color-text-000)]">{{ t('system.authorized.resourcePoolTableTip') }}</span>
+              <span class="text-[var(--color-text-1)]">{{ t('system.authorized.resourcePoolTableTip') }}</span>
               <span class="ml-2 inline-block cursor-pointer text-[rgb(var(--primary-4))]" @click="goTry">
                 {{ t('system.authorized.applyTrial') }}
               </span>

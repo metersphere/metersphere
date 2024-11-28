@@ -21,10 +21,20 @@
       />
     </div>
     <div v-else-if="expressionForm.extractType === RequestExtractExpressionEnum.JSON_PATH" class="code-container">
-      <MsJsonPathPicker :data="props.response || ''" class="bg-white" @init="initJsonPath" @pick="handlePathPick" />
+      <MsJsonPathPicker
+        :data="props.response || ''"
+        class="bg-[var(--color-text-fff)]"
+        @init="initJsonPath"
+        @pick="handlePathPick"
+      />
     </div>
     <div v-else-if="expressionForm.extractType === RequestExtractExpressionEnum.X_PATH" class="code-container">
-      <MsXPathPicker :xml-string="props.response || ''" class="bg-white" @init="initXpath" @pick="handlePathPick" />
+      <MsXPathPicker
+        :xml-string="props.response || ''"
+        class="bg-[var(--color-text-fff)]"
+        @init="initXpath"
+        @pick="handlePathPick"
+      />
     </div>
     <a-form ref="expressionFormRef" :model="expressionForm" layout="vertical" class="mt-[16px]">
       <a-form-item
@@ -379,7 +389,7 @@
     background-color: var(--color-text-n9);
   }
   .match-result {
-    @apply overflow-y-auto bg-white;
+    @apply overflow-y-auto;
     .ms-scroll-bar();
 
     margin-top: 12px;
@@ -388,5 +398,6 @@
     max-height: 300px;
     border-radius: var(--border-radius-small);
     color: rgb(var(--primary-5));
+    background-color: var(--color-text-fff);
   }
 </style>

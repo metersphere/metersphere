@@ -90,10 +90,9 @@
     max-height: 220px;
     border-radius: 4px;
     color: block;
+    background-color: var(--color-text-fff);
     box-shadow: 0 0 0 1px rgba(0 0 0 / 5%), 0 10px 20px rgba(0 0 0 / 10%);
     .ms-scroll-bar();
-
-    @apply bg-white;
   }
   .item {
     display: block;

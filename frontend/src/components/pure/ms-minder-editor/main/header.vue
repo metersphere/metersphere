@@ -112,14 +112,15 @@
 
 <style lang="less">
   .ms-minder-editor-header {
-    @apply absolute z-10 flex items-center bg-white;
+    @apply absolute z-10 flex items-center;
 
     top: 16px;
     right: 4px;
-    gap: 8px;
     padding: 4px 8px;
     border-radius: var(--border-radius-small);
+    background-color: var(--color-text-fff);
     box-shadow: 0 4px 10px -1px rgb(100 100 102 / 15%);
+    gap: 8px;
     .ms-minder-editor-header-icon-button {
       @apply !mr-0;
       &:hover {

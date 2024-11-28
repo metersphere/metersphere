@@ -2,7 +2,7 @@
   <MsCard :min-width="1100" has-breadcrumb hide-footer no-content-padding hide-divider show-full-screen>
     <template #headerLeft>
       <a-tooltip :content="reviewDetail.name">
-        <div class="one-line-text mr-[8px] max-w-[300px] font-medium text-[var(--color-text-000)]">
+        <div class="one-line-text mr-[8px] max-w-[300px] font-medium text-[var(--color-text-1)]">
           {{ reviewDetail.name }}
         </div>
       </a-tooltip>
@@ -119,7 +119,7 @@
               <div class="flex items-center">
                 <MsIcon type="icon-icon_folder_filled1" class="mr-[4px] text-[var(--color-text-4)]" />
                 <a-tooltip :content="caseDetail.moduleName || t('common.root')">
-                  <div class="one-line-text mr-[8px] max-w-[300px] font-medium text-[var(--color-text-000)]">
+                  <div class="one-line-text mr-[8px] max-w-[300px] font-medium text-[var(--color-text-1)]">
                     {{ caseDetail.moduleName || t('common.root') }}
                   </div>
                 </a-tooltip>
@@ -669,7 +669,7 @@
 
       padding: 16px;
       border-radius: var(--border-radius-small);
-      background-color: white;
+      background-color: var(--color-text-fff);
     }
     .case-item--active {
       @apply relative;

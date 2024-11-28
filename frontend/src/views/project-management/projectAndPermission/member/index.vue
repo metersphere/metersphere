@@ -15,4 +15,8 @@
   });
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+  div {
+    color: var(--color-text-1);
+  }
+</style>

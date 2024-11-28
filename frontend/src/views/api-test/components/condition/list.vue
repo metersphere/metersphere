@@ -8,7 +8,7 @@
     :disabled="props.disabled"
     :item-border="false"
     class="h-full overflow-hidden rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]"
-    item-class="mb-[4px] bg-white !p-[4px_8px]"
+    item-class="mb-[4px] bg-[var(--color-text-fff)] !p-[4px_8px]"
     :item-more-actions="moreActions"
     active-item-class="!bg-[rgb(var(--primary-1))] text-[rgb(var(--primary-5))]"
     draggable
@@ -20,7 +20,7 @@
       <div class="flex items-center gap-[4px]">
         <div
           :class="`flex h-[16px] w-[16px] flex-shrink-0 items-center justify-center rounded-full ${
-            activeItem.id === item.id ? ' bg-white' : 'bg-[var(--color-text-n8)]'
+            activeItem.id === item.id ? ' bg-[var(--color-text-fff)]' : 'bg-[var(--color-text-n8)]'
           }`"
         >
           {{ index + 1 }}
@@ -237,7 +237,7 @@
   :deep(.arco-badge-text) {
     font-size: 12px;
     color: var(--color-text-4) !important;
-    background: white !important;
+    background: var(--color-text-fff) !important;
     box-shadow: 0 0 0 1px var(--color-text-n8);
   }
 </style>

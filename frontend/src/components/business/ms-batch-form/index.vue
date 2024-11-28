@@ -399,7 +399,7 @@
     @apply rounded;
   }
   .dragChosenClass {
-    background: white;
+    background: var(--color-text-fff);
     opacity: 1 !important;
     @apply rounded;
     .minus {

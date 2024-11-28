@@ -14,7 +14,7 @@
       </div>
     </template>
     <div class="flex h-full w-full">
-      <div class="flex h-full w-[180px] flex-col bg-white">
+      <div class="flex h-full w-[180px] flex-col bg-[var(--color-text-fff)]">
         <a-menu class="ms-message-menu" :default-selected-keys="[defaultModule]" @menu-item-click="clickModule">
           <a-menu-item :key="'all'">
             <div class="flex items-center justify-between">
@@ -473,7 +473,7 @@
 <style lang="less">
   .ms-drawer {
     .ms-message-menu {
-      @apply bg-white;
+      background-color: var(--color-text-fff);
       .arco-menu-inner {
         padding: 16px;
       }

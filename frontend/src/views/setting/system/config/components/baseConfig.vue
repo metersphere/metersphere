@@ -593,7 +593,7 @@
       @apply flex items-center;
 
       gap: 2px;
-      color: var(--color-text-000);
+      color: var(--color-text-1);
     }
   }
 </style>

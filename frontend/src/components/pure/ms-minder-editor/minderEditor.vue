@@ -234,9 +234,10 @@
   .ms-minder-editor-container {
     @apply relative flex h-full w-full;
     .ms-minder-editor-extra {
-      @apply flex flex-col overflow-hidden  bg-white;
+      @apply flex flex-col overflow-hidden;
 
       width: 0;
+      background-color: var(--color-text-fff);
       transition: all 300ms ease-in-out;
       :deep(.ms-tab--button-item) {
         flex: 1;

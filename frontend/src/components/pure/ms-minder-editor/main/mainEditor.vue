@@ -13,7 +13,7 @@
     </Navigator>
     <div
       v-if="currentTreePath?.length > 0"
-      class="absolute left-[50%] top-[16px] z-[9] w-[60%] translate-x-[-50%] overflow-hidden bg-white p-[8px]"
+      class="absolute left-[50%] top-[16px] z-[9] w-[60%] translate-x-[-50%] overflow-hidden bg-[var(--color-text-fff)] p-[8px]"
     >
       <a-menu v-model:selected-keys="selectedBreadcrumbKeys" mode="horizontal" class="ms-minder-breadcrumb">
         <a-menu-item v-for="(crumb, i) of currentTreePath" :key="crumb.id" @click="switchNode(crumb, i)">
@@ -52,6 +52,7 @@
   import Navigator from './navigator.vue';
 
   import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
+  import useAppStore from '@/store/modules/app';
   import useMinderStore from '@/store/modules/components/minder-editor';
   import { findNodePathByKey, mapTree, replaceNodeInTree } from '@/utils';
 
@@ -93,6 +94,7 @@
     (e: 'floatMenuClose'): void;
   }>();
 
+  const appStore = useAppStore();
   const minderStore = useMinderStore();
   const { setIsSave } = useLeaveUnSaveTip({
     leaveContent: 'ms.minders.leaveUnsavedTip',
@@ -126,12 +128,16 @@
     window.minder = window.km;
     window.minderEditor = editor;
     window.minder.moveEnable = props.moveEnable;
-
+    if (appStore.isDarkTheme) {
+      window.minder.setDefaultOptions({
+        defaultTheme: 'wire',
+      });
+      window.minder.refresh();
+    }
     window.minder.forceRemoveNode = () => {
       markDeleteNode(window.minder);
       window.minder.execCommand('RemoveNode');
     };
-
     emit('afterMount');
   }
 
@@ -310,6 +316,17 @@
     }
   );
 
+  watch(
+    () => appStore.isDarkTheme,
+    (val) => {
+      if (val) {
+        window.minder.useTheme('wire');
+      } else {
+        window.minder.useTheme('fresh-purple');
+      }
+    }
+  );
+
   onBeforeUnmount(() => {
     minderStore.setMinderUnsaved(false);
   });
@@ -322,7 +339,9 @@
     @apply !absolute;
   }
   .ms-minder-container {
-    @apply relative h-full overflow-hidden !bg-white;
+    @apply relative h-full overflow-hidden;
+
+    background-color: var(--color-text-fff) !important;
   }
   .ms-minder-dropdown {
     .arco-dropdown-list-wrapper {
@@ -330,9 +349,13 @@
     }
   }
   .ms-minder-breadcrumb {
-    @apply bg-white p-0;
+    @apply p-0;
+
+    background-color: var(--color-text-fff);
     .arco-menu-inner {
-      @apply bg-white p-0;
+      @apply p-0;
+
+      background-color: var(--color-text-fff);
       .arco-menu-item {
         @apply relative p-0;
 
@@ -356,14 +379,15 @@
       }
       .arco-menu-item,
       .arco-menu-overflow-sub-menu {
-        @apply ml-0 bg-white;
+        @apply ml-0;
 
         color: var(--color-text-4);
+        background-color: var(--color-text-fff);
       }
       .arco-menu-selected {
         color: rgb(var(--primary-4));
         &:hover {
-          @apply !bg-white;
+          background-color: var(--color-text-fff) !important;
         }
       }
       .arco-menu-pop::after,

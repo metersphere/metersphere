@@ -2,7 +2,7 @@
   <MsCard simple class="mb-[16px]" auto-height :loading="loading">
     <div class="outer-wrapper">
       <div class="mb-[16px] flex justify-between">
-        <div class="font-medium text-[var(--color-text-000)]">{{ t('organization.service.integrationList') }}</div>
+        <div class="font-medium text-[var(--color-text-1)]">{{ t('organization.service.integrationList') }}</div>
       </div>
       <div class="ms-card-wrap">
         <a-scrollbar
@@ -361,7 +361,7 @@
         padding: 24px;
         height: 144px;
         border-radius: 4px;
-        background: white;
+        background: var(--color-text-fff);
         @apply flex flex-col justify-between;
         .ms-enable {
           font-size: 12px;

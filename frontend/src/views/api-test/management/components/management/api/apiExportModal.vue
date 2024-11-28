@@ -243,12 +243,13 @@
 
 <style scoped lang="less">
   .import-item {
-    @apply flex cursor-pointer items-center bg-white;
+    @apply flex cursor-pointer items-center;
 
     padding: 8px;
     width: 150px;
     border: 1px solid var(--color-text-n8);
     border-radius: var(--border-radius-small);
+    background-color: var(--color-text-fff);
     gap: 6px;
   }
   .import-item--active {

@@ -186,7 +186,7 @@
       width: calc(50% - 34px);
       height: v-bind(height);
       .arco-transfer-view-header {
-        @apply bg-white;
+        background-color: var(--color-text-fff);
       }
       .arco-transfer-view-body {
         .ms-tree-container {

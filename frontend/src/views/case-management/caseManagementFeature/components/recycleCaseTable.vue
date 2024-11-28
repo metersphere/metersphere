@@ -912,7 +912,7 @@
     min-width: 1000px;
     height: calc(100vh - 126px);
     border-radius: var(--border-radius-large);
-    @apply bg-white;
+    background-color: var(--color-text-fff);
     .back {
       margin-right: 8px;
       width: 20px;

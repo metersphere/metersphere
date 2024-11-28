@@ -164,7 +164,7 @@
     padding: 16px;
     width: calc(50% - 10px);
     height: 78px;
-    border: 1px solid #ffffff;
+    border: 1px solid var(--color-text-n8);
     box-shadow: 0 0 7px rgb(120 56 135 / 10%);
     @apply flex items-center rounded-md;
   }

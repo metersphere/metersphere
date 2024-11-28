@@ -773,7 +773,7 @@
   .pageWrap {
     height: calc(100% - 50px);
     border-radius: var(--border-radius-large);
-    @apply bg-white;
+    background-color: var(--color-text-fff);
   }
   .case {
     padding: 8px 4px;
@@ -814,12 +814,16 @@
     }
   }
   .recycle {
-    @apply absolute bottom-0 bg-white  pb-4;
+    @apply absolute bottom-0  pb-4;
+
+    background-color: var(--color-text-fff);
     :deep(.arco-divider-horizontal) {
       margin: 8px 0;
     }
     .recycle-bin {
-      @apply bottom-0 flex items-center bg-white;
+      @apply bottom-0 flex items-center;
+
+      background-color: var(--color-text-fff);
       .recycle-count {
         margin-left: 4px;
         color: var(--color-text-4);

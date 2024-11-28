@@ -8,7 +8,7 @@
   @apply absolute bottom-0 left-0 right-0 top-0 block bg-transparent;
 }
 .km-editor > .receiver {
-  @apply pointer-events-none absolute left-0 top-0 box-border w-auto select-text overflow-hidden break-words break-all border-none bg-white opacity-0 outline-none;
+  @apply pointer-events-none absolute left-0 top-0 box-border w-auto select-text overflow-hidden break-words break-all border-none opacity-0 outline-none;
 
   z-index: -1000;
   margin-top: -5px;
@@ -17,6 +17,7 @@
   max-width: 300px;
   min-height: 1.4em;
   font-size: 14px;
+  background-color: var(--color-text-fff);
   box-shadow: 0 0 20px;
   line-height: 1.4em;
   &.debug {
@@ -25,9 +26,10 @@
     outline: 1px solid green;
   }
   &.input {
-    @apply bg-white opacity-100 outline-none;
+    @apply opacity-100 outline-none;
 
     z-index: 999;
+    background-color: var(--color-text-fff);
     pointer-events: all;
   }
 }

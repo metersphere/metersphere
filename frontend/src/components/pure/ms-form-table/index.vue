@@ -641,7 +641,7 @@
     }
     .arco-table-tr-checked {
       .arco-table-td {
-        background-color: white;
+        background-color: var(--color-text-fff);
       }
     }
     .arco-scrollbar-track-direction-horizontal {
@@ -700,7 +700,7 @@
   }
   :deep(.ms-table-row-disabled) {
     td {
-      background-color: white !important;
+      background-color: var(--color-text-fff) !important;
     }
     .arco-btn-icon {
       border-color: var(--color-text-n8);

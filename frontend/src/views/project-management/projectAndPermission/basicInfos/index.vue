@@ -3,7 +3,7 @@
     <a-alert type="error">{{ t('project.basicInfo.alertDescription') }}</a-alert>
   </div>
   <div class="wrapper mb-6 flex justify-between">
-    <span class="font-medium text-[var(--color-text-000)]">{{ t('project.basicInfo.basicInfo') }}</span>
+    <span class="font-medium text-[var(--color-text-1)]">{{ t('project.basicInfo.basicInfo') }}</span>
     <a-button
       v-show="!projectDetail?.deleted"
       v-permission="['PROJECT_BASE_INFO:READ+UPDATE']"
@@ -12,11 +12,11 @@
       >{{ t('project.basicInfo.edit') }}</a-button
     >
   </div>
-  <div class="project-info mb-6 h-[112px] bg-white p-1">
+  <div class="project-info mb-6 h-[112px] bg-[var(--color-text-fff)] p-1">
     <div class="inner-wrapper rounded-md p-4">
       <div class="detail-info flex flex-col justify-between rounded-md p-4">
         <div class="flex items-center">
-          <span class="one-line-text mr-1 max-w-[300px] font-medium text-[var(--color-text-000)]">{{
+          <span class="one-line-text mr-1 max-w-[300px] font-medium text-[var(--color-text-1)]">{{
             projectDetail?.name
           }}</span>
           <span class="button mr-1" :class="[projectDetail?.deleted ? 'delete-button' : 'enable-button']">

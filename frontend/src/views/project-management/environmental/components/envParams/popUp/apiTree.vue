@@ -1147,7 +1147,7 @@
         .arco-tree-node-plus-icon {
           border: 1px solid var(--color-text-4);
           border-radius: var(--border-radius-mini);
-          background-color: white;
+          background-color: var(--color-text-fff);
           &::after,
           &::before {
             background-color: var(--color-text-4);
@@ -1218,7 +1218,7 @@
         .arco-tree-node-plus-icon {
           border: 1px solid rgb(var(--primary-5));
           border-radius: var(--border-radius-mini);
-          background-color: white;
+          background-color: var(--color-text-fff);
           &::after,
           &::before {
             background-color: rgb(var(--primary-5));

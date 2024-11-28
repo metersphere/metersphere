@@ -8,7 +8,7 @@
         :self-style="{
           border: `1px solid ${methodColor}`,
           color: methodColor,
-          backgroundColor: 'white',
+          backgroundColor: 'var(--color-text-fff)',
         }"
       >
         {{ t('report.detail.script.error') }}

@@ -218,7 +218,7 @@
       <div class="config-title">
         {{ t('system.config.page.platformConfig') }}
       </div>
-      <div class="config-content border border-solid border-[var(--color-text-n8)] !bg-white">
+      <div class="config-content border border-solid border-[var(--color-text-n8)] !bg-[var(--color-text-fff)]">
         <div class="config-title !mb-[8px] flex items-center justify-between">
           {{ t('system.config.page.pagePreview') }}
           <MsButton
@@ -253,7 +253,7 @@
                 class="overflow-hidden"
                 is-preview
               >
-                <div class="w-full bg-white" style="height: calc(100% - 28px)"></div>
+                <div class="w-full bg-[var(--color-text-fff)]" style="height: calc(100% - 28px)"></div>
               </defaultLayout>
             </div>
           </div>
@@ -330,7 +330,7 @@
       </div>
     </MsCard>
     <div
-      class="fixed bottom-0 right-[16px] z-[999] flex justify-between bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
+      class="fixed bottom-0 right-[16px] z-[999] flex justify-between bg-[var(--color-text-fff)] p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
       :style="{ width: `calc(100% - ${menuWidth + 16}px)` }"
     >
       <a-button v-permission="['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE']" type="secondary" @click="resetAll">
@@ -648,10 +648,11 @@
         height: auto;
       }
       .config-preview-head {
-        @apply flex items-center justify-between bg-white;
+        @apply flex items-center justify-between;
 
         padding: 8px;
         width: 735px;
+        background-color: var(--color-text-fff);
         @media screen and (min-width: 1600px) {
           width: 100%;
         }
@@ -660,9 +661,10 @@
         width: 100vw;
       }
       .login-preview {
-        @apply relative bg-white;
+        @apply relative;
 
         width: 740px;
+        background-color: var(--color-text-fff);
         @media screen and (min-width: 1600px) {
           width: 888px;
         }
@@ -704,12 +706,11 @@
         margin-left: 12px;
         width: 40%;
         .config-form-card {
-          @apply bg-white;
-
           margin-bottom: 8px;
           padding: 12px;
           border: 1px solid var(--color-text-n8);
           border-radius: var(--border-radius-small);
+          background-color: var(--color-text-fff);
         }
       }
     }

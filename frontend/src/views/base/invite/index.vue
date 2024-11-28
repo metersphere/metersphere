@@ -5,7 +5,7 @@
         <icon-close-circle-fill :size="68" />
       </template>
     </a-empty>
-    <div v-else class="form-box w-1/3 rounded-[12px] bg-white">
+    <div v-else class="form-box w-1/3 rounded-[12px] bg-[var(--color-text-fff)]">
       <div class="form-box-title">{{ t('invite.title') }}</div>
       <a-form
         ref="registerFormRef"
