@@ -168,6 +168,8 @@
                 v-if="scope.row.type !== 'CSV'"
                 :placeholder="valueText(scope.row)"
                 @change="changeVariableVal(scope.row)"
+                :maxlength="5000"
+                show-word-limit
                 :disabled="
                 scope.row.type === 'COUNTER' || scope.row.type === 'RANDOM'
               "

@@ -740,7 +740,7 @@ public class MockApiUtils {
                         String urlItem = urlParams[urlIndex];
                         String customUrlItem = pathArr[pathArr.length - urlParams.length + urlIndex];
                         // 不为rest参数的要进行全匹配。 而且忽略大小写
-                        if (isRestUrlParam(customUrlItem) && isRestUrlParam(urlItem)) {
+                        if (isNotRestUrlParam(customUrlItem) && isNotRestUrlParam(urlItem)) {
                             if (!StringUtils.equalsIgnoreCase(customUrlItem, urlItem)) {
                                 isFetch = false;
                                 break;
@@ -752,7 +752,6 @@ public class MockApiUtils {
                     }
                 }
             } else {
-
                 if (path.startsWith("/")) {
                     path = path.substring(1);
                 }
@@ -763,8 +762,8 @@ public class MockApiUtils {
                         for (int i = 0; i < urlParams.length; i++) {
                             String pathItem = pathArr[i];
                             String urlItem = urlParams[i];
-                            if (!(isRestUrlParam(pathItem)) && !(isRestUrlParam(urlItem))) {
-                                if (!StringUtils.equals(pathArr[i], urlParams[i])) {
+                            if (isNotRestUrlParam(pathItem) && isNotRestUrlParam(urlItem)) {
+                                if (!StringUtils.equalsIgnoreCase(pathArr[i], urlParams[i])) {
                                     isFetch = false;
                                     break;
                                 }
@@ -785,7 +784,7 @@ public class MockApiUtils {
         return false;
     }
 
-    private static boolean isRestUrlParam(String urlParam) {
+    private static boolean isNotRestUrlParam(String urlParam) {
         return !StringUtils.startsWith(urlParam, "{") || !StringUtils.endsWith(urlParam, "}") || StringUtils.equals(urlParam, "{}");
     }
 
