@@ -54,7 +54,6 @@
   import { contentTabList } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { characterLimit } from '@/utils';
 
   import type {
     ModuleCardItem,
@@ -128,7 +127,7 @@
     options.value.graphic.invisible = invisible;
     options.value.graphic.style.text = text;
     // x轴
-    options.value.xAxis.data = detail.xaxis.map((e) => characterLimit(e, 10));
+    options.value.xAxis.data = detail.xaxis;
 
     const { maxAxis, data } = getSeriesData(detail.projectCountList);
     options.value.series = data;

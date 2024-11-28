@@ -33,8 +33,13 @@
             />
           </div>
         </div>
-        <div class="h-[148px]">
-          <MsChart :options="countOptions" />
+        <div class="flex h-[148px]">
+          <LegendPieChart
+            v-model:currentPage="currentPage"
+            :has-permission="hasPermission"
+            :data="statusPercentValue"
+            :options="countOptions"
+          />
         </div>
       </div>
     </div>
@@ -47,9 +52,9 @@
    */
   import { ref } from 'vue';
 
-  import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
   import CardSkeleton from './cardSkeleton.vue';
+  import LegendPieChart, { legendDataType } from './legendPieChart.vue';
   import PassRatePie from './passRatePie.vue';
 
   import {
@@ -69,7 +74,7 @@
   } from '@/models/workbench/homePage';
   import { WorkCardEnum } from '@/enums/workbenchEnum';
 
-  import { handlePieData, handleUpdateTabPie } from '../utils';
+  import { colorMapConfig, handlePieData, handleUpdateTabPie } from '../utils';
 
   const appStore = useAppStore();
 
@@ -120,6 +125,7 @@
 
   const hasPermission = ref<boolean>(false);
   const showSkeleton = ref(false);
+  const statusPercentValue = ref<legendDataType[]>([]);
 
   async function initCount() {
     try {
@@ -140,6 +146,13 @@
 
       const { statusStatisticsMap, statusPercentList, errorCode } = detail;
       hasPermission.value = errorCode !== 109001;
+      statusPercentValue.value = (statusPercentList || []).map((item, index) => {
+        return {
+          ...item,
+          selected: true,
+          color: `${colorMapConfig[props.item.key][index]}`,
+        };
+      });
 
       countOptions.value = handlePieData(props.item.key, hasPermission.value, statusPercentList);
       if (props.item.key === WorkCardEnum.PLAN_LEGACY_BUG) {
@@ -182,6 +195,8 @@
       emit('change');
     });
   }
+
+  const currentPage = ref(1);
 
   onMounted(() => {
     initCount();

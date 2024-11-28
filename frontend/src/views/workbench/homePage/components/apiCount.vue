@@ -38,8 +38,13 @@
             />
           </div>
         </div>
-        <div class="h-[148px]">
-          <MsChart :options="apiCountOptions" />
+        <div class="mt-[16px] h-[148px]">
+          <LegendPieChart
+            v-model:currentPage="currentPage"
+            :has-permission="hasPermission"
+            :data="statusPercentValue"
+            :options="apiCountOptions"
+          />
         </div>
       </div>
     </div>
@@ -52,9 +57,9 @@
    */
   import { ref } from 'vue';
 
-  import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
   import CardSkeleton from './cardSkeleton.vue';
+  import LegendPieChart, { legendDataType } from './legendPieChart.vue';
   import PassRatePie from './passRatePie.vue';
 
   import { workApiCountCoverRage, workApiCountDetail } from '@/api/modules/workbench';
@@ -63,7 +68,7 @@
 
   import type { ApiCoverageData, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
-  import { handlePieData, handleUpdateTabPie } from '../utils';
+  import { colorMapConfig, handlePieData, handleUpdateTabPie } from '../utils';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -87,6 +92,7 @@
   const loading = ref<boolean>(false);
 
   const projectId = ref<string>(innerProjectIds.value[0]);
+  const currentPage = ref(1);
 
   const timeForm = inject<Ref<TimeFormParams>>(
     'timeForm',
@@ -123,6 +129,9 @@
 
   const apiCountOptions = ref({});
   const hasPermission = ref<boolean>(false);
+
+  const statusPercentValue = ref<legendDataType[]>([]);
+
   async function handleCoverData(detail: ApiCoverageData) {
     const { unCoverWithApiDefinition, coverWithApiDefinition, apiCoverage } = detail;
     const coverData: {
@@ -150,6 +159,7 @@
     coverValueList.value = [...coverList];
     coverOptions.value = { ...covOptions };
   }
+
   async function initApiCountRate() {
     try {
       loading.value = true;
@@ -181,6 +191,13 @@
         handleUsers: [],
       });
       const { statusStatisticsMap, statusPercentList, errorCode } = detail;
+      statusPercentValue.value = (statusPercentList || []).map((item, index) => {
+        return {
+          ...item,
+          selected: true,
+          color: `${colorMapConfig[props.item.key][index]}`,
+        };
+      });
 
       hasPermission.value = errorCode !== 109001;
       apiCountOptions.value = handlePieData(props.item.key, hasPermission.value, statusPercentList);

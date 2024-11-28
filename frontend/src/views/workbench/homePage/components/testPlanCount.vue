@@ -32,8 +32,13 @@
             />
           </div>
         </div>
-        <div class="h-[148px]">
-          <MsChart :options="testPlanCountOptions" />
+        <div class="mt-[16px] h-[148px]">
+          <LegendPieChart
+            v-model:currentPage="currentPage"
+            :has-permission="hasPermission"
+            :data="statusPercentValue"
+            :options="testPlanCountOptions"
+          />
         </div>
       </div>
     </div>
@@ -46,11 +51,10 @@
    */
   import { ref } from 'vue';
 
-  import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
   import CardSkeleton from './cardSkeleton.vue';
+  import LegendPieChart, { legendDataType } from './legendPieChart.vue';
   import PassRatePie from './passRatePie.vue';
-  import TabCard from './tabCard.vue';
 
   import { workTestPlanRage } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
@@ -63,7 +67,7 @@
     WorkTestPlanRageDetail,
   } from '@/models/workbench/homePage';
 
-  import { handlePieData, handleUpdateTabPie } from '../utils';
+  import { colorMapConfig, handlePieData, handleUpdateTabPie } from '../utils';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -80,6 +84,7 @@
   const innerProjectIds = defineModel<string[]>('projectIds', {
     required: true,
   });
+  const currentPage = ref(1);
 
   const projectId = ref<string>(innerProjectIds.value[0]);
 
@@ -122,6 +127,7 @@
   // 测试计划权限
   const hasPermission = ref<boolean>(false);
   const showSkeleton = ref(false);
+  const statusPercentValue = ref<legendDataType[]>([]);
 
   async function initTestPlanCount() {
     try {
@@ -161,6 +167,14 @@
         { status: t('common.completed'), count: finished, percentValue: '0%' },
         { status: t('common.archived'), count: archived, percentValue: '0%' },
       ];
+
+      statusPercentValue.value = (statusPercentList || []).map((item, index) => {
+        return {
+          ...item,
+          selected: true,
+          color: `${colorMapConfig[props.item.key][index]}`,
+        };
+      });
 
       const total = statusPercentList.reduce((sum, item) => sum + item.count, 0);
 

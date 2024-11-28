@@ -140,7 +140,7 @@
         })(countData),
       };
     });
-    options.value.yAxis[0].max = maxAxis < 100 ? 50 : maxAxis + 50;
+    options.value.yAxis[0].max = maxAxis <= 100 ? 100 : maxAxis + 50;
   }
   const showSkeleton = ref(false);
 

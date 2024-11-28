@@ -34,8 +34,13 @@
           </div>
         </div>
 
-        <div class="h-[148px]">
-          <MsChart :options="caseCountOptions" />
+        <div class="mt-[16px] h-[148px]">
+          <LegendPieChart
+            v-model:currentPage="currentPage"
+            :has-permission="hasPermission"
+            :data="statusPercentValue"
+            :options="caseCountOptions"
+          />
         </div>
       </div>
     </div>
@@ -48,9 +53,9 @@
    */
   import { ref } from 'vue';
 
-  import MsChart from '@/components/pure/chart/index.vue';
   import MsSelect from '@/components/business/ms-select';
   import CardSkeleton from './cardSkeleton.vue';
+  import LegendPieChart, { legendDataType } from './legendPieChart.vue';
   import PassRatePie from './passRatePie.vue';
 
   import { workCaseCountDetail } from '@/api/modules/workbench';
@@ -59,7 +64,7 @@
 
   import type { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
-  import { handlePieData, handleUpdateTabPie } from '../utils';
+  import { colorMapConfig, handlePieData, handleUpdateTabPie } from '../utils';
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -78,6 +83,7 @@
   });
 
   const projectId = ref<string>(innerProjectIds.value[0]);
+  const currentPage = ref(1);
 
   const timeForm = inject<Ref<TimeFormParams>>(
     'timeForm',
@@ -117,6 +123,7 @@
 
   const caseCountOptions = ref<Record<string, any>>({});
   const showSkeleton = ref(false);
+  const statusPercentValue = ref<legendDataType[]>([]);
 
   async function initCaseCount() {
     try {
@@ -134,6 +141,14 @@
       };
       const detail = await workCaseCountDetail(params);
       const { statusStatisticsMap, statusPercentList } = detail;
+
+      statusPercentValue.value = (statusPercentList || []).map((item, index) => {
+        return {
+          ...item,
+          selected: true,
+          color: `${colorMapConfig[props.item.key][index]}`,
+        };
+      });
       hasPermission.value = detail.errorCode !== 109001;
       caseCountOptions.value = handlePieData(props.item.key, hasPermission.value, statusPercentList);
 

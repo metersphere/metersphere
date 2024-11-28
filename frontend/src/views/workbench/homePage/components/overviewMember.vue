@@ -101,7 +101,7 @@
     const { invisible, text } = handleNoDataDisplay(detail.xaxis, hasPermission.value);
     options.value.graphic.invisible = invisible;
     options.value.graphic.style.text = text;
-    options.value.xAxis.data = detail.xaxis.map((e) => characterLimit(e, 10));
+    options.value.xAxis.data = detail.xaxis;
 
     const { maxAxis, data } = getSeriesData(detail.projectCountList);
 

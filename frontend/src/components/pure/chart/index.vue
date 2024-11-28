@@ -1,5 +1,5 @@
 <template>
-  <VCharts v-if="renderChart" :option="options" :autoresize="autoResize" :style="{ width, height }" />
+  <VCharts v-if="renderChart" ref="chartRef" :option="options" :autoresize="autoResize" :style="{ width, height }" />
 </template>
 
 <script lang="ts" setup>
@@ -55,7 +55,13 @@
   });
 
   const renderChart = ref(false);
+
+  const chartRef = ref<InstanceType<typeof VCharts>>();
   nextTick(() => {
     renderChart.value = true;
+  });
+
+  defineExpose({
+    chartRef,
   });
 </script>

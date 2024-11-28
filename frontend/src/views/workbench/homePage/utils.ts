@@ -99,7 +99,8 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
         },
         formatter(params: any) {
           const html = `
-        <div class="w-[186px] ms-scroll-bar max-h-[206px] overflow-y-auto p-[16px] gap-[8px] flex flex-col">
+        <div class="w-[186px] ms-scroll-bar max-h-[236px] overflow-y-auto p-[16px] gap-[8px] flex flex-col">
+        <div class="font-medium max-w-[150px] one-line-text" style="color:#323233">${params[0].axisValueLabel}</div>
         ${params
           .map(
             (item: any) => `
@@ -136,6 +137,9 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
       axisLabel: {
         show: true,
         color: '#646466',
+        width: 120,
+        overflow: 'truncate',
+        ellipsis: '...',
       },
       axisTick: {
         show: false, // 隐藏刻度线
@@ -274,7 +278,7 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
 }
 
 // 下方饼图配置
-export function getPieCharOptions(key: WorkCardEnum, hasPermission: boolean) {
+export function getPieCharOptions(key: WorkCardEnum) {
   return {
     title: {
       show: true,
@@ -298,99 +302,8 @@ export function getPieCharOptions(key: WorkCardEnum, hasPermission: boolean) {
     color: colorMapConfig[key],
     tooltip: { show: true },
     legend: {
-      width: '100%',
-      height: 128,
-      type: 'scroll',
-      orient: 'vertical',
-      pageButtonItemGap: 5,
-      pageButtonGap: 5,
-      pageIconColor: '#00000099',
-      pageIconInactiveColor: '#00000042',
-      pageIconSize: [7, 5],
-      pageTextStyle: {
-        color: '#00000099',
-        fontSize: 12,
-      },
-      pageButtonPosition: 'end',
-      itemGap: 16,
-      itemWidth: 8,
-      itemHeight: 8,
-      icon: 'circle',
-      bottom: 'center',
-      left: 180,
-      tooltip: {
-        show: false, // 禁用图例的 tooltip
-      },
-      textStyle: {
-        color: '#333',
-        fontSize: 14, // 字体大小
-        textBorderType: 'solid',
-        rich: {
-          a: {
-            width: 50,
-            color: '#959598',
-            fontSize: 12,
-            align: 'left',
-          },
-          b: {
-            width: 50,
-            color: '#323233',
-            fontSize: 12,
-            fontWeight: 'bold',
-            align: 'right',
-          },
-          c: {
-            width: 50,
-            color: '#323233',
-            fontSize: 12,
-            fontWeight: 'bold',
-            align: 'right',
-          },
-        },
-      },
+      show: false,
     },
-    media: [
-      {
-        query: { maxWidth: 600 },
-        option: {
-          legend: {
-            textStyle: {
-              width: 200,
-            },
-          },
-        },
-      },
-      {
-        query: { minWidth: 601, maxWidth: 800 },
-        option: {
-          legend: {
-            textStyle: {
-              width: 450,
-            },
-          },
-        },
-      },
-      {
-        query: { minWidth: 801, maxWidth: 1200 },
-        option: {
-          legend: {
-            textStyle: {
-              width: 600,
-            },
-          },
-        },
-      },
-      {
-        query: { minWidth: 1201 },
-        option: {
-          legend: {
-            textStyle: {
-              width: 1000,
-            },
-          },
-        },
-      },
-    ],
     series: {
       name: '',
       type: 'pie',
@@ -412,20 +325,6 @@ export function getPieCharOptions(key: WorkCardEnum, hasPermission: boolean) {
         show: false,
       },
       data: [],
-    },
-    graphic: {
-      type: 'text',
-      left: 'center',
-      top: 'middle',
-      style: {
-        text: t('workbench.homePage.notHasResPermission'),
-        fontSize: 14,
-        fill: '#959598',
-        backgroundColor: '#F9F9FE',
-        padding: [6, 16, 6, 16],
-        borderRadius: 4,
-      },
-      invisible: !!hasPermission,
     },
   };
 }
@@ -463,7 +362,7 @@ export function handlePieData(
       }[]
     | null = []
 ) {
-  const options: Record<string, any> = getPieCharOptions(key, hasPermission);
+  const options: Record<string, any> = getPieCharOptions(key);
   const lastStatusPercentList = statusPercentList ?? [];
   options.series.data = lastStatusPercentList.map((item) => ({
     name: item.status,
@@ -489,13 +388,6 @@ export function handlePieData(
     options.title.subtext = '-';
     options.series.data = [];
   }
-
-  // 设置图例的格式化函数，显示百分比
-  options.legend.formatter = (name: string) => {
-    return `{a|${tempObject[name].status}}  {b|${addCommasToNumber(tempObject[name].count)}} {c|${
-      tempObject[name].percentValue
-    }}`;
-  };
 
   return options;
 }
