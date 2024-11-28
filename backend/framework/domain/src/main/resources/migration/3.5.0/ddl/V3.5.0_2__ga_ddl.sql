@@ -88,7 +88,7 @@ ALTER TABLE exec_task_item ADD rerun bit(1) DEFAULT 0 NULL COMMENT '是否是重
 -- 任务项添加创建时间字段
 ALTER TABLE exec_task_item ADD create_time bigint NOT NULL COMMENT '创建时间';
 -- 任务添加串并行字段
-ALTER TABLE exec_task ADD parallel bit(1) DEFAULT 1 NOT NULL COMMENT '是否是并行执行';
+ALTER TABLE exec_task ADD `parallel` bit(1) DEFAULT 1 NOT NULL COMMENT '是否是并行执行';
 
 -- 任务记录批量执行的环境等信息
 ALTER TABLE exec_task ADD environment_id varchar(50) NULL COMMENT '用例批量执行环境ID';
