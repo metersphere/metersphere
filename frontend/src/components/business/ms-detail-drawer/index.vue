@@ -9,33 +9,35 @@
     unmount-on-close
   >
     <template #title>
-      <div class="flex flex-1 items-center">
+      <div class="flex flex-1 items-center overflow-hidden">
         <!-- 如果设置了tooltipText，则优先展示-->
-        <a-tooltip :content="props.tooltipText ? props.tooltipText : props.title" position="bottom">
-          <slot name="titleName">
-            <div class="one-line-text max-w-[300px]">
-              {{ props.title }}
-            </div>
-          </slot>
-        </a-tooltip>
-        <div class="ml-4 flex items-center">
-          <slot name="titleLeft" :loading="loading" :detail="detail"></slot>
+        <div class="flex flex-1 items-center overflow-hidden">
+          <a-tooltip :content="props.tooltipText ? props.tooltipText : props.title" position="bottom">
+            <slot name="titleName">
+              <div class="one-line-text">
+                {{ props.title }}
+              </div>
+            </slot>
+          </a-tooltip>
+          <div class="mx-4 flex items-center">
+            <slot name="titleLeft" :loading="loading" :detail="detail"></slot>
+          </div>
         </div>
-        <MsPrevNextButton
-          v-if="props.tableData && props.pagination && props.pageChange"
-          ref="prevNextButtonRef"
-          v-model:loading="loading"
-          class="ml-[16px]"
-          :page-change="props.pageChange"
-          :pagination="props.pagination"
-          :get-detail-func="props.getDetailFunc"
-          :detail-id="props.detailId"
-          :detail-index="props.detailIndex"
-          :table-data="props.tableData"
-          @loading-detail="setDetailLoading"
-          @loaded="handleDetailLoaded"
-        />
         <div class="ml-auto flex items-center">
+          <MsPrevNextButton
+            v-if="props.tableData && props.pagination && props.pageChange"
+            ref="prevNextButtonRef"
+            v-model:loading="loading"
+            class="mr-[16px]"
+            :page-change="props.pageChange"
+            :pagination="props.pagination"
+            :get-detail-func="props.getDetailFunc"
+            :detail-id="props.detailId"
+            :detail-index="props.detailIndex"
+            :table-data="props.tableData"
+            @loading-detail="setDetailLoading"
+            @loaded="handleDetailLoaded"
+          />
           <slot name="titleRight" :loading="loading" :detail="detail"></slot>
         </div>
       </div>
