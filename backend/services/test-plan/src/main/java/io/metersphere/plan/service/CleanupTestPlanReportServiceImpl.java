@@ -24,12 +24,12 @@ public class CleanupTestPlanReportServiceImpl implements BaseCleanUpReport {
 
     @Override
     public void cleanReport(Map<String, String> map, String projectId) {
-        LogUtils.info("清理当前项目[" + projectId + "]相关测试计划报告开始：");
+        LogUtils.info("清理当前项目[" + projectId + "]测试计划报告");
         String expr = map.get(ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name());
         long timeMills = getCleanDate(expr);
         List<String> ids = extTestPlanReportMapper.selectReportIdByProjectIdAndTime(timeMills, projectId);
-        LogUtils.info("清理当前项目[" + projectId + "]相关测试计划报告,共[" + ids.size() + "]条");
+        LogUtils.info("清理当前项目[" + projectId + "]测试计划报告, 共[" + ids.size() + "]条");
         testPlanReportService.cleanAndDeleteReport(ids);
-        LogUtils.info("清理当前项目[" + projectId + "]相关测试计划报告结束！");
+        LogUtils.info("清理当前项目[" + projectId + "]测试计划报告结束!");
     }
 }

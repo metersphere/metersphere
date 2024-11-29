@@ -49,6 +49,7 @@ public class CleanupTaskServiceImpl implements BaseCleanUpReport {
             execTaskItems = execTaskItemMapper.selectByExample(itemExample);
         }
         List<String> cleanTaskItemIds = execTaskItems.stream().map(ExecTaskItem::getId).toList();
+        LogUtils.info("清理当前项目[" + projectId + "]即时任务, 共[" + (cleanTaskIds.size() + cleanTaskItemIds.size()) + "]条");
         if (CollectionUtils.isNotEmpty(cleanTaskIds)) {
             ExecTaskExample example = new ExecTaskExample();
             example.createCriteria().andIdIn(cleanTaskIds);
@@ -63,6 +64,6 @@ public class CleanupTaskServiceImpl implements BaseCleanUpReport {
             execTaskItem.setDeleted(true);
             execTaskItemMapper.updateByExampleSelective(execTaskItem, example);
         }
-        LogUtils.info("清理当前项目[" + projectId + "]即时任务结束！");
+        LogUtils.info("清理当前项目[" + projectId + "]即时任务结束!");
     }
 }
