@@ -714,8 +714,9 @@
       }
       resetSelector();
       resetFilterParams();
-      initModules();
+      await initModules();
       setAllSelectModule();
+      initFilter();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
