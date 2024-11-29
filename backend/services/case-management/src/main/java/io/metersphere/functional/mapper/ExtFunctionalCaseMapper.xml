@@ -275,6 +275,25 @@
                             and functional_case.delete_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <!-- 关联用例的 -->
+                        <when test="key=='associateCase'">
+                            <if test="values.contains('true')">
+                                and functional_case.id in (
+                                select
+                                distinct fct.case_id
+                                from functional_case_test fct
+                                LEFT JOIN functional_case fc ON fc.id = fct.case_id
+                                where fc.deleted = false )
+                            </if>
+                            <if test="values.contains('false')">
+                                and functional_case.id not in (
+                                select
+                                distinct fct.case_id
+                                from functional_case_test fct
+                                LEFT JOIN functional_case fc ON fc.id = fct.case_id
+                                where fc.deleted = false )
+                            </if>
+                        </when>
                     </choose>
                 </if>
             </foreach>
