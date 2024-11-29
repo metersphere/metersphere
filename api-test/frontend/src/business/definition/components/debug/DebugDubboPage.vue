@@ -80,7 +80,8 @@ import MsApiCaseList from '../case/EditApiCase';
 import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
 import { mergeRequestDocumentData } from '@/business/definition/api-definition';
 import { execStop } from '@/api/scenario';
-
+import {useApiStore} from "@/store";
+const store = useApiStore();
 export default {
   name: 'ApiConfig',
   components: {
@@ -155,6 +156,7 @@ export default {
       this.loading = true;
       this.isStop = true;
       this.request.name = getUUID().substring(0, 8);
+      this.request.useEnvironment = store.useEnvironment;
       this.runData = [];
       this.runData.push(this.request);
       /*触发执行操作*/

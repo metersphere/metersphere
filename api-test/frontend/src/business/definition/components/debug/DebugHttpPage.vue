@@ -106,7 +106,8 @@ import MsApiCaseList from '../case/EditApiCase';
 import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
 import { mergeRequestDocumentData } from '@/business/definition/api-definition';
 import { execStop } from '@/api/scenario';
-
+import {useApiStore} from "@/store";
+const store = useApiStore();
 export default {
   name: 'DebugHttpPage',
   components: {
@@ -190,6 +191,7 @@ export default {
           this.isStop = true;
           this.request.url = this.debugForm.url;
           this.request.method = this.debugForm.method;
+          this.request.useEnvironment = store.useEnvironment;
           this.request.name = getUUID().substring(0, 8);
           this.runData = [];
           this.runData.push(this.request);
