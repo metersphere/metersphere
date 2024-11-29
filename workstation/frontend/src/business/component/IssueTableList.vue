@@ -168,7 +168,8 @@ import {
   getCurrentProjectID,
   getCurrentWorkspaceId,
 } from "metersphere-frontend/src/utils/token";
-import { getProjectMember, getProjectMemberUserFilter } from "@/api/user";
+import { getProjectMemberUserFilter } from "@/api/user";
+import { getProjectMemberById } from "metersphere-frontend/src/api/user";
 import { LOCAL } from "metersphere-frontend/src/utils/constants";
 import { TEST_TRACK_ISSUE_LIST } from "metersphere-frontend/src/components/search/search-components";
 import { getAdvSearchCustomField } from "metersphere-frontend/src/components/search/custom-component";
@@ -305,9 +306,10 @@ export default {
     this.getMaintainerOptions();
     this.loading = true;
     this.$nextTick(() => {
-      getProjectMember((data) => {
-        this.members = data;
-      });
+      getProjectMemberById(this.projectId)
+        .then((r) => {
+          this.members = r.data;
+        });
       getIssuePartTemplateWithProject((template) => {
         this.initFields(template);
         this.getIssues();
