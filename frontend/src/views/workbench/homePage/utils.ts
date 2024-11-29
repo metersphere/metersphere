@@ -364,15 +364,25 @@ export function handlePieData(
 ) {
   const options: Record<string, any> = getPieCharOptions(key);
   const lastStatusPercentList = statusPercentList ?? [];
-  options.series.data = lastStatusPercentList.map((item) => ({
-    name: item.status,
-    value: item.count,
-    tooltip: {
-      ...toolTipConfig,
-      position: 'right',
-      show: !!hasPermission,
-    },
-  }));
+  const hasDataLength = lastStatusPercentList.filter((e) => Number(e.count) > 0).length;
+  const pieBorderWidth = hasDataLength === 1 ? 0 : 2;
+
+  options.series.data =
+    hasDataLength > 0
+      ? lastStatusPercentList.map((item) => ({
+          name: item.status,
+          value: item.count,
+          tooltip: {
+            ...toolTipConfig,
+            position: 'right',
+            show: !!hasPermission,
+          },
+          itemStyle: {
+            borderWidth: pieBorderWidth,
+            borderColor: '#ffffff',
+          },
+        }))
+      : [];
 
   // 计算总数和图例格式
   const tempObject: Record<string, any> = {};
@@ -407,13 +417,20 @@ export function handleUpdateTabPie(
   const countList = list || [];
   let lastCountList: { value: number | string; label: string; name: string }[] = [];
   if (hasPermission) {
+    const pieBorderWidth = countList.slice(1).filter((e) => Number(e.count) > 0).length === 1 ? 0 : 1;
+
     lastCountList = countList.slice(1).map((item) => {
       return {
         value: item.count,
         label: item.name,
         name: item.name,
+        itemStyle: {
+          borderWidth: pieBorderWidth,
+          borderColor: '#ffffff',
+        },
       };
     });
+
     options.series.data = lastCountList.every((e) => e.value === 0) ? [] : lastCountList;
 
     options.title.text = countList[0].name ?? '';

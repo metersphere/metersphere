@@ -27,7 +27,6 @@
               :options="relatedOptions"
               :has-permission="hasPermission"
               tooltip-text="workbench.homePage.associateCaseCoverRateTooltip"
-              :size="60"
               :value-list="coverRateValueList"
             />
           </div>

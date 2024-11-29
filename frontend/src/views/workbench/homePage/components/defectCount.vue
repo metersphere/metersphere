@@ -28,7 +28,6 @@
               :has-permission="hasPermission"
               :tooltip-text="tooltip"
               :options="legacyOptions"
-              :size="60"
               :value-list="legacyValueList"
             />
           </div>

@@ -173,7 +173,7 @@
   const coverTitleConfig = computed(() => {
     return {
       name: t('workbench.homePage.apiCoverage'),
-      color: ['#EDEDF1', '#00C261'],
+      color: ['#D4D4D8', '#00C261'],
       tooltipText:
         props.item.key === WorkCardEnum.API_CASE_COUNT
           ? t('workbench.homePage.apiCaseCountCoverRateTooltip')
@@ -185,12 +185,12 @@
     return props.item.key === WorkCardEnum.API_CASE_COUNT
       ? {
           name: t('workbench.homePage.caseExecutionRate'),
-          color: ['#EDEDF1', '#00C261'],
+          color: ['#D4D4D8', '#00C261'],
           tooltipText: t('workbench.homePage.apiCaseCountExecuteRateTooltip'),
         }
       : {
           name: t('workbench.homePage.sceneExecutionRate'),
-          color: ['#EDEDF1', '#00C261'],
+          color: ['#D4D4D8', '#00C261'],
           tooltipText: t('workbench.homePage.scenarioCaseCountExecuteRateTooltip'),
         };
   });

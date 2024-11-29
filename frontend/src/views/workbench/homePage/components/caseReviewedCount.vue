@@ -27,7 +27,6 @@
             <PassRatePie
               :options="options"
               tooltip-text="workbench.homePage.caseReviewCoverRateTooltip"
-              :size="60"
               :value-list="coverValueList"
               :has-permission="hasPermission"
             />

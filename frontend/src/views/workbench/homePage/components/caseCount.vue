@@ -27,7 +27,6 @@
             <PassRatePie
               :options="tabItem.options"
               :tooltip-text="tabItem.tooltip"
-              :size="60"
               :value-list="tabItem.valueList"
               :has-permission="hasPermission"
             />

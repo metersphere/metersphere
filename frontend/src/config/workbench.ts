@@ -243,8 +243,8 @@ export const commonRatePieOptions = {
   title: {
     show: true,
     text: '',
-    left: 26,
-    top: '20%',
+    left: 40,
+    top: '26%',
     textStyle: {
       fontSize: 12,
       fontWeight: 'normal',
@@ -276,16 +276,14 @@ export const commonRatePieOptions = {
     name: '',
     type: 'pie',
     color: [],
-    padAngle: 2,
-    radius: ['85%', '100%'],
-    center: [30, '50%'],
+    radius: ['65%', '80%'],
+    center: [44, '50%'],
     avoidLabelOverlap: false,
     label: {
       show: false,
       position: 'center',
     },
     emphasis: {
-      scale: false, // 禁用放大效果
       label: {
         show: false,
         fontSize: 40,

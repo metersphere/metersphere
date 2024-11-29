@@ -9,7 +9,7 @@
       >
         <div class="tooltip-rate h-[50px] w-[50px]"></div>
       </a-tooltip>
-      <MsChart :height="`${props.size}px`" :width="`${props.size}px`" :options="props.options" />
+      <MsChart height="92px" width="92px" :options="props.options" />
     </div>
     <div class="pass-rate-title flex-1">
       <div v-for="item of props.valueList" :key="item.label" class="flex-1">
@@ -30,7 +30,6 @@
 
   const props = defineProps<{
     options: Record<string, any>;
-    size: number;
     tooltipText?: string;
     hasPermission: boolean;
     loading?: boolean;
@@ -43,8 +42,9 @@
 
 <style scoped lang="less">
   .pass-rate-content {
-    padding: 16px;
+    padding: 0 16px;
     width: 100%;
+    height: 92px;
     border-radius: 6px;
     background: var(--color-text-n9);
     @apply flex items-center;

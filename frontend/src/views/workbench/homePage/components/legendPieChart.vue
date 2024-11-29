@@ -8,7 +8,7 @@
       <div class="flex w-full flex-col gap-4">
         <div
           v-for="(ele, i) of currentData"
-          :key="`ele.status-${i}`"
+          :key="`${ele.status}-${i}`"
           class="grid flex-1 grid-cols-3 gap-4"
           @mouseover="handleMouseOver(ele.status)"
           @mouseout="handleMouseOut(ele.status)"

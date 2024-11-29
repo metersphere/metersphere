@@ -24,12 +24,7 @@
       <div class="mt-[16px]">
         <div class="flex gap-[16px]">
           <div v-for="tabItem of testPlanTabList" :key="tabItem.label" class="flex-1">
-            <PassRatePie
-              :has-permission="hasPermission"
-              :options="tabItem.options"
-              :size="60"
-              :value-list="tabItem.valueList"
-            />
+            <PassRatePie :has-permission="hasPermission" :options="tabItem.options" :value-list="tabItem.valueList" />
           </div>
         </div>
         <div class="mt-[16px] h-[148px]">

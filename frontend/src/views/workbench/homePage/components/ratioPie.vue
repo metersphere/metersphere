@@ -1,6 +1,6 @@
 <template>
   <a-spin class="w-full" :loading="props.loading">
-    <div class="rate-content relative">
+    <div class="rate-content relative flex flex-col items-center">
       <div class="relative flex h-full w-full items-center justify-center">
         <a-tooltip
           v-if="props.rateConfig.tooltipText"
@@ -10,7 +10,38 @@
         >
           <div class="tooltip-rate-tooltip"></div>
         </a-tooltip>
-        <MsChart :options="options" width="146px" />
+        <MsChart ref="chartRef" :options="options" width="100px" height="100px" />
+      </div>
+      <div class="flex w-full items-center justify-center">
+        <div class="flex w-[80%] flex-col gap-[8px]">
+          <template v-if="props.hasPermission">
+            <div
+              v-for="(ele, i) of legend"
+              :key="`${ele.name}-${i}`"
+              class="flex justify-between"
+              @mouseover="handleMouseOver(ele.name)"
+              @mouseout="handleMouseOut(ele.name)"
+            >
+              <div class="flex items-center text-left text-[var(--color-text-3)]">
+                <div
+                  :style="{
+                    background: ele.selected ? `${ele.color}` : '#D4D4D8',
+                  }"
+                  class="mr-[8px] h-[8px] w-[8px] cursor-pointer rounded-lg"
+                  @click="toggleLegend(ele.name, i)"
+                >
+                </div>
+                {{ ele.name }}
+              </div>
+              <div class="text-[16px] text-[rgb(var(--primary-5))]">{{ addCommasToNumber(ele.value) }}</div>
+            </div>
+          </template>
+          <div v-else class="mt-[16px] flex h-full flex-1 items-center justify-center">
+            <div class="rounded bg-[var(--color-text-n9)] px-[16px] py-[4px] text-[var(--color-text-4)]">
+              {{ t('workbench.homePage.notHasResPermission') }}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </a-spin>
@@ -43,7 +74,7 @@
       show: true,
       text: '',
       left: 'center',
-      top: 32,
+      top: 30,
       textStyle: {
         fontSize: 12,
         fontWeight: 'normal',
@@ -65,7 +96,9 @@
     tooltip: {
       show: true,
     },
+    color: [],
     legend: {
+      show: false,
       orient: 'vertical',
       itemWidth: 8, // 图例标记的宽度
       itemHeight: 8, // 图例标记的高度
@@ -102,8 +135,8 @@
     series: {
       name: '',
       type: 'pie',
-      radius: ['50%', '58%'],
-      center: ['50%', '32%'],
+      radius: ['75%', '90%'],
+      center: ['50%', '50%'],
       color: [],
       avoidLabelOverlap: false,
       label: {
@@ -122,31 +155,52 @@
       },
       data: [],
     },
-    graphic: {
-      type: 'text',
-      left: 'center',
-      bottom: 10,
-      style: {
-        text: t('workbench.homePage.notHasResPermission'),
-        fontSize: 14,
-        fill: '#959598',
-        backgroundColor: '#F9F9FE',
-        padding: [6, 16, 6, 16],
-        borderRadius: 4,
-      },
-      invisible: false,
-    },
+    // graphic: {
+    //   type: 'text',
+    //   left: 'center',
+    //   bottom: 10,
+    //   style: {
+    //     text: t('workbench.homePage.notHasResPermission'),
+    //     fontSize: 14,
+    //     fill: '#959598',
+    //     backgroundColor: '#F9F9FE',
+    //     padding: [6, 16, 6, 16],
+    //     borderRadius: 4,
+    //   },
+    //   invisible: false,
+    // },
   });
+
+  const legend = ref<{ name: string; value: number; color: string; selected: boolean }[]>([]);
 
   function initOptions() {
     const { name, color } = props.rateConfig;
-    options.value.series.data = [...props.data.slice(1)].map((e) => {
+    const temData = [...props.data.slice(1)];
+    const hasDataLength = temData.filter((e) => Number(e.value) > 0).length;
+
+    const pieBorderWidth = hasDataLength === 1 ? 0 : 1;
+
+    options.value.series.data =
+      hasDataLength > 0
+        ? temData.map((e) => {
+            return {
+              ...e,
+              tooltip: {
+                ...toolTipConfig,
+                show: !!props.hasPermission,
+              },
+              itemStyle: {
+                borderWidth: pieBorderWidth,
+                borderColor: '#ffffff',
+              },
+            };
+          })
+        : [];
+    legend.value = [...props.data.slice(1)].map((e, i) => {
       return {
         ...e,
-        tooltip: {
-          ...toolTipConfig,
-          show: !!props.hasPermission,
-        },
+        selected: true,
+        color: color[i],
       };
     });
 
@@ -162,11 +216,46 @@
       options.value.title.subtext = `-%`;
     }
 
-    options.value.graphic.invisible = !!props.hasPermission;
     options.value.tooltip.show = !!props.hasPermission;
     options.value.title.text = name;
 
     options.value.series.color = color;
+  }
+
+  const chartRef = ref<InstanceType<typeof MsChart>>();
+  function toggleLegend(name: string, index: number) {
+    const chart = chartRef.value?.chartRef;
+    if (chart) {
+      chart.dispatchAction({
+        type: 'legendToggleSelect',
+        name,
+      });
+
+      if (legend.value) {
+        legend.value[index].selected = !legend.value[index].selected;
+      }
+    }
+  }
+
+  // 悬浮放大交互效果
+  function handleMouseOver(name: string) {
+    const chart = chartRef.value?.chartRef;
+    if (chart) {
+      chart.dispatchAction({
+        type: 'highlight',
+        name,
+      });
+    }
+  }
+  // 移除放大交互效果
+  function handleMouseOut(name: string) {
+    const chart = chartRef.value?.chartRef;
+    if (chart) {
+      chart.dispatchAction({
+        type: 'downplay',
+        name,
+      });
+    }
   }
 
   watch(
@@ -191,15 +280,12 @@
 </script>
 
 <style scoped lang="less">
-  .rate-content {
-    height: 158px;
-  }
   .tooltip-rate-tooltip {
     position: absolute;
-    top: 10px;
+    top: 20px;
     z-index: 9;
-    width: 78px;
-    height: 78px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
   }
 </style>
