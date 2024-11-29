@@ -231,6 +231,7 @@
                     :filter-method="filterDemand"
                     @click.native="onClick"
                     size="small"
+                    popper-class="demand-search-suggestion"
                   >
                     <template slot-scope="{ data }">
                       <div class="story-box">
@@ -781,6 +782,13 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+.demand-search-suggestion .el-cascader__suggestion-item {
+  white-space: nowrap;
+  max-width: 400px;
+}
+</style>
 
 <style scoped lang="scss">
 @import "@/business/style/index.scss";
