@@ -1,5 +1,5 @@
 <template>
-  <a-spin class="z-[100] !block" :class="props.autoHeight ? '' : 'min-h-[500px]'" :loading="props.loading" :size="28">
+  <a-spin class="!block" :class="props.autoHeight ? '' : 'min-h-[500px]'" :loading="props.loading" :size="28">
     <div
       ref="fullRef"
       :class="[

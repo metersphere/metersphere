@@ -28,11 +28,11 @@
         </div>
       </div>
       <a-tooltip v-if="projectDetail?.description" :content="projectDetail?.description">
-        <div class="one-line-text text-[12px] text-[--color-text-4]">{{ 'projectDetail?.description' }}</div>
+        <div class="one-line-text text-[12px] text-[--color-text-4]">{{ projectDetail?.description }}</div>
       </a-tooltip>
     </div>
   </div>
-  <div class="ml-1 grid grid-cols-2 gap-[16px] rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[16px]">
+  <div class="grid grid-cols-2 gap-[16px] rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[16px]">
     <div class="label-item">
       <span class="label">{{ t('project.basicInfo.createBy') }}：</span>
       <a-tooltip v-if="translateTextToPX(projectDetail?.createUser) > 300" :content="projectDetail?.createUser">
