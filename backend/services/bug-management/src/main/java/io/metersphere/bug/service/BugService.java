@@ -1841,14 +1841,14 @@ public class BugService {
                 ids.removeIf(id -> request.getExcludeIds().contains(id));
             }
             if (CollectionUtils.isEmpty(ids)) {
-                throw new MSException(Translator.get("no_bug_select"));
+                return new ArrayList<>();
             }
             //返回去重后的id
             return new ArrayList<>(ids.stream().distinct().toList());
         } else {
             // 部分勾选
             if (CollectionUtils.isEmpty(request.getSelectIds())) {
-                throw new MSException(Translator.get("no_bug_select"));
+                return new ArrayList<>();
             }
             return request.getSelectIds();
         }
