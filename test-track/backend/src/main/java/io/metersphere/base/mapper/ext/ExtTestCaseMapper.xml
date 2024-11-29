@@ -225,6 +225,12 @@
             <if test="request.projectId != null">
                 AND test_case.project_id = #{request.projectId}
             </if>
+            <if test="request.relevanceCreateTime > 0">
+                and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >= #{request.relevanceCreateTime})
+            </if>
+            <if test="request.createTime >0">
+                and test_case.create_time >= #{request.createTime}
+            </if>
             <if test="request.nodeIds != null and request.nodeIds.size() > 0">
                 AND test_case.node_id IN
                 <foreach collection="request.nodeIds" open="(" close=")" separator="," item="nodeId">

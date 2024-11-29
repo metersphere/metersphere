@@ -860,7 +860,7 @@ public class TestCaseService {
     public List<TestCaseDTO> listTestCase(QueryTestCaseRequest request, boolean isSampleInfo) {
         boolean queryUi = DiscoveryUtil.hasService(MicroServiceName.UI_TEST);
         request.setQueryUi(queryUi);
-        initRequest(request, true);
+        testCaseNodeService.initRequest(request, true);
         setDefaultOrder(request);
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         if (request.getFilters() != null && !request.getFilters().containsKey("status")) {
@@ -916,7 +916,7 @@ public class TestCaseService {
     }
 
     public void setPublicListRequestParam(QueryTestCaseRequest request) {
-        initRequest(request, true);
+        testCaseNodeService.initRequest(request, true);
         setDefaultOrder(request);
         if (request.getFilters() != null && !request.getFilters().containsKey("status")) {
             request.getFilters().put("status", new ArrayList<>(0));
@@ -996,31 +996,6 @@ public class TestCaseService {
         List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
         orders.forEach(i -> i.setPrefix("test_case"));
         request.setOrders(orders);
-    }
-
-    /**
-     * 初始化部分参数
-     *
-     * @param request
-     * @param checkThisWeekData
-     * @return
-     */
-    private void initRequest(QueryTestCaseRequest request, boolean checkThisWeekData) {
-        if (checkThisWeekData) {
-            Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
-            Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
-            if (request.isSelectThisWeedData()) {
-                if (weekFirstTime != null) {
-                    request.setCreateTime(weekFirstTime.getTime());
-                }
-            }
-            if (request.isSelectThisWeedRelevanceData()) {
-                if (weekFirstTime != null) {
-                    request.setRelevanceCreateTime(weekFirstTime.getTime());
-                }
-            }
-
-        }
     }
 
     /**
@@ -1876,7 +1851,7 @@ public class TestCaseService {
     private TestCaseBatchRequest setTestCaseExportParamIds(TestCaseBatchRequest param) {
         boolean queryUi = DiscoveryUtil.hasService(MicroServiceName.UI_TEST);
         param.getCondition().setQueryUi(queryUi);
-        initRequest(param.getCondition(), true);
+        testCaseNodeService.initRequest(param.getCondition(), true);
         setDefaultOrder(param.getCondition());
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(param.getCondition());
         Map<String, List<String>> filters = param.getCondition().getFilters();

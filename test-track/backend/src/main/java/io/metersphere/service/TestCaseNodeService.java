@@ -220,9 +220,35 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         request.setOrders(null);
         ServiceUtils.buildCombineTagsToSupportMultiple(request);
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
+        initRequest(request, true);
         List<TestCaseNodeDTO> countNodes = extTestCaseMapper.getCountNodes(request);
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
         return getNodeTrees(testCaseNodes, getCountMap(countNodes));
+    }
+
+    /**
+     * 初始化部分参数
+     *
+     * @param request
+     * @param checkThisWeekData
+     * @return
+     */
+    public void initRequest(QueryTestCaseRequest request, boolean checkThisWeekData) {
+        if (checkThisWeekData) {
+            Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+            Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
+            if (request.isSelectThisWeedData()) {
+                if (weekFirstTime != null) {
+                    request.setCreateTime(weekFirstTime.getTime());
+                }
+            }
+            if (request.isSelectThisWeedRelevanceData()) {
+                if (weekFirstTime != null) {
+                    request.setRelevanceCreateTime(weekFirstTime.getTime());
+                }
+            }
+
+        }
     }
 
     public List<TestCaseNodeDTO> getRelationshipNodeByCondition(String projectId, QueryTestCaseRequest request) {
