@@ -140,8 +140,8 @@ public class ApiHomeController {
         List<ApiDefinition> apiDefinitionHasCase = apiDefinitionService.selectBaseInfoByProjectIdAndHasCase(projectId, versionId);
         //没有case的接口
         List<ApiDefinition> apiNoCaseList = apiDefinitionService.getAPiNotInCollection(protocolAllDefinitionMap, apiDefinitionHasCase);
-        Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId, null);
-        List<String> apiIdInScenario = apiAutomationService.getApiIdInScenario(projectId, scenarioUrlList, apiNoCaseList);
+        Map<String, Map<String, List<String>>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId, null);
+        List<String> apiIdInScenario = apiAutomationService.getApiIdInScenario(scenarioUrlList, apiNoCaseList);
 
         Map<String, List<ApiDefinition>> unCoverageApiMap = apiDefinitionService.getUnCoverageApiMap(apiNoCaseList, apiIdInScenario);
         Map<String, List<ApiDefinition>> coverageApiMap = apiDefinitionService.filterMap(protocolAllDefinitionMap, unCoverageApiMap);
@@ -213,7 +213,7 @@ public class ApiHomeController {
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
         //统计覆盖率
         CoveredDTO coveredDTO = new CoveredDTO();
-        Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId, versionId);
+        Map<String, Map<String, List<String>>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId, versionId);
         List<ApiDefinition> allEffectiveApiIdList = apiDefinitionService.selectEffectiveIdByProjectId(projectId, versionId);
         try {
             coveredDTO = apiAutomationService.countInterfaceCoverage(projectId, scenarioUrlList, allEffectiveApiIdList);

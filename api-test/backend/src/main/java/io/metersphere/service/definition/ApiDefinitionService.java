@@ -431,8 +431,8 @@ public class ApiDefinitionService {
             }
             if (CollectionUtils.isNotEmpty(definitionList)) {
                 //如果查询条件中有未覆盖/已覆盖， 则需要解析出没有用例的接口中，有多少是符合场景覆盖规律的。然后将这些接口的id作为查询参数. 这里不根据版本筛选覆盖的url。
-                Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(request.getProjectId(), null);
-                List<String> apiIdInScenario = apiAutomationService.getApiIdInScenario(request.getProjectId(), scenarioUrlList, definitionList);
+                Map<String, Map<String, List<String>>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(request.getProjectId(), null);
+                List<String> apiIdInScenario = apiAutomationService.getApiIdInScenario(scenarioUrlList, definitionList);
                 if (CollectionUtils.isNotEmpty(apiIdInScenario)) {
                     request.setCoverageIds(apiIdInScenario);
                 }

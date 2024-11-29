@@ -1877,12 +1877,12 @@ public class ApiScenarioService {
      * @param apiList        接口集合（id / path 必须有数据）
      * @return
      */
-    public CoveredDTO countInterfaceCoverage(String projectId, Map<String, Map<String, String>> scenarioUrlMap, List<ApiDefinition> apiList) {
+    public CoveredDTO countInterfaceCoverage(String projectId, Map<String, Map<String, List<String>>> scenarioUrlMap, List<ApiDefinition> apiList) {
         CoveredDTO coverage = new CoveredDTO();
         if (CollectionUtils.isEmpty(apiList)) {
             return coverage;
         }
-        int urlContainsCount = this.getApiIdInScenario(projectId, scenarioUrlMap, apiList).size();
+        int urlContainsCount = this.getApiIdInScenario(scenarioUrlMap, apiList).size();
         coverage.setCovered(urlContainsCount);
         coverage.setNotCovered(apiList.size() - urlContainsCount);
         float coverageRageNumber = (float) urlContainsCount * 100 / apiList.size();
@@ -1891,21 +1891,22 @@ public class ApiScenarioService {
         return coverage;
     }
 
-    public List<String> getApiIdInScenario(String projectId, Map<String, Map<String, String>> scenarioUrlMap, List<ApiDefinition> apiList) {
+    public List<String> getApiIdInScenario(Map<String, Map<String, List<String>>> scenarioUrlMap, List<ApiDefinition> apiList) {
         List<String> apiIdList = new ArrayList<>();
         if (MapUtils.isNotEmpty(scenarioUrlMap) && CollectionUtils.isNotEmpty(apiList)) {
             for (ApiDefinition model : apiList) {
                 if (StringUtils.equalsIgnoreCase(model.getProtocol(), "http")) {
-                    Map<String, String> stepIdAndUrlMap = scenarioUrlMap.get(model.getMethod());
+                    Map<String, List<String>> stepIdAndUrlMap = scenarioUrlMap.get(model.getMethod());
                     if (stepIdAndUrlMap != null) {
-                        Collection<String> scenarioUrlList = scenarioUrlMap.get(model.getMethod()).values();
+                        Collection<String> scenarioUrlList = scenarioUrlMap.get(model.getMethod()).values()
+                                .stream().flatMap(Collection::stream).collect(Collectors.toList());
                         boolean matchedUrl = MockApiUtils.isUrlInList(model.getPath(), scenarioUrlList);
                         if (matchedUrl) {
                             apiIdList.add(model.getId());
                         }
                     }
                 } else {
-                    Map<String, String> stepIdAndUrlMap = scenarioUrlMap.get("MS_NOT_HTTP");
+                    Map<String, List<String>> stepIdAndUrlMap = scenarioUrlMap.get("MS_NOT_HTTP");
                     if (stepIdAndUrlMap != null && stepIdAndUrlMap.containsKey(model.getId())) {
                         apiIdList.add(model.getId());
                     }
@@ -2325,17 +2326,25 @@ public class ApiScenarioService {
      * @param projectId
      * @return <get/post, <step-id,url>>
      */
-    public Map<String, Map<String, String>> selectScenarioUseUrlByProjectId(String projectId, String versionId) {
+    public Map<String, Map<String, List<String>>> selectScenarioUseUrlByProjectId(String projectId, String versionId) {
         List<ApiScenarioReferenceId> list = apiScenarioReferenceIdService.selectUrlByProjectId(projectId, versionId);
-        Map<String, Map<String, String>> returnMap = new HashMap<>();
+        Map<String, Map<String, List<String>>> returnMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(list)) {
             list.forEach(item -> {
                 String method = item.getMethod() == null ? "MS_NOT_HTTP" : item.getMethod();
                 if (returnMap.containsKey(method)) {
-                    returnMap.get(method).put(item.getReferenceId(), StringUtils.trim(item.getUrl()));
+                    if (returnMap.get(method).containsKey(item.getReferenceId())) {
+                        returnMap.get(method).get(item.getReferenceId()).add(StringUtils.trim(item.getUrl()));
+                    } else {
+                        returnMap.get(method).put(item.getReferenceId(), new ArrayList<>() {{
+                            this.add(StringUtils.trim(item.getUrl()));
+                        }});
+                    }
                 } else {
-                    Map<String, String> urlMap = new HashMap<>() {{
-                        this.put(item.getReferenceId(), StringUtils.trim(item.getUrl()));
+                    Map<String, List<String>> urlMap = new HashMap<>() {{
+                        this.put(item.getReferenceId(), new ArrayList<>() {{
+                            this.add(StringUtils.trim(item.getUrl()));
+                        }});
                     }};
                     returnMap.put(method, urlMap);
                 }
