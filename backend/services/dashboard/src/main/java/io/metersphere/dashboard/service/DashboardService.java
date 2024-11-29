@@ -796,7 +796,7 @@ public class DashboardService {
         }
         long caseTestCount = extFunctionalCaseMapper.caseTestCount(projectId, null, null);
         long simpleCaseCount = extFunctionalCaseMapper.simpleCaseCount(projectId, null, null);
-        List<NameCountDTO> coverList = getCoverList((int) simpleCaseCount, (int) caseTestCount, (int) (simpleCaseCount - caseTestCount));
+        List<NameCountDTO> coverList = getCoverList((int) simpleCaseCount,Translator.get("functional_case.associateRate"), (int) caseTestCount,Translator.get("functional_case.hasAssociate"), (int) (simpleCaseCount - caseTestCount), Translator.get("functional_case.unAssociate"));
         Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
         statusStatisticsMap.put("cover", coverList);
         statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
@@ -977,7 +977,7 @@ public class DashboardService {
         List<FunctionalCaseStatisticDTO> statisticListByProjectId = extFunctionalCaseMapper.getStatisticListByProjectId(projectId, null, null);
         List<FunctionalCaseStatisticDTO> unReviewCaseList = statisticListByProjectId.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getReviewStatus(), FunctionalCaseReviewStatus.UN_REVIEWED.toString())).toList();
         int reviewCount = statisticListByProjectId.size() - unReviewCaseList.size();
-        List<NameCountDTO> coverList = getCoverList(statisticListByProjectId.size(), reviewCount, unReviewCaseList.size());
+        List<NameCountDTO> coverList = getCoverList(statisticListByProjectId.size(), Translator.get("functional_case.reviewRate"), reviewCount,Translator.get("functional_case.hasReview"), unReviewCaseList.size(), Translator.get("functional_case.unReview"));
         Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
         statusStatisticsMap.put("cover", coverList);
         statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
@@ -1082,22 +1082,22 @@ public class DashboardService {
     }
 
     @NotNull
-    private static List<NameCountDTO> getCoverList(int totalCount, int coverCount, int unCoverCount) {
+    private static List<NameCountDTO> getCoverList(int totalCount, String rateName, int coverCount,String coverName, int unCoverCount, String unCoverName) {
         List<NameCountDTO> coverList = new ArrayList<>();
         NameCountDTO coverRate = new NameCountDTO();
         if (totalCount > 0) {
             BigDecimal divide = BigDecimal.valueOf(coverCount).divide(BigDecimal.valueOf(totalCount), 2, RoundingMode.HALF_UP);
             coverRate.setCount(getTurnCount(divide));
         }
-        coverRate.setName(Translator.get("functional_case.coverRate"));
+        coverRate.setName(rateName );
         coverList.add(coverRate);
         NameCountDTO hasCover = new NameCountDTO();
         hasCover.setCount(coverCount);
-        hasCover.setName(Translator.get("functional_case.hasCover"));
+        hasCover.setName(coverName);
         coverList.add(hasCover);
         NameCountDTO unCover = new NameCountDTO();
         unCover.setCount(unCoverCount);
-        unCover.setName(Translator.get("functional_case.unCover"));
+        unCover.setName(unCoverName);
         coverList.add(unCover);
         return coverList;
     }
