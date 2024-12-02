@@ -82,7 +82,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
-public class TestPlanTests extends BaseTest {
+public class TestPlanControllerTests extends BaseTest {
     private static Project project;
 
     private static List<BaseTreeNode> preliminaryTreeNodes = new ArrayList<>();
@@ -145,8 +145,6 @@ public class TestPlanTests extends BaseTest {
 
     //普通测试计划
     private static TestPlan simpleTestPlan;
-    //允许重复添加用例的测试计划
-    private static TestPlan repeatCaseTestPlan;
 
     private static final String[] PROJECT_MODULE = new String[]{"workstation", "testPlan", "bugManagement", "caseManagement", "apiTest", "uiTest", "loadTest"};
     @Resource
@@ -156,7 +154,7 @@ public class TestPlanTests extends BaseTest {
     @Resource
     private FunctionalCaseMapper functionalCaseMapper;
 
-    private static List<String> functionalCaseId = new ArrayList<>();
+    private static final List<String> functionalCaseId = new ArrayList<>();
 
     @BeforeEach
     public void initTestData() {
@@ -183,12 +181,6 @@ public class TestPlanTests extends BaseTest {
             testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
         }
     }
-
-    private static long a1NodeCount = 0;
-    private static long a2NodeCount = 0;
-    private static long a3NodeCount = 0;
-    private static long a1a1NodeCount = 0;
-    private static long a1b1NodeCount = 0;
 
     @Test
     @Order(1)
@@ -567,25 +559,20 @@ public class TestPlanTests extends BaseTest {
                 if (i == 7 || i == 15 || i == 35 || i == 45 || i == 46) {
                     request.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
                 }
-                a1NodeCount++;
             } else if (i < 100) {
                 moduleId = a2Node.getId();
                 request.setPlannedStartTime(System.currentTimeMillis());
                 request.setPlannedEndTime(System.currentTimeMillis() + 20000);
-                a2NodeCount++;
             } else if (i < 150) {
                 moduleId = a3Node.getId();
                 request.setRepeatCase(true);
                 request.setAutomaticStatusUpdate(true);
-                a3NodeCount++;
             } else if (i < 200) {
                 moduleId = a1a1Node.getId();
                 request.setPassThreshold((double) i / 3);
                 request.setDescription("test plan desc " + i);
-                a1a1NodeCount++;
             } else {
                 moduleId = a1b1Node.getId();
-                a1b1NodeCount++;
             }
 
             //添加测试计划
@@ -666,7 +653,7 @@ public class TestPlanTests extends BaseTest {
          */
         testPlanTestService.checkTestPlanByAddTest();
         simpleTestPlan = testPlanTestService.selectTestPlanByName("testPlan_13");
-        repeatCaseTestPlan = testPlanTestService.selectTestPlanByName("testPlan_123");
+        //        repeatCaseTestPlan = testPlanTestService.selectTestPlanByName("testPlan_123");
 
         //在groupTestPlanId7、groupTestPlanId15下面各创建20条数据（并且校验第21条不能创建成功）
         for (int i = 0; i < 21; i++) {
@@ -886,6 +873,7 @@ public class TestPlanTests extends BaseTest {
         Assertions.assertTrue(tableList.get(1).getId().equals(posRequest.getMoveId()));
         Assertions.assertTrue(tableList.get(2).getId().equals(posRequest.getTargetId()));
     }
+
     protected void checkTestPlanSortInGroup(String groupId) throws Exception {
         /*
          排序校验用例设计：
@@ -1111,94 +1099,299 @@ public class TestPlanTests extends BaseTest {
             onlyPlanRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
 
 
-            //进行状态筛选 -- 空状态
-            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
-                            URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
-                    dataRequest.getCurrent(),
-                    dataRequest.getPageSize(),
-                    999 - 1);
+
             /*
                 现有数据状态：
-                已完成的   6  47（组）
-                进行中的  16
-                已归档的 35（组）
+                已完成的测试计划：    6
+                已完成的测试计划组：  46（组）
+                进行中的测试计划：    16
+                没有测试子计划的组：  45
+                已归档的1个：        35（组）
              */
-            //进行状态筛选 -- 未开始
-            statusRequest.setFilter(new HashMap<>() {{
-                this.put("status", Collections.singletonList(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED));
-            }});
-            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
-                            URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
-                    dataRequest.getCurrent(),
-                    dataRequest.getPageSize(),
-                    999 - 1 - 1 - 2);
-            //进行状态筛选 -- 已完成
-            statusRequest.setFilter(new HashMap<>() {{
-                this.put("status", Collections.singletonList(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED));
-            }});
-            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
-                            URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
-                    dataRequest.getCurrent(),
-                    dataRequest.getPageSize(),
-                    2);
-            //进行状态筛选 -- 进行中
-            statusRequest.setFilter(new HashMap<>() {{
-                this.put("status", Collections.singletonList(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY));
-            }});
-            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
-                            URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
-                    dataRequest.getCurrent(),
-                    dataRequest.getPageSize(),
-                    1);
-            //进行状态筛选 -- 已完成和未开始
-            statusRequest.setFilter(new HashMap<>() {{
-                this.put("status", new ArrayList<String>() {{
-                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
-                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
+            int finishedPlan = 1;
+            int finishedGroup = 1;
+            int underwayPlan = 1;
+            int noPlanGroup = 1;
+            int archivedPlan = 1;
+
+            int testPlanCount = 994;
+            int testPlanGroupCount = 5;
+
+            // 测试通过
+            {
+                statusRequest.setType("ALL");
+                statusRequest.setFilter(new HashMap<>() {{
+                    this.put("passed", Collections.singletonList(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PASSED));
                 }});
-            }});
-            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
-                            URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
-                    dataRequest.getCurrent(),
-                    dataRequest.getPageSize(),
-                    999 - 1 - 1);
-            //进行状态筛选 -- 已完成和进行中
-            statusRequest.setFilter(new HashMap<>() {{
-                this.put("status", new ArrayList<String>() {{
-                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
-                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        finishedPlan + finishedGroup);
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        finishedPlan);
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        finishedGroup);
+            }
+            //测试不通过
+            {
+                statusRequest.setType("ALL");
+                statusRequest.setFilter(new HashMap<>() {{
+                    this.put("passed", Collections.singletonList(TestPlanConstants.TEST_PLAN_SHOW_STATUS_NOT_PASSED));
                 }});
-            }});
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        testPlanCount + testPlanGroupCount - archivedPlan - finishedPlan - finishedGroup);
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        testPlanCount - finishedPlan);
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        testPlanGroupCount - archivedPlan - finishedGroup);
+            }
+
+            //进行状态筛选 -- 空状态
+            statusRequest.setType("ALL");
+            statusRequest.setFilter(null);
             testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
                             URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
                     dataRequest.getCurrent(),
                     dataRequest.getPageSize(),
-                    3);
-            //进行状态筛选 -- 进行中和未开始
-            statusRequest.setFilter(new HashMap<>() {{
-                this.put("status", new ArrayList<String>() {{
-                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
-                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
+                    testPlanCount + testPlanGroupCount - archivedPlan);
+
+
+            //进行状态筛选 -- 未开始   （并且检查不同的tab页
+            {
+                statusRequest.setType("ALL");
+                statusRequest.setFilter(new HashMap<>() {{
+                    this.put("status", Collections.singletonList(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED));
                 }});
-            }});
-            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
-                            URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
-                    dataRequest.getCurrent(),
-                    dataRequest.getPageSize(),
-                    999 - 1 - 2);
-            //进行状态筛选 -- 已完成、未开始、进行中
-            statusRequest.setFilter(new HashMap<>() {{
-                this.put("status", new ArrayList<String>() {{
-                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
-                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
-                    this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        testPlanCount + testPlanGroupCount - archivedPlan - underwayPlan - finishedPlan - finishedGroup);
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        testPlanCount - underwayPlan - finishedPlan);
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        testPlanGroupCount - archivedPlan - finishedGroup);
+            }
+            {
+                //进行状态筛选 -- 已完成
+                statusRequest.setType("ALL");
+
+                statusRequest.setFilter(new HashMap<>() {{
+                    this.put("status", Collections.singletonList(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED));
                 }});
-            }});
-            testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
-                            URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
-                    dataRequest.getCurrent(),
-                    dataRequest.getPageSize(),
-                    999 - 1);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        finishedPlan + finishedGroup);
+
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        finishedPlan);
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        finishedGroup);
+
+            }
+            {
+                //进行状态筛选 -- 进行中
+                statusRequest.setType("ALL");
+                statusRequest.setFilter(new HashMap<>() {{
+                    this.put("status", Collections.singletonList(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY));
+                }});
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        underwayPlan);
+
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        underwayPlan);
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        0);
+            }
+
+            {
+                //进行状态筛选 已完成和未开始
+                statusRequest.setType("ALL");
+                statusRequest.setFilter(new HashMap<>() {{
+                    this.put("status", new ArrayList<String>() {{
+                        this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
+                        this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
+                    }});
+                }});
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        testPlanCount + testPlanGroupCount - archivedPlan - underwayPlan);
+
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        testPlanCount - underwayPlan);
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        testPlanGroupCount - archivedPlan);
+
+                //配合状态进行筛选
+                statusRequest.setType("ALL");
+                statusRequest.setFilter(new HashMap<>() {{
+                    this.put("status", Collections.singletonList(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED));
+                    this.put("passed", Collections.singletonList(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PASSED));
+                }});
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        finishedPlan + finishedGroup);
+
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        finishedPlan);
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        finishedGroup);
+            }
+            {
+                //进行状态筛选 -- 已完成和进行中
+                statusRequest.setType("ALL");
+                statusRequest.setFilter(new HashMap<>() {{
+                    this.put("status", new ArrayList<String>() {{
+                        this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
+                        this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
+                    }});
+                }});
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        finishedPlan + finishedGroup + underwayPlan);
+
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        finishedPlan + underwayPlan);
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        finishedGroup);
+            }
+            {
+                //进行状态筛选 -- 进行中和未开始
+                statusRequest.setType("ALL");
+                statusRequest.setFilter(new HashMap<>() {{
+                    this.put("status", new ArrayList<String>() {{
+                        this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
+                        this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
+                    }});
+                }});
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        testPlanCount + testPlanGroupCount - archivedPlan - finishedPlan - finishedGroup);
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        testPlanCount - finishedPlan);
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        testPlanGroupCount - archivedPlan - finishedGroup);
+            }
+            {
+                //进行状态筛选 -- 已完成、未开始、进行中
+                statusRequest.setType("ALL");
+                statusRequest.setFilter(new HashMap<>() {{
+                    this.put("status", new ArrayList<String>() {{
+                        this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
+                        this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
+                        this.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
+                    }});
+                }});
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        testPlanGroupCount + testPlanCount - archivedPlan);
+
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        testPlanCount);
+                statusRequest.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
+                testPlanTestService.checkTestPlanPage(this.requestPostWithOkAndReturn(
+                                URL_POST_TEST_PLAN_PAGE, statusRequest).getResponse().getContentAsString(StandardCharsets.UTF_8),
+                        dataRequest.getCurrent(),
+                        dataRequest.getPageSize(),
+                        testPlanGroupCount - archivedPlan);
+            }
+
+            statusRequest.setType("ALL");
 
             BaseTreeNode a1Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a1");
             BaseTreeNode a2Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a2");
@@ -1438,11 +1631,9 @@ public class TestPlanTests extends BaseTest {
         updateRequest = testPlanTestService.generateUpdateRequest(testPlanTestService.selectTestPlanByName("testPlan_91").getId());
         updateRequest.setGroupId(groupTestPlanId45);
         this.requestPostWithOk(URL_POST_TEST_PLAN_UPDATE, updateRequest);
-        a2NodeCount--;
         updateRequest = testPlanTestService.generateUpdateRequest(testPlanTestService.selectTestPlanByName("testPlan_92").getId());
         updateRequest.setGroupId(groupTestPlanId45);
         this.requestPostWithOk(URL_POST_TEST_PLAN_UPDATE, updateRequest);
-        a2NodeCount--;
 
         TestPlan updatePlan = new TestPlan();
         updatePlan.setId(groupTestPlanId7);
@@ -2238,29 +2429,29 @@ public class TestPlanTests extends BaseTest {
     }
 
 
-    private void checkModuleCount(Map<String, Object> moduleCountMap, long a1NodeCount, long a2NodeCount, long a3NodeCount, long a1a1NodeCount, long a1b1NodeCount) throws Exception {
-        BaseTreeNode a1Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a1");
-        BaseTreeNode a2Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a2");
-        BaseTreeNode a3Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a3");
-        BaseTreeNode a1a1Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a1-a1");
-        BaseTreeNode a1b1Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a1-b1");
-        assert a1Node != null & a2Node != null & a3Node != null & a1a1Node != null & a1b1Node != null;
-        //检查每个节点下的数据是否匹配的上（父节点的统计会一并添加上子节点的数据）
-        moduleCountMap.forEach((k, v) -> {
-            long value = Long.parseLong(String.valueOf(v));
-            if (StringUtils.equals(k, a1Node.getId())) {
-                Assertions.assertEquals(value, a1NodeCount + a1a1NodeCount + a1b1NodeCount);
-            } else if (StringUtils.equals(k, a2Node.getId())) {
-                Assertions.assertEquals(value, a2NodeCount);
-            } else if (StringUtils.equals(k, a3Node.getId())) {
-                Assertions.assertEquals(value, a3NodeCount);
-            } else if (StringUtils.equals(k, a1a1Node.getId())) {
-                Assertions.assertEquals(value, a1a1NodeCount);
-            } else if (StringUtils.equals(k, a1b1Node.getId())) {
-                Assertions.assertEquals(value, a1b1NodeCount);
-            }
-        });
-    }
+    //    private void checkModuleCount(Map<String, Object> moduleCountMap, long a1NodeCount, long a2NodeCount, long a3NodeCount, long a1a1NodeCount, long a1b1NodeCount) throws Exception {
+    //        BaseTreeNode a1Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a1");
+    //        BaseTreeNode a2Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a2");
+    //        BaseTreeNode a3Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a3");
+    //        BaseTreeNode a1a1Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a1-a1");
+    //        BaseTreeNode a1b1Node = TestPlanTestUtils.getNodeByName(preliminaryTreeNodes, "a1-b1");
+    //        assert a1Node != null & a2Node != null & a3Node != null & a1a1Node != null & a1b1Node != null;
+    //        //检查每个节点下的数据是否匹配的上（父节点的统计会一并添加上子节点的数据）
+    //        moduleCountMap.forEach((k, v) -> {
+    //            long value = Long.parseLong(String.valueOf(v));
+    //            if (StringUtils.equals(k, a1Node.getId())) {
+    //                Assertions.assertEquals(value, a1NodeCount + a1a1NodeCount + a1b1NodeCount);
+    //            } else if (StringUtils.equals(k, a2Node.getId())) {
+    //                Assertions.assertEquals(value, a2NodeCount);
+    //            } else if (StringUtils.equals(k, a3Node.getId())) {
+    //                Assertions.assertEquals(value, a3NodeCount);
+    //            } else if (StringUtils.equals(k, a1a1Node.getId())) {
+    //                Assertions.assertEquals(value, a1a1NodeCount);
+    //            } else if (StringUtils.equals(k, a1b1Node.getId())) {
+    //                Assertions.assertEquals(value, a1b1NodeCount);
+    //            }
+    //        });
+    //    }
 
     @Resource
     private TestPlanService testPlanService;
@@ -2541,9 +2732,12 @@ public class TestPlanTests extends BaseTest {
         testPlanService.deletePlanCollectionResource(List.of("init_collection-delete-1", "init_collection-delete-2", "init_collection-delete-3"));
     }
 
+    /**
+     * 方法层面的测试
+     */
     @Test
     @Order(310)
-    void testStatusSelectMethod() {
+    void testForFunctions() {
         //initSQL中，功能用例id：oasis_fc_1 的数据关联到了测试计划
         List<String> testPlanStatusList = new ArrayList<>();
         testPlanStatusList.add(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
@@ -2595,6 +2789,8 @@ public class TestPlanTests extends BaseTest {
 
         Assertions.assertEquals(1, underwayTestPlanIds.size());
         Assertions.assertEquals("test3", underwayTestPlanIds.getFirst());
+
+        testPlanManagementService.selectTestPlanIdByProjectIdUnionConditions(null, null, null, null);
     }
 
 }

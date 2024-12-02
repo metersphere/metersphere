@@ -1,6 +1,7 @@
 package io.metersphere.plan.mapper;
 
 import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanConfig;
 import io.metersphere.plan.dto.TestPlanAndGroupInfoDTO;
 import io.metersphere.plan.dto.TestPlanExecuteHisDTO;
 import io.metersphere.plan.dto.TestPlanGroupCountDTO;
@@ -107,4 +108,8 @@ public interface ExtTestPlanMapper {
 
     TestPlan getLatestPlan(@Param("projectId") String projectId);
 
+
+    List<TestPlanConfig> selectTestPlanConfigByTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
+
+    List<TestPlan> selectIdAndGroupIdByProjectId(String projectId);
 }

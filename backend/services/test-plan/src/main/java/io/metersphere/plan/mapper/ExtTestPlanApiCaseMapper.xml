@@ -910,6 +910,7 @@
     <select id="selectLastExecResultByTestPlanIds"
             resultType="io.metersphere.plan.dto.TestPlanResourceExecResultDTO">
         select resource.test_plan_id AS testPlanId,
+        test_plan.group_id AS testPlanGroupId,
         CASE
         WHEN resource.last_exec_result is null
         THEN 'PENDING'
@@ -921,6 +922,7 @@
         END AS execResult
         from test_plan_api_case resource
         INNER JOIN api_test_case apiCase ON resource.api_case_id = apiCase.id
+        INNER JOIN test_plan ON test_plan.id = resource.test_plan_id
         where resource.test_plan_id IN
         <foreach collection="testPlanIds" item="testPlanId" separator="," open="(" close=")">
             #{testPlanId}
@@ -946,5 +948,17 @@
                 #{planId}
             </foreach>
         </where>
+    </select>
+    <select id="selectLastExecResultByProjectId"
+            resultType="io.metersphere.plan.dto.TestPlanResourceExecResultDTO">
+        select resource.test_plan_id     AS testPlanId,
+               resource.last_exec_result AS execResult,
+               test_plan.group_id        AS testPlanGroupId
+        from test_plan_api_case resource
+                 INNER JOIN test_plan ON test_plan.id = resource.test_plan_id
+                 INNER JOIN api_test_case ON resource.api_case_id = api_test_case.id
+        where test_plan.project_id = #{projectId}
+          AND api_test_case.deleted is false
+          AND test_plan.status != 'ARCHIVED'
     </select>
 </mapper>

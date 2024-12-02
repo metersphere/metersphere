@@ -22,4 +22,9 @@ public class TestPlanConstants {
     public static final String TEST_PLAN_SHOW_STATUS_UNDERWAY = "UNDERWAY";
     //测试计划对外展示状态-已完成
     public static final String TEST_PLAN_SHOW_STATUS_COMPLETED = "COMPLETED";
+
+    //测试计划对外展示状态-通过
+    public static final String TEST_PLAN_SHOW_STATUS_PASSED = "PASSED";
+    //测试计划对外展示状态-未通过
+    public static final String TEST_PLAN_SHOW_STATUS_NOT_PASSED = "NOT_PASSED";
 }

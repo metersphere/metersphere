@@ -4,12 +4,14 @@ import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.TestPlanModuleExample;
 import io.metersphere.system.mapper.TestPlanModuleMapper;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,13 +78,23 @@ public class TestPlanBaseUtilsService {
     }
 
     public String calculateTestPlanStatus(List<String> resultList) {
-        List<String> calculateList = resultList.stream().distinct().toList();
         //目前只有三个状态。如果同时包含多种状态(进行中/未开始、进行中/已完成、已完成/未开始、进行中/未开始/已完成),根据算法可得测试计划都会是进行中
+        List<String> allStatus = new ArrayList<>();
+        resultList.stream().distinct().forEach(item -> {
+            if (StringUtils.equalsAnyIgnoreCase(item, ResultStatus.BLOCKED.name(), ResultStatus.FAKE_ERROR.name(), ResultStatus.ERROR.name(), ResultStatus.SUCCESS.name(), TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
+                allStatus.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
+            } else {
+                allStatus.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
+            }
+        });
+        List<String> calculateList = allStatus.stream().distinct().toList();
         if (calculateList.size() == 1) {
             if (calculateList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
                 return TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED;
             } else
                 return TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED;
+        } else if (CollectionUtils.isEmpty(calculateList)) {
+            return TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED;
         } else {
             return TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY;
         }

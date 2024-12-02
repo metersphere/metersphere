@@ -4,8 +4,9 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanConfig;
 import io.metersphere.plan.domain.TestPlanExample;
-import io.metersphere.plan.dto.TestPlanGroupCountDTO;
+import io.metersphere.plan.dto.TestPlanCalculationDTO;
 import io.metersphere.plan.dto.TestPlanResourceExecResultDTO;
 import io.metersphere.plan.dto.request.TestPlanTableRequest;
 import io.metersphere.plan.dto.response.TestPlanResponse;
@@ -14,12 +15,16 @@ import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.mapper.ExtTestPlanModuleMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.plan.utils.TestPlanUtils;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.ResultStatus;
 import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.CalculateUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -81,7 +86,7 @@ public class TestPlanManagementService {
         this.initDefaultFilter(request);
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 MapUtils.isEmpty(request.getSort()) ? "t.pos desc, t.id desc" : request.getSortString("id", "t"));
-        return PageUtils.setPageInfo(page, this.list(request));
+        return PageUtils.setPageInfo(page, this.list(request, request.getIncludeItemTestPlanIds()));
     }
 
     public void filterTestPlanIdWithStatus(Map<String, List<String>> testPlanExecMap, List<String> completedTestPlanIds, List<String> preparedTestPlanIds, List<String> underwayTestPlanIds) {
@@ -131,61 +136,194 @@ public class TestPlanManagementService {
         return returnIdList;
     }
 
-    private List<String> selectTestPlanIdByProjectIdAndStatus(String projectId, @NotEmpty List<String> statusList) {
-        List<String> innerIdList = new ArrayList<>();
-        Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
-        // 将当前项目下未归档的测试计划结果查询出来，进行下列符合条件的筛选
-        List<TestPlanResourceExecResultDTO> execResults = new ArrayList<>();
-        beansOfType.forEach((k, v) -> execResults.addAll(v.selectDistinctExecResultByProjectId(projectId)));
-        Map<String, Map<String, List<String>>> testPlanExecMap = testPlanBaseUtilsService.parseExecResult(execResults);
-        Map<String, Long> groupCountMap = extTestPlanMapper.countByGroupPlan(projectId)
-                .stream().collect(Collectors.toMap(TestPlanGroupCountDTO::getGroupId, TestPlanGroupCountDTO::getCount));
-
-        List<String> completedTestPlanIds = new ArrayList<>();
-        List<String> preparedTestPlanIds = new ArrayList<>();
-        List<String> underwayTestPlanIds = new ArrayList<>();
-        testPlanExecMap.forEach((groupId, planMap) -> {
-            if (StringUtils.equalsIgnoreCase(groupId, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
-                this.filterTestPlanIdWithStatus(planMap, completedTestPlanIds, preparedTestPlanIds, underwayTestPlanIds);
-            } else {
-                long itemPlanCount = groupCountMap.getOrDefault(groupId, 0L);
-                List<String> itemStatusList = new ArrayList<>();
-                if (itemPlanCount > planMap.size()) {
-                    // 存在未执行或者没有用例的测试计划。 此时这种测试计划的状态为未开始
-                    itemStatusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
-                }
-                planMap.forEach((planId, resultList) -> {
-                    itemStatusList.add(testPlanBaseUtilsService.calculateTestPlanStatus(resultList));
-                });
-                String groupStatus = testPlanBaseUtilsService.calculateStatusByChildren(itemStatusList);
-                if (StringUtils.equals(groupStatus, TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
-                    completedTestPlanIds.add(groupId);
-                } else if (StringUtils.equals(groupStatus, TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
-                    underwayTestPlanIds.add(groupId);
-                } else if (StringUtils.equals(groupStatus, TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
-                    preparedTestPlanIds.add(groupId);
+    /**
+     * 根据项目ID和状态查询包含的测试计划ID
+     *
+     * @param projectId           项目ID
+     * @param dataType            页面视图 ( 全部（查找符合条件的测试计划或测试子计划）  计划（查找符合条件的测试子计划）  计划组（查找符合条件的测试计划组））
+     * @param statusConditionList 状态列表
+     * @return 测试计划ID列表
+     */
+    public TestPlanCalculationDTO selectTestPlanIdByProjectIdUnionConditions(String projectId, String dataType, List<String> statusConditionList, List<String> passedConditionList) {
+        if (CollectionUtils.isEmpty(statusConditionList) && CollectionUtils.isEmpty(passedConditionList)) {
+            return new TestPlanCalculationDTO();
+        }
+        boolean selectPassed = CollectionUtils.isNotEmpty(passedConditionList) && CollectionUtils.size(passedConditionList) == 1;
+        List<TestPlan> testPlanList = extTestPlanMapper.selectIdAndGroupIdByProjectId(projectId);
+        Map<String, List<String>> testPlanGroupIdMap = new HashMap<>();
+        List<String> noGroupPlanIdList = new ArrayList<>();
+        Map<String, List<String>> noGroupPlanIdMap = new HashMap<>();
+        if (StringUtils.equalsIgnoreCase(dataType, TestPlanConstants.TEST_PLAN_TYPE_PLAN)) {
+            //只查游离态的测试计划
+            for (TestPlan item : testPlanList) {
+                if (StringUtils.equalsIgnoreCase(item.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN) && StringUtils.equals(item.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+                    noGroupPlanIdList.add(item.getId());
                 }
             }
+        } else if (StringUtils.equalsIgnoreCase(dataType, TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+            //不查游离态的测试计划
+            testPlanList = testPlanList.stream().filter(item ->
+                    StringUtils.equalsIgnoreCase(item.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP) || !StringUtils.equals(item.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)
+            ).toList();
+            testPlanGroupIdMap = TestPlanUtils.parseGroupIdMap(testPlanList);
+        } else {
+            // 全部查询
+            testPlanGroupIdMap = TestPlanUtils.parseGroupIdMap(testPlanList);
+            noGroupPlanIdList = testPlanGroupIdMap.get(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
+            testPlanGroupIdMap.remove(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
+        }
+        noGroupPlanIdMap.put(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID, noGroupPlanIdList);
+        testPlanList = null;
+
+        Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
+
+        TestPlanCalculationDTO calculationDTO = this.calculationTestPlanByConditions(noGroupPlanIdMap, beansOfType, selectPassed, dataType);
+
+        SubListUtils.dealForSubMap(testPlanGroupIdMap, 50, groupIdMap -> {
+            TestPlanCalculationDTO dto = this.calculationTestPlanByConditions(groupIdMap, beansOfType, selectPassed, dataType);
+            calculationDTO.merge(dto);
         });
 
-        testPlanExecMap = null;
-        if (statusList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
-            // 已完成
-            innerIdList.addAll(completedTestPlanIds);
+        calculationDTO.setStatusConditionList(statusConditionList);
+        calculationDTO.setPassedConditionList(passedConditionList);
+
+        return calculationDTO;
+    }
+
+    private TestPlanCalculationDTO calculationTestPlanByConditions(Map<String, List<String>> groupIdMap, Map<String, TestPlanResourceService> beansOfType, boolean selectPassed, String dataType) {
+        TestPlanCalculationDTO returnDTO = new TestPlanCalculationDTO();
+        List<String> selectTestPlanIds = new ArrayList<>();
+        groupIdMap.forEach((k, v) -> selectTestPlanIds.addAll(v));
+        if (CollectionUtils.isEmpty(selectTestPlanIds)) {
+            return returnDTO;
+        }
+        // 将当前项目下未归档的测试计划结果查询出来，进行下列符合条件的筛选
+        List<TestPlanResourceExecResultDTO> execResults = new ArrayList<>();
+        Map<String, Map<String, List<String>>> testPlanExecMap = null;
+
+        if (selectPassed) {
+            beansOfType.forEach((k, v) -> execResults.addAll(v.selectLastExecResultByTestPlanIds(selectTestPlanIds)));
+            testPlanExecMap = testPlanBaseUtilsService.parseExecResult(execResults);
+            Map<String, TestPlanConfig> testPlanConfigMap = extTestPlanMapper.selectTestPlanConfigByTestPlanIds(selectTestPlanIds)
+                    .stream().collect(Collectors.toMap(TestPlanConfig::getTestPlanId, item -> item));
+            for (Map.Entry<String, List<String>> entry : groupIdMap.entrySet()) {
+                String groupId = entry.getKey();
+                List<String> testPlanIdList = entry.getValue();
+                Map<String, List<String>> testPlanExecResult = testPlanExecMap.containsKey(groupId) ? testPlanExecMap.get(groupId) : new HashMap<>();
+                boolean isRootTestPlan = StringUtils.equalsIgnoreCase(groupId, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
+                boolean groupHasUnPassItem = false;
+
+                for (String testPlanId : testPlanIdList) {
+                    TestPlanConfig config = testPlanConfigMap.get(testPlanId);
+                    double passThreshold = (config == null || config.getPassThreshold() == null) ? 100 : config.getPassThreshold();
+
+                    List<String> executeResultList = testPlanExecResult.containsKey(testPlanId) ? testPlanExecResult.get(testPlanId) : new ArrayList<>();
+
+                    double executeRage = CalculateUtils.percentage(
+                            executeResultList.stream().filter(result -> StringUtils.equalsIgnoreCase(result, ResultStatus.SUCCESS.name())).toList().size(),
+                            executeResultList.size());
+
+                    if (executeRage < passThreshold) {
+                        groupHasUnPassItem = true;
+                    }
+
+                    if (StringUtils.equalsIgnoreCase(dataType, TestPlanConstants.TEST_PLAN_TYPE_PLAN) && isRootTestPlan) {
+                        if (executeRage >= passThreshold) {
+                            returnDTO.addPassedTestPlanId(testPlanId);
+                        } else {
+                            returnDTO.addNotPassedTestPlanId(testPlanId);
+                        }
+                    } else if (StringUtils.equalsAnyIgnoreCase(dataType, "ALL")) {
+                        if (executeRage >= passThreshold) {
+                            if (isRootTestPlan) {
+                                returnDTO.addPassedTestPlanId(testPlanId);
+                            } else {
+                                returnDTO.addPassedTestPlanId(groupId);
+                                returnDTO.addPassedItemTestPlanId(testPlanId);
+                            }
+
+                        } else {
+                            if (isRootTestPlan) {
+                                returnDTO.addNotPassedTestPlanId(testPlanId);
+                            } else {
+                                returnDTO.addNotPassedTestPlanId(groupId);
+                                returnDTO.addNotPassedItemTestPlanId(testPlanId);
+                            }
+                        }
+                    }
+                }
+
+                if (!StringUtils.equalsIgnoreCase(dataType, TestPlanConstants.TEST_PLAN_TYPE_PLAN) && !isRootTestPlan) {
+                    if (groupHasUnPassItem || CollectionUtils.isEmpty(testPlanIdList)) {
+                        returnDTO.addNotPassedTestPlanId(groupId);
+                    } else {
+                        returnDTO.addPassedTestPlanId(groupId);
+                    }
+                }
+            }
+        } else {
+            beansOfType.forEach((k, v) -> execResults.addAll(v.selectDistinctExecResultByTestPlanIds(selectTestPlanIds)));
+            testPlanExecMap = testPlanBaseUtilsService.parseExecResult(execResults);
         }
 
-        if (statusList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
-            // 进行中
-            innerIdList.addAll(underwayTestPlanIds);
+        for (Map.Entry<String, List<String>> entry : groupIdMap.entrySet()) {
+            String groupId = entry.getKey();
+            List<String> testPlanIdList = entry.getValue();
+            Map<String, List<String>> testPlanExecResult = testPlanExecMap.containsKey(groupId) ? testPlanExecMap.get(groupId) : new HashMap<>();
+            boolean isRootTestPlan = StringUtils.equalsIgnoreCase(groupId, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
+
+            List<String> testPlanStatus = new ArrayList<>();
+            for (String testPlanId : testPlanIdList) {
+                List<String> executeResultList = testPlanExecResult.containsKey(testPlanId) ? testPlanExecResult.get(testPlanId) : new ArrayList<>();
+                String result = testPlanBaseUtilsService.calculateTestPlanStatus(executeResultList);
+                testPlanStatus.add(result);
+                if (StringUtils.equalsIgnoreCase(dataType, TestPlanConstants.TEST_PLAN_TYPE_PLAN) && isRootTestPlan) {
+                    if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
+                        returnDTO.addCompletedTestPlanId(testPlanId);
+                    } else if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
+                        returnDTO.addUnderwayTestPlanId(testPlanId);
+                    } else if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
+                        returnDTO.addPreparedTestPlanId(testPlanId);
+                    }
+                } else if (StringUtils.equalsAnyIgnoreCase(dataType, "ALL")) {
+                    if (isRootTestPlan) {
+                        if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
+                            returnDTO.addCompletedTestPlanId(testPlanId);
+                        } else if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
+                            returnDTO.addUnderwayTestPlanId(testPlanId);
+                        } else if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
+                            returnDTO.addPreparedTestPlanId(testPlanId);
+                        }
+                    } else {
+                        if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
+                            returnDTO.addCompletedTestPlanId(groupId);
+                            returnDTO.addCompletedItemTestPlanId(testPlanId);
+                        } else if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
+                            returnDTO.addUnderwayTestPlanId(groupId);
+                            returnDTO.addUnderwayItemTestPlanId(testPlanId);
+                        } else if (StringUtils.equals(result, TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
+                            returnDTO.addPreparedTestPlanId(groupId);
+                            returnDTO.addPreparedItemTestPlanId(testPlanId);
+
+                        }
+                    }
+                }
+            }
+
+            if (!StringUtils.equalsIgnoreCase(dataType, TestPlanConstants.TEST_PLAN_TYPE_PLAN) && !isRootTestPlan) {
+                String groupStatus = testPlanBaseUtilsService.calculateStatusByChildren(testPlanStatus);
+                if (StringUtils.equals(groupStatus, TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
+                    returnDTO.addCompletedTestPlanId(groupId);
+                } else if (StringUtils.equals(groupStatus, TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)) {
+                    returnDTO.addUnderwayTestPlanId(groupId);
+                } else if (StringUtils.equals(groupStatus, TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
+                    returnDTO.addPreparedTestPlanId(groupId);
+                }
+
+            }
+
         }
-        if (statusList.contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
-            // 未开始   有一些测试计划/计划组没有用例 / 测试计划， 在上面的计算中无法过滤。所以用排除法机型处理
-            List<String> withoutList = new ArrayList<>();
-            withoutList.addAll(completedTestPlanIds);
-            withoutList.addAll(underwayTestPlanIds);
-            innerIdList.addAll(extTestPlanMapper.selectIdByProjectIdAndWithoutList(projectId, withoutList));
-        }
-        return innerIdList;
+        return returnDTO;
     }
 
     @Autowired
@@ -202,13 +340,23 @@ public class TestPlanManagementService {
                     item.setValue(defaultStatusList);
                     //目前未归档的测试计划只有3中类型。所以这里判断如果是3个的话等于直接查询未归档
                     if (statusList.size() < 3) {
-                        request.setCombineInnerIds(this.selectTestPlanIdByProjectIdAndStatus(request.getProjectId(), statusList));
+                        TestPlanCalculationDTO calculationDTO = this.selectTestPlanIdByProjectIdUnionConditions(request.getProjectId(), request.getType(), statusList, null);
+                        request.setCombineInnerIds(calculationDTO.getConditionInnerId());
+                        request.setIncludeItemTestPlanIds(calculationDTO.getConditionItemPlanId());
                         request.setCombineOperator(item.getOperator());
+
+                        if (CollectionUtils.isEmpty(request.getCombineInnerIds())) {
+                            // 如果查询条件内未查出包含ID，意味着查不出任何一条数据。
+                            request.setCombineInnerIds(Collections.singletonList("COMBINE_SEARCH_NONE"));
+                        }
                     }
                 }
             });
         });
         if (!StringUtils.equalsIgnoreCase(request.getViewId(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+            List<String> statusSelectParam = null;
+            List<String> passedSelectParam = null;
+
             if (request.getFilter() == null || !request.getFilter().containsKey("status")) {
                 if (request.getFilter() == null) {
                     request.setFilter(new HashMap<>() {{
@@ -218,13 +366,31 @@ public class TestPlanManagementService {
                     request.getFilter().put("status", defaultStatusList);
                 }
             } else if (!request.getFilter().get("status").contains(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
-                List<String> statusList = request.getFilter().get("status");
+                statusSelectParam = request.getFilter().get("status");
                 request.getFilter().put("status", defaultStatusList);
-                //目前未归档的测试计划只有3中类型。所以这里判断如果是3个的话等于直接查询未归档
-                if (statusList.size() < 3) {
-                    request.setInnerIds(this.selectTestPlanIdByProjectIdAndStatus(request.getProjectId(), statusList));
+            }
+
+            if (request.getFilter() != null && request.getFilter().containsKey("passed")) {
+                passedSelectParam = request.getFilter().get("passed");
+            }
+
+            boolean selectArchived = CollectionUtils.isNotEmpty(statusSelectParam) && statusSelectParam.contains(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+            boolean selectStatus = !selectArchived && CollectionUtils.isNotEmpty(statusSelectParam) && CollectionUtils.size(statusSelectParam) < 3;
+            boolean selectPassed = CollectionUtils.isNotEmpty(passedSelectParam) && CollectionUtils.size(passedSelectParam) == 1;
+
+            if (selectStatus || selectPassed) {
+                TestPlanCalculationDTO calculationDTO = this.selectTestPlanIdByProjectIdUnionConditions(request.getProjectId(), request.getType(),
+                        selectStatus ? statusSelectParam : null,
+                        selectPassed ? passedSelectParam : null);
+                request.setInnerIds(calculationDTO.getConditionInnerId());
+                request.setIncludeItemTestPlanIds(calculationDTO.getConditionItemPlanId());
+
+                if (CollectionUtils.isEmpty(request.getInnerIds()) && !selectArchived) {
+                    // 如果查询条件内未查出包含ID，意味着查不出任何一条数据。
+                    request.setCombineInnerIds(Collections.singletonList("FILTER_SEARCH_NONE"));
                 }
             }
+
         }
 
         if (StringUtils.isNotBlank(request.getKeyword())) {
@@ -236,14 +402,15 @@ public class TestPlanManagementService {
         }
     }
 
-    public List<TestPlanResponse> list(TestPlanTableRequest request) {
+    public List<TestPlanResponse> list(TestPlanTableRequest request, List<String> includeChildTestPlanId) {
         List<TestPlanResponse> testPlanResponses = new ArrayList<>();
         if (StringUtils.equalsIgnoreCase(request.getViewId(), "my_follow")) {
             testPlanResponses = extTestPlanMapper.selectMyFollowByConditions(request);
         } else {
             testPlanResponses = extTestPlanMapper.selectByConditions(request);
         }
-        handChildren(testPlanResponses, request.getProjectId());
+
+        handChildren(testPlanResponses, includeChildTestPlanId);
         return testPlanResponses;
     }
 
@@ -257,7 +424,7 @@ public class TestPlanManagementService {
     /**
      * 计划组子节点
      */
-    private void handChildren(List<TestPlanResponse> testPlanResponses, String projectId) {
+    private void handChildren(List<TestPlanResponse> testPlanResponses, List<String> includeItemTestPlanId) {
         List<String> groupIds = testPlanResponses.stream().filter(item -> StringUtils.equals(item.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)).map(TestPlanResponse::getId).toList();
         if (CollectionUtils.isNotEmpty(groupIds)) {
             List<TestPlanResponse> childrenList = extTestPlanMapper.selectByGroupIds(groupIds);
@@ -266,6 +433,9 @@ public class TestPlanManagementService {
                 if (collect.containsKey(item.getId())) {
                     //存在子节点
                     List<TestPlanResponse> list = collect.get(item.getId());
+                    if (CollectionUtils.isNotEmpty(includeItemTestPlanId)) {
+                        list = list.stream().filter(child -> includeItemTestPlanId.contains(child.getId())).toList();
+                    }
                     item.setChildren(list);
                     item.setChildrenCount(list.size());
                 }
@@ -328,8 +498,13 @@ public class TestPlanManagementService {
         List<String> doneIds = new ArrayList<>();
         List<String> extraChildIds = new ArrayList<>();
         // 筛选出已完成/进行中的计划或计划组
-        List<String> completePlanOrGroupIds = selectTestPlanIdByProjectIdAndStatus(request.getProjectId(), List.of(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED));
-        List<String> underwayPlanOrGroupIds = selectTestPlanIdByProjectIdAndStatus(request.getProjectId(), List.of(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY));
+        List<String> statusList = new ArrayList<>();
+        statusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
+        statusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
+        TestPlanCalculationDTO calculationDTO = this.selectTestPlanIdByProjectIdUnionConditions(request.getProjectId(), "ALL", statusList, null);
+        List<String> completePlanOrGroupIds = calculationDTO.getCompletedTestPlanIds();
+        List<String> underwayPlanOrGroupIds = calculationDTO.getUnderwayTestPlanIds();
+
         if (CollectionUtils.isNotEmpty(completePlanOrGroupIds) || CollectionUtils.isNotEmpty(underwayPlanOrGroupIds)) {
             TestPlanExample example = new TestPlanExample();
             example.createCriteria().andIdIn(ListUtils.union(completePlanOrGroupIds, underwayPlanOrGroupIds));

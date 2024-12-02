@@ -952,6 +952,20 @@
         where type = 'TEST_PLAN' and status='NOT_ARCHIVED' and project_id = #{projectId} order by create_time desc limit 1;
     </select>
 
+    <select id="selectTestPlanConfigByTestPlanIds" resultType="io.metersphere.plan.domain.TestPlanConfig">
+        SELECT *
+        from test_plan_config test_plan_id
+        WHERE test_plan_id IN
+        <foreach collection="testPlanIds" item="testPlanId" open="(" separator="," close=")">
+            #{testPlanId}
+        </foreach>
+    </select>
+    <select id="selectIdAndGroupIdByProjectId" resultType="io.metersphere.plan.domain.TestPlan">
+        SELECT id, group_id, type
+        FROM test_plan
+        WHERE project_id = #{0}
+          AND status != 'ARCHIVED'
+    </select>
 
     <sql id="queryMyFollowGroupByTableRequest">
         <include refid="baseConditionQuery"/>

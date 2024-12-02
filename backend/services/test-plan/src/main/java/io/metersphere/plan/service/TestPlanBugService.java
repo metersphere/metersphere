@@ -69,6 +69,11 @@ public class TestPlanBugService extends TestPlanResourceService {
     }
 
     @Override
+    public List<TestPlanResourceExecResultDTO> selectLastExecResultByProjectId(String projectId) {
+        return List.of();
+    }
+
+    @Override
     public List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(List<String> testPlanIds) {
         return List.of();
     }
