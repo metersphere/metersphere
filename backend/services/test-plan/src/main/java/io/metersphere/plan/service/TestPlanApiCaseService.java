@@ -152,6 +152,11 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     }
 
     @Override
+    public List<TestPlanResourceExecResultDTO> selectLastExecResultByProjectId(String projectId) {
+        return extTestPlanApiCaseMapper.selectLastExecResultByProjectId(projectId);
+    }
+
+    @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria().andTestPlanIdIn(testPlanIdList);

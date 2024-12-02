@@ -1,9 +1,12 @@
 package io.metersphere.sdk.util;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class SubListUtils {
@@ -25,6 +28,28 @@ public class SubListUtils {
         }
         if (CollectionUtils.isNotEmpty(dealList)) {
             subFunc.accept(dealList);
+        }
+    }
+
+
+    public static <K, V> void dealForSubMap(Map<K, V> totalMap, int batchSize, Consumer<Map<K, V>> subFunc) {
+        if (MapUtils.isEmpty(totalMap)) {
+            return;
+        }
+
+        Map<K, V> dealMap = new LinkedHashMap<>(totalMap);
+        while (dealMap.size() > batchSize) {
+            Map<K, V> subMap = new LinkedHashMap<>();
+            dealMap.forEach((k, v) -> {
+                if (subMap.size() < batchSize) {
+                    subMap.put(k, v);
+                }
+            });
+            subFunc.accept(subMap);
+            subMap.forEach(dealMap::remove);
+        }
+        if (MapUtils.isNotEmpty(dealMap)) {
+            subFunc.accept(dealMap);
         }
     }
 

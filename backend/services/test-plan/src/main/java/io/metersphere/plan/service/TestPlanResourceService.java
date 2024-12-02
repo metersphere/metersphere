@@ -109,6 +109,8 @@ public abstract class TestPlanResourceService extends TestPlanSortService {
 
     public abstract List<TestPlanResourceExecResultDTO> selectLastExecResultByTestPlanIds(List<String> testPlanIds);
 
+    public abstract List<TestPlanResourceExecResultDTO> selectLastExecResultByProjectId(String projectId);
+
     /**
      * 关联用例
      *

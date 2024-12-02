@@ -89,4 +89,6 @@ public interface ExtTestPlanFunctionalCaseMapper {
     Collection<String> selectIdsByRootIds(@Param("rootIds") List<String> rootIds, @Param("testPlanId") String testPlanId);
 
     List<TestPlanResourceExecResultDTO> selectLastExecResultByTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
+
+    List<TestPlanResourceExecResultDTO> selectLastExecResultByProjectId(String projectId);
 }

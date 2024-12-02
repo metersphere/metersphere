@@ -43,6 +43,10 @@ public class TestPlanTableRequest extends BasePageRequest {
     @Schema(description = "额外的子计划ID集合")
     private List<String> extraIncludeChildIds;
 
+
+    @Schema(description = "应当包含的子测试计划ID （用于程序内部筛选过滤）")
+    private List<String> includeItemTestPlanIds;
+
     public String getSortString() {
         if (StringUtils.isEmpty(super.getSortString())) {
             return "t.update_time desc";

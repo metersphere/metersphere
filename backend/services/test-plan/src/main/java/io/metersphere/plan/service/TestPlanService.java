@@ -1058,7 +1058,7 @@ public class TestPlanService extends TestPlanBaseUtilsService {
                             returnDTO.unSuccessAutoIncrement(isArchived);
                         }
                     } else {
-                        if (passphrase > executeRage) {
+                        if (passphrase >= executeRage) {
                             if (calculateList.contains(ExecStatus.PENDING.name())) {
                                 // 通过却未完成
                                 returnDTO.passAndNotFinishedAutoIncrement(isArchived);

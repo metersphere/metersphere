@@ -140,6 +140,11 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     }
 
     @Override
+    public List<TestPlanResourceExecResultDTO> selectLastExecResultByProjectId(String projectId) {
+        return extTestPlanApiScenarioMapper.selectLastExecResultByProjectId(projectId);
+    }
+
+    @Override
     public void deleteBatchByTestPlanId(List<String> testPlanIdList) {
         TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
         example.createCriteria().andTestPlanIdIn(testPlanIdList);

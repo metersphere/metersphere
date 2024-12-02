@@ -139,6 +139,11 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     }
 
     @Override
+    public List<TestPlanResourceExecResultDTO> selectLastExecResultByProjectId(String projectId) {
+        return extTestPlanFunctionalCaseMapper.selectLastExecResultByProjectId(projectId);
+    }
+
+    @Override
     public List<TestPlanResourceExecResultDTO> selectDistinctExecResultByTestPlanIds(List<String> testPlanIds) {
         return extTestPlanFunctionalCaseMapper.selectDistinctExecResultByTestPlanIds(testPlanIds);
     }
