@@ -772,7 +772,16 @@ public class BugService {
                 }
             }
             List<Bug> originalBugs = batchBugMapper.selectByExample(bugExample);
-            Map<String, Bug> msOriginalBugMap = originalBugs.stream().collect(Collectors.toMap(Bug::getPlatformBugId, bug -> bug));
+            Map<String, Bug> msOriginalBugMap = new HashMap<>(0);
+            List<String> syncToDeleteIds = new ArrayList<>();
+            originalBugs.forEach(originalBug -> {
+                if (!msOriginalBugMap.containsKey(originalBug.getPlatformBugId())) {
+                    msOriginalBugMap.put(originalBug.getPlatformBugId(), originalBug);
+                } else {
+                    // 相同的缺陷, 不重复同步, 删除
+                    syncToDeleteIds.add(originalBug.getId());
+                }
+            });
             // 获取原始缺陷的模板字段信息(同步更新缺陷使用)
             List<String> templateIds = originalBugs.stream().map(Bug::getTemplateId).distinct().toList();
             List<TemplateCustomField> templateCustomsFields = baseTemplateCustomFieldService.getByTemplateIds(templateIds);
@@ -855,7 +864,7 @@ public class BugService {
             execSyncAll(project, syncAllBugRequest);
 
             // 删除缺陷在后置方法处理完再执行
-            List<String> syncToDeleteIds = originalBugs.stream().filter(msOriginalBug -> !allSyncIds.get().contains(msOriginalBug.getPlatformBugId())).map(Bug::getId).toList();
+            syncToDeleteIds.addAll(originalBugs.stream().filter(msOriginalBug -> !allSyncIds.get().contains(msOriginalBug.getPlatformBugId())).map(Bug::getId).toList());
             if (CollectionUtils.isNotEmpty(syncToDeleteIds)) {
                 syncCount.addAndGet(syncToDeleteIds.size());
                 // 删除缺陷(单独处理)
