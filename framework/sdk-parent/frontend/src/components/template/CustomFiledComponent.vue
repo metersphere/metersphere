@@ -270,6 +270,7 @@ export default {
       this.setFormData();
 
       this.$emit("change", this.data[this.formProp]);
+      this.$set(this.form, this.data[this.formProp], this.data[this.prop]);
       this.$forceUpdate();
       if (this.data.inputSearch) {
         // 将选项的选项名保存在 optionLabel 中
@@ -340,7 +341,7 @@ export default {
       this.loading = false;
     },
     setFormData() {
-      if (this.form && this.data) {
+      if (this.form && this.data && this.data[this.prop]) {
         this.$set(this.form, this.data[this.formProp], this.data[this.prop]);
       }
     },
