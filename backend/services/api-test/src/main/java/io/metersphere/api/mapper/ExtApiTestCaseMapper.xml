@@ -366,33 +366,33 @@
 
     <select id="listUnRelatedCaseWithBug" resultMap="TestCaseProviderDTO">
         select
-        ac.id,
-        ac.num,
-        ac.name,
-        ac.priority,
-        ac.project_id,
-        ac.tags,
+        atc.id,
+        atc.num,
+        atc.name,
+        atc.priority,
+        atc.project_id,
+        atc.tags,
         pv.name as versionName,
-        ac.create_user,
+        atc.create_user,
         u.name as createUserName,
-        ac.create_time
-        from api_test_case ac
-        inner join api_definition ad on ac.api_definition_id = ad.id
-        left join project_version pv ON ac.version_id = pv.id
-        left join user u ON ac.create_user = u.id
-        where ac.deleted = #{deleted}
-        and ac.project_id = #{request.projectId}
-        and ac.id not in
+        atc.create_time
+        from api_test_case atc
+        inner join api_definition a on atc.api_definition_id = a.id
+        left join project_version pv ON atc.version_id = pv.id
+        left join user u ON atc.create_user = u.id
+        where atc.deleted = #{deleted}
+        and atc.project_id = #{request.projectId}
+        and atc.id not in
         (
             select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
         )
-        <include refid="queryByTestCaseProviderParam"/>
+        <include refid="queryWhereCondition"/>
         order by
         <if test="sort != null and sort != ''">
-            ac.${sort}
+            atc.${sort}
         </if>
         <if test="sort == null or sort == ''">
-            ac.create_time desc
+            atc.create_time desc
         </if>
     </select>
 

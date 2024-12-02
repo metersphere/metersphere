@@ -90,6 +90,7 @@ public interface ExtApiTestCaseMapper {
      * @param sort    排序
      * @return 通用的列表Case集合
      */
+    @BaseConditionFilter
     List<TestCaseProviderDTO> listUnRelatedCaseWithBug(@Param("request") TestCasePageProviderRequest request, @Param("deleted") boolean deleted, @Param("sort") String sort);
 
     /**

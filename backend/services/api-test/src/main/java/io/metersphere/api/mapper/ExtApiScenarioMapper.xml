@@ -576,32 +576,32 @@
 
     <select id="listUnRelatedCaseWithBug" resultMap="TestCaseProviderDTO">
         select
-        ao.id,
-        ao.num,
-        ao.name,
-        ao.priority,
-        ao.project_id,
-        ao.tags,
+        api_scenario.id,
+        api_scenario.num,
+        api_scenario.name,
+        api_scenario.priority,
+        api_scenario.project_id,
+        api_scenario.tags,
         pv.name as versionName,
-        ao.create_user,
+        api_scenario.create_user,
         u.name as createUserName,
-        ao.create_time
-        from api_scenario ao
-        left join project_version pv ON ao.version_id = pv.id
-        left join user u ON ao.create_user = u.id
-        where ao.deleted = #{deleted}
-        and ao.project_id = #{request.projectId}
-        and ao.id not in
+        api_scenario.create_time
+        from api_scenario
+        left join project_version pv ON api_scenario.version_id = pv.id
+        left join user u ON api_scenario.create_user = u.id
+        where api_scenario.deleted = #{deleted}
+        and api_scenario.project_id = #{request.projectId}
+        and api_scenario.id not in
         (
             select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
         )
-        <include refid="queryByTestCaseProviderParam"/>
+        <include refid="queryWhereConditionByProvider"/>
         order by
         <if test="sort != null and sort != ''">
-            ao.${sort}
+            api_scenario.${sort}
         </if>
         <if test="sort == null or sort == ''">
-            ao.create_time desc
+            api_scenario.create_time desc
         </if>
     </select>
 
