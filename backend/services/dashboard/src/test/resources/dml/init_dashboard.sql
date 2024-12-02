@@ -121,6 +121,14 @@ INSERT INTO test_plan(id, num, project_id, group_id, module_id, name, status, ty
     VALUE ('dashboard_test-plan-id', 500, '100001100001', 'NONE', 'case_plan_module', 'test_plan_associate_case_name_three', 'NOT_ARCHIVED', 'TEST_PLAN', null, UNIX_TIMESTAMP() * 1000,'admin',
            UNIX_TIMESTAMP() * 1000,'admin',UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, null);
 
+INSERT INTO test_plan(id, num, project_id, group_id, module_id, name, status, type, tags, create_time, create_user, update_time, update_user, planned_start_time, planned_end_time, actual_start_time, actual_end_time, description)
+    VALUE ('dashboard_test-plan-id2', 500, '100001100001', 'dashboard_group-plan', 'case_plan_module', 'test_plan_name_three', 'NOT_ARCHIVED', 'TEST_PLAN', null, UNIX_TIMESTAMP() * 1000,'admin',
+           UNIX_TIMESTAMP() * 1000,'admin',UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, null);
+
+INSERT INTO test_plan(id, num, project_id, group_id, module_id, name, status, type, tags, create_time, create_user, update_time, update_user, planned_start_time, planned_end_time, actual_start_time, actual_end_time, description)
+    VALUE ('dashboard_group-plan', 500, '100001100001', 'NONE', 'case_plan_module', 'test_plan_group_name_three', 'NOT_ARCHIVED', 'GROUP', null, UNIX_TIMESTAMP() * 1000,'admin',
+           UNIX_TIMESTAMP() * 1000,'admin',UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, null);
+
 INSERT INTO project_application (project_id, type, type_value) VALUES
                                                                    ('100001100001', 'BUG_SYNC_BUG_PLATFORM_CONFIG', '{"jiraKey":"TES","jiraBugTypeId":"10009"}'),
                                                                    ('100001100001', 'BUG_SYNC_PLATFORM_KEY', 'jira'),

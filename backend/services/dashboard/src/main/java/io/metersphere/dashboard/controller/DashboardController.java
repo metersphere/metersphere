@@ -8,6 +8,7 @@ import io.metersphere.bug.service.BugCommonService;
 import io.metersphere.bug.service.BugService;
 import io.metersphere.dashboard.dto.LayoutDTO;
 import io.metersphere.dashboard.request.DashboardFrontPageRequest;
+import io.metersphere.dashboard.response.CascadeChildrenDTO;
 import io.metersphere.dashboard.response.OverViewCountDTO;
 import io.metersphere.dashboard.response.StatisticsDTO;
 import io.metersphere.dashboard.service.DashboardService;
@@ -213,6 +214,13 @@ public class DashboardController {
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public BugColumnsOptionDTO getHeaderOption(@PathVariable String projectId) {
         return bugService.getHeaderOption(projectId);
+    }
+
+    @GetMapping("/plan/option/{projectId}")
+    @Operation(summary = "获取测试计划列表")
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public List<CascadeChildrenDTO> getPlanOption(@PathVariable String projectId) {
+        return dashboardService.getPlanOption(projectId);
     }
 
 }

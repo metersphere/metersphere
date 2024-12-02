@@ -9,6 +9,7 @@ import io.metersphere.bug.service.BugStatusService;
 import io.metersphere.dashboard.constants.DashboardUserLayoutKeys;
 import io.metersphere.dashboard.dto.LayoutDTO;
 import io.metersphere.dashboard.request.DashboardFrontPageRequest;
+import io.metersphere.dashboard.response.CascadeChildrenDTO;
 import io.metersphere.dashboard.response.OverViewCountDTO;
 import io.metersphere.dashboard.response.StatisticsDTO;
 import io.metersphere.dashboard.service.DashboardService;
@@ -104,6 +105,9 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     private static final String BUG_HANDLE_USER_LIST = "/dashboard/bug_handle_user/list/";
 
     private static final String PROJECT_MEMBER_USER_LIST = "/dashboard/member/get-project-member/option/";
+
+    private static final String PROJECT_PLAN_LIST = "/dashboard/plan/option/";
+
 
     @Test
     @Order(1)
@@ -588,6 +592,22 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         list = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), UserExtendDTO.class);
+        Assertions.assertNotNull(list);
+    }
+
+    @Test
+    @Order(7)
+    public void testProjectPlanList() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(PROJECT_PLAN_LIST + DEFAULT_PROJECT_ID);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        List<CascadeChildrenDTO> list = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), CascadeChildrenDTO.class);
+        Assertions.assertNotNull(list);
+
+        mvcResult = this.requestGetWithOkAndReturn(PROJECT_MEMBER_USER_LIST + "id");
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        list = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), CascadeChildrenDTO.class);
         Assertions.assertNotNull(list);
     }
 

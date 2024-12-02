@@ -939,6 +939,13 @@
             </foreach>
         </if>
     </select>
+    <select id="getGroupAndPlanInfo" resultType="io.metersphere.plan.dto.TestPlanAndGroupInfoDTO">
+        select  son.id, son.name, son.group_id, son.project_id, father.name as groupName
+        from test_plan son
+                 left join test_plan father on father.id = son.group_id
+        where son.type = 'TEST_PLAN'
+          and father.type = 'GROUP' and son.project_id = #{projectId};
+    </select>
 
 
     <sql id="queryMyFollowGroupByTableRequest">

@@ -18,11 +18,9 @@ import io.metersphere.bug.mapper.ExtBugMapper;
 import io.metersphere.bug.service.BugCommonService;
 import io.metersphere.bug.service.BugStatusService;
 import io.metersphere.dashboard.constants.DashboardUserLayoutKeys;
-import io.metersphere.dashboard.dto.LayoutDTO;
-import io.metersphere.dashboard.dto.NameArrayDTO;
-import io.metersphere.dashboard.dto.NameCountDTO;
-import io.metersphere.dashboard.dto.StatusPercentDTO;
+import io.metersphere.dashboard.dto.*;
 import io.metersphere.dashboard.request.DashboardFrontPageRequest;
+import io.metersphere.dashboard.response.CascadeChildrenDTO;
 import io.metersphere.dashboard.response.OverViewCountDTO;
 import io.metersphere.dashboard.response.StatisticsDTO;
 import io.metersphere.functional.constants.CaseReviewStatus;
@@ -33,7 +31,11 @@ import io.metersphere.functional.mapper.ExtCaseReviewMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.request.CaseReviewPageRequest;
 import io.metersphere.functional.service.CaseReviewService;
+import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanExample;
+import io.metersphere.plan.dto.TestPlanAndGroupInfoDTO;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
+import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ProjectCountDTO;
@@ -119,6 +121,8 @@ public class DashboardService {
     private ProjectMapper projectMapper;
     @Resource
     private UserLayoutMapper userLayoutMapper;
+    @Resource
+    private TestPlanMapper testPlanMapper;
     @Resource
     private BugCommonService bugCommonService;
     @Resource
@@ -258,7 +262,7 @@ public class DashboardService {
             map.put(BUG_COUNT, bugCount);
             projectBugCountMap = projectBugCount.stream().collect(Collectors.toMap(ProjectCountDTO::getProjectId, ProjectCountDTO::getCount));
 
-        }else {
+        } else {
             projectBugCountMap = new HashMap<>();
         }
 
@@ -407,7 +411,7 @@ public class DashboardService {
         List<ProjectUserMemberDTO> orgProjectMemberList = extProjectMemberMapper.getOrgProjectMemberList(organizationId, null);
         if (CollectionUtils.isEmpty(userLayouts)) {
             List<String> userIds = orgProjectMemberList.stream().map(ProjectUserMemberDTO::getId).distinct().toList();
-            return getDefaultLayoutDTOS(allPermissionProjects.getFirst().getId(),userIds);
+            return getDefaultLayoutDTOS(allPermissionProjects.getFirst().getId(), userIds);
         }
         UserLayout userLayout = userLayouts.getFirst();
         byte[] configuration = userLayout.getConfiguration();
@@ -501,10 +505,10 @@ public class DashboardService {
     /**
      * 获取默认布局
      *
-     * @param  projectId 项目ID
+     * @param projectId 项目ID
      * @return List<LayoutDTO>
      */
-    private static List<LayoutDTO> getDefaultLayoutDTOS(String projectId,  List<String> userIds) {
+    private static List<LayoutDTO> getDefaultLayoutDTOS(String projectId, List<String> userIds) {
         List<LayoutDTO> layoutDTOS = new ArrayList<>();
         LayoutDTO projectLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_VIEW, "workbench.homePage.projectOverview", 0, new ArrayList<>(), new ArrayList<>());
         layoutDTOS.add(projectLayoutDTO);
@@ -796,7 +800,7 @@ public class DashboardService {
         }
         long caseTestCount = extFunctionalCaseMapper.caseTestCount(projectId, null, null);
         long simpleCaseCount = extFunctionalCaseMapper.simpleCaseCount(projectId, null, null);
-        List<NameCountDTO> coverList = getCoverList((int) simpleCaseCount,Translator.get("functional_case.associateRate"), (int) caseTestCount,Translator.get("functional_case.hasAssociate"), (int) (simpleCaseCount - caseTestCount), Translator.get("functional_case.unAssociate"));
+        List<NameCountDTO> coverList = getCoverList((int) simpleCaseCount, Translator.get("functional_case.associateRate"), (int) caseTestCount, Translator.get("functional_case.hasAssociate"), (int) (simpleCaseCount - caseTestCount), Translator.get("functional_case.unAssociate"));
         Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
         statusStatisticsMap.put("cover", coverList);
         statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
@@ -977,7 +981,7 @@ public class DashboardService {
         List<FunctionalCaseStatisticDTO> statisticListByProjectId = extFunctionalCaseMapper.getStatisticListByProjectId(projectId, null, null);
         List<FunctionalCaseStatisticDTO> unReviewCaseList = statisticListByProjectId.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getReviewStatus(), FunctionalCaseReviewStatus.UN_REVIEWED.toString())).toList();
         int reviewCount = statisticListByProjectId.size() - unReviewCaseList.size();
-        List<NameCountDTO> coverList = getCoverList(statisticListByProjectId.size(), Translator.get("functional_case.reviewRate"), reviewCount,Translator.get("functional_case.hasReview"), unReviewCaseList.size(), Translator.get("functional_case.unReview"));
+        List<NameCountDTO> coverList = getCoverList(statisticListByProjectId.size(), Translator.get("functional_case.reviewRate"), reviewCount, Translator.get("functional_case.hasReview"), unReviewCaseList.size(), Translator.get("functional_case.unReview"));
         Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
         statusStatisticsMap.put("cover", coverList);
         statisticsDTO.setStatusStatisticsMap(statusStatisticsMap);
@@ -1061,10 +1065,10 @@ public class DashboardService {
     @NotNull
     private List<StatusPercentDTO> getStatusPercentList(List<FunctionalCaseStatisticDTO> statisticListByProjectId) {
         List<StatusPercentDTO> statusPercentList = new ArrayList<>();
-        List<OptionDTO>statusNameList = buildStatusNameMap();
+        List<OptionDTO> statusNameList = buildStatusNameMap();
         int totalCount = CollectionUtils.isEmpty(statisticListByProjectId) ? 0 : statisticListByProjectId.size();
         Map<String, List<FunctionalCaseStatisticDTO>> reviewStatusMap = statisticListByProjectId.stream().collect(Collectors.groupingBy(FunctionalCaseStatisticDTO::getReviewStatus));
-        statusNameList.forEach(t->{
+        statusNameList.forEach(t -> {
             StatusPercentDTO statusPercentDTO = new StatusPercentDTO();
             List<FunctionalCaseStatisticDTO> functionalCaseStatisticDTOS = reviewStatusMap.get(t.getId());
             int count = CollectionUtils.isEmpty(functionalCaseStatisticDTOS) ? 0 : functionalCaseStatisticDTOS.size();
@@ -1082,14 +1086,14 @@ public class DashboardService {
     }
 
     @NotNull
-    private static List<NameCountDTO> getCoverList(int totalCount, String rateName, int coverCount,String coverName, int unCoverCount, String unCoverName) {
+    private static List<NameCountDTO> getCoverList(int totalCount, String rateName, int coverCount, String coverName, int unCoverCount, String unCoverName) {
         List<NameCountDTO> coverList = new ArrayList<>();
         NameCountDTO coverRate = new NameCountDTO();
         if (totalCount > 0) {
             BigDecimal divide = BigDecimal.valueOf(coverCount).divide(BigDecimal.valueOf(totalCount), 2, RoundingMode.HALF_UP);
             coverRate.setCount(getTurnCount(divide));
         }
-        coverRate.setName(rateName );
+        coverRate.setName(rateName);
         coverList.add(coverRate);
         NameCountDTO hasCover = new NameCountDTO();
         hasCover.setCount(coverCount);
@@ -1103,7 +1107,7 @@ public class DashboardService {
     }
 
     private static List<OptionDTO> buildStatusNameMap() {
-        List<OptionDTO>optionDTOList = new ArrayList<>();
+        List<OptionDTO> optionDTOList = new ArrayList<>();
         optionDTOList.add(new OptionDTO(FunctionalCaseReviewStatus.UN_REVIEWED.toString(), Translator.get("case.review.status.un_reviewed")));
         optionDTOList.add(new OptionDTO(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString(), Translator.get("case.review.status.under_reviewed")));
         optionDTOList.add(new OptionDTO(FunctionalCaseReviewStatus.PASS.toString(), Translator.get("case.review.status.pass")));
@@ -1308,7 +1312,7 @@ public class DashboardService {
         if (CollectionUtils.isNotEmpty(simpleAllApiScenarioList)) {
             simpleAllApiScenarioSize = simpleAllApiScenarioList.size();
         }
-        List<String> lastReportStatuList  = new ArrayList<>();
+        List<String> lastReportStatuList = new ArrayList<>();
         lastReportStatuList.add(StringUtils.EMPTY);
         lastReportStatuList.add(ExecStatus.PENDING.toString());
         List<ApiScenario> unExecList = simpleAllApiScenarioList.stream().filter(t -> lastReportStatuList.contains(t.getLastReportStatus())).toList();
@@ -1341,7 +1345,7 @@ public class DashboardService {
             statisticsDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
             return statisticsDTO;
         }
-        Set<String>handleUsers = new HashSet<>();
+        Set<String> handleUsers = new HashSet<>();
         String localHandleUser = hasHandleUser ? userId : null;
         if (StringUtils.isNotBlank(localHandleUser)) {
             handleUsers.add(localHandleUser);
@@ -1357,7 +1361,7 @@ public class DashboardService {
         if (hasHandleUser) {
             allSimpleList = extBugMapper.getByHandleUser(projectId, null, null, localHandleUser, createUser, handleUser, platformName);
         } else {
-            allSimpleList= extBugMapper.getSimpleList(projectId, null, null, handleUsers, createUser, platforms);
+            allSimpleList = extBugMapper.getSimpleList(projectId, null, null, handleUsers, createUser, platforms);
         }
         List<String> localLastStepStatus = getBugEndStatus(projectId, platformName);
         List<Bug> statusList = allSimpleList.stream().filter(t -> !localLastStepStatus.contains(t.getStatus())).toList();
@@ -1501,7 +1505,7 @@ public class DashboardService {
                 headerStatusOption.addAll(thirdStatusOptions);
             }
         }
-        headerStatusOption = headerStatusOption.stream().filter(t->!endStatus.contains(t.getValue())).distinct().toList();
+        headerStatusOption = headerStatusOption.stream().filter(t -> !endStatus.contains(t.getValue())).distinct().toList();
         return headerStatusOption;
     }
 
@@ -1511,6 +1515,37 @@ public class DashboardService {
             return new ArrayList<>();
         }
         return extSystemProjectMapper.getMemberByProjectId(projectId, keyword);
+    }
+
+    public List<CascadeChildrenDTO> getPlanOption(String projectId) {
+        List<CascadeChildrenDTO> cascadeDTOList = new ArrayList<>();
+        List<TestPlanAndGroupInfoDTO> groupAndPlanInfo = extTestPlanMapper.getGroupAndPlanInfo(projectId);
+        TestPlanExample testPlanExample = new TestPlanExample();
+        testPlanExample.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(TestPlanConstants.TEST_PLAN_TYPE_PLAN).andGroupIdEqualTo("NONE");
+        List<TestPlan> testPlans = testPlanMapper.selectByExample(testPlanExample);
+        Map<String, List<TestPlanAndGroupInfoDTO>> groupMap = groupAndPlanInfo.stream().collect(Collectors.groupingBy(TestPlanAndGroupInfoDTO::getGroupId));
+        groupMap.forEach((t, list)->{
+            CascadeChildrenDTO father = new CascadeChildrenDTO();
+            father.setValue(t);
+            father.setLabel(list.getFirst().getGroupName());
+            List<CascadeDTO> children = new ArrayList<>();
+            for (TestPlanAndGroupInfoDTO testPlanAndGroupInfoDTO : list) {
+                CascadeDTO cascadeChildrenDTO = new CascadeDTO();
+                cascadeChildrenDTO.setValue(testPlanAndGroupInfoDTO.getId());
+                cascadeChildrenDTO.setLabel(testPlanAndGroupInfoDTO.getName());
+                children.add(cascadeChildrenDTO);
+            }
+            father.setChildren(children);
+            cascadeDTOList.add(father);
+        });
+        for (TestPlan testPlan : testPlans) {
+            CascadeChildrenDTO father = new CascadeChildrenDTO();
+            father.setValue(testPlan.getId());
+            father.setLabel(testPlan.getName());
+            cascadeDTOList.add(father);
+        }
+        return cascadeDTOList;
+
     }
 }
 
