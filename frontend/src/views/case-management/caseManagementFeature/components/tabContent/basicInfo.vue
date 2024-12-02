@@ -54,8 +54,8 @@
         </div>
         <div class="baseItem">
           <span class="label"> {{ t('caseManagement.featureCase.tableColumnTag') }}</span>
-          <span class="value">
-            <MsTag v-for="item of detailInfo.tags" :key="item"> {{ item }} </MsTag>
+          <span class="value w-full">
+            <MsTagsInput v-model:model-value="detailInfo.tags" class="w-full" @change="changeHandler" />
           </span>
         </div>
       </div>
@@ -71,7 +71,7 @@
 
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
 
   import { getCaseModuleTree, updateCaseRequest } from '@/api/modules/case-management/featureCase';
   import { defaultCaseDetail } from '@/config/caseManagement';
