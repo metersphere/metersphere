@@ -11,10 +11,14 @@ public class TestPlanAndGroupInfoDTO {
     private String id;
     @Schema(description = "计划名称")
     private String name;
+    @Schema(description = "计划名称")
+    private Long createTime;
     @Schema(description = "计划组ID")
     private String groupId;
     @Schema(description = "计划组名称")
     private String groupName;
+    @Schema(description = "计划组创建时间")
+    private Long groupCreateTime;
     @Schema(description = "项目ID")
     private String projectId;
 

@@ -20,6 +20,9 @@ public class CascadeChildrenDTO {
     @Schema(description = "名称/标签")
     private String label;
 
+    @Schema(description = "创建时间")
+    private Long createTime;
+
     @Schema(description = "关联子集")
     private List<CascadeDTO> children;
 

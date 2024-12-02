@@ -473,9 +473,17 @@ public class DashboardService {
                 Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.PROJECT_API_SCENARIO_READ);
                 checkHasPermissionProject(layoutDTO, hasReadProjectIds);
             } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.TEST_PLAN_COUNT.toString())
-                    || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PLAN_LEGACY_BUG.toString())) {
+                    || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PLAN_LEGACY_BUG.toString())
+                    || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PROJECT_PLAN_VIEW.toString())) {
                 Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.TEST_PLAN_READ);
                 checkHasPermissionProject(layoutDTO, hasReadProjectIds);
+                if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PROJECT_PLAN_VIEW.toString())) {
+                    TestPlan testPlan = testPlanMapper.selectByPrimaryKey(layoutDTO.getPlanId());
+                    if (testPlan == null || StringUtils.equalsIgnoreCase(testPlan.getStatus(),TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+                        TestPlan latestPlan = extTestPlanMapper.getLatestPlan(layoutDTO.getProjectIds().getFirst());
+                        layoutDTO.setPlanId(latestPlan.getId());
+                    }
+                }
             } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.BUG_COUNT.toString())
                     || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.CREATE_BUG_BY_ME.toString())
                     || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.HANDLE_BUG_BY_ME.toString())
@@ -738,25 +746,33 @@ public class DashboardService {
     private static List<NameCountDTO> getReviewList(Map<String, List<FunctionalCaseStatisticDTO>> reviewStatusMap, List<FunctionalCaseStatisticDTO> statisticListByProjectId) {
         List<NameCountDTO> reviewList = new ArrayList<>();
         List<FunctionalCaseStatisticDTO> unReviewList = reviewStatusMap.get(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
+        List<FunctionalCaseStatisticDTO> underReviewList = reviewStatusMap.get(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString());
+        List<FunctionalCaseStatisticDTO> reReviewedList = reviewStatusMap.get(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
         if (CollectionUtils.isEmpty(unReviewList)) {
             unReviewList = new ArrayList<>();
+        }
+        if (CollectionUtils.isEmpty(underReviewList)) {
+            underReviewList = new ArrayList<>();
+        }
+        if (CollectionUtils.isEmpty(reReviewedList)) {
+            reReviewedList = new ArrayList<>();
         }
         NameCountDTO reviewRate = new NameCountDTO();
         reviewRate.setName(Translator.get("functional_case.reviewRate"));
         if (CollectionUtils.isEmpty(statisticListByProjectId)) {
             reviewRate.setCount(0);
         } else {
-            BigDecimal divide = BigDecimal.valueOf(statisticListByProjectId.size() - unReviewList.size()).divide(BigDecimal.valueOf(statisticListByProjectId.size()), 2, RoundingMode.HALF_UP);
+            BigDecimal divide = BigDecimal.valueOf(statisticListByProjectId.size() - unReviewList.size() - underReviewList.size() - reReviewedList.size()).divide(BigDecimal.valueOf(statisticListByProjectId.size()), 2, RoundingMode.HALF_UP);
             reviewRate.setCount(getTurnCount(divide));
         }
         reviewList.add(reviewRate);
         NameCountDTO hasReview = new NameCountDTO();
         hasReview.setName(Translator.get("functional_case.hasReview"));
-        hasReview.setCount(statisticListByProjectId.size() - unReviewList.size());
+        hasReview.setCount(statisticListByProjectId.size() - unReviewList.size() - underReviewList.size() - reReviewedList.size());
         reviewList.add(hasReview);
         NameCountDTO unReview = new NameCountDTO();
         unReview.setName(Translator.get("functional_case.unReview"));
-        unReview.setCount(unReviewList.size());
+        unReview.setCount(unReviewList.size() + underReviewList.size() + reReviewedList.size());
         reviewList.add(unReview);
         return reviewList;
     }
@@ -1522,14 +1538,17 @@ public class DashboardService {
         List<TestPlanAndGroupInfoDTO> groupAndPlanInfo = extTestPlanMapper.getGroupAndPlanInfo(projectId);
         TestPlanExample testPlanExample = new TestPlanExample();
         testPlanExample.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(TestPlanConstants.TEST_PLAN_TYPE_PLAN).andGroupIdEqualTo("NONE");
+        testPlanExample.setOrderByClause(" create_time DESC ");
         List<TestPlan> testPlans = testPlanMapper.selectByExample(testPlanExample);
-        Map<String, List<TestPlanAndGroupInfoDTO>> groupMap = groupAndPlanInfo.stream().collect(Collectors.groupingBy(TestPlanAndGroupInfoDTO::getGroupId));
-        groupMap.forEach((t, list)->{
+        Map<String, List<TestPlanAndGroupInfoDTO>> groupMap = groupAndPlanInfo.stream().sorted(Comparator.comparing(TestPlanAndGroupInfoDTO::getGroupCreateTime).reversed()).collect(Collectors.groupingBy(TestPlanAndGroupInfoDTO::getGroupId));
+        groupMap.forEach((t, list) -> {
             CascadeChildrenDTO father = new CascadeChildrenDTO();
             father.setValue(t);
             father.setLabel(list.getFirst().getGroupName());
+            father.setCreateTime(list.getFirst().getCreateTime());
             List<CascadeDTO> children = new ArrayList<>();
-            for (TestPlanAndGroupInfoDTO testPlanAndGroupInfoDTO : list) {
+            List<TestPlanAndGroupInfoDTO> sortList = list.stream().sorted(Comparator.comparing(TestPlanAndGroupInfoDTO::getCreateTime).reversed()).toList();
+            for (TestPlanAndGroupInfoDTO testPlanAndGroupInfoDTO : sortList) {
                 CascadeDTO cascadeChildrenDTO = new CascadeDTO();
                 cascadeChildrenDTO.setValue(testPlanAndGroupInfoDTO.getId());
                 cascadeChildrenDTO.setLabel(testPlanAndGroupInfoDTO.getName());
@@ -1542,9 +1561,10 @@ public class DashboardService {
             CascadeChildrenDTO father = new CascadeChildrenDTO();
             father.setValue(testPlan.getId());
             father.setLabel(testPlan.getName());
+            father.setCreateTime(testPlan.getCreateTime());
             cascadeDTOList.add(father);
         }
-        return cascadeDTOList;
+        return cascadeDTOList.stream().sorted(Comparator.comparing(CascadeChildrenDTO::getCreateTime).reversed()).toList();
 
     }
 }

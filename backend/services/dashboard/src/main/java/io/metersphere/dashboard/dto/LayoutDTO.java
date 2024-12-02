@@ -32,5 +32,7 @@ public class LayoutDTO implements Serializable {
     private boolean selectAll;
     @Schema(description =  "人员集合")
     private List<String> handleUsers;
+    @Schema(description = "测试计划ID")
+    private String planId;
 
 }

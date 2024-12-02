@@ -26,6 +26,7 @@ public enum DashboardUserLayoutKeys {
      */
     TEST_PLAN_COUNT,//测试计划数量统计
     PLAN_LEGACY_BUG,//计划遗留bug统计
+    PROJECT_PLAN_VIEW,//测试计划概览
     /**
      * bug
      */

@@ -104,4 +104,7 @@ public interface ExtTestPlanMapper {
      * 获取项目下计划组和计划的名称
      */
     List<TestPlanAndGroupInfoDTO> getGroupAndPlanInfo(@Param("projectId") String projectId);
+
+    TestPlan getLatestPlan(@Param("projectId") String projectId);
+
 }

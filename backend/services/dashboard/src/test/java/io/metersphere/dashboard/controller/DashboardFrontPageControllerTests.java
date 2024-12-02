@@ -260,6 +260,8 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         layoutDTO.add(layoutDTO9);
         LayoutDTO layoutDTOz = getLayoutDTO(12, DashboardUserLayoutKeys.PLAN_LEGACY_BUG, "计划遗留bug统计");
         layoutDTO.add(layoutDTOz);
+        LayoutDTO layoutDTOg = getLayoutDTO(17, DashboardUserLayoutKeys.PROJECT_PLAN_VIEW, "测试计划概览");
+        layoutDTO.add(layoutDTOg);
         LayoutDTO layoutDTOx = getLayoutDTO(13, DashboardUserLayoutKeys.BUG_COUNT, "缺陷数量统计");
         layoutDTO.add(layoutDTOx);
         LayoutDTO layoutDTOv = getLayoutDTO(14, DashboardUserLayoutKeys.CREATE_BUG_BY_ME, "我创建的缺陷");
@@ -312,6 +314,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         layoutDTOb.setProjectIds(projects);
         layoutDTOb.setHandleUsers(new ArrayList<>());
         layoutDTOb.setFullScreen(false);
+        layoutDTOb.setPlanId("");
         return layoutDTOb;
     }
 

@@ -940,11 +940,16 @@
         </if>
     </select>
     <select id="getGroupAndPlanInfo" resultType="io.metersphere.plan.dto.TestPlanAndGroupInfoDTO">
-        select  son.id, son.name, son.group_id, son.project_id, father.name as groupName
+        select  son.id, son.name, son.group_id, son.project_id, father.name as groupName, son.create_time, father.create_time as groupCreateTime
         from test_plan son
                  left join test_plan father on father.id = son.group_id
-        where son.type = 'TEST_PLAN'
+        where son.type = 'TEST_PLAN' and son.status='NOT_ARCHIVED'
           and father.type = 'GROUP' and son.project_id = #{projectId};
+    </select>
+    <select id="getLatestPlan" resultType="io.metersphere.plan.domain.TestPlan">
+        select id, name, group_id
+        from test_plan
+        where type = 'TEST_PLAN' and status='NOT_ARCHIVED' and project_id = #{projectId} order by create_time desc limit 1;
     </select>
 
 
