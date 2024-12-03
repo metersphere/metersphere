@@ -16,6 +16,7 @@ import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.utils.ScheduleUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -140,8 +142,12 @@ public class TestPlanStatisticsService {
 			List<TestPlanStatisticsResponse> childrenResponse = new ArrayList<>();
 			if (!CollectionUtils.isEmpty(children)) {
 				List<String> childStatus = new ArrayList<>();
+				AtomicBoolean hasNotPassedChild = new AtomicBoolean(false);
 				children.forEach(child -> {
 					TestPlanStatisticsResponse childResponse = this.genTestPlanStatisticsResponse(child, planConfigMap, planFunctionalCaseMap, planApiCaseMap, planApiScenarioMap, scheduleMap);
+					if (BooleanUtils.isFalse(childResponse.isPass())) {
+						hasNotPassedChild.set(true);
+					}
 					childResponse.setStatus(child.getStatus());
 					
 					childResponse.calculateStatus();
@@ -156,11 +162,15 @@ public class TestPlanStatisticsService {
 				if (!StringUtils.equalsIgnoreCase(rootResponse.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
 					rootResponse.setStatus(testPlanBaseUtilsService.calculateStatusByChildren(childStatus));
 				}
+				if (!hasNotPassedChild.get()) {
+					rootResponse.setPass(true);
+				}
 			} else {
 				rootResponse.calculateCaseTotal();
 				rootResponse.calculatePassRate();
 				rootResponse.calculateExecuteRate();
 				rootResponse.calculateStatus();
+				rootResponse.calculateTestPlanIsPass();
 			}
 			returnResponse.add(rootResponse);
 			returnResponse.addAll(childrenResponse);
@@ -220,6 +230,7 @@ public class TestPlanStatisticsService {
 			statisticsResponse.calculateCaseTotal();
 			statisticsResponse.calculatePassRate();
 			statisticsResponse.calculateExecuteRate();
+			statisticsResponse.calculateTestPlanIsPass();
 		}
 		//定时任务
 		if (scheduleMap.containsKey(planId)) {

@@ -1721,6 +1721,18 @@ public class TestPlanControllerTests extends BaseTest {
                 TestPlanStatisticsResponse.class);
         Assertions.assertTrue(statisticsResponses.size() > 1);
 
+
+        statisticsResponses = JSON.parseArray(
+                JSON.toJSONString(
+                        JSON.parseObject(
+                                this.requestPostAndReturn(URL_POST_TEST_PLAN_STATISTICS, new ArrayList<>() {{
+                                            this.add(testPlanId6);
+                                            this.add(groupTestPlanId46);
+                                        }})
+                                        .getResponse().getContentAsString(), ResultHolder.class).getData()),
+                TestPlanStatisticsResponse.class);
+        Assertions.assertTrue(statisticsResponses.size() > 1);
+
         //增加日志检查
         LOG_CHECK_LIST.add(
                 new CheckLogModel(groupTestPlanId7, OperationLogType.UPDATE, null)
