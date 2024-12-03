@@ -106,9 +106,6 @@ public class ApiScenarioMessageDTO {
     @Schema(description = "message.domain.api_scenario_requestFakeErrorRate")
     private String requestFakeErrorRate;
 
-    @Schema(description = "message.domain.api_scenario_reportRequestPassRate")
-    private String reportRequestPassRate;
-
     @Schema(description = "message.domain.api_scenario_assertionPassRate")
     private String assertionPassRate;
 
