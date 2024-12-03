@@ -3,9 +3,7 @@ package io.metersphere.dashboard.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.bug.dto.request.BugPageRequest;
-import io.metersphere.bug.dto.request.BugTodoRequest;
 import io.metersphere.bug.dto.response.BugDTO;
-import io.metersphere.bug.enums.BugPlatform;
 import io.metersphere.bug.service.BugCommonService;
 import io.metersphere.bug.service.BugService;
 import io.metersphere.functional.dto.CaseReviewDTO;
@@ -17,7 +15,6 @@ import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.plan.service.TestPlanStatisticsService;
 import io.metersphere.project.service.ProjectApplicationService;
-import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -96,36 +93,11 @@ public class ToDoController {
 	@CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
 	public Pager<List<BugDTO>> bugPage(@Validated @RequestBody BugPageRequest request) {
 		request.setUseTrash(false);
-		request.setTodoParam(buildBugToDoParam(request, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId()));
+		request.setAssignedToMe(true);
+		request.setUnresolved(true);
+		request.setTodoParam(bugService.buildBugToDoParam(request, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId()));
 		Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
 				StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "b.pos desc");
 		return PageUtils.setPageInfo(page, bugService.list(request));
-	}
-
-	/**
-	 * 设置缺陷待办参数
-	 * @param request 请求参数
-	 * @param currentUserId 当前用户ID
-	 * @param currentOrgId 当前组织ID
-	 * @return 待办参数
-	 */
-	private BugTodoRequest buildBugToDoParam(BugPageRequest request, String currentUserId, String currentOrgId) {
-		List<String> msLastStepStatusIds = bugCommonService.getLocalLastStepStatus(request.getProjectId());
-		BugTodoRequest todoParam = BugTodoRequest.builder().msUserId(currentUserId).msLastStepStatus(msLastStepStatusIds).build();
-		try {
-			// 设置待办的平台参数
-			String platformName = projectApplicationService.getPlatformName(request.getProjectId());
-			if (StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
-				return todoParam;
-			}
-			todoParam.setCurrentPlatform(platformName);
-			todoParam.setPlatformLastStatus(bugCommonService.getPlatformLastStepStatus(request.getProjectId()));
-			todoParam.setPlatformUser(bugCommonService.getPlatformHandlerUser(request.getProjectId(), currentUserId, currentOrgId));
-		} catch (Exception e) {
-			// 设置平台参数异常时, 无法正常过滤平台非结束的缺陷
-			LogUtils.error(e.getMessage());
-			return todoParam;
-		}
-		return todoParam;
 	}
 }

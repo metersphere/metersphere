@@ -189,6 +189,7 @@ public class BugControllerTests extends BaseTest {
         bugPageRequest.setPageSize(10);
         bugPageRequest.setKeyword("default-x");
         bugPageRequest.setProjectId("default-project-for-bug");
+        bugPageRequest.setCreateByMe(true);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -608,6 +609,8 @@ public class BugControllerTests extends BaseTest {
         BugPageRequest bugPageRequest = new BugPageRequest();
         bugPageRequest.setCurrent(1);
         bugPageRequest.setPageSize(10);
+        bugPageRequest.setUnresolved(true);
+        bugPageRequest.setAssignedToMe(true);
         bugPageRequest.setProjectId("default-project-for-bug");
         this.requestPostWithOk(BUG_PAGE, bugPageRequest);
 

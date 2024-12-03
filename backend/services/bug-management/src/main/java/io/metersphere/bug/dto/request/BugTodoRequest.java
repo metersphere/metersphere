@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * @author song-cc-rock
- * 缺陷待办参数
+ * 缺陷待办参数 (工作台)
  */
 @Data
 @Builder

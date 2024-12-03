@@ -2106,7 +2106,49 @@ public class BugService {
         }
     }
 
+    /**
+     * 获取平台临时富文本图片URL
+     * @param key 富文本图片key
+     * @return 富文本图片URL
+     */
     private String getPlatformTmpRichUrlOfKey(String key) {
         return "alt=\"" + key + "\"";
+    }
+
+    /**
+     * 设置缺陷待办参数
+     * @param request 请求参数
+     * @param currentUserId 当前用户ID
+     * @param currentOrgId 当前组织ID
+     * @return 待办参数
+     */
+    public BugTodoRequest buildBugToDoParam(BugPageRequest request, String currentUserId, String currentOrgId) {
+        List<String> msLastStepStatusIds = bugCommonService.getLocalLastStepStatus(request.getProjectId());
+        BugTodoRequest todoParam = BugTodoRequest.builder().build();
+        if (request.getAssignedToMe() || request.getCreateByMe()) {
+            todoParam.setMsUserId(currentUserId);
+        }
+        if (request.getUnresolved()) {
+            todoParam.setMsLastStepStatus(msLastStepStatusIds);
+        }
+        try {
+            // 设置待办的平台参数
+            String platformName = projectApplicationService.getPlatformName(request.getProjectId());
+            if (StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
+                return todoParam;
+            }
+            if (request.getUnresolved()) {
+                todoParam.setCurrentPlatform(platformName);
+                todoParam.setPlatformLastStatus(bugCommonService.getPlatformLastStepStatus(request.getProjectId()));
+            }
+            if (request.getAssignedToMe()) {
+                todoParam.setPlatformUser(bugCommonService.getPlatformHandlerUser(request.getProjectId(), currentUserId, currentOrgId));
+            }
+        } catch (Exception e) {
+            // 设置平台参数异常时, 无法正常过滤平台非结束的缺陷
+            LogUtils.error(e.getMessage());
+            return todoParam;
+        }
+        return todoParam;
     }
 }

@@ -162,36 +162,48 @@
                 or b.tags like concat('%', #{request.keyword},'%')
                 )
             </if>
-            <!-- 我的待办 -->
+            <!-- 待办参数 -->
             <if test="request.todoParam != null">
                 and (
-                <!-- Local平台: 非结束状态&&处理人为当前登录用户 -->
-                (
-                b.platform = 'Local'
-                <if test="request.todoParam.msLastStepStatus != null and request.todoParam.msLastStepStatus.size() > 0">
-                    and b.status not in
-                    <foreach collection="request.todoParam.msLastStepStatus" item="lastStatus" separator="," open="(" close=")">
-                        #{lastStatus}
-                    </foreach>
-                </if>
-                and b.handle_user = #{request.todoParam.msUserId}
-                )
-                <if test="request.todoParam.currentPlatform != null and request.todoParam.currentPlatform != 'Local'">
+                    <!-- Local平台: 非结束状态&&处理人为当前登录用户 -->
+                    (
+                        b.platform = 'Local'
+                        <if test="request.todoParam.msLastStepStatus != null and request.todoParam.msLastStepStatus.size() > 0">
+                            and b.status not in
+                            <foreach collection="request.todoParam.msLastStepStatus" item="lastStatus" separator="," open="(" close=")">
+                                #{lastStatus}
+                            </foreach>
+                        </if>
+                        <if test="request.todoParam.msUserId != null and request.todoParam.msUserId != ''">
+                            and b.handle_user = #{request.todoParam.msUserId}
+                        </if>
+                    )
+                    <if test="request.todoParam.currentPlatform != null and request.todoParam.currentPlatform != 'Local'">
                     <!-- 插件平台: 非平台结束状态&&处理人为个人中心账号配置 -->
                     or
-                    (
-                    b.platform = #{request.todoParam.currentPlatform}
-                    <if test="request.todoParam.platformLastStatus != null and request.todoParam.platformLastStatus.size() > 0">
-                        and b.status not in
-                        <foreach collection="request.todoParam.platformLastStatus" item="lastStatus" separator="," open="(" close=")">
-                            #{lastStatus}
-                        </foreach>
+                        (
+                            b.platform = #{request.todoParam.currentPlatform}
+                            <if test="request.todoParam.platformLastStatus != null and request.todoParam.platformLastStatus.size() > 0">
+                                and b.status not in
+                                <foreach collection="request.todoParam.platformLastStatus" item="lastStatus" separator="," open="(" close=")">
+                                    #{lastStatus}
+                                </foreach>
+                            </if>
+                            <if test="request.todoParam.platformUser != null and request.todoParam.platformUser != ''">
+                                and b.handle_user = #{request.todoParam.platformUser}
+                            </if>
+                        )
                     </if>
-                    <if test="request.todoParam.platformUser != null and request.todoParam.platformUser != ''">
-                        and b.handle_user = #{request.todoParam.platformUser}
-                    </if>
-                    )
-                </if>
+                )
+            </if>
+            <!-- 工作台参数 -->
+            <if test="request.createByMe">
+                and b.create_user = #{request.todoParam.msUserId}
+            </if>
+            <if test="request.relatedToPlan">
+                and b.id in (
+                    select distinct b.id from bug b inner join bug_relation_case brc on b.id = brc.bug_id
+                    where brc.test_plan_id is not null and b.project_id = #{request.projectId}
                 )
             </if>
             <include refid="filter"/>

@@ -20,6 +20,18 @@ public class BugPageRequest extends BasePageRequest {
     @Schema(description = "是否回收站, 后台默认设置")
     private boolean useTrash;
 
-    @Schema(description = "待办参数, 后台默认设置")
+    @Schema(description = "待办参数: 后台默认设置")
     private BugTodoRequest todoParam;
+
+    @Schema(description = "工作台参数: 是否属于测试计划")
+    private Boolean relatedToPlan = false;
+
+    @Schema(description = "工作台参数: 是否我创建的")
+    private Boolean createByMe = false;
+
+    @Schema(description = "工作台参数: 是否待我处理的")
+    private Boolean assignedToMe = false;
+
+    @Schema(description = "工作台参数: 是否遗留的")
+    private Boolean unresolved = false;
 }

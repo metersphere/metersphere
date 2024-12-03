@@ -95,6 +95,7 @@ public class BugController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
         request.setUseTrash(false);
+        request.setTodoParam(bugService.buildBugToDoParam(request, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId()));
         return PageUtils.setPageInfo(page, bugService.list(request));
     }
 
