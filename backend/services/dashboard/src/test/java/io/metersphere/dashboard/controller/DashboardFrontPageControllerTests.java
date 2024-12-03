@@ -86,6 +86,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
     private static final String CREATE_BY_ME = "/dashboard/create_by_me";
     private static final String PROJECT_VIEW = "/dashboard/project_view";
     private static final String PROJECT_MEMBER_VIEW = "/dashboard/project_member_view";
+    private static final String PROJECT_PLAN_VIEW = "/dashboard/plan_view";
     private static final String CASE_COUNT = "/dashboard/case_count";
     private static final String ASSOCIATE_CASE_COUNT = "/dashboard/associate_case_count";
     private static final String REVIEW_CASE_COUNT = "/dashboard/review_case_count";
@@ -176,6 +177,15 @@ public class DashboardFrontPageControllerTests extends BaseTest {
                         JSON.parseObject(mvcResultAll.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 OverViewCountDTO.class);
         Assertions.assertNotNull(moduleCountAll);
+
+        dashboardFrontPageRequest.setPlanId("dashboard_test-plan-id");
+        mvcResultAll = this.requestPostWithOkAndReturn(PROJECT_PLAN_VIEW, dashboardFrontPageRequest);
+        moduleCountAll = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultAll.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                OverViewCountDTO.class);
+        Assertions.assertNotNull(moduleCountAll);
+        System.out.println(JSON.toJSONString(moduleCountAll));
+
         List<SelectOption> headerStatusOption = bugStatusService.getHeaderStatusOption(DEFAULT_PROJECT_ID);
         buildBug(headerStatusOption);
         bugMvcResult = this.requestPostWithOkAndReturn(BUG_HANDLE_USER, dashboardFrontPageRequest);

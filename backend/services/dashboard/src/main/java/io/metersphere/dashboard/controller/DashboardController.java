@@ -83,6 +83,13 @@ public class DashboardController {
         return dashboardService.projectMemberViewCount(request);
     }
 
+    @PostMapping("/plan_view")
+    @Operation(summary = "测试计划概览")
+    @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
+    public OverViewCountDTO projectPlanViewCount(@Validated @RequestBody DashboardFrontPageRequest request) {
+        return dashboardService.projectPlanViewCount(request, SessionUtils.getUserId());
+    }
+
     @PostMapping("/bug_handle_user")
     @Operation(summary = "缺陷处理人统计")
     @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")

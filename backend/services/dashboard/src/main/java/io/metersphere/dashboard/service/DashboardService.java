@@ -31,11 +31,12 @@ import io.metersphere.functional.mapper.ExtCaseReviewMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.request.CaseReviewPageRequest;
 import io.metersphere.functional.service.CaseReviewService;
-import io.metersphere.plan.domain.TestPlan;
-import io.metersphere.plan.domain.TestPlanExample;
+import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.TestPlanAndGroupInfoDTO;
-import io.metersphere.plan.mapper.ExtTestPlanMapper;
-import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.plan.dto.response.TestPlanBugPageResponse;
+import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
+import io.metersphere.plan.mapper.*;
+import io.metersphere.plan.service.TestPlanStatisticsService;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ProjectCountDTO;
@@ -56,6 +57,8 @@ import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.domain.UserLayout;
 import io.metersphere.system.domain.UserLayoutExample;
 import io.metersphere.system.dto.ProtocolDTO;
@@ -65,6 +68,7 @@ import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.mapper.ExtExecTaskItemMapper;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.mapper.UserLayoutMapper;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -124,6 +128,8 @@ public class DashboardService {
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
+    private UserMapper userMapper;
+    @Resource
     private BugCommonService bugCommonService;
     @Resource
     private BugStatusService bugStatusService;
@@ -135,6 +141,16 @@ public class DashboardService {
     private ApiTestService apiTestService;
     @Resource
     private ExtSystemProjectMapper extSystemProjectMapper;
+    @Resource
+    private TestPlanStatisticsService planStatisticsService;
+    @Resource
+    private ExtTestPlanFunctionalCaseMapper extTestPlanFunctionalCaseMapper;
+    @Resource
+    private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
+    @Resource
+    private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
+    @Resource
+    private ExtTestPlanBugMapper extTestPlanBugMapper;
 
 
     public static final String FUNCTIONAL = "FUNCTIONAL"; // 功能用例
@@ -479,9 +495,11 @@ public class DashboardService {
                 checkHasPermissionProject(layoutDTO, hasReadProjectIds);
                 if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PROJECT_PLAN_VIEW.toString())) {
                     TestPlan testPlan = testPlanMapper.selectByPrimaryKey(layoutDTO.getPlanId());
-                    if (testPlan == null || StringUtils.equalsIgnoreCase(testPlan.getStatus(),TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+                    if (testPlan == null || StringUtils.equalsIgnoreCase(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
                         TestPlan latestPlan = extTestPlanMapper.getLatestPlan(layoutDTO.getProjectIds().getFirst());
-                        layoutDTO.setPlanId(latestPlan.getId());
+                        if (latestPlan != null) {
+                            layoutDTO.setPlanId(latestPlan.getId());
+                        }
                     }
                 }
             } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.BUG_COUNT.toString())
@@ -693,6 +711,135 @@ public class DashboardService {
         return overViewCountDTO;
     }
 
+
+    public OverViewCountDTO projectPlanViewCount(DashboardFrontPageRequest request, String currentUserId) {
+        OverViewCountDTO overViewCountDTO = new OverViewCountDTO();
+        String projectId = request.getProjectIds().getFirst();
+        if (Boolean.FALSE.equals(permissionCheckService.checkModule(projectId, TEST_PLAN_MODULE, currentUserId, PermissionConstants.TEST_PLAN_READ))) {
+            overViewCountDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
+        }
+        List<String> planIds = List.of(request.getPlanId());
+        List<TestPlanStatisticsResponse> testPlanStatisticsResponses = planStatisticsService.calculateRate(planIds);
+        TestPlanStatisticsResponse planCount = testPlanStatisticsResponses.getFirst();
+        List<TestPlanFunctionalCase> planFunctionalCases = extTestPlanFunctionalCaseMapper.getPlanFunctionalCaseByIds(planIds);
+        List<TestPlanApiCase> planApiCases = extTestPlanApiCaseMapper.getPlanApiCaseByIds(planIds);
+        List<TestPlanApiScenario> planApiScenarios = extTestPlanApiScenarioMapper.getPlanApiScenarioByIds(planIds);
+        // 计划-缺陷的关联数据
+        List<TestPlanBugPageResponse> planBugs = extTestPlanBugMapper.countBugByIds(planIds);
+        //获取卡片数据
+        buildCountMap(planCount, planBugs, overViewCountDTO);
+        Map<String, List<TestPlanFunctionalCase>> caseUserMap = planFunctionalCases.stream().collect(Collectors.groupingBy(TestPlanFunctionalCase::getExecuteUser));
+        Map<String, List<TestPlanApiCase>> apiCaseUserMap = planApiCases.stream().collect(Collectors.groupingBy(TestPlanApiCase::getExecuteUser));
+        Map<String, List<TestPlanApiScenario>> apiScenarioUserMap = planApiScenarios.stream().collect(Collectors.groupingBy(TestPlanApiScenario::getExecuteUser));
+        Map<String, List<TestPlanBugPageResponse>> bugUserMap = planBugs.stream().collect(Collectors.groupingBy(TestPlanBugPageResponse::getCreateUser));
+        List<User> users = getUsers(caseUserMap, apiCaseUserMap, apiScenarioUserMap, bugUserMap);
+        Map<String, String> userNameMap = users.stream().collect(Collectors.toMap(User::getId, User::getName));
+        int totalCount = planFunctionalCases.size() + planApiCases.size() + planApiScenarios.size() + planBugs.size();
+        List<String> nameList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(users)) {
+            if (totalCount > 0) {
+                nameList = List.of(Translator.get("plan_executor"));
+            }
+        } else {
+            nameList = userNameMap.values().stream().toList();
+        }
+        overViewCountDTO.setXAxis(nameList);
+
+        //获取柱状图数据
+        List<NameArrayDTO> nameArrayDTOList = getNameArrayDTOS(projectId, userNameMap, caseUserMap, apiCaseUserMap, apiScenarioUserMap, bugUserMap);
+        overViewCountDTO.setProjectCountList(nameArrayDTOList);
+        return overViewCountDTO;
+
+    }
+
+    @NotNull
+    private List<NameArrayDTO> getNameArrayDTOS(String projectId, Map<String, String> userNameMap, Map<String, List<TestPlanFunctionalCase>> caseUserMap, Map<String, List<TestPlanApiCase>> apiCaseUserMap, Map<String, List<TestPlanApiScenario>> apiScenarioUserMap, Map<String, List<TestPlanBugPageResponse>> bugUserMap) {
+        List<Integer> totalCaseCount = new ArrayList<>();
+        List<Integer> finishCaseCount = new ArrayList<>();
+        List<Integer> createBugCount = new ArrayList<>();
+        List<Integer> closeBugCount = new ArrayList<>();
+
+        String platformName = projectApplicationService.getPlatformName(projectId);
+        List<SelectOption> headerStatusOption = getStatusOption(projectId, platformName);
+        List<String> statusList = headerStatusOption.stream().map(SelectOption::getValue).toList();
+        userNameMap.forEach((userId, name)->{
+            int count = 0;
+            int finishCount = 0;
+            List<TestPlanFunctionalCase> testPlanFunctionalCases = caseUserMap.get(userId);
+            if (CollectionUtils.isNotEmpty(testPlanFunctionalCases)) {
+                count += testPlanFunctionalCases.size();
+                List<TestPlanFunctionalCase> list = testPlanFunctionalCases.stream().filter(t -> StringUtils.isNotBlank(t.getLastExecResult())).toList();
+                finishCount += list.size();
+            }
+            List<TestPlanApiCase> testPlanApiCases = apiCaseUserMap.get(userId);
+            if (CollectionUtils.isNotEmpty(testPlanApiCases)) {
+                count += testPlanApiCases.size();
+                List<TestPlanApiCase> list = testPlanApiCases.stream().filter(t -> StringUtils.isNotBlank(t.getLastExecResult())).toList();
+                finishCount += list.size();
+            }
+            List<TestPlanApiScenario> testPlanApiScenarios = apiScenarioUserMap.get(userId);
+            if (CollectionUtils.isNotEmpty(testPlanApiScenarios)) {
+                count += testPlanApiScenarios.size();
+                List<TestPlanApiScenario> list = testPlanApiScenarios.stream().filter(t -> StringUtils.isNotBlank(t.getLastExecResult())).toList();
+                finishCount += list.size();
+            }
+            List<TestPlanBugPageResponse> testPlanBugPageResponses = bugUserMap.get(userId);
+            if (CollectionUtils.isNotEmpty(testPlanBugPageResponses)) {
+                createBugCount.add(testPlanBugPageResponses.size());
+                List<TestPlanBugPageResponse> list = testPlanBugPageResponses.stream().filter(t -> statusList.contains(t.getStatus())).toList();
+                closeBugCount.add(list.size());
+            }
+            totalCaseCount.add(count);
+            finishCaseCount.add(finishCount);
+        });
+
+        List<NameArrayDTO> nameArrayDTOList = new ArrayList<>();
+        NameArrayDTO userCaseCountArray = new NameArrayDTO();
+        userCaseCountArray.setCount(totalCaseCount);
+        nameArrayDTOList.add(userCaseCountArray);
+
+        NameArrayDTO userFinishCountArray = new NameArrayDTO();
+        userFinishCountArray.setCount(finishCaseCount);
+        nameArrayDTOList.add(userFinishCountArray);
+
+        NameArrayDTO userCreateBugArray = new NameArrayDTO();
+        userCreateBugArray.setCount(createBugCount);
+        nameArrayDTOList.add(userCreateBugArray);
+
+        NameArrayDTO userCloseBugArray = new NameArrayDTO();
+        userCloseBugArray.setCount(closeBugCount);
+        nameArrayDTOList.add(userCloseBugArray);
+        return nameArrayDTOList;
+    }
+
+    private List<User> getUsers(Map<String, List<TestPlanFunctionalCase>> caseUserMap, Map<String, List<TestPlanApiCase>> apiCaseUserMap, Map<String, List<TestPlanApiScenario>> apiScenarioUserMap, Map<String, List<TestPlanBugPageResponse>> bugUserMap) {
+        Set<String> userSet = new HashSet<>();
+        userSet.addAll(caseUserMap.keySet());
+        userSet.addAll(apiCaseUserMap.keySet());
+        userSet.addAll(apiScenarioUserMap.keySet());
+        userSet.addAll(bugUserMap.keySet());
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdIn(new ArrayList<>(userSet));
+        userExample.createCriteria().andEnableEqualTo(true);
+        userExample.createCriteria().andDeletedEqualTo(false);
+        List<User> users = userMapper.selectByExample(userExample);
+        return users;
+    }
+
+    private static void buildCountMap(TestPlanStatisticsResponse planCount, List<TestPlanBugPageResponse> planBugs, OverViewCountDTO overViewCountDTO) {
+        Map<String, Integer> caseCountMap = new HashMap<>();
+        caseCountMap.put(FUNCTIONAL, (int) planCount.getFunctionalCaseCount());
+        caseCountMap.put(API_CASE, (int) planCount.getApiCaseCount());
+        caseCountMap.put(API_SCENARIO, (int) planCount.getApiScenarioCount());
+        Double passThreshold = planCount.getPassThreshold();
+        int passThresholdValue = passThreshold == null ? 0 : passThreshold.intValue();
+        caseCountMap.put("passThreshold", passThresholdValue);
+        Double executeRate = planCount.getExecuteRate();
+        int executeRateValue = executeRate == null ? 0 : executeRate.intValue();
+        caseCountMap.put("executeRate", executeRateValue);
+        caseCountMap.put(BUG_COUNT, planBugs.size());
+        overViewCountDTO.setCaseCountMap(caseCountMap);
+    }
 
     public StatisticsDTO projectCaseCount(DashboardFrontPageRequest request, String userId) {
         String projectId = request.getProjectIds().getFirst();
