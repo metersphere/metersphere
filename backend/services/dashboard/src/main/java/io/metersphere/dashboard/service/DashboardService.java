@@ -786,8 +786,13 @@ public class DashboardService {
             List<TestPlanBugPageResponse> testPlanBugPageResponses = bugUserMap.get(userId);
             if (CollectionUtils.isNotEmpty(testPlanBugPageResponses)) {
                 createBugCount.add(testPlanBugPageResponses.size());
-                List<TestPlanBugPageResponse> list = testPlanBugPageResponses.stream().filter(t -> statusList.contains(t.getStatus())).toList();
-                closeBugCount.add(list.size());
+                if (CollectionUtils.isNotEmpty(statusList)) {
+                    List<TestPlanBugPageResponse> list = testPlanBugPageResponses.stream().filter(t -> statusList.contains(t.getStatus())).toList();
+                    closeBugCount.add(list.size());
+                } else {
+                    closeBugCount.add(testPlanBugPageResponses.size());
+                }
+
             }
             totalCaseCount.add(count);
             finishCaseCount.add(finishCount);
