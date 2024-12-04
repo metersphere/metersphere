@@ -1,8 +1,8 @@
 package io.metersphere.api.parser.step;
 
-import io.metersphere.api.domain.ApiScenarioStep;
 import io.metersphere.api.dto.request.controller.MsLoopController;
 import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;
+import io.metersphere.api.dto.scenario.ApiScenarioStepDetailRequest;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 
 public class LoopControllerStepParser extends StepParser {
@@ -13,7 +13,7 @@ public class LoopControllerStepParser extends StepParser {
     }
 
     @Override
-    public Object parseDetail(ApiScenarioStep step) {
+    public Object parseDetail(ApiScenarioStepDetailRequest step) {
         return null;
     }
 }

@@ -1,9 +1,9 @@
 package io.metersphere.api.parser.step;
 
 import io.metersphere.api.constants.ApiScenarioStepRefType;
-import io.metersphere.api.domain.ApiScenarioStep;
 import io.metersphere.api.domain.ApiScenarioStepBlob;
 import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;
+import io.metersphere.api.dto.scenario.ApiScenarioStepDetailRequest;
 import io.metersphere.api.mapper.ApiScenarioStepBlobMapper;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -37,7 +37,7 @@ public abstract class StepParser {
      * @param step
      * @return
      */
-    public abstract Object parseDetail(ApiScenarioStep step);
+    public abstract Object parseDetail(ApiScenarioStepDetailRequest step);
 
 
     protected boolean isRef(String refType) {

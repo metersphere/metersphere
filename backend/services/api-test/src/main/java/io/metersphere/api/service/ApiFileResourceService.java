@@ -28,10 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author: jianxing
@@ -400,4 +397,9 @@ public class ApiFileResourceService {
         return fileId;
     }
 
+    public List<ApiFileResource> selectByResourceIds(Collection<String> copyFromStepIds) {
+        ApiFileResourceExample example = new ApiFileResourceExample();
+        example.createCriteria().andResourceIdIn(new ArrayList<>(copyFromStepIds));
+        return apiFileResourceMapper.selectByExample(example);
+    }
 }

@@ -1,9 +1,9 @@
 package io.metersphere.api.parser.step;
 
 import io.metersphere.api.domain.ApiScenarioBlob;
-import io.metersphere.api.domain.ApiScenarioStep;
 import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;
+import io.metersphere.api.dto.scenario.ApiScenarioStepDetailRequest;
 import io.metersphere.api.dto.scenario.ScenarioConfig;
 import io.metersphere.api.mapper.ApiScenarioBlobMapper;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -38,7 +38,7 @@ public class ApiScenarioStepParser extends StepParser {
      * @return
      */
     @Override
-    public Object parseDetail(ApiScenarioStep step) {
+    public Object parseDetail(ApiScenarioStepDetailRequest step) {
         if (isRef(step.getRefType())) {
             ApiScenarioBlobMapper apiScenarioBlobMapper = CommonBeanFactory.getBean(ApiScenarioBlobMapper.class);
             ApiScenarioBlob apiScenarioBlob = apiScenarioBlobMapper.selectByPrimaryKey(step.getResourceId());

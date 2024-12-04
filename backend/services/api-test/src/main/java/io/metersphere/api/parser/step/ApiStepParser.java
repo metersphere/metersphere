@@ -1,11 +1,11 @@
 package io.metersphere.api.parser.step;
 
 import io.metersphere.api.domain.ApiDefinitionBlob;
-import io.metersphere.api.domain.ApiScenarioStep;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.dto.request.http.body.FormDataKV;
 import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;
+import io.metersphere.api.dto.scenario.ApiScenarioStepDetailRequest;
 import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -52,7 +52,7 @@ public class ApiStepParser extends StepParser {
     }
 
     @Override
-    public Object parseDetail(ApiScenarioStep step) {
+    public Object parseDetail(ApiScenarioStepDetailRequest step) {
         if (isRef(step.getRefType())) {
             ApiDefinitionBlobMapper apiDefinitionBlobMapper = CommonBeanFactory.getBean(ApiDefinitionBlobMapper.class);
             ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(step.getResourceId());

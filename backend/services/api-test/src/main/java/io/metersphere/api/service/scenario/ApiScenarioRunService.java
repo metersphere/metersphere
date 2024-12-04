@@ -125,7 +125,9 @@ public class ApiScenarioRunService {
         apiScenarioService.handleRefUpgradeFile(csvVariables, dbCsv);
 
         // 处理特殊的步骤详情
-        apiScenarioService.addSpecialStepDetails(request.getSteps(), request.getStepDetails());
+        ApiScenarioCopyStepMap apiScenarioCopyStepMap = apiScenarioService.addSpecialStepDetails(request.getSteps(), request.getStepDetails());
+        // 处理copy的步骤文件
+        apiScenarioService.handleRunCopyStepFiles(request, apiScenarioCopyStepMap, request.getStepDetails());
 
         ApiResourceRunRequest runRequest = new ApiResourceRunRequest();
         runRequest = setFileParam(request, runRequest);
@@ -420,7 +422,9 @@ public class ApiScenarioRunService {
         }
 
         // 处理特殊的步骤详情
-        apiScenarioService.addSpecialStepDetails(request.getSteps(), request.getStepDetails());
+        ApiScenarioCopyStepMap apiScenarioCopyStepMap = apiScenarioService.addSpecialStepDetails(request.getSteps(), request.getStepDetails());
+        // 处理copy的步骤文件
+        apiScenarioService.handleRunCopyStepFiles(request, apiScenarioCopyStepMap, request.getStepDetails());
 
         ApiScenarioParseTmpParam tmpParam = parse(msScenario, request.getSteps(), request);
 
@@ -983,7 +987,7 @@ public class ApiScenarioRunService {
 
                 // 记录引用的资源ID和项目ID，下载执行文件时需要使用
                 parseParam.getRefProjectIds().add(step.getProjectId());
-                if (apiScenarioService.isRefOrPartialRef(step.getRefType())) {
+                if (apiScenarioService.isRefOrPartialRef(step.getRefType()) && !apiScenarioService.isRefApi(step.getStepType(), step.getRefType())) {
                     // 引用的步骤记录引用的资源ID
                     parseParam.getFileResourceIds().add(step.getResourceId());
                 } else if (msTestElement instanceof MsHTTPElement) {

@@ -443,7 +443,7 @@ public class ApiScenarioDataTransferService {
 
             scenarioCsvSteps = apiScenarioService.filterNotExistCsv(request.getScenarioConfig(), scenarioCsvSteps);
             this.saveStepCsv(scenarioId, scenarioCsvSteps, csvStepBatchMapper);
-            //            apiScenarioService.
+
             // 获取待更新的步骤详情
             apiScenarioService.addSpecialStepDetails(steps, request.getStepDetails());
             List<ApiScenarioStepBlob> updateStepBlobs = apiScenarioService.getUpdateStepBlobs(apiScenarioSteps, request.getStepDetails());

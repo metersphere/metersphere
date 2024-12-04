@@ -1,8 +1,8 @@
 package io.metersphere.api.parser.step;
 
-import io.metersphere.api.domain.ApiScenarioStep;
 import io.metersphere.api.dto.request.controller.MsOnceOnlyController;
 import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;
+import io.metersphere.api.dto.scenario.ApiScenarioStepDetailRequest;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.sdk.util.BeanUtils;
 
@@ -15,7 +15,7 @@ public class OnceOnlyControllerStepParser extends StepParser {
     }
 
     @Override
-    public Object parseDetail(ApiScenarioStep step) {
+    public Object parseDetail(ApiScenarioStepDetailRequest step) {
         return null;
     }
 }
