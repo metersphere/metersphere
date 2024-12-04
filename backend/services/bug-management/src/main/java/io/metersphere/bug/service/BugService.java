@@ -2123,6 +2123,10 @@ public class BugService {
      * @return 待办参数
      */
     public BugTodoRequest buildBugToDoParam(BugPageRequest request, String currentUserId, String currentOrgId) {
+        if (!request.getRelatedToPlan() && !request.getCreateByMe() && request.getAssignedToMe()) {
+            // 非工作台跳转, 不过滤
+            return null;
+        }
         List<String> msLastStepStatusIds = bugCommonService.getLocalLastStepStatus(request.getProjectId());
         BugTodoRequest todoParam = BugTodoRequest.builder().build();
         if (request.getAssignedToMe() || request.getCreateByMe()) {
