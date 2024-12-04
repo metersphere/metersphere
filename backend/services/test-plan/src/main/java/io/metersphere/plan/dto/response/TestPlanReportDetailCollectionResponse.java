@@ -12,7 +12,7 @@ public class TestPlanReportDetailCollectionResponse {
 	@Schema(description = "测试集ID")
 	private String id;
 	@Schema(description = "测试集名称")
-	private String name;
+	private String collectionName;
 	@Schema(description = "测试集用例数量")
 	private Long count;
 	@Schema(description = "计划名称")
