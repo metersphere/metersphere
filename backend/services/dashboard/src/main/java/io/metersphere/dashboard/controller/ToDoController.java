@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.bug.dto.request.BugPageRequest;
 import io.metersphere.bug.dto.response.BugDTO;
-import io.metersphere.bug.service.BugCommonService;
 import io.metersphere.bug.service.BugService;
 import io.metersphere.functional.dto.CaseReviewDTO;
 import io.metersphere.functional.request.CaseReviewPageRequest;
@@ -14,7 +13,6 @@ import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.plan.service.TestPlanStatisticsService;
-import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -47,13 +45,9 @@ public class ToDoController {
 	@Resource
 	private BugService bugService;
 	@Resource
-	private BugCommonService bugCommonService;
-	@Resource
 	private CaseReviewService caseReviewService;
 	@Resource
 	private TestPlanManagementService testPlanManagementService;
-	@Resource
-	private ProjectApplicationService projectApplicationService;
 	@Resource
 	private TestPlanStatisticsService testPlanStatisticsService;
 
