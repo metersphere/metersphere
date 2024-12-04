@@ -574,6 +574,13 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
         return null;
     }
 
+    private Schema<?> getRefSchema(Schema<?> schema) {
+        String refName = schema.get$ref();
+        if (StringUtils.isNotBlank(refName)) {
+            return getModelByRef(refName);
+        }
+        return null;
+    }
 
     private JsonSchemaItem parseSchema(Schema<?> schema) {
         if (schema != null) {
@@ -600,6 +607,9 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
                         }
                         if (StringUtils.isNotBlank(modelByRef.getType())) {
                             jsonSchemaItem.setType(modelByRef.getType());
+                        }
+                        if (StringUtils.isNotBlank(refName)) {
+                            jsonSchemaItem.setType(PropertyConstant.OBJECT);
                         }
                         jsonSchemaItem.setProperties(jsonSchemaProperties);
                         yield jsonSchemaItem;
@@ -643,8 +653,13 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
         jsonSchemaItem.setId(IDGenerator.nextStr());
         jsonSchemaItem.setDescription(objectSchema.getDescription());
         Map<String, JsonSchemaItem> jsonSchemaProperties = new LinkedHashMap<>();
-        if (MapUtils.isNotEmpty(objectSchema.getProperties())) {
-            objectSchema.getProperties().forEach((key, value) -> {
+        Map<String, Schema> properties = objectSchema.getProperties();
+        Schema<?> refSchema = getRefSchema(objectSchema);
+        if (refSchema != null) {
+            properties = refSchema.getProperties();
+        }
+        if (MapUtils.isNotEmpty(properties)) {
+            properties.forEach((key, value) -> {
                 JsonSchemaItem item = parseProperty(value, onlyOnce);
                 jsonSchemaProperties.put(key, item);
             });
