@@ -53,7 +53,7 @@ public interface ExtTestPlanReportFunctionalCaseMapper {
 	 * @param request 请求参数
 	 * @return 关联的用例集合
 	 */
-	List<ReportDetailCasePageDTO> list(@Param("request") TestPlanReportDetailPageRequest request);
+	List<ReportDetailCasePageDTO> list(@Param("request") TestPlanReportDetailPageRequest request, @Param("sort") String sort);
 
 	/**
 	 * 分页查询报告关联的测试集(功能)

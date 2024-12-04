@@ -480,9 +480,10 @@ public class TestPlanReportService {
 
     /**
      * 批量初始化报告关联功能用例数据
-     * @param sqlSession sql操作对象
-     * @param genParam 报告生成参数
-     * @param report 报告
+     *
+     * @param sqlSession  sql操作对象
+     * @param genParam    报告生成参数
+     * @param report      报告
      * @param bugCountMap 缺陷-用例 统计Map
      * @return 执行条数
      */
@@ -539,10 +540,11 @@ public class TestPlanReportService {
 
     /**
      * 批量初始化报告关联接口用例数据
-     * @param sqlSession sql操作对象
-     * @param genParam 报告生成参数
-     * @param report 报告
-     * @param project 项目
+     *
+     * @param sqlSession  sql操作对象
+     * @param genParam    报告生成参数
+     * @param report      报告
+     * @param project     项目
      * @param bugCountMap 缺陷-用例 统计Map
      * @return 执行条数
      */
@@ -590,10 +592,11 @@ public class TestPlanReportService {
 
     /**
      * 批量初始化报告关联场景用例数据
-     * @param sqlSession sql操作对象
-     * @param genParam 报告生成参数
-     * @param report 报告
-     * @param project 项目
+     *
+     * @param sqlSession  sql操作对象
+     * @param genParam    报告生成参数
+     * @param report      报告
+     * @param project     项目
      * @param bugCountMap 缺陷-用例 统计Map
      * @return 执行条数
      */
@@ -641,9 +644,10 @@ public class TestPlanReportService {
 
     /**
      * 批量初始化报告关联缺陷数据
+     *
      * @param sqlSession sql操作对象
-     * @param genParam 报告生成参数
-     * @param report 报告
+     * @param genParam   报告生成参数
+     * @param report     报告
      * @return 执行条数
      */
     private long initReportBug(SqlSession sqlSession, TestPlanReportGenPreParam genParam, TestPlanReport report) {
@@ -819,6 +823,7 @@ public class TestPlanReportService {
 
     /**
      * 获取计划任务执行结果 (执行历史)
+     *
      * @param taskId 任务ID
      * @return 计划|组 执行结果
      */
@@ -851,6 +856,7 @@ public class TestPlanReportService {
 
     /**
      * 获取计划任务执行结果 (任务中心)
+     *
      * @param taskId 任务ID
      * @return 计划|组 执行结果
      */
@@ -924,9 +930,12 @@ public class TestPlanReportService {
     public List<ReportDetailCasePageDTO> listReportDetailCases(TestPlanReportDetailPageRequest request, String caseType) {
         List<ReportDetailCasePageDTO> detailCases;
         switch (caseType) {
-            case AssociateCaseType.FUNCTIONAL -> detailCases = extTestPlanReportFunctionalCaseMapper.list(request);
-            case AssociateCaseType.API_CASE -> detailCases = extTestPlanReportApiCaseMapper.list(request);
-            case AssociateCaseType.API_SCENARIO -> detailCases = extTestPlanReportApiScenarioMapper.list(request);
+            case AssociateCaseType.FUNCTIONAL ->
+                    detailCases = extTestPlanReportFunctionalCaseMapper.list(request, request.getSortString());
+            case AssociateCaseType.API_CASE ->
+                    detailCases = extTestPlanReportApiCaseMapper.list(request, request.getSortString());
+            case AssociateCaseType.API_SCENARIO ->
+                    detailCases = extTestPlanReportApiScenarioMapper.list(request, request.getSortString());
             default -> detailCases = new ArrayList<>();
         }
         List<String> distinctUserIds = detailCases.stream().map(ReportDetailCasePageDTO::getExecuteUser).distinct().collect(Collectors.toList());
@@ -1311,13 +1320,45 @@ public class TestPlanReportService {
     public List<TestPlanReportDetailCollectionResponse> listReportCollection(TestPlanReportDetailPageRequest request, String caseType) {
         List<TestPlanReportDetailCollectionResponse> collections;
         switch (caseType) {
-            case CollectionQueryType.FUNCTIONAL -> collections = extTestPlanReportFunctionalCaseMapper.listCollection(request);
+            case CollectionQueryType.FUNCTIONAL ->
+                    collections = extTestPlanReportFunctionalCaseMapper.listCollection(request);
             case CollectionQueryType.API -> collections = extTestPlanReportApiCaseMapper.listCollection(request);
-            case CollectionQueryType.SCENARIO -> collections = extTestPlanReportApiScenarioMapper.listCollection(request);
+            case CollectionQueryType.SCENARIO ->
+                    collections = extTestPlanReportApiScenarioMapper.listCollection(request);
             default -> collections = new ArrayList<>();
         }
         collections.sort(Comparator.comparing(TestPlanReportDetailCollectionResponse::getPos));
+        handCollectionItemData(collections, caseType, request);
         return collections;
+    }
+
+    /**
+     * 处理测试集子项数据
+     *
+     * @param collections
+     */
+    private void handCollectionItemData(List<TestPlanReportDetailCollectionResponse> collections, String caseType, TestPlanReportDetailPageRequest request) {
+        if (CollectionUtils.isNotEmpty(collections)) {
+            TestPlanReportDetailPageRequest reportDetail = new TestPlanReportDetailPageRequest();
+            BeanUtils.copyBean(reportDetail, request);
+            collections.forEach(item -> {
+                reportDetail.setCollectionId(item.getId());
+                reportDetail.setDetailReportIds(getActualReportIds(request.getReportId()));
+                List<ReportDetailCasePageDTO> caseList = new ArrayList<>();
+                switch (caseType) {
+                    case CollectionQueryType.FUNCTIONAL ->
+                            caseList = listReportDetailCases(reportDetail, AssociateCaseType.FUNCTIONAL);
+                    case CollectionQueryType.API ->
+                            caseList = listReportDetailCases(reportDetail, AssociateCaseType.API_CASE);
+                    case CollectionQueryType.SCENARIO ->
+                            caseList = listReportDetailCases(reportDetail, AssociateCaseType.API_SCENARIO);
+                    default -> caseList = new ArrayList<>();
+                }
+                item.setReportDetailCaseList(caseList);
+            });
+        }
+
+
     }
 
     /**
@@ -1420,6 +1461,7 @@ public class TestPlanReportService {
 
     /**
      * 计算计划任务的用例执行情况(实时, 并不取计划报告的最终汇总)
+     *
      * @return 用例执行情况
      */
     private TestPlanTaskReportResponse calcTaskExecActual(String reportId, TestPlanTaskReportResponse testPlanTaskReportResponse) {
@@ -1443,6 +1485,7 @@ public class TestPlanReportService {
 
     /**
      * 计算计划任务的用例执行情况(取计划报告的最终汇总)
+     *
      * @return 用例执行情况
      */
     private TestPlanReportDetailResponse calcTaskExecFinish(String reportId, String detailName, TestPlanReportDetailResponse detail) {
@@ -1459,13 +1502,14 @@ public class TestPlanReportService {
         detail.setExecuteCount(CountUtils.summarizeProperties(List.of(detail.getApiCaseCount(), detail.getApiScenarioCount())));
         detail.setCaseTotal(detail.getExecuteCount().sum());
         CaseCount executeCount = detail.getExecuteCount();
-        detail.setExecuteRate(RateCalculateUtils.divWithPrecision((executeCount.sum()  - executeCount.getPending()), executeCount.sum(), 2));
+        detail.setExecuteRate(RateCalculateUtils.divWithPrecision((executeCount.sum() - executeCount.getPending()), executeCount.sum(), 2));
         detail.setPassRate(RateCalculateUtils.divWithPrecision(executeCount.getSuccess(), executeCount.sum(), 2));
         return detail;
     }
 
     /**
      * 获取实际的报告ID集合 (计划组报告则会返回多个)
+     *
      * @param reportId 报告ID
      * @return 报告ID集合
      */
@@ -1484,6 +1528,7 @@ public class TestPlanReportService {
 
     /**
      * 获取报告汇总详情
+     *
      * @param reportId 报告ID
      * @return 汇总详情
      */

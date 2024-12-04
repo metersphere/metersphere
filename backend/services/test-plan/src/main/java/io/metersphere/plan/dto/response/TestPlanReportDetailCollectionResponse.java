@@ -1,7 +1,10 @@
 package io.metersphere.plan.dto.response;
 
+import io.metersphere.plan.dto.ReportDetailCasePageDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class TestPlanReportDetailCollectionResponse {
@@ -16,4 +19,7 @@ public class TestPlanReportDetailCollectionResponse {
 	private String planName;
 	@Schema(description = "位置")
 	private Long pos;
+
+	@Schema(description = "用例数据")
+	List<ReportDetailCasePageDTO> reportDetailCaseList;
 }
