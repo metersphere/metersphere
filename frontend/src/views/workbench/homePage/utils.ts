@@ -1,11 +1,13 @@
 import { cloneDeep } from 'lodash-es';
 
 import { toolTipConfig } from '@/config/testPlan';
-import { commonRatePieOptions, contentTabList, defaultValueMap } from '@/config/workbench';
+import { commonRatePieOptions, defaultValueMap } from '@/config/workbench';
 import { useI18n } from '@/hooks/useI18n';
 import { addCommasToNumber } from '@/utils';
 
-import { WorkCardEnum } from '@/enums/workbenchEnum';
+import type { ModuleCardItem, OverViewOfProject } from '@/models/workbench/homePage';
+import { RouteEnum } from '@/enums/routeEnum';
+import { WorkCardEnum, WorkNavValueEnum } from '@/enums/workbenchEnum';
 
 const { t } = useI18n();
 // TODO 通用颜色配置注: 目前柱状图只用到了7种色阶，其他色阶暂时保留
@@ -77,7 +79,7 @@ export const colorMapConfig: Record<string, string[]> = {
 };
 
 // 柱状图
-export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<string, any> {
+export function getCommonBarOptions(hasRoom: boolean, color: string[], isTestPlan = false): Record<string, any> {
   return {
     tooltip: [
       {
@@ -98,18 +100,34 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
           axis: 'auto',
         },
         formatter(params: any) {
+          let testPlanHtml = '';
+          if (isTestPlan) {
+            const [assigning, complete] = params;
+            const passRate = assigning.value > 0 ? `${((complete.value / assigning.value) * 100).toFixed(2)}%` : '0%';
+            testPlanHtml = `<div class="flex items-center justify-between">
+                              <div class="flex items-center gap-[8px] text-[var(--color-text-2)]">
+                                <div style="background:#00C261;" class="flex items-center justify-center w-[11px] h-[11px] rounded-full text-[10px]">
+                                  <span class="text-[var(--color-text-fff)] text-center">✓</span>
+                                </div>
+                                   ${t('workbench.homePage.completeRate')}
+                              </div>
+                             
+                              <div class="text-[rgb(var(--success-6))] font-semibold">${passRate}</div>
+                            </div>`;
+          }
           const html = `
         <div class="w-[186px] ms-scroll-bar max-h-[236px] overflow-y-auto p-[16px] gap-[8px] flex flex-col">
         <div class="font-medium max-w-[150px] one-line-text" style="color:#323233">${params[0].axisValueLabel}</div>
+        ${testPlanHtml}
         ${params
           .map(
             (item: any) => `
           <div class="flex h-[18px] items-center justify-between">
             <div class="flex items-center">
               <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm" style="background:${item.color}"></div>
-              <div class="one-line-text max-w-[100px]" style="color:#959598">${item.seriesName}</div>
+              <div class="one-line-text max-w-[100px] text-[var(--color-text-2)]">${item.seriesName}</div>
             </div>
-            <div class="text-[#323233] font-medium">${addCommasToNumber(item.data.originValue || 0)}</div>
+            <div class="text-[var(--color-text-1)] font-semibold">${addCommasToNumber(item.data.originValue || 0)}</div>
           </div>
         `
           )
@@ -140,9 +158,17 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
         width: 120,
         overflow: 'truncate',
         ellipsis: '...',
+        showMinLabel: true,
+        showMaxLabel: true,
+        // TOTO 等待优化
+        interval: 0,
+        triggerEvent: true,
+      },
+      axisPointer: {
+        type: 'shadow',
       },
       axisTick: {
-        show: false, // 隐藏刻度线
+        alignWithLabel: true,
       },
       axisLine: {
         lineStyle: {
@@ -240,12 +266,15 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[]): Record<s
             type: 'slider',
             height: 24,
             bottom: 10,
-            // 按照坐标值显示起始位置
+            // TODO 待优化
+            minSpan: 1,
+            maxSpan: 26,
             startValue: 0,
+            end: 30,
             rangeMode: ['value', 'percent'], // 起点按实际值，终点按百分比动态计算
             showDataShadow: 'auto',
             showDetail: false,
-            filterMode: 'filter',
+            filterMode: 'none',
             moveOnMouseMove: true,
             handleSize: 30, // 手柄的大小
             moveHandleSize: 0,
@@ -402,6 +431,141 @@ export function handlePieData(
   return options;
 }
 
+export const routeNavigationMap: Record<string, any> = {
+  // 功能用例数
+  [WorkCardEnum.CASE_COUNT]: {
+    review: {
+      status: [WorkNavValueEnum.CASE_REVIEWED, WorkNavValueEnum.CASE_UN_REVIEWED],
+      route: RouteEnum.CASE_MANAGEMENT,
+    },
+    pass: {
+      status: [WorkNavValueEnum.CASE_REVIEWED_PASS, WorkNavValueEnum.CASE_REVIEWED_UN_PASS],
+      route: RouteEnum.CASE_MANAGEMENT,
+    },
+  },
+  // 用例评审数
+  [WorkCardEnum.REVIEW_CASE_COUNT]: {
+    cover: {
+      status: [WorkNavValueEnum.CASE_REVIEWED, WorkNavValueEnum.CASE_UN_REVIEWED],
+      route: RouteEnum.CASE_MANAGEMENT,
+    },
+  },
+  // 关联用例数
+  [WorkCardEnum.ASSOCIATE_CASE_COUNT]: {
+    cover: {
+      status: [WorkNavValueEnum.CASE_ASSOCIATED, WorkNavValueEnum.CASE_NOT_ASSOCIATED],
+      route: RouteEnum.CASE_MANAGEMENT,
+    },
+  },
+  // 接口数量
+  [WorkCardEnum.API_COUNT]: {
+    cover: {
+      status: [
+        WorkNavValueEnum.API_COUNT_COVER, // 已覆盖
+        WorkNavValueEnum.API_COUNT_UN_COVER, // 未覆盖
+      ],
+      route: RouteEnum.API_TEST_MANAGEMENT,
+    },
+    complete: {
+      status: [
+        WorkNavValueEnum.API_COUNT_DONE, // 已完成
+        WorkNavValueEnum.API_COUNT_PROCESSING, // 进行中
+        WorkNavValueEnum.API_COUNT_DEBUGGING, // 联调中
+        WorkNavValueEnum.API_COUNT_DEPRECATED, // 已废弃
+      ],
+      route: RouteEnum.API_TEST_MANAGEMENT,
+    },
+  },
+  // 接口用例
+  [WorkCardEnum.API_CASE_COUNT]: {
+    cover: {
+      status: [
+        WorkNavValueEnum.API_CASE_COUNT_UN_COVER, // 未覆盖
+        WorkNavValueEnum.API_CASE_COUNT_COVER, // 已覆盖
+      ],
+      route: RouteEnum.API_TEST_MANAGEMENT,
+    },
+    passRate: {
+      status: [
+        WorkNavValueEnum.API_COUNT_EXECUTE_ERROR, // 执行结果-未通过
+        WorkNavValueEnum.API_COUNT_EXECUTE_SUCCESS, // 执行结果-已通过
+      ],
+      route: RouteEnum.API_TEST_MANAGEMENT,
+    },
+    executeRate: {
+      status: [
+        WorkNavValueEnum.API_COUNT_EXECUTED_NOT_RESULT, //  接口用例-无执行结果
+        WorkNavValueEnum.API_COUNT_EXECUTED_RESULT, // 接口用例-有执行结果
+      ],
+      route: RouteEnum.API_TEST_MANAGEMENT,
+    },
+  },
+  // 场景用例
+  [WorkCardEnum.SCENARIO_COUNT]: {
+    cover: {
+      status: [
+        WorkNavValueEnum.SCENARIO_UN_COVER, // 未覆盖
+        WorkNavValueEnum.SCENARIO_COVER, // 已覆盖
+      ],
+      route: RouteEnum.API_TEST_MANAGEMENT,
+    },
+    passRate: {
+      status: [
+        WorkNavValueEnum.SCENARIO_COUNT_EXECUTE_ERROR, // 场景用例-执行结果-未通过
+        WorkNavValueEnum.SCENARIO_COUNT_EXECUTE_SUCCESS, // 场景用例-执行结果-已通过
+      ],
+      route: RouteEnum.API_TEST_SCENARIO,
+    },
+    executeRate: {
+      status: [
+        WorkNavValueEnum.SCENARIO_COUNT_EXECUTED_NOT_RESULT, //  场景用例-无执行结果
+        WorkNavValueEnum.SCENARIO_COUNT_EXECUTED_RESULT, // 场景用例-有执行结果
+      ],
+      route: RouteEnum.API_TEST_SCENARIO,
+    },
+  },
+  // 测试计划数量
+  [WorkCardEnum.TEST_PLAN_COUNT]: {
+    pass: {
+      status: [WorkNavValueEnum.TEST_PLAN_PASSED, WorkNavValueEnum.TEST_PLAN_NOT_PASS],
+      route: RouteEnum.TEST_PLAN_INDEX,
+    },
+    complete: {
+      status: [
+        WorkNavValueEnum.TEST_PLAN_COMPLETED, //   测试计划-已完成
+        WorkNavValueEnum.TEST_PLAN_UNDERWAY, // 测试计划-进行中
+        WorkNavValueEnum.TEST_PLAN_PREPARED, // 测试计划-未开始
+        WorkNavValueEnum.TEST_PLAN_ARCHIVED, // 测试计划-已归档
+      ],
+      route: RouteEnum.TEST_PLAN_INDEX,
+    },
+  },
+  [WorkCardEnum.PLAN_LEGACY_BUG]: {
+    legacy: {
+      status: [WorkNavValueEnum.TEST_PLAN_LEGACY, WorkNavValueEnum.TEST_PLAN_BUG],
+      route: RouteEnum.BUG_MANAGEMENT_INDEX,
+    },
+  },
+  [WorkCardEnum.BUG_COUNT]: {
+    legacy: {
+      status: [WorkNavValueEnum.BUG_COUNT, WorkNavValueEnum.BUG_COUNT_LEGACY],
+      route: RouteEnum.BUG_MANAGEMENT_INDEX,
+    },
+  },
+  [WorkCardEnum.CREATE_BUG_BY_ME]: {
+    legacy: {
+      status: [WorkNavValueEnum.BUG_COUNT_BY_ME, WorkNavValueEnum.BUG_COUNT_BY_ME_LEGACY],
+      route: RouteEnum.BUG_MANAGEMENT_INDEX,
+    },
+  },
+  [WorkCardEnum.HANDLE_BUG_BY_ME]: {
+    legacy: {
+      status: [WorkNavValueEnum.BUG_HANDLE_BY_ME, WorkNavValueEnum.BUG_HANDLE_BY_ME_LEGACY],
+      route: RouteEnum.BUG_MANAGEMENT_INDEX,
+    },
+  },
+};
+
 // 更新options
 export function handleUpdateTabPie(
   list: {
@@ -449,19 +613,37 @@ export function handleUpdateTabPie(
 
   options.series.color = defaultValueMap[typeKey][valueKey].color;
 
+  const lastValueList = lastCountList.map((item, index) => {
+    return {
+      ...item,
+      route: routeNavigationMap[typeKey][valueKey].route,
+      status: routeNavigationMap[typeKey][valueKey].status[index],
+    };
+  });
+
   return {
-    valueList: lastCountList,
+    valueList: lastValueList,
     options,
   };
 }
 
 export function getSeriesData(
-  projectCountList: {
-    id: string;
-    name: string;
-    count: number[];
-  }[]
+  contentTabList: ModuleCardItem[],
+  detail: OverViewOfProject,
+  colorConfig: string[],
+  isTestPlan = false
 ) {
+  let options: Record<string, any> = {};
+
+  const { projectCountList, xaxis, errorCode } = detail;
+  const hasPermission = errorCode !== 109001;
+
+  options = getCommonBarOptions(xaxis.length >= 7, colorConfig, isTestPlan);
+  options.xAxis.data = xaxis;
+  const { invisible, text } = handleNoDataDisplay(xaxis, hasPermission);
+  options.graphic.invisible = invisible;
+  options.graphic.style.text = text;
+
   let maxAxis = 5;
   const seriesData = projectCountList.map((item, sid) => {
     const countData: Record<string, any>[] = item.count.map((e) => {
@@ -482,7 +664,7 @@ export function getSeriesData(
             }"></div>
                 <div class="one-line-text max-w-[100px]"" style="color:#959598">${params.name}</div>
                 </div>
-                <div class="text-[#323233] font-medium">${addCommasToNumber(params.value)}</div>
+                <div class="text-[var(--color-text-1)] font-semibold">${addCommasToNumber(params.value)}</div>
                 </div>
                 `;
             return html;
@@ -504,6 +686,7 @@ export function getSeriesData(
       itemStyle: {
         borderRadius: [2, 2, 0, 0],
       },
+      barCategoryGap: 24,
       data: countData,
       barMinHeight: ((optionData: Record<string, any>[]) => {
         optionData.forEach((itemValue: any, index: number) => {
@@ -521,8 +704,21 @@ export function getSeriesData(
     };
   });
 
-  return {
-    data: seriesData,
-    maxAxis: maxAxis < 100 ? 100 : maxAxis + 50,
+  // 动态步长调整函数
+  const calculateStep = (num: number) => {
+    const magnitude = 10 ** Math.floor(Math.log10(num));
+    const step = num > 2 * magnitude ? magnitude * 2 : magnitude;
+    return step;
   };
+
+  const roundUpToNearest = (num: number, step: number) => Math.ceil(num / step) * step;
+
+  maxAxis = roundUpToNearest(maxAxis, calculateStep(maxAxis));
+
+  options.series = hasPermission ? seriesData : [];
+  options.yAxis[0].max = maxAxis;
+
+  options.yAxis[0].nameTextStyle.padding = maxAxis < 10 ? [0, 0, 0, 20] : [0, 0, 0, 0];
+
+  return options;
 }

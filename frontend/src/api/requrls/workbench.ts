@@ -32,3 +32,5 @@ export const WorkPlanLegacyBugUrl = '/dashboard/plan_legacy_bug'; // 工作台-�
 export const WorkApiCountCoverRateUrl = '/api/definition/rage'; // 工作台-首页-覆盖率
 export const WorkTestPlanRageUrl = '/test-plan/rage'; // 工作台-首页-测试计划数
 export const WorkProjectMemberListUrl = '/dashboard/member/get-project-member/option'; // 工作台-首页-项目成员下拉
+export const WorkTestPlanListUrl = '/dashboard/plan/option'; // 工作台-首页-测试计划概览下拉
+export const WorkTestPlanOverviewUrl = '/dashboard/plan_view'; // 工作台-首页-测试计划概览

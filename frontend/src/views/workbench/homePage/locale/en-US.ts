@@ -114,4 +114,12 @@ export default {
   'workbench.homePage.completeRate': 'Completion Rate',
   'workbench.homePage.legacyRate': 'Legacy Rate',
   'workbench.homePage.unit': 'Unit: Number',
+  'workbench.homePage.selected': 'Selected',
+  'workbench.homePage.testPlanOverview': 'Test plan overview',
+  'workbench.homePage.plan': 'Plan',
+  'workbench.homePage.planOfPleaseSelect': 'Please select a plan',
+  'workbench.homePage.assigningUseCases': 'Assigning use cases',
+  'workbench.homePage.completeUseCases': 'Complete use case',
+  'workbench.homePage.commitDefects': 'Commit defects',
+  'workbench.homePage.associatedDefect': 'Associated defect',
 };

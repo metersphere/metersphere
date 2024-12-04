@@ -11,7 +11,7 @@ import { hasAnyPermission } from '@/utils/permission';
 
 import type { AssociatedList, CustomAttributes } from '@/models/caseManagement/featureCase';
 import { ModuleTreeNode } from '@/models/common';
-import { StatusType } from '@/enums/caseEnum';
+import { LastReviewResult, StatusType } from '@/enums/caseEnum';
 
 const { t } = useI18n();
 
@@ -21,34 +21,42 @@ export interface ReviewResult {
   statusText: string;
 }
 
-// 图标评审结果 TODO:TS 类型 key
-export const statusIconMap: Record<string, any> = {
-  UN_REVIEWED: {
-    key: 'UN_REVIEWED',
+// 图标评审结果
+export const statusIconMap: Record<
+  string,
+  {
+    key: LastReviewResult;
+    icon: StatusType;
+    statusText: string;
+    color: string;
+  }
+> = {
+  [LastReviewResult.UN_REVIEWED]: {
+    key: LastReviewResult.UN_REVIEWED,
     icon: StatusType.UN_REVIEWED,
     statusText: t('caseManagement.featureCase.notReviewed'),
     color: 'text-[var(--color-text-brand)]',
   },
-  UNDER_REVIEWED: {
-    key: 'UNDER_REVIEWED',
+  [LastReviewResult.UNDER_REVIEWED]: {
+    key: LastReviewResult.UNDER_REVIEWED,
     icon: StatusType.UNDER_REVIEWED,
     statusText: t('caseManagement.featureCase.reviewing'),
     color: 'text-[rgb(var(--link-6))]',
   },
-  PASS: {
-    key: 'PASS',
+  [LastReviewResult.PASS]: {
+    key: LastReviewResult.PASS,
     icon: StatusType.PASS,
     statusText: t('caseManagement.featureCase.passed'),
     color: '',
   },
-  UN_PASS: {
-    key: 'UN_PASS',
+  [LastReviewResult.UN_PASS]: {
+    key: LastReviewResult.UN_PASS,
     icon: StatusType.UN_PASS,
     statusText: t('caseManagement.featureCase.notPass'),
     color: '',
   },
-  RE_REVIEWED: {
-    key: 'RE_REVIEWED',
+  [LastReviewResult.RE_REVIEWED]: {
+    key: LastReviewResult.RE_REVIEWED,
     icon: StatusType.RE_REVIEWED,
     statusText: t('caseManagement.featureCase.retrial'),
     color: 'text-[rgb(var(--warning-6))]',

@@ -55,6 +55,7 @@
     :trigger-props="{ contentClass: `ms-cascader-popper-native ms-cascader-popper--${props.optionSize}` }"
     :multiple="props.multiple"
     allow-clear
+    :load-more="props.loadMore"
     :check-strictly="props.strictly"
     :max-tag-count="props.shouldCalculateMaxTag ? maxTagCount : 1"
     :placeholder="props.placeholder"
@@ -124,6 +125,7 @@
     valueKey?: string;
     labelKey?: string; // 传入自定义的 labelKey
     shouldCalculateMaxTag?: boolean; // 是否需要计算最大标签数
+    loadMore?: (option: CascaderOption, done: (children?: CascaderOption[]) => void) => void;
   }
 
   const props = withDefaults(defineProps<MsCascaderProps>(), {

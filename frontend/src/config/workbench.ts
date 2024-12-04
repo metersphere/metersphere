@@ -1,10 +1,13 @@
 import { cloneDeep } from 'lodash-es';
 
 import { commonConfig, toolTipConfig } from '@/config/testPlan';
-import { addCommasToNumber } from '@/utils';
 
 import type { ModuleCardItem } from '@/models/workbench/homePage';
-import { WorkCardEnum, WorkOverviewEnum, WorkOverviewIconEnum } from '@/enums/workbenchEnum';
+import { RequestDefinitionStatus } from '@/enums/apiEnum';
+import { LastReviewResult } from '@/enums/caseEnum';
+import { ExecuteResultEnum } from '@/enums/taskCenter';
+import { TestPlanStatusEnum } from '@/enums/testPlanEnum';
+import { WorkCardEnum, WorkNavValueEnum, WorkOverviewEnum, WorkOverviewIconEnum } from '@/enums/workbenchEnum';
 
 export const contentTabList: ModuleCardItem[] = [
   {
@@ -294,6 +297,141 @@ export const commonRatePieOptions = {
       show: false,
     },
     data: [],
+  },
+};
+
+// 对应标识的入参跳转
+export const NAV_NAVIGATION: Record<WorkNavValueEnum, any> = {
+  [WorkNavValueEnum.CASE_REVIEWED]: { reviewStatus: [LastReviewResult.UN_PASS, LastReviewResult.PASS] }, // 有评审结果
+  [WorkNavValueEnum.CASE_UN_REVIEWED]: {
+    reviewStatus: [LastReviewResult.UN_REVIEWED, LastReviewResult.UNDER_REVIEWED, LastReviewResult.RE_REVIEWED], // 没有评审结果
+  },
+  [WorkNavValueEnum.CASE_REVIEWED_PASS]: { reviewStatus: [LastReviewResult.PASS] }, // 评审通过
+  [WorkNavValueEnum.CASE_REVIEWED_UN_PASS]: {
+    reviewStatus: [
+      LastReviewResult.UN_REVIEWED,
+      LastReviewResult.UNDER_REVIEWED,
+      LastReviewResult.RE_REVIEWED,
+      LastReviewResult.UN_PASS,
+    ], // 评审不通过
+  },
+  [WorkNavValueEnum.CASE_ASSOCIATED]: {
+    associateCase: [true], // 已关联用例
+  },
+  [WorkNavValueEnum.CASE_NOT_ASSOCIATED]: {
+    associateCase: [false], // 没有关联用例
+  },
+  [WorkNavValueEnum.API_COUNT_DONE]: {
+    status: [RequestDefinitionStatus.DONE], // 接口数-已完成
+  },
+  [WorkNavValueEnum.API_COUNT_PROCESSING]: {
+    status: [RequestDefinitionStatus.PROCESSING], // 接口数-进行中
+  },
+  [WorkNavValueEnum.API_COUNT_DEBUGGING]: {
+    status: [RequestDefinitionStatus.DEBUGGING], // 接口数-联调中
+  },
+  [WorkNavValueEnum.API_COUNT_DEPRECATED]: {
+    status: [RequestDefinitionStatus.DEPRECATED], // 接口数-已废弃
+  },
+  [WorkNavValueEnum.API_COUNT_EXECUTE_FAKE_ERROR]: {
+    lastReportStatus: [ExecuteResultEnum.FAKE_ERROR], // 接口用例-执行结果-误报
+  },
+  [WorkNavValueEnum.API_COUNT_EXECUTE_SUCCESS]: {
+    lastReportStatus: [ExecuteResultEnum.SUCCESS], // 接口用例-执行结果-已通过
+  },
+  [WorkNavValueEnum.API_COUNT_EXECUTE_ERROR]: {
+    lastReportStatus: [ExecuteResultEnum.ERROR, ExecuteResultEnum.FAKE_ERROR], // 接口用例-执行结果-未通过
+  },
+  [WorkNavValueEnum.API_COUNT_EXECUTED_RESULT]: {
+    lastReportStatus: [ExecuteResultEnum.SUCCESS, ExecuteResultEnum.ERROR, ExecuteResultEnum.FAKE_ERROR], // 接口用例-有执行结果
+  },
+  [WorkNavValueEnum.API_COUNT_EXECUTED_NOT_RESULT]: {
+    lastReportStatus: [''], // 接口用例-无执行结果
+  },
+  [WorkNavValueEnum.SCENARIO_COUNT_EXECUTE_FAKE_ERROR]: {
+    lastReportStatus: [ExecuteResultEnum.FAKE_ERROR], // 场景用例-执行结果-误报
+  },
+  [WorkNavValueEnum.SCENARIO_COUNT_EXECUTE_SUCCESS]: {
+    lastReportStatus: [ExecuteResultEnum.SUCCESS], // 场景用例-执行结果-已通过
+  },
+  [WorkNavValueEnum.SCENARIO_COUNT_EXECUTE_ERROR]: {
+    lastReportStatus: [ExecuteResultEnum.ERROR, ExecuteResultEnum.FAKE_ERROR], // 场景用例-执行结果-未通过
+  },
+  [WorkNavValueEnum.SCENARIO_COUNT_EXECUTED_RESULT]: {
+    lastReportStatus: [ExecuteResultEnum.SUCCESS, ExecuteResultEnum.ERROR, ExecuteResultEnum.FAKE_ERROR], // 场景用例-有执行结果
+  },
+  /**
+   * 接口
+   */
+  [WorkNavValueEnum.API_COUNT_COVER]: {
+    apiDefinition: ['coverFrom'], // 接口覆盖
+  },
+  [WorkNavValueEnum.API_COUNT_UN_COVER]: {
+    apiDefinition: ['unCoverFrom'], // 接口未覆盖
+  },
+  /**
+   * 接口用例
+   */
+  [WorkNavValueEnum.API_CASE_COUNT_COVER]: {
+    apiCase: ['coverFrom'], // 接口覆盖
+  },
+  [WorkNavValueEnum.API_CASE_COUNT_UN_COVER]: {
+    apiCase: ['unCoverFrom'], // 接口未覆盖
+  },
+  /**
+   * 场景用例
+   */
+  [WorkNavValueEnum.SCENARIO_COVER]: {
+    apiScenario: ['coverFrom'], // 接口场景覆盖
+  },
+  [WorkNavValueEnum.SCENARIO_UN_COVER]: {
+    apiScenario: ['unCoverFrom'], // 接口场景未覆盖
+  },
+
+  [WorkNavValueEnum.SCENARIO_COUNT_EXECUTED_NOT_RESULT]: { lastReportStatus: [''] }, // 场景用例-无执行结果
+  /**
+   * 测试计划数量
+   */
+  [WorkNavValueEnum.TEST_PLAN_COMPLETED]: { status: [TestPlanStatusEnum.COMPLETED] }, // 测试计划-已完成
+  [WorkNavValueEnum.TEST_PLAN_UNDERWAY]: { status: [TestPlanStatusEnum.UNDERWAY] }, // 测试计划-进行中
+  [WorkNavValueEnum.TEST_PLAN_PREPARED]: { status: [TestPlanStatusEnum.PREPARED] }, // 测试计划-未开始
+  [WorkNavValueEnum.TEST_PLAN_ARCHIVED]: { status: [TestPlanStatusEnum.ARCHIVED] }, // 测试计划-已归档
+  [WorkNavValueEnum.TEST_PLAN_PASSED]: {
+    passed: ['PASSED'], // 测试计划-已通过
+  },
+  [WorkNavValueEnum.TEST_PLAN_NOT_PASS]: {
+    passed: ['NOT_PASSED'], // 测试计划-未通过
+  },
+  /**
+   * 测试计划遗留缺陷
+   */
+  [WorkNavValueEnum.TEST_PLAN_LEGACY]: {
+    relatedToPlan: true,
+    unresolved: true,
+  },
+  [WorkNavValueEnum.TEST_PLAN_BUG]: {
+    relatedToPlan: true,
+    unresolved: false,
+  },
+  [WorkNavValueEnum.BUG_COUNT]: {},
+  [WorkNavValueEnum.BUG_COUNT_LEGACY]: {
+    unresolved: true,
+  },
+  [WorkNavValueEnum.BUG_COUNT_BY_ME]: {
+    createByMe: true,
+    unresolved: false,
+  },
+  [WorkNavValueEnum.BUG_COUNT_BY_ME_LEGACY]: {
+    createByMe: true,
+    unresolved: true,
+  },
+  [WorkNavValueEnum.BUG_HANDLE_BY_ME]: {
+    assignedToMe: true,
+    unresolved: false,
+  },
+  [WorkNavValueEnum.BUG_HANDLE_BY_ME_LEGACY]: {
+    assignedToMe: true,
+    unresolved: true,
   },
 };
 

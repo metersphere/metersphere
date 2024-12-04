@@ -1,6 +1,6 @@
 <template>
   <div class="card-wrapper">
-    <CardSkeleton v-if="showSkeleton" :show-skeleton="showSkeleton" />
+    <CardSkeleton v-if="showSkeleton" :content-height="230" is-member-overview :show-skeleton="showSkeleton" />
     <div v-else>
       <div class="flex items-center justify-between">
         <a-tooltip :content="t(props.item.label)" position="tl">
@@ -54,13 +54,13 @@
   import CardSkeleton from './cardSkeleton.vue';
 
   import { workMemberViewDetail, workProjectMemberOptions } from '@/api/modules/workbench';
+  import { contentTabList } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { characterLimit } from '@/utils';
 
-  import type { OverViewOfProject, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
+  import type { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
-  import { getColorScheme, getCommonBarOptions, getSeriesData, handleNoDataDisplay } from '../utils';
+  import { getColorScheme, getSeriesData } from '../utils';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -96,20 +96,7 @@
   const memberOptions = ref<{ label: string; value: string }[]>([]);
   const options = ref<Record<string, any>>({});
 
-  function handleData(detail: OverViewOfProject) {
-    options.value = getCommonBarOptions(detail.xaxis.length >= 7, getColorScheme(7));
-    const { invisible, text } = handleNoDataDisplay(detail.xaxis, hasPermission.value);
-    options.value.graphic.invisible = invisible;
-    options.value.graphic.style.text = text;
-    options.value.xAxis.data = detail.xaxis;
-
-    const { maxAxis, data } = getSeriesData(detail.projectCountList);
-
-    options.value.series = data;
-    options.value.yAxis[0].max = maxAxis;
-  }
   const showSkeleton = ref(false);
-
   async function initOverViewMemberDetail() {
     try {
       showSkeleton.value = true;
@@ -127,7 +114,8 @@
       };
       const detail = await workMemberViewDetail(params);
       hasPermission.value = detail.errorCode !== 109001;
-      handleData(detail);
+
+      options.value = getSeriesData(contentTabList, detail, getColorScheme(detail.projectCountList.length));
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

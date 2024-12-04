@@ -26,6 +26,7 @@
           <div class="case-count-item">
             <PassRatePie
               :options="options"
+              :project-id="projectId"
               tooltip-text="workbench.homePage.caseReviewCoverRateTooltip"
               :value-list="coverValueList"
               :has-permission="hasPermission"

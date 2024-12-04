@@ -523,6 +523,7 @@
     updateScenarioPro,
     updateScenarioStatus,
   } from '@/api/modules/api-test/scenario';
+  import { NAV_NAVIGATION } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -543,6 +544,7 @@
   import { ReportEnum, ReportStatus } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { WorkNavValueEnum } from '@/enums/workbenchEnum';
 
   import { casePriorityOptions } from '@/views/api-test/components/config';
   import { scenarioStatusOptions } from '@/views/api-test/scenario/components/config';
@@ -973,10 +975,19 @@
 
   async function loadScenarioList(refreshTreeCount?: boolean) {
     const moduleIds = await getModuleIds();
+
+    let filterParams = { ...propsRes.value.filter };
+    if (route.query.home) {
+      filterParams = {
+        ...propsRes.value.filter,
+        ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum],
+      };
+    }
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleIds,
+      filter: filterParams,
     };
     setLoadListParams({ ...params, viewId: viewId.value, combineSearch: advanceFilter });
     await loadList();

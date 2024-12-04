@@ -349,6 +349,7 @@
     updateCasePriority,
     updateCaseStatus,
   } from '@/api/modules/api-test/management';
+  import { NAV_NAVIGATION } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -368,6 +369,7 @@
   import { ReportEnum } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { WorkNavValueEnum } from '@/enums/workbenchEnum';
 
   import {
     casePriorityOptions,
@@ -663,13 +665,22 @@
 
   async function loadCaseList() {
     const selectModules = await getModuleIds();
+
+    let filterParams = { ...propsRes.value.filter };
+    if (route.query.home) {
+      filterParams = {
+        ...propsRes.value.filter,
+        ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum],
+      };
+    }
+
     const params = {
       apiDefinitionId: props.apiDetail?.id,
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleIds: selectModules,
       protocols: isAdvancedSearchMode.value ? protocolList.value.map((item) => item.protocol) : props.selectedProtocols,
-      filter: propsRes.value.filter,
+      filter: filterParams,
       viewId: viewId.value,
       combineSearch: advanceFilter,
     };

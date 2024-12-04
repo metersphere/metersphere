@@ -30,6 +30,7 @@
           >
             <PassRatePie
               :tooltip-text="tabItem.tooltip"
+              :project-id="projectId"
               :options="tabItem.options"
               :loading="tabItem.value === 'cover' ? loading : undefined"
               :has-permission="hasPermission"

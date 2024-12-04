@@ -262,6 +262,7 @@ export interface PassRateCountDetail {
   };
   nextTriggerTime: number;
   status: planStatusType;
+  pass: boolean; // 是否通过
 }
 
 // 执行历史

@@ -1,3 +1,5 @@
+import { CascaderOption } from '@arco-design/web-vue';
+
 import MSR from '@/api/http/index';
 
 import type { ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
@@ -48,6 +50,8 @@ import {
   WorkProOverviewDetailUrl,
   WorkReviewListUrl,
   WorkScenarioCaseCountDetailUrl,
+  WorkTestPlanListUrl,
+  WorkTestPlanOverviewUrl,
   WorkTestPlanRageUrl,
   WorkTodoBugListUrl,
   WorkTodoPlanListUrl,
@@ -223,4 +227,13 @@ export function workbenchTodoBugList(data: TableQueryParams) {
 // 待办-测试计划列表
 export function workbenchTodoTestPlanList(data: TableQueryParams) {
   return MSR.post<CommonList<TestPlanItem>>({ url: WorkTodoPlanListUrl, data });
+}
+// 待办-测试计划列表
+export function getWorkTestPlanListUrl(projectId: string) {
+  return MSR.get<CascaderOption[]>({ url: `${WorkTestPlanListUrl}/${projectId}` });
+}
+
+// 工作台-测试计划概览
+export function workTestPlanOverviewDetail(data: WorkHomePageDetail) {
+  return MSR.post<OverViewOfProject>({ url: WorkTestPlanOverviewUrl, data }, { ignoreCancelToken: true });
 }

@@ -28,6 +28,7 @@
               :has-permission="hasPermission"
               :tooltip-text="tooltip"
               :options="legacyOptions"
+              :project-id="projectId"
               :value-list="legacyValueList"
             />
           </div>
@@ -73,7 +74,7 @@
   } from '@/models/workbench/homePage';
   import { WorkCardEnum } from '@/enums/workbenchEnum';
 
-  import { colorMapConfig, handlePieData, handleUpdateTabPie } from '../utils';
+  import { colorMapConfig, handlePieData, handleUpdateTabPie, routeNavigationMap } from '../utils';
 
   const appStore = useAppStore();
 
@@ -168,14 +169,17 @@
       const { options, valueList } = handleUpdateTabPie(legacyData, hasPermission.value, `${props.item.key}-legacy`);
 
       legacyValueList.value = hasPermission.value
-        ? (statusStatisticsMap?.retentionRate || []).slice(1).map((item) => {
+        ? (statusStatisticsMap?.retentionRate || []).slice(1).map((item, i) => {
             return {
               value: item.count,
               label: item.name,
               name: item.name,
+              route: routeNavigationMap[props.item.key].legacy?.route,
+              status: routeNavigationMap[props.item.key].legacy?.status[i],
             };
           })
         : valueList;
+
       legacyOptions.value = options;
     } catch (error) {
       // eslint-disable-next-line no-console

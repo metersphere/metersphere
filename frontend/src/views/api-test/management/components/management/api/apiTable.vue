@@ -269,6 +269,7 @@
 </template>
 
 <script setup lang="ts">
+  import { useRoute } from 'vue-router';
   import { FormInstance, Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -300,6 +301,7 @@
     sortDefinition,
     updateDefinition,
   } from '@/api/modules/api-test/management';
+  import { NAV_NAVIGATION } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -318,6 +320,7 @@
   import { TagUpdateTypeEnum } from '@/enums/commonEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { WorkNavValueEnum } from '@/enums/workbenchEnum';
 
   import { apiStatusOptions } from '@/views/api-test/components/config';
 
@@ -351,7 +354,7 @@
   const { t } = useI18n();
   const { openModal } = useModal();
   const tableStore = useTableStore();
-
+  const route = useRoute();
   const folderTreePathMap = inject<MsTreeNodeData[]>('folderTreePathMap');
   const refreshModuleTree: (() => Promise<any>) | undefined = inject('refreshModuleTree');
   const refreshModuleTreeCount: ((data: ApiDefinitionGetModuleParams) => Promise<any>) | undefined =
@@ -624,12 +627,22 @@
 
   async function loadApiList(hasRefreshTree: boolean) {
     const moduleIds = await getModuleIds();
+    let filterParams = {
+      ...propsRes.value.filter,
+    };
+
+    if (route.query.home) {
+      filterParams = {
+        ...propsRes.value.filter,
+        ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum],
+      };
+    }
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleIds,
       protocols: isAdvancedSearchMode.value ? protocolList.value.map((item) => item.protocol) : props.selectedProtocols,
-      filter: propsRes.value.filter,
+      filter: filterParams,
       viewId: viewId.value,
       combineSearch: advanceFilter,
     };
@@ -637,7 +650,7 @@
     if (!hasRefreshTree && typeof refreshModuleTreeCount === 'function' && !isAdvancedSearchMode.value) {
       refreshModuleTreeCount({
         keyword: keyword.value,
-        filter: propsRes.value.filter,
+        filter: filterParams,
         moduleIds: [],
         protocols: props.selectedProtocols,
         projectId: appStore.currentProjectId,

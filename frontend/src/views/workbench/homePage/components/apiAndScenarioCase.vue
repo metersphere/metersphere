@@ -34,7 +34,10 @@
           <div class="case-count-item">
             <div v-for="(ele, index) of apiCountValue" :key="index" class="case-count-item-content">
               <div class="case-count-item-title">{{ ele.name }}</div>
-              <div class="case-count-item-number">
+              <div
+                :class="`case-count-item-number ${index !== 0 ? 'cursor-pointer text-[rgb(var(--primary-5))]' : ''}`"
+                @click="goNavigation"
+              >
                 {{ hasPermission ? addCommasToNumber(ele.count as number) : '-' }}
               </div>
             </div>
@@ -43,17 +46,31 @@
         <div class="case-ratio-wrapper mt-[16px]">
           <div class="case-ratio-item">
             <RatioPie
+              :value-key="props.item.key"
               :has-permission="hasPermission"
               :loading="loading"
               :data="coverData"
+              :project-id="projectId"
               :rate-config="coverTitleConfig"
             />
           </div>
           <div class="case-ratio-item">
-            <RatioPie :has-permission="hasPermission" :data="caseExecuteData" :rate-config="executeTitleConfig" />
+            <RatioPie
+              :value-key="props.item.key"
+              :project-id="projectId"
+              :has-permission="hasPermission"
+              :data="caseExecuteData"
+              :rate-config="executeTitleConfig"
+            />
           </div>
           <div class="case-ratio-item">
-            <RatioPie :has-permission="hasPermission" :data="casePassData" :rate-config="casePassTitleConfig" />
+            <RatioPie
+              :value-key="props.item.key"
+              :project-id="projectId"
+              :has-permission="hasPermission"
+              :data="casePassData"
+              :rate-config="casePassTitleConfig"
+            />
           </div>
         </div>
       </div>
@@ -74,11 +91,17 @@
 
   import { workApiCaseCountDetail, workApiCountCoverRage, workScenarioCaseCountDetail } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
   import { addCommasToNumber } from '@/utils';
 
-  import type { ApiCoverageData, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
-  import { WorkCardEnum } from '@/enums/workbenchEnum';
+  import type { ApiCoverageData, SelectedCardItem, StatusValueItem, TimeFormParams } from '@/models/workbench/homePage';
+  import { ApiTestRouteEnum } from '@/enums/routeEnum';
+  import { WorkCardEnum, WorkNavValueEnum } from '@/enums/workbenchEnum';
+
+  import { routeNavigationMap } from '../utils';
+
+  const { openNewPage } = useOpenNewPage();
 
   const appStore = useAppStore();
 
@@ -131,7 +154,7 @@
     })
   );
 
-  const initCoverRate = [
+  const initCoverRate: StatusValueItem[] = [
     {
       value: 0,
       name: t('workbench.homePage.coverRate'),
@@ -147,8 +170,8 @@
   ];
 
   // 接口覆盖
-  const coverData = ref<{ name: string; value: number }[]>(cloneDeep(initCoverRate));
-  const caseExecuteData = ref<{ name: string; value: number }[]>([
+  const coverData = ref<StatusValueItem[]>(cloneDeep(initCoverRate));
+  const caseExecuteData = ref<StatusValueItem[]>([
     {
       value: 0,
       name: t('common.unExecute'),
@@ -159,7 +182,7 @@
     },
   ]);
 
-  const casePassData = ref<{ name: string; value: number }[]>([
+  const casePassData = ref<StatusValueItem[]>([
     {
       value: 0,
       name: t('workbench.homePage.notPass'),
@@ -223,7 +246,8 @@
     const coverWithCase = props.item.key === WorkCardEnum.API_CASE_COUNT ? coverWithApiCase : coverWithApiScenario;
 
     coverData.value = cloneDeep(initCoverRate);
-    coverData.value = [
+
+    const coverList: StatusValueItem[] = [
       {
         value: Number(coverage.split('%')[0]),
         name: t('workbench.homePage.coverRate'),
@@ -237,6 +261,18 @@
         name: t('workbench.homePage.covered'),
       },
     ];
+    coverData.value = coverList.map((e, i) => {
+      if (i === 0) {
+        return {
+          ...e,
+        };
+      }
+      return {
+        ...e,
+        route: routeNavigationMap[props.item.key].cover?.route,
+        status: routeNavigationMap[props.item.key].cover?.status[i - 1],
+      };
+    });
   }
 
   async function initApiCountRate() {
@@ -251,6 +287,26 @@
       loading.value = false;
     }
   }
+
+  const generateCaseData = (dataList: { name: string; count: number }[], rateData: Record<string, any>) => {
+    return (dataList || []).map((e, i) => {
+      const baseItem = {
+        ...e,
+        value: e.count,
+      };
+
+      if (i === 0) {
+        return baseItem;
+      }
+
+      return {
+        ...baseItem,
+        route: rateData?.route,
+        status: rateData?.status?.[i - 1],
+        ...(props.item.key === WorkCardEnum.API_CASE_COUNT && { tab: 'case' }),
+      };
+    });
+  };
 
   const showSkeleton = ref(false);
 
@@ -279,19 +335,13 @@
 
       hasPermission.value = detail.errorCode !== 109001;
 
-      caseExecuteData.value = (detail.statusStatisticsMap?.execRate || []).map((e) => {
-        return {
-          ...e,
-          value: e.count,
-        };
-      });
+      const execRateData = detail.statusStatisticsMap?.execRate || [];
+      const executeRateConfig = routeNavigationMap[props.item.key]?.executeRate;
+      const passRateData = detail.statusStatisticsMap?.passRate || [];
+      const passRateConfig = routeNavigationMap[props.item.key]?.passRate;
 
-      casePassData.value = (detail.statusStatisticsMap?.passRate || []).map((e) => {
-        return {
-          ...e,
-          value: e.count,
-        };
-      });
+      caseExecuteData.value = generateCaseData(execRateData, executeRateConfig);
+      casePassData.value = generateCaseData(passRateData, passRateConfig);
 
       if (hasPermission.value) {
         // 执行次数
@@ -312,6 +362,26 @@
     nextTick(() => {
       emit('change');
     });
+  }
+
+  function goNavigation() {
+    const route =
+      props.item.key === WorkCardEnum.API_CASE_COUNT
+        ? ApiTestRouteEnum.API_TEST_MANAGEMENT
+        : ApiTestRouteEnum.API_TEST_SCENARIO;
+    const status =
+      props.item.key === WorkCardEnum.API_CASE_COUNT
+        ? WorkNavValueEnum.API_COUNT_EXECUTE_FAKE_ERROR
+        : WorkNavValueEnum.SCENARIO_COUNT_EXECUTE_FAKE_ERROR;
+
+    const params: { pId: string; home: string; tab?: string } = {
+      pId: projectId.value,
+      home: status,
+    };
+    if (props.item.key === WorkCardEnum.API_CASE_COUNT) {
+      params.tab = 'case';
+    }
+    openNewPage(route, params);
   }
 
   const isInit = ref<boolean>(true);
@@ -401,7 +471,6 @@
         }
         .case-count-item-number {
           font-size: 20px;
-          color: var(--color-text-1);
           @apply font-medium;
         }
       }

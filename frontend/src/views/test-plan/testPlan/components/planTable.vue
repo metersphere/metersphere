@@ -167,6 +167,9 @@
         {{ `${defaultCountDetailMap[record.id]?.passRate ? defaultCountDetailMap[record.id].passRate : '-'}%` }}
       </div>
     </template>
+    <template #executeResult="{ record }">
+      {{ getExecuteResult(record.id) }}
+    </template>
     <template #passRateTitleSlot="{ columnConfig }">
       <div class="flex items-center text-[var(--color-text-3)]">
         {{ t(columnConfig.title as string) }}
@@ -194,19 +197,20 @@
           v-if="isShowExecuteButton(record) && hasAnyPermission(['PROJECT_TEST_PLAN:READ+EXECUTE'])"
           direction="vertical"
           :margin="8"
-        ></a-divider>
+        />
 
         <MsButton
           v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && getStatus(record.id) !== 'ARCHIVED'"
           class="!mx-0"
           @click="emit('edit', record)"
-          >{{ t('common.edit') }}</MsButton
         >
+          {{ t('common.edit') }}
+        </MsButton>
         <a-divider
           v-if="hasAnyPermission(['PROJECT_TEST_PLAN:READ+UPDATE']) && getStatus(record.id) !== 'ARCHIVED'"
           direction="vertical"
           :margin="8"
-        ></a-divider>
+        />
 
         <MsButton
           v-if="
@@ -216,8 +220,9 @@
           "
           class="!mx-0"
           @click="copyTestPlanOrGroup(record.id)"
-          >{{ t('common.copy') }}</MsButton
         >
+          {{ t('common.copy') }}
+        </MsButton>
         <a-divider
           v-if="
             !isShowExecuteButton(record) &&
@@ -226,7 +231,7 @@
           "
           direction="vertical"
           :margin="8"
-        ></a-divider>
+        />
         <MsTableMoreAction :list="getMoreActions(record)" @select="handleMoreActionSelect($event, record)" />
       </div>
     </template>
@@ -349,6 +354,7 @@
   import caseCountPopper from './caseCountPopper.vue';
   import ScheduledModal from './scheduledModal.vue';
   import StatusProgress from './statusProgress.vue';
+  import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
   import PlanExpandRow from '@/views/test-plan/testPlan/components/planExpandRow.vue';
 
   import {
@@ -371,6 +377,7 @@
     testPlanAndGroupCopy,
     updateTestPlan,
   } from '@/api/modules/test-plan/testPlan';
+  import { NAV_NAVIGATION } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
@@ -398,7 +405,8 @@
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
   import { TaskCenterEnum } from '@/enums/taskCenter';
-  import { testPlanTypeEnum } from '@/enums/testPlanEnum';
+  import { TestPlanStatusEnum, testPlanTypeEnum } from '@/enums/testPlanEnum';
+  import { WorkNavValueEnum } from '@/enums/workbenchEnum';
 
   import { planStatusOptions } from '../config';
   import { getModules } from '@/views/case-management/caseManagementFeature/components/utils';
@@ -487,6 +495,27 @@
       titleSlotName: 'passRateTitleSlot',
       showInTable: true,
       width: 200,
+      showDrag: true,
+    },
+    {
+      title: 'testPlan.testPlanIndex.executionResult',
+      slotName: 'executeResult',
+      dataIndex: 'passed',
+      filterConfig: {
+        options: [
+          {
+            value: 'PASSED',
+            label: t('common.pass'),
+          },
+          {
+            value: 'NOT_PASSED',
+            label: t('common.unPass'),
+          },
+        ],
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS,
+      },
+      width: 150,
+      showInTable: true,
       showDrag: true,
     },
     {
@@ -870,6 +899,19 @@
     if (isSetDefaultKey) {
       moduleIds = [];
     }
+
+    let filterParams = { ...propsRes.value.filter };
+    if (route.query.home) {
+      if (route.query.home === WorkNavValueEnum.TEST_PLAN_ARCHIVED) {
+        viewId.value = 'archived';
+      } else {
+        filterParams = {
+          ...propsRes.value.filter,
+          ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum],
+        };
+      }
+    }
+
     return {
       type: showType.value,
       moduleIds,
@@ -878,7 +920,7 @@
       selectAll: !!batchParams.value?.selectAll,
       selectIds: batchParams.value.selectedIds || [],
       keyword: keyword.value,
-      filter: propsRes.value.filter,
+      filter: filterParams,
     };
   }
 
@@ -1389,6 +1431,15 @@
     planSourceId.value = record.id;
     taskForm.value = cloneDeep(defaultCountDetailMap.value[record.id]?.scheduleConfig);
     showScheduledTaskModal.value = true;
+  }
+
+  function getExecuteResult(id: string) {
+    const isPrepared = defaultCountDetailMap.value[id]?.status === TestPlanStatusEnum.PREPARED;
+
+    if (isPrepared) {
+      return '-';
+    }
+    return defaultCountDetailMap.value[id]?.pass ? t('common.pass') : t('common.unPass');
   }
 
   const showStatusDeleteModal = ref<boolean>(false);

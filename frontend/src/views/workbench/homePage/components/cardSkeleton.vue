@@ -1,24 +1,28 @@
 <template>
-  <a-skeleton v-if="props.showSkeleton" :loading="props.showSkeleton" :animation="true">
-    <div class="flex gap-[16px]">
-      <div class="flex-1">
-        <a-skeleton-line :rows="1" :line-height="props.skeletonLine" />
+  <a-skeleton :loading="props.showSkeleton" :animation="true">
+    <div class="header-skeleton mb-[24px] flex justify-between">
+      <div class="w-[20%]">
+        <a-skeleton-line :rows="1" :line-height="24" />
       </div>
-      <div class="flex-1">
-        <a-skeleton-line :rows="1" :line-height="props.skeletonLine" />
+      <div class="w-[40%]">
+        <a-skeleton-line :rows="1" :line-height="24" />
       </div>
     </div>
-    <div>
-      <div v-for="index in props.showLineNumber" :key="index" class="mt-[16px] flex flex-col">
-        <div class="flex gap-4">
-          <div :style="{ width: `${index * 12}%` }">
-            <a-skeleton-line :rows="1" :line-height="props.skeletonLine" />
-          </div>
-          <div :style="{ width: `calc(100% - ${index * 12}%)` }">
-            <a-skeleton-line :rows="1" :line-height="props.skeletonLine" />
-          </div>
+
+    <template v-if="!props.isMemberOverview">
+      <div v-for="number in showLineNumber" :key="`out-${number}`" class="mb-[24px] flex flex-col gap-[12px]">
+        <div
+          v-for="index in skeletonLine"
+          :key="`inner-${index}`"
+          :class="`${index === skeletonLine ? 'w-[43%]' : 'w-full'}`"
+        >
+          <a-skeleton-line :rows="1" :line-height="16" />
         </div>
       </div>
+    </template>
+
+    <div class="content-skeleton">
+      <a-skeleton-line :rows="1" :line-height="props.contentHeight" />
     </div>
   </a-skeleton>
 </template>
@@ -29,12 +33,21 @@
       showSkeleton: boolean;
       skeletonLine?: number;
       showLineNumber?: number;
+      isMemberOverview?: boolean;
+      contentHeight?: number; // 内容区域高度
     }>(),
     {
-      skeletonLine: 24,
-      showLineNumber: 7,
+      skeletonLine: 3,
+      showLineNumber: 1,
+      contentHeight: 166,
     }
   );
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  :deep(.content-skeleton) {
+    .arco-skeleton-line-row {
+      border-radius: 8px;
+    }
+  }
+</style>

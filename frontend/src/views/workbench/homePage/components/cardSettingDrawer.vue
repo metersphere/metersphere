@@ -127,6 +127,7 @@
     WorkCardEnum.PROJECT_VIEW,
     WorkCardEnum.PROJECT_MEMBER_VIEW,
     WorkCardEnum.CREATE_BY_ME,
+    WorkCardEnum.PROJECT_PLAN_VIEW,
   ];
 
   const defaultAllProjectType = [WorkCardEnum.PROJECT_VIEW, WorkCardEnum.CREATE_BY_ME];
@@ -145,6 +146,7 @@
       projectIds: defaultAllProjectType.includes(item.value) ? [] : [appStore.currentProjectId],
       handleUsers: [],
       selectAll: !![WorkCardEnum.PROJECT_VIEW, WorkCardEnum.CREATE_BY_ME].includes(item.value),
+      planId: '',
     };
     selectedCardList.value.push(newCard);
   }

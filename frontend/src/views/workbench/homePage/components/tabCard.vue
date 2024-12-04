@@ -4,7 +4,7 @@
       <a-tab-pane v-for="item of props.contentTabList" :key="item.value" :title="`${item.label}`">
         <template #title>
           <slot name="item" :item="item">
-            <div class="wrapper-card w-full">
+            <div class="w-full">
               <div class="card-title flex items-center gap-[8px]">
                 <div :class="`card-title-icon bg-[${item?.color}]`">
                   <MsIcon :type="item.icon" class="text-white" size="12" />

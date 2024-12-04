@@ -429,6 +429,7 @@
     updateCaseRequest,
   } from '@/api/modules/case-management/featureCase';
   import { getCaseRelatedInfo } from '@/api/modules/project-management/menuManagement';
+  import { NAV_NAVIGATION } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useWebsocket from '@/hooks/useWebsocket';
@@ -463,6 +464,7 @@
   import { CaseManagementRouteEnum, RouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
   import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { WorkNavValueEnum } from '@/enums/workbenchEnum';
 
   import { executionResultMap, getCaseLevels, getTableFields, statusIconMap } from './utils';
   import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
@@ -1021,6 +1023,15 @@
       }
     }
 
+    let filterParams = { ...propsRes.value.filter };
+
+    if (route.query.home) {
+      filterParams = {
+        ...propsRes.value.filter,
+        ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum],
+      };
+    }
+
     return {
       moduleIds,
       projectId: currentProjectId.value,
@@ -1028,6 +1039,7 @@
       selectAll: batchParams.value.selectAll,
       selectIds: batchParams.value.selectedIds || [],
       keyword: keyword.value,
+      filter: filterParams,
     };
   }
   // 获取父组件模块数量

@@ -33,7 +33,7 @@
         <MsIcon
           :type="statusIconMap[record.status]?.icon || ''"
           class="mr-1"
-          :class="[statusIconMap[record.status].color] || ''"
+          :class="statusIconMap[record.status]?.color"
         ></MsIcon>
         <span>{{ statusIconMap[record.status]?.statusText || '' }} </span>
       </template>

@@ -1,5 +1,5 @@
 import { type MoveMode, TableQueryParams } from '@/models/common';
-import { StatusType } from '@/enums/caseEnum';
+import { LastReviewResult, StatusType } from '@/enums/caseEnum';
 
 import { ReviewResult } from './caseReview';
 
@@ -75,6 +75,7 @@ export interface CaseManagementTable {
   updateTime: string;
   deleteTime: string;
   steps: string;
+  status: LastReviewResult;
   customFields: customFieldsItem[]; // 自定义字段集合
   [key: string]: any;
 }

@@ -78,6 +78,12 @@
           img: 'project-overview-img',
         },
         {
+          label: 'workbench.homePage.testPlanOverview',
+          value: WorkCardEnum.PROJECT_PLAN_VIEW,
+          description: 'workbench.homePage.testPlanOverviewDesc',
+          img: 'test-plan-overview',
+        },
+        {
           label: 'workbench.homePage.staffOverview',
           value: WorkCardEnum.PROJECT_MEMBER_VIEW,
           description: 'workbench.homePage.staffOverviewDesc',

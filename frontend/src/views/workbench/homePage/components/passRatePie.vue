@@ -14,7 +14,9 @@
     <div class="pass-rate-title flex-1">
       <div v-for="item of props.valueList" :key="item.label" class="flex-1">
         <div class="one-line-text mb-[8px] text-[var(--color-text-4)]">{{ item.label }}</div>
-        <div class="pass-rate-count">{{ hasPermission ? addCommasToNumber(item.value as number) : '-' }}</div>
+        <div class="pass-rate-count" @click="goNavigation(item)">
+          {{ hasPermission ? addCommasToNumber(item.value as number) : '-' }}
+        </div>
       </div>
     </div>
   </a-spin>
@@ -24,20 +26,33 @@
   import MsChart from '@/components/pure/chart/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { addCommasToNumber } from '@/utils';
+
+  const { openNewPage } = useOpenNewPage();
 
   const { t } = useI18n();
 
   const props = defineProps<{
     options: Record<string, any>;
+    projectId: string;
     tooltipText?: string;
     hasPermission: boolean;
     loading?: boolean;
     valueList: {
       label: string;
       value: number | string;
+      status?: string;
+      route?: string;
     }[];
   }>();
+
+  function goNavigation(item: { label: string; value: number | string; status?: string; route?: string }) {
+    openNewPage(item.route, {
+      pId: props.projectId,
+      home: item.status,
+    });
+  }
 </script>
 
 <style scoped lang="less">
@@ -53,7 +68,7 @@
       .pass-rate-count {
         font-size: 20px;
         color: rgb(var(--primary-4));
-        @apply font-medium;
+        @apply cursor-pointer font-medium;
       }
     }
   }

@@ -199,6 +199,7 @@
     syncBugEnterprise,
   } from '@/api/modules/bug-management';
   import { getPlatformOptions } from '@/api/modules/project-management/menuManagement';
+  import { NAV_NAVIGATION } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import router from '@/router';
@@ -213,6 +214,7 @@
   import { MenuEnum } from '@/enums/commonEnum';
   import { RouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { WorkNavValueEnum } from '@/enums/workbenchEnum';
 
   import { makeColumns } from '@/views/case-management/caseManagementFeature/components/utils';
 
@@ -481,11 +483,19 @@
   const isAdvancedSearchMode = computed(() => msAdvanceFilterRef.value?.isAdvancedSearchMode);
 
   function initTableParams() {
+    let workFilterParams = {};
+    if (route.query.home) {
+      workFilterParams = {
+        ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum],
+      };
+    }
+
     return {
       keyword: keyword.value,
       projectId: projectId.value,
       viewId: viewId.value,
       combineSearch: advanceFilter,
+      ...workFilterParams,
     };
   }
 

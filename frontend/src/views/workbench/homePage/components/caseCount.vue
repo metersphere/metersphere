@@ -26,6 +26,7 @@
           <div v-for="tabItem of caseCountTabList" :key="tabItem.label" class="flex-1">
             <PassRatePie
               :options="tabItem.options"
+              :project-id="projectId"
               :tooltip-text="tabItem.tooltip"
               :value-list="tabItem.valueList"
               :has-permission="hasPermission"

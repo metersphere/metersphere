@@ -100,4 +100,13 @@ export default {
   'workbench.homePage.completeRate': '完成率',
   'workbench.homePage.legacyRate': '遗留率',
   'workbench.homePage.unit': '单位：个',
+  'workbench.homePage.selected': '已选',
+  'workbench.homePage.testPlanOverview': '测试计划概览',
+  'workbench.homePage.testPlanOverviewDesc': '统计所属测试计划的用例执行数据统计',
+  'workbench.homePage.plan': '计划',
+  'workbench.homePage.planOfPleaseSelect': '请选择计划',
+  'workbench.homePage.assigningUseCases': '分配用例',
+  'workbench.homePage.completeUseCases': '完成用例',
+  'workbench.homePage.commitDefects': '提交缺陷',
+  'workbench.homePage.associatedDefect': '关联缺陷',
 };

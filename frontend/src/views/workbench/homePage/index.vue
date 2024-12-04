@@ -147,6 +147,14 @@
           :refresh-key="refreshKey"
           @change="changeHandler"
         />
+        <TestPlanOverView
+          v-else-if="item.key === WorkCardEnum.PROJECT_PLAN_VIEW"
+          v-model:planId="item.planId"
+          v-model:projectIds="item.projectIds"
+          :item="item"
+          :refresh-key="refreshKey"
+          @change="changeHandler"
+        />
       </div>
     </div>
     <NoData
@@ -180,6 +188,7 @@
   import WaitReviewList from './components/waitReviewList.vue';
   import DefectMemberBar from '@/views/workbench/homePage/components/defectMemberBar.vue';
   import OverviewMember from '@/views/workbench/homePage/components/overviewMember.vue';
+  import TestPlanOverView from '@/views/workbench/homePage/components/testPlanOverview.vue';
 
   import { editDashboardLayout, getDashboardLayout, workApiCountCoverRage } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';

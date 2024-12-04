@@ -33,7 +33,9 @@
                 </div>
                 {{ ele.name }}
               </div>
-              <div class="text-[16px] text-[rgb(var(--primary-5))]">{{ addCommasToNumber(ele.value) }}</div>
+              <div class="cursor-pointer text-[16px] text-[rgb(var(--primary-5))]" @click="goNavigation(ele)">
+                {{ addCommasToNumber(ele.value) }}
+              </div>
             </div>
           </template>
           <div v-else class="mt-[16px] flex h-full flex-1 items-center justify-center">
@@ -54,14 +56,21 @@
 
   import { toolTipConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import { addCommasToNumber } from '@/utils';
 
+  import type { StatusValueItem } from '@/models/workbench/homePage';
+  import { WorkCardEnum } from '@/enums/workbenchEnum';
+
   const { t } = useI18n();
+  const { openNewPage } = useOpenNewPage();
 
   const props = defineProps<{
-    data: { name: string; value: number }[];
+    data: StatusValueItem[];
     hasPermission: boolean;
+    valueKey: WorkCardEnum;
     loading?: boolean;
+    projectId: string;
     rateConfig: {
       name: string;
       color: string[];
@@ -155,20 +164,6 @@
       },
       data: [],
     },
-    // graphic: {
-    //   type: 'text',
-    //   left: 'center',
-    //   bottom: 10,
-    //   style: {
-    //     text: t('workbench.homePage.notHasResPermission'),
-    //     fontSize: 14,
-    //     fill: '#959598',
-    //     backgroundColor: '#F9F9FE',
-    //     padding: [6, 16, 6, 16],
-    //     borderRadius: 4,
-    //   },
-    //   invisible: false,
-    // },
   });
 
   const legend = ref<{ name: string; value: number; color: string; selected: boolean }[]>([]);
@@ -256,6 +251,17 @@
         name,
       });
     }
+  }
+
+  function goNavigation(item: StatusValueItem) {
+    const params: Record<string, any> = {
+      pId: props.projectId,
+      home: item.status,
+    };
+    if (item.tab) {
+      params.tab = item.tab;
+    }
+    openNewPage(item.route, params);
   }
 
   watch(

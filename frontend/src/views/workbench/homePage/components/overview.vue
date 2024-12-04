@@ -6,7 +6,11 @@
         <a-tooltip :content="t(props.item.label)" position="tl">
           <div class="title one-line-text"> {{ t(props.item.label) }} </div>
         </a-tooltip>
-        <div>
+        <div class="flex items-center gap-[12px]">
+          <div class="text-[var(--color-text-n4)]">
+            {{ t('workbench.homePage.selected') }}
+            <span class="text-[rgb(var(--link-6))]">{{ innerProjectIds.length }}</span>
+          </div>
           <MsSelect
             v-model:model-value="innerProjectIds"
             :options="appStore.projectList"
@@ -33,7 +37,7 @@
       </div>
       <!-- 概览图 -->
       <div>
-        <MsChart height="280px" :options="options" />
+        <MsChart ref="charRef" height="280px" :options="options" />
       </div>
     </div>
   </div>
@@ -63,7 +67,7 @@
   } from '@/models/workbench/homePage';
   import { WorkCardEnum } from '@/enums/workbenchEnum';
 
-  import { getColorScheme, getCommonBarOptions, getSeriesData, handleNoDataDisplay } from '../utils';
+  import { getColorScheme, getSeriesData } from '../utils';
 
   const { t } = useI18n();
 
@@ -102,8 +106,6 @@
     }
   );
 
-  const hasRoom = computed(() => innerProjectIds.value.length >= 7 || props.item.projectIds.length === 0);
-
   const options = ref<Record<string, any>>({});
 
   const hasPermission = ref<boolean>(false);
@@ -122,16 +124,7 @@
       })
       .filter((e) => Object.keys(detail.caseCountMap).includes(e.value as string));
 
-    options.value = getCommonBarOptions(hasRoom.value, getColorScheme(detail.projectCountList.length));
-    const { invisible, text } = handleNoDataDisplay(detail.xaxis, hasPermission.value);
-    options.value.graphic.invisible = invisible;
-    options.value.graphic.style.text = text;
-    // x轴
-    options.value.xAxis.data = detail.xaxis;
-
-    const { maxAxis, data } = getSeriesData(detail.projectCountList);
-    options.value.series = data;
-    options.value.yAxis[0].max = maxAxis;
+    options.value = getSeriesData(contentTabList, detail, getColorScheme(detail.projectCountList.length));
   }
   const showSkeleton = ref(false);
 

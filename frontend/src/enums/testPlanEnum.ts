@@ -22,3 +22,9 @@ export enum PlanMinderCollectionType {
   API = 'API',
   SCENARIO = 'SCENARIO',
 }
+export enum TestPlanStatusEnum {
+  PREPARED = 'PREPARED', // 未开始
+  UNDERWAY = 'UNDERWAY', // 进行中
+  COMPLETED = 'COMPLETED', // 已完成
+  ARCHIVED = 'ARCHIVED', // 已归档
+}

@@ -1,6 +1,6 @@
 <template>
   <div class="card-wrapper">
-    <CardSkeleton v-if="showSkeleton" :show-skeleton="showSkeleton" />
+    <CardSkeleton v-if="showSkeleton" :show-skeleton="showSkeleton" :show-line-number="2" />
     <div v-else>
       <div class="flex items-center justify-between">
         <a-tooltip :content="t(props.item.label)" position="tl">

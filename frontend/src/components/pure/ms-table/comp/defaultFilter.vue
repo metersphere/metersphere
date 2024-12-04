@@ -184,6 +184,15 @@
       }
     }
   );
+
+  watch(
+    () => props.filter,
+    (val) => {
+      if (val[props.dataIndex as string] && val[props.dataIndex as string]?.length) {
+        checkedList.value = val[props.dataIndex as string];
+      }
+    }
+  );
 </script>
 
 <style scoped lang="less">

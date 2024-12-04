@@ -54,6 +54,7 @@ export const defaultDetailCount: PassRateCountDetail = {
   },
   nextTriggerTime: 0,
   status: 'PREPARED',
+  pass: false,
 };
 
 export const defaultExecuteForm = {
