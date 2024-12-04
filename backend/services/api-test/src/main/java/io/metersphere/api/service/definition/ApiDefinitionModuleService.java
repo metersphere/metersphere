@@ -18,6 +18,7 @@ import io.metersphere.project.dto.NodeSortDTO;
 import io.metersphere.project.service.ModuleTreeService;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
@@ -73,6 +74,9 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         if (!containRequest || CollectionUtils.isEmpty(request.getProtocols())) {
             return baseTreeNodes;
         }
+        ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+        request.setExcludeIds(apiDefinitionService.getQueryExcludeIds(request.getFilter(), request.getProjectId(), request.getProtocols()));
+        request.setIncludeIds(apiDefinitionService.getQueryIncludeIds(request.getFilter(), request.getProjectId(), request.getProtocols()));
         List<ApiTreeNode> apiTreeNodeList = extApiDefinitionModuleMapper.selectApiDataByRequest(request, deleted);
         return apiDebugModuleService.getBaseTreeNodes(apiTreeNodeList, baseTreeNodes);
 

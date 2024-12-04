@@ -26,7 +26,7 @@ public interface ExtApiScenarioStepMapper {
      */
     List<String> getHasBlobRequestStepIds(@Param("scenarioId")  String scenarioId);
 
-    List<String> selectResourceId(@Param("projectId") String projectId, @Param("stepType") String stepType);
+    List<String> selectResourceId(@Param("projectId") String projectId, @Param("stepType") String stepType, @Param("protocols") List<String> apiProtocols);
 
     List<String> selectCustomRequestConfigByProjectId(String projectId);
 }

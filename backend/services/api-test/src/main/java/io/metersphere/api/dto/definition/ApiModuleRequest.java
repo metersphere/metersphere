@@ -34,4 +34,11 @@ public class ApiModuleRequest extends BaseCondition {
 
     @Schema(description = "测试计划id")
     private String testPlanId;
+
+    @Schema(description = "本次查询包含的ID(一般由后台计算后得出)")
+    private List<String> includeIds = new ArrayList<>();
+
+    @Schema(description = "本次查询不包含的ID(一般由后台计算后得出)")
+    private List<String> excludeIds = new ArrayList<>();
+
 }

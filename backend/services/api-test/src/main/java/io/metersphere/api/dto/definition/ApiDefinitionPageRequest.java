@@ -46,4 +46,10 @@ public class ApiDefinitionPageRequest extends BasePageRequest {
 
     @Schema(description = "删除状态(状态为 1 时为回收站数据)")
     private Boolean deleted = false;
+
+    @Schema(description = "本次查询包含的ID(一般由后台计算后得出)")
+    private List<String> includeIds = new ArrayList<>();
+
+    @Schema(description = "本次查询不包含的ID(一般由后台计算后得出)")
+    private List<String> excludeIds = new ArrayList<>();
 }

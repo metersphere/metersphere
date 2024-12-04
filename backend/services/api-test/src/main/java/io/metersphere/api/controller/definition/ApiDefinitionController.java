@@ -98,7 +98,7 @@ public class ApiDefinitionController {
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public ApiCoverageDTO rage(@PathVariable String projectId) {
         // 筛选出所有 API 的 ID 和 HTTP 类型的 API
-        List<ApiDefinition> apiDefinitions = extApiDefinitionMapper.selectBaseInfoByProjectId(projectId);
+        List<ApiDefinition> apiDefinitions = extApiDefinitionMapper.selectBaseInfoByProjectId(projectId, null, null);
         List<String> apiAllIds = apiDefinitions.stream().map(ApiDefinition::getId).toList();
         List<ApiDefinition> httpApiList = apiDefinitions.stream()
                 .filter(api -> StringUtils.equalsIgnoreCase(api.getProtocol(), "http"))
@@ -106,12 +106,12 @@ public class ApiDefinitionController {
 
         // 获取 API 定义、测试用例 ID 和场景步骤中的 API ID
         List<String> apiDefinitionIdFromCase = extApiTestCaseMapper.selectApiId(projectId);
-        List<String> apiInScenarioStep = new ArrayList<>(extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API.name()));
-        List<String> apiCaseIdInStep = extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API_CASE.name());
+        List<String> apiInScenarioStep = new ArrayList<>(extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API.name(), null));
+        List<String> apiCaseIdInStep = extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API_CASE.name(), null);
 
         // 如果有场景步骤中的 API 用例 ID，追加相关 API ID
         if (CollectionUtils.isNotEmpty(apiCaseIdInStep)) {
-            List<String> apiCaseIdInScenarioStep = extApiTestCaseMapper.selectApiIdByCaseId(apiCaseIdInStep);
+            List<String> apiCaseIdInScenarioStep = extApiTestCaseMapper.selectApiIdByCaseId(apiCaseIdInStep, null, null);
             apiInScenarioStep.addAll(apiCaseIdInScenarioStep);
         }
 
@@ -198,6 +198,7 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<ApiDefinitionDTO>> getPage(@Validated @RequestBody ApiDefinitionPageRequest request) {
+        apiDefinitionService.initApiSelectIds(request);
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString("id")) ? request.getSortString("id") : request.getDeleted() ? "delete_time desc, id desc" : "pos desc, id desc");
         return PageUtils.setPageInfo(page, apiDefinitionService.getApiDefinitionPage(request, SessionUtils.getUserId()));

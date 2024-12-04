@@ -36,6 +36,16 @@
         where step.step_type = #{stepType}
           AND scenario.project_id = #{projectId}
           AND scenario.deleted IS FALSE
+        <if test="protocols!= null and protocols.size > 0">
+            AND step.resource_id IN (
+            select distinct apiCase.id FROM api_definition api
+            INNER JOIN api_test_case apiCase ON api.id = apiCase.api_definition_id
+            WHERE api.project_id = #{projectId} AND api.deleted IS FALSE and api.deleted IS FALSE AND api.protocol IN
+            <foreach collection="protocols" item="protocol" open="(" separator="," close=")">
+                #{protocol}
+            </foreach>
+            )
+        </if>
     </select>
     <select id="selectCustomRequestConfigByProjectId" resultType="java.lang.String">
         select step.id

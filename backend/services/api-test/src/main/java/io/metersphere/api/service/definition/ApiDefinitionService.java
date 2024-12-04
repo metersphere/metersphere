@@ -1,8 +1,6 @@
 package io.metersphere.api.service.definition;
 
-import io.metersphere.api.constants.ApiConstants;
-import io.metersphere.api.constants.ApiDefinitionDocType;
-import io.metersphere.api.constants.ApiResourceType;
+import io.metersphere.api.constants.*;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.*;
@@ -16,6 +14,7 @@ import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
+import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.api.utils.JsonSchemaBuilder;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -53,6 +52,7 @@ import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -82,6 +82,9 @@ public class ApiDefinitionService extends MoveNodeService {
 
     @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
+
+    @Resource
+    private ExtApiScenarioStepMapper extApiScenarioStepMapper;
 
     @Resource
     private ExtApiDefinitionModuleMapper extApiDefinitionModuleMapper;
@@ -133,8 +136,10 @@ public class ApiDefinitionService extends MoveNodeService {
 
     @Resource
     private OperationLogBlobMapper operationLogBlobMapper;
+
     @Resource
     private ApiExecuteService apiExecuteService;
+
     @Resource
     private ApiDefinitionNoticeService apiDefinitionNoticeService;
 
@@ -145,6 +150,77 @@ public class ApiDefinitionService extends MoveNodeService {
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.list(request);
         processApiDefinitions(list);
         return list;
+    }
+
+    public void initApiSelectIds(ApiDefinitionPageRequest request) {
+        request.setExcludeIds(this.getQueryExcludeIds(request.getFilter(), request.getProjectId(), request.getProtocols()));
+        request.setIncludeIds(this.getQueryIncludeIds(request.getFilter(), request.getProjectId(), request.getProtocols()));
+    }
+
+    public List<String> getQueryIncludeIds(Map<String, List<String>> queryFilter, String projectId, List<String> protocol) {
+        if (queryFilter != null && CollectionUtils.isNotEmpty(queryFilter.get("coverFrom"))) {
+            String coverFrom = queryFilter.get("coverFrom").getFirst();
+            if (ApiCoverageConstants.API_DEFINITION.equals(coverFrom)) {
+                return this.selectApiIdInCaseAndScenarioStep(projectId, protocol);
+            } else if (ApiCoverageConstants.API_CASE.equals(coverFrom)) {
+                return this.selectApiIdInCase(projectId, protocol);
+            } else if (ApiCoverageConstants.API_SCENARIO.equals(coverFrom)) {
+                return this.selectApiIdInScenarioStep(projectId, protocol, null);
+            }
+        }
+        return null;
+    }
+
+    public List<String> getQueryExcludeIds(Map<String, List<String>> queryFilter, String projectId, List<String> protocol) {
+        if (queryFilter != null && CollectionUtils.isNotEmpty(queryFilter.get("unCoverFrom"))) {
+            String unCoverFrom = queryFilter.get("unCoverFrom").getFirst();
+            if (ApiCoverageConstants.API_DEFINITION.equals(unCoverFrom)) {
+                return this.selectApiIdInCaseAndScenarioStep(projectId, protocol);
+            } else if (ApiCoverageConstants.API_CASE.equals(unCoverFrom)) {
+                return this.selectApiIdInCase(projectId, protocol);
+            } else if (ApiCoverageConstants.API_SCENARIO.equals(unCoverFrom)) {
+                return this.selectApiIdInScenarioStep(projectId, protocol, null);
+            }
+        }
+        return null;
+    }
+
+    private List<String> selectApiIdInCaseAndScenarioStep(String projectId, List<String> protocols) {
+        List<String> apiInCase = this.selectApiIdInCase(projectId, protocols);
+        List<String> apiInScenarioStep = this.selectApiIdInScenarioStep(projectId, protocols, apiInCase);
+        return ListUtils.union(apiInCase, apiInScenarioStep);
+    }
+
+    private List<String> selectApiIdInCase(String projectId, List<String> protocols) {
+        if (CollectionUtils.isEmpty(protocols)) {
+            return new ArrayList<>();
+        }
+        return extApiTestCaseMapper.selectApiIdByProjectAndProtocol(projectId, protocols);
+    }
+
+    private List<String> selectApiIdInScenarioStep(String projectId, List<String> protocols, List<String> ignoreApiIds) {
+
+        List<String> apiInScenarioStep = new ArrayList<>(extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API.name(), protocols));
+        List<String> apiCaseIdInStep = extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API_CASE.name(), protocols);
+        // 如果有场景步骤中的 API 用例 ID，追加相关 API ID
+        if (CollectionUtils.isNotEmpty(apiCaseIdInStep)) {
+            List<String> apiCaseIdInScenarioStep = extApiTestCaseMapper.selectApiIdByCaseId(apiCaseIdInStep, protocols, ignoreApiIds);
+            apiInScenarioStep.addAll(apiCaseIdInScenarioStep);
+            apiCaseIdInScenarioStep = null;
+            apiCaseIdInStep = null;
+        }
+
+        if (protocols.contains("HTTP")) {
+            List<ApiDefinition> apiDefinitions = extApiDefinitionMapper.selectBaseInfoByProjectId(projectId, List.of("HTTP"), ignoreApiIds);
+            List<ApiDefinition> httpApiList = apiDefinitions.stream()
+                    .filter(api -> StringUtils.equalsIgnoreCase(api.getProtocol(), "http"))
+                    .toList();
+            apiDefinitions = null;
+            List<String> apiInStepList = new ArrayList<>(CommonBeanFactory.getBean(ApiScenarioService.class).selectApiIdInCustomRequest(projectId, httpApiList));
+            apiInScenarioStep.addAll(apiInStepList);
+        }
+        
+        return apiInScenarioStep;
     }
 
     public List<ApiDefinitionDTO> getDocPage(ApiDefinitionPageRequest request, String userId) {
@@ -907,7 +983,9 @@ public class ApiDefinitionService extends MoveNodeService {
     public <T> List<String> getBatchApiIds(T dto, String projectId, List<String> protocols, boolean deleted, String userId) {
         TableBatchProcessDTO request = (TableBatchProcessDTO) dto;
         if (request.isSelectAll() && CollectionUtils.isNotEmpty(protocols)) {
-            List<String> ids = extApiDefinitionMapper.getIds(request, projectId, protocols, deleted);
+            List<String> includeIds = this.getQueryIncludeIds(request.getCondition().getFilter(), projectId, protocols);
+            List<String> excludeIds = this.getQueryExcludeIds(request.getCondition().getFilter(), projectId, protocols);
+            List<String> ids = extApiDefinitionMapper.getIds(request, projectId, protocols, deleted, includeIds, excludeIds);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }

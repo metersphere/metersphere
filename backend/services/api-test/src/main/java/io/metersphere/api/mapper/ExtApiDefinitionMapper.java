@@ -35,7 +35,7 @@ public interface ExtApiDefinitionMapper {
     Long getPos(@Param("projectId") String projectId);
 
     @BaseConditionFilter
-    List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("protocols") List<String> protocols, @Param("deleted") boolean deleted);
+    List<String> getIds(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("protocols") List<String> protocols, @Param("deleted") boolean deleted, @Param("includeIds") List<String> includeIds, @Param("excludeIds") List<String> excludeIds);
 
     @BaseConditionFilter
     List<String> getIdsBySort(@Param("request") TableBatchProcessDTO request, @Param("projectId") String projectId, @Param("protocols") List<String> protocols, @Param("orderColumns") String orderColumns, @Param("deleted") boolean deleted);
@@ -129,5 +129,5 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDefinition> getCreateApiList(@Param("projectId") String projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 
-    List<ApiDefinition> selectBaseInfoByProjectId(String projectId);
+    List<ApiDefinition> selectBaseInfoByProjectId(@Param("projectId") String projectId, @Param("protocols") List<String> protocols, @Param("ignoreApiIds") List<String> ignoreApiIds);
 }

@@ -5,10 +5,7 @@ import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionExample;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiTestCase;
-import io.metersphere.api.dto.definition.ApiCoverageDTO;
-import io.metersphere.api.dto.definition.ApiDefinitionAddRequest;
-import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
-import io.metersphere.api.dto.definition.HttpResponse;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.scenario.ApiScenarioAddRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioStepRequest;
@@ -22,16 +19,19 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.util.CalculateUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -222,6 +222,31 @@ public class ApiCalculateTest extends BaseTest {
         }
     }
 
+    /*
+        本次接口定义相关数据：
+        "GET"："/api/get-test/1",
+                "/api/get-test/2",
+                "/api/{/get-test}/3/withCase",
+                "/api/get-test/4/withCase",// 场景关联它的用例
+                "/api/get-test/5/never-compare",
+                "/{api}/{/get-test}/{6}",//这个在接口程度覆盖率和场景程度覆盖率计算中一定会被匹配到
+                "/api/get-test/{7}",// 这个在接口程度覆盖率和场景程度覆盖率计算中一定会被匹配到
+                "/api/get-test/8",// 场景关联它的自定义请求
+                "/api/get-test/9",// 场景关联这个接口
+                "/api/get-test/10"
+
+        "POST"："/post/api/test/1",
+                "/post/api/test/2",
+                "/post/api/{test}/3/withCase",
+                "/post/api/test/4/withCase",// 场景关联它的用例
+                "/post/api/test/5/never-compare",
+                "/{post}/{api}/{/get-test}/{6}", //这个在接口程度覆盖率和场景程度覆盖率计算中一定会被匹配到
+                "/post/api/test/{7}",   // 这个在接口程度覆盖率和场景程度覆盖率计算中一定会被匹配到
+                "/post/api/test/8",     // 场景关联它的自定义请求
+                "/post/api/test/9",     // 场景关联这个接口
+                "/post/api/test/10"
+
+     */
     @Test
     public void calculateTest() throws Exception {
         ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
@@ -244,6 +269,67 @@ public class ApiCalculateTest extends BaseTest {
         Assertions.assertEquals(apiCoverageDTO.getApiCoverage(), CalculateUtils.reportPercentage(apiCoverageDTO.getCoverWithApiDefinition(), apiCoverageDTO.getAllApiCount()));
 
         Assertions.assertEquals("0.00%", CalculateUtils.reportPercentage(0, 0));
+
+        // 表格筛选测试
+        ApiDefinitionPageRequest request = new ApiDefinitionPageRequest();
+        request.setProjectId(project.getId());
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setDeleted(false);
+        request.setSort(Map.of("createTime", "asc"));
+        request.setProtocols(List.of("HTTP"));
+        Map<String, List<String>> filters = new HashMap<>();
+        request.setSort(Map.of());
+        filters.put("coverFrom", List.of(ApiCoverageConstants.API_DEFINITION));
+        request.setFilter(filters);
+
+        MvcResult pageResult = this.requestPostWithOkAndReturn("/api/definition/page", request);
+
+        Pager<Object> result = JSON.parseObject(JSON.toJSONString(JSON.parseObject(
+                pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()), Pager.class);
+        Assertions.assertEquals(result.getTotal(), 10);
+
+        filters = new HashMap<>();
+        filters.put("unCoverFrom", List.of(ApiCoverageConstants.API_DEFINITION));
+        request.setFilter(filters);
+        pageResult = this.requestPostWithOkAndReturn("/api/definition/page", request);
+        result = JSON.parseObject(JSON.toJSONString(JSON.parseObject(
+                pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()), Pager.class);
+        Assertions.assertEquals(result.getTotal(), 10);
+
+
+        filters = new HashMap<>();
+        filters.put("coverFrom", List.of(ApiCoverageConstants.API_CASE));
+        request.setFilter(filters);
+        pageResult = this.requestPostWithOkAndReturn("/api/definition/page", request);
+        result = JSON.parseObject(JSON.toJSONString(JSON.parseObject(
+                pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()), Pager.class);
+        Assertions.assertEquals(result.getTotal(), 4);
+
+        filters = new HashMap<>();
+        filters.put("unCoverFrom", List.of(ApiCoverageConstants.API_CASE));
+        request.setFilter(filters);
+        pageResult = this.requestPostWithOkAndReturn("/api/definition/page", request);
+        result = JSON.parseObject(JSON.toJSONString(JSON.parseObject(
+                pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()), Pager.class);
+        Assertions.assertEquals(result.getTotal(), 16);
+
+
+        filters = new HashMap<>();
+        filters.put("coverFrom", List.of(ApiCoverageConstants.API_SCENARIO));
+        request.setFilter(filters);
+        pageResult = this.requestPostWithOkAndReturn("/api/definition/page", request);
+        result = JSON.parseObject(JSON.toJSONString(JSON.parseObject(
+                pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()), Pager.class);
+        Assertions.assertEquals(result.getTotal(), 8);
+
+        filters = new HashMap<>();
+        filters.put("unCoverFrom", List.of(ApiCoverageConstants.API_SCENARIO));
+        request.setFilter(filters);
+        pageResult = this.requestPostWithOkAndReturn("/api/definition/page", request);
+        result = JSON.parseObject(JSON.toJSONString(JSON.parseObject(
+                pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()), Pager.class);
+        Assertions.assertEquals(result.getTotal(), 12);
     }
 
     @Test

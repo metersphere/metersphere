@@ -143,5 +143,7 @@ public interface ExtApiTestCaseMapper {
 
     List<String> selectApiId(String projectId);
 
-    List<String> selectApiIdByCaseId(@Param("ids") List<String> apiCaseIdInStep);
+    List<String> selectApiIdByProjectAndProtocol(@Param("projectId") String projectId, @Param("protocols") List<String> protocols);
+
+    List<String> selectApiIdByCaseId(@Param("ids") List<String> apiCaseIdInStep, @Param("protocols") List<String> apiProtocols, @Param("ignoreApiIds") List<String> ignoreApiIds);
 }

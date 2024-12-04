@@ -86,6 +86,18 @@
                 #{item}
             </foreach>
         </if>
+        <if test="includeIds != null and includeIds.size() > 0">
+            and api_definition.id in
+            <foreach collection="includeIds" item="includeId" separator="," open="(" close=")">
+                #{includeId}
+            </foreach>
+        </if>
+        <if test="excludeIds != null and excludeIds.size() > 0">
+            and api_definition.id not in
+            <foreach collection="excludeIds" item="excludeId" separator="," open="(" close=")">
+                #{excludeId}
+            </foreach>
+        </if>
         <include refid="queryWhereConditionByBaseQueryRequest"/>
     </select>
 
@@ -263,6 +275,18 @@
         </if>
         <if test="request.projectId != null and request.projectId != ''">
             and api_definition.project_id = #{request.projectId}
+        </if>
+        <if test="request.includeIds != null and request.includeIds.size() > 0">
+            and api_definition.id in
+            <foreach collection="request.includeIds" item="includeId" separator="," open="(" close=")">
+                #{includeId}
+            </foreach>
+        </if>
+        <if test="request.excludeIds != null and request.excludeIds.size() > 0">
+            and api_definition.id not in
+            <foreach collection="request.excludeIds" item="excludeId" separator="," open="(" close=")">
+                #{excludeId}
+            </foreach>
         </if>
         <if test="request.protocols != null and request.protocols.size() > 0">
             and api_definition.protocol in
@@ -843,7 +867,19 @@
     <select id="selectBaseInfoByProjectId" resultType="io.metersphere.api.domain.ApiDefinition">
         SELECT id, path, method, protocol
         FROM api_definition
-        WHERE project_id = #{0}
+        WHERE project_id = #{projectId}
           AND deleted IS FALSE
+        <if test="protocols != null and protocols.size() > 0">
+            AND protocol IN
+            <foreach collection="protocols" item="protocol" separator="," open="(" close=")">
+                #{protocol}
+            </foreach>
+        </if>
+        <if test="ignoreApiIds!= null and ignoreApiIds.size > 0">
+            AND id NOT IN
+            <foreach collection="ignoreApiIds" item="ignoreApiId" open="(" separator="," close=")">
+                #{ignoreApiId}
+            </foreach>
+        </if>
     </select>
 </mapper>
