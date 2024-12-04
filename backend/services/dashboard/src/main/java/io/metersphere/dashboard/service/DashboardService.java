@@ -841,10 +841,13 @@ public class DashboardService {
         Double executeRate = planCount.getExecuteRate();
         int executeRateValue = executeRate == null ? 0 : executeRate.intValue();
         caseCountMap.put("executeRate", executeRateValue);
+        caseCountMap.put("totalCount", planCount.getCaseTotal());
+        caseCountMap.put("executeCount", planCount.getCaseTotal()-planCount.getPendingCount());
         caseCountMap.put(BUG_COUNT, planBugs.size());
         List<TestPlan> testPlans = extTestPlanMapper.selectBaseInfoByIds(List.of(planCount.getId()));
         caseCountMap.put("testPlanName", testPlans.getFirst().getName());
         caseCountMap.put("status", planCount.getStatus());
+        caseCountMap.put("passRate", planCount.getPassRate());
         overViewCountDTO.setCaseCountMap(caseCountMap);
     }
 
