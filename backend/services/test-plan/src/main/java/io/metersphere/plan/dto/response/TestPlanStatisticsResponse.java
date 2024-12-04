@@ -92,7 +92,8 @@ public class TestPlanStatisticsResponse {
 	}
 
 	public void calculateTestPlanIsPass() {
-		this.isPass = this.passRate >= this.passThreshold;
+		double passThresholdValue = this.passThreshold == null ? 0d : this.passThreshold;
+		this.isPass = this.passRate >= passThresholdValue;
 	}
 
 	public void calculatePassRate() {

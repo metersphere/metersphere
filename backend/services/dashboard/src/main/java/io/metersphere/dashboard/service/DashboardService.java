@@ -185,7 +185,7 @@ public class DashboardService {
     @Nullable
     private static OverViewCountDTO getNoProjectData(DashboardFrontPageRequest request) {
         if (!request.isSelectAll() && CollectionUtils.isEmpty(request.getProjectIds())) {
-            Map<String, Integer> map = new HashMap<>();
+            Map<String, Object> map = new HashMap<>();
             map.put(FUNCTIONAL, 0);
             map.put(CASE_REVIEW, 0);
             map.put(API, 0);
@@ -201,7 +201,7 @@ public class DashboardService {
     @NotNull
     private OverViewCountDTO getModuleCountMap(Map<String, Set<String>> permissionModuleProjectIdMap, List<Project> projects, Long toStartTime, Long toEndTime, String userId) {
         Map<String, String> projectNameMap = projects.stream().collect(Collectors.toMap(Project::getId, Project::getName));
-        Map<String, Integer> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         Map<String, Integer> projectCaseCountMap;
         Map<String, Integer> projectReviewCountMap;
         Map<String, Integer> projectApiCountMap;
@@ -786,8 +786,13 @@ public class DashboardService {
             List<TestPlanBugPageResponse> testPlanBugPageResponses = bugUserMap.get(userId);
             if (CollectionUtils.isNotEmpty(testPlanBugPageResponses)) {
                 createBugCount.add(testPlanBugPageResponses.size());
-                List<TestPlanBugPageResponse> list = testPlanBugPageResponses.stream().filter(t -> statusList.contains(t.getStatus())).toList();
-                closeBugCount.add(list.size());
+                if (CollectionUtils.isNotEmpty(statusList)) {
+                    List<TestPlanBugPageResponse> list = testPlanBugPageResponses.stream().filter(t -> statusList.contains(t.getStatus())).toList();
+                    closeBugCount.add(list.size());
+                } else {
+                    closeBugCount.add(testPlanBugPageResponses.size());
+                }
+
             }
             totalCaseCount.add(count);
             finishCaseCount.add(finishCount);
@@ -822,12 +827,11 @@ public class DashboardService {
         userExample.createCriteria().andIdIn(new ArrayList<>(userSet));
         userExample.createCriteria().andEnableEqualTo(true);
         userExample.createCriteria().andDeletedEqualTo(false);
-        List<User> users = userMapper.selectByExample(userExample);
-        return users;
+        return userMapper.selectByExample(userExample);
     }
 
-    private static void buildCountMap(TestPlanStatisticsResponse planCount, List<TestPlanBugPageResponse> planBugs, OverViewCountDTO overViewCountDTO) {
-        Map<String, Integer> caseCountMap = new HashMap<>();
+    private void buildCountMap(TestPlanStatisticsResponse planCount, List<TestPlanBugPageResponse> planBugs, OverViewCountDTO overViewCountDTO) {
+        Map<String, Object> caseCountMap = new HashMap<>();
         caseCountMap.put(FUNCTIONAL, (int) planCount.getFunctionalCaseCount());
         caseCountMap.put(API_CASE, (int) planCount.getApiCaseCount());
         caseCountMap.put(API_SCENARIO, (int) planCount.getApiScenarioCount());
@@ -838,6 +842,9 @@ public class DashboardService {
         int executeRateValue = executeRate == null ? 0 : executeRate.intValue();
         caseCountMap.put("executeRate", executeRateValue);
         caseCountMap.put(BUG_COUNT, planBugs.size());
+        List<TestPlan> testPlans = extTestPlanMapper.selectBaseInfoByIds(List.of(planCount.getId()));
+        caseCountMap.put("testPlanName", testPlans.getFirst().getName());
+        caseCountMap.put("status", planCount.getStatus());
         overViewCountDTO.setCaseCountMap(caseCountMap);
     }
 

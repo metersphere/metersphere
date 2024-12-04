@@ -606,8 +606,7 @@
     </select>
 
     <select id="getPlanFunctionalCaseByIds" resultType="io.metersphere.plan.domain.TestPlanFunctionalCase">
-        select tpfc.test_plan_id testPlanId, tpfc.functional_case_id functionalCaseId, tpfc.last_exec_result
-        lastExecResult
+        select tpfc.test_plan_id testPlanId, tpfc.functional_case_id functionalCaseId, tpfc.last_exec_result lastExecResult, tpfc.execute_user executeUser
         from test_plan_functional_case tpfc join functional_case fc on fc.id = tpfc.functional_case_id
         <where>
             fc.deleted = false

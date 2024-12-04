@@ -832,7 +832,7 @@
     </select>
 
     <select id="getPlanApiCaseByIds" resultType="io.metersphere.plan.domain.TestPlanApiCase">
-        select tpac.test_plan_id testPlanId, tpac.api_case_id apiCaseId, tpac.last_exec_result lastExecResult
+        select tpac.test_plan_id testPlanId, tpac.api_case_id apiCaseId, tpac.last_exec_result lastExecResult, tpac.execute_user executeUser
         from test_plan_api_case tpac join api_test_case atc on atc.id = tpac.api_case_id
         <where>
             atc.deleted = false

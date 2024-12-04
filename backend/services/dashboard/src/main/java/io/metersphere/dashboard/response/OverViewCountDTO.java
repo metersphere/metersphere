@@ -15,7 +15,7 @@ import java.util.Map;
 public class OverViewCountDTO {
 
     @Schema(description = "用例模块数量")
-    private Map<String, Integer> caseCountMap;
+    private Map<String, Object> caseCountMap;
 
     @Schema(description = "横坐标数量")
     private List<String> xAxis;
