@@ -138,6 +138,15 @@ INSERT INTO test_plan_api_case(`id`, `test_plan_id`, `api_case_id`, `environment
 INSERT INTO test_plan_api_scenario (id, test_plan_id, api_scenario_id, environment_id, execute_user, last_exec_result, last_exec_report_id, create_time, create_user, pos, test_plan_collection_id, grouped) VALUES
     ('dashboard_plan_api_scenario_1', 'dashboard_test-plan-id', 'dashboard_scenario_four', '1', 'admin', 'PASSED', NULL, 1716370415311, 'admin', 1, '123', false);
 
+INSERT INTO test_plan_functional_case(id, test_plan_id, functional_case_id, create_time, create_user, execute_user, last_exec_time, last_exec_result, pos, test_plan_collection_id)
+VALUES ('test_plan_functional_case_dashboard_id1', 'dashboard_group-plan', 'dashboard_TEST_FUNCTIONAL_CASE_ID_g', 1669174143999, 'admin', NULL, 1669174143999, 'SUCCESS', 5000, '123');
+
+INSERT INTO test_plan_api_case(`id`, `test_plan_id`, `api_case_id`, `environment_id`, `last_exec_result`, `last_exec_report_id`, `execute_user`, `create_time`, `create_user`, `pos`, `test_plan_collection_id`) VALUES
+    ('dashboard_plan_api_case_2', 'dashboard_group-plan', 'dashboard_ac_4', '1', 'PASSED', NULL, NULL, 1716370415311, 'admin', 1, '123');
+
+INSERT INTO test_plan_api_scenario (id, test_plan_id, api_scenario_id, environment_id, execute_user, last_exec_result, last_exec_report_id, create_time, create_user, pos, test_plan_collection_id, grouped) VALUES
+    ('dashboard_plan_api_scenario_3', 'dashboard_group-plan', 'dashboard_scenario_four', '1', NULL, 'PASSED', NULL, 1716370415311, 'admin', 1, '123', false);
+
 
 INSERT INTO project_application (project_id, type, type_value) VALUES
                                                                    ('100001100001', 'BUG_SYNC_BUG_PLATFORM_CONFIG', '{"jiraKey":"TES","jiraBugTypeId":"10009"}'),

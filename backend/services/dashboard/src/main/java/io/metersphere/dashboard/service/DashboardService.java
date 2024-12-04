@@ -728,9 +728,15 @@ public class DashboardService {
         List<TestPlanBugPageResponse> planBugs = extTestPlanBugMapper.countBugByIds(planIds);
         //获取卡片数据
         buildCountMap(planCount, planBugs, overViewCountDTO);
-        Map<String, List<TestPlanFunctionalCase>> caseUserMap = planFunctionalCases.stream().collect(Collectors.groupingBy(TestPlanFunctionalCase::getExecuteUser));
-        Map<String, List<TestPlanApiCase>> apiCaseUserMap = planApiCases.stream().collect(Collectors.groupingBy(TestPlanApiCase::getExecuteUser));
-        Map<String, List<TestPlanApiScenario>> apiScenarioUserMap = planApiScenarios.stream().collect(Collectors.groupingBy(TestPlanApiScenario::getExecuteUser));
+        List<TestPlanFunctionalCase> caseUserNullList = planFunctionalCases.stream().filter(t -> StringUtils.isBlank(t.getExecuteUser())).toList();
+        Map<String, List<TestPlanFunctionalCase>> caseUserMap = planFunctionalCases.stream().filter(t->StringUtils.isNotBlank(t.getExecuteUser())).collect(Collectors.groupingBy(TestPlanFunctionalCase::getExecuteUser));
+        caseUserMap.put("NONE", caseUserNullList);
+        List<TestPlanApiCase> apiCaseUserNullList = planApiCases.stream().filter(t -> StringUtils.isBlank(t.getExecuteUser())).toList();
+        Map<String, List<TestPlanApiCase>> apiCaseUserMap = planApiCases.stream().filter(t->StringUtils.isNotBlank(t.getExecuteUser())).collect(Collectors.groupingBy(TestPlanApiCase::getExecuteUser));
+        apiCaseUserMap.put("NONE", apiCaseUserNullList);
+        List<TestPlanApiScenario> apiScenarioNullList = planApiScenarios.stream().filter(t -> StringUtils.isBlank(t.getExecuteUser())).toList();
+        Map<String, List<TestPlanApiScenario>> apiScenarioUserMap = planApiScenarios.stream().filter(t->StringUtils.isNotBlank(t.getExecuteUser())).collect(Collectors.groupingBy(TestPlanApiScenario::getExecuteUser));
+        apiScenarioUserMap.put("NONE", apiScenarioNullList);
         Map<String, List<TestPlanBugPageResponse>> bugUserMap = planBugs.stream().collect(Collectors.groupingBy(TestPlanBugPageResponse::getCreateUser));
         List<User> users = getUsers(caseUserMap, apiCaseUserMap, apiScenarioUserMap, bugUserMap);
         Map<String, String> userNameMap = users.stream().collect(Collectors.toMap(User::getId, User::getName));
@@ -739,6 +745,7 @@ public class DashboardService {
         if (CollectionUtils.isEmpty(users)) {
             if (totalCount > 0) {
                 nameList = List.of(Translator.get("plan_executor"));
+                userNameMap.put("NONE", Translator.get("plan_executor"));
             }
         } else {
             nameList = userNameMap.values().stream().toList();
@@ -793,6 +800,9 @@ public class DashboardService {
                     closeBugCount.add(testPlanBugPageResponses.size());
                 }
 
+            } else {
+                createBugCount.add(0);
+                closeBugCount.add(0);
             }
             totalCaseCount.add(count);
             finishCaseCount.add(finishCount);
@@ -823,6 +833,9 @@ public class DashboardService {
         userSet.addAll(apiCaseUserMap.keySet());
         userSet.addAll(apiScenarioUserMap.keySet());
         userSet.addAll(bugUserMap.keySet());
+        if (CollectionUtils.isEmpty(userSet)) {
+            return new ArrayList<>();
+        }
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(new ArrayList<>(userSet));
         userExample.createCriteria().andEnableEqualTo(true);

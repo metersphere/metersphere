@@ -184,7 +184,20 @@ public class DashboardFrontPageControllerTests extends BaseTest {
                         JSON.parseObject(mvcResultAll.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 OverViewCountDTO.class);
         Assertions.assertNotNull(moduleCountAll);
-        System.out.println(JSON.toJSONString(moduleCountAll));
+
+        dashboardFrontPageRequest.setPlanId("dashboard_group-plan");
+        mvcResultAll = this.requestPostWithOkAndReturn(PROJECT_PLAN_VIEW, dashboardFrontPageRequest);
+        moduleCountAll = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultAll.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                OverViewCountDTO.class);
+        Assertions.assertNotNull(moduleCountAll);
+
+        dashboardFrontPageRequest.setPlanId("dashboard_test-plan-id2");
+        mvcResultAll = this.requestPostWithOkAndReturn(PROJECT_PLAN_VIEW, dashboardFrontPageRequest);
+        moduleCountAll = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultAll.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                OverViewCountDTO.class);
+        Assertions.assertNotNull(moduleCountAll);
 
         List<SelectOption> headerStatusOption = bugStatusService.getHeaderStatusOption(DEFAULT_PROJECT_ID);
         buildBug(headerStatusOption);
