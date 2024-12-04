@@ -61,11 +61,8 @@ public class TestEnvironmentController {
      * @return
      */
     @PostMapping("/list/{goPage}/{pageSize}")
-    @RequiresPermissions(value = PermissionConstants.PROJECT_ENVIRONMENT_READ)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_ENVIRONMENT_READ, PermissionConstants.WORKSPACE_PROJECT_ENVIRONMENT_READ}, logical = Logical.OR)
     public Pager<List<ApiTestEnvironmentWithBLOBs>> listByCondition(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EnvironmentRequest environmentRequest) {
-        if (CollectionUtils.isEmpty(environmentRequest.getProjectIds()) || !environmentRequest.getProjectIds().contains(SessionUtils.getCurrentProjectId())) {
-            MSException.throwException(Translator.get("check_owner_case"));
-        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, baseEnvironmentService.listByConditions(environmentRequest));
     }
