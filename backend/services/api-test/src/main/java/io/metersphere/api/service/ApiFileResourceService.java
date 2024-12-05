@@ -65,6 +65,10 @@ public class ApiFileResourceService {
         return commonFileService.getTempFileNameByFileId(fileId);
     }
 
+    public String getFileNameByFileId(String fileId, String folder) {
+        return commonFileService.getFileNameByFileId(fileId, folder);
+    }
+
     /**
      * 添加接口与文件的关联关系
      */

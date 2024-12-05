@@ -2983,73 +2983,58 @@ public class ApiScenarioService extends MoveNodeService {
      * @param request
      * @return
      */
-    public ApiScenarioUnsavedStepDetailDTO getUnsavedStepDetail(ApiScenarioStepDetailRequest request) {
+    public Object getUnsavedStepDetail(ApiScenarioStepDetailRequest request) {
         ApiScenarioStep step = apiScenarioStepMapper.selectByPrimaryKey(request.getId());
         if (step == null) {
-            ApiScenarioUnsavedStepDetailDTO result = new ApiScenarioUnsavedStepDetailDTO();
             ApiScenarioStepDetailRequest getDetailRequest = BeanUtils.copyBean(new ApiScenarioStepDetailRequest(), request);
             if (StringUtils.isNotBlank(request.getCopyFromStepId())) {
                 // 从已有步骤复制，则获取复制步骤的详情
                 ApiScenarioStep copyFromStep = apiScenarioStepMapper.selectByPrimaryKey(request.getCopyFromStepId());
                 getDetailRequest = BeanUtils.copyBean(new ApiScenarioStepDetailRequest(), copyFromStep);
             }
-            Object stepDetail = getStepDetail(getDetailRequest);
-            List<String> uploadFileIds = uploadCopyStepLocalFiles(request, stepDetail);
-            result.setDetail(JSON.parseObject(JSON.toJSONString(stepDetail)));
-            result.setUploadIds(uploadFileIds);
-            return result;
+            return getStepDetail(getDetailRequest);
         }
         throw new MSException("步骤已存在，请调用 /api/scenario/step/get/{stepId} 接口获取详情");
     }
 
-    /**
-     * 复制的步骤，将步骤中的文件上传
-     * 并替换文件ID
-     * @param request
-     * @param stepDetail
-     * @return
-     */
-    private List<String> uploadCopyStepLocalFiles(ApiScenarioStepDetailRequest request, Object stepDetail) {
-        if (stepDetail instanceof AbstractMsTestElement stepMsTestElement) {
-            List<ApiFile> localFiles = apiCommonService.getApiFiles(stepMsTestElement)
-                    .stream()
-                    .filter(file -> BooleanUtils.isTrue(file.getLocal()))
-                    .collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(localFiles)) {
-                List<String> uploadFileIds = new ArrayList<>();
-                String sourceDir = null;
-                String stepType = request.getStepType();
-                String resourceId = request.getResourceId();
-                if (StringUtils.isNotBlank(request.getCopyFromStepId())) {
-                    // 从已有步骤复制，则获取复制步骤的文件
-                    ApiScenarioStep copyFromStep = apiScenarioStepMapper.selectByPrimaryKey(request.getCopyFromStepId());
-                    sourceDir = DefaultRepositoryDir.getApiScenarioStepDir(copyFromStep.getProjectId(),
-                            copyFromStep.getScenarioId(), copyFromStep.getId());
-                } else if (StringUtils.equals(stepType, ApiScenarioStepType.API.name())) {
-                    // 获取接口定义相关的文件
-                    ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(resourceId);
-                    sourceDir = DefaultRepositoryDir.getApiDefinitionDir(apiDefinition.getProjectId(),
-                            apiDefinition.getId());
-                } else if (StringUtils.equals(stepType, ApiScenarioStepType.API_CASE.name())) {
-                    // 获取接口用例相关的文件
-                    ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(resourceId);
-                    sourceDir = DefaultRepositoryDir.getApiCaseDir(apiTestCase.getProjectId(),
-                            apiTestCase.getId());
-                }
-                // 复制的步骤将文件复制到临时目录，并且保存新的文件ID
-                for (ApiFile localFile : localFiles) {
-                    String newFileId = IDGenerator.nextStr();
-                    String targetDir = DefaultRepositoryDir.getSystemTempDir();
-                    // 复制文件到临时目录
-                    apiFileResourceService.copyFile(sourceDir + "/" + localFile.getFileId(),
-                            targetDir + "/" + newFileId,
-                            localFile.getFileName());
-                    localFile.setFileId(newFileId);
-                    uploadFileIds.add(newFileId);
-                }
-                return uploadFileIds;
+    public Map<String, String> copyStepFile(ApiScenarioStepFileCopyRequest request) {
+        String sourceDir;
+        Map<String, String> uploadFileMap = new HashMap<>();
+        if (BooleanUtils.isTrue(request.getIsTempFile())) {
+            sourceDir = DefaultRepositoryDir.getSystemTempDir();
+        } else {
+            String stepType = request.getStepType();
+            String resourceId = request.getResourceId();
+            if (StringUtils.isNotBlank(request.getCopyFromStepId())) {
+                // 从已有步骤复制
+                ApiScenarioStep copyFromStep = apiScenarioStepMapper.selectByPrimaryKey(request.getCopyFromStepId());
+                sourceDir = DefaultRepositoryDir.getApiScenarioStepDir(copyFromStep.getProjectId(),
+                        copyFromStep.getScenarioId(), copyFromStep.getId());
+            } else if (StringUtils.equals(stepType, ApiScenarioStepType.API.name())) {
+                // 从接口定义复制
+                ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(resourceId);
+                sourceDir = DefaultRepositoryDir.getApiDefinitionDir(apiDefinition.getProjectId(),
+                        apiDefinition.getId());
+            } else if (StringUtils.equals(stepType, ApiScenarioStepType.API_CASE.name())) {
+                // 从接口用例复制
+                ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(resourceId);
+                sourceDir = DefaultRepositoryDir.getApiCaseDir(apiTestCase.getProjectId(),
+                        apiTestCase.getId());
+            } else {
+                throw new MSException("不支持的步骤类型");
             }
         }
-        return List.of();
+
+        for (String fileId : request.getFileIds()) {
+            String newFileId = IDGenerator.nextStr();
+            String targetDir = DefaultRepositoryDir.getSystemTempDir();
+            String fileName = apiFileResourceService.getFileNameByFileId(fileId, sourceDir);
+            // 复制文件到临时目录
+            apiFileResourceService.copyFile(sourceDir + "/" + fileId,
+                    targetDir + "/" + newFileId,
+                    fileName);
+            uploadFileMap.put(fileId, newFileId);
+        }
+        return uploadFileMap;
     }
 }

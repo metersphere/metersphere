@@ -21,7 +21,6 @@ public class ApiScenarioStepDetailRequest {
      * 保存时需要根据这个字段查询原步骤详情保存
      */
     @Schema(description = "复制的目标步骤ID")
-    @NotBlank
     private String copyFromStepId;
 
     @Schema(description = "资源id")
