@@ -430,6 +430,7 @@ export default {
     },
     changeType(val) {
       this.showDescription = false;
+      this.projectEnvDescMap = {};
       if (val && val.startsWith("custom")) {
         this._handleCustomField(val);
       }
