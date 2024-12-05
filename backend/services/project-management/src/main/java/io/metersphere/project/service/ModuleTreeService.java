@@ -59,6 +59,13 @@ public abstract class ModuleTreeService {
         }
         int lastSize = 0;
         Map<String, BaseTreeNode> baseTreeNodeMap = new HashMap<>();
+
+        // 根节点预先处理
+        baseTreeNodeList.addAll(traverseList.stream().filter(treeNode -> StringUtils.equalsIgnoreCase(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)).toList());
+        baseTreeNodeList.forEach(item -> baseTreeNodeMap.put(item.getId(), item));
+        traverseList = (List<BaseTreeNode>) CollectionUtils.removeAll(traverseList, baseTreeNodeList);
+
+        // 循环处理子节点
         while (CollectionUtils.isNotEmpty(traverseList) && traverseList.size() != lastSize) {
             lastSize = traverseList.size();
             List<BaseTreeNode> notMatchedList = new ArrayList<>();
