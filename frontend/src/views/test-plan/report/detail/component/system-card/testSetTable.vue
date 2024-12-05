@@ -6,6 +6,7 @@
     :expandable="expandable"
     row-class="test-set-expand-tr"
     v-on="propsEvent"
+    @sorter-change="handleInitColumn"
     @expand="(record) => handleExpand(record.id as string)"
   >
     <template #expand-icon="{ record, expanded }">
@@ -17,44 +18,41 @@
         <div v-if="record.count" class="break-keep">{{ record.count }}</div>
       </div>
     </template>
-    <template #other>
+    <template #name>
       <span></span>
     </template>
-    <template #empty>
-      <span></span>
+    <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
+      <ExecuteResult :execute-result="filterContent.key" />
     </template>
-    <template #outContent>
-      <span></span>
+    <template #[FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS]="{ filterContent }">
+      <ExecutionStatus :module-type="ReportEnum.API_REPORT" :status="filterContent.value" />
     </template>
-    <template #operation>
-      <ColumnSelectorIcon
-        :table-key="props.tableKey"
-        :is-simple="true"
-        :only-page-size="false"
-        :show-pagination="true"
-        @init-data="handleInitColumn"
-        @page-size-change="pageSizeChange"
-      />
+    <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
+      <caseLevel :case-level="filterContent.value" />
     </template>
   </MsBaseTable>
 </template>
 
 <script setup lang="ts">
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import ColumnSelectorIcon from '@/components/pure/ms-table/columnSelectorIcon.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import ApiAndScenarioTable from '@/views/test-plan/report/detail/component/system-card/apiAndScenarioTable.vue';
-  import FeatureCaseTable from '@/views/test-plan/report/detail/component/system-card/featureCaseTable.vue';
+  import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import ExecuteResult from '@/components/business/ms-case-associate/executeResult.vue';
+  import ExecutionStatus from '@/views/api-test/report/component/reportStatus.vue';
+  import TestSetTableChildrenList from '@/views/test-plan/report/detail/component/system-card/testSetTableChildrenList.vue';
 
   import { getCollectApiPage, getCollectFunctionalPage, getCollectScenarioPage } from '@/api/modules/test-plan/report';
   import useTableStore from '@/hooks/useTableStore';
 
   import type { SelectedReportCardTypes } from '@/models/testPlan/testPlanReport';
+  import { ReportEnum } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
   import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
-  import { getApiDetailColumn, getFeatureColumns } from '@/views/test-plan/report/utils';
+  import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
+  import { executionResultMap } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const tableStore = useTableStore();
 
@@ -69,7 +67,6 @@
   }>();
 
   const emit = defineEmits<{
-    (e: 'pageSizeChange', pageSize: number): void;
     (e: 'initColumn'): void;
   }>();
 
@@ -84,32 +81,13 @@
     width: 30,
     expandedRowRender: (record: Record<string, any>) => {
       if (record.count) {
-        if (props.activeType === ReportCardTypeEnum.FUNCTIONAL_DETAIL) {
-          return h(FeatureCaseTable, {
-            keyword: props.keyword,
-            reportId: props.reportId,
-            shareId: props.shareId,
-            isPreview: props.isPreview,
-            isGroup: isGroup.value,
-            enabledTestSet: props.enabledTestSet,
-            testSetId: record.id,
-          });
-        }
-        if (
-          props.activeType === ReportCardTypeEnum.API_CASE_DETAIL ||
-          props.activeType === ReportCardTypeEnum.SCENARIO_CASE_DETAIL
-        ) {
-          return h(ApiAndScenarioTable, {
-            activeType: props.activeType,
-            keyword: props.keyword,
-            reportId: props.reportId,
-            shareId: props.shareId,
-            isPreview: props.isPreview,
-            isGroup: isGroup.value,
-            enabledTestSet: props.enabledTestSet,
-            testSetId: record.id,
-          });
-        }
+        return h(TestSetTableChildrenList, {
+          list: record.reportDetailCaseList,
+          activeType: props.activeType,
+          tableKey: props.tableKey,
+          reportId: props.reportId,
+          shareId: props.shareId,
+        });
       }
       return undefined;
     },
@@ -123,84 +101,151 @@
     }
   };
 
+  const featureStaticColumns: MsTableColumn = [
+    {
+      title: 'ID',
+      dataIndex: 'num',
+      slotName: 'num',
+      width: 150,
+      showTooltip: true,
+      showInTable: true,
+      columnSelectorDisabled: true,
+    },
+    {
+      title: 'case.caseName',
+      dataIndex: 'name',
+      slotName: 'name',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      showTooltip: true,
+      width: 180,
+      showInTable: true,
+      columnSelectorDisabled: true,
+    },
+    {
+      title: 'common.executionResult',
+      dataIndex: 'executeResult',
+      slotName: 'lastExecResult',
+      filterConfig: {
+        valueKey: 'key',
+        labelKey: 'statusText',
+        options: props.isPreview ? Object.values(executionResultMap) : [],
+        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT,
+      },
+      showInTable: true,
+      showDrag: true,
+      width: 150,
+    },
+    {
+      title: 'case.caseLevel',
+      dataIndex: 'priority',
+      slotName: 'caseLevel',
+      showInTable: true,
+      showDrag: true,
+      width: 120,
+    },
+  ];
+  const apiStaticColumns: MsTableColumn = [
+    {
+      title: 'ID',
+      dataIndex: 'num',
+      slotName: 'num',
+      width: 100,
+      showInTable: true,
+      showTooltip: true,
+      columnSelectorDisabled: true,
+    },
+    {
+      title: 'common.name',
+      dataIndex: 'name',
+      width: 150,
+      showTooltip: true,
+      showInTable: true,
+      columnSelectorDisabled: true,
+    },
+    {
+      title: 'report.detail.level',
+      dataIndex: 'priority',
+      slotName: 'priority',
+      filterConfig: {
+        options: props.isPreview ? casePriorityOptions : [],
+        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
+      },
+      width: 150,
+      showInTable: true,
+      showDrag: true,
+    },
+    {
+      title: 'common.executionResult',
+      dataIndex: 'executeResult',
+      slotName: 'lastExecResult',
+      filterConfig: {
+        options: props.isPreview ? lastReportStatusListOptions.value : [],
+        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS,
+        emptyFilter: true,
+      },
+      width: 150,
+      showInTable: true,
+      showDrag: true,
+    },
+  ];
+  const testPlanNameColumn: MsTableColumn = [
+    {
+      title: 'report.plan.name',
+      dataIndex: 'planName',
+      sortIndex: 0,
+      showTooltip: true,
+      width: 200,
+      showInTable: true,
+      showDrag: false,
+      columnSelectorDisabled: true,
+    },
+  ];
+  const lastStaticColumns: MsTableColumn = [
+    {
+      title: 'common.belongModule',
+      dataIndex: 'moduleName',
+      showTooltip: true,
+      width: 200,
+      showInTable: true,
+      showDrag: true,
+    },
+    {
+      title: 'testPlan.featureCase.executor',
+      dataIndex: 'executeUser',
+      showTooltip: true,
+      showInTable: true,
+      showDrag: true,
+      width: 150,
+    },
+    {
+      title: 'testPlan.featureCase.bugCount',
+      dataIndex: 'bugCount',
+      showInTable: true,
+      showDrag: true,
+      width: 100,
+    },
+  ];
   const columns = computed<MsTableColumn>(() => {
-    if (isGroup.value) {
-      return [
-        {
-          title: 'ms.case.associate.testSet',
-          dataIndex: 'name',
-          showInTable: true,
-          showDrag: true,
-          width: 200,
-        },
-        {
-          title: 'report.plan.name',
-          dataIndex: 'planName',
-          showInTable: true,
-          showDrag: true,
-          width: 300,
-        },
-        {
-          title: '',
-          dataIndex: 'other',
-          slotName: 'other',
-          showInTable: true,
-          showDrag: true,
-          width: 300,
-        },
-        {
-          title: '',
-          dataIndex: 'other',
-          slotName: 'other',
-          showInTable: true,
-          showDrag: true,
-          width: 300,
-        },
-        {
-          title: '',
-          titleSlotName: 'operation',
-          slotName: 'outContent',
-          width: 30,
-        },
-      ];
-    }
     return [
       {
         title: 'ms.case.associate.testSet',
-        dataIndex: 'name',
+        dataIndex: 'collectionName',
+        sortIndex: 0,
         showInTable: true,
-        showDrag: true,
+        showDrag: false,
         width: 200,
+        columnSelectorDisabled: true,
       },
-      // 字段很少第一级别靠左展示，填充表头
+      ...(isGroup.value ? testPlanNameColumn : []),
+      ...(props.activeType === ReportCardTypeEnum.FUNCTIONAL_DETAIL ? featureStaticColumns : apiStaticColumns),
+      ...lastStaticColumns,
       {
         title: '',
-        dataIndex: 'other',
-        slotName: 'other',
-        showInTable: true,
-        showDrag: true,
-        width: 300,
-      },
-      {
-        title: '',
-        dataIndex: 'empty',
-        slotName: 'empty',
-        showInTable: true,
-        showDrag: true,
-        width: 300,
-      },
-      {
-        title: '',
-        dataIndex: 'empty',
-        slotName: 'empty',
-        showInTable: true,
-        showDrag: true,
-        width: 300,
-      },
-      {
-        title: '',
-        titleSlotName: 'operation',
-        slotName: 'outContent',
+        dataIndex: 'operation',
+        slotName: 'operation',
         width: 30,
       },
     ];
@@ -220,8 +265,11 @@
     columns: columns.value,
     scroll: { x: '100%' },
     heightUsed: 320,
+    tableKey: props.tableKey,
+    showSetting: true,
     isSimpleSetting: true,
     showSelectorAll: false,
+    emptyDataShowLine: false,
   });
 
   function loadCaseList() {
@@ -247,56 +295,21 @@
     }
   );
 
-  // 页码改变
-  async function pageSizeChange(pageSize: number) {
-    emit('pageSizeChange', pageSize);
-  }
   // 列配置改变
   async function handleInitColumn() {
     emit('initColumn');
   }
 
-  function getTestSetColumns(): MsTableColumn | undefined {
-    const apiAndScenarioDetail = [ReportCardTypeEnum.API_CASE_DETAIL, ReportCardTypeEnum.SCENARIO_CASE_DETAIL];
-    if (props.activeType === ReportCardTypeEnum.FUNCTIONAL_DETAIL) {
-      return getFeatureColumns(isGroup.value, props.isPreview);
-    }
-    if (apiAndScenarioDetail.includes(props.activeType)) {
-      return getApiDetailColumn(isGroup.value, props.isPreview);
-    }
-  }
-
-  async function initSetColumnConfig() {
-    const detailColumns = await getTestSetColumns();
-    if (detailColumns && props.enabledTestSet) {
-      await tableStore.initColumn(props.tableKey, detailColumns, 'drawer');
-    }
-  }
-
-  initSetColumnConfig();
-
   defineExpose({
     loadCaseList,
   });
+
+  if (props.enabledTestSet) {
+    await tableStore.initColumn(props.tableKey, columns.value, 'drawer');
+  }
 </script>
 
 <style scoped lang="less">
-  :deep(.arco-table-tr-expand .arco-table-td) {
-    border-bottom: 1px solid var(--color-text-n8) !important;
-    background: none;
-  }
-  :deep(.arco-table-tr-expand) {
-    & .arco-table-td:last-child {
-      border-bottom: 1px solid transparent !important;
-      background: none;
-    }
-  }
-  :deep(.arco-table-tr-expand) {
-    background: var(--color-text-n9) !important;
-  }
-  :deep(.arco-table .arco-table-expand-btn:hover) {
-    border-color: transparent;
-  }
   .ms-table-expand :deep(.arco-scrollbar-container + .arco-scrollbar-track-direction-vertical) {
     left: 0 !important;
   }
@@ -313,7 +326,7 @@
   :deep(.arco-table-tr-expand) {
     > .arco-table-td {
       > .arco-table-cell {
-        padding: 8px !important;
+        padding: 0 !important;
       }
     }
   }
@@ -322,9 +335,6 @@
   }
   :deep(.arco-table-cell-with-sorter) {
     margin: 8px 0 !important;
-  }
-  :deep(.arco-table .arco-table-tr-expand .arco-table-td .arco-table) {
-    margin: 0 !important;
   }
   :deep(.arco-table-tr-expand):hover {
     .arco-table-tr {
@@ -338,9 +348,6 @@
         background: none !important;
       }
     }
-  }
-  :deep(.arco-table-tr-expand .arco-table-td .arco-table .arco-table-td) {
-    border-color: var(--color-text-n8) !important;
   }
   :deep(.arco-table-tr.test-set-expand-tr) {
     &:hover {

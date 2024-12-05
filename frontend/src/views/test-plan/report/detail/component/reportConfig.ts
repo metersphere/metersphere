@@ -1,6 +1,6 @@
 import { defaultCount } from '@/config/testPlan';
 
-import { ApiOrScenarioCaseItem, FeatureCaseItem, ReportBugItem } from '@/models/testPlan/report';
+import { ApiOrScenarioCaseItem, ReportBugItem } from '@/models/testPlan/report';
 import type { configItem } from '@/models/testPlan/testPlanReport';
 import { PlanReportDetail } from '@/models/testPlan/testPlanReport';
 import { FieldTypeEnum, ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
@@ -128,14 +128,14 @@ const subPlanList: PlanReportDetail = {
 };
 
 // 功能用例明细
-const functionalList: FeatureCaseItem = {
+const functionalList: ApiOrScenarioCaseItem = {
   id: 'Example_738373617320062',
   num: 1,
   name: '用例明细_示例数据',
   moduleName: '/未规划模块',
   priority: 'P1',
   executeResult: 'SUCCESS',
-  executeUserName: '',
+  executeUser: 'admin',
   bugCount: 0,
   reportId: '',
   projectId: '',
@@ -178,7 +178,7 @@ const scenarioCaseList: ApiOrScenarioCaseItem = {
 
 export const detailTableExample: Record<string, any> = {
   [ReportCardTypeEnum.SUB_PLAN_DETAIL]: createData<PlanReportDetail>(subPlanList),
-  [ReportCardTypeEnum.FUNCTIONAL_DETAIL]: createData<FeatureCaseItem>(functionalList),
+  [ReportCardTypeEnum.FUNCTIONAL_DETAIL]: createData<ApiOrScenarioCaseItem>(functionalList),
   [ReportCardTypeEnum.BUG_DETAIL]: createData<ReportBugItem>(bugList),
   [ReportCardTypeEnum.API_CASE_DETAIL]: createData<ApiOrScenarioCaseItem>(apiCaseList),
   [ReportCardTypeEnum.SCENARIO_CASE_DETAIL]: createData<ApiOrScenarioCaseItem>(scenarioCaseList),

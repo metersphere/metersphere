@@ -27,7 +27,6 @@
     :is-preview="props.isPreview"
     :enabled-test-set="enabledTestSet"
     :table-key="tableKey"
-    @page-size-change="pageSizeChange"
     @init-column="handleInitColumn"
   />
   <!-- 功能用例明细 -->
@@ -160,11 +159,6 @@
   function changeHandler(value: boolean) {
     keyword.value = '';
     testPlanReportStore.setTestStatus(isGroup.value, value, props.activeType);
-  }
-
-  // 页码改变
-  async function pageSizeChange(pageSize: number) {
-    await tableStore.setPageSize(tableKey.value, pageSize);
   }
 
   // 列配置改变

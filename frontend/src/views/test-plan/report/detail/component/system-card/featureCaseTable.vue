@@ -66,7 +66,7 @@
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useTableStore from '@/hooks/useTableStore';
 
-  import { FeatureCaseItem } from '@/models/testPlan/report';
+  import { ApiOrScenarioCaseItem } from '@/models/testPlan/report';
   import type { ExecuteHistoryItem } from '@/models/testPlan/testPlan';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -243,7 +243,7 @@
     loadList();
   }
   // 跳转用例详情
-  function toDetail(record: FeatureCaseItem) {
+  function toDetail(record: ApiOrScenarioCaseItem) {
     openNewPage(CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, {
       id: record.id,
       pId: record.projectId,
@@ -273,14 +273,14 @@
   }
 
   const selectedId = ref<string>('');
-  function openExecuteHistory(record: FeatureCaseItem) {
+  function openExecuteHistory(record: ApiOrScenarioCaseItem) {
     executeReportId.value = record.reportId;
     selectedId.value = record.reportId;
     showDetailVisible.value = true;
     getExecuteStep();
   }
 
-  function getRowClass(record: FeatureCaseItem) {
+  function getRowClass(record: ApiOrScenarioCaseItem) {
     return record.reportId === selectedId.value ? 'selected-row-class' : '';
   }
 

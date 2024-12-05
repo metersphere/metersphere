@@ -4,12 +4,7 @@ import * as reportUrl from '@/api/requrls/test-plan/report';
 import type { GetShareId } from '@/models/apiTest/report';
 import { ReportDetail, ReportStepDetail } from '@/models/apiTest/report';
 import { type BatchApiParams, CommonList, TableQueryParams } from '@/models/common';
-import {
-  ApiOrScenarioCaseItem,
-  FeatureCaseItem,
-  ReportBugItem,
-  UpdateReportDetailParams,
-} from '@/models/testPlan/report';
+import { ApiOrScenarioCaseItem, ReportBugItem, UpdateReportDetailParams } from '@/models/testPlan/report';
 import type { ExecuteHistoryItem } from '@/models/testPlan/testPlan';
 import { manualReportGenParams, PlanReportDetail, testPlanSetItem } from '@/models/testPlan/testPlanReport';
 
@@ -45,12 +40,12 @@ export function getReportShareBugList(data: TableQueryParams) {
 
 // 测试计划-报告-详情-功能用例分页查询
 export function getReportFeatureCaseList(data: TableQueryParams) {
-  return MSR.post<CommonList<FeatureCaseItem>>({ url: reportUrl.ReportFeatureCaseListUrl, data });
+  return MSR.post<CommonList<ApiOrScenarioCaseItem>>({ url: reportUrl.ReportFeatureCaseListUrl, data });
 }
 
 // 测试计划-报告-详情-功能用例分页查询 (分享)
 export function getReportShareFeatureCaseList(data: TableQueryParams) {
-  return MSR.post<CommonList<FeatureCaseItem>>({ url: reportUrl.ReportShareFeatureCaseListUrl, data });
+  return MSR.post<CommonList<ApiOrScenarioCaseItem>>({ url: reportUrl.ReportShareFeatureCaseListUrl, data });
 }
 
 // 测试计划-报告-详情-富文本编辑器上传图片文件
