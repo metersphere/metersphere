@@ -24,10 +24,9 @@ public class HeaderManagerConverter extends AbstractMsElementConverter<HeaderMan
                 JMeterProperty jMeterProperty = collectionProperty.get(i);
                 String value = jMeterProperty.getStringValue();
                 String[] valueArr = value.split("\t");
-
                 String key = valueArr[0];
                 value = valueArr[1];
-                
+
                 if (!extendsHeaderKey.contains(key)) {
                     String finalKey = key;
                     String finalValue = value;
