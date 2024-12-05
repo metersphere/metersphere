@@ -69,6 +69,7 @@ public class ApiScenarioScheduleJob extends BaseScheduleJob {
         taskInfo.setUserId(userId);
         taskInfo.getRunModeConfig().setEnvironmentId(apiRunModeConfigDTO.getEnvironmentId());
         taskInfo.getRunModeConfig().setGrouped(apiRunModeConfigDTO.getGrouped());
+        taskInfo.setTriggerMode(TaskTriggerMode.SCHEDULE.name());
         taskItem.setId(execTaskItem.getId());
 
         apiExecuteService.execute(taskRequest);
