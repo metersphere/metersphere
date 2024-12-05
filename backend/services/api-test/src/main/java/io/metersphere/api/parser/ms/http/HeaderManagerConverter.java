@@ -4,7 +4,6 @@ import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.plugin.api.spi.AbstractMsElementConverter;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
-import jodd.util.StringUtil;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.testelement.property.CollectionProperty;
 import org.apache.jmeter.testelement.property.JMeterProperty;
@@ -23,13 +22,11 @@ public class HeaderManagerConverter extends AbstractMsElementConverter<HeaderMan
             List<String> extendsHeaderKey = headerKvList.stream().map(MsHeader::getKey).toList();
             for (int i = 0; i < collectionProperty.size(); i++) {
                 JMeterProperty jMeterProperty = collectionProperty.get(i);
-                String key = jMeterProperty.getName();
                 String value = jMeterProperty.getStringValue();
-                if (StringUtil.isEmpty(key)) {
-                    String[] valueArr = value.split("\t");
-                    key = valueArr[0];
-                    value = valueArr[1];
-                }
+                String[] valueArr = value.split("\t");
+                String key = valueArr[0];
+                value = valueArr[1];
+
                 if (!extendsHeaderKey.contains(key)) {
                     String finalKey = key;
                     String finalValue = value;
