@@ -93,7 +93,7 @@ public class BugController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<BugDTO>> page(@Validated @RequestBody BugPageRequest request) {
         request.setUseTrash(false);
-        if (request.getRelatedToPlan() || request.getCreateByMe() || request.getAssignedToMe()) {
+        if (request.getRelatedToPlan() || request.getCreateByMe() || request.getAssignedToMe() || request.getUnresolved()) {
             request.setTodoParam(bugService.buildBugToDoParam(request, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId()));
         }
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
