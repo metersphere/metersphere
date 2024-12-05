@@ -178,6 +178,12 @@ public class DashboardFrontPageControllerTests extends BaseTest {
                 OverViewCountDTO.class);
         Assertions.assertNotNull(moduleCountAll);
 
+        mvcResultAll = this.requestPostWithOkAndReturn(PROJECT_PLAN_VIEW, dashboardFrontPageRequest);
+        moduleCountAll = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultAll.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                OverViewCountDTO.class);
+        Assertions.assertNotNull(moduleCountAll);
+
         dashboardFrontPageRequest.setPlanId("dashboard_test-plan-id");
         mvcResultAll = this.requestPostWithOkAndReturn(PROJECT_PLAN_VIEW, dashboardFrontPageRequest);
         moduleCountAll = JSON.parseObject(JSON.toJSONString(

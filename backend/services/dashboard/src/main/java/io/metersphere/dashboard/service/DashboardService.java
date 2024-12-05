@@ -718,6 +718,9 @@ public class DashboardService {
         if (Boolean.FALSE.equals(permissionCheckService.checkModule(projectId, TEST_PLAN_MODULE, currentUserId, PermissionConstants.TEST_PLAN_READ))) {
             overViewCountDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
         }
+        if (StringUtils.isBlank(request.getPlanId())) {
+            return new OverViewCountDTO(new HashMap<>(), new ArrayList<>(), new ArrayList<>(), 0);
+        }
         List<String> planIds = List.of(request.getPlanId());
         List<TestPlanStatisticsResponse> testPlanStatisticsResponses = planStatisticsService.calculateRate(planIds);
         TestPlanStatisticsResponse planCount = testPlanStatisticsResponses.getFirst();
