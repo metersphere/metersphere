@@ -750,8 +750,9 @@ public class ApiDefinitionService {
                     MSException.throwException(Translator.get("api_versions_create"));
                 }
                 criteria.andVersionIdEqualTo(request.getVersionId());
-                if (apiDefinitionMapper.countByExample(example) > 0) {
-                    MSException.throwException(Translator.get("api_definition_url_not_repeating") + " :" + Translator.get("api_definition_module") + ":" + request.getModulePath() + " ," + Translator.get("api_definition_name") + " :" + request.getName());
+                List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+                if (CollectionUtils.isNotEmpty(apiDefinitions)) {
+                    MSException.throwException(Translator.get("api_definition_url_not_repeating") + " :" + Translator.get("api_definition_module") + ":" + apiDefinitions.get(0).getModulePath() + " ," + Translator.get("api_definition_name") + " :" + apiDefinitions.get(0).getName());
                 }
             }
         } else {
