@@ -61,7 +61,7 @@
   }
   .popover-trigger-content {
     padding: 8px 16px;
-    width: 120px;
+    width: 140px;
     border-radius: var(--border-radius-small);
     background-color: var(--color-text-fff);
     box-shadow: 0 4px 10px -1px rgb(100 100 102 / 15%);

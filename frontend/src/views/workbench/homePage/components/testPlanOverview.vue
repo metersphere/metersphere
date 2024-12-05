@@ -6,36 +6,41 @@
         <a-tooltip :content="t(props.item.label)" position="tl" :mouse-enter-delay="300">
           <div class="title one-line-text"> {{ t(props.item.label) }} </div>
         </a-tooltip>
-        <div>
-          <!-- TODO 待处理 -->
+        <div class="cascader-wrapper-self relative flex justify-end">
           <MsCascader
-            v-model:model-value="innerPlanId"
+            v-model:model-value="selectValue"
             mode="native"
-            :default-value="innerPlanId"
+            allow-search
+            :allow-clear="false"
+            :default-value="defaultValue"
             :options="projectOptions"
             :prefix="t('workbench.homePage.plan')"
             :placeholder="t('workbench.homePage.planOfPleaseSelect')"
             :virtual-list-props="{ height: 200 }"
             option-size="small"
-            class="test-plan-panel filter-item w-[240px]"
+            class="test-plan-panel w-[240px]"
             label-path-mode
-            :panel-width="100"
+            path-mode
+            popup-container=".cascader-wrapper-self"
+            :search-option-only-label="true"
             :load-more="loadMore"
             @change="changeHandler"
           >
-            <template v-if="labelPath" #label>
-              <a-tooltip :content="labelPath">
-                <div class="one-line-text inline-flex w-full items-center justify-between pr-[8px]" title="">
+            <template #label>
+              <a-tooltip :content="labelPath" :mouse-enter-delay="300">
+                <div class="one-line-text max-w-[200px] items-center justify-between pr-[8px]">
                   {{ labelPath }}
                 </div>
               </a-tooltip>
             </template>
             <template #option="{ data }">
-              <a-tooltip :content="t(data.label)" :mouse-enter-delay="300">
-                <div class="one-line-text w-[120px]" title="">
-                  {{ t(data.label) }}
-                </div>
-              </a-tooltip>
+              <div :class="`flex ${data.isLeaf ? ' w-[130px]' : 'w-[120px]'} items-center`" title="">
+                <a-tooltip :mouse-enter-delay="300" :content="t(data.label)">
+                  <div :class="`one-line-text ${data.isLeaf ? 'max-w-[85%]' : ''}`" title="">
+                    {{ t(data.label) }}
+                  </div>
+                </a-tooltip>
+              </div>
             </template>
           </MsCascader>
         </div>
@@ -81,7 +86,7 @@
         </div>
       </div>
       <div>
-        <MsChart ref="charRef" height="280px" :options="options" />
+        <MsChart ref="chartRef" height="280px" :options="options" />
       </div>
     </div>
   </div>
@@ -110,7 +115,7 @@
   import { TestPlanStatusEnum } from '@/enums/testPlanEnum';
   import { WorkOverviewEnum, WorkOverviewIconEnum } from '@/enums/workbenchEnum';
 
-  import { getSeriesData } from '../utils';
+  import { createCustomTooltip, getSeriesData } from '../utils';
 
   const { t } = useI18n();
 
@@ -152,6 +157,7 @@
   const options = ref<Record<string, any>>({});
 
   const hasPermission = ref<boolean>(false);
+  const chartRef = ref<InstanceType<typeof MsChart>>();
 
   const contentTabList: ModuleCardItem[] = [
     {
@@ -205,7 +211,10 @@
     },
   ];
 
+  const selectValue = ref<string[]>([]);
+
   const detail = ref();
+
   const execOptions = ref<Record<string, any>>({
     ...commonRatePieOptions,
     title: {
@@ -241,7 +250,6 @@
 
     const totalCount = detail.value?.caseCountMap?.totalCount ?? 0;
     const executeCount = detail.value?.caseCountMap?.executeCount ?? 0;
-
     const executeData = [
       {
         name: t('common.executed'),
@@ -312,31 +320,35 @@
     }
   });
 
-  const labelPath = ref<string>('');
+  const labelPath = ref<string>();
   const projectOptions = ref<{ value: string; label: string }[]>([]);
+  const childrenData = ref<Record<string, CascaderOption[]>>({});
 
   function getLabelPath(id: string) {
-    const modules = findNodePathByKey(projectOptions.value, id, undefined, 'value');
+    const [newProjectId] = innerProjectIds.value;
+    const projectName = projectOptions.value.find((e) => e.value === newProjectId)?.label;
+
+    const treeList = childrenData.value[newProjectId];
+
+    const modules = findNodePathByKey(treeList, id, undefined, 'value');
 
     if (modules) {
       const moduleName = (modules || [])?.treePath.map((item: any) => item.label);
       if (moduleName.length === 1) {
-        return moduleName[0];
+        return `${projectName}/${moduleName[0]}`;
       }
-      return `${moduleName.join(' / ')}`;
+      return `${projectName}/${moduleName.join(' / ')}`;
     }
   }
 
   async function changeHandler(value: string) {
-    innerPlanId.value = value;
+    innerPlanId.value = value[value.length - 1];
+    innerProjectIds.value = [value[0]];
+    await nextTick();
     labelPath.value = getLabelPath(innerPlanId.value);
     initOverViewDetail();
     emit('change');
   }
-
-  onMounted(() => {
-    initOverViewDetail();
-  });
 
   async function loadMore(option: CascaderOption, done: (children?: CascaderOption[]) => void) {
     try {
@@ -350,36 +362,38 @@
       });
 
       done(testPlanOptionsNode);
-      projectOptions.value = projectOptions.value.map((item) => {
-        return {
-          ...item,
-          children: testPlanOptionsNode,
-        };
-      });
+      childrenData.value[option.value as string] = testPlanOptionsNode;
+      labelPath.value = getLabelPath(innerPlanId.value);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
     }
   }
 
-  let loadingProjectId: string | null = null;
-
-  function refreshHandler(newProjectId: string) {
+  async function refreshHandler(newProjectId: string) {
     const cascaderOption = projectOptions.value.find((e) => e.value === newProjectId);
 
     if (cascaderOption) {
-      loadMore(cascaderOption, (children) => {
+      loadMore(cascaderOption, (_children) => {
+        childrenData.value[cascaderOption.value as string] = _children?.length ? _children : [];
         projectOptions.value = projectOptions.value.map((item) => {
           return {
             ...item,
-            children: cascaderOption.value === item.value ? children : [],
+            children: childrenData.value[item.value]?.length ? childrenData.value[item.value] : null,
+            isLeaf: false,
           };
         });
-
-        labelPath.value = getLabelPath(innerPlanId.value);
       });
     }
-    initOverViewDetail();
+
+    await initOverViewDetail();
+
+    setTimeout(() => {
+      const chartDom = chartRef.value?.chartRef;
+      if (chartDom && chartDom.chart) {
+        createCustomTooltip(chartDom);
+      }
+    }, 0);
   }
 
   async function handleRefreshKeyChange() {
@@ -392,21 +406,17 @@
     labelPath.value = getLabelPath(innerPlanId.value);
   }
 
-  watch(
-    () => props.item.projectIds,
-    async (val) => {
-      if (val) {
-        const [newProjectId] = val;
-        projectOptions.value = appStore.projectList.map((e) => ({ value: e.id, label: e.name }));
+  const defaultValue = computed(() => {
+    const [newProjectId] = innerProjectIds.value;
+    return [newProjectId, innerPlanId.value];
+  });
 
-        if (loadingProjectId !== newProjectId) {
-          loadingProjectId = newProjectId;
-          refreshHandler(newProjectId);
-        }
-      }
-    },
-    { immediate: true }
-  );
+  onMounted(() => {
+    projectOptions.value = appStore.projectList.map((e) => ({ value: e.id, label: e.name }));
+    const [newProjectId] = props.item.projectIds;
+    selectValue.value = [newProjectId, props.item.planId];
+    refreshHandler(newProjectId);
+  });
 
   watch(
     () => timeForm.value,
@@ -455,6 +465,11 @@
       width: calc(100% - 100px);
       gap: 4px;
       @apply flex flex-col justify-center;
+    }
+  }
+  .cascader-wrapper-self {
+    :deep(.arco-trigger-position-bl) {
+      transform: translateX(-8%);
     }
   }
 </style>

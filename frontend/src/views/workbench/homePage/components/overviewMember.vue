@@ -37,7 +37,7 @@
       </div>
       <!-- 概览图 -->
       <div class="mt-[16px]">
-        <MsChart height="300px" :options="options" />
+        <MsChart ref="chartRef" height="300px" :options="options" />
       </div>
     </div>
   </div>
@@ -60,7 +60,7 @@
 
   import type { SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
-  import { getColorScheme, getSeriesData } from '../utils';
+  import { createCustomTooltip, getColorScheme, getSeriesData } from '../utils';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -132,6 +132,7 @@
       value: e.id,
     }));
   }
+  const chartRef = ref<InstanceType<typeof MsChart>>();
 
   async function handleProjectChange(isRefreshKey: boolean = false, setAll = false) {
     await nextTick();
@@ -146,7 +147,14 @@
       }
     }
     await nextTick();
-    initOverViewMemberDetail();
+    await initOverViewMemberDetail();
+
+    setTimeout(() => {
+      const chartDom = chartRef.value?.chartRef;
+      if (chartDom && chartDom.chart) {
+        createCustomTooltip(chartDom);
+      }
+    }, 0);
   }
 
   async function changeProject() {

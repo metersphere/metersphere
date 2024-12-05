@@ -37,7 +37,7 @@
       </div>
       <!-- 概览图 -->
       <div>
-        <MsChart ref="charRef" height="280px" :options="options" />
+        <MsChart ref="chartRef" height="280px" :options="options" />
       </div>
     </div>
   </div>
@@ -67,7 +67,7 @@
   } from '@/models/workbench/homePage';
   import { WorkCardEnum } from '@/enums/workbenchEnum';
 
-  import { getColorScheme, getSeriesData } from '../utils';
+  import { createCustomTooltip, getColorScheme, getSeriesData } from '../utils';
 
   const { t } = useI18n();
 
@@ -176,6 +176,7 @@
       });
     }
   }
+  const chartRef = ref<InstanceType<typeof MsChart>>();
 
   async function handleRefreshKeyChange() {
     await nextTick(() => {
@@ -187,8 +188,15 @@
     }, 0);
   }
 
-  onMounted(() => {
-    initOverViewDetail();
+  onMounted(async () => {
+    await initOverViewDetail();
+
+    setTimeout(() => {
+      const chartDom = chartRef.value?.chartRef;
+      if (chartDom && chartDom.chart) {
+        createCustomTooltip(chartDom);
+      }
+    }, 0);
   });
 
   watch(

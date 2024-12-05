@@ -9,6 +9,8 @@ import type { ModuleCardItem, OverViewOfProject } from '@/models/workbench/homeP
 import { RouteEnum } from '@/enums/routeEnum';
 import { WorkCardEnum, WorkNavValueEnum } from '@/enums/workbenchEnum';
 
+import VCharts from 'vue-echarts';
+
 const { t } = useI18n();
 // TODO 通用颜色配置注: 目前柱状图只用到了7种色阶，其他色阶暂时保留
 const commonColorConfig: Record<number, string[]> = {
@@ -152,6 +154,7 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[], isTestPla
       boundaryGap: true,
       type: 'category',
       data: [],
+      triggerEvent: true,
       axisLabel: {
         show: true,
         color: '#646466',
@@ -162,13 +165,16 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[], isTestPla
         showMaxLabel: true,
         // TOTO 等待优化
         interval: 0,
-        triggerEvent: true,
       },
       axisPointer: {
         type: 'shadow',
       },
       axisTick: {
+        show: true,
         alignWithLabel: true,
+        lineStyle: {
+          color: 'transparent',
+        },
       },
       axisLine: {
         lineStyle: {
@@ -721,4 +727,39 @@ export function getSeriesData(
   options.yAxis[0].nameTextStyle.padding = maxAxis < 10 ? [0, 0, 0, 20] : [0, 0, 0, 0];
 
   return options;
+}
+
+export function createCustomTooltip(chartDom: InstanceType<typeof VCharts>) {
+  if (chartDom && chartDom.chart) {
+    const customTooltip = document.createElement('div');
+    customTooltip.style.position = 'absolute';
+
+    customTooltip.style.maxWidth = '300px';
+    customTooltip.style.padding = '5px';
+    customTooltip.style.background = 'rgba(0, 0, 0, 0.75)';
+    customTooltip.style.color = 'var(--color-text-fff)';
+    customTooltip.style.borderRadius = '4px';
+
+    customTooltip.style.display = 'none';
+    document.body.appendChild(customTooltip);
+
+    // 针对x轴 监听鼠标悬浮事件
+    chartDom.chart.on('mouseover', 'xAxis', (params) => {
+      const event = params.event?.event as unknown as MouseEvent;
+      if (params.componentType === 'xAxis') {
+        const { clientX, clientY } = event;
+
+        customTooltip.textContent = `${params.value}`;
+        customTooltip.style.display = 'block';
+
+        customTooltip.style.left = `${clientX - 20}px`;
+        customTooltip.style.top = `${clientY + 10}px`;
+      }
+    });
+
+    // 针对x轴 监听鼠标离开事件
+    chartDom.chart.on('mouseout', 'xAxis', () => {
+      customTooltip.style.display = 'none';
+    });
+  }
 }
