@@ -174,7 +174,7 @@
                                 #{lastStatus}
                             </foreach>
                         </if>
-                        <if test="request.todoParam.msUserId != null and request.todoParam.msUserId != ''">
+                        <if test="request.todoParam.msUserId != null and request.todoParam.msUserId != '' and request.assignedToMe">
                             and b.handle_user = #{request.todoParam.msUserId}
                         </if>
                     )
@@ -189,7 +189,7 @@
                                     #{lastStatus}
                                 </foreach>
                             </if>
-                            <if test="request.todoParam.platformUser != null and request.todoParam.platformUser != ''">
+                            <if test="request.todoParam.platformUser != null and request.todoParam.platformUser != '' and request.assignedToMe">
                                 and b.handle_user = #{request.todoParam.platformUser}
                             </if>
                         )
@@ -503,7 +503,7 @@
               AND bug.handle_user = #{localHandleUser}
             </if>
             )
-        <if test="thirdPlatform != null and thirdPlatform != ''">
+        <if test="thirdPlatform != null and thirdPlatform != '' and thirdPlatform != 'Local'">
             or (
             ( bug.platform = #{thirdPlatform}
             <if test="thirdHandleUser != null and thirdHandleUser != ''">
