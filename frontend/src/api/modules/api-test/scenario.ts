@@ -36,6 +36,7 @@ import {
   ScenarioAssociateExportUrl,
   ScenarioBatchEditScheduleUrl,
   ScenarioBatchExportLogUrl,
+  ScenarioCopyStepFilesUrl,
   ScenarioExportLogUrl,
   ScenarioHistoryUrl,
   ScenarioPageUrl,
@@ -71,6 +72,7 @@ import {
   ExecuteHistoryItem,
   ExecutePageParams,
   type ExportScenarioParams,
+  type GetScenarioUnSaveStepParams,
   GetSystemRequestParams,
   type ImportScenarioParams,
   ImportSystemData,
@@ -375,4 +377,12 @@ export function scenarioBatchEditSchedule(data: ApiScenarioBatchScheduleConfig) 
 // 场景执行率统计
 export function getScenarioStatistics(data: string[]) {
   return MSR.post<ScenarioStatisticsItem[]>({ url: ScenarioStatisticsUrl, data });
+}
+
+// 复制步骤时复制文件
+export function scenarioCopyStepFiles(data: GetScenarioUnSaveStepParams) {
+  return MSR.post<Record<string, any>>({
+    url: ScenarioCopyStepFilesUrl,
+    data,
+  });
 }

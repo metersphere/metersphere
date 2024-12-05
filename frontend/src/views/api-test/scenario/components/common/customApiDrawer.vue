@@ -375,7 +375,12 @@
 
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
   import { getDefinitionDetail } from '@/api/modules/api-test/management';
-  import { getTransferOptions, stepTransferFile, uploadTempFile } from '@/api/modules/api-test/scenario';
+  import {
+    getTransferOptions,
+    scenarioCopyStepFiles,
+    stepTransferFile,
+    uploadTempFile,
+  } from '@/api/modules/api-test/scenario';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { getGenerateId, parseQueryParams } from '@/utils';
@@ -403,6 +408,7 @@
     RequestComposition,
     RequestMethods,
     ResponseComposition,
+    ScenarioStepRefType,
     ScenarioStepType,
   } from '@/enums/apiEnum';
 
@@ -564,6 +570,7 @@
   };
 
   const requestVModel = ref<RequestParam>(defaultApiParams);
+  const copyStepFileIdsMap = ref<Record<string, any>>({});
   // 步骤类型判断
   const _stepType = computed(() => {
     if (props.step) {
@@ -994,7 +1001,8 @@
         requestVModel.value.body,
         undefined,
         props.fileParams?.uploadFileIds || requestVModel.value.uploadFileIds, // 外面解析详情的时候传入，或引用 api 在requestVModel内存储
-        props.fileParams?.linkFileIds || requestVModel.value.linkFileIds // 外面解析详情的时候传入，或引用 api 在requestVModel内存储
+        props.fileParams?.linkFileIds || requestVModel.value.linkFileIds, // 外面解析详情的时候传入，或引用 api 在requestVModel内存储
+        copyStepFileIdsMap.value
       );
       requestParams = {
         authConfig: requestVModel.value.authConfig,
@@ -1208,7 +1216,20 @@
       const res = await getDefinitionDetail(props.step?.resourceId || '');
       let parseRequestBodyResult;
       if (res.protocol === 'HTTP') {
-        parseRequestBodyResult = parseRequestBodyFiles(res.request.body, res.response); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+        if ((props.step?.copyFromStepId || props.step?.refType === ScenarioStepRefType.COPY) && props.step?.isNew) {
+          // 复制的步骤需要复制文件
+          copyStepFileIdsMap.value = await scenarioCopyStepFiles({
+            copyFromStepId: props.step?.copyFromStepId,
+            resourceId: props.step?.resourceId,
+            stepType: props.step?.stepType,
+            refType: props.step?.refType,
+            isTempFile: false, // 复制未保存的步骤时 true
+            fileIds: Object.values(parseRequestBodyFiles(res.request.body, [], [], [])).flat(),
+          });
+          parseRequestBodyFiles(res.body, [], [], [], copyStepFileIdsMap.value);
+        } else {
+          parseRequestBodyResult = parseRequestBodyFiles(res.request.body, [], [], [], copyStepFileIdsMap.value); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+        }
       }
       requestVModel.value = {
         executeLoading: false,

@@ -29,6 +29,7 @@ export const BatchRunScenarioUrl = '/api/scenario/batch-operation/run'; // 批�
 export const UpdateScenarioPriorityUrl = '/api/scenario/update-priority'; // 场景更新等级
 export const UpdateScenarioStatusUrl = '/api/scenario/update-status'; // 场景更新状态
 export const ScenarioStatisticsUrl = '/api/scenario/statistics'; // 场景执行率统计
+export const ScenarioCopyStepFilesUrl = '/api/scenario/step/file/copy'; // 复制步骤时复制文件
 
 // 场景导入导出相关
 export const ImportScenarioUrl = '/api/scenario/import'; // 导入场景

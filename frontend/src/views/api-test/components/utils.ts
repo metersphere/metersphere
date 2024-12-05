@@ -31,12 +31,17 @@ export interface ParseResult {
 /**
  * 解析接口请求/Mock body 内的文件列表
  * @param body body 参数对象
+ * @param response 响应列表
+ * @param saveUploadFileIds 已保存的上传文件 id 集合
+ * @param saveLinkFileIds 已保存的关联文件 id 集合
+ * @param newFileMap 新文件 id 映射
  */
 export function parseRequestBodyFiles(
   body: ExecuteBody | MockBody,
   response?: ResponseDefinition[],
   saveUploadFileIds?: string[],
-  saveLinkFileIds?: string[]
+  saveLinkFileIds?: string[],
+  newFileMap?: Record<string, string>
 ): ParseResult {
   const { binaryBody } = body;
   const uploadFileIds = new Set<string>(); // 存储本地上传的文件 id 集合
@@ -45,49 +50,58 @@ export function parseRequestBodyFiles(
   const tempSaveLinkFileIds = new Set<string>(); // 临时存储 body 内已保存的关联文件 id 集合，用于对比 saveLinkFileIds 以判断有哪些文件被取消关联
   // 获取上传文件和关联文件
   const formValues =
-    ((body as ExecuteBody).formDataBody?.formValues || (body as MockBody).formDataBody?.matchRules || []).filter(
-      (e) => e
-    ) || [];
+    (body as ExecuteBody).formDataBody?.formValues || (body as MockBody).formDataBody?.matchRules || [] || [];
   for (let i = 0; i < formValues.length; i++) {
     const item = formValues[i];
-    if (item.paramType === RequestParamsType.FILE) {
-      if (item.files) {
-        for (let j = 0; j < item.files.length; j++) {
-          const file = item.files[j];
-          if (file.local) {
-            // 本地上传的文件
-            if (saveUploadFileIds) {
-              // 如果有已保存的上传文件id集合
-              if (saveUploadFileIds.includes(file.fileId)) {
-                // 当前文件是已保存的文件，存入 tempSaveUploadFileIds
-                tempSaveUploadFileIds.add(file.fileId);
+    if (item) {
+      if (item.paramType === RequestParamsType.FILE) {
+        if (item.files) {
+          for (let j = 0; j < item.files.length; j++) {
+            const file = item.files[j];
+            let { fileId } = file;
+            if (newFileMap && newFileMap[fileId]) {
+              fileId = newFileMap[fileId];
+              file.fileId = fileId;
+            }
+            if (file.local) {
+              // 本地上传的文件
+              if (saveUploadFileIds) {
+                // 如果有已保存的上传文件id集合
+                if (saveUploadFileIds.includes(fileId)) {
+                  // 当前文件是已保存的文件，存入 tempSaveUploadFileIds
+                  tempSaveUploadFileIds.add(fileId);
+                } else {
+                  // 当前文件不是已保存的文件，存入 uploadFileIds
+                  uploadFileIds.add(fileId);
+                }
+              } else {
+                // 没有已保存的文件id集合，直接存入 uploadFileIds
+                uploadFileIds.add(fileId);
+              }
+            } else if (saveLinkFileIds) {
+              // 如果有已保存的关联文件id集合
+              if (saveLinkFileIds.includes(fileId)) {
+                // 当前文件是已保存的文件，存入
+                tempSaveLinkFileIds.add(fileId);
               } else {
                 // 当前文件不是已保存的文件，存入 uploadFileIds
-                uploadFileIds.add(file.fileId);
+                linkFileIds.add(fileId);
               }
             } else {
-              // 没有已保存的文件id集合，直接存入 uploadFileIds
-              uploadFileIds.add(file.fileId);
+              // 关联的文件
+              linkFileIds.add(fileId);
             }
-          } else if (saveLinkFileIds) {
-            // 如果有已保存的关联文件id集合
-            if (saveLinkFileIds.includes(file.fileId)) {
-              // 当前文件是已保存的文件，存入
-              tempSaveLinkFileIds.add(file.fileId);
-            } else {
-              // 当前文件不是已保存的文件，存入 uploadFileIds
-              linkFileIds.add(file.fileId);
-            }
-          } else {
-            // 关联的文件
-            linkFileIds.add(file.fileId);
           }
         }
       }
     }
   }
   if (binaryBody && binaryBody.file) {
-    const { fileId } = binaryBody.file;
+    let { fileId } = binaryBody.file;
+    if (newFileMap && newFileMap[fileId]) {
+      fileId = newFileMap[fileId];
+      binaryBody.file.fileId = fileId;
+    }
     if (binaryBody.file?.local) {
       if (saveUploadFileIds) {
         // 如果有已保存的上传文件id集合
@@ -119,7 +133,11 @@ export function parseRequestBodyFiles(
   if (response) {
     response.forEach((res) => {
       if (res.body.binaryBody && res.body.binaryBody.file) {
-        const { fileId } = res.body.binaryBody.file;
+        let { fileId } = res.body.binaryBody.file;
+        if (newFileMap && newFileMap[fileId]) {
+          fileId = newFileMap[fileId];
+          res.body.binaryBody.file.fileId = fileId;
+        }
         if (res.body.binaryBody.file?.local) {
           if (saveUploadFileIds) {
             // 如果有已保存的上传文件id集合

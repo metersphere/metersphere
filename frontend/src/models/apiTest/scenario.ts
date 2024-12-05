@@ -571,3 +571,13 @@ export interface ScenarioStatisticsItem {
   id: string;
   execPassRate: string;
 }
+
+// 场景未保存步骤请求参数
+export interface GetScenarioUnSaveStepParams {
+  copyFromStepId?: string;
+  resourceId?: string;
+  stepType?: string;
+  refType: string;
+  isTempFile: boolean; // 复制未保存的步骤时 true
+  fileIds?: string[]; // 未保存的步骤文件 id，复制未加载/修改过详情的步骤时无需传
+}

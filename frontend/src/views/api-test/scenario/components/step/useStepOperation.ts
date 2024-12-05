@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash-es';
 
 import type { MsTreeExpandedData, MsTreeNodeData } from '@/components/business/ms-tree/types';
 
-import { getScenarioStep } from '@/api/modules/api-test/scenario';
+import { getScenarioStep, scenarioCopyStepFiles } from '@/api/modules/api-test/scenario';
 import { useI18n } from '@/hooks/useI18n';
 import useModal from '@/hooks/useModal';
 import useAppStore from '@/store/modules/app';
@@ -12,6 +12,7 @@ import { deleteNode, findNodeByKey, handleTreeDragDrop, mapTree } from '@/utils'
 import type { Scenario, ScenarioStepItem } from '@/models/apiTest/scenario';
 import { ScenarioStepRefType, ScenarioStepType } from '@/enums/apiEnum';
 
+import type { RequestParam } from '../common/customApiDrawer.vue';
 import getStepType from '../common/stepType/utils';
 import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
 
@@ -57,9 +58,28 @@ export default function useStepOperation({
     try {
       appStore.showLoading();
       const res = await getScenarioStep(step.copyFromStepId || step.id);
-      let parseRequestBodyResult;
+      let parseRequestBodyResult: Record<string, any> = {
+        uploadFileIds: [],
+        linkFileIds: [],
+        deleteFileIds: [], // 存储对比已保存的文件后，需要删除的文件 id 集合
+        unLinkFileIds: [], // 存储对比已保存的文件后，需要取消关联的文件 id 集合
+      };
+      let newFileRes;
       if (step.config.protocol === 'HTTP' && res.body) {
-        parseRequestBodyResult = parseRequestBodyFiles(res.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+        if ((step.copyFromStepId || step.refType === ScenarioStepRefType.COPY) && step.isNew) {
+          // 复制的步骤需要复制文件
+          newFileRes = await scenarioCopyStepFiles({
+            copyFromStepId: step.copyFromStepId,
+            resourceId: step.resourceId,
+            stepType: step.stepType,
+            refType: step.refType,
+            isTempFile: false, // 复制未保存的步骤时 true
+            fileIds: Object.values(parseRequestBodyFiles((res as RequestParam).body, [], [], [])).flat(),
+          });
+          parseRequestBodyFiles(res.body, [], [], [], newFileRes);
+        } else {
+          parseRequestBodyResult = parseRequestBodyFiles(res.body, [], [], [], newFileRes); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+        }
       }
       stepDetails.value[step.id] = {
         ...res,
@@ -68,9 +88,12 @@ export default function useStepOperation({
         method: step.config.method || '',
         ...parseRequestBodyResult,
       };
-      scenario.value.stepFileParam[step.id] = {
-        ...parseRequestBodyResult,
-      };
+      if (!step.copyFromStepId && step.refType !== ScenarioStepRefType.COPY) {
+        // 复制的步骤文件都是新的，不需要记录，等详情抽屉关闭时会处理
+        scenario.value.stepFileParam[step.id] = {
+          ...parseRequestBodyResult,
+        };
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

@@ -153,7 +153,7 @@
   import router from '@/router';
   import useAppStore from '@/store/modules/app';
   import useCacheStore from '@/store/modules/cache/cache';
-  import { filterTree, getGenerateId, mapTree } from '@/utils';
+  import { filterTree, getGenerateId, mapTree, traverseTree } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { RequestResult } from '@/models/apiTest/common';
@@ -425,6 +425,7 @@
       if (isCopy) {
         // 场景被复制，递归处理节点，增加copyFromStepId
         copySteps = mapTree(defaultScenarioInfo.steps, (node) => {
+          node.isNew = true;
           node.copyFromStepId = node.id;
           if (
             node.parent &&
@@ -677,6 +678,10 @@
           }),
         });
       }
+      traverseTree(activeScenarioTab.value.steps, (node) => {
+        node.isNew = false;
+      });
+      activeScenarioTab.value.stepFileParam = {};
       refreshTree(tempTableQueryParams.value);
       Message.success(activeScenarioTab.value.isNew ? t('common.createSuccess') : t('common.saveSuccess'));
       activeScenarioTab.value.unSaved = false;
