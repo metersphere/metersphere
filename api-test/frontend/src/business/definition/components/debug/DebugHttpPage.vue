@@ -272,16 +272,13 @@ export default {
       if (!this.debugForm.url) return;
       let url = this.getURL(this.debugForm.url);
       if (url && url.pathname) {
-        if (this.debugForm.url.indexOf('?') != -1) {
+        if (this.debugForm.url.indexOf('?') !== -1) {
           this.debugForm.url = decodeURIComponent(this.debugForm.url.substr(0, this.debugForm.url.indexOf('?')));
         }
         this.debugForm.path = url.pathname;
       } else {
         this.debugForm.path = url;
         this.debugForm.url = url;
-      }
-      if (!this.debugForm.url.startsWith('http') && !this.debugForm.url.startsWith('https')) {
-        this.debugForm.url = 'http://' + this.debugForm.url;
       }
     },
     getURL(urlStr) {
@@ -309,9 +306,6 @@ export default {
         }
         return url;
       } catch (e) {
-        if (!urlStr.startsWith("http") && !urlStr.startsWith("https")) {
-          urlStr = "http://" + urlStr;
-        }
         return urlStr;
       }
     },

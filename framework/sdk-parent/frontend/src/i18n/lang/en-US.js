@@ -624,7 +624,7 @@ const message = {
     local_selenium_url: 'Local selenium-server URL',
     file_upload_size: 'File size limit(MB)',
     file_upload_size_is_null: 'The file size limit cannot be empty',
-    file_upload_tips: 'Please fill in the integer [1-1024]'
+    file_upload_tips: 'Please fill in the integer [1-1024]',
   },
   custom_field: {
     add_option: 'Add Option',
@@ -1008,10 +1008,10 @@ const message = {
     keep_recent: 'Keep',
     please_select_cleaning_time: 'please select cleaning time！',
     platform: {
-      jira_key_require: "The JIRA project key cannot be null",
-      jira_issuetype_require: "The issue type cannot be empty",
+      jira_key_require: 'The JIRA project key cannot be null',
+      jira_issuetype_require: 'The issue type cannot be empty',
       jira_storytype_require: 'The story type cannot be empty',
-    }
+    },
   },
   member: {
     create: 'Create',
@@ -1214,8 +1214,8 @@ const message = {
     delete_file_when_uploading: 'The current operation may interrupt the file being uploaded!',
     delete_file_confirm: 'Confirm delete file:',
     unrelated_file_confirm: 'Confirm unrelated file: ',
-    file_size_limit: "Supports any type of file up to {size} MB",
-    file_size_out_of_bounds: "The file size should not exceed {size} MB",
+    file_size_limit: 'Supports any type of file up to {size} MB',
+    file_size_out_of_bounds: 'The file size should not exceed {size} MB',
     delete_file: 'The file already exists, please delete the file with the same name first!',
     thread_num: 'VUs:',
     file_type_limit: 'Only files in image format can be uploaded',
@@ -1462,7 +1462,7 @@ const message = {
         responsible: 'Executor',
         title: 'Create api',
         path_info: 'Please enter the URL of the interface, such as /api/demo/${id}, where id is the path parameter',
-        path_all_info: 'Please enter the complete test address',
+        path_all_info: 'Please enter the full URL, including http/https',
         fast_debug: 'Fast debug',
         close_all_label: 'close all label',
         save_as: 'Save as new interface',

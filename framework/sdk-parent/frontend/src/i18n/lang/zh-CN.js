@@ -622,7 +622,7 @@ const message = {
     local_selenium_url: '本地 selenium-server 地址',
     file_upload_size: '文件大小限制(MB)',
     file_upload_size_is_null: '文件大小限制不能为空',
-    file_upload_tips: '请填写[1-1024]的整数'
+    file_upload_tips: '请填写[1-1024]的整数',
   },
   custom_field: {
     add_option: '添加选项',
@@ -995,10 +995,10 @@ const message = {
     keep_recent: '保留最近',
     please_select_cleaning_time: '请选择清理时间！',
     platform: {
-      jira_key_require: "JIRA项目key不能为空",
-      jira_issuetype_require: "问题类型不能为空",
+      jira_key_require: 'JIRA项目key不能为空',
+      jira_issuetype_require: '问题类型不能为空',
       jira_storytype_require: '需求类型不能为空',
-    }
+    },
   },
   member: {
     create: '添加成员',
@@ -1444,7 +1444,7 @@ const message = {
         responsible: '责任人',
         title: '创建接口',
         path_info: '请输入接口的URL，如/api/demo/${id}，其中id为路径参数',
-        path_all_info: '请输入完整测试地址',
+        path_all_info: '请输入包含 http/https 的完整 URL',
         fast_debug: '快捷调试',
         close_all_label: '关闭所有标签',
         save_as: '另存为新接口',
