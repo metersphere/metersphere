@@ -47,7 +47,7 @@
         </div>
       </el-tab-pane>
 
-      <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane assertions">
+      <el-tab-pane v-if="activeName === 'body'" :disabled="true" name="mode" class="pane assertions">
         <template v-slot:label>
           <ms-dropdown
             v-if="request.method === 'SQL'"
@@ -65,7 +65,7 @@
 import MsAssertionResults from './AssertionResults';
 import MsCodeEdit from 'metersphere-frontend/src/components/MsCodeEdit';
 import MsDropdown from '../../../../business/commons/MsDropdown';
-import { BODY_FORMAT, RequestFactory, Request, SqlRequest } from '../../../../business/definition/model/ApiTestModel';
+import { BODY_FORMAT, RequestFactory } from '@/business/definition/model/ApiTestModel';
 import MsSqlResultTable from './SqlResultTable';
 
 export default {
