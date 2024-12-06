@@ -68,7 +68,7 @@
           ref="codeEdit" />
       </el-tab-pane>
 
-      <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane cookie">
+      <el-tab-pane v-if="activeName === 'body'" :disabled="true" name="mode" class="pane cookie">
         <template v-slot:label>
           <ms-dropdown
             v-if="currentProtocol === 'SQL'"
