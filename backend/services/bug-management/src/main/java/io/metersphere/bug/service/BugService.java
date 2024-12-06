@@ -2137,8 +2137,8 @@ public class BugService {
             if (StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
                 return todoParam;
             }
+            todoParam.setCurrentPlatform(platformName);
             if (request.getUnresolved()) {
-                todoParam.setCurrentPlatform(platformName);
                 todoParam.setPlatformLastStatus(bugCommonService.getPlatformLastStepStatus(request.getProjectId()));
             }
             if (request.getAssignedToMe()) {
