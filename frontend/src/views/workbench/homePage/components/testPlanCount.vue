@@ -191,16 +191,16 @@
           count: completeRate,
         },
         {
-          name: t('common.completed'),
-          count: finished,
+          name: t('common.notStarted'),
+          count: prepared,
         },
         {
           name: t('common.inProgress'),
           count: running,
         },
         {
-          name: t('common.notStarted'),
-          count: prepared,
+          name: t('common.completed'),
+          count: finished,
         },
         {
           name: t('common.archived'),

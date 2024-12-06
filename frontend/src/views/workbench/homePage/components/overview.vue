@@ -30,7 +30,7 @@
         </div>
       </div>
       <div class="my-[16px]">
-        <TabCard
+        <HeaderCard
           :content-tab-list="cardModuleList"
           :no-permission-text="hasPermission ? '' : 'workbench.homePage.notHasResPermission'"
         />
@@ -50,9 +50,10 @@
   import { ref } from 'vue';
 
   import MsChart from '@/components/pure/chart/index.vue';
+  import bindDataZoomEvent from '@/components/pure/chart/utils';
   import MsSelect from '@/components/business/ms-select';
   import CardSkeleton from './cardSkeleton.vue';
-  import TabCard from './tabCard.vue';
+  import HeaderCard from './headerCard.vue';
 
   import { workMyCreatedDetail, workProOverviewDetail } from '@/api/modules/workbench';
   import { contentTabList } from '@/config/workbench';
@@ -191,12 +192,21 @@
   onMounted(async () => {
     await initOverViewDetail();
 
-    setTimeout(() => {
+    nextTick(() => {
       const chartDom = chartRef.value?.chartRef;
+
       if (chartDom && chartDom.chart) {
         createCustomTooltip(chartDom);
+        bindDataZoomEvent(chartRef, options);
       }
-    }, 0);
+    });
+  });
+
+  onBeforeUnmount(() => {
+    const unbindDataZoom = bindDataZoomEvent(chartRef, options);
+    if (unbindDataZoom) {
+      unbindDataZoom.clear();
+    }
   });
 
   watch(

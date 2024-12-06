@@ -189,7 +189,7 @@ export const defaultValueMap: Record<string, any> = {
     },
     complete: {
       defaultList: cloneDeep(defaultComplete),
-      color: ['#00C261', '#3370FF', '#D4D4D8', '#FF9964'],
+      color: ['#D4D4D8', '#3370FF', '#00C261', '#FF9964'],
       defaultName: 'workbench.homePage.completeRate',
     },
   },

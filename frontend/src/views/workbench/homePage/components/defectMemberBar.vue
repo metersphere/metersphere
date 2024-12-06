@@ -34,7 +34,7 @@
         </div>
       </div>
       <div class="mt-[16px]">
-        <MsChart height="260px" :options="options" />
+        <MsChart ref="chartRef" height="260px" :options="options" />
       </div>
     </div>
   </div>
@@ -47,17 +47,17 @@
   import { ref } from 'vue';
 
   import MsChart from '@/components/pure/chart/index.vue';
+  import bindDataZoomEvent from '@/components/pure/chart/utils';
   import MsSelect from '@/components/business/ms-select';
   import CardSkeleton from './cardSkeleton.vue';
 
   import { workBugHandlerDetail, workHandleUserOptions } from '@/api/modules/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { characterLimit } from '@/utils';
 
   import type { OverViewOfProject, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
 
-  import { getColorScheme, getCommonBarOptions, handleNoDataDisplay } from '../utils';
+  import { createCustomTooltip, getColorScheme, getSeriesData } from '../utils';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -97,50 +97,21 @@
   const hasPermission = ref<boolean>(false);
 
   function handleData(detail: OverViewOfProject) {
-    options.value = getCommonBarOptions(detail.xaxis.length >= 7, [...defectStatusColor, ...getColorScheme(13)]);
-    const { invisible, text } = handleNoDataDisplay(detail.xaxis, hasPermission.value);
-    options.value.graphic.invisible = invisible;
-    options.value.graphic.style.text = text;
-    options.value.xAxis.data = detail.xaxis.map((e) => characterLimit(e, 10));
-
-    let maxAxis = 5;
-    options.value.series = detail.projectCountList.map((item) => {
-      const countData: Record<string, any>[] = item.count.map((e) => {
-        return {
-          name: item.name,
-          value: e,
-          originValue: e,
-        };
-      });
-
-      const itemMax = Math.max(...item.count);
-
-      maxAxis = Math.max(itemMax, maxAxis);
+    const data = detail.projectCountList.map((e) => {
       return {
-        name: item.name,
-        type: 'bar',
-        stack: 'bugMember',
-        barWidth: 12,
-        data: countData,
-        itemStyle: {
-          borderRadius: [2, 2, 0, 0],
-        },
-        barMinHeight: ((optionData: Record<string, any>[]) => {
-          optionData.forEach((itemValue: any, index: number) => {
-            if (itemValue.value === 0) optionData[index].value = null;
-          });
-          let hasZero = false;
-          for (let i = 0; i < optionData.length; i++) {
-            if (optionData[i].value === 0) {
-              hasZero = true;
-              break;
-            }
-          }
-          return hasZero ? 0 : 5;
-        })(countData),
+        value: '',
+        label: e.name,
       };
     });
-    options.value.yAxis[0].max = maxAxis <= 100 ? 100 : maxAxis + 50;
+
+    options.value = getSeriesData(
+      data,
+      detail,
+      [...defectStatusColor, ...getColorScheme(13)],
+      false,
+      true,
+      props.item.fullScreen
+    );
   }
   const showSkeleton = ref(false);
 
@@ -176,6 +147,7 @@
       value: e.value,
     }));
   }
+  const chartRef = ref<InstanceType<typeof MsChart>>();
 
   async function handleProjectChange(isRefreshKey: boolean = false, setAll = false) {
     await nextTick();
@@ -190,7 +162,13 @@
       }
     }
     await nextTick();
-    getDefectMemberDetail();
+    await getDefectMemberDetail();
+    const chartDom = chartRef.value?.chartRef;
+
+    if (chartDom && chartDom.chart) {
+      createCustomTooltip(chartDom);
+      bindDataZoomEvent(chartRef, options);
+    }
   }
 
   async function changeProject() {

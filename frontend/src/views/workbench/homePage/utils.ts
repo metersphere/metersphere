@@ -71,7 +71,7 @@ export const colorMapConfig: Record<string, string[]> = {
   [WorkCardEnum.CASE_COUNT]: ['#ED0303', '#FFA200', '#3370FF', '#D4D4D8'],
   [WorkCardEnum.ASSOCIATE_CASE_COUNT]: ['#00C261', '#3370FF'],
   [WorkCardEnum.REVIEW_CASE_COUNT]: ['#D4D4D8', '#3370FF', '#00C261', '#ED0303', '#FFA200'],
-  [WorkCardEnum.TEST_PLAN_COUNT]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
+  [WorkCardEnum.TEST_PLAN_COUNT]: ['#D4D4D8', '#3370FF', '#00C261', '#FF9964'],
   [WorkCardEnum.PLAN_LEGACY_BUG]: ['#FFA200', '#3370FF', '#D4D4D8', '#00C261', ...getColorScheme(13)],
   [WorkCardEnum.BUG_COUNT]: ['#FFA200', '#3370FF', '#D4D4D8', '#00C261', ...getColorScheme(13)],
   [WorkCardEnum.HANDLE_BUG_BY_ME]: ['#FFA200', '#3370FF', '#D4D4D8', '#00C261', ...getColorScheme(13)],
@@ -81,7 +81,12 @@ export const colorMapConfig: Record<string, string[]> = {
 };
 
 // 柱状图
-export function getCommonBarOptions(hasRoom: boolean, color: string[], isTestPlan = false): Record<string, any> {
+export function getCommonBarOptions(
+  hasRoom: boolean,
+  color: string[],
+  isTestPlan = false,
+  fullScreen = true
+): Record<string, any> {
   return {
     tooltip: [
       {
@@ -158,12 +163,11 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[], isTestPla
       axisLabel: {
         show: true,
         color: '#646466',
-        width: 120,
+        width: 100,
         overflow: 'truncate',
         ellipsis: '...',
         showMinLabel: true,
         showMaxLabel: true,
-        // TOTO 等待优化
         interval: 0,
       },
       axisPointer: {
@@ -186,7 +190,6 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[], isTestPla
       {
         type: 'value',
         alignTicks: true,
-        name: t('workbench.homePage.unit'), // 设置单位
         position: 'left',
         axisLine: {
           show: false,
@@ -272,12 +275,13 @@ export function getCommonBarOptions(hasRoom: boolean, color: string[], isTestPla
             type: 'slider',
             height: 24,
             bottom: 10,
-            // TODO 待优化
+            realtime: true,
             minSpan: 1,
-            maxSpan: 26,
+            maxValueSpan: fullScreen ? 12 : 6,
             startValue: 0,
             end: 30,
-            rangeMode: ['value', 'percent'], // 起点按实际值，终点按百分比动态计算
+            endValue: fullScreen ? 12 : 6,
+            rangeMode: ['percent', 'percent'], // 起点按实际值，终点按百分比动态计算
             showDataShadow: 'auto',
             showDetail: false,
             filterMode: 'none',
@@ -538,9 +542,9 @@ export const routeNavigationMap: Record<string, any> = {
     },
     complete: {
       status: [
-        WorkNavValueEnum.TEST_PLAN_COMPLETED, //   测试计划-已完成
-        WorkNavValueEnum.TEST_PLAN_UNDERWAY, // 测试计划-进行中
         WorkNavValueEnum.TEST_PLAN_PREPARED, // 测试计划-未开始
+        WorkNavValueEnum.TEST_PLAN_UNDERWAY, // 测试计划-进行中
+        WorkNavValueEnum.TEST_PLAN_COMPLETED, //   测试计划-已完成
         WorkNavValueEnum.TEST_PLAN_ARCHIVED, // 测试计划-已归档
       ],
       route: RouteEnum.TEST_PLAN_INDEX,
@@ -637,14 +641,16 @@ export function getSeriesData(
   contentTabList: ModuleCardItem[],
   detail: OverViewOfProject,
   colorConfig: string[],
-  isTestPlan = false
+  isTestPlan = false,
+  isStack = false,
+  fullScreen = true
 ) {
   let options: Record<string, any> = {};
 
   const { projectCountList, xaxis, errorCode } = detail;
   const hasPermission = errorCode !== 109001;
 
-  options = getCommonBarOptions(xaxis.length >= 7, colorConfig, isTestPlan);
+  options = getCommonBarOptions(xaxis.length >= 7, colorConfig, isTestPlan, fullScreen);
   options.xAxis.data = xaxis;
   const { invisible, text } = handleNoDataDisplay(xaxis, hasPermission);
   options.graphic.invisible = invisible;
@@ -654,7 +660,7 @@ export function getSeriesData(
   const seriesData = projectCountList.map((item, sid) => {
     const countData: Record<string, any>[] = item.count.map((e) => {
       return {
-        name: t(contentTabList[sid].label),
+        name: t(contentTabList[sid]?.label ?? ''),
         value: e,
         originValue: e,
         tooltip: {
@@ -683,8 +689,8 @@ export function getSeriesData(
 
     maxAxis = Math.max(itemMax, maxAxis);
 
-    return {
-      name: t(contentTabList[sid].label),
+    const itemSeries: Record<string, any> = {
+      name: t(contentTabList[sid]?.label ?? ''),
       type: 'bar',
       barWidth: 12,
       legendHoverLink: true,
@@ -692,7 +698,6 @@ export function getSeriesData(
       itemStyle: {
         borderRadius: [2, 2, 0, 0],
       },
-      barCategoryGap: 24,
       data: countData,
       barMinHeight: ((optionData: Record<string, any>[]) => {
         optionData.forEach((itemValue: any, index: number) => {
@@ -708,6 +713,12 @@ export function getSeriesData(
         return hasZero ? 0 : 5;
       })(countData),
     };
+
+    if (isStack) {
+      itemSeries.stack = 'stack';
+    }
+
+    return itemSeries;
   });
 
   // 动态步长调整函数
@@ -752,7 +763,7 @@ export function createCustomTooltip(chartDom: InstanceType<typeof VCharts>) {
         customTooltip.textContent = `${params.value}`;
         customTooltip.style.display = 'block';
 
-        customTooltip.style.left = `${clientX - 20}px`;
+        customTooltip.style.left = `${clientX}px`;
         customTooltip.style.top = `${clientY + 10}px`;
       }
     });

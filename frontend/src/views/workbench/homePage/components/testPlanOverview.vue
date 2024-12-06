@@ -71,19 +71,7 @@
             <MsChart height="76px" width="76px" :options="execOptions" />
           </div>
         </div>
-        <div class="card-list">
-          <div v-for="ele of cardModuleList" :key="ele.icon" class="card-list-item">
-            <div class="w-full">
-              <div class="card-title flex items-center gap-[8px]">
-                <div :class="`card-title-icon bg-[${ele?.color}]`">
-                  <MsIcon :type="ele.icon" class="text-white" size="12" />
-                </div>
-                <div class="text-[var(--color-text-1)]"> {{ ele.label }}</div>
-              </div>
-              <div class="card-number !text-[20px] !font-medium"> {{ addCommasToNumber(ele.count || 0) }} </div>
-            </div>
-          </div>
-        </div>
+        <HeaderCard :content-tab-list="cardModuleList" />
       </div>
       <div>
         <MsChart ref="chartRef" height="280px" :options="options" />
@@ -100,16 +88,18 @@
   import { CascaderOption } from '@arco-design/web-vue';
 
   import MsChart from '@/components/pure/chart/index.vue';
+  import bindDataZoomEvent from '@/components/pure/chart/utils';
   import MsCascader from '@/components/business/ms-cascader/index.vue';
   import MsStatusTag from '@/components/business/ms-status-tag/index.vue';
   import CardSkeleton from './cardSkeleton.vue';
+  import HeaderCard from './headerCard.vue';
   import ThresholdProgress from './thresholdProgress.vue';
 
   import { getWorkTestPlanListUrl, workTestPlanOverviewDetail } from '@/api/modules/workbench';
   import { commonRatePieOptions } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { addCommasToNumber, findNodePathByKey, mapTree } from '@/utils';
+  import { findNodePathByKey, mapTree } from '@/utils';
 
   import type { ModuleCardItem, SelectedCardItem, TimeFormParams } from '@/models/workbench/homePage';
   import { TestPlanStatusEnum } from '@/enums/testPlanEnum';
@@ -388,12 +378,11 @@
 
     await initOverViewDetail();
 
-    setTimeout(() => {
-      const chartDom = chartRef.value?.chartRef;
-      if (chartDom && chartDom.chart) {
-        createCustomTooltip(chartDom);
-      }
-    }, 0);
+    const chartDom = chartRef.value?.chartRef;
+    if (chartDom && chartDom.chart) {
+      createCustomTooltip(chartDom);
+      bindDataZoomEvent(chartRef, options);
+    }
   }
 
   async function handleRefreshKeyChange() {
@@ -455,7 +444,7 @@
   .threshold-card-item {
     margin-right: 16px;
     width: 34%;
-    height: 76px;
+    height: 78px;
     border: 1px solid var(--color-text-n8);
     border-radius: 4px;
     gap: 12px;

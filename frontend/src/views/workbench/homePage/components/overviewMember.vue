@@ -50,6 +50,7 @@
   import { ref } from 'vue';
 
   import MsChart from '@/components/pure/chart/index.vue';
+  import bindDataZoomEvent from '@/components/pure/chart/utils';
   import MsSelect from '@/components/business/ms-select';
   import CardSkeleton from './cardSkeleton.vue';
 
@@ -149,12 +150,12 @@
     await nextTick();
     await initOverViewMemberDetail();
 
-    setTimeout(() => {
-      const chartDom = chartRef.value?.chartRef;
-      if (chartDom && chartDom.chart) {
-        createCustomTooltip(chartDom);
-      }
-    }, 0);
+    const chartDom = chartRef.value?.chartRef;
+
+    if (chartDom && chartDom.chart) {
+      createCustomTooltip(chartDom);
+      bindDataZoomEvent(chartRef, options);
+    }
   }
 
   async function changeProject() {
@@ -213,6 +214,13 @@
 
   onMounted(() => {
     handleProjectChange(false);
+  });
+
+  onBeforeUnmount(() => {
+    const unbindDataZoom = bindDataZoomEvent(chartRef, options);
+    if (unbindDataZoom) {
+      unbindDataZoom.clear();
+    }
   });
 </script>
 
