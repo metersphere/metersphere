@@ -63,35 +63,46 @@ export default {
   },
   methods: {
     getTableData(rowArray) {
-      let titles;
-      let result = [];
+      if (!Array.isArray(rowArray) || rowArray.length === 0) {
+        console.warn('Input is not a valid array or is empty.');
+        return;
+      }
+
+      let titles = [];
+      const result = [];
+
       for (let i = 0; i < rowArray.length; i++) {
-        let colArray = rowArray[i].split('\t');
+        const colArray = rowArray[i].split('\t');
+
         if (i === 0) {
+          // 第一行为标题
           titles = colArray;
-        } else {
-          if (colArray.length != titles.length) {
-            // 创建新的表
-            if (colArray.length === 1 && colArray[0] === '') {
-              this.getTableData(rowArray.slice(i + 1));
-            } else {
-              this.getTableData(rowArray.slice(i));
-            }
-            break;
+        } else if (colArray.length !== titles.length) {
+          // 如果当前行与标题列数不一致，递归解析剩余数据
+          const remainingRows = rowArray.slice(i);
+          if (colArray.length === 1 && colArray[0] === '') {
+            this.getTableData(remainingRows.slice(1)); // 跳过空行
           } else {
-            let item = {};
-            for (let j = 0; j < colArray.length; j++) {
-              item[titles[j]] = colArray[j] ? colArray[j] : '';
-            }
-            result.push(item);
+            this.getTableData(remainingRows);
           }
+          break;
+        } else {
+          // 构造数据对象
+          const item = titles.reduce((obj, title, index) => {
+            obj[title] = colArray[index] || '';
+            return obj;
+          }, {});
+          result.push(item);
         }
       }
 
-      this.tables.splice(0, 0, {
-        titles: titles,
-        tableData: result,
-      });
+      if (titles.length > 0) {
+        // 插入到 tables 数组的开头
+        this.tables.unshift({
+          titles,
+          tableData: result,
+        });
+      }
     },
   },
 };

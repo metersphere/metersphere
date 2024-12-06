@@ -56,37 +56,45 @@ export default {
       this.getTableData(rowArray);
     },
     getTableData(rowArray) {
-      let titles;
-      let result = [];
+      if (!Array.isArray(rowArray) || rowArray.length === 0) {
+        console.warn('Invalid input: rowArray should be a non-empty array.');
+        return;
+      }
+
+      let titles = [];
+      const result = [];
+
       for (let i = 0; i < rowArray.length; i++) {
-        let colArray = rowArray[i].split('\t');
+        const colArray = rowArray[i].split('\t');
+
         if (i === 0) {
+          // 第一行为标题行
           titles = colArray;
+        } else if (colArray.length !== titles.length) {
+          // 如果列数与标题长度不一致，递归解析剩余数据
+          const remainingRows = rowArray.slice(i);
+          this.getTableData(colArray.length === 1 && colArray[0] === '' ? remainingRows.slice(1) : remainingRows);
+          break;
         } else {
-          if (colArray.length != titles.length) {
-            // 创建新的表
-            if (colArray.length === 1 && colArray[0] === '') {
-              this.getTableData(rowArray.slice(i + 1));
-            } else {
-              this.getTableData(rowArray.slice(i));
-            }
-            break;
-          } else {
-            let item = {};
-            for (let j = 0; j < colArray.length; j++) {
-              item[titles[j]] = colArray[j] ? colArray[j] : '';
-            }
-            // 性能考虑每个表格取值不超过一百
-            if (result.length < 100) {
-              result.push(item);
-            }
+          // 构建当前行的对象
+          const item = titles.reduce((acc, title, index) => {
+            acc[title] = colArray[index] || '';
+            return acc;
+          }, {});
+
+          // 限制表格行数不超过 100 行
+          if (result.length < 100) {
+            result.push(item);
           }
         }
       }
-      this.tables.splice(0, 0, {
-        titles: titles,
-        tableData: result,
-      });
+
+      if (titles.length > 0 && result.length > 0) {
+        this.tables.unshift({
+          titles,
+          tableData: result,
+        });
+      }
     },
   },
 };
