@@ -316,12 +316,6 @@ export default {
       this.trashEnable = tab.name === 'trash';
       if (tab.name === 'default') {
         this.trashEnable = false;
-        if(this.$refs.apiScenarioList){
-          if (this.$refs.apiScenarioList.condition && this.$refs.apiScenarioList.condition.combine) {
-            this.$refs.apiScenarioList.condition.combine = {};
-          }
-          this.$refs.apiScenarioList.search(this.projectId);
-        }
         this.$nextTick(() => {
           this.$refs.nodeTree.list()
         })
