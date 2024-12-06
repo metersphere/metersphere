@@ -1,3 +1,5 @@
+import type { MsTableColumn } from '@/components/pure/ms-table/type';
+
 import { defaultCount } from '@/config/testPlan';
 
 import { ApiOrScenarioCaseItem, ReportBugItem } from '@/models/testPlan/report';
@@ -198,3 +200,52 @@ export const iconTypeStatus: Record<string, any> = {
     color: '!text-[var(--color-text-input-border)]',
   },
 };
+
+export const testPlanNameColumn: MsTableColumn = [
+  {
+    title: 'report.plan.name',
+    dataIndex: 'planName',
+    sortIndex: 0,
+    showTooltip: true,
+    width: 200,
+    showInTable: true,
+    showDrag: false,
+    columnSelectorDisabled: true,
+  },
+];
+export const lastStaticColumns: MsTableColumn = [
+  {
+    title: 'common.belongModule',
+    dataIndex: 'moduleName',
+    showTooltip: true,
+    width: 200,
+    showInTable: true,
+    showDrag: true,
+  },
+  {
+    title: 'testPlan.featureCase.executor',
+    dataIndex: 'executeUser',
+    showTooltip: true,
+    showInTable: true,
+    showDrag: true,
+    width: 150,
+  },
+  {
+    title: 'testPlan.featureCase.bugCount',
+    dataIndex: 'bugCount',
+    showInTable: true,
+    showDrag: true,
+    width: 100,
+  },
+];
+export const collectionNameColumn: MsTableColumn = [
+  {
+    title: 'ms.case.associate.testSet',
+    dataIndex: 'collectionName',
+    sortIndex: 0,
+    showInTable: true,
+    showDrag: false,
+    width: 200,
+    columnSelectorDisabled: true,
+  },
+];

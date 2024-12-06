@@ -167,6 +167,18 @@ export default function useTableStore() {
     }
   }
 
+  // 获取存储的列
+  async function getStoreColumns(tableKey: TableKeyEnum) {
+    const tableColumnsMap = await getItem<MsTableSelectorItem>(
+      tableKey,
+      tableKey.startsWith('SYSTEM') || tableKey.startsWith('ORGANIZATION')
+    );
+    if (tableColumnsMap) {
+      return tableColumnsMap.column;
+    }
+    return [];
+  }
+
   async function getColumns(tableKey: TableKeyEnum, isSimple?: boolean) {
     const tableColumnsMap = await getItem<MsTableSelectorItem>(
       tableKey,
@@ -273,5 +285,6 @@ export default function useTableStore() {
     getColumns,
     getShowInTableColumns,
     getPageSize,
+    getStoreColumns,
   };
 }

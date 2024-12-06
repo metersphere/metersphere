@@ -71,7 +71,11 @@
   import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
   import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
-  import { detailTableExample } from '@/views/test-plan/report/detail/component/reportConfig';
+  import {
+    detailTableExample,
+    lastStaticColumns,
+    testPlanNameColumn,
+  } from '@/views/test-plan/report/detail/component/reportConfig';
 
   const tableStore = useTableStore();
 
@@ -136,42 +140,8 @@
       showDrag: true,
     },
   ];
-  const testPlanNameColumns: MsTableColumn = [
-    {
-      title: 'report.plan.name',
-      dataIndex: 'planName',
-      showTooltip: true,
-      width: 200,
-      showInTable: true,
-      showDrag: false,
-      columnSelectorDisabled: true,
-    },
-  ];
-  const lastStaticColumns: MsTableColumn = [
-    {
-      title: 'common.belongModule',
-      dataIndex: 'moduleName',
-      showTooltip: true,
-      width: 200,
-      showInTable: true,
-      showDrag: true,
-    },
-    {
-      title: 'testPlan.featureCase.executor',
-      dataIndex: 'executeUser',
-      showTooltip: true,
-      width: 130,
-      showInTable: true,
-      showDrag: true,
-    },
-    {
-      title: 'testPlan.featureCase.bugCount',
-      dataIndex: 'bugCount',
-      slotName: 'bugCount',
-      width: 100,
-      showInTable: true,
-      showDrag: true,
-    },
+  const apiLastStaticColumns: MsTableColumn = [
+    ...lastStaticColumns,
     {
       title: '',
       slotName: 'operation',
@@ -182,9 +152,9 @@
 
   const columns = computed(() => {
     if (isGroup.value) {
-      return [...staticColumns, ...testPlanNameColumns, ...lastStaticColumns];
+      return [...staticColumns, ...testPlanNameColumn, ...apiLastStaticColumns];
     }
-    return [...staticColumns, ...lastStaticColumns];
+    return [...staticColumns, ...apiLastStaticColumns];
   });
 
   const keyMap: Record<string, any> = {
@@ -316,13 +286,22 @@
     }
   );
 
+  async function initSetColumnConfig() {
+    if (!props.enabledTestSet) {
+      const tmpArr = await tableStore.getStoreColumns(tableKey.value);
+      await tableStore.initColumn(
+        tableKey.value,
+        tmpArr?.length ? tmpArr.filter((item) => item.dataIndex !== 'collectionName') : columns.value,
+        'drawer'
+      );
+    }
+  }
+
   defineExpose({
     loadCaseList,
   });
 
-  if (!props.enabledTestSet) {
-    await tableStore.initColumn(tableKey.value, columns.value, 'drawer');
-  }
+  await initSetColumnConfig();
 </script>
 
 <style lang="less" scoped></style>

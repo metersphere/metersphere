@@ -2,15 +2,18 @@
   <MsList ref="listRef" class="w-full" :data="props.list" :virtual-list-props="{ height: 400, threshold: 200 }">
     <template #item="{ item }">
       <div :class="`arco-table-tr flex h-[48px] items-center ${getRowClass(item)} `">
+        <div :style="{ width: `${expendWidth}px` }"></div>
         <template v-for="column in columns" :key="column.dataIndex">
           <div
             v-if="['collectionName', 'operation'].includes(column.dataIndex as string)"
-            :class="`arco-table-cell w-[${column.width}px]`"
+            class="list-column"
+            :style="{ width: `${column.width}px` }"
           >
           </div>
           <div
             v-if="['name','planName', 'bugCount', 'executeUser', 'moduleName'].includes(column.dataIndex as string)"
-            :class="`arco-table-cell w-[${column.width}px]`"
+            class="list-column"
+            :style="{ width: `${column.width}px` }"
           >
             <a-tooltip
               position="tl"
@@ -25,15 +28,16 @@
               </div>
             </a-tooltip>
           </div>
-          <div v-if="column.dataIndex === 'num'" :class="`arco-table-cell w-[${column.width}px]`">
+          <div v-if="column.dataIndex === 'num'" class="list-column" :style="{ width: `${column.width}px` }">
             <MsButton type="text" @click="toDetail(item)">{{ item.num }}</MsButton>
           </div>
-          <div v-if="column.dataIndex === 'priority'" :class="`arco-table-cell w-[${column.width}px]`">
+          <div v-if="column.dataIndex === 'priority'" class="list-column" :style="{ width: `${column.width}px` }">
             <CaseLevel :case-level="item.priority" />
           </div>
           <div
             v-if="column.dataIndex === 'executeResult'"
-            :class="`arco-table-cell flex items-center w-[${column.width}px]`"
+            :class="`list-column flex items-center`"
+            :style="{ width: `${column.width}px` }"
           >
             <ExecuteResult
               v-if="props.activeType === ReportCardTypeEnum.FUNCTIONAL_DETAIL"
@@ -126,14 +130,43 @@
   const { openNewPage } = useOpenNewPage();
   const tableStore = useTableStore();
 
+  const listRef: Ref = ref(null);
+
   // 处理属性顺序/显示/宽度
   const columns = ref<MsTableColumn>([]);
+  const tableColumns = ref<MsTableColumn>([]); // 获取的存储数据
+  const expendWidth = ref(0);
+  const totalDefinedWidth = ref(0);
+
+  function setColumnWidth() {
+    const listElement = document.querySelector('.ms-list') as HTMLElement;
+    const expendWidthElement = document.querySelector('.arco-table-operation') as HTMLElement;
+    expendWidth.value = expendWidthElement.clientWidth;
+    const totalActualWidth = listElement.clientWidth - expendWidth.value;
+
+    if (totalActualWidth > totalDefinedWidth.value) {
+      columns.value = tableColumns.value.map((item) => ({
+        ...item,
+        width: ((item.width as number) / totalDefinedWidth.value) * totalActualWidth,
+      }));
+    } else {
+      columns.value = [...tableColumns.value];
+    }
+  }
+
   async function initColumn() {
-    const tableColumns = await tableStore.getShowInTableColumns(props.tableKey);
-    columns.value = [...tableColumns];
+    tableColumns.value = await tableStore.getShowInTableColumns(props.tableKey);
+    totalDefinedWidth.value = tableColumns.value.reduce((sum, col) => sum + (col.width || 0), 0);
+    setColumnWidth();
   }
   onMounted(async () => {
-    await initColumn();
+    await nextTick();
+    initColumn();
+    const contentElement = listRef.value.$el.querySelector('.arco-list-content') as HTMLElement;
+    if (contentElement) {
+      contentElement.style.height = 'auto';
+      contentElement.style.maxHeight = '400px';
+    }
   });
 
   // 去详情页面
@@ -207,6 +240,9 @@
 </script>
 
 <style lang="less" scoped>
+  .list-column {
+    padding: 8px 16px;
+  }
   .arco-table-tr {
     border-bottom: 1px solid var(--color-text-n8) !important;
   }

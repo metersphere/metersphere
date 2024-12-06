@@ -53,6 +53,11 @@
 
   import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
   import { executionResultMap } from '@/views/case-management/caseManagementFeature/components/utils';
+  import {
+    collectionNameColumn,
+    lastStaticColumns,
+    testPlanNameColumn,
+  } from '@/views/test-plan/report/detail/component/reportConfig';
 
   const tableStore = useTableStore();
 
@@ -191,54 +196,9 @@
       showDrag: true,
     },
   ];
-  const testPlanNameColumn: MsTableColumn = [
-    {
-      title: 'report.plan.name',
-      dataIndex: 'planName',
-      sortIndex: 0,
-      showTooltip: true,
-      width: 200,
-      showInTable: true,
-      showDrag: false,
-      columnSelectorDisabled: true,
-    },
-  ];
-  const lastStaticColumns: MsTableColumn = [
-    {
-      title: 'common.belongModule',
-      dataIndex: 'moduleName',
-      showTooltip: true,
-      width: 200,
-      showInTable: true,
-      showDrag: true,
-    },
-    {
-      title: 'testPlan.featureCase.executor',
-      dataIndex: 'executeUser',
-      showTooltip: true,
-      showInTable: true,
-      showDrag: true,
-      width: 150,
-    },
-    {
-      title: 'testPlan.featureCase.bugCount',
-      dataIndex: 'bugCount',
-      showInTable: true,
-      showDrag: true,
-      width: 100,
-    },
-  ];
   const columns = computed<MsTableColumn>(() => {
     return [
-      {
-        title: 'ms.case.associate.testSet',
-        dataIndex: 'collectionName',
-        sortIndex: 0,
-        showInTable: true,
-        showDrag: false,
-        width: 200,
-        columnSelectorDisabled: true,
-      },
+      ...collectionNameColumn,
       ...(isGroup.value ? testPlanNameColumn : []),
       ...(props.activeType === ReportCardTypeEnum.FUNCTIONAL_DETAIL ? featureStaticColumns : apiStaticColumns),
       ...lastStaticColumns,
@@ -246,7 +206,7 @@
         title: '',
         dataIndex: 'operation',
         slotName: 'operation',
-        width: 30,
+        width: 80,
       },
     ];
   });
@@ -300,13 +260,21 @@
     emit('initColumn');
   }
 
+  async function initSetColumnConfig() {
+    if (props.enabledTestSet) {
+      const tmpArr = await tableStore.getStoreColumns(props.tableKey);
+      const columnsConfig = tmpArr?.length
+        ? [...collectionNameColumn, ...tmpArr.filter((item) => item.dataIndex !== 'collectionName')]
+        : columns.value;
+      await tableStore.initColumn(props.tableKey, columnsConfig, 'drawer');
+    }
+  }
+
   defineExpose({
     loadCaseList,
   });
 
-  if (props.enabledTestSet) {
-    await tableStore.initColumn(props.tableKey, columns.value, 'drawer');
-  }
+  await initSetColumnConfig();
 </script>
 
 <style scoped lang="less">

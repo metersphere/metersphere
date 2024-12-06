@@ -74,7 +74,11 @@
   import { ReportCardTypeEnum } from '@/enums/testPlanReportEnum';
 
   import { executionResultMap } from '@/views/case-management/caseManagementFeature/components/utils';
-  import { detailTableExample } from '@/views/test-plan/report/detail/component/reportConfig';
+  import {
+    detailTableExample,
+    lastStaticColumns,
+    testPlanNameColumn,
+  } from '@/views/test-plan/report/detail/component/reportConfig';
 
   const tableStore = useTableStore();
 
@@ -138,16 +142,7 @@
       width: 150,
     },
   ];
-  const lastStaticColumns: MsTableColumn = [
-    {
-      title: 'common.belongModule',
-      dataIndex: 'moduleName',
-      ellipsis: true,
-      showTooltip: true,
-      showInTable: true,
-      showDrag: true,
-      width: 200,
-    },
+  const caseLastStaticColumns: MsTableColumn = [
     {
       title: 'case.caseLevel',
       dataIndex: 'priority',
@@ -156,47 +151,20 @@
       showDrag: true,
       width: 120,
     },
-
-    {
-      title: 'testPlan.featureCase.executor',
-      dataIndex: 'executeUser',
-      showTooltip: true,
-      showInTable: true,
-      showDrag: true,
-      width: 150,
-    },
-    {
-      title: 'testPlan.featureCase.bugCount',
-      dataIndex: 'bugCount',
-      showInTable: true,
-      showDrag: true,
-      width: 100,
-    },
+    ...lastStaticColumns,
     {
       title: '',
       slotName: 'operation',
       dataIndex: 'operation',
-      width: 30,
-    },
-  ];
-
-  const testPlanNameColumns: MsTableColumn = [
-    {
-      title: 'report.plan.name',
-      dataIndex: 'planName',
-      showTooltip: true,
-      showInTable: true,
-      showDrag: false,
-      columnSelectorDisabled: true,
-      width: 200,
+      width: 80,
     },
   ];
 
   const columns = computed(() => {
     if (isGroup.value) {
-      return [...staticColumns, ...testPlanNameColumns, ...lastStaticColumns];
+      return [...staticColumns, ...testPlanNameColumn, ...caseLastStaticColumns];
     }
-    return [...staticColumns, ...lastStaticColumns];
+    return [...staticColumns, ...caseLastStaticColumns];
   });
 
   const reportFeatureCaseList = () => {
@@ -311,13 +279,22 @@
     }
   });
 
+  async function initSetColumnConfig() {
+    if (!props.enabledTestSet) {
+      const tmpArr = await tableStore.getStoreColumns(tableKey.value);
+      await tableStore.initColumn(
+        tableKey.value,
+        tmpArr?.length ? tmpArr.filter((item) => item.dataIndex !== 'collectionName') : columns.value,
+        'drawer'
+      );
+    }
+  }
+
   defineExpose({
     loadCaseList,
   });
 
-  if (!props.enabledTestSet) {
-    await tableStore.initColumn(tableKey.value, columns.value, 'drawer');
-  }
+  await initSetColumnConfig();
 </script>
 
 <style lang="less" scoped></style>
