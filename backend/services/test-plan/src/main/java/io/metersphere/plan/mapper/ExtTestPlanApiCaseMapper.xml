@@ -88,7 +88,7 @@
         a.project_id, a.module_id, a.latest, a.version_id, a.ref_id, a.description,
         a.create_time, a.create_user, a.update_time, a.update_user, a.delete_user, a.delete_time, a.deleted,
         project_version.name as version_name
-        from api_definition a left join project_version on project_version.id = a.version_id
+        from api_definition  a left join project_version on project_version.id = a.version_id
         where a.deleted = false
         <include refid="queryWhereApiDefinitionCondition"/>
         and exists (
@@ -116,7 +116,7 @@
         </if>
         <if test="request.keyword != null and request.keyword != ''">
             and (
-                a.name like concat('%', #{request.keyword},'%')
+            a.name like concat('%', #{request.keyword},'%')
                 or a.num like concat('%', #{request.keyword},'%')
                 or a.path like concat('%', #{request.keyword},'%')
                 or a.tags like concat('%', #{request.keyword},'%')
@@ -152,27 +152,27 @@
                 <if test="values != null and values.size() > 0">
                     <choose>
                         <when test="key=='status'">
-                            and api_definition.status in
+                            and a.status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='method'">
-                            and api_definition.method in
+                            and a.method in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='createUser'">
-                            and api_definition.create_user in
+                            and a.create_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='versionId'">
-                            and api_definition.version_id in
+                            and a.version_id in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='deleteUser'">
-                            and api_definition.delete_user in
+                            and a.delete_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key.startsWith('custom_single')">
-                            and api_definition.id in (
+                            and a.id in (
                             select api_id from api_definition_custom_field where concat('custom_single_', field_id) =
                             #{key}
                             and trim(both '"' from `value`) in
@@ -180,7 +180,7 @@
                             )
                         </when>
                         <when test="key.startsWith('custom_multiple')">
-                            and api_definition.id in (
+                            and a.id in (
                             select api_id from api_definition_custom_field where concat('custom_multiple_', field_id) =
                             #{key}
                             and JSON_CONTAINS(`value`, json_array(#{value}))

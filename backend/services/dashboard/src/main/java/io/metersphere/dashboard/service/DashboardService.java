@@ -491,13 +491,7 @@ public class DashboardService {
                 Set<String> hasReadProjectIds = permissionModuleProjectIdMap.get(PermissionConstants.TEST_PLAN_READ);
                 checkHasPermissionProject(layoutDTO, hasReadProjectIds);
                 if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PROJECT_PLAN_VIEW.toString())) {
-                    TestPlan testPlan = testPlanMapper.selectByPrimaryKey(layoutDTO.getPlanId());
-                    if (testPlan == null || StringUtils.equalsIgnoreCase(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
-                        TestPlan latestPlan = extTestPlanMapper.getLatestPlan(layoutDTO.getProjectIds().getFirst());
-                        if (latestPlan != null) {
-                            layoutDTO.setPlanId(latestPlan.getId());
-                        }
-                    }
+                    setPlanId(layoutDTO);
                 }
             } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.BUG_COUNT.toString())
                     || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.CREATE_BUG_BY_ME.toString())
@@ -509,6 +503,16 @@ public class DashboardService {
                     List<ProjectUserMemberDTO> list = orgProjectMemberList.stream().filter(t -> layoutDTO.getHandleUsers().contains(t.getId())).toList();
                     layoutDTO.setHandleUsers(list.stream().map(ProjectUserMemberDTO::getId).distinct().toList());
                 }
+            }
+        }
+    }
+
+    private void setPlanId(LayoutDTO layoutDTO) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(layoutDTO.getPlanId());
+        if (testPlan == null || StringUtils.equalsIgnoreCase(testPlan.getStatus(), TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
+            TestPlan latestPlan = extTestPlanMapper.getLatestPlan(layoutDTO.getProjectIds().getFirst());
+            if (latestPlan != null) {
+                layoutDTO.setPlanId(latestPlan.getId());
             }
         }
     }
@@ -531,7 +535,7 @@ public class DashboardService {
      * @param projectId 项目ID
      * @return List<LayoutDTO>
      */
-    private static List<LayoutDTO> getDefaultLayoutDTOS(String projectId, List<String> userIds) {
+    private List<LayoutDTO> getDefaultLayoutDTOS(String projectId, List<String> userIds) {
         List<LayoutDTO> layoutDTOS = new ArrayList<>();
         LayoutDTO projectLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_VIEW, "workbench.homePage.projectOverview", 0, new ArrayList<>(), new ArrayList<>());
         layoutDTOS.add(projectLayoutDTO);
@@ -539,6 +543,9 @@ public class DashboardService {
         layoutDTOS.add(createByMeLayoutDTO);
         LayoutDTO projectMemberLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_MEMBER_VIEW, "workbench.homePage.staffOverview", 2, List.of(projectId), userIds);
         layoutDTOS.add(projectMemberLayoutDTO);
+        LayoutDTO planLayoutDTO = buildDefaultLayoutDTO(DashboardUserLayoutKeys.PROJECT_PLAN_VIEW, "workbench.homePage.testPlanOverview", 3, List.of(projectId), userIds);
+        setPlanId(planLayoutDTO);
+        layoutDTOS.add(planLayoutDTO);
         return layoutDTOS;
     }
 

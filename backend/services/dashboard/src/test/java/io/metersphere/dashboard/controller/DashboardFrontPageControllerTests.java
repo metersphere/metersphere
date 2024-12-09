@@ -246,7 +246,7 @@ public class DashboardFrontPageControllerTests extends BaseTest {
         String defaultString = defaultResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder defaultHolder = JSON.parseObject(defaultString, ResultHolder.class);
         List<LayoutDTO>defaultDTOS = JSON.parseArray(JSON.toJSONString(defaultHolder.getData()), LayoutDTO.class);
-        Assertions.assertEquals(3, defaultDTOS.size());
+        Assertions.assertEquals(4, defaultDTOS.size());
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andOrganizationIdEqualTo(DEFAULT_ORGANIZATION_ID);
         List<Project> projects = projectMapper.selectByExample(projectExample);
