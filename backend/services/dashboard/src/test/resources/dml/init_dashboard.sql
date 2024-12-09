@@ -147,6 +147,11 @@ INSERT INTO test_plan_api_case(`id`, `test_plan_id`, `api_case_id`, `environment
 INSERT INTO test_plan_api_scenario (id, test_plan_id, api_scenario_id, environment_id, execute_user, last_exec_result, last_exec_report_id, create_time, create_user, pos, test_plan_collection_id, grouped) VALUES
     ('dashboard_plan_api_scenario_3', 'dashboard_group-plan', 'dashboard_scenario_four', '1', NULL, 'PASSED', NULL, 1716370415311, 'admin', 1, '123', false);
 
+INSERT INTO `test_plan_config`(`test_plan_id`, `automatic_status_update`, `repeat_case`, `pass_threshold`, `case_run_mode`)
+VALUES ('dashboard_group-plan', b'0', b'0', 100.00, 'PARALLEL');
+
+INSERT INTO `schedule` (`id`, `key`, `type`, `value`, `job`, `resource_type`, `enable`, `resource_id`, `create_user`, `create_time`, `update_time`, `project_id`, `name`, `config`, `num`)
+VALUES ('25', 'key_25', 'cron', '52 27 11 20 05 ?', 'JobClass25', 'TEST_PLAN', b'1', 'dashboard_group-plan', 'admin', 1640778400000, 1640779400000, '100001100001', 'Schedule 25', '{\"param1\": \"value1\", \"param2\": \"value2\"}', 21);
 
 INSERT INTO project_application (project_id, type, type_value) VALUES
                                                                    ('100001100001', 'BUG_SYNC_BUG_PLATFORM_CONFIG', '{"jiraKey":"TES","jiraBugTypeId":"10009"}'),
