@@ -325,6 +325,12 @@
                             <property name="condition" value="condition"/>
                             <property name="tablePrefix" value="api_scenario"/>
                         </include>
+                        <if test="condition.name == 'belongTestPlan' and condition.operator == 'EQUALS'">
+                            api_scenario.id in (
+                            select test_plan_api_scenario.api_scenario_id from test_plan_api_scenario where
+                            test_plan_api_scenario.test_plan_id = #{condition.value}
+                            )
+                        </if>
                         <!-- 场景等级 -->
                         <if test="condition.name == 'priority'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">

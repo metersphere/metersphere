@@ -353,6 +353,12 @@
                                 <property name="condition" value="condition"/>
                             </include>
                         </if>
+                        <if test="condition.name == 'belongTestPlan' and condition.operator == 'EQUALS'">
+                            functional_case.id in (
+                            select functional_case_id from test_plan_functional_case where test_plan_id
+                            = #{condition.value}
+                            )
+                        </if>
                         <!-- 关联附件 -->
                         <if test="condition.name == 'attachment'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">

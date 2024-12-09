@@ -442,6 +442,15 @@
                             <property name="column" value="api_definition.path"/>
                         </include>
                     </if>
+                    <if test="condition.name == 'belongTestPlan' and condition.operator == 'EQUALS'">
+                        api_definition.id in (
+                        select api.id from api_definition api inner join api_test_case apiCase ON api.id =
+                        apiCase.api_definition_id
+                        WHERE api.deleted IS FALSE and apiCase.deleted IS FALSE and apiCase.id in (
+                        select api_case_id from test_plan_api_case where test_plan_id = #{condition.value}
+                        )
+                        )
+                    </if>
                     <if test="condition.name == 'caseTotal'">
                         <choose>
                             <when test="condition.operator == 'NOT_EMPTY'">

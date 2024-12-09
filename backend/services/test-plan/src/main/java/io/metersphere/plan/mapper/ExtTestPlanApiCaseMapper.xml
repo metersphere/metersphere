@@ -411,6 +411,15 @@
                                 <property name="column" value="a.protocol"/>
                             </include>
                         </if>
+                        <if test="condition.name == 'belongTestPlan' and condition.operator == 'EQUALS'">
+                            a.id in (
+                            select api.id from api_definition api inner join api_test_case apiCase ON api.id =
+                            apiCase.api_definition_id
+                            WHERE api.deleted IS FALSE and apiCase.deleted IS FALSE and apiCase.id in (
+                            select api_case_id from test_plan_api_case where test_plan_id = #{condition.value}
+                            )
+                            )
+                        </if>
                         <if test="condition.name == 'status'">
                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                 <property name="condition" value="condition"/>
@@ -505,6 +514,11 @@
                             <property name="condition" value="condition"/>
                             <property name="tablePrefix" value="atc"/>
                         </include>
+                        <if test="condition.name == 'belongTestPlan' and condition.operator == 'EQUALS'">
+                            atc.id in (
+                            select api_case_id from test_plan_api_case where test_plan_id = #{condition.value}
+                            )
+                        </if>
                         <!-- 所属模块(项目ID_模块ID 组合查询) -->
                         <if test="condition.name == 'moduleId'">
                             <choose>

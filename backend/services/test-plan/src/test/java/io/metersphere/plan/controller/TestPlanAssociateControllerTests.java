@@ -5,6 +5,8 @@ import io.metersphere.functional.request.FunctionalCasePageRequest;
 import io.metersphere.plan.dto.request.TestPlanApiCaseRequest;
 import io.metersphere.plan.dto.request.TestPlanApiRequest;
 import io.metersphere.plan.dto.request.TestPlanApiScenarioRequest;
+import io.metersphere.sdk.dto.CombineCondition;
+import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -16,6 +18,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -49,6 +52,20 @@ public class TestPlanAssociateControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
 
+
+        request.setCombineSearch(
+                new CombineSearch() {{
+                    this.setConditions(Collections.singletonList(new CombineCondition() {{
+                        this.setName("belongTestPlan");
+                        this.setOperator(CombineConditionOperator.EQUALS.name());
+                        this.setValue("testABCD");
+                    }}));
+                }}
+        );
+        mvcResult = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_ASSOCIATION_URL, request);
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
     }
 
     @Test
@@ -70,6 +87,20 @@ public class TestPlanAssociateControllerTests extends BaseTest {
         MvcResult mvcResult = this.requestPostWithOkAndReturn(API_ASSOCIATION_URL, request);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+
+        request.setCombineSearch(
+                new CombineSearch() {{
+                    this.setConditions(Collections.singletonList(new CombineCondition() {{
+                        this.setName("belongTestPlan");
+                        this.setOperator(CombineConditionOperator.EQUALS.name());
+                        this.setValue("testABCD");
+                    }}));
+                }}
+        );
+        mvcResult = this.requestPostWithOkAndReturn(API_ASSOCIATION_URL, request);
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
     }
 
@@ -94,6 +125,20 @@ public class TestPlanAssociateControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
 
+
+        request.setCombineSearch(
+                new CombineSearch() {{
+                    this.setConditions(Collections.singletonList(new CombineCondition() {{
+                        this.setName("belongTestPlan");
+                        this.setOperator(CombineConditionOperator.EQUALS.name());
+                        this.setValue("testABCD");
+                    }}));
+                }}
+        );
+        mvcResult = this.requestPostWithOkAndReturn(API_CASE_ASSOCIATION_URL, request);
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
     }
 
     @Test
@@ -115,6 +160,19 @@ public class TestPlanAssociateControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
 
+        request.setCombineSearch(
+                new CombineSearch() {{
+                    this.setConditions(Collections.singletonList(new CombineCondition() {{
+                        this.setName("belongTestPlan");
+                        this.setOperator(CombineConditionOperator.EQUALS.name());
+                        this.setValue("testABCD");
+                    }}));
+                }}
+        );
+        mvcResult = this.requestPostWithOkAndReturn(API_SCENARIO_URL, request);
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
     }
 
     @Test
@@ -130,6 +188,7 @@ public class TestPlanAssociateControllerTests extends BaseTest {
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
+
     }
 
 }
