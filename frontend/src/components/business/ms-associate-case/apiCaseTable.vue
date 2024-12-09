@@ -1,8 +1,8 @@
 <template>
   <MsBaseTable
     ref="tableRef"
-    class="mt-[16px]"
     v-bind="propsRes"
+    class="mt-[16px]"
     :action-config="{
       baseAction: [],
       moreAction: [],
@@ -80,7 +80,7 @@
   import { ReportEnum } from '@/enums/reportEnum';
   import { ApiTestRouteEnum } from '@/enums/routeEnum';
   import { SpecialColumnEnum, TableKeyEnum } from '@/enums/tableEnum';
-  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import type { moduleKeysType } from './types';
   import useModuleSelection from './useModuleSelection';
@@ -127,97 +127,105 @@
 
   const tableStore = useTableStore();
 
-  const columns: MsTableColumn = [
-    {
-      title: 'ID',
-      dataIndex: 'num',
-      slotName: 'num',
-      sortIndex: 1,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
+  const columns = computed<MsTableColumn>(() => {
+    return [
+      {
+        title: 'ID',
+        dataIndex: 'num',
+        slotName: 'num',
+        sortIndex: 1,
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
+        fixed: 'left',
+        width: 100,
+        showTooltip: true,
+        columnSelectorDisabled: true,
       },
-      fixed: 'left',
-      width: 100,
-      showTooltip: true,
-      columnSelectorDisabled: true,
-    },
-    {
-      title: 'case.caseName',
-      dataIndex: 'name',
-      showTooltip: true,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
+      {
+        title: 'case.caseName',
+        dataIndex: 'name',
+        showTooltip: true,
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
+        width: 180,
+        columnSelectorDisabled: true,
       },
-      width: 180,
-      columnSelectorDisabled: true,
-    },
-    {
-      title: 'case.caseLevel',
-      dataIndex: 'priority',
-      slotName: 'caseLevel',
-      filterConfig: {
-        options: casePriorityOptions,
-        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
+      {
+        title: 'case.caseLevel',
+        dataIndex: 'priority',
+        slotName: 'caseLevel',
+        filterConfig: {
+          options: casePriorityOptions,
+          filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
+        },
+        width: 150,
+        showDrag: true,
       },
-      width: 150,
-      showDrag: true,
-    },
-    {
-      title: 'case.lastReportStatus',
-      dataIndex: 'lastReportStatus',
-      slotName: 'lastReportStatus',
-      filterConfig: {
-        options: lastReportStatusListOptions.value,
-        filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS,
+      {
+        title: 'case.lastReportStatus',
+        dataIndex: 'lastReportStatus',
+        slotName: 'lastReportStatus',
+        filterConfig: {
+          options: lastReportStatusListOptions.value,
+          filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_LAST_EXECUTE_STATUS,
+        },
+        showInTable: false,
+        width: 150,
+        showDrag: true,
       },
-      showInTable: false,
-      width: 150,
-      showDrag: true,
-    },
-    {
-      title: 'apiTestManagement.path',
-      dataIndex: 'path',
-      showTooltip: true,
-      width: 200,
-      showDrag: true,
-    },
-    {
-      title: 'common.tag',
-      slotName: 'tags',
-      dataIndex: 'tags',
-      isTag: true,
-      width: 300,
-    },
-    {
-      title: 'caseManagement.featureCase.tableColumnCreateUser',
-      slotName: 'createName',
-      dataIndex: 'createName',
-      showTooltip: true,
-      width: 200,
-      showDrag: true,
-    },
-    {
-      title: 'caseManagement.featureCase.tableColumnCreateTime',
-      slotName: 'createTime',
-      dataIndex: 'createTime',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
+      {
+        title: 'apiTestManagement.path',
+        dataIndex: 'path',
+        showTooltip: true,
+        width: 200,
+        showDrag: true,
       },
-      width: 200,
-      showDrag: true,
-    },
-    {
-      title: '',
-      dataIndex: 'action',
-      width: 24,
-      slotName: SpecialColumnEnum.ACTION,
-      fixed: 'right',
-      cellClass: 'operator-class',
-    },
-  ];
+      {
+        title: 'common.tag',
+        slotName: 'tags',
+        dataIndex: 'tags',
+        isTag: true,
+        width: 300,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnCreateUser',
+        slotName: 'createName',
+        dataIndex: 'createUser',
+        filterConfig: {
+          mode: 'remote',
+          loadOptionParams: {
+            projectId: props.currentProject,
+          },
+          remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
+        },
+        width: 200,
+        showDrag: true,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnCreateTime',
+        slotName: 'createTime',
+        dataIndex: 'createTime',
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
+        width: 200,
+        showDrag: true,
+      },
+      {
+        title: '',
+        dataIndex: 'action',
+        width: 24,
+        slotName: SpecialColumnEnum.ACTION,
+        fixed: 'right',
+        cellClass: 'operator-class',
+      },
+    ];
+  });
 
   const getPageList = computed(() => {
     return props.activeSourceType !== 'API'
@@ -443,6 +451,7 @@
       setPagination({
         current: 1,
       });
+      tableRef.value?.initColumn(columns.value);
       resetFilterParams();
       loadCaseList();
     },
@@ -537,7 +546,7 @@
     setCaseAdvanceFilter,
   });
 
-  await tableStore.initColumn(TableKeyEnum.ASSOCIATE_CASE_API_CASE, columns, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.ASSOCIATE_CASE_API_CASE, columns.value, 'drawer');
 </script>
 
 <style lang="less" scoped>

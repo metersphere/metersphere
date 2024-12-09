@@ -116,7 +116,6 @@
       width: 200,
       showInTable: true,
       showTooltip: true,
-      ellipsis: true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnName',
@@ -125,7 +124,6 @@
       showInTable: true,
       showTooltip: true,
       width: 300,
-      ellipsis: true,
     },
     // {
     //   title: 'caseManagement.featureCase.tableColumnVersion',
@@ -134,7 +132,6 @@
     //   showInTable: true,
     //   showTooltip: true,
     //   width: 300,
-    //   ellipsis: true,
     // },
     {
       title: 'caseManagement.featureCase.tableColumnCreateUser',
@@ -143,7 +140,6 @@
       showInTable: true,
       showTooltip: true,
       width: 300,
-      ellipsis: true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnActions',

@@ -135,7 +135,6 @@
       showInTable: true,
       showTooltip: false,
       width: 300,
-      ellipsis: true,
       showDrag: false,
     },
     {
@@ -148,7 +147,6 @@
       },
       showInTable: true,
       width: 150,
-      ellipsis: true,
       showDrag: false,
     },
     {
@@ -158,7 +156,6 @@
       showInTable: true,
       showTooltip: true,
       width: 200,
-      ellipsis: true,
     },
     {
       title: 'caseManagement.featureCase.updateUser',
@@ -170,7 +167,6 @@
       },
       showInTable: true,
       width: 200,
-      ellipsis: true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnActions',

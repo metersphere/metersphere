@@ -145,7 +145,6 @@
       width: 200,
       showInTable: true,
       showTooltip: true,
-      ellipsis: true,
       showDrag: false,
     },
     {
@@ -154,7 +153,6 @@
       showInTable: true,
       showTooltip: true,
       width: 300,
-      ellipsis: true,
       showDrag: false,
     },
     {
@@ -164,7 +162,6 @@
       showInTable: true,
       showTooltip: true,
       width: 300,
-      ellipsis: true,
       showDrag: false,
     },
     {
@@ -173,7 +170,6 @@
       showInTable: true,
       showTooltip: true,
       width: 300,
-      ellipsis: true,
       showDrag: false,
     },
     {

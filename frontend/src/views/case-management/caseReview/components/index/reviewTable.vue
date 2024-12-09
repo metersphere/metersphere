@@ -443,7 +443,6 @@
           projectId: appStore.currentProjectId,
         },
         remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
-        placeholderText: t('caseManagement.caseReview.reviewerPlaceholder'),
       },
       showDrag: true,
       width: 150,

@@ -112,89 +112,90 @@
     });
   });
 
-  const columns: MsTableColumn = [
-    {
-      title: 'ID',
-      dataIndex: 'num',
-      slotName: 'num',
-      sortIndex: 1,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
-      fixed: 'left',
-      width: 100,
-      columnSelectorDisabled: true,
-    },
-    {
-      title: 'apiTestManagement.apiName',
-      dataIndex: 'name',
-      showTooltip: true,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
-      width: 200,
-      columnSelectorDisabled: true,
-    },
-    {
-      title: 'apiTestManagement.apiType',
-      dataIndex: 'method',
-      slotName: 'method',
-      width: 140,
-      showDrag: true,
-      filterConfig: {
-        options: requestMethodsOptions.value,
-        filterSlotName: FilterSlotNameEnum.API_TEST_API_REQUEST_METHODS,
-      },
-    },
-    {
-      title: 'apiTestManagement.path',
-      dataIndex: 'path',
-      showTooltip: true,
-      width: 200,
-      showDrag: true,
-    },
-    {
-      title: 'common.tag',
-      dataIndex: 'tags',
-      isTag: true,
-      isStringTag: true,
-      showDrag: true,
-    },
-    {
-      title: 'apiTestManagement.caseTotal',
-      dataIndex: 'caseTotal',
-      showTooltip: true,
-      width: 100,
-      showDrag: true,
-      slotName: 'caseTotal',
-    },
-    {
-      title: 'common.creator',
-      slotName: 'createUserName',
-      dataIndex: 'createUser',
-      filterConfig: {
-        mode: 'remote',
-        loadOptionParams: {
-          projectId: appStore.currentProjectId,
+  const columns = computed<MsTableColumn>(() => {
+    return [
+      {
+        title: 'ID',
+        dataIndex: 'num',
+        slotName: 'num',
+        sortIndex: 1,
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
         },
-        remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
-        placeholderText: t('caseManagement.featureCase.PleaseSelect'),
+        fixed: 'left',
+        width: 100,
+        columnSelectorDisabled: true,
       },
-      showInTable: true,
-      width: 200,
-      showDrag: true,
-    },
-    {
-      title: '',
-      dataIndex: 'action',
-      width: 24,
-      slotName: SpecialColumnEnum.ACTION,
-      fixed: 'right',
-      cellClass: 'operator-class',
-    },
-  ];
+      {
+        title: 'apiTestManagement.apiName',
+        dataIndex: 'name',
+        showTooltip: true,
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
+        width: 200,
+        columnSelectorDisabled: true,
+      },
+      {
+        title: 'apiTestManagement.apiType',
+        dataIndex: 'method',
+        slotName: 'method',
+        width: 140,
+        showDrag: true,
+        filterConfig: {
+          options: requestMethodsOptions.value,
+          filterSlotName: FilterSlotNameEnum.API_TEST_API_REQUEST_METHODS,
+        },
+      },
+      {
+        title: 'apiTestManagement.path',
+        dataIndex: 'path',
+        showTooltip: true,
+        width: 200,
+        showDrag: true,
+      },
+      {
+        title: 'common.tag',
+        dataIndex: 'tags',
+        isTag: true,
+        isStringTag: true,
+        showDrag: true,
+      },
+      {
+        title: 'apiTestManagement.caseTotal',
+        dataIndex: 'caseTotal',
+        showTooltip: true,
+        width: 100,
+        showDrag: true,
+        slotName: 'caseTotal',
+      },
+      {
+        title: 'common.creator',
+        slotName: 'createUserName',
+        dataIndex: 'createUser',
+        filterConfig: {
+          mode: 'remote',
+          loadOptionParams: {
+            projectId: appStore.currentProjectId,
+          },
+          remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
+        },
+        showInTable: true,
+        width: 200,
+        showDrag: true,
+      },
+      {
+        title: '',
+        dataIndex: 'action',
+        width: 24,
+        slotName: SpecialColumnEnum.ACTION,
+        fixed: 'right',
+        cellClass: 'operator-class',
+      },
+    ];
+  });
 
   const {
     propsRes,
@@ -363,6 +364,7 @@
   function setCaseAdvanceFilter(filter: FilterResult, id: string) {
     setAdvanceFilter(filter, id);
   }
+  const apiTableRef = ref<InstanceType<typeof MsBaseTable>>();
 
   watch(
     [() => props.currentProject, () => props.protocols],
@@ -370,6 +372,7 @@
       setPagination({
         current: 1,
       });
+      apiTableRef.value?.initColumn(columns.value);
       resetFilterParams();
       loadApiList();
     },
@@ -466,7 +469,7 @@
     setCaseAdvanceFilter,
   });
 
-  await tableStore.initColumn(TableKeyEnum.ASSOCIATE_CASE_API, columns, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.ASSOCIATE_CASE_API, columns.value, 'drawer');
 </script>
 
 <style lang="less" scoped>

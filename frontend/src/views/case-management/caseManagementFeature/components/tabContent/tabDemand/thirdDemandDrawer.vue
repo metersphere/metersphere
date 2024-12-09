@@ -99,14 +99,12 @@
     //   width: 300,
     //   dataIndex: 'status',
     //   showTooltip: true,
-    //   ellipsis: true,
     // },
     // {
     //   title: 'caseManagement.featureCase.platformDemandHandler',
     //   width: 300,
     //   dataIndex: 'handler',
     //   showTooltip: true,
-    //   ellipsis: true,
     // },
   ];
 

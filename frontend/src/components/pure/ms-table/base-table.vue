@@ -310,7 +310,7 @@
 
 <script lang="ts" setup>
   import { Message } from '@arco-design/web-vue';
-  import { debounce } from 'lodash-es';
+  import { debounce, throttle } from 'lodash-es';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
@@ -964,8 +964,18 @@
     batchLeft.value = getBatchLeft();
   });
 
-  function columnResize(dataIndex: string) {
+  const updateColumnWidth = throttle(async (dataIndex: string, width: number) => {
     if (dataIndex) {
+      const [index] = dataIndex.split('_').slice(-1);
+      const lastIndex = attrs.selectable ? Number(index) - 1 : Number(index);
+      currentColumns.value[lastIndex].width = width;
+      await tableStore.updateColumnWidth(attrs.tableKey as TableKeyEnum, currentColumns.value);
+    }
+  }, 200);
+
+  function columnResize(dataIndex: string, width: number) {
+    if (dataIndex) {
+      updateColumnWidth(dataIndex, width);
       updateAllTagVisibility();
     }
   }

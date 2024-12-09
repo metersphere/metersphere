@@ -117,6 +117,7 @@
         />
         <ms-base-table
           v-bind="propsRes"
+          :columns="columns"
           :action-config="{
             baseAction: [],
             moreAction: [],
@@ -153,6 +154,11 @@
           <!-- 执行结果 -->
           <template #[FilterSlotNameEnum.CASE_MANAGEMENT_EXECUTE_RESULT]="{ filterContent }">
             <ExecuteStatusTag :execute-result="filterContent.value" />
+          </template>
+          <template #createUserName="{ record }">
+            <a-tooltip :content="`${record.createUserName}`" position="tl">
+              <div class="one-line-text">{{ record.createUserName }}</div>
+            </a-tooltip>
           </template>
         </ms-base-table>
         <div class="footer">
@@ -211,7 +217,7 @@
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
-  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
+  import { FilterRemoteMethodsEnum, FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { initGetModuleCountFunc, type RequestModuleEnum } from './utils';
   import { casePriorityOptions } from '@/views/api-test/components/config';
@@ -425,57 +431,66 @@
     return [];
   }
 
-  const columns: MsTableColumn = [
-    {
-      title: 'ID',
-      dataIndex: 'num',
-      slotName: 'num',
-      sortIndex: 1,
-      showTooltip: true,
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
+  const columns = computed<MsTableColumn>(() => {
+    return [
+      {
+        title: 'ID',
+        dataIndex: 'num',
+        slotName: 'num',
+        sortIndex: 1,
+        showTooltip: true,
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
+        width: 120,
+        fixed: 'left',
       },
-      width: 120,
-      fixed: 'left',
-    },
-    {
-      title: 'ms.case.associate.caseName',
-      dataIndex: 'name',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
+      {
+        title: 'ms.case.associate.caseName',
+        dataIndex: 'name',
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
+        showTooltip: true,
+        width: 250,
       },
-      showTooltip: true,
-      width: 250,
-    },
-    ...getCaseLevelColumn(),
-    ...getReviewStatus(),
-    {
-      title: 'ms.case.associate.tags',
-      dataIndex: 'tags',
-      isTag: true,
-    },
-    {
-      title: 'caseManagement.featureCase.tableColumnCreateUser',
-      slotName: 'createUserName',
-      dataIndex: 'createUserName',
-      showTooltip: true,
-      width: 200,
-      showDrag: true,
-    },
-    {
-      title: 'caseManagement.featureCase.tableColumnCreateTime',
-      slotName: 'createTime',
-      dataIndex: 'createTime',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
+      ...getCaseLevelColumn(),
+      ...getReviewStatus(),
+      {
+        title: 'ms.case.associate.tags',
+        dataIndex: 'tags',
+        isTag: true,
       },
-      width: 200,
-      showDrag: true,
-    },
-  ];
+      {
+        title: 'caseManagement.featureCase.tableColumnCreateUser',
+        slotName: 'createUserName',
+        dataIndex: 'createUser',
+        showTooltip: true,
+        width: 200,
+        filterConfig: {
+          mode: 'remote',
+          loadOptionParams: {
+            projectId: innerProject.value,
+          },
+          remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
+        },
+        showDrag: true,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnCreateTime',
+        slotName: 'createTime',
+        dataIndex: 'createTime',
+        sortable: {
+          sortDirections: ['ascend', 'descend'],
+          sorter: true,
+        },
+        width: 200,
+        showDrag: true,
+      },
+    ];
+  });
 
   watchEffect(() => {
     getCaseLevelColumn();
@@ -495,7 +510,7 @@
   } = useTable(
     props.getTableFunc,
     {
-      columns,
+      columns: columns.value,
       tableKey: TableKeyEnum.CASE_MANAGEMENT_ASSOCIATED_TABLE,
       scroll: { x: '100%' },
       showSetting: false,
@@ -820,6 +835,7 @@
     value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
     innerProject.value = value as string;
+    resetFilterParams();
     await initModules();
     setAllSelectModule();
     initFilter();

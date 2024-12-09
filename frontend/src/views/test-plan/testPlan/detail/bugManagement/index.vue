@@ -108,7 +108,6 @@
       dataIndex: 'title',
       showInTable: true,
       width: 300,
-      ellipsis: true,
       showDrag: false,
     },
     {
@@ -120,7 +119,6 @@
       },
       showInTable: true,
       width: 150,
-      ellipsis: true,
       showDrag: false,
     },
     {
@@ -129,7 +127,6 @@
       dataIndex: 'linkCase',
       showInTable: true,
       width: 150,
-      ellipsis: true,
     },
     {
       title: 'caseManagement.featureCase.updateUser',
@@ -139,7 +136,6 @@
       showInTable: true,
       showTooltip: true,
       width: 300,
-      ellipsis: true,
     },
     {
       title: 'common.createTime',

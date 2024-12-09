@@ -236,7 +236,6 @@
       width: 100,
       showInTable: true,
       showTooltip: true,
-      ellipsis: true,
       showDrag: false,
     },
     {

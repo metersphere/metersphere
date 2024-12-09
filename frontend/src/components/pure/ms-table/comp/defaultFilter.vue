@@ -34,25 +34,54 @@
               </a-checkbox>
             </a-checkbox-group>
           </div>
-          <div v-else class="w-[200px] p-[12px] pb-[8px]">
-            <MsSelect
-              v-model:model-value="checkedList"
-              mode="remote"
-              :options="[]"
-              :placeholder="props.placeholderText"
-              multiple
-              :value-key="props.valueKey || 'id'"
-              :label-key="props.labelKey || 'name'"
-              :filter-option="false"
+          <div v-if="props.mode === 'remote'" class="w-[190px] p-[12px] py-[8px]">
+            <a-input
+              v-model:model-value="filterKeyword"
+              class="mb-[8px]"
+              :placeholder="t('common.pleaseInput')"
               allow-clear
-              :search-keys="['name']"
-              :loading="loading"
-              :remote-func="loadList"
-              :remote-extra-params="{ ...props.loadOptionParams }"
-              :option-label-render="optionLabelRender"
-              :should-calculate-max-tag="false"
             >
-            </MsSelect>
+              <template #prefix>
+                <MsIcon
+                  type="icon-icon_search-outline_outlined"
+                  class="text-[var(--color-text-input-border)]"
+                  size="16"
+                />
+              </template>
+            </a-input>
+            <a-spin class="w-full" :loading="loading">
+              <MsList
+                v-model:data="filterListOptions"
+                mode="remote"
+                item-key-field="id"
+                :item-border="false"
+                class="w-full rounded-[var(--border-radius-small)]"
+                :no-more-data="false"
+                :virtual-list-props="{
+                  height: '160px',
+                }"
+              >
+                <template #title="{ item }">
+                  <div class="w-full" @click.stop="checkItem(item.value)">
+                    <a-checkbox
+                      :model-value="checkedList.includes(item.value)"
+                      :value="item.value"
+                      @click.stop="checkItem(item.value)"
+                    >
+                      <a-tooltip
+                        :content="item[props.labelKey || 'label']"
+                        :mouse-enter-delay="300"
+                        :disabled="!item[props.labelKey || 'label']"
+                      >
+                        <div class="one-line-text max-w-[120px]" @click.stop="checkItem(item.value)">
+                          <div class="one-line-text max-w-[120px]">{{ item.label }}</div>
+                        </div>
+                      </a-tooltip>
+                    </a-checkbox>
+                  </div>
+                </template>
+              </MsList>
+            </a-spin>
           </div>
           <div
             :class="`${
@@ -74,8 +103,9 @@
 
 <script lang="ts" setup>
   import { SelectOptionData } from '@arco-design/web-vue';
+  import { debounce } from 'lodash-es';
 
-  import MsSelect from '@/components/business/ms-select/index';
+  import MsList from '@/components/pure/ms-list/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
@@ -96,7 +126,6 @@
       mode?: 'static' | 'remote';
       remoteMethod?: FilterRemoteMethodsEnum; // 加载选项方法
       loadOptionParams?: Record<string, any>; // 请求下拉的参数
-      placeholderText?: string;
       dataIndex?: string | undefined;
       filter: Record<string, any>;
       emptyFilter?: boolean; // 增加-空选项查询
@@ -129,36 +158,6 @@
 
   const loading = ref(true);
 
-  const optionLabelRender = (option: SelectOptionData) => {
-    return `<span class='text-[var(--color-text-1)]'>${option.name}</span>`;
-  };
-
-  const loadList = async (params: Record<string, any>) => {
-    try {
-      loading.value = true;
-      const { keyword, ...rest } = params;
-      if (props.remoteMethod) {
-        const list = (await initRemoteOptionsFunc(props.remoteMethod, { keyword, ...rest })) || [];
-        list.forEach((item: any) => {
-          if (props.valueKey) {
-            item.id = item[props.valueKey || 'id'] as string;
-          }
-          if (props.labelKey) {
-            item.name = (item[props.labelKey] as string) || '';
-          }
-        });
-        return list;
-      }
-      return [];
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      return [];
-    } finally {
-      loading.value = false;
-    }
-  };
-
   const isHighlight = computed(() => {
     if (props.filter && props.dataIndex) {
       return (props.filter[props.dataIndex] || []).length > 0;
@@ -175,6 +174,43 @@
     return true;
   });
 
+  const originFilterList = ref<SelectOptionData[]>([]);
+  const filterListOptions = ref<SelectOptionData[]>([]);
+
+  const filterKeyword = ref('');
+
+  async function initOptions() {
+    try {
+      loading.value = true;
+      if (props.remoteMethod) {
+        const list =
+          (await initRemoteOptionsFunc(props.remoteMethod, {
+            keyword: filterKeyword.value,
+            ...props.loadOptionParams,
+          })) || [];
+        list.forEach((item: any) => {
+          item.value = item[props.valueKey || 'id'] as string;
+          item.label = (item[props.labelKey || 'name'] as string) || '';
+        });
+        filterListOptions.value = list;
+        originFilterList.value = list;
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  function checkItem(value: string) {
+    if (checkedList.value.includes(value)) {
+      checkedList.value = checkedList.value.filter((e) => e !== value);
+    } else {
+      checkedList.value.push(value);
+    }
+  }
+
   // 用于切换的时候重置清空上一次的选择
   watch(
     () => isNoFilter.value,
@@ -188,11 +224,44 @@
   watch(
     () => props.filter,
     (val) => {
-      if (val[props.dataIndex as string] && val[props.dataIndex as string]?.length) {
+      if (!val[props.dataIndex as string] || val[props.dataIndex as string]?.length === 0) {
+        checkedList.value = []; // 清空选择
+      } else {
+        // 如果有过滤条件，更新 checkedList
         checkedList.value = val[props.dataIndex as string];
       }
     }
   );
+
+  const searchItem = debounce(() => {
+    filterListOptions.value = originFilterList.value.filter((item: SelectOptionData) =>
+      item.label?.includes(filterKeyword.value)
+    );
+  }, 300);
+
+  watch(
+    () => visible.value,
+    (val) => {
+      if (val && props.mode === 'remote') {
+        filterKeyword.value = '';
+        initOptions();
+      }
+    }
+  );
+
+  watch(
+    () => filterKeyword.value,
+    () => {
+      if (filterKeyword.value === '') {
+        filterListOptions.value = [...originFilterList.value];
+      }
+      searchItem();
+    }
+  );
+
+  onBeforeUnmount(() => {
+    checkedList.value = [];
+  });
 </script>
 
 <style scoped lang="less">

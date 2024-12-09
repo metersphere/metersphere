@@ -128,7 +128,6 @@
       width: 200,
       showInTable: true,
       showTooltip: true,
-      ellipsis: true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnName',
@@ -153,7 +152,6 @@
     //   showInTable: true,
     //   showTooltip: true,
     //   width: 300,
-    //   ellipsis: true,
     // },
     {
       title: 'caseManagement.featureCase.changeType',
@@ -162,7 +160,6 @@
       showInTable: true,
       showTooltip: true,
       width: 300,
-      ellipsis: true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnActions',

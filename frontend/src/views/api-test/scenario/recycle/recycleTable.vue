@@ -250,6 +250,7 @@
       dataIndex: 'modulePath',
       width: 176,
       showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'apiScenario.table.columns.createTime',
@@ -297,7 +298,6 @@
           projectId: appStore.currentProjectId,
         },
         remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
-        placeholderText: t('caseManagement.featureCase.PleaseSelect'),
       },
     },
     {

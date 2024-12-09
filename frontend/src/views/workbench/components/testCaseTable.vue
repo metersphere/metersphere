@@ -117,7 +117,6 @@
       showTooltip: true,
       fixed: 'left',
       width: 180,
-      ellipsis: true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnLevel',

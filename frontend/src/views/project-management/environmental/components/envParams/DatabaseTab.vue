@@ -97,7 +97,6 @@
       showDrag: true,
       showInTable: true,
       showTooltip: true,
-      ellipsis: true,
     },
     {
       title: 'URL',
@@ -105,7 +104,6 @@
       showDrag: true,
       showInTable: true,
       showTooltip: true,
-      ellipsis: true,
     },
     {
       title: 'project.environmental.database.username',

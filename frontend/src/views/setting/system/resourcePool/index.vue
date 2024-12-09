@@ -167,7 +167,6 @@
       return {
         mode: 'remote',
         remoteMethod: FilterRemoteMethodsEnum.SYSTEM_ORGANIZATION_LIST,
-        placeholderText: t('common.pleaseSelect'),
       };
     }
     return {

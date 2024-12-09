@@ -33,7 +33,6 @@ export interface MsTableColumnFilterConfig {
   emptyFilter?: boolean; // 是否空选项查询（包含未执行和排队中无状态）
   remoteMethod?: FilterRemoteMethodsEnum; // 加载选项的类型
   loadOptionParams?: Record<string, any>; // 请求下拉的参数
-  placeholderText?: string;
   firstLabelKey?: string;
   secondLabelKey?: string;
   disabledTooltip?: boolean;

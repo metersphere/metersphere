@@ -364,7 +364,6 @@
           projectId: appStore.currentProjectId,
         },
         remoteMethod: FilterRemoteMethodsEnum.EXECUTE_USER,
-        placeholderText: t('caseManagement.featureCase.PleaseSelect'),
       },
     },
     {

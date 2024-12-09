@@ -449,7 +449,6 @@
       title: 'ID',
       dataIndex: 'num',
       width: 80,
-      ellipsis: true,
     },
     {
       title: 'case.caseName',
@@ -466,7 +465,6 @@
     {
       title: 'common.belongModule',
       dataIndex: 'moduleName',
-      ellipsis: true,
       width: 200,
     },
     {
