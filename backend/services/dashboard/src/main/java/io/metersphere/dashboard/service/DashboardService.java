@@ -48,30 +48,23 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.project.service.ProjectService;
-import io.metersphere.sdk.constants.ExecStatus;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.ResultStatus;
-import io.metersphere.sdk.constants.TestPlanConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.CombineCondition;
 import io.metersphere.sdk.dto.CombineSearch;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.User;
-import io.metersphere.system.domain.UserExample;
-import io.metersphere.system.domain.UserLayout;
-import io.metersphere.system.domain.UserLayoutExample;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.ProtocolDTO;
+import io.metersphere.system.dto.request.schedule.BaseScheduleConfigRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.ProjectUserMemberDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
-import io.metersphere.system.mapper.ExtExecTaskItemMapper;
-import io.metersphere.system.mapper.ExtSystemProjectMapper;
-import io.metersphere.system.mapper.UserLayoutMapper;
-import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.mapper.*;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
+import io.metersphere.system.utils.ScheduleUtils;
 import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -151,6 +144,10 @@ public class DashboardService {
     private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
     @Resource
     private ExtTestPlanBugMapper extTestPlanBugMapper;
+    @Resource
+    private TestPlanConfigMapper testPlanConfigMapper;
+    @Resource
+    private ScheduleMapper scheduleMapper;
 
 
     public static final String FUNCTIONAL = "FUNCTIONAL"; // 功能用例
@@ -711,41 +708,111 @@ public class DashboardService {
         return overViewCountDTO;
     }
 
+    @NotNull
+    private TestPlanStatisticsResponse buildStatisticsResponse(String planId, List<TestPlanFunctionalCase> functionalCases, List<TestPlanApiCase> apiCases, List<TestPlanApiScenario> apiScenarios) {
+        //查出计划
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
+        // 计划的更多配置
+        TestPlanConfig planConfig = this.selectConfig(planId);
+        //查询定时任务
+        Schedule schedule = this.selectSchedule(planId);
+        //构建TestPlanStatisticsResponse
+        TestPlanStatisticsResponse statisticsResponse = new TestPlanStatisticsResponse();
+        statisticsResponse.setId(planId);
+        statisticsResponse.setStatus(testPlan.getStatus());
+        // 测试计划组没有测试计划配置。同理，也不用参与用例等数据的计算
+        if (planConfig != null) {
+            statisticsResponse.setPassThreshold(planConfig.getPassThreshold());
+            // 功能用例分组统计开始 (为空时, 默认为未执行)
+            Map<String, Long> functionalCaseResultCountMap = planStatisticsService.countFunctionalCaseExecResultMap(functionalCases);
+            // 接口用例分组统计开始 (为空时, 默认为未执行)
+            Map<String, Long> apiCaseResultCountMap = planStatisticsService.countApiTestCaseExecResultMap(apiCases);
+            // 接口场景用例分组统计开始 (为空时, 默认为未执行)
+            Map<String, Long> apiScenarioResultCountMap = planStatisticsService.countApiScenarioExecResultMap(apiScenarios);
+
+            // 用例数据汇总
+            statisticsResponse.setFunctionalCaseCount(CollectionUtils.isNotEmpty(functionalCases) ? functionalCases.size() : 0);
+            statisticsResponse.setApiCaseCount(CollectionUtils.isNotEmpty(apiCases) ? apiCases.size() : 0);
+            statisticsResponse.setApiScenarioCount(CollectionUtils.isNotEmpty(apiScenarios) ? apiScenarios.size() : 0);
+            statisticsResponse.setSuccessCount(planStatisticsService.countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.SUCCESS.name()));
+            statisticsResponse.setErrorCount(planStatisticsService.countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.ERROR.name()));
+            statisticsResponse.setFakeErrorCount(planStatisticsService.countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.FAKE_ERROR.name()));
+            statisticsResponse.setBlockCount(planStatisticsService.countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ResultStatus.BLOCKED.name()));
+            statisticsResponse.setPendingCount(planStatisticsService.countCaseMap(functionalCaseResultCountMap, apiCaseResultCountMap, apiScenarioResultCountMap, ExecStatus.PENDING.name()));
+            statisticsResponse.calculateCaseTotal();
+            statisticsResponse.calculatePassRate();
+            statisticsResponse.calculateExecuteRate();
+            statisticsResponse.calculateTestPlanIsPass();
+        }
+        //定时任务
+        if (schedule != null) {
+            BaseScheduleConfigRequest request = new BaseScheduleConfigRequest();
+            request.setEnable(schedule.getEnable());
+            request.setCron(schedule.getValue());
+            request.setResourceId(planId);
+            if (schedule.getConfig() != null) {
+                request.setRunConfig(JSON.parseObject(schedule.getConfig(), Map.class));
+            }
+            statisticsResponse.setScheduleConfig(request);
+            if (schedule.getEnable()) {
+                statisticsResponse.setNextTriggerTime(ScheduleUtils.getNextTriggerTime(schedule.getValue()));
+            }
+        }
+        statisticsResponse.calculateCaseTotal();
+        statisticsResponse.calculatePassRate();
+        statisticsResponse.calculateExecuteRate();
+        statisticsResponse.calculateStatus();
+        statisticsResponse.calculateTestPlanIsPass();
+        return statisticsResponse;
+    }
+
+    private Schedule selectSchedule(String testPlanId) {
+        ScheduleExample scheduleExample = new ScheduleExample();
+        scheduleExample.createCriteria().andResourceIdEqualTo(testPlanId).andResourceTypeEqualTo(ScheduleResourceType.TEST_PLAN.name());
+        List<Schedule> schedules = scheduleMapper.selectByExample(scheduleExample);
+        return CollectionUtils.isNotEmpty(schedules) ? schedules.getFirst() : null;
+    }
+
+    private TestPlanConfig selectConfig(String testPlanId) {
+        return testPlanConfigMapper.selectByPrimaryKey(testPlanId);
+    }
+
 
     public OverViewCountDTO projectPlanViewCount(DashboardFrontPageRequest request, String currentUserId) {
         OverViewCountDTO overViewCountDTO = new OverViewCountDTO();
         String projectId = request.getProjectIds().getFirst();
+        String planId = request.getPlanId();
         if (Boolean.FALSE.equals(permissionCheckService.checkModule(projectId, TEST_PLAN_MODULE, currentUserId, PermissionConstants.TEST_PLAN_READ))) {
             overViewCountDTO.setErrorCode(NO_PROJECT_PERMISSION.getCode());
         }
-        if (StringUtils.isBlank(request.getPlanId())) {
+        if (StringUtils.isBlank(planId)) {
             return new OverViewCountDTO(new HashMap<>(), new ArrayList<>(), new ArrayList<>(), 0);
         }
-        List<String> planIds = List.of(request.getPlanId());
-        List<TestPlanStatisticsResponse> testPlanStatisticsResponses = planStatisticsService.calculateRate(planIds);
-        TestPlanStatisticsResponse planCount = testPlanStatisticsResponses.getFirst();
-        List<TestPlanFunctionalCase> planFunctionalCases = extTestPlanFunctionalCaseMapper.getPlanFunctionalCaseByIds(planIds);
-        List<TestPlanApiCase> planApiCases = extTestPlanApiCaseMapper.getPlanApiCaseByIds(planIds);
-        List<TestPlanApiScenario> planApiScenarios = extTestPlanApiScenarioMapper.getPlanApiScenarioByIds(planIds);
+
+        // 关联的用例数据
+        List<TestPlanFunctionalCase> planFunctionalCases = extTestPlanFunctionalCaseMapper.selectByTestPlanIdAndNotDeleted(planId);
+        List<TestPlanApiCase> planApiCases = extTestPlanApiCaseMapper.selectByTestPlanIdAndNotDeleted(planId);
+        List<TestPlanApiScenario> planApiScenarios = extTestPlanApiScenarioMapper.selectByTestPlanIdAndNotDeleted(planId);
+        TestPlanStatisticsResponse statisticsResponse = buildStatisticsResponse(planId, planFunctionalCases, planApiCases, planApiScenarios);
         // 计划-缺陷的关联数据
-        List<TestPlanBugPageResponse> planBugs = extTestPlanBugMapper.countBugByIds(planIds);
+        List<TestPlanBugPageResponse> planBugs = extTestPlanBugMapper.selectBugCountByPlanId(planId);
         //获取卡片数据
         boolean addDefaultUser = false;
-        buildCountMap(planCount, planBugs, overViewCountDTO);
+        buildCountMap(statisticsResponse, planBugs, overViewCountDTO);
         List<TestPlanFunctionalCase> caseUserNullList = planFunctionalCases.stream().filter(t -> StringUtils.isBlank(t.getExecuteUser())).toList();
-        Map<String, List<TestPlanFunctionalCase>> caseUserMap = planFunctionalCases.stream().filter(t->StringUtils.isNotBlank(t.getExecuteUser())).collect(Collectors.groupingBy(TestPlanFunctionalCase::getExecuteUser));
+        Map<String, List<TestPlanFunctionalCase>> caseUserMap = planFunctionalCases.stream().filter(t -> StringUtils.isNotBlank(t.getExecuteUser())).collect(Collectors.groupingBy(TestPlanFunctionalCase::getExecuteUser));
         if (CollectionUtils.isNotEmpty(caseUserNullList)) {
             addDefaultUser = true;
             caseUserMap.put("NONE", caseUserNullList);
         }
         List<TestPlanApiCase> apiCaseUserNullList = planApiCases.stream().filter(t -> StringUtils.isBlank(t.getExecuteUser())).toList();
-        Map<String, List<TestPlanApiCase>> apiCaseUserMap = planApiCases.stream().filter(t->StringUtils.isNotBlank(t.getExecuteUser())).collect(Collectors.groupingBy(TestPlanApiCase::getExecuteUser));
+        Map<String, List<TestPlanApiCase>> apiCaseUserMap = planApiCases.stream().filter(t -> StringUtils.isNotBlank(t.getExecuteUser())).collect(Collectors.groupingBy(TestPlanApiCase::getExecuteUser));
         if (CollectionUtils.isNotEmpty(apiCaseUserNullList)) {
             addDefaultUser = true;
             apiCaseUserMap.put("NONE", apiCaseUserNullList);
         }
         List<TestPlanApiScenario> apiScenarioNullList = planApiScenarios.stream().filter(t -> StringUtils.isBlank(t.getExecuteUser())).toList();
-        Map<String, List<TestPlanApiScenario>> apiScenarioUserMap = planApiScenarios.stream().filter(t->StringUtils.isNotBlank(t.getExecuteUser())).collect(Collectors.groupingBy(TestPlanApiScenario::getExecuteUser));
+        Map<String, List<TestPlanApiScenario>> apiScenarioUserMap = planApiScenarios.stream().filter(t -> StringUtils.isNotBlank(t.getExecuteUser())).collect(Collectors.groupingBy(TestPlanApiScenario::getExecuteUser));
         if (CollectionUtils.isNotEmpty(apiScenarioNullList)) {
             addDefaultUser = true;
             apiScenarioUserMap.put("NONE", apiScenarioNullList);
@@ -785,7 +852,7 @@ public class DashboardService {
         String platformName = projectApplicationService.getPlatformName(projectId);
         List<SelectOption> headerStatusOption = getStatusOption(projectId, platformName);
         List<String> statusList = headerStatusOption.stream().map(SelectOption::getValue).toList();
-        userNameMap.forEach((userId, name)->{
+        userNameMap.forEach((userId, name) -> {
             int count = 0;
             int finishCount = 0;
             List<TestPlanFunctionalCase> testPlanFunctionalCases = caseUserMap.get(userId);
@@ -871,7 +938,7 @@ public class DashboardService {
         int executeRateValue = executeRate == null ? 0 : executeRate.intValue();
         caseCountMap.put("executeRate", executeRateValue);
         caseCountMap.put("totalCount", planCount.getCaseTotal());
-        caseCountMap.put("executeCount", planCount.getCaseTotal()-planCount.getPendingCount());
+        caseCountMap.put("executeCount", planCount.getCaseTotal() - planCount.getPendingCount());
         caseCountMap.put(BUG_COUNT, planBugs.size());
         List<TestPlan> testPlans = extTestPlanMapper.selectBaseInfoByIds(List.of(planCount.getId()));
         caseCountMap.put("testPlanName", testPlans.getFirst().getName());

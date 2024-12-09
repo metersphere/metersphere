@@ -33,6 +33,9 @@ public interface ExtTestPlanBugMapper {
 
 	List<TestPlanBugPageResponse> countBugByIds(@Param("planIds") List<String> planIds);
 
+	List<TestPlanBugPageResponse> selectBugCountByPlanId(@Param("planId") String planId);
+
+
 	/**
 	 * 根据用例关系ID集合获取计划下用例关联的缺陷集合
 	 * @param caseIds 用例ID集合

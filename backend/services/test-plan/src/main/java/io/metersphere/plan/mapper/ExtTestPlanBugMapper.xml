@@ -39,6 +39,17 @@
         group by brc.bug_id
     </select>
 
+    <select id="selectBugCountByPlanId" resultType="io.metersphere.plan.dto.response.TestPlanBugPageResponse">
+        select b.id as id, b.num as num, b.title as title, bc.description content, b.handle_user handleUser, b.status as status, b.create_user createUser, b.create_time createTime,brc.test_plan_id testPlanId
+        from bug_relation_case brc join bug b on brc.bug_id = b.id
+        left join bug_content bc on b.id = bc.bug_id
+        <where>
+            b.deleted = false
+            and brc.test_plan_id = #{planId}
+        </where>
+        group by brc.bug_id
+    </select>
+
 
     <select id="getBugRelatedCase" resultType="io.metersphere.plan.dto.TestPlanBugCaseDTO">
         select brc.case_id as id, fc.num as num, 'FUNCTIONAL' as type, brc.bug_id as bugId, fc.name as name, fc.project_id as projectId
