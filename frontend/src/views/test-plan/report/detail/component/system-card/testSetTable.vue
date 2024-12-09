@@ -1,6 +1,7 @@
 <template>
   <MsBaseTable
     v-if="enabledTestSet"
+    ref="tableRef"
     v-bind="propsRes"
     :expanded-keys="expandedKeys"
     :expandable="expandable"
@@ -8,6 +9,8 @@
     v-on="propsEvent"
     @sorter-change="handleInitColumn"
     @expand="(record) => handleExpand(record.id as string)"
+    @column-resize="getActualColumnWidth"
+    @init-end="getActualColumnWidth"
   >
     <template #expand-icon="{ record, expanded }">
       <div
@@ -34,6 +37,9 @@
 </template>
 
 <script setup lang="ts">
+  import { useResizeObserver } from '@vueuse/core';
+  import { debounce } from 'lodash-es';
+
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
@@ -81,6 +87,24 @@
 
   const isGroup = inject<Ref<boolean>>('isPlanGroup', ref(false));
 
+  const tableRef = ref();
+
+  const actualColumnWidth = ref<number[]>([]);
+  async function getActualColumnWidth() {
+    await nextTick();
+    const thElements = tableRef.value?.$el
+      .querySelector('.arco-table-tr')
+      ?.querySelectorAll('.arco-table-th') as HTMLElement[];
+    actualColumnWidth.value = Array.from(thElements).map((th) => th.clientWidth);
+  }
+
+  useResizeObserver(
+    tableRef,
+    debounce(() => {
+      getActualColumnWidth();
+    }, 300)
+  );
+
   const expandable = reactive({
     title: '',
     width: 30,
@@ -92,6 +116,7 @@
           tableKey: props.tableKey,
           reportId: props.reportId,
           shareId: props.shareId,
+          actualColumnWidth: actualColumnWidth.value,
         });
       }
       return undefined;

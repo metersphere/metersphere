@@ -1,5 +1,5 @@
 <template>
-  <MsList ref="listRef" class="w-full" :data="props.list" :virtual-list-props="{ height: 400, threshold: 200 }">
+  <MsList ref="listRef" class="w-full" :data="props.list" :virtual-list-props="virtualListProps">
     <template #item="{ item }">
       <div :class="`arco-table-tr flex h-[48px] items-center ${getRowClass(item)} `">
         <div :style="{ width: `${expendWidth}px` }"></div>
@@ -124,6 +124,7 @@
     reportId: string;
     shareId?: string;
     tableKey: TableKeyEnum;
+    actualColumnWidth: number[];
   }>();
 
   const { t } = useI18n();
@@ -132,41 +133,41 @@
 
   const listRef: Ref = ref(null);
 
+  const virtualListProps = computed(() => {
+    return {
+      height: 'auto',
+      threshold: 200,
+      buffer: 15,
+    };
+  });
+
   // 处理属性顺序/显示/宽度
   const columns = ref<MsTableColumn>([]);
   const tableColumns = ref<MsTableColumn>([]); // 获取的存储数据
   const expendWidth = ref(0);
-  const totalDefinedWidth = ref(0);
 
   function setColumnWidth() {
-    const listElement = document.querySelector('.ms-list') as HTMLElement;
-    const expendWidthElement = document.querySelector('.arco-table-operation') as HTMLElement;
-    expendWidth.value = expendWidthElement.clientWidth;
-    const totalActualWidth = listElement.clientWidth - expendWidth.value;
-
-    if (totalActualWidth > totalDefinedWidth.value) {
-      columns.value = tableColumns.value.map((item) => ({
-        ...item,
-        width: ((item.width as number) / totalDefinedWidth.value) * totalActualWidth,
-      }));
-    } else {
-      columns.value = [...tableColumns.value];
-    }
+    expendWidth.value = props.actualColumnWidth[0] ?? 0;
+    columns.value = tableColumns.value.map((item, index) => ({
+      ...item,
+      width: props.actualColumnWidth[index + 1],
+    }));
   }
+
+  watch(
+    () => props.actualColumnWidth,
+    () => {
+      setColumnWidth();
+    }
+  );
 
   async function initColumn() {
     tableColumns.value = await tableStore.getShowInTableColumns(props.tableKey);
-    totalDefinedWidth.value = tableColumns.value.reduce((sum, col) => sum + (col.width || 0), 0);
     setColumnWidth();
   }
   onMounted(async () => {
     await nextTick();
     initColumn();
-    const contentElement = listRef.value.$el.querySelector('.arco-list-content') as HTMLElement;
-    if (contentElement) {
-      contentElement.style.height = 'auto';
-      contentElement.style.maxHeight = '400px';
-    }
   });
 
   // 去详情页面
@@ -245,5 +246,8 @@
   }
   .arco-table-tr {
     border-bottom: 1px solid var(--color-text-n8) !important;
+  }
+  :deep(.arco-list-content) {
+    max-height: 480px;
   }
 </style>
