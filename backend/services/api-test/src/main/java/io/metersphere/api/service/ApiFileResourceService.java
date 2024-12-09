@@ -401,9 +401,9 @@ public class ApiFileResourceService {
         return fileId;
     }
 
-    public List<ApiFileResource> selectByResourceIds(Collection<String> copyFromStepIds) {
+    public List<ApiFileResource> selectByResourceIds(List<String> copyFromStepIds) {
         ApiFileResourceExample example = new ApiFileResourceExample();
-        example.createCriteria().andResourceIdIn(new ArrayList<>(copyFromStepIds));
+        example.createCriteria().andResourceIdIn(copyFromStepIds);
         return apiFileResourceMapper.selectByExample(example);
     }
 }

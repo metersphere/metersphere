@@ -255,6 +255,15 @@ public class FileAssociationService {
         return this.deleteAndSaveLog(example, logRecord);
     }
 
+    public List<FileAssociation> selectBySourceIds(List<String> sourceIds) {
+        if (CollectionUtils.isEmpty(sourceIds)) {
+            return List.of();
+        }
+        FileAssociationExample example = new FileAssociationExample();
+        example.createCriteria().andSourceIdIn(sourceIds);
+        return fileAssociationMapper.selectByExample(example);
+    }
+
     /**
      * 取消关联
      *

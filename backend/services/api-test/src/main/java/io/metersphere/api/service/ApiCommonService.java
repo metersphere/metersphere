@@ -13,6 +13,7 @@ import io.metersphere.api.dto.request.http.body.BinaryBody;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.dto.request.http.body.FormDataBody;
 import io.metersphere.api.dto.request.http.body.FormDataKV;
+import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
@@ -602,5 +603,19 @@ public class ApiCommonService {
         }
         ExecTaskItem execTaskItem = execTaskItems.getFirst();
         return execTaskItem;
+    }
+
+    public AbstractMsTestElement getAbstractMsTestElement(byte[] msTestElementByte) {
+        return getAbstractMsTestElement(new String(msTestElementByte));
+    }
+
+    public AbstractMsTestElement getAbstractMsTestElement(String msTestElementStr) {
+        try {
+            return ApiDataUtils.parseObject(msTestElementStr, AbstractMsTestElement.class);
+            // 如果插件删除，会转换异常
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
+        return null;
     }
 }

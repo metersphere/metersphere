@@ -24,10 +24,7 @@ import io.metersphere.api.service.definition.ApiDefinitionExportService;
 import io.metersphere.api.service.definition.ApiDefinitionImportService;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
-import io.metersphere.api.service.scenario.ApiScenarioLogService;
-import io.metersphere.api.service.scenario.ApiScenarioModuleService;
-import io.metersphere.api.service.scenario.ApiScenarioRunService;
-import io.metersphere.api.service.scenario.ApiScenarioService;
+import io.metersphere.api.service.scenario.*;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.api.utils.ApiDefinitionImportUtils;
 import io.metersphere.api.utils.ApiScenarioImportUtils;
@@ -137,6 +134,8 @@ public class ApiScenarioDataTransferService {
     private ApiScenarioModuleService apiScenarioModuleService;
     @Resource
     private ApiScenarioService apiScenarioService;
+    @Resource
+    private ApiScenarioFileService apiScenarioFileService;
     @Resource
     private ApiFileResourceService apiFileResourceService;
     @Resource
@@ -416,7 +415,7 @@ public class ApiScenarioDataTransferService {
                 }
 
                 // 处理 csv 文件
-                apiScenarioService.handleCsvUpdate(request.getScenarioConfig(), scenario, operator);
+                apiScenarioFileService.handleCsvUpdate(request.getScenarioConfig(), scenario, operator);
 
             });
             sqlSession.flushStatements();
@@ -627,11 +626,11 @@ public class ApiScenarioDataTransferService {
         // 处理 csv 相关数据表
         this.handleCsvDataUpdate(csvVariables, scenario, List.of(), batchCsvMapper, batchCsvStepMapper);
         // 处理文件的上传  因为是导入调用的，有些文件可能不存在，所以要进行判断
-        ApiFileResourceUpdateRequest resourceUpdateRequest = apiScenarioService.getApiFileResourceUpdateRequest(scenario.getId(), scenario.getProjectId(), operator);
+        ApiFileResourceUpdateRequest resourceUpdateRequest = apiScenarioFileService.getApiFileResourceUpdateRequest(scenario.getId(), scenario.getProjectId(), operator);
         // 设置本地文件相关参数
-        apiScenarioService.setCsvLocalFileParam(csvVariables, List.of(), resourceUpdateRequest);
+        apiScenarioFileService.setCsvLocalFileParam(csvVariables, List.of(), resourceUpdateRequest);
         // 设置关联文件相关参数
-        apiScenarioService.setCsvLinkFileParam(csvVariables, List.of(), resourceUpdateRequest);
+        apiScenarioFileService.setCsvLinkFileParam(csvVariables, List.of(), resourceUpdateRequest);
 
         FileAssociationSource source = extFileAssociationMapper.selectNameBySourceTableAndId(
                 FileAssociationSourceUtil.getQuerySql(ApiFileResourceType.API_SCENARIO.name()), resourceUpdateRequest.getResourceId());
