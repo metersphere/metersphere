@@ -364,28 +364,28 @@ export const NAV_NAVIGATION: Record<WorkNavValueEnum, any> = {
    * 接口
    */
   [WorkNavValueEnum.API_COUNT_COVER]: {
-    apiDefinition: ['coverFrom'], // 接口覆盖
+    coverFrom: ['apiDefinition'], // 接口覆盖
   },
   [WorkNavValueEnum.API_COUNT_UN_COVER]: {
-    apiDefinition: ['unCoverFrom'], // 接口未覆盖
+    unCoverFrom: ['apiDefinition'], // 接口未覆盖
   },
   /**
    * 接口用例
    */
   [WorkNavValueEnum.API_CASE_COUNT_COVER]: {
-    apiCase: ['coverFrom'], // 接口覆盖
+    coverFrom: ['apiCase'], // 接口用例覆盖
   },
   [WorkNavValueEnum.API_CASE_COUNT_UN_COVER]: {
-    apiCase: ['unCoverFrom'], // 接口未覆盖
+    unCoverFrom: ['apiCase'], // 接口用例未覆盖
   },
   /**
    * 场景用例
    */
   [WorkNavValueEnum.SCENARIO_COVER]: {
-    apiScenario: ['coverFrom'], // 接口场景覆盖
+    coverFrom: ['apiScenario'], // 接口场景覆盖
   },
   [WorkNavValueEnum.SCENARIO_UN_COVER]: {
-    apiScenario: ['unCoverFrom'], // 接口场景未覆盖
+    unCoverFrom: ['apiScenario'], // 接口场景未覆盖
   },
 
   [WorkNavValueEnum.SCENARIO_COUNT_EXECUTED_NOT_RESULT]: { lastReportStatus: [''] }, // 场景用例-无执行结果
