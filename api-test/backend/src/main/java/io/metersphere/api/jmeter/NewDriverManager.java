@@ -21,65 +21,68 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class NewDriverManager {
 
+    // 获取项目的 Jar 配置
     public static Map<String, List<ProjectJarConfig>> getJars(List<String> projectIds, BooleanPool pool) {
-        FileMetadataExample fileMetadata = new FileMetadataExample();
-        fileMetadata.createCriteria().andProjectIdIn(projectIds).andLoadJarEqualTo(true);
+        // 获取 FileMetadataMapper 和 FileMetadataService Bean
         FileMetadataMapper fileMetadataMapper = CommonBeanFactory.getBean(FileMetadataMapper.class);
-        List<FileMetadataWithBLOBs> files = fileMetadataMapper.selectByExampleWithBLOBs(fileMetadata);
+        FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
 
+        // 查询文件元数据
+        FileMetadataExample fileMetadataExample = new FileMetadataExample();
+        fileMetadataExample.createCriteria().andProjectIdIn(projectIds).andLoadJarEqualTo(true);
+        List<FileMetadataWithBLOBs> files = fileMetadataMapper.selectByExampleWithBLOBs(fileMetadataExample);
+
+        // 分组并映射为 ProjectJarConfig
         Map<String, List<ProjectJarConfig>> jarConfigMap = files.stream()
-                .collect(Collectors.groupingBy(FileMetadata::getProjectId, Collectors.mapping(
-                        item -> {
-                            ProjectJarConfig configs = new ProjectJarConfig();
-                            configs.setId(item.getId());
-                            configs.setName(item.getName());
-                            configs.setStorage(item.getStorage());
-                            //历史数据(存在数据库)
-                            if (StringUtils.isEmpty(item.getStorage()) && StringUtils.isEmpty(item.getResourceType())) {
-                                configs.setHasFile(true);
-                            } else {
-                                configs.setHasFile(false);
-                            }
-                            configs.setUpdateTime(item.getUpdateTime());
-                            if (StringUtils.isNotEmpty(item.getStorage()) && StringUtils.equals(item.getStorage(), StorageConstants.GIT.name())) {
-                                configs.setAttachInfo(item.getAttachInfo());
-                            }
-                            return configs;
-                        }, Collectors.toList())));
+                .collect(Collectors.groupingBy(FileMetadata::getProjectId, Collectors.mapping(item -> {
+                    ProjectJarConfig config = new ProjectJarConfig();
+                    config.setId(item.getId());
+                    config.setName(item.getName());
+                    config.setStorage(item.getStorage());
+                    config.setHasFile(StringUtils.isEmpty(item.getStorage()) && StringUtils.isEmpty(item.getResourceType()));
+                    config.setUpdateTime(item.getUpdateTime());
+
+                    if (StringUtils.equals(item.getStorage(), StorageConstants.GIT.name())) {
+                        config.setAttachInfo(item.getAttachInfo());
+                    }
+                    return config;
+                }, Collectors.toList())));
+
+        // 如果不使用池或 K8s，下载需要的 JAR 文件
         if (!pool.isPool() && !pool.isK8s()) {
-            //获取本地
-            //获取需要下载的jar的map
+            // 获取本地需要下载的 JAR 文件配置
             Map<String, List<ProjectJarConfig>> map = JarConfigUtils.getJarConfigs(projectIds, jarConfigMap);
+
             if (MapUtils.isNotEmpty(map)) {
-                //获取文件内容
                 List<String> loaderProjectIds = new ArrayList<>();
 
-                FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
                 map.forEach((key, value) -> {
                     loaderProjectIds.add(key);
                     if (CollectionUtils.isNotEmpty(value)) {
-                        //历史数据
-                        value.stream().distinct().filter(s -> s.isHasFile()).forEach(s -> {
-                            //获取文件内容
-                            byte[] bytes = new byte[0];
-                            // 兼容历史数据
-                            bytes = fileMetadataService.getContent(s.getId());
-                            ApiFileUtil.createFile(StringUtils.join(LocalPathUtil.JAR_PATH,
-                                    File.separator,
-                                    key,
-                                    File.separator,
-                                    s.getId(),
-                                    File.separator,
-                                    String.valueOf(s.getUpdateTime()), ".jar"), bytes);
-                        });
-                        List<String> jarIds = value.stream().distinct().filter(s -> !s.isHasFile()).map(ProjectJarConfig::getId).collect(Collectors.toList());
+                        // 获取历史数据
+                        value.stream()
+                                .distinct()
+                                .filter(ProjectJarConfig::isHasFile)
+                                .forEach(s -> {
+                                    // 获取文件内容并保存
+                                    byte[] bytes = fileMetadataService.getContent(s.getId());
+                                    ApiFileUtil.createFile(
+                                            StringUtils.join(LocalPathUtil.JAR_PATH, File.separator, key, File.separator,
+                                                    s.getId(), File.separator, s.getUpdateTime(), ".jar"), bytes);
+                                });
+
+                        // 获取需要下载的文件
+                        List<String> jarIds = value.stream()
+                                .distinct()
+                                .filter(config -> !config.isHasFile())
+                                .map(ProjectJarConfig::getId)
+                                .collect(Collectors.toList());
+
                         if (CollectionUtils.isNotEmpty(jarIds)) {
                             List<FileInfoDTO> fileInfoDTOS = fileMetadataService.downloadFileByIds(jarIds);
                             ApiFileUtil.createFiles(fileInfoDTOS, key, value);
@@ -91,29 +94,28 @@ public class NewDriverManager {
                 ProjectClassLoader.initClassLoader(loaderProjectIds);
             }
         }
+
         return jarConfigMap;
     }
 
+    // 加载自定义 JAR
     public static Map<String, List<ProjectJarConfig>> loadJar(RunDefinitionRequest request, BooleanPool pool) {
-        // 加载自定义JAR
         MsTestPlan testPlan = (MsTestPlan) request.getTestElement();
         List<String> projectIds = getProjectIds(request);
         Map<String, List<ProjectJarConfig>> jars = getJars(projectIds, pool);
         testPlan.setProjectJarIds(projectIds);
-
         return jars;
     }
 
+    // 获取项目 ID 列表
     public static List<String> getProjectIds(RunDefinitionRequest request) {
-        List<String> projectIds = new ArrayList<>();
+        Set<String> projectIds = new HashSet<>();
         projectIds.add(request.getProjectId());
+
         if (MapUtils.isNotEmpty(request.getEnvironmentMap())) {
-            request.getEnvironmentMap().forEach((k, v) -> {
-                if (!projectIds.contains(k)) {
-                    projectIds.add(k);
-                }
-            });
+            projectIds.addAll(request.getEnvironmentMap().keySet());
         }
-        return projectIds;
+
+        return new ArrayList<>(projectIds);
     }
 }
