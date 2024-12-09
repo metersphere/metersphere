@@ -941,7 +941,10 @@ public class TestPlanReportService {
         List<String> distinctUserIds = detailCases.stream().map(ReportDetailCasePageDTO::getExecuteUser).distinct().collect(Collectors.toList());
         distinctUserIds.removeIf(StringUtils::isEmpty);
         Map<String, String> userMap = getUserMap(distinctUserIds);
-        detailCases.forEach(detailCase -> detailCase.setExecuteUser(userMap.getOrDefault(detailCase.getExecuteUser(), detailCase.getExecuteUser())));
+        detailCases.forEach(detailCase -> {
+            detailCase.setExecuteUser(userMap.getOrDefault(detailCase.getExecuteUser(), detailCase.getExecuteUser()));
+            detailCase.setRequestTime(detailCase.getRequestDuration() == null ? 0 : detailCase.getRequestDuration() / 1000.0);
+        });
         return detailCases;
     }
 

@@ -37,4 +37,8 @@ public class ReportDetailCasePageDTO {
 	private String collectionId;
 	@Schema(description = "测试点名称")
 	private String collectionName;
+	@Schema(description = "耗时ms")
+	private Long requestDuration;
+	@Schema(description = "耗时s")
+	private Double requestTime;
 }
