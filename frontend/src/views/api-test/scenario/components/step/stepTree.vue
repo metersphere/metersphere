@@ -943,14 +943,17 @@
       if (node.config.protocol === 'HTTP' && (stepDetail as RequestParam)?.body) {
         if (node.copyFromStepId || node.refType === ScenarioStepRefType.COPY) {
           // 复制的步骤需要复制文件
-          newFileRes = await scenarioCopyStepFiles({
-            copyFromStepId,
-            resourceId: node.resourceId,
-            stepType: node.stepType,
-            refType: node.refType,
-            isTempFile: !!stepDetail, // 复制未保存的步骤时 true
-            fileIds: parseRequestBodyFiles((stepDetail as RequestParam).body, [], [], []).uploadFileIds,
-          });
+          const fileIds = parseRequestBodyFiles((stepDetail as RequestParam).body, [], [], []).uploadFileIds;
+          if (fileIds.length > 0) {
+            newFileRes = await scenarioCopyStepFiles({
+              copyFromStepId,
+              resourceId: node.resourceId,
+              stepType: node.stepType,
+              refType: node.refType,
+              isTempFile: !!stepDetail, // 复制未保存的步骤时 true
+              fileIds,
+            });
+          }
           parseRequestBodyFiles((stepDetail as RequestParam).body, [], [], [], newFileRes);
         } else {
           parseRequestBodyResult = parseRequestBodyFiles((stepDetail as RequestParam).body, [], [], [], newFileRes); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
