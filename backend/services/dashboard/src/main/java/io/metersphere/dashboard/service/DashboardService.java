@@ -730,16 +730,26 @@ public class DashboardService {
         // 计划-缺陷的关联数据
         List<TestPlanBugPageResponse> planBugs = extTestPlanBugMapper.countBugByIds(planIds);
         //获取卡片数据
+        boolean addDefaultUser = false;
         buildCountMap(planCount, planBugs, overViewCountDTO);
         List<TestPlanFunctionalCase> caseUserNullList = planFunctionalCases.stream().filter(t -> StringUtils.isBlank(t.getExecuteUser())).toList();
         Map<String, List<TestPlanFunctionalCase>> caseUserMap = planFunctionalCases.stream().filter(t->StringUtils.isNotBlank(t.getExecuteUser())).collect(Collectors.groupingBy(TestPlanFunctionalCase::getExecuteUser));
-        caseUserMap.put("NONE", caseUserNullList);
+        if (CollectionUtils.isNotEmpty(caseUserNullList)) {
+            addDefaultUser = true;
+            caseUserMap.put("NONE", caseUserNullList);
+        }
         List<TestPlanApiCase> apiCaseUserNullList = planApiCases.stream().filter(t -> StringUtils.isBlank(t.getExecuteUser())).toList();
         Map<String, List<TestPlanApiCase>> apiCaseUserMap = planApiCases.stream().filter(t->StringUtils.isNotBlank(t.getExecuteUser())).collect(Collectors.groupingBy(TestPlanApiCase::getExecuteUser));
-        apiCaseUserMap.put("NONE", apiCaseUserNullList);
+        if (CollectionUtils.isNotEmpty(apiCaseUserNullList)) {
+            addDefaultUser = true;
+            apiCaseUserMap.put("NONE", apiCaseUserNullList);
+        }
         List<TestPlanApiScenario> apiScenarioNullList = planApiScenarios.stream().filter(t -> StringUtils.isBlank(t.getExecuteUser())).toList();
         Map<String, List<TestPlanApiScenario>> apiScenarioUserMap = planApiScenarios.stream().filter(t->StringUtils.isNotBlank(t.getExecuteUser())).collect(Collectors.groupingBy(TestPlanApiScenario::getExecuteUser));
-        apiScenarioUserMap.put("NONE", apiScenarioNullList);
+        if (CollectionUtils.isNotEmpty(apiScenarioNullList)) {
+            addDefaultUser = true;
+            apiScenarioUserMap.put("NONE", apiScenarioNullList);
+        }
         Map<String, List<TestPlanBugPageResponse>> bugUserMap = planBugs.stream().collect(Collectors.groupingBy(TestPlanBugPageResponse::getCreateUser));
         List<User> users = getUsers(caseUserMap, apiCaseUserMap, apiScenarioUserMap, bugUserMap);
         Map<String, String> userNameMap = users.stream().collect(Collectors.toMap(User::getId, User::getName));
@@ -751,6 +761,9 @@ public class DashboardService {
                 userNameMap.put("NONE", Translator.get("plan_executor"));
             }
         } else {
+            if (addDefaultUser) {
+                userNameMap.put("NONE", Translator.get("plan_executor"));
+            }
             nameList = userNameMap.values().stream().toList();
         }
         overViewCountDTO.setXAxis(nameList);
