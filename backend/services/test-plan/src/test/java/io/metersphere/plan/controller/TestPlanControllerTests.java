@@ -110,6 +110,7 @@ public class TestPlanControllerTests extends BaseTest {
     private static final String URL_GET_TEST_PLAN_DELETE = "/test-plan/delete/%s";
     private static final String URL_POST_TEST_PLAN_PAGE = "/test-plan/page";
     private static final String URL_POST_TEST_PLAN_GROUP_LIST = "/test-plan/group-list/%s";
+    private static final String URL_POST_TEST_PLAN_TEST_PLAN_LIST = "/test-plan/test-plan-list/%s";
     private static final String URL_POST_TEST_PLAN_STATISTICS = "/test-plan/statistics";
     private static final String URL_POST_TEST_PLAN_MODULE_COUNT = "/test-plan/module/count";
     private static final String URL_GET_TEST_PLAN_LIST_IN_GROUP = "/test-plan/list-in-group/%s";
@@ -727,6 +728,16 @@ public class TestPlanControllerTests extends BaseTest {
                                         .getResponse().getContentAsString(), ResultHolder.class).getData()),
                 TestPlan.class);
         Assertions.assertEquals(groupList.size(), 5);
+
+
+        // 校验测试计划的数量
+        List<TestPlan> testPlanList = JSON.parseArray(
+                JSON.toJSONString(
+                        JSON.parseObject(
+                                this.requestGetWithOkAndReturn(String.format(URL_POST_TEST_PLAN_TEST_PLAN_LIST, project.getId()))
+                                        .getResponse().getContentAsString(), ResultHolder.class).getData()),
+                TestPlan.class);
+        Assertions.assertEquals(testPlanList.size(), 1038);
 
         /*
         反例

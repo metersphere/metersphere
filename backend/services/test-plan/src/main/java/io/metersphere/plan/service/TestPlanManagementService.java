@@ -421,6 +421,13 @@ public class TestPlanManagementService {
         return testPlanMapper.selectByExample(example);
     }
 
+    public List<TestPlan> testPlanList(String projectId) {
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andTypeEqualTo(TestPlanConstants.TEST_PLAN_TYPE_PLAN).andProjectIdEqualTo(projectId).andStatusNotEqualTo(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+        example.setOrderByClause("pos desc, id desc");
+        return testPlanMapper.selectByExample(example);
+    }
+
     /**
      * 计划组子节点
      */

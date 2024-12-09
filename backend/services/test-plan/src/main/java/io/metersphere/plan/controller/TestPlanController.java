@@ -86,6 +86,15 @@ public class TestPlanController {
         return testPlanManagementService.groupList(projectId);
     }
 
+    @GetMapping("/test-plan-list/{projectId}")
+    @Operation(summary = "测试计划-测试计划组查询")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public List<TestPlan> testPlanList(@PathVariable String projectId) {
+        testPlanManagementService.checkModuleIsOpen(projectId, TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
+        return testPlanManagementService.testPlanList(projectId);
+    }
+
     @GetMapping("/list-in-group/{groupId}")
     @Operation(summary = "测试计划-表格分页查询")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
