@@ -791,19 +791,19 @@ public class DashboardService {
             List<TestPlanFunctionalCase> testPlanFunctionalCases = caseUserMap.get(userId);
             if (CollectionUtils.isNotEmpty(testPlanFunctionalCases)) {
                 count += testPlanFunctionalCases.size();
-                List<TestPlanFunctionalCase> list = testPlanFunctionalCases.stream().filter(t -> StringUtils.isNotBlank(t.getLastExecResult())).toList();
+                List<TestPlanFunctionalCase> list = testPlanFunctionalCases.stream().filter(t -> !StringUtils.equalsIgnoreCase(t.getLastExecResult(), ExecStatus.PENDING.name())).toList();
                 finishCount += list.size();
             }
             List<TestPlanApiCase> testPlanApiCases = apiCaseUserMap.get(userId);
             if (CollectionUtils.isNotEmpty(testPlanApiCases)) {
                 count += testPlanApiCases.size();
-                List<TestPlanApiCase> list = testPlanApiCases.stream().filter(t -> StringUtils.isNotBlank(t.getLastExecResult())).toList();
+                List<TestPlanApiCase> list = testPlanApiCases.stream().filter(t -> !StringUtils.equalsIgnoreCase(t.getLastExecResult(), ExecStatus.PENDING.name())).toList();
                 finishCount += list.size();
             }
             List<TestPlanApiScenario> testPlanApiScenarios = apiScenarioUserMap.get(userId);
             if (CollectionUtils.isNotEmpty(testPlanApiScenarios)) {
                 count += testPlanApiScenarios.size();
-                List<TestPlanApiScenario> list = testPlanApiScenarios.stream().filter(t -> StringUtils.isNotBlank(t.getLastExecResult())).toList();
+                List<TestPlanApiScenario> list = testPlanApiScenarios.stream().filter(t -> !StringUtils.equalsIgnoreCase(t.getLastExecResult(), ExecStatus.PENDING.name())).toList();
                 finishCount += list.size();
             }
             List<TestPlanBugPageResponse> testPlanBugPageResponses = bugUserMap.get(userId);
