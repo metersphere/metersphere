@@ -9,6 +9,7 @@ import io.metersphere.api.dto.ReferenceDTO;
 import io.metersphere.api.dto.ReferenceRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
+import io.metersphere.api.dto.scenario.ApiFileCopyRequest;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.definition.*;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -42,6 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -138,6 +140,14 @@ public class ApiTestCaseController {
     @CheckOwner(resourceId = "#request.id", resourceType = "api_test_case")
     public ApiTestCase update(@Validated @RequestBody ApiTestCaseUpdateRequest request) {
         return apiTestCaseService.update(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/file/copy")
+    @Operation(summary = "接口测试-接口管理-复制用例时，复制文件")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD},
+            logical = Logical.OR)
+    public Map<String, String> copyFile(@Validated @RequestBody ApiFileCopyRequest request) {
+        return apiTestCaseService.copyFile(request);
     }
 
     @GetMapping(value = "/update-priority/{id}/{priority}")

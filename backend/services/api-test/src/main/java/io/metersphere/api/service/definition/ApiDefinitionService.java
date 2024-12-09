@@ -9,6 +9,7 @@ import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
+import io.metersphere.api.dto.scenario.ApiFileCopyRequest;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiCommonService;
@@ -1353,5 +1354,14 @@ public class ApiDefinitionService extends MoveNodeService {
 
     private boolean isObjectItem(JsonSchemaItem jsonSchemaItem) {
         return StringUtils.equals(jsonSchemaItem.getType(), PropertyConstant.OBJECT);
+    }
+
+    public Map<String, String> copyFile(ApiFileCopyRequest request) {
+        // 从接口定义复制
+        ApiDefinition apiDefinition = checkApiDefinition(request.getResourceId());
+        String sourceDir = DefaultRepositoryDir.getApiDefinitionDir(apiDefinition.getProjectId(),
+                apiDefinition.getId());
+
+        return apiCommonService.copyFiles2TempDir(request.getFileIds(), sourceDir);
     }
 }

@@ -8,6 +8,7 @@ import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.api.dto.scenario.ApiFileCopyRequest;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiFileResourceService;
@@ -52,6 +53,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -866,5 +868,14 @@ public class ApiTestCaseService extends MoveNodeService {
         // 清除接口变更标识
         extApiTestCaseMapper.clearApiChange(List.of(request.getId()));
         return HttpRequestParamDiffUtils.syncRequestDiff(request, apiMsTestElement, apiTestCaseMsTestElement);
+    }
+
+    public Map<String, String> copyFile(ApiFileCopyRequest request) {
+        // 从接口定义复制
+        ApiTestCase apiTestCase = checkResourceExist(request.getResourceId());
+        String sourceDir = DefaultRepositoryDir.getApiCaseDir(apiTestCase.getProjectId(),
+                apiTestCase.getId());
+
+        return apiCommonService.copyFiles2TempDir(request.getFileIds(), sourceDir);
     }
 }

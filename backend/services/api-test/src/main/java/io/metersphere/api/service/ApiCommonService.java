@@ -31,6 +31,7 @@ import io.metersphere.project.service.CustomFunctionService;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.TaskItemErrorMessage;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
@@ -61,10 +62,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -83,6 +81,8 @@ public class ApiCommonService {
     private CustomFunctionService customFunctionService;
     @Resource
     private ExecTaskItemMapper execTaskItemMapper;
+    @Resource
+    private ApiFileResourceService apiFileResourceService;
     @Resource
     private ExecTaskMapper execTaskMapper;
 
@@ -617,5 +617,26 @@ public class ApiCommonService {
             LogUtils.error(e);
         }
         return null;
+    }
+
+    /**
+     * 复制文件到临时目录
+     * @param fileIds
+     * @param sourceDir
+     * @return
+     */
+    public Map<String, String> copyFiles2TempDir(List<String> fileIds, String sourceDir) {
+        Map<String, String> uploadFileMap = new HashMap<>();
+        for (String fileId : fileIds) {
+            String newFileId = IDGenerator.nextStr();
+            String targetDir = DefaultRepositoryDir.getSystemTempDir();
+            String fileName = apiFileResourceService.getFileNameByFileId(fileId, sourceDir);
+            // 复制文件到临时目录
+            apiFileResourceService.copyFile(sourceDir + "/" + fileId,
+                    targetDir + "/" + newFileId,
+                    fileName);
+            uploadFileMap.put(fileId, newFileId);
+        }
+        return uploadFileMap;
     }
 }

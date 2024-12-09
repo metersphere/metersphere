@@ -2451,7 +2451,6 @@ public class ApiScenarioService extends MoveNodeService {
 
     public Map<String, String> copyStepFile(ApiScenarioStepFileCopyRequest request) {
         String sourceDir;
-        Map<String, String> uploadFileMap = new HashMap<>();
         if (BooleanUtils.isTrue(request.getIsTempFile())) {
             sourceDir = DefaultRepositoryDir.getSystemTempDir();
         } else {
@@ -2477,16 +2476,6 @@ public class ApiScenarioService extends MoveNodeService {
             }
         }
 
-        for (String fileId : request.getFileIds()) {
-            String newFileId = IDGenerator.nextStr();
-            String targetDir = DefaultRepositoryDir.getSystemTempDir();
-            String fileName = apiFileResourceService.getFileNameByFileId(fileId, sourceDir);
-            // 复制文件到临时目录
-            apiFileResourceService.copyFile(sourceDir + "/" + fileId,
-                    targetDir + "/" + newFileId,
-                    fileName);
-            uploadFileMap.put(fileId, newFileId);
-        }
-        return uploadFileMap;
+        return apiCommonService.copyFiles2TempDir(request.getFileIds(), sourceDir);
     }
 }

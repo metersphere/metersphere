@@ -10,6 +10,8 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.ImportRequest;
+import io.metersphere.api.dto.scenario.ApiFileCopyRequest;
+import io.metersphere.api.dto.scenario.ApiScenarioStepFileCopyRequest;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.mapper.ExtApiScenarioStepMapper;
@@ -49,6 +51,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -149,6 +152,14 @@ public class ApiDefinitionController {
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
     public void batchUpdate(@Validated @RequestBody ApiDefinitionBatchUpdateRequest request) {
         apiDefinitionService.batchUpdate(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/file/copy")
+    @Operation(summary = "接口测试-接口管理-复制接口时，复制文件")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_DEFINITION_UPDATE, PermissionConstants.PROJECT_API_DEFINITION_ADD},
+            logical = Logical.OR)
+    public Map<String, String> copyFile(@Validated @RequestBody ApiFileCopyRequest request) {
+        return apiDefinitionService.copyFile(request);
     }
 
     @PostMapping(value = "/copy")
