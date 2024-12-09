@@ -269,7 +269,12 @@
 
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/common';
   import { getCaseDetail } from '@/api/modules/api-test/management';
-  import { getTransferOptions, stepTransferFile, uploadTempFile } from '@/api/modules/api-test/scenario';
+  import {
+    getTransferOptions,
+    scenarioCopyStepFiles,
+    stepTransferFile,
+    uploadTempFile,
+  } from '@/api/modules/api-test/scenario';
   import { useAppStore } from '@/store';
   import { characterLimit } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
@@ -400,6 +405,7 @@
     errorMessageInfo: {},
   };
   const requestVModel = ref<RequestParam>(defaultApiParams);
+  const copyStepFileIdsMap = ref<Record<string, any>>({});
   const _stepType = computed(() => {
     if (activeStep.value) {
       return getStepType(activeStep.value);
@@ -799,7 +805,8 @@
           requestVModel.value.body,
           undefined,
           props.fileParams?.uploadFileIds || requestVModel.value.uploadFileIds, // 外面解析详情的时候传入，或引用 case 在requestVModel内存储
-          props.fileParams?.linkFileIds || requestVModel.value.linkFileIds // 外面解析详情的时候传入，或引用 case 在requestVModel内存储
+          props.fileParams?.linkFileIds || requestVModel.value.linkFileIds, // 外面解析详情的时候传入，或引用 case 在requestVModel内存储
+          copyStepFileIdsMap.value
         );
       }
       requestParams = {
@@ -989,7 +996,26 @@
       const res = await getCaseDetail(activeStep.value?.resourceId || '');
       let parseRequestBodyResult;
       if (res.protocol === 'HTTP') {
-        parseRequestBodyResult = parseRequestBodyFiles(res.request.body); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+        if (
+          (activeStep.value?.copyFromStepId || activeStep.value?.refType === ScenarioStepRefType.COPY) &&
+          activeStep.value?.isNew
+        ) {
+          // 复制的步骤需要复制文件
+          const fileIds = parseRequestBodyFiles(res.request.body, [], [], []).uploadFileIds;
+          if (fileIds.length > 0) {
+            copyStepFileIdsMap.value = await scenarioCopyStepFiles({
+              copyFromStepId: activeStep.value?.copyFromStepId,
+              resourceId: activeStep.value?.resourceId,
+              stepType: activeStep.value?.stepType,
+              refType: activeStep.value?.refType,
+              isTempFile: false, // 复制未保存的步骤时 true
+              fileIds,
+            });
+          }
+          parseRequestBodyFiles(res.request.body, [], [], [], copyStepFileIdsMap.value);
+        } else {
+          parseRequestBodyResult = parseRequestBodyFiles(res.request.body, [], [], [], copyStepFileIdsMap.value); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+        }
       }
       requestVModel.value = {
         responseActiveTab: ResponseComposition.BODY,

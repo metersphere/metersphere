@@ -68,14 +68,17 @@ export default function useStepOperation({
       if (step.config.protocol === 'HTTP' && res.body) {
         if ((step.copyFromStepId || step.refType === ScenarioStepRefType.COPY) && step.isNew) {
           // 复制的步骤需要复制文件
-          newFileRes = await scenarioCopyStepFiles({
-            copyFromStepId: step.copyFromStepId,
-            resourceId: step.resourceId,
-            stepType: step.stepType,
-            refType: step.refType,
-            isTempFile: false, // 复制未保存的步骤时 true
-            fileIds: parseRequestBodyFiles((res as RequestParam).body, [], [], []).uploadFileIds,
-          });
+          const fileIds = parseRequestBodyFiles((res as RequestParam).body, [], [], []).uploadFileIds;
+          if (fileIds.length > 0) {
+            newFileRes = await scenarioCopyStepFiles({
+              copyFromStepId: step.copyFromStepId,
+              resourceId: step.resourceId,
+              stepType: step.stepType,
+              refType: step.refType,
+              isTempFile: false, // 复制未保存的步骤时 true
+              fileIds,
+            });
+          }
           parseRequestBodyFiles(res.body, [], [], [], newFileRes);
         } else {
           parseRequestBodyResult = parseRequestBodyFiles(res.body, [], [], [], newFileRes); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
