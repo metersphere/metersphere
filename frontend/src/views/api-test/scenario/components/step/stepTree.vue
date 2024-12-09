@@ -949,7 +949,7 @@
             stepType: node.stepType,
             refType: node.refType,
             isTempFile: !!stepDetail, // 复制未保存的步骤时 true
-            fileIds: Object.values(parseRequestBodyFiles((stepDetail as RequestParam).body, [], [], [])).flat(),
+            fileIds: parseRequestBodyFiles((stepDetail as RequestParam).body, [], [], []).uploadFileIds,
           });
           parseRequestBodyFiles((stepDetail as RequestParam).body, [], [], [], newFileRes);
         } else {

@@ -74,7 +74,7 @@ export default function useStepOperation({
             stepType: step.stepType,
             refType: step.refType,
             isTempFile: false, // 复制未保存的步骤时 true
-            fileIds: Object.values(parseRequestBodyFiles((res as RequestParam).body, [], [], [])).flat(),
+            fileIds: parseRequestBodyFiles((res as RequestParam).body, [], [], []).uploadFileIds,
           });
           parseRequestBodyFiles(res.body, [], [], [], newFileRes);
         } else {

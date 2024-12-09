@@ -1224,9 +1224,9 @@
             stepType: props.step?.stepType,
             refType: props.step?.refType,
             isTempFile: false, // 复制未保存的步骤时 true
-            fileIds: Object.values(parseRequestBodyFiles(res.request.body, [], [], [])).flat(),
+            fileIds: parseRequestBodyFiles(res.request.body, [], [], []).uploadFileIds,
           });
-          parseRequestBodyFiles(res.body, [], [], [], copyStepFileIdsMap.value);
+          parseRequestBodyFiles(res.request.body, [], [], [], copyStepFileIdsMap.value);
         } else {
           parseRequestBodyResult = parseRequestBodyFiles(res.request.body, [], [], [], copyStepFileIdsMap.value); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
         }
