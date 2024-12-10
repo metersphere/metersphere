@@ -201,8 +201,8 @@ public class ApiDefinitionService extends MoveNodeService {
 
     private List<String> selectApiIdInScenarioStep(String projectId, List<String> protocols, List<String> ignoreApiIds) {
 
-        List<String> apiInScenarioStep = new ArrayList<>(extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API.name(), protocols));
-        List<String> apiCaseIdInStep = extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API_CASE.name(), protocols);
+        List<String> apiInScenarioStep = extApiScenarioStepMapper.selectApiResourceId(projectId, ApiScenarioStepType.API.name(), protocols);
+        List<String> apiCaseIdInStep = extApiScenarioStepMapper.selectApiCaseResourceId(projectId, ApiScenarioStepType.API_CASE.name(), protocols);
         // 如果有场景步骤中的 API 用例 ID，追加相关 API ID
         if (CollectionUtils.isNotEmpty(apiCaseIdInStep)) {
             List<String> apiCaseIdInScenarioStep = extApiTestCaseMapper.selectApiIdByCaseId(apiCaseIdInStep, protocols, ignoreApiIds);

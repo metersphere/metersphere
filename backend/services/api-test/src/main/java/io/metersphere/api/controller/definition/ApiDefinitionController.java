@@ -11,7 +11,6 @@ import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.scenario.ApiFileCopyRequest;
-import io.metersphere.api.dto.scenario.ApiScenarioStepFileCopyRequest;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.mapper.ExtApiScenarioStepMapper;
@@ -109,8 +108,8 @@ public class ApiDefinitionController {
 
         // 获取 API 定义、测试用例 ID 和场景步骤中的 API ID
         List<String> apiDefinitionIdFromCase = extApiTestCaseMapper.selectApiId(projectId);
-        List<String> apiInScenarioStep = new ArrayList<>(extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API.name(), null));
-        List<String> apiCaseIdInStep = extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API_CASE.name(), null);
+        List<String> apiInScenarioStep = new ArrayList<>(extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API.name()));
+        List<String> apiCaseIdInStep = extApiScenarioStepMapper.selectResourceId(projectId, ApiScenarioStepType.API_CASE.name());
 
         // 如果有场景步骤中的 API 用例 ID，追加相关 API ID
         if (CollectionUtils.isNotEmpty(apiCaseIdInStep)) {
