@@ -55,6 +55,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { TableData } from '@arco-design/web-vue';
+  import { type SelectOptionData } from '@arco-design/web-vue';
 
   import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -112,6 +113,7 @@
     isAdvancedSearchMode?: boolean;
     moduleTree: MsTreeNodeData[];
     modulesCount: Record<string, any>;
+    testPlanList: SelectOptionData[];
   }>();
 
   const emit = defineEmits<{
@@ -367,7 +369,7 @@
     {
       title: 'case.apiParamsChange',
       dataIndex: 'apiChange',
-      type: FilterType.BOOLEAN,
+      type: FilterType.SELECT_EQUAL,
       selectProps: {
         options: [
           { label: t('case.withoutChanges'), value: false },
@@ -396,6 +398,14 @@
       selectProps: {
         multiple: true,
         options: lastReportStatusListOptions.value,
+      },
+    },
+    {
+      title: 'ms.taskCenter.taskBelongTestPlan',
+      dataIndex: 'belongTestPlan',
+      type: FilterType.SELECT_EQUAL,
+      selectProps: {
+        options: props.testPlanList,
       },
     },
     {

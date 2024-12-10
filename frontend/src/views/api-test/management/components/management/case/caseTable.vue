@@ -757,7 +757,7 @@
     {
       title: 'case.apiParamsChange',
       dataIndex: 'apiChange',
-      type: FilterType.BOOLEAN,
+      type: FilterType.SELECT_EQUAL,
       selectProps: {
         options: [
           { label: t('case.withoutChanges'), value: false },

@@ -12,6 +12,8 @@ export const DeleteTestPlanModuleUrl = '/test-plan/module/delete';
 export const GetTestPlanModuleCountUrl = '/test-plan/module/count';
 // 测试计划列表
 export const GetTestPlanListUrl = '/test-plan/page';
+// 测试计划列表 (无分页)
+export const GetTestPlanListWithoutPageUrl = '/test-plan/test-plan-list';
 // 创建测试计划
 export const AddTestPlanUrl = '/test-plan/add';
 // 功能用例列表

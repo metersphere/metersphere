@@ -55,6 +55,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { type SelectOptionData } from '@arco-design/web-vue';
 
   import { getFilterCustomFields } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
@@ -104,6 +105,7 @@
     getPageApiType: keyof typeof CasePageApiTypeEnum; // 获取未关联分页Api
     extraTableParams?: TableQueryParams; // 查询表格的额外参数
     isAdvancedSearchMode?: boolean;
+    testPlanList: SelectOptionData[];
   }>();
 
   const emit = defineEmits<{
@@ -377,6 +379,14 @@
       title: 'caseManagement.featureCase.relatedAttachments',
       dataIndex: 'attachment',
       type: FilterType.INPUT,
+    },
+    {
+      title: 'ms.taskCenter.taskBelongTestPlan',
+      dataIndex: 'belongTestPlan',
+      type: FilterType.SELECT_EQUAL,
+      selectProps: {
+        options: props.testPlanList,
+      },
     },
     {
       title: 'common.creator',

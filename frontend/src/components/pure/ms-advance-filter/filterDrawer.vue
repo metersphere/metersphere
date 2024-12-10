@@ -115,7 +115,7 @@
             }"
           />
           <MsSelect
-            v-else-if="item.type === FilterType.SELECT || item.type === FilterType.BOOLEAN"
+            v-else-if="item.type === FilterType.SELECT || item.type === FilterType.SELECT_EQUAL"
             v-model:model-value="item.value"
             allow-clear
             allow-search

@@ -66,6 +66,7 @@ import {
   GetTestPlanDetailUrl,
   GetTestPlanExecutorOptionsUrl,
   GetTestPlanListUrl,
+  GetTestPlanListWithoutPageUrl,
   GetTestPlanModuleCountUrl,
   GetTestPlanModuleUrl,
   GetTestPlanUsersUrl,
@@ -136,6 +137,7 @@ import type {
   TestPlanBaseParams,
   TestPlanDetail,
   TestPlanItem,
+  TestPlanWithoutPageItem,
   UseCountType,
 } from '@/models/testPlan/testPlan';
 
@@ -177,6 +179,11 @@ export function getPlanModulesCount(data: TableQueryParams) {
 // 获取计划列表
 export function getTestPlanList(data: TableQueryParams) {
   return MSR.post<CommonList<TestPlanItem>>({ url: GetTestPlanListUrl, data });
+}
+
+// 获取计划列表(无分页)
+export function getTestPlanListWithoutPage(projectId: string) {
+  return MSR.get<TestPlanWithoutPageItem[]>({ url: `${GetTestPlanListWithoutPageUrl}/${projectId}` });
 }
 
 // 创建测试计划

@@ -40,6 +40,8 @@
 </template>
 
 <script setup lang="ts">
+  import { type SelectOptionData } from '@arco-design/web-vue';
+
   import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -89,6 +91,7 @@
     protocols: string[];
     moduleTree: MsTreeNodeData[];
     modulesCount: Record<string, any>;
+    testPlanList: SelectOptionData[];
   }>();
 
   const emit = defineEmits<{
@@ -334,6 +337,14 @@
       numberProps: {
         min: 0,
         precision: 0,
+      },
+    },
+    {
+      title: 'ms.taskCenter.taskBelongTestPlan',
+      dataIndex: 'belongTestPlan',
+      type: FilterType.SELECT_EQUAL,
+      selectProps: {
+        options: props.testPlanList,
       },
     },
     {

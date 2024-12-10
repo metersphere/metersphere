@@ -77,6 +77,7 @@
   import { getPublicLinkCaseListMap } from './utils/page';
   import { casePriorityOptions } from '@/views/api-test/components/config';
   import { scenarioStatusOptions } from '@/views/api-test/scenario/components/config';
+  import type { SelectOptionData } from '@arco-design/web-vue';
 
   const { t } = useI18n();
   const { openNewPage } = useOpenNewPage();
@@ -94,6 +95,7 @@
     moduleTree: MsTreeNodeData[];
     modulesCount: Record<string, any>;
     isAdvancedSearchMode?: boolean;
+    testPlanList: SelectOptionData[];
   }>();
 
   const emit = defineEmits<{
@@ -362,6 +364,14 @@
         numberProps: {
           min: 0,
           precision: 0,
+        },
+      },
+      {
+        title: 'ms.taskCenter.taskBelongTestPlan',
+        dataIndex: 'belongTestPlan',
+        type: FilterType.SELECT_EQUAL,
+        selectProps: {
+          options: props.testPlanList,
         },
       },
       {

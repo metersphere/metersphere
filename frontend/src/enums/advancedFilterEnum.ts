@@ -23,7 +23,7 @@ export enum FilterType {
   TAGS_INPUT = 'TagsInput',
   TREE_SELECT = 'TreeSelect',
   TEXTAREA = 'textArea',
-  BOOLEAN = 'boolean',
+  SELECT_EQUAL = 'SelectEqual',
   CASCADER = 'Cascader',
 }
 

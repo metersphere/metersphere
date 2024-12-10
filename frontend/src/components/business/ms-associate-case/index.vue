@@ -202,6 +202,7 @@
             :keyword="keyword"
             :module-tree="moduleTree"
             :modules-count="modulesCount"
+            :test-plan-list="testPlanList"
             @get-module-count="initModulesCount"
             @refresh="loadCaseList"
           >
@@ -228,6 +229,7 @@
             :protocols="selectedProtocols"
             :module-tree="moduleTree"
             :modules-count="modulesCount"
+            :test-plan-list="testPlanList"
             @get-module-count="initModulesCount"
           >
             <TotalCount :total-count="totalCount" />
@@ -253,6 +255,7 @@
             :protocols="selectedProtocols"
             :module-tree="moduleTree"
             :modules-count="modulesCount"
+            :test-plan-list="testPlanList"
             @get-module-count="initModulesCount"
           >
             <TotalCount :total-count="totalCount" />
@@ -277,6 +280,7 @@
             :total-count="totalCount"
             :is-advanced-search-mode="isAdvancedSearchMode"
             :all-protocol-list="allProtocolList"
+            :test-plan-list="testPlanList"
             @get-module-count="initModulesCount"
             @refresh="loadCaseList"
           >
@@ -374,6 +378,7 @@
   import TotalCount from './totalCount.vue';
 
   import { getAssociatedProjectOptions } from '@/api/modules/case-management/featureCase';
+  import { getTestPlanListWithoutPage } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useVisit from '@/hooks/useVisit';
   import useAppStore from '@/store/modules/app';
@@ -803,6 +808,25 @@
       msAdvanceFilterRef.value?.clearFilter();
     }
   });
+
+  const testPlanList = ref<SelectOptionData[]>([]);
+  async function getTestPlanList() {
+    try {
+      const res = await getTestPlanListWithoutPage(innerProject.value);
+      testPlanList.value = res.map((item) => ({ value: item.id, label: `[${item.num}] ${item.name}` }));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  watch(
+    () => innerProject.value,
+    () => {
+      getTestPlanList();
+    },
+    { immediate: true }
+  );
 </script>
 
 <style scoped lang="less">
