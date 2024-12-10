@@ -95,7 +95,8 @@ public class ApiScenarioReferenceIdService {
                     continue;
                 }
 
-                if (item.has(MsHashTreeService.ID) && item.has(MsHashTreeService.REFERENCED)) {
+                if ((item.has(MsHashTreeService.ID) && item.has(MsHashTreeService.REFERENCED))
+                        || StringUtils.equalsAnyIgnoreCase(item.optString("type"), "HTTPSamplerProxy")) {
                     String url = null;
                     String method;
                     boolean customizeReq = item.optBoolean("customizeReq");
