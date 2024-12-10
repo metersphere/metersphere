@@ -7,6 +7,7 @@ import io.metersphere.system.dto.user.UserExtendDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ExtUserMapper {
 
@@ -50,4 +51,12 @@ public interface ExtUserMapper {
     void updateInstalled();
 
     List<UserExtendDTO> getMemberList(@Param("request") MemberRequest request);
+
+    /**
+     * 根据用户ID查询有效用户id,名称集合
+     *
+     * @param ids 用户ID集合
+     * @return 用户列表
+     */
+    List<User> selectSimpleUser(@Param("ids") Set<String> ids);
 }

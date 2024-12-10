@@ -119,5 +119,13 @@
         </if>
         group by u.id
     </select>
+    <select id="selectSimpleUser" resultType="io.metersphere.system.domain.User">
+        select id,
+        `name` from user
+        where deleted = 0 and enable = 1 and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 
 </mapper>
