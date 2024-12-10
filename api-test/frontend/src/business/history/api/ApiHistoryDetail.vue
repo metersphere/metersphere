@@ -94,10 +94,15 @@ export default {
       if (properties) {
         for (let key in properties) {
           let value = JSON.stringify(properties[key].mock);
+          let properType = properties[key]['**type']
           if (value && value.indexOf('**mock') !== -1) {
             properties['++' + key] = JSON.parse(JSON.stringify(properties[key]));
             properties['--' + key] = JSON.parse(JSON.stringify(properties[key]));
             properties['--' + key].mock = { mock: JSON.parse(value)['**mock'] };
+            delete properties[key];
+          }
+          if (value && properType) {
+            properties['--' + key].type = properType;
             delete properties[key];
           }
           if (properties[key] && properties[key]['++description']) {
