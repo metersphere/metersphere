@@ -420,7 +420,7 @@ public class ApiExecutionQueueService {
             } else {
                 // 用例/接口超时结果处理
                 ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(item.getReportId());
-                if (result != null && StringUtils.equalsAnyIgnoreCase(result.getStatus(), ApiReportStatus.RUNNING.name())  && result.getStartTime() < timeout) {
+                if (result != null && StringUtils.equalsAnyIgnoreCase(result.getStatus(), ApiReportStatus.RUNNING.name()) && result.getStartTime() < timeout) {
                     result.setStatus(ApiReportStatus.ERROR.name());
                     apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
 
@@ -506,6 +506,23 @@ public class ApiExecutionQueueService {
             });
         }
     }
+
+    public void clearSetReportQueue(String reportId) {
+        ApiExecutionQueueExample example = new ApiExecutionQueueExample();
+        example.createCriteria()
+                .andReportIdEqualTo(reportId)
+                .andReportTypeEqualTo(RunModeConstants.SET_REPORT.toString());
+
+        List<ApiExecutionQueue> queues = apiExecutionQueueMapper.selectByExample(example);
+        queues.forEach(queue -> {
+            apiExecutionQueueMapper.deleteByPrimaryKey(queue.getId());
+
+            ApiExecutionQueueDetailExample queueDetailExample = new ApiExecutionQueueDetailExample();
+            queueDetailExample.createCriteria().andQueueIdEqualTo(queue.getId());
+            executionQueueDetailMapper.deleteByExample(queueDetailExample);
+        });
+    }
+
 
     public void stop(String reportId) {
         ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
