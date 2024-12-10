@@ -1,9 +1,11 @@
 package io.metersphere.controller;
 
+import io.metersphere.base.domain.ProjectApplication;
 import io.metersphere.base.domain.TestCaseNode;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
+import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.dto.TestCaseNodeDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
@@ -14,9 +16,11 @@ import io.metersphere.request.testcase.QueryTestCaseRequest;
 import io.metersphere.request.testreview.QueryCaseReviewRequest;
 import io.metersphere.security.CheckOwner;
 import io.metersphere.service.BaseCheckPermissionService;
+import io.metersphere.service.BaseProjectApplicationService;
 import io.metersphere.service.TestCaseNodeService;
 import io.metersphere.service.wapper.CheckPermissionService;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +38,8 @@ public class TestCaseNodeController {
     private CheckPermissionService trackCheckPermissionService;
     @Resource
     private BaseCheckPermissionService baseCheckPermissionService;
+    @Resource
+    private BaseProjectApplicationService projectApplicationService;
 
     @GetMapping("/list/{projectId}")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ})
@@ -48,6 +54,10 @@ public class TestCaseNodeController {
         // 高级搜索所属模块搜索时, 切换项目时需替换projectId为参数中切换项目
         if (request != null && request.getProjectId() != null) {
             projectId = request.getProjectId();
+        }
+        ProjectApplication projectApplication = projectApplicationService.getProjectApplication(request.getProjectId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
+        if (projectApplication != null && StringUtils.isNotEmpty(projectApplication.getTypeValue()) && request.getCombine() != null) {
+            request.getCombine().put("caseCustomNum", projectApplication.getTypeValue());
         }
         baseCheckPermissionService.checkProjectOwner(projectId);
         return testCaseNodeService.getNodeTreeByProjectId(projectId,
