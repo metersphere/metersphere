@@ -36,8 +36,8 @@
               >
                 {{ step.index }}
               </div>
-              <div class="step-node-content flex justify-between">
-                <div class="flex max-w-[calc(100%-566px)] flex-1 items-center">
+              <div class="step-node-content">
+                <div class="flex max-w-[calc(100%-580px)] flex-1 items-center">
                   <!-- 步骤展开折叠按钮 -->
                   <a-tooltip
                     v-if="step.children?.length > 0"
@@ -75,7 +75,7 @@
                     </div>
                   </a-tooltip>
                 </div>
-                <div class="flex">
+                <div class="flex flex-1 flex-nowrap justify-end">
                   <stepStatus :status="step.status || 'PENDING'" />
                   <!-- 脚本报错 -->
                   <a-popover position="left" content-class="response-popover-content">
@@ -98,7 +98,7 @@
                     </template>
                   </a-popover>
                   <div v-show="showStatus(step)" class="flex">
-                    <span class="statusCode mx-2">
+                    <span class="statusCode">
                       <div v-show="step.code" class="mr-2"> {{ t('report.detail.api.statusCode') }}</div>
                       <a-popover position="left" content-class="response-popover-content">
                         <div
@@ -385,10 +385,9 @@
         background-color: var(--color-text-fff) !important;
       }
       .step-node-content {
-        width: calc(100% - 16px);
-        @apply flex w-full flex-1 items-center;
-
+        width: calc(100% - 20px);
         gap: 8px;
+        @apply flex items-center justify-between;
       }
       .step-name-container {
         @apply flex flex-1 items-center overflow-hidden;
