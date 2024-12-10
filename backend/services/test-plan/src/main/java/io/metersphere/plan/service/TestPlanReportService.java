@@ -927,15 +927,13 @@ public class TestPlanReportService {
      * @param request 请求参数
      * @return 用例分页数据
      */
-    public List<ReportDetailCasePageDTO> listReportDetailCases(TestPlanReportDetailPageRequest request, String caseType) {
+    public List<ReportDetailCasePageDTO> listReportDetailCases(TestPlanReportDetailPageRequest request, String sort, String caseType) {
         List<ReportDetailCasePageDTO> detailCases;
         switch (caseType) {
             case AssociateCaseType.FUNCTIONAL ->
-                    detailCases = extTestPlanReportFunctionalCaseMapper.list(request, request.getSortString());
-            case AssociateCaseType.API_CASE ->
-                    detailCases = extTestPlanReportApiCaseMapper.list(request, request.getSortString());
-            case AssociateCaseType.API_SCENARIO ->
-                    detailCases = extTestPlanReportApiScenarioMapper.list(request, request.getSortString());
+                    detailCases = extTestPlanReportFunctionalCaseMapper.list(request, sort);
+            case AssociateCaseType.API_CASE -> detailCases = extTestPlanReportApiCaseMapper.list(request, sort);
+            case AssociateCaseType.API_SCENARIO -> detailCases = extTestPlanReportApiScenarioMapper.list(request, sort);
             default -> detailCases = new ArrayList<>();
         }
         List<String> distinctUserIds = detailCases.stream().map(ReportDetailCasePageDTO::getExecuteUser).distinct().collect(Collectors.toList());
@@ -1344,17 +1342,18 @@ public class TestPlanReportService {
         if (CollectionUtils.isNotEmpty(collections)) {
             TestPlanReportDetailPageRequest reportDetail = new TestPlanReportDetailPageRequest();
             BeanUtils.copyBean(reportDetail, request);
+            String sort = StringUtils.replace(request.getSortString(), "request_time", "request_duration");
             collections.forEach(item -> {
                 reportDetail.setCollectionId(item.getId());
                 reportDetail.setDetailReportIds(getActualReportIds(request.getReportId()));
                 List<ReportDetailCasePageDTO> caseList = new ArrayList<>();
                 switch (caseType) {
                     case CollectionQueryType.FUNCTIONAL ->
-                            caseList = listReportDetailCases(reportDetail, AssociateCaseType.FUNCTIONAL);
+                            caseList = listReportDetailCases(reportDetail, sort, AssociateCaseType.FUNCTIONAL);
                     case CollectionQueryType.API ->
-                            caseList = listReportDetailCases(reportDetail, AssociateCaseType.API_CASE);
+                            caseList = listReportDetailCases(reportDetail, sort, AssociateCaseType.API_CASE);
                     case CollectionQueryType.SCENARIO ->
-                            caseList = listReportDetailCases(reportDetail, AssociateCaseType.API_SCENARIO);
+                            caseList = listReportDetailCases(reportDetail, sort, AssociateCaseType.API_SCENARIO);
                     default -> caseList = new ArrayList<>();
                 }
                 item.setReportDetailCaseList(caseList);

@@ -108,9 +108,11 @@ public class TestPlanReportShareController {
         request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
         ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
         testPlanReportShareService.validateExpired(shareInfo);
+        String sort = request.getSortString();
+        sort = StringUtils.replace(sort, "request_time", "request_duration");
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprfc.pos desc");
-        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.FUNCTIONAL));
+                StringUtils.isNotBlank(sort) ? sort : "tprfc.pos desc");
+        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, null, AssociateCaseType.FUNCTIONAL));
     }
 
     @PostMapping("/detail/api/case/page")
@@ -119,9 +121,11 @@ public class TestPlanReportShareController {
         request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
         ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
         testPlanReportShareService.validateExpired(shareInfo);
+        String sort = request.getSortString();
+        sort = StringUtils.replace(sort, "request_time", "request_duration");
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprac.pos desc");
-        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_CASE));
+                StringUtils.isNotBlank(sort) ? sort : "tprac.pos desc");
+        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, null, AssociateCaseType.API_CASE));
     }
 
     @PostMapping("/detail/scenario/case/page")
@@ -130,9 +134,11 @@ public class TestPlanReportShareController {
         request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
         ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
         testPlanReportShareService.validateExpired(shareInfo);
+        String sort = request.getSortString();
+        sort = StringUtils.replace(sort, "request_time", "request_duration");
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpras.pos desc");
-        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_SCENARIO));
+                StringUtils.isNotBlank(sort) ? sort : "tpras.pos desc");
+        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, null, AssociateCaseType.API_SCENARIO));
     }
 
     @PostMapping("/detail/plan/report/page")

@@ -187,8 +187,10 @@ public class TestPlanReportController {
     @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
     public Pager<List<ReportDetailCasePageDTO>> pageFunctionalCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
+        String sort = request.getSortString();
+        sort = StringUtils.replace(sort, "request_time", "request_duration");
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprfc.pos desc");
+                StringUtils.isNotBlank(sort) ? sort : "tprfc.pos desc");
         if (!request.getStartPager()) {
             // 不分页仅排序 {测试集升序, 用例位次倒序}
             page.setPageSize(0);
@@ -196,7 +198,7 @@ public class TestPlanReportController {
             page.setOrderBy("tpc.pos, tpc.name, tprfc.pos desc");
             page.setOrderByOnly(true);
         }
-        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.FUNCTIONAL));
+        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, null, AssociateCaseType.FUNCTIONAL));
     }
 
     @GetMapping("/detail/functional/case/step/{reportId}")
@@ -212,8 +214,10 @@ public class TestPlanReportController {
     @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
     public Pager<List<ReportDetailCasePageDTO>> pageApiCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
+        String sort = request.getSortString();
+        sort = StringUtils.replace(sort, "request_time", "request_duration");
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tprac.pos desc");
+                StringUtils.isNotBlank(sort) ? sort : "tprac.pos desc");
         if (!request.getStartPager()) {
             // 不分页仅排序 {测试集升序, 用例位次倒序}
             page.setPageSize(0);
@@ -221,7 +225,7 @@ public class TestPlanReportController {
             page.setOrderBy("tpc.pos, tpc.name, tprac.pos desc");
             page.setOrderByOnly(true);
         }
-        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_CASE));
+        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, null, AssociateCaseType.API_CASE));
     }
 
     @PostMapping("/detail/scenario/case/page")
@@ -230,8 +234,10 @@ public class TestPlanReportController {
     @CheckOwner(resourceId = "#request.getReportId()", resourceType = "test_plan_report")
     public Pager<List<ReportDetailCasePageDTO>> pageScenarioCase(@Validated @RequestBody TestPlanReportDetailPageRequest request) {
         request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
+        String sort = request.getSortString();
+        sort = StringUtils.replace(sort, "request_time", "request_duration");
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpras.pos desc");
+                StringUtils.isNotBlank(sort) ? sort : "tpras.pos desc");
         if (!request.getStartPager()) {
             // 不分页仅排序 {测试集升序, 用例位次倒序}
             page.setPageSize(0);
@@ -239,7 +245,7 @@ public class TestPlanReportController {
             page.setOrderBy("tpc.pos, tpc.name, tpras.pos desc");
             page.setOrderByOnly(true);
         }
-        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, AssociateCaseType.API_SCENARIO));
+        return PageUtils.setPageInfo(page, testPlanReportService.listReportDetailCases(request, null, AssociateCaseType.API_SCENARIO));
     }
 
     @PostMapping("/detail/plan/report/page")
