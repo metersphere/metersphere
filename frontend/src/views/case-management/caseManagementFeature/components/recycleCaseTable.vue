@@ -84,6 +84,11 @@
             <template #caseLevel="{ record }">
               <caseLevel :case-level="(getCaseLevels(record.customFields) as CaseLevel)" />
             </template>
+            <template #deleteUserName="{ record }">
+              <a-tooltip :content="`${record.deleteUserName}`" position="tl">
+                <div class="one-line-text">{{ record.deleteUserName }}</div>
+              </a-tooltip>
+            </template>
             <!-- 用例等级 -->
             <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
               <caseLevel :case-level="filterContent.text" />
@@ -403,7 +408,8 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnDeleteUser',
-      dataIndex: 'deleteUserName',
+      slotName: 'deleteUserName',
+      dataIndex: 'deleteUser',
       filterConfig: {
         mode: 'remote',
         loadOptionParams: {
@@ -412,7 +418,6 @@
         remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
       },
       showInTable: true,
-      showTooltip: true,
       width: 200,
       showDrag: true,
     },

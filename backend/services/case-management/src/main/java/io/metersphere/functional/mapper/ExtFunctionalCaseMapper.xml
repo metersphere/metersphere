@@ -261,17 +261,17 @@
                             )
                         </when>
                         <!-- 更新人 -->
-                        <when test="key=='updateUserName'">
+                        <when test="key=='updateUser'">
                             and functional_case.update_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <!-- 创建人 -->
-                        <when test="key=='createUserName'">
+                        <when test="key=='createUser'">
                             and functional_case.create_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <!-- 删除人 -->
-                        <when test="key=='deleteUserName'">
+                        <when test="key=='deleteUser'">
                             and functional_case.delete_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>

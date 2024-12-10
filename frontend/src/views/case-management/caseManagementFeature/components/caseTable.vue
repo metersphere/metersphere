@@ -147,6 +147,16 @@
               </span>
             </a-tooltip>
           </template>
+          <template #createUserName="{ record }">
+            <a-tooltip :content="`${record.createUserName}`" position="tl">
+              <div class="one-line-text">{{ record.createUserName }}</div>
+            </a-tooltip>
+          </template>
+          <template #updateUserName="{ record }">
+            <a-tooltip :content="`${record.updateUserName}`" position="tl">
+              <div class="one-line-text">{{ record.updateUserName }}</div>
+            </a-tooltip>
+          </template>
           <!-- 渲染自定义字段开始TODO -->
           <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
             <a-tooltip
@@ -676,8 +686,7 @@
     {
       title: 'caseManagement.featureCase.tableColumnUpdateUser',
       slotName: 'updateUserName',
-      showTooltip: true,
-      dataIndex: 'updateUserName',
+      dataIndex: 'updateUser',
       filterConfig: {
         mode: 'remote',
         loadOptionParams: {
@@ -704,7 +713,7 @@
     {
       title: 'caseManagement.featureCase.tableColumnCreateUser',
       slotName: 'createUserName',
-      dataIndex: 'createUserName',
+      dataIndex: 'createUser',
       filterConfig: {
         mode: 'remote',
         loadOptionParams: {
@@ -713,7 +722,6 @@
         remoteMethod: FilterRemoteMethodsEnum.PROJECT_PERMISSION_MEMBER,
       },
       showInTable: true,
-      showTooltip: true,
       width: 200,
       showDrag: true,
     },
