@@ -471,6 +471,7 @@
       filterConfig: {
         options: caseStatusOptions,
         filterSlotName: FilterSlotNameEnum.API_TEST_CASE_API_STATUS,
+        disabledTooltip: true,
       },
       width: 150,
       showDrag: true,
