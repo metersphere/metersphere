@@ -2554,7 +2554,6 @@ public class TestCaseService {
 
     public void minderEdit(TestCaseMinderEditRequest request) {
         deleteToGcBatch(request.getIds(), request.getProjectId());
-        testCaseNodeService.minderEdit(request);
         List<TestCaseMinderEditRequest.TestCaseMinderEditItem> data = request.getData();
         Map<String, TestCaseMinderEditRequest.TestCaseMinderEditItem> caseMap = data.stream()
                 .collect(Collectors.toMap(TestCaseMinderEditRequest.TestCaseMinderEditItem::getId, Function.identity()));
@@ -2607,6 +2606,7 @@ public class TestCaseService {
             }
         }
         minderExtraNodeService.batchEdit(request);
+        testCaseNodeService.minderEdit(request);
     }
 
     private void setCustomDefault(EditTestCaseRequest request) {
