@@ -88,147 +88,150 @@ public class TestResultService {
      * 批量存储来自NODE/K8s的执行结果
      */
     public void batchSaveResults(Map<String, List<ResultDTO>> resultDtoMap) {
-        // 处理环境
-        List<String> environmentList = new LinkedList<>();
-        for (String key : resultDtoMap.keySet()) {
-            List<ResultDTO> resultDTOS = resultDtoMap.get(key);
-            for (ResultDTO dto : resultDTOS) {
-                if (dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("ENV")) {
-                    environmentList = (List<String>) dto.getArbitraryData().get("ENV");
-                }
-                //处理环境参数
-                if (CollectionUtils.isNotEmpty(environmentList)) {
-                    apiEnvironmentRunningParamService.parseEnvironment(environmentList);
-                }
-                // 处理集合报告的console日志
-                if (StringUtils.isNotEmpty(dto.getConsole()) && StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-                    String reportId = dto.getReportId();
-                    if (StringUtils.equalsIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
-                        reportId = dto.getTestPlanReportId();
-                    }
+        // 遍历 resultDtoMap
+        resultDtoMap.forEach((key, resultDTOS) -> {
+            resultDTOS.forEach(dto -> {
+                // 处理环境参数
+                Optional.ofNullable(dto.getArbitraryData())
+                        .map(data -> (List<String>) data.get("ENV"))
+                        .filter(CollectionUtils::isNotEmpty)
+                        .ifPresent(apiEnvironmentRunningParamService::parseEnvironment);
+
+                // 处理集合报告的 console 日志
+                if (StringUtils.isNotEmpty(dto.getConsole()) &&
+                        StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+
+                    String reportId = StringUtils.equalsIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name())
+                            ? dto.getTestPlanReportId()
+                            : dto.getReportId();
+
                     apiScenarioReportStructureService.update(reportId, dto.getConsole(), true);
                 }
-            }
-            //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
+            });
+
+            // 根据任务类型同步保存结果
             if (StringUtils.equalsAny(key, "schedule-task", "api-test-case-task")) {
                 apiDefinitionExecResultService.batchSaveApiResult(resultDTOS);
             } else if (StringUtils.equalsAny(key, "api-scenario-task")) {
                 apiScenarioReportService.batchSaveResult(resultDTOS);
             }
-        }
+        });
     }
 
     private ApiScenarioReport editReport(ResultDTO dto) {
         // 更新报告状态
         ResultVO resultVO = ReportStatusUtil.computedProcess(dto);
         ApiScenarioReport report = apiScenarioReportService.editReport(dto.getReportType(), dto.getReportId(), resultVO.getStatus(), dto.getRunMode());
+
         // 更新场景状态
-        ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(dto.getTestId());
-        if (scenario == null) {
-            scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
-        }
+        ApiScenarioWithBLOBs scenario = Optional.ofNullable(apiScenarioMapper.selectByPrimaryKey(dto.getTestId()))
+                .orElseGet(() -> apiScenarioMapper.selectByPrimaryKey(report.getScenarioId()));
+
         if (scenario != null) {
             scenario.setLastResult(resultVO.getStatus());
             scenario.setPassRate(resultVO.computerPassRate());
             scenario.setReportId(dto.getReportId());
-            int executeTimes = 0;
-            if (scenario.getExecuteTimes() != null) {
-                executeTimes = scenario.getExecuteTimes().intValue();
-            }
-            scenario.setExecuteTimes(executeTimes + 1);
+            scenario.setExecuteTimes(Optional.ofNullable(scenario.getExecuteTimes()).orElse(0) + 1);
+
             apiScenarioMapper.updateByPrimaryKey(scenario);
         }
 
         // 发送通知
-        if (scenario != null && report != null && !StringUtils.equals(report.getExecuteType(), "Debug")) {
+        if (scenario != null && report != null && !"Debug".equals(report.getExecuteType())) {
             apiScenarioReportService.sendNotice(scenario, report);
         }
+
         return report;
     }
 
     public ApiScenarioReport edit(ResultDTO dto) {
-        if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-            // 更新控制台信息
+        // 更新控制台信息
+        if (!RunModeConstants.SET_REPORT.toString().equals(dto.getReportType())) {
             apiScenarioReportStructureService.update(dto.getReportId(), dto.getConsole(), false);
         }
-        if (StringUtils.equals(dto.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
-            return apiScenarioReportService.updatePlanCase(dto);
-        } else if (StringUtils.equalsAny(dto.getRunMode(),
-                ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
-                ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-            return apiScenarioReportService.updateSchedulePlanCase(dto);
-        } else {
-            return this.editReport(dto);
-        }
+
+        // 根据运行模式选择更新逻辑
+        return switch (dto.getRunMode()) {
+            case "SCENARIO_PLAN" -> apiScenarioReportService.updatePlanCase(dto);
+            case "SCHEDULE_SCENARIO_PLAN", "JENKINS_SCENARIO_PLAN" ->
+                    apiScenarioReportService.updateSchedulePlanCase(dto);
+            default -> this.editReport(dto);
+        };
     }
+
 
     public void testEnded(ResultDTO dto) {
         if (dto.getRequestResults() == null) {
             dto.setRequestResults(new LinkedList<>());
         }
+
         if (scenarioRunModes.contains(dto.getRunMode())) {
             ApiScenarioReport scenarioReport = edit(dto);
             if (scenarioReport == null) {
                 return;
             }
 
-            String environment = StringUtils.EMPTY;
-            //执行人
+            // 执行人
             String userName = apiAutomationService.getUser(scenarioReport.getUserId());
-            //负责人
-            String principal = StringUtils.EMPTY;
+            // 初始化负责人和环境
+            String principal;
+            String environment = StringUtils.EMPTY;
 
-            if (planRunModes.contains(dto.getRunMode())) {
-                TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
-                if (testPlanApiScenario == null) {
-                    //测试计划-场景列表中，批量/单独执行场景时，关联ID记录在testID中
-                    testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId());
-                }
-                if (testPlanApiScenario != null) {
-                    ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
-                    if (apiScenario != null) {
-                        scenarioExecutionInfoService.insertScenarioInfo(apiScenario, scenarioReport, dto);
-                        environment = apiScenarioReportService.getEnvironment(apiScenario);
-                        principal = apiAutomationService.getUser(apiScenario.getPrincipal());
-                    }
-                }
+            ApiScenarioWithBLOBs apiScenario = fetchScenario(dto, scenarioReport);
+            if (apiScenario != null) {
+                scenarioExecutionInfoService.insertScenarioInfo(apiScenario, scenarioReport, dto);
+                environment = apiScenarioReportService.getEnvironment(apiScenario);
+                principal = apiAutomationService.getUser(apiScenario.getPrincipal());
             } else {
-                ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
-                //集合报告查不出场景。场景的执行次数统计是在margeReport函数中进行的。所以这里要进行一个判断。
-                if (apiScenario != null) {
-                    scenarioExecutionInfoService.insertScenarioInfo(apiScenario, scenarioReport, dto);
-                    environment = apiScenarioReportService.getEnvironment(apiScenario);
-                    principal = apiAutomationService.getUser(apiScenario.getPrincipal());
-                } else {
-                    //负责人取当前负责人
-                    principal = apiAutomationService.getUser(scenarioReport.getUserId());
-                }
+                // 无场景时负责人取当前用户
+                principal = apiAutomationService.getUser(scenarioReport.getUserId());
             }
 
-            //报告内容
-            ApiTestReportVariable reportTask = new ApiTestReportVariable();
-            reportTask.setStatus(scenarioReport.getStatus());
-            reportTask.setId(scenarioReport.getId());
-            reportTask.setTriggerMode(scenarioReport.getTriggerMode());
-            reportTask.setName(scenarioReport.getName());
-            reportTask.setExecutor(userName);
-            reportTask.setUserId(scenarioReport.getUserId());
-            reportTask.setPrincipal(principal);
-            reportTask.setExecutionTime(DateUtils.getTimeString(scenarioReport.getUpdateTime()));
-            reportTask.setEnvironment(environment);
-            reportTask.setProjectId(scenarioReport.getProjectId());
-
-            if (reportTask != null) {
-                if (StringUtils.equals(ReportTriggerMode.API.name(), reportTask.getTriggerMode())
-                        || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), reportTask.getTriggerMode())) {
-                    sendTask(reportTask, dto.getTestId());
-                }
+            // 构建报告内容
+            ApiTestReportVariable reportTask = buildReportTask(scenarioReport, userName, principal, environment);
+            if (isTaskReport(reportTask.getTriggerMode())) {
+                sendTask(reportTask, dto.getTestId());
             }
         } else if (apiRunModes.contains(dto.getRunMode()) && BooleanUtils.isTrue(dto.getErrorEnded())) {
-            // 只处理RUNNING中的执行报告
+            // 只处理 RUNNING 状态的执行报告
             updateRunningResult(dto);
         }
     }
+
+    private ApiScenarioWithBLOBs fetchScenario(ResultDTO dto, ApiScenarioReport scenarioReport) {
+        if (planRunModes.contains(dto.getRunMode())) {
+            TestPlanApiScenario testPlanApiScenario = Optional.ofNullable(
+                            testPlanApiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId()))
+                    .orElseGet(() -> testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId()));
+
+            if (testPlanApiScenario != null) {
+                return apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
+            }
+        } else {
+            return apiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
+        }
+        return null;
+    }
+
+    private ApiTestReportVariable buildReportTask(ApiScenarioReport scenarioReport, String userName, String principal, String environment) {
+        ApiTestReportVariable reportTask = new ApiTestReportVariable();
+        reportTask.setStatus(scenarioReport.getStatus());
+        reportTask.setId(scenarioReport.getId());
+        reportTask.setTriggerMode(scenarioReport.getTriggerMode());
+        reportTask.setName(scenarioReport.getName());
+        reportTask.setExecutor(userName);
+        reportTask.setUserId(scenarioReport.getUserId());
+        reportTask.setPrincipal(principal);
+        reportTask.setExecutionTime(DateUtils.getTimeString(scenarioReport.getUpdateTime()));
+        reportTask.setEnvironment(environment);
+        reportTask.setProjectId(scenarioReport.getProjectId());
+        return reportTask;
+    }
+
+    private boolean isTaskReport(String triggerMode) {
+        return StringUtils.equalsAny(triggerMode, ReportTriggerMode.API.name(), ReportTriggerMode.SCHEDULE.name());
+    }
+
 
     private void updateRunningResult(ResultDTO dto) {
         ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(dto.getReportId());
