@@ -139,6 +139,19 @@
       showInTable: true,
       showDrag: true,
     },
+    {
+      title: 'report.requestTime',
+      dataIndex: 'requestTime',
+      sortable: props.isPreview
+        ? {
+            sortDirections: ['ascend', 'descend'],
+            sorter: true,
+          }
+        : undefined,
+      width: 100,
+      showInTable: true,
+      showDrag: true,
+    },
   ];
   const apiLastStaticColumns: MsTableColumn = [
     ...lastStaticColumns,

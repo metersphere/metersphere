@@ -64,4 +64,5 @@ export default {
   'report.detail.exportPdfSuccess': '{name} report exported successfully',
   'report.detail.batchExportPdfSuccess': 'Batch export of PDF reports completed',
   'report.detail.batchExportingPdf': 'Export progress: {current}/{total}',
+  'report.requestTime': 'Time consumption (s)',
 };

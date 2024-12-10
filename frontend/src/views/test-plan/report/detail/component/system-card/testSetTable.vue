@@ -220,6 +220,19 @@
       showInTable: true,
       showDrag: true,
     },
+    {
+      title: 'report.requestTime',
+      dataIndex: 'requestTime',
+      showDrag: true,
+      sortable: props.isPreview
+        ? {
+            sortDirections: ['ascend', 'descend'],
+            sorter: true,
+          }
+        : undefined,
+      width: 100,
+      showInTable: true,
+    },
   ];
   const columns = computed<MsTableColumn>(() => {
     return [

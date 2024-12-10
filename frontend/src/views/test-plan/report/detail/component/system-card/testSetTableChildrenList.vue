@@ -11,7 +11,7 @@
           >
           </div>
           <div
-            v-if="['name','planName', 'bugCount', 'executeUser', 'moduleName'].includes(column.dataIndex as string)"
+            v-if="['name','planName','requestTime', 'bugCount', 'executeUser', 'moduleName'].includes(column.dataIndex as string)"
             class="list-column"
             :style="{ width: `${column.width}px` }"
           >

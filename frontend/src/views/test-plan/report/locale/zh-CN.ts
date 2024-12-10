@@ -64,4 +64,5 @@ export default {
   'report.detail.exportPdfSuccess': '{name} 报告导出成功',
   'report.detail.batchExportPdfSuccess': '批量导出 PDF 报告已完成',
   'report.detail.batchExportingPdf': '导出进度：{current}/{total}',
+  'report.requestTime': '耗时(s)',
 };
