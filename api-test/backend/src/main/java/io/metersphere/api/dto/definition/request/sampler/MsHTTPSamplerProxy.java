@@ -402,7 +402,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setProperty(HTTPSamplerBase.PATH, path);
                 }
             } else {
-                String envPath = this.path;
+                String envPath = this.isCustomizeReq() && BooleanUtils.isFalse(this.isRefEnvironment) && StringUtils.isNotBlank(this.url)
+                        ? this.url
+                        : this.path;
+
                 // 有url则不拼接path 来源于调试请求
                 if (StringUtils.isNotBlank(url) && StringUtils.isBlank(this.path)) {
                     envPath = this.url;
