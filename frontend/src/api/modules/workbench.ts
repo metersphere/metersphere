@@ -230,7 +230,7 @@ export function workbenchTodoTestPlanList(data: TableQueryParams) {
 }
 // 待办-测试计划列表
 export function getWorkTestPlanListUrl(projectId: string) {
-  return MSR.get<CascaderOption[]>({ url: `${WorkTestPlanListUrl}/${projectId}` });
+  return MSR.get<CascaderOption[]>({ url: `${WorkTestPlanListUrl}/${projectId}` }, { ignoreCancelToken: true });
 }
 
 // 工作台-测试计划概览

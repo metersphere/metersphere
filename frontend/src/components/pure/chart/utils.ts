@@ -9,7 +9,7 @@ export default function bindDataZoomEvent(
   const chartDom = chartRef.value?.chartRef;
 
   const handleDataZoom = (params: any) => {
-    const containerWidth = chartDom.getDom().offsetWidth;
+    const containerWidth = chartDom.getDom()?.offsetWidth;
     // 计算缩放百分比
     const percent = (params.end - params.start) / 100;
     // 计算单组条形图的宽度（包括间隔和最小宽度）
@@ -52,8 +52,9 @@ export default function bindDataZoomEvent(
 
   const handleResize = () => {
     if (chartDom) {
-      const currentOptions = chartDom.chart.getOption();
-      if (currentOptions.dataZoom.length) {
+      const currentOptions = chartDom.chart?.getOption();
+
+      if (currentOptions && currentOptions?.dataZoom.length) {
         handleDataZoom({ start: currentOptions.dataZoom[0].start, end: currentOptions.dataZoom[0].end });
       }
     }

@@ -132,10 +132,7 @@ export function getCommonBarOptions(
           <div class="flex h-[18px] items-center justify-between">
             <div class="flex items-center">
               <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm" style="background:${item.color}"></div>
-              <div class="one-line-text max-w-[100px] text-[var(--color-text-2)]">${item.seriesName.replace(
-                /\s\(\d+\)$/,
-                ''
-              )}</div>
+              <div class="one-line-text max-w-[100px] text-[var(--color-text-2)]">${item.seriesName}</div>
             </div>
             <div class="text-[var(--color-text-1)] font-semibold">${addCommasToNumber(item.data.originValue || 0)}</div>
           </div>
@@ -256,7 +253,7 @@ export function getCommonBarOptions(
         ellipsis: '...',
       },
       formatter(name: string) {
-        return name.replace(/\s\(\d+\)$/, ''); // 去掉后缀 "(数字) 确保seriesName 重复也可以展示为正常"
+        return name;
       },
       tooltip: {
         show: true,
@@ -320,7 +317,7 @@ export function getCommonBarOptions(
 }
 
 // 下方饼图配置
-export function getPieCharOptions(key: WorkCardEnum) {
+export function getPieCharOptions() {
   return {
     title: {
       show: true,
@@ -341,7 +338,7 @@ export function getPieCharOptions(key: WorkCardEnum) {
       },
       textAlign: 'center', // 确保副标题居中
     },
-    color: colorMapConfig[key],
+
     tooltip: { show: true },
     legend: {
       show: false,
@@ -351,6 +348,8 @@ export function getPieCharOptions(key: WorkCardEnum) {
       type: 'pie',
       radius: ['75%', '90%'],
       center: [90, '48%'],
+      minAngle: 5, // 设置扇区的最小角度
+      minShowLabelAngle: 10, // 设置标签显示的最小角度
       avoidLabelOverlap: false,
       label: {
         show: false,
@@ -404,27 +403,29 @@ export function handlePieData(
       }[]
     | null = []
 ) {
-  const options: Record<string, any> = getPieCharOptions(key);
+  const options: Record<string, any> = getPieCharOptions();
   const lastStatusPercentList = statusPercentList ?? [];
   const hasDataLength = lastStatusPercentList.filter((e) => Number(e.count) > 0).length;
   const pieBorderWidth = hasDataLength === 1 ? 0 : 2;
 
-  options.series.data =
-    hasDataLength > 0
-      ? lastStatusPercentList.map((item) => ({
-          name: item.status,
-          value: item.count,
-          tooltip: {
-            ...toolTipConfig,
-            position: 'right',
-            show: !!hasPermission,
-          },
-          itemStyle: {
-            borderWidth: pieBorderWidth,
-            borderColor: '#ffffff',
-          },
-        }))
-      : [];
+  const lastData = lastStatusPercentList
+    .map((item, color) => ({
+      name: item.status,
+      value: item.count,
+      tooltip: {
+        ...toolTipConfig,
+        position: 'right',
+        show: !!hasPermission,
+      },
+      itemStyle: {
+        color: colorMapConfig[key][color],
+        borderWidth: pieBorderWidth,
+        borderColor: '#ffffff',
+      },
+    }))
+    .filter((e) => e.value !== 0);
+
+  options.series.data = hasDataLength > 0 ? lastData : [];
 
   // 计算总数和图例格式
   const tempObject: Record<string, any> = {};
@@ -677,10 +678,7 @@ export function getSeriesData(
                 <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm bg-[${params.color}]" style="background:${
               params.color
             }"></div>
-                <div class="one-line-text max-w-[100px]"" style="color:#959598">${params.name.replace(
-                  /\s\(\d+\)$/,
-                  ''
-                )}</div>
+                <div class="one-line-text max-w-[100px]"" style="color:#959598">${params.name}</div>
                 </div>
                 <div class="text-[var(--color-text-1)] font-semibold">${addCommasToNumber(params.value)}</div>
                 </div>

@@ -71,7 +71,9 @@
             <MsChart height="76px" width="76px" :options="execOptions" />
           </div>
         </div>
-        <HeaderCard :content-tab-list="cardModuleList" />
+        <div class="flex-1">
+          <HeaderCard :content-tab-list="cardModuleList" />
+        </div>
       </div>
       <div>
         <MsChart ref="chartRef" height="280px" :options="options" />
@@ -318,16 +320,18 @@
     const [newProjectId] = innerProjectIds.value;
     const projectName = projectOptions.value.find((e) => e.value === newProjectId)?.label;
 
-    const treeList = childrenData.value[newProjectId];
+    const treeList = childrenData.value[newProjectId] || [];
 
-    const modules = findNodePathByKey(treeList, id, undefined, 'value');
+    if (treeList.length) {
+      const modules = findNodePathByKey(treeList, id, undefined, 'value');
 
-    if (modules) {
-      const moduleName = (modules || [])?.treePath.map((item: any) => item.label);
-      if (moduleName.length === 1) {
-        return `${projectName}/${moduleName[0]}`;
+      if (modules) {
+        const moduleName = (modules || [])?.treePath.map((item: any) => item.label);
+        if (moduleName.length === 1) {
+          return `${projectName}/${moduleName[0]}`;
+        }
+        return `${projectName}/${moduleName.join(' / ')}`;
       }
-      return `${projectName}/${moduleName.join(' / ')}`;
     }
   }
 
@@ -403,7 +407,9 @@
   onMounted(() => {
     projectOptions.value = appStore.projectList.map((e) => ({ value: e.id, label: e.name }));
     const [newProjectId] = props.item.projectIds;
-    selectValue.value = [newProjectId, props.item.planId];
+    if (props.item.planId) {
+      selectValue.value = [newProjectId, props.item.planId];
+    }
     refreshHandler(newProjectId);
   });
 

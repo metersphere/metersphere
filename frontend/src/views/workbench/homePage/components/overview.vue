@@ -161,12 +161,20 @@
       showSkeleton.value = false;
     }
   }
+  const chartRef = ref<InstanceType<typeof MsChart>>();
 
   async function handleProjectChange(shouldEmit = false) {
     await nextTick();
     innerSelectAll.value = appStore.projectList.length === innerProjectIds.value.length;
     await nextTick();
-    initOverViewDetail();
+    await initOverViewDetail();
+
+    const chartDom = chartRef.value?.chartRef;
+
+    if (chartDom && chartDom.chart) {
+      createCustomTooltip(chartDom);
+      bindDataZoomEvent(chartRef, options);
+    }
     if (shouldEmit) emit('change');
   }
 
@@ -177,7 +185,6 @@
       });
     }
   }
-  const chartRef = ref<InstanceType<typeof MsChart>>();
 
   async function handleRefreshKeyChange() {
     await nextTick(() => {
@@ -191,7 +198,6 @@
 
   onMounted(async () => {
     await initOverViewDetail();
-
     nextTick(() => {
       const chartDom = chartRef.value?.chartRef;
 
