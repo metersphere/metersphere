@@ -22,6 +22,7 @@ import {
   BatchUpdateDefinitionUrl,
   CaseBatchExportLogUrl,
   CaseExportLogUrl,
+  CaseFileCopyUrl,
   CasePageUrl,
   CaseStatisticsUrl,
   caseTableBatchSyncUrl,
@@ -32,6 +33,7 @@ import {
   CopyMockUrl,
   DebugCaseUrl,
   DebugDefinitionUrl,
+  DefinitionFileCopyUrl,
   DefinitionMockPageUrl,
   DefinitionPageUrl,
   DefinitionReferenceUrl,
@@ -144,6 +146,7 @@ import {
   CheckScheduleParams,
   CheckSharePsdType,
   CreateImportApiDefinitionScheduleParams,
+  type DefinitionFileCopyParams,
   DefinitionHistoryItem,
   DefinitionHistoryPageParams,
   DefinitionReferencePageParams,
@@ -364,25 +367,10 @@ export function convertJsonSchemaToJson(data: JsonSchema) {
 export function jsonSchemaAutoGenerate(data: JsonSchema) {
   return MSR.post({ url: JsonSchemaAutoGenerateUrl, data });
 }
-// 接口定义-用例接口对比-清除本次变更
-export function clearThisChange(id: string) {
-  return MSR.get({ url: `${clearThisChangeUrl}/${id}` });
-}
-// 接口定义-用例接口对比-忽略每次变更
-export function ignoreEveryTimeChange(id: string, ignore: boolean) {
-  return MSR.get({ url: `${ignoreEveryTimeApiChangeUrl}/${id}`, params: { ignore } });
-}
-// 接口测试-接口管理-接口用例-批量同步编辑
-export function caseTableBatchSync(data: TableQueryParams) {
-  return MSR.post({ url: caseTableBatchSyncUrl, data });
-}
-// 接口测试-接口用例-定义对比用例
-export function diffDataRequest(id: string) {
-  return MSR.get({ url: `${diffDataUrl}/${id}` });
-}
-// 接口测试-接口用例-定义对比用例-同步-获取同步后的用例详情
-export function getSyncedCaseDetail(data: diffSyncParams) {
-  return MSR.post({ url: getSyncedCaseDetailUrl, data });
+
+// 接口定义-文件复制
+export function definitionFileCopy(data: DefinitionFileCopyParams) {
+  return MSR.post({ url: DefinitionFileCopyUrl, data });
 }
 
 /**
@@ -564,6 +552,36 @@ export function toggleUnFollowCase(id: string | number) {
 // 用例执行，传请求详情执行
 export function runCase(data: ExecuteRequestParams) {
   return MSR.post({ url: RunCaseUrl, data });
+}
+
+// 接口定义-用例接口对比-清除本次变更
+export function clearThisChange(id: string) {
+  return MSR.get({ url: `${clearThisChangeUrl}/${id}` });
+}
+
+// 接口定义-用例接口对比-忽略每次变更
+export function ignoreEveryTimeChange(id: string, ignore: boolean) {
+  return MSR.get({ url: `${ignoreEveryTimeApiChangeUrl}/${id}`, params: { ignore } });
+}
+
+// 接口测试-接口管理-接口用例-批量同步编辑
+export function caseTableBatchSync(data: TableQueryParams) {
+  return MSR.post({ url: caseTableBatchSyncUrl, data });
+}
+
+// 接口测试-接口用例-定义对比用例
+export function diffDataRequest(id: string) {
+  return MSR.get({ url: `${diffDataUrl}/${id}` });
+}
+
+// 接口测试-接口用例-定义对比用例-同步-获取同步后的用例详情
+export function getSyncedCaseDetail(data: diffSyncParams) {
+  return MSR.post({ url: getSyncedCaseDetailUrl, data });
+}
+
+// 接口用例-文件复制
+export function caseFileCopy(data: DefinitionFileCopyParams) {
+  return MSR.post({ url: CaseFileCopyUrl, data });
 }
 
 /**

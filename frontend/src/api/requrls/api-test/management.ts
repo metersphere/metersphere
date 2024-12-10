@@ -40,11 +40,7 @@ export const RecoverOperationHistoryUrl = '/api/definition/operation-history/rec
 export const DefinitionReferenceUrl = '/api/definition/get-reference'; // 获取接口引用关系
 export const ConvertJsonSchemaToJsonUrl = '/api/definition/json-schema/preview'; // 将json-schema转换为 json 数据
 export const JsonSchemaAutoGenerateUrl = '/api/definition/json-schema/auto-generate'; // 将json-schema转换为 json 数据
-export const clearThisChangeUrl = '/api/case/api-change/clear'; // 接口定义-变更对比-清除本次变更
-export const caseTableBatchSyncUrl = '/api/case/batch/api-change/sync'; // 接口测试-接口管理-接口用例-批量同步
-export const ignoreEveryTimeApiChangeUrl = '/api/case/api-change/ignore'; // 接口测试-接口用例-忽略每次接口变更
-export const diffDataUrl = '/api/case/api/compare'; // 接口测试-接口用例-定义对比用例
-export const getSyncedCaseDetailUrl = '/api/case/api-change/sync'; // 接口测试-接口用例-定义对比用例-同步-获取同步后的用例详情
+export const DefinitionFileCopyUrl = '/api/definition/file/copy'; // 接口文件复制
 
 /**
  * Mock
@@ -101,6 +97,12 @@ export const CaseExportLogUrl = '/api/report/case/export'; // 接口用例导出
 export const CaseBatchExportLogUrl = '/api/report/case/batch-export'; // 接口用例批量导出报告日志记录
 export const GetCaseBatchExportParamsUrl = '/api/report/case/batch-param'; // 接口用例批量导出报告id集合
 export const CaseStatisticsUrl = '/api/case/statistics'; // 用例执行率统计
+export const getSyncedCaseDetailUrl = '/api/case/api-change/sync'; // 接口测试-接口用例-定义对比用例-同步-获取同步后的用例详情
+export const clearThisChangeUrl = '/api/case/api-change/clear'; // 接口定义-变更对比-清除本次变更
+export const caseTableBatchSyncUrl = '/api/case/batch/api-change/sync'; // 接口测试-接口管理-接口用例-批量同步
+export const ignoreEveryTimeApiChangeUrl = '/api/case/api-change/ignore'; // 接口测试-接口用例-忽略每次接口变更
+export const diffDataUrl = '/api/case/api/compare'; // 接口测试-接口用例-定义对比用例
+export const CaseFileCopyUrl = '/api/case/file/copy'; // 接口用例文件复制
 
 /**
  * 接口用例回收站

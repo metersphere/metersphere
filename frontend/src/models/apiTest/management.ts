@@ -288,6 +288,12 @@ export interface DefinitionReferencePageParams extends TableQueryParams {
   resourceId: string;
 }
 
+// 定义-复制文件参数
+export interface DefinitionFileCopyParams {
+  resourceId: string;
+  fileIds: string[];
+}
+
 // 回收站-恢复接口定义参数
 export interface ApiDefinitionDeleteParams {
   id: string;

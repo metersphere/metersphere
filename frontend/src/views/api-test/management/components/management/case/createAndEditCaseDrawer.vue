@@ -116,6 +116,7 @@
   import { localExecuteApiDebug } from '@/api/modules/api-test/common';
   import {
     addCase,
+    caseFileCopy,
     debugCase,
     getDefinitionDetail,
     getTransferOptionsCase,
@@ -134,6 +135,7 @@
   import { RequestCaseStatus, RequestMethods } from '@/enums/apiEnum';
 
   import { casePriorityOptions, defaultResponse } from '@/views/api-test/components/config';
+  import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
 
   const props = defineProps<{
     apiDetail?: RequestParam | ApiDefinitionDetail;
@@ -236,9 +238,25 @@
         : apiDetailInfo.value),
       children: apiDetailInfo.value.children ?? apiDetailInfo.value.request.children,
     };
+    let parseRequestBodyResult;
     // 复制
     if (isCopy) {
-      detailForm.value = cloneDeep(record as RequestParam);
+      if (record?.protocol === 'HTTP') {
+        // 复制的步骤需要复制文件
+        let copyFilesMap: Record<string, any> = {};
+        const fileIds = parseRequestBodyFiles(record.request.body, [], [], []).uploadFileIds;
+        if (fileIds.length > 0) {
+          copyFilesMap = await caseFileCopy({
+            resourceId: record.id as string,
+            fileIds,
+          });
+        }
+        parseRequestBodyResult = parseRequestBodyFiles(record.request.body, [], [], [], copyFilesMap); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+        detailForm.value = {
+          ...cloneDeep(record as RequestParam),
+          ...parseRequestBodyResult,
+        };
+      }
       detailForm.value.name = `copy_${record?.name}`;
       detailForm.value.isCopy = true;
       environmentId.value = record?.environmentId ?? environmentId.value;
