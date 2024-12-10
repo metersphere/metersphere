@@ -337,12 +337,11 @@ export default {
           data.protocol = 'DUBBO';
         }
         data.id = getUUID();
-        data.path = this.httpForm.path;
         this.httpForm = {
           id: data.id,
           name: data.name,
           protocol: data.protocol,
-          path: data.path ? data.path : data.url,
+          path: data.url,
           method: api.method,
           userId: getCurrentUser().id,
           request: data,
