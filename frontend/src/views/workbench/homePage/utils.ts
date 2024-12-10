@@ -132,7 +132,10 @@ export function getCommonBarOptions(
           <div class="flex h-[18px] items-center justify-between">
             <div class="flex items-center">
               <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm" style="background:${item.color}"></div>
-              <div class="one-line-text max-w-[100px] text-[var(--color-text-2)]">${item.seriesName}</div>
+              <div class="one-line-text max-w-[100px] text-[var(--color-text-2)]">${item.seriesName.replace(
+                /\s\(\d+\)$/,
+                ''
+              )}</div>
             </div>
             <div class="text-[var(--color-text-1)] font-semibold">${addCommasToNumber(item.data.originValue || 0)}</div>
           </div>
@@ -253,7 +256,7 @@ export function getCommonBarOptions(
         ellipsis: '...',
       },
       formatter(name: string) {
-        return name;
+        return name.replace(/\s\(\d+\)$/, ''); // 去掉后缀 "(数字) 确保seriesName 重复也可以展示为正常"
       },
       tooltip: {
         show: true,
@@ -674,7 +677,10 @@ export function getSeriesData(
                 <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm bg-[${params.color}]" style="background:${
               params.color
             }"></div>
-                <div class="one-line-text max-w-[100px]"" style="color:#959598">${params.name}</div>
+                <div class="one-line-text max-w-[100px]"" style="color:#959598">${params.name.replace(
+                  /\s\(\d+\)$/,
+                  ''
+                )}</div>
                 </div>
                 <div class="text-[var(--color-text-1)] font-semibold">${addCommasToNumber(params.value)}</div>
                 </div>

@@ -97,15 +97,21 @@
   const hasPermission = ref<boolean>(false);
 
   function handleData(detail: OverViewOfProject) {
-    const data = detail.projectCountList.map((e) => {
-      return {
-        value: '',
-        label: e.name,
-      };
+    const labelCount: Record<string, any> = {};
+    const uniqueData = detail.projectCountList.map((e) => {
+      const { name } = e;
+      if (!labelCount[name]) {
+        labelCount[name] = 1;
+        return { value: '', label: name };
+      }
+
+      labelCount[name] += 1;
+      // 添加序号后缀
+      return { value: '', label: `${name} (${labelCount[name]})` };
     });
 
     options.value = getSeriesData(
-      data,
+      uniqueData,
       detail,
       [...defectStatusColor, ...getColorScheme(13)],
       false,
