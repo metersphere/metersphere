@@ -196,7 +196,7 @@
       value: '',
     },
     {
-      label: 'workbench.homePage.associatedDefect',
+      label: 'workbench.homePage.closedDefect',
       value: '',
     },
   ];

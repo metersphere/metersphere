@@ -108,5 +108,5 @@ export default {
   'workbench.homePage.assigningUseCases': '分配用例',
   'workbench.homePage.completeUseCases': '完成用例',
   'workbench.homePage.commitDefects': '提交缺陷',
-  'workbench.homePage.associatedDefect': '关联缺陷',
+  'workbench.homePage.closedDefect': '关闭缺陷',
 };

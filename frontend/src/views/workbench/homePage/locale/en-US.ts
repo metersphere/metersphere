@@ -121,5 +121,5 @@ export default {
   'workbench.homePage.assigningUseCases': 'Assigning use cases',
   'workbench.homePage.completeUseCases': 'Complete use case',
   'workbench.homePage.commitDefects': 'Commit defects',
-  'workbench.homePage.associatedDefect': 'Associated defect',
+  'workbench.homePage.closedDefect': 'Closed defect',
 };
