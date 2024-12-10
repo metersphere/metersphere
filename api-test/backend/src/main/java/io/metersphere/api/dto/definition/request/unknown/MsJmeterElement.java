@@ -23,6 +23,7 @@ import org.apache.jorphan.collections.HashTree;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,70 +40,92 @@ public class MsJmeterElement extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
-        try {
-            ParameterConfig config = (ParameterConfig) msParameter;
-            // 非导出操作，且不是启用状态则跳过执行
-            if (!config.isOperating() && !this.isEnable()) {
+
+        ParameterConfig config = (ParameterConfig) msParameter;
+
+        // 非导出操作，且不是启用状态则直接返回
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
+
+        try (InputStream inputSource = getStrToStream(jmeterElement)) {
+            if (inputSource == null) {
                 return;
             }
-            InputStream inputSource = getStrToStream(jmeterElement);
-            if (inputSource != null) {
-                Object scriptWrapper = SaveService.loadElement(inputSource);
-                HashTree elementTree = tree;
-                this.setElementType(scriptWrapper.getClass().getName());
-                if (scriptWrapper instanceof TestElement) {
-                    ((TestElement) scriptWrapper).setName(this.getName());
-                    ((TestElement) scriptWrapper).setEnabled(this.isEnable());
+
+            Object scriptWrapper = SaveService.loadElement(inputSource);
+            if (scriptWrapper == null) {
+                return;
+            }
+
+            HashTree elementTree = tree;
+            this.setElementType(scriptWrapper.getClass().getName());
+
+            if (scriptWrapper instanceof TestElement testElement) {
+                testElement.setName(this.getName());
+                testElement.setEnabled(this.isEnable());
+            }
+
+            // CSV 检查与处理
+            handleCSVDataSet(config, scriptWrapper);
+
+            // 取出导入的测试计划中的变量
+            if (scriptWrapper instanceof TestPlan testPlan) {
+                if (testPlan.getArguments() != null && StringUtils.isNotEmpty(testPlan.getArguments().getName())) {
+                    elementTree.add(testPlan.getArguments());
                 }
-                // csv 检查处理
-                if (!config.isOperating() && scriptWrapper instanceof CSVDataSet && ((CSVDataSet) scriptWrapper).isEnabled()) {
-                    String path = ((CSVDataSet) scriptWrapper).getPropertyAsString(ElementConstants.FILENAME);
-                    if (!new File(path).exists()) {
-                        // 检查场景变量中的csv文件是否存在
-                        String pathArr[] = path.split("\\/");
-                        String csvPath = this.getCSVPath(config, pathArr[pathArr.length - 1]);
-                        if (StringUtils.isNotEmpty(csvPath)) {
-                            ((CSVDataSet) scriptWrapper).setProperty(ElementConstants.FILENAME, csvPath);
-                        } else {
-                            MSException.throwException(StringUtils.isEmpty(((CSVDataSet) scriptWrapper).getName()) ? "CSVDataSet" : ((CSVDataSet) scriptWrapper).getName() + "：[ CSV文件不存在 ]");
-                        }
-                    }
-                    String csvPath = ((CSVDataSet) scriptWrapper).getPropertyAsString(ElementConstants.FILENAME);
-                    if (config.getCsvFilePaths().contains(csvPath)) {
-                        return;
-                    } else {
-                        config.getCsvFilePaths().add(csvPath);
-                    }
-                }
-                // 取出导入的测试计划中变量
-                if (scriptWrapper instanceof TestPlan) {
-                    TestPlan testPlan = (TestPlan) scriptWrapper;
-                    if (testPlan.getArguments() != null && StringUtils.isNotEmpty(testPlan.getArguments().getName())) {
-                        elementTree.add(testPlan.getArguments());
-                    }
-                }
-                if (config.isOperating()) {
-                    elementTree = tree.add(scriptWrapper);
-                } else if (!(scriptWrapper instanceof TestPlan) && !(scriptWrapper instanceof ThreadGroup)) {
-                    elementTree = tree.add(scriptWrapper);
-                }
-                if (!config.isOperating() && scriptWrapper instanceof ThreadGroup && !((ThreadGroup) scriptWrapper).isEnabled()) {
-                    LogUtil.info(((ThreadGroup) scriptWrapper).getName() + "是被禁用线程组不加入执行");
-                } else {
-                    if (CollectionUtils.isNotEmpty(hashTree)) {
-                        for (MsTestElement el : hashTree) {
-                            // 给所有孩子加一个父亲标志
-                            el.setParent(this);
-                            el.toHashTree(elementTree, el.getHashTree(), config);
-                        }
-                    }
+            }
+
+            // 添加到 HashTree
+            if (config.isOperating()) {
+                elementTree = tree.add(scriptWrapper);
+            } else if (!(scriptWrapper instanceof TestPlan) && !(scriptWrapper instanceof ThreadGroup)) {
+                elementTree = tree.add(scriptWrapper);
+            }
+
+            // 忽略被禁用的线程组
+            if (!config.isOperating() && scriptWrapper instanceof ThreadGroup threadGroup && !threadGroup.isEnabled()) {
+                LogUtil.info(threadGroup.getName() + " 是被禁用线程组，不加入执行");
+                return;
+            }
+
+            // 递归处理子元素
+            if (CollectionUtils.isNotEmpty(hashTree)) {
+                for (MsTestElement el : hashTree) {
+                    el.setParent(this);
+                    el.toHashTree(elementTree, el.getHashTree(), config);
                 }
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LogUtil.error("Error in toHashTree: " + ex.getMessage(), ex);
             MSException.throwException(ex.getMessage());
         }
     }
+
+    private void handleCSVDataSet(ParameterConfig config, Object scriptWrapper) {
+        if (!(scriptWrapper instanceof CSVDataSet csvDataSet)) {
+            return;
+        }
+
+        String path = csvDataSet.getPropertyAsString(ElementConstants.FILENAME);
+        if (!new File(path).exists()) {
+            // 检查场景变量中的 CSV 文件是否存在
+            String[] pathArr = path.split("\\/");
+            String csvPath = this.getCSVPath(config, pathArr[pathArr.length - 1]);
+            if (StringUtils.isNotEmpty(csvPath)) {
+                csvDataSet.setProperty(ElementConstants.FILENAME, csvPath);
+            } else {
+                String name = StringUtils.defaultIfEmpty(csvDataSet.getName(), "CSVDataSet");
+                MSException.throwException(name + "：[ CSV文件不存在 ]");
+            }
+        }
+
+        String csvPath = csvDataSet.getPropertyAsString(ElementConstants.FILENAME);
+        if (!config.getCsvFilePaths().contains(csvPath)) {
+            config.getCsvFilePaths().add(csvPath);
+        }
+    }
+
 
     private String getCSVPath(ParameterConfig config, String name) {
         if (CollectionUtils.isNotEmpty(config.getVariables())) {
@@ -112,7 +135,7 @@ public class MsJmeterElement extends MsTestElement {
                     if (CollectionUtils.isNotEmpty(item.getFiles())) {
                         List<String> names = item.getFiles().stream().map(BodyFile::getName).collect(Collectors.toList());
                         if (CollectionUtils.isNotEmpty(names) && !names.contains(name) && name.contains("_")) {
-                            String pathArr[] = name.split("_");
+                            String[] pathArr = name.split("_");
                             name = pathArr[pathArr.length - 1];
                         }
                         if (CollectionUtils.isNotEmpty(names) && names.contains(name)) {
@@ -129,15 +152,11 @@ public class MsJmeterElement extends MsTestElement {
         return null;
     }
 
-    public static InputStream getStrToStream(String sInputString) {
-        if (StringUtils.isNotEmpty(sInputString)) {
-            try {
-                ByteArrayInputStream tInputStringStream = new ByteArrayInputStream(sInputString.getBytes());
-                return tInputStringStream;
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+    public static InputStream getStrToStream(String inputString) {
+        if (StringUtils.isNotEmpty(inputString)) {
+            return new ByteArrayInputStream(inputString.getBytes(StandardCharsets.UTF_8));
         }
         return null;
     }
+
 }
