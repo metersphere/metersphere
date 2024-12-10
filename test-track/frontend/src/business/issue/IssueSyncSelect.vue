@@ -99,7 +99,6 @@ export default {
 }
 
 .el-form-item.tips-item.el-form-item--small {
-  position: relative;
   top: -20px;
   left: 10px;
 }
