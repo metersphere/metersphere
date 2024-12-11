@@ -257,16 +257,18 @@
 
     const pieBorderWidth = executeData.filter((e) => Number(e.value) > 0).length === 1 ? 0 : 1;
 
-    execOptions.value.series.data = executeData.map((e) => {
-      return {
-        ...e,
-        itemStyle: {
-          borderWidth: pieBorderWidth,
-          borderColor: '#ffffff',
-          color: e.color,
-        },
-      };
-    });
+    execOptions.value.series.data = executeData
+      .map((e) => {
+        return {
+          ...e,
+          itemStyle: {
+            borderWidth: pieBorderWidth,
+            borderColor: '#ffffff',
+            color: e.color,
+          },
+        };
+      })
+      .filter((e) => e.value !== 0);
   }
 
   const showSkeleton = ref(false);

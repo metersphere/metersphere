@@ -147,6 +147,8 @@
       radius: ['75%', '90%'],
       center: ['50%', '50%'],
       color: [],
+      minAngle: 5,
+      minShowLabelAngle: 10,
       avoidLabelOverlap: false,
       label: {
         show: false,
@@ -175,22 +177,24 @@
 
     const pieBorderWidth = hasDataLength === 1 ? 0 : 1;
 
-    options.value.series.data =
-      hasDataLength > 0
-        ? temData.map((e) => {
-            return {
-              ...e,
-              tooltip: {
-                ...toolTipConfig,
-                show: !!props.hasPermission,
-              },
-              itemStyle: {
-                borderWidth: pieBorderWidth,
-                borderColor: '#ffffff',
-              },
-            };
-          })
-        : [];
+    const seriesData = temData
+      .map((e, i) => {
+        return {
+          ...e,
+          tooltip: {
+            ...toolTipConfig,
+            show: !!props.hasPermission,
+          },
+          itemStyle: {
+            color: color[i],
+            borderWidth: pieBorderWidth,
+            borderColor: '#ffffff',
+          },
+        };
+      })
+      .filter((e) => e.value !== 0);
+
+    options.value.series.data = hasDataLength > 0 ? seriesData : [];
     legend.value = [...props.data.slice(1)].map((e, i) => {
       return {
         ...e,
@@ -213,8 +217,6 @@
 
     options.value.tooltip.show = !!props.hasPermission;
     options.value.title.text = name;
-
-    options.value.series.color = color;
   }
 
   const chartRef = ref<InstanceType<typeof MsChart>>();
