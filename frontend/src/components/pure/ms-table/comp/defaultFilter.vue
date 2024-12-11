@@ -258,10 +258,6 @@
       searchItem();
     }
   );
-
-  onBeforeUnmount(() => {
-    checkedList.value = [];
-  });
 </script>
 
 <style scoped lang="less">
