@@ -1158,8 +1158,7 @@ export default {
           if (action === "confirm") {
             let param = buildBatchParam(this, this.$refs.table.selectIds);
             testCaseBatchDeleteToGc(param).then(() => {
-              this.clearTableSelect();
-              this.$emit("refresh");
+              this.refresh();
               this.$success(this.$t("commons.delete_success"), false);
             });
           }
