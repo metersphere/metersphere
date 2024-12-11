@@ -319,9 +319,6 @@ export default {
       this.$refs.table.clear();
     },
     getProjectNode(projectId, condition) {
-      if (this.selectNodeIds && this.selectNodeIds.length > 0) {
-        return;
-      }
       this.getProjectNodeForce(projectId, condition);
     },
     getProjectNodeForce(projectId = this.projectId, condition = this.page.condition) {
@@ -332,7 +329,17 @@ export default {
       if (projectId) {
         this.projectId = projectId;
       }
-      this.getNodeTree(this, condition);
+      let selectNodeId;
+      if (this.$refs.nodeTree && this.$refs.nodeTree.getCurrentNodeData()) {
+        selectNodeId = this.$refs.nodeTree.getCurrentNodeData().id;
+      }
+      this.getNodeTree(this, condition, () => {
+        if (this.$refs.nodeTree && selectNodeId) {
+          this.$nextTick(() => {
+            this.$refs.nodeTree.justSetCurrentKey(selectNodeId);
+          });
+        }
+      });
     },
     getVersionOptions() {
       getVersionFilters(this.projectId)

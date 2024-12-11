@@ -96,12 +96,15 @@ export default {
           });
         });
     },
-    getTreeNodes(vueObj, condition) {
+    getTreeNodes(vueObj, condition, callback) {
       vueObj.loading = true;
       testCaseNodeListPlanRelate({planId: this.planId, projectId: vueObj.projectId, ...condition})
         .then(response => {
           vueObj.loading = false;
           vueObj.treeNodes = response.data;
+          if (callback) {
+            callback();
+          }
         })
       vueObj.selectNodeIds = [];
     }

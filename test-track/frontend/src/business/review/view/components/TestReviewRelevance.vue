@@ -81,14 +81,13 @@
             </ms-table-header>
             <ms-table
               :data="testReviews"
-              @filter-change="filter"
+              @filter="filter"
               row-key="id"
               v-loading="result.loading"
               :total="total"
               :page-size.sync="pageSize"
               :screen-height="screenHeight"
               @handlePageChange="getReviews"
-              @refresh="getReviews"
               @selectCountChange="setSelectCounts"
               :condition="condition"
               ref="table"
@@ -252,7 +251,7 @@ export default {
     return {
       openType: "relevance",
       checked: true,
-      result: {},
+      result: {loading: false},
       currentProject: {},
       dialogFormVisible: false,
       isCheckAll: false,
@@ -488,6 +487,10 @@ export default {
       this.loadConditionComponents();
     },
     getProjectNode(projectId, condition) {
+      let selectNodeId;
+      if (this.$refs.nodeTree && this.$refs.nodeTree.getCurrentNodeData()) {
+        selectNodeId = this.$refs.nodeTree.getCurrentNodeData().id;
+      }
       return new Promise((resolve) => {
         const index = this.projects.findIndex(
           (project) => project.id === projectId
@@ -505,9 +508,13 @@ export default {
           ...condition,
         }).then((response) => {
           this.treeNodes = response.data;
+          if (this.$refs.nodeTree && selectNodeId) {
+            this.$nextTick(() => {
+              this.$refs.nodeTree.justSetCurrentKey(selectNodeId);
+            });
+          }
           resolve();
         });
-        this.selectNodeIds = [];
       });
     },
     getVersionOptions() {

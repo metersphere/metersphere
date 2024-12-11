@@ -728,6 +728,12 @@ export default {
         });
       }
     },
+    getCurrentNodeData() {
+      if (this.$refs.tree) {
+        return this.$refs.tree.getCurrentNode();
+      }
+      return null;
+    },
     isDefault(data) {
       return data.name === this.defaultLabel && data.level === 1;
     },
