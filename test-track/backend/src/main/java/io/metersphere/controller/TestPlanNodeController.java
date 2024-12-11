@@ -28,7 +28,7 @@ public class TestPlanNodeController {
     private BaseCheckPermissionService baseCheckPermissionService;
 
     @PostMapping("/list/{projectId}")
-    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ})
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
     public List<TestPlanNodeDTO> getNodeByCondition(@PathVariable String projectId, @RequestBody(required = false) QueryTestPlanRequest request) {
         // 高级搜索所属模块搜索时, 切换项目时需替换projectId为参数中切换项目
         if (request != null && request.getProjectId() != null) {
