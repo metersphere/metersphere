@@ -2,7 +2,7 @@ import type { MinderJsonNode, MinderJsonNodeData } from '@/components/pure/ms-mi
 import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
 import type { saveParams } from '@/components/business/ms-associate-case/types';
 
-import type { customFieldsItem } from '@/models/caseManagement/featureCase';
+import type { customFieldsItem, DetailCase } from '@/models/caseManagement/featureCase';
 import type { TableQueryParams } from '@/models/common';
 import { BatchApiParams, DragSortParams } from '@/models/common';
 import { CaseLinkEnum, LastExecuteResults } from '@/enums/caseEnum';
@@ -481,4 +481,12 @@ export interface PlanExecuteResult extends TaskReportDetail {
   executeCaseCount: PlanExecuteResultExecuteCaseCount;
   apiCaseTotal: number;
   apiScenarioTotal: number;
+}
+
+export interface TestPlanCaseDetail extends DetailCase {
+  createUserName: string;
+  createTime: number;
+  lastExecuteResult: string;
+  bugListCount: number;
+  customFields: Record<string, any>[];
 }

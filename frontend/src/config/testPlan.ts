@@ -7,7 +7,6 @@ import type { countDetail, PlanReportDetail, StatusListType } from '@/models/tes
 import { LastExecuteResults } from '@/enums/caseEnum';
 
 import type { TooltipOption } from 'echarts/types/dist/shared';
-// TODO: 对照后端字段
 // 测试计划详情
 export const testPlanDefaultDetail: TestPlanDetail = {
   id: '',

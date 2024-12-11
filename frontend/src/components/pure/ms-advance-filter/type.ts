@@ -67,7 +67,6 @@ export interface FilterResult {
   searchMode?: AccordBelowType;
   // 高级搜索
   conditions?: ConditionsItem[];
-  combine?: any; // TODO lmy 此为防报错占位 所有高级筛选都完成后 删除这一行
 }
 
 export interface ViewItem {

@@ -138,7 +138,7 @@
       >
         <template v-if="batchForm.attr === 'method'" #extra>{{ t('apiTestManagement.requestTypeTip') }}</template>
         <a-select v-model="batchForm.attr" :placeholder="t('common.pleaseSelect')">
-          <a-option v-for="item of attrOptions" :key="item.value" :value="item.value">
+          <a-option v-for="item of fullAttrs" :key="item.value" :value="item.value">
             {{ t(item.name) }}
           </a-option>
         </a-select>
@@ -936,13 +936,6 @@
       value: 'tags',
     },
   ];
-  const attrOptions = computed(() => {
-    // TODO 协议 选择的数据不包含HTTP协议，则选择属性中不展示“请求类型“
-    // if (props.protocol === 'HTTP') {
-    return fullAttrs;
-    // }
-    // return fullAttrs.filter((e) => e.value !== 'method');
-  });
   const valueOptions = computed(() => {
     switch (batchForm.value.attr) {
       case 'status':

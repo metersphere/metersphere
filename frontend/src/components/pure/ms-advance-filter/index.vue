@@ -142,12 +142,12 @@
       </MsTag>
     </div>
   </div>
-  <!-- TODO lmy 高级搜索全部覆盖后将此代码删除：?? ViewTypeEnum.FUNCTIONAL_CASE -->
   <FilterDrawer
+    v-if="props.viewType"
     ref="filterDrawerRef"
     v-model:visible="visible"
     :current-view="currentView"
-    :view-type="props.viewType ?? ViewTypeEnum.FUNCTIONAL_CASE"
+    :view-type="props.viewType"
     :internal-views="internalViews"
     :all-view-names="allViewNames"
     :config-list="props.filterConfigList"
