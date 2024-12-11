@@ -25,7 +25,7 @@
             v-model:model-value="activePlan"
             :options="testPlanGroups"
             size="small"
-            @change="searchList"
+            @change="handlePlanChange"
           ></a-select>
           <executeRatePopper
             v-else-if="item.key === 'rate'"
@@ -49,7 +49,7 @@
       <div class="flex items-center justify-between">
         <MsTab
           v-model:active-key="activeTable"
-          :content-tab-list="contentTabList"
+          :content-tab-list="showContentTabList"
           :show-badge="false"
           class="testPlan-execute-tab no-content"
           @change="searchList"
@@ -161,6 +161,8 @@
   const testPlanGroups = ref<SelectOptionData[]>([]);
   const executeRateVisible = ref(false);
   const activePlan = ref('');
+  const activePlanCaseTotal = ref(0);
+  const activePlanScenarioTotal = ref(0);
 
   const columns: MsTableColumn = [
     {
@@ -216,6 +218,14 @@
     { value: 'case', label: t('report.detail.apiCaseDetails') },
     { value: 'scenario', label: t('report.detail.scenarioCaseDetails') },
   ];
+  const showContentTabList = computed(() =>
+    contentTabList.filter((item) => {
+      if (item.value === 'case') {
+        return activePlanCaseTotal.value > 0;
+      }
+      return activePlanScenarioTotal.value > 0;
+    })
+  );
   const keyword = ref('');
 
   const useApiTable = useTable(getApiPage, {
@@ -263,6 +273,20 @@
       reportId: activePlan.value || detail.value.reportId,
     });
     currentCaseTable.value.loadList();
+  }
+
+  function handlePlanChange(
+    value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
+  ) {
+    const plan = testPlanGroups.value.find((item) => item.value === value);
+    if (plan) {
+      activePlanCaseTotal.value = plan.caseTotal;
+      activePlanScenarioTotal.value = plan.scenarioTotal;
+      activeTable.value = activePlanCaseTotal.value > 0 ? 'case' : 'scenario';
+      nextTick(() => {
+        searchList();
+      });
+    }
   }
 
   // 去用例详情页面
@@ -315,6 +339,8 @@
         ] as Description[],
         ...res,
       };
+      activePlanCaseTotal.value = res.apiCaseTotal;
+      activePlanScenarioTotal.value = res.apiScenarioTotal;
       if (res.childPlans.length) {
         detail.value.description.push({
           label: t('testPlan.testPlanIndex.testPlan'),
@@ -326,7 +352,13 @@
           label: item.name,
         }));
         activePlan.value = res.childPlans[0]?.id;
+      } else {
+        testPlanGroups.value = [];
+        activePlanCaseTotal.value = res.childPlans[0]?.apiCaseTotal;
+        activePlanScenarioTotal.value = res.childPlans[0]?.apiScenarioTotal;
+        activeTable.value = activePlanCaseTotal.value > 0 ? 'case' : 'scenario';
       }
+      activeTable.value = activePlanCaseTotal.value > 0 ? 'case' : 'scenario';
       searchList();
     } catch (error) {
       // eslint-disable-next-line no-console

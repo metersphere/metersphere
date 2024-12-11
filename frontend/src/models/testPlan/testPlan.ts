@@ -475,7 +475,10 @@ export interface PlanExecuteResultExecuteCaseCount {
 export interface PlanExecuteResult extends TaskReportDetail {
   taskName: string;
   reportId: string;
-  childPlans: { id: string; name: string }[]; // 子计划
+  childPlans: { id: string; name: string; apiCaseTotal: number; apiScenarioTotal: number }[]; // 子计划
   createUser: string;
+  executeRate: string;
   executeCaseCount: PlanExecuteResultExecuteCaseCount;
+  apiCaseTotal: number;
+  apiScenarioTotal: number;
 }

@@ -27,7 +27,7 @@
                 >
                   <div class="one-line-text max-w-[120px]">
                     <slot name="item" :filter-item="item" :index="index">
-                      <div class="one-line-text max-w-[120px]">{{ item[props.labelKey || 'label'] }}</div>
+                      {{ item[props.valueKey || 'value'] }}
                     </slot>
                   </div>
                 </a-tooltip>
@@ -74,7 +74,7 @@
                         :disabled="!item[props.labelKey || 'label']"
                       >
                         <div class="one-line-text max-w-[120px]" @click.stop="checkItem(item.value)">
-                          <div class="one-line-text max-w-[120px]">{{ item.label }}</div>
+                          {{ item.label }}
                         </div>
                       </a-tooltip>
                     </a-checkbox>

@@ -171,12 +171,7 @@
       dataIndex: 'status',
       slotName: 'status',
       filterConfig: {
-        options: planStatusOptions.filter((e) => {
-          if (props.type === 'my_todo') {
-            return e.value !== 'COMPLETED';
-          }
-          return true;
-        }),
+        options: planStatusOptions,
         filterSlotName: FilterSlotNameEnum.TEST_PLAN_STATUS_FILTER,
       },
       showInTable: true,
