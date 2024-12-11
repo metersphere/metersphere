@@ -40,7 +40,11 @@
         </a-tooltip>
       </template>
       <template #scenario="{ record }">
-        {{ getScenarioType(record.scenario) }}
+        <a-tooltip :content="getScenarioType(record.scenario)">
+          <div class="one-line-text">
+            {{ getScenarioType(record.scenario) }}
+          </div>
+        </a-tooltip>
       </template>
       <template #organizations="{ record }">
         <MsTagGroup
@@ -178,7 +182,6 @@
       slotName: 'scenario',
       showInTable: true,
       width: 100,
-      showTooltip: true,
       showDrag: true,
     },
     {
@@ -215,7 +218,6 @@
       slotName: 'xpack',
       dataIndex: 'xpack',
       showInTable: true,
-      showTooltip: true,
       width: 200,
       showDrag: true,
     },
