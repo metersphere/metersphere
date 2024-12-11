@@ -76,6 +76,9 @@
     keyWords: string;
     getReportStepDetail?: (...args: any) => Promise<any>; // 获取步骤的详情内容接口
     isExport?: boolean; // 是否是导出pdf预览
+    isFilterStep?: boolean; // 是否打开抽屉之前过滤用例步骤
+    caseId?: string; // 用例id
+    caseName?: string; // 用例名称
   }>();
 
   const { t } = useI18n();
@@ -105,14 +108,6 @@
 
   const expandedKeys = ref<(string | number)[]>([]);
   const originTreeData = ref<ScenarioItemType[]>([]);
-
-  function initStepTree() {
-    tiledList.value = cloneDeep(props.reportDetail.children) || [];
-    tiledList.value.forEach((item) => {
-      addFoldField(item);
-    });
-    originTreeData.value = cloneDeep(tiledList.value);
-  }
 
   const controlCurrent = ref(0);
   const isFailedRetry = computed(() => {
@@ -145,15 +140,6 @@
     });
   });
 
-  watch(
-    () => props.reportDetail,
-    (val) => {
-      if (val && val.children) {
-        initStepTree();
-      }
-    },
-    { deep: true, immediate: true }
-  );
   const showApiType = ref<string[]>([
     ScenarioStepType.API,
     ScenarioStepType.API_CASE,
@@ -167,11 +153,13 @@
     const stepType =
       splitLevel[0] === 'CUSTOM_REQUEST' ? ['API', 'API_CASE', 'CUSTOM_REQUEST'] : Object.values(ScenarioStepType);
     const nameSearch = innerKeyword.value?.toLowerCase(); // 传入的 name 检索关键字
-
     const search = (_data: ScenarioItemType[]) => {
       const result: ScenarioItemType[] = [];
       _data.forEach((item) => {
         const isStepChildren = item.children && item?.children.length && showApiType.value.includes(item.stepType);
+
+        const isFilterCaseStep =
+          props.isFilterStep && props.reportDetail.integrated && innerKeyword.value === props.caseName;
 
         // 匹配步骤类型
         const matchStepType = stepType.includes(item.stepType);
@@ -183,9 +171,16 @@
 
         // 条件匹配逻辑
         let matchesStepCondition;
+        // 如果开启用例过滤且为集合报告过滤用例步骤
+        if (isFilterCaseStep) {
+          const caseStepCondition = item.name?.toLowerCase().includes(nameSearch) && item.stepId === props.caseId;
 
+          matchesStepCondition = stepTypeStatus
+            ? caseStepCondition && matchStepType && matchStepStatus
+            : caseStepCondition;
+        }
         // 如果传入了 name 且有状态
-        if (nameSearch && stepTypeStatus) {
+        else if (nameSearch && stepTypeStatus) {
           matchesStepCondition = matchStepType && matchStepStatus && item.name?.toLowerCase().includes(nameSearch);
         }
         // 仅传入了 name 没有状态或类型
@@ -235,6 +230,19 @@
     }
   }, 300);
 
+  function initStepTree() {
+    tiledList.value = cloneDeep(props.reportDetail.children) || [];
+    tiledList.value.forEach((item) => {
+      addFoldField(item);
+    });
+    originTreeData.value = cloneDeep(tiledList.value);
+
+    // 过滤当前用例步骤
+    if (props.isFilterStep && props.reportDetail.integrated) {
+      updateDebouncedSearch();
+    }
+  }
+
   watch(
     () => props.keyWords,
     (val) => {
@@ -244,6 +252,16 @@
         updateDebouncedSearch();
       }
     }
+  );
+
+  watch(
+    () => props.reportDetail,
+    (val) => {
+      if (val && val.children) {
+        initStepTree();
+      }
+    },
+    { deep: true, immediate: true }
   );
 
   defineExpose({

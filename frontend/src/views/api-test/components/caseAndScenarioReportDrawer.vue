@@ -44,9 +44,19 @@
       <CaseReportCom
         v-if="!props.isScenario"
         :detail-info="reportStepDetail"
+        :is-filter-step="props.isFilterStep"
+        :case-name="props.caseName"
+        :case-id="props.caseId"
         :get-report-step-detail="props.getReportStepDetail"
       />
-      <ScenarioCom v-else :detail-info="reportStepDetail" :get-report-step-detail="props.getReportStepDetail" />
+      <ScenarioCom
+        v-else
+        :detail-info="reportStepDetail"
+        :is-filter-step="props.isFilterStep"
+        :case-name="props.caseName"
+        :case-id="props.caseId"
+        :get-report-step-detail="props.getReportStepDetail"
+      />
     </a-spin>
   </MsDrawer>
 </template>
@@ -76,6 +86,9 @@
     doNotShowShare?: boolean; // 不展示分享按钮
     reportDetail?: (...args: any) => Promise<any>; // 获取报告接口
     getReportStepDetail?: (...args: any) => Promise<any>; // 获取步骤的详情内容接口
+    caseName?: string; // 用例名称
+    caseId?: string; // 用例id
+    isFilterStep?: boolean;
   }>();
 
   const appStore = useAppStore();

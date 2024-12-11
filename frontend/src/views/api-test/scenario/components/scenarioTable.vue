@@ -468,6 +468,9 @@
   <caseAndScenarioReportDrawer
     v-model:visible="showScenarioReportVisible"
     is-scenario
+    is-filter-step
+    :case-name="tableRecord?.name || ''"
+    :case-id="tableRecord?.id || ''"
     :report-id="tableRecord?.lastReportId || ''"
   />
   <!--  场景导出-->

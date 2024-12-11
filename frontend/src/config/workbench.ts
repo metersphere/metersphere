@@ -281,6 +281,8 @@ export const commonRatePieOptions = {
     color: [],
     radius: ['65%', '80%'],
     center: [44, '50%'],
+    minAngle: 5,
+    minShowLabelAngle: 10,
     avoidLabelOverlap: false,
     label: {
       show: false,

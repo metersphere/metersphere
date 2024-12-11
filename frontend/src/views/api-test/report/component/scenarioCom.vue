@@ -47,12 +47,15 @@
       <TiledList
         ref="tiledListRef"
         v-model:keyword-name="keywordName"
+        :case-id="props.caseId"
+        :case-name="props.caseName"
         :key-words="cascaderKeywords"
         show-type="API"
         :get-report-step-detail="props.getReportStepDetail"
         :active-type="activeTab"
         :report-detail="detail || []"
         :is-export="props.isExport"
+        :is-filter-step="props.isFilterStep"
         class="p-[16px]"
       />
     </div>
@@ -84,6 +87,9 @@
     detailInfo?: ReportDetail;
     getReportStepDetail?: (...args: any) => Promise<any>; // 获取步骤的详情内容接口
     isExport?: boolean; // 是否是导出pdf预览
+    isFilterStep?: boolean; // 是否打开抽屉之前过滤用例步骤
+    caseName?: string; // 用例名称关键字
+    caseId?: string; // 用例id
   }>();
 
   const detail = ref<ReportDetail>({
@@ -149,7 +155,7 @@
     }
     return '';
   });
-  const keywordName = ref<string>('');
+  const keywordName = ref<string>(props.caseName || '');
 
   const reportAnalysisList = computed<ReportMetricsItemModel[]>(() => [
     {

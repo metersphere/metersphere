@@ -175,9 +175,12 @@
         v-model:keyword-name="keywordName"
         :key-words="cascaderKeywords"
         show-type="CASE"
+        :case-id="props.caseId"
+        :case-name="props.caseName"
         :active-type="activeTab"
         :report-detail="detail || []"
         :get-report-step-detail="props.getReportStepDetail"
+        :is-filter-step="props.isFilterStep"
         :is-export="props.isExport"
       />
     </div>
@@ -207,6 +210,9 @@
     detailInfo?: ReportDetail;
     getReportStepDetail?: (...args: any) => Promise<any>; // 获取步骤的详情内容接口
     isExport?: boolean;
+    isFilterStep?: boolean; // 是否打开抽屉之前过滤用例步骤
+    caseName?: string; // 用例名称关键字
+    caseId?: string; // 用例id
   }>();
 
   const detail = ref<ReportDetail>({
@@ -250,7 +256,7 @@
   });
 
   const cascaderKeywords = ref<string>('');
-  const keywordName = ref<string>('');
+  const keywordName = ref<string>(props.caseName || '');
 
   const getTotalTime = computed(() => {
     if (detail.value) {

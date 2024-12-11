@@ -288,7 +288,13 @@
     @finished="loadCaseListAndResetSelector"
   />
   <!-- 执行结果抽屉 -->
-  <caseAndScenarioReportDrawer v-model:visible="showExecuteResult" :report-id="activeReportId" />
+  <caseAndScenarioReportDrawer
+    v-model:visible="showExecuteResult"
+    :case-name="currentCaseName"
+    :case-id="currentId"
+    is-filter-step
+    :report-id="activeReportId"
+  />
   <!-- 同步抽屉 -->
   <SyncModal
     ref="syncModalRef"
@@ -1132,10 +1138,14 @@
   }
 
   const activeReportId = ref('');
+  const currentId = ref<string>('');
+  const currentCaseName = ref<string>('');
   const showExecuteResult = ref(false);
   async function showResult(record: ApiCaseDetail) {
     if (!record.lastReportId) return;
     activeReportId.value = record.lastReportId;
+    currentId.value = record.id;
+    currentCaseName.value = record.name;
     showExecuteResult.value = true;
   }
 

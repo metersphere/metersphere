@@ -597,19 +597,20 @@ export function handleUpdateTabPie(
   if (hasPermission) {
     const pieBorderWidth = countList.slice(1).filter((e) => Number(e.count) > 0).length === 1 ? 0 : 1;
 
-    lastCountList = countList.slice(1).map((item) => {
+    lastCountList = countList.slice(1).map((item, i) => {
       return {
         value: item.count,
         label: item.name,
         name: item.name,
         itemStyle: {
+          color: defaultValueMap[typeKey][valueKey].color[i],
           borderWidth: pieBorderWidth,
           borderColor: '#ffffff',
         },
       };
     });
 
-    options.series.data = lastCountList.every((e) => e.value === 0) ? [] : lastCountList;
+    options.series.data = lastCountList.every((e) => e.value === 0) ? [] : lastCountList.filter((e) => e.value !== 0);
 
     options.title.text = countList[0].name ?? '';
     options.title.subtext = `${countList[0].count ?? 0}%`;
@@ -624,8 +625,6 @@ export function handleUpdateTabPie(
     options.title.text = t(defaultValueMap[typeKey][valueKey].defaultName);
     options.title.subtext = '-%';
   }
-
-  options.series.color = defaultValueMap[typeKey][valueKey].color;
 
   const lastValueList = lastCountList.map((item, index) => {
     return {
