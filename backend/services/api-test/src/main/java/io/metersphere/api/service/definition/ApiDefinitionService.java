@@ -189,7 +189,11 @@ public class ApiDefinitionService extends MoveNodeService {
     private List<String> selectApiIdInCaseAndScenarioStep(String projectId, List<String> protocols) {
         List<String> apiInCase = this.selectApiIdInCase(projectId, protocols);
         List<String> apiInScenarioStep = this.selectApiIdInScenarioStep(projectId, protocols, apiInCase);
-        return ListUtils.union(apiInCase, apiInScenarioStep);
+        List<String> returnList = ListUtils.union(apiInCase, apiInScenarioStep);
+        if (returnList.isEmpty()) {
+            returnList.add("nonePrepared");
+        }
+        return returnList;
     }
 
     private List<String> selectApiIdInCase(String projectId, List<String> protocols) {
