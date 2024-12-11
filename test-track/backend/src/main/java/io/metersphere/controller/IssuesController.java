@@ -43,6 +43,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -63,13 +64,14 @@ public class IssuesController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public Pager<List<IssuesDao>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody IssuesRequest request) {
         issuesService.setFilterParam(request);
-        if (request.getThisWeekUnClosedTestPlanIssue() && CollectionUtils.isEmpty(request.getFilterIds())) {
-            Page<List<Issues>> page = PageHelper.startPage(goPage, pageSize, true);
-            return PageUtils.setPageInfo(page, Collections.EMPTY_LIST);
-        } else {
-            Page<List<Issues>> page = PageHelper.startPage(goPage, pageSize, true);
-            return PageUtils.setPageInfo(page, issuesService.list(request));
+        if (request.getThisWeekUnClosedTestPlanIssue() || request.getUnClosedTestPlanIssue() || request.getAllTestPlanIssue()) {
+            if (CollectionUtils.isEmpty(request.getFilterIds())) {
+                Page<List<Issues>> page = PageHelper.startPage(goPage, pageSize, true);
+                return PageUtils.setPageInfo(page, new ArrayList<>());
+            }
         }
+        Page<List<Issues>> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, issuesService.list(request));
     }
 
     @PostMapping("/dashboard/list/{goPage}/{pageSize}")

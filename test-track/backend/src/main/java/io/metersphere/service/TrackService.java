@@ -257,7 +257,7 @@ public class TrackService {
         return bugStatusMap;
     }
 
-    private Map<String, String> parseIssueStatusMap(List<String> issueIds, String projectId) {
+    public Map<String, String> parseIssueStatusMap(List<String> issueIds, String projectId) {
         Map<String, String> statusMap = new HashMap<>(issueIds.size());
         // 由于缺陷存在自定义状态, 平台状态, 所以遗留缺状态统计需校验平台
         IssuesRequest issuesRequest = new IssuesRequest();

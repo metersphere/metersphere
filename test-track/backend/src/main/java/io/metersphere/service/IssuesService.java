@@ -163,6 +163,8 @@ public class IssuesService {
     private MdFileService mdFileService;
     @Resource
     private CustomFieldMapper customFieldMapper;
+    @Resource
+    private TrackService trackService;
 
     private static final String SYNC_THIRD_PARTY_ISSUES_KEY = "ISSUE:SYNC";
     private static final String SYNC_THIRD_PARTY_ISSUES_ERROR_KEY = "ISSUE:SYNC:ERROR";
@@ -2167,7 +2169,7 @@ public class IssuesService {
             issueIds = Collections.EMPTY_LIST;
         }
 
-        Map<String, String> statusMap = customFieldIssuesService.getIssueStatusMap(issueIds, request.getProjectId());
+        Map<String, String> statusMap = trackService.parseIssueStatusMap(issueIds, request.getProjectId());
         if (MapUtils.isEmpty(statusMap) && CollectionUtils.isNotEmpty(issueIds)) {
             // 未找到自定义字段状态, 则获取平台状态
             IssuesRequest issuesRequest = new IssuesRequest();
