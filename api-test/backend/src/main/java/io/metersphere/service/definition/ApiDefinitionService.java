@@ -37,6 +37,7 @@ import io.metersphere.dto.*;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.service.OperatingLogService;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -183,6 +184,8 @@ public class ApiDefinitionService {
     private BaseEnvGroupProjectService environmentGroupProjectService;
     @Resource
     private ApiCaseResultService apiCaseResultService;
+    @Resource
+    private OperatingLogService operatingLogService;
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
@@ -2110,12 +2113,53 @@ public class ApiDefinitionService {
 
         }
         if (request.isEditCaseRequest() && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree())) {
+            String beforeValue = getLogValue(request);
             ApiTestCaseWithBLOBs record = new ApiTestCaseWithBLOBs();
             record.setRequest(JSON.toJSONString(request.getTestElement().getHashTree().get(0).getHashTree().get(0)));
             record.setId(request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName());
             apiTestCaseMapper.updateByPrimaryKeySelective(record);
+            String afterValue = getLogValue(request);
+            saveLog(beforeValue, afterValue);
         }
         return apiExecuteService.debug(request, bodyFiles);
+    }
+
+    private void saveLog(String beforeValue, String afterValue) {
+        OperatingLogWithBLOBs msOperLog = new OperatingLogWithBLOBs();
+        msOperLog.setId(UUID.randomUUID().toString());
+        msOperLog.setOperType(OperLogConstants.UPDATE.name());
+        msOperLog.setOperModule(OperLogModule.API_DEFINITION_CASE);
+        msOperLog.setProjectId(SessionUtils.getCurrentProjectId());
+
+
+        if (StringUtils.isNotEmpty(afterValue) && StringUtils.isNotEmpty(beforeValue)) {
+            OperatingLogDetails details = JSON.parseObject(afterValue, OperatingLogDetails.class);
+            List<DetailColumn> columns = ReflexObjectUtil.compared(JSON.parseObject(beforeValue, OperatingLogDetails.class), details, OperLogModule.API_DEFINITION_CASE);
+            details.setColumns(columns);
+            msOperLog.setOperContent(JSON.toJSONString(details));
+            msOperLog.setSourceId(details.getSourceId());
+        } else {
+            msOperLog.setOperContent(afterValue);
+        }
+        msOperLog.setOperTime(System.currentTimeMillis());
+        msOperLog.setCreateUser(SessionUtils.getUserId());
+        msOperLog.setOperUser(SessionUtils.getUserId());
+
+        operatingLogService.create(msOperLog, msOperLog.getSourceId());
+    }
+
+    private String getLogValue(RunDefinitionRequest request) {
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        ApiTestCaseExample.Criteria criteria = example.createCriteria();
+        criteria.andIdEqualTo(request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName());
+        List<ApiTestCaseWithBLOBs> list = apiTestCaseMapper.selectByExampleWithBLOBs(example);
+        if (CollectionUtils.isNotEmpty(list)) {
+            ApiTestCaseWithBLOBs bloBs = list.get(0);
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, DefinitionReference.caseColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(bloBs.getId()), bloBs.getProjectId(), bloBs.getCreateUserId(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 
     private String getReportNameByTestId(String testId) {
