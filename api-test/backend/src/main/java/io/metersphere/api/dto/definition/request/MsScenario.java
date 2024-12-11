@@ -102,7 +102,7 @@ public class MsScenario extends MsTestElement {
                 ElementUtil.setHeader(scenarioTree, this.headers, this.getName());
             }
         }
-        if (!config.getExcludeScenarioIds().contains(this.getId())) {
+        if (!config.getExcludeScenarioIds().contains(this.getId()) && ((ParameterConfig) msParameter).isApi()) {
             scenarioTree = MsCriticalSectionController.createHashTree(tree, this.getName(), this.isEnable());
         }
         // 启用当前场景变量优先选择
