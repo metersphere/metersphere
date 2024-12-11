@@ -195,33 +195,58 @@ export default {
     handleTemplate(index, row) {
       if (hasLicense()) {
         let robotTemplate = "";
-        searchTemplateById(row.id, row.event).then(response => {
-          row.template = response.data.template
-          if (!response.data.template) {
-            switch (row.event) {
-              case 'CREATE':
-                robotTemplate = this.robotTitle;
-                break;
-              case 'UPDATE':
-                robotTemplate = this.robotTitle.replace('创建', '更新');
-                break;
-              case 'DELETE':
-                robotTemplate = this.robotTitle.replace('创建', '删除');
-                break;
-              case 'EXECUTE_SUCCESSFUL':
-                robotTemplate = this.robotTitle.replace('创建', '执行')
-                  .replace('UI自动化', 'UI自动化成功');
-                break;
-              case 'EXECUTE_FAILED':
-                robotTemplate = this.robotTitle.replace('创建', '执行')
-                  .replace('UI自动化', 'UI自动化失败');
-                break;
-              default:
-                break;
+        if (row.id) {
+          searchTemplateById(row.id, row.event).then(response => {
+            row.template = response.data.template
+            if (!response.data.template) {
+              switch (row.event) {
+                case 'CREATE':
+                  robotTemplate = this.robotTitle;
+                  break;
+                case 'UPDATE':
+                  robotTemplate = this.robotTitle.replace('创建', '更新');
+                  break;
+                case 'DELETE':
+                  robotTemplate = this.robotTitle.replace('创建', '删除');
+                  break;
+                case 'EXECUTE_SUCCESSFUL':
+                  robotTemplate = this.robotTitle.replace('创建', '执行')
+                    .replace('UI自动化', 'UI自动化成功');
+                  break;
+                case 'EXECUTE_FAILED':
+                  robotTemplate = this.robotTitle.replace('创建', '执行')
+                    .replace('UI自动化', 'UI自动化失败');
+                  break;
+                default:
+                  break;
+              }
             }
+            this.$refs.noticeTemplate.open(row, robotTemplate);
+          });
+        } else {
+          switch (row.event) {
+            case 'CREATE':
+              robotTemplate = this.robotTitle;
+              break;
+            case 'UPDATE':
+              robotTemplate = this.robotTitle.replace('创建', '更新');
+              break;
+            case 'DELETE':
+              robotTemplate = this.robotTitle.replace('创建', '删除');
+              break;
+            case 'EXECUTE_SUCCESSFUL':
+              robotTemplate = this.robotTitle.replace('创建', '执行')
+                .replace('UI自动化', 'UI自动化成功');
+              break;
+            case 'EXECUTE_FAILED':
+              robotTemplate = this.robotTitle.replace('创建', '执行')
+                .replace('UI自动化', 'UI自动化失败');
+              break;
+            default:
+              break;
           }
           this.$refs.noticeTemplate.open(row, robotTemplate);
-        });
+        }
       }
     },
     handleReceivers(row) {
