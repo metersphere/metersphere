@@ -23,6 +23,7 @@ export enum TableKeyEnum {
   SYSTEM_AUTH = 'systemAuth',
   SYSTEM_ORGANIZATION = 'systemOrganization',
   SYSTEM_PROJECT = 'systemProject',
+  SYSTEM_PLUGIN = 'systemPlugin',
   SYSTEM_LOG = 'systemLog',
   PROJECT_MEMBER = 'projectMember',
   PROJECT_USER_GROUP = 'projectUserGroup',

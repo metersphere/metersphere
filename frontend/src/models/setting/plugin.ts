@@ -38,8 +38,8 @@ export type PluginItem = Partial<{
   name: string;
   pluginId: string;
   fileName: string; // 文件名称
-  createTime: number;
-  updateTime: number;
+  createTime: string;
+  updateTime: string;
   createUser: string;
   enable: boolean;
   global: boolean;

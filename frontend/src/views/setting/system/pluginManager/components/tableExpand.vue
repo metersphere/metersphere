@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="w-full">
     <div v-for="(item, index) in recordItem.pluginForms" :key="item.id" class="ms-self">
       <span class="circle text-[12px] leading-[16px]"> {{ index + 1 }} </span>
       <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="getScriptEmit(recordItem, item)">

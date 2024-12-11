@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/valid-v-for -->
 <template>
   <div>
     <a-row class="grid-demo mb-4" :gutter="10">
@@ -25,137 +24,59 @@
         ></a-input-search>
       </a-col>
     </a-row>
-    <a-table
-      :data="filterData"
-      :pagination="false"
-      :scroll="{ x: 2000 }"
+    <MsBaseTable
       :expandable="expandable"
-      :loading="loading"
-      row-key="id"
-      :expanded-row-keys="expandedRowKeys"
-      @expand="handleExpand"
+      :expanded-keys="expandedKeys"
+      v-bind="propsRes"
+      @enable-change="enableChange"
+      v-on="propsEvent"
     >
-      <template #columns>
-        <a-table-column
-          :width="300"
-          fixed="left"
-          :title="t('system.plugin.tableColumnsName')"
-          :ellipsis="true"
-          :tooltip="true"
-        >
-          <template #cell="{ record }">
-            {{ record.name }} <span class="text-[--color-text-4]">({{ (record.pluginForms || []).length }})</span>
-          </template>
-        </a-table-column>
-        <a-table-column
-          :title="t('common.desc')"
-          data-index="description"
-          :ellipsis="true"
-          :tooltip="true"
-          :width="150"
-        >
-          <template #cell="{ record }">
-            {{ record.description || '-' }}
-          </template>
-        </a-table-column>
-        <a-table-column :title="t('system.plugin.tableColumnsStatus')">
-          <template #cell="{ record }">
-            <a-switch
-              v-model:model-value="record.enable"
-              size="small"
-              :disabled="!hasAnyPermission(['SYSTEM_PLUGIN:READ+UPDATE'])"
-              :before-change="(val: string | number | boolean) => handleChangeEnable(val, record)"
-            />
-          </template>
-        </a-table-column>
-        <a-table-column :title="t('system.plugin.tableColumnsApplicationScene')" data-index="scenario">
-          <template #cell="{ record }">{{ getScenarioType(record.scenario) }}</template>
-        </a-table-column>
-        <a-table-column :title="t('system.plugin.tableColumnsOrg')" :width="300">
-          <template #cell="{ record }">
-            <MsTagGroup
-              v-if="(record.organizations || []).length"
-              :tag-list="record.organizations || []"
-              type="primary"
-              theme="outline"
-            />
-            <MsTag v-else type="primary" theme="outline">
-              {{ t('system.plugin.allOrganize') }}
-            </MsTag>
-          </template>
-        </a-table-column>
-        <a-table-column
-          :title="t('system.plugin.tableColumnsJar')"
-          :ellipsis="true"
-          :tooltip="true"
-          data-index="fileName"
-        />
-        <a-table-column
-          :title="t('system.plugin.tableColumnsVersion')"
-          data-index="pluginId"
-          :width="200"
-          :ellipsis="true"
-          :tooltip="true"
-        />
-        <a-table-column :title="t('system.plugin.tableColumnsAuthorization')" :width="180">
-          <template #cell="{ record }">
-            <span>{{ record.xpack ? t('system.plugin.uploadCompSource') : t('system.plugin.uploadOpenSource') }}</span>
-          </template>
-        </a-table-column>
-        <a-table-column
-          :title="t('system.plugin.tableColumnsCreatedBy')"
-          :ellipsis="true"
-          :tooltip="true"
-          data-index="createUser"
-        />
-        <a-table-column :title="t('system.plugin.tableColumnsUpdateTime')" :width="200">
-          <template #cell="{ record }">
-            <span>{{ getTime(record.updateTime) }}</span>
-          </template>
-        </a-table-column>
-        <a-table-column v-if="hasOperationPluginPermission" :width="150" fixed="right" :bordered="false">
-          <template #title>
-            {{ t('system.plugin.tableColumnsActions') }}
-          </template>
-          <template #cell="{ record }">
-            <div class="flex">
-              <MsButton v-permission="['SYSTEM_PLUGIN:READ+UPDATE']" @click="update(record)">{{
-                t('system.plugin.edit')
-              }}</MsButton>
-              <MsTableMoreAction
-                v-permission="['SYSTEM_PLUGIN:READ+DELETE']"
-                :list="tableActions"
-                @select="handleSelect($event, record)"
-              ></MsTableMoreAction>
-            </div>
-          </template>
-        </a-table-column>
+      <template #name="{ record }">
+        <a-tooltip :content="`${record.name}（${(record.pluginForms || []).length}）`">
+          <div class="one-line-text max-w-[calc(100%-24px)]">
+            {{ `${record.name}` }}
+          </div>
+          <span class="text-[--color-text-4]">（{{ (record.pluginForms || []).length }}）</span>
+        </a-tooltip>
       </template>
-      <template #expand-icon="{ record, expanded }">
-        <span
-          v-if="(record.pluginForms || []).length && !expanded"
-          class="collapsebtn flex items-center justify-center"
-        >
-          <icon-right class="text-[var(--color-text-4)]" :style="{ 'font-size': '12px' }" />
-        </span>
-        <span v-else-if="(record.pluginForms || []).length && expanded" class="expand flex items-center justify-center">
-          <icon-down class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }" />
-        </span>
+      <template #scenario="{ record }">
+        {{ getScenarioType(record.scenario) }}
       </template>
-      <template #empty>
-        <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
-          {{ t('system.plugin.tableNoData') }}
-          <MsButton v-permission="['SYSTEM_PLUGIN:READ+ADD']" class="ml-[8px]" @click="uploadPlugin">{{
-            t('system.plugin.uploadPlugin')
-          }}</MsButton>
+      <template #organizations="{ record }">
+        <MsTagGroup
+          v-if="(record.organizations || []).length"
+          :tag-list="record.organizations || []"
+          type="primary"
+          theme="outline"
+        />
+        <MsTag v-else type="primary" theme="outline">
+          {{ t('system.plugin.allOrganize') }}
+        </MsTag>
+      </template>
+      <template #xpack="{ record }">
+        {{ record.xpack ? t('system.plugin.uploadCompSource') : t('system.plugin.uploadOpenSource') }}
+      </template>
+
+      <template #action="{ record }">
+        <div class="flex">
+          <MsButton v-permission="['SYSTEM_PLUGIN:READ+UPDATE']" @click="update(record)">
+            {{ t('system.plugin.edit') }}
+          </MsButton>
+          <MsTableMoreAction
+            v-permission="['SYSTEM_PLUGIN:READ+DELETE']"
+            :list="tableActions"
+            @select="handleSelect($event, record)"
+          />
         </div>
       </template>
-    </a-table>
+    </MsBaseTable>
+
     <div class="ms-footerNum">
       {{ t('system.plugin.totalNum') }}
       <span class="mx-2 text-[rgb(var(--primary-5))]">{{ totalNum }}</span>
       {{ t('system.plugin.dataList') }}
     </div>
+
     <UploadModel
       v-model:visible="uploadVisible"
       :organize-list="organizeList"
@@ -183,6 +104,9 @@
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
@@ -198,27 +122,179 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useVisit from '@/hooks/useVisit';
+  import { useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { DrawerConfig, PluginForms, PluginItem, PluginList, UpdatePluginModel } from '@/models/setting/plugin';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
+
+  const { openModal } = useModal();
+
+  const tableStore = useTableStore();
+
+  const expandedKeys = ref([]);
+
   const visitedKey = 'doNotShowAgain';
   const { getIsVisited } = useVisit(visitedKey);
-
-  const data = ref<PluginList>([]);
-  const loading = ref<boolean>(false);
-  const expandedRowKeys = reactive([]);
 
   const hasOperationPluginPermission = computed(() =>
     hasAnyPermission(['SYSTEM_PLUGIN:READ+UPDATE', 'SYSTEM_PLUGIN:READ+DELETE'])
   );
 
+  const columns: MsTableColumn = [
+    {
+      title: 'system.plugin.tableColumnsName',
+      dataIndex: 'name',
+      slotName: 'name',
+      showInTable: true,
+      showDrag: false,
+      columnSelectorDisabled: true,
+      fixed: 'left',
+      width: 200,
+    },
+    {
+      title: 'common.desc',
+      dataIndex: 'description',
+      showInTable: true,
+      showTooltip: true,
+      showDrag: true,
+      width: 150,
+    },
+    {
+      title: 'system.plugin.tableColumnsStatus',
+      dataIndex: 'enable',
+      width: 150,
+      showInTable: true,
+      showTooltip: true,
+      showDrag: true,
+      permission: ['SYSTEM_PLUGIN:READ+UPDATE'],
+    },
+    {
+      title: 'system.plugin.tableColumnsApplicationScene',
+      dataIndex: 'scenario',
+      slotName: 'scenario',
+      showInTable: true,
+      width: 100,
+      showTooltip: true,
+      showDrag: true,
+    },
+    {
+      title: 'system.plugin.tableColumnsOrg',
+      slotName: 'organizations',
+      dataIndex: 'organizations',
+      showInTable: true,
+      showDrag: true,
+      width: 200,
+      isTag: true,
+      isStringTag: true,
+    },
+    {
+      title: 'system.plugin.tableColumnsJar',
+      slotName: 'fileName',
+      dataIndex: 'fileName',
+      showInTable: true,
+      showTooltip: true,
+      showDrag: true,
+      allowEditTag: true,
+      width: 300,
+    },
+    {
+      title: 'system.plugin.tableColumnsVersion',
+      slotName: 'pluginId',
+      dataIndex: 'pluginId',
+      showInTable: true,
+      showTooltip: true,
+      width: 100,
+      showDrag: true,
+    },
+    {
+      title: 'system.plugin.tableColumnsAuthorization',
+      slotName: 'xpack',
+      dataIndex: 'xpack',
+      showInTable: true,
+      showTooltip: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
+      title: 'system.plugin.tableColumnsCreatedBy',
+      slotName: 'createUser',
+      dataIndex: 'createUser',
+      showInTable: true,
+      width: 200,
+      showTooltip: true,
+      showDrag: true,
+    },
+    {
+      title: 'system.plugin.tableColumnsUpdateTime',
+      slotName: 'updateTime',
+      dataIndex: 'updateTime',
+      showInTable: true,
+      width: 200,
+      showTooltip: true,
+      showDrag: true,
+    },
+    {
+      title: hasOperationPluginPermission.value ? 'system.plugin.tableColumnsActions' : '',
+      slotName: 'action',
+      dataIndex: 'operation',
+      fixed: 'right',
+      width: hasOperationPluginPermission.value ? 150 : 50,
+      showInTable: true,
+      showDrag: false,
+    },
+  ];
+
+  const { propsRes, propsEvent } = useTable(undefined, {
+    tableKey: TableKeyEnum.SYSTEM_PLUGIN,
+    scroll: { x: '100%' },
+    selectable: false,
+    showPagination: false,
+    heightUsed: 288,
+    showSetting: true,
+    size: 'default',
+  });
+
+  const filterData = ref<PluginList>([]);
+  const searchKeys = reactive({
+    scene: '',
+    name: '',
+  });
+  const totalNum = ref<number>(0);
+
+  const loading = ref<boolean>(false);
+
+  const loadData = async () => {
+    loading.value = true;
+    try {
+      filterData.value = [];
+      const result = await getPluginList();
+      const resData = result.map((e) => {
+        return {
+          ...e,
+          updateTime: dayjs(e.updateTime).format('YYYY-MM-DD HH:mm:ss'),
+          createTime: dayjs(e.createTime).format('YYYY-MM-DD HH:mm:ss'),
+        };
+      });
+      filterData.value = resData;
+      propsRes.value.data = filterData.value;
+      totalNum.value = (result || []).length;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  };
+
   const config = ref<DrawerConfig>({
     title: '',
     pluginId: '',
   });
+
   const tableActions: ActionsItem[] = [
     {
       label: 'system.plugin.delete',
@@ -226,15 +302,7 @@
       danger: true,
     },
   ];
-  const filterData = ref<PluginList>([]);
-  const searchKeys = reactive({
-    scene: '',
-    name: '',
-  });
-  const totalNum = ref<number>(0);
-  const showDrawer = ref<boolean>(false);
-  const detailYaml = ref('');
-  const { openModal } = useModal();
+
   const sceneList = ref([
     {
       label: 'system.plugin.interfaceTest',
@@ -249,32 +317,57 @@
       value: 'JDBC_DRIVER',
     },
   ]);
-  const uploadVisible = ref<boolean>(false);
-  const updateVisible = ref<boolean>(false);
-  const updateModalRef = ref();
 
-  const getTime = (time: string): string => {
-    return dayjs(time).format('YYYY-MM-DD HH:mm:ss');
-  };
-  const loadData = async () => {
-    loading.value = true;
-    try {
-      const result = await getPluginList();
-      data.value = result;
-      filterData.value = result;
-      totalNum.value = (result || []).length;
-    } catch (error) {
-      console.log(error);
-      data.value = [];
-    } finally {
-      loading.value = false;
-    }
-  };
   const searchHandler = () => {
-    filterData.value = data.value.filter(
+    propsRes.value.data = filterData.value.filter(
       (item) => item.name?.includes(searchKeys.name) && item.scenario?.indexOf(searchKeys.scene) !== -1
     );
   };
+
+  const uploadVisible = ref<boolean>(false);
+  function uploadPlugin() {
+    uploadVisible.value = true;
+  }
+
+  const updateVisible = ref<boolean>(false);
+  const updateModalRef = ref();
+  function update(record: PluginItem) {
+    updateVisible.value = true;
+    updateModalRef.value.open(record);
+  }
+
+  const uploadSuccessVisible = ref<boolean>(false);
+  const dialogSuccessOpen = () => {
+    uploadSuccessVisible.value = true;
+  };
+
+  const closeHandler = () => {
+    uploadSuccessVisible.value = false;
+  };
+
+  const okHandler = () => {
+    const isOpen = getIsVisited();
+    if (!isOpen) {
+      dialogSuccessOpen();
+    }
+  };
+
+  function getScenarioType(scenario: string) {
+    switch (scenario) {
+      case 'API_PROTOCOL':
+        return t('system.plugin.interfaceTest');
+      case 'JDBC_DRIVER':
+        return t('system.plugin.databaseDriver');
+      case 'PLATFORM':
+        return t('system.plugin.projectManagement');
+      default:
+        break;
+    }
+  }
+
+  /**
+   * 删除插件
+   */
   function deletePlugin(record: any) {
     openModal({
       type: 'error',
@@ -291,12 +384,14 @@
           Message.success(t('system.plugin.deletePluginSuccess'));
           loadData();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
       hideCancel: false,
     });
   }
+
   function handleSelect(item: ActionsItem, record: any) {
     switch (item.eventTag) {
       case 'delete':
@@ -307,42 +402,40 @@
     }
   }
 
-  function getScenarioType(scenario: string) {
-    switch (scenario) {
-      case 'API_PROTOCOL':
-        return t('system.plugin.interfaceTest');
-      case 'JDBC_DRIVER':
-        return t('system.plugin.databaseDriver');
-      case 'PLATFORM':
-        return t('system.plugin.projectManagement');
-      default:
-        break;
-    }
-  }
-
-  function uploadPlugin() {
-    uploadVisible.value = true;
-  }
-  function update(record: PluginItem) {
-    updateVisible.value = true;
-    updateModalRef.value.open(record);
-  }
-
-  const uploadSuccessVisible = ref<boolean>(false);
-
-  const dialogSuccessOpen = () => {
-    uploadSuccessVisible.value = true;
-  };
-  const closeHandler = () => {
-    uploadSuccessVisible.value = false;
-  };
-  const okHandler = () => {
-    const isOpen = getIsVisited();
-    if (!isOpen) {
-      dialogSuccessOpen();
+  /**
+   * 获取插件脚本详情
+   */
+  const showDrawer = ref<boolean>(false);
+  const detailYaml = ref('');
+  const detailScript = async (record: PluginItem, item: PluginForms) => {
+    showDrawer.value = true;
+    config.value = {
+      pluginId: record.id as string,
+      title: item.name,
+    };
+    try {
+      const result = await getScriptDetail(record.id as string, item.id);
+      detailYaml.value = result || '';
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
     }
   };
 
+  const expandable = reactive({
+    title: '',
+    width: 54,
+    expandedRowRender: (record: Record<string, any>) => {
+      if (record.pluginForms && record.pluginForms.length > 0) {
+        return h(TableExpand, { recordItem: record, onMessageEvent: detailScript });
+      }
+      return undefined;
+    },
+  });
+
+  /**
+   * 启用插件
+   */
   const disableHandler = (record: PluginItem) => {
     openModal({
       type: 'info',
@@ -363,12 +456,17 @@
           Message.success(t('system.plugin.disablePluginSuccess'));
           loadData();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },
       hideCancel: false,
     });
   };
+
+  /**
+   * 启用插件
+   */
   const enableHandler = async (record: PluginItem) => {
     try {
       const params: UpdatePluginModel = {
@@ -379,51 +477,26 @@
       Message.success(t('system.plugin.enablePluginSuccess'));
       loadData();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   };
 
-  function handleChangeEnable(value: string | number | boolean, record: PluginItem) {
-    if (value) {
+  function enableChange(record: PluginItem, newValue: string | number | boolean) {
+    if (newValue) {
       enableHandler(record);
     } else {
       disableHandler(record);
     }
-    return false;
   }
-
-  const detailScript = async (record: PluginItem, item: PluginForms) => {
-    showDrawer.value = true;
-    config.value = {
-      pluginId: record.id as string,
-      title: item.name,
-    };
-    try {
-      const result = await getScriptDetail(record.id as string, item.id);
-      detailYaml.value = result || '';
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const expandable = reactive({
-    title: '',
-    width: 54,
-    expandedRowRender: (record: Record<string, any>) => {
-      if (record.pluginForms && record.pluginForms.length > 0) {
-        return h(TableExpand, { recordItem: record, onMessageEvent: detailScript });
-      }
-      return undefined;
-    },
-  });
-  const handleExpand = (rowKey: string | number) => {
-    Object.assign(expandedRowKeys, [rowKey]);
-  };
 
   const organizeList = ref<SelectOptionData>([]);
   onBeforeMount(async () => {
     loadData();
     organizeList.value = await getSystemOrgOption();
   });
+
+  await tableStore.initColumn(TableKeyEnum.SYSTEM_PLUGIN, columns, 'drawer');
 </script>
 
 <style scoped lang="less">
@@ -433,29 +506,6 @@
   }
   :deep(.arco-table-tr-expand .arco-table-cell) {
     padding: 0 !important;
-  }
-  :deep(.collapsebtn) {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--color-text-n8) !important;
-    background-color: var(--color-text-fff);
-  }
-  :deep(.expand) {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: rgb(var(--primary-1));
-  }
-  :deep(.arco-table-expand-btn) {
-    width: 16px;
-    height: 16px;
-    border: none;
-    border-radius: 50%;
-    background: var(--color-text-n8) !important;
-  }
-  :deep(.arco-table .arco-table-expand-btn:hover) {
-    border-color: transparent;
   }
   .ms-footerNum {
     width: 100%;
@@ -479,7 +529,7 @@
       }
     }
   }
-  :deep(.arco-table-th) {
-    color: var(--color-text-3);
+  :deep(.arco-table-tr.arco-table-tr-expand):hover {
+    background: none !important;
   }
 </style>
