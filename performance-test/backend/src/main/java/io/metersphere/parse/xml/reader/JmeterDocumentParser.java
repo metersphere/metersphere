@@ -45,6 +45,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
     private final static String RESPONSE_ASSERTION = "ResponseAssertion";
     private final static String HTTP_SAMPLER_PROXY = "HTTPSamplerProxy";
     private final static String CSV_DATA_SET = "CSVDataSet";
+    private final static String CRITICAL_SECTION_CONTROLLER = "CriticalSectionController";
     private final static String THREAD_GROUP_AUTO_STOP = "io.metersphere.jmeter.reporters.ThreadGroupAutoStop";
     private final static List<String> SCRIPTS = new ArrayList<>() {{
         add("JSR223PreProcessor");
@@ -126,6 +127,9 @@ public class JmeterDocumentParser implements EngineSourceParser {
                     processArgumentFiles(ele);
                 } else if (ele.getName().endsWith(RESULT_COLLECTOR)) {
                     // 处理结果收集器，性能测试不需要这些
+                    processResultCollector(ele);
+                } else if (ele.getName().endsWith(CRITICAL_SECTION_CONTROLLER)) {
+                    // 性能测试不需要这些
                     processResultCollector(ele);
                 } else if (CollectionUtils.containsAny(SCRIPTS, ele.getName())) {
                     this.elementCacheScript(ele);
