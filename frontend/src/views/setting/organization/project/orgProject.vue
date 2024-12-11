@@ -17,7 +17,7 @@
         @clear="fetchData"
       ></a-input-search>
     </div>
-    <MsBaseTable v-bind="propsRes" v-on="propsEvent" @enable-change="enableChange">
+    <MsBaseTable v-bind="propsRes" :row-class="getRowClass" v-on="propsEvent" @enable-change="enableChange">
       <template #revokeDelete="{ record }">
         <a-tooltip class="ms-tooltip-white">
           <template #content>
@@ -271,6 +271,7 @@
   const currentUserDrawer = reactive({
     visible: false,
     projectId: '',
+    currentName: '',
   });
 
   const tableActions: ActionsItem[] = [
@@ -339,10 +340,16 @@
   const showUserDrawer = (record: TableData) => {
     currentUserDrawer.visible = true;
     currentUserDrawer.projectId = record.id;
+    currentUserDrawer.currentName = record.name;
   };
+
+  function getRowClass(record: TableData) {
+    return record.id === currentUserDrawer.projectId ? 'selected-row-class' : '';
+  }
 
   const handleUserDrawerCancel = () => {
     currentUserDrawer.visible = false;
+    currentUserDrawer.projectId = '';
   };
 
   const handleAddProjectModalCancel = (shouldSearch: boolean) => {

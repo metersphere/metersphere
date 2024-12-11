@@ -177,10 +177,4 @@
     @apply overflow-y-auto;
     .ms-scroll-bar();
   }
-  :deep(.selected-row-class.arco-table-tr) {
-    background: var(--color-fill-1) !important;
-    .arco-table-td {
-      background: var(--color-fill-1) !important;
-    }
-  }
 </style>

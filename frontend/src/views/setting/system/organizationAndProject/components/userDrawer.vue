@@ -9,6 +9,17 @@
     :title="t('system.memberList')"
     @cancel="handleCancel"
   >
+    <template #headerLeft>
+      <a-tooltip :content="props.currentName">
+        <div class="ml-[8px] flex flex-1 overflow-hidden text-[var(--color-text-4)]">
+          (
+          <div class="one-line-text flex-1">
+            {{ props.currentName }}
+          </div>
+          )
+        </div>
+      </a-tooltip>
+    </template>
     <div>
       <div class="flex flex-row justify-between">
         <a-button

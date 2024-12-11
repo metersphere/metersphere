@@ -1,5 +1,5 @@
 <template>
-  <MsBaseTable v-bind="propsRes" v-on="propsEvent" @enable-change="enableChange">
+  <MsBaseTable v-bind="propsRes" :row-class="getRowClass" v-on="propsEvent" @enable-change="enableChange">
     <template #revokeDelete="{ record }">
       <a-tooltip class="ms-tooltip-white">
         <template #content>
@@ -325,8 +325,13 @@
     currentUserDrawer.currentName = record.name;
   };
 
+  function getRowClass(record: TableData) {
+    return record.id === currentUserDrawer.organizationId ? 'selected-row-class' : '';
+  }
+
   const handleUserDrawerCancel = () => {
     currentUserDrawer.visible = false;
+    currentUserDrawer.organizationId = '';
   };
 
   const handleAddOrgModalCancel = (shouldSearch: boolean) => {

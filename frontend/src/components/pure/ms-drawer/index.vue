@@ -19,8 +19,8 @@
     <template #title>
       <div class="flex items-center justify-between gap-[4px]">
         <slot name="title">
-          <div class="flex flex-1 items-center justify-between">
-            <div class="flex items-center">
+          <div class="flex flex-1 items-center justify-between overflow-hidden">
+            <div class="flex items-center overflow-hidden">
               <a-tooltip :disabled="!props.title" :content="props.title">
                 <span class="one-line-text max-w-[300px]"> {{ props.title }}</span>
               </a-tooltip>

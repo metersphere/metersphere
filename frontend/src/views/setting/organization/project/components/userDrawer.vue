@@ -8,6 +8,17 @@
     :mask="false"
     @cancel="handleCancel"
   >
+    <template #headerLeft>
+      <a-tooltip :content="props.currentName">
+        <div class="ml-[8px] flex flex-1 overflow-hidden text-[var(--color-text-4)]">
+          (
+          <div class="one-line-text flex-1">
+            {{ props.currentName }}
+          </div>
+          )
+        </div>
+      </a-tooltip>
+    </template>
     <div>
       <div class="flex flex-row justify-between">
         <a-button
@@ -117,6 +128,7 @@
     visible: boolean;
     organizationId?: string;
     projectId?: string;
+    currentName?: string;
   }
   const { t } = useI18n();
   const props = defineProps<projectDrawerProps>();
