@@ -107,7 +107,6 @@ public class FileUtils {
             }
         } catch (IOException e) {
             LogUtil.error("Error during file write: " + e.getMessage(), e);
-            MSException.throwException(Translator.get("upload_fail"));
         }
     }
 
@@ -149,7 +148,6 @@ public class FileUtils {
                     }
                 } catch (IOException e) {
                     LogUtil.error("Error writing file: " + e.getMessage(), e);
-                    MSException.throwException(Translator.get("upload_fail"));
                 }
             }
         }
@@ -188,7 +186,6 @@ public class FileUtils {
                 }
             } catch (IOException e) {
                 LogUtil.error("Error while processing the file upload: " + e.getMessage(), e);
-                MSException.throwException(Translator.get("upload_fail"));
                 return null;  // 返回 null，表示上传失败
             }
 
@@ -208,7 +205,6 @@ public class FileUtils {
                 boolean dirCreated = testDir.mkdirs();
                 if (!dirCreated) {
                     LogUtil.error("Failed to create directory: " + path);
-                    MSException.throwException("Directory creation failed");
                 }
             }
 
@@ -220,15 +216,11 @@ public class FileUtils {
                         FileUtil.copyStream(in, out);  // 复制文件内容
                     } else {
                         LogUtil.error("File already exists: " + file.getAbsolutePath());
-                        MSException.throwException("File already exists");
                     }
                 } catch (IOException e) {
                     LogUtil.error("Error uploading file: " + item.getOriginalFilename(), e);
-                    MSException.throwException(Translator.get("upload_fail"));
                 }
             });
-        } else {
-            MSException.throwException("Invalid request ID or body files are empty");
         }
     }
 
@@ -373,7 +365,6 @@ public class FileUtils {
             boolean dirCreated = fileDir.mkdirs();
             if (!dirCreated) {
                 LogUtil.error("Failed to create directory: " + dir);
-                MSException.throwException("Directory creation failed");
             }
         }
 
@@ -386,12 +377,10 @@ public class FileUtils {
             boolean fileCreated = file.createNewFile();
             if (!fileCreated) {
                 LogUtil.error("Failed to create file: " + file.getAbsolutePath());
-                MSException.throwException("File creation failed");
             }
             FileUtil.copyStream(in, out);
         } catch (IOException e) {
             LogUtil.error("Error while creating or writing file: " + file.getAbsolutePath(), e);
-            MSException.throwException("File upload failed");
         }
 
         // 返回文件路径
@@ -428,7 +417,6 @@ public class FileUtils {
             FileUtil.copyStream(in, out);
         } catch (IOException e) {
             LogUtil.error(e.getMessage(), e);
-            MSException.throwException(Translator.get("upload_fail"));
         }
         return filePath;
     }
