@@ -3,6 +3,7 @@
     @clearSelect="clearSelect"
     @setProject="setProject"
     @save="saveCaseRelevance"
+    @clearCondition="clearCondition"
     :dialog-title="$t('api_test.home_page.failed_case_list.table_value.case_type.ui')"
     ref="baseRelevance"
   >
@@ -117,7 +118,10 @@ export default {
     setCondition(data) {
       this.condition = data;
       this.$refs.nodeTree.list(this.projectId);
-    }
+    },
+    clearCondition() {
+      this.selectNodeIds = [];
+    },
   },
 };
 </script>

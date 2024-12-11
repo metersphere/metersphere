@@ -227,6 +227,7 @@ export default {
 
     close() {
       this.visible = false;
+      this.$emit("clearCondition");
     },
 
     open() {
