@@ -82,10 +82,12 @@ import {TEST_CASE_RELEVANCE_LOAD_CASE} from "metersphere-frontend/src/components
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {getTestCaseRelevanceLoadList} from "@/api/testCase";
+import MsPerformanceTestStatus from "@/business/performance/PerformanceTestStatus.vue";
 
 export default {
   name: "TestCaseRelateLoadList",
   components: {
+    MsPerformanceTestStatus,
     MsTablePagination,
     MsTable,
     MsTableColumn,

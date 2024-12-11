@@ -109,10 +109,12 @@ import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersi
 import { getVersionFilters } from "@/business/utils/sdk-utils";
 import { getTestCaseRelevanceLoadList } from "@/api/testCase";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import MsPerformanceTestStatus from "@/business/performance/PerformanceTestStatus.vue";
 
 export default {
   name: "CaseRelateLoadList",
   components: {
+    MsPerformanceTestStatus,
     MsTablePagination,
     MsTable,
     MsTableColumn,

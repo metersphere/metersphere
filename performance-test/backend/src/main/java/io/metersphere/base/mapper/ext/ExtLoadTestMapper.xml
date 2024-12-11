@@ -151,9 +151,9 @@
         FROM load_test
         LEFT JOIN project ON load_test.project_id = project.id
         LEFT JOIN user ON load_test.user_id = user.id
-        LEFT JOIN project_version on project.id = project_version.project_id AND project_version.id =
-        load_test.version_id
+        LEFT JOIN project_version on project.id = project_version.project_id AND project_version.id = load_test.version_id
         <where>
+            (load_test.status is null or load_test.status != 'Trash')
             <if test="request.combine != null">
                 <include refid="combine">
                     <property name="condition" value="request.combine"/>
@@ -192,7 +192,7 @@
                                 </foreach>
                             </when>
                             <when test="key == 'user_id'">
-                                AND load_test.user_id IN
+                                AND load_test.create_user IN
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
