@@ -72,6 +72,7 @@ export default function useTableProps<T>(
     showJumpMethod: false, // 是否显示跳转方法
     isSimpleSetting: false, // 是否是简易column设置
     filterIconAlignLeft: true, // 筛选图标是否靠左
+    filter: {}, // 筛选条件
     ...props,
   };
 
@@ -249,14 +250,12 @@ export default function useTableProps<T>(
           propsRes.value.data = tmpArr.map((item: MsTableDataItem<T>) => {
             return processRecordItem(item);
           });
-          propsRes.value.filter = cloneDeep({ ...filterItem.value, ...loadListParams.value.filter });
           if (data.total === 0) {
             setTableErrorStatus('empty');
           } else {
             setTableErrorStatus(false);
           }
           setPagination({ current: data.current, total: data.total });
-          return data;
         }
       } catch (err) {
         setTableErrorStatus('error');

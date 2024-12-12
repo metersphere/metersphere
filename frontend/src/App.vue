@@ -20,7 +20,7 @@
   import { getQueryVariable, getUrlParameterWidthRegExp } from '@/utils';
   import { setLoginExpires, setLongType, setToken } from '@/utils/auth';
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
-  import { setFavicon } from '@/utils/theme';
+  import { setFavicon, watchStyle, watchTheme } from '@/utils/theme';
 
   import { getLarkCallback, getLarkSuiteCallback, getPublicKeyRequest } from './api/modules/user';
   import { hasAnyPermission } from './utils/permission';
@@ -42,6 +42,9 @@
     }
   });
 
+  // 初始化平台风格和主题色
+  watchStyle(appStore.pageConfig.style, appStore.pageConfig);
+  watchTheme(appStore.pageConfig.theme, appStore.pageConfig);
   setFavicon(GetPlatformIconUrl);
 
   onBeforeMount(async () => {
