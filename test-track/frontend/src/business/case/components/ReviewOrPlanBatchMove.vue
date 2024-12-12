@@ -222,4 +222,13 @@ export default {
   title:content;
   font-size: large;
 }
+
+.filter-tree :deep(.el-tree-node) {
+  display: table;
+  min-width: 100%;
+}
+
+:deep(.el-scrollbar__wrap) {
+  margin-bottom: 1px!important;
+}
 </style>
