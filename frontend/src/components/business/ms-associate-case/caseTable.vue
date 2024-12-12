@@ -213,7 +213,7 @@
       {
         title: 'caseManagement.featureCase.tableColumnCreateUser',
         slotName: 'createUserName',
-        dataIndex: 'createUserName',
+        dataIndex: 'createUser',
         width: 150,
         filterConfig: {
           mode: 'remote',
