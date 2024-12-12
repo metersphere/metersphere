@@ -1594,18 +1594,31 @@ export default {
       stepArray = stepArray || this.scenarioDefinition;
       this.recursionStep(stepArray);
     },
+
     recursionStep(stepArray, scenarioProjectId, fullPath, isGeneric) {
-      for (let i in stepArray) {
+      for (let i = 0; i < stepArray.length; i++) {
         let step = stepArray[i];
-        step.index = !isGeneric ? Number(i) + 1 : step.index;
-        if (step.type === 'GenericController') {
-          this.pluginOrder(step);
+
+        // 计算 index 和 projectId
+        if (!isGeneric && !this.stepFilter.get('ALlSamplerStep').includes(step.type)) {
+          step.index = Number(i) + 1;
         }
-        step.resourceId = step.resourceId || getUUID();
-        // 历史数据处理
+        step.projectId = step.projectId || scenarioProjectId || this.projectId;
+
+        // 设置 clazzName
+        step.clazzName = step.clazzName || TYPE_TO_C.get(step.type);
+
+        // 处理步骤中的身份认证管理器
+        if (step.authManager && !step.authManager.clazzName) {
+          step.authManager.clazzName = TYPE_TO_C.get(step.authManager.type);
+        }
+
+        // 处理历史数据
         if (step.type === 'HTTPSamplerProxy' && !step.headers) {
           step.headers = [new KeyValue()];
         }
+
+        // 设置 LoopController 类型的额外处理
         if (
           step.type === ELEMENT_TYPE.LoopController &&
           step.loopType === 'LOOP_COUNT' &&
@@ -1614,19 +1627,25 @@ export default {
         ) {
           step.countController.proceed = true;
         }
-        step.clazzName = step.clazzName || TYPE_TO_C.get(step.type);
-        if (step && step.authManager && !step.authManager.clazzName) {
-          step.authManager.clazzName = TYPE_TO_C.get(step.authManager.type);
+
+        // 设置资源ID，若没有则生成一个
+        step.resourceId = step.resourceId || getUUID();
+
+        // 设置 parentIndex
+        step.parentIndex = fullPath ? `${fullPath}_${step.index}` : step.index;
+
+        // 处理 GenericController 类型的步骤
+        if (step.type === 'GenericController') {
+          this.pluginOrder(step);
         }
-        // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
-        step.projectId = step.projectId || scenarioProjectId || this.projectId;
-        // 添加debug结果
-        step.parentIndex = fullPath ? fullPath + '_' + step.index : step.index;
+
+        // 如果有子步骤，递归处理
         if (step.hashTree && step.hashTree.length > 0) {
           this.recursionStep(step.hashTree, step.projectId, step.parentIndex, step.type === 'GenericController');
         }
       }
     },
+
     addCustomizeApi(request) {
       this.customizeVisible = false;
       request.enable === undefined ? (request.enable = true) : request.enable;
