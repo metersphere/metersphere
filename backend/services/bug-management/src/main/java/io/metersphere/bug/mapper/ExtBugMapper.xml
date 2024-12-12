@@ -202,8 +202,11 @@
             </if>
             <if test="request.relatedToPlan">
                 and b.id in (
-                    select distinct b.id from bug b inner join bug_relation_case brc on b.id = brc.bug_id
-                    where brc.test_plan_id is not null and b.project_id = #{request.projectId}
+                    select distinct bug.id
+                    from test_plan
+                    left join bug_relation_case on test_plan.id = bug_relation_case.test_plan_id
+                    left join bug on bug_relation_case.bug_id = bug.id
+                    where test_plan.status = 'NOT_ARCHIVED' and bug.deleted = false and test_plan.project_id = #{request.projectId}
                 )
             </if>
             <include refid="filter"/>

@@ -32,6 +32,9 @@ public class BugPageRequest extends BasePageRequest {
     @Schema(description = "工作台参数: 是否待我处理的")
     private Boolean assignedToMe = false;
 
+    @Schema(description = "工作台参数: 缺陷数")
+    private Boolean boardCount = false;
+
     @Schema(description = "工作台参数: 是否遗留的")
     private Boolean unresolved = false;
 }

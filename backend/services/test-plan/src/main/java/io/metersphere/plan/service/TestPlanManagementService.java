@@ -503,7 +503,6 @@ public class TestPlanManagementService {
      */
     private void setTodoParam(TestPlanTableRequest request) {
         List<String> doneIds = new ArrayList<>();
-        List<String> extraChildIds = new ArrayList<>();
         // 筛选出已完成/进行中的计划或计划组
         List<String> statusList = new ArrayList<>();
         statusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
@@ -545,49 +544,15 @@ public class TestPlanManagementService {
             }
             calculateIds.addAll(childPlans.stream().map(TestPlan::getId).toList());
             if (CollectionUtils.isNotEmpty(calculateIds)) {
-                boolean onlyPrepared = isOnlyFilterPreparedWithTodoParam(request.getFilter());
-                boolean onlyUnderway = isOnlyFilterUnderwayWithTodoParam(request.getFilter());
                 List<TestPlanStatisticsResponse> calcPlans = testPlanStatisticsService.calculateRate(calculateIds);
                 calcPlans.forEach(plan -> {
                     // 筛选出已完成 && 且通过率达到阈值的子计划
                     if (plan.getPassRate() >= plan.getPassThreshold() && StringUtils.equals(plan.getStatus(), TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED)) {
                         doneIds.add(plan.getId());
                     }
-                    // 筛选出未执行的子计划
-                    if (StringUtils.equals(plan.getStatus(), TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)) {
-                        if (onlyPrepared) {
-                            extraChildIds.add(plan.getId());
-                        }
-                        if (onlyUnderway) {
-                            doneIds.add(plan.getId());
-                        }
-                    }
                 });
             }
             request.setDoneExcludeIds(doneIds);
-            request.setExtraIncludeChildIds(extraChildIds);
         }
-    }
-
-    /**
-     * 是否仅筛选待办列表中的未开始计划
-     * @param filterStatusMap 筛选条件
-     * @return boolean
-     */
-    private boolean isOnlyFilterPreparedWithTodoParam(Map<String, List<String>> filterStatusMap) {
-        return filterStatusMap != null && filterStatusMap.containsKey("status")
-                && filterStatusMap.get("status").contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED)
-                && !filterStatusMap.get("status").contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
-    }
-
-    /**
-     * 是否仅筛选待办列表中的执行中计划
-     * @param filterStatusMap 筛选条件
-     * @return boolean
-     */
-    private boolean isOnlyFilterUnderwayWithTodoParam(Map<String, List<String>> filterStatusMap) {
-        return filterStatusMap != null && filterStatusMap.containsKey("status")
-                && filterStatusMap.get("status").contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY)
-                && !filterStatusMap.get("status").contains(TestPlanConstants.TEST_PLAN_SHOW_STATUS_PREPARED);
     }
 }
