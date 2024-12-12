@@ -27,7 +27,7 @@
                 >
                   <div class="one-line-text max-w-[120px]">
                     <slot name="item" :filter-item="item" :index="index">
-                      {{ item[props.valueKey || 'value'] }}
+                      {{ item[props.labelKey || 'label'] }}
                     </slot>
                   </div>
                 </a-tooltip>
