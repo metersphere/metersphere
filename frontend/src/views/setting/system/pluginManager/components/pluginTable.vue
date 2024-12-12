@@ -255,7 +255,7 @@
     scroll: { x: '100%' },
     selectable: false,
     showPagination: false,
-    heightUsed: 288,
+    heightUsed: 280,
     showSetting: true,
     size: 'default',
   });

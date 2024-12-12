@@ -29,9 +29,18 @@
           asterisk-position="end"
           :rules="[{ required: true, message: t('project.member.selectUserEmptyTip') }]"
         >
-          <a-select v-model="form.roleIds" multiple allow-clear :placeholder="t('project.member.selectUserScope')">
-            <a-option v-for="item of props.userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
-          </a-select>
+          <MsSelect
+            v-model:model-value="form.roleIds"
+            :options="props.userGroupOptions"
+            :allow-search="true"
+            allow-clear
+            :search-keys="['name']"
+            value-key="id"
+            label-key="name"
+            class="w-full"
+            :multiple="true"
+            :placeholder="t('project.member.selectUserScope')"
+          />
         </a-form-item>
       </a-form>
     </div>
@@ -43,6 +52,7 @@
   import { FormInstance, Message } from '@arco-design/web-vue';
 
   import MsDialog from '@/components/pure/ms-dialog/index.vue';
+  import MsSelect from '@/components/business/ms-select';
   import MsUserSelector from '@/components/business/ms-user-selector/index.vue';
   import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
 

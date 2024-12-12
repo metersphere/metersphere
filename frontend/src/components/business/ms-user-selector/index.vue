@@ -4,7 +4,7 @@
     mode="remote"
     :options="[]"
     :placeholder="props.placeholder || 'common.pleaseSelectMember'"
-    multiple
+    :multiple="true"
     :value-key="props.valueKey"
     :disabled="props.disabled"
     :at-least-one="props.atLeastOne"
@@ -21,7 +21,7 @@
       value: val,
     })"
     :object-value="true"
-    :should-calculate-max-tag="false"
+    :should-calculate-max-tag="true"
     @remote-search="handleRemoteSearch"
   >
   </MsSelect>
