@@ -122,4 +122,5 @@ export default {
   'workbench.homePage.completeUseCases': 'Complete use case',
   'workbench.homePage.commitDefects': 'Commit defects',
   'workbench.homePage.closedDefect': 'Closed defect',
+  'workbench.homePage.planUnExecutor': 'plan_executor',
 };

@@ -415,7 +415,9 @@ export const NAV_NAVIGATION: Record<WorkNavValueEnum, any> = {
     relatedToPlan: true,
     unresolved: false,
   },
-  [WorkNavValueEnum.BUG_COUNT]: {},
+  [WorkNavValueEnum.BUG_COUNT]: {
+    boardCount: true,
+  },
   [WorkNavValueEnum.BUG_COUNT_LEGACY]: {
     unresolved: true,
   },

@@ -108,10 +108,16 @@ export function getCommonBarOptions(
         },
         formatter(params: any) {
           let testPlanHtml = '';
+          // 如果是测试计划未分配
+          let paramsList = [];
           if (isTestPlan) {
+            const unAssign = params[0].axisValueLabel === t('workbench.homePage.planUnExecutor');
+            paramsList = unAssign ? params.slice(0, 1) : params;
             const [assigning, complete] = params;
             const passRate = assigning.value > 0 ? `${((complete.value / assigning.value) * 100).toFixed(2)}%` : '0%';
-            testPlanHtml = `<div class="flex items-center justify-between">
+            testPlanHtml = unAssign
+              ? ``
+              : `<div class="flex items-center justify-between">
                               <div class="flex items-center gap-[8px] text-[var(--color-text-2)]">
                                 <div style="background:#00C261;" class="flex items-center justify-center w-[11px] h-[11px] rounded-full text-[10px]">
                                   <span class="text-[var(--color-text-fff)] text-center">✓</span>
@@ -121,12 +127,14 @@ export function getCommonBarOptions(
                              
                               <div class="text-[rgb(var(--success-6))] font-semibold">${passRate}</div>
                             </div>`;
+          } else {
+            paramsList = params;
           }
           const html = `
         <div class="w-[186px] ms-scroll-bar max-h-[236px] overflow-y-auto p-[16px] gap-[8px] flex flex-col">
         <div class="font-medium max-w-[150px] one-line-text" style="color:#323233">${params[0].axisValueLabel}</div>
         ${testPlanHtml}
-        ${params
+        ${paramsList
           .map(
             (item: any) => `
           <div class="flex h-[18px] items-center justify-between">

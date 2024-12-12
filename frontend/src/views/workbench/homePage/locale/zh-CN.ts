@@ -109,4 +109,5 @@ export default {
   'workbench.homePage.completeUseCases': '完成用例',
   'workbench.homePage.commitDefects': '提交缺陷',
   'workbench.homePage.closedDefect': '关闭缺陷',
+  'workbench.homePage.planUnExecutor': '未分配',
 };

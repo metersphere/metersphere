@@ -22,7 +22,6 @@
             label-path-mode
             path-mode
             popup-container=".cascader-wrapper-self"
-            :search-option-only-label="true"
             :load-more="loadMore"
             @change="changeHandler"
           >
@@ -36,7 +35,7 @@
             <template #option="{ data }">
               <div :class="`flex ${data.isLeaf ? ' w-[130px]' : 'w-[120px]'} items-center`" title="">
                 <a-tooltip :mouse-enter-delay="300" :content="t(data.label)">
-                  <div :class="`one-line-text ${data.isLeaf ? 'max-w-[85%]' : ''}`" title="">
+                  <div class="one-line-text" title="">
                     {{ t(data.label) }}
                   </div>
                 </a-tooltip>
@@ -468,6 +467,12 @@
     :deep(.arco-trigger-position-bl) {
       transform: translateX(-8%);
     }
+    :deep(.arco-scrollbar) {
+      transform: translateX(9%);
+    }
+  }
+  :deep(.arco-cascader-option-label, .arco-cascader-search-option-label) {
+    padding-right: 20px;
   }
 </style>
 
