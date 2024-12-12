@@ -97,7 +97,7 @@
           class="loginType"
           @click="switchLoginType('QR_CODE')"
         >
-          <svg-icon name="scan_code" width="18px" height="18px" class="text-[rgb(var(--primary-6))]"></svg-icon>
+          <MsIcon type="icon-icon_scan_outlined" class="text-[rgb(var(--primary-5))]" />
         </div>
         <div v-if="userInfo.authenticate !== 'LDAP' && isShowLDAP" class="loginType" @click="switchLoginType('LDAP')">
           <span class="type-text text-[10px]">LDAP</span>
@@ -126,6 +126,7 @@
   import { useStorage } from '@vueuse/core';
   import { Message, SelectOptionData } from '@arco-design/web-vue';
 
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import TabQrCode from '@/views/login/components/tabQrCode.vue';
 
   import { getProjectInfo } from '@/api/modules/project-management/basicInfo';

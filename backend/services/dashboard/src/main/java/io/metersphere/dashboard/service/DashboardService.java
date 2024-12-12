@@ -33,6 +33,7 @@ import io.metersphere.functional.request.CaseReviewPageRequest;
 import io.metersphere.functional.service.CaseReviewService;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.TestPlanAndGroupInfoDTO;
+import io.metersphere.plan.dto.TestPlanBugCaseDTO;
 import io.metersphere.plan.dto.response.TestPlanBugPageResponse;
 import io.metersphere.plan.dto.response.TestPlanStatisticsResponse;
 import io.metersphere.plan.mapper.*;
@@ -162,7 +163,7 @@ public class DashboardService {
     public static final String TEST_PLAN_MODULE = "testPlan";
     public static final String FUNCTIONAL_CASE_MODULE = "caseManagement";
     public static final String BUG_MODULE = "bugManagement";
-    
+
     public static final String NONE = "NONE";
 
 
@@ -804,7 +805,7 @@ public class DashboardService {
         List<TestPlanApiScenario> planApiScenarios = extTestPlanApiScenarioMapper.selectByTestPlanIdAndNotDeleted(planId);
         TestPlanStatisticsResponse statisticsResponse = buildStatisticsResponse(planId, planFunctionalCases, planApiCases, planApiScenarios);
         // 计划-缺陷的关联数据
-        List<TestPlanBugPageResponse> planBugs = extTestPlanBugMapper.selectBugCountByPlanId(planId);
+        List<TestPlanBugPageResponse> planBugs = extTestPlanBugMapper.selectPlanRelationBug(planId);
         //获取卡片数据
         buildCountMap(statisticsResponse, planBugs, overViewCountDTO);
         Map<String, List<TestPlanFunctionalCase>> caseUserMap = planFunctionalCases.stream().collect(Collectors.groupingBy(t -> StringUtils.isEmpty(t.getExecuteUser()) ? NONE : t.getExecuteUser()));
@@ -812,8 +813,8 @@ public class DashboardService {
         Map<String, List<TestPlanApiScenario>> apiScenarioUserMap = planApiScenarios.stream().collect(Collectors.groupingBy(t -> StringUtils.isEmpty(t.getExecuteUser()) ? NONE : t.getExecuteUser()));
         Map<String, List<TestPlanBugPageResponse>> bugUserMap = planBugs.stream().collect(Collectors.groupingBy(TestPlanBugPageResponse::getCreateUser));
         int totalCount = planFunctionalCases.size() + planApiCases.size() + planApiScenarios.size() + planBugs.size();
-        List<User> users = getUsers(caseUserMap, apiCaseUserMap, apiScenarioUserMap, bugUserMap, totalCount);
-        List<String> nameList =users.stream().map(User::getName).toList();
+        List<User> users = getUsers(caseUserMap, apiCaseUserMap, apiScenarioUserMap, totalCount);
+        List<String> nameList = users.stream().map(User::getName).toList();
         overViewCountDTO.setXAxis(nameList);
         //获取柱状图数据
         List<NameArrayDTO> nameArrayDTOList = getNameArrayDTOS(projectId, users, caseUserMap, apiCaseUserMap, apiScenarioUserMap, bugUserMap);
@@ -836,29 +837,47 @@ public class DashboardService {
             int count = 0;
             int finishCount = 0;
             List<TestPlanFunctionalCase> testPlanFunctionalCases = caseUserMap.get(userId);
+            List<String> currentUserCaseIds = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(testPlanFunctionalCases)) {
+                List<String> functionalCaseIds = testPlanFunctionalCases.stream().map(TestPlanFunctionalCase::getFunctionalCaseId).toList();
+                currentUserCaseIds.addAll(functionalCaseIds);
                 count += testPlanFunctionalCases.size();
                 List<TestPlanFunctionalCase> list = testPlanFunctionalCases.stream().filter(t -> !StringUtils.equalsIgnoreCase(t.getLastExecResult(), ExecStatus.PENDING.name())).toList();
                 finishCount += list.size();
             }
             List<TestPlanApiCase> testPlanApiCases = apiCaseUserMap.get(userId);
             if (CollectionUtils.isNotEmpty(testPlanApiCases)) {
+                List<String> apiCaseIds = testPlanApiCases.stream().map(TestPlanApiCase::getApiCaseId).toList();
+                currentUserCaseIds.addAll(apiCaseIds);
                 count += testPlanApiCases.size();
                 List<TestPlanApiCase> list = testPlanApiCases.stream().filter(t -> !StringUtils.equalsIgnoreCase(t.getLastExecResult(), ExecStatus.PENDING.name())).toList();
                 finishCount += list.size();
             }
             List<TestPlanApiScenario> testPlanApiScenarios = apiScenarioUserMap.get(userId);
             if (CollectionUtils.isNotEmpty(testPlanApiScenarios)) {
+                List<String> apiScenarioIds = testPlanApiScenarios.stream().map(TestPlanApiScenario::getApiScenarioId).toList();
+                currentUserCaseIds.addAll(apiScenarioIds);
                 count += testPlanApiScenarios.size();
                 List<TestPlanApiScenario> list = testPlanApiScenarios.stream().filter(t -> !StringUtils.equalsIgnoreCase(t.getLastExecResult(), ExecStatus.PENDING.name())).toList();
                 finishCount += list.size();
             }
             List<TestPlanBugPageResponse> testPlanBugPageResponses = bugUserMap.get(userId);
             if (CollectionUtils.isNotEmpty(testPlanBugPageResponses)) {
-                createBugCount.add(testPlanBugPageResponses.size());
+                List<String> createBugIds = testPlanBugPageResponses.stream().map(TestPlanBugPageResponse::getId).toList();
+                if (CollectionUtils.isNotEmpty(currentUserCaseIds)) {
+                    List<TestPlanBugCaseDTO> bugRelatedCases = extTestPlanBugMapper.getBugRelatedCaseByCaseIds(createBugIds, currentUserCaseIds, testPlanBugPageResponses.getFirst().getTestPlanId());
+                    createBugCount.add(bugRelatedCases.size());
+                } else {
+                    createBugCount.add(0);
+                }
                 if (CollectionUtils.isNotEmpty(statusList)) {
-                    List<TestPlanBugPageResponse> list = testPlanBugPageResponses.stream().filter(t -> statusList.contains(t.getStatus())).toList();
-                    closeBugCount.add(list.size());
+                    List<String> bugIds = testPlanBugPageResponses.stream().filter(t -> statusList.contains(t.getStatus())).map(TestPlanBugPageResponse::getId).toList();
+                    if (CollectionUtils.isNotEmpty(bugIds) && CollectionUtils.isNotEmpty(currentUserCaseIds)) {
+                        List<TestPlanBugCaseDTO> bugRelatedCases = extTestPlanBugMapper.getBugRelatedCaseByCaseIds(bugIds, currentUserCaseIds, testPlanBugPageResponses.getFirst().getTestPlanId());
+                        closeBugCount.add(bugRelatedCases.size());
+                    } else {
+                        closeBugCount.add(0);
+                    }
                 } else {
                     closeBugCount.add(testPlanBugPageResponses.size());
                 }
@@ -890,7 +909,7 @@ public class DashboardService {
         return nameArrayDTOList;
     }
 
-    private List<User> getUsers(Map<String, List<TestPlanFunctionalCase>> caseUserMap, Map<String, List<TestPlanApiCase>> apiCaseUserMap, Map<String, List<TestPlanApiScenario>> apiScenarioUserMap, Map<String, List<TestPlanBugPageResponse>> bugUserMap, int totalCount) {
+    private List<User> getUsers(Map<String, List<TestPlanFunctionalCase>> caseUserMap, Map<String, List<TestPlanApiCase>> apiCaseUserMap, Map<String, List<TestPlanApiScenario>> apiScenarioUserMap, int totalCount) {
         Set<String> caseUserIds = caseUserMap.keySet();
         boolean addDefaultUser = caseUserIds.contains(NONE);
         Set<String> userSet = new HashSet<>(caseUserIds);
@@ -904,10 +923,9 @@ public class DashboardService {
         if (apiScenarioIds.contains(NONE)) {
             addDefaultUser = true;
         }
-        userSet.addAll(bugUserMap.keySet());
         List<User> users = new ArrayList<>();
         if (CollectionUtils.isEmpty(userSet)) {
-            if (totalCount>0) {
+            if (totalCount > 0) {
                 addDefaultUser(users);
             }
         } else {

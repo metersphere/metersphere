@@ -50,6 +50,17 @@
         group by brc.bug_id
     </select>
 
+    <select id="selectPlanRelationBug" resultType="io.metersphere.plan.dto.response.TestPlanBugPageResponse">
+        select b.id as id, b.num as num, b.title as title, bc.description content, b.handle_user handleUser, b.status as status, brc.create_user createUser, brc.create_time createTime,brc.test_plan_id testPlanId
+        from bug_relation_case brc join bug b on brc.bug_id = b.id
+        left join bug_content bc on b.id = bc.bug_id
+        <where>
+            b.deleted = false
+            and brc.test_plan_id = #{planId}
+        </where>
+        group by brc.bug_id
+    </select>
+
 
     <select id="getBugRelatedCase" resultType="io.metersphere.plan.dto.TestPlanBugCaseDTO">
         select brc.case_id as id, fc.num as num, 'FUNCTIONAL' as type, brc.bug_id as bugId, fc.name as name, fc.project_id as projectId
@@ -79,6 +90,21 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="getBugRelatedCaseByCaseIds" resultType="io.metersphere.plan.dto.TestPlanBugCaseDTO">
+        select brc.case_id as id, brc.bug_id as bugId
+        from bug_relation_case brc
+        where brc.test_plan_id = #{planId}
+        and brc.bug_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and brc.case_id in
+        <foreach collection="caseIds" item="caseId" separator="," open="(" close=")">
+            #{caseId}
+        </foreach>
+    </select>
+
 
     <select id="getCaseRelatedBug" resultType="io.metersphere.plan.dto.TestPlanCaseBugDTO">
         select brc.id as id, b.num as num, b.title as title, b.status as status, brc.test_plan_case_id as planCaseRefId
