@@ -672,12 +672,8 @@
   async function loadCaseList() {
     const selectModules = await getModuleIds();
 
-    let filterParams = { ...propsRes.value.filter };
     if (route.query.home) {
-      filterParams = {
-        ...propsRes.value.filter,
-        ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum],
-      };
+      propsRes.value.filter = { ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum] };
     }
 
     const params = {
@@ -686,7 +682,7 @@
       projectId: appStore.currentProjectId,
       moduleIds: selectModules,
       protocols: isAdvancedSearchMode.value ? protocolList.value.map((item) => item.protocol) : props.selectedProtocols,
-      filter: filterParams,
+      filter: propsRes.value.filter,
       viewId: viewId.value,
       combineSearch: advanceFilter,
     };

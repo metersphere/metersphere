@@ -900,15 +900,11 @@
       moduleIds = [];
     }
 
-    let filterParams = { ...propsRes.value.filter };
     if (route.query.home) {
       if (route.query.home === WorkNavValueEnum.TEST_PLAN_ARCHIVED) {
         viewId.value = 'archived';
       } else {
-        filterParams = {
-          ...propsRes.value.filter,
-          ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum],
-        };
+        propsRes.value.filter = { ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum] };
       }
     }
 
@@ -920,7 +916,7 @@
       selectAll: !!batchParams.value?.selectAll,
       selectIds: batchParams.value.selectedIds || [],
       keyword: keyword.value,
-      filter: filterParams,
+      filter: propsRes.value.filter,
     };
   }
 

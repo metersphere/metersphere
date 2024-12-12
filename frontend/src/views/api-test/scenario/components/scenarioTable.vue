@@ -977,10 +977,8 @@
   async function loadScenarioList(refreshTreeCount?: boolean) {
     const moduleIds = await getModuleIds();
 
-    let filterParams = { ...propsRes.value.filter };
     if (route.query.home) {
-      filterParams = {
-        ...propsRes.value.filter,
+      propsRes.value.filter = {
         ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum],
       };
     }
@@ -988,7 +986,7 @@
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
       moduleIds,
-      filter: filterParams,
+      filter: propsRes.value.filter,
     };
     setLoadListParams({ ...params, viewId: viewId.value, combineSearch: advanceFilter });
     await loadList();

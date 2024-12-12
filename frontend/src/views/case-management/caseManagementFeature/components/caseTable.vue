@@ -1028,13 +1028,8 @@
       }
     }
 
-    let filterParams = { ...propsRes.value.filter };
-
     if (route.query.home) {
-      filterParams = {
-        ...propsRes.value.filter,
-        ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum],
-      };
+      propsRes.value.filter = { ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum] };
     }
 
     return {
@@ -1044,7 +1039,7 @@
       selectAll: batchParams.value.selectAll,
       selectIds: batchParams.value.selectedIds || [],
       keyword: keyword.value,
-      filter: filterParams,
+      filter: propsRes.value.filter,
     };
   }
   // 获取父组件模块数量

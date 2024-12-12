@@ -848,7 +848,7 @@
   };
 
   const filterData = computed(() => {
-    return (attrs.filter || {}) as Record<string, any>;
+    return { ...(attrs.filter || {}) } as Record<string, any>;
   });
 
   const handleFilterConfirm = (
