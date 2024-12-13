@@ -49,7 +49,7 @@
         <where>
             deleted = false
             <if test="flag">
-                and status = 'RUNNING'
+                and status in ('RUNNING', 'RERUNNING')
             </if>
             <if test="projectId != null and projectId != ''">
                 and exec_task.project_id = #{projectId}
@@ -126,7 +126,7 @@
         <if test="organizationId != null and organizationId != ''">
             and organization_id = #{organizationId}
         </if>
-        and `status` = 'RUNNING'
+        and `status` in ('RUNNING', 'RERUNNING')
         and deleted = false
     </update>
 
