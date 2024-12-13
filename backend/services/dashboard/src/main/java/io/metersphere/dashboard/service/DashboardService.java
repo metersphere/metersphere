@@ -1281,7 +1281,11 @@ public class DashboardService {
             return statisticsDTO;
         }
         List<FunctionalCaseStatisticDTO> statisticListByProjectId = extFunctionalCaseMapper.getStatisticListByProjectId(projectId, null, null);
-        List<FunctionalCaseStatisticDTO> unReviewCaseList = statisticListByProjectId.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getReviewStatus(), FunctionalCaseReviewStatus.UN_REVIEWED.toString())).toList();
+        List<String>unReviewStatusList = new ArrayList<>();
+        unReviewStatusList.add(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
+        unReviewStatusList.add(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString());
+        unReviewStatusList.add(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
+        List<FunctionalCaseStatisticDTO> unReviewCaseList = statisticListByProjectId.stream().filter(t -> unReviewStatusList.contains(t.getReviewStatus())).toList();
         int reviewCount = statisticListByProjectId.size() - unReviewCaseList.size();
         List<NameCountDTO> coverList = getCoverList(statisticListByProjectId.size(), Translator.get("functional_case.reviewRate"), reviewCount, Translator.get("functional_case.hasReview"), unReviewCaseList.size(), Translator.get("functional_case.unReview"));
         Map<String, List<NameCountDTO>> statusStatisticsMap = new HashMap<>();
