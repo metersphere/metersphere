@@ -11,6 +11,7 @@
     :has-not-associated-ids="props.hasNotAssociatedIds"
     :type="RequestModuleEnum.CASE_MANAGEMENT"
     :table-params="{ reviewId: props.reviewId }"
+    :view-type="ViewTypeEnum.FUNCTIONAL_CASE"
     hide-project-select
     @close="emit('close')"
     @save="saveHandler"
@@ -88,6 +89,7 @@
   import useAppStore from '@/store/modules/app';
 
   import { BaseAssociateCaseRequest } from '@/models/caseManagement/caseReview';
+  import { ViewTypeEnum } from '@/enums/advancedFilterEnum';
   import { CaseLinkEnum } from '@/enums/caseEnum';
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 

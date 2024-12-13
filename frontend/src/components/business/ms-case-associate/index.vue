@@ -8,19 +8,17 @@
     unmount-on-close
   >
     <template #headerLeft>
-      <div class="float-left">
-        <a-select
-          v-if="props?.moduleOptions"
-          v-model="caseType"
-          class="ml-2 max-w-[100px]"
-          :placeholder="t('caseManagement.featureCase.PleaseSelect')"
-          @change="changeCaseType"
-        >
-          <a-option v-for="item of props?.moduleOptions" :key="item.value" :value="item.value">
-            {{ t(item.label) }}
-          </a-option>
-        </a-select>
-      </div>
+      <a-select
+        v-if="props?.moduleOptions"
+        v-model="caseType"
+        class="ml-2 max-w-[100px]"
+        :placeholder="t('caseManagement.featureCase.PleaseSelect')"
+        @change="changeCaseType"
+      >
+        <a-option v-for="item of props?.moduleOptions" :key="item.value" :value="item.value">
+          {{ t(item.label) }}
+        </a-option>
+      </a-select>
     </template>
     <div class="flex h-full">
       <div v-show="!isAdvancedSearchMode" class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
@@ -105,7 +103,7 @@
         <MsAdvanceFilter
           ref="msAdvanceFilterRef"
           v-model:keyword="keyword"
-          :view-type="ViewTypeEnum.FUNCTIONAL_CASE"
+          :view-type="props.viewType"
           :filter-config-list="filterConfigList"
           :custom-fields-config-list="searchCustomFields"
           :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
@@ -251,6 +249,7 @@
       hideProjectSelect?: boolean; // 是否隐藏项目选择
       isHiddenCaseLevel?: boolean;
       selectorAll?: boolean;
+      viewType?: ViewTypeEnum;
     }>(),
     {
       isHiddenCaseLevel: false,
@@ -577,6 +576,7 @@
   const filterConfigList = ref<FilterFormItem[]>([]);
 
   async function initFilter() {
+    if (props.viewType !== ViewTypeEnum.FUNCTIONAL_CASE) return;
     try {
       const result = await getCustomFieldsTable(appStore.currentProjectId);
       searchCustomFields.value = getFilterCustomFields(result); // 处理自定义字段
