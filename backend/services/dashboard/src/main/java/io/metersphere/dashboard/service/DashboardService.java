@@ -1121,9 +1121,13 @@ public class DashboardService {
 
     @NotNull
     private List<SelectOption> getStatusOption(String projectId, String platformName) {
-        List<SelectOption> allLocalStatusOptions = bugStatusService.getAllLocalStatusOptions(projectId);
-        rebuildStatusName(BugPlatform.LOCAL.getName(), allLocalStatusOptions);
-        List<SelectOption> headerStatusOption = new ArrayList<>(allLocalStatusOptions);
+        List<SelectOption> headerStatusOption = new ArrayList<>();
+        long localBugCount = extBugMapper.localBugCount(projectId);
+        if (localBugCount >0 || StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
+            List<SelectOption> allLocalStatusOptions = bugStatusService.getAllLocalStatusOptions(projectId);
+            rebuildStatusName(BugPlatform.LOCAL.getName(), allLocalStatusOptions);
+            headerStatusOption.addAll(allLocalStatusOptions);
+        }
         if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
             List<SelectOption> thirdStatusOptions = bugStatusService.getHeaderStatusOption(projectId);
             rebuildStatusName(platformName, thirdStatusOptions);
@@ -1795,9 +1799,13 @@ public class DashboardService {
 
     @NotNull
     private List<SelectOption> getHeaderStatusOption(String projectId, String platformName, List<String> endStatus) {
-        List<SelectOption> allLocalStatusOptions = bugStatusService.getAllLocalStatusOptions(projectId);
-        rebuildStatusName(BugPlatform.LOCAL.getName(), allLocalStatusOptions);
-        List<SelectOption> headerStatusOption = new ArrayList<>(allLocalStatusOptions);
+        List<SelectOption> headerStatusOption = new ArrayList<>();
+        long localBugCount = extBugMapper.localBugCount(projectId);
+        if (localBugCount >0 || StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
+            List<SelectOption> allLocalStatusOptions = bugStatusService.getAllLocalStatusOptions(projectId);
+            rebuildStatusName(BugPlatform.LOCAL.getName(), allLocalStatusOptions);
+            headerStatusOption.addAll(allLocalStatusOptions);
+        }
         if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
             List<SelectOption> thirdStatusOptions = bugStatusService.getHeaderStatusOption(projectId);
             rebuildStatusName(platformName, thirdStatusOptions);

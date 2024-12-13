@@ -517,5 +517,14 @@
         )
     </select>
 
+    <select id="localBugCount"
+            resultType="java.lang.Long">
+        SELECT count(id)
+        FROM bug
+        WHERE bug.deleted = false
+        AND bug.project_id = #{projectId}
+        AND bug.platform = 'Local'
+    </select>
+
 </mapper>
 
