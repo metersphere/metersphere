@@ -1,5 +1,6 @@
 package io.metersphere.project.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -19,10 +20,12 @@ public class KeyValueParam {
      */
     private String value;
 
+    @JsonIgnore
     public boolean isValid() {
         return StringUtils.isNotBlank(key);
     }
 
+    @JsonIgnore
     public boolean isNotBlankValue() {
         return StringUtils.isNotBlank(value);
     }

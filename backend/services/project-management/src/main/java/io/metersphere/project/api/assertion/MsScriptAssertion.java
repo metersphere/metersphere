@@ -1,5 +1,6 @@
 package io.metersphere.project.api.assertion;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.project.dto.CommonScriptInfo;
@@ -36,6 +37,7 @@ public class MsScriptAssertion extends MsAssertion {
     @Valid
     private CommonScriptInfo commonScriptInfo;
 
+    @JsonIgnore
     public boolean isValid() {
         if (isEnableCommonScript()) {
             return commonScriptInfo != null && StringUtils.isNotBlank(commonScriptInfo.getId());
@@ -44,6 +46,7 @@ public class MsScriptAssertion extends MsAssertion {
         }
     }
 
+    @JsonIgnore
     public boolean isEnableCommonScript() {
         return BooleanUtils.isTrue(enableCommonScript);
     }

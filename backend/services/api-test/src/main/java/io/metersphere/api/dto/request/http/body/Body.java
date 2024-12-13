@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.request.http.body;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -79,10 +80,12 @@ public class Body {
         bodyTypeClassMap.put(BodyType.BINARY, BinaryBody.class);
     }
 
+    @JsonIgnore
     public Class getBodyClassByType() {
         return bodyTypeClassMap.get(BodyType.valueOf(bodyType));
     }
 
+    @JsonIgnore
     public Object getBodyDataByType() {
         Map<BodyType, Object> boadyDataMap = new HashMap<>();
         boadyDataMap.put(BodyType.NONE, noneBody);

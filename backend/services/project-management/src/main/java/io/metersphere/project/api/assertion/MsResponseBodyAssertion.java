@@ -1,5 +1,6 @@
 package io.metersphere.project.api.assertion;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.metersphere.project.api.assertion.body.MsDocumentAssertion;
 import io.metersphere.project.api.assertion.body.MsJSONPathAssertion;
@@ -62,10 +63,12 @@ public class MsResponseBodyAssertion extends MsAssertion {
         bodyAssertionClassMap.put(MsBodyAssertionType.XPATH, MsXPathAssertion.class);
     }
 
+    @JsonIgnore
     public Class getBodyAssertionClassByType() {
         return bodyAssertionClassMap.get(MsBodyAssertionType.valueOf(assertionBodyType));
     }
 
+    @JsonIgnore
     public Object getBodyAssertionDataByType() {
         Map<MsBodyAssertionType, Object> boadyAssertionMap = new HashMap<>();
         boadyAssertionMap.put(MsBodyAssertionType.JSON_PATH, jsonPathAssertion);

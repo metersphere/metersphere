@@ -1,6 +1,7 @@
 package io.metersphere.project.api.assertion.body;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,6 +21,7 @@ public class MsXPathAssertionItem extends MsBodyAssertionItem {
      */
     private String expectedValue;
 
+    @JsonIgnore
     public boolean isValid() {
         return StringUtils.isNotBlank(expression) && Boolean.TRUE.equals(this.getEnable());
     }

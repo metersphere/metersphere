@@ -1,5 +1,6 @@
 package io.metersphere.project.api.processor.extract;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.metersphere.sdk.valid.EnumValue;
@@ -51,6 +52,7 @@ public abstract class MsExtract {
      */
     private String description;
 
+    @JsonIgnore
     public boolean isValid() {
         return StringUtils.isNotBlank(variableName) && StringUtils.isNotBlank(expression);
     }

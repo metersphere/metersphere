@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.request.http.body;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.metersphere.api.dto.ApiFile;
 import jakarta.validation.Valid;
 import lombok.Data;
@@ -27,6 +28,7 @@ public class FormDataKV extends WWWFormKV {
      */
     private String contentType;
 
+    @JsonIgnore
     public boolean isFile() {
         return StringUtils.equalsIgnoreCase(getParamType(), BodyParamType.FILE.getValue());
     }

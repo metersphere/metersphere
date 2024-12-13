@@ -1,5 +1,6 @@
 package io.metersphere.project.api.processor;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.project.dto.CommonScriptInfo;
@@ -44,7 +45,7 @@ public class ScriptProcessor extends MsProcessor {
     @Valid
     private CommonScriptInfo commonScriptInfo;
 
-
+    @JsonIgnore
     public boolean isValid() {
         if (isEnableCommonScript()) {
             return commonScriptInfo != null && StringUtils.isNotBlank(commonScriptInfo.getId());
@@ -53,6 +54,7 @@ public class ScriptProcessor extends MsProcessor {
         }
     }
 
+    @JsonIgnore
     public boolean isEnableCommonScript() {
         return BooleanUtils.isTrue(enableCommonScript);
     }
