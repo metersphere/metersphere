@@ -359,6 +359,8 @@
         testPlanGroups.value = res.children.map((item: any) => ({
           value: item.id,
           label: item.name,
+          caseTotal: item.caseTotal,
+          scenarioTotal: item.scenarioTotal,
         }));
         activePlan.value = res.children[0]?.id;
       } else {
