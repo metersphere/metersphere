@@ -639,12 +639,13 @@
         END AS execResult,
         test_plan.group_id AS testPlanGroupId
         from test_plan_api_scenario resource
+        INNER JOIN api_scenario scenario ON resource.api_scenario_id = scenario.id
         INNER JOIN test_plan ON test_plan.id = resource.test_plan_id
-        where test_plan.id IN
+        where resource.test_plan_id IN
         <foreach collection="testPlanIds" item="testPlanId" separator="," open="(" close=")">
             #{testPlanId}
         </foreach>
-        AND test_plan.status != 'ARCHIVED'
+        AND scenario.deleted IS FALSE
     </select>
 
     <select id="getBatchRunInfoByIds" resultType="io.metersphere.plan.dto.TestPlanApiScenarioBatchRunDTO">
