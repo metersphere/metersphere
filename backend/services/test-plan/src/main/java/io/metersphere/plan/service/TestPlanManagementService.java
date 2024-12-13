@@ -172,7 +172,9 @@ public class TestPlanManagementService {
             noGroupPlanIdList = testPlanGroupIdMap.get(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
             testPlanGroupIdMap.remove(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
         }
-        noGroupPlanIdMap.put(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID, noGroupPlanIdList);
+        if (CollectionUtils.isNotEmpty(noGroupPlanIdList)) {
+            noGroupPlanIdMap.put(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID, noGroupPlanIdList);
+        }
         testPlanList = null;
 
         Map<String, TestPlanResourceService> beansOfType = applicationContext.getBeansOfType(TestPlanResourceService.class);
