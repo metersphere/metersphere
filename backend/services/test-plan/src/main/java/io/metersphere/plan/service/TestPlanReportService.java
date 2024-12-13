@@ -1543,4 +1543,10 @@ public class TestPlanReportService {
         }
         return testPlanReportSummaries.getFirst();
     }
+
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void resetRerunReport(String prepareReportId) {
+        // 更新计划组以及子计划的状态为 RUNNING
+        extTestPlanReportMapper.resetRerunReport(prepareReportId);
+    }
 }

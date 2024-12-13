@@ -457,8 +457,7 @@ public class TestPlanExecuteService {
 
         String prepareReportId = executionQueue.getPrepareReportId();
 
-        // 更新计划组以及子计划的状态为 RUNNING
-        extTestPlanReportMapper.resetRerunReport(prepareReportId);
+        testPlanReportService.resetRerunReport(prepareReportId);
 
         if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
             List<TestPlan> children = testPlanService.selectNotArchivedChildren(testPlan.getId());
