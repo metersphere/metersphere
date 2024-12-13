@@ -380,13 +380,15 @@
         // 复制的步骤需要复制文件
         let copyFilesMap: Record<string, any> = {};
         const fileIds = parseRequestBodyFiles(res.request.body, [], [], []).uploadFileIds;
-        if (fileIds.length > 0) {
+        if (fileIds.length > 0 && isCopy) {
           copyFilesMap = await definitionFileCopy({
             resourceId: typeof apiInfo === 'string' ? apiInfo : apiInfo.id,
             fileIds,
           });
+          parseRequestBodyFiles(res.request.body, res.response, [], [], copyFilesMap); // 替换请求的文件 id
+        } else {
+          parseRequestBodyResult = parseRequestBodyFiles(res.request.body, res.response, [], [], copyFilesMap); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
         }
-        parseRequestBodyResult = parseRequestBodyFiles(res.request.body, [], [], [], copyFilesMap); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
       }
       let { request } = res;
       if (isDebugMock) {

@@ -118,6 +118,7 @@
     addCase,
     caseFileCopy,
     debugCase,
+    definitionFileCopy,
     getDefinitionDetail,
     getTransferOptionsCase,
     runCase,
@@ -221,6 +222,18 @@
     } else {
       await getApiDetail();
     }
+    if (!isCopy && !record) {
+      // 创建用例需要复制文件
+      let copyFilesMap: Record<string, any> = {};
+      const fileIds = parseRequestBodyFiles(apiDetailInfo.value.request.body, [], [], []).uploadFileIds;
+      if (fileIds.length > 0) {
+        copyFilesMap = await definitionFileCopy({
+          resourceId: apiDetailInfo.value.id as string,
+          fileIds,
+        });
+      }
+      parseRequestBodyFiles(apiDetailInfo.value.request.body, [], [], [], copyFilesMap); // 替换请求文件 id
+    }
     // 创建的时候，请求参数为接口定义的请求参数
     environmentId.value = appStore.currentEnvConfig?.id;
     detailForm.value = {
@@ -238,11 +251,10 @@
         : apiDetailInfo.value),
       children: apiDetailInfo.value.children ?? apiDetailInfo.value.request.children,
     };
-    let parseRequestBodyResult;
     // 复制
     if (isCopy) {
       if (record?.protocol === 'HTTP') {
-        // 复制的步骤需要复制文件
+        // 复制的用例需要复制文件
         let copyFilesMap: Record<string, any> = {};
         const fileIds = parseRequestBodyFiles(record.request.body, [], [], []).uploadFileIds;
         if (fileIds.length > 0) {
@@ -251,10 +263,9 @@
             fileIds,
           });
         }
-        parseRequestBodyResult = parseRequestBodyFiles(record.request.body, [], [], [], copyFilesMap); // 解析请求体中的文件，将详情中的文件 id 集合收集，更新时以判断文件是否删除以及是否新上传的文件
+        parseRequestBodyFiles(record.request.body, [], [], [], copyFilesMap); // 替换请求文件 id
         detailForm.value = {
           ...cloneDeep(record as RequestParam),
-          ...parseRequestBodyResult,
         };
       }
       detailForm.value.name = `copy_${record?.name}`;
