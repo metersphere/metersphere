@@ -158,7 +158,11 @@
           fileName: saveFileForm.value.name,
           originalName: props.savingFile.name || props.savingFile.fileName || '',
         });
-        emit('finish', res, `${saveFileForm.value.name}.${props.savingFile.name?.split('.').pop()}`);
+        emit(
+          'finish',
+          res,
+          `${saveFileForm.value.name}.${(props.savingFile.name || props.savingFile.fileName)?.split('.').pop()}`
+        );
         Message.success(t('ms.add.attachment.saveAsSuccess'));
         handleSaveFileCancel();
       }
