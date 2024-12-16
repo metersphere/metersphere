@@ -344,6 +344,7 @@
       type: FilterType.SELECT_EQUAL,
       selectProps: {
         options: props.testPlanList,
+        optionTooltipPosition: 'tr',
       },
     },
     {
