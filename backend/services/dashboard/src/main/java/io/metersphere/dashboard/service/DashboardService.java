@@ -953,8 +953,7 @@ public class DashboardService {
         int passThresholdValue = passThreshold == null ? 0 : passThreshold.intValue();
         caseCountMap.put("passThreshold", passThresholdValue);
         Double executeRate = planCount.getExecuteRate();
-        int executeRateValue = executeRate == null ? 0 : executeRate.intValue();
-        caseCountMap.put("executeRate", executeRateValue);
+        caseCountMap.put("executeRate", executeRate);
         caseCountMap.put("totalCount", planCount.getCaseTotal());
         caseCountMap.put("executeCount", planCount.getCaseTotal() - planCount.getPendingCount());
         caseCountMap.put(BUG_COUNT, planBugs.size());
@@ -996,10 +995,10 @@ public class DashboardService {
         NameCountDTO passRate = new NameCountDTO();
         passRate.setName(Translator.get("functional_case.passRate"));
         if (CollectionUtils.isNotEmpty(statisticListByProjectId)) {
-            BigDecimal divide = BigDecimal.valueOf(hasPassList.size()).divide(BigDecimal.valueOf(statisticListByProjectId.size()), 2, RoundingMode.HALF_UP);
+            BigDecimal divide = BigDecimal.valueOf(hasPassList.size()).divide(BigDecimal.valueOf(statisticListByProjectId.size()), 4, RoundingMode.HALF_UP);
             passRate.setCount(getTurnCount(divide));
         } else {
-            passRate.setCount(0);
+            passRate.setCount(getTurnCount(BigDecimal.ZERO));
         }
         passList.add(passRate);
         NameCountDTO hasPass = new NameCountDTO();
@@ -1031,9 +1030,9 @@ public class DashboardService {
         NameCountDTO reviewRate = new NameCountDTO();
         reviewRate.setName(Translator.get("functional_case.reviewRate"));
         if (CollectionUtils.isEmpty(statisticListByProjectId)) {
-            reviewRate.setCount(0);
+            reviewRate.setCount(getTurnCount(BigDecimal.ZERO));
         } else {
-            BigDecimal divide = BigDecimal.valueOf(statisticListByProjectId.size() - unReviewList.size() - underReviewList.size() - reReviewedList.size()).divide(BigDecimal.valueOf(statisticListByProjectId.size()), 2, RoundingMode.HALF_UP);
+            BigDecimal divide = BigDecimal.valueOf(statisticListByProjectId.size() - unReviewList.size() - underReviewList.size() - reReviewedList.size()).divide(BigDecimal.valueOf(statisticListByProjectId.size()), 4, RoundingMode.HALF_UP);
             reviewRate.setCount(getTurnCount(divide));
         }
         reviewList.add(reviewRate);
@@ -1049,13 +1048,8 @@ public class DashboardService {
     }
 
     @NotNull
-    private static Integer getTurnCount(BigDecimal divide) {
-        String value = String.valueOf(divide.multiply(BigDecimal.valueOf(100)));
-        int i = value.indexOf(".");
-        if (i > 0) {
-            value = value.substring(0, i);
-        }
-        return Integer.valueOf(value);
+    private static BigDecimal getTurnCount(BigDecimal divide) {
+        return divide.multiply(BigDecimal.valueOf(100)).setScale(2,RoundingMode.HALF_UP);
     }
 
     private static void buildStatusPercentList(List<FunctionalCaseStatisticDTO> statisticListByProjectId, List<StatusPercentDTO> statusPercentList) {
@@ -1068,8 +1062,8 @@ public class DashboardService {
             if (CollectionUtils.isNotEmpty(functionalCaseStatisticDTOS)) {
                 int size = functionalCaseStatisticDTOS.size();
                 statusPercentDTO.setCount(size);
-                BigDecimal divide = BigDecimal.valueOf(size).divide(BigDecimal.valueOf(statisticListByProjectId.size()), 2, RoundingMode.HALF_UP);
-                statusPercentDTO.setPercentValue(divide.multiply(BigDecimal.valueOf(100)) + "%");
+                BigDecimal divide = BigDecimal.valueOf(size).divide(BigDecimal.valueOf(statisticListByProjectId.size()), 4, RoundingMode.HALF_UP);
+                statusPercentDTO.setPercentValue(getTurnCount(divide) + "%");
             } else {
                 statusPercentDTO.setCount(0);
                 statusPercentDTO.setPercentValue("0%");
@@ -1319,8 +1313,8 @@ public class DashboardService {
                 statusPercentDTO.setPercentValue("0%");
             } else {
                 statusPercentDTO.setCount(size);
-                BigDecimal divide = BigDecimal.valueOf(size).divide(BigDecimal.valueOf(totalCount), 2, RoundingMode.HALF_UP);
-                statusPercentDTO.setPercentValue(divide.multiply(BigDecimal.valueOf(100)) + "%");
+                BigDecimal divide = BigDecimal.valueOf(size).divide(BigDecimal.valueOf(totalCount), 4, RoundingMode.HALF_UP);
+                statusPercentDTO.setPercentValue(getTurnCount(divide) + "%");
             }
             statusPercentList.add(statusPercentDTO);
         }
@@ -1338,11 +1332,11 @@ public class DashboardService {
 
         int doneSize = CollectionUtils.isEmpty(doneList) ? 0 : doneList.size();
         if (totalCount == 0) {
-            completionRate.setCount(0);
+            completionRate.setCount(getTurnCount(BigDecimal.ZERO));
             doneDTO.setCount(0);
         } else {
             doneDTO.setCount(doneSize);
-            BigDecimal divide = BigDecimal.valueOf(doneSize).divide(BigDecimal.valueOf(totalCount), 2, RoundingMode.HALF_UP);
+            BigDecimal divide = BigDecimal.valueOf(doneSize).divide(BigDecimal.valueOf(totalCount), 4, RoundingMode.HALF_UP);
             completionRate.setCount(getTurnCount(divide));
         }
         NameCountDTO processDTO = getNameCountDTO(CollectionUtils.isEmpty(processList) ? 0 : processList.size(), Translator.get("api_definition.status.ongoing"));
@@ -1381,8 +1375,8 @@ public class DashboardService {
             statusPercentDTO.setStatus(t.getName());
             statusPercentDTO.setCount(count);
             if (totalCount > 0) {
-                BigDecimal divide = BigDecimal.valueOf(count).divide(BigDecimal.valueOf(totalCount), 2, RoundingMode.HALF_UP);
-                statusPercentDTO.setPercentValue(divide.multiply(BigDecimal.valueOf(100)) + "%");
+                BigDecimal divide = BigDecimal.valueOf(count).divide(BigDecimal.valueOf(totalCount), 4, RoundingMode.HALF_UP);
+                statusPercentDTO.setPercentValue(getTurnCount(divide) + "%");
             } else {
                 statusPercentDTO.setPercentValue("0%");
             }
@@ -1396,7 +1390,7 @@ public class DashboardService {
         List<NameCountDTO> coverList = new ArrayList<>();
         NameCountDTO coverRate = new NameCountDTO();
         if (totalCount > 0) {
-            BigDecimal divide = BigDecimal.valueOf(coverCount).divide(BigDecimal.valueOf(totalCount), 2, RoundingMode.HALF_UP);
+            BigDecimal divide = BigDecimal.valueOf(coverCount).divide(BigDecimal.valueOf(totalCount), 4, RoundingMode.HALF_UP);
             coverRate.setCount(getTurnCount(divide));
         }
         coverRate.setName(rateName);
@@ -1560,9 +1554,9 @@ public class DashboardService {
         NameCountDTO passRateDTO = new NameCountDTO();
         passRateDTO.setName(name);
         if (simpleAllApiCaseSize == 0) {
-            passRateDTO.setCount(0);
+            passRateDTO.setCount(getTurnCount(BigDecimal.ZERO));
         } else {
-            BigDecimal divide = BigDecimal.valueOf(successSize).divide(BigDecimal.valueOf(simpleAllApiCaseSize), 2, RoundingMode.HALF_UP);
+            BigDecimal divide = BigDecimal.valueOf(successSize).divide(BigDecimal.valueOf(simpleAllApiCaseSize), 4, RoundingMode.HALF_UP);
             passRateDTO.setCount(getTurnCount(divide));
         }
         passRateDTOS.add(passRateDTO);
@@ -1579,9 +1573,9 @@ public class DashboardService {
         NameCountDTO execRateDTO = new NameCountDTO();
         execRateDTO.setName(name);
         if (simpleAllApiCaseSize == 0) {
-            execRateDTO.setCount(0);
+            execRateDTO.setCount(getTurnCount(BigDecimal.ZERO));
         } else {
-            BigDecimal divide = BigDecimal.valueOf(simpleAllApiCaseSize - unExecSize).divide(BigDecimal.valueOf(simpleAllApiCaseSize), 2, RoundingMode.HALF_UP);
+            BigDecimal divide = BigDecimal.valueOf(simpleAllApiCaseSize - unExecSize).divide(BigDecimal.valueOf(simpleAllApiCaseSize), 4, RoundingMode.HALF_UP);
             execRateDTO.setCount(getTurnCount(divide));
         }
         execRateDTOS.add(execRateDTO);
@@ -1708,9 +1702,9 @@ public class DashboardService {
         NameCountDTO retentionRate = new NameCountDTO();
         retentionRate.setName(Translator.get("bug_management.retentionRate"));
         if (totalSize == 0) {
-            retentionRate.setCount(0);
+            retentionRate.setCount(getTurnCount(BigDecimal.ZERO));
         } else {
-            BigDecimal divide = BigDecimal.valueOf(statusSize).divide(BigDecimal.valueOf(totalSize), 2, RoundingMode.HALF_UP);
+            BigDecimal divide = BigDecimal.valueOf(statusSize).divide(BigDecimal.valueOf(totalSize), 4, RoundingMode.HALF_UP);
             retentionRate.setCount(getTurnCount(divide));
         }
         retentionRates.add(retentionRate);
@@ -1740,8 +1734,8 @@ public class DashboardService {
                 statusPercentDTO.setPercentValue("0%");
                 statusPercentDTO.setCount(0);
             } else {
-                BigDecimal divide = BigDecimal.valueOf(bugSize).divide(BigDecimal.valueOf(simpleSize), 2, RoundingMode.HALF_UP);
-                statusPercentDTO.setPercentValue(divide.multiply(BigDecimal.valueOf(100)) + "%");
+                BigDecimal divide = BigDecimal.valueOf(bugSize).divide(BigDecimal.valueOf(simpleSize), 4, RoundingMode.HALF_UP);
+                statusPercentDTO.setPercentValue(getTurnCount(divide) + "%");
                 statusPercentDTO.setCount(bugSize);
             }
             statusPercentList.add(statusPercentDTO);
@@ -1790,8 +1784,8 @@ public class DashboardService {
                 statusPercentDTO.setPercentValue("0%");
                 statusPercentDTO.setCount(0);
             } else {
-                BigDecimal divide = BigDecimal.valueOf(bugSize).divide(BigDecimal.valueOf(statusSize), 2, RoundingMode.HALF_UP);
-                statusPercentDTO.setPercentValue(divide.multiply(BigDecimal.valueOf(100)) + "%");
+                BigDecimal divide = BigDecimal.valueOf(bugSize).divide(BigDecimal.valueOf(statusSize), 4, RoundingMode.HALF_UP);
+                statusPercentDTO.setPercentValue(getTurnCount(divide) + "%");
                 statusPercentDTO.setCount(bugSize);
             }
             statusPercentList.add(statusPercentDTO);

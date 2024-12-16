@@ -14,5 +14,5 @@ public class NameCountDTO {
     private String name;
 
     @Schema(description =  "数量")
-    private Integer count;
+    private Object count;
 }
