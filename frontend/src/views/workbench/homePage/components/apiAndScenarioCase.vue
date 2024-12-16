@@ -36,7 +36,7 @@
               <div class="case-count-item-title">{{ ele.name }}</div>
               <div
                 :class="`case-count-item-number ${index !== 0 ? 'cursor-pointer text-[rgb(var(--primary-5))]' : ''}`"
-                @click="goNavigation"
+                @click="goNavigation(index)"
               >
                 {{ hasPermission ? addCommasToNumber(ele.count as number) : '-' }}
               </div>
@@ -364,7 +364,10 @@
     });
   }
 
-  function goNavigation() {
+  function goNavigation(index: number) {
+    if (index === 0) {
+      return;
+    }
     const route =
       props.item.key === WorkCardEnum.API_CASE_COUNT
         ? ApiTestRouteEnum.API_TEST_MANAGEMENT

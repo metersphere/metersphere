@@ -843,7 +843,7 @@
   watch(
     () => activeFolder.value,
     () => {
-      if (!isAdvancedSearchMode.value) {
+      if (!isAdvancedSearchMode.value && innerProject.value) {
         searchCase();
       }
     }
