@@ -13,13 +13,13 @@ public class CalculateUtils {
         rateFormat.setMinimumFractionDigits(2);
         rateFormat.setMaximumFractionDigits(2);
 
-        double passRate = Double.parseDouble(rateFormat.format((double) numerator * 100 / (double) denominator));
+        double passRate = percentage(numerator, denominator);
         if (passRate == 100 && numerator < denominator) {
             return "99.99%";
         } else if (passRate == 0 && numerator > 0) {
             return "0.01%";
         } else {
-            return passRate + "%";
+            return rateFormat.format(passRate) + "%";
         }
     }
 
