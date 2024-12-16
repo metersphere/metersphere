@@ -57,14 +57,14 @@
 
 <style scoped lang="less">
   .pass-rate-content {
-    padding: 0 16px;
+    padding: 0 8px 0 4px;
     width: 100%;
     height: 92px;
     border-radius: 6px;
     background: var(--color-text-n9);
-    @apply flex items-center;
+    @apply flex items-center justify-center;
     .pass-rate-title {
-      @apply ml-4 flex items-center gap-2;
+      @apply flex items-center gap-2;
       .pass-rate-count {
         font-size: 20px;
         color: rgb(var(--primary-4));
