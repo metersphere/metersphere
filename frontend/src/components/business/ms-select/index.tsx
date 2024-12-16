@@ -45,6 +45,7 @@ export interface MsSearchSelectProps {
   optionTooltipContent?: (item: SelectOptionData) => string; // 自定义 option 的 tooltip 内容，返回一个字符串，默认使用 item.label
   remoteFilterFunc?: (options: SelectOptionData[]) => SelectOptionData[]; // 自定义过滤函数，会在远程请求返回数据后执行
   optionTooltipPosition?: 'top' | 'tl' | 'tr' | 'bottom' | 'bl' | 'br' | 'left' | 'lt' | 'lb' | 'right' | 'rt' | 'rb'; // // label tooltip 的位置
+  fullTooltipPosition?: 'top' | 'tl' | 'tr' | 'bottom' | 'bl' | 'br' | 'left' | 'lt' | 'lb' | 'right' | 'rt' | 'rb'; // // 全选 tooltip 的位置
 }
 export interface RadioProps {
   options: SelectOptionData[];
@@ -479,7 +480,7 @@ export default defineComponent(
         <a-tooltip
           content={selectFullTooltip.value}
           class={disabledTooltip.value ? 'opacity-0' : ''}
-          position="top"
+          position={props.fullTooltipPosition || 'top'}
           mouse-enter-delay={300}
           mini
         >
@@ -588,6 +589,7 @@ export default defineComponent(
       'disabled',
       'size',
       'optionTooltipPosition',
+      'fullTooltipPosition',
     ],
     emits: [
       'update:modelValue',

@@ -22,6 +22,7 @@
             :prefix="t('workbench.homePage.project')"
             :multiple="true"
             :has-all-select="true"
+            full-tooltip-position="tr"
             :default-all-select="props.item.selectAll"
             :at-least-one="true"
             @popup-visible-change="popupVisibleChange"

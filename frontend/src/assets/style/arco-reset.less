@@ -897,9 +897,11 @@ input::placeholder {
 
 /** tooltip **/
 .arco-tooltip-content {
-  @apply break-all;
-
+  max-height: 400px;
   color: var(--color-text-fff);
+  @apply overflow-y-auto break-all;
+
+  .ms-scroll-bar();
 }
 .arco-trigger-arrow {
   border-bottom-right-radius: var(--border-radius-mini) !important;

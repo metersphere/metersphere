@@ -29,6 +29,7 @@
             class="!w-[220px]"
             :prefix="t('workbench.homePage.staff')"
             :multiple="true"
+            full-tooltip-position="tr"
             :has-all-select="true"
             @popup-visible-change="popupVisibleChange"
           >
