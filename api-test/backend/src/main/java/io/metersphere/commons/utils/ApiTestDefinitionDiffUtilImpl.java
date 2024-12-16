@@ -40,58 +40,79 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
 
     @Override
     public String diffResponse(String newValue, String oldValue) {
-        Map<String, String> diffMap = new LinkedHashMap<>();
-        JSONObject bloBsIsNew = JSONUtil.parseObject(newValue);
-        JSONObject bloBsIsOld = JSONUtil.parseObject(oldValue);
-        if (bloBsIsNew == null || StringUtils.isEmpty(bloBsIsNew.getString(TYPE))) {
+        JSONObject newJson = JSONUtil.parseObject(newValue);
+        JSONObject oldJson = JSONUtil.parseObject(oldValue);
+
+        // 使用Objects.isNull简化空值判断
+        if (StringUtils.isEmpty(newJson.getString(TYPE))) {
             return null;
         }
+
         JsonDiff jsonDiff = new JacksonDiff();
-        if (bloBsIsNew.getString(TYPE).equals(HTTP)) {
-            diffHttpResponse(bloBsIsNew, bloBsIsOld, jsonDiff, diffMap);
-            if (diffMap.size() > 0) {
-                diffMap.put(TYPE, bloBsIsNew.getString(TYPE));
+        Map<String, String> diffMap = new LinkedHashMap<>();
+
+        // 对应类型为HTTP时的diff操作
+        if (HTTP.equals(newJson.getString(TYPE))) {
+            diffHttpResponse(newJson, oldJson, jsonDiff, diffMap);
+
+            // 如果有差异，添加类型信息
+            if (MapUtils.isNotEmpty(diffMap)) {
+                diffMap.put(TYPE, newJson.getString(TYPE));
             }
         }
-        if (MapUtils.isNotEmpty(diffMap)) {
-            return JSON.toJSONString(diffMap);
-        }
-        return null;
+
+        // 如果diffMap不为空，返回JSON字符串
+        return MapUtils.isNotEmpty(diffMap) ? JSON.toJSONString(diffMap) : null;
     }
+
 
     @Override
     public String diff(String newValue, String oldValue) {
         try {
-            JSONObject bloBsIsNew = JSONUtil.parseObject(newValue);
-            JSONObject bloBsIsOld = JSONUtil.parseObject(oldValue);
-            if (bloBsIsNew == null || StringUtils.isEmpty(bloBsIsNew.getString(TYPE))) {
+            JSONObject newJson = JSONUtil.parseObject(newValue);
+            JSONObject oldJson = JSONUtil.parseObject(oldValue);
+
+            // 使用Objects.isNull简化空值判断
+            if (StringUtils.isEmpty(newJson.getString(TYPE))) {
                 return null;
             }
+
+            // 初始化diffMap，并将类型信息添加到其中
             Map<String, String> diffMap = new LinkedHashMap<>();
-            diffMap.put(TYPE, bloBsIsNew.getString(TYPE));
+            diffMap.put(TYPE, newJson.getString(TYPE));
+
             JsonDiff jsonDiff = new JacksonDiff();
-            if (bloBsIsNew.getString(TYPE).equals(ElementConstants.TCP_SAMPLER)) {
-                MsTCPSampler tcpSamplerNew = JSON.parseObject(bloBsIsNew.toString(), MsTCPSampler.class);
-                MsTCPSampler tcpSamplerOld = JSON.parseObject(bloBsIsOld.toString(), MsTCPSampler.class);
-                diffTcp(tcpSamplerNew, tcpSamplerOld, jsonDiff, diffMap);
-            } else if (bloBsIsNew.getString(TYPE).equals(ElementConstants.HTTP_SAMPLER)) {
-                MsHTTPSamplerProxy httpSamplerProxyNew = JSON.parseObject(bloBsIsNew.toString(), MsHTTPSamplerProxy.class);
-                MsHTTPSamplerProxy httpSamplerProxyOld = JSON.parseObject(bloBsIsOld.toString(), MsHTTPSamplerProxy.class);
-                diffHttp(httpSamplerProxyNew, httpSamplerProxyOld, jsonDiff, diffMap);
-            } else if (bloBsIsNew.getString(TYPE).equals(ElementConstants.JDBC_SAMPLER)) {
-                MsJDBCSampler jdbcSamplerNew = JSON.parseObject(bloBsIsNew.toString(), MsJDBCSampler.class);
-                MsJDBCSampler jdbcSamplerOld = JSON.parseObject(bloBsIsOld.toString(), MsJDBCSampler.class);
-                diffJdbc(jdbcSamplerNew, jdbcSamplerOld, jsonDiff, diffMap);
-            } else {
-                MsDubboSampler dubboSamplerNew = JSON.parseObject(bloBsIsNew.toString(), MsDubboSampler.class);
-                MsDubboSampler dubboSamplerOld = JSON.parseObject(bloBsIsOld.toString(), MsDubboSampler.class);
-                diffDubbo(dubboSamplerNew, dubboSamplerOld, jsonDiff, diffMap);
+            String type = newJson.getString(TYPE);
+
+            // 使用switch结构来简化条件判断
+            switch (type) {
+                case ElementConstants.TCP_SAMPLER:
+                    MsTCPSampler tcpSamplerNew = JSON.parseObject(newJson.toString(), MsTCPSampler.class);
+                    MsTCPSampler tcpSamplerOld = JSON.parseObject(oldJson.toString(), MsTCPSampler.class);
+                    diffTcp(tcpSamplerNew, tcpSamplerOld, jsonDiff, diffMap);
+                    break;
+                case ElementConstants.HTTP_SAMPLER:
+                    MsHTTPSamplerProxy httpSamplerProxyNew = JSON.parseObject(newJson.toString(), MsHTTPSamplerProxy.class);
+                    MsHTTPSamplerProxy httpSamplerProxyOld = JSON.parseObject(oldJson.toString(), MsHTTPSamplerProxy.class);
+                    diffHttp(httpSamplerProxyNew, httpSamplerProxyOld, jsonDiff, diffMap);
+                    break;
+                case ElementConstants.JDBC_SAMPLER:
+                    MsJDBCSampler jdbcSamplerNew = JSON.parseObject(newJson.toString(), MsJDBCSampler.class);
+                    MsJDBCSampler jdbcSamplerOld = JSON.parseObject(oldJson.toString(), MsJDBCSampler.class);
+                    diffJdbc(jdbcSamplerNew, jdbcSamplerOld, jsonDiff, diffMap);
+                    break;
+                default:
+                    MsDubboSampler dubboSamplerNew = JSON.parseObject(newJson.toString(), MsDubboSampler.class);
+                    MsDubboSampler dubboSamplerOld = JSON.parseObject(oldJson.toString(), MsDubboSampler.class);
+                    diffDubbo(dubboSamplerNew, dubboSamplerOld, jsonDiff, diffMap);
             }
-            if (diffMap.size() > 1) {
-                return JSON.toJSONString(diffMap);
-            }
+
+            // 如果diffMap中有不止类型字段的差异，返回JSON字符串
+            return diffMap.size() > 1 ? JSON.toJSONString(diffMap) : null;
+
         } catch (Exception e) {
-            LogUtil.error(e);
+            // 增强日志信息，便于排查错误
+            LogUtil.error("Error occurred while diffing response: ", e);
         }
         return null;
     }
@@ -206,13 +227,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
     }
 
     private static void removeSpaceName(List<KeyValue> keyValues) {
-        Iterator<KeyValue> iterator = keyValues.iterator();
-        while (iterator.hasNext()) {
-            KeyValue next = iterator.next();
-            if (StringUtils.isBlank(next.getName())) {
-                iterator.remove();
-            }
-        }
+        keyValues.removeIf(next -> StringUtils.isBlank(next.getName()));
     }
 
     private static void diffHttpResponse(JSONObject httpNew, JSONObject httpOld, JsonDiff jsonDiff, Map<String, String> diffMap) {
@@ -333,8 +348,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
         OperatingLogDetails detailsOld = new OperatingLogDetails();
         detailsOld.setColumns(columnsOld);
 
-        List<DetailColumn> diffColumns = ReflexObjectUtil.compared(detailsOld, detailsNew, StringUtils.EMPTY);
-        return diffColumns;
+        return ReflexObjectUtil.compared(detailsOld, detailsNew, StringUtils.EMPTY);
     }
 
     private static void diffJdbc(MsJDBCSampler jdbcNew, MsJDBCSampler jdbcOld, JsonDiff jsonDiff, Map<String, String> diffMap) {
@@ -418,6 +432,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
 
     /**
      * is diff-patch root element empty
+     *
      * @param diffPatch json-string
      * @return true: empty, false: not empty
      */
@@ -448,17 +463,22 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
         return false;
     }
 
+
     /**
      * is body's diff-patch empty
+     *
      * @param bodyDiff body's diff-patch
      * @return true: empty, false: not empty
      */
     private static boolean isBodyDiffPatchEmpty(String bodyDiff) {
         JSONObject jsonObject = JSONUtil.parseObject(bodyDiff);
+        // 如果 jsonObject 为空，直接返回 true
         if (jsonObject.isEmpty()) {
             return true;
         }
-        return !jsonObject.has("form") && !jsonObject.has("jsonSchema") && !jsonObject.has("++jsonSchema")
-                && !jsonObject.has("raw_1") && !jsonObject.has("raw_2");
+        // 检查是否包含所需的字段，若都没有则返回 true
+        return !(jsonObject.has("form") || jsonObject.has("jsonSchema") || jsonObject.has("++jsonSchema")
+                || jsonObject.has("raw_1") || jsonObject.has("raw_2"));
     }
+
 }
