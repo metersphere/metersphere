@@ -651,6 +651,11 @@ export default {
         }
 
         avg = (sum / len).toFixed(2);
+        // min max avg 转成数字支持排序
+        min = Number.parseFloat(min);
+        max = Number.parseFloat(max);
+        avg = Number.parseFloat(avg);
+
         tableData.push({label, min, max, avg, startTime, endTime});
       }
       this.tableData = tableData;
