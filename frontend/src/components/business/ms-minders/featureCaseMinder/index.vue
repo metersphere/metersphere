@@ -27,6 +27,7 @@
       :can-show-batch-delete="true"
       :priority-tooltip="t('caseManagement.caseReview.caseLevel')"
       :disabled="!hasEditPermission"
+      :disabled-extra-tab="!!activeCase.moduleIsNew"
       can-show-more-batch-menu
       single-tag
       tag-enable
@@ -426,6 +427,7 @@
             id: data.id,
             name: data.text,
             moduleId: node.parent?.data?.id || '',
+            moduleIsNew: !!node.parent?.data?.isNew, // 标记父模块节点是否为新建
             isNew: true,
           };
         }

@@ -182,6 +182,7 @@ export default function useMinderOperation(options: MinderOperationProps) {
             // 由于粘贴逻辑中为了排除子节点重新排序导致逆序，因此复制的时候倒过来
             for (let i = noFakeNodeTree.length - 1; i >= 0; i--) {
               _node = minder.createNode(null, node);
+              _node.setData({ isNew: true });
               minder.importNode(_node, noFakeNodeTree[i]);
               selectedNodes.push(_node);
               node.appendChild(_node);

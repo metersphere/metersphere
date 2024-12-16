@@ -17,6 +17,8 @@ export default {
   'ms.minders.createChildCase': 'Insert child Case',
   'ms.minders.moreCase': 'More Cases...',
   'ms.minders.moreModule': 'More Modules...',
+  'ms.minders.moduleNewTip':
+    'The module node to which the current use case belongs has not been saved. Please save the mind map first',
   // 测试规划脑图文案
   'ms.minders.failStop': 'Failure stop',
   'ms.minders.failRetry': 'Retry on failure',

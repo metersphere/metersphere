@@ -17,6 +17,7 @@ export default {
   'ms.minders.createChildCase': '添加子级用例',
   'ms.minders.moreCase': '更多用例...',
   'ms.minders.moreModule': '更多模块...',
+  'ms.minders.moduleNewTip': '当前用例所属模块节点未保存，请先保存脑图',
   // 测试规划脑图文案
   'ms.minders.failStop': '失败停止',
   'ms.minders.failRetry': '失败重试',

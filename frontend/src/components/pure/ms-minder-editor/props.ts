@@ -64,6 +64,7 @@ export const mainEditorProps = {
   minderKey: String as PropType<MinderKeyEnum>,
   disabled: Boolean,
   extractContentTabList: Array as PropType<{ label: string; value: string }[]>,
+  disabledExtraTab: Boolean,
   insertNode: {
     type: Function as PropType<(node: MinderJsonNode, type: string, value?: string) => void>,
     default: undefined,

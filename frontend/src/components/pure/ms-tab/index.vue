@@ -5,7 +5,12 @@
     :class="[props.class, props.noContent ? 'no-content' : '']"
     @change="(val) => handleTabClick(val as string)"
   >
-    <a-tab-pane v-for="item of props.contentTabList" :key="item.value" :title="`${item.label}`">
+    <a-tab-pane
+      v-for="item of props.contentTabList"
+      :key="item.value"
+      :title="`${item.label}`"
+      :disabled="props.disabled"
+    >
       <template v-if="props.showBadge" #title>
         <a-badge
           v-if="props.getTextFunc(item.value) !== ''"
@@ -50,6 +55,7 @@
       showBadge?: boolean;
       changeInterceptor?: (newVal: string | number, oldVal: string | number, done: () => void) => void;
       buttonSize?: 'small' | 'default';
+      disabled?: boolean;
     }>(),
     {
       mode: 'origin',
