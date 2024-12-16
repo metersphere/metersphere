@@ -606,7 +606,6 @@
       title: 'project.fileManagement.name',
       slotName: 'name',
       dataIndex: 'name',
-      fixed: 'left',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,

@@ -443,7 +443,6 @@
           sorter: true,
         },
         width: 120,
-        fixed: 'left',
       },
       {
         title: 'ms.case.associate.caseName',

@@ -159,7 +159,6 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      fixed: 'left',
       width: 126,
       showTooltip: true,
       showInTable: true,

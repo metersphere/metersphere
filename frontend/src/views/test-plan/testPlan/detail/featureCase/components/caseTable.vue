@@ -317,7 +317,6 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      fixed: 'left',
       width: 100,
       showTooltip: true,
       columnSelectorDisabled: true,

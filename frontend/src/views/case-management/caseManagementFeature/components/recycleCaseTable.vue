@@ -270,7 +270,6 @@
       },
       'filter-icon-align-left': true,
       'showTooltip': true,
-      'ellipsis': true,
       'showDrag': false,
       'columnSelectorDisabled': true,
     },

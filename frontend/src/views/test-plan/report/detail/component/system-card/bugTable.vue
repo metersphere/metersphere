@@ -72,7 +72,6 @@
       slotName: 'num',
       sortIndex: 1,
       sortable: cloneDeep(sortableConfig.value),
-      fixed: 'left',
       width: 100,
       showTooltip: true,
       columnSelectorDisabled: true,

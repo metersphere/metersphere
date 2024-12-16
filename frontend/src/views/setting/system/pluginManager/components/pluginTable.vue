@@ -156,7 +156,6 @@
       showInTable: true,
       showDrag: false,
       columnSelectorDisabled: true,
-      fixed: 'left',
       width: 200,
     },
     {

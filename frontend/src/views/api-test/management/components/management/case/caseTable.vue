@@ -432,7 +432,6 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      fixed: 'left',
       width: 150,
       columnSelectorDisabled: true,
     },

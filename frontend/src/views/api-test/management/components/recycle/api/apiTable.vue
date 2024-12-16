@@ -194,7 +194,6 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      fixed: 'left',
       columnSelectorDisabled: true,
       width: 100,
     },

@@ -190,14 +190,12 @@
       width: 100,
       columnSelectorDisabled: true,
       showTooltip: true,
-      fixed: 'left',
     },
     {
       title: 'ms.taskCenter.taskName',
       dataIndex: 'taskName',
       showTooltip: true,
       width: 200,
-      fixed: 'left',
       showDrag: true,
     },
     {

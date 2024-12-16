@@ -201,14 +201,12 @@
       slotName: 'num',
       width: 100,
       columnSelectorDisabled: true,
-      fixed: 'left',
     },
     {
       title: 'ms.taskCenter.taskName',
       dataIndex: 'taskName',
       showTooltip: true,
       width: 200,
-      fixed: 'left',
       showDrag: true,
     },
     {

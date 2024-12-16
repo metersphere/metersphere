@@ -164,7 +164,6 @@
       dataIndex: 'num',
       slotName: 'num',
       width: 100,
-      fixed: 'left',
       columnSelectorDisabled: true,
     },
     {
@@ -172,7 +171,6 @@
       dataIndex: 'taskName',
       showTooltip: true,
       width: 200,
-      fixed: 'left',
       showDrag: true,
     },
     {
