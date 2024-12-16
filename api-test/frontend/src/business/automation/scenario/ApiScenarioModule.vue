@@ -42,17 +42,16 @@
 import SelectMenu from '@/business/commons/SelectMenu';
 import MsAddBasisScenario from '@/business/automation/scenario/AddBasisScenario';
 import MsNodeTree from '@/business/commons/NodeTree';
-import { buildTree } from 'metersphere-frontend/src/model/NodeTree';
+import {buildTree} from 'metersphere-frontend/src/model/NodeTree';
 import ModuleTrashButton from '../../definition/components/module/ModuleTrashButton';
 import ApiImport from './common/ScenarioImport';
 import MsSearchBar from 'metersphere-frontend/src/components/search/MsSearchBar';
-import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
+import {getCurrentProjectID} from 'metersphere-frontend/src/utils/token';
 import {
   addScenarioModule,
   delScenarioModule,
   dragScenarioModule,
   editScenarioModule,
-  getModuleByProjectId,
   getModuleByRelevanceProjectId,
   posScenarioModule,
   postModuleByProjectId,
@@ -150,7 +149,7 @@ export default {
     };
   },
   mounted() {
-    if(this.$route.params && !this.$route.params.versionId) {
+    if (this.$route.params) {
       this.list()
     }
   },
