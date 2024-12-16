@@ -135,9 +135,9 @@
             @check="checkNode"
           >
             <div class="flex items-center justify-between">
-              <a-checkbox v-model:model-value="isCheckedAll" :indeterminate="indeterminate" @change="checkAllModule">{{
-                t('ms.case.associate.allData')
-              }}</a-checkbox>
+              <a-checkbox v-model:model-value="isCheckedAll" :indeterminate="indeterminate" @change="checkAllModule">
+                {{ t('ms.case.associate.allData') }}
+              </a-checkbox>
               <span class="pr-[8px] text-[var(--color-text-brand)]">
                 {{ modulesCount.all }}
               </span>

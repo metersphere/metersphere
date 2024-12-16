@@ -209,7 +209,6 @@ export default function useModuleSelections<T>(
           const resultIds = (moduleSelectedMap.value[moduleId] || []).filter((id) => !selectedProps.excludeIds.has(id));
           // 取消加了排除ids此刻全选状态为false，并且排除当前页ids，则从所有列表里边收集到模块ids
           resultIds.forEach((e) => {
-            innerSelectedModulesMaps[moduleId].selectIds.add(e);
             innerSelectedModulesMaps[moduleId].excludeIds.delete(e);
           });
         }
