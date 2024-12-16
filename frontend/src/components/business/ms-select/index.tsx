@@ -44,7 +44,7 @@ export interface MsSearchSelectProps {
   optionLabelRender?: (item: SelectOptionData) => string; // 自定义 option 的 label 渲染，返回一个 html 字符串，默认使用 item.label
   optionTooltipContent?: (item: SelectOptionData) => string; // 自定义 option 的 tooltip 内容，返回一个字符串，默认使用 item.label
   remoteFilterFunc?: (options: SelectOptionData[]) => SelectOptionData[]; // 自定义过滤函数，会在远程请求返回数据后执行
-  optionTooltipPosition?: string;
+  optionTooltipPosition?: 'top' | 'tl' | 'tr' | 'bottom' | 'bl' | 'br' | 'left' | 'lt' | 'lb' | 'right' | 'rt' | 'rb'; // // label tooltip 的位置
 }
 export interface RadioProps {
   options: SelectOptionData[];
