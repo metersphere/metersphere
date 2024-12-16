@@ -180,7 +180,7 @@
         },
         {
           name: t('report.detail.testPlanCaseTotal'),
-          value: detail.value.caseTotal,
+          value: detail.value.apiCaseTotal,
           unit: t('report.detail.number'),
           icon: 'case_total',
         },
@@ -324,8 +324,8 @@
   ) {
     const plan = testPlanGroups.value.find((item) => item.value === value);
     if (plan) {
-      activePlanCaseTotal.value = plan.caseTotal;
-      activePlanScenarioTotal.value = plan.scenarioTotal;
+      activePlanCaseTotal.value = plan.apiCaseTotal;
+      activePlanScenarioTotal.value = plan.apiScenarioTotal;
       activeTable.value = activePlanCaseTotal.value > 0 ? 'case' : 'scenario';
       nextTick(() => {
         searchList();
@@ -353,21 +353,20 @@
       loading.value = true;
       const res = await getTestPlanResult(props.id);
       detail.value = res;
-      activePlanCaseTotal.value = res.caseTotal;
-      activePlanScenarioTotal.value = res.scenarioTotal;
       if (res.children?.length) {
         testPlanGroups.value = res.children.map((item: any) => ({
           value: item.id,
           label: item.name,
-          caseTotal: item.caseTotal,
-          scenarioTotal: item.scenarioTotal,
+          apiCaseTotal: item.apiCaseTotal,
+          apiScenarioTotal: item.apiScenarioTotal,
         }));
         activePlan.value = res.children[0]?.id;
+        activePlanCaseTotal.value = res.children[0]?.apiCaseTotal;
+        activePlanScenarioTotal.value = res.children[0]?.apiScenarioTotal;
       } else {
         testPlanGroups.value = [];
-        activePlanCaseTotal.value = res.children[0]?.caseTotal;
-        activePlanScenarioTotal.value = res.children[0]?.scenarioTotal;
-        activeTable.value = activePlanCaseTotal.value > 0 ? 'case' : 'scenario';
+        activePlanCaseTotal.value = res.apiCaseTotal;
+        activePlanScenarioTotal.value = res.apiScenarioTotal;
       }
       activeTable.value = activePlanCaseTotal.value > 0 ? 'case' : 'scenario';
       nextTick(() => {

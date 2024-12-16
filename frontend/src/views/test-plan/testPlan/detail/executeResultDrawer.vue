@@ -356,9 +356,8 @@
         activePlanScenarioTotal.value = res.childPlans[0]?.apiScenarioTotal;
       } else {
         testPlanGroups.value = [];
-        activePlanCaseTotal.value = res.childPlans[0]?.apiCaseTotal;
-        activePlanScenarioTotal.value = res.childPlans[0]?.apiScenarioTotal;
-        activeTable.value = activePlanCaseTotal.value > 0 ? 'case' : 'scenario';
+        activePlanCaseTotal.value = res.apiCaseTotal;
+        activePlanScenarioTotal.value = res.apiScenarioTotal;
       }
       activeTable.value = activePlanCaseTotal.value > 0 ? 'case' : 'scenario';
       searchList();
