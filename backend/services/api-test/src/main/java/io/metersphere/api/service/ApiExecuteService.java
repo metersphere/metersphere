@@ -221,6 +221,24 @@ public class ApiExecuteService {
     }
 
     /**
+     * 测试计划资源，发送执行任务
+     *
+     * @param taskRequest 执行参数
+     */
+    public TaskRequestDTO executePlanResource(TaskRequestDTO taskRequest) {
+        try {
+            return execute(taskRequest);
+        } catch (MSException e) {
+            if (e.getErrorCode() == ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG) {
+                // 提示没有可用资源池
+                throw new MSException(ApiResultCode.TASK_ERROR_MESSAGE_INVALID_RESOURCE_POOL);
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    /**
      * 发送执行任务
      *
      * @param taskRequest 执行参数
@@ -804,6 +822,7 @@ public class ApiExecuteService {
         if (testResourcePool == null ||
                 // 资源池禁用
                 !testResourcePool.getEnable() ||
+                testResourcePool.getDeleted() ||
                 // 项目没有资源池权限
                 !commonProjectService.validateProjectResourcePool(testResourcePool, projectId)) {
             throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);

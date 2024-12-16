@@ -801,7 +801,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
             taskInfo.setRealTime(true);
         }
 
-        return apiExecuteService.execute(taskRequest);
+        return apiExecuteService.executePlanResource(taskRequest);
     }
 
     public void runRun(ExecTask execTask, ExecTaskItem execTaskItem, String userId) {

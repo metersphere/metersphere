@@ -395,7 +395,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
             apiScenarioRunService.initApiScenarioReport(taskItem.getId(), apiScenario, scenarioReport);
         }
 
-        return apiExecuteService.execute(taskRequest);
+        return apiExecuteService.executePlanResource(taskRequest);
     }
 
     public void runRun(ExecTask execTask, ExecTaskItem execTaskItem, String userId) {

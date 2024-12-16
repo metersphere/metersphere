@@ -366,7 +366,8 @@ public class TestPlanApiCaseControllerTests extends BaseTest {
     public static void assertRun(MvcResult mvcResult) throws UnsupportedEncodingException {
         Map resultData = JSON.parseMap(mvcResult.getResponse().getContentAsString());
         Integer code = (Integer) resultData.get("code");
-        if (code != ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR.getCode() && code != ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG.getCode()) {
+        if (code != ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR.getCode() && code != ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG.getCode()
+                && code != ApiResultCode.TASK_ERROR_MESSAGE_INVALID_RESOURCE_POOL.getCode()) {
             Assertions.assertTrue(false);
         }
     }
