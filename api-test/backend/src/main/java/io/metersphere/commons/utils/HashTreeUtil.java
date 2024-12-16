@@ -106,14 +106,11 @@ public class HashTreeUtil {
 
                 String scriptValue = StringUtils.EMPTY;
                 try {
-                    if (hashTreeKey instanceof JSR223PostProcessor) {
-                        JSR223PostProcessor postProcessor = (JSR223PostProcessor) hashTreeKey;
+                    if (hashTreeKey instanceof JSR223PostProcessor postProcessor) {
                         scriptValue = postProcessor.getPropertyAsString(SCRIPT);
-                    } else if (hashTreeKey instanceof JSR223PreProcessor) {
-                        JSR223PreProcessor processor = (JSR223PreProcessor) hashTreeKey;
+                    } else if (hashTreeKey instanceof JSR223PreProcessor processor) {
                         scriptValue = processor.getPropertyAsString(SCRIPT);
-                    } else if (hashTreeKey instanceof JSR223Sampler) {
-                        JSR223Sampler processor = (JSR223Sampler) hashTreeKey;
+                    } else if (hashTreeKey instanceof JSR223Sampler processor) {
                         scriptValue = processor.getPropertyAsString(SCRIPT);
                     }
                 } catch (Exception e) {
@@ -166,12 +163,12 @@ public class HashTreeUtil {
         return returnMap;
     }
 
-    public Map<String, Map<String, String>> mergeParamDataMap(Map<String, Map<String, String>> execute_env_param_dataMap, Map<String, Map<String, String>> envParamsMap) {
+    public void mergeParamDataMap(Map<String, Map<String, String>> execute_env_param_dataMap, Map<String, Map<String, String>> envParamsMap) {
         if (execute_env_param_dataMap == null) {
             execute_env_param_dataMap = new HashMap<>();
         }
         if (envParamsMap == null) {
-            return execute_env_param_dataMap;
+            return;
         }
         for (Map.Entry<String, Map<String, String>> paramEnvMapEntry : envParamsMap.entrySet()) {
             String envId = paramEnvMapEntry.getKey();
@@ -182,7 +179,6 @@ public class HashTreeUtil {
                 execute_env_param_dataMap.put(envId, map);
             }
         }
-        return execute_env_param_dataMap;
     }
 
     public static void addPositive(EnvironmentConfig envConfig, HashTree samplerHashTree, ParameterConfig config, String projectId, AbstractTestElement sample) {
@@ -244,7 +240,7 @@ public class HashTreeUtil {
                     repositoryFileMap.put(bodyFile.getFileId(), bodyFile.getName());
                 } else {
                     File file = new File(bodyFile.getName());
-                    if (file != null && file.exists()) {
+                    if (file.exists()) {
                         byte[] fileByte = FileUtils.fileToByte(file);
                         if (fileByte != null) {
                             multipartFiles.put(file.getAbsolutePath(), fileByte);

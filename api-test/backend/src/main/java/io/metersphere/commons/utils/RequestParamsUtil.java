@@ -7,11 +7,13 @@ import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.service.SystemParameterService;
 
+import java.util.Objects;
+
 public class RequestParamsUtil {
 
     public static JmeterRunRequestDTO init(ApiExecutionQueue executionQueue, ApiExecutionQueueDetail queue, String reportId) {
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(queue.getTestId(), reportId, executionQueue.getRunMode());
-        runRequest.setRetryEnable(queue.getRetryEnable() == null ? false : queue.getRetryEnable());
+        runRequest.setRetryEnable(queue.getRetryEnable() != null && queue.getRetryEnable());
         runRequest.setRetryNum(queue.getRetryNumber());
         runRequest.setReportType(executionQueue.getReportType());
         runRequest.setPool(GenerateHashTreeUtil.isResourcePool(executionQueue.getPoolId()));
@@ -20,7 +22,7 @@ public class RequestParamsUtil {
         runRequest.setQueueId(executionQueue.getId());
         runRequest.setPoolId(executionQueue.getPoolId());
         // 获取可以执行的资源池
-        BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
+        BaseSystemConfigDTO baseInfo = Objects.requireNonNull(CommonBeanFactory.getBean(SystemParameterService.class)).getBaseInfo();
         runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, queue.getId()));
         return runRequest;
     }

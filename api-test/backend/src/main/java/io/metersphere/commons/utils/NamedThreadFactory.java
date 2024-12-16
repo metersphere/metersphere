@@ -4,8 +4,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NamedThreadFactory implements ThreadFactory {
-    private static AtomicInteger tag = new AtomicInteger(0);
-    private String name;
+    private static final AtomicInteger tag = new AtomicInteger(0);
+    private final String name;
 
     public NamedThreadFactory(String name) {
         this.name = name;

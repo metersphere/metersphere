@@ -12,7 +12,6 @@ import org.json.XML;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 public class JSONToDocumentUtil {
 
@@ -58,9 +57,7 @@ public class JSONToDocumentUtil {
                 if (value == JSONObject.NULL || value == null) {
                     value = "null";
                 }
-                if (value != null) {
-                    type = DocumentUtils.getType(value);
-                }
+                type = DocumentUtils.getType(value);
                 children.add(new DocumentElement(key, type, value, null));
             }
         }
@@ -128,7 +125,7 @@ public class JSONToDocumentUtil {
         }
         for (Element element : listElement) {//遍历所有一级子节点
             List<Element> elementNodes = element.elements();
-            if (elementNodes.size() > 0) {
+            if (!elementNodes.isEmpty()) {
                 List<DocumentElement> elements = new LinkedList<>();
                 children.add(new DocumentElement(element.getName(), PropertyConstant.OBJECT, element.getTextTrim(), elements));
                 getNodes(element, elements);//递归
