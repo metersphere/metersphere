@@ -113,7 +113,7 @@
 
     <sql id="queryByTableRequest">
         <if test="request.myTodo">
-            <!-- 待办: 查询创建人为我的所有的计划 -->
+            <!-- 待办参数: 查询创建人为我的所有的独立计划或子计划(doneExcludeIds: 通过率达到阈值需排除) -->
             and t.type = 'TEST_PLAN'
             and t.create_user = #{request.myTodoUserId}
             <if test="request.doneExcludeIds != null and request.doneExcludeIds.size() > 0">
