@@ -79,7 +79,7 @@ export default function useTableStore() {
 
         if (!isEqual) {
           column.forEach((col) => {
-            const storedCol = oldColumn.find((sc) => sc.dataIndex === col.dataIndex);
+            const storedCol = tableColumnsMap.column.find((sc) => sc.dataIndex === col.dataIndex);
             if (storedCol) {
               col.width = storedCol.width; // 使用上一次拖拽存储的宽度，避免组件里边使用时候初始化到最初的列宽
             }
