@@ -162,26 +162,27 @@
       ];
 
       const statusPercentList = [
-        { status: t('common.notStarted'), count: prepared, percentValue: '0%' },
-        { status: t('common.inProgress'), count: running, percentValue: '0%' },
-        { status: t('common.completed'), count: finished, percentValue: '0%' },
-        { status: t('common.archived'), count: archived, percentValue: '0%' },
+        { status: t('common.notStarted'), count: prepared, percentValue: '0.00%' },
+        { status: t('common.inProgress'), count: running, percentValue: '0.00%' },
+        { status: t('common.completed'), count: finished, percentValue: '0.00%' },
+        { status: t('common.archived'), count: archived, percentValue: '0.00%' },
       ];
+
+      const total = statusPercentList.reduce((sum, item) => sum + item.count, 0);
+
+      const listStatusPercentList = statusPercentList.map((item) => ({
+        ...item,
+        percentValue: total > 0 ? `${((item.count / total) * 100).toFixed(2)}%` : '0.00%',
+      }));
 
       statusPercentValue.value = (statusPercentList || []).map((item, index) => {
         return {
           ...item,
           selected: true,
           color: `${colorMapConfig[props.item.key][index]}`,
+          percentValue: total > 0 ? `${((item.count / total) * 100).toFixed(2)}%` : '0.00%',
         };
       });
-
-      const total = statusPercentList.reduce((sum, item) => sum + item.count, 0);
-
-      const listStatusPercentList = statusPercentList.map((item) => ({
-        ...item,
-        percentValue: total > 0 ? `${((item.count / total) * 100).toFixed(2)}%` : '0%',
-      }));
 
       const completeRate = total > 0 ? parseFloat((((finished + archived) / total) * 100).toFixed(2)) : 0;
 

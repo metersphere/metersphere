@@ -342,7 +342,7 @@ export const NAV_NAVIGATION: Record<WorkNavValueEnum, any> = {
     lastReportStatus: [ExecuteResultEnum.SUCCESS], // 接口用例-执行结果-已通过
   },
   [WorkNavValueEnum.API_COUNT_EXECUTE_ERROR]: {
-    lastReportStatus: [ExecuteResultEnum.ERROR, ExecuteResultEnum.FAKE_ERROR], // 接口用例-执行结果-未通过
+    lastReportStatus: [ExecuteResultEnum.ERROR], // 接口用例-执行结果-未通过
   },
   [WorkNavValueEnum.API_COUNT_EXECUTED_RESULT]: {
     lastReportStatus: [ExecuteResultEnum.SUCCESS, ExecuteResultEnum.ERROR, ExecuteResultEnum.FAKE_ERROR], // 接口用例-有执行结果
@@ -357,7 +357,7 @@ export const NAV_NAVIGATION: Record<WorkNavValueEnum, any> = {
     lastReportStatus: [ExecuteResultEnum.SUCCESS], // 场景用例-执行结果-已通过
   },
   [WorkNavValueEnum.SCENARIO_COUNT_EXECUTE_ERROR]: {
-    lastReportStatus: [ExecuteResultEnum.ERROR, ExecuteResultEnum.FAKE_ERROR], // 场景用例-执行结果-未通过
+    lastReportStatus: [ExecuteResultEnum.ERROR], // 场景用例-执行结果-未通过
   },
   [WorkNavValueEnum.SCENARIO_COUNT_EXECUTED_RESULT]: {
     lastReportStatus: [ExecuteResultEnum.SUCCESS, ExecuteResultEnum.ERROR, ExecuteResultEnum.FAKE_ERROR], // 场景用例-有执行结果
