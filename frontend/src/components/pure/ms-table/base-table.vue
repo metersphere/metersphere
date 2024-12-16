@@ -847,10 +847,6 @@
     columnSelectorVisible.value = true;
   };
 
-  const filterData = computed(() => {
-    return { ...(attrs.filter || {}) } as Record<string, any>;
-  });
-
   const handleFilterConfirm = (
     value: string[] | (string | number | boolean)[] | undefined,
     dataIndex: string,
@@ -906,6 +902,10 @@
     return disableKey ? record[disableKey] : false;
   }
 
+  const filterData = computed(() => {
+    return { ...(attrs.filter || {}) } as Record<string, any>;
+  });
+
   function hasSelectedFilter(item: MsTableColumnData) {
     if (item.filterConfig && item.dataIndex) {
       return (filterData.value[item.dataIndex] || []).length > 0;
@@ -958,10 +958,21 @@
     });
   };
 
+  function initDefaultFilter() {
+    currentColumns.value.forEach((e) => {
+      const dataIndexKey = e.dataIndex as string;
+      // 初始化配置了filterConfig默认值回显已选项
+      if (e.filterConfig?.options && filterData.value[dataIndexKey] && filterData.value[dataIndexKey].length) {
+        e.filterCheckedList = filterData.value[dataIndexKey];
+      }
+    });
+  }
+
   onMounted(async () => {
     await initColumn();
     updateAllTagVisibility();
     batchLeft.value = getBatchLeft();
+    initDefaultFilter();
   });
 
   const updateColumnWidth = throttle(async (dataIndex: string, width: number) => {

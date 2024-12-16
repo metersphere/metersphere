@@ -2,7 +2,7 @@
   <a-trigger position="bottom" trigger="hover" align-point>
     <div class="progress-container">
       <div class="progress-bar-background">
-        <div :class="`progress-bar w-[${props.progress}%] bg-[${props.progressColor}]`"></div>
+        <div class="progress-bar" :style="{ width: `${props.progress}%`, background: `${props.progressColor}` }"></div>
       </div>
       <div class="threshold-line" :style="{ left: `${props.threshold === 100 ? 99 : props.threshold}%` }"></div>
     </div>

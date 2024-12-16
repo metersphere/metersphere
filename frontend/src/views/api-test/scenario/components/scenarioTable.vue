@@ -977,11 +977,6 @@
   async function loadScenarioList(refreshTreeCount?: boolean) {
     const moduleIds = await getModuleIds();
 
-    if (route.query.home) {
-      propsRes.value.filter = {
-        ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum],
-      };
-    }
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
@@ -1649,6 +1644,11 @@
     if (route.query.view) {
       setAdvanceFilter({ conditions: [], searchMode: 'AND' }, route.query.view as string);
       viewName.value = route.query.view as string;
+    }
+    if (route.query.home) {
+      propsRes.value.filter = {
+        ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum],
+      };
     }
     if (!isActivated.value) {
       loadScenarioList();

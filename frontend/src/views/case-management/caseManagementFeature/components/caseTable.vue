@@ -1028,10 +1028,6 @@
       }
     }
 
-    if (route.query.home) {
-      propsRes.value.filter = { ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum] };
-    }
-
     return {
       moduleIds,
       projectId: currentProjectId.value,
@@ -1823,6 +1819,9 @@
   }
 
   async function mountedLoad() {
+    if (route.query.home) {
+      propsRes.value.filter = { ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum] };
+    }
     await initFilter();
     await initData();
     getCaseExportData();

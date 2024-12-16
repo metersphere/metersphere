@@ -672,10 +672,6 @@
   async function loadCaseList() {
     const selectModules = await getModuleIds();
 
-    if (route.query.home) {
-      propsRes.value.filter = { ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum] };
-    }
-
     const params = {
       apiDefinitionId: props.apiDetail?.id,
       keyword: keyword.value,
@@ -1211,6 +1207,10 @@
     if (route.query.view) {
       setAdvanceFilter({ conditions: [], searchMode: 'AND' }, route.query.view as string);
       viewName.value = route.query.view as string;
+    }
+
+    if (route.query.home) {
+      propsRes.value.filter = { ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum] };
     }
   });
 

@@ -32,6 +32,7 @@
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
       @drag-change="handleTableDragSort"
+      @filter-change="filterChange"
     >
       <template #[FilterSlotNameEnum.API_TEST_API_REQUEST_METHODS]="{ filterContent }">
         <apiMethodName :method="filterContent.value" />
@@ -627,9 +628,6 @@
   async function loadApiList(hasRefreshTree: boolean) {
     const moduleIds = await getModuleIds();
 
-    if (route.query.home) {
-      propsRes.value.filter = { ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum] };
-    }
     const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
@@ -792,6 +790,10 @@
   }
 
   function onMountedLoad() {
+    if (route.query.home) {
+      propsRes.value.filter = { ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum] };
+    }
+
     if (props.selectedProtocols.length > 0) {
       loadApiList(true);
     }
@@ -1127,6 +1129,18 @@
       shareListRef.value?.searchList();
     }
     shareButtonRef.value?.initShareList();
+  }
+
+  function filterChange() {
+    if (typeof refreshModuleTreeCount === 'function' && !isAdvancedSearchMode.value) {
+      refreshModuleTreeCount({
+        keyword: keyword.value,
+        filter: propsRes.value.filter,
+        moduleIds: [],
+        protocols: props.selectedProtocols,
+        projectId: appStore.currentProjectId,
+      });
+    }
   }
 
   watch(

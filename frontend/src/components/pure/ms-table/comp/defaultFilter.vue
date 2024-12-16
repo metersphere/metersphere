@@ -221,18 +221,6 @@
     }
   );
 
-  watch(
-    () => props.filter,
-    (val) => {
-      if (!val[props.dataIndex as string] || val[props.dataIndex as string]?.length === 0) {
-        checkedList.value = []; // 清空选择
-      } else {
-        // 如果有过滤条件，更新 checkedList
-        checkedList.value = val[props.dataIndex as string];
-      }
-    }
-  );
-
   const searchItem = debounce(() => {
     filterListOptions.value = originFilterList.value.filter((item: SelectOptionData) =>
       item.label?.includes(filterKeyword.value)
