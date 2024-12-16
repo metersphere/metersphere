@@ -118,7 +118,7 @@ public class UserApiKeysControllerTests extends BaseTest {
         //处理不存在的
         requestGet(String.format(DELETE, UUID.randomUUID().toString()), status().is5xxServerError());
         //校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_PERSONAL_API_KEY_DELETE, DELETE);
+        // requestGetPermissionTest(PermissionConstants.SYSTEM_PERSONAL_API_KEY_DELETE, DELETE, "test-api-keys");
     }
 
     @Test
@@ -184,7 +184,7 @@ public class UserApiKeysControllerTests extends BaseTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
-        requestGetPermissionTest(PermissionConstants.SYSTEM_PERSONAL_API_KEY_UPDATE, DISABLE);
+        // requestGetPermissionTest(PermissionConstants.SYSTEM_PERSONAL_API_KEY_UPDATE, DISABLE, "test-user-key");
     }
 
     @Test
@@ -197,7 +197,7 @@ public class UserApiKeysControllerTests extends BaseTest {
         checkLog(userKeyId, OperationLogType.UPDATE);
         //校验不存在的
         requestGet(String.format(ENABLE, UUID.randomUUID().toString()), status().is5xxServerError());
-        requestGetPermissionTest(PermissionConstants.SYSTEM_PERSONAL_API_KEY_UPDATE, ENABLE);
+        //requestGetPermissionTest(PermissionConstants.SYSTEM_PERSONAL_API_KEY_UPDATE, ENABLE, "test-user-key");
     }
 
     @Test

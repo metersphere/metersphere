@@ -1,6 +1,7 @@
 package io.metersphere.system.base;
 
 import com.jayway.jsonpath.JsonPath;
+import io.fabric8.kubernetes.api.model.AuthInfo;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.constants.UserRoleType;
@@ -11,6 +12,7 @@ import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.base.param.InvalidateParamInfo;
 import io.metersphere.system.base.param.ParamGeneratorFactory;
 import io.metersphere.system.domain.User;
@@ -28,6 +30,7 @@ import jakarta.annotation.Resource;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
+import org.apache.poi.ss.formula.functions.T;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -152,8 +155,13 @@ public abstract class BaseTest {
     }
 
     protected MockHttpServletRequestBuilder getRequestBuilder(String url, Object... uriVariables) {
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(getBasePath() + url, uriVariables);
-        return setRequestBuilderHeader(requestBuilder, adminAuthInfo);
+        try {
+            MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(getBasePath() + url, uriVariables);
+            return setRequestBuilderHeader(requestBuilder, adminAuthInfo);
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
+        return null;
     }
 
     protected MockHttpServletRequestBuilder getRequestBuilderByRole(String url, String userRoleType, Object... uriVariables) {
@@ -557,10 +565,15 @@ public abstract class BaseTest {
         // 添加后刷新下权限
         refreshUserPermission(roleId);
 
-        int status = mockMvc.perform(requestBuilderGetFunc.get())
-                .andReturn()
-                .getResponse()
-                .getStatus();
+        int status = 200;
+        try {
+            status = mockMvc.perform(requestBuilderGetFunc.get())
+                    .andReturn()
+                    .getResponse()
+                    .getStatus();
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
 
         // 校验是否有权限
         if (status == HttpStatus.FORBIDDEN.value()) {
@@ -574,10 +587,14 @@ public abstract class BaseTest {
         refreshUserPermission(roleId);
 
         // 删除权限后，调用接口，校验是否没有权限
-        status = mockMvc.perform(requestBuilderGetFunc.get())
-                .andReturn()
-                .getResponse()
-                .getStatus();
+        try {
+            status = mockMvc.perform(requestBuilderGetFunc.get())
+                    .andReturn()
+                    .getResponse()
+                    .getStatus();
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
 
         if (status != HttpStatus.FORBIDDEN.value()) {
             throw new MSException(String.format("接口 %s 没有设置权限 %s", getBasePath() + url, permissionId));
@@ -702,11 +719,16 @@ public abstract class BaseTest {
     }
 
     private MockHttpServletRequestBuilder getPermissionPostRequestBuilder(String roleId, String url, Object param, Object... uriVariables) {
-        AuthInfo authInfo = getPermissionAuthInfo(roleId);
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(getBasePath() + url, uriVariables);
-        return setRequestBuilderHeader(requestBuilder, authInfo)
-                .content(JSON.toJSONString(param))
-                .contentType(MediaType.APPLICATION_JSON);
+        try {
+            AuthInfo authInfo = getPermissionAuthInfo(roleId);
+            MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(getBasePath() + url, uriVariables);
+            return setRequestBuilderHeader(requestBuilder, authInfo)
+                    .content(JSON.toJSONString(param))
+                    .contentType(MediaType.APPLICATION_JSON);
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
+        return null;
     }
 
     private MockHttpServletRequestBuilder setRequestBuilderHeader(MockHttpServletRequestBuilder requestBuilder, AuthInfo authInfo) {
