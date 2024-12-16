@@ -584,28 +584,40 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
 
     private JsonSchemaItem parseSchema(Schema<?> schema, Set refModelSet) {
         if (schema != null) {
+            if (StringUtils.equals(schema.getType(), PropertyConstant.NULL)) {
+                return parseNull();
+            }
              return switch (schema) {
                 case ArraySchema arraySchema -> parseArraySchema(arraySchema, refModelSet);
                 case ObjectSchema objectSchema -> parseObject(objectSchema, refModelSet);
                 case MapSchema mapSchema -> parseMapObject(mapSchema, refModelSet);
+                case IntegerSchema integerSchema -> parseInteger(integerSchema);
+                case StringSchema stringSchema -> parseString(stringSchema);
+                case NumberSchema numberSchema -> parseNumber(numberSchema);
+                case BooleanSchema booleanSchema -> parseBoolean(booleanSchema);
                 default -> {
                     if (StringUtils.isNotBlank(schema.get$ref())) {
                         yield parseObject(schema, refModelSet);
                     }
-                    yield parseSchemaBySimpleType(schema);
+                    yield parseSchemaByType(schema, refModelSet);
                 }
             };
         }
         return null;
     }
 
-    private JsonSchemaItem parseSchemaBySimpleType(Schema<?> schema) {
+    private JsonSchemaItem parseSchemaByType(Schema<?> schema, Set refModelSet) {
         String type = schema.getType();
+        if (type == null) {
+            return null;
+        }
         return switch (type) {
             case PropertyConstant.STRING -> parseString(schema);
             case PropertyConstant.INTEGER -> parseInteger(schema);
             case PropertyConstant.NUMBER -> parseNumber(schema);
             case PropertyConstant.BOOLEAN -> parseBoolean(schema);
+            case PropertyConstant.OBJECT -> parseObject(schema, refModelSet);
+            case PropertyConstant.ARRAY -> parseArraySchema(schema, refModelSet);
             default -> {
                 JsonSchemaItem jsonSchemaItem = new JsonSchemaItem();
                 jsonSchemaItem.setId(IDGenerator.nextStr());
@@ -628,16 +640,8 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
             return jsonSchemaItem;
         }
         JsonSchemaItem item = new JsonSchemaItem();
-        switch (value) {
-            case IntegerSchema integerSchema -> item = parseInteger(integerSchema);
-            case StringSchema stringSchema -> item = parseString(stringSchema);
-            case NumberSchema numberSchema -> item = parseNumber(numberSchema);
-            case BooleanSchema booleanSchema -> item = parseBoolean(booleanSchema);
-            case ArraySchema arraySchema -> item = parseArraySchema(arraySchema, refModelSet);
-            case ObjectSchema objectSchemaItem -> item = parseObject(objectSchemaItem, refModelSet);
-            case Schema schema -> item = parseSchema(schema, refModelSet);
-            default -> {
-            }
+        if (value instanceof Schema<?> schema) {
+            item = parseSchema(schema, refModelSet);
         }
         jsonSchemaProperties.put(StringUtils.EMPTY, item);
         jsonSchemaItem.setProperties(jsonSchemaProperties);
@@ -664,29 +668,12 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
         }
         if (MapUtils.isNotEmpty(properties)) {
             properties.forEach((key, value) -> {
-                JsonSchemaItem item = parseProperty(value, refModelSet);
+                JsonSchemaItem item = parseSchema(value, refModelSet);
                 jsonSchemaProperties.put(key, item);
             });
         }
         jsonSchemaItem.setProperties(jsonSchemaProperties);
         return jsonSchemaItem;
-    }
-
-    private JsonSchemaItem parseProperty(Schema<?> value, Set refModelSet) {
-        if (StringUtils.equals(value.getType(), PropertyConstant.NULL)) {
-            return parseNull();
-        }
-
-        return switch (value) {
-            case IntegerSchema integerSchema -> parseInteger(integerSchema);
-            case StringSchema stringSchema -> parseString(stringSchema);
-            case NumberSchema numberSchema -> parseNumber(numberSchema);
-            case BooleanSchema booleanSchema -> parseBoolean(booleanSchema);
-            case ArraySchema arraySchema -> parseArraySchema(arraySchema, refModelSet);
-            case ObjectSchema objectSchema -> parseObject(objectSchema, refModelSet);
-            case MapSchema mapSchema -> parseMapObject(mapSchema, refModelSet);
-            case Schema<?> schema -> parseSchema(schema, refModelSet);
-        };
     }
 
     private JsonSchemaItem parseString(Schema stringSchema) {
@@ -750,8 +737,10 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
         jsonSchemaArray.setMaxItems(arraySchema.getMaxItems());
         jsonSchemaArray.setMinItems(arraySchema.getMinItems());
 
-        JsonSchemaItem itemsJsonSchema = parseProperty(arraySchema.getItems(), refModelSet);
-        jsonSchemaArray.setItems(List.of(itemsJsonSchema));
+        JsonSchemaItem itemsJsonSchema = parseSchema(arraySchema.getItems(), refModelSet);
+        if (itemsJsonSchema != null) {
+            jsonSchemaArray.setItems(List.of(itemsJsonSchema));
+        }
         return jsonSchemaArray;
     }
 
