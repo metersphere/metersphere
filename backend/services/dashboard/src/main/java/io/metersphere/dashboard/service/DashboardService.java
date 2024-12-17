@@ -1827,7 +1827,7 @@ public class DashboardService {
         List<CascadeChildrenDTO> cascadeDTOList = new ArrayList<>();
         List<TestPlanAndGroupInfoDTO> groupAndPlanInfo = extTestPlanMapper.getGroupAndPlanInfo(projectId);
         TestPlanExample testPlanExample = new TestPlanExample();
-        testPlanExample.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(TestPlanConstants.TEST_PLAN_TYPE_PLAN).andGroupIdEqualTo(NONE);
+        testPlanExample.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(TestPlanConstants.TEST_PLAN_TYPE_PLAN).andGroupIdEqualTo(NONE).andStatusEqualTo(TestPlanConstants.TEST_PLAN_STATUS_NOT_ARCHIVED);
         testPlanExample.setOrderByClause(" create_time DESC ");
         List<TestPlan> testPlans = testPlanMapper.selectByExample(testPlanExample);
         Map<String, List<TestPlanAndGroupInfoDTO>> groupMap = groupAndPlanInfo.stream().sorted(Comparator.comparing(TestPlanAndGroupInfoDTO::getGroupCreateTime).reversed()).collect(Collectors.groupingBy(TestPlanAndGroupInfoDTO::getGroupId));
