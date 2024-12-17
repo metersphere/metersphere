@@ -1536,16 +1536,20 @@ public class BugService {
         Map<String, List<BugCustomFieldDTO>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(BugCustomFieldDTO::getBugId));
         // MS处理人会与第三方的值冲突, 分开查询
         List<SelectOption> headerOptions = bugCommonService.getHeaderHandlerOption(projectId);
-        Map<String, String> headerHandleUserMap = headerOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+        Map<String, String> headerHandleUserMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(headerOptions)) {
+            headerHandleUserMap = headerOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+        }
         List<SelectOption> localOptions = bugCommonService.getLocalHandlerOption(projectId);
         Map<String, String> localHandleUserMap = localOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
 
         Map<String, String> allStatusMap = bugCommonService.getAllStatusMap(projectId);
+        final Map<String, String> tmpHandleUserMap = headerHandleUserMap;
         bugs.forEach(bug -> {
             bug.setCustomFields(customFieldMap.get(bug.getId()));
             // 解析处理人, 状态
-            bug.setHandleUserName(headerHandleUserMap.containsKey(bug.getHandleUser()) ?
-                    headerHandleUserMap.get(bug.getHandleUser()) : localHandleUserMap.get(bug.getHandleUser()));
+            bug.setHandleUserName(tmpHandleUserMap.containsKey(bug.getHandleUser()) ?
+                    tmpHandleUserMap.get(bug.getHandleUser()) : localHandleUserMap.get(bug.getHandleUser()));
             bug.setStatusName(allStatusMap.get(bug.getStatus()));
         });
         return bugs;
