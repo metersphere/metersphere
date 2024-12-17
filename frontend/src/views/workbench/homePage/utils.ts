@@ -1,5 +1,6 @@
 import { cloneDeep } from 'lodash-es';
 
+import getVisualThemeColor from '@/config/chartTheme';
 import { toolTipConfig } from '@/config/testPlan';
 import { commonRatePieOptions, defaultValueMap } from '@/config/workbench';
 import { useI18n } from '@/hooks/useI18n';
@@ -68,16 +69,22 @@ export function getColorScheme(dataLength: number): string[] {
 
 // 饼图颜色配置
 export const colorMapConfig: Record<string, string[]> = {
-  [WorkCardEnum.CASE_COUNT]: ['#ED0303', '#FFA200', '#3370FF', '#D4D4D8'],
+  [WorkCardEnum.CASE_COUNT]: ['#ED0303', '#FFA200', '#3370FF', 'initItemStyleColor'],
   [WorkCardEnum.ASSOCIATE_CASE_COUNT]: ['#00C261', '#3370FF'],
-  [WorkCardEnum.REVIEW_CASE_COUNT]: ['#D4D4D8', '#3370FF', '#00C261', '#ED0303', '#FFA200'],
-  [WorkCardEnum.TEST_PLAN_COUNT]: ['#D4D4D8', '#3370FF', '#00C261', '#FF9964'],
-  [WorkCardEnum.PLAN_LEGACY_BUG]: ['#FFA200', '#3370FF', '#D4D4D8', '#00C261', ...getColorScheme(13)],
-  [WorkCardEnum.BUG_COUNT]: ['#FFA200', '#3370FF', '#D4D4D8', '#00C261', ...getColorScheme(13)],
-  [WorkCardEnum.HANDLE_BUG_BY_ME]: ['#FFA200', '#3370FF', '#D4D4D8', '#00C261', ...getColorScheme(13)],
-  [WorkCardEnum.CREATE_BY_ME]: ['#9441B1', '#3370FF', '#00C261', '#D4D4D8'],
+  [WorkCardEnum.REVIEW_CASE_COUNT]: [
+    getVisualThemeColor('initItemStyleColor'),
+    '#3370FF',
+    '#00C261',
+    '#ED0303',
+    '#FFA200',
+  ],
+  [WorkCardEnum.TEST_PLAN_COUNT]: ['initItemStyleColor', '#3370FF', '#00C261', '#FF9964'],
+  [WorkCardEnum.PLAN_LEGACY_BUG]: ['#FFA200', '#3370FF', 'initItemStyleColor', '#00C261', ...getColorScheme(13)],
+  [WorkCardEnum.BUG_COUNT]: ['#FFA200', '#3370FF', 'initItemStyleColor', '#00C261', ...getColorScheme(13)],
+  [WorkCardEnum.HANDLE_BUG_BY_ME]: ['#FFA200', '#3370FF', 'initItemStyleColor', '#00C261', ...getColorScheme(13)],
+  [WorkCardEnum.CREATE_BY_ME]: ['#9441B1', '#3370FF', '#00C261', 'initItemStyleColor'],
   [WorkCardEnum.API_COUNT]: ['#811FA3', '#00C261', '#3370FF', '#FFA1FF', '#EE50A3', '#FF9964', '#F9F871', '#C3DD40'],
-  [WorkCardEnum.CREATE_BUG_BY_ME]: ['#FFA200', '#3370FF', '#D4D4D8', '#00C261', ...getColorScheme(13)],
+  [WorkCardEnum.CREATE_BUG_BY_ME]: ['#FFA200', '#3370FF', 'initItemStyleColor', '#00C261', ...getColorScheme(13)],
 };
 
 // 柱状图
@@ -129,8 +136,10 @@ export function getCommonBarOptions(
             paramsList = params;
           }
           const html = `
-        <div class="w-[186px] ms-scroll-bar max-h-[236px] overflow-y-auto p-[16px] gap-[8px] flex flex-col">
-        <div class="font-medium max-w-[150px] one-line-text" style="color:#323233">${params[0].axisValueLabel}</div>
+        <div class="w-[186px] rounded ms-scroll-bar max-h-[236px] overflow-y-auto p-[16px] gap-[8px] flex flex-col bg-[var(--color-text-fff)]">
+        <div class="font-medium max-w-[150px] text-[var(--color-text-1)] one-line-text">
+        ${params[0].axisValueLabel}
+        </div>
         ${testPlanHtml}
         ${paramsList
           .map(
@@ -168,7 +177,7 @@ export function getCommonBarOptions(
       triggerEvent: true,
       axisLabel: {
         show: true,
-        color: '#646466',
+        color: getVisualThemeColor('xLabelColor'),
         width: 100,
         overflow: 'truncate',
         ellipsis: '...',
@@ -188,7 +197,7 @@ export function getCommonBarOptions(
       },
       axisLine: {
         lineStyle: {
-          color: '#EDEDF1',
+          color: getVisualThemeColor('splitLineColor'),
         },
       },
     },
@@ -201,6 +210,9 @@ export function getCommonBarOptions(
           show: false,
           onZero: false, // 禁止 Y 轴强制显示在 0 位置
         },
+        axisLabel: {
+          color: getVisualThemeColor('yLabelColor'),
+        },
         offset: 0, // 第一个 Y 轴默认位置
         nameTextStyle: {
           fontSize: 12,
@@ -211,7 +223,7 @@ export function getCommonBarOptions(
         splitLine: {
           show: true, // 控制是否显示水平线
           lineStyle: {
-            color: '#EDEDF1', // 水平线颜色
+            color: getVisualThemeColor('splitLineColor'), // 水平线颜色
             width: 1, // 水平线宽度
             type: 'dashed', // 水平线线型，可选 'solid'、'dashed'、'dotted'
           },
@@ -227,8 +239,8 @@ export function getCommonBarOptions(
       style: {
         text: '',
         fontSize: 14,
-        fill: '#959598',
-        backgroundColor: '#F9F9FE',
+        fill: getVisualThemeColor('graphicFillColor'),
+        backgroundColor: getVisualThemeColor('graphicBackgroundColor'),
         padding: [6, 16, 6, 16],
         borderRadius: 4,
       },
@@ -246,15 +258,16 @@ export function getCommonBarOptions(
       left: 'center',
       pageButtonItemGap: 5,
       pageButtonGap: 5,
-      pageIconColor: '#00000099',
-      pageIconInactiveColor: '#00000042',
+      pageIconColor: getVisualThemeColor('pageIconColor'),
+      pageIconInactiveColor: getVisualThemeColor('pageIconInactiveColor'),
       pageIconSize: [10, 8],
       pageTextStyle: {
-        color: '#00000099',
+        color: getVisualThemeColor('pageTextStyleColor'),
         fontSize: 12,
       },
       textStyle: {
         width: 150,
+        color: getVisualThemeColor('legendColor'),
         overflow: 'truncate',
         ellipsis: '...',
       },
@@ -338,7 +351,7 @@ export function getPieCharOptions() {
       subtext: '100111',
       subtextStyle: {
         fontSize: 20,
-        color: '#323233',
+        color: getVisualThemeColor('subtextStyleColor'),
         fontWeight: 'bold',
         align: 'center',
       },
@@ -415,23 +428,42 @@ export function handlePieData(
   const pieBorderWidth = hasDataLength === 1 ? 0 : 2;
 
   const lastData = lastStatusPercentList
-    .map((item, color) => ({
-      name: item.status,
-      value: item.count,
-      tooltip: {
-        ...toolTipConfig,
-        position: 'right',
-        show: !!hasPermission,
-      },
-      itemStyle: {
-        color: colorMapConfig[key][color],
-        borderWidth: pieBorderWidth,
-        borderColor: '#ffffff',
-      },
-    }))
+    .map((item, color) => {
+      return {
+        name: item.status,
+        value: item.count,
+        tooltip: {
+          ...toolTipConfig,
+          position: 'right',
+          show: !!hasPermission,
+        },
+        itemStyle: {
+          color:
+            colorMapConfig[key][color] === 'initItemStyleColor'
+              ? getVisualThemeColor('initItemStyleColor')
+              : colorMapConfig[key][color],
+          borderWidth: pieBorderWidth,
+          borderColor: getVisualThemeColor('itemStyleBorderColor'),
+        },
+      };
+    })
     .filter((e) => e.value !== 0);
 
-  options.series.data = hasDataLength > 0 ? lastData : [];
+  options.series.data =
+    hasDataLength > 0
+      ? lastData
+      : [
+          {
+            name: '',
+            value: 1,
+            tooltip: {
+              show: false,
+            },
+            itemStyle: {
+              color: getVisualThemeColor('initItemStyleColor'),
+            },
+          },
+        ];
 
   // 计算总数和图例格式
   const tempObject: Record<string, any> = {};
@@ -445,7 +477,18 @@ export function handlePieData(
   options.title.subtext = addCommasToNumber(totalCount);
   if (!hasPermission) {
     options.title.subtext = '-';
-    options.series.data = [];
+    options.series.data = [
+      {
+        name: '',
+        value: 1,
+        tooltip: {
+          show: false,
+        },
+        itemStyle: {
+          color: getVisualThemeColor('initItemStyleColor'),
+        },
+      },
+    ];
   }
 
   return options;
@@ -600,6 +643,18 @@ export function handleUpdateTabPie(
   const valueKey = key.split('-')[1];
   const countList = list || [];
   let lastCountList: { value: number | string; label: string; name: string }[] = [];
+  const defaultValueMapConfig = defaultValueMap();
+
+  const emptyData = {
+    name: '',
+    value: 1,
+    tooltip: {
+      show: false,
+    },
+    itemStyle: {
+      color: getVisualThemeColor('initItemStyleColor'),
+    },
+  };
   if (hasPermission) {
     const pieBorderWidth = countList.slice(1).filter((e) => Number(e.count) > 0).length === 1 ? 0 : 1;
 
@@ -609,26 +664,29 @@ export function handleUpdateTabPie(
         label: item.name,
         name: item.name,
         itemStyle: {
-          color: defaultValueMap[typeKey][valueKey].color[i],
+          color: defaultValueMapConfig[typeKey][valueKey].color[i],
           borderWidth: pieBorderWidth,
-          borderColor: '#ffffff',
+          borderColor: getVisualThemeColor('itemStyleBorderColor'),
         },
       };
     });
 
-    options.series.data = lastCountList.every((e) => e.value === 0) ? [] : lastCountList.filter((e) => e.value !== 0);
+    options.series.data = lastCountList.every((e) => e.value === 0)
+      ? [emptyData]
+      : lastCountList.filter((e) => e.value !== 0);
 
     options.title.text = countList[0].name ?? '';
     options.title.subtext = `${countList[0].count ?? 0}%`;
   } else {
-    options.series.data = [];
-    lastCountList = defaultValueMap[typeKey][valueKey].defaultList.map((e: any) => {
+    options.series.data = [emptyData];
+
+    lastCountList = defaultValueMapConfig[typeKey][valueKey].defaultList.map((e: any) => {
       return {
         ...e,
         label: t(e.label),
       };
     });
-    options.title.text = t(defaultValueMap[typeKey][valueKey].defaultName);
+    options.title.text = t(defaultValueMapConfig[typeKey][valueKey].defaultName);
     options.title.subtext = '-%';
   }
 
@@ -700,12 +758,12 @@ export function getSeriesData(
           enterable: true,
           formatter(params: any) {
             const html = `
-                <div class="w-[186px] h-[50px] p-[16px] flex items-center justify-between">
+                <div class="w-[186px] h-[50px] p-[16px] flex items-center justify-between bg-[var(--color-text-fff)]">
                 <div class=" flex items-center">
                 <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm bg-[${params.color}]" style="background:${
               params.color
             }"></div>
-                <div class="one-line-text max-w-[100px]"" style="color:#959598">${params.name}</div>
+                <div class="one-line-text max-w-[100px] text-[var(--color-text-2)]">${params.name}</div>
                 </div>
                 <div class="text-[var(--color-text-1)] font-semibold">${addCommasToNumber(params.value)}</div>
                 </div>
@@ -778,7 +836,7 @@ export function createCustomTooltip(chartDom: InstanceType<typeof VCharts>) {
 
     customTooltip.style.maxWidth = '300px';
     customTooltip.style.padding = '5px';
-    customTooltip.style.background = 'rgba(0, 0, 0, 0.75)';
+    customTooltip.style.background = 'var(--color-text-2)';
     customTooltip.style.color = 'var(--color-text-fff)';
     customTooltip.style.borderRadius = '4px';
 

@@ -90,6 +90,7 @@
   import RatioPie from './ratioPie.vue';
 
   import { workApiCaseCountDetail, workApiCountCoverRage, workScenarioCaseCountDetail } from '@/api/modules/workbench';
+  import getVisualThemeColor from '@/config/chartTheme';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
@@ -196,7 +197,7 @@
   const coverTitleConfig = computed(() => {
     return {
       name: t('workbench.homePage.apiCoverage'),
-      color: ['#D4D4D8', '#00C261'],
+      color: [getVisualThemeColor('initItemStyleColor'), '#00C261'],
       tooltipText:
         props.item.key === WorkCardEnum.API_CASE_COUNT
           ? t('workbench.homePage.apiCaseCountCoverRateTooltip')
@@ -208,12 +209,12 @@
     return props.item.key === WorkCardEnum.API_CASE_COUNT
       ? {
           name: t('workbench.homePage.caseExecutionRate'),
-          color: ['#D4D4D8', '#00C261'],
+          color: [getVisualThemeColor('initItemStyleColor'), '#00C261'],
           tooltipText: t('workbench.homePage.apiCaseCountExecuteRateTooltip'),
         }
       : {
           name: t('workbench.homePage.sceneExecutionRate'),
-          color: ['#D4D4D8', '#00C261'],
+          color: [getVisualThemeColor('initItemStyleColor'), '#00C261'],
           tooltipText: t('workbench.homePage.scenarioCaseCountExecuteRateTooltip'),
         };
   });

@@ -1,5 +1,6 @@
 import { cloneDeep } from 'lodash-es';
 
+import getVisualThemeColor from '@/config/chartTheme';
 import { commonConfig, toolTipConfig } from '@/config/testPlan';
 
 import type { ModuleCardItem } from '@/models/workbench/homePage';
@@ -145,99 +146,101 @@ export const defaultLegacy = [
   },
 ];
 
-export const defaultValueMap: Record<string, any> = {
-  // 用例数量
-  [WorkCardEnum.CASE_COUNT]: {
-    review: {
-      defaultList: cloneDeep(defaultCover),
-      color: ['#00C261', '#D4D4D8'],
-      defaultName: 'workbench.homePage.reviewRate',
+export const defaultValueMap = (): Record<string, any> => {
+  return {
+    // 用例数量
+    [WorkCardEnum.CASE_COUNT]: {
+      review: {
+        defaultList: cloneDeep(defaultCover),
+        color: ['#00C261', getVisualThemeColor('initItemStyleColor')],
+        defaultName: 'workbench.homePage.reviewRate',
+      },
+      pass: {
+        defaultList: cloneDeep(defaultPass),
+        color: ['#00C261', '#ED0303'],
+        defaultName: 'workbench.homePage.passRate',
+      },
     },
-    pass: {
-      defaultList: cloneDeep(defaultPass),
-      color: ['#00C261', '#ED0303'],
-      defaultName: 'workbench.homePage.passRate',
+    // 关联用例数量
+    [WorkCardEnum.ASSOCIATE_CASE_COUNT]: {
+      cover: {
+        defaultList: cloneDeep(defaultCover),
+        color: ['#00C261', getVisualThemeColor('initItemStyleColor')],
+        defaultName: 'workbench.homePage.coverRate',
+      },
     },
-  },
-  // 关联用例数量
-  [WorkCardEnum.ASSOCIATE_CASE_COUNT]: {
-    cover: {
-      defaultList: cloneDeep(defaultCover),
-      color: ['#00C261', '#D4D4D8'],
-      defaultName: 'workbench.homePage.coverRate',
+    // 用例评审数
+    [WorkCardEnum.REVIEW_CASE_COUNT]: {
+      cover: {
+        defaultList: cloneDeep(defaultCover),
+        color: ['#00C261', getVisualThemeColor('initItemStyleColor')],
+        defaultName: 'workbench.homePage.coverRate',
+      },
     },
-  },
-  // 用例评审数
-  [WorkCardEnum.REVIEW_CASE_COUNT]: {
-    cover: {
-      defaultList: cloneDeep(defaultCover),
-      color: ['#00C261', '#D4D4D8'],
-      defaultName: 'workbench.homePage.coverRate',
+    // 测试计划数
+    [WorkCardEnum.TEST_PLAN_COUNT]: {
+      execute: {
+        defaultList: cloneDeep(defaultExecution),
+        color: [getVisualThemeColor('initItemStyleColor'), '#00C261'],
+        defaultName: 'workbench.homePage.executeRate',
+      },
+      pass: {
+        defaultList: cloneDeep(defaultPass),
+        color: ['#00C261', getVisualThemeColor('initItemStyleColor')],
+        defaultName: 'workbench.homePage.passRate',
+      },
+      complete: {
+        defaultList: cloneDeep(defaultComplete),
+        color: [getVisualThemeColor('initItemStyleColor'), '#3370FF', '#00C261', '#FF9964'],
+        defaultName: 'workbench.homePage.completeRate',
+      },
     },
-  },
-  // 测试计划数
-  [WorkCardEnum.TEST_PLAN_COUNT]: {
-    execute: {
-      defaultList: cloneDeep(defaultExecution),
-      color: ['#D4D4D8', '#00C261'],
-      defaultName: 'workbench.homePage.executeRate',
+    // 测试计划遗留缺陷
+    [WorkCardEnum.PLAN_LEGACY_BUG]: {
+      legacy: {
+        defaultList: cloneDeep(defaultLegacy),
+        color: ['#00C261', getVisualThemeColor('initItemStyleColor')],
+        defaultName: 'workbench.homePage.legacyRate',
+      },
     },
-    pass: {
-      defaultList: cloneDeep(defaultPass),
-      color: ['#00C261', '#D4D4D8'],
-      defaultName: 'workbench.homePage.passRate',
+    // 缺陷数
+    [WorkCardEnum.BUG_COUNT]: {
+      legacy: {
+        defaultList: cloneDeep(defaultLegacy),
+        color: ['#00C261', getVisualThemeColor('initItemStyleColor')],
+        defaultName: 'workbench.homePage.legacyRate',
+      },
     },
-    complete: {
-      defaultList: cloneDeep(defaultComplete),
-      color: ['#D4D4D8', '#3370FF', '#00C261', '#FF9964'],
-      defaultName: 'workbench.homePage.completeRate',
+    // 待我处理的缺陷
+    [WorkCardEnum.HANDLE_BUG_BY_ME]: {
+      legacy: {
+        defaultList: cloneDeep(defaultLegacy),
+        color: ['#00C261', getVisualThemeColor('initItemStyleColor')],
+        defaultName: 'workbench.homePage.legacyRate',
+      },
     },
-  },
-  // 测试计划遗留缺陷
-  [WorkCardEnum.PLAN_LEGACY_BUG]: {
-    legacy: {
-      defaultList: cloneDeep(defaultLegacy),
-      color: ['#00C261', '#D4D4D8'],
-      defaultName: 'workbench.homePage.legacyRate',
+    // 接口数量
+    [WorkCardEnum.API_COUNT]: {
+      cover: {
+        defaultList: cloneDeep(defaultCover),
+        color: ['#00C261', getVisualThemeColor('initItemStyleColor')],
+        defaultName: 'workbench.homePage.coverRate',
+      },
+      complete: {
+        defaultList: cloneDeep(defaultComplete),
+        color: ['#00C261', '#3370FF', getVisualThemeColor('initItemStyleColor')],
+        defaultName: 'workbench.homePage.completeRate',
+      },
     },
-  },
-  // 缺陷数
-  [WorkCardEnum.BUG_COUNT]: {
-    legacy: {
-      defaultList: cloneDeep(defaultLegacy),
-      color: ['#00C261', '#D4D4D8'],
-      defaultName: 'workbench.homePage.legacyRate',
+    // 我创建的缺陷
+    [WorkCardEnum.CREATE_BUG_BY_ME]: {
+      legacy: {
+        defaultList: cloneDeep(defaultLegacy),
+        color: ['#00C261', getVisualThemeColor('initItemStyleColor')],
+        defaultName: 'workbench.homePage.legacyRate',
+      },
     },
-  },
-  // 待我处理的缺陷
-  [WorkCardEnum.HANDLE_BUG_BY_ME]: {
-    legacy: {
-      defaultList: cloneDeep(defaultLegacy),
-      color: ['#00C261', '#D4D4D8'],
-      defaultName: 'workbench.homePage.legacyRate',
-    },
-  },
-  // 接口数量
-  [WorkCardEnum.API_COUNT]: {
-    cover: {
-      defaultList: cloneDeep(defaultCover),
-      color: ['#00C261', '#D4D4D8'],
-      defaultName: 'workbench.homePage.coverRate',
-    },
-    complete: {
-      defaultList: cloneDeep(defaultComplete),
-      color: ['#00C261', '#3370FF', '#D4D4D8'],
-      defaultName: 'workbench.homePage.completeRate',
-    },
-  },
-  // 我创建的缺陷
-  [WorkCardEnum.CREATE_BUG_BY_ME]: {
-    legacy: {
-      defaultList: cloneDeep(defaultLegacy),
-      color: ['#00C261', '#D4D4D8'],
-      defaultName: 'workbench.homePage.legacyRate',
-    },
-  },
+  };
 };
 
 // XX率饼图配置
@@ -257,7 +260,7 @@ export const commonRatePieOptions = {
     subtext: '0',
     subtextStyle: {
       fontSize: 12,
-      color: '#323233',
+      color: getVisualThemeColor('subtextStyleColor'),
       fontWeight: 'bold',
       align: 'center',
       lineHeight: 3,

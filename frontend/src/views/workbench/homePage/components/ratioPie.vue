@@ -54,6 +54,7 @@
 
   import MsChart from '@/components/pure/chart/index.vue';
 
+  import getVisualThemeColor from '@/config/chartTheme';
   import { toolTipConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
@@ -92,7 +93,7 @@
       subtext: '',
       subtextStyle: {
         fontSize: 14,
-        color: '#323233',
+        color: getVisualThemeColor('subtextStyleColor'),
         fontWeight: 'bold',
         lineHeight: 3,
       },
@@ -118,27 +119,9 @@
       },
       y: 'bottom',
       bottom: 'center',
-      formatter: (name: any) => {
-        return `{a|${name}}  {b|${addCommasToNumber(1022220)}}`;
-      },
+
       tooltip: {
         show: false,
-      },
-    },
-    textStyle: {
-      rich: {
-        a: {
-          width: 60,
-          color: '#959598', // 状态名称颜色
-          fontSize: 12,
-        },
-        b: {
-          width: 60,
-          color: '#783887',
-          fontSize: 16,
-          fontWeight: 'bold',
-          padding: [0, 0, 0, 16],
-        },
       },
     },
     series: {
@@ -188,13 +171,27 @@
           itemStyle: {
             color: color[i],
             borderWidth: pieBorderWidth,
-            borderColor: '#ffffff',
+            borderColor: getVisualThemeColor('itemStyleBorderColor'),
           },
         };
       })
       .filter((e) => e.value !== 0);
 
-    options.value.series.data = hasDataLength > 0 ? seriesData : [];
+    options.value.series.data =
+      hasDataLength > 0
+        ? seriesData
+        : [
+            {
+              name: '',
+              value: 1,
+              tooltip: {
+                show: false,
+              },
+              itemStyle: {
+                color: getVisualThemeColor('initItemStyleColor'),
+              },
+            },
+          ];
     legend.value = [...props.data.slice(1)].map((e, i) => {
       return {
         ...e,
@@ -211,7 +208,18 @@
     if (props.hasPermission) {
       options.value.title.subtext = `${props.data[0].value ?? 0}%`;
     } else {
-      options.value.series.data = [];
+      options.value.series.data = [
+        {
+          name: '',
+          value: 1,
+          tooltip: {
+            show: false,
+          },
+          itemStyle: {
+            color: getVisualThemeColor('initItemStyleColor'),
+          },
+        },
+      ];
       options.value.title.subtext = `-%`;
     }
 

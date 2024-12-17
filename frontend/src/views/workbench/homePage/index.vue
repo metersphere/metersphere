@@ -345,6 +345,13 @@
     initDefaultList();
   });
 
+  watch(
+    () => appStore.isDarkTheme,
+    () => {
+      handleRefresh();
+    }
+  );
+
   const time = ref({ ...timeForm.value });
 
   watch(

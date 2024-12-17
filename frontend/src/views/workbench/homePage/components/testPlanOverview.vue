@@ -97,6 +97,7 @@
   import ThresholdProgress from './thresholdProgress.vue';
 
   import { getWorkTestPlanListUrl, workTestPlanOverviewDetail } from '@/api/modules/workbench';
+  import getVisualThemeColor from '@/config/chartTheme';
   import { commonRatePieOptions } from '@/config/workbench';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
@@ -250,24 +251,40 @@
       {
         name: t('common.unExecute'),
         value: totalCount - executeCount,
-        color: '#EDEDF1',
+        color: getVisualThemeColor('initItemStyleColor'),
       },
     ];
 
     const pieBorderWidth = executeData.filter((e) => Number(e.value) > 0).length === 1 ? 0 : 1;
 
-    execOptions.value.series.data = executeData
+    const lastExecuteData = executeData
       .map((e) => {
         return {
           ...e,
           itemStyle: {
             borderWidth: pieBorderWidth,
-            borderColor: '#ffffff',
+            borderColor: getVisualThemeColor('itemStyleBorderColor'),
             color: e.color,
           },
         };
       })
       .filter((e) => e.value !== 0);
+
+    execOptions.value.series.data =
+      lastExecuteData.length > 0
+        ? lastExecuteData
+        : [
+            {
+              name: '',
+              value: 1,
+              tooltip: {
+                show: false,
+              },
+              itemStyle: {
+                color: getVisualThemeColor('initItemStyleColor'),
+              },
+            },
+          ];
   }
 
   const showSkeleton = ref(false);

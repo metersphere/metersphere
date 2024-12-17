@@ -63,6 +63,7 @@
   import PassRatePie from './passRatePie.vue';
 
   import { workApiCountCoverRage, workApiCountDetail } from '@/api/modules/workbench';
+  import getVisualThemeColor from '@/config/chartTheme';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -195,7 +196,11 @@
         return {
           ...item,
           selected: true,
-          color: `${colorMapConfig[props.item.key][index]}`,
+          color: `${
+            colorMapConfig[props.item.key][index] !== 'initItemStyleColor'
+              ? colorMapConfig[props.item.key][index]
+              : getVisualThemeColor('initItemStyleColor')
+          }`,
         };
       });
 
