@@ -793,7 +793,7 @@
       propsRes.value.filter = { ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum] };
     }
 
-    if (props.selectedProtocols.length > 0) {
+    if (props.selectedProtocols.length > 0 || route.query.home) {
       loadApiList(true);
     }
   }
