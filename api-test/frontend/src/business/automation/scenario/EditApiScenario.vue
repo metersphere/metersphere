@@ -1395,11 +1395,24 @@ export default {
         this.stopDebug = 'stop';
         this.messageWebSocket.close();
         this.reload();
+        if (this.currentScenario && this.currentScenario.scenarioDefinition) {
+          this.recursiveTesting(this.currentScenario.scenarioDefinition);
+        }
         if (this.$refs.maximizeScenario) {
           this.$refs.maximizeScenario.reload();
         }
       }
     },
+
+    recursiveTesting(arr) {
+      arr.forEach((item) => {
+        item.testing = false; // 更新 `testing` 属性
+        if (Array.isArray(item.hashTree) && item.hashTree.length > 0) {
+          this.recursiveTesting(item.hashTree); // 递归调用
+        }
+      });
+    },
+
     handleCommand() {
       this.debug = false;
       this.saved = true;
