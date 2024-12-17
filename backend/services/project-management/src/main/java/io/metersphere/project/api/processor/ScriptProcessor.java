@@ -54,7 +54,6 @@ public class ScriptProcessor extends MsProcessor {
         }
     }
 
-    @JsonIgnore
     public boolean isEnableCommonScript() {
         return BooleanUtils.isTrue(enableCommonScript);
     }

@@ -296,6 +296,9 @@ public class FileAssociationService {
         Map<String,String> fileIdMap = new HashMap<>();
         for (FileAssociation fileAssociation:fileAssociationList){
             FileAssociationSource source  = extFileAssociationMapper.selectNameBySourceTableAndId(FileAssociationSourceUtil.getQuerySql(fileAssociation.getSourceType()),fileAssociation.getSourceId());
+            if (source == null) {
+                continue;
+            }
             this.validateSourceName(source);
             String fileName = null;
             if(fileIdMap.containsKey(fileAssociation.getFileId())){

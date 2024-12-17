@@ -46,7 +46,6 @@ public class MsScriptAssertion extends MsAssertion {
         }
     }
 
-    @JsonIgnore
     public boolean isEnableCommonScript() {
         return BooleanUtils.isTrue(enableCommonScript);
     }
