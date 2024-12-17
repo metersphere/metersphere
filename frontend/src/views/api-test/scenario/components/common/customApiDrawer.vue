@@ -7,7 +7,7 @@
       no-content-padding
       :show-continue="true"
       :footer="requestVModel.isNew === true"
-      :ok-disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
+      :ok-disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url) || loading"
       :handle-before-cancel="handleBeforeCancel"
       show-full-screen
       unmount-on-close
@@ -1347,6 +1347,13 @@
         setLocalStorage(ProtocolKeyEnum.API_SCENARIO_CUSTOM_PROTOCOL, val);
       }
       handleActiveDebugProtocolChange(val);
+    }
+  );
+
+  watch(
+    () => appStore.loading,
+    (val) => {
+      loading.value = val;
     }
   );
 

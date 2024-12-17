@@ -1085,6 +1085,13 @@
   );
 
   watch(
+    () => appStore.loading,
+    (val) => {
+      loading.value = val;
+    }
+  );
+
+  watch(
     () => visible.value,
     async (val) => {
       if (val) {
