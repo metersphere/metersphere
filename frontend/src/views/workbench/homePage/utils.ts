@@ -113,8 +113,6 @@ export function getCommonBarOptions(
           if (isTestPlan) {
             const unAssign = params[0].axisValueLabel === t('workbench.homePage.planUnExecutor');
             paramsList = unAssign ? params.slice(0, 1) : params;
-            const [assigning, complete] = params;
-            const passRate = assigning.value > 0 ? `${((complete.value / assigning.value) * 100).toFixed(2)}%` : '0%';
             testPlanHtml = unAssign
               ? ``
               : `<div class="flex items-center justify-between">
@@ -125,7 +123,7 @@ export function getCommonBarOptions(
                                    ${t('workbench.homePage.completeRate')}
                               </div>
                              
-                              <div class="text-[rgb(var(--success-6))] font-semibold">${passRate}</div>
+                              <div class="text-[rgb(var(--success-6))] font-semibold">${params[0].data.passRate}</div>
                             </div>`;
           } else {
             paramsList = params;
@@ -668,12 +666,34 @@ export function getSeriesData(
   options.graphic.style.text = text;
 
   let maxAxis = 5;
+
+  let result: number[][];
+
+  // 计算通过率
+  if (isTestPlan) {
+    const columnCount = projectCountList[0]?.count.length || 0;
+    result = Array.from({ length: columnCount }, () => []);
+    projectCountList.forEach((item) => {
+      item.count.forEach((value, index) => {
+        result[index].push(value);
+      });
+    });
+  }
+
   const seriesData = projectCountList.map((item, sid) => {
-    const countData: Record<string, any>[] = item.count.map((e) => {
+    const countData: Record<string, any>[] = item.count.map((e, i) => {
+      let passRate: string = '0.00%';
+      if (isTestPlan) {
+        const testPlanPassParams = result[i];
+        const [assigning, complete] = testPlanPassParams;
+        passRate = assigning > 0 ? `${((complete / assigning) * 100).toFixed(2)}%` : '0.00%';
+      }
+
       return {
         name: t(contentTabList[sid]?.label ?? ''),
         value: e,
         originValue: e,
+        passRate,
         tooltip: {
           show: true,
           trigger: 'item',
