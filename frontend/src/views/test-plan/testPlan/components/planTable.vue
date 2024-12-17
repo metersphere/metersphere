@@ -921,6 +921,8 @@
   async function emitTableParams(isInit = false) {
     if (isAdvancedSearchMode.value) return;
     const tableParams = await initTableParams(isInit);
+
+    const filterParams = { ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum] };
     emit('init', {
       keyword: keyword.value,
       type: showType.value,
@@ -928,7 +930,7 @@
       moduleIds: tableParams.moduleIds,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
-      filter: propsRes.value.filter,
+      filter: { ...filterParams, ...propsRes.value.filter },
     });
   }
 
