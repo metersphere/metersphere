@@ -11,7 +11,7 @@
           >
           </div>
           <div
-            v-if="['name','planName','requestTime', 'bugCount', 'executeUser', 'moduleName'].includes(column.dataIndex as string)"
+            v-if="['name','num','planName','requestTime', 'bugCount', 'executeUser', 'moduleName'].includes(column.dataIndex as string)"
             class="list-column"
             :style="{ width: `${column.width}px` }"
           >
@@ -23,13 +23,18 @@
                 item[column.dataIndex as string] === '' || item[column.dataIndex as string] === undefined || item[column.dataIndex as string] === null
               "
             >
-              <div class="one-line-text w-full">
+              <MsButton
+                v-if="column.dataIndex === 'num'"
+                type="text"
+                class="one-line-text !block w-full"
+                @click="toDetail(item)"
+              >
+                {{ item.num }}
+              </MsButton>
+              <div v-else class="one-line-text w-full">
                 {{ item[column.dataIndex as string] }}
               </div>
             </a-tooltip>
-          </div>
-          <div v-if="column.dataIndex === 'num'" class="list-column" :style="{ width: `${column.width}px` }">
-            <MsButton type="text" @click="toDetail(item)">{{ item.num }}</MsButton>
           </div>
           <div v-if="column.dataIndex === 'priority'" class="list-column" :style="{ width: `${column.width}px` }">
             <CaseLevel :case-level="item.priority" />
