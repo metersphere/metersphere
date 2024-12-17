@@ -4,8 +4,6 @@
       v-model:model-value="searchKeyword"
       :placeholder="t('workbench.homePage.searchCard')"
       allow-clear
-      @search="searchList"
-      @press-enter="searchList"
       @clear="resetSearch"
     />
   </div>
@@ -231,11 +229,6 @@
       ),
     }));
   });
-
-  // 搜索
-  function searchList(keyword: string) {
-    searchKeyword.value = keyword;
-  }
 
   // 重置
   function resetSearch() {
