@@ -230,8 +230,7 @@ public class TestPlanReportShareController {
         request.setDetailReportIds(testPlanReportService.getActualReportIds(request.getReportId()));
         ShareInfo shareInfo = testPlanReportShareService.checkResource(request.getShareId());
         testPlanReportShareService.validateExpired(shareInfo);
-        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "tpc.pos desc");
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), "tpc.pos asc");
         return PageUtils.setPageInfo(page, testPlanReportService.listReportCollection(request, type));
     }
 }
