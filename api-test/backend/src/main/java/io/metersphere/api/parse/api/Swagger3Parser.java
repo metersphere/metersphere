@@ -915,11 +915,13 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     parsedParam.put(PropertyConstant.REQUIRED, requestBody.optJSONArray(PropertyConstant.REQUIRED));
                 }
                 JSONObject properties = requestBody.optJSONObject(PropertyConstant.PROPERTIES);
-                JSONObject jsonObject = buildFormDataSchema(properties);
-                if (StringUtils.isNotBlank(requestBody.optString("description"))) {
-                    parsedParam.put("description", requestBody.optString("description"));
+                if (properties != null) {
+                    JSONObject jsonObject = buildFormDataSchema(properties);
+                    if (StringUtils.isNotBlank(requestBody.optString("description"))) {
+                        parsedParam.put("description", requestBody.optString("description"));
+                    }
+                    parsedParam.put(PropertyConstant.PROPERTIES, jsonObject.optJSONObject(PropertyConstant.PROPERTIES));
                 }
-                parsedParam.put(PropertyConstant.PROPERTIES, jsonObject.optJSONObject(PropertyConstant.PROPERTIES));
             } else if (StringUtils.equals(type, PropertyConstant.INTEGER)) {
                 parsedParam.put(PropertyConstant.TYPE, PropertyConstant.INTEGER);
                 parsedParam.put("format", "int64");
