@@ -2,7 +2,6 @@ package io.metersphere.plan.service;
 
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioReport;
-import io.metersphere.api.dto.scenario.ApiScenarioDetail;
 import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.service.ApiBatchRunBaseService;
 import io.metersphere.api.service.ApiExecuteService;
@@ -200,14 +199,5 @@ public class PlanRunTestPlanApiScenarioService {
             // 执行失败，删除队列
             apiExecutionQueueService.deleteQueue(queue.getQueueId());
         }
-    }
-
-    public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
-        TaskItem taskItem = request.getTaskItem();
-        TestPlanReportApiScenario testPlanReportApiScenario = testPlanReportApiScenarioMapper.selectByPrimaryKey(taskItem.getResourceId());
-        ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRun(testPlanReportApiScenario.getApiScenarioId());
-        apiScenarioDetail.setEnvironmentId(testPlanReportApiScenario.getEnvironmentId());
-        apiScenarioDetail.setGrouped(testPlanReportApiScenario.getGrouped());
-        return apiScenarioRunService.getRunScript(request, apiScenarioDetail);
     }
 }

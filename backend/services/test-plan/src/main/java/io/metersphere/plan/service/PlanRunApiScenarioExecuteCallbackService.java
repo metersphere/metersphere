@@ -58,7 +58,7 @@ public class PlanRunApiScenarioExecuteCallbackService implements ApiExecuteCallb
         ApiScenarioDetail apiScenarioDetail = apiScenarioRunService.getForRunWithTaskItemErrorMassage(request.getTaskItem().getId(), testPlanReportApiScenario.getApiScenarioId());
         apiScenarioDetail.setEnvironmentId(testPlanReportApiScenario.getEnvironmentId());
         apiScenarioDetail.setGrouped(testPlanReportApiScenario.getGrouped());
-        GetRunScriptResult result = planRunTestPlanApiScenarioService.getRunScript(request);
+        GetRunScriptResult result = apiScenarioRunService.getRunScript(request, apiScenarioDetail);
         String reportId = initReport(request, testPlanReportApiScenario, apiScenarioDetail);
         result.setReportId(reportId);
         return result;
