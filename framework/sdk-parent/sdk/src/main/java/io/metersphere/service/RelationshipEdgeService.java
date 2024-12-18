@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.Resource;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -51,7 +52,7 @@ public class RelationshipEdgeService {
         }
     }
 
-    public void delete(String sourceId ,List<String> targetIds) {
+    public void delete(String sourceId, List<String> targetIds) {
         targetIds.forEach(targetId -> {
             delete(sourceId, targetId);
         });
@@ -59,6 +60,7 @@ public class RelationshipEdgeService {
 
     /**
      * 删除边后，若形成两个不连通子图，则拆分图
+     *
      * @param graphId
      * @param sourceId
      * @param targetId
@@ -99,6 +101,7 @@ public class RelationshipEdgeService {
 
     /**
      * 遍历标记经过的节点
+     *
      * @param node
      * @param edges
      * @param markSet
@@ -150,7 +153,7 @@ public class RelationshipEdgeService {
     public List<RelationshipEdge> getRelationshipEdgeByType(String id, String relationshipType) {
         if (StringUtils.equals(relationshipType, "PRE")) {
             return getBySourceId(id);
-        }  else if (StringUtils.equals(relationshipType, "POST")) {
+        } else if (StringUtils.equals(relationshipType, "POST")) {
             return getByTargetId(id);
         }
         return new ArrayList<>();
@@ -161,7 +164,7 @@ public class RelationshipEdgeService {
             return relationshipEdges.stream()
                     .map(RelationshipEdge::getTargetId)
                     .collect(Collectors.toList());
-        }  else if (StringUtils.equals(relationshipType, "POST")) {
+        } else if (StringUtils.equals(relationshipType, "POST")) {
             return relationshipEdges.stream()
                     .map(RelationshipEdge::getSourceId)
                     .collect(Collectors.toList());
@@ -198,13 +201,10 @@ public class RelationshipEdgeService {
      * 保存新的边
      * 校验是否存在环
      * 同时将两个不连通的图合并成一个图
+     *
      * @param request
      */
     public void saveBatch(RelationshipEdgeRequest request) {
-
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        RelationshipEdgeMapper batchMapper = sqlSession.getMapper(RelationshipEdgeMapper.class);
-
         String graphId = UUID.randomUUID().toString();
         List<RelationshipEdge> relationshipEdges = getEdgesBySaveRequest(request);
         Set<String> addEdgesIds = new HashSet<>();
@@ -233,30 +233,37 @@ public class RelationshipEdgeService {
         nodeIds.forEach(nodeId -> {
             if (!visitedSet.contains(nodeId) && directedCycle(nodeId, relationshipEdges, new HashSet<>(), visitedSet)) {
                 MSException.throwException("关联后存在循环依赖，请检查依赖关系");
-            };
+            }
         });
+        // 合并图
+        new Thread(() -> {
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            RelationshipEdgeMapper batchMapper = sqlSession.getMapper(RelationshipEdgeMapper.class);
 
-        relationshipEdges.forEach(item -> {
-            if (addEdgesIds.contains(item.getSourceId() + item.getTargetId())) {
-                if(batchMapper.selectByPrimaryKey(item) == null ) {
-                    batchMapper.insert(item);
-                }else{
+            relationshipEdges.forEach(item -> {
+                if (addEdgesIds.contains(item.getSourceId() + item.getTargetId())) {
+                    if (batchMapper.selectByPrimaryKey(item) == null) {
+                        batchMapper.insert(item);
+                    } else {
+                        item.setGraphId(graphId); // 把原来图的id设置成合并后新的图的id
+                        batchMapper.updateByPrimaryKey(item);
+                    }
+                } else {
                     item.setGraphId(graphId); // 把原来图的id设置成合并后新的图的id
                     batchMapper.updateByPrimaryKey(item);
                 }
-            } else {
-                item.setGraphId(graphId); // 把原来图的id设置成合并后新的图的id
-                batchMapper.updateByPrimaryKey(item);
+            });
+
+            sqlSession.flushStatements();
+            if (sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
-        });
-        sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        }
+
+        }).start();
     }
 
     private RelationshipEdge getNewRelationshipEdge(String graphId, String sourceId, String targetId, String type) {
-        RelationshipEdge edge = new  RelationshipEdge();
+        RelationshipEdge edge = new RelationshipEdge();
         edge.setCreator(SessionUtils.getUserId());
         edge.setGraphId(graphId);
         edge.setCreateTime(System.currentTimeMillis());
@@ -268,10 +275,11 @@ public class RelationshipEdgeService {
 
     /**
      * 查找要关联的边所在图的所有的边
+     *
      * @param request
      * @return
      */
-    public List<RelationshipEdge>  getEdgesBySaveRequest(RelationshipEdgeRequest request) {
+    public List<RelationshipEdge> getEdgesBySaveRequest(RelationshipEdgeRequest request) {
         List<String> graphNodes = new ArrayList<>();
         graphNodes.add(request.getId());
         if (request.getTargetIds() != null) {
@@ -294,10 +302,11 @@ public class RelationshipEdgeService {
 
     /**
      * 给定一点，深度搜索该连通图中是否存在环
+     *
      * @param id
      * @param edges
-     * @param markSet     标记该路径上经过的节点
-     * @param visitedSet  标记访问过的节点
+     * @param markSet    标记该路径上经过的节点
+     * @param visitedSet 标记访问过的节点
      * @return
      */
     public boolean directedCycle(String id, List<RelationshipEdge> edges, Set<String> markSet, Set<String> visitedSet) {
@@ -332,6 +341,7 @@ public class RelationshipEdgeService {
 
     /**
      * 给定一个节点获取直接关联的节点的id
+     *
      * @param nodeId
      * @return
      */

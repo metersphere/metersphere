@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -29,30 +30,34 @@ public class ApiAutomationRelationshipEdgeService {
         if (scenarioWithBLOBs == null || StringUtils.isEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
             return;
         }
-        // 更新操作，检查更新前后是否有变更
-        List<String> beforeReferenceRelationships = new ArrayList<>();
+
+        // 获取当前场景的关系
+        List<String> referenceRelationships = this.contentAnalysis(scenarioWithBLOBs);
+
+        // 获取更新前的关系
+        List<String> beforeReferenceRelationships = Collections.emptyList();
         if (preBlobs != null && StringUtils.isNotEmpty(preBlobs.getScenarioDefinition())) {
             beforeReferenceRelationships = this.contentAnalysis(preBlobs);
         }
-        // 当前场景
-        List<String> referenceRelationships = this.contentAnalysis(scenarioWithBLOBs);
 
-        if (CollectionUtils.isNotEmpty(beforeReferenceRelationships)) {
-            beforeReferenceRelationships.removeAll(referenceRelationships);
-            // 删除多余的关系
-            if (CollectionUtils.isNotEmpty(beforeReferenceRelationships)) {
-                relationshipEdgeService.delete(scenarioWithBLOBs.getId(), beforeReferenceRelationships);
-            }
+        // 比较并处理关系
+        List<String> removedRelationships = new ArrayList<>(beforeReferenceRelationships);
+        removedRelationships.removeAll(referenceRelationships);
+
+        // 如果有删除的关系，启动线程处理
+        if (CollectionUtils.isNotEmpty(removedRelationships)) {
+            new Thread(() -> relationshipEdgeService.delete(scenarioWithBLOBs.getId(), removedRelationships)).start();
         }
 
+        // 如果有新增的关系，进行批量保存
         if (CollectionUtils.isNotEmpty(referenceRelationships)) {
             RelationshipEdgeRequest request = new RelationshipEdgeRequest();
             request.setId(scenarioWithBLOBs.getId());
             request.setTargetIds(referenceRelationships);
             request.setType("API_SCENARIO");
+
             relationshipEdgeService.saveBatch(request);
         }
-
     }
 
     private List<String> contentAnalysis(ApiScenarioWithBLOBs scenarioWithBLOBs) {
@@ -61,7 +66,7 @@ public class ApiAutomationRelationshipEdgeService {
             // 深度解析对比，防止是复制的关系
             JSONObject element = JSONUtil.parseObject(scenarioWithBLOBs.getScenarioDefinition());
             // 历史数据处理
-            this.relationships(element.getJSONArray(ElementConstants.HASH_TREE), referenceRelationships);
+            relationships(element.getJSONArray(ElementConstants.HASH_TREE), referenceRelationships);
         }
         return referenceRelationships;
     }
