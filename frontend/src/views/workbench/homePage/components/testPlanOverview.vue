@@ -412,6 +412,7 @@
       innerProjectIds.value = [...props.item.projectIds];
     });
     const [newProjectId] = innerProjectIds.value;
+    selectValue.value = [newProjectId, props.item.planId];
 
     refreshHandler(newProjectId);
     labelPath.value = getLabelPath(innerPlanId.value);
