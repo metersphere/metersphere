@@ -77,7 +77,7 @@ public class DashboardProjectService {
             }
             //检查是否开启测试计划模块
             Set<String> planProjectIds = hasUserPermissionProjectIds.get(PermissionConstants.TEST_PLAN_READ);
-            if (CollectionUtils.isNotEmpty(scenarioProjectIds)) {
+            if (CollectionUtils.isNotEmpty(planProjectIds)) {
                 searchPlanProjectIds = planProjectIds.stream().filter(t -> finalModuleMap.get(t).contains(TEST_PLAN)).collect(Collectors.toSet());
             }
             //检查是否开启缺陷模块
