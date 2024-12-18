@@ -33,7 +33,7 @@
         </SystemTrigger>
         <SystemTrigger :is-preview="true">
           <div class="analysis min-w-[330px]">
-            <ExecuteAnalysis :detail="detail" hide-title no-block />
+            <ExecuteAnalysis :detail="detail" hide-title no-block :animation="true" />
           </div>
           <template #content>
             <div class="arco-table-filters-content px-[8px] py-[4px]">

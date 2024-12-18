@@ -68,9 +68,9 @@
           >
             <a-tooltip :mouse-enter-delay="300" :content="t(item.label)" position="top">
               <div class="flex items-center justify-between">
-                <div :class="`${getLabelClass(item)} custom-card-item-label one-line-text max-w-[calc(100%-14px)]`">{{
-                  t(item.label)
-                }}</div>
+                <div :class="`${getLabelClass(item)} custom-card-item-label one-line-text max-w-[calc(100%-14px)]`">
+                  {{ t(item.label) }}
+                </div>
                 <icon-close
                   v-if="item.type !== FieldTypeEnum.SYSTEM"
                   :style="{ 'font-size': '14px' }"

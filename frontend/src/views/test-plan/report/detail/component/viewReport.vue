@@ -18,7 +18,7 @@
     </SystemTrigger>
     <SystemTrigger :is-preview="props.isPreview">
       <div :class="`${getAnalysisHover} analysis min-w-[410px]`">
-        <ExecuteAnalysis :detail="detail" />
+        <ExecuteAnalysis :detail="detail" :animation="true" />
       </div>
       <template #content>
         <div class="arco-table-filters-content px-[8px] py-[4px]">{{ t('report.detail.systemInternalTooltip') }}</div>
@@ -220,6 +220,7 @@
   import TestSetTableIndex from '@/views/test-plan/report/detail/component/system-card/testTableIndex.vue';
 
   import { getReportLayout, updateReportDetail } from '@/api/modules/test-plan/report';
+  import getVisualThemeColor from '@/config/chartTheme';
   import {
     commonConfig,
     defaultCount,
@@ -230,6 +231,7 @@
   } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useLeaveUnSaveTip from '@/hooks/useLeaveUnSaveTip';
+  import { useAppStore } from '@/store';
   import { addCommasToNumber } from '@/utils';
 
   import { UpdateReportDetailParams } from '@/models/testPlan/report';
@@ -247,6 +249,8 @@
   import { getSummaryDetail } from '@/views/test-plan/report/utils';
 
   const { t } = useI18n();
+
+  const appStore = useAppStore();
 
   const route = useRoute();
   const props = defineProps<{
@@ -296,7 +300,7 @@
   const shareId = ref<string>(route.query.shareId as string);
 
   // 功能用例分析
-  const functionCaseOptions = ref({
+  const functionCaseOptions = ref<Record<string, any>>({
     ...commonConfig,
     tooltip: {
       ...toolTipConfig,
@@ -315,7 +319,7 @@
     },
   });
   // 接口用例分析
-  const apiCaseOptions = ref({
+  const apiCaseOptions = ref<Record<string, any>>({
     ...commonConfig,
     tooltip: {
       ...toolTipConfig,
@@ -334,7 +338,7 @@
     },
   });
   // 场景用例分析
-  const scenarioCaseOptions = ref({
+  const scenarioCaseOptions = ref<Record<string, any>>({
     ...commonConfig,
     tooltip: {
       ...toolTipConfig,
@@ -360,19 +364,35 @@
     const { success } = caseCountDetail;
     const valueList = success ? statusConfig : passRateData;
     const chartBorderWidth = valueList.filter((e) => Number(caseCountDetail[e.value]) > 0).length === 1 ? 0 : 2;
-    return valueList
+
+    const lastValueList = valueList
       .filter((item) => caseCountDetail[item.value] > 0)
       .map((item: StatusListType) => {
+        const color = item.color === '#D4D4D8' ? getVisualThemeColor('initItemStyleColor') : item.color;
         return {
           value: caseCountDetail[item.value] || 0,
           name: t(item.label),
           itemStyle: {
-            color: success ? item.color : '#D4D4D8',
+            color: success ? color : getVisualThemeColor('initItemStyleColor'),
             borderWidth: chartBorderWidth,
-            borderColor: '#ffffff',
+            borderColor: getVisualThemeColor('itemStyleBorderColor'),
           },
         };
       });
+
+    return lastValueList.length
+      ? lastValueList
+      : [
+          {
+            value: 1,
+            tooltip: {
+              show: false,
+            },
+            itemStyle: {
+              color: getVisualThemeColor('initItemStyleColor'),
+            },
+          },
+        ];
   }
 
   // 初始化图表
@@ -664,6 +684,14 @@
       handleUpdateReportDetail(newCurrentItem);
     }
   }
+
+  watch(
+    () => appStore.isDarkTheme,
+    () => {
+      initOptionsData();
+    }
+  );
+
   defineExpose({
     setIsSave,
   });

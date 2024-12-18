@@ -13,8 +13,10 @@
 
   import SetReportChart from '@/views/api-test/report/component/case/setReportChart.vue';
 
+  import getVisualThemeColor from '@/config/chartTheme';
   import { commonConfig, seriesConfig, statusConfig, toolTipConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
 
   import type { LegendData } from '@/models/apiTest/report';
   import type { PlanReportDetail, StatusListType } from '@/models/testPlan/testPlanReport';
@@ -23,6 +25,7 @@
 
   const { t } = useI18n();
 
+  const appStore = useAppStore();
   const props = defineProps<{
     detail: PlanReportDetail;
     hideTitle?: boolean;
@@ -33,7 +36,7 @@
   const legendData = ref<LegendData[]>([]);
 
   // 执行分析
-  const executeCharOptions = ref({
+  const executeCharOptions = ref<Record<string, any>>({
     ...commonConfig,
     tooltip: {
       ...toolTipConfig,
@@ -88,19 +91,38 @@
   function initExecuteOptions() {
     const pieBorderWidth =
       statusConfig.filter((e) => Number(props.detail.executeCount[e.value]) > 0).length === 1 ? 0 : 2;
-    executeCharOptions.value.series.data = statusConfig
+
+    const lastExecuteData: Record<string, any>[] = statusConfig
       .filter((item) => props.detail.executeCount[item.value] > 0)
       .map((item: StatusListType) => {
+        const color = item.color === '#D4D4D8' ? getVisualThemeColor('initItemStyleColor') : item.color;
+        const itemColor = props.animation ? color : item.color;
+
         return {
           value: props.detail.executeCount[item.value] || 0,
           name: t(item.label),
           itemStyle: {
-            color: item.color,
+            color: itemColor,
             borderWidth: pieBorderWidth,
-            borderColor: '#ffffff',
+            borderColor: props.animation ? getVisualThemeColor('itemStyleBorderColor') : '#ffffff',
           },
         };
       });
+
+    executeCharOptions.value.series.data = lastExecuteData.length
+      ? lastExecuteData
+      : [
+          {
+            value: 1,
+            tooltip: {
+              show: false,
+            },
+            itemStyle: {
+              color: props.animation ? getVisualThemeColor('initItemStyleColor') : '#D4D4D8',
+            },
+          },
+        ];
+
     legendData.value = statusConfig.map((item: StatusListType) => {
       const rate = (props.detail.executeCount[item.value] / props.detail.caseTotal) * 100;
       return {
@@ -122,7 +144,7 @@
   });
 
   watchEffect(() => {
-    if (Object.keys(props.detail).length > 0) {
+    if (Object.keys(props.detail).length > 0 || appStore.isDarkTheme) {
       initExecuteOptions();
     }
   });

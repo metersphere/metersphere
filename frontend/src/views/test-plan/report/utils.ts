@@ -1,13 +1,4 @@
-import { TableSortable } from '@arco-design/web-vue';
-import { cloneDeep } from 'lodash-es';
-
-import type { MsTableColumn } from '@/components/pure/ms-table/type';
-
 import type { countDetail } from '@/models/testPlan/testPlanReport';
-import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
-
-import { casePriorityOptions, lastReportStatusListOptions } from '@/views/api-test/components/config';
-import { executionResultMap } from '@/views/case-management/caseManagementFeature/components/utils';
 
 export function getSummaryDetail(detailCount: countDetail) {
   if (detailCount) {
