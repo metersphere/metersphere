@@ -979,8 +979,11 @@
     if (dataIndex) {
       const [index] = dataIndex.split('_').slice(-1);
       const lastIndex = attrs.selectable ? Number(index) - 1 : Number(index);
-      currentColumns.value[lastIndex].width = width;
-      await tableStore.updateColumnWidth(attrs.tableKey as TableKeyEnum, currentColumns.value);
+
+      if (lastIndex > -1) {
+        currentColumns.value[lastIndex].width = width;
+        await tableStore.updateColumnWidth(attrs.tableKey as TableKeyEnum, currentColumns.value);
+      }
     }
   }, 200);
 
@@ -1166,6 +1169,11 @@
     }
     .arco-table-cell {
       padding: 0;
+    }
+  }
+  :deep(.arco-table-col-fixed-left.arco-table-operation) {
+    span.arco-table-column-handle {
+      pointer-events: none;
     }
   }
   :deep(.ms-table-select-all) {
