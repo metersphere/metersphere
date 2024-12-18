@@ -264,7 +264,8 @@
           fullScreen.value = useFullScreen(topDrawer?.querySelector('.arco-drawer'));
         });
       }
-    }
+    },
+    { immediate: true }
   );
 </script>
 
