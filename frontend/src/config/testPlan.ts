@@ -151,20 +151,21 @@ export const toolTipConfig: TooltipOption = {
     color: '#959598',
   },
   position: 'top',
-  backgroundColor: '#fff',
-  padding: 16,
+  backgroundColor: 'transparent',
+  padding: 0,
   borderWidth: 0,
   appendTo: 'body',
   formatter(params: any) {
     const html = `
-      <div class="w-[144px] flex items-center justify-between">
-      <div class=" flex items-center">
-      <div class="mb-[2px] mr-[8px] h-[6px] w-[6px] rounded-full bg-[${params.color}]" style="background:${
+      <div class="w-[144px] p-[16px] rounded flex items-center justify-between bg-[var(--color-bg-5)]">
+          <div class=" flex items-center">
+            <div class="mb-[2px] mr-[8px] h-[6px] w-[6px] rounded-full bg-[${params.color}]" style="background:${
       params.color
-    }"></div>
-      <div style="color:#959598">${params.name}</div>
-      </div>
-      <div class="text-[#323233] font-medium">${addCommasToNumber(params.value)}</div>
+    }">
+          </div>
+          <div  class="text-[var(--color-text-2)]">${params.name}</div>
+          </div>
+          <div class="text-[var(--color-text-1)] font-medium">${addCommasToNumber(params.value)}</div>
       </div>
       `;
     return html;

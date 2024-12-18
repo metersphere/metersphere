@@ -107,6 +107,7 @@ export function getCommonBarOptions(
           type: 'shadow',
           axis: 'auto',
         },
+        backgroundColor: 'transparent',
         formatter(params: any) {
           let testPlanHtml = '';
           // 如果是测试计划未分配
@@ -130,7 +131,7 @@ export function getCommonBarOptions(
             paramsList = params;
           }
           const html = `
-        <div class="w-[186px] rounded ms-scroll-bar max-h-[236px] overflow-y-auto p-[16px] gap-[8px] flex flex-col bg-[var(--color-text-fff)]">
+        <div class="w-[186px] rounded ms-scroll-bar max-h-[236px] overflow-y-auto p-[16px] gap-[8px] flex flex-col bg-[var(--color-bg-5)]">
         <div class="font-medium max-w-[150px] text-[var(--color-text-1)] one-line-text">
         ${params[0].axisValueLabel}
         </div>
@@ -270,9 +271,15 @@ export function getCommonBarOptions(
       },
       tooltip: {
         show: true,
-        padding: 16,
+        padding: 0,
         position(point: any) {
           return [point[0], '10%'];
+        },
+        backgroundColor: 'transparent',
+        formatter(params: any) {
+          return `
+            <div class="p-[8px] rounded bg-[var(--color-bg-5)] text-[var(--color-text-1)]">${params.name}</div>
+          `;
         },
         extraCssText: 'max-width: 300px; white-space: normal; word-wrap: break-word; word-break: break-all;',
         textStyle: {
@@ -750,9 +757,10 @@ export function getSeriesData(
           show: true,
           trigger: 'item',
           enterable: true,
+          backgroundColor: 'transparent',
           formatter(params: any) {
             const html = `
-                <div class="w-[186px] h-[50px] p-[16px] flex items-center justify-between bg-[var(--color-text-fff)]">
+                <div class="w-[186px] rounded h-[50px] p-[16px] flex items-center justify-between bg-[var(--color-bg-5)]">
                 <div class=" flex items-center">
                 <div class="mb-[2px] mr-[8px] h-[8px] w-[8px] rounded-sm bg-[${params.color}]" style="background:${
               params.color
