@@ -794,13 +794,13 @@
     }
 
     if (props.selectedProtocols.length > 0 || route.query.home) {
-      loadApiList(true);
+      loadApiList(!route.query.home);
     }
   }
 
   const isActivated = computed(() => cacheStore.cacheViews.includes(CacheTabTypeEnum.API_TEST_API_TABLE));
 
-  onBeforeMount(() => {
+  onMounted(() => {
     cacheStore.clearCache();
     if (!isActivated.value) {
       onMountedLoad();
