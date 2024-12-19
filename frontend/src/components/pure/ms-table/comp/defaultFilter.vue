@@ -62,23 +62,23 @@
                 }"
               >
                 <template #title="{ item }">
-                  <div class="w-full" @click.stop="checkItem(item.value)">
-                    <a-checkbox
-                      :model-value="checkedList.includes(item.value)"
-                      :value="item.value"
-                      @click.stop="checkItem(item.value)"
-                    >
-                      <a-tooltip
-                        :content="item[props.labelKey || 'label']"
-                        :mouse-enter-delay="300"
-                        :disabled="!item[props.labelKey || 'label']"
+                  <a-tooltip
+                    :content="item[props.labelKey || 'label']"
+                    :mouse-enter-delay="300"
+                    :disabled="!item[props.labelKey || 'label']"
+                  >
+                    <div class="w-full" @click.stop="checkItem(item.value)">
+                      <a-checkbox
+                        :model-value="checkedList.includes(item.value)"
+                        :value="item.value"
+                        @click.stop="checkItem(item.value)"
                       >
-                        <div class="one-line-text max-w-[120px]" @click.stop="checkItem(item.value)">
+                        <div class="one-line-text max-w-[120px]">
                           {{ item.label }}
                         </div>
-                      </a-tooltip>
-                    </a-checkbox>
-                  </div>
+                      </a-checkbox>
+                    </div>
+                  </a-tooltip>
                 </template>
               </MsList>
             </a-spin>
@@ -230,6 +230,10 @@
   watch(
     () => visible.value,
     (val) => {
+      // 避免打开后选择未点击确认再次打开有选择选项
+      if (isNoFilter.value) {
+        checkedList.value = [];
+      }
       if (val && props.mode === 'remote') {
         filterKeyword.value = '';
         initOptions();
