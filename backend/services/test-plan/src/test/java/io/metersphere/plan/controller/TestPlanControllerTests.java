@@ -1882,8 +1882,8 @@ public class TestPlanControllerTests extends BaseTest {
 
         MvcResult mvcResult = this.requestPostWithOkAndReturn("/test-plan/rage", request);
         TestPlanCoverageDTO coverageDTO = this.getResultData(mvcResult, TestPlanCoverageDTO.class);
-        Assertions.assertEquals(coverageDTO.getUnExecute() + coverageDTO.getExecuted(), coverageDTO.getPassed() + coverageDTO.getNotPassed() + coverageDTO.getPassed_archived() + coverageDTO.getNotPassed_archived());
-        Assertions.assertEquals(coverageDTO.getFinished() + coverageDTO.getRunning() + coverageDTO.getArchived() + coverageDTO.getPrepared(), coverageDTO.getPassed() + coverageDTO.getNotPassed() + coverageDTO.getPassed_archived() + coverageDTO.getNotPassed_archived());
+        Assertions.assertEquals(coverageDTO.getUnExecute() + coverageDTO.getExecuted(), coverageDTO.getPassed() + coverageDTO.getNotPassed() + coverageDTO.getPassedArchived() + coverageDTO.getNotPassedArchived());
+        Assertions.assertEquals(coverageDTO.getFinished() + coverageDTO.getRunning() + coverageDTO.getArchived() + coverageDTO.getPrepared(), coverageDTO.getPassed() + coverageDTO.getNotPassed() + coverageDTO.getPassedArchived() + coverageDTO.getNotPassedArchived());
     }
 
 

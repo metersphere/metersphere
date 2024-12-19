@@ -19,9 +19,9 @@ public class TestPlanCoverageDTO {
      * 归档未通过
      */
     private int passed = 0;
-    private int passed_archived = 0;
+    private int passedArchived = 0;
     private int notPassed = 0;
-    private int notPassed_archived = 0;
+    private int notPassedArchived = 0;
 
     /**
      * 已完成
@@ -46,7 +46,7 @@ public class TestPlanCoverageDTO {
 
         if (isArchived) {
             this.archived++;
-            this.notPassed_archived++;
+            this.notPassedArchived++;
         } else {
             this.prepared++;
             this.notPassed++;
@@ -58,7 +58,7 @@ public class TestPlanCoverageDTO {
 
         if (isArchived) {
             this.archived++;
-            this.passed_archived++;
+            this.passedArchived++;
         } else {
             this.finished++;
             this.passed++;
@@ -70,7 +70,7 @@ public class TestPlanCoverageDTO {
 
         if (isArchived) {
             this.archived++;
-            this.notPassed_archived++;
+            this.notPassedArchived++;
         } else {
             this.finished++;
             this.notPassed++;
@@ -82,7 +82,7 @@ public class TestPlanCoverageDTO {
 
         if (isArchived) {
             this.archived++;
-            this.passed_archived++;
+            this.passedArchived++;
         } else {
             this.running++;
             this.passed++;
@@ -94,7 +94,7 @@ public class TestPlanCoverageDTO {
 
         if (isArchived) {
             this.archived++;
-            this.notPassed_archived++;
+            this.notPassedArchived++;
         } else {
             this.running++;
             this.notPassed++;
