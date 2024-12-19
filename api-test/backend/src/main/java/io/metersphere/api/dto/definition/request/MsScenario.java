@@ -167,7 +167,7 @@ public class MsScenario extends MsTestElement {
     }
 
     private void setGlobProcessor(ParameterConfig config, HashTree scenarioTree, boolean isPre) {
-        if (config.getConfig() != null && (this.variableEnable == null || this.variableEnable)) {
+        if (config.getConfig() != null) {
             config.getConfig().forEach((k, environmentConfig) -> {
                 if (environmentConfig != null) {
                     EnvJSR223Processor envProcessor = isPre ? environmentConfig.getPreStepProcessor() : environmentConfig.getPostStepProcessor();
