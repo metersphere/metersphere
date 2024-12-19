@@ -157,7 +157,7 @@ export const toolTipConfig: TooltipOption = {
   appendTo: 'body',
   formatter(params: any) {
     const html = `
-      <div class="w-[144px] p-[16px] rounded flex items-center justify-between bg-[var(--color-bg-5)]">
+      <div class="p-[16px] w-[180px] rounded flex items-center justify-between bg-[var(--color-bg-5)]">
           <div class=" flex items-center">
             <div class="mb-[2px] mr-[8px] h-[6px] w-[6px] rounded-full bg-[${params.color}]" style="background:${
       params.color

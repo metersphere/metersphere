@@ -12,11 +12,15 @@
       <MsChart height="92px" width="92px" :options="props.options" />
     </div>
     <div class="pass-rate-title flex-1">
-      <div v-for="item of props.valueList" :key="item.label" class="flex-1">
-        <div class="one-line-text mb-[8px] text-[var(--color-text-4)]">{{ item.label }}</div>
-        <div class="pass-rate-count" @click="goNavigation(item)">
-          {{ hasPermission ? addCommasToNumber(item.value as number) : '-' }}
-        </div>
+      <div v-for="(item, index) of props.valueList" :key="item.label" class="flex-1">
+        <slot :ele="item" :index="index">
+          <div class="one-line-text mb-[8px] text-[var(--color-text-4)]">{{ item.label }}</div>
+          <div class="pass-rate-count text-[rgb(var(--primary-4))]">
+            <div @click="goNavigation(item)">
+              {{ hasPermission ? addCommasToNumber(item.value as number) : '-' }}
+            </div>
+          </div>
+        </slot>
       </div>
     </div>
   </a-spin>
@@ -44,6 +48,7 @@
       value: number | string;
       status?: string;
       route?: string;
+      archivedPassed?: number;
     }[];
   }>();
 
@@ -67,8 +72,8 @@
       @apply flex items-center gap-2;
       .pass-rate-count {
         font-size: 20px;
-        color: rgb(var(--primary-4));
-        @apply cursor-pointer font-medium;
+        gap: 8px;
+        @apply flex cursor-pointer  items-center justify-start font-medium;
       }
     }
   }

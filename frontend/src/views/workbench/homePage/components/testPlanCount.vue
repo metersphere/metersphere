@@ -29,7 +29,22 @@
               :has-permission="hasPermission"
               :options="tabItem.options"
               :value-list="tabItem.valueList"
-            />
+            >
+              <template v-if="tabItem.value === 'pass'" #default="{ ele: passItem, index }">
+                <div class="one-line-text mb-[8px] text-[var(--color-text-4)]">{{ passItem.label }}</div>
+                <div class="pass-rate-count-archived">
+                  <div class="text-[rgb(var(--primary-4))]" @click="goNavigation(passItem, index)">
+                    {{ hasPermission ? addCommasToNumber(passItem.value as number) : '-' }}
+                  </div>
+                  <div
+                    class="mr-[8px] text-center text-[var(--color-text-brand)]"
+                    @click="goNavigation(passItem, index, true)"
+                  >
+                    {{ hasPermission ? addCommasToNumber(passItem.archivedPassed || 0) : '-' }}
+                  </div>
+                </div>
+              </template>
+            </PassRatePie>
           </div>
         </div>
         <div class="mt-[16px] h-[148px]">
@@ -59,7 +74,9 @@
   import { workTestPlanRage } from '@/api/modules/workbench';
   import getVisualThemeColor from '@/config/chartTheme';
   import { useI18n } from '@/hooks/useI18n';
+  import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
+  import { addCommasToNumber } from '@/utils';
 
   import type {
     SelectedCardItem,
@@ -67,8 +84,11 @@
     WorkTestPlanDetail,
     WorkTestPlanRageDetail,
   } from '@/models/workbench/homePage';
+  import { WorkNavValueEnum } from '@/enums/workbenchEnum';
 
   import { colorMapConfig, handlePieData, handleUpdateTabPie } from '../utils';
+
+  const { openNewPage } = useOpenNewPage();
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -155,10 +175,12 @@
         {
           name: t('workbench.homePage.havePassed'),
           count: passed,
+          archivedPassed: 0,
         },
         {
           name: t('workbench.homePage.notPass'),
           count: notPassed,
+          archivedPassed: 0,
         },
       ];
 
@@ -249,6 +271,24 @@
     });
   }
 
+  function goNavigation(
+    item: { label: string; value: number | string; status?: string; route?: string },
+    index: number,
+    isArchived = false
+  ) {
+    let status;
+    if (isArchived) {
+      status = index === 0 ? WorkNavValueEnum.TEST_PLAN_PASSED_ARCHIVED : WorkNavValueEnum.TEST_PLAN_NOT_PASS_ARCHIVED;
+    } else {
+      status = item.status;
+    }
+
+    openNewPage(item.route, {
+      pId: projectId.value,
+      home: status,
+    });
+  }
+
   onMounted(() => {
     initTestPlanCount();
   });
@@ -295,5 +335,10 @@
 <style scoped lang="less">
   :deep(.arco-tabs-tab) {
     padding: 0 !important;
+  }
+  .pass-rate-count-archived {
+    font-size: 20px;
+    gap: 8px;
+    @apply grid cursor-pointer grid-cols-2 font-medium;
   }
 </style>
