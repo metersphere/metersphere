@@ -499,7 +499,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
-  import { characterLimit } from '@/utils';
+  import { characterLimit, getGenerateId } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import {
@@ -546,7 +546,7 @@
   );
   const emit = defineEmits<{
     (e: 'copy'): void;
-    (e: 'delete', id: number): void;
+    (e: 'delete', id: number | string): void;
     (e: 'change'): void;
   }>();
 
@@ -899,7 +899,11 @@
   const defaultItem = ref(
     cloneDeep(
       condition.value.extractors?.length
-        ? condition.value.extractors[condition.value.extractors.length - 1]
+        ? {
+            ...defaultExtractParamItem,
+            variableType: condition.value.extractors[condition.value.extractors.length - 1].variableType,
+            extractType: condition.value.extractors[condition.value.extractors.length - 1].extractType,
+          }
         : defaultExtractParamItem
     )
   );
@@ -933,7 +937,7 @@
       if (currentIndex > -1) {
         condition.value.extractors.splice(currentIndex, 0, {
           ...currentExtractorsItem,
-          id: new Date().getTime().toString(),
+          id: getGenerateId(),
         });
         const temList = cloneDeep(condition.value?.extractors);
         condition.value.extractors = temList;

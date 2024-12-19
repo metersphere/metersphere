@@ -227,7 +227,7 @@ export interface ResponseVariableAssertion {
 }
 // 执行请求-前后置操作处理器
 export interface ExecuteConditionProcessorCommon {
-  id: number; // 处理器ID，前端列表渲染需要，后台无此字段
+  id: string | number; // 处理器ID，前端列表渲染需要，后台无此字段
   enable: boolean; // 是否启用
   name?: string; // 条件处理器名称
   processorType: RequestConditionProcessor;
@@ -308,7 +308,7 @@ export type ExecuteConditionProcessor = Partial<
 export interface ExecuteConditionConfig {
   enableGlobal?: boolean; // 是否启用全局前/后置 默认为 true
   processors: ExecuteConditionProcessor[];
-  activeItemId?: number;
+  activeItemId?: number | string;
 }
 // 执行请求-共用配置子项
 export interface ExecuteCommonChild {

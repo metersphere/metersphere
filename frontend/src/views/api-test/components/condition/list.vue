@@ -69,7 +69,7 @@
   import { conditionTypeNameMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import { characterLimit } from '@/utils';
+  import { characterLimit, getGenerateId } from '@/utils';
 
   import { ExecuteConditionProcessor } from '@/models/apiTest/common';
   import { RequestConditionProcessor } from '@/enums/apiEnum';
@@ -161,7 +161,7 @@
   function copyListItem(item: ExecuteConditionProcessor) {
     let copyItem = {
       ...cloneDeep(item),
-      id: new Date().getTime(),
+      id: getGenerateId(),
     };
     const isExistPre = list.value.filter(
       (current) => current.beforeStepScript && current.processorType === RequestConditionProcessor.REQUEST_SCRIPT
@@ -178,7 +178,7 @@
     copyItem = {
       ...cloneDeep(item),
       beforeStepScript: !isExistPre,
-      id: new Date().getTime(),
+      id: getGenerateId(),
     };
 
     const copyIndex = list.value.findIndex((e: ExecuteConditionProcessor) => e.id === item.id);

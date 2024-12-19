@@ -1010,8 +1010,11 @@
           processor.extractParams || [],
           defaultKeyValueParamItem
         ).validParams;
-      } else if (processor.processorType === RequestConditionProcessor.EXTRACT) {
-        processor.extractors = filterKeyValParams(processor.extractors || [], defaultExtractParamItem).validParams;
+      } else if (processor.processorType === RequestConditionProcessor.EXTRACT && processor.extractors) {
+        processor.extractors = filterKeyValParams(
+          processor.extractors,
+          processor.extractors[processor.extractors.length - 1]
+        ).validParams;
       }
       return processor;
     });

@@ -5,6 +5,7 @@ import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
 import { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
 import { useI18n } from '@/hooks/useI18n';
+import { getGenerateId } from '@/utils';
 
 import {
   EnableKeyValueParam,
@@ -81,7 +82,7 @@ export const defaultRequestParamsItem: ExecuteRequestCommonParam = {
 
 // 请求的响应 response 默认的响应信息项
 export const defaultResponseItem: ResponseDefinition = {
-  id: new Date().getTime(),
+  id: getGenerateId(),
   name: 'apiTestManagement.response',
   label: 'apiTestManagement.response',
   closable: false,

@@ -136,6 +136,7 @@
   import useAppStore from '@/store/modules/app';
   import useCacheStore from '@/store/modules/cache/cache';
   import useUserStore from '@/store/modules/user';
+  import { getGenerateId } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ProtocolItem } from '@/models/apiTest/common';
@@ -418,7 +419,7 @@
         isNew: isCopy,
         unSaved: isCopy,
         isCopy,
-        id: isCopy ? new Date().getTime() : res.id,
+        id: isCopy ? getGenerateId() : res.id,
         isExecute,
         mode: isExecute ? 'debug' : 'definition',
         definitionActiveKey: isCopy || isExecute || isEdit ? 'definition' : 'preview',

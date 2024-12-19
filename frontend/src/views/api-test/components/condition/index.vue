@@ -61,6 +61,7 @@
 
   import { conditionTypeNameMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
+  import { getGenerateId } from '@/utils';
 
   import { ConditionType, ExecuteConditionProcessor, RegexExtract } from '@/models/apiTest/common';
   import { RequestConditionProcessor, RequestExtractScope } from '@/enums/apiEnum';
@@ -104,7 +105,7 @@
   function copyListItem() {
     const copyItem = {
       ...cloneDeep(activeItem.value),
-      id: new Date().getTime(),
+      id: getGenerateId(),
     };
     list.value.push(copyItem as ExecuteConditionProcessor);
     activeItem.value = list.value[list.value.length - 1];
@@ -126,7 +127,7 @@
    * 添加条件
    */
   function addCondition(value: ConditionType) {
-    const id = new Date().getTime();
+    const id = getGenerateId();
     switch (value) {
       // 脚本执行类型
       case RequestConditionProcessor.SCRIPT:
@@ -238,9 +239,9 @@
           extractors: item.extractors?.map((e, j) => ({
             ...e,
             extractScope: (e as RegexExtract).extractScope || RequestExtractScope.BODY,
-            id: new Date().getTime() + j,
+            id: getGenerateId() + j,
           })),
-          id: new Date().getTime() + i,
+          id: getGenerateId() + i,
         };
       }
       return item;
