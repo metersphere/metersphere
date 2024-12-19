@@ -25,15 +25,22 @@
                 :rules="[{ required: true, message: t('mockManagement.paramNameNotNull') }]"
                 :disabled="props.disabled"
               >
-                <a-select
+                <a-auto-complete
                   v-model="item.key"
                   :placeholder="t('apiTestDebug.paramName')"
-                  :options="props.keyOptions"
-                  allow-search
-                  allow-create
+                  :data="props.keyOptions"
                   @change="(val) => selectedKey(item, idx)"
-                >
-                </a-select>
+                />
+
+                <!--                <a-select-->
+                <!--                  v-model="item.key"-->
+                <!--                  :placeholder="t('apiTestDebug.paramName')"-->
+                <!--                  :options="props.keyOptions"-->
+                <!--                  allow-search-->
+                <!--                  allow-create-->
+                <!--                  @change="(val) => selectedKey(item, idx)"-->
+                <!--                >-->
+                <!--                </a-select>-->
               </a-form-item>
             </div>
             <div class="w-[110px]">
@@ -342,7 +349,6 @@
   //   activeQuickInputRecord.value = {};
   //   quickInputDescValue.value = '';
   // }
-
   // function applyQuickInputDesc() {
   //   activeQuickInputRecord.value.description = quickInputDescValue.value;
   //   showQuickInputDesc.value = false;
@@ -350,7 +356,6 @@
   //   clearQuickInputDesc();
   //   emitChange('applyQuickInputDesc');
   // }
-
   // function handleDescChange() {
   //   emitChange('handleDescChange');
   // }
