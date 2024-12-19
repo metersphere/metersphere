@@ -211,7 +211,7 @@
         ExtensionText,
         ExtensionImage.configure({
           inline: true,
-          allowBase64: true,
+          allowBase64: false,
           HTMLAttributes: {
             loading: 'lazy',
           },
