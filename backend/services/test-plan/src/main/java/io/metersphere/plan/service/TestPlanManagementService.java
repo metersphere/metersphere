@@ -359,6 +359,16 @@ public class TestPlanManagementService {
             List<String> statusSelectParam = null;
             List<String> passedSelectParam = null;
 
+            if (request.getFilter() != null && request.getFilter().containsKey("passed")) {
+                passedSelectParam = request.getFilter().get("passed");
+            } else if (request.getFilter() != null && request.getFilter().containsKey("archivedPassed")) {
+                passedSelectParam = request.getFilter().get("archivedPassed");
+
+                request.getFilter().put("status", new ArrayList<>() {{
+                    this.add(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
+                }});
+            }
+
             if (request.getFilter() == null || !request.getFilter().containsKey("status")) {
                 if (request.getFilter() == null) {
                     request.setFilter(new HashMap<>() {{
@@ -370,10 +380,6 @@ public class TestPlanManagementService {
             } else if (!request.getFilter().get("status").contains(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED)) {
                 statusSelectParam = request.getFilter().get("status");
                 request.getFilter().put("status", defaultStatusList);
-            }
-
-            if (request.getFilter() != null && request.getFilter().containsKey("passed")) {
-                passedSelectParam = request.getFilter().get("passed");
             }
 
             boolean selectArchived = CollectionUtils.isNotEmpty(statusSelectParam) && statusSelectParam.contains(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);

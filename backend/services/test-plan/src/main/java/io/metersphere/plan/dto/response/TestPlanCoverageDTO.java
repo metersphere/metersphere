@@ -14,10 +14,14 @@ public class TestPlanCoverageDTO {
 
     /**
      * 通过
+     * 归档通过
      * 未通过
+     * 归档未通过
      */
     private int passed = 0;
+    private int passed_archived = 0;
     private int notPassed = 0;
+    private int notPassed_archived = 0;
 
     /**
      * 已完成
@@ -39,52 +43,61 @@ public class TestPlanCoverageDTO {
 
     public void notStartedAutoIncrement(boolean isArchived) {
         this.unExecute++;
-        this.notPassed++;
+
         if (isArchived) {
             this.archived++;
+            this.notPassed_archived++;
         } else {
             this.prepared++;
+            this.notPassed++;
         }
     }
 
     public void passAndFinishedAutoIncrement(boolean isArchived) {
         this.executed++;
-        this.passed++;
 
         if (isArchived) {
             this.archived++;
+            this.passed_archived++;
         } else {
             this.finished++;
+            this.passed++;
         }
     }
 
     public void unSuccessAutoIncrement(boolean isArchived) {
         this.executed++;
-        this.notPassed++;
+
         if (isArchived) {
             this.archived++;
+            this.notPassed_archived++;
         } else {
             this.finished++;
+            this.notPassed++;
         }
     }
 
     public void passAndNotFinishedAutoIncrement(boolean isArchived) {
         this.executed++;
-        this.passed++;
+
         if (isArchived) {
             this.archived++;
+            this.passed_archived++;
         } else {
             this.running++;
+            this.passed++;
         }
     }
 
     public void testPlanRunningAutoIncrement(boolean isArchived) {
         this.executed++;
-        this.notPassed++;
+
         if (isArchived) {
             this.archived++;
+            this.notPassed_archived++;
         } else {
             this.running++;
+            this.notPassed++;
         }
     }
 }
