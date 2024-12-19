@@ -37,6 +37,7 @@
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -57,6 +58,7 @@
   const searchValue = ref('');
 
   const { t } = useI18n();
+  const projectEnvStore = useProjectEnvStore();
 
   const innerParams = defineModel<any[]>('params', {
     required: true,
@@ -158,9 +160,23 @@
 
   function handleParamTableChange(resultArr: any[], isInit?: boolean) {
     innerParams.value = [...resultArr];
+
     if (!isInit) {
       emit('change');
       firstSearch.value = true;
+      // 合并新的数据到 backupParams
+      const updatedBackupParams = [...backupParams.value].slice(0, -1);
+
+      resultArr.forEach((item) => {
+        // 如果 backupParams 中不存在该项添加
+        if (!updatedBackupParams.find((backupItem) => backupItem.id === item.id)) {
+          updatedBackupParams.push(item);
+        }
+      });
+
+      backupParams.value = updatedBackupParams;
+
+      projectEnvStore.setEnvAllParams(backupParams.value);
     }
   }
 
@@ -169,6 +185,7 @@
       backupParams.value = [...innerParams.value];
       firstSearch.value = false;
     }
+
     if (!searchValue.value) {
       innerParams.value = [...backupParams.value];
     } else {
@@ -177,6 +194,7 @@
       );
       innerParams.value = [...result];
     }
+    projectEnvStore.setEnvAllParams(backupParams.value);
   }
 </script>
 

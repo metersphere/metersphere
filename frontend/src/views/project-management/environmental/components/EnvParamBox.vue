@@ -217,6 +217,7 @@
       config: {
         ...paramsConfig,
         httpConfig: httpConfigList,
+        commonVariables: store.commonBackupVariables,
       },
     };
   }
