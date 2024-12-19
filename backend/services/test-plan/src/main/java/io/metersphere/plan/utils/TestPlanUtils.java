@@ -13,9 +13,10 @@ public class TestPlanUtils {
     public static Map<String, List<String>> parseGroupIdMap(List<TestPlan> testPlanList) {
         Map<String, List<String>> testPlanGroupIdMap = new HashMap<>();
         for (TestPlan testPlan : testPlanList) {
+
             if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP) && !testPlanGroupIdMap.containsKey(testPlan.getId())) {
                 testPlanGroupIdMap.put(testPlan.getId(), new ArrayList<>());
-            } else {
+            } else if (StringUtils.equalsIgnoreCase(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_PLAN)) {
                 if (testPlanGroupIdMap.containsKey(testPlan.getGroupId())) {
                     testPlanGroupIdMap.get(testPlan.getGroupId()).add(testPlan.getId());
                 } else {
