@@ -166,29 +166,38 @@ public class MsScenario extends MsTestElement {
                 && (this.mixEnable == null || BooleanUtils.isFalse(this.mixEnable));
     }
 
-    private void setGlobProcessor(ParameterConfig config, HashTree scenarioTree, boolean isPre) {
-        if (config.getConfig() != null && (this.variableEnable == null || this.variableEnable)) {
-            config.getConfig().forEach((k, environmentConfig) -> {
-                if (environmentConfig != null) {
-                    EnvJSR223Processor envProcessor = isPre ? environmentConfig.getPreStepProcessor() : environmentConfig.getPostStepProcessor();
-                    MsJSR223Processor processor = new MsJSR223Processor();
-                    if (envProcessor != null) {
-                        BeanUtils.copyBean(processor, envProcessor);
-                    }
-                    if (StringUtils.isNotEmpty(processor.getScript())) {
-                        processor.setType(ElementConstants.JSR223);
-                        processor.setClazzName(MsJSR223Processor.class.getCanonicalName());
-                        boolean isConnScenarioPre = false;
-                        if (environmentConfig.getGlobalScriptConfig() != null) {
-                            isConnScenarioPre = isPre ? environmentConfig.getGlobalScriptConfig().isConnScenarioPreScript() :
-                                    environmentConfig.getGlobalScriptConfig().isConnScenarioPostScript();
-                        }
-                        String name = isPre ? "PRE_PROCESSOR_ENV_" : "POST_PROCESSOR_ENV_";
-                        processor.setName(name + isConnScenarioPre);
-                        processor.toHashTree(scenarioTree, processor.getHashTree(), config);
-                    }
+    private void setConfig(ParameterConfig config, HashTree scenarioTree, boolean isPre) {
+        config.getConfig().forEach((k, environmentConfig) -> {
+            if (environmentConfig != null) {
+                EnvJSR223Processor envProcessor = isPre ? environmentConfig.getPreStepProcessor() : environmentConfig.getPostStepProcessor();
+                MsJSR223Processor processor = new MsJSR223Processor();
+                if (envProcessor != null) {
+                    BeanUtils.copyBean(processor, envProcessor);
                 }
-            });
+                if (StringUtils.isNotEmpty(processor.getScript())) {
+                    processor.setType(ElementConstants.JSR223);
+                    processor.setClazzName(MsJSR223Processor.class.getCanonicalName());
+                    boolean isConnScenarioPre = false;
+                    if (environmentConfig.getGlobalScriptConfig() != null) {
+                        isConnScenarioPre = isPre ? environmentConfig.getGlobalScriptConfig().isConnScenarioPreScript() :
+                                environmentConfig.getGlobalScriptConfig().isConnScenarioPostScript();
+                    }
+                    String name = isPre ? "PRE_PROCESSOR_ENV_" : "POST_PROCESSOR_ENV_";
+                    processor.setName(name + isConnScenarioPre);
+                    processor.toHashTree(scenarioTree, processor.getHashTree(), config);
+                }
+            }
+        });
+    }
+
+    private void setGlobProcessor(ParameterConfig config, HashTree scenarioTree, boolean isPre) {
+        if (config.getConfig() != null) {
+            if (StringUtils.equals(this.getId(), config.getScenarioId())) {
+                setConfig(config, scenarioTree, isPre);
+            } else if (this.variableEnable == null || this.variableEnable) {
+                setConfig(config, scenarioTree, isPre);
+            }
+
         }
     }
 
@@ -222,7 +231,7 @@ public class MsScenario extends MsTestElement {
         return false;
     }
 
-    private void setNewConfig( ParameterConfig newConfig) {
+    private void setNewConfig(ParameterConfig newConfig) {
         Map<String, EnvironmentConfig> envConfig = new HashMap<>();
         if (this.isEnvironmentEnable()) {
             ApiScenarioMapper apiScenarioMapper = CommonBeanFactory.getBean(ApiScenarioMapper.class);
