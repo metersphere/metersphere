@@ -1691,6 +1691,7 @@ public class DashboardService {
         } catch (Exception e) {
             // 获取三方平台结束状态失败, 只过滤本地结束状态
             LogUtils.error(Translator.get("get_platform_end_status_error"));
+            return localLastStepStatus;
         }
         localLastStepStatus.addAll(platformLastStepStatus);
         return localLastStepStatus;
