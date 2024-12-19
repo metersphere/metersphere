@@ -74,9 +74,7 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         if (!containRequest || CollectionUtils.isEmpty(request.getProtocols())) {
             return baseTreeNodes;
         }
-        ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
-        request.setExcludeIds(apiDefinitionService.getQueryExcludeIds(request.getFilter(), request.getProjectId(), request.getProtocols()));
-        request.setIncludeIds(apiDefinitionService.getQueryIncludeIds(request.getFilter(), request.getProjectId(), request.getProtocols()));
+
         List<ApiTreeNode> apiTreeNodeList = extApiDefinitionModuleMapper.selectApiDataByRequest(request, deleted);
         return apiDebugModuleService.getBaseTreeNodes(apiTreeNodeList, baseTreeNodes);
 
@@ -275,6 +273,11 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
             isRepeat = this.checkTestPlanRepeatCase(request);
         }
         request.setModuleIds(null);
+
+        ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+        request.setExcludeIds(apiDefinitionService.getQueryExcludeIds(request.getFilter(), request.getProjectId(), request.getProtocols()));
+        request.setIncludeIds(apiDefinitionService.getQueryIncludeIds(request.getFilter(), request.getProjectId(), request.getProtocols()));
+        
         //查找根据moduleIds查找模块下的接口数量 查非delete状态的
         List<ModuleCountDTO> moduleCountDTOList = extApiDefinitionModuleMapper.countModuleIdByRequest(request, deleted, isRepeat);
         long allCount = getAllCount(moduleCountDTOList);
