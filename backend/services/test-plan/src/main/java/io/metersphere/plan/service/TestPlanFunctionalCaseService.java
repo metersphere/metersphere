@@ -700,7 +700,11 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         testPlanCaseExecuteHistoryExample.createCriteria().andCaseIdEqualTo(caseId).andTestPlanCaseIdEqualTo(id).andDeletedEqualTo(false);
         testPlanCaseExecuteHistoryExample.setOrderByClause("create_time DESC");
         response.setRunListCount((int) testPlanCaseExecuteHistoryMapper.countByExample(testPlanCaseExecuteHistoryExample));
-        response.setBugListCount(getBugListCount(id, planFunctionalCase.getTestPlanId()));
+        AssociateBugPageRequest associateBugPageRequest = new AssociateBugPageRequest();
+        associateBugPageRequest.setTestPlanCaseId(id);
+        associateBugPageRequest.setProjectId(functionalCaseDetail.getProjectId());
+        List<BugProviderDTO> associateBugs = hasAssociateBugPage(associateBugPageRequest);
+        response.setBugListCount(CollectionUtils.isNotEmpty(associateBugs) ? associateBugs.size() : 0);
         return response;
     }
 
