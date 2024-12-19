@@ -57,6 +57,8 @@ export interface WorkTestPlanRageDetail {
   prepared: number;
   archived: number;
   errorCode: number;
+  passedArchived: number; // 已归档通过状态
+  notPassedArchived: number; // 已归档未通过状态
 }
 
 export interface TimeFormParams {

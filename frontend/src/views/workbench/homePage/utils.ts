@@ -661,6 +661,7 @@ export function handleUpdateTabPie(
 
     lastCountList = countList.slice(1).map((item, i) => {
       return {
+        ...item,
         value: item.count,
         label: item.name,
         name: item.name,

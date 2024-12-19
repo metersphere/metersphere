@@ -162,7 +162,8 @@
         projectId: innerProjectIds.value[0],
       };
       const detail: WorkTestPlanRageDetail = await workTestPlanRage(params);
-      const { passed, notPassed, finished, running, prepared, archived, errorCode } = detail;
+      const { passed, notPassed, finished, running, prepared, archived, errorCode, passedArchived, notPassedArchived } =
+        detail;
       hasPermission.value = errorCode !== 109001;
 
       const passRate = passed + notPassed > 0 ? parseFloat(((passed / (passed + notPassed)) * 100).toFixed(2)) : 0;
@@ -175,12 +176,12 @@
         {
           name: t('workbench.homePage.havePassed'),
           count: passed,
-          archivedPassed: 0,
+          archivedPassed: passedArchived,
         },
         {
           name: t('workbench.homePage.notPass'),
           count: notPassed,
-          archivedPassed: 0,
+          archivedPassed: notPassedArchived,
         },
       ];
 
