@@ -96,7 +96,9 @@ export default {
     save() {
       if (this.uploadFiles.length > 0) {
         for (let i = 0; i < this.uploadFiles.length; i++) {
-          this.uploadValidate(this.uploadFiles[i]);
+          if(this.uploadValidate(this.uploadFiles[i])){
+            return;
+          }
           let file = this.uploadFiles[i];
           if (!file) {
             continue;
@@ -138,10 +140,13 @@ export default {
       const extension = file.name.substring(file.name.lastIndexOf('.') + 1);
       if (!(extension === 'json')) {
         this.$warning(this.$t('api_test.api_import.ms_env_import_file_limit'));
+        return true;
       }
       if (file.size / 1024 / 1024 > 20) {
         this.$warning(this.$t('api_test.api_import.file_size_limit'));
+        return true;
       }
+      return false;
     },
     open() {
       this.dialogVisible = true;
