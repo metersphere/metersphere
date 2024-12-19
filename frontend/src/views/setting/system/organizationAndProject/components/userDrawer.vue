@@ -10,15 +10,15 @@
     @cancel="handleCancel"
   >
     <template #headerLeft>
-      <a-tooltip :content="props.currentName">
-        <div class="ml-[8px] flex flex-1 overflow-hidden text-[var(--color-text-4)]">
-          (
-          <div class="one-line-text flex-1">
+      <div class="ml-[8px] flex flex-1 overflow-hidden text-[var(--color-text-4)]">
+        (
+        <a-tooltip :content="props.currentName">
+          <div class="one-line-text">
             {{ props.currentName }}
           </div>
-          )
-        </div>
-      </a-tooltip>
+        </a-tooltip>
+        )
+      </div>
     </template>
     <div>
       <div class="flex flex-row justify-between">
