@@ -729,18 +729,17 @@
           tmpObj[item.id] = '';
           // 多选类型需要过滤选项
         } else if (MULTIPLE_TYPE.includes(item.type)) {
+          if (!item.value) {
+            tmpObj[item.id] = [];
+          }
           const multipleOptions = getOptionFromTemplate(
             currentCustomFields.value.find((filed: any) => item.id === filed.fieldId)
           );
           // 如果该值在选项中已经被删除掉
           const optionsIds = (multipleOptions || []).map((e: any) => e.value);
           if (item.type !== 'MULTIPLE_INPUT') {
-            if (item.value) {
-              const currentDefaultValue = optionsIds.filter((e: any) => JSON.parse(item.value).includes(e));
-              tmpObj[item.id] = currentDefaultValue;
-            } else {
-              tmpObj[item.id] = [];
-            }
+            const currentDefaultValue = optionsIds.filter((e: any) => JSON.parse(item.value).includes(e));
+            tmpObj[item.id] = currentDefaultValue;
           } else {
             tmpObj[item.id] = JSON.parse(item.value);
           }
