@@ -2813,7 +2813,7 @@ public class TestPlanControllerTests extends BaseTest {
         Assertions.assertEquals(1, underwayTestPlanIds.size());
         Assertions.assertEquals("test3", underwayTestPlanIds.getFirst());
 
-        testPlanManagementService.selectTestPlanIdByProjectIdUnionConditions(null, null, null, null);
+        testPlanManagementService.selectTestPlanIdByProjectIdUnionConditions(false, null, null, null, null);
     }
 
 }

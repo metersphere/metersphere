@@ -144,12 +144,12 @@ public class TestPlanManagementService {
      * @param statusConditionList 状态列表
      * @return 测试计划ID列表
      */
-    public TestPlanCalculationDTO selectTestPlanIdByProjectIdUnionConditions(String projectId, String dataType, List<String> statusConditionList, List<String> passedConditionList) {
+    public TestPlanCalculationDTO selectTestPlanIdByProjectIdUnionConditions(boolean selectArchived, String projectId, String dataType, List<String> statusConditionList, List<String> passedConditionList) {
         if (CollectionUtils.isEmpty(statusConditionList) && CollectionUtils.isEmpty(passedConditionList)) {
             return new TestPlanCalculationDTO();
         }
         boolean selectPassed = CollectionUtils.isNotEmpty(passedConditionList) && CollectionUtils.size(passedConditionList) == 1;
-        List<TestPlan> testPlanList = extTestPlanMapper.selectIdAndGroupIdByProjectId(projectId);
+        List<TestPlan> testPlanList = extTestPlanMapper.selectIdAndGroupIdByProjectId(projectId, selectArchived);
         Map<String, List<String>> testPlanGroupIdMap = new HashMap<>();
         List<String> noGroupPlanIdList = new ArrayList<>();
         Map<String, List<String>> noGroupPlanIdMap = new HashMap<>();
@@ -342,7 +342,7 @@ public class TestPlanManagementService {
                     item.setValue(defaultStatusList);
                     //目前未归档的测试计划只有3中类型。所以这里判断如果是3个的话等于直接查询未归档
                     if (statusList.size() < 3) {
-                        TestPlanCalculationDTO calculationDTO = this.selectTestPlanIdByProjectIdUnionConditions(request.getProjectId(), request.getType(), statusList, null);
+                        TestPlanCalculationDTO calculationDTO = this.selectTestPlanIdByProjectIdUnionConditions(false, request.getProjectId(), request.getType(), statusList, null);
                         request.setCombineInnerIds(calculationDTO.getConditionInnerId());
                         request.setIncludeItemTestPlanIds(calculationDTO.getConditionItemPlanId());
                         request.setCombineOperator(item.getOperator());
@@ -364,9 +364,10 @@ public class TestPlanManagementService {
             } else if (request.getFilter() != null && request.getFilter().containsKey("archivedPassed")) {
                 passedSelectParam = request.getFilter().get("archivedPassed");
 
-                request.getFilter().put("status", new ArrayList<>() {{
+                statusSelectParam = new ArrayList<>() {{
                     this.add(TestPlanConstants.TEST_PLAN_STATUS_ARCHIVED);
-                }});
+                }};
+                request.getFilter().put("status", statusSelectParam);
             }
 
             if (request.getFilter() == null || !request.getFilter().containsKey("status")) {
@@ -387,7 +388,7 @@ public class TestPlanManagementService {
             boolean selectPassed = CollectionUtils.isNotEmpty(passedSelectParam) && CollectionUtils.size(passedSelectParam) == 1;
 
             if (selectStatus || selectPassed) {
-                TestPlanCalculationDTO calculationDTO = this.selectTestPlanIdByProjectIdUnionConditions(request.getProjectId(), request.getType(),
+                TestPlanCalculationDTO calculationDTO = this.selectTestPlanIdByProjectIdUnionConditions(selectArchived, request.getProjectId(), request.getType(),
                         selectStatus ? statusSelectParam : null,
                         selectPassed ? passedSelectParam : null);
                 request.setInnerIds(calculationDTO.getConditionInnerId());
@@ -515,7 +516,7 @@ public class TestPlanManagementService {
         List<String> statusList = new ArrayList<>();
         statusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_COMPLETED);
         statusList.add(TestPlanConstants.TEST_PLAN_SHOW_STATUS_UNDERWAY);
-        TestPlanCalculationDTO calculationDTO = this.selectTestPlanIdByProjectIdUnionConditions(request.getProjectId(), "ALL", statusList, null);
+        TestPlanCalculationDTO calculationDTO = this.selectTestPlanIdByProjectIdUnionConditions(false, request.getProjectId(), "ALL", statusList, null);
         List<String> completePlanOrGroupIds = calculationDTO.getCompletedTestPlanIds();
         List<String> underwayPlanOrGroupIds = calculationDTO.getUnderwayTestPlanIds();
 

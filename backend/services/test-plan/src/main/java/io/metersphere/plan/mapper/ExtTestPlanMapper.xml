@@ -940,8 +940,13 @@
     <select id="selectIdAndGroupIdByProjectId" resultType="io.metersphere.plan.domain.TestPlan">
         SELECT id, group_id, type
         FROM test_plan
-        WHERE project_id = #{0}
-          AND status != 'ARCHIVED'
+        WHERE project_id = #{projectId}
+        <if test="selectArchived == false">
+            AND status != 'ARCHIVED'
+        </if>
+        <if test="selectArchived == true">
+            AND status = 'ARCHIVED'
+        </if>
     </select>
 
     <sql id="queryMyFollowGroupByTableRequest">

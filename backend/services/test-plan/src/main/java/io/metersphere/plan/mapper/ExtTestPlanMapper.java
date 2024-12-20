@@ -111,5 +111,5 @@ public interface ExtTestPlanMapper {
 
     List<TestPlanConfig> selectTestPlanConfigByTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
 
-    List<TestPlan> selectIdAndGroupIdByProjectId(String projectId);
+    List<TestPlan> selectIdAndGroupIdByProjectId(@Param("projectId") String projectId, @Param("selectArchived") boolean selectArchived);
 }
