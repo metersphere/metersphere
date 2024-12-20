@@ -774,6 +774,7 @@
       loading.value = true;
       const res = await getBugDetail(bugId.value as string);
       const { templateId, attachments } = res;
+
       if (templateId) {
         await setTemplateValue(res);
       }
@@ -855,26 +856,33 @@
     return data;
   }
 
+  const originTemId = ref<string>('');
   watch(
     () => innerTemplateId.value,
     (val) => {
       if (val) {
         form.value.templateId = val;
-        templateChange(val);
+        if (props.isCopyBug && originTemId.value === val) {
+          getDetailInfo();
+        } else {
+          templateChange(val);
+        }
       }
-    },
-    {
-      immediate: true,
     }
   );
 
   const { registerCatchSaveShortcut, removeCatchSaveShortcut } = useShortcutSave(() => {
     saveHandler();
   });
+
   onMounted(async () => {
     if (isEditOrCopy.value) {
       // 获取详情
       await getDetailInfo();
+      if (props.isCopyBug) {
+        originTemId.value = form.value.templateId;
+        innerTemplateId.value = form.value.templateId;
+      }
     }
     registerCatchSaveShortcut();
   });

@@ -81,7 +81,7 @@
       loading.value = true;
       const res = await getTemplateOption(appStore.currentProjectId);
       templateOption.value = res.map((item) => {
-        if (item.enableDefault && !isEdit.value) {
+        if (item.enableDefault && !route.query.id) {
           // 选中默认模板
           bugTemplateId.value = item.id;
         }
