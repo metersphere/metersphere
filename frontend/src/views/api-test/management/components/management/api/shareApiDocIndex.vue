@@ -42,6 +42,7 @@
       class="ms-modal-upload ms-modal-medium ms-modal-share"
       :width="280"
       unmount-on-close
+      :esc-to-close="false"
       @close="closeShareHandler"
     >
       <div class="no-permission-svg-bright"></div>
