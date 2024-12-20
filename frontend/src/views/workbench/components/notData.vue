@@ -21,7 +21,7 @@
   </MsCard>
   <div v-else-if="props.noResPermission || props.isDashboard" :class="`${props.height || 'h-full'} w-full`">
     <div class="no-card">
-      <div :class="`${props.noResPermission ? 'no-permission-svg' : 'no-card-svg'}`"></div>
+      <div :class="`${props.noResPermission ? noPermissionImg : noDataImg}`"></div>
       <div class="font-medium text-[var(--color-text-1)]">
         {{ props.noResPermission ? t('workbench.homePage.workNoProjectTip') : t('workbench.homePage.noCard') }}
       </div>
@@ -56,6 +56,14 @@
   const emit = defineEmits<{
     (e: 'config'): void;
   }>();
+
+  const noDataImg = computed(() => {
+    return appStore.isDarkTheme ? 'no-card-svg-dark' : 'no-card-svg-bright';
+  });
+
+  const noPermissionImg = computed(() => {
+    return appStore.isDarkTheme ? 'no-permission-svg-dark' : 'no-permission-svg-bright';
+  });
 </script>
 
 <style scoped lang="less">
@@ -76,18 +84,32 @@
   }
   .no-card {
     @apply flex h-full w-full flex-col items-center justify-center gap-4;
-    .no-card-svg {
+    .no-card-svg-bright {
       margin: 0 auto;
       width: 160px;
       height: 90px;
       background: url('@/assets/svg/work-no-card.svg');
       background-size: cover;
     }
-    .no-permission-svg {
+    .no-card-svg-dark {
+      margin: 0 auto;
+      width: 160px;
+      height: 90px;
+      background: url('@/assets/svg/work-no-card-dark.svg');
+      background-size: cover;
+    }
+    .no-permission-svg-bright {
       margin: 0 auto;
       width: 160px;
       height: 90px;
       background: url('@/assets/svg/no_resource.svg');
+      background-size: cover;
+    }
+    .no-permission-svg-dark {
+      margin: 0 auto;
+      width: 160px;
+      height: 90px;
+      background: url('@/assets/svg/no_resource-dark.svg');
       background-size: cover;
     }
   }

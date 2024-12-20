@@ -73,6 +73,7 @@
   import TiledList from './tiledList.vue';
   import ReportMetricsItem from '@/views/test-plan/report/detail/component/system-card/ReportMetricsItem.vue';
 
+  import getVisualThemeColor from '@/config/chartTheme';
   import { toolTipConfig } from '@/config/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import { formatDuration } from '@/utils';
@@ -291,7 +292,7 @@
         itemStyle: {
           color: item.color,
           borderWidth: requestChartBorderWidth,
-          borderColor: '#ffffff',
+          borderColor: getVisualThemeColor('itemStyleBorderColor'),
         },
       };
     });
@@ -316,7 +317,7 @@
         itemStyle: {
           color: item.color,
           borderWidth: stepChartBorderWidth,
-          borderColor: '#ffffff',
+          borderColor: getVisualThemeColor('itemStyleBorderColor'),
         },
       };
     });

@@ -3,7 +3,7 @@
     <div class="page">
       <div class="content-wrapper">
         <div class="content">
-          <div class="no-resource-svg"></div>
+          <div class="no-permission-svg-bright"></div>
           <div class="title">
             <span>{{ resourceType === 'DELETE' ? t('common.resourceDeleted') : t('common.resourceExpired') }}</span>
           </div>
@@ -37,13 +37,6 @@
       height: 100%;
       background-color: var(--color-text-fff);
       .content {
-        .no-resource-svg {
-          margin: 0 auto 24px;
-          width: 160px;
-          height: 98px;
-          background: url('@/assets/svg/no_resource.svg');
-          background-size: cover;
-        }
         .title {
           display: flex;
           justify-content: center;

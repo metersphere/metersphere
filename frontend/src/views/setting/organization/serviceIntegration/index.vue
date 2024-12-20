@@ -4,17 +4,17 @@
       <a-collapse :bordered="false" expand-icon-position="right" @change="changeHandler">
         <a-collapse-item key="1" class="font-medium" :header="t('organization.service.headerTip')">
           <template #expand-icon="{ active }">
-            <span v-if="active" class="float-right -mr-4 text-[rgb(var(--primary-6))]">{{
-              t('organization.service.packUp')
-            }}</span>
-            <span v-else class="float-right -mr-4 text-[rgb(var(--primary-6))]">{{
-              t('organization.service.expand')
-            }}</span>
+            <span v-if="active" class="float-right -mr-4 text-[rgb(var(--primary-6))]">
+              {{ t('organization.service.packUp') }}
+            </span>
+            <span v-else class="float-right -mr-4 text-[rgb(var(--primary-6))]">
+              {{ t('organization.service.expand') }}
+            </span>
           </template>
           <div class="flex w-[100%] flex-row justify-between pb-1 text-sm font-normal">
             <div v-for="(item, index) in cardContent" :key="item.id" class="item mt-4" :class="`ms-item-${index}`">
               <span class="mr-3">
-                <svg-icon width="64px" height="46px" :name="item.icon" />
+                <svg-icon width="64px" height="46px" :name="getItemIcon(item)" />
               </span>
               <div class="flex h-[100%] flex-1 flex-col justify-between">
                 <div class="flex items-center justify-between">
@@ -78,6 +78,7 @@
   import ServiceList from './components/serviceList.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
   import { openWindow } from '@/utils/index';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -90,10 +91,12 @@
 
   const { t } = useI18n();
   const router = useRouter();
+  const appStore = useAppStore();
   const cardContent = ref<StepListType[]>([
     {
       id: '1001',
-      icon: 'downloadplugin',
+      brightIcon: 'downloadplugin',
+      darkIcon: 'downloadplugin-dark',
       title: 'organization.service.downloadPluginOrDev',
       skipTitle: [
         {
@@ -115,7 +118,8 @@
     },
     {
       id: '1002',
-      icon: 'configplugin',
+      brightIcon: 'configplugin',
+      darkIcon: 'configplugin-dark',
       title: 'organization.service.configPlugin',
       skipTitle: [
         {
@@ -148,6 +152,11 @@
       openWindow(links.src);
     }
   };
+
+  function getItemIcon(item: StepListType) {
+    const key = appStore.isDarkTheme ? 'darkIcon' : 'brightIcon';
+    return item[key];
+  }
 </script>
 
 <style scoped lang="less">

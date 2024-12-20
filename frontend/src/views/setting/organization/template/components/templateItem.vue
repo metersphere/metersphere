@@ -2,7 +2,7 @@
   <div class="outerWrapper p-[3px]">
     <div class="innerWrapper">
       <div class="content">
-        <div class="logo-img h-[48px] w-[48px]">
+        <div class="logo-img p-[4px]">
           <svg-icon width="36px" height="36px" :name="props.cardItem.value"></svg-icon>
         </div>
         <div class="template-operation">

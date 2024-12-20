@@ -31,7 +31,8 @@ export interface SkipTitle {
 
 export interface StepListType {
   id: string;
-  icon: string;
+  brightIcon: string;
+  darkIcon: string;
   title: string;
   skipTitle: SkipTitle[];
   step: string;

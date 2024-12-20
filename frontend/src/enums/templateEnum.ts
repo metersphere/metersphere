@@ -20,10 +20,17 @@ export enum TemplateIconEnum {
 // 模板列表图标卡片icon
 export enum TemplateCardEnum {
   FUNCTIONAL = 'caseTemplate', // 用例模板
-  API = 'api_ui_Template', // API模板
+  API = 'apiTemplate', // API模板
   UI = 'uiTemplate', // UI模板
   TEST_PLAN = 'testPlanTemplate', // 测试计划模板
   BUG = 'defectTemplate', // 缺陷模板
+}
+export enum TemplateDarkCardEnum {
+  FUNCTIONAL = 'caseTemplateDark', // 用例模板
+  API = 'apiTemplateDark', // API模板
+  UI = 'uiTemplateDark', // UI模板
+  TEST_PLAN = 'testPlanTemplateDark', // 测试计划模板
+  BUG = 'defectTemplateDark', // 缺陷模板
 }
 
 export default {};

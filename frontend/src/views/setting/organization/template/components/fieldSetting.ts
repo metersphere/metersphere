@@ -29,13 +29,15 @@ import {
   updateWorkFlowStatus,
 } from '@/api/modules/setting/template';
 import { useI18n } from '@/hooks/useI18n';
+import { useAppStore } from '@/store';
 import useTemplateStore from '@/store/modules/setting/template';
 
 import type { CustomField, DefinedFieldItem, fieldIconAndNameModal } from '@/models/setting/template';
-import { TemplateCardEnum, TemplateIconEnum } from '@/enums/templateEnum';
+import { TemplateCardEnum, TemplateDarkCardEnum, TemplateIconEnum } from '@/enums/templateEnum';
 
 const { t } = useI18n();
 const templateStore = useTemplateStore();
+const appStore = useAppStore();
 
 // 字段类型-日期
 export const dateOptions: { label: string; value: FormItemType }[] = [
@@ -78,29 +80,31 @@ const projectState = computed(() => templateStore.projectStatus);
 
 // 模板列表Icon
 export function getCardList(type: string): Record<string, any>[] {
+  const currentThemeEnum = appStore.isDarkTheme ? TemplateDarkCardEnum : TemplateCardEnum;
   const dataList = ref([
     {
       id: 1001,
       key: 'FUNCTIONAL',
-      value: TemplateCardEnum.FUNCTIONAL,
+      value: currentThemeEnum.FUNCTIONAL,
       name: t('system.orgTemplate.caseTemplates'),
     },
-    /* {
-      id: 1002,
-      key: 'API',
-      value: TemplateCardEnum.API,
-      name: t('system.orgTemplate.APITemplates'),
-    }, */
+    // TODO 暂时不上
+    // {
+    //   id: 1002,
+    //   key: 'API',
+    //   value: currentThemeEnum.API,
+    //   name: t('system.orgTemplate.APITemplates'),
+    // },
     // {
     //   id: 1003,
     //   key: 'UI',
-    //   value: TemplateCardEnum.UI,
+    //   value: currentThemeEnum.UI,
     //   name: t('system.orgTemplate.UITemplates'),
     // },
     // {
     //   id: 1004,
     //   key: 'TEST_PLAN',
-    //   value: TemplateCardEnum.TEST_PLAN,
+    //   value: currentThemeEnum.TEST_PLAN,
     //   name: t('system.orgTemplate.testPlanTemplates'),
     // },
     {

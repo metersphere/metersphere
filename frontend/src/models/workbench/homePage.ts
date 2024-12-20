@@ -12,6 +12,8 @@ export interface WorkConfigItem {
 
 export interface childrenWorkConfigItem extends WorkConfigItem {
   value: WorkCardEnum;
+  brightImg: string;
+  darkImg: string;
 }
 
 export interface WorkConfigCard extends WorkConfigItem {

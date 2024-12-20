@@ -1,15 +1,17 @@
 <template>
   <MsCard has-breadcrumb simple>
-    <a-alert v-if="isEnableOrdTemplate" class="mb-6" type="warning">{{
-      t('system.orgTemplate.enableTemplateTip')
-    }}</a-alert>
+    <a-alert v-if="isEnableOrdTemplate" class="mb-6" type="warning">
+      {{ t('system.orgTemplate.enableTemplateTip') }}
+    </a-alert>
     <div class="mb-4 flex items-center justify-between">
       <!-- <span v-if="isEnableOrdTemplate || route.query.type === 'BUG'" class="font-medium">{{
         t('system.orgTemplate.templateList', { type: getTemplateName('organization', route.query.type as string) })
       }}</span> -->
-      <span v-if="isShowListTip" class="font-medium">{{
-        t('system.orgTemplate.templateList', { type: getTemplateName('organization', route.query.type as string) })
-      }}</span>
+      <span v-if="isShowListTip" class="font-medium">
+        {{
+          t('system.orgTemplate.templateList', { type: getTemplateName('organization', route.query.type as string) })
+        }}
+      </span>
       <a-button
         v-if="!isEnableOrdTemplate && route.query.type === 'BUG'"
         v-permission="['ORGANIZATION_TEMPLATE:READ+ADD']"
@@ -45,15 +47,16 @@
       </template>
       <template #operation="{ record }">
         <div class="flex flex-row flex-nowrap items-center">
-          <MsButton v-permission="['ORGANIZATION_TEMPLATE:READ+UPDATE']" @click="editTemplate(record.id)">{{
-            t('system.orgTemplate.edit')
-          }}</MsButton>
+          <MsButton v-permission="['ORGANIZATION_TEMPLATE:READ+UPDATE']" @click="editTemplate(record.id)">
+            {{ t('system.orgTemplate.edit') }}
+          </MsButton>
           <MsButton
             v-if="route.query.type === 'BUG' && hasAnyPermission(['ORGANIZATION_TEMPLATE:READ+ADD'])"
             class="!mr-0"
             @click="copyTemplate(record.id)"
-            >{{ t('system.orgTemplate.copy') }}</MsButton
           >
+            {{ t('system.orgTemplate.copy') }}
+          </MsButton>
           <a-divider
             v-if="hasAnyPermission(['ORGANIZATION_TEMPLATE:READ+ADD']) && !record.internal"
             v-permission="['ORGANIZATION_TEMPLATE:READ+ADD']"

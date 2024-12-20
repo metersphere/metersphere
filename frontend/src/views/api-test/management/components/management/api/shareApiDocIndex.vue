@@ -44,7 +44,7 @@
       unmount-on-close
       @close="closeShareHandler"
     >
-      <div class="no-resource-svg"></div>
+      <div class="no-permission-svg-bright"></div>
       <a-form ref="formRef" :rules="rules" :model="checkForm" layout="vertical">
         <a-form-item
           class="password-form mb-0"
@@ -290,13 +290,6 @@
 </script>
 
 <style scoped lang="less">
-  .no-resource-svg {
-    margin: 0 auto 24px;
-    width: 160px;
-    height: 98px;
-    background: url('@/assets/svg/no_resource.svg');
-    background-size: cover;
-  }
   :deep(.ms-modal-share) {
     .arco-modal-mask {
       background: var(--color-text-1) !important;
