@@ -495,6 +495,12 @@ public class DashboardService {
                 checkHasPermissionProject(layoutDTO, hasReadProjectIds);
                 if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.PROJECT_PLAN_VIEW.toString())) {
                     setPlanId(layoutDTO);
+                    if (StringUtils.isBlank(layoutDTO.getPlanId())) {
+                        TestPlan latestPlanByProjectIds = extTestPlanMapper.getLatestPlanByProjectIds(hasReadProjectIds);
+                        layoutDTO.setPlanId(latestPlanByProjectIds.getId());
+                        layoutDTO.setGroupId(latestPlanByProjectIds.getGroupId());
+                        layoutDTO.setProjectIds(List.of(latestPlanByProjectIds.getProjectId()));
+                    }
                 }
             } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.BUG_COUNT.toString())
                     || StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.CREATE_BUG_BY_ME.toString())
@@ -516,6 +522,9 @@ public class DashboardService {
             TestPlan latestPlan = extTestPlanMapper.getLatestPlan(layoutDTO.getProjectIds().getFirst());
             if (latestPlan != null) {
                 layoutDTO.setPlanId(latestPlan.getId());
+                layoutDTO.setGroupId(layoutDTO.getGroupId());
+            } else {
+                layoutDTO.setPlanId(null);
             }
         }
     }

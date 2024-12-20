@@ -929,6 +929,16 @@
         where type = 'TEST_PLAN' and status='NOT_ARCHIVED' and project_id = #{projectId} order by create_time desc limit 1;
     </select>
 
+    <select id="getLatestPlanByProjectIds" resultType="io.metersphere.plan.domain.TestPlan">
+        select id, name, group_id, project_id
+        from test_plan
+        where type = 'TEST_PLAN' and status='NOT_ARCHIVED' and project_id  IN
+        <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+            #{projectId}
+        </foreach>
+        order by create_time desc limit 1;
+    </select>
+
     <select id="selectTestPlanConfigByTestPlanIds" resultType="io.metersphere.plan.domain.TestPlanConfig">
         SELECT *
         from test_plan_config test_plan_id

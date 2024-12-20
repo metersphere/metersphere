@@ -9,6 +9,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRolePermission;
 import io.metersphere.system.dto.user.UserDTO;
+import io.metersphere.system.dto.user.UserRoleResourceDTO;
 import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -101,28 +102,26 @@ public class PermissionCheckService {
         UserDTO user = getUserDTO(userId);
         if (user == null) return new HashMap<>();
         // 注意超级管理员包含所有权限，这里不予返回，请在方法外自行判断
-        Map<String, Set<String>> permissionProjectIdMap = new HashMap<>();
-        Map<String, List<UserRolePermission>> projectPermissionMap = new HashMap<>();
-        Map<String, List<UserRolePermission>>rolePermissionMap = new HashMap<>();
+        Map<String, Set<String>> permissionProjectIdMap = new LinkedHashMap<>();
+        Map<String, List<UserRolePermission>> projectPermissionMap = new LinkedHashMap<>();
 
-        user.getUserRolePermissions().forEach(t->{
-            if (StringUtils.equalsIgnoreCase(t.getUserRole().getType(), UserRoleType.PROJECT.name())) {
-                rolePermissionMap.put(t.getUserRole().getId(),t.getUserRolePermissions());
-            }
-        });
+        Map<String, List<UserRolePermission>>rolePermissionMap = user.getUserRolePermissions().stream().filter(t->StringUtils.equalsIgnoreCase(t.getUserRole().getType(), UserRoleType.PROJECT.name())).collect(Collectors.toMap(f->f.getUserRole().getId(), UserRoleResourceDTO::getUserRolePermissions));
+
         user.getUserRoleRelations().forEach(ug -> {
             List<UserRolePermission> userRolePermissions = rolePermissionMap.get(ug.getRoleId());
             if (CollectionUtils.isNotEmpty(userRolePermissions) && projectIds.contains(ug.getSourceId())) {
                 projectPermissionMap.put(ug.getSourceId(),userRolePermissions);
             }
         });
-        projectPermissionMap.forEach((projectId, userRolePermissions)->{
+
+        for (String projectId : projectIds) {
+            List<UserRolePermission> userRolePermissions = projectPermissionMap.get(projectId);
             for (UserRolePermission userRolePermission : userRolePermissions) {
                 if (permissions.contains(userRolePermission.getPermissionId())) {
-                    permissionProjectIdMap.computeIfAbsent(userRolePermission.getPermissionId(), key -> new HashSet<>()).add(projectId);
+                    permissionProjectIdMap.computeIfAbsent(userRolePermission.getPermissionId(), key -> new LinkedHashSet<>()).add(projectId);
                 }
             }
-        });
+        }
         return permissionProjectIdMap;
 
     }

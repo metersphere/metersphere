@@ -71,7 +71,7 @@ public interface ExtTestPlanMapper {
 
     List<String> selectRightfulIdsForExecute(@Param("ids") List<String> ids);
 
-    List<TestPlanExecuteHisDTO> listHis(@Param("request")TestPlanExecuteHisPageRequest request);
+    List<TestPlanExecuteHisDTO> listHis(@Param("request") TestPlanExecuteHisPageRequest request);
 
     List<String> selectGroupIdByKeyword(@Param("projectId") String projectId, @Param("keyword") String keyword);
 
@@ -90,9 +90,10 @@ public interface ExtTestPlanMapper {
 
     /**
      * 获取项目下的计划关联缺陷
-     * @param projectId 项目
-     * @param type 计划类型
-     * @param platform 缺陷平台集合
+     *
+     * @param projectId  项目
+     * @param type       计划类型
+     * @param platform   缺陷平台集合
      * @param statusList 缺陷状态
      * @return List<SelectOption>
      */
@@ -102,11 +103,13 @@ public interface ExtTestPlanMapper {
 
     /**
      * @param projectId 项目
-     * 获取项目下计划组和计划的名称
+     *                  获取项目下计划组和计划的名称
      */
     List<TestPlanAndGroupInfoDTO> getGroupAndPlanInfo(@Param("projectId") String projectId);
 
     TestPlan getLatestPlan(@Param("projectId") String projectId);
+
+    TestPlan getLatestPlanByProjectIds(@Param("projectIds") Set<String> projectIds);
 
 
     List<TestPlanConfig> selectTestPlanConfigByTestPlanIds(@Param("testPlanIds") List<String> testPlanIds);
