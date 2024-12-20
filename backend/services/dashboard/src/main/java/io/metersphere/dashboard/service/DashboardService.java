@@ -497,9 +497,11 @@ public class DashboardService {
                     setPlanId(layoutDTO);
                     if (StringUtils.isBlank(layoutDTO.getPlanId())) {
                         TestPlan latestPlanByProjectIds = extTestPlanMapper.getLatestPlanByProjectIds(hasReadProjectIds);
-                        layoutDTO.setPlanId(latestPlanByProjectIds.getId());
-                        layoutDTO.setGroupId(latestPlanByProjectIds.getGroupId());
-                        layoutDTO.setProjectIds(List.of(latestPlanByProjectIds.getProjectId()));
+                        if (latestPlanByProjectIds!=null) {
+                            layoutDTO.setPlanId(latestPlanByProjectIds.getId());
+                            layoutDTO.setGroupId(latestPlanByProjectIds.getGroupId());
+                            layoutDTO.setProjectIds(List.of(latestPlanByProjectIds.getProjectId()));
+                        }
                     }
                 }
             } else if (StringUtils.equalsIgnoreCase(layoutDTO.getKey(), DashboardUserLayoutKeys.BUG_COUNT.toString())

@@ -116,6 +116,9 @@ public class PermissionCheckService {
 
         for (String projectId : projectIds) {
             List<UserRolePermission> userRolePermissions = projectPermissionMap.get(projectId);
+            if (CollectionUtils.isEmpty(userRolePermissions)) {
+                continue;
+            }
             for (UserRolePermission userRolePermission : userRolePermissions) {
                 if (permissions.contains(userRolePermission.getPermissionId())) {
                     permissionProjectIdMap.computeIfAbsent(userRolePermission.getPermissionId(), key -> new LinkedHashSet<>()).add(projectId);
