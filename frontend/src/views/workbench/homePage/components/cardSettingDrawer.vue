@@ -147,6 +147,7 @@
       handleUsers: [],
       selectAll: !![WorkCardEnum.PROJECT_VIEW, WorkCardEnum.CREATE_BY_ME].includes(item.value),
       planId: '',
+      groupId: '',
     };
     selectedCardList.value.push(newCard);
   }

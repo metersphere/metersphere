@@ -150,6 +150,7 @@
         <TestPlanOverView
           v-else-if="item.key === WorkCardEnum.PROJECT_PLAN_VIEW"
           v-model:planId="item.planId"
+          v-model:groupId="item.groupId"
           v-model:projectIds="item.projectIds"
           :item="item"
           :refresh-key="refreshKey"

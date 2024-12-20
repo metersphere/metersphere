@@ -31,6 +31,7 @@ export interface SelectedCardItem {
   handleUsers: string[];
   selectAll: boolean; // 是否全选项目
   planId: string; // 测试计划id
+  groupId: string; // 测试计划组id
 }
 
 // 查询入参

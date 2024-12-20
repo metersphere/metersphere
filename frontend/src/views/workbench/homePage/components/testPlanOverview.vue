@@ -126,6 +126,10 @@
     required: true,
   });
 
+  const innerGroupPlanId = defineModel<string>('groupId', {
+    required: true,
+  });
+
   const innerProjectIds = defineModel<string[]>('projectIds', {
     required: true,
   });
@@ -353,9 +357,17 @@
     }
   }
 
-  async function changeHandler(value: string) {
+  async function changeHandler(value: string[]) {
+    selectValue.value = value;
     innerPlanId.value = value[value.length - 1];
     innerProjectIds.value = [value[0]];
+    const planLevel = 3;
+    if (value.length === planLevel) {
+      innerGroupPlanId.value = value[value.length - 2];
+    } else {
+      innerGroupPlanId.value = '';
+    }
+
     await nextTick();
     labelPath.value = getLabelPath(innerPlanId.value);
     initOverViewDetail();
@@ -407,27 +419,46 @@
     }
   }
 
+  function getSelectedParams() {
+    const [newProjectId] = innerProjectIds.value;
+    const selectedData = [newProjectId, innerGroupPlanId.value, innerPlanId.value];
+    selectValue.value = [];
+    const tempArr: string[] = [];
+    selectedData.forEach((e) => {
+      if (e) {
+        tempArr.push(e);
+      }
+    });
+    return tempArr;
+  }
+
   async function handleRefreshKeyChange() {
     await nextTick(() => {
       innerProjectIds.value = [...props.item.projectIds];
     });
     const [newProjectId] = innerProjectIds.value;
-    selectValue.value = [newProjectId, props.item.planId];
-
+    selectValue.value = getSelectedParams();
     refreshHandler(newProjectId);
     labelPath.value = getLabelPath(innerPlanId.value);
   }
 
   const defaultValue = computed(() => {
     const [newProjectId] = innerProjectIds.value;
-    return [newProjectId, innerPlanId.value];
+    const selectedData = [newProjectId, props.item.groupId, props.item.planId];
+    const tempArr: string[] = [];
+    selectedData.forEach((e) => {
+      if (e) {
+        tempArr.push(e);
+      }
+    });
+    return tempArr;
   });
 
   onMounted(() => {
     projectOptions.value = appStore.projectList.map((e) => ({ value: e.id, label: e.name }));
     const [newProjectId] = props.item.projectIds;
     if (props.item.planId) {
-      selectValue.value = [newProjectId, props.item.planId];
+      selectValue.value = getSelectedParams();
     }
     refreshHandler(newProjectId);
   });
