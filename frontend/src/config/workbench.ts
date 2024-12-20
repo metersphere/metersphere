@@ -408,10 +408,10 @@ export const NAV_NAVIGATION: Record<WorkNavValueEnum, any> = {
     passed: ['NOT_PASSED'], // 测试计划-未通过
   },
   [WorkNavValueEnum.TEST_PLAN_PASSED_ARCHIVED]: {
-    archivedPassed: [true], // 测试计划-已归档-已通过
+    archivedPassed: ['PASSED'], // 测试计划-已归档-已通过
   },
   [WorkNavValueEnum.TEST_PLAN_NOT_PASS_ARCHIVED]: {
-    archivedPassed: [false], // 测试计划-已归档-未通过
+    archivedPassed: ['NOT_PASSED'], // 测试计划-已归档-未通过
   },
   /**
    * 测试计划遗留缺陷
