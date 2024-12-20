@@ -40,7 +40,11 @@
                     class="mr-[8px] text-center text-[var(--color-text-brand)]"
                     @click="goNavigation(passItem, index, true)"
                   >
-                    {{ hasPermission ? addCommasToNumber(passItem.archivedPassed || 0) : '-' }}
+                    <a-tooltip :content="t('common.archived')" position="top">
+                      <span>
+                        {{ hasPermission ? addCommasToNumber(passItem.archivedPassed || 0) : '-' }}
+                      </span>
+                    </a-tooltip>
                   </div>
                 </div>
               </template>
