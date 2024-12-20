@@ -1270,6 +1270,7 @@
           id: request.stepId,
           uniqueId: request.stepId,
           projectId: appStore.currentProjectId,
+          refType: ScenarioStepRefType.DIRECT,
         },
         activeStepByCreate.value,
         steps.value,
