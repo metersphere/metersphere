@@ -3,15 +3,19 @@
 <mapper namespace="io.metersphere.base.mapper.ext.BaseRelationshipEdgeMapper">
 
   <select id="getGraphIdsByNodeIds" resultType="java.lang.String">
-    select distinct graph_id
+    select graph_id
     from relationship_edge
     where source_id in
     <foreach collection="ids" item="id" open="(" close=")" separator=",">
       #{id}
     </foreach>
-    or target_id in
+    union
+    select graph_id
+    from relationship_edge
+    where target_id in
     <foreach collection="ids" item="id" open="(" close=")" separator=",">
       #{id}
     </foreach>
   </select>
+
 </mapper>

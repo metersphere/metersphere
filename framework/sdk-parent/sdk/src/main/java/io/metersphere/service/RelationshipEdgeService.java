@@ -293,9 +293,11 @@ public class RelationshipEdgeService {
         if (CollectionUtils.isEmpty(graphIds)) {
             return new ArrayList<>();
         }
+
         RelationshipEdgeExample example = new RelationshipEdgeExample();
         example.createCriteria()
-                .andGraphIdIn(graphIds);
+                .andGraphIdIn(graphIds.stream()
+                        .distinct().collect(Collectors.toList()));
 
         return relationshipEdgeMapper.selectByExample(example);
     }
@@ -319,7 +321,7 @@ public class RelationshipEdgeService {
         markSet.add(id);
         visitedSet.add(id);
 
-        ArrayList<String> nextLevelNodes = new ArrayList();
+        ArrayList<String> nextLevelNodes = new ArrayList<>();
         for (RelationshipEdge relationshipEdge : edges) {
             if (id.equals(relationshipEdge.getSourceId())) {
                 nextLevelNodes.add(relationshipEdge.getTargetId());
