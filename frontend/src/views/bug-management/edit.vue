@@ -731,6 +731,7 @@
         } else if (MULTIPLE_TYPE.includes(item.type)) {
           if (!item.value) {
             tmpObj[item.id] = [];
+            return;
           }
           const multipleOptions = getOptionFromTemplate(
             currentCustomFields.value.find((filed: any) => item.id === filed.fieldId)
