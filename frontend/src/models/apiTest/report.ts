@@ -127,7 +127,8 @@ export interface ReportDetail {
   startTime: number; // 开始时间/同创建时间一致
   endTime: number; //  结束时间/报告执行完成
   requestDuration: number; // 请求总耗时
-  status: string; // 报告状态/SUCCESS/ERROR
+  status: ExecuteStatusEnum; // 报告状态/SUCCESS/ERROR
+  execStatus?: ExecuteStatusEnum; // 报告状态/SUCCESS/ERROR
   triggerMode: string; // 触发方式
   runMode: string; // 执行模式
   poolId: string; // 资源池

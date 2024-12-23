@@ -2,8 +2,8 @@
   <MsDrawer v-model:visible="visible" :width="1200" :footer="false">
     <template #title>
       <div class="flex flex-1 items-center gap-[8px] overflow-hidden">
-        <a-tag :color="executeResultMap[props.result]?.color">
-          {{ t(executeResultMap[props.result]?.label || '-') }}
+        <a-tag :color="executeResultMap[detail.result]?.color">
+          {{ t(executeResultMap[detail.result]?.label || '-') }}
         </a-tag>
         <div class="one-line-text flex-1">{{ detail.name }}</div>
       </div>
@@ -17,7 +17,7 @@
     <a-spin :loading="loading" class="block min-h-[200px]">
       <MsDescription :descriptions="detail.description" :column="3" :line-gap="8" one-line-value>
         <template #value="{ item }">
-          <execStatus v-if="item.key === 'status'" :status="props.status" size="small" />
+          <execStatus v-if="item.key === 'status'" :status="detail.status" size="small" />
           <a-tooltip
             v-else
             :content="`${item.value}`"
@@ -59,15 +59,11 @@
   import { getCaseTaskReport } from '@/api/modules/api-test/report';
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ExecuteResultEnum, ExecuteStatusEnum } from '@/enums/taskCenter';
-
   import { executeResultMap, executeStatusMap } from './config';
 
   const props = defineProps<{
     id: string;
-    status: ExecuteStatusEnum;
     userName: string;
-    result: ExecuteResultEnum;
     resourceName: string;
   }>();
 
@@ -130,6 +126,8 @@
           },
         ] as Description[],
         ...caseDetail,
+        result: res.result,
+        status: res.status,
       };
     } catch (error) {
       // eslint-disable-next-line no-console

@@ -75,6 +75,7 @@
 
   import type { ReportDetail } from '@/models/apiTest/report';
   import { FullPageEnum, RouteEnum } from '@/enums/routeEnum';
+  import { ExecuteStatusEnum } from '@/enums/taskCenter';
 
   const appStore = useAppStore();
   const { copy, isSupported } = useClipboard({ legacy: true });
@@ -120,7 +121,7 @@
     startTime: 0, // 开始时间/同创建时间一致
     endTime: 0, //  结束时间/报告执行完成
     requestDuration: 0, // 请求总耗时
-    status: '', // 报告状态/SUCCESS/ERROR
+    status: ExecuteStatusEnum.PENDING, // 报告状态/SUCCESS/ERROR
     triggerMode: '', // 触发方式
     runMode: '', // 执行模式
     poolId: '', // 资源池
