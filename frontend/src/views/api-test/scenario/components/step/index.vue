@@ -297,6 +297,7 @@
         );
         if (deleteResult) {
           Message.success(t('common.deleteSuccess'));
+          checkedKeys.value = [];
           if (scenario.value.steps.length === 0) {
             checkedAll.value = false;
             indeterminate.value = false;
