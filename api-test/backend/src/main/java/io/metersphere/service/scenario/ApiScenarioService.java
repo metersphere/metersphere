@@ -300,10 +300,19 @@ public class ApiScenarioService {
         scenario.setRefId(request.getId());
         scenario.setLatest(true);
 
-        apiScenarioMapper.insert(scenario);
-        apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenario);
         // 存储依赖关系
+        LogUtil.info("initRelationshipEdge start");
         apiAutomationRelationshipEdgeService.initRelationshipEdge(null, scenario);
+        LogUtil.info("initRelationshipEdge end");
+
+        apiScenarioMapper.insert(scenario);
+
+        // 依赖关系处理
+        new Thread(() -> {
+            apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenario);
+            uploadFiles(request, bodyFiles, scenarioFiles);
+        }).start();
+
         apiTestCaseService.checkAndSendReviewMessage(
                 scenario.getId(),
                 scenario.getName(),
@@ -315,7 +324,6 @@ public class ApiScenarioService {
                 scenario.getPrincipal()
         );
 
-        uploadFiles(request, bodyFiles, scenarioFiles);
         return scenario;
     }
 
@@ -373,6 +381,7 @@ public class ApiScenarioService {
     }
 
     public ApiScenarioWithBLOBs update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
+        LogUtil.info("update scenario start");
         checkNameExist(request, false);
         checkScenarioNum(request);
         //如果场景有TCP步骤的话，也要做参数计算处理
@@ -412,12 +421,26 @@ public class ApiScenarioService {
             apiScenarioMapper.updateByExampleSelective(apiScenarioWithBLOBs, example);
         }
 
-        apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenario);
-        extScheduleMapper.updateNameByResourceID(request.getId(), request.getName());//  修改场景name，同步到修改首页定时任务
-        uploadFiles(request, bodyFiles, scenarioFiles);
-
         // 存储依赖关系
+        LogUtil.info("initRelationshipEdge start");
         apiAutomationRelationshipEdgeService.initRelationshipEdge(beforeScenario, scenario);
+        LogUtil.info("initRelationshipEdge end");
+
+        new Thread(() -> {
+            apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenario);
+            extScheduleMapper.updateNameByResourceID(request.getId(), request.getName());//  修改场景name，同步到修改首页定时任务
+            uploadFiles(request, bodyFiles, scenarioFiles);
+
+            String defaultVersion = baseProjectVersionMapper.getDefaultVersion(request.getProjectId());
+            if (StringUtils.equalsIgnoreCase(request.getVersionId(), defaultVersion)) {
+                checkAndSetLatestVersion(beforeScenario.getRefId());
+            }
+            //同步修改所有版本的模块路径
+            updateOtherVersionModule(beforeScenario.getRefId(), scenario);
+            // 存储附件关系
+            extFileAssociationService.saveScenario(scenario.getId(), request.getScenarioDefinition());
+
+        }).start();
 
         apiTestCaseService.checkAndSendReviewMessage(
                 scenario.getId(),
@@ -430,14 +453,7 @@ public class ApiScenarioService {
                 scenario.getPrincipal()
         );
 
-        String defaultVersion = baseProjectVersionMapper.getDefaultVersion(request.getProjectId());
-        if (StringUtils.equalsIgnoreCase(request.getVersionId(), defaultVersion)) {
-            checkAndSetLatestVersion(beforeScenario.getRefId());
-        }
-        //同步修改所有版本的模块路径
-        updateOtherVersionModule(beforeScenario.getRefId(), scenario);
-        // 存储附件关系
-        extFileAssociationService.saveScenario(scenario.getId(), request.getScenarioDefinition());
+        LogUtil.info("update scenario end");
         return scenario;
     }
 

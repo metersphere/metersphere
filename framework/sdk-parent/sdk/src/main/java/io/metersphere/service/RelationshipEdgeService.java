@@ -7,6 +7,7 @@ import io.metersphere.base.domain.RelationshipEdgeKey;
 import io.metersphere.base.mapper.RelationshipEdgeMapper;
 import io.metersphere.base.mapper.ext.BaseRelationshipEdgeMapper;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.request.RelationshipEdgeRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -206,7 +207,10 @@ public class RelationshipEdgeService {
      */
     public void saveBatch(RelationshipEdgeRequest request) {
         String graphId = UUID.randomUUID().toString();
+        LogUtil.info("saveBatch graphId: " + graphId);
         List<RelationshipEdge> relationshipEdges = getEdgesBySaveRequest(request);
+
+        LogUtil.info("saveBatch relationshipEdges: " + relationshipEdges.size());
         Set<String> addEdgesIds = new HashSet<>();
 
         if (CollectionUtils.isNotEmpty(request.getTargetIds())) {
@@ -235,7 +239,8 @@ public class RelationshipEdgeService {
                 MSException.throwException("关联后存在循环依赖，请检查依赖关系");
             }
         });
-        // 合并图
+
+        LogUtil.info("开始合并图内容");
         new Thread(() -> {
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             RelationshipEdgeMapper batchMapper = sqlSession.getMapper(RelationshipEdgeMapper.class);
@@ -258,7 +263,6 @@ public class RelationshipEdgeService {
             if (sqlSessionFactory != null) {
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
-
         }).start();
     }
 
@@ -293,11 +297,9 @@ public class RelationshipEdgeService {
         if (CollectionUtils.isEmpty(graphIds)) {
             return new ArrayList<>();
         }
-
         RelationshipEdgeExample example = new RelationshipEdgeExample();
         example.createCriteria()
-                .andGraphIdIn(graphIds.stream()
-                        .distinct().collect(Collectors.toList()));
+                .andGraphIdIn(graphIds);
 
         return relationshipEdgeMapper.selectByExample(example);
     }
@@ -321,7 +323,7 @@ public class RelationshipEdgeService {
         markSet.add(id);
         visitedSet.add(id);
 
-        ArrayList<String> nextLevelNodes = new ArrayList<>();
+        ArrayList<String> nextLevelNodes = new ArrayList();
         for (RelationshipEdge relationshipEdge : edges) {
             if (id.equals(relationshipEdge.getSourceId())) {
                 nextLevelNodes.add(relationshipEdge.getTargetId());

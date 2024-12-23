@@ -40,6 +40,15 @@ public class ApiAutomationRelationshipEdgeService {
             beforeReferenceRelationships = this.contentAnalysis(preBlobs);
         }
 
+        // 如果有新增的关系，进行批量保存
+        if (CollectionUtils.isNotEmpty(referenceRelationships)) {
+            RelationshipEdgeRequest request = new RelationshipEdgeRequest();
+            request.setId(scenarioWithBLOBs.getId());
+            request.setTargetIds(referenceRelationships);
+            request.setType("API_SCENARIO");
+            relationshipEdgeService.saveBatch(request);
+        }
+
         // 比较并处理关系
         List<String> removedRelationships = new ArrayList<>(beforeReferenceRelationships);
         removedRelationships.removeAll(referenceRelationships);
@@ -47,16 +56,6 @@ public class ApiAutomationRelationshipEdgeService {
         // 如果有删除的关系，启动线程处理
         if (CollectionUtils.isNotEmpty(removedRelationships)) {
             new Thread(() -> relationshipEdgeService.delete(scenarioWithBLOBs.getId(), removedRelationships)).start();
-        }
-
-        // 如果有新增的关系，进行批量保存
-        if (CollectionUtils.isNotEmpty(referenceRelationships)) {
-            RelationshipEdgeRequest request = new RelationshipEdgeRequest();
-            request.setId(scenarioWithBLOBs.getId());
-            request.setTargetIds(referenceRelationships);
-            request.setType("API_SCENARIO");
-
-            relationshipEdgeService.saveBatch(request);
         }
     }
 
