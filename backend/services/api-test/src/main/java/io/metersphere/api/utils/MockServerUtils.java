@@ -6,6 +6,7 @@ import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.Part;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
@@ -45,6 +46,9 @@ public class MockServerUtils {
         String requestPostString = null;
 
         try {
+            if (request instanceof HttpServletRequestWrapper requestWrapper) {
+                request = (HttpServletRequest) requestWrapper.getRequest();
+            }
             if (request instanceof ShiroHttpServletRequest shiroHttpServletRequest) {
                 String contentType = StringUtils.isBlank(request.getContentType()) ? StringUtils.EMPTY : request.getContentType();
                 List<String> contentTypeLists = List.of(MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, MediaType.TEXT_XML_VALUE, MediaType.TEXT_PLAIN_VALUE);
