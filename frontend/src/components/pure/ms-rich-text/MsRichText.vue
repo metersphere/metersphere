@@ -598,6 +598,7 @@
     @apply relative overflow-hidden;
     :deep(.halo-rich-text-editor .ProseMirror) {
       padding: 16px !important;
+      padding-top: 30px !important;
       min-height: 130px;
       > p:first-child {
         margin-top: 0;
@@ -631,18 +632,18 @@
       div:first-of-type {
         .ms-scroll-bar();
       }
+      & > div {
+        overflow: visible;
+        .bubble-menu button {
+          padding: 3px;
+        }
+      }
     }
   }
   :deep(.editor-content) {
     .ms-scroll-bar();
 
     background: var(--color-text-fff);
-    & + div[data-tippy-root] {
-      transform: translate(60%) !important;
-    }
-  }
-  [data-tippy-root] {
-    inset: auto !important;
   }
   :deep(.tableWrapper) {
     .ms-scroll-bar();
