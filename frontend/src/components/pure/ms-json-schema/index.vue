@@ -9,7 +9,7 @@
     :selectable="false"
     :row-selection="rowSelection"
     :table-key="TableKeyEnum.JSON_SCHEMA"
-    :scroll="{ x: 'max-content' }"
+    :scroll="{ x: '100%' }"
     :disabled="props.disabled"
     show-setting
     class="ms-json-schema"
