@@ -67,6 +67,11 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
 
     public List<BaseTreeNode> getTree(String projectId) {
         List<BaseTreeNode> functionalModuleList = extFunctionalCaseModuleMapper.selectBaseByProjectId(projectId);
+        functionalModuleList.forEach(baseTreeNode -> {
+            if (StringUtils.equalsIgnoreCase(baseTreeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+                baseTreeNode.setPath(baseTreeNode.getPath() + baseTreeNode.getName());
+            }
+        });
         return super.buildTreeAndCountResource(functionalModuleList, true, Translator.get("functional_case.module.default.name"));
     }
 
