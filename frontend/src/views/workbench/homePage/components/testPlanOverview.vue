@@ -378,6 +378,7 @@
   }
 
   async function refreshHandler(newProjectId: string) {
+    projectOptions.value = appStore.projectList.map((e) => ({ value: e.id, label: e.name }));
     const cascaderOption = projectOptions.value.find((e) => e.value === newProjectId);
 
     if (cascaderOption) {
@@ -424,7 +425,7 @@
     selectValue.value = [];
     const tempArr: string[] = [];
     selectedData.forEach((e) => {
-      if (e) {
+      if (e && e !== 'NONE') {
         tempArr.push(e);
       }
     });
@@ -446,7 +447,7 @@
     const selectedData = [newProjectId, props.item.groupId, props.item.planId];
     const tempArr: string[] = [];
     selectedData.forEach((e) => {
-      if (e) {
+      if (e && e !== 'NONE') {
         tempArr.push(e);
       }
     });
@@ -454,7 +455,6 @@
   });
 
   onMounted(() => {
-    projectOptions.value = appStore.projectList.map((e) => ({ value: e.id, label: e.name }));
     const [newProjectId] = props.item.projectIds;
     if (props.item.planId) {
       selectValue.value = getSelectedParams();
