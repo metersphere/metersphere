@@ -203,13 +203,14 @@
     width: calc(v-bind(innerSize) + 7px);
   }
   .expand-icon {
-    @apply invisible relative z-20 flex cursor-pointer justify-center;
+    @apply invisible relative flex cursor-pointer justify-center;
 
     top: 25%;
-    transform: translateY(50%);
+    z-index: 999;
     padding: 12px 2px;
     border-radius: 0 var(--border-radius-small) var(--border-radius-small) 0;
     background-color: var(--color-text-n9);
+    transform: translateY(50%);
   }
   .ms-split-box-second {
     @apply h-full;
