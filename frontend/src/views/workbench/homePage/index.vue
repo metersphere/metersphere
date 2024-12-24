@@ -66,6 +66,7 @@
           v-else-if="item.key === WorkCardEnum.PROJECT_MEMBER_VIEW"
           v-model:projectIds="item.projectIds"
           v-model:handleUsers="item.handleUsers"
+          v-model:selectAll="item.selectAll"
           :item="item"
           :refresh-key="refreshKey"
           @change="changeHandler"
@@ -327,6 +328,7 @@
 
   // 刷新
   async function handleRefresh() {
+    appStore.initProjectList();
     await initDefaultList();
     refreshKey.value = Date.now();
   }

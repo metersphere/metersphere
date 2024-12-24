@@ -1,7 +1,7 @@
 <template>
   <MsCard v-if="props.allScreen" simple :special-height="36">
     <div class="flex h-full w-full flex-col items-center justify-center">
-      <div class="no-config-svg"></div>
+      <div :class="`no-config-svg no-config-svg-${appStore.isDarkTheme ? 'dark' : 'bright'}`"></div>
       <div class="flex items-center">
         {{
           appStore.projectList.length
@@ -79,8 +79,13 @@
     margin: 0 auto 24px;
     width: 100px;
     height: 104px;
-    background: url('@/assets/svg/config-work.svg');
     background-size: cover;
+  }
+  .no-config-svg-bright {
+    background: url('@/assets/svg/config-work.svg');
+  }
+  .no-config-svg-dark {
+    background: url('@/assets/svg/config-work-dark.svg');
   }
   .no-card {
     @apply flex h-full w-full flex-col items-center justify-center gap-4;

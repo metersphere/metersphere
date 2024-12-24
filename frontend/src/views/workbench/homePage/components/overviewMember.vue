@@ -83,6 +83,10 @@
     required: true,
   });
 
+  const innerSelectAll = defineModel<boolean>('selectAll', {
+    required: true,
+  });
+
   const projectId = ref<string>(innerProjectIds.value[0]);
 
   const timeForm = inject<Ref<TimeFormParams>>(
@@ -142,10 +146,12 @@
       await getMemberOptions();
       if (setAll) {
         innerHandleUsers.value = [...memberOptions.value.map((e) => e.value)];
+        innerSelectAll.value = true;
       } else {
         innerHandleUsers.value = innerHandleUsers.value.filter((id: string) =>
           memberOptions.value.some((member) => member.value === id)
         );
+        innerSelectAll.value = false;
       }
     }
     await nextTick();
@@ -167,6 +173,7 @@
   function popupVisibleChange(val: boolean) {
     if (!val) {
       nextTick(() => {
+        innerSelectAll.value = innerHandleUsers.value.length === memberOptions.value.length;
         initOverViewMemberDetail();
         emit('change');
       });
@@ -209,12 +216,16 @@
   watch(
     () => props.refreshKey,
     (refreshKey) => {
-      handleProjectChange(!!refreshKey);
+      if (props.item.selectAll && !innerHandleUsers.value.length) {
+        handleProjectChange(false, innerSelectAll.value);
+      } else {
+        handleProjectChange(!!refreshKey);
+      }
     }
   );
 
   onMounted(() => {
-    handleProjectChange(false);
+    handleProjectChange(false, props.item.selectAll);
   });
 
   onBeforeUnmount(() => {
