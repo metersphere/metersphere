@@ -32,6 +32,7 @@ docker run -d -p 8081:8081 --name=metersphere -v ~/.metersphere/data:/opt/meters
 
 如你有更多问题，可以通过论坛和技术交流群与我们交流。
 
+-   [案例研究](/user-cases.md)
 -   [论坛求助](https://bbs.fit2cloud.com/c/ms/8)
 -   技术交流群
      
