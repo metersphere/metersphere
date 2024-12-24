@@ -241,29 +241,27 @@ public class RelationshipEdgeService {
         });
 
         LogUtil.info("开始合并图内容");
-        new Thread(() -> {
-            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-            RelationshipEdgeMapper batchMapper = sqlSession.getMapper(RelationshipEdgeMapper.class);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        RelationshipEdgeMapper batchMapper = sqlSession.getMapper(RelationshipEdgeMapper.class);
 
-            relationshipEdges.forEach(item -> {
-                if (addEdgesIds.contains(item.getSourceId() + item.getTargetId())) {
-                    if (batchMapper.selectByPrimaryKey(item) == null) {
-                        batchMapper.insert(item);
-                    } else {
-                        item.setGraphId(graphId); // 把原来图的id设置成合并后新的图的id
-                        batchMapper.updateByPrimaryKey(item);
-                    }
+        relationshipEdges.forEach(item -> {
+            if (addEdgesIds.contains(item.getSourceId() + item.getTargetId())) {
+                if (batchMapper.selectByPrimaryKey(item) == null) {
+                    batchMapper.insert(item);
                 } else {
                     item.setGraphId(graphId); // 把原来图的id设置成合并后新的图的id
                     batchMapper.updateByPrimaryKey(item);
                 }
-            });
-
-            sqlSession.flushStatements();
-            if (sqlSessionFactory != null) {
-                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            } else {
+                item.setGraphId(graphId); // 把原来图的id设置成合并后新的图的id
+                batchMapper.updateByPrimaryKey(item);
             }
-        }).start();
+        });
+
+        sqlSession.flushStatements();
+        if (sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     private RelationshipEdge getNewRelationshipEdge(String graphId, String sourceId, String targetId, String type) {
