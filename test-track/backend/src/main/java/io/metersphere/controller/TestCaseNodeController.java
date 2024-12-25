@@ -55,7 +55,7 @@ public class TestCaseNodeController {
         if (request != null && request.getProjectId() != null) {
             projectId = request.getProjectId();
         }
-        ProjectApplication projectApplication = projectApplicationService.getProjectApplication(request.getProjectId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
+        ProjectApplication projectApplication = projectApplicationService.getProjectApplication(projectId, ProjectApplicationType.CASE_CUSTOM_NUM.name());
         if (projectApplication != null && StringUtils.isNotEmpty(projectApplication.getTypeValue()) && request.getCombine() != null) {
             request.getCombine().put("caseCustomNum", projectApplication.getTypeValue());
         }
