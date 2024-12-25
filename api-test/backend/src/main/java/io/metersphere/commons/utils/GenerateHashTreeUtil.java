@@ -116,8 +116,11 @@ public class GenerateHashTreeUtil {
             group.setName(runRequest.getReportId());
             JSONObject element = JSONUtil.parseObject(item.getScenarioDefinition());
             ElementUtil.dataFormatting(element);
+            element.put("id", item.getId());
             String definition = element.toString();
+
             MsScenario scenario = JSON.parseObject(definition, MsScenario.class);
+            scenario.setId(item.getId());
             group.setOnSampleError(scenario.getOnSampleError());
             if (MapUtils.isNotEmpty(planEnvMap)) {
                 scenario.setEnvironmentMap(planEnvMap);
@@ -177,7 +180,7 @@ public class GenerateHashTreeUtil {
 
     public static Map<String, EnvironmentConfig> getEnv(Map<String, String> environmentMap) {
         Map<String, EnvironmentConfig> envConfig = new HashMap<>();
-        if(MapUtils.isEmpty(environmentMap)){
+        if (MapUtils.isEmpty(environmentMap)) {
             return envConfig;
         }
         for (String projectId : environmentMap.keySet()) {
@@ -191,6 +194,7 @@ public class GenerateHashTreeUtil {
         }
         return envConfig;
     }
+
     public static boolean isSetReport(RunModeConfigDTO config) {
         return config != null && isSetReport(config.getReportType()) && StringUtils.isNotEmpty(config.getReportName());
     }
