@@ -2078,7 +2078,7 @@ public class TestCaseService {
                         if (StringUtils.equals(text, "test_track.case.status_finished")) {
                             text = Translator.get("test_case_status_finished");
                         } else if (StringUtils.equals(text, "test_track.case.status_prepare")) {
-                            text = Translator.get("test_case_status_prepare");
+                            text = Translator.get("case_status_prepare");
                         } else if (StringUtils.equals(text, "test_track.case.status_running")) {
                             text = Translator.get("test_case_status_running");
                         }
