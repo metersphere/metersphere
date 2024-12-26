@@ -28,7 +28,7 @@
           <i class="el-icon-upload"></i>
           <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
           <div class="el-upload__tip" slot="tip">
-            {{ $t('api_test.api_import.file_size_limit') }}
+            {{ $t('api_test.api_import.file_size_limit', {size: this.uploadSize}) }}
             {{ '，' + $t('api_test.api_import.ms_env_import_file_limit') }}
           </div>
         </el-upload>
@@ -43,6 +43,7 @@
 </template>
 
 <script>
+import {getUploadSizeLimit} from "metersphere-frontend/src/utils";
 export default {
   name: 'VariableImport',
   props: {
@@ -89,6 +90,11 @@ export default {
         this.uploadFiles = [];
       }
     },
+  },
+  computed: {
+    uploadSize() {
+      return getUploadSizeLimit();
+    }
   },
 
   methods: {
