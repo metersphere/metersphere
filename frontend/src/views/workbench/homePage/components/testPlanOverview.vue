@@ -380,7 +380,7 @@
   async function refreshHandler(newProjectId: string) {
     projectOptions.value = appStore.projectList.map((e) => ({ value: e.id, label: e.name }));
     const cascaderOption = projectOptions.value.find((e) => e.value === newProjectId);
-
+    childrenData.value = {};
     if (cascaderOption) {
       loadMore(cascaderOption, (_children) => {
         childrenData.value[cascaderOption.value as string] = _children?.length ? _children : [];
