@@ -233,6 +233,13 @@
                 or api_scenario.custom_num like CONCAT('%', #{request.name},'%'))
             </if>
 
+            <if test="request.notInIds != null and request.notInIds.size() > 0">
+                and api_scenario.id not in
+                <foreach collection="request.notInIds" item="notInId" separator="," open="(" close=")">
+                    #{notInId}
+                </foreach>
+            </if>
+
             <if test="request.notEqStatus != null">
                 and (api_scenario.status is null or api_scenario.status != #{request.notEqStatus})
             </if>

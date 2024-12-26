@@ -75,6 +75,7 @@ export default {
       }
     },
     open() {
+      this.condition.notInIds = this.notInIds; // 查询排除哪些用例
       this.$refs.baseRelevance.open();
       if (this.$refs.apiCaseList) {
         this.$refs.apiCaseList.clear();

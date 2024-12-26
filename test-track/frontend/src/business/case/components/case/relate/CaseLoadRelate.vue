@@ -62,6 +62,7 @@ export default {
       }
     },
     open() {
+      this.condition.notInIds = this.notInIds; // 查询排除哪些用例
       this.init();
       this.$refs.baseRelevance.open();
     },
