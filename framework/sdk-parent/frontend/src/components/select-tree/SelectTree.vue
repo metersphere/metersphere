@@ -12,7 +12,7 @@
       <el-input size="mini" prefix-icon="el-icon-search" v-model="filterText"> </el-input>
       <el-tree
         class="common-tree"
-        :style="{ minWidth: `${popoverWidth}px !important` }"
+        :style="{ maxWidth: `${popoverWidth}px !important` }"
         :width="width"
         ref="tree"
         :data="treeData"
@@ -536,4 +536,10 @@ export default {
 .el-row {
   padding-top: 0px !important;
 }
+
+.common-tree :deep(.el-tree-node) {
+  display: table;
+  min-width: 100%;
+}
+
 </style>
