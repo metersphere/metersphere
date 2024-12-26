@@ -101,10 +101,24 @@ export default {
             properties['--' + key].mock = { mock: JSON.parse(value)['**mock'] };
             delete properties[key];
           }
-          if (value && properType) {
+          if (value && properType && properType != 'object') {
             properties['--' + key].type = properType;
             delete properties[key];
           }
+          if (properType == 'object' && value.indexOf('mock') !== -1) {
+            properties['++' + key] = JSON.parse(JSON.stringify(properties[key]));
+            properties['--' + key] = JSON.parse(JSON.stringify(properties[key]));
+            properties['++' + key].type = properType;
+            delete properties[key];
+          }
+
+          if (properties[key] && properties[key].type == 'object') {
+            properties['++' + key] = JSON.parse(JSON.stringify(properties[key]));
+            properties['--' + key] = JSON.parse(JSON.stringify(properties[key]));
+            properties['++' + key].type = properType;
+            delete properties[key];
+          }
+
           if (properties[key] && properties[key]['++description']) {
             properties['++' + key] = JSON.parse(JSON.stringify(properties[key]));
             properties['++' + key].description = properties[key]['++description'];
