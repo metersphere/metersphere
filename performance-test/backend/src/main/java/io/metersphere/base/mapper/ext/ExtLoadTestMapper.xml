@@ -554,7 +554,8 @@
         atc. STATUS,
         atc.create_time,
         atc.update_time,
-        atc.version_id
+        atc.version_id,
+        atc.description
         FROM
         load_test atc
         LEFT JOIN test_case_test tct ON atc.id = tct.test_id
