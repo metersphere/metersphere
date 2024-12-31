@@ -372,7 +372,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             schema.setExample(content.get(contentType).getExample());
         }
         Object bodyData = null;
-        if (!StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
+        if (StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
             bodyData = parseSchemaToJson(schema, refSet, infoMap);
             if (bodyData == null) return;
         }
@@ -405,7 +405,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         } else if (StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE)) {
             parseKvBody(schema, body, bodyData, infoMap);
         } else {
-            body.setRaw(bodyData.toString());
+            body.setRaw(schema.getExample().toString());
         }
     }
 
@@ -1240,7 +1240,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         Hashtable<String, String> typeMap = new Hashtable<String, String>() {{
             put("XML", org.springframework.http.MediaType.APPLICATION_XML_VALUE);
             put("JSON", org.springframework.http.MediaType.APPLICATION_JSON_VALUE);
-            put("Raw", "application/urlencoded");
+            put("Raw", "text/plain");
             put("BINARY", org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE);
             put("Form Data", org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE);
             put("WWW_FORM", org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE);
@@ -1317,8 +1317,10 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 }
                 schemas.add(jsonObject);
             } else if (bodyType != null && (bodyType.equalsIgnoreCase("WWW_FORM") || bodyType.equalsIgnoreCase("Form Data") || bodyType.equalsIgnoreCase("BINARY"))) {    //  key-value 类格式
-                JSONObject formData = getformDataProperties(body.optJSONArray("kvs"));
-                bodyInfo = buildFormDataSchema(formData);
+                if (body.optJSONArray("kvs") != null) {
+                    JSONObject formData = getformDataProperties(body.optJSONArray("kvs"));
+                    bodyInfo = buildFormDataSchema(formData);
+                }
             }
         }
 
