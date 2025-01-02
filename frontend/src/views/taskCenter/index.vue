@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-  import { useRoute } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
 
   import caseTaskDetailTable from './component/caseTaskDetailTable.vue';
   import caseTaskTable from './component/caseTaskTable.vue';
@@ -41,6 +41,7 @@
 
   const { t } = useI18n();
   const route = useRoute();
+  const router = useRouter();
   const globalStore = useGlobalStore();
   const { getItem, setItem } = useLocalForage();
 
@@ -86,6 +87,9 @@
 
   function handleTabChange(key: string | number) {
     setItem('taskCenterActiveTab', key);
+    if (route.query.task) {
+      router.replace({ query: {} });
+    }
   }
 
   watch(
@@ -99,11 +103,13 @@
   );
 
   onBeforeMount(async () => {
-    const localTab = await getItem('taskCenterActiveTab');
-    if (tabList.value.some((e) => e.value === localTab)) {
-      activeTab.value = (localTab as TaskCenterEnum) || TaskCenterEnum.CASE;
-    } else {
-      activeTab.value = tabList.value[0].value;
+    if (!route.query.type) {
+      const localTab = await getItem('taskCenterActiveTab');
+      if (tabList.value.some((e) => e.value === localTab)) {
+        activeTab.value = (localTab as TaskCenterEnum) || TaskCenterEnum.CASE;
+      } else {
+        activeTab.value = tabList.value[0].value;
+      }
     }
   });
 </script>

@@ -96,8 +96,6 @@
     :id="activeRecord.id"
     v-model:visible="caseExecuteResultDrawerVisible"
     :user-name="activeRecord.userName"
-    :status="activeRecord.status"
-    :result="activeRecord.result"
     :resource-name="activeRecord.resourceName"
   />
   <scenarioExecuteResultDrawer
@@ -105,12 +103,11 @@
     :id="activeRecord.id"
     v-model:visible="scenarioExecuteResultDrawerVisible"
     :user-name="activeRecord.userName"
-    :status="activeRecord.status"
-    :result="activeRecord.result"
   />
 </template>
 
 <script setup lang="ts">
+  import { useRoute } from 'vue-router';
   import { CascaderOption, Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -171,6 +168,7 @@
     id?: string;
   }>();
 
+  const route = useRoute();
   const { t } = useI18n();
   const { openModal } = useModal();
   const appStore = useAppStore();
@@ -692,6 +690,10 @@
       setLoadListParams({ keyword: props.id });
     }
     initResourcePools();
+    if (route.query.task && route.query.id) {
+      const { id, userName, resourceType } = route.query;
+      checkExecuteResult({ id, userName, resourceType: [resourceType] } as unknown as TaskCenterTaskDetailItem);
+    }
     await loadList();
     initCurrentPageResourcePoolsStatus();
     initCurrentPageQueue();

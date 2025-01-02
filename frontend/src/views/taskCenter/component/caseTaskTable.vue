@@ -116,6 +116,7 @@
 </template>
 
 <script setup lang="ts">
+  import { useRoute } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -175,7 +176,7 @@
   import { ReportEnum } from '@/enums/reportEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
-  import { ExecuteResultEnum, ExecuteStatusEnum, ExecuteTaskType } from '@/enums/taskCenter';
+  import { ExecuteResultEnum, ExecuteStatusEnum, ExecuteTaskType, TaskCenterEnum } from '@/enums/taskCenter';
 
   import { executeMethodMap, executeResultMap, executeStatusMap } from './config';
 
@@ -187,6 +188,7 @@
     (e: 'init'): void;
   }>();
 
+  const route = useRoute();
   const { t } = useI18n();
   const { openModal } = useModal();
   const tableStore = useTableStore();
@@ -734,6 +736,15 @@
     searchTask();
     getTime();
     emit('init');
+    if (route.query.task && route.query.type === TaskCenterEnum.CASE && route.query.id) {
+      const { id, taskType, integrated, reportId } = route.query;
+      checkReport({
+        id: id as string,
+        taskType: taskType as ExecuteTaskType,
+        integrated,
+        reportId,
+      } as unknown as TaskCenterTaskItem);
+    }
   });
 
   watch(
