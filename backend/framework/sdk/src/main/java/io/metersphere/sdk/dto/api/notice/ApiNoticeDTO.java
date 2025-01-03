@@ -67,4 +67,12 @@ public class ApiNoticeDTO implements java.io.Serializable {
      * 是否是重新执行
      */
     private Boolean rerun = false;
+    /**
+     * 任务ID
+     */
+    private String taskId;
+    /**
+     * 任务项ID
+     */
+    private String taskItemId;
 }
