@@ -74,8 +74,10 @@ public class ApiReportSendNoticeService {
         assert shareService != null;
         ShareInfoDTO url = shareService.gen(shareRequest, noticeDTO.getUserId());
         Project project = projectMapper.selectByPrimaryKey(noticeDTO.getProjectId());
+        String userId = noticeDTO.getUserId();
+        User user = userMapper.selectByPrimaryKey(userId);
         String reportUrl = baseSystemConfigDTO.getUrl() + "/#/api-test/report?orgId=%s&pId=%s&type=%s&reportId=%s";
-        String shareUrl = baseSystemConfigDTO.getUrl() + "/#/share/%s?shareId=" + url.getId();
+        String shareUrl = baseSystemConfigDTO.getUrl() + "/#/share/%s?shareId=" + url.getId()+"&type=DETAIL&username="+user.getName()+"&resourceType="+noticeDTO.getResourceType();
         ApiScenarioReport report = new ApiScenarioReport();
         if (StringUtils.equalsAnyIgnoreCase(noticeDTO.getResourceType(),
                 ApiExecuteResourceType.API_SCENARIO.name(), ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name())) {
@@ -152,9 +154,6 @@ public class ApiReportSendNoticeService {
             }
             shareUrl = String.format(shareUrl, "shareReportCase");
         }
-
-        String userId = noticeDTO.getUserId();
-        User user = userMapper.selectByPrimaryKey(userId);
 
         Map paramMap = new HashMap<>(beanMap);
         noticeSendService.setLanguage(user.getLanguage());
