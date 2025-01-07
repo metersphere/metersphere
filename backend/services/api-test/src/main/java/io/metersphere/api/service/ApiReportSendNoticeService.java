@@ -76,19 +76,29 @@ public class ApiReportSendNoticeService {
         Project project = projectMapper.selectByPrimaryKey(noticeDTO.getProjectId());
         String userId = noticeDTO.getUserId();
         User user = userMapper.selectByPrimaryKey(userId);
-        String reportUrl = baseSystemConfigDTO.getUrl() + "/#/api-test/report?orgId=%s&pId=%s&type=%s&reportId=%s";
-        String shareUrl = baseSystemConfigDTO.getUrl() + "/#/share/%s?shareId=" + url.getId()+"&type=DETAIL&username="+user.getName()+"&resourceType="+noticeDTO.getResourceType();
+        String reportUrl = baseSystemConfigDTO.getUrl() + "/#/api-test/report?orgId=%s&pId=%s";
+        String shareUrl = baseSystemConfigDTO.getUrl() + "/#/share/%s?shareId=" + url.getId();
         ApiScenarioReport report = new ApiScenarioReport();
         if (StringUtils.equalsAnyIgnoreCase(noticeDTO.getResourceType(),
                 ApiExecuteResourceType.API_SCENARIO.name(), ApiExecuteResourceType.TEST_PLAN_API_SCENARIO.name(), ApiExecuteResourceType.PLAN_RUN_API_SCENARIO.name())) {
             ApiScenario scenario = null;
             switch (ApiExecuteResourceType.valueOf(noticeDTO.getResourceType())) {
-                case API_SCENARIO ->
-                        scenario = apiScenarioMapper.selectByPrimaryKey(noticeDTO.getResourceId());
-                case TEST_PLAN_API_SCENARIO ->
-                        scenario = extApiScenarioMapper.getScenarioByResourceId(noticeDTO.getResourceId());
-                case PLAN_RUN_API_SCENARIO ->
-                        scenario = extApiScenarioMapper.getScenarioByReportId(noticeDTO.getResourceId());
+                case API_SCENARIO -> {
+                    scenario = apiScenarioMapper.selectByPrimaryKey(noticeDTO.getResourceId());
+                    reportUrl = reportUrl+"&type=%s&reportId=%s";
+                    report = apiScenarioReportMapper.selectByPrimaryKey(noticeDTO.getReportId());
+                    reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId(), ApiExecuteResourceType.API_SCENARIO.name(), report.getId());
+                }
+                case TEST_PLAN_API_SCENARIO ->{
+                    scenario = extApiScenarioMapper.getScenarioByResourceId(noticeDTO.getResourceId());
+                    shareUrl=shareUrl+"&type=DETAIL&username="+user.getName()+"&resourceType="+ApiExecuteResourceType.API_SCENARIO.name();
+                    reportUrl = reportUrl+"&id="+noticeDTO.getTaskItemId()+"&task="+true+"&type=DETAIL&username="+user.getName()+"&resourceType="+ApiExecuteResourceType.API_SCENARIO.name();
+                }
+                case PLAN_RUN_API_SCENARIO -> {
+                    scenario = extApiScenarioMapper.getScenarioByReportId(noticeDTO.getResourceId());
+                    shareUrl=shareUrl+"&type=DETAIL&username="+user.getName()+"&resourceType="+ApiExecuteResourceType.API_SCENARIO.name();
+                    reportUrl = reportUrl+"&id="+noticeDTO.getTaskItemId()+"&task="+true+"&type=DETAIL&username="+user.getName()+"&resourceType="+ApiExecuteResourceType.API_SCENARIO.name();
+                }
                 default -> {
                 }
             }
@@ -97,8 +107,6 @@ public class ApiReportSendNoticeService {
             }
             beanMap = new BeanMap(scenario);
             noticeType = NoticeConstants.TaskType.API_SCENARIO_TASK;
-            report = apiScenarioReportMapper.selectByPrimaryKey(noticeDTO.getReportId());
-            reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId(), ApiExecuteResourceType.API_SCENARIO.name(), report.getId());
             if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ResultStatus.SUCCESS.name())) {
                 event = NoticeConstants.Event.SCENARIO_EXECUTE_SUCCESSFUL;
             } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ResultStatus.FAKE_ERROR.name())) {
@@ -111,12 +119,20 @@ public class ApiReportSendNoticeService {
                 ApiExecuteResourceType.API_CASE.name(), ApiExecuteResourceType.TEST_PLAN_API_CASE.name(), ApiExecuteResourceType.PLAN_RUN_API_CASE.name())) {
             ApiTestCase testCase = null;
             switch (ApiExecuteResourceType.valueOf(noticeDTO.getResourceType())) {
-                case API_CASE ->
-                        testCase = apiTestCaseMapper.selectByPrimaryKey(noticeDTO.getResourceId());
-                case TEST_PLAN_API_CASE ->
-                        testCase = extApiTestCaseMapper.getCaseByResourceId(noticeDTO.getResourceId());
-                case PLAN_RUN_API_CASE ->
-                        testCase = extApiTestCaseMapper.getCaseByReportId(noticeDTO.getResourceId());
+                case API_CASE -> {
+                    testCase = apiTestCaseMapper.selectByPrimaryKey(noticeDTO.getResourceId());
+                    reportUrl = reportUrl+"&type=%s&reportId=%s";
+                }
+                case TEST_PLAN_API_CASE -> {
+                    testCase = extApiTestCaseMapper.getCaseByResourceId(noticeDTO.getResourceId());
+                    shareUrl=shareUrl+"&type=DETAIL&username="+user.getName()+"&resourceType="+noticeDTO.getResourceType();
+                    reportUrl = reportUrl+"&id="+noticeDTO.getTaskItemId()+"&task="+true+"&type=DETAIL&username="+user.getName()+"&resourceType="+noticeDTO.getResourceType();
+                }
+                case PLAN_RUN_API_CASE -> {
+                    testCase = extApiTestCaseMapper.getCaseByReportId(noticeDTO.getResourceId());
+                    shareUrl=shareUrl+"&type=DETAIL&username="+user.getName()+"&resourceType="+noticeDTO.getResourceType();
+                    reportUrl = reportUrl+"&id="+noticeDTO.getTaskItemId()+"&task="+true+"&type=DETAIL&username="+user.getName()+"&resourceType="+noticeDTO.getResourceType();
+                }
                 default -> {
                 }
             }
@@ -142,9 +158,11 @@ public class ApiReportSendNoticeService {
 
             // TODO 是否需要区分场景和用例
             noticeType = NoticeConstants.TaskType.API_DEFINITION_TASK;
-            ApiReport apiReport = apiReportMapper.selectByPrimaryKey(noticeDTO.getReportId());
-            reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId(), ApiExecuteResourceType.API_CASE.name(), apiReport.getId());
-            BeanUtils.copyBean(report, apiReport);
+            if (StringUtils.equalsIgnoreCase(noticeDTO.getResourceType(), ApiExecuteResourceType.API_CASE.name())) {
+                ApiReport apiReport = apiReportMapper.selectByPrimaryKey(noticeDTO.getReportId());
+                reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId(), ApiExecuteResourceType.API_CASE.name(), apiReport.getId());
+                BeanUtils.copyBean(report, apiReport);
+            }
             if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ResultStatus.SUCCESS.name())) {
                 event = NoticeConstants.Event.CASE_EXECUTE_SUCCESSFUL;
             } else if (StringUtils.endsWithIgnoreCase(noticeDTO.getReportStatus(), ResultStatus.FAKE_ERROR.name())) {
