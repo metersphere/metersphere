@@ -535,7 +535,7 @@
   }
 
   function showDetail() {
-    if ((route.query.reportId || route.query.id) && route.query.type) {
+    if ((route.query.reportId || route.query.id) && route.query.type && !route.query.task) {
       activeDetailId.value = (route.query.reportId as string) || (route.query.id as string);
       activeReportIndex.value = 0;
       if (route.query.type === 'API_SCENARIO') {

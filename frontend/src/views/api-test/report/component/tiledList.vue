@@ -113,8 +113,8 @@
   const isFailedRetry = computed(() => {
     // 所有步骤 id 相同且带有重试前缀，说明是单个用例的重试结果
     return (
-      props.reportDetail.children.every((item) => item.stepId === props.reportDetail.children[0].stepId) &&
-      props.reportDetail.children.some((item) => item.requestName?.includes('MsRetry_'))
+      props.reportDetail.children?.every((item) => item.stepId === props.reportDetail.children[0].stepId) &&
+      props.reportDetail.children?.some((item) => item.requestName?.includes('MsRetry_'))
     );
   });
   const currentTiledList = computed(() => {
@@ -123,7 +123,7 @@
       return tiledList.value;
     }
     // 失败重试的结果
-    return [tiledList.value[controlCurrent.value]];
+    return tiledList.value[controlCurrent.value] ? [tiledList.value[controlCurrent.value]] : [];
   });
   const controlTotalList = computed(() => {
     return Array.from({ length: props.reportDetail.children.length }, (v, k) => {
