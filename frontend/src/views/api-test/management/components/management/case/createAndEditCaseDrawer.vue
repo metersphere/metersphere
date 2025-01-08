@@ -222,7 +222,7 @@
     } else {
       await getApiDetail();
     }
-    if (!isCopy && !record) {
+    if (!isCopy && !record && apiDetailInfo.value.protocol === 'HTTP') {
       // 创建用例需要复制文件
       let copyFilesMap: Record<string, any> = {};
       const fileIds = parseRequestBodyFiles(apiDetailInfo.value.request.body, [], [], []).uploadFileIds;
