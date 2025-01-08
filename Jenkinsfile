@@ -4,9 +4,6 @@ pipeline {
             label 'metersphere'
         }
     }
-    triggers {
-       // pollSCM('0 1 * * *')
-    }
     environment {
         IMAGE_PREFIX = 'registry.cn-qingdao.aliyuncs.com/metersphere'
         JAVA_HOME = '/opt/jdk-17'
