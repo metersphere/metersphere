@@ -7,7 +7,7 @@ pipeline {
         }
     }
     triggers {
-        pollSCM('50 * * * *')
+       // pollSCM('50 * * * *')
     }
     environment {
         IMAGE_PREFIX = 'registry.fit2cloud.com/metersphere'
