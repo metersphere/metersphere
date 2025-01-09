@@ -10,7 +10,6 @@ import {
   ContentTabItem,
   ContentTabsMap,
   EnvConfig,
-  EnvConfigItem,
   EnvDetailItem,
   GlobalParams,
 } from '@/models/projectManagement/environmental';
@@ -84,7 +83,6 @@ const useProjectEnvStore = defineStore(
       description: '',
       config: cloneDeep(envParamsDefaultConfig),
     });
-    const commonBackupVariables = ref<EnvConfigItem[]>([]);
     const allParamDetailInfo = ref<GlobalParams>(defaultAllParams); // 全局参数详情
 
     const backupAllParamDetailInfo = ref<GlobalParams>(defaultAllParams);
@@ -102,10 +100,6 @@ const useProjectEnvStore = defineStore(
     // 设置http提醒
     function setHttpNoWarning(noWarning: boolean) {
       httpNoWarning.value = noWarning;
-    }
-    // 设置环境变量
-    function setEnvAllParams(variables: EnvConfigItem[]) {
-      commonBackupVariables.value = variables;
     }
     // 设置全局参数
     function setAllParamDetailInfo(item: GlobalParams) {
@@ -236,8 +230,6 @@ const useProjectEnvStore = defineStore(
       initContentTabList,
       getContentTabList,
       setContentTabList,
-      setEnvAllParams,
-      commonBackupVariables,
     };
   },
   {

@@ -36,7 +36,7 @@
       />
     </div>
     <div class="content w-full">
-      <EnvParamsTab v-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_PARAM" />
+      <EnvParamsTab v-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_PARAM" v-model:keyword="envKeyword" />
       <HttpTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_HTTP" />
       <DataBaseTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_DATABASE" />
       <HostTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_HOST" ref="hostTabRef" />
@@ -134,6 +134,8 @@
     description: '',
   });
 
+  const envKeyword = ref('');
+
   const contentTabList = ref<ContentTabItem[]>([]);
   const isDisabled = computed(() => !hasAnyPermission(['PROJECT_ENVIRONMENT:READ+UPDATE']));
 
@@ -217,7 +219,6 @@
       config: {
         ...paramsConfig,
         httpConfig: httpConfigList,
-        commonVariables: store.commonBackupVariables,
       },
     };
   }
@@ -244,6 +245,8 @@
           if (activeKey.value === EnvTabTypeEnum.ENVIRONMENT_HOST) {
             hostTabRef.value?.validateForm(saveCallBack);
           } else {
+            envKeyword.value = '';
+            await nextTick();
             await saveCallBack();
           }
         } catch (error) {
