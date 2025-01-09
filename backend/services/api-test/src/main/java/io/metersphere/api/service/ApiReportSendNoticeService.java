@@ -92,11 +92,13 @@ public class ApiReportSendNoticeService {
                 case TEST_PLAN_API_SCENARIO ->{
                     scenario = extApiScenarioMapper.getScenarioByResourceId(noticeDTO.getResourceId());
                     shareUrl=shareUrl+"&type=DETAIL&username="+user.getName()+"&resourceType="+ApiExecuteResourceType.API_SCENARIO.name();
+                    reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId());
                     reportUrl = reportUrl+"&id="+noticeDTO.getTaskItemId()+"&task="+true+"&type=DETAIL&username="+user.getName()+"&resourceType="+ApiExecuteResourceType.API_SCENARIO.name();
                 }
                 case PLAN_RUN_API_SCENARIO -> {
                     scenario = extApiScenarioMapper.getScenarioByReportId(noticeDTO.getResourceId());
                     shareUrl=shareUrl+"&type=DETAIL&username="+user.getName()+"&resourceType="+ApiExecuteResourceType.API_SCENARIO.name();
+                    reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId());
                     reportUrl = reportUrl+"&id="+noticeDTO.getTaskItemId()+"&task="+true+"&type=DETAIL&username="+user.getName()+"&resourceType="+ApiExecuteResourceType.API_SCENARIO.name();
                 }
                 default -> {
@@ -126,11 +128,13 @@ public class ApiReportSendNoticeService {
                 case TEST_PLAN_API_CASE -> {
                     testCase = extApiTestCaseMapper.getCaseByResourceId(noticeDTO.getResourceId());
                     shareUrl=shareUrl+"&type=DETAIL&username="+user.getName()+"&resourceType="+noticeDTO.getResourceType();
+                    reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId());
                     reportUrl = reportUrl+"&id="+noticeDTO.getTaskItemId()+"&task="+true+"&type=DETAIL&username="+user.getName()+"&resourceType="+noticeDTO.getResourceType();
                 }
                 case PLAN_RUN_API_CASE -> {
                     testCase = extApiTestCaseMapper.getCaseByReportId(noticeDTO.getResourceId());
                     shareUrl=shareUrl+"&type=DETAIL&username="+user.getName()+"&resourceType="+noticeDTO.getResourceType();
+                    reportUrl = String.format(reportUrl, project.getOrganizationId(), project.getId());
                     reportUrl = reportUrl+"&id="+noticeDTO.getTaskItemId()+"&task="+true+"&type=DETAIL&username="+user.getName()+"&resourceType="+noticeDTO.getResourceType();
                 }
                 default -> {
