@@ -1603,8 +1603,9 @@ public class BugService {
                                 .replace(tmpRichUrl, "src=\"/bug/attachment/preview/md/" + syncBug.getProjectId() + "/" + fileId + "/false\""));
                         if (syncBug.getPlatformDefaultTemplate()) {
                             // 来自富文本自定义字段
-                            PlatformCustomFieldItemDTO descriptionField = syncBug.getCustomFieldList().stream().filter(field -> StringUtils.equals(field.getCustomData(), "description")).toList().getFirst();
-                            descriptionField.setValue(syncBug.getDescription());
+                            PlatformCustomFieldItemDTO richTextField = syncBug.getCustomFieldList().stream().filter(field -> StringUtils.equals(field.getType(), PlatformCustomFieldType.RICH_TEXT.name())
+                                    && field.getValue() != null && StringUtils.contains(field.getValue().toString(), tmpRichUrl)).toList().getFirst();
+                            richTextField.setValue(syncBug.getDescription());
                         }
                     } else {
                         // 来自富文本自定义字段
