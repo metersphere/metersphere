@@ -652,7 +652,6 @@
       };
     }
     getPlanDetail();
-    initBugList();
     await loadCase();
   });
 
@@ -677,7 +676,6 @@
     () => activeId.value,
     () => {
       loadCaseDetail();
-      initBugList();
     }
   );
 
