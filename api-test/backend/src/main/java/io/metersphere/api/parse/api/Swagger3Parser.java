@@ -372,7 +372,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             schema.setExample(content.get(contentType).getExample());
         }
         Object bodyData = null;
-        if (StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
+        if (!StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
             bodyData = parseSchemaToJson(schema, refSet, infoMap);
             if (bodyData == null) return;
         }
