@@ -127,6 +127,7 @@
   function handleDrawerCancel() {
     bugDetailRef.value?.resetForm();
     showBugDrawer.value = false;
+    bugTemplateId.value = '';
   }
 
   const batchAddApiMap: Record<string, (params: { request: BugEditFormObject; fileList: File[] }) => Promise<any>> = {
