@@ -761,6 +761,14 @@
   }
 
   const mockBelongDefinitionDetail = ref<RequestParam>(props.definitionDetail);
+
+  watch(
+    () => props.definitionDetail.id,
+    () => {
+      mockBelongDefinitionDetail.value = props.definitionDetail;
+    }
+  );
+
   async function openMockDetailDrawer(record: ApiDefinitionMockDetail) {
     try {
       activeMockRecord.value = record;
