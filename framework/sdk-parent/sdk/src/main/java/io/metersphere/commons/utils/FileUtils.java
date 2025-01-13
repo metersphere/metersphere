@@ -73,7 +73,6 @@ public class FileUtils {
         if (file.exists()) {
             if (!file.delete()) {
                 LogUtil.warn("Failed to delete existing file: " + filePath);
-                return;  // 文件删除失败，退出方法
             }
         }
 
@@ -82,17 +81,14 @@ public class FileUtils {
             // 确保目录存在
             if (!dir.exists() && !dir.mkdirs()) {
                 LogUtil.error("Failed to create directory: " + dir.getAbsolutePath());
-                return;  // 创建目录失败，退出方法
             }
 
             // 创建新文件
             if (!file.createNewFile()) {
                 LogUtil.error("Failed to create file: " + filePath);
-                return;  // 文件创建失败，退出方法
             }
         } catch (IOException e) {
             LogUtil.error("Error during file creation: " + e.getMessage(), e);
-            return;  // 捕获异常并退出方法
         }
 
         try (InputStream in = new ByteArrayInputStream(fileBytes);
@@ -163,7 +159,6 @@ public class FileUtils {
             File testDir = new File(filePath);
             if (!testDir.exists() && !testDir.mkdirs()) {
                 LogUtil.error("Failed to create directory: " + filePath);
-                return null;  // 目录创建失败，返回 null
             }
 
             // 构造文件路径
@@ -175,7 +170,6 @@ public class FileUtils {
                 // 确保文件被创建
                 if (!file.createNewFile() && !file.exists()) {
                     LogUtil.error("Failed to create file: " + file.getAbsolutePath());
-                    return null;  // 文件创建失败，返回 null
                 }
 
                 final int MAX = 4096;
@@ -189,8 +183,7 @@ public class FileUtils {
                 return null;  // 返回 null，表示上传失败
             }
 
-            // 返回文件的绝对路径
-            return file.getAbsolutePath();
+            return file.getPath();
         }
 
         return null;
@@ -212,11 +205,8 @@ public class FileUtils {
                 validateFileName(item.getOriginalFilename());
                 File file = new File(path + File.separator + item.getOriginalFilename());
                 try (InputStream in = item.getInputStream(); OutputStream out = new FileOutputStream(file)) {
-                    if (file.createNewFile()) {
-                        FileUtil.copyStream(in, out);  // 复制文件内容
-                    } else {
-                        LogUtil.error("File already exists: " + file.getAbsolutePath());
-                    }
+                    file.createNewFile();
+                    FileUtil.copyStream(in, out);  // 复制文件内容
                 } catch (IOException e) {
                     LogUtil.error("Error uploading file: " + item.getOriginalFilename(), e);
                 }
