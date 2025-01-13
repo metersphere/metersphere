@@ -34,4 +34,6 @@ public class PropertyConstant {
 
     public final static String FILE = "file";
 
+    public final static String TEXT = "text";
+
 }

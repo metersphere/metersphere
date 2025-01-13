@@ -587,7 +587,7 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
             if (StringUtils.equals(schema.getType(), PropertyConstant.NULL)) {
                 return parseNull();
             }
-             return switch (schema) {
+            return switch (schema) {
                 case ArraySchema arraySchema -> parseArraySchema(arraySchema, refModelSet);
                 case ObjectSchema objectSchema -> parseObject(objectSchema, refModelSet);
                 case MapSchema mapSchema -> parseMapObject(mapSchema, refModelSet);
@@ -609,7 +609,9 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
     private JsonSchemaItem parseSchemaByType(Schema<?> schema, Set refModelSet) {
         String type = schema.getType();
         if (type == null) {
-            return null;
+            if (MapUtils.isNotEmpty(schema.getProperties())) {
+                return parseObject(schema, refModelSet);
+            }
         }
         return switch (type) {
             case PropertyConstant.STRING -> parseString(schema);
@@ -618,6 +620,7 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
             case PropertyConstant.BOOLEAN -> parseBoolean(schema);
             case PropertyConstant.OBJECT -> parseObject(schema, refModelSet);
             case PropertyConstant.ARRAY -> parseArraySchema(schema, refModelSet);
+            case PropertyConstant.TEXT -> parseString(schema);
             default -> {
                 JsonSchemaItem jsonSchemaItem = new JsonSchemaItem();
                 jsonSchemaItem.setId(IDGenerator.nextStr());
