@@ -53,15 +53,17 @@ public class MsFormDataBodyConverter extends MsBodyConverter<FormDataBody> {
         if (CollectionUtils.isNotEmpty(fileFormValues)) {
             fileFormValues.forEach(formDataKV -> {
                 String paramName = formDataKV.getKey();
-                formDataKV.getFiles().forEach(file -> {
-                    HTTPFileArg fileArg = getHttpFileArg(file);
-                    fileArg.setParamName(paramName);
-                    String mimetype = formDataKV.getContentType();
-                    if (StringUtils.isNotBlank(mimetype)) {
-                        fileArg.setMimeType(mimetype);
-                    }
-                    list.add(fileArg);
-                });
+                if (formDataKV.getFiles() != null) {
+                    formDataKV.getFiles().forEach(file -> {
+                        HTTPFileArg fileArg = getHttpFileArg(file);
+                        fileArg.setParamName(paramName);
+                        String mimetype = formDataKV.getContentType();
+                        if (StringUtils.isNotBlank(mimetype)) {
+                            fileArg.setMimeType(mimetype);
+                        }
+                        list.add(fileArg);
+                    });
+                }
             });
         }
         return list.toArray(new HTTPFileArg[0]);
