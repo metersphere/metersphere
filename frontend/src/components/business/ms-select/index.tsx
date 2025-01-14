@@ -54,7 +54,7 @@ export interface RadioProps {
 }
 
 export interface MsSearchSelectSlots {
-  prefix?: string;
+  prefix?: string | Slot<any>;
   // @ts-ignore
   header?: (() => JSX.Element) | Slot<any>;
   // @ts-ignore
@@ -325,6 +325,9 @@ export default defineComponent(
       if (slots.header) {
         _slots.header = slots.header;
       }
+      if (slots.prefix) {
+        _slots.prefix = slots.prefix;
+      }
       if (slots.footer) {
         _slots.footer = slots.footer;
       }
@@ -475,6 +478,16 @@ export default defineComponent(
       };
     }
 
+    const renderPrefix = () => {
+      if (slots.prefix) {
+        return slots.prefix;
+      }
+      if (props.prefix) {
+        return typeof props.prefix === 'string' ? () => t(props.prefix as string) : props.prefix;
+      }
+      return null;
+    };
+
     return () => (
       <div class="w-full">
         <a-tooltip
@@ -536,7 +549,7 @@ export default defineComponent(
             }}
           >
             {{
-              prefix: props.prefix ? () => t(props.prefix || '') : null,
+              prefix: renderPrefix(),
               label: ({ data }: { data: SelectOptionData }) => (
                 // 在不限制标签数量时展示 tooltip
                 <a-tooltip content={data.label} disabled={maxTagCount.value !== Infinity && maxTagCount.value !== 0}>
