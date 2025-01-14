@@ -6,7 +6,7 @@
       v-on="currentCaseTable.propsEvent.value"
     >
       <template #num="{ record }">
-        <MsButton type="text" @click="toDetail(record)">{{ record.num }}</MsButton>
+        <MsButton type="text" :disabled="!props.isPreview" @click="toDetail(record)">{{ record.num }}</MsButton>
       </template>
       <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
         <caseLevel :case-level="filterContent.value" />
@@ -252,7 +252,7 @@
   }
 
   function getRowClass(record: ApiOrScenarioCaseItem) {
-    return record.reportId === selectedReportId.value ? 'selected-row-class' : '';
+    return record.reportId === selectedReportId.value && props.isPreview ? 'selected-row-class' : '';
   }
 
   // 去接口用例详情页面

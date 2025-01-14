@@ -249,7 +249,7 @@
   }
 
   function getRowClass(record: ApiOrScenarioCaseItem) {
-    return record.reportId === selectedId.value ? 'selected-row-class' : '';
+    return record.reportId === selectedId.value && props.isPreview ? 'selected-row-class' : '';
   }
 
   watch(
