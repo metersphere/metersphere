@@ -94,7 +94,6 @@
       filterConfig: {
         options: triggerModeOptions,
       },
-      showTooltip: true,
       width: 150,
     },
     {
