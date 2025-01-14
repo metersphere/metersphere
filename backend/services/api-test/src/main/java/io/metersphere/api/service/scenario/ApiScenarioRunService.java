@@ -598,7 +598,16 @@ public class ApiScenarioRunService {
         if (StringUtils.isNotBlank(request.getTaskItem().getReportId())) {
             scenarioReport.setId(request.getTaskItem().getReportId());
         }
+        scenarioReport.setEnvironmentId(getEnvId(request.getRunModeConfig(), apiScenario.getEnvironmentId()));
         return scenarioReport;
+    }
+
+    public String getEnvId(GetRunScriptRequest request, String caseEnvId) {
+        ApiRunModeConfigDTO runModeConfig = request.getRunModeConfig();
+        if (StringUtils.isBlank(runModeConfig.getEnvironmentId()) || StringUtils.equals(runModeConfig.getEnvironmentId(), CommonConstants.DEFAULT_NULL_VALUE)) {
+            return caseEnvId;
+        }
+        return runModeConfig.getEnvironmentId();
     }
 
     public ApiScenarioParamConfig getApiScenarioParamConfig(String projectId, ApiScenarioParseParam request, ApiScenarioParseEnvInfo scenarioParseEnvInfo) {
