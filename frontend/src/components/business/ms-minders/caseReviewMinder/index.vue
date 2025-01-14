@@ -534,6 +534,7 @@
       // 重新渲染用例
       initNodeCases(node);
     }
+    setPriorityView(true, 'P');
     emit('handleReviewDone');
   }
 
@@ -555,6 +556,7 @@
     } else if (isCaseTag(selectNode.value.data)) {
       window.minder.execCommand('resource', [statusTagMap[status]]);
     }
+    setPriorityView(true, 'P');
   }
 
   /**
