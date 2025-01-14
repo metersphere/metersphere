@@ -651,7 +651,7 @@
   const envParamBoxRef = ref<InstanceType<typeof EnvParamBox>>();
   function openModalTip(id: string, isNew = false) {
     const tipContent = isNew ? t('project.environmental.env.existNewEnvTip') : t('apiTestDebug.unsavedLeave');
-    const confirmText = isNew ? t('common.save') : t('common.stay');
+    const confirmText = isNew ? t('common.save') : t('common.leave');
     openModal({
       type: 'warning',
       title: t('common.tip'),
