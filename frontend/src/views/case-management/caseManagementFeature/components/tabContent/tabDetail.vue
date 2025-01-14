@@ -16,11 +16,10 @@
             class="px-0"
             @click="prepositionEdit"
           >
-            <MsIcon type="icon-icon_edit_outlined" class="mr-1 font-[16px] text-[rgb(var(--primary-5))]" />{{
-              t('caseManagement.featureCase.contentEdit')
-            }}</a-button
-          ></span
-        >
+            <MsIcon type="icon-icon_edit_outlined" class="mr-1 font-[16px] text-[rgb(var(--primary-5))]" />
+            {{ t('caseManagement.featureCase.contentEdit') }}
+          </a-button>
+        </span>
         <MsRichText
           v-if="isEditPreposition"
           v-model:raw="detailForm.prerequisite"
@@ -34,7 +33,8 @@
           v-else
           v-dompurify-html="detailForm?.prerequisite || '-'"
           class="markdown-body list-item-css !break-words break-all"
-        ></div>
+        >
+        </div>
       </a-form-item>
       <StepDescription v-model:caseEditType="detailForm.caseEditType" :is-test-plan="props.isTestPlan" />
       <!-- 步骤描述 -->
@@ -59,7 +59,8 @@
         v-if="detailForm.caseEditType === 'TEXT' && !isEditPreposition"
         v-dompurify-html="detailForm.textDescription || '-'"
         class="markdown-body !break-words break-all"
-      ></div>
+      >
+      </div>
       <a-form-item
         v-if="detailForm.caseEditType === 'TEXT'"
         field="remark"
@@ -93,8 +94,8 @@
         <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
         <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleOK">
           {{ t('common.save') }}
-        </a-button></div
-      >
+        </a-button>
+      </div>
       <div v-if="!props.isTestPlan" v-permission="['FUNCTIONAL_CASE:READ+UPDATE']">
         <AddAttachment v-model:file-list="fileList" multiple @change="handleChange" @link-file="associatedFile" />
       </div>
