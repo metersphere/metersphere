@@ -834,13 +834,14 @@
       });
     }
     const apiColumnStyles: Record<string, any> = {
-      collectionName: { cellWidth: 140 / PAGE_PDF_WIDTH_RATIO },
+      collectionName: { cellWidth: 120 / PAGE_PDF_WIDTH_RATIO },
       num: { cellWidth: 150 / PAGE_PDF_WIDTH_RATIO },
-      name: { cellWidth: 220 / PAGE_PDF_WIDTH_RATIO },
+      name: { cellWidth: 180 / PAGE_PDF_WIDTH_RATIO },
       executeResult: { cellWidth: 110 / PAGE_PDF_WIDTH_RATIO },
-      planName: { cellWidth: 140 / PAGE_PDF_WIDTH_RATIO },
+      planName: { cellWidth: 120 / PAGE_PDF_WIDTH_RATIO },
       priority: { cellWidth: 80 / PAGE_PDF_WIDTH_RATIO },
-      moduleName: { cellWidth: 140 / PAGE_PDF_WIDTH_RATIO },
+      requestTime: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
+      moduleName: { cellWidth: 120 / PAGE_PDF_WIDTH_RATIO },
       executeUser: { cellWidth: 120 / PAGE_PDF_WIDTH_RATIO },
       bugCount: { cellWidth: 100 / PAGE_PDF_WIDTH_RATIO },
     };
@@ -848,11 +849,11 @@
     if (!isGroup.value && !testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.API_CASE_DETAIL)) {
       delete apiColumnStyles.collectionName;
       delete apiColumnStyles.planName;
-      apiColumnStyles.name.cellWidth = 500 / PAGE_PDF_WIDTH_RATIO;
+      apiColumnStyles.name.cellWidth = 420 / PAGE_PDF_WIDTH_RATIO;
     } else if (isGroup.value && !testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.API_CASE_DETAIL)) {
       delete apiColumnStyles.collectionName;
-      apiColumnStyles.name.cellWidth = 360 / PAGE_PDF_WIDTH_RATIO;
-      apiColumnStyles.planName.cellWidth = 140 / PAGE_PDF_WIDTH_RATIO;
+      apiColumnStyles.name.cellWidth = 300 / PAGE_PDF_WIDTH_RATIO;
+      apiColumnStyles.planName.cellWidth = 120 / PAGE_PDF_WIDTH_RATIO;
     }
     if (fullApiList.value.length > 0) {
       tableArr.push({
@@ -873,14 +874,14 @@
     if (!isGroup.value && !testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.SCENARIO_CASE_DETAIL)) {
       delete scenarioColumnStyles.collectionName;
       delete scenarioColumnStyles.planName;
-      scenarioColumnStyles.name.cellWidth = 500 / PAGE_PDF_WIDTH_RATIO;
+      scenarioColumnStyles.name.cellWidth = 420 / PAGE_PDF_WIDTH_RATIO;
     } else if (
       isGroup.value &&
       !testPlanReportStore.getTestStatus(isGroup.value, ReportCardTypeEnum.SCENARIO_CASE_DETAIL)
     ) {
       delete scenarioColumnStyles.collectionName;
-      scenarioColumnStyles.name.cellWidth = 360 / PAGE_PDF_WIDTH_RATIO;
-      scenarioColumnStyles.planName.cellWidth = 140 / PAGE_PDF_WIDTH_RATIO;
+      scenarioColumnStyles.name.cellWidth = 300 / PAGE_PDF_WIDTH_RATIO;
+      scenarioColumnStyles.planName.cellWidth = 120 / PAGE_PDF_WIDTH_RATIO;
     }
     if (fullScenarioList.value.length > 0) {
       tableArr.push({
