@@ -509,7 +509,6 @@
   // 预览图片
   async function handlePreview(item: MsFileItem) {
     try {
-      previewVisible.value = true;
       if (item.status !== 'init') {
         const res = await previewFile({
           projectId: currentProjectId.value,
@@ -522,6 +521,7 @@
       } else {
         imageUrl.value = item.url || '';
       }
+      previewVisible.value = true;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
