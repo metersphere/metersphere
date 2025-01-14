@@ -55,11 +55,9 @@
         </div>
       </template>
       <template #num="{ record }">
-        <a-tooltip :content="`${record.num}`">
-          <a-button type="text" class="px-0 !text-[14px] !leading-[22px]" @click="openDetail(record.id)">
-            <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
-          </a-button>
-        </a-tooltip>
+        <a-button type="text" class="px-0 !text-[14px] !leading-[22px]" @click="openDetail(record.id)">
+          <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
+        </a-button>
       </template>
       <template #status="{ record }">
         <MsStatusTag :status="record.status" />
