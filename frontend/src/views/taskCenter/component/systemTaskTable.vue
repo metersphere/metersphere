@@ -55,7 +55,7 @@
     </template>
     <template #action="{ record }">
       <MsButton
-        v-if="['API_IMPORT', 'TEST_PLAN', 'API_SCENARIO'].includes(record.resourceType)"
+        v-if="['API_IMPORT', 'TEST_PLAN', 'TEST_PLAN_GROUP', 'API_SCENARIO'].includes(record.resourceType)"
         v-permission="[getCurrentPermission('DELETE')]"
         class="!mr-[12px]"
         @click="deleteTask(record)"
