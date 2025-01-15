@@ -983,7 +983,7 @@ public class BaseTaskHubService {
      */
     public List<BatchExecTaskReportDTO> listBatchTaskReport(BatchExecTaskPageRequest request) {
         List<BatchExecTaskReportDTO> batchReportList;
-        if (StringUtils.equals(ExecTaskType.API_CASE_BATCH.name(), request.getBatchType())) {
+        if (StringUtils.equalsAny(request.getBatchType(), ExecTaskType.API_CASE_BATCH.name(), ExecTaskType.TEST_PLAN_API_CASE_BATCH.name())) {
             batchReportList = extExecTaskItemMapper.list(request, "api_report");
         } else {
             batchReportList = extExecTaskItemMapper.list(request, "api_scenario_report");
