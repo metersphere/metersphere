@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -107,7 +108,7 @@ public class TestPlanBugService extends TestPlanResourceService {
     private void parseCustomField(List<TestPlanBugPageResponse> bugList, String projectId) {
         // MS处理人会与第三方的值冲突, 分开查询
         List<SelectOption> headerOptions = bugCommonService.getHeaderHandlerOption(projectId);
-        Map<String, String> headerHandleUserMap = headerOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+        Map<String, String> headerHandleUserMap = CollectionUtils.isEmpty(headerOptions) ? new HashMap<>() : headerOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
         List<SelectOption> localOptions = bugCommonService.getLocalHandlerOption(projectId);
         Map<String, String> localHandleUserMap = localOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
 
