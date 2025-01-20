@@ -108,7 +108,7 @@ public class BugLogService {
     public LogDTO recoverLog(String id) {
         Bug bug = bugMapper.selectByPrimaryKey(id);
         if (bug != null) {
-            LogDTO dto = new LogDTO(bug.getProjectId(), null, bug.getId(), null, OperationLogType.RECOVER.name(), OperationLogModule.BUG_MANAGEMENT_RECYCLE, bug.getTitle());
+            LogDTO dto = new LogDTO(bug.getProjectId(), null, bug.getId(), null, OperationLogType.RECOVER.name(), OperationLogModule.BUG_MANAGEMENT_INDEX, bug.getTitle());
             dto.setHistory(true);
             dto.setPath("/bug/trash/recover");
             dto.setMethod(HttpMethodConstants.GET.name());
