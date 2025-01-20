@@ -47,7 +47,6 @@ export default defineComponent({
       commentStatus: 'normal',
       replyId: '', // 回复人
     });
-    const expendedIds = ref<string[]>([]); // 展开的评论id
     // 被@的用户id
     const noticeUserIds = ref<string[]>([]);
     const uploadFileIds = ref<string[]>([]);
@@ -102,13 +101,12 @@ export default defineComponent({
       emit('delete', item.id);
     };
 
+    const expendedIds = ref<Set<string | number>>(new Set<string>([]));
     const handleExpend = (val: boolean, id: string) => {
-      if (val) {
-        // 展开
-        expendedIds.value = [...expendedIds.value, id];
+      if (expendedIds.value.has(id)) {
+        expendedIds.value.delete(id);
       } else {
-        // 收起
-        expendedIds.value = expendedIds.value.filter((item) => item !== id);
+        expendedIds.value.add(id);
       }
     };
 
@@ -169,6 +167,7 @@ export default defineComponent({
             onUpdate:status={(v: string) => {
               currentItem.commentStatus = v;
             }}
+            expandKeys={expendedIds.value}
             element={item}
           />
           {item.id === currentItem.id && renderInput(item)}
@@ -192,8 +191,9 @@ export default defineComponent({
               currentItem.commentStatus = v;
             }}
             element={item}
+            expandKeys={expendedIds.value}
           />
-          {expendedIds.value.includes(item.id) && (
+          {expendedIds.value.has(item.id) && (
             <div class="ms-comment-child-container">{renderChildrenList(item.childComments)}</div>
           )}
           {item.id === currentItem.id && renderInput(item)}
