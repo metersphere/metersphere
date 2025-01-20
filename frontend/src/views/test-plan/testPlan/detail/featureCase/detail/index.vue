@@ -169,7 +169,7 @@
                         <a-popover v-else title="" position="left">
                           <a-doption
                             v-if="createdBugCount < 1 && hasAnyPermission(['PROJECT_BUG:READ'])"
-                            :disabled="!hasAnyPermission(['PROJECT_BUG:READ'])"
+                            :disabled="!hasAnyPermission(['PROJECT_BUG:READ']) || createdBugCount < 1"
                             value="link"
                             >{{ t('caseManagement.featureCase.linkDefect') }}</a-doption
                           >
@@ -602,7 +602,7 @@
 
   const createdBugCount = ref<number>(0);
 
-  async function initBugList() {
+  async function getCreateBugTotal() {
     if (!hasAnyPermission(['PROJECT_BUG:READ'])) {
       return;
     }
@@ -651,7 +651,8 @@
         combineSearch,
       };
     }
-    getPlanDetail();
+    await getPlanDetail();
+    await getCreateBugTotal();
     await loadCase();
   });
 
