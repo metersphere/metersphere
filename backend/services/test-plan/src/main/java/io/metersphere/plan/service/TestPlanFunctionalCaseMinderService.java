@@ -101,7 +101,7 @@ public class TestPlanFunctionalCaseMinderService {
                 nodeIds.add(node.getId());
                 getChildrenModuleId(node.getChildren(), nodeIds);
             } else {
-                getModuleId(node.getChildren(), moduleId);
+                nodeIds.addAll(getModuleId(node.getChildren(), moduleId));
             }
         }
         return nodeIds;
