@@ -290,7 +290,7 @@
     NEW_ENV_PARAM,
     NEW_ENV_PARAM_COPY,
   } from '@/store/modules/setting/useProjectEnvStore';
-  import { downloadByteFile } from '@/utils';
+  import { characterLimit, downloadByteFile } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { EnvListItem, PopVisible } from '@/models/projectManagement/environmental';
@@ -562,10 +562,10 @@
     }
 
     const matchingItem = envList.value.find((item) => item.id === id);
-    const itemName = matchingItem ? matchingItem.name : null;
+    const itemName = matchingItem?.name ?? '';
     openModal({
       type: 'error',
-      title: t('project.environmental.env.delete', { name: itemName }),
+      title: t('project.environmental.env.delete', { name: characterLimit(itemName) }),
       content: t('project.environmental.env.deleteTip'),
       okText: t('project.fileManagement.deleteConfirm'),
       okButtonProps: {
@@ -598,10 +598,10 @@
       return;
     }
     const matchingItem = evnGroupList.value.find((item) => item.id === id);
-    const itemName = matchingItem ? matchingItem.name : null;
+    const itemName = matchingItem?.name ?? '';
     openModal({
       type: 'error',
-      title: t('project.environmental.env.deleteGroup', { name: itemName }),
+      title: t('project.environmental.env.deleteGroup', { name: characterLimit(itemName) }),
       content: t('project.environmental.env.deleteGroupTip'),
       okText: t('project.fileManagement.deleteConfirm'),
       okButtonProps: {
