@@ -89,7 +89,7 @@
   const innerInputValue = defineModel<string>('inputValue', {
     default: '',
   });
-  const tagsLength = ref(props.modelValue.length); // 记录每次回车或失去焦点前的tags长度，以判断是否有新的tag被添加，新标签添加时需要判断是否重复的标签
+  const tagsLength = ref((props.modelValue || []).length); // 记录每次回车或失去焦点前的tags长度，以判断是否有新的tag被添加，新标签添加时需要判断是否重复的标签
 
   const isError = computed(
     () =>

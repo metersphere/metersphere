@@ -28,6 +28,7 @@
     :add-type-text="t('project.environmental.env.constantBatchAddTip')"
     :params="innerParams"
     no-param-type
+    :default-param-item="defaultParamItem"
     @apply="handleBatchParamApply"
   />
 </template>
@@ -39,6 +40,8 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  import { filterKeyValParams } from '@/views/api-test/components/utils';
 
   defineOptions({ name: 'EnvManagementAllParams' });
 
@@ -144,13 +147,11 @@
    * 批量参数代码转换为参数表格数据
    */
   function handleBatchParamApply(resultArr: any[]) {
-    resultArr.forEach((item) => {
-      item.paramType = 'CONSTANT';
-    });
-    if (resultArr.length < innerParams.value.length) {
-      innerParams.value.splice(0, innerParams.value.length - 1, ...resultArr);
+    const filterResult = filterKeyValParams(innerParams.value, defaultParamItem);
+    if (filterResult.lastDataIsDefault) {
+      innerParams.value = [...resultArr, innerParams.value[innerParams.value.length - 1]].filter(Boolean);
     } else {
-      innerParams.value = [...resultArr, innerParams.value[innerParams.value.length - 1]];
+      innerParams.value = resultArr.filter(Boolean);
     }
     emit('change');
   }
@@ -186,6 +187,14 @@
       }
     }
   );
+
+  onBeforeMount(() => {
+    searchValue.value = '';
+  });
+
+  onBeforeUnmount(() => {
+    innerParams.value = [...backupParams.value];
+  });
 </script>
 
 <style lang="less" scoped></style>
