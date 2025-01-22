@@ -515,7 +515,7 @@
 
   const selectNode = ref();
   const reviewVisible = ref(false);
-  function handleReviewDone(status: StartReviewStatus | ReviewResult) {
+  async function handleReviewDone(status: StartReviewStatus | ReviewResult) {
     const node = window.minder.getSelectedNode();
     reviewVisible.value = false;
     // 如果是用例，则status是获取后端的值，可直接替换标签
@@ -523,7 +523,7 @@
       window.minder.execCommand('resource', [statusTagMap[status]]);
     } else if (node.data.id === 'NONE') {
       // 处理根节点，重新渲染整个用例树
-      initCaseTree();
+      await initCaseTree();
     } else if (status !== StartReviewStatus.UNDER_REVIEWED && node.data?.resource?.includes(moduleTag)) {
       // TODO 想一个更好的处理方案：只递归处理用例节点，可以保证不折叠原本展开的东西，但多人评审时不知道评审结果标签是啥，调后端又反而增加了负重
       // 处理模块节点
@@ -532,7 +532,7 @@
       // 重新渲染子模块，子模块都收起
       renderSubModules(node, importJson.value.root, modulesCount.value);
       // 重新渲染用例
-      initNodeCases(node);
+      await initNodeCases(node);
     }
     setPriorityView(true, 'P');
     emit('handleReviewDone');

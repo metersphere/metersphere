@@ -666,7 +666,7 @@
   }
 
   // 点击模块/用例/用例的实际结果执行
-  function handleExecuteDone(status: LastExecuteResults, content: string) {
+  async function handleExecuteDone(status: LastExecuteResults, content: string) {
     const curSelectNode = window.minder.getSelectedNode();
     const node = isActualResultNode(curSelectNode) ? curSelectNode.parent : curSelectNode;
     executeVisible.value = false;
@@ -682,7 +682,7 @@
       window.minder.refresh();
     } else if (node.data.id === 'NONE') {
       // 处理根节点，重新渲染整个用例树
-      initCaseTree();
+      await initCaseTree();
     } else if (isModuleOrCollection(node.data)) {
       // TODO 想一个更好的处理方案
       // 处理模块节点
@@ -691,8 +691,9 @@
       // 重新渲染子模块，子模块都收起
       renderSubModules(node, importJson.value.root, modulesCount.value);
       // 重新渲染用例
-      initNodeCases(node);
+      await initNodeCases(node);
     }
+    setPriorityView(true, 'P');
     emit('refreshPlan');
   }
 
@@ -787,6 +788,7 @@
       }
     });
     caseNodeAboveSelectStep.value.layout();
+    setPriorityView(true, 'P');
   }
   /**
    * 步骤/用例执行
