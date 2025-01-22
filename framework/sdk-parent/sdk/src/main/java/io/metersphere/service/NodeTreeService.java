@@ -74,7 +74,7 @@ public class NodeTreeService<T extends TreeNodeDTO> {
         nodeTree.setCreateTime(currentNode.getCreateTime());
         nodeTree.setUpdateTime(currentNode.getUpdateTime());
         nodeTree.setPos(currentNode.getPos());
-        nodeTree.setLabel(currentNode.getLabel());
+        nodeTree.setLabel(currentNode.getName());
         nodeTree.setChildren(currentNode.getChildren());
         nodeTree.setCaseNum(currentNode.getCaseNum());
 
