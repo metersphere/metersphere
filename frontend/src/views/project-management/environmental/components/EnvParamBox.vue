@@ -36,8 +36,10 @@
       />
     </div>
     <div class="content w-full">
-      <EnvParamsTab v-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_PARAM" v-model:keyword="envKeyword" />
-      <HttpTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_HTTP" />
+      <div v-show="activeKey === EnvTabTypeEnum.ENVIRONMENT_PARAM">
+        <EnvParamsTab v-model:keyword="envKeyword" />
+      </div>
+      <HttpTab v-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_HTTP" />
       <DataBaseTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_DATABASE" />
       <HostTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_HOST" ref="hostTabRef" />
       <div
@@ -309,6 +311,9 @@
   const handleTabChange = (key: string | number) => {
     if (key === 'SETTING') {
       tabSettingVisible.value = true;
+    }
+    if (key === EnvTabTypeEnum.ENVIRONMENT_PARAM) {
+      envKeyword.value = '';
     }
   };
 

@@ -187,14 +187,6 @@
       }
     }
   );
-
-  onBeforeMount(() => {
-    searchValue.value = '';
-  });
-
-  onBeforeUnmount(() => {
-    innerParams.value = [...backupParams.value];
-  });
 </script>
 
 <style lang="less" scoped></style>
