@@ -46,60 +46,58 @@ public class NodeTreeService<T extends TreeNodeDTO> {
     }
 
     public List<T> getNodeTrees(List<T> nodes, Map<String, Integer> countMap) {
-        List<T> nodeTreeList = new ArrayList<>();
-        Map<Integer, List<T>> nodeLevelMap = new HashMap<>();
-        nodes.forEach(node -> {
-            Integer level = node.getLevel();
-            if (nodeLevelMap.containsKey(level)) {
-                nodeLevelMap.get(level).add(node);
-            } else {
-                List<T> testCaseNodes = new ArrayList<>();
-                testCaseNodes.add(node);
-                nodeLevelMap.put(node.getLevel(), testCaseNodes);
-            }
-        });
-        List<T> rootNodes = Optional.ofNullable(nodeLevelMap.get(1)).orElse(new ArrayList<>());
-        rootNodes.forEach(rootNode -> nodeTreeList.add(buildNodeTree(nodeLevelMap, rootNode, countMap)));
-        return nodeTreeList;
+
+        Map<Integer, List<T>> nodeLevelMap = nodes.stream()
+                .collect(Collectors.groupingBy(TreeNodeDTO::getLevel));
+
+        Map<String, List<T>> childrenByParentId = nodes.stream()
+                .filter(node -> node.getParentId() != null)
+                .collect(Collectors.groupingBy(TreeNodeDTO::getParentId));
+
+        List<T> rootNodes = nodeLevelMap.getOrDefault(1, Collections.emptyList());
+
+        List<T> result = new ArrayList<>(rootNodes.size());
+        for (T rootNode : rootNodes) {
+            result.add(buildNodeTree(childrenByParentId, rootNode, countMap));
+        }
+
+        return result;
     }
 
-    /**
-     * 递归构建节点树
-     * 并统计设置 CaseNum
-     *
-     * @param nodeLevelMap
-     * @param rootNode
-     * @return
-     */
-    public T buildNodeTree(Map<Integer, List<T>> nodeLevelMap, T rootNode, Map<String, Integer> countMap) {
-
+    public T buildNodeTree(Map<String, List<T>> childrenByParentId, T currentNode, Map<String, Integer> countMap) {
         T nodeTree = getClassInstance();
-        BeanUtils.copyBean(nodeTree, rootNode);
-        nodeTree.setLabel(rootNode.getName());
+        nodeTree.setId(currentNode.getId());
+        nodeTree.setProjectId(currentNode.getProjectId());
+        nodeTree.setName(currentNode.getName());
+        nodeTree.setParentId(currentNode.getParentId());
+        nodeTree.setLevel(currentNode.getLevel());
+        nodeTree.setCreateTime(currentNode.getCreateTime());
+        nodeTree.setUpdateTime(currentNode.getUpdateTime());
+        nodeTree.setPos(currentNode.getPos());
+        nodeTree.setLabel(currentNode.getLabel());
+        nodeTree.setChildren(currentNode.getChildren());
+        nodeTree.setCaseNum(currentNode.getCaseNum());
+
         setCaseNum(countMap, nodeTree);
 
-        List<T> lowerNodes = nodeLevelMap.get(rootNode.getLevel() + 1);
-        if (lowerNodes == null) {
-            return nodeTree;
-        }
-
-        List<T> children = new ArrayList<>();
-
-        lowerNodes.forEach(node -> {
-            if (node.getParentId() != null && node.getParentId().equals(rootNode.getId())) {
-                children.add(buildNodeTree(nodeLevelMap, node, countMap));
-                nodeTree.setChildren(children);
+        List<T> children = childrenByParentId.getOrDefault(currentNode.getId(), Collections.emptyList());
+        if (!children.isEmpty()) {
+            List<T> childNodes = new ArrayList<>(children.size());
+            for (T child : children) {
+                childNodes.add(buildNodeTree(childrenByParentId, child, countMap));
             }
-        });
-        if (countMap != null && CollectionUtils.isNotEmpty(children)) {
-            Integer childrenCount = children.stream().map(TreeNodeDTO::getCaseNum).reduce(Integer::sum).get();
-            nodeTree.setCaseNum(nodeTree.getCaseNum() + childrenCount);
+
+            nodeTree.setChildren(childNodes);
+
+            if (countMap != null) {
+                int childrenCount = 0;
+                for (T childNode : childNodes) {
+                    childrenCount += childNode.getCaseNum();
+                }
+                nodeTree.setCaseNum(nodeTree.getCaseNum() + childrenCount);
+            }
         }
         return nodeTree;
-    }
-
-    public T buildNodeTree(Map<Integer, List<T>> nodeLevelMap, T rootNode) {
-        return buildNodeTree(nodeLevelMap, rootNode, null);
     }
 
     private void setCaseNum(Map<String, Integer> countMap, T nodeTree) {
