@@ -222,10 +222,11 @@
     } else {
       await getApiDetail();
     }
+    const apiRequestInfo = apiDetailInfo.value.request || apiDetailInfo.value;
     if (!isCopy && !record && apiDetailInfo.value.protocol === 'HTTP') {
       // 创建用例需要复制文件
       let copyFilesMap: Record<string, any> = {};
-      const fileIds = parseRequestBodyFiles(apiDetailInfo.value.request.body, [], [], []).uploadFileIds;
+      const fileIds = parseRequestBodyFiles(apiRequestInfo.body, [], [], []).uploadFileIds;
       if (fileIds.length > 0) {
         try {
           copyFilesMap = await definitionFileCopy({
@@ -237,7 +238,7 @@
           console.log(error);
         }
       }
-      parseRequestBodyFiles(apiDetailInfo.value.request.body, [], [], [], copyFilesMap); // 替换请求文件 id
+      parseRequestBodyFiles(apiRequestInfo.body, [], [], [], copyFilesMap); // 替换请求文件 id
     }
     // 创建的时候，请求参数为接口定义的请求参数
     environmentId.value = appStore.currentEnvConfig?.id;
@@ -245,16 +246,16 @@
       ...cloneDeep(defaultDetail.value),
       ...(apiDetailInfo.value.protocol === 'HTTP'
         ? {
-            headers: apiDetailInfo.value.headers ?? apiDetailInfo.value.request.headers,
-            body: apiDetailInfo.value?.body ?? apiDetailInfo.value.request.body,
-            rest: apiDetailInfo.value.rest ?? apiDetailInfo.value.request.rest,
-            query: apiDetailInfo.value.query ?? apiDetailInfo.value.request.query,
-            authConfig: apiDetailInfo.value.authConfig ?? apiDetailInfo.value.request.authConfig,
-            otherConfig: apiDetailInfo.value.otherConfig ?? apiDetailInfo.value.request.otherConfig,
-            url: apiDetailInfo.value.url ?? apiDetailInfo.value.request.url,
+            headers: apiDetailInfo.value.headers ?? apiRequestInfo.headers,
+            body: apiDetailInfo.value?.body ?? apiRequestInfo.body,
+            rest: apiDetailInfo.value.rest ?? apiRequestInfo.rest,
+            query: apiDetailInfo.value.query ?? apiRequestInfo.query,
+            authConfig: apiDetailInfo.value.authConfig ?? apiRequestInfo.authConfig,
+            otherConfig: apiDetailInfo.value.otherConfig ?? apiRequestInfo.otherConfig,
+            url: apiDetailInfo.value.url ?? apiRequestInfo.url,
           }
         : apiDetailInfo.value),
-      children: apiDetailInfo.value.children ?? apiDetailInfo.value.request.children,
+      children: apiDetailInfo.value.children ?? apiRequestInfo.children,
     };
     // 复制
     if (isCopy) {
