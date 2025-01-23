@@ -14,4 +14,22 @@
       #{id}
     </foreach>
   </select>
+
+  <insert id="insertBatch" parameterType="java.util.List">
+    INSERT INTO relationship_edge (source_id, target_id, type, graph_id, creator, create_time)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{item.sourceId}, #{item.targetId}, #{item.type}, #{item.graphId}, #{item.creator}, #{item.createTime})
+    </foreach>
+  </insert>
+
+  <update id="batchUpdateGraphId" parameterType="java.util.Map">
+    UPDATE relationship_edge
+    SET graph_id = #{graphId}
+    WHERE (source_id, target_id) IN
+    <foreach collection="items" item="item" separator="," open="(" close=")">
+      (#{item.sourceId}, #{item.targetId})
+    </foreach>
+  </update>
+
 </mapper>

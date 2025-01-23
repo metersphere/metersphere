@@ -206,6 +206,11 @@ public class RelationshipEdgeService {
      * @param request
      */
     public void saveBatch(RelationshipEdgeRequest request) {
+
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        RelationshipEdgeMapper batchMapper = sqlSession.getMapper(RelationshipEdgeMapper.class);
+        BaseRelationshipEdgeMapper baseBatchMapper = sqlSession.getMapper(BaseRelationshipEdgeMapper.class);
+
         String graphId = UUID.randomUUID().toString();
         LogUtil.info("saveBatch graphId: " + graphId);
         List<RelationshipEdge> relationshipEdges = getEdgesBySaveRequest(request);
@@ -232,36 +237,77 @@ public class RelationshipEdgeService {
         HashSet<String> nodeIds = new HashSet<>();
         nodeIds.addAll(relationshipEdges.stream().map(RelationshipEdge::getSourceId).collect(Collectors.toSet()));
         nodeIds.addAll(relationshipEdges.stream().map(RelationshipEdge::getTargetId).collect(Collectors.toSet()));
-        // 判断是否有环
-        HashSet<String> visitedSet = new HashSet<>();
-        nodeIds.forEach(nodeId -> {
-            if (!visitedSet.contains(nodeId) && directedCycle(nodeId, relationshipEdges, new HashSet<>(), visitedSet)) {
-                MSException.throwException("关联后存在循环依赖，请检查依赖关系");
+
+        // 构建邻接表
+        Map<String, List<String>> adjacencyList = new HashMap<>();
+        for (RelationshipEdge edge : relationshipEdges) {
+            String source = edge.getSourceId();
+            String target = edge.getTargetId();
+            adjacencyList.computeIfAbsent(source, k -> new ArrayList<>()).add(target);
+        }
+
+        // 环检测颜色标记
+        Map<String, Integer> colors = new HashMap<>();
+        for (String nodeId : nodeIds) {
+            if (colors.getOrDefault(nodeId, 0) == 0) {
+                if (hasCycle(nodeId, adjacencyList, colors)) {
+                    MSException.throwException("关联后存在循环依赖，请检查依赖关系");
+                }
             }
-        });
+        }
 
-        LogUtil.info("开始合并图内容");
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        RelationshipEdgeMapper batchMapper = sqlSession.getMapper(RelationshipEdgeMapper.class);
-
+        List<RelationshipEdge> insertBatchList = new ArrayList<>(), updateBatchList = new ArrayList<>();
         relationshipEdges.forEach(item -> {
             if (addEdgesIds.contains(item.getSourceId() + item.getTargetId())) {
                 if (batchMapper.selectByPrimaryKey(item) == null) {
-                    batchMapper.insert(item);
+                    insertBatchList.add(item);
                 } else {
                     item.setGraphId(graphId); // 把原来图的id设置成合并后新的图的id
-                    batchMapper.updateByPrimaryKey(item);
+                    updateBatchList.add(item);
                 }
             } else {
                 item.setGraphId(graphId); // 把原来图的id设置成合并后新的图的id
-                batchMapper.updateByPrimaryKey(item);
+                updateBatchList.add(item);
             }
         });
 
+        int batchSize = 1000;
+        for (int i = 0; i < insertBatchList.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, insertBatchList.size());
+            List<RelationshipEdge> subList = insertBatchList.subList(i, end);
+            baseBatchMapper.insertBatch(subList);
+        }
+
+        for (int i = 0; i < updateBatchList.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, updateBatchList.size());
+            List<RelationshipEdge> subList = updateBatchList.subList(i, end);
+            Map<String, Object> params = new HashMap<>();
+            params.put("graphId", graphId);
+            params.put("items", subList);
+            baseBatchMapper.batchUpdateGraphId(params);
+        }
+
         sqlSession.flushStatements();
-        if (sqlSessionFactory != null) {
+        if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
+    }
+
+    private boolean hasCycle(String start, Map<String, List<String>> adjacencyList, Map<String, Integer> colors) {
+        if (colors.getOrDefault(start, 0) == 1) {
+            return true; // 发现环
+        }
+        if (colors.getOrDefault(start, 0) == 2) {
+            return false; // 已经访问过，没有环
+        }
+        colors.put(start, 1); // 标记为正在访问
+        for (String neighbor : adjacencyList.getOrDefault(start, Collections.emptyList())) {
+            if (hasCycle(neighbor, adjacencyList, colors)) {
+                return true;
+            }
+        }
+        colors.put(start, 2); // 标记为已访问
+        return false;
     }
 
     private RelationshipEdge getNewRelationshipEdge(String graphId, String sourceId, String targetId, String type) {
