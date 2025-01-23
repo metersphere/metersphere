@@ -103,7 +103,7 @@
   );
 
   onBeforeMount(async () => {
-    if (!route.query.type) {
+    if (!Object.values(TaskCenterEnum).includes(route.query.type as TaskCenterEnum)) {
       const localTab = await getItem('taskCenterActiveTab');
       if (tabList.value.some((e) => e.value === localTab)) {
         activeTab.value = (localTab as TaskCenterEnum) || TaskCenterEnum.CASE;
