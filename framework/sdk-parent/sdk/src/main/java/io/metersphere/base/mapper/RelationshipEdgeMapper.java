@@ -6,6 +6,7 @@ import io.metersphere.base.domain.RelationshipEdgeKey;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RelationshipEdgeMapper {
     long countByExample(RelationshipEdgeExample example);
@@ -29,4 +30,9 @@ public interface RelationshipEdgeMapper {
     int updateByPrimaryKeySelective(RelationshipEdge record);
 
     int updateByPrimaryKey(RelationshipEdge record);
+
+    int insertBatch(List<RelationshipEdge> subList);
+
+    int batchUpdateGraphId(Map<String, Object> params);
+
 }
