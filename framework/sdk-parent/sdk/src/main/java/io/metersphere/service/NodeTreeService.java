@@ -46,13 +46,14 @@ public class NodeTreeService<T extends TreeNodeDTO> {
 
     public List<T> getNodeTrees(List<T> nodes, Map<String, Integer> countMap) {
 
-        Map<Integer, List<T>> nodeLevelMap = nodes.stream()
-                .collect(Collectors.groupingBy(TreeNodeDTO::getLevel));
-
+        // parentId group 优化查找子节点速度
         Map<String, List<T>> childrenByParentId = nodes.stream()
                 .filter(node -> node.getParentId() != null)
                 .collect(Collectors.groupingBy(TreeNodeDTO::getParentId));
 
+        // 获取根节点
+        Map<Integer, List<T>> nodeLevelMap = nodes.stream()
+                .collect(Collectors.groupingBy(TreeNodeDTO::getLevel));
         List<T> rootNodes = nodeLevelMap.getOrDefault(1, Collections.emptyList());
 
         List<T> result = new ArrayList<>(rootNodes.size());
@@ -63,6 +64,15 @@ public class NodeTreeService<T extends TreeNodeDTO> {
         return result;
     }
 
+    /**
+     * 递归构建节点树
+     * 并统计设置 CaseNum
+     *
+     * @param childrenByParentId
+     * @param currentNode
+     * @param countMap
+     * @return
+     */
     public T buildNodeTree(Map<String, List<T>> childrenByParentId, T currentNode, Map<String, Integer> countMap) {
         T nodeTree = getClassInstance();
         nodeTree.setId(currentNode.getId());
@@ -79,6 +89,7 @@ public class NodeTreeService<T extends TreeNodeDTO> {
 
         setCaseNum(countMap, nodeTree);
 
+        // 查找子节点
         List<T> children = childrenByParentId.getOrDefault(currentNode.getId(), Collections.emptyList());
         if (!children.isEmpty()) {
             List<T> childNodes = new ArrayList<>(children.size());
