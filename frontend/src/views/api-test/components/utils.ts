@@ -12,6 +12,7 @@ import { RequestBodyFormat, RequestConditionProcessor, RequestParamsType } from 
 import {
   defaultBodyParams,
   defaultBodyParamsItem,
+  defaultExtractParamItem,
   defaultHeaderParamsItem,
   defaultKeyValueParamItem,
   defaultRequestParamsItem,
@@ -251,10 +252,16 @@ export function filterConditionsSqlValidParams(condition: ExecuteConditionConfig
     if (processor.processorType === RequestConditionProcessor.SQL) {
       processor.extractParams = filterKeyValParams(processor.extractParams || [], defaultKeyValueParamItem).validParams;
     } else if (processor.processorType === RequestConditionProcessor.EXTRACT && processor.extractors) {
-      processor.extractors = filterKeyValParams(
-        processor.extractors,
-        processor.extractors[processor.extractors.length - 1]
-      ).validParams;
+      const defaultExtractorItem = cloneDeep(
+        processor.extractors.length
+          ? {
+              ...defaultExtractParamItem,
+              variableType: processor.extractors[processor.extractors.length - 1].variableType,
+              extractType: processor.extractors[processor.extractors.length - 1].extractType,
+            }
+          : defaultExtractParamItem
+      );
+      processor.extractors = filterKeyValParams(processor.extractors, defaultExtractorItem).validParams;
     }
     return processor;
   });
