@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.1</version>
+        <version>3.4.2</version>
         <relativePath/>
     </parent>
 
@@ -53,7 +53,7 @@
         <flatten.version>1.6.0</flatten.version>
         <jmeter.version>5.6.3</jmeter.version>
         <codehaus-groovy.version>3.0.20</codehaus-groovy.version>
-        <metersphere-scriptengine.version>1.2.1</metersphere-scriptengine.version>
+        <metersphere-scriptengine.version>1.2.2</metersphere-scriptengine.version>
         <docker-java.version>3.3.4</docker-java.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <hessian-lite.version>3.2.13</hessian-lite.version>
