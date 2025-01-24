@@ -250,6 +250,11 @@ export function filterConditionsSqlValidParams(condition: ExecuteConditionConfig
   conditionCopy.processors = conditionCopy.processors.map((processor) => {
     if (processor.processorType === RequestConditionProcessor.SQL) {
       processor.extractParams = filterKeyValParams(processor.extractParams || [], defaultKeyValueParamItem).validParams;
+    } else if (processor.processorType === RequestConditionProcessor.EXTRACT && processor.extractors) {
+      processor.extractors = filterKeyValParams(
+        processor.extractors,
+        processor.extractors[processor.extractors.length - 1]
+      ).validParams;
     }
     return processor;
   });

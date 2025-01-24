@@ -517,7 +517,6 @@
 
   import {
     ExecuteApiRequestFullParams,
-    ExecuteConditionConfig,
     ExecuteRequestParams,
     PluginConfig,
     RequestTaskResult,
@@ -530,7 +529,6 @@
     RequestBodyFormat,
     RequestCaseStatus,
     RequestComposition,
-    RequestConditionProcessor,
     RequestMethods,
   } from '@/enums/apiEnum';
 
@@ -539,13 +537,17 @@
     casePriorityOptions,
     caseStatusOptions,
     defaultBodyParamsItem,
-    defaultExtractParamItem,
     defaultHeaderParamsItem,
     defaultKeyValueParamItem,
     defaultRequestParamsItem,
     defaultResponse,
   } from '@/views/api-test/components/config';
-  import { filterAssertions, filterKeyValParams, parseRequestBodyFiles } from '@/views/api-test/components/utils';
+  import {
+    filterAssertions,
+    filterConditionsSqlValidParams,
+    filterKeyValParams,
+    parseRequestBodyFiles,
+  } from '@/views/api-test/components/utils';
   import type { Api } from '@form-create/arco-design';
 
   // 懒加载Http协议组件
@@ -1001,25 +1003,6 @@
       }
     }
   );
-
-  function filterConditionsSqlValidParams(condition: ExecuteConditionConfig) {
-    const conditionCopy = cloneDeep(condition);
-    conditionCopy.processors = conditionCopy.processors.map((processor) => {
-      if (processor.processorType === RequestConditionProcessor.SQL) {
-        processor.extractParams = filterKeyValParams(
-          processor.extractParams || [],
-          defaultKeyValueParamItem
-        ).validParams;
-      } else if (processor.processorType === RequestConditionProcessor.EXTRACT && processor.extractors) {
-        processor.extractors = filterKeyValParams(
-          processor.extractors,
-          processor.extractors[processor.extractors.length - 1]
-        ).validParams;
-      }
-      return processor;
-    });
-    return conditionCopy;
-  }
 
   const reportId = ref('');
   const websocket = ref<WebSocket>();
