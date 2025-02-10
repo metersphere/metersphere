@@ -498,13 +498,13 @@ public class ApiExecutionQueueService {
             });
         }
 
-        List<String> testPlanReports = extApiExecutionQueueMapper.findTestPlanRunningReport();
+       /* List<String> testPlanReports = extApiExecutionQueueMapper.findTestPlanRunningReport();
         if (CollectionUtils.isNotEmpty(testPlanReports)) {
             testPlanReports.forEach(reportId -> {
                 LoggerUtil.info("Compensation Test Plan Report：【" + reportId + "】");
                 checkTestPlanCaseTestEnd(null, null, reportId);
             });
-        }
+        }*/
     }
 
     public void clearSetReportQueue(String reportId) {
