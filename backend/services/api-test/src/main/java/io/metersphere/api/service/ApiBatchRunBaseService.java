@@ -269,6 +269,7 @@ public class ApiBatchRunBaseService {
                 apiExecuteService.batchExecute(taskRequest);
                 taskRequest.setTaskItems(null);
                 count = 0;
+                taskItems.clear();
             }
         }
 
