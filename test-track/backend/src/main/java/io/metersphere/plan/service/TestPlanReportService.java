@@ -1054,6 +1054,7 @@ public class TestPlanReportService {
         if (ObjectUtils.anyNull(testPlanReport, testPlanReportContent)) {
             return testPlanReportDTO;
         }
+
         if (this.isDynamicallyGenerateReports(testPlanReportContent) || StringUtils.isNotEmpty(testPlanReportContent.getApiBaseCount())) {
             TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
             testPlanReportDTO = testPlanService.generateReportStruct(testPlan, testPlanReport, testPlanReportContent, false);
@@ -1063,6 +1064,7 @@ public class TestPlanReportService {
         if (StringUtils.isNotEmpty(testPlanReportContent.getSummary())) {
             testPlanReportDTO.setSummary(testPlanReportContent.getSummary());
         }
+        testPlanReportDTO.setStatus(testPlanReport.getStatus());
         testPlanReportDTO.setId(reportId);
         testPlanReportDTO.setName(testPlanReport.getName());
         return testPlanReportDTO;

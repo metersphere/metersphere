@@ -26,7 +26,7 @@ public class TestPlanReportDataStruct extends TestPlanReportContent {
     private int passCount;
     private String summary;
     private String config;
-
+    private String status;
     /**
      * 运行环境信息
      * runMode:运行模式  并行/串行

@@ -224,12 +224,15 @@ export default {
       return !disable;
     },
     isRerun() {
+      const isReportNotRunning =
+        this.report && this.report.status !== "RUNNING";
       return (
-        (this.report && this.report.apiFailureCases) ||
-        (this.report && this.report.unExecuteCases) ||
-        (this.report && this.report.scenarioFailureCases) ||
-        (this.report && this.report.unExecuteScenarios) ||
-        (this.report && this.report.loadFailureCases)
+        isReportNotRunning &&
+        (this.report.apiFailureCases ||
+          this.report.unExecuteCases ||
+          this.report.scenarioFailureCases ||
+          this.report.unExecuteScenarios ||
+          this.report.loadFailureCases)
       );
     },
   },

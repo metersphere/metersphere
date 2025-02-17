@@ -27,16 +27,14 @@ public class TestPlanRerunService {
         }
         if (StringUtils.equalsAnyIgnoreCase(parametersDTO.getType(), ReportTypeConstants.TEST_PLAN.name())) {
             TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(parametersDTO.getReportId());
-            if (StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name())) {
+            if (StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name(), APITestStatus.Running.name())) {
                 return Translator.get("rerun_warning");
             }
-            if (testPlanReport != null) {
-                parametersDTO.setTestPlanReport(testPlanReport);
-                rerunResult = apiRerunService.rerun(parametersDTO);
-                if (StringUtils.equalsIgnoreCase(rerunResult, ApiReportStatus.SUCCESS.name())) {
-                    testPlanReport.setStatus(APITestStatus.Rerunning.name());
-                    testPlanReportMapper.updateByPrimaryKey(testPlanReport);
-                }
+            parametersDTO.setTestPlanReport(testPlanReport);
+            rerunResult = apiRerunService.rerun(parametersDTO);
+            if (StringUtils.equalsIgnoreCase(rerunResult, ApiReportStatus.SUCCESS.name())) {
+                testPlanReport.setStatus(APITestStatus.Rerunning.name());
+                testPlanReportMapper.updateByPrimaryKey(testPlanReport);
             }
         } else {
             return Translator.get("rerun_warning");
