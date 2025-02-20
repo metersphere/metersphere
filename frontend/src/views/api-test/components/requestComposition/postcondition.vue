@@ -61,13 +61,18 @@
 
   const conditionTypes = computed(() => {
     if (props.isDefinition) {
-      return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.SQL, RequestConditionProcessor.EXTRACT];
+      return [
+        RequestConditionProcessor.SCRIPT,
+        RequestConditionProcessor.SQL,
+        RequestConditionProcessor.EXTRACT,
+        RequestConditionProcessor.TIME_WAITING,
+      ];
     }
     // 接口场景
     if (props.isScenario) {
-      return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.SQL];
+      return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.SQL, RequestConditionProcessor.TIME_WAITING];
     }
-    return [RequestConditionProcessor.SCRIPT];
+    return [RequestConditionProcessor.SCRIPT, RequestConditionProcessor.TIME_WAITING];
   });
 
   const conditionRef = ref<InstanceType<typeof condition>>();
