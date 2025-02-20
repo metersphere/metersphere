@@ -63,6 +63,7 @@ export default {
   'project.processor.paramEnvironmentSetGlobalVariable': '设置环境参数',
   'project.processor.insertPublicScript': '插入公共脚本',
   'project.processor.terminationTest': '终止测试',
+  'project.processor.print': '打印',
   'project.processor.code_hide_report_length': '隐藏报文长度',
   'project.processor.code_add_report_length': '报文头添加长度',
   'project.processor.current': '当前',

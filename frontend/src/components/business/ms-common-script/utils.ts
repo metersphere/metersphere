@@ -63,6 +63,10 @@ export function getScriptMenu(SemicolonStr: string) {
       value: 'api_stop',
       command: 'api_stop',
     },
+    {
+      title: t('project.processor.print'),
+      value: `log.info("variable_name:\${variable_value}");`,
+    },
   ];
 }
 

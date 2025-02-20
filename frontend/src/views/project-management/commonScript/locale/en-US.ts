@@ -62,6 +62,7 @@ export default {
   'project.processor.paramEnvironmentSetGlobalVariable': 'Set run environment param',
   'project.processor.insertPublicScript': 'Insert the public script',
   'project.processor.terminationTest': 'Termination test',
+  'project.processor.print': 'Print',
   'project.processor.code_hide_report_length': 'Hide report length',
   'project.processor.code_add_report_length': 'Add report length to head',
   'project.processor.current': 'current',
