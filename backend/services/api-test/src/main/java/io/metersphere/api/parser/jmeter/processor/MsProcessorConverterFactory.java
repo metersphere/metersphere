@@ -30,7 +30,7 @@ public class MsProcessorConverterFactory {
 
         postConverterMap.put(ScriptProcessor.class, new ScriptPostProcessorConverter());
         postConverterMap.put(SQLProcessor.class, new SqlPostProcessorConverter());
-        postConverterMap.put(TimeWaitingProcessor.class, new TimeWaitingProcessorConverter());
+        postConverterMap.put(TimeWaitingProcessor.class, new TimeWaitingPostProcessorConverter());
         postConverterMap.put(ExtractPostProcessor.class, new ExtractPostProcessorConverter());
         postConverterMap.put(EnvRequestScriptProcessor.class, new ScriptPostProcessorConverter());
         postConverterMap.put(EnvScenarioScriptProcessor.class, new ScenarioScriptProcessorConverter());
