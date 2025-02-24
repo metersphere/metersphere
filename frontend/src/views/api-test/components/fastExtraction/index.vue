@@ -299,9 +299,6 @@
                 res = JSON.stringify(e)
                   .replace(/Number\(([^)]+)\)/g, '$1')
                   .replace(/^"|"$/g, '');
-                if (!Number.isNaN(Number(res))) {
-                  res = Number(res);
-                }
               }
               return res;
             });
