@@ -6,7 +6,7 @@ import useAppStore from '@/store/modules/app';
 import { ReviewUserItem } from '@/models/caseManagement/caseReview';
 
 import { VueRenderer } from '@halo-dev/richtext-editor';
-import type { Instance } from 'tippy.js';
+import type { Content, Instance } from 'tippy.js';
 import tippy from 'tippy.js';
 
 const appStore = useAppStore();
@@ -53,7 +53,7 @@ export default {
         popup = tippy('body', {
           getReferenceClientRect: props.clientRect,
           appendTo: () => document.body,
-          content: component.element,
+          content: component.element as Content, // FIX TS ERROR
           showOnCreate: true,
           interactive: true,
           trigger: 'manual',

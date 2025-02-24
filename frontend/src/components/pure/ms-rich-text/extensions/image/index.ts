@@ -118,7 +118,7 @@ const Image = TiptapImage.extend<ExtensionOptions & ImageOptions>({
   },
 
   addNodeView() {
-    return VueNodeViewRenderer(ImageView);
+    return VueNodeViewRenderer(ImageView as Component);
   },
 
   parseHTML() {

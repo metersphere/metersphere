@@ -17,7 +17,7 @@
       @expand="(rowKey, record) => emit('expand', record)"
       @change="(data: TableData[], extra: TableChangeExtra, currentData: TableData[]) => handleDragChange(data, extra, currentData)"
       @sorter-change="(dataIndex: string,direction: string) => handleSortChange(dataIndex, direction)"
-      @cell-click="(record: TableData,column: TableColumnData,ev: Event) => emit('cell-click',record, column,ev)"
+      @cell-click="(record: TableData,column: TableColumnData,ev: Event) => emit('cellClick',record, column,ev)"
       @column-resize="columnResize"
     >
       <template #optional="{ rowIndex, record }">
@@ -386,7 +386,7 @@
     (e: 'dragChange', value: DragSortParams): void;
     (e: 'sorterChange', value: { [key: string]: string }): void;
     (e: 'expand', record: TableData): void | Promise<any>;
-    (e: 'cell-click', record: TableData, column: TableColumnData, ev: Event): void | Promise<any>;
+    (e: 'cellClick', record: TableData, column: TableColumnData, ev: Event): void | Promise<any>;
     (e: 'clearSelector'): void;
     (e: 'enableChange', record: any, newValue: string | number | boolean): void;
     (

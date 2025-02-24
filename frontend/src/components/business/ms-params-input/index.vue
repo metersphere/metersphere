@@ -196,9 +196,9 @@
         {{ t('ms.paramsInput.value') }}
       </div>
       <div class="ms-params-popover-value mb-[8px]">
-        {{ innerValue }}
+        {{ value }}
       </div>
-      <template v-if="/^@/.test(innerValue)">
+      <template v-if="/^@/.test(value)">
         <div class="ms-params-popover-subtitle">
           {{ t('ms.paramsInput.preview') }}
         </div>
@@ -209,7 +209,7 @@
     </template>
     <a-auto-complete
       ref="autoCompleteRef"
-      v-model:model-value="innerValue"
+      v-model:model-value="value"
       :disabled="props.disabled"
       :data="autoCompleteParams"
       :placeholder="t('ms.paramsInput.placeholder', { at: '@' })"
@@ -253,7 +253,7 @@
 </template>
 
 <script setup lang="ts">
-  import { useEventListener, useStorage, useVModel } from '@vueuse/core';
+  import { useEventListener, useStorage } from '@vueuse/core';
   import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -277,7 +277,6 @@
   import type { AutoComplete, FormInstance } from '@arco-design/web-vue';
 
   const props = defineProps<{
-    value: string;
     disabled?: boolean;
     size?: 'small' | 'large' | 'medium' | 'mini';
     setDefaultClass?: boolean;
@@ -291,7 +290,9 @@
   }>();
 
   const { t } = useI18n();
-  const innerValue = useVModel(props, 'value', emit);
+  const value = defineModel<string>('value', {
+    required: true,
+  });
   const autoCompleteParams = ref<MockParamItem[]>([]);
   const isFocusAutoComplete = ref(false);
   const popoverVisible = ref(false);
@@ -371,11 +372,7 @@
   });
 
   const disabledPopover = computed(() => {
-    return (
-      !innerValue.value ||
-      (typeof innerValue.value === 'string' && innerValue.value.trim() === '') ||
-      isFocusAutoComplete.value
-    );
+    return !value.value || (typeof value.value === 'string' && value.value.trim() === '') || isFocusAutoComplete.value;
   });
 
   const paramSettingVisible = ref(false);
@@ -483,17 +480,17 @@
    * 打开变量设置弹窗
    */
   function openParamSetting() {
-    if (/^\$/.test(innerValue.value)) {
+    if (/^\$/.test(value.value)) {
       // 如果是 JMeter 变量
       paramSettingType.value = 'jmeter';
-      if (JMeterAllVars.findIndex((e) => e.value === innerValue.value) !== -1) {
-        paramForm.value.JMeterType = innerValue.value;
+      if (JMeterAllVars.findIndex((e) => e.value === value.value) !== -1) {
+        paramForm.value.JMeterType = value.value;
       } else {
         paramForm.value.JMeterType = '';
       }
-    } else if (/^@/.test(innerValue.value)) {
+    } else if (/^@/.test(value.value)) {
       // 如果是 Mock 变量
-      const valueArr = innerValue.value.split('|'); // 分割 mock变量和函数
+      const valueArr = value.value.split('|'); // 分割 mock变量和函数
       if (valueArr[0]) {
         // 匹配@开头的变量名
         const variableRegex = /@([a-zA-Z]+)(?:\(([^)]*)\))?/;
@@ -636,14 +633,14 @@
   watch(
     () => popoverVisible.value,
     (val) => {
-      if (val && /^@/.test(innerValue.value)) {
-        getMockValue(innerValue.value);
+      if (val && /^@/.test(value.value)) {
+        getMockValue(value.value);
       }
     }
   );
 
   function selectAutoComplete(val: string) {
-    innerValue.value = val;
+    value.value = val;
     setLastTenParams(val);
   }
 
@@ -657,7 +654,7 @@
           result = paramForm.value.JMeterType;
         }
         setLastTenParams(paramForm.value.type);
-        innerValue.value = result;
+        value.value = result;
         emit('apply', result);
         cancel();
       }

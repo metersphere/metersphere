@@ -223,8 +223,8 @@
           </div>
           <div class="h-[calc(100%-76px)]">
             <paramTable
-              v-if="commonScriptShowType === 'parameters'"
-              v-model:params="scriptParams"
+              v-if="commonScriptShowType === 'parameters' && condition.commonScriptInfo"
+              v-model:params="condition.commonScriptInfo.params"
               :disabled-param-value="props.disabled"
               :scroll="{ x: '100%' }"
               :columns="scriptColumns"
@@ -236,7 +236,7 @@
               }"
               :selectable="false"
               :show-quick-copy="props.showQuickCopy"
-              @change="() => emit('change')"
+              @change="handleScriptParamsChange"
             />
             <MsCodeEditor
               v-else-if="commonScriptShowType === 'scriptContent' && condition.commonScriptInfo"
@@ -425,7 +425,7 @@
         </template>
         <template #operationPre="{ record }">
           <a-popover
-            v-model:popupVisible="record.moreSettingPopoverVisible"
+            v-model:popup-visible="record.moreSettingPopoverVisible"
             position="tr"
             trigger="click"
             :title="t('common.setting')"
@@ -584,6 +584,14 @@
     }
     try {
       const res = await getCommonScript(condition.value.commonScriptInfo.id);
+      if (condition.value.commonScriptInfo.params.length > 0) {
+        res.params.forEach((item: any) => {
+          const param = condition.value.commonScriptInfo?.params.find((e: any) => e.key === item.key);
+          if (param) {
+            item.value = param.value;
+          }
+        });
+      }
       condition.value.commonScriptInfo = res;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -681,8 +689,6 @@
 
   const commonScriptShowType = ref<'parameters' | 'scriptContent'>('parameters');
 
-  const scriptParams = ref<any[]>([]);
-
   const scriptColumns: MsTableColumn = [
     {
       title: 'project.commonScript.ParameterNames',
@@ -720,6 +726,13 @@
     isShowEditScriptNameInput.value = false;
   }
 
+  function handleScriptParamsChange(resultArr: any[]) {
+    if (condition.value.commonScriptInfo) {
+      condition.value.commonScriptInfo.params = resultArr;
+    }
+    emit('change');
+  }
+
   const showQuoteDrawer = ref(false);
   function saveQuoteScriptHandler(item: any) {
     // TODO:any
@@ -735,7 +748,6 @@
         };
       }),
     };
-    scriptParams.value = (condition.value.commonScriptInfo?.params as any[]) || [];
     showQuoteDrawer.value = false;
     Message.success(t('apiTestDebug.introduceSourceApplySuccess'));
   }
@@ -1037,8 +1049,7 @@
   });
   watch(
     () => condition.value.commonScriptInfo,
-    (info) => {
-      scriptParams.value = info?.params as any[]; // 查看详情的时候需要赋值一下
+    () => {
       if (!showParameters()) {
         commonScriptShowType.value = 'scriptContent';
       }
