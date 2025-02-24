@@ -52,9 +52,9 @@
       </template>
       <template v-if="(keyword || '').trim() === ''" #empty>
         <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
-          <span v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])">{{
-            t('caseManagement.caseReview.tableNoData')
-          }}</span>
+          <span v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])">
+            {{ t('caseManagement.caseReview.tableNoData') }}
+          </span>
           <span v-else>{{ t('caseManagement.featureCase.tableNoData') }}</span>
           <MsButton v-if="hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE'])" class="ml-[8px]" @click="addCase">
             {{
@@ -72,6 +72,7 @@
       :show-type="showType"
       :case-id="props.caseId"
       @success="successHandler"
+      @create="handleCreate"
     />
   </div>
 </template>
@@ -106,6 +107,10 @@
   const keyword = ref<string>('');
   const props = defineProps<{
     caseId: string;
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'create'): void;
   }>();
 
   const columns: MsTableColumn = [
@@ -211,6 +216,11 @@
   async function searchDependCase() {
     getParams();
     await loadList();
+  }
+
+  function handleCreate() {
+    emit('create');
+    showDrawer.value = false;
   }
 
   watch(

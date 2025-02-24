@@ -44,9 +44,9 @@
           >
             <template #title="nodeData">
               <div class="inline-flex w-full gap-[8px]">
-                <div class="one-line-text w-full text-[var(--color-text-1)]" @click="setFocusKey(nodeData)">{{
-                  nodeData.name
-                }}</div>
+                <div class="one-line-text w-full text-[var(--color-text-1)]" @click="setFocusKey(nodeData)">
+                  {{ nodeData.name }}
+                </div>
                 <div class="ms-tree-node-count ml-[4px] text-[var(--color-text-brand)]">{{ nodeData.count || 0 }}</div>
               </div>
             </template>
@@ -117,9 +117,9 @@
           </div>
           <div class="flex items-center">
             <slot name="footerRight">
-              <a-button type="secondary" :disabled="loading" class="mr-[12px]" @click="cancel">{{
-                t('common.cancel')
-              }}</a-button>
+              <a-button type="secondary" :disabled="loading" class="mr-[12px]" @click="cancel">
+                {{ t('common.cancel') }}
+              </a-button>
               <a-button
                 type="primary"
                 :loading="loading"
@@ -164,9 +164,8 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { mapTree } from '@/utils';
 
-  import type { CaseManagementTable, CaseModuleQueryParams, OptionsField } from '@/models/caseManagement/featureCase';
+  import type { CaseModuleQueryParams, OptionsField } from '@/models/caseManagement/featureCase';
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
-  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import { getCaseLevels } from '../../utils';
 
@@ -185,6 +184,7 @@
     (e: 'update:visible', val: boolean): void;
     (e: 'success'): void;
     (e: 'close'): void;
+    (e: 'create'): void;
   }>();
 
   const innerVisible = computed({
@@ -241,7 +241,6 @@
 
     focusNodeKey.value = '';
   }
-  const allFileCount = ref(0);
 
   function getFolderClass(id: string) {
     return activeFolder.value === id ? 'folder-text folder-text--active' : 'folder-text';
@@ -458,7 +457,7 @@
       const params = {
         id: props.caseId,
         excludeIds: [...excludeKeys],
-        selectIds: [...selectedKeys] || [],
+        selectIds: [...selectedKeys],
         selectAll: selectorStatus === 'all',
         moduleIds,
         versionId,
@@ -517,11 +516,9 @@
     }
   );
 
-  const router = useRouter();
   function createCase() {
-    router.push({
-      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
-    });
+    emit('create');
+    innerVisible.value = false;
   }
 
   onMounted(() => {

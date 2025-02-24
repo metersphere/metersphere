@@ -179,7 +179,7 @@
               <TabDefect :case-id="detail.id" />
             </template>
             <template v-if="activeTab === 'dependency'">
-              <TabDependency :case-id="detail.id" />
+              <TabDependency :case-id="detail.id" @create="handleCreate" />
             </template>
             <template v-if="activeTab === 'caseReview'">
               <TabCaseReview :case-id="detail.id" />
@@ -730,6 +730,13 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
+  }
+
+  function handleCreate() {
+    showDrawerVisible.value = false;
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+    });
   }
 </script>
 
