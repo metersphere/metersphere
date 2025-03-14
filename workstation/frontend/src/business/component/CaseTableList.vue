@@ -409,6 +409,9 @@ export default {
     }
     this.getTemplateField();
     this.store = useApiStore();
+    if (!this.isCreation && !this.isFocus) {
+      this.condition.unComing = true;
+    }
     this.$emit("setCondition", this.condition);
     if (this.trashEnable) {
       if (this.condition.filters) {
