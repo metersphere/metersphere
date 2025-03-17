@@ -160,9 +160,9 @@
                   </el-dropdown-menu>
                 </el-dropdown>
               </el-tooltip>
-              <el-button class="mt-2 ml-10" size="mini" type="primary" v-else @click="stop">{{
-                $t('report.stop_btn')
-              }}</el-button>
+              <el-button class="mt-2 ml-10" size="mini" type="primary" v-else @click="stop"
+                >{{ $t('report.stop_btn') }}
+              </el-button>
 
               <el-button
                 id="inputDelay"
@@ -445,7 +445,7 @@
               </div>
             </el-row>
             <el-row>
-              <el-col :span="21"> </el-col>
+              <el-col :span="21"></el-col>
               <!-- 按钮列表 -->
               <el-col :span="3">
                 <div
@@ -1609,9 +1609,9 @@ export default {
     },
 
     recursionStep(stepArray, scenarioProjectId, fullPath, isGeneric) {
+      let resourceIds = new Set();
       for (let i = 0; i < stepArray.length; i++) {
         let step = stepArray[i];
-
         // 计算 index 和 projectId
         if (!isGeneric && !this.stepFilter.get('ALlSamplerStep').includes(step.type)) {
           step.index = Number(i) + 1;
@@ -1643,7 +1643,10 @@ export default {
 
         // 设置资源ID，若没有则生成一个
         step.resourceId = step.resourceId || getUUID();
-
+        if (resourceIds.has(step.resourceId)) {
+          step.resourceId = getUUID();
+        }
+        resourceIds.add(step.resourceId);
         // 设置 parentIndex
         step.parentIndex = fullPath ? `${fullPath}_${step.index}` : step.index;
 
@@ -2249,7 +2252,6 @@ export default {
           if (typeArray.indexOf(stepArray[i].type) !== -1) {
             stepArray[i].originalDataSourceId = stepArray[i].dataSourceId;
             stepArray[i].originalEnvironmentId = stepArray[i].environmentId;
-            console.log(stepArray[i].originalDataSourceId);
           }
           if (!stepArray[i].hashTree) {
             stepArray[i].hashTree = [];
@@ -2855,18 +2857,21 @@ export default {
     align-items: center;
     justify-content: space-between;
     flex: 1;
+
     .ms-col-one {
       display: flex;
       align-items: center;
       color: #303133;
       font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
       font-size: 13px;
+
       .history {
         display: flex;
         align-items: center;
       }
     }
   }
+
   .ms-full-screen {
     margin-top: 0px;
   }
@@ -2981,15 +2986,19 @@ export default {
   height: 20px;
   float: right;
 }
+
 .ml-10 {
   margin-left: 10px;
 }
+
 .ml-5 {
   margin-left: 5px;
 }
+
 .mt-2 {
   margin-top: 2px;
 }
+
 .custom-node_e {
   color: #7c3985;
   font-size: 20px;
