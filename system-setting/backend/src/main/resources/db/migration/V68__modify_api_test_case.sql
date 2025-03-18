@@ -1,4 +1,5 @@
 SET SESSION innodb_lock_wait_timeout = 7200;
+SET sql_mode ='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 ALTER TABLE api_test_case drop COLUMN response;
 ALTER TABLE api_test_case add COLUMN last_result_id varchar(64) COMMENT 'Last ApiDefinitionExecResult ID';
 
