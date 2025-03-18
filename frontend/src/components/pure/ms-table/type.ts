@@ -191,3 +191,10 @@ export interface BatchActionQueryParams {
   condition?: any; // 查询条件
   [key: string]: any;
 }
+
+export interface ChatMessage {
+  user: string;
+  text: string;
+  self: boolean;
+  type: string;
+}

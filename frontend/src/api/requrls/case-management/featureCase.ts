@@ -178,3 +178,9 @@ export const GetAssociatedTestPlanUrl = '/functional/case/test/has/associate/pla
 
 // 评审评论
 export const GetPlanExecuteCommentListUrl = '/functional/case/test/plan/comment';
+
+// 获取ai执行结果
+export const GetAIResult = '/case/chat/add/case';
+
+// ai分析需求
+export const GetAIAnalyze = '/case/chat/analyze/demand';

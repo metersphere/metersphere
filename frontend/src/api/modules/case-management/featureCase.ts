@@ -1,4 +1,5 @@
 import type { MinderJsonNode } from '@/components/pure/ms-minder-editor/props';
+import { ChatMessage } from '@/components/pure/ms-table/type';
 import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
 
 import MSR from '@/api/http/index';
@@ -38,6 +39,8 @@ import {
   ExportXMindCaseUrl,
   exportXMindCheckUrl,
   FollowerCaseUrl,
+  GetAIAnalyze,
+  GetAIResult,
   GetAssociatedCaseIdsUrl,
   GetAssociatedDebuggerUrl,
   GetAssociatedDrawerCaseUrl,
@@ -501,6 +504,15 @@ export function getLinkedCaseTestPlanList(data: TableQueryParams) {
 // 获取执行评论
 export function getTestPlanExecuteCommentList(caseId: string) {
   return MSR.get<CommentItem[]>({ url: `${GetPlanExecuteCommentListUrl}/${caseId}` });
+}
+// 获取ai执行结果
+export function getAiMessage(message: string) {
+  return MSR.get<string>({ url: `${GetAIResult}`, params: { message } });
+}
+
+// 获取ai执行结果
+export function getAIAnalyze(message: string, data: ChatMessage[]) {
+  return MSR.post<string>({ url: `${GetAIAnalyze}`, params: { message }, data });
 }
 
 export default {};

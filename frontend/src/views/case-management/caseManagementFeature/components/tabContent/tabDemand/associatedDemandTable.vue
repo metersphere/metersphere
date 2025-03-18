@@ -22,6 +22,12 @@
       >
         {{ t('common.edit') }}
       </MsButton>
+      <MsButton
+        v-permission="['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE']"
+        @click="openAi(record.demandName)"
+      >
+        {{ 'AI生成' }}
+      </MsButton>
     </template>
     <template v-if="(props.funParams.keyword || '').trim() === '' && props.showEmpty" #empty>
       <div class="flex w-full items-center justify-center text-[var(--color-text-4)]">
@@ -73,6 +79,40 @@
       </div>
     </template>
   </ms-base-table>
+  <a-modal
+    v-model:visible="showModal"
+    title-align="start"
+    class="ms-modal-form ms-modal-medium"
+    :cancel-text="t('common.cancel')"
+    unmount-on-close
+    @close="handleCancel"
+  >
+    <div>
+      <div class="message">
+        <div v-for="(message, index) in messages" :key="index" class="message-content">
+          <p v-if="message.self" class="message-text">{{ message.text }}</p>
+          <p v-if="!message.self" class="message-chat-text">{{ message.text }}</p>
+        </div>
+      </div>
+
+      <a-input v-model="sendMessage"></a-input>
+    </div>
+    <template #footer>
+      <MsButton
+        v-permission="['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE']"
+        @click="chatWithAi(sendMessage)"
+      >
+        {{ '生成用例' }}
+      </MsButton>
+      <MsButton
+        v-permission="['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE']"
+        @click="chatAnalyzeWithAi(sendMessage)"
+      >
+        {{ '分析需求' }}
+      </MsButton>
+      <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
+    </template>
+  </a-modal>
 </template>
 
 <script setup lang="ts">
@@ -81,9 +121,10 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import { ChatMessage } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
 
-  import { getDemandList } from '@/api/modules/case-management/featureCase';
+  import { getAIAnalyze, getAiMessage, getDemandList } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
@@ -163,6 +204,59 @@
     heightUsed: 360,
   });
 
+  const apiMessage = ref<string>('');
+
+  const sendMessage = ref<string>('');
+
+  const showModal = ref<boolean>(false);
+
+  const messages = ref<ChatMessage[]>([]);
+
+  async function openAi(message: string) {
+    sendMessage.value = message;
+    showModal.value = true;
+  }
+
+  async function chatWithAi(message: string) {
+    const messageItemUser = ref<ChatMessage>({
+      user: 'user',
+      text: message,
+      self: true,
+      type: 'CASE',
+    });
+    messages.value.push(messageItemUser.value);
+    apiMessage.value = await getAiMessage(message);
+    const messageItemAi = ref<ChatMessage>({
+      user: 'AI',
+      text: apiMessage.value,
+      self: false,
+      type: 'CASE',
+    });
+    messages.value.push(messageItemAi.value);
+  }
+
+  async function chatAnalyzeWithAi(message: string) {
+    apiMessage.value = await getAIAnalyze(message, messages.value);
+    const messageItemUser = ref<ChatMessage>({
+      user: 'user',
+      text: message,
+      self: true,
+      type: 'ANALYZE',
+    });
+    messages.value.push(messageItemUser.value);
+    const messageItemAi = ref<ChatMessage>({
+      user: 'AI',
+      text: apiMessage.value,
+      self: false,
+      type: 'ANALYZE',
+    });
+    messages.value.push(messageItemAi.value);
+  }
+
+  function handleCancel() {
+    showModal.value = false;
+  }
+
   const initData = async () => {
     setLoadListParams({ ...props.funParams });
     await loadList();
@@ -198,4 +292,32 @@
   );
 </script>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+  .message {
+    display: flex;
+    margin: 4px 0;
+    min-height: 30px;
+    border-width: 1px;
+    border-color: #e5e7eb;
+    flex-wrap: nowrap;
+    flex-direction: column;
+  }
+
+  .message-content {
+    width: 100%;
+    flex-direction: column;
+    padding: 6px 10px;
+  }
+
+  .message-text {
+    font-size: 14px;
+    float: right;
+    background-color: #d9edf7;
+    border-radius: 3px;
+  }
+
+  .message-chat-text {
+    font-size: 14px;
+    float: left;
+  }
+</style>
