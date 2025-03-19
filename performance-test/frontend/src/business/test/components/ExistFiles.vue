@@ -116,6 +116,7 @@ import {
   updateFile,
   uploadFiles
 } from "@/api/performance";
+import {getUploadSizeLimit} from "metersphere-frontend/src/utils/index";
 
 export default {
   name: "ExistFiles",
@@ -145,6 +146,11 @@ export default {
       condition: {},
       projectId: getCurrentProjectID()
     };
+  },
+  computed: {
+    uploadSize() {
+      return getUploadSizeLimit();
+    }
   },
   methods: {
     open(loadType) {
@@ -274,8 +280,8 @@ export default {
         /// todo: 显示错误信息
         return false;
       }
-      if (file.size / 1024 / 1024 > 50) {
-        this.$error(this.$t("commons.upload_limit_size"));
+      if (file.size / 1024 / 1024 > this.uploadSize) {
+        this.$error(this.$t('performance_test.upload_limit_size_warn', [this.uploadSize]));
         this.close();
         return false;
       }

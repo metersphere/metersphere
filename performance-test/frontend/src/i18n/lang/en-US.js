@@ -16,6 +16,7 @@ const message = {
     all_samples: 'All samples',
     response_3_samples: 'The first three pieces of data',
     cache_script: 'Cache script',
+    upload_limit_size_warn: 'Upload file size cannot exceed {0} MB!',
   }
 }
 export default {

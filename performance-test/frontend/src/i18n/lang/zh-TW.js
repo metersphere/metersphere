@@ -16,6 +16,7 @@ const message = {
     all_samples: '所有請求',
     response_3_samples: '默认抽样前3个请求的响应数据',
     cache_script: '緩存編譯腳本',
+    upload_limit_size_warn: '上傳文件大小不能超過 {0} MB!',
   }
 }
 

@@ -26,6 +26,7 @@
 
 <script>
 import { useApiStore } from '@/store';
+import {getUploadSizeLimit} from "metersphere-frontend/src/utils/index";
 
 const store = useApiStore();
 export default {
@@ -42,6 +43,11 @@ export default {
   mounted() {
     if (this.value) {
       this.plugin.files = JSON.parse(this.value);
+    }
+  },
+  computed: {
+    uploadSize() {
+      return getUploadSizeLimit();
     }
   },
   methods: {
@@ -81,8 +87,8 @@ export default {
       this.$emit('input', JSON.stringify(files));
     },
     uploadValidate(file) {
-      if (file.size / 1024 / 1024 > 50) {
-        this.$warning(this.$t('api_test.request.body_upload_limit_size'));
+      if (file.size / 1024 / 1024 > this.uploadSize) {
+        this.$warning(this.$t('api_test.api_import.file_size_limit', {size: this.uploadSize}));
         return false;
       }
       return true;

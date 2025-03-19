@@ -62,6 +62,7 @@ import MsFileBatchMove from '@/business/commons/FileBatchMove';
 import MsFileMetadataList from '@/business/commons/QuoteFileList';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
 import { getUUID } from 'metersphere-frontend/src/utils';
+import {getUploadSizeLimit} from "metersphere-frontend/src/utils/index";
 
 export default {
   name: 'MsApiBodyFileUpload',
@@ -89,6 +90,11 @@ export default {
       type: Boolean,
       default: false,
     },
+  },
+  computed: {
+    uploadSize() {
+      return getUploadSizeLimit();
+    }
   },
   methods: {
     exist() {
@@ -164,8 +170,8 @@ export default {
       this.parameter.files.push(file);
     },
     uploadValidate(file) {
-      if (file.size / 1024 / 1024 > 50) {
-        this.$warning(this.$t('api_test.request.body_upload_limit_size'));
+      if (file.size / 1024 / 1024 > this.uploadSize) {
+        this.$warning(this.$t('api_test.api_import.file_size_limit', {size: this.uploadSize}));
         return false;
       }
       return true;
