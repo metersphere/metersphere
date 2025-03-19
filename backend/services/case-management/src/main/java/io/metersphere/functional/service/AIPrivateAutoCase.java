@@ -99,8 +99,6 @@ public class AIPrivateAutoCase {
         ChatMemory chatMemory = MessageWindowChatMemory.withMaxMessages(10);
         List<ChatMessageDTO> analyze = chatMessages.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getType(), "ANALYZE")).toList();
         OpenAiChatModel model = OpenAiChatModel.builder()
-                .baseUrl("https://api.siliconflow.cn/v1")
-                .apiKey("sk-eaglapmczkqersgjkhodhadngxhcsokapygezyovozbzaypm")
                 .modelName("Qwen/QwQ-32B")
                 .build();
 
