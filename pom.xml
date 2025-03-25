@@ -6,7 +6,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.9</version>
+        <!--这个不能升级，会有兼容性问题 -->
+        <version>3.2.12</version>
         <relativePath/>
     </parent>
 
@@ -36,7 +37,8 @@
         <mybatis-starter.version>3.0.3</mybatis-starter.version>
         <reflections.version>0.10.2</reflections.version>
         <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
-        <commons-io.version>2.14.0</commons-io.version>
+        <!--   这个包不能升级，有兼容问题    -->
+        <commons-io.version>2.11.0</commons-io.version>
         <commons-text.version>1.10.0</commons-text.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <xstream.version>1.4.20</xstream.version>
