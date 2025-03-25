@@ -1,6 +1,7 @@
 package io.metersphere.service;
 
 import io.metersphere.base.domain.Project;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.TreeNodeDTO;
@@ -75,18 +76,8 @@ public class NodeTreeService<T extends TreeNodeDTO> {
      */
     public T buildNodeTree(Map<String, List<T>> childrenByParentId, T currentNode, Map<String, Integer> countMap) {
         T nodeTree = getClassInstance();
-        nodeTree.setId(currentNode.getId());
-        nodeTree.setProjectId(currentNode.getProjectId());
-        nodeTree.setName(currentNode.getName());
-        nodeTree.setParentId(currentNode.getParentId());
-        nodeTree.setLevel(currentNode.getLevel());
-        nodeTree.setCreateTime(currentNode.getCreateTime());
-        nodeTree.setUpdateTime(currentNode.getUpdateTime());
-        nodeTree.setPos(currentNode.getPos());
+        BeanUtils.copyBean(nodeTree, currentNode);
         nodeTree.setLabel(currentNode.getName());
-        nodeTree.setChildren(currentNode.getChildren());
-        nodeTree.setCaseNum(currentNode.getCaseNum());
-
         setCaseNum(countMap, nodeTree);
 
         // 查找子节点
