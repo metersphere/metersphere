@@ -188,7 +188,11 @@
                     <execution>
                         <goals>
                             <goal>test-jar</goal>
+                            <goal>jar</goal>
                         </goals>
+                        <configuration>
+                            <classifier>tests</classifier>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
