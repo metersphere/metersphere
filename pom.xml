@@ -68,6 +68,7 @@
         <otp-java.version>2.0.1</otp-java.version>
         <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
         <mysql-connector-java.version>8.3.0</mysql-connector-java.version>
+        <spring-ai.version>1.0.0-M6</spring-ai.version>
         <!-- frontend -->
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
         <node.version>v20.8.1</node.version>
@@ -216,5 +217,19 @@
             <url>https://repository.fit2cloud.com/repository/metersphere/</url>
         </pluginRepository>
     </pluginRepositories>
+
+
+    <!-- spring ai  start -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>
