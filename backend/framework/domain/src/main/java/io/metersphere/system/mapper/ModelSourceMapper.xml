@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.ModelSourceMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.system.domain.ModelSource">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="provider_name" jdbcType="VARCHAR" property="providerName" />
+    <result column="avatar" jdbcType="VARCHAR" property="avatar" />
+    <result column="permission_type" jdbcType="VARCHAR" property="permissionType" />
+    <result column="status" jdbcType="BIT" property="status" />
+    <result column="owner" jdbcType="VARCHAR" property="owner" />
+    <result column="owner_type" jdbcType="VARCHAR" property="ownerType" />
+    <result column="base_name" jdbcType="VARCHAR" property="baseName" />
+    <result column="app_key" jdbcType="VARCHAR" property="appKey" />
+    <result column="api_url" jdbcType="VARCHAR" property="apiUrl" />
+    <result column="adv_settings" jdbcType="VARCHAR" property="advSettings" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, `name`, `type`, provider_name, avatar, permission_type, `status`, `owner`, owner_type, 
+    base_name, app_key, api_url, adv_settings
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.system.domain.ModelSourceExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from model_source
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from model_source
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from model_source
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.system.domain.ModelSourceExample">
+    delete from model_source
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.system.domain.ModelSource">
+    insert into model_source (id, `name`, `type`, 
+      provider_name, avatar, permission_type, 
+      `status`, `owner`, owner_type, 
+      base_name, app_key, api_url, 
+      adv_settings)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
+      #{providerName,jdbcType=VARCHAR}, #{avatar,jdbcType=VARCHAR}, #{permissionType,jdbcType=VARCHAR}, 
+      #{status,jdbcType=BIT}, #{owner,jdbcType=VARCHAR}, #{ownerType,jdbcType=VARCHAR}, 
+      #{baseName,jdbcType=VARCHAR}, #{appKey,jdbcType=VARCHAR}, #{apiUrl,jdbcType=VARCHAR}, 
+      #{advSettings,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.system.domain.ModelSource">
+    insert into model_source
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="type != null">
+        `type`,
+      </if>
+      <if test="providerName != null">
+        provider_name,
+      </if>
+      <if test="avatar != null">
+        avatar,
+      </if>
+      <if test="permissionType != null">
+        permission_type,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="owner != null">
+        `owner`,
+      </if>
+      <if test="ownerType != null">
+        owner_type,
+      </if>
+      <if test="baseName != null">
+        base_name,
+      </if>
+      <if test="appKey != null">
+        app_key,
+      </if>
+      <if test="apiUrl != null">
+        api_url,
+      </if>
+      <if test="advSettings != null">
+        adv_settings,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="providerName != null">
+        #{providerName,jdbcType=VARCHAR},
+      </if>
+      <if test="avatar != null">
+        #{avatar,jdbcType=VARCHAR},
+      </if>
+      <if test="permissionType != null">
+        #{permissionType,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=BIT},
+      </if>
+      <if test="owner != null">
+        #{owner,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerType != null">
+        #{ownerType,jdbcType=VARCHAR},
+      </if>
+      <if test="baseName != null">
+        #{baseName,jdbcType=VARCHAR},
+      </if>
+      <if test="appKey != null">
+        #{appKey,jdbcType=VARCHAR},
+      </if>
+      <if test="apiUrl != null">
+        #{apiUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="advSettings != null">
+        #{advSettings,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.system.domain.ModelSourceExample" resultType="java.lang.Long">
+    select count(*) from model_source
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update model_source
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.type != null">
+        `type` = #{record.type,jdbcType=VARCHAR},
+      </if>
+      <if test="record.providerName != null">
+        provider_name = #{record.providerName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.avatar != null">
+        avatar = #{record.avatar,jdbcType=VARCHAR},
+      </if>
+      <if test="record.permissionType != null">
+        permission_type = #{record.permissionType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=BIT},
+      </if>
+      <if test="record.owner != null">
+        `owner` = #{record.owner,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ownerType != null">
+        owner_type = #{record.ownerType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.baseName != null">
+        base_name = #{record.baseName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.appKey != null">
+        app_key = #{record.appKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.apiUrl != null">
+        api_url = #{record.apiUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.advSettings != null">
+        adv_settings = #{record.advSettings,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update model_source
+    set id = #{record.id,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      `type` = #{record.type,jdbcType=VARCHAR},
+      provider_name = #{record.providerName,jdbcType=VARCHAR},
+      avatar = #{record.avatar,jdbcType=VARCHAR},
+      permission_type = #{record.permissionType,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=BIT},
+      `owner` = #{record.owner,jdbcType=VARCHAR},
+      owner_type = #{record.ownerType,jdbcType=VARCHAR},
+      base_name = #{record.baseName,jdbcType=VARCHAR},
+      app_key = #{record.appKey,jdbcType=VARCHAR},
+      api_url = #{record.apiUrl,jdbcType=VARCHAR},
+      adv_settings = #{record.advSettings,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.ModelSource">
+    update model_source
+    <set>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        `type` = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="providerName != null">
+        provider_name = #{providerName,jdbcType=VARCHAR},
+      </if>
+      <if test="avatar != null">
+        avatar = #{avatar,jdbcType=VARCHAR},
+      </if>
+      <if test="permissionType != null">
+        permission_type = #{permissionType,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=BIT},
+      </if>
+      <if test="owner != null">
+        `owner` = #{owner,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerType != null">
+        owner_type = #{ownerType,jdbcType=VARCHAR},
+      </if>
+      <if test="baseName != null">
+        base_name = #{baseName,jdbcType=VARCHAR},
+      </if>
+      <if test="appKey != null">
+        app_key = #{appKey,jdbcType=VARCHAR},
+      </if>
+      <if test="apiUrl != null">
+        api_url = #{apiUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="advSettings != null">
+        adv_settings = #{advSettings,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.ModelSource">
+    update model_source
+    set `name` = #{name,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR},
+      provider_name = #{providerName,jdbcType=VARCHAR},
+      avatar = #{avatar,jdbcType=VARCHAR},
+      permission_type = #{permissionType,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=BIT},
+      `owner` = #{owner,jdbcType=VARCHAR},
+      owner_type = #{ownerType,jdbcType=VARCHAR},
+      base_name = #{baseName,jdbcType=VARCHAR},
+      app_key = #{appKey,jdbcType=VARCHAR},
+      api_url = #{apiUrl,jdbcType=VARCHAR},
+      adv_settings = #{advSettings,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into model_source
+    (id, `name`, `type`, provider_name, avatar, permission_type, `status`, `owner`, owner_type, 
+      base_name, app_key, api_url, adv_settings)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, 
+        #{item.providerName,jdbcType=VARCHAR}, #{item.avatar,jdbcType=VARCHAR}, #{item.permissionType,jdbcType=VARCHAR}, 
+        #{item.status,jdbcType=BIT}, #{item.owner,jdbcType=VARCHAR}, #{item.ownerType,jdbcType=VARCHAR}, 
+        #{item.baseName,jdbcType=VARCHAR}, #{item.appKey,jdbcType=VARCHAR}, #{item.apiUrl,jdbcType=VARCHAR}, 
+        #{item.advSettings,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into model_source (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'type'.toString() == column.value">
+          #{item.type,jdbcType=VARCHAR}
+        </if>
+        <if test="'provider_name'.toString() == column.value">
+          #{item.providerName,jdbcType=VARCHAR}
+        </if>
+        <if test="'avatar'.toString() == column.value">
+          #{item.avatar,jdbcType=VARCHAR}
+        </if>
+        <if test="'permission_type'.toString() == column.value">
+          #{item.permissionType,jdbcType=VARCHAR}
+        </if>
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=BIT}
+        </if>
+        <if test="'owner'.toString() == column.value">
+          #{item.owner,jdbcType=VARCHAR}
+        </if>
+        <if test="'owner_type'.toString() == column.value">
+          #{item.ownerType,jdbcType=VARCHAR}
+        </if>
+        <if test="'base_name'.toString() == column.value">
+          #{item.baseName,jdbcType=VARCHAR}
+        </if>
+        <if test="'app_key'.toString() == column.value">
+          #{item.appKey,jdbcType=VARCHAR}
+        </if>
+        <if test="'api_url'.toString() == column.value">
+          #{item.apiUrl,jdbcType=VARCHAR}
+        </if>
+        <if test="'adv_settings'.toString() == column.value">
+          #{item.advSettings,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
+</mapper>

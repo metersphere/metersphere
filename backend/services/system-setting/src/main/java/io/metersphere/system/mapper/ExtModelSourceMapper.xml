@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.ExtModelSourceMapper">
+
+    <select id="list" resultType="io.metersphere.system.domain.ModelSource">
+
+        SELECT *
+        FROM model_source
+        <where>
+            <if test="request.keyword != null and request.keyword != ''">
+                and name like concat('%', #{request.keyword},'%')
+            </if>
+            <if test="request.owner != null and request.owner != ''">
+                and owner = #{request.owner}
+            </if>
+        </where>
+    </select>
+</mapper>
