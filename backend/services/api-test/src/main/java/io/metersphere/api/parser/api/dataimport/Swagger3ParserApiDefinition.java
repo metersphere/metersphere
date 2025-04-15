@@ -606,30 +606,35 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
         return null;
     }
 
-    private JsonSchemaItem parseSchemaByType(Schema<?> schema, Set refModelSet) {
+private JsonSchemaItem parseSchemaByType(Schema<?> schema, Set refModelSet) {
         String type = schema.getType();
+
+        // 处理type为null的情况
         if (type == null) {
-            if (MapUtils.isNotEmpty(schema.getProperties())) {
-                return parseObject(schema, refModelSet);
-            }
+            return MapUtils.isNotEmpty(schema.getProperties())
+                ? parseObject(schema, refModelSet)
+                : parseNull();
         }
+
+        // 使用switch表达式根据类型匹配相应处理方法
         return switch (type) {
-            case PropertyConstant.STRING -> parseString(schema);
+            case PropertyConstant.STRING, PropertyConstant.TEXT -> parseString(schema);
             case PropertyConstant.INTEGER -> parseInteger(schema);
             case PropertyConstant.NUMBER -> parseNumber(schema);
             case PropertyConstant.BOOLEAN -> parseBoolean(schema);
             case PropertyConstant.OBJECT -> parseObject(schema, refModelSet);
             case PropertyConstant.ARRAY -> parseArraySchema(schema, refModelSet);
-            case PropertyConstant.TEXT -> parseString(schema);
-            default -> {
-                JsonSchemaItem jsonSchemaItem = new JsonSchemaItem();
-                jsonSchemaItem.setId(IDGenerator.nextStr());
-                if (StringUtils.isNotBlank(schema.getType())) {
-                    jsonSchemaItem.setType(schema.getType());
-                }
-                yield jsonSchemaItem;
-            }
+            default -> createDefaultJsonSchemaItem(schema);
         };
+    }
+
+    private JsonSchemaItem createDefaultJsonSchemaItem(Schema<?> schema) {
+        JsonSchemaItem jsonSchemaItem = new JsonSchemaItem();
+        jsonSchemaItem.setId(IDGenerator.nextStr());
+        if (StringUtils.isNotBlank(schema.getType())) {
+            jsonSchemaItem.setType(schema.getType());
+        }
+        return jsonSchemaItem;
     }
 
     private JsonSchemaItem parseMapObject(MapSchema mapSchema, Set refModelSet) {
