@@ -87,6 +87,8 @@
         <monitoring-engine.revision>3.3</monitoring-engine.revision>
         <swagger-core-jakarta.revision>2.2.20</swagger-core-jakarta.revision>
 
+        <spring-ai.version>1.0.0-M8</spring-ai.version>
+        <ansj_seg.version>5.1.6</ansj_seg.version>
     </properties>
 
     <modules>
@@ -198,6 +200,14 @@
     </distributionManagement>
     <repositories>
         <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
             <id>central</id>
             <url>https://repo.maven.apache.org/maven2</url>
         </repository>
@@ -216,5 +226,19 @@
             <url>https://repository.fit2cloud.com/repository/metersphere/</url>
         </pluginRepository>
     </pluginRepositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <!--Spring AI  -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
 
 </project>

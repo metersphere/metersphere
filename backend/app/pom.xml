@@ -18,7 +18,6 @@
             <artifactId>metersphere-sdk</artifactId>
             <version>${revision}</version>
         </dependency>
-
         <dependency>
             <groupId>io.metersphere</groupId>
             <artifactId>metersphere-api-test</artifactId>

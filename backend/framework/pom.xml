@@ -18,6 +18,7 @@
         <module>domain</module>
         <module>sdk</module>
         <module>provider</module>
+        <module>ai-engine</module>
     </modules>
 
 </project>

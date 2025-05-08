@@ -52,7 +52,7 @@ public class ApiKeyHandler {
         }
         String[] signatureArray = StringUtils.split(StringUtils.trimToNull(signatureDecrypt), "|");
         if (signatureArray.length < 2) {
-            throw new RuntimeException("invalid signature");
+           return userKey.getCreateUser(); // TODO 兼容直接输入 AK/SK 并未拼接情况
         }
         if (!StringUtils.equals(accessKey, signatureArray[0])) {
             throw new RuntimeException("invalid signature");

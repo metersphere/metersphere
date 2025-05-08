@@ -12,7 +12,13 @@
     <packaging>pom</packaging>
     <artifactId>services</artifactId>
     <version>${revision}</version>
-
+    <dependencies>
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-ai-engine</artifactId>
+            <version>${revision}</version>
+        </dependency>
+    </dependencies>
     <modules>
         <module>api-test</module>
         <module>bug-management</module>
