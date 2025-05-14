@@ -837,14 +837,7 @@ public class ApiScenarioService extends MoveNodeService {
 
             // 如果该步骤没有步骤详情
             if (stepDetails.get(stepRequest.getId()) == null && hasDetail(step)) {
-                if (isApiOrCase(step) && BooleanUtils.isTrue(((ApiScenarioStepRequest) step).getIsNew())) {
-                    // 处理 isNew 的用例步骤
-                    if (isApi(step.getStepType())) {
-                        isNewApiResourceMap.put(step.getId(), step.getResourceId());
-                    } else {
-                        isNewApiCaseResourceMap.put(step.getId(), step.getResourceId());
-                    }
-                } else if (StringUtils.isNotBlank(stepRequest.getCopyFromStepId())) {
+                if (StringUtils.isNotBlank(stepRequest.getCopyFromStepId())) {
                     // 处理 copyFromStep 的情况
                     if (stepDetails.containsKey(stepRequest.getCopyFromStepId())) {
                         // 如果有传 copyFromStepId 的详情，优先使用
@@ -852,6 +845,13 @@ public class ApiScenarioService extends MoveNodeService {
                     } else {
                         // 没有传，则记录ID，后续统一查库
                         copyFromStepIdMap.put(stepRequest.getId(), stepRequest.getCopyFromStepId());
+                    }
+                } else if (isApiOrCase(step) && BooleanUtils.isTrue(((ApiScenarioStepRequest) step).getIsNew())) {
+                    // 处理 isNew 的用例步骤
+                    if (isApi(step.getStepType())) {
+                        isNewApiResourceMap.put(step.getId(), step.getResourceId());
+                    } else {
+                        isNewApiCaseResourceMap.put(step.getId(), step.getResourceId());
                     }
                 }
             }
@@ -1742,6 +1742,8 @@ public class ApiScenarioService extends MoveNodeService {
                 // 统一模块下名称不能重复
                 checkExample.createCriteria()
                         .andNameEqualTo(apiScenario.getName())
+                        .andDeletedEqualTo(false)
+                        .andProjectIdEqualTo(apiScenario.getProjectId())
                         .andModuleIdEqualTo(request.getTargetModuleId());
                 if (apiScenarioMapper.countByExample(checkExample) > 0) {
                     response.addErrorData(Translator.get("api_scenario.name.repeat"), apiScenario.getId(), apiScenario.getNum(), apiScenario.getName());
