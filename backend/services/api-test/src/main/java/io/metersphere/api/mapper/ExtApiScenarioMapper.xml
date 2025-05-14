@@ -132,7 +132,7 @@
         FROM
         api_scenario
         WHERE deleted =#{deleted}
-        <include refid="queryWhereConditionByBaseQueryRequest"/>
+        <include refid="associateQueryWhereConditionByBaseQueryRequest"/>
     </select>
 
     <sql id="queryWhereConditionByBaseQueryRequest">
@@ -162,6 +162,33 @@
         </include>
         <include refid="combine">
             <property name="combineSearch" value="request.condition.combineSearch"/>
+        </include>
+    </sql>
+
+    <sql id="associateQueryWhereConditionByBaseQueryRequest">
+        <if test="request.projectId != null and request.projectId != ''">
+            and api_scenario.project_id = #{request.projectId}
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and api_scenario.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+        <if test="request.condition.combine != null">
+            <include refid="combine">
+                <property name="condition" value="request.condition.combine"/>
+            </include>
+        </if>
+        <if test="request.condition.keyword != null and request.condition.keyword != ''">
+            and (
+            api_scenario.num like concat('%', #{request.condition.keyword},'%')
+            or api_scenario.name like concat('%', #{request.condition.keyword},'%')
+            or api_scenario.tags like concat('%', #{request.condition.keyword},'%')
+            )
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
         </include>
     </sql>
 
@@ -300,96 +327,100 @@
         <trim prefix="AND">
             <trim prefix="(" suffix=")" suffixOverrides="AND|OR">
                 <if test="${combineSearch} != null">
-                    <foreach collection="${combineSearch}.userViewConditions" item="condition">
-                        <if test="condition.name == 'createUser'">
-                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                <property name="condition" value="condition"/>
-                                <property name="column" value="api_scenario.create_user"/>
+                    <if test="${combineSearch}.userViewConditions != null">
+                        <foreach collection="${combineSearch}.userViewConditions" item="condition">
+                            <if test="condition.name == 'createUser'">
+                                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                    <property name="condition" value="condition"/>
+                                    <property name="column" value="api_scenario.create_user"/>
+                                </include>
+                            </if>
+                            <if test="condition.name == 'follower'">
+                                <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
+                                    <property name="mainIdColumn" value="api_scenario.id"/>
+                                    <property name="associationTable" value="api_scenario_follower"/>
+                                    <property name="associationIdColumn" value="api_scenario_id"/>
+                                    <property name="searchColumn" value="user_id"/>
+                                    <property name="condition" value="condition"/>
+                                </include>
+                            </if>
+                            <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                                <property name="searchMode" value="${combineSearch}.searchMode"/>
                             </include>
-                        </if>
-                        <if test="condition.name == 'follower'">
-                            <include refid="io.metersphere.system.mapper.BaseMapper.associationCondition">
-                                <property name="mainIdColumn" value="api_scenario.id"/>
-                                <property name="associationTable" value="api_scenario_follower"/>
-                                <property name="associationIdColumn" value="api_scenario_id"/>
-                                <property name="searchColumn" value="user_id"/>
+                        </foreach>
+                    </if>
+                    <if test="${combineSearch}.systemFieldConditions != null">
+                        <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
+                            <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
                                 <property name="condition" value="condition"/>
+                                <property name="tablePrefix" value="api_scenario"/>
                             </include>
-                        </if>
-                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
-                            <property name="searchMode" value="${combineSearch}.searchMode"/>
-                        </include>
-                    </foreach>
-                    <foreach collection="${combineSearch}.systemFieldConditions" item="condition">
-                        <include refid="io.metersphere.system.mapper.BaseMapper.commonSystemFieldConditions">
-                            <property name="condition" value="condition"/>
-                            <property name="tablePrefix" value="api_scenario"/>
-                        </include>
-                        <if test="condition.name == 'belongTestPlan' and condition.operator == 'EQUALS'">
-                            api_scenario.id in (
-                            select test_plan_api_scenario.api_scenario_id from test_plan_api_scenario where
-                            test_plan_api_scenario.test_plan_id = #{condition.value}
-                            )
-                        </if>
-                        <!-- 场景等级 -->
-                        <if test="condition.name == 'priority'">
-                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                <property name="condition" value="condition"/>
-                                <property name="column" value="api_scenario.priority"/>
+                            <if test="condition.name == 'belongTestPlan' and condition.operator == 'EQUALS'">
+                                api_scenario.id in (
+                                select test_plan_api_scenario.api_scenario_id from test_plan_api_scenario where
+                                test_plan_api_scenario.test_plan_id = #{condition.value}
+                                )
+                            </if>
+                            <!-- 场景等级 -->
+                            <if test="condition.name == 'priority'">
+                                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                    <property name="condition" value="condition"/>
+                                    <property name="column" value="api_scenario.priority"/>
+                                </include>
+                            </if>
+                            <!-- 状态 -->
+                            <if test="condition.name == 'status'">
+                                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                    <property name="condition" value="condition"/>
+                                    <property name="column" value="api_scenario.status"/>
+                                </include>
+                            </if>
+                            <!-- 执行结果 -->
+                            <if test="condition.name == 'lastReportStatus'">
+                                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                    <property name="condition" value="condition"/>
+                                    <property name="column" value="api_scenario.last_report_status"/>
+                                </include>
+                            </if>
+                            <!-- 步骤数 -->
+                            <if test="condition.name == 'stepTotal'">
+                                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                    <property name="condition" value="condition"/>
+                                    <property name="column" value="api_scenario.step_total"/>
+                                </include>
+                            </if>
+                            <!-- 通过率 -->
+                            <if test="condition.name == 'requestPassRate'">
+                                <choose>
+                                    <when test="condition.operator == 'NOT_EMPTY'">
+                                        api_scenario.request_pass_rate is not null and api_scenario.request_pass_rate != '' and api_scenario.request_pass_rate != 'Calculating'
+                                    </when>
+                                    <when test="condition.operator == 'EMPTY'">
+                                        api_scenario.request_pass_rate is null or api_scenario.request_pass_rate = '' or api_scenario.request_pass_rate = 'Calculating'
+                                    </when>
+                                    <when test="(condition.operator == 'LT' and condition.value == 0) or (condition.operator == 'GT' and condition.value &gt; 100 )">
+                                        1=2
+                                    </when>
+                                    <otherwise>
+                                        <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                            <property name="condition" value="condition"/>
+                                            <property name="column" value="api_scenario.request_pass_rate"/>
+                                        </include>
+                                    </otherwise>
+                                </choose>
+                            </if>
+                            <!-- 环境 -->
+                            <if test="condition.name == 'environmentName'">
+                                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                    <property name="condition" value="condition"/>
+                                    <property name="column" value="api_scenario.environment_id"/>
+                                </include>
+                            </if>
+                            <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
+                                <property name="searchMode" value="${combineSearch}.searchMode"/>
                             </include>
-                        </if>
-                        <!-- 状态 -->
-                        <if test="condition.name == 'status'">
-                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                <property name="condition" value="condition"/>
-                                <property name="column" value="api_scenario.status"/>
-                            </include>
-                        </if>
-                        <!-- 执行结果 -->
-                        <if test="condition.name == 'lastReportStatus'">
-                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                <property name="condition" value="condition"/>
-                                <property name="column" value="api_scenario.last_report_status"/>
-                            </include>
-                        </if>
-                        <!-- 步骤数 -->
-                        <if test="condition.name == 'stepTotal'">
-                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                <property name="condition" value="condition"/>
-                                <property name="column" value="api_scenario.step_total"/>
-                            </include>
-                        </if>
-                        <!-- 通过率 -->
-                        <if test="condition.name == 'requestPassRate'">
-                            <choose>
-                                <when test="condition.operator == 'NOT_EMPTY'">
-                                    api_scenario.request_pass_rate is not null and api_scenario.request_pass_rate != '' and api_scenario.request_pass_rate != 'Calculating'
-                                </when>
-                                <when test="condition.operator == 'EMPTY'">
-                                    api_scenario.request_pass_rate is null or api_scenario.request_pass_rate = '' or api_scenario.request_pass_rate = 'Calculating'
-                                </when>
-                                <when test="(condition.operator == 'LT' and condition.value == 0) or (condition.operator == 'GT' and condition.value &gt; 100 )">
-                                    1=2
-                                </when>
-                                <otherwise>
-                                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                        <property name="condition" value="condition"/>
-                                        <property name="column" value="api_scenario.request_pass_rate"/>
-                                    </include>
-                                </otherwise>
-                            </choose>
-                        </if>
-                        <!-- 环境 -->
-                        <if test="condition.name == 'environmentName'">
-                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                <property name="condition" value="condition"/>
-                                <property name="column" value="api_scenario.environment_id"/>
-                            </include>
-                        </if>
-                        <include refid="io.metersphere.system.mapper.BaseMapper.queryType">
-                            <property name="searchMode" value="${combineSearch}.searchMode"/>
-                        </include>
-                    </foreach>
+                        </foreach>
+                    </if>
                 </if>
             </trim>
         </trim>
