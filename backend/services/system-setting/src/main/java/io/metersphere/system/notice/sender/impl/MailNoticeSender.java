@@ -56,7 +56,7 @@ public class MailNoticeSender extends AbstractNoticeSender {
         List<SystemParameter> paramList = systemParameterMapper.selectByExample(example);
         Map<String, String> paramMap = paramList.stream().collect(Collectors.toMap(SystemParameter::getParamKey, p -> {
             if (StringUtils.equals(p.getParamKey(), ParamConstants.MAIL.PASSWORD.getValue())) {
-                return EncryptUtils.aesDecrypt(p.getParamValue()).toString();
+                return EncryptUtils.aesDecrypt(p.getParamValue());
             }
             if (StringUtils.isEmpty(p.getParamValue())) {
                 return "";

@@ -472,7 +472,7 @@ public class SimpleUserService {
         systemParameters.forEach(systemParameter -> {
             if (systemParameter.getParamKey().equals(ParamConstants.MAIL.PASSWORD.getValue())) {
                 if (!StringUtils.isBlank(systemParameter.getParamValue())) {
-                    String string = EncryptUtils.aesDecrypt(systemParameter.getParamValue()).toString();
+                    String string = EncryptUtils.aesDecrypt(systemParameter.getParamValue());
                     emailMap.put(systemParameter.getParamKey(), string);
                 }
             } else {
