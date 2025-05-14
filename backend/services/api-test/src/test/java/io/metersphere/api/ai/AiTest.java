@@ -55,6 +55,7 @@ public class AiTest {
                 .tools(List.of(new DateTimeTool(), new JvmTool(), new IntegrateTool()))
                 .execute();
 
+
         LogUtils.info("Tools Response: {}", response);
     }
 
