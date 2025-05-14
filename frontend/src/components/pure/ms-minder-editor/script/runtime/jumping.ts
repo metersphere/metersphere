@@ -60,7 +60,7 @@ function JumpingRuntime(this: IJumpingRuntime): void {
   receiver.listen('input', (e: KeyboardEvent) => {
     receiver.enable();
     if (e.type === 'keydown') {
-      if (e.code === 'Enter') {
+      if (e.code === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         return setTimeout(() => {
           fsm.jump('normal', 'input-commit');
