@@ -18,7 +18,7 @@
     <description>MeterSphere</description>
 
     <properties>
-        <revision>3.x</revision>
+        <revision>3.6</revision>
         <java.version>21</java.version>
         <platform-plugin-sdk.version>1.5.0</platform-plugin-sdk.version>
         <shiro.version>2.0.2</shiro.version>
