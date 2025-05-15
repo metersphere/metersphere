@@ -104,6 +104,7 @@
       dataIndex: 'projectName',
       slotName: 'projectName',
       width: 150,
+      showTooltip: true,
     },
     {
       title: 'caseManagement.featureCase.planStatus',

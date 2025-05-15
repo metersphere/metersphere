@@ -271,7 +271,7 @@
       current: pageNation.value.current || 1,
       pageSize: pageNation.value.pageSize,
     });
-    messageHistoryList.value = res.list || [];
+    messageHistoryList.value = messageHistoryList.value.concat(res.list);
     pageNation.value.total = res.total;
   }
 
