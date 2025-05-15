@@ -266,7 +266,6 @@
         options: [],
         labelKey: 'text',
       },
-      showTooltip: true,
       width: 200,
     },
   ];
