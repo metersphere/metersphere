@@ -2310,10 +2310,11 @@ public class ApiScenarioService extends MoveNodeService {
                 if (StringUtils.isBlank(request.getCron()) && request.getConfig() == null) {
                     List<String> operationIds = this.batchUpdateSchedule(apiScenarios, request.isEnable(), operator);
 
-                    example.clear();
-                    example.createCriteria().andIdIn(operationIds).andDeletedEqualTo(false);
-                    apiScenarios = apiScenarioMapper.selectByExample(example);
-                    
+                    if (CollectionUtils.isNotEmpty(operationIds)) {
+                        example.clear();
+                        example.createCriteria().andIdIn(operationIds).andDeletedEqualTo(false);
+                        apiScenarios = apiScenarioMapper.selectByExample(example);
+                    }
                 } else {
                     if (StringUtils.isBlank(request.getCron())) {
                         throw new MSException("Cron can not be null");
