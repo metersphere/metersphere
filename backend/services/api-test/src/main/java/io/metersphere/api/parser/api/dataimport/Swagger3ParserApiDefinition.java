@@ -704,7 +704,10 @@ private JsonSchemaItem parseSchemaByType(Schema<?> schema, Set refModelSet) {
         jsonSchemaItem.setMinimum(integerSchema.getMinimum());
         List<Number> enumValues = integerSchema.getEnum();
         if (CollectionUtils.isNotEmpty(enumValues)) {
-            jsonSchemaItem.setEnumValues(enumValues.stream().map(item -> item.toString()).toList());
+            jsonSchemaItem.setEnumValues(enumValues.stream()
+                    .filter(java.util.Objects::nonNull)
+                    .map(Object::toString)
+                    .toList());
         }
         return jsonSchemaItem;
     }
