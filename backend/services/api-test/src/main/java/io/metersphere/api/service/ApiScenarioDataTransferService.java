@@ -587,7 +587,11 @@ public class ApiScenarioDataTransferService {
             // 获取待添加的步骤
             List<ApiScenarioCsvStep> csvSteps = new ArrayList<>();
             List<ApiScenarioStep> steps = apiScenarioService.getApiScenarioSteps(null, t.getSteps(), csvSteps);
-            steps.forEach(step -> step.setScenarioId(scenario.getId()));
+            steps.forEach(step -> {
+                step.setScenarioId(scenario.getId());
+                // 导入的项目ID需要重置
+                step.setProjectId(scenario.getProjectId());
+            });
             // 处理特殊的步骤详情
             apiScenarioService.addSpecialStepDetails(t.getSteps(), t.getStepDetails());
             List<ApiScenarioStepBlob> apiScenarioStepBlobs = apiScenarioService.getUpdateStepBlobs(steps, t.getStepDetails());
