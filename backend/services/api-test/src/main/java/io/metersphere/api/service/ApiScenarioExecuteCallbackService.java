@@ -5,6 +5,7 @@ import io.metersphere.api.dto.scenario.ApiScenarioDetail;
 import io.metersphere.api.invoker.ApiExecuteCallbackServiceInvoker;
 import io.metersphere.api.service.scenario.ApiScenarioBatchRunService;
 import io.metersphere.api.service.scenario.ApiScenarioRunService;
+import io.metersphere.api.utils.ApiScenarioIntegratedReportStepCache;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
@@ -30,6 +31,8 @@ public class ApiScenarioExecuteCallbackService implements ApiExecuteCallbackServ
     private ApiScenarioRunService apiScenarioRunService;
     @Resource
     private ApiScenarioBatchRunService apiScenarioBatchRunService;
+    @Resource
+    private ApiScenarioIntegratedReportStepCache apiScenarioIntegratedReportStepCache;
 
     public ApiScenarioExecuteCallbackService() {
         ApiExecuteCallbackServiceInvoker.register(ApiExecuteResourceType.API_SCENARIO, this);
@@ -53,8 +56,11 @@ public class ApiScenarioExecuteCallbackService implements ApiExecuteCallbackServ
         try {
             if (BooleanUtils.isTrue(request.getBatch())) {
                 if (request.getRunModeConfig().isIntegratedReport()) {
-                    // 集合报告，生成一级步骤的子步骤
-                    apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getId(), apiScenarioDetail.getSteps(), reportId);
+                    // 避免接口重试，步骤重复生成
+                    if (apiScenarioIntegratedReportStepCache.setIfAbsent(reportId, apiScenarioDetail.getId())) {
+                        // 集合报告，生成一级步骤的子步骤
+                        apiScenarioRunService.initScenarioReportSteps(apiScenarioDetail.getId(), apiScenarioDetail.getSteps(), reportId);
+                    }
                 } else {
                     // 批量执行，生成独立报告
                     reportId = apiScenarioBatchRunService.initScenarioReport(taskItem.getId(), reportId, request.getRunModeConfig(), apiScenarioDetail, request.getUserId());
