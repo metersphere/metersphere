@@ -399,6 +399,7 @@
           // 执行结束，关闭websocket
           websocket.value?.close();
           detailForm.value.executeLoading = false;
+          requestCompositionRef.value?.changeVerticalExpand(true);
         }
       },
     });
