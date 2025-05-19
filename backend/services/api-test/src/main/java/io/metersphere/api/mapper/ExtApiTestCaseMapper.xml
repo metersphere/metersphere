@@ -249,7 +249,7 @@
         api_test_case atc
         INNER JOIN api_definition a ON atc.api_definition_id = a.id
         WHERE atc.deleted =#{deleted}
-        <include refid="queryWhereConditionByBatch"/>
+        <include refid="associateQueryWhereConditionByBatch"/>
     </select>
     <select id="getTagsByIds" resultMap="BaseResultMap">
         SELECT
@@ -488,6 +488,41 @@
         </include>
         <include refid="combine">
             <property name="combineSearch" value="request.condition.combineSearch"/>
+        </include>
+        <include refid="queryVersionCondition">
+            <property name="versionTable" value="atc"/>
+        </include>
+    </sql>
+
+    <sql id="associateQueryWhereConditionByBatch">
+        <if test="request.protocols != null and request.protocols.size() > 0">
+            and a.protocol in
+            <foreach collection="request.protocols" item="protocol" separator="," open="(" close=")">
+                #{protocol}
+            </foreach>
+        </if>
+        <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
+            and atc.api_definition_id = #{request.apiDefinitionId}
+        </if>
+        <if test="request.projectId != null and request.projectId!=''">
+            and atc.project_id = #{request.projectId}
+        </if>
+        <if test="request.condition.keyword != null and request.condition.keyword !=''">
+            and (
+            atc.name like concat('%', #{request.condition.keyword},'%')
+            or atc.num like concat('%', #{request.condition.keyword},'%')
+            or a.path like concat('%', #{request.condition.keyword},'%')
+            or atc.tags like concat('%', #{request.condition.keyword},'%')
+            )
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and a.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
         </include>
         <include refid="queryVersionCondition">
             <property name="versionTable" value="atc"/>
