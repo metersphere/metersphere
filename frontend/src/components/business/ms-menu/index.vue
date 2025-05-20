@@ -2,7 +2,7 @@
   import { computed, defineComponent, h, ref } from 'vue';
   import { RouteRecordRaw, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
-  import { cloneDeep, debounce } from 'lodash-es';
+  import { debounce } from 'lodash-es';
 
   import MsAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -23,6 +23,18 @@
   import { SettingRouteEnum } from '@/enums/routeEnum';
 
   import useMenuTree from './use-menu-tree';
+
+  interface MenuItem {
+    label: string;
+    icon?: VNode | (() => VNode);
+    event?: () => void;
+    isTrigger?: boolean;
+    divider?: VNode;
+  }
+
+  type DividerItem = {
+    divider: VNode;
+  };
 
   export default defineComponent({
     emit: ['collapse'],
@@ -159,14 +171,9 @@
       }
 
       const isActiveSwitchOrg = ref(false);
-      const personalMenus = ref([
-        {
-          label: t('personal.center'),
-          icon: <MsIcon type="icon-icon-contacts" class="text-[var(--color-text-4)]" />,
-          event: () => {
-            personalDrawerVisible.value = true;
-          },
-        },
+
+      const personalMenus = ref<Partial<MenuItem>[]>([]);
+      const switchOrgMenus: MenuItem[] = [
         {
           label: t('personal.switchOrg'),
           icon: () => (
@@ -181,6 +188,19 @@
             isActiveSwitchOrg.value = true;
           },
         },
+      ];
+
+      const personalCenterMenus: MenuItem[] = [
+        {
+          label: t('personal.center'),
+          icon: <MsIcon type="icon-icon-contacts" class="text-[var(--color-text-4)]" />,
+          event: () => {
+            personalDrawerVisible.value = true;
+          },
+        },
+      ];
+
+      const logoutMenus: (DividerItem | Partial<MenuItem>)[] = [
         {
           divider: <a-divider class="ms-dropdown-divider" />,
         },
@@ -189,9 +209,7 @@
           icon: <MsIcon type="icon-icon_into-item_outlined" class="text-[var(--color-text-4)]" />,
           event: () => logout(undefined, true),
         },
-      ]);
-
-      const copyPersonalMenus = ref(cloneDeep(personalMenus));
+      ];
 
       const licenseStore = useLicenseStore();
       const xPack = computed(() => licenseStore.hasLicense());
@@ -214,13 +232,15 @@
       watch(
         () => [xPack.value, appStore.getPackageType],
         async ([val, packageType]) => {
-          if (val) {
-            personalMenus.value = [...copyPersonalMenus.value];
-            if (packageType === 'enterprise') {
-              getOrgList();
-            }
+          if (!val) {
+            personalMenus.value = [...personalCenterMenus, ...logoutMenus];
+            return;
+          }
+          if (packageType === 'enterprise') {
+            personalMenus.value = [...personalCenterMenus, ...switchOrgMenus, ...logoutMenus];
+            await getOrgList();
           } else {
-            personalMenus.value.splice(1, 1);
+            personalMenus.value = [...personalCenterMenus, ...logoutMenus];
           }
         },
         {
@@ -408,6 +428,7 @@
         const org = originOrgList.value.find((e) => e.id === appStore.currentOrgId);
         return org?.name || '';
       });
+
       // 渲染菜单项
       const renderMenuItem = (element: RouteRecordRaw | null, icon: (() => any) | null) =>
         element?.name === SettingRouteEnum.SETTING_ORGANIZATION ? (
@@ -420,7 +441,7 @@
               ) : (
                 t(element?.meta?.locale || '')
               )}
-              {xPack.value ? (
+              {xPack.value && currentOrgName.value ? (
                 <a-tooltip content={currentOrgName.value} position="right">
                   <div
                     class={collapsed.value ? 'hidden' : 'current-org-tag'} // 菜单折叠时隐藏切换组织按钮
